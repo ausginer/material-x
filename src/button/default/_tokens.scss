@@ -1,0 +1,97 @@
+/**
+ * Tokens for the button component, according to the Material Design
+ * specification: https://m3.material.io/components/buttons/specs
+ */
+@use '../../core/defaults/_colors.scss' as sys-color;
+@use '../../core/defaults/_refs.scss' as ref;
+@use '../../core/defaults/_sys.scss' as sys;
+
+/*
+ * Enabled state
+ */
+$container-color: sys-color.$primary;
+$container-color-toggle-unselected: sys-color.$surface-container;
+$container-color-toggle-selected: sys-color.$primary;
+$shadow-color: sys-color.$shadow;
+$elevation: 0;
+$label-color: sys-color.$on-primary;
+$label-color-toggle-unselected: sys-color.$on-surface-variant;
+$label-color-toggle-selected: sys-color.$on-primary;
+$icon-color: sys-color.$on-primary;
+$icon-color-toggle-unselected: sys-color.$on-surface-variant;
+$icon-color-toggle-selected: sys-color.$on-primary;
+$container-height: 40px;
+$label-size-font-name: ref.$typeface-plain;
+$label-size-font-weight: ref.$typeface-weight-medium;
+$label-size-font-size: 14px;
+$label-size-line-height: 20px;
+$label-size-font-tracking: 0.1px;
+$icon-size: 20px;
+$shape-round: sys.$shape-corner-full;
+$shape-square: sys.$shape-corner-medium;
+$leading-space: 24px;
+$between-icon-label-space: 8px;
+$trailing-space: 24px;
+$shape-pressed-morph: sys.$shape-corner-small;
+$shape-spring-animation-damping: sys.$motion-spring-fast-spatial-damping;
+$shape-spring-animation-stiffness: sys.$motion-spring-fast-spatial-stiffness;
+$selected-container-shape-round: sys.$shape-corner-medium;
+$selected-container-shape-square: sys.$shape-corner-full;
+$focus-ring-indicator-color: sys-color.$secondary;
+$focus-ring-indicator-thickness: sys.$state-focus-indicator-thickness;
+$focus-ring-outline-offset: sys.$state-focus-indicator-outer-offset;
+
+/*
+ * Disabled state
+ */
+$disabled-container-color: sys-color.$on-surface;
+$disabled-container-opacity: 0.1;
+$disabled-container-elevation: 0;
+$disabled-label-color: sys-color.$on-surface;
+$disabled-label-opacity: 0.38;
+$disabled-icon-color: sys-color.$on-surface;
+$disabled-icon-opacity: 0.38;
+
+/*
+ * Hovered state
+ */
+$hovered-container-state-layer-color: sys-color.$on-primary;
+$hovered-container-state-layer-color-toggle-unselected: sys-color.$on-surface-variant;
+$hovered-container-state-layer-color-toggle-selected: sys-color.$on-primary;
+$hovered-container-state-layer-opacity: sys.$state-hover-state-layer-opacity;
+$hovered-label-color: sys-color.$on-primary;
+$hovered-label-color-toggle-unselected: sys-color.$on-surface-variant;
+$hovered-label-color-toggle-selected: sys-color.$on-primary;
+$hovered-icon-color: sys-color.$on-primary;
+$hovered-icon-color-toggle-unselected: sys-color.$on-surface-variant;
+$hovered-icon-color-toggle-selected: sys-color.$on-primary;
+
+/*
+ * Focused state
+ */
+$focused-container-state-layer-color: sys-color.$on-primary;
+$focused-container-state-layer-color-toggle-unselected: sys-color.$on-surface-variant;
+$focused-container-state-layer-color-toggle-selected: sys-color.$on-primary;
+$focused-container-state-layer-elevation: 0;
+$focused-container-state-layer-opacity: sys.$state-focus-state-layer-opacity;
+$focused-label-color: sys-color.$on-primary;
+$focused-label-color-toggle-unselected: sys-color.$on-surface-variant;
+$focused-label-color-toggle-selected: sys-color.$on-primary;
+$focused-icon-color: sys-color.$on-primary;
+$focused-icon-color-toggle-unselected: sys-color.$on-surface-variant;
+$focused-icon-color-toggle-selected: sys-color.$on-primary;
+
+/*
+ * Pressed state
+ */
+$pressed-container-state-layer-color: sys-color.$on-primary;
+$pressed-container-state-layer-color-toggle-unselected: sys-color.$on-surface-variant;
+$pressed-container-state-layer-color-toggle-selected: sys-color.$on-primary;
+$pressed-container-state-layer-opacity: sys.$state-pressed-state-layer-opacity;
+$pressed-container-state-layer-elevation: 0;
+$pressed-label-color: sys-color.$on-primary;
+$pressed-label-color-toggle-unselected: sys-color.$on-surface-variant;
+$pressed-label-color-toggle-selected: sys-color.$on-primary;
+$pressed-icon-color: sys-color.$on-primary;
+$pressed-icon-color-toggle-unselected: sys-color.$on-surface-variant;
+$pressed-icon-color-toggle-selected: sys-color.$on-primary;

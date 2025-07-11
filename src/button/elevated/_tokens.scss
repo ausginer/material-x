@@ -1,0 +1,53 @@
+/**
+ * Tokens for the button component, according to the Material Design
+ * specification: https://m3.material.io/components/buttons/specs
+ */
+@use '../../core/defaults/colors' as sys-color;
+/*
+ * Enabled state
+ */
+$container-color: sys-color.$surface-container-low;
+$container-color-toggle-unselected: sys-color.$surface-container-low;
+$elevation: 1;
+$label-color: sys-color.$primary;
+$label-color-toggle-unselected: sys-color.$primary;
+$icon-color: sys-color.$primary;
+$icon-color-toggle-unselected: sys-color.$primary;
+
+/*
+ * Disabled state
+ */
+$disabled-container-elevation: 1;
+
+/*
+ * Hovered state
+ */
+$hovered-container-state-layer-color: sys-color.$primary;
+$hovered-container-state-layer-color-toggle-unselected: sys-color.$primary;
+$hovered-label-color: sys-color.$primary;
+$hovered-label-color-toggle-unselected: sys-color.$primary;
+$hovered-icon-color: sys-color.$primary;
+$hovered-icon-color-toggle-unselected: sys-color.$primary;
+
+/*
+ * Focused state
+ */
+$focused-container-state-layer-color: sys-color.$primary;
+$focused-container-state-layer-color-toggle-unselected: sys-color.$primary;
+$focused-container-state-layer-elevation: 1;
+$focused-label-color: sys-color.$primary;
+$focused-label-color-toggle-unselected: sys-color.$primary;
+$focused-icon-color: sys-color.$primary;
+$focused-icon-color-toggle-unselected: sys-color.$primary;
+
+/*
+ * Pressed state
+ */
+$pressed-container-state-layer-color: sys-color.$primary;
+$pressed-container-state-layer-color-toggle-unselected: sys-color.$primary;
+$pressed-container-state-layer-elevation: 1;
+$pressed-label-color: sys-color.$primary;
+$pressed-label-color-toggle-unselected: sys-color.$primary;
+$pressed-icon-color: sys-color.$primary;
+$pressed-icon-color-toggle-unselected: sys-color.$primary;
+

@@ -1,0 +1,17 @@
+/* Shapes */
+$shape-corner-full: var(--md-sys-shape-corner-full, 9999px);
+$shape-corner-medium: var(--md-sys-shape-corner-medium, 12px);
+$shape-corner-small: var(--md-sys-shape-corner-small, 8px);
+
+/* Motion */
+$motion-spring-fast-spatial-damping: var(--md-sys-motion-spring-fast-spatial-damping, 0.6);
+$motion-spring-fast-spatial-stiffness: var(--md-sys-motion-spring-fast-spatial-stiffness, 800);
+
+/* Focus Indicator */
+$state-focus-indicator-thickness: var(--md-sys-state-focus-indicator-thickness, 3px);
+$state-focus-indicator-outer-offset: var(--md-sys-state-focus-indicator-outer-offset, 2px);
+
+/* States */
+$state-hover-state-layer-opacity: var(--md-sys-state-hover-state-layer-opacity, 0.08);
+$state-focus-state-layer-opacity: var(--md-sys-state-focus-state-layer-opacity, 0.1);
+$state-pressed-state-layer-opacity: var(--md-sys-state-pressed-state-layer-opacity, 0.1);

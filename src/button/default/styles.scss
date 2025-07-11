@@ -1,0 +1,45 @@
+@use "./_tokens.scss" as tokens;
+
+$container-color: var(--md-button-container-color, tokens.$container-color);
+$label-color: var(--md-button-label-text-color, tokens.$label-color);
+
+:host {
+  display: inline-flex;
+  cursor: default;
+  user-select: none;
+  background-color: $container-color;
+  color: $label-color;
+  line-height: tokens.$label-size-line-height;
+  padding: calc((#{tokens.$container-height} - #{tokens.$label-size-line-height}) / 2) 24px;
+  border-radius: var(--md-button-container-shape, tokens.$shape-round);
+  font-family: var(--md-button-label-text-font, tokens.$label-size-font-name);
+  font-weight: tokens.$label-size-font-weight;
+  font-size: tokens.$label-size-font-size;
+  letter-spacing: tokens.$label-size-font-tracking;
+  place-items: center;
+  place-content: center;
+  gap: calc((#{tokens.$container-height} - #{tokens.$label-size-line-height}) / 2);
+}
+
+:host(:hover), :host(:focus), :host(:active) {
+  background-color: color-mix(in srgb, $container-color, white var(--_state-layer-opacity));
+  color: color-mix(in srgb, $label-color, white calc(#{tokens.$hovered-container-state-layer-opacity} * 100%));
+}
+
+:host(:hover) {
+  --_state-layer-opacity: calc(#{tokens.$hovered-container-state-layer-opacity} * 100%);
+}
+
+:host(:focus) {
+  --_state-layer-opacity: calc(#{tokens.$focused-container-state-layer-opacity} * 100%);
+  outline: tokens.$focus-ring-indicator-thickness solid tokens.$focus-ring-indicator-color;
+  outline-offset: tokens.$focus-ring-outline-offset;
+}
+
+:host(:active) {
+  --_state-layer-opacity: calc(#{tokens.$pressed-container-state-layer-opacity} * 100%);
+}
+
+slot[name="icon"] {
+  flex: 0 1 var(--md-icon-size, tokens.$icon-size);
+}

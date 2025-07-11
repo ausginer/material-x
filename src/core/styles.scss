@@ -1,0 +1,8 @@
+@use "./defaults/refs.scss" as md-ref;
+@use "./defaults/sys.scss" as md-sys;
+
+:root {
+  font-family: md-ref.$typeface-plain;
+  font-size: 16px;
+  font-weight: md-ref.$typeface-weight-medium;
+}

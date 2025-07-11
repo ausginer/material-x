@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "removeComments": true,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable"],
+    "types": ["@vitest/browser/providers/playwright"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    "isolatedModules": true,
+    "isolatedDeclarations": true,
+    "verbatimModuleSyntax": true,
+    "noImplicitOverride": true,
+    "noImplicitAny": true,
+    "useDefineForClassFields": true,
+    "useUnknownInCatchVariables": true,
+    "plugins": [
+      {
+        "name": "ts-lit-plugin",
+        "strict": true
+      }
+    ]
+  },
+  "include": [".scripts/**/*.ts", "src", "eslint.config.js", "vite.config.ts"]
+}

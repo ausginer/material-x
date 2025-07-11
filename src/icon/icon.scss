@@ -1,0 +1,30 @@
+$default-icon-size: 20px;
+$default-icon-font: "Material Symbols Outlined";
+
+:host {
+  font-size: var(--md-icon-size, $default-icon-size);
+  width: var(--md-icon-size, $default-icon-size);
+  height: var(--md-icon-size, $default-icon-size);
+  color: inherit;
+  font-variation-settings: inherit;
+  font-weight: 400;
+  font-family: var(--md-icon-font, $default-icon-font);
+  display: inline-flex;
+  font-style: normal;
+  place-items: center;
+  place-content: center;
+  line-height: 1;
+  overflow: hidden;
+  letter-spacing: normal;
+  text-transform: none;
+  user-select: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  flex-shrink: 0;
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+}

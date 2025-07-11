@@ -1,0 +1,14 @@
+@use "../core/defaults/colors" as sys-color;
+@use "./default/styles.scss" as default-styles;
+@use "./elevated/styles.scss" as elevated-styles;
+
+:host([variant="outlined"]) {
+  background: none;
+  border: 1px solid sys-color.$outline-variant;
+  color: sys-color.$on-surface-variant;
+}
+
+:host([variant="text"]) {
+  background: none;
+  color: sys-color.$primary;
+}
