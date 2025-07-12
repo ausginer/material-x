@@ -3,10 +3,10 @@ import { basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import cssnanoPlugin from 'cssnano';
 import MagicString from 'magic-string';
-import { compileStringAsync } from 'sass';
 import postcss from 'postcss';
 import pxToRem from 'postcss-pxtorem';
 import type { SourceMap } from 'rollup';
+import { compileString } from 'sass';
 import * as sorcery from 'sorcery';
 
 const cssTransformer = postcss([
@@ -68,7 +68,7 @@ export async function compileCSS(
     css: firstProcessedCode,
     sourceMap: firstProcessedMap,
     loadedUrls,
-  } = await compileStringAsync(code, {
+  } = compileString(code, {
     url,
   });
 
