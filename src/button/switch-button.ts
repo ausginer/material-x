@@ -1,5 +1,10 @@
 import elevationCss from '../core/elevation/elevation.scss';
-import { attachShadow, createTemplate, define } from '../utils.js';
+import {
+  attachShadow,
+  createTemplate,
+  define,
+  setDefaultAttributes,
+} from '../utils.js';
 import buttonCss from './button.scss' with { type: 'css' };
 import switchButtonCss from './switch-button.scss' with { type: 'css' };
 import { AriaMapping } from './utils.js';
@@ -17,12 +22,13 @@ export default class SwitchButton extends HTMLElement {
     'disabled',
   ];
 
-  readonly #internals: ElementInternals;
+  readonly #internals = this.attachInternals();
 
   constructor() {
     super();
     attachShadow(this, template, [buttonCss, elevationCss, switchButtonCss]);
-    this.#internals = Object.assign(this.attachInternals(), { role: 'switch' });
+    this.tabIndex = 0;
+    Object.assign(this.#internals, { role: 'switch' });
   }
 
   attributeChangedCallback(
@@ -31,10 +37,8 @@ export default class SwitchButton extends HTMLElement {
     newValue: string | null,
   ): void {
     if (name in AriaMapping) {
-      this.#internals[
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        AriaMapping[name as keyof AriaMapping]
-      ] = newValue;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+      AriaMapping[name as keyof AriaMapping](this.#internals, newValue);
     }
   }
 }

@@ -10,14 +10,7 @@
     --_label-color: var(#{properties.$label-color}, #{tokens.$label-color});
     // The state layer color is the same for :hover, :focus, and :active states.
     --_state-layer-color: #{tokens.$hovered-container-state-layer-color};
-
-    display: inline-flex;
-    cursor: default;
-    user-select: none;
-    background-color: var(--_container-color);
-    color: var(--_label-color);
-    line-height: tokens.$label-size-line-height;
-    padding: calc(
+    --_padding: calc(
         (
             #{tokens.$container-height} - max(
                 #{tokens.$label-size-line-height},
@@ -27,6 +20,14 @@
           2
       )
       24px;
+
+    display: inline-flex;
+    cursor: default;
+    user-select: none;
+    background-color: var(--_container-color);
+    color: var(--_label-color);
+    line-height: tokens.$label-size-line-height;
+    padding: var(--_padding);
     border-radius: var(#{properties.$container-shape}, #{tokens.$shape-round});
     font-family: var(
       #{properties.$label-font},
@@ -92,6 +93,7 @@
     );
     cursor: default;
     pointer-events: none;
+    outline: none;
   }
 }
 

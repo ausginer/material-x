@@ -63,28 +63,28 @@ type ButtonStories = StoryObj<LinkButtonProps>;
 
 export const Filled: ButtonStories = {
   args: {
-    label: 'Filled Button',
+    label: 'Filled Link Button',
   },
 };
 
 export const Outlined: ButtonStories = {
   args: {
     variant: 'outlined',
-    label: 'Outlined Button',
+    label: 'Outlined Link Button',
   },
 };
 
 export const FilledTonal: ButtonStories = {
   args: {
     variant: 'filled-tonal',
-    label: 'Filled Tonal Button',
+    label: 'Filled Tonal Link Button',
   },
 };
 
 export const Elevated: ButtonStories = {
   args: {
     variant: 'elevated',
-    label: 'Elevated Button',
+    label: 'Elevated Link Button',
   },
 };
 

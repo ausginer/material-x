@@ -1,10 +1,5 @@
 import elevationCss from '../core/elevation/elevation.scss' with { type: 'css' };
-import {
-  attachShadow,
-  createTemplate,
-  define,
-  setDefaultAttributes,
-} from '../utils.js';
+import { attachShadow, createTemplate, define } from '../utils.js';
 import buttonCss from './button.scss' with { type: 'css' };
 import { AriaMapping } from './utils.js';
 
@@ -17,28 +12,22 @@ export type ButtonVariant = 'outlined' | 'filled-tonal' | 'elevated' | 'text';
  * @attr {boolean|undefined} disabled
  */
 export default class Button extends HTMLElement {
-  readonly #internals: ElementInternals;
+  static readonly observedAttributes = ['disabled'] as const;
+  readonly #internals = this.attachInternals();
 
   constructor() {
     super();
     attachShadow(this, template, [buttonCss, elevationCss]);
-    setDefaultAttributes(this, { tabindex: '0' });
-    this.#internals = Object.assign(this.attachInternals(), {
-      role: 'button',
-    });
+    this.tabIndex = 0;
+    Object.assign(this.#internals, { role: 'button' });
   }
 
   attributeChangedCallback(
-    name: string,
+    name: (typeof Button.observedAttributes)[number],
     _: string | null,
     newValue: string | null,
   ): void {
-    if (name in AriaMapping) {
-      this.#internals[
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        AriaMapping[name as keyof AriaMapping]
-      ] = newValue;
-    }
+    AriaMapping[name](this.#internals, newValue);
   }
 }
 

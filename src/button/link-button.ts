@@ -1,15 +1,11 @@
 import elevationCss from '../core/elevation/elevation.scss';
-import {
-  ariaAttributes,
-  attachShadow,
-  createTemplate,
-  define,
-} from '../utils.js';
+import { attachShadow, createTemplate, define } from '../utils.js';
 import css from './button.scss' with { type: 'css' };
 import linkButtonCss from './link-button.scss' with { type: 'css' };
+import { AriaMapping } from './utils.js';
 
 const template = createTemplate(
-  `<a><slot name="icon"></slot><slot></slot></a>`,
+  `<a tabindex="-1"><slot name="icon"></slot><slot></slot></a>`,
 );
 
 /**
@@ -18,12 +14,9 @@ const template = createTemplate(
  * @attr {string} href
  */
 export default class LinkButton extends HTMLElement {
-  static readonly observedAttributes: readonly string[] = [
-    ...ariaAttributes,
-    'href',
-    'target',
-  ];
+  static readonly observedAttributes = ['disabled', 'href', 'target'] as const;
 
+  readonly #internals = this.attachInternals();
   readonly #anchor: HTMLAnchorElement;
 
   constructor() {
@@ -33,18 +26,24 @@ export default class LinkButton extends HTMLElement {
       elevationCss,
       linkButtonCss,
     ]);
+    this.tabIndex = 0;
+    Object.assign(this.#internals, { role: 'link' });
     this.#anchor = root.querySelector('a')!;
   }
 
   attributeChangedCallback(
-    name: string,
+    name: (typeof LinkButton.observedAttributes)[number],
     _: string | null,
     newValue: string | null,
   ): void {
-    if (newValue != null) {
-      this.#anchor.setAttribute(name, newValue);
+    if (name === 'disabled') {
+      AriaMapping[name](this.#internals, newValue);
     } else {
-      this.#anchor.removeAttribute(name);
+      if (newValue != null) {
+        this.#anchor.setAttribute(name, newValue);
+      } else {
+        this.#anchor.removeAttribute(name);
+      }
     }
   }
 }

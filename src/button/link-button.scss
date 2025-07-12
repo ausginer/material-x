@@ -1,3 +1,11 @@
+:host {
+  padding: 0;
+}
+
 a {
-  all: unset;
+  color: inherit;
+  cursor: inherit;
+  text-decoration: inherit;
+  padding: var(--_padding);
+  user-select: none;
 }

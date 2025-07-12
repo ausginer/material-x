@@ -3,7 +3,7 @@ import type { Constructor } from 'type-fest';
 export const ariaAttributes = Object.keys(ElementInternals.prototype)
   .filter((key) => key.startsWith('aria'))
   .map((key) =>
-    key.replaceAll(/([a-z])([A-Z])/gu, '$1-$2'),
+    key.replace('aria', 'aria-').toLowerCase(),
   ) as readonly string[];
 
 export function createTemplate(str: string): HTMLTemplateElement {
