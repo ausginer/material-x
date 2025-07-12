@@ -1,0 +1,122 @@
+@use '../properties' as properties;
+@use 'tokens';
+
+@mixin main {
+  :host {
+    --_container-color: var(
+      #{properties.$container-color},
+      #{tokens.$container-color}
+    );
+    --_label-color: var(#{properties.$label-color}, #{tokens.$label-color});
+    // The state layer color is the same for :hover, :focus, and :active states.
+    --_state-layer-color: #{tokens.$hovered-container-state-layer-color};
+
+    display: inline-flex;
+    cursor: default;
+    user-select: none;
+    background-color: var(--_container-color);
+    color: var(--_label-color);
+    line-height: tokens.$label-size-line-height;
+    padding: calc(
+        (
+            #{tokens.$container-height} - max(
+                #{tokens.$label-size-line-height},
+                var(#{properties.$icon-size}, #{tokens.$icon-size})
+              )
+          ) /
+          2
+      )
+      24px;
+    border-radius: var(#{properties.$container-shape}, #{tokens.$shape-round});
+    font-family: var(
+      #{properties.$label-font},
+      #{tokens.$label-size-font-name}
+    );
+    font-weight: tokens.$label-size-font-weight;
+    font-size: tokens.$label-size-font-size;
+    letter-spacing: tokens.$label-size-font-tracking;
+    place-items: center;
+    place-content: center;
+    gap: calc(
+      (#{tokens.$container-height} - #{tokens.$label-size-line-height}) / 2
+    );
+  }
+
+  :host(:hover),
+  :host(:focus-visible),
+  :host(:active) {
+    $opacity: calc(var(--_state-layer-opacity) * 100%);
+    background-color: color-mix(
+      in srgb,
+      var(--_container-color),
+      var(--_state-layer-color) #{$opacity}
+    );
+    color: color-mix(
+      in srgb,
+      var(--_label-color),
+      var(--_state-layer-color) #{$opacity}
+    );
+  }
+
+  :host(:hover) {
+    --_state-layer-opacity: #{tokens.$hovered-container-state-layer-opacity};
+  }
+
+  :host(:focus-visible) {
+    --_state-layer-opacity: #{tokens.$focused-container-state-layer-opacity};
+    outline: tokens.$focus-ring-indicator-thickness solid
+      tokens.$focus-ring-indicator-color;
+    outline-offset: tokens.$focus-ring-outline-offset;
+  }
+
+  :host(:active) {
+    --_state-layer-opacity: #{tokens.$pressed-container-state-layer-opacity};
+  }
+
+  slot[name='icon'] {
+    flex: 0 1 var(#{properties.$icon-size}, tokens.$icon-size);
+  }
+}
+
+@mixin disabled {
+  :host([disabled]) {
+    background-color: color-mix(
+      in srgb,
+      tokens.$disabled-container-color,
+      transparent calc(100% - #{tokens.$disabled-container-opacity} * 100%)
+    );
+    color: color-mix(
+      in srgb,
+      tokens.$disabled-label-color,
+      transparent calc(100% - #{tokens.$disabled-label-opacity} * 100%)
+    );
+    cursor: default;
+    pointer-events: none;
+  }
+}
+
+@mixin switch {
+  :host {
+    --_container-color: var(
+      #{properties.$container-color-unselected},
+      #{tokens.$container-color-toggle-unselected}
+    );
+    --_label-color: var(
+      #{properties.$label-color-unselected},
+      #{tokens.$label-color-toggle-unselected}
+    );
+    --_state-layer-color: #{tokens.$hovered-container-state-layer-color-toggle-unselected};
+  }
+
+  :host([checked]) {
+    --_container-color: var(
+      #{properties.$container-color-unselected},
+      #{tokens.$container-color-toggle-selected}
+    );
+    --_label-color: var(
+      #{properties.$label-color-selected},
+      #{tokens.$label-color-toggle-selected}
+    );
+    --_state-layer-color: #{tokens.$hovered-container-state-layer-color-toggle-selected};
+  }
+}

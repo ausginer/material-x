@@ -3,31 +3,39 @@ import { html } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
 import type { ButtonVariant } from './button.js';
-import './button.js';
+import './switch-button.js';
 
-type ButtonProps = Readonly<{
+type SwitchButtonProps = Readonly<{
   variant?: ButtonVariant;
   onClick?(): void;
   label?: string;
   disabled?: boolean;
+  href?: string;
+  checked?: boolean;
 }>;
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
-const meta: Meta<ButtonProps> = {
-  title: 'Button/Button',
+const meta: Meta<SwitchButtonProps> = {
+  title: 'Button/Switch',
   tags: ['autodocs'],
-  render: ({ variant, onClick, label, disabled = false }) =>
-    html`<mx-button
+  render: ({ variant, onClick, label, disabled, checked }) =>
+    html`<mx-switch-button
       ?disabled=${disabled}
+      ?checked=${checked}
       variant=${ifDefined(variant)}
       @click=${onClick}
-      >${label}</mx-button
+      >${label}</mx-switch-button
     >`,
   argTypes: {
     variant: {
       control: {
         type: 'select',
         options: ['outlined', 'filled-tonal', 'elevated', 'text'],
+      },
+    },
+    checked: {
+      control: {
+        type: 'boolean',
       },
     },
     label: {
@@ -41,43 +49,43 @@ const meta: Meta<ButtonProps> = {
       },
     },
   },
-  args: { onClick: fn(), disabled: false },
+  args: { onClick: fn(), disabled: false, checked: false },
 };
 
 export default meta;
 
-type ButtonStories = StoryObj<ButtonProps>;
+type ButtonStories = StoryObj<SwitchButtonProps>;
 
 export const Filled: ButtonStories = {
   args: {
-    label: 'Filled Button',
+    label: 'Filled Switch Button',
   },
 };
 
 export const Outlined: ButtonStories = {
   args: {
     variant: 'outlined',
-    label: 'Outlined Button',
+    label: 'Outlined Switch Button',
   },
 };
 
 export const FilledTonal: ButtonStories = {
   args: {
     variant: 'filled-tonal',
-    label: 'Filled Tonal Button',
+    label: 'Filled Tonal Switch Button',
   },
 };
 
 export const Elevated: ButtonStories = {
   args: {
     variant: 'elevated',
-    label: 'Elevated Button',
+    label: 'Elevated Switch Button',
   },
 };
 
 export const Text: ButtonStories = {
   args: {
     variant: 'text',
-    label: 'Text Button',
+    label: 'Text Switch Button',
   },
 };

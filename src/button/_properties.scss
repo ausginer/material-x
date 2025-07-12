@@ -1,0 +1,17 @@
+/**
+ * Input properties for the button component.
+ */
+$container-color: --md-button-container-color;
+$label-color: --md-button-label-text-color;
+$container-shape: --md-button-container-shape;
+$label-font: --md-button-label-text-font;
+$icon-size: --md-icon-size;
+$outline-color: --md-button-outline-color;
+
+/**
+  * Input properties for the switch button component.
+ */
+$container-color-unselected: --md-button-container-color-unselected;
+$container-color-selected: --md-button-container-color-selected;
+$label-color-unselected: --md-button-label-text-color-unselected;
+$label-color-selected: --md-button-label-text-color-selected;

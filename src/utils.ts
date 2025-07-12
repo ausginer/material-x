@@ -1,5 +1,11 @@
 import type { Constructor } from 'type-fest';
 
+export const ariaAttributes = Object.keys(ElementInternals.prototype)
+  .filter((key) => key.startsWith('aria'))
+  .map((key) =>
+    key.replaceAll(/([a-z])([A-Z])/gu, '$1-$2'),
+  ) as readonly string[];
+
 export function createTemplate(str: string): HTMLTemplateElement {
   const template = document.createElement('template');
   template.innerHTML = str;
@@ -15,13 +21,6 @@ export function attachShadow(
   root.append(template.content.cloneNode(true));
   root.adoptedStyleSheets.push(...styles);
   return root;
-}
-
-export function attachInternals(
-  element: HTMLElement,
-  overrides: Partial<ElementInternals> = {},
-): ElementInternals {
-  return Object.assign(element.attachInternals(), overrides);
 }
 
 export function setDefaultAttributes(

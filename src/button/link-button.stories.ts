@@ -3,31 +3,44 @@ import { html } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
 import type { ButtonVariant } from './button.js';
-import './button.js';
+import './link-button.js';
 
-type ButtonProps = Readonly<{
+type LinkButtonProps = Readonly<{
   variant?: ButtonVariant;
   onClick?(): void;
   label?: string;
   disabled?: boolean;
+  href?: string;
 }>;
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
-const meta: Meta<ButtonProps> = {
-  title: 'Button/Button',
+const meta: Meta<LinkButtonProps> = {
+  title: 'Button/Link',
   tags: ['autodocs'],
-  render: ({ variant, onClick, label, disabled = false }) =>
-    html`<mx-button
+  render: ({
+    variant,
+    href = 'https://example.com',
+    onClick,
+    label,
+    disabled = false,
+  }) =>
+    html`<mx-link-button
       ?disabled=${disabled}
       variant=${ifDefined(variant)}
+      href=${ifDefined(href)}
       @click=${onClick}
-      >${label}</mx-button
+      >${label}</mx-link-button
     >`,
   argTypes: {
     variant: {
       control: {
         type: 'select',
         options: ['outlined', 'filled-tonal', 'elevated', 'text'],
+      },
+    },
+    href: {
+      control: {
+        type: 'text',
       },
     },
     label: {
@@ -46,7 +59,7 @@ const meta: Meta<ButtonProps> = {
 
 export default meta;
 
-type ButtonStories = StoryObj<ButtonProps>;
+type ButtonStories = StoryObj<LinkButtonProps>;
 
 export const Filled: ButtonStories = {
   args: {

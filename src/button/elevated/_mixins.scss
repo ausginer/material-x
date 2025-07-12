@@ -1,0 +1,22 @@
+@use "../properties" as properties;
+@use 'tokens';
+
+@mixin main {
+  :host([variant="elevated"]) {
+    --_level: #{tokens.$elevation};
+    --_container-color: #{tokens.$container-color};
+    --_label-color: #{tokens.$label-color};
+
+    &::before, &::after {
+      content: '';
+    }
+  }
+}
+
+@mixin switch {
+  :host {
+    --_container-color: var(#{properties.$container-color-unselected}, #{tokens.$container-color-toggle-unselected});
+    --_label-color: var(#{properties.$label-color-unselected}, #{tokens.$label-color-toggle-unselected});
+    --_state-layer-color: #{tokens.$hovered-container-state-layer-color-toggle-unselected};
+  }
+}

@@ -1,0 +1,22 @@
+@use "../properties";
+@use "tokens";
+
+@mixin main {
+  :host([variant="outlined"]) {
+    --_container-color: transparent;
+    --_label-color: var(#{properties.$label-color}, #{tokens.$label-color});
+    --_state-layer-color: #{tokens.$hovered-state-layer-color};
+
+    border: 1px solid var(#{properties.$outline-color}, #{tokens.$outline-color});
+  }
+}
+
+@mixin switch {
+  :host([variant="outlined"][checked]) {
+    --_container-color: var(#{properties.$container-color-selected}, #{tokens.$container-color-toggle-selected});
+    --_label-color: var(#{properties.$label-color-selected}, #{tokens.$label-color-toggle-selected});
+    --_state-layer-color: #{tokens.$hovered-state-layer-color-toggle-selected};
+
+    border: none;
+  }
+}

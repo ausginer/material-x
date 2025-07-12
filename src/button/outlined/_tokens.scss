@@ -1,0 +1,62 @@
+/**
+ * Tokens for the button component, according to the Material Design
+ * specification: https://m3.material.io/components/buttons/specs
+ */
+
+@use '../../core/defaults/colors' as sys-color;
+@use '../../core/defaults/sys' as sys;
+
+/*
+ * Enabled state
+ */
+$container-color-toggle-selected: sys-color.$inverse-surface;
+$label-color: sys-color.$on-surface-variant;
+$label-color-toggle-selected: sys-color.$inverse-on-surface;
+$icon-color: sys-color.$on-surface-variant;
+$icon-color-toggle-selected: sys-color.$inverse-on-surface;
+$outline-color: sys-color.$outline-variant;
+
+/*
+ * Disabled state
+ */
+$disabled-outline-color: sys-color.$outline-variant;
+$disabled-outline-color-unselected: sys-color.$outline-variant;
+$disabled-container-color-selected: sys-color.$on-surface;
+
+/*
+ * Hovered state
+ */
+$hovered-state-layer-color: sys-color.$on-surface-variant;
+$hovered-state-layer-color-toggle-unselected: sys-color.$on-surface-variant;
+$hovered-state-layer-color-toggle-selected: sys-color.$inverse-on-surface;
+$hovered-state-layer-opacity: sys.$state-hover-state-layer-opacity;
+$hovered-outline-color: sys-color.$outline-variant;
+$hovered-outline-color-toggle-unselected: sys-color.$outline-variant;
+$hovered-label-color: sys-color.$on-surface-variant;
+$hovered-label-color-toggle-selected: sys-color.$inverse-on-surface;
+$hovered-icon-color: sys-color.$on-surface-variant;
+$hovered-icon-color-toggle-selected: sys-color.$inverse-on-surface;
+
+/*
+ * Focused state
+ */
+$focused-container-state-layer-color: sys-color.$on-surface-variant;
+$focused-container-state-layer-color-toggle-selected: sys-color.$inverse-on-surface;
+$focused-outline-color: sys-color.$outline-variant;
+$focused-outline-color-toggle-unselected: sys-color.$outline-variant;
+$focused-label-color: sys-color.$on-surface-variant;
+$focused-label-color-toggle-selected: sys-color.$inverse-on-surface;
+$focused-icon-color: sys-color.$on-surface-variant;
+$focused-icon-color-toggle-selected: sys-color.$inverse-on-surface;
+
+/*
+ * Pressed state
+ */
+$pressed-container-state-layer-color: sys-color.$on-surface-variant;
+$pressed-container-state-layer-color-toggle-selected: sys-color.$inverse-on-surface;
+$pressed-outline-color: sys-color.$outline-variant;
+$pressed-outline-color-toggle-unselected: sys-color.$outline-variant;
+$pressed-label-color: sys-color.$on-surface-variant;
+$pressed-label-color-toggle-selected: sys-color.$inverse-on-surface;
+$pressed-icon-color: sys-color.$on-surface-variant;
+$pressed-icon-color-toggle-selected: sys-color.$inverse-on-surface;
