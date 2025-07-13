@@ -28,5 +28,5 @@
       }
     ]
   },
-  "include": [".scripts/**/*.ts", "src", "eslint.config.js", "vite.config.ts"]
+  "include": ["./.scripts/**/*.ts", "src", "eslint.config.js", "vite.config.ts"]
 }

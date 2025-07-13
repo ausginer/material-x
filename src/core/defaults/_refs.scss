@@ -1,2 +1,2 @@
-$typeface-plain: var(--md-ref-typeface-plain, 'Roboto', sans-serif);
-$typeface-weight-medium: var(--md-ref-typeface-weight-medium, 500);
+@forward '../tokens/md-ref-typeface' as typeface-*;
+@forward '../tokens/md-ref-palette' as palette-*;

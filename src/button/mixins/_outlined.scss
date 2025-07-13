@@ -1,0 +1,20 @@
+@use "../properties" as props;
+@use "../../core/tokens/md-comp-button-outlined" as tokens;
+
+@mixin main {
+  :host([variant="outlined"]) {
+    --_container-color: transparent;
+    --_label-color: #{props.label-color(tokens.$label-text-color)};
+    border: 1px solid #{props.outline-color(tokens.$outline-color)};
+  }
+}
+
+@mixin switch {
+  :host([variant="outlined"][checked]) {
+    --_container-color: #{props.container-color-selected(tokens.$selected-container-color)};
+    --_label-color: #{props.label-color-selected(tokens.$selected-container-color)};
+    --_state-layer-color: #{tokens.$selected-hovered-state-layer-color};
+
+    border: none;
+  }
+}

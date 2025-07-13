@@ -1,15 +1,13 @@
 import elevationCss from '../core/elevation/elevation.scss';
-import {
-  attachShadow,
-  createTemplate,
-  define,
-  setDefaultAttributes,
-} from '../utils.js';
+import { attachShadow, createTemplate, define } from '../utils.js';
+import type { ButtonVariant } from './button.js';
 import buttonCss from './button.scss' with { type: 'css' };
 import switchButtonCss from './switch-button.scss' with { type: 'css' };
 import { AriaMapping } from './utils.js';
 
 const template = createTemplate(`<slot name="icon"></slot><slot></slot>`);
+
+export type SwitchButtonVariant = Exclude<ButtonVariant, 'text'>;
 
 /**
  * @attr {string} variant

@@ -1,0 +1,22 @@
+@use "../properties" as props;
+@use '../../core/tokens/md-comp-button-elevated' as tokens;
+
+@mixin main {
+  :host([variant="elevated"]) {
+    --_level: #{tokens.$container-elevation};
+    --_container-color: #{tokens.$container-color};
+    --_label-color: #{tokens.$label-text-color};
+
+    &::before, &::after {
+      content: '';
+    }
+  }
+}
+
+@mixin switch {
+  :host {
+    --_container-color: #{props.container-color-unselected(tokens.$unselected-container-color)};
+    --_label-color: #{props.label-color-unselected(tokens.$unselected-label-text-color)};
+    --_state-layer-color: #{tokens.$hovered-state-layer-color};
+  }
+}

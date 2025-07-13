@@ -1,17 +1,46 @@
+@use '../core/utils';
 /**
  * Input properties for the button component.
  */
-$container-color: --md-button-container-color;
-$label-color: --md-button-label-text-color;
-$container-shape: --md-button-container-shape;
-$label-font: --md-button-label-text-font;
-$icon-size: --md-icon-size;
-$outline-color: --md-button-outline-color;
+@function container-color($default) {
+  @return utils.prop(--md-button-container-color, $default);
+}
+
+@function label-color($default) {
+  @return utils.prop(--md-button-label-text-color, $default);
+}
+
+@function container-height($default) {
+  @return utils.prop(--md-button-container-height, $default);
+}
+
+@function label-font($default) {
+  @return utils.prop(--md-button-label-text-font, $default);
+}
+
+@function icon-size($default) {
+  @return utils.prop(--md-icon-size, $default);
+}
+
+@function outline-color($default) {
+  @return utils.prop(--md-button-outline-color, $default);
+}
 
 /**
   * Input properties for the switch button component.
  */
-$container-color-unselected: --md-button-container-color-unselected;
-$container-color-selected: --md-button-container-color-selected;
-$label-color-unselected: --md-button-label-text-color-unselected;
-$label-color-selected: --md-button-label-text-color-selected;
+@function container-color-unselected($default) {
+  @return utils.prop(--md-button-container-color-unselected, $default);
+}
+
+@function container-color-selected($default) {
+  @return utils.prop(--md-button-container-color-selected, $default);
+}
+
+@function label-color-unselected($default) {
+  @return utils.prop(--md-button-label-text-color-unselected, $default);
+}
+
+@function label-color-selected($default) {
+  @return utils.prop(--md-button-label-text-color-selected, $default);
+}

@@ -17,11 +17,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "load-tokens": "node --import @oxc-node/core/register .scripts/token-loader/index.ts"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "4.0.1",
     "@csstools/postcss-sass": "5.1.1",
+    "@oxc-node/core": "0.0.29",
     "@storybook/addon-a11y": "9.0.16",
     "@storybook/addon-docs": "9.0.16",
     "@storybook/addon-vitest": "9.0.16",
@@ -46,6 +48,7 @@
     "postcss-pxtorem": "6.1.0",
     "postcss-simple-vars": "7.0.1",
     "prettier": "3.5.3",
+    "puppeteer-core": "24.12.1",
     "rollup": "4.43.0",
     "sass": "1.89.2",
     "sorcery": "1.0.0",

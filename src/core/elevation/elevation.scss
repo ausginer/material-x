@@ -3,10 +3,11 @@
  *
  * Original: https://github.com/material-components/material-web/blob/main/elevation/internal/_elevation.scss
  */
-@use 'tokens';
+@use '../defaults/refs' as refs;
+@use '../defaults/sys' as sys;
 
-$level: var(--md-elevation-level, var(--_level, #{tokens.$elevation}));
-$shadow-color: var(--md-elevation-shadow-color, var(--_shadow-color, #{tokens.$shadow-color}));
+$level: var(--md-elevation-level, var(--_level, #{sys.$elevation-level0}));
+$shadow-color: var(--md-elevation-shadow-color, var(--_shadow-color, #{sys.$elevation-surface-tint-color}));
 
 :host {
   position: relative;

@@ -19,8 +19,9 @@ const config = tsEslint.config(
       'import-x/no-duplicates': 'off',
       '@typescript-eslint/no-use-before-define': 'off',
       '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-shadow': 'off',
     },
-    files: ['src/**/*.ts', 'src/**/*.js'],
+    files: ['.scripts/**/*.ts', 'src/**/*.ts', 'src/**/*.js'],
     languageOptions: {
       parserOptions: {
         projectService: true,

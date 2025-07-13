@@ -1,15 +1,9 @@
-@use "../core/defaults/colors" as sys-color;
-@use "default/mixins" as default;
-@use "elevated/mixins" as elevated;
-@use "outlined/mixins" as outlined;
+@use "mixins/default";
+@use "mixins/elevated";
+@use "mixins/outlined";
 
 @include default.main;
 @include elevated.main;
 @include outlined.main;
-
-:host([variant="text"]) {
-  background: none;
-  color: sys-color.$primary;
-}
 
 @include default.disabled;

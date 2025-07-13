@@ -2,6 +2,7 @@ import elevationCss from '../core/elevation/elevation.scss';
 import { attachShadow, createTemplate, define } from '../utils.js';
 import css from './button.scss' with { type: 'css' };
 import linkButtonCss from './link-button.scss' with { type: 'css' };
+import textButtonCss from './text-button.scss' with { type: 'css' };
 import { AriaMapping } from './utils.js';
 
 const template = createTemplate(
@@ -24,6 +25,7 @@ export default class LinkButton extends HTMLElement {
     const root = attachShadow(this, template, [
       css,
       elevationCss,
+      textButtonCss,
       linkButtonCss,
     ]);
     this.tabIndex = 0;

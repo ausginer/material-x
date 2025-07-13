@@ -1,0 +1,3 @@
+@function prop($name, $default) {
+  @return var(#{$name}, #{$default});
+}

@@ -1,0 +1,161 @@
+@use '../properties' as props;
+@use '../../core/tokens/md-comp-button' as tokens;
+
+@mixin main {
+  :host {
+    /**
+     * The background color of the button container. Also used in different
+     * calculations.
+     *
+     * @type <color>
+     * @private
+     */
+    --_container-color: #{props.container-color(tokens.$container-color)};
+
+    /**
+     * The height of the button container. Used to calculate the padding
+     * and the gap between the label and the icon.
+     *
+     * @type <length>
+     * @private
+     */
+    --_container-height: #{props.container-height(tokens.$container-height)};
+
+    /**
+     * The color of the state layer that appears on hover, focus, and active
+     * states, blending with the container color.
+     *
+     * @type <color>
+     * @private
+     */
+    --_state-layer-color: #{tokens.$hovered-state-layer-color};
+
+    /**
+     * The color of the label text.
+     *
+     * @type <color>
+     * @private
+     */
+    --_label-color: #{props.label-color(tokens.$label-text-color)};
+
+    /**
+     * @type <length>
+     * @private
+     */
+    --_padding-block: calc(
+      (
+          var(--_container-height) - max(
+              #{props.icon-size(tokens.$icon-size)},
+              #{tokens.$line-height}
+            )
+        ) /
+        2
+    );
+    /**
+     * @type <length>
+     * @private
+     */
+    --_leading-space: #{tokens.$leading-space};
+
+    /**
+     * @type <length>
+     * @private
+     */
+    --_trailing-space: #{tokens.$trailing-space};
+    --_container-shape: #{tokens.$container-shape-round};
+
+    display: inline-flex;
+    cursor: default;
+    user-select: none;
+    background-color: var(--_container-color);
+    color: var(--_label-color);
+    line-height: tokens.$line-height;
+    padding-block: var(--_padding-block);
+    padding-inline-start: var(--_leading-space);
+    padding-inline-end: var(--_trailing-space);
+    border-radius: var(--_container-shape);
+    font-family: #{props.label-font(tokens.$font-names)};
+    font-weight: tokens.$font-weight;
+    font-size: tokens.$font-size;
+    place-items: center;
+    place-content: center;
+    gap: calc((var(--_container-height) - #{tokens.$line-height}) / 2);
+  }
+
+  :host(:hover),
+  :host(:focus-visible),
+  :host(:active) {
+    $opacity: calc(var(--_state-layer-opacity) * 100%);
+    background-color: color-mix(
+      in srgb,
+      var(--_container-color),
+      var(--_state-layer-color) #{$opacity}
+    );
+    color: color-mix(
+      in srgb,
+      var(--_label-color),
+      var(--_state-layer-color) #{$opacity}
+    );
+  }
+
+  :host(:hover) {
+    --_state-layer-opacity: #{tokens.$hovered-state-layer-opacity};
+  }
+
+  :host(:focus-visible) {
+    --_state-layer-opacity: #{tokens.$focused-state-layer-opacity};
+    outline: tokens.$focus-indicator-thickness solid
+      tokens.$focus-indicator-color;
+    outline-offset: tokens.$focus-indicator-outline-offset;
+  }
+
+  :host(:active) {
+    --_state-layer-opacity: #{tokens.$pressed-state-layer-opacity};
+    --_container-shape: #{tokens.$pressed-container-shape}
+  }
+
+  slot[name='icon'] {
+    flex: 1 0 #{props.icon-size(tokens.$icon-size)};
+  }
+}
+
+@mixin disabled {
+  :host([disabled]) {
+    background-color: color-mix(
+      in srgb,
+      tokens.$disabled-container-color,
+      transparent calc(100% - #{tokens.$disabled-container-opacity} * 100%)
+    );
+    color: color-mix(
+      in srgb,
+      tokens.$disabled-label-text-color,
+      transparent calc(100% - #{tokens.$disabled-label-text-opacity} * 100%)
+    );
+    cursor: default;
+    pointer-events: none;
+    outline: none;
+  }
+}
+
+@mixin switch {
+  :host {
+    --_container-color: #{props.container-color-unselected(
+        tokens.$unselected-container-color
+      )};
+    --_label-color: #{props.label-color-unselected(
+        tokens.$label-text-unselected-color
+      )};
+    --_state-layer-color: #{tokens.$unselected-hovered-state-layer-color};
+  }
+
+  :host([checked]) {
+    --_container-color: #{props.container-color-unselected(
+        tokens.$selected-container-color
+      )};
+    --_label-color: #{props.label-color-selected(
+        tokens.$label-text-selected-color
+      )};
+    --_state-layer-color: #{tokens.$selected-hovered-state-layer-color};
+    --_container-shape: #{tokens.$selected-container-shape-round}
+  }
+}

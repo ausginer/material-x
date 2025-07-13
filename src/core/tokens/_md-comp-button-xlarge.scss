@@ -1,0 +1,24 @@
+/*
+ * Tokens for the button component, according to the Material Design
+ * specification: https://m3.material.io/components/buttons/specs
+ *
+ * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+ * !!! DO NOT MODIFY IT BY HAND !!!
+ */
+@use '../defaults/refs' as refs;
+@use '../defaults/sys' as sys;
+
+$container-height: 136px;
+$container-shape-round: sys.$shape-corner-full;
+$container-shape-square: sys.$shape-corner-extra-large;
+$icon-label-space: 16px;
+$icon-size: 40px;
+$label-text: sys.$typescale-headline-large;
+$leading-space: 64px;
+$outlined-outline-width: 3px;
+$pressed-container-corner-size-motion-spring-damping: sys.$motion-spring-fast-spatial-damping;
+$pressed-container-corner-size-motion-spring-stiffness: sys.$motion-spring-fast-spatial-stiffness;
+$pressed-container-shape: sys.$shape-corner-large;
+$selected-container-shape-round: sys.$shape-corner-extra-large;
+$selected-container-shape-square: sys.$shape-corner-full;
+$trailing-space: 64px;

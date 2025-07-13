@@ -1,0 +1,60 @@
+/*
+ * Tokens for the button component, according to the Material Design
+ * specification: https://m3.material.io/styles/color/static/baseline
+ *
+ * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+ * !!! DO NOT MODIFY IT BY HAND !!!
+ */
+@use '../defaults/refs' as refs;
+@use '../defaults/sys' as sys;
+
+$background: var(--md-sys-color-background, refs.$palette-neutral6);
+$error-container: var(--md-sys-color-error-container, refs.$palette-error60);
+$error: var(--md-sys-color-error, refs.$palette-error90);
+$inverse-on-surface: var(--md-sys-color-inverse-on-surface, refs.$palette-neutral10);
+$inverse-primary: var(--md-sys-color-inverse-primary, refs.$palette-primary30);
+$inverse-surface: var(--md-sys-color-inverse-surface, refs.$palette-neutral90);
+$on-background: var(--md-sys-color-on-background, refs.$palette-neutral100);
+$on-error-container: var(--md-sys-color-on-error-container, refs.$palette-error0);
+$on-error: var(--md-sys-color-on-error, refs.$palette-error10);
+$on-primary-container: var(--md-sys-color-on-primary-container, refs.$palette-primary0);
+$on-primary-fixed-variant: var(--md-sys-color-on-primary-fixed-variant, refs.$palette-primary20);
+$on-primary-fixed: var(--md-sys-color-on-primary-fixed, refs.$palette-primary0);
+$on-primary: var(--md-sys-color-on-primary, refs.$palette-primary10);
+$on-secondary-container: var(--md-sys-color-on-secondary-container, refs.$palette-secondary0);
+$on-secondary-fixed-variant: var(--md-sys-color-on-secondary-fixed-variant, refs.$palette-secondary20);
+$on-secondary-fixed: var(--md-sys-color-on-secondary-fixed, refs.$palette-secondary0);
+$on-secondary: var(--md-sys-color-on-secondary, refs.$palette-secondary10);
+$on-surface-variant: var(--md-sys-color-on-surface-variant, refs.$palette-neutral-variant90);
+$on-surface: var(--md-sys-color-on-surface, refs.$palette-neutral100);
+$on-tertiary-container: var(--md-sys-color-on-tertiary-container, refs.$palette-tertiary0);
+$on-tertiary-fixed-variant: var(--md-sys-color-on-tertiary-fixed-variant, refs.$palette-tertiary20);
+$on-tertiary-fixed: var(--md-sys-color-on-tertiary-fixed, refs.$palette-tertiary0);
+$on-tertiary: var(--md-sys-color-on-tertiary, refs.$palette-tertiary10);
+$outline-variant: var(--md-sys-color-outline-variant, refs.$palette-neutral-variant60);
+$outline: var(--md-sys-color-outline, refs.$palette-neutral-variant70);
+$primary-container: var(--md-sys-color-primary-container, refs.$palette-primary60);
+$primary-fixed-dim: var(--md-sys-color-primary-fixed-dim, refs.$palette-primary80);
+$primary-fixed: var(--md-sys-color-primary-fixed, refs.$palette-primary90);
+$primary: var(--md-sys-color-primary, refs.$palette-primary90);
+$scrim: var(--md-sys-color-scrim, refs.$palette-neutral0);
+$secondary-container: var(--md-sys-color-secondary-container, refs.$palette-secondary60);
+$secondary-fixed-dim: var(--md-sys-color-secondary-fixed-dim, refs.$palette-secondary80);
+$secondary-fixed: var(--md-sys-color-secondary-fixed, refs.$palette-secondary90);
+$secondary: var(--md-sys-color-secondary, refs.$palette-secondary90);
+$shadow: var(--md-sys-color-shadow, refs.$palette-neutral0);
+$surface-bright: var(--md-sys-color-surface-bright, rgba(55 57 59 255));
+$surface-container-high: var(--md-sys-color-surface-container-high, rgba(40 42 44 255));
+$surface-container-highest: var(--md-sys-color-surface-container-highest, rgba(51 53 55 255));
+$surface-container-low: var(--md-sys-color-surface-container-low, rgba(27 27 27 255));
+$surface-container-lowest: var(--md-sys-color-surface-container-lowest, rgba(14 14 14 255));
+$surface-container: var(--md-sys-color-surface-container, rgba(30 31 32 255));
+$surface-dim: var(--md-sys-color-surface-dim, rgba(19 19 19 255));
+$surface-tint-color: var(--md-sys-color-surface-tint-color, $primary);
+$surface-tint: var(--md-sys-color-surface-tint, rgba(209 225 255 255));
+$surface-variant: var(--md-sys-color-surface-variant, refs.$palette-neutral-variant30);
+$surface: var(--md-sys-color-surface, refs.$palette-neutral6);
+$tertiary-container: var(--md-sys-color-tertiary-container, refs.$palette-tertiary60);
+$tertiary-fixed-dim: var(--md-sys-color-tertiary-fixed-dim, refs.$palette-tertiary80);
+$tertiary-fixed: var(--md-sys-color-tertiary-fixed, refs.$palette-tertiary90);
+$tertiary: var(--md-sys-color-tertiary, refs.$palette-tertiary90);

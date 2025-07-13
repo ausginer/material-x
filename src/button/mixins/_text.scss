@@ -1,0 +1,9 @@
+@use "../../core/tokens/md-comp-button-text" as tokens;
+
+@mixin main {
+  :host([variant="text"]) {
+    --_container-color: transparent;
+    --_label-color: tokens.$label-text-color;
+    --_state-layer-color: #{tokens.$hovered-state-layer-color};
+  }
+}

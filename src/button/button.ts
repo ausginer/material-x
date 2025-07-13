@@ -1,6 +1,7 @@
 import elevationCss from '../core/elevation/elevation.scss' with { type: 'css' };
 import { attachShadow, createTemplate, define } from '../utils.js';
 import buttonCss from './button.scss' with { type: 'css' };
+import textButtonCss from './text-button.scss' with { type: 'css' };
 import { AriaMapping } from './utils.js';
 
 const template = createTemplate('<slot name="icon"></slot><slot></slot>');
@@ -17,7 +18,7 @@ export default class Button extends HTMLElement {
 
   constructor() {
     super();
-    attachShadow(this, template, [buttonCss, elevationCss]);
+    attachShadow(this, template, [buttonCss, elevationCss, textButtonCss]);
     this.tabIndex = 0;
     Object.assign(this.#internals, { role: 'button' });
   }

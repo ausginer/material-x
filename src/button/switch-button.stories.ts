@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
-import type { ButtonVariant } from './button.js';
 import './switch-button.js';
+import type { SwitchButtonVariant } from './switch-button.js';
 
 type SwitchButtonProps = Readonly<{
-  variant?: ButtonVariant;
+  variant?: SwitchButtonVariant;
   onClick?(): void;
   label?: string;
   disabled?: boolean;
@@ -80,12 +80,5 @@ export const Elevated: ButtonStories = {
   args: {
     variant: 'elevated',
     label: 'Elevated Switch Button',
-  },
-};
-
-export const Text: ButtonStories = {
-  args: {
-    variant: 'text',
-    label: 'Text Switch Button',
   },
 };
