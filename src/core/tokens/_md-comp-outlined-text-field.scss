@@ -1,0 +1,94 @@
+/*
+ * Tokens for the button component, according to the Material Design
+ * specification: https://m3.material.io
+ *
+ * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+ * !!! DO NOT MODIFY IT BY HAND !!!
+ */
+@use '../defaults/refs' as refs;
+@use '../defaults/sys' as sys;
+
+$caret-color: sys.$color-primary;
+$container-height: 56px;
+$container-shape: sys.$shape-corner-extra-small;
+$disabled-input-text-color: sys.$color-on-surface;
+$disabled-input-text-opacity: 0.38;
+$disabled-label-text-color: sys.$color-on-surface;
+$disabled-label-text-opacity: 0.38;
+$disabled-leading-icon-color: sys.$color-on-surface;
+$disabled-leading-icon-opacity: 0.38;
+$disabled-outline-color: sys.$color-on-surface;
+$disabled-outline-opacity: 0.12;
+$disabled-outline-width: 1px;
+$disabled-supporting-text-color: sys.$color-on-surface;
+$disabled-supporting-text-opacity: 0.38;
+$disabled-trailing-icon-color: sys.$color-on-surface;
+$disabled-trailing-icon-opacity: 0.38;
+$error-focus-caret-color: sys.$color-error;
+$error-focus-indicator-outline-color: sys.$color-error;
+$error-focus-input-text-color: sys.$color-on-surface;
+$error-focus-label-text-color: sys.$color-error;
+$error-focus-leading-icon-color: sys.$color-on-surface-variant;
+$error-focus-outline-color: sys.$color-error;
+$error-focus-supporting-text-color: sys.$color-error;
+$error-focus-trailing-icon-color: sys.$color-error;
+$error-hover-input-text-color: sys.$color-on-surface;
+$error-hover-label-text-color: sys.$color-on-error-container;
+$error-hover-leading-icon-color: sys.$color-on-surface-variant;
+$error-hover-outline-color: sys.$color-on-error-container;
+$error-hover-supporting-text-color: sys.$color-error;
+$error-hover-trailing-icon-color: sys.$color-on-error-container;
+$error-input-text-color: sys.$color-on-surface;
+$error-label-text-color: sys.$color-error;
+$error-leading-icon-color: sys.$color-on-surface-variant;
+$error-outline-color: sys.$color-error;
+$error-supporting-text-color: sys.$color-error;
+$error-trailing-icon-color: sys.$color-error;
+$focus-indicator-outline-color: sys.$color-secondary;
+$focus-indicator-outline-thickness: sys.$state-focus-indicator-thickness;
+$focus-input-text-color: sys.$color-on-surface;
+$focus-label-text-color: sys.$color-primary;
+$focus-leading-icon-color: sys.$color-on-surface-variant;
+$focus-outline-color: sys.$color-primary;
+$focus-outline-width: 3px;
+$focus-supporting-text-color: sys.$color-on-surface-variant;
+$focus-trailing-icon-color: sys.$color-on-surface-variant;
+$hover-input-text-color: sys.$color-on-surface;
+$hover-label-text-color: sys.$color-on-surface;
+$hover-leading-icon-color: sys.$color-on-surface-variant;
+$hover-outline-color: sys.$color-on-surface;
+$hover-outline-width: 1px;
+$hover-supporting-text-color: sys.$color-on-surface-variant;
+$hover-trailing-icon-color: sys.$color-on-surface-variant;
+$input-text-color: sys.$color-on-surface;
+$input-text-font: sys.$typescale-body-large-font;
+$input-text-line-height: sys.$typescale-body-large-line-height;
+$input-text-placeholder-color: sys.$color-on-surface-variant;
+$input-text-prefix-color: sys.$color-on-surface-variant;
+$input-text-size: sys.$typescale-body-large-size;
+$input-text-suffix-color: sys.$color-on-surface-variant;
+$input-text-tracking: sys.$typescale-body-large-tracking;
+$input-text-type: #{$input-text-weight} #{$input-text-size}/#{$input-text-line-height} #{$input-text-font};
+$input-text-weight: sys.$typescale-body-large-weight;
+$label-text-color: sys.$color-on-surface-variant;
+$label-text-font: sys.$typescale-body-large-font;
+$label-text-line-height: sys.$typescale-body-large-line-height;
+$label-text-populated-line-height: sys.$typescale-body-small-line-height;
+$label-text-populated-size: sys.$typescale-body-small-size;
+$label-text-size: sys.$typescale-body-large-size;
+$label-text-tracking: sys.$typescale-body-large-tracking;
+$label-text-type: #{$label-text-weight} #{$label-text-size}/#{$label-text-line-height} #{$label-text-font};
+$label-text-weight: sys.$typescale-body-large-weight;
+$leading-icon-color: sys.$color-on-surface-variant;
+$leading-icon-size: 24px;
+$outline-color: sys.$color-outline;
+$outline-width: 1px;
+$supporting-text-color: sys.$color-on-surface-variant;
+$supporting-text-font: sys.$typescale-body-small-font;
+$supporting-text-line-height: sys.$typescale-body-small-line-height;
+$supporting-text-size: sys.$typescale-body-small-size;
+$supporting-text-tracking: sys.$typescale-body-small-tracking;
+$supporting-text-type: #{$supporting-text-weight} #{$supporting-text-size}/#{$supporting-text-line-height} #{$supporting-text-font};
+$supporting-text-weight: sys.$typescale-body-small-weight;
+$trailing-icon-color: sys.$color-on-surface-variant;
+$trailing-icon-size: 24px;

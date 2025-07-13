@@ -8,8 +8,5 @@
 @use '../defaults/refs' as refs;
 @use '../defaults/sys' as sys;
 
-$brand: 'Google Sans';
-$plain: 'Google Sans Text';
-$weight-bold: 700;
-$weight-medium: 500;
-$weight-regular: 400;
+$outer-offset: 2px;
+$thickness: 3px;

@@ -1,0 +1,9 @@
+@use '../../core/tokens/md-comp-button-large' as tokens;
+
+@mixin main {
+  :host {
+    --_container-height: tokens.$container-height;
+    --_leading-space: tokens.$leading-space;
+    --_trailing-space: tokens.$trailing-space;
+  }
+}

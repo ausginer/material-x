@@ -1,27 +1,26 @@
-import TokenSystemProcessor from '../TokenSystemProcessor.js';
-import { tokenValueToCSSVarWithFallback } from '../utils.js';
+import download from '../download.js';
+import type TokenSystemProcessor from '../TokenSystemProcessor.js';
+import type { TokenTable } from '../TokenTable.js';
+import {
+  type SassDeclarationSet,
+  tokenValueToCSSVarWithFallback,
+} from '../utils.js';
 
 const ELEVATION_TOKENS_URL = new URL(
   'https://m3.material.io/_dsm/data/dsdb-m3/latest/ELEVATION.20543ce18892f7d9.json',
 );
 
-const ELEVATION_SPEC_URL = new URL('https://m3.material.io/styles/elevation');
+export async function downloadElevationTokens(): Promise<TokenTable> {
+  return await download(ELEVATION_TOKENS_URL);
+}
 
-export default async function getElevation(): Promise<void> {
-  const processor = await TokenSystemProcessor.init(
-    ELEVATION_TOKENS_URL,
-    ELEVATION_SPEC_URL,
-  );
-
-  await Promise.all(
-    processor.system.tokenSets
-      .filter(({ displayName }) => !displayName.startsWith('[Deprecated]'))
-      .map(
-        async (tokenSet) =>
-          await processor.writeTokenSet(
-            tokenSet,
-            processor.processTokenSet(tokenSet, tokenValueToCSSVarWithFallback),
-          ),
-      ),
-  );
+export function processElevation(
+  processor: TokenSystemProcessor,
+): readonly SassDeclarationSet[] {
+  return processor.tokenSets
+    .filter(({ displayName }) => !displayName.startsWith('[Deprecated]'))
+    .map((tokenSet) =>
+      processor.processTokenSet(tokenSet, tokenValueToCSSVarWithFallback),
+    )
+    .toArray();
 }

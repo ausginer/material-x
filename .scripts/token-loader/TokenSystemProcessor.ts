@@ -1,125 +1,68 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import SystemUnifier from './SystemUnifier.js';
 import {
   TextTransform,
   type Token,
   type TokenSet,
   TokenShapeFamily,
-  type TokenSystem,
   type TokenTable,
   type Value,
 } from './TokenTable.js';
-import {
-  COLLATOR,
-  type JSONModule,
-  root,
-  type SassDeclaration,
-  tokenNameToSassVar,
-} from './utils.js';
+import { type SassDeclarationSet, tokenNameToSassVar } from './utils.js';
 
 export type SassDeclarationSingle = readonly [
   name: string,
   value?: string | number,
 ];
 
-const CACHE_DIR = new URL('node_modules/.cache/tokens/', root);
-
-function createHeader(url: URL) {
-  return `/*
- * Tokens for the button component, according to the Material Design
- * specification: ${url}
- *
- * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
- * !!! DO NOT MODIFY IT BY HAND !!!
- */
-@use '../defaults/refs' as refs;
-@use '../defaults/sys' as sys;
-
-`;
-}
-
 export default class TokenSystemProcessor {
-  static async init(
-    loadURL: URL,
-    headerURL: URL,
-  ): Promise<TokenSystemProcessor> {
-    const cacheFile = new URL(
-      loadURL.pathname.substring(loadURL.pathname.lastIndexOf('/') + 1),
-      CACHE_DIR,
-    );
+  readonly #unifier: SystemUnifier;
 
-    try {
-      const contents: JSONModule<TokenTable> = await import(
-        fileURLToPath(cacheFile),
-        {
-          with: { type: 'json' },
-        }
-      );
-      return new TokenSystemProcessor(contents.default, headerURL);
-    } catch {
-      console.log(`Caching tokens from ${loadURL}`);
-
-      const response = await fetch(loadURL);
-      const data = await response.text();
-
-      await mkdir(new URL('./', cacheFile), { recursive: true });
-      await writeFile(cacheFile, data, 'utf8');
-
-      return new TokenSystemProcessor(JSON.parse(data), headerURL);
-    }
+  constructor(tables: readonly TokenTable[]) {
+    this.#unifier = new SystemUnifier(tables.map(({ system }) => system));
   }
 
-  readonly system: TokenSystem;
-  readonly #headerURL: URL;
-
-  constructor(table: TokenTable, headerURL: URL) {
-    this.system = table.system;
-    this.#headerURL = headerURL;
-  }
-
-  processTokenSet(
-    tokenSet: TokenSet,
-    converter: (
-      set: string,
-      declaration: SassDeclarationSingle,
-    ) => SassDeclarationSingle = (_, v) => v,
-  ): SassDeclaration {
-    return Object.fromEntries(
-      this.system.tokens
-        .filter((token) => token.name.startsWith(tokenSet.name))
-        .map((token) =>
-          this.processToken(token, this.getTokenValue(token), tokenSet),
-        )
-        .flat()
-        .map((value) => converter(tokenSet.tokenSetName, value))
-        .filter(([, value]) => value != null),
-    );
+  get tokens(): IteratorObject<Token> {
+    return this.#unifier.tokens;
   }
 
   getTokenValue({ name }: Token): Value | undefined {
-    const tokenTree = this.system.contextualReferenceTrees[name];
+    const referenceTree = this.#unifier.getReferenceTree(name);
 
-    if (!tokenTree) {
-      return this.system.values.find((value) => value.name.startsWith(name));
+    if (!referenceTree) {
+      return this.#unifier.values.find((value) => value.name.startsWith(name));
     }
 
-    const [{ referenceTree }] = tokenTree.contextualReferenceTree;
-
-    return this.system.values.find(
+    return this.#unifier.values.find(
       ({ name }) => referenceTree.value.name === name,
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/class-methods-use-this
+  findTokenSet({
+    name,
+    tokenName,
+    tokenNameSuffix,
+  }: Token): Pick<TokenSet, 'tokenSetName'> &
+    Partial<Pick<TokenSet, 'displayName'>> {
+    const tokenSet = this.#unifier.tokenSets.find((set) =>
+      name.startsWith(set.name),
+    );
+
+    return {
+      displayName: tokenSet?.displayName,
+      tokenSetName:
+        tokenSet?.tokenSetName ?? tokenName.replace(`.${tokenNameSuffix}`, ''),
+    };
+  }
+
   processToken(
-    { tokenName, tokenNameSuffix }: Token,
-    valueToken: Value | undefined,
-    { tokenSetName }: TokenSet,
+    token: Token,
+    tokenSetName: string,
   ): readonly SassDeclarationSingle[] {
-    const sassVarName = `$${tokenNameSuffix.replaceAll('.', '-')}`;
+    const sassVarName = `$${token.tokenNameSuffix.replaceAll('.', '-')}`;
+    const valueToken = this.getTokenValue(token);
 
     if (!valueToken) {
-      console.error(`No value found for ${tokenName}`);
+      console.error(`No value found for ${token.tokenName}`);
       return [[sassVarName]];
     }
 
@@ -239,7 +182,7 @@ export default class TokenSystemProcessor {
       if (textTransform === TextTransform.NONE) {
         value = 'none';
       } else {
-        console.error('Unknown text transform', valueToken, tokenName);
+        console.error('Unknown text transform', valueToken, token.tokenName);
         return [[sassVarName]];
       }
 
@@ -250,28 +193,28 @@ export default class TokenSystemProcessor {
       console.error(
         'Value token has no known properties',
         valueToken,
-        tokenName,
+        token.tokenName,
       );
       return [[sassVarName]];
     }
   }
 
-  async writeTokenSet(
-    { tokenSetName }: TokenSet,
-    data: SassDeclaration,
-  ): Promise<void> {
-    const fileURL = new URL(
-      `src/core/tokens/_${tokenSetName.replace(/\./g, '-')}.scss`,
-      root,
-    );
-
-    await writeFile(
-      fileURL,
-      `${createHeader(this.#headerURL)}${Object.entries(data)
-        .map(([declaration, value]) => `${declaration}: ${value};`)
-        .toSorted(COLLATOR.compare)
-        .join('\n')}`,
-      'utf8',
-    );
-  }
+  // async writeTokenSet(
+  //   { tokenSetName }: TokenSet,
+  //   data: SassDeclaration,
+  // ): Promise<void> {
+  //   const fileURL = new URL(
+  //     `src/core/tokens/_${tokenSetName.replace(/\./g, '-')}.scss`,
+  //     root,
+  //   );
+  //
+  //   await writeFile(
+  //     fileURL,
+  //     `${createHeader(this.#headerURL)}${Object.entries(data)
+  //       .map(([declaration, value]) => `${declaration}: ${value};`)
+  //       .toSorted(COLLATOR.compare)
+  //       .join('\n')}`,
+  //     'utf8',
+  //   );
+  // }
 }
