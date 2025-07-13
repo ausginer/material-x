@@ -1,5 +1,11 @@
+@use "sass:map";
 @use '../properties' as props;
 @use '../../core/tokens/md-comp-button' as tokens;
+
+$font-names: map.get(tokens.$label-text, font-names);
+$font-weight: map.get(tokens.$label-text, font-weight);
+$font-size: map.get(tokens.$label-text, font-size);
+$line-height: map.get(tokens.$label-text, line-height);
 
 @mixin main {
   :host {
@@ -46,7 +52,7 @@
       (
           var(--_container-height) - max(
               #{props.icon-size(tokens.$icon-size)},
-              #{tokens.$line-height}
+              #{$line-height}
             )
         ) /
         2
@@ -69,17 +75,14 @@
     user-select: none;
     background-color: var(--_container-color);
     color: var(--_label-color);
-    line-height: tokens.$line-height;
     padding-block: var(--_padding-block);
     padding-inline-start: var(--_leading-space);
     padding-inline-end: var(--_trailing-space);
     border-radius: var(--_container-shape);
-    font-family: #{props.label-font(tokens.$font-names)};
-    font-weight: tokens.$font-weight;
-    font-size: tokens.$font-size;
+    font: $font-weight $font-size/$line-height $font-names;
     place-items: center;
     place-content: center;
-    gap: calc((var(--_container-height) - #{tokens.$line-height}) / 2);
+    gap: calc((var(--_container-height) - #{$line-height}) / 2);
   }
 
   :host(:hover),

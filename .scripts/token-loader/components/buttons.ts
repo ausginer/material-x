@@ -1,4 +1,3 @@
-/* eslint-disable import-x/prefer-default-export */
 import download from '../download.js';
 import type { TokenTable } from '../TokenTable.js';
 

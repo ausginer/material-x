@@ -5,6 +5,7 @@
  * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
  * !!! DO NOT MODIFY IT BY HAND !!!
  */
+@use "sass:map";
 @use '../defaults/refs' as refs;
 @use '../defaults/sys' as sys;
 
@@ -23,7 +24,12 @@ $menu-list-item-label-text-font: sys.$typescale-label-large-font;
 $menu-list-item-label-text-line-height: sys.$typescale-label-large-line-height;
 $menu-list-item-label-text-size: sys.$typescale-label-large-size;
 $menu-list-item-label-text-tracking: sys.$typescale-label-large-tracking;
-$menu-list-item-label-text-type: #{$menu-list-item-label-text-weight} #{$menu-list-item-label-text-size}/#{$menu-list-item-label-text-line-height} #{$menu-list-item-label-text-font};
+$menu-list-item-label-text-type: (
+  font-names: $menu-list-item-label-text-font,
+  font-weight: $menu-list-item-label-text-weight,
+  font-size: $menu-list-item-label-text-size,
+  line-height: $menu-list-item-label-text-line-height,
+);
 $menu-list-item-label-text-weight: sys.$typescale-label-large-weight;
 $menu-list-item-selected-container-color: sys.$color-surface-container-highest;
 $text-field-caret-color: sys.$color-primary;
@@ -85,7 +91,12 @@ $text-field-input-text-font: sys.$typescale-body-large-font;
 $text-field-input-text-line-height: sys.$typescale-body-large-line-height;
 $text-field-input-text-size: sys.$typescale-body-large-size;
 $text-field-input-text-tracking: sys.$typescale-body-large-tracking;
-$text-field-input-text-type: #{$text-field-input-text-weight} #{$text-field-input-text-size}/#{$text-field-input-text-line-height} #{$text-field-input-text-font};
+$text-field-input-text-type: (
+  font-names: $text-field-input-text-font,
+  font-weight: $text-field-input-text-weight,
+  font-size: $text-field-input-text-size,
+  line-height: $text-field-input-text-line-height,
+);
 $text-field-input-text-weight: sys.$typescale-body-large-weight;
 $text-field-label-text-color: sys.$color-on-surface-variant;
 $text-field-label-text-font: sys.$typescale-body-large-font;
@@ -94,7 +105,12 @@ $text-field-label-text-populated-line-height: sys.$typescale-body-small-line-hei
 $text-field-label-text-populated-size: sys.$typescale-body-small-size;
 $text-field-label-text-size: sys.$typescale-body-large-size;
 $text-field-label-text-tracking: sys.$typescale-body-large-tracking;
-$text-field-label-text-type: #{$text-field-label-text-weight} #{$text-field-label-text-size}/#{$text-field-label-text-line-height} #{$text-field-label-text-font};
+$text-field-label-text-type: (
+  font-names: $text-field-label-text-font,
+  font-weight: $text-field-label-text-weight,
+  font-size: $text-field-label-text-size,
+  line-height: $text-field-label-text-line-height,
+);
 $text-field-label-text-weight: sys.$typescale-body-large-weight;
 $text-field-leading-icon-color: sys.$color-on-surface-variant;
 $text-field-leading-icon-size: 24px;
@@ -105,7 +121,12 @@ $text-field-supporting-text-font: sys.$typescale-body-small-font;
 $text-field-supporting-text-line-height: sys.$typescale-body-small-line-height;
 $text-field-supporting-text-size: sys.$typescale-body-small-size;
 $text-field-supporting-text-tracking: sys.$typescale-body-small-tracking;
-$text-field-supporting-text-type: #{$text-field-supporting-text-weight} #{$text-field-supporting-text-size}/#{$text-field-supporting-text-line-height} #{$text-field-supporting-text-font};
+$text-field-supporting-text-type: (
+  font-names: $text-field-supporting-text-font,
+  font-weight: $text-field-supporting-text-weight,
+  font-size: $text-field-supporting-text-size,
+  line-height: $text-field-supporting-text-line-height,
+);
 $text-field-supporting-text-weight: sys.$typescale-body-small-weight;
 $text-field-trailing-icon-color: sys.$color-on-surface-variant;
 $text-field-trailing-icon-size: 24px;

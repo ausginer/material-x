@@ -1,4 +1,4 @@
-import type { SassDeclarationSingle } from './TokenSystemProcessor.js';
+import type { SassDeclarationToken } from './TokenSystemProcessor.js';
 
 export const root: URL = new URL('../../', import.meta.url);
 
@@ -22,6 +22,7 @@ export const HEADER = `/*
  * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
  * !!! DO NOT MODIFY IT BY HAND !!!
  */
+@use "sass:map";
 @use '../defaults/refs' as refs;
 @use '../defaults/sys' as sys;
 
@@ -59,8 +60,8 @@ export function tokenNameToSassVarDeclaration(
 
 export function tokenValueToCSSVarWithFallback(
   tokenSetName: string,
-  declaration: SassDeclarationSingle,
-): SassDeclarationSingle {
+  declaration: SassDeclarationToken,
+): SassDeclarationToken {
   const [name, value] = declaration;
 
   if (value == null) {

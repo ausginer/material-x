@@ -5,6 +5,7 @@
  * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
  * !!! DO NOT MODIFY IT BY HAND !!!
  */
+@use "sass:map";
 @use '../defaults/refs' as refs;
 @use '../defaults/sys' as sys;
 
@@ -68,7 +69,12 @@ $input-text-prefix-color: sys.$color-on-surface-variant;
 $input-text-size: sys.$typescale-body-large-size;
 $input-text-suffix-color: sys.$color-on-surface-variant;
 $input-text-tracking: sys.$typescale-body-large-tracking;
-$input-text-type: #{$input-text-weight} #{$input-text-size}/#{$input-text-line-height} #{$input-text-font};
+$input-text-type: (
+  font-names: $input-text-font,
+  font-weight: $input-text-weight,
+  font-size: $input-text-size,
+  line-height: $input-text-line-height,
+);
 $input-text-weight: sys.$typescale-body-large-weight;
 $label-text-color: sys.$color-on-surface-variant;
 $label-text-font: sys.$typescale-body-large-font;
@@ -77,7 +83,12 @@ $label-text-populated-line-height: sys.$typescale-body-small-line-height;
 $label-text-populated-size: sys.$typescale-body-small-size;
 $label-text-size: sys.$typescale-body-large-size;
 $label-text-tracking: sys.$typescale-body-large-tracking;
-$label-text-type: #{$label-text-weight} #{$label-text-size}/#{$label-text-line-height} #{$label-text-font};
+$label-text-type: (
+  font-names: $label-text-font,
+  font-weight: $label-text-weight,
+  font-size: $label-text-size,
+  line-height: $label-text-line-height,
+);
 $label-text-weight: sys.$typescale-body-large-weight;
 $leading-icon-color: sys.$color-on-surface-variant;
 $leading-icon-size: 24px;
@@ -88,7 +99,12 @@ $supporting-text-font: sys.$typescale-body-small-font;
 $supporting-text-line-height: sys.$typescale-body-small-line-height;
 $supporting-text-size: sys.$typescale-body-small-size;
 $supporting-text-tracking: sys.$typescale-body-small-tracking;
-$supporting-text-type: #{$supporting-text-weight} #{$supporting-text-size}/#{$supporting-text-line-height} #{$supporting-text-font};
+$supporting-text-type: (
+  font-names: $supporting-text-font,
+  font-weight: $supporting-text-weight,
+  font-size: $supporting-text-size,
+  line-height: $supporting-text-line-height,
+);
 $supporting-text-weight: sys.$typescale-body-small-weight;
 $trailing-icon-color: sys.$color-on-surface-variant;
 $trailing-icon-size: 24px;

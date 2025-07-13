@@ -20,6 +20,7 @@ const config = tsEslint.config(
       '@typescript-eslint/no-use-before-define': 'off',
       '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/no-shadow': 'off',
+      'import-x/prefer-default-export': 'off',
     },
     files: ['.scripts/**/*.ts', 'src/**/*.ts', 'src/**/*.js'],
     languageOptions: {

@@ -7,9 +7,9 @@ import {
   type TokenTable,
   type Value,
 } from './TokenTable.js';
-import { type SassDeclarationSet, tokenNameToSassVar } from './utils.js';
+import { tokenNameToSassVar } from './utils.js';
 
-export type SassDeclarationSingle = readonly [
+export type SassDeclarationToken = readonly [
   name: string,
   value?: string | number,
 ];
@@ -57,7 +57,7 @@ export default class TokenSystemProcessor {
   processToken(
     token: Token,
     tokenSetName: string,
-  ): readonly SassDeclarationSingle[] {
+  ): readonly SassDeclarationToken[] {
     const sassVarName = `$${token.tokenNameSuffix.replaceAll('.', '-')}`;
     const valueToken = this.getTokenValue(token);
 
@@ -105,9 +105,14 @@ export default class TokenSystemProcessor {
         lineHeightTokenName,
       } = type;
 
-      const font = `#{${tokenNameToSassVar(fontWeightTokenName, tokenSetName)}} #{${tokenNameToSassVar(fontSizeTokenName, tokenSetName)}}/#{${tokenNameToSassVar(lineHeightTokenName, tokenSetName)}} #{${tokenNameToSassVar(fontNameTokenName, tokenSetName)}}`;
+      const map = `(
+  font-names: ${tokenNameToSassVar(fontNameTokenName, tokenSetName)},
+  font-weight: ${tokenNameToSassVar(fontWeightTokenName, tokenSetName)},
+  font-size: ${tokenNameToSassVar(fontSizeTokenName, tokenSetName)},
+  line-height: ${tokenNameToSassVar(lineHeightTokenName, tokenSetName)},
+)`;
 
-      return [[sassVarName, font]];
+      return [[sassVarName, map]];
     } else if (fontNames != null) {
       return [
         [sassVarName, fontNames.values.map((name) => `'${name}'`).join(', ')],
