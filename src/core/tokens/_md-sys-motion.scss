@@ -6,57 +6,67 @@
  * !!! DO NOT MODIFY IT BY HAND !!!
  */
 @use "sass:map";
-@use '../defaults/refs' as refs;
-@use '../defaults/sys' as sys;
 
-$duration-extra-long1: 700;
-$duration-extra-long2: 800;
-$duration-extra-long3: 900;
-$duration-extra-long4: 1000;
-$duration-long1: 450;
-$duration-long2: 500;
-$duration-long3: 550;
-$duration-long4: 600;
-$duration-medium1: 250;
-$duration-medium2: 300;
-$duration-medium3: 350;
-$duration-medium4: 400;
-$duration-short1: 50;
-$duration-short2: 100;
-$duration-short3: 150;
-$duration-short4: 200;
-$easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
-$easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
-$easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
-$easing-legacy-accelerate: cubic-bezier(0.4, 0, 1, 1);
-$easing-legacy-decelerate: cubic-bezier(0, 0, 0.2, 1);
-$easing-legacy: cubic-bezier(0.4, 0, 0.2, 1);
-$easing-linear: cubic-bezier(0, 0, 1, 1);
-$easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
-$easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
-$easing-standard: cubic-bezier(0.2, 0, 0, 1);
-$path: undefined;
-$spring-default-effects-damping: 1;
-$spring-default-effects-damping: md.sys.motion.spring.default.effects.damping;
-$spring-default-effects-stiffness: 1600;
-$spring-default-effects-stiffness: md.sys.motion.spring.default.effects.stiffness;
-$spring-default-spatial-damping: 0.9;
-$spring-default-spatial-damping: md.sys.motion.spring.default.spatial.damping;
-$spring-default-spatial-stiffness: 700;
-$spring-default-spatial-stiffness: md.sys.motion.spring.default.spatial.stiffness;
-$spring-fast-effects-damping: 1;
-$spring-fast-effects-damping: md.sys.motion.spring.fast.effects.damping;
-$spring-fast-effects-stiffness: 3800;
-$spring-fast-effects-stiffness: md.sys.motion.spring.fast.effects.stiffness;
-$spring-fast-spatial-damping: 0.9;
-$spring-fast-spatial-damping: md.sys.motion.spring.fast.spatial.damping;
-$spring-fast-spatial-stiffness: 1400;
-$spring-fast-spatial-stiffness: md.sys.motion.spring.fast.spatial.stiffness;
-$spring-slow-effects-damping: 1;
-$spring-slow-effects-damping: md.sys.motion.spring.slow.effects.damping;
-$spring-slow-effects-stiffness: 800;
-$spring-slow-effects-stiffness: md.sys.motion.spring.slow.effects.stiffness;
-$spring-slow-spatial-damping: 0.9;
-$spring-slow-spatial-damping: md.sys.motion.spring.slow.spatial.damping;
-$spring-slow-spatial-stiffness: 300;
-$spring-slow-spatial-stiffness: md.sys.motion.spring.slow.spatial.stiffness;
+$duration-extra-long1: var(--md-sys-motion-duration-extra-long1, 700);
+$duration-extra-long2: var(--md-sys-motion-duration-extra-long2, 800);
+$duration-extra-long3: var(--md-sys-motion-duration-extra-long3, 900);
+$duration-extra-long4: var(--md-sys-motion-duration-extra-long4, 1000);
+$duration-long1: var(--md-sys-motion-duration-long1, 450);
+$duration-long2: var(--md-sys-motion-duration-long2, 500);
+$duration-long3: var(--md-sys-motion-duration-long3, 550);
+$duration-long4: var(--md-sys-motion-duration-long4, 600);
+$duration-medium1: var(--md-sys-motion-duration-medium1, 250);
+$duration-medium2: var(--md-sys-motion-duration-medium2, 300);
+$duration-medium3: var(--md-sys-motion-duration-medium3, 350);
+$duration-medium4: var(--md-sys-motion-duration-medium4, 400);
+$duration-short1: var(--md-sys-motion-duration-short1, 50);
+$duration-short2: var(--md-sys-motion-duration-short2, 100);
+$duration-short3: var(--md-sys-motion-duration-short3, 150);
+$duration-short4: var(--md-sys-motion-duration-short4, 200);
+$easing-emphasized-accelerate: var(--md-sys-motion-easing-emphasized-accelerate, cubic-bezier(0.3, 0, 0.8, 0.15));
+$easing-emphasized-decelerate: var(--md-sys-motion-easing-emphasized-decelerate, cubic-bezier(0.05, 0.7, 0.1, 1));
+$easing-emphasized: var(--md-sys-motion-easing-emphasized, cubic-bezier(0.2, 0, 0, 1));
+$easing-legacy-accelerate: var(--md-sys-motion-easing-legacy-accelerate, cubic-bezier(0.4, 0, 1, 1));
+$easing-legacy-decelerate: var(--md-sys-motion-easing-legacy-decelerate, cubic-bezier(0, 0, 0.2, 1));
+$easing-legacy: var(--md-sys-motion-easing-legacy, cubic-bezier(0.4, 0, 0.2, 1));
+$easing-linear: var(--md-sys-motion-easing-linear, cubic-bezier(0, 0, 1, 1));
+$easing-standard-accelerate: var(--md-sys-motion-easing-standard-accelerate, cubic-bezier(0.3, 0, 1, 1));
+$easing-standard-decelerate: var(--md-sys-motion-easing-standard-decelerate, cubic-bezier(0, 0, 0, 1));
+$easing-standard: var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+$path: var(--md-sys-motion-path, undefined);
+$spring-default-effects-damping: var(--md-sys-motion-spring-default-effects-damping, 1);
+$spring-default-effects-stiffness: var(--md-sys-motion-spring-default-effects-stiffness, 1600);
+$spring-default-effects: (
+  damping:  $spring-default-effects-damping,
+  stiffness: $spring-default-effects-stiffness,
+);
+$spring-default-spatial-damping: var(--md-sys-motion-spring-default-spatial-damping, 0.9);
+$spring-default-spatial-stiffness: var(--md-sys-motion-spring-default-spatial-stiffness, 700);
+$spring-default-spatial: (
+  damping:  $spring-default-spatial-damping,
+  stiffness: $spring-default-spatial-stiffness,
+);
+$spring-fast-effects-damping: var(--md-sys-motion-spring-fast-effects-damping, 1);
+$spring-fast-effects-stiffness: var(--md-sys-motion-spring-fast-effects-stiffness, 3800);
+$spring-fast-effects: (
+  damping:  $spring-fast-effects-damping,
+  stiffness: $spring-fast-effects-stiffness,
+);
+$spring-fast-spatial-damping: var(--md-sys-motion-spring-fast-spatial-damping, 0.9);
+$spring-fast-spatial-stiffness: var(--md-sys-motion-spring-fast-spatial-stiffness, 1400);
+$spring-fast-spatial: (
+  damping:  $spring-fast-spatial-damping,
+  stiffness: $spring-fast-spatial-stiffness,
+);
+$spring-slow-effects-damping: var(--md-sys-motion-spring-slow-effects-damping, 1);
+$spring-slow-effects-stiffness: var(--md-sys-motion-spring-slow-effects-stiffness, 800);
+$spring-slow-effects: (
+  damping:  $spring-slow-effects-damping,
+  stiffness: $spring-slow-effects-stiffness,
+);
+$spring-slow-spatial-damping: var(--md-sys-motion-spring-slow-spatial-damping, 0.9);
+$spring-slow-spatial-stiffness: var(--md-sys-motion-spring-slow-spatial-stiffness, 300);
+$spring-slow-spatial: (
+  damping:  $spring-slow-spatial-damping,
+  stiffness: $spring-slow-spatial-stiffness,
+);

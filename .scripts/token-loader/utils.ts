@@ -1,4 +1,4 @@
-import type { SassDeclarationToken } from './TokenSystemProcessor.js';
+import type { SassDeclarationToken } from './TokenSystemProcessor.ts';
 
 export const root: URL = new URL('../../', import.meta.url);
 
@@ -23,39 +23,21 @@ export const HEADER = `/*
  * !!! DO NOT MODIFY IT BY HAND !!!
  */
 @use "sass:map";
-@use '../defaults/refs' as refs;
-@use '../defaults/sys' as sys;
-
 `;
 
-export function tokenNameToSassVar(
+export function extractSetName(
   tokenName: string,
-  currentSet: string,
+  tokenNameSuffix: string,
 ): string {
-  if (tokenName.startsWith(currentSet)) {
-    return `$${tokenName.substring(currentSet.length + 1).replaceAll('.', '-')}`;
-  }
+  return tokenName.replace(`.${tokenNameSuffix}`, '');
+}
 
-  const bareTokenName = tokenName.replaceAll('.', '-');
-
-  if (bareTokenName.startsWith('md-sys')) {
-    return `sys.$${bareTokenName.replace('md-sys-', '')}`;
-  } else if (bareTokenName.startsWith('md-ref')) {
-    return `refs.$${bareTokenName.replace('md-ref-', '')}`;
-  }
-
-  return `$${bareTokenName}`;
+export function tokenNameToSass(token: string): string {
+  return token.replaceAll('.', '-');
 }
 
 export function tokenNameToCssVar(tokenName: string): string {
-  return `--${tokenName.replaceAll('.', '-')}`;
-}
-
-export function tokenNameToSassVarDeclaration(
-  tokenName: string,
-  setName: string,
-): string {
-  return `$${tokenName.replace(`${setName}.`, '').replaceAll('.', '-')}`;
+  return `--${tokenNameToSass(tokenName)}`;
 }
 
 export function tokenValueToCSSVarWithFallback(
@@ -90,4 +72,8 @@ export function* distinct<T>(
   }
 
   return undefined;
+}
+
+export function kebabCaseToCamelCase(str: string): string {
+  return str.replace(/-./g, (x) => x[1].toUpperCase());
 }

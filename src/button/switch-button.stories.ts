@@ -3,7 +3,7 @@ import { html } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
 import './switch-button.js';
-import type { SwitchButtonVariant } from './switch-button.js';
+import type { SwitchButtonVariant } from './switch-button.ts';
 
 type SwitchButtonProps = Readonly<{
   variant?: SwitchButtonVariant;

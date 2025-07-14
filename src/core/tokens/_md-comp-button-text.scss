@@ -6,26 +6,25 @@
  * !!! DO NOT MODIFY IT BY HAND !!!
  */
 @use "sass:map";
-@use '../defaults/refs' as refs;
-@use '../defaults/sys' as sys;
-
-$disabled-container-color: sys.$color-on-surface;
+@use "md-sys-color";
+@use "md-sys-state";
+$disabled-container-color: md-sys-color.$on-surface;
 $disabled-container-opacity: 0.1;
-$disabled-icon-color: sys.$color-on-surface;
+$disabled-icon-color: md-sys-color.$on-surface;
 $disabled-icon-opacity: 0.38;
-$disabled-label-text-color: sys.$color-on-surface;
+$disabled-label-text-color: md-sys-color.$on-surface;
 $disabled-label-text-opacity: 0.38;
-$focused-icon-color: sys.$color-primary;
-$focused-label-text-color: sys.$color-primary;
-$focused-state-layer-color: sys.$color-primary;
-$focused-state-layer-opacity: sys.$state-focus-state-layer-opacity;
-$hovered-icon-color: sys.$color-primary;
-$hovered-label-text-color: sys.$color-primary;
-$hovered-state-layer-color: sys.$color-primary;
-$hovered-state-layer-opacity: sys.$state-hover-state-layer-opacity;
-$icon-color: sys.$color-primary;
-$label-text-color: sys.$color-primary;
-$pressed-icon-color: sys.$color-primary;
-$pressed-label-text-color: sys.$color-primary;
-$pressed-state-layer-color: sys.$color-primary;
-$pressed-state-layer-opacity: sys.$state-pressed-state-layer-opacity;
+$focused-icon-color: md-sys-color.$primary;
+$focused-label-text-color: md-sys-color.$primary;
+$focused-state-layer-color: md-sys-color.$primary;
+$focused-state-layer-opacity: md-sys-state.$focus-state-layer-opacity;
+$hovered-icon-color: md-sys-color.$primary;
+$hovered-label-text-color: md-sys-color.$primary;
+$hovered-state-layer-color: md-sys-color.$primary;
+$hovered-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
+$icon-color: md-sys-color.$primary;
+$label-text-color: md-sys-color.$primary;
+$pressed-icon-color: md-sys-color.$primary;
+$pressed-label-text-color: md-sys-color.$primary;
+$pressed-state-layer-color: md-sys-color.$primary;
+$pressed-state-layer-opacity: md-sys-state.$pressed-state-layer-opacity;

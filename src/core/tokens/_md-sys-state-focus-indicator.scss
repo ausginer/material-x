@@ -6,8 +6,6 @@
  * !!! DO NOT MODIFY IT BY HAND !!!
  */
 @use "sass:map";
-@use '../defaults/refs' as refs;
-@use '../defaults/sys' as sys;
 
-$outer-offset: 2px;
-$thickness: 3px;
+$outer-offset: var(--md-sys-state-focus-indicator-outer-offset, 2px);
+$thickness: var(--md-sys-state-focus-indicator-thickness, 3px);

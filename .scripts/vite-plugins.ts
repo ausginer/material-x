@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
-import { compileCSS, parseCSSImports } from './css.js';
+import { compileCSS, parseCSSImports } from './css.ts';
 
 // eslint-disable-next-line import-x/prefer-default-export
 export function constructCss(): Plugin {

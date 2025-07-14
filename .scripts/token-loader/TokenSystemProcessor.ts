@@ -1,4 +1,6 @@
-import SystemUnifier from './SystemUnifier.js';
+import type { MaterialTheme } from './MaterialTheme.js';
+import SystemUnifier from './SystemUnifier.ts';
+import type TokenSetManager from './TokenSetManager.ts';
 import {
   TextTransform,
   type Token,
@@ -6,8 +8,12 @@ import {
   TokenShapeFamily,
   type TokenTable,
   type Value,
-} from './TokenTable.js';
-import { tokenNameToSassVar } from './utils.js';
+} from './TokenTable.ts';
+import {
+  extractSetName,
+  kebabCaseToCamelCase,
+  tokenNameToSass,
+} from './utils.ts';
 
 export type SassDeclarationToken = readonly [
   name: string,
@@ -16,9 +22,11 @@ export type SassDeclarationToken = readonly [
 
 export default class TokenSystemProcessor {
   readonly #unifier: SystemUnifier;
+  readonly #theme: MaterialTheme;
 
-  constructor(tables: readonly TokenTable[]) {
+  constructor(tables: readonly TokenTable[], theme: MaterialTheme) {
     this.#unifier = new SystemUnifier(tables.map(({ system }) => system));
+    this.#theme = theme;
   }
 
   get tokens(): IteratorObject<Token> {
@@ -50,20 +58,27 @@ export default class TokenSystemProcessor {
     return {
       displayName: tokenSet?.displayName,
       tokenSetName:
-        tokenSet?.tokenSetName ?? tokenName.replace(`.${tokenNameSuffix}`, ''),
+        tokenSet?.tokenSetName ?? extractSetName(tokenName, tokenNameSuffix),
     };
   }
 
   processToken(
     token: Token,
-    tokenSetName: string,
+    setManager: TokenSetManager,
   ): readonly SassDeclarationToken[] {
-    const sassVarName = `$${token.tokenNameSuffix.replaceAll('.', '-')}`;
+    const sassVarName = `$${tokenNameToSass(token.tokenNameSuffix)}`;
     const valueToken = this.getTokenValue(token);
 
     if (!valueToken) {
       console.error(`No value found for ${token.tokenName}`);
       return [[sassVarName]];
+    }
+
+    if (setManager.name === 'md.sys.color') {
+      const colorName = kebabCaseToCamelCase(token.tokenNameSuffix);
+      return [
+        [sassVarName, this.#theme.schemes['light-medium-contrast'][colorName]],
+      ];
     }
 
     const {
@@ -105,11 +120,22 @@ export default class TokenSystemProcessor {
         lineHeightTokenName,
       } = type;
 
+      const fontNames = this.#convertToImported(fontNameTokenName, setManager);
+      const fontWeight = this.#convertToImported(
+        fontWeightTokenName,
+        setManager,
+      );
+      const fontSize = this.#convertToImported(fontSizeTokenName, setManager);
+      const lineHeight = this.#convertToImported(
+        lineHeightTokenName,
+        setManager,
+      );
+
       const map = `(
-  font-names: ${tokenNameToSassVar(fontNameTokenName, tokenSetName)},
-  font-weight: ${tokenNameToSassVar(fontWeightTokenName, tokenSetName)},
-  font-size: ${tokenNameToSassVar(fontSizeTokenName, tokenSetName)},
-  line-height: ${tokenNameToSassVar(lineHeightTokenName, tokenSetName)},
+  font-names: ${fontNames},
+  font-weight: ${fontWeight},
+  font-size: ${fontSize},
+  line-height: ${lineHeight},
 )`;
 
       return [[sassVarName, map]];
@@ -128,10 +154,11 @@ export default class TokenSystemProcessor {
     } else if (color != null) {
       const { red = 0, green = 0, blue = 0, alpha } = color;
 
-      const result =
-        alpha != null
-          ? `rgba(${Math.round(red * 255)} ${Math.round(green * 255)} ${Math.round(blue * 255)} ${Math.round(alpha * 255)})`
-          : `rgb(${Math.round(red * 255)} ${Math.round(green * 255)} ${Math.round(blue * 255)})`;
+      const result = `rgb(${Math.round(red * 255)} ${Math.round(
+        green * 255,
+      )} ${Math.round(blue * 255)}${
+        alpha != null ? ` / ${Math.round(alpha * 255)}` : ''
+      })`;
 
       return [[sassVarName, result]];
     } else if (shape != null) {
@@ -174,9 +201,20 @@ export default class TokenSystemProcessor {
     } else if (customComposite) {
       const { damping, stiffness } = customComposite.properties;
 
+      const _damping = this.#convertToImported(damping.tokenName, setManager);
+      const _stiffness = this.#convertToImported(
+        stiffness.tokenName,
+        setManager,
+      );
+
       return [
-        [`${sassVarName}-damping`, damping.tokenName],
-        [`${sassVarName}-stiffness`, stiffness.tokenName],
+        [
+          sassVarName,
+          `(
+  damping:  ${_damping},
+  stiffness: ${_stiffness},
+)`,
+        ],
       ];
     } else if (axisValue) {
       return [[sassVarName, axisValue.value ?? 0]];
@@ -193,7 +231,14 @@ export default class TokenSystemProcessor {
 
       return [[sassVarName, value]];
     } else if (valueTokenName != null) {
-      return [[sassVarName, tokenNameToSassVar(valueTokenName, tokenSetName)]];
+      const imported = this.#convertToImported(valueTokenName, setManager);
+
+      if (!imported) {
+        console.error("Token wasn't found: ", valueTokenName);
+        return [[sassVarName]];
+      }
+
+      return [[sassVarName, imported]];
     } else {
       console.error(
         'Value token has no known properties',
@@ -204,22 +249,28 @@ export default class TokenSystemProcessor {
     }
   }
 
-  // async writeTokenSet(
-  //   { tokenSetName }: TokenSet,
-  //   data: SassDeclaration,
-  // ): Promise<void> {
-  //   const fileURL = new URL(
-  //     `src/core/tokens/_${tokenSetName.replace(/\./g, '-')}.scss`,
-  //     root,
-  //   );
-  //
-  //   await writeFile(
-  //     fileURL,
-  //     `${createHeader(this.#headerURL)}${Object.entries(data)
-  //       .map(([declaration, value]) => `${declaration}: ${value};`)
-  //       .toSorted(COLLATOR.compare)
-  //       .join('\n')}`,
-  //     'utf8',
-  //   );
-  // }
+  #convertToImported(
+    tokenName: string,
+    setManager: TokenSetManager,
+  ): string | undefined {
+    const token = this.#unifier.tokens.find(
+      (token) => token.tokenName === tokenName,
+    );
+
+    if (!token) {
+      return undefined;
+    }
+
+    const tokenSetName = extractSetName(token.tokenName, token.tokenNameSuffix);
+    const varName = `$${tokenNameToSass(token.tokenNameSuffix)}`;
+
+    if (tokenSetName === setManager.name) {
+      return varName;
+    }
+
+    const importedSet = tokenNameToSass(tokenSetName);
+    setManager.add(`@use "${importedSet}";`);
+
+    return `${importedSet}.${varName}`;
+  }
 }

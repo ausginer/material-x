@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import type { TokenTable } from './TokenTable.js';
-import { type JSONModule, root } from './utils.js';
+import type { TokenTable } from './TokenTable.ts';
+import { type JSONModule, root } from './utils.ts';
 
 const CACHE_DIR = new URL('node_modules/.cache/tokens/', root);
 

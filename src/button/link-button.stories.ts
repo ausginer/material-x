@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
-import type { ButtonVariant } from './button.js';
+import type { ButtonVariant } from './button.ts';
 import './link-button.js';
 
 type LinkButtonProps = Readonly<{

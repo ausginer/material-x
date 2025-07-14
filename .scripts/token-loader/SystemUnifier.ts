@@ -4,8 +4,8 @@ import type {
   TokenSet,
   TokenSystem,
   Value,
-} from './TokenTable.js';
-import { distinct } from './utils.js';
+} from './TokenTable.ts';
+import { distinct } from './utils.ts';
 
 export default class SystemUnifier {
   readonly #systems: readonly TokenSystem[];

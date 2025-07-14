@@ -1,4 +1,4 @@
-import { attachShadow, createTemplate, define } from '../utils.js';
+import { attachShadow, createTemplate, define } from '../utils.ts';
 import css from './icon.scss' with { type: 'css' };
 
 const template = createTemplate(`<slot></slot>`);
