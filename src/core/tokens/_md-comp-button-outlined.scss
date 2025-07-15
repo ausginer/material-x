@@ -8,55 +8,76 @@
 @use "sass:map";
 @use "md-sys-color";
 @use "md-sys-state";
-$disabled-container-opacity: 0.1;
-$disabled-icon-color: md-sys-color.$on-surface;
-$disabled-icon-opacity: 0.38;
-$disabled-label-text-color: md-sys-color.$on-surface;
-$disabled-label-text-opacity: 0.38;
-$disabled-outline-color: md-sys-color.$outline-variant;
-$focused-icon-color: md-sys-color.$on-surface-variant;
-$focused-label-text-color: md-sys-color.$on-surface-variant;
-$focused-outline-color: md-sys-color.$outline-variant;
-$focused-state-layer-color: md-sys-color.$on-surface-variant;
-$focused-state-layer-opacity: md-sys-state.$focus-state-layer-opacity;
-$hovered-icon-color: md-sys-color.$on-surface-variant;
-$hovered-label-text-color: md-sys-color.$on-surface-variant;
-$hovered-outline-color: md-sys-color.$outline-variant;
-$hovered-state-layer-color: md-sys-color.$on-surface-variant;
-$hovered-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
-$icon-color: md-sys-color.$on-surface-variant;
-$label-text-color: md-sys-color.$on-surface-variant;
-$outline-color: md-sys-color.$outline-variant;
-$pressed-icon-color: md-sys-color.$on-surface-variant;
-$pressed-label-text-color: md-sys-color.$on-surface-variant;
-$pressed-outline-color: md-sys-color.$outline-variant;
-$pressed-state-layer-color: md-sys-color.$on-surface-variant;
-$pressed-state-layer-opacity: md-sys-state.$pressed-state-layer-opacity;
-$selected-container-color: md-sys-color.$inverse-surface;
-$selected-disabled-container-color: md-sys-color.$on-surface;
-$selected-focused-icon-color: md-sys-color.$inverse-on-surface;
-$selected-focused-label-text-color: md-sys-color.$inverse-on-surface;
-$selected-focused-state-layer-color: md-sys-color.$inverse-on-surface;
-$selected-hovered-icon-color: md-sys-color.$inverse-on-surface;
-$selected-hovered-label-text-color: md-sys-color.$inverse-on-surface;
-$selected-hovered-state-layer-color: md-sys-color.$inverse-on-surface;
-$selected-icon-color: md-sys-color.$inverse-on-surface;
-$selected-label-text-color: md-sys-color.$inverse-on-surface;
-$selected-pressed-icon-color: md-sys-color.$inverse-on-surface;
-$selected-pressed-label-text-color: md-sys-color.$inverse-on-surface;
-$selected-pressed-state-layer-color: md-sys-color.$inverse-on-surface;
-$unselected-disabled-outline-color: md-sys-color.$outline-variant;
-$unselected-focused-icon-color: md-sys-color.$on-surface-variant;
-$unselected-focused-label-text-color: md-sys-color.$on-surface-variant;
-$unselected-focused-outline-color: md-sys-color.$outline-variant;
-$unselected-focused-state-layer-color: md-sys-color.$on-surface-variant;
-$unselected-hovered-icon-color: md-sys-color.$on-surface-variant;
-$unselected-hovered-label-text-color: md-sys-color.$on-surface-variant;
-$unselected-hovered-outline-color: md-sys-color.$outline-variant;
-$unselected-hovered-state-layer-color: md-sys-color.$on-surface-variant;
-$unselected-icon-color: md-sys-color.$on-surface-variant;
-$unselected-label-text-color: md-sys-color.$on-surface-variant;
-$unselected-pressed-icon-color: md-sys-color.$on-surface-variant;
-$unselected-pressed-label-text-color: md-sys-color.$on-surface-variant;
-$unselected-pressed-outline-color: md-sys-color.$outline-variant;
-$unselected-pressed-state-layer-color: md-sys-color.$on-surface-variant;
+
+$default: (
+  icon-color: md-sys-color.$on-surface-variant,
+  label-text-color: md-sys-color.$on-surface-variant,
+  outline-color: md-sys-color.$outline-variant,
+);
+
+$disabled: (
+  container-opacity: 0.1,
+  icon-color: md-sys-color.$on-surface,
+  icon-opacity: 0.38,
+  label-text-color: md-sys-color.$on-surface,
+  label-text-opacity: 0.38,
+  outline-color: md-sys-color.$outline-variant,
+);
+
+$focused: (
+  icon-color: md-sys-color.$on-surface-variant,
+  label-text-color: md-sys-color.$on-surface-variant,
+  outline-color: md-sys-color.$outline-variant,
+  state-layer-color: md-sys-color.$on-surface-variant,
+  state-layer-opacity: md-sys-state.$focus-state-layer-opacity,
+);
+
+$hovered: (
+  icon-color: md-sys-color.$on-surface-variant,
+  label-text-color: md-sys-color.$on-surface-variant,
+  outline-color: md-sys-color.$outline-variant,
+  state-layer-color: md-sys-color.$on-surface-variant,
+  state-layer-opacity: md-sys-state.$hover-state-layer-opacity,
+);
+
+$pressed: (
+  icon-color: md-sys-color.$on-surface-variant,
+  label-text-color: md-sys-color.$on-surface-variant,
+  outline-color: md-sys-color.$outline-variant,
+  state-layer-color: md-sys-color.$on-surface-variant,
+  state-layer-opacity: md-sys-state.$pressed-state-layer-opacity,
+);
+
+$selected: (
+  container-color: md-sys-color.$inverse-surface,
+  disabled-container-color: md-sys-color.$on-surface,
+  focused-icon-color: md-sys-color.$inverse-on-surface,
+  focused-label-text-color: md-sys-color.$inverse-on-surface,
+  focused-state-layer-color: md-sys-color.$inverse-on-surface,
+  hovered-icon-color: md-sys-color.$inverse-on-surface,
+  hovered-label-text-color: md-sys-color.$inverse-on-surface,
+  hovered-state-layer-color: md-sys-color.$inverse-on-surface,
+  icon-color: md-sys-color.$inverse-on-surface,
+  label-text-color: md-sys-color.$inverse-on-surface,
+  pressed-icon-color: md-sys-color.$inverse-on-surface,
+  pressed-label-text-color: md-sys-color.$inverse-on-surface,
+  pressed-state-layer-color: md-sys-color.$inverse-on-surface,
+);
+
+$unselected: (
+  disabled-outline-color: md-sys-color.$outline-variant,
+  focused-icon-color: md-sys-color.$on-surface-variant,
+  focused-label-text-color: md-sys-color.$on-surface-variant,
+  focused-outline-color: md-sys-color.$outline-variant,
+  focused-state-layer-color: md-sys-color.$on-surface-variant,
+  hovered-icon-color: md-sys-color.$on-surface-variant,
+  hovered-label-text-color: md-sys-color.$on-surface-variant,
+  hovered-outline-color: md-sys-color.$outline-variant,
+  hovered-state-layer-color: md-sys-color.$on-surface-variant,
+  icon-color: md-sys-color.$on-surface-variant,
+  label-text-color: md-sys-color.$on-surface-variant,
+  pressed-icon-color: md-sys-color.$on-surface-variant,
+  pressed-label-text-color: md-sys-color.$on-surface-variant,
+  pressed-outline-color: md-sys-color.$outline-variant,
+  pressed-state-layer-color: md-sys-color.$on-surface-variant,
+);

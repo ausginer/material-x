@@ -7,6 +7,7 @@
  */
 @use "sass:map";
 
+
 $corner-extra-extra-large: var(--md-sys-shape-corner-extra-extra-large, 48px);
 $corner-extra-large-increased: var(--md-sys-shape-corner-extra-large-increased, 32px);
 $corner-extra-large-top-bottom-left: var(--md-sys-shape-corner-extra-large-top-bottom-left, 0px);
@@ -19,7 +20,7 @@ $corner-extra-small-top-bottom-right: var(--md-sys-shape-corner-extra-small-top-
 $corner-extra-small-top-top-left: var(--md-sys-shape-corner-extra-small-top-top-left, 4px);
 $corner-extra-small-top-top-right: var(--md-sys-shape-corner-extra-small-top-top-right, 4px);
 $corner-extra-small: var(--md-sys-shape-corner-extra-small, 4px);
-$corner-full: var(--md-sys-shape-corner-full, 9999px);
+$corner-full: var(--md-sys-shape-corner-full, 9999rem);
 $corner-large-end-bottom-left: var(--md-sys-shape-corner-large-end-bottom-left, 0px);
 $corner-large-end-bottom-right: var(--md-sys-shape-corner-large-end-bottom-right, 16px);
 $corner-large-end-top-left: var(--md-sys-shape-corner-large-end-top-left, 0px);

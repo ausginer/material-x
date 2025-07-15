@@ -11,107 +11,98 @@
 @use "md-sys-color";
 @use "md-sys-state";
 @use "md-sys-shape";
-$active-indicator-color: md-sys-color.$on-surface-variant;
-$active-indicator-height: 1px;
-$caret-color: md-sys-color.$primary;
-$container-color: md-sys-color.$surface-container-highest;
-$container-height: 56px;
-$container-shape: md-sys-shape.$corner-extra-small-top;
-$disabled-active-indicator-color: md-sys-color.$on-surface;
-$disabled-active-indicator-height: 1px;
-$disabled-active-indicator-opacity: 0.38;
-$disabled-container-color: md-sys-color.$on-surface;
-$disabled-container-opacity: 0.04;
-$disabled-input-text-color: md-sys-color.$on-surface;
-$disabled-input-text-opacity: 0.38;
-$disabled-label-text-color: md-sys-color.$on-surface;
-$disabled-label-text-opacity: 0.38;
-$disabled-leading-icon-color: md-sys-color.$on-surface;
-$disabled-leading-icon-opacity: 0.38;
-$disabled-supporting-text-color: md-sys-color.$on-surface;
-$disabled-supporting-text-opacity: 0.38;
-$disabled-trailing-icon-color: md-sys-color.$on-surface;
-$disabled-trailing-icon-opacity: 0.38;
-$error-active-indicator-color: md-sys-color.$error;
-$error-focus-active-indicator-color: md-sys-color.$error;
-$error-focus-caret-color: md-sys-color.$error;
-$error-focus-input-text-color: md-sys-color.$on-surface;
-$error-focus-label-text-color: md-sys-color.$error;
-$error-focus-leading-icon-color: md-sys-color.$on-surface-variant;
-$error-focus-supporting-text-color: md-sys-color.$error;
-$error-focus-trailing-icon-color: md-sys-color.$error;
-$error-hover-active-indicator-color: md-sys-color.$on-error-container;
-$error-hover-input-text-color: md-sys-color.$on-surface;
-$error-hover-label-text-color: md-sys-color.$on-error-container;
-$error-hover-leading-icon-color: md-sys-color.$on-surface-variant;
-$error-hover-state-layer-color: md-sys-color.$on-surface;
-$error-hover-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
-$error-hover-supporting-text-color: md-sys-color.$error;
-$error-hover-trailing-icon-color: md-sys-color.$on-error-container;
-$error-input-text-color: md-sys-color.$on-surface;
-$error-label-text-color: md-sys-color.$error;
-$error-leading-icon-color: md-sys-color.$on-surface-variant;
-$error-supporting-text-color: md-sys-color.$error;
-$error-trailing-icon-color: md-sys-color.$error;
-$focus-active-indicator-color: md-sys-color.$primary;
-$focus-active-indicator-height: 2px;
-$focus-active-indicator-thickness: md-sys-state-focus-indicator.$thickness;
-$focus-input-text-color: md-sys-color.$on-surface;
-$focus-label-text-color: md-sys-color.$primary;
-$focus-leading-icon-color: md-sys-color.$on-surface-variant;
-$focus-supporting-text-color: md-sys-color.$on-surface-variant;
-$focus-trailing-icon-color: md-sys-color.$on-surface-variant;
-$hover-active-indicator-color: md-sys-color.$on-surface;
-$hover-active-indicator-height: 1px;
-$hover-input-text-color: md-sys-color.$on-surface;
-$hover-label-text-color: md-sys-color.$on-surface-variant;
-$hover-leading-icon-color: md-sys-color.$on-surface-variant;
-$hover-state-layer-color: md-sys-color.$on-surface;
-$hover-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
-$hover-supporting-text-color: md-sys-color.$on-surface-variant;
-$hover-trailing-icon-color: md-sys-color.$on-surface-variant;
-$input-text-color: md-sys-color.$on-surface;
-$input-text-font: md-sys-typescale.$body-large-font;
-$input-text-line-height: md-sys-typescale.$body-large-line-height;
-$input-text-placeholder-color: md-sys-color.$on-surface-variant;
-$input-text-prefix-color: md-sys-color.$on-surface-variant;
-$input-text-size: md-sys-typescale.$body-large-size;
-$input-text-suffix-color: md-sys-color.$on-surface-variant;
-$input-text-tracking: md-sys-typescale.$body-large-tracking;
-$input-text-type: (
-  font-names: $input-text-font,
-  font-weight: $input-text-weight,
-  font-size: $input-text-size,
-  line-height: $input-text-line-height,
+
+$default: (
+  active-indicator-color: md-sys-color.$on-surface-variant,
+  active-indicator-height: 1px,
+  caret-color: md-sys-color.$primary,
+  container-color: md-sys-color.$surface-container-highest,
+  container-height: 56px,
+  container-shape: md-sys-shape.$corner-extra-small-top,
+  error-active-indicator-color: md-sys-color.$error,
+  error-focus-active-indicator-color: md-sys-color.$error,
+  error-focus-caret-color: md-sys-color.$error,
+  error-focus-input-text-color: md-sys-color.$on-surface,
+  error-focus-label-text-color: md-sys-color.$error,
+  error-focus-leading-icon-color: md-sys-color.$on-surface-variant,
+  error-focus-supporting-text-color: md-sys-color.$error,
+  error-focus-trailing-icon-color: md-sys-color.$error,
+  error-hover-active-indicator-color: md-sys-color.$on-error-container,
+  error-hover-input-text-color: md-sys-color.$on-surface,
+  error-hover-label-text-color: md-sys-color.$on-error-container,
+  error-hover-leading-icon-color: md-sys-color.$on-surface-variant,
+  error-hover-state-layer-color: md-sys-color.$on-surface,
+  error-hover-state-layer-opacity: md-sys-state.$hover-state-layer-opacity,
+  error-hover-supporting-text-color: md-sys-color.$error,
+  error-hover-trailing-icon-color: md-sys-color.$on-error-container,
+  error-input-text-color: md-sys-color.$on-surface,
+  error-label-text-color: md-sys-color.$error,
+  error-leading-icon-color: md-sys-color.$on-surface-variant,
+  error-supporting-text-color: md-sys-color.$error,
+  error-trailing-icon-color: md-sys-color.$error,
+  focus-active-indicator-color: md-sys-color.$primary,
+  focus-active-indicator-height: 2px,
+  focus-active-indicator-thickness: md-sys-state-focus-indicator.$thickness,
+  focus-input-text-color: md-sys-color.$on-surface,
+  focus-label-text-color: md-sys-color.$primary,
+  focus-leading-icon-color: md-sys-color.$on-surface-variant,
+  focus-supporting-text-color: md-sys-color.$on-surface-variant,
+  focus-trailing-icon-color: md-sys-color.$on-surface-variant,
+  hover-active-indicator-color: md-sys-color.$on-surface,
+  hover-active-indicator-height: 1px,
+  hover-input-text-color: md-sys-color.$on-surface,
+  hover-label-text-color: md-sys-color.$on-surface-variant,
+  hover-leading-icon-color: md-sys-color.$on-surface-variant,
+  hover-state-layer-color: md-sys-color.$on-surface,
+  hover-state-layer-opacity: md-sys-state.$hover-state-layer-opacity,
+  hover-supporting-text-color: md-sys-color.$on-surface-variant,
+  hover-trailing-icon-color: md-sys-color.$on-surface-variant,
+  input-text-color: md-sys-color.$on-surface,
+  input-text-font: md-sys-typescale.$body-large-font,
+  input-text-line-height: md-sys-typescale.$body-large-line-height,
+  input-text-placeholder-color: md-sys-color.$on-surface-variant,
+  input-text-prefix-color: md-sys-color.$on-surface-variant,
+  input-text-size: md-sys-typescale.$body-large-size,
+  input-text-suffix-color: md-sys-color.$on-surface-variant,
+  input-text-tracking: md-sys-typescale.$body-large-tracking,
+  input-text-type: #{$input-text-weight} #{$input-text-size}/#{$input-text-line-height} #{$input-text-font} ,
+  input-text-weight: md-sys-typescale.$body-large-weight,
+  label-text-color: md-sys-color.$on-surface-variant,
+  label-text-font: md-sys-typescale.$body-large-font,
+  label-text-line-height: md-sys-typescale.$body-large-line-height,
+  label-text-populated-line-height: md-sys-typescale.$body-small-line-height,
+  label-text-populated-size: md-sys-typescale.$body-small-size,
+  label-text-size: md-sys-typescale.$body-large-size,
+  label-text-tracking: md-sys-typescale.$body-large-tracking,
+  label-text-type: #{$label-text-weight} #{$label-text-size}/#{$label-text-line-height} #{$label-text-font} ,
+  label-text-weight: md-sys-typescale.$body-large-weight,
+  leading-icon-color: md-sys-color.$on-surface-variant,
+  leading-icon-size: 24px,
+  supporting-text-color: md-sys-color.$on-surface-variant,
+  supporting-text-font: md-sys-typescale.$body-small-font,
+  supporting-text-line-height: md-sys-typescale.$body-small-line-height,
+  supporting-text-size: md-sys-typescale.$body-small-size,
+  supporting-text-tracking: md-sys-typescale.$body-small-tracking,
+  supporting-text-type: #{$supporting-text-weight} #{$supporting-text-size}/#{$supporting-text-line-height} #{$supporting-text-font} ,
+  supporting-text-weight: md-sys-typescale.$body-small-weight,
+  trailing-icon-color: md-sys-color.$on-surface-variant,
+  trailing-icon-size: 24px,
 );
-$input-text-weight: md-sys-typescale.$body-large-weight;
-$label-text-color: md-sys-color.$on-surface-variant;
-$label-text-font: md-sys-typescale.$body-large-font;
-$label-text-line-height: md-sys-typescale.$body-large-line-height;
-$label-text-populated-line-height: md-sys-typescale.$body-small-line-height;
-$label-text-populated-size: md-sys-typescale.$body-small-size;
-$label-text-size: md-sys-typescale.$body-large-size;
-$label-text-tracking: md-sys-typescale.$body-large-tracking;
-$label-text-type: (
-  font-names: $label-text-font,
-  font-weight: $label-text-weight,
-  font-size: $label-text-size,
-  line-height: $label-text-line-height,
+
+$disabled: (
+  active-indicator-color: md-sys-color.$on-surface,
+  active-indicator-height: 1px,
+  active-indicator-opacity: 0.38,
+  container-color: md-sys-color.$on-surface,
+  container-opacity: 0.04,
+  input-text-color: md-sys-color.$on-surface,
+  input-text-opacity: 0.38,
+  label-text-color: md-sys-color.$on-surface,
+  label-text-opacity: 0.38,
+  leading-icon-color: md-sys-color.$on-surface,
+  leading-icon-opacity: 0.38,
+  supporting-text-color: md-sys-color.$on-surface,
+  supporting-text-opacity: 0.38,
+  trailing-icon-color: md-sys-color.$on-surface,
+  trailing-icon-opacity: 0.38,
 );
-$label-text-weight: md-sys-typescale.$body-large-weight;
-$leading-icon-color: md-sys-color.$on-surface-variant;
-$leading-icon-size: 24px;
-$supporting-text-color: md-sys-color.$on-surface-variant;
-$supporting-text-font: md-sys-typescale.$body-small-font;
-$supporting-text-line-height: md-sys-typescale.$body-small-line-height;
-$supporting-text-size: md-sys-typescale.$body-small-size;
-$supporting-text-tracking: md-sys-typescale.$body-small-tracking;
-$supporting-text-type: (
-  font-names: $supporting-text-font,
-  font-weight: $supporting-text-weight,
-  font-size: $supporting-text-size,
-  line-height: $supporting-text-line-height,
-);
-$supporting-text-weight: md-sys-typescale.$body-small-weight;
-$trailing-icon-color: md-sys-color.$on-surface-variant;
-$trailing-icon-size: 24px;

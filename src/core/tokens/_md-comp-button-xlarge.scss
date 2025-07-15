@@ -9,17 +9,30 @@
 @use "md-sys-typescale";
 @use "md-sys-shape";
 @use "md-sys-motion";
-$container-height: 136px;
-$container-shape-round: md-sys-shape.$corner-full;
-$container-shape-square: md-sys-shape.$corner-extra-large;
-$icon-label-space: 16px;
-$icon-size: 40px;
-$label-text: md-sys-typescale.$headline-large;
-$leading-space: 64px;
-$outlined-outline-width: 3px;
-$pressed-container-corner-size-motion-spring-damping: md-sys-motion.$spring-fast-spatial-damping;
-$pressed-container-corner-size-motion-spring-stiffness: md-sys-motion.$spring-fast-spatial-stiffness;
-$pressed-container-shape: md-sys-shape.$corner-large;
-$selected-container-shape-round: md-sys-shape.$corner-extra-large;
-$selected-container-shape-square: md-sys-shape.$corner-full;
-$trailing-space: 64px;
+
+$default: (
+  container-height: 136px,
+  container-shape-round: md-sys-shape.$corner-full,
+  container-shape-square: md-sys-shape.$corner-extra-large,
+  icon-label-space: 16px,
+  icon-size: 40px,
+  label-text-font: md-sys-typescale.$headline-large-font,
+  label-text-line-height: md-sys-typescale.$headline-large-line-height,
+  label-text-size: md-sys-typescale.$headline-large-size,
+  label-text-weight: md-sys-typescale.$headline-large-weight,
+  label-text: md-sys-typescale.$headline-large,
+  leading-space: 64px,
+  outlined-outline-width: 3px,
+  trailing-space: 64px,
+);
+
+$pressed: (
+  container-corner-size-motion-spring-damping: md-sys-motion.$spring-fast-spatial-damping,
+  container-corner-size-motion-spring-stiffness: md-sys-motion.$spring-fast-spatial-stiffness,
+  container-shape: md-sys-shape.$corner-large,
+);
+
+$selected: (
+  container-shape-round: md-sys-shape.$corner-extra-large,
+  container-shape-square: md-sys-shape.$corner-full,
+);

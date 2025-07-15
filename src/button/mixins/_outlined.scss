@@ -1,20 +1,56 @@
-@use "../properties" as props;
-@use "../../core/tokens/md-comp-button-outlined" as tokens;
+@use '../../core/tokens/md-comp-button' as default-tokens;
+@use '../../core/tokens/md-comp-button-outlined' as tokens;
+@use '../../core/utils/functions' as funcs;
+@use '../../core/utils/map';
+@use '../utils' as *;
+
+$default: funcs.pick-unique(tokens.$default, default-tokens.$default);
+$hovered: funcs.pick-unique(tokens.$hovered, default-tokens.$hovered);
+$focused: funcs.pick-unique(tokens.$focused, default-tokens.$focused);
+$pressed: funcs.pick-unique(tokens.$pressed, default-tokens.$pressed);
+$unselected: funcs.pick-unique(tokens.$unselected, default-tokens.$unselected);
+$selected: funcs.pick-unique(tokens.$selected, default-tokens.$selected);
 
 @mixin main {
-  :host([variant="outlined"]) {
+  :host([flavor='outlined']) {
+    @include tokens-as-private-vars($default);
     --_container-color: transparent;
-    --_label-color: #{props.label-color(tokens.$label-text-color)};
-    border: 1px solid #{props.outline-color(tokens.$outline-color)};
+    --_outline-width: 1px;
+
+    border: var(--_outline-width) solid var(--_outline-color);
+  }
+
+  @if map.size($hovered) > 0 {
+    :host([flavor='outlined']:hover) {
+      @include tokens-as-private-vars($hovered);
+    }
+  }
+
+  @if map.size($focused) > 0 {
+    :host([flavor='outlined']:focus-visible) {
+      @include tokens-as-private-vars($focused);
+    }
+  }
+
+  @if map.size($pressed) > 0 {
+    :host([flavor='outlined']:active) {
+      @include tokens-as-private-vars($pressed);
+    }
   }
 }
 
 @mixin switch {
-  :host([variant="outlined"][checked]) {
-    --_container-color: #{props.container-color-selected(tokens.$selected-container-color)};
-    --_label-color: #{props.label-color-selected(tokens.$selected-container-color)};
-    --_state-layer-color: #{tokens.$selected-hovered-state-layer-color};
+  @if map.size($unselected) > 0 {
+    :host([flavor='outlined']) {
+      @include tokens-as-private-vars($unselected);
+    }
+  }
 
-    border: none;
+  @if map.size($unselected) > 0 {
+    :host([flavor='outlined'][unchecked]) {
+      @include tokens-as-private-vars($unselected);
+
+      border: none;
+    }
   }
 }

@@ -1,0 +1,16 @@
+@use 'sass:meta';
+@use 'sass:string';
+@use '../core/utils/functions';
+@use '../core/tokens/md-comp-button' as button-tokens;
+
+@mixin tokens-as-private-vars($tokens) {
+  @if meta.type-of($tokens) != 'map' {
+    @error "Expected a map of tokens, but got #{meta.type-of($tokens)}.";
+  }
+
+  @each $key, $value in $tokens {
+    @if string.index($key, 'stiffness') == null and string.index($key, 'damping') == null {
+      --_#{$key}: var(--md-button-#{$key}, #{$value});
+    }
+  }
+}

@@ -1,19 +1,18 @@
 /* eslint-disable import-x/no-unresolved */
 import { basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import pxToRem from '@minko-fe/postcss-pxtorem';
 import cssnanoPlugin from 'cssnano';
 import MagicString from 'magic-string';
 import postcss from 'postcss';
-import pxToRem from 'postcss-pxtorem';
 import type { SourceMap } from 'rollup';
 import { compileString } from 'sass';
 import * as sorcery from 'sorcery';
 
 const cssTransformer = postcss([
   pxToRem({
-    rootValue: 16,
     unitPrecision: 3,
-    propList: ['*', '!--font-size'],
+    propList: ['*'],
   }),
   cssnanoPlugin(),
 ]);

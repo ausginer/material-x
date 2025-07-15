@@ -1,9 +1,11 @@
 @use "mixins/default";
 @use "mixins/elevated";
 @use "mixins/outlined";
+@use "mixins/size";
 
 @include default.main;
 @include elevated.main;
 @include outlined.main;
+@include size.main;
 
 @include default.disabled;

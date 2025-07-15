@@ -1,30 +1,24 @@
-import elevationCss from '../core/elevation/elevation.scss';
 import { createTemplate, define } from '../utils.ts';
-import buttonCss from './button.scss' with { type: 'css' };
-import type { ButtonVariant } from './button.ts';
-import CoreElement from './core.js';
+import CoreButton from './core-button.js';
+import type { ButtonFlavor } from './core-button.ts';
 import switchButtonCss from './switch-button.scss' with { type: 'css' };
 
 const template = createTemplate(`<slot name="icon"></slot><slot></slot>`);
 
-export type SwitchButtonVariant = Exclude<ButtonVariant, 'text'>;
+export type SwitchButtonFlavor = Exclude<ButtonFlavor, 'text'>;
 
 /**
- * @attr {string} variant
+ * @attr {string} flavor
+ * @attr {string} size
  * @attr {boolean} disabled
  * @attr {boolean} checked
  */
-export default class SwitchButton extends CoreElement {
+export default class SwitchButton extends CoreButton {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['checked', 'disabled'] as const;
 
   constructor() {
-    super(template, { role: 'switch' }, [
-      buttonCss,
-      elevationCss,
-      switchButtonCss,
-    ]);
-    this.tabIndex = 0;
+    super(template, 'switch', [switchButtonCss]);
   }
 }
 

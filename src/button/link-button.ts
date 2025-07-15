@@ -1,7 +1,5 @@
-import elevationCss from '../core/elevation/elevation.scss';
 import { createTemplate, define } from '../utils.ts';
-import css from './button.scss' with { type: 'css' };
-import CoreElement from './core.js';
+import CoreButton from './core-button.js';
 import linkButtonCss from './link-button.scss' with { type: 'css' };
 import textButtonCss from './text-button.scss' with { type: 'css' };
 
@@ -10,21 +8,16 @@ const template = createTemplate(
 );
 
 /**
- * @attr {string} variant
+ * @attr {string} flavor
+ * @attr {string} size
  * @attr {boolean} disabled
  * @attr {string} href
  */
-export default class LinkButton extends CoreElement {
+export default class LinkButton extends CoreButton {
   static readonly observedAttributes = ['disabled', 'href', 'target'] as const;
 
   constructor() {
-    super(template, { role: 'link' }, [
-      css,
-      elevationCss,
-      textButtonCss,
-      linkButtonCss,
-    ]);
-    this.tabIndex = 0;
+    super(template, 'link', [textButtonCss, linkButtonCss]);
   }
 }
 

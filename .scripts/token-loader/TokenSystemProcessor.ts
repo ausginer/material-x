@@ -4,6 +4,7 @@ import type TokenSetManager from './TokenSetManager.ts';
 import {
   TextTransform,
   type Token,
+  type TokenColor,
   type TokenSet,
   TokenShapeFamily,
   type TokenTable,
@@ -66,18 +67,18 @@ export default class TokenSystemProcessor {
     token: Token,
     setManager: TokenSetManager,
   ): readonly SassDeclarationToken[] {
-    const sassVarName = `$${tokenNameToSass(token.tokenNameSuffix)}`;
+    const declaration = tokenNameToSass(token.tokenNameSuffix);
     const valueToken = this.getTokenValue(token);
 
     if (!valueToken) {
       console.error(`No value found for ${token.tokenName}`);
-      return [[sassVarName]];
+      return [[declaration]];
     }
 
     if (setManager.name === 'md.sys.color') {
       const colorName = kebabCaseToCamelCase(token.tokenNameSuffix);
       return [
-        [sassVarName, this.#theme.schemes['light-medium-contrast'][colorName]],
+        [declaration, this.#theme.schemes['light-medium-contrast'][colorName]],
       ];
     }
 
@@ -93,6 +94,7 @@ export default class TokenSystemProcessor {
       fontWeight,
       fontSize,
       lineHeight,
+      motionPath,
       color,
       shape,
       cubicBezier,
@@ -103,64 +105,61 @@ export default class TokenSystemProcessor {
     } = valueToken;
 
     if (length != null) {
-      return [[sassVarName, `${length.value ?? 0}px`]];
+      return [[declaration, `${length.value ?? 0}px`]];
     } else if (opacity != null) {
-      return [[sassVarName, opacity]];
+      return [[declaration, opacity]];
     } else if (elevation != null) {
-      return [[sassVarName, elevation.value ?? 0]];
+      return [[declaration, elevation.value ?? 0]];
     } else if (numeric != null) {
-      return [[sassVarName, numeric]];
+      return [[declaration, numeric]];
     } else if (durationMs != null) {
-      return [[sassVarName, durationMs]];
+      return [[declaration, durationMs]];
     } else if (type != null) {
-      const {
-        fontNameTokenName,
-        fontWeightTokenName,
-        fontSizeTokenName,
-        lineHeightTokenName,
-      } = type;
-
-      const fontNames = this.#convertToImported(fontNameTokenName, setManager);
-      const fontWeight = this.#convertToImported(
-        fontWeightTokenName,
-        setManager,
-      );
-      const fontSize = this.#convertToImported(fontSizeTokenName, setManager);
-      const lineHeight = this.#convertToImported(
-        lineHeightTokenName,
-        setManager,
+      const { fontName, fontWeight, fontSize, lineHeight } = Object.fromEntries(
+        Object.entries(type).map(([key, value]) => [
+          key.replace('TokenName', ''),
+          this.#convertToImported(value, setManager),
+        ]),
       );
 
-      const map = `(
-  font-names: ${fontNames},
-  font-weight: ${fontWeight},
-  font-size: ${fontSize},
-  line-height: ${lineHeight},
-)`;
-
-      return [[sassVarName, map]];
+      return [
+        [
+          declaration,
+          `${fontWeight ? `#{${fontWeight}} ` : ''}${
+            fontSize ? `#{${fontSize}}/` : ''
+          }${lineHeight ? `#{${lineHeight}} ` : ''}${
+            fontName ? `#{${fontName}} ` : ''
+          }`,
+        ] as const,
+      ];
     } else if (fontNames != null) {
       return [
-        [sassVarName, fontNames.values.map((name) => `'${name}'`).join(', ')],
+        [declaration, fontNames.values.map((name) => `'${name}'`).join(', ')],
       ];
     } else if (fontTracking != null) {
-      return [[sassVarName, `${fontTracking.value ?? 0}px`]];
+      return [[declaration, `${fontTracking.value ?? 0}px`]];
     } else if (fontWeight != null) {
-      return [[sassVarName, fontWeight]];
+      return [[declaration, fontWeight]];
     } else if (fontSize != null) {
-      return [[sassVarName, `${fontSize.value}px`]];
+      return [[declaration, `${fontSize.value}px`]];
     } else if (lineHeight != null) {
-      return [[sassVarName, `${lineHeight.value}px`]];
+      return [[declaration, `${lineHeight.value}px`]];
     } else if (color != null) {
-      const { red = 0, green = 0, blue = 0, alpha } = color;
+      const {
+        red = 0,
+        green = 0,
+        blue = 0,
+        alpha,
+      } = Object.fromEntries(
+        Object.entries<number | undefined>(color).map(([key, value]) => [
+          key,
+          key !== 'alpha' && value != null ? Math.round(value * 255) : value,
+        ]),
+      ) as TokenColor;
 
-      const result = `rgb(${Math.round(red * 255)} ${Math.round(
-        green * 255,
-      )} ${Math.round(blue * 255)}${
-        alpha != null ? ` / ${Math.round(alpha * 255)}` : ''
-      })`;
+      const result = `rgb(${red} ${green} ${blue}${alpha != null ? ` / ${alpha}` : ''})`;
 
-      return [[sassVarName, result]];
+      return [[declaration, result]];
     } else if (shape != null) {
       const {
         family,
@@ -176,10 +175,10 @@ export default class TokenSystemProcessor {
       } = shape;
 
       if (family === TokenShapeFamily.FULL) {
-        return [[sassVarName, '9999px']];
+        return [[declaration, '9999rem']];
       } else {
         if (defaultSize?.value != null) {
-          return [[sassVarName, `${defaultSize.value}px`]];
+          return [[declaration, `${defaultSize.value}px`]];
         }
 
         const _topLeft = topLeft ?? top ?? { value: 0 };
@@ -188,36 +187,26 @@ export default class TokenSystemProcessor {
         const _bottomLeft = bottomLeft ?? left ?? { value: 0 };
 
         return [
-          [`${sassVarName}-top-left`, `${_topLeft.value}px`],
-          [`${sassVarName}-top-right`, `${_topRight.value}px`],
-          [`${sassVarName}-bottom-right`, `${_bottomRight.value}px`],
-          [`${sassVarName}-bottom-left`, `${_bottomLeft.value}px`],
+          [`${declaration}-top-left`, `${_topLeft.value}px`],
+          [`${declaration}-top-right`, `${_topRight.value}px`],
+          [`${declaration}-bottom-right`, `${_bottomRight.value}px`],
+          [`${declaration}-bottom-left`, `${_bottomLeft.value}px`],
         ];
       }
     } else if (cubicBezier != null) {
       const { x0 = 0, y0 = 0, x1 = 0, y1 = 0 } = cubicBezier;
 
-      return [[sassVarName, `cubic-bezier(${x0}, ${y0}, ${x1}, ${y1})`]];
+      return [[declaration, `cubic-bezier(${x0}, ${y0}, ${x1}, ${y1})`]];
     } else if (customComposite) {
-      const { damping, stiffness } = customComposite.properties;
-
-      const _damping = this.#convertToImported(damping.tokenName, setManager);
-      const _stiffness = this.#convertToImported(
-        stiffness.tokenName,
-        setManager,
+      console.log(
+        `Skipping ${valueTokenName} because it provides customComposite property`,
       );
 
-      return [
-        [
-          sassVarName,
-          `(
-  damping:  ${_damping},
-  stiffness: ${_stiffness},
-)`,
-        ],
-      ];
-    } else if (axisValue) {
-      return [[sassVarName, axisValue.value ?? 0]];
+      return [[declaration]];
+    } else if (motionPath != null) {
+      return [[declaration, motionPath.standardPath.toLowerCase()]];
+    } else if (axisValue != null) {
+      return [[declaration, axisValue.value ?? 0]];
     } else if (textTransform) {
       let value: string;
 
@@ -226,26 +215,36 @@ export default class TokenSystemProcessor {
         value = 'none';
       } else {
         console.error('Unknown text transform', valueToken, token.tokenName);
-        return [[sassVarName]];
+        return [[declaration]];
       }
 
-      return [[sassVarName, value]];
+      return [[declaration, value]];
     } else if (valueTokenName != null) {
       const imported = this.#convertToImported(valueTokenName, setManager);
 
       if (!imported) {
         console.error("Token wasn't found: ", valueTokenName);
-        return [[sassVarName]];
+        return [[declaration]];
       }
 
-      return [[sassVarName, imported]];
+      if (token.tokenValueType === 'TYPOGRAPHY') {
+        return [
+          [declaration, imported],
+          [`${declaration}-font`, `${imported}-font`],
+          [`${declaration}-size`, `${imported}-size`],
+          [`${declaration}-weight`, `${imported}-weight`],
+          [`${declaration}-line-height`, `${imported}-line-height`],
+        ];
+      }
+
+      return [[declaration, imported]];
     } else {
       console.error(
         'Value token has no known properties',
         valueToken,
         token.tokenName,
       );
-      return [[sassVarName]];
+      return [[declaration]];
     }
   }
 
@@ -262,15 +261,17 @@ export default class TokenSystemProcessor {
     }
 
     const tokenSetName = extractSetName(token.tokenName, token.tokenNameSuffix);
-    const varName = `$${tokenNameToSass(token.tokenNameSuffix)}`;
+    const varName = tokenNameToSass(token.tokenNameSuffix);
 
     if (tokenSetName === setManager.name) {
-      return varName;
+      return `$${varName}`;
     }
 
     const importedSet = tokenNameToSass(tokenSetName);
     setManager.add(`@use "${importedSet}";`);
 
-    return `${importedSet}.${varName}`;
+    // $default here is because all the imports are done from the second-level
+    // token sets (e.g. `md.sys.color`), which have only one default token set.
+    return `${importedSet}.$${varName}`;
   }
 }

@@ -1,88 +1,38 @@
-@use "sass:map";
-@use '../properties' as props;
+@use 'sass:map';
+@use '../../core/utils/functions' as funcs;
 @use '../../core/tokens/md-comp-button' as tokens;
+@use '../../core/tokens/md-sys-motion' as motion-tokens;
+@use '../../core/defaults/motion-effects' as motion-effects;
+@use '../utils' as *;
 
-$font-names: map.get(tokens.$label-text, font-names);
-$font-weight: map.get(tokens.$label-text, font-weight);
-$font-size: map.get(tokens.$label-text, font-size);
-$line-height: map.get(tokens.$label-text, line-height);
+$hovered: funcs.pick-unique(tokens.$hovered, tokens.$default);
+$focused: funcs.pick-unique(tokens.$focused, tokens.$default);
+$pressed: funcs.pick-unique(tokens.$pressed, tokens.$default);
+$disabled: funcs.pick-unique(tokens.$disabled, tokens.$default);
+$unselected: funcs.pick-unique(tokens.$unselected, tokens.$default);
+$selected: funcs.pick-unique(tokens.$selected, tokens.$default);
 
 @mixin main {
   :host {
-    /**
-     * The background color of the button container. Also used in different
-     * calculations.
-     *
-     * @type <color>
-     * @private
-     */
-    --_container-color: #{props.container-color(tokens.$container-color)};
-
-    /**
-     * The height of the button container. Used to calculate the padding
-     * and the gap between the label and the icon.
-     *
-     * @type <length>
-     * @private
-     */
-    --_container-height: #{props.container-height(tokens.$container-height)};
-
-    /**
-     * The color of the state layer that appears on hover, focus, and active
-     * states, blending with the container color.
-     *
-     * @type <color>
-     * @private
-     */
-    --_state-layer-color: #{tokens.$hovered-state-layer-color};
-
-    /**
-     * The color of the label text.
-     *
-     * @type <color>
-     * @private
-     */
-    --_label-color: #{props.label-color(tokens.$label-text-color)};
-
-    /**
-     * @type <length>
-     * @private
-     */
-    --_padding-block: calc(
-      (
-          var(--_container-height) - max(
-              #{props.icon-size(tokens.$icon-size)},
-              #{$line-height}
-            )
-        ) /
-        2
-    );
-    /**
-     * @type <length>
-     * @private
-     */
-    --_leading-space: #{tokens.$leading-space};
-
-    /**
-     * @type <length>
-     * @private
-     */
-    --_trailing-space: #{tokens.$trailing-space};
-    --_container-shape: #{tokens.$container-shape-round};
+    @include tokens-as-private-vars(tokens.$default);
+    --_container-shape: var(--_container-shape-round);
+    --_motion-effect: #{motion-effects.$expressive-fast-effects};
+    --_motion-duration: #{motion-effects.$expressive-fast-effects-duration};
 
     display: inline-flex;
     cursor: default;
     user-select: none;
     background-color: var(--_container-color);
-    color: var(--_label-color);
-    padding-block: var(--_padding-block);
+    color: var(--_label-text-color);
+    padding-block: calc((var(--_container-height) - max(var(--_icon-size), var(--_label-text-line-height))) / 2);
     padding-inline-start: var(--_leading-space);
     padding-inline-end: var(--_trailing-space);
     border-radius: var(--_container-shape);
-    font: $font-weight $font-size/$line-height $font-names;
+    font: var(--_label-text);
     place-items: center;
     place-content: center;
-    gap: calc((var(--_container-height) - #{$line-height}) / 2);
+    gap: 8px;
+    transition: border-radius var(--_motion-duration) var(--_motion-effect);
   }
 
   :host(:hover),
@@ -96,43 +46,52 @@ $line-height: map.get(tokens.$label-text, line-height);
     );
     color: color-mix(
       in srgb,
-      var(--_label-color),
+      var(--_label-text-color),
       var(--_state-layer-color) #{$opacity}
     );
   }
 
   :host(:hover) {
-    --_state-layer-opacity: #{tokens.$hovered-state-layer-opacity};
+    @include tokens-as-private-vars($hovered);
   }
 
   :host(:focus-visible) {
-    --_state-layer-opacity: #{tokens.$focused-state-layer-opacity};
-    outline: tokens.$focus-indicator-thickness solid
-      tokens.$focus-indicator-color;
-    outline-offset: tokens.$focus-indicator-outline-offset;
+    @include tokens-as-private-vars($focused);
+
+    outline: var(--_focus-indicator-thickness) solid
+      var(--_focus-indicator-color);
+    outline-offset: var(--_focus-indicator-outline-offset);
   }
 
   :host(:active) {
-    --_state-layer-opacity: #{tokens.$pressed-state-layer-opacity};
-    --_container-shape: #{tokens.$pressed-container-shape}
+    @include tokens-as-private-vars($pressed);
   }
 
   slot[name='icon'] {
-    flex: 1 0 #{props.icon-size(tokens.$icon-size)};
+    flex: 1 0 var(--_icon-size);
   }
 }
 
 @mixin disabled {
   :host([disabled]) {
+    @include tokens-as-private-vars($disabled);
+
+    $container-opacity-amount: calc(
+      100% - var(--_disabled-container-opacity) * 100%
+    );
+    $label-text-opacity: calc(
+      100% - var(--_disabled-label-text-opacity) * 100%
+    );
+
     background-color: color-mix(
       in srgb,
-      tokens.$disabled-container-color,
-      transparent calc(100% - #{tokens.$disabled-container-opacity} * 100%)
+      var(--_disabled-container-color),
+      transparent #{$container-opacity-amount}
     );
     color: color-mix(
       in srgb,
-      tokens.$disabled-label-text-color,
-      transparent calc(100% - #{tokens.$disabled-label-text-opacity} * 100%)
+      var(--_disabled-label-text-color),
+      transparent #{$label-text-opacity}
     );
     cursor: default;
     pointer-events: none;
@@ -142,23 +101,10 @@ $line-height: map.get(tokens.$label-text, line-height);
 
 @mixin switch {
   :host {
-    --_container-color: #{props.container-color-unselected(
-        tokens.$unselected-container-color
-      )};
-    --_label-color: #{props.label-color-unselected(
-        tokens.$label-text-unselected-color
-      )};
-    --_state-layer-color: #{tokens.$unselected-hovered-state-layer-color};
+    @include tokens-as-private-vars($unselected);
   }
 
   :host([checked]) {
-    --_container-color: #{props.container-color-unselected(
-        tokens.$selected-container-color
-      )};
-    --_label-color: #{props.label-color-selected(
-        tokens.$label-text-selected-color
-      )};
-    --_state-layer-color: #{tokens.$selected-hovered-state-layer-color};
-    --_container-shape: #{tokens.$selected-container-shape-round}
+    @include tokens-as-private-vars($selected);
   }
 }

@@ -11,6 +11,15 @@ import { COLLATOR, HEADER, root, tokenNameToSass } from './utils.ts';
 
 const DEFAULT_THEME_URL = new URL('./base/default-theme.json', import.meta.url);
 
+const states = [
+  'hovered',
+  'disabled',
+  'focused',
+  'pressed',
+  'selected',
+  'unselected',
+];
+
 try {
   const [{ default: theme }, ...tables] = await Promise.all([
     import(String(DEFAULT_THEME_URL), { with: { type: 'json' } }),
@@ -33,6 +42,8 @@ try {
     });
 
   await Promise.all(
+    // Grouping by set name to make separate files (like "_md-sys-motion.scss",
+    // "_md.ref.palette.scss", etc.
     Object.entries(Object.groupBy(processedTokens, ([, { name }]) => name))
       .map(
         ([setName, group]) =>
@@ -46,29 +57,78 @@ try {
             },
           ] as const,
       )
+      // Grouping rules by state in separate SASS maps, e.g.,
+      // `$default: ( container-color: #fff )`,
+      // `$pressed: (container-color: #000)`, etc.
+      .map(
+        ([setName, { declarations, imports }]) =>
+          [
+            setName,
+            {
+              declarations: Object.entries(
+                Object.groupBy(
+                  declarations,
+                  ([declaration]) =>
+                    states.find((state) => declaration.startsWith(state)) ??
+                    'default',
+                ),
+              ).map(
+                ([stateName, declarations]) =>
+                  [
+                    stateName,
+                    declarations!.map(
+                      ([d, v]) => [d.replace(`${stateName}-`, ''), v] as const,
+                    ),
+                  ] as const,
+              ),
+              imports,
+            },
+          ] as const,
+      )
       .map(async ([setName, { declarations, imports }]) => {
         const fileURL = new URL(
           `src/core/tokens/_${setName.replace(/\./g, '-')}.scss`,
           root,
         );
 
-        await writeFile(
-          fileURL,
-          `${HEADER}${[...imports].join('\n')}
-${declarations
-  .map(
-    ([declaration, value]) =>
-      `${declaration}: ${
-        setName.startsWith('md.sys') &&
-        !(typeof value === 'string' && value.startsWith('('))
-          ? `var(--${tokenNameToSass(setName)}-${declaration.substring(1)}, ${value})`
-          : value
-      };`,
-  )
-  .toSorted(COLLATOR.compare)
-  .join('\n')}`,
-          'utf8',
-        );
+        const _imports = [...imports].join('\n');
+
+        let _values;
+
+        if (setName.startsWith('md.comp')) {
+          _values = declarations
+            .map(([stateName, declarations]) => {
+              const _declarations = declarations
+                .map(
+                  ([declaration, value]) =>
+                    `${declaration.padStart(declaration.length + 2)}: ${value},`,
+                )
+                .toSorted(COLLATOR.compare);
+
+              return `$${stateName}: (\n${_declarations.join('\n')}\n);\n`;
+            })
+            .toSorted(COLLATOR.compare)
+            .join('\n');
+        } else {
+          _values = declarations
+            .flatMap(([stateName, declarations]) =>
+              declarations.map(
+                ([d, v]) =>
+                  [
+                    stateName == 'default' ? d : `${stateName}-${d}`,
+                    v,
+                  ] as const,
+              ),
+            )
+            .map(
+              ([declaration, value]) =>
+                `$${declaration}: var(--${tokenNameToSass(setName)}-${declaration}, ${value});`,
+            )
+            .toSorted(COLLATOR.compare)
+            .join('\n');
+        }
+
+        await writeFile(fileURL, `${HEADER}${_imports}\n${_values}`, 'utf8');
       }),
   );
 } catch (e) {

@@ -3,10 +3,10 @@ import { html } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
 import './switch-button.js';
-import type { SwitchButtonVariant } from './switch-button.ts';
+import type { SwitchButtonFlavor } from './switch-button.ts';
 
 type SwitchButtonProps = Readonly<{
-  variant?: SwitchButtonVariant;
+  flavor?: SwitchButtonFlavor;
   onClick?(): void;
   label?: string;
   disabled?: boolean;
@@ -18,16 +18,16 @@ type SwitchButtonProps = Readonly<{
 const meta: Meta<SwitchButtonProps> = {
   title: 'Button/Switch',
   tags: ['autodocs'],
-  render: ({ variant, onClick, label, disabled, checked }) =>
+  render: ({ flavor, onClick, label, disabled, checked }) =>
     html`<mx-switch-button
       ?disabled=${disabled}
       ?checked=${checked}
-      variant=${ifDefined(variant)}
+      flavor=${ifDefined(flavor)}
       @click=${onClick}
       >${label}</mx-switch-button
     >`,
   argTypes: {
-    variant: {
+    flavor: {
       control: {
         type: 'select',
         options: ['outlined', 'filled-tonal', 'elevated', 'text'],
@@ -64,21 +64,21 @@ export const Filled: ButtonStories = {
 
 export const Outlined: ButtonStories = {
   args: {
-    variant: 'outlined',
+    flavor: 'outlined',
     label: 'Outlined Switch Button',
   },
 };
 
 export const FilledTonal: ButtonStories = {
   args: {
-    variant: 'filled-tonal',
+    flavor: 'filled-tonal',
     label: 'Filled Tonal Switch Button',
   },
 };
 
 export const Elevated: ButtonStories = {
   args: {
-    variant: 'elevated',
+    flavor: 'elevated',
     label: 'Elevated Switch Button',
   },
 };

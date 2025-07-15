@@ -7,6 +7,7 @@
  */
 @use "sass:map";
 @use "md-sys-color";
+
 $level0: var(--md-sys-elevation-level0, 0);
 $level1: var(--md-sys-elevation-level1, 1);
 $level2: var(--md-sys-elevation-level2, 3);

@@ -1,7 +1,9 @@
 @use 'mixins/default';
 @use 'mixins/elevated';
 @use 'mixins/outlined';
+@use 'mixins/size';
 
 @include default.switch;
 @include elevated.switch;
 @include outlined.switch;
+@include size.switch;

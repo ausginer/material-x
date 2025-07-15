@@ -7,8 +7,9 @@
  */
 @use "sass:map";
 
-$brand: 'Google Sans';
-$plain: 'Google Sans Text';
-$weight-bold: 700;
-$weight-medium: 500;
-$weight-regular: 400;
+
+$brand: var(--md-ref-typeface-brand, 'Google Sans');
+$plain: var(--md-ref-typeface-plain, 'Google Sans Text');
+$weight-bold: var(--md-ref-typeface-weight-bold, 700);
+$weight-medium: var(--md-ref-typeface-weight-medium, 500);
+$weight-regular: var(--md-ref-typeface-weight-regular, 400);

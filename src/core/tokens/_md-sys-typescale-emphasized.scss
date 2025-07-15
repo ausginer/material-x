@@ -7,6 +7,7 @@
  */
 @use "sass:map";
 @use "md-ref-typeface";
+
 $body-large-crsv: var(--md-sys-typescale-emphasized-body-large-crsv, 0);
 $body-large-fill: var(--md-sys-typescale-emphasized-body-large-fill, 0);
 $body-large-font: var(--md-sys-typescale-emphasized-body-large-font, md-ref-typeface.$plain);
@@ -21,12 +22,7 @@ $body-large-tracking: var(--md-sys-typescale-emphasized-body-large-tracking, 0px
 $body-large-wdth: var(--md-sys-typescale-emphasized-body-large-wdth, 100);
 $body-large-weight: var(--md-sys-typescale-emphasized-body-large-weight, md-ref-typeface.$weight-medium);
 $body-large-wght: var(--md-sys-typescale-emphasized-body-large-wght, 500);
-$body-large: (
-  font-names: $body-large-font,
-  font-weight: $body-large-weight,
-  font-size: $body-large-size,
-  line-height: $body-large-line-height,
-);
+$body-large: var(--md-sys-typescale-emphasized-body-large, #{$body-large-weight} #{$body-large-size}/#{$body-large-line-height} #{$body-large-font} );
 $body-medium-crsv: var(--md-sys-typescale-emphasized-body-medium-crsv, 0);
 $body-medium-fill: var(--md-sys-typescale-emphasized-body-medium-fill, 0);
 $body-medium-font: var(--md-sys-typescale-emphasized-body-medium-font, md-ref-typeface.$plain);
@@ -41,12 +37,7 @@ $body-medium-tracking: var(--md-sys-typescale-emphasized-body-medium-tracking, 0
 $body-medium-wdth: var(--md-sys-typescale-emphasized-body-medium-wdth, 100);
 $body-medium-weight: var(--md-sys-typescale-emphasized-body-medium-weight, md-ref-typeface.$weight-medium);
 $body-medium-wght: var(--md-sys-typescale-emphasized-body-medium-wght, 500);
-$body-medium: (
-  font-names: $body-medium-font,
-  font-weight: $body-medium-weight,
-  font-size: $body-medium-size,
-  line-height: $body-medium-line-height,
-);
+$body-medium: var(--md-sys-typescale-emphasized-body-medium, #{$body-medium-weight} #{$body-medium-size}/#{$body-medium-line-height} #{$body-medium-font} );
 $body-small-crsv: var(--md-sys-typescale-emphasized-body-small-crsv, 0);
 $body-small-fill: var(--md-sys-typescale-emphasized-body-small-fill, 0);
 $body-small-font: var(--md-sys-typescale-emphasized-body-small-font, md-ref-typeface.$plain);
@@ -61,12 +52,7 @@ $body-small-tracking: var(--md-sys-typescale-emphasized-body-small-tracking, 0px
 $body-small-wdth: var(--md-sys-typescale-emphasized-body-small-wdth, 100);
 $body-small-weight: var(--md-sys-typescale-emphasized-body-small-weight, md-ref-typeface.$weight-medium);
 $body-small-wght: var(--md-sys-typescale-emphasized-body-small-wght, 500);
-$body-small: (
-  font-names: $body-small-font,
-  font-weight: $body-small-weight,
-  font-size: $body-small-size,
-  line-height: $body-small-line-height,
-);
+$body-small: var(--md-sys-typescale-emphasized-body-small, #{$body-small-weight} #{$body-small-size}/#{$body-small-line-height} #{$body-small-font} );
 $display-large-crsv: var(--md-sys-typescale-emphasized-display-large-crsv, 0);
 $display-large-fill: var(--md-sys-typescale-emphasized-display-large-fill, 0);
 $display-large-font: var(--md-sys-typescale-emphasized-display-large-font, md-ref-typeface.$brand);
@@ -81,12 +67,7 @@ $display-large-tracking: var(--md-sys-typescale-emphasized-display-large-trackin
 $display-large-wdth: var(--md-sys-typescale-emphasized-display-large-wdth, 100);
 $display-large-weight: var(--md-sys-typescale-emphasized-display-large-weight, md-ref-typeface.$weight-medium);
 $display-large-wght: var(--md-sys-typescale-emphasized-display-large-wght, 500);
-$display-large: (
-  font-names: $display-large-font,
-  font-weight: $display-large-weight,
-  font-size: $display-large-size,
-  line-height: $display-large-line-height,
-);
+$display-large: var(--md-sys-typescale-emphasized-display-large, #{$display-large-weight} #{$display-large-size}/#{$display-large-line-height} #{$display-large-font} );
 $display-medium-crsv: var(--md-sys-typescale-emphasized-display-medium-crsv, 0);
 $display-medium-fill: var(--md-sys-typescale-emphasized-display-medium-fill, 0);
 $display-medium-font: var(--md-sys-typescale-emphasized-display-medium-font, md-ref-typeface.$brand);
@@ -101,12 +82,7 @@ $display-medium-tracking: var(--md-sys-typescale-emphasized-display-medium-track
 $display-medium-wdth: var(--md-sys-typescale-emphasized-display-medium-wdth, 100);
 $display-medium-weight: var(--md-sys-typescale-emphasized-display-medium-weight, md-ref-typeface.$weight-medium);
 $display-medium-wght: var(--md-sys-typescale-emphasized-display-medium-wght, 500);
-$display-medium: (
-  font-names: $display-medium-font,
-  font-weight: $display-medium-weight,
-  font-size: $display-medium-size,
-  line-height: $display-medium-line-height,
-);
+$display-medium: var(--md-sys-typescale-emphasized-display-medium, #{$display-medium-weight} #{$display-medium-size}/#{$display-medium-line-height} #{$display-medium-font} );
 $display-small-crsv: var(--md-sys-typescale-emphasized-display-small-crsv, 0);
 $display-small-fill: var(--md-sys-typescale-emphasized-display-small-fill, 0);
 $display-small-font: var(--md-sys-typescale-emphasized-display-small-font, md-ref-typeface.$brand);
@@ -121,12 +97,7 @@ $display-small-tracking: var(--md-sys-typescale-emphasized-display-small-trackin
 $display-small-wdth: var(--md-sys-typescale-emphasized-display-small-wdth, 100);
 $display-small-weight: var(--md-sys-typescale-emphasized-display-small-weight, md-ref-typeface.$weight-medium);
 $display-small-wght: var(--md-sys-typescale-emphasized-display-small-wght, 500);
-$display-small: (
-  font-names: $display-small-font,
-  font-weight: $display-small-weight,
-  font-size: $display-small-size,
-  line-height: $display-small-line-height,
-);
+$display-small: var(--md-sys-typescale-emphasized-display-small, #{$display-small-weight} #{$display-small-size}/#{$display-small-line-height} #{$display-small-font} );
 $headline-large-crsv: var(--md-sys-typescale-emphasized-headline-large-crsv, 0);
 $headline-large-fill: var(--md-sys-typescale-emphasized-headline-large-fill, 0);
 $headline-large-font: var(--md-sys-typescale-emphasized-headline-large-font, md-ref-typeface.$brand);
@@ -141,12 +112,7 @@ $headline-large-tracking: var(--md-sys-typescale-emphasized-headline-large-track
 $headline-large-wdth: var(--md-sys-typescale-emphasized-headline-large-wdth, 100);
 $headline-large-weight: var(--md-sys-typescale-emphasized-headline-large-weight, md-ref-typeface.$weight-medium);
 $headline-large-wght: var(--md-sys-typescale-emphasized-headline-large-wght, 500);
-$headline-large: (
-  font-names: $headline-large-font,
-  font-weight: $headline-large-weight,
-  font-size: $headline-large-size,
-  line-height: $headline-large-line-height,
-);
+$headline-large: var(--md-sys-typescale-emphasized-headline-large, #{$headline-large-weight} #{$headline-large-size}/#{$headline-large-line-height} #{$headline-large-font} );
 $headline-medium-crsv: var(--md-sys-typescale-emphasized-headline-medium-crsv, 0);
 $headline-medium-fill: var(--md-sys-typescale-emphasized-headline-medium-fill, 0);
 $headline-medium-font: var(--md-sys-typescale-emphasized-headline-medium-font, md-ref-typeface.$brand);
@@ -161,12 +127,7 @@ $headline-medium-tracking: var(--md-sys-typescale-emphasized-headline-medium-tra
 $headline-medium-wdth: var(--md-sys-typescale-emphasized-headline-medium-wdth, 100);
 $headline-medium-weight: var(--md-sys-typescale-emphasized-headline-medium-weight, md-ref-typeface.$weight-medium);
 $headline-medium-wght: var(--md-sys-typescale-emphasized-headline-medium-wght, 500);
-$headline-medium: (
-  font-names: $headline-medium-font,
-  font-weight: $headline-medium-weight,
-  font-size: $headline-medium-size,
-  line-height: $headline-medium-line-height,
-);
+$headline-medium: var(--md-sys-typescale-emphasized-headline-medium, #{$headline-medium-weight} #{$headline-medium-size}/#{$headline-medium-line-height} #{$headline-medium-font} );
 $headline-small-crsv: var(--md-sys-typescale-emphasized-headline-small-crsv, 0);
 $headline-small-fill: var(--md-sys-typescale-emphasized-headline-small-fill, 0);
 $headline-small-font: var(--md-sys-typescale-emphasized-headline-small-font, md-ref-typeface.$brand);
@@ -181,12 +142,7 @@ $headline-small-tracking: var(--md-sys-typescale-emphasized-headline-small-track
 $headline-small-wdth: var(--md-sys-typescale-emphasized-headline-small-wdth, 100);
 $headline-small-weight: var(--md-sys-typescale-emphasized-headline-small-weight, md-ref-typeface.$weight-medium);
 $headline-small-wght: var(--md-sys-typescale-emphasized-headline-small-wght, 500);
-$headline-small: (
-  font-names: $headline-small-font,
-  font-weight: $headline-small-weight,
-  font-size: $headline-small-size,
-  line-height: $headline-small-line-height,
-);
+$headline-small: var(--md-sys-typescale-emphasized-headline-small, #{$headline-small-weight} #{$headline-small-size}/#{$headline-small-line-height} #{$headline-small-font} );
 $label-large-crsv: var(--md-sys-typescale-emphasized-label-large-crsv, 0);
 $label-large-fill: var(--md-sys-typescale-emphasized-label-large-fill, 0);
 $label-large-font: var(--md-sys-typescale-emphasized-label-large-font, md-ref-typeface.$plain);
@@ -201,12 +157,7 @@ $label-large-tracking: var(--md-sys-typescale-emphasized-label-large-tracking, 0
 $label-large-wdth: var(--md-sys-typescale-emphasized-label-large-wdth, 100);
 $label-large-weight: var(--md-sys-typescale-emphasized-label-large-weight, md-ref-typeface.$weight-bold);
 $label-large-wght: var(--md-sys-typescale-emphasized-label-large-wght, 600);
-$label-large: (
-  font-names: $label-large-font,
-  font-weight: $label-large-weight,
-  font-size: $label-large-size,
-  line-height: $label-large-line-height,
-);
+$label-large: var(--md-sys-typescale-emphasized-label-large, #{$label-large-weight} #{$label-large-size}/#{$label-large-line-height} #{$label-large-font} );
 $label-medium-crsv: var(--md-sys-typescale-emphasized-label-medium-crsv, 0);
 $label-medium-fill: var(--md-sys-typescale-emphasized-label-medium-fill, 0);
 $label-medium-font: var(--md-sys-typescale-emphasized-label-medium-font, md-ref-typeface.$plain);
@@ -221,12 +172,7 @@ $label-medium-tracking: var(--md-sys-typescale-emphasized-label-medium-tracking,
 $label-medium-wdth: var(--md-sys-typescale-emphasized-label-medium-wdth, 100);
 $label-medium-weight: var(--md-sys-typescale-emphasized-label-medium-weight, md-ref-typeface.$weight-bold);
 $label-medium-wght: var(--md-sys-typescale-emphasized-label-medium-wght, 600);
-$label-medium: (
-  font-names: $label-medium-font,
-  font-weight: $label-medium-weight,
-  font-size: $label-medium-size,
-  line-height: $label-medium-line-height,
-);
+$label-medium: var(--md-sys-typescale-emphasized-label-medium, #{$label-medium-weight} #{$label-medium-size}/#{$label-medium-line-height} #{$label-medium-font} );
 $label-small-crsv: var(--md-sys-typescale-emphasized-label-small-crsv, 0);
 $label-small-fill: var(--md-sys-typescale-emphasized-label-small-fill, 0);
 $label-small-font: var(--md-sys-typescale-emphasized-label-small-font, md-ref-typeface.$plain);
@@ -241,12 +187,7 @@ $label-small-tracking: var(--md-sys-typescale-emphasized-label-small-tracking, 0
 $label-small-wdth: var(--md-sys-typescale-emphasized-label-small-wdth, 100);
 $label-small-weight: var(--md-sys-typescale-emphasized-label-small-weight, md-ref-typeface.$weight-bold);
 $label-small-wght: var(--md-sys-typescale-emphasized-label-small-wght, 600);
-$label-small: (
-  font-names: $label-small-font,
-  font-weight: $label-small-weight,
-  font-size: $label-small-size,
-  line-height: $label-small-line-height,
-);
+$label-small: var(--md-sys-typescale-emphasized-label-small, #{$label-small-weight} #{$label-small-size}/#{$label-small-line-height} #{$label-small-font} );
 $title-large-crsv: var(--md-sys-typescale-emphasized-title-large-crsv, 0);
 $title-large-fill: var(--md-sys-typescale-emphasized-title-large-fill, 0);
 $title-large-font: var(--md-sys-typescale-emphasized-title-large-font, md-ref-typeface.$brand);
@@ -261,12 +202,7 @@ $title-large-tracking: var(--md-sys-typescale-emphasized-title-large-tracking, 0
 $title-large-wdth: var(--md-sys-typescale-emphasized-title-large-wdth, 100);
 $title-large-weight: var(--md-sys-typescale-emphasized-title-large-weight, md-ref-typeface.$weight-medium);
 $title-large-wght: var(--md-sys-typescale-emphasized-title-large-wght, 500);
-$title-large: (
-  font-names: $title-large-font,
-  font-weight: $title-large-weight,
-  font-size: $title-large-size,
-  line-height: $title-large-line-height,
-);
+$title-large: var(--md-sys-typescale-emphasized-title-large, #{$title-large-weight} #{$title-large-size}/#{$title-large-line-height} #{$title-large-font} );
 $title-medium-crsv: var(--md-sys-typescale-emphasized-title-medium-crsv, 0);
 $title-medium-fill: var(--md-sys-typescale-emphasized-title-medium-fill, 0);
 $title-medium-font: var(--md-sys-typescale-emphasized-title-medium-font, md-ref-typeface.$plain);
@@ -281,12 +217,7 @@ $title-medium-tracking: var(--md-sys-typescale-emphasized-title-medium-tracking,
 $title-medium-wdth: var(--md-sys-typescale-emphasized-title-medium-wdth, 100);
 $title-medium-weight: var(--md-sys-typescale-emphasized-title-medium-weight, md-ref-typeface.$weight-bold);
 $title-medium-wght: var(--md-sys-typescale-emphasized-title-medium-wght, 600);
-$title-medium: (
-  font-names: $title-medium-font,
-  font-weight: $title-medium-weight,
-  font-size: $title-medium-size,
-  line-height: $title-medium-line-height,
-);
+$title-medium: var(--md-sys-typescale-emphasized-title-medium, #{$title-medium-weight} #{$title-medium-size}/#{$title-medium-line-height} #{$title-medium-font} );
 $title-small-crsv: var(--md-sys-typescale-emphasized-title-small-crsv, 0);
 $title-small-fill: var(--md-sys-typescale-emphasized-title-small-fill, 0);
 $title-small-font: var(--md-sys-typescale-emphasized-title-small-font, md-ref-typeface.$plain);
@@ -301,9 +232,4 @@ $title-small-tracking: var(--md-sys-typescale-emphasized-title-small-tracking, 0
 $title-small-wdth: var(--md-sys-typescale-emphasized-title-small-wdth, 100);
 $title-small-weight: var(--md-sys-typescale-emphasized-title-small-weight, md-ref-typeface.$weight-bold);
 $title-small-wght: var(--md-sys-typescale-emphasized-title-small-wght, 600);
-$title-small: (
-  font-names: $title-small-font,
-  font-weight: $title-small-weight,
-  font-size: $title-small-size,
-  line-height: $title-small-line-height,
-);
+$title-small: var(--md-sys-typescale-emphasized-title-small, #{$title-small-weight} #{$title-small-size}/#{$title-small-line-height} #{$title-small-font} );

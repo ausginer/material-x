@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
-import type { ButtonVariant } from './button.ts';
+import type { ButtonFlavor } from './core-button.ts';
 import './link-button.js';
 
 type LinkButtonProps = Readonly<{
-  variant?: ButtonVariant;
+  flavor?: ButtonFlavor;
   onClick?(): void;
   label?: string;
   disabled?: boolean;
@@ -18,7 +18,7 @@ const meta: Meta<LinkButtonProps> = {
   title: 'Button/Link',
   tags: ['autodocs'],
   render: ({
-    variant,
+    flavor,
     href = 'https://example.com',
     onClick,
     label,
@@ -26,13 +26,13 @@ const meta: Meta<LinkButtonProps> = {
   }) =>
     html`<mx-link-button
       ?disabled=${disabled}
-      variant=${ifDefined(variant)}
+      flavor=${ifDefined(flavor)}
       href=${ifDefined(href)}
       @click=${onClick}
       >${label}</mx-link-button
     >`,
   argTypes: {
-    variant: {
+    flavor: {
       control: {
         type: 'select',
         options: ['outlined', 'filled-tonal', 'elevated', 'text'],
@@ -69,28 +69,28 @@ export const Filled: ButtonStories = {
 
 export const Outlined: ButtonStories = {
   args: {
-    variant: 'outlined',
+    flavor: 'outlined',
     label: 'Outlined Link Button',
   },
 };
 
 export const FilledTonal: ButtonStories = {
   args: {
-    variant: 'filled-tonal',
+    flavor: 'filled-tonal',
     label: 'Filled Tonal Link Button',
   },
 };
 
 export const Elevated: ButtonStories = {
   args: {
-    variant: 'elevated',
+    flavor: 'elevated',
     label: 'Elevated Link Button',
   },
 };
 
 export const Text: ButtonStories = {
   args: {
-    variant: 'text',
+    flavor: 'text',
     label: 'Text Button',
   },
 };

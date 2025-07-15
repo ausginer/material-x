@@ -8,23 +8,38 @@
 @use "sass:map";
 @use "md-sys-color";
 @use "md-sys-state";
-$disabled-container-color: md-sys-color.$on-surface;
-$disabled-container-opacity: 0.1;
-$disabled-icon-color: md-sys-color.$on-surface;
-$disabled-icon-opacity: 0.38;
-$disabled-label-text-color: md-sys-color.$on-surface;
-$disabled-label-text-opacity: 0.38;
-$focused-icon-color: md-sys-color.$primary;
-$focused-label-text-color: md-sys-color.$primary;
-$focused-state-layer-color: md-sys-color.$primary;
-$focused-state-layer-opacity: md-sys-state.$focus-state-layer-opacity;
-$hovered-icon-color: md-sys-color.$primary;
-$hovered-label-text-color: md-sys-color.$primary;
-$hovered-state-layer-color: md-sys-color.$primary;
-$hovered-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
-$icon-color: md-sys-color.$primary;
-$label-text-color: md-sys-color.$primary;
-$pressed-icon-color: md-sys-color.$primary;
-$pressed-label-text-color: md-sys-color.$primary;
-$pressed-state-layer-color: md-sys-color.$primary;
-$pressed-state-layer-opacity: md-sys-state.$pressed-state-layer-opacity;
+
+$default: (
+  icon-color: md-sys-color.$primary,
+  label-text-color: md-sys-color.$primary,
+);
+
+$disabled: (
+  container-color: md-sys-color.$on-surface,
+  container-opacity: 0.1,
+  icon-color: md-sys-color.$on-surface,
+  icon-opacity: 0.38,
+  label-text-color: md-sys-color.$on-surface,
+  label-text-opacity: 0.38,
+);
+
+$focused: (
+  icon-color: md-sys-color.$primary,
+  label-text-color: md-sys-color.$primary,
+  state-layer-color: md-sys-color.$primary,
+  state-layer-opacity: md-sys-state.$focus-state-layer-opacity,
+);
+
+$hovered: (
+  icon-color: md-sys-color.$primary,
+  label-text-color: md-sys-color.$primary,
+  state-layer-color: md-sys-color.$primary,
+  state-layer-opacity: md-sys-state.$hover-state-layer-opacity,
+);
+
+$pressed: (
+  icon-color: md-sys-color.$primary,
+  label-text-color: md-sys-color.$primary,
+  state-layer-color: md-sys-color.$primary,
+  state-layer-opacity: md-sys-state.$pressed-state-layer-opacity,
+);

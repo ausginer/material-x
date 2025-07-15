@@ -1,7 +1,0 @@
-@use "../../core/tokens/md-comp-button-xsmall" as tokens;
-
-:host {
-  --_container-height: #{tokens.$container-height};
-  --_leading-space: #{tokens.$leading-space};
-  --_trailing-space: #{tokens.$trailing-space};
-}

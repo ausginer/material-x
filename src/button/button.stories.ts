@@ -2,29 +2,31 @@ import type { Meta, StoryObj } from '@storybook/web-components-vite';
 import { html } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
-import type { ButtonVariant } from './button.ts';
+import type { ButtonFlavor, ButtonSize } from './core-button.ts';
 import './button.js';
 
 type ButtonProps = Readonly<{
-  variant?: ButtonVariant;
+  flavor?: ButtonFlavor;
   onClick?(): void;
   label?: string;
   disabled?: boolean;
+  size?: ButtonSize;
 }>;
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 const meta: Meta<ButtonProps> = {
   title: 'Button/Button',
   tags: ['autodocs'],
-  render: ({ variant, onClick, label, disabled = false }) =>
+  render: ({ flavor, onClick, label, disabled = false, size }) =>
     html`<mx-button
       ?disabled=${disabled}
-      variant=${ifDefined(variant)}
+      flavor=${ifDefined(flavor)}
+      size=${ifDefined(size)}
       @click=${onClick}
       >${label}</mx-button
     >`,
   argTypes: {
-    variant: {
+    flavor: {
       control: {
         type: 'select',
         options: ['outlined', 'filled-tonal', 'elevated', 'text'],
@@ -56,28 +58,63 @@ export const Filled: ButtonStories = {
 
 export const Outlined: ButtonStories = {
   args: {
-    variant: 'outlined',
+    flavor: 'outlined',
     label: 'Outlined Button',
   },
 };
 
 export const FilledTonal: ButtonStories = {
   args: {
-    variant: 'filled-tonal',
+    flavor: 'filled-tonal',
     label: 'Filled Tonal Button',
   },
 };
 
 export const Elevated: ButtonStories = {
   args: {
-    variant: 'elevated',
+    flavor: 'elevated',
     label: 'Elevated Button',
   },
 };
 
 export const Text: ButtonStories = {
   args: {
-    variant: 'text',
+    flavor: 'text',
     label: 'Text Button',
+  },
+};
+
+export const XSmall: ButtonStories = {
+  args: {
+    label: 'Extra Small Filled Button',
+    size: 'xsmall',
+  },
+};
+
+export const Small: ButtonStories = {
+  args: {
+    label: 'Small Filled Button',
+    size: 'small',
+  },
+};
+
+export const Medium: ButtonStories = {
+  args: {
+    label: 'Medium Filled Button',
+    size: 'medium',
+  },
+};
+
+export const Large: ButtonStories = {
+  args: {
+    label: 'Large Filled Button',
+    size: 'large',
+  },
+};
+
+export const XLarge: ButtonStories = {
+  args: {
+    label: 'Extra Large Filled Button',
+    size: 'xlarge',
   },
 };

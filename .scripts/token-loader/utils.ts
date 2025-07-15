@@ -40,22 +40,6 @@ export function tokenNameToCssVar(tokenName: string): string {
   return `--${tokenNameToSass(tokenName)}`;
 }
 
-export function tokenValueToCSSVarWithFallback(
-  tokenSetName: string,
-  declaration: SassDeclarationToken,
-): SassDeclarationToken {
-  const [name, value] = declaration;
-
-  if (value == null) {
-    return declaration;
-  }
-
-  return [
-    name,
-    `var(${tokenNameToCssVar(`${tokenSetName}.${name.substring(1)}`)}, ${value})`,
-  ];
-}
-
 export function* distinct<T>(
   iterator: IteratorObject<T>,
   comparator: (element: T) => unknown = (element) => element,

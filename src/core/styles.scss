@@ -1,8 +1,3 @@
 @use "defaults/refs" as refs;
 @use "defaults/sys" as sys;
 
-:root {
-  font-family: refs.$typeface-plain;
-  font-size: 16px;
-  font-weight: refs.$typeface-weight-medium;
-}
