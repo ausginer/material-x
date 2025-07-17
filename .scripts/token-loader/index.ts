@@ -7,18 +7,9 @@ import { downloadButtonTokens } from './components/buttons.ts';
 import { downloadTextFieldTokens } from './components/text-fields.ts';
 import TokenSetManager from './TokenSetManager.ts';
 import TokenSystemProcessor from './TokenSystemProcessor.ts';
-import { COLLATOR, HEADER, root, tokenNameToSass } from './utils.ts';
+import { COLLATOR, HEADER, root, states, tokenNameToSass } from './utils.ts';
 
 const DEFAULT_THEME_URL = new URL('./base/default-theme.json', import.meta.url);
-
-const states = [
-  'hovered',
-  'disabled',
-  'focused',
-  'pressed',
-  'selected',
-  'unselected',
-];
 
 try {
   const [{ default: theme }, ...tables] = await Promise.all([
@@ -31,7 +22,10 @@ try {
     downloadTextFieldTokens(),
   ]);
 
-  const processor = new TokenSystemProcessor(tables, theme);
+  const processor = new TokenSystemProcessor(tables, theme, [
+    'expressive',
+    'web',
+  ]);
 
   const processedTokens = processor.tokens
     .map((token) => [token, processor.findTokenSet(token)] as const)
@@ -43,7 +37,7 @@ try {
 
   await Promise.all(
     // Grouping by set name to make separate files (like "_md-sys-motion.scss",
-    // "_md.ref.palette.scss", etc.
+    // "_md.ref.palette.scss", etc.)
     Object.entries(Object.groupBy(processedTokens, ([, { name }]) => name))
       .map(
         ([setName, group]) =>
@@ -59,7 +53,7 @@ try {
       )
       // Grouping rules by state in separate SASS maps, e.g.,
       // `$default: ( container-color: #fff )`,
-      // `$pressed: (container-color: #000)`, etc.
+      // `$pressed: ( container-color: #000 )`, etc.
       .map(
         ([setName, { declarations, imports }]) =>
           [
@@ -76,7 +70,7 @@ try {
                 ([stateName, declarations]) =>
                   [
                     stateName,
-                    declarations!.map(
+                    declarations.map(
                       ([d, v]) => [d.replace(`${stateName}-`, ''), v] as const,
                     ),
                   ] as const,
@@ -120,6 +114,10 @@ try {
                   ] as const,
               ),
             )
+            .filter(
+              (d): d is readonly [string, string | number] => d[1] != null,
+            )
+            .map(([k, v]) => [k, String(v)] as const)
             .map(
               ([declaration, value]) =>
                 `$${declaration}: var(--${tokenNameToSass(setName)}-${declaration}, ${value});`,

@@ -1,4 +1,6 @@
 import type {
+  ContextTag,
+  ContextTagGroup,
   ReferenceTree,
   Token,
   TokenSet,
@@ -12,6 +14,20 @@ export default class SystemUnifier {
 
   constructor(systems: readonly TokenSystem[]) {
     this.#systems = systems;
+  }
+
+  get tagGroups(): IteratorObject<ContextTagGroup> {
+    return distinct(
+      Iterator.from(this.#systems).flatMap((system) => system.contextTagGroups),
+      (group) => group.name,
+    );
+  }
+
+  get tags(): IteratorObject<ContextTag> {
+    return distinct(
+      Iterator.from(this.#systems).flatMap((system) => system.tags),
+      (tag) => tag.name,
+    );
   }
 
   get tokenSets(): IteratorObject<TokenSet> {
@@ -35,11 +51,17 @@ export default class SystemUnifier {
     );
   }
 
-  getReferenceTree(name: string): ReferenceTree | undefined {
+  getReferenceTree(
+    name: string,
+    tags: readonly string[],
+  ): ReferenceTree | undefined {
     for (const system of this.#systems) {
       const tokenTree = system.contextualReferenceTrees[name];
       if (tokenTree) {
-        const [{ referenceTree }] = tokenTree.contextualReferenceTree;
+        const { referenceTree } =
+          tokenTree.contextualReferenceTree.find(({ contextTags }) =>
+            tags.some((tag) => contextTags?.includes(tag)),
+          ) ?? tokenTree.contextualReferenceTree[0];
         return referenceTree;
       }
     }

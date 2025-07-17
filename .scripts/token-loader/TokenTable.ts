@@ -147,14 +147,38 @@ export type ResolvedValue = Readonly<{
   lineHeight?: TokenLength;
 }>;
 
+export type ContextualReferenceTreeValue = Readonly<{
+  contextTags?: readonly string[];
+  referenceTree: ReferenceTree;
+  resolvedValue: ResolvedValue;
+  numeric?: number;
+}>;
+
 export type ContextualReferenceTree = Readonly<{
-  contextualReferenceTree: ReadonlyArray<
-    Readonly<{
-      referenceTree: ReferenceTree;
-      resolvedValue: ResolvedValue;
-      numeric?: number;
-    }>
-  >;
+  contextualReferenceTree: readonly ContextualReferenceTreeValue[];
+}>;
+
+export type ContextTag = Readonly<{
+  name: string;
+  revisionId: string;
+  revisionCreateTime: string;
+  state: string;
+  displayName: string;
+  tagName: string;
+  tagOrder: number;
+  createTime: string;
+}>;
+
+export type ContextTagGroup = Readonly<{
+  name: string;
+  revisionId: string;
+  revisionCreateTime: string;
+  state: string;
+  displayName: string;
+  contextTagGroupName: string;
+  defaultTag: string;
+  specificity: number;
+  createTime: string;
 }>;
 
 export type TokenSystem = Readonly<{
@@ -164,6 +188,8 @@ export type TokenSystem = Readonly<{
   contextualReferenceTrees: Readonly<
     Record<string, ContextualReferenceTree | undefined>
   >;
+  contextTagGroups: readonly ContextTagGroup[];
+  tags: readonly ContextTag[];
 }>;
 
 export type TokenTable = Readonly<{

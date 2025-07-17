@@ -1,5 +1,3 @@
-import type { SassDeclarationToken } from './TokenSystemProcessor.ts';
-
 export const root: URL = new URL('../../', import.meta.url);
 
 export type SassDeclaration = Readonly<Record<string, string | number>>;
@@ -36,10 +34,6 @@ export function tokenNameToSass(token: string): string {
   return token.replaceAll('.', '-');
 }
 
-export function tokenNameToCssVar(tokenName: string): string {
-  return `--${tokenNameToSass(tokenName)}`;
-}
-
 export function* distinct<T>(
   iterator: IteratorObject<T>,
   comparator: (element: T) => unknown = (element) => element,
@@ -61,3 +55,12 @@ export function* distinct<T>(
 export function kebabCaseToCamelCase(str: string): string {
   return str.replace(/-./g, (x) => x[1].toUpperCase());
 }
+
+export const states = [
+  'hovered',
+  'disabled',
+  'focused',
+  'pressed',
+  'selected',
+  'unselected',
+] as const;

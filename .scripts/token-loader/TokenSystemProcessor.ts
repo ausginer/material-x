@@ -2,6 +2,8 @@ import type { MaterialTheme } from './MaterialTheme.js';
 import SystemUnifier from './SystemUnifier.ts';
 import type TokenSetManager from './TokenSetManager.ts';
 import {
+  type ContextTag,
+  type ContextTagGroup,
   TextTransform,
   type Token,
   type TokenColor,
@@ -24,10 +26,18 @@ export type SassDeclarationToken = readonly [
 export default class TokenSystemProcessor {
   readonly #unifier: SystemUnifier;
   readonly #theme: MaterialTheme;
+  readonly #tags: readonly ContextTag[];
 
-  constructor(tables: readonly TokenTable[], theme: MaterialTheme) {
+  constructor(
+    tables: readonly TokenTable[],
+    theme: MaterialTheme,
+    tags: readonly string[],
+  ) {
     this.#unifier = new SystemUnifier(tables.map(({ system }) => system));
     this.#theme = theme;
+    this.#tags = this.#unifier.tags
+      .filter(({ tagName }) => tags.includes(tagName))
+      .toArray();
   }
 
   get tokens(): IteratorObject<Token> {
@@ -35,7 +45,10 @@ export default class TokenSystemProcessor {
   }
 
   getTokenValue({ name }: Token): Value | undefined {
-    const referenceTree = this.#unifier.getReferenceTree(name);
+    const referenceTree = this.#unifier.getReferenceTree(
+      name,
+      this.#tags.map(({ name }) => name),
+    );
 
     if (!referenceTree) {
       return this.#unifier.values.find((value) => value.name.startsWith(name));
@@ -125,10 +138,10 @@ export default class TokenSystemProcessor {
       return [
         [
           declaration,
-          `${fontWeight ? `#{${fontWeight}} ` : ''}${
-            fontSize ? `#{${fontSize}}/` : ''
-          }${lineHeight ? `#{${lineHeight}} ` : ''}${
-            fontName ? `#{${fontName}} ` : ''
+          `${fontWeight ? `${fontWeight} ` : ''}${
+            fontSize ? `${fontSize}/` : ''
+          }${lineHeight ? `${lineHeight} ` : ''}${
+            fontName ? `${fontName} ` : ''
           }`,
         ] as const,
       ];
@@ -251,7 +264,7 @@ export default class TokenSystemProcessor {
   #convertToImported(
     tokenName: string,
     setManager: TokenSetManager,
-  ): string | undefined {
+  ): string | number | undefined {
     const token = this.#unifier.tokens.find(
       (token) => token.tokenName === tokenName,
     );
@@ -264,7 +277,9 @@ export default class TokenSystemProcessor {
     const varName = tokenNameToSass(token.tokenNameSuffix);
 
     if (tokenSetName === setManager.name) {
-      return `$${varName}`;
+      const [[, value]] = this.processToken(token, setManager);
+
+      return `var(--${tokenNameToSass(tokenName)}, ${value})`;
     }
 
     const importedSet = tokenNameToSass(tokenSetName);
