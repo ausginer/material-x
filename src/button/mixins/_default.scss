@@ -18,6 +18,7 @@ $selected: funcs.pick-unique(tokens.$selected, tokens.$default);
     --_container-shape: var(--_container-shape-round);
     --_motion-effect: #{motion-effects.$expressive-fast-effects};
     --_motion-duration: #{motion-effects.$expressive-fast-effects-duration};
+    --_token-shape-full: calc(var(--_container-height) / 2);
 
     display: inline-flex;
     cursor: default;

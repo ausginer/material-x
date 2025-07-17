@@ -128,7 +128,7 @@ try {
             .join('\n');
         }
 
-        await writeFile(fileURL, `${HEADER}${_imports}\n${_values}`, 'utf8');
+        await writeFile(fileURL, `${HEADER}${_imports}\n\n${_values}`, 'utf8');
       }),
   );
 } catch (e) {

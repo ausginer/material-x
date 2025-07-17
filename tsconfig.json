@@ -5,7 +5,7 @@
     "removeComments": true,
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "bundler",
     "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable"],
     "types": ["@vitest/browser/providers/playwright"],
     "allowArbitraryExtensions": true,
@@ -30,5 +30,11 @@
       }
     ]
   },
-  "include": ["./.scripts/**/*.ts", "src", "eslint.config.js", "vite.config.ts"]
+  "include": [
+    "./.scripts/**/*.ts",
+    "src",
+    "eslint.config.js",
+    "types.d.ts",
+    "vite.config.ts"
+  ]
 }

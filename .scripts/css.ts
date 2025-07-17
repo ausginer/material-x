@@ -1,4 +1,3 @@
-/* eslint-disable import-x/no-unresolved */
 import { basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pxToRem from '@minko-fe/postcss-pxtorem';
@@ -6,7 +5,8 @@ import cssnanoPlugin from 'cssnano';
 import MagicString from 'magic-string';
 import postcss from 'postcss';
 import type { SourceMap } from 'rollup';
-import { compileString } from 'sass';
+import { type CanonicalizeContext, compileStringAsync } from 'sass-embedded';
+// eslint-disable-next-line import-x/no-unresolved
 import * as sorcery from 'sorcery';
 
 const cssTransformer = postcss([
@@ -57,6 +57,9 @@ function createSourcePath(previousURL: URL, ext: string) {
   );
 }
 
+const root = new URL('../', import.meta.url);
+const nodeModules = new URL('node_modules/', root);
+
 export async function compileCSS(
   url: URL,
   code: string,
@@ -67,8 +70,26 @@ export async function compileCSS(
     css: firstProcessedCode,
     sourceMap: firstProcessedMap,
     loadedUrls,
-  } = compileString(code, {
+  } = await compileStringAsync(code, {
     url,
+    sourceMap: true,
+    sourceMapIncludeSources: true,
+    importers: [
+      {
+        findFileUrl(
+          url: string,
+          { containingUrl }: CanonicalizeContext,
+        ): URL | null {
+          if (url.startsWith('~')) {
+            return new URL(url.substring(1), nodeModules);
+          } else if (containingUrl?.pathname.includes('node_modules/')) {
+            return new URL(url, nodeModules);
+          }
+
+          return null;
+        },
+      },
+    ],
   });
 
   const [secondProcessedCode, secondProcessedMap] = await cssTransformer

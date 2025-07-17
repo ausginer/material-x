@@ -1,11 +1,14 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 // import storybook from 'eslint-plugin-storybook';
 
+import { fileURLToPath } from 'node:url';
 import tsEslint from 'typescript-eslint';
 import tsRequireTypeChecking from 'eslint-config-vaadin/typescript-requiring-type-checking';
 import tsImports from 'eslint-config-vaadin/imports-typescript';
 import testing from 'eslint-config-vaadin/testing';
 import prettier from 'eslint-config-vaadin/prettier';
+
+const root = new URL('./', import.meta.url);
 
 const config = tsEslint.config(
   tsRequireTypeChecking,
@@ -22,11 +25,11 @@ const config = tsEslint.config(
       '@typescript-eslint/no-shadow': 'off',
       'import-x/prefer-default-export': 'off',
     },
-    files: ['.scripts/**/*.ts', 'src/**/*.ts', 'src/**/*.js'],
+    files: ['./.scripts/**/*.ts', 'src/**/*.ts', 'src/**/*.js'],
     languageOptions: {
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: import.meta.dirname,
+        tsconfigRootDir: fileURLToPath(root),
       },
     },
   },

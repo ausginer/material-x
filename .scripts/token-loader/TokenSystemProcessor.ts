@@ -175,7 +175,7 @@ export default class TokenSystemProcessor {
       } = shape;
 
       if (family === TokenShapeFamily.FULL) {
-        return [[declaration, '9999rem']];
+        return [[declaration, 'var(--_token-shape-full, 9999rem)']];
       } else {
         if (defaultSize?.value != null) {
           return [[declaration, `${defaultSize.value}px`]];

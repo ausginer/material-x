@@ -21,11 +21,3 @@ declare module 'sorcery' {
 
   export function load(source: string, map: LoadMap): Promise<Chain>;
 }
-
-declare module '@csstools/postcss-sass' {
-  import type { Options } from 'sass';
-
-  function postcssSass(options?: Options);
-
-  export default postcssSass;
-}
