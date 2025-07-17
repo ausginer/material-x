@@ -9,7 +9,9 @@
   }
 
   @each $key, $value in $tokens {
-    @if string.index($key, 'stiffness') == null and string.index($key, 'damping') == null {
+    @if string.index($key, 'stiffness') == null
+    and string.index($key, 'damping') == null
+    and string.index($key, 'shape') == null {
       --_#{$key}: var(--md-button-#{$key}, #{$value});
     }
   }
