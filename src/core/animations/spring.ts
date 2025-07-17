@@ -1,3 +1,6 @@
+import type CoreElement from '../elements/core';
+import type { ReactiveController } from '../elements/reactive-controller';
+
 const { sqrt, exp, cos, max, PI } = Math;
 
 export function createSpringKeyframes(
@@ -43,4 +46,42 @@ export function createSpringKeyframes(
     // So, `1 - distance` correctly starts at 0 and approaches 1.
     return 1 - distance;
   });
+}
+
+export default class SpringAnimationController implements ReactiveController {
+  readonly #element: CoreElement;
+
+  constructor(element: CoreElement) {
+    this.#element = element;
+    this.#element.addController(this);
+  }
+
+  connected(): void {
+    const element = this.#element;
+
+    const styles = getComputedStyle(element);
+    const [damping, stiffness, duration] = [
+      '--_motion-damping',
+      '--_motion-stiffness',
+      '--_motion-duration',
+    ].map((value) => parseFloat(styles.getPropertyValue(value).trim()));
+    const keyframes = createSpringKeyframes(damping, stiffness, duration);
+
+    const animation = element.animate(
+      keyframes.map((frame) => ({ '--_spring-value': frame })),
+      { duration: 150, fill: 'forwards' },
+    );
+
+    animation.pause();
+
+    element.addEventListener('pointerdown', () => {
+      animation.playbackRate = 1;
+      animation.play();
+    });
+
+    element.addEventListener('pointerup', () => {
+      animation.playbackRate = -1;
+      animation.play();
+    });
+  }
 }

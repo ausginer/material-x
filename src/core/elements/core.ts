@@ -1,3 +1,5 @@
+import type { ReactiveController } from './reactive-controller';
+
 const AriaMapping: Readonly<Record<string, keyof ARIAMixin>> = {
   checked: 'ariaChecked',
   disabled: 'ariaDisabled',
@@ -5,6 +7,7 @@ const AriaMapping: Readonly<Record<string, keyof ARIAMixin>> = {
 
 export default class CoreElement extends HTMLElement {
   readonly #internals = this.attachInternals();
+  readonly #controllers: ReactiveController[] = [];
 
   constructor(
     template: HTMLTemplateElement,
@@ -26,5 +29,17 @@ export default class CoreElement extends HTMLElement {
     if (name in AriaMapping) {
       this.#internals[AriaMapping[name]] = newValue;
     }
+  }
+
+  addController(controller: ReactiveController): void {
+    this.#controllers.push(controller);
+  }
+
+  connectedCallback(): void {
+    this.#controllers.forEach((controller) => controller.connected?.());
+  }
+
+  disconnectedCallback(): void {
+    this.#controllers.forEach((controller) => controller.disconnected?.());
   }
 }
