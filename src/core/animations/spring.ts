@@ -1,5 +1,5 @@
-import type CoreElement from '../elements/core';
-import type { ReactiveController } from '../elements/reactive-controller';
+import type CoreElement from '../elements/core.ts';
+import type { ReactiveController } from '../elements/reactive-controller.ts';
 
 const { sqrt, exp, cos, max, PI } = Math;
 

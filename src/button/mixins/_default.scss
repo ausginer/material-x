@@ -36,7 +36,6 @@ $selected: funcs.pick-unique(tokens.$selected, tokens.$default);
     place-items: center;
     place-content: center;
     gap: 8px;
-    transition: border-radius var(--_motion-duration) var(--_motion-effect);
   }
 
   :host(:hover),
