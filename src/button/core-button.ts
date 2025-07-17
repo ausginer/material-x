@@ -11,8 +11,6 @@ export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
  * @attr {boolean|undefined} disabled
  */
 export default class CoreButton extends CoreElement {
-  readonly #spring = new SpringAnimationController(this);
-
   constructor(
     template: HTMLTemplateElement,
     role: ARIAMixin['role'],
@@ -20,5 +18,6 @@ export default class CoreButton extends CoreElement {
   ) {
     super(template, { role }, [buttonCss, elevationCss, ...styles]);
     this.tabIndex = 0;
+    this.use(SpringAnimationController);
   }
 }

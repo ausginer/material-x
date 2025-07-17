@@ -1,9 +1,6 @@
-import type { ReactiveController } from './reactive-controller';
-
-const AriaMapping: Readonly<Record<string, keyof ARIAMixin>> = {
-  checked: 'ariaChecked',
-  disabled: 'ariaDisabled',
-};
+import type { Constructor } from 'type-fest';
+import AriaController from './aria-controller.ts';
+import type { ReactiveController } from './reactive-controller.ts';
 
 export default class CoreElement extends HTMLElement {
   readonly #internals = this.attachInternals();
@@ -19,20 +16,22 @@ export default class CoreElement extends HTMLElement {
     const root = this.attachShadow({ mode: 'open' });
     root.adoptedStyleSheets = styles;
     root.append(template.content.cloneNode(true));
+    this.use(AriaController);
+  }
+
+  use(ctr: Constructor<ReactiveController>): void {
+    const controller = new ctr(this, this.#internals);
+    this.#controllers.push(controller);
   }
 
   attributeChangedCallback(
     name: string,
-    _: string | null,
+    oldValue: string | null,
     newValue: string | null,
   ): void {
-    if (name in AriaMapping) {
-      this.#internals[AriaMapping[name]] = newValue;
-    }
-  }
-
-  addController(controller: ReactiveController): void {
-    this.#controllers.push(controller);
+    this.#controllers.forEach((controller) =>
+      controller.attrChanged?.(name, oldValue, newValue),
+    );
   }
 
   connectedCallback(): void {

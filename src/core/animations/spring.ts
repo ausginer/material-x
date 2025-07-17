@@ -3,7 +3,7 @@ import type { ReactiveController } from '../elements/reactive-controller';
 
 const { sqrt, exp, cos, max, PI } = Math;
 
-export function createSpringKeyframes(
+function createSpringKeyframes(
   /**
    * Damping factor of the spring, where 0 is no damping and 1 is critical
    * damping (prevents oscillation).
@@ -53,7 +53,6 @@ export default class SpringAnimationController implements ReactiveController {
 
   constructor(element: CoreElement) {
     this.#element = element;
-    this.#element.addController(this);
   }
 
   connected(): void {
