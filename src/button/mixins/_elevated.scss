@@ -14,6 +14,7 @@ $selected: funcs.pick-unique(tokens.$selected, default-tokens.$selected);
 @mixin main {
   :host([flavor="elevated"]) {
     @include tokens-as-private-vars($default);
+    --_level: var(--_container-elevation);
 
     &::before, &::after {
       content: '';
@@ -22,7 +23,7 @@ $selected: funcs.pick-unique(tokens.$selected, default-tokens.$selected);
 
   @if map.size($hovered) > 0 {
     :host([flavor="elevated"]:hover) {
-      @include tokens-as-private-vars($hovered);
+      @include tokens-as-private-vars($hovered, ('container-elevation',));
     }
   }
 

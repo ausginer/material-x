@@ -1,0 +1,19 @@
+@use 'sass:meta';
+@forward 'sass:list';
+
+@function any($list, $condition, $ctx...) {
+  @if meta.type-of($list) != 'list' {
+    @error 'Expected a list, but got #{meta.type-of($list)}';
+  }
+
+  @if meta.type-of($condition) != 'function' {
+    @error 'Expected a function, but got #{meta.type-of($condition)}';
+  }
+
+  @each $item in $list {
+    @if meta.call($condition, $item, $ctx...) {
+      @return true;
+    }
+  }
+  @return false;
+}

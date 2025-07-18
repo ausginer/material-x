@@ -1,18 +1,31 @@
 @use 'sass:meta';
 @use 'sass:string';
+@use '../core/utils/list';
 @use '../core/utils/functions';
 @use '../core/tokens/md-comp-button' as button-tokens;
 
-@mixin tokens-as-private-vars($tokens) {
+@mixin tokens-as-private-vars($tokens, $list-of-excluded: ()) {
   @if meta.type-of($tokens) != 'map' {
     @error "Expected a map of tokens, but got #{meta.type-of($tokens)}.";
   }
 
+  @if meta.type-of($list-of-excluded) != 'list' {
+    @error "Expected a list of keys to exclude, but got #{meta.type-of($list-of-excluded)}.";
+  }
+
+  $list-of-excluded: list.join($list-of-excluded, (
+    'stiffness',
+    'damping',
+    'shape'
+  ));
+
   @each $key, $value in $tokens {
-    @if string.index($key, 'stiffness') == null
-    and string.index($key, 'damping') == null
-    and string.index($key, 'shape') == null {
+    @if not list.any($list-of-excluded, meta.get-function('is-in-list-of-excluded'), ($key)) {
       --_#{$key}: var(--md-button-#{$key}, #{$value});
     }
   }
+}
+
+@function is-in-list-of-excluded($string, $key) {
+  @return string.index($string, $key) != null;
 }

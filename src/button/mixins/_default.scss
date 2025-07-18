@@ -21,7 +21,7 @@ $selected: funcs.pick-unique(tokens.$selected, tokens.$default);
     --_motion-stiffness: #{map.get(tokens.$pressed, container-corner-size-motion-spring-stiffness)};
     --_motion-duration: #{motion-effects.$expressive-fast-effects-duration};
     --_token-shape-full: calc(var(--_container-height) / 2);
-    --_spring-value: 0;
+    --_spring-factor: 0;
 
     display: inline-flex;
     cursor: default;
@@ -31,7 +31,7 @@ $selected: funcs.pick-unique(tokens.$selected, tokens.$default);
     padding-block: calc((var(--_container-height) - max(var(--_icon-size), var(--_label-text-line-height))) / 2);
     padding-inline-start: var(--_leading-space);
     padding-inline-end: var(--_trailing-space);
-    border-radius: calc(var(--_container-shape-default) - (var(--_container-shape-default) - var(--_container-shape-pressed)) * var(--_spring-value));
+    border-radius: calc(var(--_container-shape-default) - (var(--_container-shape-default) - var(--_container-shape-pressed)) * var(--_spring-factor));
     font: var(--_label-text);
     place-items: center;
     place-content: center;
