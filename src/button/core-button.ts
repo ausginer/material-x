@@ -1,3 +1,4 @@
+import RippleAnimationController from '../core/animations/ripple.ts';
 import SpringAnimationController from '../core/animations/spring.ts';
 import CoreElement from '../core/elements/core.ts';
 import elevationCss from '../core/elevation/elevation.scss' with { type: 'css' };
@@ -19,5 +20,6 @@ export default class CoreButton extends CoreElement {
     super(template, { role }, [buttonCss, elevationCss, ...styles]);
     this.tabIndex = 0;
     this.use(SpringAnimationController);
+    this.use(RippleAnimationController);
   }
 }

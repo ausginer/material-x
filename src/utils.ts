@@ -6,9 +6,13 @@ export const ariaAttributes = Object.keys(ElementInternals.prototype)
     key.replace('aria', 'aria-').toLowerCase(),
   ) as readonly string[];
 
-export function createTemplate(str: string): HTMLTemplateElement {
+export function createTemplate(
+  str: string,
+  ...tweaks: ReadonlyArray<(template: HTMLTemplateElement) => void>
+): HTMLTemplateElement {
   const template = document.createElement('template');
   template.innerHTML = str;
+  tweaks.forEach((tweak) => tweak(template));
   return template;
 }
 
