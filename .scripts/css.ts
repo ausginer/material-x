@@ -66,39 +66,34 @@ export async function compileCSS(
 ): Promise<CSSCompilationResult> {
   const path = fileURLToPath(url);
 
-  const {
-    css: firstProcessedCode,
-    sourceMap: firstProcessedMap,
-    loadedUrls,
-  } = await compileStringAsync(code, {
-    url,
-    sourceMap: true,
-    sourceMapIncludeSources: true,
-    importers: [
-      {
-        findFileUrl(
-          url: string,
-          { containingUrl }: CanonicalizeContext,
-        ): URL | null {
-          if (url.startsWith('~')) {
-            return new URL(url.substring(1), nodeModules);
-          } else if (containingUrl?.pathname.includes('node_modules/')) {
-            return new URL(url, nodeModules);
-          }
+  const { css: firstProcessedCode, loadedUrls } = await compileStringAsync(
+    code,
+    {
+      url,
+      importers: [
+        {
+          findFileUrl(
+            url: string,
+            { containingUrl }: CanonicalizeContext,
+          ): URL | null {
+            if (url.startsWith('~')) {
+              return new URL(url.substring(1), nodeModules);
+            } else if (containingUrl?.pathname.includes('node_modules/')) {
+              return new URL(url, nodeModules);
+            }
 
-          return null;
+            return null;
+          },
         },
-      },
-    ],
-  });
+      ],
+    },
+  );
 
   const [secondProcessedCode, secondProcessedMap] = await cssTransformer
     .process(firstProcessedCode, {
       map: {
-        from: path,
         inline: false,
         annotation: false,
-        prev: firstProcessedMap,
       },
       from: path,
     })
@@ -129,7 +124,7 @@ export async function compileCSS(
     content: {
       [finalPath]: compiled,
       [interPath]: secondProcessedCode,
-      [path]: code,
+      [path]: firstProcessedCode,
     },
     sourcemaps: {
       [finalPath]: JSON.parse(compiledMap.toString()),
@@ -137,9 +132,12 @@ export async function compileCSS(
     },
   });
 
+  const map = chain.apply();
+  map.sources = map.sources.map((source) => basename(source));
+
   return {
     code: compiled,
-    map: chain.apply(),
+    map,
     urls: loadedUrls,
   };
 }
