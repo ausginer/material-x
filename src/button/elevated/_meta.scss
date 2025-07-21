@@ -1,0 +1,27 @@
+@use 'sass:list';
+@use 'sass:string';
+@use '../../core/tokens/md-comp-button-elevated' as tokens;
+@use '../../core/utils/functions' as *;
+@use '../../core/utils/map';
+@use '../default/meta' as default-props;
+@use '../utils' as *;
+
+$_manual-options: ('elevation');
+$_tokens: prepare-tokens(tokens.$values, default-props.$tokens, $_manual-options);
+
+$flavor: string.unquote('flavor="elevated"');
+
+$default: map.get($_tokens, 'default');
+$hovered: map.get($_tokens, 'hovered');
+$focused: map.get($_tokens, 'focused');
+$pressed: map.get($_tokens, 'pressed');
+$disabled: map.get($_tokens, 'disabled');
+$unselected: map.get($_tokens, 'unselected');
+$selected: map.get($_tokens, 'selected');
+
+$default: map.merge(
+  $default,
+  (
+    level: var(--_container-elevation),
+  )
+);

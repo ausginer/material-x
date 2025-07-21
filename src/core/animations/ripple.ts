@@ -1,5 +1,5 @@
 import type { TypedObjectConstructor } from '../../interfaces';
-import { createTemplate } from '../../utils.ts';
+import { template } from '../../utils.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import { createRem, CSSVariableError, type Point } from '../utils.ts';
 import css from './ripple.scss' with { type: 'css' };
@@ -111,7 +111,7 @@ function getTranslationCoordinates(
 }
 
 const CLS = '_ripple';
-const TEMPLATE = createTemplate(`<div class="${CLS}"></div>`);
+const TEMPLATE = template`<div class="${CLS}"></div>`;
 
 export default class RippleAnimationController implements ReactiveController {
   readonly #host: HTMLElement;

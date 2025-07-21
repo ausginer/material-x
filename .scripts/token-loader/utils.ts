@@ -57,6 +57,8 @@ export function kebabCaseToCamelCase(str: string): string {
 }
 
 export const states = [
+  'hover',
+  'focus',
   'hovered',
   'disabled',
   'focused',

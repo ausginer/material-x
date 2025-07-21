@@ -2,14 +2,5 @@
 @forward 'sass:map';
 
 @function size($map) {
-  @if meta.type-of($map) != 'map' {
-    @error "Expected a map, but got #{meta.type-of($map)}.";
-  }
-
-  $size: 0;
-  @each $key, $value in $map {
-    $size: $size + 1;
-  }
-
-  @return $size;
+  @return map-size($map);
 }

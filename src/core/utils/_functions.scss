@@ -13,10 +13,6 @@
   $unique-tokens: $a;
 
   @each $map in $b {
-    @if meta.type-of($map) != "map" {
-      @error "Expected a map for each item in the $b list, but got #{meta.type-of($map)}.";
-    }
-
     @each $key, $value in $a {
       @if map.has-key($map, $key) and $value == map.get($map, $key) {
         $unique-tokens: map.remove($unique-tokens, $key);

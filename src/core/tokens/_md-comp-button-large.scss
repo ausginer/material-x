@@ -10,7 +10,7 @@
 @use "md-sys-shape";
 @use "md-sys-motion";
 
-$default: (
+$values: (
   container-height: 96px,
   container-shape-round: md-sys-shape.$corner-full,
   container-shape-square: md-sys-shape.$corner-extra-large,
@@ -23,16 +23,10 @@ $default: (
   label-text: md-sys-typescale.$headline-small,
   leading-space: 48px,
   outlined-outline-width: 2px,
+  pressed-container-corner-size-motion-spring-damping: md-sys-motion.$spring-fast-spatial-damping,
+  pressed-container-corner-size-motion-spring-stiffness: md-sys-motion.$spring-fast-spatial-stiffness,
+  pressed-container-shape: md-sys-shape.$corner-large,
+  selected-container-shape-round: md-sys-shape.$corner-extra-large,
+  selected-container-shape-square: md-sys-shape.$corner-full,
   trailing-space: 48px,
-);
-
-$pressed: (
-  container-corner-size-motion-spring-damping: md-sys-motion.$spring-fast-spatial-damping,
-  container-corner-size-motion-spring-stiffness: md-sys-motion.$spring-fast-spatial-stiffness,
-  container-shape: md-sys-shape.$corner-large,
-);
-
-$selected: (
-  container-shape-round: md-sys-shape.$corner-extra-large,
-  container-shape-square: md-sys-shape.$corner-full,
 );

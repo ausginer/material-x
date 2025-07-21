@@ -1,0 +1,41 @@
+/*
+ * Tokens for the button component, according to the Material Design
+ * specification: https://m3.material.io
+ *
+ * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+ * !!! DO NOT MODIFY IT BY HAND !!!
+ */
+@use "sass:map";
+@use "md-sys-state-focus-indicator";
+@use "md-sys-color";
+@use "md-sys-shape";
+@use "md-sys-elevation";
+@use "md-sys-state";
+
+$values: (
+  container-color: md-sys-color.$surface-container-high,
+  container-elevation: md-sys-elevation.$level3,
+  container-height: 56px,
+  container-shadow-color: md-sys-color.$shadow,
+  container-shape: md-sys-shape.$corner-large,
+  container-surface-tint-layer-color: md-sys-color.$surface-tint,
+  container-width: 56px,
+  focus-container-elevation: md-sys-elevation.$level3,
+  focus-indicator-color: md-sys-color.$secondary,
+  focus-indicator-thickness: md-sys-state-focus-indicator.$thickness,
+  focus-state-layer-color: md-sys-color.$primary,
+  focus-state-layer-opacity: md-sys-state.$focus-state-layer-opacity,
+  hover-container-elevation: md-sys-elevation.$level4,
+  hover-state-layer-color: md-sys-color.$primary,
+  hover-state-layer-opacity: md-sys-state.$hover-state-layer-opacity,
+  icon-size: 36px,
+  indicator-outline-offset: md-sys-state-focus-indicator.$outer-offset,
+  lowered-container-color: md-sys-color.$surface-container-low,
+  lowered-container-elevation: md-sys-elevation.$level1,
+  lowered-focus-container-elevation: md-sys-elevation.$level1,
+  lowered-hover-container-elevation: md-sys-elevation.$level2,
+  lowered-pressed-container-elevation: md-sys-elevation.$level1,
+  pressed-container-elevation: md-sys-elevation.$level3,
+  pressed-state-layer-color: md-sys-color.$primary,
+  pressed-state-layer-opacity: md-sys-state.$pressed-state-layer-opacity,
+);

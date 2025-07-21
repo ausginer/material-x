@@ -1,0 +1,41 @@
+@use 'sass:map';
+@use 'sass:list';
+@use '../../core/defaults/motion-effects' as motion-effects;
+@use '../../core/tokens/md-comp-button' as tokens;
+@use '../../core/utils/functions' as *;
+@use '../utils' as *;
+
+$_manual-options: ('stiffness', 'damping', 'shape', 'elevation');
+$tokens: prepare-tokens(tokens.$values, null, $_manual-options);
+
+$default: map.get($tokens, 'default');
+$hovered: map.get($tokens, 'hovered');
+$focused: map.get($tokens, 'focused');
+$pressed: map.get($tokens, 'pressed');
+$disabled: map.get($tokens, 'disabled');
+$unselected: map.get($tokens, 'unselected');
+$selected: map.get($tokens, 'selected');
+
+@debug $default;
+
+$default: map.merge(
+  $default,
+  (
+    container-shape-default: map.get($default, container-shape-round),
+    container-shape-pressed: map.get($default, container-shape-square),
+    motion-damping: map.get(
+        $pressed,
+        container-corner-size-motion-spring-damping
+      ),
+    motion-stiffness: map.get(
+        $pressed,
+        container-corner-size-motion-spring-stiffness
+      ),
+    motion-duration: motion-effects.$expressive-fast-effects-duration,
+    token-shape-full: calc(var(--_container-height) / 2),
+    spring-factor: 0,
+    ripple-color: map.get($pressed, state-layer-color),
+    ripple-easing: motion-effects.$expressive-fast-effects,
+    ripple-opacity: map.get($pressed, state-layer-opacity),
+  )
+);

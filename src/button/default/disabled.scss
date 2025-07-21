@@ -1,0 +1,34 @@
+@use 'meta' as *;
+@use '../utils' as *;
+
+@include disabled-state($disabled) {
+  $container-opacity-amount: calc(
+    100% - var(--_container-opacity) * 100%
+  );
+  $label-text-opacity: calc(
+    100% - var(--_label-text-opacity) * 100%
+  );
+
+  background-color: color-mix(
+      in srgb,
+      var(--_container-color),
+      transparent #{$container-opacity-amount}
+  );
+  color: color-mix(
+      in srgb,
+      var(--_label-text-color),
+      transparent #{$label-text-opacity}
+  );
+  cursor: default;
+  pointer-events: none;
+  outline: none;
+
+  slot[name='icon'] {
+    $icon-opacity: calc(100% - var(--_icon-opacity) * 100%);
+    color: color-mix(
+        in srgb,
+        var(--_icon-color),
+        transparent #{$icon-opacity}
+    );
+  }
+}

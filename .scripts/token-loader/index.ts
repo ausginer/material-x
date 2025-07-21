@@ -4,6 +4,7 @@ import { downloadElevationTokens } from './base/elevation.ts';
 import { downloadMotionTokens } from './base/motion.ts';
 import { downloadTypographyTokens } from './base/typography.ts';
 import { downloadButtonTokens } from './components/buttons.ts';
+import { downloadFABTokens } from './components/fab.ts';
 import { downloadTextFieldTokens } from './components/text-fields.ts';
 import TokenSetManager from './TokenSetManager.ts';
 import TokenSystemProcessor from './TokenSystemProcessor.ts';
@@ -20,6 +21,7 @@ try {
     downloadTypographyTokens(),
     downloadButtonTokens(),
     downloadTextFieldTokens(),
+    downloadFABTokens(),
   ]);
 
   const processor = new TokenSystemProcessor(tables, theme, [
@@ -51,34 +53,6 @@ try {
             },
           ] as const,
       )
-      // Grouping rules by state in separate SASS maps, e.g.,
-      // `$default: ( container-color: #fff )`,
-      // `$pressed: ( container-color: #000 )`, etc.
-      .map(
-        ([setName, { declarations, imports }]) =>
-          [
-            setName,
-            {
-              declarations: Object.entries(
-                Object.groupBy(
-                  declarations,
-                  ([declaration]) =>
-                    states.find((state) => declaration.startsWith(state)) ??
-                    'default',
-                ),
-              ).map(
-                ([stateName, declarations]) =>
-                  [
-                    stateName,
-                    declarations.map(
-                      ([d, v]) => [d.replace(`${stateName}-`, ''), v] as const,
-                    ),
-                  ] as const,
-              ),
-              imports,
-            },
-          ] as const,
-      )
       .map(async ([setName, { declarations, imports }]) => {
         const fileURL = new URL(
           `src/core/tokens/_${setName.replace(/\./g, '-')}.scss`,
@@ -87,41 +61,32 @@ try {
 
         const _imports = [...imports].join('\n');
 
+        const _declarations = declarations.filter(
+          (d): d is readonly [string, string | number] => d[1] != null,
+        );
+
         let _values;
 
         if (setName.startsWith('md.comp')) {
-          _values = declarations
-            .map(([stateName, declarations]) => {
-              const _declarations = declarations
-                .map(
-                  ([declaration, value]) =>
-                    `${declaration.padStart(declaration.length + 2)}: ${value},`,
-                )
-                .toSorted(COLLATOR.compare);
-
-              return `$${stateName}: (\n${_declarations.join('\n')}\n);\n`;
-            })
-            .toSorted(COLLATOR.compare)
-            .join('\n');
-        } else {
-          _values = declarations
-            .flatMap(([stateName, declarations]) =>
-              declarations.map(
-                ([d, v]) =>
-                  [
-                    stateName == 'default' ? d : `${stateName}-${d}`,
-                    v,
-                  ] as const,
-              ),
-            )
-            .filter(
-              (d): d is readonly [string, string | number] => d[1] != null,
-            )
-            .map(([k, v]) => [k, String(v)] as const)
+          _values = _declarations
             .map(
               ([declaration, value]) =>
-                `$${declaration}: var(--${tokenNameToSass(setName)}-${declaration}, ${value});`,
+                `${declaration.padStart(declaration.length + 2)}: ${value},`,
             )
+            .toSorted(COLLATOR.compare)
+            .join('\n');
+
+          _values = `$values: (\n${_values}\n);`;
+        } else {
+          _values = _declarations
+            .map(([k, v]) => [k, String(v)] as const)
+            .map(([declaration, value]) => {
+              const declarationValue = setName.startsWith('md.sys.color')
+                ? `var(--${tokenNameToSass(setName)}-${declaration}, ${value})`
+                : value;
+
+              return `$${declaration}: ${declarationValue};`;
+            })
             .toSorted(COLLATOR.compare)
             .join('\n');
         }

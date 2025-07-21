@@ -1,8 +1,9 @@
 import RippleAnimationController from '../core/animations/ripple.ts';
 import SpringAnimationController from '../core/animations/spring.ts';
 import CoreElement from '../core/elements/core.ts';
-import elevationCss from '../core/elevation/elevation.scss' with { type: 'css' };
-import buttonCss from './button.scss' with { type: 'css' };
+import elevationStyles from '../core/elevation/elevation.scss' with { type: 'css' };
+import defaultButtonStyles from './default/main.scss' with { type: 'css' };
+import defaultDisabledStyles from './default/disabled.scss' with { type: 'css' };
 
 export type ButtonFlavor = 'outlined' | 'filled-tonal' | 'elevated' | 'text';
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
@@ -17,7 +18,12 @@ export default class CoreButton extends CoreElement {
     role: ARIAMixin['role'],
     styles: CSSStyleSheet[],
   ) {
-    super(template, { role }, [buttonCss, elevationCss, ...styles]);
+    super(template, { role }, [
+      defaultButtonStyles,
+      elevationStyles,
+      ...styles,
+      defaultDisabledStyles,
+    ]);
     this.tabIndex = 0;
     this.use(SpringAnimationController);
     this.use(RippleAnimationController);

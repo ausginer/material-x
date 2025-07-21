@@ -11,10 +11,23 @@
 @use "md-sys-typescale";
 @use "md-sys-shape";
 
-$default: (
+$values: (
   caret-color: md-sys-color.$primary,
   container-height: 56px,
   container-shape: md-sys-shape.$corner-extra-small,
+  disabled-input-text-color: md-sys-color.$on-surface,
+  disabled-input-text-opacity: 0.38,
+  disabled-label-text-color: md-sys-color.$on-surface,
+  disabled-label-text-opacity: 0.38,
+  disabled-leading-icon-color: md-sys-color.$on-surface,
+  disabled-leading-icon-opacity: 0.38,
+  disabled-outline-color: md-sys-color.$on-surface,
+  disabled-outline-opacity: 0.12,
+  disabled-outline-width: 1px,
+  disabled-supporting-text-color: md-sys-color.$on-surface,
+  disabled-supporting-text-opacity: 0.38,
+  disabled-trailing-icon-color: md-sys-color.$on-surface,
+  disabled-trailing-icon-opacity: 0.38,
   error-focus-caret-color: md-sys-color.$error,
   error-focus-indicator-outline-color: md-sys-color.$error,
   error-focus-input-text-color: md-sys-color.$on-surface,
@@ -83,20 +96,4 @@ $default: (
   supporting-text-weight: md-sys-typescale.$body-small-weight,
   trailing-icon-color: md-sys-color.$on-surface-variant,
   trailing-icon-size: 24px,
-);
-
-$disabled: (
-  input-text-color: md-sys-color.$on-surface,
-  input-text-opacity: 0.38,
-  label-text-color: md-sys-color.$on-surface,
-  label-text-opacity: 0.38,
-  leading-icon-color: md-sys-color.$on-surface,
-  leading-icon-opacity: 0.38,
-  outline-color: md-sys-color.$on-surface,
-  outline-opacity: 0.12,
-  outline-width: 1px,
-  supporting-text-color: md-sys-color.$on-surface,
-  supporting-text-opacity: 0.38,
-  trailing-icon-color: md-sys-color.$on-surface,
-  trailing-icon-opacity: 0.38,
 );

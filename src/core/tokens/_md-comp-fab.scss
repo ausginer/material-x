@@ -1,0 +1,16 @@
+/*
+ * Tokens for the button component, according to the Material Design
+ * specification: https://m3.material.io
+ *
+ * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+ * !!! DO NOT MODIFY IT BY HAND !!!
+ */
+@use "sass:map";
+@use "md-sys-shape";
+
+$values: (
+  container-height: 56px,
+  container-shape: md-sys-shape.$corner-large,
+  container-width: 56px,
+  icon-size: 24px,
+);

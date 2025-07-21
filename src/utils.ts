@@ -1,18 +1,16 @@
 import type { Constructor } from 'type-fest';
 
-export const ariaAttributes = Object.keys(ElementInternals.prototype)
-  .filter((key) => key.startsWith('aria'))
-  .map((key) =>
-    key.replace('aria', 'aria-').toLowerCase(),
-  ) as readonly string[];
-
-export function createTemplate(
-  str: string,
-  ...tweaks: ReadonlyArray<(template: HTMLTemplateElement) => void>
+export function template(
+  str: TemplateStringsArray,
+  ...args: readonly unknown[]
 ): HTMLTemplateElement {
   const template = document.createElement('template');
-  template.innerHTML = str;
-  tweaks.forEach((tweak) => tweak(template));
+  template.innerHTML = str.reduce(
+    (acc, part, index) =>
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
+      `${acc}${part}${args[index] ? String(args[index]) : ''}`,
+    '',
+  );
   return template;
 }
 

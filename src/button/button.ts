@@ -1,8 +1,11 @@
-import { createTemplate, define } from '../utils.ts';
+import { define, template } from '../utils.ts';
 import CoreButton from './core-button.ts';
-import textButtonCss from './text-button.scss' with { type: 'css' };
+import mainElevatedStyles from './elevated/main.scss' with { type: 'css' };
+import mainOutlinedStyles from './outlined/main.scss' with { type: 'css' };
+import mainSizeStyles from './size/main.scss' with { type: 'css' };
+import mainTextStyles from './text/main.scss' with { type: 'css' };
 
-const template = createTemplate('<slot name="icon"></slot><slot></slot>');
+const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
 
 /**
  * @attr {string} flavor
@@ -14,7 +17,12 @@ export default class Button extends CoreButton {
   static readonly observedAttributes = ['disabled'] as const;
 
   constructor() {
-    super(template, 'button', [textButtonCss]);
+    super(TEMPLATE, 'button', [
+      mainElevatedStyles,
+      mainOutlinedStyles,
+      mainSizeStyles,
+      mainTextStyles,
+    ]);
   }
 }
 

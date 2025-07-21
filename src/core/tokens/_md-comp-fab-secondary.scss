@@ -1,0 +1,51 @@
+/*
+ * Tokens for the button component, according to the Material Design
+ * specification: https://m3.material.io
+ *
+ * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+ * !!! DO NOT MODIFY IT BY HAND !!!
+ */
+@use "sass:map";
+@use "md-sys-color";
+@use "md-sys-elevation";
+@use "md-sys-state";
+@use "md-sys-shape";
+@use "md-sys-state-focus-indicator";
+
+$values: (
+  container-color: md-sys-color.$secondary,
+  container-elevation: md-sys-elevation.$level3,
+  container-height: 56px,
+  container-shadow-color: md-sys-color.$shadow,
+  container-shape: md-sys-shape.$corner-large,
+  container-width: 56px,
+  focus-container-elevation: md-sys-elevation.$level3,
+  focus-icon-color: md-sys-color.$on-secondary-container,
+  focus-indicator-color: md-sys-color.$secondary,
+  focus-indicator-outline-offset: md-sys-state-focus-indicator.$outer-offset,
+  focus-indicator-thickness: md-sys-state-focus-indicator.$thickness,
+  focus-state-layer-color: md-sys-color.$on-secondary-container,
+  focus-state-layer-opacity: md-sys-state.$focus-state-layer-opacity,
+  focused-container-elevation: md-sys-elevation.$level3,
+  focused-icon-color: md-sys-color.$on-secondary,
+  focused-state-layer-color: md-sys-color.$on-secondary,
+  focused-state-layer-opacity: md-sys-state.$focus-state-layer-opacity,
+  hover-container-elevation: md-sys-elevation.$level4,
+  hover-icon-color: md-sys-color.$on-secondary-container,
+  hover-state-layer-color: md-sys-color.$on-secondary-container,
+  hover-state-layer-opacity: md-sys-state.$hover-state-layer-opacity,
+  hovered-container-elevation: md-sys-elevation.$level4,
+  hovered-icon-color: md-sys-color.$on-secondary,
+  hovered-state-layer-color: md-sys-color.$on-secondary,
+  hovered-state-layer-opacity: md-sys-state.$hover-state-layer-opacity,
+  icon-color: md-sys-color.$on-secondary,
+  icon-size: 24px,
+  lowered-container-elevation: md-sys-elevation.$level1,
+  lowered-focus-container-elevation: md-sys-elevation.$level1,
+  lowered-hover-container-elevation: md-sys-elevation.$level2,
+  lowered-pressed-container-elevation: md-sys-elevation.$level1,
+  pressed-container-elevation: md-sys-elevation.$level3,
+  pressed-icon-color: md-sys-color.$on-secondary,
+  pressed-state-layer-color: md-sys-color.$on-secondary,
+  pressed-state-layer-opacity: md-sys-state.$pressed-state-layer-opacity,
+);

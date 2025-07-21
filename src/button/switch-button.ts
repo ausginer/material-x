@@ -1,9 +1,14 @@
-import { createTemplate, define } from '../utils.ts';
-import CoreButton from './core-button.js';
-import type { ButtonFlavor } from './core-button.ts';
-import switchButtonCss from './switch-button.scss' with { type: 'css' };
+import { define, template } from '../utils.ts';
+import CoreButton, { type ButtonFlavor } from './core-button.ts';
+import switchDefaultStyles from './default/switch.scss' with { type: 'css' };
+import mainElevatedStyles from './elevated/main.scss' with { type: 'css' };
+import switchElevatedStyles from './elevated/switch.scss' with { type: 'css' };
+import mainOutlinedStyles from './outlined/main.scss' with { type: 'css' };
+import switchOutlinedStyles from './outlined/switch.scss' with { type: 'css' };
+import mainSizeStyles from './size/main.scss' with { type: 'css' };
+import switchSizeStyles from './size/switch.scss' with { type: 'css' };
 
-const template = createTemplate(`<slot name="icon"></slot><slot></slot>`);
+const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
 
 export type SwitchButtonFlavor = Exclude<ButtonFlavor, 'text'>;
 
@@ -18,7 +23,15 @@ export default class SwitchButton extends CoreButton {
   static readonly observedAttributes = ['checked', 'disabled'] as const;
 
   constructor() {
-    super(template, 'switch', [switchButtonCss]);
+    super(TEMPLATE, 'switch', [
+      mainElevatedStyles,
+      mainOutlinedStyles,
+      mainSizeStyles,
+      switchDefaultStyles,
+      switchElevatedStyles,
+      switchOutlinedStyles,
+      switchSizeStyles,
+    ]);
   }
 }
 

@@ -1,12 +1,12 @@
-import { attachShadow, createTemplate, define } from '../utils.ts';
+import CoreElement from '../core/elements/core.ts';
+import { template, define } from '../utils.ts';
 import css from './icon.scss' with { type: 'css' };
 
-const template = createTemplate(`<slot></slot>`);
+const TEMPLATE = template`<slot></slot>`;
 
-export default class Icon extends HTMLElement {
+export default class Icon extends CoreElement {
   constructor() {
-    super();
-    attachShadow(this, template, [css]);
+    super(TEMPLATE, {}, [css]);
   }
 }
 

@@ -1,25 +1,212 @@
-@use 'sass:meta';
+@use 'sass:list';
 @use 'sass:string';
-@use '../core/utils/list';
-@use '../core/utils/functions';
+@use '../core/utils/functions' as *;
 @use '../core/tokens/md-comp-button' as button-tokens;
+@use '../core/utils/map';
 
-@mixin tokens-as-private-vars($tokens, $list-of-excluded: ()) {
-  @if meta.type-of($tokens) != 'map' {
-    @error "Expected a map of tokens, but got #{meta.type-of($tokens)}.";
-  }
+@function empty($map) {
+  @return map.size($map) == 0;
+}
 
-  @if meta.type-of($list-of-excluded) != 'list' {
-    @error "Expected a list of keys to exclude, but got #{meta.type-of($list-of-excluded)}.";
-  }
-
+@function exclude($tokens, $manual-options: ()) {
   @each $key, $value in $tokens {
-    @if not list.any($list-of-excluded, meta.get-function('is-in-list-of-excluded'), ($key)) {
+    @if list.index($manual-options, $key) == null {
+      $tokens: map.set($tokens, $key, $value);
+    }
+  }
+
+  @return $tokens;
+}
+
+$_button-states: ('disabled', 'hovered', 'focused', 'pressed');
+
+@function append-host-params($param...) {
+  $result: ':host';
+
+  @if list.length($param) > 0 {
+    $result: '#{result}(';
+
+    @each $p in $param {
+      @if string.index($p, ':') == 1 {
+        $result: '#{$result}#{$p}';
+      } @else {
+        $result: '#{$result}[#{$p}]';
+      }
+    }
+
+    @return '#{$result})';
+  } @else {
+    @return ':host';
+  }
+}
+
+@function host-state($state, $params...) {
+  @if $state == 'disabled' {
+    @return append-host-params($params..., 'disabled');
+  } @else if $state == 'hovered' {
+    @return append-host-params($params..., ':hover');
+  } @else if $state == 'focused' {
+    @return append-host-params($params..., ':focus-visible');
+  } @else if $state == 'pressed' {
+    @return append-host-params($params..., ':active');
+  } @else {
+    @return append-host-params($params...);
+  }
+}
+
+@function prepare-tokens($tokens, $default-tokens: null, $manual-options: ()) {
+  $split-tokens: split-token-map(
+    $tokens,
+    list.join($_button-states, ('unselected', 'selected'))
+  );
+
+  @if $default-tokens == null {
+    $default-tokens: $split-tokens;
+  }
+
+  $selected-tokens: split-token-map(
+    map.get($split-tokens, 'selected'),
+    $_button-states
+  );
+
+  $result-states: list.join('default', $_button-states);
+  $result: ();
+
+  @each $state in $result-states {
+    @if not map.get($split-tokens, $state) == null {
+      $result: map.set(
+          $result,
+          $state,
+          exclude(
+              pick-unique(
+                  map.get($split-tokens, $state),
+                  map.get($default-tokens, 'default')
+              ),
+              $manual-options
+          )
+      );
+    }
+  }
+
+  @if not map.get($split-tokens, 'unselected') == null {
+    $unselected-tokens: split-token-map(
+        map.get($split-tokens, 'unselected'),
+        $_button-states
+    );
+
+    $unselected-result: ();
+    @each $state in $result-states {
+      @if not map.get($unselected-tokens, $state) == null {
+        $unselected-result: map.set(
+            $unselected-result,
+            $state,
+            exclude(
+                pick-unique(
+                    map.get($unselected-tokens, $state),
+                    map.get($default-tokens, 'default'),
+                    map.get($default-tokens, $state)
+                ),
+                $manual-options
+            )
+        );
+      }
+    }
+
+    $result: map.set($result, 'unselected', $unselected-result);
+  }
+
+  @if not map.get($split-tokens, 'selected') == null {
+
+
+    $selected-result: ();
+    @each $state in $result-states {
+      @if not map.get($selected-tokens, $state) == null {
+        $selected-result: map.set(
+            $selected-result,
+            $state,
+            exclude(
+                pick-unique(
+                    map.get($selected-tokens, $state),
+                    map.get($default-tokens, 'default'),
+                    map.get($default-tokens, $state)
+                ),
+                $manual-options
+            )
+        );
+      }
+    }
+
+    $result: map.set($result, 'selected', $selected-result);
+  }
+
+  @return $result;
+}
+
+@mixin private-vars($tokens, $state: null) {
+  @each $key, $value in $tokens {
+    @if $state != null {
+      --_#{$key}: var(--md-button-#{$state}-#{$key}, #{$value});
+    } @else {
       --_#{$key}: var(--md-button-#{$key}, #{$value});
     }
   }
 }
 
-@function is-in-list-of-excluded($string, $key) {
-  @return string.index($string, $key) != null;
+@mixin states($tokens, $states, $params...) {
+  @each $state in $states {
+    $map: map.get($tokens, $state);
+
+    @if not $map == null {
+      $host: host-state($state, $params...);
+
+      @if map.size($map) > 0 {
+        #{$host} {
+          @include private-vars($map, $state);
+          @content ($state);
+        }
+      }
+    }
+  }
+}
+
+@mixin default-state($tokens, $params...) {
+  @include states($tokens, ('default'), $params...) {
+    @content;
+  }
+}
+
+@mixin hovered-state($tokens, $params...) {
+  @include states($tokens, ('hovered'), $params...) {
+    @content;
+  }
+}
+
+@mixin focused-state($tokens, $params...) {
+  @include states($tokens, ('focused'), $params...) {
+    @content;
+  }
+}
+
+@mixin pressed-state($tokens, $params...) {
+  @include states($tokens, ('pressed'), $params...) {
+    @content;
+  }
+}
+
+@mixin disabled-state($tokens, $params...) {
+  @include states($tokens, ('disabled'), $params..., 'disabled') {
+    @content;
+  }
+}
+
+@mixin unselected-states($tokens, $params...) {
+  @include states($tokens, $_button-states, $params...) using ($state) {
+    @content($state);
+  }
+}
+
+@mixin selected-states($tokens, $params...) {
+  @include states($tokens, $_button-states, $params..., checked) using ($state) {
+    @content($state);
+  }
 }

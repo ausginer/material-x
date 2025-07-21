@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/web-components-vite';
-import { html } from 'lit';
+import { html, nothing, type TemplateResult } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
 import type { ButtonFlavor, ButtonSize } from './core-button.ts';
-import './button.js';
+import './button.ts';
+import '../icon/icon.ts';
 
 type ButtonProps = Readonly<{
   flavor?: ButtonFlavor;
@@ -11,19 +12,27 @@ type ButtonProps = Readonly<{
   label?: string;
   disabled?: boolean;
   size?: ButtonSize;
+  icon?: TemplateResult | typeof nothing;
 }>;
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 const meta: Meta<ButtonProps> = {
   title: 'Button/Button',
   tags: ['autodocs'],
-  render: ({ flavor, onClick, label, disabled = false, size }) =>
+  render: ({
+    flavor,
+    onClick,
+    label,
+    disabled = false,
+    size,
+    icon = nothing,
+  }) =>
     html`<mx-button
       ?disabled=${disabled}
       flavor=${ifDefined(flavor)}
       size=${ifDefined(size)}
       @click=${onClick}
-      >${label}</mx-button
+      >${icon}${label}</mx-button
     >`,
   argTypes: {
     flavor: {
@@ -116,5 +125,12 @@ export const XLarge: ButtonStories = {
   args: {
     label: 'Extra Large Filled Button',
     size: 'xlarge',
+  },
+};
+
+export const WithIcon: ButtonStories = {
+  args: {
+    label: 'Button with Icon',
+    icon: html`<mx-icon slot="icon">check</mx-icon>`,
   },
 };

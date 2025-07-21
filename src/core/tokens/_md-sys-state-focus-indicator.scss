@@ -8,5 +8,5 @@
 @use "sass:map";
 
 
-$outer-offset: var(--md-sys-state-focus-indicator-outer-offset, 2px);
-$thickness: var(--md-sys-state-focus-indicator-thickness, 3px);
+$outer-offset: 2px;
+$thickness: 3px;

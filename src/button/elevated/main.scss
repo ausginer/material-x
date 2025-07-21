@@ -1,0 +1,12 @@
+@use '../utils' as *;
+@use 'meta' as *;
+
+@include default-state($default, $flavor) {
+  &::before, &::after {
+    content: '';
+  }
+}
+
+@include hovered-state($hovered, $flavor);
+@include focused-state($focused, $flavor);
+@include pressed-state($pressed, $flavor);

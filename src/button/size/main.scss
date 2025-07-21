@@ -1,0 +1,10 @@
+@use 'sass:map';
+@use '../utils' as *;
+@use 'meta' as *;
+
+@each $size, $tokens in $sizes {
+  @include default-state(map.get($tokens, 'default'), $size);
+  @include hovered-state(map.get($tokens, 'hovered'), $size);
+  @include focused-state(map.get($tokens, 'focused'), $size);
+  @include pressed-state(map.get($tokens, 'pressed'), $size);
+}

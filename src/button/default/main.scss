@@ -1,0 +1,46 @@
+@use 'meta' as *;
+@use '../utils' as *;
+
+@include default-state($default) {
+  display: inline-flex;
+  cursor: default;
+  user-select: none;
+  background-color: var(--_container-color);
+  color: var(--_label-text-color);
+  // prettier-ignore
+  padding-block: calc((var(--_container-height) - max(var(--_icon-size), var(--_label-text-line-height))) / 2);
+  padding-inline-start: var(--_leading-space);
+  padding-inline-end: var(--_trailing-space);
+  border-radius: calc(
+    var(--_container-shape-default) -
+    (var(--_container-shape-default) - var(--_container-shape-pressed)) *
+    var(--_spring-factor)
+  );
+  font: var(--_label-text);
+  place-items: center;
+  place-content: center;
+  position: relative;
+  gap: 8px;
+}
+
+@include hovered-state($hovered) {
+  $opacity: calc(var(--_state-layer-opacity) * 100%);
+  background-color: color-mix(
+      in srgb,
+      var(--_container-color),
+      var(--_state-layer-color) #{$opacity}
+  );
+}
+
+@include pressed-state($pressed);
+
+@include focused-state($focused) {
+  outline: var(--_focus-indicator-thickness) solid
+  var(--_focus-indicator-color);
+  outline-offset: var(--_focus-indicator-outline-offset);
+}
+
+slot[name='icon'] {
+  color: var(--_icon-color);
+  flex: 1 0 var(--_icon-size);
+}

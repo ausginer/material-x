@@ -8,6 +8,7 @@ import type { SourceMap } from 'rollup';
 import { type CanonicalizeContext, compileStringAsync } from 'sass-embedded';
 // eslint-disable-next-line import-x/no-unresolved
 import * as sorcery from 'sorcery';
+import functions from './sass-functions.js';
 
 const cssTransformer = postcss([
   pxToRem({
@@ -70,6 +71,7 @@ export async function compileCSS(
     code,
     {
       url,
+      functions,
       importers: [
         {
           findFileUrl(

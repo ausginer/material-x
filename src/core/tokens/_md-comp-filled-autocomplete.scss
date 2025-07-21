@@ -12,7 +12,7 @@
 @use "md-sys-shape";
 @use "md-sys-elevation";
 
-$default: (
+$values: (
   menu-cascading-menu-indicator-icon-color: md-sys-color.$on-surface-variant,
   menu-cascading-menu-indicator-icon-size: 24px,
   menu-container-color: md-sys-color.$surface-container,

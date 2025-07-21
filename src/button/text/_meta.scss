@@ -1,0 +1,19 @@
+@use 'sass:map';
+@use 'sass:string';
+@use '../../core/tokens/md-comp-button-text' as tokens;
+@use '../../core/utils/functions' as *;
+@use '../default/meta' as default-props;
+@use '../utils' as *;
+
+$_tokens: prepare-tokens(tokens.$values, default-props.$tokens);
+
+$flavor: string.unquote('flavor="text"');
+
+$default: map.get($_tokens, 'default');
+$hovered: map.get($_tokens, 'hovered');
+$focused: map.get($_tokens, 'focused');
+$pressed: map.get($_tokens, 'pressed');
+$disabled: map.get($_tokens, 'disabled');
+$unselected: map.get($_tokens, 'unselected');
+$selected: map.get($_tokens, 'selected');
+

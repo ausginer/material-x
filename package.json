@@ -43,6 +43,7 @@
     "eslint": "9.29.0",
     "eslint-config-vaadin": "1.0.0-beta.3",
     "eslint-plugin-storybook": "9.0.16",
+    "immutable": "5.1.3",
     "lit": "3.3.0",
     "magic-string": "0.30.17",
     "playwright": "^1.53.2",
