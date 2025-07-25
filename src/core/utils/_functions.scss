@@ -1,21 +1,23 @@
-@use "sass:meta";
-@use "sass:map";
+@use 'sass:meta';
+@use 'sass:map';
 
 @function pick-unique($a, $b...) {
-  @if meta.type-of($a) != "map" {
+  @if meta.type-of($a) != 'map' {
     @error "Expected a map for first arguments, but got #{meta.type-of($a)}.";
   }
 
-  @if meta.type-of($b) != "arglist" {
+  @if meta.type-of($b) != 'arglist' {
     @error "Expected a arglist for the second argument, but got #{meta.type-of($b)}.";
   }
 
   $unique-tokens: $a;
 
   @each $map in $b {
-    @each $key, $value in $a {
-      @if map.has-key($map, $key) and $value == map.get($map, $key) {
-        $unique-tokens: map.remove($unique-tokens, $key);
+    @if $map != null {
+      @each $key, $value in $a {
+        @if map.has-key($map, $key) and $value == map.get($map, $key) {
+          $unique-tokens: map.remove($unique-tokens, $key);
+        }
       }
     }
   }

@@ -1,11 +1,11 @@
 @use 'sass:map';
 @use 'sass:string';
 @use '../../core/tokens/md-comp-button-outlined' as tokens;
+@use '../../core/tokens/md-comp-button' as default-tokens;
 @use '../../core/utils/functions' as *;
-@use '../default/meta' as default-props;
 @use '../utils' as *;
 
-$_tokens: prepare-tokens(tokens.$values, default-props.$tokens);
+$_tokens: prepare-tokens(pick-unique(tokens.$values, default-tokens.$values));
 
 $flavor: string.unquote('flavor="outlined"');
 

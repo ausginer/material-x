@@ -1,14 +1,10 @@
-export const root: URL = new URL('../../', import.meta.url);
+import { root } from '../utils.ts';
 
 export type SassDeclaration = Readonly<Record<string, string | number>>;
 
 export type SassDeclarationSet = Readonly<{
   declarations: SassDeclaration;
   setName: string;
-}>;
-
-export type JSONModule<T> = Readonly<{
-  default: T;
 }>;
 
 export const COLLATOR: Intl.Collator = Intl.Collator('en');
@@ -66,3 +62,8 @@ export const states = [
   'selected',
   'unselected',
 ] as const;
+
+export const tokensCacheDir: URL = new URL(
+  'node_modules/.cache/tokens/parsed/',
+  root,
+);

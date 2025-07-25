@@ -6,14 +6,12 @@
  * !!! DO NOT MODIFY IT BY HAND !!!
  */
 @use "sass:map";
-@use "md-sys-state-focus-indicator";
 @use "md-sys-color";
 @use "md-sys-typescale";
 @use "md-sys-shape";
 
 $values: (
   caret-color: md-sys-color.$primary,
-  container-height: 56px,
   container-shape: md-sys-shape.$corner-extra-small,
   disabled-input-text-color: md-sys-color.$on-surface,
   disabled-input-text-opacity: 0.38,
@@ -29,7 +27,6 @@ $values: (
   disabled-trailing-icon-color: md-sys-color.$on-surface,
   disabled-trailing-icon-opacity: 0.38,
   error-focus-caret-color: md-sys-color.$error,
-  error-focus-indicator-outline-color: md-sys-color.$error,
   error-focus-input-text-color: md-sys-color.$on-surface,
   error-focus-label-text-color: md-sys-color.$error,
   error-focus-leading-icon-color: md-sys-color.$on-surface-variant,
@@ -48,8 +45,6 @@ $values: (
   error-outline-color: md-sys-color.$error,
   error-supporting-text-color: md-sys-color.$error,
   error-trailing-icon-color: md-sys-color.$error,
-  focus-indicator-outline-color: md-sys-color.$secondary,
-  focus-indicator-outline-thickness: md-sys-state-focus-indicator.$thickness,
   focus-input-text-color: md-sys-color.$on-surface,
   focus-label-text-color: md-sys-color.$primary,
   focus-leading-icon-color: md-sys-color.$on-surface-variant,
@@ -72,7 +67,7 @@ $values: (
   input-text-size: md-sys-typescale.$body-large-size,
   input-text-suffix-color: md-sys-color.$on-surface-variant,
   input-text-tracking: md-sys-typescale.$body-large-tracking,
-  input-text-type: var(--md-comp-outlined-text-field-input-text-weight, md-sys-typescale.$body-large-weight) var(--md-comp-outlined-text-field-input-text-size, md-sys-typescale.$body-large-size)/var(--md-comp-outlined-text-field-input-text-line-height, md-sys-typescale.$body-large-line-height) var(--md-comp-outlined-text-field-input-text-font, md-sys-typescale.$body-large-font) ,
+  input-text-type: #{md-sys-typescale.$body-large-weight} #{md-sys-typescale.$body-large-size} / #{md-sys-typescale.$body-large-line-height} #{md-sys-typescale.$body-large-font} ,
   input-text-weight: md-sys-typescale.$body-large-weight,
   label-text-color: md-sys-color.$on-surface-variant,
   label-text-font: md-sys-typescale.$body-large-font,
@@ -81,7 +76,7 @@ $values: (
   label-text-populated-size: md-sys-typescale.$body-small-size,
   label-text-size: md-sys-typescale.$body-large-size,
   label-text-tracking: md-sys-typescale.$body-large-tracking,
-  label-text-type: var(--md-comp-outlined-text-field-label-text-weight, md-sys-typescale.$body-large-weight) var(--md-comp-outlined-text-field-label-text-size, md-sys-typescale.$body-large-size)/var(--md-comp-outlined-text-field-label-text-line-height, md-sys-typescale.$body-large-line-height) var(--md-comp-outlined-text-field-label-text-font, md-sys-typescale.$body-large-font) ,
+  label-text-type: #{md-sys-typescale.$body-large-weight} #{md-sys-typescale.$body-large-size} / #{md-sys-typescale.$body-large-line-height} #{md-sys-typescale.$body-large-font} ,
   label-text-weight: md-sys-typescale.$body-large-weight,
   leading-icon-color: md-sys-color.$on-surface-variant,
   leading-icon-size: 24px,
@@ -92,7 +87,7 @@ $values: (
   supporting-text-line-height: md-sys-typescale.$body-small-line-height,
   supporting-text-size: md-sys-typescale.$body-small-size,
   supporting-text-tracking: md-sys-typescale.$body-small-tracking,
-  supporting-text-type: var(--md-comp-outlined-text-field-supporting-text-weight, md-sys-typescale.$body-small-weight) var(--md-comp-outlined-text-field-supporting-text-size, md-sys-typescale.$body-small-size)/var(--md-comp-outlined-text-field-supporting-text-line-height, md-sys-typescale.$body-small-line-height) var(--md-comp-outlined-text-field-supporting-text-font, md-sys-typescale.$body-small-font) ,
+  supporting-text-type: #{md-sys-typescale.$body-small-weight} #{md-sys-typescale.$body-small-size} / #{md-sys-typescale.$body-small-line-height} #{md-sys-typescale.$body-small-font} ,
   supporting-text-weight: md-sys-typescale.$body-small-weight,
   trailing-icon-color: md-sys-color.$on-surface-variant,
   trailing-icon-size: 24px,

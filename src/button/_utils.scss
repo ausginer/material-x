@@ -9,24 +9,27 @@
 }
 
 @function exclude($tokens, $manual-options: ()) {
+  $result: $tokens;
   @each $key, $value in $tokens {
-    @if list.index($manual-options, $key) == null {
-      $tokens: map.set($tokens, $key, $value);
+    @each $option in $manual-options {
+      @if string.index($key, $option) != null {
+        $result: map.remove($result, $key);
+      }
     }
   }
 
-  @return $tokens;
+  @return $result;
 }
 
-$_button-states: ('disabled', 'hovered', 'focused', 'pressed');
+$_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
 
-@function append-host-params($param...) {
+@function append-host-params($params) {
   $result: ':host';
 
-  @if list.length($param) > 0 {
-    $result: '#{result}(';
+  @if list.length($params) > 0 {
+    $result: '#{$result}(';
 
-    @each $p in $param {
+    @each $p in $params {
       @if string.index($p, ':') == 1 {
         $result: '#{$result}#{$p}';
       } @else {
@@ -34,110 +37,70 @@ $_button-states: ('disabled', 'hovered', 'focused', 'pressed');
       }
     }
 
-    @return '#{$result})';
-  } @else {
-    @return ':host';
+    $result: '#{$result})';
   }
+
+  @return string.unquote($result);
 }
 
 @function host-state($state, $params...) {
   @if $state == 'disabled' {
-    @return append-host-params($params..., 'disabled');
+    $params: list.append($params, 'disabled');
   } @else if $state == 'hovered' {
-    @return append-host-params($params..., ':hover');
+    $params: list.append($params, ':hover');
   } @else if $state == 'focused' {
-    @return append-host-params($params..., ':focus-visible');
+    $params: list.append($params, ':focus-visible');
   } @else if $state == 'pressed' {
-    @return append-host-params($params..., ':active');
-  } @else {
-    @return append-host-params($params...);
+    $params: list.append($params, ':active');
   }
+
+  @return append-host-params($params);
 }
 
-@function prepare-tokens($tokens, $default-tokens: null, $manual-options: ()) {
+@function prepare-tokens($tokens) {
   $split-tokens: split-token-map(
     $tokens,
     list.join($_button-states, ('unselected', 'selected'))
   );
 
-  @if $default-tokens == null {
-    $default-tokens: $split-tokens;
+  $result: ();
+  @each $state in $_button-states {
+    $result: map.set(
+      $result,
+      $state,
+      map.get($split-tokens, $state)
+    );
   }
+
+  $unselected-tokens: split-token-map(
+    map.get($split-tokens, 'unselected'),
+    $_button-states
+  );
+  $unselected-result: ();
+  @each $state in $_button-states {
+    $unselected-result: map.set(
+      $unselected-result,
+      $state,
+      map.get($unselected-tokens, $state)
+    );
+  }
+  $result: map.set($result, 'unselected', $unselected-result);
 
   $selected-tokens: split-token-map(
     map.get($split-tokens, 'selected'),
     $_button-states
   );
 
-  $result-states: list.join('default', $_button-states);
-  $result: ();
-
-  @each $state in $result-states {
-    @if not map.get($split-tokens, $state) == null {
-      $result: map.set(
-          $result,
-          $state,
-          exclude(
-              pick-unique(
-                  map.get($split-tokens, $state),
-                  map.get($default-tokens, 'default')
-              ),
-              $manual-options
-          )
-      );
-    }
-  }
-
-  @if not map.get($split-tokens, 'unselected') == null {
-    $unselected-tokens: split-token-map(
-        map.get($split-tokens, 'unselected'),
-        $_button-states
+  $selected-result: ();
+  @each $state in $_button-states {
+    $selected-result: map.set(
+      $selected-result,
+      $state,
+      map.get($selected-tokens, $state)
     );
-
-    $unselected-result: ();
-    @each $state in $result-states {
-      @if not map.get($unselected-tokens, $state) == null {
-        $unselected-result: map.set(
-            $unselected-result,
-            $state,
-            exclude(
-                pick-unique(
-                    map.get($unselected-tokens, $state),
-                    map.get($default-tokens, 'default'),
-                    map.get($default-tokens, $state)
-                ),
-                $manual-options
-            )
-        );
-      }
-    }
-
-    $result: map.set($result, 'unselected', $unselected-result);
   }
 
-  @if not map.get($split-tokens, 'selected') == null {
-
-
-    $selected-result: ();
-    @each $state in $result-states {
-      @if not map.get($selected-tokens, $state) == null {
-        $selected-result: map.set(
-            $selected-result,
-            $state,
-            exclude(
-                pick-unique(
-                    map.get($selected-tokens, $state),
-                    map.get($default-tokens, 'default'),
-                    map.get($default-tokens, $state)
-                ),
-                $manual-options
-            )
-        );
-      }
-    }
-
-    $result: map.set($result, 'selected', $selected-result);
-  }
+  $result: map.set($result, 'selected', $selected-result);
 
   @return $result;
 }
@@ -154,59 +117,61 @@ $_button-states: ('disabled', 'hovered', 'focused', 'pressed');
 
 @mixin states($tokens, $states, $params...) {
   @each $state in $states {
-    $map: map.get($tokens, $state);
+    $map: $tokens;
 
-    @if not $map == null {
-      $host: host-state($state, $params...);
+    @if map.has-key($tokens, $state) {
+      $map: map.get($tokens, $state);
+    }
 
-      @if map.size($map) > 0 {
-        #{$host} {
-          @include private-vars($map, $state);
-          @content ($state);
-        }
+    $host: host-state($state, $params...);
+
+    @if map.size($map) > 0 {
+      #{$host} {
+        @include private-vars($map, $state);
+        @content ($state);
       }
     }
   }
 }
 
 @mixin default-state($tokens, $params...) {
-  @include states($tokens, ('default'), $params...) {
+  @include states($tokens, ('default'), $params...) using ($state) {
     @content;
   }
 }
 
 @mixin hovered-state($tokens, $params...) {
-  @include states($tokens, ('hovered'), $params...) {
+  @include states($tokens, ('hovered'), $params...) using ($state) {
     @content;
   }
 }
 
 @mixin focused-state($tokens, $params...) {
-  @include states($tokens, ('focused'), $params...) {
+  @include states($tokens, ('focused'), $params...) using ($state) {
     @content;
   }
 }
 
 @mixin pressed-state($tokens, $params...) {
-  @include states($tokens, ('pressed'), $params...) {
+  @include states($tokens, ('pressed'), $params...) using ($state) {
     @content;
   }
 }
 
 @mixin disabled-state($tokens, $params...) {
-  @include states($tokens, ('disabled'), $params..., 'disabled') {
+  @include states($tokens, ('disabled'), $params..., 'disabled') using ($state) {
     @content;
   }
 }
 
 @mixin unselected-states($tokens, $params...) {
   @include states($tokens, $_button-states, $params...) using ($state) {
-    @content($state);
+    @content ($state);
   }
 }
 
 @mixin selected-states($tokens, $params...) {
   @include states($tokens, $_button-states, $params..., checked) using ($state) {
-    @content($state);
+    @content ($state);
   }
 }

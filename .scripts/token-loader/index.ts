@@ -6,30 +6,27 @@ import { downloadTypographyTokens } from './base/typography.ts';
 import { downloadButtonTokens } from './components/buttons.ts';
 import { downloadFABTokens } from './components/fab.ts';
 import { downloadTextFieldTokens } from './components/text-fields.ts';
+import { buildTokenList, loadTheme } from './MaterialTheme.ts';
 import TokenSetManager from './TokenSetManager.ts';
 import TokenSystemProcessor from './TokenSystemProcessor.ts';
-import { COLLATOR, HEADER, root, states, tokenNameToSass } from './utils.ts';
-
-const DEFAULT_THEME_URL = new URL('./base/default-theme.json', import.meta.url);
+import { COLLATOR, HEADER, root, tokenNameToSass } from './utils.ts';
 
 try {
-  const [{ default: theme }, ...tables] = await Promise.all([
-    import(String(DEFAULT_THEME_URL), { with: { type: 'json' } }),
+  const [theme, ...tables] = await Promise.all([
+    loadTheme(),
     downloadColorTokens(),
-    downloadElevationTokens(),
-    downloadMotionTokens(),
-    downloadTypographyTokens(),
-    downloadButtonTokens(),
-    downloadTextFieldTokens(),
-    downloadFABTokens(),
+    // downloadElevationTokens(),
+    // downloadMotionTokens(),
+    // downloadTypographyTokens(),
+    // downloadButtonTokens(),
+    // downloadTextFieldTokens(),
+    // downloadFABTokens(),
   ]);
 
-  const processor = new TokenSystemProcessor(tables, theme, [
-    'expressive',
-    'web',
-  ]);
+  const processor = new TokenSystemProcessor(tables, ['expressive', 'web']);
 
   const processedTokens = processor.tokens
+    .filter(({ deprecationMessage }) => !deprecationMessage)
     .map((token) => [token, processor.findTokenSet(token)] as const)
     .filter(([, { displayName }]) => !displayName?.startsWith('[Deprecated]'))
     .map(([token, { tokenSetName }]) => {
@@ -37,10 +34,10 @@ try {
       return [processor.processToken(token, setManager), setManager] as const;
     });
 
-  await Promise.all(
+  await Promise.all([
     // Grouping by set name to make separate files (like "_md-sys-motion.scss",
     // "_md.ref.palette.scss", etc.)
-    Object.entries(Object.groupBy(processedTokens, ([, { name }]) => name))
+    ...Object.entries(Object.groupBy(processedTokens, ([, { name }]) => name))
       .map(
         ([setName, group]) =>
           [
@@ -93,7 +90,8 @@ try {
 
         await writeFile(fileURL, `${HEADER}${_imports}\n\n${_values}`, 'utf8');
       }),
-  );
+    buildTokenList(theme),
+  ]);
 } catch (e) {
   console.error(e);
   process.exit(1);

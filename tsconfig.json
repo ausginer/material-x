@@ -19,6 +19,7 @@
     "rewriteRelativeImportExtensions": true,
     "erasableSyntaxOnly": true,
     "verbatimModuleSyntax": true,
+    "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noImplicitAny": true,
     "useDefineForClassFields": true,

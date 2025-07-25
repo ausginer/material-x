@@ -1,17 +1,27 @@
 @use 'sass:map';
+@use '../../core/tokens/md-comp-button' as default-tokens;
 @use '../../core/tokens/md-comp-button-xlarge' as xlarge-tokens;
 @use '../../core/tokens/md-comp-button-large' as large-tokens;
 @use '../../core/tokens/md-comp-button-medium' as medium-tokens;
 @use '../../core/tokens/md-comp-button-small' as small-tokens;
 @use '../../core/tokens/md-comp-button-xsmall' as xsmall-tokens;
 @use '../../core/utils/functions' as *;
-@use '../default/meta' as default-props;
 @use '../utils' as *;
 
 $sizes: (
-  'xlarge': prepare-tokens(xlarge-tokens.$values, default-props.$tokens),
-  'large': prepare-tokens(large-tokens.$values, default-props.$tokens),
-  'medium': prepare-tokens(medium-tokens.$values, default-props.$tokens),
-  'small': prepare-tokens(small-tokens.$values, default-props.$tokens),
-  'xsmall': prepare-tokens(xsmall-tokens.$values, default-props.$tokens),
+  'xlarge': prepare-tokens(
+      pick-unique(xlarge-tokens.$values, default-tokens.$values)
+    ),
+  'large': prepare-tokens(
+      pick-unique(large-tokens.$values, default-tokens.$values)
+    ),
+  'medium': prepare-tokens(
+      pick-unique(medium-tokens.$values, default-tokens.$values)
+    ),
+  'small': prepare-tokens(
+      pick-unique(small-tokens.$values, default-tokens.$values)
+    ),
+  'xsmall': prepare-tokens(
+      pick-unique(xsmall-tokens.$values, default-tokens.$values)
+    ),
 );

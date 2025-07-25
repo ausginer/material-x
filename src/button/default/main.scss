@@ -32,13 +32,13 @@
   );
 }
 
-@include pressed-state($pressed);
-
 @include focused-state($focused) {
   outline: var(--_focus-indicator-thickness) solid
   var(--_focus-indicator-color);
   outline-offset: var(--_focus-indicator-outline-offset);
 }
+
+@include pressed-state($pressed);
 
 slot[name='icon'] {
   color: var(--_icon-color);

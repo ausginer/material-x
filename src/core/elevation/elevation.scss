@@ -5,11 +5,12 @@
  */
 @use 'sass:map';
 @use '../defaults/refs' as refs;
-@use '../defaults/sys' as sys;
+@use '../tokens/md-sys-elevation';
+@use '../tokens/md-sys-color';
 
 :host {
-  --_level: var(--md-elevation-level, #{sys.$elevation-level0});
-  --_shadow-color: var(--md-elevation-shadow-color, #{sys.$elevation-surface-tint-color});
+  --_level: var(--md-elevation-level, #{md-sys-elevation.$level0});
+  --_shadow-color: var(--md-elevation-shadow-color, #{md-sys-color.$surface-tint});
 
   position: relative;
 

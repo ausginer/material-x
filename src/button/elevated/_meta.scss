@@ -1,13 +1,12 @@
 @use 'sass:list';
 @use 'sass:string';
 @use '../../core/tokens/md-comp-button-elevated' as tokens;
+@use '../../core/tokens/md-comp-button' as default-tokens;
 @use '../../core/utils/functions' as *;
 @use '../../core/utils/map';
-@use '../default/meta' as default-props;
 @use '../utils' as *;
 
-$_manual-options: ('elevation');
-$_tokens: prepare-tokens(tokens.$values, default-props.$tokens, $_manual-options);
+$_tokens: prepare-tokens(pick-unique(tokens.$values, default-tokens.$values));
 
 $flavor: string.unquote('flavor="elevated"');
 

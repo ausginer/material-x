@@ -5,37 +5,98 @@
 @use '../../core/utils/functions' as *;
 @use '../utils' as *;
 
-$_manual-options: ('stiffness', 'damping', 'shape', 'elevation');
-$tokens: prepare-tokens(tokens.$values, null, $_manual-options);
+$_props-for-manual-setting: ('stiffness', 'damping', 'shape');
+$tokens: prepare-tokens(tokens.$values);
 
-$default: map.get($tokens, 'default');
-$hovered: map.get($tokens, 'hovered');
-$focused: map.get($tokens, 'focused');
-$pressed: map.get($tokens, 'pressed');
-$disabled: map.get($tokens, 'disabled');
-$unselected: map.get($tokens, 'unselected');
-$selected: map.get($tokens, 'selected');
+$_default: map.get($tokens, 'default');
+$_hovered: map.get($tokens, 'hovered');
+$_focused: map.get($tokens, 'focused');
+$_pressed: map.get($tokens, 'pressed');
+$_disabled: map.get($tokens, 'disabled');
+$_unselected: map.get($tokens, 'unselected');
+$_selected: map.get($tokens, 'selected');
+
+$default: (
+  container-color: var(
+      --md-button-default-container-color,
+      var(--md-sys-color-primary, #3e6700)
+    ),
+  container-elevation: var(--md-button-default-container-elevation, 0),
+  container-height: var(--md-button-default-container-height, 40px),
+  container-shadow-color: var(
+      --md-button-default-container-shadow-color,
+      var(--md-sys-color-shadow, #000000)
+    ),
+  focus-indicator-color: var(
+      --md-button-default-focus-indicator-color,
+      var(--md-sys-color-secondary, #4b662a)
+    ),
+  focus-indicator-outline-offset: var(
+      --md-button-default-focus-indicator-outline-offset,
+      2px
+    ),
+  focus-indicator-thickness: var(
+      --md-button-default-focus-indicator-thickness,
+      3px
+    ),
+  icon-color: var(
+      --md-button-default-icon-color,
+      var(--md-sys-color-on-primary, #ffffff)
+    ),
+  icon-label-space: var(--md-button-default-icon-label-space, 8px),
+  icon-size: var(--md-button-default-icon-size, 20px),
+  label-text-color: var(
+      --md-button-default-label-text-color,
+      var(--md-sys-color-on-primary, #ffffff)
+    ),
+  label-text-font: var(--md-button-default-label-text-font, Google Sans Text),
+  label-text-line-height: var(--md-button-default-label-text-line-height, 20px),
+  label-text-size: var(--md-button-default-label-text-size, 14px),
+  label-text-weight: var(--md-button-default-label-text-weight, 700),
+  label-text: var(
+      --md-button-default-label-text,
+      700 14px/20px Google Sans Text
+    ),
+  leading-space: var(--md-button-default-leading-space, 24px),
+  trailing-space: var(--md-button-default-trailing-space, 24px),
+  container-shape-default: var(
+      --md-button-default-container-shape-default,
+      var(--_shape-full, 9999rem)
+    ),
+  container-shape-pressed: var(--md-button-default-container-shape-pressed, 8px),
+  motion-damping: var(--md-button-default-motion-damping, 0.6),
+  motion-stiffness: var(--md-button-default-motion-stiffness, 800),
+  motion-duration: var(--md-button-default-motion-duration, 150ms),
+  shape-full: var(
+      --md-button-default-shape-full,
+      calc(var(--_container-height) / 2)
+    ),
+  spring-factor: var(--md-button-default-spring-factor, 0),
+  ripple-color: var(
+      --md-button-default-ripple-color,
+      var(--md-sys-color-on-primary, #ffffff)
+    ),
+  ripple-easing: var(
+      --md-button-default-ripple-easing,
+      cubic-bezier(0.31, 0.94, 0.34, 1)
+    ),
+  ripple-opacity: var(--md-button-default-ripple-opacity, 0.1),
+  container-shape-default: map.get($_default, container-shape-round),
+  container-shape-pressed: map.get($_pressed, container-shape),
+  motion-damping: map.get(
+      $_pressed,
+      container-corner-size-motion-spring-damping
+    ),
+  motion-stiffness: map.get(
+      $_pressed,
+      container-corner-size-motion-spring-stiffness
+    ),
+  motion-duration: motion-effects.$expressive-fast-effects-duration,
+  shape-full: calc(var(--_container-height) / 2),
+  spring-factor: 0,
+  ripple-color: map.get($_pressed, state-layer-color),
+  ripple-easing: motion-effects.$expressive-fast-effects,
+  ripple-opacity: map.get($_pressed, state-layer-opacity),
+);
 
 @debug $default;
-
-$default: map.merge(
-  $default,
-  (
-    container-shape-default: map.get($default, container-shape-round),
-    container-shape-pressed: map.get($default, container-shape-square),
-    motion-damping: map.get(
-        $pressed,
-        container-corner-size-motion-spring-damping
-      ),
-    motion-stiffness: map.get(
-        $pressed,
-        container-corner-size-motion-spring-stiffness
-      ),
-    motion-duration: motion-effects.$expressive-fast-effects-duration,
-    token-shape-full: calc(var(--_container-height) / 2),
-    spring-factor: 0,
-    ripple-color: map.get($pressed, state-layer-color),
-    ripple-easing: motion-effects.$expressive-fast-effects,
-    ripple-opacity: map.get($pressed, state-layer-opacity),
-  )
-);

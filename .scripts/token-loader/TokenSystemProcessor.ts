@@ -3,7 +3,6 @@ import SystemUnifier from './SystemUnifier.ts';
 import type TokenSetManager from './TokenSetManager.ts';
 import {
   type ContextTag,
-  type ContextTagGroup,
   TextTransform,
   type Token,
   type TokenColor,
@@ -12,11 +11,7 @@ import {
   type TokenTable,
   type Value,
 } from './TokenTable.ts';
-import {
-  extractSetName,
-  kebabCaseToCamelCase,
-  tokenNameToSass,
-} from './utils.ts';
+import { extractSetName, tokenNameToSass } from './utils.ts';
 
 export type SassDeclarationToken = readonly [
   name: string,
@@ -25,16 +20,10 @@ export type SassDeclarationToken = readonly [
 
 export default class TokenSystemProcessor {
   readonly #unifier: SystemUnifier;
-  readonly #theme: MaterialTheme;
   readonly #tags: readonly ContextTag[];
 
-  constructor(
-    tables: readonly TokenTable[],
-    theme: MaterialTheme,
-    tags: readonly string[],
-  ) {
+  constructor(tables: readonly TokenTable[], tags: readonly string[]) {
     this.#unifier = new SystemUnifier(tables.map(({ system }) => system));
-    this.#theme = theme;
     this.#tags = this.#unifier.tags
       .filter(({ tagName }) => tags.includes(tagName))
       .toArray();
@@ -89,10 +78,7 @@ export default class TokenSystemProcessor {
     }
 
     if (setManager.name === 'md.sys.color') {
-      const colorName = kebabCaseToCamelCase(token.tokenNameSuffix);
-      return [
-        [declaration, this.#theme.schemes['light-medium-contrast'][colorName]],
-      ];
+      return [[declaration]];
     }
 
     const {
@@ -138,10 +124,10 @@ export default class TokenSystemProcessor {
       return [
         [
           declaration,
-          `${fontWeight ? `${fontWeight} ` : ''}${
-            fontSize ? `${fontSize}/` : ''
-          }${lineHeight ? `${lineHeight} ` : ''}${
-            fontName ? `${fontName} ` : ''
+          `${fontWeight ? `#{${fontWeight}} ` : ''}${
+            fontSize ? `#{${fontSize}} / ` : ''
+          }${lineHeight ? `#{${lineHeight}} ` : ''}${
+            fontName ? `#{${fontName}} ` : ''
           }`,
         ] as const,
       ];
@@ -188,23 +174,25 @@ export default class TokenSystemProcessor {
       } = shape;
 
       if (family === TokenShapeFamily.FULL) {
-        return [[declaration, 'var(--_token-shape-full, 9999rem)']];
+        return [[declaration, 'var(--_shape-full, 9999rem)']];
       } else {
         if (defaultSize?.value != null) {
           return [[declaration, `${defaultSize.value}px`]];
         }
 
-        const _topLeft = topLeft ?? top ?? { value: 0 };
-        const _topRight = topRight ?? right ?? { value: 0 };
-        const _bottomRight = bottomRight ?? bottom ?? { value: 0 };
-        const _bottomLeft = bottomLeft ?? left ?? { value: 0 };
+        const _topLeft = topLeft ?? top;
+        const _topRight = topRight ?? right;
+        const _bottomRight = bottomRight ?? bottom;
+        const _bottomLeft = bottomLeft ?? left;
 
-        return [
-          [`${declaration}-top-left`, `${_topLeft.value}px`],
-          [`${declaration}-top-right`, `${_topRight.value}px`],
-          [`${declaration}-bottom-right`, `${_bottomRight.value}px`],
-          [`${declaration}-bottom-left`, `${_bottomLeft.value}px`],
+        const values = [
+          _topLeft ? `${_topLeft.value}px` : 0,
+          _topRight ? `${_topRight.value}px` : 0,
+          _bottomRight ? `${_bottomRight.value}px` : 0,
+          _bottomLeft ? `${_bottomLeft.value}px` : 0,
         ];
+
+        return [[declaration, values.join(' ')]];
       }
     } else if (cubicBezier != null) {
       const { x0 = 0, y0 = 0, x1 = 0, y1 = 0 } = cubicBezier;
@@ -279,7 +267,7 @@ export default class TokenSystemProcessor {
     if (tokenSetName === setManager.name) {
       const [[, value]] = this.processToken(token, setManager);
 
-      return `var(--${tokenNameToSass(tokenName)}, ${value})`;
+      return value;
     }
 
     const importedSet = tokenNameToSass(tokenSetName);

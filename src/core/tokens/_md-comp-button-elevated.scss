@@ -6,8 +6,8 @@
  * !!! DO NOT MODIFY IT BY HAND !!!
  */
 @use "sass:map";
-@use "md-sys-elevation";
 @use "md-sys-color";
+@use "md-sys-elevation";
 @use "md-sys-state";
 
 $values: (
@@ -26,7 +26,6 @@ $values: (
   focused-label-text-color: md-sys-color.$primary,
   focused-state-layer-color: md-sys-color.$primary,
   focused-state-layer-opacity: md-sys-state.$focus-state-layer-opacity,
-  hovered-container-elevation: md-sys-elevation.$level2,
   hovered-icon-color: md-sys-color.$primary,
   hovered-label-text-color: md-sys-color.$primary,
   hovered-state-layer-color: md-sys-color.$primary,
