@@ -53,6 +53,7 @@ echo "export VOLTA_HOME=\"${VOLTA_HOME}\"" | tee -a /etc/profile.d/volta.sh
 echo "export PATH=\"\$VOLTA_HOME/bin:\$PATH\"" | tee -a /etc/profile.d/volta.sh
 
 # Make sure the new PATH is active for the current script
+export VOLTA_HOME="${VOLTA_HOME}"
 export PATH="${VOLTA_HOME}/bin:${PATH}"
 
 if [ "${VOLTA_VERSION}" = "latest" ]; then
