@@ -1,0 +1,33 @@
+{
+  "name": "NodeJS IntelliJ DevContainer",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "containerEnv": {
+    "USERNAME": "node",
+    "CONTAINER_WORKSPACE_FOLDER": "${containerWorkspaceFolder}"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "username": "node",
+      "userUid": "1000",
+      "userGid": "1000",
+      "addsudo": true,
+      "installZsh": false
+    },
+    "./local-features/volta": {
+      "nodeVersion": "24",
+      "targetUser": "node"
+    }
+  },
+  "remoteUser": "node",
+   "mounts": [
+    // This mount creates a named Docker volume for node_modules
+    // It will 'overlay' the node_modules directory within your mounted project
+    "source=node_modules_volume,target=${containerWorkspaceFolder}/node_modules,type=volume",
+    "source=vite_cache_volume,target=${containerWorkspaceFolder}/.vite,type=volume",
+    "source=cache_volume,target=${containerWorkspaceFolder}/.cache,type=volume"
+  ],
+  "postCreateCommand": "/tmp/postinstall.sh"
+}
+
