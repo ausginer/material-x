@@ -5,12 +5,13 @@ checked_chown() {
   local dir="$1"
 
   echo "Attempting chown for directory: ${dir}..."
-  sudo chown -R "${USERNAME}:${USERNAME}" "${dir}"
+  # Use sudo -n for non-interactive mode. Capture exit code.
+  sudo -n chown -R "${USERNAME}:${USERNAME}" "${dir}"
   local command_exit_code=$?
 
   if [ "${command_exit_code}" == 0 ]; then
       echo "SUCCESS: Chown for ${dir} completed."
-      ls -ld "${HOME_DIR}"
+      ls -ld "${dir}"
   else
       echo "ERROR: Failed to chown ${dir}. Exit code: ${command_exit_code}"
       ls -ld "${dir}"
@@ -22,7 +23,13 @@ echo "--- Running postinstall.sh ---"
 echo "Current user: $(whoami)"
 echo "User ID and groups: $(id)"
 
+# Ensure USERNAME and CONTAINER_WORKSPACE_FOLDER are available (from devcontainer.json's containerEnv)
+# If these are not set, the script will fail early due to 'set -e'
+if [ -z "${USERNAME}" ]; then echo "ERROR: USERNAME environment variable not set."; exit 1; fi
+if [ -z "${CONTAINER_WORKSPACE_FOLDER}" ]; then echo "ERROR: CONTAINER_WORKSPACE_FOLDER environment variable not set."; exit 1; fi
+
 # This ensures IntelliJ IDEA can write its settings, caches, and logs.
+# The home directory is typically /home/<USERNAME>
 checked_chown "/home/${USERNAME}"
 
 # This ensures the user can write project-specific settings (.idea folder) and build artifacts.
