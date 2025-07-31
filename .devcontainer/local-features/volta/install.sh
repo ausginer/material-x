@@ -11,14 +11,12 @@ VOLTA_VERSION="${VOLTAVERSION:-latest}"
 NODE_VERSION="${NODEVERSION:-lts}"
 NPM_VERSION="${NPMVERSION:-none}"
 YARN_VERSION="${YARNVERSION:-none}"
-TARGET_USER="${TARGETUSER:-vscode}"
 
 echo "--- Starting Volta Node.js Toolchain installation (verbose) ---"
 echo "Volta Version: ${VOLTA_VERSION}"
 echo "Node Version: ${NODE_VERSION}"
 echo "NPM Version: ${NPM_VERSION}"
 echo "Yarn Version: ${YARN_VERSION}"
-echo "Target User for permissions: ${TARGET_USER}"
 
 install_apt_packages() {
     echo "Installing apt packages: $*"
@@ -48,18 +46,17 @@ install_apt_packages \
     tar \
     gzip
 
-VOLTA_HOME_PATH="/usr/local/volta" # System-wide installation path
-echo "Installing Volta (version: ${VOLTA_VERSION}) to ${VOLTA_HOME_PATH}..."
+echo "Installing Volta (version: ${VOLTA_VERSION}) to ${VOLTA_HOME}..."
 
-mkdir -p "${VOLTA_HOME_PATH}" || { echo "Error: Failed to create Volta installation directory ${VOLTA_HOME_PATH}" ; exit 1; }
+mkdir -p "${VOLTA_HOME}" || { echo "Error: Failed to create Volta installation directory ${VOLTA_HOME}" ; exit 1; }
 
 # Ensure the VOLTA_HOME and PATH variable is set in the environment for the future steps
 # These are for the *build environment* and will be persisted via /etc/profile.d
-echo "export VOLTA_HOME=\"${VOLTA_HOME_PATH}\"" | tee -a /etc/profile.d/volta.sh
+echo "export VOLTA_HOME=\"${VOLTA_HOME}\"" | tee -a /etc/profile.d/volta.sh
 echo "export PATH=\"\$VOLTA_HOME/bin:\$PATH\"" | tee -a /etc/profile.d/volta.sh
 
 # Make sure the new PATH is active for the current script's execution
-export VOLTA_HOME="${VOLTA_HOME_PATH}"
+export VOLTA_HOME="${VOLTA_HOME}"
 export PATH="${VOLTA_HOME}/bin:${PATH}"
 
 if [ "${VOLTA_VERSION}" = "latest" ]; then
