@@ -1,9 +1,8 @@
 {
   "name": "material-x",
-  "image": "debian:bookworm-slim",
-  "runArgs": ["--name=materialx_dev"],
+  "image": "alpine:latest",
+  "runArgs": ["--name=materialx_dev", "--init"],
   "containerEnv": {
-    "CHROME_BIN": "/usr/local/bin/chrome",
     "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
   },
   "features": {
@@ -14,10 +13,10 @@
       "addsudo": true,
       "installZsh": false
     },
-    "ghcr.io/kreemer/features/chrometesting:1": {},
-    "./local-features/volta": {
+    "ghcr.io/ausginer/alpine-features/alpine-node:1": {
       "nodeVersion": "24"
-    }
+    },
+    "ghcr.io/ausginer/alpine-features/alpine-chromium:1": {}
   },
   "forwardPorts": [9876, 6006, 5173],
   "containerUser": "node",
