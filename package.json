@@ -19,8 +19,9 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "lint": "eslint",
-    "load-tokens": "node --experimental-strip-types .scripts/token-loader/index.ts",
-    "load-tokens-2": "node --experimental-strip-types .scripts/token-loader-2/parse.ts"
+    "tokens": "npm run tokens:parse && npm run tokens:transform",
+    "tokens:parse": "node --experimental-strip-types .scripts/token-loader/parse.ts",
+    "tokens:transform": "node --experimental-strip-types .scripts/token-loader/transform.ts"
   },
   "overrides": {
     "vite": "7.0.4"

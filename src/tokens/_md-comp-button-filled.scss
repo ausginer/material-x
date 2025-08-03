@@ -1,0 +1,62 @@
+/*
+ * Tokens for the button component, according to the Material Design
+ * specification: https://m3.material.io
+ *
+ * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+ * !!! DO NOT MODIFY IT BY HAND !!!
+ */
+@use "sass:map";
+
+@use "md-sys-color";
+@use "md-sys-elevation";
+@use "md-sys-state";
+$disabled-container-opacity: 0.1;
+$disabled-icon-opacity: 0.38;
+$disabled-label-text-opacity: 0.38;
+$container-elevation: md-sys-elevation.$level0;
+$disabled-container-elevation: md-sys-elevation.$level0;
+$focused-container-elevation: md-sys-elevation.$level0;
+$focused-state-layer-opacity: md-sys-state.$focus-state-layer-opacity;
+$hovered-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
+$pressed-container-elevation: md-sys-elevation.$level0;
+$pressed-state-layer-opacity: md-sys-state.$pressed-state-layer-opacity;
+$unselected-container-color: md-sys-color.$surface-container;
+$container-color: md-sys-color.$primary;
+$container-shadow-color: md-sys-color.$shadow;
+$disabled-container-color: md-sys-color.$on-surface;
+$disabled-icon-color: md-sys-color.$on-surface;
+$disabled-label-text-color: md-sys-color.$on-surface;
+$focused-icon-color: md-sys-color.$on-primary;
+$focused-label-text-color: md-sys-color.$on-primary;
+$focused-state-layer-color: md-sys-color.$on-primary;
+$hovered-icon-color: md-sys-color.$on-primary;
+$hovered-label-text-color: md-sys-color.$on-primary;
+$hovered-state-layer-color: md-sys-color.$on-primary;
+$icon-color: md-sys-color.$on-primary;
+$label-text-color: md-sys-color.$on-primary;
+$pressed-icon-color: md-sys-color.$on-primary;
+$pressed-label-text-color: md-sys-color.$on-primary;
+$pressed-state-layer-color: md-sys-color.$on-primary;
+$selected-container-color: md-sys-color.$primary;
+$selected-focused-icon-color: md-sys-color.$on-primary;
+$selected-focused-label-text-color: md-sys-color.$on-primary;
+$selected-focused-state-layer-color: md-sys-color.$on-primary;
+$selected-hovered-icon-color: md-sys-color.$on-primary;
+$selected-hovered-label-text-color: md-sys-color.$on-primary;
+$selected-hovered-state-layer-color: md-sys-color.$on-primary;
+$selected-icon-color: md-sys-color.$on-primary;
+$selected-label-text-color: md-sys-color.$on-primary;
+$selected-pressed-icon-color: md-sys-color.$on-primary;
+$selected-pressed-label-text-color: md-sys-color.$on-primary;
+$selected-pressed-state-layer-color: md-sys-color.$on-primary;
+$unselected-focused-icon-color: md-sys-color.$on-surface-variant;
+$unselected-focused-label-text-color: md-sys-color.$on-surface-variant;
+$unselected-focused-state-layer-color: md-sys-color.$on-surface-variant;
+$unselected-hovered-icon-color: md-sys-color.$on-surface-variant;
+$unselected-hovered-label-text-color: md-sys-color.$on-surface-variant;
+$unselected-hovered-state-layer-color: md-sys-color.$on-surface-variant;
+$unselected-icon-color: md-sys-color.$on-surface-variant;
+$unselected-label-text-color: md-sys-color.$on-surface-variant;
+$unselected-pressed-icon-color: md-sys-color.$on-surface-variant;
+$unselected-pressed-label-text-color: md-sys-color.$on-surface-variant;
+$unselected-pressed-state-layer-color: md-sys-color.$on-surface-variant;

@@ -103,7 +103,7 @@ export type ReferenceTreeValue = Readonly<{
 
 export type ReferenceTree = Readonly<{
   value: ReferenceTreeValue;
-  childNodes: readonly ReferenceTreeValue[];
+  childNodes: readonly ReferenceTree[];
 }>;
 
 export type CubicBezier = Readonly<{

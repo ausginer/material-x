@@ -1,7 +1,9 @@
+import SystemToken from './SystemToken.ts';
 import type {
   ContextTag,
   ContextTagGroup,
   ReferenceTree,
+  ResolvedValue,
   Token,
   TokenSet,
   TokenSystem,
@@ -10,59 +12,70 @@ import type {
 import { distinct } from './utils.ts';
 
 export default class SystemUnifier {
+  readonly allowedTags: readonly string[];
   readonly #systems: readonly TokenSystem[];
 
-  constructor(systems: readonly TokenSystem[]) {
+  constructor(systems: readonly TokenSystem[], allowedTags: readonly string[]) {
     this.#systems = systems;
+    this.allowedTags = allowedTags;
   }
 
-  get tagGroups(): IteratorObject<ContextTagGroup> {
+  get tokens(): IteratorObject<SystemToken> {
+    return this.rawTokens.map((token) => new SystemToken(token, this));
+  }
+
+  get rawTagGroups(): IteratorObject<ContextTagGroup> {
     return distinct(
       Iterator.from(this.#systems).flatMap((system) => system.contextTagGroups),
       (group) => group.name,
     );
   }
 
-  get tags(): IteratorObject<ContextTag> {
+  get rawTags(): IteratorObject<ContextTag> {
     return distinct(
       Iterator.from(this.#systems).flatMap((system) => system.tags),
       (tag) => tag.name,
     );
   }
 
-  get tokenSets(): IteratorObject<TokenSet> {
+  get rawTokenSets(): IteratorObject<TokenSet> {
     return distinct(
       Iterator.from(this.#systems).flatMap((system) => system.tokenSets),
       (set) => set.name,
     );
   }
 
-  get tokens(): IteratorObject<Token> {
+  get rawTokens(): IteratorObject<Token> {
     return distinct(
       Iterator.from(this.#systems).flatMap((system) => system.tokens),
       (token) => token.name,
     );
   }
 
-  get values(): IteratorObject<Value> {
+  get rawValues(): IteratorObject<Value> {
     return distinct(
       Iterator.from(this.#systems).flatMap((system) => system.values),
       (value) => value.name,
     );
   }
 
-  getReferenceTree(
+  getReferenceTreeAndResolvedValue(
     name: string,
     tags: readonly string[],
-  ): ReferenceTree | undefined {
+  ): readonly [ReferenceTree, ResolvedValue] | undefined {
     for (const system of this.#systems) {
       const tokenTree = system.contextualReferenceTrees[name];
       if (tokenTree) {
-        const { referenceTree } =
+        const result =
           tokenTree.contextualReferenceTree.find(({ contextTags }) =>
             tags.some((tag) => contextTags?.includes(tag)),
           ) ?? tokenTree.contextualReferenceTree[0];
-        return referenceTree;
+
+        if (!result) {
+          continue;
+        }
+
+        return [result.referenceTree, result.resolvedValue];
       }
     }
 

@@ -1,6 +1,6 @@
-import type { CubicBezier, TokenColor } from './token-loader/TokenTable';
+import type { CubicBezier, TokenColor } from './token-loader/TokenTable.ts';
 
-export const root: URL = new URL('../../', import.meta.url);
+export const root: URL = new URL('../', import.meta.url);
 
 export type JSONModule<T> = Readonly<{
   default: T;
@@ -29,10 +29,7 @@ export const TokenValueType = {
 export type TokenValueType =
   (typeof TokenValueType)[keyof typeof TokenValueType];
 
-export type TokenLink = Readonly<{
-  type: typeof TokenValueType.TOKEN_NAME;
-  value: string;
-}>;
+export type TokenLinkMap = Readonly<Record<string, string>>;
 
 export type TokenDescriptorDictionary = Readonly<{
   COLOR: TokenColor;
@@ -47,7 +44,7 @@ export type TokenDescriptorDictionary = Readonly<{
   ELEVATION: number;
   NUMERIC: number;
   DURATION: number;
-  FONT_TYPE: Readonly<Record<string, TokenLink>>;
+  FONT_TYPE: TokenLinkMap;
   TOKEN_NAME: string;
   MOTION_PATH: string;
   BEZIER: CubicBezier;
@@ -59,6 +56,7 @@ export type TokenDescriptorBase<T extends TokenValueType> = Readonly<{
   suffix: string;
   type: T;
   value: TokenDescriptorDictionary[T];
+  order: number;
 }>;
 
 export type TokenDescriptor = {

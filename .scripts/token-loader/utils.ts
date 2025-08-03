@@ -1,14 +1,10 @@
-export const root: URL = new URL('../../', import.meta.url);
+import { root } from '../utils.ts';
 
 export type SassDeclaration = Readonly<Record<string, string | number>>;
 
 export type SassDeclarationSet = Readonly<{
   declarations: SassDeclaration;
   setName: string;
-}>;
-
-export type JSONModule<T> = Readonly<{
-  default: T;
 }>;
 
 export const COLLATOR: Intl.Collator = Intl.Collator('en');
@@ -66,3 +62,23 @@ export const states = [
   'selected',
   'unselected',
 ] as const;
+
+export const tokensCacheDir: URL = new URL(
+  'node_modules/.cache/tokens/parsed/',
+  root,
+);
+
+export const tokensMainDir: URL = new URL('src/tokens/', root);
+
+export async function* map<T, U>(
+  iter: AsyncIteratorObject<T>,
+  fn: (item: T) => Promise<U>,
+): AsyncIteratorObject<Awaited<U>, void, void> {
+  for await (const item of iter) {
+    yield await fn(item);
+  }
+}
+
+export function sassName(token: string): string {
+  return token.replaceAll('.', '-');
+}
