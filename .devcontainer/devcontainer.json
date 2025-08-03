@@ -1,7 +1,7 @@
 {
   "name": "material-x",
   "image": "alpine:latest",
-  "runArgs": ["--name=materialx_dev", "--init"],
+  "runArgs": ["--name=materialx_dev"],
   "containerEnv": {
     "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
   },
