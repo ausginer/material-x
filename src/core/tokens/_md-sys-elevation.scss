@@ -8,9 +8,19 @@
 @use "sass:map";
 
 
+
 $level0: 0;
 $level1: 1;
 $level2: 3;
 $level3: 6;
 $level4: 8;
 $level5: 12;
+
+$values: (
+  level0: $level0,
+  level1: $level1,
+  level2: $level2,
+  level3: $level3,
+  level4: $level4,
+  level5: $level5,
+);

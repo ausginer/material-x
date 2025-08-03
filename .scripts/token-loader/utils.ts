@@ -68,7 +68,7 @@ export const tokensCacheDir: URL = new URL(
   root,
 );
 
-export const tokensMainDir: URL = new URL('src/tokens/', root);
+export const tokensMainDir: URL = new URL('src/core/tokens/', root);
 
 export async function* map<T, U>(
   iter: AsyncIteratorObject<T>,

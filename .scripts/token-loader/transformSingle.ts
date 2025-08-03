@@ -59,7 +59,6 @@ export function transformSingle(
       ? `#{${transformTokenLink(lineHeight, unifier, dependencyManager)}} `
       : '';
 
-    console.log('fontName', fontName);
     const _fontName = fontName
       ? `#{${transformTokenLink(fontName, unifier, dependencyManager)}}`
       : '';

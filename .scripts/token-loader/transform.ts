@@ -65,14 +65,21 @@ async function transform(): Promise<void> {
             return orderA - orderB;
           }
           return COLLATOR.compare(nameA, nameB);
-        })
-        .map(([name, { value }]) => `$${name}: ${value};`);
+        });
+
+      const imports = Array.from(dependencyManager.statements).join('\n');
+
+      const variables = sassContents
+        .map(([name, { value }]) => `$${name}: ${value};`)
+        .join('\n');
+
+      const map = `$values: (\n${sassContents
+        .map(([name]) => `  ${name}: $${name},`)
+        .join('\n')}\n);\n`;
 
       await writeFile(
         new URL(fileName, tokensMainDir),
-        `${HEADER}\n${Array.from(dependencyManager.statements).join(
-          '\n',
-        )}\n${sassContents.join('\n')}`,
+        `${HEADER}\n${imports}\n\n${variables}\n\n${map}`,
         'utf8',
       );
     }),

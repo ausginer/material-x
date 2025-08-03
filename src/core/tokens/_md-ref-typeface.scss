@@ -8,8 +8,17 @@
 @use "sass:map";
 
 
+
 $brand: 'Google Sans';
 $plain: 'Google Sans Text';
 $weight-bold: 700;
 $weight-medium: 500;
 $weight-regular: 400;
+
+$values: (
+  brand: $brand,
+  plain: $plain,
+  weight-bold: $weight-bold,
+  weight-medium: $weight-medium,
+  weight-regular: $weight-regular,
+);

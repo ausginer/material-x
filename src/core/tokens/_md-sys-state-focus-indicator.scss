@@ -8,5 +8,11 @@
 @use "sass:map";
 
 
+
 $outer-offset: 2px;
 $thickness: 3px;
+
+$values: (
+  outer-offset: $outer-offset,
+  thickness: $thickness,
+);

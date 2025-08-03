@@ -6,11 +6,17 @@
  * !!! DO NOT MODIFY IT BY HAND !!!
  */
 @use "sass:map";
+
 @use "md-sys-shape";
 
+$container-height: 80px;
+$container-width: 80px;
+$icon-size: 28px;
+$container-shape: md-sys-shape.$corner-large-increased;
+
 $values: (
-  container-height: 80px,
-  container-shape: md-sys-shape.$corner-large-increased,
-  container-width: 80px,
-  icon-size: 28px,
+  container-height: $container-height,
+  container-width: $container-width,
+  icon-size: $icon-size,
+  container-shape: $container-shape,
 );

@@ -7,52 +7,104 @@
  */
 @use "sass:map";
 
-$background: var(--md-sys-color-background, #F7FBEA);
-$error-container: var(--md-sys-color-error-container, #FFDAD6);
-$error: var(--md-sys-color-error, #BA1A1A);
-$inverse-on-surface: var(--md-sys-color-inverse-on-surface, #EFF3E2);
-$inverse-primary: var(--md-sys-color-inverse-primary, #97D945);
-$inverse-surface: var(--md-sys-color-inverse-surface, #2E3227);
-$on-background: var(--md-sys-color-on-background, #191D13);
-$on-error-container: var(--md-sys-color-on-error-container, #93000A);
-$on-error: var(--md-sys-color-on-error, #FFFFFF);
-$on-primary-container: var(--md-sys-color-on-primary-container, #F9FFEA);
-$on-primary-fixed-variant: var(--md-sys-color-on-primary-fixed-variant, #2F4F00);
-$on-primary-fixed: var(--md-sys-color-on-primary-fixed, #102000);
-$on-primary: var(--md-sys-color-on-primary, #FFFFFF);
-$on-secondary-container: var(--md-sys-color-on-secondary-container, #516D2F);
-$on-secondary-fixed-variant: var(--md-sys-color-on-secondary-fixed-variant, #344E14);
-$on-secondary-fixed: var(--md-sys-color-on-secondary-fixed, #102000);
-$on-secondary: var(--md-sys-color-on-secondary, #FFFFFF);
-$on-surface-variant: var(--md-sys-color-on-surface-variant, #424937);
-$on-surface: var(--md-sys-color-on-surface, #191D13);
-$on-tertiary-container: var(--md-sys-color-on-tertiary-container, #F5FFF8);
-$on-tertiary-fixed-variant: var(--md-sys-color-on-tertiary-fixed-variant, #00513C);
-$on-tertiary-fixed: var(--md-sys-color-on-tertiary-fixed, #002116);
-$on-tertiary: var(--md-sys-color-on-tertiary, #FFFFFF);
-$outline-variant: var(--md-sys-color-outline-variant, #C2CAB2);
-$outline: var(--md-sys-color-outline, #727A66);
-$primary-container: var(--md-sys-color-primary-container, #4F8200);
-$primary-fixed-dim: var(--md-sys-color-primary-fixed-dim, #97D945);
-$primary-fixed: var(--md-sys-color-primary-fixed, #B2F65F);
-$primary: var(--md-sys-color-primary, #3E6700);
-$scrim: var(--md-sys-color-scrim, #000000);
-$secondary-container: var(--md-sys-color-secondary-container, #CCEEA1);
-$secondary-fixed-dim: var(--md-sys-color-secondary-fixed-dim, #B1D188);
-$secondary-fixed: var(--md-sys-color-secondary-fixed, #CCEEA1);
-$secondary: var(--md-sys-color-secondary, #4B662A);
-$shadow: var(--md-sys-color-shadow, #000000);
-$surface-bright: var(--md-sys-color-surface-bright, #F7FBEA);
-$surface-container-high: var(--md-sys-color-surface-container-high, #E6EADA);
-$surface-container-highest: var(--md-sys-color-surface-container-highest, #E0E4D4);
-$surface-container-low: var(--md-sys-color-surface-container-low, #F2F5E5);
-$surface-container-lowest: var(--md-sys-color-surface-container-lowest, #FFFFFF);
-$surface-container: var(--md-sys-color-surface-container, #ECF0DF);
-$surface-dim: var(--md-sys-color-surface-dim, #D8DCCC);
-$surface-tint: var(--md-sys-color-surface-tint, #3F6900);
-$surface-variant: var(--md-sys-color-surface-variant, #DEE6CD);
-$surface: var(--md-sys-color-surface, #F7FBEA);
-$tertiary-container: var(--md-sys-color-tertiary-container, #008564);
-$tertiary-fixed-dim: var(--md-sys-color-tertiary-fixed-dim, #5DDCB0);
-$tertiary-fixed: var(--md-sys-color-tertiary-fixed, #7CF9CB);
-$tertiary: var(--md-sys-color-tertiary, #00694E);
+@use "md-ref-palette";
+
+$surface-bright: rgba(55, 57, 59, 1);
+$surface-container: rgba(30, 31, 32, 1);
+$surface-container-high: rgba(40, 42, 44, 1);
+$surface-container-highest: rgba(51, 53, 55, 1);
+$surface-container-low: rgba(27, 27, 27, 1);
+$surface-container-lowest: rgba(14, 14, 14, 1);
+$surface-dim: rgba(19, 19, 19, 1);
+$background: md-ref-palette.$neutral6;
+$error: md-ref-palette.$error95;
+$error-container: md-ref-palette.$error80;
+$inverse-on-surface: md-ref-palette.$neutral0;
+$inverse-primary: md-ref-palette.$primary20;
+$inverse-surface: md-ref-palette.$neutral90;
+$on-background: md-ref-palette.$neutral100;
+$on-error: md-ref-palette.$error0;
+$on-error-container: md-ref-palette.$error0;
+$on-primary: md-ref-palette.$primary0;
+$on-primary-container: md-ref-palette.$primary0;
+$on-primary-fixed: md-ref-palette.$primary0;
+$on-primary-fixed-variant: md-ref-palette.$primary0;
+$on-secondary: md-ref-palette.$secondary0;
+$on-secondary-container: md-ref-palette.$secondary0;
+$on-secondary-fixed: md-ref-palette.$secondary0;
+$on-secondary-fixed-variant: md-ref-palette.$secondary0;
+$on-surface: md-ref-palette.$neutral100;
+$on-surface-variant: md-ref-palette.$neutral-variant100;
+$on-tertiary: md-ref-palette.$tertiary0;
+$on-tertiary-container: md-ref-palette.$tertiary0;
+$on-tertiary-fixed: md-ref-palette.$tertiary0;
+$on-tertiary-fixed-variant: md-ref-palette.$tertiary0;
+$outline: md-ref-palette.$neutral-variant95;
+$outline-variant: md-ref-palette.$neutral-variant80;
+$primary: md-ref-palette.$primary95;
+$primary-container: md-ref-palette.$primary80;
+$primary-fixed: md-ref-palette.$primary90;
+$primary-fixed-dim: md-ref-palette.$primary80;
+$scrim: md-ref-palette.$neutral0;
+$secondary: md-ref-palette.$secondary95;
+$secondary-container: md-ref-palette.$secondary80;
+$secondary-fixed: md-ref-palette.$secondary90;
+$secondary-fixed-dim: md-ref-palette.$secondary80;
+$shadow: md-ref-palette.$neutral0;
+$surface: md-ref-palette.$neutral6;
+$surface-variant: md-ref-palette.$neutral-variant30;
+$tertiary: md-ref-palette.$tertiary95;
+$tertiary-container: md-ref-palette.$tertiary80;
+$tertiary-fixed: md-ref-palette.$tertiary90;
+$tertiary-fixed-dim: md-ref-palette.$tertiary80;
+
+$values: (
+  surface-bright: $surface-bright,
+  surface-container: $surface-container,
+  surface-container-high: $surface-container-high,
+  surface-container-highest: $surface-container-highest,
+  surface-container-low: $surface-container-low,
+  surface-container-lowest: $surface-container-lowest,
+  surface-dim: $surface-dim,
+  background: $background,
+  error: $error,
+  error-container: $error-container,
+  inverse-on-surface: $inverse-on-surface,
+  inverse-primary: $inverse-primary,
+  inverse-surface: $inverse-surface,
+  on-background: $on-background,
+  on-error: $on-error,
+  on-error-container: $on-error-container,
+  on-primary: $on-primary,
+  on-primary-container: $on-primary-container,
+  on-primary-fixed: $on-primary-fixed,
+  on-primary-fixed-variant: $on-primary-fixed-variant,
+  on-secondary: $on-secondary,
+  on-secondary-container: $on-secondary-container,
+  on-secondary-fixed: $on-secondary-fixed,
+  on-secondary-fixed-variant: $on-secondary-fixed-variant,
+  on-surface: $on-surface,
+  on-surface-variant: $on-surface-variant,
+  on-tertiary: $on-tertiary,
+  on-tertiary-container: $on-tertiary-container,
+  on-tertiary-fixed: $on-tertiary-fixed,
+  on-tertiary-fixed-variant: $on-tertiary-fixed-variant,
+  outline: $outline,
+  outline-variant: $outline-variant,
+  primary: $primary,
+  primary-container: $primary-container,
+  primary-fixed: $primary-fixed,
+  primary-fixed-dim: $primary-fixed-dim,
+  scrim: $scrim,
+  secondary: $secondary,
+  secondary-container: $secondary-container,
+  secondary-fixed: $secondary-fixed,
+  secondary-fixed-dim: $secondary-fixed-dim,
+  shadow: $shadow,
+  surface: $surface,
+  surface-variant: $surface-variant,
+  tertiary: $tertiary,
+  tertiary-container: $tertiary-container,
+  tertiary-fixed: $tertiary-fixed,
+  tertiary-fixed-dim: $tertiary-fixed-dim,
+);

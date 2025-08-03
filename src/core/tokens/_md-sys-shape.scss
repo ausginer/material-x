@@ -8,27 +8,55 @@
 @use "sass:map";
 
 
+
 $corner-extra-extra-large: 48px;
-$corner-extra-large-increased: 32px;
-$corner-extra-large-top: 28px 28px 0 0;
 $corner-extra-large: 28px;
-$corner-extra-small-top: 4px 4px 0 0;
+$corner-extra-large-increased: 32px;
+$corner-extra-large-top: 28px 28px 0px 0px;
 $corner-extra-small: 4px;
-$corner-full: var(--_shape-full, 9999rem);
-$corner-large-end: 0 16px 16px 0;
-$corner-large-increased: 20px;
-$corner-large-start: 16px 0 0 16px;
-$corner-large-top: 16px 16px 0 0;
+$corner-extra-small-top: 4px 4px 0px 0px;
+$corner-full: 9999px;
 $corner-large: 16px;
+$corner-large-end: 0px 16px 16px 0px;
+$corner-large-increased: 20px;
+$corner-large-start: 16px 0px 0px 16px;
+$corner-large-top: 16px 16px 0px 0px;
 $corner-medium: 12px;
-$corner-none: 0 0 0 0;
+$corner-none: 0px 0px 0px 0px;
 $corner-small: 8px;
 $corner-value-extra-extra-large: 48px;
-$corner-value-extra-large-increased: 32px;
 $corner-value-extra-large: 28px;
+$corner-value-extra-large-increased: 32px;
 $corner-value-extra-small: 4px;
-$corner-value-large-increased: 20px;
 $corner-value-large: 16px;
+$corner-value-large-increased: 20px;
 $corner-value-medium: 12px;
 $corner-value-none: 0px;
 $corner-value-small: 8px;
+
+$values: (
+  corner-extra-extra-large: $corner-extra-extra-large,
+  corner-extra-large: $corner-extra-large,
+  corner-extra-large-increased: $corner-extra-large-increased,
+  corner-extra-large-top: $corner-extra-large-top,
+  corner-extra-small: $corner-extra-small,
+  corner-extra-small-top: $corner-extra-small-top,
+  corner-full: $corner-full,
+  corner-large: $corner-large,
+  corner-large-end: $corner-large-end,
+  corner-large-increased: $corner-large-increased,
+  corner-large-start: $corner-large-start,
+  corner-large-top: $corner-large-top,
+  corner-medium: $corner-medium,
+  corner-none: $corner-none,
+  corner-small: $corner-small,
+  corner-value-extra-extra-large: $corner-value-extra-extra-large,
+  corner-value-extra-large: $corner-value-extra-large,
+  corner-value-extra-large-increased: $corner-value-extra-large-increased,
+  corner-value-extra-small: $corner-value-extra-small,
+  corner-value-large: $corner-value-large,
+  corner-value-large-increased: $corner-value-large-increased,
+  corner-value-medium: $corner-value-medium,
+  corner-value-none: $corner-value-none,
+  corner-value-small: $corner-value-small,
+);
