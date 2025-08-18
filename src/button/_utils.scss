@@ -1,25 +1,7 @@
 @use 'sass:list';
 @use 'sass:string';
 @use '../core/utils/functions' as *;
-@use '../core/tokens/md-comp-button' as button-tokens;
 @use '../core/utils/map';
-
-@function empty($map) {
-  @return map.size($map) == 0;
-}
-
-@function exclude($tokens, $manual-options: ()) {
-  $result: $tokens;
-  @each $key, $value in $tokens {
-    @each $option in $manual-options {
-      @if string.index($key, $option) != null {
-        $result: map.remove($result, $key);
-      }
-    }
-  }
-
-  @return $result;
-}
 
 $_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
 
@@ -65,11 +47,7 @@ $_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
 
   $result: ();
   @each $state in $_button-states {
-    $result: map.set(
-      $result,
-      $state,
-      map.get($split-tokens, $state)
-    );
+    $result: map.set($result, $state, map.get($split-tokens, $state));
   }
 
   $unselected-tokens: split-token-map(
@@ -105,73 +83,74 @@ $_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
   @return $result;
 }
 
-@mixin private-vars($tokens, $state: null) {
-  @each $key, $value in $tokens {
-    @if $state != null {
-      --_#{$key}: var(--md-button-#{$state}-#{$key}, #{$value});
-    } @else {
-      --_#{$key}: var(--md-button-#{$key}, #{$value});
+@function collect-vars($map, $public-vars, $private-vars, $public-prefix) {
+  $public-tokens: apply-tokens($map, $public-vars);
+  @debug $public-tokens, $public-vars, $map;
+  $private-tokens: apply-tokens($map, $private-vars);
+
+  @return map.merge(
+    make-public-vars($public-prefix, $public-tokens),
+    $private-tokens
+  );
+}
+
+@mixin state($vars, $state, $params...) {
+  $host: host-state($state, $params...);
+
+  @if map.size($vars) > 0 {
+    #{$host} {
+      @include vars($vars);
+      @content;
     }
   }
 }
 
-@mixin states($tokens, $states, $params...) {
-  @each $state in $states {
-    $map: $tokens;
+@mixin default-state($vars, $params...) {
+  @include state($vars, 'default', $params...) {
+    @content;
+  }
+}
 
-    @if map.has-key($tokens, $state) {
-      $map: map.get($tokens, $state);
+@mixin hovered-state($vars, $params...) {
+  @include state($vars, 'hovered', $params...) {
+    @content;
+  }
+}
+
+@mixin focused-state($vars, $params...) {
+  @include state($vars, 'focused', $params...) {
+    @content;
+  }
+}
+
+@mixin pressed-state($vars, $params...) {
+  @include state($vars, 'pressed', $params...) {
+    @content;
+  }
+}
+
+@mixin disabled-state($vars, $params...) {
+  @include state($vars, 'disabled', $params...) {
+    @content;
+  }
+}
+
+@mixin unselected-states($varsMap, $params...) {
+  @each $state in $_button-states {
+    $vars: map.get($varsMap, $state);
+
+    @include state($vars, $state, $params...) {
+      @content ($state);
     }
+  }
+}
 
-    $host: host-state($state, $params...);
+@mixin selected-states($varsMap, $params...) {
+  @each $state in $_button-states {
+    $vars: map.get($varsMap, $state);
 
-    @if map.size($map) > 0 {
-      #{$host} {
-        @include private-vars($map, $state);
-        @content ($state);
-      }
+    @include state($vars, $state, $params...) {
+      @content ($state);
     }
-  }
-}
-
-@mixin default-state($tokens, $params...) {
-  @include states($tokens, ('default'), $params...) using ($state) {
-    @content;
-  }
-}
-
-@mixin hovered-state($tokens, $params...) {
-  @include states($tokens, ('hovered'), $params...) using ($state) {
-    @content;
-  }
-}
-
-@mixin focused-state($tokens, $params...) {
-  @include states($tokens, ('focused'), $params...) using ($state) {
-    @content;
-  }
-}
-
-@mixin pressed-state($tokens, $params...) {
-  @include states($tokens, ('pressed'), $params...) using ($state) {
-    @content;
-  }
-}
-
-@mixin disabled-state($tokens, $params...) {
-  @include states($tokens, ('disabled'), $params..., 'disabled') using ($state) {
-    @content;
-  }
-}
-
-@mixin unselected-states($tokens, $params...) {
-  @include states($tokens, $_button-states, $params...) using ($state) {
-    @content ($state);
-  }
-}
-
-@mixin selected-states($tokens, $params...) {
-  @include states($tokens, $_button-states, $params..., checked) using ($state) {
-    @content ($state);
   }
 }

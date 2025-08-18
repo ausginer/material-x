@@ -34,8 +34,13 @@
   "include": [
     "./.scripts/**/*.ts",
     "src",
-    "eslint.config.js",
     "types.d.ts",
-    "vite.config.ts"
+    "vite.config.ts",
+    "src/icon",
+    "packages/material-x/src/interfaces.ts",
+    "src/core",
+    "src/button",
+    "packages/material-x/src/types.d.ts",
+    "packages/material-x/src/utils.ts"
   ]
 }

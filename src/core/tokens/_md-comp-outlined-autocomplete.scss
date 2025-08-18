@@ -98,9 +98,27 @@ $text-field-supporting-text-color: md-sys-color.$on-surface-variant;
 $text-field-supporting-text-font: md-sys-typescale.$body-small-font;
 $text-field-supporting-text-weight: md-sys-typescale.$body-small-weight;
 $text-field-trailing-icon-color: md-sys-color.$on-surface-variant;
-$text-field-input-text-type: #{$text-field-input-text-weight} #{$text-field-input-text-size} / #{$text-field-input-text-line-height} #{$text-field-input-text-font};
-$text-field-label-text-type: #{$text-field-label-text-weight} #{$text-field-label-text-size} / #{$text-field-label-text-line-height} #{$text-field-label-text-font};
-$text-field-supporting-text-type: #{$text-field-supporting-text-weight} #{$text-field-supporting-text-size} / #{$text-field-supporting-text-line-height} #{$text-field-supporting-text-font};
+$text-field-input-text-type: (
+  font-name: $text-field-input-text-font,
+  font-weight: $text-field-input-text-weight,
+  font-size: $text-field-input-text-size,
+  font-tracking: $text-field-input-text-tracking,
+  line-height: $text-field-input-text-line-height
+);
+$text-field-label-text-type: (
+  font-name: $text-field-label-text-font,
+  font-weight: $text-field-label-text-weight,
+  font-size: $text-field-label-text-size,
+  font-tracking: $text-field-label-text-tracking,
+  line-height: $text-field-label-text-line-height
+);
+$text-field-supporting-text-type: (
+  font-name: $text-field-supporting-text-font,
+  font-weight: $text-field-supporting-text-weight,
+  font-size: $text-field-supporting-text-size,
+  font-tracking: $text-field-supporting-text-tracking,
+  line-height: $text-field-supporting-text-line-height
+);
 
 $values: (
   menu-cascading-menu-indicator-icon-size: $menu-cascading-menu-indicator-icon-size,

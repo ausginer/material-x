@@ -1,4 +1,8 @@
-import { root } from '../utils.ts';
+import {
+  root,
+  TokenValueType,
+  type ProcessedTokenDescriptor,
+} from '../../../../.scripts/utils.ts';
 
 export type SassDeclaration = Readonly<Record<string, string | number>>;
 
@@ -81,4 +85,20 @@ export async function* map<T, U>(
 
 export function sassName(token: string): string {
   return token.replaceAll('.', '-');
+}
+
+export function isToken<T extends TokenValueType>(
+  token: ProcessedTokenDescriptor,
+  type: T,
+): token is ProcessedTokenDescriptor<T> {
+  return token[2].type === type;
+}
+
+export function isComplexToken(
+  token: ProcessedTokenDescriptor,
+): token is
+  | ProcessedTokenDescriptor<typeof TokenValueType.FONT_TYPE>
+  | ProcessedTokenDescriptor<typeof TokenValueType.SHAPE> {
+  const [, , { type }] = token;
+  return type === TokenValueType.FONT_TYPE || type === TokenValueType.SHAPE;
 }

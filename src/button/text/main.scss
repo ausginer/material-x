@@ -2,6 +2,6 @@
 @use 'meta' as *;
 
 @include default-state($default, $flavor);
-@include hovered-state($default, $flavor);
-@include focused-state($default, $flavor);
-@include pressed-state($default, $flavor);
+@include hovered-state($hovered, $flavor);
+@include focused-state($focused, $flavor);
+@include pressed-state($pressed, $flavor);

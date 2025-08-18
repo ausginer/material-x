@@ -1,5 +1,6 @@
 @use 'meta' as *;
 @use '../utils' as *;
+@use '../../core/utils/functions' as *;
 
 @include default-state($default) {
   display: inline-flex;
@@ -13,10 +14,11 @@
   padding-inline-end: var(--_trailing-space);
   border-radius: calc(
     var(--_container-shape-default) -
-    (var(--_container-shape-default) - var(--_container-shape-pressed)) *
-    var(--_spring-factor)
+      (var(--_container-shape-default) - var(--_container-shape-pressed)) *
+      var(--_spring-factor)
   );
-  font: var(--_label-text);
+  font: var(--_label-text-weight) var(--_label-text-size) /
+    var(--_label-text-line-height) var(--_label-text-font);
   place-items: center;
   place-content: center;
   position: relative;
@@ -26,15 +28,14 @@
 @include hovered-state($hovered) {
   $opacity: calc(var(--_state-layer-opacity) * 100%);
   background-color: color-mix(
-      in srgb,
-      var(--_container-color),
-      var(--_state-layer-color) #{$opacity}
+    in srgb,
+    var(--_container-color),
+    var(--_state-layer-color) #{$opacity}
   );
 }
 
 @include focused-state($focused) {
-  outline: var(--_focus-indicator-thickness) solid
-  var(--_focus-indicator-color);
+  outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
   outline-offset: var(--_focus-indicator-outline-offset);
 }
 

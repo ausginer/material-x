@@ -1,4 +1,7 @@
-import type { CubicBezier, TokenColor } from './token-loader/TokenTable.ts';
+import type {
+  CubicBezier,
+  TokenColor,
+} from '../packages/m3x-builder/src/token-loader/TokenTable.ts';
 
 export const root: URL = new URL('../', import.meta.url);
 
@@ -57,6 +60,7 @@ export type TokenDescriptorBase<T extends TokenValueType> = Readonly<{
   type: T;
   value: TokenDescriptorDictionary[T];
   order: number;
+  complex: boolean;
 }>;
 
 export type TokenDescriptor = {

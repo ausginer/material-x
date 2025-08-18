@@ -98,9 +98,27 @@ $supporting-text-color: md-sys-color.$on-surface-variant;
 $supporting-text-font: md-sys-typescale.$body-small-font;
 $supporting-text-weight: md-sys-typescale.$body-small-weight;
 $trailing-icon-color: md-sys-color.$on-surface-variant;
-$input-text-type: #{$input-text-weight} #{$input-text-size} / #{$input-text-line-height} #{$input-text-font};
-$label-text-type: #{$label-text-weight} #{$label-text-size} / #{$label-text-line-height} #{$label-text-font};
-$supporting-text-type: #{$supporting-text-weight} #{$supporting-text-size} / #{$supporting-text-line-height} #{$supporting-text-font};
+$input-text-type: (
+  font-name: $input-text-font,
+  font-weight: $input-text-weight,
+  font-size: $input-text-size,
+  font-tracking: $input-text-tracking,
+  line-height: $input-text-line-height
+);
+$label-text-type: (
+  font-name: $label-text-font,
+  font-weight: $label-text-weight,
+  font-size: $label-text-size,
+  font-tracking: $label-text-tracking,
+  line-height: $label-text-line-height
+);
+$supporting-text-type: (
+  font-name: $supporting-text-font,
+  font-weight: $supporting-text-weight,
+  font-size: $supporting-text-size,
+  font-tracking: $supporting-text-tracking,
+  line-height: $supporting-text-line-height
+);
 
 $values: (
   active-indicator-height: $active-indicator-height,

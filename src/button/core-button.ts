@@ -2,8 +2,8 @@ import RippleAnimationController from '../core/animations/ripple.ts';
 import SpringAnimationController from '../core/animations/spring.ts';
 import CoreElement from '../core/elements/core.ts';
 import elevationStyles from '../core/elevation/elevation.scss' with { type: 'css' };
-import defaultButtonStyles from './default/main.scss' with { type: 'css' };
 import defaultDisabledStyles from './default/disabled.scss' with { type: 'css' };
+import defaultButtonStyles from './default/main.scss' with { type: 'css' };
 
 export type ButtonFlavor = 'outlined' | 'filled-tonal' | 'elevated' | 'text';
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';

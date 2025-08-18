@@ -1,11 +1,11 @@
+import { type ProcessedToken, TokenValueType } from '../utils.ts';
+import type SystemToken from './SystemToken.ts';
+import type SystemUnifier from './SystemUnifier.ts';
 import {
   TextTransform,
   type TokenColor,
   TokenShapeFamily,
 } from './TokenTable.ts';
-import { type ProcessedToken, TokenValueType } from '../utils.ts';
-import type SystemToken from './SystemToken.ts';
-import type SystemUnifier from './SystemUnifier.ts';
 
 export default function parseSingle(
   token: SystemToken,
@@ -55,6 +55,7 @@ export default function parseSingle(
         type: TokenValueType.LENGTH,
         value: length.value ?? 0,
         order,
+        complex: false,
       },
     };
   }
@@ -66,6 +67,7 @@ export default function parseSingle(
         type: TokenValueType.OPACITY,
         value: opacity,
         order,
+        complex: false,
       },
     };
   }
@@ -77,6 +79,7 @@ export default function parseSingle(
         type: TokenValueType.ELEVATION,
         value: elevation.value ?? 0,
         order,
+        complex: false,
       },
     };
   }
@@ -88,6 +91,7 @@ export default function parseSingle(
         type: TokenValueType.NUMERIC,
         value: numeric,
         order,
+        complex: false,
       },
     };
   }
@@ -99,6 +103,7 @@ export default function parseSingle(
         type: TokenValueType.DURATION,
         value: durationMs,
         order,
+        complex: false,
       },
     };
   }
@@ -115,6 +120,7 @@ export default function parseSingle(
           ]),
         ),
         order,
+        complex: true,
       },
     };
   }
@@ -126,6 +132,7 @@ export default function parseSingle(
         type: TokenValueType.FONT_NAMES,
         value: fontNames.values.map((name) => `'${name}'`),
         order,
+        complex: false,
       },
     };
   }
@@ -137,6 +144,7 @@ export default function parseSingle(
         type: TokenValueType.LENGTH,
         value: fontTracking.value ?? 0,
         order,
+        complex: false,
       },
     };
   }
@@ -148,6 +156,7 @@ export default function parseSingle(
         type: TokenValueType.FONT_WEIGHT,
         value: fontWeight,
         order,
+        complex: false,
       },
     };
   }
@@ -159,6 +168,7 @@ export default function parseSingle(
         type: TokenValueType.FONT_SIZE,
         value: fontSize.value,
         order,
+        complex: false,
       },
     };
   }
@@ -170,6 +180,7 @@ export default function parseSingle(
         type: TokenValueType.LINE_HEIGHT,
         value: lineHeight.value,
         order,
+        complex: false,
       },
     };
   }
@@ -193,6 +204,7 @@ export default function parseSingle(
         type: TokenValueType.COLOR,
         value: { red, green, blue, alpha },
         order,
+        complex: false,
       },
     };
   }
@@ -218,6 +230,7 @@ export default function parseSingle(
           type: TokenValueType.SHAPE,
           value: 9999,
           order,
+          complex: false,
         },
       };
     } else {
@@ -228,6 +241,7 @@ export default function parseSingle(
             type: TokenValueType.SHAPE,
             value: defaultSize.value,
             order,
+            complex: false,
           },
         };
       }
@@ -243,6 +257,7 @@ export default function parseSingle(
             bottomLeft: bottomLeft?.value ?? left?.value ?? 0,
           },
           order,
+          complex: true,
         },
       };
     }
@@ -255,6 +270,7 @@ export default function parseSingle(
         type: TokenValueType.BEZIER,
         value: cubicBezier,
         order,
+        complex: false,
       },
     };
   }
@@ -266,6 +282,7 @@ export default function parseSingle(
         type: TokenValueType.MOTION_PATH,
         value: motionPath.standardPath.toLowerCase(),
         order,
+        complex: false,
       },
     };
   }
@@ -277,6 +294,7 @@ export default function parseSingle(
         type: TokenValueType.AXIS_VALUE,
         value: axisValue.value ?? 0,
         order,
+        complex: false,
       },
     };
   }
@@ -298,6 +316,7 @@ export default function parseSingle(
         type: TokenValueType.TEXT_TRANSFORM,
         value: 'none',
         order,
+        complex: false,
       },
     };
   }
@@ -331,6 +350,7 @@ export default function parseSingle(
           type: TokenValueType.TYPOGRAPHY,
           value: valueTokenName,
           order,
+          complex: false,
         },
       };
     }
@@ -341,6 +361,7 @@ export default function parseSingle(
         type: TokenValueType.TOKEN_NAME,
         value: valueTokenName,
         order,
+        complex: false,
       },
     };
   }

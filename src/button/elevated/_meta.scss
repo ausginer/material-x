@@ -4,23 +4,61 @@
 @use '../../core/tokens/md-comp-button' as default-tokens;
 @use '../../core/utils/functions' as *;
 @use '../../core/utils/map';
+@use '../vars' as *;
 @use '../utils' as *;
 
 $_tokens: prepare-tokens(pick-unique(tokens.$values, default-tokens.$values));
 
 $flavor: string.unquote('flavor="elevated"');
 
-$default: map.get($_tokens, 'default');
-$hovered: map.get($_tokens, 'hovered');
-$focused: map.get($_tokens, 'focused');
-$pressed: map.get($_tokens, 'pressed');
-$disabled: map.get($_tokens, 'disabled');
-$unselected: map.get($_tokens, 'unselected');
-$selected: map.get($_tokens, 'selected');
+$_default: map.get($_tokens, 'default');
+$_hovered: pick-unique(map.get($_tokens, 'hovered'), $_default);
+$_focused: pick-unique(map.get($_tokens, 'focused'), $_default);
+$_pressed: pick-unique(map.get($_tokens, 'pressed'), $_default);
+$_disabled: pick-unique(map.get($_tokens, 'disabled'), $_default);
+$_unselected: pick-unique(map.get($_tokens, 'unselected'), $_default);
+$_selected: pick-unique(map.get($_tokens, 'selected'), $_default);
 
-$default: map.merge(
-  $default,
-  (
-    level: var(--_container-elevation),
-  )
+$private-vars: map.set($private-vars, 'level', 'container-elevated');
+
+$default: collect-vars(
+  $_default,
+  $public-vars,
+  $private-vars,
+  'md-button-elevated-default'
+);
+
+$hovered: collect-vars(
+  $_hovered,
+  $public-vars,
+  $private-vars,
+  'md-button-elevated-hovered'
+);
+
+$focused: collect-vars(
+  $_focused,
+  $public-vars,
+  $private-vars,
+  'md-button-elevated-focused'
+);
+
+$pressed: collect-vars(
+  $_pressed,
+  $public-vars,
+  $private-vars,
+  'md-button-elevated-pressed'
+);
+
+$unselected: collect-vars(
+  $_unselected,
+  $public-vars,
+  $private-vars,
+  'md-button-elevated-unselected'
+);
+
+$selected: collect-vars(
+  $_selected,
+  $public-vars,
+  $private-vars,
+  'md-button-elevated-selected'
 );

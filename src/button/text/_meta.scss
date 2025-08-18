@@ -3,16 +3,59 @@
 @use '../../core/tokens/md-comp-button' as default-tokens;
 @use '../../core/tokens/md-comp-button-text' as tokens;
 @use '../../core/utils/functions' as *;
+@use '../vars' as *;
 @use '../utils' as *;
 
 $_tokens: prepare-tokens(pick-unique(tokens.$values, default-tokens.$values));
 
+$_default: map.get($_tokens, 'default');
+$_hovered: map.get($_tokens, 'hovered');
+$_focused: map.get($_tokens, 'focused');
+$_pressed: map.get($_tokens, 'pressed');
+$_disabled: map.get($_tokens, 'disabled');
+$_unselected: map.get($_tokens, 'unselected');
+$_selected: map.get($_tokens, 'selected');
+
 $flavor: string.unquote('flavor="text"');
 
-$default: map.get($_tokens, 'default');
-$hovered: map.get($_tokens, 'hovered');
-$focused: map.get($_tokens, 'focused');
-$pressed: map.get($_tokens, 'pressed');
-$disabled: map.get($_tokens, 'disabled');
-$unselected: map.get($_tokens, 'unselected');
-$selected: map.get($_tokens, 'selected');
+$default: collect-vars(
+  $_default,
+  $public-vars,
+  $private-vars,
+  'md-button-text-default'
+);
+
+$hovered: collect-vars(
+  $_hovered,
+  $public-vars,
+  $private-vars,
+  'md-button-text-hovered'
+);
+
+$focused: collect-vars(
+  $_focused,
+  $public-vars,
+  $private-vars,
+  'md-button-text-focused'
+);
+
+$pressed: collect-vars(
+  $_pressed,
+  $public-vars,
+  $private-vars,
+  'md-button-text-pressed'
+);
+
+$unselected: collect-vars(
+  $_unselected,
+  $public-vars,
+  $private-vars,
+  'md-button-text-unselected'
+);
+
+$selected: collect-vars(
+  $_selected,
+  $public-vars,
+  $private-vars,
+  'md-button-text-selected'
+);

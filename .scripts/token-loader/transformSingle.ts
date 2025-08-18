@@ -1,11 +1,15 @@
-import { type TokenDescriptor, TokenValueType } from '../utils.ts';
+import {
+  type ProcessedTokenDescriptor,
+  type TokenDescriptor,
+  TokenValueType,
+} from '../utils.ts';
 import type DependencyManager from './DependencyManager.ts';
 import type TransformUnifier from './TransformUnifier.ts';
-import { sassName } from './utils.ts';
+import { camelCaseToKebabCase, sassName } from './utils.ts';
 
 export type TransformResult = Readonly<{
   order: number;
-  value: string;
+  value: string | Readonly<Record<string, string | undefined>>;
 }>;
 
 export function transformSingle(
@@ -48,24 +52,24 @@ export function transformSingle(
   }
 
   if (descriptor.type === TokenValueType.FONT_TYPE) {
-    const { fontName, fontWeight, fontSize, lineHeight } = descriptor.value;
-    const _fontWeight = fontWeight
-      ? `#{${transformTokenLink(fontWeight, unifier, dependencyManager)}} `
-      : '';
-    const _fontSize = fontSize
-      ? `#{${transformTokenLink(fontSize, unifier, dependencyManager)}} / `
-      : '';
-    const _lineHeight = lineHeight
-      ? `#{${transformTokenLink(lineHeight, unifier, dependencyManager)}} `
-      : '';
-
-    const _fontName = fontName
-      ? `#{${transformTokenLink(fontName, unifier, dependencyManager)}}`
-      : '';
+    const value = Object.fromEntries(
+      Object.entries(descriptor.value).map(
+        ([name, value]) =>
+          [
+            camelCaseToKebabCase(name),
+            value
+              ? useImportedTokenName(
+                  findLinkedToken(value, unifier),
+                  dependencyManager,
+                )
+              : undefined,
+          ] as const,
+      ),
+    );
 
     return {
       order: descriptor.order,
-      value: `${_fontWeight}${_fontSize}${_lineHeight}${_fontName}`,
+      value,
     };
   }
 
@@ -74,10 +78,16 @@ export function transformSingle(
       return { order: descriptor.order, value: `${descriptor.value}px` };
     }
 
-    const { topLeft, topRight, bottomRight, bottomLeft } = descriptor.value;
+    const value = Object.fromEntries(
+      Object.entries(descriptor.value).map(([name, value]) => [
+        camelCaseToKebabCase(name),
+        `${value}px`,
+      ]),
+    );
+
     return {
       order: descriptor.order,
-      value: `${topLeft}px ${topRight}px ${bottomRight}px ${bottomLeft}px`,
+      value,
     };
   }
 
@@ -98,15 +108,14 @@ export function transformSingle(
 
   return {
     order: descriptor.order,
-    value: transformTokenLink(descriptor.value, unifier, dependencyManager),
+    value: useImportedTokenName(
+      findLinkedToken(descriptor.value, unifier),
+      dependencyManager,
+    ),
   };
 }
 
-function transformTokenLink(
-  tokenLinkName: string,
-  unifier: TransformUnifier,
-  dependencyManager: DependencyManager,
-): string {
+function findLinkedToken(tokenLinkName: string, unifier: TransformUnifier) {
   const token = unifier.tokens.find(
     ([, tokenName]) => tokenName === tokenLinkName,
   );
@@ -115,8 +124,13 @@ function transformTokenLink(
     throw new Error(`Token "${tokenLinkName}" not found.`);
   }
 
-  const [setName, , { suffix }] = token;
+  return token;
+}
 
+function useImportedTokenName(
+  [setName, , { suffix }]: ProcessedTokenDescriptor,
+  dependencyManager: DependencyManager,
+) {
   if (dependencyManager.set === setName) {
     return `$${sassName(suffix)}`;
   }

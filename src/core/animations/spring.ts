@@ -72,7 +72,7 @@ export default class SpringAnimationController implements ReactiveController {
       return result;
     });
 
-    const keyframes = createSpringKeyframes(damping, stiffness, duration);
+    const keyframes = createSpringKeyframes(damping!, stiffness!, duration!);
 
     const animation = host.animate(
       keyframes.map((frame) => ({ '--_spring-factor': frame })),

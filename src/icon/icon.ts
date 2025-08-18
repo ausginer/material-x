@@ -1,5 +1,5 @@
 import CoreElement from '../core/elements/core.ts';
-import { template, define } from '../utils.ts';
+import { template, define } from '../../packages/material-x/utils.ts';
 import css from './icon.scss' with { type: 'css' };
 
 const TEMPLATE = template`<slot></slot>`;

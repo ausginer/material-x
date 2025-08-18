@@ -1,5 +1,11 @@
 import { OrderedMap } from 'immutable';
-import { type Value, SassNumber, SassString, SassMap } from 'sass-embedded';
+import {
+  type Value,
+  SassNumber,
+  SassString,
+  SassMap,
+  SassList,
+} from 'sass-embedded';
 
 export type CustomFunctions = Readonly<
   Record<string, (args: Value[]) => Value>
@@ -8,41 +14,28 @@ export type CustomFunctions = Readonly<
 const FUNCTIONS: CustomFunctions = {
   'map-size($map)': getMapSize,
   'split-token-map($map, $states)': splitTokenMap,
+  'str-split($str, $delimiter)': splitStr,
 };
 
 export default FUNCTIONS;
 
-function getMapSize(args: Value[]): SassNumber {
-  return new SassNumber(args[0].assertMap('map').contents.size);
+function getMapSize([$map]: Value[]): SassNumber {
+  if (!$map) {
+    throw new Error('map-size function requires exactly one argument.');
+  }
+
+  return new SassNumber($map.assertMap('map').contents.size);
 }
 
-function _splitTokenMap(
-  tokens: ReadonlyMap<string, unknown>,
-  states: readonly string[],
-): ReadonlyMap<string, ReadonlyMap<string, unknown>> {
-  const stateGroups = Object.groupBy(tokens, ([key]) => {
-    return states.find((state) => key.includes(state)) ?? 'default';
-  });
+function splitTokenMap([$map, $states]: Value[]): SassMap {
+  if (!$map || !$states) {
+    throw new Error(
+      'split-token-map function requires two arguments: map and states.',
+    );
+  }
 
-  return states.reduce<Map<string, ReadonlyMap<string, unknown>>>(
-    (acc, state) => {
-      const grouped = stateGroups[state] ?? [];
-      const map = new Map(
-        grouped.map(([key, value]) => [
-          key.replace(`${state}-`, '').trim(),
-          value,
-        ]),
-      );
-      acc.set(state, map);
-      return acc;
-    },
-    new Map(),
-  );
-}
-
-function splitTokenMap(args: Value[]): SassMap {
-  const map = args[0].assertMap('map');
-  const states = args[1].asList.toArray().map((v) => v.assertString().text);
+  const map = $map.assertMap('map');
+  const states = $states.asList.toArray().map((v) => v.assertString().text);
 
   const stateGroups = Object.groupBy(map.contents.toArray(), ([key]) => {
     const _key = key.assertString().text;
@@ -62,4 +55,19 @@ function splitTokenMap(args: Value[]): SassMap {
   }, new Map());
 
   return new SassMap(OrderedMap(splitMap));
+}
+
+function splitStr([$str, $delimiter]: Value[]): SassList {
+  if (!$str || !$delimiter) {
+    throw new Error(
+      'split-str function requires two arguments: string and delimiter.',
+    );
+  }
+
+  const str = $str.assertString('string').text;
+  const delimiter = $delimiter.assertString('delimiter').text;
+
+  const parts = str.split(delimiter).map((part) => new SassString(part.trim()));
+
+  return new SassList(parts);
 }

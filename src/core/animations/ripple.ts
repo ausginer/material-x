@@ -1,4 +1,4 @@
-import type { TypedObjectConstructor } from '../../interfaces';
+import type { TypedObjectConstructor } from '../../interfaces.ts';
 import { template } from '../../utils.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import { createRem, CSSVariableError, type Point } from '../utils.ts';

@@ -1,0 +1,27 @@
+$public-vars: (
+  container-color: 'container-color',
+  container-elevation: 'container-elevation',
+  container-height: 'container-height',
+  icon-color: 'icon-color',
+  icon-size: 'icon-size',
+  label-text-color: 'label-text-color',
+  label-text-font: 'label-text.font-name',
+  label-text-size: 'label-text.font-size',
+  label-text-weight: 'label-text.font-weight',
+  label-text-line-height: 'label-text.line-height',
+  leading-space: 'leading-space',
+  trailing-space: 'trailing-space',
+);
+
+$private-vars: (
+  container-shadow-color: 'container-shadow-color',
+  focus-indicator-color: 'focus-indicator-color',
+  focus-indicator-outline-offset: 'focus-indicator-outline-offset',
+  focus-indicator-thickness: 'focus-indicator-thickness',
+  icon-label-space: 'icon-label-space',
+  label-text-line-height: 'label-text-line-height',
+  container-shape-default: 'container-shape-round',
+  container-shape-pressed: 'container-shape-square',
+  state-layer-opacity: 'state-layer-opacity',
+  state-layer-color: 'state-layer-color',
+);

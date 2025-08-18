@@ -3,21 +3,67 @@
 @use '../../core/tokens/md-comp-button-outlined' as tokens;
 @use '../../core/tokens/md-comp-button' as default-tokens;
 @use '../../core/utils/functions' as *;
+@use '../vars' as *;
 @use '../utils' as *;
 
 $_tokens: prepare-tokens(pick-unique(tokens.$values, default-tokens.$values));
 
+$_default: map.get($_tokens, 'default');
+$_hovered: map.get($_tokens, 'hovered');
+$_focused: map.get($_tokens, 'focused');
+$_pressed: map.get($_tokens, 'pressed');
+$_disabled: map.get($_tokens, 'disabled');
+$_unselected: map.get($_tokens, 'unselected');
+$_selected: map.get($_tokens, 'selected');
+
+$_default: map.merge(
+  $_default,
+  (
+    container-color: transparent,
+    outline-width: 1px,
+  )
+);
+
 $flavor: string.unquote('flavor="outlined"');
 
-$default: map.get($_tokens, 'default');
-$hovered: map.get($_tokens, 'hovered');
-$focused: map.get($_tokens, 'focused');
-$pressed: map.get($_tokens, 'pressed');
-$disabled: map.get($_tokens, 'disabled');
-$unselected: map.get($_tokens, 'unselected');
-$selected: map.get($_tokens, 'selected');
+$default: collect-vars(
+  $_default,
+  $public-vars,
+  $private-vars,
+  'md-button-outlined-default'
+);
 
-$default: map.merge($default, (
-  container-color: transparent,
-  outline-width: 1px,
-));
+$hovered: collect-vars(
+  $_hovered,
+  $public-vars,
+  $private-vars,
+  'md-button-outlined-hovered'
+);
+
+$focused: collect-vars(
+  $_focused,
+  $public-vars,
+  $private-vars,
+  'md-button-outlined-focused'
+);
+
+$pressed: collect-vars(
+  $_pressed,
+  $public-vars,
+  $private-vars,
+  'md-button-outlined-pressed'
+);
+
+$unselected: collect-vars(
+  $_unselected,
+  $public-vars,
+  $private-vars,
+  'md-button-outlined-unselected'
+);
+
+$selected: collect-vars(
+  $_selected,
+  $public-vars,
+  $private-vars,
+  'md-button-outlined-selected'
+);
