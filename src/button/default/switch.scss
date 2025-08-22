@@ -2,5 +2,7 @@
 @use 'meta' as *;
 @use '../utils' as *;
 
-@include unselected-states($unselected) using ($state);
-@include selected-states($selected) using ($state);
+@include unselected-states($unselected) using ($state) {
+}
+@include selected-states($selected) using ($state) {
+}

@@ -1,11 +1,20 @@
-@use 'sass:list';
-@use 'sass:string';
-@use '../../core/tokens/md-comp-button-elevated' as tokens;
-@use '../../core/tokens/md-comp-button' as default-tokens;
-@use '../../core/utils/functions' as *;
+@use 'sass:meta';
+@use '../../core/tokens/md-comp-button-elevated';
 @use '../../core/utils/map';
 @use '../vars' as *;
-@use '../utils' as *;
+
+$groups: group-buttons(md-comp-button-elevated.$map);
+
+$default: map.merge(
+  public-vars(map.get($groups, 'default'), 'md-button'),
+  private-vars(map.get($groups, 'default'))
+);
+
+@function _vars-filter($key, $index, $map, $_...) {
+  @return map.get($default, $key) != map.get($map, $key);
+}
+
+$filter-callback: meta.get-function('_vars-filter');
 
 $_tokens: prepare-tokens(pick-unique(tokens.$values, default-tokens.$values));
 
@@ -23,42 +32,42 @@ $private-vars: map.set($private-vars, 'level', 'container-elevated');
 
 $default: collect-vars(
   $_default,
-  $public-vars,
+  $public,
   $private-vars,
   'md-button-elevated-default'
 );
 
 $hovered: collect-vars(
   $_hovered,
-  $public-vars,
+  $public,
   $private-vars,
   'md-button-elevated-hovered'
 );
 
 $focused: collect-vars(
   $_focused,
-  $public-vars,
+  $public,
   $private-vars,
   'md-button-elevated-focused'
 );
 
 $pressed: collect-vars(
   $_pressed,
-  $public-vars,
+  $public,
   $private-vars,
   'md-button-elevated-pressed'
 );
 
 $unselected: collect-vars(
   $_unselected,
-  $public-vars,
+  $public,
   $private-vars,
   'md-button-elevated-unselected'
 );
 
 $selected: collect-vars(
   $_selected,
-  $public-vars,
+  $public,
   $private-vars,
   'md-button-elevated-selected'
 );

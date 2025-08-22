@@ -1,10 +1,8 @@
-/*
- * Tokens for the button component, according to the Material Design
- * specification: https://m3.material.io
- *
- * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
- * !!! DO NOT MODIFY IT BY HAND !!!
- */
+/// Tokens for the button component, according to the Material Design
+/// specification: https://m3.material.io
+///
+/// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+/// !!! DO NOT MODIFY IT BY HAND !!!
 @use "sass:map";
 
 @use "md-sys-color";
@@ -28,21 +26,21 @@ $icon-color: md-sys-color.$on-secondary-container;
 $pressed-icon-color: md-sys-color.$on-secondary-container;
 $pressed-state-layer-color: md-sys-color.$on-secondary-container;
 
-$values: (
-  container-elevation: $container-elevation,
-  focused-container-elevation: $focused-container-elevation,
-  focused-state-layer-opacity: $focused-state-layer-opacity,
-  hovered-container-elevation: $hovered-container-elevation,
-  hovered-state-layer-opacity: $hovered-state-layer-opacity,
-  pressed-container-elevation: $pressed-container-elevation,
-  pressed-state-layer-opacity: $pressed-state-layer-opacity,
-  container-color: $container-color,
-  container-shadow-color: $container-shadow-color,
-  focused-icon-color: $focused-icon-color,
-  focused-state-layer-color: $focused-state-layer-color,
-  hovered-icon-color: $hovered-icon-color,
-  hovered-state-layer-color: $hovered-state-layer-color,
-  icon-color: $icon-color,
-  pressed-icon-color: $pressed-icon-color,
-  pressed-state-layer-color: $pressed-state-layer-color,
-);
+$map: (
+  'container-elevation': $container-elevation,
+  'focused-container-elevation': $focused-container-elevation,
+  'focused-state-layer-opacity': $focused-state-layer-opacity,
+  'hovered-container-elevation': $hovered-container-elevation,
+  'hovered-state-layer-opacity': $hovered-state-layer-opacity,
+  'pressed-container-elevation': $pressed-container-elevation,
+  'pressed-state-layer-opacity': $pressed-state-layer-opacity,
+  'container-color': $container-color,
+  'container-shadow-color': $container-shadow-color,
+  'focused-icon-color': $focused-icon-color,
+  'focused-state-layer-color': $focused-state-layer-color,
+  'hovered-icon-color': $hovered-icon-color,
+  'hovered-state-layer-color': $hovered-state-layer-color,
+  'icon-color': $icon-color,
+  'pressed-icon-color': $pressed-icon-color,
+  'pressed-state-layer-color': $pressed-state-layer-color,
+)

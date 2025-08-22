@@ -1,27 +1,90 @@
-$public-vars: (
-  container-color: 'container-color',
-  container-elevation: 'container-elevation',
-  container-height: 'container-height',
-  icon-color: 'icon-color',
-  icon-size: 'icon-size',
-  label-text-color: 'label-text-color',
-  label-text-font: 'label-text.font-name',
-  label-text-size: 'label-text.font-size',
-  label-text-weight: 'label-text.font-weight',
-  label-text-line-height: 'label-text.line-height',
-  leading-space: 'leading-space',
-  trailing-space: 'trailing-space',
-);
+@use 'sass:meta';
+@use 'sass:list';
+@use '~@sass-fairy/string/string';
+@use '../core/tokens/md-comp-button';
+@use '../core/utils/group' as *;
+@use '../core/utils/map';
 
-$private-vars: (
-  container-shadow-color: 'container-shadow-color',
-  focus-indicator-color: 'focus-indicator-color',
-  focus-indicator-outline-offset: 'focus-indicator-outline-offset',
-  focus-indicator-thickness: 'focus-indicator-thickness',
-  icon-label-space: 'icon-label-space',
-  label-text-line-height: 'label-text-line-height',
-  container-shape-default: 'container-shape-round',
-  container-shape-pressed: 'container-shape-square',
-  state-layer-opacity: 'state-layer-opacity',
-  state-layer-color: 'state-layer-color',
-);
+@function _filter-null-values($key, $value, $_...) {
+  @return $value != null;
+}
+
+@function public-vars($tokens, $prefix) {
+  $label-text: map.get($tokens, 'label-text') or ();
+
+  $base: (
+    container-color: map.get($tokens, 'container-color'),
+    container-elevation: map.get($tokens, 'container-elevation'),
+    container-height: map.get($tokens, 'container-height'),
+    icon-color: map.get($tokens, 'icon-color'),
+    icon-size: map.get($tokens, 'icon-size'),
+    label-text-color: map.get($tokens, 'label-text-color'),
+    label-text-font: map.get($label-text, 'font-name'),
+    label-text-size: map.get($label-text, 'font-size'),
+    label-text-weight: map.get($label-text, 'font-weight'),
+    label-text-line-height: map.get($label-text, 'line-height'),
+    leading-space: map.get($tokens, 'leading-space'),
+    trailing-space: map.get($tokens, 'trailing-space'),
+  );
+
+  @debug $base;
+
+  @return map.filter($base, meta.get-function('_filter-null-values'));
+}
+
+@function private-vars($tokens) {
+  $base: (
+    container-shadow-color: map.get($tokens, 'container-shadow-color'),
+    focus-indicator-color: map.get($tokens, 'focus-indicator-color'),
+    focus-indicator-outline-offset: map.get(
+        $tokens,
+        'focus-indicator-outline-offset'
+      ),
+    focus-indicator-thickness: map.get($tokens, 'focus-indicator-thickness'),
+    icon-label-space: map.get($tokens, 'icon-label-space'),
+    label-text-line-height: map.get($tokens, 'label-text-line-height'),
+    container-shape-default: map.get($tokens, 'container-shape-default'),
+    container-shape-pressed: map.get($tokens, 'container-shape-pressed'),
+    state-layer-opacity: map.get($tokens, 'state-layer-opacity'),
+    state-layer-color: map.get($tokens, 'state-layer-color'),
+  );
+
+  @return map.filter($base, meta.get-function('_filter-null-values'));
+}
+
+@function _group-callback($key) {
+  $groups: ();
+  $remaining: $key;
+
+  // Level 1: Selection state
+  @if string.includes($remaining, 'selected-') {
+    $groups: list.append($groups, 'selected');
+    $remaining: string.replace($remaining, 'selected-', '');
+  } @else if string.includes($remaining, 'unselected-') {
+    $groups: list.append($groups, 'unselected');
+    $remaining: string.replace($remaining, 'unselected-', '');
+  }
+
+  // Level 2: Interaction state
+  @if string.includes($remaining, 'focused-') {
+    $groups: list.append($groups, 'focused');
+    $remaining: string.replace($remaining, 'focused-', '');
+  } @else if string.includes($remaining, 'hovered-') {
+    $groups: list.append($groups, 'hovered');
+    $remaining: string.replace($remaining, 'hovered-', '');
+  } @else if string.includes($remaining, 'pressed-') {
+    $groups: list.append($groups, 'pressed');
+    $remaining: string.replace($remaining, 'pressed-', '');
+  } @else if string.includes($remaining, 'disabled-') {
+    $groups: list.append($groups, 'disabled');
+    $remaining: string.replace($remaining, 'disabled-', '');
+  } @else {
+    $groups: list.append($groups, 'default');
+  }
+
+  @return ($groups, $remaining);
+}
+
+@function group-buttons($map) {
+  @return group($map, meta.get-function('_group-callback'));
+}

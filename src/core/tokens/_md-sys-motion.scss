@@ -1,10 +1,8 @@
-/*
- * Tokens for the button component, according to the Material Design
- * specification: https://m3.material.io
- *
- * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
- * !!! DO NOT MODIFY IT BY HAND !!!
- */
+/// Tokens for the button component, according to the Material Design
+/// specification: https://m3.material.io
+///
+/// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+/// !!! DO NOT MODIFY IT BY HAND !!!
 @use "sass:map";
 
 
@@ -25,15 +23,15 @@ $duration-short1: 50ms;
 $duration-short2: 100ms;
 $duration-short3: 150ms;
 $duration-short4: 200ms;
-$easing-emphasized-accelerate: cubic-bezier(0.3, undefined, 0.8, 0.15);
+$easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
 $easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
-$easing-legacy: cubic-bezier(0.4, undefined, 0.2, 1);
-$easing-legacy-accelerate: cubic-bezier(0.4, undefined, 1, 1);
-$easing-legacy-decelerate: cubic-bezier(undefined, undefined, 0.2, 1);
-$easing-linear: cubic-bezier(undefined, undefined, 1, 1);
-$easing-standard: cubic-bezier(0.2, undefined, undefined, 1);
-$easing-standard-accelerate: cubic-bezier(0.3, undefined, 1, 1);
-$easing-standard-decelerate: cubic-bezier(undefined, undefined, undefined, 1);
+$easing-legacy: cubic-bezier(0.4, 0, 0.2, 1);
+$easing-legacy-accelerate: cubic-bezier(0.4, 0, 1, 1);
+$easing-legacy-decelerate: cubic-bezier(0, 0, 0.2, 1);
+$easing-linear: cubic-bezier(0, 0, 1, 1);
+$easing-standard: cubic-bezier(0.2, 0, 0, 1);
+$easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+$easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
 $path: linear;
 $spring-default-effects-damping: 1;
 $spring-default-effects-stiffness: 1600;
@@ -49,44 +47,44 @@ $spring-slow-spatial-damping: 0.8;
 $spring-slow-spatial-stiffness: 200;
 $easing-emphasized: $easing-standard;
 
-$values: (
-  duration-extra-long1: $duration-extra-long1,
-  duration-extra-long2: $duration-extra-long2,
-  duration-extra-long3: $duration-extra-long3,
-  duration-extra-long4: $duration-extra-long4,
-  duration-long1: $duration-long1,
-  duration-long2: $duration-long2,
-  duration-long3: $duration-long3,
-  duration-long4: $duration-long4,
-  duration-medium1: $duration-medium1,
-  duration-medium2: $duration-medium2,
-  duration-medium3: $duration-medium3,
-  duration-medium4: $duration-medium4,
-  duration-short1: $duration-short1,
-  duration-short2: $duration-short2,
-  duration-short3: $duration-short3,
-  duration-short4: $duration-short4,
-  easing-emphasized-accelerate: $easing-emphasized-accelerate,
-  easing-emphasized-decelerate: $easing-emphasized-decelerate,
-  easing-legacy: $easing-legacy,
-  easing-legacy-accelerate: $easing-legacy-accelerate,
-  easing-legacy-decelerate: $easing-legacy-decelerate,
-  easing-linear: $easing-linear,
-  easing-standard: $easing-standard,
-  easing-standard-accelerate: $easing-standard-accelerate,
-  easing-standard-decelerate: $easing-standard-decelerate,
-  path: $path,
-  spring-default-effects-damping: $spring-default-effects-damping,
-  spring-default-effects-stiffness: $spring-default-effects-stiffness,
-  spring-default-spatial-damping: $spring-default-spatial-damping,
-  spring-default-spatial-stiffness: $spring-default-spatial-stiffness,
-  spring-fast-effects-damping: $spring-fast-effects-damping,
-  spring-fast-effects-stiffness: $spring-fast-effects-stiffness,
-  spring-fast-spatial-damping: $spring-fast-spatial-damping,
-  spring-fast-spatial-stiffness: $spring-fast-spatial-stiffness,
-  spring-slow-effects-damping: $spring-slow-effects-damping,
-  spring-slow-effects-stiffness: $spring-slow-effects-stiffness,
-  spring-slow-spatial-damping: $spring-slow-spatial-damping,
-  spring-slow-spatial-stiffness: $spring-slow-spatial-stiffness,
-  easing-emphasized: $easing-emphasized,
-);
+$map: (
+  'duration-extra-long1': $duration-extra-long1,
+  'duration-extra-long2': $duration-extra-long2,
+  'duration-extra-long3': $duration-extra-long3,
+  'duration-extra-long4': $duration-extra-long4,
+  'duration-long1': $duration-long1,
+  'duration-long2': $duration-long2,
+  'duration-long3': $duration-long3,
+  'duration-long4': $duration-long4,
+  'duration-medium1': $duration-medium1,
+  'duration-medium2': $duration-medium2,
+  'duration-medium3': $duration-medium3,
+  'duration-medium4': $duration-medium4,
+  'duration-short1': $duration-short1,
+  'duration-short2': $duration-short2,
+  'duration-short3': $duration-short3,
+  'duration-short4': $duration-short4,
+  'easing-emphasized-accelerate': $easing-emphasized-accelerate,
+  'easing-emphasized-decelerate': $easing-emphasized-decelerate,
+  'easing-legacy': $easing-legacy,
+  'easing-legacy-accelerate': $easing-legacy-accelerate,
+  'easing-legacy-decelerate': $easing-legacy-decelerate,
+  'easing-linear': $easing-linear,
+  'easing-standard': $easing-standard,
+  'easing-standard-accelerate': $easing-standard-accelerate,
+  'easing-standard-decelerate': $easing-standard-decelerate,
+  'path': $path,
+  'spring-default-effects-damping': $spring-default-effects-damping,
+  'spring-default-effects-stiffness': $spring-default-effects-stiffness,
+  'spring-default-spatial-damping': $spring-default-spatial-damping,
+  'spring-default-spatial-stiffness': $spring-default-spatial-stiffness,
+  'spring-fast-effects-damping': $spring-fast-effects-damping,
+  'spring-fast-effects-stiffness': $spring-fast-effects-stiffness,
+  'spring-fast-spatial-damping': $spring-fast-spatial-damping,
+  'spring-fast-spatial-stiffness': $spring-fast-spatial-stiffness,
+  'spring-slow-effects-damping': $spring-slow-effects-damping,
+  'spring-slow-effects-stiffness': $spring-slow-effects-stiffness,
+  'spring-slow-spatial-damping': $spring-slow-spatial-damping,
+  'spring-slow-spatial-stiffness': $spring-slow-spatial-stiffness,
+  'easing-emphasized': $easing-emphasized,
+)

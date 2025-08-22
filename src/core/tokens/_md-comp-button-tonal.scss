@@ -1,10 +1,8 @@
-/*
- * Tokens for the button component, according to the Material Design
- * specification: https://m3.material.io
- *
- * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
- * !!! DO NOT MODIFY IT BY HAND !!!
- */
+/// Tokens for the button component, according to the Material Design
+/// specification: https://m3.material.io
+///
+/// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+/// !!! DO NOT MODIFY IT BY HAND !!!
 @use "sass:map";
 
 @use "md-sys-color";
@@ -62,55 +60,55 @@ $unselected-pressed-icon-color: md-sys-color.$on-secondary-container;
 $unselected-pressed-label-text-color: md-sys-color.$on-secondary-container;
 $unselected-pressed-state-layer-color: md-sys-color.$on-secondary-container;
 
-$values: (
-  disabled-container-opacity: $disabled-container-opacity,
-  disabled-icon-opacity: $disabled-icon-opacity,
-  disabled-label-text-opacity: $disabled-label-text-opacity,
-  container-elevation: $container-elevation,
-  disabled-container-elevation: $disabled-container-elevation,
-  focused-container-elevation: $focused-container-elevation,
-  focused-state-layer-opacity: $focused-state-layer-opacity,
-  hovered-state-layer-opacity: $hovered-state-layer-opacity,
-  pressed-container-elevation: $pressed-container-elevation,
-  pressed-state-layer-opacity: $pressed-state-layer-opacity,
-  container-color: $container-color,
-  container-shadow-color: $container-shadow-color,
-  disabled-container-color: $disabled-container-color,
-  disabled-icon-color: $disabled-icon-color,
-  disabled-label-text-color: $disabled-label-text-color,
-  focused-icon-color: $focused-icon-color,
-  focused-label-text-color: $focused-label-text-color,
-  focused-state-layer-color: $focused-state-layer-color,
-  hovered-icon-color: $hovered-icon-color,
-  hovered-label-text-color: $hovered-label-text-color,
-  hovered-state-layer-color: $hovered-state-layer-color,
-  icon-color: $icon-color,
-  label-text-color: $label-text-color,
-  pressed-icon-color: $pressed-icon-color,
-  pressed-label-text-color: $pressed-label-text-color,
-  pressed-state-layer-color: $pressed-state-layer-color,
-  selected-container-color: $selected-container-color,
-  selected-focused-icon-color: $selected-focused-icon-color,
-  selected-focused-label-text-color: $selected-focused-label-text-color,
-  selected-focused-state-layer-color: $selected-focused-state-layer-color,
-  selected-hovered-icon-color: $selected-hovered-icon-color,
-  selected-hovered-label-text-color: $selected-hovered-label-text-color,
-  selected-hovered-state-layer-color: $selected-hovered-state-layer-color,
-  selected-icon-color: $selected-icon-color,
-  selected-label-text-color: $selected-label-text-color,
-  selected-pressed-icon-color: $selected-pressed-icon-color,
-  selected-pressed-label-text-color: $selected-pressed-label-text-color,
-  selected-pressed-state-layer-color: $selected-pressed-state-layer-color,
-  unselected-container-color: $unselected-container-color,
-  unselected-focused-icon-color: $unselected-focused-icon-color,
-  unselected-focused-label-text-color: $unselected-focused-label-text-color,
-  unselected-focused-state-layer-color: $unselected-focused-state-layer-color,
-  unselected-hovered-icon-color: $unselected-hovered-icon-color,
-  unselected-hovered-label-text-color: $unselected-hovered-label-text-color,
-  unselected-hovered-state-layer-color: $unselected-hovered-state-layer-color,
-  unselected-icon-color: $unselected-icon-color,
-  unselected-label-text-color: $unselected-label-text-color,
-  unselected-pressed-icon-color: $unselected-pressed-icon-color,
-  unselected-pressed-label-text-color: $unselected-pressed-label-text-color,
-  unselected-pressed-state-layer-color: $unselected-pressed-state-layer-color,
-);
+$map: (
+  'disabled-container-opacity': $disabled-container-opacity,
+  'disabled-icon-opacity': $disabled-icon-opacity,
+  'disabled-label-text-opacity': $disabled-label-text-opacity,
+  'container-elevation': $container-elevation,
+  'disabled-container-elevation': $disabled-container-elevation,
+  'focused-container-elevation': $focused-container-elevation,
+  'focused-state-layer-opacity': $focused-state-layer-opacity,
+  'hovered-state-layer-opacity': $hovered-state-layer-opacity,
+  'pressed-container-elevation': $pressed-container-elevation,
+  'pressed-state-layer-opacity': $pressed-state-layer-opacity,
+  'container-color': $container-color,
+  'container-shadow-color': $container-shadow-color,
+  'disabled-container-color': $disabled-container-color,
+  'disabled-icon-color': $disabled-icon-color,
+  'disabled-label-text-color': $disabled-label-text-color,
+  'focused-icon-color': $focused-icon-color,
+  'focused-label-text-color': $focused-label-text-color,
+  'focused-state-layer-color': $focused-state-layer-color,
+  'hovered-icon-color': $hovered-icon-color,
+  'hovered-label-text-color': $hovered-label-text-color,
+  'hovered-state-layer-color': $hovered-state-layer-color,
+  'icon-color': $icon-color,
+  'label-text-color': $label-text-color,
+  'pressed-icon-color': $pressed-icon-color,
+  'pressed-label-text-color': $pressed-label-text-color,
+  'pressed-state-layer-color': $pressed-state-layer-color,
+  'selected-container-color': $selected-container-color,
+  'selected-focused-icon-color': $selected-focused-icon-color,
+  'selected-focused-label-text-color': $selected-focused-label-text-color,
+  'selected-focused-state-layer-color': $selected-focused-state-layer-color,
+  'selected-hovered-icon-color': $selected-hovered-icon-color,
+  'selected-hovered-label-text-color': $selected-hovered-label-text-color,
+  'selected-hovered-state-layer-color': $selected-hovered-state-layer-color,
+  'selected-icon-color': $selected-icon-color,
+  'selected-label-text-color': $selected-label-text-color,
+  'selected-pressed-icon-color': $selected-pressed-icon-color,
+  'selected-pressed-label-text-color': $selected-pressed-label-text-color,
+  'selected-pressed-state-layer-color': $selected-pressed-state-layer-color,
+  'unselected-container-color': $unselected-container-color,
+  'unselected-focused-icon-color': $unselected-focused-icon-color,
+  'unselected-focused-label-text-color': $unselected-focused-label-text-color,
+  'unselected-focused-state-layer-color': $unselected-focused-state-layer-color,
+  'unselected-hovered-icon-color': $unselected-hovered-icon-color,
+  'unselected-hovered-label-text-color': $unselected-hovered-label-text-color,
+  'unselected-hovered-state-layer-color': $unselected-hovered-state-layer-color,
+  'unselected-icon-color': $unselected-icon-color,
+  'unselected-label-text-color': $unselected-label-text-color,
+  'unselected-pressed-icon-color': $unselected-pressed-icon-color,
+  'unselected-pressed-label-text-color': $unselected-pressed-label-text-color,
+  'unselected-pressed-state-layer-color': $unselected-pressed-state-layer-color,
+)

@@ -1,6 +1,7 @@
-@use 'meta' as *;
+@use 'sass:list';
+@use 'sass:map';
 @use '../utils' as *;
-@use '../../core/utils/functions' as *;
+@use 'meta' as *;
 
 @include default-state($default) {
   display: inline-flex;

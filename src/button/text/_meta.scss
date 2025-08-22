@@ -18,44 +18,24 @@ $_selected: map.get($_tokens, 'selected');
 
 $flavor: string.unquote('flavor="text"');
 
-$default: collect-vars(
-  $_default,
-  $public-vars,
-  $private-vars,
-  'md-button-text-default'
-);
+$default: collect-vars($_default, $public, $private, 'md-button-text-default');
 
-$hovered: collect-vars(
-  $_hovered,
-  $public-vars,
-  $private-vars,
-  'md-button-text-hovered'
-);
+$hovered: collect-vars($_hovered, $public, $private, 'md-button-text-hovered');
 
-$focused: collect-vars(
-  $_focused,
-  $public-vars,
-  $private-vars,
-  'md-button-text-focused'
-);
+$focused: collect-vars($_focused, $public, $private, 'md-button-text-focused');
 
-$pressed: collect-vars(
-  $_pressed,
-  $public-vars,
-  $private-vars,
-  'md-button-text-pressed'
-);
+$pressed: collect-vars($_pressed, $public, $private, 'md-button-text-pressed');
 
 $unselected: collect-vars(
   $_unselected,
-  $public-vars,
-  $private-vars,
+  $public,
+  $private,
   'md-button-text-unselected'
 );
 
 $selected: collect-vars(
   $_selected,
-  $public-vars,
-  $private-vars,
+  $public,
+  $private,
   'md-button-text-selected'
 );

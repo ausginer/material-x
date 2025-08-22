@@ -1,14 +1,12 @@
-/*
- * Tokens for the button component, according to the Material Design
- * specification: https://m3.material.io
- *
- * !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
- * !!! DO NOT MODIFY IT BY HAND !!!
- */
+/// Tokens for the button component, according to the Material Design
+/// specification: https://m3.material.io
+///
+/// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+/// !!! DO NOT MODIFY IT BY HAND !!!
 @use "sass:map";
 
-@use "md-sys-shape";
 @use "md-sys-typescale";
+@use "md-sys-shape";
 @use "md-sys-motion";
 
 $container-height: 56px;
@@ -26,19 +24,19 @@ $selected-container-shape-round: md-sys-shape.$corner-large;
 $selected-container-shape-square: md-sys-shape.$corner-full;
 $label-text: md-sys-typescale.$title-medium;
 
-$values: (
-  container-height: $container-height,
-  icon-label-space: $icon-label-space,
-  icon-size: $icon-size,
-  leading-space: $leading-space,
-  outlined-outline-width: $outlined-outline-width,
-  trailing-space: $trailing-space,
-  container-shape-round: $container-shape-round,
-  container-shape-square: $container-shape-square,
-  pressed-container-corner-size-motion-spring-damping: $pressed-container-corner-size-motion-spring-damping,
-  pressed-container-corner-size-motion-spring-stiffness: $pressed-container-corner-size-motion-spring-stiffness,
-  pressed-container-shape: $pressed-container-shape,
-  selected-container-shape-round: $selected-container-shape-round,
-  selected-container-shape-square: $selected-container-shape-square,
-  label-text: $label-text,
-);
+$map: (
+  'container-height': $container-height,
+  'icon-label-space': $icon-label-space,
+  'icon-size': $icon-size,
+  'leading-space': $leading-space,
+  'outlined-outline-width': $outlined-outline-width,
+  'trailing-space': $trailing-space,
+  'container-shape-round': $container-shape-round,
+  'container-shape-square': $container-shape-square,
+  'pressed-container-corner-size-motion-spring-damping': $pressed-container-corner-size-motion-spring-damping,
+  'pressed-container-corner-size-motion-spring-stiffness': $pressed-container-corner-size-motion-spring-stiffness,
+  'pressed-container-shape': $pressed-container-shape,
+  'selected-container-shape-round': $selected-container-shape-round,
+  'selected-container-shape-square': $selected-container-shape-square,
+  'label-text': $label-text,
+)

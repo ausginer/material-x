@@ -2,7 +2,7 @@ import {
   root,
   TokenValueType,
   type ProcessedTokenDescriptor,
-} from '../../../../.scripts/utils.ts';
+} from '../utils.ts';
 
 export type SassDeclaration = Readonly<Record<string, string | number>>;
 

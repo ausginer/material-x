@@ -1,7 +1,4 @@
-import type {
-  CubicBezier,
-  TokenColor,
-} from '../packages/m3x-builder/src/token-loader/TokenTable.ts';
+import type { CubicBezier, TokenColor } from './token-loader/TokenTable.ts';
 
 export const root: URL = new URL('../', import.meta.url);
 
@@ -76,3 +73,11 @@ export type ProcessedTokenSetDescriptor = readonly [
 export type ProcessedTokenDescriptor<
   K extends TokenValueType = TokenValueType,
 > = readonly [setName: string, name: string, token: TokenDescriptorBase<K>];
+export const rootDir: URL = new URL('../', import.meta.url);
+export const srcDir: URL = new URL('src/', rootDir);
+export const tokensDir: URL = new URL('core/tokens/', srcDir);
+export const tokensCacheDir: URL = new URL(
+  'node_modules/.cache/tokens/parsed/',
+  rootDir,
+);
+export const nodeModulesDir: URL = new URL('node_modules/', root);

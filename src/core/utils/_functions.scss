@@ -4,14 +4,6 @@
 @use 'sass:list';
 
 @function pick-unique($a, $b...) {
-  @if meta.type-of($a) != 'map' {
-    @error "Expected a map for first arguments, but got #{meta.type-of($a)}.";
-  }
-
-  @if meta.type-of($b) != 'arglist' {
-    @error "Expected a arglist for the second argument, but got #{meta.type-of($b)}.";
-  }
-
   $unique-tokens: $a;
 
   @each $map in $b {
@@ -27,46 +19,20 @@
   @return $unique-tokens;
 }
 
-@function make-public-vars($prefix, $map) {
-  $result: ();
+@function pick-unique($a, $b...) {
+  $unique-tokens: $a;
 
-  @each $name, $value in $map {
-    $result: map.set(
-      $result,
-      $name,
-      'var(--#{#{$prefix}-#{$name}}, #{$value})'
-    );
-  }
-
-  @return $result;
-}
-
-@function apply-tokens($tokens, $map) {
-  $result: ();
-
-  @each $key, $value in $map {
-    @if map.has-key($tokens, $value) {
-      $result: map.set($result, $key, map.get($tokens, $value));
-    } @else if (string.index($value, '.') != null) {
-      $parts: str-split($value, '.');
-      $parent-key: list.nth($parts, 1);
-      $child-key: list.nth($parts, 2);
-
-      @if map.has-key($tokens, $parent-key) {
-        $parent-map: map.get($tokens, $parent-key);
-
-        @if map.has-key($parent-map, $child-key) {
-          $result: map.set(
-            $result,
-            #{$parent-key}-#{$child-key},
-            map.get($parent-map, $child-key)
-          );
+  @each $map in $b {
+    @if $map != null {
+      @each $key, $value in $a {
+        @if map.has-key($map, $key) and $value == map.get($map, $key) {
+          $unique-tokens: map.remove($unique-tokens, $key);
         }
       }
     }
   }
 
-  @return $result;
+  @return $unique-tokens;
 }
 
 @mixin vars($map) {

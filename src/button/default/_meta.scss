@@ -1,101 +1,50 @@
-@use 'sass:map';
-@use 'sass:list';
-@use '../../core/defaults/motion-effects' as motion-effects;
-@use '../../core/tokens/md-comp-button' as tokens;
-@use '../../core/utils/functions' as *;
-@use '../utils' as *;
+@use 'sass:meta';
+@use '../../core/tokens/md-comp-button';
+@use '../../core/utils/map';
 @use '../vars' as *;
 
-$_common-states: ('hovered', 'focused', 'pressed', 'disabled');
-$_special-states: ('unselected', 'selected');
-$_states: list.join($_common-states, $_special-states);
-
-$_tokens: prepare-tokens(tokens.$values);
-
-$_state-map: (
-  'default': map.get($_tokens, 'default'),
-);
-
-@each $state in $_states {
-  $mapped-state: pick-unique(
-    map.get($_tokens, $state),
-    map.get($_tokens, 'default')
-  );
-
-  $_state-map: map.set($_state-map, $state, $mapped-state);
-}
-
-$default: make-public-vars(
-  'md-button-default',
-  apply-tokens(map.get($_state-map, 'default'), $public-vars)
-);
+$groups: group-buttons(md-comp-button.$map);
 
 $default: map.merge(
-  $default,
-  apply-tokens(map.get($_state-map, 'default'), $private-vars)
+  public-vars(map.get($groups, 'default'), 'md-button'),
+  private-vars(map.get($groups, 'default'))
 );
 
-$default: map.merge(
-  $default,
-  apply-tokens(
-    map.get($_state-map, 'pressed'),
-    (
-      motion-damping: 'container-corner-size-motion-spring-damping',
-      motion-stiffness: 'container-corner-size-motion-spring-stiffness',
-      ripple-color: 'state-layer-color',
-      ripple-opacity: 'state-layer-opacity',
-    )
-  )
-);
-
-$default: map.merge(
-  $default,
-  (
-    motion-duration: motion-effects.$expressive-fast-effects-duration,
-    shape-full: calc(var(--_container-height) / 2),
-    spring-factor: 0,
-    ripple-easing: motion-effects.$expressive-fast-effects,
-  )
-);
-
-$_state-var-map: ();
-
-@function collect-common-states-vars($map, $state) {
-  $state-map: map.get($map, $state);
-
-  $public-tokens: apply-tokens($state-map, $public-vars);
-  $private-tokens: apply-tokens($state-map, $private-vars);
-
-  @return map.merge(
-    make-public-vars('md-button-#{$state}', $public-tokens),
-    $private-tokens
-  );
+@function _vars-filter($item, $index, $map, $_...) {
+  @return map.get($default, $item) != map.get($map, $item);
 }
 
-@function collect-special-state-vars($map, $state) {
-  $result: ();
+$filter-callback: meta.get-function('_vars-filter');
 
-  @each $state in $_special-states {
-    @if map.has-key($map, $state) {
-      $submap: map.get($map, $state);
-      $result: map.set(
-        $result,
-        $state,
-        collect-common-states-vars($submap, $state)
-      );
-    }
-  }
+$hovered: state-vars(
+  map.get($groups, 'hovered'),
+  'md-button-hovered',
+  $filter-callback
+);
+$focused: state-vars(
+  map.get($groups, 'focused'),
+  'md-button-focused',
+  $filter-callback
+);
+$pressed: state-vars(
+  map.get($groups, 'pressed'),
+  'md-button-pressed',
+  $filter-callback
+);
+$disabled: state-vars(
+  map.get($groups, 'disabled'),
+  'md-button-disabled',
+  $filter-callback
+);
 
-  @return $result;
-}
+$unselected: special-state-vars(
+  map.get($groups, 'unselected') or (),
+  'md-button-unselected',
+  $filter-callback
+);
 
-$hovered: collect-common-states-vars($_state-map, 'hovered');
-
-@debug $hovered;
-
-$focused: collect-common-states-vars($_state-map, 'focused');
-$pressed: collect-common-states-vars($_state-map, 'pressed');
-$disabled: collect-common-states-vars($_state-map, 'disabled');
-
-// $unselected: collect-special-state-vars($_state-map, 'unselected');
-// $selected: collect-special-state-vars($_state-map, 'selected');
+$selected: special-state-vars(
+  map.get($groups, 'selected') or (),
+  'md-button-selected',
+  $filter-callback
+);

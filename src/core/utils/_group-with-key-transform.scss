@@ -1,0 +1,140 @@
+@use 'sass:meta';
+@use 'sass:map';
+@use 'sass:list';
+@use '~@sass-fairy/string/string';
+@use 'group';
+
+// Updated callback that returns both groups and transformed key
+@function state-grouper-with-key-transform($key) {
+  @if string.includes($key, 'disabled-') {
+    @return ('disabled', string.replace($key, 'disabled-', ''));
+  } @else if string.includes($key, 'focused-') {
+    @return ('focused', string.replace($key, 'focused-', ''));
+  } @else if string.includes($key, 'hovered-') {
+    @return ('hovered', string.replace($key, 'hovered-', ''));
+  } @else if string.includes($key, 'pressed-') {
+    @return ('pressed', string.replace($key, 'pressed-', ''));
+  } @else {
+    @return ('default', $key);
+  }
+}
+
+// Hierarchical callback with key transformation
+@function hierarchical-grouper-with-transform($key) {
+  $groups: ();
+  $remaining: $key;
+
+  // Level 1: Selection state
+  @if string.includes($remaining, 'selected-') {
+    $groups: list.append($groups, 'selected');
+    $remaining: string.replace($remaining, 'selected-', '');
+  } @else if string.includes($remaining, 'unselected-') {
+    $groups: list.append($groups, 'unselected');
+    $remaining: string.replace($remaining, 'unselected-', '');
+  }
+
+  // Level 2: Interaction state
+  @if string.includes($remaining, 'focused-') {
+    $groups: list.append($groups, 'focused');
+    $remaining: string.replace($remaining, 'focused-', '');
+  } @else if string.includes($remaining, 'hovered-') {
+    $groups: list.append($groups, 'hovered');
+    $remaining: string.replace($remaining, 'hovered-', '');
+  } @else if string.includes($remaining, 'pressed-') {
+    $groups: list.append($groups, 'pressed');
+    $remaining: string.replace($remaining, 'pressed-', '');
+  } @else if string.includes($remaining, 'disabled-') {
+    $groups: list.append($groups, 'disabled');
+    $remaining: string.replace($remaining, 'disabled-', '');
+  } @else {
+    $groups: list.append($groups, 'default');
+  }
+
+  @return ($groups, $remaining);
+}
+
+// Example tokens
+$tokens: (
+  'container-height': 40px,
+  'icon-size': 20px,
+  'disabled-container-opacity': 0.1,
+  'disabled-icon-opacity': 0.38,
+  'focused-state-layer-opacity': 0.12,
+  'selected-container-color': #6750a4,
+  'selected-focused-icon-color': #ffffff,
+  'unselected-hovered-background-color': #f0f0f0,
+);
+
+// Group with simple state grouper
+$simple-grouped: group.group(
+  $tokens,
+  meta.get-function('state-grouper-with-key-transform')
+);
+
+// Group with hierarchical grouper
+$hierarchical-grouped: group.group(
+  $tokens,
+  meta.get-function('hierarchical-grouper-with-transform')
+);
+
+@debug $simple-grouped;
+@debug $hierarchical-grouped;
+
+// Usage examples showing shorter keys
+.button-simple {
+  // Notice: keys are now shorter (no 'disabled-' prefix)
+  height: map.get($simple-grouped, 'default', 'container-height');
+
+  &:disabled {
+    opacity: map.get(
+      $simple-grouped,
+      'disabled',
+      'container-opacity'
+    ); // was 'disabled-container-opacity'
+  }
+
+  &:focus {
+    --layer-opacity: #{map.get(
+        $simple-grouped,
+        'focused',
+        'state-layer-opacity'
+      )}; // was 'focused-state-layer-opacity'
+  }
+}
+
+.button-hierarchical {
+  // Notice: keys are even more concise
+  height: map.get(
+    $hierarchical-grouped,
+    'default',
+    'default',
+    'container-height'
+  );
+
+  &[aria-selected='true'] {
+    background: map.get(
+      $hierarchical-grouped,
+      'selected',
+      'default',
+      'container-color'
+    ); // was 'selected-container-color'
+
+    &:focus {
+      color: map.get(
+        $hierarchical-grouped,
+        'selected',
+        'focused',
+        'icon-color'
+      ); // was 'selected-focused-icon-color'
+    }
+  }
+
+  &[aria-selected='false']:hover {
+    background: map.get(
+      $hierarchical-grouped,
+      'unselected',
+      'hovered',
+      'background-color'
+    ); // was 'unselected-hovered-background-color'
+  }
+}

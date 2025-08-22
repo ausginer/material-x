@@ -28,42 +28,42 @@ $flavor: string.unquote('flavor="outlined"');
 
 $default: collect-vars(
   $_default,
-  $public-vars,
-  $private-vars,
+  $public,
+  $private,
   'md-button-outlined-default'
 );
 
 $hovered: collect-vars(
   $_hovered,
-  $public-vars,
-  $private-vars,
+  $public,
+  $private,
   'md-button-outlined-hovered'
 );
 
 $focused: collect-vars(
   $_focused,
-  $public-vars,
-  $private-vars,
+  $public,
+  $private,
   'md-button-outlined-focused'
 );
 
 $pressed: collect-vars(
   $_pressed,
-  $public-vars,
-  $private-vars,
+  $public,
+  $private,
   'md-button-outlined-pressed'
 );
 
 $unselected: collect-vars(
   $_unselected,
-  $public-vars,
-  $private-vars,
+  $public,
+  $private,
   'md-button-outlined-unselected'
 );
 
 $selected: collect-vars(
   $_selected,
-  $public-vars,
-  $private-vars,
+  $public,
+  $private,
   'md-button-outlined-selected'
 );

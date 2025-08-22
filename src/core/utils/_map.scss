@@ -1,6 +1,21 @@
 @use 'sass:meta';
+@use 'sass:list';
+@use 'sass:map';
+
 @forward 'sass:map';
 
 @function size($map) {
-  @return map-size($map);
+  @return list.length(map.keys($map));
+}
+
+@function filter($map, $callback, $args...) {
+  $result: ();
+
+  @each $key, $value in $map {
+    @if meta.call($callback, $key, $value, $map, $args...) {
+      $result: map.set($result, $key, $value);
+    }
+  }
+
+  @return $result;
 }

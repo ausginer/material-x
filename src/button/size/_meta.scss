@@ -21,12 +21,7 @@
       $size-tokens: map.set(
         $size-tokens,
         $state,
-        collect-vars(
-          $state-tokens,
-          $public-vars,
-          $private-vars,
-          'md-button-#{state}'
-        )
+        collect-vars($state-tokens, $public, $private, 'md-button-#{state}')
       );
     }
 
