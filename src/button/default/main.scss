@@ -9,8 +9,7 @@
   user-select: none;
   background-color: var(--_container-color);
   color: var(--_label-text-color);
-  // prettier-ignore
-  padding-block: calc((var(--_container-height) - max(var(--_icon-size), var(--_label-text-line-height))) / 2);
+  padding-block: var(--_padding-block);
   padding-inline-start: var(--_leading-space);
   padding-inline-end: var(--_trailing-space);
   border-radius: calc(

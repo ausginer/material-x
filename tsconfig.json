@@ -31,5 +31,11 @@
       }
     ]
   },
-  "include": ["./.scripts/**/*.ts", "src", "types.d.ts", "vite.config.ts"]
+  "include": [
+    "./.storybook/**/*.ts",
+    "./.scripts/**/*.ts",
+    "src",
+    "types.d.ts",
+    "vite.config.ts"
+  ]
 }

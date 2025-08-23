@@ -145,7 +145,7 @@ export default function processSingle(
     } = shape;
 
     if (family === TokenShapeFamily.FULL) {
-      return { order, value: `9999px` };
+      return { order, value: 'full' };
     } else {
       if (defaultSize?.value != null) {
         return { order, value: `${defaultSize.value ?? 0}px` };

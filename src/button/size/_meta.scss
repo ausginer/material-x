@@ -33,37 +33,40 @@ $filter-callback: meta.get-function('_unique-variables-filter');
   );
 
   @return (
-    'default': $default,
-    'hovered': state-vars(
-        map.get($groups, 'hovered') or (),
-        'md-#{$key}-button-hovered',
-        $filter-callback,
-        $default
-      ),
-    'focused': state-vars(
-        map.get($groups, 'focused') or (),
-        'md-#{$key}-button-focused',
-        $filter-callback,
-        $default
-      ),
-    'pressed': state-vars(
-        map.get($groups, 'pressed') or (),
-        'md-#{$key}-button-pressed',
-        $filter-callback,
-        $default
-      ),
-    'unselected': special-state-vars(
-        map.get($groups, 'unselected') or (),
-        'md-#{$key}-button-unselected',
-        $filter-callback,
-        $default
-      ),
-    'selected': special-state-vars(
-        map.get($groups, 'selected') or (),
-        'md-#{$key}-button-selected',
-        $filter-callback,
-        $default
-      )
+    $key,
+    (
+      'default': $default,
+      'hovered': state-vars(
+          map.get($groups, 'hovered') or (),
+          'md-#{$key}-button-hovered',
+          $filter-callback,
+          $default
+        ),
+      'focused': state-vars(
+          map.get($groups, 'focused') or (),
+          'md-#{$key}-button-focused',
+          $filter-callback,
+          $default
+        ),
+      'pressed': state-vars(
+          map.get($groups, 'pressed') or (),
+          'md-#{$key}-button-pressed',
+          $filter-callback,
+          $default
+        ),
+      'unselected': special-state-vars(
+          map.get($groups, 'unselected') or (),
+          'md-#{$key}-button-unselected',
+          $filter-callback,
+          $default
+        ),
+      'selected': special-state-vars(
+          map.get($groups, 'selected') or (),
+          'md-#{$key}-button-selected',
+          $filter-callback,
+          $default
+        )
+    )
   );
 }
 

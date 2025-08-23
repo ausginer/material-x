@@ -3,38 +3,6 @@
 @use 'sass:string';
 @use 'sass:list';
 
-@function pick-unique($a, $b...) {
-  $unique-tokens: $a;
-
-  @each $map in $b {
-    @if $map != null {
-      @each $key, $value in $a {
-        @if map.has-key($map, $key) and $value == map.get($map, $key) {
-          $unique-tokens: map.remove($unique-tokens, $key);
-        }
-      }
-    }
-  }
-
-  @return $unique-tokens;
-}
-
-@function pick-unique($a, $b...) {
-  $unique-tokens: $a;
-
-  @each $map in $b {
-    @if $map != null {
-      @each $key, $value in $a {
-        @if map.has-key($map, $key) and $value == map.get($map, $key) {
-          $unique-tokens: map.remove($unique-tokens, $key);
-        }
-      }
-    }
-  }
-
-  @return $unique-tokens;
-}
-
 @mixin vars($map) {
   @each $key, $value in $map {
     --_#{$key}: #{$value};

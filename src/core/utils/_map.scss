@@ -29,11 +29,11 @@
   $result: ();
 
   @each $key, $value in $map {
-    $result: map.set(
-      $result,
-      $key,
-      meta.call($callback, $key, $value, $map, $args...)
-    );
+    $output: meta.call($callback, $key, $value, $map, $args...);
+    $transformed-key: list.nth($output, 1);
+    $transformed-value: list.nth($output, 2);
+
+    $result: map.set($result, $transformed-key, $transformed-value);
   }
 
   @return $result;

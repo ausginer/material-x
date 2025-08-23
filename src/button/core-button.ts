@@ -1,6 +1,6 @@
 import RippleAnimationController from '../core/animations/ripple.ts';
 import SpringAnimationController from '../core/animations/spring.ts';
-import CoreElement from '../core/elements/core.ts';
+import CoreElement, { use } from '../core/elements/core.ts';
 import elevationStyles from '../core/elevation/elevation.scss' with { type: 'css' };
 import defaultDisabledStyles from './default/disabled.scss' with { type: 'css' };
 import defaultButtonStyles from './default/main.scss' with { type: 'css' };
@@ -22,15 +22,16 @@ export default class CoreButton extends CoreElement {
     template: HTMLTemplateElement,
     role: ARIAMixin['role'],
     styles: CSSStyleSheet[],
+    init?: Partial<ShadowRootInit>,
   ) {
-    super(template, { role }, [
-      defaultButtonStyles,
-      elevationStyles,
-      ...styles,
-      defaultDisabledStyles,
-    ]);
+    super(
+      template,
+      { role },
+      [defaultButtonStyles, elevationStyles, ...styles, defaultDisabledStyles],
+      init,
+    );
     this.tabIndex = 0;
-    this.use(SpringAnimationController);
-    this.use(RippleAnimationController);
+    use(this, SpringAnimationController);
+    use(this, RippleAnimationController);
   }
 }

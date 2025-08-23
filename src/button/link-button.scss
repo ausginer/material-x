@@ -2,7 +2,12 @@
   padding: 0;
 }
 
+:host(:focus-visible) {
+  outline: none;
+}
+
 a {
+  border-radius: inherit;
   color: inherit;
   cursor: inherit;
   text-decoration: inherit;
@@ -10,4 +15,9 @@ a {
   padding-inline-start: var(--_leading-space);
   padding-inline-end: var(--_trailing-space);
   user-select: none;
+}
+
+a:focus-visible {
+  outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
+  outline-offset: var(--_focus-indicator-outline-offset);
 }

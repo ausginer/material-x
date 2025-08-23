@@ -1,9 +1,11 @@
+import type { ReactiveController } from './reactive-controller.ts';
+
 const AriaMapping = {
   checked: 'ariaChecked',
   disabled: 'ariaDisabled',
 } as const;
 
-export default class AriaController {
+export default class AriaController implements ReactiveController {
   readonly #internals: ARIAMixin;
 
   constructor(_: HTMLElement, internals: ARIAMixin) {

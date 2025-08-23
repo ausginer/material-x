@@ -13,14 +13,19 @@ $default: map.merge(
     private-vars(map.get($groups, 'default'))
   ),
   (
-    'container-shape-default': calc(var(--_container-height) / 2),
-    'container-shape-pressed': map.get(
-        $groups,
-        'default',
-        'container-shape-square'
-      ),
+    'container-shape-default': var(--_container-shape-round),
+    'container-shape-pressed': var(--_container-shape-square),
     'state-layer-opacity': map.get($groups, 'pressed', 'state-layer-opacity'),
     'state-layer-color': map.get($groups, 'pressed', 'state-layer-color'),
+    'padding-block': calc(
+        (
+            var(--_container-height) - max(
+                var(--_icon-size),
+                var(--_label-text-line-height)
+              )
+          ) /
+          2
+      ),
     'motion-damping': map.get(
         $groups,
         'pressed',

@@ -3,9 +3,7 @@
 ///
 /// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
 /// !!! DO NOT MODIFY IT BY HAND !!!
-@use "sass:map";
-
-
+@use 'sass:map';
 
 $corner-value-extra-extra-large: 48px;
 $corner-value-extra-large: 28px;
@@ -32,7 +30,7 @@ $corner-extra-small-top: (
   'bottom-right': 0px,
   'bottom-left': 0px,
 );
-$corner-full: 9999px;
+$corner-full: full;
 $corner-large: 16px;
 $corner-large-increased: 20px;
 $corner-large-end: (
@@ -87,4 +85,4 @@ $map: (
   'corner-medium': $corner-medium,
   'corner-none': $corner-none,
   'corner-small': $corner-small,
-)
+);

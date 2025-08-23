@@ -7,6 +7,15 @@ import { buildDefaultThemeSass, loadTheme } from './materialTheme.ts';
 import processSingle from './processSingle.ts';
 import { COLLATOR, getSetName, HEADER, sassName } from './utils.ts';
 
+const overridableSets = ['md.ref.typeface'];
+
+function makeOverridableIfFits(key: string, value: string, setName: string) {
+  if (overridableSets.includes(setName)) {
+    return `var(--${key}, ${value})`;
+  }
+  return value;
+}
+
 await Promise.all([
   mkdir(tokensDir, { recursive: true }),
   mkdir(tokensCacheDir, { recursive: true }),
@@ -66,7 +75,7 @@ await Promise.all([
           ([name, { value }]) =>
             `$${sassName(name.substring(setName.length + 1))}: ${
               typeof value === 'string'
-                ? value
+                ? makeOverridableIfFits(sassName(name), value, setName)
                 : `(\n${Object.entries(value)
                     .map(([key, value]) =>
                       value == null ? null : ([key, value] as const),
