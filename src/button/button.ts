@@ -4,6 +4,7 @@ import mainElevatedStyles from './elevated/main.scss' with { type: 'css' };
 import mainOutlinedStyles from './outlined/main.scss' with { type: 'css' };
 import mainSizeStyles from './size/main.scss' with { type: 'css' };
 import mainTextStyles from './text/main.scss' with { type: 'css' };
+import tonalTextStyles from './tonal/main.scss' with { type: 'css' };
 
 const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
 
@@ -22,6 +23,7 @@ export default class Button extends CoreButton {
       mainOutlinedStyles,
       mainSizeStyles,
       mainTextStyles,
+      tonalTextStyles,
     ]);
   }
 }

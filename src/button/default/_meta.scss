@@ -1,20 +1,49 @@
 @use 'sass:meta';
 @use '../../core/tokens/md-comp-button';
+@use '../../core/defaults/motion-effects';
 @use '../../core/utils/map';
+@use '../utils' as *;
 @use '../vars' as *;
 
 $groups: group-buttons(md-comp-button.$map);
 
 $default: map.merge(
-  public-vars(map.get($groups, 'default'), 'md-button'),
-  private-vars(map.get($groups, 'default'))
+  map.merge(
+    public-vars(map.get($groups, 'default'), 'md-button'),
+    private-vars(map.get($groups, 'default'))
+  ),
+  (
+    'container-shape-default': calc(var(--_container-height) / 2),
+    'container-shape-pressed': map.get(
+        $groups,
+        'default',
+        'container-shape-square'
+      ),
+    'state-layer-opacity': map.get($groups, 'pressed', 'state-layer-opacity'),
+    'state-layer-color': map.get($groups, 'pressed', 'state-layer-color'),
+    'motion-damping': map.get(
+        $groups,
+        'pressed',
+        'container-corner-size-motion-spring-damping'
+      ),
+    'motion-stiffness': map.get(
+        $groups,
+        'pressed',
+        'container-corner-size-motion-spring-stiffness'
+      ),
+    'motion-duration': motion-effects.$expressive-fast-effects-duration,
+    'ripple-color': map.get($groups, 'pressed', 'state-layer-color'),
+    'ripple-easing': motion-effects.$expressive-fast-effects,
+    'ripple-opacity': map.get($groups, 'pressed', 'state-layer-opacity'),
+    'spring-factor': 0,
+  )
 );
 
-@function _vars-filter($item, $index, $map, $_...) {
-  @return map.get($default, $item) != map.get($map, $item);
+@function _unique-variables-filter($key, $value, $_...) {
+  @return $value != map.get($default, $key);
 }
 
-$filter-callback: meta.get-function('_vars-filter');
+$filter-callback: meta.get-function('_unique-variables-filter');
 
 $hovered: state-vars(
   map.get($groups, 'hovered'),

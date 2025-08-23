@@ -1,41 +1,63 @@
-@use 'sass:map';
+@use 'sass:meta';
 @use 'sass:string';
-@use '../../core/tokens/md-comp-button' as default-tokens;
-@use '../../core/tokens/md-comp-button-text' as tokens;
-@use '../../core/utils/functions' as *;
-@use '../vars' as *;
+@use '../../core/tokens/md-comp-button-text';
+@use '../../core/utils/map';
+@use '../default/meta' as default;
 @use '../utils' as *;
+@use '../vars' as *;
 
-$_tokens: prepare-tokens(pick-unique(tokens.$values, default-tokens.$values));
+$flavor: 'text';
 
-$_default: map.get($_tokens, 'default');
-$_hovered: map.get($_tokens, 'hovered');
-$_focused: map.get($_tokens, 'focused');
-$_pressed: map.get($_tokens, 'pressed');
-$_disabled: map.get($_tokens, 'disabled');
-$_unselected: map.get($_tokens, 'unselected');
-$_selected: map.get($_tokens, 'selected');
+$groups: group-buttons(md-comp-button-text.$map);
 
-$flavor: string.unquote('flavor="text"');
+@function _unique-variables-filter-default($key, $value, $_...) {
+  @return $value != map.get(default.$default, $key);
+}
 
-$default: collect-vars($_default, $public, $private, 'md-button-text-default');
-
-$hovered: collect-vars($_hovered, $public, $private, 'md-button-text-hovered');
-
-$focused: collect-vars($_focused, $public, $private, 'md-button-text-focused');
-
-$pressed: collect-vars($_pressed, $public, $private, 'md-button-text-pressed');
-
-$unselected: collect-vars(
-  $_unselected,
-  $public,
-  $private,
-  'md-button-text-unselected'
+$default: map.filter(
+  map.merge(
+    public-vars(map.get($groups, 'default'), 'md-#{$flavor}-button'),
+    private-vars(
+      map.get($groups, 'default'),
+      (
+        'container-color': transparent,
+      )
+    )
+  ),
+  meta.get-function('_unique-variables-filter-default')
 );
 
-$selected: collect-vars(
-  $_selected,
-  $public,
-  $private,
-  'md-button-text-selected'
+@function _unique-variables-filter($key, $value, $_...) {
+  @return $value != map.get($default, $key) and $value !=
+    map.get(default.$default, $key);
+}
+
+$filter-callback: meta.get-function('_unique-variables-filter');
+
+$hovered: state-vars(
+  map.get($groups, 'hovered'),
+  'md-#{$flavor}-button-hovered',
+  $filter-callback
+);
+$focused: state-vars(
+  map.get($groups, 'focused'),
+  'md-#{$flavor}-button-focused',
+  $filter-callback
+);
+$pressed: state-vars(
+  map.get($groups, 'pressed'),
+  'md-#{$flavor}-button-pressed',
+  $filter-callback
+);
+
+$unselected: special-state-vars(
+  map.get($groups, 'unselected') or (),
+  'md-#{$flavor}-button-unselected',
+  $filter-callback
+);
+
+$selected: special-state-vars(
+  map.get($groups, 'selected') or (),
+  'md-#{$flavor}-button-selected',
+  $filter-callback
 );

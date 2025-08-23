@@ -1,14 +1,14 @@
 @use 'sass:meta';
 @use 'sass:string';
-@use '../../core/tokens/md-comp-button-outlined';
+@use '../../core/tokens/md-comp-button-tonal';
 @use '../../core/utils/map';
 @use '../default/meta' as default;
 @use '../utils' as *;
 @use '../vars' as *;
 
-$flavor: 'outlined';
+$flavor: 'tonal';
 
-$groups: group-buttons(md-comp-button-outlined.$map);
+$groups: group-buttons(md-comp-button-tonal.$map);
 
 @function _unique-variables-filter-default($key, $value, $_...) {
   @return $value != map.get(default.$default, $key);
@@ -20,8 +20,12 @@ $default: map.filter(
     private-vars(
       map.get($groups, 'default'),
       (
-        'container-color': transparent,
-        'outline-width': 1px,
+        'state-layer-opacity': map.get(
+            $groups,
+            'pressed',
+            'state-layer-opacity'
+          ),
+        'state-layer-color': map.get($groups, 'pressed', 'state-layer-color'),
       )
     )
   ),

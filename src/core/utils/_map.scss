@@ -2,10 +2,15 @@
 @use 'sass:list';
 @use 'sass:map';
 
+@forward '~@sass-fairy/map';
 @forward 'sass:map';
 
 @function size($map) {
   @return list.length(map.keys($map));
+}
+
+@function is-empty($map) {
+  @return size($map) == 0;
 }
 
 @function filter($map, $callback, $args...) {
@@ -15,6 +20,20 @@
     @if meta.call($callback, $key, $value, $map, $args...) {
       $result: map.set($result, $key, $value);
     }
+  }
+
+  @return $result;
+}
+
+@function map($map, $callback, $args...) {
+  $result: ();
+
+  @each $key, $value in $map {
+    $result: map.set(
+      $result,
+      $key,
+      meta.call($callback, $key, $value, $map, $args...)
+    );
   }
 
   @return $result;

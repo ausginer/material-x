@@ -1,73 +1,63 @@
 @use 'sass:meta';
+@use 'sass:string';
 @use '../../core/tokens/md-comp-button-elevated';
 @use '../../core/utils/map';
+@use '../default/meta' as default;
+@use '../utils' as *;
 @use '../vars' as *;
+
+$flavor: 'elevated';
 
 $groups: group-buttons(md-comp-button-elevated.$map);
 
-$default: map.merge(
-  public-vars(map.get($groups, 'default'), 'md-button'),
-  private-vars(map.get($groups, 'default'))
-);
-
-@function _vars-filter($key, $index, $map, $_...) {
-  @return map.get($default, $key) != map.get($map, $key);
+@function _unique-variables-filter-default($key, $value, $_...) {
+  @return $value != map.get(default.$default, $key);
 }
 
-$filter-callback: meta.get-function('_vars-filter');
-
-$_tokens: prepare-tokens(pick-unique(tokens.$values, default-tokens.$values));
-
-$flavor: string.unquote('flavor="elevated"');
-
-$_default: map.get($_tokens, 'default');
-$_hovered: pick-unique(map.get($_tokens, 'hovered'), $_default);
-$_focused: pick-unique(map.get($_tokens, 'focused'), $_default);
-$_pressed: pick-unique(map.get($_tokens, 'pressed'), $_default);
-$_disabled: pick-unique(map.get($_tokens, 'disabled'), $_default);
-$_unselected: pick-unique(map.get($_tokens, 'unselected'), $_default);
-$_selected: pick-unique(map.get($_tokens, 'selected'), $_default);
-
-$private-vars: map.set($private-vars, 'level', 'container-elevated');
-
-$default: collect-vars(
-  $_default,
-  $public,
-  $private-vars,
-  'md-button-elevated-default'
+$default: map.filter(
+  map.merge(
+    public-vars(map.get($groups, 'default'), 'md-#{$flavor}-button'),
+    private-vars(
+      map.get($groups, 'default'),
+      (
+        'level': var(--_container-elevation),
+      )
+    )
+  ),
+  meta.get-function('_unique-variables-filter-default')
 );
 
-$hovered: collect-vars(
-  $_hovered,
-  $public,
-  $private-vars,
-  'md-button-elevated-hovered'
+@function _unique-variables-filter($key, $value, $_...) {
+  @return $value != map.get($default, $key) and $value !=
+    map.get(default.$default, $key);
+}
+
+$filter-callback: meta.get-function('_unique-variables-filter');
+
+$hovered: state-vars(
+  map.get($groups, 'hovered'),
+  'md-#{$flavor}-button-hovered',
+  $filter-callback
+);
+$focused: state-vars(
+  map.get($groups, 'focused'),
+  'md-#{$flavor}-button-focused',
+  $filter-callback
+);
+$pressed: state-vars(
+  map.get($groups, 'pressed'),
+  'md-#{$flavor}-button-pressed',
+  $filter-callback
 );
 
-$focused: collect-vars(
-  $_focused,
-  $public,
-  $private-vars,
-  'md-button-elevated-focused'
+$unselected: special-state-vars(
+  map.get($groups, 'unselected') or (),
+  'md-#{$flavor}-button-unselected',
+  $filter-callback
 );
 
-$pressed: collect-vars(
-  $_pressed,
-  $public,
-  $private-vars,
-  'md-button-elevated-pressed'
-);
-
-$unselected: collect-vars(
-  $_unselected,
-  $public,
-  $private-vars,
-  'md-button-elevated-unselected'
-);
-
-$selected: collect-vars(
-  $_selected,
-  $public,
-  $private-vars,
-  'md-button-elevated-selected'
+$selected: special-state-vars(
+  map.get($groups, 'selected') or (),
+  'md-#{$flavor}-button-selected',
+  $filter-callback
 );

@@ -3,6 +3,7 @@
 @use 'meta' as *;
 
 @each $size, $tokens in $sizes {
+  $size: size($size);
   @include default-state(map.get($tokens, 'default'), $size);
   @include hovered-state(map.get($tokens, 'hovered'), $size);
   @include focused-state(map.get($tokens, 'focused'), $size);

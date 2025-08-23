@@ -1,8 +1,11 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
+$flavor: flavor($flavor);
+
 @include default-state($default, $flavor) {
-  &::before, &::after {
+  &::before,
+  &::after {
     content: '';
   }
 }

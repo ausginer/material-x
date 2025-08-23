@@ -7,6 +7,7 @@ import mainOutlinedStyles from './outlined/main.scss' with { type: 'css' };
 import switchOutlinedStyles from './outlined/switch.scss' with { type: 'css' };
 import mainSizeStyles from './size/main.scss' with { type: 'css' };
 import switchSizeStyles from './size/switch.scss' with { type: 'css' };
+import switchTonalStyles from './tonal/switch.scss' with { type: 'css' };
 
 const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
 
@@ -31,6 +32,7 @@ export default class SwitchButton extends CoreButton {
       switchElevatedStyles,
       switchOutlinedStyles,
       switchSizeStyles,
+      switchTonalStyles,
     ]);
   }
 }

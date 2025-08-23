@@ -18,8 +18,10 @@
       (var(--_container-shape-default) - var(--_container-shape-pressed)) *
       var(--_spring-factor)
   );
-  font: var(--_label-text-weight) var(--_label-text-size) /
-    var(--_label-text-line-height) var(--_label-text-font);
+  font-weight: var(--_label-text-weight);
+  font-size: var(--_label-text-size);
+  line-height: var(--_label-text-line-height);
+  font-family: var(--_label-text-font);
   place-items: center;
   place-content: center;
   position: relative;
@@ -40,7 +42,8 @@
   outline-offset: var(--_focus-indicator-outline-offset);
 }
 
-@include pressed-state($pressed);
+@include pressed-state($pressed) {
+}
 
 slot[name='icon'] {
   color: var(--_icon-color);

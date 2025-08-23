@@ -2,6 +2,7 @@
 @use 'sass:string';
 @use '../core/utils/functions' as *;
 @use '../core/utils/map';
+@use 'vars' as *;
 
 $_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
 
@@ -39,12 +40,12 @@ $_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
   @return _append-host-params($params);
 }
 
-@function state-vars($group, $prefix, $filter-callback) {
+@function state-vars($group, $prefix, $filter-callback, $args...) {
   $base: map.merge(public-vars($group, $prefix), private-vars($group));
-  @return map.filter($base, $filter-callback);
+  @return map.filter($base, $filter-callback, $args...);
 }
 
-@function special-state-vars($group, $prefix, $filter-callback) {
+@function special-state-vars($group, $prefix, $filter-callback, $args...) {
   $states: ('default', 'hovered', 'focused', 'pressed');
 
   $result: ();
@@ -56,7 +57,8 @@ $_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
       state-vars(
         map.get($group, $state) or (),
         '#{$prefix}-#{$state}',
-        $filter-callback
+        $filter-callback,
+        $args...
       )
     );
   }
@@ -67,7 +69,7 @@ $_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
 @mixin _state($vars, $state, $params...) {
   $host: _host-state($state, $params...);
 
-  @if map.size($vars) > 0 {
+  @if not map.is-empty($vars) {
     #{$host} {
       @include vars($vars);
       @content;
@@ -123,4 +125,12 @@ $_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
       @content ($state);
     }
   }
+}
+
+@function flavor($flavor) {
+  @return 'flavor="#{$flavor}"';
+}
+
+@function size($size) {
+  @return 'size="#{$size}"';
 }

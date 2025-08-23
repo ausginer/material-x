@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { compileAsync, type CanonicalizeContext } from 'sass-embedded';
-import { nodeModulesDir, root } from './utils.ts';
+import { compileAsync } from 'sass-embedded';
+import { findFileUrl, root } from './utils.ts';
 
 const {
   positionals: [inputFile],
@@ -16,22 +16,7 @@ if (!inputFile) {
 const inputPath = fileURLToPath(new URL(inputFile, root));
 
 const result = await compileAsync(inputPath, {
-  importers: [
-    {
-      findFileUrl(
-        url: string,
-        { containingUrl }: CanonicalizeContext,
-      ): URL | null {
-        if (url.startsWith('~')) {
-          return new URL(url.substring(1), nodeModulesDir);
-        } else if (containingUrl?.pathname.includes('node_modules/')) {
-          return new URL(url, nodeModulesDir);
-        }
-
-        return null;
-      },
-    },
-  ],
+  importers: [{ findFileUrl }],
 });
 
 console.log(result.css);

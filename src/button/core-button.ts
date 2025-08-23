@@ -5,7 +5,12 @@ import elevationStyles from '../core/elevation/elevation.scss' with { type: 'css
 import defaultDisabledStyles from './default/disabled.scss' with { type: 'css' };
 import defaultButtonStyles from './default/main.scss' with { type: 'css' };
 
-export type ButtonFlavor = 'outlined' | 'filled-tonal' | 'elevated' | 'text';
+export type ButtonFlavor =
+  | 'outlined'
+  | 'filled-tonal'
+  | 'elevated'
+  | 'text'
+  | 'tonal';
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 
 /**

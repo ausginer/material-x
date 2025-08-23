@@ -5,6 +5,7 @@ import linkButtonStyles from './link-button.scss' with { type: 'css' };
 import mainOutlinedStyles from './outlined/main.scss' with { type: 'css' };
 import mainSizeStyles from './size/main.scss' with { type: 'css' };
 import mainTextStyles from './text/main.scss' with { type: 'css' };
+import tonalTextStyles from './tonal/main.scss' with { type: 'css' };
 
 const TEMPLATE = template`<a tabindex="-1"><slot name="icon"></slot><slot></slot></a>`;
 
@@ -24,6 +25,7 @@ export default class LinkButton extends CoreButton {
       mainSizeStyles,
       mainTextStyles,
       linkButtonStyles,
+      tonalTextStyles,
     ]);
   }
 }

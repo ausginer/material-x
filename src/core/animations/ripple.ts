@@ -1,7 +1,7 @@
 import type { TypedObjectConstructor } from '../../interfaces.ts';
 import { template } from '../../utils.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
-import { createRem, CSSVariableError, type Point } from '../utils.ts';
+import { CSSVariableError, type Point } from '../utils.ts';
 import css from './ripple.scss' with { type: 'css' };
 
 // States of the ripple animation controller
@@ -120,7 +120,6 @@ export default class RippleAnimationController implements ReactiveController {
   #animation: Animation | undefined;
   #easing: string | undefined;
   #startEvent: PointerEvent | null = null;
-  #rem?: (value: number) => string;
 
   constructor(host: HTMLElement) {
     this.#host = host;
@@ -131,8 +130,6 @@ export default class RippleAnimationController implements ReactiveController {
 
   connected(): void {
     const host = this.#host;
-    const { fontSize } = getComputedStyle(document.documentElement);
-    this.#rem = createRem(parseFloat(fontSize));
 
     this.#easing = getComputedStyle(host)
       .getPropertyValue(RIPPLE_EASING_VAR_NAME)
@@ -267,7 +264,6 @@ export default class RippleAnimationController implements ReactiveController {
 
   #startAnimation(): void {
     const host = this.#host;
-    const rem = this.#rem!;
     const rect = host.getBoundingClientRect();
 
     this.#animation?.cancel();
@@ -279,9 +275,11 @@ export default class RippleAnimationController implements ReactiveController {
       this.#startEvent,
     );
 
+    const pxSize = `${size}px`;
+
     this.#animation = this.#rippleElement.animate(
       {
-        '--_ripple-size': [rem(size), rem(size)],
+        '--_ripple-size': [pxSize, pxSize],
         transform: [
           `translate(${startPoint.x}px,${startPoint.y}px) scale(1)`,
           `translate(${endPoint.x}px,${endPoint.y}px) scale(${scale})`,

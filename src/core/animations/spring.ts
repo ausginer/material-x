@@ -15,10 +15,8 @@ function createSpringKeyframes(
   /**
    * Duration in milliseconds.
    */
-  durationMs: number,
+  duration: number,
 ): readonly number[] {
-  const durationSec = durationMs / 1000;
-
   // degrees per second -> radians per second (omega_n)
   const stiffnessOmegaN = stiffness * (Math.PI / 180);
 
@@ -29,7 +27,7 @@ function createSpringKeyframes(
   const frameAmount = 100; // Number of frames to generate
 
   return Array.from({ length: frameAmount }, (_, i) => {
-    const t = (i / frameAmount) * durationSec; // Time of the current frame
+    const t = (i / frameAmount) * duration; // Time of the current frame
 
     const distance =
       damping >= 1
@@ -65,7 +63,13 @@ export default class SpringAnimationController implements ReactiveController {
       '--_motion-stiffness',
       '--_motion-duration',
     ].map((variable) => {
-      const result = parseFloat(styles.getPropertyValue(variable).trim());
+      const value = styles.getPropertyValue(variable).trim();
+      let result = parseFloat(value);
+
+      if (value.endsWith('ms')) {
+        result = result / 1000;
+      }
+
       if (isNaN(result)) {
         throw new CSSVariableError(variable, host);
       }
@@ -76,7 +80,7 @@ export default class SpringAnimationController implements ReactiveController {
 
     const animation = host.animate(
       keyframes.map((frame) => ({ '--_spring-factor': frame })),
-      { duration: 150, fill: 'forwards' },
+      { duration: duration! * 1000, fill: 'forwards' },
     );
 
     animation.pause();

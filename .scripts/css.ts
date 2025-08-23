@@ -1,22 +1,13 @@
 import { basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import pxToRem from '@minko-fe/postcss-pxtorem';
-import cssnanoPlugin from 'cssnano';
+import { transform } from 'lightningcss';
 import MagicString from 'magic-string';
-import postcss from 'postcss';
 import type { SourceMap } from 'rollup';
-import { type CanonicalizeContext, compileStringAsync } from 'sass-embedded';
+import { compileStringAsync } from 'sass-embedded';
 // eslint-disable-next-line import-x/no-unresolved
 import * as sorcery from 'sorcery';
 import functions from './sass-functions.js';
-
-const cssTransformer = postcss([
-  pxToRem({
-    unitPrecision: 3,
-    propList: ['*'],
-  }),
-  cssnanoPlugin(),
-]);
+import { findFileUrl } from './utils.js';
 
 export type CSSImportParseResult = Readonly<{
   code: string;
@@ -58,8 +49,8 @@ function createSourcePath(previousURL: URL, ext: string) {
   );
 }
 
-const root = new URL('../', import.meta.url);
-const nodeModules = new URL('node_modules/', root);
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
 
 export async function compileCSS(
   url: URL,
@@ -72,34 +63,30 @@ export async function compileCSS(
     {
       url,
       functions,
-      importers: [
-        {
-          findFileUrl(
-            url: string,
-            { containingUrl }: CanonicalizeContext,
-          ): URL | null {
-            if (url.startsWith('~')) {
-              return new URL(url.substring(1), nodeModules);
-            } else if (containingUrl?.pathname.includes('node_modules/')) {
-              return new URL(url, nodeModules);
-            }
-
-            return null;
-          },
-        },
-      ],
+      importers: [{ findFileUrl }],
     },
   );
 
-  const [secondProcessedCode, secondProcessedMap] = await cssTransformer
-    .process(firstProcessedCode, {
-      map: {
-        inline: false,
-        annotation: false,
+  const { code: _secondProcessedCode, map: _secondProcessedSourceMap } =
+    transform({
+      filename: basename(path),
+      code: encoder.encode(firstProcessedCode),
+      minify: true,
+      sourceMap: true,
+      visitor: {
+        StyleSheet(ss) {
+          return {
+            ...ss,
+            licenseComments: [],
+          };
+        },
       },
-      from: path,
-    })
-    .then(({ content: c, map }) => [c, map.toJSON()] as const);
+    });
+
+  const secondProcessedCode = decoder.decode(_secondProcessedCode);
+  const secondProcessedMap = JSON.parse(
+    decoder.decode(_secondProcessedSourceMap!),
+  );
 
   if (!secondProcessedCode) {
     return {

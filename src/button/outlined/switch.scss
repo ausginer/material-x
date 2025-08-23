@@ -1,5 +1,5 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
-@include unselected-states($unselected, $flavor) using ($state);
-@include selected-states($selected, $flavor) using ($state);
+@include unselected-states($unselected, $flavor) using ($state) {}
+@include selected-states($selected, $flavor) using ($state) {}

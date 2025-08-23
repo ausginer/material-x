@@ -38,7 +38,7 @@ const meta: Meta<ButtonProps> = {
     flavor: {
       control: {
         type: 'select',
-        options: ['outlined', 'filled-tonal', 'elevated', 'text'],
+        options: ['outlined', 'filled-tonal', 'elevated', 'tonal', 'text'],
       },
     },
     label: {
@@ -90,6 +90,13 @@ export const Text: ButtonStories = {
   args: {
     flavor: 'text',
     label: 'Text Button',
+  },
+};
+
+export const Tonal: ButtonStories = {
+  args: {
+    flavor: 'tonal',
+    label: 'Tonal Button',
   },
 };
 

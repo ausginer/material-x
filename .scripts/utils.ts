@@ -1,3 +1,4 @@
+import type { CanonicalizeContext } from 'sass-embedded';
 import type { CubicBezier, TokenColor } from './token-loader/TokenTable.ts';
 
 export const root: URL = new URL('../', import.meta.url);
@@ -81,3 +82,16 @@ export const tokensCacheDir: URL = new URL(
   rootDir,
 );
 export const nodeModulesDir: URL = new URL('node_modules/', root);
+
+export function findFileUrl(
+  url: string,
+  { containingUrl }: CanonicalizeContext,
+): URL | null {
+  if (url.startsWith('~')) {
+    return new URL(import.meta.resolve(url.substring(1)));
+  } else if (containingUrl?.pathname.includes('node_modules/')) {
+    return new URL(import.meta.resolve(url, containingUrl));
+  }
+
+  return null;
+}
