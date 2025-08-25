@@ -1,7 +1,12 @@
 import type DB from './DB.ts';
 import type DependencyManager from './DependencyManager.ts';
 import { TextTransform, TokenShapeFamily, type Token } from './TokenTable.ts';
-import { camelCaseToKebabCase, getSetName, sassName } from './utils.ts';
+import {
+  camelCaseToKebabCase,
+  getSetName,
+  rgbaToHex,
+  sassName,
+} from './utils.ts';
 
 export type TransformResult = Readonly<{
   order: number;
@@ -116,17 +121,17 @@ export default function processSingle(
       red = 0,
       green = 0,
       blue = 0,
-      alpha,
+      alpha = 255,
     } = Object.fromEntries(
       Object.entries<number | undefined>(color).map(([key, value]) => [
         key,
-        key !== 'alpha' && value != null ? Math.round(value * 255) : value,
+        value != null ? Math.round(value * 255) : value,
       ]),
     );
 
     return {
       order,
-      value: `rgba(${red}, ${green}, ${blue}${alpha != null ? `, ${alpha}` : ''})`,
+      value: rgbaToHex(red, green, blue, alpha),
     };
   }
 

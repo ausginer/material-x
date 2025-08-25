@@ -53,7 +53,10 @@ export async function buildDefaultThemeSass(
   const values = Object.entries(themeFlavor)
     .map(([name, value]) => {
       const _name = camelCaseToKebabCase(name);
-      return [_name, `var(--md-sys-color-${_name}, ${value});`] as const;
+      return [
+        _name,
+        `var(--md-sys-color-${_name}, ${value.toLowerCase()})`,
+      ] as const;
     })
     .toSorted(([a], [b]) => COLLATOR.compare(a, b));
 

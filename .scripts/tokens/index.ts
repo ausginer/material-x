@@ -90,7 +90,7 @@ await Promise.all([
       const map = `$map: (\n${variables
         .map(([name]) => sassName(name.substring(setName.length + 1)))
         .map((name) => `  '${name}': $${name},`)
-        .join('\n')}\n)`;
+        .join('\n')}\n);`;
 
       const contents = `${HEADER}\n${imports}\n\n${declarations}\n\n${map}\n`;
 

@@ -40,6 +40,13 @@ export function sassName(token: string): string {
   return token.replaceAll('.', '-');
 }
 
+export function rgbaToHex(r: number, g: number, b: number, a: number): string {
+  const hex = (((r << 24) | (g << 16) | (b << 8) | a) >>> 0)
+    .toString(16)
+    .padStart(8, '0');
+  return `#${hex.endsWith('ff') ? hex.substring(0, 6) : hex}`;
+}
+
 export type SetSpec = Readonly<{
   fileName: string;
   order: number;
