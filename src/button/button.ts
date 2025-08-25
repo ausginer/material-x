@@ -9,7 +9,18 @@ import tonalTextStyles from './tonal/main.scss' with { type: 'css' };
 const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
 
 /**
- * @attr {string} flavor
+ * @summary Buttons communicate actions that people can take. They are typically
+ * placed throughout the UI, in places like:
+ *
+ * - Dialogs
+ * - Modal windows
+ * - Forms
+ * - Cards
+ * - Toolbars
+ *
+ * They can also be placed within standard button groups.
+ *
+ * @attr {string} color
  * @attr {string} size
  * @attr {boolean|undefined} disabled
  */

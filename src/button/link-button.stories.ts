@@ -1,44 +1,48 @@
 import type { Meta, StoryObj } from '@storybook/web-components-vite';
-import { html } from 'lit';
+import { html, type nothing, type TemplateResult } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
-import type { ButtonFlavor } from './core-button.ts';
-import './link-button.js';
+import type { ButtonColor, ButtonSize } from './core-button.ts';
+import '../icon/icon.ts';
+import './link-button.ts';
 
 type LinkButtonProps = Readonly<{
-  flavor?: ButtonFlavor;
+  color?: ButtonColor;
   onClick?(): void;
+  href?: string;
+  target?: string;
   label?: string;
   disabled?: boolean;
-  href?: string;
+  size?: ButtonSize;
+  icon?: TemplateResult | typeof nothing;
 }>;
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 const meta: Meta<LinkButtonProps> = {
   title: 'Button/Link',
   tags: ['autodocs'],
-  render: ({
-    flavor,
-    href = 'https://example.com',
-    onClick,
-    label,
-    disabled = false,
-  }) =>
+  render: ({ color, href, target, onClick, label, disabled }) =>
     html`<mx-link-button
       ?disabled=${disabled}
-      flavor=${ifDefined(flavor)}
+      color=${ifDefined(color)}
       href=${ifDefined(href)}
+      target=${ifDefined(target)}
       @click=${onClick}
       >${label}</mx-link-button
     >`,
   argTypes: {
-    flavor: {
+    color: {
       control: {
         type: 'select',
-        options: ['outlined', 'filled-tonal', 'elevated', 'text'],
+        options: ['outlined', 'tonal', 'elevated', 'text'],
       },
     },
     href: {
+      control: {
+        type: 'text',
+      },
+    },
+    target: {
       control: {
         type: 'text',
       },
@@ -54,43 +58,90 @@ const meta: Meta<LinkButtonProps> = {
       },
     },
   },
-  args: { onClick: fn(), disabled: false },
+  args: {
+    onClick: fn(),
+    disabled: false,
+    href: 'https://m3.material.io/',
+    target: '_blank',
+  },
 };
 
 export default meta;
 
 type ButtonStories = StoryObj<LinkButtonProps>;
 
-export const Filled: ButtonStories = {
+export const FilledColor: ButtonStories = {
   args: {
-    label: 'Filled Link Button',
+    label: 'Filled Button',
   },
 };
 
-export const Outlined: ButtonStories = {
+export const OutlinedColor: ButtonStories = {
   args: {
-    flavor: 'outlined',
-    label: 'Outlined Link Button',
+    color: 'outlined',
+    label: 'Outlined Button',
   },
 };
 
-export const FilledTonal: ButtonStories = {
+export const TonalColor: ButtonStories = {
   args: {
-    flavor: 'filled-tonal',
-    label: 'Filled Tonal Link Button',
+    color: 'tonal',
+    label: 'Tonal Button',
   },
 };
 
-export const Elevated: ButtonStories = {
+export const ElevatedColor: ButtonStories = {
   args: {
-    flavor: 'elevated',
-    label: 'Elevated Link Button',
+    color: 'elevated',
+    label: 'Elevated Button',
   },
 };
 
-export const Text: ButtonStories = {
+export const TextColor: ButtonStories = {
   args: {
-    flavor: 'text',
+    color: 'text',
     label: 'Text Button',
+  },
+};
+
+export const XSmallSize: ButtonStories = {
+  args: {
+    label: 'Extra Small Filled Button',
+    size: 'xsmall',
+  },
+};
+
+export const SmallSize: ButtonStories = {
+  args: {
+    label: 'Small Filled Button',
+    size: 'small',
+  },
+};
+
+export const MediumSize: ButtonStories = {
+  args: {
+    label: 'Medium Filled Button',
+    size: 'medium',
+  },
+};
+
+export const LargeSize: ButtonStories = {
+  args: {
+    label: 'Large Filled Button',
+    size: 'large',
+  },
+};
+
+export const XLargeSize: ButtonStories = {
+  args: {
+    label: 'Extra Large Filled Button',
+    size: 'xlarge',
+  },
+};
+
+export const WithIcon: ButtonStories = {
+  args: {
+    label: 'Button with Icon',
+    icon: html`<mx-icon slot="icon">check</mx-icon>`,
   },
 };

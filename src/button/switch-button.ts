@@ -1,5 +1,5 @@
 import { define, template } from '../utils.ts';
-import CoreButton, { type ButtonFlavor } from './core-button.ts';
+import CoreButton, { type ButtonColor } from './core-button.ts';
 import switchDefaultStyles from './default/switch.scss' with { type: 'css' };
 import mainElevatedStyles from './elevated/main.scss' with { type: 'css' };
 import switchElevatedStyles from './elevated/switch.scss' with { type: 'css' };
@@ -11,10 +11,10 @@ import switchTonalStyles from './tonal/switch.scss' with { type: 'css' };
 
 const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
 
-export type SwitchButtonFlavor = Exclude<ButtonFlavor, 'text'>;
+export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
 
 /**
- * @attr {string} flavor
+ * @attr {string} color
  * @attr {string} size
  * @attr {boolean} disabled
  * @attr {boolean} checked

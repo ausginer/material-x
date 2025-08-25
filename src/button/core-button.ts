@@ -5,12 +5,7 @@ import elevationStyles from '../core/elevation/elevation.scss' with { type: 'css
 import defaultDisabledStyles from './default/disabled.scss' with { type: 'css' };
 import defaultButtonStyles from './default/main.scss' with { type: 'css' };
 
-export type ButtonFlavor =
-  | 'outlined'
-  | 'filled-tonal'
-  | 'elevated'
-  | 'text'
-  | 'tonal';
+export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 
 /**
@@ -31,7 +26,7 @@ export default class CoreButton extends CoreElement {
       init,
     );
     this.tabIndex = 0;
-    use(this, SpringAnimationController);
-    use(this, RippleAnimationController);
+    use(this, new SpringAnimationController(this));
+    use(this, new RippleAnimationController(this));
   }
 }

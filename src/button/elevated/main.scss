@@ -1,15 +1,15 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
-$type: type($type);
+$color: color($color);
 
-@include default-state($default, $type) {
+@include default-state($default, $color) {
   &::before,
   &::after {
     content: '';
   }
 }
 
-@include hovered-state($hovered, $type);
-@include focused-state($focused, $type);
-@include pressed-state($pressed, $type);
+@include hovered-state($hovered, $color);
+@include focused-state($focused, $color);
+@include pressed-state($pressed, $color);

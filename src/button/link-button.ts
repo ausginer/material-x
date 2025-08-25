@@ -1,5 +1,5 @@
+import AttributeTransmitter from '../core/elements/attribute-transmitter.ts';
 import { use } from '../core/elements/core.ts';
-import HrefController from '../core/elements/link-controller.ts';
 import { define, template } from '../utils.ts';
 import CoreButton from './core-button.ts';
 import mainElevatedStyles from './elevated/main.scss' with { type: 'css' };
@@ -12,10 +12,11 @@ import tonalTextStyles from './tonal/main.scss' with { type: 'css' };
 const TEMPLATE = template`<a><slot name="icon"></slot><slot></slot></a>`;
 
 /**
- * @attr {string} flavor
+ * @attr {string} color
  * @attr {string} size
  * @attr {boolean} disabled
  * @attr {string} href
+ * @attr {string} target
  */
 export default class LinkButton extends CoreButton {
   static readonly observedAttributes = ['disabled', 'href', 'target'] as const;
@@ -34,7 +35,13 @@ export default class LinkButton extends CoreButton {
       ],
       { delegatesFocus: true },
     );
-    use(this, HrefController);
+    const anchor = this.shadowRoot!.querySelector('a')!;
+
+    use(
+      this,
+      new AttributeTransmitter(anchor, 'href'),
+      new AttributeTransmitter(anchor, 'target'),
+    );
   }
 }
 

@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from '@storybook/web-components-vite';
 import { html, nothing, type TemplateResult } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
-import type { ButtonFlavor, ButtonSize } from './core-button.ts';
-import './button.ts';
+import type { ButtonColor, ButtonSize } from './core-button.ts';
 import '../icon/icon.ts';
+import './button.ts';
 
 type ButtonProps = Readonly<{
-  flavor?: ButtonFlavor;
+  color?: ButtonColor;
   onClick?(): void;
   label?: string;
   disabled?: boolean;
@@ -15,30 +15,22 @@ type ButtonProps = Readonly<{
   icon?: TemplateResult | typeof nothing;
 }>;
 
-// More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 const meta: Meta<ButtonProps> = {
   title: 'Button/Button',
   tags: ['autodocs'],
-  render: ({
-    flavor,
-    onClick,
-    label,
-    disabled = false,
-    size,
-    icon = nothing,
-  }) =>
+  render: ({ color, onClick, label, disabled, size, icon = nothing }) =>
     html`<mx-button
       ?disabled=${disabled}
-      flavor=${ifDefined(flavor)}
+      color=${ifDefined(color)}
       size=${ifDefined(size)}
       @click=${onClick}
       >${icon}${label}</mx-button
     >`,
   argTypes: {
-    flavor: {
+    color: {
       control: {
         type: 'select',
-        options: ['outlined', 'filled-tonal', 'elevated', 'tonal', 'text'],
+        options: ['outlined', 'tonal', 'elevated', 'tonal', 'text'],
       },
     },
     label: {
@@ -59,76 +51,69 @@ export default meta;
 
 type ButtonStories = StoryObj<ButtonProps>;
 
-export const Filled: ButtonStories = {
+export const FilledColor: ButtonStories = {
   args: {
     label: 'Filled Button',
   },
 };
 
-export const Outlined: ButtonStories = {
+export const OutlinedColor: ButtonStories = {
   args: {
-    flavor: 'outlined',
+    color: 'outlined',
     label: 'Outlined Button',
   },
 };
 
-export const FilledTonal: ButtonStories = {
+export const TonalColor: ButtonStories = {
   args: {
-    flavor: 'filled-tonal',
-    label: 'Filled Tonal Button',
-  },
-};
-
-export const Elevated: ButtonStories = {
-  args: {
-    flavor: 'elevated',
-    label: 'Elevated Button',
-  },
-};
-
-export const Text: ButtonStories = {
-  args: {
-    flavor: 'text',
-    label: 'Text Button',
-  },
-};
-
-export const Tonal: ButtonStories = {
-  args: {
-    flavor: 'tonal',
+    color: 'tonal',
     label: 'Tonal Button',
   },
 };
 
-export const XSmall: ButtonStories = {
+export const ElevatedColor: ButtonStories = {
+  args: {
+    color: 'elevated',
+    label: 'Elevated Button',
+  },
+};
+
+export const TextColor: ButtonStories = {
+  args: {
+    color: 'text',
+    label: 'Text Button',
+  },
+};
+
+export const XSmallSize: ButtonStories = {
   args: {
     label: 'Extra Small Filled Button',
     size: 'xsmall',
   },
 };
 
-export const Small: ButtonStories = {
+export const SmallSize: ButtonStories = {
   args: {
     label: 'Small Filled Button',
     size: 'small',
   },
 };
 
-export const Medium: ButtonStories = {
+export const MediumSize: ButtonStories = {
   args: {
     label: 'Medium Filled Button',
     size: 'medium',
   },
 };
 
-export const Large: ButtonStories = {
+export const LargeSize: ButtonStories = {
   args: {
     label: 'Large Filled Button',
     size: 'large',
   },
 };
 
-export const XLarge: ButtonStories = {
+export const XLargeSize: ButtonStories = {
   args: {
     label: 'Extra Large Filled Button',
     size: 'xlarge',

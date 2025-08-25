@@ -1,16 +1,16 @@
-import type { Constructor } from 'type-fest';
+/* eslint-disable import-x/no-mutable-exports */
 import AriaController from './aria-controller.ts';
 import type { ReactiveController } from './reactive-controller.ts';
 
-// eslint-disable-next-line import-x/no-mutable-exports
-let use: (element: CoreElement, ctr: Constructor<ReactiveController>) => void;
+export let use: (
+  element: CoreElement,
+  ...controllers: readonly ReactiveController[]
+) => void;
 
 export default class CoreElement extends HTMLElement {
   static {
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    use = (element, ctr) => {
-      const controller = new ctr(element, element.#internals);
-      element.#controllers.push(controller);
+    use = (element, ...controllers) => {
+      element.#controllers.push(...controllers);
     };
   }
 
@@ -28,7 +28,7 @@ export default class CoreElement extends HTMLElement {
     const root = this.attachShadow({ mode: 'open', ...init });
     root.adoptedStyleSheets = styles;
     root.append(template.content.cloneNode(true));
-    use(this, AriaController);
+    use(this, new AriaController(this.#internals));
   }
 
   attributeChangedCallback(
@@ -49,5 +49,3 @@ export default class CoreElement extends HTMLElement {
     this.#controllers.forEach((controller) => controller.disconnected?.());
   }
 }
-
-export { use };

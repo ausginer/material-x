@@ -8,7 +8,7 @@ const AriaMapping = {
 export default class AriaController implements ReactiveController {
   readonly #internals: ARIAMixin;
 
-  constructor(_: HTMLElement, internals: ARIAMixin) {
+  constructor(internals: ARIAMixin) {
     this.#internals = internals;
   }
 
