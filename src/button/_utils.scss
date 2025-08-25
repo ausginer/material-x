@@ -127,8 +127,8 @@ $_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
   }
 }
 
-@function flavor($flavor) {
-  @return 'flavor="#{$flavor}"';
+@function type($type) {
+  @return 'flavor="#{$type}"';
 }
 
 @function size($size) {

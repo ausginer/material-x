@@ -6,7 +6,7 @@
 @use '../utils' as *;
 @use '../vars' as *;
 
-$flavor: 'tonal';
+$type: 'tonal';
 
 $groups: group-buttons(md-comp-button-tonal.$map);
 
@@ -16,7 +16,7 @@ $groups: group-buttons(md-comp-button-tonal.$map);
 
 $default: map.filter(
   map.merge(
-    public-vars(map.get($groups, 'default'), 'md-#{$flavor}-button'),
+    public-vars(map.get($groups, 'default'), 'md-#{$type}-button'),
     private-vars(
       map.get($groups, 'default'),
       (
@@ -41,28 +41,28 @@ $filter-callback: meta.get-function('_unique-variables-filter');
 
 $hovered: state-vars(
   map.get($groups, 'hovered'),
-  'md-#{$flavor}-button-hovered',
+  'md-#{$type}-button-hovered',
   $filter-callback
 );
 $focused: state-vars(
   map.get($groups, 'focused'),
-  'md-#{$flavor}-button-focused',
+  'md-#{$type}-button-focused',
   $filter-callback
 );
 $pressed: state-vars(
   map.get($groups, 'pressed'),
-  'md-#{$flavor}-button-pressed',
+  'md-#{$type}-button-pressed',
   $filter-callback
 );
 
 $unselected: special-state-vars(
   map.get($groups, 'unselected') or (),
-  'md-#{$flavor}-button-unselected',
+  'md-#{$type}-button-unselected',
   $filter-callback
 );
 
 $selected: special-state-vars(
   map.get($groups, 'selected') or (),
-  'md-#{$flavor}-button-selected',
+  'md-#{$type}-button-selected',
   $filter-callback
 );

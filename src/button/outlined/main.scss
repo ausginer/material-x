@@ -1,15 +1,15 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
-$flavor: flavor($flavor);
+$type: type($type);
 
-@include default-state($default, $flavor) {
+@include default-state($default, $type) {
   border: var(--_outline-width) solid var(--_outline-color);
 }
 
-@include hovered-state($hovered, $flavor) {
+@include hovered-state($hovered, $type) {
 }
-@include focused-state($focused, $flavor) {
+@include focused-state($focused, $type) {
 }
-@include pressed-state($pressed, $flavor) {
+@include pressed-state($pressed, $type) {
 }

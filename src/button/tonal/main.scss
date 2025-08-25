@@ -1,9 +1,9 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
-$flavor: flavor($flavor);
+$type: type($type);
 
-@include default-state($default, $flavor);
-@include hovered-state($hovered, $flavor);
-@include focused-state($focused, $flavor);
-@include pressed-state($pressed, $flavor);
+@include default-state($default, $type);
+@include hovered-state($hovered, $type);
+@include focused-state($focused, $type);
+@include pressed-state($pressed, $type);
