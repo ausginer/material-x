@@ -10,7 +10,7 @@
 @use '../utils' as *;
 @use '../vars' as *;
 
-@function _unique-variables-filter-default($key, $value, $_...) {
+@function _unique-variables-filter-default($key, $value, $-void...) {
   @return $value != map.get(default.$default, $key);
 }
 $default-filter-callback: meta.get-function('_unique-variables-filter-default');
@@ -21,7 +21,7 @@ $default-filter-callback: meta.get-function('_unique-variables-filter-default');
 }
 $filter-callback: meta.get-function('_unique-variables-filter');
 
-@function _process-sizes($key, $value, $_...) {
+@function _process-sizes($key, $value, $-void...) {
   $groups: group-buttons($value);
 
   $default: map.filter(

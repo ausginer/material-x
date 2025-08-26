@@ -5,7 +5,7 @@ import DependencyManager from './DependencyManager.ts';
 import download from './download.ts';
 import { buildDefaultThemeSass, loadTheme } from './materialTheme.ts';
 import processSingle from './processSingle.ts';
-import { COLLATOR, getSetName, HEADER, sassName } from './utils.ts';
+import { COLLATOR, createHeader, getSetName, sassName } from './utils.ts';
 
 const overridableSets = ['md.ref.typeface'];
 
@@ -92,7 +92,8 @@ await Promise.all([
         .map((name) => `  '${name}': $${name},`)
         .join('\n')}\n);`;
 
-      const contents = `${HEADER}\n${imports}\n\n${declarations}\n\n${map}\n`;
+      const set = db.tokenSets.find((set) => set.tokenSetName === setName);
+      const contents = `${createHeader(setName, set?.displayName)}\n${imports}\n\n${declarations}\n\n${map}\n`;
 
       await writeFile(
         new URL(`_${sassName(setName)}.scss`, tokensDir),

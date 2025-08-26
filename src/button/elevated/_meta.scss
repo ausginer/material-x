@@ -10,7 +10,7 @@ $color: 'elevated';
 
 $groups: group-buttons(md-comp-button-elevated.$map);
 
-@function _unique-variables-filter-default($key, $value, $_...) {
+@function _unique-variables-filter-default($key, $value, $-void...) {
   @return $value != map.get(default.$default, $key);
 }
 
@@ -27,7 +27,7 @@ $default: map.filter(
   meta.get-function('_unique-variables-filter-default')
 );
 
-@function _unique-variables-filter($key, $value, $_...) {
+@function _unique-variables-filter($key, $value, $-void...) {
   @return $value != map.get($default, $key) and $value !=
     map.get(default.$default, $key);
 }

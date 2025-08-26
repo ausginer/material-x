@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "removeComments": true,
@@ -35,6 +36,8 @@
     "./.storybook/**/*.ts",
     "./.scripts/**/*.ts",
     "src",
+    "eslint.config.js",
+    "stylelint.config.js",
     "types.d.ts",
     "vite.config.ts"
   ]

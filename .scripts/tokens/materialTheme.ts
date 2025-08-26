@@ -1,6 +1,6 @@
 import { writeFile } from 'node:fs/promises';
 import { root, type JSONModule } from '../utils.ts';
-import { camelCaseToKebabCase, COLLATOR, HEADER } from './utils.ts';
+import { camelCaseToKebabCase, COLLATOR, createHeader } from './utils.ts';
 
 export type ColorList = Readonly<Record<string, string>>;
 
@@ -66,7 +66,7 @@ export async function buildDefaultThemeSass(
 
   await writeFile(
     DEFAULT_THEME_SASS_FILE,
-    `${HEADER}\n\n${contents}\n`,
+    `${createHeader('md.sys.color')}\n\n${contents}\n`,
     'utf8',
   );
 }

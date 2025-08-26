@@ -5,16 +5,17 @@
 @use '../core/utils/group' as *;
 @use '../core/utils/map';
 
-@function _filter-null-values($key, $value, $_...) {
+@function -filter-null-values($key, $value, $-void...) {
   @return $value != null;
 }
-$_filter-null-values: meta.get-function('_filter-null-values');
 
-@function _map-public-vars($key, $value, $map, $prefix) {
+$-filter-null-values: meta.get-function('-filter-null-values');
+
+@function -map-public-vars($key, $value, $map, $prefix) {
   @return ($key, 'var(--#{$prefix}-#{$key}, #{$value})');
 }
 
-@function _map-corner-shape($key, $value, $_...) {
+@function -map-corner-shape($key, $value, $-void...) {
   @if string.includes($key, 'shape') and $value == full {
     @return ($key, calc(var(--_container-height) / 2));
   }
@@ -24,7 +25,6 @@ $_filter-null-values: meta.get-function('_filter-null-values');
 
 @function public-vars($tokens, $prefix, $additional-map: ()) {
   $label-text: map.get($tokens, 'label-text') or ();
-
   $base: map.merge(
     (
       'container-color': map.get($tokens, 'container-color'),
@@ -45,11 +45,11 @@ $_filter-null-values: meta.get-function('_filter-null-values');
 
   @return map.map(
     map.map(
-      map.filter($base, $_filter-null-values),
-      meta.get-function('_map-public-vars'),
+      map.filter($base, $-filter-null-values),
+      meta.get-function('-map-public-vars'),
       $prefix
     ),
-    meta.get-function('_map-corner-shape')
+    meta.get-function('-map-corner-shape')
   );
 }
 
@@ -76,12 +76,12 @@ $_filter-null-values: meta.get-function('_filter-null-values');
   );
 
   @return map.map(
-    map.filter($base, $_filter-null-values),
-    meta.get-function('_map-corner-shape')
+    map.filter($base, $-filter-null-values),
+    meta.get-function('-map-corner-shape')
   );
 }
 
-@function _group-callback($key) {
+@function -group-callback($key) {
   $groups: ();
   $remaining: $key;
 
@@ -115,5 +115,5 @@ $_filter-null-values: meta.get-function('_filter-null-values');
 }
 
 @function group-buttons($map) {
-  @return group($map, meta.get-function('_group-callback'));
+  @return group($map, meta.get-function('-group-callback'));
 }

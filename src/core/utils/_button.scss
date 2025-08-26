@@ -1,0 +1,100 @@
+@use 'sass:list';
+@use 'sass:string';
+@use './functions' as *;
+
+$-button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
+
+@function -append-host-params($params) {
+  $result: ':host';
+
+  @if list.length($params) > 0 {
+    $result: '#{$result}(';
+
+    @each $p in $params {
+      @if string.index($p, ':') == 1 {
+        $result: '#{$result}#{$p}';
+      } @else {
+        $result: '#{$result}[#{$p}]';
+      }
+    }
+
+    $result: '#{$result})';
+  }
+
+  @return string.unquote($result);
+}
+
+@function -host-state($state, $params...) {
+  @if $state == 'disabled' {
+    $params: list.append($params, 'disabled');
+  } @else if $state == 'hovered' {
+    $params: list.append($params, ':hover');
+  } @else if $state == 'focused' {
+    $params: list.append($params, ':focus-visible');
+  } @else if $state == 'pressed' {
+    $params: list.append($params, ':active');
+  }
+
+  @return -append-host-params($params);
+}
+
+@mixin -state($vars, $state, $params...) {
+  $host: -host-state($state, $params...);
+
+  @if not map.is-empty($vars) {
+    #{$host} {
+      @include vars($vars);
+      @content;
+    }
+  }
+}
+
+@mixin default-state($vars, $params...) {
+  @include -state($vars, 'default', $params...) {
+    @content;
+  }
+}
+
+@mixin hovered-state($vars, $params...) {
+  @include -state($vars, 'hovered', $params...) {
+    @content;
+  }
+}
+
+@mixin focused-state($vars, $params...) {
+  @include -state($vars, 'focused', $params...) {
+    @content;
+  }
+}
+
+@mixin pressed-state($vars, $params...) {
+  @include -state($vars, 'pressed', $params...) {
+    @content;
+  }
+}
+
+@mixin disabled-state($vars, $params...) {
+  @include -state($vars, 'disabled', $params...) {
+    @content;
+  }
+}
+
+@mixin unselected-states($varsMap, $params...) {
+  @each $state in $-button-states {
+    $vars: map.get($varsMap, $state) or ();
+
+    @include -state($vars, $state, $params...) {
+      @content ($state);
+    }
+  }
+}
+
+@mixin selected-states($varsMap, $params...) {
+  @each $state in $-button-states {
+    $vars: map.get($varsMap, $state) or ();
+
+    @include -state($vars, $state, list.join($params, 'checked')...) {
+      @content ($state);
+    }
+  }
+}

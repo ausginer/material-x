@@ -1,53 +1,15 @@
-@use 'sass:list';
-@use 'sass:string';
-@use '../core/utils/functions' as *;
 @use '../core/utils/map';
 @use 'vars' as *;
-
-$_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
-
-@function _append-host-params($params) {
-  $result: ':host';
-
-  @if list.length($params) > 0 {
-    $result: '#{$result}(';
-
-    @each $p in $params {
-      @if string.index($p, ':') == 1 {
-        $result: '#{$result}#{$p}';
-      } @else {
-        $result: '#{$result}[#{$p}]';
-      }
-    }
-
-    $result: '#{$result})';
-  }
-
-  @return string.unquote($result);
-}
-
-@function _host-state($state, $params...) {
-  @if $state == 'disabled' {
-    $params: list.append($params, 'disabled');
-  } @else if $state == 'hovered' {
-    $params: list.append($params, ':hover');
-  } @else if $state == 'focused' {
-    $params: list.append($params, ':focus-visible');
-  } @else if $state == 'pressed' {
-    $params: list.append($params, ':active');
-  }
-
-  @return _append-host-params($params);
-}
+@forward '../core/utils/button';
 
 @function state-vars($group, $prefix, $filter-callback, $args...) {
   $base: map.merge(public-vars($group, $prefix), private-vars($group));
+
   @return map.filter($base, $filter-callback, $args...);
 }
 
 @function special-state-vars($group, $prefix, $filter-callback, $args...) {
   $states: ('default', 'hovered', 'focused', 'pressed');
-
   $result: ();
 
   @each $state in $states {
@@ -64,67 +26,6 @@ $_button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
   }
 
   @return $result;
-}
-
-@mixin _state($vars, $state, $params...) {
-  $host: _host-state($state, $params...);
-
-  @if not map.is-empty($vars) {
-    #{$host} {
-      @include vars($vars);
-      @content;
-    }
-  }
-}
-
-@mixin default-state($vars, $params...) {
-  @include _state($vars, 'default', $params...) {
-    @content;
-  }
-}
-
-@mixin hovered-state($vars, $params...) {
-  @include _state($vars, 'hovered', $params...) {
-    @content;
-  }
-}
-
-@mixin focused-state($vars, $params...) {
-  @include _state($vars, 'focused', $params...) {
-    @content;
-  }
-}
-
-@mixin pressed-state($vars, $params...) {
-  @include _state($vars, 'pressed', $params...) {
-    @content;
-  }
-}
-
-@mixin disabled-state($vars, $params...) {
-  @include _state($vars, 'disabled', $params...) {
-    @content;
-  }
-}
-
-@mixin unselected-states($varsMap, $params...) {
-  @each $state in $_button-states {
-    $vars: map.get($varsMap, $state) or ();
-
-    @include _state($vars, $state, $params...) {
-      @content ($state);
-    }
-  }
-}
-
-@mixin selected-states($varsMap, $params...) {
-  @each $state in $_button-states {
-    $vars: map.get($varsMap, $state) or ();
-
-    @include _state($vars, $state, list.join($params, 'checked')...) {
-      @content ($state);
-    }
-  }
 }
 
 @function color($color) {

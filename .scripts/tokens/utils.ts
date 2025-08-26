@@ -2,13 +2,18 @@ import type { Token } from './TokenTable.ts';
 
 export const COLLATOR: Intl.Collator = Intl.Collator('en');
 
-export const HEADER = `/// Tokens for the button component, according to the Material Design
-/// specification: https://m3.material.io
+export function createHeader(setName: string, displayName?: string): string {
+  return `/// Tokens according to the Material Design specification:
+/// https://m3.material.io
+///
+/// Set: ${setName}${displayName ? `\n/// Full name: ${displayName}` : ''}
 ///
 /// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
 /// !!! DO NOT MODIFY IT BY HAND !!!
+
 @use "sass:map";
 `;
+}
 
 export function getSetName(token: Token): string {
   return token.tokenName.replace(`.${token.tokenNameSuffix}`, '');

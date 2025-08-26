@@ -44,7 +44,7 @@ $default: map.merge(
   )
 );
 
-@function _unique-variables-filter($key, $value, $_...) {
+@function _unique-variables-filter($key, $value, $-void...) {
   @return $value != map.get($default, $key);
 }
 

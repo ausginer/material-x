@@ -12,8 +12,7 @@ a {
   cursor: inherit;
   text-decoration: inherit;
   padding-block: var(--_padding-block);
-  padding-inline-start: var(--_leading-space);
-  padding-inline-end: var(--_trailing-space);
+  padding-inline: var(--_leading-space) var(--_trailing-space);
   user-select: none;
 }
 

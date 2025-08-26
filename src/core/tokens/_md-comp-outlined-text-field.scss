@@ -1,14 +1,19 @@
-/// Tokens for the button component, according to the Material Design
-/// specification: https://m3.material.io
+/// Tokens according to the Material Design specification:
+/// https://m3.material.io
+///
+/// Set: md.comp.outlined-text-field
+/// Full name: Text field - Outlined
 ///
 /// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
 /// !!! DO NOT MODIFY IT BY HAND !!!
+
 @use "sass:map";
 
 @use "md-sys-color";
 @use "md-sys-typescale";
 @use "md-sys-shape";
 
+$container-shape: md-sys-shape.$corner-extra-small;
 $disabled-input-text-opacity: 0.38;
 $disabled-label-text-opacity: 0.38;
 $disabled-leading-icon-opacity: 0.38;
@@ -18,21 +23,23 @@ $disabled-supporting-text-opacity: 0.38;
 $disabled-trailing-icon-opacity: 0.38;
 $focus-outline-width: 3px;
 $hover-outline-width: 1px;
-$leading-icon-size: 24px;
-$outline-width: 1px;
-$trailing-icon-size: 24px;
-$container-shape: md-sys-shape.$corner-extra-small;
 $input-text-line-height: md-sys-typescale.$body-large-line-height;
 $input-text-size: md-sys-typescale.$body-large-size;
 $input-text-tracking: md-sys-typescale.$body-large-tracking;
+$input-text-weight: md-sys-typescale.$body-large-weight;
 $label-text-line-height: md-sys-typescale.$body-large-line-height;
 $label-text-populated-line-height: md-sys-typescale.$body-small-line-height;
 $label-text-populated-size: md-sys-typescale.$body-small-size;
 $label-text-size: md-sys-typescale.$body-large-size;
 $label-text-tracking: md-sys-typescale.$body-large-tracking;
+$label-text-weight: md-sys-typescale.$body-large-weight;
+$leading-icon-size: 24px;
+$outline-width: 1px;
 $supporting-text-line-height: md-sys-typescale.$body-small-line-height;
 $supporting-text-size: md-sys-typescale.$body-small-size;
 $supporting-text-tracking: md-sys-typescale.$body-small-tracking;
+$supporting-text-weight: md-sys-typescale.$body-small-weight;
+$trailing-icon-size: 24px;
 $caret-color: md-sys-color.$primary;
 $disabled-input-text-color: md-sys-color.$on-surface;
 $disabled-label-text-color: md-sys-color.$on-surface;
@@ -76,15 +83,12 @@ $input-text-font: md-sys-typescale.$body-large-font;
 $input-text-placeholder-color: md-sys-color.$on-surface-variant;
 $input-text-prefix-color: md-sys-color.$on-surface-variant;
 $input-text-suffix-color: md-sys-color.$on-surface-variant;
-$input-text-weight: md-sys-typescale.$body-large-weight;
 $label-text-color: md-sys-color.$on-surface-variant;
 $label-text-font: md-sys-typescale.$body-large-font;
-$label-text-weight: md-sys-typescale.$body-large-weight;
 $leading-icon-color: md-sys-color.$on-surface-variant;
 $outline-color: md-sys-color.$outline;
 $supporting-text-color: md-sys-color.$on-surface-variant;
 $supporting-text-font: md-sys-typescale.$body-small-font;
-$supporting-text-weight: md-sys-typescale.$body-small-weight;
 $trailing-icon-color: md-sys-color.$on-surface-variant;
 $input-text-type: (
   'font-name': $input-text-font,
@@ -109,6 +113,7 @@ $supporting-text-type: (
 );
 
 $map: (
+  'container-shape': $container-shape,
   'disabled-input-text-opacity': $disabled-input-text-opacity,
   'disabled-label-text-opacity': $disabled-label-text-opacity,
   'disabled-leading-icon-opacity': $disabled-leading-icon-opacity,
@@ -118,21 +123,23 @@ $map: (
   'disabled-trailing-icon-opacity': $disabled-trailing-icon-opacity,
   'focus-outline-width': $focus-outline-width,
   'hover-outline-width': $hover-outline-width,
-  'leading-icon-size': $leading-icon-size,
-  'outline-width': $outline-width,
-  'trailing-icon-size': $trailing-icon-size,
-  'container-shape': $container-shape,
   'input-text-line-height': $input-text-line-height,
   'input-text-size': $input-text-size,
   'input-text-tracking': $input-text-tracking,
+  'input-text-weight': $input-text-weight,
   'label-text-line-height': $label-text-line-height,
   'label-text-populated-line-height': $label-text-populated-line-height,
   'label-text-populated-size': $label-text-populated-size,
   'label-text-size': $label-text-size,
   'label-text-tracking': $label-text-tracking,
+  'label-text-weight': $label-text-weight,
+  'leading-icon-size': $leading-icon-size,
+  'outline-width': $outline-width,
   'supporting-text-line-height': $supporting-text-line-height,
   'supporting-text-size': $supporting-text-size,
   'supporting-text-tracking': $supporting-text-tracking,
+  'supporting-text-weight': $supporting-text-weight,
+  'trailing-icon-size': $trailing-icon-size,
   'caret-color': $caret-color,
   'disabled-input-text-color': $disabled-input-text-color,
   'disabled-label-text-color': $disabled-label-text-color,
@@ -176,15 +183,12 @@ $map: (
   'input-text-placeholder-color': $input-text-placeholder-color,
   'input-text-prefix-color': $input-text-prefix-color,
   'input-text-suffix-color': $input-text-suffix-color,
-  'input-text-weight': $input-text-weight,
   'label-text-color': $label-text-color,
   'label-text-font': $label-text-font,
-  'label-text-weight': $label-text-weight,
   'leading-icon-color': $leading-icon-color,
   'outline-color': $outline-color,
   'supporting-text-color': $supporting-text-color,
   'supporting-text-font': $supporting-text-font,
-  'supporting-text-weight': $supporting-text-weight,
   'trailing-icon-color': $trailing-icon-color,
   'input-text-type': $input-text-type,
   'label-text-type': $label-text-type,

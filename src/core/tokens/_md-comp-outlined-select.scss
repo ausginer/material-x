@@ -1,8 +1,12 @@
-/// Tokens for the button component, according to the Material Design
-/// specification: https://m3.material.io
+/// Tokens according to the Material Design specification:
+/// https://m3.material.io
+///
+/// Set: md.comp.outlined-select
+/// Full name: Text field - Select, outlined
 ///
 /// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
 /// !!! DO NOT MODIFY IT BY HAND !!!
+
 @use "sass:map";
 
 @use "md-sys-state";
@@ -12,10 +16,17 @@
 @use "md-sys-elevation";
 
 $menu-cascading-menu-indicator-icon-size: 24px;
+$menu-container-elevation: md-sys-elevation.$level2;
+$menu-container-shape: md-sys-shape.$corner-extra-small;
 $menu-divider-height: 1px;
 $menu-list-item-container-height: 48px;
+$menu-list-item-label-text-line-height: md-sys-typescale.$label-large-line-height;
+$menu-list-item-label-text-size: md-sys-typescale.$label-large-size;
+$menu-list-item-label-text-tracking: md-sys-typescale.$label-large-tracking;
+$menu-list-item-label-text-weight: md-sys-typescale.$label-large-weight;
 $menu-list-item-with-leading-icon-leading-icon-size: 24px;
 $menu-list-item-with-trailing-icon-trailing-icon-size: 24px;
+$text-field-container-shape: md-sys-shape.$corner-extra-small;
 $text-field-disabled-input-text-opacity: 0.38;
 $text-field-disabled-label-text-opacity: 0.38;
 $text-field-disabled-leading-icon-opacity: 0.38;
@@ -23,39 +34,35 @@ $text-field-disabled-outline-opacity: 0.12;
 $text-field-disabled-outline-width: 1px;
 $text-field-disabled-supporting-text-opacity: 0.38;
 $text-field-disabled-trailing-icon-opacity: 0.38;
+$text-field-error-hover-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
 $text-field-focus-outline-width: 2px;
 $text-field-hover-outline-width: 1px;
-$text-field-leading-icon-size: 24px;
-$text-field-outline-width: 1px;
-$text-field-trailing-icon-size: 24px;
-$menu-container-color: md-sys-color.$surface-container;
-$menu-container-elevation: md-sys-elevation.$level2;
-$menu-container-shape: md-sys-shape.$corner-extra-small;
-$menu-list-item-label-text-line-height: md-sys-typescale.$label-large-line-height;
-$menu-list-item-label-text-size: md-sys-typescale.$label-large-size;
-$menu-list-item-label-text-tracking: md-sys-typescale.$label-large-tracking;
-$menu-list-item-selected-container-color: md-sys-color.$surface-container-highest;
-$text-field-container-color: md-sys-color.$surface-container-highest;
-$text-field-container-shape: md-sys-shape.$corner-extra-small;
-$text-field-error-hover-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
 $text-field-hover-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
 $text-field-input-text-line-height: md-sys-typescale.$body-large-line-height;
 $text-field-input-text-size: md-sys-typescale.$body-large-size;
 $text-field-input-text-tracking: md-sys-typescale.$body-large-tracking;
+$text-field-input-text-weight: md-sys-typescale.$body-large-weight;
 $text-field-label-text-line-height: md-sys-typescale.$body-large-line-height;
 $text-field-label-text-populated-line-height: md-sys-typescale.$body-small-line-height;
 $text-field-label-text-populated-size: md-sys-typescale.$body-small-size;
 $text-field-label-text-size: md-sys-typescale.$body-large-size;
 $text-field-label-text-tracking: md-sys-typescale.$body-large-tracking;
+$text-field-label-text-weight: md-sys-typescale.$body-large-weight;
+$text-field-leading-icon-size: 24px;
+$text-field-outline-width: 1px;
 $text-field-supporting-text-line-height: md-sys-typescale.$body-small-line-height;
 $text-field-supporting-text-size: md-sys-typescale.$body-small-size;
 $text-field-supporting-text-tracking: md-sys-typescale.$body-small-tracking;
+$text-field-supporting-text-weight: md-sys-typescale.$body-small-weight;
+$text-field-trailing-icon-size: 24px;
+$menu-container-color: md-sys-color.$surface-container;
+$menu-list-item-selected-container-color: md-sys-color.$surface-container-highest;
+$text-field-container-color: md-sys-color.$surface-container-highest;
 $menu-cascading-menu-indicator-icon-color: md-sys-color.$on-surface-variant;
 $menu-container-shadow-color: md-sys-color.$shadow;
 $menu-divider-color: md-sys-color.$surface-variant;
 $menu-list-item-label-text-color: md-sys-color.$on-surface;
 $menu-list-item-label-text-font: md-sys-typescale.$label-large-font;
-$menu-list-item-label-text-weight: md-sys-typescale.$label-large-weight;
 $menu-list-item-with-leading-icon-leading-icon-color: md-sys-color.$on-surface-variant;
 $menu-list-item-with-trailing-icon-trailing-icon-color: md-sys-color.$on-surface-variant;
 $text-field-disabled-input-text-color: md-sys-color.$on-surface;
@@ -98,15 +105,12 @@ $text-field-hover-supporting-text-color: md-sys-color.$on-surface-variant;
 $text-field-hover-trailing-icon-color: md-sys-color.$on-surface-variant;
 $text-field-input-text-color: md-sys-color.$on-surface;
 $text-field-input-text-font: md-sys-typescale.$body-large-font;
-$text-field-input-text-weight: md-sys-typescale.$body-large-weight;
 $text-field-label-text-color: md-sys-color.$on-surface-variant;
 $text-field-label-text-font: md-sys-typescale.$body-large-font;
-$text-field-label-text-weight: md-sys-typescale.$body-large-weight;
 $text-field-leading-icon-color: md-sys-color.$on-surface-variant;
 $text-field-outline-color: md-sys-color.$outline;
 $text-field-supporting-text-color: md-sys-color.$on-surface-variant;
 $text-field-supporting-text-font: md-sys-typescale.$body-small-font;
-$text-field-supporting-text-weight: md-sys-typescale.$body-small-weight;
 $text-field-trailing-icon-color: md-sys-color.$on-surface-variant;
 $menu-list-item-label-text-type: (
   'font-name': $menu-list-item-label-text-font,
@@ -139,10 +143,17 @@ $text-field-supporting-text-type: (
 
 $map: (
   'menu-cascading-menu-indicator-icon-size': $menu-cascading-menu-indicator-icon-size,
+  'menu-container-elevation': $menu-container-elevation,
+  'menu-container-shape': $menu-container-shape,
   'menu-divider-height': $menu-divider-height,
   'menu-list-item-container-height': $menu-list-item-container-height,
+  'menu-list-item-label-text-line-height': $menu-list-item-label-text-line-height,
+  'menu-list-item-label-text-size': $menu-list-item-label-text-size,
+  'menu-list-item-label-text-tracking': $menu-list-item-label-text-tracking,
+  'menu-list-item-label-text-weight': $menu-list-item-label-text-weight,
   'menu-list-item-with-leading-icon-leading-icon-size': $menu-list-item-with-leading-icon-leading-icon-size,
   'menu-list-item-with-trailing-icon-trailing-icon-size': $menu-list-item-with-trailing-icon-trailing-icon-size,
+  'text-field-container-shape': $text-field-container-shape,
   'text-field-disabled-input-text-opacity': $text-field-disabled-input-text-opacity,
   'text-field-disabled-label-text-opacity': $text-field-disabled-label-text-opacity,
   'text-field-disabled-leading-icon-opacity': $text-field-disabled-leading-icon-opacity,
@@ -150,39 +161,35 @@ $map: (
   'text-field-disabled-outline-width': $text-field-disabled-outline-width,
   'text-field-disabled-supporting-text-opacity': $text-field-disabled-supporting-text-opacity,
   'text-field-disabled-trailing-icon-opacity': $text-field-disabled-trailing-icon-opacity,
+  'text-field-error-hover-state-layer-opacity': $text-field-error-hover-state-layer-opacity,
   'text-field-focus-outline-width': $text-field-focus-outline-width,
   'text-field-hover-outline-width': $text-field-hover-outline-width,
-  'text-field-leading-icon-size': $text-field-leading-icon-size,
-  'text-field-outline-width': $text-field-outline-width,
-  'text-field-trailing-icon-size': $text-field-trailing-icon-size,
-  'menu-container-color': $menu-container-color,
-  'menu-container-elevation': $menu-container-elevation,
-  'menu-container-shape': $menu-container-shape,
-  'menu-list-item-label-text-line-height': $menu-list-item-label-text-line-height,
-  'menu-list-item-label-text-size': $menu-list-item-label-text-size,
-  'menu-list-item-label-text-tracking': $menu-list-item-label-text-tracking,
-  'menu-list-item-selected-container-color': $menu-list-item-selected-container-color,
-  'text-field-container-color': $text-field-container-color,
-  'text-field-container-shape': $text-field-container-shape,
-  'text-field-error-hover-state-layer-opacity': $text-field-error-hover-state-layer-opacity,
   'text-field-hover-state-layer-opacity': $text-field-hover-state-layer-opacity,
   'text-field-input-text-line-height': $text-field-input-text-line-height,
   'text-field-input-text-size': $text-field-input-text-size,
   'text-field-input-text-tracking': $text-field-input-text-tracking,
+  'text-field-input-text-weight': $text-field-input-text-weight,
   'text-field-label-text-line-height': $text-field-label-text-line-height,
   'text-field-label-text-populated-line-height': $text-field-label-text-populated-line-height,
   'text-field-label-text-populated-size': $text-field-label-text-populated-size,
   'text-field-label-text-size': $text-field-label-text-size,
   'text-field-label-text-tracking': $text-field-label-text-tracking,
+  'text-field-label-text-weight': $text-field-label-text-weight,
+  'text-field-leading-icon-size': $text-field-leading-icon-size,
+  'text-field-outline-width': $text-field-outline-width,
   'text-field-supporting-text-line-height': $text-field-supporting-text-line-height,
   'text-field-supporting-text-size': $text-field-supporting-text-size,
   'text-field-supporting-text-tracking': $text-field-supporting-text-tracking,
+  'text-field-supporting-text-weight': $text-field-supporting-text-weight,
+  'text-field-trailing-icon-size': $text-field-trailing-icon-size,
+  'menu-container-color': $menu-container-color,
+  'menu-list-item-selected-container-color': $menu-list-item-selected-container-color,
+  'text-field-container-color': $text-field-container-color,
   'menu-cascading-menu-indicator-icon-color': $menu-cascading-menu-indicator-icon-color,
   'menu-container-shadow-color': $menu-container-shadow-color,
   'menu-divider-color': $menu-divider-color,
   'menu-list-item-label-text-color': $menu-list-item-label-text-color,
   'menu-list-item-label-text-font': $menu-list-item-label-text-font,
-  'menu-list-item-label-text-weight': $menu-list-item-label-text-weight,
   'menu-list-item-with-leading-icon-leading-icon-color': $menu-list-item-with-leading-icon-leading-icon-color,
   'menu-list-item-with-trailing-icon-trailing-icon-color': $menu-list-item-with-trailing-icon-trailing-icon-color,
   'text-field-disabled-input-text-color': $text-field-disabled-input-text-color,
@@ -225,15 +232,12 @@ $map: (
   'text-field-hover-trailing-icon-color': $text-field-hover-trailing-icon-color,
   'text-field-input-text-color': $text-field-input-text-color,
   'text-field-input-text-font': $text-field-input-text-font,
-  'text-field-input-text-weight': $text-field-input-text-weight,
   'text-field-label-text-color': $text-field-label-text-color,
   'text-field-label-text-font': $text-field-label-text-font,
-  'text-field-label-text-weight': $text-field-label-text-weight,
   'text-field-leading-icon-color': $text-field-leading-icon-color,
   'text-field-outline-color': $text-field-outline-color,
   'text-field-supporting-text-color': $text-field-supporting-text-color,
   'text-field-supporting-text-font': $text-field-supporting-text-font,
-  'text-field-supporting-text-weight': $text-field-supporting-text-weight,
   'text-field-trailing-icon-color': $text-field-trailing-icon-color,
   'menu-list-item-label-text-type': $menu-list-item-label-text-type,
   'text-field-input-text-type': $text-field-input-text-type,

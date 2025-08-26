@@ -1,5 +1,5 @@
 $default-icon-size: 20px;
-$default-icon-font: "Material Symbols Outlined";
+$default-icon-font: 'Material Symbols Outlined';
 
 :host {
   font-size: var(--md-icon-size, $default-icon-size);
@@ -21,10 +21,13 @@ $default-icon-font: "Material Symbols Outlined";
   white-space: nowrap;
   word-wrap: normal;
   flex-shrink: 0;
-  /* Support for all WebKit browsers. */
+
+  // Support for all WebKit browsers.
   -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
-  text-rendering: optimizeLegibility;
-  /* Support for Firefox. */
+
+  // Support for Safari and Chrome.
+  text-rendering: optimizelegibility;
+
+  // Support for Firefox.
   -moz-osx-font-smoothing: grayscale;
 }

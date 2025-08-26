@@ -1,8 +1,12 @@
-/// Tokens for the button component, according to the Material Design
-/// specification: https://m3.material.io
+/// Tokens according to the Material Design specification:
+/// https://m3.material.io
+///
+/// Set: md.ref.palette
+/// Full name: Palettes
 ///
 /// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
 /// !!! DO NOT MODIFY IT BY HAND !!!
+
 @use "sass:map";
 
 
@@ -117,26 +121,26 @@ $neutral-variant99: #fafdfb;
 $neutral0: #000000;
 $neutral10: #1f1f1f;
 $neutral100: #ffffff;
-$neutral12: #1f2020;
-$neutral17: #2a2a2a;
+$neutral12: #211f26;
+$neutral17: #2b2930;
 $neutral20: #303030;
-$neutral22: #343535;
-$neutral24: #393939;
+$neutral22: #36343b;
+$neutral24: #3b383e;
 $neutral30: #474747;
-$neutral4: #0e0e0f;
+$neutral4: #0f0d13;
 $neutral40: #5e5e5e;
 $neutral50: #757575;
-$neutral6: #131314;
+$neutral6: #141218;
 $neutral60: #8f8f8f;
 $neutral70: #ababab;
 $neutral80: #c7c7c7;
-$neutral87: #dadada;
+$neutral87: #ded8e1;
 $neutral90: #e3e3e3;
-$neutral92: #e9e8e8;
-$neutral94: #efeded;
+$neutral92: #ece6f0;
+$neutral94: #f3edf7;
 $neutral95: #f2f2f2;
-$neutral96: #f4f3f2;
-$neutral98: #faf9f8;
+$neutral96: #f7f2fa;
+$neutral98: #fef7ff;
 $neutral99: #fdfcfb;
 $orange0: #000000;
 $orange10: #321200;
@@ -175,7 +179,7 @@ $primary60: #4c8df6;
 $primary70: #7cacf8;
 $primary80: #a8c7fa;
 $primary90: #d3e3fd;
-$primary95: #ecf3fe;
+$primary95: #f6edff;
 $primary98: #f7f9ff;
 $primary99: #fafbff;
 $purple0: #000000;
