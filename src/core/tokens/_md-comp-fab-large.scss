@@ -12,13 +12,13 @@
 @use "md-sys-shape";
 
 $container-height: 96px;
-$container-shape: md-sys-shape.$corner-extra-large;
 $container-width: 96px;
 $icon-size: 36px;
+$container-shape: md-sys-shape.$corner-extra-large;
 
 $map: (
   'container-height': $container-height,
-  'container-shape': $container-shape,
   'container-width': $container-width,
   'icon-size': $icon-size,
+  'container-shape': $container-shape,
 );

@@ -17,12 +17,11 @@ $body-large-grad: 0;
 $body-large-hexp: 0;
 $body-large-line-height: 24px;
 $body-large-opsz: 16;
-$body-large-rond: 100;
+$body-large-rond: 0;
 $body-large-size: 16;
 $body-large-slnt: 0;
 $body-large-tracking: 0px;
 $body-large-wdth: 100;
-$body-large-weight: md-ref-typeface.$weight-medium;
 $body-large-wght: 500;
 $body-medium-crsv: 0;
 $body-medium-fill: 0;
@@ -30,12 +29,11 @@ $body-medium-grad: 0;
 $body-medium-hexp: 0;
 $body-medium-line-height: 20px;
 $body-medium-opsz: 14;
-$body-medium-rond: 100;
+$body-medium-rond: 0;
 $body-medium-size: 14;
 $body-medium-slnt: 0;
 $body-medium-tracking: 0px;
 $body-medium-wdth: 100;
-$body-medium-weight: md-ref-typeface.$weight-medium;
 $body-medium-wght: 500;
 $body-small-crsv: 0;
 $body-small-fill: 0;
@@ -43,138 +41,83 @@ $body-small-grad: 0;
 $body-small-hexp: 0;
 $body-small-line-height: 16px;
 $body-small-opsz: 12;
-$body-small-rond: 100;
+$body-small-rond: 0;
 $body-small-size: 12;
 $body-small-slnt: 0;
 $body-small-tracking: 0px;
 $body-small-wdth: 100;
-$body-small-weight: md-ref-typeface.$weight-medium;
 $body-small-wght: 500;
-$display-large: (
-  'font-name': $display-large-font,
-  'font-weight': $display-large-weight,
-  'font-size': $display-large-size,
-  'font-tracking': $display-large-tracking,
-  'line-height': $display-large-line-height,
-);
 $display-large-crsv: 0;
 $display-large-fill: 0;
-$display-large-font: md-ref-typeface.$brand;
 $display-large-grad: 0;
 $display-large-hexp: 0;
 $display-large-line-height: 64px;
 $display-large-opsz: 57;
-$display-large-rond: 100;
+$display-large-rond: 0;
 $display-large-size: 57;
 $display-large-slnt: 0;
 $display-large-tracking: 0px;
 $display-large-wdth: 100;
-$display-large-weight: md-ref-typeface.$weight-medium;
 $display-large-wght: 500;
-$display-medium: (
-  'font-name': $display-medium-font,
-  'font-weight': $display-medium-weight,
-  'font-size': $display-medium-size,
-  'font-tracking': $display-medium-tracking,
-  'line-height': $display-medium-line-height,
-);
 $display-medium-crsv: 0;
 $display-medium-fill: 0;
-$display-medium-font: md-ref-typeface.$brand;
 $display-medium-grad: 0;
 $display-medium-hexp: 0;
 $display-medium-line-height: 52px;
 $display-medium-opsz: 45;
-$display-medium-rond: 100;
+$display-medium-rond: 0;
 $display-medium-size: 45;
 $display-medium-slnt: 0;
 $display-medium-tracking: 0px;
 $display-medium-wdth: 100;
-$display-medium-weight: md-ref-typeface.$weight-medium;
 $display-medium-wght: 500;
-$display-small: (
-  'font-name': $display-small-font,
-  'font-weight': $display-small-weight,
-  'font-size': $display-small-size,
-  'font-tracking': $display-small-tracking,
-  'line-height': $display-small-line-height,
-);
 $display-small-crsv: 0;
 $display-small-fill: 0;
-$display-small-font: md-ref-typeface.$brand;
 $display-small-grad: 0;
 $display-small-hexp: 0;
 $display-small-line-height: 44px;
 $display-small-opsz: 36;
-$display-small-rond: 100;
+$display-small-rond: 0;
 $display-small-size: 36;
 $display-small-slnt: 0;
 $display-small-tracking: 0px;
 $display-small-wdth: 100;
-$display-small-weight: md-ref-typeface.$weight-medium;
 $display-small-wght: 500;
-$headline-large: (
-  'font-name': $headline-large-font,
-  'font-weight': $headline-large-weight,
-  'font-size': $headline-large-size,
-  'font-tracking': $headline-large-tracking,
-  'line-height': $headline-large-line-height,
-);
 $headline-large-crsv: 0;
 $headline-large-fill: 0;
-$headline-large-font: md-ref-typeface.$brand;
 $headline-large-grad: 0;
 $headline-large-hexp: 0;
 $headline-large-line-height: 40px;
 $headline-large-opsz: 32;
-$headline-large-rond: 100;
+$headline-large-rond: 0;
 $headline-large-size: 32;
 $headline-large-slnt: 0;
 $headline-large-tracking: 0px;
 $headline-large-wdth: 100;
-$headline-large-weight: md-ref-typeface.$weight-medium;
 $headline-large-wght: 500;
-$headline-medium: (
-  'font-name': $headline-medium-font,
-  'font-weight': $headline-medium-weight,
-  'font-size': $headline-medium-size,
-  'font-tracking': $headline-medium-tracking,
-  'line-height': $headline-medium-line-height,
-);
 $headline-medium-crsv: 0;
 $headline-medium-fill: 0;
-$headline-medium-font: md-ref-typeface.$brand;
 $headline-medium-grad: 0;
 $headline-medium-hexp: 0;
 $headline-medium-line-height: 36px;
 $headline-medium-opsz: 28;
-$headline-medium-rond: 100;
+$headline-medium-rond: 0;
 $headline-medium-size: 28;
 $headline-medium-slnt: 0;
 $headline-medium-tracking: 0px;
 $headline-medium-wdth: 100;
-$headline-medium-weight: md-ref-typeface.$weight-medium;
 $headline-medium-wght: 500;
-$headline-small: (
-  'font-name': $headline-small-font,
-  'font-weight': $headline-small-weight,
-  'font-size': $headline-small-size,
-  'font-tracking': $headline-small-tracking,
-  'line-height': $headline-small-line-height,
-);
 $headline-small-crsv: 0;
 $headline-small-fill: 0;
-$headline-small-font: md-ref-typeface.$brand;
 $headline-small-grad: 0;
 $headline-small-hexp: 0;
 $headline-small-line-height: 32px;
 $headline-small-opsz: 24;
-$headline-small-rond: 100;
+$headline-small-rond: 0;
 $headline-small-size: 24;
 $headline-small-slnt: 0;
 $headline-small-tracking: 0px;
 $headline-small-wdth: 100;
-$headline-small-weight: md-ref-typeface.$weight-medium;
 $headline-small-wght: 500;
 $label-large-crsv: 0;
 $label-large-fill: 0;
@@ -182,12 +125,11 @@ $label-large-grad: 0;
 $label-large-hexp: 0;
 $label-large-line-height: 20px;
 $label-large-opsz: 14;
-$label-large-rond: 100;
+$label-large-rond: 0;
 $label-large-size: 14;
 $label-large-slnt: 0;
 $label-large-tracking: 0px;
 $label-large-wdth: 100;
-$label-large-weight: md-ref-typeface.$weight-bold;
 $label-large-wght: 600;
 $label-medium-crsv: 0;
 $label-medium-fill: 0;
@@ -195,12 +137,11 @@ $label-medium-grad: 0;
 $label-medium-hexp: 0;
 $label-medium-line-height: 16px;
 $label-medium-opsz: 12;
-$label-medium-rond: 100;
+$label-medium-rond: 0;
 $label-medium-size: 12;
 $label-medium-slnt: 0;
 $label-medium-tracking: 0.1px;
 $label-medium-wdth: 100;
-$label-medium-weight: md-ref-typeface.$weight-bold;
 $label-medium-wght: 600;
 $label-small-crsv: 0;
 $label-small-fill: 0;
@@ -208,33 +149,23 @@ $label-small-grad: 0;
 $label-small-hexp: 0;
 $label-small-line-height: 16px;
 $label-small-opsz: 11;
-$label-small-rond: 100;
+$label-small-rond: 0;
 $label-small-size: 11;
 $label-small-slnt: 0;
 $label-small-tracking: 0.1px;
 $label-small-wdth: 100;
-$label-small-weight: md-ref-typeface.$weight-bold;
 $label-small-wght: 600;
-$title-large: (
-  'font-name': $title-large-font,
-  'font-weight': $title-large-weight,
-  'font-size': $title-large-size,
-  'font-tracking': $title-large-tracking,
-  'line-height': $title-large-line-height,
-);
 $title-large-crsv: 0;
 $title-large-fill: 0;
-$title-large-font: md-ref-typeface.$brand;
 $title-large-grad: 0;
 $title-large-hexp: 0;
 $title-large-line-height: 28px;
 $title-large-opsz: 22;
-$title-large-rond: 100;
+$title-large-rond: 0;
 $title-large-size: 22;
 $title-large-slnt: 0;
 $title-large-tracking: 0px;
 $title-large-wdth: 100;
-$title-large-weight: md-ref-typeface.$weight-medium;
 $title-large-wght: 500;
 $title-medium-crsv: 0;
 $title-medium-fill: 0;
@@ -242,12 +173,11 @@ $title-medium-grad: 0;
 $title-medium-hexp: 0;
 $title-medium-line-height: 24px;
 $title-medium-opsz: 16;
-$title-medium-rond: 100;
+$title-medium-rond: 0;
 $title-medium-size: 16;
 $title-medium-slnt: 0;
 $title-medium-tracking: 0px;
 $title-medium-wdth: 100;
-$title-medium-weight: md-ref-typeface.$weight-bold;
 $title-medium-wght: 600;
 $title-small-crsv: 0;
 $title-small-fill: 0;
@@ -255,21 +185,42 @@ $title-small-grad: 0;
 $title-small-hexp: 0;
 $title-small-line-height: 20px;
 $title-small-opsz: 14;
-$title-small-rond: 100;
+$title-small-rond: 0;
 $title-small-size: 14;
 $title-small-slnt: 0;
 $title-small-tracking: 0px;
 $title-small-wdth: 100;
-$title-small-weight: md-ref-typeface.$weight-bold;
 $title-small-wght: 600;
 $body-large-font: md-ref-typeface.$plain;
+$body-large-weight: md-ref-typeface.$weight-medium;
 $body-medium-font: md-ref-typeface.$plain;
+$body-medium-weight: md-ref-typeface.$weight-medium;
 $body-small-font: md-ref-typeface.$plain;
+$body-small-weight: md-ref-typeface.$weight-medium;
+$display-large-font: md-ref-typeface.$brand;
+$display-large-weight: md-ref-typeface.$weight-medium;
+$display-medium-font: md-ref-typeface.$brand;
+$display-medium-weight: md-ref-typeface.$weight-medium;
+$display-small-font: md-ref-typeface.$brand;
+$display-small-weight: md-ref-typeface.$weight-medium;
+$headline-large-font: md-ref-typeface.$brand;
+$headline-large-weight: md-ref-typeface.$weight-medium;
+$headline-medium-font: md-ref-typeface.$brand;
+$headline-medium-weight: md-ref-typeface.$weight-medium;
+$headline-small-font: md-ref-typeface.$brand;
+$headline-small-weight: md-ref-typeface.$weight-medium;
 $label-large-font: md-ref-typeface.$plain;
+$label-large-weight: md-ref-typeface.$weight-bold;
 $label-medium-font: md-ref-typeface.$plain;
+$label-medium-weight: md-ref-typeface.$weight-bold;
 $label-small-font: md-ref-typeface.$plain;
+$label-small-weight: md-ref-typeface.$weight-bold;
+$title-large-font: md-ref-typeface.$brand;
+$title-large-weight: md-ref-typeface.$weight-medium;
 $title-medium-font: md-ref-typeface.$plain;
+$title-medium-weight: md-ref-typeface.$weight-bold;
 $title-small-font: md-ref-typeface.$plain;
+$title-small-weight: md-ref-typeface.$weight-bold;
 $body-large: (
   'font-name': $body-large-font,
   'font-weight': $body-large-weight,
@@ -291,6 +242,48 @@ $body-small: (
   'font-tracking': $body-small-tracking,
   'line-height': $body-small-line-height,
 );
+$display-large: (
+  'font-name': $display-large-font,
+  'font-weight': $display-large-weight,
+  'font-size': $display-large-size,
+  'font-tracking': $display-large-tracking,
+  'line-height': $display-large-line-height,
+);
+$display-medium: (
+  'font-name': $display-medium-font,
+  'font-weight': $display-medium-weight,
+  'font-size': $display-medium-size,
+  'font-tracking': $display-medium-tracking,
+  'line-height': $display-medium-line-height,
+);
+$display-small: (
+  'font-name': $display-small-font,
+  'font-weight': $display-small-weight,
+  'font-size': $display-small-size,
+  'font-tracking': $display-small-tracking,
+  'line-height': $display-small-line-height,
+);
+$headline-large: (
+  'font-name': $headline-large-font,
+  'font-weight': $headline-large-weight,
+  'font-size': $headline-large-size,
+  'font-tracking': $headline-large-tracking,
+  'line-height': $headline-large-line-height,
+);
+$headline-medium: (
+  'font-name': $headline-medium-font,
+  'font-weight': $headline-medium-weight,
+  'font-size': $headline-medium-size,
+  'font-tracking': $headline-medium-tracking,
+  'line-height': $headline-medium-line-height,
+);
+$headline-small: (
+  'font-name': $headline-small-font,
+  'font-weight': $headline-small-weight,
+  'font-size': $headline-small-size,
+  'font-tracking': $headline-small-tracking,
+  'line-height': $headline-small-line-height,
+);
 $label-large: (
   'font-name': $label-large-font,
   'font-weight': $label-large-weight,
@@ -311,6 +304,13 @@ $label-small: (
   'font-size': $label-small-size,
   'font-tracking': $label-small-tracking,
   'line-height': $label-small-line-height,
+);
+$title-large: (
+  'font-name': $title-large-font,
+  'font-weight': $title-large-weight,
+  'font-size': $title-large-size,
+  'font-tracking': $title-large-tracking,
+  'line-height': $title-large-line-height,
 );
 $title-medium: (
   'font-name': $title-medium-font,
@@ -339,7 +339,6 @@ $map: (
   'body-large-slnt': $body-large-slnt,
   'body-large-tracking': $body-large-tracking,
   'body-large-wdth': $body-large-wdth,
-  'body-large-weight': $body-large-weight,
   'body-large-wght': $body-large-wght,
   'body-medium-crsv': $body-medium-crsv,
   'body-medium-fill': $body-medium-fill,
@@ -352,7 +351,6 @@ $map: (
   'body-medium-slnt': $body-medium-slnt,
   'body-medium-tracking': $body-medium-tracking,
   'body-medium-wdth': $body-medium-wdth,
-  'body-medium-weight': $body-medium-weight,
   'body-medium-wght': $body-medium-wght,
   'body-small-crsv': $body-small-crsv,
   'body-small-fill': $body-small-fill,
@@ -365,12 +363,9 @@ $map: (
   'body-small-slnt': $body-small-slnt,
   'body-small-tracking': $body-small-tracking,
   'body-small-wdth': $body-small-wdth,
-  'body-small-weight': $body-small-weight,
   'body-small-wght': $body-small-wght,
-  'display-large': $display-large,
   'display-large-crsv': $display-large-crsv,
   'display-large-fill': $display-large-fill,
-  'display-large-font': $display-large-font,
   'display-large-grad': $display-large-grad,
   'display-large-hexp': $display-large-hexp,
   'display-large-line-height': $display-large-line-height,
@@ -380,12 +375,9 @@ $map: (
   'display-large-slnt': $display-large-slnt,
   'display-large-tracking': $display-large-tracking,
   'display-large-wdth': $display-large-wdth,
-  'display-large-weight': $display-large-weight,
   'display-large-wght': $display-large-wght,
-  'display-medium': $display-medium,
   'display-medium-crsv': $display-medium-crsv,
   'display-medium-fill': $display-medium-fill,
-  'display-medium-font': $display-medium-font,
   'display-medium-grad': $display-medium-grad,
   'display-medium-hexp': $display-medium-hexp,
   'display-medium-line-height': $display-medium-line-height,
@@ -395,12 +387,9 @@ $map: (
   'display-medium-slnt': $display-medium-slnt,
   'display-medium-tracking': $display-medium-tracking,
   'display-medium-wdth': $display-medium-wdth,
-  'display-medium-weight': $display-medium-weight,
   'display-medium-wght': $display-medium-wght,
-  'display-small': $display-small,
   'display-small-crsv': $display-small-crsv,
   'display-small-fill': $display-small-fill,
-  'display-small-font': $display-small-font,
   'display-small-grad': $display-small-grad,
   'display-small-hexp': $display-small-hexp,
   'display-small-line-height': $display-small-line-height,
@@ -410,12 +399,9 @@ $map: (
   'display-small-slnt': $display-small-slnt,
   'display-small-tracking': $display-small-tracking,
   'display-small-wdth': $display-small-wdth,
-  'display-small-weight': $display-small-weight,
   'display-small-wght': $display-small-wght,
-  'headline-large': $headline-large,
   'headline-large-crsv': $headline-large-crsv,
   'headline-large-fill': $headline-large-fill,
-  'headline-large-font': $headline-large-font,
   'headline-large-grad': $headline-large-grad,
   'headline-large-hexp': $headline-large-hexp,
   'headline-large-line-height': $headline-large-line-height,
@@ -425,12 +411,9 @@ $map: (
   'headline-large-slnt': $headline-large-slnt,
   'headline-large-tracking': $headline-large-tracking,
   'headline-large-wdth': $headline-large-wdth,
-  'headline-large-weight': $headline-large-weight,
   'headline-large-wght': $headline-large-wght,
-  'headline-medium': $headline-medium,
   'headline-medium-crsv': $headline-medium-crsv,
   'headline-medium-fill': $headline-medium-fill,
-  'headline-medium-font': $headline-medium-font,
   'headline-medium-grad': $headline-medium-grad,
   'headline-medium-hexp': $headline-medium-hexp,
   'headline-medium-line-height': $headline-medium-line-height,
@@ -440,12 +423,9 @@ $map: (
   'headline-medium-slnt': $headline-medium-slnt,
   'headline-medium-tracking': $headline-medium-tracking,
   'headline-medium-wdth': $headline-medium-wdth,
-  'headline-medium-weight': $headline-medium-weight,
   'headline-medium-wght': $headline-medium-wght,
-  'headline-small': $headline-small,
   'headline-small-crsv': $headline-small-crsv,
   'headline-small-fill': $headline-small-fill,
-  'headline-small-font': $headline-small-font,
   'headline-small-grad': $headline-small-grad,
   'headline-small-hexp': $headline-small-hexp,
   'headline-small-line-height': $headline-small-line-height,
@@ -455,7 +435,6 @@ $map: (
   'headline-small-slnt': $headline-small-slnt,
   'headline-small-tracking': $headline-small-tracking,
   'headline-small-wdth': $headline-small-wdth,
-  'headline-small-weight': $headline-small-weight,
   'headline-small-wght': $headline-small-wght,
   'label-large-crsv': $label-large-crsv,
   'label-large-fill': $label-large-fill,
@@ -468,7 +447,6 @@ $map: (
   'label-large-slnt': $label-large-slnt,
   'label-large-tracking': $label-large-tracking,
   'label-large-wdth': $label-large-wdth,
-  'label-large-weight': $label-large-weight,
   'label-large-wght': $label-large-wght,
   'label-medium-crsv': $label-medium-crsv,
   'label-medium-fill': $label-medium-fill,
@@ -481,7 +459,6 @@ $map: (
   'label-medium-slnt': $label-medium-slnt,
   'label-medium-tracking': $label-medium-tracking,
   'label-medium-wdth': $label-medium-wdth,
-  'label-medium-weight': $label-medium-weight,
   'label-medium-wght': $label-medium-wght,
   'label-small-crsv': $label-small-crsv,
   'label-small-fill': $label-small-fill,
@@ -494,12 +471,9 @@ $map: (
   'label-small-slnt': $label-small-slnt,
   'label-small-tracking': $label-small-tracking,
   'label-small-wdth': $label-small-wdth,
-  'label-small-weight': $label-small-weight,
   'label-small-wght': $label-small-wght,
-  'title-large': $title-large,
   'title-large-crsv': $title-large-crsv,
   'title-large-fill': $title-large-fill,
-  'title-large-font': $title-large-font,
   'title-large-grad': $title-large-grad,
   'title-large-hexp': $title-large-hexp,
   'title-large-line-height': $title-large-line-height,
@@ -509,7 +483,6 @@ $map: (
   'title-large-slnt': $title-large-slnt,
   'title-large-tracking': $title-large-tracking,
   'title-large-wdth': $title-large-wdth,
-  'title-large-weight': $title-large-weight,
   'title-large-wght': $title-large-wght,
   'title-medium-crsv': $title-medium-crsv,
   'title-medium-fill': $title-medium-fill,
@@ -522,7 +495,6 @@ $map: (
   'title-medium-slnt': $title-medium-slnt,
   'title-medium-tracking': $title-medium-tracking,
   'title-medium-wdth': $title-medium-wdth,
-  'title-medium-weight': $title-medium-weight,
   'title-medium-wght': $title-medium-wght,
   'title-small-crsv': $title-small-crsv,
   'title-small-fill': $title-small-fill,
@@ -535,22 +507,50 @@ $map: (
   'title-small-slnt': $title-small-slnt,
   'title-small-tracking': $title-small-tracking,
   'title-small-wdth': $title-small-wdth,
-  'title-small-weight': $title-small-weight,
   'title-small-wght': $title-small-wght,
   'body-large-font': $body-large-font,
+  'body-large-weight': $body-large-weight,
   'body-medium-font': $body-medium-font,
+  'body-medium-weight': $body-medium-weight,
   'body-small-font': $body-small-font,
+  'body-small-weight': $body-small-weight,
+  'display-large-font': $display-large-font,
+  'display-large-weight': $display-large-weight,
+  'display-medium-font': $display-medium-font,
+  'display-medium-weight': $display-medium-weight,
+  'display-small-font': $display-small-font,
+  'display-small-weight': $display-small-weight,
+  'headline-large-font': $headline-large-font,
+  'headline-large-weight': $headline-large-weight,
+  'headline-medium-font': $headline-medium-font,
+  'headline-medium-weight': $headline-medium-weight,
+  'headline-small-font': $headline-small-font,
+  'headline-small-weight': $headline-small-weight,
   'label-large-font': $label-large-font,
+  'label-large-weight': $label-large-weight,
   'label-medium-font': $label-medium-font,
+  'label-medium-weight': $label-medium-weight,
   'label-small-font': $label-small-font,
+  'label-small-weight': $label-small-weight,
+  'title-large-font': $title-large-font,
+  'title-large-weight': $title-large-weight,
   'title-medium-font': $title-medium-font,
+  'title-medium-weight': $title-medium-weight,
   'title-small-font': $title-small-font,
+  'title-small-weight': $title-small-weight,
   'body-large': $body-large,
   'body-medium': $body-medium,
   'body-small': $body-small,
+  'display-large': $display-large,
+  'display-medium': $display-medium,
+  'display-small': $display-small,
+  'headline-large': $headline-large,
+  'headline-medium': $headline-medium,
+  'headline-small': $headline-small,
   'label-large': $label-large,
   'label-medium': $label-medium,
   'label-small': $label-small,
+  'title-large': $title-large,
   'title-medium': $title-medium,
   'title-small': $title-small,
 );

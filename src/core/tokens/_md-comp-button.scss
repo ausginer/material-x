@@ -17,30 +17,30 @@
 @use "md-sys-state";
 @use "md-sys-typescale";
 
-$container-elevation: md-sys-elevation.$level0;
 $container-height: 40px;
-$container-shape-round: md-sys-shape.$corner-full;
-$container-shape-square: md-sys-shape.$corner-medium;
-$disabled-container-elevation: md-sys-elevation.$level0;
 $disabled-container-opacity: 0.1;
 $disabled-icon-opacity: 0.38;
 $disabled-label-text-opacity: 0.38;
+$icon-label-space: 8px;
+$icon-size: 20px;
+$leading-space: 24px;
+$trailing-space: 24px;
+$container-elevation: md-sys-elevation.$level0;
+$container-shape-round: md-sys-shape.$corner-full;
+$container-shape-square: md-sys-shape.$corner-medium;
+$disabled-container-elevation: md-sys-elevation.$level0;
 $focus-indicator-outline-offset: md-sys-state-focus-indicator.$outer-offset;
 $focus-indicator-thickness: md-sys-state-focus-indicator.$thickness;
 $focused-container-elevation: md-sys-elevation.$level0;
 $focused-state-layer-opacity: md-sys-state.$focus-state-layer-opacity;
 $hovered-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
-$icon-label-space: 8px;
-$icon-size: 20px;
-$leading-space: 24px;
+$pressed-container-corner-size-motion-spring-damping: md-sys-motion.$spring-fast-spatial-damping;
+$pressed-container-corner-size-motion-spring-stiffness: md-sys-motion.$spring-fast-spatial-stiffness;
 $pressed-container-elevation: md-sys-elevation.$level0;
 $pressed-container-shape: md-sys-shape.$corner-small;
 $pressed-state-layer-opacity: md-sys-state.$pressed-state-layer-opacity;
 $selected-container-shape-round: md-sys-shape.$corner-medium;
 $selected-container-shape-square: md-sys-shape.$corner-full;
-$trailing-space: 24px;
-$pressed-container-corner-size-motion-spring-damping: md-sys-motion.$spring-fast-spatial-damping;
-$pressed-container-corner-size-motion-spring-stiffness: md-sys-motion.$spring-fast-spatial-stiffness;
 $unselected-container-color: md-sys-color.$surface-container;
 $container-color: md-sys-color.$primary;
 $container-shadow-color: md-sys-color.$shadow;
@@ -85,30 +85,30 @@ $unselected-pressed-state-layer-color: md-sys-color.$on-surface-variant;
 $label-text: md-sys-typescale.$label-large;
 
 $map: (
-  'container-elevation': $container-elevation,
   'container-height': $container-height,
-  'container-shape-round': $container-shape-round,
-  'container-shape-square': $container-shape-square,
-  'disabled-container-elevation': $disabled-container-elevation,
   'disabled-container-opacity': $disabled-container-opacity,
   'disabled-icon-opacity': $disabled-icon-opacity,
   'disabled-label-text-opacity': $disabled-label-text-opacity,
+  'icon-label-space': $icon-label-space,
+  'icon-size': $icon-size,
+  'leading-space': $leading-space,
+  'trailing-space': $trailing-space,
+  'container-elevation': $container-elevation,
+  'container-shape-round': $container-shape-round,
+  'container-shape-square': $container-shape-square,
+  'disabled-container-elevation': $disabled-container-elevation,
   'focus-indicator-outline-offset': $focus-indicator-outline-offset,
   'focus-indicator-thickness': $focus-indicator-thickness,
   'focused-container-elevation': $focused-container-elevation,
   'focused-state-layer-opacity': $focused-state-layer-opacity,
   'hovered-state-layer-opacity': $hovered-state-layer-opacity,
-  'icon-label-space': $icon-label-space,
-  'icon-size': $icon-size,
-  'leading-space': $leading-space,
+  'pressed-container-corner-size-motion-spring-damping': $pressed-container-corner-size-motion-spring-damping,
+  'pressed-container-corner-size-motion-spring-stiffness': $pressed-container-corner-size-motion-spring-stiffness,
   'pressed-container-elevation': $pressed-container-elevation,
   'pressed-container-shape': $pressed-container-shape,
   'pressed-state-layer-opacity': $pressed-state-layer-opacity,
   'selected-container-shape-round': $selected-container-shape-round,
   'selected-container-shape-square': $selected-container-shape-square,
-  'trailing-space': $trailing-space,
-  'pressed-container-corner-size-motion-spring-damping': $pressed-container-corner-size-motion-spring-damping,
-  'pressed-container-corner-size-motion-spring-stiffness': $pressed-container-corner-size-motion-spring-stiffness,
   'unselected-container-color': $unselected-container-color,
   'container-color': $container-color,
   'container-shadow-color': $container-shadow-color,

@@ -15,25 +15,25 @@
 @use "md-sys-elevation";
 @use "md-sys-state";
 
-$container-elevation: md-sys-elevation.$level3;
 $container-height: 56px;
-$container-shape: md-sys-shape.$corner-large;
 $container-width: 56px;
+$icon-size: 36px;
+$container-color: md-sys-color.$surface-container-high;
+$container-elevation: md-sys-elevation.$level3;
+$container-shape: md-sys-shape.$corner-large;
 $focus-container-elevation: md-sys-elevation.$level3;
 $focus-indicator-thickness: md-sys-state-focus-indicator.$thickness;
 $focus-state-layer-opacity: md-sys-state.$focus-state-layer-opacity;
 $hover-container-elevation: md-sys-elevation.$level4;
 $hover-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
-$icon-size: 36px;
 $indicator-outline-offset: md-sys-state-focus-indicator.$outer-offset;
+$lowered-container-color: md-sys-color.$surface-container-low;
 $lowered-container-elevation: md-sys-elevation.$level1;
 $lowered-focus-container-elevation: md-sys-elevation.$level1;
 $lowered-hover-container-elevation: md-sys-elevation.$level2;
 $lowered-pressed-container-elevation: md-sys-elevation.$level1;
 $pressed-container-elevation: md-sys-elevation.$level3;
 $pressed-state-layer-opacity: md-sys-state.$pressed-state-layer-opacity;
-$container-color: md-sys-color.$surface-container-high;
-$lowered-container-color: md-sys-color.$surface-container-low;
 $container-shadow-color: md-sys-color.$shadow;
 $focus-indicator-color: md-sys-color.$secondary;
 $focus-state-layer-color: md-sys-color.$primary;
@@ -41,25 +41,25 @@ $hover-state-layer-color: md-sys-color.$primary;
 $pressed-state-layer-color: md-sys-color.$primary;
 
 $map: (
-  'container-elevation': $container-elevation,
   'container-height': $container-height,
-  'container-shape': $container-shape,
   'container-width': $container-width,
+  'icon-size': $icon-size,
+  'container-color': $container-color,
+  'container-elevation': $container-elevation,
+  'container-shape': $container-shape,
   'focus-container-elevation': $focus-container-elevation,
   'focus-indicator-thickness': $focus-indicator-thickness,
   'focus-state-layer-opacity': $focus-state-layer-opacity,
   'hover-container-elevation': $hover-container-elevation,
   'hover-state-layer-opacity': $hover-state-layer-opacity,
-  'icon-size': $icon-size,
   'indicator-outline-offset': $indicator-outline-offset,
+  'lowered-container-color': $lowered-container-color,
   'lowered-container-elevation': $lowered-container-elevation,
   'lowered-focus-container-elevation': $lowered-focus-container-elevation,
   'lowered-hover-container-elevation': $lowered-hover-container-elevation,
   'lowered-pressed-container-elevation': $lowered-pressed-container-elevation,
   'pressed-container-elevation': $pressed-container-elevation,
   'pressed-state-layer-opacity': $pressed-state-layer-opacity,
-  'container-color': $container-color,
-  'lowered-container-color': $lowered-container-color,
   'container-shadow-color': $container-shadow-color,
   'focus-indicator-color': $focus-indicator-color,
   'focus-state-layer-color': $focus-state-layer-color,
