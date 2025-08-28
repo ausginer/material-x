@@ -10,61 +10,42 @@
 @use '../utils' as *;
 @use '../vars' as *;
 
-@function _unique-variables-filter-default($key, $value, $-void...) {
-  @return $value != map.get(default.$default, $key);
+@function -map-special-state-vars($key, $value, $map, $default) {
+  @return ($key, pick-unique($value, $default, default.$default));
 }
-$default-filter-callback: meta.get-function('_unique-variables-filter-default');
-
-@function _unique-variables-filter($key, $value, $map, $default-map) {
-  @return $value != map.get($default-map, $key) and $value !=
-    map.get(default.$default, $key);
-}
-$filter-callback: meta.get-function('_unique-variables-filter');
+$-map-special-state-vars-callback: meta.get-function('-map-special-state-vars');
 
 @function _process-sizes($key, $value, $-void...) {
   $groups: group-buttons($value);
 
-  $default: map.filter(
-    map.merge(
-      public-vars(map.get($groups, 'default'), 'md-#{$key}-button'),
-      private-vars(map.get($groups, 'default'))
-    ),
-    $default-filter-callback
-  );
+  $default: pick-unique(map.get($-groups, 'default'), default.$default);
 
   @return (
     $key,
     (
       'default': $default,
-      'hovered': state-vars(
-          map.get($groups, 'hovered') or (),
-          'md-#{$key}-button-hovered',
-          $filter-callback,
-          $default
+      'hovered': pick-unique(
+          map.get($-groups, 'hovered') or (),
+          $default,
+          default.$default
         ),
-      'focused': state-vars(
-          map.get($groups, 'focused') or (),
-          'md-#{$key}-button-focused',
-          $filter-callback,
-          $default
+      'focused': pick-unique(
+          map.get($-groups, 'focused') or (),
+          $default,
+          default.$default
         ),
-      'pressed': state-vars(
-          map.get($groups, 'pressed') or (),
-          'md-#{$key}-button-pressed',
-          $filter-callback,
-          $default
+      'pressed': pick-unique(
+          map.get($-groups, 'pressed') or (),
+          $default,
+          default.$default
         ),
-      'unselected': special-state-vars(
-          map.get($groups, 'unselected') or (),
-          'md-#{$key}-button-unselected',
-          $filter-callback,
-          $default
+      'unselected': map.map(
+          map.get($-groups, 'unselected') or (),
+          $-map-special-state-vars-callback
         ),
-      'selected': special-state-vars(
-          map.get($groups, 'selected') or (),
-          'md-#{$key}-button-selected',
-          $filter-callback,
-          $default
+      'selected': map.map(
+          map.get($-groups, 'selected') or (),
+          $-map-special-state-vars-callback
         )
     )
   );

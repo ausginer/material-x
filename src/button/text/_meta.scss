@@ -8,56 +8,35 @@
 
 $color: 'text';
 
-$groups: group-buttons(md-comp-button-text.$map);
+$-groups: group-buttons(md-comp-button-text.$map);
 
-@function _unique-variables-filter-default($key, $value, $-void...) {
-  @return $value != map.get(default.$default, $key);
-}
-
-$default: map.filter(
+$default: pick-unique(
   map.merge(
-    public-vars(map.get($groups, 'default'), 'md-#{$color}-button'),
-    private-vars(
-      map.get($groups, 'default'),
-      (
-        'container-color': transparent,
-      )
+    map.get($-groups, 'default'),
+    (
+      'container-color': transparent,
     )
   ),
-  meta.get-function('_unique-variables-filter-default')
+  default.$default
 );
 
-@function _unique-variables-filter($key, $value, $-void...) {
-  @return $value != map.get($default, $key) and $value !=
-    map.get(default.$default, $key);
+$hovered: pick-unique(map.get($-groups, 'hovered'), $default, default.$default);
+
+$focused: pick-unique(map.get($-groups, 'focused'), $default, default.$default);
+
+$pressed: pick-unique(map.get($-groups, 'pressed'), $default, default.$default);
+
+@function -map-special-state-vars($key, $value, $-void...) {
+  @return ($key, pick-unique($value, $default, default.$default));
 }
+$-map-special-state-vars-callback: meta.get-function('-map-special-state-vars');
 
-$filter-callback: meta.get-function('_unique-variables-filter');
-
-$hovered: state-vars(
-  map.get($groups, 'hovered'),
-  'md-#{$color}-button-hovered',
-  $filter-callback
-);
-$focused: state-vars(
-  map.get($groups, 'focused'),
-  'md-#{$color}-button-focused',
-  $filter-callback
-);
-$pressed: state-vars(
-  map.get($groups, 'pressed'),
-  'md-#{$color}-button-pressed',
-  $filter-callback
+$unselected: map.map(
+  map.get($-groups, 'unselected') or (),
+  $-map-special-state-vars-callback
 );
 
-$unselected: special-state-vars(
-  map.get($groups, 'unselected') or (),
-  'md-#{$color}-button-unselected',
-  $filter-callback
-);
-
-$selected: special-state-vars(
-  map.get($groups, 'selected') or (),
-  'md-#{$color}-button-selected',
-  $filter-callback
+$selected: map.map(
+  map.get($-groups, 'selected') or (),
+  $-map-special-state-vars-callback
 );

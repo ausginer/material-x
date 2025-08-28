@@ -2,13 +2,11 @@
 @use 'vars' as *;
 @forward '../core/utils/button';
 
-@function state-vars($group, $prefix, $filter-callback, $args...) {
-  $base: map.merge(public-vars($group, $prefix), private-vars($group));
-
-  @return map.filter($base, $filter-callback, $args...);
+@function state-vars($group, $prefix) {
+  @return map.merge(public-vars($group, $prefix), private-vars($group));
 }
 
-@function special-state-vars($group, $prefix, $filter-callback, $args...) {
+@function multi-state-vars($group, $prefix) {
   $states: ('default', 'hovered', 'focused', 'pressed');
   $result: ();
 
@@ -16,12 +14,7 @@
     $result: map.set(
       $result,
       $state,
-      state-vars(
-        map.get($group, $state) or (),
-        '#{$prefix}-#{$state}',
-        $filter-callback,
-        $args...
-      )
+      state-vars(map.get($group, $state) or (), '#{$prefix}-#{$state}')
     );
   }
 

@@ -3,9 +3,22 @@
 @use 'meta' as *;
 
 @each $size, $tokens in $sizes {
-  $size: size($size);
-  @include default-state(map.get($tokens, 'default'), $size);
-  @include hovered-state(map.get($tokens, 'hovered'), $size);
-  @include focused-state(map.get($tokens, 'focused'), $size);
-  @include pressed-state(map.get($tokens, 'pressed'), $size);
+  $param: size($size);
+
+  @include default-state(
+    state-vars(map.get($tokens, 'default'), 'md-#{$size}-button-default'),
+    $param
+  );
+  @include hovered-state(
+    state-vars(map.get($tokens, 'hovered'), 'md-#{$size}-button-hovered'),
+    $param
+  );
+  @include focused-state(
+    state-vars(map.get($tokens, 'focused'), 'md-#{$size}-button-focused'),
+    $param
+  );
+  @include pressed-state(
+    state-vars(map.get($tokens, 'pressed'), 'md-#{$size}-button-pressed'),
+    $param
+  );
 }

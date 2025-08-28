@@ -3,7 +3,7 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
-@include default-state($default) {
+@include default-state(state-vars($default, 'md-button')) {
   display: inline-flex;
   cursor: default;
   user-select: none;
@@ -27,7 +27,7 @@
   gap: 8px;
 }
 
-@include hovered-state($hovered) {
+@include hovered-state(state-vars($hovered, 'md-button-hovered')) {
   $opacity: calc(var(--_state-layer-opacity) * 100%);
   background-color: color-mix(
     in srgb,
@@ -36,12 +36,12 @@
   );
 }
 
-@include focused-state($focused) {
+@include focused-state(state-vars($focused, 'md-button-focused')) {
   outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
   outline-offset: var(--_focus-indicator-outline-offset);
 }
 
-@include pressed-state($pressed) {
+@include pressed-state(state-vars($pressed, 'md-button-pressed')) {
 }
 
 slot[name='icon'] {

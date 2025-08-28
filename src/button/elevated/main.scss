@@ -1,15 +1,27 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
-$color: color($color);
+$param: color($color);
 
-@include default-state($default, $color) {
+@include default-state(state-vars($default, 'md-#{$color}-button'), $param) {
   &::before,
   &::after {
     content: '';
   }
 }
 
-@include hovered-state($hovered, $color);
-@include focused-state($focused, $color);
-@include pressed-state($pressed, $color);
+@include hovered-state(
+  state-vars($hovered, 'md-#{$color}-button-hovered'),
+  $param
+) {
+}
+@include focused-state(
+  state-vars($focused, 'md-#{$color}-button-focused'),
+  $param
+) {
+}
+@include pressed-state(
+  state-vars($pressed, 'md-#{$color}-button-pressed'),
+  $param
+) {
+}

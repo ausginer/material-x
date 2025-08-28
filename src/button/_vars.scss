@@ -2,14 +2,9 @@
 @use 'sass:list';
 @use '~@sass-fairy/string/string';
 @use '../core/tokens/md-comp-button';
+@use '../core/utils/functions' as *;
 @use '../core/utils/group' as *;
 @use '../core/utils/map';
-
-@function -filter-null-values($key, $value, $-void...) {
-  @return $value != null;
-}
-
-$-filter-null-values: meta.get-function('-filter-null-values');
 
 @function -map-public-vars($key, $value, $map, $prefix) {
   @return ($key, 'var(--#{$prefix}-#{$key}, #{$value})');
@@ -44,11 +39,7 @@ $-filter-null-values: meta.get-function('-filter-null-values');
   );
 
   @return map.map(
-    map.map(
-      map.filter($base, $-filter-null-values),
-      meta.get-function('-map-public-vars'),
-      $prefix
-    ),
+    append-public-prefix(filter-nulls($base), $prefix),
     meta.get-function('-map-corner-shape')
   );
 }
@@ -75,10 +66,7 @@ $-filter-null-values: meta.get-function('-filter-null-values');
     $additional-map
   );
 
-  @return map.map(
-    map.filter($base, $-filter-null-values),
-    meta.get-function('-map-corner-shape')
-  );
+  @return map.map(filter-nulls($base), meta.get-function('-map-corner-shape'));
 }
 
 @function -group-callback($key) {

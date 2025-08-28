@@ -4,7 +4,11 @@
 
 @debug $unselected;
 
-@include unselected-states($unselected) using ($state) {
+@include unselected-states(
+    multi-state-vars($unselected, 'md-button-unselected')
+  )
+  using ($state) {
 }
-@include selected-states($selected) using ($state) {
+@include selected-states(multi-state-vars($selected, 'md-button-selected'))
+  using ($state) {
 }

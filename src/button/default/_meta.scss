@@ -2,21 +2,19 @@
 @use '../../core/tokens/md-comp-button';
 @use '../../core/defaults/motion-effects';
 @use '../../core/utils/map';
+@use '../../core/utils/functions' as *;
 @use '../utils' as *;
 @use '../vars' as *;
 
-$groups: group-buttons(md-comp-button.$map);
+$-groups: group-buttons(md-comp-button.$map);
 
 $default: map.merge(
-  map.merge(
-    public-vars(map.get($groups, 'default'), 'md-button'),
-    private-vars(map.get($groups, 'default'))
-  ),
+  map.get($-groups, 'default'),
   (
     'container-shape-default': var(--_container-shape-round),
     'container-shape-pressed': var(--_container-shape-square),
-    'state-layer-opacity': map.get($groups, 'pressed', 'state-layer-opacity'),
-    'state-layer-color': map.get($groups, 'pressed', 'state-layer-color'),
+    'state-layer-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
+    'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
     'padding-block': calc(
         (
             var(--_container-height) - max(
@@ -27,58 +25,42 @@ $default: map.merge(
           2
       ),
     'motion-damping': map.get(
-        $groups,
+        $-groups,
         'pressed',
         'container-corner-size-motion-spring-damping'
       ),
     'motion-stiffness': map.get(
-        $groups,
+        $-groups,
         'pressed',
         'container-corner-size-motion-spring-stiffness'
       ),
     'motion-duration': motion-effects.$expressive-fast-effects-duration,
-    'ripple-color': map.get($groups, 'pressed', 'state-layer-color'),
+    'ripple-color': map.get($-groups, 'pressed', 'state-layer-color'),
     'ripple-easing': motion-effects.$expressive-fast-effects,
-    'ripple-opacity': map.get($groups, 'pressed', 'state-layer-opacity'),
+    'ripple-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
     'spring-factor': 0,
   )
 );
 
-@function _unique-variables-filter($key, $value, $-void...) {
-  @return $value != map.get($default, $key);
+$hovered: pick-unique(map.get($-groups, 'hovered'), $default);
+
+$focused: pick-unique(map.get($-groups, 'focused'), $default);
+
+$pressed: pick-unique(map.get($-groups, 'pressed'), $default);
+
+$disabled: pick-unique(map.get($-groups, 'disabled'), $default);
+
+@function -map-special-state-vars($key, $value, $-void...) {
+  @return ($key, pick-unique($value, $default));
 }
+$-map-special-state-vars-callback: meta.get-function('-map-special-state-vars');
 
-$filter-callback: meta.get-function('_unique-variables-filter');
-
-$hovered: state-vars(
-  map.get($groups, 'hovered'),
-  'md-button-hovered',
-  $filter-callback
-);
-$focused: state-vars(
-  map.get($groups, 'focused'),
-  'md-button-focused',
-  $filter-callback
-);
-$pressed: state-vars(
-  map.get($groups, 'pressed'),
-  'md-button-pressed',
-  $filter-callback
-);
-$disabled: state-vars(
-  map.get($groups, 'disabled'),
-  'md-button-disabled',
-  $filter-callback
+$unselected: map.map(
+  map.get($-groups, 'unselected') or (),
+  $-map-special-state-vars-callback
 );
 
-$unselected: special-state-vars(
-  map.get($groups, 'unselected') or (),
-  'md-button-unselected',
-  $filter-callback
-);
-
-$selected: special-state-vars(
-  map.get($groups, 'selected') or (),
-  'md-button-selected',
-  $filter-callback
+$selected: map.map(
+  map.get($-groups, 'selected') or (),
+  $-map-special-state-vars-callback
 );
