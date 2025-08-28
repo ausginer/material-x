@@ -1,0 +1,52 @@
+@use 'sass:meta';
+@use 'sass:list';
+@use '~@sass-fairy/string/string';
+@use '../core/utils/functions' as *;
+@use '../core/utils/group' as *;
+@use '../core/utils/map';
+
+@function public-vars($map, $prefix) {
+  $base: (
+    'container-width': map.get($map, 'container-width'),
+    'container-height': map.get($map, 'container-height'),
+    'container-color': map.get($map, 'container-color'),
+    'container-elevation': map.get($map, 'container-elevation'),
+    'icon-size': map.get($map, 'icon-size'),
+    'icon-color': map.get($map, 'icon-color'),
+  );
+
+  @return append-public-prefix(filter-nulls($base), $prefix);
+}
+
+@function private-vars($map) {
+  $base: (
+    'container-shape': map.get($map, 'container-shape'),
+    'container-shadow-color': map.get($map, 'container-shadow-color'),
+  );
+
+  @return filter-nulls($base);
+}
+
+@function -group-callback($key) {
+  $groups: ();
+  $remaining: $key;
+
+  @if string.includes($remaining, 'focused-') {
+    $groups: list.append($groups, 'focused');
+    $remaining: string.replace($remaining, 'focused-', '');
+  } @else if string.includes($remaining, 'hovered-') {
+    $groups: list.append($groups, 'hovered');
+    $remaining: string.replace($remaining, 'hovered-', '');
+  } @else if string.includes($remaining, 'pressed-') {
+    $groups: list.append($groups, 'pressed');
+    $remaining: string.replace($remaining, 'pressed-', '');
+  } @else {
+    $groups: list.append($groups, 'default');
+  }
+
+  @return ($groups, $remaining);
+}
+
+@function group-fabs($map) {
+  @return group($map, meta.get-function('-group-callback'));
+}

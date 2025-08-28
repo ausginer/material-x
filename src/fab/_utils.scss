@@ -1,0 +1,7 @@
+@forward '../core/utils/button';
+@use '../core/utils/map';
+@use 'vars' as *;
+
+@function state-vars($group, $prefix) {
+  @return map.merge(public-vars($group, $prefix), private-vars($group));
+}

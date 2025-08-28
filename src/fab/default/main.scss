@@ -1,0 +1,23 @@
+@use '../utils' as *;
+@use 'meta' as *;
+
+@include default-state(state-vars($default, 'md-fab')) {
+  width: var(--_container-width);
+  height: var(--_container-height);
+  background-color: var(--_container-color);
+}
+
+@include hovered-state(state-vars($hovered, 'md-fab-hovered')) {
+}
+
+@include focused-state(state-vars($focused, 'md-fab-focused')) {
+}
+
+@include pressed-state(state-vars($pressed, 'md-fab-pressed')) {
+}
+
+slot {
+  width: var(--_icon-size);
+  height: var(--_icon-size);
+  color: var(--_icon-color);
+}
