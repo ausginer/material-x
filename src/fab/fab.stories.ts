@@ -19,14 +19,14 @@ type FABProps = Readonly<{
 const meta: Meta<FABProps> = {
   title: 'Button/FAB',
   tags: ['autodocs'],
-  render: ({ tonal, color, onClick, label, disabled, size, icon = nothing }) =>
+  render: ({ tonal, color, onClick, disabled, size, icon = nothing }) =>
     html`<mx-fab
       ?disabled=${disabled}
       ?tonal=${tonal}
       color=${ifDefined(color)}
       size=${ifDefined(size)}
       @click=${onClick}
-      >${icon}${label}</mx-fab
+      >${icon}</mx-fab
     >`,
   argTypes: {
     tonal: {

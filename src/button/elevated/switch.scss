@@ -2,17 +2,15 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
-$param: color($color);
+$unselected-vars: multi-state-vars(
+  $unselected,
+  'md-#{$color}-button-unselected'
+);
+$selected-vars: multi-state-vars($selected, 'md-#{$color}-button-selected');
 
-@include unselected-states(
-    multi-state-vars($unselected, 'md-#{$color}-button-unselected'),
-    $param
-  )
-  using ($state) {
+$color-param: color($color);
+
+@include unselected-states($unselected-vars, $color-param) using ($state) {
 }
-@include selected-states(
-    multi-state-vars($selected, 'md-#{$color}-button-selected'),
-    $param
-  )
-  using ($state) {
+@include selected-states($selected-vars, $color-param) using ($state) {
 }

@@ -2,6 +2,7 @@
 @use 'sass:string';
 @use '../../core/tokens/md-comp-button-tonal';
 @use '../../core/utils/map';
+@use '../../core/utils/functions' as *;
 @use '../default/meta' as default;
 @use '../utils' as *;
 @use '../vars' as *;
@@ -10,15 +11,10 @@ $color: 'tonal';
 
 $-groups: group-buttons(md-comp-button-tonal.$map);
 
-$default: pick-unique(
-  map.merge(
-    map.get($-groups, 'default'),
-    (
-      'state-layer-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
-      'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
-    )
-  ),
-  default.$default
+$default: pick-unique(map.get($-groups, 'default'), default.$default);
+$special: (
+  'state-layer-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
+  'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
 );
 
 $hovered: pick-unique(map.get($-groups, 'hovered'), $default, default.$default);

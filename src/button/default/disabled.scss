@@ -1,7 +1,9 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
-@include disabled-state(state-vars($disabled, 'md-button-disabled')) {
+$disabled-vars: state-vars($disabled, 'md-button-disabled');
+
+@include disabled-state($disabled-vars) {
   $container-opacity-amount: calc(100% - var(--_container-opacity) * 100%);
   $label-text-opacity: calc(100% - var(--_label-text-opacity) * 100%);
 

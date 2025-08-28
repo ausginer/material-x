@@ -8,38 +8,36 @@
 
 $-groups: group-buttons(md-comp-button.$map);
 
-$default: map.merge(
-  map.get($-groups, 'default'),
-  (
-    'container-shape-default': var(--_container-shape-round),
-    'container-shape-pressed': var(--_container-shape-square),
-    'state-layer-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
-    'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
-    'padding-block': calc(
-        (
-            var(--_container-height) - max(
-                var(--_icon-size),
-                var(--_label-text-line-height)
-              )
-          ) /
-          2
-      ),
-    'motion-damping': map.get(
-        $-groups,
-        'pressed',
-        'container-corner-size-motion-spring-damping'
-      ),
-    'motion-stiffness': map.get(
-        $-groups,
-        'pressed',
-        'container-corner-size-motion-spring-stiffness'
-      ),
-    'motion-duration': motion-effects.$expressive-fast-effects-duration,
-    'ripple-color': map.get($-groups, 'pressed', 'state-layer-color'),
-    'ripple-easing': motion-effects.$expressive-fast-effects,
-    'ripple-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
-    'spring-factor': 0,
-  )
+$default: map.get($-groups, 'default');
+$special: (
+  'container-shape-default': var(--_container-shape-round),
+  'container-shape-pressed': var(--_container-shape-square),
+  'state-layer-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
+  'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
+  'padding-block': calc(
+      (
+          var(--_container-height) - max(
+              var(--_icon-size),
+              var(--_label-text-line-height)
+            )
+        ) /
+        2
+    ),
+  'motion-damping': map.get(
+      $-groups,
+      'pressed',
+      'container-corner-size-motion-spring-damping'
+    ),
+  'motion-stiffness': map.get(
+      $-groups,
+      'pressed',
+      'container-corner-size-motion-spring-stiffness'
+    ),
+  'motion-duration': motion-effects.$expressive-fast-effects-duration,
+  'ripple-color': var(--_state-layer-color),
+  'ripple-easing': motion-effects.$expressive-fast-effects,
+  'ripple-opacity': var(--_state-layer-opacity),
+  'spring-factor': 0,
 );
 
 $hovered: pick-unique(map.get($-groups, 'hovered'), $default);

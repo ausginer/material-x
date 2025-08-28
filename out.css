@@ -1,0 +1,23 @@
+:host {
+  --_level: var(--md-elevation-level, 0);
+  --_shadow-color: var(
+    --md-elevation-shadow-color,
+    var(--md-sys-color-surface-tint, #3f6900)
+  );
+  position: relative;
+  box-shadow: 0 calc(round(var(--_level) * 0.9) * 1px) calc(round(var(--_level) * 1.6) * 1px) 0 color-mix(in srgb, var(--_shadow-color) 16%, transparent);
+}
+:host::before, :host::after {
+  border-radius: inherit;
+  inset: 0;
+  position: absolute;
+  transition-duration: inherit;
+  transition-timing-function: inherit;
+  transition-property: box-shadow, opacity;
+}
+:host::before {
+  box-shadow: 0 calc(round(var(--_level) * 0.45) * 1px) calc(round(var(--_level) * 0.6) * 1px) 0 color-mix(in srgb, var(--_shadow-color) 25%, transparent);
+}
+:host::after {
+  box-shadow: 0 calc(round(var(--_level) * 1.5) * 1px) calc(round(var(--_level) * 2.2) * 1px) 0 color-mix(in srgb, var(--_shadow-color) 10%, transparent);
+}

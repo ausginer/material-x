@@ -23,7 +23,6 @@
 }
 
 @function -is-unique($item, $-index, $-list, $key, $value) {
-  @debug $value, $key, $item;
   @return $value != map.get($item, $key);
 }
 

@@ -1,23 +1,38 @@
+@use 'sass:map';
 @use '../utils' as *;
 @use 'meta' as *;
 
-@include default-state(state-vars($default, 'md-fab')) {
+$default-vars: map.merge(state-vars($default, 'md-fab'), $special);
+$hovered-vars: state-vars($hovered, 'md-fab-hovered');
+$focused-vars: state-vars($focused, 'md-fab-focused');
+$pressed-vars: state-vars($pressed, 'md-fab-pressed');
+
+@include default-state($default-vars) {
+  &::before,
+  &::after {
+    content: '';
+  }
+
+  display: inline-flex;
   width: var(--_container-width);
   height: var(--_container-height);
   background-color: var(--_container-color);
+  border-radius: var(--_container-shape);
+  justify-content: center;
+  align-items: center;
 }
 
-@include hovered-state(state-vars($hovered, 'md-fab-hovered')) {
+@include hovered-state($hovered-vars) {
 }
 
-@include focused-state(state-vars($focused, 'md-fab-focused')) {
+@include focused-state($focused-vars) {
 }
 
-@include pressed-state(state-vars($pressed, 'md-fab-pressed')) {
+@include pressed-state($pressed-vars) {
 }
 
-slot {
-  width: var(--_icon-size);
-  height: var(--_icon-size);
+slot::slotted(*) {
+  --md-icon-size: var(--_icon-size);
+
   color: var(--_icon-color);
 }

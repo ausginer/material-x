@@ -3,18 +3,13 @@
 @use 'meta' as *;
 
 @each $size, $tokens in $sizes {
-  $param: size($size);
+  $unselected-vars: multi-state-vars($tokens, 'md-#{$size}-button-unselected');
+  $selected-vars: multi-state-vars($tokens, 'md-#{$size}-button-selected');
 
-  @include unselected-states(
-      multi-state-vars($tokens, 'md-#{$size}-button-unselected'),
-      $param
-    )
-    using ($state) {
+  $size-param: size($size);
+
+  @include unselected-states($unselected-vars, $size-param) using ($state) {
   }
-  @include selected-states(
-      multi-state-vars($tokens, 'md-#{$size}-button-selected'),
-      $param
-    )
-    using ($state) {
+  @include selected-states($selected-vars, $size-param) using ($state) {
   }
 }

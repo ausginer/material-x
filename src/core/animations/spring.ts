@@ -45,12 +45,19 @@ function createSpringKeyframes(
   });
 }
 
+export type ControlEvents = readonly [
+  start: keyof HTMLElementEventMap,
+  end: keyof HTMLElementEventMap,
+];
+
 export default class SpringAnimationController implements ReactiveController {
   readonly #host: HTMLElement;
+  readonly #events: ControlEvents;
   readonly #listenerController: AbortController = new AbortController();
 
-  constructor(host: HTMLElement) {
+  constructor(host: HTMLElement, events: ControlEvents) {
     this.#host = host;
+    this.#events = events;
   }
 
   connected(): void {
@@ -85,8 +92,10 @@ export default class SpringAnimationController implements ReactiveController {
 
     animation.pause();
 
+    const [start, stop] = this.#events;
+
     host.addEventListener(
-      'pointerdown',
+      start,
       () => {
         animation.playbackRate = 1;
         animation.play();
@@ -95,7 +104,7 @@ export default class SpringAnimationController implements ReactiveController {
     );
 
     host.addEventListener(
-      'pointerup',
+      stop,
       () => {
         animation.playbackRate = -1;
         animation.play();

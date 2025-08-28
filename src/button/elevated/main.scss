@@ -1,27 +1,24 @@
+@use 'sass:map';
 @use '../utils' as *;
 @use 'meta' as *;
 
-$param: color($color);
+$default-vars: map.merge(state-vars($default, 'md-#{$color}-button'), $special);
+$hovered-vars: state-vars($hovered, 'md-#{$color}-button-hovered');
+$focused-vars: state-vars($focused, 'md-#{$color}-button-focused');
+$pressed-vars: state-vars($pressed, 'md-#{$color}-button-pressed');
 
-@include default-state(state-vars($default, 'md-#{$color}-button'), $param) {
+$color-param: color($color);
+
+@include default-state($default-vars, $color-param) {
   &::before,
   &::after {
     content: '';
   }
 }
 
-@include hovered-state(
-  state-vars($hovered, 'md-#{$color}-button-hovered'),
-  $param
-) {
+@include hovered-state($hovered-vars, $color-param) {
 }
-@include focused-state(
-  state-vars($focused, 'md-#{$color}-button-focused'),
-  $param
-) {
+@include focused-state($focused-vars, $color-param) {
 }
-@include pressed-state(
-  state-vars($pressed, 'md-#{$color}-button-pressed'),
-  $param
-) {
+@include pressed-state($pressed-vars, $color-param) {
 }

@@ -21,7 +21,7 @@
 @function private-vars($map) {
   $base: (
     'container-shape': map.get($map, 'container-shape'),
-    'container-shadow-color': map.get($map, 'container-shadow-color'),
+    'shadow-color': map.get($map, 'container-shadow-color'),
   );
 
   @return filter-nulls($base);

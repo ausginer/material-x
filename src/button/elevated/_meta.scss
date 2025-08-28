@@ -3,7 +3,7 @@
 @use '../../core/tokens/md-comp-button-elevated';
 @use '../../core/utils/map';
 @use '../default/meta' as default;
-@use '../../core/utils/functions';
+@use '../../core/utils/functions' as *;
 @use '../utils' as *;
 @use '../vars' as *;
 
@@ -11,14 +11,9 @@ $color: 'elevated';
 
 $-groups: group-buttons(md-comp-button-elevated.$map);
 
-$default: pick-unique(
-  map.merge(
-    map.get($-groups, 'default'),
-    (
-      'level': var(--_container-elevation),
-    )
-  ),
-  default.$default
+$default: pick-unique(map.get($-groups, 'default'), default.$default);
+$special: (
+  'level': var(--_container-elevation),
 );
 
 $hovered: pick-unique(map.get($-groups, 'hovered'), $default, default.$default);

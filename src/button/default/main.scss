@@ -3,7 +3,12 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
-@include default-state(state-vars($default, 'md-button')) {
+$default-vars: map.merge(state-vars($default, 'md-button'), $special);
+$hovered-vars: state-vars($hovered, 'md-button-hovered');
+$focused-vars: state-vars($focused, 'md-button-focused');
+$pressed-vars: state-vars($pressed, 'md-button-pressed');
+
+@include default-state($default-vars) {
   display: inline-flex;
   cursor: default;
   user-select: none;
@@ -27,7 +32,7 @@
   gap: 8px;
 }
 
-@include hovered-state(state-vars($hovered, 'md-button-hovered')) {
+@include hovered-state($hovered-vars) {
   $opacity: calc(var(--_state-layer-opacity) * 100%);
   background-color: color-mix(
     in srgb,
@@ -36,15 +41,17 @@
   );
 }
 
-@include focused-state(state-vars($focused, 'md-button-focused')) {
+@include focused-state($focused-vars) {
   outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
   outline-offset: var(--_focus-indicator-outline-offset);
 }
 
-@include pressed-state(state-vars($pressed, 'md-button-pressed')) {
+@include pressed-state($pressed-vars) {
 }
 
 slot[name='icon'] {
+  --md-icon-size: var(--_icon-size);
+
   color: var(--_icon-color);
   flex: 1 0 var(--_icon-size);
 }

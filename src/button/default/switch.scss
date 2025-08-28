@@ -2,13 +2,10 @@
 @use 'meta' as *;
 @use '../utils' as *;
 
-@debug $unselected;
+$unselected-vars: multi-state-vars($unselected, 'md-button-unselected');
+$selected-vars: multi-state-vars($selected, 'md-button-selected');
 
-@include unselected-states(
-    multi-state-vars($unselected, 'md-button-unselected')
-  )
-  using ($state) {
+@include unselected-states($unselected-vars) using ($state) {
 }
-@include selected-states(multi-state-vars($selected, 'md-button-selected'))
-  using ($state) {
+@include selected-states($selected-vars) using ($state) {
 }

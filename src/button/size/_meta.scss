@@ -6,46 +6,47 @@
 @use '../../core/tokens/md-comp-button-small' as small-tokens;
 @use '../../core/tokens/md-comp-button-xsmall' as xsmall-tokens;
 @use '../../core/utils/map';
+@use '../../core/utils/functions' as *;
 @use '../default/meta' as default;
 @use '../utils' as *;
 @use '../vars' as *;
 
-@function -map-special-state-vars($key, $value, $map, $default) {
+@function -map-multi-state-vars($key, $value, $-map, $default...) {
   @return ($key, pick-unique($value, $default, default.$default));
 }
-$-map-special-state-vars-callback: meta.get-function('-map-special-state-vars');
+$-map-multi-state-vars: meta.get-function('-map-multi-state-vars');
 
-@function _process-sizes($key, $value, $-void...) {
+@function -process-sizes($key, $value, $-void...) {
   $groups: group-buttons($value);
 
-  $default: pick-unique(map.get($-groups, 'default'), default.$default);
+  $default: pick-unique(map.get($groups, 'default'), default.$default);
 
   @return (
     $key,
     (
       'default': $default,
       'hovered': pick-unique(
-          map.get($-groups, 'hovered') or (),
+          map.get($groups, 'hovered') or (),
           $default,
           default.$default
         ),
       'focused': pick-unique(
-          map.get($-groups, 'focused') or (),
+          map.get($groups, 'focused') or (),
           $default,
           default.$default
         ),
       'pressed': pick-unique(
-          map.get($-groups, 'pressed') or (),
+          map.get($groups, 'pressed') or (),
           $default,
           default.$default
         ),
       'unselected': map.map(
-          map.get($-groups, 'unselected') or (),
-          $-map-special-state-vars-callback
+          map.get($groups, 'unselected') or (),
+          $-map-multi-state-vars
         ),
       'selected': map.map(
-          map.get($-groups, 'selected') or (),
-          $-map-special-state-vars-callback
+          map.get($groups, 'selected') or (),
+          $-map-multi-state-vars
         )
     )
   );
@@ -59,5 +60,5 @@ $sizes: map.map(
     'small': small-tokens.$map,
     'xsmall': xsmall-tokens.$map,
   ),
-  meta.get-function('_process-sizes')
+  meta.get-function('-process-sizes')
 );

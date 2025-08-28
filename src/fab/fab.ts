@@ -1,4 +1,7 @@
-import CoreElement from '../core/elements/core.ts';
+import RippleAnimationController from '../core/animations/ripple.ts';
+import SpringAnimationController from '../core/animations/spring.ts';
+import CoreElement, { use } from '../core/elements/core.ts';
+import elevationStyles from '../core/elevation/elevation.scss' with { type: 'css' };
 import { define, template } from '../utils.ts';
 import mainStyles from './default/main.scss' with { type: 'css' };
 
@@ -15,7 +18,12 @@ const TEMPLATE = template`<slot></slot>`;
  */
 export default class FAB extends CoreElement {
   constructor() {
-    super(TEMPLATE, { role: 'button' }, [mainStyles]);
+    super(TEMPLATE, { role: 'button' }, [elevationStyles, mainStyles]);
+    use(
+      this,
+      new SpringAnimationController(this, ['pointerenter', 'pointerleave']),
+    );
+    use(this, new RippleAnimationController(this));
   }
 }
 

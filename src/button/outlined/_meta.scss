@@ -4,6 +4,7 @@
 @use '../../core/utils/functions';
 @use '../../core/utils/map';
 @use '../default/meta' as default;
+@use '../../core/utils/functions' as *;
 @use '../utils' as *;
 @use '../vars' as *;
 
@@ -11,15 +12,10 @@ $color: 'outlined';
 
 $-groups: group-buttons(md-comp-button-outlined.$map);
 
-$default: pick-unique(
-  map.merge(
-    map.get($-groups, 'default'),
-    (
-      'container-color': transparent,
-      'outline-width': 1px,
-    )
-  ),
-  default.$default
+$default: pick-unique(map.get($-groups, 'default'), default.$default);
+$special: (
+  'container-color': transparent,
+  'outline-width': 1px,
 );
 
 $hovered: pick-unique(map.get($-groups, 'hovered'), $default);

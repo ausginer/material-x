@@ -2,6 +2,7 @@
 @use 'sass:string';
 @use '../../core/tokens/md-comp-button-text';
 @use '../../core/utils/map';
+@use '../../core/utils/functions' as *;
 @use '../default/meta' as default;
 @use '../utils' as *;
 @use '../vars' as *;
@@ -10,14 +11,9 @@ $color: 'text';
 
 $-groups: group-buttons(md-comp-button-text.$map);
 
-$default: pick-unique(
-  map.merge(
-    map.get($-groups, 'default'),
-    (
-      'container-color': transparent,
-    )
-  ),
-  default.$default
+$default: pick-unique(map.get($-groups, 'default'), default.$default);
+$special: (
+  'container-color': transparent,
 );
 
 $hovered: pick-unique(map.get($-groups, 'hovered'), $default, default.$default);

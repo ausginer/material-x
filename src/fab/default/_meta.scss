@@ -2,6 +2,8 @@
 @use '~@fireflysemantics/sass-logger' as logger;
 @use '../../core/tokens/md-comp-fab';
 @use '../../core/tokens/md-comp-fab-tertiary';
+@use '../../core/tokens/md-sys-motion';
+@use '../../core/defaults/motion-effects';
 @use '../../core/utils/functions' as *;
 @use '../../core/utils/map';
 @use '../utils' as *;
@@ -9,16 +11,40 @@
 
 $-groups: group-fabs(map.merge(md-comp-fab.$map, md-comp-fab-tertiary.$map));
 
-$default: map.merge(
+$-elevation-default: map.get($-groups, 'default', 'container-elevation');
+$-elevation-hovered: map.get($-groups, 'hovered', 'container-elevation');
+
+@function -is-not-container-elevation($key, $value, $-void...) {
+  @return $key != 'container-elevation';
+}
+$-is-not-container-elevation: meta.get-function('-is-not-container-elevation');
+
+$default: map.filter(
   map.get($-groups, 'default'),
-  (
-    'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
-    'state-layer-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
-    level: var(--_container-elevation),
-  )
+  $-is-not-container-elevation
 );
 
-$hovered: pick-unique(map.get($-groups, 'hovered'), $default);
+$special: (
+  'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
+  'state-layer-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
+  'spring-factor': 0,
+  'level': calc(
+      #{$-elevation-default} +
+        (#{$-elevation-hovered} - #{$-elevation-default}) *
+        var(--_spring-factor)
+    ),
+  'motion-damping': md-sys-motion.$spring-fast-spatial-damping,
+  'motion-stiffness': md-sys-motion.$spring-fast-spatial-stiffness,
+  'motion-duration': motion-effects.$expressive-fast-effects-duration,
+  'ripple-color': var(--_state-layer-color),
+  'ripple-easing': motion-effects.$expressive-fast-effects,
+  'ripple-opacity': var(--_state-layer-opacity),
+);
+
+$hovered: map.filter(
+  pick-unique(map.get($-groups, 'hovered'), $default),
+  $-is-not-container-elevation
+);
 
 $focused: pick-unique(map.get($-groups, 'focused'), $default);
 
