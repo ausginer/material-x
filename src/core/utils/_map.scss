@@ -38,3 +38,13 @@
 
   @return $result;
 }
+
+@function every($map, $callback, $args...) {
+  @each $key, $value in $map {
+    @if not meta.call($callback, $key, $value, $map, $args...) {
+      @return false;
+    }
+  }
+
+  @return true;
+}
