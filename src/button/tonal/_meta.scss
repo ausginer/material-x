@@ -2,7 +2,6 @@
 @use 'sass:string';
 @use '../../core/tokens/md-comp-button-tonal';
 @use '../../core/utils/map';
-@use '../../core/utils/functions' as *;
 @use '../default/meta' as default;
 @use '../utils' as *;
 @use '../vars' as *;
@@ -11,29 +10,63 @@ $color: 'tonal';
 
 $-groups: group-buttons(md-comp-button-tonal.$map);
 
-$default: pick-unique(map.get($-groups, 'default'), default.$default);
+$default-tokens: map.get($-groups, 'default');
 $special: (
   'state-layer-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
   'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
 );
 
-$hovered: pick-unique(map.get($-groups, 'hovered'), $default, default.$default);
+$default: map.merge(
+  state-vars(
+    extend(map.get($-groups, 'default'), $default-tokens),
+    'md-#{$color}-button'
+  ),
+  $special
+);
 
-$focused: pick-unique(map.get($-groups, 'focused'), $default, default.$default);
+$-extensions: ($default-tokens, $special, default.$default-tokens);
 
-$pressed: pick-unique(map.get($-groups, 'pressed'), $default, default.$default);
+$hovered: state-vars(
+  extend(map.get($-groups, 'hovered'), $-extensions...),
+  'md-#{$color}-button-hovered'
+);
 
-@function -map-special-state-vars($key, $value, $-void...) {
-  @return ($key, pick-unique($value, $default, default.$default));
+$focused: state-vars(
+  extend(map.get($-groups, 'focused'), $-extensions...),
+  'md-#{$color}-button-focused'
+);
+
+$pressed: state-vars(
+  extend(map.get($-groups, 'pressed'), $-extensions...),
+  'md-#{$color}-button-pressed'
+);
+
+@function -map-unselected($key, $value, $-void...) {
+  @return (
+    $key,
+    state-vars(
+      extend($value, $-extensions...),
+      'md-#{$color}-button-unselected-#{$key}'
+    )
+  );
 }
-$-map-special-state-vars-callback: meta.get-function('-map-special-state-vars');
 
 $unselected: map.map(
   map.get($-groups, 'unselected') or (),
-  $-map-special-state-vars-callback
+  meta.get-function('-map-unselected')
 );
+
+@function -map-selected($key, $value, $-void...) {
+  @return (
+    $key,
+    state-vars(
+      extend($value, map.get($unselected, $key) or ()),
+      'md-#{$color}-button-selected-#{$key}'
+    )
+  );
+}
 
 $selected: map.map(
   map.get($-groups, 'selected') or (),
-  $-map-special-state-vars-callback
+  meta.get-function('-map-selected')
 );

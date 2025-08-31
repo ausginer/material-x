@@ -1,25 +1,7 @@
 @use '../core/utils/map';
-@use 'vars' as *;
 @forward '../core/utils/button';
-
-@function state-vars($group, $prefix) {
-  @return map.merge(public-vars($group, $prefix), private-vars($group));
-}
-
-@function multi-state-vars($group, $prefix) {
-  $states: ('default', 'hovered', 'focused', 'pressed');
-  $result: ();
-
-  @each $state in $states {
-    $result: map.set(
-      $result,
-      $state,
-      state-vars(map.get($group, $state) or (), '#{$prefix}-#{$state}')
-    );
-  }
-
-  @return $result;
-}
+@forward '../core/utils/group';
+@forward '../core/utils/misc';
 
 @function color($color) {
   @return 'color="#{$color}"';

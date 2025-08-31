@@ -1,30 +1,40 @@
 @use 'sass:meta';
 @use 'sass:list';
 @use '~@sass-fairy/string/string';
-@use '../core/utils/functions' as *;
-@use '../core/utils/group' as *;
 @use '../core/utils/map';
+@use 'utils' as *;
 
-@function public-vars($map, $prefix) {
-  $base: (
-    'container-width': map.get($map, 'container-width'),
-    'container-height': map.get($map, 'container-height'),
-    'container-color': map.get($map, 'container-color'),
-    'container-elevation': map.get($map, 'container-elevation'),
-    'icon-size': map.get($map, 'icon-size'),
-    'icon-color': map.get($map, 'icon-color'),
+@function public-vars($tokens) {
+  @return filter-nulls(
+    (
+      'container-width': map.get($tokens, 'container-width'),
+      'container-height': map.get($tokens, 'container-height'),
+      'container-color': map.get($tokens, 'container-color'),
+      'icon-size': map.get($tokens, 'icon-size'),
+      'icon-color': map.get($tokens, 'icon-color'),
+    )
   );
-
-  @return append-public-prefix(filter-nulls($base), $prefix);
 }
 
-@function private-vars($map) {
-  $base: (
-    'container-shape': map.get($map, 'container-shape'),
-    'shadow-color': map.get($map, 'container-shadow-color'),
-  );
+@function private-vars($tokens) {
+  $label-text: map.get($tokens, 'label-text') or ();
 
-  @return filter-nulls($base);
+  @return filter-nulls(
+    (
+      'container-shape': map.get($tokens, 'container-shape'),
+      'shadow-color': map.get($tokens, 'container-shadow-color'),
+      'state-layer-color': map.get($tokens, 'state-layer-color'),
+      'state-layer-opacity': map.get($tokens, 'state-layer-opacity'),
+    )
+  );
+}
+
+@function state-vars($state-map, $prefix, $exclusion-maps...) {
+  $state-tokens: extend($state-map, $exclusion-maps...);
+  @debug debug($state-tokens);
+  $state-public-vars: append-public-prefix(public-vars($state-tokens), $prefix);
+  $state-private-vars: private-vars($state-tokens);
+  @return map.merge($state-public-vars, $state-private-vars);
 }
 
 @function -group-callback($key) {

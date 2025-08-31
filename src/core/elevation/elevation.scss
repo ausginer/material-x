@@ -47,6 +47,7 @@ $ambient: 0 $ambient-offset $ambient-blur 0 $ambient-color;
     transition-duration: inherit;
     transition-timing-function: inherit;
     transition-property: box-shadow;
+    pointer-events: none;
   }
 
   &::before {

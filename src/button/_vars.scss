@@ -2,9 +2,8 @@
 @use 'sass:list';
 @use '~@sass-fairy/string/string';
 @use '../core/tokens/md-comp-button';
-@use '../core/utils/functions' as *;
-@use '../core/utils/group' as *;
 @use '../core/utils/map';
+@use 'utils' as *;
 
 @function -map-public-vars($key, $value, $map, $prefix) {
   @return ($key, 'var(--#{$prefix}-#{$key}, #{$value})');
@@ -18,9 +17,10 @@
   @return ($key, $value);
 }
 
-@function public-vars($tokens, $prefix, $additional-map: ()) {
+@function public-vars($tokens) {
   $label-text: map.get($tokens, 'label-text') or ();
-  $base: map.merge(
+
+  @return filter-nulls(
     (
       'container-color': map.get($tokens, 'container-color'),
       'container-elevation': map.get($tokens, 'container-elevation'),
@@ -34,21 +34,29 @@
       'label-text-line-height': map.get($label-text, 'line-height'),
       'leading-space': map.get($tokens, 'leading-space'),
       'trailing-space': map.get($tokens, 'trailing-space'),
-    ),
-    $additional-map
-  );
-
-  @return map.map(
-    append-public-prefix(filter-nulls($base), $prefix),
-    meta.get-function('-map-corner-shape')
+    )
   );
 }
 
-@function private-vars($tokens, $additional-map: ()) {
-  $base: map.merge(
+@function shape-transformer($var) {
+  @if $var == 'full' {
+    @return calc(var(--_container-height) / 2);
+  }
+
+  @return $var;
+}
+
+@function private-vars($tokens) {
+  $label-text: map.get($tokens, 'label-text') or ();
+
+  @return filter-nulls(
     (
-      'container-shape-round': map.get($tokens, 'container-shape-round'),
-      'container-shape-square': map.get($tokens, 'container-shape-square'),
+      'container-shape-round': shape-transformer(
+          map.get($tokens, 'container-shape-round')
+        ),
+      'container-shape-square': shape-transformer(
+          map.get($tokens, 'container-shape-square')
+        ),
       'container-shadow-color': map.get($tokens, 'container-shadow-color'),
       'focus-indicator-color': map.get($tokens, 'focus-indicator-color'),
       'focus-indicator-outline-offset': map.get(
@@ -62,11 +70,14 @@
       'container-opacity': map.get($tokens, 'container-opacity'),
       'label-text-opacity': map.get($tokens, 'label-text-opacity'),
       'outline-color': map.get($tokens, 'outline-color'),
-    ),
-    $additional-map
+    )
   );
+}
 
-  @return map.map(filter-nulls($base), meta.get-function('-map-corner-shape'));
+@function state-vars($state-tokens, $prefix) {
+  $state-public-vars: append-public-prefix(public-vars($state-tokens), $prefix);
+  $state-private-vars: private-vars($state-tokens);
+  @return map.merge($state-public-vars, $state-private-vars);
 }
 
 @function -group-callback($key) {

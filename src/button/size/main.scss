@@ -3,24 +3,10 @@
 @use 'meta' as *;
 
 @each $size, $tokens in $sizes {
-  $default-vars: state-vars(map.get($tokens, 'default'), 'md-#{$size}-button');
-  $hovered-vars: state-vars(
-    map.get($tokens, 'hovered'),
-    'md-#{$size}-button-hovered'
-  );
-  $focused-vars: state-vars(
-    map.get($tokens, 'focused'),
-    'md-#{$size}-button-focused'
-  );
-  $pressed-vars: state-vars(
-    map.get($tokens, 'pressed'),
-    'md-#{$size}-button-pressed'
-  );
-
   $size-param: size($size);
 
-  @include default-state($default-vars, $size-param);
-  @include hovered-state($hovered-vars, $size-param);
-  @include focused-state($focused-vars, $size-param);
-  @include pressed-state($pressed-vars, $size-param);
+  @include default-state(map.get($tokens, 'default'), $size-param);
+  @include hovered-state(map.get($tokens, 'hovered'), $size-param);
+  @include focused-state(map.get($tokens, 'focused'), $size-param);
+  @include pressed-state(map.get($tokens, 'pressed'), $size-param);
 }

@@ -1,7 +1,7 @@
 @use 'sass:list';
 @use 'sass:string';
 @use './map';
-@use './functions' as *;
+@use './misc' as *;
 
 $-button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
 
@@ -12,10 +12,12 @@ $-button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
     $result: '#{$result}(';
 
     @each $p in $params {
-      @if string.index($p, ':') == 1 {
-        $result: '#{$result}#{$p}';
-      } @else {
-        $result: '#{$result}[#{$p}]';
+      @if $p != null {
+        @if string.index($p, ':') == 1 {
+          $result: '#{$result}#{$p}';
+        } @else {
+          $result: '#{$result}[#{$p}]';
+        }
       }
     }
 
@@ -42,11 +44,9 @@ $-button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
 @mixin -state($vars, $state, $params...) {
   $host: -host-state($state, $params...);
 
-  @if not map.is-empty($vars) {
-    #{$host} {
-      @include vars($vars);
-      @content;
-    }
+  #{$host} {
+    @include vars($vars);
+    @content;
   }
 }
 

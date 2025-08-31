@@ -1,51 +1,62 @@
 @use 'sass:meta';
-@use '~@fireflysemantics/sass-logger' as logger;
 @use '../../core/tokens/md-comp-fab';
 @use '../../core/tokens/md-comp-fab-tertiary';
 @use '../../core/tokens/md-sys-motion';
 @use '../../core/defaults/motion-effects';
-@use '../../core/utils/functions' as *;
 @use '../../core/utils/map';
 @use '../utils' as *;
 @use '../vars' as *;
 
 $-groups: group-fabs(map.merge(md-comp-fab.$map, md-comp-fab-tertiary.$map));
 
-$-elevation-default: map.get($-groups, 'default', 'container-elevation');
-$-elevation-hovered: map.get($-groups, 'hovered', 'container-elevation');
-
-@function -is-not-container-elevation($key, $value, $-void...) {
-  @return $key != 'container-elevation';
-}
-$-is-not-container-elevation: meta.get-function('-is-not-container-elevation');
-
-$default: map.filter(
-  map.get($-groups, 'default'),
-  $-is-not-container-elevation
-);
-
-$special: (
+$default-tokens: map.get($-groups, 'default');
+$special-tokens: (
+  'elevation-default': map.get($-groups, 'default', 'container-elevation'),
+  'elevation-hovered': map.get($-groups, 'hovered', 'container-elevation'),
   'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
   'state-layer-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
-  'spring-factor': 0,
+  'press-factor': 0,
   'level': calc(
-      #{$-elevation-default} +
-        (#{$-elevation-hovered} - #{$-elevation-default}) *
-        var(--_spring-factor)
+      var(--_elevation-default) +
+        (var(--_elevation-hovered) - var(--_elevation-default)) *
+        var(--_press-factor)
     ),
-  'motion-damping': md-sys-motion.$spring-fast-spatial-damping,
-  'motion-stiffness': md-sys-motion.$spring-fast-spatial-stiffness,
-  'motion-duration': motion-effects.$expressive-fast-effects-duration,
+  'press-damping': md-sys-motion.$spring-fast-spatial-damping,
+  'press-stiffness': md-sys-motion.$spring-fast-spatial-stiffness,
+  'press-duration': motion-effects.$expressive-fast-effects-duration,
   'ripple-color': var(--_state-layer-color),
   'ripple-easing': motion-effects.$expressive-fast-effects,
   'ripple-opacity': var(--_state-layer-opacity),
 );
 
-$hovered: map.filter(
-  pick-unique(map.get($-groups, 'hovered'), $default),
-  $-is-not-container-elevation
+$-extensions: ($default-tokens, $special-tokens);
+
+$special: map.merge(
+  $special-tokens,
+  append-public-prefix(
+    (
+      'elevation-default': map.get($special-tokens, 'elevation-default'),
+      'elevation-hovered': map.get($special-tokens, 'elevation-hovered'),
+    ),
+    'md-fab'
+  )
 );
 
-$focused: pick-unique(map.get($-groups, 'focused'), $default);
+$default: map.merge(state-vars($default-tokens, 'md-fab'), $special);
 
-$pressed: pick-unique(map.get($-groups, 'pressed'), $default);
+$hovered-tokens: map.get($-groups, 'hovered');
+
+$hovered: state-vars(
+  extend($hovered-tokens, $-extensions...),
+  'md-fab-hovered'
+);
+
+$focused: state-vars(
+  extend(map.get($-groups, 'focused'), $-extensions...),
+  'md-fab-focused'
+);
+
+$pressed: state-vars(
+  extend(map.get($-groups, 'pressed'), $-extensions...),
+  'md-fab-pressed'
+);

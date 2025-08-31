@@ -1,0 +1,57 @@
+@use 'sass:meta';
+@use '../../core/tokens/md-comp-fab-primary-container';
+@use '../../core/tokens/md-comp-fab-secondary-container';
+@use '../../core/tokens/md-comp-fab-tertiary-container';
+@use '../../core/utils/map';
+@use '../default/meta' as default;
+@use '../utils' as *;
+@use '../vars' as *;
+
+$-colors: (
+  'primary': md-comp-fab-primary-container.$map,
+  'secondary': md-comp-fab-secondary-container.$map,
+  'tertiary': md-comp-fab-tertiary-container.$map,
+);
+
+@function -map-colors($color, $tokens, $-void...) {
+  $-groups: group-fabs($tokens);
+
+  $default-tokens: map.get($-groups, 'default');
+  $special: (
+    'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
+  );
+
+  $-extensions: (
+    $default-tokens,
+    $special,
+    default.$default-tokens,
+    default.$special-tokens,
+    default.$hovered-tokens
+  );
+
+  $prefix: if($color == 'tertiary', 'md-tonal-fab', 'md-tonal-#{$color}-fab');
+
+  @return (
+    $color,
+    (
+      'default': map.merge(
+          state-vars(extend($default-tokens, default.$default-tokens), $prefix),
+          $special
+        ),
+      'hovered': state-vars(
+          extend(map.get($-groups, 'hovered'), $-extensions...),
+          '#{$prefix}-hovered'
+        ),
+      'focused': state-vars(
+          extend(map.get($-groups, 'focused'), $-extensions...),
+          '#{$prefix}-focused'
+        ),
+      'pressed': state-vars(
+          extend(map.get($-groups, 'pressed'), $-extensions...),
+          '#{$prefix}-pressed'
+        )
+    )
+  );
+}
+
+$colors: map.map($-colors, meta.get-function('-map-colors'));

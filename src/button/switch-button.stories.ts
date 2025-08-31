@@ -9,7 +9,7 @@ import './switch-button.ts';
 
 type SwitchButtonProps = Readonly<{
   color?: SwitchButtonColor;
-  onClick?(): void;
+  onClick?(event: PointerEvent): void;
   label?: string;
   disabled?: boolean;
   size?: ButtonSize;
@@ -19,13 +19,13 @@ type SwitchButtonProps = Readonly<{
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 const meta: Meta<SwitchButtonProps> = {
-  title: 'Switch Button/Switch',
+  title: 'Button/Switch',
   tags: ['autodocs'],
-  render: ({ color: flavor, onClick, label, disabled, checked }) =>
+  render: ({ color, onClick, label, disabled, checked }) =>
     html`<mx-switch-button
       ?disabled=${disabled}
       ?checked=${checked}
-      flavor=${ifDefined(flavor)}
+      color=${ifDefined(color)}
       @click=${onClick}
       >${label}</mx-switch-button
     >`,
@@ -52,7 +52,19 @@ const meta: Meta<SwitchButtonProps> = {
       },
     },
   },
-  args: { onClick: fn(), disabled: false, checked: false },
+  args: {
+    onClick: fn(({ target }: PointerEvent) => {
+      if (target instanceof HTMLElement) {
+        if (target.hasAttribute('checked')) {
+          target.removeAttribute('checked');
+        } else {
+          target.setAttribute('checked', '');
+        }
+      }
+    }),
+    disabled: false,
+    checked: false,
+  },
 };
 
 export default meta;

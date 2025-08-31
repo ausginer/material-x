@@ -2,12 +2,7 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
-$default-vars: map.merge(state-vars($default, 'md-fab'), $special);
-$hovered-vars: state-vars($hovered, 'md-fab-hovered');
-$focused-vars: state-vars($focused, 'md-fab-focused');
-$pressed-vars: state-vars($pressed, 'md-fab-pressed');
-
-@include default-state($default-vars) {
+@include default-state($default) {
   &::before,
   &::after {
     content: '';
@@ -22,14 +17,9 @@ $pressed-vars: state-vars($pressed, 'md-fab-pressed');
   align-items: center;
 }
 
-@include hovered-state($hovered-vars) {
-}
-
-@include focused-state($focused-vars) {
-}
-
-@include pressed-state($pressed-vars) {
-}
+@include hovered-state($hovered);
+@include focused-state($focused);
+@include pressed-state($pressed);
 
 slot::slotted(*) {
   --md-icon-size: var(--_icon-size);

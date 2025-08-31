@@ -1,0 +1,49 @@
+@use 'sass:meta';
+@use '../../core/tokens/md-comp-fab-large';
+@use '../../core/tokens/md-comp-fab-medium';
+@use '../../core/utils/map';
+@use '../default/meta' as default;
+@use '../utils' as *;
+@use '../vars' as *;
+
+$-sizes: (
+  'large': md-comp-fab-large.$map,
+  'medium': md-comp-fab-medium.$map,
+);
+
+@function -map-sizes($size, $tokens, $-void...) {
+  $-groups: group-fabs($tokens);
+
+  $default-tokens: map.get($-groups, 'default');
+
+  $-extensions: (
+    $default-tokens,
+    default.$default-tokens,
+    default.$special-tokens,
+    default.$hovered-tokens
+  );
+
+  @return (
+    $size,
+    (
+      'default': state-vars(
+          extend($default-tokens, default.$default-tokens),
+          'md-#{$size}-fab'
+        ),
+      'hovered': state-vars(
+          extend(map.get($-groups, 'hovered'), $-extensions...),
+          'md-#{$size}-fab-hovered'
+        ),
+      'focused': state-vars(
+          extend(map.get($-groups, 'focused'), $-extensions...),
+          'md-#{$size}-fab-focused'
+        ),
+      'pressed': state-vars(
+          extend(map.get($-groups, 'pressed'), $-extensions...),
+          'md-#{$size}-fab-pressed'
+        )
+    )
+  );
+}
+
+$sizes: map.map($-sizes, meta.get-function('-map-sizes'));

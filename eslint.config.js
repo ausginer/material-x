@@ -7,6 +7,7 @@ import prettier from 'eslint-config-vaadin/prettier';
 
 const root = new URL('./', import.meta.url);
 
+/** @type {import('typescript-eslint').ConfigArray} */
 const config = tsEslint.config(
   tsRequireTypeChecking,
   tsImports,

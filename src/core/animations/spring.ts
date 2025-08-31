@@ -50,27 +50,41 @@ export type ControlEvents = readonly [
   end: keyof HTMLElementEventMap,
 ];
 
+export type CSSVariables = Readonly<{
+  damping: string;
+  stiffness: string;
+  duration: string;
+  factor: string;
+}>;
+
 export default class SpringAnimationController implements ReactiveController {
   readonly #host: HTMLElement;
   readonly #events: ControlEvents;
   readonly #listenerController: AbortController = new AbortController();
+  readonly #cssVariables: CSSVariables;
 
-  constructor(host: HTMLElement, events: ControlEvents) {
+  constructor(
+    host: HTMLElement,
+    events: ControlEvents,
+    cssVariables: CSSVariables,
+  ) {
     this.#host = host;
+    this.#cssVariables = cssVariables;
     this.#events = events;
   }
 
   connected(): void {
     const host = this.#host;
+    const vars = this.#cssVariables;
     const { signal } = this.#listenerController;
 
     const styles = getComputedStyle(host);
     const [damping, stiffness, duration] = [
-      '--_motion-damping',
-      '--_motion-stiffness',
-      '--_motion-duration',
+      vars.damping,
+      vars.stiffness,
+      vars.duration,
     ].map((variable) => {
-      const value = styles.getPropertyValue(variable).trim();
+      const value = styles.getPropertyValue(`--_${variable}`).trim();
       let result = parseFloat(value);
 
       if (value.endsWith('ms')) {
@@ -86,7 +100,7 @@ export default class SpringAnimationController implements ReactiveController {
     const keyframes = createSpringKeyframes(damping!, stiffness!, duration!);
 
     const animation = host.animate(
-      keyframes.map((frame) => ({ '--_spring-factor': frame })),
+      keyframes.map((frame) => ({ [`--_${vars.factor}`]: frame })),
       { duration: duration! * 1000, fill: 'forwards' },
     );
 

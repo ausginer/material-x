@@ -14,28 +14,6 @@ export function template(
   return template;
 }
 
-export function attachShadow(
-  element: HTMLElement,
-  template: HTMLTemplateElement,
-  styles: readonly CSSStyleSheet[],
-): ShadowRoot {
-  const root = element.attachShadow({ mode: 'open' });
-  root.append(template.content.cloneNode(true));
-  root.adoptedStyleSheets.push(...styles);
-  return root;
-}
-
-export function setDefaultAttributes(
-  element: HTMLElement,
-  attributes: Readonly<Record<string, string>>,
-): void {
-  for (const [key, value] of Object.entries(attributes)) {
-    if (!element.hasAttribute(key)) {
-      element.setAttribute(key, value);
-    }
-  }
-}
-
 export function define(
   name: string,
   component: Constructor<HTMLElement>,

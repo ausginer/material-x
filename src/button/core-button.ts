@@ -28,7 +28,12 @@ export default class CoreButton extends CoreElement {
     this.tabIndex = 0;
     use(
       this,
-      new SpringAnimationController(this, ['pointerdown', 'pointerup']),
+      new SpringAnimationController(this, ['pointerdown', 'pointerup'], {
+        damping: 'press-damping',
+        stiffness: 'press-stiffness',
+        duration: 'press-duration',
+        factor: 'press-factor',
+      }),
     );
     use(this, new RippleAnimationController(this));
   }

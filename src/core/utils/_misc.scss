@@ -1,0 +1,81 @@
+@use 'sass:meta';
+@use 'sass:string';
+@use '~@fireflysemantics/sass-logger' as logger;
+@use '~@sass-fairy/list/list';
+@use '../../core/utils/map';
+
+@mixin vars($map) {
+  @each $key, $value in $map {
+    --_#{$key}: #{$value};
+  }
+}
+
+@function debug($map) {
+  @return logger.pretty-map($map);
+}
+
+@function filter-nulls($map) {
+  $result: ();
+
+  @each $key, $value in $map {
+    @if $value != null {
+      $result: map.set($result, $key, $value);
+    }
+  }
+
+  @return $result;
+}
+
+@function -is-unique(
+  $extension,
+  $-index,
+  $-list,
+  $original-key,
+  $original-value
+) {
+  @return $original-value != map.get($extension, $original-key);
+}
+
+@function extend($map, $extensions...) {
+  $result: ();
+
+  @each $key, $value in $map {
+    @if list.every($extensions, meta.get-function('-is-unique'), $key, $value) {
+      $result: map.set($result, $key, $value);
+    }
+  }
+
+  @return $result;
+}
+
+/// Produces a new token map where values inherited from one or more `extension`
+/// maps are removed. This is used when a token set extends other sets: keys
+/// that are identical to any extension's value are treated as inherited and
+/// omitted from the result so the extending set contains only the values that
+/// differ (the overrides).
+///
+/// @param {Map} $map the primary map of tokens to filter (the extending set).
+/// @param {List} $extensions a list of extension maps whose values represent
+/// inherited defaults to be removed from `$map`.
+///
+/// @returns a new map containing only the entries from `$map` whose values are
+/// not equal to the corresponding value in any of the `$extensions` (i.e. the
+/// unique/overridden tokens).
+///
+/// @example
+/// ```scss
+/// $base: ('a': 1, 'b': 2);
+/// $ext: ('a': 1);
+/// $result: extend($base, ($ext));
+/// assert($result == ('b': 2)); // true
+/// ```
+
+@function append-public-prefix($map, $prefix) {
+  $result: ();
+
+  @each $key, $value in $map {
+    $result: map.set($result, $key, 'var(--#{$prefix}-#{$key}, #{$value})');
+  }
+
+  @return $result;
+}

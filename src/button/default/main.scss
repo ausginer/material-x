@@ -3,12 +3,7 @@
 @use '../utils' as *;
 @use 'meta' as *;
 
-$default-vars: map.merge(state-vars($default, 'md-button'), $special);
-$hovered-vars: state-vars($hovered, 'md-button-hovered');
-$focused-vars: state-vars($focused, 'md-button-focused');
-$pressed-vars: state-vars($pressed, 'md-button-pressed');
-
-@include default-state($default-vars) {
+@include default-state($default) {
   display: inline-flex;
   cursor: default;
   user-select: none;
@@ -20,7 +15,7 @@ $pressed-vars: state-vars($pressed, 'md-button-pressed');
   border-radius: calc(
     var(--_container-shape-default) -
       (var(--_container-shape-default) - var(--_container-shape-pressed)) *
-      var(--_spring-factor)
+      var(--_press-factor)
   );
   font-weight: var(--_label-text-weight);
   font-size: var(--_label-text-size);
@@ -32,7 +27,7 @@ $pressed-vars: state-vars($pressed, 'md-button-pressed');
   gap: 8px;
 }
 
-@include hovered-state($hovered-vars) {
+@include hovered-state($hovered) {
   $opacity: calc(var(--_state-layer-opacity) * 100%);
   background-color: color-mix(
     in srgb,
@@ -41,13 +36,12 @@ $pressed-vars: state-vars($pressed, 'md-button-pressed');
   );
 }
 
-@include focused-state($focused-vars) {
+@include focused-state($focused) {
   outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
   outline-offset: var(--_focus-indicator-outline-offset);
 }
 
-@include pressed-state($pressed-vars) {
-}
+@include pressed-state($pressed);
 
 slot[name='icon'] {
   --md-icon-size: var(--_icon-size);

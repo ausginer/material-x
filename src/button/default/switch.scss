@@ -2,10 +2,12 @@
 @use 'meta' as *;
 @use '../utils' as *;
 
-$unselected-vars: multi-state-vars($unselected, 'md-button-unselected');
-$selected-vars: multi-state-vars($selected, 'md-button-selected');
-
-@include unselected-states($unselected-vars) using ($state) {
+@include unselected-states($unselected) using ($state) {
+  @if $state == 'default' {
+    transition-property: background-color, color;
+    transition-duration: var(--_switch-duration);
+    transition-timing-function: var(--_switch-easing);
+  }
 }
-@include selected-states($selected-vars) using ($state) {
+@include selected-states($selected) using ($state) {
 }

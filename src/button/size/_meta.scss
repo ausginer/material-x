@@ -6,47 +6,72 @@
 @use '../../core/tokens/md-comp-button-small' as small-tokens;
 @use '../../core/tokens/md-comp-button-xsmall' as xsmall-tokens;
 @use '../../core/utils/map';
-@use '../../core/utils/functions' as *;
 @use '../default/meta' as default;
 @use '../utils' as *;
 @use '../vars' as *;
 
-@function -map-multi-state-vars($key, $value, $-map, $default...) {
-  @return ($key, pick-unique($value, $default, default.$default));
-}
-$-map-multi-state-vars: meta.get-function('-map-multi-state-vars');
-
-@function -process-sizes($key, $value, $-void...) {
-  $groups: group-buttons($value);
-
-  $default: pick-unique(map.get($groups, 'default'), default.$default);
-
+@function -map-unselected($key, $value, $-map, $size, $extensions) {
   @return (
     $key,
+    state-vars(
+      extend($value, $extensions...),
+      'md-#{$size}-button-unselected-#{$key}'
+    )
+  );
+}
+$-map-unselected: meta.get-function('-map-unselected');
+
+@function -map-selected($key, $value, $-map, $size, $unselected) {
+  @return (
+    $key,
+    state-vars(
+      extend($value, map.get($unselected, $key) or ()),
+      'md-#{$size}-button-selected-#{$key}'
+    )
+  );
+}
+$-map-selected: meta.get-function('-map-selected');
+
+@function -process-sizes($size, $value, $-void...) {
+  $groups: group-buttons($value);
+
+  $default-tokens: map.get($groups, 'default');
+  $default: state-vars(
+    extend($default-tokens, default.$default-tokens),
+    'md-#{$size}-button'
+  );
+
+  $extensions: ($default-tokens, default.$default-tokens);
+
+  $unselected: map.map(
+    map.get($groups, 'unselected') or (),
+    $-map-unselected,
+    $size,
+    $extensions
+  );
+
+  @return (
+    $size,
     (
       'default': $default,
-      'hovered': pick-unique(
-          map.get($groups, 'hovered') or (),
-          $default,
-          default.$default
+      'hovered': state-vars(
+          extend(map.get($groups, 'hovered') or (), $extensions...),
+          'md-#{$size}-button-hovered'
         ),
-      'focused': pick-unique(
-          map.get($groups, 'focused') or (),
-          $default,
-          default.$default
+      'focused': state-vars(
+          extend(map.get($groups, 'focused') or (), $extensions...),
+          'md-#{$size}-button-focused'
         ),
-      'pressed': pick-unique(
-          map.get($groups, 'pressed') or (),
-          $default,
-          default.$default
+      'pressed': state-vars(
+          extend(map.get($groups, 'pressed') or (), $extensions...),
+          'md-#{$size}-button-pressed'
         ),
-      'unselected': map.map(
-          map.get($groups, 'unselected') or (),
-          $-map-multi-state-vars
-        ),
+      'unselected': $unselected,
       'selected': map.map(
           map.get($groups, 'selected') or (),
-          $-map-multi-state-vars
+          $-map-selected,
+          $size,
+          $unselected
         )
     )
   );
