@@ -45,10 +45,12 @@ function createSpringKeyframes(
   });
 }
 
-export type ControlEvents = readonly [
-  start: keyof HTMLElementEventMap,
-  end: keyof HTMLElementEventMap,
-];
+export type ControlEvents = Readonly<{
+  [P in keyof HTMLElementEventMap]?: (
+    event: HTMLElementEventMap[P],
+    animation: Animation,
+  ) => void;
+}>;
 
 export type CSSVariables = Readonly<{
   damping: string;
@@ -106,25 +108,19 @@ export default class SpringAnimationController implements ReactiveController {
 
     animation.pause();
 
-    const [start, stop] = this.#events;
-
-    host.addEventListener(
-      start,
-      () => {
-        animation.playbackRate = 1;
-        animation.play();
-      },
-      { signal },
-    );
-
-    host.addEventListener(
-      stop,
-      () => {
-        animation.playbackRate = -1;
-        animation.play();
-      },
-      { signal },
-    );
+    Object.entries(this.#events).forEach(([name, callback]) => {
+      host.addEventListener(
+        name,
+        (event) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+          (callback as (event: Event, animation: Animation) => void)(
+            event,
+            animation,
+          );
+        },
+        { signal },
+      );
+    });
   }
 
   disconnected(): void {

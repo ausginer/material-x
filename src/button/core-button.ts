@@ -1,5 +1,4 @@
 import RippleAnimationController from '../core/animations/ripple.ts';
-import SpringAnimationController from '../core/animations/spring.ts';
 import CoreElement, { use } from '../core/elements/core.ts';
 import elevationStyles from '../core/elevation/elevation.scss' with { type: 'css' };
 import defaultDisabledStyles from './default/disabled.scss' with { type: 'css' };
@@ -26,15 +25,6 @@ export default class CoreButton extends CoreElement {
       init,
     );
     this.tabIndex = 0;
-    use(
-      this,
-      new SpringAnimationController(this, ['pointerdown', 'pointerup'], {
-        damping: 'press-damping',
-        stiffness: 'press-stiffness',
-        duration: 'press-duration',
-        factor: 'press-factor',
-      }),
-    );
     use(this, new RippleAnimationController(this));
   }
 }

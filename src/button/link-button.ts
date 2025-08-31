@@ -1,5 +1,6 @@
 import AttributeTransmitter from '../core/elements/attribute-transmitter.ts';
 import { use } from '../core/elements/core.ts';
+import { useSpringAnimationController } from '../core/utils/button.ts';
 import { define, template } from '../utils.ts';
 import CoreButton from './core-button.ts';
 import mainElevatedStyles from './elevated/main.scss' with { type: 'css' };
@@ -36,7 +37,7 @@ export default class LinkButton extends CoreButton {
       { delegatesFocus: true },
     );
     const anchor = this.shadowRoot!.querySelector('a')!;
-
+    useSpringAnimationController(this);
     use(
       this,
       new AttributeTransmitter(anchor, 'href'),

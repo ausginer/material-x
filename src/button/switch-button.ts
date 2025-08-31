@@ -1,3 +1,5 @@
+import SpringAnimationController from '../core/animations/spring.ts';
+import { use } from '../core/elements/core.ts';
 import { define, template } from '../utils.ts';
 import CoreButton, { type ButtonColor } from './core-button.ts';
 import switchDefaultStyles from './default/switch.scss' with { type: 'css' };
@@ -34,6 +36,31 @@ export default class SwitchButton extends CoreButton {
       switchSizeStyles,
       switchTonalStyles,
     ]);
+
+    let firstTime = true;
+
+    use(
+      this,
+      new SpringAnimationController(
+        this,
+        {
+          pointerdown(_, animation) {
+            if (firstTime) {
+              firstTime = false;
+            } else {
+              animation.reverse();
+            }
+            animation.play();
+          },
+        },
+        {
+          damping: 'press-damping',
+          stiffness: 'press-stiffness',
+          duration: 'press-duration',
+          factor: 'press-factor',
+        },
+      ),
+    );
   }
 }
 

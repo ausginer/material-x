@@ -18,7 +18,7 @@ type ButtonProps = Readonly<{
 const meta: Meta<ButtonProps> = {
   title: 'Button/Button',
   tags: ['autodocs'],
-  render: ({ color, onClick, label, disabled, size, icon = nothing }) =>
+  render: ({ color, onClick, label, disabled, size, icon }) =>
     html`<mx-button
       ?disabled=${disabled}
       color=${ifDefined(color)}
@@ -33,6 +33,12 @@ const meta: Meta<ButtonProps> = {
         options: ['outlined', 'tonal', 'elevated', 'tonal', 'text'],
       },
     },
+    size: {
+      controle: {
+        type: 'select',
+        options: ['xsmall', 'small', 'medium', 'large', 'xlarge'],
+      },
+    },
     label: {
       control: {
         type: 'text',
@@ -44,7 +50,7 @@ const meta: Meta<ButtonProps> = {
       },
     },
   },
-  args: { onClick: fn(), disabled: false },
+  args: { onClick: fn(), disabled: false, icon: nothing },
 };
 
 export default meta;

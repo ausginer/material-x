@@ -14,6 +14,10 @@ a {
   padding-block: var(--_padding-block);
   padding-inline: var(--_leading-space) var(--_trailing-space);
   user-select: none;
+  display: inherit;
+  gap: inherit;
+  place-items: inherit;
+  place-content: inherit;
 }
 
 a:focus-visible {

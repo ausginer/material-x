@@ -85,12 +85,19 @@ $unselected: map.deep-merge(
   )
 );
 
+@function -filter-inverted-shape($key, $value, $-void...) {
+  @return $key != 'container-shape-round' and $key != 'container-shape-square';
+}
+
 @function -map-selected($key, $value, $-void...) {
   @return (
     $key,
-    state-vars(
-      extend($value, map.get($unselected, $key) or ()),
-      'md-button-selected-#{$key}'
+    map.filter(
+      state-vars(
+        extend($value, map.get($unselected, $key) or ()),
+        'md-button-selected-#{$key}'
+      ),
+      meta.get-function('-filter-inverted-shape')
     )
   );
 }

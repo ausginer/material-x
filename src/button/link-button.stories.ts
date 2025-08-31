@@ -21,14 +21,15 @@ type LinkButtonProps = Readonly<{
 const meta: Meta<LinkButtonProps> = {
   title: 'Button/Link',
   tags: ['autodocs'],
-  render: ({ color, href, target, onClick, label, disabled }) =>
+  render: ({ color, onClick, label, disabled, size, href, target, icon }) =>
     html`<mx-link-button
       ?disabled=${disabled}
       color=${ifDefined(color)}
       href=${ifDefined(href)}
       target=${ifDefined(target)}
+      size=${ifDefined(size)}
       @click=${onClick}
-      >${label}</mx-link-button
+      >${icon}${label}</mx-link-button
     >`,
   argTypes: {
     color: {
@@ -37,12 +38,13 @@ const meta: Meta<LinkButtonProps> = {
         options: ['outlined', 'tonal', 'elevated', 'text'],
       },
     },
-    href: {
-      control: {
-        type: 'text',
+    size: {
+      controle: {
+        type: 'select',
+        options: ['xsmall', 'small', 'medium', 'large', 'xlarge'],
       },
     },
-    target: {
+    href: {
       control: {
         type: 'text',
       },
