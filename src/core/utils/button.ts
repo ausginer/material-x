@@ -2,7 +2,7 @@ import type CoreButton from '../../button/core-button.ts';
 import SpringAnimationController from '../animations/spring.ts';
 import { use } from '../elements/core.ts';
 
-export function useSpringAnimationController(self: CoreButton): void {
+export function usePressAnimation(self: CoreButton): void {
   use(
     self,
     new SpringAnimationController(

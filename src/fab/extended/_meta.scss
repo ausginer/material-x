@@ -1,0 +1,98 @@
+@use 'sass:meta';
+@use '../../core/utils/map';
+@use '../../core/tokens/md-comp-extended-fab-small';
+@use '../../core/tokens/md-comp-extended-fab-large';
+@use '../../core/tokens/md-comp-extended-fab-medium';
+@use '../../core/tokens/md-comp-extended-fab-primary';
+@use '../../core/tokens/md-comp-extended-fab-primary-container';
+@use '../../core/tokens/md-comp-extended-fab-secondary';
+@use '../../core/tokens/md-comp-extended-fab-secondary-container';
+@use '../../core/tokens/md-comp-extended-fab-tertiary';
+@use '../../core/tokens/md-comp-extended-fab-tertiary-container';
+@use '../default/meta' as default;
+@use '../utils' as *;
+@use '../vars' as *;
+
+@function -process-variants($variant, $tokens, $-map, $tonal) {
+  $groups: group-fabs($tokens);
+
+  $default-tokens: map.get($groups, 'default');
+  $special: filter-nulls(
+    (
+      'state-layer-color': map.get($groups, 'pressed', 'state-layer-color'),
+    )
+  );
+
+  $extensions: (
+    $default-tokens,
+    $special,
+    default.$default-tokens,
+    default.$special-tokens,
+    default.$hovered-tokens
+  );
+
+  $injected-variant: if($variant == 'default', '', '-#{$variant}');
+
+  $prefix: if(
+    $tonal,
+    'md-tonal#{$injected-variant}-extended-fab',
+    'md#{$injected-variant}-extended-fab'
+  );
+
+  @return (
+    $variant,
+    (
+      'default': map.merge(
+          state-vars(
+            extend(map.get($groups, 'default'), default.$default-tokens),
+            $prefix
+          ),
+          $special
+        ),
+      'hovered': state-vars(
+          extend(map.get($groups, 'hovered'), $extensions...),
+          '#{$prefix}-hovered'
+        ),
+      'focused': state-vars(
+          extend(map.get($groups, 'focused'), $extensions...),
+          '#{$prefix}-focused'
+        ),
+      'pressed': state-vars(
+          extend(map.get($groups, 'pressed'), $extensions...),
+          '#{$prefix}-pressed'
+        )
+    )
+  );
+}
+
+$-process-variants: meta.get-function('-process-variants');
+
+$extended-sizes: map.map(
+  (
+    'default': md-comp-extended-fab-small.$map,
+    'medium': md-comp-extended-fab-medium.$map,
+    'large': md-comp-extended-fab-large.$map,
+  ),
+  $-process-variants,
+  false
+);
+
+$extended-colors: map.map(
+  (
+    'default': md-comp-extended-fab-tertiary.$map,
+    'primary': md-comp-extended-fab-primary.$map,
+    'secondary': md-comp-extended-fab-secondary.$map,
+  ),
+  $-process-variants,
+  false
+);
+
+$extended-tonal: map.map(
+  (
+    'default': md-comp-extended-fab-tertiary-container.$map,
+    'primary': md-comp-extended-fab-primary-container.$map,
+    'secondary': md-comp-extended-fab-secondary-container.$map,
+  ),
+  $-process-variants,
+  true
+);

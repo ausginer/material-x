@@ -1,0 +1,40 @@
+@use 'sass:map';
+@use '../utils' as *;
+@use 'meta' as *;
+
+@mixin all-states($tokens, $params...) {
+  @include default-state(map.get($tokens, 'default'), 'extended', $params...);
+  @include hovered-state(map.get($tokens, 'hovered'), 'extended', $params...);
+  @include focused-state(map.get($tokens, 'focused'), 'extended', $params...);
+  @include pressed-state(map.get($tokens, 'pressed'), 'extended', $params...);
+}
+
+@include all-states(
+  map.merge(
+    map.get($extended-sizes, 'default'),
+    map.get($extended-colors, 'default')
+  )
+);
+
+@include all-states(map.get($extended-tonal, 'default'), 'tonal');
+
+@each $size, $tokens in $extended-sizes {
+  @if $size != 'default' {
+    $size-param: size($size);
+    @include all-states($tokens, $size-param);
+  }
+}
+
+@each $color, $tokens in $extended-colors {
+  @if $color != 'default' {
+    $color-param: color($color);
+    @include all-states($tokens, $color-param);
+  }
+}
+
+@each $color, $tokens in $extended-tonal {
+  @if $color != 'default' {
+    $color-param: color($color);
+    @include all-states($tokens, 'tonal', $color-param);
+  }
+}

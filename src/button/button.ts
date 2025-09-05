@@ -1,4 +1,4 @@
-import { useSpringAnimationController } from '../core/utils/button.ts';
+import { usePressAnimation } from '../core/utils/button.ts';
 import { define, template } from '../utils.ts';
 import CoreButton from './core-button.ts';
 import mainElevatedStyles from './elevated/main.scss' with { type: 'css' };
@@ -37,7 +37,7 @@ export default class Button extends CoreButton {
       mainTextStyles,
       tonalTextStyles,
     ]);
-    useSpringAnimationController(this);
+    usePressAnimation(this);
   }
 }
 

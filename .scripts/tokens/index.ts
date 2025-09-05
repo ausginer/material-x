@@ -34,6 +34,8 @@ const [theme, ...systems] = await Promise.all([
     'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.41587918e51cca98.json',
     // Text Fields
     'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.60990dd98dea0998.json',
+    // Extended FABs
+    'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.36500f77b86d20a5.json',
   ].map(async (url) => (await download(new URL(url))).system),
 ]);
 

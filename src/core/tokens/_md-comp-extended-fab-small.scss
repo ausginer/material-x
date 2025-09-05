@@ -1,0 +1,31 @@
+/// Tokens according to the Material Design specification:
+/// https://m3.material.io
+///
+/// Set: md.comp.extended-fab.small
+/// Full name: Extended FAB - Size - Small
+///
+/// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+/// !!! DO NOT MODIFY IT BY HAND !!!
+
+@use "sass:map";
+
+@use "md-sys-typescale";
+@use "md-sys-shape";
+
+$container-height: 56px;
+$icon-label-space: 8px;
+$icon-size: 24px;
+$leading-space: 16px;
+$trailing-space: 16px;
+$container-shape: md-sys-shape.$corner-large;
+$label-text: md-sys-typescale.$title-medium;
+
+$map: (
+  'container-height': $container-height,
+  'icon-label-space': $icon-label-space,
+  'icon-size': $icon-size,
+  'leading-space': $leading-space,
+  'trailing-space': $trailing-space,
+  'container-shape': $container-shape,
+  'label-text': $label-text,
+);

@@ -12,14 +12,14 @@ $-colors: (
 );
 
 @function -map-colors($color, $tokens, $-void...) {
-  $-groups: group-fabs($tokens);
+  $groups: group-fabs($tokens);
 
   $default-tokens: map.get($-groups, 'default');
   $special: (
     'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
   );
 
-  $-extensions: (
+  $extensions: (
     $default-tokens,
     $special,
     default.$default-tokens,
@@ -42,14 +42,12 @@ $-colors: (
           'md-#{$color}-fab-hovered'
         ),
       'focused': state-vars(
-          map.get($-groups, 'focused'),
-          'md-#{$color}-fab-focused',
-          $-extensions...
+          extend(map.get($-groups, 'focused'), $-extensions...),
+          'md-#{$color}-fab-focused'
         ),
       'pressed': state-vars(
-          map.get($-groups, 'pressed'),
-          'md-#{$color}-fab-pressed',
-          $-extensions...
+          extend(map.get($-groups, 'pressed'), $-extensions...),
+          'md-#{$color}-fab-pressed'
         )
     )
   );

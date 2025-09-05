@@ -1,0 +1,101 @@
+/// Tokens according to the Material Design specification:
+/// https://m3.material.io
+///
+/// Set: md.comp.extended-fab.surface
+/// Full name: Extended FAB - Surface
+///
+/// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+/// !!! DO NOT MODIFY IT BY HAND !!!
+
+@use "sass:map";
+
+@use "md-sys-state-focus-indicator";
+@use "md-sys-color";
+@use "md-sys-shape";
+@use "md-sys-elevation";
+@use "md-sys-typescale";
+@use "md-sys-state";
+
+$container-height: 56px;
+$icon-size: 24px;
+$container-color: md-sys-color.$surface-container-high;
+$container-elevation: md-sys-elevation.$level3;
+$container-shape: md-sys-shape.$corner-large;
+$focus-container-elevation: md-sys-elevation.$level3;
+$focus-indicator-outline-offset: md-sys-state-focus-indicator.$outer-offset;
+$focus-indicator-thickness: md-sys-state-focus-indicator.$thickness;
+$focus-state-layer-opacity: md-sys-state.$focus-state-layer-opacity;
+$hover-container-elevation: md-sys-elevation.$level4;
+$hover-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
+$label-text-line-height: md-sys-typescale.$label-large-line-height;
+$label-text-size: md-sys-typescale.$label-large-size;
+$label-text-tracking: md-sys-typescale.$label-large-tracking;
+$lowered-container-color: md-sys-color.$surface-container-low;
+$lowered-container-elevation: md-sys-elevation.$level1;
+$lowered-focus-container-elevation: md-sys-elevation.$level1;
+$lowered-hover-container-elevation: md-sys-elevation.$level2;
+$lowered-pressed-container-elevation: md-sys-elevation.$level1;
+$pressed-container-elevation: md-sys-elevation.$level3;
+$pressed-state-layer-opacity: md-sys-state.$pressed-state-layer-opacity;
+$container-shadow-color: md-sys-color.$shadow;
+$focus-icon-color: md-sys-color.$primary;
+$focus-indicator-color: md-sys-color.$secondary;
+$focus-label-text-color: md-sys-color.$primary;
+$focus-state-layer-color: md-sys-color.$primary;
+$hover-icon-color: md-sys-color.$primary;
+$hover-label-text-color: md-sys-color.$primary;
+$hover-state-layer-color: md-sys-color.$primary;
+$icon-color: md-sys-color.$primary;
+$label-text-color: md-sys-color.$primary;
+$label-text-font: md-sys-typescale.$label-large-font;
+$label-text-weight: md-sys-typescale.$label-large-weight;
+$pressed-icon-color: md-sys-color.$primary;
+$pressed-label-text-color: md-sys-color.$primary;
+$pressed-state-layer-color: md-sys-color.$primary;
+$label-text-type: (
+  'font-name': $label-text-font,
+  'font-weight': $label-text-weight,
+  'font-size': $label-text-size,
+  'font-tracking': $label-text-tracking,
+  'line-height': $label-text-line-height,
+);
+
+$map: (
+  'container-height': $container-height,
+  'icon-size': $icon-size,
+  'container-color': $container-color,
+  'container-elevation': $container-elevation,
+  'container-shape': $container-shape,
+  'focus-container-elevation': $focus-container-elevation,
+  'focus-indicator-outline-offset': $focus-indicator-outline-offset,
+  'focus-indicator-thickness': $focus-indicator-thickness,
+  'focus-state-layer-opacity': $focus-state-layer-opacity,
+  'hover-container-elevation': $hover-container-elevation,
+  'hover-state-layer-opacity': $hover-state-layer-opacity,
+  'label-text-line-height': $label-text-line-height,
+  'label-text-size': $label-text-size,
+  'label-text-tracking': $label-text-tracking,
+  'lowered-container-color': $lowered-container-color,
+  'lowered-container-elevation': $lowered-container-elevation,
+  'lowered-focus-container-elevation': $lowered-focus-container-elevation,
+  'lowered-hover-container-elevation': $lowered-hover-container-elevation,
+  'lowered-pressed-container-elevation': $lowered-pressed-container-elevation,
+  'pressed-container-elevation': $pressed-container-elevation,
+  'pressed-state-layer-opacity': $pressed-state-layer-opacity,
+  'container-shadow-color': $container-shadow-color,
+  'focus-icon-color': $focus-icon-color,
+  'focus-indicator-color': $focus-indicator-color,
+  'focus-label-text-color': $focus-label-text-color,
+  'focus-state-layer-color': $focus-state-layer-color,
+  'hover-icon-color': $hover-icon-color,
+  'hover-label-text-color': $hover-label-text-color,
+  'hover-state-layer-color': $hover-state-layer-color,
+  'icon-color': $icon-color,
+  'label-text-color': $label-text-color,
+  'label-text-font': $label-text-font,
+  'label-text-weight': $label-text-weight,
+  'pressed-icon-color': $pressed-icon-color,
+  'pressed-label-text-color': $pressed-label-text-color,
+  'pressed-state-layer-color': $pressed-state-layer-color,
+  'label-text-type': $label-text-type,
+);
