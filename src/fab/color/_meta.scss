@@ -11,12 +11,12 @@ $-colors: (
   'secondary': md-comp-fab-secondary.$map,
 );
 
-@function -map-colors($color, $tokens, $-void...) {
+@function -map-color-tokens($color, $tokens, $-void...) {
   $groups: group-fabs($tokens);
 
-  $default-tokens: map.get($-groups, 'default');
+  $default-tokens: map.get($groups, 'default');
   $special: (
-    'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
+    'state-layer-color': map.get($groups, 'pressed', 'state-layer-color'),
   );
 
   $extensions: (
@@ -31,26 +31,32 @@ $-colors: (
     $color,
     (
       'default': map.merge(
-          state-vars(
-            extend($default-tokens, default.$default-tokens),
-            'md-#{$color}-fab'
-          ),
+          extend($default-tokens, default.$default-tokens),
           $special
         ),
-      'hovered': state-vars(
-          extend(map.get($-groups, 'hovered'), $-extensions...),
-          'md-#{$color}-fab-hovered'
-        ),
-      'focused': state-vars(
-          extend(map.get($-groups, 'focused'), $-extensions...),
-          'md-#{$color}-fab-focused'
-        ),
-      'pressed': state-vars(
-          extend(map.get($-groups, 'pressed'), $-extensions...),
-          'md-#{$color}-fab-pressed'
-        )
+      'hovered': extend(map.get($groups, 'hovered'), $extensions...),
+      'focused': extend(map.get($groups, 'focused'), $extensions...),
+      'pressed': extend(map.get($groups, 'pressed'), $extensions...)
     )
   );
 }
 
-$colors: map.map($-colors, meta.get-function('-map-colors'));
+@function -map-color-states($state, $tokens, $-map, $prefix) {
+  @if $state == 'default' {
+    $prefix: $prefix;
+  } @else {
+    $prefix: '#{$prefix}-#{$state}';
+  }
+
+  @return ($state, state-vars($tokens, $prefix));
+}
+
+@function -map-colors($color, $tokens, $-void...) {
+  @return (
+    $color,
+    map.map($tokens, meta.get-function('-map-color-states'), 'md-#{$color}-fab')
+  );
+}
+
+$color-tokens: map.map($-colors, meta.get-function('-map-color-tokens'));
+$colors: map.map($color-tokens, meta.get-function('-map-colors'));

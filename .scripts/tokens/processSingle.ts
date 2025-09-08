@@ -109,7 +109,7 @@ export default function processSingle(
   }
 
   if (fontSize != null) {
-    return { order, value: String(fontSize.value ?? 0) };
+    return { order, value: `${fontSize.value ?? 0}px` };
   }
 
   if (lineHeight != null) {

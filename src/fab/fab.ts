@@ -1,4 +1,5 @@
 import RippleAnimationController from '../core/animations/ripple.ts';
+import SpringAnimationController from '../core/animations/spring.ts';
 import CoreElement, { use } from '../core/elements/core.ts';
 import elevationStyles from '../core/elevation/elevation.scss' with { type: 'css' };
 import { usePressAnimation } from '../core/utils/button.ts';
@@ -12,7 +13,17 @@ import tonalStyles from './tonal/main.scss' with { type: 'css' };
 export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
 
-const TEMPLATE = template`<slot></slot>`;
+const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
+
+function enter(_: Event, animation: Animation): void {
+  animation.playbackRate = 1;
+  animation.play();
+}
+
+function leave(_: Event, animation: Animation): void {
+  animation.playbackRate = -1;
+  animation.play();
+}
 
 /**
  * @attr {string} size
@@ -31,7 +42,26 @@ export default class FAB extends CoreElement {
       tonalStyles,
       extendedStyles,
     ]);
+    this.tabIndex = 0;
     usePressAnimation(this);
+    use(
+      this,
+      new SpringAnimationController(
+        this,
+        {
+          pointerenter: enter,
+          pointerleave: leave,
+          focusin: enter,
+          focusout: leave,
+        },
+        {
+          damping: 'unfold-damping',
+          stiffness: 'unfold-stiffness',
+          duration: 'unfold-duration',
+          factor: 'unfold-factor',
+        },
+      ),
+    );
     use(this, new RippleAnimationController(this));
   }
 }

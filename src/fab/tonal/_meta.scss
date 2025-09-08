@@ -13,7 +13,7 @@ $-colors: (
   'tertiary': md-comp-fab-tertiary-container.$map,
 );
 
-@function -map-colors($color, $tokens, $-void...) {
+@function -map-color-tokens($color, $tokens, $-void...) {
   $-groups: group-fabs($tokens);
 
   $default-tokens: map.get($-groups, 'default');
@@ -35,23 +35,35 @@ $-colors: (
     $color,
     (
       'default': map.merge(
-          state-vars(extend($default-tokens, default.$default-tokens), $prefix),
+          extend($default-tokens, default.$default-tokens),
           $special
         ),
-      'hovered': state-vars(
-          extend(map.get($-groups, 'hovered'), $-extensions...),
-          '#{$prefix}-hovered'
-        ),
-      'focused': state-vars(
-          extend(map.get($-groups, 'focused'), $-extensions...),
-          '#{$prefix}-focused'
-        ),
-      'pressed': state-vars(
-          extend(map.get($-groups, 'pressed'), $-extensions...),
-          '#{$prefix}-pressed'
-        )
+      'hovered': extend(map.get($-groups, 'hovered'), $-extensions...),
+      'focused': extend(map.get($-groups, 'focused'), $-extensions...),
+      'pressed': extend(map.get($-groups, 'pressed'), $-extensions...)
     )
   );
 }
 
-$colors: map.map($-colors, meta.get-function('-map-colors'));
+@function -map-color-states($state, $tokens, $-map, $prefix) {
+  @if $state == 'default' {
+    $prefix: $prefix;
+  } @else {
+    $prefix: '#{$prefix}-#{$state}';
+  }
+
+  @return ($state, state-vars($tokens, $prefix));
+}
+
+@function -map-colors($color, $tokens, $-void...) {
+  $prefix: if($color == 'tertiary', 'md-tonal-fab', 'md-tonal-#{$color}-fab');
+
+  @return (
+    $color,
+    map.map($tokens, meta.get-function('-map-color-states'), $prefix)
+  );
+}
+
+$color-tokens: map.map($-colors, meta.get-function('-map-color-tokens'));
+@debug $color-tokens;
+$colors: map.map($color-tokens, meta.get-function('-map-colors'));

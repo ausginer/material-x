@@ -11,7 +11,7 @@ $-sizes: (
   'medium': md-comp-fab-medium.$map,
 );
 
-@function -map-sizes($size, $tokens, $-void...) {
+@function -map-size-tokens($size, $tokens, $-void...) {
   $-groups: group-fabs($tokens);
 
   $default-tokens: map.get($-groups, 'default');
@@ -26,24 +26,30 @@ $-sizes: (
   @return (
     $size,
     (
-      'default': state-vars(
-          extend($default-tokens, default.$default-tokens),
-          'md-#{$size}-fab'
-        ),
-      'hovered': state-vars(
-          extend(map.get($-groups, 'hovered'), $-extensions...),
-          'md-#{$size}-fab-hovered'
-        ),
-      'focused': state-vars(
-          extend(map.get($-groups, 'focused'), $-extensions...),
-          'md-#{$size}-fab-focused'
-        ),
-      'pressed': state-vars(
-          extend(map.get($-groups, 'pressed'), $-extensions...),
-          'md-#{$size}-fab-pressed'
-        )
+      'default': extend($default-tokens, default.$default-tokens),
+      'hovered': extend(map.get($-groups, 'hovered'), $-extensions...),
+      'focused': extend(map.get($-groups, 'focused'), $-extensions...),
+      'pressed': extend(map.get($-groups, 'pressed'), $-extensions...)
     )
   );
 }
 
-$sizes: map.map($-sizes, meta.get-function('-map-sizes'));
+@function -map-size-states($state, $tokens, $-map, $prefix) {
+  @if $state == 'default' {
+    $prefix: $prefix;
+  } @else {
+    $prefix: '#{$prefix}-#{$state}';
+  }
+
+  @return ($state, state-vars($tokens, $prefix));
+}
+
+@function -map-sizes($size, $tokens, $-void...) {
+  @return (
+    $size,
+    map.map($tokens, meta.get-function('-map-size-states'), 'md-#{$size}-fab')
+  );
+}
+
+$size-tokens: map.map($-sizes, meta.get-function('-map-size-tokens'));
+$sizes: map.map($size-tokens, meta.get-function('-map-sizes'));

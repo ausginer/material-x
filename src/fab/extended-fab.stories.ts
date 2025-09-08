@@ -14,11 +14,12 @@ type FABProps = Readonly<{
   size?: FABSize;
   icon?: TemplateResult | typeof nothing;
   extended?: boolean;
+  style?: string;
   onClick?(): void;
 }>;
 
 const meta: Meta<FABProps> = {
-  title: 'Button/FAB',
+  title: 'Button/Extended FAB',
   tags: ['autodocs'],
   render: ({
     tonal,
@@ -27,6 +28,7 @@ const meta: Meta<FABProps> = {
     disabled,
     extended,
     size,
+    style,
     icon = nothing,
   }) =>
     html`<mx-fab
@@ -35,6 +37,7 @@ const meta: Meta<FABProps> = {
       ?extended=${extended}
       color=${ifDefined(color)}
       size=${ifDefined(size)}
+      style=${ifDefined(style)}
       @click=${onClick}
       >${icon}</mx-fab
     >`,
@@ -67,7 +70,7 @@ const meta: Meta<FABProps> = {
       },
     },
   },
-  args: { onClick: fn(), disabled: false, extended: false },
+  args: { onClick: fn(), disabled: false, extended: true },
 };
 
 export default meta;
@@ -78,7 +81,7 @@ export const Primary: FABStories = {
   args: {
     color: 'primary',
     label: 'Primary FAB',
-    icon: html`<mx-icon slot="icon">check</mx-icon>`,
+    icon: html`<mx-icon slot="icon">check</mx-icon>Extended Primary FAB`,
   },
 };
 
@@ -86,14 +89,14 @@ export const Secondary: FABStories = {
   args: {
     color: 'secondary',
     label: 'Secondary FAB',
-    icon: html`<mx-icon slot="icon">check</mx-icon>`,
+    icon: html`<mx-icon slot="icon">check</mx-icon>Extended Secondary FAB`,
   },
 };
 
 export const Tertiary: FABStories = {
   args: {
     label: 'Tertiary FAB',
-    icon: html`<mx-icon slot="icon">check</mx-icon>`,
+    icon: html`<mx-icon slot="icon">check</mx-icon>Extended Tertiary FAB`,
   },
 };
 
@@ -101,7 +104,7 @@ export const PrimaryTonal: FABStories = {
   args: {
     color: 'primary',
     label: 'Primary tonal FAB',
-    icon: html`<mx-icon slot="icon">check</mx-icon>`,
+    icon: html`<mx-icon slot="icon">check</mx-icon>Extended Primary Tonal FAB`,
     tonal: true,
   },
 };
@@ -110,7 +113,7 @@ export const SecondaryTonal: FABStories = {
   args: {
     color: 'secondary',
     label: 'Secondary tonal FAB',
-    icon: html`<mx-icon slot="icon">check</mx-icon>`,
+    icon: html`<mx-icon slot="icon">check</mx-icon>Extended Secondary Tonal FAB`,
     tonal: true,
   },
 };
@@ -118,7 +121,7 @@ export const SecondaryTonal: FABStories = {
 export const TertiaryTonal: FABStories = {
   args: {
     label: 'Tertiary tonal FAB',
-    icon: html`<mx-icon slot="icon">check</mx-icon>`,
+    icon: html`<mx-icon slot="icon">check</mx-icon>Extended Tertiary Tonal FAB`,
     tonal: true,
   },
 };
@@ -127,7 +130,7 @@ export const MediumSize: FABStories = {
   args: {
     label: 'Medium FAB',
     size: 'medium',
-    icon: html`<mx-icon slot="icon">check</mx-icon>`,
+    icon: html`<mx-icon slot="icon">check</mx-icon>Extended Medium FAB`,
   },
 };
 
@@ -135,6 +138,14 @@ export const LargeSize: FABStories = {
   args: {
     label: 'Large FAB',
     size: 'large',
-    icon: html`<mx-icon slot="icon">check</mx-icon>`,
+    icon: html`<mx-icon slot="icon">check</mx-icon>Extended Large FAB`,
+  },
+};
+
+export const Reversed: FABStories = {
+  args: {
+    label: 'Reversed FAB',
+    icon: html`<mx-icon slot="icon">check</mx-icon>Extended Large FAB`,
+    style: '--md-extended-fab-direction: row-reverse;',
   },
 };

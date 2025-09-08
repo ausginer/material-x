@@ -35,12 +35,13 @@
 ) {
   @return $original-value != map.get($extension, $original-key);
 }
+$-is-unique: meta.get-function('-is-unique');
 
 @function extend($map, $extensions...) {
   $result: ();
 
   @each $key, $value in $map {
-    @if list.every($extensions, meta.get-function('-is-unique'), $key, $value) {
+    @if list.every($extensions, $-is-unique, $key, $value) {
       $result: map.set($result, $key, $value);
     }
   }

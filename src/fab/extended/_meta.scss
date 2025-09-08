@@ -1,4 +1,5 @@
 @use 'sass:meta';
+@use 'sass:list';
 @use '../../core/utils/map';
 @use '../../core/tokens/md-comp-extended-fab-small';
 @use '../../core/tokens/md-comp-extended-fab-large';
@@ -10,44 +11,56 @@
 @use '../../core/tokens/md-comp-extended-fab-tertiary';
 @use '../../core/tokens/md-comp-extended-fab-tertiary-container';
 @use '../default/meta' as default;
+@use '../size/meta' as size;
+@use '../color/meta' as color;
+@use '../tonal/meta' as tonal;
 @use '../utils' as *;
 @use '../vars' as *;
 
-@function -process-variants($variant, $tokens, $-map, $tonal) {
+@function -process-variants(
+  $variant,
+  $tokens,
+  $-map,
+  $tonal,
+  $group-extensions: ()
+) {
   $groups: group-fabs($tokens);
 
   $default-tokens: map.get($groups, 'default');
   $special: filter-nulls(
     (
       'state-layer-color': map.get($groups, 'pressed', 'state-layer-color'),
+      'direction': if($variant == 'tertiary' and not $tonal, 'row', null),
     )
   );
 
-  $extensions: (
-    $default-tokens,
-    $special,
-    default.$default-tokens,
-    default.$special-tokens,
-    default.$hovered-tokens
+  $default-extensions: list.join(
+    (default.$default-tokens, default.$special-tokens),
+    $group-extensions
   );
 
-  $injected-variant: if($variant == 'default', '', '-#{$variant}');
-
-  $prefix: if(
-    $tonal,
-    'md-tonal#{$injected-variant}-extended-fab',
-    'md#{$injected-variant}-extended-fab'
+  $extensions: list.join(
+    (
+      $default-tokens,
+      $special,
+      default.$default-tokens,
+      default.$special-tokens,
+      default.$hovered-tokens
+    ),
+    $group-extensions
   );
+
+  $prefix: 'md-#{if($tonal, 'tonal-', '')}#{if($variant == 'tertiary' or $variant == 'small', '', '#{$variant}-')}extended-fab';
 
   @return (
     $variant,
     (
-      'default': map.merge(
-          state-vars(
-            extend(map.get($groups, 'default'), default.$default-tokens),
-            $prefix
+      'default': state-vars(
+          extend(
+            map.merge(map.get($groups, 'default'), $special),
+            $default-extensions...
           ),
-          $special
+          $prefix
         ),
       'hovered': state-vars(
           extend(map.get($groups, 'hovered'), $extensions...),
@@ -67,32 +80,64 @@
 
 $-process-variants: meta.get-function('-process-variants');
 
-$extended-sizes: map.map(
+$-extended-sizes: map.map(
   (
-    'default': md-comp-extended-fab-small.$map,
+    'small': md-comp-extended-fab-small.$map,
     'medium': md-comp-extended-fab-medium.$map,
     'large': md-comp-extended-fab-large.$map,
   ),
   $-process-variants,
-  false
+  false,
+  (
+    map.get(size.$size-tokens, 'large', 'default'),
+    map.get(size.$size-tokens, 'medium', 'default')
+  )
 );
 
-$extended-colors: map.map(
+@debug color.$color-tokens;
+
+$-extended-colors: map.map(
   (
-    'default': md-comp-extended-fab-tertiary.$map,
     'primary': md-comp-extended-fab-primary.$map,
     'secondary': md-comp-extended-fab-secondary.$map,
+    'tertiary': md-comp-extended-fab-tertiary.$map,
   ),
   $-process-variants,
-  false
+  false,
+  (
+    map.get(color.$color-tokens, 'primary', 'default'),
+    map.get(color.$color-tokens, 'secondary', 'default') // map.get(color.$color-tokens, 'tertiary', 'default') or ()
+  )
 );
 
-$extended-tonal: map.map(
+$-extended-tonal: map.map(
   (
-    'default': md-comp-extended-fab-tertiary-container.$map,
     'primary': md-comp-extended-fab-primary-container.$map,
     'secondary': md-comp-extended-fab-secondary-container.$map,
+    'tertiary': md-comp-extended-fab-tertiary-container.$map,
   ),
   $-process-variants,
-  true
+  true,
+  (
+    map.get(tonal.$color-tokens, 'primary', 'default'),
+    map.get(tonal.$color-tokens, 'secondary', 'default'),
+    map.get(tonal.$color-tokens, 'tertiary', 'default')
+  )
 );
+
+$extended-default: (
+  'default': map.deep-merge(
+      map.get($-extended-sizes, 'small'),
+      map.get($-extended-colors, 'tertiary')
+    ),
+  'tonal': map.get($-extended-tonal, 'tertiary'),
+);
+
+@function -filter-defaults($key, $value, $-map) {
+  @return $key != 'tertiary' and $key != 'small';
+}
+$-filter-defaults: meta.get-function('-filter-defaults');
+
+$extended-sizes: map.filter($-extended-sizes, $-filter-defaults);
+$extended-colors: map.filter($-extended-colors, $-filter-defaults);
+$extended-tonal: map.filter($-extended-tonal, $-filter-defaults);

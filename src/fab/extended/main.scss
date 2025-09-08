@@ -1,40 +1,76 @@
 @use 'sass:map';
+@use '~@sass-fairy/list/list';
 @use '../utils' as *;
 @use 'meta' as *;
 
-@mixin all-states($tokens, $params...) {
-  @include default-state(map.get($tokens, 'default'), 'extended', $params...);
-  @include hovered-state(map.get($tokens, 'hovered'), 'extended', $params...);
-  @include focused-state(map.get($tokens, 'focused'), 'extended', $params...);
-  @include pressed-state(map.get($tokens, 'pressed'), 'extended', $params...);
+@mixin states($tokens, $params...) {
+  $params: list.prepend($params, 'extended');
+
+  @include default-state(map.get($tokens, 'default'), $params...) {
+    @content ('default');
+  }
+  @include hovered-state(map.get($tokens, 'hovered'), $params...) {
+    @content ('hovered');
+  }
+  @include focused-state(map.get($tokens, 'focused'), $params...) {
+    @content ('focused');
+  }
+  @include pressed-state(map.get($tokens, 'pressed'), $params...) {
+    @content ('pressed');
+  }
 }
 
-@include all-states(
-  map.merge(
-    map.get($extended-sizes, 'default'),
-    map.get($extended-colors, 'default')
-  )
-);
+@include states(map.get($extended-default, 'default')) using ($state) {
+  @if $state == 'default' {
+    color: var(--_label-text-color);
+    font-size: calc(var(--_label-text-size) * 1px);
+    line-height: var(--_label-text-line-height);
+    font-family: var(--_label-text-name);
+    font-weight: var(--_label-text-weight);
+    gap: calc(var(--_gap) * var(--_unfold-factor));
+    flex-direction: var(--_direction);
+    cursor: default;
+    user-select: none;
 
-@include all-states(map.get($extended-tonal, 'default'), 'tonal');
+    @supports not (width: calc-size(min-content, size)) {
+      font-size: calc(var(--_label-text-size) * 1px * var(--_unfold-factor));
+    }
+
+    slot:not([name='icon']) {
+      display: block;
+      white-space: nowrap;
+
+      @supports (width: calc-size(min-content, size)) {
+        max-width: calc-size(min-content, size * var(--_unfold-factor));
+        overflow: hidden;
+      }
+    }
+  }
+}
+
+@include states(map.get($extended-default, 'tonal'), 'tonal') using ($state) {
+}
 
 @each $size, $tokens in $extended-sizes {
   @if $size != 'default' {
     $size-param: size($size);
-    @include all-states($tokens, $size-param);
+    @include states($tokens, $size-param) using ($state) {
+    }
   }
 }
 
 @each $color, $tokens in $extended-colors {
   @if $color != 'default' {
     $color-param: color($color);
-    @include all-states($tokens, $color-param);
+    @include states($tokens, $color-param) using ($state) {
+    }
   }
 }
 
 @each $color, $tokens in $extended-tonal {
   @if $color != 'default' {
     $color-param: color($color);
-    @include all-states($tokens, 'tonal', $color-param);
+    @include states($tokens, 'tonal', $color-param) using ($state) {
+    }
   }
 }

@@ -16,6 +16,7 @@ $special-tokens: (
   'state-layer-color': map.get($-groups, 'pressed', 'state-layer-color'),
   'state-layer-opacity': map.get($-groups, 'pressed', 'state-layer-opacity'),
   'press-factor': 0,
+  'unfold-factor': 0,
   'level': calc(
       var(--_elevation-default) +
         (var(--_elevation-hovered) - var(--_elevation-default)) *
@@ -27,6 +28,9 @@ $special-tokens: (
   'ripple-color': var(--_state-layer-color),
   'ripple-easing': motion-effects.$expressive-fast-effects,
   'ripple-opacity': var(--_state-layer-opacity),
+  'unfold-duration': motion-effects.$expressive-fast-effects-duration,
+  'unfold-damping': md-sys-motion.$spring-fast-effects-damping,
+  'unfold-stiffness': md-sys-motion.$spring-fast-effects-stiffness,
 );
 
 $-extensions: ($default-tokens, $special-tokens);

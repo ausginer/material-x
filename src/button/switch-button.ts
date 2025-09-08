@@ -44,7 +44,7 @@ export default class SwitchButton extends CoreButton {
       new SpringAnimationController(
         this,
         {
-          pointerdown(_, animation) {
+          click(_, animation) {
             if (firstTime) {
               firstTime = false;
             } else {

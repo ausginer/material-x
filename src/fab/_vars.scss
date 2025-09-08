@@ -5,6 +5,8 @@
 @use 'utils' as *;
 
 @function public-vars($tokens) {
+  $label-text: map.get($tokens, 'label-text') or ();
+
   @return filter-nulls(
     (
       'container-width': map.get($tokens, 'container-width'),
@@ -12,6 +14,12 @@
       'container-color': map.get($tokens, 'container-color'),
       'icon-size': map.get($tokens, 'icon-size'),
       'icon-color': map.get($tokens, 'icon-color'),
+      'label-text-color': map.get($tokens, 'label-text-color'),
+      'label-text-size': map.get($label-text, 'font-size'),
+      'label-text-name': map.get($label-text, 'font-name'),
+      'label-text-weight': map.get($label-text, 'font-weight'),
+      'label-text-line-height': map.get($label-text, 'line-height'),
+      'direction': map.get($tokens, 'direction'),
     )
   );
 }
@@ -25,13 +33,13 @@
       'shadow-color': map.get($tokens, 'container-shadow-color'),
       'state-layer-color': map.get($tokens, 'state-layer-color'),
       'state-layer-opacity': map.get($tokens, 'state-layer-opacity'),
+      'gap': map.get($tokens, 'icon-label-space'),
     )
   );
 }
 
 @function state-vars($state-map, $prefix, $exclusion-maps...) {
   $state-tokens: extend($state-map, $exclusion-maps...);
-  @debug debug($state-tokens);
   $state-public-vars: append-public-prefix(public-vars($state-tokens), $prefix);
   $state-private-vars: private-vars($state-tokens);
   @return map.merge($state-public-vars, $state-private-vars);
