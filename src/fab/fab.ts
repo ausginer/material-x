@@ -1,5 +1,6 @@
 import RippleAnimationController from '../core/animations/ripple.ts';
 import SpringAnimationController from '../core/animations/spring.ts';
+import AttributeObserver from '../core/elements/attribute-observer.ts';
 import CoreElement, { use } from '../core/elements/core.ts';
 import elevationStyles from '../core/elevation/elevation.scss' with { type: 'css' };
 import { usePressAnimation } from '../core/utils/button.ts';
@@ -12,27 +13,22 @@ import tonalStyles from './tonal/main.scss' with { type: 'css' };
 
 export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
+export type FABExtended = 'open' | 'closed';
 
 const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
 
-function enter(_: Event, animation: Animation): void {
-  animation.playbackRate = 1;
-  animation.play();
-}
-
-function leave(_: Event, animation: Animation): void {
-  animation.playbackRate = -1;
-  animation.play();
-}
+export class FABToggleEvent extends Event {}
 
 /**
- * @attr {string} size
- * @attr {string} color
- * @attr {boolean|undefined} extended
+ * @attr {FABSize} size
+ * @attr {FABColor} color
+ * @attr {FABExtended} extended
  * @attr {boolean|undefined} tonal
  * @attr {boolean|undefined} disabled
  */
 export default class FAB extends CoreElement {
+  static readonly observedAttributes = ['extended'] as const;
+
   constructor() {
     super(TEMPLATE, { role: 'button' }, [
       elevationStyles,
@@ -49,10 +45,14 @@ export default class FAB extends CoreElement {
       new SpringAnimationController(
         this,
         {
-          pointerenter: enter,
-          pointerleave: leave,
-          focusin: enter,
-          focusout: leave,
+          fabopen(_: FABToggleEvent, animation: Animation): void {
+            animation.playbackRate = 1;
+            animation.play();
+          },
+          fabclosed(_: FABToggleEvent, animation: Animation): void {
+            animation.playbackRate = -1;
+            animation.play();
+          },
         },
         {
           damping: 'unfold-damping',
@@ -61,8 +61,15 @@ export default class FAB extends CoreElement {
           factor: 'unfold-factor',
         },
       ),
+      new RippleAnimationController(this),
+      new AttributeObserver({
+        extended: (_, newValue) => {
+          this.dispatchEvent(
+            new FABToggleEvent(newValue === 'open' ? 'fabopen' : 'fabclosed'),
+          );
+        },
+      }),
     );
-    use(this, new RippleAnimationController(this));
   }
 }
 
@@ -71,5 +78,10 @@ define('mx-fab', FAB);
 declare global {
   interface HTMLElementTagNameMap {
     'mx-fab': FAB;
+  }
+
+  interface HTMLElementEventMap {
+    fabopen: FABToggleEvent;
+    fabclosed: FABToggleEvent;
   }
 }

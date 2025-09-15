@@ -4,7 +4,7 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
 import './fab.ts';
 import '../icon/icon.ts';
-import type { FABColor, FABSize } from './fab.ts';
+import type { FABColor, FABExtended, FABSize } from './fab.ts';
 
 type FABProps = Readonly<{
   tonal?: boolean;
@@ -13,7 +13,7 @@ type FABProps = Readonly<{
   disabled?: boolean;
   size?: FABSize;
   icon?: TemplateResult | typeof nothing;
-  extended?: boolean;
+  extended?: FABExtended;
   onClick?(): void;
 }>;
 
@@ -32,7 +32,7 @@ const meta: Meta<FABProps> = {
     html`<mx-fab
       ?disabled=${disabled}
       ?tonal=${tonal}
-      ?extended=${extended}
+      extended=${ifDefined(extended)}
       color=${ifDefined(color)}
       size=${ifDefined(size)}
       @click=${onClick}
@@ -67,7 +67,7 @@ const meta: Meta<FABProps> = {
       },
     },
   },
-  args: { onClick: fn(), disabled: false, extended: false },
+  args: { onClick: fn(), disabled: false },
 };
 
 export default meta;

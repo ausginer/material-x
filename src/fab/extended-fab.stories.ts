@@ -4,7 +4,7 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
 import './fab.ts';
 import '../icon/icon.ts';
-import type { FABColor, FABSize } from './fab.ts';
+import type { FABColor, FABExtended, FABSize } from './fab.ts';
 
 type FABProps = Readonly<{
   tonal?: boolean;
@@ -13,9 +13,9 @@ type FABProps = Readonly<{
   disabled?: boolean;
   size?: FABSize;
   icon?: TemplateResult | typeof nothing;
-  extended?: boolean;
+  extended?: FABExtended;
   style?: string;
-  onClick?(): void;
+  onClick?(event: PointerEvent): void;
 }>;
 
 const meta: Meta<FABProps> = {
@@ -34,7 +34,7 @@ const meta: Meta<FABProps> = {
     html`<mx-fab
       ?disabled=${disabled}
       ?tonal=${tonal}
-      ?extended=${extended}
+      extended=${ifDefined(extended)}
       color=${ifDefined(color)}
       size=${ifDefined(size)}
       style=${ifDefined(style)}
@@ -70,7 +70,22 @@ const meta: Meta<FABProps> = {
       },
     },
   },
-  args: { onClick: fn(), disabled: false, extended: true },
+  args: {
+    onClick: fn((event: PointerEvent) => {
+      if (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+        (event.currentTarget as HTMLElement).getAttribute('extended') === 'open'
+      ) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+        (event.currentTarget as HTMLElement).setAttribute('extended', 'closed');
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+        (event.currentTarget as HTMLElement).setAttribute('extended', 'open');
+      }
+    }),
+    disabled: false,
+    extended: 'closed',
+  },
 };
 
 export default meta;

@@ -94,8 +94,6 @@ $-extended-sizes: map.map(
   )
 );
 
-@debug color.$color-tokens;
-
 $-extended-colors: map.map(
   (
     'primary': md-comp-extended-fab-primary.$map,

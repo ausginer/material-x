@@ -65,5 +65,4 @@ $-colors: (
 }
 
 $color-tokens: map.map($-colors, meta.get-function('-map-color-tokens'));
-@debug $color-tokens;
 $colors: map.map($color-tokens, meta.get-function('-map-colors'));

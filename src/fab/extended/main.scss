@@ -23,7 +23,6 @@
 @include states(map.get($extended-default, 'default')) using ($state) {
   @if $state == 'default' {
     color: var(--_label-text-color);
-    font-size: calc(var(--_label-text-size) * 1px);
     line-height: var(--_label-text-line-height);
     font-family: var(--_label-text-name);
     font-weight: var(--_label-text-weight);
@@ -32,15 +31,13 @@
     cursor: default;
     user-select: none;
 
-    @supports not (width: calc-size(min-content, size)) {
-      font-size: calc(var(--_label-text-size) * 1px * var(--_unfold-factor));
-    }
-
     slot:not([name='icon']) {
       display: block;
       white-space: nowrap;
+      font-size: calc(var(--_label-text-size) * var(--_unfold-factor));
 
       @supports (width: calc-size(min-content, size)) {
+        font-size: var(--_label-text-size);
         max-width: calc-size(min-content, size * var(--_unfold-factor));
         overflow: hidden;
       }

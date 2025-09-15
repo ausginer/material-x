@@ -1,4 +1,4 @@
-import AttributeTransmitter from '../core/elements/attribute-transmitter.ts';
+import AttributeObserver from '../core/elements/attribute-observer.ts';
 import { use } from '../core/elements/core.ts';
 import { usePressAnimation } from '../core/utils/button.ts';
 import { define, template } from '../utils.ts';
@@ -37,11 +37,29 @@ export default class LinkButton extends CoreButton {
       { delegatesFocus: true },
     );
     const anchor = this.shadowRoot!.querySelector('a')!;
+
     usePressAnimation(this);
     use(
       this,
-      new AttributeTransmitter(anchor, 'href'),
-      new AttributeTransmitter(anchor, 'target'),
+      new AttributeObserver(
+        Object.fromEntries(
+          (
+            [
+              [anchor, 'href'],
+              [anchor, 'target'],
+            ] as const
+          ).map(([target, attribute]) => [
+            attribute,
+            (_, newValue) => {
+              if (newValue != null) {
+                target.setAttribute(attribute, newValue);
+              } else {
+                target.removeAttribute(attribute);
+              }
+            },
+          ]),
+        ),
+      ),
     );
   }
 }
