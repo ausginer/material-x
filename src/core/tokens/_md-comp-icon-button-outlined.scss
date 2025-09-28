@@ -1,0 +1,83 @@
+/// Tokens according to the Material Design specification:
+/// https://m3.material.io
+///
+/// Set: md.comp.icon-button.outlined
+/// Full name: Icon button - Color - Outlined
+///
+/// !!! THIS FILE WAS AUTOMATICALLY GENERATED !!!
+/// !!! DO NOT MODIFY IT BY HAND !!!
+
+@use "sass:map";
+
+@use "md-sys-color";
+@use "md-sys-state";
+
+$disabled-icon-opacity: 0.38;
+$selected-disabled-container-opacity: 0.1;
+$focused-state-layer-opacity: md-sys-state.$focus-state-layer-opacity;
+$hovered-state-layer-opacity: md-sys-state.$hover-state-layer-opacity;
+$pressed-state-layer-opacity: md-sys-state.$pressed-state-layer-opacity;
+$disabled-icon-color: md-sys-color.$on-surface;
+$disabled-outline-color: md-sys-color.$outline-variant;
+$focused-icon-color: md-sys-color.$on-surface-variant;
+$focused-state-layer-color: md-sys-color.$on-surface-variant;
+$hovered-icon-color: md-sys-color.$on-surface-variant;
+$hovered-state-layer-color: md-sys-color.$on-surface-variant;
+$icon-color: md-sys-color.$on-surface-variant;
+$outline-color: md-sys-color.$outline-variant;
+$pressed-icon-color: md-sys-color.$on-surface-variant;
+$pressed-state-layer-color: md-sys-color.$on-surface-variant;
+$selected-container-color: md-sys-color.$inverse-surface;
+$selected-disabled-container-color: md-sys-color.$on-surface;
+$selected-focused-icon-color: md-sys-color.$inverse-on-surface;
+$selected-focused-state-layer-color: md-sys-color.$inverse-on-surface;
+$selected-hovered-icon-color: md-sys-color.$inverse-on-surface;
+$selected-hovered-state-layer-color: md-sys-color.$inverse-on-surface;
+$selected-icon-color: md-sys-color.$inverse-on-surface;
+$selected-pressed-icon-color: md-sys-color.$inverse-on-surface;
+$selected-pressed-state-layer-color: md-sys-color.$inverse-on-surface;
+$unselected-disabled-outline-color: md-sys-color.$outline-variant;
+$unselected-focused-icon-color: md-sys-color.$on-surface-variant;
+$unselected-focused-state-layer-color: md-sys-color.$on-surface-variant;
+$unselected-hovered-icon-color: md-sys-color.$on-surface-variant;
+$unselected-hovered-state-layer-color: md-sys-color.$on-surface-variant;
+$unselected-icon-color: md-sys-color.$on-surface-variant;
+$unselected-outline-color: md-sys-color.$outline-variant;
+$unselected-pressed-icon-color: md-sys-color.$on-surface-variant;
+$unselected-pressed-state-layer-color: md-sys-color.$on-surface-variant;
+
+$map: (
+  'disabled-icon-opacity': $disabled-icon-opacity,
+  'selected-disabled-container-opacity': $selected-disabled-container-opacity,
+  'focused-state-layer-opacity': $focused-state-layer-opacity,
+  'hovered-state-layer-opacity': $hovered-state-layer-opacity,
+  'pressed-state-layer-opacity': $pressed-state-layer-opacity,
+  'disabled-icon-color': $disabled-icon-color,
+  'disabled-outline-color': $disabled-outline-color,
+  'focused-icon-color': $focused-icon-color,
+  'focused-state-layer-color': $focused-state-layer-color,
+  'hovered-icon-color': $hovered-icon-color,
+  'hovered-state-layer-color': $hovered-state-layer-color,
+  'icon-color': $icon-color,
+  'outline-color': $outline-color,
+  'pressed-icon-color': $pressed-icon-color,
+  'pressed-state-layer-color': $pressed-state-layer-color,
+  'selected-container-color': $selected-container-color,
+  'selected-disabled-container-color': $selected-disabled-container-color,
+  'selected-focused-icon-color': $selected-focused-icon-color,
+  'selected-focused-state-layer-color': $selected-focused-state-layer-color,
+  'selected-hovered-icon-color': $selected-hovered-icon-color,
+  'selected-hovered-state-layer-color': $selected-hovered-state-layer-color,
+  'selected-icon-color': $selected-icon-color,
+  'selected-pressed-icon-color': $selected-pressed-icon-color,
+  'selected-pressed-state-layer-color': $selected-pressed-state-layer-color,
+  'unselected-disabled-outline-color': $unselected-disabled-outline-color,
+  'unselected-focused-icon-color': $unselected-focused-icon-color,
+  'unselected-focused-state-layer-color': $unselected-focused-state-layer-color,
+  'unselected-hovered-icon-color': $unselected-hovered-icon-color,
+  'unselected-hovered-state-layer-color': $unselected-hovered-state-layer-color,
+  'unselected-icon-color': $unselected-icon-color,
+  'unselected-outline-color': $unselected-outline-color,
+  'unselected-pressed-icon-color': $unselected-pressed-icon-color,
+  'unselected-pressed-state-layer-color': $unselected-pressed-state-layer-color,
+);

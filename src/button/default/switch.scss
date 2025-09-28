@@ -4,6 +4,7 @@
 
 @include unselected-states($unselected) using ($state) {
   @if $state == 'default' {
+    will-change: background-color, color;
     transition-property: background-color, color;
     transition-duration: var(--_switch-duration);
     transition-timing-function: var(--_switch-easing);

@@ -10,3 +10,7 @@
 @function size($size) {
   @return 'size="#{$size}"';
 }
+
+@function shape($shape) {
+  @return 'shape="#{$shape}"';
+}

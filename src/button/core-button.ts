@@ -3,14 +3,12 @@ import CoreElement, { use } from '../core/elements/core.ts';
 import elevationStyles from '../core/elevation/elevation.scss' with { type: 'css' };
 import defaultDisabledStyles from './default/disabled.scss' with { type: 'css' };
 import defaultButtonStyles from './default/main.scss' with { type: 'css' };
+import shapeStyles from './shape/main.scss' with { type: 'css' };
 
 export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
+export type ButtonShape = 'round' | 'square';
 
-/**
- * @attr {string} flavor
- * @attr {boolean|undefined} disabled
- */
 export default class CoreButton extends CoreElement {
   constructor(
     template: HTMLTemplateElement,
@@ -21,7 +19,13 @@ export default class CoreButton extends CoreElement {
     super(
       template,
       { role },
-      [defaultButtonStyles, elevationStyles, ...styles, defaultDisabledStyles],
+      [
+        defaultButtonStyles,
+        elevationStyles,
+        shapeStyles,
+        ...styles,
+        defaultDisabledStyles,
+      ],
       init,
     );
     this.tabIndex = 0;

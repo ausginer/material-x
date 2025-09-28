@@ -9,4 +9,9 @@
   @include hovered-state(map.get($tokens, 'hovered'), $size-param);
   @include focused-state(map.get($tokens, 'focused'), $size-param);
   @include pressed-state(map.get($tokens, 'pressed'), $size-param);
+
+  // Share size styles with button groups
+  :host([#{$size-param}]) ::slotted(mx-button) {
+    @extend :host([#{$size-param}]);
+  }
 }

@@ -1,0 +1,7 @@
+@use '../utils' as *;
+@use 'meta' as *;
+
+$shape-param: shape('square');
+
+@include default-state($square, $shape-param) {
+}

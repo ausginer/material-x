@@ -62,12 +62,12 @@ export default class FAB extends CoreElement {
         },
       ),
       new RippleAnimationController(this),
-      new AttributeObserver({
-        extended: (_, newValue) => {
+      new AttributeObserver<FABExtended>('extended', (_, newValue) => {
+        if (newValue != null) {
           this.dispatchEvent(
             new FABToggleEvent(newValue === 'open' ? 'fabopen' : 'fabclosed'),
           );
-        },
+        }
       }),
     );
   }

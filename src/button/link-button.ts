@@ -15,6 +15,7 @@ const TEMPLATE = template`<a><slot name="icon"></slot><slot></slot></a>`;
 /**
  * @attr {string} color
  * @attr {string} size
+ * @attr {string} shape
  * @attr {boolean} disabled
  * @attr {string} href
  * @attr {string} target
@@ -36,30 +37,23 @@ export default class LinkButton extends CoreButton {
       ],
       { delegatesFocus: true },
     );
-    const anchor = this.shadowRoot!.querySelector('a')!;
-
     usePressAnimation(this);
+    this.#useAttributeObserver('href');
+    this.#useAttributeObserver('target');
+  }
+
+  #useAttributeObserver(attribute: string) {
+    const target = this.shadowRoot!.querySelector('a')!;
+
     use(
       this,
-      new AttributeObserver(
-        Object.fromEntries(
-          (
-            [
-              [anchor, 'href'],
-              [anchor, 'target'],
-            ] as const
-          ).map(([target, attribute]) => [
-            attribute,
-            (_, newValue) => {
-              if (newValue != null) {
-                target.setAttribute(attribute, newValue);
-              } else {
-                target.removeAttribute(attribute);
-              }
-            },
-          ]),
-        ),
-      ),
+      new AttributeObserver(attribute, (_, newValue) => {
+        if (newValue != null) {
+          target.setAttribute(attribute, newValue);
+        } else {
+          target.removeAttribute(attribute);
+        }
+      }),
     );
   }
 }

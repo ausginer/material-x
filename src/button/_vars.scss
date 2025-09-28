@@ -1,9 +1,83 @@
 @use 'sass:meta';
-@use 'sass:list';
+@use '~@sass-fairy/list/list';
 @use '~@sass-fairy/string/string';
 @use '../core/tokens/md-comp-button';
 @use '../core/utils/map';
 @use 'utils' as *;
+
+$public-vars: (
+  'container-color',
+  'container-elevation',
+  'container-height',
+  'icon-color',
+  'icon-size',
+  'label-text-color',
+  'label-text',
+  'leading-space',
+  'trailing-space'
+);
+
+$private-vars: (
+  'container-shape-round',
+  'container-shape-square',
+  'container-shadow-color',
+  'focus-indicator-color',
+  'focus-indicator-outline-offset',
+  'focus-indicator-thickness',
+  'icon-label-space',
+  'state-layer-opacity',
+  'state-layer-color',
+  'container-opacity',
+  'label-text-opacity',
+  'outline-color'
+);
+
+@function transform-shape($var) {
+  @if $var == 'full' {
+    @return calc(var(--_container-height) / 2);
+  }
+
+  @return $var;
+}
+
+/// A callback to be used with {@link set.vars} to process variables for
+/// buttons.
+///
+/// @param {String} $key - The name of the variable.
+/// @param {*} $value - The value of the variable.
+/// @param {Map} $-map - The full map of tokens (not used).
+/// @param {Function} $to-public-var-callback - A function to convert a public
+/// variable to a CSS variable reference.
+/// @param {String} $prefix - The prefix to use for the public CSS variable.
+/// @returns {VarTuple|Map|Null} - A {@link VarTuple}, a map of {@link VarTuple}
+/// or `null` to skip the variable.
+@function -process-vars($key, $value, $-map, $to-public-var-callback, $prefix) {
+  @if list.includes($public-vars, $key) {
+    @if $key == 'label-text' {
+      $result: (
+        'label-text-font': map.get($value, 'font-name'),
+        'label-text-size': map.get($value, 'font-size'),
+        'label-text-weight': map.get($value, 'font-weight'),
+        'label-text-line-height': map.get($value, 'line-height'),
+      );
+
+      @return map.map($result, $to-public-var-callback, $prefix);
+    }
+
+    @return meta.call($to-public-var-callback, $key, $value, $prefix);
+  }
+
+  @if (list.includes($private-vars, $key)) {
+    @if string.includes($key, 'container-shape') {
+      @return ($key, transform-shape($value));
+    }
+
+    @return ($key, $value);
+  }
+
+  @return null;
+}
+$process-vars: meta.get-function('-process-vars');
 
 @function -map-public-vars($key, $value, $map, $prefix) {
   @return ($key, 'var(--#{$prefix}-#{$key}, #{$value})');
@@ -36,14 +110,6 @@
       'trailing-space': map.get($tokens, 'trailing-space'),
     )
   );
-}
-
-@function shape-transformer($var) {
-  @if $var == 'full' {
-    @return calc(var(--_container-height) / 2);
-  }
-
-  @return $var;
 }
 
 @function private-vars($tokens) {
@@ -112,6 +178,7 @@
 
   @return ($groups, $remaining);
 }
+$group-callback: meta.get-function('-group-callback');
 
 @function group-buttons($map) {
   @return group($map, meta.get-function('-group-callback'));

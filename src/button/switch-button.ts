@@ -18,6 +18,7 @@ export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
 /**
  * @attr {string} color
  * @attr {string} size
+ * @attr {string} shape
  * @attr {boolean} disabled
  * @attr {boolean} checked
  */

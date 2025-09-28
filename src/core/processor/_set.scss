@@ -1,0 +1,175 @@
+@use 'sass:map';
+@use 'sass:meta';
+@use 'sass:string';
+@use '~@sass-fairy/list/list';
+
+/// **Token Set**
+///
+/// @name TokenSet
+/// @prop {String} name - The name of the token set.
+/// @prop {String} prefix - The prefix to use for public CSS variable names.
+/// @prop {Map<String, *>} data - An internal map of design tokens prepared for
+/// use in stylesheets.
+$--token-set-type: null;
+
+/// **Variable Tuple**
+///
+/// @name VarTuple
+/// @prop {String} 1 - The name of the variable.
+/// @prop {*} 2 - The value of the variable.
+$--var-tuple-type: null;
+
+/// Creates a TokenSet object.
+///
+/// @param {String} $name - The name of the token set.
+/// @param {String} $prefix - The prefix to use for public CSS variable names.
+/// @param {Map} $tokens - A prepared map of design tokens.
+/// @returns {TokenSet} - The created TokenSet object.
+///
+/// @example
+///   $set: create('default', md-comp-button.$map);
+///
+///   // Result:
+///   $result: assert($set, (
+///     'name': 'default',
+///     'data': (
+///       // design tokens...
+///     )
+///   ));
+@function create($name, $tokens) {
+  @return ('name': $name, 'data': $tokens);
+}
+
+@function -is-unique(
+  $extension,
+  $-index,
+  $-list,
+  $original-key,
+  $original-value
+) {
+  @return $original-value != map.get($extension, $original-key);
+}
+$-is-unique: meta.get-function('-is-unique');
+
+/// Produces a new token map where values inherited from one or more `bases`
+/// maps are removed. This is used when a token set extends other sets: values
+/// that are identical to any base's value are treated as inherited and
+/// omitted from the result so the extending set contains only the values that
+/// differ (the overrides).
+///
+/// NOTE: Use in conjunction with {@link create}.
+///
+/// @param {Map} $map the primary map of tokens to filter (the extending set).
+/// @param {List} $bases a list of base maps whose values represent
+/// inherited defaults to be removed from `$map`.
+/// @returns {Map} - The filtered map with only unique values
+///
+/// @example
+///   $set: create(
+///     'default',
+///     extends(
+///       md-comp-outlined-button.$map,
+///       $default-button-tokens,
+///     ),
+///   );
+@function extends($tokens, $bases...) {
+  $result: ();
+
+  @each $key, $value in $tokens {
+    @if list.every($bases, $-is-unique, $key, $value) {
+      $result: map.set($result, $key, $value);
+    }
+  }
+
+  @return $result;
+}
+
+/// Removes null values from a map.
+///
+/// @param {Map} $map - The map to filter.
+/// @returns {Map} - The filtered map.
+@function -filter-nulls($map) {
+  $result: ();
+
+  @each $key, $value in $map {
+    @if $value != null {
+      $result: map.set($result, $key, $value);
+    }
+  }
+
+  @return $result;
+}
+
+/// Creates a variable tuple.
+///
+/// NOTE: The callback has the signature compatible with {@link map.map}, so it
+/// can be passed directly to it.
+///
+/// @param {String} $name - The name of the variable.
+/// @param {*} $value - The fallback value for the variable.
+/// @param {Map} $-map - The full map of tokens (not used).
+/// @param {String} $prefix - The prefix to use for the public CSS variable.
+/// @returns {VarTuple} - The created variable tuple.
+@function -to-public-var($name, $value, $-map, $prefix) {
+  @return ($name, 'var(--#{$prefix}-#{$name}, #{$value})');
+}
+
+/// Applies a transformation to each token in a set to pick tokens to expose as
+/// public and private CSS variables.
+///
+/// @param {TokenSet} $set - The token set to modify.
+/// @param {Function} $callback - A function that takes a key, value, the full
+/// map, and a public variable converter, and returns a map of {@link VarTuple},
+/// a single {@link VarTuple} or `null` to skip the variable.
+/// @returns {Map} - The map with CSS variable references
+///
+/// @example
+///   @function -map-vars($key, $value, $map, $to-public-var-callback) {
+///     @if list.includes($public-vars, $key) {
+///       @return meta.call($to-public-var-callback, $key, $value, 'md-button');
+///     } @else if (list.includes($vars, $key)) {
+///       @return ($key, $value);
+///     }
+///
+///     @return null;
+///   }
+///
+///   $set: set.vars($set, meta.get-function('-map-vars'));
+@function vars($set, $callback) {
+  $name: map.get($set, 'name');
+  $data: map.get($set, 'data');
+
+  $result: ();
+
+  @each $key, $value in $data {
+    $property-result: meta.call(
+      $callback,
+      $key,
+      $value,
+      $data,
+      meta.get-function('-to-public-var')
+    );
+
+    @if meta.type-of($property-result) == 'map' {
+      $result: map.merge($result, $property-result);
+    } @else if $property-result != null {
+      $p-key: list.nth($property-result, 1);
+      $p-value: list.nth($property-result, 2);
+      $result: map.set($result, $p-key, $p-value);
+    }
+  }
+
+  @return create($name, $result);
+}
+
+/// Applies the set to a stylesheet by invoking a callback for each token.
+///
+/// @param {TokenSet} $set - The token set to apply.
+/// @content - A mixin block that accepts the set name and data map as
+/// arguments.
+@mixin apply($set) {
+  $name: map.get($set, 'name');
+  $data: map.get($set, 'data');
+
+  @content ($name, $data);
+}

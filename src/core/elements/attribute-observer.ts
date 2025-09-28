@@ -8,15 +8,17 @@ export type UpdateCallback<T extends string> = (
 export default class AttributeObserver<T extends string>
   implements ReactiveController
 {
-  readonly #callbacks: Readonly<Record<string, UpdateCallback<string>>>;
+  readonly #attribute: string;
+  readonly #callback: UpdateCallback<T>;
 
-  constructor(callbacks: Readonly<Record<string, UpdateCallback<string>>>) {
-    this.#callbacks = callbacks;
+  constructor(attribute: string, callback: UpdateCallback<T>) {
+    this.#attribute = attribute;
+    this.#callback = callback;
   }
 
   attrChanged(name: string, oldValue: T | null, newValue: T | null): void {
-    if (name in this.#callbacks && oldValue !== newValue) {
-      this.#callbacks[name]?.(oldValue, newValue);
+    if (name === this.#attribute && oldValue !== newValue) {
+      this.#callback(oldValue, newValue);
     }
   }
 }

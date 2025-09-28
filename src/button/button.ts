@@ -23,6 +23,7 @@ const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
  *
  * @attr {string} color
  * @attr {string} size
+ * @attr {string} shape
  * @attr {boolean|undefined} disabled
  */
 export default class Button extends CoreButton {

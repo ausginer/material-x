@@ -18,7 +18,7 @@ $special: (
 
 $default: map.merge(
   state-vars(
-    extend(map.get($-groups, 'default'), $default-tokens),
+    extend(map.get($-groups, 'default'), default.$default-tokens),
     'md-#{$color}-button'
   ),
   $special

@@ -11,6 +11,7 @@
   pointer-events: none;
 
   &::after {
+    will-change: transform, width, height, background-image;
     content: '';
     position: absolute;
     opacity: 0;
@@ -18,7 +19,7 @@
     left: 0;
     width: var(--_ripple-size, 0px);
     height: var(--_ripple-size, 0px);
-    background: radial-gradient(
+    background-image: radial-gradient(
       circle closest-side,
       var(--_ripple-color) max(calc(100% - 70px), 65%),
       transparent 100%

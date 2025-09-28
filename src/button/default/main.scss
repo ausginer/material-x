@@ -4,6 +4,7 @@
 @use 'meta' as *;
 
 @include default-state($default) {
+  will-change: border-radius;
   display: inline-flex;
   cursor: default;
   user-select: none;

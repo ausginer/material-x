@@ -22,6 +22,7 @@
 
 @include states(map.get($extended-default, 'default')) using ($state) {
   @if $state == 'default' {
+    will-change: gap;
     color: var(--_label-text-color);
     line-height: var(--_label-text-line-height);
     font-family: var(--_label-text-name);
@@ -32,11 +33,13 @@
     user-select: none;
 
     slot:not([name='icon']) {
+      will-change: font-size;
       display: block;
       white-space: nowrap;
       font-size: calc(var(--_label-text-size) * var(--_unfold-factor));
 
       @supports (width: calc-size(min-content, size)) {
+        will-change: max-width;
         font-size: var(--_label-text-size);
         max-width: calc-size(min-content, size * var(--_unfold-factor));
         overflow: hidden;

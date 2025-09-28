@@ -1,0 +1,26 @@
+@use 'sass:map';
+@use '@sass-fairy/list/list';
+
+/// Groups tokens based on a provided callback.
+///
+/// @param {Map} $tokens - The map of tokens to group
+/// @param {Function} $callback - Function that takes a key and returns a tuple
+/// with group and key.
+/// @returns {Map<String, TokenSet} - A map of token sets.
+@function from($tokens, $callback) {
+  $result: ();
+
+  @each $key, $value in $tokens {
+    $callback-result: meta.call($callback, $key);
+    $groups: list.nth($callback-result, 1);
+    $transformed-key: list.nth($callback-result, 2) or $key;
+
+    // Here we create nested maps if needed using provided `$groups` list.
+    $result: map.set(
+      $result,
+      list.join($groups, ($transformed-key, $value))...
+    );
+  }
+
+  @return $result;
+}

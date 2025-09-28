@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/web-components-vite';
 import { html, nothing, type TemplateResult } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
-import type { ButtonColor, ButtonSize } from './core-button.ts';
+import type { ButtonColor, ButtonShape, ButtonSize } from './core-button.ts';
 import '../icon/icon.ts';
 import './button.ts';
 
@@ -12,17 +12,19 @@ type ButtonProps = Readonly<{
   label?: string;
   disabled?: boolean;
   size?: ButtonSize;
+  shape?: ButtonShape;
   icon?: TemplateResult | typeof nothing;
 }>;
 
 const meta: Meta<ButtonProps> = {
   title: 'Button/Button',
   tags: ['autodocs'],
-  render: ({ color, onClick, label, disabled, size, icon }) =>
+  render: ({ color, onClick, label, disabled, size, shape, icon }) =>
     html`<mx-button
       ?disabled=${disabled}
       color=${ifDefined(color)}
       size=${ifDefined(size)}
+      shape=${ifDefined(shape)}
       @click=${onClick}
       >${icon}${label}</mx-button
     >`,
@@ -42,6 +44,12 @@ const meta: Meta<ButtonProps> = {
     label: {
       control: {
         type: 'text',
+      },
+    },
+    shape: {
+      control: {
+        type: 'select',
+        options: ['round', 'square'],
       },
     },
     disabled: {
@@ -88,6 +96,13 @@ export const TextColor: ButtonStories = {
   args: {
     color: 'text',
     label: 'Text Button',
+  },
+};
+
+export const SquareShape: ButtonStories = {
+  args: {
+    label: 'Square Button',
+    shape: 'square',
   },
 };
 
