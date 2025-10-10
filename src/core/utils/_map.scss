@@ -48,3 +48,19 @@
 
   @return true;
 }
+
+/// Removes null values from a map.
+///
+/// @param {Map<String, TokenSet>} $map - The map to filter.
+/// @returns {Map<String, TokenSet>} - The filtered map.
+@function filter-nulls($map) {
+  $result: ();
+
+  @each $key, $value in $map {
+    @if $value != null {
+      $result: map.set($result, $key, $value);
+    }
+  }
+
+  @return $result;
+}

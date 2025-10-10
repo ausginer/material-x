@@ -1,12 +1,21 @@
-@use 'sass:map';
 @use '@sass-fairy/list/list';
+@use '../utils/map';
+
+/// Design Token Groups Map
+/// @type Map<String, Map<String, Any>>
+$TokenGroups: (
+  'group1': (
+    'token-a': 'Any',
+    'token-b': 'Any',
+  ),
+);
 
 /// Groups tokens based on a provided callback.
 ///
 /// @param {Map} $tokens - The map of tokens to group
 /// @param {Function} $callback - Function that takes a key and returns a tuple
 /// with group and key.
-/// @returns {Map<String, TokenSet} - A map of token sets.
+/// @returns {TokenGroups} - A map of token groups.
 @function from($tokens, $callback) {
   $result: ();
 
@@ -22,5 +31,17 @@
     );
   }
 
-  @return $result;
+  @return $data;
+}
+
+/// Asserts that the provided map is a valid `TokenGroups`.
+///
+/// @param {Any} $value - The value to check.
+/// @returns {TokenGroups} - The same value if the check passes.
+@function -assert-groups($value) {
+  @if meta.type-of($value) != 'map' {
+    @error 'Expected a TokenGroups.';
+  }
+
+  @return $value;
 }

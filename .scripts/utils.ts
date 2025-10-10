@@ -1,5 +1,5 @@
 import type { CanonicalizeContext } from 'sass-embedded';
-import type { CubicBezier, TokenColor } from './token-loader/TokenTable.ts';
+import type { CubicBezier, TokenColor } from './tokens/TokenTable.ts';
 
 export const root: URL = new URL('../', import.meta.url);
 

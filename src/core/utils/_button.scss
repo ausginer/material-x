@@ -1,5 +1,6 @@
 @use 'sass:list';
 @use 'sass:string';
+@use '../processor/param';
 @use './map';
 @use './misc' as *;
 
@@ -51,7 +52,10 @@ $-button-states: ('default', 'disabled', 'hovered', 'focused', 'pressed');
 }
 
 @mixin default-state($vars, $params...) {
-  @include -state($vars, 'default', $params...) {
+  $selector: param.apply(':host', $params...);
+
+  #{$selector} {
+    @include vars($vars);
     @content;
   }
 }

@@ -1,0 +1,26 @@
+@use 'sass:meta';
+@forward 'sass:list';
+
+@function every($list, $callback, $args...) {
+  @each $item in $list {
+    @if not meta.call($callback, $item, $list, $args...) {
+      @return false;
+    }
+  }
+
+  @return true;
+}
+
+@function includes($list, $value) {
+  @return list.index-of($list, $value) != null;
+}
+
+@function reduce($list, $callback, $initial, $args...) {
+  $acc: $initial;
+
+  @each $item in $list {
+    $acc: meta.call($callback, $acc, $item, $index, $list, $args...);
+  }
+
+  @return $acc;
+}

@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import tsEslint from 'typescript-eslint';
+import { defineConfig } from 'eslint/config';
 import tsRequireTypeChecking from 'eslint-config-vaadin/typescript-requiring-type-checking';
 import tsImports from 'eslint-config-vaadin/imports-typescript';
 import testing from 'eslint-config-vaadin/testing';
@@ -23,7 +23,13 @@ const config = tsEslint.config(
       '@typescript-eslint/no-shadow': 'off',
       'import-x/prefer-default-export': 'off',
     },
-    files: ['./.scripts/**/*.ts', 'src/**/*.ts', 'src/**/*.js'],
+    files: [
+      './.scripts/**/*.ts',
+      'src/**/*.ts',
+      'src2/**/*.ts',
+      'src2/**/*.js',
+      'src/**/*.js',
+    ],
     languageOptions: {
       parserOptions: {
         projectService: true,

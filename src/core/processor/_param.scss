@@ -1,0 +1,107 @@
+/// A host attribute description.
+///
+/// @prop {String} name - The name of the attribute.
+/// @prop {String} value - The value of the attribute.
+///
+/// @example
+///   // For an attribute like `[color="filled"]`:
+///   $attribute: (
+///     '@type': 'attribute',
+///     'name': 'color',
+///     'value': 'filled',
+///   );
+$HostAttribute: (
+  '@type': 'attribute',
+  'name': 'attribute-name',
+  'value': 'attribute-value',
+);
+
+/// Creates a host attribute description.
+///
+/// @param {String} $name - The name of the attribute.
+/// @param {String} $value - The value of the attribute.
+/// @returns {HostAttribute} - The created attribute description.
+@function create-attribute($name, $value) {
+  @return ('@type': 'attribute', 'name': $name, 'value': $value);
+}
+
+/// A host state description.
+///
+/// @prop {String} name - The name of the state.
+/// @prop {String} value - The value of the state.
+///
+/// @example
+///  // For a state like `:active`:
+///  $state: (
+///   '@type': 'state',
+///   'name': 'active',
+///  );
+$HostState: (
+  '@type': 'state',
+  'name': 'state-name',
+);
+
+/// Creates a host state description.
+///
+/// @param {String} $name - The name of the state.
+/// @returns {HostState} - The created state description.
+@function create-state($name) {
+  @return ('@type': 'state', 'name': $name);
+}
+
+/// A host pseudo-element description.
+///
+/// @prop {String} name - The name of the pseudo-element.
+/// @prop {String} value - The value of the pseudo-element.
+///
+/// @example
+///   // For a pseudo-element like `::part(label)`:
+///   $pseudo-element: (
+///     '@type': 'pseudo-element',
+///     'name': 'part',
+///     'value': 'label',
+///   );
+$HostPseudoElement: (
+  '@type': 'pseudo-element',
+  'name': 'pseudo-element-name',
+  'value': 'pseudo-element-value | null',
+);
+
+/// Creates a host pseudo-element description.
+///
+/// @param {String} $name - The name of the pseudo-element.
+/// @param {String?} $value - The value of the pseudo-element.
+/// @returns {HostPseudoElement} - The created pseudo-element description.
+@function create-pseudo-element($name, $value: null) {
+  @return ('@type': 'pseudo-element', 'name': $name, 'value': $value);
+}
+
+/// Applies parameters to a selector.
+///
+/// @param {String} $selector - The base selector, e.g. `:host`.
+/// @param {List<HostAttribute | HostState | HostPseudoElement>} $params - A
+/// list of parameters to apply to the selector.
+/// @returns {String} - The selector with applied parameters.
+@function apply($selector, $params...) {
+  $result: '';
+
+  @each $param in $params {
+    @if meta.get($param, '@type') == 'attribute' {
+      $result: '#{$result}[#{meta.get($param, 'name')}="#{meta.get($param, 'value')}"]';
+    } @else if meta.get($param, '@type') == 'state' {
+      $result: '#{$result}:#{meta.get($param, 'name')}';
+    } @else if meta.get($param, '@type') == 'pseudo-element' {
+      $value: meta.get($param, 'value');
+      $value-param: if($value, '(#{$value})', '');
+      $result: '#{$result}::#{meta.get($param, 'name')}#{$value-param}';
+    } @else {
+      @error 'Unknown host parameter type: #{meta.get($param, "@type")}.';
+    }
+  }
+
+  @return if(
+    $selector == ':host',
+    '#{$selector}(#{$result})',
+    '#{$selector}#{$result}'
+  );
+}

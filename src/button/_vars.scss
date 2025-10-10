@@ -3,6 +3,7 @@
 @use '~@sass-fairy/string/string';
 @use '../core/tokens/md-comp-button';
 @use '../core/utils/map';
+@use '../core/processor/css-var';
 @use 'utils' as *;
 
 $public-vars: (
@@ -34,7 +35,7 @@ $private-vars: (
 
 @function transform-shape($var) {
   @if $var == 'full' {
-    @return calc(var(--_container-height) / 2);
+    @return calc(css-var.private('container-height') / 2);
   }
 
   @return $var;
@@ -51,7 +52,7 @@ $private-vars: (
 /// @param {String} $prefix - The prefix to use for the public CSS variable.
 /// @returns {VarTuple|Map|Null} - A {@link VarTuple}, a map of {@link VarTuple}
 /// or `null` to skip the variable.
-@function -process-vars($key, $value, $-map, $to-public-var-callback, $prefix) {
+@function process-vars($key, $value, $-map, $to-public-var-callback, $prefix) {
   @if list.includes($public-vars, $key) {
     @if $key == 'label-text' {
       $result: (
