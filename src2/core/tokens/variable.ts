@@ -2,10 +2,6 @@ import type { ResolvedTokenSet } from './resolve.ts';
 
 export type CSSVariableSet = Readonly<Record<string, CSSVariable>>;
 
-function cssName(name: string): string {
-  return name.replaceAll('.', '-');
-}
-
 export class CSSVariable {
   static withValue(variable: CSSVariable, value: string | number): CSSVariable {
     return new CSSVariable(variable.name, value, variable.#prefix);
@@ -16,13 +12,17 @@ export class CSSVariable {
     v2: CSSVariable | null | undefined,
   ): boolean {
     return (
-      (v1 && v2 && v1.#name === v2.#name && v1.#value === v2.#value) ||
+      (v1 && v2 && v1.#name === v2.#name && v1.#value === v2.#value) ??
       v1 === v2
     );
   }
 
-  static ref(name: string) {
-    return `var(--_${cssName(name)})`;
+  static name(name: string): string {
+    return name.replaceAll('.', '-');
+  }
+
+  static ref(name: string): string {
+    return `var(--_${CSSVariable.name(name)})`;
   }
 
   readonly #name: string;
@@ -32,7 +32,7 @@ export class CSSVariable {
 
   constructor(name: string, value: string | number, prefix?: string) {
     this.#name = name;
-    this.#cssName = cssName(name);
+    this.#cssName = CSSVariable.name(name);
     this.#prefix = prefix;
     this.#value = value;
   }

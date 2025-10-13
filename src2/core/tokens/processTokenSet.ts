@@ -4,11 +4,9 @@ import processToken from './processToken.ts';
 export type ProcessedTokenValue =
   | string
   | number
-  | Readonly<{ [key: string]: string | number | null }>;
+  | Readonly<Record<string, string | number | null>>;
 
-export type ProcessedTokenSet = Readonly<{
-  [name: string]: ProcessedTokenValue;
-}>;
+export type ProcessedTokenSet = Readonly<Record<string, ProcessedTokenValue>>;
 
 export default function processTokenSet(name: string): ProcessedTokenSet {
   const set = db.tokenSets.find((s) => s.tokenSetName === name);

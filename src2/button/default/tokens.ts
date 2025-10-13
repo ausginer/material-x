@@ -1,8 +1,8 @@
 import getDeep from 'just-safe-get';
 import motionEffects from '../../core/tokens/default/motion-effects.ts';
-import { inherit } from '../../core/tokens/group.ts';
 import processTokenSet from '../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../core/tokens/resolve.ts';
+import { inherit } from '../../core/tokens/shape.ts';
 import { createVariables, CSSVariable } from '../../core/tokens/variable.ts';
 import {
   applyForButtons,

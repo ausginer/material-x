@@ -1,10 +1,3 @@
-import {
-  $leaf,
-  applyToShape,
-  reshape,
-  type SchemaKeys,
-  type Shape,
-} from '../core/tokens/group.ts';
 import type { ProcessedTokenSet } from '../core/tokens/processTokenSet.ts';
 import {
   resolveSet,
@@ -12,6 +5,13 @@ import {
   type ResolvedTokenSet,
 } from '../core/tokens/resolve.ts';
 import { pseudoClass, selector, type Param } from '../core/tokens/selector.ts';
+import {
+  $leaf,
+  applyToShape,
+  reshape,
+  type SchemaKeys,
+  type Shape,
+} from '../core/tokens/shape.ts';
 import { CSSVariable, type CSSVariableSet } from '../core/tokens/variable.ts';
 
 export type BaseButtonSchema = Readonly<{

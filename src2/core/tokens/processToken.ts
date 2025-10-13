@@ -150,8 +150,9 @@ export default function processToken(token: Token): ProcessedTokenValue | null {
   }
 
   if (textTransform != null) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (textTransform !== TextTransform.NONE) {
-      throw new Error(`Unknown text transform: ${textTransform}`);
+      throw new Error(`Unknown text transform: ${String(textTransform)}`);
     }
 
     return 'none';
