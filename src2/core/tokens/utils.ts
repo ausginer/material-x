@@ -28,10 +28,6 @@ export function* distinct<T>(
   return undefined;
 }
 
-export function camelCaseToKebabCase(str: string): string {
-  return str.replace(/[A-Z]/gu, (x) => `-${x.toLowerCase()}`);
-}
-
 export function rgbaToHex(r: number, g: number, b: number, a: number): string {
   const hex = (((r << 24) | (g << 16) | (b << 8) | a) >>> 0)
     .toString(16)

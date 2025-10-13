@@ -4,7 +4,7 @@ import processToken from './processToken.ts';
 export type ProcessedTokenValue =
   | string
   | number
-  | Readonly<Record<string, string | number | null | undefined>>;
+  | Readonly<{ [key: string]: string | number | null }>;
 
 export type ProcessedTokenSet = Readonly<{
   [name: string]: ProcessedTokenValue;
@@ -20,7 +20,7 @@ export default function processTokenSet(name: string): ProcessedTokenSet {
   return Object.fromEntries(
     db.tokens
       .filter((token) => token.name.startsWith(set.name))
-      .map((token) => [token.tokenName, processToken(token)] as const)
+      .map((token) => [token.tokenNameSuffix, processToken(token)] as const)
       .filter(
         (result): result is readonly [string, ProcessedTokenValue] =>
           result[1] != null,

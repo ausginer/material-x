@@ -1,7 +1,8 @@
+import kebabCase from 'just-kebab-case';
 import db from './DB.ts';
-import type { ProcessedTokenValue } from './ProcessedTokenSet.ts';
+import type { ProcessedTokenValue } from './processTokenSet.ts';
 import { TextTransform, TokenShapeFamily, type Token } from './TokenTable.ts';
-import { camelCaseToKebabCase, rgbaToHex } from './utils.ts';
+import { rgbaToHex } from './utils.ts';
 
 export default function processToken(token: Token): ProcessedTokenValue | null {
   const set = db.getSet(token);
@@ -64,7 +65,7 @@ export default function processToken(token: Token): ProcessedTokenValue | null {
     return Object.fromEntries(
       Object.entries(type).map(
         ([key, value]) =>
-          [camelCaseToKebabCase(key.replace('TokenName', '')), value] as const,
+          [kebabCase(key.replace('TokenName', '')), value] as const,
       ),
     );
   }

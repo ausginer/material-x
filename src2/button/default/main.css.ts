@@ -1,14 +1,11 @@
-import css from '../../core/tokens/css.ts';
+import { css, prettify } from '../../core/tokens/css.ts';
 import { state } from '../utils.ts';
 import packs from './tokens.ts';
 
-if (!packs) {
-  throw new Error('No tokens available for button component.');
-}
-
-const styles: string = await css`
+const styles: string = await prettify(css`
   ${state.default()} {
     ${packs.default};
+
     will-change: border-radius;
     display: inline-flex;
     cursor: default;
@@ -34,6 +31,7 @@ const styles: string = await css`
 
   ${state.hovered()} {
     ${packs.hovered};
+
     background-color: color-mix(
       in srgb,
       var(--_container-color),
@@ -43,6 +41,7 @@ const styles: string = await css`
 
   ${state.focused()} {
     ${packs.focused};
+
     outline: var(--_focus-indicator-thickness) solid
       var(--_focus-indicator-color);
     outline-offset: var(--_focus-indicator-outline-offset);
@@ -58,7 +57,8 @@ const styles: string = await css`
     color: var(--_icon-color);
     flex: 1 0 var(--_icon-size);
   }
-`;
+`);
 
 console.log(styles);
+
 export default styles;

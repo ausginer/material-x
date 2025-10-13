@@ -1,10 +1,28 @@
-import type { ResolveAdjuster, ResolvedTokenSet } from './resolve.ts';
+import type { ResolvedTokenSet } from './resolve.ts';
 
 export type CSSVariableSet = Readonly<Record<string, CSSVariable>>;
+
+function cssName(name: string): string {
+  return name.replaceAll('.', '-');
+}
 
 export class CSSVariable {
   static withValue(variable: CSSVariable, value: string | number): CSSVariable {
     return new CSSVariable(variable.name, value, variable.#prefix);
+  }
+
+  static equals(
+    v1: CSSVariable | null | undefined,
+    v2: CSSVariable | null | undefined,
+  ): boolean {
+    return (
+      (v1 && v2 && v1.#name === v2.#name && v1.#value === v2.#value) ||
+      v1 === v2
+    );
+  }
+
+  static ref(name: string) {
+    return `var(--_${cssName(name)})`;
   }
 
   readonly #name: string;
@@ -14,7 +32,7 @@ export class CSSVariable {
 
   constructor(name: string, value: string | number, prefix?: string) {
     this.#name = name;
-    this.#cssName = name.replaceAll('.', '-');
+    this.#cssName = cssName(name);
     this.#prefix = prefix;
     this.#value = value;
   }
@@ -28,6 +46,10 @@ export class CSSVariable {
   }
 
   get value(): string | number {
+    if (this.isPublic) {
+      return `var(--${this.#prefix}-${this.#cssName}, ${this.#value})`;
+    }
+
     return this.#value;
   }
 
@@ -36,31 +58,28 @@ export class CSSVariable {
   }
 
   get ref(): string {
-    if (this.isPublic) {
-      return `var(--${this.#prefix}-${this.#cssName}, ${this.#value})`;
-    }
-
     return `var(${this.name}, ${this.#value})`;
   }
 
   toString(): string {
-    return `${this.name}: ${this.#value};`;
+    return `${this.name}: ${this.value};`;
   }
 }
 
-export type VariableOptions = Readonly<{
-  public?: { vars: readonly string[]; prefix: string };
-  allowed?: readonly string[];
+export type PublicVars = Readonly<{
+  vars: readonly string[];
+  prefix: string;
 }>;
 
 export function createVariables(
   tokens: ResolvedTokenSet,
-  { public: publicVars, allowed }: VariableOptions,
+  publicVars?: PublicVars,
+  allowedVars?: readonly string[],
 ): CSSVariableSet {
-  const arr = Object.entries(tokens);
+  let arr = Object.entries(tokens);
 
-  if (allowed) {
-    arr.filter(([key]) => allowed.includes(key));
+  if (allowedVars) {
+    arr = arr.filter(([key]) => allowedVars.includes(key));
   }
 
   return Object.fromEntries(

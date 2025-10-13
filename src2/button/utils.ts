@@ -1,58 +1,79 @@
-import { group } from '../core/tokens/group.ts';
-import { pseudoClass, selector } from '../core/tokens/selector.ts';
-import { CSSVariable, type CSSVariableSet } from '../core/tokens/variable.js';
+import {
+  $leaf,
+  applyToShape,
+  reshape,
+  type SchemaKeys,
+  type Shape,
+} from '../core/tokens/group.ts';
+import type { ProcessedTokenSet } from '../core/tokens/processTokenSet.ts';
+import {
+  resolveSet,
+  type ResolveAdjuster,
+  type ResolvedTokenSet,
+} from '../core/tokens/resolve.ts';
+import { pseudoClass, selector, type Param } from '../core/tokens/selector.ts';
+import { CSSVariable, type CSSVariableSet } from '../core/tokens/variable.ts';
 
-function groupCallback(tokenName: string): readonly string[] {
-  const groups: string[] = [];
-  let remaining = tokenName;
-
-  // Level 1: Selection state
-  if (remaining.includes('unselected.')) {
-    groups.push('unselected');
-    remaining = remaining.replace('unselected.', '');
-  } else if (remaining.includes('selected.')) {
-    groups.push('selected');
-    remaining = remaining.replace('selected.', '');
-  }
-
-  // Level 2: Interaction state
-  if (remaining.includes('focused.')) {
-    groups.push('focused');
-    remaining = remaining.replace('focused.', '');
-  } else if (remaining.includes('hovered.')) {
-    groups.push('hovered');
-    remaining = remaining.replace('hovered.', '');
-  } else if (remaining.includes('pressed.')) {
-    groups.push('pressed');
-    remaining = remaining.replace('pressed.', '');
-  } else if (remaining.includes('disabled.')) {
-    groups.push('disabled');
-    remaining = remaining.replace('disabled.', '');
-  } else {
-    groups.push('default');
-  }
-
-  return [...groups, remaining];
-}
-
-export type SimpleButtonStates<T> = Readonly<{
-  default: T;
-  hovered?: T;
-  focused?: T;
-  pressed?: T;
-  disabled?: T;
+export type BaseButtonSchema = Readonly<{
+  default: typeof $leaf;
+  hovered: typeof $leaf;
+  focused: typeof $leaf;
+  pressed: typeof $leaf;
+  disabled: typeof $leaf;
 }>;
 
-export type ButtonStates<T> = SimpleButtonStates<T> &
+export type ButtonSchema = BaseButtonSchema &
   Readonly<{
-    selected: SimpleButtonStates<T>;
-    unselected: SimpleButtonStates<T>;
+    selected: BaseButtonSchema;
+    unselected: BaseButtonSchema;
   }>;
 
-export function groupForButtons(
-  set: CSSVariableSet,
-): ButtonStates<CSSVariableSet> {
-  return group(set, groupCallback) as ButtonStates<CSSVariableSet>;
+const baseButtonSchema: BaseButtonSchema = {
+  default: $leaf,
+  hovered: $leaf,
+  focused: $leaf,
+  pressed: $leaf,
+  disabled: $leaf,
+};
+
+const buttonSchema: ButtonSchema = {
+  ...baseButtonSchema,
+  unselected: baseButtonSchema,
+  selected: baseButtonSchema,
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+export const buttonStates = Object.keys(baseButtonSchema) as ReadonlyArray<
+  keyof BaseButtonSchema
+>;
+
+export type CSSVariableShape = Shape<CSSVariableSet, ButtonSchema>;
+
+export type ProcessedSetShape = Shape<ProcessedTokenSet, ButtonSchema>;
+
+export type ResolvedSetShape = Shape<ResolvedTokenSet, ButtonSchema>;
+
+export function reshapeButtonSet(set: ProcessedTokenSet): ProcessedSetShape {
+  return reshape(set, buttonSchema);
+}
+
+export function applyForButtons<T, U>(
+  shape: Shape<T, ButtonSchema>,
+  applicator: (value: T, path: ReadonlyArray<SchemaKeys<ButtonSchema>>) => U,
+): Shape<U, ButtonSchema> {
+  return applyToShape(shape, buttonSchema, applicator);
+}
+
+const transformShape: ResolveAdjuster = (value, path) => {
+  if (path.some((p) => p.includes('container.shape')) && value === 'full') {
+    return `calc(${CSSVariable.ref('container.height')} / 2)`;
+  }
+
+  return value;
+};
+
+export function resolveButtonSet(shape: ProcessedSetShape): ResolvedSetShape {
+  return applyForButtons(shape, (tokens) => resolveSet(tokens, transformShape));
 }
 
 export type ButtonPrefixData = Readonly<{
@@ -69,48 +90,36 @@ export function createPrefix({
   return `md-${type ? `${type}-` : ''}button-${selectedState ? `${selectedState}-` : ''}${state}`;
 }
 
-export type PackGroup = ButtonStates<string>;
+export type PackShape = Shape<string, ButtonSchema>;
 
-export function createShapeTransformer(
-  vars: Readonly<Record<string, CSSVariable>>,
-): (variable: CSSVariable, path: readonly string[]) => CSSVariable {
-  return (variable, path) => {
-    const containerHeight = vars['container.height'];
-
-    if (!containerHeight) {
-      throw new Error(
-        'container.height variable is required for shape transformation.',
-      );
-    }
-
-    if (
-      path.some((p) => p.includes('container.shape')) &&
-      variable.value === 'full'
-    ) {
-      return CSSVariable.withValue(
-        variable,
-        `calc(${containerHeight.ref} / 2)`,
-      );
-    }
-
-    return variable;
-  };
+export function packButtons(
+  set: CSSVariableShape,
+  applicator: (
+    tokens: CSSVariableSet,
+    path: ReadonlyArray<SchemaKeys<ButtonSchema>>,
+  ) => CSSVariableSet,
+): PackShape {
+  return applyForButtons(set, (tokens, path) =>
+    Object.entries(applicator(tokens, path))
+      .map(([, value]) => value.toString())
+      .join('\n'),
+  );
 }
 
 export const state = {
-  default(...params: readonly string[]): string {
+  default(...params: readonly Param[]): string {
     return selector(':host', ...params);
   },
-  hovered(...params: readonly string[]): string {
-    return selector(':host', pseudoClass('hover'), ...params);
+  hovered(...params: readonly Param[]): string {
+    return selector(':host', ...params, pseudoClass('hover'));
   },
-  focused(...params: readonly string[]): string {
-    return selector(':host', pseudoClass('focus-visible'), ...params);
+  focused(...params: readonly Param[]): string {
+    return selector(':host', ...params, pseudoClass('focus-visible'));
   },
-  pressed(...params: readonly string[]): string {
-    return selector(':host', pseudoClass('active'), ...params);
+  pressed(...params: readonly Param[]): string {
+    return selector(':host', ...params, pseudoClass('active'));
   },
-  disabled(...params: readonly string[]): string {
-    return selector(':host', pseudoClass('disabled'), ...params);
+  disabled(...params: readonly Param[]): string {
+    return selector(':host', ...params, pseudoClass('disabled'));
   },
 } as const;

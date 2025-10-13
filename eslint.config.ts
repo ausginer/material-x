@@ -1,19 +1,19 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'eslint/config';
-import tsRequireTypeChecking from 'eslint-config-vaadin/typescript-requiring-type-checking';
+import type { Config } from '@eslint/config-helpers';
 import tsImports from 'eslint-config-vaadin/imports-typescript';
-import testing from 'eslint-config-vaadin/testing';
 import prettier from 'eslint-config-vaadin/prettier';
+import testing from 'eslint-config-vaadin/testing';
+import tsRequireTypeChecking from 'eslint-config-vaadin/typescript-requiring-type-checking';
 
 const root = new URL('./', import.meta.url);
 
-/** @type {import('typescript-eslint').ConfigArray} */
-const config = tsEslint.config(
-  tsRequireTypeChecking,
-  tsImports,
-  testing,
+const config: readonly Config[] = defineConfig(
+  tsRequireTypeChecking as any,
+  tsImports as any,
+  testing as any,
   // storybook,
-  prettier,
+  prettier as any,
   {
     rules: {
       'import-x/no-unassigned-import': 'off',

@@ -1,8 +1,14 @@
-import { pub, ref } from './css.ts';
+import camelCase from 'just-camel-case';
+import kebabCase from 'just-kebab-case';
 import db from './DB.ts';
-import type { ProcessedTokenValue } from './ProcessedTokenSet.ts';
-import type { ProcessedTokenSet } from './processTokenSet.ts';
 import processToken from './processToken.ts';
+import type {
+  ProcessedTokenSet,
+  ProcessedTokenValue,
+} from './processTokenSet.ts';
+import { CSSVariable } from './variable.ts';
+
+const COLOR_SET = 'md.sys.color';
 
 export type ResolvedTokenValue = string | number;
 export type ResolvedTokenSet = Readonly<Record<string, string | number>>;
@@ -11,23 +17,30 @@ export function isLinkedToken(value: unknown): value is string {
   return typeof value === 'string' && value.startsWith('md.');
 }
 
-function makeColorTokenOverridable(
-  value: ProcessedTokenValue,
-  path: readonly string[],
-): ProcessedTokenValue {
-  const colorToken = path.find((p) => p.includes('md.sys.color'));
-
-  if (colorToken) {
-    return ref(pub(colorToken.replaceAll('.', '-')), String(value));
-  }
-
-  return value;
-}
-
 export type ResolveAdjuster = (
   value: ProcessedTokenValue,
   path: readonly string[],
 ) => ProcessedTokenValue | null;
+
+const makeColorTokenOverridable: ResolveAdjuster = (value, path) => {
+  const colorToken = path.find((p) => p.includes(COLOR_SET));
+
+  if (colorToken) {
+    if (typeof value !== 'string' && typeof value !== 'number') {
+      throw new Error('Color token value must be string or number');
+    }
+
+    const variable = new CSSVariable(
+      colorToken.replace(`${COLOR_SET}.`, ''),
+      value,
+      kebabCase(COLOR_SET),
+    );
+
+    return variable.value;
+  }
+
+  return value;
+};
 
 export function resolve(
   tokenName: string,
@@ -38,6 +51,14 @@ export function resolve(
   let v: ProcessedTokenValue | null | undefined = value;
 
   while (isLinkedToken(v)) {
+    if (v.includes(COLOR_SET)) {
+      path.push(v);
+      v = db.theme.schemes.light[camelCase(v.replace(`${COLOR_SET}.`, ''))];
+      break;
+    }
+
+    // Since function is executed immediately, it's ok.
+    // eslint-disable-next-line @typescript-eslint/no-loop-func
     const token = db.tokens.find((t) => t.tokenName === v);
 
     if (!token) {
@@ -52,10 +73,9 @@ export function resolve(
     }
   }
 
-  return [...adjusts, makeColorTokenOverridable].reduce<typeof value>(
-    (acc, adjust) => (acc == null ? null : adjust(acc, path)),
-    v,
-  );
+  return [...adjusts, makeColorTokenOverridable].reduce<
+    ProcessedTokenValue | null | undefined
+  >((acc, adjust) => (acc == null ? null : adjust(acc, path)), v);
 }
 
 export function resolveSet(
@@ -82,7 +102,7 @@ export function resolveSet(
         return [[name, token] as const];
       })
       .filter(
-        (entry): entry is readonly [string, string | number] =>
+        (entry): entry is readonly [string, ResolvedTokenValue] =>
           entry[1] != null,
       ),
   );
