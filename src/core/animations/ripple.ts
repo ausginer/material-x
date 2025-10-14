@@ -3,7 +3,7 @@ import type { ReactiveController } from '../elements/reactive-controller.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
 import type { TypedObjectConstructor } from '../utils/interfaces.ts';
 import type { Point } from './Point.ts';
-import css from './ripple.css.ts?css' with { type: 'css' };
+import css from './ripple.css' with { type: 'css' };
 
 // States of the ripple animation controller
 const INACTIVE = 0;

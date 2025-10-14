@@ -1,8 +1,8 @@
 import getDeep from 'just-safe-get';
-import processTokenSet from '../../../core/tokens/processTokenSet.ts';
-import { resolveSet } from '../../../core/tokens/resolve.ts';
-import { inherit } from '../../../core/tokens/shape.ts';
-import { createVariables, CSSVariable } from '../../../core/tokens/variable.ts';
+import processTokenSet from '../../core/tokens/processTokenSet.ts';
+import { resolveSet } from '../../core/tokens/resolve.ts';
+import { inherit } from '../../core/tokens/shape.ts';
+import { createVariables, CSSVariable } from '../../core/tokens/variable.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
   applyForButtons,
@@ -11,16 +11,22 @@ import {
   reshapeButtonSet,
   resolveButtonSet,
   type PackShape,
-} from '../../utils.ts';
+} from '../utils.ts';
 
-const SET_NAME = 'md.comp.button.text';
+const SET_NAME = 'md.comp.button.outlined';
 
 const ALLOWED: readonly string[] = [...PUBLIC, ...PRIVATE];
 
 const specialTokens = createVariables(
   resolveSet({
-    'container-color': 'transparent',
+    level: CSSVariable.ref('container-elevation'),
     'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
+  }),
+);
+
+const selectedSpecialTokens = createVariables(
+  resolveSet({
+    'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
   }),
 );
 
@@ -43,14 +49,23 @@ const set = (() => {
     ),
   );
 
-  return applyForButtons(variableSet, (tokens, path) =>
-    path[0] === 'default'
-      ? {
-          ...tokens,
-          ...specialTokens,
-        }
-      : tokens,
-  );
+  return applyForButtons(variableSet, (tokens, path) => {
+    if (path[0] === 'default') {
+      return {
+        ...tokens,
+        ...specialTokens,
+      };
+    }
+
+    if (path[0] === 'selected' && path[1] === 'default') {
+      return {
+        ...tokens,
+        ...selectedSpecialTokens,
+      };
+    }
+
+    return tokens;
+  });
 })();
 
 const packs: PackShape = packButtons(set, (tokens, path) =>

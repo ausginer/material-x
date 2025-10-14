@@ -1,6 +1,6 @@
-import { css, prettify } from '../../../core/tokens/css.ts';
-import { attribute } from '../../../core/tokens/selector.ts';
-import { buttonStates, state } from '../../utils.ts';
+import { css, prettify } from '../../core/tokens/css.ts';
+import { attribute } from '../../core/tokens/selector.ts';
+import { buttonStates, state } from '../utils.ts';
 import packs from './tokens.ts';
 
 const color = attribute('color', 'tonal');
@@ -14,7 +14,5 @@ const styles: string = await prettify(css`
     `,
   )}
 `);
-
-console.log(styles);
 
 export default styles;

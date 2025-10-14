@@ -3,7 +3,7 @@ import {
   template,
   CoreElement,
 } from '../core/elements/core-element.ts';
-import css from './icon.css.ts?css' with { type: 'css' };
+import css from './icon.css' with { type: 'css' };
 
 const TEMPLATE = template`<slot></slot>`;
 

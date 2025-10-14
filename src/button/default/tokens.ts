@@ -1,9 +1,9 @@
 import getDeep from 'just-safe-get';
-import motionEffects from '../../../core/tokens/default/motion-effects.ts';
-import processTokenSet from '../../../core/tokens/processTokenSet.ts';
-import { resolveSet } from '../../../core/tokens/resolve.ts';
-import { inherit } from '../../../core/tokens/shape.ts';
-import { createVariables, CSSVariable } from '../../../core/tokens/variable.ts';
+import motionEffects from '../../core/tokens/default/motion-effects.ts';
+import processTokenSet from '../../core/tokens/processTokenSet.ts';
+import { resolveSet } from '../../core/tokens/resolve.ts';
+import { inherit } from '../../core/tokens/shape.ts';
+import { createVariables, CSSVariable } from '../../core/tokens/variable.ts';
 import {
   applyForButtons,
   createPrefix,
@@ -12,7 +12,7 @@ import {
   resolveButtonSet,
   type CSSVariableShape,
   type PackShape,
-} from '../../utils.ts';
+} from '../utils.ts';
 
 const SET_NAME = 'md.comp.button';
 

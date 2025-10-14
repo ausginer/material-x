@@ -22,7 +22,7 @@ declare module 'sorcery' {
   export function load(source: string, map: LoadMap): Promise<Chain>;
 }
 
-declare module '*.css.ts?css' {
+declare module '*.css' {
   const styles: CSSStyleSheet;
   export default styles;
 }

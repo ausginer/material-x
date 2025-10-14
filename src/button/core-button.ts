@@ -1,9 +1,9 @@
 import RippleAnimationController from '../core/animations/ripple.ts';
 import { CoreElement, use } from '../core/elements/core-element.ts';
-import elevationStyles from '../core/styles/elevation.css.ts?css' with { type: 'css' };
-import defaultDisabledStyles from './default/disabled.css.ts?css' with { type: 'css' };
-import defaultButtonStyles from './default/main.css.ts?css' with { type: 'css' };
-import shapeStyles from './shape/main.css.ts?css' with { type: 'css' };
+import elevationStyles from '../core/styles/elevation.css' with { type: 'css' };
+import defaultDisabledStyles from './default/disabled.css' with { type: 'css' };
+import defaultButtonStyles from './default/main.css' with { type: 'css' };
+import shapeStyles from './shape/main.css' with { type: 'css' };
 
 export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';

@@ -2,12 +2,12 @@ import AttributeObserver from '../core/elements/attribute-observer.ts';
 import { define, template, use } from '../core/elements/core-element.ts';
 import { usePressAnimation } from '../core/utils/button.ts';
 import CoreButton from './core-button.ts';
-import mainElevatedStyles from './elevated/main.css.ts?css' with { type: 'css' };
-import linkButtonStyles from './link-button.css.ts?css' with { type: 'css' };
-import mainOutlinedStyles from './outlined/main.css.ts?css' with { type: 'css' };
-import mainSizeStyles from './size/main.css.ts?css' with { type: 'css' };
-import mainTextStyles from './text/main.css.ts?css' with { type: 'css' };
-import tonalTextStyles from './tonal/main.css.ts?css' with { type: 'css' };
+import mainElevatedStyles from './elevated/main.css' with { type: 'css' };
+import linkButtonStyles from './link-button.css' with { type: 'css' };
+import mainOutlinedStyles from './outlined/main.css' with { type: 'css' };
+import mainSizeStyles from './size/main.css' with { type: 'css' };
+import mainTextStyles from './text/main.css' with { type: 'css' };
+import tonalTextStyles from './tonal/main.css' with { type: 'css' };
 
 const TEMPLATE = template`<a><slot name="icon"></slot><slot></slot></a>`;
 

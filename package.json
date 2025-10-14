@@ -16,6 +16,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "generate": "node .scripts/generator.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "lint": "eslint --flag unstable_native_nodejs_ts_config",

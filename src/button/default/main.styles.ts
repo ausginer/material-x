@@ -1,5 +1,5 @@
-import { css, prettify } from '../../../core/tokens/css.ts';
-import { state } from '../../utils.ts';
+import { css, prettify } from '../../core/tokens/css.ts';
+import { state } from '../utils.ts';
 import packs from './tokens.ts';
 
 const styles: string = await prettify(css`
@@ -58,7 +58,5 @@ const styles: string = await prettify(css`
     flex: 1 0 var(--_icon-size);
   }
 `);
-
-console.log(styles);
 
 export default styles;

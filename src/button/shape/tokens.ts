@@ -1,9 +1,9 @@
-import { resolveSet } from '../../../core/tokens/resolve.ts';
+import { resolveSet } from '../../core/tokens/resolve.ts';
 import {
   createVariables,
   CSSVariable,
   packSet,
-} from '../../../core/tokens/variable.ts';
+} from '../../core/tokens/variable.ts';
 
 const round = createVariables(
   resolveSet({

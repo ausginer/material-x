@@ -1,8 +1,8 @@
 import getDeep from 'just-safe-get';
 import type { TupleToUnion } from 'type-fest';
-import processTokenSet from '../../../core/tokens/processTokenSet.ts';
-import { inherit } from '../../../core/tokens/shape.ts';
-import { createVariables, CSSVariable } from '../../../core/tokens/variable.ts';
+import processTokenSet from '../../core/tokens/processTokenSet.ts';
+import { inherit } from '../../core/tokens/shape.ts';
+import { createVariables, CSSVariable } from '../../core/tokens/variable.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
   applyForButtons,
@@ -11,7 +11,7 @@ import {
   reshapeButtonSet,
   resolveButtonSet,
   type PackShape,
-} from '../../utils.ts';
+} from '../utils.ts';
 
 const SIZES = ['xlarge', 'large', 'medium', 'small', 'xsmall'] as const;
 

@@ -2,7 +2,6 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import { compileCSS, parseCSSImports } from './css.ts';
-import type { JSModule } from './utils.ts';
 
 // export function constructCss(): Plugin {
 //   const css = new Map<string, string | undefined>();
@@ -60,28 +59,24 @@ export function constructCss(): Plugin {
   return {
     enforce: 'post',
     name: 'vite-construct-css',
-    async load(...args) {
-      console.log(args);
+    async load(id) {
+      if (id.endsWith('.ts')) {
+        const url = pathToFileURL(id);
+        const content = await readFile(url, 'utf8');
+        const { code, files } = parseCSSImports(content);
 
-      // if (id.endsWith('.ts') && !id.endsWith('.css.ts')) {
-      //   console.log({ id });
-      //   const url = pathToFileURL(id);
-      //   const content = await readFile(url, 'utf8');
-      //   const { code, files } = parseCSSImports(content);
+        for (const file of files) {
+          css.set(fileURLToPath(new URL(file, new URL('./', url))), undefined);
+        }
 
-      //   for (const file of files) {
-      //     css.set(fileURLToPath(new URL(file, new URL('./', url))), undefined);
-      //   }
+        return { code };
+      }
 
-      //   return { code };
-      // }
-
-      // if (css.has(id)) {
-      //   console.log(id);
-      //   const styles: JSModule<string> = await import(id);
-      //   css.set(id, styles.default);
-      //   return { code: '' };
-      // }
+      if (css.has(id)) {
+        const contents = await readFile(id, 'utf8');
+        css.set(id, contents);
+        return { code: '' };
+      }
 
       return null;
     },

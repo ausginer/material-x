@@ -77,6 +77,4 @@ const styles: string = await prettify(css`
   }
 `);
 
-console.log(styles);
-
 export default styles;

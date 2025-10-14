@@ -22,13 +22,13 @@ const styles: string = css`
     word-wrap: normal;
     flex-shrink: 0;
 
-    // Support for all WebKit browsers.
+    /* Support for all WebKit browsers. */
     -webkit-font-smoothing: antialiased;
 
-    // Support for Safari and Chrome.
+    /*  Support for Safari and Chrome. */
     text-rendering: optimizelegibility;
 
-    // Support for Firefox.
+    /* Support for Firefox. */
     -moz-osx-font-smoothing: grayscale;
   }
 `;

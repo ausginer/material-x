@@ -1,8 +1,8 @@
 import getDeep from 'just-safe-get';
-import processTokenSet from '../../../core/tokens/processTokenSet.ts';
-import { resolveSet } from '../../../core/tokens/resolve.ts';
-import { inherit } from '../../../core/tokens/shape.ts';
-import { createVariables, CSSVariable } from '../../../core/tokens/variable.ts';
+import processTokenSet from '../../core/tokens/processTokenSet.ts';
+import { resolveSet } from '../../core/tokens/resolve.ts';
+import { inherit } from '../../core/tokens/shape.ts';
+import { createVariables, CSSVariable } from '../../core/tokens/variable.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
   applyForButtons,
@@ -11,16 +11,16 @@ import {
   reshapeButtonSet,
   resolveButtonSet,
   type PackShape,
-} from '../../utils.ts';
+} from '../utils.ts';
 
-const SET_NAME = 'md.comp.button.outlined';
+const SET_NAME = 'md.comp.button.tonal';
 
 const ALLOWED: readonly string[] = [...PUBLIC, ...PRIVATE];
 
 const specialTokens = createVariables(
   resolveSet({
-    level: CSSVariable.ref('container-elevation'),
     'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
+    'state-layer.opacity': `${SET_NAME}.pressed.state-layer.opacity`,
   }),
 );
 

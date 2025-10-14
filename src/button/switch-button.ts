@@ -1,14 +1,14 @@
 import SpringAnimationController from '../core/animations/spring.ts';
 import { define, template, use } from '../core/elements/core-element.ts';
 import CoreButton, { type ButtonColor } from './core-button.ts';
-import switchDefaultStyles from './default/switch.css.ts?css' with { type: 'css' };
-import mainElevatedStyles from './elevated/main.css.ts?css' with { type: 'css' };
-import switchElevatedStyles from './elevated/switch.css.ts?css' with { type: 'css' };
-import mainOutlinedStyles from './outlined/main.css.ts?css' with { type: 'css' };
-import switchOutlinedStyles from './outlined/switch.css.ts?css' with { type: 'css' };
-import mainSizeStyles from './size/main.css.ts?css' with { type: 'css' };
-import switchSizeStyles from './size/switch.css.ts?css' with { type: 'css' };
-import switchTonalStyles from './tonal/switch.css.ts?css' with { type: 'css' };
+import switchDefaultStyles from './default/switch.css' with { type: 'css' };
+import mainElevatedStyles from './elevated/main.css' with { type: 'css' };
+import switchElevatedStyles from './elevated/switch.css' with { type: 'css' };
+import mainOutlinedStyles from './outlined/main.css' with { type: 'css' };
+import switchOutlinedStyles from './outlined/switch.css' with { type: 'css' };
+import mainSizeStyles from './size/main.css' with { type: 'css' };
+import switchSizeStyles from './size/switch.css' with { type: 'css' };
+import switchTonalStyles from './tonal/switch.css' with { type: 'css' };
 
 const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
 
