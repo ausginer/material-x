@@ -42,8 +42,8 @@ export const PRIVATE: readonly string[] = [
   'state-layer.opacity',
   'state-layer.color',
   'container.opacity',
-  'label-text-opacity',
-  'outline-color',
+  'label-text.opacity',
+  'outline.color',
 ];
 
 const ALLOWED: readonly string[] = [...PUBLIC, ...PRIVATE];
@@ -60,6 +60,7 @@ const specialTokens = createVariables(
     'ripple.color': CSSVariable.ref('state-layer.color'),
     'ripple.easing': motionEffects['expressive.fast-effects'],
     'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
+    'shadow.color': CSSVariable.ref('container.shadow.color'),
   }),
 );
 

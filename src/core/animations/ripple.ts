@@ -3,7 +3,7 @@ import type { ReactiveController } from '../elements/reactive-controller.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
 import type { TypedObjectConstructor } from '../utils/interfaces.ts';
 import type { Point } from './Point.ts';
-import css from './ripple.css' with { type: 'css' };
+import css from './ripple.styles.ts?type=css' with { type: 'css' };
 
 // States of the ripple animation controller
 const INACTIVE = 0;
@@ -23,7 +23,10 @@ const INITIAL_ORIGIN_SCALE = 0.2;
 const PADDING = 10;
 const SOFT_EDGE_MINIMUM_SIZE = 75;
 const SOFT_EDGE_CONTAINER_RATIO = 0.35;
-const RIPPLE_EASING_VAR_NAME = '--_ripple-easing';
+
+const VARS = {
+  rippleSize: '--_ripple-size',
+} as const;
 
 /**
  * Delay reacting to touch so that we do not show the ripple for a swipe or
@@ -111,33 +114,41 @@ function getTranslationCoordinates(
   return { startPoint, endPoint };
 }
 
-const CLS = '_ripple';
+export type CSSVariables = Readonly<{
+  easing: string;
+}>;
+
+const CLS = 'ripple';
 const TEMPLATE = template`<div class="${CLS}"></div>`;
 
 export default class RippleAnimationController implements ReactiveController {
   readonly #host: HTMLElement;
   readonly #listenerController = new AbortController();
   readonly #rippleElement: HTMLElement;
+  readonly #cssVariables: CSSVariables;
   #animation: Animation | undefined;
   #easing: string | undefined;
   #startEvent: PointerEvent | null = null;
 
-  constructor(host: HTMLElement) {
+  constructor(host: HTMLElement, vars: CSSVariables) {
     this.#host = host;
     host.shadowRoot!.prepend(TEMPLATE.content.cloneNode(true));
     host.shadowRoot!.adoptedStyleSheets.push(css);
     this.#rippleElement = host.shadowRoot!.querySelector(`.${CLS}`)!;
+    this.#cssVariables = vars;
   }
 
   connected(): void {
     const host = this.#host;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+    const vars = Object.fromEntries(
+      Object.entries(this.#cssVariables).map(([k, v]) => [k, `--_${v}`]),
+    ) as CSSVariables;
 
-    this.#easing = getComputedStyle(host)
-      .getPropertyValue(RIPPLE_EASING_VAR_NAME)
-      .trim();
+    this.#easing = getComputedStyle(host).getPropertyValue(vars.easing).trim();
 
     if (!this.#easing) {
-      throw new CSSVariableError(RIPPLE_EASING_VAR_NAME, host);
+      throw new CSSVariableError(vars.easing, host);
     }
 
     const self = this;
@@ -280,7 +291,7 @@ export default class RippleAnimationController implements ReactiveController {
 
     this.#animation = this.#rippleElement.animate(
       {
-        '--_ripple-size': [pxSize, pxSize],
+        [VARS.rippleSize]: [pxSize, pxSize],
         transform: [
           `translate(${startPoint.x}px,${startPoint.y}px) scale(1)`,
           `translate(${endPoint.x}px,${endPoint.y}px) scale(${scale})`,

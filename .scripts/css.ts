@@ -55,25 +55,12 @@ export async function compileCSS(
 ): Promise<CSSCompilationResult> {
   const path = fileURLToPath(url);
 
-  console.log(code);
-
   const { code: encodedProcessedCode, map: encodedProcessedSourceMap } =
     transform({
       filename: basename(path),
       code: encoder.encode(code),
       minify: true,
       sourceMap: true,
-      targets: {
-        chrome: 140,
-      },
-      visitor: {
-        StyleSheet(ss) {
-          return {
-            ...ss,
-            licenseComments: [],
-          };
-        },
-      },
     });
 
   const processedCode = decoder.decode(encodedProcessedCode);

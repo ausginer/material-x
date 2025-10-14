@@ -1,9 +1,9 @@
 import RippleAnimationController from '../core/animations/ripple.ts';
 import { CoreElement, use } from '../core/elements/core-element.ts';
-import elevationStyles from '../core/styles/elevation.css' with { type: 'css' };
-import defaultDisabledStyles from './default/disabled.css' with { type: 'css' };
-import defaultButtonStyles from './default/main.css' with { type: 'css' };
-import shapeStyles from './shape/main.css' with { type: 'css' };
+import elevationStyles from '../core/styles/elevation.styles.ts?type=css' with { type: 'css' };
+import defaultDisabledStyles from './default/disabled.styles.ts?type=css' with { type: 'css' };
+import defaultButtonStyles from './default/main.styles.ts?type=css' with { type: 'css' };
+import shapeStyles from './shape/main.styles.ts?type=css' with { type: 'css' };
 
 export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
@@ -29,6 +29,6 @@ export default class CoreButton extends CoreElement {
       init,
     );
     this.tabIndex = 0;
-    use(this, new RippleAnimationController(this));
+    use(this, new RippleAnimationController(this, { easing: 'ripple-easing' }));
   }
 }

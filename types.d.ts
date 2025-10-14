@@ -26,3 +26,8 @@ declare module '*.css' {
   const styles: CSSStyleSheet;
   export default styles;
 }
+
+declare module '*.ts?type=css' {
+  const styles: CSSStyleSheet;
+  export default styles;
+}

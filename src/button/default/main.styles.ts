@@ -13,17 +13,16 @@ const styles: string = await prettify(css`
     background-color: var(--_container-color);
     color: var(--_label-text-color);
     padding-block: var(--_padding-block);
-    padding-inline-start: var(--_leading-space);
-    padding-inline-end: var(--_trailing-space);
+    padding-inline: var(--_leading-space) var(--_trailing-space);
     border-radius: calc(
       var(--_container-shape-default) -
         (var(--_container-shape-default) - var(--_container-shape-pressed)) *
         var(--_press-factor)
     );
-    font-weight: var(--_label-text-weight);
-    font-size: var(--_label-text-size);
+    font-weight: var(--_label-text-font-weight);
+    font-size: var(--_label-text-font-size);
     line-height: var(--_label-text-line-height);
-    font-family: var(--_label-text-font);
+    font-family: var(--_label-text-font-name);
     place-items: center;
     place-content: center;
     gap: 8px;

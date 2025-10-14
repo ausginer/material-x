@@ -40,24 +40,6 @@ const packs = Object.fromEntries(
       );
 
       return variableSet;
-
-      // return applyForButtons(variableSet, (tokens, path) => {
-      //   // if (path[0] === 'default') {
-      //   //   return {
-      //   //     ...tokens,
-      //   //     ...specialTokens,
-      //   //   };
-      //   // }
-
-      //   // if (path[0] === 'selected' && path[1] === 'default') {
-      //   //   return {
-      //   //     ...tokens,
-      //   //     ...selectedSpecialTokens,
-      //   //   };
-      //   // }
-
-      //   return tokens;
-      // });
     })();
 
     const pack = packButtons(set, (tokens, path) =>
@@ -78,16 +60,3 @@ const packs = Object.fromEntries(
 ) as Readonly<Record<TupleToUnion<typeof SIZES>, PackShape>>;
 
 export default packs;
-
-// const specialTokens = createVariables(
-//   resolveSet({
-//     level: CSSVariable.ref('container-elevation'),
-//     'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
-//   }),
-// );
-
-// const selectedSpecialTokens = createVariables(
-//   resolveSet({
-//     'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
-//   }),
-// );

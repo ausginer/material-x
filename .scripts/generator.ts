@@ -10,7 +10,7 @@ for await (const url of glob('**/*.styles.ts', {
 })) {
   const originalURL = new URL(url, srcDir);
   const newURL = new URL(url.replace('styles.ts', 'css'), srcDir);
-  console.log(`Generating styles: ${newURL}`);
+  console.log(`[INFO]: Generating ${newURL}`);
   const styles: JSModule<string> = await import(fileURLToPath(originalURL));
 
   await mkdir(new URL('./', newURL), { recursive: true });

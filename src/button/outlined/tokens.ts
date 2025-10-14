@@ -19,7 +19,8 @@ const ALLOWED: readonly string[] = [...PUBLIC, ...PRIVATE];
 
 const specialTokens = createVariables(
   resolveSet({
-    level: CSSVariable.ref('container-elevation'),
+    'container.color': 'transparent',
+    'outline-width': '1px',
     'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
   }),
 );

@@ -1,95 +1,47 @@
-import { readFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
-import { compileCSS, parseCSSImports } from './css.ts';
-
-// export function constructCss(): Plugin {
-//   const css = new Map<string, string | undefined>();
-
-//   return {
-//     enforce: 'post',
-//     name: 'vite-construct-css',
-//     async load(id) {
-//       if (id.endsWith('.ts')) {
-//         const url = pathToFileURL(id);
-//         const content = await readFile(url, 'utf8');
-//         const { code, files } = parseCSSImports(content);
-
-//         for (const file of files) {
-//           css.set(fileURLToPath(new URL(file, new URL('./', url))), undefined);
-//         }
-
-//         return { code };
-//       }
-
-//       if (css.has(id)) {
-//         const content = await readFile(pathToFileURL(id), 'utf8');
-//         css.set(id, content);
-//         return { code: '' };
-//       }
-
-//       return null;
-//     },
-//     async transform(_, id) {
-//       if (css.has(id)) {
-//         const { code, map, urls } = await compileCSS(
-//           pathToFileURL(id),
-//           css.get(id)!,
-//         );
-
-//         if (urls) {
-//           urls.forEach((url) => {
-//             this.addWatchFile(fileURLToPath(url));
-//           });
-//         }
-
-//         return {
-//           code: `${code}\n//# sourceMappingURL=${map?.toUrl() ?? ''}`,
-//         };
-//       }
-
-//       return null;
-//     },
-//   };
-// }
+import { compileCSS } from './css.ts';
+import type { JSModule } from './utils.ts';
 
 export function constructCss(): Plugin {
-  const css = new Map<string, string | undefined>();
+  const css = new Set<string>();
 
   return {
-    enforce: 'post',
     name: 'vite-construct-css',
-    async load(id) {
-      if (id.endsWith('.ts')) {
-        const url = pathToFileURL(id);
-        const content = await readFile(url, 'utf8');
-        const { code, files } = parseCSSImports(content);
+    resolveId: {
+      order: 'pre',
+      handler(source, importer) {
+        if (importer && source.startsWith('.')) {
+          const url = new URL(source, pathToFileURL(importer));
 
-        for (const file of files) {
-          css.set(fileURLToPath(new URL(file, new URL('./', url))), undefined);
+          if (url.searchParams.get('type') === 'css') {
+            console.log(url.toString());
+            const id = fileURLToPath(url);
+            css.add(id);
+            return id;
+          }
         }
 
-        return { code };
-      }
-
-      if (css.has(id)) {
-        const contents = await readFile(id, 'utf8');
-        css.set(id, contents);
-        return { code: '' };
-      }
-
-      return null;
+        return null;
+      },
     },
-    async transform(_, id) {
-      if (css.has(id)) {
-        const { code, map } = await compileCSS(pathToFileURL(id), css.get(id)!);
+    load: {
+      order: 'post',
+      async handler(id) {
+        if (css.has(id)) {
+          const content: JSModule<string> = await import(id);
+          const { code, map } = await compileCSS(
+            pathToFileURL(id),
+            content.default,
+          );
 
-        return {
-          code: `${code}\n//# sourceMappingURL=${map?.toUrl() ?? ''}`,
-        };
-      }
+          return {
+            code: `${code}\n//# sourceMappingURL=${map?.toUrl() ?? ''}`,
+          };
+        }
 
-      return null;
+        return null;
+      },
     },
   };
 }

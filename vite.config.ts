@@ -5,7 +5,7 @@ import { constructCss } from './.scripts/vite-plugins.js';
 const root = pathToFileURL(`${import.meta.dirname}/`);
 
 const config: UserConfig = defineConfig({
-  root: fileURLToPath(new URL('src/frontend/', root)),
+  root: fileURLToPath(root),
   build: {
     target: 'esnext',
   },

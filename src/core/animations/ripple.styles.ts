@@ -29,11 +29,11 @@ const styles: string = css`
       );
       transform-origin: center center;
     }
+  }
 
-    :host(:active) & {
-      &::after {
-        opacity: var(--_ripple-opacity);
-      }
+  :host(:active) .ripple {
+    &::after {
+      opacity: var(--_ripple-opacity);
     }
   }
 `;

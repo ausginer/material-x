@@ -12,6 +12,8 @@ const styles: string = await prettify(css`
           ${state.default(color)} {
             ${packs.default};
 
+            border: var(--_outline-width) solid var(--_outline-color);
+
             &::before,
             &::after {
               content: '';
