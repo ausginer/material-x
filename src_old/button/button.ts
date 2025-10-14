@@ -1,11 +1,11 @@
-import { define, template } from '../core/elements/core-element.ts';
 import { usePressAnimation } from '../core/utils/button.ts';
+import { define, template } from '../utils.ts';
 import CoreButton from './core-button.ts';
-import mainElevatedStyles from './elevated/main.css.ts?css' with { type: 'css' };
-import mainOutlinedStyles from './outlined/main.css.ts?css' with { type: 'css' };
-import mainSizeStyles from './size/main.css.ts?css' with { type: 'css' };
-import mainTextStyles from './text/main.css.ts?css' with { type: 'css' };
-import tonalTextStyles from './tonal/main.css.ts?css' with { type: 'css' };
+import mainElevatedStyles from './elevated/main.scss' with { type: 'css' };
+import mainOutlinedStyles from './outlined/main.scss' with { type: 'css' };
+import mainSizeStyles from './size/main.scss' with { type: 'css' };
+import mainTextStyles from './text/main.scss' with { type: 'css' };
+import tonalTextStyles from './tonal/main.scss' with { type: 'css' };
 
 const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
 

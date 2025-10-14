@@ -36,8 +36,6 @@
     "./.storybook/**/*.ts",
     "./.scripts/**/*.ts",
     "src",
-    "src2",
-    "eslint.config.ts",
     "stylelint.config.js",
     "types.d.ts",
     "vite.config.ts",

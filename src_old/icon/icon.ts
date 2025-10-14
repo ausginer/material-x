@@ -1,9 +1,6 @@
-import {
-  define,
-  template,
-  CoreElement,
-} from '../core/elements/core-element.ts';
-import css from './icon.css.ts?css' with { type: 'css' };
+import CoreElement from '../core/elements/core.ts';
+import { template, define } from '../utils.ts';
+import css from './icon.scss' with { type: 'css' };
 
 const TEMPLATE = template`<slot></slot>`;
 

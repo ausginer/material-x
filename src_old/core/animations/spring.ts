@@ -1,5 +1,5 @@
 import type { ReactiveController } from '../elements/reactive-controller.ts';
-import CSSVariableError from '../utils/CSSVariableError.ts';
+import { CSSVariableError } from '../utils.ts';
 
 function createSpringKeyframes(
   /**

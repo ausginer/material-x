@@ -1,9 +1,8 @@
-import { template } from '../elements/core-element.ts';
+import type { TypedObjectConstructor } from '../../interfaces.ts';
+import { template } from '../../utils.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
-import CSSVariableError from '../utils/CSSVariableError.ts';
-import type { TypedObjectConstructor } from '../utils/interfaces.ts';
-import type { Point } from './Point.ts';
-import css from './ripple.css.ts?css' with { type: 'css' };
+import { CSSVariableError, type Point } from '../utils.ts';
+import css from './ripple.scss' with { type: 'css' };
 
 // States of the ripple animation controller
 const INACTIVE = 0;

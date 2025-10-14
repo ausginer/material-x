@@ -7,6 +7,10 @@ export type JSONModule<T> = Readonly<{
   default: T;
 }>;
 
+export type JSModule<T> = Readonly<{
+  default: T;
+}>;
+
 export const TokenValueType = {
   COLOR: 'COLOR',
   LENGTH: 'LENGTH',

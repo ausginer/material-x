@@ -3,11 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { transform } from 'lightningcss';
 import MagicString from 'magic-string';
 import type { SourceMap } from 'rollup';
-import { compileStringAsync } from 'sass-embedded';
 // eslint-disable-next-line import-x/no-unresolved
 import * as sorcery from 'sorcery';
-import functions from './sass-functions.js';
-import { findFileUrl } from './utils.js';
 
 export type CSSImportParseResult = Readonly<{
   code: string;
@@ -23,7 +20,7 @@ export function parseCSSImports(
   code = code.replaceAll(
     // Matches import statements like:
     // ```ts
-    // import css from './style.css' with { type: 'css' };
+    // import css from './style.css.ts' with { type: 'css' };
     // ```
     /["'](.*)["']\s*with\s*\{\s*type:\s*['"]css['"]\s*\};/giu,
     (substring, file) => {
@@ -58,19 +55,10 @@ export async function compileCSS(
 ): Promise<CSSCompilationResult> {
   const path = fileURLToPath(url);
 
-  const { css: firstProcessedCode, loadedUrls } = await compileStringAsync(
-    code,
-    {
-      url,
-      functions,
-      importers: [{ findFileUrl }],
-    },
-  );
-
-  const { code: _secondProcessedCode, map: _secondProcessedSourceMap } =
+  const { code: encodedProcessedCode, map: encodedProcessedSourceMap } =
     transform({
       filename: basename(path),
-      code: encoder.encode(firstProcessedCode),
+      code: encoder.encode(code),
       minify: true,
       sourceMap: true,
       visitor: {
@@ -83,12 +71,10 @@ export async function compileCSS(
       },
     });
 
-  const secondProcessedCode = decoder.decode(_secondProcessedCode);
-  const secondProcessedMap = JSON.parse(
-    decoder.decode(_secondProcessedSourceMap!),
-  );
+  const processedCode = decoder.decode(encodedProcessedCode);
+  const processedMap = JSON.parse(decoder.decode(encodedProcessedSourceMap!));
 
-  if (!secondProcessedCode) {
+  if (!processedCode) {
     return {
       code: `const css = new CSSStyleSheet();export default css;`,
     };
@@ -96,7 +82,7 @@ export async function compileCSS(
 
   const interPath = fileURLToPath(createSourcePath(url, '.min.css'));
 
-  const m = new MagicString(secondProcessedCode);
+  const m = new MagicString(processedCode);
   m.prepend('const css = new CSSStyleSheet();css.replaceSync(`');
   m.append('`);export default css;');
 
@@ -112,12 +98,12 @@ export async function compileCSS(
   const chain = await sorcery.load(finalPath, {
     content: {
       [finalPath]: compiled,
-      [interPath]: secondProcessedCode,
-      [path]: firstProcessedCode,
+      [interPath]: processedCode,
+      [path]: code,
     },
     sourcemaps: {
       [finalPath]: JSON.parse(compiledMap.toString()),
-      [interPath]: secondProcessedMap,
+      [interPath]: processedMap,
     },
   });
 
@@ -127,6 +113,5 @@ export async function compileCSS(
   return {
     code: compiled,
     map,
-    urls: loadedUrls,
   };
 }

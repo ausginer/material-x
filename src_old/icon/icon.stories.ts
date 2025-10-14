@@ -6,6 +6,7 @@ type IconProps = Readonly<{
   icon?: string;
 }>;
 
+// More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 const meta: Meta<IconProps> = {
   title: 'Icon',
   tags: ['autodocs'],
