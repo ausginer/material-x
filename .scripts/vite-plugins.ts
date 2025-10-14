@@ -15,7 +15,6 @@ export function constructCss(): Plugin {
           const url = new URL(source, pathToFileURL(importer));
 
           if (url.searchParams.get('type') === 'css') {
-            console.log(url.toString());
             const id = fileURLToPath(url);
             css.add(id);
             return id;
@@ -29,7 +28,8 @@ export function constructCss(): Plugin {
       order: 'post',
       async handler(id) {
         if (css.has(id)) {
-          const content: JSModule<string> = await import(id);
+          const content: JSModule<string> = await import(`${id}?${Date.now()}`);
+
           const { code, map } = await compileCSS(
             pathToFileURL(id),
             content.default,
