@@ -1,8 +1,6 @@
-import getDeep from 'just-safe-get';
 import motionEffects from '../../core/tokens/default/motion-effects.ts';
 import processTokenSet from '../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../core/tokens/resolve.ts';
-import { inherit } from '../../core/tokens/shape.ts';
 import { createVariables, CSSVariable } from '../../core/tokens/variable.ts';
 import {
   applyForButtons,
@@ -61,6 +59,13 @@ const specialTokens = createVariables(
     'ripple.easing': motionEffects['expressive.fast-effects'],
     'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
     'shadow.color': CSSVariable.ref('container.shadow.color'),
+    'shape.full': `calc(${CSSVariable.ref('container.height')} / 2)`,
+  }),
+);
+
+const specialUnselectedTokens = createVariables(
+  resolveSet({
+    'state-layer.color': `${SET_NAME}.unselected.pressed.state-layer.color`,
   }),
 );
 
@@ -82,7 +87,7 @@ export const set: CSSVariableShape = (() => {
         vars: PUBLIC,
         prefix: createPrefix({
           state: path.at(-1)!,
-          selectedState: path.at(-2),
+          selectionState: path.at(-2),
         }),
       },
       ALLOWED,
@@ -97,26 +102,26 @@ export const set: CSSVariableShape = (() => {
       };
     }
 
-    if (path[0] === 'selected' && path[1] === 'default') {
-      return {
-        ...tokens,
-        ...specialSelectedTokens,
-      };
+    if (path[1] === 'default') {
+      if (path[0] === 'unselected') {
+        return {
+          ...tokens,
+          ...specialUnselectedTokens,
+        };
+      }
+
+      if (path[0] === 'selected') {
+        return {
+          ...tokens,
+          ...specialSelectedTokens,
+        };
+      }
     }
 
     return tokens;
   });
 })();
 
-const packs: PackShape = packButtons(set, (tokens, path) =>
-  path[0] === 'default'
-    ? tokens
-    : inherit(tokens, CSSVariable.equals, [
-        set.default,
-        path.length > 1
-          ? getDeep(set, [...path.slice(0, -1), 'default'])
-          : null,
-      ]),
-);
+const packs: PackShape = packButtons(set);
 
 export default packs;

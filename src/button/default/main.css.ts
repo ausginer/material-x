@@ -6,8 +6,8 @@ const styles: string = await prettify(css`
   ${state.default()} {
     ${packs.default};
 
-    will-change: border-radius;
     display: inline-flex;
+    will-change: border-radius;
     cursor: default;
     user-select: none;
     background-color: var(--_container-color);

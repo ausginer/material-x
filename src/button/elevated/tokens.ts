@@ -1,7 +1,5 @@
-import getDeep from 'just-safe-get';
 import processTokenSet from '../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../core/tokens/resolve.ts';
-import { inherit } from '../../core/tokens/shape.ts';
 import { createVariables, CSSVariable } from '../../core/tokens/variable.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
@@ -24,6 +22,12 @@ const specialTokens = createVariables(
   }),
 );
 
+const specialSelectedTokens = createVariables(
+  resolveSet({
+    'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
+  }),
+);
+
 const set = (() => {
   const set = processTokenSet(SET_NAME);
   const shapedSet = reshapeButtonSet(set);
@@ -36,7 +40,7 @@ const set = (() => {
         vars: PUBLIC,
         prefix: createPrefix({
           state: path.at(-1)!,
-          selectedState: path.at(-2),
+          selectionState: path.at(-2),
         }),
       },
       ALLOWED,
@@ -50,21 +54,18 @@ const set = (() => {
         ...specialTokens,
       };
     }
+
+    if (path[0] === 'selected' && path[1] === 'default') {
+      return {
+        ...tokens,
+        ...specialSelectedTokens,
+      };
+    }
+
     return tokens;
   });
 })();
 
-const packs: PackShape = packButtons(set, (tokens, path) =>
-  path[0] === 'default'
-    ? tokens
-    : inherit(tokens, CSSVariable.equals, [
-        set.default,
-        path.length > 1
-          ? getDeep(set, [...path.slice(0, -1), 'default'])
-          : null,
-        defaultSet.default,
-        defaultSet[path[0]!],
-      ]),
-);
+const packs: PackShape = packButtons(set, defaultSet);
 
 export default packs;

@@ -1,8 +1,6 @@
-import getDeep from 'just-safe-get';
 import type { TupleToUnion } from 'type-fest';
 import processTokenSet from '../../core/tokens/processTokenSet.ts';
-import { inherit } from '../../core/tokens/shape.ts';
-import { createVariables, CSSVariable } from '../../core/tokens/variable.ts';
+import { createVariables } from '../../core/tokens/variable.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
   applyForButtons,
@@ -32,7 +30,7 @@ const packs = Object.fromEntries(
             vars: PUBLIC,
             prefix: createPrefix({
               state: path.at(-1)!,
-              selectedState: path.at(-2),
+              selectionState: path.at(-2),
             }),
           },
           ALLOWED,
@@ -42,18 +40,7 @@ const packs = Object.fromEntries(
       return variableSet;
     })();
 
-    const pack = packButtons(set, (tokens, path) =>
-      path[0] === 'default'
-        ? tokens
-        : inherit(tokens, CSSVariable.equals, [
-            set.default,
-            path.length > 1
-              ? getDeep(set, [...path.slice(0, -1), 'default'])
-              : null,
-            defaultSet.default,
-            defaultSet[path[0]!],
-          ]),
-    );
+    const pack: PackShape = packButtons(set, defaultSet);
 
     return [s, pack] as const;
   }),

@@ -1,3 +1,4 @@
+import getDeep from 'just-safe-get';
 import type { ProcessedTokenSet } from '../core/tokens/processTokenSet.ts';
 import {
   resolveSet,
@@ -8,6 +9,7 @@ import { pseudoClass, selector, type Param } from '../core/tokens/selector.ts';
 import {
   $leaf,
   applyToShape,
+  inherit,
   reshape,
   type SchemaKeys,
   type Shape,
@@ -70,7 +72,7 @@ export function applyForButtons<T, U>(
 
 const transformShape: ResolveAdjuster = (value, path) => {
   if (path.some((p) => p.includes('container.shape')) && value === 'full') {
-    return `calc(${CSSVariable.ref('container.height')} / 2)`;
+    return CSSVariable.ref('shape.full');
   }
 
   return value;
@@ -83,20 +85,20 @@ export function resolveButtonSet(shape: ProcessedSetShape): ResolvedSetShape {
 export type ButtonPrefixData = Readonly<{
   state: string;
   type?: string;
-  selectedState?: string;
+  selectionState?: string;
 }>;
 
 export function createPrefix({
   state,
   type,
-  selectedState,
+  selectionState,
 }: ButtonPrefixData): string {
-  return `md-${type ? `${type}-` : ''}button-${selectedState ? `${selectedState}-` : ''}${state}`;
+  return `md-${type ? `${type}-` : ''}button-${selectionState ? `${selectionState}-` : ''}${state}`;
 }
 
 export type PackShape = Shape<string, ButtonSchema>;
 
-export function packButtons(
+function _packButtons(
   set: CSSVariableShape,
   applicator: (
     tokens: CSSVariableSet,
@@ -104,8 +106,47 @@ export function packButtons(
   ) => CSSVariableSet,
 ): PackShape {
   return applyForButtons(set, (tokens, path) =>
-    packSet(applicator(tokens, path)),
+    packSet(
+      // Removing "disabled" state from "selected" & "unselected" supersets;
+      // "disabled" state is supposed to be only "default" one.
+      path.length > 1 && path[1] === 'disabled' ? {} : applicator(tokens, path),
+    ),
   );
+}
+
+export function packButtons(
+  set: CSSVariableShape,
+  defaultSet?: CSSVariableShape,
+): PackShape {
+  return _packButtons(set, (tokens, path) => {
+    const [state] = path;
+
+    if (state === 'unselected' || state === 'selected') {
+      const [, selectionState] = path;
+
+      return state === 'unselected'
+        ? inherit(tokens, CSSVariable.equals, [
+            set.default,
+            selectionState !== 'default'
+              ? getDeep(set, [state, 'default'])
+              : null,
+            defaultSet?.default,
+          ])
+        : inherit(tokens, CSSVariable.equals, [
+            getDeep(set, ['unselected', 'default']),
+            selectionState !== 'default'
+              ? getDeep(set, [state, 'default'])
+              : null,
+          ]);
+    }
+
+    return state === 'default'
+      ? tokens
+      : inherit(tokens, CSSVariable.equals, [
+          set.default,
+          defaultSet?.[state!],
+        ]);
+  });
 }
 
 export const state = {

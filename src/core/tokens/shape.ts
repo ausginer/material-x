@@ -154,7 +154,9 @@ export function applyToShape<T, U, S extends Schema>(
 export function inherit<T>(
   group: Readonly<Record<string, T>> | undefined,
   comparator: (v1: T | undefined, v2: T | undefined) => boolean,
-  extensions: ReadonlyArray<Readonly<Record<string, T>> | null> = [],
+  extensions: ReadonlyArray<
+    Readonly<Record<string, T>> | null | undefined
+  > = [],
 ): Readonly<Record<string, T>> {
   if (!group) {
     return {};
