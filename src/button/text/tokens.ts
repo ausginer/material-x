@@ -1,5 +1,6 @@
 import processTokenSet from '../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../core/tokens/resolve.ts';
+import { excludeFromSet } from '../../core/tokens/utils.ts';
 import { createVariables } from '../../core/tokens/variable.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
@@ -41,14 +42,20 @@ const set = (() => {
     ),
   );
 
-  return applyForButtons(variableSet, (tokens, path) =>
-    path[0] === 'default'
-      ? {
-          ...tokens,
-          ...specialTokens,
-        }
-      : tokens,
-  );
+  return applyForButtons(variableSet, (tokens, path) => {
+    if (path[0] === 'default') {
+      return {
+        ...tokens,
+        ...specialTokens,
+      };
+    }
+
+    if (path[0] === 'selected') {
+      return excludeFromSet(tokens, ['container.shape']);
+    }
+
+    return tokens;
+  });
 })();
 
 const packs: PackShape = packButtons(set, defaultSet);

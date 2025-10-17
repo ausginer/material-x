@@ -1,4 +1,6 @@
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { Script } from 'node:vm';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css.ts';
 import type { JSModule } from './utils.ts';
@@ -18,6 +20,11 @@ export function constructCss(): Plugin {
             const id = fileURLToPath(url);
             css.add(id);
             return id;
+          }
+
+          if (/\?\d+$/u.test(importer)) {
+            const id = fileURLToPath(url);
+            return `${id}?${Date.now()}`;
           }
         }
 

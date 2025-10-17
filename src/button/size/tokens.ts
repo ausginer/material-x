@@ -1,5 +1,6 @@
 import type { TupleToUnion } from 'type-fest';
 import processTokenSet from '../../core/tokens/processTokenSet.ts';
+import { excludeFromSet } from '../../core/tokens/utils.ts';
 import { createVariables } from '../../core/tokens/variable.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
@@ -37,7 +38,13 @@ const packs = Object.fromEntries(
         ),
       );
 
-      return variableSet;
+      return applyForButtons(variableSet, (tokens, [state]) => {
+        if (state === 'selected') {
+          return excludeFromSet(tokens, ['container.shape']);
+        }
+
+        return tokens;
+      });
     })();
 
     const pack: PackShape = packButtons(set, defaultSet);

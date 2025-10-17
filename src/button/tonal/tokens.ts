@@ -1,5 +1,6 @@
 import processTokenSet from '../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../core/tokens/resolve.ts';
+import { excludeFromSet } from '../../core/tokens/utils.ts';
 import { createVariables } from '../../core/tokens/variable.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
@@ -22,7 +23,7 @@ const specialTokens = createVariables(
   }),
 );
 
-const selectedSpecialTokens = createVariables(
+const specialSelectedTokens = createVariables(
   resolveSet({
     'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
   }),
@@ -55,11 +56,17 @@ const set = (() => {
       };
     }
 
-    if (path[0] === 'selected' && path[1] === 'default') {
-      return {
-        ...tokens,
-        ...selectedSpecialTokens,
-      };
+    if (path[0] === 'selected') {
+      const prepared = excludeFromSet(tokens, ['container.shape']);
+
+      if (path[1] === 'default') {
+        return {
+          ...prepared,
+          ...specialSelectedTokens,
+        };
+      }
+
+      return prepared;
     }
 
     return tokens;

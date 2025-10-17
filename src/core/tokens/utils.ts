@@ -34,3 +34,12 @@ export function rgbaToHex(r: number, g: number, b: number, a: number): string {
     .padStart(8, '0');
   return `#${hex.endsWith('ff') ? hex.substring(0, 6) : hex}`;
 }
+
+export function excludeFromSet<T>(
+  set: Readonly<Record<string, T>>,
+  keys: readonly string[],
+): Readonly<Record<string, T>> {
+  return Object.fromEntries(
+    Object.entries(set).filter(([key]) => keys.some((k) => !key.includes(k))),
+  );
+}
