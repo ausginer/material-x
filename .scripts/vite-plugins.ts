@@ -1,14 +1,48 @@
-import { readFile } from 'node:fs/promises';
+import { fork } from 'node:child_process';
+import type { Readable } from 'node:stream';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { Script } from 'node:vm';
+import { signal, computed } from '@preact/signals-core';
+import { build } from 'esbuild';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css.ts';
-import type { JSModule } from './utils.ts';
+import { root, src } from './utils.ts';
+
+async function streamToString(stream: Readable | null): Promise<string> {
+  if (!stream) {
+    return '';
+  }
+
+  const chunks = [];
+
+  // eslint-disable-next-line @typescript-eslint/await-thenable
+  for await (const chunk of stream) {
+    chunks.push(Buffer.from(chunk));
+  }
+
+  return Buffer.concat(chunks).toString('utf-8');
+}
 
 export function constructCss(): Plugin {
   const css = new Set<string>();
+  const trackedFiles = signal<Record<string, Set<string>>>({});
+  const dependencies = computed(() =>
+    Object.entries(trackedFiles.value).reduce<Record<string, Set<string>>>(
+      (acc, [id, dependencies]) => {
+        for (const d of dependencies) {
+          if (acc[d]) {
+            acc[d].add(id);
+          } else {
+            acc[d] = new Set([id]);
+          }
+        }
 
-  return {
+        return acc;
+      },
+      {},
+    ),
+  );
+
+  const plugin: Plugin = {
     name: 'vite-construct-css',
     resolveId: {
       order: 'pre',
@@ -21,11 +55,6 @@ export function constructCss(): Plugin {
             css.add(id);
             return id;
           }
-
-          if (/\?\d+$/u.test(importer)) {
-            const id = fileURLToPath(url);
-            return `${id}?${Date.now()}`;
-          }
         }
 
         return null;
@@ -35,12 +64,68 @@ export function constructCss(): Plugin {
       order: 'post',
       async handler(id) {
         if (css.has(id)) {
-          const content: JSModule<string> = await import(`${id}?${Date.now()}`);
+          if (!trackedFiles.value[id]) {
+            const { metafile } = await build({
+              format: 'esm',
+              entryPoints: [id],
+              bundle: true,
+              metafile: true,
+              write: false,
+              target: 'esnext',
+              external: ['node:*'],
+              supported: {
+                'top-level-await': true,
+              },
+            });
 
-          const { code, map } = await compileCSS(
-            pathToFileURL(id),
-            content.default,
+            trackedFiles.value = {
+              ...trackedFiles.value,
+              [id]: new Set(
+                Object.keys(metafile.inputs)
+                  .map((file) => new URL(file, root))
+                  .filter((url) => url.toString().startsWith(src.toString()))
+                  .map((url) => fileURLToPath(url))
+                  .map((file) => {
+                    this.addWatchFile(file);
+                    return file;
+                  }),
+              ),
+            };
+          }
+
+          const child = fork(
+            new URL('./css-printer.ts', import.meta.url),
+            [id],
+            { silent: true },
           );
+
+          const result = await new Promise<string>((resolve, reject) =>
+            child.on('exit', (code) => {
+              if (!code) {
+                streamToString(child.stdout)
+                  .then((str) => resolve(str))
+                  .catch((err: unknown) =>
+                    reject(
+                      new Error('Reading worker output failed', {
+                        cause: err,
+                      }),
+                    ),
+                  );
+              } else {
+                streamToString(child.stderr)
+                  .then((str) =>
+                    reject(new Error('Worker failed', { cause: str })),
+                  )
+                  .catch((err: unknown) =>
+                    reject(
+                      new Error('Reading worker output failed', { cause: err }),
+                    ),
+                  );
+              }
+            }),
+          );
+
+          const { code, map } = await compileCSS(pathToFileURL(id), result);
 
           return {
             code: `${code}\n//# sourceMappingURL=${map?.toUrl() ?? ''}`,
@@ -50,5 +135,25 @@ export function constructCss(): Plugin {
         return null;
       },
     },
+    handleHotUpdate: {
+      handler({ file, server }) {
+        if (file in dependencies.value) {
+          return dependencies.value[file]
+            ?.values()
+            .flatMap((file) => [
+              ...(server.moduleGraph.getModulesByFile(file) ?? []),
+            ])
+            .map((mod) => {
+              server.moduleGraph.invalidateModule(mod);
+              return mod;
+            })
+            .toArray();
+        }
+
+        return undefined;
+      },
+    },
   };
+
+  return plugin;
 }

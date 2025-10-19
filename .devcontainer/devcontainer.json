@@ -22,7 +22,7 @@
   "containerUser": "node",
   "remoteUser": "node",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "workspaceMount": "source=${localEnv:PODMAN_DIR}${localWorkspaceFolder},target=${containerWorkspaceFolder},type=bind",
+  "workspaceMount": "source=${localWorkspaceFolder},target=${containerWorkspaceFolder},type=bind",
   "mounts": [
     {
       "source": "${localWorkspaceFolderBasename}_nodemodules",
