@@ -125,7 +125,10 @@ export function constructCss(): Plugin {
             }),
           );
 
-          const { code, map } = await compileCSS(pathToFileURL(id), result);
+          const { code, map } = await compileCSS(
+            pathToFileURL(id.replace(/\.ts$/u, '')),
+            result,
+          );
 
           return {
             code: `${code}\n//# sourceMappingURL=${map?.toUrl() ?? ''}`,
@@ -136,7 +139,7 @@ export function constructCss(): Plugin {
       },
     },
     handleHotUpdate: {
-      handler({ file, server }) {
+      handler({ file, server, timestamp }) {
         if (file in dependencies.value) {
           return dependencies.value[file]
             ?.values()
@@ -144,7 +147,12 @@ export function constructCss(): Plugin {
               ...(server.moduleGraph.getModulesByFile(file) ?? []),
             ])
             .map((mod) => {
-              server.moduleGraph.invalidateModule(mod);
+              server.moduleGraph.invalidateModule(
+                mod,
+                undefined,
+                timestamp,
+                true,
+              );
               return mod;
             })
             .toArray();
