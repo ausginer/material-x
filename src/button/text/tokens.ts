@@ -4,11 +4,11 @@ import { excludeFromSet } from '../../core/tokens/utils.ts';
 import { createVariables } from '../../core/tokens/variable.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
-  applyForButtons,
+  applyToButtons,
   createPrefix,
   packButtons,
   reshapeButtonSet,
-  resolveButtonSet,
+  resolveButtonShape,
   type PackShape,
 } from '../utils.ts';
 
@@ -26,23 +26,24 @@ const specialTokens = createVariables(
 const set = (() => {
   const set = processTokenSet(SET_NAME);
   const shapedSet = reshapeButtonSet(set);
-  const resolvedSet = resolveButtonSet(shapedSet);
+  const resolvedSet = resolveButtonShape(shapedSet);
 
-  const variableSet = applyForButtons(resolvedSet, (set, path) =>
+  const variableSet = applyToButtons(resolvedSet, (set, path) =>
     createVariables(
       set,
       {
         vars: PUBLIC,
         prefix: createPrefix({
+          type: 'text',
           state: path.at(-1)!,
-          selectionState: path.at(-2),
+          switchState: path.at(-2),
         }),
       },
       ALLOWED,
     ),
   );
 
-  return applyForButtons(variableSet, (tokens, path) => {
+  return applyToButtons(variableSet, (tokens, path) => {
     if (path[0] === 'default') {
       return {
         ...tokens,

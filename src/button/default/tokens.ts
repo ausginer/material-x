@@ -4,11 +4,11 @@ import { resolveSet } from '../../core/tokens/resolve.ts';
 import { excludeFromSet } from '../../core/tokens/utils.ts';
 import { createVariables, CSSVariable } from '../../core/tokens/variable.ts';
 import {
-  applyForButtons,
+  applyToButtons,
   createPrefix,
   packButtons,
   reshapeButtonSet,
-  resolveButtonSet,
+  resolveButtonShape,
   type CSSVariableShape,
   type PackShape,
 } from '../utils.ts';
@@ -59,7 +59,7 @@ const specialTokens = createVariables(
     'ripple.color': CSSVariable.ref('state-layer.color'),
     'ripple.easing': motionEffects['expressive.fast-effects'],
     'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
-    'shadow.color': CSSVariable.ref('container.shadow.color'),
+    'shadow.color': CSSVariable.ref('container.shadow-color'),
     'shape.full': `calc(${CSSVariable.ref('container.height')} / 2)`,
   }),
 );
@@ -81,23 +81,23 @@ const specialSelectedTokens = createVariables(
 export const set: CSSVariableShape = (() => {
   const set = processTokenSet(SET_NAME);
   const shapedSet = reshapeButtonSet(set);
-  const resolvedSet = resolveButtonSet(shapedSet);
+  const resolvedSet = resolveButtonShape(shapedSet);
 
-  const variableSet = applyForButtons(resolvedSet, (set, path) =>
+  const variableSet = applyToButtons(resolvedSet, (set, path) =>
     createVariables(
       set,
       {
         vars: PUBLIC,
         prefix: createPrefix({
           state: path.at(-1)!,
-          selectionState: path.at(-2),
+          switchState: path.at(-2),
         }),
       },
       ALLOWED,
     ),
   );
 
-  return applyForButtons(variableSet, (tokens, path) => {
+  return applyToButtons(variableSet, (tokens, path) => {
     if (path[0] === 'default') {
       return {
         ...tokens,

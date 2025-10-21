@@ -11,21 +11,24 @@ import {
   applyToShape,
   inherit,
   reshape,
+  type Leaf,
   type SchemaKeys,
   type Shape,
 } from '../core/tokens/shape.ts';
+import { clearPrefix } from '../core/tokens/utils.ts';
 import {
   CSSVariable,
   packSet,
   type CSSVariableSet,
 } from '../core/tokens/variable.ts';
+import { TypedObject } from '../interfaces.ts';
 
 export type BaseButtonSchema = Readonly<{
-  default: typeof $leaf;
-  hovered?: typeof $leaf;
-  focused?: typeof $leaf;
-  pressed?: typeof $leaf;
-  disabled?: typeof $leaf;
+  default: Leaf;
+  hovered?: Leaf;
+  focused?: Leaf;
+  pressed?: Leaf;
+  disabled?: Leaf;
 }>;
 
 export type ButtonSchema = BaseButtonSchema &
@@ -48,10 +51,8 @@ const buttonSchema: ButtonSchema = {
   selected: baseButtonSchema,
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-export const buttonStates = Object.keys(baseButtonSchema) as ReadonlyArray<
-  keyof BaseButtonSchema
->;
+export const buttonStates: ReadonlyArray<keyof BaseButtonSchema> =
+  TypedObject.keys(baseButtonSchema);
 
 export type CSSVariableShape = Shape<CSSVariableSet, ButtonSchema>;
 
@@ -63,7 +64,7 @@ export function reshapeButtonSet(set: ProcessedTokenSet): ProcessedSetShape {
   return reshape(set, buttonSchema);
 }
 
-export function applyForButtons<T, U>(
+export function applyToButtons<T, U>(
   shape: Shape<T, ButtonSchema>,
   applicator: (value: T, path: ReadonlyArray<SchemaKeys<ButtonSchema>>) => U,
 ): Shape<U, ButtonSchema> {
@@ -78,34 +79,36 @@ const transformShape: ResolveAdjuster = (value, path) => {
   return value;
 };
 
-export function resolveButtonSet(shape: ProcessedSetShape): ResolvedSetShape {
-  return applyForButtons(shape, (tokens) => resolveSet(tokens, transformShape));
+export function resolveButtonShape(shape: ProcessedSetShape): ResolvedSetShape {
+  return applyToButtons(shape, (tokens) => resolveSet(tokens, transformShape));
 }
 
 export type ButtonPrefixData = Readonly<{
-  state: string;
   type?: string;
-  selectionState?: string;
+  state: string;
+  switchState?: string;
 }>;
 
 export function createPrefix({
+  type = '',
   state,
-  type,
-  selectionState,
+  switchState = '',
 }: ButtonPrefixData): string {
-  return `md-${type ? `${type}-` : ''}button-${selectionState ? `${selectionState}-` : ''}${state}`;
+  return clearPrefix(
+    `md-${type}-button-${switchState}-${state === 'default' ? '' : state}`,
+  );
 }
 
 export type PackShape = Shape<string, ButtonSchema>;
 
 function _packButtons(
-  set: CSSVariableShape,
+  shape: CSSVariableShape,
   applicator: (
     tokens: CSSVariableSet,
     path: ReadonlyArray<SchemaKeys<ButtonSchema>>,
   ) => CSSVariableSet,
 ): PackShape {
-  return applyForButtons(set, (tokens, path) =>
+  return applyToButtons(shape, (tokens, path) =>
     packSet(
       // Removing "disabled" state from "selected" & "unselected" supersets;
       // "disabled" state is supposed to be only "default" one.
@@ -115,10 +118,10 @@ function _packButtons(
 }
 
 export function packButtons(
-  set: CSSVariableShape,
-  defaultSet?: CSSVariableShape,
+  shape: CSSVariableShape,
+  defaultShape?: CSSVariableShape,
 ): PackShape {
-  return _packButtons(set, (tokens, path) => {
+  return _packButtons(shape, (tokens, path) => {
     const [state] = path;
 
     if (state === 'unselected' || state === 'selected') {
@@ -126,26 +129,24 @@ export function packButtons(
 
       return state === 'unselected'
         ? inherit(tokens, CSSVariable.equals, [
-            set.default,
+            shape.default,
             selectionState !== 'default'
-              ? getDeep(set, [state, 'default'])
+              ? getDeep(shape, [state, 'default'])
               : null,
-            defaultSet?.default,
+            defaultShape?.default,
           ])
         : inherit(tokens, CSSVariable.equals, [
-            getDeep(set, ['unselected', 'default']),
+            getDeep(shape, ['unselected', 'default']),
             selectionState !== 'default'
-              ? getDeep(set, [state, 'default'])
+              ? getDeep(shape, [state, 'default'])
               : null,
           ]);
     }
 
-    return state === 'default'
-      ? tokens
-      : inherit(tokens, CSSVariable.equals, [
-          set.default,
-          defaultSet?.[state!],
-        ]);
+    return inherit(tokens, CSSVariable.equals, [
+      state === 'default' ? null : shape.default,
+      defaultShape?.[state!],
+    ]);
   });
 }
 

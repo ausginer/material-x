@@ -5,9 +5,10 @@ import type { Simplify, TupleToUnion } from 'type-fest';
 import type { Values } from '../utils/interfaces.ts';
 
 export const $leaf: unique symbol = Symbol('leaf');
+export type Leaf = typeof $leaf;
 
 export type Schema = Readonly<{
-  [group: string]: typeof $leaf | Schema;
+  [group: string]: Leaf | Schema;
 }>;
 
 export type SchemaKeys<S extends Schema> = {
@@ -23,13 +24,13 @@ type OptionalShapeKeys<S extends Schema> = TupleToUnion<
 export type Shape<T, S extends Schema> = Readonly<
   Simplify<
     {
-      [K in OptionalShapeKeys<S>]?: typeof $leaf extends S[K]
+      [K in OptionalShapeKeys<S>]?: Leaf extends S[K]
         ? T
         : NonNullable<S[K]> extends Schema
           ? Shape<T, NonNullable<S[K]>>
           : never;
     } & {
-      [K in Exclude<keyof S, OptionalShapeKeys<S>>]: S[K] extends typeof $leaf
+      [K in Exclude<keyof S, OptionalShapeKeys<S>>]: S[K] extends Leaf
         ? T
         : S[K] extends Schema
           ? Shape<T, S[K]>

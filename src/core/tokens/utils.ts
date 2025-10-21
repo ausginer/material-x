@@ -43,3 +43,7 @@ export function excludeFromSet<T>(
     Object.entries(set).filter(([key]) => keys.some((k) => !key.includes(k))),
   );
 }
+
+export function clearPrefix(prefix: string): string {
+  return prefix.replace(/-+/gu, '-').replace(/-$/u, '');
+}

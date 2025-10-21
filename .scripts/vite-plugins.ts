@@ -106,7 +106,7 @@ export function constructCss(): Plugin {
                   .then((str) => resolve(str))
                   .catch((err: unknown) =>
                     reject(
-                      new Error('Reading worker output failed', {
+                      new Error(`Reading output for "${id}" failed`, {
                         cause: err,
                       }),
                     ),
@@ -114,11 +114,13 @@ export function constructCss(): Plugin {
               } else {
                 streamToString(child.stderr)
                   .then((str) =>
-                    reject(new Error('Worker failed', { cause: str })),
+                    reject(new Error(`Processing "${id}" failed\n\n${str}`)),
                   )
                   .catch((err: unknown) =>
                     reject(
-                      new Error('Reading worker output failed', { cause: err }),
+                      new Error(`Reading error output for "${id}" failed`, {
+                        cause: err,
+                      }),
                     ),
                   );
               }

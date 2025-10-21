@@ -1,3 +1,4 @@
+import { TypedObject } from '../../interfaces.ts';
 import { template } from '../elements/core-element.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
@@ -140,10 +141,11 @@ export default class RippleAnimationController implements ReactiveController {
 
   connected(): void {
     const host = this.#host;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-    const vars = Object.fromEntries(
-      Object.entries(this.#cssVariables).map(([k, v]) => [k, `--_${v}`]),
-    ) as CSSVariables;
+    const vars = TypedObject.fromEntries(
+      TypedObject.entries(this.#cssVariables).map(
+        ([k, v]) => [k, `--_${v}`] as const,
+      ),
+    );
 
     this.#easing = getComputedStyle(host).getPropertyValue(vars.easing).trim();
 
