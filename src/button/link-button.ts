@@ -7,7 +7,7 @@ import linkButtonStyles from './link-button.css.ts?type=css' with { type: 'css' 
 import mainOutlinedStyles from './outlined/main.css.ts?type=css' with { type: 'css' };
 import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
 import mainTextStyles from './text/main.css.ts?type=css' with { type: 'css' };
-import tonalTextStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
+import tonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
 
 const TEMPLATE = template`<a><slot name="icon"></slot><slot></slot></a>`;
 
@@ -32,7 +32,7 @@ export default class LinkButton extends CoreButton {
         mainSizeStyles,
         mainTextStyles,
         linkButtonStyles,
-        tonalTextStyles,
+        tonalStyles,
       ],
       { delegatesFocus: true },
     );

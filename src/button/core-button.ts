@@ -9,6 +9,13 @@ export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 export type ButtonShape = 'round' | 'square';
 
+export type ButtonAttributes = Readonly<{
+  color?: ButtonColor;
+  disabled?: boolean;
+  size?: ButtonSize;
+  shape?: ButtonShape;
+}>;
+
 export default class CoreButton extends CoreElement {
   constructor(
     template: HTMLTemplateElement,

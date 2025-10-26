@@ -20,11 +20,13 @@ const styles: string = await prettify(css`
             }
           }
         `
-      : css`
-          ${state[s](color)} {
-            ${packs[s]};
-          }
-        `,
+      : packs[s]
+        ? css`
+            ${state[s](color)} {
+              ${packs[s]};
+            }
+          `
+        : null,
   )}
 `);
 

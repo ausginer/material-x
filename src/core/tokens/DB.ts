@@ -1,4 +1,7 @@
+import { mkdir, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import type { SetRequired } from 'type-fest';
+import type { MaterialTheme } from './MaterialTheme.ts';
 import type {
   ContextTag,
   ContextTagGroup,
@@ -11,9 +14,6 @@ import type {
   Value,
 } from './TokenTable.ts';
 import { distinct, getSetName, root, type JSONModule } from './utils.ts';
-import { fileURLToPath } from 'node:url';
-import { mkdir, writeFile } from 'node:fs/promises';
-import type { MaterialTheme } from './MaterialTheme.ts';
 
 const DEFAULT_THEME_URL = new URL('./default-theme.json', import.meta.url);
 const CACHE_DIR = new URL('node_modules/.cache/tokens/', root);

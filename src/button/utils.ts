@@ -119,7 +119,7 @@ function _packButtons(
 
 export function packButtons(
   shape: CSSVariableShape,
-  defaultShape?: CSSVariableShape,
+  ...defaultShapes: readonly CSSVariableShape[]
 ): PackShape {
   return _packButtons(shape, (tokens, path) => {
     const [state] = path;
@@ -133,7 +133,7 @@ export function packButtons(
             selectionState !== 'default'
               ? getDeep(shape, [state, 'default'])
               : null,
-            defaultShape?.default,
+            ...defaultShapes.map((s) => s.default),
           ])
         : inherit(tokens, CSSVariable.equals, [
             getDeep(shape, ['unselected', 'default']),
@@ -145,25 +145,41 @@ export function packButtons(
 
     return inherit(tokens, CSSVariable.equals, [
       state === 'default' ? null : shape.default,
-      defaultShape?.[state!],
+      ...defaultShapes.map((s) => s[state!]),
     ]);
   });
 }
 
 export const state = {
-  default(...params: readonly Param[]): string {
-    return selector(':host', ...params);
+  default(...params: ReadonlyArray<Param | null | undefined>): string {
+    return selector(':host', ...params.filter((p) => p != null));
   },
-  hovered(...params: readonly Param[]): string {
-    return selector(':host', ...params, pseudoClass('hover'));
+  hovered(...params: ReadonlyArray<Param | null | undefined>): string {
+    return selector(
+      ':host',
+      ...params.filter((p) => p != null),
+      pseudoClass('hover'),
+    );
   },
-  focused(...params: readonly Param[]): string {
-    return selector(':host', ...params, pseudoClass('focus-visible'));
+  focused(...params: ReadonlyArray<Param | null | undefined>): string {
+    return selector(
+      ':host',
+      ...params.filter((p) => p != null),
+      pseudoClass('focus-visible'),
+    );
   },
-  pressed(...params: readonly Param[]): string {
-    return selector(':host', ...params, pseudoClass('active'));
+  pressed(...params: ReadonlyArray<Param | null | undefined>): string {
+    return selector(
+      ':host',
+      ...params.filter((p) => p != null),
+      pseudoClass('active'),
+    );
   },
-  disabled(...params: readonly Param[]): string {
-    return selector(':host', ...params, pseudoClass('disabled'));
+  disabled(...params: ReadonlyArray<Param | null | undefined>): string {
+    return selector(
+      ':host',
+      ...params.filter((p) => p != null),
+      pseudoClass('disabled'),
+    );
   },
 } as const;

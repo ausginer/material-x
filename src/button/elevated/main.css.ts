@@ -5,25 +5,29 @@ import packs from './tokens.ts';
 
 const color = attribute('color', 'elevated');
 
-const styles: string = await prettify(css`
-  ${buttonStates.map((s) =>
-    s === 'default'
-      ? css`
-          ${state.default(color)} {
-            ${packs.default};
+const mainStyles = buttonStates.map((s) =>
+  s === 'default'
+    ? css`
+        ${state.default(color)} {
+          ${packs.default};
 
-            &::before,
-            &::after {
-              content: '';
-            }
+          &::before,
+          &::after {
+            content: '';
           }
-        `
-      : css`
+        }
+      `
+    : packs[s]
+      ? css`
           ${state[s](color)} {
             ${packs[s]};
           }
-        `,
-  )}
+        `
+      : null,
+);
+
+const styles: string = await prettify(css`
+  ${mainStyles}
 `);
 
 export default styles;

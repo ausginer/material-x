@@ -8,12 +8,14 @@ const styles: string = await prettify(css`
     const size = attribute('size', name);
 
     return css`
-      ${buttonStates.map(
-        (s) => css`
-          ${state[s](size)} {
-            ${pack[s]};
-          }
-        `,
+      ${buttonStates.map((s) =>
+        pack[s]
+          ? css`
+              ${state[s](size)} {
+                ${pack[s]};
+              }
+            `
+          : null,
       )}
     `;
   })}

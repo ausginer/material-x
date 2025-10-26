@@ -1,7 +1,3 @@
-export type UnionAsObject<K extends PropertyKey, V> = Readonly<
-  Record<K extends PropertyKey ? K : never, V>
->;
-
 export interface TypedObjectConstructor {
   keys<O extends object>(o: O): ReadonlyArray<keyof O>;
   values<O extends object>(o: O): ReadonlyArray<O[keyof O]>;

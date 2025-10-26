@@ -7,12 +7,12 @@ export class CSSVariable {
     return new CSSVariable(variable.name, value, variable.#prefix);
   }
 
-  static equals(
-    v1: CSSVariable | null | undefined,
-    v2: CSSVariable | null | undefined,
-  ): boolean {
+  static equals(v1: unknown, v2: unknown): boolean {
     return (
-      (v1 && v2 && v1.#name === v2.#name && v1.#value === v2.#value) ??
+      (v1 instanceof CSSVariable &&
+        v2 instanceof CSSVariable &&
+        v1.#name === v2.#name &&
+        v1.#value === v2.#value) ||
       v1 === v2
     );
   }

@@ -1,46 +1,58 @@
 import type { Meta, StoryObj } from '@storybook/web-components-vite';
-import { html, type nothing, type TemplateResult } from 'lit';
+import { html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
-import type { ButtonColor, ButtonSize } from './core-button.ts';
+import type { ButtonAttributes } from './core-button.ts';
 import '../icon/icon.ts';
 import './link-button.ts';
+import { colorControl, shapeControl, sizeControl } from './stories-utils.ts';
 
-type LinkButtonProps = Readonly<{
-  color?: ButtonColor;
-  onClick?(): void;
-  href?: string;
-  target?: string;
-  label?: string;
-  disabled?: boolean;
-  size?: ButtonSize;
-  icon?: TemplateResult | typeof nothing;
-}>;
+type LinkButtonProps = Readonly<
+  ButtonAttributes & {
+    onClick?(): void;
+    href?: string;
+    target?: string;
+    label?: string;
+    icon?: string;
+  }
+>;
 
 const meta: Meta<LinkButtonProps> = {
   title: 'Button/Link',
   tags: ['autodocs'],
-  render: ({ color, onClick, label, disabled, size, href, target, icon }) =>
-    html`<mx-link-button
+  render: ({
+    color,
+    onClick,
+    label,
+    disabled,
+    size,
+    shape,
+    href,
+    target,
+    icon,
+  }) => {
+    const iconElement = icon
+      ? html`<mx-icon slot="icon">${icon}</mx-icon>`
+      : nothing;
+
+    return html`<mx-link-button
       ?disabled=${disabled}
       color=${ifDefined(color)}
       href=${ifDefined(href)}
+      shape=${ifDefined(shape)}
       target=${ifDefined(target)}
       size=${ifDefined(size)}
       @click=${onClick}
-      >${icon}${label}</mx-link-button
-    >`,
+      >${iconElement}${label}</mx-link-button
+    >`;
+  },
   argTypes: {
-    color: {
+    color: colorControl,
+    size: sizeControl,
+    shape: shapeControl,
+    icon: {
       control: {
-        type: 'select',
-        options: ['outlined', 'tonal', 'elevated', 'text'],
-      },
-    },
-    size: {
-      controle: {
-        type: 'select',
-        options: ['xsmall', 'small', 'medium', 'large', 'xlarge'],
+        type: 'text',
       },
     },
     href: {
@@ -143,6 +155,6 @@ export const XLargeSize: ButtonStories = {
 export const WithIcon: ButtonStories = {
   args: {
     label: 'Button with Icon',
-    icon: html`<mx-icon slot="icon">check</mx-icon>`,
+    icon: 'check',
   },
 };

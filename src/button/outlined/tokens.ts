@@ -41,7 +41,6 @@ const set = (() => {
       {
         vars: PUBLIC,
         prefix: createPrefix({
-          type: 'outlined',
           state: path.at(-1)!,
           switchState: path.at(-2),
         }),

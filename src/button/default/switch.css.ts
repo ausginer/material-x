@@ -7,34 +7,42 @@ const { selected, unselected } = packs;
 
 const checked = attribute('checked');
 
-const styles: string = await prettify(css`
-  ${unselected &&
-  buttonStates.map((s) =>
-    s === 'default'
-      ? css`
-          ${state.default()} {
-            ${unselected.default};
+const switchStyles = [
+  unselected &&
+    buttonStates.map((s) =>
+      s === 'default'
+        ? css`
+            ${state.default()} {
+              ${unselected.default};
 
-            will-change: background-color, color;
-            transition-property: background-color, color;
-            transition-duration: var(--_switch-duration);
-            transition-timing-function: var(--_switch-easing);
-          }
-        `
-      : css`
-          ${state[s]()} {
-            ${unselected[s]};
-          }
-        `,
-  )}
-  ${selected &&
-  buttonStates.map(
-    (s) => css`
-      ${state[s](checked)} {
-        ${selected[s]};
-      }
-    `,
-  )}
+              will-change: background-color, color;
+              transition-property: background-color, color;
+              transition-duration: var(--_switch-duration);
+              transition-timing-function: var(--_switch-easing);
+            }
+          `
+        : unselected[s]
+          ? css`
+              ${state[s]()} {
+                ${unselected[s]};
+              }
+            `
+          : null,
+    ),
+  selected &&
+    buttonStates.map((s) =>
+      selected[s]
+        ? css`
+            ${state[s](checked)} {
+              ${selected[s]};
+            }
+          `
+        : null,
+    ),
+].flat();
+
+const styles: string = await prettify(css`
+  ${switchStyles}
 `);
 
 export default styles;

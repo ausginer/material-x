@@ -50,7 +50,8 @@ const styles: string = await prettify(css`
     ${packs.pressed};
   }
 
-  slot[name='icon'] {
+  slot[name='icon'],
+  :host:is(mx-icon-button) slot {
     --md-icon-size: var(--_icon-size);
 
     color: var(--_icon-color);

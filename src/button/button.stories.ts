@@ -1,44 +1,44 @@
 import type { Meta, StoryObj } from '@storybook/web-components-vite';
-import { html, nothing, type TemplateResult } from 'lit';
+import { html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
-import type { ButtonColor, ButtonShape, ButtonSize } from './core-button.ts';
 import '../icon/icon.ts';
 import './button.ts';
+import type { ButtonAttributes } from './core-button.ts';
+import { colorControl, shapeControl, sizeControl } from './stories-utils.ts';
 
-type ButtonProps = Readonly<{
-  color?: ButtonColor;
-  onClick?(): void;
-  label?: string;
-  disabled?: boolean;
-  size?: ButtonSize;
-  shape?: ButtonShape;
-  icon?: TemplateResult | typeof nothing;
-}>;
+type ButtonProps = Readonly<
+  ButtonAttributes & {
+    onClick?(): void;
+    label?: string;
+    icon?: string;
+  }
+>;
 
 const meta: Meta<ButtonProps> = {
   title: 'Button/Button',
   tags: ['autodocs'],
-  render: ({ color, onClick, label, disabled, size, shape, icon }) =>
-    html`<mx-button
+  render: ({ color, onClick, label, disabled, size, shape, icon }) => {
+    const iconElement = icon
+      ? html`<mx-icon slot="icon">${icon}</mx-icon>`
+      : nothing;
+
+    return html`<mx-button
       ?disabled=${disabled}
       color=${ifDefined(color)}
       size=${ifDefined(size)}
       shape=${ifDefined(shape)}
       @click=${onClick}
-      >${icon}${label}</mx-button
-    >`,
+      >${iconElement}${label}</mx-button
+    >`;
+  },
   argTypes: {
-    color: {
+    color: colorControl,
+    size: sizeControl,
+    shape: shapeControl,
+    disabled: {
       control: {
-        type: 'select',
-        options: ['outlined', 'tonal', 'elevated', 'tonal', 'text'],
-      },
-    },
-    size: {
-      controle: {
-        type: 'select',
-        options: ['xsmall', 'small', 'medium', 'large', 'xlarge'],
+        type: 'boolean',
       },
     },
     label: {
@@ -46,19 +46,13 @@ const meta: Meta<ButtonProps> = {
         type: 'text',
       },
     },
-    shape: {
+    icon: {
       control: {
-        type: 'select',
-        options: ['round', 'square'],
-      },
-    },
-    disabled: {
-      control: {
-        type: 'boolean',
+        type: 'text',
       },
     },
   },
-  args: { onClick: fn(), disabled: false, icon: nothing },
+  args: { onClick: fn(), disabled: false },
 };
 
 export default meta;
@@ -144,6 +138,6 @@ export const XLargeSize: ButtonStories = {
 export const WithIcon: ButtonStories = {
   args: {
     label: 'Button with Icon',
-    icon: html`<mx-icon slot="icon">check</mx-icon>`,
+    icon: 'check',
   },
 };

@@ -5,30 +5,37 @@ import packs from './tokens.ts';
 
 const checked = attribute('checked');
 
-const styles: string = await prettify(css`
-  ${Object.entries(packs).map(([name, { unselected, selected }]) => {
+const switchStyles = Object.entries(packs).flatMap(
+  ([name, { unselected, selected }]) => {
     const size = attribute('size', name);
 
-    return css`
-      ${unselected &&
-      buttonStates.map(
-        (s) => css`
-          ${state[s](size)} {
-            ${unselected[s]};
-          }
-        `,
-      )}
+    return [
+      unselected &&
+        buttonStates.map((s) =>
+          unselected[s]
+            ? css`
+                ${state[s](size)} {
+                  ${unselected[s]};
+                }
+              `
+            : null,
+        ),
+      selected &&
+        buttonStates.map((s) =>
+          selected[s]
+            ? css`
+                ${state[s](size, checked)} {
+                  ${selected[s]};
+                }
+              `
+            : null,
+        ),
+    ].flat();
+  },
+);
 
-      ${selected &&
-      buttonStates.map(
-        (s) => css`
-          ${state[s](size, checked)} {
-            ${selected[s]};
-          }
-        `,
-      )}
-    `;
-  })}
+const styles: string = await prettify(css`
+  ${switchStyles}
 `);
 
 export default styles;

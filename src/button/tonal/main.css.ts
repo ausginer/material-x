@@ -5,14 +5,18 @@ import packs from './tokens.ts';
 
 const color = attribute('color', 'tonal');
 
+const mainStyles = buttonStates.map((s) =>
+  packs[s]
+    ? css`
+        ${state[s](color)} {
+          ${packs[s]};
+        }
+      `
+    : null,
+);
+
 const styles: string = await prettify(css`
-  ${buttonStates.map(
-    (s) => css`
-      ${state[s](color)} {
-        ${packs[s]};
-      }
-    `,
-  )}
+  ${mainStyles}
 `);
 
 export default styles;

@@ -40,7 +40,6 @@ const set = (() => {
       {
         vars: PUBLIC,
         prefix: createPrefix({
-          type: 'tonal',
           state: path.at(-1)!,
           switchState: path.at(-2),
         }),

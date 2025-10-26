@@ -1,38 +1,49 @@
 import type { Meta, StoryObj } from '@storybook/web-components-vite';
-import { html, type nothing, type TemplateResult } from 'lit';
+import { html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
 import '../icon/icon.ts';
-import type { ButtonSize } from './core-button.ts';
-import type { SwitchButtonColor } from './switch-button.ts';
+import {
+  shapeControl,
+  sizeControl,
+  switchColorControl,
+} from './stories-utils.ts';
 import './switch-button.ts';
+import type { SwitchButtonAttributes } from './switch-button.ts';
 
-type SwitchButtonProps = Readonly<{
-  color?: SwitchButtonColor;
-  onClick?(event: PointerEvent): void;
-  label?: string;
-  disabled?: boolean;
-  size?: ButtonSize;
-  icon?: TemplateResult | typeof nothing;
-  checked?: boolean;
-}>;
+type SwitchButtonProps = Readonly<
+  SwitchButtonAttributes & {
+    onClick?(event: PointerEvent): void;
+    label?: string;
+    icon?: string;
+  }
+>;
 
 const meta: Meta<SwitchButtonProps> = {
   title: 'Button/Switch',
   tags: ['autodocs'],
-  render: ({ color, onClick, label, disabled, checked }) =>
-    html`<mx-switch-button
+  render: ({ color, onClick, label, disabled, shape, size, checked, icon }) => {
+    const iconElement = icon
+      ? html`<mx-icon slot="icon">${icon}</mx-icon>`
+      : nothing;
+
+    return html`<mx-switch-button
       ?disabled=${disabled}
-      ?checked=${checked}
       color=${ifDefined(color)}
+      size=${ifDefined(size)}
+      shape=${ifDefined(shape)}
       @click=${onClick}
-      >${label}</mx-switch-button
-    >`,
+      ?checked=${checked}
+      >${iconElement}${label}</mx-switch-button
+    >`;
+  },
   argTypes: {
-    color: {
+    color: switchColorControl,
+    size: sizeControl,
+    shape: shapeControl,
+    icon: {
       control: {
-        type: 'select',
-        options: ['outlined', 'tonal', 'elevated', 'text'],
+        type: 'text',
       },
     },
     checked: {
@@ -68,73 +79,73 @@ const meta: Meta<SwitchButtonProps> = {
 
 export default meta;
 
-type ButtonStories = StoryObj<SwitchButtonProps>;
+type SwitchButtonStories = StoryObj<SwitchButtonProps>;
 
-export const FilledColor: ButtonStories = {
+export const FilledColor: SwitchButtonStories = {
   args: {
     label: 'Filled Switch Button',
   },
 };
 
-export const OutlinedColor: ButtonStories = {
+export const OutlinedColor: SwitchButtonStories = {
   args: {
     color: 'outlined',
     label: 'Outlined Switch Button',
   },
 };
 
-export const TonalColor: ButtonStories = {
+export const TonalColor: SwitchButtonStories = {
   args: {
     color: 'tonal',
     label: 'Tonal Switch Button',
   },
 };
 
-export const ElevatedColor: ButtonStories = {
+export const ElevatedColor: SwitchButtonStories = {
   args: {
     color: 'elevated',
     label: 'Elevated Switch Button',
   },
 };
 
-export const XSmallSize: ButtonStories = {
+export const XSmallSize: SwitchButtonStories = {
   args: {
     label: 'Extra Small Filled Switch Button',
     size: 'xsmall',
   },
 };
 
-export const SmallSize: ButtonStories = {
+export const SmallSize: SwitchButtonStories = {
   args: {
     label: 'Small Filled Switch Button',
     size: 'small',
   },
 };
 
-export const MediumSize: ButtonStories = {
+export const MediumSize: SwitchButtonStories = {
   args: {
     label: 'Medium Filled Switch Button',
     size: 'medium',
   },
 };
 
-export const LargeSize: ButtonStories = {
+export const LargeSize: SwitchButtonStories = {
   args: {
     label: 'Large Filled Switch Button',
     size: 'large',
   },
 };
 
-export const XLargeSize: ButtonStories = {
+export const XLargeSize: SwitchButtonStories = {
   args: {
     label: 'Extra Large Filled Switch Button',
     size: 'xlarge',
   },
 };
 
-export const WithIcon: ButtonStories = {
+export const WithIcon: SwitchButtonStories = {
   args: {
     label: 'Switch Button with Icon',
-    icon: html`<mx-icon slot="icon">check</mx-icon>`,
+    icon: 'check',
   },
 };

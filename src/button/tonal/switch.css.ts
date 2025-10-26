@@ -8,24 +8,31 @@ const checked = attribute('checked');
 
 const { selected, unselected } = packs;
 
-const styles: string = await prettify(css`
-  ${unselected &&
-  buttonStates.map(
-    (s) => css`
-      ${state[s](color)} {
-        ${unselected[s]};
-      }
-    `,
-  )}
+const switchStyles = [
+  unselected &&
+    buttonStates.map((s) =>
+      unselected[s]
+        ? css`
+            ${state[s](color)} {
+              ${unselected[s]};
+            }
+          `
+        : null,
+    ),
+  selected &&
+    buttonStates.map((s) =>
+      selected[s]
+        ? css`
+            ${state[s](color, checked)} {
+              ${selected[s]};
+            }
+          `
+        : null,
+    ),
+].flat();
 
-  ${selected &&
-  buttonStates.map(
-    (s) => css`
-      ${state[s](color, checked)} {
-        ${selected[s]};
-      }
-    `,
-  )}
+const styles: string = await prettify(css`
+  ${switchStyles}
 `);
 
 export default styles;

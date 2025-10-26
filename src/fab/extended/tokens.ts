@@ -7,8 +7,8 @@ import {
   CSSVariable,
   type CSSVariableSet,
 } from '../../core/tokens/variable.ts';
-import { TypedObject, type UnionAsObject } from '../../interfaces.ts';
-import { PRIVATE, PUBLIC, set as defaultSet } from '../default/tokens.ts';
+import { TypedObject } from '../../interfaces.ts';
+import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
   applyToFAB,
   createPrefix,
@@ -59,70 +59,65 @@ export function variantAttribute(
 
 const ALLOWED = [...PUBLIC, ...PRIVATE, 'icon-label-space'];
 
-const packs: UnionAsObject<
-  TupleToUnion<typeof VARIANTS>,
-  PackShape
-> = TypedObject.fromEntries(
-  VARIANTS.map((c) => {
-    const setName = `md.comp.extended-fab.${c}`;
+const packs: Readonly<Record<TupleToUnion<typeof VARIANTS>, PackShape>> =
+  TypedObject.fromEntries(
+    VARIANTS.map((c) => {
+      const setName = `md.comp.extended-fab.${c}`;
 
-    let specialTokens: CSSVariableSet = {};
+      let specialTokens: CSSVariableSet = {};
 
-    if (c === 'tertiary') {
-      specialTokens = createVariables(
-        resolveSet({
-          'state-layer.color': `${setName}.pressed.state-layer.color`,
-          direction: 'row',
-          'container.width': CSSVariable.ref('container.height'),
-        }),
-        {
-          vars: ['direction'],
-          prefix: createPrefix({
-            type: 'extended',
-            state: 'default',
+      if (c === 'tertiary') {
+        specialTokens = createVariables(
+          resolveSet({
+            'state-layer.color': `${setName}.pressed.state-layer.color`,
+            direction: 'row',
+            'container.width': CSSVariable.ref('container.height'),
           }),
-        },
-      );
-    }
-
-    const set = (() => {
-      const set = processTokenSet(setName);
-      const shapedSet = reshapeFABSet(set);
-      const resolvedSet = resolveFABShape(shapedSet);
-
-      const variableSet = applyToFAB(resolvedSet, (set, [state]) =>
-        createVariables(
-          set,
           {
-            vars: PUBLIC,
+            vars: ['direction'],
             prefix: createPrefix({
-              type:
-                c === 'tertiary' || c === 'tertiary-container' || c === 'small'
-                  ? 'extended'
-                  : `extended-${c}`,
-              state: state!,
+              type: 'extended',
+              state: 'default',
             }),
           },
-          ALLOWED,
-        ),
-      );
+        );
+      }
 
-      return applyToFAB(variableSet, (tokens, [state]) => {
-        if (state === 'default') {
-          return {
-            ...tokens,
-            ...specialTokens,
-          };
-        }
+      const set = (() => {
+        const set = processTokenSet(setName);
+        const shapedSet = reshapeFABSet(set);
+        const resolvedSet = resolveFABShape(shapedSet);
 
-        return tokens;
-      });
-    })();
+        const variableSet = applyToFAB(resolvedSet, (set, [state]) =>
+          createVariables(
+            set,
+            {
+              vars: PUBLIC,
+              prefix: createPrefix({
+                type: 'extended',
+                state: state!,
+              }),
+            },
+            ALLOWED,
+          ),
+        );
 
-    const pack = packFAB(set, defaultSet);
+        return applyToFAB(variableSet, (tokens, [state]) => {
+          if (state === 'default') {
+            return {
+              ...tokens,
+              ...specialTokens,
+            };
+          }
 
-    return [c, pack] as const;
-  }),
-);
+          return tokens;
+        });
+      })();
+
+      const pack = packFAB(set, defaultSet);
+
+      return [c, pack] as const;
+    }),
+  );
 
 export default packs;
