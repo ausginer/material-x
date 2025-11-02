@@ -14,26 +14,24 @@ import {
   type PackShape,
 } from '../utils.ts';
 
-export const DEFAULTS = ['filled', 'standard'] as const;
-const COLORS = ['tonal'] as const;
-const SIZES = ['large', 'medium', 'small', 'xlarge', 'xsmall'] as const;
+export const DEFAULTS = ['small', 'standard'] as const;
+export const COLORS = ['tonal', 'filled'] as const;
+export const SIZES = ['large', 'medium', 'xlarge', 'xsmall'] as const;
 
 export const VARIANTS: readonly [
-  'filled',
+  'small',
   'standard',
   'tonal',
+  'filled',
   'large',
   'medium',
-  'small',
   'xlarge',
   'xsmall',
 ] = [...DEFAULTS, ...COLORS, ...SIZES] as const;
 
 const ALLOWED = [...PUBLIC, ...PRIVATE] as const;
 
-export function variantAttribute(
-  variant: TupleToUnion<typeof VARIANTS>,
-): readonly Param[] {
+export function variantAttribute(variant: string): readonly Param[] {
   if ((COLORS as readonly string[]).includes(variant)) {
     return [attribute('color', variant)];
   }
@@ -79,7 +77,7 @@ const packs: Readonly<Record<TupleToUnion<typeof VARIANTS>, PackShape>> =
             {
               vars: PUBLIC,
               prefix: createPrefix({
-                type: `${c}-icon`,
+                type: 'icon',
                 state: path.at(-1)!,
                 switchState: path.at(-2),
               }),
@@ -119,27 +117,18 @@ const packs: Readonly<Record<TupleToUnion<typeof VARIANTS>, PackShape>> =
     }),
   );
 
-const WIDTH_SIZES: readonly [
-  'standard',
-  'large',
-  'medium',
-  'small',
-  'xlarge',
-  'xsmall',
-] = ['standard', ...SIZES] as const;
-
 const WIDTHS = ['wide', 'narrow'] as const;
 const WIDTH_PUBLIC = ['leading-space', 'trailing-space'] as const;
 
 export const widthPacks: Readonly<
   Record<
     TupleToUnion<typeof WIDTHS>,
-    Readonly<Record<TupleToUnion<typeof WIDTH_SIZES>, PackShape>>
+    Readonly<Record<TupleToUnion<typeof SIZES>, PackShape>>
   >
 > = TypedObject.fromEntries(
   WIDTHS.map((w) => {
     const result = TypedObject.fromEntries(
-      WIDTH_SIZES.map((s) => {
+      SIZES.map((s) => {
         const setName = `md.comp.icon-button.${s}`;
 
         const set = (() => {

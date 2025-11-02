@@ -20,7 +20,7 @@ type SwitchIconButtonProps = Readonly<
 >;
 
 const meta: Meta<SwitchIconButtonProps> = {
-  title: 'Button/Icon/Switch',
+  title: 'Button/IconSwitch',
   tags: ['autodocs'],
   render: ({ color, size, shape, width, onClick, icon, disabled, checked }) =>
     html`<mx-switch-icon-button
