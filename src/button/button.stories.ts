@@ -4,11 +4,11 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
 import '../icon/icon.ts';
 import './button.ts';
-import type { ButtonAttributes } from './core-button.ts';
+import type { CoreButtonAttributes } from './useButtonCore.ts';
 import { colorControl, shapeControl, sizeControl } from './stories-utils.ts';
 
 type ButtonProps = Readonly<
-  ButtonAttributes & {
+  CoreButtonAttributes & {
     onClick?(): void;
     label?: string;
     icon?: string;

@@ -1,9 +1,8 @@
 /* eslint-disable import-x/no-mutable-exports */
 import type { Constructor } from 'type-fest';
-import AriaController from './aria-controller.ts';
 import type { ReactiveController } from './reactive-controller.ts';
 
-export function template(
+export function html(
   str: TemplateStringsArray,
   ...args: readonly unknown[]
 ): HTMLTemplateElement {
@@ -25,33 +24,18 @@ export function define(
 }
 
 export let use: (
-  element: CoreElement,
+  element: ReactiveElement,
   ...controllers: readonly ReactiveController[]
 ) => void;
 
-export class CoreElement extends HTMLElement {
+export class ReactiveElement extends HTMLElement {
   static {
     use = (element, ...controllers) => {
       element.#controllers.push(...controllers);
     };
   }
 
-  readonly #internals = this.attachInternals();
   readonly #controllers: ReactiveController[] = [];
-
-  constructor(
-    template: HTMLTemplateElement,
-    aria: Partial<ARIAMixin>,
-    styles: CSSStyleSheet[],
-    init: Partial<ShadowRootInit> = {},
-  ) {
-    super();
-    Object.assign(this.#internals, aria);
-    const root = this.attachShadow({ mode: 'open', ...init });
-    root.adoptedStyleSheets = styles;
-    root.append(template.content.cloneNode(true));
-    use(this, new AriaController(this.#internals));
-  }
 
   attributeChangedCallback(
     name: string,

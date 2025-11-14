@@ -9,6 +9,7 @@ import type {
 import { CSSVariable } from './variable.ts';
 
 const COLOR_SET = 'md.sys.color';
+const TYPEFACE_SET = 'md.ref.typeface';
 
 export type ResolvedTokenValue = string | number;
 export type ResolvedTokenSet = Readonly<Record<string, string | number>>;
@@ -22,25 +23,28 @@ export type ResolveAdjuster = (
   path: readonly string[],
 ) => ProcessedTokenValue | null;
 
-const makeColorTokenOverridable: ResolveAdjuster = (value, path) => {
-  const colorToken = path.find((p) => p.includes(COLOR_SET));
+const defaultAdjusters = [COLOR_SET, TYPEFACE_SET].map(
+  (setName): ResolveAdjuster =>
+    (value, path) => {
+      const colorToken = path.find((p) => p.includes(setName));
 
-  if (colorToken) {
-    if (typeof value !== 'string' && typeof value !== 'number') {
-      throw new Error('Color token value must be string or number');
-    }
+      if (colorToken) {
+        if (typeof value !== 'string' && typeof value !== 'number') {
+          throw new Error(`"${setName}" token value must be string or number`);
+        }
 
-    const variable = new CSSVariable(
-      colorToken.replace(`${COLOR_SET}.`, ''),
-      value,
-      kebabCase(COLOR_SET),
-    );
+        const variable = new CSSVariable(
+          colorToken.replace(`${setName}.`, ''),
+          value,
+          kebabCase(setName),
+        );
 
-    return variable.value;
-  }
+        return variable.value;
+      }
 
-  return value;
-};
+      return value;
+    },
+);
 
 export function resolve(
   tokenName: string,
@@ -73,7 +77,7 @@ export function resolve(
     }
   }
 
-  return [...adjusts, makeColorTokenOverridable].reduce<
+  return [...adjusts, ...defaultAdjusters].reduce<
     ProcessedTokenValue | null | undefined
   >((acc, adjust) => (acc == null ? null : adjust(acc, path)), v);
 }

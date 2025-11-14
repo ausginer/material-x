@@ -1,13 +1,19 @@
-import { define, template } from '../core/elements/core-element.ts';
+import {
+  define,
+  html,
+  ReactiveElement,
+} from '../core/elements/reactive-element.ts';
 import { usePressAnimation } from '../core/utils/button.ts';
-import CoreButton from './core-button.ts';
+import { useButtonCore, type CoreButtonAttributes } from './useButtonCore.ts';
 import mainElevatedStyles from './elevated/main.css.ts?type=css' with { type: 'css' };
 import mainOutlinedStyles from './outlined/main.css.ts?type=css' with { type: 'css' };
 import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
 import mainTextStyles from './text/main.css.ts?type=css' with { type: 'css' };
 import mainTonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
 
-const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
+export type ButtonAttributes = CoreButtonAttributes;
+
+const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically
@@ -26,12 +32,13 @@ const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
  * @attr {string} size
  * @attr {string} shape
  */
-export default class Button extends CoreButton {
+export default class Button extends ReactiveElement {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['disabled'] as const;
 
   constructor() {
-    super(TEMPLATE, 'button', [
+    super();
+    useButtonCore(this, TEMPLATE, 'button', [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainSizeStyles,

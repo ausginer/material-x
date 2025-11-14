@@ -1,0 +1,43 @@
+import { useConnected } from '../core/elements/useConnected.ts';
+import { useCore } from '../core/elements/useCore.ts';
+import { ReactiveElement, use } from '../core/elements/reactive-element.ts';
+import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
+import defaultDisabledStyles from './default/disabled.css.ts?type=css' with { type: 'css' };
+import defaultButtonStyles from './default/main.css.ts?type=css' with { type: 'css' };
+import shapeStyles from './shape/main.css.ts?type=css' with { type: 'css' };
+
+export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
+export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
+export type ButtonShape = 'round' | 'square';
+
+export type CoreButtonAttributes = Readonly<{
+  color?: ButtonColor;
+  disabled?: boolean;
+  size?: ButtonSize;
+  shape?: ButtonShape;
+}>;
+
+export function useButtonCore(
+  element: ReactiveElement,
+  template: HTMLTemplateElement,
+  role: ARIAMixin['role'],
+  styles: CSSStyleSheet[],
+  init?: Partial<ShadowRootInit>,
+): void {
+  useCore(
+    element,
+    template,
+    { role },
+    [
+      defaultButtonStyles,
+      elevationStyles,
+      shapeStyles,
+      ...styles,
+      defaultDisabledStyles,
+    ],
+    init,
+  );
+  useConnected(element, () => {
+    element.tabIndex = 0;
+  });
+}

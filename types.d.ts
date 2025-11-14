@@ -22,8 +22,8 @@ declare module 'sorcery' {
   export function load(source: string, map: LoadMap): Promise<Chain>;
 }
 
-declare module '*.css' {
-  const styles: CSSStyleSheet;
+declare module '*.module.css' {
+  const styles: Readonly<Record<string, string>>;
   export default styles;
 }
 

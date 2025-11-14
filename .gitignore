@@ -7,3 +7,4 @@
 *storybook.log
 storybook-static
 *.css
+!*.module.css

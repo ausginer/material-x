@@ -1,5 +1,6 @@
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
+import { ReactiveElement, use } from '../elements/reactive-element.ts';
 
 function createSpringKeyframes(
   /**
@@ -59,7 +60,7 @@ export type CSSVariables = Readonly<{
   factor: string;
 }>;
 
-export default class SpringAnimationController implements ReactiveController {
+class SpringAnimationController implements ReactiveController {
   readonly #host: HTMLElement;
   readonly #events: ControlEvents;
   readonly #listenerController: AbortController = new AbortController();
@@ -126,4 +127,12 @@ export default class SpringAnimationController implements ReactiveController {
   disconnected(): void {
     this.#listenerController.abort();
   }
+}
+
+export function useSpring(
+  element: ReactiveElement,
+  events: ControlEvents,
+  cssVariables: CSSVariables,
+): void {
+  use(element, new SpringAnimationController(element, events, cssVariables));
 }

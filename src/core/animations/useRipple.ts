@@ -1,5 +1,5 @@
 import { TypedObject } from '../../interfaces.ts';
-import { template } from '../elements/core-element.ts';
+import { html, ReactiveElement, use } from '../elements/reactive-element.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
 import type { TypedObjectConstructor } from '../utils/interfaces.ts';
@@ -120,10 +120,10 @@ export type CSSVariables = Readonly<{
 }>;
 
 const CLS = 'ripple';
-const TEMPLATE = template`<div class="${CLS}"></div>`;
+const TEMPLATE = html`<div class="${CLS}"></div>`;
 
-export default class RippleAnimationController implements ReactiveController {
-  readonly #host: HTMLElement;
+class RippleAnimationController implements ReactiveController {
+  readonly #host: ReactiveElement;
   readonly #listenerController = new AbortController();
   readonly #rippleElement: HTMLElement;
   readonly #cssVariables: CSSVariables;
@@ -131,7 +131,7 @@ export default class RippleAnimationController implements ReactiveController {
   #easing: string | undefined;
   #startEvent: PointerEvent | null = null;
 
-  constructor(host: HTMLElement, vars: CSSVariables) {
+  constructor(host: ReactiveElement, vars: CSSVariables) {
     this.#host = host;
     host.shadowRoot!.prepend(TEMPLATE.content.cloneNode(true));
     host.shadowRoot!.adoptedStyleSheets.push(css);
@@ -363,4 +363,8 @@ export default class RippleAnimationController implements ReactiveController {
     const isPrimaryButton = event.buttons === 1;
     return isTouch(event) || isPrimaryButton;
   }
+}
+
+export function useRipple(element: ReactiveElement, vars: CSSVariables): void {
+  use(element, new RippleAnimationController(element, vars));
 }

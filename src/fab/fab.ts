@@ -1,12 +1,13 @@
-import RippleAnimationController from '../core/animations/ripple.ts';
-import SpringAnimationController from '../core/animations/spring.ts';
-import AttributeObserver from '../core/elements/attribute-observer.ts';
+import { useRipple } from '../core/animations/useRipple.ts';
+import { useSpring } from '../core/animations/useSpring.ts';
+import { useAttribute } from '../core/elements/useAttribute.ts';
+import { useConnected } from '../core/elements/useConnected.ts';
+import { useCore } from '../core/elements/useCore.ts';
 import {
-  CoreElement,
+  ReactiveElement,
   define,
-  template,
-  use,
-} from '../core/elements/core-element.ts';
+  html,
+} from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
 import { usePressAnimation } from '../core/utils/button.ts';
 import colorStyles from './color/main.css.ts?type=css' with { type: 'css' };
@@ -19,7 +20,15 @@ export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
 export type FABExtended = 'open' | 'closed';
 
-const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
+export type FABAttributes = Readonly<{
+  size?: FABSize;
+  color?: FABColor;
+  extended?: FABExtended;
+  tonal?: boolean;
+  disabled?: boolean;
+}>;
+
+const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
 
 export class FABToggleEvent extends Event {}
 
@@ -30,11 +39,12 @@ export class FABToggleEvent extends Event {}
  * @attr {boolean|undefined} tonal
  * @attr {boolean|undefined} disabled
  */
-export default class FAB extends CoreElement {
+export default class FAB extends ReactiveElement {
   static readonly observedAttributes = ['extended'] as const;
 
   constructor() {
-    super(TEMPLATE, { role: 'button' }, [
+    super();
+    useCore(this, TEMPLATE, { role: 'button' }, [
       elevationStyles,
       mainStyles,
       colorStyles,
@@ -42,38 +52,37 @@ export default class FAB extends CoreElement {
       tonalStyles,
       extendedStyles,
     ]);
-    this.tabIndex = 0;
+    useConnected(this, () => {
+      this.tabIndex = 0;
+    });
     usePressAnimation(this);
-    use(
+    useSpring(
       this,
-      new SpringAnimationController(
-        this,
-        {
-          fabopen(_: FABToggleEvent, animation: Animation): void {
-            animation.playbackRate = 1;
-            animation.play();
-          },
-          fabclosed(_: FABToggleEvent, animation: Animation): void {
-            animation.playbackRate = -1;
-            animation.play();
-          },
+      {
+        fabopen(_: FABToggleEvent, animation: Animation): void {
+          animation.playbackRate = 1;
+          animation.play();
         },
-        {
-          damping: 'unfold-damping',
-          stiffness: 'unfold-stiffness',
-          duration: 'unfold-duration',
-          factor: 'unfold-factor',
+        fabclosed(_: FABToggleEvent, animation: Animation): void {
+          animation.playbackRate = -1;
+          animation.play();
         },
-      ),
-      new RippleAnimationController(this, { easing: 'ripple-easing' }),
-      new AttributeObserver<FABExtended>('extended', (_, newValue) => {
-        if (newValue != null) {
-          this.dispatchEvent(
-            new FABToggleEvent(newValue === 'open' ? 'fabopen' : 'fabclosed'),
-          );
-        }
-      }),
+      },
+      {
+        damping: 'unfold-damping',
+        stiffness: 'unfold-stiffness',
+        duration: 'unfold-duration',
+        factor: 'unfold-factor',
+      },
     );
+    useRipple(this, { easing: 'ripple-easing' });
+    useAttribute<FABExtended>(this, 'extended', (_, newValue) => {
+      if (newValue != null) {
+        this.dispatchEvent(
+          new FABToggleEvent(newValue === 'open' ? 'fabopen' : 'fabclosed'),
+        );
+      }
+    });
   }
 }
 

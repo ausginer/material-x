@@ -1,19 +1,21 @@
 import sizeStyles from '../button/size/main.css.ts?type=css' with { type: 'css' };
+import { useCore } from '../core/elements/useCore.ts';
 import {
-  CoreElement,
+  ReactiveElement,
   define,
-  template,
-} from '../core/elements/core-element.ts';
+  html,
+} from '../core/elements/reactive-element.ts';
 import defaultStyles from './default/main.css.ts?type=css' with { type: 'css' };
 
-const TEMPLATE = template`<slot></slot>`;
+const TEMPLATE = html`<slot></slot>`;
 
 /**
  * @attr {string} size
  */
-export default class ButtonGroup extends CoreElement {
+export default class ButtonGroup extends ReactiveElement {
   constructor() {
-    super(TEMPLATE, { role: 'group' }, [sizeStyles, defaultStyles]);
+    super();
+    useCore(this, TEMPLATE, { role: 'group' }, [sizeStyles, defaultStyles]);
   }
 }
 

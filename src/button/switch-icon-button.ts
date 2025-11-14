@@ -1,6 +1,10 @@
-import { define, template } from '../core/elements/core-element.ts';
+import {
+  define,
+  html,
+  ReactiveElement,
+} from '../core/elements/reactive-element.ts';
 import { usePressAnimation } from '../core/utils/button.ts';
-import CoreButton from './core-button.ts';
+import { useButtonCore } from './useButtonCore.ts';
 import switchDefaultStyles from './default/switch.css.ts?type=css' with { type: 'css' };
 import mainElevatedStyles from './elevated/main.css.ts?type=css' with { type: 'css' };
 import switchElevatedStyles from './elevated/switch.css.ts?type=css' with { type: 'css' };
@@ -15,7 +19,7 @@ import type { SwitchButtonColor } from './switch-button.ts';
 import mainTonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
 import switchTonalStyles from './tonal/switch.css.ts?type=css' with { type: 'css' };
 
-const TEMPLATE = template`<slot name="icon"></slot>`;
+const TEMPLATE = html`<slot name="icon"></slot>`;
 
 export type SwitchIconButtonAttributes = Readonly<
   IconButtonAttributes & {
@@ -43,12 +47,13 @@ export type SwitchIconButtonAttributes = Readonly<
  * @attr {boolean|undefined} checked
  * @attr {boolean|undefined} disabled
  */
-export default class SwitchIconButton extends CoreButton {
+export default class SwitchIconButton extends ReactiveElement {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['disabled'] as const;
 
   constructor() {
-    super(TEMPLATE, 'button', [
+    super();
+    useButtonCore(this, TEMPLATE, 'button', [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainSizeStyles,

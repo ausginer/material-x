@@ -1,15 +1,17 @@
+import { useCore } from '../core/elements/useCore.ts';
 import {
   define,
-  template,
-  CoreElement,
-} from '../core/elements/core-element.ts';
+  html,
+  ReactiveElement,
+} from '../core/elements/reactive-element.ts';
 import css from './icon.css.ts?type=css' with { type: 'css' };
 
-const TEMPLATE = template`<slot></slot>`;
+const TEMPLATE = html`<slot></slot>`;
 
-export default class Icon extends CoreElement {
+export default class Icon extends ReactiveElement {
   constructor() {
-    super(TEMPLATE, {}, [css]);
+    super();
+    useCore(this, TEMPLATE, {}, [css]);
   }
 }
 

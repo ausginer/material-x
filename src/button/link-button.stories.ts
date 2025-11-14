@@ -2,13 +2,13 @@ import type { Meta, StoryObj } from '@storybook/web-components-vite';
 import { html, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
-import type { ButtonAttributes } from './core-button.ts';
+import type { CoreButtonAttributes } from './useButtonCore.ts';
 import '../icon/icon.ts';
 import './link-button.ts';
 import { colorControl, shapeControl, sizeControl } from './stories-utils.ts';
 
 type LinkButtonProps = Readonly<
-  ButtonAttributes & {
+  CoreButtonAttributes & {
     onClick?(): void;
     href?: string;
     target?: string;

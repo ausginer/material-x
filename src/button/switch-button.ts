@@ -1,9 +1,15 @@
-import SpringAnimationController from '../core/animations/spring.ts';
-import { define, template, use } from '../core/elements/core-element.ts';
-import CoreButton, {
-  type ButtonAttributes,
+import { useSpring } from '../core/animations/useSpring.ts';
+import {
+  define,
+  html,
+  ReactiveElement,
+  use,
+} from '../core/elements/reactive-element.ts';
+import {
+  useButtonCore,
+  type CoreButtonAttributes,
   type ButtonColor,
-} from './core-button.ts';
+} from './useButtonCore.ts';
 import switchDefaultStyles from './default/switch.css.ts?type=css' with { type: 'css' };
 import mainElevatedStyles from './elevated/main.css.ts?type=css' with { type: 'css' };
 import switchElevatedStyles from './elevated/switch.css.ts?type=css' with { type: 'css' };
@@ -14,12 +20,12 @@ import switchSizeStyles from './size/switch.css.ts?type=css' with { type: 'css' 
 import mainTonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
 import switchTonalStyles from './tonal/switch.css.ts?type=css' with { type: 'css' };
 
-const TEMPLATE = template`<slot name="icon"></slot><slot></slot>`;
+const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
 
 export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
 
 export type SwitchButtonAttributes = Readonly<
-  ButtonAttributes & {
+  CoreButtonAttributes & {
     color?: SwitchButtonColor;
     checked?: boolean;
   }
@@ -32,12 +38,13 @@ export type SwitchButtonAttributes = Readonly<
  * @attr {boolean} disabled
  * @attr {boolean} checked
  */
-export default class SwitchButton extends CoreButton {
+export default class SwitchButton extends ReactiveElement {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['checked', 'disabled'] as const;
 
   constructor() {
-    super(TEMPLATE, 'switch', [
+    super();
+    useButtonCore(this, TEMPLATE, 'switch', [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainSizeStyles,
@@ -51,27 +58,24 @@ export default class SwitchButton extends CoreButton {
 
     let firstTime = true;
 
-    use(
+    useSpring(
       this,
-      new SpringAnimationController(
-        this,
-        {
-          click(_, animation) {
-            if (firstTime) {
-              firstTime = false;
-            } else {
-              animation.reverse();
-            }
-            animation.play();
-          },
+      {
+        click(_, animation) {
+          if (firstTime) {
+            firstTime = false;
+          } else {
+            animation.reverse();
+          }
+          animation.play();
         },
-        {
-          damping: 'press-damping',
-          stiffness: 'press-stiffness',
-          duration: 'press-duration',
-          factor: 'press-factor',
-        },
-      ),
+      },
+      {
+        damping: 'press-damping',
+        stiffness: 'press-stiffness',
+        duration: 'press-duration',
+        factor: 'press-factor',
+      },
     );
   }
 }

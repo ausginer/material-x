@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/web-components-vite';
 import { html, type nothing, type TemplateResult } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { fn } from 'storybook/test';
-import type { ButtonSize } from '../button/core-button.ts';
+import type { ButtonSize } from '../button/useButtonCore.ts';
 import '../icon/icon.ts';
 import '../button/button.ts';
 import './button-group.ts';
