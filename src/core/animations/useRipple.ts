@@ -2,7 +2,6 @@ import { TypedObject } from '../../interfaces.ts';
 import { html, ReactiveElement, use } from '../elements/reactive-element.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
-import type { TypedObjectConstructor } from '../utils/interfaces.ts';
 import type { Point } from './Point.ts';
 import css from './ripple.css.ts?type=css' with { type: 'css' };
 
@@ -157,7 +156,7 @@ class RippleAnimationController implements ReactiveController {
     let state: State = INACTIVE;
     let checkBoundsAfterContextMenu = false;
 
-    const handlers = {
+    const listeners = {
       click() {
         // Click is a MouseEvent in Firefox and Safari, so we cannot use
         // `shouldReactToEvent`
@@ -257,14 +256,11 @@ class RippleAnimationController implements ReactiveController {
       },
     } as const;
 
-    (Object as TypedObjectConstructor)
-      .entries(handlers)
-      .forEach(([event, handler]) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        host.addEventListener(event, handler as EventListener, {
-          signal: this.#listenerController.signal,
-        });
+    for (const [name, listener] of Object.entries(listeners)) {
+      host.addEventListener(name, listener as EventListener, {
+        signal: this.#listenerController.signal,
       });
+    }
   }
 
   disconnected(): void {

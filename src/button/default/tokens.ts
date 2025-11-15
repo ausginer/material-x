@@ -67,8 +67,8 @@ const specialTokens = createVariables(
 const specialUnselectedTokens = createVariables(
   resolveSet({
     'state-layer.color': `${SET_NAME}.unselected.pressed.state-layer.color`,
-    'switch-easing': motionEffects['expressive.fast-effects'],
-    'switch-duration': motionEffects['expressive.fast-effects.duration'],
+    'container.color.reverse': `${SET_NAME}.selected.container.color`,
+    'label-text.color.reverse': `${SET_NAME}.label-text.selected.color`,
   }),
 );
 
@@ -115,7 +115,12 @@ export const set: CSSVariableShape = (() => {
 
       if (path[0] === 'selected') {
         return {
-          ...excludeFromSet(tokens, ['container.shape']),
+          ...excludeFromSet(tokens, [
+            'container.shape.square',
+            'container.shape.round',
+            'container.color',
+            'label-text.color',
+          ]),
           ...specialSelectedTokens,
         };
       }

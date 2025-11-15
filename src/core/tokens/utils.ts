@@ -40,7 +40,7 @@ export function excludeFromSet<T>(
   keys: readonly string[],
 ): Readonly<Record<string, T>> {
   return Object.fromEntries(
-    Object.entries(set).filter(([key]) => keys.some((k) => !key.includes(k))),
+    Object.entries(set).filter(([key]) => keys.every((k) => !key.includes(k))),
   );
 }
 

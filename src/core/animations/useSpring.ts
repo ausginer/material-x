@@ -1,6 +1,7 @@
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
 import { ReactiveElement, use } from '../elements/reactive-element.ts';
+import { TypedObject } from '../../interfaces.ts';
 
 function createSpringKeyframes(
   /**
@@ -46,12 +47,20 @@ function createSpringKeyframes(
   });
 }
 
-export type ControlEvents = Readonly<{
-  [P in keyof HTMLElementEventMap]?: (
-    event: HTMLElementEventMap[P],
-    animation: Animation,
-  ) => void;
-}>;
+export type InitEvent = (animation: Animation) => void;
+
+export type ControlEventListener<E = Event> = (
+  event: E,
+  animation: Animation,
+) => void;
+
+export type ControlEvents = Readonly<
+  { init?: InitEvent } & {
+    [P in keyof HTMLElementEventMap]?: ControlEventListener<
+      HTMLElementEventMap[P]
+    >;
+  }
+>;
 
 export type CSSVariables = Readonly<{
   damping: string;
@@ -109,19 +118,17 @@ class SpringAnimationController implements ReactiveController {
 
     animation.pause();
 
-    Object.entries(this.#events).forEach(([name, callback]) => {
-      host.addEventListener(
-        name,
-        (event) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-          (callback as (event: Event, animation: Animation) => void)(
-            event,
-            animation,
-          );
-        },
-        { signal },
-      );
-    });
+    for (const [name, listener] of TypedObject.entries(this.#events)) {
+      if (name === 'init') {
+        (listener as InitEvent)(animation);
+      } else {
+        host.addEventListener(
+          name,
+          (event) => (listener as ControlEventListener)(event, animation),
+          { signal },
+        );
+      }
+    }
   }
 
   disconnected(): void {

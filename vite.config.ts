@@ -4,6 +4,8 @@ import { constructCss } from './.scripts/vite-plugins.js';
 
 const root = pathToFileURL(`${import.meta.dirname}/`);
 
+console.log('VITE CONFIG')
+
 const config: UserConfig = defineConfig({
   root: fileURLToPath(root),
   build: {

@@ -42,6 +42,7 @@
     "@types/postcss-pxtorem": "6.1.0",
     "@types/react": "19.2.4",
     "@types/react-dom": "19.2.3",
+    "@typescript/native-preview": "7.0.0-dev.20251113.1",
     "@vitest/browser": "4.0.8",
     "@vitest/browser-playwright": "4.0.8",
     "@vitest/coverage-v8": "4.0.8",
@@ -67,9 +68,11 @@
     "sorcery": "1.0.0",
     "tsx": "4.20.6",
     "type-fest": "5.2.0",
-    "typescript": "5.8.3",
     "typescript-eslint": "8.46.4",
     "vite": "7.2.2",
     "vitest": "4.0.8"
+  },
+  "dependencies": {
+    "dom-cue": "0.2.8"
   }
 }

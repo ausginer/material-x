@@ -14,11 +14,21 @@ const switchStyles = [
         ? css`
             ${state.default()} {
               ${unselected.default};
+              --_background-color: color-mix(
+                in srgb,
+                var(--_container-color) calc(100% - 100% * var(--_press-factor)),
+                var(--_container-color-reverse)
+                  calc(100% * var(--_press-factor))
+              );
+              --_color: color-mix(
+                in srgb,
+                var(--_label-text-color)
+                  calc(100% - 100% * var(--_press-factor)),
+                var(--_label-text-color-reverse)
+                  calc(100% * var(--_press-factor))
+              );
 
               will-change: background-color, color;
-              transition-property: background-color, color;
-              transition-duration: var(--_switch-duration);
-              transition-timing-function: var(--_switch-easing);
             }
           `
         : unselected[s]

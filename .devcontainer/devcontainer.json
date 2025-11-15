@@ -10,10 +10,10 @@
       "installZsh": false,
       "installOhMyZsh": false,
       "installOhMyZshConfig": false
-    },
-    "ghcr.io/kreemer/features/chrometesting:1": {}
+    }
   },
   "forwardPorts": [9876, 6006, 5173],
+  "remoteUser": "node",
   "mounts": [
     {
       "source": "${localWorkspaceFolderBasename}_nodemodules",
@@ -28,8 +28,10 @@
         "dbaeumer.vscode-eslint",
         "EditorConfig.EditorConfig",
         "runem.lit-plugin",
-        "openai.chatgpt"
+        "openai.chatgpt",
+        "vitest.explorer"
       ]
     }
-  }
+  },
+  "postCreateCommand": "sudo chown -R node:node /workspaces/material-x/node_modules /workspaces/material-x/.git"
 }

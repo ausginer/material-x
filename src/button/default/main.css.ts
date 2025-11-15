@@ -6,12 +6,16 @@ const styles: string = await prettify(css`
   ${state.default()} {
     ${packs.default};
 
+    /* Intermediate variables for correct mx-switch-button color change logic */
+    --_background-color: var(--container-color);
+    --_color: var(--_label-text-color);
+
     display: inline-flex;
     will-change: border-radius;
     cursor: default;
     user-select: none;
-    background-color: var(--_container-color);
-    color: var(--_label-text-color);
+    background-color: var(--_background-color);
+    color: var(--_color);
     padding-block: var(--_padding-block);
     padding-inline: var(--_leading-space) var(--_trailing-space);
     border-radius: calc(
@@ -33,7 +37,7 @@ const styles: string = await prettify(css`
 
     background-color: color-mix(
       in srgb,
-      var(--_container-color),
+      var(--_background-color),
       var(--_state-layer-color) calc(var(--_state-layer-opacity) * 100%)
     );
   }
