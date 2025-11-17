@@ -14,7 +14,6 @@ import {
 
 const SET_NAME_GENERAL = 'md.comp.fab';
 const SET_NAME_TERTIARY = 'md.comp.fab.tertiary';
-const SET_NAME_SMALL = 'md.comp.fab.small';
 
 export const PUBLIC: readonly string[] = [
   'container.width',
@@ -76,7 +75,6 @@ export const set: CSSVariableShape = (() => {
   const set = {
     ...processTokenSet(SET_NAME_GENERAL),
     ...processTokenSet(SET_NAME_TERTIARY),
-    ...processTokenSet(SET_NAME_SMALL),
   };
 
   const shapedSet = reshapeFABSet(set);

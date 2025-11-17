@@ -20,7 +20,7 @@ const ALLOWED = [...PUBLIC, ...PRIVATE];
 const packs: Readonly<Record<TupleToUnion<typeof SIZES>, PackShape>> =
   TypedObject.fromEntries(
     SIZES.map((s) => {
-      const setName = `md.comp.extended-fab.${s}`;
+      const setName = `md.comp.fab.${s}`;
 
       const specialTokens = createVariables(
         resolveSet({

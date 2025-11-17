@@ -1,16 +1,20 @@
 import { useEvents } from '../core/controllers/events.ts';
 import type { ReactiveController } from '../core/elements/reactive-controller.ts';
-import { ReactiveElement, use } from '../core/elements/reactive-element.ts';
+import { use } from '../core/elements/reactive-element.ts';
+import type SwitchButton from './switch-button.ts';
 import { createButtonPressAnimation } from './useButtonPressAnimation.ts';
 
+export class SwitchButtonCheckEvent extends Event {
+  declare target: SwitchButton;
+}
+
 class SwitchButtonSpringAnimationController implements ReactiveController {
-  readonly #host: ReactiveElement;
+  readonly #host: SwitchButton;
   #animation?: Animation;
   #hasInteractionStarted = false;
-  #isChecked = false;
   #wasChecked: boolean;
 
-  constructor(host: ReactiveElement) {
+  constructor(host: SwitchButton) {
     this.#host = host;
 
     const self = this;
@@ -18,7 +22,7 @@ class SwitchButtonSpringAnimationController implements ReactiveController {
       pointerdown() {
         if (self.#animation) {
           self.#hasInteractionStarted = true;
-          self.#wasChecked = self.#isChecked;
+          self.#wasChecked = self.#host.checked;
           self.#animation.playbackRate = self.#defaultPlaybackRate;
           self.#animation.play();
         }
@@ -31,20 +35,12 @@ class SwitchButtonSpringAnimationController implements ReactiveController {
       },
     });
 
-    const isChecked = host.getAttribute('checked') != null;
-
-    this.#wasChecked = isChecked;
-    this.#isChecked = isChecked;
-  }
-
-  attrChanged(name: string, _: string | null, newValue: string | null) {
-    if (name === 'checked') {
-      this.#isChecked = newValue != null;
-
+    this.#wasChecked = host.checked;
+    host.addEventListener('input', () => {
       if (!this.#hasInteractionStarted) {
         this.#settle();
       }
-    }
+    });
   }
 
   connected() {
@@ -53,7 +49,7 @@ class SwitchButtonSpringAnimationController implements ReactiveController {
   }
 
   get #defaultPlaybackRate(): number {
-    return this.#isChecked ? -1 : 1;
+    return this.#host.checked ? -1 : 1;
   }
 
   #settle() {
@@ -73,7 +69,7 @@ class SwitchButtonSpringAnimationController implements ReactiveController {
     if (animation) {
       this.#hasInteractionStarted = false;
 
-      if (this.#isChecked === this.#wasChecked) {
+      if (this.#host.checked === this.#wasChecked) {
         // Only rewind when the release matches the state we started with.
         animation.playbackRate = -this.#defaultPlaybackRate;
         animation.play();
@@ -82,6 +78,6 @@ class SwitchButtonSpringAnimationController implements ReactiveController {
   }
 }
 
-export function useSwitchButtonPressAnimation(host: ReactiveElement): void {
+export function useSwitchButtonPressAnimation(host: SwitchButton): void {
   use(host, new SwitchButtonSpringAnimationController(host));
 }

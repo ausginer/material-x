@@ -4,6 +4,8 @@ import { TypedObject } from '../../interfaces.ts';
 import { fabStates, state } from '../utils.ts';
 import packs, { DEFAULTS, variantAttribute } from './tokens.ts';
 
+const extended = attribute('extended');
+
 const parts = TypedObject.entries(packs).flatMap(([name, pack]) => {
   const variant = variantAttribute(name);
 
@@ -11,7 +13,7 @@ const parts = TypedObject.entries(packs).flatMap(([name, pack]) => {
     return (DEFAULTS as readonly string[]).includes(name) && s === 'default'
       ? null
       : css`
-          ${state[s](...variant)} {
+          ${state[s](extended, ...variant)} {
             ${pack[s]};
           }
         `;
@@ -19,7 +21,7 @@ const parts = TypedObject.entries(packs).flatMap(([name, pack]) => {
 });
 
 const styles: string = await prettify(css`
-  ${state.default()} {
+  ${state.default(extended)} {
     ${packs.tertiary.default};
     ${packs.small.default};
 
@@ -27,8 +29,8 @@ const styles: string = await prettify(css`
     color: var(--_label-text-color);
     font-size: var(--_label-text-font-size);
     line-height: var(--_label-text-line-height);
-    font-family: var(--_label-text-name);
-    font-weight: var(--_label-text-weight);
+    font-family: var(--_label-text-font-name);
+    font-weight: var(--_label-text-font-weight);
     gap: calc(var(--_icon-label-space) * var(--_unfold-factor));
     flex-direction: var(--_direction);
     cursor: default;
@@ -49,7 +51,7 @@ const styles: string = await prettify(css`
     }
   }
 
-  ${state.default(attribute('tonal'))} {
+  ${state.default(extended, attribute('tonal'))} {
     ${packs['tertiary-container'].default};
   }
 

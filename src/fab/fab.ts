@@ -1,5 +1,8 @@
 import { useRipple } from '../core/animations/ripple.ts';
-import { useAttribute } from '../core/elements/useAttribute.ts';
+import {
+  AttributeObserver,
+  useAttribute,
+} from '../core/elements/useAttribute.ts';
 import { useConnected } from '../core/elements/useConnected.ts';
 import { useCore } from '../core/elements/useCore.ts';
 import {
@@ -29,8 +32,6 @@ export type FABAttributes = Readonly<{
 
 const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
 
-export class FABToggleEvent extends Event {}
-
 /**
  * @attr {FABSize} size
  * @attr {FABColor} color
@@ -40,6 +41,8 @@ export class FABToggleEvent extends Event {}
  */
 export default class FAB extends ReactiveElement {
   static readonly observedAttributes = ['extended'] as const;
+
+  readonly #extended: AttributeObserver<StringConstructor>;
 
   constructor() {
     super();
@@ -56,13 +59,16 @@ export default class FAB extends ReactiveElement {
     });
     useFABPressAnimation(this);
     useRipple(this, { easing: 'ripple-easing' });
-    useAttribute<FABExtended>(this, 'extended', (_, newValue) => {
-      if (newValue != null) {
-        this.dispatchEvent(
-          new FABToggleEvent(newValue === 'open' ? 'fabopen' : 'fabclosed'),
-        );
-      }
-    });
+    this.#extended = useAttribute(this, 'extended', String);
+    this.#extended.on(() => this.dispatchEvent(new Event('fabtoggle')));
+  }
+
+  get extended(): string | null {
+    return this.#extended.get();
+  }
+
+  set extended(value: string | null) {
+    this.#extended.set(value);
   }
 }
 
@@ -74,7 +80,6 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    fabopen: FABToggleEvent;
-    fabclosed: FABToggleEvent;
+    fabtoggle: Event;
   }
 }

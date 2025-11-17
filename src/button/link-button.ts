@@ -12,6 +12,7 @@ import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
 import mainTextStyles from './text/main.css.ts?type=css' with { type: 'css' };
 import tonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
 import { useButtonPressAnimation } from './useButtonPressAnimation.ts';
+import { AttributeManager } from '../core/elements/attribute-manager.ts';
 
 export type LinkButtonAttributes = CoreButtonAttributes;
 
@@ -50,15 +51,14 @@ export default class LinkButton extends ReactiveElement {
   }
 
   #useAttributeObserver(attribute: string) {
-    const target = this.shadowRoot!.querySelector('a')!;
-
-    useAttribute(this, attribute, (_, newValue) => {
-      if (newValue != null) {
-        target.setAttribute(attribute, newValue);
-      } else {
-        target.removeAttribute(attribute);
-      }
-    });
+    const linkAttribute = new AttributeManager(
+      this.shadowRoot!.querySelector('a')!,
+      attribute,
+      String,
+    );
+    useAttribute(this, attribute, String).on((_, value) =>
+      linkAttribute.set(value),
+    );
   }
 }
 

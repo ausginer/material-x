@@ -18,6 +18,10 @@ import switchSizeStyles from './size/switch.css.ts?type=css' with { type: 'css' 
 import mainTonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
 import switchTonalStyles from './tonal/switch.css.ts?type=css' with { type: 'css' };
 import { useSwitchButtonPressAnimation } from './useSwitchButtonPressAnimation.ts';
+import {
+  AttributeObserver,
+  useAttribute,
+} from '../core/elements/useAttribute.ts';
 
 const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
 
@@ -30,6 +34,8 @@ export type SwitchButtonAttributes = Readonly<
   }
 >;
 
+const EVENTS = ['input', 'change'] as const;
+
 /**
  * @attr {string} color
  * @attr {string} size
@@ -40,6 +46,8 @@ export type SwitchButtonAttributes = Readonly<
 export default class SwitchButton extends ReactiveElement {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['checked', 'disabled'] as const;
+
+  readonly #checked: AttributeObserver<BooleanConstructor>;
 
   constructor() {
     super();
@@ -54,7 +62,19 @@ export default class SwitchButton extends ReactiveElement {
       switchSizeStyles,
       switchTonalStyles,
     ]);
+    this.#checked = useAttribute(this, 'checked', Boolean);
+    EVENTS.forEach((name) =>
+      this.#checked.on(() => this.dispatchEvent(new Event(name))),
+    );
     useSwitchButtonPressAnimation(this);
+  }
+
+  get checked(): boolean {
+    return this.#checked.get();
+  }
+
+  set checked(value: boolean) {
+    this.#checked.set(value);
   }
 }
 
