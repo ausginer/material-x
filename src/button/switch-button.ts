@@ -1,9 +1,7 @@
-import { useSpring } from '../core/animations/useSpring.ts';
 import {
   define,
   html,
   ReactiveElement,
-  use,
 } from '../core/elements/reactive-element.ts';
 import {
   useButtonCore,
@@ -19,8 +17,7 @@ import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
 import switchSizeStyles from './size/switch.css.ts?type=css' with { type: 'css' };
 import mainTonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
 import switchTonalStyles from './tonal/switch.css.ts?type=css' with { type: 'css' };
-import { useConnected } from '../core/elements/useConnected.ts';
-import { useAttribute } from '../core/elements/useAttribute.ts';
+import { useSwitchButtonPressAnimation } from './useSwitchButtonPressAnimation.ts';
 
 const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
 
@@ -57,54 +54,7 @@ export default class SwitchButton extends ReactiveElement {
       switchSizeStyles,
       switchTonalStyles,
     ]);
-
-    let defaultPlaybackRate = 1;
-    let previouslyChecked = false;
-    let hasCheckChanged = false;
-
-    useSpring(
-      this,
-      {
-        init: (animation) => {
-          if (this.#checked) {
-            animation.playbackRate = 1;
-            animation.finish();
-            defaultPlaybackRate = -1;
-            previouslyChecked = true;
-          }
-        },
-        pointerdown: async (_, animation) => {
-          animation.playbackRate = defaultPlaybackRate;
-          animation.play();
-
-          await animation.finished;
-
-          if (this.#checked !== previouslyChecked) {
-            defaultPlaybackRate = -defaultPlaybackRate;
-            previouslyChecked = this.#checked;
-            hasCheckChanged = true;
-          }
-        },
-        pointerup: async (_, animation) => {
-          if (previouslyChecked === this.#checked && !hasCheckChanged) {
-            animation.playbackRate = -defaultPlaybackRate;
-            animation.play();
-          } else {
-            hasCheckChanged = false;
-          }
-        },
-      },
-      {
-        damping: 'press-damping',
-        stiffness: 'press-stiffness',
-        duration: 'press-duration',
-        factor: 'press-factor',
-      },
-    );
-  }
-
-  get #checked(): boolean {
-    return this.getAttribute('checked') != null;
+    useSwitchButtonPressAnimation(this);
   }
 }
 

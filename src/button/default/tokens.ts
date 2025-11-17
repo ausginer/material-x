@@ -126,6 +126,12 @@ export const set: CSSVariableShape = (() => {
       }
     }
 
+    // Remove label & container colors for hovered/focused/pressed to avoid
+    // conflicts with dynamically changing colors.
+    if (path[0] === 'selected') {
+      return excludeFromSet(tokens, ['container.color', 'label-text.color']);
+    }
+
     return tokens;
   });
 })();

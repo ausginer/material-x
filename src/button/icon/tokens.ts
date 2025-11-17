@@ -14,15 +14,15 @@ import {
   type PackShape,
 } from '../utils.ts';
 
-export const DEFAULTS = ['small', 'standard'] as const;
-export const COLORS = ['tonal', 'filled'] as const;
+export const DEFAULTS = ['small', 'filled'] as const;
+export const COLORS = ['tonal', 'standard'] as const;
 export const SIZES = ['large', 'medium', 'xlarge', 'xsmall'] as const;
 
 export const VARIANTS: readonly [
   'small',
-  'standard',
-  'tonal',
   'filled',
+  'tonal',
+  'standard',
   'large',
   'medium',
   'xlarge',
@@ -50,6 +50,7 @@ const packs: Readonly<Record<TupleToUnion<typeof VARIANTS>, PackShape>> =
 
       const specialTokens = createVariables(
         resolveSet({
+          ...(c === 'standard' ? { 'container-color': 'transparent' } : {}),
           'state-layer.color': `${setName}.pressed.state-layer.color`,
         }),
       );
@@ -68,6 +69,7 @@ const packs: Readonly<Record<TupleToUnion<typeof VARIANTS>, PackShape>> =
 
       const set = (() => {
         const set = processTokenSet(setName);
+
         const shapedSet = reshapeButtonSet(set);
         const resolvedSet = resolveButtonShape(shapedSet);
 

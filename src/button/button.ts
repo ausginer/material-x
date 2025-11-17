@@ -3,13 +3,13 @@ import {
   html,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import { usePressAnimation } from '../core/utils/button.ts';
 import { useButtonCore, type CoreButtonAttributes } from './useButtonCore.ts';
 import mainElevatedStyles from './elevated/main.css.ts?type=css' with { type: 'css' };
 import mainOutlinedStyles from './outlined/main.css.ts?type=css' with { type: 'css' };
 import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
 import mainTextStyles from './text/main.css.ts?type=css' with { type: 'css' };
 import mainTonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
+import { useButtonPressAnimation } from './useButtonPressAnimation.ts';
 
 export type ButtonAttributes = CoreButtonAttributes;
 
@@ -45,7 +45,7 @@ export default class Button extends ReactiveElement {
       mainTextStyles,
       mainTonalStyles,
     ]);
-    usePressAnimation(this);
+    useButtonPressAnimation(this);
   }
 }
 

@@ -4,7 +4,6 @@ import {
   html,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import { usePressAnimation } from '../core/utils/button.ts';
 import { useButtonCore, type CoreButtonAttributes } from './useButtonCore.ts';
 import mainElevatedStyles from './elevated/main.css.ts?type=css' with { type: 'css' };
 import linkButtonStyles from './link-button.css.ts?type=css' with { type: 'css' };
@@ -12,6 +11,7 @@ import mainOutlinedStyles from './outlined/main.css.ts?type=css' with { type: 'c
 import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
 import mainTextStyles from './text/main.css.ts?type=css' with { type: 'css' };
 import tonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
+import { useButtonPressAnimation } from './useButtonPressAnimation.ts';
 
 export type LinkButtonAttributes = CoreButtonAttributes;
 
@@ -44,7 +44,7 @@ export default class LinkButton extends ReactiveElement {
       ],
       { delegatesFocus: true },
     );
-    usePressAnimation(this);
+    useButtonPressAnimation(this);
     this.#useAttributeObserver('href');
     this.#useAttributeObserver('target');
   }

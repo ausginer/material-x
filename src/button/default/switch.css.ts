@@ -14,13 +14,13 @@ const switchStyles = [
         ? css`
             ${state.default()} {
               ${unselected.default};
-              --_background-color: color-mix(
+              --_container-color-dyn: color-mix(
                 in srgb,
                 var(--_container-color) calc(100% - 100% * var(--_press-factor)),
                 var(--_container-color-reverse)
                   calc(100% * var(--_press-factor))
               );
-              --_color: color-mix(
+              --_label-text-color-dyn: color-mix(
                 in srgb,
                 var(--_label-text-color)
                   calc(100% - 100% * var(--_press-factor)),

@@ -4,6 +4,7 @@ import type { ReactiveController } from '../elements/reactive-controller.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
 import type { Point } from './Point.ts';
 import css from './ripple.css.ts?type=css' with { type: 'css' };
+import { useEvents } from '../controllers/events.ts';
 
 // States of the ripple animation controller
 const INACTIVE = 0;
@@ -123,7 +124,6 @@ const TEMPLATE = html`<div class="${CLS}"></div>`;
 
 class RippleAnimationController implements ReactiveController {
   readonly #host: ReactiveElement;
-  readonly #listenerController = new AbortController();
   readonly #rippleElement: HTMLElement;
   readonly #cssVariables: CSSVariables;
   #animation: Animation | undefined;
@@ -136,27 +136,12 @@ class RippleAnimationController implements ReactiveController {
     host.shadowRoot!.adoptedStyleSheets.push(css);
     this.#rippleElement = host.shadowRoot!.querySelector(`.${CLS}`)!;
     this.#cssVariables = vars;
-  }
-
-  connected(): void {
-    const host = this.#host;
-    const vars = TypedObject.fromEntries(
-      TypedObject.entries(this.#cssVariables).map(
-        ([k, v]) => [k, `--_${v}`] as const,
-      ),
-    );
-
-    this.#easing = getComputedStyle(host).getPropertyValue(vars.easing).trim();
-
-    if (!this.#easing) {
-      throw new CSSVariableError(vars.easing, host);
-    }
 
     const self = this;
     let state: State = INACTIVE;
     let checkBoundsAfterContextMenu = false;
 
-    const listeners = {
+    useEvents(host, {
       click() {
         // Click is a MouseEvent in Firefox and Safari, so we cannot use
         // `shouldReactToEvent`
@@ -254,17 +239,22 @@ class RippleAnimationController implements ReactiveController {
 
         void self.#endAnimation();
       },
-    } as const;
-
-    for (const [name, listener] of Object.entries(listeners)) {
-      host.addEventListener(name, listener as EventListener, {
-        signal: this.#listenerController.signal,
-      });
-    }
+    });
   }
 
-  disconnected(): void {
-    this.#listenerController.abort();
+  connected(): void {
+    const host = this.#host;
+    const vars = TypedObject.fromEntries(
+      TypedObject.entries(this.#cssVariables).map(
+        ([k, v]) => [k, `--_${v}`] as const,
+      ),
+    );
+
+    this.#easing = getComputedStyle(host).getPropertyValue(vars.easing).trim();
+
+    if (!this.#easing) {
+      throw new CSSVariableError(vars.easing, host);
+    }
   }
 
   #inBounds({ x, y }: PointerEvent): boolean {
@@ -361,6 +351,6 @@ class RippleAnimationController implements ReactiveController {
   }
 }
 
-export function useRipple(element: ReactiveElement, vars: CSSVariables): void {
-  use(element, new RippleAnimationController(element, vars));
+export function useRipple(host: ReactiveElement, vars: CSSVariables): void {
+  use(host, new RippleAnimationController(host, vars));
 }

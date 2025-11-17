@@ -33,5 +33,5 @@
       ]
     }
   },
-  "postCreateCommand": "sudo chown -R node:node /workspaces/material-x/node_modules /workspaces/material-x/.git"
+  "postCreateCommand": "sudo chown -R node:node /workspaces/material-x"
 }

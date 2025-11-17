@@ -13,6 +13,13 @@ export const ColorFilled: Story = () => (
 );
 ColorFilled.storyName = 'Color / Default';
 
+export const ColorElevated: Story = () => (
+  <mx-icon-button color="elevated">
+    <mx-icon>play_arrow</mx-icon>
+  </mx-icon-button>
+);
+ColorElevated.storyName = 'Color / Elevated';
+
 export const ColorOutlined: Story = () => (
   <mx-icon-button color="outlined">
     <mx-icon>play_arrow</mx-icon>
@@ -27,19 +34,12 @@ export const ColorTonal: Story = () => (
 );
 ColorTonal.storyName = 'Color / Tonal';
 
-export const ColorElevated: Story = () => (
-  <mx-icon-button color="elevated">
+export const ColorStandard: Story = () => (
+  <mx-icon-button color="standard">
     <mx-icon>play_arrow</mx-icon>
   </mx-icon-button>
 );
-ColorElevated.storyName = 'Color / Elevated';
-
-export const ColorText: Story = () => (
-  <mx-icon-button color="text">
-    <mx-icon>play_arrow</mx-icon>
-  </mx-icon-button>
-);
-ColorText.storyName = 'Color / Text';
+ColorStandard.storyName = 'Color / Standard';
 
 // ================
 // Size

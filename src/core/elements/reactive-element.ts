@@ -38,12 +38,14 @@ export class ReactiveElement extends HTMLElement {
   readonly #controllers: ReactiveController[] = [];
 
   attributeChangedCallback(
-    name: string,
-    oldValue: string | null,
-    newValue: string | null,
+    ...args: readonly [
+      name: string,
+      oldValue: string | null,
+      newValue: string | null,
+    ]
   ): void {
     this.#controllers.forEach((controller) =>
-      controller.attrChanged?.(name, oldValue, newValue),
+      controller.attrChanged?.(...args),
     );
   }
 

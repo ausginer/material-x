@@ -3,19 +3,25 @@ import {
   html,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import { usePressAnimation } from '../core/utils/button.ts';
-import { useButtonCore, type CoreButtonAttributes } from './useButtonCore.ts';
+import {
+  useButtonCore,
+  type ButtonColor,
+  type CoreButtonAttributes,
+} from './useButtonCore.ts';
 import mainElevatedStyles from './elevated/main.css.ts?type=css' with { type: 'css' };
 import mainIconStyles from './icon/main.css.ts?type=css' with { type: 'css' };
 import mainOutlinedStyles from './outlined/main.css.ts?type=css' with { type: 'css' };
 import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
 import mainTextStyles from './text/main.css.ts?type=css' with { type: 'css' };
 import mainTonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
+import { useButtonPressAnimation } from './useButtonPressAnimation.ts';
 
 export type IconButtonWidth = 'wide' | 'narrow';
+export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
 
 export type IconButtonAttributes = Readonly<
-  CoreButtonAttributes & {
+  Omit<CoreButtonAttributes, 'color'> & {
+    color?: IconButtonColor;
     width?: IconButtonWidth;
   }
 >;
@@ -54,7 +60,7 @@ export default class IconButton extends ReactiveElement {
       mainTonalStyles,
       mainIconStyles,
     ]);
-    usePressAnimation(this);
+    useButtonPressAnimation(this);
   }
 }
 

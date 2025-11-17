@@ -1,17 +1,23 @@
 import { Story } from '@ladle/react';
 import './react/switch-button.ts';
 import { useState } from 'react';
+import type { SwitchButtonAttributes } from './react/switch-button.ts';
 
-// ================
-// Color
-// ================
+type ControlledSwitchButtonProps = SwitchButtonAttributes;
 
-function ControlledSwitchButton() {
+function ControlledSwitchButton({
+  color,
+  size,
+  shape,
+}: ControlledSwitchButtonProps) {
   const [state, setState] = useState(false);
 
   return (
     <mx-switch-button
       checked={state}
+      color={color}
+      size={size}
+      shape={shape}
       onClick={() => {
         setState(!state);
       }}
@@ -20,6 +26,10 @@ function ControlledSwitchButton() {
     </mx-switch-button>
   );
 }
+
+// ================
+// Color
+// ================
 
 export const ColorFilled: Story = () => (
   <section className="story-list">
@@ -36,6 +46,7 @@ export const ColorElevated: Story = () => (
     <mx-switch-button color="elevated" checked>
       I am checked!
     </mx-switch-button>
+    <ControlledSwitchButton color="elevated" />
   </section>
 );
 ColorElevated.storyName = 'Color / Elevated';
@@ -46,6 +57,7 @@ export const ColorOutlined: Story = () => (
     <mx-switch-button color="outlined" checked>
       I am checked!
     </mx-switch-button>
+    <ControlledSwitchButton color="outlined" />
   </section>
 );
 ColorOutlined.storyName = 'Color / Outlined';
@@ -56,6 +68,7 @@ export const ColorTonal: Story = () => (
     <mx-switch-button color="tonal" checked>
       I am checked!
     </mx-switch-button>
+    <ControlledSwitchButton color="tonal" />
   </section>
 );
 ColorTonal.storyName = 'Color / Tonal';
@@ -70,6 +83,7 @@ export const SizeXSmall: Story = () => (
     <mx-switch-button size="xsmall" checked>
       I am checked!
     </mx-switch-button>
+    <ControlledSwitchButton size="xsmall" />
   </section>
 );
 SizeXSmall.storyName = 'Size / XSmall';
@@ -80,6 +94,7 @@ export const SizeSmall: Story = () => (
     <mx-switch-button size="small" checked>
       I am checked!
     </mx-switch-button>
+    <ControlledSwitchButton size="small" />
   </section>
 );
 SizeSmall.storyName = 'Size / Small';
@@ -90,6 +105,7 @@ export const SizeMedium: Story = () => (
     <mx-switch-button size="medium" checked>
       I am checked!
     </mx-switch-button>
+    <ControlledSwitchButton size="medium" />
   </section>
 );
 SizeMedium.storyName = 'Size / Medium';
@@ -100,6 +116,7 @@ export const SizeLarge: Story = () => (
     <mx-switch-button size="large" checked>
       I am checked!
     </mx-switch-button>
+    <ControlledSwitchButton size="large" />
   </section>
 );
 SizeLarge.storyName = 'Size / Large';
@@ -110,6 +127,7 @@ export const SizeXLarge: Story = () => (
     <mx-switch-button size="xlarge" checked>
       I am checked!
     </mx-switch-button>
+    <ControlledSwitchButton size="xlarge" />
   </section>
 );
 SizeXLarge.storyName = 'Size / XLarge';
@@ -124,6 +142,7 @@ export const ShapeSquare: Story = () => (
     <mx-switch-button shape="square" checked>
       I am checked!
     </mx-switch-button>
+    <ControlledSwitchButton shape="square" />
   </section>
 );
 ShapeSquare.storyName = 'Shape / Square';
@@ -138,6 +157,7 @@ export const Disabled: Story = () => (
     <mx-switch-button disabled checked>
       I am checked!
     </mx-switch-button>
+    <ControlledSwitchButton disabled />
   </section>
 );
 

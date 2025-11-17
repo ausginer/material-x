@@ -3,7 +3,6 @@ import {
   html,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import { usePressAnimation } from '../core/utils/button.ts';
 import { useButtonCore } from './useButtonCore.ts';
 import switchDefaultStyles from './default/switch.css.ts?type=css' with { type: 'css' };
 import mainElevatedStyles from './elevated/main.css.ts?type=css' with { type: 'css' };
@@ -18,6 +17,7 @@ import switchSizeStyles from './size/switch.css.ts?type=css' with { type: 'css' 
 import type { SwitchButtonColor } from './switch-button.ts';
 import mainTonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
 import switchTonalStyles from './tonal/switch.css.ts?type=css' with { type: 'css' };
+import { useSwitchButtonPressAnimation } from './useSwitchButtonPressAnimation.ts';
 
 const TEMPLATE = html`<slot name="icon"></slot>`;
 
@@ -66,7 +66,7 @@ export default class SwitchIconButton extends ReactiveElement {
       switchTonalStyles,
       switchIconStyles,
     ]);
-    usePressAnimation(this);
+    useSwitchButtonPressAnimation(this);
   }
 }
 

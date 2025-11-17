@@ -1,5 +1,4 @@
-import { useRipple } from '../core/animations/useRipple.ts';
-import { useSpring } from '../core/animations/useSpring.ts';
+import { useRipple } from '../core/animations/ripple.ts';
 import { useAttribute } from '../core/elements/useAttribute.ts';
 import { useConnected } from '../core/elements/useConnected.ts';
 import { useCore } from '../core/elements/useCore.ts';
@@ -9,12 +8,12 @@ import {
   html,
 } from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
-import { usePressAnimation } from '../core/utils/button.ts';
 import colorStyles from './color/main.css.ts?type=css' with { type: 'css' };
 import mainStyles from './default/main.css.ts?type=css' with { type: 'css' };
 import extendedStyles from './extended/main.css.ts?type=css' with { type: 'css' };
 import sizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
 import tonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
+import { useFABPressAnimation } from './useFABPressAnimation.ts';
 
 export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
@@ -55,26 +54,7 @@ export default class FAB extends ReactiveElement {
     useConnected(this, () => {
       this.tabIndex = 0;
     });
-    usePressAnimation(this);
-    useSpring(
-      this,
-      {
-        fabopen(_: FABToggleEvent, animation: Animation): void {
-          animation.playbackRate = 1;
-          animation.play();
-        },
-        fabclosed(_: FABToggleEvent, animation: Animation): void {
-          animation.playbackRate = -1;
-          animation.play();
-        },
-      },
-      {
-        damping: 'unfold-damping',
-        stiffness: 'unfold-stiffness',
-        duration: 'unfold-duration',
-        factor: 'unfold-factor',
-      },
-    );
+    useFABPressAnimation(this);
     useRipple(this, { easing: 'ripple-easing' });
     useAttribute<FABExtended>(this, 'extended', (_, newValue) => {
       if (newValue != null) {
