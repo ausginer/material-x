@@ -1,4 +1,4 @@
-import type { ReactiveElement } from './reactive-element';
+import type { ReactiveElement } from '../elements/reactive-element';
 
 export function useShadowDOM(
   host: ReactiveElement,

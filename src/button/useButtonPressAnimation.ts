@@ -1,5 +1,5 @@
 import { createSpringAnimation } from '../core/animations/spring.ts';
-import { useEvents } from '../core/controllers/events.ts';
+import { useEvents } from '../core/controllers/useEvents.ts';
 import type { ReactiveController } from '../core/elements/reactive-controller.ts';
 import {
   use,

@@ -1,5 +1,5 @@
 import sizeStyles from '../button/size/main.css.ts?type=css' with { type: 'css' };
-import { useCore } from '../core/elements/useCore.ts';
+import { useCore } from '../core/controllers/useCore.ts';
 import {
   ReactiveElement,
   define,

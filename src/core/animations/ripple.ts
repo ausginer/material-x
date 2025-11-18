@@ -4,7 +4,7 @@ import type { ReactiveController } from '../elements/reactive-controller.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
 import type { Point } from './Point.ts';
 import css from './ripple.css.ts?type=css' with { type: 'css' };
-import { useEvents } from '../controllers/events.ts';
+import { useEvents } from '../controllers/useEvents.ts';
 
 // States of the ripple animation controller
 const INACTIVE = 0;

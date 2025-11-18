@@ -1,4 +1,3 @@
-import { useAttribute } from '../core/elements/useAttribute.ts';
 import {
   define,
   html,
@@ -13,6 +12,8 @@ import mainTextStyles from './text/main.css.ts?type=css' with { type: 'css' };
 import tonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
 import { useButtonPressAnimation } from './useButtonPressAnimation.ts';
 import { AttributeManager } from '../core/elements/attribute-manager.ts';
+import { Attribute } from '../core/elements/attribute.ts';
+import { useAttribute } from '../core/controllers/useAttribute.ts';
 
 export type LinkButtonAttributes = CoreButtonAttributes;
 
@@ -46,19 +47,17 @@ export default class LinkButton extends ReactiveElement {
       { delegatesFocus: true },
     );
     useButtonPressAnimation(this);
-    this.#useAttributeObserver('href');
-    this.#useAttributeObserver('target');
-  }
+    ['href', 'target'].map((attr) => {
+      const inner = Attribute.create(
+        this.shadowRoot!.querySelector('a')!,
+        attr,
+        String,
+      );
 
-  #useAttributeObserver(attribute: string) {
-    const linkAttribute = new AttributeManager(
-      this.shadowRoot!.querySelector('a')!,
-      attribute,
-      String,
-    );
-    useAttribute(this, attribute, String).on((_, value) =>
-      linkAttribute.set(value),
-    );
+      useAttribute(Attribute.create(this, attr, String), (_, value) =>
+        inner.set(value),
+      );
+    });
   }
 }
 

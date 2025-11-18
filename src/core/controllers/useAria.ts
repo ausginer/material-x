@@ -1,5 +1,5 @@
-import type { ReactiveController } from './reactive-controller.ts';
-import { ReactiveElement, use } from './reactive-element.ts';
+import type { ReactiveController } from '../elements/reactive-controller.ts';
+import { use, type ReactiveElement } from '../elements/reactive-element.ts';
 
 const AriaMapping = {
   checked: 'ariaChecked',

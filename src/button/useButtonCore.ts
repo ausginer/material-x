@@ -1,6 +1,6 @@
-import { useConnected } from '../core/elements/useConnected.ts';
-import { useCore } from '../core/elements/useCore.ts';
-import { ReactiveElement, use } from '../core/elements/reactive-element.ts';
+import { useConnected } from '../core/controllers/useConnected.ts';
+import { useCore } from '../core/controllers/useCore.ts';
+import { ReactiveElement } from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
 import defaultDisabledStyles from './default/disabled.css.ts?type=css' with { type: 'css' };
 import defaultButtonStyles from './default/main.css.ts?type=css' with { type: 'css' };

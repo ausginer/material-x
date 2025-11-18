@@ -1,4 +1,4 @@
-import { useCore } from '../core/elements/useCore.ts';
+import { useCore } from '../core/controllers/useCore.ts';
 import {
   define,
   html,

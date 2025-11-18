@@ -1,10 +1,5 @@
 import { useRipple } from '../core/animations/ripple.ts';
-import {
-  AttributeObserver,
-  useAttribute,
-} from '../core/elements/useAttribute.ts';
-import { useConnected } from '../core/elements/useConnected.ts';
-import { useCore } from '../core/elements/useCore.ts';
+import { useCore } from '../core/controllers/useCore.ts';
 import {
   ReactiveElement,
   define,
@@ -17,6 +12,9 @@ import extendedStyles from './extended/main.css.ts?type=css' with { type: 'css' 
 import sizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
 import tonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
 import { useFABPressAnimation } from './useFABPressAnimation.ts';
+import { Attribute } from '../core/elements/attribute.ts';
+import { useAttribute } from '../core/controllers/useAttribute.ts';
+import { useConnected } from '../core/controllers/useConnected.ts';
 
 export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
@@ -42,7 +40,7 @@ const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
 export default class FAB extends ReactiveElement {
   static readonly observedAttributes = ['extended'] as const;
 
-  readonly #extended: AttributeObserver<StringConstructor>;
+  readonly #extended = Attribute.create(this, 'extended');
 
   constructor() {
     super();
@@ -59,8 +57,9 @@ export default class FAB extends ReactiveElement {
     });
     useFABPressAnimation(this);
     useRipple(this, { easing: 'ripple-easing' });
-    this.#extended = useAttribute(this, 'extended', String);
-    this.#extended.on(() => this.dispatchEvent(new Event('fabtoggle')));
+    useAttribute(this.#extended, () =>
+      this.dispatchEvent(new Event('fabtoggle')),
+    );
   }
 
   get extended(): string | null {

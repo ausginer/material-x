@@ -1,4 +1,4 @@
-import { useEvents } from '../core/controllers/events.ts';
+import { useEvents } from '../core/controllers/useEvents.ts';
 import type { ReactiveController } from '../core/elements/reactive-controller.ts';
 import { use } from '../core/elements/reactive-element.ts';
 import type SwitchButton from './switch-button.ts';

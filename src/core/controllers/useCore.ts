@@ -1,5 +1,5 @@
 import { useAria } from './useAria.ts';
-import { ReactiveElement, use } from './reactive-element.ts';
+import { type ReactiveElement } from '../elements/reactive-element.ts';
 import { useShadowDOM } from './useShadowDOM.ts';
 
 export function useCore(
