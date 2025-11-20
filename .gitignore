@@ -6,6 +6,6 @@
 
 *storybook.log
 storybook-static
-docs
+.docs
 *.css
 !*.module.css
