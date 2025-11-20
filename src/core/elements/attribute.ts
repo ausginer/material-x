@@ -82,7 +82,7 @@ export class Attribute<
   set(value: NullablePrimitive<T>): void {
     const converted = this.to(value);
 
-    if (converted) {
+    if (converted !== null) {
       this.host.setAttribute(this.name, converted);
     } else {
       this.host.removeAttribute(this.name);

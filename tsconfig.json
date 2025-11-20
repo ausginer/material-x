@@ -33,9 +33,9 @@
     "useUnknownInCatchVariables": true
   },
   "include": [
-    "./.scripts/**/*.ts",
-    "./src/**/*.ts",
-    "./src/**/*.tsx",
+    "./.scripts/**/*",
+    "./.ladle",
+    "./src",
     "./types.d.ts",
     "./vite.config.ts",
     "./vitest.config.ts"

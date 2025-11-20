@@ -61,7 +61,6 @@ export function constructCss(): Plugin {
       },
     },
     load: {
-      order: 'post',
       async handler(id) {
         if (css.has(id)) {
           if (!trackedFiles.value[id]) {

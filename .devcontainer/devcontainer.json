@@ -12,7 +12,7 @@
       "installOhMyZshConfig": false
     }
   },
-  "forwardPorts": [9876, 6006, 5173],
+  "forwardPorts": [9876, 6006, 5176, 24678],
   "remoteUser": "node",
   "mounts": [
     {
