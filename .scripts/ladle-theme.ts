@@ -1,15 +1,9 @@
 import { writeFile } from 'node:fs/promises';
 import kebabCase from 'just-kebab-case';
-import { root, type JSONModule } from '../src/core/tokens/utils.ts';
-import { fileURLToPath } from 'node:url';
-import type { MaterialTheme } from '../src/core/tokens/MaterialTheme.ts';
+import DB from '../src/core/tokens/DB.ts';
+import { root } from '../src/core/tokens/utils.ts';
 
-const { light, dark } = (
-  (await import(
-    fileURLToPath(new URL('src/core/tokens/default-theme.json', root)),
-    { with: { type: 'json' } }
-  )) as JSONModule<MaterialTheme>
-).default.schemes;
+const { light, dark } = DB.theme.schemes;
 
 const [lightCSS, darkCSS] = [light, dark].map((scheme) => {
   return Object.entries(scheme).map(
