@@ -29,7 +29,8 @@
         "EditorConfig.EditorConfig",
         "runem.lit-plugin",
         "openai.chatgpt",
-        "vitest.explorer"
+        "vitest.explorer",
+        "github.vscode-github-actions"
       ]
     }
   },
