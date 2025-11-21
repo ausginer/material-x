@@ -1,4 +1,4 @@
-import { TypedObject } from '../../interfaces.ts';
+import { type TypedObjectConstructor } from '../../interfaces.ts';
 import CSSVariableError from './CSSVariableError.ts';
 
 export type TransformCallback<V> = (
@@ -32,8 +32,8 @@ export function readCSSVariables<K extends PropertyKey, V>(
 ): Readonly<Record<K extends PropertyKey ? K : never, V>> {
   const styles = getComputedStyle(host);
 
-  return TypedObject.fromEntries(
-    TypedObject.entries(vars).map(([name, variable]) => {
+  return (Object as TypedObjectConstructor).fromEntries(
+    (Object as TypedObjectConstructor).entries(vars).map(([name, variable]) => {
       const value = styles.getPropertyValue(`--_${variable}`).trim();
       const result = transform(name, value, host);
       return [name, result];

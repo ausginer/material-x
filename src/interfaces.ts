@@ -10,6 +10,3 @@ export interface TypedObjectConstructor {
     ? Readonly<Record<K extends PropertyKey ? K : never, V>>
     : never;
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-export const TypedObject = Object as unknown as TypedObjectConstructor;

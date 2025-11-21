@@ -1,4 +1,4 @@
-import { TypedObject } from '../../interfaces.ts';
+import { type TypedObjectConstructor } from '../../interfaces.ts';
 import { html, ReactiveElement, use } from '../elements/reactive-element.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
@@ -244,10 +244,10 @@ class RippleAnimationController implements ReactiveController {
 
   connected(): void {
     const host = this.#host;
-    const vars = TypedObject.fromEntries(
-      TypedObject.entries(this.#cssVariables).map(
-        ([k, v]) => [k, `--_${v}`] as const,
-      ),
+    const vars = (Object as TypedObjectConstructor).fromEntries(
+      (Object as TypedObjectConstructor)
+        .entries(this.#cssVariables)
+        .map(([k, v]) => [k, `--_${v}`] as const),
     );
 
     this.#easing = getComputedStyle(host).getPropertyValue(vars.easing).trim();

@@ -2,7 +2,7 @@ import type { TupleToUnion } from 'type-fest';
 import processTokenSet from '../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../core/tokens/resolve.ts';
 import { createVariables } from '../../core/tokens/variable.ts';
-import { TypedObject } from '../../interfaces.ts';
+import { type TypedObjectConstructor } from '../../interfaces.ts';
 import { PRIVATE, PUBLIC, set as defaultSet } from '../default/tokens.ts';
 import {
   applyToFAB,
@@ -17,51 +17,52 @@ const COLORS = ['primary', 'secondary'] as const;
 
 const ALLOWED = [...PUBLIC, ...PRIVATE];
 
-const packs: Readonly<Record<TupleToUnion<typeof COLORS>, PackShape>> =
-  TypedObject.fromEntries(
-    COLORS.map((c) => {
-      const setName = `md.comp.fab.${c}`;
+const packs: Readonly<Record<TupleToUnion<typeof COLORS>, PackShape>> = (
+  Object as TypedObjectConstructor
+).fromEntries(
+  COLORS.map((c) => {
+    const setName = `md.comp.fab.${c}`;
 
-      const specialTokens = createVariables(
-        resolveSet({
-          'state-layer.color': `${setName}.pressed.state-layer.color`,
-        }),
+    const specialTokens = createVariables(
+      resolveSet({
+        'state-layer.color': `${setName}.pressed.state-layer.color`,
+      }),
+    );
+
+    const set = (() => {
+      const set = processTokenSet(setName);
+      const shapedSet = reshapeFABSet(set);
+      const resolvedSet = resolveFABShape(shapedSet);
+
+      const variableSet = applyToFAB(resolvedSet, (set, [state]) =>
+        createVariables(
+          set,
+          {
+            vars: PUBLIC,
+            prefix: createPrefix({
+              state: state!,
+            }),
+          },
+          ALLOWED,
+        ),
       );
 
-      const set = (() => {
-        const set = processTokenSet(setName);
-        const shapedSet = reshapeFABSet(set);
-        const resolvedSet = resolveFABShape(shapedSet);
+      return applyToFAB(variableSet, (tokens, [state]) => {
+        if (state === 'default') {
+          return {
+            ...tokens,
+            ...specialTokens,
+          };
+        }
 
-        const variableSet = applyToFAB(resolvedSet, (set, [state]) =>
-          createVariables(
-            set,
-            {
-              vars: PUBLIC,
-              prefix: createPrefix({
-                state: state!,
-              }),
-            },
-            ALLOWED,
-          ),
-        );
+        return tokens;
+      });
+    })();
 
-        return applyToFAB(variableSet, (tokens, [state]) => {
-          if (state === 'default') {
-            return {
-              ...tokens,
-              ...specialTokens,
-            };
-          }
+    const pack = packFAB(set, defaultSet);
 
-          return tokens;
-        });
-      })();
-
-      const pack = packFAB(set, defaultSet);
-
-      return [c, pack] as const;
-    }),
-  );
+    return [c, pack] as const;
+  }),
+);
 
 export default packs;

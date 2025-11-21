@@ -16,7 +16,7 @@ import {
   packSet,
   type CSSVariableSet,
 } from '../core/tokens/variable.ts';
-import { TypedObject } from '../interfaces.ts';
+import type { TypedObjectConstructor } from '../interfaces.ts';
 
 export type FABSchema = Readonly<{
   default: Leaf;
@@ -34,8 +34,9 @@ export const fabSchema: FABSchema = {
   disabled: $leaf,
 } as const;
 
-export const fabStates: ReadonlyArray<keyof FABSchema> =
-  TypedObject.keys(fabSchema);
+export const fabStates: ReadonlyArray<keyof FABSchema> = (
+  Object as TypedObjectConstructor
+).keys(fabSchema);
 
 export type CSSVariableShape = Shape<CSSVariableSet, FABSchema>;
 export type ProcessedSetShape = Shape<ProcessedTokenSet, FABSchema>;
