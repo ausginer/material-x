@@ -11,7 +11,6 @@ import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
 import mainTextStyles from './text/main.css.ts?type=css' with { type: 'css' };
 import tonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
 import { useButtonPressAnimation } from './useButtonPressAnimation.ts';
-import { AttributeManager } from '../core/elements/attribute-manager.ts';
 import { Attribute } from '../core/elements/attribute.ts';
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 
@@ -48,13 +47,12 @@ export default class LinkButton extends ReactiveElement {
     );
     useButtonPressAnimation(this);
     ['href', 'target'].map((attr) => {
-      const inner = Attribute.create(
+      const inner = Attribute.string(
         this.shadowRoot!.querySelector('a')!,
         attr,
-        String,
       );
 
-      useAttribute(Attribute.create(this, attr, String), (_, value) =>
+      useAttribute(Attribute.string(this, attr), (_, value) =>
         inner.set(value),
       );
     });

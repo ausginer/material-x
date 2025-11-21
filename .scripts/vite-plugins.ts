@@ -29,11 +29,11 @@ export function constructCss(): Plugin {
     Object.entries(trackedFiles.value).reduce<Record<string, Set<string>>>(
       (acc, [id, dependencies]) => {
         for (const d of dependencies) {
-          if (acc[d]) {
-            acc[d].add(id);
-          } else {
-            acc[d] = new Set([id]);
+          if (!acc[d]) {
+            acc[d] = new Set();
           }
+
+          acc[d].add(id);
         }
 
         return acc;

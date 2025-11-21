@@ -12,44 +12,34 @@ export class Attribute<
   T extends string | boolean | number,
   H extends HTMLElement = HTMLElement,
 > {
-  static create<H extends HTMLElement = HTMLElement>(
+  static bool<H extends HTMLElement = HTMLElement>(
     host: H,
     name: string,
-    type: BooleanConstructor,
-  ): Attribute<boolean, H>;
-  static create<H extends HTMLElement = HTMLElement>(
-    host: H,
-    name: string,
-    type: NumberConstructor,
-  ): Attribute<number, H>;
-  static create<H extends HTMLElement = HTMLElement>(
-    host: H,
-    name: string,
-    type?: StringConstructor,
-  ): Attribute<string, H>;
-  static create<H extends HTMLElement = HTMLElement>(
-    host: H,
-    name: string,
-    type: any = String,
-  ): Attribute<any, H> {
-    if (type === Boolean) {
-      return new Attribute<boolean, H>(
-        host,
-        name,
-        (value) => value !== null,
-        (value) => (value ? '' : null),
-      );
-    }
+  ): Attribute<boolean, H> {
+    return new Attribute<boolean, H>(
+      host,
+      name,
+      (value) => value !== null,
+      (value) => (value ? '' : null),
+    );
+  }
 
-    if (type === Number) {
-      return new Attribute<number, H>(
-        host,
-        name,
-        (value) => (value ? Number(value) : null),
-        (value) => (value ? String(value) : null),
-      );
-    }
+  static number<H extends HTMLElement = HTMLElement>(
+    host: H,
+    name: string,
+  ): Attribute<number, H> {
+    return new Attribute<number, H>(
+      host,
+      name,
+      (value) => (value ? Number(value) : null),
+      (value) => (value ? String(value) : null),
+    );
+  }
 
+  static string<H extends HTMLElement = HTMLElement>(
+    host: H,
+    name: string,
+  ): Attribute<string, H> {
     return new Attribute<string, H>(
       host,
       name,

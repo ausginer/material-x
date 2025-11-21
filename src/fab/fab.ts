@@ -40,7 +40,7 @@ const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
 export default class FAB extends ReactiveElement {
   static readonly observedAttributes = ['extended'] as const;
 
-  readonly #extended = Attribute.create(this, 'extended');
+  readonly #extended = Attribute.string(this, 'extended');
 
   constructor() {
     super();

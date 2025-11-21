@@ -62,8 +62,8 @@ export function createSpringAnimation(
     keyframes.map((frame) => ({ [`--_${factorName}`]: frame })),
     { duration: input.duration * 1000, fill: 'forwards' },
   );
-
   animation.pause();
+  animation.currentTime = 0;
 
   return animation;
 }

@@ -45,7 +45,7 @@ export default class SwitchButton extends ReactiveElement {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['checked', 'disabled'] as const;
 
-  readonly #checked = Attribute.create(this, 'checked', Boolean);
+  readonly #checked = Attribute.bool(this, 'checked');
 
   constructor() {
     super();
