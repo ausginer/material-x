@@ -7,7 +7,7 @@ export type UpdateCallback<T extends string | number | boolean> = (
   newValue: NullablePrimitive<T>,
 ) => void;
 
-export class AttributeController<T extends string | number | boolean>
+class AttributeController<T extends string | number | boolean>
   implements ReactiveController
 {
   readonly #attribute: Attribute<T>;
