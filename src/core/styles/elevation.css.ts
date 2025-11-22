@@ -61,9 +61,9 @@ const styles: string = await prettify(css`
       border-radius: inherit;
       inset: 0;
       position: absolute;
-      transition-duration: inherit;
+      /* transition-duration: inherit;
       transition-timing-function: inherit;
-      transition-property: box-shadow;
+      transition-property: box-shadow; */
       pointer-events: none;
     }
 

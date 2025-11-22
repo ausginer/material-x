@@ -1,5 +1,8 @@
 import { createSpringAnimation } from '../core/animations/spring.ts';
-import { useEvents } from '../core/controllers/useEvents.ts';
+import {
+  useEvents,
+  type HTMLElementEventListener,
+} from '../core/controllers/useEvents.ts';
 import type { ReactiveController } from '../core/elements/reactive-controller.ts';
 import {
   use,
@@ -26,30 +29,29 @@ export function createButtonPressAnimation(host: HTMLElement): Animation {
 
 class ButtonPressAnimation implements ReactiveController {
   readonly #host: ReactiveElement;
-  #animation?: Animation;
+  #pointerdown: HTMLElementEventListener<'pointerdown'> = () => {};
+  #pointerup: HTMLElementEventListener<'pointerdown'> = () => {};
+  #pointercancel: HTMLElementEventListener<'pointercancel'> = () => {};
 
   constructor(host: ReactiveElement) {
     this.#host = host;
-
-    const self = this;
     useEvents(host, {
-      pointerdown() {
-        if (self.#animation) {
-          self.#animation.playbackRate = 1;
-          self.#animation.play();
-        }
-      },
-      pointerup() {
-        if (self.#animation) {
-          self.#animation.playbackRate = -1;
-          self.#animation.play();
-        }
-      },
+      pointerdown: (event) => this.#pointerdown(event),
+      pointerup: (event) => this.#pointerup(event),
     });
   }
 
   connected() {
-    this.#animation = createButtonPressAnimation(this.#host);
+    const self = this;
+    const animation = createButtonPressAnimation(self.#host);
+    self.#pointerdown = () => {
+      animation.updatePlaybackRate(1);
+      animation.play();
+    };
+    self.#pointerup = self.#pointercancel = () => {
+      animation.updatePlaybackRate(-1);
+      animation.play();
+    };
   }
 }
 

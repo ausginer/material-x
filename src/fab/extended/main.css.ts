@@ -42,11 +42,11 @@ const styles: string = await prettify(css`
       will-change: font-size;
       display: block;
       white-space: nowrap;
-      font-size: calc(var(--_label-text-size) * var(--_unfold-factor));
+      font-size: calc(var(--_label-text-font-size) * var(--_unfold-factor));
 
       @supports (width: calc-size(min-content, size)) {
         will-change: max-width;
-        font-size: var(--_label-text-size);
+        font-size: var(--_label-text-font-size);
         max-width: calc-size(min-content, size * var(--_unfold-factor));
         overflow: hidden;
       }

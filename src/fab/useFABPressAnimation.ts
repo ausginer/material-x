@@ -1,5 +1,8 @@
 import { createSpringAnimation } from '../core/animations/spring.ts';
-import { useEvents } from '../core/controllers/useEvents.ts';
+import {
+  useEvents,
+  type HTMLElementEventListener,
+} from '../core/controllers/useEvents.ts';
 import type { ReactiveController } from '../core/elements/reactive-controller.ts';
 import {
   use,
@@ -13,7 +16,7 @@ import type FAB from './fab.ts';
 
 class FABPressAnimation implements ReactiveController {
   readonly #host: FAB;
-  #animation?: Animation;
+  #fabtoggle: HTMLElementEventListener<'fabtoggle'> = () => {};
 
   constructor(host: FAB) {
     this.#host = host;
@@ -21,18 +24,15 @@ class FABPressAnimation implements ReactiveController {
     const self = this;
 
     useEvents(host, {
-      fabtoggle(): void {
-        if (self.#animation) {
-          self.#animation.playbackRate = self.#defaultPlaybackRate;
-          self.#animation.play();
-        }
-      },
+      fabtoggle: (event) => this.#fabtoggle(event),
     });
   }
 
   connected() {
+    const self = this;
+
     const vars = readCSSVariables(
-      this.#host,
+      self.#host,
       {
         damping: 'unfold-damping',
         stiffness: 'unfold-stiffness',
@@ -41,21 +41,19 @@ class FABPressAnimation implements ReactiveController {
       transformNumericVariable,
     );
 
-    this.#animation = createSpringAnimation(this.#host, 'unfold-factor', vars);
-    this.#settle();
+    const animation = createSpringAnimation(self.#host, 'unfold-factor', vars);
+
+    this.#fabtoggle = () => {
+      animation.updatePlaybackRate(self.#defaultPlaybackRate);
+      animation.play();
+    };
+
+    animation.updatePlaybackRate(self.#defaultPlaybackRate);
+    animation.finish();
   }
 
   get #defaultPlaybackRate(): number {
     return this.#host.extended === 'open' ? 1 : -1;
-  }
-
-  #settle() {
-    const animation = this.#animation;
-
-    if (animation) {
-      animation.playbackRate = this.#defaultPlaybackRate;
-      animation.finish();
-    }
   }
 }
 

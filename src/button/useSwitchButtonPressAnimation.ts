@@ -1,4 +1,7 @@
-import { useEvents } from '../core/controllers/useEvents.ts';
+import {
+  useEvents,
+  type HTMLElementEventListener,
+} from '../core/controllers/useEvents.ts';
 import type { ReactiveController } from '../core/elements/reactive-controller.ts';
 import { use } from '../core/elements/reactive-element.ts';
 import type SwitchButton from './switch-button.ts';
@@ -10,71 +13,65 @@ export class SwitchButtonCheckEvent extends Event {
 
 class SwitchButtonSpringAnimationController implements ReactiveController {
   readonly #host: SwitchButton;
-  #animation?: Animation;
   #hasInteractionStarted = false;
   #wasChecked: boolean;
+  #pointerdown: HTMLElementEventListener<'pointerdown'> = () => {};
+  #pointerup: HTMLElementEventListener<'pointerup'> = () => {};
+  #pointercancel: HTMLElementEventListener<'pointercancel'> = () => {};
+  #releaseDebounceTimeout?: NodeJS.Timeout | string | number | undefined;
 
   constructor(host: SwitchButton) {
-    this.#host = host;
-
     const self = this;
-    useEvents(host, {
-      pointerdown() {
-        if (self.#animation) {
-          self.#hasInteractionStarted = true;
-          self.#wasChecked = self.#host.checked;
-          self.#animation.playbackRate = self.#defaultPlaybackRate;
-          self.#animation.play();
-        }
-      },
-      pointerup() {
-        self.#release();
-      },
-      pointercancel() {
-        self.#release();
-      },
-    });
-
+    this.#host = host;
     this.#wasChecked = host.checked;
-    host.addEventListener('input', () => {
-      if (!this.#hasInteractionStarted) {
-        this.#settle();
-      }
+
+    useEvents(host, {
+      pointerdown: (event) => self.#pointerdown(event),
+      pointerup: (event) => self.#pointerup(event),
+      pointercancel: (event) => self.#pointercancel(event),
     });
   }
 
   connected() {
-    this.#animation = createButtonPressAnimation(this.#host);
-    this.#settle();
+    const self = this;
+    const animation = createButtonPressAnimation(self.#host);
+
+    self.#pointerdown = () => {
+      self.#hasInteractionStarted = true;
+      self.#wasChecked = self.#host.checked;
+      animation.updatePlaybackRate(self.#defaultPlaybackRate);
+      animation.play();
+    };
+
+    self.#pointerup = self.#pointercancel = () => {
+      clearTimeout(self.#releaseDebounceTimeout);
+
+      // Since users usually update controlled componens on `click` event, we
+      // have to wait until `click` event is fired; only then we can decide if
+      // we should rewind the animation.
+      self.#releaseDebounceTimeout = setTimeout(() => {
+        self.#hasInteractionStarted = false;
+
+        if (self.#host.checked === self.#wasChecked) {
+          // Only rewind when the release matches the state we started with.
+          animation.updatePlaybackRate(-self.#defaultPlaybackRate);
+          animation.play();
+        }
+      }, 1);
+    };
+
+    const settle = () => {
+      if (!self.#hasInteractionStarted) {
+        animation.updatePlaybackRate(-self.#defaultPlaybackRate);
+        animation.finish();
+      }
+    };
+
+    settle();
   }
 
   get #defaultPlaybackRate(): number {
     return this.#host.checked ? -1 : 1;
-  }
-
-  #settle() {
-    const animation = this.#animation;
-
-    if (animation) {
-      if (animation && !this.#hasInteractionStarted) {
-        animation.playbackRate = -this.#defaultPlaybackRate;
-        animation.finish();
-      }
-    }
-  }
-
-  #release() {
-    const animation = this.#animation;
-
-    if (animation) {
-      this.#hasInteractionStarted = false;
-
-      if (this.#host.checked === this.#wasChecked) {
-        // Only rewind when the release matches the state we started with.
-        animation.playbackRate = -this.#defaultPlaybackRate;
-        animation.play();
-      }
-    }
   }
 }
 
