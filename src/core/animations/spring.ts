@@ -1,5 +1,7 @@
-import type { ReactiveController } from '../elements/reactive-controller.ts';
-import { ReactiveElement, use } from '../elements/reactive-element.ts';
+const FRAME_COUNT = 100;
+const START_VALUE = 0;
+const END_VALUE = 1;
+const INITIAL_VELOCITY = 0;
 
 export type SpringAnimationInput = Readonly<{
   /**
@@ -8,12 +10,11 @@ export type SpringAnimationInput = Readonly<{
    */
   damping: number;
   /**
-   * Stiffness of the spring, higher values result in faster oscillations.
-   * Expressed in degrees per second.
+   * Stiffness constant of the spring; higher values settle faster.
    */
   stiffness: number;
   /**
-   * Duration in milliseconds.
+   * Duration in seconds.
    */
   duration: number;
 }>;
@@ -23,32 +24,63 @@ function createSpringKeyframes({
   stiffness,
   duration,
 }: SpringAnimationInput): readonly number[] {
-  // degrees per second -> radians per second (omega_n)
-  const stiffnessOmegaN = stiffness * (Math.PI / 180);
+  const naturalFrequency = Math.sqrt(stiffness);
+  const initialDisplacement = START_VALUE - END_VALUE;
 
-  // Calculate damped natural frequency (omega_d)
-  // Math.max(0, ...) prevents NaN if damping > 1, making omega_d = 0 for critically/overdamped.
-  const omegaD =
-    stiffnessOmegaN * Math.sqrt(Math.max(0, 1 - damping * damping));
-  const frameAmount = 100; // Number of frames to generate
+  let getDisplacement: (time: number) => number;
 
-  return Array.from({ length: frameAmount }, (_, i) => {
-    const t = (i / frameAmount) * duration; // Time of the current frame
+  if (damping > 1) {
+    // Overdamped: two negative real roots.
+    const sqrtTerm = Math.sqrt(damping * damping - 1);
+    const gammaPlus = -damping * naturalFrequency + naturalFrequency * sqrtTerm;
+    const gammaMinus =
+      -damping * naturalFrequency - naturalFrequency * sqrtTerm;
+    const denominator = gammaMinus - gammaPlus;
+    const coeffA =
+      initialDisplacement -
+      (gammaMinus * initialDisplacement - INITIAL_VELOCITY) / denominator;
+    const coeffB =
+      (gammaMinus * initialDisplacement - INITIAL_VELOCITY) / denominator;
 
-    const distance =
-      damping >= 1
-        ? // For critically damped or overdamped systems, there's no oscillation.
-          // The position approaches the final value exponentially.
-          Math.exp(-damping * stiffnessOmegaN * t)
-        : // For underdamped systems, it oscillates with exponential decay.
-          // This formula describes the displacement from the final resting position.
-          Math.exp(-damping * stiffnessOmegaN * t) * Math.cos(omegaD * t);
+    getDisplacement = (time) =>
+      coeffA * Math.exp(gammaMinus * time) +
+      coeffB * Math.exp(gammaPlus * time);
+  } else if (damping === 1) {
+    // Critically Damped
+    // Formula: (A + B * time) * Math.exp(-naturalFrequency * time)
+    const coeffA = initialDisplacement;
+    const coeffB = INITIAL_VELOCITY + naturalFrequency * initialDisplacement;
 
-    // The value starts at 0 (at t=0) and settles at 1.
-    // `distance` starts at 1 and decays to 0.
-    // So, `1 - distance` correctly starts at 0 and approaches 1.
-    return 1 - distance;
+    getDisplacement = (time) =>
+      (coeffA + coeffB * time) * Math.exp(-naturalFrequency * time);
+  } else {
+    // Underdamped: complex conjugate roots (oscillation with decay).
+    const dampedFrequency =
+      naturalFrequency * Math.sqrt(Math.max(0, 1 - damping * damping));
+    const cosCoeff = initialDisplacement;
+    const sinCoeff =
+      (1 / dampedFrequency) *
+      (damping * naturalFrequency * initialDisplacement + INITIAL_VELOCITY);
+
+    getDisplacement = (time) => {
+      const envelope = Math.exp(-damping * naturalFrequency * time);
+      const angle = dampedFrequency * time;
+      return (
+        envelope * (cosCoeff * Math.cos(angle) + sinCoeff * Math.sin(angle))
+      );
+    };
+  }
+
+  const keyframes = Array.from({ length: FRAME_COUNT }, (_, index) => {
+    const time = (duration * index) / (FRAME_COUNT - 1);
+    const displacement = getDisplacement(time);
+    return displacement + END_VALUE;
   });
+
+  keyframes[0] = START_VALUE;
+  keyframes[FRAME_COUNT - 1] = END_VALUE;
+
+  return keyframes;
 }
 
 export function createSpringAnimation(
