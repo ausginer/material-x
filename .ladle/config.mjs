@@ -3,10 +3,10 @@ export default {
   base: '/material-x/',
   stories: 'src/**/*.stories.{tsx,mdx}',
   port: 6006,
-  host: '0.0.0.0',
+  host: '127.0.0.1',
   outDir: '.docs',
-  previewHost: '0.0.0.0',
+  previewHost: '127.0.0.1',
   previewPort: 5173,
-  hmrHost: '0.0.0.0',
+  hmrHost: '127.0.0.1',
   hmrPort: 24678,
 };

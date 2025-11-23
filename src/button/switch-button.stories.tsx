@@ -14,7 +14,7 @@ function ControlledSwitchButton({
   return (
     <mx-switch-button
       checked={state}
-      onClick={() => {
+      onChange={() => {
         setState(!state);
       }}
       {...other}

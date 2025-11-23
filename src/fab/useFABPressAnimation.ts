@@ -5,6 +5,7 @@ import {
 } from '../core/controllers/useEvents.ts';
 import type { ReactiveController } from '../core/elements/reactive-controller.ts';
 import { use } from '../core/elements/reactive-element.ts';
+import { updatePlaybackRate } from '../core/utils/animation.ts';
 import {
   readCSSVariables,
   transformNumericVariable,
@@ -41,16 +42,14 @@ class FABPressAnimation implements ReactiveController {
     const animation = createSpringAnimation(self.#host, '_unfold-factor', vars);
 
     this.#fabtoggle = () => {
-      animation.ready.then(() => {
-        animation.updatePlaybackRate(self.#defaultPlaybackRate);
-        animation.play();
-      });
+      updatePlaybackRate(animation, self.#defaultPlaybackRate, () =>
+        animation.play(),
+      );
     };
 
-    animation.ready.then(() => {
-      animation.updatePlaybackRate(self.#defaultPlaybackRate);
-      animation.finish();
-    });
+    updatePlaybackRate(animation, self.#defaultPlaybackRate, () =>
+      animation.finish(),
+    );
   }
 
   get #defaultPlaybackRate(): number {

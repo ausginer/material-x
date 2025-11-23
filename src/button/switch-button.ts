@@ -32,8 +32,6 @@ export type SwitchButtonAttributes = Readonly<
   }
 >;
 
-const EVENTS = ['input', 'change'] as const;
-
 /**
  * @attr {string} color
  * @attr {string} size
@@ -60,9 +58,6 @@ export default class SwitchButton extends ReactiveElement {
       switchSizeStyles,
       switchTonalStyles,
     ]);
-    EVENTS.forEach((name) =>
-      useAttribute(this.#checked, () => this.dispatchEvent(new Event(name))),
-    );
     useSwitchButtonPressAnimation(this);
   }
 

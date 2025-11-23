@@ -8,6 +8,7 @@ import {
   use,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
+import { updatePlaybackRate } from '../core/utils/animation.ts';
 import {
   readCSSVariables,
   transformNumericVariable,
@@ -31,7 +32,6 @@ class ButtonPressAnimation implements ReactiveController {
   readonly #host: ReactiveElement;
   #pointerdown: HTMLElementEventListener<'pointerdown'> = () => {};
   #pointerup: HTMLElementEventListener<'pointerdown'> = () => {};
-  #pointercancel: HTMLElementEventListener<'pointercancel'> = () => {};
 
   constructor(host: ReactiveElement) {
     const self = this;
@@ -39,25 +39,17 @@ class ButtonPressAnimation implements ReactiveController {
     useEvents(host, {
       pointerdown: (event) => self.#pointerdown(event),
       pointerup: (event) => self.#pointerup(event),
-      pointercancel: (event) => self.#pointercancel(event),
+      pointercancel: (event) => self.#pointerup(event),
     });
   }
 
   connected() {
     const self = this;
     const animation = createButtonPressAnimation(self.#host);
-    self.#pointerdown = () => {
-      animation.ready.then(() => {
-        animation.updatePlaybackRate(1);
-        animation.play();
-      });
-    };
-    self.#pointerup = self.#pointercancel = () => {
-      animation.ready.then(() => {
-        animation.updatePlaybackRate(-1);
-        animation.play();
-      });
-    };
+    self.#pointerdown = () =>
+      updatePlaybackRate(animation, 1, () => animation.play());
+    self.#pointerup = () =>
+      updatePlaybackRate(animation, -1, () => animation.play());
   }
 }
 
