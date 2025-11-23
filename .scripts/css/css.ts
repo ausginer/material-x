@@ -5,6 +5,7 @@ import MagicString from 'magic-string';
 import type { SourceMap } from 'rollup';
 // eslint-disable-next-line import-x/no-unresolved
 import * as sorcery from 'sorcery';
+import { createMangler } from './css-prop-mangler.ts';
 
 export type CSSImportParseResult = Readonly<{
   code: string;
@@ -49,9 +50,14 @@ function createSourcePath(previousURL: URL, ext: string) {
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
+export type CompileCSSOptions = Readonly<{
+  isProd: boolean;
+}>;
+
 export async function compileCSS(
   url: URL,
   code: string,
+  options?: CompileCSSOptions,
 ): Promise<CSSCompilationResult> {
   const path = fileURLToPath(url);
 
@@ -61,6 +67,7 @@ export async function compileCSS(
       code: encoder.encode(code),
       minify: true,
       sourceMap: true,
+      ...(options?.isProd ? { visitor: createMangler() } : {}),
     });
 
   const processedCode = decoder.decode(encodedProcessedCode);

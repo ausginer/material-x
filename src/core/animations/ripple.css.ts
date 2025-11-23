@@ -1,6 +1,6 @@
-import { css } from '../tokens/css.ts';
+import { css, prettify } from '../tokens/css.ts';
 
-const styles: string = css`
+const styles: string = await prettify(css`
   :host {
     position: relative;
   }
@@ -36,6 +36,6 @@ const styles: string = css`
       }
     }
   }
-`;
+`);
 
 export default styles;

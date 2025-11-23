@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { transform } from 'lightningcss';
 import * as prettier from 'prettier';
-import { root } from './utils.ts';
+import { root } from '../utils.ts';
 
 interface JSModule<T> {
   default?: T;

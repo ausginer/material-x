@@ -1,10 +1,9 @@
 import type { Visitor } from 'lightningcss';
-import { root, type JSONModule } from './utils.ts';
+import { cssCache, type JSONModule } from '../utils.ts';
 import { fileURLToPath } from 'node:url';
 
-const cacheDir = new URL('node_modules/.cache/css/', root);
 const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
-  await import(fileURLToPath(new URL('css-private-props.json', cacheDir)), {
+  await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {
     with: { type: 'json' },
   });
 

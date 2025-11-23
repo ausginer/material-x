@@ -3,7 +3,7 @@
     "target": "esnext",
     "module": "esnext",
     "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable"],
-    "types": ["vitest/importMeta"],
+    "types": ["vitest/importMeta", "vite/client"],
     "skipLibCheck": true,
     "useDefineForClassFields": true,
 

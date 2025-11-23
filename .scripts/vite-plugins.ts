@@ -4,8 +4,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { signal, computed } from '@preact/signals-core';
 import { build } from 'esbuild';
 import type { Plugin } from 'vite';
-import { compileCSS } from './css.ts';
-import { root, src } from './utils.ts';
+import { compileCSS } from './css/css.ts';
+import { cssCache, root, src, type JSONModule } from './utils.ts';
 
 async function streamToString(stream: Readable | null): Promise<string> {
   if (!stream) {
@@ -22,7 +22,16 @@ async function streamToString(stream: Readable | null): Promise<string> {
   return Buffer.concat(chunks).toString('utf-8');
 }
 
-export function constructCss(): Plugin {
+export type ConstructCSSOptions = Readonly<{
+  isProd: boolean;
+}>;
+
+const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
+  await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {
+    with: { type: 'json' },
+  });
+
+export function constructCSS(options?: ConstructCSSOptions): Plugin {
   const css = new Set<string>();
   const trackedFiles = signal<Record<string, Set<string>>>({});
   const dependencies = computed(() =>
@@ -93,7 +102,7 @@ export function constructCss(): Plugin {
           }
 
           const child = fork(
-            new URL('./css-printer.ts', import.meta.url),
+            new URL('./css/css-printer.ts', import.meta.url),
             [id],
             { silent: true },
           );
@@ -129,6 +138,7 @@ export function constructCss(): Plugin {
           const { code, map } = await compileCSS(
             pathToFileURL(id.replace(/\.ts$/u, '')),
             result,
+            options,
           );
 
           return {
@@ -139,6 +149,24 @@ export function constructCss(): Plugin {
         return null;
       },
     },
+    ...(options?.isProd
+      ? {
+          transform: {
+            handler(code, id) {
+              if (id.endsWith('.ts') || id.endsWith('.tsx')) {
+                Object.entries(propList).reduce(
+                  (acc, [prop, short]) =>
+                    acc.replace(
+                      new RegExp(`'${prop.substring(3)}'`),
+                      `'${short.substring(2)}'`,
+                    ),
+                  code,
+                );
+              }
+            },
+          },
+        }
+      : {}),
     handleHotUpdate: {
       handler({ file, server, timestamp }) {
         if (file in dependencies.value) {

@@ -19,11 +19,16 @@ for await (const filename of glob('**/*.css.ts', { cwd: srcDir })) {
       code: Buffer.from(css.default),
       visitor: {
         Declaration: {
-          custom({ name, value }) {
+          custom({ name }) {
             if (name.startsWith('--_')) {
               registry.add(name);
             }
           },
+        },
+        Variable({ name: { ident } }) {
+          if (ident.startsWith('--_')) {
+            registry.add(ident);
+          }
         },
       },
     });

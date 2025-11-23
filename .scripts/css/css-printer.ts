@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
-import type { JSModule } from './utils.ts';
+import type { JSModule } from '../utils.ts';
 
 const {
   positionals: [input],

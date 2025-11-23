@@ -7,15 +7,15 @@ const styles: string = await prettify(css`
     ${packs.default};
 
     /* Intermediate variables for correct mx-switch-button color change logic */
-    --_container-color-dyn: var(--_container-color);
-    --_label-text-color-dyn: var(--_label-text-color);
+    --_container-color-applied: var(--_container-color);
+    --_label-text-color-applied: var(--_label-text-color);
 
     display: inline-flex;
     will-change: border-radius;
     cursor: default;
     user-select: none;
-    background-color: var(--_container-color-dyn);
-    color: var(--_label-text-color-dyn);
+    background-color: var(--_container-color-applied);
+    color: var(--_label-text-color-applied);
     padding-block: var(--_padding-block);
     padding-inline: var(--_leading-space) var(--_trailing-space);
     border-radius: calc(
@@ -30,6 +30,7 @@ const styles: string = await prettify(css`
     place-items: center;
     place-content: center;
     gap: 8px;
+    text-align: center;
   }
 
   ${state.hovered()} {
@@ -37,7 +38,7 @@ const styles: string = await prettify(css`
 
     background-color: color-mix(
       in srgb,
-      var(--_container-color-dyn),
+      var(--_container-color-applied),
       var(--_state-layer-color) calc(var(--_state-layer-opacity) * 100%)
     );
   }

@@ -14,8 +14,11 @@
   "author": "Vlad Rindevich <vladrin@vaadin.com> (https://github.com/Lodin)",
   "type": "module",
   "main": "index.js",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
-    "debug": "node .scripts/print-css.ts",
+    "debug": "node .scripts/debug-css.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "generate": "node .scripts/generator.ts",
     "css:prop:collect": "node .scripts/css/collect-props.ts",
@@ -27,10 +30,10 @@
     "lint": "eslint --flag unstable_native_nodejs_ts_config",
     "lint:eslint": "eslint  --flag unstable_native_nodejs_ts_config",
     "lint:stylelint": "stylelint src/**/*.scss",
-    "tokens": "node --experimental-strip-types .scripts/tokens/index.ts",
-    "tokens2": "node --experimental-strip-types .scripts/tokens2/index.ts",
-    "sass:debug": "node --experimental-strip-types .scripts/sass.ts",
-    "tokens:parse": "node --experimental-strip-types .scripts/token-loader/parse.ts"
+    "tokens": "node .scripts/tokens/index.ts",
+    "tokens2": "node .scripts/tokens2/index.ts",
+    "sass:debug": "node .scripts/sass.ts",
+    "tokens:parse": "node .scripts/token-loader/parse.ts"
   },
   "overrides": {
     "vite": "7.2.2",

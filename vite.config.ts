@@ -1,11 +1,11 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { defineConfig, type UserConfig } from 'vite';
+import { defineConfig, type ConfigEnv, type UserConfigFnObject } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import { constructCss } from './.scripts/vite-plugins.js';
+import { constructCSS } from './.scripts/vite-plugins.js';
 
 const root = pathToFileURL(`${import.meta.dirname}/`);
 
-const config: UserConfig = defineConfig({
+const config: UserConfigFnObject = defineConfig(({ command }: ConfigEnv) => ({
   root: fileURLToPath(root),
   build: {
     target: 'esnext',
@@ -27,7 +27,10 @@ const config: UserConfig = defineConfig({
     },
   },
   cacheDir: fileURLToPath(new URL('.vite/', root)),
-  plugins: [constructCss(), react({ devTarget: 'esnext' })],
-});
+  plugins: [
+    constructCSS({ isProd: command === 'build' }),
+    react({ devTarget: 'esnext' }),
+  ],
+}));
 
 export default config;
