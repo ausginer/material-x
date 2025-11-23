@@ -40,7 +40,7 @@ class SwitchButtonSpringAnimationController implements ReactiveController {
       self.#hasInteractionStarted = true;
       self.#wasChecked = self.#host.checked;
       animation.ready.then(() => {
-        animation.playbackRate = self.#defaultPlaybackRate;
+        animation.updatePlaybackRate(self.#defaultPlaybackRate);
         animation.play();
       });
     };
@@ -57,7 +57,7 @@ class SwitchButtonSpringAnimationController implements ReactiveController {
         if (self.#host.checked === self.#wasChecked) {
           // Only rewind when the release matches the state we started with.
           animation.ready.then(() => {
-            animation.playbackRate = -self.#defaultPlaybackRate;
+            animation.updatePlaybackRate(-self.#defaultPlaybackRate);
             animation.play();
           });
         }
@@ -67,7 +67,7 @@ class SwitchButtonSpringAnimationController implements ReactiveController {
     const settle = () => {
       if (!self.#hasInteractionStarted) {
         animation.ready.then(() => {
-          animation.playbackRate = -self.#defaultPlaybackRate;
+          animation.updatePlaybackRate(-self.#defaultPlaybackRate);
           animation.finish();
         });
       }

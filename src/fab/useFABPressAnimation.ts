@@ -42,13 +42,13 @@ class FABPressAnimation implements ReactiveController {
 
     this.#fabtoggle = () => {
       animation.ready.then(() => {
-        animation.playbackRate = self.#defaultPlaybackRate;
+        animation.updatePlaybackRate(self.#defaultPlaybackRate);
         animation.play();
       });
     };
 
     animation.ready.then(() => {
-      animation.playbackRate = self.#defaultPlaybackRate;
+      animation.updatePlaybackRate(self.#defaultPlaybackRate);
       animation.finish();
     });
   }
