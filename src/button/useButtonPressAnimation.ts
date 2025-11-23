@@ -34,10 +34,12 @@ class ButtonPressAnimation implements ReactiveController {
   #pointercancel: HTMLElementEventListener<'pointercancel'> = () => {};
 
   constructor(host: ReactiveElement) {
+    const self = this;
     this.#host = host;
     useEvents(host, {
-      pointerdown: (event) => this.#pointerdown(event),
-      pointerup: (event) => this.#pointerup(event),
+      pointerdown: (event) => self.#pointerdown(event),
+      pointerup: (event) => self.#pointerup(event),
+      pointercancel: (event) => self.#pointercancel(event),
     });
   }
 
