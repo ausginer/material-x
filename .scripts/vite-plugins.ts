@@ -154,14 +154,16 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
           transform: {
             handler(code, id) {
               if (id.endsWith('.ts') || id.endsWith('.tsx')) {
-                Object.entries(propList).reduce(
-                  (acc, [prop, short]) =>
-                    acc.replace(
-                      new RegExp(`'${prop.substring(3)}'`),
-                      `'${short.substring(2)}'`,
-                    ),
-                  code,
-                );
+                return {
+                  code: Object.entries(propList).reduce(
+                    (acc, [prop, short]) =>
+                      acc.replace(
+                        new RegExp(`['"]_${prop.substring(3)}['"]`, 'g'),
+                        `'${short}'`,
+                      ),
+                    code,
+                  ),
+                };
               }
             },
           },

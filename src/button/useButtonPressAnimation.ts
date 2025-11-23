@@ -17,14 +17,14 @@ export function createButtonPressAnimation(host: HTMLElement): Animation {
   const vars = readCSSVariables(
     host,
     {
-      damping: 'press-damping',
-      stiffness: 'press-stiffness',
-      duration: 'press-duration',
+      damping: '_press-damping',
+      stiffness: '_press-stiffness',
+      duration: '_press-duration',
     },
     transformNumericVariable,
   );
 
-  return createSpringAnimation(host, 'press-factor', vars);
+  return createSpringAnimation(host, '_press-factor', vars);
 }
 
 class ButtonPressAnimation implements ReactiveController {

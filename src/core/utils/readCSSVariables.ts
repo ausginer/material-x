@@ -34,7 +34,7 @@ export function readCSSVariables<K extends PropertyKey, V>(
 
   return (Object as TypedObjectConstructor).fromEntries(
     (Object as TypedObjectConstructor).entries(vars).map(([name, variable]) => {
-      const value = styles.getPropertyValue(`--_${variable}`).trim();
+      const value = styles.getPropertyValue(`--${variable}`).trim();
       const result = transform(name, value, host);
       return [name, result];
     }),

@@ -91,7 +91,7 @@ export function createSpringAnimation(
   const keyframes = createSpringKeyframes(input);
 
   const animation = host.animate(
-    keyframes.map((frame) => ({ [`--_${factorName}`]: frame })),
+    keyframes.map((frame) => ({ [`--${factorName}`]: frame })),
     { duration: input.duration * 1000, fill: 'forwards' },
   );
   animation.pause();

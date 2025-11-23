@@ -37,17 +37,31 @@ for await (const filename of glob('**/*.css.ts', { cwd: srcDir })) {
 
 function* createLetterProvider(): Generator<string, undefined, void> {
   const letters = 'abcdefghijklmnopqrstuvwxyz';
-  let counter = 0;
-  let amountOfLetters = 1;
+  let length = 1;
 
   while (true) {
-    if (counter + amountOfLetters >= letters.length) {
-      counter = 0;
-      amountOfLetters += 1;
+    const indexes = Array.from({ length }, () => 0);
+    const lastIndex = letters.length - 1;
+
+    while (true) {
+      yield indexes.map((i) => letters[i]).join('');
+
+      let cursor = indexes.length - 1;
+      while (cursor >= 0 && indexes[cursor] === lastIndex) {
+        cursor -= 1;
+      }
+
+      if (cursor < 0) {
+        break;
+      }
+
+      indexes[cursor]! += 1;
+      for (let i = cursor + 1; i < indexes.length; i += 1) {
+        indexes[i] = 0;
+      }
     }
 
-    yield letters.substring(counter, counter + amountOfLetters);
-    counter += 1;
+    length += 1;
   }
 }
 

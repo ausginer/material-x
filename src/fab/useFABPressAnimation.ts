@@ -34,14 +34,14 @@ class FABPressAnimation implements ReactiveController {
     const vars = readCSSVariables(
       self.#host,
       {
-        damping: 'unfold-damping',
-        stiffness: 'unfold-stiffness',
-        duration: 'unfold-duration',
+        damping: '_unfold-damping',
+        stiffness: '_unfold-stiffness',
+        duration: '_unfold-duration',
       },
       transformNumericVariable,
     );
 
-    const animation = createSpringAnimation(self.#host, 'unfold-factor', vars);
+    const animation = createSpringAnimation(self.#host, '_unfold-factor', vars);
 
     this.#fabtoggle = () => {
       animation.updatePlaybackRate(self.#defaultPlaybackRate);
