@@ -39,8 +39,10 @@ class SwitchButtonSpringAnimationController implements ReactiveController {
     self.#pointerdown = () => {
       self.#hasInteractionStarted = true;
       self.#wasChecked = self.#host.checked;
-      animation.updatePlaybackRate(self.#defaultPlaybackRate);
-      animation.play();
+      animation.ready.then(() => {
+        animation.playbackRate = self.#defaultPlaybackRate;
+        animation.play();
+      });
     };
 
     self.#pointerup = self.#pointercancel = () => {
@@ -54,16 +56,20 @@ class SwitchButtonSpringAnimationController implements ReactiveController {
 
         if (self.#host.checked === self.#wasChecked) {
           // Only rewind when the release matches the state we started with.
-          animation.updatePlaybackRate(-self.#defaultPlaybackRate);
-          animation.play();
+          animation.ready.then(() => {
+            animation.playbackRate = -self.#defaultPlaybackRate;
+            animation.play();
+          });
         }
       }, 1);
     };
 
     const settle = () => {
       if (!self.#hasInteractionStarted) {
-        animation.updatePlaybackRate(-self.#defaultPlaybackRate);
-        animation.finish();
+        animation.ready.then(() => {
+          animation.playbackRate = -self.#defaultPlaybackRate;
+          animation.finish();
+        });
       }
     };
 

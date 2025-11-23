@@ -47,12 +47,16 @@ class ButtonPressAnimation implements ReactiveController {
     const self = this;
     const animation = createButtonPressAnimation(self.#host);
     self.#pointerdown = () => {
-      animation.updatePlaybackRate(1);
-      animation.play();
+      animation.ready.then(() => {
+        animation.playbackRate = 1;
+        animation.play();
+      });
     };
     self.#pointerup = self.#pointercancel = () => {
-      animation.updatePlaybackRate(-1);
-      animation.play();
+      animation.ready.then(() => {
+        animation.playbackRate = -1;
+        animation.play();
+      });
     };
   }
 }
