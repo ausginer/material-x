@@ -5,12 +5,12 @@ import {
   define,
   html,
 } from '../core/elements/reactive-element.ts';
-import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
-import colorStyles from './color/main.css.ts?type=css' with { type: 'css' };
-import mainStyles from './default/main.css.ts?type=css' with { type: 'css' };
-import extendedStyles from './extended/main.css.ts?type=css' with { type: 'css' };
-import sizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
-import tonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
+import elevationStyles from '../styles/core/styles/elevation.css.ts?type=css' with { type: 'css' };
+import colorStyles from './styles/color/main.css.ts?type=css' with { type: 'css' };
+import mainStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
+import extendedStyles from './styles/extended/main.css.ts?type=css' with { type: 'css' };
+import sizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
+import tonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import { useFABPressAnimation } from './useFABPressAnimation.ts';
 import { Attribute } from '../core/elements/attribute.ts';
 import { useAttribute } from '../core/controllers/useAttribute.ts';

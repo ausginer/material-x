@@ -3,7 +3,7 @@ import { html, ReactiveElement, use } from '../elements/reactive-element.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
 import type { Point } from './Point.ts';
-import css from './ripple.css.ts?type=css' with { type: 'css' };
+import css from './styles/ripple.css.ts?type=css' with { type: 'css' };
 import { useEvents } from '../controllers/useEvents.ts';
 
 // States of the ripple animation controller

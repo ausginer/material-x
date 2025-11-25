@@ -1,22 +1,24 @@
+import { Attribute } from '../core/elements/attribute.ts';
 import {
   define,
   html,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import { useButtonCore } from './useButtonCore.ts';
-import switchDefaultStyles from './default/switch.css.ts?type=css' with { type: 'css' };
-import mainElevatedStyles from './elevated/main.css.ts?type=css' with { type: 'css' };
-import switchElevatedStyles from './elevated/switch.css.ts?type=css' with { type: 'css' };
-import mainIconStyles from './icon/main.css.ts?type=css' with { type: 'css' };
-import switchIconStyles from './icon/switch.css.ts?type=css' with { type: 'css' };
 import type { IconButtonAttributes } from './icon-button.ts';
-import mainOutlinedStyles from './outlined/main.css.ts?type=css' with { type: 'css' };
-import switchOutlinedStyles from './outlined/switch.css.ts?type=css' with { type: 'css' };
-import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
-import switchSizeStyles from './size/switch.css.ts?type=css' with { type: 'css' };
+import switchDefaultStyles from './styles/default/switch.css.ts?type=css' with { type: 'css' };
+import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
+import switchElevatedStyles from './styles/elevated/switch.css.ts?type=css' with { type: 'css' };
+import mainIconStyles from './styles/icon/main.css.ts?type=css' with { type: 'css' };
+import switchIconStyles from './styles/icon/switch.css.ts?type=css' with { type: 'css' };
+import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
+import switchOutlinedStyles from './styles/outlined/switch.css.ts?type=css' with { type: 'css' };
+import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
+import switchSizeStyles from './styles/size/switch.css.ts?type=css' with { type: 'css' };
+import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
+import switchTonalStyles from './styles/tonal/switch.css.ts?type=css' with { type: 'css' };
 import type { SwitchButtonColor } from './switch-button.ts';
-import mainTonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
-import switchTonalStyles from './tonal/switch.css.ts?type=css' with { type: 'css' };
+import { useButtonCore } from './useButtonCore.ts';
+import type { SwitchElement } from './useSwitchButtonPressAnimation.ts';
 import { useSwitchButtonPressAnimation } from './useSwitchButtonPressAnimation.ts';
 
 const TEMPLATE = html`<slot name="icon"></slot>`;
@@ -47,9 +49,14 @@ export type SwitchIconButtonAttributes = Readonly<
  * @attr {boolean|undefined} checked
  * @attr {boolean|undefined} disabled
  */
-export default class SwitchIconButton extends ReactiveElement {
+export default class SwitchIconButton
+  extends ReactiveElement
+  implements SwitchElement
+{
   static readonly formAssociated = true;
   static readonly observedAttributes = ['disabled'] as const;
+
+  readonly #checked = Attribute.bool(this, 'checked');
 
   constructor() {
     super();
@@ -67,6 +74,14 @@ export default class SwitchIconButton extends ReactiveElement {
       switchIconStyles,
     ]);
     useSwitchButtonPressAnimation(this);
+  }
+
+  get checked(): boolean {
+    return this.#checked.get();
+  }
+
+  set checked(value: boolean) {
+    this.#checked.set(value);
   }
 }
 

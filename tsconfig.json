@@ -37,6 +37,7 @@
     "./.ladle",
     "./src",
     "./types.d.ts",
+    "./.size-limit.ts",
     "./vite.config.ts",
     "./vitest.config.ts"
   ]

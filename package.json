@@ -17,8 +17,15 @@
   "engines": {
     "node": ">=24"
   },
+  "exports": {
+    "./button/button.js": "./button/button.js",
+    "./button/icon-button.js": "./button/icon-button.js",
+    "./button/link-button.js": "./button/link-button.js",
+    "./button/switch-button.js": "./button/switch-button.js",
+    "./button/switch-icon-button.js": "./button/switch-icon-button.js"
+  },
   "scripts": {
-    "debug": "node .scripts/debug-css.ts",
+    "debug": "node .scripts/css/debug.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "generate": "node .scripts/generator.ts",
     "css:prop:collect": "node .scripts/css/collect-props.ts",
@@ -80,8 +87,5 @@
     "typescript-eslint": "8.47.0",
     "vite": "7.2.2",
     "vitest": "4.0.10"
-  },
-  "dependencies": {
-    "dom-cue": "0.2.8"
   }
 }

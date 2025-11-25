@@ -1,25 +1,27 @@
+import { Attribute } from '../core/elements/attribute.ts';
 import {
   define,
   html,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
+import switchDefaultStyles from './styles/default/switch.css.ts?type=css' with { type: 'css' };
+import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
+import switchElevatedStyles from './styles/elevated/switch.css.ts?type=css' with { type: 'css' };
+import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
+import switchOutlinedStyles from './styles/outlined/switch.css.ts?type=css' with { type: 'css' };
+import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
+import switchSizeStyles from './styles/size/switch.css.ts?type=css' with { type: 'css' };
+import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
+import switchTonalStyles from './styles/tonal/switch.css.ts?type=css' with { type: 'css' };
 import {
   useButtonCore,
   type CoreButtonAttributes,
   type ButtonColor,
 } from './useButtonCore.ts';
-import switchDefaultStyles from './default/switch.css.ts?type=css' with { type: 'css' };
-import mainElevatedStyles from './elevated/main.css.ts?type=css' with { type: 'css' };
-import switchElevatedStyles from './elevated/switch.css.ts?type=css' with { type: 'css' };
-import mainOutlinedStyles from './outlined/main.css.ts?type=css' with { type: 'css' };
-import switchOutlinedStyles from './outlined/switch.css.ts?type=css' with { type: 'css' };
-import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
-import switchSizeStyles from './size/switch.css.ts?type=css' with { type: 'css' };
-import mainTonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
-import switchTonalStyles from './tonal/switch.css.ts?type=css' with { type: 'css' };
-import { useSwitchButtonPressAnimation } from './useSwitchButtonPressAnimation.ts';
-import { Attribute } from '../core/elements/attribute.ts';
-import { useAttribute } from '../core/controllers/useAttribute.ts';
+import {
+  useSwitchButtonPressAnimation,
+  type SwitchElement,
+} from './useSwitchButtonPressAnimation.ts';
 
 const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
 
@@ -39,7 +41,10 @@ export type SwitchButtonAttributes = Readonly<
  * @attr {boolean} disabled
  * @attr {boolean} checked
  */
-export default class SwitchButton extends ReactiveElement {
+export default class SwitchButton
+  extends ReactiveElement
+  implements SwitchElement
+{
   static readonly formAssociated = true;
   static readonly observedAttributes = ['checked', 'disabled'] as const;
 

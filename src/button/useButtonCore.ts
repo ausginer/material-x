@@ -1,10 +1,10 @@
 import { useConnected } from '../core/controllers/useConnected.ts';
 import { useCore } from '../core/controllers/useCore.ts';
 import { ReactiveElement } from '../core/elements/reactive-element.ts';
-import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
-import defaultDisabledStyles from './default/disabled.css.ts?type=css' with { type: 'css' };
-import defaultButtonStyles from './default/main.css.ts?type=css' with { type: 'css' };
-import shapeStyles from './shape/main.css.ts?type=css' with { type: 'css' };
+import elevationStyles from '../styles/core/styles/elevation.css.ts?type=css' with { type: 'css' };
+import defaultDisabledStyles from './styles/default/disabled.css.ts?type=css' with { type: 'css' };
+import defaultButtonStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
+import shapeStyles from './styles/shape/main.css.ts?type=css' with { type: 'css' };
 
 export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';

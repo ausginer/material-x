@@ -8,12 +8,12 @@ import {
   type ButtonColor,
   type CoreButtonAttributes,
 } from './useButtonCore.ts';
-import mainElevatedStyles from './elevated/main.css.ts?type=css' with { type: 'css' };
-import mainIconStyles from './icon/main.css.ts?type=css' with { type: 'css' };
-import mainOutlinedStyles from './outlined/main.css.ts?type=css' with { type: 'css' };
-import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
-import mainTextStyles from './text/main.css.ts?type=css' with { type: 'css' };
-import mainTonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
+import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
+import mainIconStyles from './styles/icon/main.css.ts?type=css' with { type: 'css' };
+import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
+import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
+import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'css' };
+import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import { useButtonPressAnimation } from './useButtonPressAnimation.ts';
 
 export type IconButtonWidth = 'wide' | 'narrow';

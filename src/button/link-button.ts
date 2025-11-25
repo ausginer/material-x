@@ -4,12 +4,12 @@ import {
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import { useButtonCore, type CoreButtonAttributes } from './useButtonCore.ts';
-import mainElevatedStyles from './elevated/main.css.ts?type=css' with { type: 'css' };
-import linkButtonStyles from './link-button.css.ts?type=css' with { type: 'css' };
-import mainOutlinedStyles from './outlined/main.css.ts?type=css' with { type: 'css' };
-import mainSizeStyles from './size/main.css.ts?type=css' with { type: 'css' };
-import mainTextStyles from './text/main.css.ts?type=css' with { type: 'css' };
-import tonalStyles from './tonal/main.css.ts?type=css' with { type: 'css' };
+import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
+import linkButtonStyles from './styles/link-button.css.ts?type=css' with { type: 'css' };
+import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
+import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
+import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'css' };
+import tonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import { useButtonPressAnimation } from './useButtonPressAnimation.ts';
 import { Attribute } from '../core/elements/attribute.ts';
 import { useAttribute } from '../core/controllers/useAttribute.ts';

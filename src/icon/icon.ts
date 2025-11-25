@@ -4,7 +4,7 @@ import {
   html,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import css from './icon.css.ts?type=css' with { type: 'css' };
+import css from './styles/icon.css.ts?type=css' with { type: 'css' };
 
 const TEMPLATE = html`<slot></slot>`;
 

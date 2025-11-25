@@ -3,10 +3,17 @@ import {
   type HTMLElementEventListener,
 } from '../core/controllers/useEvents.ts';
 import type { ReactiveController } from '../core/elements/reactive-controller.ts';
-import { use } from '../core/elements/reactive-element.ts';
+import {
+  use,
+  type ReactiveElement,
+} from '../core/elements/reactive-element.ts';
 import { updatePlaybackRate } from '../core/utils/animation.ts';
 import type SwitchButton from './switch-button.ts';
 import { createButtonPressAnimation } from './useButtonPressAnimation.ts';
+
+export interface SwitchElement extends ReactiveElement {
+  checked: boolean;
+}
 
 export class SwitchButtonCheckEvent extends Event {
   declare target: SwitchButton;
@@ -15,12 +22,12 @@ export class SwitchButtonCheckEvent extends Event {
 const CHANGE_EVENTS = ['input', 'change'] as const;
 
 class SwitchButtonSpringAnimationController implements ReactiveController {
-  readonly #host: SwitchButton;
+  readonly #host: SwitchElement;
   #wasChecked: boolean;
   #pointerdown: HTMLElementEventListener<'pointerdown'> = () => {};
   #pointerup: HTMLElementEventListener<'pointerup'> = () => {};
 
-  constructor(host: SwitchButton) {
+  constructor(host: SwitchElement) {
     const self = this;
     this.#host = host;
     this.#wasChecked = host.checked;
@@ -67,6 +74,6 @@ class SwitchButtonSpringAnimationController implements ReactiveController {
   }
 }
 
-export function useSwitchButtonPressAnimation(host: SwitchButton): void {
+export function useSwitchButtonPressAnimation(host: SwitchElement): void {
   use(host, new SwitchButtonSpringAnimationController(host));
 }
