@@ -1,13 +1,13 @@
+import { fileURLToPath } from 'node:url';
 import type { Visitor } from 'lightningcss';
 import { cssCache, type JSONModule } from '../utils.ts';
-import { fileURLToPath } from 'node:url';
 
 const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
   await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {
     with: { type: 'json' },
   });
 
-export function createMangler(): Visitor<{}> {
+export function createMangler(): Visitor<Readonly<Record<never, never>>> {
   return {
     Declaration: {
       custom({ name, value }) {
@@ -26,6 +26,8 @@ export function createMangler(): Visitor<{}> {
             },
           };
         }
+
+        return undefined;
       },
     },
     Variable(v) {
@@ -51,6 +53,8 @@ export function createMangler(): Visitor<{}> {
           },
         };
       }
+
+      return undefined;
     },
   };
 }

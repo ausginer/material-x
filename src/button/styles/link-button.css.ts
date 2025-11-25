@@ -1,4 +1,4 @@
-import { css } from '../core/tokens/css.ts';
+import { css } from '../../core/tokens/css.ts';
 
 const styles: string = css`
   :host {

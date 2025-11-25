@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'eslint/config';
-import type { Config } from '@eslint/config-helpers';
+import { defineConfig, globalIgnores, type Config } from 'eslint/config';
 import tsImports from 'eslint-config-vaadin/imports-typescript';
 import prettier from 'eslint-config-vaadin/prettier';
 import testing from 'eslint-config-vaadin/testing';
@@ -9,10 +9,10 @@ import tsRequireTypeChecking from 'eslint-config-vaadin/typescript-requiring-typ
 const root = new URL('./', import.meta.url);
 
 const config: readonly Config[] = defineConfig(
+  globalIgnores(['.vite/**/*', '.docs/**/*']),
   tsRequireTypeChecking as any,
   tsImports as any,
   testing as any,
-  // storybook,
   prettier as any,
   {
     rules: {
@@ -23,13 +23,7 @@ const config: readonly Config[] = defineConfig(
       '@typescript-eslint/no-shadow': 'off',
       'import-x/prefer-default-export': 'off',
     },
-    files: [
-      './.scripts/**/*.ts',
-      'src/**/*.ts',
-      'src2/**/*.ts',
-      'src2/**/*.js',
-      'src/**/*.js',
-    ],
+    files: ['./.scripts/**/*.ts', './src/**/*.ts', './src/**/*.tsx'],
     languageOptions: {
       parserOptions: {
         projectService: true,

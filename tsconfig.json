@@ -34,10 +34,10 @@
   },
   "include": [
     "./.scripts/**/*",
-    "./.ladle",
+    "./.ladle/**/*",
     "./src",
     "./types.d.ts",
-    "./.size-limit.ts",
+    "eslint.config.ts",
     "./vite.config.ts",
     "./vitest.config.ts"
   ]

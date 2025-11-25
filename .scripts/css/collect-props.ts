@@ -1,7 +1,7 @@
 import { glob, mkdir, writeFile } from 'node:fs/promises';
-import { root, type JSModule } from '../utils.ts';
 import { fileURLToPath } from 'node:url';
 import { transform } from 'lightningcss';
+import { root, type JSModule } from '../utils.ts';
 
 const srcDir = new URL('src/', root);
 const cacheDir = new URL('node_modules/.cache/css/', root);
@@ -39,10 +39,12 @@ function* createLetterProvider(): Generator<string, undefined, void> {
   const letters = 'abcdefghijklmnopqrstuvwxyz';
   let length = 1;
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     const indexes = Array.from({ length }, () => 0);
     const lastIndex = letters.length - 1;
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     while (true) {
       yield indexes.map((i) => letters[i]).join('');
 

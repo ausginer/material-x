@@ -1,4 +1,4 @@
-import { Story } from '@ladle/react';
+import type { Story } from '@ladle/react';
 import './react/button-group.ts';
 import '../button/react/button.ts';
 

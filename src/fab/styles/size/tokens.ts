@@ -2,8 +2,7 @@ import type { TupleToUnion } from 'type-fest';
 import processTokenSet from '../../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../../core/tokens/resolve.ts';
 import { createVariables } from '../../../core/tokens/variable.ts';
-import { type TypedObjectConstructor } from '../../../interfaces.ts';
-import { PRIVATE, PUBLIC, set as defaultSet } from '../default/tokens.ts';
+import type { TypedObjectConstructor } from '../../../interfaces.ts';
 import {
   applyToFAB,
   createPrefix,
@@ -12,6 +11,7 @@ import {
   resolveFABShape,
   type PackShape,
 } from '../../utils.ts';
+import { PRIVATE, PUBLIC, set as defaultSet } from '../default/tokens.ts';
 
 const SIZES = ['large', 'medium'] as const;
 

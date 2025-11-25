@@ -14,7 +14,6 @@ async function streamToString(stream: Readable | null): Promise<string> {
 
   const chunks = [];
 
-  // eslint-disable-next-line @typescript-eslint/await-thenable
   for await (const chunk of stream) {
     chunks.push(Buffer.from(chunk));
   }
@@ -38,10 +37,7 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
     Object.entries(trackedFiles.value).reduce<Record<string, Set<string>>>(
       (acc, [id, dependencies]) => {
         for (const d of dependencies) {
-          if (!acc[d]) {
-            acc[d] = new Set();
-          }
-
+          acc[d] ??= new Set();
           acc[d].add(id);
         }
 
@@ -165,6 +161,8 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
                   ),
                 };
               }
+
+              return null;
             },
           },
         }

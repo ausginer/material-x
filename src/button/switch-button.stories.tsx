@@ -1,4 +1,4 @@
-import { Story } from '@ladle/react';
+import type { Story } from '@ladle/react';
 import './react/switch-button.ts';
 import { useState, type PropsWithChildren } from 'react';
 import type { SwitchButtonAttributes } from './react/switch-button.ts';

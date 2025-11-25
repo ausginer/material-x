@@ -19,8 +19,6 @@ class FABPressAnimation implements ReactiveController {
   constructor(host: FAB) {
     this.#host = host;
 
-    const self = this;
-
     useEvents(host, {
       fabtoggle: (event) => this.#fabtoggle(event),
     });

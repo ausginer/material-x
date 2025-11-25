@@ -3,7 +3,7 @@ import processTokenSet from '../../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../../core/tokens/resolve.ts';
 import { attribute, type Param } from '../../../core/tokens/selector.ts';
 import { createVariables } from '../../../core/tokens/variable.ts';
-import { type TypedObjectConstructor } from '../../../interfaces.ts';
+import type { TypedObjectConstructor } from '../../../interfaces.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
   applyToButtons,

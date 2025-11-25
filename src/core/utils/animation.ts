@@ -4,5 +4,5 @@ export function updatePlaybackRate(
   callback: (animation: Animation) => void,
 ): void {
   animation.updatePlaybackRate(playbackRate);
-  animation.ready.then(callback);
+  void animation.ready.then(callback);
 }

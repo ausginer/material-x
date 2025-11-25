@@ -1,10 +1,14 @@
-import { type TypedObjectConstructor } from '../../interfaces.ts';
-import { html, ReactiveElement, use } from '../elements/reactive-element.ts';
+import type { TypedObjectConstructor } from '../../interfaces.ts';
+import { useEvents } from '../controllers/useEvents.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
+import {
+  html,
+  type ReactiveElement,
+  use,
+} from '../elements/reactive-element.ts';
 import CSSVariableError from '../utils/CSSVariableError.ts';
 import type { Point } from './Point.ts';
 import css from './styles/ripple.css.ts?type=css' with { type: 'css' };
-import { useEvents } from '../controllers/useEvents.ts';
 
 // States of the ripple animation controller
 const INACTIVE = 0;
@@ -168,7 +172,7 @@ class RippleAnimationController implements ReactiveController {
         checkBoundsAfterContextMenu = true;
         void self.#endAnimation();
       },
-      async pointerdown(event: PointerEvent) {
+      pointerdown(event: PointerEvent) {
         if (!self.#shouldReactToEvent(event)) {
           return;
         }
@@ -193,18 +197,15 @@ class RippleAnimationController implements ReactiveController {
         // Wait for a hold after touch delay
         state = TOUCH_DELAY;
 
-        await new Promise((resolve) => {
-          setTimeout(resolve, TOUCH_DELAY_MS);
-        });
+        setTimeout(() => {
+          // State may have changed while waiting for the timeout.
+          if (state !== TOUCH_DELAY) {
+            return;
+          }
 
-        // State may have changed while waiting for the timeout.
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (state !== TOUCH_DELAY) {
-          return;
-        }
-
-        state = HOLDING;
-        self.#startAnimation();
+          state = HOLDING;
+          self.#startAnimation();
+        }, TOUCH_DELAY_MS);
       },
       pointerleave(event: PointerEvent) {
         if (!self.#shouldReactToEvent(event)) {

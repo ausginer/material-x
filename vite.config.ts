@@ -1,6 +1,6 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { defineConfig, type ConfigEnv, type UserConfigFnObject } from 'vite';
 import react from '@vitejs/plugin-react-swc';
+import { defineConfig, type ConfigEnv, type UserConfigFnObject } from 'vite';
 import { constructCSS } from './.scripts/vite-plugins.js';
 
 const root = pathToFileURL(`${import.meta.dirname}/`);

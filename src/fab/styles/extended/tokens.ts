@@ -7,8 +7,7 @@ import {
   CSSVariable,
   type CSSVariableSet,
 } from '../../../core/tokens/variable.ts';
-import { type TypedObjectConstructor } from '../../../interfaces.ts';
-import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
+import type { TypedObjectConstructor } from '../../../interfaces.ts';
 import {
   applyToFAB,
   createPrefix,
@@ -17,6 +16,7 @@ import {
   resolveFABShape,
   type PackShape,
 } from '../../utils.ts';
+import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 
 export const DEFAULTS = ['tertiary', 'small', 'tertiary-container'] as const;
 

@@ -1,20 +1,20 @@
 import { useRipple } from '../core/animations/ripple.ts';
+import { useAttribute } from '../core/controllers/useAttribute.ts';
+import { useConnected } from '../core/controllers/useConnected.ts';
 import { useCore } from '../core/controllers/useCore.ts';
+import { Attribute } from '../core/elements/attribute.ts';
 import {
   ReactiveElement,
   define,
   html,
 } from '../core/elements/reactive-element.ts';
-import elevationStyles from '../styles/core/styles/elevation.css.ts?type=css' with { type: 'css' };
+import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
 import colorStyles from './styles/color/main.css.ts?type=css' with { type: 'css' };
 import mainStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
 import extendedStyles from './styles/extended/main.css.ts?type=css' with { type: 'css' };
 import sizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
 import tonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import { useFABPressAnimation } from './useFABPressAnimation.ts';
-import { Attribute } from '../core/elements/attribute.ts';
-import { useAttribute } from '../core/controllers/useAttribute.ts';
-import { useConnected } from '../core/controllers/useConnected.ts';
 
 export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';

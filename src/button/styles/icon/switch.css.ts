@@ -1,6 +1,6 @@
 import { css, prettify } from '../../../core/tokens/css.ts';
 import { attribute } from '../../../core/tokens/selector.ts';
-import { type TypedObjectConstructor } from '../../../interfaces.ts';
+import type { TypedObjectConstructor } from '../../../interfaces.ts';
 import { buttonStates, state } from '../utils.ts';
 import packs, { DEFAULTS, widthPacks } from './tokens.ts';
 

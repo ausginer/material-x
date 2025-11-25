@@ -1,4 +1,4 @@
-import { type TypedObjectConstructor } from '../../interfaces.ts';
+import type { TypedObjectConstructor } from '../../interfaces.ts';
 import db from './DB.ts';
 import processToken from './processToken.ts';
 

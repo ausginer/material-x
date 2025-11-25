@@ -21,6 +21,7 @@ class EventController implements ReactiveController {
 
   connected(): void {
     for (const [name, listener] of Object.entries(this.#listeners)) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       this.#host.addEventListener(name, listener as EventListener, {
         signal: this.#controller.signal,
       });

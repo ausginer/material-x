@@ -1,7 +1,7 @@
 import { useConnected } from '../core/controllers/useConnected.ts';
 import { useCore } from '../core/controllers/useCore.ts';
-import { ReactiveElement } from '../core/elements/reactive-element.ts';
-import elevationStyles from '../styles/core/styles/elevation.css.ts?type=css' with { type: 'css' };
+import type { ReactiveElement } from '../core/elements/reactive-element.ts';
+import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
 import defaultDisabledStyles from './styles/default/disabled.css.ts?type=css' with { type: 'css' };
 import defaultButtonStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
 import shapeStyles from './styles/shape/main.css.ts?type=css' with { type: 'css' };
@@ -17,6 +17,7 @@ export type CoreButtonAttributes = Readonly<{
   shape?: ButtonShape;
 }>;
 
+// eslint-disable-next-line @typescript-eslint/max-params
 export function useButtonCore(
   element: ReactiveElement,
   template: HTMLTemplateElement,

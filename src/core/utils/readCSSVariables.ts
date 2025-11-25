@@ -1,4 +1,4 @@
-import { type TypedObjectConstructor } from '../../interfaces.ts';
+import type { TypedObjectConstructor } from '../../interfaces.ts';
 import CSSVariableError from './CSSVariableError.ts';
 
 export type TransformCallback<V> = (

@@ -1,4 +1,4 @@
-import { css, prettify } from '../tokens/css.ts';
+import { css, prettify } from '../../tokens/css.ts';
 
 const styles: string = await prettify(css`
   :host {

@@ -1,6 +1,6 @@
 import { css, prettify } from '../../../core/tokens/css.ts';
 import { attribute } from '../../../core/tokens/selector.ts';
-import { type TypedObjectConstructor } from '../../../interfaces.ts';
+import type { TypedObjectConstructor } from '../../../interfaces.ts';
 import { fabStates, state } from '../../utils.ts';
 import packs, { DEFAULTS, variantAttribute } from './tokens.ts';
 

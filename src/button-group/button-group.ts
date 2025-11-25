@@ -1,4 +1,3 @@
-import sizeStyles from '../styles/button/size/main.css.ts?type=css' with { type: 'css' };
 import type { ButtonSize } from '../button/useButtonCore.ts';
 import { useCore } from '../core/controllers/useCore.ts';
 import {
@@ -6,6 +5,7 @@ import {
   define,
   html,
 } from '../core/elements/reactive-element.ts';
+import sizeStyles from '../styles/button/size/main.css.ts?type=css' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
 
 export type ButtonGroupType = 'connected';
