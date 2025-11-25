@@ -35,10 +35,7 @@
     "demo:preview": "ladle preview",
     "demo:build": "ladle build",
     "lint": "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts",
-    "tokens": "node .scripts/tokens/index.ts",
-    "tokens2": "node .scripts/tokens2/index.ts",
-    "sass:debug": "node .scripts/sass.ts",
-    "tokens:parse": "node .scripts/token-loader/parse.ts"
+    "sass:debug": "node .scripts/sass.ts"
   },
   "overrides": {
     "vite": "7.2.2",

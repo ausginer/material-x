@@ -16,7 +16,7 @@ import type {
 import { distinct, getSetName, root, type JSONModule } from './utils.ts';
 
 const DEFAULT_THEME_URL = new URL('./default-theme.json', import.meta.url);
-const CACHE_DIR = new URL('node_modules/.cache/tokens/', root);
+const CACHE_DIR = new URL('.data/tokens/', root);
 async function download(url: URL): Promise<TokenTable> {
   const cacheFile = new URL(
     url.pathname.substring(url.pathname.lastIndexOf('/') + 1),
