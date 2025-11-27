@@ -1,12 +1,13 @@
 import type { TupleToUnion } from 'type-fest';
 import { fixFullShape } from '../../../button/styles/utils.ts';
-import processTokenSet, {
-  type ProcessedTokenSet,
-} from '../../../core/tokens/processTokenSet.ts';
+import motionEffects from '../../../core/tokens/default/motion-effects.ts';
+import processTokenSet from '../../../core/tokens/processTokenSet.ts';
+import { resolveSet } from '../../../core/tokens/resolve.ts';
 import {
-  resolveSet,
-  type ResolvedTokenSet,
-} from '../../../core/tokens/resolve.ts';
+  attribute,
+  pseudoClass,
+  pseudoElement,
+} from '../../../core/tokens/selector.ts';
 import {
   $leaf,
   applyToShape,
@@ -14,16 +15,14 @@ import {
   type Leaf,
   type Shape,
 } from '../../../core/tokens/shape.ts';
-import {
-  createVariables,
-  type CSSVariable,
-  type CSSVariableSet,
-} from '../../../core/tokens/variable.ts';
+import { createVariables, packSet } from '../../../core/tokens/variable.ts';
 import type { TypedObjectConstructor } from '../../../interfaces.ts';
 
 const SET_BASE_NAME = 'md.comp.button-group';
 const TYPES = ['standard', 'connected'] as const;
 const SIZES = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
+
+const ALLOWED = ['container.height', 'between-space'];
 
 export type ButtonGroupSchema = Readonly<{
   default: Leaf;
@@ -37,15 +36,38 @@ const schema: ButtonGroupSchema = {
   selected: $leaf,
 };
 
-export type ButtonGroupCSSVariableShape = Shape<
-  CSSVariableSet,
-  ButtonGroupSchema
->;
+export type ButtonGroupShape<T> = Shape<T, ButtonGroupSchema>;
+
+function applyToButtonGroup<T, U>(
+  shape: ButtonGroupShape<T>,
+  applicator: (set: T, path: readonly string[]) => U,
+): ButtonGroupShape<U> {
+  return applyToShape(shape, schema, applicator);
+}
+
+const special = createVariables(
+  resolveSet({
+    'interaction.easing': motionEffects['expressive.fast-spatial'],
+    'interaction.duration': motionEffects['expressive.fast-spatial.duration'],
+    // Original value in token table is of type LENGTH which usually used as a
+    // pixel value but at https://m3.material.io/components/button-groups/specs
+    // it is defined as 15%. So, to avoid further issues, let's have it defined
+    // here explicitly.
+    'interaction.width.multiplier': '0.15',
+    'interaction.factor': 0,
+  }),
+);
+
+const specialPressed = createVariables(
+  resolveSet({
+    'interaction.factor': 1,
+  }),
+);
 
 const packs: Readonly<
   Record<
     TupleToUnion<typeof TYPES>,
-    Readonly<Record<TupleToUnion<typeof SIZES>, ButtonGroupCSSVariableShape>>
+    Readonly<Record<TupleToUnion<typeof SIZES>, ButtonGroupShape<string>>>
   >
 > = (Object as TypedObjectConstructor).fromEntries(
   TYPES.map(
@@ -57,29 +79,63 @@ const packs: Readonly<
             const set = processTokenSet(`${SET_BASE_NAME}.${type}.${size}`);
             const shapedSet = reshape(set, schema);
 
-            const resolvedSet = applyToShape(
-              shapedSet,
-              schema,
-              (tokens: ProcessedTokenSet) => resolveSet(tokens, fixFullShape),
+            const resolvedSet = applyToButtonGroup(shapedSet, (tokens) =>
+              resolveSet(tokens, fixFullShape),
             );
 
-            const variableSet = applyToShape(
-              resolvedSet,
-              schema,
-              (set: ResolvedTokenSet) => createVariables(set),
+            const variableSet = applyToButtonGroup(resolvedSet, (set) =>
+              createVariables(set, undefined, ALLOWED),
             );
 
-            const packedSet = applyToShape(
+            const specializedSet = applyToButtonGroup(
               variableSet,
-              schema,
-              (set: CSSVariableSet) => {},
+              (set, path) => {
+                if (
+                  type === 'standard' &&
+                  size === 'small' &&
+                  path[0] === 'default'
+                ) {
+                  return {
+                    ...set,
+                    ...special,
+                  };
+                }
+
+                if (
+                  type === 'standard' &&
+                  size === 'small' &&
+                  path[0] === 'pressed'
+                ) {
+                  return {
+                    ...set,
+                    ...specialPressed,
+                  };
+                }
+
+                return set;
+              },
             );
 
-            return [size, ,] as const;
+            const packedSet = applyToButtonGroup(specializedSet, (set) =>
+              packSet(set),
+            );
+
+            return [size, packedSet] as const;
           }),
         ),
       ] as const,
   ),
 );
+
+export const state = {
+  pressed(): string {
+    return pseudoElement('slotted', pseudoClass('active'));
+  },
+  selected(): string {
+    return pseudoElement('slotted', attribute('checked'));
+  },
+} as const;
+
+export const buttonGroupStates = ['default', 'pressed', 'selected'] as const;
 
 export default packs;

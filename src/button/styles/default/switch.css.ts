@@ -9,36 +9,39 @@ const checked = attribute('checked');
 
 const switchStyles = [
   unselected &&
-    buttonStates.map((s) =>
-      s === 'default'
-        ? css`
-            ${state.default()} {
-              ${unselected.default};
-              --_container-color-applied: color-mix(
-                in srgb,
-                var(--_container-color) calc(100% - 100% * var(--_press-factor)),
-                var(--_container-color-reverse)
-                  calc(100% * var(--_press-factor))
-              );
-              --_label-text-color-applied: color-mix(
-                in srgb,
-                var(--_label-text-color)
-                  calc(100% - 100% * var(--_press-factor)),
-                var(--_label-text-color-reverse)
-                  calc(100% * var(--_press-factor))
-              );
+    buttonStates.map((s) => {
+      if (s === 'default') {
+        return css`
+          ${state.default()} {
+            ${unselected.default};
+            --_container-color-applied: color-mix(
+              in srgb,
+              var(--_container-color)
+                calc(100% - 100% * var(--_interaction-factor)),
+              var(--_container-color-reverse)
+                calc(100% * var(--_interaction-factor))
+            );
+            --_label-text-color-applied: color-mix(
+              in srgb,
+              var(--_label-text-color)
+                calc(100% - 100% * var(--_interaction-factor)),
+              var(--_label-text-color-reverse)
+                calc(100% * var(--_interaction-factor))
+            );
 
-              will-change: background-color, color;
+            will-change: background-color, color;
+          }
+        `;
+      }
+
+      return unselected[s]
+        ? css`
+            ${state[s]()} {
+              ${unselected[s]};
             }
           `
-        : unselected[s]
-          ? css`
-              ${state[s]()} {
-                ${unselected[s]};
-              }
-            `
-          : null,
-    ),
+        : null;
+    }),
   selected &&
     buttonStates.map((s) =>
       selected[s]

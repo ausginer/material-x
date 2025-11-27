@@ -17,11 +17,10 @@ import switchSizeStyles from './styles/size/switch.css.ts?type=css' with { type:
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts?type=css' with { type: 'css' };
 import type { SwitchButtonColor } from './switch-button.ts';
-import { useButtonCore } from './useButtonCore.ts';
-import type { SwitchElement } from './useSwitchButtonPressAnimation.ts';
-import { useSwitchButtonPressAnimation } from './useSwitchButtonPressAnimation.ts';
+import { useButtonCore, type ButtonLike } from './useButtonCore.ts';
+import { useSwitch } from './useSwitch.ts';
 
-const TEMPLATE = html`<slot name="icon"></slot>`;
+const TEMPLATE = html`<slot></slot>`;
 
 export type SwitchIconButtonAttributes = Readonly<
   IconButtonAttributes & {
@@ -51,7 +50,7 @@ export type SwitchIconButtonAttributes = Readonly<
  */
 export default class SwitchIconButton
   extends ReactiveElement
-  implements SwitchElement
+  implements ButtonLike
 {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['disabled'] as const;
@@ -60,7 +59,8 @@ export default class SwitchIconButton
 
   constructor() {
     super();
-    useButtonCore(this, TEMPLATE, 'button', [
+    const self = this;
+    useButtonCore(self, TEMPLATE, 'button', [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainSizeStyles,
@@ -73,7 +73,7 @@ export default class SwitchIconButton
       switchTonalStyles,
       switchIconStyles,
     ]);
-    useSwitchButtonPressAnimation(this);
+    useSwitch(self, self.#checked);
   }
 
   get checked(): boolean {

@@ -3,18 +3,18 @@ import { use, type ReactiveElement } from '../elements/reactive-element.ts';
 
 export type HTMLElementEventListener<N extends keyof HTMLElementEventMap> = (
   event: HTMLElementEventMap[N],
-) => void;
+) => void | Promise<void>;
 
-export type HTMLElementEventListeners = Readonly<{
+export type HTMLElementEventListenerMap = Readonly<{
   [N in keyof HTMLElementEventMap]?: HTMLElementEventListener<N>;
 }>;
 
 class EventController implements ReactiveController {
   readonly #host: HTMLElement;
-  readonly #listeners: HTMLElementEventListeners;
+  readonly #listeners: HTMLElementEventListenerMap;
   readonly #controller = new AbortController();
 
-  constructor(host: HTMLElement, listeners: HTMLElementEventListeners) {
+  constructor(host: HTMLElement, listeners: HTMLElementEventListenerMap) {
     this.#host = host;
     this.#listeners = listeners;
   }
@@ -35,7 +35,7 @@ class EventController implements ReactiveController {
 
 export function useEvents(
   host: ReactiveElement,
-  listeners: HTMLElementEventListeners,
+  listeners: HTMLElementEventListenerMap,
 ): void {
   use(host, new EventController(host, listeners));
 }

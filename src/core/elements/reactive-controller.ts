@@ -3,7 +3,7 @@ export interface ReactiveController {
     name: string,
     oldValue: string | null,
     newValue: string | null,
-  ): void;
-  connected?(): void;
-  disconnected?(): void;
+  ): void | Promise<void>;
+  connected?(): void | Promise<void>;
+  disconnected?(): void | Promise<void>;
 }

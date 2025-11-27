@@ -2,6 +2,20 @@
 import type { Constructor } from 'type-fest';
 import type { ReactiveController } from './reactive-controller.ts';
 
+CSS.registerProperty({
+  name: '--_interaction-factor',
+  syntax: '<number>',
+  inherits: true,
+  initialValue: '0',
+});
+
+CSS.registerProperty({
+  name: '--_interaction-direction',
+  syntax: '<number>',
+  inherits: true,
+  initialValue: '0',
+});
+
 export function html(
   str: TemplateStringsArray,
   ...args: readonly unknown[]
@@ -44,16 +58,16 @@ export class ReactiveElement extends HTMLElement {
       newValue: string | null,
     ]
   ): void {
-    this.#controllers.forEach((controller) =>
-      controller.attrChanged?.(...args),
+    this.#controllers.forEach(
+      (controller) => void controller.attrChanged?.(...args),
     );
   }
 
   connectedCallback(): void {
-    this.#controllers.forEach((controller) => controller.connected?.());
+    this.#controllers.forEach((controller) => void controller.connected?.());
   }
 
   disconnectedCallback(): void {
-    this.#controllers.forEach((controller) => controller.disconnected?.());
+    this.#controllers.forEach((controller) => void controller.disconnected?.());
   }
 }

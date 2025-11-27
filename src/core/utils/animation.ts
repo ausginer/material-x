@@ -1,8 +1,7 @@
-export function updatePlaybackRate(
+export async function updatePlaybackRate(
   animation: Animation,
   playbackRate: number,
-  callback: (animation: Animation) => void,
-): void {
+): Promise<void> {
   animation.updatePlaybackRate(playbackRate);
-  void animation.ready.then(callback);
+  await animation.ready;
 }

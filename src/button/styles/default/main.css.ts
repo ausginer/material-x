@@ -21,7 +21,7 @@ const styles: string = await prettify(css`
     border-radius: calc(
       var(--_container-shape-default) -
         (var(--_container-shape-default) - var(--_container-shape-pressed)) *
-        var(--_press-factor)
+        var(--_interaction-factor)
     );
     font-weight: var(--_label-text-font-weight);
     font-size: var(--_label-text-font-size);
@@ -31,6 +31,8 @@ const styles: string = await prettify(css`
     place-content: center;
     gap: 8px;
     text-align: center;
+    transition: --_interaction-factor var(--_press-duration)
+      var(--_press-easing);
   }
 
   ${state.hovered()} {

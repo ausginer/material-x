@@ -248,7 +248,7 @@ class RippleAnimationController implements ReactiveController {
     const vars = (Object as TypedObjectConstructor).fromEntries(
       (Object as TypedObjectConstructor)
         .entries(this.#cssVariables)
-        .map(([k, v]) => [k, `--_${v}`] as const),
+        .map(([k, v]) => [k, `--${v}`] as const),
     );
 
     this.#easing = getComputedStyle(host).getPropertyValue(vars.easing).trim();

@@ -122,6 +122,19 @@ function _packButtons(
   );
 }
 
+function comparator(
+  v1: CSSVariable | undefined,
+  v2: CSSVariable | undefined,
+): boolean {
+  // We make sure that `interaction.factor` is not removed during inheritance
+  // operation.
+  if (v1?.raw === 'interaction.factor' && v2?.raw === 'interaction.factor') {
+    return false;
+  }
+
+  return CSSVariable.equals(v1, v2);
+}
+
 export function packButtons(
   shape: CSSVariableShape,
   ...defaultShapes: readonly CSSVariableShape[]
@@ -133,14 +146,14 @@ export function packButtons(
       const [, selectionState] = path;
 
       return state === 'unselected'
-        ? inherit(tokens, CSSVariable.equals, [
+        ? inherit(tokens, comparator, [
             shape.default,
             selectionState !== 'default'
               ? getDeep(shape, [state, 'default'])
               : null,
             ...defaultShapes.map((s) => s.default),
           ])
-        : inherit(tokens, CSSVariable.equals, [
+        : inherit(tokens, comparator, [
             getDeep(shape, ['unselected', 'default']),
             selectionState !== 'default'
               ? getDeep(shape, [state, 'default'])
@@ -148,7 +161,7 @@ export function packButtons(
           ]);
     }
 
-    return inherit(tokens, CSSVariable.equals, [
+    return inherit(tokens, comparator, [
       state === 'default' ? null : shape.default,
       ...defaultShapes.map((s) => s[state!]),
     ]);

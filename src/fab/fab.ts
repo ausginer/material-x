@@ -14,7 +14,6 @@ import mainStyles from './styles/default/main.css.ts?type=css' with { type: 'css
 import extendedStyles from './styles/extended/main.css.ts?type=css' with { type: 'css' };
 import sizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
 import tonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
-import { useFABPressAnimation } from './useFABPressAnimation.ts';
 
 export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
@@ -55,8 +54,7 @@ export default class FAB extends ReactiveElement {
     useConnected(this, () => {
       this.tabIndex = 0;
     });
-    useFABPressAnimation(this);
-    useRipple(this, { easing: 'ripple-easing' });
+    useRipple(this, { easing: '_ripple-easing' });
     useAttribute(this.#extended, () =>
       this.dispatchEvent(new Event('fabtoggle')),
     );

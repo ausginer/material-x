@@ -5,6 +5,7 @@ import { attribute, type Param } from '../../../core/tokens/selector.ts';
 import {
   createVariables,
   CSSVariable,
+  packSet,
   type CSSVariableSet,
 } from '../../../core/tokens/variable.ts';
 import type { TypedObjectConstructor } from '../../../interfaces.ts';
@@ -73,6 +74,7 @@ const packs: Readonly<Record<TupleToUnion<typeof VARIANTS>, PackShape>> = (
           'state-layer.color': `${setName}.pressed.state-layer.color`,
           direction: 'row',
           'container.width': CSSVariable.ref('container.height'),
+          'interaction.factor': 0,
         }),
         {
           vars: ['direction'],
@@ -119,6 +121,14 @@ const packs: Readonly<Record<TupleToUnion<typeof VARIANTS>, PackShape>> = (
 
     return [c, pack] as const;
   }),
+);
+
+export const openPack: string = packSet(
+  createVariables(
+    resolveSet({
+      'interaction.factor': 1,
+    }),
+  ),
 );
 
 export default packs;

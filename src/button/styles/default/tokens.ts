@@ -53,15 +53,20 @@ const specialTokens = createVariables(
     'state-layer.opacity': `${SET_NAME}.pressed.state-layer.opacity`,
     'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
     'padding-block': `calc((${CSSVariable.ref('container.height')} - max(${CSSVariable.ref('icon.size')}, ${CSSVariable.ref('label-text.line-height')})) / 2)`,
-    'press.damping': `${SET_NAME}.pressed.container.corner-size.motion.spring.damping`,
-    'press.stiffness': `${SET_NAME}.pressed.container.corner-size.motion.spring.stiffness`,
-    'press.duration': motionEffects['expressive.fast-effects.duration'],
-    'press.factor': 0,
+    'press.easing': motionEffects['expressive.fast-spatial'],
+    'press.duration': motionEffects['expressive.fast-spatial.duration'],
     'ripple.color': CSSVariable.ref('state-layer.color'),
-    'ripple.easing': motionEffects['expressive.fast-effects'],
+    'ripple.easing': motionEffects['expressive.fast-spatial'],
     'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
     'shadow.color': CSSVariable.ref('container.shadow-color'),
     'shape.full': `calc(${CSSVariable.ref('container.height')} / 2)`,
+    'interaction.factor': 0,
+  }),
+);
+
+const specialPressedTokens = createVariables(
+  resolveSet({
+    'interaction.factor': 1,
   }),
 );
 
@@ -76,6 +81,13 @@ const specialUnselectedTokens = createVariables(
 const specialSelectedTokens = createVariables(
   resolveSet({
     'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
+    'interaction.factor': 1,
+  }),
+);
+
+const specialSelectedPressedTokens = createVariables(
+  resolveSet({
+    'interaction.factor': 0,
   }),
 );
 
@@ -106,6 +118,13 @@ export const set: CSSVariableShape = (() => {
       };
     }
 
+    if (path[0] === 'pressed') {
+      return {
+        ...tokens,
+        ...specialPressedTokens,
+      };
+    }
+
     if (path[1] === 'default') {
       if (path[0] === 'unselected') {
         return {
@@ -130,7 +149,19 @@ export const set: CSSVariableShape = (() => {
     // Remove label & container colors for hovered/focused/pressed to avoid
     // conflicts with dynamically changing colors.
     if (path[0] === 'selected') {
-      return excludeFromSet(tokens, ['container.color', 'label-text.color']);
+      let _tokens = excludeFromSet(tokens, [
+        'container.color',
+        'label-text.color',
+      ]);
+
+      if (path[1] === 'pressed') {
+        _tokens = {
+          ..._tokens,
+          ...specialSelectedPressedTokens,
+        };
+      }
+
+      return _tokens;
     }
 
     return tokens;

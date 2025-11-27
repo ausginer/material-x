@@ -154,8 +154,8 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
                   code: Object.entries(propList).reduce(
                     (acc, [prop, short]) =>
                       acc.replace(
-                        new RegExp(`['"]_${prop.substring(3)}['"]`, 'g'),
-                        `'${short}'`,
+                        new RegExp(`['"](--)?_${prop.substring(3)}['"]`, 'g'),
+                        `'$1${short}'`,
                       ),
                     code,
                   ),

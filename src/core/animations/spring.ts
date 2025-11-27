@@ -90,6 +90,8 @@ export function createSpringAnimation(
 ): Animation {
   const keyframes = createSpringKeyframes(input);
 
+  console.log(keyframes);
+
   const animation = host.animate(
     keyframes.map((frame) => ({ [`--${factorName}`]: frame })),
     { duration: input.duration * 1000, fill: 'forwards' },

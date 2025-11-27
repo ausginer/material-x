@@ -12,9 +12,9 @@ import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: '
 import {
   useButtonCore,
   type ButtonColor,
+  type ButtonLike,
   type CoreButtonAttributes,
 } from './useButtonCore.ts';
-import { useButtonPressAnimation } from './useButtonPressAnimation.ts';
 
 export type IconButtonWidth = 'wide' | 'narrow';
 export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
@@ -46,7 +46,7 @@ const TEMPLATE = html`<slot></slot>`;
  * @attr {string} width
  * @attr {boolean|undefined} disabled
  */
-export default class IconButton extends ReactiveElement {
+export default class IconButton extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['disabled'] as const;
 
@@ -60,7 +60,6 @@ export default class IconButton extends ReactiveElement {
       mainTonalStyles,
       mainIconStyles,
     ]);
-    useButtonPressAnimation(this);
   }
 }
 

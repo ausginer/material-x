@@ -11,8 +11,11 @@ import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { t
 import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
 import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'css' };
 import tonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
-import { useButtonCore, type CoreButtonAttributes } from './useButtonCore.ts';
-import { useButtonPressAnimation } from './useButtonPressAnimation.ts';
+import {
+  useButtonCore,
+  type ButtonLike,
+  type CoreButtonAttributes,
+} from './useButtonCore.ts';
 
 export type LinkButtonAttributes = CoreButtonAttributes;
 
@@ -26,7 +29,7 @@ const TEMPLATE = html`<a><slot name="icon"></slot><slot></slot></a>`;
  * @attr {string} href
  * @attr {string} target
  */
-export default class LinkButton extends ReactiveElement {
+export default class LinkButton extends ReactiveElement implements ButtonLike {
   static readonly observedAttributes = ['disabled', 'href', 'target'] as const;
 
   constructor() {
@@ -45,7 +48,6 @@ export default class LinkButton extends ReactiveElement {
       ],
       { delegatesFocus: true },
     );
-    useButtonPressAnimation(this);
     ['href', 'target'].map((attr) => {
       const inner = Attribute.string(
         this.shadowRoot!.querySelector('a')!,

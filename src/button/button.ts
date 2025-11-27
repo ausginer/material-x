@@ -8,8 +8,11 @@ import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { t
 import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
 import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
-import { useButtonCore, type CoreButtonAttributes } from './useButtonCore.ts';
-import { useButtonPressAnimation } from './useButtonPressAnimation.ts';
+import {
+  useButtonCore,
+  type ButtonLike,
+  type CoreButtonAttributes,
+} from './useButtonCore.ts';
 
 export type ButtonAttributes = CoreButtonAttributes;
 
@@ -32,7 +35,7 @@ const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
  * @attr {string} size
  * @attr {string} shape
  */
-export default class Button extends ReactiveElement {
+export default class Button extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['disabled'] as const;
 
@@ -45,7 +48,6 @@ export default class Button extends ReactiveElement {
       mainTextStyles,
       mainTonalStyles,
     ]);
-    useButtonPressAnimation(this);
   }
 }
 

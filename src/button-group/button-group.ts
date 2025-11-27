@@ -1,3 +1,4 @@
+import sizeStyles from '../button/styles/size/main.css.ts?type=css' with { type: 'css' };
 import type { ButtonSize } from '../button/useButtonCore.ts';
 import { useCore } from '../core/controllers/useCore.ts';
 import {
@@ -5,13 +6,13 @@ import {
   define,
   html,
 } from '../core/elements/reactive-element.ts';
-import sizeStyles from '../styles/button/size/main.css.ts?type=css' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
+import { useButtonGroupPressAnimation } from './useButtonGroupPressAnimation.ts';
 
 export type ButtonGroupType = 'connected';
 
 export type ButtonGroupAttributes = Readonly<{
-  size?: ButtonSize;
+  size?: Exclude<ButtonSize, 'small'>;
   type?: ButtonGroupType;
 }>;
 
@@ -24,6 +25,7 @@ export default class ButtonGroup extends ReactiveElement {
   constructor() {
     super();
     useCore(this, TEMPLATE, { role: 'group' }, [sizeStyles, defaultStyles]);
+    useButtonGroupPressAnimation(this);
   }
 }
 

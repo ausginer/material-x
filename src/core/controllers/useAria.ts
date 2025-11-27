@@ -1,5 +1,6 @@
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import { use, type ReactiveElement } from '../elements/reactive-element.ts';
+import { useInternals } from './useInternals.ts';
 
 const AriaMapping = {
   checked: 'ariaChecked',
@@ -10,7 +11,7 @@ class AriaController implements ReactiveController {
   readonly #internals: ARIAMixin;
 
   constructor(host: ReactiveElement, init: Partial<ARIAMixin>) {
-    this.#internals = host.attachInternals();
+    this.#internals = useInternals(host);
     Object.assign(this.#internals, init);
   }
 

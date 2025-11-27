@@ -1,3 +1,4 @@
+import { useRipple } from '../core/animations/ripple.ts';
 import { useConnected } from '../core/controllers/useConnected.ts';
 import { useCore } from '../core/controllers/useCore.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
@@ -5,6 +6,11 @@ import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { ty
 import defaultDisabledStyles from './styles/default/disabled.css.ts?type=css' with { type: 'css' };
 import defaultButtonStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
 import shapeStyles from './styles/shape/main.css.ts?type=css' with { type: 'css' };
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ButtonLike extends ReactiveElement {}
+
+const buttons = new WeakSet<Element>();
 
 export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
@@ -19,7 +25,7 @@ export type CoreButtonAttributes = Readonly<{
 
 // eslint-disable-next-line @typescript-eslint/max-params
 export function useButtonCore(
-  element: ReactiveElement,
+  element: ButtonLike,
   template: HTMLTemplateElement,
   role: ARIAMixin['role'],
   styles: CSSStyleSheet[],
@@ -38,7 +44,13 @@ export function useButtonCore(
     ],
     init,
   );
+  useRipple(element, { easing: '_ripple-easing' });
   useConnected(element, () => {
     element.tabIndex = 0;
   });
+  buttons.add(element);
+}
+
+export function isButtonLike(element: Element): element is ButtonLike {
+  return buttons.has(element);
 }
