@@ -16,7 +16,7 @@ import {
 
 export type ButtonAttributes = CoreButtonAttributes;
 
-const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
+const TEMPLATE = html`<slot class="icon" name="icon"></slot><slot></slot>`;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically

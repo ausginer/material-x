@@ -54,13 +54,6 @@ const special = createVariables(
     // it is defined as 15%. So, to avoid further issues, let's have it defined
     // here explicitly.
     'interaction.width.multiplier': '0.15',
-    'interaction.factor': 0,
-  }),
-);
-
-const specialPressed = createVariables(
-  resolveSet({
-    'interaction.factor': 1,
   }),
 );
 
@@ -98,17 +91,6 @@ const packs: Readonly<
                   return {
                     ...set,
                     ...special,
-                  };
-                }
-
-                if (
-                  type === 'standard' &&
-                  size === 'small' &&
-                  path[0] === 'pressed'
-                ) {
-                  return {
-                    ...set,
-                    ...specialPressed,
                   };
                 }
 

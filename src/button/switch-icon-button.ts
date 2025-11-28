@@ -16,18 +16,13 @@ import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'cs
 import switchSizeStyles from './styles/size/switch.css.ts?type=css' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts?type=css' with { type: 'css' };
-import type { SwitchButtonColor } from './switch-button.ts';
 import { useButtonCore, type ButtonLike } from './useButtonCore.ts';
-import { useSwitch } from './useSwitch.ts';
+import { useSwitch, type SwitchAttributes } from './useSwitch.ts';
 
-const TEMPLATE = html`<slot></slot>`;
+const TEMPLATE = html`<slot class="icon"></slot>`;
 
-export type SwitchIconButtonAttributes = Readonly<
-  IconButtonAttributes & {
-    color?: SwitchButtonColor;
-    checked?: boolean;
-  }
->;
+export type SwitchIconButtonAttributes = IconButtonAttributes &
+  SwitchAttributes;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically
@@ -45,6 +40,7 @@ export type SwitchIconButtonAttributes = Readonly<
  * @attr {string} size
  * @attr {string} shape
  * @attr {string} width
+ * @attr {string} value
  * @attr {boolean|undefined} checked
  * @attr {boolean|undefined} disabled
  */
@@ -53,7 +49,7 @@ export default class SwitchIconButton
   implements ButtonLike
 {
   static readonly formAssociated = true;
-  static readonly observedAttributes = ['disabled'] as const;
+  static readonly observedAttributes = ['checked', 'disabled'] as const;
 
   readonly #checked = Attribute.bool(this, 'checked');
 

@@ -26,7 +26,7 @@ export type IconButtonAttributes = Readonly<
   }
 >;
 
-const TEMPLATE = html`<slot></slot>`;
+const TEMPLATE = html`<slot class="icon"></slot>`;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically

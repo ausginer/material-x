@@ -18,8 +18,11 @@ const styles: string = await prettify(css`
       ${buttonStates.map((s) =>
         pack[s]
           ? css`
-              ${state[s](size)}, ${state[s](size)} ${slotted} {
-                ${pack[s]};
+              ${state[s](size)} {
+                &,
+                ${slotted} {
+                  ${pack[s]};
+                }
               }
             `
           : null,

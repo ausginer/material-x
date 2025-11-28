@@ -6,23 +6,26 @@ const styles: string = await prettify(css`
   ${state.default()} {
     ${packs.default};
 
-    /* Intermediate variables for correct mx-switch-button color change logic */
-    --_container-color-applied: var(--_container-color);
-    --_label-text-color-applied: var(--_label-text-color);
+    --_shape-full: calc(var(--_container-height) / 2);
+    --_padding-block: calc(
+      (
+          var(--_container-height) - max(
+              var(--_icon-size),
+              var(--_label-text-line-height)
+            )
+        ) /
+        2
+    );
 
     display: inline-flex;
     will-change: border-radius;
     cursor: default;
     user-select: none;
-    background-color: var(--_container-color-applied);
-    color: var(--_label-text-color-applied);
+    background-color: var(--_container-color);
+    color: var(--_label-text-color);
     padding-block: var(--_padding-block);
     padding-inline: var(--_leading-space) var(--_trailing-space);
-    border-radius: calc(
-      var(--_container-shape-default) -
-        (var(--_container-shape-default) - var(--_container-shape-pressed)) *
-        var(--_interaction-factor)
-    );
+    border-radius: var(--_container-shape);
     font-weight: var(--_label-text-font-weight);
     font-size: var(--_label-text-font-size);
     line-height: var(--_label-text-line-height);
@@ -31,8 +34,8 @@ const styles: string = await prettify(css`
     place-content: center;
     gap: 8px;
     text-align: center;
-    transition: --_interaction-factor var(--_press-duration)
-      var(--_press-easing);
+    transition-property: border-radius, background-color, color, padding-inline;
+    transition: var(--_press-duration) var(--_press-easing);
   }
 
   ${state.hovered()} {
@@ -40,7 +43,7 @@ const styles: string = await prettify(css`
 
     background-color: color-mix(
       in srgb,
-      var(--_container-color-applied),
+      var(--_container-color),
       var(--_state-layer-color) calc(var(--_state-layer-opacity) * 100%)
     );
   }
@@ -57,12 +60,12 @@ const styles: string = await prettify(css`
     ${packs.pressed};
   }
 
-  slot[name='icon'],
-  :host(:is(mx-icon-button)) slot {
+  .icon {
     --md-icon-size: var(--_icon-size);
 
     color: var(--_icon-color);
     flex: 1 0 var(--_icon-size);
+    transition: color var(--_press-duration) var(--_press-easing);
   }
 `);
 

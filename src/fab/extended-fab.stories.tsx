@@ -1,8 +1,21 @@
-import type { Story } from '@ladle/react';
+import type { Story, StoryDefault } from '@ladle/react';
 import './react/fab.ts';
 import '../icon/react/icon.ts';
 import { useState, type PropsWithChildren } from 'react';
 import type { FABAttributes } from './react/fab.ts';
+
+const storyDefault: StoryDefault = {
+  decorators: [
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    (Component) => (
+      <div style={{ display: 'flex', gap: 8 }}>
+        <Component />
+      </div>
+    ),
+  ],
+};
+
+export default storyDefault;
 
 type ControlledFABExtendedProps = Omit<FABAttributes, 'extended'>;
 
@@ -29,7 +42,7 @@ function ControlledFABExtended({
 // ================
 
 export const ColorDefault: Story = () => (
-  <div className="story-list">
+  <>
     <mx-fab extended="closed">
       <mx-icon slot="icon">check</mx-icon>
       Submit
@@ -42,12 +55,12 @@ export const ColorDefault: Story = () => (
       <mx-icon slot="icon">check</mx-icon>
       Submit
     </ControlledFABExtended>
-  </div>
+  </>
 );
 ColorDefault.storyName = 'Color / Default';
 
 export const ColorPrimary: Story = () => (
-  <div className="story-list">
+  <>
     <mx-fab color="primary" extended="closed">
       <mx-icon slot="icon">check</mx-icon>
       Submit
@@ -60,12 +73,12 @@ export const ColorPrimary: Story = () => (
       <mx-icon slot="icon">check</mx-icon>
       Submit
     </ControlledFABExtended>
-  </div>
+  </>
 );
 ColorPrimary.storyName = 'Color / Primary';
 
 export const ColorSecondary: Story = () => (
-  <div className="story-list">
+  <>
     <mx-fab color="secondary" extended="closed">
       <mx-icon slot="icon">check</mx-icon>
       Submit
@@ -78,7 +91,7 @@ export const ColorSecondary: Story = () => (
       <mx-icon slot="icon">check</mx-icon>
       Submit
     </ControlledFABExtended>
-  </div>
+  </>
 );
 ColorSecondary.storyName = 'Color / Secondary';
 
@@ -87,7 +100,7 @@ ColorSecondary.storyName = 'Color / Secondary';
 // ================
 
 export const ColorTonalDefault: Story = () => (
-  <div className="story-list">
+  <>
     <mx-fab tonal extended="closed">
       <mx-icon slot="icon">check</mx-icon>
       Submit
@@ -100,12 +113,12 @@ export const ColorTonalDefault: Story = () => (
       <mx-icon slot="icon">check</mx-icon>
       Submit
     </ControlledFABExtended>
-  </div>
+  </>
 );
 ColorTonalDefault.storyName = 'Tonal Color / Default';
 
 export const ColorTonalPrimary: Story = () => (
-  <div className="story-list">
+  <>
     <mx-fab tonal color="primary" extended="closed">
       <mx-icon slot="icon">check</mx-icon>
       Submit
@@ -118,12 +131,12 @@ export const ColorTonalPrimary: Story = () => (
       <mx-icon slot="icon">check</mx-icon>
       Submit
     </ControlledFABExtended>
-  </div>
+  </>
 );
 ColorTonalPrimary.storyName = 'Tonal Color / Primary';
 
 export const ColorTonalSecondary: Story = () => (
-  <div className="story-list">
+  <>
     <mx-fab tonal color="secondary" extended="closed">
       <mx-icon slot="icon">check</mx-icon>
       Submit
@@ -136,7 +149,7 @@ export const ColorTonalSecondary: Story = () => (
       <mx-icon slot="icon">check</mx-icon>
       Submit
     </ControlledFABExtended>
-  </div>
+  </>
 );
 ColorTonalSecondary.storyName = 'Tonal Color / Secondary';
 
@@ -145,7 +158,7 @@ ColorTonalSecondary.storyName = 'Tonal Color / Secondary';
 // ================
 
 export const SizeMedium: Story = () => (
-  <div className="story-list">
+  <>
     <mx-fab tonal size="medium" extended="closed">
       <mx-icon slot="icon">check</mx-icon>
       Submit
@@ -158,12 +171,12 @@ export const SizeMedium: Story = () => (
       <mx-icon slot="icon">check</mx-icon>
       Submit
     </ControlledFABExtended>
-  </div>
+  </>
 );
 SizeMedium.storyName = 'Size / Medium';
 
 export const SizeLarge: Story = () => (
-  <div className="story-list">
+  <>
     <mx-fab tonal size="large" extended="closed">
       <mx-icon slot="icon">check</mx-icon>
       Submit
@@ -176,6 +189,6 @@ export const SizeLarge: Story = () => (
       <mx-icon slot="icon">check</mx-icon>
       Submit
     </ControlledFABExtended>
-  </div>
+  </>
 );
 SizeLarge.storyName = 'Size / Large';

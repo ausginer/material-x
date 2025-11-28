@@ -6,6 +6,11 @@ import type { ReactiveElement } from '../core/elements/reactive-element.ts';
 
 const CHANGE_EVENTS = ['input', 'change'] as const;
 
+export type SwitchAttributes = Readonly<{
+  checked?: boolean;
+  value?: string;
+}>;
+
 export function useSwitch(
   host: ReactiveElement,
   attribute: Attribute<boolean, ReactiveElement>,

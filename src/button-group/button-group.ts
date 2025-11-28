@@ -7,7 +7,7 @@ import {
   html,
 } from '../core/elements/reactive-element.ts';
 import defaultStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
-import { useButtonGroupPressAnimation } from './useButtonGroupPressAnimation.ts';
+import { useButtonGroupPress } from './useButtonGroupPress.ts';
 
 export type ButtonGroupType = 'connected';
 
@@ -25,7 +25,7 @@ export default class ButtonGroup extends ReactiveElement {
   constructor() {
     super();
     useCore(this, TEMPLATE, { role: 'group' }, [sizeStyles, defaultStyles]);
-    useButtonGroupPressAnimation(this);
+    useButtonGroupPress(this);
   }
 }
 

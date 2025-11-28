@@ -2,13 +2,6 @@
 import type { Constructor } from 'type-fest';
 import type { ReactiveController } from './reactive-controller.ts';
 
-CSS.registerProperty({
-  name: '--_interaction-factor',
-  syntax: '<number>',
-  inherits: true,
-  initialValue: '0',
-});
-
 export function html(
   str: TemplateStringsArray,
   ...args: readonly unknown[]

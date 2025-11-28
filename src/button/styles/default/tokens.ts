@@ -1,7 +1,6 @@
 import motionEffects from '../../../core/tokens/default/motion-effects.ts';
 import processTokenSet from '../../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../../core/tokens/resolve.ts';
-import { excludeFromSet } from '../../../core/tokens/utils.ts';
 import { createVariables, CSSVariable } from '../../../core/tokens/variable.ts';
 import {
   applyToButtons,
@@ -31,6 +30,7 @@ export const PUBLIC: readonly string[] = [
 ];
 
 export const PRIVATE: readonly string[] = [
+  'container.shape',
   'container.shape.round',
   'container.shape.square',
   'container.shadow-color',
@@ -52,7 +52,6 @@ const specialTokens = createVariables(
   resolveSet({
     'state-layer.opacity': `${SET_NAME}.pressed.state-layer.opacity`,
     'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
-    'padding-block': `calc((${CSSVariable.ref('container.height')} - max(${CSSVariable.ref('icon.size')}, ${CSSVariable.ref('label-text.line-height')})) / 2)`,
     'press.easing': motionEffects['expressive.fast-spatial'],
     'press.duration': motionEffects['expressive.fast-spatial.duration'],
     'ripple.color': CSSVariable.ref('state-layer.color'),
@@ -60,14 +59,6 @@ const specialTokens = createVariables(
     'ripple.duration': motionEffects['expressive.default-spatial.duration'],
     'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
     'shadow.color': CSSVariable.ref('container.shadow-color'),
-    'shape.full': `calc(${CSSVariable.ref('container.height')} / 2)`,
-    'interaction.factor': 0,
-  }),
-);
-
-const specialPressedTokens = createVariables(
-  resolveSet({
-    'interaction.factor': 1,
   }),
 );
 
@@ -82,13 +73,6 @@ const specialUnselectedTokens = createVariables(
 const specialSelectedTokens = createVariables(
   resolveSet({
     'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
-    'interaction.factor': 1,
-  }),
-);
-
-const specialSelectedPressedTokens = createVariables(
-  resolveSet({
-    'interaction.factor': 0,
   }),
 );
 
@@ -119,13 +103,6 @@ export const set: CSSVariableShape = (() => {
       };
     }
 
-    if (path[0] === 'pressed') {
-      return {
-        ...tokens,
-        ...specialPressedTokens,
-      };
-    }
-
     if (path[1] === 'default') {
       if (path[0] === 'unselected') {
         return {
@@ -136,33 +113,10 @@ export const set: CSSVariableShape = (() => {
 
       if (path[0] === 'selected') {
         return {
-          ...excludeFromSet(tokens, [
-            'container.shape.square',
-            'container.shape.round',
-            'container.color',
-            'label-text.color',
-          ]),
+          ...tokens,
           ...specialSelectedTokens,
         };
       }
-    }
-
-    // Remove label & container colors for hovered/focused/pressed to avoid
-    // conflicts with dynamically changing colors.
-    if (path[0] === 'selected') {
-      let _tokens = excludeFromSet(tokens, [
-        'container.color',
-        'label-text.color',
-      ]);
-
-      if (path[1] === 'pressed') {
-        _tokens = {
-          ..._tokens,
-          ...specialSelectedPressedTokens,
-        };
-      }
-
-      return _tokens;
     }
 
     return tokens;

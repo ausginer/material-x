@@ -4,7 +4,7 @@ const styles: string = css`
   :host {
     font-size: var(--md-icon-size, 20px);
     width: var(--md-icon-size, 20px);
-    height: var(--md-icon-size, 20px);
+    aspect-ratio: 1;
     color: inherit;
     font-variation-settings: inherit;
     font-weight: 400;

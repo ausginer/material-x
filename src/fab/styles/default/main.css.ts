@@ -6,6 +6,12 @@ const styles: string = await prettify(css`
   ${state.default()} {
     ${packs.default};
 
+    --_level: calc(
+      var(--_elevation-default) +
+        (var(--_elevation-hovered) - var(--_elevation-default)) *
+        var(--_press-factor)
+    );
+
     display: inline-flex;
     background-color: var(--_container-color);
     border-radius: var(--_container-shape);
@@ -32,7 +38,7 @@ const styles: string = await prettify(css`
     ${packs.pressed};
   }
 
-  slot[name='icon'] {
+  .icon {
     --md-icon-size: var(--_icon-size);
 
     color: var(--_icon-color);

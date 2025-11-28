@@ -45,16 +45,12 @@ const specialTokens = createVariables(
     'elevation.hovered': `${SET_NAME_TERTIARY}.hovered.container.elevation`,
     'state-layer.color': `${SET_NAME_TERTIARY}.pressed.state-layer.color`,
     'state-layer.opacity': `${SET_NAME_TERTIARY}.pressed.state-layer.opacity`,
-    level: `calc(
-      ${CSSVariable.ref('elevation.default')} +
-        (${CSSVariable.ref('elevation.hovered')} - ${CSSVariable.ref('elevation.default')}) *
-        ${CSSVariable.ref('press-factor')}
-    )`,
     'ripple.color': CSSVariable.ref('state-layer.color'),
-    'ripple.easing': motionEffects['expressive.fast-spatial'],
+    'ripple.easing': motionEffects['expressive.default-spatial'],
+    'ripple.duration': motionEffects['expressive.default-spatial.duration'],
     'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
-    'press.duration': motionEffects['expressive.fast-spatial.duration'],
-    'press.easing': motionEffects['expressive.fast-spatial'],
+    'unfold.duration': motionEffects['expressive.fast-spatial.duration'],
+    'unfold.easing': motionEffects['expressive.fast-spatial'],
     'shadow.color': CSSVariable.ref('container.shadow-color'),
   }),
   {

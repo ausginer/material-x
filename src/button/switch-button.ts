@@ -16,21 +16,20 @@ import switchTonalStyles from './styles/tonal/switch.css.ts?type=css' with { typ
 import {
   useButtonCore,
   type CoreButtonAttributes,
-  type ButtonColor,
   type ButtonLike,
+  type ButtonColor,
 } from './useButtonCore.ts';
-import { useSwitch } from './useSwitch.ts';
+import { useSwitch, type SwitchAttributes } from './useSwitch.ts';
 
 const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
 
 export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
 
-export type SwitchButtonAttributes = Readonly<
-  CoreButtonAttributes & {
+export type SwitchButtonAttributes = CoreButtonAttributes &
+  SwitchAttributes &
+  Readonly<{
     color?: SwitchButtonColor;
-    checked?: boolean;
-  }
->;
+  }>;
 
 /**
  * @attr {string} color
@@ -38,6 +37,7 @@ export type SwitchButtonAttributes = Readonly<
  * @attr {string} shape
  * @attr {boolean} disabled
  * @attr {boolean} checked
+ * @attr {string} value
  */
 export default class SwitchButton
   extends ReactiveElement

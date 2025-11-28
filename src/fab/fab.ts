@@ -27,7 +27,7 @@ export type FABAttributes = Readonly<{
   disabled?: boolean;
 }>;
 
-const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
+const TEMPLATE = html`<slot class="icon" name="icon"></slot><slot></slot>`;
 
 /**
  * @attr {FABSize} size
@@ -54,7 +54,10 @@ export default class FAB extends ReactiveElement {
     useConnected(this, () => {
       this.tabIndex = 0;
     });
-    useRipple(this, { easing: '_ripple-easing' });
+    useRipple(this, {
+      easing: '--_ripple-easing',
+      duration: '--_ripple-duration',
+    });
     useAttribute(this.#extended, () =>
       this.dispatchEvent(new Event('fabtoggle')),
     );

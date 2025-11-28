@@ -45,28 +45,28 @@ const styles: string = await prettify(css`
     ${packs.standard.small.default};
     --_interaction-direction-leading: 0;
     --_interaction-direction-trailing: 0;
-    --_interaction-factor-applied: var(--_interaction-factor, 0);
 
     display: flex;
     gap: var(--_between-space);
-    transition: --_interaction-factor var(--_interaction-duration)
-      var(--_interaction-easing);
 
     ::slotted(*) {
       padding-inline: calc(
-          var(--_leading-space) + var(--_interaction-direction-leading) *
-            var(--_leading-space) * var(--_interaction-width-multiplier) *
-            var(--_interaction-factor-applied)
+          var(--_leading-space) *
+            (
+              1 + var(--_interaction-direction-leading) *
+                var(--_interaction-width-multiplier)
+            )
         )
         calc(
-          var(--_trailing-space) + var(--_interaction-direction-trailing) *
-            var(--_trailing-space) * var(--_interaction-width-multiplier) *
-            var(--_interaction-factor-applied)
+          var(--_trailing-space) *
+            (
+              1 + var(--_interaction-direction-trailing) *
+                var(--_interaction-width-multiplier)
+            )
         );
     }
 
-    ::slotted(:active),
-    ::slotted(:focus) {
+    ::slotted(:active) {
       --_interaction-direction-leading: 1;
       --_interaction-direction-trailing: 1;
     }

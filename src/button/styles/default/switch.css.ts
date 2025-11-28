@@ -1,39 +1,15 @@
 import { css, prettify } from '../../../core/tokens/css.ts';
-import { attribute } from '../../../core/tokens/selector.ts';
+import { pseudoClass } from '../../../core/tokens/selector.ts';
 import { buttonStates, state } from '../utils.ts';
 import packs from './tokens.ts';
 
 const { selected, unselected } = packs;
 
-const checked = attribute('checked');
+const checked = pseudoClass('state(checked)');
 
 const switchStyles = [
   unselected &&
     buttonStates.map((s) => {
-      if (s === 'default') {
-        return css`
-          ${state.default()} {
-            ${unselected.default};
-            --_container-color-applied: color-mix(
-              in srgb,
-              var(--_container-color)
-                calc(100% - 100% * var(--_interaction-factor)),
-              var(--_container-color-reverse)
-                calc(100% * var(--_interaction-factor))
-            );
-            --_label-text-color-applied: color-mix(
-              in srgb,
-              var(--_label-text-color)
-                calc(100% - 100% * var(--_interaction-factor)),
-              var(--_label-text-color-reverse)
-                calc(100% * var(--_interaction-factor))
-            );
-
-            will-change: background-color, color;
-          }
-        `;
-      }
-
       return unselected[s]
         ? css`
             ${state[s]()} {

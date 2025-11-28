@@ -2,7 +2,7 @@ import { css, prettify } from '../../../core/tokens/css.ts';
 import { attribute } from '../../../core/tokens/selector.ts';
 import type { TypedObjectConstructor } from '../../../interfaces.ts';
 import { fabStates, state } from '../../utils.ts';
-import packs, { DEFAULTS, openPack, variantAttribute } from './tokens.ts';
+import packs, { DEFAULTS, variantAttribute } from './tokens.ts';
 
 const extended = attribute('extended');
 const extendedOpen = attribute('extended', 'open');
@@ -28,38 +28,44 @@ const styles: string = await prettify(css`
     ${packs.tertiary.default};
     ${packs.small.default};
 
-    will-change: gap;
     color: var(--_label-text-color);
-    font-size: var(--_label-text-font-size);
     line-height: var(--_label-text-line-height);
     font-family: var(--_label-text-font-name);
     font-weight: var(--_label-text-font-weight);
-    gap: calc(var(--_icon-label-space) * var(--_interaction-factor));
     flex-direction: var(--_direction);
     cursor: default;
     user-select: none;
-    transition: --_interaction-factor var(--_press-duration)
-      var(--_press-easing);
+    gap: 0;
+    transition: gap var(--_unfold-duration) var(--_unfold-easing);
 
-    slot:not([name='icon']) {
-      will-change: font-size;
+    slot:not(.icon) {
       display: block;
+      opacity: 0;
       white-space: nowrap;
-      font-size: calc(
-        var(--_label-text-font-size) * var(--_interaction-factor)
-      );
+      overflow: hidden;
+      font-size: 0;
+      transition: var(--_unfold-duration) var(--_unfold-easing);
+      transition-property: font-size, opacity;
 
       @supports (width: calc-size(min-content, size)) {
-        will-change: max-width;
+        width: 0;
         font-size: var(--_label-text-font-size);
-        max-width: calc-size(min-content, size * var(--_interaction-factor));
-        overflow: hidden;
+        transition-property: width, opacity;
       }
     }
   }
 
   ${state.default(extendedOpen)} {
-    ${openPack};
+    gap: var(--_icon-label-space);
+
+    slot:not(.icon) {
+      opacity: 1;
+      font-size: var(--_label-text-font-size);
+
+      @supports (width: calc-size(min-content, size)) {
+        width: calc-size(min-content, size);
+      }
+    }
   }
 
   ${state.default(extended, attribute('tonal'))} {

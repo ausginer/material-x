@@ -81,6 +81,23 @@ export const SizeXLarge: Story = () => (
 SizeXLarge.storyName = 'Size / XLarge';
 
 // ================
+// Width
+// ================
+export const WidthWide: Story = () => (
+  <mx-icon-button width="wide">
+    <mx-icon>play_arrow</mx-icon>
+  </mx-icon-button>
+);
+WidthWide.storyName = 'Width / Wide';
+
+export const WidthNarrow: Story = () => (
+  <mx-icon-button width="narrow">
+    <mx-icon>play_arrow</mx-icon>
+  </mx-icon-button>
+);
+WidthNarrow.storyName = 'Width / Narrow';
+
+// ================
 // Shape
 // ================
 

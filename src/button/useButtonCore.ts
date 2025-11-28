@@ -36,9 +36,9 @@ export function useButtonCore(
     template,
     { role },
     [
+      shapeStyles,
       defaultButtonStyles,
       elevationStyles,
-      shapeStyles,
       ...styles,
       defaultDisabledStyles,
     ],

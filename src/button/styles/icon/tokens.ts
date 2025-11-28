@@ -2,6 +2,7 @@ import type { TupleToUnion } from 'type-fest';
 import processTokenSet from '../../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../../core/tokens/resolve.ts';
 import { attribute, type Param } from '../../../core/tokens/selector.ts';
+import { excludeFromSet } from '../../../core/tokens/utils.ts';
 import { createVariables } from '../../../core/tokens/variable.ts';
 import type { TypedObjectConstructor } from '../../../interfaces.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
@@ -15,23 +16,27 @@ import {
 } from '../utils.ts';
 
 export const DEFAULTS = ['small', 'filled'] as const;
-export const COLORS = ['tonal', 'standard'] as const;
-export const SIZES = ['large', 'medium', 'xlarge', 'xsmall'] as const;
+export const COLORS = ['filled', 'tonal', 'standard'] as const;
+export const SIZES = ['small', 'xsmall', 'medium', 'large', 'xlarge'] as const;
 
-export const VARIANTS: readonly [
+export const VARIANTS = [
   'small',
   'filled',
   'tonal',
   'standard',
-  'large',
-  'medium',
-  'xlarge',
   'xsmall',
-] = [...DEFAULTS, ...COLORS, ...SIZES] as const;
+  'medium',
+  'large',
+  'xlarge',
+] as const;
 
 const ALLOWED = [...PUBLIC, ...PRIVATE] as const;
 
 export function variantAttribute(variant: string): readonly Param[] {
+  if ((DEFAULTS as readonly string[]).includes(variant)) {
+    return [];
+  }
+
   if ((COLORS as readonly string[]).includes(variant)) {
     return [attribute('color', variant)];
   }
@@ -104,7 +109,10 @@ const packs: Readonly<Record<TupleToUnion<typeof VARIANTS>, PackShape>> = (
 
           if (path[0] === 'selected') {
             return {
-              ...tokens,
+              ...excludeFromSet(tokens, [
+                'container.shape.square',
+                'container.shape.round',
+              ]),
               ...specialSelectedTokens,
             };
           }

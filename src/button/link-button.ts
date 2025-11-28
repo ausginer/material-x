@@ -17,7 +17,12 @@ import {
   type CoreButtonAttributes,
 } from './useButtonCore.ts';
 
-export type LinkButtonAttributes = CoreButtonAttributes;
+export type LinkButtonAttributes = Readonly<
+  CoreButtonAttributes & {
+    href?: HTMLAnchorElement['href'];
+    target?: HTMLAnchorElement['target'];
+  }
+>;
 
 const TEMPLATE = html`<a><slot name="icon"></slot><slot></slot></a>`;
 

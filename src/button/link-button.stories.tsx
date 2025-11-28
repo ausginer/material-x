@@ -6,27 +6,56 @@ import './react/link-button.ts';
 // ================
 
 export const ColorFilled: Story = () => (
-  <mx-link-button>Click Me!</mx-link-button>
+  <mx-link-button
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 ColorFilled.storyName = 'Color / Default';
 
 export const ColorElevated: Story = () => (
-  <mx-link-button color="elevated">Click Me!</mx-link-button>
+  <mx-link-button
+    color="elevated"
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 ColorElevated.storyName = 'Color / Elevated';
 
 export const ColorOutlined: Story = () => (
-  <mx-link-button color="outlined">Click Me!</mx-link-button>
+  <mx-link-button
+    color="outlined"
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 ColorOutlined.storyName = 'Color / Outlined';
 
 export const ColorTonal: Story = () => (
-  <mx-link-button color="tonal">Click Me!</mx-link-button>
+  <mx-link-button
+    color="tonal"
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 ColorTonal.storyName = 'Color / Tonal';
 
 export const ColorText: Story = () => (
-  <mx-link-button color="text">Click Me!</mx-link-button>
+  <mx-link-button
+    color="text"
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 ColorText.storyName = 'Color / Text';
 
@@ -35,27 +64,57 @@ ColorText.storyName = 'Color / Text';
 // ================
 
 export const SizeXSmall: Story = () => (
-  <mx-link-button size="xsmall">Click Me!</mx-link-button>
+  <mx-link-button
+    size="xsmall"
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 SizeXSmall.storyName = 'Size / XSmall';
 
 export const SizeSmall: Story = () => (
-  <mx-link-button size="small">Click Me!</mx-link-button>
+  <mx-link-button
+    size="small"
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 SizeSmall.storyName = 'Size / Small';
 
 export const SizeMedium: Story = () => (
-  <mx-link-button size="medium">Click Me!</mx-link-button>
+  <mx-link-button
+    size="medium"
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 SizeMedium.storyName = 'Size / Medium';
 
 export const SizeLarge: Story = () => (
-  <mx-link-button size="large">Click Me!</mx-link-button>
+  <mx-link-button
+    size="large"
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 SizeLarge.storyName = 'Size / Large';
 
 export const SizeXLarge: Story = () => (
-  <mx-link-button size="xlarge">Click Me!</mx-link-button>
+  <mx-link-button
+    size="xlarge"
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 SizeXLarge.storyName = 'Size / XLarge';
 
@@ -64,7 +123,13 @@ SizeXLarge.storyName = 'Size / XLarge';
 // ================
 
 export const ShapeSquare: Story = () => (
-  <mx-link-button shape="square">Click Me!</mx-link-button>
+  <mx-link-button
+    shape="square"
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 ShapeSquare.storyName = 'Shape / Square';
 
@@ -73,7 +138,13 @@ ShapeSquare.storyName = 'Shape / Square';
 // ================
 
 export const Disabled: Story = () => (
-  <mx-link-button disabled>Click Me!</mx-link-button>
+  <mx-link-button
+    disabled
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
+    Click Me!
+  </mx-link-button>
 );
 
 // ================
@@ -81,7 +152,10 @@ export const Disabled: Story = () => (
 // ================
 
 export const WithIcon: Story = () => (
-  <mx-link-button>
+  <mx-link-button
+    href="https://m3.material.io/components/buttons/overview"
+    target="_blank"
+  >
     <mx-icon>check</mx-icon>
     Submit
   </mx-link-button>

@@ -2,7 +2,7 @@ import type * as React from 'react';
 import type LinkButton from '../link-button.ts';
 import type { LinkButtonAttributes } from '../link-button.ts';
 
-export * from '../button.ts';
+export * from '../link-button.ts';
 
 declare module 'react' {
   // eslint-disable-next-line @typescript-eslint/no-namespace

@@ -7,15 +7,13 @@ import {
 
 const round = createVariables(
   resolveSet({
-    'container.shape.default': CSSVariable.ref('container.shape.round'),
-    'container.shape.pressed': CSSVariable.ref('container.shape.square'),
+    'container.shape': CSSVariable.ref('container.shape.round'),
   }),
 );
 
 const square = createVariables(
   resolveSet({
-    'container.shape.default': CSSVariable.ref('container.shape.square'),
-    'container.shape.pressed': CSSVariable.ref('container.shape.round'),
+    'container.shape': CSSVariable.ref('container.shape.square'),
   }),
 );
 
