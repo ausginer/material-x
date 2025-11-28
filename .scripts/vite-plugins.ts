@@ -47,6 +47,10 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
     ),
   );
 
+  const replaceList = Object.entries(propList).map(
+    ([name, value]) => [new RegExp(`['"]${name}['"]`, 'gu'), value] as const,
+  );
+
   const plugin: Plugin = {
     name: 'vite-construct-css',
     resolveId: {
@@ -151,12 +155,9 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
             handler(code, id) {
               if (id.endsWith('.ts') || id.endsWith('.tsx')) {
                 return {
-                  code: Object.entries(propList).reduce(
-                    (acc, [prop, short]) =>
-                      acc.replace(
-                        new RegExp(`['"](--)?_${prop.substring(3)}['"]`, 'g'),
-                        `'$1${short}'`,
-                      ),
+                  code: replaceList.reduce(
+                    (acc, [pattern, short]) =>
+                      acc.replace(pattern, `'${short}'`),
                     code,
                   ),
                 };

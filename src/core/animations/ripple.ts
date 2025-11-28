@@ -1,4 +1,3 @@
-import type { TypedObjectConstructor } from '../../interfaces.ts';
 import { useEvents } from '../controllers/useEvents.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import {
@@ -6,7 +5,10 @@ import {
   type ReactiveElement,
   use,
 } from '../elements/reactive-element.ts';
-import CSSVariableError from '../utils/CSSVariableError.ts';
+import {
+  readCSSVariables,
+  transformNumericVariable,
+} from '../utils/readCSSVariables.ts';
 import type { Point } from './Point.ts';
 import css from './styles/ripple.css.ts?type=css' with { type: 'css' };
 
@@ -22,7 +24,6 @@ type State =
   | typeof HOLDING
   | typeof WAITING_FOR_COMPLETION;
 
-const PRESS_GROW_MS = 450;
 const MINIMUM_PRESS_MS = 225;
 const INITIAL_ORIGIN_SCALE = 0.2;
 const PADDING = 10;
@@ -121,6 +122,7 @@ function getTranslationCoordinates(
 
 export type CSSVariables = Readonly<{
   easing: string;
+  duration: string;
 }>;
 
 const CLS = 'ripple';
@@ -131,7 +133,7 @@ class RippleAnimationController implements ReactiveController {
   readonly #rippleElement: HTMLElement;
   readonly #cssVariables: CSSVariables;
   #animation: Animation | undefined;
-  #easing: string | undefined;
+  #varValues: CSSVariables | undefined;
   #startEvent: PointerEvent | null = null;
 
   constructor(host: ReactiveElement, vars: CSSVariables) {
@@ -244,18 +246,17 @@ class RippleAnimationController implements ReactiveController {
   }
 
   connected(): void {
-    const host = this.#host;
-    const vars = (Object as TypedObjectConstructor).fromEntries(
-      (Object as TypedObjectConstructor)
-        .entries(this.#cssVariables)
-        .map(([k, v]) => [k, `--${v}`] as const),
-    );
-
-    this.#easing = getComputedStyle(host).getPropertyValue(vars.easing).trim();
-
-    if (!this.#easing) {
-      throw new CSSVariableError(vars.easing, host);
-    }
+    const self = this;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+    self.#varValues = readCSSVariables(
+      self.#host,
+      self.#cssVariables,
+      (name, value, host) =>
+        name === 'duration'
+          ? // converting duration to ms
+            transformNumericVariable(name, value, host) * 1000
+          : value,
+    ) as CSSVariables;
   }
 
   #inBounds({ x, y }: PointerEvent): boolean {
@@ -264,21 +265,22 @@ class RippleAnimationController implements ReactiveController {
   }
 
   #startAnimation(): void {
-    const host = this.#host;
+    const self = this;
+    const host = self.#host;
     const rect = host.getBoundingClientRect();
 
-    this.#animation?.cancel();
+    self.#animation?.cancel();
     const [size, scale] = determineRippleSize(host, rect);
     const { startPoint, endPoint } = getTranslationCoordinates(
       host,
       rect,
       size,
-      this.#startEvent,
+      self.#startEvent,
     );
 
     const pxSize = `${size}px`;
 
-    this.#animation = this.#rippleElement.animate(
+    self.#animation = self.#rippleElement.animate(
       {
         [VARS.rippleSize]: [pxSize, pxSize],
         transform: [
@@ -288,9 +290,8 @@ class RippleAnimationController implements ReactiveController {
       },
       {
         pseudoElement: '::after',
-        duration: PRESS_GROW_MS,
-        easing: this.#easing,
         fill: 'forwards',
+        ...self.#varValues,
       },
     );
   }

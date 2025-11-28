@@ -9,13 +9,6 @@ CSS.registerProperty({
   initialValue: '0',
 });
 
-CSS.registerProperty({
-  name: '--_interaction-direction',
-  syntax: '<number>',
-  inherits: true,
-  initialValue: '0',
-});
-
 export function html(
   str: TemplateStringsArray,
   ...args: readonly unknown[]

@@ -5,7 +5,13 @@ import MagicString from 'magic-string';
 import type { SourceMap } from 'rollup';
 // eslint-disable-next-line import-x/no-unresolved
 import * as sorcery from 'sorcery';
-import { createMangler } from './css-prop-mangler.ts';
+import { cssCache, type JSONModule } from '../utils.ts';
+import { CSS_VARIABLE_NAME_REGEXP } from './collect-props.ts';
+
+const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
+  await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {
+    with: { type: 'json' },
+  });
 
 export type CSSImportParseResult = Readonly<{
   code: string;
@@ -61,13 +67,24 @@ export async function compileCSS(
 ): Promise<CSSCompilationResult> {
   const path = fileURLToPath(url);
 
+  const _code = options?.isProd
+    ? code.replace(CSS_VARIABLE_NAME_REGEXP, (propName) => {
+        const mangled = propList[propName];
+
+        if (!mangled) {
+          throw new Error(`Property ${propName} is not collected.`);
+        }
+
+        return mangled;
+      })
+    : code;
+
   const { code: encodedProcessedCode, map: encodedProcessedSourceMap } =
     transform({
       filename: basename(path),
-      code: encoder.encode(code),
+      code: encoder.encode(_code),
       minify: true,
       sourceMap: true,
-      ...(options?.isProd ? { visitor: createMangler() } : {}),
     });
 
   const processedCode = decoder.decode(encodedProcessedCode);

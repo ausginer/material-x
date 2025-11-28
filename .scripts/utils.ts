@@ -10,3 +10,13 @@ export type JSONModule<T> = Readonly<{
 export type JSModule<T> = Readonly<{
   default: T;
 }>;
+
+export function* execPattern(
+  pattern: RegExp,
+  target: string,
+): Generator<RegExpExecArray, void, unknown> {
+  let result: RegExpExecArray | null;
+  while ((result = pattern.exec(target)) !== null) {
+    yield result;
+  }
+}

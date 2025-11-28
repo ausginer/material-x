@@ -44,7 +44,10 @@ export function useButtonCore(
     ],
     init,
   );
-  useRipple(element, { easing: '_ripple-easing' });
+  useRipple(element, {
+    easing: '--_ripple-easing',
+    duration: '--_ripple-duration',
+  });
   useConnected(element, () => {
     element.tabIndex = 0;
   });

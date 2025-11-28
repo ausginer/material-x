@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-inferrable-types */
 import { glob, mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { transform } from 'lightningcss';
-import { root, type JSModule } from '../utils.ts';
+import { execPattern, root, type JSModule } from '../utils.ts';
 
 const srcDir = new URL('src/', root);
 const cacheDir = new URL('node_modules/.cache/css/', root);
 
 const registry = new Set<string>();
+
+export const CSS_VARIABLE_NAME_REGEXP: RegExp = /(--_[\w-]+)/gu;
 
 for await (const filename of glob('**/*.css.ts', { cwd: srcDir })) {
   const css: JSModule<string> = await import(
@@ -14,24 +16,12 @@ for await (const filename of glob('**/*.css.ts', { cwd: srcDir })) {
   );
 
   if (typeof css.default === 'string') {
-    transform({
-      filename,
-      code: Buffer.from(css.default),
-      visitor: {
-        Declaration: {
-          custom({ name }) {
-            if (name.startsWith('--_')) {
-              registry.add(name);
-            }
-          },
-        },
-        Variable({ name: { ident } }) {
-          if (ident.startsWith('--_')) {
-            registry.add(ident);
-          }
-        },
-      },
-    });
+    for (const [propName] of execPattern(
+      CSS_VARIABLE_NAME_REGEXP,
+      css.default,
+    )) {
+      registry.add(propName);
+    }
   }
 }
 
@@ -71,7 +61,7 @@ const provider = createLetterProvider();
 
 const result = Object.fromEntries(
   Iterator.from(registry).map(
-    (prop) => [prop, provider.next().value!] as const,
+    (prop) => [prop, `--${provider.next().value!}`] as const,
   ),
 );
 
