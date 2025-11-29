@@ -28,15 +28,30 @@ const widthStyles = (Object as TypedObjectConstructor)
     return Object.entries(value).flatMap(([name, packs]) => {
       const params = variantAttribute(name);
 
-      return buttonStates.map((s) =>
-        packs[s]
-          ? css`
-              ${state[s](...params, width)} {
-                ${packs[s]};
-              }
-            `
-          : null,
-      );
+      return buttonStates.map((s) => {
+        if (!packs[s]) {
+          return null;
+        }
+
+        if (s === 'default') {
+          const iconButtonSelector = state[s](...params, width);
+          const iconButtonUnderGroupSelector = `${state[s](
+            ...params,
+          )} ::slotted(${width})`;
+
+          return css`
+            ${iconButtonSelector}, ${iconButtonUnderGroupSelector} {
+              ${packs[s]};
+            }
+          `;
+        }
+
+        return css`
+          ${state[s](...params, width)} {
+            ${packs[s]};
+          }
+        `;
+      });
     });
   });
 

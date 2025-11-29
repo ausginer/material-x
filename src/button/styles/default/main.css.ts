@@ -18,7 +18,6 @@ const styles: string = await prettify(css`
     );
 
     display: inline-flex;
-    will-change: border-radius;
     cursor: default;
     user-select: none;
     background-color: var(--_container-color);
@@ -36,6 +35,7 @@ const styles: string = await prettify(css`
     text-align: center;
     transition-property: border-radius, background-color, color, padding-inline;
     transition: var(--_press-duration) var(--_press-easing);
+    caret-color: transparent;
   }
 
   ${state.hovered()} {

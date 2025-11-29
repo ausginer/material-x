@@ -54,6 +54,7 @@ export function useButtonCore(
   buttons.add(element);
 }
 
-export function isButtonLike(element: Element): element is ButtonLike {
-  return buttons.has(element);
+export function isButtonLike(node: unknown): node is ButtonLike {
+  // @ts-expect-error: simplify check
+  return buttons.has(node);
 }

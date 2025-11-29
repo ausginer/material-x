@@ -3,6 +3,7 @@ import './react/button-group.ts';
 import '../button/react/button.ts';
 import '../icon/react/icon.ts';
 import '../button/react/switch-icon-button.ts';
+import { useState } from 'react';
 
 // ================
 // Size
@@ -67,21 +68,40 @@ SizeXLarge.storyName = 'Size / XLarge';
 // Switch
 // ================
 
-export const Switch: Story = () => (
-  <mx-button-group size="large">
-    <mx-switch-icon-button width="narrow">
-      <mx-icon>bluetooth</mx-icon>
-    </mx-switch-icon-button>
-    <mx-switch-icon-button>
-      <mx-icon>alarm</mx-icon>
-    </mx-switch-icon-button>
-    <mx-switch-icon-button width="narrow">
-      <mx-icon>link</mx-icon>
-    </mx-switch-icon-button>
-    <mx-switch-icon-button width="wide">
-      <mx-icon>wifi</mx-icon>
-    </mx-switch-icon-button>
-  </mx-button-group>
-);
+export const Switch: Story = () => {
+  const [selected, setSelected] = useState<string | undefined>();
+
+  return (
+    <mx-button-group size="xlarge">
+      <mx-switch-icon-button
+        width="narrow"
+        checked={selected === 'bluetooth'}
+        onChange={() => setSelected('bluetooth')}
+      >
+        <mx-icon>bluetooth</mx-icon>
+      </mx-switch-icon-button>
+      <mx-switch-icon-button
+        checked={selected === 'alarm'}
+        onChange={() => setSelected('alarm')}
+      >
+        <mx-icon>alarm</mx-icon>
+      </mx-switch-icon-button>
+      <mx-switch-icon-button
+        width="narrow"
+        checked={selected === 'link'}
+        onChange={() => setSelected('link')}
+      >
+        <mx-icon>link</mx-icon>
+      </mx-switch-icon-button>
+      <mx-switch-icon-button
+        width="wide"
+        checked={selected === 'wifi'}
+        onChange={() => setSelected('wifi')}
+      >
+        <mx-icon>wifi</mx-icon>
+      </mx-switch-icon-button>
+    </mx-button-group>
+  );
+};
 
 Switch.storyName = 'Switch Example';

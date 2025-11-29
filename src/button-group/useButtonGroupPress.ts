@@ -43,13 +43,19 @@ class ButtonGroupPressController implements ReactiveController {
   connected() {
     const self = this;
 
-    self.#pointerdown = ({ target }) => {
-      (
-        (target as HTMLElement).previousElementSibling as HTMLElement | null
-      )?.style.setProperty(TRAILING_PROP, '-1');
-      (
-        (target as HTMLElement).nextElementSibling as HTMLElement | null
-      )?.style.setProperty(LEADING_PROP, '-1');
+    self.#pointerdown = (event) => {
+      const target = event.composedPath().find((node) => isButtonLike(node))!;
+      const { previousElementSibling: prev, nextElementSibling: next } = target;
+
+      if (prev) {
+        target.style.setProperty(LEADING_PROP, '1');
+        (prev as HTMLElement).style.setProperty(TRAILING_PROP, '-1');
+      }
+
+      if (next) {
+        target.style.setProperty(TRAILING_PROP, '1');
+        (next as HTMLElement).style.setProperty(LEADING_PROP, '-1');
+      }
     };
 
     self.#pointerup = () => {
