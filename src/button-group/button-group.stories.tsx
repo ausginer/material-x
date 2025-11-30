@@ -72,7 +72,7 @@ export const Switch: Story = () => {
   const [selected, setSelected] = useState<string | undefined>();
 
   return (
-    <mx-button-group size="xlarge">
+    <mx-button-group size="medium">
       <mx-switch-icon-button
         width="narrow"
         checked={selected === 'bluetooth'}

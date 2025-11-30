@@ -20,7 +20,7 @@ const styles: string = await prettify(css`
     pointer-events: none;
     outline: none;
 
-    slot[name='icon'] {
+    .icon {
       color: color-mix(
         in srgb,
         var(--_icon-color),
