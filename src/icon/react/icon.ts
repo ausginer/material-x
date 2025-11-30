@@ -1,14 +1,15 @@
-import type * as React from 'react';
+/* eslint-disable @typescript-eslint/no-namespace */
+import type { DetailedHTMLProps, HTMLAttributes } from 'react';
 import type Icon from '../icon.ts';
 
 export * from '../icon.ts';
 
+type IconJSX = DetailedHTMLProps<HTMLAttributes<Icon>, Icon>;
+
 declare module 'react' {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-qualifier
-      'mx-icon': React.DetailedHTMLProps<React.HTMLAttributes<Icon>, Icon>;
+      'mx-icon': IconJSX;
     }
   }
 }

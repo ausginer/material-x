@@ -1,14 +1,7 @@
 import { css, prettify } from '../../../core/tokens/css.ts';
-import {
-  asterisk,
-  attribute,
-  pseudoElement,
-} from '../../../core/tokens/selector.ts';
+import { attribute } from '../../../core/tokens/selector.ts';
 import { buttonStates, state } from '../utils.ts';
 import packs from './tokens.ts';
-
-// This selector is used to stylize buttons inside a button-group.
-const slotted = pseudoElement('slotted', asterisk);
 
 const _styles = Object.entries(packs).flatMap(([name, pack]) => {
   const size = attribute('size', name);
@@ -22,7 +15,7 @@ const _styles = Object.entries(packs).flatMap(([name, pack]) => {
       return css`
         ${state[s](size)} {
           &,
-          ${slotted} {
+          ::slotted(*) {
             ${pack[s]};
           }
         }

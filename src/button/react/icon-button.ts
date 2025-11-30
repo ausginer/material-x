@@ -1,19 +1,19 @@
-import type * as React from 'react';
+/* eslint-disable @typescript-eslint/no-namespace */
+import type { DetailedHTMLProps, HTMLAttributes } from 'react';
 import type IconButton from '../icon-button.ts';
 import type { IconButtonAttributes } from '../icon-button.ts';
 
 export * from '../icon-button.ts';
 
+type IconButtonJSX = DetailedHTMLProps<
+  HTMLAttributes<IconButton> & IconButtonAttributes,
+  IconButton
+>;
+
 declare module 'react' {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-qualifier
-      'mx-icon-button': React.DetailedHTMLProps<
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-qualifier
-        React.HTMLAttributes<IconButton> & IconButtonAttributes,
-        IconButton
-      >;
+      'mx-icon-button': IconButtonJSX;
     }
   }
 }

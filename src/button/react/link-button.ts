@@ -1,19 +1,19 @@
-import type * as React from 'react';
+/* eslint-disable @typescript-eslint/no-namespace */
+import type { DetailedHTMLProps, HTMLAttributes } from 'react';
 import type LinkButton from '../link-button.ts';
 import type { LinkButtonAttributes } from '../link-button.ts';
 
 export * from '../link-button.ts';
 
+type LinkButtonJSX = DetailedHTMLProps<
+  HTMLAttributes<LinkButton> & LinkButtonAttributes,
+  LinkButton
+>;
+
 declare module 'react' {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-qualifier
-      'mx-link-button': React.DetailedHTMLProps<
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-qualifier
-        React.HTMLAttributes<LinkButton> & LinkButtonAttributes,
-        LinkButton
-      >;
+      'mx-link-button': LinkButtonJSX;
     }
   }
 }

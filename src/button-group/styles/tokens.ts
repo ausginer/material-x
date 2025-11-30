@@ -1,22 +1,22 @@
 import type { TupleToUnion } from 'type-fest';
-import { fixFullShape } from '../../../button/styles/utils.ts';
-import motionEffects from '../../../core/tokens/default/motion-effects.ts';
-import processTokenSet from '../../../core/tokens/processTokenSet.ts';
-import { resolveSet } from '../../../core/tokens/resolve.ts';
+import { fixFullShape } from '../../button/styles/utils.ts';
+import motionEffects from '../../core/tokens/default/motion-effects.ts';
+import processTokenSet from '../../core/tokens/processTokenSet.ts';
+import { resolveSet } from '../../core/tokens/resolve.ts';
 import {
   attribute,
   pseudoClass,
   pseudoElement,
-} from '../../../core/tokens/selector.ts';
+} from '../../core/tokens/selector.ts';
 import {
   $leaf,
   applyToShape,
   reshape,
   type Leaf,
   type Shape,
-} from '../../../core/tokens/shape.ts';
-import { createVariables, packSet } from '../../../core/tokens/variable.ts';
-import type { TypedObjectConstructor } from '../../../interfaces.ts';
+} from '../../core/tokens/shape.ts';
+import { createVariables, packSet } from '../../core/tokens/variable.ts';
+import type { TypedObjectConstructor } from '../../interfaces.ts';
 
 const SET_BASE_NAME = 'md.comp.button-group';
 const TYPES = ['standard', 'connected'] as const;

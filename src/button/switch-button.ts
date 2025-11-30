@@ -1,9 +1,5 @@
 import { Attribute } from '../core/elements/attribute.ts';
-import {
-  define,
-  html,
-  ReactiveElement,
-} from '../core/elements/reactive-element.ts';
+import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts?type=css' with { type: 'css' };
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
 import switchElevatedStyles from './styles/elevated/switch.css.ts?type=css' with { type: 'css' };
@@ -13,15 +9,14 @@ import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'cs
 import switchSizeStyles from './styles/size/switch.css.ts?type=css' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts?type=css' with { type: 'css' };
+import { REGULAR_TEMPLATE } from './template.ts';
 import {
   useButtonCore,
-  type CoreButtonAttributes,
-  type ButtonLike,
   type ButtonColor,
+  type ButtonLike,
+  type CoreButtonAttributes,
 } from './useButtonCore.ts';
 import { useSwitch, type SwitchAttributes } from './useSwitch.ts';
-
-const TEMPLATE = html`<slot name="icon"></slot><slot></slot>`;
 
 export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
 
@@ -51,7 +46,7 @@ export default class SwitchButton
   constructor() {
     super();
     const self = this;
-    useButtonCore(self, TEMPLATE, 'switch', [
+    useButtonCore(self, REGULAR_TEMPLATE, 'switch', [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainSizeStyles,

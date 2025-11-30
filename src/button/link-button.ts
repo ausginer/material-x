@@ -1,16 +1,13 @@
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { Attribute } from '../core/elements/attribute.ts';
-import {
-  define,
-  html,
-  ReactiveElement,
-} from '../core/elements/reactive-element.ts';
+import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
 import linkButtonStyles from './styles/link-button.css.ts?type=css' with { type: 'css' };
 import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
 import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
 import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'css' };
 import tonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
+import { LINK_TEMPLATE } from './template.ts';
 import {
   useButtonCore,
   type ButtonLike,
@@ -23,8 +20,6 @@ export type LinkButtonAttributes = Readonly<
     target?: HTMLAnchorElement['target'];
   }
 >;
-
-const TEMPLATE = html`<a><slot name="icon"></slot><slot></slot></a>`;
 
 /**
  * @attr {string} color
@@ -41,7 +36,7 @@ export default class LinkButton extends ReactiveElement implements ButtonLike {
     super();
     useButtonCore(
       this,
-      TEMPLATE,
+      LINK_TEMPLATE,
       'link',
       [
         mainElevatedStyles,

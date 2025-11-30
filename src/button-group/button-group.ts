@@ -1,22 +1,14 @@
 import sizeStyles from '../button/styles/size/main.css.ts?type=css' with { type: 'css' };
 import type { ButtonSize } from '../button/useButtonCore.ts';
 import { useCore } from '../core/controllers/useCore.ts';
-import {
-  ReactiveElement,
-  define,
-  html,
-} from '../core/elements/reactive-element.ts';
-import defaultStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
-import { useButtonGroupPress } from './useButtonGroupPress.ts';
-
-export type ButtonGroupType = 'connected';
+import { ReactiveElement, define } from '../core/elements/reactive-element.ts';
+import standardStyles from './styles/standard.css.ts?type=css' with { type: 'css' };
+import { TEMPLATE } from './templates.ts';
+import { useStandardGroupPress } from './useStandardGroupPress.ts';
 
 export type ButtonGroupAttributes = Readonly<{
   size?: Exclude<ButtonSize, 'small'>;
-  type?: ButtonGroupType;
 }>;
-
-const TEMPLATE = html`<slot></slot>`;
 
 /**
  * @attr {string} size
@@ -24,8 +16,8 @@ const TEMPLATE = html`<slot></slot>`;
 export default class ButtonGroup extends ReactiveElement {
   constructor() {
     super();
-    useCore(this, TEMPLATE, { role: 'group' }, [sizeStyles, defaultStyles]);
-    useButtonGroupPress(this);
+    useCore(this, TEMPLATE, { role: 'group' }, [sizeStyles, standardStyles]);
+    useStandardGroupPress(this);
   }
 }
 

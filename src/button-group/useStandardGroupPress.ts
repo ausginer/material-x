@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
-import { isButtonLike } from '../button/useButtonCore.ts';
 import {
   useEvents,
   type HTMLElementEventListener,
@@ -10,11 +9,12 @@ import {
   use,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
+import { applyToSiblings, getTarget } from './utils.ts';
 
 const LEADING_PROP = '--_interaction-direction-leading';
 const TRAILING_PROP = '--_interaction-direction-trailing';
 
-class ButtonGroupPressController implements ReactiveController {
+class StandardGroupPressController implements ReactiveController {
   #elements: readonly HTMLElement[] = [];
   #pointerdown: HTMLElementEventListener<'pointerdown'> = () => {};
   #pointerup: HTMLElementEventListener<'pointerup'> = () => {};
@@ -23,14 +23,6 @@ class ButtonGroupPressController implements ReactiveController {
     const self = this;
 
     useSlot(host, 'slot', (elements) => {
-      if (import.meta.env.DEV) {
-        if (elements.some((element) => !isButtonLike(element))) {
-          throw new TypeError(
-            'mx-button-group allows only mx-button-like elements',
-          );
-        }
-      }
-
       self.#elements = elements as readonly HTMLElement[];
     });
     useEvents(host, {
@@ -44,17 +36,20 @@ class ButtonGroupPressController implements ReactiveController {
     const self = this;
 
     self.#pointerdown = (event) => {
-      const target = event.composedPath().find((node) => isButtonLike(node))!;
-      const { previousElementSibling: prev, nextElementSibling: next } = target;
+      const target = getTarget(event);
 
-      if (prev) {
-        target.style.setProperty(LEADING_PROP, '1');
-        (prev as HTMLElement).style.setProperty(TRAILING_PROP, '-1');
-      }
-
-      if (next) {
-        target.style.setProperty(TRAILING_PROP, '1');
-        (next as HTMLElement).style.setProperty(LEADING_PROP, '-1');
+      if (target) {
+        applyToSiblings(
+          target,
+          (sibling) => {
+            target.style.setProperty(LEADING_PROP, '1');
+            sibling.style.setProperty(TRAILING_PROP, '-1');
+          },
+          (sibling) => {
+            target.style.setProperty(TRAILING_PROP, '1');
+            sibling.style.setProperty(LEADING_PROP, '-1');
+          },
+        );
       }
     };
 
@@ -68,6 +63,6 @@ class ButtonGroupPressController implements ReactiveController {
   }
 }
 
-export function useButtonGroupPress(host: ReactiveElement): void {
-  use(host, new ButtonGroupPressController(host));
+export function useStandardGroupPress(host: ReactiveElement): void {
+  use(host, new StandardGroupPressController(host));
 }

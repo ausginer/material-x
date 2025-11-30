@@ -1,25 +1,10 @@
-import { fork } from 'node:child_process';
-import type { Readable } from 'node:stream';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { Worker } from 'node:worker_threads';
 import { signal, computed } from '@preact/signals-core';
 import { build } from 'esbuild';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
 import { cssCache, root, src, type JSONModule } from './utils.ts';
-
-async function streamToString(stream: Readable | null): Promise<string> {
-  if (!stream) {
-    return '';
-  }
-
-  const chunks = [];
-
-  for await (const chunk of stream) {
-    chunks.push(Buffer.from(chunk));
-  }
-
-  return Buffer.concat(chunks).toString('utf-8');
-}
 
 export type ConstructCSSOptions = Readonly<{
   isProd: boolean;
@@ -101,39 +86,21 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
             };
           }
 
-          const child = fork(
-            new URL('./css/css-printer.ts', import.meta.url),
-            [id],
-            { silent: true },
-          );
+          const result = await new Promise<string>((resolve, reject) => {
+            const worker = new Worker(
+              new URL('./css/css-worker.ts', import.meta.url),
+              {
+                workerData: id,
+              },
+            );
 
-          const result = await new Promise<string>((resolve, reject) =>
-            child.on('exit', (code) => {
-              if (!code) {
-                streamToString(child.stdout)
-                  .then((str) => resolve(str))
-                  .catch((err: unknown) =>
-                    reject(
-                      new Error(`Reading output for "${id}" failed`, {
-                        cause: err,
-                      }),
-                    ),
-                  );
-              } else {
-                streamToString(child.stderr)
-                  .then((str) =>
-                    reject(new Error(`Processing "${id}" failed\n\n${str}`)),
-                  )
-                  .catch((err: unknown) =>
-                    reject(
-                      new Error(`Reading error output for "${id}" failed`, {
-                        cause: err,
-                      }),
-                    ),
-                  );
-              }
-            }),
-          );
+            worker.on('message', resolve);
+            worker.on('error', reject);
+            worker.on('exit', (code) => {
+              if (code !== 0)
+                reject(new Error(`Worker stopped with exit code ${code}`));
+            });
+          });
 
           const { code, map } = await compileCSS(
             pathToFileURL(id.replace(/\.ts$/u, '')),

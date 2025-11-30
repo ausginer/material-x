@@ -1,14 +1,11 @@
-import {
-  define,
-  html,
-  ReactiveElement,
-} from '../core/elements/reactive-element.ts';
+import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
 import mainIconStyles from './styles/icon/main.css.ts?type=css' with { type: 'css' };
 import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
 import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
 import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
+import { ICON_TEMPLATE } from './template.ts';
 import {
   useButtonCore,
   type ButtonColor,
@@ -25,8 +22,6 @@ export type IconButtonAttributes = Readonly<
     width?: IconButtonWidth;
   }
 >;
-
-const TEMPLATE = html`<slot class="icon"></slot>`;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically
@@ -52,7 +47,7 @@ export default class IconButton extends ReactiveElement implements ButtonLike {
 
   constructor() {
     super();
-    useButtonCore(this, TEMPLATE, 'button', [
+    useButtonCore(this, ICON_TEMPLATE, 'button', [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainSizeStyles,

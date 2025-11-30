@@ -1,19 +1,19 @@
-import type * as React from 'react';
+/* eslint-disable @typescript-eslint/no-namespace */
+import type { DetailedHTMLProps, HTMLAttributes } from 'react';
 import type SwitchButton from '../switch-button.ts';
 import type { SwitchButtonAttributes } from '../switch-button.ts';
 
 export * from '../switch-button.ts';
 
+type SwitchButtonJSX = DetailedHTMLProps<
+  HTMLAttributes<SwitchButton> & SwitchButtonAttributes,
+  SwitchButton
+>;
+
 declare module 'react' {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-qualifier
-      'mx-switch-button': React.DetailedHTMLProps<
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-qualifier
-        React.HTMLAttributes<SwitchButton> & SwitchButtonAttributes,
-        SwitchButton
-      >;
+      'mx-switch-button': SwitchButtonJSX;
     }
   }
 }
