@@ -40,7 +40,17 @@ const styles: string = await prettify(css`
     gap: var(--_between-space);
 
     ::slotted(*) {
-      border-radius: var(--_container-shape) * var(--_);
+      border-radius: var(--_inner-corner-corner-size);
+    }
+
+    ::slotted([data-leading]) {
+      border-start-start-radius: var(--_container-shape);
+      border-end-start-radius: var(--_container-shape);
+    }
+
+    ::slotted([data-trailing]) {
+      border-start-end-radius: var(--_container-shape);
+      border-end-end-radius: var(--_container-shape);
     }
   }
 

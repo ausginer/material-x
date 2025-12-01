@@ -1,7 +1,7 @@
 import sizeStyles from '../button/styles/size/main.css.ts?type=css' with { type: 'css' };
 import type { ButtonSize } from '../button/useButtonCore.ts';
 import { useCore } from '../core/controllers/useCore.ts';
-import { ReactiveElement } from '../core/elements/reactive-element.ts';
+import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import connectedStyles from './styles/connected.css.ts?type=css' with { type: 'css' };
 import { TEMPLATE } from './templates.ts';
 import { useConnectedGroupPress } from './useConnectedGroupPress.ts';
@@ -20,6 +20,8 @@ export default class ConnectedButtonGroup extends ReactiveElement {
     useConnectedGroupPress(this);
   }
 }
+
+define('mx-connected-button-group', ConnectedButtonGroup);
 
 declare global {
   interface HTMLElementTagNameMap {

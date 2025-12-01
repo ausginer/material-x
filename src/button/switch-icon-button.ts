@@ -13,8 +13,12 @@ import switchSizeStyles from './styles/size/switch.css.ts?type=css' with { type:
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts?type=css' with { type: 'css' };
 import { ICON_TEMPLATE } from './template.ts';
-import { useButtonCore, type ButtonLike } from './useButtonCore.ts';
-import { useSwitch, type SwitchAttributes } from './useSwitch.ts';
+import { useButtonCore } from './useButtonCore.ts';
+import {
+  useSwitch,
+  type SwitchAttributes,
+  type SwitchLike,
+} from './useSwitch.ts';
 
 export type SwitchIconButtonAttributes = IconButtonAttributes &
   SwitchAttributes;
@@ -41,7 +45,7 @@ export type SwitchIconButtonAttributes = IconButtonAttributes &
  */
 export default class SwitchIconButton
   extends ReactiveElement
-  implements ButtonLike
+  implements SwitchLike
 {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['checked', 'disabled'] as const;

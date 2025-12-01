@@ -1,6 +1,6 @@
 import { isButtonLike, type ButtonLike } from '../button/useButtonCore.ts';
 
-export type SiblingUpdateCallback = (sibling: HTMLElement) => void;
+export type SiblingUpdateCallback = (sibling?: HTMLElement) => void;
 
 export function applyToSiblings(
   target: HTMLElement,
@@ -9,13 +9,15 @@ export function applyToSiblings(
 ): void {
   const { previousElementSibling, nextElementSibling } = target;
 
-  if (previousElementSibling instanceof HTMLElement) {
-    prev?.(previousElementSibling);
-  }
+  prev?.(
+    previousElementSibling instanceof HTMLElement
+      ? previousElementSibling
+      : undefined,
+  );
 
-  if (nextElementSibling instanceof HTMLElement) {
-    next?.(nextElementSibling);
-  }
+  next?.(
+    nextElementSibling instanceof HTMLElement ? nextElementSibling : undefined,
+  );
 }
 
 export function getTarget(event: PointerEvent): ButtonLike | undefined {

@@ -15,6 +15,7 @@ import {
   type Leaf,
   type Shape,
 } from '../../core/tokens/shape.ts';
+import { excludeFromSet } from '../../core/tokens/utils.ts';
 import { createVariables, packSet } from '../../core/tokens/variable.ts';
 import type { TypedObjectConstructor } from '../../interfaces.ts';
 
@@ -22,7 +23,11 @@ const SET_BASE_NAME = 'md.comp.button-group';
 const TYPES = ['standard', 'connected'] as const;
 const SIZES = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
 
-const ALLOWED = ['container.height', 'between-space'];
+const ALLOWED = [
+  'container.height',
+  'between-space',
+  'inner-corner.corner-size',
+];
 
 export type ButtonGroupSchema = Readonly<{
   default: Leaf;
@@ -57,6 +62,13 @@ const special = createVariables(
   }),
 );
 
+const specialConnecteed = createVariables(
+  resolveSet({
+    'container.shape': `${SET_BASE_NAME}.connected.small.container.shape`,
+    'between-space': `${SET_BASE_NAME}.connected.small.between-space`,
+  }),
+);
+
 const packs: Readonly<
   Record<
     TupleToUnion<typeof TYPES>,
@@ -83,15 +95,22 @@ const packs: Readonly<
             const specializedSet = applyToButtonGroup(
               variableSet,
               (set, path) => {
-                if (
-                  type === 'standard' &&
-                  size === 'small' &&
-                  path[0] === 'default'
-                ) {
-                  return {
-                    ...set,
-                    ...special,
-                  };
+                if (size === 'small' && path[0] === 'default') {
+                  if (type === 'connected') {
+                    return {
+                      ...set,
+                      ...specialConnecteed,
+                    };
+                  } else {
+                    return {
+                      ...set,
+                      ...special,
+                    };
+                  }
+                }
+
+                if (type === 'connected') {
+                  return excludeFromSet(set, ['between-space']);
                 }
 
                 return set;

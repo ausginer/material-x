@@ -33,9 +33,13 @@ const styles: string = await prettify(css`
     place-content: center;
     gap: 8px;
     text-align: center;
-    transition-property: border-radius, background-color, color, padding-inline;
-    transition: var(--_press-duration) var(--_press-easing);
     caret-color: transparent;
+
+    transition:
+      border-radius var(--_press-duration) var(--_press-easing),
+      background-color var(--_press-duration) var(--_press-easing),
+      color var(--_press-duration) var(--_press-easing),
+      padding-inline var(--_press-duration) var(--_press-easing);
   }
 
   ${state.hovered()} {

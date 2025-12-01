@@ -42,12 +42,16 @@ class StandardGroupPressController implements ReactiveController {
         applyToSiblings(
           target,
           (sibling) => {
-            target.style.setProperty(LEADING_PROP, '1');
-            sibling.style.setProperty(TRAILING_PROP, '-1');
+            if (sibling) {
+              target.style.setProperty(LEADING_PROP, '1');
+              sibling.style.setProperty(TRAILING_PROP, '-1');
+            }
           },
           (sibling) => {
-            target.style.setProperty(TRAILING_PROP, '1');
-            sibling.style.setProperty(LEADING_PROP, '-1');
+            if (sibling) {
+              target.style.setProperty(TRAILING_PROP, '1');
+              sibling.style.setProperty(LEADING_PROP, '-1');
+            }
           },
         );
       }

@@ -3,6 +3,13 @@ import { useEvents } from '../core/controllers/useEvents.ts';
 import { useInternals } from '../core/controllers/useInternals.ts';
 import type { Attribute } from '../core/elements/attribute.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
+import type { ButtonLike } from './useButtonCore.ts';
+
+export interface SwitchLike extends ButtonLike {
+  checked: boolean;
+}
+
+const switches = new WeakSet<Element>();
 
 const CHANGE_EVENTS = ['input', 'change'] as const;
 
@@ -32,4 +39,11 @@ export function useSwitch(
       );
     },
   });
+
+  switches.add(host);
+}
+
+export function isSwitchLike(node: unknown): node is SwitchLike {
+  // @ts-expect-error: simplify check
+  return switches.has(node);
 }

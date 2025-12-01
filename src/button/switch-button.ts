@@ -13,10 +13,13 @@ import { REGULAR_TEMPLATE } from './template.ts';
 import {
   useButtonCore,
   type ButtonColor,
-  type ButtonLike,
   type CoreButtonAttributes,
 } from './useButtonCore.ts';
-import { useSwitch, type SwitchAttributes } from './useSwitch.ts';
+import {
+  useSwitch,
+  type SwitchAttributes,
+  type SwitchLike,
+} from './useSwitch.ts';
 
 export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
 
@@ -36,7 +39,7 @@ export type SwitchButtonAttributes = CoreButtonAttributes &
  */
 export default class SwitchButton
   extends ReactiveElement
-  implements ButtonLike
+  implements SwitchLike
 {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['checked', 'disabled'] as const;
