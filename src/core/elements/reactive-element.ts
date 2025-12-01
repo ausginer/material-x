@@ -9,8 +9,14 @@ export function html(
   const template = document.createElement('template');
   template.innerHTML = str.reduce(
     (acc, part, index) =>
-      // eslint-disable-next-line @typescript-eslint/no-base-to-string
-      `${acc}${part}${args[index] ? String(args[index]) : ''}`,
+      `${acc}${part}${
+        args[index]
+          ? args[index] instanceof HTMLTemplateElement
+            ? args[index].innerHTML
+            : // eslint-disable-next-line @typescript-eslint/no-base-to-string
+              String(args[index])
+          : ''
+      }`,
     '',
   );
   return template;
