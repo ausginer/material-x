@@ -1,6 +1,7 @@
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { Attribute } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
+import { $ } from '../core/utils/DOM.ts';
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
 import linkButtonStyles from './styles/link-button.css.ts?type=css' with { type: 'css' };
 import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
@@ -49,10 +50,7 @@ export default class LinkButton extends ReactiveElement implements ButtonLike {
       { delegatesFocus: true },
     );
     ['href', 'target'].map((attr) => {
-      const inner = Attribute.string(
-        this.shadowRoot!.querySelector('a')!,
-        attr,
-      );
+      const inner = Attribute.string($(this, 'a')!, attr);
 
       useAttribute(Attribute.string(this, attr), (_, value) =>
         inner.set(value),

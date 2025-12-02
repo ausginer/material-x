@@ -42,16 +42,10 @@ class StandardGroupPressController implements ReactiveController {
         applyToSiblings(
           target,
           (sibling) => {
-            if (sibling) {
-              target.style.setProperty(LEADING_PROP, '1');
-              sibling.style.setProperty(TRAILING_PROP, '-1');
-            }
+            sibling?.style.setProperty(TRAILING_PROP, '-1');
           },
           (sibling) => {
-            if (sibling) {
-              target.style.setProperty(TRAILING_PROP, '1');
-              sibling.style.setProperty(LEADING_PROP, '-1');
-            }
+            sibling?.style.setProperty(LEADING_PROP, '-1');
           },
         );
       }
@@ -59,9 +53,9 @@ class StandardGroupPressController implements ReactiveController {
 
     self.#pointerup = () => {
       self.#elements.forEach((element) => {
-        [LEADING_PROP, TRAILING_PROP].forEach((prop) => {
-          element.style.removeProperty(prop);
-        });
+        [LEADING_PROP, TRAILING_PROP].forEach((prop) =>
+          element.style.removeProperty(prop),
+        );
       });
     };
   }

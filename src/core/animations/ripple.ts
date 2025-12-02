@@ -5,6 +5,7 @@ import {
   type ReactiveElement,
   use,
 } from '../elements/reactive-element.ts';
+import { $ } from '../utils/DOM.ts';
 import {
   readCSSVariables,
   transformNumericVariable,
@@ -138,9 +139,9 @@ class RippleAnimationController implements ReactiveController {
 
   constructor(host: ReactiveElement, vars: CSSVariables) {
     this.#host = host;
-    host.shadowRoot!.prepend(TEMPLATE.content.cloneNode(true));
-    host.shadowRoot!.adoptedStyleSheets.push(css);
-    this.#rippleElement = host.shadowRoot!.querySelector(`.${CLS}`)!;
+    $(host)!.prepend(TEMPLATE.content.cloneNode(true));
+    $(host)!.adoptedStyleSheets.push(css);
+    this.#rippleElement = $(host, `.${CLS}`)!;
     this.#cssVariables = vars;
 
     const self = this;

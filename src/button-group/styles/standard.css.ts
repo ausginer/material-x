@@ -57,6 +57,11 @@ const styles: string = await prettify(css`
             )
         );
     }
+
+    ::slotted(:active) {
+      --_interaction-direction-leading: 1;
+      --_interaction-direction-trailing: 1;
+    }
   }
 
   :host(:active) {

@@ -43,12 +43,12 @@ const styles: string = await prettify(css`
       border-radius: var(--_inner-corner-corner-size);
     }
 
-    ::slotted([data-leading]) {
+    ::slotted(*:first-of-type) {
       border-start-start-radius: var(--_container-shape);
       border-end-start-radius: var(--_container-shape);
     }
 
-    ::slotted([data-trailing]) {
+    ::slotted(*:last-of-type) {
       border-start-end-radius: var(--_container-shape);
       border-end-end-radius: var(--_container-shape);
     }

@@ -1,5 +1,6 @@
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import { use, type ReactiveElement } from '../elements/reactive-element.ts';
+import { $ } from '../utils/DOM.ts';
 import { useEvents } from './useEvents.ts';
 
 export type SlotControllerUpdateCallback = (
@@ -15,7 +16,7 @@ class SlotController implements ReactiveController {
     slotSelector: string,
     callback: SlotControllerUpdateCallback,
   ) {
-    this.#slot = host.shadowRoot!.querySelector(slotSelector)!;
+    this.#slot = $(host, slotSelector)!;
     this.#callback = callback;
 
     useEvents(host, {

@@ -4,7 +4,6 @@ import { useCore } from '../core/controllers/useCore.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import connectedStyles from './styles/connected.css.ts?type=css' with { type: 'css' };
 import { TEMPLATE } from './templates.ts';
-import { useConnectedGroupPress } from './useConnectedGroupPress.ts';
 
 export type ConnectedButtonGroupAttributes = Readonly<{
   size?: Exclude<ButtonSize, 'small'>;
@@ -17,7 +16,6 @@ export default class ConnectedButtonGroup extends ReactiveElement {
   constructor() {
     super();
     useCore(this, TEMPLATE, { role: 'group' }, [sizeStyles, connectedStyles]);
-    useConnectedGroupPress(this);
   }
 }
 

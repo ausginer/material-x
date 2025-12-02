@@ -1,0 +1,55 @@
+import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
+import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
+import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
+import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
+import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'css' };
+import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
+import { REGULAR_TEMPLATE } from './template.ts';
+import {
+  useButtonCore,
+  type ButtonLike,
+  type CoreButtonAttributes,
+} from './useButtonCore.ts';
+
+export type SplitButtonAttributes = CoreButtonAttributes;
+
+/**
+ * @summary Buttons communicate actions that people can take. They are typically
+ * placed throughout the UI, in places like:
+ *
+ * - Dialogs
+ * - Modal windows
+ * - Forms
+ * - Cards
+ * - Toolbars
+ *
+ * They can also be placed within standard button groups.
+ *
+ * @attr {string} color
+ * @attr {boolean|undefined} disabled
+ * @attr {string} size
+ * @attr {string} shape
+ */
+export default class SplitButton extends ReactiveElement implements ButtonLike {
+  static readonly formAssociated = true;
+  static readonly observedAttributes = ['disabled'] as const;
+
+  constructor() {
+    super();
+    useButtonCore(this, REGULAR_TEMPLATE, 'button', [
+      mainElevatedStyles,
+      mainOutlinedStyles,
+      mainSizeStyles,
+      mainTextStyles,
+      mainTonalStyles,
+    ]);
+  }
+}
+
+define('mx-split-button', SplitButton);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'mx-split-button': SplitButton;
+  }
+}
