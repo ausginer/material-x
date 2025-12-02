@@ -1,8 +1,10 @@
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
-import { useInternals } from '../core/controllers/useInternals.ts';
 import type { Attribute } from '../core/elements/attribute.ts';
-import type { ReactiveElement } from '../core/elements/reactive-element.ts';
+import {
+  internals,
+  type ReactiveElement,
+} from '../core/elements/reactive-element.ts';
 import type { ButtonLike } from './useButtonCore.ts';
 
 export interface SwitchLike extends ButtonLike {
@@ -22,13 +24,13 @@ export function useSwitch(
   host: ReactiveElement,
   attribute: Attribute<boolean, ReactiveElement>,
 ): void {
-  const internals = useInternals(host);
+  const int = internals(host);
 
   useAttribute(attribute, (_, newValue) => {
     if (newValue) {
-      internals.states.add('checked');
+      int.states.add('checked');
     } else {
-      internals.states.delete('checked');
+      int.states.delete('checked');
     }
   });
 

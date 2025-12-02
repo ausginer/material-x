@@ -16,5 +16,5 @@ export function useSlot(
   const slotchange = () => callback(slot.assignedElements());
 
   useConnected(host, slotchange);
-  useEvents(host, { slotchange });
+  useEvents(host, { slotchange }, slot);
 }

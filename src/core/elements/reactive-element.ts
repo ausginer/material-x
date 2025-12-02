@@ -34,13 +34,17 @@ export let use: (
   ...controllers: readonly ReactiveController[]
 ) => void;
 
+export let internals: (element: ReactiveElement) => ElementInternals;
+
 export class ReactiveElement extends HTMLElement {
   static {
     use = (element, ...controllers) => {
       element.#controllers.push(...controllers);
     };
+    internals = (element) => element.#internals;
   }
 
+  readonly #internals = this.attachInternals();
   readonly #controllers: ReactiveController[] = [];
 
   attributeChangedCallback(
