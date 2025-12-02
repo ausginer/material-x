@@ -10,19 +10,19 @@ export type HTMLElementEventListenerMap = Readonly<{
 }>;
 
 class EventController implements ReactiveController {
-  readonly #host: HTMLElement;
+  readonly #target: HTMLElement;
   readonly #listeners: HTMLElementEventListenerMap;
   readonly #controller = new AbortController();
 
-  constructor(host: HTMLElement, listeners: HTMLElementEventListenerMap) {
-    this.#host = host;
+  constructor(target: HTMLElement, listeners: HTMLElementEventListenerMap) {
+    this.#target = target;
     this.#listeners = listeners;
   }
 
   connected(): void {
     for (const [name, listener] of Object.entries(this.#listeners)) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      this.#host.addEventListener(name, listener as EventListener, {
+      this.#target.addEventListener(name, listener as EventListener, {
         signal: this.#controller.signal,
       });
     }
@@ -36,6 +36,7 @@ class EventController implements ReactiveController {
 export function useEvents(
   host: ReactiveElement,
   listeners: HTMLElementEventListenerMap,
+  target: HTMLElement = host,
 ): void {
-  use(host, new EventController(host, listeners));
+  use(host, new EventController(target, listeners));
 }

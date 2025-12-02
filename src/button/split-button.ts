@@ -1,15 +1,25 @@
-import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
-import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
-import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
-import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'css' };
-import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
-import { REGULAR_TEMPLATE } from './template.ts';
+import '../button-group/connected-button-group.ts';
+import { useCore } from '../core/controllers/useCore.ts';
+import { useEvents } from '../core/controllers/useEvents.ts';
+import { Attribute } from '../core/elements/attribute.ts';
 import {
-  useButtonCore,
-  type ButtonLike,
-  type CoreButtonAttributes,
-} from './useButtonCore.ts';
+  define,
+  html,
+  ReactiveElement,
+} from '../core/elements/reactive-element.ts';
+import { query } from '../core/utils/DOM.ts';
+import '../icon/icon.ts';
+import './button.ts';
+import './icon-button.ts';
+import splitButtonStyles from './styles/split-button.css.ts?type=css' with { type: 'css' };
+import type { ButtonLike, CoreButtonAttributes } from './useButtonCore.ts';
+
+const TEMPLATE = html`<mx-connected-button-group>
+  <mx-button><slot name="icon" slot="icon"></slot><slot></slot></mx-button>
+  <mx-icon-button>
+    <mx-icon>keyboard_arrow_up</mx-icon>
+  </mx-icon-button>
+</mx-connected-button-group>`;
 
 export type SplitButtonAttributes = CoreButtonAttributes;
 
@@ -34,15 +44,22 @@ export default class SplitButton extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['disabled'] as const;
 
+  readonly #open = Attribute.bool(this, 'open');
+
   constructor() {
     super();
-    useButtonCore(this, REGULAR_TEMPLATE, 'button', [
-      mainElevatedStyles,
-      mainOutlinedStyles,
-      mainSizeStyles,
-      mainTextStyles,
-      mainTonalStyles,
-    ]);
+    const self = this;
+
+    useCore(self, TEMPLATE, { role: 'button' }, [splitButtonStyles]);
+    useEvents(
+      self,
+      {
+        click() {
+          self.#open.set(!self.#open.get());
+        },
+      },
+      query(self, 'mx-icon-button')!,
+    );
   }
 }
 

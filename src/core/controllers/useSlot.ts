@@ -1,38 +1,20 @@
-import type { ReactiveController } from '../elements/reactive-controller.ts';
-import { use, type ReactiveElement } from '../elements/reactive-element.ts';
-import { $ } from '../utils/DOM.ts';
+import type { ReactiveElement } from '../elements/reactive-element.ts';
+import { query } from '../utils/DOM.ts';
+import { useConnected } from './useConnected.ts';
 import { useEvents } from './useEvents.ts';
 
 export type SlotControllerUpdateCallback = (
   elements: readonly Element[],
 ) => void;
 
-class SlotController implements ReactiveController {
-  readonly #callback: SlotControllerUpdateCallback;
-  readonly #slot: HTMLSlotElement;
-
-  constructor(
-    host: ReactiveElement,
-    slotSelector: string,
-    callback: SlotControllerUpdateCallback,
-  ) {
-    this.#slot = $(host, slotSelector)!;
-    this.#callback = callback;
-
-    useEvents(host, {
-      slotchange: () => this.#callback(this.#slot.assignedElements()),
-    });
-  }
-
-  connected(): void {
-    this.#callback(this.#slot.assignedElements());
-  }
-}
-
 export function useSlot(
   host: ReactiveElement,
   slotSelector: string,
   callback: SlotControllerUpdateCallback,
 ): void {
-  use(host, new SlotController(host, slotSelector, callback));
+  const slot = query<HTMLSlotElement>(host, slotSelector)!;
+  const slotchange = () => callback(slot.assignedElements());
+
+  useConnected(host, slotchange);
+  useEvents(host, { slotchange });
 }

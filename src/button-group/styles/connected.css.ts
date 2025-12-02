@@ -35,6 +35,7 @@ const _styles = (Object as TypedObjectConstructor)
 const styles: string = await prettify(css`
   :host {
     ${packs.connected.small.default};
+    --_shape-full: calc(var(--_container-height) / 2);
 
     display: flex;
     gap: var(--_between-space);
@@ -43,19 +44,19 @@ const styles: string = await prettify(css`
       border-radius: var(--_inner-corner-corner-size);
     }
 
-    ::slotted(*:first-of-type) {
+    ::slotted(:active) {
+      ${packs.connected.small.pressed};
+    }
+
+    ::slotted([data-first]) {
       border-start-start-radius: var(--_container-shape);
       border-end-start-radius: var(--_container-shape);
     }
 
-    ::slotted(*:last-of-type) {
+    ::slotted([data-last]) {
       border-start-end-radius: var(--_container-shape);
       border-end-end-radius: var(--_container-shape);
     }
-  }
-
-  :host(:active) {
-    ${packs.connected.small.pressed};
   }
 
   ${_styles}

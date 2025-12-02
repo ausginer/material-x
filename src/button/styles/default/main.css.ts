@@ -70,6 +70,7 @@ const styles: string = await prettify(css`
     color: var(--_icon-color);
     flex: 1 0 var(--_icon-size);
     transition: color var(--_press-duration) var(--_press-easing);
+    pointer-events: none;
   }
 `);
 

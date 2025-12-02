@@ -63,10 +63,13 @@ const special = createVariables(
 );
 
 const specialConnecteed = createVariables(
-  resolveSet({
-    'container.shape': `${SET_BASE_NAME}.connected.small.container.shape`,
-    'between-space': `${SET_BASE_NAME}.connected.small.between-space`,
-  }),
+  resolveSet(
+    {
+      'container.shape': `${SET_BASE_NAME}.connected.small.container.shape`,
+      'between-space': `${SET_BASE_NAME}.connected.small.between-space`,
+    },
+    fixFullShape,
+  ),
 );
 
 const packs: Readonly<

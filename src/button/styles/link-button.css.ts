@@ -1,6 +1,6 @@
-import { css } from '../../core/tokens/css.ts';
+import { css, prettify } from '../../core/tokens/css.ts';
 
-const styles: string = css`
+const styles: string = await prettify(css`
   :host {
     padding: 0;
   }
@@ -28,6 +28,6 @@ const styles: string = css`
       var(--_focus-indicator-color);
     outline-offset: var(--_focus-indicator-outline-offset);
   }
-`;
+`);
 
 export default styles;
