@@ -24,13 +24,13 @@ export function useSwitch(
   host: ReactiveElement,
   attribute: Attribute<boolean, ReactiveElement>,
 ): void {
-  const int = internals(host);
+  const _internals = internals(host);
 
   useAttribute(attribute, (_, newValue) => {
     if (newValue) {
-      int.states.add('checked');
+      _internals.states.add('checked');
     } else {
-      int.states.delete('checked');
+      _internals.states.delete('checked');
     }
   });
 
