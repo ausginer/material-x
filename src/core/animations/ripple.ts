@@ -17,23 +17,19 @@ import css from './styles/ripple.css.ts?type=css' with { type: 'css' };
 const INACTIVE = 0;
 const TOUCH_DELAY = 1;
 const HOLDING = 2;
-const WAITING_FOR_COMPLETION = 3;
+const WAITING_FOR_CLICK = 3;
 
 type State =
   | typeof INACTIVE
   | typeof TOUCH_DELAY
   | typeof HOLDING
-  | typeof WAITING_FOR_COMPLETION;
+  | typeof WAITING_FOR_CLICK;
 
 const MINIMUM_PRESS_MS = 225;
 const INITIAL_ORIGIN_SCALE = 0.2;
 const PADDING = 10;
 const SOFT_EDGE_MINIMUM_SIZE = 75;
 const SOFT_EDGE_CONTAINER_RATIO = 0.35;
-
-const VARS = {
-  rippleSize: '--_ripple-size',
-} as const;
 
 /**
  * Delay reacting to touch so that we do not show the ripple for a swipe or
@@ -44,6 +40,8 @@ const TOUCH_DELAY_MS = 150;
 function isTouch(event: PointerEvent): boolean {
   return event.pointerType === 'touch';
 }
+
+const FORCED_COLORS = matchMedia('(forced-colors: active)');
 
 function determineRippleSize(
   { currentCSSZoom }: HTMLElement,
@@ -126,64 +124,70 @@ export type CSSVariables = Readonly<{
   duration: string;
 }>;
 
-const CLS = 'ripple';
-const TEMPLATE = html`<div class="${CLS}"></div>`;
+const TEMPLATE = html`<div id="ripple"></div>`;
 
 class RippleAnimationController implements ReactiveController {
   readonly #host: ReactiveElement;
   readonly #rippleElement: HTMLElement;
   readonly #cssVariables: CSSVariables;
+  #state: State = INACTIVE;
   #animation: Animation | undefined;
   #varValues: CSSVariables | undefined;
   #startEvent: PointerEvent | null = null;
+  #checkBoundsAfterContextMenu = false;
 
   constructor(host: ReactiveElement, vars: CSSVariables) {
     this.#host = host;
-    host.shadowRoot!.prepend(TEMPLATE.content.cloneNode(true));
+    // Append so the ripple paints above the host's content.
+    host.shadowRoot!.append(TEMPLATE.content.cloneNode(true));
     host.shadowRoot!.adoptedStyleSheets.push(css);
-    this.#rippleElement = query(host, `.${CLS}`)!;
+    this.#rippleElement = query(host, `#ripple`)!;
     this.#cssVariables = vars;
 
     const self = this;
-    let state: State = INACTIVE;
-    let checkBoundsAfterContextMenu = false;
 
     useEvents(host, {
       click() {
-        // Click is a MouseEvent in Firefox and Safari, so we cannot use
-        // `shouldReactToEvent`
-        if (self.#isHostDisabled()) {
+        if (
+          self.#shouldIgnoreForForcedColors() ||
+          // Click is a MouseEvent in Firefox and Safari, so we cannot use
+          // `shouldReactToEvent`
+          self.#isHostDisabled()
+        ) {
           return;
         }
 
-        if (state === WAITING_FOR_COMPLETION) {
+        if (self.#state === WAITING_FOR_CLICK) {
           void self.#endAnimation();
           return;
         }
 
-        if (state === INACTIVE) {
+        if (self.#state === INACTIVE) {
           // keyboard synthesized click event
           self.#startAnimation();
           void self.#endAnimation();
         }
       },
       contextmenu() {
-        if (self.#isHostDisabled()) {
+        if (self.#shouldIgnoreForForcedColors() || self.#isHostDisabled()) {
           return;
         }
 
-        checkBoundsAfterContextMenu = true;
+        self.#checkBoundsAfterContextMenu = true;
         void self.#endAnimation();
       },
       pointerdown(event: PointerEvent) {
-        if (!self.#shouldReactToEvent(event)) {
+        if (
+          self.#shouldIgnoreForForcedColors() ||
+          !self.#shouldReactToEvent(event)
+        ) {
           return;
         }
 
         self.#startEvent = event;
 
         if (!isTouch(event)) {
-          state = WAITING_FOR_COMPLETION;
+          self.#state = WAITING_FOR_CLICK;
           self.#startAnimation();
           return;
         }
@@ -191,53 +195,62 @@ class RippleAnimationController implements ReactiveController {
         // after a longpress contextmenu event, an extra `pointerdown` can be
         // dispatched to the pressed element. Check that the down is within
         // bounds of the element in this case.
-        if (checkBoundsAfterContextMenu && !self.#inBounds(event)) {
+        if (self.#checkBoundsAfterContextMenu && !self.#inBounds(event)) {
           return;
         }
 
-        checkBoundsAfterContextMenu = false;
+        self.#checkBoundsAfterContextMenu = false;
 
         // Wait for a hold after touch delay
-        state = TOUCH_DELAY;
+        self.#state = TOUCH_DELAY;
 
         setTimeout(() => {
           // State may have changed while waiting for the timeout.
-          if (state !== TOUCH_DELAY) {
+          if (self.#state !== TOUCH_DELAY) {
             return;
           }
 
-          state = HOLDING;
+          self.#state = HOLDING;
           self.#startAnimation();
         }, TOUCH_DELAY_MS);
       },
       pointerleave(event: PointerEvent) {
-        if (!self.#shouldReactToEvent(event)) {
+        if (
+          self.#shouldIgnoreForForcedColors() ||
+          !self.#shouldReactToEvent(event)
+        ) {
           return;
         }
 
         // release a held mouse or pen press that moves outside the element
-        if (state !== INACTIVE) {
+        if (self.#state !== INACTIVE) {
           void self.#endAnimation();
         }
       },
       pointerup(event: PointerEvent) {
-        if (!self.#shouldReactToEvent(event)) {
+        if (
+          self.#shouldIgnoreForForcedColors() ||
+          !self.#shouldReactToEvent(event)
+        ) {
           return;
         }
 
-        if (state === HOLDING) {
-          state = WAITING_FOR_COMPLETION;
+        if (self.#state === HOLDING) {
+          self.#state = WAITING_FOR_CLICK;
           return;
         }
 
-        if (state === TOUCH_DELAY) {
-          state = WAITING_FOR_COMPLETION;
+        if (self.#state === TOUCH_DELAY) {
+          self.#state = WAITING_FOR_CLICK;
           self.#startAnimation();
           return;
         }
       },
       pointercancel(event: PointerEvent) {
-        if (!self.#shouldReactToEvent(event)) {
+        if (
+          self.#shouldIgnoreForForcedColors() ||
+          !self.#shouldReactToEvent(event)
+        ) {
           return;
         }
 
@@ -283,7 +296,8 @@ class RippleAnimationController implements ReactiveController {
 
     self.#animation = self.#rippleElement.animate(
       {
-        [VARS.rippleSize]: [pxSize, pxSize],
+        width: [pxSize, pxSize],
+        height: [pxSize, pxSize],
         transform: [
           `translate(${startPoint.x}px,${startPoint.y}px) scale(1)`,
           `translate(${endPoint.x}px,${endPoint.y}px) scale(${scale})`,
@@ -298,8 +312,10 @@ class RippleAnimationController implements ReactiveController {
   }
 
   async #endAnimation(): Promise<void> {
-    this.#startEvent = null;
-    const animation = this.#animation;
+    const self = this;
+    self.#startEvent = null;
+    self.#state = INACTIVE;
+    const animation = self.#animation;
     let pressAnimationPlayState = Infinity;
     if (typeof animation?.currentTime === 'number') {
       pressAnimationPlayState = animation.currentTime;
@@ -308,28 +324,12 @@ class RippleAnimationController implements ReactiveController {
     }
 
     if (pressAnimationPlayState >= MINIMUM_PRESS_MS) {
-      this.#finalizeAnimation();
       return;
     }
 
     await new Promise((resolve) => {
       setTimeout(resolve, MINIMUM_PRESS_MS - pressAnimationPlayState);
     });
-
-    if (this.#animation !== animation) {
-      // A new press animation was started. The old animation was canceled and
-      // should not finish the pressed state.
-      return;
-    }
-
-    this.#finalizeAnimation();
-  }
-
-  #finalizeAnimation(): void {
-    if (this.#animation) {
-      this.#animation.playbackRate = -1;
-      this.#animation.play();
-    }
   }
 
   #isHostDisabled(): boolean {
@@ -337,11 +337,13 @@ class RippleAnimationController implements ReactiveController {
   }
 
   #shouldReactToEvent(event: PointerEvent): boolean {
-    if (this.#isHostDisabled() || !event.isPrimary) {
+    const self = this;
+
+    if (self.#isHostDisabled() || !event.isPrimary) {
       return false;
     }
 
-    if (this.#startEvent && this.#startEvent.pointerId !== event.pointerId) {
+    if (self.#startEvent && self.#startEvent.pointerId !== event.pointerId) {
       return false;
     }
 
@@ -351,6 +353,10 @@ class RippleAnimationController implements ReactiveController {
 
     const isPrimaryButton = event.buttons === 1;
     return isTouch(event) || isPrimaryButton;
+  }
+
+  #shouldIgnoreForForcedColors(): boolean {
+    return FORCED_COLORS.matches;
   }
 }
 

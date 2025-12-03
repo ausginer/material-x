@@ -45,11 +45,7 @@ const styles: string = await prettify(css`
   ${state.hovered()} {
     ${packs.hovered};
 
-    background-color: color-mix(
-      in srgb,
-      var(--_container-color),
-      var(--_state-layer-color) calc(var(--_state-layer-opacity) * 100%)
-    );
+    background-color: var(--_container-color);
   }
 
   ${state.focused()} {
