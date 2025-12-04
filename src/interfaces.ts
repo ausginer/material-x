@@ -10,3 +10,14 @@ export interface TypedObjectConstructor {
     ? Readonly<Record<K extends PropertyKey ? K : never, V>>
     : never;
 }
+
+export type CustomElementProperties<
+  Attrs extends Record<string, unknown>,
+  Props extends Record<string, unknown>,
+  Events extends Record<string, Event>,
+> = Readonly<
+  Attrs &
+    Props & {
+      [E in keyof Events as `on${E & string}`]: (event: Events[E]) => void;
+    }
+>;

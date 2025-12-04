@@ -1,7 +1,7 @@
 import type { Story, StoryDefault } from '@ladle/react';
-import './react/switch-button.ts';
+import './switch-button.ts';
 import { useState, type PropsWithChildren } from 'react';
-import type { SwitchButtonAttributes } from './react/switch-button.ts';
+import type { SwitchButtonAttributes } from './switch-button.ts';
 
 const storyDefault: StoryDefault = {
   decorators: [
@@ -97,17 +97,6 @@ export const SizeXSmall: Story = () => (
   </>
 );
 SizeXSmall.storyName = 'Size / XSmall';
-
-export const SizeSmall: Story = () => (
-  <>
-    <mx-switch-button size="small">Check Me!</mx-switch-button>
-    <mx-switch-button size="small" checked>
-      I am checked!
-    </mx-switch-button>
-    <ControlledSwitchButton size="small">Checkbox</ControlledSwitchButton>
-  </>
-);
-SizeSmall.storyName = 'Size / Small';
 
 export const SizeMedium: Story = () => (
   <>

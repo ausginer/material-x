@@ -1,6 +1,6 @@
 import type { Story } from '@ladle/react';
-import './react/button.ts';
-import '../icon/react/icon.ts';
+import './button.ts';
+import '../icon/icon.ts';
 
 // ================
 // Color
@@ -37,11 +37,6 @@ export const SizeXSmall: Story = () => (
   <mx-button size="xsmall">Click Me!</mx-button>
 );
 SizeXSmall.storyName = 'Size / XSmall';
-
-export const SizeSmall: Story = () => (
-  <mx-button size="small">Click Me!</mx-button>
-);
-SizeSmall.storyName = 'Size / Small';
 
 export const SizeMedium: Story = () => (
   <mx-button size="medium">Click Me!</mx-button>

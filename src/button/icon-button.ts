@@ -1,3 +1,4 @@
+import type { EmptyObject } from 'type-fest';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
 import mainIconStyles from './styles/icon/main.css.ts?type=css' with { type: 'css' };
@@ -22,6 +23,12 @@ export type IconButtonAttributes = Readonly<
     width?: IconButtonWidth;
   }
 >;
+
+export type IconButtonProperties = EmptyObject;
+
+export type IconButtonEvents = EmptyObject;
+
+export type IconButtonCSSProperties = EmptyObject;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically

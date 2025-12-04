@@ -1,3 +1,4 @@
+import type { EmptyObject } from 'type-fest';
 import { Attribute } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import type { IconButtonAttributes } from './icon-button.ts';
@@ -12,6 +13,7 @@ import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'cs
 import switchSizeStyles from './styles/size/switch.css.ts?type=css' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts?type=css' with { type: 'css' };
+import type { SwitchButtonProperties } from './switch-button.ts';
 import { ICON_TEMPLATE } from './template.ts';
 import { useButtonCore } from './useButtonCore.ts';
 import {
@@ -22,6 +24,10 @@ import {
 
 export type SwitchIconButtonAttributes = IconButtonAttributes &
   SwitchAttributes;
+
+export type SwitchIconButtonProperties = SwitchButtonProperties;
+export type SwitchIconButtonEvents = EmptyObject;
+export type SwitchIconButtonCSSProperties = EmptyObject;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically

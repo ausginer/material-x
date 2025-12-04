@@ -1,3 +1,4 @@
+import type { EmptyObject } from 'type-fest';
 import { Attribute } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts?type=css' with { type: 'css' };
@@ -28,6 +29,13 @@ export type SwitchButtonAttributes = CoreButtonAttributes &
   Readonly<{
     color?: SwitchButtonColor;
   }>;
+
+export type SwitchButtonProperties = Readonly<{
+  checked?: boolean;
+}>;
+
+export type SwitchButtonEvents = EmptyObject;
+export type SwitchButtonCSSProperties = EmptyObject;
 
 /**
  * @attr {string} color

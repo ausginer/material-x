@@ -1,5 +1,5 @@
 import type { Story } from '@ladle/react';
-import './react/link-button.ts';
+import './link-button.ts';
 
 // ================
 // Color
@@ -73,17 +73,6 @@ export const SizeXSmall: Story = () => (
   </mx-link-button>
 );
 SizeXSmall.storyName = 'Size / XSmall';
-
-export const SizeSmall: Story = () => (
-  <mx-link-button
-    size="small"
-    href="https://m3.material.io/components/buttons/overview"
-    target="_blank"
-  >
-    Click Me!
-  </mx-link-button>
-);
-SizeSmall.storyName = 'Size / Small';
 
 export const SizeMedium: Story = () => (
   <mx-link-button

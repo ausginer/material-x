@@ -1,10 +1,11 @@
+import type { EmptyObject } from 'type-fest';
 import '../button-group/connected-button-group.ts';
 import { useCore } from '../core/controllers/useCore.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
-import { Attribute } from '../core/elements/attribute.ts';
 import {
   define,
   html,
+  internals,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import { query } from '../core/utils/DOM.ts';
@@ -17,11 +18,23 @@ import type { ButtonLike, CoreButtonAttributes } from './useButtonCore.ts';
 const TEMPLATE = html`<mx-connected-button-group>
   <mx-button><slot name="icon" slot="icon"></slot><slot></slot></mx-button>
   <mx-icon-button>
-    <mx-icon>keyboard_arrow_up</mx-icon>
+    <mx-icon>keyboard_arrow_down</mx-icon>
   </mx-icon-button>
 </mx-connected-button-group>`;
 
-export type SplitButtonAttributes = CoreButtonAttributes;
+export type SplitButtonAttributes = Readonly<
+  CoreButtonAttributes & {
+    open?: boolean;
+  }
+>;
+
+export type SplitButtonProperties = EmptyObject;
+
+export type SplitButtonEvents = Readonly<{
+  toggle: Event;
+}>;
+
+export type SplitButtonCSSProperties = EmptyObject;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically
@@ -44,18 +57,18 @@ export default class SplitButton extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;
   static readonly observedAttributes = ['disabled'] as const;
 
-  readonly #open = Attribute.bool(this, 'open');
-
   constructor() {
     super();
     const self = this;
 
-    useCore(self, TEMPLATE, { role: 'button' }, [splitButtonStyles]);
+    const _internals = internals(self);
+    useCore(self, TEMPLATE, {}, [splitButtonStyles]);
     useEvents(
       self,
       {
-        click() {
-          self.#open.set(!self.#open.get());
+        click(event) {
+          event.stopPropagation();
+          self.dispatchEvent(new Event('toggle'));
         },
       },
       query(self, 'mx-icon-button')!,

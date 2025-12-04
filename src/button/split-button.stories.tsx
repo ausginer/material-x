@@ -1,7 +1,21 @@
 import type { Story } from '@ladle/react';
-import './react/split-button.ts';
+import { useState, type PropsWithChildren } from 'react';
+import './split-button.ts';
+import type { SplitButtonAttributes } from './split-button.ts';
+
+type ControlledSplitButtonProps = SplitButtonAttributes;
+
+function ControlledSplitButton(
+  props: PropsWithChildren<ControlledSplitButtonProps>,
+) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <mx-split-button open={open} ontoggle={() => setOpen(!open)} {...props} />
+  );
+}
 
 export const ColorFilled: Story = () => (
-  <mx-split-button>Click Me!</mx-split-button>
+  <ControlledSplitButton>Click Me!</ControlledSplitButton>
 );
 ColorFilled.storyName = 'Color / Default';

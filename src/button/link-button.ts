@@ -1,3 +1,4 @@
+import type { EmptyObject } from 'type-fest';
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { Attribute } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
@@ -21,6 +22,10 @@ export type LinkButtonAttributes = Readonly<
     target?: HTMLAnchorElement['target'];
   }
 >;
+
+export type LinkButtonProperties = EmptyObject;
+export type LinkButtonEvents = EmptyObject;
+export type LinkButtonCSSProperties = EmptyObject;
 
 /**
  * @attr {string} color

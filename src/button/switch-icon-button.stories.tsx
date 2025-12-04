@@ -1,8 +1,8 @@
 import type { Story, StoryDefault } from '@ladle/react';
 import { useState, type PropsWithChildren } from 'react';
-import type { SwitchIconButtonAttributes } from './react/switch-icon-button.ts';
-import './react/switch-icon-button.ts';
-import '../icon/react/icon.ts';
+import type { SwitchIconButtonAttributes } from './switch-icon-button.ts';
+import './switch-icon-button.ts';
+import '../icon/icon.ts';
 
 const storyDefault: StoryDefault = {
   decorators: [
@@ -19,10 +19,9 @@ export default storyDefault;
 
 type ControlledSwitchIconButtonProps = SwitchIconButtonAttributes;
 
-function ControlledSwitchIconButton({
-  children,
-  ...other
-}: PropsWithChildren<ControlledSwitchIconButtonProps>) {
+function ControlledSwitchIconButton(
+  props: PropsWithChildren<ControlledSwitchIconButtonProps>,
+) {
   const [state, setState] = useState(false);
 
   return (
@@ -31,10 +30,8 @@ function ControlledSwitchIconButton({
       onChange={() => {
         setState(!state);
       }}
-      {...other}
-    >
-      {children}
-    </mx-switch-icon-button>
+      {...props}
+    />
   );
 }
 
@@ -134,21 +131,6 @@ export const SizeXSmall: Story = () => (
   </>
 );
 SizeXSmall.storyName = 'Size / XSmall';
-
-export const SizeSmall: Story = () => (
-  <>
-    <mx-switch-icon-button size="small">
-      <mx-icon>wifi</mx-icon>
-    </mx-switch-icon-button>
-    <mx-switch-icon-button size="small" checked>
-      <mx-icon>bluetooth</mx-icon>
-    </mx-switch-icon-button>
-    <ControlledSwitchIconButton size="small">
-      <mx-icon>alarm</mx-icon>
-    </ControlledSwitchIconButton>
-  </>
-);
-SizeSmall.storyName = 'Size / Small';
 
 export const SizeMedium: Story = () => (
   <>

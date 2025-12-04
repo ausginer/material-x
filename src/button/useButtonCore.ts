@@ -13,7 +13,7 @@ export interface ButtonLike extends ReactiveElement {}
 const buttons = new WeakSet<Element>();
 
 export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
-export type ButtonSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
+export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';
 export type ButtonShape = 'round' | 'square';
 
 export type CoreButtonAttributes = Readonly<{

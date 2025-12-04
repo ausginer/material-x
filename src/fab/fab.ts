@@ -1,3 +1,4 @@
+import type { EmptyObject } from 'type-fest';
 import { useRipple } from '../core/animations/ripple.ts';
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useConnected } from '../core/controllers/useConnected.ts';
@@ -26,6 +27,16 @@ export type FABAttributes = Readonly<{
   tonal?: boolean;
   disabled?: boolean;
 }>;
+
+export type FABProperties = Readonly<{
+  extended?: boolean;
+}>;
+
+export type FABEvents = Readonly<{
+  fabtoggle: Event;
+}>;
+
+export type FABCSSProperties = EmptyObject;
 
 const TEMPLATE = html`<slot class="icon" name="icon"></slot><slot></slot>`;
 

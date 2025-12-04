@@ -1,3 +1,4 @@
+import type { EmptyObject } from 'type-fest';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
 import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
@@ -13,6 +14,42 @@ import {
 
 export type ButtonAttributes = CoreButtonAttributes;
 
+export type ButtonProperties = EmptyObject;
+
+export type ButtonEvents = EmptyObject;
+
+export type ButtonCSSProperties = Readonly<{
+  /**
+   * Controls the button main color
+   */
+  '--md-button-container-color'?: string;
+  /**
+   *  Controls the button label color.
+   */
+  '--md-button-label-text-color'?: string;
+  /**
+   * Controls the button icon color.
+   */
+  '--md-button-icon-color'?: string;
+  /**
+   * Controls the button icon size.
+   */
+  '--md-button-icon-size'?: string;
+  /**
+   * Controls the button elevation level. Use integer number of px the button
+   * should move up the z-axis.
+   */
+  '--md-button-container-elevation'?: string;
+  /**
+   * Controls the leading padding of the button.
+   */
+  '--md-button-leading-space'?: string;
+  /**
+   * Controls the trailing padding of the button.
+   */
+  '--md-button-trailing-space'?: string;
+}>;
+
 /**
  * @summary Buttons communicate actions that people can take. They are typically
  * placed throughout the UI, in places like:
@@ -25,10 +62,7 @@ export type ButtonAttributes = CoreButtonAttributes;
  *
  * They can also be placed within standard button groups.
  *
- * @attr {string} color
- * @attr {boolean|undefined} disabled
- * @attr {string} size
- * @attr {string} shape
+ * @tag mx-button
  */
 export default class Button extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;
