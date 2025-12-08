@@ -1,10 +1,8 @@
-import { useAttribute } from '../core/controllers/useAttribute.ts';
+import type { Constructor } from 'type-fest';
+import { useAccessors } from '../core/controllers/useAccessors.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
-import type { Attribute } from '../core/elements/attribute.ts';
-import {
-  internals,
-  type ReactiveElement,
-} from '../core/elements/reactive-element.ts';
+import { Bool, Str, type Converter } from '../core/elements/attribute.ts';
+import type { ReactiveElement } from '../core/elements/reactive-element.ts';
 import type { ButtonLike } from './useButtonCore.ts';
 
 export interface SwitchLike extends ButtonLike {
@@ -20,20 +18,18 @@ export type SwitchAttributes = Readonly<{
   value?: string;
 }>;
 
-export function useSwitch(
-  host: ReactiveElement,
-  attribute: Attribute<boolean, ReactiveElement>,
+export function useSwitchAccessors(
+  ctr: Constructor<ReactiveElement>,
+  attributes?: Readonly<Record<string, Converter>>,
 ): void {
-  const _internals = internals(host);
-
-  useAttribute(attribute, (_, newValue) => {
-    if (newValue) {
-      _internals.states.add('checked');
-    } else {
-      _internals.states.delete('checked');
-    }
+  useAccessors(ctr, {
+    checked: Bool,
+    value: Str,
+    ...attributes,
   });
+}
 
+export function useSwitch(host: ReactiveElement): void {
   useEvents(host, {
     pointerdown() {
       CHANGE_EVENTS.forEach((name) =>

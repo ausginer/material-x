@@ -7,17 +7,17 @@ import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'cs
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import { REGULAR_TEMPLATE } from './template.ts';
 import {
+  useButtonAccessors,
   useButtonCore,
+  type ButtonColor,
   type ButtonLike,
-  type CoreButtonAttributes,
+  type ButtonShape,
+  type ButtonSize,
+  type CoreButtonProperties,
 } from './useButtonCore.ts';
 
-export type ButtonAttributes = CoreButtonAttributes;
-
-export type ButtonProperties = EmptyObject;
-
+export type ButtonProperties = CoreButtonProperties;
 export type ButtonEvents = EmptyObject;
-
 export type ButtonCSSProperties = Readonly<{
   /**
    * Controls the button main color
@@ -66,7 +66,14 @@ export type ButtonCSSProperties = Readonly<{
  */
 export default class Button extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;
-  static readonly observedAttributes = ['disabled'] as const;
+  static {
+    useButtonAccessors(this);
+  }
+
+  declare color: ButtonColor | null;
+  declare size: ButtonSize | null;
+  declare shape: ButtonShape | null;
+  declare disabled: boolean;
 
   constructor() {
     super();

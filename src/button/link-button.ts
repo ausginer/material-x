@@ -1,6 +1,6 @@
 import type { EmptyObject } from 'type-fest';
 import { useAttribute } from '../core/controllers/useAttribute.ts';
-import { Attribute } from '../core/elements/attribute.ts';
+import { attr, Str } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import { query } from '../core/utils/DOM.ts';
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
@@ -11,19 +11,22 @@ import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'cs
 import tonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import { LINK_TEMPLATE } from './template.ts';
 import {
+  useButtonAccessors,
   useButtonCore,
+  type ButtonColor,
   type ButtonLike,
-  type CoreButtonAttributes,
+  type ButtonShape,
+  type ButtonSize,
+  type CoreButtonProperties,
 } from './useButtonCore.ts';
 
-export type LinkButtonAttributes = Readonly<
-  CoreButtonAttributes & {
+export type LinkButtonProperties = Readonly<
+  CoreButtonProperties & {
     href?: HTMLAnchorElement['href'];
     target?: HTMLAnchorElement['target'];
   }
 >;
 
-export type LinkButtonProperties = EmptyObject;
 export type LinkButtonEvents = EmptyObject;
 export type LinkButtonCSSProperties = EmptyObject;
 
@@ -36,7 +39,19 @@ export type LinkButtonCSSProperties = EmptyObject;
  * @attr {string} target
  */
 export default class LinkButton extends ReactiveElement implements ButtonLike {
-  static readonly observedAttributes = ['disabled', 'href', 'target'] as const;
+  static {
+    useButtonAccessors(this, {
+      href: Str,
+      target: Str,
+    });
+  }
+
+  declare href: string | null;
+  declare target: string | null;
+  declare color: ButtonColor | null;
+  declare size: ButtonSize | null;
+  declare shape: ButtonShape | null;
+  declare disabled: boolean;
 
   constructor() {
     super();
@@ -54,11 +69,12 @@ export default class LinkButton extends ReactiveElement implements ButtonLike {
       ],
       { delegatesFocus: true },
     );
-    ['href', 'target'].map((attr) => {
-      const inner = Attribute.string(query(this, 'a')!, attr);
 
-      useAttribute(Attribute.string(this, attr), (_, value) =>
-        inner.set(value),
+    const anchor = query(this, 'a')!;
+
+    ['href', 'target'].map((attribute) => {
+      useAttribute(this, attribute, (_, value) =>
+        attr.setRaw(anchor, attribute, value),
       );
     });
   }

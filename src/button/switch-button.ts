@@ -1,5 +1,4 @@
 import type { EmptyObject } from 'type-fest';
-import { Attribute } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts?type=css' with { type: 'css' };
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
@@ -12,28 +11,27 @@ import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: '
 import switchTonalStyles from './styles/tonal/switch.css.ts?type=css' with { type: 'css' };
 import { REGULAR_TEMPLATE } from './template.ts';
 import {
+  useButtonAccessors,
   useButtonCore,
   type ButtonColor,
-  type CoreButtonAttributes,
+  type ButtonShape,
+  type ButtonSize,
+  type CoreButtonProperties,
 } from './useButtonCore.ts';
 import {
   useSwitch,
+  useSwitchAccessors,
   type SwitchAttributes,
   type SwitchLike,
 } from './useSwitch.ts';
 
 export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
 
-export type SwitchButtonAttributes = CoreButtonAttributes &
+export type SwitchButtonProperties = CoreButtonProperties &
   SwitchAttributes &
   Readonly<{
     color?: SwitchButtonColor;
   }>;
-
-export type SwitchButtonProperties = Readonly<{
-  checked?: boolean;
-}>;
-
 export type SwitchButtonEvents = EmptyObject;
 export type SwitchButtonCSSProperties = EmptyObject;
 
@@ -50,14 +48,21 @@ export default class SwitchButton
   implements SwitchLike
 {
   static readonly formAssociated = true;
-  static readonly observedAttributes = ['checked', 'disabled'] as const;
 
-  readonly #checked = Attribute.bool(this, 'checked');
+  static {
+    useButtonAccessors(this);
+    useSwitchAccessors(this);
+  }
+
+  declare color: SwitchButtonColor | null;
+  declare size: ButtonSize | null;
+  declare shape: ButtonShape | null;
+  declare disabled: boolean;
+  declare checked: boolean;
 
   constructor() {
     super();
-    const self = this;
-    useButtonCore(self, REGULAR_TEMPLATE, 'switch', [
+    useButtonCore(this, REGULAR_TEMPLATE, 'switch', [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainSizeStyles,
@@ -68,15 +73,7 @@ export default class SwitchButton
       switchSizeStyles,
       switchTonalStyles,
     ]);
-    useSwitch(self, self.#checked);
-  }
-
-  get checked(): boolean {
-    return this.#checked.get();
-  }
-
-  set checked(value: boolean) {
-    this.#checked.set(value);
+    useSwitch(this);
   }
 }
 

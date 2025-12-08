@@ -1,7 +1,11 @@
 import type { EmptyObject } from 'type-fest';
-import { Attribute } from '../core/elements/attribute.ts';
+import { Str } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import type { IconButtonAttributes } from './icon-button.ts';
+import type {
+  IconButtonColor,
+  IconButtonProperties,
+  IconButtonWidth,
+} from './icon-button.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts?type=css' with { type: 'css' };
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
 import switchElevatedStyles from './styles/elevated/switch.css.ts?type=css' with { type: 'css' };
@@ -13,19 +17,22 @@ import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'cs
 import switchSizeStyles from './styles/size/switch.css.ts?type=css' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts?type=css' with { type: 'css' };
-import type { SwitchButtonProperties } from './switch-button.ts';
 import { ICON_TEMPLATE } from './template.ts';
-import { useButtonCore } from './useButtonCore.ts';
+import {
+  useButtonAccessors,
+  useButtonCore,
+  type ButtonShape,
+  type ButtonSize,
+} from './useButtonCore.ts';
 import {
   useSwitch,
+  useSwitchAccessors,
   type SwitchAttributes,
   type SwitchLike,
 } from './useSwitch.ts';
 
-export type SwitchIconButtonAttributes = IconButtonAttributes &
+export type SwitchIconButtonProperties = IconButtonProperties &
   SwitchAttributes;
-
-export type SwitchIconButtonProperties = SwitchButtonProperties;
 export type SwitchIconButtonEvents = EmptyObject;
 export type SwitchIconButtonCSSProperties = EmptyObject;
 
@@ -54,14 +61,22 @@ export default class SwitchIconButton
   implements SwitchLike
 {
   static readonly formAssociated = true;
-  static readonly observedAttributes = ['checked', 'disabled'] as const;
 
-  readonly #checked = Attribute.bool(this, 'checked');
+  static {
+    useButtonAccessors(this, { width: Str });
+    useSwitchAccessors(this);
+  }
+
+  declare color: IconButtonColor | null;
+  declare size: ButtonSize | null;
+  declare shape: ButtonShape | null;
+  declare width: IconButtonWidth | null;
+  declare disabled: boolean;
+  declare checked: boolean;
 
   constructor() {
     super();
-    const self = this;
-    useButtonCore(self, ICON_TEMPLATE, 'button', [
+    useButtonCore(this, ICON_TEMPLATE, 'button', [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainSizeStyles,
@@ -74,15 +89,7 @@ export default class SwitchIconButton
       switchTonalStyles,
       switchIconStyles,
     ]);
-    useSwitch(self, self.#checked);
-  }
-
-  get checked(): boolean {
-    return this.#checked.get();
-  }
-
-  set checked(value: boolean) {
-    this.#checked.set(value);
+    useSwitch(this);
   }
 }
 

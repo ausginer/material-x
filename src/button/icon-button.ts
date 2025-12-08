@@ -1,4 +1,5 @@
 import type { EmptyObject } from 'type-fest';
+import { Str } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
 import mainIconStyles from './styles/icon/main.css.ts?type=css' with { type: 'css' };
@@ -8,26 +9,25 @@ import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'cs
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import { ICON_TEMPLATE } from './template.ts';
 import {
+  useButtonAccessors,
   useButtonCore,
   type ButtonColor,
   type ButtonLike,
-  type CoreButtonAttributes,
+  type ButtonShape,
+  type ButtonSize,
+  type CoreButtonProperties,
 } from './useButtonCore.ts';
 
 export type IconButtonWidth = 'wide' | 'narrow';
 export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
 
-export type IconButtonAttributes = Readonly<
-  Omit<CoreButtonAttributes, 'color'> & {
+export type IconButtonProperties = Readonly<
+  Omit<CoreButtonProperties, 'color'> & {
     color?: IconButtonColor;
     width?: IconButtonWidth;
   }
 >;
-
-export type IconButtonProperties = EmptyObject;
-
 export type IconButtonEvents = EmptyObject;
-
 export type IconButtonCSSProperties = EmptyObject;
 
 /**
@@ -50,7 +50,16 @@ export type IconButtonCSSProperties = EmptyObject;
  */
 export default class IconButton extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;
-  static readonly observedAttributes = ['disabled'] as const;
+
+  static {
+    useButtonAccessors(this, { width: Str });
+  }
+
+  declare color: IconButtonColor | null;
+  declare size: ButtonSize | null;
+  declare shape: ButtonShape | null;
+  declare width: IconButtonWidth | null;
+  declare disabled: boolean;
 
   constructor() {
     super();

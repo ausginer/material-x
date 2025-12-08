@@ -1,8 +1,8 @@
 import type { Story, StoryDefault } from '@ladle/react';
-import './react/fab.ts';
-import '../icon/react/icon.ts';
+import './fab.ts';
+import '../icon/icon.ts';
 import { useState, type PropsWithChildren } from 'react';
-import type { FABAttributes } from './react/fab.ts';
+import type { FABProperties } from './fab.ts';
 
 const storyDefault: StoryDefault = {
   decorators: [
@@ -17,7 +17,7 @@ const storyDefault: StoryDefault = {
 
 export default storyDefault;
 
-type ControlledFABExtendedProps = Omit<FABAttributes, 'extended'>;
+type ControlledFABExtendedProps = Omit<FABProperties, 'extended'>;
 
 function ControlledFABExtended({
   children,

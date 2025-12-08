@@ -1,5 +1,5 @@
 import {
-  internals,
+  getInternals,
   use,
   type ReactiveElement,
 } from '../elements/reactive-element.ts';
@@ -13,7 +13,7 @@ export function useAria(
   element: ReactiveElement,
   init: Partial<ARIAMixin>,
 ): void {
-  const _internals = Object.assign(internals(element), init);
+  const _internals = Object.assign(getInternals(element), init);
   use(element, {
     attrChanged(name: keyof typeof AriaMapping, _, newValue) {
       if (name in AriaMapping) {

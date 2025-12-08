@@ -1,81 +1,78 @@
 export type NullablePrimitive<T extends string | boolean | number> =
   T extends boolean ? T : T | null;
 
-type FromAttribute<T extends string | boolean | number> = (
-  value: string | null,
-) => NullablePrimitive<T>;
-type ToAttribute<T extends string | boolean | number> = (
-  value: NullablePrimitive<T>,
-) => string | null;
+export const Bool = [
+  (value: string | null): boolean => value !== null,
+  (value: boolean): string | null => (value ? '' : null),
+] as const;
+export type Bool = typeof Bool;
 
-export class Attribute<
-  T extends string | boolean | number,
-  H extends HTMLElement = HTMLElement,
-> {
-  static bool<H extends HTMLElement = HTMLElement>(
-    host: H,
+export const Num = [
+  (value: string | null): number | null => (value ? Number(value) : null),
+  (value: number | null): string | null =>
+    value && !isNaN(value) ? String(value) : null,
+] as const;
+export type Num = typeof Num;
+
+export const Str = [
+  (value: string | null): string | null => value,
+  (value: string | null): string | null => value,
+] as const;
+export type Str = typeof Str;
+
+export type Converter = Bool | Num | Str;
+
+export interface AttributeOperator {
+  get(host: HTMLElement, name: string, converter: Bool): boolean;
+  get(host: HTMLElement, name: string, converter: Num): number | null;
+  get(host: HTMLElement, name: string, converter: Str): string | null;
+  get(
+    host: HTMLElement,
     name: string,
-  ): Attribute<boolean, H> {
-    return new Attribute<boolean, H>(
-      host,
-      name,
-      (value) => value !== null,
-      (value) => (value ? '' : null),
-    );
-  }
+    converter: Converter,
+  ): boolean | number | string | null;
 
-  static number<H extends HTMLElement = HTMLElement>(
-    host: H,
+  set(host: HTMLElement, name: string, value: boolean, converter: Bool): void;
+  set(
+    host: HTMLElement,
     name: string,
-  ): Attribute<number, H> {
-    return new Attribute<number, H>(
-      host,
-      name,
-      (value) => (value ? Number(value) : null),
-      (value) => (value ? String(value) : null),
-    );
-  }
-
-  static string<H extends HTMLElement = HTMLElement>(
-    host: H,
+    value: number | null,
+    converter: Num,
+  ): void;
+  set(
+    host: HTMLElement,
     name: string,
-  ): Attribute<string, H> {
-    return new Attribute<string, H>(
-      host,
-      name,
-      (value) => value,
-      (value) => value,
-    );
-  }
-
-  readonly host: H;
-  readonly name: string;
-  readonly from: FromAttribute<T>;
-  readonly to: ToAttribute<T>;
-
-  private constructor(
-    host: H,
+    value: string | null,
+    converter: Str,
+  ): void;
+  set(
+    host: HTMLElement,
     name: string,
-    fromAttribute: FromAttribute<T>,
-    toAttribute: ToAttribute<T>,
-  ) {
-    this.host = host;
-    this.name = name;
-    this.from = fromAttribute;
-    this.to = toAttribute;
-  }
+    value: boolean | number | string | null,
+    converter: Converter,
+  ): void;
 
-  get(): NullablePrimitive<T> {
-    return this.from(this.host.getAttribute(this.name));
-  }
-
-  set(value: NullablePrimitive<T>): void {
-    const converted = this.to(value);
-
-    if (converted !== null) {
-      this.host.setAttribute(this.name, converted);
-    } else {
-      this.host.removeAttribute(this.name);
-    }
-  }
+  getRaw(host: HTMLElement, name: string): string | null;
+  setRaw(host: HTMLElement, name: string, value: string | null): void;
 }
+
+export const attr: AttributeOperator = {
+  // @ts-expect-error: too generic for TS
+  get(host, name, [from]) {
+    return from(attr.getRaw(host, name));
+  },
+  set(host, name, value, [, to]) {
+    // @ts-expect-error: too generic for TS
+    attr.setRaw(host, name, to(value));
+  },
+  getRaw(host, name) {
+    return host.getAttribute(name);
+  },
+  setRaw(host, name, value): void {
+    if (value !== null) {
+      host.setAttribute(name, value);
+    } else {
+      host.removeAttribute(name);
+    }
+  },
+} as const;

@@ -2,10 +2,10 @@ import type { EmptyObject } from 'type-fest';
 import '../button-group/connected-button-group.ts';
 import { useCore } from '../core/controllers/useCore.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
+import { Bool } from '../core/elements/attribute.ts';
 import {
   define,
   html,
-  internals,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import { query } from '../core/utils/DOM.ts';
@@ -13,7 +13,11 @@ import '../icon/icon.ts';
 import './button.ts';
 import './icon-button.ts';
 import splitButtonStyles from './styles/split-button.css.ts?type=css' with { type: 'css' };
-import type { ButtonLike, CoreButtonAttributes } from './useButtonCore.ts';
+import {
+  useButtonAccessors,
+  type ButtonLike,
+  type CoreButtonProperties,
+} from './useButtonCore.ts';
 
 const TEMPLATE = html`<mx-connected-button-group>
   <mx-button><slot name="icon" slot="icon"></slot><slot></slot></mx-button>
@@ -22,13 +26,11 @@ const TEMPLATE = html`<mx-connected-button-group>
   </mx-icon-button>
 </mx-connected-button-group>`;
 
-export type SplitButtonAttributes = Readonly<
-  CoreButtonAttributes & {
+export type SplitButtonProperties = Readonly<
+  CoreButtonProperties & {
     open?: boolean;
   }
 >;
-
-export type SplitButtonProperties = EmptyObject;
 
 export type SplitButtonEvents = Readonly<{
   toggle: Event;
@@ -55,23 +57,27 @@ export type SplitButtonCSSProperties = EmptyObject;
  */
 export default class SplitButton extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;
-  static readonly observedAttributes = ['disabled'] as const;
+
+  static {
+    useButtonAccessors(this, {
+      disabled: Bool,
+    });
+  }
+
+  declare disabled: boolean;
 
   constructor() {
     super();
-    const self = this;
-
-    const _internals = internals(self);
-    useCore(self, TEMPLATE, {}, [splitButtonStyles]);
+    useCore(this, TEMPLATE, {}, [splitButtonStyles]);
     useEvents(
-      self,
+      this,
       {
-        click(event) {
+        click: (event) => {
           event.stopPropagation();
-          self.dispatchEvent(new Event('toggle'));
+          this.dispatchEvent(new Event('toggle'));
         },
       },
-      query(self, 'mx-icon-button')!,
+      query(this, 'mx-icon-button')!,
     );
   }
 }
