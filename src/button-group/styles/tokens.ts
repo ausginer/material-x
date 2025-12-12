@@ -95,7 +95,6 @@ const packs: Readonly<
         (Object as TypedObjectConstructor).fromEntries(
           SIZES.map((size) => {
             const set = processTokenSet(`${SET_BASE_NAME}.${type}.${size}`);
-            console.log(size, set);
             const shapedSet = reshape(set, schema);
 
             const resolvedSet = applyToButtonGroup(shapedSet, (tokens) =>

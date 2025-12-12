@@ -58,9 +58,17 @@ const styles: string = await prettify(css`
         );
     }
 
-    ::slotted(:active) {
+    ::slotted(:active:not(:first-child):not(:last-child)) {
       --_interaction-direction-leading: 1;
       --_interaction-direction-trailing: 1;
+    }
+
+    ::slotted(:active:first-child) {
+      --_interaction-direction-trailing: 1;
+    }
+
+    ::slotted(:active:last-child) {
+      --_interaction-direction-leading: 1;
     }
   }
 
