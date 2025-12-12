@@ -1,6 +1,6 @@
 import type { EmptyObject } from 'type-fest';
 import { useAttribute } from '../core/controllers/useAttribute.ts';
-import { attr, Str } from '../core/elements/attribute.ts';
+import { ATTRIBUTE, Str } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import { query } from '../core/utils/DOM.ts';
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
@@ -17,11 +17,11 @@ import {
   type ButtonLike,
   type ButtonShape,
   type ButtonSize,
-  type CoreButtonProperties,
+  type ButtonCoreProperties,
 } from './useButtonCore.ts';
 
 export type LinkButtonProperties = Readonly<
-  CoreButtonProperties & {
+  ButtonCoreProperties & {
     href?: HTMLAnchorElement['href'];
     target?: HTMLAnchorElement['target'];
   }
@@ -74,7 +74,7 @@ export default class LinkButton extends ReactiveElement implements ButtonLike {
 
     ['href', 'target'].map((attribute) => {
       useAttribute(this, attribute, (_, value) =>
-        attr.setRaw(anchor, attribute, value),
+        ATTRIBUTE.setRaw(anchor, attribute, value),
       );
     });
   }

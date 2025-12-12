@@ -4,12 +4,12 @@ import { useShadowDOM } from './useShadowDOM.ts';
 
 // eslint-disable-next-line @typescript-eslint/max-params
 export function useCore(
-  element: ReactiveElement,
+  host: ReactiveElement,
   template: HTMLTemplateElement,
   aria: Partial<ARIAMixin>,
   styles: CSSStyleSheet[],
   init?: Partial<ShadowRootInit>,
 ): void {
-  useShadowDOM(element, template, styles, init);
-  useAria(element, aria);
+  useShadowDOM(host, template, styles, init);
+  useAria(host, aria);
 }

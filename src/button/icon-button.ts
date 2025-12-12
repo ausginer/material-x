@@ -15,14 +15,19 @@ import {
   type ButtonLike,
   type ButtonShape,
   type ButtonSize,
-  type CoreButtonProperties,
+  type ButtonCoreProperties,
 } from './useButtonCore.ts';
 
 export type IconButtonWidth = 'wide' | 'narrow';
 export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
 
+export interface IconButtonLike extends ButtonLike {
+  color: IconButtonColor | null;
+  width: IconButtonWidth | null;
+}
+
 export type IconButtonProperties = Readonly<
-  Omit<CoreButtonProperties, 'color'> & {
+  ButtonCoreProperties & {
     color?: IconButtonColor;
     width?: IconButtonWidth;
   }

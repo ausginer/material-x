@@ -16,7 +16,7 @@ import splitButtonStyles from './styles/split-button.css.ts?type=css' with { typ
 import {
   useButtonAccessors,
   type ButtonLike,
-  type CoreButtonProperties,
+  type ButtonCoreProperties,
 } from './useButtonCore.ts';
 
 const TEMPLATE = html`<mx-connected-button-group>
@@ -27,7 +27,7 @@ const TEMPLATE = html`<mx-connected-button-group>
 </mx-connected-button-group>`;
 
 export type SplitButtonProperties = Readonly<
-  CoreButtonProperties & {
+  ButtonCoreProperties & {
     open?: boolean;
   }
 >;

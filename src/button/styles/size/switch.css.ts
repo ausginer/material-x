@@ -1,9 +1,9 @@
 import { css, prettify } from '../../../core/tokens/css.ts';
-import { attribute, pseudoClass } from '../../../core/tokens/selector.ts';
+import { attribute } from '../../../core/tokens/selector.ts';
 import { buttonStates, state } from '../utils.ts';
 import packs from './tokens.ts';
 
-const checked = pseudoClass('state(checked)');
+const checked = attribute('checked');
 
 const switchStyles = Object.entries(packs).flatMap(
   ([name, { unselected, selected }]) => {

@@ -1,22 +1,27 @@
-/* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
+import type { EmptyObject } from 'type-fest';
 import sizeStyles from '../button/styles/size/main.css.ts?type=css' with { type: 'css' };
 import {
   useButtonAccessors,
   type ButtonColor,
+  type ButtonLike,
   type ButtonShape,
   type ButtonSize,
-  type CoreButtonProperties,
+  type ButtonCoreProperties,
 } from '../button/useButtonCore.ts';
 import { useCore } from '../core/controllers/useCore.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import { applyToSiblings } from '../core/utils/DOM.ts';
 import standardStyles from './styles/standard.css.ts?type=css' with { type: 'css' };
 import { TEMPLATE } from './templates.ts';
+import {
+  useButtonGroupCore,
+  type ButtonGroupLike,
+} from './useButtonGroupCore.ts';
 import { getTarget } from './utils.ts';
 
-export type ButtonGroupProperties = CoreButtonProperties;
+export type ButtonGroupProperties = ButtonCoreProperties;
+export type ButtonGroupCSSProperties = EmptyObject;
 
 const LEADING_PROP = '--_interaction-direction-leading';
 const TRAILING_PROP = '--_interaction-direction-trailing';
@@ -24,7 +29,10 @@ const TRAILING_PROP = '--_interaction-direction-trailing';
 /**
  * @attr {string} size
  */
-export default class ButtonGroup extends ReactiveElement {
+export default class ButtonGroup
+  extends ReactiveElement
+  implements ButtonGroupLike
+{
   static {
     useButtonAccessors(this);
   }
@@ -38,10 +46,12 @@ export default class ButtonGroup extends ReactiveElement {
     super();
     useCore(this, TEMPLATE, { role: 'group' }, [sizeStyles, standardStyles]);
 
-    let elements: readonly HTMLElement[] = [];
+    useButtonGroupCore(this);
 
-    useSlot(this, 'slot', (newElements) => {
-      elements = newElements as readonly HTMLElement[];
+    let elements: ReadonlyArray<ButtonLike & ReactiveElement> = [];
+
+    useSlot<ButtonLike & ReactiveElement>(this, 'slot', (newElements) => {
+      elements = newElements;
     });
 
     const pointerup = () => {
@@ -53,20 +63,13 @@ export default class ButtonGroup extends ReactiveElement {
     };
 
     useEvents(this, {
-      pointerdown(event) {
+      pointerdown: (event) => {
         const target = getTarget(event);
 
         if (target) {
-          applyToSiblings(
-            target,
-            (sibling) => {
-              sibling.style.setProperty(TRAILING_PROP, '-1');
-            },
-            (sibling) => {
-              sibling.style.setProperty(LEADING_PROP, '-1');
-            },
-            true,
-          );
+          const index = elements.indexOf(target);
+          elements[index - 1]?.style.setProperty(LEADING_PROP, '-1');
+          elements[index + 1]?.style.setProperty(TRAILING_PROP, '-1');
         }
       },
       pointerup,

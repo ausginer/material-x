@@ -1,14 +1,15 @@
 import { css, prettify } from '../../../core/tokens/css.ts';
-import { attribute } from '../../../core/tokens/selector.ts';
+import { attribute, pseudoClass } from '../../../core/tokens/selector.ts';
 import { buttonStates, state } from '../utils.ts';
 import packs from './tokens.ts';
 
 const color = attribute('color', 'elevated');
+const colorState = pseudoClass('state', 'elevated');
 
 const mainStyles = buttonStates.map((s) =>
   s === 'default'
     ? css`
-        ${state.default(color)} {
+        ${state.default(color)}, ${state.default(colorState)} {
           ${packs.default};
 
           &::before,

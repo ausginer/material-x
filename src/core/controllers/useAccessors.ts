@@ -1,5 +1,5 @@
 import type { Constructor } from 'type-fest';
-import { attr, type Converter } from '../elements/attribute.ts';
+import { ATTRIBUTE, type Converter } from '../elements/attribute.ts';
 import type { ReactiveElement } from '../elements/reactive-element.ts';
 
 export function useAccessors(
@@ -13,10 +13,10 @@ export function useAccessors(
   attributeEntries.forEach(([attribute, converter]) =>
     Reflect.defineProperty(ctr.prototype, attribute, {
       get(this: ReactiveElement) {
-        return attr.get(this, attribute, converter);
+        return ATTRIBUTE.get(this, attribute, converter);
       },
       set(this: ReactiveElement, value: string | boolean | number) {
-        attr.set(this, attribute, value, converter);
+        ATTRIBUTE.set(this, attribute, value, converter);
       },
     }),
   );

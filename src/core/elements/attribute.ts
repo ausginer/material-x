@@ -56,14 +56,14 @@ export interface AttributeOperator {
   setRaw(host: HTMLElement, name: string, value: string | null): void;
 }
 
-export const attr: AttributeOperator = {
+export const ATTRIBUTE: AttributeOperator = {
   // @ts-expect-error: too generic for TS
   get(host, name, [from]) {
-    return from(attr.getRaw(host, name));
+    return from(ATTRIBUTE.getRaw(host, name));
   },
   set(host, name, value, [, to]) {
     // @ts-expect-error: too generic for TS
-    attr.setRaw(host, name, to(value));
+    ATTRIBUTE.setRaw(host, name, to(value));
   },
   getRaw(host, name) {
     return host.getAttribute(name);

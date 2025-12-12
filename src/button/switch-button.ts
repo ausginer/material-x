@@ -16,7 +16,7 @@ import {
   type ButtonColor,
   type ButtonShape,
   type ButtonSize,
-  type CoreButtonProperties,
+  type ButtonCoreProperties,
 } from './useButtonCore.ts';
 import {
   useSwitch,
@@ -27,7 +27,7 @@ import {
 
 export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
 
-export type SwitchButtonProperties = CoreButtonProperties &
+export type SwitchButtonProperties = ButtonCoreProperties &
   SwitchAttributes &
   Readonly<{
     color?: SwitchButtonColor;

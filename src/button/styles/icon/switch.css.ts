@@ -1,10 +1,10 @@
 import { css, prettify } from '../../../core/tokens/css.ts';
-import { attribute, pseudoClass } from '../../../core/tokens/selector.ts';
+import { attribute } from '../../../core/tokens/selector.ts';
 import type { TypedObjectConstructor } from '../../../interfaces.ts';
 import { buttonStates, state } from '../utils.ts';
 import packs, { DEFAULTS, widthPacks } from './tokens.ts';
 
-const checked = pseudoClass('state(checked)');
+const checked = attribute('checked');
 
 const mainStyles = (Object as TypedObjectConstructor)
   .entries(packs)

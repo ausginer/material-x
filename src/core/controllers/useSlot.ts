@@ -1,20 +1,26 @@
 import type { ReactiveElement } from '../elements/reactive-element.ts';
 import { query } from '../utils/DOM.ts';
-import { useConnected } from './useConnected.ts';
 import { useEvents } from './useEvents.ts';
 
-export type SlotControllerUpdateCallback = (
-  elements: readonly Element[],
+export type SlotControllerUpdateCallback<T extends Element> = (
+  elements: readonly T[],
 ) => void;
 
-export function useSlot(
+export function useSlot<T extends Element = Element>(
   host: ReactiveElement,
   slotSelector: string,
-  callback: SlotControllerUpdateCallback,
+  callback: SlotControllerUpdateCallback<T>,
 ): void {
   const slot = query<HTMLSlotElement>(host, slotSelector)!;
-  const slotchange = () => callback(slot.assignedElements());
 
-  useConnected(host, slotchange);
-  useEvents(host, { slotchange }, slot);
+  useEvents(
+    host,
+    {
+      slotchange() {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+        callback(slot.assignedElements() as T[]);
+      },
+    },
+    slot,
+  );
 }

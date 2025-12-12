@@ -1,29 +1,33 @@
-/* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
+import type { EmptyObject } from 'type-fest';
 import sizeStyles from '../button/styles/size/main.css.ts?type=css' with { type: 'css' };
 import {
   useButtonAccessors,
   type ButtonColor,
+  type ButtonLike,
   type ButtonShape,
   type ButtonSize,
+  type ButtonCoreProperties,
 } from '../button/useButtonCore.ts';
 import { useCore } from '../core/controllers/useCore.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import { applyToSiblings } from '../core/utils/DOM.ts';
 import connectedStyles from './styles/connected.css.ts?type=css' with { type: 'css' };
 import { TEMPLATE } from './templates.ts';
+import {
+  useButtonGroupCore,
+  type ButtonGroupLike,
+} from './useButtonGroupCore.ts';
 
-export type ButtonGroupAttributes = Readonly<{
-  color?: ButtonColor;
-  shape?: ButtonShape;
-  size?: ButtonSize;
-  disabled?: boolean;
-}>;
+export type ConnectedButtonGroupProperties = ButtonCoreProperties;
+export type ConnectedButtonGroupCSSProperties = EmptyObject;
 
 /**
  * @attr {string} size
  */
-export default class ConnectedButtonGroup extends ReactiveElement {
+export default class ConnectedButtonGroup
+  extends ReactiveElement
+  implements ButtonGroupLike
+{
   static {
     useButtonAccessors(this);
   }
@@ -36,22 +40,22 @@ export default class ConnectedButtonGroup extends ReactiveElement {
   constructor() {
     super();
     useCore(this, TEMPLATE, { role: 'group' }, [sizeStyles, connectedStyles]);
-    useSlot(this, 'slot', (elements) => {
+
+    useButtonGroupCore(this);
+
+    useSlot<ButtonLike & ReactiveElement>(this, 'slot', (elements) => {
       elements.forEach((element) => {
-        applyToSiblings(
-          element as HTMLElement,
-          (sibling) => {
-            if (!sibling) {
-              (element as HTMLElement).dataset['first'] = '';
-            }
-          },
-          (sibling) => {
-            if (!sibling) {
-              (element as HTMLElement).dataset['last'] = '';
-            }
-          },
-        );
+        delete element.dataset['first'];
+        delete element.dataset['last'];
       });
+
+      if (elements[0]) {
+        elements[0].dataset['first'] = '';
+      }
+
+      if (elements.at(-1)) {
+        elements.at(-1)!.dataset['last'] = '';
+      }
     });
   }
 }

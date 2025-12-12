@@ -1,6 +1,7 @@
 import motionEffects from '../../../core/tokens/default/motion-effects.ts';
 import processTokenSet from '../../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../../core/tokens/resolve.ts';
+import { excludeFromSet } from '../../../core/tokens/utils.ts';
 import { createVariables, CSSVariable } from '../../../core/tokens/variable.ts';
 import {
   applyToButtons,
@@ -113,7 +114,10 @@ export const set: CSSVariableShape = (() => {
 
       if (path[0] === 'selected') {
         return {
-          ...tokens,
+          ...excludeFromSet(tokens, [
+            'container.shape.round',
+            'container.shape.square',
+          ]),
           ...specialSelectedTokens,
         };
       }

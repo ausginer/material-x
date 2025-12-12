@@ -1,8 +1,8 @@
 import type { Story } from '@ladle/react';
-import './react/connected-button-group.ts';
-import '../button/react/button.ts';
-import '../icon/react/icon.ts';
-import '../button/react/switch-icon-button.ts';
+import '../button/button.ts';
+import '../icon/icon.ts';
+import '../button/switch-icon-button.ts';
+import './connected-button-group.ts';
 import { useState } from 'react';
 
 // ================

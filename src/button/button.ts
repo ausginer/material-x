@@ -13,10 +13,10 @@ import {
   type ButtonLike,
   type ButtonShape,
   type ButtonSize,
-  type CoreButtonProperties,
+  type ButtonCoreProperties,
 } from './useButtonCore.ts';
 
-export type ButtonProperties = CoreButtonProperties;
+export type ButtonProperties = ButtonCoreProperties;
 export type ButtonEvents = EmptyObject;
 export type ButtonCSSProperties = Readonly<{
   /**

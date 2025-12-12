@@ -1,25 +1,24 @@
-import type { ReactiveElement } from '../elements/reactive-element.ts';
-import { useConnected } from './useConnected.ts';
+import { use, type ReactiveElement } from '../elements/reactive-element.ts';
 import { useEvents } from './useEvents.ts';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const $ctx: unique symbol;
 
-export type Context = string & { brand: typeof $ctx };
+export type Context<T> = string & { brand: typeof $ctx; value: T };
 
 class ContextEvent extends Event {
   value?: unknown;
 }
 
-export function createContext(): Context {
+export function createContext<T>(): Context<T> {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-  return crypto.randomUUID() as Context;
+  return crypto.randomUUID() as Context<T>;
 }
 
-export function useProvider(
+export function useProvider<T>(
   host: ReactiveElement,
-  ctx: Context,
-  value: unknown,
+  ctx: Context<T>,
+  value: T,
 ): void {
   useEvents(host, {
     [ctx](event: ContextEvent) {
@@ -29,18 +28,27 @@ export function useProvider(
   });
 }
 
-export async function useContext<T>(
+export type DisposeEffect = () => void;
+// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+export type ContextEffect<T> = (value: T | undefined) => DisposeEffect | void;
+
+export function useContext<T>(
   host: ReactiveElement,
-  ctx: Context,
-): Promise<T | undefined> {
-  const { promise, resolve } = Promise.withResolvers<T | undefined>();
+  ctx: Context<T>,
+  effect: ContextEffect<T>,
+): void {
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  let dispose: DisposeEffect | void;
 
-  useConnected(host, () => {
-    const event = new ContextEvent(ctx);
-    host.dispatchEvent(event);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-    resolve(event.value as T | undefined);
+  use(host, {
+    connected() {
+      const event = new ContextEvent(ctx, { bubbles: true, composed: true });
+      host.dispatchEvent(event);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+      dispose = effect(event.value as T | undefined);
+    },
+    disconnected() {
+      dispose?.();
+    },
   });
-
-  return await promise;
 }

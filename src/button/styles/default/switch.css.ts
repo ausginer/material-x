@@ -1,11 +1,11 @@
 import { css, prettify } from '../../../core/tokens/css.ts';
-import { pseudoClass } from '../../../core/tokens/selector.ts';
+import { attribute } from '../../../core/tokens/selector.ts';
 import { buttonStates, state } from '../utils.ts';
 import packs from './tokens.ts';
 
 const { selected, unselected } = packs;
 
-const checked = pseudoClass('state(checked)');
+const checked = attribute('checked');
 
 const switchStyles = [
   unselected &&

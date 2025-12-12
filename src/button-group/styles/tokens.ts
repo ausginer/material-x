@@ -16,7 +16,11 @@ import {
   type Shape,
 } from '../../core/tokens/shape.ts';
 import { excludeFromSet } from '../../core/tokens/utils.ts';
-import { createVariables, packSet } from '../../core/tokens/variable.ts';
+import {
+  createVariables,
+  CSSVariable,
+  packSet,
+} from '../../core/tokens/variable.ts';
 import type { TypedObjectConstructor } from '../../interfaces.ts';
 
 const SET_BASE_NAME = 'md.comp.button-group';
@@ -72,6 +76,12 @@ const specialConnecteed = createVariables(
   ),
 );
 
+const specialConnectedSelected = createVariables(
+  resolveSet({
+    'inner-corner.corner-size': CSSVariable.ref('container.shape'),
+  }),
+);
+
 const packs: Readonly<
   Record<
     TupleToUnion<typeof TYPES>,
@@ -85,6 +95,7 @@ const packs: Readonly<
         (Object as TypedObjectConstructor).fromEntries(
           SIZES.map((size) => {
             const set = processTokenSet(`${SET_BASE_NAME}.${type}.${size}`);
+            console.log(size, set);
             const shapedSet = reshape(set, schema);
 
             const resolvedSet = applyToButtonGroup(shapedSet, (tokens) =>
@@ -113,7 +124,16 @@ const packs: Readonly<
                 }
 
                 if (type === 'connected') {
-                  return excludeFromSet(set, ['between-space']);
+                  let _tokens = excludeFromSet(set, ['between-space']);
+
+                  if (path[0] === 'selected') {
+                    _tokens = {
+                      ...excludeFromSet(set, ['inner-corner.corner-size']),
+                      ...specialConnectedSelected,
+                    };
+                  }
+
+                  return _tokens;
                 }
 
                 return set;

@@ -36,6 +36,16 @@ import type {
   SwitchIconButtonEvents,
   SwitchIconButtonProperties,
 } from './button/switch-icon-button.ts';
+import type {
+  ButtonGroupCSSProperties,
+  ButtonGroupProperties,
+} from './button-group/button-group.ts';
+import type ButtonGroup from './button-group/button-group.ts';
+import type {
+  ConnectedButtonGroupCSSProperties,
+  ConnectedButtonGroupProperties,
+} from './button-group/connected-button-group.ts';
+import type ConnectedButtonGroup from './button-group/connected-button-group.ts';
 import type FAB from './fab/fab.ts';
 import type { FABCSSProperties, FABEvents, FABProperties } from './fab/fab.ts';
 import type Icon from './icon/icon.ts';
@@ -89,6 +99,18 @@ type SwitchIconButtonJSX = JSXWrapper<
   SwitchIconButtonEvents
 >;
 
+type ButtonGroupJSX = JSXWrapper<
+  ButtonGroup,
+  ButtonGroupProperties,
+  ButtonGroupCSSProperties
+>;
+
+type ConnectedButtonGroupJSX = JSXWrapper<
+  ConnectedButtonGroup,
+  ConnectedButtonGroupProperties,
+  ConnectedButtonGroupCSSProperties
+>;
+
 type FABJSX = JSXWrapper<FAB, FABProperties, FABEvents>;
 
 type IconJSX = JSXWrapper<Icon, IconProperties, IconEvents>;
@@ -102,6 +124,8 @@ declare module 'react' {
       'mx-split-button': SplitButtonJSX;
       'mx-switch-button': SwitchButtonJSX;
       'mx-switch-icon-button': SwitchIconButtonJSX;
+      'mx-button-group': ButtonGroupJSX;
+      'mx-connected-button-group': ConnectedButtonGroupJSX;
       'mx-fab': FABJSX;
       'mx-icon': IconJSX;
     }
