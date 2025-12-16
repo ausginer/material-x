@@ -1,5 +1,5 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
 import { defineConfig, type ConfigEnv, type UserConfigFnObject } from 'vite';
 import { constructCSS } from './.scripts/vite-plugins.js';
 
@@ -18,19 +18,8 @@ const config: UserConfigFnObject = defineConfig(({ command }: ConfigEnv) => ({
       },
     },
   },
-  optimizeDeps: {
-    esbuildOptions: {
-      supported: {
-        decorators: false,
-        'top-level-await': true,
-      },
-    },
-  },
   cacheDir: fileURLToPath(new URL('.vite/', root)),
-  plugins: [
-    constructCSS({ isProd: command === 'build' }),
-    react({ devTarget: 'esnext' }),
-  ],
+  plugins: [constructCSS({ isProd: command === 'build' }), react()],
 }));
 
 export default config;
