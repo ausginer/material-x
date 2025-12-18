@@ -1,16 +1,16 @@
 import type { Constructor } from 'type-fest';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { useRipple } from '../core/animations/ripple.ts';
-import { useAccessors } from '../core/controllers/useAccessors.ts';
+import { createAccessors } from '../core/controllers/createAccessors.ts';
 import { useConnected } from '../core/controllers/useConnected.ts';
 import { useContext } from '../core/controllers/useContext.ts';
-import { useCore } from '../core/controllers/useCore.ts';
 import { Bool, Num, Str, type Converter } from '../core/elements/attribute.ts';
 import {
   getInternals,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
+import { useCore } from '../core/utils/useCore.ts';
 import type { TypedObjectConstructor } from '../interfaces.ts';
 import defaultDisabledStyles from './styles/default/disabled.css.ts?type=css' with { type: 'css' };
 import defaultButtonStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
@@ -45,11 +45,11 @@ export const DEFAULT_BUTTON_ATTRIBUTES: Readonly<
   disabled: Bool,
 };
 
-export function useButtonAccessors(
+export function createButtonAccessors(
   ctr: Constructor<ReactiveElement>,
   attributes?: Record<string, Converter>,
 ): void {
-  useAccessors(ctr, {
+  createAccessors(ctr, {
     ...DEFAULT_BUTTON_ATTRIBUTES,
     ...attributes,
   });

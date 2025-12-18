@@ -1,9 +1,8 @@
 import type { EmptyObject } from 'type-fest';
 import { useRipple } from '../core/animations/ripple.ts';
-import { useAccessors } from '../core/controllers/useAccessors.ts';
+import { createAccessors } from '../core/controllers/createAccessors.ts';
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useConnected } from '../core/controllers/useConnected.ts';
-import { useCore } from '../core/controllers/useCore.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
 import {
   define,
@@ -11,6 +10,7 @@ import {
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
+import { useCore } from '../core/utils/useCore.ts';
 import colorStyles from './styles/color/main.css.ts?type=css' with { type: 'css' };
 import mainStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
 import extendedStyles from './styles/extended/main.css.ts?type=css' with { type: 'css' };
@@ -46,7 +46,7 @@ const TEMPLATE = html`<slot class="icon" name="icon"></slot><slot></slot>`;
  */
 export default class FAB extends ReactiveElement {
   static {
-    useAccessors(this, {
+    createAccessors(this, {
       size: Str,
       color: Str,
       extended: Str,

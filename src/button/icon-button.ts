@@ -9,7 +9,7 @@ import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'cs
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import { ICON_TEMPLATE } from './template.ts';
 import {
-  useButtonAccessors,
+  createButtonAccessors,
   useButtonCore,
   type ButtonColor,
   type ButtonLike,
@@ -57,7 +57,7 @@ export default class IconButton extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;
 
   static {
-    useButtonAccessors(this, { width: Str });
+    createButtonAccessors(this, { width: Str });
   }
 
   declare color: IconButtonColor | null;

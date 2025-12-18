@@ -1,22 +1,24 @@
 import type { EmptyObject } from 'type-fest';
 import '../button-group/connected-button-group.ts';
-import { useCore } from '../core/controllers/useCore.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
-import { Bool } from '../core/elements/attribute.ts';
 import {
   define,
   html,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import { query } from '../core/utils/DOM.ts';
+import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
 import './icon-button.ts';
 import splitButtonStyles from './styles/split-button.css.ts?type=css' with { type: 'css' };
 import {
-  useButtonAccessors,
+  createButtonAccessors,
   type ButtonLike,
   type ButtonCoreProperties,
+  type ButtonColor,
+  type ButtonSize,
+  type ButtonShape,
 } from './useButtonCore.ts';
 
 const TEMPLATE = html`<mx-connected-button-group>
@@ -59,11 +61,12 @@ export default class SplitButton extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;
 
   static {
-    useButtonAccessors(this, {
-      disabled: Bool,
-    });
+    createButtonAccessors(this);
   }
 
+  declare color: ButtonColor | null;
+  declare size: ButtonSize | null;
+  declare shape: ButtonShape | null;
   declare disabled: boolean;
 
   constructor() {

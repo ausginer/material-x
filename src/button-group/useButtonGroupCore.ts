@@ -6,6 +6,7 @@ import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useProvider } from '../core/controllers/useContext.ts';
 import { EventEmitter } from '../core/elements/emitter.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
+import { useCore } from '../core/utils/useCore.ts';
 import type { TypedObjectConstructor } from '../interfaces.ts';
 import {
   BUTTON_GROUP_CTX,
@@ -18,7 +19,12 @@ const buttonGroups = new WeakSet<ButtonGroupLike>();
 
 export function useButtonGroupCore(
   host: ButtonGroupLike & ReactiveElement,
+  template: HTMLTemplateElement,
+  aria: Partial<ARIAMixin>,
+  styles: CSSStyleSheet[],
 ): void {
+  useCore(host, template, aria, styles);
+
   const emitter = new EventEmitter<ChangedAttribute>();
 
   useProvider(host, BUTTON_GROUP_CTX, { emitter, provider: host });

@@ -1,6 +1,11 @@
+import { useARIA } from '../controllers/useARIA.ts';
+import { useShadowDOM } from '../controllers/useShadowDOM.ts';
 import type { ReactiveElement } from '../elements/reactive-element.ts';
-import { useAria } from './useAria.ts';
-import { useShadowDOM } from './useShadowDOM.ts';
+
+const ARIA_MAPPING = {
+  checked: 'ariaChecked',
+  disabled: 'ariaDisabled',
+} as const;
 
 // eslint-disable-next-line @typescript-eslint/max-params
 export function useCore(
@@ -11,5 +16,5 @@ export function useCore(
   init?: Partial<ShadowRootInit>,
 ): void {
   useShadowDOM(host, template, styles, init);
-  useAria(host, aria);
+  useARIA(host, aria, ARIA_MAPPING);
 }

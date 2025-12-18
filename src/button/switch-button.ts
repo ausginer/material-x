@@ -11,7 +11,7 @@ import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: '
 import switchTonalStyles from './styles/tonal/switch.css.ts?type=css' with { type: 'css' };
 import { REGULAR_TEMPLATE } from './template.ts';
 import {
-  useButtonAccessors,
+  createButtonAccessors,
   useButtonCore,
   type ButtonColor,
   type ButtonShape,
@@ -50,7 +50,7 @@ export default class SwitchButton
   static readonly formAssociated = true;
 
   static {
-    useButtonAccessors(this);
+    createButtonAccessors(this);
     useSwitchAccessors(this);
   }
 

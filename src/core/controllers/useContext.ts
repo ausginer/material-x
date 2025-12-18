@@ -28,9 +28,8 @@ export function useProvider<T>(
   });
 }
 
-export type DisposeEffect = () => void;
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-export type ContextEffect<T> = (value: T | undefined) => DisposeEffect | void;
+export type ContextEffect<T> = (value: T | undefined) => AbortController | void;
 
 export function useContext<T>(
   host: ReactiveElement,
@@ -38,17 +37,17 @@ export function useContext<T>(
   effect: ContextEffect<T>,
 ): void {
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  let dispose: DisposeEffect | void;
+  let disposer: AbortController | void;
 
   use(host, {
     connected() {
       const event = new ContextEvent(ctx, { bubbles: true, composed: true });
       host.dispatchEvent(event);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-      dispose = effect(event.value as T | undefined);
+      disposer = effect(event.value as T | undefined);
     },
     disconnected() {
-      dispose?.();
+      disposer?.abort();
     },
   });
 }

@@ -2,7 +2,7 @@ import type { Constructor } from 'type-fest';
 import { ATTRIBUTE, type Converter } from '../elements/attribute.ts';
 import type { ReactiveElement } from '../elements/reactive-element.ts';
 
-export function useAccessors(
+export function createAccessors(
   ctr: Constructor<ReactiveElement> & { observedAttributes?: string[] },
   attributes: Record<string, Converter>,
 ): void {

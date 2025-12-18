@@ -1,14 +1,13 @@
 import type { EmptyObject } from 'type-fest';
 import sizeStyles from '../button/styles/size/main.css.ts?type=css' with { type: 'css' };
 import {
-  useButtonAccessors,
+  createButtonAccessors,
   type ButtonColor,
   type ButtonLike,
   type ButtonShape,
   type ButtonSize,
   type ButtonCoreProperties,
 } from '../button/useButtonCore.ts';
-import { useCore } from '../core/controllers/useCore.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import connectedStyles from './styles/connected.css.ts?type=css' with { type: 'css' };
@@ -29,7 +28,7 @@ export default class ConnectedButtonGroup
   implements ButtonGroupLike
 {
   static {
-    useButtonAccessors(this);
+    createButtonAccessors(this);
   }
 
   declare color: ButtonColor | null;
@@ -39,9 +38,10 @@ export default class ConnectedButtonGroup
 
   constructor() {
     super();
-    useCore(this, TEMPLATE, { role: 'group' }, [sizeStyles, connectedStyles]);
-
-    useButtonGroupCore(this);
+    useButtonGroupCore(this, TEMPLATE, { role: 'group' }, [
+      sizeStyles,
+      connectedStyles,
+    ]);
 
     useSlot<ButtonLike & ReactiveElement>(this, 'slot', (elements) => {
       elements.forEach((element) => {

@@ -7,7 +7,7 @@ import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'cs
 import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import { REGULAR_TEMPLATE } from './template.ts';
 import {
-  useButtonAccessors,
+  createButtonAccessors,
   useButtonCore,
   type ButtonColor,
   type ButtonLike,
@@ -67,7 +67,7 @@ export type ButtonCSSProperties = Readonly<{
 export default class Button extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;
   static {
-    useButtonAccessors(this);
+    createButtonAccessors(this);
   }
 
   declare color: ButtonColor | null;

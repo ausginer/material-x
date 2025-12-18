@@ -11,7 +11,7 @@ import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'cs
 import tonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
 import { LINK_TEMPLATE } from './template.ts';
 import {
-  useButtonAccessors,
+  createButtonAccessors,
   useButtonCore,
   type ButtonColor,
   type ButtonLike,
@@ -40,7 +40,7 @@ export type LinkButtonCSSProperties = EmptyObject;
  */
 export default class LinkButton extends ReactiveElement implements ButtonLike {
   static {
-    useButtonAccessors(this, {
+    createButtonAccessors(this, {
       href: Str,
       target: Str,
     });
