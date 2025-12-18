@@ -1,10 +1,10 @@
 import type { EmptyObject } from 'type-fest';
-import { useCore } from '../core/controllers/useCore.ts';
 import {
   define,
   html,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
+import { useCore } from '../core/utils/useCore.ts';
 import css from './styles/icon.css.ts?type=css' with { type: 'css' };
 
 export type IconProperties = EmptyObject;

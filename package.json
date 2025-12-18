@@ -11,7 +11,7 @@
     "url": "git+https://github.com/ausginer/material-x.git"
   },
   "license": "Apache-2.0",
-  "author": "Vlad Rindevich <vladrin@vaadin.com> (https://github.com/Lodin)",
+  "author": "Vlad Rindevich <github.aqwb5@mail.ausginer.com> (https://github.com/Lodin)",
   "type": "module",
   "main": "index.js",
   "engines": {
@@ -63,7 +63,7 @@
     "cssnano": "7.1.2",
     "esbuild": "0.27.1",
     "eslint": "9.39.2",
-    "eslint-config-vaadin": "1.0.0-beta.4",
+    "eslint-config-vaadin": "1.0.0-beta.5",
     "just-camel-case": "6.2.0",
     "just-kebab-case": "4.2.0",
     "just-safe-get": "4.2.0",
