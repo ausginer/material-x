@@ -11,7 +11,6 @@ import {
 } from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
 import { useCore } from '../core/utils/useCore.ts';
-import type { TypedObjectConstructor } from '../interfaces.ts';
 import defaultDisabledStyles from './styles/default/disabled.css.ts?type=css' with { type: 'css' };
 import defaultButtonStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
 import shapeStyles from './styles/shape/main.css.ts?type=css' with { type: 'css' };
@@ -116,11 +115,9 @@ export function useButtonCore(
 
   useContext(host, BUTTON_GROUP_CTX, (data) => {
     if (data) {
-      (Object as TypedObjectConstructor)
-        .keys(DEFAULT_BUTTON_ATTRIBUTES)
-        .forEach((attr) => {
-          updateByContext(internals, attr, null, data.provider[attr]);
-        });
+      Object.keys(DEFAULT_BUTTON_ATTRIBUTES).forEach((attr) => {
+        updateByContext(internals, attr, null, data.provider[attr]);
+      });
 
       return data.emitter.on(({ attr, old: oldValue, new: newValue }) => {
         updateByContext(internals, attr, oldValue, newValue);

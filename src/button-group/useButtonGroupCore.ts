@@ -7,7 +7,6 @@ import { useProvider } from '../core/controllers/useContext.ts';
 import { EventEmitter } from '../core/elements/emitter.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
 import { useCore } from '../core/utils/useCore.ts';
-import type { TypedObjectConstructor } from '../interfaces.ts';
 import {
   BUTTON_GROUP_CTX,
   type ChangedAttribute,
@@ -29,13 +28,11 @@ export function useButtonGroupCore(
 
   useProvider(host, BUTTON_GROUP_CTX, { emitter, provider: host });
 
-  (Object as TypedObjectConstructor)
-    .entries(DEFAULT_BUTTON_ATTRIBUTES)
-    .map(([attr, [from]]) => {
-      useAttribute(host, attr, (oldValue, newValue) => {
-        emitter.emit({ attr, old: from(oldValue), new: from(newValue) });
-      });
+  Object.entries(DEFAULT_BUTTON_ATTRIBUTES).map(([attr, [from]]) => {
+    useAttribute(host, attr, (oldValue, newValue) => {
+      emitter.emit({ attr, old: from(oldValue), new: from(newValue) });
     });
+  });
 
   buttonGroups.add(host);
 }

@@ -2,7 +2,7 @@
 import getDeep from 'just-safe-get';
 import setDeep from 'just-safe-set';
 import type { Simplify, TupleToUnion } from 'type-fest';
-import type { Values } from '../utils/interfaces.ts';
+import type { Values } from '../../interfaces.ts';
 
 export const $leaf: unique symbol = Symbol('leaf');
 export type Leaf = typeof $leaf;
@@ -97,7 +97,9 @@ export function reshape<
 >(tokens: T, schema: S): Shape<T, S> {
   const paths = collectPaths(schema);
 
-  return Object.entries(tokens).reduce<Shape<T, S>>(
+  return Object.entries(tokens as Readonly<Record<string, unknown>>).reduce<
+    Shape<T, S>
+  >(
     (acc, [key, value]) => {
       const tokenPath: string[] = [];
 

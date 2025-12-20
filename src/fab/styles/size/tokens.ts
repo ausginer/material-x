@@ -1,8 +1,7 @@
-import type { TupleToUnion } from 'type-fest';
 import processTokenSet from '../../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../../core/tokens/resolve.ts';
 import { createVariables } from '../../../core/tokens/variable.ts';
-import type { TypedObjectConstructor } from '../../../interfaces.ts';
+import type { FromKeys } from '../../../interfaces.ts';
 import {
   applyToFAB,
   createPrefix,
@@ -17,9 +16,7 @@ const SIZES = ['large', 'medium'] as const;
 
 const ALLOWED = [...PUBLIC, ...PRIVATE];
 
-const packs: Readonly<Record<TupleToUnion<typeof SIZES>, PackShape>> = (
-  Object as TypedObjectConstructor
-).fromEntries(
+const packs: FromKeys<typeof SIZES, PackShape> = Object.fromEntries(
   SIZES.map((s) => {
     const setName = `md.comp.fab.${s}`;
 

@@ -1,4 +1,3 @@
-import type { TypedObjectConstructor } from '../../interfaces.ts';
 import CSSVariableError from './CSSVariableError.ts';
 
 export type TransformCallback<N extends PropertyKey, V> = (
@@ -49,8 +48,8 @@ export function readCSSVariables<
   const styles = getComputedStyle(host);
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-  return (Object as TypedObjectConstructor).fromEntries(
-    (Object as TypedObjectConstructor).entries(vars).map(([name, variable]) => {
+  return Object.fromEntries(
+    Object.entries(vars).map(([name, variable]) => {
       const value = styles.getPropertyValue(variable).trim();
       const result = (transform ?? defaultTransformer)(name, value, host);
       return [name, result];

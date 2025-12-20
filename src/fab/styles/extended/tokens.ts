@@ -7,7 +7,7 @@ import {
   CSSVariable,
   type CSSVariableSet,
 } from '../../../core/tokens/variable.ts';
-import type { TypedObjectConstructor } from '../../../interfaces.ts';
+import type { FromKeys } from '../../../interfaces.ts';
 import {
   applyToFAB,
   createPrefix,
@@ -59,9 +59,7 @@ export function variantAttribute(
 
 const ALLOWED = [...PUBLIC, ...PRIVATE, 'icon-label-space'];
 
-const packs: Readonly<Record<TupleToUnion<typeof VARIANTS>, PackShape>> = (
-  Object as TypedObjectConstructor
-).fromEntries(
+const packs: FromKeys<typeof VARIANTS, PackShape> = Object.fromEntries(
   VARIANTS.map((c) => {
     const setName = `md.comp.extended-fab.${c}`;
 

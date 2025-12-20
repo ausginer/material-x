@@ -21,7 +21,6 @@ import {
   CSSVariable,
   packSet,
 } from '../../core/tokens/variable.ts';
-import type { TypedObjectConstructor } from '../../interfaces.ts';
 
 const SET_BASE_NAME = 'md.comp.button-group';
 const TYPES = ['standard', 'connected'] as const;
@@ -87,12 +86,12 @@ const packs: Readonly<
     TupleToUnion<typeof TYPES>,
     Readonly<Record<TupleToUnion<typeof SIZES>, ButtonGroupShape<string>>>
   >
-> = (Object as TypedObjectConstructor).fromEntries(
+> = Object.fromEntries(
   TYPES.map(
     (type) =>
       [
         type,
-        (Object as TypedObjectConstructor).fromEntries(
+        Object.fromEntries(
           SIZES.map((size) => {
             const set = processTokenSet(`${SET_BASE_NAME}.${type}.${size}`);
             const shapedSet = reshape(set, schema);

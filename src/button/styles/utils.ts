@@ -25,7 +25,6 @@ import {
   packSet,
   type CSSVariableSet,
 } from '../../core/tokens/variable.ts';
-import type { TypedObjectConstructor } from '../../interfaces.ts';
 
 export type BaseButtonSchema = Readonly<{
   default: Leaf;
@@ -55,9 +54,8 @@ const buttonSchema: ButtonSchema = {
   selected: baseButtonSchema,
 };
 
-export const buttonStates: ReadonlyArray<keyof BaseButtonSchema> = (
-  Object as TypedObjectConstructor
-).keys(baseButtonSchema);
+export const buttonStates: ReadonlyArray<keyof BaseButtonSchema> =
+  Object.keys(baseButtonSchema);
 
 export type CSSVariableShape = Shape<CSSVariableSet, ButtonSchema>;
 

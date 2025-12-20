@@ -1,8 +1,7 @@
-import type { TupleToUnion } from 'type-fest';
 import processTokenSet from '../../../core/tokens/processTokenSet.ts';
 import { excludeFromSet } from '../../../core/tokens/utils.ts';
 import { createVariables } from '../../../core/tokens/variable.ts';
-import type { TypedObjectConstructor } from '../../../interfaces.ts';
+import type { FromKeys } from '../../../interfaces.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
   applyToButtons,
@@ -17,9 +16,7 @@ const SIZES = ['xlarge', 'large', 'medium', 'small', 'xsmall'] as const;
 
 const ALLOWED: readonly string[] = [...PUBLIC, ...PRIVATE];
 
-const packs: Readonly<Record<TupleToUnion<typeof SIZES>, PackShape>> = (
-  Object as TypedObjectConstructor
-).fromEntries(
+const packs: FromKeys<typeof SIZES, PackShape> = Object.fromEntries(
   SIZES.map((s) => {
     const set = (() => {
       const set = processTokenSet(`md.comp.button.${s}`);

@@ -1,4 +1,3 @@
-import type { TypedObjectConstructor } from '../../interfaces.ts';
 import db from './DB.ts';
 import processToken from './processToken.ts';
 
@@ -16,7 +15,7 @@ export default function processTokenSet(name: string): ProcessedTokenSet {
     throw new Error(`Token set not found: ${name}`);
   }
 
-  return (Object as TypedObjectConstructor).fromEntries(
+  return Object.fromEntries(
     db.tokens
       .filter((token) => token.name.startsWith(set.name))
       .map((token) => [token.tokenNameSuffix, processToken(token)] as const)

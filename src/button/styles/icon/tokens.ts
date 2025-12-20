@@ -1,10 +1,9 @@
-import type { TupleToUnion } from 'type-fest';
 import processTokenSet from '../../../core/tokens/processTokenSet.ts';
 import { resolveSet } from '../../../core/tokens/resolve.ts';
 import { attribute, type Param } from '../../../core/tokens/selector.ts';
 import { excludeFromSet } from '../../../core/tokens/utils.ts';
 import { createVariables } from '../../../core/tokens/variable.ts';
-import type { TypedObjectConstructor } from '../../../interfaces.ts';
+import type { FromKeys } from '../../../interfaces.ts';
 import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
 import {
   applyToButtons,
@@ -48,9 +47,7 @@ export function variantAttribute(variant: string): readonly Param[] {
   return [];
 }
 
-const packs: Readonly<Record<TupleToUnion<typeof VARIANTS>, PackShape>> = (
-  Object as TypedObjectConstructor
-).fromEntries(
+const packs: FromKeys<typeof VARIANTS, PackShape> = Object.fromEntries(
   VARIANTS.map((c) => {
     const setName = `md.comp.icon-button.${c}`;
 
@@ -131,14 +128,12 @@ const packs: Readonly<Record<TupleToUnion<typeof VARIANTS>, PackShape>> = (
 const WIDTHS = ['wide', 'narrow'] as const;
 const WIDTH_PUBLIC = ['leading-space', 'trailing-space'] as const;
 
-export const widthPacks: Readonly<
-  Record<
-    TupleToUnion<typeof WIDTHS>,
-    Readonly<Record<TupleToUnion<typeof SIZES>, PackShape>>
-  >
-> = (Object as TypedObjectConstructor).fromEntries(
+export const widthPacks: FromKeys<
+  typeof WIDTHS,
+  FromKeys<typeof SIZES, PackShape>
+> = Object.fromEntries(
   WIDTHS.map((w) => {
-    const result = (Object as TypedObjectConstructor).fromEntries(
+    const result = Object.fromEntries(
       SIZES.map((s) => {
         const setName = `md.comp.icon-button.${s}`;
 
@@ -148,9 +143,8 @@ export const widthPacks: Readonly<
           const resolvedSet = resolveButtonShape(shapedSet);
 
           const transformedSet = applyToButtons(resolvedSet, (tokens) => {
-            return (Object as TypedObjectConstructor).fromEntries(
-              (Object as TypedObjectConstructor)
-                .entries(tokens)
+            return Object.fromEntries(
+              Object.entries(tokens)
                 .filter(([key]) => key.includes(w))
                 .map(([key, value]) => [key.replace(`${w}.`, ''), value]),
             );

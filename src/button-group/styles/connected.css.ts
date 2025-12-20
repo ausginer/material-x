@@ -1,17 +1,15 @@
 import { css, prettify } from '../../core/tokens/css.ts';
 import { attribute, selector } from '../../core/tokens/selector.ts';
-import type { TypedObjectConstructor } from '../../interfaces.ts';
 import packs from './tokens.ts';
 
-const _styles = (Object as TypedObjectConstructor)
-  .entries(packs.connected)
+const _styles = Object.entries(packs.connected)
   .filter(([size]) => size !== 'small')
   .map(([size, pack]) => {
     const host = selector(':host', attribute('size', size));
 
     return css`
       ${host} {
-        ${pack.default}
+        ${pack.default};
       }
     `;
   });
