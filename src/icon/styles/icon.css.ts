@@ -1,6 +1,6 @@
-import { css } from '../../core/tokens/css.ts';
+import { css, prettify } from '../../core/tokens/css.ts';
 
-const styles: string = css`
+const styles: string = await prettify(css`
   :host {
     font-size: var(--md-icon-size, 20px);
     width: var(--md-icon-size, 20px);
@@ -31,6 +31,6 @@ const styles: string = css`
     /* Support for Firefox. */
     -moz-osx-font-smoothing: grayscale;
   }
-`;
+`);
 
 export default styles;

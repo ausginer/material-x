@@ -6,17 +6,14 @@
   "bugs": {
     "url": "https://github.com/ausginer/material-x/issues"
   },
+  "license": "Apache-2.0",
+  "author": "Vlad Rindevich <github.aqwb5@mail.ausginer.com> (https://github.com/Lodin)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ausginer/material-x.git"
   },
-  "license": "Apache-2.0",
-  "author": "Vlad Rindevich <github.aqwb5@mail.ausginer.com> (https://github.com/Lodin)",
   "type": "module",
   "main": "index.js",
-  "engines": {
-    "node": ">=24"
-  },
   "exports": {
     "./button/button.js": "./button/button.js",
     "./button/icon-button.js": "./button/icon-button.js",
@@ -37,16 +34,9 @@
     "lint": "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts",
     "sass:debug": "node .scripts/sass.ts"
   },
-  "overrides": {
-    "vite": "$vite",
-    "react": "$react",
-    "typescript": "$typescript",
-    "esbuild": "$esbuild"
-  },
   "devDependencies": {
     "@eslint/config-helpers": "0.5.0",
     "@ladle/react": "5.1.1",
-    "@oxc-node/core": "0.0.35",
     "@preact/signals-core": "1.12.1",
     "@types/node": "25.0.2",
     "@types/postcss-import": "14.0.3",
@@ -60,8 +50,6 @@
     "@vitest/coverage-v8": "4.0.15",
     "@vitest/ui": "4.0.15",
     "concurrently": "9.2.1",
-    "cssnano": "7.1.2",
-    "esbuild": "0.27.1",
     "eslint": "9.39.2",
     "eslint-config-vaadin": "1.0.0-beta.5",
     "just-camel-case": "6.2.0",
@@ -71,8 +59,8 @@
     "lightningcss": "1.30.2",
     "magic-string": "0.30.21",
     "oxc-transform": "0.103.0",
+    "oxfmt": "0.19.0",
     "playwright": "^1.57.0",
-    "prettier": "3.7.4",
     "puppeteer-core": "24.33.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -82,7 +70,15 @@
     "type-fest": "5.3.1",
     "typescript": "5.9.3",
     "typescript-eslint": "8.50.0",
-    "vite": "8.0.0-beta.2",
+    "vite": "8.0.0-beta.3",
     "vitest": "4.0.15"
+  },
+  "overrides": {
+    "react": "$react",
+    "typescript": "$typescript",
+    "vite": "$vite"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

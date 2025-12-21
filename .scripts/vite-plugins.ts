@@ -1,10 +1,9 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { Worker } from 'node:worker_threads';
-import { signal, computed } from '@preact/signals-core';
-import { build } from 'esbuild';
+import { MessageChannel, Worker } from 'node:worker_threads';
+import { computed, signal } from '@preact/signals-core';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
-import { cssCache, root, src, type JSONModule } from './utils.ts';
+import { cssCache, type JSONModule } from './utils.ts';
 
 export type ConstructCSSOptions = Readonly<{
   isProd: boolean;
@@ -16,7 +15,6 @@ const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
   });
 
 export function constructCSS(options?: ConstructCSSOptions): Plugin {
-  const css = new Set<string>();
   const trackedFiles = signal<Record<string, Set<string>>>({});
   const dependencies = computed(() =>
     Object.entries(trackedFiles.value).reduce<Record<string, Set<string>>>(
@@ -39,98 +37,90 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
   const plugin: Plugin = {
     name: 'vite-construct-css',
     resolveId: {
+      filter: {
+        id: {
+          include: /\.css\.ts/,
+        },
+      },
       order: 'pre',
       handler(source, importer) {
-        if (importer && source.startsWith('.')) {
-          const url = new URL(source, pathToFileURL(importer));
-
-          if (url.searchParams.get('type') === 'css') {
-            const id = fileURLToPath(url);
-            css.add(id);
-            return id;
-          }
-        }
-
-        return null;
+        const url = new URL(source, pathToFileURL(importer!));
+        return fileURLToPath(url);
       },
     },
     load: {
+      filter: {
+        id: {
+          include: /\.css\.ts/,
+        },
+      },
       async handler(id) {
-        if (css.has(id)) {
-          if (!trackedFiles.value[id]) {
-            const { metafile } = await build({
-              format: 'esm',
-              entryPoints: [id],
-              bundle: true,
-              metafile: true,
-              write: false,
-              target: 'esnext',
-              external: ['node:*'],
-              supported: {
-                'top-level-await': true,
+        const { port1, port2 } = new MessageChannel();
+        const deps = new Set<string>();
+
+        port1.on('message', (module: string) => {
+          deps.add(module);
+          this.addWatchFile(module);
+        });
+
+        const result = await new Promise<string>((resolve, reject) => {
+          const worker = new Worker(
+            new URL('./css/css-worker.ts', import.meta.url),
+            {
+              execArgv: [
+                '--import',
+                fileURLToPath(
+                  new URL('./css/deps-tracker.ts', import.meta.url),
+                ),
+              ],
+              workerData: {
+                id,
+                monitorPort: port2,
               },
-            });
-
-            trackedFiles.value = {
-              ...trackedFiles.value,
-              [id]: new Set(
-                Object.keys(metafile.inputs)
-                  .map((file) => new URL(file, root))
-                  .filter((url) => url.toString().startsWith(src.toString()))
-                  .map((url) => fileURLToPath(url))
-                  .map((file) => {
-                    this.addWatchFile(file);
-                    return file;
-                  }),
-              ),
-            };
-          }
-
-          const result = await new Promise<string>((resolve, reject) => {
-            const worker = new Worker(
-              new URL('./css/css-worker.ts', import.meta.url),
-              {
-                workerData: id,
-              },
-            );
-
-            worker.on('message', resolve);
-            worker.on('error', reject);
-            worker.on('exit', (code) => {
-              if (code !== 0)
-                reject(new Error(`Worker stopped with exit code ${code}`));
-            });
-          });
-
-          const { code, map } = await compileCSS(
-            pathToFileURL(id.replace(/\.ts$/u, '')),
-            result,
-            options,
+              transferList: [port2],
+            },
           );
 
-          return {
-            code: `${code}\n//# sourceMappingURL=${map?.toUrl() ?? ''}`,
-          };
-        }
+          worker.on('message', resolve);
+          worker.on('error', reject);
+          worker.on('exit', (code) => {
+            if (code !== 0)
+              reject(new Error(`Worker stopped with exit code ${code}`));
+          });
+        });
 
-        return null;
+        trackedFiles.value = {
+          ...trackedFiles.peek(),
+          [id]: deps,
+        };
+
+        const { code, map } = await compileCSS(
+          pathToFileURL(id.replace(/\.ts$/u, '')),
+          result,
+          options,
+        );
+
+        return {
+          code: `${code}\n//# sourceMappingURL=${map?.toUrl() ?? ''}`,
+        };
       },
     },
     ...(options?.isProd
       ? {
           transform: {
-            handler(code, id) {
-              if (id.endsWith('.ts') || id.endsWith('.tsx')) {
-                return {
-                  code: replaceList.reduce(
-                    (acc, [pattern, short]) =>
-                      acc.replace(pattern, `'${short}'`),
-                    code,
-                  ),
-                };
-              }
-
-              return null;
+            filter: {
+              id: {
+                include: /\.(?:ts|tsx)/,
+                exclude: /\.css\.ts/,
+              },
+            },
+            handler(code) {
+              return {
+                code: replaceList.reduce(
+                  (acc, [pattern, short]) => acc.replace(pattern, `'${short}'`),
+                  code,
+                ),
+              };
             },
           },
         }

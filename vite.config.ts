@@ -10,6 +10,9 @@ const config: UserConfigFnObject = defineConfig(({ command }: ConfigEnv) => ({
   build: {
     target: 'esnext',
   },
+  rollupOptions: {
+    external: ['oxfmt'],
+  },
   server: {
     proxy: {
       '/api': {

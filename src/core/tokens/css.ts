@@ -1,7 +1,19 @@
-import * as prettier from 'prettier';
+import { format, type FormatOptions } from 'oxfmt';
+import oxfmtConfig from '../../../.oxfmtrc.json' with { type: 'json' };
 
 export async function prettify(str: string): Promise<string> {
-  return await prettier.format(str, { parser: 'css' });
+  const { code, errors } = await format(
+    'f.css',
+    str,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+    oxfmtConfig as FormatOptions,
+  );
+
+  if (errors.length > 0) {
+    throw new Error('CSS prettify operation failed', { cause: errors });
+  }
+
+  return code;
 }
 
 function processValue(value: unknown): string {
