@@ -1,6 +1,8 @@
 import type { EmptyObject } from 'type-fest';
 import '../button-group/connected-button-group.ts';
+import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
+import { ATTRIBUTE } from '../core/elements/attribute.ts';
 import {
   define,
   html,
@@ -11,7 +13,7 @@ import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
 import './icon-button.ts';
-import splitButtonStyles from './styles/split-button.css.ts?type=css' with { type: 'css' };
+import splitButtonStyles from './styles/split/main.css.ts?type=css' with { type: 'css' };
 import {
   createButtonAccessors,
   type ButtonLike,
@@ -19,11 +21,14 @@ import {
   type ButtonColor,
   type ButtonSize,
   type ButtonShape,
+  DEFAULT_BUTTON_ATTRIBUTES,
 } from './useButtonCore.ts';
 
-const TEMPLATE = html`<mx-connected-button-group>
-  <mx-button><slot name="icon" slot="icon"></slot><slot></slot></mx-button>
-  <mx-icon-button>
+const TEMPLATE = html`<mx-connected-button-group part="group">
+  <mx-button part="leading">
+    <slot name="icon" slot="icon"></slot><slot></slot>
+  </mx-button>
+  <mx-icon-button part="trailing">
     <mx-icon>keyboard_arrow_down</mx-icon>
   </mx-icon-button>
 </mx-connected-button-group>`;
@@ -77,11 +82,20 @@ export default class SplitButton extends ReactiveElement implements ButtonLike {
       {
         click: (event) => {
           event.stopPropagation();
-          this.dispatchEvent(new Event('toggle'));
+          this.dispatchEvent(
+            new Event('toggle', { bubbles: true, composed: true }),
+          );
         },
       },
       query(this, 'mx-icon-button')!,
     );
+
+    const group = query(this, 'mx-connected-button-group')!;
+    Object.keys(DEFAULT_BUTTON_ATTRIBUTES).forEach((attr) => {
+      useAttribute(this, attr, (_, newValue) => {
+        ATTRIBUTE.setRaw(group, attr, newValue);
+      });
+    });
   }
 }
 

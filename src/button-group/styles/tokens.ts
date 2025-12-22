@@ -26,11 +26,7 @@ const SET_BASE_NAME = 'md.comp.button-group';
 const TYPES = ['standard', 'connected'] as const;
 const SIZES = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
 
-const ALLOWED = [
-  'container.height',
-  'between-space',
-  'inner-corner.corner-size',
-];
+const ALLOWED = ['between-space', 'inner-corner.corner-size'];
 
 export type ButtonGroupSchema = Readonly<{
   default: Leaf;

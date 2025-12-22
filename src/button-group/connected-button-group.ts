@@ -1,5 +1,4 @@
 import type { EmptyObject } from 'type-fest';
-import sizeStyles from '../button/styles/size/main.css.ts?type=css' with { type: 'css' };
 import {
   createButtonAccessors,
   type ButtonColor,
@@ -38,10 +37,7 @@ export default class ConnectedButtonGroup
 
   constructor() {
     super();
-    useButtonGroupCore(this, TEMPLATE, { role: 'group' }, [
-      sizeStyles,
-      connectedStyles,
-    ]);
+    useButtonGroupCore(this, TEMPLATE, { role: 'group' }, [connectedStyles]);
 
     useSlot<ButtonLike & ReactiveElement>(this, 'slot', (elements) => {
       elements.forEach((element) => {

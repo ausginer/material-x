@@ -12,7 +12,7 @@ import {
   type PackShape,
 } from '../utils.ts';
 
-const SIZES = ['xlarge', 'large', 'medium', 'small', 'xsmall'] as const;
+const SIZES = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
 
 const ALLOWED: readonly string[] = [...PUBLIC, ...PRIVATE];
 

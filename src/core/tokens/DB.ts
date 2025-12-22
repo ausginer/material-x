@@ -81,6 +81,8 @@ export class DB {
         'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.0fe2282006ae098b.json',
         // Button Groups
         'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.082d7fd6e058b011.json',
+        // Split Buttons
+        'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.624e8f2da4007fc8.json',
       ].map(async (url) => (await download(new URL(url))).system),
     ]);
 

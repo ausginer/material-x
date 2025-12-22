@@ -100,8 +100,11 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
           options,
         );
 
+        this.addWatchFile(id);
+
         return {
-          code: `${code}\n//# sourceMappingURL=${map?.toUrl() ?? ''}`,
+          code,
+          map,
         };
       },
     },

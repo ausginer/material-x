@@ -5,11 +5,12 @@ import packs from './tokens.ts';
 
 const color = attribute('color', 'elevated');
 const colorState = pseudoClass('state', 'elevated');
+const noAttribute = pseudoClass('not', attribute('color'));
 
 const mainStyles = buttonStates.map((s) =>
   s === 'default'
     ? css`
-        ${state.default(color)}, ${state.default(colorState)} {
+        ${state.default(color)}, ${state.default(colorState, noAttribute)} {
           ${packs.default};
 
           &::before,
@@ -20,7 +21,7 @@ const mainStyles = buttonStates.map((s) =>
       `
     : packs[s]
       ? css`
-          ${state[s](color)} {
+          ${state[s](color)}, ${state[s](colorState, noAttribute)} {
             ${packs[s]};
           }
         `

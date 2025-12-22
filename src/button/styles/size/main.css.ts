@@ -23,7 +23,7 @@ const _styles = Object.entries(packs).flatMap(([name, pack]) => {
     }
 
     return css`
-      ${state[s](size)} {
+      ${state[s](size)}, ${state[s](sizeState, noAttribute)} {
         ${pack[s]};
       }
     `;

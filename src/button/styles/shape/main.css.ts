@@ -10,7 +10,7 @@ const checked = attribute('checked');
 
 const styles: string = await prettify(css`
   ${state.default()},
-  ${state.default(squareState, noSquareAttribute)},
+  ${state.default(squareState, checked, noSquareAttribute)},
   ${state.default(square, checked)} {
     ${packs.round};
   }

@@ -1,5 +1,4 @@
 import type { EmptyObject } from 'type-fest';
-import sizeStyles from '../button/styles/size/main.css.ts?type=css' with { type: 'css' };
 import {
   createButtonAccessors,
   type ButtonColor,
@@ -43,10 +42,7 @@ export default class ButtonGroup
 
   constructor() {
     super();
-    useButtonGroupCore(this, TEMPLATE, { role: 'group' }, [
-      sizeStyles,
-      standardStyles,
-    ]);
+    useButtonGroupCore(this, TEMPLATE, { role: 'group' }, [standardStyles]);
 
     let elements: ReadonlyArray<ButtonLike & ReactiveElement> = [];
 

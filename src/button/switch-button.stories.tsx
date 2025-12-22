@@ -1,7 +1,7 @@
 import type { Story, StoryDefault } from '@ladle/react';
 import './switch-button.ts';
 import { useState, type PropsWithChildren } from 'react';
-import type { SwitchButtonAttributes } from './switch-button.ts';
+import type { SwitchButtonProperties } from './switch-button.ts';
 
 const storyDefault: StoryDefault = {
   decorators: [
@@ -16,7 +16,7 @@ const storyDefault: StoryDefault = {
 
 export default storyDefault;
 
-type ControlledSwitchButtonProps = SwitchButtonAttributes;
+type ControlledSwitchButtonProps = SwitchButtonProperties;
 
 function ControlledSwitchButton({
   children,
