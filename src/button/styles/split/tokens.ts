@@ -11,6 +11,7 @@ import {
   type PackShape,
 } from '../utils.ts';
 
+const SET_BASE_NAME = 'md.comp.split-button';
 const SIZES = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
 
 const ALLOWED = [
@@ -34,7 +35,7 @@ export const defaults: string = packSet(
 
 const packs: FromKeys<typeof SIZES, PackShape> = Object.fromEntries(
   SIZES.map((s) => {
-    const set = processTokenSet(`md.comp.split-button.${s}`);
+    const set = processTokenSet(`${SET_BASE_NAME}.${s}`);
     const shapedSet = reshapeButtonSet(set);
     const resolvedSet = resolveButtonShape(shapedSet);
 

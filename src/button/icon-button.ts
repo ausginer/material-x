@@ -22,12 +22,11 @@ export type IconButtonWidth = 'wide' | 'narrow';
 export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
 
 export interface IconButtonLike extends ButtonLike {
-  color: IconButtonColor | null;
-  width: IconButtonWidth | null;
+  width: string | null;
 }
 
 export type IconButtonProperties = Readonly<
-  ButtonCoreProperties & {
+  Omit<ButtonCoreProperties, 'color'> & {
     color?: IconButtonColor;
     width?: IconButtonWidth;
   }

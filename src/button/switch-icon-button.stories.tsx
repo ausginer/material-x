@@ -1,6 +1,6 @@
 import type { Story, StoryDefault } from '@ladle/react';
 import { useState, type PropsWithChildren } from 'react';
-import type { SwitchIconButtonAttributes } from './switch-icon-button.ts';
+import type { SwitchIconButtonProperties } from './switch-icon-button.ts';
 import './switch-icon-button.ts';
 import '../icon/icon.ts';
 
@@ -17,7 +17,7 @@ const storyDefault: StoryDefault = {
 
 export default storyDefault;
 
-type ControlledSwitchIconButtonProps = SwitchIconButtonAttributes;
+type ControlledSwitchIconButtonProps = SwitchIconButtonProperties;
 
 function ControlledSwitchIconButton(
   props: PropsWithChildren<ControlledSwitchIconButtonProps>,
