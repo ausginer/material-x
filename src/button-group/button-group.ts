@@ -19,6 +19,7 @@ import {
 import { getTarget } from './utils.ts';
 
 export type ButtonGroupProperties = ButtonCoreProperties;
+export type ButtonGroupEvents = EmptyObject;
 export type ButtonGroupCSSProperties = EmptyObject;
 
 const LEADING_PROP = '--_interaction-direction-leading';
@@ -46,7 +47,7 @@ export default class ButtonGroup
 
     let elements: ReadonlyArray<ButtonLike & ReactiveElement> = [];
 
-    useSlot<ButtonLike & ReactiveElement>(this, 'slot', (newElements) => {
+    useSlot<ButtonLike & ReactiveElement>(this, 'slot', (_, newElements) => {
       elements = newElements;
     });
 

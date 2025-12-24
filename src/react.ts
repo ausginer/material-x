@@ -38,11 +38,13 @@ import type {
 } from './button/switch-icon-button.ts';
 import type {
   ButtonGroupCSSProperties,
+  ButtonGroupEvents,
   ButtonGroupProperties,
 } from './button-group/button-group.ts';
 import type ButtonGroup from './button-group/button-group.ts';
 import type {
   ConnectedButtonGroupCSSProperties,
+  ConnectedButtonGroupEvents,
   ConnectedButtonGroupProperties,
 } from './button-group/connected-button-group.ts';
 import type ConnectedButtonGroup from './button-group/connected-button-group.ts';
@@ -54,6 +56,12 @@ import type {
   IconEvents,
   IconProperties,
 } from './icon/icon.ts';
+import type TextField from './text-field/text-field.ts';
+import type {
+  TextFieldCSSProperties,
+  TextFieldEvents,
+  TextFieldProperties,
+} from './text-field/text-field.ts';
 
 type JSXWrapper<
   C extends HTMLElement,
@@ -102,18 +110,20 @@ type SwitchIconButtonJSX = JSXWrapper<
 type ButtonGroupJSX = JSXWrapper<
   ButtonGroup,
   ButtonGroupProperties,
-  ButtonGroupCSSProperties
+  ButtonGroupEvents
 >;
 
 type ConnectedButtonGroupJSX = JSXWrapper<
   ConnectedButtonGroup,
   ConnectedButtonGroupProperties,
-  ConnectedButtonGroupCSSProperties
+  ConnectedButtonGroupEvents
 >;
 
 type FABJSX = JSXWrapper<FAB, FABProperties, FABEvents>;
 
 type IconJSX = JSXWrapper<Icon, IconProperties, IconEvents>;
+
+type TextFieldJSX = JSXWrapper<TextField, TextFieldProperties, TextFieldEvents>;
 
 declare module 'react' {
   namespace JSX {
@@ -128,6 +138,7 @@ declare module 'react' {
       'mx-connected-button-group': ConnectedButtonGroupJSX;
       'mx-fab': FABJSX;
       'mx-icon': IconJSX;
+      'mx-text-field': TextFieldJSX;
     }
   }
   export interface CSSProperties
@@ -138,6 +149,9 @@ declare module 'react' {
       SplitButtonCSSProperties,
       SwitchButtonCSSProperties,
       SwitchIconButtonCSSProperties,
+      ButtonGroupCSSProperties,
+      ConnectedButtonGroupCSSProperties,
       FABCSSProperties,
-      IconCSSProperties {}
+      IconCSSProperties,
+      TextFieldCSSProperties {}
 }

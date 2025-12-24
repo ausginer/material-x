@@ -3,6 +3,7 @@ import { query } from '../utils/DOM.ts';
 import { useEvents } from './useEvents.ts';
 
 export type SlotControllerUpdateCallback<T extends Element> = (
+  slot: HTMLSlotElement,
   elements: readonly T[],
 ) => void;
 
@@ -18,7 +19,7 @@ export function useSlot<T extends Element = Element>(
     {
       slotchange() {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-        callback(slot.assignedElements() as T[]);
+        callback(slot, slot.assignedElements() as T[]);
       },
     },
     slot,

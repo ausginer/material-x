@@ -17,6 +17,7 @@ import {
 } from './useButtonGroupCore.ts';
 
 export type ConnectedButtonGroupProperties = ButtonCoreProperties;
+export type ConnectedButtonGroupEvents = EmptyObject;
 export type ConnectedButtonGroupCSSProperties = EmptyObject;
 
 /**
@@ -39,7 +40,7 @@ export default class ConnectedButtonGroup
     super();
     useButtonGroupCore(this, TEMPLATE, { role: 'group' }, [connectedStyles]);
 
-    useSlot<ButtonLike & ReactiveElement>(this, 'slot', (elements) => {
+    useSlot<ButtonLike & ReactiveElement>(this, 'slot', (_, elements) => {
       elements.forEach((element) => {
         delete element.dataset['first'];
         delete element.dataset['last'];
