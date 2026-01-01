@@ -5,7 +5,7 @@ declare global {
     values<O extends object>(o: O): ReadonlyArray<O[keyof O]>;
     entries<const O extends object>(
       o: O,
-    ): ReadonlyArray<{ [K in keyof O]: [K, O[K]] }[keyof O]>;
+    ): ReadonlyArray<Required<{ [K in keyof O]: [K, O[K]] }>[keyof O]>;
     fromEntries<const T extends ReadonlyArray<readonly [PropertyKey, any]>>(
       entries: T,
     ): Readonly<{ [K in T[number] as K[0]]: K[1] }>;

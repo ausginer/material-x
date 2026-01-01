@@ -1,5 +1,5 @@
 import type { ReactiveElement } from '../elements/reactive-element.ts';
-import { query } from '../utils/DOM.ts';
+import { $ } from '../utils/DOM.ts';
 import { useEvents } from './useEvents.ts';
 
 export type SlotControllerUpdateCallback<T extends Element> = (
@@ -9,10 +9,13 @@ export type SlotControllerUpdateCallback<T extends Element> = (
 
 export function useSlot<T extends Element = Element>(
   host: ReactiveElement,
-  slotSelector: string,
+  slotOrSelector: string | HTMLSlotElement,
   callback: SlotControllerUpdateCallback<T>,
 ): void {
-  const slot = query<HTMLSlotElement>(host, slotSelector)!;
+  const slot =
+    typeof slotOrSelector === 'string'
+      ? $<HTMLSlotElement>(host, slotOrSelector)!
+      : slotOrSelector;
 
   useEvents(
     host,

@@ -3,34 +3,63 @@ import type {
   ExistingSiblingUpdateCallback,
 } from '../../button-group/utils.ts';
 
-export function query<K extends keyof HTMLElementTagNameMap>(
+export function $<K extends keyof HTMLElementTagNameMap>(
   host: HTMLElement,
   selectors: K,
 ): HTMLElementTagNameMap[K] | null | undefined;
-export function query<K extends keyof SVGElementTagNameMap>(
+export function $<K extends keyof SVGElementTagNameMap>(
   host: HTMLElement,
   selectors: K,
 ): SVGElementTagNameMap[K] | null | undefined;
-export function query<K extends keyof MathMLElementTagNameMap>(
+export function $<K extends keyof MathMLElementTagNameMap>(
   host: HTMLElement,
   selectors: K,
 ): MathMLElementTagNameMap[K] | null | undefined;
 /** @deprecated */
-export function query<K extends keyof HTMLElementDeprecatedTagNameMap>(
+export function $<K extends keyof HTMLElementDeprecatedTagNameMap>(
   host: HTMLElement,
   selectors: K,
 ): HTMLElementDeprecatedTagNameMap[K] | null | undefined;
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-export function query<E extends Element = Element>(
+export function $<E extends Element = Element>(
   host: HTMLElement,
   selectors: string,
 ): E | null | undefined;
-export function query(
+export function $(
   host: HTMLElement,
   selectors: string,
 ): Element | null | undefined {
   return host.shadowRoot?.querySelector(selectors);
 }
+
+export function $$<K extends keyof HTMLElementTagNameMap>(
+  host: HTMLElement,
+  selectors: K,
+): NodeListOf<HTMLElementTagNameMap[K]> | undefined;
+export function $$<K extends keyof SVGElementTagNameMap>(
+  host: HTMLElement,
+  selectors: K,
+): NodeListOf<SVGElementTagNameMap[K]> | undefined;
+export function $$<K extends keyof MathMLElementTagNameMap>(
+  host: HTMLElement,
+  selectors: K,
+): NodeListOf<MathMLElementTagNameMap[K]> | undefined;
+/** @deprecated */
+export function $$<K extends keyof HTMLElementDeprecatedTagNameMap>(
+  host: HTMLElement,
+  selectors: K,
+): NodeListOf<HTMLElementDeprecatedTagNameMap[K]> | undefined;
+export function $$<E extends Element = Element>(
+  host: HTMLElement,
+  selectors: string,
+): NodeListOf<E> | undefined;
+export function $$(
+  host: HTMLElement,
+  selectors: string,
+): NodeListOf<Element> | undefined {
+  return host.shadowRoot?.querySelectorAll(selectors);
+}
+
 export function applyToSiblings(
   target: HTMLElement,
   prev?: SiblingUpdateCallback | null,

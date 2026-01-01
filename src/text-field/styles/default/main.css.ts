@@ -7,21 +7,36 @@ const styles: string = await prettify(css`
   ${state.default()} {
     ${filled.default};
 
-    --_padding-inline-start: var(--_padding-default);
-    --_padding-inline-end: var(--_padding-default);
+    --_padding-inline-start: var(--_container-padding-inline);
+    --_padding-inline-end: var(--_container-padding-inline);
     --_padding-block: calc(
-      (var(--_container-height) - var(--_input-text-line-height)) / 2
-    );
+        ((var(--_container-height) - var(--_input-text-line-height)) / 2) +
+          var(--_container-focus-padding-block)
+      )
+      var(--_container-focus-padding-block);
     --_lead-icon-gap: 0;
+    --_prefix-gap: 0;
+    --_suffix-gap: 0;
     --_trail-icon-gap: 0;
 
     display: grid;
     grid-template-areas:
-      '. lead . field . trail .'
-      '. support support support support support .';
+      '. lead . prefix . field . steppers . suffix . trail .'
+      '. support support support support support support support support support support support .';
     grid-template-columns:
-      var(--_padding-inline-start) min-content var(--_lead-icon-gap)
-      1fr var(--_trail-icon-gap) min-content var(--_padding-inline-end);
+      var(--_padding-inline-start)
+      min-content /* lead */
+      var(--_lead-icon-gap)
+      min-content /* prefix */
+      var(--_prefix-gap)
+      1fr /* field */
+      var(--_steppers-gap)
+      min-content /* steppers */
+      var(--_suffix-gap)
+      min-content /* suffix */
+      var(--_trail-icon-gap)
+      min-content /* trail */
+      var(--_padding-inline-end);
     grid-template-rows: auto auto;
     position: relative;
 
@@ -56,12 +71,30 @@ const styles: string = await prettify(css`
     --_trail-icon-gap: var(--_container-padding-inline);
   }
 
+  :host:has(#prefix.has-slotted) {
+    --_prefix-gap: var(--_input-text-prefix-gap);
+  }
+
+  :host:has(#suffix.has-slotted) {
+    --_suffix-gap: var(--_input-text-suffix-gap);
+  }
+
   slot {
     display: block;
     align-self: center;
+    user-select: none;
+  }
+
+  #prefix.has-slotted {
+    grid-area: prefix;
+  }
+
+  #suffix.has-slotted {
+    grid-area: suffix;
   }
 
   #input {
+    padding-block: var(--_padding-block);
     grid-area: field;
     outline: none;
     align-self: flex-end;
@@ -72,10 +105,9 @@ const styles: string = await prettify(css`
     line-height: var(--_input-text-line-height);
     color: var(--_input-text-color);
     caret-color: var(--_caret-color);
-    padding-block-end: var(--_container-focus-padding-block);
   }
 
-  #label {
+  #label.has-slotted {
     position: absolute;
     font-family: var(--_label-text-font);
     font-weight: var(--_label-text-weight);
@@ -90,21 +122,19 @@ const styles: string = await prettify(css`
     transition-timing-function: var(--_focus-easing);
   }
 
-  #lead {
-    padding-block: var(--_padding-block);
+  #lead.has-slotted {
     grid-area: lead;
     --md-icon-size: var(--_leading-icon-size);
     fill: var(--_leading-icon-color);
   }
 
-  #trail {
+  #trail.has-slotted {
     grid-area: trail;
-    padding-block: var(--_padding-block);
     --md-icon-size: var(--_trailing-icon-size);
     fill: var(--_trailing-icon-color);
   }
 
-  #support {
+  #support.has-slotted {
     padding-block-start: var(--_support-text-gap);
     grid-area: support;
     font-family: var(--_supporting-text-font);
@@ -115,7 +145,7 @@ const styles: string = await prettify(css`
 
   :host(:state(populated)),
   :host(:focus-within) {
-    #label {
+    #label.has-slotted {
       line-height: var(--_label-text-populated-line-height);
       color: var(--_label-text-color);
       padding-block-start: var(--_container-focus-padding-block);

@@ -5,7 +5,7 @@ import {
   type ReactiveElement,
   use,
 } from '../elements/reactive-element.ts';
-import { query } from '../utils/DOM.ts';
+import { $ } from '../utils/DOM.ts';
 import {
   readCSSVariables,
   transformNumericVariable,
@@ -141,7 +141,7 @@ class RippleAnimationController implements ReactiveController {
     // Append so the ripple paints above the host's content.
     host.shadowRoot!.append(TEMPLATE.content.cloneNode(true));
     host.shadowRoot!.adoptedStyleSheets.push(css);
-    this.#rippleElement = query(host, `#ripple`)!;
+    this.#rippleElement = $(host, `#ripple`)!;
     this.#cssVariables = vars;
 
     const self = this;

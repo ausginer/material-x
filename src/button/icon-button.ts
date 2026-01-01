@@ -46,11 +46,11 @@ export type IconButtonCSSProperties = EmptyObject;
  *
  * They can also be placed within standard button groups.
  *
- * @attr {string} color
- * @attr {string} size
- * @attr {string} shape
- * @attr {string} width
- * @attr {boolean|undefined} disabled
+ * @attribute {string} color
+ * @attribute {string} size
+ * @attribute {string} shape
+ * @attribute {string} width
+ * @attribute {boolean|undefined} disabled
  */
 export default class IconButton extends ReactiveElement implements ButtonLike {
   static readonly formAssociated = true;

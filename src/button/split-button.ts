@@ -8,7 +8,7 @@ import {
   html,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import { query } from '../core/utils/DOM.ts';
+import { $ } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
@@ -87,10 +87,10 @@ export default class SplitButton extends ReactiveElement implements ButtonLike {
           );
         },
       },
-      query(this, 'mx-icon-button')!,
+      $(this, 'mx-icon-button')!,
     );
 
-    const group = query(this, 'mx-connected-button-group')!;
+    const group = $(this, 'mx-connected-button-group')!;
     Object.keys(DEFAULT_BUTTON_ATTRIBUTES).forEach((attr) => {
       useAttribute(this, attr, (_, newValue) => {
         ATTRIBUTE.setRaw(group, attr, newValue);

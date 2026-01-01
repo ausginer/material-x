@@ -2,7 +2,7 @@ import type { EmptyObject } from 'type-fest';
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { ATTRIBUTE, Str } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import { query } from '../core/utils/DOM.ts';
+import { $ } from '../core/utils/DOM.ts';
 import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
 import linkButtonStyles from './styles/link-button.css.ts?type=css' with { type: 'css' };
 import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
@@ -70,7 +70,7 @@ export default class LinkButton extends ReactiveElement implements ButtonLike {
       { delegatesFocus: true },
     );
 
-    const anchor = query(this, 'a')!;
+    const anchor = $(this, 'a')!;
 
     ['href', 'target'].map((attribute) => {
       useAttribute(this, attribute, (_, value) =>

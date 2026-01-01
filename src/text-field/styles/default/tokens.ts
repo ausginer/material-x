@@ -124,6 +124,8 @@ const specialFilled = createVariables(
     'container.padding.inline': '16px',
     'support-text.gap': '4px',
     'container.focus.padding.block': '8px',
+    'input-text.prefix.gap': '2px',
+    'input-text.suffix.gap': '2px',
     'focus.easing': motionEffects['expressive.fast-spatial'],
     'focus.duration': motionEffects['expressive.fast-spatial.duration'],
     // It looks like there is some misalignment in token names since
@@ -135,13 +137,10 @@ const specialFilled = createVariables(
   }),
 );
 
-console.log(specialFilled);
-
 const packs: FromKeys<typeof TYPES, PackShape> = Object.fromEntries(
   TYPES.map((type) => {
     const setName = `md.comp.${type}-text-field`;
     const set = processTokenSet(setName);
-    console.log(set);
     const shapedSet = reshape(set, schema);
     const resolvedSet = applyToTextField(shapedSet, (tokens) =>
       resolveSet(tokens),
