@@ -24,14 +24,16 @@ import {
   DEFAULT_BUTTON_ATTRIBUTES,
 } from './useButtonCore.ts';
 
-const TEMPLATE = html`<mx-connected-button-group part="group">
-  <mx-button part="leading">
-    <slot name="icon" slot="icon"></slot><slot></slot>
-  </mx-button>
-  <mx-icon-button part="trailing">
-    <mx-icon>keyboard_arrow_down</mx-icon>
-  </mx-icon-button>
-</mx-connected-button-group>`;
+const TEMPLATE = html`
+  <mx-connected-button-group part="group">
+    <mx-button part="leading">
+      <slot name="icon" slot="icon"></slot><slot></slot>
+    </mx-button>
+    <mx-icon-button part="trailing">
+      <mx-icon>keyboard_arrow_down</mx-icon>
+    </mx-icon-button>
+  </mx-connected-button-group>
+`;
 
 export type SplitButtonProperties = Readonly<
   ButtonCoreProperties & {

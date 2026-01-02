@@ -4,7 +4,7 @@ const styles: string = await prettify(css`
   :host {
     position: relative;
   }
-
+  
   #ripple {
     position: absolute;
     inset: 0;
@@ -12,7 +12,7 @@ const styles: string = await prettify(css`
     border-radius: inherit;
     pointer-events: none;
     -webkit-tap-highlight-color: transparent;
-
+  
     &::before,
     &::after {
       content: '';
@@ -20,7 +20,7 @@ const styles: string = await prettify(css`
       opacity: 0;
       inset: 0;
     }
-
+  
     &::before {
       will-change: opacity, background-color;
       background-color: var(--_ripple-color);
@@ -28,12 +28,12 @@ const styles: string = await prettify(css`
         opacity 15ms linear,
         background-color 15ms linear;
     }
-
+  
     :host(:hover) &::before {
       background-color: var(--_ripple-color);
       opacity: var(--_ripple-opacity);
     }
-
+  
     &::after {
       will-change: transform, inset, opacity, background-image;
       width: 0;
@@ -45,15 +45,15 @@ const styles: string = await prettify(css`
       );
       transform-origin: center center;
     }
-
+  
     :host(:active) &::after {
       opacity: var(--_ripple-opacity);
     }
-
+  
     :host([disabled]) & {
       display: none;
     }
-
+  
     @media (forced-colors: active) {
       & {
         display: none;

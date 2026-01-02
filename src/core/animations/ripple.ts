@@ -124,7 +124,9 @@ export type CSSVariables = Readonly<{
   duration: string;
 }>;
 
-const TEMPLATE = html`<div id="ripple"></div>`;
+const TEMPLATE = html`
+  <div id="ripple"></div>
+`;
 
 class RippleAnimationController implements ReactiveController {
   readonly #host: ReactiveElement;

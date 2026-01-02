@@ -18,7 +18,8 @@ import numericStyles from './styles/numeric/main.css.ts?type=css' with { type: '
 import '../button/icon-button.ts';
 import '../icon/icon.ts';
 
-const TEMPLATE = html`<div id="input" contenteditable></div>
+const TEMPLATE = html`
+  <div id="input" contenteditable></div>
   <div id="steppers">
     <mx-icon-button color="standard" size="xsmall" id="up">
       <mx-icon>arrow_drop_up</mx-icon>
@@ -32,7 +33,8 @@ const TEMPLATE = html`<div id="input" contenteditable></div>
   <slot name="label" id="label"></slot>
   <slot name="suffix" id="suffix"></slot>
   <slot name="trail" id="trail"></slot>
-  <slot name="support" id="support"></slot>`;
+  <slot name="support" id="support"></slot>
+`;
 
 export type TextFieldInputMode =
   | 'numeric'

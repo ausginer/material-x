@@ -14,7 +14,9 @@ export type IconCSSProperties = Readonly<{
   '--md-icon-font'?: string;
 }>;
 
-const TEMPLATE = html`<slot></slot>`;
+const TEMPLATE = html`
+  <slot></slot>
+`;
 
 export default class Icon extends ReactiveElement {
   constructor() {

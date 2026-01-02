@@ -35,7 +35,9 @@ export type FABEvents = Readonly<{
 
 export type FABCSSProperties = EmptyObject;
 
-const TEMPLATE = html`<slot class="icon" name="icon"></slot><slot></slot>`;
+const TEMPLATE = html`
+  <slot class="icon" name="icon"></slot><slot></slot>
+`;
 
 /**
  * @attr {FABSize} size

@@ -4,11 +4,11 @@ const styles: string = await prettify(css`
   :host {
     padding: 0;
   }
-
+  
   :host(:focus-visible) {
     outline: none;
   }
-
+  
   a {
     border-radius: inherit;
     color: inherit;
@@ -22,10 +22,9 @@ const styles: string = await prettify(css`
     place-items: inherit;
     place-content: inherit;
   }
-
+  
   a:focus-visible {
-    outline: var(--_focus-indicator-thickness) solid
-      var(--_focus-indicator-color);
+    outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
     outline-offset: var(--_focus-indicator-outline-offset);
   }
 `);
