@@ -21,13 +21,13 @@ const styles: string = await prettify(css`
     white-space: nowrap;
     word-wrap: normal;
     flex-shrink: 0;
-  
+
     /* Support for all WebKit browsers. */
     -webkit-font-smoothing: antialiased;
-  
+
     /*  Support for Safari and Chrome. */
     text-rendering: optimizelegibility;
-  
+
     /* Support for Firefox. */
     -moz-osx-font-smoothing: grayscale;
   }

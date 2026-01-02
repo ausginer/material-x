@@ -31,7 +31,9 @@
     "demo:dev": "ladle serve",
     "demo:preview": "ladle preview",
     "demo:build": "ladle build",
+    "fmt": "oxfmt",
     "lint": "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts",
+    "lint:fix": "npm run lint -- --fix",
     "sass:debug": "node .scripts/sass.ts"
   },
   "devDependencies": {

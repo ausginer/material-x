@@ -36,6 +36,8 @@
     "./.scripts/**/*",
     "./.ladle/**/*",
     "./src",
+    "./src2/**/*",
+    "./src2/.tokens/**/*",
     "./types.d.ts",
     "./eslint.config.ts",
     "./vite.config.ts",
