@@ -52,9 +52,19 @@ export function resolve(
   ...adjusts: readonly ResolveAdjuster[]
 ): ProcessedTokenValue | null | undefined {
   const path = [tokenName];
+  const seen = new Set<string>();
   let v: ProcessedTokenValue | null | undefined = value;
 
   while (isLinkedToken(v)) {
+    if (seen.has(v)) {
+      console.error(
+        `Token reference cycle detected: ${[...path, v].join(' -> ')}`,
+      );
+      return null;
+    }
+
+    seen.add(v);
+
     if (v.includes(COLOR_SET)) {
       path.push(v);
       v = db.theme.schemes.light[camelCase(v.replace(`${COLOR_SET}.`, ''))];
@@ -62,8 +72,8 @@ export function resolve(
     }
 
     // Since function is executed immediately, it's ok.
-    // eslint-disable-next-line @typescript-eslint/no-loop-func
-    const token = db.tokens.find((t) => t.tokenName === v);
+
+    const token = db.getToken(v);
 
     if (!token) {
       return null;

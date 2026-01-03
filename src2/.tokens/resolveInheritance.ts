@@ -1,0 +1,215 @@
+import type { TokenSet, ExtensionEntry, TokenValue } from './utils.ts';
+
+/**
+ * Resolves inheritance and dedupes tokens based on the provided extensions.
+ * Returns deduped token sets and a topological order of the nodes.
+ */
+
+export function resolveInheritance(
+  nodes: Readonly<Record<string, TokenSet>>,
+  extensions: Readonly<Record<string, ExtensionEntry>>,
+  orderHint: readonly string[] = [],
+): {
+  deduped: Readonly<Record<string, TokenSet>>;
+  order: readonly string[];
+} {
+  // Track parent refs in declaration order, plus local refs for graph building.
+  const orderedParents: Record<string, ExtensionEntry['parents']> = {};
+  const localParents: Record<string, string[]> = {};
+  const nodeKeys = Object.keys(nodes);
+
+  for (const key of nodeKeys) {
+    orderedParents[key] = [];
+    localParents[key] = [];
+  }
+
+  for (const [key, entry] of Object.entries(extensions)) {
+    if (!Object.hasOwn(nodes, key)) {
+      throw new Error(`Unknown node for extension: ${key}`);
+    }
+
+    orderedParents[key] = entry.parents;
+    localParents[key] = entry.parents
+      .filter((parent) => parent.kind === 'local')
+      .map((parent) => parent.key);
+  }
+
+  // Use the hint to stabilize topological ordering when siblings are free.
+  const orderIndex = orderHint.reduce<Record<string, number>>(
+    (acc, key, index) => {
+      acc[key] = index;
+      return acc;
+    },
+    {},
+  );
+
+  // Build adjacency + indegree for the local extension graph.
+  const inDegree: Record<string, number> = {};
+  const children: Record<string, string[]> = {};
+
+  for (const key of nodeKeys) {
+    inDegree[key] = 0;
+    children[key] = [];
+  }
+
+  for (const [childKey, parents] of Object.entries(localParents)) {
+    for (const parentKey of parents) {
+      if (!Object.hasOwn(nodes, parentKey)) {
+        throw new Error(`Unknown parent node: ${parentKey}`);
+      }
+
+      children[parentKey]?.push(childKey);
+      inDegree[childKey] = (inDegree[childKey] ?? 0) + 1;
+    }
+  }
+
+  // Kahn's algorithm with a stable queue ordering.
+  const queue = nodeKeys.filter((key) => (inDegree[key] ?? 0) === 0);
+  queue.sort((a, b) => {
+    const aIndex = orderIndex[a] ?? Number.MAX_SAFE_INTEGER;
+    const bIndex = orderIndex[b] ?? Number.MAX_SAFE_INTEGER;
+
+    if (aIndex !== bIndex) {
+      return aIndex - bIndex;
+    }
+
+    return a.localeCompare(b);
+  });
+
+  const ordered: string[] = [];
+
+  while (queue.length > 0) {
+    const key = queue.shift();
+
+    if (!key) {
+      continue;
+    }
+
+    ordered.push(key);
+
+    for (const child of children[key] ?? []) {
+      const next = (inDegree[child] ?? 0) - 1;
+      inDegree[child] = next;
+
+      if (next === 0) {
+        queue.push(child);
+        queue.sort((a, b) => {
+          const aIndex = orderIndex[a] ?? Number.MAX_SAFE_INTEGER;
+          const bIndex = orderIndex[b] ?? Number.MAX_SAFE_INTEGER;
+
+          if (aIndex !== bIndex) {
+            return aIndex - bIndex;
+          }
+
+          return a.localeCompare(b);
+        });
+      }
+    }
+  }
+
+  if (ordered.length !== nodeKeys.length) {
+    throw new Error('Extension graph has a cycle');
+  }
+
+  // Walk in topo order: compute effective tokens and dedupe against inherited.
+  const effective: Record<string, TokenSet> = {};
+  const deduped: Record<string, TokenSet> = {};
+
+  for (const key of ordered) {
+    const node = nodes[key];
+
+    if (!node) {
+      continue;
+    }
+
+    let inherited: Record<string, TokenValue> = {};
+
+    for (const parent of orderedParents[key] ?? []) {
+      if (parent.kind === 'local') {
+        const parentTokens = effective[parent.key];
+
+        if (!parentTokens) {
+          throw new Error(`Missing parent tokens for ${parent.key}`);
+        }
+
+        inherited = { ...inherited, ...parentTokens };
+        continue;
+      }
+
+      inherited = { ...inherited, ...parent.tokens };
+    }
+
+    const resolved = node;
+    const effectiveTokens = { ...inherited, ...resolved };
+    const dedupedTokens = Object.fromEntries(
+      Object.entries(resolved).filter(
+        ([name, value]) => inherited[name] !== value,
+      ),
+    );
+
+    effective[key] = effectiveTokens;
+    deduped[key] = dedupedTokens;
+  }
+
+  return { deduped, order: ordered };
+}
+
+if (import.meta.vitest) {
+  const { describe, it, expect } = import.meta.vitest;
+
+  describe('resolveInheritance', () => {
+    it('should dedupe tokens', () => {
+      const nodes: Readonly<Record<string, TokenSet>> = {
+        default: { 'container.elevation': 0 },
+        hovered: { 'container.elevation': 0, 'state-layer.opacity': 0.08 },
+      };
+
+      const extensions: Readonly<Record<string, ExtensionEntry>> = {
+        default: {
+          path: 'default',
+          parents: [],
+        },
+        hovered: {
+          path: 'hovered',
+          parents: [{ kind: 'local', key: 'default' }],
+        },
+      };
+
+      const result = resolveInheritance(nodes, extensions, [
+        'default',
+        'hovered',
+      ]);
+
+      expect(result.deduped['hovered']).toEqual({
+        'state-layer.opacity': 0.08,
+      });
+    });
+
+    it('should respect parent declaration order', () => {
+      const nodes: Readonly<Record<string, TokenSet>> = {
+        base: { 'container.elevation': 2 },
+        child: { 'container.elevation': 2 },
+      };
+
+      const external: TokenSet = { 'container.elevation': 1 };
+
+      const extensions: Readonly<Record<string, ExtensionEntry>> = {
+        base: {
+          path: 'base',
+          parents: [],
+        },
+        child: {
+          path: 'child',
+          parents: [
+            { kind: 'external', tokens: external },
+            { kind: 'local', key: 'base' },
+          ],
+        },
+      };
+
+      const result = resolveInheritance(nodes, extensions, ['base', 'child']);
+
+      expect(result.deduped['child']).toEqual({});
+    });
+  });
+}

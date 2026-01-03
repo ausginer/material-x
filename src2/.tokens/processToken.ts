@@ -75,7 +75,7 @@ export default function processToken(token: Token): ProcessedTokenValue | null {
   }
 
   if (fontNames != null) {
-    return fontNames.values.map((name) => `'${name}'`).join(', ');
+    return fontNames.values.map((name) => JSON.stringify(name)).join(', ');
   }
 
   if (fontTracking != null) {

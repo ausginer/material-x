@@ -11,6 +11,56 @@
   - Code size. Sometimes, the smaller codebase gives more performance (loading speed) over the performance bigger codebase could give. So, code size should also be as small as possible unless it starts to hurt performance. However, keep in mind that the code will be shipped to production minified, so the private variables/fields/functions/methods could have long names since they eventually are mangled.
   - Readability. Though readability has the less priority, it doesn't mean it is not important. Code has to be maintainable. The least priority just means that DX shouldn't preveal over UX. Sometimes, comment is better than less performant / more robust implementation.
 
+### Unit-tests
+
+When you are working on unit tests, follow the rules:
+
+- Always use `describe` for a unit you're testing.
+- Each `it` should describe only one specific logic part of a unit. Do not mix them up.
+- `it` should start with (in most cases) or should include `should` word.
+
+Example of incorrect test:
+
+```ts
+// Testing a `buildSelector` function in `it` without `describe.
+it('buildSelector builds state and scoped selectors', () => {
+  // Testging three different logic parts at once:
+
+  // Scope testing
+  expect(buildSelector('default', { name: 'color', value: 'elevated' })).toBe(
+    ':host([color="elevated"])',
+  );
+
+  // Built-in state testing
+  expect(buildSelector('hovered', undefined)).toBe(':host(:hover)');
+
+  // Custom state testing
+  expect(buildSelector('selected', undefined)).toBe(':host(:state(selected))');
+});
+```
+
+Correct test:
+
+```ts
+describe('buildSelector', () => {
+  it('should build scoped selector', () => {
+    expect(buildSelector('default', { name: 'color', value: 'elevated' })).toBe(
+      ':host([color="elevated"])',
+    );
+  });
+
+  it('should build built-in state selector', () => {
+    expect(buildSelector('hovered', undefined)).toBe(':host(:hover)');
+  });
+
+  it('should build custom state selector', () => {
+    expect(buildSelector('selected', undefined)).toBe(
+      ':host(:state(selected))',
+    );
+  });
+});
+```
+
 ## CSS.TS
 
 Files with `.css.ts` extensions are ment to be compiled for browser usage. They are transformed into regular CSS files. To debug them and check how they look in CSS form, you should use `npm run debug -- <relative file path>` command. E.g., if you want to see how `src/button/styles/default/main.css.ts` file gonna look like in the CSS format, you have to run `npm run debug -- src/button/styles/default/main.css.ts`. Then, stdout will give you the CSS text.

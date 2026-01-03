@@ -2,10 +2,10 @@ import processTokenSet, {
   type ProcessedTokenValue,
 } from './processTokenSet.ts';
 import { resolveSet } from './resolve.ts';
+import { resolveInheritance } from './resolveInheritance.ts';
 import { TokenPackage } from './TokenPackage.ts';
 import {
   defaultGroup,
-  resolveInheritance,
   type AppendInput,
   type ExtensionEntry,
   type ExtensionManager,
@@ -50,6 +50,14 @@ export class TokenPackageProcessor {
 
   /**
    * Scopes all rendered selectors to a single variant attribute.
+   *
+   * @example
+   * ```ts
+   * const processor = new TokerPackageProcessor('md.comp.button')
+   *   .scope('color', 'elevated');
+   *
+   * // => :host([color='elevated'])
+   * ```
    */
   scope(name: string, value: string): this {
     this.#scope = { name, value };
