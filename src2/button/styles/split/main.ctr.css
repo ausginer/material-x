@@ -1,0 +1,37 @@
+:host {
+  display: contents;
+}
+
+mx-icon-button {
+  transition: border-radius var(--_menu-button-press-duration)
+    var(--_menu-button-press-easing);
+}
+
+mx-icon-button:active,
+:host([open]) mx-icon-button {
+  --_container-shape: var(--_shape-full);
+  --_inner-corner-corner-size: var(--_shape-full);
+}
+
+mx-button {
+  --_leading-space: var(--_leading-button-leading-space);
+  --_trailing-space: var(--_leading-button-trailing-space);
+}
+
+mx-icon-button {
+  --_leading-space: var(--_trailing-button-leading-space);
+  --_trailing-space: var(--_trailing-button-trailing-space);
+}
+
+mx-icon {
+  /* TODO: switch mx-icon to --_icon-size. */
+  --md-icon-size: var(--_trailing-button-icon-size);
+
+  transition: transform var(--_menu-button-press-duration)
+    var(--_menu-button-press-easing);
+}
+
+mx-icon:active,
+:host([open]) mx-icon {
+  transform: rotate(180deg);
+}

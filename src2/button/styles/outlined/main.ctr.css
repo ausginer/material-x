@@ -1,0 +1,11 @@
+:host([color='outlined']),
+:host(:state(outlined):not([color])) {
+  border: var(--_outline-width) solid var(--_outline-color);
+}
+
+:host([color='outlined'])::before,
+:host([color='outlined'])::after,
+:host(:state(outlined):not([color]))::before,
+:host(:state(outlined):not([color]))::after {
+  content: '';
+}
