@@ -1,11 +1,7 @@
 import kebabCase from 'just-kebab-case';
-import {
-  TextTransform,
-  TokenShapeFamily,
-  type Token,
-} from '../../src/core/tokens/TokenTable.ts';
 import db from './DB.ts';
 import type { ProcessedTokenValue } from './processTokenSet.ts';
+import { TextTransform, TokenShapeFamily, type Token } from './TokenTable.ts';
 import { rgbaToHex } from './utils.ts';
 
 export default function processToken(token: Token): ProcessedTokenValue | null {

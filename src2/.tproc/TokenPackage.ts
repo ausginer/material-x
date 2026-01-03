@@ -15,23 +15,34 @@ export type RenderAdjuster = (
   block: RenderBlock,
 ) => RenderBlock | readonly RenderBlock[] | null | undefined;
 
+export type TokenPackageOptions = Readonly<{
+  scope?: VariantScope;
+  nodes: Readonly<Record<string, TokenSet>>;
+  effective: Readonly<Record<string, TokenSet>>;
+  order: readonly string[];
+  renderAdjusters?: readonly RenderAdjuster[];
+}>;
+
 export class TokenPackage {
   readonly #scope?: VariantScope;
   readonly #nodes: Readonly<Record<string, TokenSet>>;
+  readonly #effective: Readonly<Record<string, TokenSet>>;
   readonly #order: readonly string[];
   readonly #renderAdjusters: readonly RenderAdjuster[];
 
   /**
    * Stores deduped tokens for a single component scope.
    */
-  constructor(
-    scope: VariantScope | undefined,
-    nodes: Readonly<Record<string, TokenSet>>,
-    order: readonly string[],
-    renderAdjusters: readonly RenderAdjuster[] = [],
-  ) {
+  constructor({
+    scope,
+    nodes,
+    effective,
+    order,
+    renderAdjusters = [],
+  }: TokenPackageOptions) {
     this.#scope = scope;
     this.#nodes = nodes;
+    this.#effective = effective;
     this.#order = order;
     this.#renderAdjusters = renderAdjusters;
   }
@@ -45,6 +56,13 @@ export class TokenPackage {
    */
   state(path: string): TokenSet | undefined {
     return this.#nodes[path];
+  }
+
+  /**
+   * Returns the fully resolved token map for a state path, if present.
+   */
+  effective(path: string): TokenSet | undefined {
+    return this.#effective[path];
   }
 
   /**

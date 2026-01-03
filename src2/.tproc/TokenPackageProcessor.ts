@@ -206,12 +206,18 @@ export class TokenPackageProcessor {
       resolved[key] = filtered;
     }
 
-    const { deduped, order } = resolveInheritance(
+    const { deduped, effective, order } = resolveInheritance(
       resolved,
       this.#extensions,
       orderHint,
     );
 
-    return new TokenPackage(this.#scope, deduped, order, this.#renderAdjusters);
+    return new TokenPackage({
+      scope: this.#scope,
+      nodes: deduped,
+      effective,
+      order,
+      renderAdjusters: this.#renderAdjusters,
+    });
   }
 }

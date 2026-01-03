@@ -11,6 +11,7 @@ export function resolveInheritance(
   orderHint: readonly string[] = [],
 ): {
   deduped: Readonly<Record<string, TokenSet>>;
+  effective: Readonly<Record<string, TokenSet>>;
   order: readonly string[];
 } {
   // Track parent refs in declaration order, plus local refs for graph building.
@@ -151,7 +152,7 @@ export function resolveInheritance(
     deduped[key] = dedupedTokens;
   }
 
-  return { deduped, order: ordered };
+  return { deduped, effective, order: ordered };
 }
 
 if (import.meta.vitest) {

@@ -1,9 +1,5 @@
-import type { Param } from '../../src/core/tokens/selector.ts';
-import {
-  attribute,
-  pseudoClass,
-  selector,
-} from '../../src/core/tokens/selector.ts';
+import type { Param } from './selector.ts';
+import { attribute, pseudoClass, selector } from './selector.ts';
 import type { Token } from './TokenTable.ts';
 
 export const root: URL = new URL('../../', import.meta.url);
