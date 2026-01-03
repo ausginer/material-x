@@ -1,5 +1,7 @@
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { MessageChannel, Worker } from 'node:worker_threads';
+import { minify } from '@minify-html/node';
 import { computed, signal } from '@preact/signals-core';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
@@ -9,10 +11,125 @@ export type ConstructCSSOptions = Readonly<{
   isProd: boolean;
 }>;
 
+export type ConstructCtrCSSOptions = Readonly<{
+  isProd: boolean;
+}>;
+
+export type ConstructTplHTMLOptions = Readonly<{
+  isProd: boolean;
+}>;
+
 const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
   await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {
     with: { type: 'json' },
   });
+
+function normalizePath(target: string, base?: string): string {
+  if (!base && !target.includes('?') && !target.includes('#')) {
+    return target;
+  }
+
+  const url = new URL(
+    target,
+    base ? pathToFileURL(base) : pathToFileURL(import.meta.dirname),
+  );
+
+  url.search = '';
+  url.hash = '';
+
+  return fileURLToPath(url);
+}
+
+export function constructCtrCSS(options?: ConstructCtrCSSOptions): Plugin {
+  const plugin: Plugin = {
+    name: 'vite-construct-ctr-css',
+    enforce: 'pre',
+    resolveId: {
+      filter: {
+        id: {
+          include: /\.ctr\.css(?:[?#].*)?$/,
+        },
+      },
+      order: 'pre',
+      handler(source, importer) {
+        return normalizePath(source, importer);
+      },
+    },
+    load: {
+      filter: {
+        id: {
+          include: /\.ctr\.css(?:[?#].*)?$/,
+        },
+      },
+      async handler(id) {
+        const cleanId = normalizePath(id);
+        const source = await readFile(cleanId, 'utf8');
+        const { code, map } = await compileCSS(
+          pathToFileURL(cleanId),
+          source,
+          options,
+        );
+
+        this.addWatchFile(cleanId);
+
+        return {
+          code,
+          map,
+        };
+      },
+    },
+  };
+
+  return plugin;
+}
+
+export function constructTplHTML(options?: ConstructTplHTMLOptions): Plugin {
+  const isProd = options?.isProd ?? false;
+  const minifyConfig = {
+    minify_css: true,
+    minify_js: true,
+    keep_comments: !isProd,
+  } as const;
+
+  const plugin: Plugin = {
+    name: 'vite-construct-tpl-html',
+    enforce: 'pre',
+    resolveId: {
+      filter: {
+        id: {
+          include: /\.tpl\.html(?:[?#].*)?$/,
+        },
+      },
+      order: 'pre',
+      handler(source, importer) {
+        return normalizePath(source, importer);
+      },
+    },
+    load: {
+      filter: {
+        id: {
+          include: /\.tpl\.html(?:[?#].*)?$/,
+        },
+      },
+      async handler(id) {
+        const cleanId = normalizePath(id);
+        const source = await readFile(cleanId);
+        const minified = minify(source, minifyConfig).toString();
+        const code = `const template = document.createElement('template');template.innerHTML = ${JSON.stringify(
+          minified,
+        )};export default template;`;
+
+        this.addWatchFile(cleanId);
+
+        return {
+          code,
+        };
+      },
+    },
+  };
+
+  return plugin;
+}
 
 export function constructCSS(options?: ConstructCSSOptions): Plugin {
   const trackedFiles = signal<Record<string, Set<string>>>({});
@@ -44,8 +161,7 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
       },
       order: 'pre',
       handler(source, importer) {
-        const url = new URL(source, pathToFileURL(importer!));
-        return fileURLToPath(url);
+        return normalizePath(source, importer);
       },
     },
     load: {
@@ -55,6 +171,7 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
         },
       },
       async handler(id) {
+        const cleanId = normalizePath(id);
         const { port1, port2 } = new MessageChannel();
         const deps = new Set<string>();
 
@@ -74,7 +191,7 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
                 ),
               ],
               workerData: {
-                id,
+                id: cleanId,
                 monitorPort: port2,
               },
               transferList: [port2],
@@ -91,16 +208,16 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
 
         trackedFiles.value = {
           ...trackedFiles.peek(),
-          [id]: deps,
+          [cleanId]: deps,
         };
 
         const { code, map } = await compileCSS(
-          pathToFileURL(id.replace(/\.ts$/u, '')),
+          pathToFileURL(cleanId.replace(/\.ts$/u, '')),
           result,
           options,
         );
 
-        this.addWatchFile(id);
+        this.addWatchFile(cleanId);
 
         return {
           code,

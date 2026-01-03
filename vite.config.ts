@@ -1,7 +1,11 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig, type ConfigEnv, type UserConfigFnObject } from 'vite';
-import { constructCSS } from './.scripts/vite-plugins.js';
+import {
+  constructCSS,
+  constructCtrCSS,
+  constructTplHTML,
+} from './.scripts/vite-plugins.js';
 
 const root = pathToFileURL(`${import.meta.dirname}/`);
 
@@ -22,7 +26,12 @@ const config: UserConfigFnObject = defineConfig(({ command }: ConfigEnv) => ({
     },
   },
   cacheDir: fileURLToPath(new URL('.vite/', root)),
-  plugins: [constructCSS({ isProd: command === 'build' }), react()],
+  plugins: [
+    constructCtrCSS({ isProd: command === 'build' }),
+    constructTplHTML({ isProd: command === 'build' }),
+    constructCSS({ isProd: command === 'build' }),
+    react(),
+  ],
 }));
 
 export default config;
