@@ -15,6 +15,12 @@ const config: readonly Config[] = defineConfig(
       '@typescript-eslint/no-use-before-define': 'off',
       '@typescript-eslint/no-shadow': 'off',
       '@typescript-eslint/unbound-method': 'off',
+      'import-x/no-unresolved': [
+        'error',
+        {
+          ignore: ['\\.css$', '\\.html$'],
+        },
+      ],
       'import-x/no-unassigned-import': 'off',
       'import-x/no-duplicates': 'off',
       'import-x/prefer-default-export': 'off',

@@ -1,9 +1,9 @@
 import processTokenSet, {
   type ProcessedTokenValue,
 } from './processTokenSet.ts';
-import { resolveSet } from './resolve.ts';
+import { resolveSet, type ResolveAdjuster } from './resolve.ts';
 import { resolveInheritance } from './resolveInheritance.ts';
-import { TokenPackage } from './TokenPackage.ts';
+import { TokenPackage, type RenderAdjuster } from './TokenPackage.ts';
 import {
   defaultGroup,
   type AppendInput,
@@ -39,6 +39,8 @@ export class TokenPackageProcessor {
   #group: Grouper = defaultGroup;
   #allowedTokens?: AllowedTokenMap;
   #extensionCallback?: ExtensionCallback;
+  readonly #tokenAdjusters: ResolveAdjuster[] = [];
+  readonly #renderAdjusters: RenderAdjuster[] = [];
 
   /**
    * Creates a processor for a token set name.
@@ -95,6 +97,22 @@ export class TokenPackageProcessor {
     this.#allowedTokens = Object.fromEntries(
       tokens.map((token) => [token, true] as const),
     );
+    return this;
+  }
+
+  /**
+   * Adds token value adjusters applied during resolve.
+   */
+  adjustTokens(...adjusters: readonly ResolveAdjuster[]): this {
+    this.#tokenAdjusters.push(...adjusters);
+    return this;
+  }
+
+  /**
+   * Adds render adjusters applied during CSS output.
+   */
+  adjustRender(...adjusters: readonly RenderAdjuster[]): this {
+    this.#renderAdjusters.push(...adjusters);
     return this;
   }
 
@@ -176,7 +194,7 @@ export class TokenPackageProcessor {
     const resolved: Record<string, TokenSet> = {};
 
     for (const [key, node] of Object.entries(nodes)) {
-      const tokens = resolveSet(node);
+      const tokens = resolveSet(node, ...this.#tokenAdjusters);
       const filtered = this.#allowedTokens
         ? Object.fromEntries(
             Object.entries(tokens).filter(
@@ -194,6 +212,6 @@ export class TokenPackageProcessor {
       orderHint,
     );
 
-    return new TokenPackage(this.#scope, deduped, order);
+    return new TokenPackage(this.#scope, deduped, order, this.#renderAdjusters);
   }
 }

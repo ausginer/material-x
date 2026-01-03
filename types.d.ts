@@ -27,7 +27,17 @@ declare module '*.module.css' {
   export default styles;
 }
 
+declare module '*.ctr.css' {
+  const styles: CSSStyleSheet;
+  export default styles;
+}
+
 declare module '*.ts?type=css' {
   const styles: CSSStyleSheet;
   export default styles;
+}
+
+declare module '*.tpl.html' {
+  const html: HTMLTemplateElement;
+  export default html;
 }

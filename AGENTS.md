@@ -75,4 +75,4 @@ When you are going to implement any feature, fix or anything else, first prepare
 
 ## Architecture
 
-You can find architecture insights from your analysis in `.agents/docs/architecture.md`.
+You can find architecture insights from your analysis in `.agent/docs/architecture.md`.
