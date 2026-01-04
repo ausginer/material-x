@@ -12,17 +12,11 @@ const config: UserConfig = defineConfig({
     target: 'esnext',
   },
   cacheDir: '.vite',
-  esbuild: {
-    supported: {
-      decorators: false,
-      'top-level-await': true,
-    },
-  },
   test: {
     includeSource: ['src2/**/*.ts'],
+    setupFiles: ['src2/.tproc/__tests__/setup.ts'],
     coverage: {
       enabled: false,
-      all: true,
       provider: 'v8',
       reportsDirectory: fileURLToPath(new URL('.coverage/', cwd)),
       clean: true,

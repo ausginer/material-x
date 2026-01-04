@@ -3,6 +3,7 @@
 - Always use Baseline-2025 features. Choose modern features over their older analogues even though they could have less support.
 - Use native browser / NodeJS features wherever possible over libraries (e.g., you should use native private fields / methods over TypeScript ones).
 - Each edited source file (.tsx?, .css, .html) should be formatted afterwards. Use `npm run fmt` for that.
+- After every source-related task completed, run `npm run typecheck` command to find all TypeScript issues. They should be fixed before linting.
 - After every source-related task completed run `npm run lint:fix` command to find and fix ESLint issues. If autofix didn't work, the linting issue should be addressed.
   - It is preferred that linting issue is addressed correctly without suppressing.
   - However, if addressing linting issue looks too cumbersome, issue should be suppressed.
@@ -76,3 +77,6 @@ When you are going to implement any feature, fix or anything else, first prepare
 ## Architecture
 
 You can find architecture insights from your analysis in `.agent/docs/architecture.md`.
+You can find CSS architecture reiteration in `.agent/docs/css-inheritance.md`.
+
+`src2/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
