@@ -1,4 +1,4 @@
-import db from './DB.ts';
+import db from './DB/index.ts';
 import processToken from './processToken.ts';
 
 export type ProcessedTokenValue =

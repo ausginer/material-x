@@ -1,6 +1,6 @@
 import camelCase from 'just-camel-case';
 import kebabCase from 'just-kebab-case';
-import db from './DB.ts';
+import db from './DB/index.ts';
 import processToken from './processToken.ts';
 import type {
   ProcessedTokenSet,

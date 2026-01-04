@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { SetRequired } from 'type-fest';
-import type { MaterialTheme } from './MaterialTheme.ts';
+import type { MaterialTheme } from '../MaterialTheme.ts';
 import type {
   ContextTag,
   ContextTagGroup,
@@ -12,10 +12,10 @@ import type {
   TokenSystem,
   TokenTable,
   Value,
-} from './TokenTable.ts';
-import { distinct, getSetName, root, type JSONModule } from './utils.ts';
+} from '../TokenTable.ts';
+import { distinct, getSetName, root, type JSONModule } from '../utils.ts';
 
-const DEFAULT_THEME_URL = new URL('./default-theme.json', import.meta.url);
+const DEFAULT_THEME_URL = new URL('../default-theme.json', import.meta.url);
 const CACHE_DIR = new URL('.data/tokens/', root);
 function isTokenTable(value: unknown): value is TokenTable {
   if (typeof value !== 'object' || value === null) {
@@ -262,7 +262,3 @@ export class DB {
 function isTokenSetDeprecated(set?: MaybeOrphanTokenSet): boolean {
   return !!set?.displayName?.startsWith('[Deprecated]');
 }
-
-const db: DB = await DB.load();
-
-export default db;

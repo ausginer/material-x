@@ -1,5 +1,5 @@
 import kebabCase from 'just-kebab-case';
-import db from './DB.ts';
+import db from './DB/index.ts';
 import type { ProcessedTokenValue } from './processTokenSet.ts';
 import { TextTransform, TokenShapeFamily, type Token } from './TokenTable.ts';
 import { rgbaToHex } from './utils.ts';

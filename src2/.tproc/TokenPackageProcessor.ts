@@ -154,7 +154,7 @@ export class TokenPackageProcessor {
       state: (path) => {
         const key = path;
 
-        return {
+        const extendable: Extendable = {
           path,
           extends: (...parents) => {
             const refs: ParentRef[] = [];
@@ -176,8 +176,12 @@ export class TokenPackageProcessor {
             }
 
             this.#extensions[key] = { path, parents: refs };
+
+            return extendable;
           },
         };
+
+        return extendable;
       },
     });
 

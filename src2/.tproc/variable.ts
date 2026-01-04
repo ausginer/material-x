@@ -4,7 +4,7 @@ export type CSSVariableSet = Readonly<Record<string, CSSVariable>>;
 
 export class CSSVariable {
   static withValue(variable: CSSVariable, value: string | number): CSSVariable {
-    return new CSSVariable(variable.name, value, variable.#prefix);
+    return new CSSVariable(variable.raw, value, variable.#prefix);
   }
 
   static equals(v1: unknown, v2: unknown): boolean {

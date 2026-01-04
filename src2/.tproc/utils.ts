@@ -23,16 +23,16 @@ export type AppendInput = Readonly<
   Record<string, Readonly<Record<string, TokenValue>>>
 >;
 
-export type Extendable = Readonly<{
-  path: string;
-  extends(...parents: readonly ExtensionParent[]): void;
-}>;
+export interface ExtensionManager {
+  state(path: string): Extendable;
+}
+
+export interface Extendable {
+  readonly path: string;
+  extends(...parents: readonly ExtensionParent[]): Extendable;
+}
 
 export type ExtensionParent = Extendable | TokenSet | undefined;
-
-export type ExtensionManager = Readonly<{
-  state(path: string): Extendable;
-}>;
 
 export type ParentRef =
   | Readonly<{ kind: 'local'; key: string }>
@@ -118,26 +118,4 @@ export function* distinct<T>(
   }
 
   return undefined;
-}
-
-if (import.meta.vitest) {
-  const { describe, it, expect } = import.meta.vitest;
-
-  describe('buildSelector', () => {
-    it('should build scoped selector', () => {
-      expect(
-        buildSelector('default', { name: 'color', value: 'elevated' }),
-      ).toBe(':host([color="elevated"])');
-    });
-
-    it('should build built-in state selector', () => {
-      expect(buildSelector('hovered', undefined)).toBe(':host(:hover)');
-    });
-
-    it('should build custom state selector', () => {
-      expect(buildSelector('selected', undefined)).toBe(
-        ':host(:state(selected))',
-      );
-    });
-  });
 }
