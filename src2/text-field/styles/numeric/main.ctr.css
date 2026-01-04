@@ -1,0 +1,14 @@
+#steppers {
+  display: none;
+  flex-direction: column;
+  align-self: center;
+
+  mx-icon {
+    height: 10px;
+  }
+}
+
+:host([mode='numeric']) #steppers {
+  grid-area: steppers;
+  display: flex;
+}
