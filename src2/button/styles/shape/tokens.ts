@@ -1,4 +1,4 @@
-import { computed } from '@preact/signals-core';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t } from '../../../.tproc/index.ts';
 import type {
   RenderAdjuster,
@@ -32,8 +32,5 @@ const createPackage = (
     .adjustRender(createVariantStateAdjuster('shape', shape), ...extraAdjusters)
     .build();
 
-const shapeTokens = SHAPES.map((shape) => computed(() => createPackage(shape)));
-
-export function renderShapeTokens(): string {
-  return shapeTokens.map((token) => token.value.render()).join('\n\n');
-}
+export const shapeTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  SHAPES.map((shape) => computed(() => createPackage(shape)));

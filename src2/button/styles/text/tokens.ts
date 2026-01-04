@@ -1,5 +1,5 @@
-import { computed } from '@preact/signals-core';
-import { t } from '../../../.tproc/index.ts';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
+import { t, type TokenPackage } from '../../../.tproc/index.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
   BUTTON_ALLOWED_TOKENS,
@@ -24,7 +24,7 @@ const omitSelectedShape = omitTokensInPaths(['container.shape'], (path) =>
   path.startsWith('selected.'),
 );
 
-export const textTokens = computed(() =>
+export const textTokens: ReadonlySignal<TokenPackage> = computed(() =>
   t
     .set(SET_NAME)
     .scope(COLOR_ATTRIBUTE, COLOR_VALUE)

@@ -1,6 +1,5 @@
-import { prettify } from '../../../.tproc/css.ts';
 import { defaultSwitchTokens } from './tokens.ts';
 
-const styles: string = await prettify(defaultSwitchTokens.value.render());
+const styles: string = defaultSwitchTokens.value.render();
 
 export default styles;

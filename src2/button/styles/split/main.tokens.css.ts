@@ -1,6 +1,8 @@
-import { prettify } from '../../../.tproc/css.ts';
-import { renderSplitTokens } from './tokens.ts';
+import { sizeTokens, splitDefaultTokens } from './tokens.ts';
 
-const styles: string = await prettify(renderSplitTokens());
+const styles: string = [
+  splitDefaultTokens.value.render(),
+  ...sizeTokens.map((token) => token.value.render()),
+].join('\n\n');
 
 export default styles;

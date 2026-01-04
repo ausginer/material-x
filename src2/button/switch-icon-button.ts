@@ -7,18 +7,18 @@ import type {
   IconButtonProperties,
   IconButtonWidth,
 } from './icon-button.ts';
-import switchDefaultTokens from './styles/default/switch.tokens.css.ts?type=css' with { type: 'css' };
+import switchDefaultTokens from './styles/default/switch.tokens.css.ts' with { type: 'css' };
 import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
-import elevatedTokens from './styles/elevated/main.tokens.css.ts?type=css' with { type: 'css' };
-import switchElevatedTokens from './styles/elevated/switch.tokens.css.ts?type=css' with { type: 'css' };
-import iconTokens from './styles/icon/main.tokens.css.ts?type=css' with { type: 'css' };
-import switchIconTokens from './styles/icon/switch.tokens.css.ts?type=css' with { type: 'css' };
+import elevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
+import switchElevatedTokens from './styles/elevated/switch.tokens.css.ts' with { type: 'css' };
+import iconTokens from './styles/icon/main.tokens.css.ts' with { type: 'css' };
+import switchIconTokens from './styles/icon/switch.tokens.css.ts' with { type: 'css' };
 import mainOutlinedStyles from './styles/outlined/main.ctr.css' with { type: 'css' };
-import outlinedTokens from './styles/outlined/main.tokens.css.ts?type=css' with { type: 'css' };
-import switchOutlinedTokens from './styles/outlined/switch.tokens.css.ts?type=css' with { type: 'css' };
-import switchSizeTokens from './styles/size/switch.tokens.css.ts?type=css' with { type: 'css' };
-import tonalTokens from './styles/tonal/main.tokens.css.ts?type=css' with { type: 'css' };
-import switchTonalTokens from './styles/tonal/switch.tokens.css.ts?type=css' with { type: 'css' };
+import outlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
+import switchOutlinedTokens from './styles/outlined/switch.tokens.css.ts' with { type: 'css' };
+import switchSizeTokens from './styles/size/switch.tokens.css.ts' with { type: 'css' };
+import tonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
+import switchTonalTokens from './styles/tonal/switch.tokens.css.ts' with { type: 'css' };
 import {
   createButtonAccessors,
   useButtonCore,

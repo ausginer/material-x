@@ -9,12 +9,12 @@ import {
   getInternals,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
+import elevationStyles from '../core/styles/elevation.css.ts' with { type: 'css' };
 import { useCore } from '../core/utils/useCore.ts';
 import defaultMainStyles from './styles/default/main.ctr.css' with { type: 'css' };
-import defaultTokens from './styles/default/main.tokens.css.ts?type=css' with { type: 'css' };
-import shapeTokens from './styles/shape/main.tokens.css.ts?type=css' with { type: 'css' };
-import sizeTokens from './styles/size/main.tokens.css.ts?type=css' with { type: 'css' };
+import defaultTokens from './styles/default/main.tokens.css.ts' with { type: 'css' };
+import shapeTokens from './styles/shape/main.tokens.css.ts' with { type: 'css' };
+import sizeTokens from './styles/size/main.tokens.css.ts' with { type: 'css' };
 
 export interface ButtonLike {
   color: string | null;

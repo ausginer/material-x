@@ -1,7 +1,10 @@
-import { computed } from '@preact/signals-core';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t } from '../../../.tproc/index.ts';
-import type { RenderAdjuster } from '../../../.tproc/TokenPackage.ts';
+import type {
+  RenderAdjuster,
+  TokenPackage,
+} from '../../../.tproc/TokenPackage.ts';
 import type { Grouper } from '../../../.tproc/utils.ts';
 import {
   SPLIT_ALLOWED_TOKENS,
@@ -20,7 +23,7 @@ const skipGroup: Grouper = (tokenName) => ({
   name: `__skip.${tokenName}`,
 });
 
-const splitDefaultTokens = computed(() =>
+export const splitDefaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
   t
     .set(SET_BASE_NAME)
     .group(skipGroup)
@@ -52,11 +55,5 @@ const createPackage = (
     )
     .build();
 
-const sizeTokens = SIZES.map((size) => computed(() => createPackage(size)));
-
-export function renderSplitTokens(): string {
-  return [
-    splitDefaultTokens.value.render(),
-    ...sizeTokens.map((token) => token.value.render()),
-  ].join('\n\n');
-}
+export const sizeTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  SIZES.map((size) => computed(() => createPackage(size)));

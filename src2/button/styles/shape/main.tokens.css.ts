@@ -1,6 +1,7 @@
-import { prettify } from '../../../.tproc/css.ts';
-import { renderShapeTokens } from './tokens.ts';
+import { shapeTokens } from './tokens.ts';
 
-const styles: string = await prettify(renderShapeTokens());
+const styles: string = shapeTokens
+  .map((token) => token.value.render())
+  .join('\n\n');
 
 export default styles;

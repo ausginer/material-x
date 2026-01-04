@@ -1,6 +1,9 @@
-import { computed } from '@preact/signals-core';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t } from '../../../.tproc/index.ts';
-import type { RenderAdjuster } from '../../../.tproc/TokenPackage.ts';
+import type {
+  RenderAdjuster,
+  TokenPackage,
+} from '../../../.tproc/TokenPackage.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
   BUTTON_ALLOWED_TOKENS,
@@ -52,8 +55,10 @@ const createPackage = (...extraAdjusters: readonly RenderAdjuster[]) =>
     .adjustRender(...sharedAdjusters, ...extraAdjusters)
     .build();
 
-export const tonalTokens = computed(() => createPackage());
+export const tonalTokens: ReadonlySignal<TokenPackage> = computed(() =>
+  createPackage(),
+);
 
-export const tonalSwitchTokens = computed(() =>
+export const tonalSwitchTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage(dropNonSelectionBlocks, replaceSelectionStateSelector),
 );

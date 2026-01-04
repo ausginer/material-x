@@ -1,12 +1,13 @@
 import { basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { transform } from 'lightningcss';
 import MagicString from 'magic-string';
 import type { SourceMap } from 'rollup';
 // eslint-disable-next-line import-x/no-unresolved
 import * as sorcery from 'sorcery';
 import { cssCache, type JSONModule } from '../utils.ts';
 import { CSS_VARIABLE_NAME_REGEXP } from './collect-props.ts';
+import format from './format.ts';
+import transform from './transform.ts';
 
 const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
   await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {
@@ -53,9 +54,6 @@ function createSourcePath(previousURL: URL, ext: string) {
   );
 }
 
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
-
 export type CompileCSSOptions = Readonly<{
   isProd: boolean;
 }>;
@@ -67,7 +65,7 @@ export async function compileCSS(
 ): Promise<CSSCompilationResult> {
   const path = fileURLToPath(url);
 
-  const _code = options?.isProd
+  let css = options?.isProd
     ? code.replace(CSS_VARIABLE_NAME_REGEXP, (propName) => {
         const mangled = propList[propName];
 
@@ -79,16 +77,13 @@ export async function compileCSS(
       })
     : code;
 
-  const { code: encodedProcessedCode, map: encodedProcessedSourceMap } =
-    transform({
-      filename: basename(path),
-      code: encoder.encode(_code),
-      minify: true,
-      sourceMap: true,
-    });
+  const fileName = basename(path);
 
-  const processedCode = decoder.decode(encodedProcessedCode);
-  const processedMap = JSON.parse(decoder.decode(encodedProcessedSourceMap!));
+  const { code: processedCode, map: processedMap } = transform(
+    await format(css, fileName),
+    fileName,
+    true,
+  );
 
   if (!processedCode) {
     return {

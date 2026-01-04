@@ -1,4 +1,4 @@
-import { css, prettify } from '../../.tproc/css.ts';
+import { css } from '../../.tproc/css.ts';
 import { resolveSet } from '../../.tproc/resolve.ts';
 import {
   createVariables,
@@ -53,7 +53,7 @@ const ambient = (() => {
   return `0 ${offset} ${blur} 0 ${color}`;
 })();
 
-const styles: string = await prettify(css`
+const styles: string = css`
   :host {
     ${pack};
 
@@ -79,6 +79,6 @@ const styles: string = await prettify(css`
       box-shadow: ${ambient};
     }
   }
-`);
+`;
 
 export default styles;

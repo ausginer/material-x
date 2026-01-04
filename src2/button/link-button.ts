@@ -5,12 +5,12 @@ import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import { $ } from '../core/utils/DOM.ts';
 import linkButtonTemplate from './link-button.tpl.html' with { type: 'html' };
 import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
-import elevatedTokens from './styles/elevated/main.tokens.css.ts?type=css' with { type: 'css' };
+import elevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
 import linkButtonStyles from './styles/link-button.ctr.css' with { type: 'css' };
 import mainOutlinedStyles from './styles/outlined/main.ctr.css' with { type: 'css' };
-import outlinedTokens from './styles/outlined/main.tokens.css.ts?type=css' with { type: 'css' };
-import textTokens from './styles/text/main.tokens.css.ts?type=css' with { type: 'css' };
-import tonalTokens from './styles/tonal/main.tokens.css.ts?type=css' with { type: 'css' };
+import outlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
+import textTokens from './styles/text/main.tokens.css.ts' with { type: 'css' };
+import tonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
 import {
   createButtonAccessors,
   useButtonCore,

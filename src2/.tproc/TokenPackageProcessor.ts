@@ -35,12 +35,12 @@ export class TokenPackageProcessor {
   readonly #setName: string;
   readonly #extensions: Record<string, ExtensionEntry> = {};
   readonly #appends: AppendInput[] = [];
+  readonly #tokenAdjusters: ResolveAdjuster[] = [];
+  readonly #renderAdjusters: RenderAdjuster[] = [];
   #scope?: VariantScope;
   #group: Grouper = defaultGroup;
   #allowedTokens?: AllowedTokenMap;
   #extensionCallback?: ExtensionCallback;
-  readonly #tokenAdjusters: ResolveAdjuster[] = [];
-  readonly #renderAdjusters: RenderAdjuster[] = [];
 
   /**
    * Creates a processor for a token set name.
@@ -186,8 +186,7 @@ export class TokenPackageProcessor {
         continue;
       }
 
-      const created: RawNodeBucket = {};
-      nodes[key] = created;
+      nodes[key] = {};
       orderHint.push(key);
     }
 

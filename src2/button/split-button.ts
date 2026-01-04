@@ -11,7 +11,7 @@ import './button.ts';
 import './icon-button.ts';
 import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
 import splitButtonStyles from './styles/split/main.ctr.css' with { type: 'css' };
-import splitTokens from './styles/split/main.tokens.css.ts?type=css' with { type: 'css' };
+import splitTokens from './styles/split/main.tokens.css.ts' with { type: 'css' };
 import {
   createButtonAccessors,
   type ButtonLike,

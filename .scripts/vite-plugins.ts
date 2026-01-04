@@ -7,15 +7,15 @@ import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
 import { cssCache, type JSONModule } from './utils.ts';
 
-export type ConstructCSSOptions = Readonly<{
+export type ConstructCSSTokensOptions = Readonly<{
   isProd: boolean;
 }>;
 
-export type ConstructCtrCSSOptions = Readonly<{
+export type ConstructCSSStylesOptions = Readonly<{
   isProd: boolean;
 }>;
 
-export type ConstructTplHTMLOptions = Readonly<{
+export type ConstructHTMLTemplateOptions = Readonly<{
   isProd: boolean;
 }>;
 
@@ -40,9 +40,11 @@ function normalizePath(target: string, base?: string): string {
   return fileURLToPath(url);
 }
 
-export function constructCtrCSS(options?: ConstructCtrCSSOptions): Plugin {
+export function constructCSSStyles(
+  options?: ConstructCSSStylesOptions,
+): Plugin {
   const plugin: Plugin = {
-    name: 'vite-construct-ctr-css',
+    name: 'vite-construct-css-styles',
     enforce: 'pre',
     resolveId: {
       filter: {
@@ -83,7 +85,9 @@ export function constructCtrCSS(options?: ConstructCtrCSSOptions): Plugin {
   return plugin;
 }
 
-export function constructTplHTML(options?: ConstructTplHTMLOptions): Plugin {
+export function constructHTMLTemplate(
+  options?: ConstructHTMLTemplateOptions,
+): Plugin {
   const isProd = options?.isProd ?? false;
   const minifyConfig = {
     minify_css: true,
@@ -92,7 +96,7 @@ export function constructTplHTML(options?: ConstructTplHTMLOptions): Plugin {
   } as const;
 
   const plugin: Plugin = {
-    name: 'vite-construct-tpl-html',
+    name: 'vite-construct-html-template',
     enforce: 'pre',
     resolveId: {
       filter: {
@@ -131,7 +135,9 @@ export function constructTplHTML(options?: ConstructTplHTMLOptions): Plugin {
   return plugin;
 }
 
-export function constructCSS(options?: ConstructCSSOptions): Plugin {
+export function constructCSSTokens(
+  options?: ConstructCSSTokensOptions,
+): Plugin {
   const trackedFiles = signal<Record<string, Set<string>>>({});
   const dependencies = computed(() =>
     Object.entries(trackedFiles.value).reduce<Record<string, Set<string>>>(
@@ -152,7 +158,7 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
   );
 
   const plugin: Plugin = {
-    name: 'vite-construct-css',
+    name: 'vite-construct-css-tokens',
     resolveId: {
       filter: {
         id: {

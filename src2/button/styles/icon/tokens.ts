@@ -1,4 +1,4 @@
-import { computed } from '@preact/signals-core';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t } from '../../../.tproc/index.ts';
 import {
   attribute,
@@ -112,19 +112,19 @@ const createVariantPackage = (
   return builder.build();
 };
 
-const variantTokens = VARIANTS.map((variant) =>
-  computed(() => createVariantPackage(variant)),
-);
+export const variantTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  VARIANTS.map((variant) => computed(() => createVariantPackage(variant)));
 
-const variantSwitchTokens = VARIANTS.map((variant) =>
-  computed(() =>
-    createVariantPackage(
-      variant,
-      dropNonSelectionBlocks,
-      replaceSelectionStateSelector,
+export const variantSwitchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  VARIANTS.map((variant) =>
+    computed(() =>
+      createVariantPackage(
+        variant,
+        dropNonSelectionBlocks,
+        replaceSelectionStateSelector,
+      ),
     ),
-  ),
-);
+  );
 
 function widthGroup(width: string): Grouper {
   const prefix = `${width}.`;
@@ -193,17 +193,7 @@ const createWidthPackage = (size: string, width: string): TokenPackage => {
   return builder.build();
 };
 
-const widthTokens = WIDTHS.flatMap((width) =>
-  SIZES.map((size) => computed(() => createWidthPackage(size, width))),
-);
-
-export function renderIconTokens(): string {
-  const mainTokens = variantTokens.map((token) => token.value.render());
-  const widthTokenValues = widthTokens.map((token) => token.value.render());
-
-  return [...mainTokens, ...widthTokenValues].join('\n\n');
-}
-
-export function renderIconSwitchTokens(): string {
-  return variantSwitchTokens.map((token) => token.value.render()).join('\n\n');
-}
+export const widthTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  WIDTHS.flatMap((width) =>
+    SIZES.map((size) => computed(() => createWidthPackage(size, width))),
+  );

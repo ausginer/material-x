@@ -1,6 +1,8 @@
-import { prettify } from '../../../.tproc/css.ts';
-import { renderIconTokens } from './tokens.ts';
+import { variantTokens, widthTokens } from './tokens.ts';
 
-const styles: string = await prettify(renderIconTokens());
+const styles: string = [
+  ...variantTokens.map((token) => token.value.render()),
+  ...widthTokens.map((token) => token.value.render()),
+].join('\n\n');
 
 export default styles;

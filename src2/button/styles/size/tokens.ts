@@ -1,6 +1,9 @@
-import { computed } from '@preact/signals-core';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t } from '../../../.tproc/index.ts';
-import type { RenderAdjuster } from '../../../.tproc/TokenPackage.ts';
+import type {
+  RenderAdjuster,
+  TokenPackage,
+} from '../../../.tproc/TokenPackage.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
   BUTTON_ALLOWED_TOKENS,
@@ -41,18 +44,16 @@ const createPackage = (
     )
     .build();
 
-const mainTokens = SIZES.map((size) => computed(() => createPackage(size)));
+export const mainTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  SIZES.map((size) => computed(() => createPackage(size)));
 
-const switchTokens = SIZES.map((size) =>
-  computed(() =>
-    createPackage(size, dropNonSelectionBlocks, replaceSelectionStateSelector),
-  ),
-);
-
-export function renderSizeTokens(): string {
-  return mainTokens.map((token) => token.value.render()).join('\n\n');
-}
-
-export function renderSizeSwitchTokens(): string {
-  return switchTokens.map((token) => token.value.render()).join('\n\n');
-}
+export const switchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  SIZES.map((size) =>
+    computed(() =>
+      createPackage(
+        size,
+        dropNonSelectionBlocks,
+        replaceSelectionStateSelector,
+      ),
+    ),
+  );
