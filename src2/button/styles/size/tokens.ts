@@ -12,14 +12,14 @@ import {
   dropNonSelectionBlocks,
   dropSelectionDisabled,
   fixFullShape,
-  groupButtonTokens,
-  omitTokensInPaths,
+  omitTokens,
   replaceSelectionStateSelector,
 } from '../utils.ts';
+import { groupButtonTokens } from '../utils.ts';
 
 const SIZES = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
 
-const omitSelectedShape = omitTokensInPaths(['container.shape'], (path) =>
+const omitSelectedShape = omitTokens(['container.shape'], (path) =>
   path.startsWith('selected.'),
 );
 

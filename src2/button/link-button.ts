@@ -86,6 +86,7 @@ define('mx-link-button', LinkButton);
 
 declare global {
   interface HTMLElementTagNameMap {
+    // @ts-expect-error: duplicate tag during migration
     'mx-link-button': LinkButton;
   }
 }

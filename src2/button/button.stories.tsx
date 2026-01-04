@@ -1,6 +1,6 @@
 import type { Story } from '@ladle/react';
 import './button.ts';
-import '../../src/icon/icon.ts';
+import '../icon/icon.ts';
 
 // ================
 // Color

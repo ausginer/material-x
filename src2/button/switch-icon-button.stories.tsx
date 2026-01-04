@@ -2,7 +2,7 @@ import type { Story, StoryDefault } from '@ladle/react';
 import { useState, type PropsWithChildren } from 'react';
 import type { SwitchIconButtonProperties } from './switch-icon-button.ts';
 import './switch-icon-button.ts';
-import '../../src/icon/icon.ts';
+import '../icon/icon.ts';
 
 const storyDefault: StoryDefault = {
   decorators: [

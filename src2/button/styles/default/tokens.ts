@@ -7,15 +7,15 @@ import type {
 } from '../../../.tproc/TokenPackage.ts';
 import type { TokenValue } from '../../../.tproc/utils.ts';
 import { CSSVariable } from '../../../.tproc/variable.ts';
+import { groupButtonTokens } from '../utils.ts';
+import { BUTTON_STATES } from '../utils.ts';
 import {
   BUTTON_ALLOWED_TOKENS,
-  BUTTON_STATES,
   createButtonExtensions,
   dropNonSelectionBlocks,
   dropSelectionDisabled,
   fixFullShape,
-  groupButtonTokens,
-  omitTokensInPaths,
+  omitTokens,
   replaceSelectionStateSelector,
 } from '../utils.ts';
 
@@ -43,7 +43,7 @@ const specialSelectedTokens = {
   'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
 };
 
-const omitSelectedShapes = omitTokensInPaths(
+const omitSelectedShapes = omitTokens(
   ['container.shape.round', 'container.shape.square'],
   (path) => path === 'selected.default',
 );

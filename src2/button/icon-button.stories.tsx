@@ -1,5 +1,5 @@
 import type { Story } from '@ladle/react';
-import '../../src/icon/icon.ts';
+import '../icon/icon.ts';
 import './icon-button.ts';
 
 // ================

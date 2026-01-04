@@ -12,10 +12,10 @@ import {
   dropNonSelectionBlocks,
   dropSelectionDisabled,
   fixFullShape,
-  groupButtonTokens,
-  omitTokensInPaths,
+  omitTokens,
   replaceSelectionStateSelector,
 } from '../utils.ts';
+import { groupButtonTokens } from '../utils.ts';
 
 const SET_NAME = 'md.comp.button.tonal';
 const COLOR_ATTRIBUTE = 'color';
@@ -30,7 +30,7 @@ const specialSelectedTokens = {
   'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
 };
 
-const omitSelectedShape = omitTokensInPaths(['container.shape'], (path) =>
+const omitSelectedShape = omitTokens(['container.shape'], (path) =>
   path.startsWith('selected.'),
 );
 

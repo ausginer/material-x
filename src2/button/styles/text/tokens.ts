@@ -7,9 +7,9 @@ import {
   createVariantStateAdjuster,
   dropSelectionDisabled,
   fixFullShape,
-  groupButtonTokens,
-  omitTokensInPaths,
+  omitTokens,
 } from '../utils.ts';
+import { groupButtonTokens } from '../utils.ts';
 
 const SET_NAME = 'md.comp.button.text';
 const COLOR_ATTRIBUTE = 'color';
@@ -20,7 +20,7 @@ const specialTokens = {
   'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
 };
 
-const omitSelectedShape = omitTokensInPaths(['container.shape'], (path) =>
+const omitSelectedShape = omitTokens(['container.shape'], (path) =>
   path.startsWith('selected.'),
 );
 

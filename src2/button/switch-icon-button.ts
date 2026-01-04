@@ -99,6 +99,7 @@ define('mx-switch-icon-button', SwitchIconButton);
 
 declare global {
   interface HTMLElementTagNameMap {
+    // @ts-expect-error: duplicate tag during migration
     'mx-switch-icon-button': SwitchIconButton;
   }
 }

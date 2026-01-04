@@ -1,5 +1,5 @@
 import type { Constructor } from 'type-fest';
-import { BUTTON_GROUP_CTX } from '../../src/button-group/button-group-context.ts';
+import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { useRipple } from '../core/animations/ripple.ts';
 import { createAccessors } from '../core/controllers/createAccessors.ts';
 import { useConnected } from '../core/controllers/useConnected.ts';

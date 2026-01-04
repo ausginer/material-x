@@ -1,12 +1,12 @@
 import type { EmptyObject } from 'type-fest';
-import '../../src/button-group/connected-button-group.ts';
+import '../button-group/connected-button-group.ts';
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { ATTRIBUTE } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import { $ } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
-import '../../src/icon/icon.ts';
+import '../icon/icon.ts';
 import './button.ts';
 import './icon-button.ts';
 import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
@@ -92,6 +92,7 @@ define('mx-split-button', SplitButton);
 
 declare global {
   interface HTMLElementTagNameMap {
+    // @ts-expect-error: duplicate tag during migration
     'mx-split-button': SplitButton;
   }
 }

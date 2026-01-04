@@ -1,6 +1,9 @@
-import { computed } from '@preact/signals-core';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t } from '../../../.tproc/index.ts';
-import type { RenderAdjuster } from '../../../.tproc/TokenPackage.ts';
+import type {
+  RenderAdjuster,
+  TokenPackage,
+} from '../../../.tproc/TokenPackage.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
   BUTTON_ALLOWED_TOKENS,
@@ -9,10 +12,10 @@ import {
   dropNonSelectionBlocks,
   dropSelectionDisabled,
   fixFullShape,
-  groupButtonTokens,
-  omitTokensInPaths,
+  omitTokens,
   replaceSelectionStateSelector,
 } from '../utils.ts';
+import { groupButtonTokens } from '../utils.ts';
 
 const SET_NAME = 'md.comp.button.outlined';
 const COLOR_ATTRIBUTE = 'color';
@@ -28,7 +31,7 @@ const specialSelectedTokens = {
   'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
 };
 
-const omitSelectedShape = omitTokensInPaths(['container.shape'], (path) =>
+const omitSelectedShape = omitTokens(['container.shape'], (path) =>
   path.startsWith('selected.'),
 );
 
@@ -53,8 +56,10 @@ const createPackage = (...extraAdjusters: readonly RenderAdjuster[]) =>
     .adjustRender(...sharedAdjusters, ...extraAdjusters)
     .build();
 
-export const outlinedTokens = computed(() => createPackage());
+export const outlinedTokens: ReadonlySignal<TokenPackage> = computed(() =>
+  createPackage(),
+);
 
-export const outlinedSwitchTokens = computed(() =>
+export const outlinedSwitchTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage(dropNonSelectionBlocks, replaceSelectionStateSelector),
 );

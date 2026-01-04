@@ -13,17 +13,15 @@ import type { Grouper } from '../../../.tproc/utils.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
   BUTTON_ALLOWED_TOKENS,
-  ICON_WIDTH_TOKENS,
   createButtonExtensions,
-  createHostAttributeAdjuster,
   createVariantStateAdjuster,
   dropNonSelectionBlocks,
   dropSelectionDisabled,
   fixFullShape,
-  groupButtonTokens,
-  omitTokensInPaths,
+  omitTokens,
   replaceSelectionStateSelector,
 } from '../utils.ts';
+import { groupButtonTokens } from '../utils.ts';
 
 export const DEFAULTS = ['small', 'filled'] as const;
 export const COLORS = ['filled', 'tonal', 'standard'] as const;
@@ -43,10 +41,42 @@ export const VARIANTS = [
 const WIDTHS = ['wide', 'narrow'] as const;
 const baseTokens = defaultEffectiveTokens;
 
-const omitSelectedShape = omitTokensInPaths(
+const omitSelectedShape = omitTokens(
   ['container.shape.round', 'container.shape.square'],
   (path) => path === 'selected.default',
 );
+
+function createHostAttributeAdjuster(
+  attrName: string,
+  value: string,
+): RenderAdjuster {
+  const attr = attribute(attrName, value);
+
+  return (block) => {
+    const selector = block.selector
+      .split(',')
+      .map((entry) => {
+        const trimmed = entry.trim();
+
+        if (trimmed.includes(':host(')) {
+          return trimmed.replace(':host(', `:host(${attr}`);
+        }
+
+        if (trimmed.includes(':host')) {
+          return trimmed.replace(':host', `:host(${attr})`);
+        }
+
+        return trimmed;
+      })
+      .join(', ');
+
+    if (selector === block.selector) {
+      return block;
+    }
+
+    return { ...block, selector };
+  };
+}
 
 function variantScope(
   variant: string,
@@ -177,7 +207,7 @@ const createWidthPackage = (size: string, width: string): TokenPackage => {
   let builder = t
     .set(`md.comp.icon-button.${size}`)
     .group(widthGroup(width))
-    .allowTokens(ICON_WIDTH_TOKENS)
+    .allowTokens(['leading-space', 'trailing-space'])
     .adjustTokens(fixFullShape)
     .extend(createButtonExtensions(baseTokens.value))
     .adjustRender(
