@@ -1,0 +1,24 @@
+:host {
+  font-size: var(--md-icon-size, 20px);
+  width: var(--md-icon-size, 20px);
+  aspect-ratio: 1;
+  color: inherit;
+  font-variation-settings: inherit;
+  font-weight: 400;
+  font-family: var(--md-icon-font, 'Material Symbols Outlined');
+  display: inline-flex;
+  font-style: normal;
+  place-items: center;
+  place-content: center;
+  line-height: 1;
+  overflow: hidden;
+  letter-spacing: normal;
+  text-transform: none;
+  user-select: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  flex-shrink: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizelegibility;
+  -moz-osx-font-smoothing: grayscale;
+}
