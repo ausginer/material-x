@@ -1,7 +1,7 @@
 import type {
   SiblingUpdateCallback,
   ExistingSiblingUpdateCallback,
-} from '../../../src/button-group/utils.ts';
+} from '../../button-group/utils.ts';
 
 export function $<K extends keyof HTMLElementTagNameMap>(
   host: HTMLElement,

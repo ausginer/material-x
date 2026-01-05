@@ -1,0 +1,44 @@
+:host([extended]) {
+  color: var(--_label-text-color);
+  line-height: var(--_label-text-line-height);
+  font-family: var(--_label-text-font-name);
+  font-weight: var(--_label-text-font-weight);
+  flex-direction: var(--_direction);
+  cursor: default;
+  user-select: none;
+  gap: 0;
+  transition: gap var(--_unfold-duration) var(--_unfold-easing);
+}
+
+:host([extended]) slot:not(.icon) {
+  display: block;
+  opacity: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 0;
+  transition: var(--_unfold-duration) var(--_unfold-easing);
+  transition-property: font-size, opacity;
+}
+
+@supports (width: calc-size(min-content, size)) {
+  :host([extended]) slot:not(.icon) {
+    width: 0;
+    font-size: var(--_label-text-font-size);
+    transition-property: width, opacity;
+  }
+}
+
+:host([extended='open']) {
+  gap: var(--_icon-label-space);
+}
+
+:host([extended='open']) slot:not(.icon) {
+  opacity: 1;
+  font-size: var(--_label-text-font-size);
+}
+
+@supports (width: calc-size(min-content, size)) {
+  :host([extended='open']) slot:not(.icon) {
+    width: calc-size(min-content, size);
+  }
+}

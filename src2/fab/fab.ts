@@ -1,0 +1,91 @@
+import type { EmptyObject } from 'type-fest';
+import { useRipple } from '../core/animations/ripple.ts';
+import { createAccessors } from '../core/controllers/createAccessors.ts';
+import { useAttribute } from '../core/controllers/useAttribute.ts';
+import { useConnected } from '../core/controllers/useConnected.ts';
+import { Bool, Str } from '../core/elements/attribute.ts';
+import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
+import elevationStyles from '../core/styles/elevation.css.ts' with { type: 'css' };
+import { useCore } from '../core/utils/useCore.ts';
+import fabTemplate from './fab.tpl.html' with { type: 'html' };
+import colorTokens from './styles/color/main.tokens.css.ts' with { type: 'css' };
+import mainStyles from './styles/default/main.ctr.css' with { type: 'css' };
+import defaultTokens from './styles/default/main.tokens.css.ts' with { type: 'css' };
+import extendedStyles from './styles/extended/main.ctr.css' with { type: 'css' };
+import extendedTokens from './styles/extended/main.tokens.css.ts' with { type: 'css' };
+import sizeTokens from './styles/size/main.tokens.css.ts' with { type: 'css' };
+import tonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
+
+export type FABSize = 'medium' | 'large';
+export type FABColor = 'primary' | 'secondary';
+export type FABExtended = 'open' | 'closed';
+
+export type FABProperties = Readonly<{
+  size?: FABSize;
+  color?: FABColor;
+  extended?: FABExtended;
+  tonal?: boolean;
+  disabled?: boolean;
+}>;
+
+export type FABEvents = Readonly<{
+  fabtoggle: Event;
+}>;
+
+export type FABCSSProperties = EmptyObject;
+
+/**
+ * @attr {FABSize} size
+ * @attr {FABColor} color
+ * @attr {FABExtended} extended
+ * @attr {boolean|undefined} tonal
+ * @attr {boolean|undefined} disabled
+ */
+export default class FAB extends ReactiveElement {
+  static {
+    createAccessors(this, {
+      size: Str,
+      color: Str,
+      extended: Str,
+      disabled: Bool,
+      tonal: Bool,
+    });
+  }
+
+  constructor() {
+    super();
+    useCore(this, fabTemplate, { role: 'button' }, [
+      elevationStyles,
+      mainStyles,
+      defaultTokens,
+      colorTokens,
+      sizeTokens,
+      tonalTokens,
+      extendedStyles,
+      extendedTokens,
+    ]);
+    useConnected(this, () => {
+      this.tabIndex = 0;
+    });
+    useRipple(this, {
+      easing: '--_ripple-easing',
+      duration: '--_ripple-duration',
+    });
+    useAttribute(this, 'extended', () =>
+      this.dispatchEvent(new Event('fabtoggle')),
+    );
+  }
+}
+
+define('mx-fab', FAB);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    // @ts-expect-error: duplicate tag during migration
+    'mx-fab': FAB;
+  }
+
+  interface HTMLElementEventMap {
+    fabtoggle: Event;
+  }
+}
