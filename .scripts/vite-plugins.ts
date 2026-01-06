@@ -1,10 +1,9 @@
-import { readFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { MessageChannel, Worker } from 'node:worker_threads';
-import { minify } from '@minify-html/node';
 import { computed, signal } from '@preact/signals-core';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
+import { compileHTML } from './html.ts';
 import { cssCache, type JSONModule } from './utils.ts';
 
 export type ConstructCSSTokensOptions = Readonly<{
@@ -43,7 +42,7 @@ function normalizePath(target: string, base?: string): string {
 export function constructCSSStyles(
   options?: ConstructCSSStylesOptions,
 ): Plugin {
-  const plugin: Plugin = {
+  return {
     name: 'vite-construct-css-styles',
     enforce: 'pre',
     resolveId: {
@@ -53,8 +52,11 @@ export function constructCSSStyles(
         },
       },
       order: 'pre',
-      handler(source, importer) {
-        return normalizePath(source, importer);
+      async handler(source, importer) {
+        return await this.resolve(source + '?raw', importer, {
+          ...options,
+          skipSelf: true,
+        });
       },
     },
     load: {
@@ -65,7 +67,7 @@ export function constructCSSStyles(
       },
       async handler(id) {
         const cleanId = normalizePath(id);
-        const source = await readFile(cleanId, 'utf8');
+        const source = await this.fs.readFile(cleanId, { encoding: 'utf8' });
         const { code, map } = await compileCSS(
           pathToFileURL(cleanId),
           source,
@@ -81,21 +83,12 @@ export function constructCSSStyles(
       },
     },
   };
-
-  return plugin;
 }
 
 export function constructHTMLTemplate(
   options?: ConstructHTMLTemplateOptions,
 ): Plugin {
-  const isProd = options?.isProd ?? false;
-  const minifyConfig = {
-    minify_css: true,
-    minify_js: true,
-    keep_comments: !isProd,
-  } as const;
-
-  const plugin: Plugin = {
+  return {
     name: 'vite-construct-html-template',
     enforce: 'pre',
     resolveId: {
@@ -105,8 +98,11 @@ export function constructHTMLTemplate(
         },
       },
       order: 'pre',
-      handler(source, importer) {
-        return normalizePath(source, importer);
+      async handler(source, importer) {
+        return await this.resolve(source + '?raw', importer, {
+          ...options,
+          skipSelf: true,
+        });
       },
     },
     load: {
@@ -117,22 +113,18 @@ export function constructHTMLTemplate(
       },
       async handler(id) {
         const cleanId = normalizePath(id);
-        const source = await readFile(cleanId);
-        const minified = minify(source, minifyConfig).toString();
-        const code = `const template = document.createElement('template');template.innerHTML = ${JSON.stringify(
-          minified,
-        )};export default template;`;
+        const source = await this.fs.readFile(cleanId, { encoding: 'utf8' });
+        const { code, map } = await compileHTML(source, cleanId);
 
         this.addWatchFile(cleanId);
 
         return {
           code,
+          map,
         };
       },
     },
   };
-
-  return plugin;
 }
 
 export function constructCSSTokens(
@@ -157,7 +149,7 @@ export function constructCSSTokens(
     ([name, value]) => [new RegExp(`['"]${name}['"]`, 'gu'), value] as const,
   );
 
-  const plugin: Plugin = {
+  return {
     name: 'vite-construct-css-tokens',
     resolveId: {
       filter: {
@@ -275,6 +267,4 @@ export function constructCSSTokens(
       },
     },
   };
-
-  return plugin;
 }

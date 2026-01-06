@@ -37,6 +37,7 @@ src2/<component>/
 ```
 
 Notes:
+
 - Structural CSS goes into `.ctr.css`.
 - Token CSS goes into `.tokens.css.ts`.
 - Templates must live in `.tpl.html` and be imported with

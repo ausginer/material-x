@@ -1,10 +1,10 @@
-import { basename, extname } from 'node:path';
+import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import MagicString from 'magic-string';
 import type { SourceMap } from 'rollup';
 // eslint-disable-next-line import-x/no-unresolved
 import * as sorcery from 'sorcery';
-import { cssCache, type JSONModule } from '../utils.ts';
+import { createSourcePath, cssCache, type JSONModule } from '../utils.ts';
 import { CSS_VARIABLE_NAME_REGEXP } from './collect-props.ts';
 import format from './format.ts';
 import transform from './transform.ts';
@@ -45,14 +45,6 @@ export type CSSCompilationResult = Readonly<{
   map?: SourceMap;
   urls?: readonly URL[];
 }>;
-
-function createSourcePath(previousURL: URL, ext: string) {
-  const previousPath = fileURLToPath(previousURL);
-  return new URL(
-    `${basename(previousPath, extname(previousPath))}${ext}`,
-    new URL('./', previousURL),
-  );
-}
 
 export type CompileCSSOptions = Readonly<{
   isProd: boolean;

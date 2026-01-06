@@ -13,6 +13,9 @@ export default async function format(
   );
 
   if (errors.length > 0) {
+    for (const error of errors) {
+      console.log('=================\n', error.message, '\n=================');
+    }
     throw new Error('CSS prettification failed', { cause: errors });
   }
 
