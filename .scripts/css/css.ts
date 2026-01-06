@@ -79,7 +79,7 @@ export async function compileCSS(
 
   if (!processedCode) {
     return {
-      code: `const css = new CSSStyleSheet();export default css;`,
+      code: `export default new CSSStyleSheet();`,
     };
   }
 
