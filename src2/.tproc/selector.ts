@@ -28,11 +28,11 @@ export function selector(
   name: string,
   ...params: ReadonlyArray<Param | null | undefined>
 ): string {
-  if (params.length === 0) {
+  const _params = params.filter((p) => p != null);
+
+  if (_params.length === 0) {
     return name;
   }
-
-  const _params = params.filter((p) => p != null);
 
   if (name === ':host') {
     return `${name}(${_params.join('')})`;

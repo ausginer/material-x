@@ -210,7 +210,8 @@ export function constructCSSTokens(
         };
 
         const { code, map } = await compileCSS(
-          pathToFileURL(cleanId.replace(/\.ts$/u, '')),
+          // Removing TS to avoid oxfmt hiccup
+          pathToFileURL(cleanId.substring(0, cleanId.length - 3)),
           result,
           options,
         );

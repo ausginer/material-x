@@ -9,11 +9,14 @@ import {
   getInternals,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import elevationStyles from '../core/styles/elevation.css.ts' with { type: 'css' };
+import elevationStyles from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
 import { useCore } from '../core/utils/useCore.ts';
+import disabledStyles from './styles/default/disabled.ctr.css' with { type: 'css' };
+import disabledTokens from './styles/default/disabled.tokens.css.ts' with { type: 'css' };
 import defaultMainStyles from './styles/default/main.ctr.css' with { type: 'css' };
 import defaultTokens from './styles/default/main.tokens.css.ts' with { type: 'css' };
 import shapeTokens from './styles/shape/main.tokens.css.ts' with { type: 'css' };
+import sizeStyles from './styles/size/main.ctr.css' with { type: 'css' };
 import sizeTokens from './styles/size/main.tokens.css.ts' with { type: 'css' };
 
 export interface ButtonLike {
@@ -94,12 +97,15 @@ export function useButtonCore(
     template,
     { role },
     [
+      shapeTokens,
+      defaultTokens,
       defaultMainStyles,
       elevationStyles,
-      defaultTokens,
-      ...styles,
       sizeTokens,
-      shapeTokens,
+      sizeStyles,
+      ...styles,
+      disabledTokens,
+      disabledStyles,
     ],
     init,
   );

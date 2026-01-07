@@ -1,11 +1,12 @@
+import type { ProcessedTokenSet } from './processTokenSet.ts';
 import { TokenPackageProcessor } from './TokenPackageProcessor.ts';
 
 export type TokenManager = Readonly<{
-  set(name: string): TokenPackageProcessor;
+  set(setOrSetName: string | ProcessedTokenSet): TokenPackageProcessor;
 }>;
 
 export const t: TokenManager = {
-  set: (name) => new TokenPackageProcessor(name),
+  set: (setOrSetName) => new TokenPackageProcessor(setOrSetName),
 };
 
 export { TokenPackage } from './TokenPackage.ts';
@@ -17,5 +18,4 @@ export type {
   Grouper,
   GroupResult,
   TokenSet,
-  VariantScope,
 } from './utils.ts';

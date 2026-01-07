@@ -1,24 +1,27 @@
 import processTokenSet, {
+  type ProcessedTokenSet,
   type ProcessedTokenValue,
 } from './processTokenSet.ts';
 import { resolveSet, type ResolveAdjuster } from './resolve.ts';
 import { resolveInheritance } from './resolveInheritance.ts';
-import { TokenPackage, type RenderAdjuster } from './TokenPackage.ts';
 import {
-  defaultGroup,
+  TokenPackage,
+  type DeclarationBlockRenderer,
+  defaultDeclarationBlockRenderer,
+} from './TokenPackage.ts';
+import {
+  defaultGrouper,
   type AppendInput,
+  type Extendable,
   type ExtensionEntry,
   type ExtensionManager,
   type ExtensionParent,
-  type Extendable,
   type Grouper,
+  type GroupSelector,
   type ParentRef,
-  type TokenSet,
-  type VariantScope,
 } from './utils.ts';
 
 export type ExtensionCallback = (x: ExtensionManager) => void;
-
 type AllowedTokenMap = Record<string, true>;
 
 type RawNodeBucket = Record<string, ProcessedTokenValue>;
@@ -31,39 +34,33 @@ function isExtendable(value: ExtensionParent): value is Extendable {
   );
 }
 
+function defaultSelector() {
+  return true;
+}
+
 export class TokenPackageProcessor {
-  readonly #setName: string;
+  readonly #set: ProcessedTokenSet;
   readonly #extensions: Record<string, ExtensionEntry> = {};
   readonly #appends: AppendInput[] = [];
   readonly #tokenAdjusters: ResolveAdjuster[] = [];
-  readonly #renderAdjusters: RenderAdjuster[] = [];
-  #scope?: VariantScope;
-  #group: Grouper = defaultGroup;
+  #renderers: readonly DeclarationBlockRenderer[] = [
+    defaultDeclarationBlockRenderer,
+  ];
+  #group: Grouper = defaultGrouper;
   #allowedTokens?: AllowedTokenMap;
   #extensionCallback?: ExtensionCallback;
+  #selectors: readonly GroupSelector[] = [defaultSelector];
 
   /**
    * Creates a processor for a token set name.
    * The name is later used to pull raw tokens from the DB layer.
    */
-  constructor(setName: string) {
-    this.#setName = setName;
-  }
-
-  /**
-   * Scopes all rendered selectors to a single variant attribute.
-   *
-   * @example
-   * ```ts
-   * const processor = new TokerPackageProcessor('md.comp.button')
-   *   .scope('color', 'elevated');
-   *
-   * // => :host([color='elevated'])
-   * ```
-   */
-  scope(name: string, value: string): this {
-    this.#scope = { name, value };
-    return this;
+  constructor(setOrSetName: string | ProcessedTokenSet) {
+    if (typeof setOrSetName === 'string') {
+      this.#set = processTokenSet(setOrSetName);
+    } else {
+      this.#set = setOrSetName;
+    }
   }
 
   /**
@@ -71,6 +68,11 @@ export class TokenPackageProcessor {
    */
   group(callback: Grouper): this {
     this.#group = callback;
+    return this;
+  }
+
+  select(...callbacks: readonly GroupSelector[]): this {
+    this.#selectors = callbacks;
     return this;
   }
 
@@ -109,10 +111,10 @@ export class TokenPackageProcessor {
   }
 
   /**
-   * Adds render adjusters applied during CSS output.
+   * Adds renderers applied during CSS output.
    */
-  adjustRender(...adjusters: readonly RenderAdjuster[]): this {
-    this.#renderAdjusters.push(...adjusters);
+  renderDeclarations(...renderers: readonly DeclarationBlockRenderer[]): this {
+    this.#renderers = renderers;
     return this;
   }
 
@@ -121,7 +123,6 @@ export class TokenPackageProcessor {
    * and returns a renderable TokenPackage.
    */
   build(): TokenPackage {
-    const rawSet = processTokenSet(this.#setName);
     const nodes: Record<string, RawNodeBucket> = {};
     const orderHint: string[] = [];
 
@@ -136,8 +137,11 @@ export class TokenPackageProcessor {
       return created;
     };
 
-    for (const [name, value] of Object.entries(rawSet)) {
+    for (const [name, value] of Object.entries(this.#set)) {
       const { path, name: tokenName } = this.#group(name);
+      if (!this.#selectors.every((s) => s(path, tokenName))) {
+        continue;
+      }
       const node = ensureNode(path);
       node[tokenName] = value;
     }
@@ -145,6 +149,10 @@ export class TokenPackageProcessor {
     for (const append of this.#appends) {
       for (const [path, tokens] of Object.entries(append)) {
         const key = path.length > 0 ? path : 'default';
+        if (!this.#selectors.every((s) => s(key))) {
+          continue;
+        }
+
         const node = ensureNode(key);
         Object.assign(node, tokens);
       }
@@ -194,20 +202,21 @@ export class TokenPackageProcessor {
       orderHint.push(key);
     }
 
-    const resolved: Record<string, TokenSet> = {};
-
-    for (const [key, node] of Object.entries(nodes)) {
-      const tokens = resolveSet(node, ...this.#tokenAdjusters);
-      const filtered = this.#allowedTokens
-        ? Object.fromEntries(
-            Object.entries(tokens).filter(
-              ([name]) => this.#allowedTokens?.[name],
-            ),
-          )
-        : tokens;
-
-      resolved[key] = filtered;
-    }
+    const resolved = Object.fromEntries(
+      Object.entries(nodes).map(([key, node]) => {
+        const tokens = resolveSet(node, ...this.#tokenAdjusters);
+        return [
+          key,
+          this.#allowedTokens
+            ? Object.fromEntries(
+                Object.entries(tokens).filter(
+                  ([name]) => this.#allowedTokens![name],
+                ),
+              )
+            : tokens,
+        ];
+      }),
+    );
 
     const { deduped, effective, order } = resolveInheritance(
       resolved,
@@ -216,11 +225,10 @@ export class TokenPackageProcessor {
     );
 
     return new TokenPackage({
-      scope: this.#scope,
       nodes: deduped,
       effective,
       order,
-      renderAdjusters: this.#renderAdjusters,
+      renderers: this.#renderers,
     });
   }
 }

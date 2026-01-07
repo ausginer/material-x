@@ -1,54 +1,56 @@
-import {
-  buildSelector,
-  cssify,
-  type TokenSet,
-  type VariantScope,
-} from './utils.ts';
+import { selector } from './selector.ts';
+import type { TokenSet } from './utils.ts';
+import * as CSSVariable from './variable.ts';
 
 export type RenderBlock = Readonly<{
   path: string;
-  selector: string;
-  declarations: string;
+  selectors: ReadonlyArray<string | null | undefined>;
+  declarations: TokenSet;
 }>;
 
-export type RenderAdjuster = (
+export type DeclarationBlockRenderer = (
+  path: string,
+  declarations: TokenSet,
+) => RenderBlock | readonly RenderBlock[] | null | undefined;
+
+export type BlockAdjuster = (
   block: RenderBlock,
 ) => RenderBlock | readonly RenderBlock[] | null | undefined;
 
+export const defaultDeclarationBlockRenderer: DeclarationBlockRenderer = (
+  path,
+  declarations,
+) => ({
+  path,
+  selectors: [selector(':host')],
+  declarations,
+});
+
 export type TokenPackageOptions = Readonly<{
-  scope?: VariantScope;
   nodes: Readonly<Record<string, TokenSet>>;
   effective: Readonly<Record<string, TokenSet>>;
   order: readonly string[];
-  renderAdjusters?: readonly RenderAdjuster[];
+  renderers?: readonly DeclarationBlockRenderer[];
 }>;
 
 export class TokenPackage {
-  readonly #scope?: VariantScope;
   readonly #nodes: Readonly<Record<string, TokenSet>>;
   readonly #effective: Readonly<Record<string, TokenSet>>;
   readonly #order: readonly string[];
-  readonly #renderAdjusters: readonly RenderAdjuster[];
+  readonly #renderers: readonly DeclarationBlockRenderer[];
 
-  /**
-   * Stores deduped tokens for a single component scope.
-   */
+  /** Stores deduped tokens for a token set. */
   constructor({
-    scope,
     nodes,
     effective,
     order,
-    renderAdjusters = [],
+    renderers = [defaultDeclarationBlockRenderer],
   }: TokenPackageOptions) {
-    this.#scope = scope;
     this.#nodes = nodes;
     this.#effective = effective;
     this.#order = order;
-    this.#renderAdjusters = renderAdjusters;
-  }
-
-  get scope(): VariantScope | undefined {
-    return this.#scope;
+    this.#renderers =
+      renderers.length > 0 ? renderers : [defaultDeclarationBlockRenderer];
   }
 
   /**
@@ -78,47 +80,33 @@ export class TokenPackage {
         continue;
       }
 
-      const entries = Object.entries(node);
+      const renderBlocks = this.#renderers.flatMap((renderer) => {
+        const rendered = renderer(key, node);
 
-      if (entries.length === 0) {
-        continue;
-      }
-
-      const selector = buildSelector(key, this.#scope);
-      const declarations = entries
-        .map(([name, value]) => `  --_${cssify(name)}: ${String(value)};`)
-        .join('\n');
-
-      const baseBlock: RenderBlock = {
-        path: key,
-        selector,
-        declarations,
-      };
-
-      let renderBlocks = [baseBlock];
-
-      for (const adjuster of this.#renderAdjusters) {
-        renderBlocks = renderBlocks.flatMap((block) => {
-          const adjusted = adjuster(block);
-
-          if (adjusted === null) {
-            return [];
-          }
-
-          if (adjusted === undefined) {
-            return [block];
-          }
-
-          return Array.isArray(adjusted) ? [...adjusted] : [adjusted];
-        });
-
-        if (renderBlocks.length === 0) {
-          break;
+        if (rendered == null) {
+          return [];
         }
-      }
+
+        return Array.isArray(rendered) ? [...rendered] : [rendered];
+      });
 
       for (const block of renderBlocks) {
-        blocks.push(`${block.selector} {\n${block.declarations}\n}`);
+        const entries = Object.entries(node);
+
+        if (entries.length === 0) {
+          continue;
+        }
+
+        const declarations = entries
+          .map(
+            ([name, value]) =>
+              `  --_${CSSVariable.cssify(name)}: ${String(value)};`,
+          )
+          .join('\n');
+
+        const selectors = block.selectors.filter((s) => s != null).join(', ');
+
+        blocks.push(`${selectors} {\n${declarations}\n}`);
       }
     }
 

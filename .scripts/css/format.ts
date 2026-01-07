@@ -14,9 +14,15 @@ export default async function format(
 
   if (errors.length > 0) {
     for (const error of errors) {
-      console.log('=================\n', error.message, '\n=================');
+      console.log(
+        '======  Oxfmt  =======\n',
+        error.message,
+        '\n',
+        error.codeframe,
+        '\n======================',
+      );
     }
-    throw new Error('CSS prettification failed', { cause: errors });
+    throw new Error('CSS prettification failed');
   }
 
   return code;

@@ -27,5 +27,9 @@ const { default: imported }: JSModule<string> = await import(
 
 const fileName = basename(fileURLToPath(url));
 
-const result = await format(transform(imported ?? '', fileName).code, fileName);
+const result = await format(
+  transform(imported ?? '', fileName).code,
+  // Remove TS extension to avoid oxfmt hiccup
+  fileName.replace(/\.ts$/, ''),
+);
 console.log(result);

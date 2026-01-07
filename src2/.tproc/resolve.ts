@@ -1,12 +1,11 @@
 import camelCase from 'just-camel-case';
-import kebabCase from 'just-kebab-case';
 import db from './DB/index.ts';
 import processToken from './processToken.ts';
 import type {
   ProcessedTokenSet,
   ProcessedTokenValue,
 } from './processTokenSet.ts';
-import { CSSVariable } from './variable.ts';
+import * as CSSVariable from './variable.ts';
 
 const COLOR_SET = 'md.sys.color';
 const TYPEFACE_SET = 'md.ref.typeface';
@@ -33,13 +32,7 @@ const defaultAdjusters = [COLOR_SET, TYPEFACE_SET].map(
           throw new Error(`"${setName}" token value must be string or number`);
         }
 
-        const variable = new CSSVariable(
-          colorToken.replace(`${setName}.`, ''),
-          value,
-          kebabCase(setName),
-        );
-
-        return variable.value;
+        return CSSVariable.ref(colorToken, String(value), true);
       }
 
       return value;

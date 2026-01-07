@@ -1,13 +1,7 @@
-import type { Param } from './selector.ts';
-import { attribute, pseudoClass, selector } from './selector.ts';
+import { pseudoClass, type Param } from './selector.ts';
 import type { Token } from './TokenTable.ts';
 
 export const root: URL = new URL('../../', import.meta.url);
-
-export type VariantScope = Readonly<{
-  name: string;
-  value: string;
-}>;
 
 export type GroupResult = Readonly<{
   path: string;
@@ -15,6 +9,7 @@ export type GroupResult = Readonly<{
 }>;
 
 export type Grouper = (tokenName: string) => GroupResult;
+export type GroupSelector = (path: string, tokenName?: string) => boolean;
 
 export type TokenValue = string | number;
 export type TokenSet = Readonly<Record<string, TokenValue>>;
@@ -44,16 +39,16 @@ export type ExtensionEntry = Readonly<{
 }>;
 
 /** Default grouping: places all tokens in the "default" bucket. */
-export const defaultGroup: Grouper = (tokenName) => ({
+export const defaultGrouper: Grouper = (tokenName) => ({
   path: 'default',
   name: tokenName,
 });
 
-const stateMap: Readonly<Record<string, string>> = {
-  hovered: 'hover',
-  focused: 'focus-visible',
-  pressed: 'active',
-  disabled: 'disabled',
+export const componentStateMap: Readonly<Record<string, Param>> = {
+  hovered: pseudoClass('hover'),
+  focused: pseudoClass('focus-visible'),
+  pressed: pseudoClass('active'),
+  disabled: pseudoClass('disabled'),
 };
 
 /** Converts RGBA byte values to hex, trimming the alpha channel when opaque. */
@@ -64,31 +59,11 @@ export function rgbaToHex(r: number, g: number, b: number, a: number): string {
   return `#${hex.endsWith('ff') ? hex.substring(0, 6) : hex}`;
 }
 
-/** Converts token names to CSS custom property names. */
-export function cssify(name: string): string {
-  return name.replaceAll('.', '-');
-}
-
-/** Builds a :host selector for a dot-separated state path and optional scope. */
-export function buildSelector(path: string, scope?: VariantScope): string {
-  const params: Param[] = [];
-
-  if (scope) {
-    params.push(attribute(scope.name, scope.value));
-  }
-
-  const segments = path.length > 0 ? path.split('.') : [];
-
-  for (const segment of segments) {
-    if (!segment || segment === 'default') {
-      continue;
-    }
-
-    const mapped = stateMap[segment];
-    params.push(mapped ? pseudoClass(mapped) : pseudoClass('state', segment));
-  }
-
-  return selector(':host', ...params);
+export function composeGroupSelectors(
+  ...callbacks: readonly GroupSelector[]
+): GroupSelector {
+  return (path, tokenName) =>
+    callbacks.every((callback) => callback(path, tokenName));
 }
 
 export type JSONModule<T> = Readonly<{
@@ -118,4 +93,12 @@ export function* distinct<T>(
   }
 
   return undefined;
+}
+
+export type Predicate<T extends readonly any[]> = (...args: T) => boolean;
+
+export function not<T extends readonly any[]>(
+  predicate: Predicate<T>,
+): Predicate<T> {
+  return (...args) => !predicate(...args);
 }

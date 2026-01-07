@@ -1,22 +1,19 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t } from '../../../.tproc/index.ts';
-import type {
-  RenderAdjuster,
-  TokenPackage,
-} from '../../../.tproc/TokenPackage.ts';
+import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import type { TokenValue } from '../../../.tproc/utils.ts';
-import { CSSVariable } from '../../../.tproc/variable.ts';
-import { groupButtonTokens } from '../utils.ts';
-import { BUTTON_STATES } from '../utils.ts';
+import { not, type GroupSelector } from '../../../.tproc/utils.ts';
+import * as CSSVariable from '../../../.tproc/variable.ts';
 import {
   BUTTON_ALLOWED_TOKENS,
+  BUTTON_STATES,
+  buttonMainTokenSelector,
+  buttonSwitchTokenSelector,
   createButtonExtensions,
-  dropNonSelectionBlocks,
-  dropSelectionDisabled,
+  createButtonScopedDeclarationRenderer,
   fixFullShape,
-  omitTokens,
-  replaceSelectionStateSelector,
+  groupButtonTokens,
 } from '../utils.ts';
 
 const SET_NAME = 'md.comp.button';
@@ -43,17 +40,29 @@ const specialSelectedTokens = {
   'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
 };
 
-const omitSelectedShapes = omitTokens(
-  ['container.shape.round', 'container.shape.square'],
-  (path) => path === 'selected.default',
-);
+const EXCLUDED_SHAPES = ['container.shape.round', 'container.shape.square'];
 
-const sharedAdjusters = [dropSelectionDisabled, omitSelectedShapes] as const;
+function omitSelectedShapes(path: string, tokenName?: string) {
+  if (!tokenName) {
+    return true;
+  }
 
-const createPackage = (...extraAdjusters: readonly RenderAdjuster[]) =>
+  return !(path.includes('selected') && EXCLUDED_SHAPES.includes(tokenName));
+}
+
+function disabledTokenSelector(path: string): boolean {
+  return path === 'disabled';
+}
+
+const notDisabledTokenSelector = not(disabledTokenSelector);
+
+const renderer = createButtonScopedDeclarationRenderer();
+
+const createPackage = (...groupSelectors: readonly GroupSelector[]) =>
   t
     .set(SET_NAME)
     .group(groupButtonTokens)
+    .select(...groupSelectors)
     .allowTokens(BUTTON_ALLOWED_TOKENS)
     .adjustTokens(fixFullShape)
     .append({
@@ -62,15 +71,23 @@ const createPackage = (...extraAdjusters: readonly RenderAdjuster[]) =>
       'selected.default': specialSelectedTokens,
     })
     .extend(createButtonExtensions())
-    .adjustRender(...sharedAdjusters, ...extraAdjusters)
+    .renderDeclarations(renderer)
     .build();
 
 export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createPackage(),
+  createPackage(buttonMainTokenSelector, notDisabledTokenSelector),
 );
 
 export const defaultSwitchTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createPackage(dropNonSelectionBlocks, replaceSelectionStateSelector),
+  createPackage(
+    buttonSwitchTokenSelector,
+    notDisabledTokenSelector,
+    omitSelectedShapes,
+  ),
+);
+
+export const disabledTokens: ReadonlySignal<TokenPackage> = computed(() =>
+  createPackage(disabledTokenSelector),
 );
 
 export const defaultEffectiveTokens: ReadonlySignal<
