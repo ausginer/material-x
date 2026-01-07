@@ -1,0 +1,23 @@
+:host {
+  position: relative;
+  box-shadow: var(--_elevation-penumbra);
+
+  &::before,
+  &::after {
+    border-radius: inherit;
+    inset: 0;
+    position: absolute;
+    /* transition-duration: inherit;
+      transition-timing-function: inherit;
+      transition-property: box-shadow; */
+    pointer-events: none;
+  }
+
+  &::before {
+    box-shadow: var(--_elevation-umbra);
+  }
+
+  &::after {
+    box-shadow: var(--_elevation-ambient);
+  }
+}
