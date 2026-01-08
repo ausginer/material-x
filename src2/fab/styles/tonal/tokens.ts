@@ -3,36 +3,33 @@ import { t, type TokenPackage } from '../../../.tproc/index.ts';
 import { attribute } from '../../../.tproc/selector.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
-  FAB_ALLOWED_TOKENS,
   createFabExtensions,
-  createHostAttributeAdjuster,
+  createFABScopedDeclarationRenderer,
+  fabAllowedTokensSelector,
   groupFabTokens,
 } from '../utils.ts';
 
 const COLORS = ['primary', 'secondary', 'tertiary'] as const;
-const tonalAttribute = attribute('tonal');
+const DEFAULT = 'tertiary';
+const TONAL = attribute('tonal');
 
 const createPackage = (color: string) => {
   const setName = `md.comp.fab.${color}-container`;
   const specialTokens = {
     'state-layer.color': `${setName}.pressed.state-layer.color`,
   };
+  const scope = color === DEFAULT ? null : attribute('color', color);
 
-  let builder = t
+  return t
     .set(setName)
     .group(groupFabTokens)
-    .allowTokens(FAB_ALLOWED_TOKENS)
+    .select(fabAllowedTokensSelector)
     .append({
       default: specialTokens,
     })
     .extend(createFabExtensions(defaultEffectiveTokens.value))
-    .adjustRender(createHostAttributeAdjuster(tonalAttribute));
-
-  if (color !== 'tertiary') {
-    builder = builder.scope('color', color);
-  }
-
-  return builder.build();
+    .renderDeclarations(createFABScopedDeclarationRenderer(scope, TONAL))
+    .build();
 };
 
 export const tonalTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =

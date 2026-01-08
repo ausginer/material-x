@@ -1,82 +1,83 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
-import { attribute, type Param } from '../../../.tproc/selector.ts';
-import { CSSVariable } from '../../../.tproc/variable.ts';
+import { attribute } from '../../../.tproc/selector.ts';
+import * as CSSVariable from '../../../.tproc/variable.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
-  FAB_ALLOWED_TOKENS,
   createFabExtensions,
-  createHostAttributeAdjuster,
+  createFABScopedDeclarationRenderer,
+  fabAllowedTokensSelector,
   groupFabTokens,
 } from '../utils.ts';
 
-export const DEFAULTS = ['tertiary', 'small', 'tertiary-container'] as const;
+const COLORS = ['primary', 'secondary', 'tertiary'] as const;
 
-const COLORS = ['primary', 'secondary'] as const;
-const TONAL_COLORS = ['primary-container', 'secondary-container'] as const;
-const SIZES = ['large', 'medium'] as const;
-
-const VARIANTS: readonly [
-  'tertiary',
-  'small',
-  'tertiary-container',
-  'primary',
-  'secondary',
+const TONAL_COLORS = [
   'primary-container',
   'secondary-container',
-  'large',
-  'medium',
-] = [...DEFAULTS, ...COLORS, ...TONAL_COLORS, ...SIZES] as const;
+  'tertiary-container',
+] as const;
 
+const SIZES = ['large', 'medium', 'small'] as const;
+
+const VARIANTS = [...COLORS, ...TONAL_COLORS, ...SIZES] as const;
 type Variant = (typeof VARIANTS)[number];
 
-const extendedAttribute = attribute('extended');
-const tonalAttribute = attribute('tonal');
+const DEFAULTS = ['tertiary', 'tertiary-container', 'small'] as const;
 
-function variantScope(variant: Variant) {
-  if ((COLORS as readonly string[]).includes(variant)) {
-    return { name: 'color', value: variant } as const;
+const EXTENDED = attribute('extended');
+const TONAL = attribute('tonal');
+
+function variantsSortComparator(a: string, b: string) {
+  if (DEFAULTS.includes(a)) {
+    return -1;
   }
 
-  if ((TONAL_COLORS as readonly string[]).includes(variant)) {
-    return {
-      name: 'color',
-      value: variant.replace('-container', ''),
-    } as const;
+  if (DEFAULTS.includes(b)) {
+    return 1;
   }
 
-  if ((SIZES as readonly string[]).includes(variant)) {
-    return { name: 'size', value: variant } as const;
-  }
-
-  return undefined;
+  return 0;
 }
 
-function variantAttributes(variant: Variant): readonly Param[] {
-  const attrs = [extendedAttribute];
-
-  if (variant === 'tertiary-container') {
-    attrs.push(tonalAttribute);
+function getScope(variant: Variant) {
+  if (DEFAULTS.includes(variant)) {
+    return null;
   }
 
-  if ((TONAL_COLORS as readonly string[]).includes(variant)) {
-    attrs.push(tonalAttribute);
+  if (COLORS.includes(variant)) {
+    return attribute('color', variant);
   }
 
-  return attrs;
+  if (TONAL_COLORS.includes(variant)) {
+    return attribute(
+      'color',
+      variant.substring(0, variant.length - '-container'.length),
+    );
+  }
+
+  if (SIZES.includes(variant)) {
+    return attribute('size', variant);
+  }
+
+  return null;
 }
 
 const createPackage = (variant: Variant) => {
   const setName = `md.comp.extended-fab.${variant}`;
-  const attributes = variantAttributes(variant);
-  const scope = variantScope(variant);
 
   let builder = t
     .set(setName)
     .group(groupFabTokens)
-    .allowTokens(FAB_ALLOWED_TOKENS)
+    .select(fabAllowedTokensSelector)
     .extend(createFabExtensions(defaultEffectiveTokens.value))
-    .adjustRender(createHostAttributeAdjuster(...attributes));
+    .renderDeclarations(
+      createFABScopedDeclarationRenderer(
+        getScope(variant),
+        EXTENDED,
+        TONAL_COLORS.includes(variant) ? TONAL : null,
+      ),
+    );
 
   if (variant === 'tertiary') {
     builder = builder.append({
@@ -88,12 +89,10 @@ const createPackage = (variant: Variant) => {
     });
   }
 
-  if (scope) {
-    builder = builder.scope(scope.name, scope.value);
-  }
-
   return builder.build();
 };
 
 export const extendedTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
-  VARIANTS.map((variant) => computed(() => createPackage(variant)));
+  VARIANTS.toSorted(variantsSortComparator).map((variant) =>
+    computed(() => createPackage(variant)),
+  );

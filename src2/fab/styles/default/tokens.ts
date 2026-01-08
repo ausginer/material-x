@@ -2,12 +2,12 @@ import { computed, type ReadonlySignal } from '@preact/signals-core';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
 import type { TokenSet, TokenValue } from '../../../.tproc/utils.ts';
-import { CSSVariable } from '../../../.tproc/variable.ts';
+import * as CSSVariable from '../../../.tproc/variable.ts';
 import {
-  FAB_ALLOWED_TOKENS,
   FAB_STATES,
   createAppendTokens,
   createFabExtensions,
+  fabAllowedTokensSelector,
   groupFabTokens,
 } from '../utils.ts';
 
@@ -35,7 +35,7 @@ const createPackage = () =>
   t
     .set(SET_NAME_GENERAL)
     .group(groupFabTokens)
-    .allowTokens(FAB_ALLOWED_TOKENS)
+    .select(fabAllowedTokensSelector)
     .append(tertiaryTokens)
     .append({
       default: specialTokens,

@@ -1,9 +1,11 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
+import { attribute } from '../../../.tproc/selector.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
-  FAB_ALLOWED_TOKENS,
+  createFABScopedDeclarationRenderer,
   createFabExtensions,
+  fabAllowedTokensSelector,
   groupFabTokens,
 } from '../utils.ts';
 
@@ -17,13 +19,15 @@ const createPackage = (size: string) => {
 
   return t
     .set(setName)
-    .scope('size', size)
     .group(groupFabTokens)
-    .allowTokens(FAB_ALLOWED_TOKENS)
+    .select(fabAllowedTokensSelector)
     .append({
       default: specialTokens,
     })
     .extend(createFabExtensions(defaultEffectiveTokens.value))
+    .renderDeclarations(
+      createFABScopedDeclarationRenderer(attribute('size', size)),
+    )
     .build();
 };
 

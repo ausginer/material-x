@@ -5,7 +5,7 @@ import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useConnected } from '../core/controllers/useConnected.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import elevationStyles from '../core/styles/elevation.css.ts' with { type: 'css' };
+import elevationStyles from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
 import { useCore } from '../core/utils/useCore.ts';
 import fabTemplate from './fab.tpl.html' with { type: 'html' };
 import colorTokens from './styles/color/main.tokens.css.ts' with { type: 'css' };

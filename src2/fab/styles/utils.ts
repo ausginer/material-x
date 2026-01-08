@@ -1,9 +1,15 @@
 import processTokenSet from '../../.tproc/processTokenSet.ts';
 import { resolveSet } from '../../.tproc/resolve.ts';
-import type { Param } from '../../.tproc/selector.ts';
-import type { RenderAdjuster } from '../../.tproc/TokenPackage.ts';
+import { selector, type Param } from '../../.tproc/selector.ts';
+import type { DeclarationBlockRenderer } from '../../.tproc/TokenPackage.ts';
 import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
-import type { AppendInput, Grouper, TokenSet } from '../../.tproc/utils.ts';
+import {
+  createAllowedTokensSelector,
+  type AppendInput,
+  type Grouper,
+  type GroupSelector,
+  type TokenSet,
+} from '../../.tproc/utils.ts';
 
 export const FAB_STATES = [
   'default',
@@ -11,35 +17,6 @@ export const FAB_STATES = [
   'focused',
   'pressed',
   'disabled',
-] as const;
-
-export const FAB_ALLOWED_TOKENS = [
-  'container.width',
-  'container.height',
-  'container.color',
-  'container.shape',
-  'container.shadow-color',
-  'icon.size',
-  'icon.color',
-  'label-text.color',
-  'label-text.font-size',
-  'label-text.font-name',
-  'label-text.font-weight',
-  'label-text.line-height',
-  'direction',
-  'icon-label-space',
-  'state-layer.color',
-  'state-layer.opacity',
-  'gap',
-  'elevation.default',
-  'elevation.hovered',
-  'ripple.color',
-  'ripple.easing',
-  'ripple.duration',
-  'ripple.opacity',
-  'unfold.duration',
-  'unfold.easing',
-  'shadow.color',
 ] as const;
 
 export const groupFabTokens: Grouper = (tokenName) => {
@@ -73,6 +50,47 @@ export function createFabExtensions(
   };
 }
 
+export const fabAllowedTokensSelector: GroupSelector =
+  createAllowedTokensSelector([
+    'container.width',
+    'container.height',
+    'container.color',
+    'container.shape',
+    'container.shadow-color',
+    'icon.size',
+    'icon.color',
+    'label-text.color',
+    'label-text.font-size',
+    'label-text.font-name',
+    'label-text.font-weight',
+    'label-text.line-height',
+    'direction',
+    'icon-label-space',
+    'state-layer.color',
+    'state-layer.opacity',
+    'gap',
+    'elevation.default',
+    'elevation.hovered',
+    'ripple.color',
+    'ripple.easing',
+    'ripple.duration',
+    'ripple.opacity',
+    'unfold.duration',
+    'unfold.easing',
+    'shadow.color',
+  ]);
+
+export function createFABScopedDeclarationRenderer(
+  scope?: Param | null,
+  ...params: ReadonlyArray<Param | null | undefined>
+): DeclarationBlockRenderer {
+  return (path, declarations) => ({
+    path,
+    declarations,
+    selectors: [selector(':host', scope, ...params)],
+  });
+}
+
 export function createAppendTokens(
   setName: string,
   grouper: Grouper,
@@ -90,43 +108,4 @@ export function createAppendTokens(
 
     return acc;
   }, {});
-}
-
-function addHostParams(selector: string, params: string): string {
-  return selector
-    .split(',')
-    .map((entry) => {
-      const trimmed = entry.trim();
-
-      if (trimmed.includes(':host(')) {
-        return trimmed.replace(':host(', `:host(${params}`);
-      }
-
-      if (trimmed.includes(':host')) {
-        return trimmed.replace(':host', `:host(${params})`);
-      }
-
-      return trimmed;
-    })
-    .join(', ');
-}
-
-export function createHostAttributeAdjuster(
-  ...params: readonly Param[]
-): RenderAdjuster {
-  if (params.length === 0) {
-    return (block) => block;
-  }
-
-  const attrs = params.join('');
-
-  return (block) => {
-    const selector = addHostParams(block.selector, attrs);
-
-    if (selector === block.selector) {
-      return block;
-    }
-
-    return { ...block, selector };
-  };
 }
