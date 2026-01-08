@@ -13,6 +13,7 @@ import {
   createButtonScopedDeclarationRenderer,
   fixFullShape,
   groupButtonTokens,
+  omitSelectedShape,
 } from '../utils.ts';
 
 const SET_NAME = 'md.comp.button.elevated';
@@ -27,14 +28,6 @@ const specialTokens = {
 const specialSelectedTokens = {
   'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
 };
-
-function omitSelectedShape(path: string, tokenName?: string) {
-  if (!tokenName) {
-    return true;
-  }
-
-  return path.startsWith('selected') && tokenName === 'container.shape';
-}
 
 const renderer = createButtonScopedDeclarationRenderer(
   attribute(COLOR_ATTRIBUTE, COLOR_VALUE),

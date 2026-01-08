@@ -3,7 +3,7 @@ import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t } from '../../../.tproc/index.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import type { TokenValue } from '../../../.tproc/utils.ts';
-import { not, type GroupSelector } from '../../../.tproc/utils.ts';
+import type { GroupSelector } from '../../../.tproc/utils.ts';
 import * as CSSVariable from '../../../.tproc/variable.ts';
 import {
   BUTTON_ALLOWED_TOKENS,
@@ -14,6 +14,8 @@ import {
   createButtonScopedDeclarationRenderer,
   fixFullShape,
   groupButtonTokens,
+  notDisabledTokenSelector,
+  omitSelectedShape,
 } from '../utils.ts';
 
 const SET_NAME = 'md.comp.button';
@@ -40,21 +42,9 @@ const specialSelectedTokens = {
   'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
 };
 
-const EXCLUDED_SHAPES = ['container.shape.round', 'container.shape.square'];
-
-function omitSelectedShapes(path: string, tokenName?: string) {
-  if (!tokenName) {
-    return true;
-  }
-
-  return !(path.includes('selected') && EXCLUDED_SHAPES.includes(tokenName));
-}
-
-function disabledTokenSelector(path: string): boolean {
+export function disabledTokenSelector(path: string): boolean {
   return path === 'disabled';
 }
-
-const notDisabledTokenSelector = not(disabledTokenSelector);
 
 const renderer = createButtonScopedDeclarationRenderer();
 
@@ -82,7 +72,7 @@ export const defaultSwitchTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage(
     buttonSwitchTokenSelector,
     notDisabledTokenSelector,
-    omitSelectedShapes,
+    omitSelectedShape,
   ),
 );
 

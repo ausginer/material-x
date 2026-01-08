@@ -1,16 +1,15 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t } from '../../../.tproc/index.ts';
-import type {
-  RenderAdjuster,
-  TokenPackage,
-} from '../../../.tproc/TokenPackage.ts';
-import type { Grouper } from '../../../.tproc/utils.ts';
-import { groupButtonTokens } from '../utils.ts';
+import { attribute } from '../../../.tproc/selector.ts';
+import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
+import type { Grouper, GroupSelector } from '../../../.tproc/utils.ts';
 import {
+  buttonMainTokenSelector,
   createButtonExtensions,
-  createVariantStateAdjuster,
-  dropSelectionDisabled,
+  createButtonScopedDeclarationRenderer,
+  fixFullShape,
+  groupButtonTokens,
 } from '../utils.ts';
 
 const SET_BASE_NAME = 'md.comp.split-button';
@@ -38,12 +37,12 @@ export const splitDefaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
 
 const createPackage = (
   size: string,
-  ...extraAdjusters: readonly RenderAdjuster[]
+  ...groupSelectors: readonly GroupSelector[]
 ) =>
   t
     .set(`${SET_BASE_NAME}.${size}`)
-    .scope('size', size)
     .group(groupButtonTokens)
+    .select(...groupSelectors)
     .allowTokens([
       'trailing-button.icon.size',
       'inner-corner.corner-size',
@@ -53,12 +52,13 @@ const createPackage = (
       'trailing-button.trailing-space',
     ])
     .extend(createButtonExtensions())
-    .adjustRender(
-      dropSelectionDisabled,
-      createVariantStateAdjuster('size', size),
-      ...extraAdjusters,
+    .adjustTokens(fixFullShape)
+    .renderDeclarations(
+      createButtonScopedDeclarationRenderer(attribute('size', size)),
     )
     .build();
 
 export const sizeTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
-  SIZES.map((size) => computed(() => createPackage(size)));
+  SIZES.map((size) =>
+    computed(() => createPackage(size, buttonMainTokenSelector)),
+  );

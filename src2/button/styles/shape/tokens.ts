@@ -1,35 +1,44 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
+import type { TupleToUnion } from 'type-fest';
 import { t } from '../../../.tproc/index.ts';
-import type {
-  RenderAdjuster,
-  TokenPackage,
-} from '../../../.tproc/TokenPackage.ts';
-import type { Grouper } from '../../../.tproc/utils.ts';
-import { CSSVariable } from '../../../.tproc/variable.ts';
-import { createVariantStateAdjuster } from '../utils.ts';
+import { attribute, pseudoClass, selector } from '../../../.tproc/selector.ts';
+import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
+import * as CSSVariable from '../../../.tproc/variable.ts';
 
 const SHAPES = ['round', 'square'] as const;
+type Shapes = TupleToUnion<typeof SHAPES>;
 
-const skipGroup: Grouper = (tokenName) => ({
-  path: 'default',
-  name: `__skip.${tokenName}`,
-});
+function isDefaultShape(shape: Shapes): boolean {
+  return shape === 'round';
+}
 
-const createPackage = (
-  shape: string,
-  ...extraAdjusters: readonly RenderAdjuster[]
-): TokenPackage =>
+const square = attribute('shape', 'square');
+const squareState = pseudoClass('state', 'square');
+const noAttribute = pseudoClass('not', attribute('shape'));
+const checked = attribute('checked');
+
+const defaultSelectors = [
+  selector(':host'),
+  selector(':host', squareState, checked, noAttribute),
+  selector(':host', square, checked),
+];
+
+const squareSelectors = [
+  selector(':host', square),
+  selector(':host', squareState, noAttribute),
+  selector(':host', checked),
+];
+
+const createPackage = (shape: Shapes): TokenPackage =>
   t
-    .set('md.comp.button')
-    .scope('shape', shape)
-    .group(skipGroup)
-    .allowTokens(['container.shape'])
-    .append({
-      default: {
-        'container.shape': CSSVariable.ref(`container.shape.${shape}`),
-      },
+    .set({
+      'container.shape': CSSVariable.ref(`container.shape.${shape}`),
     })
-    .adjustRender(createVariantStateAdjuster('shape', shape), ...extraAdjusters)
+    .renderDeclarations((path, declarations) => ({
+      path,
+      declarations,
+      selectors: isDefaultShape(shape) ? defaultSelectors : squareSelectors,
+    }))
     .build();
 
 export const shapeTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =

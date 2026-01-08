@@ -1,21 +1,20 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t } from '../../../.tproc/index.ts';
-import type {
-  RenderAdjuster,
-  TokenPackage,
-} from '../../../.tproc/TokenPackage.ts';
+import { attribute } from '../../../.tproc/selector.ts';
+import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
+import type { GroupSelector } from '../../../.tproc/utils.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
   BUTTON_ALLOWED_TOKENS,
+  buttonMainTokenSelector,
+  buttonSwitchTokenSelector,
   createButtonExtensions,
-  createVariantStateAdjuster,
-  dropNonSelectionBlocks,
-  dropSelectionDisabled,
+  createButtonScopedDeclarationRenderer,
+  notDisabledTokenSelector,
   fixFullShape,
-  omitTokens,
-  replaceSelectionStateSelector,
+  groupButtonTokens,
+  omitSelectedShape,
 } from '../utils.ts';
-import { groupButtonTokens } from '../utils.ts';
 
 const SET_NAME = 'md.comp.button.outlined';
 const COLOR_ATTRIBUTE = 'color';
@@ -31,21 +30,15 @@ const specialSelectedTokens = {
   'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
 };
 
-const omitSelectedShape = omitTokens(['container.shape'], (path) =>
-  path.startsWith('selected.'),
+const renderer = createButtonScopedDeclarationRenderer(
+  attribute(COLOR_ATTRIBUTE, COLOR_VALUE),
 );
 
-const sharedAdjusters = [
-  dropSelectionDisabled,
-  omitSelectedShape,
-  createVariantStateAdjuster(COLOR_ATTRIBUTE, COLOR_VALUE),
-] as const;
-
-const createPackage = (...extraAdjusters: readonly RenderAdjuster[]) =>
+const createPackage = (...groupSelectors: readonly GroupSelector[]) =>
   t
     .set(SET_NAME)
-    .scope(COLOR_ATTRIBUTE, COLOR_VALUE)
     .group(groupButtonTokens)
+    .select(...groupSelectors)
     .allowTokens(BUTTON_ALLOWED_TOKENS)
     .adjustTokens(fixFullShape)
     .append({
@@ -53,13 +46,17 @@ const createPackage = (...extraAdjusters: readonly RenderAdjuster[]) =>
       'selected.default': specialSelectedTokens,
     })
     .extend(createButtonExtensions(defaultEffectiveTokens.value))
-    .adjustRender(...sharedAdjusters, ...extraAdjusters)
+    .renderDeclarations(renderer)
     .build();
 
 export const outlinedTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createPackage(),
+  createPackage(buttonMainTokenSelector),
 );
 
 export const outlinedSwitchTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createPackage(dropNonSelectionBlocks, replaceSelectionStateSelector),
+  createPackage(
+    buttonSwitchTokenSelector,
+    notDisabledTokenSelector,
+    omitSelectedShape,
+  ),
 );

@@ -3,25 +3,29 @@ import { t } from '../../../.tproc/index.ts';
 import {
   attribute,
   pseudoElement,
+  selector,
   type Param,
 } from '../../../.tproc/selector.ts';
 import type {
-  RenderAdjuster,
+  DeclarationBlockRenderer,
   TokenPackage,
 } from '../../../.tproc/TokenPackage.ts';
-import type { Grouper } from '../../../.tproc/utils.ts';
+import {
+  componentStateMap,
+  type GroupSelector,
+} from '../../../.tproc/utils.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
   BUTTON_ALLOWED_TOKENS,
+  buttonMainTokenSelector,
+  buttonSwitchTokenSelector,
   createButtonExtensions,
-  createVariantStateAdjuster,
-  dropNonSelectionBlocks,
-  dropSelectionDisabled,
+  createButtonScopedDeclarationRenderer,
+  notDisabledTokenSelector,
   fixFullShape,
-  omitTokens,
-  replaceSelectionStateSelector,
+  groupButtonTokens,
+  omitSelectedShape,
 } from '../utils.ts';
-import { groupButtonTokens } from '../utils.ts';
 
 export const DEFAULTS = ['small', 'filled'] as const;
 export const COLORS = ['filled', 'tonal', 'standard'] as const;
@@ -41,56 +45,17 @@ export const VARIANTS = [
 const WIDTHS = ['wide', 'narrow'] as const;
 const baseTokens = defaultEffectiveTokens;
 
-const omitSelectedShape = omitTokens(
-  ['container.shape.round', 'container.shape.square'],
-  (path) => path === 'selected.default',
-);
-
-function createHostAttributeAdjuster(
-  attrName: string,
-  value: string,
-): RenderAdjuster {
-  const attr = attribute(attrName, value);
-
-  return (block) => {
-    const selector = block.selector
-      .split(',')
-      .map((entry) => {
-        const trimmed = entry.trim();
-
-        if (trimmed.includes(':host(')) {
-          return trimmed.replace(':host(', `:host(${attr}`);
-        }
-
-        if (trimmed.includes(':host')) {
-          return trimmed.replace(':host', `:host(${attr})`);
-        }
-
-        return trimmed;
-      })
-      .join(', ');
-
-    if (selector === block.selector) {
-      return block;
-    }
-
-    return { ...block, selector };
-  };
-}
-
-function variantScope(
-  variant: string,
-): Readonly<{ name: string; value: string }> | undefined {
+function variantScope(variant: string): Param | undefined {
   if ((DEFAULTS as readonly string[]).includes(variant)) {
     return undefined;
   }
 
   if ((COLORS as readonly string[]).includes(variant)) {
-    return { name: 'color', value: variant };
+    return attribute('color', variant);
   }
 
   if ((SIZES as readonly string[]).includes(variant)) {
-    return { name: 'size', value: variant };
+    return attribute('size', variant);
   }
 
   return undefined;
@@ -98,7 +63,7 @@ function variantScope(
 
 const createVariantPackage = (
   variant: string,
-  ...extraAdjusters: readonly RenderAdjuster[]
+  ...groupSelectors: readonly GroupSelector[]
 ): TokenPackage => {
   const setName = `md.comp.icon-button.${variant}`;
   const scope = variantScope(variant);
@@ -113,13 +78,10 @@ const createVariantPackage = (
     'state-layer.color': `${setName}.selected.pressed.state-layer.color`,
   };
 
-  const scopedAdjuster = scope
-    ? [createVariantStateAdjuster(scope.name, scope.value)]
-    : [];
-
-  let builder = t
+  return t
     .set(setName)
     .group(groupButtonTokens)
+    .select(...groupSelectors)
     .allowTokens(BUTTON_ALLOWED_TOKENS)
     .adjustTokens(fixFullShape)
     .append({
@@ -128,35 +90,31 @@ const createVariantPackage = (
       'selected.default': specialSelectedTokens,
     })
     .extend(createButtonExtensions(baseTokens.value))
-    .adjustRender(
-      dropSelectionDisabled,
-      omitSelectedShape,
-      ...scopedAdjuster,
-      ...extraAdjusters,
-    );
-
-  if (scope) {
-    builder = builder.scope(scope.name, scope.value);
-  }
-
-  return builder.build();
+    .renderDeclarations(createButtonScopedDeclarationRenderer(scope))
+    .build();
 };
 
 export const variantTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
-  VARIANTS.map((variant) => computed(() => createVariantPackage(variant)));
+  VARIANTS.map((variant) =>
+    computed(() => createVariantPackage(variant, buttonMainTokenSelector)),
+  );
 
 export const variantSwitchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
   VARIANTS.map((variant) =>
     computed(() =>
       createVariantPackage(
         variant,
-        dropNonSelectionBlocks,
-        replaceSelectionStateSelector,
+        buttonSwitchTokenSelector,
+        notDisabledTokenSelector,
+        omitSelectedShape,
       ),
     ),
   );
 
-function widthGroup(width: string): Grouper {
+function widthGroup(width: string): (tokenName: string) => {
+  path: string;
+  name: string;
+} {
   const prefix = `${width}.`;
 
   return (tokenName) => {
@@ -168,60 +126,47 @@ function widthGroup(width: string): Grouper {
   };
 }
 
-function addSlottedSelector(selector: string, param: Param): string {
-  const slotted = pseudoElement('slotted', param);
+function createWidthRenderer(
+  size: string,
+  width: string,
+): DeclarationBlockRenderer {
+  const sizeAttribute = attribute('size', size);
+  const widthAttribute = attribute('width', width);
+  const slotted = pseudoElement('slotted', widthAttribute);
 
-  return selector
-    .split(',')
-    .map((entry) => `${entry.trim()} ${slotted}`)
-    .join(', ');
-}
+  return (path, declarations) => {
+    const stateParam = path === 'default' ? null : componentStateMap[path];
+    const baseSelector = selector(
+      ':host',
+      sizeAttribute,
+      widthAttribute,
+      stateParam,
+    );
+    const selectors = [baseSelector];
 
-function createWidthAdjuster(width: string): RenderAdjuster {
-  const attr = attribute('width', width);
-  const hostAdjuster = createHostAttributeAdjuster('width', width);
-
-  return (block) => {
-    const adjusted = hostAdjuster(block);
-    const hostBlock = Array.isArray(adjusted) ? adjusted[0] : adjusted;
-
-    if (!hostBlock || Array.isArray(hostBlock)) {
-      return hostBlock;
+    if (path === 'default') {
+      const hostSelector = selector(':host', sizeAttribute);
+      selectors.push(`${hostSelector} ${slotted}`);
     }
 
-    if (block.path !== 'default') {
-      return hostBlock;
-    }
-
-    const slottedSelector = addSlottedSelector(block.selector, attr);
-    return [hostBlock, { ...block, selector: slottedSelector }];
+    return {
+      path,
+      declarations,
+      selectors,
+    };
   };
 }
 
-const createWidthPackage = (size: string, width: string): TokenPackage => {
-  const scope = size === 'small' ? undefined : { name: 'size', value: size };
-  const scopedAdjuster = scope
-    ? [createVariantStateAdjuster(scope.name, scope.value)]
-    : [];
-
-  let builder = t
+const createWidthPackage = (size: string, width: string): TokenPackage =>
+  t
     .set(`md.comp.icon-button.${size}`)
     .group(widthGroup(width))
+    .select(buttonMainTokenSelector)
     .allowTokens(['leading-space', 'trailing-space'])
     .adjustTokens(fixFullShape)
     .extend(createButtonExtensions(baseTokens.value))
-    .adjustRender(
-      dropSelectionDisabled,
-      ...scopedAdjuster,
-      createWidthAdjuster(width),
-    );
-
-  if (scope) {
-    builder = builder.scope(scope.name, scope.value);
-  }
-
-  return builder.build();
-};
+    .renderDeclarations(createWidthRenderer(size, width))
+    .build();
 
 export const widthTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
   WIDTHS.flatMap((width) =>

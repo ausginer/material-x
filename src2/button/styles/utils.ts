@@ -1,10 +1,16 @@
 import type { ResolveAdjuster } from '../../.tproc/resolve.ts';
-import { attribute, pseudoClass } from '../../.tproc/selector.ts';
-import type { RenderAdjuster, RenderBlock } from '../../.tproc/TokenPackage.ts';
+import { attribute, selector, type Param } from '../../.tproc/selector.ts';
+import type { DeclarationBlockRenderer } from '../../.tproc/TokenPackage.ts';
 import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
-import type { Grouper, GroupResult, TokenSet } from '../../.tproc/utils.ts';
-import { cssify } from '../../.tproc/utils.ts';
-import { CSSVariable } from '../../.tproc/variable.ts';
+import {
+  componentStateMap,
+  not,
+  type GroupResult,
+  type Predicate,
+  type TokenSet,
+} from '../../.tproc/utils.ts';
+import * as CSSVariable from '../../.tproc/variable.ts';
+import { disabledTokenSelector } from './default/tokens.ts';
 
 export const BUTTON_STATES = [
   'default',
@@ -56,7 +62,7 @@ export const BUTTON_ALLOWED_TOKENS = [
   'level',
 ] as const;
 
-export const groupButtonTokens: Grouper = (tokenName: string): GroupResult => {
+export function groupButtonTokens(tokenName: string): GroupResult {
   const parts = tokenName.split('.');
   let selection: string | undefined;
   let state = 'default';
@@ -80,7 +86,7 @@ export const groupButtonTokens: Grouper = (tokenName: string): GroupResult => {
     path: selection ? `${selection}.${state}` : state,
     name: nameParts.join('.'),
   };
-};
+}
 
 export function createButtonExtensions(
   base?: Readonly<Record<string, TokenSet>>,
@@ -138,99 +144,56 @@ export const fixFullShape: ResolveAdjuster = (value, path) => {
   return value;
 };
 
-export function dropSelectionDisabled(block: RenderBlock): RenderBlock | null {
-  const segments = block.path.split('.');
+export const notDisabledTokenSelector: Predicate<[path: string]> = not(
+  disabledTokenSelector,
+);
 
-  if (
-    segments.includes('disabled') &&
-    (segments.includes('selected') || segments.includes('unselected'))
-  ) {
-    return null;
+export function buttonSwitchTokenSelector(path: string): boolean {
+  return SELECTION_STATES.some((s) => path.includes(s));
+}
+
+export function buttonMainTokenSelector(path: string): boolean {
+  return !buttonSwitchTokenSelector(path);
+}
+
+export function omitSelectedShape(path: string, tokenName?: string): boolean {
+  if (!tokenName) {
+    return true;
   }
 
-  return block;
+  return !(
+    path.startsWith('selected') && tokenName.startsWith('container.shape')
+  );
 }
 
-export function dropNonSelectionBlocks(block: RenderBlock): RenderBlock | null {
-  const segments = block.path.split('.');
+const checked = attribute('checked');
 
-  if (!segments.includes('selected') && !segments.includes('unselected')) {
-    return null;
-  }
+export function createButtonScopedDeclarationRenderer(
+  scope?: Param,
+): DeclarationBlockRenderer {
+  return (path, declarations) => {
+    let state: string;
+    let selection: string | undefined;
 
-  return block;
-}
-
-export function replaceSelectionStateSelector(block: RenderBlock): RenderBlock {
-  const selectedState = pseudoClass('state', 'selected');
-  const checkedAttr = attribute('checked');
-  let { selector } = block;
-
-  selector = selector.replaceAll(selectedState, checkedAttr);
-
-  if (selector === block.selector) {
-    return block;
-  }
-
-  return { ...block, selector };
-}
-
-export function createVariantStateAdjuster(
-  attrName: string,
-  value: string,
-): RenderAdjuster {
-  const attrSelector = attribute(attrName, value);
-  const stateSelector = `${pseudoClass('state', value)}${pseudoClass(
-    'not',
-    attribute(attrName),
-  )}`;
-
-  return (block) => {
-    if (!block.selector.includes(attrSelector)) {
-      return block;
+    const i = path.indexOf('.');
+    if (i === -1) {
+      state = path;
+    } else {
+      selection = path.slice(0, i);
+      state = path.slice(i + 1);
     }
 
-    const combined = `${block.selector}, ${block.selector.replaceAll(
-      attrSelector,
-      stateSelector,
-    )}`;
-
-    return { ...block, selector: combined };
-  };
-}
-
-export function omitTokens(
-  tokens: readonly string[],
-  predicate: (path: string) => boolean,
-): RenderAdjuster {
-  return (block) => {
-    if (!predicate(block.path)) {
-      return block;
-    }
-
-    const remove = new Set(tokens.map((token) => `--_${cssify(token)}`));
-    const lines = block.declarations.split('\n');
-    const kept = lines.filter((line) => {
-      const trimmed = line.trimStart();
-
-      if (!trimmed.startsWith('--_')) {
-        return true;
-      }
-
-      const [name] = trimmed.split(':', 1);
-      return !remove.has(name ?? '');
-    });
-
-    if (kept.length === 0) {
-      return null;
-    }
-
-    const declarations = kept.join('\n');
-
-    if (declarations === block.declarations) {
-      return block;
-    }
-
-    return { ...block, declarations };
+    return {
+      path,
+      declarations,
+      selectors: [
+        selector(
+          ':host',
+          scope,
+          selection === 'selected' ? checked : null,
+          path === 'default' ? null : componentStateMap[state],
+        ),
+      ],
+    };
   };
 }
