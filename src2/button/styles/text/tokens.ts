@@ -4,7 +4,7 @@ import { attribute } from '../../../.tproc/selector.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
-  BUTTON_ALLOWED_TOKENS,
+  buttonAllowedTokensSelector,
   buttonMainTokenSelector,
   createButtonExtensions,
   createButtonScopedDeclarationRenderer,
@@ -25,8 +25,7 @@ export const textTokens: ReadonlySignal<TokenPackage> = computed(() =>
   t
     .set(SET_NAME)
     .group(groupButtonTokens)
-    .select(buttonMainTokenSelector)
-    .allowTokens(BUTTON_ALLOWED_TOKENS)
+    .select(buttonMainTokenSelector, buttonAllowedTokensSelector)
     .adjustTokens(fixFullShape)
     .append({
       default: specialTokens,

@@ -1,11 +1,13 @@
-import type { ResolveAdjuster } from '../../.tproc/resolve.ts';
+import type { ProcessedTokenValue } from '../../.tproc/processTokenSet.ts';
 import { attribute, selector, type Param } from '../../.tproc/selector.ts';
 import type { DeclarationBlockRenderer } from '../../.tproc/TokenPackage.ts';
 import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
 import {
   componentStateMap,
+  createAllowedTokensSelector,
   not,
   type GroupResult,
+  type GroupSelector,
   type Predicate,
   type TokenSet,
 } from '../../.tproc/utils.ts';
@@ -21,46 +23,6 @@ export const BUTTON_STATES = [
 ] as const;
 
 export const SELECTION_STATES = ['selected', 'unselected'] as const;
-
-export const BUTTON_ALLOWED_TOKENS = [
-  'container.color',
-  'container.color.reverse',
-  'container.elevation',
-  'container.height',
-  'container.opacity',
-  'container.shape',
-  'container.shape.round',
-  'container.shape.square',
-  'container.shadow-color',
-  'focus.indicator.color',
-  'focus.indicator.outline.offset',
-  'focus.indicator.thickness',
-  'icon.color',
-  'icon.size',
-  'icon.opacity',
-  'icon-label-space',
-  'label-text.color',
-  'label-text.color.reverse',
-  'label-text.font-name',
-  'label-text.font-weight',
-  'label-text.font-size',
-  'label-text.line-height',
-  'label-text.opacity',
-  'leading-space',
-  'trailing-space',
-  'outline.color',
-  'outline.width',
-  'press.duration',
-  'press.easing',
-  'ripple.color',
-  'ripple.duration',
-  'ripple.easing',
-  'ripple.opacity',
-  'shadow.color',
-  'state-layer.color',
-  'state-layer.opacity',
-  'level',
-] as const;
 
 export function groupButtonTokens(tokenName: string): GroupResult {
   const parts = tokenName.split('.');
@@ -133,7 +95,10 @@ export function createButtonExtensions(
   };
 }
 
-export const fixFullShape: ResolveAdjuster = (value, path) => {
+export function fixFullShape(
+  value: ProcessedTokenValue,
+  path: readonly string[],
+): ProcessedTokenValue | null {
   if (
     path.some((entry) => entry.includes('container.shape')) &&
     value === 'full'
@@ -142,7 +107,48 @@ export const fixFullShape: ResolveAdjuster = (value, path) => {
   }
 
   return value;
-};
+}
+
+export const buttonAllowedTokensSelector: GroupSelector =
+  createAllowedTokensSelector([
+    'container.color',
+    'container.color.reverse',
+    'container.elevation',
+    'container.height',
+    'container.opacity',
+    'container.shape',
+    'container.shape.round',
+    'container.shape.square',
+    'container.shadow-color',
+    'focus.indicator.color',
+    'focus.indicator.outline.offset',
+    'focus.indicator.thickness',
+    'icon.color',
+    'icon.size',
+    'icon.opacity',
+    'icon-label-space',
+    'label-text.color',
+    'label-text.color.reverse',
+    'label-text.font-name',
+    'label-text.font-weight',
+    'label-text.font-size',
+    'label-text.line-height',
+    'label-text.opacity',
+    'leading-space',
+    'trailing-space',
+    'outline.color',
+    'outline.width',
+    'press.duration',
+    'press.easing',
+    'ripple.color',
+    'ripple.duration',
+    'ripple.easing',
+    'ripple.opacity',
+    'shadow.color',
+    'state-layer.color',
+    'state-layer.opacity',
+    'level',
+  ]);
 
 export const notDisabledTokenSelector: Predicate<[path: string]> = not(
   disabledTokenSelector,
@@ -175,12 +181,12 @@ export function createButtonScopedDeclarationRenderer(
     let state: string;
     let selection: string | undefined;
 
-    const i = path.indexOf('.');
-    if (i === -1) {
+    const index = path.indexOf('.');
+    if (index < 0) {
       state = path;
     } else {
-      selection = path.slice(0, i);
-      state = path.slice(i + 1);
+      selection = path.slice(0, index);
+      state = path.slice(index + 1);
     }
 
     return {

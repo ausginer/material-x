@@ -6,8 +6,8 @@ import type { TokenValue } from '../../../.tproc/utils.ts';
 import type { GroupSelector } from '../../../.tproc/utils.ts';
 import * as CSSVariable from '../../../.tproc/variable.ts';
 import {
-  BUTTON_ALLOWED_TOKENS,
   BUTTON_STATES,
+  buttonAllowedTokensSelector,
   buttonMainTokenSelector,
   buttonSwitchTokenSelector,
   createButtonExtensions,
@@ -52,8 +52,7 @@ const createPackage = (...groupSelectors: readonly GroupSelector[]) =>
   t
     .set(SET_NAME)
     .group(groupButtonTokens)
-    .select(...groupSelectors)
-    .allowTokens(BUTTON_ALLOWED_TOKENS)
+    .select(...groupSelectors, buttonAllowedTokensSelector)
     .adjustTokens(fixFullShape)
     .append({
       default: specialTokens,

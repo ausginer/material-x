@@ -95,6 +95,18 @@ export function* distinct<T>(
   return undefined;
 }
 
+export function createAllowedTokensSelector(
+  allowedTokens: readonly string[],
+): GroupSelector {
+  return (_, tokenName) => {
+    if (!tokenName) {
+      return true;
+    }
+
+    return allowedTokens.includes(tokenName);
+  };
+}
+
 export type Predicate<T extends readonly any[]> = (...args: T) => boolean;
 
 export function not<T extends readonly any[]>(

@@ -3,7 +3,10 @@ import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t } from '../../../.tproc/index.ts';
 import { attribute } from '../../../.tproc/selector.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
-import type { Grouper, GroupSelector } from '../../../.tproc/utils.ts';
+import {
+  createAllowedTokensSelector,
+  type GroupSelector,
+} from '../../../.tproc/utils.ts';
 import {
   buttonMainTokenSelector,
   createButtonExtensions,
@@ -15,16 +18,15 @@ import {
 const SET_BASE_NAME = 'md.comp.split-button';
 const SIZES = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
 
-const skipGroup: Grouper = (tokenName) => ({
-  path: 'default',
-  name: `__skip.${tokenName}`,
-});
-
 export const splitDefaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
   t
     .set(SET_BASE_NAME)
-    .group(skipGroup)
-    .allowTokens(['menu-button.press.easing', 'menu-button.press.duration'])
+    .select(
+      createAllowedTokensSelector([
+        'menu-button.press.easing',
+        'menu-button.press.duration',
+      ]),
+    )
     .append({
       default: {
         'menu-button.press.easing': motionEffects['standard.fast-spatial'],
@@ -35,6 +37,15 @@ export const splitDefaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
     .build(),
 );
 
+const sizeAllowedTokensSelector = createAllowedTokensSelector([
+  'trailing-button.icon.size',
+  'inner-corner.corner-size',
+  'leading-button.leading-space',
+  'leading-button.trailing-space',
+  'trailing-button.leading-space',
+  'trailing-button.trailing-space',
+]);
+
 const createPackage = (
   size: string,
   ...groupSelectors: readonly GroupSelector[]
@@ -42,15 +53,7 @@ const createPackage = (
   t
     .set(`${SET_BASE_NAME}.${size}`)
     .group(groupButtonTokens)
-    .select(...groupSelectors)
-    .allowTokens([
-      'trailing-button.icon.size',
-      'inner-corner.corner-size',
-      'leading-button.leading-space',
-      'leading-button.trailing-space',
-      'trailing-button.leading-space',
-      'trailing-button.trailing-space',
-    ])
+    .select(...groupSelectors, sizeAllowedTokensSelector)
     .extend(createButtonExtensions())
     .adjustTokens(fixFullShape)
     .renderDeclarations(

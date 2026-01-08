@@ -16,14 +16,14 @@ import {
 } from '../../../.tproc/utils.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
-  BUTTON_ALLOWED_TOKENS,
+  buttonAllowedTokensSelector,
   buttonMainTokenSelector,
   buttonSwitchTokenSelector,
   createButtonExtensions,
   createButtonScopedDeclarationRenderer,
-  notDisabledTokenSelector,
   fixFullShape,
   groupButtonTokens,
+  notDisabledTokenSelector,
   omitSelectedShape,
 } from '../utils.ts';
 
@@ -81,8 +81,7 @@ const createVariantPackage = (
   return t
     .set(setName)
     .group(groupButtonTokens)
-    .select(...groupSelectors)
-    .allowTokens(BUTTON_ALLOWED_TOKENS)
+    .select(...groupSelectors, buttonAllowedTokensSelector)
     .adjustTokens(fixFullShape)
     .append({
       default: specialTokens,

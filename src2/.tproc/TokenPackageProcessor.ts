@@ -22,7 +22,6 @@ import {
 } from './utils.ts';
 
 export type ExtensionCallback = (x: ExtensionManager) => void;
-type AllowedTokenMap = Record<string, true>;
 
 type RawNodeBucket = Record<string, ProcessedTokenValue>;
 
@@ -47,7 +46,6 @@ export class TokenPackageProcessor {
     defaultDeclarationBlockRenderer,
   ];
   #group: Grouper = defaultGrouper;
-  #allowedTokens?: AllowedTokenMap;
   #extensionCallback?: ExtensionCallback;
   #selectors: readonly GroupSelector[] = [defaultSelector];
 
@@ -89,16 +87,6 @@ export class TokenPackageProcessor {
    */
   append(tokens: AppendInput): this {
     this.#appends.push(tokens);
-    return this;
-  }
-
-  /**
-   * Whitelists tokens that should be emitted in the final CSS.
-   */
-  allowTokens(tokens: readonly string[]): this {
-    this.#allowedTokens = Object.fromEntries(
-      tokens.map((token) => [token, true] as const),
-    );
     return this;
   }
 
@@ -203,19 +191,10 @@ export class TokenPackageProcessor {
     }
 
     const resolved = Object.fromEntries(
-      Object.entries(nodes).map(([key, node]) => {
-        const tokens = resolveSet(node, ...this.#tokenAdjusters);
-        return [
-          key,
-          this.#allowedTokens
-            ? Object.fromEntries(
-                Object.entries(tokens).filter(
-                  ([name]) => this.#allowedTokens![name],
-                ),
-              )
-            : tokens,
-        ];
-      }),
+      Object.entries(nodes).map(([key, node]) => [
+        key,
+        resolveSet(node, ...this.#tokenAdjusters),
+      ]),
     );
 
     const { deduped, effective, order } = resolveInheritance(

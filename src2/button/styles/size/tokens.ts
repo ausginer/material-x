@@ -5,7 +5,7 @@ import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import type { GroupSelector } from '../../../.tproc/utils.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
-  BUTTON_ALLOWED_TOKENS,
+  buttonAllowedTokensSelector,
   buttonMainTokenSelector,
   buttonSwitchTokenSelector,
   createButtonExtensions,
@@ -27,8 +27,7 @@ const createPackage = (
   t
     .set(`md.comp.button.${size}`)
     .group(groupButtonTokens)
-    .select(...groupSelectors)
-    .allowTokens(BUTTON_ALLOWED_TOKENS)
+    .select(...groupSelectors, buttonAllowedTokensSelector)
     .adjustTokens(fixFullShape)
     .extend(createButtonExtensions(baseTokens.value))
     .renderDeclarations(
