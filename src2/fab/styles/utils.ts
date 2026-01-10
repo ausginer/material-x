@@ -1,11 +1,9 @@
-import processTokenSet from '../../.tproc/processTokenSet.ts';
-import { resolveSet } from '../../.tproc/resolve.ts';
 import { selector, type Param } from '../../.tproc/selector.ts';
 import type { DeclarationBlockRenderer } from '../../.tproc/TokenPackage.ts';
 import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
 import {
+  componentStateMap,
   createAllowedTokensSelector,
-  type AppendInput,
   type Grouper,
   type GroupSelector,
   type TokenSet,
@@ -19,20 +17,27 @@ export const FAB_STATES = [
   'disabled',
 ] as const;
 
-export const groupFabTokens: Grouper = (tokenName) => {
+export const groupFABTokens: Grouper = (tokenName) => {
   const parts = tokenName.split('.');
-  const [first] = parts;
-  const isState = !!first && FAB_STATES.includes(first);
-  const state = isState ? first : 'default';
-  const nameParts = isState ? parts.slice(1) : parts;
+  let state = 'default';
+
+  const nameParts = [];
+  for (const part of parts) {
+    if (FAB_STATES.includes(part)) {
+      state = part;
+      continue;
+    }
+
+    nameParts.push(part);
+  }
 
   return {
     path: state,
-    name: nameParts.join('.'),
+    tokenName: nameParts.join('.'),
   };
 };
 
-export function createFabExtensions(
+export function createFABExtensions(
   base?: Readonly<Record<string, TokenSet>>,
 ): ExtensionCallback {
   const baseDefault = base?.['default'];
@@ -41,12 +46,12 @@ export function createFabExtensions(
   const basePressed = base?.['pressed'];
   const baseDisabled = base?.['disabled'];
 
-  return ({ state }) => {
-    const defaultState = state('default').extends(baseDefault);
-    state('hovered').extends(defaultState, baseHovered);
-    state('focused').extends(defaultState, baseFocused);
-    state('pressed').extends(defaultState, basePressed);
-    state('disabled').extends(defaultState, baseDisabled);
+  return (m) => {
+    const defaultState = m.state('default').extends(baseDefault);
+    m.state('hovered').extends(defaultState, baseHovered);
+    m.state('focused').extends(defaultState, baseFocused);
+    m.state('pressed').extends(defaultState, basePressed);
+    m.state('disabled').extends(defaultState, baseDisabled);
   };
 }
 
@@ -66,8 +71,6 @@ export const fabAllowedTokensSelector: GroupSelector =
     'label-text.line-height',
     'direction',
     'icon-label-space',
-    'state-layer.color',
-    'state-layer.opacity',
     'gap',
     'elevation.default',
     'elevation.hovered',
@@ -87,25 +90,13 @@ export function createFABScopedDeclarationRenderer(
   return (path, declarations) => ({
     path,
     declarations,
-    selectors: [selector(':host', scope, ...params)],
+    selectors: [
+      selector(
+        ':host',
+        scope,
+        ...params,
+        path === 'default' ? null : componentStateMap[path],
+      ),
+    ],
   });
-}
-
-export function createAppendTokens(
-  setName: string,
-  grouper: Grouper,
-): AppendInput {
-  const resolved = resolveSet(processTokenSet(setName));
-
-  return Object.entries(resolved).reduce<
-    Record<string, Record<string, string | number>>
-  >((acc, [tokenName, value]) => {
-    const { path, name } = grouper(tokenName);
-    const key = path.length > 0 ? path : 'default';
-
-    acc[key] ??= {};
-    acc[key][name] = value;
-
-    return acc;
-  }, {});
 }

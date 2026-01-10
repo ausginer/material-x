@@ -5,10 +5,10 @@ import type { TokenSet, TokenValue } from '../../../.tproc/utils.ts';
 import * as CSSVariable from '../../../.tproc/variable.ts';
 import {
   FAB_STATES,
-  createAppendTokens,
-  createFabExtensions,
+  createFABExtensions,
+  createFABScopedDeclarationRenderer,
   fabAllowedTokensSelector,
-  groupFabTokens,
+  groupFABTokens,
 } from '../utils.ts';
 
 const SET_NAME_GENERAL = 'md.comp.fab';
@@ -29,30 +29,45 @@ const specialTokens = {
   'shadow.color': CSSVariable.ref('container.shadow-color'),
 };
 
-const tertiaryTokens = createAppendTokens(SET_NAME_TERTIARY, groupFabTokens);
+const renderer = createFABScopedDeclarationRenderer();
 
-const createPackage = () =>
+export const defaultGeneralTokens: ReadonlySignal<TokenPackage> = computed(() =>
   t
     .set(SET_NAME_GENERAL)
-    .group(groupFabTokens)
+    .group(groupFABTokens)
     .select(fabAllowedTokensSelector)
-    .append(tertiaryTokens)
-    .append({
-      default: specialTokens,
-    })
-    .extend(createFabExtensions())
-    .build();
-
-export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createPackage(),
+    .append('default', specialTokens)
+    .extend(createFABExtensions())
+    .renderDeclarations(renderer)
+    .build(),
 );
+
+export const defaultTertiaryTokens: ReadonlySignal<TokenPackage> = computed(
+  () =>
+    t
+      .set(SET_NAME_TERTIARY)
+      .group(groupFABTokens)
+      .select(fabAllowedTokensSelector)
+      .extend(createFABExtensions())
+      .renderDeclarations(renderer)
+      .build(),
+);
+
+console.log({ tertiary: defaultTertiaryTokens.value.render() });
 
 export const defaultEffectiveTokens: ReadonlySignal<
   Readonly<Record<string, Readonly<Record<string, TokenValue>>>>
 > = computed<Readonly<Record<string, TokenSet>>>(() => {
-  const base = defaultTokens.value;
+  const general = defaultGeneralTokens.value;
+  const tertiary = defaultTertiaryTokens.value;
 
   return Object.fromEntries(
-    FAB_STATES.map((state) => [state, base.effective(state) ?? {}]),
+    FAB_STATES.map((state) => [
+      state,
+      {
+        ...general.effective(state),
+        ...tertiary.effective(state),
+      },
+    ]),
   );
 });

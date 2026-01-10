@@ -87,7 +87,7 @@ export class TokenPackage {
           return [];
         }
 
-        return Array.isArray(rendered) ? [...rendered] : [rendered];
+        return Array.isArray(rendered) ? rendered : [rendered];
       });
 
       for (const block of renderBlocks) {

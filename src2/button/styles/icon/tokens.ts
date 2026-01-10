@@ -4,7 +4,6 @@ import {
   attribute,
   pseudoElement,
   selector,
-  type Param,
 } from '../../../.tproc/selector.ts';
 import type {
   DeclarationBlockRenderer,
@@ -12,6 +11,8 @@ import type {
 } from '../../../.tproc/TokenPackage.ts';
 import {
   componentStateMap,
+  createAllowedTokensSelector,
+  type Grouper,
   type GroupSelector,
 } from '../../../.tproc/utils.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
@@ -45,17 +46,25 @@ export const VARIANTS = [
 const WIDTHS = ['wide', 'narrow'] as const;
 const baseTokens = defaultEffectiveTokens;
 
-function variantScope(variant: string): Param | undefined {
+function variantScope(variant: string) {
   if ((DEFAULTS as readonly string[]).includes(variant)) {
     return undefined;
   }
 
   if ((COLORS as readonly string[]).includes(variant)) {
-    return attribute('color', variant);
+    return {
+      name: 'color',
+      value: variant,
+      useState: true,
+    };
   }
 
   if ((SIZES as readonly string[]).includes(variant)) {
-    return attribute('size', variant);
+    return {
+      name: 'size',
+      value: variant,
+      useState: true,
+    };
   }
 
   return undefined;
@@ -83,11 +92,9 @@ const createVariantPackage = (
     .group(groupButtonTokens)
     .select(...groupSelectors, buttonAllowedTokensSelector)
     .adjustTokens(fixFullShape)
-    .append({
-      default: specialTokens,
-      'unselected.default': specialUnselectedTokens,
-      'selected.default': specialSelectedTokens,
-    })
+    .append('default', specialTokens)
+    .append('unselected.default', specialUnselectedTokens)
+    .append('selected.default', specialSelectedTokens)
     .extend(createButtonExtensions(baseTokens.value))
     .renderDeclarations(createButtonScopedDeclarationRenderer(scope))
     .build();
@@ -110,18 +117,15 @@ export const variantSwitchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
     ),
   );
 
-function widthGroup(width: string): (tokenName: string) => {
-  path: string;
-  name: string;
-} {
+function widthGroup(width: string): Grouper {
   const prefix = `${width}.`;
 
   return (tokenName) => {
-    const normalized = tokenName.includes(prefix)
-      ? tokenName.replace(prefix, '')
-      : `__skip.${tokenName}`;
+    if (!tokenName.includes(prefix)) {
+      return null;
+    }
 
-    return groupButtonTokens(normalized);
+    return groupButtonTokens(tokenName.replace(prefix, ''));
   };
 }
 
@@ -135,13 +139,9 @@ function createWidthRenderer(
 
   return (path, declarations) => {
     const stateParam = path === 'default' ? null : componentStateMap[path];
-    const baseSelector = selector(
-      ':host',
-      sizeAttribute,
-      widthAttribute,
-      stateParam,
-    );
-    const selectors = [baseSelector];
+    const selectors = [
+      selector(':host', sizeAttribute, widthAttribute, stateParam),
+    ];
 
     if (path === 'default') {
       const hostSelector = selector(':host', sizeAttribute);
@@ -156,12 +156,16 @@ function createWidthRenderer(
   };
 }
 
+const widthAllowedTokenSelector = createAllowedTokensSelector([
+  'leading-space',
+  'trailing-space',
+]);
+
 const createWidthPackage = (size: string, width: string): TokenPackage =>
   t
     .set(`md.comp.icon-button.${size}`)
     .group(widthGroup(width))
-    .select(buttonMainTokenSelector)
-    .allowTokens(['leading-space', 'trailing-space'])
+    .select(buttonMainTokenSelector, widthAllowedTokenSelector)
     .adjustTokens(fixFullShape)
     .extend(createButtonExtensions(baseTokens.value))
     .renderDeclarations(createWidthRenderer(size, width))

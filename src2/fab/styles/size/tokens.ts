@@ -4,9 +4,9 @@ import { attribute } from '../../../.tproc/selector.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
   createFABScopedDeclarationRenderer,
-  createFabExtensions,
+  createFABExtensions,
   fabAllowedTokensSelector,
-  groupFabTokens,
+  groupFABTokens,
 } from '../utils.ts';
 
 const SIZES = ['large', 'medium'] as const;
@@ -19,12 +19,10 @@ const createPackage = (size: string) => {
 
   return t
     .set(setName)
-    .group(groupFabTokens)
+    .group(groupFABTokens)
     .select(fabAllowedTokensSelector)
-    .append({
-      default: specialTokens,
-    })
-    .extend(createFabExtensions(defaultEffectiveTokens.value))
+    .append('default', specialTokens)
+    .extend(createFABExtensions(defaultEffectiveTokens.value))
     .renderDeclarations(
       createFABScopedDeclarationRenderer(attribute('size', size)),
     )

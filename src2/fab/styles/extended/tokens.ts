@@ -1,13 +1,14 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
 import { attribute } from '../../../.tproc/selector.ts';
+import { createDefaultFirstSorter } from '../../../.tproc/utils.ts';
 import * as CSSVariable from '../../../.tproc/variable.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
-  createFabExtensions,
+  createFABExtensions,
   createFABScopedDeclarationRenderer,
   fabAllowedTokensSelector,
-  groupFabTokens,
+  groupFABTokens,
 } from '../utils.ts';
 
 const COLORS = ['primary', 'secondary', 'tertiary'] as const;
@@ -28,16 +29,8 @@ const DEFAULTS = ['tertiary', 'tertiary-container', 'small'] as const;
 const EXTENDED = attribute('extended');
 const TONAL = attribute('tonal');
 
-function variantsSortComparator(a: string, b: string) {
-  if (DEFAULTS.includes(a)) {
-    return -1;
-  }
-
-  if (DEFAULTS.includes(b)) {
-    return 1;
-  }
-
-  return 0;
+function isDefaultVariant(v: Variant) {
+  return DEFAULTS.includes(v);
 }
 
 function getScope(variant: Variant) {
@@ -68,9 +61,9 @@ const createPackage = (variant: Variant) => {
 
   let builder = t
     .set(setName)
-    .group(groupFabTokens)
+    .group(groupFABTokens)
     .select(fabAllowedTokensSelector)
-    .extend(createFabExtensions(defaultEffectiveTokens.value))
+    .extend(createFABExtensions(defaultEffectiveTokens.value))
     .renderDeclarations(
       createFABScopedDeclarationRenderer(
         getScope(variant),
@@ -80,12 +73,10 @@ const createPackage = (variant: Variant) => {
     );
 
   if (variant === 'tertiary') {
-    builder = builder.append({
-      default: {
-        'state-layer.color': `${setName}.pressed.state-layer.color`,
-        direction: 'row',
-        'container.width': CSSVariable.ref('container.height'),
-      },
+    builder = builder.append('default', {
+      'state-layer.color': `${setName}.pressed.state-layer.color`,
+      direction: 'row',
+      'container.width': CSSVariable.ref('container.height'),
     });
   }
 
@@ -93,6 +84,6 @@ const createPackage = (variant: Variant) => {
 };
 
 export const extendedTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
-  VARIANTS.toSorted(variantsSortComparator).map((variant) =>
+  VARIANTS.toSorted(createDefaultFirstSorter(isDefaultVariant)).map((variant) =>
     computed(() => createPackage(variant)),
   );

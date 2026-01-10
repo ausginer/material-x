@@ -12,7 +12,7 @@ export const t: TokenManager = {
 export { TokenPackage } from './TokenPackage.ts';
 export { TokenPackageProcessor as TokenProcessor } from './TokenPackageProcessor.ts';
 export type {
-  AppendInput,
+  AppendEntry,
   Extendable,
   ExtensionManager,
   Grouper,

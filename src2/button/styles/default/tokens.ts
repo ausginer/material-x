@@ -1,9 +1,9 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
+import type { TupleToUnion } from 'type-fest';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t } from '../../../.tproc/index.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
-import type { TokenValue } from '../../../.tproc/utils.ts';
-import type { GroupSelector } from '../../../.tproc/utils.ts';
+import type { GroupSelector, TokenSet } from '../../../.tproc/utils.ts';
 import * as CSSVariable from '../../../.tproc/variable.ts';
 import {
   BUTTON_STATES,
@@ -18,11 +18,15 @@ import {
   omitSelectedShape,
 } from '../utils.ts';
 
-const SET_NAME = 'md.comp.button';
+const GENERAL_SET_NAME = 'md.comp.button';
+const FILLED_SET_NAME = 'md.comp.button.filled';
+
+const SETS = [GENERAL_SET_NAME, FILLED_SET_NAME] as const;
+type Sets = TupleToUnion<typeof SETS>;
 
 const specialTokens = {
-  'state-layer.opacity': `${SET_NAME}.pressed.state-layer.opacity`,
-  'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
+  'state-layer.opacity': `${GENERAL_SET_NAME}.pressed.state-layer.opacity`,
+  'state-layer.color': `${GENERAL_SET_NAME}.pressed.state-layer.color`,
   'press.easing': motionEffects['expressive.fast-spatial'],
   'press.duration': motionEffects['expressive.fast-spatial.duration'],
   'ripple.color': CSSVariable.ref('state-layer.color'),
@@ -33,13 +37,13 @@ const specialTokens = {
 };
 
 const specialUnselectedTokens = {
-  'state-layer.color': `${SET_NAME}.unselected.pressed.state-layer.color`,
-  'container.color.reverse': `${SET_NAME}.selected.container.color`,
-  'label-text.color.reverse': `${SET_NAME}.label-text.selected.color`,
+  'state-layer.color': `${GENERAL_SET_NAME}.unselected.pressed.state-layer.color`,
+  'container.color.reverse': `${GENERAL_SET_NAME}.selected.container.color`,
+  'label-text.color.reverse': `${GENERAL_SET_NAME}.label-text.selected.color`,
 };
 
 const specialSelectedTokens = {
-  'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
+  'state-layer.color': `${GENERAL_SET_NAME}.selected.pressed.state-layer.color`,
 };
 
 export function disabledTokenSelector(path: string): boolean {
@@ -48,43 +52,54 @@ export function disabledTokenSelector(path: string): boolean {
 
 const renderer = createButtonScopedDeclarationRenderer();
 
-const createPackage = (...groupSelectors: readonly GroupSelector[]) =>
+const createPackage = (
+  set: Sets,
+  ...groupSelectors: readonly GroupSelector[]
+) =>
   t
-    .set(SET_NAME)
+    .set(set)
     .group(groupButtonTokens)
     .select(...groupSelectors, buttonAllowedTokensSelector)
     .adjustTokens(fixFullShape)
-    .append({
-      default: specialTokens,
-      'unselected.default': specialUnselectedTokens,
-      'selected.default': specialSelectedTokens,
-    })
+    .append('default', specialTokens)
+    .append('unselected.default', specialUnselectedTokens)
+    .append('selected.default', specialSelectedTokens)
     .extend(createButtonExtensions())
     .renderDeclarations(renderer)
     .build();
 
-export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createPackage(buttonMainTokenSelector, notDisabledTokenSelector),
-);
+export const defaultTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  SETS.map((set) =>
+    computed(() =>
+      createPackage(set, buttonMainTokenSelector, notDisabledTokenSelector),
+    ),
+  );
 
-export const defaultSwitchTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createPackage(
-    buttonSwitchTokenSelector,
-    notDisabledTokenSelector,
-    omitSelectedShape,
-  ),
-);
+export const defaultSwitchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  SETS.map((set) =>
+    computed(() =>
+      createPackage(
+        set,
+        buttonSwitchTokenSelector,
+        notDisabledTokenSelector,
+        omitSelectedShape,
+      ),
+    ),
+  );
 
 export const disabledTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createPackage(disabledTokenSelector),
+  createPackage(GENERAL_SET_NAME, disabledTokenSelector),
 );
 
 export const defaultEffectiveTokens: ReadonlySignal<
-  Readonly<Record<string, Readonly<Record<string, TokenValue>>>>
+  Readonly<Record<string, readonly TokenSet[]>>
 > = computed(() => {
-  const base = defaultTokens.value;
+  const base = defaultTokens.map((s) => s.value);
 
   return Object.fromEntries(
-    BUTTON_STATES.map((state) => [state, base.effective(state) ?? {}]),
+    BUTTON_STATES.map((state) => [
+      state,
+      base.map((pack) => pack.effective(state) ?? {}),
+    ]),
   );
 });

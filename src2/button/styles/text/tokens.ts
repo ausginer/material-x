@@ -1,6 +1,5 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t } from '../../../.tproc/index.ts';
-import { attribute } from '../../../.tproc/selector.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
 import {
@@ -13,8 +12,6 @@ import {
 } from '../utils.ts';
 
 const SET_NAME = 'md.comp.button.text';
-const COLOR_ATTRIBUTE = 'color';
-const COLOR_VALUE = 'text';
 
 const specialTokens = {
   'container.color': 'transparent',
@@ -27,14 +24,14 @@ export const textTokens: ReadonlySignal<TokenPackage> = computed(() =>
     .group(groupButtonTokens)
     .select(buttonMainTokenSelector, buttonAllowedTokensSelector)
     .adjustTokens(fixFullShape)
-    .append({
-      default: specialTokens,
-    })
+    .append('default', specialTokens)
     .extend(createButtonExtensions(defaultEffectiveTokens.value))
     .renderDeclarations(
-      createButtonScopedDeclarationRenderer(
-        attribute(COLOR_ATTRIBUTE, COLOR_VALUE),
-      ),
+      createButtonScopedDeclarationRenderer({
+        name: 'color',
+        value: 'text',
+        useState: true,
+      }),
     )
     .build(),
 );

@@ -85,7 +85,7 @@ const groupTextFieldTokens: Grouper = (tokenName) => {
 
   return {
     path: error ? `${error}.${state}` : state,
-    name: nameParts.join('.'),
+    tokenName: nameParts.join('.'),
   };
 };
 
@@ -98,15 +98,15 @@ function createTextFieldExtensions(
   const baseFocus = base?.['focus'];
   const baseDisabled = base?.['disabled'];
 
-  return ({ state }) => {
-    const defaultState = state('default').extends(baseDefault);
-    state('hovered').extends(defaultState, baseHover);
-    state('focused').extends(defaultState, baseFocus);
-    state('disabled').extends(defaultState, baseDisabled);
+  return (m) => {
+    const defaultState = m.state('default').extends(baseDefault);
+    m.state('hovered').extends(defaultState, baseHover);
+    m.state('focused').extends(defaultState, baseFocus);
+    m.state('disabled').extends(defaultState, baseDisabled);
 
-    const errorState = state('error').extends(defaultState);
-    state('error.hovered').extends(defaultState, errorState);
-    state('error.focused').extends(defaultState, errorState);
+    const errorState = m.state('error').extends(defaultState);
+    m.state('error.hovered').extends(defaultState, errorState);
+    m.state('error.focused').extends(defaultState, errorState);
   };
 }
 
@@ -138,9 +138,7 @@ const createPackage = (type: 'filled' | 'outlined') => {
     .extend(createTextFieldExtensions());
 
   if (type === 'filled') {
-    processor.append({
-      default: specialFilledTokens,
-    });
+    processor.append('default', specialFilledTokens);
   }
 
   return processor.build();

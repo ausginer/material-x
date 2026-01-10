@@ -5,18 +5,16 @@ export const root: URL = new URL('../../', import.meta.url);
 
 export type GroupResult = Readonly<{
   path: string;
-  name: string;
+  tokenName: string;
 }>;
 
-export type Grouper = (tokenName: string) => GroupResult;
+export type Grouper = (tokenName: string) => GroupResult | null;
 export type GroupSelector = (path: string, tokenName?: string) => boolean;
 
 export type TokenValue = string | number;
 export type TokenSet = Readonly<Record<string, TokenValue>>;
 
-export type AppendInput = Readonly<
-  Record<string, Readonly<Record<string, TokenValue>>>
->;
+export type AppendEntry = readonly [path: string, tokens: TokenSet];
 
 export interface ExtensionManager {
   state(path: string): Extendable;
@@ -41,7 +39,7 @@ export type ExtensionEntry = Readonly<{
 /** Default grouping: places all tokens in the "default" bucket. */
 export const defaultGrouper: Grouper = (tokenName) => ({
   path: 'default',
-  name: tokenName,
+  tokenName: tokenName,
 });
 
 export const componentStateMap: Readonly<Record<string, Param>> = {
@@ -113,4 +111,24 @@ export function not<T extends readonly any[]>(
   predicate: Predicate<T>,
 ): Predicate<T> {
   return (...args) => !predicate(...args);
+}
+
+export type Comparator<T extends readonly unknown[]> = Parameters<
+  T['toSorted']
+>[0];
+
+export function createDefaultFirstSorter<T>(
+  isDefault: (item: T) => boolean,
+): Comparator<readonly T[]> {
+  return (a, b) => {
+    if (isDefault(a)) {
+      return -1;
+    }
+
+    if (isDefault(b)) {
+      return 1;
+    }
+
+    return 0;
+  };
 }

@@ -1,14 +1,13 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t } from '../../../.tproc/index.ts';
+import { attribute } from '../../../.tproc/selector.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import { fixFullShape } from '../../../button/styles/utils.ts';
 import {
   BUTTON_GROUP_SIZES,
-  STANDARD_ALLOWED_TOKENS,
+  standardAllowedTokensSelector,
   createButtonGroupDeclarationRenderer,
-  createHostAttributeAdjuster,
-  createSlottedStateAdjuster,
   groupButtonGroupTokens,
 } from '../utils.ts';
 
@@ -28,17 +27,18 @@ const createPackage = (size: (typeof BUTTON_GROUP_SIZES)[number]) => {
   let processor = t
     .set(`${SET_BASE_NAME}.${size}`)
     .group(groupButtonGroupTokens)
-    .allowTokens(STANDARD_ALLOWED_TOKENS)
+    .select(standardAllowedTokensSelector)
     .adjustTokens(fixFullShape)
     .renderDeclarations(
-      createButtonGroupDeclarationRenderer(
-        ...(!isSmall ? [createHostAttributeAdjuster('size', size)] : []),
-        ...(useSlottedStates ? [createSlottedStateAdjuster()] : []),
-      ),
+      createButtonGroupDeclarationRenderer({
+        scope: isSmall ? null : attribute('size', size),
+        useHostStates: isSmall,
+        useSlottedStates,
+      }),
     );
 
   if (isSmall) {
-    processor = processor.append({ default: specialTokens });
+    processor = processor.append('default', specialTokens);
   }
 
   return processor.build();

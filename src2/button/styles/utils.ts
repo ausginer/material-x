@@ -1,5 +1,5 @@
 import type { ProcessedTokenValue } from '../../.tproc/processTokenSet.ts';
-import { attribute, selector, type Param } from '../../.tproc/selector.ts';
+import { attribute, pseudoClass, selector } from '../../.tproc/selector.ts';
 import type { DeclarationBlockRenderer } from '../../.tproc/TokenPackage.ts';
 import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
 import {
@@ -46,52 +46,51 @@ export function groupButtonTokens(tokenName: string): GroupResult {
 
   return {
     path: selection ? `${selection}.${state}` : state,
-    name: nameParts.join('.'),
+    tokenName: nameParts.join('.'),
   };
 }
 
 export function createButtonExtensions(
-  base?: Readonly<Record<string, TokenSet>>,
+  base?: Readonly<Record<string, readonly TokenSet[]>>,
 ): ExtensionCallback {
-  const baseDefault = base?.['default'];
+  const baseDefault = base?.['default'] ?? [];
+  const baseHovered = base?.['hovered'] ?? [];
+  const baseFocused = base?.['focused'] ?? [];
+  const basePressed = base?.['pressed'] ?? [];
+  const baseDisabled = base?.['disabled'] ?? [];
 
-  const baseHovered = base?.['hovered'];
-  const baseFocused = base?.['focused'];
-  const basePressed = base?.['pressed'];
-  const baseDisabled = base?.['disabled'];
+  return (m) => {
+    const defaultState = m.state('default').extends(...baseDefault);
+    m.state('hovered').extends(defaultState, ...baseHovered);
+    m.state('focused').extends(defaultState, ...baseFocused);
+    m.state('pressed').extends(defaultState, ...basePressed);
+    m.state('disabled').extends(defaultState, ...baseDisabled);
 
-  return ({ state }) => {
-    const defaultState = state('default').extends(baseDefault);
-    state('hovered').extends(defaultState, baseHovered);
-    state('focused').extends(defaultState, baseFocused);
-    state('pressed').extends(defaultState, basePressed);
-    state('disabled').extends(defaultState, baseDisabled);
-
-    const unselectedDefault = state('unselected.default').extends(
-      defaultState,
-      baseDefault,
-    );
-    state('unselected.hovered').extends(
+    const unselectedDefault = m
+      .state('unselected.default')
+      .extends(defaultState, ...baseDefault);
+    m.state('unselected.hovered').extends(
       defaultState,
       unselectedDefault,
-      baseDefault,
+      ...baseDefault,
     );
-    state('unselected.focused').extends(
+    m.state('unselected.focused').extends(
       defaultState,
       unselectedDefault,
-      baseDefault,
+      ...baseDefault,
     );
-    state('unselected.pressed').extends(
+    m.state('unselected.pressed').extends(
       defaultState,
       unselectedDefault,
-      baseDefault,
+      ...baseDefault,
     );
 
-    const selectedDefault =
-      state('selected.default').extends(unselectedDefault);
-    state('selected.hovered').extends(unselectedDefault, selectedDefault);
-    state('selected.focused').extends(unselectedDefault, selectedDefault);
-    state('selected.pressed').extends(unselectedDefault, selectedDefault);
+    const selectedDefault = m
+      .state('selected.default')
+      .extends(unselectedDefault);
+    m.state('selected.hovered').extends(unselectedDefault, selectedDefault);
+    m.state('selected.focused').extends(unselectedDefault, selectedDefault);
+    m.state('selected.pressed').extends(unselectedDefault, selectedDefault);
   };
 }
 
@@ -127,12 +126,9 @@ export const buttonAllowedTokensSelector: GroupSelector =
     'icon.size',
     'icon.opacity',
     'icon-label-space',
+    'label-text',
     'label-text.color',
     'label-text.color.reverse',
-    'label-text.font-name',
-    'label-text.font-weight',
-    'label-text.font-size',
-    'label-text.line-height',
     'label-text.opacity',
     'leading-space',
     'trailing-space',
@@ -174,8 +170,14 @@ export function omitSelectedShape(path: string, tokenName?: string): boolean {
 
 const checked = attribute('checked');
 
+export type ButtonScope = Readonly<{
+  name: string;
+  value: string;
+  useState?: boolean;
+}>;
+
 export function createButtonScopedDeclarationRenderer(
-  scope?: Param,
+  scope?: ButtonScope,
 ): DeclarationBlockRenderer {
   return (path, declarations) => {
     let state: string;
@@ -189,16 +191,30 @@ export function createButtonScopedDeclarationRenderer(
       state = path.slice(index + 1);
     }
 
+    const scopeAttribute = scope
+      ? attribute(scope.name, scope.value)
+      : undefined;
+
+    const scopeState = scope?.useState
+      ? [
+          pseudoClass('state', scope.value),
+          pseudoClass('not', attribute(scope.name)),
+        ]
+      : [];
+
+    const commonParams = [
+      selection === 'selected' ? checked : null,
+      path === 'default' ? null : componentStateMap[state],
+    ];
+
     return {
       path,
       declarations,
       selectors: [
-        selector(
-          ':host',
-          scope,
-          selection === 'selected' ? checked : null,
-          path === 'default' ? null : componentStateMap[state],
-        ),
+        selector(':host', scopeAttribute, ...commonParams),
+        scope?.useState
+          ? selector(':host', ...scopeState, ...commonParams)
+          : null,
       ],
     };
   };

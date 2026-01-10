@@ -1,10 +1,11 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
+import type { TupleToUnion } from 'type-fest';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t } from '../../../.tproc/index.ts';
-import { attribute } from '../../../.tproc/selector.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import {
   createAllowedTokensSelector,
+  createDefaultFirstSorter,
   type GroupSelector,
 } from '../../../.tproc/utils.ts';
 import {
@@ -17,22 +18,14 @@ import {
 
 const SET_BASE_NAME = 'md.comp.split-button';
 const SIZES = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
+type Sizes = TupleToUnion<typeof SIZES>;
 
 export const splitDefaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
   t
-    .set(SET_BASE_NAME)
-    .select(
-      createAllowedTokensSelector([
-        'menu-button.press.easing',
-        'menu-button.press.duration',
-      ]),
-    )
-    .append({
-      default: {
-        'menu-button.press.easing': motionEffects['standard.fast-spatial'],
-        'menu-button.press.duration':
-          motionEffects['standard.fast-spatial.duration'],
-      },
+    .set({
+      'menu-button.press.easing': motionEffects['standard.fast-spatial'],
+      'menu-button.press.duration':
+        motionEffects['standard.fast-spatial.duration'],
     })
     .build(),
 );
@@ -46,8 +39,12 @@ const sizeAllowedTokensSelector = createAllowedTokensSelector([
   'trailing-button.trailing-space',
 ]);
 
+function isDefaultSize(size: Sizes) {
+  return size === 'small';
+}
+
 const createPackage = (
-  size: string,
+  size: Sizes,
   ...groupSelectors: readonly GroupSelector[]
 ) =>
   t
@@ -57,11 +54,19 @@ const createPackage = (
     .extend(createButtonExtensions())
     .adjustTokens(fixFullShape)
     .renderDeclarations(
-      createButtonScopedDeclarationRenderer(attribute('size', size)),
+      createButtonScopedDeclarationRenderer(
+        isDefaultSize(size)
+          ? undefined
+          : {
+              name: 'size',
+              value: size,
+              useState: true,
+            },
+      ),
     )
     .build();
 
 export const sizeTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
-  SIZES.map((size) =>
+  SIZES.toSorted(createDefaultFirstSorter(isDefaultSize)).map((size) =>
     computed(() => createPackage(size, buttonMainTokenSelector)),
   );

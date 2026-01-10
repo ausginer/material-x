@@ -1,13 +1,59 @@
-import type { TokenSet, ExtensionEntry, TokenValue } from './utils.ts';
+import type {
+  ExtensionEntry,
+  ParentRef,
+  TokenSet,
+  TokenValue,
+} from './utils.ts';
+
+declare const $parentState: unique symbol;
+
+export type ParentState = string & { [$parentState]: true };
+
+export type ExtensionParent = ParentState | TokenSet | null | undefined;
+
+export type ExtensionConsumer = (
+  path: string,
+  parents: readonly ExtensionParent[],
+) => void;
+
+export class ExtensionManager<_ extends boolean = false> {
+  readonly #callback: ExtensionConsumer;
+  #current?: string;
+
+  constructor(callback: ExtensionConsumer) {
+    this.#callback = callback;
+  }
+
+  state(this: ExtensionManager, state: string): ExtensionManager<true> {
+    this.#current = state;
+    return this;
+  }
+
+  extends(
+    this: ExtensionManager<true>,
+    ...parents: readonly ExtensionParent[]
+  ): ParentState {
+    const current = this.#current;
+
+    if (!current) {
+      throw new TypeError('State for extension is not selected');
+    }
+
+    this.#callback(current, parents);
+    this.#current = undefined;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+    return current as ParentState;
+  }
+}
 
 /**
  * Resolves inheritance and dedupes tokens based on the provided extensions.
  * Returns deduped token sets and a topological order of the nodes.
  */
-
 export function resolveInheritance(
   nodes: Readonly<Record<string, TokenSet>>,
-  extensions: Readonly<Record<string, ExtensionEntry>>,
+  extensions: Readonly<Record<string, readonly ParentRef[]>>,
   orderHint: readonly string[] = [],
 ): {
   deduped: Readonly<Record<string, TokenSet>>;
@@ -24,13 +70,13 @@ export function resolveInheritance(
     localParents[key] = [];
   }
 
-  for (const [key, entry] of Object.entries(extensions)) {
+  for (const [key, parents] of Object.entries(extensions)) {
     if (!Object.hasOwn(nodes, key)) {
       throw new Error(`Unknown node for extension: ${key}`);
     }
 
-    orderedParents[key] = entry.parents;
-    localParents[key] = entry.parents
+    orderedParents[key] = parents;
+    localParents[key] = parents
       .filter((parent) => parent.kind === 'local')
       .map((parent) => parent.key);
   }

@@ -2,11 +2,15 @@ import {
   attribute,
   pseudoClass,
   pseudoElement,
+  selector,
+  type Param,
 } from '../../.tproc/selector.ts';
-import type { BlockAdjuster, RenderBlock } from '../../.tproc/TokenPackage.ts';
 import type { DeclarationBlockRenderer } from '../../.tproc/TokenPackage.ts';
-import { composeDeclarationRenderer } from '../../.tproc/TokenPackage.ts';
-import type { GroupResult } from '../../.tproc/utils.ts';
+import {
+  createAllowedTokensSelector,
+  type GroupResult,
+  type GroupSelector,
+} from '../../.tproc/utils.ts';
 
 const STATE_NAMES = ['pressed', 'selected'] as const;
 
@@ -41,7 +45,7 @@ export const CONNECTED_ALLOWED_TOKENS_WITH_SHAPE: readonly string[] = [
 export function groupButtonGroupTokens(tokenName: string): GroupResult {
   const parts = tokenName.split('.');
   let state = 'default';
-  const nameParts: string[] = [];
+  const nameParts = [];
 
   for (const part of parts) {
     if (STATE_NAMES.includes(part)) {
@@ -54,91 +58,77 @@ export function groupButtonGroupTokens(tokenName: string): GroupResult {
 
   return {
     path: state,
-    name: nameParts.join('.'),
+    tokenName: nameParts.join('.'),
   };
 }
 
-function stripHostStateSelector(selector: string): string {
-  if (!selector.startsWith(':host(') || !selector.endsWith(')')) {
-    return selector;
-  }
+export const standardAllowedTokensSelector: GroupSelector =
+  createAllowedTokensSelector(STANDARD_ALLOWED_TOKENS);
 
-  const inner = selector.slice(6, -1);
-  const cleaned = inner
-    .replaceAll(':active', '')
-    .replace(/:state\([^)]+\)/g, '');
+export const connectedAllowedTokensSelector: GroupSelector =
+  createAllowedTokensSelector(CONNECTED_ALLOWED_TOKENS);
 
-  if (cleaned.length === 0) {
-    return ':host';
-  }
+export const connectedAllowedTokensWithShapeSelector: GroupSelector =
+  createAllowedTokensSelector(CONNECTED_ALLOWED_TOKENS_WITH_SHAPE);
 
-  return `:host(${cleaned})`;
+export function buttonGroupDefaultSelector(path: string): boolean {
+  return path === 'default';
 }
 
-export function createSlottedStateAdjuster(): BlockAdjuster {
-  const pressedSelector = pseudoElement('slotted', pseudoClass('active'));
-  const selectedSelector = pseudoElement('slotted', attribute('checked'));
-  const slottedMap: Readonly<Record<string, string>> = {
-    pressed: pressedSelector,
-    selected: selectedSelector,
-  };
+const pressedState = pseudoClass('active');
+const selectedState = attribute('checked');
+const slottedPressedState = pseudoElement('slotted', pressedState);
+const slottedSelectedState = pseudoElement('slotted', selectedState);
 
-  return (block) => {
-    const slotted = slottedMap[block.path];
+type ButtonGroupRendererOptions = Readonly<{
+  scope?: Param | null;
+  useHostStates?: boolean;
+  useSlottedStates?: boolean;
+  onlyDefault?: boolean;
+}>;
 
-    if (!slotted) {
-      return block;
+export function createButtonGroupDeclarationRenderer({
+  scope = null,
+  useHostStates,
+  useSlottedStates,
+  onlyDefault,
+}: ButtonGroupRendererOptions): DeclarationBlockRenderer {
+  const hostSelector = selector(':host', scope);
+
+  return (path, declarations) => {
+    if (onlyDefault && path !== 'default') {
+      return null;
     }
 
-    const host = stripHostStateSelector(block.selectors);
-    const selector = `${host} ${slotted}`;
-
-    return { ...block, selectors: selector };
-  };
-}
-
-export function dropNonDefaultBlocks(block: RenderBlock): RenderBlock | null {
-  return block.path === 'default' ? block : null;
-}
-
-export function createHostAttributeAdjuster(
-  attrName: string,
-  value: string,
-): BlockAdjuster {
-  const attrSelector = attribute(attrName, value);
-
-  return (block) => {
-    const selector = addHostParams(block.selectors, attrSelector);
-
-    if (selector === block.selectors) {
-      return block;
+    if (path === 'default') {
+      return {
+        path,
+        declarations,
+        selectors: [hostSelector],
+      };
     }
 
-    return { ...block, selectors: selector };
+    if (useHostStates) {
+      const stateParam = path === 'pressed' ? pressedState : selectedState;
+
+      return {
+        path,
+        declarations,
+        selectors: [selector(':host', scope, stateParam)],
+      };
+    }
+
+    if (useSlottedStates) {
+      const stateSelector =
+        path === 'pressed' ? slottedPressedState : slottedSelectedState;
+
+      return {
+        path,
+        declarations,
+        selectors: [`${hostSelector} ${stateSelector}`],
+      };
+    }
+
+    return null;
   };
-}
-
-function addHostParams(selector: string, params: string): string {
-  return selector
-    .split(',')
-    .map((entry) => {
-      const trimmed = entry.trim();
-
-      if (trimmed.includes(':host(')) {
-        return trimmed.replace(':host(', `:host(${params}`);
-      }
-
-      if (trimmed.includes(':host')) {
-        return trimmed.replace(':host', `:host(${params})`);
-      }
-
-      return trimmed;
-    })
-    .join(', ');
-}
-
-export function createButtonGroupDeclarationRenderer(
-  ...adjusters: readonly BlockAdjuster[]
-): DeclarationBlockRenderer {
-  return composeDeclarationRenderer(...adjusters);
 }

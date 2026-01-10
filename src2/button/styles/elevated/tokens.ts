@@ -1,6 +1,5 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t } from '../../../.tproc/index.ts';
-import { attribute } from '../../../.tproc/selector.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import type { GroupSelector } from '../../../.tproc/utils.ts';
 import * as CSSVariable from '../../../.tproc/variable.ts';
@@ -17,8 +16,6 @@ import {
 } from '../utils.ts';
 
 const SET_NAME = 'md.comp.button.elevated';
-const COLOR_ATTRIBUTE = 'color';
-const COLOR_VALUE = 'elevated';
 
 const specialTokens = {
   level: CSSVariable.ref('container-elevation'),
@@ -29,9 +26,11 @@ const specialSelectedTokens = {
   'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
 };
 
-const renderer = createButtonScopedDeclarationRenderer(
-  attribute(COLOR_ATTRIBUTE, COLOR_VALUE),
-);
+const renderer = createButtonScopedDeclarationRenderer({
+  name: 'color',
+  value: 'elevated',
+  useState: true,
+});
 
 const createPackage = (...groupSelectors: readonly GroupSelector[]) =>
   t
@@ -39,10 +38,8 @@ const createPackage = (...groupSelectors: readonly GroupSelector[]) =>
     .group(groupButtonTokens)
     .select(...groupSelectors, buttonAllowedTokensSelector)
     .adjustTokens(fixFullShape)
-    .append({
-      default: specialTokens,
-      'selected.default': specialSelectedTokens,
-    })
+    .append('default', specialTokens)
+    .append('selected.default', specialSelectedTokens)
     .extend(createButtonExtensions(defaultEffectiveTokens.value))
     .renderDeclarations(renderer)
     .build();

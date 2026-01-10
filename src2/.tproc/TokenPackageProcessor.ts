@@ -1,37 +1,26 @@
+import { ExtensionManager, resolveInheritance } from './ExtensionManager.ts';
 import processTokenSet, {
   type ProcessedTokenSet,
   type ProcessedTokenValue,
 } from './processTokenSet.ts';
 import { resolveSet, type ResolveAdjuster } from './resolve.ts';
-import { resolveInheritance } from './resolveInheritance.ts';
 import {
+  defaultDeclarationBlockRenderer,
   TokenPackage,
   type DeclarationBlockRenderer,
-  defaultDeclarationBlockRenderer,
 } from './TokenPackage.ts';
 import {
   defaultGrouper,
-  type AppendInput,
-  type Extendable,
-  type ExtensionEntry,
-  type ExtensionManager,
-  type ExtensionParent,
+  type AppendEntry,
   type Grouper,
   type GroupSelector,
   type ParentRef,
+  type TokenSet,
 } from './utils.ts';
 
-export type ExtensionCallback = (x: ExtensionManager) => void;
+export type ExtensionCallback = (manager: ExtensionManager) => void;
 
 type RawNodeBucket = Record<string, ProcessedTokenValue>;
-
-function isExtendable(value: ExtensionParent): value is Extendable {
-  return (
-    typeof value === 'object' &&
-    'extends' in value &&
-    typeof (value as { extends?: unknown }).extends === 'function'
-  );
-}
 
 function defaultSelector() {
   return true;
@@ -39,8 +28,9 @@ function defaultSelector() {
 
 export class TokenPackageProcessor {
   readonly #set: ProcessedTokenSet;
-  readonly #extensions: Record<string, ExtensionEntry> = {};
-  readonly #appends: AppendInput[] = [];
+  readonly #extensions: Record<string, readonly ParentRef[]> = {};
+  readonly #extensionMananger: ExtensionManager;
+  readonly #appends: AppendEntry[] = [];
   readonly #tokenAdjusters: ResolveAdjuster[] = [];
   #renderers: readonly DeclarationBlockRenderer[] = [
     defaultDeclarationBlockRenderer,
@@ -59,6 +49,28 @@ export class TokenPackageProcessor {
     } else {
       this.#set = setOrSetName;
     }
+
+    this.#extensionMananger = new ExtensionManager((path, parents) => {
+      const refs: ParentRef[] = [];
+
+      for (const parent of parents) {
+        if (!parent) {
+          continue;
+        }
+
+        if (typeof parent === 'string') {
+          refs.push({ kind: 'local', key: parent });
+          continue;
+        }
+
+        refs.push({
+          kind: 'external',
+          tokens: parent,
+        });
+      }
+
+      this.#extensions[path] = refs;
+    });
   }
 
   /**
@@ -85,8 +97,8 @@ export class TokenPackageProcessor {
   /**
    * Adds explicit token overrides keyed by dot-separated paths.
    */
-  append(tokens: AppendInput): this {
-    this.#appends.push(tokens);
+  append(group: string, tokens: TokenSet): this {
+    this.#appends.push([group, tokens] as const);
     return this;
   }
 
@@ -126,60 +138,25 @@ export class TokenPackageProcessor {
     };
 
     for (const [name, value] of Object.entries(this.#set)) {
-      const { path, name: tokenName } = this.#group(name);
-      if (!this.#selectors.every((s) => s(path, tokenName))) {
+      const result = this.#group(name);
+      if (
+        !result ||
+        !this.#selectors.every((s) => s(result.path, result.tokenName))
+      ) {
         continue;
       }
-      const node = ensureNode(path);
-      node[tokenName] = value;
+
+      const node = ensureNode(result.path);
+      node[result.tokenName] = value;
     }
 
-    for (const append of this.#appends) {
-      for (const [path, tokens] of Object.entries(append)) {
-        const key = path.length > 0 ? path : 'default';
-        if (!this.#selectors.every((s) => s(key))) {
-          continue;
-        }
-
-        const node = ensureNode(key);
-        Object.assign(node, tokens);
-      }
+    for (const [path, tokens] of this.#appends) {
+      const key = path.length > 0 ? path : 'default';
+      const node = ensureNode(key);
+      Object.assign(node, tokens);
     }
 
-    this.#extensionCallback?.({
-      state: (path) => {
-        const key = path;
-
-        const extendable: Extendable = {
-          path,
-          extends: (...parents) => {
-            const refs: ParentRef[] = [];
-
-            for (const parent of parents) {
-              if (!parent) {
-                continue;
-              }
-
-              if (isExtendable(parent)) {
-                refs.push({ kind: 'local', key: parent.path });
-                continue;
-              }
-
-              refs.push({
-                kind: 'external',
-                tokens: parent,
-              });
-            }
-
-            this.#extensions[key] = { path, parents: refs };
-
-            return extendable;
-          },
-        };
-
-        return extendable;
-      },
-    });
+    this.#extensionCallback?.(this.#extensionMananger);
 
     for (const key of Object.keys(this.#extensions)) {
       if (nodes[key]) {

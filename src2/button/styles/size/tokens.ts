@@ -1,6 +1,6 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
+import type { TupleToUnion } from 'type-fest';
 import { t } from '../../../.tproc/index.ts';
-import { attribute } from '../../../.tproc/selector.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import type { GroupSelector } from '../../../.tproc/utils.ts';
 import { defaultEffectiveTokens } from '../default/tokens.ts';
@@ -17,11 +17,14 @@ import {
 } from '../utils.ts';
 
 const SIZES = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
+type Sizes = TupleToUnion<typeof SIZES>;
 
-const baseTokens = defaultEffectiveTokens;
+function isDefaultSize(size: Sizes): boolean {
+  return size === 'small';
+}
 
 const createPackage = (
-  size: string,
+  size: Sizes,
   ...groupSelectors: readonly GroupSelector[]
 ) =>
   t
@@ -29,14 +32,36 @@ const createPackage = (
     .group(groupButtonTokens)
     .select(...groupSelectors, buttonAllowedTokensSelector)
     .adjustTokens(fixFullShape)
-    .extend(createButtonExtensions(baseTokens.value))
+    .extend(createButtonExtensions(defaultEffectiveTokens.value))
     .renderDeclarations(
-      createButtonScopedDeclarationRenderer(attribute('size', size)),
+      createButtonScopedDeclarationRenderer(
+        isDefaultSize(size)
+          ? undefined
+          : {
+              name: 'size',
+              value: size,
+              useState: true,
+            },
+      ),
     )
     .build();
 
+export const defaultSizeMainTokens: ReadonlySignal<TokenPackage> = computed(
+  () => createPackage('small', buttonMainTokenSelector),
+);
+
+export const defaultSizeSwitchTokens: ReadonlySignal<TokenPackage> = computed(
+  () =>
+    createPackage(
+      'small',
+      buttonSwitchTokenSelector,
+      notDisabledTokenSelector,
+      omitSelectedShape,
+    ),
+);
+
 export const mainTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
-  SIZES.map((size) =>
+  SIZES.filter((s) => s === 'small').map((size) =>
     computed(() => createPackage(size, buttonMainTokenSelector)),
   );
 
