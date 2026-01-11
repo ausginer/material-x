@@ -6,6 +6,7 @@
         var(--_container-focus-padding-block)
     )
     var(--_container-focus-padding-block);
+  --_steppers-gap: 0;
   --_lead-icon-gap: 0;
   --_prefix-gap: 0;
   --_suffix-gap: 0;

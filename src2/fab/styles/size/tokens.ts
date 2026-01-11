@@ -1,17 +1,18 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
 import { attribute } from '../../../.tproc/selector.ts';
-import { defaultEffectiveTokens } from '../default/tokens.ts';
+import { defaultColorTokens } from '../color/tokens.ts';
+import { defaultTokens } from '../default/tokens.ts';
 import {
-  createFABScopedDeclarationRenderer,
   createFABExtensions,
+  createFABScopedDeclarationRenderer,
   fabAllowedTokensSelector,
   groupFABTokens,
 } from '../utils.ts';
 
 const SIZES = ['large', 'medium'] as const;
 
-const createPackage = (size: string) => {
+const createSizePackage = (size: string) => {
   const setName = `md.comp.fab.${size}`;
   const specialTokens = {
     'state-layer.color': `${setName}.pressed.state-layer.color`,
@@ -22,7 +23,7 @@ const createPackage = (size: string) => {
     .group(groupFABTokens)
     .select(fabAllowedTokensSelector)
     .append('default', specialTokens)
-    .extend(createFABExtensions(defaultEffectiveTokens.value))
+    .extend(createFABExtensions(defaultTokens.value, defaultColorTokens.value))
     .renderDeclarations(
       createFABScopedDeclarationRenderer(attribute('size', size)),
     )
@@ -30,4 +31,4 @@ const createPackage = (size: string) => {
 };
 
 export const sizeTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
-  SIZES.map((size) => computed(() => createPackage(size)));
+  SIZES.map((size) => computed(() => createSizePackage(size)));

@@ -1,12 +1,14 @@
 import { selector, type Param } from '../../.tproc/selector.ts';
-import type { DeclarationBlockRenderer } from '../../.tproc/TokenPackage.ts';
+import type {
+  DeclarationBlockRenderer,
+  TokenPackage,
+} from '../../.tproc/TokenPackage.ts';
 import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
 import {
   componentStateMap,
   createAllowedTokensSelector,
   type Grouper,
   type GroupSelector,
-  type TokenSet,
 } from '../../.tproc/utils.ts';
 
 export const FAB_STATES = [
@@ -38,20 +40,20 @@ export const groupFABTokens: Grouper = (tokenName) => {
 };
 
 export function createFABExtensions(
-  base?: Readonly<Record<string, TokenSet>>,
+  ...bases: readonly TokenPackage[]
 ): ExtensionCallback {
-  const baseDefault = base?.['default'];
-  const baseHovered = base?.['hovered'];
-  const baseFocused = base?.['focused'];
-  const basePressed = base?.['pressed'];
-  const baseDisabled = base?.['disabled'];
+  const baseDefault = bases.map((b) => b.effective('default') ?? {});
+  const baseHovered = bases.map((b) => b.effective('hovered') ?? {});
+  const baseFocused = bases.map((b) => b.effective('focused') ?? {});
+  const basePressed = bases.map((b) => b.effective('pressed') ?? {});
+  const baseDisabled = bases.map((b) => b.effective('disabled') ?? {});
 
   return (m) => {
-    const defaultState = m.state('default').extends(baseDefault);
-    m.state('hovered').extends(defaultState, baseHovered);
-    m.state('focused').extends(defaultState, baseFocused);
-    m.state('pressed').extends(defaultState, basePressed);
-    m.state('disabled').extends(defaultState, baseDisabled);
+    const defaultState = m.state('default').extends(...baseDefault);
+    m.state('hovered').extends(defaultState, ...baseHovered);
+    m.state('focused').extends(defaultState, ...baseFocused);
+    m.state('pressed').extends(defaultState, ...basePressed);
+    m.state('disabled').extends(defaultState, ...baseDisabled);
   };
 }
 

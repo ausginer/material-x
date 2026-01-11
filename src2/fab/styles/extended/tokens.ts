@@ -1,9 +1,11 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
 import { attribute } from '../../../.tproc/selector.ts';
+import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
 import { createDefaultFirstSorter } from '../../../.tproc/utils.ts';
 import * as CSSVariable from '../../../.tproc/variable.ts';
-import { defaultEffectiveTokens } from '../default/tokens.ts';
+import { defaultColorTokens } from '../color/tokens.ts';
+import { defaultTokens } from '../default/tokens.ts';
 import {
   createFABExtensions,
   createFABScopedDeclarationRenderer,
@@ -56,34 +58,47 @@ function getScope(variant: Variant) {
   return null;
 }
 
-const createPackage = (variant: Variant) => {
-  const setName = `md.comp.extended-fab.${variant}`;
+function createSetName(variant: Variant) {
+  return `md.comp.extended-fab.${variant}`;
+}
 
-  let builder = t
-    .set(setName)
-    .group(groupFABTokens)
-    .select(fabAllowedTokensSelector)
-    .extend(createFABExtensions(defaultEffectiveTokens.value))
-    .renderDeclarations(
-      createFABScopedDeclarationRenderer(
-        getScope(variant),
-        EXTENDED,
-        TONAL_COLORS.includes(variant) ? TONAL : null,
+const createPackage = (
+  variant: Variant,
+  adjuster: ProcessorAdjuster = (processor) => processor,
+) => {
+  const setName = createSetName(variant);
+
+  return adjuster(
+    t
+      .set(setName)
+      .group(groupFABTokens)
+      .select(fabAllowedTokensSelector)
+      .extend(
+        createFABExtensions(defaultTokens.value, defaultColorTokens.value),
+      )
+      .renderDeclarations(
+        createFABScopedDeclarationRenderer(
+          getScope(variant),
+          EXTENDED,
+          TONAL_COLORS.includes(variant) ? TONAL : null,
+        ),
       ),
-    );
-
-  if (variant === 'tertiary') {
-    builder = builder.append('default', {
-      'state-layer.color': `${setName}.pressed.state-layer.color`,
-      direction: 'row',
-      'container.width': CSSVariable.ref('container.height'),
-    });
-  }
-
-  return builder.build();
+  ).build();
 };
 
 export const extendedTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
   VARIANTS.toSorted(createDefaultFirstSorter(isDefaultVariant)).map((variant) =>
-    computed(() => createPackage(variant)),
+    computed(() =>
+      createPackage(
+        variant,
+        variant === 'tertiary'
+          ? (processor) =>
+              processor.append('default', {
+                'state-layer.color': `${createSetName(variant)}.pressed.state-layer.color`,
+                direction: 'row',
+                'container.width': CSSVariable.ref('container.height'),
+              })
+          : undefined,
+      ),
+    ),
   );

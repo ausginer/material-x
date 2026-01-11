@@ -12,7 +12,6 @@ import {
   type GroupResult,
   type GroupSelector,
   type Predicate,
-  type TokenSet,
 } from '../../.tproc/utils.ts';
 import * as CSSVariable from '../../.tproc/variable.ts';
 import { disabledTokenSelector } from './default/tokens.ts';

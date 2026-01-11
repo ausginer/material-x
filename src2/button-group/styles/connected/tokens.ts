@@ -3,6 +3,7 @@ import type { TupleToUnion } from 'type-fest';
 import { t } from '../../../.tproc/index.ts';
 import { attribute } from '../../../.tproc/selector.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
+import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
 import { fixFullShape } from '../../../button/styles/utils.ts';
 import {
   BUTTON_GROUP_SIZES,
@@ -15,24 +16,28 @@ import {
 
 const SET_BASE_NAME = 'md.comp.button-group.connected';
 
-const createPackage = (size: TupleToUnion<typeof BUTTON_GROUP_SIZES>) => {
+const createPackage = (
+  size: TupleToUnion<typeof BUTTON_GROUP_SIZES>,
+  adjuster: ProcessorAdjuster = (processor) => processor,
+) => {
   const isSmall = size === 'small';
   const allowedTokensSelector = isSmall
     ? connectedAllowedTokensWithShapeSelector
     : connectedAllowedTokensSelector;
 
-  return t
-    .set(`${SET_BASE_NAME}.${size}`)
-    .group(groupButtonGroupTokens)
-    .select(allowedTokensSelector, buttonGroupDefaultSelector)
-    .adjustTokens(fixFullShape)
-    .renderDeclarations(
-      createButtonGroupDeclarationRenderer({
-        scope: isSmall ? null : attribute('size', size),
-        onlyDefault: true,
-      }),
-    )
-    .build();
+  return adjuster(
+    t
+      .set(`${SET_BASE_NAME}.${size}`)
+      .group(groupButtonGroupTokens)
+      .select(allowedTokensSelector, buttonGroupDefaultSelector)
+      .adjustTokens(fixFullShape)
+      .renderDeclarations(
+        createButtonGroupDeclarationRenderer({
+          scope: isSmall ? null : attribute('size', size),
+          onlyDefault: true,
+        }),
+      ),
+  ).build();
 };
 
 export const connectedTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =

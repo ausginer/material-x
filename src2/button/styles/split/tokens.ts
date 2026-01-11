@@ -6,7 +6,7 @@ import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import {
   createAllowedTokensSelector,
   createDefaultFirstSorter,
-  type GroupSelector,
+  type ProcessorAdjuster,
 } from '../../../.tproc/utils.ts';
 import {
   buttonMainTokenSelector,
@@ -45,28 +45,33 @@ function isDefaultSize(size: Sizes) {
 
 const createPackage = (
   size: Sizes,
-  ...groupSelectors: readonly GroupSelector[]
+  adjuster: ProcessorAdjuster = (processor) => processor,
 ) =>
-  t
-    .set(`${SET_BASE_NAME}.${size}`)
-    .group(groupButtonTokens)
-    .select(...groupSelectors, sizeAllowedTokensSelector)
-    .extend(createButtonExtensions())
-    .adjustTokens(fixFullShape)
-    .renderDeclarations(
-      createButtonScopedDeclarationRenderer(
-        isDefaultSize(size)
-          ? undefined
-          : {
-              name: 'size',
-              value: size,
-              useState: true,
-            },
+  adjuster(
+    t
+      .set(`${SET_BASE_NAME}.${size}`)
+      .group(groupButtonTokens)
+      .select(sizeAllowedTokensSelector)
+      .extend(createButtonExtensions())
+      .adjustTokens(fixFullShape)
+      .renderDeclarations(
+        createButtonScopedDeclarationRenderer(
+          isDefaultSize(size)
+            ? undefined
+            : {
+                name: 'size',
+                value: size,
+                useState: true,
+              },
+        ),
       ),
-    )
-    .build();
+  ).build();
 
 export const sizeTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
   SIZES.toSorted(createDefaultFirstSorter(isDefaultSize)).map((size) =>
-    computed(() => createPackage(size, buttonMainTokenSelector)),
+    computed(() =>
+      createPackage(size, (processor) =>
+        processor.select(buttonMainTokenSelector),
+      ),
+    ),
   );

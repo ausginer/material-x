@@ -1,7 +1,7 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t } from '../../../.tproc/index.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
-import { defaultEffectiveTokens } from '../default/tokens.ts';
+import { defaultFilledTokens, defaultTokens } from '../default/tokens.ts';
 import {
   buttonAllowedTokensSelector,
   buttonMainTokenSelector,
@@ -18,20 +18,23 @@ const specialTokens = {
   'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
 };
 
+const renderer = createButtonScopedDeclarationRenderer({
+  name: 'color',
+  value: 'text',
+  useState: true,
+});
+
 export const textTokens: ReadonlySignal<TokenPackage> = computed(() =>
   t
     .set(SET_NAME)
     .group(groupButtonTokens)
-    .select(buttonMainTokenSelector, buttonAllowedTokensSelector)
-    .adjustTokens(fixFullShape)
+    .select(buttonAllowedTokensSelector)
+    .select(buttonMainTokenSelector)
     .append('default', specialTokens)
-    .extend(createButtonExtensions(defaultEffectiveTokens.value))
-    .renderDeclarations(
-      createButtonScopedDeclarationRenderer({
-        name: 'color',
-        value: 'text',
-        useState: true,
-      }),
+    .extend(
+      createButtonExtensions(defaultTokens.value, defaultFilledTokens.value),
     )
+    .adjustTokens(fixFullShape)
+    .renderDeclarations(renderer)
     .build(),
 );

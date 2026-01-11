@@ -1,8 +1,9 @@
-import { defaultGeneralTokens, defaultTertiaryTokens } from './tokens.ts';
+import { defaultColorTokens } from '../color/tokens.ts';
+import { defaultTokens } from './tokens.ts';
 
 const styles: string = [
-  defaultGeneralTokens.value.render(),
-  defaultTertiaryTokens.value.render(),
+  defaultTokens.value.render(),
+  defaultColorTokens.value.render(),
 ].join('\n\n');
 
 export default styles;

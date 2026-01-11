@@ -13,9 +13,14 @@ import {
   componentStateMap,
   createAllowedTokensSelector,
   type Grouper,
-  type GroupSelector,
+  type ProcessorAdjuster,
 } from '../../../.tproc/utils.ts';
-import { defaultEffectiveTokens } from '../default/tokens.ts';
+import {
+  defaultFilledTokens,
+  defaultSwitchFilledTokens,
+  defaultSwitchTokens,
+  defaultTokens,
+} from '../default/tokens.ts';
 import {
   buttonAllowedTokensSelector,
   buttonMainTokenSelector,
@@ -44,7 +49,6 @@ export const VARIANTS = [
 ] as const;
 
 const WIDTHS = ['wide', 'narrow'] as const;
-const baseTokens = defaultEffectiveTokens;
 
 function variantScope(variant: string) {
   if ((DEFAULTS as readonly string[]).includes(variant)) {
@@ -70,51 +74,78 @@ function variantScope(variant: string) {
   return undefined;
 }
 
-const createVariantPackage = (
-  variant: string,
-  ...groupSelectors: readonly GroupSelector[]
-): TokenPackage => {
-  const setName = `md.comp.icon-button.${variant}`;
-  const scope = variantScope(variant);
-  const specialTokens = {
-    ...(variant === 'standard' ? { 'container.color': 'transparent' } : {}),
-    'state-layer.color': `${setName}.pressed.state-layer.color`,
-  };
-  const specialUnselectedTokens = {
-    'state-layer.color': `${setName}.unselected.pressed.state-layer.color`,
-  };
-  const specialSelectedTokens = {
-    'state-layer.color': `${setName}.selected.pressed.state-layer.color`,
-  };
-
-  return t
-    .set(setName)
-    .group(groupButtonTokens)
-    .select(...groupSelectors, buttonAllowedTokensSelector)
-    .adjustTokens(fixFullShape)
-    .append('default', specialTokens)
-    .append('unselected.default', specialUnselectedTokens)
-    .append('selected.default', specialSelectedTokens)
-    .extend(createButtonExtensions(baseTokens.value))
-    .renderDeclarations(createButtonScopedDeclarationRenderer(scope))
-    .build();
-};
+const createPackage = (
+  setName: string,
+  renderer: DeclarationBlockRenderer,
+  adjuster: ProcessorAdjuster = (processor) => processor,
+): TokenPackage =>
+  adjuster(
+    t
+      .set(setName)
+      .group(groupButtonTokens)
+      .select(buttonAllowedTokensSelector)
+      .adjustTokens(fixFullShape)
+      .renderDeclarations(renderer),
+  ).build();
 
 export const variantTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
   VARIANTS.map((variant) =>
-    computed(() => createVariantPackage(variant, buttonMainTokenSelector)),
+    computed(() => {
+      const setName = `md.comp.icon-button.${variant}`;
+
+      return createPackage(
+        setName,
+        createButtonScopedDeclarationRenderer(variantScope(variant)),
+        (processor) =>
+          processor
+            .select(buttonMainTokenSelector)
+            .append('default', {
+              ...(variant === 'standard'
+                ? { 'container.color': 'transparent' }
+                : {}),
+              'state-layer.color': `${setName}.pressed.state-layer.color`,
+            })
+            .extend(
+              createButtonExtensions(
+                defaultTokens.value,
+                defaultFilledTokens.value,
+              ),
+            ),
+      );
+    }),
   );
 
 export const variantSwitchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
   VARIANTS.map((variant) =>
-    computed(() =>
-      createVariantPackage(
-        variant,
-        buttonSwitchTokenSelector,
-        notDisabledTokenSelector,
-        omitSelectedShape,
-      ),
-    ),
+    computed(() => {
+      const setName = `md.comp.icon-button.${variant}`;
+
+      return createPackage(
+        setName,
+        createButtonScopedDeclarationRenderer(variantScope(variant)),
+        (processor) =>
+          processor
+            .select(
+              buttonSwitchTokenSelector,
+              notDisabledTokenSelector,
+              omitSelectedShape,
+            )
+            .append('unselected.default', {
+              'state-layer.color': `${setName}.unselected.pressed.state-layer.color`,
+            })
+            .append('selected.default', {
+              'state-layer.color': `${setName}.selected.pressed.state-layer.color`,
+            })
+            .extend(
+              createButtonExtensions(
+                defaultTokens.value,
+                defaultFilledTokens.value,
+                defaultSwitchTokens.value,
+                defaultSwitchFilledTokens.value,
+              ),
+            ),
+      );
+    }),
   );
 
 function widthGroup(width: string): Grouper {
@@ -167,7 +198,9 @@ const createWidthPackage = (size: string, width: string): TokenPackage =>
     .group(widthGroup(width))
     .select(buttonMainTokenSelector, widthAllowedTokenSelector)
     .adjustTokens(fixFullShape)
-    .extend(createButtonExtensions(baseTokens.value))
+    .extend(
+      createButtonExtensions(defaultTokens.value, defaultFilledTokens.value),
+    )
     .renderDeclarations(createWidthRenderer(size, width))
     .build();
 
