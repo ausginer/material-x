@@ -2,9 +2,7 @@ import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import MagicString from 'magic-string';
 import type { SourceMap } from 'rollup';
-// eslint-disable-next-line import-x/no-unresolved
-import * as sorcery from 'sorcery';
-import { createSourcePath, cssCache, type JSONModule } from '../utils.ts';
+import { cssCache, type JSONModule } from '../utils.ts';
 import { CSS_VARIABLE_NAME_REGEXP } from './collect-props.ts';
 import format from './format.ts';
 import transform from './transform.ts';
@@ -13,32 +11,6 @@ const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
   await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {
     with: { type: 'json' },
   });
-
-export type CSSImportParseResult = Readonly<{
-  code: string;
-  files: Set<string>;
-}>;
-
-export function parseCSSImports(
-  code: string,
-  replace = false,
-): CSSImportParseResult {
-  const files = new Set<string>();
-
-  code = code.replaceAll(
-    // Matches import statements like:
-    // ```ts
-    // import css from './style.css.ts' with { type: 'css' };
-    // ```
-    /["'](.*)["']\s*with\s*\{\s*type:\s*['"]css['"]\s*\};/giu,
-    (substring, file) => {
-      files.add(file);
-      return replace ? `'${file}.js'` : substring;
-    },
-  );
-
-  return { code, files };
-}
 
 export type CSSCompilationResult = Readonly<{
   code: string;
@@ -56,6 +28,7 @@ export async function compileCSS(
   options?: CompileCSSOptions,
 ): Promise<CSSCompilationResult> {
   const path = fileURLToPath(url);
+  const cssPath = path.replace(/\.ts$/, '');
 
   let css = options?.isProd
     ? code.replace(CSS_VARIABLE_NAME_REGEXP, (propName) => {
@@ -69,12 +42,13 @@ export async function compileCSS(
       })
     : code;
 
-  const fileName = basename(path);
+  const fileName = basename(cssPath);
 
-  const { code: processedCode, map: processedMap } = transform(
+  const { code: processedCode } = transform(
     await format(css, fileName),
     fileName,
-    true,
+    false,
+    options?.isProd,
   );
 
   if (!processedCode) {
@@ -83,8 +57,6 @@ export async function compileCSS(
     };
   }
 
-  const interPath = fileURLToPath(createSourcePath(url, '.min.css'));
-
   const m = new MagicString(processedCode);
   m.prepend('const css = new CSSStyleSheet();css.replaceSync(`');
   m.append('`);export default css;');
@@ -92,29 +64,12 @@ export async function compileCSS(
   const compiled = m.toString();
   const compiledMap = m.generateMap({
     hires: true,
-    source: interPath,
+    source: cssPath,
     includeContent: true,
   });
 
-  const finalPath = fileURLToPath(createSourcePath(url, '.min.js'));
-
-  const chain = await sorcery.load(finalPath, {
-    content: {
-      [finalPath]: compiled,
-      [interPath]: processedCode,
-      [path]: code,
-    },
-    sourcemaps: {
-      [finalPath]: JSON.parse(compiledMap.toString()),
-      [interPath]: processedMap,
-    },
-  });
-
-  const map = chain.apply();
-  map.sources = map.sources.map((source) => basename(source));
-
   return {
     code: compiled,
-    map,
+    map: compiledMap,
   };
 }

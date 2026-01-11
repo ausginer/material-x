@@ -14,10 +14,6 @@ export type ConstructCSSStylesOptions = Readonly<{
   isProd: boolean;
 }>;
 
-export type ConstructHTMLTemplateOptions = Readonly<{
-  isProd: boolean;
-}>;
-
 const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
   await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {
     with: { type: 'json' },
@@ -48,13 +44,12 @@ export function constructCSSStyles(
     resolveId: {
       filter: {
         id: {
-          include: /\.ctr\.css(?:[?#].*)?$/,
+          include: /\.ctr\.css/u,
         },
       },
       order: 'pre',
       async handler(source, importer) {
         return await this.resolve(source + '?raw', importer, {
-          ...options,
           skipSelf: true,
         });
       },
@@ -62,7 +57,7 @@ export function constructCSSStyles(
     load: {
       filter: {
         id: {
-          include: /\.ctr\.css(?:[?#].*)?$/,
+          include: /\.ctr\.css/u,
         },
       },
       async handler(id) {
@@ -85,22 +80,19 @@ export function constructCSSStyles(
   };
 }
 
-export function constructHTMLTemplate(
-  options?: ConstructHTMLTemplateOptions,
-): Plugin {
+export function constructHTMLTemplate(): Plugin {
   return {
     name: 'vite-construct-html-template',
     enforce: 'pre',
     resolveId: {
       filter: {
         id: {
-          include: /\.tpl\.html(?:[?#].*)?$/,
+          include: /\.tpl\.html/u,
         },
       },
       order: 'pre',
       async handler(source, importer) {
-        return await this.resolve(source + '?raw', importer, {
-          ...options,
+        return await this.resolve(source, importer, {
           skipSelf: true,
         });
       },
@@ -108,7 +100,7 @@ export function constructHTMLTemplate(
     load: {
       filter: {
         id: {
-          include: /\.tpl\.html(?:[?#].*)?$/,
+          include: /\.tpl\.html/u,
         },
       },
       async handler(id) {
@@ -125,6 +117,13 @@ export function constructHTMLTemplate(
       },
     },
   };
+}
+
+function processComplexOxcSetting(
+  setting: string | RegExp | ReadonlyArray<string | RegExp> | null | undefined,
+): ReadonlyArray<string | RegExp> {
+  const s = setting ?? [];
+  return Array.isArray(s) ? s : [s];
 }
 
 export function constructCSSTokens(
@@ -151,21 +150,44 @@ export function constructCSSTokens(
 
   return {
     name: 'vite-construct-css-tokens',
+    enforce: 'pre',
+    config(config) {
+      if (config.oxc === false) {
+        return config;
+      }
+
+      return {
+        ...config,
+        oxc: {
+          ...config.oxc,
+          exclude: [
+            ...processComplexOxcSetting(config.oxc?.exclude),
+            /\.css\.ts/u,
+          ],
+          jsxRefreshExclude: [
+            ...processComplexOxcSetting(config.oxc?.jsxRefreshExclude),
+            /\.css\.ts/u,
+          ],
+        },
+      };
+    },
     resolveId: {
       filter: {
         id: {
-          include: /\.css\.ts/,
+          include: /\.css\.ts/u,
         },
       },
       order: 'pre',
-      handler(source, importer) {
-        return normalizePath(source, importer);
+      async handler(source, importer) {
+        return await this.resolve(source, importer, {
+          skipSelf: true,
+        });
       },
     },
     load: {
       filter: {
         id: {
-          include: /\.css\.ts/,
+          include: /\.css\.ts/u,
         },
       },
       async handler(id) {
@@ -210,8 +232,7 @@ export function constructCSSTokens(
         };
 
         const { code, map } = await compileCSS(
-          // Removing TS to avoid oxfmt hiccup
-          pathToFileURL(cleanId.substring(0, cleanId.length - 3)),
+          pathToFileURL(cleanId),
           result,
           options,
         );
@@ -221,6 +242,7 @@ export function constructCSSTokens(
         return {
           code,
           map,
+          moduleType: 'js',
         };
       },
     },
