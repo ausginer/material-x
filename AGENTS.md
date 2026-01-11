@@ -80,3 +80,7 @@ You can find architecture insights from your analysis in `.agent/docs/architectu
 You can find CSS architecture reiteration in `.agent/docs/css-inheritance.md`.
 
 `src2/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
+
+## Component migration
+
+If you asked to migrate an already existing component to a new architecture, please read `.agent/docs/component-migration.md`.

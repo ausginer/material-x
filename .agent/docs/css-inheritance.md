@@ -30,7 +30,7 @@ export type VariantScope = Readonly<{
 
 export type GroupResult = Readonly<{
   path: string;
-  name: string;
+  tokenName: string;
 }>;
 
 export type Grouper = (tokenName: string) => GroupResult;
@@ -120,14 +120,14 @@ function group(tokenName: string): GroupResult {
 
   return {
     path,
-    name: remaining,
+    tokenName: remaining,
   };
 }
 ```
 
 We can formalize this into a processor step:
 
-- `group()` returns `{ path, name }`, where `name` is the token path with
+- `group()` returns `{ path, tokenName }`, where `tokenName` is the token path with
   prefixes removed.
 - The result is a flat list of token nodes, not a tree.
 
