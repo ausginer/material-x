@@ -1,6 +1,7 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig, type ConfigEnv, type UserConfigFnObject } from 'vite';
+import inspect from 'vite-plugin-inspect';
 import {
   constructCSSTokens,
   constructCSSStyles,
@@ -27,8 +28,11 @@ const config: UserConfigFnObject = defineConfig(({ command }: ConfigEnv) => ({
   },
   cacheDir: fileURLToPath(new URL('.vite/', root)),
   plugins: [
+    inspect({
+      include: [/\.css\.ts/],
+    }),
     constructCSSStyles({ isProd: command === 'build' }),
-    constructHTMLTemplate({ isProd: command === 'build' }),
+    constructHTMLTemplate(),
     constructCSSTokens({ isProd: command === 'build' }),
     react(),
   ],

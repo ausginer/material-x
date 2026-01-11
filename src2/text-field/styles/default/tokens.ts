@@ -1,6 +1,7 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
+import processTokenSet from '../../../.tproc/processTokenSet.ts';
 import type { ProcessorAdjuster, TokenSet } from '../../../.tproc/utils.ts';
 import {
   createTextFieldExtensions,
@@ -8,7 +9,6 @@ import {
   notDisabledTokenSelector,
   textFieldAllowedTokensSelector,
 } from '../utils.ts';
-import processTokenSet from '../../../.tproc/processTokenSet.ts';
 
 export type Types = 'filled' | 'outlined';
 

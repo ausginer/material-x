@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { resolveInheritance } from '../resolveInheritance.ts';
-import type { ExtensionEntry, TokenSet } from '../utils.ts';
+import { resolveInheritance } from '../ExtensionManager.ts';
+import type { ParentRef, TokenSet } from '../utils.ts';
 
 describe('resolveInheritance', () => {
   it('should dedupe tokens', () => {
@@ -9,15 +9,9 @@ describe('resolveInheritance', () => {
       hovered: { 'container.elevation': 0, 'state-layer.opacity': 0.08 },
     };
 
-    const extensions: Readonly<Record<string, ExtensionEntry>> = {
-      default: {
-        path: 'default',
-        parents: [],
-      },
-      hovered: {
-        path: 'hovered',
-        parents: [{ kind: 'local', key: 'default' }],
-      },
+    const extensions: Readonly<Record<string, readonly ParentRef[]>> = {
+      default: [],
+      hovered: [{ kind: 'local', key: 'default' }],
     };
 
     const result = resolveInheritance(nodes, extensions, [
@@ -38,18 +32,12 @@ describe('resolveInheritance', () => {
 
     const external: TokenSet = { 'container.elevation': 1 };
 
-    const extensions: Readonly<Record<string, ExtensionEntry>> = {
-      base: {
-        path: 'base',
-        parents: [],
-      },
-      child: {
-        path: 'child',
-        parents: [
-          { kind: 'external', tokens: external },
-          { kind: 'local', key: 'base' },
-        ],
-      },
+    const extensions: Readonly<Record<string, readonly ParentRef[]>> = {
+      base: [],
+      child: [
+        { kind: 'external', tokens: external },
+        { kind: 'local', key: 'base' },
+      ],
     };
 
     const result = resolveInheritance(nodes, extensions, ['base', 'child']);
@@ -62,10 +50,7 @@ describe('resolveInheritance', () => {
       resolveInheritance(
         { base: { 'container.elevation': 1 } },
         {
-          missing: {
-            path: 'missing',
-            parents: [],
-          },
+          missing: [],
         },
       ),
     ).toThrow('Unknown node for extension: missing');
@@ -76,10 +61,7 @@ describe('resolveInheritance', () => {
       resolveInheritance(
         { child: { 'container.elevation': 1 } },
         {
-          child: {
-            path: 'child',
-            parents: [{ kind: 'local', key: 'missing' }],
-          },
+          child: [{ kind: 'local', key: 'missing' }],
         },
       ),
     ).toThrow('Unknown parent node: missing');
@@ -93,8 +75,8 @@ describe('resolveInheritance', () => {
           b: { 'container.elevation': 2 },
         },
         {
-          a: { path: 'a', parents: [{ kind: 'local', key: 'b' }] },
-          b: { path: 'b', parents: [{ kind: 'local', key: 'a' }] },
+          a: [{ kind: 'local', key: 'b' }],
+          b: [{ kind: 'local', key: 'a' }],
         },
       ),
     ).toThrow('Extension graph has a cycle');

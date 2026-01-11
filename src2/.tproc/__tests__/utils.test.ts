@@ -1,30 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import type { Token } from '../TokenTable.ts';
 import {
-  buildSelector,
-  cssify,
+  composeGroupSelectors,
+  createAllowedTokensSelector,
   distinct,
   getSetName,
+  not,
   rgbaToHex,
 } from '../utils.ts';
-
-describe('buildSelector', () => {
-  it('should build scoped selector', () => {
-    expect(buildSelector('default', { name: 'color', value: 'elevated' })).toBe(
-      ':host([color="elevated"])',
-    );
-  });
-
-  it('should build built-in state selector', () => {
-    expect(buildSelector('hovered', undefined)).toBe(':host(:hover)');
-  });
-
-  it('should build custom state selector', () => {
-    expect(buildSelector('selected', undefined)).toBe(
-      ':host(:state(selected))',
-    );
-  });
-});
+import { cssify } from '../variable.ts';
 
 describe('token utils', () => {
   it('should convert RGBA to hex', () => {
@@ -74,5 +58,17 @@ describe('token utils', () => {
       { id: 1, name: 'a' },
       { id: 2, name: 'c' },
     ]);
+  });
+
+  it('should compose group selectors', () => {
+    const tokensOnly = createAllowedTokensSelector(['container.color']);
+    const notHovered = not<[path: string]>(
+      (path: string) => path === 'hovered',
+    );
+    const selector = composeGroupSelectors(tokensOnly, notHovered);
+
+    expect(selector('default', 'container.color')).toBe(true);
+    expect(selector('hovered', 'container.color')).toBe(false);
+    expect(selector('default', 'container.opacity')).toBe(false);
   });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { TokenPackageProcessor } from '../TokenPackageProcessor.ts';
 import type { Token } from '../TokenTable.ts';
+import { createAllowedTokensSelector } from '../utils.ts';
 import {
   createToken,
   createTokenSet,
@@ -10,7 +11,7 @@ import {
 } from './helpers.ts';
 
 describe('TokenPackageProcessor', () => {
-  it('should group tokens, append values, and allow tokens', () => {
+  it('should group tokens, append values, and select tokens', () => {
     const tokenSet = createTokenSet();
     const tokens: [Token, Token] = [
       createToken({
@@ -45,61 +46,65 @@ describe('TokenPackageProcessor', () => {
       .group((tokenName) => {
         const [first, ...rest] = tokenName.split('.');
         if (first === 'hovered') {
-          return { path: 'hovered', name: rest.join('.') };
+          return { path: 'hovered', tokenName: rest.join('.') };
         }
 
-        return { path: 'default', name: tokenName };
+        return { path: 'default', tokenName: tokenName };
       })
-      .append({
-        default: { 'container.width': 3 },
-        hovered: { 'state-layer.opacity': 0.08 },
-      })
-      .allowTokens(['container.color', 'state-layer.opacity'])
+      .select(
+        createAllowedTokensSelector(['container.color', 'state-layer.opacity']),
+      )
+      .append('default', { 'container.width': 3 })
+      .append('hovered', { 'state-layer.opacity': 0.08 })
       .adjustTokens((value) =>
         typeof value === 'string' ? `${value}x` : value,
       );
 
     const pkg = processor.build();
 
-    expect(pkg.state('default')).toEqual({ 'container.color': '1x' });
+    expect(pkg.state('default')).toEqual({
+      'container.color': '1x',
+      'container.width': 3,
+    });
     expect(pkg.state('hovered')).toEqual({
       'container.color': '2x',
       'state-layer.opacity': 0.08,
     });
   });
 
-  it('should apply inheritance and render adjusters', () => {
+  it('should apply inheritance and render declarations', () => {
     const tokenSet = createTokenSet();
 
     state.tokenSets = [tokenSet];
     state.tokens = [];
 
     const processor = new TokenPackageProcessor('md.comp.test')
-      .scope('color', 'elevated')
-      .append({
-        default: { 'container.color': 'red' },
-        hovered: {
-          'container.color': 'red',
-          'state-layer.opacity': 0.08,
-        },
+      .append('default', { 'container.color': 'red' })
+      .append('hovered', {
+        'container.color': 'red',
+        'state-layer.opacity': 0.08,
       })
       .extend((ext) => {
-        const base = ext.state('default');
+        const base = ext.state('default').extends();
         ext.state('hovered').extends(base, { 'external.token': 'blue' });
       })
-      .adjustRender((block) => (block.path === 'hovered' ? null : block));
+      .renderDeclarations((path, declarations) =>
+        path === 'hovered'
+          ? null
+          : { path, selectors: [':host'], declarations },
+      );
 
     const pkg = processor.build();
 
-    expect(pkg.scope).toEqual({ name: 'color', value: 'elevated' });
-    expect(pkg.state('hovered')).toEqual({ 'state-layer.opacity': 0.08 });
+    expect(pkg.state('hovered')).toEqual({
+      'container.color': 'red',
+      'state-layer.opacity': 0.08,
+    });
     expect(pkg.effective('hovered')).toEqual({
       'external.token': 'blue',
       'container.color': 'red',
       'state-layer.opacity': 0.08,
     });
-    expect(pkg.render()).toBe(
-      ':host([color="elevated"]) {\n  --_container-color: red;\n}',
-    );
+    expect(pkg.render()).toBe(':host {\n  --_container-color: red;\n}');
   });
 });
