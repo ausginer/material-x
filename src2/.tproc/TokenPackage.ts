@@ -33,6 +33,10 @@ export type TokenPackageOptions = Readonly<{
   renderers?: readonly DeclarationBlockRenderer[];
 }>;
 
+export type RenderOptions = Readonly<{
+  state: string;
+}>;
+
 export class TokenPackage {
   readonly #nodes: Readonly<Record<string, TokenSet>>;
   readonly #effective: Readonly<Record<string, TokenSet>>;
@@ -70,10 +74,14 @@ export class TokenPackage {
   /**
    * Renders deduped tokens into a CSS string of :host blocks.
    */
-  render(): string {
+  render(opts?: RenderOptions): string {
     const blocks: string[] = [];
 
     for (const key of this.#order) {
+      if (opts?.state && key !== opts.state) {
+        continue;
+      }
+
       const node = this.#nodes[key];
 
       if (!node) {

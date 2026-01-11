@@ -32,12 +32,12 @@ export class TokenPackageProcessor {
   readonly #extensionMananger: ExtensionManager;
   readonly #appends: AppendEntry[] = [];
   readonly #tokenAdjusters: ResolveAdjuster[] = [];
+  readonly #selectors: GroupSelector[] = [defaultSelector];
   #renderers: readonly DeclarationBlockRenderer[] = [
     defaultDeclarationBlockRenderer,
   ];
   #group: Grouper = defaultGrouper;
   #extensionCallback?: ExtensionCallback;
-  #selectors: readonly GroupSelector[] = [defaultSelector];
 
   /**
    * Creates a processor for a token set name.
@@ -82,7 +82,7 @@ export class TokenPackageProcessor {
   }
 
   select(...callbacks: readonly GroupSelector[]): this {
-    this.#selectors = callbacks;
+    this.#selectors.push(...callbacks);
     return this;
   }
 

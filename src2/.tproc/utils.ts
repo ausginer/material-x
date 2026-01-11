@@ -1,4 +1,5 @@
 import { pseudoClass, type Param } from './selector.ts';
+import type { TokenPackageProcessor } from './TokenPackageProcessor.ts';
 import type { Token } from './TokenTable.ts';
 
 export const root: URL = new URL('../../', import.meta.url);
@@ -35,6 +36,10 @@ export type ExtensionEntry = Readonly<{
   path: string;
   parents: readonly ParentRef[];
 }>;
+
+export type ProcessorAdjuster = (
+  processor: TokenPackageProcessor,
+) => TokenPackageProcessor;
 
 /** Default grouping: places all tokens in the "default" bucket. */
 export const defaultGrouper: Grouper = (tokenName) => ({
