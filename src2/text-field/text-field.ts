@@ -1,4 +1,6 @@
 import type { EmptyObject } from 'type-fest';
+import '../button/icon-button.ts';
+import type IconButton from '../button/icon-button.ts';
 import { createAccessors } from '../core/controllers/createAccessors.ts';
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useConnected } from '../core/controllers/useConnected.ts';
@@ -10,14 +12,12 @@ import {
   getInternals,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import { $, $$ } from '../core/utils/DOM.ts';
+import { $, $$, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
-import '../button/icon-button.ts';
 import '../icon/icon.ts';
 import defaultStyles from './styles/default/main.ctr.css' with { type: 'css' };
 import defaultTokens from './styles/default/main.tokens.css.ts' with { type: 'css' };
 import numericStyles from './styles/numeric/main.ctr.css' with { type: 'css' };
-import numericTokens from './styles/numeric/main.tokens.css.ts' with { type: 'css' };
 import textFieldTemplate from './text-field.tpl.html' with { type: 'html' };
 
 export type TextFieldInputMode =
@@ -36,12 +36,19 @@ export type TextFieldProperties = Readonly<{
   mode?: TextFieldInputMode;
 }>;
 
-export type TextFieldEvents = EmptyObject;
+export type TextFieldEvents = Readonly<{
+  tfincrease: Event;
+  tfdecrease: Event;
+}>;
+
 export type TextFieldCSSProperties = EmptyObject;
 
 /**
  * @attribute type
  * @attribute mode
+ *
+ * @event tfincrease
+ * @event tfdecrease
  */
 export default class TextField extends ReactiveElement {
   static formAssociated = true;
@@ -64,7 +71,7 @@ export default class TextField extends ReactiveElement {
       this,
       textFieldTemplate,
       { role: 'textbox' },
-      [defaultStyles, defaultTokens, numericStyles, numericTokens],
+      [defaultStyles, defaultTokens, numericStyles],
       { delegatesFocus: true },
     );
 
@@ -85,12 +92,32 @@ export default class TextField extends ReactiveElement {
     const root = this.shadowRoot!;
     const internals = getInternals(this);
 
+    for (const button of $$<IconButton>(this, 'mx-icon-button')!) {
+      useEvents(
+        this,
+        {
+          click: (e) => {
+            e.stopPropagation();
+
+            this.dispatchEvent(
+              new Event(
+                button.id === 'up' ? 'tfincrease' : 'tfdecrease',
+                DEFAULT_EVENT_INIT,
+              ),
+            );
+          },
+        },
+        button,
+      );
+    }
+
     useEvents(
       this,
       {
-        input() {
+        input: () => {
           if (input.textContent !== '') {
             internals.states.add('populated');
+            ATTRIBUTE.setRaw(this, 'value', input.textContent);
           } else {
             internals.states.delete('populated');
           }
@@ -165,5 +192,10 @@ define('mx-text-field', TextField);
 declare global {
   interface HTMLElementTagNameMap {
     'mx-text-field': TextField;
+  }
+
+  interface HTMLElementEventMap {
+    tfincrease: Event;
+    tfdecrease: Event;
   }
 }

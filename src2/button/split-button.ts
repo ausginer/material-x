@@ -4,7 +4,7 @@ import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { ATTRIBUTE } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import { $ } from '../core/utils/DOM.ts';
+import { $, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
@@ -74,9 +74,7 @@ export default class SplitButton extends ReactiveElement implements ButtonLike {
       {
         click: (event) => {
           event.stopPropagation();
-          this.dispatchEvent(
-            new Event('toggle', { bubbles: true, composed: true }),
-          );
+          this.dispatchEvent(new Event('toggle', DEFAULT_EVENT_INIT));
         },
       },
       $(this, 'mx-icon-button')!,

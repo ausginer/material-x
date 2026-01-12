@@ -1,12 +1,12 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
-import processTokenSet from '../../../.tproc/processTokenSet.ts';
 import type { ProcessorAdjuster, TokenSet } from '../../../.tproc/utils.ts';
 import {
   createTextFieldExtensions,
   groupTextFieldTokens,
   notDisabledTokenSelector,
+  notErrorTokenSelector,
   textFieldAllowedTokensSelector,
 } from '../utils.ts';
 
@@ -17,7 +17,7 @@ export type Types = 'filled' | 'outlined';
 const specialFilledTokens: TokenSet = {
   'container.icon.padding.inline': '12px',
   'container.padding.inline': '16px',
-  'support-text.gap': '4px',
+  'supporting-text.gap': '4px',
   'container.focus.padding.block': '8px',
   'input-text.prefix.gap': '2px',
   'input-text.suffix.gap': '2px',
@@ -37,8 +37,6 @@ function createPackage(
 ) {
   const setName = `md.comp.${type}-text-field`;
 
-  console.log({ [setName]: processTokenSet(setName) });
-
   return adjuster(
     t
       .set(setName)
@@ -50,7 +48,7 @@ function createPackage(
 export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage('filled', (processor) =>
     processor
-      .select(notDisabledTokenSelector)
+      .select(notDisabledTokenSelector, notErrorTokenSelector)
       .append('default', specialFilledTokens)
       .extend(createTextFieldExtensions()),
   ),
@@ -59,7 +57,7 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
 export const outlinedTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage('outlined', (processor) =>
     processor
-      .select(notDisabledTokenSelector)
+      .select(notDisabledTokenSelector, notErrorTokenSelector)
       .extend(createTextFieldExtensions(defaultTokens.value)),
   ),
 );

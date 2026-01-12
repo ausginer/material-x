@@ -6,6 +6,7 @@ import { useConnected } from '../core/controllers/useConnected.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
+import { DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import fabTemplate from './fab.tpl.html' with { type: 'html' };
 import colorTokens from './styles/color/main.tokens.css.ts' with { type: 'css' };
@@ -72,7 +73,7 @@ export default class FAB extends ReactiveElement {
       duration: '--_ripple-duration',
     });
     useAttribute(this, 'extended', () =>
-      this.dispatchEvent(new Event('fabtoggle')),
+      this.dispatchEvent(new Event('fabtoggle', DEFAULT_EVENT_INIT)),
     );
   }
 }

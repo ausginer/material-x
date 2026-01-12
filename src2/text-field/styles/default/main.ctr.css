@@ -1,36 +1,29 @@
 :host {
-  --_padding-inline-start: var(--_container-padding-inline);
-  --_padding-inline-end: var(--_container-padding-inline);
   --_padding-block: calc(
       ((var(--_container-height) - var(--_input-text-line-height)) / 2) +
         var(--_container-focus-padding-block)
     )
     var(--_container-focus-padding-block);
-  --_steppers-gap: 0;
-  --_lead-icon-gap: 0;
-  --_prefix-gap: 0;
-  --_suffix-gap: 0;
-  --_trail-icon-gap: 0;
 
   display: grid;
   grid-template-areas:
     '. lead . prefix . field . steppers . suffix . trail .'
-    '. support support support support support support support support support support support .';
+    '. support support support support support support support support support counter counter .';
   grid-template-columns:
-    var(--_padding-inline-start)
+    var(--_padding-inline-start, var(--_container-padding-inline))
     min-content
-    var(--_lead-icon-gap)
+    var(--_lead-icon-gap, 0)
     min-content
-    var(--_prefix-gap)
+    var(--_prefix-gap, 0)
     1fr
-    var(--_steppers-gap)
+    var(--_steppers-gap, 0)
     min-content
-    var(--_suffix-gap)
+    var(--_suffix-gap, 0)
     min-content
-    var(--_trail-icon-gap)
+    var(--_trail-icon-gap, 0)
     min-content
-    var(--_padding-inline-end);
-  grid-template-rows: auto auto;
+    var(--_padding-inline-end, var(--_container-padding-inline));
+  grid-template-rows: auto min-content;
   position: relative;
 
   &::before {
@@ -70,19 +63,20 @@ slot {
   user-select: none;
 }
 
-#prefix.has-slotted {
-  grid-area: prefix;
-}
+/* =======================
+ * Input
+ * ======================= */
 
-#suffix.has-slotted {
-  grid-area: suffix;
+#prefix,
+#suffix,
+#input {
+  padding-block: var(--_padding-block);
+  align-self: flex-end;
 }
 
 #input {
-  padding-block: var(--_padding-block);
   grid-area: field;
   outline: none;
-  align-self: flex-end;
   justify-self: stretch;
   font-family: var(--_input-text-font);
   font-weight: var(--_input-text-weight);
@@ -92,41 +86,88 @@ slot {
   caret-color: var(--_caret-color);
 }
 
-#label.has-slotted {
-  position: absolute;
+/* =======================
+ * Prefix, suffix, label
+ * ======================= */
+
+#prefix,
+#suffix {
+  transform: scaleY(0);
+  transition: transform var(--_focus-duration) var(--_focus-easing);
+  transform-origin: bottom;
+  visibility: hidden;
+}
+
+#prefix,
+#suffix,
+#label {
   font-family: var(--_label-text-font);
   font-weight: var(--_label-text-weight);
   font-size: var(--_label-text-size);
   line-height: var(--_label-text-line-height);
   letter-spacing: var(--_label-text-tracking);
   color: var(--_input-text-placeholder-color);
-  grid-area: field;
+  text-wrap: nowrap;
+}
+
+#prefix.has-slotted {
+  grid-area: prefix;
+}
+
+#suffix.has-slotted {
+  grid-area: suffix;
+}
+
+#label.has-slotted {
+  position: absolute;
+  grid-area: prefix / prefix / prefix / suffix;
   transform-origin: center left;
   transition-property: translate, scale, font-size, color;
   transition-duration: var(--_focus-duration);
   transition-timing-function: var(--_focus-easing);
 }
 
+/* =======================
+ * Icons
+ * ======================= */
+
 #lead.has-slotted {
   grid-area: lead;
   --md-icon-size: var(--_leading-icon-size);
-  fill: var(--_leading-icon-color);
+  color: var(--_leading-icon-color);
 }
 
 #trail.has-slotted {
   grid-area: trail;
   --md-icon-size: var(--_trailing-icon-size);
-  fill: var(--_trailing-icon-color);
+  color: var(--_trailing-icon-color);
 }
 
-#support.has-slotted {
-  padding-block-start: var(--_support-text-gap);
-  grid-area: support;
+/* ===========================
+ * Supporting text & counter
+ * =========================== */
+
+#support,
+#counter {
+  padding-block-start: var(--_supporting-text-gap);
+  color: var(--_supporting-text-color);
   font-family: var(--_supporting-text-font);
   font-size: var(--_supporting-text-size);
   font-weight: var(--_supporting-text-weight);
   line-height: var(--_supporting-text-line-height);
 }
+
+#support.has-slotted {
+  grid-area: support;
+}
+
+#counter.has-slotted {
+  grid-area: counter;
+}
+
+/* ===========================
+ * Focused / Populated
+ * =========================== */
 
 :host(:state(populated)),
 :host(:focus-within) {
@@ -136,5 +177,11 @@ slot {
     padding-block-start: var(--_container-focus-padding-block);
     translate: 0 -55%;
     scale: calc(var(--_label-text-populated-size) / var(--_label-text-size));
+  }
+
+  #prefix,
+  #suffix {
+    transform: scaleY(1);
+    visibility: visible;
   }
 }

@@ -124,3 +124,10 @@ export function disabledTokenSelector(path: string): boolean {
 export const notDisabledTokenSelector: Predicate<[path: string]> = not(
   disabledTokenSelector,
 );
+
+export function errorTokenSelector(path: string): boolean {
+  return path.startsWith('error');
+}
+
+export const notErrorTokenSelector: Predicate<[path: string]> =
+  not(errorTokenSelector);

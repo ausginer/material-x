@@ -70,7 +70,7 @@ type JSXWrapper<
 > = DetailedHTMLProps<
   HTMLAttributes<C> &
     P & {
-      [K in keyof E as `on${K & string}`]?: (event: E) => void;
+      [K in keyof E as `on${K & string}`]?: (event: E[K]) => void;
     },
   C
 >;
@@ -128,27 +128,16 @@ type TextFieldJSX = JSXWrapper<TextField, TextFieldProperties, TextFieldEvents>;
 declare module 'react' {
   namespace JSX {
     interface IntrinsicElements {
-      // @ts-expect-error: Dup
       'mx-button': ButtonJSX;
-      // @ts-expect-error: Dup
       'mx-icon-button': IconButtonJSX;
-      // @ts-expect-error: Dup
       'mx-link-button': LinkButtonJSX;
-      // @ts-expect-error: Dup
       'mx-split-button': SplitButtonJSX;
-      // @ts-expect-error: Dup
       'mx-switch-button': SwitchButtonJSX;
-      // @ts-expect-error: Dup
       'mx-switch-icon-button': SwitchIconButtonJSX;
-      // @ts-expect-error: Dup
       'mx-button-group': ButtonGroupJSX;
-      // @ts-expect-error: Dup
       'mx-connected-button-group': ConnectedButtonGroupJSX;
-      // @ts-expect-error: Dup
       'mx-fab': FABJSX;
-      // @ts-expect-error: Dup
       'mx-icon': IconJSX;
-      // @ts-expect-error: Dup
       'mx-text-field': TextFieldJSX;
     }
   }

@@ -3,6 +3,7 @@ import { createAccessors } from '../core/controllers/createAccessors.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { Bool, Str, type Converter } from '../core/elements/attribute.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
+import { DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import type { ButtonLike } from './useButtonCore.ts';
 
 export interface SwitchLike extends ButtonLike {
@@ -33,7 +34,7 @@ export function useSwitch(host: ReactiveElement): void {
   useEvents(host, {
     pointerdown() {
       CHANGE_EVENTS.forEach((name) =>
-        host.dispatchEvent(new Event(name, { bubbles: true, composed: true })),
+        host.dispatchEvent(new Event(name, DEFAULT_EVENT_INIT)),
       );
     },
   });
