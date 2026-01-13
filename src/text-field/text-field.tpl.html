@@ -1,15 +1,18 @@
-<div class="input" contenteditable></div>
+<input aria-labelledby="label" id="single" class="input" />
+<textarea aria-labelledby="label" id="multi" class="input" hidden></textarea>
 <div class="steppers">
-  <mx-icon-button color="standard" size="xsmall" class="up">
+  <mx-icon-button color="standard" size="xsmall" id="inc">
     <mx-icon>arrow_drop_up</mx-icon>
   </mx-icon-button>
-  <mx-icon-button color="standard" size="xsmall" class="down">
+  <mx-icon-button color="standard" size="xsmall" id="dec">
     <mx-icon>arrow_drop_down</mx-icon>
   </mx-icon-button>
 </div>
 <slot name="lead" class="lead"></slot>
 <slot name="prefix" class="prefix"></slot>
-<slot name="label" class="label"></slot>
+<label id="label">
+  <slot name="label" class="label"></slot>
+</label>
 <slot name="suffix" class="suffix"></slot>
 <slot name="trail" class="trail"></slot>
 <slot name="support" class="support"></slot>

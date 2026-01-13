@@ -63,20 +63,27 @@ slot {
   user-select: none;
 }
 
+#label {
+  display: contents;
+}
+
 /* =======================
  * Input
  * ======================= */
+.input {
+  all: unset;
+}
 
 .prefix,
 .suffix,
 .input {
   padding-block: var(--_padding-block);
   align-self: flex-end;
+  field-sizing: content;
 }
 
 .input {
   grid-area: field;
-  outline: none;
   justify-self: stretch;
   font-family: var(--_input-text-font);
   font-weight: var(--_input-text-weight);
@@ -184,4 +191,8 @@ slot {
     transform: scaleY(1);
     visibility: visible;
   }
+}
+
+.input[hidden] {
+  display: none;
 }
