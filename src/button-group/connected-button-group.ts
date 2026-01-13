@@ -65,7 +65,6 @@ define('mx-connected-button-group', ConnectedButtonGroup);
 
 declare global {
   interface HTMLElementTagNameMap {
-    // @ts-expect-error: duplicate tag during migration
     'mx-connected-button-group': ConnectedButtonGroup;
   }
 }

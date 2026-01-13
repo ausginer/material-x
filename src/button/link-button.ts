@@ -1,24 +1,23 @@
 import type { EmptyObject } from 'type-fest';
-import { useAttribute } from '../core/controllers/useAttribute.ts';
-import { ATTRIBUTE, Str } from '../core/elements/attribute.ts';
+import { useAttributeTransfer } from '../core/controllers/useAttribute.ts';
+import { Str } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import { $ } from '../core/utils/DOM.ts';
 import linkButtonTemplate from './link-button.tpl.html' with { type: 'html' };
 import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
-import elevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
-import linkButtonStyles from './styles/link-button.ctr.css' with { type: 'css' };
+import mainElevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
 import mainOutlinedStyles from './styles/outlined/main.ctr.css' with { type: 'css' };
-import outlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
-import textTokens from './styles/text/main.tokens.css.ts' with { type: 'css' };
-import tonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
+import mainOutlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
+import mainTextTokens from './styles/text/main.tokens.css.ts' with { type: 'css' };
+import mainTonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
 import {
   createButtonAccessors,
   useButtonCore,
   type ButtonColor,
+  type ButtonCoreProperties,
   type ButtonLike,
   type ButtonShape,
   type ButtonSize,
-  type ButtonCoreProperties,
 } from './useButtonCore.ts';
 
 export type LinkButtonProperties = Readonly<
@@ -59,25 +58,21 @@ export default class LinkButton extends ReactiveElement implements ButtonLike {
     useButtonCore(
       this,
       linkButtonTemplate,
-      'link',
       [
         mainElevatedStyles,
         mainOutlinedStyles,
-        elevatedTokens,
-        outlinedTokens,
-        textTokens,
-        linkButtonStyles,
-        tonalTokens,
+        mainElevatedTokens,
+        mainOutlinedTokens,
+        mainTextTokens,
+        mainTonalTokens,
       ],
       { delegatesFocus: true },
     );
 
-    const anchor = $(this, 'a')!;
-
-    ['href', 'target'].map((attribute) => {
-      useAttribute(this, attribute, (_, value) =>
-        ATTRIBUTE.setRaw(anchor, attribute, value),
-      );
+    useAttributeTransfer(this, $(this, '.host')!, {
+      href: 'href',
+      target: 'target',
+      disabled: 'disabled',
     });
   }
 }
@@ -86,7 +81,6 @@ define('mx-link-button', LinkButton);
 
 declare global {
   interface HTMLElementTagNameMap {
-    // @ts-expect-error: duplicate tag during migration
     'mx-link-button': LinkButton;
   }
 }

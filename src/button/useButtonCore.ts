@@ -2,14 +2,16 @@ import type { Constructor } from 'type-fest';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { useRipple } from '../core/animations/ripple.ts';
 import { createAccessors } from '../core/controllers/createAccessors.ts';
-import { useConnected } from '../core/controllers/useConnected.ts';
+import { useAttributeTransfer } from '../core/controllers/useAttribute.ts';
 import { useContext } from '../core/controllers/useContext.ts';
 import { Bool, Num, Str, type Converter } from '../core/elements/attribute.ts';
 import {
   getInternals,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import elevationStyles from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
+import elevationStyles from '../core/styles/elevation.ctr.css' with { type: 'css' };
+import elevationTokens from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
+import { $ } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import disabledStyles from './styles/default/disabled.ctr.css' with { type: 'css' };
 import disabledTokens from './styles/default/disabled.tokens.css.ts' with { type: 'css' };
@@ -83,22 +85,21 @@ function updateByContext(
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/max-params
 export function useButtonCore(
   host: ButtonLike & ReactiveElement,
   template: HTMLTemplateElement,
-  role: ARIAMixin['role'],
   styles: CSSStyleSheet[],
   init?: Partial<ShadowRootInit>,
 ): void {
   useCore(
     host,
     template,
-    { role },
+    {},
     [
       shapeTokens,
       defaultTokens,
       defaultMainStyles,
+      elevationTokens,
       elevationStyles,
       sizeTokens,
       ...styles,
@@ -108,13 +109,13 @@ export function useButtonCore(
     init,
   );
 
+  useAttributeTransfer(host, $(host, '.host')!, {
+    disabled: 'disabled',
+  });
+
   useRipple(host, {
     easing: '--_ripple-easing',
     duration: '--_ripple-duration',
-  });
-
-  useConnected(host, () => {
-    host.tabIndex = 0;
   });
 
   const internals = getInternals(host);

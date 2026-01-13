@@ -1,11 +1,18 @@
-import { useARIA } from '../controllers/useARIA.ts';
+import { useARIA, useARIAInternals } from '../controllers/useARIA.ts';
 import { useShadowDOM } from '../controllers/useShadowDOM.ts';
 import type { ReactiveElement } from '../elements/reactive-element.ts';
 
 const ARIA_MAPPING = {
   checked: 'ariaChecked',
-  disabled: 'ariaDisabled',
 } as const;
+
+function converter(name: string, value: string | null): string | null {
+  if (name === 'ariaChecked') {
+    return value != null ? 'true' : 'false';
+  }
+
+  return value;
+}
 
 // eslint-disable-next-line @typescript-eslint/max-params
 export function useCore(
@@ -16,5 +23,12 @@ export function useCore(
   init?: Partial<ShadowRootInit>,
 ): void {
   useShadowDOM(host, template, styles, init);
-  useARIA(host, aria, ARIA_MAPPING);
+  useARIAInternals(host, aria, ARIA_MAPPING, converter);
+}
+
+export function useTargetedARIA(
+  host: ReactiveElement,
+  target: HTMLElement,
+): void {
+  useARIA(host, target, ARIA_MAPPING, converter);
 }

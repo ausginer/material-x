@@ -11,10 +11,10 @@ import {
   createButtonAccessors,
   useButtonCore,
   type ButtonColor,
+  type ButtonCoreProperties,
   type ButtonLike,
   type ButtonShape,
   type ButtonSize,
-  type ButtonCoreProperties,
 } from './useButtonCore.ts';
 
 export type ButtonProperties = ButtonCoreProperties;
@@ -48,14 +48,19 @@ export default class Button extends ReactiveElement implements ButtonLike {
 
   constructor() {
     super();
-    useButtonCore(this, buttonTemplate, 'button', [
-      mainElevatedStyles,
-      mainOutlinedStyles,
-      elevatedTokens,
-      outlinedTokens,
-      textTokens,
-      tonalTokens,
-    ]);
+    useButtonCore(
+      this,
+      buttonTemplate,
+      [
+        mainElevatedStyles,
+        mainOutlinedStyles,
+        elevatedTokens,
+        outlinedTokens,
+        textTokens,
+        tonalTokens,
+      ],
+      { delegatesFocus: true },
+    );
   }
 }
 
@@ -63,7 +68,6 @@ define('mx-button', Button);
 
 declare global {
   interface HTMLElementTagNameMap {
-    // @ts-expect-error: duplicate tag during migration
     'mx-button': Button;
   }
 }

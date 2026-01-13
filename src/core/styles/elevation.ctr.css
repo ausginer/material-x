@@ -1,4 +1,4 @@
-:host {
+.host {
   position: relative;
   box-shadow: var(--_elevation-penumbra);
 
@@ -7,9 +7,9 @@
     border-radius: inherit;
     inset: 0;
     position: absolute;
-    /* transition-duration: inherit;
-      transition-timing-function: inherit;
-      transition-property: box-shadow; */
+    transition-duration: inherit;
+    transition-timing-function: inherit;
+    transition-property: box-shadow;
     pointer-events: none;
   }
 

@@ -13,10 +13,10 @@ import {
   createButtonAccessors,
   useButtonCore,
   type ButtonColor,
+  type ButtonCoreProperties,
   type ButtonLike,
   type ButtonShape,
   type ButtonSize,
-  type ButtonCoreProperties,
 } from './useButtonCore.ts';
 
 export type IconButtonWidth = 'wide' | 'narrow';
@@ -68,7 +68,7 @@ export default class IconButton extends ReactiveElement implements ButtonLike {
 
   constructor() {
     super();
-    useButtonCore(this, iconButtonTemplate, 'button', [
+    useButtonCore(this, iconButtonTemplate, [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainElevatedTokens,
@@ -84,7 +84,6 @@ define('mx-icon-button', IconButton);
 
 declare global {
   interface HTMLElementTagNameMap {
-    // @ts-expect-error: duplicate tag during migration
     'mx-icon-button': IconButton;
   }
 }

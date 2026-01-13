@@ -15,9 +15,9 @@ import {
   createButtonAccessors,
   useButtonCore,
   type ButtonColor,
+  type ButtonCoreProperties,
   type ButtonShape,
   type ButtonSize,
-  type ButtonCoreProperties,
 } from './useButtonCore.ts';
 import {
   useSwitch,
@@ -63,7 +63,7 @@ export default class SwitchButton
 
   constructor() {
     super();
-    useButtonCore(this, buttonTemplate, 'switch', [
+    useButtonCore(this, buttonTemplate, [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainElevatedTokens,
@@ -83,7 +83,6 @@ define('mx-switch-button', SwitchButton);
 
 declare global {
   interface HTMLElementTagNameMap {
-    // @ts-expect-error: duplicate tag during migration
     'mx-switch-button': SwitchButton;
   }
 }

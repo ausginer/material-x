@@ -1,6 +1,9 @@
-:host([color='elevated'])::before,
-:host([color='elevated'])::after,
-:host(:state(elevated):not([color]))::before,
-:host(:state(elevated):not([color]))::after {
-  content: '';
+:host([color='elevated']),
+:host([color='elevated']),
+:host(:state(elevated):not([color])),
+:host(:state(elevated):not([color])) {
+  .host::before,
+  .host::after {
+    content: '';
+  }
 }

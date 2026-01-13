@@ -1,8 +1,8 @@
-:host {
+.host {
   position: relative;
 }
 
-#ripple {
+.ripple {
   position: absolute;
   inset: 0;
   overflow: hidden;

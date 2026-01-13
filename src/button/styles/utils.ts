@@ -24,7 +24,7 @@ export const BUTTON_STATES = [
   'disabled',
 ] as const;
 
-export const SELECTION_STATES = ['selected', 'unselected'] as const;
+export const SELECTION_STATES = ['unselected', 'selected'] as const;
 
 export function groupButtonTokens(tokenName: string): GroupResult {
   const parts = tokenName.split('.');
@@ -206,7 +206,7 @@ export function createButtonScopedDeclarationRenderer(
 
     const commonParams = [
       selection === 'selected' ? checked : null,
-      path === 'default' ? null : componentStateMap[state],
+      state === 'default' ? null : componentStateMap[state],
     ];
 
     return {

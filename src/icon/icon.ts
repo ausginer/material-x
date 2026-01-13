@@ -22,7 +22,6 @@ define('mx-icon', Icon);
 
 declare global {
   interface HTMLElementTagNameMap {
-    // @ts-expect-error: duplicate tag during migration
     'mx-icon': Icon;
   }
 }

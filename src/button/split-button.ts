@@ -93,7 +93,6 @@ define('mx-split-button', SplitButton);
 
 declare global {
   interface HTMLElementTagNameMap {
-    // @ts-expect-error: duplicate tag during migration
     'mx-split-button': SplitButton;
   }
 }

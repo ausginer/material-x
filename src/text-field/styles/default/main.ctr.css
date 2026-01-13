@@ -39,21 +39,21 @@
   }
 }
 
-:host:has(#lead.has-slotted) {
+:host:has(.lead.has-slotted) {
   --_padding-inline-start: var(--_container-icon-padding-inline);
   --_lead-icon-gap: var(--_container-padding-inline);
 }
 
-:host:has(#trail.has-slotted) {
+:host:has(.trail.has-slotted) {
   --_padding-inline-end: var(--_container-icon-padding-inline);
   --_trail-icon-gap: var(--_container-padding-inline);
 }
 
-:host:has(#prefix.has-slotted) {
+:host:has(.prefix.has-slotted) {
   --_prefix-gap: var(--_input-text-prefix-gap);
 }
 
-:host:has(#suffix.has-slotted) {
+:host:has(.suffix.has-slotted) {
   --_suffix-gap: var(--_input-text-suffix-gap);
 }
 
@@ -67,14 +67,14 @@ slot {
  * Input
  * ======================= */
 
-#prefix,
-#suffix,
-#input {
+.prefix,
+.suffix,
+.input {
   padding-block: var(--_padding-block);
   align-self: flex-end;
 }
 
-#input {
+.input {
   grid-area: field;
   outline: none;
   justify-self: stretch;
@@ -90,17 +90,17 @@ slot {
  * Prefix, suffix, label
  * ======================= */
 
-#prefix,
-#suffix {
+.prefix,
+.suffix {
   transform: scaleY(0);
   transition: transform var(--_focus-duration) var(--_focus-easing);
   transform-origin: bottom;
   visibility: hidden;
 }
 
-#prefix,
-#suffix,
-#label {
+.prefix,
+.suffix,
+.label {
   font-family: var(--_label-text-font);
   font-weight: var(--_label-text-weight);
   font-size: var(--_label-text-size);
@@ -110,15 +110,15 @@ slot {
   text-wrap: nowrap;
 }
 
-#prefix.has-slotted {
+.prefix.has-slotted {
   grid-area: prefix;
 }
 
-#suffix.has-slotted {
+.suffix.has-slotted {
   grid-area: suffix;
 }
 
-#label.has-slotted {
+.label.has-slotted {
   position: absolute;
   grid-area: prefix / prefix / prefix / suffix;
   transform-origin: center left;
@@ -131,13 +131,13 @@ slot {
  * Icons
  * ======================= */
 
-#lead.has-slotted {
+.lead.has-slotted {
   grid-area: lead;
   --md-icon-size: var(--_leading-icon-size);
   color: var(--_leading-icon-color);
 }
 
-#trail.has-slotted {
+.trail.has-slotted {
   grid-area: trail;
   --md-icon-size: var(--_trailing-icon-size);
   color: var(--_trailing-icon-color);
@@ -147,8 +147,8 @@ slot {
  * Supporting text & counter
  * =========================== */
 
-#support,
-#counter {
+.support,
+.counter {
   padding-block-start: var(--_supporting-text-gap);
   color: var(--_supporting-text-color);
   font-family: var(--_supporting-text-font);
@@ -157,11 +157,11 @@ slot {
   line-height: var(--_supporting-text-line-height);
 }
 
-#support.has-slotted {
+.support.has-slotted {
   grid-area: support;
 }
 
-#counter.has-slotted {
+.counter.has-slotted {
   grid-area: counter;
 }
 
@@ -171,7 +171,7 @@ slot {
 
 :host(:state(populated)),
 :host(:focus-within) {
-  #label.has-slotted {
+  .label.has-slotted {
     line-height: var(--_label-text-populated-line-height);
     color: var(--_label-text-color);
     padding-block-start: var(--_container-focus-padding-block);
@@ -179,8 +179,8 @@ slot {
     scale: calc(var(--_label-text-populated-size) / var(--_label-text-size));
   }
 
-  #prefix,
-  #suffix {
+  .prefix,
+  .suffix {
     transform: scaleY(1);
     visibility: visible;
   }

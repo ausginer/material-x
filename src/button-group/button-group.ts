@@ -83,7 +83,6 @@ define('mx-button-group', ButtonGroup);
 
 declare global {
   interface HTMLElementTagNameMap {
-    // @ts-expect-error: duplicate tag during migration
     'mx-button-group': ButtonGroup;
   }
 }

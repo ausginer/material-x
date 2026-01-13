@@ -10,17 +10,36 @@ export type ARIAStringProperties = Readonly<{
     : never]: ARIAMixin[K];
 }>;
 
+export type ARIAConverter = (
+  name: string,
+  value: string | null,
+) => string | null;
+
 export function useARIA(
   host: ReactiveElement,
-  init: Partial<ARIAMixin>,
+  target: Partial<ARIAMixin>,
   mapping: Readonly<Record<string, keyof ARIAStringProperties>>,
+  converter: ARIAConverter,
 ): void {
-  const _internals = Object.assign(getInternals(host), init);
+  for (const mappingName of Object.values(mapping)) {
+    target[mappingName] = converter(mappingName, null);
+  }
+
   use(host, {
-    attrChanged(name: string, _, newValue) {
+    attrChanged(name, _, newValue) {
       if (mapping[name]) {
-        _internals[mapping[name]] = newValue;
+        target[mapping[name]] = converter(mapping[name], newValue);
       }
     },
   });
+}
+
+export function useARIAInternals(
+  host: ReactiveElement,
+  init: Partial<ARIAMixin>,
+  mapping: Readonly<Record<string, keyof ARIAStringProperties>>,
+  converter: ARIAConverter,
+): void {
+  const _internals = Object.assign(getInternals(host), init);
+  useARIA(host, _internals, mapping, converter);
 }

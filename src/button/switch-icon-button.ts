@@ -77,7 +77,7 @@ export default class SwitchIconButton
 
   constructor() {
     super();
-    useButtonCore(this, iconButtonTemplate, 'button', [
+    useButtonCore(this, iconButtonTemplate, [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainElevatedTokens,
@@ -99,7 +99,6 @@ define('mx-switch-icon-button', SwitchIconButton);
 
 declare global {
   interface HTMLElementTagNameMap {
-    // @ts-expect-error: duplicate tag during migration
     'mx-switch-icon-button': SwitchIconButton;
   }
 }

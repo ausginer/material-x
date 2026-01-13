@@ -3,7 +3,8 @@ import { createAccessors } from '../core/controllers/createAccessors.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { Bool, Str, type Converter } from '../core/elements/attribute.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
-import { DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
+import { $, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
+import { useTargetedARIA } from '../core/utils/useCore.ts';
 import type { ButtonLike } from './useButtonCore.ts';
 
 export interface SwitchLike extends ButtonLike {
@@ -31,6 +32,11 @@ export function useSwitchAccessors(
 }
 
 export function useSwitch(host: ReactiveElement): void {
+  const target = $<HTMLElement>(host, '.host')!;
+
+  target.role = 'switch';
+  useTargetedARIA(host, target);
+
   useEvents(host, {
     pointerdown() {
       CHANGE_EVENTS.forEach((name) =>

@@ -1,10 +1,6 @@
 import { useEvents } from '../controllers/useEvents.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
-import {
-  html,
-  type ReactiveElement,
-  use,
-} from '../elements/reactive-element.ts';
+import { type ReactiveElement, use } from '../elements/reactive-element.ts';
 import { $ } from '../utils/DOM.ts';
 import {
   readCSSVariables,
@@ -124,10 +120,9 @@ export type CSSVariables = Readonly<{
   duration: string;
 }>;
 
-const TEMPLATE = html` <div id="ripple"></div> `;
-
 class RippleAnimationController implements ReactiveController {
   readonly #host: ReactiveElement;
+  readonly #rippleHost: HTMLElement;
   readonly #rippleElement: HTMLElement;
   readonly #cssVariables: CSSVariables;
   #state: State = INACTIVE;
@@ -138,10 +133,9 @@ class RippleAnimationController implements ReactiveController {
 
   constructor(host: ReactiveElement, vars: CSSVariables) {
     this.#host = host;
-    // Append so the ripple paints above the host's content.
-    host.shadowRoot!.append(TEMPLATE.content.cloneNode(true));
     host.shadowRoot!.adoptedStyleSheets.push(css);
-    this.#rippleElement = $(host, `#ripple`)!;
+    this.#rippleHost = $(host, '.host')!;
+    this.#rippleElement = $(host, `.ripple`)!;
     this.#cssVariables = vars;
 
     const self = this;
@@ -274,19 +268,20 @@ class RippleAnimationController implements ReactiveController {
   }
 
   #inBounds({ x, y }: PointerEvent): boolean {
-    const { top, left, bottom, right } = this.#host.getBoundingClientRect();
+    const { top, left, bottom, right } =
+      this.#rippleHost.getBoundingClientRect();
     return x >= left && x <= right && y >= top && y <= bottom;
   }
 
   #startAnimation(): void {
     const self = this;
-    const host = self.#host;
-    const rect = host.getBoundingClientRect();
+    const rippleHost = self.#rippleHost;
+    const rect = rippleHost.getBoundingClientRect();
 
     self.#animation?.cancel();
-    const [size, scale] = determineRippleSize(host, rect);
+    const [size, scale] = determineRippleSize(rippleHost, rect);
     const { startPoint, endPoint } = getTranslationCoordinates(
-      host,
+      rippleHost,
       rect,
       size,
       self.#startEvent,
