@@ -67,6 +67,7 @@ export const fabAllowedTokensSelector: GroupSelector =
     'icon.size',
     'icon.color',
     'label-text.color',
+    'label-text',
     'label-text.font-size',
     'label-text.font-name',
     'label-text.font-weight',

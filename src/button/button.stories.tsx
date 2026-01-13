@@ -74,7 +74,7 @@ export const Disabled: Story = () => <mx-button disabled>Click Me!</mx-button>;
 
 export const WithIcon: Story = () => (
   <mx-button>
-    <mx-icon>check</mx-icon>
+    <mx-icon slot="icon">check</mx-icon>
     Submit
   </mx-button>
 );

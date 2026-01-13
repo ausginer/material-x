@@ -4,7 +4,10 @@
       (var(--_elevation-hovered) - var(--_elevation-default)) *
       var(--_press-factor)
   );
+}
 
+.host {
+  all: initial;
   display: inline-flex;
   background-color: var(--_container-color);
   border-radius: var(--_container-shape);
@@ -12,16 +15,14 @@
   align-items: center;
   padding-block: calc((var(--_container-height) - var(--_icon-size)) / 2);
   padding-inline: calc((var(--_container-width) - var(--_icon-size)) / 2);
+
+  &::before,
+  &::after {
+    content: '';
+  }
 }
 
-:host::before,
-:host::after {
-  content: '';
-}
-
-.icon {
-  /* TODO: switch mx-icon to --_icon-size. */
-  --md-icon-size: var(--_icon-size);
-
+.icon::slotted(*) {
   color: var(--_icon-color);
+  font-size: var(--_icon-size);
 }

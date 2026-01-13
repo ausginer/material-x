@@ -37,9 +37,8 @@
     padding-inline var(--_press-duration) var(--_press-easing);
 }
 
-.icon {
-  width: var(--_icon-size);
-  height: var(--_icon-size);
+.icon::slotted(*) {
+  font-size: var(--_icon-size);
   color: var(--_icon-color);
   flex: 1 0 var(--_icon-size);
   transition: color var(--_press-duration) var(--_press-easing);
