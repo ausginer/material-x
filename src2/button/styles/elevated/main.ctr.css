@@ -1,0 +1,6 @@
+:host([color='elevated'])::before,
+:host([color='elevated'])::after,
+:host(:state(elevated):not([color]))::before,
+:host(:state(elevated):not([color]))::after {
+  content: '';
+}

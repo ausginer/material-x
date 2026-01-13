@@ -1,0 +1,37 @@
+:host {
+  --_interaction-direction-leading: 0;
+  --_interaction-direction-trailing: 0;
+
+  display: flex;
+  gap: var(--_between-space);
+
+  ::slotted(*) {
+    padding-inline: calc(
+        var(--_leading-space) *
+          (
+            1 + var(--_interaction-direction-leading) *
+              var(--_interaction-width-multiplier)
+          )
+      )
+      calc(
+        var(--_trailing-space) *
+          (
+            1 + var(--_interaction-direction-trailing) *
+              var(--_interaction-width-multiplier)
+          )
+      );
+  }
+
+  ::slotted(:active:not(:first-child):not(:last-child)) {
+    --_interaction-direction-leading: 1;
+    --_interaction-direction-trailing: 1;
+  }
+
+  ::slotted(:active:first-child) {
+    --_interaction-direction-trailing: 1;
+  }
+
+  ::slotted(:active:last-child) {
+    --_interaction-direction-leading: 1;
+  }
+}

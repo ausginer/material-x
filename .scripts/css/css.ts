@@ -1,60 +1,22 @@
-import { basename, extname } from 'node:path';
+import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { transform } from 'lightningcss';
 import MagicString from 'magic-string';
 import type { SourceMap } from 'rollup';
-// eslint-disable-next-line import-x/no-unresolved
-import * as sorcery from 'sorcery';
 import { cssCache, type JSONModule } from '../utils.ts';
 import { CSS_VARIABLE_NAME_REGEXP } from './collect-props.ts';
+import format from './format.ts';
+import transform from './transform.ts';
 
 const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
   await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {
     with: { type: 'json' },
   });
 
-export type CSSImportParseResult = Readonly<{
-  code: string;
-  files: Set<string>;
-}>;
-
-export function parseCSSImports(
-  code: string,
-  replace = false,
-): CSSImportParseResult {
-  const files = new Set<string>();
-
-  code = code.replaceAll(
-    // Matches import statements like:
-    // ```ts
-    // import css from './style.css.ts' with { type: 'css' };
-    // ```
-    /["'](.*)["']\s*with\s*\{\s*type:\s*['"]css['"]\s*\};/giu,
-    (substring, file) => {
-      files.add(file);
-      return replace ? `'${file}.js'` : substring;
-    },
-  );
-
-  return { code, files };
-}
-
 export type CSSCompilationResult = Readonly<{
   code: string;
   map?: SourceMap;
   urls?: readonly URL[];
 }>;
-
-function createSourcePath(previousURL: URL, ext: string) {
-  const previousPath = fileURLToPath(previousURL);
-  return new URL(
-    `${basename(previousPath, extname(previousPath))}${ext}`,
-    new URL('./', previousURL),
-  );
-}
-
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
 
 export type CompileCSSOptions = Readonly<{
   isProd: boolean;
@@ -66,8 +28,9 @@ export async function compileCSS(
   options?: CompileCSSOptions,
 ): Promise<CSSCompilationResult> {
   const path = fileURLToPath(url);
+  const cssPath = path.replace(/\.ts$/, '');
 
-  const _code = options?.isProd
+  let css = options?.isProd
     ? code.replace(CSS_VARIABLE_NAME_REGEXP, (propName) => {
         const mangled = propList[propName];
 
@@ -79,24 +42,20 @@ export async function compileCSS(
       })
     : code;
 
-  const { code: encodedProcessedCode, map: encodedProcessedSourceMap } =
-    transform({
-      filename: basename(path),
-      code: encoder.encode(_code),
-      minify: true,
-      sourceMap: true,
-    });
+  const fileName = basename(cssPath);
 
-  const processedCode = decoder.decode(encodedProcessedCode);
-  const processedMap = JSON.parse(decoder.decode(encodedProcessedSourceMap!));
+  const { code: processedCode } = transform(
+    await format(css, fileName),
+    fileName,
+    false,
+    options?.isProd,
+  );
 
   if (!processedCode) {
     return {
-      code: `const css = new CSSStyleSheet();export default css;`,
+      code: `export default new CSSStyleSheet();`,
     };
   }
-
-  const interPath = fileURLToPath(createSourcePath(url, '.min.css'));
 
   const m = new MagicString(processedCode);
   m.prepend('const css = new CSSStyleSheet();css.replaceSync(`');
@@ -105,29 +64,12 @@ export async function compileCSS(
   const compiled = m.toString();
   const compiledMap = m.generateMap({
     hires: true,
-    source: interPath,
+    source: cssPath,
     includeContent: true,
   });
 
-  const finalPath = fileURLToPath(createSourcePath(url, '.min.js'));
-
-  const chain = await sorcery.load(finalPath, {
-    content: {
-      [finalPath]: compiled,
-      [interPath]: processedCode,
-      [path]: code,
-    },
-    sourcemaps: {
-      [finalPath]: JSON.parse(compiledMap.toString()),
-      [interPath]: processedMap,
-    },
-  });
-
-  const map = chain.apply();
-  map.sources = map.sources.map((source) => basename(source));
-
   return {
     code: compiled,
-    map,
+    map: compiledMap,
   };
 }

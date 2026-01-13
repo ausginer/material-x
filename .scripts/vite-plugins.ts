@@ -3,9 +3,14 @@ import { MessageChannel, Worker } from 'node:worker_threads';
 import { computed, signal } from '@preact/signals-core';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
+import { compileHTML } from './html.ts';
 import { cssCache, type JSONModule } from './utils.ts';
 
-export type ConstructCSSOptions = Readonly<{
+export type ConstructCSSTokensOptions = Readonly<{
+  isProd: boolean;
+}>;
+
+export type ConstructCSSStylesOptions = Readonly<{
   isProd: boolean;
 }>;
 
@@ -14,7 +19,116 @@ const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
     with: { type: 'json' },
   });
 
-export function constructCSS(options?: ConstructCSSOptions): Plugin {
+function normalizePath(target: string, base?: string): string {
+  if (!base && !target.includes('?') && !target.includes('#')) {
+    return target;
+  }
+
+  const url = new URL(
+    target,
+    base ? pathToFileURL(base) : pathToFileURL(import.meta.dirname),
+  );
+
+  url.search = '';
+  url.hash = '';
+
+  return fileURLToPath(url);
+}
+
+export function constructCSSStyles(
+  options?: ConstructCSSStylesOptions,
+): Plugin {
+  return {
+    name: 'vite-construct-css-styles',
+    enforce: 'pre',
+    resolveId: {
+      filter: {
+        id: {
+          include: /\.ctr\.css/u,
+        },
+      },
+      order: 'pre',
+      async handler(source, importer) {
+        return await this.resolve(source + '?raw', importer, {
+          skipSelf: true,
+        });
+      },
+    },
+    load: {
+      filter: {
+        id: {
+          include: /\.ctr\.css/u,
+        },
+      },
+      async handler(id) {
+        const cleanId = normalizePath(id);
+        const source = await this.fs.readFile(cleanId, { encoding: 'utf8' });
+        const { code, map } = await compileCSS(
+          pathToFileURL(cleanId),
+          source,
+          options,
+        );
+
+        this.addWatchFile(cleanId);
+
+        return {
+          code,
+          map,
+        };
+      },
+    },
+  };
+}
+
+export function constructHTMLTemplate(): Plugin {
+  return {
+    name: 'vite-construct-html-template',
+    enforce: 'pre',
+    resolveId: {
+      filter: {
+        id: {
+          include: /\.tpl\.html/u,
+        },
+      },
+      order: 'pre',
+      async handler(source, importer) {
+        return await this.resolve(source, importer, {
+          skipSelf: true,
+        });
+      },
+    },
+    load: {
+      filter: {
+        id: {
+          include: /\.tpl\.html/u,
+        },
+      },
+      async handler(id) {
+        const cleanId = normalizePath(id);
+        const source = await this.fs.readFile(cleanId, { encoding: 'utf8' });
+        const { code, map } = await compileHTML(source, cleanId);
+
+        this.addWatchFile(cleanId);
+
+        return {
+          code,
+          map,
+        };
+      },
+    },
+  };
+}
+
+function processComplexOxcSetting(
+  setting: string | RegExp | ReadonlyArray<string | RegExp> | null | undefined,
+): ReadonlyArray<string | RegExp> {
+  const s = setting ?? [];
+  return Array.isArray(s) ? s : [s];
+}
+
+export function constructCSSTokens(
+  options?: ConstructCSSTokensOptions,
+): Plugin {
   const trackedFiles = signal<Record<string, Set<string>>>({});
   const dependencies = computed(() =>
     Object.entries(trackedFiles.value).reduce<Record<string, Set<string>>>(
@@ -34,27 +148,50 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
     ([name, value]) => [new RegExp(`['"]${name}['"]`, 'gu'), value] as const,
   );
 
-  const plugin: Plugin = {
-    name: 'vite-construct-css',
+  return {
+    name: 'vite-construct-css-tokens',
+    enforce: 'pre',
+    config(config) {
+      if (config.oxc === false) {
+        return config;
+      }
+
+      return {
+        ...config,
+        oxc: {
+          ...config.oxc,
+          exclude: [
+            ...processComplexOxcSetting(config.oxc?.exclude),
+            /\.css\.ts/u,
+          ],
+          jsxRefreshExclude: [
+            ...processComplexOxcSetting(config.oxc?.jsxRefreshExclude),
+            /\.css\.ts/u,
+          ],
+        },
+      };
+    },
     resolveId: {
       filter: {
         id: {
-          include: /\.css\.ts/,
+          include: /\.css\.ts/u,
         },
       },
       order: 'pre',
-      handler(source, importer) {
-        const url = new URL(source, pathToFileURL(importer!));
-        return fileURLToPath(url);
+      async handler(source, importer) {
+        return await this.resolve(source, importer, {
+          skipSelf: true,
+        });
       },
     },
     load: {
       filter: {
         id: {
-          include: /\.css\.ts/,
+          include: /\.css\.ts/u,
         },
       },
       async handler(id) {
+        const cleanId = normalizePath(id);
         const { port1, port2 } = new MessageChannel();
         const deps = new Set<string>();
 
@@ -74,7 +211,7 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
                 ),
               ],
               workerData: {
-                id,
+                id: cleanId,
                 monitorPort: port2,
               },
               transferList: [port2],
@@ -91,20 +228,21 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
 
         trackedFiles.value = {
           ...trackedFiles.peek(),
-          [id]: deps,
+          [cleanId]: deps,
         };
 
         const { code, map } = await compileCSS(
-          pathToFileURL(id.replace(/\.ts$/u, '')),
+          pathToFileURL(cleanId),
           result,
           options,
         );
 
-        this.addWatchFile(id);
+        this.addWatchFile(cleanId);
 
         return {
           code,
           map,
+          moduleType: 'js',
         };
       },
     },
@@ -152,6 +290,4 @@ export function constructCSS(options?: ConstructCSSOptions): Plugin {
       },
     },
   };
-
-  return plugin;
 }

@@ -9,3 +9,4 @@ storybook-static
 .docs
 *.css
 !*.module.css
+!*.ctr.css
