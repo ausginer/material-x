@@ -49,7 +49,7 @@ export const defaultGrouper: Grouper = (tokenName) => ({
 
 export const componentStateMap: Readonly<Record<string, Param>> = {
   hovered: pseudoClass('hover'),
-  focused: pseudoClass('focus-visible'),
+  focused: pseudoClass('focus-within'),
   pressed: pseudoClass('active'),
   disabled: pseudoClass('disabled'),
 };
