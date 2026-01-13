@@ -1,9 +1,9 @@
 import { writeFile } from 'node:fs/promises';
 import kebabCase from 'just-kebab-case';
-import DB from '../src/core/tokens/DB.ts';
-import { root } from '../src/core/tokens/utils.ts';
+import db from '../src/.tproc/DB/index.ts';
+import { root } from './utils.ts';
 
-const { light, dark } = DB.theme.schemes;
+const { light, dark } = db.theme.schemes;
 
 const [lightCSS, darkCSS] = [light, dark].map((scheme) => {
   return Object.entries(scheme).map(
