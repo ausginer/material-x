@@ -9,13 +9,14 @@ import {
 } from './.scripts/vite-plugins.js';
 
 const root = pathToFileURL(`${import.meta.dirname}/`);
+const isCI = process.env['CI'] === 'true';
 
 const config: UserConfigFnObject = defineConfig(({ command }: ConfigEnv) => ({
   root: fileURLToPath(root),
   build: {
     target: 'esnext',
   },
-  rollupOptions: {
+  rolldownOptions: {
     external: ['oxfmt'],
   },
   server: {
@@ -28,9 +29,12 @@ const config: UserConfigFnObject = defineConfig(({ command }: ConfigEnv) => ({
   },
   cacheDir: fileURLToPath(new URL('.vite/', root)),
   plugins: [
-    inspect({
-      include: [/\.css\.ts/],
-    }),
+    isCI
+      ? null
+      : inspect({
+          include: [/\.css\.ts/],
+          build: true,
+        }),
     constructCSSStyles({ isProd: command === 'build' }),
     constructHTMLTemplate(),
     constructCSSTokens({ isProd: command === 'build' }),

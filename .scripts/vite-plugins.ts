@@ -92,7 +92,7 @@ export function constructHTMLTemplate(): Plugin {
       },
       order: 'pre',
       async handler(source, importer) {
-        return await this.resolve(source, importer, {
+        return await this.resolve(source + '?raw', importer, {
           skipSelf: true,
         });
       },

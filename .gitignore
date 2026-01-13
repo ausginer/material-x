@@ -3,6 +3,7 @@
 /node_modules
 /models
 /.vite
+/.vite-inspect
 
 *storybook.log
 storybook-static

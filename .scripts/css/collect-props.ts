@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
-import { glob, mkdir, writeFile } from 'node:fs/promises';
+import { glob, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { execPattern, root, type JSModule } from '../utils.ts';
 
@@ -10,16 +10,22 @@ const registry = new Set<string>();
 
 export const CSS_VARIABLE_NAME_REGEXP: RegExp = /(--_[\w-]+)/gu;
 
-for await (const filename of glob('**/*.css.ts', { cwd: srcDir })) {
-  const css: JSModule<string> = await import(
-    fileURLToPath(new URL(filename, srcDir))
-  );
+for await (const filename of glob(['**/*.css.ts', '**/*.css'], {
+  cwd: srcDir,
+})) {
+  let css: unknown;
 
-  if (typeof css.default === 'string') {
-    for (const [propName] of execPattern(
-      CSS_VARIABLE_NAME_REGEXP,
-      css.default,
-    )) {
+  if (filename.endsWith('css')) {
+    css = await readFile(new URL(filename, srcDir), 'utf8');
+  } else {
+    const mod: JSModule<string> = await import(
+      fileURLToPath(new URL(filename, srcDir))
+    );
+    css = mod.default;
+  }
+
+  if (typeof css === 'string') {
+    for (const [propName] of execPattern(CSS_VARIABLE_NAME_REGEXP, css)) {
       registry.add(propName);
     }
   }
