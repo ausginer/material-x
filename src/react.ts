@@ -70,7 +70,7 @@ type JSXWrapper<
 > = DetailedHTMLProps<
   HTMLAttributes<C> &
     P & {
-      [K in keyof E as `on${K & string}`]?: (event: E) => void;
+      [K in keyof E as `on${K & string}`]?: (event: E[K]) => void;
     },
   C
 >;

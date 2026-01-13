@@ -1,55 +1,138 @@
-import processTokenSet from '../../../core/tokens/processTokenSet.ts';
-import { excludeFromSet } from '../../../core/tokens/utils.ts';
-import { createVariables } from '../../../core/tokens/variable.ts';
-import type { FromKeys } from '../../../interfaces.ts';
-import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
+import type { TupleToUnion } from 'type-fest';
+import { t } from '../../../.tproc/index.ts';
+import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
+import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
 import {
-  applyToButtons,
-  createPrefix,
-  packButtons,
-  reshapeButtonSet,
-  resolveButtonShape,
-  type PackShape,
+  defaultFilledTokens,
+  defaultSwitchFilledTokens,
+  defaultSwitchTokens,
+  defaultTokens,
+} from '../default/tokens.ts';
+import {
+  buttonAllowedTokensSelector,
+  buttonMainTokenSelector,
+  buttonSwitchTokenSelector,
+  createButtonExtensions,
+  createButtonScopedDeclarationRenderer,
+  fixFullShape,
+  groupButtonTokens,
+  notDisabledTokenSelector,
+  omitSelectedShape,
 } from '../utils.ts';
 
 const SIZES = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
+type Sizes = TupleToUnion<typeof SIZES>;
 
-const ALLOWED: readonly string[] = [...PUBLIC, ...PRIVATE];
+function isDefaultSize(size: Sizes): boolean {
+  return size === 'small';
+}
 
-const packs: FromKeys<typeof SIZES, PackShape> = Object.fromEntries(
-  SIZES.map((s) => {
-    const set = (() => {
-      const set = processTokenSet(`md.comp.button.${s}`);
-      const shapedSet = reshapeButtonSet(set);
-      const resolvedSet = resolveButtonShape(shapedSet);
-
-      const variableSet = applyToButtons(resolvedSet, (set, path) =>
-        createVariables(
-          set,
-          {
-            vars: PUBLIC,
-            prefix: createPrefix({
-              state: path.at(-1)!,
-              switchState: path.at(-2),
-            }),
-          },
-          ALLOWED,
+const createPackage = (
+  size: Sizes,
+  adjuster: ProcessorAdjuster = (processor) => processor,
+) =>
+  adjuster(
+    t
+      .set(`md.comp.button.${size}`)
+      .group(groupButtonTokens)
+      .select(buttonAllowedTokensSelector)
+      .adjustTokens(fixFullShape)
+      .renderDeclarations(
+        createButtonScopedDeclarationRenderer(
+          isDefaultSize(size)
+            ? undefined
+            : {
+                name: 'size',
+                value: size,
+                useState: true,
+              },
         ),
-      );
+      ),
+  ).build();
 
-      return applyToButtons(variableSet, (tokens, [state]) => {
-        if (state === 'selected') {
-          return excludeFromSet(tokens, ['container.shape']);
-        }
+const defaultRenderer = createButtonScopedDeclarationRenderer();
 
-        return tokens;
-      });
-    })();
-
-    const pack = packButtons(set, defaultSet);
-
-    return [s, pack] as const;
-  }),
+export const defaultSizeMainTokens: ReadonlySignal<TokenPackage> = computed(
+  () =>
+    createPackage('small', (processor) =>
+      processor
+        .select(buttonMainTokenSelector)
+        .extend(
+          createButtonExtensions(
+            defaultTokens.value,
+            defaultFilledTokens.value,
+          ),
+        )
+        .renderDeclarations(defaultRenderer),
+    ),
 );
 
-export default packs;
+export const defaultSizeSwitchTokens: ReadonlySignal<TokenPackage> = computed(
+  () =>
+    createPackage('small', (processor) =>
+      processor
+        .select(
+          buttonSwitchTokenSelector,
+          notDisabledTokenSelector,
+          omitSelectedShape,
+        )
+        .extend(
+          createButtonExtensions(
+            defaultTokens.value,
+            defaultFilledTokens.value,
+            defaultSwitchTokens.value,
+            defaultSwitchFilledTokens.value,
+          ),
+        )
+        .renderDeclarations(defaultRenderer),
+    ),
+);
+
+function createNonDefaultRenderer(size: Sizes) {
+  return createButtonScopedDeclarationRenderer({
+    name: 'size',
+    value: size,
+    useState: true,
+  });
+}
+
+export const mainTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  SIZES.filter((s) => s === 'small').map((size) =>
+    computed(() =>
+      createPackage(size, (processor) =>
+        processor
+          .select(buttonMainTokenSelector)
+          .extend(
+            createButtonExtensions(
+              defaultTokens.value,
+              defaultFilledTokens.value,
+            ),
+          )
+          .renderDeclarations(createNonDefaultRenderer(size)),
+      ),
+    ),
+  );
+
+export const switchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  SIZES.map((size) =>
+    computed(() =>
+      createPackage(size, (processor) =>
+        processor
+          .select(
+            buttonSwitchTokenSelector,
+            notDisabledTokenSelector,
+            omitSelectedShape,
+          )
+          .extend(
+            createButtonExtensions(
+              defaultTokens.value,
+              defaultFilledTokens.value,
+              defaultSwitchTokens.value,
+              defaultSwitchFilledTokens.value,
+            ),
+          )
+          .renderDeclarations(createNonDefaultRenderer(size)),
+      ),
+    ),
+  );

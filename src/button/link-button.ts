@@ -3,13 +3,14 @@ import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { ATTRIBUTE, Str } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import { $ } from '../core/utils/DOM.ts';
-import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
-import linkButtonStyles from './styles/link-button.css.ts?type=css' with { type: 'css' };
-import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
-import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
-import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'css' };
-import tonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
-import { LINK_TEMPLATE } from './template.ts';
+import linkButtonTemplate from './link-button.tpl.html' with { type: 'html' };
+import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
+import elevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
+import linkButtonStyles from './styles/link-button.ctr.css' with { type: 'css' };
+import mainOutlinedStyles from './styles/outlined/main.ctr.css' with { type: 'css' };
+import outlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
+import textTokens from './styles/text/main.tokens.css.ts' with { type: 'css' };
+import tonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
 import {
   createButtonAccessors,
   useButtonCore,
@@ -57,15 +58,16 @@ export default class LinkButton extends ReactiveElement implements ButtonLike {
     super();
     useButtonCore(
       this,
-      LINK_TEMPLATE,
+      linkButtonTemplate,
       'link',
       [
         mainElevatedStyles,
         mainOutlinedStyles,
-        mainSizeStyles,
-        mainTextStyles,
+        elevatedTokens,
+        outlinedTokens,
+        textTokens,
         linkButtonStyles,
-        tonalStyles,
+        tonalTokens,
       ],
       { delegatesFocus: true },
     );
@@ -84,6 +86,7 @@ define('mx-link-button', LinkButton);
 
 declare global {
   interface HTMLElementTagNameMap {
+    // @ts-expect-error: duplicate tag during migration
     'mx-link-button': LinkButton;
   }
 }

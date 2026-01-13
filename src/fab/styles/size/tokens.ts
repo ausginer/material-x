@@ -1,65 +1,34 @@
-import processTokenSet from '../../../core/tokens/processTokenSet.ts';
-import { resolveSet } from '../../../core/tokens/resolve.ts';
-import { createVariables } from '../../../core/tokens/variable.ts';
-import type { FromKeys } from '../../../interfaces.ts';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
+import { t, type TokenPackage } from '../../../.tproc/index.ts';
+import { attribute } from '../../../.tproc/selector.ts';
+import { defaultColorTokens } from '../color/tokens.ts';
+import { defaultTokens } from '../default/tokens.ts';
 import {
-  applyToFAB,
-  createPrefix,
-  packFAB,
-  reshapeFABSet,
-  resolveFABShape,
-  type PackShape,
-} from '../../utils.ts';
-import { PRIVATE, PUBLIC, set as defaultSet } from '../default/tokens.ts';
+  createFABExtensions,
+  createFABScopedDeclarationRenderer,
+  fabAllowedTokensSelector,
+  groupFABTokens,
+} from '../utils.ts';
 
 const SIZES = ['large', 'medium'] as const;
 
-const ALLOWED = [...PUBLIC, ...PRIVATE];
+const createSizePackage = (size: string) => {
+  const setName = `md.comp.fab.${size}`;
+  const specialTokens = {
+    'state-layer.color': `${setName}.pressed.state-layer.color`,
+  };
 
-const packs: FromKeys<typeof SIZES, PackShape> = Object.fromEntries(
-  SIZES.map((s) => {
-    const setName = `md.comp.fab.${s}`;
+  return t
+    .set(setName)
+    .group(groupFABTokens)
+    .select(fabAllowedTokensSelector)
+    .append('default', specialTokens)
+    .extend(createFABExtensions(defaultTokens.value, defaultColorTokens.value))
+    .renderDeclarations(
+      createFABScopedDeclarationRenderer(attribute('size', size)),
+    )
+    .build();
+};
 
-    const specialTokens = createVariables(
-      resolveSet({
-        'state-layer.color': `${setName}.pressed.state-layer.color`,
-      }),
-    );
-
-    const set = (() => {
-      const set = processTokenSet(setName);
-      const shapedSet = reshapeFABSet(set);
-      const resolvedSet = resolveFABShape(shapedSet);
-
-      const variableSet = applyToFAB(resolvedSet, (set, [state]) =>
-        createVariables(
-          set,
-          {
-            vars: PUBLIC,
-            prefix: createPrefix({
-              state: state!,
-            }),
-          },
-          ALLOWED,
-        ),
-      );
-
-      return applyToFAB(variableSet, (tokens, [state]) => {
-        if (state === 'default') {
-          return {
-            ...tokens,
-            ...specialTokens,
-          };
-        }
-
-        return tokens;
-      });
-    })();
-
-    const pack = packFAB(set, defaultSet);
-
-    return [s, pack] as const;
-  }),
-);
-
-export default packs;
+export const sizeTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  SIZES.map((size) => computed(() => createSizePackage(size)));

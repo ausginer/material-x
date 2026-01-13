@@ -5,7 +5,7 @@ import {
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useProvider } from '../core/controllers/useContext.ts';
 import { EventEmitter } from '../core/elements/emitter.ts';
-import type { ReactiveElement } from '../core/elements/reactive-element.ts';
+import { ReactiveElement } from '../core/elements/reactive-element.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import {
   BUTTON_GROUP_CTX,
@@ -14,10 +14,10 @@ import {
 
 export type ButtonGroupLike = ButtonLike;
 
-const buttonGroups = new WeakSet<ButtonGroupLike>();
+const buttonGroups = new WeakSet<ReactiveElement>();
 
 export function useButtonGroupCore(
-  host: ButtonGroupLike & ReactiveElement,
+  host: ReactiveElement & ButtonGroupLike,
   template: HTMLTemplateElement,
   aria: Partial<ARIAMixin>,
   styles: CSSStyleSheet[],
@@ -28,7 +28,7 @@ export function useButtonGroupCore(
 
   useProvider(host, BUTTON_GROUP_CTX, { emitter, provider: host });
 
-  Object.entries(DEFAULT_BUTTON_ATTRIBUTES).map(([attr, [from]]) => {
+  Object.entries(DEFAULT_BUTTON_ATTRIBUTES).forEach(([attr, [from]]) => {
     useAttribute(host, attr, (oldValue, newValue) => {
       emitter.emit({ attr, old: from(oldValue), new: from(newValue) });
     });
@@ -38,6 +38,5 @@ export function useButtonGroupCore(
 }
 
 export function isButtonGroupLike(value: unknown): value is ButtonGroupLike {
-  // @ts-expect-errors: simplifying check
-  return buttonGroups.has(value);
+  return value instanceof ReactiveElement && buttonGroups.has(value);
 }

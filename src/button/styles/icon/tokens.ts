@@ -1,17 +1,36 @@
-import processTokenSet from '../../../core/tokens/processTokenSet.ts';
-import { resolveSet } from '../../../core/tokens/resolve.ts';
-import { attribute, type Param } from '../../../core/tokens/selector.ts';
-import { excludeFromSet } from '../../../core/tokens/utils.ts';
-import { createVariables } from '../../../core/tokens/variable.ts';
-import type { FromKeys } from '../../../interfaces.ts';
-import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
+import { t } from '../../../.tproc/index.ts';
 import {
-  applyToButtons,
-  createPrefix,
-  packButtons,
-  reshapeButtonSet,
-  resolveButtonShape,
-  type PackShape,
+  attribute,
+  pseudoElement,
+  selector,
+} from '../../../.tproc/selector.ts';
+import type {
+  DeclarationBlockRenderer,
+  TokenPackage,
+} from '../../../.tproc/TokenPackage.ts';
+import {
+  componentStateMap,
+  createAllowedTokensSelector,
+  type Grouper,
+  type ProcessorAdjuster,
+} from '../../../.tproc/utils.ts';
+import {
+  defaultFilledTokens,
+  defaultSwitchFilledTokens,
+  defaultSwitchTokens,
+  defaultTokens,
+} from '../default/tokens.ts';
+import {
+  buttonAllowedTokensSelector,
+  buttonMainTokenSelector,
+  buttonSwitchTokenSelector,
+  createButtonExtensions,
+  createButtonScopedDeclarationRenderer,
+  fixFullShape,
+  groupButtonTokens,
+  notDisabledTokenSelector,
+  omitSelectedShape,
 } from '../utils.ts';
 
 export const DEFAULTS = ['small', 'filled'] as const;
@@ -29,147 +48,163 @@ export const VARIANTS = [
   'xlarge',
 ] as const;
 
-const ALLOWED = [...PUBLIC, ...PRIVATE] as const;
+const WIDTHS = ['wide', 'narrow'] as const;
 
-export function variantAttribute(variant: string): readonly Param[] {
+function variantScope(variant: string) {
   if ((DEFAULTS as readonly string[]).includes(variant)) {
-    return [];
+    return undefined;
   }
 
   if ((COLORS as readonly string[]).includes(variant)) {
-    return [attribute('color', variant)];
+    return {
+      name: 'color',
+      value: variant,
+      useState: true,
+    };
   }
 
   if ((SIZES as readonly string[]).includes(variant)) {
-    return [attribute('size', variant)];
+    return {
+      name: 'size',
+      value: variant,
+      useState: true,
+    };
   }
 
-  return [];
+  return undefined;
 }
 
-const packs: FromKeys<typeof VARIANTS, PackShape> = Object.fromEntries(
-  VARIANTS.map((c) => {
-    const setName = `md.comp.icon-button.${c}`;
+const createPackage = (
+  setName: string,
+  renderer: DeclarationBlockRenderer,
+  adjuster: ProcessorAdjuster = (processor) => processor,
+): TokenPackage =>
+  adjuster(
+    t
+      .set(setName)
+      .group(groupButtonTokens)
+      .select(buttonAllowedTokensSelector)
+      .adjustTokens(fixFullShape)
+      .renderDeclarations(renderer),
+  ).build();
 
-    const specialTokens = createVariables(
-      resolveSet({
-        ...(c === 'standard' ? { 'container-color': 'transparent' } : {}),
-        'state-layer.color': `${setName}.pressed.state-layer.color`,
-      }),
-    );
+export const variantTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  VARIANTS.map((variant) =>
+    computed(() => {
+      const setName = `md.comp.icon-button.${variant}`;
 
-    const specialUnselectedTokens = createVariables(
-      resolveSet({
-        'state-layer.color': `${setName}.unselected.pressed.state-layer.color`,
-      }),
-    );
-
-    const specialSelectedTokens = createVariables(
-      resolveSet({
-        'state-layer.color': `${setName}.selected.pressed.state-layer.color`,
-      }),
-    );
-
-    const set = (() => {
-      const set = processTokenSet(setName);
-
-      const shapedSet = reshapeButtonSet(set);
-      const resolvedSet = resolveButtonShape(shapedSet);
-
-      const variableSet = applyToButtons(resolvedSet, (set, path) =>
-        createVariables(
-          set,
-          {
-            vars: PUBLIC,
-            prefix: createPrefix({
-              type: 'icon',
-              state: path.at(-1)!,
-              switchState: path.at(-2),
-            }),
-          },
-          ALLOWED,
-        ),
+      return createPackage(
+        setName,
+        createButtonScopedDeclarationRenderer(variantScope(variant)),
+        (processor) =>
+          processor
+            .select(buttonMainTokenSelector)
+            .append('default', {
+              ...(variant === 'standard'
+                ? { 'container.color': 'transparent' }
+                : {}),
+              'state-layer.color': `${setName}.pressed.state-layer.color`,
+            })
+            .extend(
+              createButtonExtensions(
+                defaultTokens.value,
+                defaultFilledTokens.value,
+              ),
+            ),
       );
+    }),
+  );
 
-      return applyToButtons(variableSet, (tokens, path) => {
-        if (path[0] === 'default') {
-          return { ...tokens, ...specialTokens };
-        }
+export const variantSwitchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  VARIANTS.map((variant) =>
+    computed(() => {
+      const setName = `md.comp.icon-button.${variant}`;
 
-        if (path[1] === 'default') {
-          if (path[0] === 'unselected') {
-            return {
-              ...tokens,
-              ...specialUnselectedTokens,
-            };
-          }
+      return createPackage(
+        setName,
+        createButtonScopedDeclarationRenderer(variantScope(variant)),
+        (processor) =>
+          processor
+            .select(
+              buttonSwitchTokenSelector,
+              notDisabledTokenSelector,
+              omitSelectedShape,
+            )
+            .append('unselected.default', {
+              'state-layer.color': `${setName}.unselected.pressed.state-layer.color`,
+            })
+            .append('selected.default', {
+              'state-layer.color': `${setName}.selected.pressed.state-layer.color`,
+            })
+            .extend(
+              createButtonExtensions(
+                defaultTokens.value,
+                defaultFilledTokens.value,
+                defaultSwitchTokens.value,
+                defaultSwitchFilledTokens.value,
+              ),
+            ),
+      );
+    }),
+  );
 
-          if (path[0] === 'selected') {
-            return {
-              ...excludeFromSet(tokens, [
-                'container.shape.square',
-                'container.shape.round',
-              ]),
-              ...specialSelectedTokens,
-            };
-          }
-        }
+function widthGroup(width: string): Grouper {
+  const prefix = `${width}.`;
 
-        return tokens;
-      });
-    })();
+  return (tokenName) => {
+    if (!tokenName.includes(prefix)) {
+      return null;
+    }
 
-    const pack = packButtons(set, defaultSet);
+    return groupButtonTokens(tokenName.replace(prefix, ''));
+  };
+}
 
-    return [c, pack];
-  }),
-);
+function createWidthRenderer(
+  size: string,
+  width: string,
+): DeclarationBlockRenderer {
+  const sizeAttribute = attribute('size', size);
+  const widthAttribute = attribute('width', width);
+  const slotted = pseudoElement('slotted', widthAttribute);
 
-const WIDTHS = ['wide', 'narrow'] as const;
-const WIDTH_PUBLIC = ['leading-space', 'trailing-space'] as const;
+  return (path, declarations) => {
+    const stateParam = path === 'default' ? null : componentStateMap[path];
+    const selectors = [
+      selector(':host', sizeAttribute, widthAttribute, stateParam),
+    ];
 
-export const widthPacks: FromKeys<
-  typeof WIDTHS,
-  FromKeys<typeof SIZES, PackShape>
-> = Object.fromEntries(
-  WIDTHS.map((w) => {
-    const result = Object.fromEntries(
-      SIZES.map((s) => {
-        const setName = `md.comp.icon-button.${s}`;
+    if (path === 'default') {
+      const hostSelector = selector(':host', sizeAttribute);
+      selectors.push(`${hostSelector} ${slotted}`);
+    }
 
-        const set = (() => {
-          const set = processTokenSet(setName);
-          const shapedSet = reshapeButtonSet(set);
-          const resolvedSet = resolveButtonShape(shapedSet);
+    return {
+      path,
+      declarations,
+      selectors,
+    };
+  };
+}
 
-          const transformedSet = applyToButtons(resolvedSet, (tokens) => {
-            return Object.fromEntries(
-              Object.entries(tokens)
-                .filter(([key]) => key.includes(w))
-                .map(([key, value]) => [key.replace(`${w}.`, ''), value]),
-            );
-          });
+const widthAllowedTokenSelector = createAllowedTokensSelector([
+  'leading-space',
+  'trailing-space',
+]);
 
-          return applyToButtons(transformedSet, (set, path) =>
-            createVariables(set, {
-              vars: WIDTH_PUBLIC,
-              prefix: createPrefix({
-                type: 'icon',
-                state: path.at(-1)!,
-                switchState: path.at(-2),
-              }),
-            }),
-          );
-        })();
+const createWidthPackage = (size: string, width: string): TokenPackage =>
+  t
+    .set(`md.comp.icon-button.${size}`)
+    .group(widthGroup(width))
+    .select(buttonMainTokenSelector, widthAllowedTokenSelector)
+    .adjustTokens(fixFullShape)
+    .extend(
+      createButtonExtensions(defaultTokens.value, defaultFilledTokens.value),
+    )
+    .renderDeclarations(createWidthRenderer(size, width))
+    .build();
 
-        const pack = packButtons(set, defaultSet);
-
-        return [s, pack] as const;
-      }),
-    );
-
-    return [w, result] as const;
-  }),
-);
-
-export default packs;
+export const widthTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  WIDTHS.flatMap((width) =>
+    SIZES.map((size) => computed(() => createWidthPackage(size, width))),
+  );

@@ -1,30 +1,52 @@
-import { resolveSet } from '../../../core/tokens/resolve.ts';
-import {
-  createVariables,
-  CSSVariable,
-  packSet,
-} from '../../../core/tokens/variable.ts';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
+import { t } from '../../../.tproc/index.ts';
+import { attribute, pseudoClass, selector } from '../../../.tproc/selector.ts';
+import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
+import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
+import * as CSSVariable from '../../../.tproc/variable.ts';
 
-const round = createVariables(
-  resolveSet({
-    'container.shape': CSSVariable.ref('container.shape.round'),
-  }),
-);
+type Shapes = 'round' | 'square';
 
-const square = createVariables(
-  resolveSet({
-    'container.shape': CSSVariable.ref('container.shape.square'),
-  }),
-);
+const square = attribute('shape', 'square');
+const squareState = pseudoClass('state', 'square');
+const noAttribute = pseudoClass('not', attribute('shape'));
+const checked = attribute('checked');
 
-export type Packs = Readonly<{
-  round: string;
-  square: string;
-}>;
+const createPackage = (
+  shape: Shapes,
+  adjuster: ProcessorAdjuster,
+): TokenPackage =>
+  adjuster(
+    t.set({
+      'container.shape': CSSVariable.ref(`container.shape.${shape}`),
+    }),
+  ).build();
 
-const packs: Packs = {
-  round: packSet(round),
-  square: packSet(square),
-};
-
-export default packs;
+export const shapeTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> = [
+  computed(() =>
+    createPackage('round', (processor) =>
+      processor.renderDeclarations((path, declarations) => ({
+        path,
+        declarations,
+        selectors: [
+          selector(':host'),
+          selector(':host', squareState, checked, noAttribute),
+          selector(':host', square, checked),
+        ],
+      })),
+    ),
+  ),
+  computed(() =>
+    createPackage('square', (processor) =>
+      processor.renderDeclarations((path, declarations) => ({
+        path,
+        declarations,
+        selectors: [
+          selector(':host', square),
+          selector(':host', squareState, noAttribute),
+          selector(':host', checked),
+        ],
+      })),
+    ),
+  ),
+];

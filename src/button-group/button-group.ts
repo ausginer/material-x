@@ -2,16 +2,17 @@ import type { EmptyObject } from 'type-fest';
 import {
   createButtonAccessors,
   type ButtonColor,
+  type ButtonCoreProperties,
   type ButtonLike,
   type ButtonShape,
   type ButtonSize,
-  type ButtonCoreProperties,
 } from '../button/useButtonCore.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import standardStyles from './styles/standard.css.ts?type=css' with { type: 'css' };
-import { TEMPLATE } from './templates.ts';
+import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
+import standardStyles from './styles/standard/main.ctr.css' with { type: 'css' };
+import standardTokens from './styles/standard/main.tokens.css.ts' with { type: 'css' };
 import {
   useButtonGroupCore,
   type ButtonGroupLike,
@@ -43,7 +44,10 @@ export default class ButtonGroup
 
   constructor() {
     super();
-    useButtonGroupCore(this, TEMPLATE, { role: 'group' }, [standardStyles]);
+    useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [
+      standardStyles,
+      standardTokens,
+    ]);
 
     let elements: ReadonlyArray<ButtonLike & ReactiveElement> = [];
 
@@ -79,6 +83,7 @@ define('mx-button-group', ButtonGroup);
 
 declare global {
   interface HTMLElementTagNameMap {
+    // @ts-expect-error: duplicate tag during migration
     'mx-button-group': ButtonGroup;
   }
 }

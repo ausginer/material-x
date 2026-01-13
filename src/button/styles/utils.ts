@@ -1,201 +1,223 @@
-import getDeep from 'just-safe-get';
-import type { ProcessedTokenSet } from '../../core/tokens/processTokenSet.ts';
+import type { ProcessedTokenValue } from '../../.tproc/processTokenSet.ts';
+import { attribute, pseudoClass, selector } from '../../.tproc/selector.ts';
+import type {
+  DeclarationBlockRenderer,
+  TokenPackage,
+} from '../../.tproc/TokenPackage.ts';
+import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
 import {
-  resolveSet,
-  type ResolveAdjuster,
-  type ResolvedTokenSet,
-} from '../../core/tokens/resolve.ts';
-import {
-  pseudoClass,
-  selector,
-  type Param,
-} from '../../core/tokens/selector.ts';
-import {
-  $leaf,
-  applyToShape,
-  inherit,
-  reshape,
-  type Leaf,
-  type SchemaKeys,
-  type Shape,
-} from '../../core/tokens/shape.ts';
-import { clearPrefix } from '../../core/tokens/utils.ts';
-import {
-  CSSVariable,
-  packSet,
-  type CSSVariableSet,
-} from '../../core/tokens/variable.ts';
+  componentStateMap,
+  createAllowedTokensSelector,
+  not,
+  type GroupResult,
+  type GroupSelector,
+  type Predicate,
+} from '../../.tproc/utils.ts';
+import * as CSSVariable from '../../.tproc/variable.ts';
+import { disabledTokenSelector } from './default/tokens.ts';
 
-export type BaseButtonSchema = Readonly<{
-  default: Leaf;
-  hovered?: Leaf;
-  focused?: Leaf;
-  pressed?: Leaf;
-  disabled?: Leaf;
-}>;
+export const BUTTON_STATES = [
+  'default',
+  'hovered',
+  'focused',
+  'pressed',
+  'disabled',
+] as const;
 
-export type ButtonSchema = BaseButtonSchema &
-  Readonly<{
-    selected?: BaseButtonSchema;
-    unselected?: BaseButtonSchema;
-  }>;
+export const SELECTION_STATES = ['selected', 'unselected'] as const;
 
-const baseButtonSchema: BaseButtonSchema = {
-  default: $leaf,
-  hovered: $leaf,
-  focused: $leaf,
-  pressed: $leaf,
-  disabled: $leaf,
-};
+export function groupButtonTokens(tokenName: string): GroupResult {
+  const parts = tokenName.split('.');
+  let selection: string | undefined;
+  let state = 'default';
 
-const buttonSchema: ButtonSchema = {
-  ...baseButtonSchema,
-  unselected: baseButtonSchema,
-  selected: baseButtonSchema,
-};
+  const nameParts = [];
+  for (const part of parts) {
+    if (SELECTION_STATES.includes(part)) {
+      selection = part;
+      continue;
+    }
 
-export const buttonStates: ReadonlyArray<keyof BaseButtonSchema> =
-  Object.keys(baseButtonSchema);
+    if (BUTTON_STATES.includes(part)) {
+      state = part;
+      continue;
+    }
 
-export type CSSVariableShape = Shape<CSSVariableSet, ButtonSchema>;
+    nameParts.push(part);
+  }
 
-export type ProcessedSetShape = Shape<ProcessedTokenSet, ButtonSchema>;
-
-export type ResolvedSetShape = Shape<ResolvedTokenSet, ButtonSchema>;
-
-export function reshapeButtonSet(set: ProcessedTokenSet): ProcessedSetShape {
-  return reshape(set, buttonSchema);
+  return {
+    path: selection ? `${selection}.${state}` : state,
+    tokenName: nameParts.join('.'),
+  };
 }
 
-export function applyToButtons<T, U>(
-  shape: Shape<T, ButtonSchema>,
-  applicator: (value: T, path: ReadonlyArray<SchemaKeys<ButtonSchema>>) => U,
-): Shape<U, ButtonSchema> {
-  return applyToShape(shape, buttonSchema, applicator);
+export function createButtonExtensions(
+  ...bases: readonly TokenPackage[]
+): ExtensionCallback {
+  const baseDefault = bases.map((b) => b.effective('default') ?? {});
+  const baseHovered = bases.map((b) => b.effective('hovered') ?? {});
+  const baseFocused = bases.map((b) => b.effective('focused') ?? {});
+  const basePressed = bases.map((b) => b.effective('pressed') ?? {});
+  const baseDisabled = bases.map((b) => b.effective('disabled') ?? {});
+
+  return (m) => {
+    const defaultState = m.state('default').extends(...baseDefault);
+    m.state('hovered').extends(defaultState, ...baseHovered);
+    m.state('focused').extends(defaultState, ...baseFocused);
+    m.state('pressed').extends(defaultState, ...basePressed);
+    m.state('disabled').extends(defaultState, ...baseDisabled);
+
+    const unselectedDefault = m
+      .state('unselected.default')
+      .extends(defaultState, ...baseDefault);
+    m.state('unselected.hovered').extends(
+      defaultState,
+      unselectedDefault,
+      ...baseDefault,
+    );
+    m.state('unselected.focused').extends(
+      defaultState,
+      unselectedDefault,
+      ...baseDefault,
+    );
+    m.state('unselected.pressed').extends(
+      defaultState,
+      unselectedDefault,
+      ...baseDefault,
+    );
+
+    const selectedDefault = m
+      .state('selected.default')
+      .extends(unselectedDefault);
+    m.state('selected.hovered').extends(unselectedDefault, selectedDefault);
+    m.state('selected.focused').extends(unselectedDefault, selectedDefault);
+    m.state('selected.pressed').extends(unselectedDefault, selectedDefault);
+  };
 }
 
-export const fixFullShape: ResolveAdjuster = (value, path) => {
-  if (path.some((p) => p.includes('container.shape')) && value === 'full') {
+export function fixFullShape(
+  value: ProcessedTokenValue,
+  path: readonly string[],
+): ProcessedTokenValue | null {
+  if (
+    path.some((entry) => entry.includes('container.shape')) &&
+    value === 'full'
+  ) {
     return CSSVariable.ref('shape.full');
   }
 
   return value;
-};
-
-export function resolveButtonShape(shape: ProcessedSetShape): ResolvedSetShape {
-  return applyToButtons(shape, (tokens) => resolveSet(tokens, fixFullShape));
 }
 
-export type ButtonPrefixData = Readonly<{
-  type?: string;
-  state: string;
-  switchState?: string;
-}>;
+export const buttonAllowedTokensSelector: GroupSelector =
+  createAllowedTokensSelector([
+    'container.color',
+    'container.color.reverse',
+    'container.elevation',
+    'container.height',
+    'container.opacity',
+    'container.shape',
+    'container.shape.round',
+    'container.shape.square',
+    'container.shadow-color',
+    'focus.indicator.color',
+    'focus.indicator.outline.offset',
+    'focus.indicator.thickness',
+    'icon.color',
+    'icon.size',
+    'icon.opacity',
+    'icon-label-space',
+    'label-text',
+    'label-text.color',
+    'label-text.color.reverse',
+    'label-text.opacity',
+    'leading-space',
+    'trailing-space',
+    'outline.color',
+    'outline.width',
+    'press.duration',
+    'press.easing',
+    'ripple.color',
+    'ripple.duration',
+    'ripple.easing',
+    'ripple.opacity',
+    'shadow.color',
+    'state-layer.color',
+    'state-layer.opacity',
+    'level',
+  ]);
 
-export function createPrefix({
-  type = '',
-  state,
-  switchState = '',
-}: ButtonPrefixData): string {
-  return clearPrefix(
-    `md-${type}-button-${switchState}-${state === 'default' ? '' : state}`,
-  );
+export const notDisabledTokenSelector: Predicate<[path: string]> = not(
+  disabledTokenSelector,
+);
+
+export function buttonSwitchTokenSelector(path: string): boolean {
+  return SELECTION_STATES.some((s) => path.includes(s));
 }
 
-export type PackShape = Shape<string, ButtonSchema>;
-
-function _packButtons(
-  shape: CSSVariableShape,
-  applicator: (
-    tokens: CSSVariableSet,
-    path: ReadonlyArray<SchemaKeys<ButtonSchema>>,
-  ) => CSSVariableSet,
-): PackShape {
-  return applyToButtons(shape, (tokens, path) =>
-    packSet(
-      // Removing "disabled" state from "selected" & "unselected" supersets;
-      // "disabled" state is supposed to be only "default" one.
-      path.length > 1 && path[1] === 'disabled' ? {} : applicator(tokens, path),
-    ),
-  );
+export function buttonMainTokenSelector(path: string): boolean {
+  return !buttonSwitchTokenSelector(path);
 }
 
-function comparator(
-  v1: CSSVariable | undefined,
-  v2: CSSVariable | undefined,
-): boolean {
-  // We make sure that `interaction.factor` is not removed during inheritance
-  // operation.
-  if (v1?.raw === 'interaction.factor' && v2?.raw === 'interaction.factor') {
-    return false;
+export function omitSelectedShape(path: string, tokenName?: string): boolean {
+  if (!tokenName) {
+    return true;
   }
 
-  return CSSVariable.equals(v1, v2);
+  return !(
+    path.startsWith('selected') && tokenName.startsWith('container.shape')
+  );
 }
 
-export function packButtons(
-  shape: CSSVariableShape,
-  ...defaultShapes: readonly CSSVariableShape[]
-): PackShape {
-  return _packButtons(shape, (tokens, path) => {
-    const [state] = path;
+const checked = attribute('checked');
 
-    if (state === 'unselected' || state === 'selected') {
-      const [, selectionState] = path;
+export type ButtonScope = Readonly<{
+  name: string;
+  value: string;
+  useState?: boolean;
+}>;
 
-      return state === 'unselected'
-        ? inherit(tokens, comparator, [
-            shape.default,
-            selectionState !== 'default'
-              ? getDeep(shape, [state, 'default'])
-              : null,
-            ...defaultShapes.map((s) => s.default),
-          ])
-        : inherit(tokens, comparator, [
-            getDeep(shape, ['unselected', 'default']),
-            selectionState !== 'default'
-              ? getDeep(shape, [state, 'default'])
-              : null,
-          ]);
+export function createButtonScopedDeclarationRenderer(
+  scope?: ButtonScope,
+): DeclarationBlockRenderer {
+  return (path, declarations) => {
+    let state: string;
+    let selection: string | undefined;
+
+    const index = path.indexOf('.');
+    if (index < 0) {
+      state = path;
+    } else {
+      selection = path.slice(0, index);
+      state = path.slice(index + 1);
     }
 
-    return inherit(tokens, comparator, [
-      state === 'default' ? null : shape.default,
-      ...defaultShapes.map((s) => s[state!]),
-    ]);
-  });
-}
+    const scopeAttribute = scope
+      ? attribute(scope.name, scope.value)
+      : undefined;
 
-export const state = {
-  default(...params: ReadonlyArray<Param | null | undefined>): string {
-    return selector(':host', ...params.filter((p) => p != null));
-  },
-  hovered(...params: ReadonlyArray<Param | null | undefined>): string {
-    return selector(
-      ':host',
-      ...params.filter((p) => p != null),
-      pseudoClass('hover'),
-    );
-  },
-  focused(...params: ReadonlyArray<Param | null | undefined>): string {
-    return selector(
-      ':host',
-      ...params.filter((p) => p != null),
-      pseudoClass('focus-visible'),
-    );
-  },
-  pressed(...params: ReadonlyArray<Param | null | undefined>): string {
-    return selector(
-      ':host',
-      ...params.filter((p) => p != null),
-      pseudoClass('active'),
-    );
-  },
-  disabled(...params: ReadonlyArray<Param | null | undefined>): string {
-    return selector(
-      ':host',
-      ...params.filter((p) => p != null),
-      pseudoClass('disabled'),
-    );
-  },
-} as const;
+    const scopeState = scope?.useState
+      ? [
+          pseudoClass('state', scope.value),
+          pseudoClass('not', attribute(scope.name)),
+        ]
+      : [];
+
+    const commonParams = [
+      selection === 'selected' ? checked : null,
+      path === 'default' ? null : componentStateMap[state],
+    ];
+
+    return {
+      path,
+      declarations,
+      selectors: [
+        selector(':host', scopeAttribute, ...commonParams),
+        scope?.useState
+          ? selector(':host', ...scopeState, ...commonParams)
+          : null,
+      ],
+    };
+  };
+}

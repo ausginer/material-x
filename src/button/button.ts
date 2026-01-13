@@ -1,11 +1,12 @@
 import type { EmptyObject } from 'type-fest';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import mainElevatedStyles from './styles/elevated/main.css.ts?type=css' with { type: 'css' };
-import mainOutlinedStyles from './styles/outlined/main.css.ts?type=css' with { type: 'css' };
-import mainSizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
-import mainTextStyles from './styles/text/main.css.ts?type=css' with { type: 'css' };
-import mainTonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
-import { REGULAR_TEMPLATE } from './template.ts';
+import buttonTemplate from './button.tpl.html' with { type: 'html' };
+import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
+import elevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
+import mainOutlinedStyles from './styles/outlined/main.ctr.css' with { type: 'css' };
+import outlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
+import textTokens from './styles/text/main.tokens.css.ts' with { type: 'css' };
+import tonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
 import {
   createButtonAccessors,
   useButtonCore,
@@ -18,37 +19,7 @@ import {
 
 export type ButtonProperties = ButtonCoreProperties;
 export type ButtonEvents = EmptyObject;
-export type ButtonCSSProperties = Readonly<{
-  /**
-   * Controls the button main color
-   */
-  '--md-button-container-color'?: string;
-  /**
-   *  Controls the button label color.
-   */
-  '--md-button-label-text-color'?: string;
-  /**
-   * Controls the button icon color.
-   */
-  '--md-button-icon-color'?: string;
-  /**
-   * Controls the button icon size.
-   */
-  '--md-button-icon-size'?: string;
-  /**
-   * Controls the button elevation level. Use integer number of px the button
-   * should move up the z-axis.
-   */
-  '--md-button-container-elevation'?: string;
-  /**
-   * Controls the leading padding of the button.
-   */
-  '--md-button-leading-space'?: string;
-  /**
-   * Controls the trailing padding of the button.
-   */
-  '--md-button-trailing-space'?: string;
-}>;
+export type ButtonCSSProperties = EmptyObject;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically
@@ -77,12 +48,13 @@ export default class Button extends ReactiveElement implements ButtonLike {
 
   constructor() {
     super();
-    useButtonCore(this, REGULAR_TEMPLATE, 'button', [
+    useButtonCore(this, buttonTemplate, 'button', [
       mainElevatedStyles,
       mainOutlinedStyles,
-      mainSizeStyles,
-      mainTextStyles,
-      mainTonalStyles,
+      elevatedTokens,
+      outlinedTokens,
+      textTokens,
+      tonalTokens,
     ]);
   }
 }
@@ -91,6 +63,7 @@ define('mx-button', Button);
 
 declare global {
   interface HTMLElementTagNameMap {
+    // @ts-expect-error: duplicate tag during migration
     'mx-button': Button;
   }
 }

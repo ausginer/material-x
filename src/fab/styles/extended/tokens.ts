@@ -1,122 +1,104 @@
-import type { TupleToUnion } from 'type-fest';
-import processTokenSet from '../../../core/tokens/processTokenSet.ts';
-import { resolveSet } from '../../../core/tokens/resolve.ts';
-import { attribute, type Param } from '../../../core/tokens/selector.ts';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
+import { t, type TokenPackage } from '../../../.tproc/index.ts';
+import { attribute } from '../../../.tproc/selector.ts';
+import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
+import { createDefaultFirstSorter } from '../../../.tproc/utils.ts';
+import * as CSSVariable from '../../../.tproc/variable.ts';
+import { defaultColorTokens } from '../color/tokens.ts';
+import { defaultTokens } from '../default/tokens.ts';
 import {
-  createVariables,
-  CSSVariable,
-  type CSSVariableSet,
-} from '../../../core/tokens/variable.ts';
-import type { FromKeys } from '../../../interfaces.ts';
-import {
-  applyToFAB,
-  createPrefix,
-  packFAB,
-  reshapeFABSet,
-  resolveFABShape,
-  type PackShape,
-} from '../../utils.ts';
-import { set as defaultSet, PRIVATE, PUBLIC } from '../default/tokens.ts';
+  createFABExtensions,
+  createFABScopedDeclarationRenderer,
+  fabAllowedTokensSelector,
+  groupFABTokens,
+} from '../utils.ts';
 
-export const DEFAULTS = ['tertiary', 'small', 'tertiary-container'] as const;
+const COLORS = ['primary', 'secondary', 'tertiary'] as const;
 
-const COLORS = ['primary', 'secondary'] as const;
-const TONAL_COLORS = ['primary-container', 'secondary-container'] as const;
-const SIZES = ['large', 'medium'] as const;
-
-const VARIANTS: readonly [
-  'tertiary',
-  'small',
-  'tertiary-container',
-  'primary',
-  'secondary',
+const TONAL_COLORS = [
   'primary-container',
   'secondary-container',
-  'large',
-  'medium',
-] = [...DEFAULTS, ...COLORS, ...TONAL_COLORS, ...SIZES] as const;
+  'tertiary-container',
+] as const;
 
-export function variantAttribute(
-  variant: TupleToUnion<typeof VARIANTS>,
-): readonly Param[] {
-  if ((COLORS as readonly string[]).includes(variant)) {
-    return [attribute('color', variant)];
-  }
+const SIZES = ['large', 'medium', 'small'] as const;
 
-  if ((TONAL_COLORS as readonly string[]).includes(variant)) {
-    return [
-      attribute('tonal'),
-      attribute('color', variant.replace('-container', '')),
-    ];
-  }
+const VARIANTS = [...COLORS, ...TONAL_COLORS, ...SIZES] as const;
+type Variant = (typeof VARIANTS)[number];
 
-  if ((SIZES as readonly string[]).includes(variant)) {
-    return [attribute('size', variant)];
-  }
+const DEFAULTS = ['tertiary', 'tertiary-container', 'small'] as const;
 
-  return [];
+const EXTENDED = attribute('extended');
+const TONAL = attribute('tonal');
+
+function isDefaultVariant(v: Variant) {
+  return DEFAULTS.includes(v);
 }
 
-const ALLOWED = [...PUBLIC, ...PRIVATE, 'icon-label-space'];
+function getScope(variant: Variant) {
+  if (DEFAULTS.includes(variant)) {
+    return null;
+  }
 
-const packs: FromKeys<typeof VARIANTS, PackShape> = Object.fromEntries(
-  VARIANTS.map((c) => {
-    const setName = `md.comp.extended-fab.${c}`;
+  if (COLORS.includes(variant)) {
+    return attribute('color', variant);
+  }
 
-    let specialTokens: CSSVariableSet = {};
+  if (TONAL_COLORS.includes(variant)) {
+    return attribute(
+      'color',
+      variant.substring(0, variant.length - '-container'.length),
+    );
+  }
 
-    if (c === 'tertiary') {
-      specialTokens = createVariables(
-        resolveSet({
-          'state-layer.color': `${setName}.pressed.state-layer.color`,
-          direction: 'row',
-          'container.width': CSSVariable.ref('container.height'),
-        }),
-        {
-          vars: ['direction'],
-          prefix: createPrefix({
-            type: 'extended',
-            state: 'default',
-          }),
-        },
-      );
-    }
+  if (SIZES.includes(variant)) {
+    return attribute('size', variant);
+  }
 
-    const set = (() => {
-      const set = processTokenSet(setName);
-      const shapedSet = reshapeFABSet(set);
-      const resolvedSet = resolveFABShape(shapedSet);
+  return null;
+}
 
-      const variableSet = applyToFAB(resolvedSet, (set, [state]) =>
-        createVariables(
-          set,
-          {
-            vars: PUBLIC,
-            prefix: createPrefix({
-              type: 'extended',
-              state: state!,
-            }),
-          },
-          ALLOWED,
+function createSetName(variant: Variant) {
+  return `md.comp.extended-fab.${variant}`;
+}
+
+const createPackage = (
+  variant: Variant,
+  adjuster: ProcessorAdjuster = (processor) => processor,
+) => {
+  const setName = createSetName(variant);
+
+  return adjuster(
+    t
+      .set(setName)
+      .group(groupFABTokens)
+      .select(fabAllowedTokensSelector)
+      .extend(
+        createFABExtensions(defaultTokens.value, defaultColorTokens.value),
+      )
+      .renderDeclarations(
+        createFABScopedDeclarationRenderer(
+          getScope(variant),
+          EXTENDED,
+          TONAL_COLORS.includes(variant) ? TONAL : null,
         ),
-      );
+      ),
+  ).build();
+};
 
-      return applyToFAB(variableSet, (tokens, [state]) => {
-        if (state === 'default') {
-          return {
-            ...tokens,
-            ...specialTokens,
-          };
-        }
-
-        return tokens;
-      });
-    })();
-
-    const pack = packFAB(set, defaultSet);
-
-    return [c, pack] as const;
-  }),
-);
-
-export default packs;
+export const extendedTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  VARIANTS.toSorted(createDefaultFirstSorter(isDefaultVariant)).map((variant) =>
+    computed(() =>
+      createPackage(
+        variant,
+        variant === 'tertiary'
+          ? (processor) =>
+              processor.append('default', {
+                'state-layer.color': `${createSetName(variant)}.pressed.state-layer.color`,
+                direction: 'row',
+                'container.width': CSSVariable.ref('container.height'),
+              })
+          : undefined,
+      ),
+    ),
+  );

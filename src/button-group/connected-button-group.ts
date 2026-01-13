@@ -2,15 +2,16 @@ import type { EmptyObject } from 'type-fest';
 import {
   createButtonAccessors,
   type ButtonColor,
+  type ButtonCoreProperties,
   type ButtonLike,
   type ButtonShape,
   type ButtonSize,
-  type ButtonCoreProperties,
 } from '../button/useButtonCore.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import connectedStyles from './styles/connected.css.ts?type=css' with { type: 'css' };
-import { TEMPLATE } from './templates.ts';
+import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
+import connectedStyles from './styles/connected/main.ctr.css' with { type: 'css' };
+import connectedTokens from './styles/connected/main.tokens.css.ts' with { type: 'css' };
 import {
   useButtonGroupCore,
   type ButtonGroupLike,
@@ -38,7 +39,10 @@ export default class ConnectedButtonGroup
 
   constructor() {
     super();
-    useButtonGroupCore(this, TEMPLATE, { role: 'group' }, [connectedStyles]);
+    useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [
+      connectedStyles,
+      connectedTokens,
+    ]);
 
     useSlot<ButtonLike & ReactiveElement>(this, 'slot', (_, elements) => {
       elements.forEach((element) => {
@@ -61,6 +65,7 @@ define('mx-connected-button-group', ConnectedButtonGroup);
 
 declare global {
   interface HTMLElementTagNameMap {
+    // @ts-expect-error: duplicate tag during migration
     'mx-connected-button-group': ConnectedButtonGroup;
   }
 }

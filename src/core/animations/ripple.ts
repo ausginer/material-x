@@ -11,7 +11,7 @@ import {
   transformNumericVariable,
 } from '../utils/readCSSVariables.ts';
 import type { Point } from './Point.ts';
-import css from './styles/ripple.css.ts?type=css' with { type: 'css' };
+import css from './styles/ripple.ctr.css' with { type: 'css' };
 
 // States of the ripple animation controller
 const INACTIVE = 0;

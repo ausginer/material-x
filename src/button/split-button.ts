@@ -3,17 +3,15 @@ import '../button-group/connected-button-group.ts';
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { ATTRIBUTE } from '../core/elements/attribute.ts';
-import {
-  define,
-  html,
-  ReactiveElement,
-} from '../core/elements/reactive-element.ts';
-import { $ } from '../core/utils/DOM.ts';
+import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
+import { $, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
 import './icon-button.ts';
-import splitButtonStyles from './styles/split/main.css.ts?type=css' with { type: 'css' };
+import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
+import splitButtonStyles from './styles/split/main.ctr.css' with { type: 'css' };
+import splitButtonTokens from './styles/split/main.tokens.css.ts' with { type: 'css' };
 import {
   createButtonAccessors,
   type ButtonLike,
@@ -23,17 +21,6 @@ import {
   type ButtonShape,
   DEFAULT_BUTTON_ATTRIBUTES,
 } from './useButtonCore.ts';
-
-const TEMPLATE = html`
-  <mx-connected-button-group part="group">
-    <mx-button part="leading">
-      <slot name="icon" slot="icon"></slot><slot></slot>
-    </mx-button>
-    <mx-icon-button part="trailing">
-      <mx-icon>keyboard_arrow_down</mx-icon>
-    </mx-icon-button>
-  </mx-connected-button-group>
-`;
 
 export type SplitButtonProperties = Readonly<
   ButtonCoreProperties & {
@@ -78,15 +65,16 @@ export default class SplitButton extends ReactiveElement implements ButtonLike {
 
   constructor() {
     super();
-    useCore(this, TEMPLATE, {}, [splitButtonStyles]);
+    useCore(this, splitButtonTemplate, {}, [
+      splitButtonStyles,
+      splitButtonTokens,
+    ]);
     useEvents(
       this,
       {
         click: (event) => {
           event.stopPropagation();
-          this.dispatchEvent(
-            new Event('toggle', { bubbles: true, composed: true }),
-          );
+          this.dispatchEvent(new Event('toggle', DEFAULT_EVENT_INIT));
         },
       },
       $(this, 'mx-icon-button')!,
@@ -105,6 +93,7 @@ define('mx-split-button', SplitButton);
 
 declare global {
   interface HTMLElementTagNameMap {
+    // @ts-expect-error: duplicate tag during migration
     'mx-split-button': SplitButton;
   }
 }

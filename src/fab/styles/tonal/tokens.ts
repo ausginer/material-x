@@ -1,65 +1,44 @@
-import processTokenSet from '../../../core/tokens/processTokenSet.ts';
-import { resolveSet } from '../../../core/tokens/resolve.ts';
-import { createVariables } from '../../../core/tokens/variable.ts';
-import type { FromKeys } from '../../../interfaces.ts';
+import { computed, type ReadonlySignal } from '@preact/signals-core';
+import type { TupleToUnion } from 'type-fest';
+import { t, type TokenPackage } from '../../../.tproc/index.ts';
+import { attribute } from '../../../.tproc/selector.ts';
+import { createDefaultFirstSorter } from '../../../.tproc/utils.ts';
+import { defaultColorTokens } from '../color/tokens.ts';
+import { defaultTokens } from '../default/tokens.ts';
 import {
-  applyToFAB,
-  createPrefix,
-  packFAB,
-  reshapeFABSet,
-  resolveFABShape,
-  type PackShape,
-} from '../../utils.ts';
-import { PRIVATE, PUBLIC, set as defaultSet } from '../default/tokens.ts';
+  createFABExtensions,
+  createFABScopedDeclarationRenderer,
+  fabAllowedTokensSelector,
+  groupFABTokens,
+} from '../utils.ts';
 
 const COLORS = ['primary', 'secondary', 'tertiary'] as const;
+type Colors = TupleToUnion<typeof COLORS>;
 
-const ALLOWED = [...PUBLIC, ...PRIVATE];
+const TONAL = attribute('tonal');
 
-const packs: FromKeys<typeof COLORS, PackShape> = Object.fromEntries(
-  COLORS.map((c) => {
-    const setName = `md.comp.fab.${c}-container`;
+function isDefault(color: Colors) {
+  return color === 'tertiary';
+}
 
-    const specialTokens = createVariables(
-      resolveSet({
-        'state-layer.color': `${setName}.pressed.state-layer.color`,
-      }),
-    );
+const createTonalPackage = (color: Colors) => {
+  const setName = `md.comp.fab.${color}-container`;
+  const specialTokens = {
+    'state-layer.color': `${setName}.pressed.state-layer.color`,
+  };
+  const scope = isDefault(color) ? null : attribute('color', color);
 
-    const set = (() => {
-      const set = processTokenSet(setName);
-      const shapedSet = reshapeFABSet(set);
-      const resolvedSet = resolveFABShape(shapedSet);
+  return t
+    .set(setName)
+    .group(groupFABTokens)
+    .select(fabAllowedTokensSelector)
+    .append('default', specialTokens)
+    .extend(createFABExtensions(defaultTokens.value, defaultColorTokens.value))
+    .renderDeclarations(createFABScopedDeclarationRenderer(scope, TONAL))
+    .build();
+};
 
-      const variableSet = applyToFAB(resolvedSet, (set, [state]) =>
-        createVariables(
-          set,
-          {
-            vars: PUBLIC,
-            prefix: createPrefix({
-              state: state!,
-            }),
-          },
-          ALLOWED,
-        ),
-      );
-
-      return applyToFAB(variableSet, (tokens, [state]) => {
-        if (state === 'default') {
-          return {
-            ...tokens,
-            ...specialTokens,
-          };
-        }
-
-        return tokens;
-      });
-    })();
-
-    const pack = packFAB(set, defaultSet);
-
-    return [c, pack] as const;
-  }),
-);
-
-export default packs;
+export const tonalTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
+  COLORS.toSorted(createDefaultFirstSorter(isDefault)).map((color) =>
+    computed(() => createTonalPackage(color)),
+  );

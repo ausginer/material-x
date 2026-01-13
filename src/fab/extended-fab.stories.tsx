@@ -1,7 +1,7 @@
 import type { Story, StoryDefault } from '@ladle/react';
+import { useState, type PropsWithChildren } from 'react';
 import './fab.ts';
 import '../icon/icon.ts';
-import { useState, type PropsWithChildren } from 'react';
 import type { FABProperties } from './fab.ts';
 
 const storyDefault: StoryDefault = {

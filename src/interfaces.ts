@@ -16,6 +16,18 @@ declare global {
         Readonly<{ [P in K & PropertyKey]: V }>
       : never;
   }
+
+  /* @internal */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ReadonlyArray<T> {
+    includes(searchElement: unknown, fromIndex?: number): boolean;
+  }
+
+  /* @internal */
+  interface ArrayConstructor {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+    isArray<T = unknown>(arg: unknown): arg is readonly T[];
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style

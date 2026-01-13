@@ -88,3 +88,9 @@ export function applyToSiblings(
   update(target.previousElementSibling, prev);
   update(target.nextElementSibling, next);
 }
+
+export const DEFAULT_EVENT_INIT: EventInit = {
+  bubbles: true,
+  composed: true,
+  cancelable: true,
+};

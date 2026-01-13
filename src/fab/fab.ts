@@ -4,18 +4,18 @@ import { createAccessors } from '../core/controllers/createAccessors.ts';
 import { useAttribute } from '../core/controllers/useAttribute.ts';
 import { useConnected } from '../core/controllers/useConnected.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
-import {
-  define,
-  html,
-  ReactiveElement,
-} from '../core/elements/reactive-element.ts';
-import elevationStyles from '../core/styles/elevation.css.ts?type=css' with { type: 'css' };
+import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
+import elevationStyles from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
+import { DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
-import colorStyles from './styles/color/main.css.ts?type=css' with { type: 'css' };
-import mainStyles from './styles/default/main.css.ts?type=css' with { type: 'css' };
-import extendedStyles from './styles/extended/main.css.ts?type=css' with { type: 'css' };
-import sizeStyles from './styles/size/main.css.ts?type=css' with { type: 'css' };
-import tonalStyles from './styles/tonal/main.css.ts?type=css' with { type: 'css' };
+import fabTemplate from './fab.tpl.html' with { type: 'html' };
+import colorTokens from './styles/color/main.tokens.css.ts' with { type: 'css' };
+import mainStyles from './styles/default/main.ctr.css' with { type: 'css' };
+import defaultTokens from './styles/default/main.tokens.css.ts' with { type: 'css' };
+import extendedStyles from './styles/extended/main.ctr.css' with { type: 'css' };
+import extendedTokens from './styles/extended/main.tokens.css.ts' with { type: 'css' };
+import sizeTokens from './styles/size/main.tokens.css.ts' with { type: 'css' };
+import tonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
 
 export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
@@ -35,8 +35,6 @@ export type FABEvents = Readonly<{
 
 export type FABCSSProperties = EmptyObject;
 
-const TEMPLATE = html` <slot class="icon" name="icon"></slot><slot></slot> `;
-
 /**
  * @attr {FABSize} size
  * @attr {FABColor} color
@@ -54,21 +52,18 @@ export default class FAB extends ReactiveElement {
       tonal: Bool,
     });
   }
-  declare size: FABSize | null;
-  declare color: FABColor | null;
-  declare extended: FABExtended | null;
-  declare disabled: boolean;
-  declare tonal: boolean;
 
   constructor() {
     super();
-    useCore(this, TEMPLATE, { role: 'button' }, [
+    useCore(this, fabTemplate, { role: 'button' }, [
       elevationStyles,
       mainStyles,
-      colorStyles,
-      sizeStyles,
-      tonalStyles,
+      defaultTokens,
+      colorTokens,
+      sizeTokens,
+      tonalTokens,
       extendedStyles,
+      extendedTokens,
     ]);
     useConnected(this, () => {
       this.tabIndex = 0;
@@ -78,7 +73,7 @@ export default class FAB extends ReactiveElement {
       duration: '--_ripple-duration',
     });
     useAttribute(this, 'extended', () =>
-      this.dispatchEvent(new Event('fabtoggle')),
+      this.dispatchEvent(new Event('fabtoggle', DEFAULT_EVENT_INIT)),
     );
   }
 }
@@ -87,6 +82,7 @@ define('mx-fab', FAB);
 
 declare global {
   interface HTMLElementTagNameMap {
+    // @ts-expect-error: duplicate tag during migration
     'mx-fab': FAB;
   }
 
