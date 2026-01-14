@@ -2,7 +2,8 @@ import type { Constructor } from 'type-fest';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { useRipple } from '../core/animations/ripple.ts';
 import { createAccessors } from '../core/controllers/createAccessors.ts';
-import { useAttributeTransfer } from '../core/controllers/useAttribute.ts';
+import { useARIATransfer } from '../core/controllers/useARIA.ts';
+import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useContext } from '../core/controllers/useContext.ts';
 import { Bool, Num, Str, type Converter } from '../core/elements/attribute.ts';
 import {
@@ -109,9 +110,13 @@ export function useButtonCore(
     init,
   );
 
-  useAttributeTransfer(host, $(host, '.host')!, {
-    disabled: 'disabled',
+  const target = $<HTMLElement>(host, '.host')!;
+
+  useAttributes(host, {
+    disabled: transfer(target, 'disabled'),
   });
+
+  useARIATransfer(host, target);
 
   useRipple(host, {
     easing: '--_ripple-easing',

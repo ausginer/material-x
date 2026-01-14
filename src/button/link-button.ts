@@ -1,6 +1,7 @@
 import type { EmptyObject } from 'type-fest';
-import { useAttributeTransfer } from '../core/controllers/useAttribute.ts';
-import { Str } from '../core/elements/attribute.ts';
+import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
+import { useEvents } from '../core/controllers/useEvents.ts';
+import { ATTRIBUTE, Str } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import { $ } from '../core/utils/DOM.ts';
 import linkButtonTemplate from './link-button.tpl.html' with { type: 'html' };
@@ -69,11 +70,43 @@ export default class LinkButton extends ReactiveElement implements ButtonLike {
       { delegatesFocus: true },
     );
 
-    useAttributeTransfer(this, $(this, '.host')!, {
-      href: 'href',
-      target: 'target',
-      disabled: 'disabled',
+    const target = $<HTMLAnchorElement>(this, '.host')!;
+
+    useAttributes(this, {
+      target: transfer(target, 'target'),
+      href: (_, value) => {
+        if (!this.disabled) {
+          ATTRIBUTE.setRaw(target, 'href', value);
+        }
+      },
+      disabled: (_, value) => {
+        if (value != null) {
+          // Disabling anchor element manually since it doesn't accept
+          // standard `disabled` attribute.
+          ATTRIBUTE.setRaw(target, 'aria-disabled', 'true');
+          ATTRIBUTE.setRaw(target, 'tabindex', '-1');
+          ATTRIBUTE.setRaw(target, 'href', null);
+        } else {
+          // restoring attributes from the host.
+          for (const attr of ['aria-disabled', 'tabindex', 'href']) {
+            ATTRIBUTE.setRaw(target, attr, ATTRIBUTE.getRaw(this, attr));
+          }
+        }
+      },
     });
+
+    useEvents(
+      this,
+      {
+        click: (event) => {
+          if (this.disabled) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        },
+      },
+      target,
+    );
   }
 }
 

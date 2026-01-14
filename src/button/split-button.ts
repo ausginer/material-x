@@ -1,8 +1,7 @@
 import type { EmptyObject } from 'type-fest';
 import '../button-group/connected-button-group.ts';
-import { useAttribute } from '../core/controllers/useAttribute.ts';
+import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
-import { ATTRIBUTE } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import { $, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
@@ -14,12 +13,12 @@ import splitButtonStyles from './styles/split/main.ctr.css' with { type: 'css' }
 import splitButtonTokens from './styles/split/main.tokens.css.ts' with { type: 'css' };
 import {
   createButtonAccessors,
-  type ButtonLike,
-  type ButtonCoreProperties,
-  type ButtonColor,
-  type ButtonSize,
-  type ButtonShape,
   DEFAULT_BUTTON_ATTRIBUTES,
+  type ButtonColor,
+  type ButtonCoreProperties,
+  type ButtonLike,
+  type ButtonShape,
+  type ButtonSize,
 } from './useButtonCore.ts';
 
 export type SplitButtonProperties = Readonly<
@@ -69,6 +68,7 @@ export default class SplitButton extends ReactiveElement implements ButtonLike {
       splitButtonStyles,
       splitButtonTokens,
     ]);
+
     useEvents(
       this,
       {
@@ -81,11 +81,15 @@ export default class SplitButton extends ReactiveElement implements ButtonLike {
     );
 
     const group = $(this, 'mx-connected-button-group')!;
-    Object.keys(DEFAULT_BUTTON_ATTRIBUTES).forEach((attr) => {
-      useAttribute(this, attr, (_, newValue) => {
-        ATTRIBUTE.setRaw(group, attr, newValue);
-      });
-    });
+    useAttributes(
+      this,
+      Object.fromEntries(
+        Object.keys(DEFAULT_BUTTON_ATTRIBUTES).map((attr) => [
+          attr,
+          transfer(group, attr),
+        ]),
+      ),
+    );
   }
 }
 

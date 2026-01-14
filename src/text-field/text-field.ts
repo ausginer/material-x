@@ -1,10 +1,7 @@
 import type { EmptyObject } from 'type-fest';
 import '../button/icon-button.ts';
 import { createAccessors } from '../core/controllers/createAccessors.ts';
-import {
-  useAttribute,
-  useAttributeTransfer,
-} from '../core/controllers/useAttribute.ts';
+import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
@@ -14,6 +11,7 @@ import {
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import { $, $$ } from '../core/utils/DOM.ts';
+import { join } from '../core/utils/runtime.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import defaultStyles from './styles/default/main.ctr.css' with { type: 'css' };
@@ -46,6 +44,7 @@ export type TextFieldProperties = Readonly<{
   inputmode?: TextFieldInputMode;
 }>;
 
+export type TextFieldEvents = EmptyObject;
 export type TextFieldCSSProperties = EmptyObject;
 
 class FieldImplementation {
@@ -126,19 +125,15 @@ export default class TextField extends ReactiveElement {
 
     this.#impl = new FieldImplementation(input, textarea);
 
-    useAttribute(this, 'multiline', (_, newValue) => {
-      this.#impl.switch(newValue !== null);
-    });
-
-    useAttributeTransfer(this, input, {
-      type: 'type',
-      inputmode: 'inputmode',
-    });
-
-    useAttributeTransfer(this, textarea, { inputmode: 'inputmode' });
-
-    useAttribute(this, 'value', (_, newValue) => {
-      this.#impl.field.value = newValue ?? '';
+    useAttributes(this, {
+      multiline: (_, newValue) => {
+        this.#impl.switch(newValue !== null);
+      },
+      type: transfer(input, 'type'),
+      inputmode: join(transfer(input, 'inputmode'), transfer(textarea, 'type')),
+      value: (_, newValue) => {
+        this.#impl.field.value = newValue ?? '';
+      },
     });
 
     const internals = getInternals(this);

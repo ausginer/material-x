@@ -5,7 +5,12 @@ import testing from 'eslint-config-vaadin/testing';
 import tsRequireTypeChecking from 'eslint-config-vaadin/typescript-requiring-type-checking';
 
 const config: readonly Config[] = defineConfig(
-  globalIgnores(['.vite/**/*', '.docs/**/*', '.ladle/config.mjs']),
+  globalIgnores([
+    '.vite/**/*',
+    '.vite-inspect/**/*',
+    '.docs/**/*',
+    '.ladle/config.mjs',
+  ]),
   ...tsRequireTypeChecking,
   ...tsImports,
   ...testing,

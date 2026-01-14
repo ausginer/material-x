@@ -2,7 +2,10 @@ import {
   DEFAULT_BUTTON_ATTRIBUTES,
   type ButtonLike,
 } from '../button/useButtonCore.ts';
-import { useAttribute } from '../core/controllers/useAttribute.ts';
+import {
+  useAttributes,
+  type UpdateCallback,
+} from '../core/controllers/useAttributes.ts';
 import { useProvider } from '../core/controllers/useContext.ts';
 import { EventEmitter } from '../core/elements/emitter.ts';
 import { ReactiveElement } from '../core/elements/reactive-element.ts';
@@ -28,11 +31,23 @@ export function useButtonGroupCore(
 
   useProvider(host, BUTTON_GROUP_CTX, { emitter, provider: host });
 
-  Object.entries(DEFAULT_BUTTON_ATTRIBUTES).forEach(([attr, [from]]) => {
-    useAttribute(host, attr, (oldValue, newValue) => {
-      emitter.emit({ attr, old: from(oldValue), new: from(newValue) });
-    });
-  });
+  useAttributes(
+    host,
+    Object.fromEntries(
+      Object.entries(DEFAULT_BUTTON_ATTRIBUTES).map(
+        ([attr, [from]]) =>
+          [
+            attr,
+            ((oldValue, newValue) =>
+              emitter.emit({
+                attr,
+                old: from(oldValue),
+                new: from(newValue),
+              })) satisfies UpdateCallback,
+          ] as const,
+      ),
+    ),
+  );
 
   buttonGroups.add(host);
 }

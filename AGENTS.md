@@ -84,3 +84,7 @@ You can find CSS architecture reiteration in `.agent/docs/css-inheritance.md`.
 ## Component migration
 
 If you asked to migrate an already existing component to a new architecture, please read `.agent/docs/component-migration.md`.
+
+## Documentation
+
+When you work with docs in `.agent/docs`, always leave an emply line at the end of the file.

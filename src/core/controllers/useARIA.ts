@@ -1,3 +1,4 @@
+import { ATTRIBUTE } from '../elements/attribute.ts';
 import {
   getInternals,
   use,
@@ -42,4 +43,38 @@ export function useARIAInternals(
 ): void {
   const _internals = Object.assign(getInternals(host), init);
   useARIA(host, _internals, mapping, converter);
+}
+
+export function useARIATransfer(
+  host: ReactiveElement,
+  target: HTMLElement,
+): void {
+  const syncAttribute = (name: string, value: string | null) => {
+    if (name.startsWith('aria-')) {
+      ATTRIBUTE.setRaw(target, name, value);
+    }
+  };
+
+  const observer = new MutationObserver((records) => {
+    for (const record of records) {
+      if (record.type === 'attributes' && record.attributeName) {
+        syncAttribute(
+          record.attributeName,
+          ATTRIBUTE.getRaw(host, record.attributeName),
+        );
+      }
+    }
+  });
+
+  use(host, {
+    connected() {
+      for (const { name } of Array.from(host.attributes)) {
+        syncAttribute(name, ATTRIBUTE.getRaw(host, name));
+      }
+      observer.observe(host, { attributes: true });
+    },
+    disconnected() {
+      observer.disconnect();
+    },
+  });
 }

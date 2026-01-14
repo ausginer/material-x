@@ -59,6 +59,7 @@
     "concurrently": "9.2.1",
     "eslint": "9.39.2",
     "eslint-config-vaadin": "1.0.0-beta.5",
+    "eslint-plugin-import-x": "4.16.1",
     "just-camel-case": "6.2.0",
     "just-kebab-case": "4.2.0",
     "just-safe-get": "4.2.0",

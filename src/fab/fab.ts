@@ -1,8 +1,7 @@
 import type { EmptyObject } from 'type-fest';
 import { useRipple } from '../core/animations/ripple.ts';
 import { createAccessors } from '../core/controllers/createAccessors.ts';
-import { useAttribute } from '../core/controllers/useAttribute.ts';
-import { useConnected } from '../core/controllers/useConnected.ts';
+import { useAttributes } from '../core/controllers/useAttributes.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
@@ -65,16 +64,14 @@ export default class FAB extends ReactiveElement {
       extendedStyles,
       extendedTokens,
     ]);
-    useConnected(this, () => {
-      this.tabIndex = 0;
-    });
     useRipple(this, {
       easing: '--_ripple-easing',
       duration: '--_ripple-duration',
     });
-    useAttribute(this, 'extended', () =>
-      this.dispatchEvent(new Event('fabtoggle', DEFAULT_EVENT_INIT)),
-    );
+    useAttributes(this, {
+      extended: () =>
+        this.dispatchEvent(new Event('fabtoggle', DEFAULT_EVENT_INIT)),
+    });
   }
 }
 
