@@ -30,7 +30,11 @@
         "runem.lit-plugin",
         "openai.chatgpt",
         "vitest.explorer",
-        "github.vscode-github-actions"
+        "github.vscode-github-actions",
+        "oxc.oxc-vscode",
+        "YoavBls.pretty-ts-errors",
+        "acoreyj.restart-ts-eslint-server",
+        "TypeScriptTeam.native-preview"
       ]
     }
   },

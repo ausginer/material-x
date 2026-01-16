@@ -92,6 +92,8 @@ export function useButtonCore(
   styles: CSSStyleSheet[],
   init?: Partial<ShadowRootInit>,
 ): void {
+  const shadowInit = { delegatesFocus: true, ...init };
+
   useCore(
     host,
     template,
@@ -107,7 +109,7 @@ export function useButtonCore(
       disabledTokens,
       disabledStyles,
     ],
-    init,
+    shadowInit,
   );
 
   const target = $<HTMLElement>(host, '.host')!;

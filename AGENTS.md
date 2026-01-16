@@ -78,6 +78,7 @@ When you are going to implement any feature, fix or anything else, first prepare
 
 You can find architecture insights from your analysis in `.agent/docs/architecture.md`.
 You can find CSS architecture reiteration in `.agent/docs/css-inheritance.md`.
+You can find accessibility review in `.agent/docs/accessibility.md`
 
 `src2/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
 
