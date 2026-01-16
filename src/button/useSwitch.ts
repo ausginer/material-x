@@ -9,7 +9,7 @@ import {
   type TraitProps,
 } from '../core/elements/impl.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
-import type { Disableable } from '../core/traits/disabled.ts';
+import type { Disableable } from '../core/traits/disableable.ts';
 import { $, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useTargetedARIA } from '../core/utils/useCore.ts';
 import { ButtonCore, type ButtonLike } from './useButtonCore.ts';

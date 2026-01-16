@@ -17,7 +17,7 @@ import {
   getInternals,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import { Disableable } from '../core/traits/disabled.ts';
+import { Disableable } from '../core/traits/disableable.ts';
 import { $, $$ } from '../core/utils/DOM.ts';
 import { join } from '../core/utils/runtime.ts';
 import { useCore } from '../core/utils/useCore.ts';

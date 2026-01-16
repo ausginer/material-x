@@ -12,7 +12,7 @@ import {
 } from '../core/elements/impl.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
-import { Disableable } from '../core/traits/disabled.ts';
+import { Disableable } from '../core/traits/disableable.ts';
 import { DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import fabTemplate from './fab.tpl.html' with { type: 'html' };

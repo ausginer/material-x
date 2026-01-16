@@ -12,7 +12,7 @@ import {
   define,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import type { Disableable } from '../core/traits/disabled.ts';
+import type { Disableable } from '../core/traits/disableable.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
 import mainElevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };

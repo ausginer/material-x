@@ -18,7 +18,7 @@ import {
 } from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.ctr.css' with { type: 'css' };
 import elevationTokens from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
-import { Disableable } from '../core/traits/disabled.ts';
+import { Disableable } from '../core/traits/disableable.ts';
 import { $ } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import disabledStyles from './styles/default/disabled.ctr.css' with { type: 'css' };

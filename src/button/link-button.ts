@@ -14,7 +14,7 @@ import {
   define,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import type { Disableable } from '../core/traits/disabled.ts';
+import type { Disableable } from '../core/traits/disableable.ts';
 import { $ } from '../core/utils/DOM.ts';
 import linkButtonTemplate from './link-button.tpl.html' with { type: 'html' };
 import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };

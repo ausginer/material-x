@@ -18,7 +18,7 @@ import {
   type TraitProps,
 } from '../core/elements/impl.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
-import type { Disableable } from '../core/traits/disabled.ts';
+import type { Disableable } from '../core/traits/disableable.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import {
   BUTTON_GROUP_CTX,

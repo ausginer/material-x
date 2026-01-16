@@ -6,7 +6,7 @@ import {
 import { useRovingTabindex } from '../core/controllers/useRovingTabindex.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import { Disableable } from '../core/traits/disabled.ts';
+import { Disableable } from '../core/traits/disableable.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import connectedStyles from './styles/connected/main.ctr.css' with { type: 'css' };
 import connectedTokens from './styles/connected/main.tokens.css.ts' with { type: 'css' };

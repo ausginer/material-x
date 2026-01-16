@@ -4,7 +4,7 @@ import {
   define,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import type { Disableable } from '../core/traits/disabled.ts';
+import type { Disableable } from '../core/traits/disableable.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import { IconButtonLike, type IconButtonProperties } from './icon-button.ts';
 import switchDefaultTokens from './styles/default/switch.tokens.css.ts' with { type: 'css' };
