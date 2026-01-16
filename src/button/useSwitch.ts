@@ -1,15 +1,18 @@
-import type { Constructor } from 'type-fest';
-import { createAccessors } from '../core/controllers/createAccessors.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
-import { Bool, Str, type Converter } from '../core/elements/attribute.ts';
+import { Str } from '../core/elements/attribute.ts';
+import {
+  impl,
+  trait,
+  type Accessors,
+  type ConstructorWithTraits,
+  type Trait,
+  type TraitProps,
+} from '../core/elements/impl.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
+import type { Disableable } from '../core/traits/disabled.ts';
 import { $, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useTargetedARIA } from '../core/utils/useCore.ts';
-import type { ButtonLike } from './useButtonCore.ts';
-
-export interface SwitchLike extends ButtonLike {
-  checked: boolean;
-}
+import { ButtonCore, type ButtonLike } from './useButtonCore.ts';
 
 const switches = new WeakSet<Element>();
 
@@ -20,16 +23,17 @@ export type SwitchAttributes = Readonly<{
   value?: string;
 }>;
 
-export function useSwitchAccessors(
-  ctr: Constructor<ReactiveElement>,
-  attributes?: Readonly<Record<string, Converter>>,
-): void {
-  createAccessors(ctr, {
-    checked: Bool,
-    value: Str,
-    ...attributes,
-  });
-}
+export const SwitchLike: Trait<
+  ReactiveElement,
+  Accessors<{ href: Str; target: Str }>
+> = trait({ href: Str, target: Str });
+
+export type SwitchLike = ButtonLike & TraitProps<typeof SwitchLike>;
+
+export const SwitchCore: ConstructorWithTraits<
+  ReactiveElement,
+  [typeof ButtonLike, typeof Disableable, typeof SwitchLike]
+> = impl(ButtonCore, SwitchLike);
 
 export function useSwitch(host: ReactiveElement): void {
   const target = $<HTMLElement>(host, '.host')!;

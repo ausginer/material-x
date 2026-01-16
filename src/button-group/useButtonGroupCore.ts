@@ -1,6 +1,7 @@
 import {
-  DEFAULT_BUTTON_ATTRIBUTES,
+  ButtonCore,
   type ButtonLike,
+  DEFAULT_BUTTON_ATTRIBUTES,
 } from '../button/useButtonCore.ts';
 import {
   useAttributes,
@@ -8,16 +9,30 @@ import {
 } from '../core/controllers/useAttributes.ts';
 import { useProvider } from '../core/controllers/useContext.ts';
 import { EventEmitter } from '../core/elements/emitter.ts';
-import { ReactiveElement } from '../core/elements/reactive-element.ts';
+import {
+  impl,
+  trait,
+  type Accessors,
+  type ConstructorWithTraits,
+  type Trait,
+  type TraitProps,
+} from '../core/elements/impl.ts';
+import type { ReactiveElement } from '../core/elements/reactive-element.ts';
+import type { Disableable } from '../core/traits/disabled.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import {
   BUTTON_GROUP_CTX,
   type ChangedAttribute,
 } from './button-group-context.ts';
 
-export type ButtonGroupLike = ButtonLike;
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export const ButtonGroupLike: Trait<HTMLElement, Accessors<{}>> = trait({});
+export type ButtonGroupLike = ButtonLike & TraitProps<typeof ButtonGroupLike>;
 
-const buttonGroups = new WeakSet<ReactiveElement>();
+export const ButtonGroupCore: ConstructorWithTraits<
+  ReactiveElement,
+  [typeof ButtonLike, typeof Disableable, typeof ButtonGroupLike]
+> = impl(ButtonCore, ButtonGroupLike);
 
 export function useButtonGroupCore(
   host: ReactiveElement & ButtonGroupLike,
@@ -48,10 +63,4 @@ export function useButtonGroupCore(
       ),
     ),
   );
-
-  buttonGroups.add(host);
-}
-
-export function isButtonGroupLike(value: unknown): value is ButtonGroupLike {
-  return value instanceof ReactiveElement && buttonGroups.has(value);
 }

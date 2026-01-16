@@ -1,17 +1,24 @@
-import type { Constructor } from 'type-fest';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { useRipple } from '../core/animations/ripple.ts';
-import { createAccessors } from '../core/controllers/createAccessors.ts';
 import { useARIATransfer } from '../core/controllers/useARIA.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useContext } from '../core/controllers/useContext.ts';
-import { Bool, Num, Str, type Converter } from '../core/elements/attribute.ts';
+import { Str } from '../core/elements/attribute.ts';
+import {
+  impl,
+  trait,
+  type Accessors,
+  type ConstructorWithTraits,
+  type Trait,
+  type TraitProps,
+} from '../core/elements/impl.ts';
 import {
   getInternals,
-  type ReactiveElement,
+  ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.ctr.css' with { type: 'css' };
 import elevationTokens from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
+import { Disableable } from '../core/traits/disabled.ts';
 import { $ } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import disabledStyles from './styles/default/disabled.ctr.css' with { type: 'css' };
@@ -21,14 +28,27 @@ import defaultTokens from './styles/default/main.tokens.css.ts' with { type: 'cs
 import shapeTokens from './styles/shape/main.tokens.css.ts' with { type: 'css' };
 import sizeTokens from './styles/size/main.tokens.css.ts' with { type: 'css' };
 
-export interface ButtonLike {
-  color: string | null;
-  size: string | null;
-  shape: string | null;
-  disabled: boolean;
-}
+export const DEFAULT_BUTTON_ATTRIBUTES: Readonly<{
+  color: Str;
+  size: Str;
+  shape: Str;
+}> = {
+  color: Str,
+  size: Str,
+  shape: Str,
+};
 
-const buttons = new WeakSet<ButtonLike>();
+export const ButtonLike: Trait<
+  ReactiveElement,
+  Accessors<typeof DEFAULT_BUTTON_ATTRIBUTES>
+> = trait(DEFAULT_BUTTON_ATTRIBUTES);
+
+export type ButtonLike = Disableable & TraitProps<typeof ButtonLike>;
+
+export const ButtonCore: ConstructorWithTraits<
+  ReactiveElement,
+  [typeof ButtonLike, typeof Disableable]
+> = impl(ReactiveElement, ButtonLike, Disableable);
 
 export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';
@@ -41,48 +61,17 @@ export type ButtonCoreProperties = Readonly<{
   disabled?: boolean;
 }>;
 
-export const DEFAULT_BUTTON_ATTRIBUTES: Readonly<
-  Record<keyof ButtonCoreProperties, Converter>
-> = {
-  color: Str,
-  size: Str,
-  shape: Str,
-  disabled: Bool,
-};
-
-export function createButtonAccessors(
-  ctr: Constructor<ReactiveElement>,
-  attributes?: Record<string, Converter>,
-): void {
-  createAccessors(ctr, {
-    ...DEFAULT_BUTTON_ATTRIBUTES,
-    ...attributes,
-  });
-}
-
 function updateByContext(
   internals: ElementInternals,
-  attr: keyof ButtonCoreProperties,
   oldValue: string | boolean | number | null,
   newValue: string | boolean | number | null,
 ) {
-  if (DEFAULT_BUTTON_ATTRIBUTES[attr] === Bool) {
-    if (newValue) {
-      internals.states.add(attr);
-    } else {
-      internals.states.delete(attr);
-    }
-  } else if (
-    DEFAULT_BUTTON_ATTRIBUTES[attr] === Num ||
-    DEFAULT_BUTTON_ATTRIBUTES[attr] === Str
-  ) {
-    if (oldValue) {
-      internals.states.delete(String(oldValue));
-    }
+  if (oldValue) {
+    internals.states.delete(String(oldValue));
+  }
 
-    if (newValue) {
-      internals.states.add(String(newValue));
-    }
+  if (newValue) {
+    internals.states.add(String(newValue));
   }
 }
 
@@ -130,21 +119,14 @@ export function useButtonCore(
   useContext(host, BUTTON_GROUP_CTX, (data) => {
     if (data) {
       for (const attr of Object.keys(DEFAULT_BUTTON_ATTRIBUTES)) {
-        updateByContext(internals, attr, null, data.provider[attr]);
+        updateByContext(internals, null, data.provider[attr]);
       }
 
-      return data.emitter.on(({ attr, old: oldValue, new: newValue }) => {
-        updateByContext(internals, attr, oldValue, newValue);
+      return data.emitter.on(({ old: oldValue, new: newValue }) => {
+        updateByContext(internals, oldValue, newValue);
       });
     }
 
     return undefined;
   });
-
-  buttons.add(host);
-}
-
-export function isButtonLike(node: unknown): node is ButtonLike {
-  // @ts-expect-error: simplify check
-  return buttons.has(node);
 }

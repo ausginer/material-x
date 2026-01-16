@@ -1,15 +1,23 @@
 import type { EmptyObject } from 'type-fest';
 import '../button/icon-button.ts';
-import { createAccessors } from '../core/controllers/createAccessors.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
 import {
+  impl,
+  trait,
+  type Accessors,
+  type ConstructorWithTraits,
+  type Trait,
+  type TraitProps,
+} from '../core/elements/impl.ts';
+import {
   define,
   getInternals,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
+import { Disableable } from '../core/traits/disabled.ts';
 import { $, $$ } from '../core/utils/DOM.ts';
 import { join } from '../core/utils/runtime.ts';
 import { useCore } from '../core/utils/useCore.ts';
@@ -87,26 +95,36 @@ class FieldImplementation {
   }
 }
 
+export const TextFieldLike: Trait<
+  ReactiveElement,
+  Accessors<{
+    type: Str;
+    inputmode: Str;
+    outlined: Bool;
+    multiline: Bool;
+  }>
+> = trait({
+  type: Str,
+  inputmode: Str,
+  outlined: Bool,
+  multiline: Bool,
+});
+
+export type TextFieldLike = Disableable & TraitProps<typeof TextFieldLike>;
+
+const TextFieldCore: ConstructorWithTraits<
+  ReactiveElement,
+  [typeof TextFieldLike, typeof Disableable]
+> = impl(ReactiveElement, TextFieldLike, Disableable);
+
 /**
  * @attribute type
  * @attribute inputmode
  * @attribute outlined
  * @attribute multiline
  */
-export default class TextField extends ReactiveElement {
+export default class TextField extends TextFieldCore {
   static formAssociated = true;
-
-  static {
-    createAccessors(this, {
-      type: Str,
-      inputmode: Str,
-      outlined: Bool,
-      multiline: Bool,
-    });
-  }
-
-  declare type: TextFieldType | null;
-  declare mode: TextFieldInputMode | null;
 
   readonly #impl: FieldImplementation;
 

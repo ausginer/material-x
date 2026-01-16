@@ -1,22 +1,18 @@
 import type { EmptyObject } from 'type-fest';
-import {
-  createButtonAccessors,
-  type ButtonColor,
-  type ButtonCoreProperties,
-  type ButtonLike,
-  type ButtonShape,
-  type ButtonSize,
+import type {
+  ButtonCoreProperties,
+  ButtonLike,
 } from '../button/useButtonCore.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
-import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
+import {
+  define,
+  type ReactiveElement,
+} from '../core/elements/reactive-element.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import standardStyles from './styles/standard/main.ctr.css' with { type: 'css' };
 import standardTokens from './styles/standard/main.tokens.css.ts' with { type: 'css' };
-import {
-  useButtonGroupCore,
-  type ButtonGroupLike,
-} from './useButtonGroupCore.ts';
+import { ButtonGroupCore, useButtonGroupCore } from './useButtonGroupCore.ts';
 import { getTarget } from './utils.ts';
 
 export type ButtonGroupProperties = ButtonCoreProperties;
@@ -29,19 +25,7 @@ const TRAILING_PROP = '--_interaction-direction-trailing';
 /**
  * @attr {string} size
  */
-export default class ButtonGroup
-  extends ReactiveElement
-  implements ButtonGroupLike
-{
-  static {
-    createButtonAccessors(this);
-  }
-
-  declare color: ButtonColor | null;
-  declare size: ButtonSize | null;
-  declare shape: ButtonShape | null;
-  declare disabled: boolean;
-
+export default class ButtonGroup extends ButtonGroupCore {
   constructor() {
     super();
     useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [

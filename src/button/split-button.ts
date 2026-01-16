@@ -2,7 +2,7 @@ import type { EmptyObject } from 'type-fest';
 import '../button-group/connected-button-group.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
-import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
+import { define } from '../core/elements/reactive-element.ts';
 import { $, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
@@ -12,13 +12,9 @@ import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
 import splitButtonStyles from './styles/split/main.ctr.css' with { type: 'css' };
 import splitButtonTokens from './styles/split/main.tokens.css.ts' with { type: 'css' };
 import {
-  createButtonAccessors,
+  ButtonCore,
   DEFAULT_BUTTON_ATTRIBUTES,
-  type ButtonColor,
   type ButtonCoreProperties,
-  type ButtonLike,
-  type ButtonShape,
-  type ButtonSize,
 } from './useButtonCore.ts';
 
 export type SplitButtonProperties = Readonly<
@@ -50,17 +46,8 @@ export type SplitButtonCSSProperties = EmptyObject;
  * @attr {string} size
  * @attr {string} shape
  */
-export default class SplitButton extends ReactiveElement implements ButtonLike {
+export default class SplitButton extends ButtonCore {
   static readonly formAssociated = true;
-
-  static {
-    createButtonAccessors(this);
-  }
-
-  declare color: ButtonColor | null;
-  declare size: ButtonSize | null;
-  declare shape: ButtonShape | null;
-  declare disabled: boolean;
 
   constructor() {
     super();

@@ -1,10 +1,18 @@
 import type { EmptyObject } from 'type-fest';
 import { useRipple } from '../core/animations/ripple.ts';
-import { createAccessors } from '../core/controllers/createAccessors.ts';
 import { useAttributes } from '../core/controllers/useAttributes.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
+import {
+  impl,
+  trait,
+  type Accessors,
+  type ConstructorWithTraits,
+  type Trait,
+  type TraitProps,
+} from '../core/elements/impl.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import elevationStyles from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
+import { Disableable } from '../core/traits/disabled.ts';
 import { DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import fabTemplate from './fab.tpl.html' with { type: 'html' };
@@ -34,6 +42,28 @@ export type FABEvents = Readonly<{
 
 export type FABCSSProperties = EmptyObject;
 
+export const FABLike: Trait<
+  HTMLElement,
+  Accessors<{
+    size: Str;
+    color: Str;
+    extended: Str;
+    tonal: Bool;
+  }>
+> = trait({
+  size: Str,
+  color: Str,
+  extended: Str,
+  disabled: Bool,
+  tonal: Bool,
+});
+export type FABLike = Disableable & TraitProps<typeof FABLike>;
+
+const FABCore: ConstructorWithTraits<
+  ReactiveElement,
+  [typeof FABLike, typeof Disableable]
+> = impl(ReactiveElement, Disableable, FABLike);
+
 /**
  * @attr {FABSize} size
  * @attr {FABColor} color
@@ -41,17 +71,7 @@ export type FABCSSProperties = EmptyObject;
  * @attr {boolean|undefined} tonal
  * @attr {boolean|undefined} disabled
  */
-export default class FAB extends ReactiveElement {
-  static {
-    createAccessors(this, {
-      size: Str,
-      color: Str,
-      extended: Str,
-      disabled: Bool,
-      tonal: Bool,
-    });
-  }
-
+export default class FAB extends FABCore {
   constructor() {
     super();
     useCore(this, fabTemplate, { role: 'button' }, [

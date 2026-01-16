@@ -22,6 +22,14 @@ export type Str = typeof Str;
 
 export type Converter = Bool | Num | Str;
 
+export type ConverterTypes<C extends Converter> = C extends Bool
+  ? boolean
+  : C extends Num
+    ? number
+    : C extends Str
+      ? string
+      : never;
+
 export interface AttributeOperator {
   get(host: HTMLElement, name: string, converter: Bool): boolean;
   get(host: HTMLElement, name: string, converter: Num): number | null;

@@ -1,23 +1,16 @@
 import type { EmptyObject } from 'type-fest';
 import {
-  createButtonAccessors,
-  isButtonLike,
-  type ButtonColor,
+  ButtonLike,
   type ButtonCoreProperties,
-  type ButtonLike,
-  type ButtonShape,
-  type ButtonSize,
 } from '../button/useButtonCore.ts';
 import { useRovingTabindex } from '../core/controllers/useRovingTabindex.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
+import { Disableable } from '../core/traits/disabled.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import connectedStyles from './styles/connected/main.ctr.css' with { type: 'css' };
 import connectedTokens from './styles/connected/main.tokens.css.ts' with { type: 'css' };
-import {
-  useButtonGroupCore,
-  type ButtonGroupLike,
-} from './useButtonGroupCore.ts';
+import { ButtonGroupCore, useButtonGroupCore } from './useButtonGroupCore.ts';
 
 export type ConnectedButtonGroupProperties = ButtonCoreProperties;
 export type ConnectedButtonGroupEvents = EmptyObject;
@@ -29,19 +22,7 @@ const KEY_NEXT = ['ArrowRight', 'ArrowDown'] as const;
 /**
  * @attr {string} size
  */
-export default class ConnectedButtonGroup
-  extends ReactiveElement
-  implements ButtonGroupLike
-{
-  static {
-    createButtonAccessors(this);
-  }
-
-  declare color: ButtonColor | null;
-  declare size: ButtonSize | null;
-  declare shape: ButtonShape | null;
-  declare disabled: boolean;
-
+export default class ConnectedButtonGroup extends ButtonGroupCore {
   constructor() {
     super();
     useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [
@@ -49,10 +30,14 @@ export default class ConnectedButtonGroup
       connectedTokens,
     ]);
 
-    const roving = useRovingTabindex<ButtonLike & ReactiveElement>(this, {
-      isItem: (node): node is ButtonLike & ReactiveElement =>
-        isButtonLike(node) && node instanceof ReactiveElement,
-      isItemDisabled: (element) => element.disabled,
+    const roving = useRovingTabindex<
+      ButtonLike & Disableable & ReactiveElement
+    >(this, {
+      isItem: (node): node is ButtonLike & Disableable & ReactiveElement =>
+        node instanceof ButtonLike &&
+        node instanceof Disableable &&
+        node instanceof ReactiveElement,
+      isItemDisabled: (element) => element.disabled ?? false,
       getAction: (event) => {
         if (event.altKey || event.ctrlKey || event.metaKey) {
           return null;

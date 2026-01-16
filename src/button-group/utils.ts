@@ -1,4 +1,4 @@
-import { isButtonLike, type ButtonLike } from '../button/useButtonCore.ts';
+import { ButtonLike } from '../button/useButtonCore.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
 
 export type SiblingUpdateCallback = (sibling?: HTMLElement) => void;
@@ -9,5 +9,8 @@ export function getTarget(
 ): (ButtonLike & ReactiveElement) | undefined {
   return event
     .composedPath()
-    .find((node): node is ButtonLike & ReactiveElement => isButtonLike(node));
+    .find(
+      (node): node is ButtonLike & ReactiveElement =>
+        node instanceof ButtonLike,
+    );
 }
