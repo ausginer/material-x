@@ -2,11 +2,11 @@ import type { TokenPackage } from '../../.tproc/TokenPackage.ts';
 import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
 import {
   createAllowedTokensSelector,
-  not,
   type Grouper,
   type GroupSelector,
-  type Predicate,
 } from '../../.tproc/utils.ts';
+import type { Predicate } from '../../core/utils/runtime.ts';
+import { not } from '../../core/utils/runtime.ts';
 
 export const ERROR_STATE = 'error';
 export const TEXT_FIELD_STATE = [

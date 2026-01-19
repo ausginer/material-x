@@ -48,7 +48,7 @@ export type ButtonLike = Disableable & TraitProps<typeof ButtonLike>;
 export const ButtonCore: ConstructorWithTraits<
   ReactiveElement,
   [typeof ButtonLike, typeof Disableable]
-> = impl(ReactiveElement, ButtonLike, Disableable);
+> = impl(ReactiveElement, [ButtonLike, Disableable]);
 
 export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';

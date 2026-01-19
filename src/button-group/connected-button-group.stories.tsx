@@ -72,16 +72,18 @@ export const Switch: Story = () => {
   const [selected, setSelected] = useState<string | undefined>();
 
   return (
-    <mx-connected-button-group size="medium">
+    <mx-connected-button-group size="medium" value={selected}>
       <mx-switch-icon-button
         width="narrow"
         checked={selected === 'bluetooth'}
+        value="bluetooth"
         onChange={() => setSelected('bluetooth')}
       >
         <mx-icon>bluetooth</mx-icon>
       </mx-switch-icon-button>
       <mx-switch-icon-button
         checked={selected === 'alarm'}
+        value="alarm"
         onChange={() => setSelected('alarm')}
       >
         <mx-icon>alarm</mx-icon>
@@ -89,6 +91,7 @@ export const Switch: Story = () => {
       <mx-switch-icon-button
         width="narrow"
         checked={selected === 'link'}
+        value="link"
         onChange={() => setSelected('link')}
       >
         <mx-icon>link</mx-icon>
@@ -96,6 +99,7 @@ export const Switch: Story = () => {
       <mx-switch-icon-button
         width="wide"
         checked={selected === 'wifi'}
+        value="wifi"
         onChange={() => setSelected('wifi')}
       >
         <mx-icon>wifi</mx-icon>

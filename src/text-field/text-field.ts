@@ -115,7 +115,7 @@ export type TextFieldLike = Disableable & TraitProps<typeof TextFieldLike>;
 const TextFieldCore: ConstructorWithTraits<
   ReactiveElement,
   [typeof TextFieldLike, typeof Disableable]
-> = impl(ReactiveElement, TextFieldLike, Disableable);
+> = impl(ReactiveElement, [TextFieldLike, Disableable]);
 
 /**
  * @attribute type

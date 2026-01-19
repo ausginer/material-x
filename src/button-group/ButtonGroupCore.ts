@@ -1,8 +1,8 @@
 import {
   ButtonCore,
-  type ButtonLike,
   DEFAULT_BUTTON_ATTRIBUTES,
-} from '../button/useButtonCore.ts';
+  type ButtonLike,
+} from '../button/ButtonCore.ts';
 import {
   useAttributes,
   type UpdateCallback,
@@ -13,12 +13,12 @@ import {
   impl,
   trait,
   type Accessors,
+  type AppliedTraits,
   type ConstructorWithTraits,
   type Trait,
   type TraitProps,
 } from '../core/elements/impl.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
-import type { Disableable } from '../core/traits/disableable.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import {
   BUTTON_GROUP_CTX,
@@ -31,8 +31,8 @@ export type ButtonGroupLike = ButtonLike & TraitProps<typeof ButtonGroupLike>;
 
 export const ButtonGroupCore: ConstructorWithTraits<
   ReactiveElement,
-  [typeof ButtonLike, typeof Disableable, typeof ButtonGroupLike]
-> = impl(ButtonCore, ButtonGroupLike);
+  [...AppliedTraits<typeof ButtonCore>, typeof ButtonGroupLike]
+> = impl(ButtonCore, [ButtonGroupLike]);
 
 export function useButtonGroupCore(
   host: ReactiveElement & ButtonGroupLike,

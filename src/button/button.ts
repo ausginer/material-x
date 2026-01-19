@@ -1,17 +1,17 @@
 import type { EmptyObject } from 'type-fest';
 import { define } from '../core/elements/reactive-element.ts';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
+import {
+  ButtonCore,
+  useButtonCore,
+  type ButtonCoreProperties,
+} from './ButtonCore.ts';
 import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
 import elevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
 import mainOutlinedStyles from './styles/outlined/main.ctr.css' with { type: 'css' };
 import outlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
 import textTokens from './styles/text/main.tokens.css.ts' with { type: 'css' };
 import tonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
-import {
-  ButtonCore,
-  useButtonCore,
-  type ButtonCoreProperties,
-} from './useButtonCore.ts';
 
 export type ButtonProperties = ButtonCoreProperties;
 export type ButtonEvents = EmptyObject;

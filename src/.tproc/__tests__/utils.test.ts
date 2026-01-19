@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
+import { not } from '../../core/utils/runtime.ts';
 import type { Token } from '../TokenTable.ts';
 import {
   composeGroupSelectors,
   createAllowedTokensSelector,
   distinct,
   getSetName,
-  not,
   rgbaToHex,
 } from '../utils.ts';
 import { cssify } from '../variable.ts';

@@ -110,14 +110,6 @@ export function createAllowedTokensSelector(
   };
 }
 
-export type Predicate<T extends readonly any[]> = (...args: T) => boolean;
-
-export function not<T extends readonly any[]>(
-  predicate: Predicate<T>,
-): Predicate<T> {
-  return (...args) => !predicate(...args);
-}
-
 export type Comparator<T extends readonly unknown[]> = Parameters<
   T['toSorted']
 >[0];

@@ -61,8 +61,8 @@ export type FABLike = Disableable & TraitProps<typeof FABLike>;
 
 const FABCore: ConstructorWithTraits<
   ReactiveElement,
-  [typeof FABLike, typeof Disableable]
-> = impl(ReactiveElement, Disableable, FABLike);
+  [typeof Disableable, typeof FABLike]
+> = impl(ReactiveElement, [Disableable, FABLike]);
 
 /**
  * @attr {FABSize} size

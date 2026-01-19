@@ -6,6 +6,7 @@ import {
   impl,
   trait,
   type Accessors,
+  type AppliedTraits,
   type ConstructorWithTraits,
   type Trait,
   type TraitProps,
@@ -14,8 +15,13 @@ import {
   define,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import type { Disableable } from '../core/traits/disableable.ts';
 import { $ } from '../core/utils/DOM.ts';
+import {
+  ButtonCore,
+  useButtonCore,
+  type ButtonCoreProperties,
+  type ButtonLike,
+} from './ButtonCore.ts';
 import linkButtonTemplate from './link-button.tpl.html' with { type: 'html' };
 import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
 import mainElevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
@@ -23,12 +29,6 @@ import mainOutlinedStyles from './styles/outlined/main.ctr.css' with { type: 'cs
 import mainOutlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
 import mainTextTokens from './styles/text/main.tokens.css.ts' with { type: 'css' };
 import mainTonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
-import {
-  ButtonCore,
-  useButtonCore,
-  type ButtonCoreProperties,
-  type ButtonLike,
-} from './useButtonCore.ts';
 
 export type LinkButtonProperties = Readonly<
   ButtonCoreProperties & {
@@ -49,8 +49,8 @@ export type LinkButtonLike = ButtonLike & TraitProps<typeof LinkButtonLike>;
 
 const LinkButtonCore: ConstructorWithTraits<
   ReactiveElement,
-  [typeof ButtonLike, typeof Disableable, typeof LinkButtonLike]
-> = impl(ButtonCore, LinkButtonLike);
+  [...AppliedTraits<typeof ButtonCore>, typeof LinkButtonLike]
+> = impl(ButtonCore, [LinkButtonLike]);
 
 /**
  * @attr {string} color

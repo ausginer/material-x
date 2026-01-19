@@ -5,10 +5,9 @@ import {
   type Trait,
   type TraitProps,
 } from '../elements/impl.ts';
-import type { ReactiveElement } from '../elements/reactive-element.ts';
 
 export const Disableable: Trait<
-  ReactiveElement,
+  HTMLElement,
   Accessors<{ disabled: Bool }>
 > = trait({ disabled: Bool });
 

@@ -24,6 +24,12 @@ declare global {
   }
 
   /* @internal */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Array<T> {
+    includes(searchElement: unknown, fromIndex?: number): boolean;
+  }
+
+  /* @internal */
   interface ArrayConstructor {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
     isArray<T = unknown>(arg: unknown): arg is readonly T[];

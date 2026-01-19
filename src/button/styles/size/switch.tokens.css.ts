@@ -1,7 +1,6 @@
+import { renderSwitchStylesInOrder } from '../utils.ts';
 import { switchTokens } from './tokens.ts';
 
-const styles: string = switchTokens
-  .map((token) => token.value.render())
-  .join('\n\n');
+const styles: string = renderSwitchStylesInOrder(switchTokens);
 
 export default styles;

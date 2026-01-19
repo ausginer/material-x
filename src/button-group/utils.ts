@@ -1,4 +1,4 @@
-import { ButtonLike } from '../button/useButtonCore.ts';
+import { ButtonLike } from '../button/ButtonCore.ts';
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
 
 export type SiblingUpdateCallback = (sibling?: HTMLElement) => void;

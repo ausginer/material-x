@@ -53,12 +53,15 @@ export function trait<
   T extends HTMLElement,
   P extends Readonly<Record<string, Converter>>,
 >(props: P): Trait<T, Accessors<P>> {
-  const set = new WeakSet();
+  const brand = Symbol();
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   return Object.defineProperty(
     (ctr: Constructor<T> & CustomElementStaticProps) => {
-      set.add(ctr);
+      Object.defineProperty(ctr.prototype, brand, {
+        configurable: true,
+        value: true,
+      });
 
       const attributeEntries = Object.entries(
         props as Record<string, Converter>,
@@ -97,9 +100,9 @@ export function trait<
     Symbol.hasInstance,
     {
       configurable: true,
-      value(o: unknown): boolean {
-        return o instanceof HTMLElement && set.has(o.constructor);
-      },
+      value: (o: unknown): boolean =>
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+        o != null && typeof o === 'object' && (o as { [brand]: true })[brand],
     },
   ) as Trait<T, Accessors<P>>;
 }
@@ -111,12 +114,15 @@ export type ConstructorWithTraits<
   CustomElementStaticProps &
   MixinStatics<TL>;
 
+export type AppliedTraits<T extends ConstructorWithTraits<any, any>> =
+  T extends ConstructorWithTraits<any, infer TL> ? TL : never;
+
 export function impl<
   T extends HTMLElement,
   TL extends ReadonlyArray<Trait<any, any, any, any>>,
 >(
   target: Constructor<T> & CustomElementStaticProps,
-  ...traits: TL
+  traits: TL,
 ): ConstructorWithTraits<T, TL> {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   return traits.reduce(

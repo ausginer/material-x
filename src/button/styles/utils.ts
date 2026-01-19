@@ -1,3 +1,4 @@
+import type { ReadonlySignal } from '@preact/signals-core';
 import type { ProcessedTokenValue } from '../../.tproc/processTokenSet.ts';
 import { attribute, pseudoClass, selector } from '../../.tproc/selector.ts';
 import type {
@@ -8,12 +9,12 @@ import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
 import {
   componentStateMap,
   createAllowedTokensSelector,
-  not,
   type GroupResult,
   type GroupSelector,
-  type Predicate,
 } from '../../.tproc/utils.ts';
 import * as CSSVariable from '../../.tproc/variable.ts';
+import type { Predicate } from '../../core/utils/runtime.ts';
+import { not } from '../../core/utils/runtime.ts';
 import { disabledTokenSelector } from './default/tokens.ts';
 
 export const BUTTON_STATES = [
@@ -220,4 +221,14 @@ export function createButtonScopedDeclarationRenderer(
       ],
     };
   };
+}
+
+export function renderSwitchStylesInOrder(
+  tokens: ReadonlyArray<ReadonlySignal<TokenPackage>>,
+): string {
+  return SELECTION_STATES.flatMap((selection) =>
+    BUTTON_STATES.map((state) => `${selection}.${state}`),
+  )
+    .flatMap((state) => tokens.map((pack) => pack.value.render({ state })))
+    .join('\n\n');
 }

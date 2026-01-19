@@ -1,6 +1,6 @@
 import { createContext, type Context } from '../core/controllers/useContext.ts';
 import type { EventEmitter } from '../core/elements/emitter.ts';
-import type { ButtonGroupLike } from './useButtonGroupCore.ts';
+import type { ButtonGroupLike } from './ButtonGroupCore.ts';
 
 export type ChangedAttribute<
   T extends string | boolean | number = string | boolean | number,

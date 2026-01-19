@@ -8,14 +8,14 @@ import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
 import './icon-button.ts';
-import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
-import splitButtonStyles from './styles/split/main.ctr.css' with { type: 'css' };
-import splitButtonTokens from './styles/split/main.tokens.css.ts' with { type: 'css' };
 import {
   ButtonCore,
   DEFAULT_BUTTON_ATTRIBUTES,
   type ButtonCoreProperties,
-} from './useButtonCore.ts';
+} from './ButtonCore.ts';
+import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
+import splitButtonStyles from './styles/split/main.ctr.css' with { type: 'css' };
+import splitButtonTokens from './styles/split/main.tokens.css.ts' with { type: 'css' };
 
 export type SplitButtonProperties = Readonly<
   ButtonCoreProperties & {

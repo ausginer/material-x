@@ -20,7 +20,7 @@
   color: var(--_label-text-color);
   padding-block: var(--_padding-block);
   padding-inline: var(--_leading-space) var(--_trailing-space);
-  border-radius: var(--_container-shape);
+  border-radius: var(--_border-radius, var(--_container-shape));
   font-weight: var(--_label-text-font-weight);
   font-size: var(--_label-text-font-size);
   line-height: var(--_label-text-line-height);
