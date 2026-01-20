@@ -1,6 +1,6 @@
 import type { EmptyObject } from 'type-fest';
 import type { ButtonCoreProperties, ButtonLike } from '../button/ButtonCore.ts';
-// import { useRovingTabindex } from '../core/controllers/useRovingTabindex2.ts';
+import { useRovingTabindex } from '../core/controllers/useRovingTabindex.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import {
   impl,
@@ -23,9 +23,6 @@ export type ConnectedButtonGroupProperties = ButtonCoreProperties &
 export type ConnectedButtonGroupEvents = EmptyObject;
 export type ConnectedButtonGroupCSSProperties = EmptyObject;
 
-// const KEY_PREV = ['ArrowLeft', 'ArrowUp'] as const;
-// const KEY_NEXT = ['ArrowRight', 'ArrowDown'] as const;
-
 const ConnectedButtonGroupCore: ConstructorWithTraits<
   ReactiveElement,
   [...AppliedTraits<typeof ButtonGroupCore>, typeof Valuable]
@@ -42,48 +39,7 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupCore {
       connectedTokens,
     ]);
 
-    // const roving = useRovingTabindex<
-    //   ButtonLike & Disableable & ReactiveElement
-    // >(this, {
-    //   isItem: (node): node is ButtonLike & ReactiveElement =>
-    //     node instanceof ButtonLike && node instanceof ReactiveElement,
-    //   isItemDisabled: (element) => element.disabled ?? false,
-    //   getAction: (event) => {
-    //     if (event.altKey || event.ctrlKey || event.metaKey) {
-    //       return null;
-    //     }
-
-    //     const { key } = event;
-
-    //     if (key === 'Home') {
-    //       return 'first';
-    //     }
-
-    //     if (key === 'End') {
-    //       return 'last';
-    //     }
-
-    //     const isRtl = getComputedStyle(this).direction === 'rtl';
-
-    //     if (
-    //       (KEY_PREV.includes(key) && !isRtl) ||
-    //       (KEY_NEXT.includes(key) && isRtl)
-    //     ) {
-    //       return 'prev';
-    //     }
-
-    //     if (
-    //       (KEY_NEXT.includes(key) && !isRtl) ||
-    //       (KEY_PREV.includes(key) && isRtl)
-    //     ) {
-    //       return 'next';
-    //     }
-
-    //     return null;
-    //   },
-    // });
-
-    // useRovingTabindex(this);
+    useRovingTabindex(this);
 
     useSlot<ButtonLike & Checkable & ReactiveElement>(
       this,

@@ -7,9 +7,11 @@ export function join<A extends readonly unknown[]>(
 export function when<A extends readonly unknown[], R>(
   condition: (...args: A) => boolean,
   andThen: (...args: A) => R,
-  orElse: (...args: A) => R,
-): (...args: A) => R {
-  return (...args) => (condition(...args) ? andThen(...args) : orElse(...args));
+  orElse?: (...args: A) => R,
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+): (...args: A) => R | void {
+  return (...args) =>
+    condition(...args) ? andThen(...args) : orElse?.(...args);
 }
 
 export type Predicate<T extends readonly unknown[]> = (...args: T) => boolean;
