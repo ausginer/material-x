@@ -122,9 +122,6 @@ export const buttonAllowedTokensSelector: GroupSelector =
     'container.shape.round',
     'container.shape.square',
     'container.shadow-color',
-    'focus.indicator.color',
-    'focus.indicator.outline.offset',
-    'focus.indicator.thickness',
     'icon.color',
     'icon.size',
     'icon.opacity',
@@ -221,6 +218,14 @@ export function createButtonScopedDeclarationRenderer(
       ],
     };
   };
+}
+
+export function renderButtonStylesInOrder(
+  tokens: ReadonlyArray<ReadonlySignal<TokenPackage>>,
+): string {
+  return BUTTON_STATES.flatMap((state) =>
+    tokens.map((pack) => pack.value.render({ state })),
+  ).join('\n\n');
 }
 
 export function renderSwitchStylesInOrder(

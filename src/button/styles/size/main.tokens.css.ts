@@ -1,7 +1,6 @@
+import { renderButtonStylesInOrder } from '../utils.ts';
 import { mainTokens } from './tokens.ts';
 
-const styles: string = mainTokens
-  .map((token) => token.value.render())
-  .join('\n\n');
+const styles: string = renderButtonStylesInOrder(mainTokens);
 
 export default styles;

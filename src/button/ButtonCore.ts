@@ -16,8 +16,11 @@ import {
   getInternals,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import elevationStyles from '../core/styles/elevation.ctr.css' with { type: 'css' };
-import elevationTokens from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
+import '../core/styles/elevation/elevation.runtime.ts';
+import elevationStyles from '../core/styles/elevation/elevation.ctr.css' with { type: 'css' };
+import elevationTokens from '../core/styles/elevation/elevation.tokens.css.ts' with { type: 'css' };
+import focusStyles from '../core/styles/focus/focus.ctr.css' with { type: 'css' };
+import focusTokens from '../core/styles/focus/focus.tokens.css.ts' with { type: 'css' };
 import { Disableable } from '../core/traits/disableable.ts';
 import { $ } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
@@ -93,6 +96,8 @@ export function useButtonCore(
       defaultMainStyles,
       elevationTokens,
       elevationStyles,
+      focusTokens,
+      focusStyles,
       sizeTokens,
       ...styles,
       disabledTokens,
