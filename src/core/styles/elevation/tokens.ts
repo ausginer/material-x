@@ -1,6 +1,6 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
-import { t, type TokenPackage } from '../../.tproc/index.ts';
-import * as CSSVariable from '../../.tproc/variable.ts';
+import { t, type TokenPackage } from '../../../.tproc/index.ts';
+import * as CSSVariable from '../../../.tproc/variable.ts';
 
 function multiply(multiplier: number): string {
   return `calc(${CSSVariable.ref('level')} * ${multiplier}px)`;
@@ -29,7 +29,6 @@ const ambient = createShadowColor(1.5, 2, 12);
 function createPackage() {
   return t
     .set({
-      level: 'md.sys.elevation.level0',
       'shadow-color': 'md.sys.color.surface-tint',
       'elevation.umbra': umbra,
       'elevation.penumbra': penumbra,
