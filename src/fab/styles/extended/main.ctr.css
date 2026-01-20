@@ -1,6 +1,4 @@
 :host([extended]) {
-  display: contents;
-
   .host {
     color: var(--_label-text-color);
     line-height: var(--_label-text-line-height);

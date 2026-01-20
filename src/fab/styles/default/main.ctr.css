@@ -1,6 +1,7 @@
 :host {
   --_level: var(--_elevation-default);
   transition: --_level var(--_unfold-duration) var(--_unfold-easing);
+  display: contents;
 }
 
 :host:has(.host:hover) {
