@@ -1,3 +1,4 @@
+import type { ReadonlySignal } from '@preact/signals-core';
 import { selector, type Param } from '../../.tproc/selector.ts';
 import type {
   DeclarationBlockRenderer,
@@ -102,4 +103,12 @@ export function createFABScopedDeclarationRenderer(
       ),
     ],
   });
+}
+
+export function renderFABStylesInOrder(
+  tokens: ReadonlyArray<ReadonlySignal<TokenPackage>>,
+): string {
+  return FAB_STATES.flatMap((state) =>
+    tokens.map((pack) => pack.value.render({ state })),
+  ).join('\n\n');
 }

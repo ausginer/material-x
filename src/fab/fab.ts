@@ -1,6 +1,7 @@
 import type { EmptyObject } from 'type-fest';
 import { useRipple } from '../core/animations/ripple.ts';
-import { useAttributes } from '../core/controllers/useAttributes.ts';
+import { useARIATransfer } from '../core/controllers/useARIA.ts';
+import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
 import {
   impl,
@@ -11,9 +12,13 @@ import {
   type TraitProps,
 } from '../core/elements/impl.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import elevationStyles from '../core/styles/elevation.tokens.css.ts' with { type: 'css' };
+import '../core/styles/elevation/elevation.runtime.ts';
+import elevationStyles from '../core/styles/elevation/elevation.ctr.css' with { type: 'css' };
+import elevationTokens from '../core/styles/elevation/elevation.tokens.css.ts' with { type: 'css' };
+import focusStyles from '../core/styles/focus/focus.ctr.css' with { type: 'css' };
+import focusTokens from '../core/styles/focus/focus.tokens.css.ts' with { type: 'css' };
 import { Disableable } from '../core/traits/disableable.ts';
-import { DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
+import { $, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import fabTemplate from './fab.tpl.html' with { type: 'html' };
 import colorTokens from './styles/color/main.tokens.css.ts' with { type: 'css' };
@@ -54,7 +59,6 @@ export const FABLike: Trait<
   size: Str,
   color: Str,
   extended: Str,
-  disabled: Bool,
   tonal: Bool,
 });
 export type FABLike = Disableable & TraitProps<typeof FABLike>;
@@ -74,8 +78,11 @@ const FABCore: ConstructorWithTraits<
 export default class FAB extends FABCore {
   constructor() {
     super();
-    useCore(this, fabTemplate, { role: 'button' }, [
+    useCore(this, fabTemplate, {}, [
+      elevationTokens,
       elevationStyles,
+      focusTokens,
+      focusStyles,
       mainStyles,
       defaultTokens,
       colorTokens,
@@ -84,11 +91,17 @@ export default class FAB extends FABCore {
       extendedStyles,
       extendedTokens,
     ]);
+
+    const target = $<HTMLButtonElement>(this, '.host')!;
+    useARIATransfer(this, target);
+
     useRipple(this, {
       easing: '--_ripple-easing',
       duration: '--_ripple-duration',
     });
+
     useAttributes(this, {
+      disabled: transfer(target, 'disabled'),
       extended: () =>
         this.dispatchEvent(new Event('fabtoggle', DEFAULT_EVENT_INIT)),
     });

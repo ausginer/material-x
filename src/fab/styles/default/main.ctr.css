@@ -1,9 +1,10 @@
 :host {
-  --_level: calc(
-    var(--_elevation-default) +
-      (var(--_elevation-hovered) - var(--_elevation-default)) *
-      var(--_press-factor)
-  );
+  --_level: var(--_elevation-default);
+  transition: --_level var(--_unfold-duration) var(--_unfold-easing);
+}
+
+:host:has(.host:hover) {
+  --_level: var(--_elevation-hovered);
 }
 
 .host {

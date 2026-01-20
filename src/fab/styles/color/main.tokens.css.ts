@@ -1,7 +1,6 @@
+import { renderFABStylesInOrder } from '../utils.ts';
 import { colorTokens } from './tokens.ts';
 
-const styles: string = colorTokens
-  .map((token) => token.value.render())
-  .join('\n\n');
+const styles: string = renderFABStylesInOrder(colorTokens);
 
 export default styles;
