@@ -3,16 +3,16 @@ import '../button-group/connected-button-group.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { define } from '../core/elements/reactive-element.ts';
-import { $, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
+import { $, notify } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
-import './icon-button.ts';
 import {
   ButtonCore,
   DEFAULT_BUTTON_ATTRIBUTES,
   type ButtonCoreProperties,
 } from './ButtonCore.ts';
+import './icon-button.ts';
 import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
 import splitButtonStyles from './styles/split/main.ctr.css' with { type: 'css' };
 import splitButtonTokens from './styles/split/main.tokens.css.ts' with { type: 'css' };
@@ -61,7 +61,7 @@ export default class SplitButton extends ButtonCore {
       {
         click: (event) => {
           event.stopPropagation();
-          this.dispatchEvent(new Event('toggle', DEFAULT_EVENT_INIT));
+          notify(this, 'toggle');
         },
       },
       $(this, 'mx-icon-button')!,

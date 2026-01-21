@@ -1,4 +1,9 @@
-import type { TokenPackage } from '../../.tproc/TokenPackage.ts';
+import type { ReadonlySignal } from '@preact/signals-core';
+import { pseudoClass, selector, type Param } from '../../.tproc/selector.ts';
+import type {
+  DeclarationBlockRenderer,
+  TokenPackage,
+} from '../../.tproc/TokenPackage.ts';
 import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
 import {
   createAllowedTokensSelector,
@@ -9,12 +14,17 @@ import type { Predicate } from '../../core/utils/runtime.ts';
 import { not } from '../../core/utils/runtime.ts';
 
 export const ERROR_STATE = 'error';
-export const TEXT_FIELD_STATE = [
+export const TEXT_FIELD_STATES = [
   'default',
   'hover',
   'focus',
   'disabled',
 ] as const;
+
+const TEXT_FIELD_STATE_MAP: Readonly<Record<string, Param>> = {
+  hover: pseudoClass('hover'),
+  focus: pseudoClass('focus-within'),
+};
 
 export const textFieldAllowedTokensSelector: GroupSelector =
   createAllowedTokensSelector([
@@ -82,13 +92,13 @@ export function createTextFieldExtensions(
 
   return (m) => {
     const defaultState = m.state('default').extends(...baseDefault);
-    m.state('hovered').extends(defaultState, ...baseHover);
-    m.state('focused').extends(defaultState, ...baseFocus);
+    m.state('hover').extends(defaultState, ...baseHover);
+    m.state('focus').extends(defaultState, ...baseFocus);
     m.state('disabled').extends(defaultState, ...baseDisabled);
 
     const errorState = m.state('error').extends(defaultState);
-    m.state('error.hovered').extends(defaultState, errorState);
-    m.state('error.focused').extends(defaultState, errorState);
+    m.state('error.hover').extends(defaultState, errorState);
+    m.state('error.focus').extends(defaultState, errorState);
   };
 }
 export const groupTextFieldTokens: Grouper = (tokenName) => {
@@ -103,7 +113,7 @@ export const groupTextFieldTokens: Grouper = (tokenName) => {
       continue;
     }
 
-    if (TEXT_FIELD_STATE.includes(part)) {
+    if (TEXT_FIELD_STATES.includes(part)) {
       state = part;
       continue;
     }
@@ -111,9 +121,14 @@ export const groupTextFieldTokens: Grouper = (tokenName) => {
     nameParts.push(part);
   }
 
+  const newTokenName = nameParts.join('.');
+
   return {
     path: error ? `${error}.${state}` : state,
-    tokenName: nameParts.join('.'),
+    tokenName:
+      newTokenName === 'active-indicator.height'
+        ? 'active-indicator.thickness'
+        : newTokenName,
   };
 };
 
@@ -131,3 +146,41 @@ export function errorTokenSelector(path: string): boolean {
 
 export const notErrorTokenSelector: Predicate<[path: string]> =
   not(errorTokenSelector);
+
+export function createTextFieldScopedDeclarationRenderer(
+  scope?: Param | null,
+): DeclarationBlockRenderer {
+  return (path, declarations) => {
+    let state: string;
+    let error: string | undefined;
+
+    const index = path.indexOf('.');
+    if (index < 0) {
+      state = path;
+    } else {
+      error = path.slice(0, index);
+      state = path.slice(index + 1);
+    }
+
+    return {
+      path,
+      declarations,
+      selectors: [
+        selector(
+          ':host',
+          scope,
+          error ? pseudoClass('state', error) : null,
+          state === 'default' ? null : TEXT_FIELD_STATE_MAP[state],
+        ),
+      ],
+    };
+  };
+}
+
+export function renderTextFieldStylesInOrder(
+  tokens: ReadonlyArray<ReadonlySignal<TokenPackage>>,
+): string {
+  return TEXT_FIELD_STATES.flatMap((state) =>
+    tokens.map((pack) => pack.value.render({ state })),
+  ).join('\n\n');
+}

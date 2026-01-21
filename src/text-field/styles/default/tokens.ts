@@ -1,9 +1,13 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
+import { pseudoClass } from '../../../.tproc/selector.ts';
 import type { ProcessorAdjuster, TokenSet } from '../../../.tproc/utils.ts';
 import {
   createTextFieldExtensions,
+  createTextFieldScopedDeclarationRenderer,
+  disabledTokenSelector,
+  errorTokenSelector,
   groupTextFieldTokens,
   notDisabledTokenSelector,
   notErrorTokenSelector,
@@ -23,6 +27,7 @@ const specialFilledTokens: TokenSet = {
   'input-text.suffix.gap': '2px',
   'focus.easing': motionEffects['expressive.fast-spatial'],
   'focus.duration': motionEffects['expressive.fast-spatial.duration'],
+  'state-layer.color': 'md.comp.filled-text-field.hover.state-layer.color',
   // It looks like there is some misalignment in token names since
   // active-indicator.height is apparently active-indicator.thickness but they
   // coexist. So here we rename it to active-indicator.thickness to have them
@@ -50,8 +55,32 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
     processor
       .select(notDisabledTokenSelector, notErrorTokenSelector)
       .append('default', specialFilledTokens)
-      .extend(createTextFieldExtensions()),
+      .extend(createTextFieldExtensions())
+      .renderDeclarations(createTextFieldScopedDeclarationRenderer()),
   ),
+);
+
+export const defaultErrorTokens: ReadonlySignal<TokenPackage> = computed(() =>
+  createPackage('filled', (processor) =>
+    processor
+      .select(notDisabledTokenSelector, errorTokenSelector)
+      .extend(createTextFieldExtensions(defaultTokens.value))
+      .renderDeclarations(
+        createTextFieldScopedDeclarationRenderer(pseudoClass('state', 'error')),
+      ),
+  ),
+);
+
+export const defaultDisabledTokens: ReadonlySignal<TokenPackage> = computed(
+  () =>
+    createPackage('filled', (processor) =>
+      processor
+        .select(disabledTokenSelector, notErrorTokenSelector)
+        .extend(createTextFieldExtensions(defaultTokens.value))
+        .renderDeclarations(
+          createTextFieldScopedDeclarationRenderer(pseudoClass('disabled')),
+        ),
+    ),
 );
 
 export const outlinedTokens: ReadonlySignal<TokenPackage> = computed(() =>

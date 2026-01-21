@@ -1,8 +1,9 @@
 import type { EmptyObject } from 'type-fest';
 import '../button/icon-button.ts';
+import { useARIATransfer } from '../core/controllers/useARIA.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
-import { useSlot } from '../core/controllers/useSlot.ts';
+import { useHasSlottedPolyfill } from '../core/controllers/useHasSlottedPolyfill.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
 import {
   impl,
@@ -18,13 +19,12 @@ import {
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import { Disableable } from '../core/traits/disableable.ts';
-import { $, $$ } from '../core/utils/DOM.ts';
+import { $, notify } from '../core/utils/DOM.ts';
 import { join } from '../core/utils/runtime.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import defaultStyles from './styles/default/main.ctr.css' with { type: 'css' };
 import defaultTokens from './styles/default/main.tokens.css.ts' with { type: 'css' };
-import numberStyles from './styles/number/main.ctr.css' with { type: 'css' };
 import textFieldTemplate from './text-field.tpl.html' with { type: 'html' };
 
 export type TextFieldType =
@@ -55,10 +55,12 @@ export type TextFieldProperties = Readonly<{
 export type TextFieldEvents = EmptyObject;
 export type TextFieldCSSProperties = EmptyObject;
 
+type FieldElement = HTMLInputElement | HTMLTextAreaElement;
+
 class FieldImplementation {
   readonly #input: HTMLInputElement;
   readonly #textarea: HTMLTextAreaElement;
-  #current: HTMLInputElement | HTMLTextAreaElement;
+  #current: FieldElement;
 
   constructor(input: HTMLInputElement, textarea: HTMLTextAreaElement) {
     this.#input = input;
@@ -66,7 +68,7 @@ class FieldImplementation {
     this.#current = input;
   }
 
-  get field(): HTMLInputElement | HTMLTextAreaElement {
+  get field(): FieldElement {
     return this.#current;
   }
 
@@ -92,6 +94,8 @@ class FieldImplementation {
     to.hidden = false;
 
     this.#current = to;
+
+    notify(this.#current, 'input', 'change');
   }
 }
 
@@ -103,12 +107,15 @@ export const TextFieldLike: Trait<
     outlined: Bool;
     multiline: Bool;
   }>
-> = trait({
-  type: Str,
-  inputmode: Str,
-  outlined: Bool,
-  multiline: Bool,
-});
+> = trait(
+  {
+    type: Str,
+    inputmode: Str,
+    outlined: Bool,
+    multiline: Bool,
+  },
+  ['value'],
+);
 
 export type TextFieldLike = Disableable & TraitProps<typeof TextFieldLike>;
 
@@ -130,73 +137,55 @@ export default class TextField extends TextFieldCore {
 
   constructor() {
     super();
-    useCore(
-      this,
-      textFieldTemplate,
-      {},
-      [defaultStyles, defaultTokens, numberStyles],
-      { delegatesFocus: true },
-    );
+    useCore(this, textFieldTemplate, {}, [defaultStyles, defaultTokens], {
+      delegatesFocus: true,
+    });
 
     const input = $<HTMLInputElement>(this, '#single')!;
     const textarea = $<HTMLTextAreaElement>(this, '#multi')!;
 
     this.#impl = new FieldImplementation(input, textarea);
+    const internals = getInternals(this);
+
+    useARIATransfer(this, input);
+    useARIATransfer(this, textarea);
 
     useAttributes(this, {
       multiline: (_, newValue) => {
         this.#impl.switch(newValue !== null);
       },
       type: transfer(input, 'type'),
-      inputmode: join(transfer(input, 'inputmode'), transfer(textarea, 'type')),
-      value: (_, newValue) => {
-        this.#impl.field.value = newValue ?? '';
-      },
+      disabled: join(
+        transfer(input, 'disabled'),
+        transfer(textarea, 'disabled'),
+      ),
+      inputmode: join(
+        transfer(input, 'inputmode'),
+        transfer(textarea, 'inputmode'),
+      ),
     });
 
-    const internals = getInternals(this);
-
-    const togglePopulated = () => {
-      if (this.value) {
-        internals.states.add('populated');
-      } else {
-        internals.states.delete('populated');
-      }
-    };
-
     for (const field of this.#impl) {
-      useEvents(this, { input: togglePopulated }, field);
-    }
-
-    for (const stepperId of ['#inc', '#dec']) {
       useEvents(
         this,
         {
-          click:
-            stepperId === '#inc'
-              ? () => {
-                  input.stepUp();
-                  togglePopulated();
-                }
-              : () => {
-                  input.stepDown();
-                  togglePopulated();
-                },
+          input({ target }) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+            if ((target as FieldElement).value) {
+              internals.states.add('populated');
+            } else {
+              internals.states.delete('populated');
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+            internals.setFormValue((target as FieldElement).value);
+          },
         },
-        $(this, stepperId)!,
+        field,
       );
     }
 
     // TODO: Remove when :has-slotted pseudo class becomes baseline
-    for (const element of $$<HTMLSlotElement>(this, 'slot')!) {
-      useSlot(this, element, (slot, elements) => {
-        if (elements.length > 0) {
-          slot.classList.add('has-slotted');
-        } else {
-          slot.classList.remove('has-slotted');
-        }
-      });
-    }
+    useHasSlottedPolyfill(this);
   }
 
   get isPopulated(): boolean {
@@ -205,6 +194,11 @@ export default class TextField extends TextFieldCore {
 
   get value(): string {
     return this.#impl.field.value;
+  }
+
+  set value(value: string | null) {
+    this.#impl.field.value = value ?? '';
+    getInternals(this).setFormValue(value);
   }
 
   checkValidity(): boolean {

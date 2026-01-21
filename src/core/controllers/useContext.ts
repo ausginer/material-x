@@ -1,4 +1,5 @@
 import { use, type ReactiveElement } from '../elements/reactive-element.ts';
+import { DEFAULT_EVENT_INIT } from '../utils/DOM.ts';
 import { useEvents } from './useEvents.ts';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -41,7 +42,7 @@ export function useContext<T>(
 
   use(host, {
     connected() {
-      const event = new ContextEvent(ctx, { bubbles: true, composed: true });
+      const event = new ContextEvent(ctx, DEFAULT_EVENT_INIT);
       host.dispatchEvent(event);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
       disposer = effect(event.value as T | undefined);

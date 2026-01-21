@@ -7,11 +7,9 @@ import {
 import type { ReactiveElement } from '../core/elements/reactive-element.ts';
 import { Checkable, type CheckableProps } from '../core/traits/checkable.ts';
 import { Valuable, type ValuableProps } from '../core/traits/valuable.ts';
-import { $, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
+import { $, notify } from '../core/utils/DOM.ts';
 import { useTargetedARIA } from '../core/utils/useCore.ts';
 import { ButtonCore } from './ButtonCore.ts';
-
-const CHANGE_EVENTS = ['input', 'change'] as const;
 
 export type SwitchProps = CheckableProps & ValuableProps;
 
@@ -28,9 +26,7 @@ export function useSwitch(host: ReactiveElement): void {
 
   useEvents(host, {
     pointerdown() {
-      CHANGE_EVENTS.forEach((name) =>
-        host.dispatchEvent(new Event(name, DEFAULT_EVENT_INIT)),
-      );
+      notify(host, 'input', 'change');
     },
   });
 }

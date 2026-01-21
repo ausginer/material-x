@@ -52,7 +52,7 @@ export type TraitProps<T extends Trait<any, any, any, any>> =
 export function trait<
   T extends HTMLElement,
   P extends Readonly<Record<string, Converter>>,
->(props: P): Trait<T, Accessors<P>> {
+>(props: P, observedOnly: readonly string[] = []): Trait<T, Accessors<P>> {
   const brand = Symbol();
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
@@ -74,8 +74,8 @@ export function trait<
       const newObservedAttributes = attributeEntries.map(([name]) => name);
 
       ctr.observedAttributes = ctr.observedAttributes
-        ? [...ctr.observedAttributes, ...newObservedAttributes]
-        : newObservedAttributes;
+        ? [...ctr.observedAttributes, ...newObservedAttributes, ...observedOnly]
+        : [...newObservedAttributes, ...observedOnly];
 
       Object.defineProperties(
         ctr.prototype,

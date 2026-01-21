@@ -94,3 +94,12 @@ export const DEFAULT_EVENT_INIT: EventInit = {
   composed: true,
   cancelable: true,
 };
+
+export function notify(
+  target: EventTarget,
+  ...events: readonly string[]
+): void {
+  for (const event of events) {
+    target.dispatchEvent(new Event(event, DEFAULT_EVENT_INIT));
+  }
+}

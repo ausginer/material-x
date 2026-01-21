@@ -12,13 +12,13 @@ import {
   type TraitProps,
 } from '../core/elements/impl.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import '../core/styles/elevation/elevation.runtime.ts';
 import elevationStyles from '../core/styles/elevation/elevation.ctr.css' with { type: 'css' };
+import '../core/styles/elevation/elevation.runtime.ts';
 import elevationTokens from '../core/styles/elevation/elevation.tokens.css.ts' with { type: 'css' };
 import focusStyles from '../core/styles/focus/focus.ctr.css' with { type: 'css' };
 import focusTokens from '../core/styles/focus/focus.tokens.css.ts' with { type: 'css' };
 import { Disableable } from '../core/traits/disableable.ts';
-import { $, DEFAULT_EVENT_INIT } from '../core/utils/DOM.ts';
+import { $, notify } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import fabTemplate from './fab.tpl.html' with { type: 'html' };
 import colorTokens from './styles/color/main.tokens.css.ts' with { type: 'css' };
@@ -102,8 +102,7 @@ export default class FAB extends FABCore {
 
     useAttributes(this, {
       disabled: transfer(target, 'disabled'),
-      extended: () =>
-        this.dispatchEvent(new Event('fabtoggle', DEFAULT_EVENT_INIT)),
+      extended: () => notify(this, 'fabtoggle'),
     });
   }
 }

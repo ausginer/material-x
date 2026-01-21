@@ -1,5 +1,5 @@
 :host {
-  --_padding-block: calc(
+  --_margin-block: calc(
       ((var(--_container-height) - var(--_input-text-line-height)) / 2) +
         var(--_container-focus-padding-block)
     )
@@ -7,8 +7,8 @@
 
   display: grid;
   grid-template-areas:
-    '. lead . prefix . field . steppers . suffix . trail .'
-    '. support support support support support support support support support counter counter .';
+    '. lead . prefix . field . suffix . trail .'
+    '. support support support support support support support counter counter .';
   grid-template-columns:
     var(--_padding-inline-start, var(--_container-padding-inline))
     min-content
@@ -16,14 +16,12 @@
     min-content
     var(--_prefix-gap, 0)
     1fr
-    var(--_steppers-gap, 0)
-    min-content
     var(--_suffix-gap, 0)
     min-content
     var(--_trail-icon-gap, 0)
     min-content
     var(--_padding-inline-end, var(--_container-padding-inline));
-  grid-template-rows: auto min-content;
+  grid-template-rows: auto 0;
   position: relative;
 
   &::before {
@@ -57,14 +55,14 @@
   --_suffix-gap: var(--_input-text-suffix-gap);
 }
 
-slot {
+:host:has(.support > .has-slotted) {
+  grid-template-rows: auto min-content;
+}
+
+.presenter {
   display: block;
   align-self: center;
   user-select: none;
-}
-
-#label {
-  display: contents;
 }
 
 /* =======================
@@ -77,7 +75,7 @@ slot {
 .prefix,
 .suffix,
 .input {
-  padding-block: var(--_padding-block);
+  margin-block: var(--_margin-block);
   align-self: flex-end;
   field-sizing: content;
 }
@@ -125,7 +123,7 @@ slot {
   grid-area: suffix;
 }
 
-.label.has-slotted {
+.label:has(.has-slotted) {
   position: absolute;
   grid-area: prefix / prefix / prefix / suffix;
   transform-origin: center left;
@@ -164,11 +162,11 @@ slot {
   line-height: var(--_supporting-text-line-height);
 }
 
-.support.has-slotted {
+.support:has(.has-slotted) {
   grid-area: support;
 }
 
-.counter.has-slotted {
+.counter:has(.has-slotted) {
   grid-area: counter;
 }
 
@@ -178,7 +176,7 @@ slot {
 
 :host(:state(populated)),
 :host(:focus-within) {
-  .label.has-slotted {
+  .label:has(.has-slotted) {
     line-height: var(--_label-text-populated-line-height);
     color: var(--_label-text-color);
     padding-block-start: var(--_container-focus-padding-block);

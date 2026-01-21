@@ -1,13 +1,17 @@
 import type { ReadonlySignal } from '@preact/signals-core';
 import type { ProcessedTokenValue } from '../../.tproc/processTokenSet.ts';
-import { attribute, pseudoClass, selector } from '../../.tproc/selector.ts';
+import {
+  attribute,
+  pseudoClass,
+  selector,
+  type Param,
+} from '../../.tproc/selector.ts';
 import type {
   DeclarationBlockRenderer,
   TokenPackage,
 } from '../../.tproc/TokenPackage.ts';
 import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
 import {
-  componentStateMap,
   createAllowedTokensSelector,
   type GroupResult,
   type GroupSelector,
@@ -26,6 +30,13 @@ export const BUTTON_STATES = [
 ] as const;
 
 export const SELECTION_STATES = ['unselected', 'selected'] as const;
+
+export const BUTTON_STATE_MAP: Readonly<Record<string, Param>> = {
+  hovered: pseudoClass('hover'),
+  focused: pseudoClass('focus-within'),
+  pressed: pseudoClass('active'),
+  disabled: pseudoClass('disabled'),
+};
 
 export function groupButtonTokens(tokenName: string): GroupResult {
   const parts = tokenName.split('.');
@@ -204,7 +215,7 @@ export function createButtonScopedDeclarationRenderer(
 
     const commonParams = [
       selection === 'selected' ? checked : null,
-      state === 'default' ? null : componentStateMap[state],
+      state === 'default' ? null : BUTTON_STATE_MAP[state],
     ];
 
     return {

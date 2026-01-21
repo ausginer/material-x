@@ -2,7 +2,7 @@ import { ReactiveElement } from '../elements/reactive-element.ts';
 import { Checkable } from '../traits/checkable.ts';
 import { Disableable } from '../traits/disableable.ts';
 import { Valuable } from '../traits/valuable.ts';
-import { DEFAULT_EVENT_INIT } from '../utils/DOM.ts';
+import { notify } from '../utils/DOM.ts';
 import { when } from '../utils/runtime.ts';
 import { useAttributes } from './useAttributes.ts';
 import { useEvents } from './useEvents.ts';
@@ -12,18 +12,16 @@ import { useSlot } from './useSlot.ts';
 type Host = ReactiveElement & Valuable;
 type Item = ReactiveElement & Checkable & Valuable & Disableable;
 
-// Match native radio behavior by emitting the same events on selection.
-const CHANGE_EVENTS = ['input', 'change'] as const;
-
-function notify(item: Item): void {
+function notifyFocused(item: Item | undefined, event: Event): void {
   // Keep the host controlled-only: emit events but don't mutate state here.
-  if (item.checked) {
+  if (!item || item.checked) {
     return;
   }
 
-  for (const name of CHANGE_EVENTS) {
-    item.dispatchEvent(new Event(name, DEFAULT_EVENT_INIT));
-  }
+  // Match native radio behavior by emitting the same events on selection.
+  notify(item, 'input', 'change');
+
+  event.preventDefault();
 }
 
 function isItem(node: unknown): node is Item {
@@ -167,21 +165,13 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
   const createEdgeHandler = (edge: Edge): KeyboardListener =>
     when(hasNoKeyModifier, (event) => {
       // Prevent scrolling when moving focus via Home/End.
-      const focused = items.focusEdge(edge);
-      if (focused) {
-        notify(focused);
-        event.preventDefault();
-      }
+      notifyFocused(items.focusEdge(edge), event);
     });
 
   const createStepHandler = (direction: Direction): KeyboardListener =>
     when(hasNoKeyModifier, (event) => {
       // Move focus (wrapping) and emit selection.
-      const focused = items.focus(items.step(direction));
-      if (focused) {
-        notify(focused);
-        event.preventDefault();
-      }
+      notifyFocused(items.focus(items.step(direction)), event);
     });
 
   useSlot(host, slotSelector, (_, elements) => {

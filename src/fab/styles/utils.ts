@@ -6,11 +6,11 @@ import type {
 } from '../../.tproc/TokenPackage.ts';
 import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
 import {
-  componentStateMap,
   createAllowedTokensSelector,
   type Grouper,
   type GroupSelector,
 } from '../../.tproc/utils.ts';
+import { BUTTON_STATE_MAP } from '../../button/styles/utils.ts';
 
 export const FAB_STATES = [
   'default',
@@ -99,7 +99,7 @@ export function createFABScopedDeclarationRenderer(
         ':host',
         scope,
         ...params,
-        path === 'default' ? null : componentStateMap[path],
+        path === 'default' ? null : BUTTON_STATE_MAP[path],
       ),
     ],
   });

@@ -1,4 +1,3 @@
-import { pseudoClass, type Param } from './selector.ts';
 import type { TokenPackageProcessor } from './TokenPackageProcessor.ts';
 import type { Token } from './TokenTable.ts';
 
@@ -46,13 +45,6 @@ export const defaultGrouper: Grouper = (tokenName) => ({
   path: 'default',
   tokenName: tokenName,
 });
-
-export const componentStateMap: Readonly<Record<string, Param>> = {
-  hovered: pseudoClass('hover'),
-  focused: pseudoClass('focus-within'),
-  pressed: pseudoClass('active'),
-  disabled: pseudoClass('disabled'),
-};
 
 /** Converts RGBA byte values to hex, trimming the alpha channel when opaque. */
 export function rgbaToHex(r: number, g: number, b: number, a: number): string {

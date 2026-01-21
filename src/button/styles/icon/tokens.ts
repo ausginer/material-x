@@ -10,7 +10,6 @@ import type {
   TokenPackage,
 } from '../../../.tproc/TokenPackage.ts';
 import {
-  componentStateMap,
   createAllowedTokensSelector,
   type Grouper,
   type ProcessorAdjuster,
@@ -22,6 +21,7 @@ import {
   defaultTokens,
 } from '../default/tokens.ts';
 import {
+  BUTTON_STATE_MAP,
   buttonAllowedTokensSelector,
   buttonMainTokenSelector,
   buttonSwitchTokenSelector,
@@ -169,7 +169,7 @@ function createWidthRenderer(
   const slotted = pseudoElement('slotted', widthAttribute);
 
   return (path, declarations) => {
-    const stateParam = path === 'default' ? null : componentStateMap[path];
+    const stateParam = path === 'default' ? null : BUTTON_STATE_MAP[path];
     const selectors = [
       selector(':host', sizeAttribute, widthAttribute, stateParam),
     ];
