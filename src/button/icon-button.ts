@@ -21,13 +21,11 @@ import {
   type ButtonLike,
 } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
-import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
-import mainElevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
-import mainIconTokens from './styles/icon/main.tokens.css.ts' with { type: 'css' };
-import mainOutlinedStyles from './styles/outlined/main.ctr.css' with { type: 'css' };
-import mainOutlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
-import mainTextTokens from './styles/text/main.tokens.css.ts' with { type: 'css' };
-import mainTonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
+import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
+import mainIconStyles from './styles/icon/main.css.ts' with { type: 'css' };
+import mainOutlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
+import mainTextStyles from './styles/text/main.css.ts' with { type: 'css' };
+import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
 export type IconButtonWidth = 'wide' | 'narrow';
 export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
@@ -79,11 +77,9 @@ export default class IconButton extends IconButtonCore {
     useButtonCore(this, iconButtonTemplate, [
       mainElevatedStyles,
       mainOutlinedStyles,
-      mainElevatedTokens,
-      mainOutlinedTokens,
-      mainTextTokens,
-      mainTonalTokens,
-      mainIconTokens,
+      mainTextStyles,
+      mainTonalStyles,
+      mainIconStyles,
     ]);
   }
 }

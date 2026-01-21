@@ -23,8 +23,7 @@ import { $, notify } from '../core/utils/DOM.ts';
 import { join } from '../core/utils/runtime.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
-import defaultStyles from './styles/default/main.ctr.css' with { type: 'css' };
-import defaultTokens from './styles/default/main.tokens.css.ts' with { type: 'css' };
+import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 import textFieldTemplate from './text-field.tpl.html' with { type: 'html' };
 
 export type TextFieldType =
@@ -137,7 +136,7 @@ export default class TextField extends TextFieldCore {
 
   constructor() {
     super();
-    useCore(this, textFieldTemplate, {}, [defaultStyles, defaultTokens], {
+    useCore(this, textFieldTemplate, {}, [defaultStyles], {
       delegatesFocus: true,
     });
 

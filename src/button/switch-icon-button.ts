@@ -9,18 +9,16 @@ import type { Disableable } from '../core/traits/disableable.ts';
 import { useButtonCore, type ButtonLike } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import { IconButtonLike, type IconButtonProperties } from './icon-button.ts';
-import switchDefaultTokens from './styles/default/switch.tokens.css.ts' with { type: 'css' };
-import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
-import mainElevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
-import switchElevatedTokens from './styles/elevated/switch.tokens.css.ts' with { type: 'css' };
-import mainIconTokens from './styles/icon/main.tokens.css.ts' with { type: 'css' };
-import switchIconTokens from './styles/icon/switch.tokens.css.ts' with { type: 'css' };
-import mainOutlinedStyles from './styles/outlined/main.ctr.css' with { type: 'css' };
-import mainOutlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
-import switchOutlinedTokens from './styles/outlined/switch.tokens.css.ts' with { type: 'css' };
-import switchSizeTokens from './styles/size/switch.tokens.css.ts' with { type: 'css' };
-import mainTonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
-import switchTonalTokens from './styles/tonal/switch.tokens.css.ts' with { type: 'css' };
+import switchDefaultStyles from './styles/default/switch.css.ts' with { type: 'css' };
+import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
+import switchElevatedStyles from './styles/elevated/switch.css.ts' with { type: 'css' };
+import mainIconStyles from './styles/icon/main.css.ts' with { type: 'css' };
+import switchIconStyles from './styles/icon/switch.css.ts' with { type: 'css' };
+import mainOutlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
+import switchOutlinedStyles from './styles/outlined/switch.css.ts' with { type: 'css' };
+import switchSizeStyles from './styles/size/switch.css.ts' with { type: 'css' };
+import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
+import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' };
 import { SwitchCore, useSwitch, type SwitchProps } from './SwitchCore.ts';
 
 export type SwitchIconButtonProperties = IconButtonProperties & SwitchProps;
@@ -65,16 +63,14 @@ export default class SwitchIconButton extends SwitchIconButtonCore {
     useButtonCore(this, iconButtonTemplate, [
       mainElevatedStyles,
       mainOutlinedStyles,
-      mainElevatedTokens,
-      mainOutlinedTokens,
-      mainTonalTokens,
-      mainIconTokens,
-      switchDefaultTokens,
-      switchElevatedTokens,
-      switchOutlinedTokens,
-      switchSizeTokens,
-      switchTonalTokens,
-      switchIconTokens,
+      mainTonalStyles,
+      mainIconStyles,
+      switchDefaultStyles,
+      switchElevatedStyles,
+      switchOutlinedStyles,
+      switchSizeStyles,
+      switchTonalStyles,
+      switchIconStyles,
     ]);
     useSwitch(this);
   }

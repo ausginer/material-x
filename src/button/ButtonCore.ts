@@ -17,19 +17,15 @@ import {
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import '../core/styles/elevation/elevation.runtime.ts';
-import elevationStyles from '../core/styles/elevation/elevation.ctr.css' with { type: 'css' };
-import elevationTokens from '../core/styles/elevation/elevation.tokens.css.ts' with { type: 'css' };
-import focusStyles from '../core/styles/focus/focus.ctr.css' with { type: 'css' };
-import focusTokens from '../core/styles/focus/focus.tokens.css.ts' with { type: 'css' };
+import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
+import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import { Disableable } from '../core/traits/disableable.ts';
 import { $ } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
-import disabledStyles from './styles/default/disabled.ctr.css' with { type: 'css' };
-import disabledTokens from './styles/default/disabled.tokens.css.ts' with { type: 'css' };
-import defaultMainStyles from './styles/default/main.ctr.css' with { type: 'css' };
-import defaultTokens from './styles/default/main.tokens.css.ts' with { type: 'css' };
-import shapeTokens from './styles/shape/main.tokens.css.ts' with { type: 'css' };
-import sizeTokens from './styles/size/main.tokens.css.ts' with { type: 'css' };
+import disabledStyles from './styles/default/disabled.css.ts' with { type: 'css' };
+import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
+import shapeStyles from './styles/shape/main.css.ts' with { type: 'css' };
+import sizeStyles from './styles/size/main.css.ts' with { type: 'css' };
 
 export const DEFAULT_BUTTON_ATTRIBUTES: Readonly<{
   color: Str;
@@ -81,7 +77,7 @@ function updateByContext(
 export function useButtonCore(
   host: ButtonLike & ReactiveElement,
   template: HTMLTemplateElement,
-  styles: CSSStyleSheet[],
+  styles: ReadonlyArray<CSSStyleSheet | string>,
   init?: Partial<ShadowRootInit>,
 ): void {
   const shadowInit = { delegatesFocus: true, ...init };
@@ -91,16 +87,12 @@ export function useButtonCore(
     template,
     {},
     [
-      shapeTokens,
-      defaultTokens,
-      defaultMainStyles,
-      elevationTokens,
+      shapeStyles,
+      defaultStyles,
       elevationStyles,
-      focusTokens,
       focusStyles,
-      sizeTokens,
+      sizeStyles,
       ...styles,
-      disabledTokens,
       disabledStyles,
     ],
     shadowInit,

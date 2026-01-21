@@ -6,12 +6,10 @@ import {
   useButtonCore,
   type ButtonCoreProperties,
 } from './ButtonCore.ts';
-import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
-import elevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
-import mainOutlinedStyles from './styles/outlined/main.ctr.css' with { type: 'css' };
-import outlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
-import textTokens from './styles/text/main.tokens.css.ts' with { type: 'css' };
-import tonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
+import elevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
+import outlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
+import textStyles from './styles/text/main.css.ts' with { type: 'css' };
+import tonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
 export type ButtonProperties = ButtonCoreProperties;
 export type ButtonEvents = EmptyObject;
@@ -39,14 +37,7 @@ export default class Button extends ButtonCore {
     useButtonCore(
       this,
       buttonTemplate,
-      [
-        mainElevatedStyles,
-        mainOutlinedStyles,
-        elevatedTokens,
-        outlinedTokens,
-        textTokens,
-        tonalTokens,
-      ],
+      [elevatedStyles, outlinedStyles, textStyles, tonalStyles],
       { delegatesFocus: true },
     );
   }

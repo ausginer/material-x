@@ -12,22 +12,18 @@ import {
   type TraitProps,
 } from '../core/elements/impl.ts';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import elevationStyles from '../core/styles/elevation/elevation.ctr.css' with { type: 'css' };
 import '../core/styles/elevation/elevation.runtime.ts';
-import elevationTokens from '../core/styles/elevation/elevation.tokens.css.ts' with { type: 'css' };
-import focusStyles from '../core/styles/focus/focus.ctr.css' with { type: 'css' };
-import focusTokens from '../core/styles/focus/focus.tokens.css.ts' with { type: 'css' };
+import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
+import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import { Disableable } from '../core/traits/disableable.ts';
 import { $, notify } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import fabTemplate from './fab.tpl.html' with { type: 'html' };
-import colorTokens from './styles/color/main.tokens.css.ts' with { type: 'css' };
-import mainStyles from './styles/default/main.ctr.css' with { type: 'css' };
-import defaultTokens from './styles/default/main.tokens.css.ts' with { type: 'css' };
-import extendedStyles from './styles/extended/main.ctr.css' with { type: 'css' };
-import extendedTokens from './styles/extended/main.tokens.css.ts' with { type: 'css' };
-import sizeTokens from './styles/size/main.tokens.css.ts' with { type: 'css' };
-import tonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
+import colorStyles from './styles/color/main.css.ts' with { type: 'css' };
+import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
+import extendedStyles from './styles/extended/main.css.ts' with { type: 'css' };
+import sizeStyles from './styles/size/main.css.ts' with { type: 'css' };
+import tonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
 export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
@@ -79,17 +75,13 @@ export default class FAB extends FABCore {
   constructor() {
     super();
     useCore(this, fabTemplate, {}, [
-      elevationTokens,
       elevationStyles,
-      focusTokens,
       focusStyles,
-      mainStyles,
-      defaultTokens,
-      colorTokens,
-      sizeTokens,
-      tonalTokens,
+      defaultStyles,
+      colorStyles,
+      sizeStyles,
+      tonalStyles,
       extendedStyles,
-      extendedTokens,
     ]);
 
     const target = $<HTMLButtonElement>(this, '.host')!;

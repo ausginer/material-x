@@ -38,7 +38,7 @@ export function useButtonGroupCore(
   host: ReactiveElement & ButtonGroupLike,
   template: HTMLTemplateElement,
   aria: Partial<ARIAMixin>,
-  styles: CSSStyleSheet[],
+  styles: ReadonlyArray<CSSStyleSheet | string>,
 ): void {
   useCore(host, template, aria, styles);
 

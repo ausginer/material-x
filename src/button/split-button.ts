@@ -14,8 +14,7 @@ import {
 } from './ButtonCore.ts';
 import './icon-button.ts';
 import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
-import splitButtonStyles from './styles/split/main.ctr.css' with { type: 'css' };
-import splitButtonTokens from './styles/split/main.tokens.css.ts' with { type: 'css' };
+import splitButtonStyles from './styles/split/main.css.ts' with { type: 'css' };
 
 export type SplitButtonProperties = Readonly<
   ButtonCoreProperties & {
@@ -51,10 +50,7 @@ export default class SplitButton extends ButtonCore {
 
   constructor() {
     super();
-    useCore(this, splitButtonTemplate, {}, [
-      splitButtonStyles,
-      splitButtonTokens,
-    ]);
+    useCore(this, splitButtonTemplate, {}, [splitButtonStyles]);
 
     useEvents(
       this,

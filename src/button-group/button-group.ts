@@ -8,8 +8,7 @@ import {
 } from '../core/elements/reactive-element.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import { ButtonGroupCore, useButtonGroupCore } from './ButtonGroupCore.ts';
-import standardStyles from './styles/standard/main.ctr.css' with { type: 'css' };
-import standardTokens from './styles/standard/main.tokens.css.ts' with { type: 'css' };
+import standardStyles from './styles/standard/main.css.ts' with { type: 'css' };
 import { getTarget } from './utils.ts';
 
 export type ButtonGroupProperties = ButtonCoreProperties;
@@ -27,7 +26,6 @@ export default class ButtonGroup extends ButtonGroupCore {
     super();
     useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [
       standardStyles,
-      standardTokens,
     ]);
 
     let elements: ReadonlyArray<ButtonLike & ReactiveElement> = [];

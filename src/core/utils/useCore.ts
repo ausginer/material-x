@@ -19,7 +19,7 @@ export function useCore(
   host: ReactiveElement,
   template: HTMLTemplateElement,
   aria: Partial<ARIAMixin>,
-  styles: CSSStyleSheet[],
+  styles: ReadonlyArray<CSSStyleSheet | string>,
   init?: Partial<ShadowRootInit>,
 ): void {
   useShadowDOM(host, template, styles, init);

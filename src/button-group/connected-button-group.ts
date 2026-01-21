@@ -15,8 +15,7 @@ import type { Checkable } from '../core/traits/checkable.ts';
 import { Valuable, type ValuableProps } from '../core/traits/valuable.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import { ButtonGroupCore, useButtonGroupCore } from './ButtonGroupCore.ts';
-import connectedStyles from './styles/connected/main.ctr.css' with { type: 'css' };
-import connectedTokens from './styles/connected/main.tokens.css.ts' with { type: 'css' };
+import connectedStyles from './styles/connected/main.css.ts' with { type: 'css' };
 
 export type ConnectedButtonGroupProperties = ButtonCoreProperties &
   ValuableProps;
@@ -36,7 +35,6 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupCore {
     super();
     useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [
       connectedStyles,
-      connectedTokens,
     ]);
 
     useRovingTabindex(this);

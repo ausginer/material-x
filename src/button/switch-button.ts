@@ -6,16 +6,14 @@ import {
   type ButtonColor,
   type ButtonCoreProperties,
 } from './ButtonCore.ts';
-import switchDefaultTokens from './styles/default/switch.tokens.css.ts' with { type: 'css' };
-import mainElevatedStyles from './styles/elevated/main.ctr.css' with { type: 'css' };
-import mainElevatedTokens from './styles/elevated/main.tokens.css.ts' with { type: 'css' };
-import switchElevatedTokens from './styles/elevated/switch.tokens.css.ts' with { type: 'css' };
-import mainOutlinedStyles from './styles/outlined/main.ctr.css' with { type: 'css' };
-import mainOutlinedTokens from './styles/outlined/main.tokens.css.ts' with { type: 'css' };
-import switchOutlinedTokens from './styles/outlined/switch.tokens.css.ts' with { type: 'css' };
-import switchSizeTokens from './styles/size/switch.tokens.css.ts' with { type: 'css' };
-import mainTonalTokens from './styles/tonal/main.tokens.css.ts' with { type: 'css' };
-import switchTonalTokens from './styles/tonal/switch.tokens.css.ts' with { type: 'css' };
+import switchDefaultStyles from './styles/default/switch.css.ts' with { type: 'css' };
+import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
+import switchElevatedStyles from './styles/elevated/switch.css.ts' with { type: 'css' };
+import mainOutlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
+import switchOutlinedStyles from './styles/outlined/switch.css.ts' with { type: 'css' };
+import switchSizeStyles from './styles/size/switch.css.ts' with { type: 'css' };
+import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
+import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' };
 import { SwitchCore, useSwitch, type SwitchProps } from './SwitchCore.ts';
 
 export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
@@ -44,14 +42,12 @@ export default class SwitchButton extends SwitchCore {
     useButtonCore(this, buttonTemplate, [
       mainElevatedStyles,
       mainOutlinedStyles,
-      mainElevatedTokens,
-      mainOutlinedTokens,
-      mainTonalTokens,
-      switchDefaultTokens,
-      switchElevatedTokens,
-      switchOutlinedTokens,
-      switchSizeTokens,
-      switchTonalTokens,
+      mainTonalStyles,
+      switchDefaultStyles,
+      switchElevatedStyles,
+      switchOutlinedStyles,
+      switchSizeStyles,
+      switchTonalStyles,
     ]);
     useSwitch(this);
   }
