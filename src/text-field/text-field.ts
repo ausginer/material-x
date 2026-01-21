@@ -19,10 +19,11 @@ import {
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import { Disableable } from '../core/traits/disableable.ts';
-import { $, notify } from '../core/utils/DOM.ts';
+import { $, notify, toggleState } from '../core/utils/DOM.ts';
 import { join } from '../core/utils/runtime.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
+import disabledStyles from './styles/default/disabled.css.ts' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 import textFieldTemplate from './text-field.tpl.html' with { type: 'html' };
 
@@ -136,7 +137,7 @@ export default class TextField extends TextFieldCore {
 
   constructor() {
     super();
-    useCore(this, textFieldTemplate, {}, [defaultStyles], {
+    useCore(this, textFieldTemplate, {}, [defaultStyles, disabledStyles], {
       delegatesFocus: true,
     });
 
@@ -169,12 +170,12 @@ export default class TextField extends TextFieldCore {
         this,
         {
           input({ target }) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-            if ((target as FieldElement).value) {
-              internals.states.add('populated');
-            } else {
-              internals.states.delete('populated');
-            }
+            toggleState(
+              internals,
+              'populated',
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+              !!(target as FieldElement).value,
+            );
             // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
             internals.setFormValue((target as FieldElement).value);
           },
@@ -201,11 +202,15 @@ export default class TextField extends TextFieldCore {
   }
 
   checkValidity(): boolean {
-    return getInternals(this).checkValidity();
+    const valid = getInternals(this).checkValidity();
+    toggleState(getInternals(this), 'error', !valid);
+    return valid;
   }
 
   reportValidity(): boolean {
-    return getInternals(this).reportValidity();
+    const valid = getInternals(this).reportValidity();
+    toggleState(getInternals(this), 'error', !valid);
+    return valid;
   }
 
   setValidity(flags?: ValidityStateFlags, message?: string): void {

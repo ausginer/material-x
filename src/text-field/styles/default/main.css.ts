@@ -1,15 +1,10 @@
 import { readFile } from 'node:fs/promises';
 import { renderTextFieldStylesInOrder } from '../utils.ts';
-import {
-  defaultDisabledTokens,
-  defaultErrorTokens,
-  defaultTokens,
-} from './tokens.ts';
+import { defaultErrorTokens, defaultTokens } from './tokens.ts';
 
 const tokens = renderTextFieldStylesInOrder([
   defaultTokens,
   defaultErrorTokens,
-  defaultDisabledTokens,
 ]);
 
 const css = await readFile(

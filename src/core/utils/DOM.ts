@@ -1,6 +1,6 @@
 import type {
-  SiblingUpdateCallback,
   ExistingSiblingUpdateCallback,
+  SiblingUpdateCallback,
 } from '../../button-group/utils.ts';
 
 export function $<K extends keyof HTMLElementTagNameMap>(
@@ -101,5 +101,17 @@ export function notify(
 ): void {
   for (const event of events) {
     target.dispatchEvent(new Event(event, DEFAULT_EVENT_INIT));
+  }
+}
+
+export function toggleState(
+  internals: ElementInternals,
+  state: string,
+  condition: boolean,
+): void {
+  if (condition) {
+    internals.states.add(state);
+  } else {
+    internals.states.delete(state);
   }
 }

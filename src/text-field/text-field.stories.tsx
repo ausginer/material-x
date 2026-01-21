@@ -33,11 +33,22 @@ export const TypeDefault: Story = () => (
 );
 TypeDefault.storyName = 'Type / Default';
 
-export const ModeNumeric: Story = () => (
-  <>
-    <mx-text-field type="number">
-      <div slot="label">Enter amount</div>
-    </mx-text-field>
-  </>
+export const TypeNumber: Story = () => (
+  <mx-text-field type="number">
+    <div slot="label">Enter amount</div>
+  </mx-text-field>
 );
-ModeNumeric.storyName = 'Type / Number';
+TypeNumber.storyName = 'Type / Number';
+
+export const Error: Story = () => (
+  <mx-text-field
+    ref={(element) => {
+      element?.setValidity({ customError: true }, 'Something went wrong');
+      element?.reportValidity();
+    }}
+  >
+    <div slot="label">Enter amount</div>
+    <div slot="support">Something went wrong</div>
+  </mx-text-field>
+);
+Error.storyName = 'Error';

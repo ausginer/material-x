@@ -65,9 +65,7 @@ export const defaultErrorTokens: ReadonlySignal<TokenPackage> = computed(() =>
     processor
       .select(notDisabledTokenSelector, errorTokenSelector)
       .extend(createTextFieldExtensions(defaultTokens.value))
-      .renderDeclarations(
-        createTextFieldScopedDeclarationRenderer(pseudoClass('state', 'error')),
-      ),
+      .renderDeclarations(createTextFieldScopedDeclarationRenderer()),
   ),
 );
 

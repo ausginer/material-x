@@ -13,13 +13,13 @@ import {
 import type { Predicate } from '../../core/utils/runtime.ts';
 import { not } from '../../core/utils/runtime.ts';
 
-export const ERROR_STATE = 'error';
 export const TEXT_FIELD_STATES = [
   'default',
   'hover',
   'focus',
   'disabled',
 ] as const;
+const ERROR_STATE = [null, 'error'];
 
 const TEXT_FIELD_STATE_MAP: Readonly<Record<string, Param>> = {
   hover: pseudoClass('hover'),
@@ -108,8 +108,8 @@ export const groupTextFieldTokens: Grouper = (tokenName) => {
   const nameParts: string[] = [];
 
   for (const part of parts) {
-    if (part === ERROR_STATE) {
-      error = ERROR_STATE;
+    if (part === 'error') {
+      error = 'error';
       continue;
     }
 
@@ -180,7 +180,11 @@ export function createTextFieldScopedDeclarationRenderer(
 export function renderTextFieldStylesInOrder(
   tokens: ReadonlyArray<ReadonlySignal<TokenPackage>>,
 ): string {
-  return TEXT_FIELD_STATES.flatMap((state) =>
-    tokens.map((pack) => pack.value.render({ state })),
+  return ERROR_STATE.flatMap((error) =>
+    TEXT_FIELD_STATES.flatMap((state) =>
+      tokens.map((pack) =>
+        pack.value.render({ state: error ? `${error}.${state}` : state }),
+      ),
+    ),
   ).join('\n\n');
 }
