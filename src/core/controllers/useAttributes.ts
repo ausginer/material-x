@@ -16,6 +16,7 @@ export function useAttributes(
 ): void {
   use(host, {
     attrChanged(name, oldValue, newValue) {
+      console.log({ name, oldValue, newValue });
       if (attributes[name] && oldValue !== newValue) {
         attributes[name](oldValue, newValue);
       }

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 import { glob, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { register } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { execPattern, root, type JSModule } from '../utils.ts';
 
@@ -8,9 +9,11 @@ const cacheDir = new URL('node_modules/.cache/css/', root);
 
 const registry = new Set<string>();
 
-export const CSS_VARIABLE_NAME_REGEXP: RegExp = /(--_[\w-]+)/gu;
+const CSS_VARIABLE_NAME_REGEXP: RegExp = /(--_[\w-]+)/gu;
 
-for await (const filename of glob(['**/*.css.ts', '**/*.css'], {
+register('./styles-import.ts', import.meta.url);
+
+for await (const filename of glob(['**/*.css.ts', '**/*.ctr.css'], {
   cwd: srcDir,
 })) {
   let css: unknown;

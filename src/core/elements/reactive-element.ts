@@ -36,9 +36,9 @@ export let use: (
 
 export let getInternals: (element: ReactiveElement) => ElementInternals;
 
-export type CustomElementStatics = Readonly<{
-  observableAttributes?: readonly string[];
-}>;
+export type CustomElementStatics = {
+  observedAttributes?: readonly string[];
+};
 
 export class ReactiveElement extends HTMLElement {
   static {

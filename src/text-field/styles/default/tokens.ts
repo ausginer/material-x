@@ -1,7 +1,6 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
-import { pseudoClass } from '../../../.tproc/selector.ts';
 import type { ProcessorAdjuster, TokenSet } from '../../../.tproc/utils.ts';
 import {
   createTextFieldExtensions,
@@ -13,8 +12,6 @@ import {
   notErrorTokenSelector,
   textFieldAllowedTokensSelector,
 } from '../utils.ts';
-
-export type Types = 'filled' | 'outlined';
 
 // While there are no tokens for the sizes in this set, they are defined in the
 // measurements section of https://m3.material.io/components/text-fields/specs.
@@ -36,22 +33,17 @@ const specialFilledTokens: TokenSet = {
     'md.comp.filled-text-field.active-indicator.height',
 };
 
-function createPackage(
-  type: Types,
-  adjuster: ProcessorAdjuster = (processor) => processor,
-) {
-  const setName = `md.comp.${type}-text-field`;
-
+function createPackage(adjuster: ProcessorAdjuster = (processor) => processor) {
   return adjuster(
     t
-      .set(setName)
+      .set('md.comp.filled-text-field')
       .group(groupTextFieldTokens)
       .select(textFieldAllowedTokensSelector),
   ).build();
 }
 
 export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createPackage('filled', (processor) =>
+  createPackage((processor) =>
     processor
       .select(notDisabledTokenSelector, notErrorTokenSelector)
       .append('default', specialFilledTokens)
@@ -61,7 +53,7 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
 );
 
 export const defaultErrorTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createPackage('filled', (processor) =>
+  createPackage((processor) =>
     processor
       .select(notDisabledTokenSelector, errorTokenSelector)
       .extend(createTextFieldExtensions(defaultTokens.value))
@@ -71,20 +63,10 @@ export const defaultErrorTokens: ReadonlySignal<TokenPackage> = computed(() =>
 
 export const defaultDisabledTokens: ReadonlySignal<TokenPackage> = computed(
   () =>
-    createPackage('filled', (processor) =>
+    createPackage((processor) =>
       processor
         .select(disabledTokenSelector, notErrorTokenSelector)
         .extend(createTextFieldExtensions(defaultTokens.value))
-        .renderDeclarations(
-          createTextFieldScopedDeclarationRenderer(pseudoClass('disabled')),
-        ),
+        .renderDeclarations(createTextFieldScopedDeclarationRenderer()),
     ),
-);
-
-export const outlinedTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createPackage('outlined', (processor) =>
-    processor
-      .select(notDisabledTokenSelector, notErrorTokenSelector)
-      .extend(createTextFieldExtensions(defaultTokens.value)),
-  ),
 );

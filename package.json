@@ -36,7 +36,6 @@
     "fmt:check": "oxfmt --check",
     "lint": "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts",
     "lint:fix": "npm run lint -- --fix",
-    "sass:debug": "node .scripts/sass.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

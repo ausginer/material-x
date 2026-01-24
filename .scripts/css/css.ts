@@ -3,9 +3,10 @@ import { fileURLToPath } from 'node:url';
 import MagicString from 'magic-string';
 import type { SourceMap } from 'rollup';
 import { cssCache, type JSONModule } from '../utils.ts';
-import { CSS_VARIABLE_NAME_REGEXP } from './collect-props.ts';
 import format from './format.ts';
 import transform from './transform.ts';
+
+const CSS_VARIABLE_NAME_REGEXP = /(--_[\w-]+)/gu;
 
 const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
   await import(fileURLToPath(new URL('css-private-props.json', cssCache)), {

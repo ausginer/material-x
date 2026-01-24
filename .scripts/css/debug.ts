@@ -1,3 +1,4 @@
+import { register } from 'node:module';
 import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -18,6 +19,8 @@ const {
 if (!file) {
   throw new Error('Provide CSS TS file to print');
 }
+
+register('./styles-import.ts', import.meta.url);
 
 const url = new URL(file, root);
 

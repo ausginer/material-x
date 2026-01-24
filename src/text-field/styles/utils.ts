@@ -24,6 +24,7 @@ const ERROR_STATE = [null, 'error'];
 const TEXT_FIELD_STATE_MAP: Readonly<Record<string, Param>> = {
   hover: pseudoClass('hover'),
   focus: pseudoClass('focus-within'),
+  disabled: pseudoClass('disabled'),
 };
 
 export const textFieldAllowedTokensSelector: GroupSelector =
@@ -82,6 +83,7 @@ export const textFieldAllowedTokensSelector: GroupSelector =
     'active-indicator.opacity',
     'container.opacity',
   ]);
+
 export function createTextFieldExtensions(
   ...bases: readonly TokenPackage[]
 ): ExtensionCallback {
@@ -132,13 +134,23 @@ export const groupTextFieldTokens: Grouper = (tokenName) => {
   };
 };
 
-export function disabledTokenSelector(path: string): boolean {
-  return path === 'disabled';
+const ALLOWED_DISABLED_TOKENS = [
+  'container.color',
+  'container.opacity',
+  'label-text.color',
+  'label-text.opacity',
+];
+
+export function disabledTokenSelector(
+  path: string,
+  tokenName?: string,
+): boolean {
+  return path === 'disabled' && ALLOWED_DISABLED_TOKENS.includes(tokenName);
 }
 
-export const notDisabledTokenSelector: Predicate<[path: string]> = not(
-  disabledTokenSelector,
-);
+export const notDisabledTokenSelector: Predicate<
+  [path: string, tokenName?: string]
+> = not(disabledTokenSelector);
 
 export function errorTokenSelector(path: string): boolean {
   return path.startsWith('error');

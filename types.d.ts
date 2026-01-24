@@ -32,8 +32,13 @@ declare module '*.ctr.css' {
   export default styles;
 }
 
-declare module '*.ts?type=css' {
+declare module '*.css.ts' {
   const styles: CSSStyleSheet;
+  export default styles;
+}
+
+declare module '*.styles.css' {
+  const styles: string;
   export default styles;
 }
 

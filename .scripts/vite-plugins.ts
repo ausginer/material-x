@@ -209,6 +209,10 @@ export function constructCSSTokens(
                 fileURLToPath(
                   new URL('./css/deps-tracker.ts', import.meta.url),
                 ),
+                '--import',
+                fileURLToPath(
+                  new URL('./css/styles-import.ts', import.meta.url),
+                ),
               ],
               workerData: {
                 id: cleanId,

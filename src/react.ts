@@ -16,7 +16,7 @@ import type LinkButton from './button/link-button.ts';
 import type {
   LinkButtonCSSProperties,
   LinkButtonEvents,
-  LinkButtonProperties,
+  LinkButtonProps,
 } from './button/link-button.ts';
 import type SplitButton from './button/split-button.ts';
 import type {
@@ -83,11 +83,7 @@ type IconButtonJSX = JSXWrapper<
   IconButtonEvents
 >;
 
-type LinkButtonJSX = JSXWrapper<
-  LinkButton,
-  LinkButtonProperties,
-  LinkButtonEvents
->;
+type LinkButtonJSX = JSXWrapper<LinkButton, LinkButtonProps, LinkButtonEvents>;
 
 type SplitButtonJSX = JSXWrapper<
   SplitButton,

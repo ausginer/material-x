@@ -20,7 +20,7 @@ const storyDefault: StoryDefault = {
 
 export default storyDefault;
 
-export const TypeDefault: Story = () => (
+export const DefaultRegular: Story = () => (
   <mx-text-field>
     <mx-icon slot="lead">search</mx-icon>
     <mx-icon slot="trail">cancel</mx-icon>
@@ -31,16 +31,16 @@ export const TypeDefault: Story = () => (
     <div slot="counter">5/25</div>
   </mx-text-field>
 );
-TypeDefault.storyName = 'Type / Default';
+DefaultRegular.storyName = 'Default / Regular';
 
-export const TypeNumber: Story = () => (
+export const DefaultNumber: Story = () => (
   <mx-text-field type="number">
     <div slot="label">Enter amount</div>
   </mx-text-field>
 );
-TypeNumber.storyName = 'Type / Number';
+DefaultNumber.storyName = 'Default / Number';
 
-export const Error: Story = () => (
+export const DefaultError: Story = () => (
   <mx-text-field
     ref={(element) => {
       element?.setValidity({ customError: true }, 'Something went wrong');
@@ -51,4 +51,30 @@ export const Error: Story = () => (
     <div slot="support">Something went wrong</div>
   </mx-text-field>
 );
-Error.storyName = 'Error';
+DefaultError.storyName = 'Default / Error';
+
+export const DefaultDisabled: Story = () => (
+  <mx-text-field disabled>
+    <mx-icon slot="lead">search</mx-icon>
+    <mx-icon slot="trail">cancel</mx-icon>
+    <span slot="prefix">$</span>
+    <div slot="label">Label Text</div>
+    <span slot="suffix">/ 30</span>
+    <div slot="support">Supporting text</div>
+    <div slot="counter">5/25</div>
+  </mx-text-field>
+);
+DefaultDisabled.storyName = 'Default / Disabled';
+
+export const OutlinedRegular: Story = () => (
+  <mx-text-field outlined>
+    <mx-icon slot="lead">search</mx-icon>
+    <mx-icon slot="trail">cancel</mx-icon>
+    <span slot="prefix">$</span>
+    <div slot="label">Label Text</div>
+    <span slot="suffix">/ 30</span>
+    <div slot="support">Supporting text</div>
+    <div slot="counter">5/25</div>
+  </mx-text-field>
+);
+OutlinedRegular.storyName = 'Outlined / Regular';

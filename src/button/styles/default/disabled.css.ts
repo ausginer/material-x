@@ -1,12 +1,7 @@
-import { readFile } from 'node:fs/promises';
+import css from './disabled.styles.css';
 import { disabledTokens } from './tokens.ts';
 
 const tokens = disabledTokens.value.render();
-
-const css = await readFile(
-  new URL('./disabled.styles.css', import.meta.url),
-  'utf8',
-);
 
 const styles: string = [tokens, css].join('\n\n');
 
