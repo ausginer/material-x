@@ -1,5 +1,8 @@
-export type NullablePrimitive<T extends string | boolean | number> =
-  T extends boolean ? T : T | null;
+export type AttributePrimitive = boolean | number | string;
+
+export type NullablePrimitive<T extends AttributePrimitive> = T extends boolean
+  ? T
+  : T | null;
 
 export const Bool = [
   (value: string | null): boolean => value !== null,
@@ -22,13 +25,19 @@ export type Str = typeof Str;
 
 export type Converter = Bool | Num | Str;
 
-export type ConverterTypes<C extends Converter> = C extends Bool
+export type FromConverter<C extends Converter> = C extends Bool
   ? boolean
   : C extends Num
     ? number
     : C extends Str
       ? string
       : never;
+
+export type ToConverter<T extends AttributePrimitive> = T extends boolean
+  ? Bool
+  : T extends number
+    ? Num
+    : Str;
 
 export interface AttributeOperator {
   get(host: HTMLElement, name: string, converter: Bool): boolean;
@@ -38,7 +47,7 @@ export interface AttributeOperator {
     host: HTMLElement,
     name: string,
     converter: Converter,
-  ): boolean | number | string | null;
+  ): AttributePrimitive | null;
 
   set(host: HTMLElement, name: string, value: boolean, converter: Bool): void;
   set(
@@ -56,7 +65,7 @@ export interface AttributeOperator {
   set(
     host: HTMLElement,
     name: string,
-    value: boolean | number | string | null,
+    value: AttributePrimitive | null,
     converter: Converter,
   ): void;
 

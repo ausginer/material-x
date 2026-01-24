@@ -1,8 +1,18 @@
-import type { EmptyObject } from 'type-fest';
+import type { EmptyObject, Simplify } from 'type-fest';
 import '../button-group/connected-button-group.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
+import { Bool } from '../core/elements/attribute.ts';
 import { define } from '../core/elements/reactive-element.ts';
+import {
+  impl,
+  trait,
+  type ConstructorWithTraits,
+  type Interface,
+  type Props,
+  type Trait,
+  type Traits,
+} from '../core/elements/traits.ts';
 import { $, notify } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
@@ -10,18 +20,37 @@ import './button.ts';
 import {
   ButtonCore,
   DEFAULT_BUTTON_ATTRIBUTES,
-  type ButtonCoreProperties,
+  type ButtonCoreProps,
 } from './ButtonCore.ts';
 import './icon-button.ts';
 import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
 import splitButtonStyles from './styles/split/main.css.ts' with { type: 'css' };
 
-export type SplitButtonProperties = Readonly<
-  ButtonCoreProperties & {
-    open?: boolean;
-  }
->;
+type SplitButtonLikeDescriptor = {
+  open: boolean;
+};
 
+const $splitButtonLike: unique symbol = Symbol('SplitButtonLike');
+
+export const SplitButtonLike: Trait<
+  SplitButtonLikeDescriptor,
+  typeof $splitButtonLike
+> = trait<SplitButtonLikeDescriptor, typeof $splitButtonLike>(
+  { open: Bool },
+  $splitButtonLike,
+);
+
+export type SplitButtonLike = Interface<typeof SplitButtonLike>;
+export type SplitButtonLikeProps = Props<typeof SplitButtonLike>;
+
+export const SplitButtonCore: ConstructorWithTraits<
+  InstanceType<typeof ButtonCore>,
+  [...Traits<typeof ButtonCore>, typeof SplitButtonLike]
+> = impl(ButtonCore, [SplitButtonLike]);
+
+export type SplitButtonProperties = Simplify<
+  ButtonCoreProps & SplitButtonLikeProps
+>;
 export type SplitButtonEvents = Readonly<{
   toggle: Event;
 }>;
@@ -45,7 +74,7 @@ export type SplitButtonCSSProperties = EmptyObject;
  * @attr {string} size
  * @attr {string} shape
  */
-export default class SplitButton extends ButtonCore {
+export default class SplitButton extends SplitButtonCore {
   static readonly formAssociated = true;
 
   constructor() {

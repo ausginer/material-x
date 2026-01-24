@@ -1,18 +1,18 @@
 import { Bool } from '../elements/attribute.ts';
 import {
   trait,
-  type Accessors,
+  type Interface,
+  type Props,
   type Trait,
-  type TraitProps,
-} from '../elements/impl.ts';
+} from '../elements/traits.ts';
 
-export const Checkable: Trait<
-  HTMLElement,
-  Accessors<{ checked: Bool }>
-> = trait({ checked: Bool });
+type CheckableDescriptor = { checked: boolean };
+const $checkable: unique symbol = Symbol('Checkable');
 
-export type Checkable = TraitProps<typeof Checkable>;
+export const Checkable: Trait<CheckableDescriptor, typeof $checkable> = trait<
+  CheckableDescriptor,
+  typeof $checkable
+>({ checked: Bool }, $checkable);
 
-export type CheckableProps = Readonly<{
-  checked?: boolean;
-}>;
+export type Checkable = Interface<typeof Checkable>;
+export type CheckableProps = Props<typeof Checkable>;

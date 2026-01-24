@@ -4,7 +4,7 @@ import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {
   useButtonCore,
   type ButtonColor,
-  type ButtonCoreProperties,
+  type ButtonCoreProps,
 } from './ButtonCore.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts' with { type: 'css' };
 import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
@@ -18,7 +18,7 @@ import { SwitchCore, useSwitch, type SwitchProps } from './SwitchCore.ts';
 
 export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
 
-export type SwitchButtonProperties = ButtonCoreProperties &
+export type SwitchButtonProperties = ButtonCoreProps &
   SwitchProps &
   Readonly<{
     color?: SwitchButtonColor;

@@ -1,23 +1,20 @@
-import type { EmptyObject } from 'type-fest';
+import type { EmptyObject, Simplify } from 'type-fest';
 import { Str } from '../core/elements/attribute.ts';
+import { define } from '../core/elements/reactive-element.ts';
 import {
   impl,
   trait,
-  type Accessors,
-  type AppliedTraits,
   type ConstructorWithTraits,
+  type Interface,
+  type Props,
   type Trait,
-  type TraitProps,
-} from '../core/elements/impl.ts';
-import {
-  define,
-  type ReactiveElement,
-} from '../core/elements/reactive-element.ts';
+  type Traits,
+} from '../core/elements/traits.ts';
 import {
   ButtonCore,
   useButtonCore,
   type ButtonColor,
-  type ButtonCoreProperties,
+  type ButtonCoreProps,
   type ButtonLike,
 } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
@@ -30,26 +27,40 @@ import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 export type IconButtonWidth = 'wide' | 'narrow';
 export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
 
-export type IconButtonProperties = Readonly<
-  Omit<ButtonCoreProperties, 'color'> & {
-    color?: IconButtonColor;
-    width?: IconButtonWidth;
-  }
+type IconButtonLikeDescriptor = {
+  width: IconButtonWidth;
+};
+
+const $iconButtonLike: unique symbol = Symbol('IconButtonLike');
+
+export const IconButtonLike: Trait<
+  IconButtonLikeDescriptor,
+  typeof $iconButtonLike
+> = trait<IconButtonLikeDescriptor, typeof $iconButtonLike>(
+  { width: Str },
+  $iconButtonLike,
+);
+
+export type IconButtonLike = Omit<ButtonLike, 'color'> & {
+  color: IconButtonColor | null;
+} & Interface<typeof IconButtonLike>;
+
+export type IconButtonLikeProps = Props<typeof IconButtonLike>;
+
+const IconButtonCore: ConstructorWithTraits<
+  InstanceType<typeof ButtonCore>,
+  [...Traits<typeof ButtonCore>, typeof IconButtonLike]
+> = impl(ButtonCore, [IconButtonLike]);
+
+export type IconButtonProperties = Simplify<
+  Omit<ButtonCoreProps, 'color'> &
+    IconButtonLikeProps &
+    Readonly<{
+      color?: IconButtonColor;
+    }>
 >;
 export type IconButtonEvents = EmptyObject;
 export type IconButtonCSSProperties = EmptyObject;
-
-export const IconButtonLike: Trait<
-  HTMLElement,
-  Accessors<{ width: Str }>
-> = trait({ width: Str });
-
-export type IconButtonLike = ButtonLike & TraitProps<typeof IconButtonLike>;
-
-const IconButtonCore: ConstructorWithTraits<
-  ReactiveElement,
-  [...AppliedTraits<typeof ButtonCore>, typeof IconButtonLike]
-> = impl(ButtonCore, [IconButtonLike]);
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically

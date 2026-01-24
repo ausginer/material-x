@@ -1,30 +1,29 @@
 import type { EmptyObject } from 'type-fest';
-import type { ButtonCoreProperties, ButtonLike } from '../button/ButtonCore.ts';
+import type { ButtonCoreProps, ButtonLike } from '../button/ButtonCore.ts';
 import { useRovingTabindex } from '../core/controllers/useRovingTabindex.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
-import {
-  impl,
-  type AppliedTraits,
-  type ConstructorWithTraits,
-} from '../core/elements/impl.ts';
 import {
   define,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
+import {
+  impl,
+  type ConstructorWithTraits,
+  type Traits,
+} from '../core/elements/traits.ts';
 import type { Checkable } from '../core/traits/checkable.ts';
 import { Valuable, type ValuableProps } from '../core/traits/valuable.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import { ButtonGroupCore, useButtonGroupCore } from './ButtonGroupCore.ts';
 import connectedStyles from './styles/connected/main.css.ts' with { type: 'css' };
 
-export type ConnectedButtonGroupProperties = ButtonCoreProperties &
-  ValuableProps;
+export type ConnectedButtonGroupProperties = ButtonCoreProps & ValuableProps;
 export type ConnectedButtonGroupEvents = EmptyObject;
 export type ConnectedButtonGroupCSSProperties = EmptyObject;
 
 const ConnectedButtonGroupCore: ConstructorWithTraits<
-  ReactiveElement,
-  [...AppliedTraits<typeof ButtonGroupCore>, typeof Valuable]
+  InstanceType<typeof ButtonGroupCore>,
+  [...Traits<typeof ButtonGroupCore>, typeof Valuable]
 > = impl(ButtonGroupCore, [Valuable]);
 
 /**

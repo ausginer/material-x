@@ -4,14 +4,14 @@ import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {
   ButtonCore,
   useButtonCore,
-  type ButtonCoreProperties,
+  type ButtonCoreProps,
 } from './ButtonCore.ts';
 import elevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
 import outlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
 import textStyles from './styles/text/main.css.ts' with { type: 'css' };
 import tonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
-export type ButtonProperties = ButtonCoreProperties;
+export type ButtonProperties = ButtonCoreProps;
 export type ButtonEvents = EmptyObject;
 export type ButtonCSSProperties = EmptyObject;
 

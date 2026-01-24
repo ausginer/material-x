@@ -6,25 +6,28 @@ import { useEvents } from '../core/controllers/useEvents.ts';
 import { useHasSlottedPolyfill } from '../core/controllers/useHasSlottedPolyfill.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
 import {
-  impl,
-  trait,
-  type Accessors,
-  type ConstructorWithTraits,
-  type Trait,
-  type TraitProps,
-} from '../core/elements/impl.ts';
-import {
   define,
   getInternals,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import { Disableable } from '../core/traits/disableable.ts';
+import {
+  impl,
+  trait,
+  type ConstructorWithTraits,
+  type Interface,
+  type Props,
+  type Trait,
+} from '../core/elements/traits.ts';
+import {
+  Disableable,
+  type DisableableProps,
+} from '../core/traits/disableable.ts';
 import { $, notify, toggleState } from '../core/utils/DOM.ts';
 import { join } from '../core/utils/runtime.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
-import disabledStyles from './styles/default/disabled.css.ts' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
+import outlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
 import textFieldTemplate from './text-field.tpl.html' with { type: 'html' };
 
 export type TextFieldType =
@@ -45,15 +48,6 @@ export type TextFieldInputMode =
   | 'decimal'
   | 'email'
   | 'none';
-
-export type TextFieldProperties = Readonly<{
-  outlined?: boolean;
-  type?: TextFieldType;
-  inputmode?: TextFieldInputMode;
-}>;
-
-export type TextFieldEvents = EmptyObject;
-export type TextFieldCSSProperties = EmptyObject;
 
 type FieldElement = HTMLInputElement | HTMLTextAreaElement;
 
@@ -99,25 +93,34 @@ class FieldImplementation {
   }
 }
 
+type TextFieldLikeDescriptor = {
+  type: TextFieldType;
+  inputmode: TextFieldInputMode;
+  outlined: boolean;
+  multiline: boolean;
+};
+
+const $textFieldLike: unique symbol = Symbol('TextFieldLike');
+
 export const TextFieldLike: Trait<
-  ReactiveElement,
-  Accessors<{
-    type: Str;
-    inputmode: Str;
-    outlined: Bool;
-    multiline: Bool;
-  }>
-> = trait(
+  TextFieldLikeDescriptor,
+  typeof $textFieldLike
+> = trait<TextFieldLikeDescriptor, typeof $textFieldLike>(
   {
     type: Str,
     inputmode: Str,
     outlined: Bool,
     multiline: Bool,
   },
-  ['value'],
+  $textFieldLike,
 );
 
-export type TextFieldLike = Disableable & TraitProps<typeof TextFieldLike>;
+export type TextFieldLike = Interface<typeof TextFieldLike>;
+export type TextFieldLikeProps = Props<typeof TextFieldLike>;
+
+export type TextFieldProperties = TextFieldLikeProps & DisableableProps;
+export type TextFieldEvents = EmptyObject;
+export type TextFieldCSSProperties = EmptyObject;
 
 const TextFieldCore: ConstructorWithTraits<
   ReactiveElement,
@@ -137,7 +140,7 @@ export default class TextField extends TextFieldCore {
 
   constructor() {
     super();
-    useCore(this, textFieldTemplate, {}, [defaultStyles, disabledStyles], {
+    useCore(this, textFieldTemplate, {}, [defaultStyles, outlinedStyles], {
       delegatesFocus: true,
     });
 

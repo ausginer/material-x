@@ -5,27 +5,34 @@ import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useContext } from '../core/controllers/useContext.ts';
 import { Str } from '../core/elements/attribute.ts';
 import {
-  impl,
-  trait,
-  type Accessors,
-  type ConstructorWithTraits,
-  type Trait,
-  type TraitProps,
-} from '../core/elements/impl.ts';
-import {
   getInternals,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import '../core/styles/elevation/elevation.runtime.ts';
+import {
+  impl,
+  trait,
+  type ConstructorWithTraits,
+  type Interface,
+  type Props,
+  type Trait,
+} from '../core/elements/traits.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
+import '../core/styles/elevation/elevation.runtime.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
-import { Disableable } from '../core/traits/disableable.ts';
+import {
+  Disableable,
+  type DisableableProps,
+} from '../core/traits/disableable.ts';
 import { $ } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import disabledStyles from './styles/default/disabled.css.ts' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 import shapeStyles from './styles/shape/main.css.ts' with { type: 'css' };
 import sizeStyles from './styles/size/main.css.ts' with { type: 'css' };
+
+export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
+export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';
+export type ButtonShape = 'round' | 'square';
 
 export const DEFAULT_BUTTON_ATTRIBUTES: Readonly<{
   color: Str;
@@ -37,28 +44,29 @@ export const DEFAULT_BUTTON_ATTRIBUTES: Readonly<{
   shape: Str,
 };
 
-export const ButtonLike: Trait<
-  ReactiveElement,
-  Accessors<typeof DEFAULT_BUTTON_ATTRIBUTES>
-> = trait(DEFAULT_BUTTON_ATTRIBUTES);
+export type ButtonLikeDescriptor = {
+  color: ButtonColor;
+  size: ButtonSize;
+  shape: ButtonShape;
+};
 
-export type ButtonLike = Disableable & TraitProps<typeof ButtonLike>;
+const $buttonLike: unique symbol = Symbol('ButtonLike');
+
+export const ButtonLike: Trait<ButtonLikeDescriptor, typeof $buttonLike> =
+  trait<ButtonLikeDescriptor, typeof $buttonLike>(
+    DEFAULT_BUTTON_ATTRIBUTES,
+    $buttonLike,
+  );
+
+export type ButtonLike = Interface<typeof ButtonLike>;
+export type ButtonLikeProps = Props<typeof ButtonLike>;
 
 export const ButtonCore: ConstructorWithTraits<
   ReactiveElement,
   [typeof ButtonLike, typeof Disableable]
 > = impl(ReactiveElement, [ButtonLike, Disableable]);
 
-export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
-export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';
-export type ButtonShape = 'round' | 'square';
-
-export type ButtonCoreProperties = Readonly<{
-  color?: ButtonColor;
-  size?: ButtonSize;
-  shape?: ButtonShape;
-  disabled?: boolean;
-}>;
+export type ButtonCoreProps = ButtonLikeProps & DisableableProps;
 
 function updateByContext(
   internals: ElementInternals,

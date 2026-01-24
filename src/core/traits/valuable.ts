@@ -1,18 +1,19 @@
 import { Str } from '../elements/attribute.ts';
 import {
   trait,
-  type Accessors,
+  type Interface,
+  type Props,
   type Trait,
-  type TraitProps,
-} from '../elements/impl.ts';
+} from '../elements/traits.ts';
 
-export const Valuable: Trait<HTMLElement, Accessors<{ value: Str }>> = trait({
-  value: Str,
-});
+type ValuableDescriptor = { value: string };
 
-export type Valuable = TraitProps<typeof Valuable>;
+const $valuable: unique symbol = Symbol('Valuable');
 
-export type ValuableProps = Readonly<{
-  checked?: boolean;
-  value?: string;
-}>;
+export const Valuable: Trait<ValuableDescriptor, typeof $valuable> = trait<
+  ValuableDescriptor,
+  typeof $valuable
+>({ value: Str }, $valuable);
+
+export type Valuable = Interface<typeof Valuable>;
+export type ValuableProps = Props<typeof Valuable>;

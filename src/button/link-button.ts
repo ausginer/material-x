@@ -1,26 +1,22 @@
-import type { EmptyObject } from 'type-fest';
+import type { EmptyObject, Simplify } from 'type-fest';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { ATTRIBUTE, Str } from '../core/elements/attribute.ts';
+import { define } from '../core/elements/reactive-element.ts';
 import {
   impl,
   trait,
-  type Accessors,
-  type AppliedTraits,
   type ConstructorWithTraits,
+  type Interface,
+  type Props,
   type Trait,
-  type TraitProps,
-} from '../core/elements/impl.ts';
-import {
-  define,
-  type ReactiveElement,
-} from '../core/elements/reactive-element.ts';
+  type Traits,
+} from '../core/elements/traits.ts';
 import { $ } from '../core/utils/DOM.ts';
 import {
   ButtonCore,
   useButtonCore,
-  type ButtonCoreProperties,
-  type ButtonLike,
+  type ButtonCoreProps,
 } from './ButtonCore.ts';
 import linkButtonTemplate from './link-button.tpl.html' with { type: 'html' };
 import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
@@ -28,27 +24,35 @@ import mainOutlinedStyles from './styles/outlined/main.css.ts' with { type: 'css
 import mainTextStyles from './styles/text/main.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
-export type LinkButtonProperties = Readonly<
-  ButtonCoreProperties & {
-    href?: HTMLAnchorElement['href'];
-    target?: HTMLAnchorElement['target'];
-  }
->;
+type LinkButtonLikeDescriptor = {
+  href: HTMLAnchorElement['href'];
+  target: HTMLAnchorElement['target'];
+};
 
-export type LinkButtonEvents = EmptyObject;
-export type LinkButtonCSSProperties = EmptyObject;
+const $linkButtonLike: unique symbol = Symbol('LinkButtonLike');
 
 export const LinkButtonLike: Trait<
-  HTMLElement,
-  Accessors<{ href: Str; target: Str }>
-> = trait({ href: Str, target: Str });
+  LinkButtonLikeDescriptor,
+  typeof $linkButtonLike
+> = trait<LinkButtonLikeDescriptor, typeof $linkButtonLike>(
+  {
+    href: Str,
+    target: Str,
+  },
+  $linkButtonLike,
+);
 
-export type LinkButtonLike = ButtonLike & TraitProps<typeof LinkButtonLike>;
+export type LinkButtonLike = Interface<typeof LinkButtonLike>;
+export type LinkButtonLikeProps = Props<typeof LinkButtonLike>;
 
 const LinkButtonCore: ConstructorWithTraits<
-  ReactiveElement,
-  [...AppliedTraits<typeof ButtonCore>, typeof LinkButtonLike]
+  InstanceType<typeof ButtonCore>,
+  [...Traits<typeof ButtonCore>, typeof LinkButtonLike]
 > = impl(ButtonCore, [LinkButtonLike]);
+
+export type LinkButtonProps = Simplify<ButtonCoreProps & LinkButtonLikeProps>;
+export type LinkButtonEvents = EmptyObject;
+export type LinkButtonCSSProperties = EmptyObject;
 
 /**
  * @attr {string} color

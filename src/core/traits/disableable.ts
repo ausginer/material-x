@@ -1,14 +1,19 @@
 import { Bool } from '../elements/attribute.ts';
 import {
   trait,
-  type Accessors,
+  type Interface,
+  type Props,
   type Trait,
-  type TraitProps,
-} from '../elements/impl.ts';
+} from '../elements/traits.ts';
 
-export const Disableable: Trait<
-  HTMLElement,
-  Accessors<{ disabled: Bool }>
-> = trait({ disabled: Bool });
+type DisableableDescriptor = { disabled: boolean };
+const $disableable: unique symbol = Symbol('Disableable');
 
-export type Disableable = TraitProps<typeof Disableable>;
+export const Disableable: Trait<DisableableDescriptor, typeof $disableable> =
+  trait<DisableableDescriptor, typeof $disableable>(
+    { disabled: Bool },
+    $disableable,
+  );
+
+export type Disableable = Interface<typeof Disableable>;
+export type DisableableProps = Props<typeof Disableable>;

@@ -3,19 +3,22 @@ import { useRipple } from '../core/animations/ripple.ts';
 import { useARIATransfer } from '../core/controllers/useARIA.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
+import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import {
   impl,
   trait,
-  type Accessors,
   type ConstructorWithTraits,
+  type Interface,
+  type Props,
   type Trait,
-  type TraitProps,
-} from '../core/elements/impl.ts';
-import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
-import '../core/styles/elevation/elevation.runtime.ts';
+} from '../core/elements/traits.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
+import '../core/styles/elevation/elevation.runtime.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
-import { Disableable } from '../core/traits/disableable.ts';
+import {
+  Disableable,
+  type DisableableProps,
+} from '../core/traits/disableable.ts';
 import { $, notify } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import fabTemplate from './fab.tpl.html' with { type: 'html' };
@@ -29,40 +32,41 @@ export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
 export type FABExtended = 'open' | 'closed';
 
-export type FABProperties = Readonly<{
-  size?: FABSize;
-  color?: FABColor;
-  extended?: FABExtended;
-  tonal?: boolean;
-  disabled?: boolean;
-}>;
+type FABLikeDescriptor = {
+  size: FABSize;
+  color: FABColor;
+  extended: FABExtended;
+  tonal: boolean;
+};
 
-export type FABEvents = Readonly<{
-  fabtoggle: Event;
-}>;
+const $fabLike: unique symbol = Symbol('FABLike');
 
-export type FABCSSProperties = EmptyObject;
+export const FABLike: Trait<FABLikeDescriptor, typeof $fabLike> = trait<
+  FABLikeDescriptor,
+  typeof $fabLike
+>(
+  {
+    size: Str,
+    color: Str,
+    extended: Str,
+    tonal: Bool,
+  },
+  $fabLike,
+);
 
-export const FABLike: Trait<
-  HTMLElement,
-  Accessors<{
-    size: Str;
-    color: Str;
-    extended: Str;
-    tonal: Bool;
-  }>
-> = trait({
-  size: Str,
-  color: Str,
-  extended: Str,
-  tonal: Bool,
-});
-export type FABLike = Disableable & TraitProps<typeof FABLike>;
+export type FABLike = Interface<typeof FABLike>;
+export type FABLikeProps = Props<typeof FABLike>;
 
 const FABCore: ConstructorWithTraits<
   ReactiveElement,
-  [typeof Disableable, typeof FABLike]
-> = impl(ReactiveElement, [Disableable, FABLike]);
+  [typeof FABLike, typeof Disableable]
+> = impl(ReactiveElement, [FABLike, Disableable]);
+
+export type FABProperties = Readonly<FABLikeProps & DisableableProps>;
+export type FABEvents = Readonly<{
+  fabtoggle: Event;
+}>;
+export type FABCSSProperties = EmptyObject;
 
 /**
  * @attr {FABSize} size

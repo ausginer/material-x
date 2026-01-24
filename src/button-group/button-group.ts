@@ -1,5 +1,5 @@
 import type { EmptyObject } from 'type-fest';
-import type { ButtonCoreProperties, ButtonLike } from '../button/ButtonCore.ts';
+import type { ButtonCoreProps, ButtonLike } from '../button/ButtonCore.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import {
@@ -11,7 +11,7 @@ import { ButtonGroupCore, useButtonGroupCore } from './ButtonGroupCore.ts';
 import standardStyles from './styles/standard/main.css.ts' with { type: 'css' };
 import { getTarget } from './utils.ts';
 
-export type ButtonGroupProperties = ButtonCoreProperties;
+export type ButtonGroupProperties = ButtonCoreProps;
 export type ButtonGroupEvents = EmptyObject;
 export type ButtonGroupCSSProperties = EmptyObject;
 
