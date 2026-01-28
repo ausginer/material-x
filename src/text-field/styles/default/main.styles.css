@@ -11,7 +11,7 @@
     '. support support support support support support support counter counter .';
   grid-template-columns:
     var(--_padding-inline-start, var(--_container-padding-inline))
-    min-content
+    var(--_leading-icon-size)
     var(--_lead-icon-gap, 0)
     min-content
     var(--_prefix-gap, 0)
@@ -19,7 +19,7 @@
     var(--_suffix-gap, 0)
     min-content
     var(--_trail-icon-gap, 0)
-    min-content
+    var(--_trailing-icon-size)
     var(--_padding-inline-end, var(--_container-padding-inline));
   grid-template-rows: auto 0;
   position: relative;
@@ -33,7 +33,6 @@
       var(--_container-shape-bottom-left);
     border-block-end: var(--_active-indicator-thickness) solid
       var(--_active-indicator-color);
-    z-index: -1;
   }
 }
 
@@ -138,13 +137,11 @@
 
 .lead.has-slotted {
   grid-area: lead;
-  --md-icon-size: var(--_leading-icon-size);
   color: var(--_leading-icon-color);
 }
 
 .trail.has-slotted {
   grid-area: trail;
-  --md-icon-size: var(--_trailing-icon-size);
   color: var(--_trailing-icon-color);
 }
 

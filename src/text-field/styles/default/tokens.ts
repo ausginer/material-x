@@ -15,7 +15,7 @@ import {
 
 // While there are no tokens for the sizes in this set, they are defined in the
 // measurements section of https://m3.material.io/components/text-fields/specs.
-const specialFilledTokens: TokenSet = {
+const SPECIAL_FILLED_TOKENS: TokenSet = {
   'container.icon.padding.inline': '12px',
   'container.padding.inline': '16px',
   'supporting-text.gap': '4px',
@@ -46,7 +46,7 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage((processor) =>
     processor
       .select(notDisabledTokenSelector, notErrorTokenSelector)
-      .append('default', specialFilledTokens)
+      .append('default', SPECIAL_FILLED_TOKENS)
       .extend(createTextFieldExtensions())
       .renderDeclarations(createTextFieldScopedDeclarationRenderer()),
   ),

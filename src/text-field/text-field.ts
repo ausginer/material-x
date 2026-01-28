@@ -120,7 +120,9 @@ export type TextFieldLikeProps = Props<typeof TextFieldLike>;
 
 export type TextFieldProperties = TextFieldLikeProps & DisableableProps;
 export type TextFieldEvents = EmptyObject;
-export type TextFieldCSSProperties = EmptyObject;
+export type TextFieldCSSProperties = Readonly<{
+  '--md-outlined-text-field-notch-bg'?: string;
+}>;
 
 const TextFieldCore: ConstructorWithTraits<
   ReactiveElement,
@@ -132,6 +134,7 @@ const TextFieldCore: ConstructorWithTraits<
  * @attribute inputmode
  * @attribute outlined
  * @attribute multiline
+ * @attribute disabled
  */
 export default class TextField extends TextFieldCore {
   static formAssociated = true;
