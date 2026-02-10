@@ -10,10 +10,12 @@
   }
 }
 
-:host([outlined]:focus-within) {
+:host([outlined]:focus-within),
+:host([outlined]:state(populated)) {
   .label:has(.has-slotted) {
     background: var(--md-outlined-text-field-notch-bg, canvas);
-    padding: 0 4px;
+    padding: 0 var(--_label-populated-padding);
+
     /*
      * Since the populated label should be placed at the border of the text
      * field, we have to do some sophisticated computations here.
@@ -22,9 +24,10 @@
         -1 *
           (
             var(--_padding-inline-start, var(--_container-padding-inline)) +
-              var(--_leading-icon-size) + var(--_lead-icon-gap, 0) - 12px
+              var(--_leading-icon-size) + var(--_lead-icon-gap, 0) -
+              var(--_label-populated-space)
           )
       )
-      calc(-1 * (var(--_container-height) / 2));
+      calc(-1 * (var(--_container-height) / 2 - var(--_outline-width-max)));
   }
 }

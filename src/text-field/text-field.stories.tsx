@@ -67,7 +67,7 @@ export const DefaultDisabled: Story = () => (
 DefaultDisabled.storyName = 'Default / Disabled';
 
 export const OutlinedRegular: Story = () => (
-  <mx-text-field outlined>
+  <mx-text-field multiline outlined>
     <mx-icon slot="lead">search</mx-icon>
     <mx-icon slot="trail">cancel</mx-icon>
     <span slot="prefix">$</span>

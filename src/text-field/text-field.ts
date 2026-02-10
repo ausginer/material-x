@@ -4,7 +4,8 @@ import { useARIATransfer } from '../core/controllers/useARIA.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
 import { useHasSlottedPolyfill } from '../core/controllers/useHasSlottedPolyfill.ts';
-import { Bool, Str } from '../core/elements/attribute.ts';
+import { useSlot } from '../core/controllers/useSlot.ts';
+import { ATTRIBUTE, Bool, Str } from '../core/elements/attribute.ts';
 import {
   define,
   getInternals,
@@ -98,6 +99,7 @@ type TextFieldLikeDescriptor = {
   inputmode: TextFieldInputMode;
   outlined: boolean;
   multiline: boolean;
+  value: null;
 };
 
 const $textFieldLike: unique symbol = Symbol('TextFieldLike');
@@ -111,6 +113,7 @@ export const TextFieldLike: Trait<
     inputmode: Str,
     outlined: Bool,
     multiline: Bool,
+    value: null,
   },
   $textFieldLike,
 );
@@ -128,6 +131,12 @@ const TextFieldCore: ConstructorWithTraits<
   ReactiveElement,
   [typeof TextFieldLike, typeof Disableable]
 > = impl(ReactiveElement, [TextFieldLike, Disableable]);
+
+const ariaParamsMap = {
+  label: 'aria-labelledby',
+  support: 'aria-describedby',
+  counter: 'aria-describedby',
+} as const;
 
 /**
  * @attribute type
@@ -171,6 +180,29 @@ export default class TextField extends TextFieldCore {
       ),
     });
 
+    for (const [id, param] of Object.entries(ariaParamsMap)) {
+      useSlot(this, `#${id} slot`, (_, elements) => {
+        if (!ATTRIBUTE.getRaw(this, param)) {
+          for (const field of this.#impl) {
+            const current =
+              ATTRIBUTE.getRaw(field, param)
+                ?.split(' ')
+                .filter((value) => value.length > 0) ?? [];
+            const values = new Set(current);
+
+            if (elements.length > 0) {
+              values.add(id);
+            } else {
+              values.delete(id);
+            }
+
+            const next = Array.from(values).join(' ');
+            ATTRIBUTE.setRaw(field, param, next.length > 0 ? next : null);
+          }
+        }
+      });
+    }
+
     for (const field of this.#impl) {
       useEvents(
         this,
@@ -198,11 +230,11 @@ export default class TextField extends TextFieldCore {
     return getInternals(this).states.has('populated');
   }
 
-  get value(): string {
+  override get value(): string {
     return this.#impl.field.value;
   }
 
-  set value(value: string | null) {
+  override set value(value: string | null) {
     this.#impl.field.value = value ?? '';
     getInternals(this).setFormValue(value);
   }

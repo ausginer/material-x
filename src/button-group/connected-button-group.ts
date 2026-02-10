@@ -6,11 +6,7 @@ import {
   define,
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import {
-  impl,
-  type ConstructorWithTraits,
-  type Traits,
-} from '../core/elements/traits.ts';
+import { impl, type ConstructorWithTraits } from '../core/elements/traits.ts';
 import type { Checkable } from '../core/traits/checkable.ts';
 import { Valuable, type ValuableProps } from '../core/traits/valuable.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
@@ -23,7 +19,7 @@ export type ConnectedButtonGroupCSSProperties = EmptyObject;
 
 const ConnectedButtonGroupCore: ConstructorWithTraits<
   InstanceType<typeof ButtonGroupCore>,
-  [...Traits<typeof ButtonGroupCore>, typeof Valuable]
+  [typeof Valuable]
 > = impl(ButtonGroupCore, [Valuable]);
 
 /**

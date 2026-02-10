@@ -8,7 +8,6 @@ import {
   type Interface,
   type Props,
   type Trait,
-  type Traits,
 } from '../core/elements/traits.ts';
 import {
   ButtonCore,
@@ -49,7 +48,7 @@ export type IconButtonLikeProps = Props<typeof IconButtonLike>;
 
 const IconButtonCore: ConstructorWithTraits<
   InstanceType<typeof ButtonCore>,
-  [...Traits<typeof ButtonCore>, typeof IconButtonLike]
+  [typeof IconButtonLike]
 > = impl(ButtonCore, [IconButtonLike]);
 
 export type IconButtonProperties = Simplify<

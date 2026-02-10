@@ -3,7 +3,7 @@ import type { Constructor } from 'type-fest';
 
 export interface Trait<P extends object, B extends symbol> {
   <T, S extends object>(ctr: Constructor<T> & S): Constructor<T & P> & S;
-  [Symbol.hasInstance](o: unknown): o is this;
+  [Symbol.hasInstance](o: unknown): o is P & Readonly<Record<B, true>>;
   brand: B;
 }
 

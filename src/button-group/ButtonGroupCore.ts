@@ -18,7 +18,6 @@ import {
   type Interface,
   type Props,
   type Trait,
-  type Traits,
 } from '../core/elements/traits.ts';
 import type { Disableable } from '../core/traits/disableable.ts';
 import { useCore } from '../core/utils/useCore.ts';
@@ -44,7 +43,7 @@ export type ButtonGroupLikeProps = Props<typeof ButtonGroupLike>;
 
 export const ButtonGroupCore: ConstructorWithTraits<
   InstanceType<typeof ButtonCore>,
-  [...Traits<typeof ButtonCore>, typeof ButtonGroupLike]
+  [typeof ButtonGroupLike]
 > = impl(ButtonCore, [ButtonGroupLike]);
 
 export function useButtonGroupCore(

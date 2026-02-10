@@ -11,7 +11,6 @@ import {
   type Interface,
   type Props,
   type Trait,
-  type Traits,
 } from '../core/elements/traits.ts';
 import { $, notify } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
@@ -45,7 +44,7 @@ export type SplitButtonLikeProps = Props<typeof SplitButtonLike>;
 
 export const SplitButtonCore: ConstructorWithTraits<
   InstanceType<typeof ButtonCore>,
-  [...Traits<typeof ButtonCore>, typeof SplitButtonLike]
+  [typeof SplitButtonLike]
 > = impl(ButtonCore, [SplitButtonLike]);
 
 export type SplitButtonProperties = Simplify<

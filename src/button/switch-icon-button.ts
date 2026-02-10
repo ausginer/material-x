@@ -1,10 +1,6 @@
 import type { EmptyObject } from 'type-fest';
 import { define } from '../core/elements/reactive-element.ts';
-import {
-  impl,
-  type ConstructorWithTraits,
-  type Traits,
-} from '../core/elements/traits.ts';
+import { impl, type ConstructorWithTraits } from '../core/elements/traits.ts';
 import { useButtonCore } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import { IconButtonLike, type IconButtonProperties } from './icon-button.ts';
@@ -26,7 +22,7 @@ export type SwitchIconButtonCSSProperties = EmptyObject;
 
 const SwitchIconButtonCore: ConstructorWithTraits<
   InstanceType<typeof SwitchCore>,
-  [...Traits<typeof SwitchCore>, typeof IconButtonLike]
+  [typeof IconButtonLike]
 > = impl(SwitchCore, [IconButtonLike]);
 
 /**

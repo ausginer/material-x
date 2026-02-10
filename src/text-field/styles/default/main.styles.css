@@ -59,8 +59,9 @@
 }
 
 .presenter {
-  display: block;
-  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   user-select: none;
 }
 
@@ -74,12 +75,11 @@
 .prefix,
 .suffix,
 .input {
-  margin-block: var(--_margin-block);
-  align-self: flex-end;
   field-sizing: content;
 }
 
 .input {
+  margin-block: var(--_margin-block);
   grid-area: field;
   justify-self: stretch;
   font-family: var(--_input-text-font);
@@ -143,6 +143,16 @@
 .trail.has-slotted {
   grid-area: trail;
   color: var(--_trailing-icon-color);
+}
+
+/* ===========================
+ * Positioning (multiline)
+ * =========================== */
+.positioned {
+  &:has(.has-slotted),
+  &.has-slotted {
+    margin-block: var(--_margin-block);
+  }
 }
 
 /* ===========================

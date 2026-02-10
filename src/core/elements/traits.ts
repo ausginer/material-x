@@ -28,11 +28,11 @@ export type PropsFromAttributePrimitives<
 export type FieldsFromAttributePrimitives<
   T extends Readonly<Record<string, AttributePrimitive | null>>,
 > = {
-  [K in keyof T]: T[K] | null;
+  [K in keyof T]: T[K] extends null ? unknown : T[K] | null;
 };
 
 export type Trait<
-  P extends Readonly<Record<string, AttributePrimitive>>,
+  P extends Readonly<Record<string, AttributePrimitive | null>>,
   B extends symbol,
 > = AbstractTrait<FieldsFromAttributePrimitives<P>, B> &
   Readonly<{ observed: ReadonlyArray<keyof P & string> }>;
@@ -46,7 +46,7 @@ export type Interface<T extends Trait<any, any>> =
     : never;
 
 export function trait<
-  P extends Readonly<Record<string, AttributePrimitive>>,
+  P extends Readonly<Record<string, AttributePrimitive | null>>,
   B extends symbol,
 >(props: ConvertersFromAttributePrimitives<P>, brand: B): Trait<P, B> {
   return Object.assign(
@@ -75,7 +75,7 @@ export function trait<
     {
       observed: Object.keys(props) as readonly string[],
     },
-  );
+  ) as Trait<P, B>;
 }
 
 export type ConstructorWithTraits<
@@ -83,12 +83,9 @@ export type ConstructorWithTraits<
   TL extends ReadonlyArray<Trait<any, any>>,
 > = AbstractConstructorWithTraits<T, CustomElementStatics, TL>;
 
-export type Traits<T extends ConstructorWithTraits<any, any>> =
-  T extends ConstructorWithTraits<any, infer TL> ? TL : never;
-
 export function impl<
   T extends HTMLElement,
-  TL extends ReadonlyArray<Trait<any, any>>,
+  const TL extends ReadonlyArray<Trait<any, any>>,
 >(
   target: Constructor<T> & CustomElementStatics,
   traits: TL,

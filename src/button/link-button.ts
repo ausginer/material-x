@@ -10,7 +10,6 @@ import {
   type Interface,
   type Props,
   type Trait,
-  type Traits,
 } from '../core/elements/traits.ts';
 import { $ } from '../core/utils/DOM.ts';
 import {
@@ -47,7 +46,7 @@ export type LinkButtonLikeProps = Props<typeof LinkButtonLike>;
 
 const LinkButtonCore: ConstructorWithTraits<
   InstanceType<typeof ButtonCore>,
-  [...Traits<typeof ButtonCore>, typeof LinkButtonLike]
+  [typeof LinkButtonLike]
 > = impl(ButtonCore, [LinkButtonLike]);
 
 export type LinkButtonProps = Simplify<ButtonCoreProps & LinkButtonLikeProps>;
