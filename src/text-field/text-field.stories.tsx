@@ -33,7 +33,7 @@ const filledSuffixValue = '25';
 const filledMultilineValue =
   'This is a long input in a multi-line text field that wraps overflow text onto a new line';
 
-export const Default: Story = () => (
+export const Filled: Story = () => (
   <>
     <mx-text-field>
       <div slot="label">Label</div>
@@ -97,7 +97,7 @@ export const Default: Story = () => (
     </mx-text-field>
   </>
 );
-Default.storyName = 'Filled (default)';
+Filled.storyName = 'Filled';
 
 export const Outlined: Story = () => (
   <>
@@ -163,4 +163,4 @@ export const Outlined: Story = () => (
     </mx-text-field>
   </>
 );
-Default.storyName = 'Default';
+Outlined.storyName = 'Outlined';
