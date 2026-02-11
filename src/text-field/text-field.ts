@@ -119,7 +119,9 @@ export const TextFieldLike: Trait<
 );
 
 export type TextFieldLike = Interface<typeof TextFieldLike>;
-export type TextFieldLikeProps = Props<typeof TextFieldLike>;
+export type TextFieldLikeProps = Omit<Props<typeof TextFieldLike>, 'value'> & {
+  value?: string;
+};
 
 export type TextFieldProperties = TextFieldLikeProps & DisableableProps;
 export type TextFieldEvents = EmptyObject;
@@ -214,8 +216,10 @@ export default class TextField extends TextFieldCore {
               // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
               !!(target as FieldElement).value,
             );
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-            internals.setFormValue((target as FieldElement).value);
+            internals.setFormValue(
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+              (target as FieldElement).value,
+            );
           },
         },
         field,
@@ -236,6 +240,7 @@ export default class TextField extends TextFieldCore {
 
   override set value(value: string | null) {
     this.#impl.field.value = value ?? '';
+    toggleState(getInternals(this), 'populated', !!this.#impl.field.value);
     getInternals(this).setFormValue(value);
   }
 

@@ -1,12 +1,14 @@
 :host([outlined]) {
-  --_margin-block: calc(
-    (var(--_container-height) - var(--_input-text-line-height)) / 2
-  );
-
   &::before {
     background: none;
     border: var(--_outline-width) solid var(--_outline-color);
     border-radius: var(--_container-shape);
+  }
+
+  .input,
+  .suffix.has-slotted,
+  .prefix.has-slotted {
+    margin-block: var(--_default-margin-block);
   }
 }
 
@@ -24,10 +26,10 @@
         -1 *
           (
             var(--_padding-inline-start, var(--_container-padding-inline)) +
-              var(--_leading-icon-size) + var(--_lead-icon-gap, 0) -
+              var(--_leading-icon-size, 0px) + var(--_lead-icon-gap, 0px) -
               var(--_label-populated-space)
           )
       )
-      calc(-1 * (var(--_container-height) / 2 - var(--_outline-width-max)));
+      calc(-1 * (var(--_container-height) / 2) - var(--_outline-width-max));
   }
 }

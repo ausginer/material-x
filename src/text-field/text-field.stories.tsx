@@ -7,7 +7,14 @@ const storyDefault: StoryDefault = {
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     (Component) => (
       <div
-        style={{ width: 250 }}
+        style={{
+          columnGap: 24,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 250px)',
+          rowGap: 24,
+          width: 'fit-content',
+          alignItems: 'start',
+        }}
         onKeyDown={(ev) => {
           ev.stopPropagation();
         }}
@@ -20,61 +27,140 @@ const storyDefault: StoryDefault = {
 
 export default storyDefault;
 
-export const DefaultRegular: Story = () => (
-  <mx-text-field>
-    <mx-icon slot="lead">search</mx-icon>
-    <mx-icon slot="trail">cancel</mx-icon>
-    <span slot="prefix">$</span>
-    <div slot="label">Label Text</div>
-    <span slot="suffix">/ 30</span>
-    <div slot="support">Supporting text</div>
-    <div slot="counter">5/25</div>
-  </mx-text-field>
-);
-DefaultRegular.storyName = 'Default / Regular';
+const filledInputValue = 'Input';
+const filledPrefixValue = '1.43';
+const filledSuffixValue = '25';
+const filledMultilineValue =
+  'This is a long input in a multi-line text field that wraps overflow text onto a new line';
 
-export const DefaultNumber: Story = () => (
-  <mx-text-field type="number">
-    <div slot="label">Enter amount</div>
-  </mx-text-field>
-);
-DefaultNumber.storyName = 'Default / Number';
+export const Default: Story = () => (
+  <>
+    <mx-text-field>
+      <div slot="label">Label</div>
+      <div slot="support">Supporting text</div>
+    </mx-text-field>
+    <mx-text-field value={filledInputValue}>
+      <div slot="label">Label</div>
+      <div slot="support">Supporting text</div>
+    </mx-text-field>
 
-export const DefaultError: Story = () => (
-  <mx-text-field
-    ref={(element) => {
-      element?.setValidity({ customError: true }, 'Something went wrong');
-      element?.reportValidity();
-    }}
-  >
-    <div slot="label">Enter amount</div>
-    <div slot="support">Something went wrong</div>
-  </mx-text-field>
-);
-DefaultError.storyName = 'Default / Error';
+    <mx-text-field>
+      <div slot="label">Label</div>
+    </mx-text-field>
+    <mx-text-field value={filledInputValue}>
+      <div slot="label">Label</div>
+      <mx-icon slot="trail">cancel</mx-icon>
+    </mx-text-field>
 
-export const DefaultDisabled: Story = () => (
-  <mx-text-field disabled>
-    <mx-icon slot="lead">search</mx-icon>
-    <mx-icon slot="trail">cancel</mx-icon>
-    <span slot="prefix">$</span>
-    <div slot="label">Label Text</div>
-    <span slot="suffix">/ 30</span>
-    <div slot="support">Supporting text</div>
-    <div slot="counter">5/25</div>
-  </mx-text-field>
-);
-DefaultDisabled.storyName = 'Default / Disabled';
+    <mx-text-field>
+      <mx-icon slot="lead">search</mx-icon>
+      <div slot="label">Label</div>
+    </mx-text-field>
+    <mx-text-field value={filledInputValue}>
+      <mx-icon slot="lead">search</mx-icon>
+      <div slot="label">Label</div>
+    </mx-text-field>
 
-export const OutlinedRegular: Story = () => (
-  <mx-text-field multiline outlined>
-    <mx-icon slot="lead">search</mx-icon>
-    <mx-icon slot="trail">cancel</mx-icon>
-    <span slot="prefix">$</span>
-    <div slot="label">Label Text</div>
-    <span slot="suffix">/ 30</span>
-    <div slot="support">Supporting text</div>
-    <div slot="counter">5/25</div>
-  </mx-text-field>
+    <mx-text-field>
+      <mx-icon slot="lead">search</mx-icon>
+      <div slot="label">Label</div>
+    </mx-text-field>
+    <mx-text-field value={filledInputValue}>
+      <mx-icon slot="lead">search</mx-icon>
+      <div slot="label">Label</div>
+      <mx-icon slot="trail">cancel</mx-icon>
+    </mx-text-field>
+
+    <mx-text-field>
+      <div slot="label">Label</div>
+      <span slot="prefix">$</span>
+    </mx-text-field>
+    <mx-text-field value={filledPrefixValue}>
+      <div slot="label">Label</div>
+      <span slot="prefix">$</span>
+    </mx-text-field>
+
+    <mx-text-field>
+      <div slot="label">Label</div>
+      <span slot="suffix">lbs</span>
+    </mx-text-field>
+    <mx-text-field value={filledSuffixValue}>
+      <div slot="label">Label</div>
+      <span slot="suffix">lbs</span>
+    </mx-text-field>
+
+    <mx-text-field multiline>
+      <div slot="label">Label</div>
+    </mx-text-field>
+    <mx-text-field multiline value={filledMultilineValue}>
+      <div slot="label">Label</div>
+    </mx-text-field>
+  </>
 );
-OutlinedRegular.storyName = 'Outlined / Regular';
+Default.storyName = 'Filled (default)';
+
+export const Outlined: Story = () => (
+  <>
+    <mx-text-field outlined>
+      <div slot="label">Label</div>
+      <div slot="support">Supporting text</div>
+    </mx-text-field>
+    <mx-text-field outlined value={filledInputValue}>
+      <div slot="label">Label</div>
+      <div slot="support">Supporting text</div>
+    </mx-text-field>
+
+    <mx-text-field outlined>
+      <div slot="label">Label</div>
+    </mx-text-field>
+    <mx-text-field outlined value={filledInputValue}>
+      <div slot="label">Label</div>
+      <mx-icon slot="trail">cancel</mx-icon>
+    </mx-text-field>
+
+    <mx-text-field outlined>
+      <mx-icon slot="lead">search</mx-icon>
+      <div slot="label">Label</div>
+    </mx-text-field>
+    <mx-text-field outlined value={filledInputValue}>
+      <mx-icon slot="lead">search</mx-icon>
+      <div slot="label">Label</div>
+    </mx-text-field>
+
+    <mx-text-field outlined>
+      <mx-icon slot="lead">search</mx-icon>
+      <div slot="label">Label</div>
+    </mx-text-field>
+    <mx-text-field outlined value={filledInputValue}>
+      <mx-icon slot="lead">search</mx-icon>
+      <div slot="label">Label</div>
+      <mx-icon slot="trail">cancel</mx-icon>
+    </mx-text-field>
+
+    <mx-text-field outlined>
+      <div slot="label">Label</div>
+      <span slot="prefix">$</span>
+    </mx-text-field>
+    <mx-text-field outlined value={filledPrefixValue}>
+      <div slot="label">Label</div>
+      <span slot="prefix">$</span>
+    </mx-text-field>
+
+    <mx-text-field outlined>
+      <div slot="label">Label</div>
+      <span slot="suffix">lbs</span>
+    </mx-text-field>
+    <mx-text-field outlined value={filledSuffixValue}>
+      <div slot="label">Label</div>
+      <span slot="suffix">lbs</span>
+    </mx-text-field>
+
+    <mx-text-field outlined multiline>
+      <div slot="label">Label</div>
+    </mx-text-field>
+    <mx-text-field outlined multiline value={filledMultilineValue}>
+      <div slot="label">Label</div>
+    </mx-text-field>
+  </>
+);
+Default.storyName = 'Default';

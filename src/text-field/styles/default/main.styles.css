@@ -1,9 +1,7 @@
 :host {
-  --_margin-block: calc(
-      ((var(--_container-height) - var(--_input-text-line-height)) / 2) +
-        var(--_container-focus-padding-block)
-    )
-    var(--_container-focus-padding-block);
+  --_default-margin-block: calc(
+    (var(--_container-height) - var(--_input-text-line-height)) / 2
+  );
 
   display: grid;
   grid-template-areas:
@@ -79,7 +77,6 @@
 }
 
 .input {
-  margin-block: var(--_margin-block);
   grid-area: field;
   justify-self: stretch;
   font-family: var(--_input-text-font);
@@ -125,7 +122,7 @@
 .label:has(.has-slotted) {
   position: absolute;
   grid-area: prefix / prefix / prefix / suffix;
-  transform-origin: center left;
+  transform-origin: bottom left;
   transition-property: translate, scale, font-size, color;
   transition-duration: var(--_focus-duration);
   transition-timing-function: var(--_focus-easing);
@@ -146,13 +143,22 @@
 }
 
 /* ===========================
- * Positioning (multiline)
+ * Positioning
  * =========================== */
-.positioned {
-  &:has(.has-slotted),
-  &.has-slotted {
-    margin-block: var(--_margin-block);
-  }
+.label:has(.has-slotted),
+.lead.has-slotted,
+.trail.has-slotted {
+  margin-block: var(--_default-margin-block);
+}
+
+.input,
+.suffix.has-slotted,
+.prefix.has-slotted {
+  margin-block: calc(
+      ((var(--_container-height) - var(--_input-text-line-height)) / 2) +
+        var(--_container-focus-padding-block)
+    )
+    var(--_container-focus-padding-block);
 }
 
 /* ===========================
@@ -184,10 +190,12 @@
 :host(:state(populated)),
 :host(:focus-within) {
   .label:has(.has-slotted) {
-    line-height: var(--_label-text-populated-line-height);
     color: var(--_label-text-color);
-    padding-block-start: var(--_container-focus-padding-block);
-    translate: 0 -55%;
+    translate: 0
+      calc(
+        -1 * var(--_input-text-line-height) +
+          var(--_container-focus-padding-block)
+      );
     scale: calc(var(--_label-text-populated-size) / var(--_label-text-size));
   }
 
