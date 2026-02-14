@@ -1,6 +1,9 @@
 import { renderSwitchStylesInOrder } from '../utils.ts';
-import { switchTokens } from './tokens.ts';
+import { defaultSizeSwitchTokens, switchTokens } from './tokens.ts';
 
-const styles: string = renderSwitchStylesInOrder(switchTokens);
+const styles: string = renderSwitchStylesInOrder([
+  defaultSizeSwitchTokens,
+  ...switchTokens,
+]);
 
 export default styles;

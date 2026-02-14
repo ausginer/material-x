@@ -1,5 +1,6 @@
+import { renderSwitchStylesInOrder } from '../utils.ts';
 import { outlinedSwitchTokens } from './tokens.ts';
 
-const styles: string = outlinedSwitchTokens.value.render();
+const styles: string = renderSwitchStylesInOrder([outlinedSwitchTokens]);
 
 export default styles;

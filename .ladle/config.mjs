@@ -9,4 +9,7 @@ export default {
   previewPort: 5173,
   hmrHost: '127.0.0.1',
   hmrPort: 24678,
+  storyOrder: (stories) => {
+    return stories;
+  },
 };

@@ -134,6 +134,9 @@ export const variantSwitchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
               'state-layer.color': `${setName}.unselected.pressed.state-layer.color`,
             })
             .append('selected.default', {
+              ...(variant === 'standard'
+                ? { 'container.color': 'transparent' }
+                : {}),
               'state-layer.color': `${setName}.selected.pressed.state-layer.color`,
             })
             .extend(
@@ -164,7 +167,9 @@ function createWidthRenderer(
   size: string,
   width: string,
 ): DeclarationBlockRenderer {
-  const sizeAttribute = attribute('size', size);
+  const sizeAttribute = DEFAULTS.includes(size)
+    ? null
+    : attribute('size', size);
   const widthAttribute = attribute('width', width);
   const slotted = pseudoElement('slotted', widthAttribute);
 

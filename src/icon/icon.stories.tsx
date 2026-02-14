@@ -1,24 +1,64 @@
-import type { Story } from '@ladle/react';
-import type { CSSProperties } from 'react';
+import type { Story, StoryDefault } from '@ladle/react';
+import type { CSSProperties, FC, PropsWithChildren } from 'react';
+import css from '../story.module.css';
 import './icon.ts';
 
-const largeIconStyles: CSSProperties = {
-  '--md-icon-size': '40px',
+const storyDefault: StoryDefault = {
+  decorators: [
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    (Component) => (
+      <div className={css['layout']}>
+        <Component />
+      </div>
+    ),
+  ],
 };
 
-const roundedIconStyles: CSSProperties = {
-  '--md-icon-font': '"Material Symbols Rounded"',
+export default storyDefault;
+
+type RowProps = Readonly<
+  PropsWithChildren<{
+    title?: string;
+    style?: CSSProperties;
+  }>
+>;
+
+const Row: FC<RowProps> = ({ title, children, style }) => (
+  <div className={css['row']}>
+    <header>
+      <h3>{title}</h3>
+    </header>
+    <section style={style}>{children}</section>
+  </div>
+);
+
+const DEFAULTS: CSSProperties = {
+  fontSize: '40px',
+  color: 'var(--md-sys-color-primary)',
 };
 
-export const Default: Story = () => <mx-icon>check</mx-icon>;
-Default.storyName = 'Default';
+export const Default: Story = () => (
+  <>
+    <Row title="Outlined" style={DEFAULTS}>
+      <mx-icon>wifi</mx-icon>
+      <mx-icon>bluetooth</mx-icon>
+      <mx-icon>alarm</mx-icon>
+      <mx-icon>search</mx-icon>
+      <mx-icon>favorite</mx-icon>
+    </Row>
 
-export const SizeLarge: Story = () => (
-  <mx-icon style={largeIconStyles}>check_circle</mx-icon>
+    <Row
+      title="Rounded"
+      style={{
+        '--md-icon-font': '"Material Symbols Rounded"',
+        ...DEFAULTS,
+      }}
+    >
+      <mx-icon>wifi</mx-icon>
+      <mx-icon>bluetooth</mx-icon>
+      <mx-icon>alarm</mx-icon>
+      <mx-icon>search</mx-icon>
+      <mx-icon>favorite</mx-icon>
+    </Row>
+  </>
 );
-SizeLarge.storyName = 'Size / Large';
-
-export const FontRounded: Story = () => (
-  <mx-icon style={roundedIconStyles}>favorite</mx-icon>
-);
-FontRounded.storyName = 'Font / Rounded';

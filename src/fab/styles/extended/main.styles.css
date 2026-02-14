@@ -4,7 +4,7 @@
     line-height: var(--_label-text-line-height);
     font-family: var(--_label-text-font-name);
     font-weight: var(--_label-text-font-weight);
-    flex-direction: var(--_direction);
+    flex-direction: var(--md-extended-fab-direction, 'row');
     cursor: default;
     user-select: none;
     gap: 0;
@@ -24,10 +24,15 @@
   @supports (width: calc-size(min-content, size)) {
     .label {
       width: 0;
+      height: 0;
       font-size: var(--_label-text-font-size);
-      transition-property: width, opacity;
+      transition-property: width, height, opacity;
     }
   }
+}
+
+:host([extended][dir='rtl']) {
+  --md-extended-fab-direction: 'row-reverse';
 }
 
 :host([extended='open']) {
@@ -43,6 +48,7 @@
   @supports (width: calc-size(min-content, size)) {
     .label {
       width: calc-size(min-content, size);
+      height: calc-size(min-content, size);
     }
   }
 }

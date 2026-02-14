@@ -98,7 +98,7 @@ function createNonDefaultRenderer(size: Sizes) {
 }
 
 export const mainTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
-  SIZES.filter((s) => s === 'small').map((size) =>
+  SIZES.filter((s) => s !== 'small').map((size) =>
     computed(() =>
       createPackage(size, (processor) =>
         processor
@@ -115,7 +115,7 @@ export const mainTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
   );
 
 export const switchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
-  SIZES.map((size) =>
+  SIZES.filter((s) => s !== 'small').map((size) =>
     computed(() =>
       createPackage(size, (processor) =>
         processor

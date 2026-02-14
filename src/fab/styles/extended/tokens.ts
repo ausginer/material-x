@@ -95,7 +95,6 @@ export const extendedTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
           ? (processor) =>
               processor.append('default', {
                 'state-layer.color': `${createSetName(variant)}.pressed.state-layer.color`,
-                direction: 'row',
                 'container.width': CSSVariable.ref('container.height'),
               })
           : undefined,

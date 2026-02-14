@@ -1,4 +1,3 @@
-import type { EmptyObject } from 'type-fest';
 import { useRipple } from '../core/animations/ripple.ts';
 import { useARIATransfer } from '../core/controllers/useARIA.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
@@ -62,11 +61,19 @@ const FABCore: ConstructorWithTraits<
   [typeof FABLike, typeof Disableable]
 > = impl(ReactiveElement, [FABLike, Disableable]);
 
+export type ExtendedFABDirections =
+  | 'row'
+  | 'row-reverse'
+  | 'column'
+  | 'column-reverse';
+
 export type FABProperties = Readonly<FABLikeProps & DisableableProps>;
 export type FABEvents = Readonly<{
   fabtoggle: Event;
 }>;
-export type FABCSSProperties = EmptyObject;
+export type FABCSSProperties = {
+  '--md-extended-fab-direction'?: ExtendedFABDirections;
+};
 
 /**
  * @attr {FABSize} size
