@@ -135,11 +135,13 @@
 .lead.has-slotted {
   grid-area: lead;
   color: var(--_leading-icon-color);
+  font-size: var(--_leading-icon-size);
 }
 
 .trail.has-slotted {
   grid-area: trail;
   color: var(--_trailing-icon-color);
+  font-size: var(--_trailing-icon-size);
 }
 
 /* ===========================
