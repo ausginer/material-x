@@ -7,7 +7,7 @@ import {
 } from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
-import fabCss from './fab.stories.module.css';
+import fabCss from './fab.story.module.css';
 import './fab.ts';
 import type { FABProperties } from './fab.ts';
 
