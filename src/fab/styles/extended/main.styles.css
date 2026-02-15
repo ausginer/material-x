@@ -1,54 +1,43 @@
 :host([extended]) {
   .host {
+    display: inline-grid;
+    grid-template-columns: var(--_icon-size) 0fr;
+    place-content: start;
     color: var(--_label-text-color);
     line-height: var(--_label-text-line-height);
     font-family: var(--_label-text-font-name);
     font-weight: var(--_label-text-font-weight);
-    flex-direction: var(--md-extended-fab-direction, 'row');
     cursor: default;
     user-select: none;
     gap: 0;
-    transition: gap var(--_unfold-duration) var(--_unfold-easing);
+    transition-property: grid-template-columns, gap;
+    transition: var(--_unfold-duration) var(--_unfold-easing);
+  }
+
+  .icon {
+    grid-column: 1;
   }
 
   .label {
-    display: block;
+    grid-column: 2;
     opacity: 0;
+    display: block;
+    min-inline-size: 0;
     white-space: nowrap;
     overflow: hidden;
-    font-size: 0;
+    font-size: var(--_label-text-font-size);
     transition: var(--_unfold-duration) var(--_unfold-easing);
-    transition-property: font-size, opacity;
+    transition-property: opacity;
   }
-
-  @supports (width: calc-size(min-content, size)) {
-    .label {
-      width: 0;
-      height: 0;
-      font-size: var(--_label-text-font-size);
-      transition-property: width, height, opacity;
-    }
-  }
-}
-
-:host([extended][dir='rtl']) {
-  --md-extended-fab-direction: 'row-reverse';
 }
 
 :host([extended='open']) {
   .host {
+    grid-template-columns: var(--_icon-size) 1fr;
     gap: var(--_icon-label-space);
   }
 
   .label {
     opacity: 1;
-    font-size: var(--_label-text-font-size);
-  }
-
-  @supports (width: calc-size(min-content, size)) {
-    .label {
-      width: calc-size(min-content, size);
-      height: calc-size(min-content, size);
-    }
   }
 }

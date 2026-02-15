@@ -13,10 +13,8 @@
   display: inline-flex;
   background-color: var(--_container-color);
   border-radius: var(--_container-shape);
-  justify-content: center;
-  align-items: center;
-  padding-block: calc((var(--_container-height) - var(--_icon-size)) / 2);
-  padding-inline: calc((var(--_container-width) - var(--_icon-size)) / 2);
+  padding: calc((var(--_container-height) - var(--_icon-size)) / 2)
+    calc((var(--_container-width) - var(--_icon-size)) / 2);
 
   &::before,
   &::after {

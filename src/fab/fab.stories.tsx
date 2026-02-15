@@ -150,41 +150,6 @@ export const Extended: Story = () => (
 
     <Row title="Direction">
       <ControlledFABExtended>
-        <mx-icon slot="icon">arrow_right_alt</mx-icon>
-        Right
-      </ControlledFABExtended>
-      <ControlledFABExtended
-        style={{
-          '--md-extended-fab-direction': 'row-reverse',
-        }}
-      >
-        <mx-icon slot="icon">arrow_left_alt</mx-icon>
-        Left
-      </ControlledFABExtended>
-      <ControlledFABExtended
-        style={{
-          '--md-extended-fab-direction': 'column',
-        }}
-      >
-        <mx-icon slot="icon">arrow_downward_alt</mx-icon>
-        D<br />
-        o<br />
-        w<br />
-        n<br />
-      </ControlledFABExtended>
-      <ControlledFABExtended
-        style={{
-          '--md-extended-fab-direction': 'column-reverse',
-        }}
-      >
-        <mx-icon slot="icon">arrow_upward_alt</mx-icon>
-        U<br />
-        p<br />
-      </ControlledFABExtended>
-    </Row>
-
-    <Row title="Direction by languages">
-      <ControlledFABExtended>
         <mx-icon slot="icon">check</mx-icon>
         Submit
       </ControlledFABExtended>
