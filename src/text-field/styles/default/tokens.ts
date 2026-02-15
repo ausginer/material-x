@@ -31,6 +31,9 @@ const SPECIAL_FILLED_TOKENS: TokenSet = {
   // aligned.
   'active-indicator.thickness':
     'md.comp.filled-text-field.active-indicator.height',
+  // TODO: remove after https://bugzilla.mozilla.org/show_bug.cgi?id=1827404
+  // is closed.
+  'label-text.populated.scale': '0.75',
 };
 
 function createPackage(adjuster: ProcessorAdjuster = (processor) => processor) {

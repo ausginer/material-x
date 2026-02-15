@@ -1,0 +1,8 @@
+.layout {
+  column-gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, calc(50% - 12px));
+  row-gap: 24px;
+  width: min(100%, 500px);
+  align-items: start;
+}

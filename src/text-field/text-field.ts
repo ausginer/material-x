@@ -3,7 +3,6 @@ import '../button/icon-button.ts';
 import { useARIATransfer } from '../core/controllers/useARIA.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
-import { useHasSlottedPolyfill } from '../core/controllers/useHasSlottedPolyfill.ts';
 import { useSlot } from '../core/controllers/useSlot.ts';
 import { ATTRIBUTE, Bool, Str } from '../core/elements/attribute.ts';
 import {
@@ -24,6 +23,10 @@ import {
   type DisableableProps,
 } from '../core/traits/disableable.ts';
 import { $, notify, toggleState } from '../core/utils/DOM.ts';
+import {
+  useFieldSizingContentPolyfill,
+  useHasSlottedPolyfill,
+} from '../core/utils/polyfills.ts';
 import { join } from '../core/utils/runtime.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
@@ -167,6 +170,9 @@ export default class TextField extends TextFieldCore {
     useARIATransfer(this, input);
     useARIATransfer(this, textarea);
 
+    // TODO: Remove when `field-sizing: content;` is baseline.
+    useFieldSizingContentPolyfill(this, textarea);
+
     useAttributes(this, {
       multiline: (_, newValue) => {
         this.#impl.switch(newValue !== null);
@@ -226,7 +232,7 @@ export default class TextField extends TextFieldCore {
       );
     }
 
-    // TODO: Remove when :has-slotted pseudo class becomes baseline
+    // TODO: Remove when :has-slotted pseudo class is baseline.
     useHasSlottedPolyfill(this);
   }
 

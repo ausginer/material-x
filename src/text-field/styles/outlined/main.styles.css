@@ -4,17 +4,17 @@
     border: var(--_outline-width) solid var(--_outline-color);
     border-radius: var(--_container-shape);
   }
-
-  .input,
-  .suffix.has-slotted,
-  .prefix.has-slotted {
-    margin-block: var(--_default-margin-block);
-  }
 }
 
-:host([outlined]:focus-within),
-:host([outlined]:state(populated)) {
-  .label:has(.has-slotted) {
+:host([outlined]) .input,
+:host([outlined]:state(has-suffix)) .suffix,
+:host([outlined]:state(has-prefix)) .prefix {
+  margin-block: var(--_default-margin-block);
+}
+
+:host([outlined]:focus-within:state(has-label)),
+:host([outlined]:state(populated):state(has-label)) {
+  .label {
     background: var(--md-outlined-text-field-notch-bg, canvas);
     padding: 0 var(--_label-populated-padding);
 

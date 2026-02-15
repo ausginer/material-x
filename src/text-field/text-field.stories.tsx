@@ -1,20 +1,14 @@
 import type { Story, StoryDefault } from '@ladle/react';
 import '../icon/icon.ts';
 import './text-field.ts';
+import css from './text-field.story.module.css';
 
 const storyDefault: StoryDefault = {
   decorators: [
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     (Component) => (
       <div
-        style={{
-          columnGap: 24,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 250px)',
-          rowGap: 24,
-          width: 'fit-content',
-          alignItems: 'start',
-        }}
+        className={css['layout']}
         onKeyDown={(ev) => {
           ev.stopPropagation();
         }}

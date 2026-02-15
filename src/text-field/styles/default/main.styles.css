@@ -34,25 +34,30 @@
   }
 }
 
-:host:has(.lead.has-slotted) {
+/* TODO: ':host:has(.lead:has-slotted)' */
+:host(:state(has-lead)) {
   --_padding-inline-start: var(--_container-icon-padding-inline);
   --_lead-icon-gap: var(--_container-padding-inline);
 }
 
-:host:has(.trail.has-slotted) {
+/* TODO: ':host:has(.trail:has-slotted)' */
+:host(:state(has-trail)) {
   --_padding-inline-end: var(--_container-icon-padding-inline);
   --_trail-icon-gap: var(--_container-padding-inline);
 }
 
-:host:has(.prefix.has-slotted) {
+/* TODO: ':host:has(.prefix:has-slotted)' */
+:host(:state(has-prefix)) {
   --_prefix-gap: var(--_input-text-prefix-gap);
 }
 
-:host:has(.suffix.has-slotted) {
+/* TODO: ':host:has(.suffix:has-slotted)' */
+:host(:state(has-suffix)) {
   --_suffix-gap: var(--_input-text-suffix-gap);
 }
 
-:host:has(.support > .has-slotted) {
+/* TODO: ':host:has(.support > :has-slotted)' */
+:host(:state(has-support)) {
   grid-template-rows: auto min-content;
 }
 
@@ -66,17 +71,12 @@
 /* =======================
  * Input
  * ======================= */
-.input {
+.input,
+.input-polyfill {
   all: unset;
-}
-
-.prefix,
-.suffix,
-.input {
   field-sizing: content;
-}
-
-.input {
+  min-inline-size: 0;
+  inline-size: 100%;
   grid-area: field;
   justify-self: stretch;
   font-family: var(--_input-text-font);
@@ -85,6 +85,17 @@
   line-height: var(--_input-text-line-height);
   color: var(--_input-text-color);
   caret-color: var(--_caret-color);
+}
+
+.input-polyfill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+  block-size: 0;
+  contain: 'layout style';
 }
 
 /* =======================
@@ -110,16 +121,18 @@
   color: var(--_input-text-placeholder-color);
   text-wrap: nowrap;
 }
-
-.prefix.has-slotted {
+/* TODO: '.prefix:has-slotted' */
+:host(:state(has-prefix)) .prefix {
   grid-area: prefix;
 }
 
-.suffix.has-slotted {
+/* TODO: '.suffix:has-slotted' */
+:host(:state(has-suffix)) .suffix {
   grid-area: suffix;
 }
 
-.label:has(.has-slotted) {
+/* TODO: '.label:has(:has-slotted)' */
+:host(:state(has-label)) .label {
   position: absolute;
   grid-area: prefix / prefix / prefix / suffix;
   transform-origin: bottom left;
@@ -132,13 +145,15 @@
  * Icons
  * ======================= */
 
-.lead.has-slotted {
+/* TODO: '.lead:has-slotted' */
+:host(:state(has-lead)) .lead {
   grid-area: lead;
   color: var(--_leading-icon-color);
   font-size: var(--_leading-icon-size);
 }
 
-.trail.has-slotted {
+/* TODO: '.trail:has-slotted' */
+:host(:state(has-trail)) .trail {
   grid-area: trail;
   color: var(--_trailing-icon-color);
   font-size: var(--_trailing-icon-size);
@@ -147,15 +162,17 @@
 /* ===========================
  * Positioning
  * =========================== */
-.label:has(.has-slotted),
-.lead.has-slotted,
-.trail.has-slotted {
+/* TODO: '.label:has(:has-slotted), .lead:has-slotted, .trail:has-slotted' */
+:host(:state(has-label)) .label,
+:host(:state(has-lead)) .lead,
+:host(:state(has-trail)) .trail {
   margin-block: var(--_default-margin-block);
 }
 
+/* TODO: '.input, .suffix:has-slotted, .prefix:has-slotted' */
 .input,
-.suffix.has-slotted,
-.prefix.has-slotted {
+:host(:state(has-prefix)) .prefix,
+:host(:state(has-suffix)) .suffix {
   margin-block: calc(
       ((var(--_container-height) - var(--_input-text-line-height)) / 2) +
         var(--_container-focus-padding-block)
@@ -177,11 +194,13 @@
   line-height: var(--_supporting-text-line-height);
 }
 
-.support:has(.has-slotted) {
+/* TODO: '.support:has(:has-slotted)' */
+:host(:state(has-support)) .support {
   grid-area: support;
 }
 
-.counter:has(.has-slotted) {
+/* TODO: '.counter:has(:has-slotted)' */
+:host(:state(has-counter)) .counter {
   grid-area: counter;
 }
 
@@ -189,23 +208,32 @@
  * Focused / Populated
  * =========================== */
 
-:host(:state(populated)),
-:host(:focus-within) {
-  .label:has(.has-slotted) {
+:host(:state(populated):state(has-label)),
+:host(:focus-within:state(has-label)) {
+  .label {
     color: var(--_label-text-color);
     translate: 0
       calc(
         -1 * var(--_input-text-line-height) +
           var(--_container-focus-padding-block)
       );
-    scale: calc(var(--_label-text-populated-size) / var(--_label-text-size));
-  }
+    scale: var(--_label-text-populated-scale);
 
-  .prefix,
-  .suffix {
-    transform: scaleY(1);
-    visibility: visible;
+    /*
+    TODO: restore after https://bugzilla.mozilla.org/show_bug.cgi?id=1827404
+    is closed.
+
+    scale: calc(var(--_label-text-populated-size) / var(--_label-text-size));
+    */
   }
+}
+
+:host(:state(populated):state(has-prefix)) .prefix,
+:host(:focus-within:state(has-prefix)) .prefix,
+:host(:state(populated):state(has-suffix)) .suffix,
+:host(:focus-within:state(has-suffix)) .suffix {
+  transform: scaleY(1);
+  visibility: visible;
 }
 
 .input[hidden] {

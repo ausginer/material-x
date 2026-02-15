@@ -6,7 +6,7 @@
   font-variation-settings: inherit;
   font-weight: 400;
   font-family: var(--md-icon-font, 'Material Symbols Outlined');
-  display: inline-flex;
+  display: inline-block;
   font-style: normal;
   place-items: center;
   place-content: center;
