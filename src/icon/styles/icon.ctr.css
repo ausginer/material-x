@@ -1,6 +1,7 @@
 :host {
   font-size: inherit;
   aspect-ratio: 1;
+  inline-size: 1em;
   color: inherit;
   font-variation-settings: inherit;
   font-weight: 400;
