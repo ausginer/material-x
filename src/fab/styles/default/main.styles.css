@@ -9,7 +9,7 @@
 }
 
 .host {
-  all: initial;
+  all: unset;
   display: inline-flex;
   background-color: var(--_container-color);
   border-radius: var(--_container-shape);

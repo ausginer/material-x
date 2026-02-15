@@ -7,12 +7,11 @@
       ) /
       2
   );
-
   display: contents;
 }
 
 .host {
-  all: initial;
+  all: unset;
   display: inline-flex;
   cursor: default;
   user-select: none;

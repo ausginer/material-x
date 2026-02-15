@@ -7,7 +7,6 @@ import {
 } from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
-import fabCss from './fab.story.module.css';
 import './fab.ts';
 import type { FABProperties } from './fab.ts';
 
@@ -157,7 +156,12 @@ export const Extended: Story = () => (
         <mx-icon slot="icon">check</mx-icon>
         ارسال
       </ControlledFABExtended>
-      <ControlledFABExtended className={fabCss['ja']}>
+      <ControlledFABExtended
+        style={{
+          writingMode: 'vertical-rl',
+          textOrientation: 'upright',
+        }}
+      >
         <mx-icon slot="icon">check</mx-icon>
         送信
       </ControlledFABExtended>
