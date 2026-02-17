@@ -13,13 +13,55 @@
     "url": "git+https://github.com/ausginer/material-x.git"
   },
   "type": "module",
-  "main": "index.js",
   "exports": {
-    "./button/button.js": "./button/button.js",
-    "./button/icon-button.js": "./button/icon-button.js",
-    "./button/link-button.js": "./button/link-button.js",
-    "./button/switch-button.js": "./button/switch-button.js",
-    "./button/switch-icon-button.js": "./button/switch-icon-button.js"
+    "./button-group/button-group.js": {
+      "types": "./dist/button-group/button-group.d.ts",
+      "default": "./dist/button-group/button-group.js"
+    },
+    "./button-group/connected-button-group.js": {
+      "types": "./dist/button-group/connected-button-group.d.ts",
+      "default": "./dist/button-group/connected-button-group.js"
+    },
+    "./button/button.js": {
+      "types": "./dist/button/button.d.ts",
+      "default": "./dist/button/button.js"
+    },
+    "./button/icon-button.js": {
+      "types": "./dist/button/icon-button.d.ts",
+      "default": "./dist/button/icon-button.js"
+    },
+    "./button/link-button.js": {
+      "types": "./dist/button/link-button.d.ts",
+      "default": "./dist/button/link-button.js"
+    },
+    "./button/split-button.js": {
+      "types": "./dist/button/split-button.d.ts",
+      "default": "./dist/button/split-button.js"
+    },
+    "./button/switch-button.js": {
+      "types": "./dist/button/switch-button.d.ts",
+      "default": "./dist/button/switch-button.js"
+    },
+    "./button/switch-icon-button.js": {
+      "types": "./dist/button/switch-icon-button.d.ts",
+      "default": "./dist/button/switch-icon-button.js"
+    },
+    "./fab/fab.js": {
+      "types": "./dist/fab/fab.d.ts",
+      "default": "./dist/fab/fab.js"
+    },
+    "./icon/icon.js": {
+      "types": "./dist/icon/icon.d.ts",
+      "default": "./dist/icon/icon.js"
+    },
+    "./react.js": {
+      "types": "./dist/react.d.ts"
+    },
+    "./text-field/text-field.js": {
+      "types": "./dist/text-field/text-field.d.ts",
+      "default": "./dist/text-field/text-field.js"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "debug": "node .scripts/css/debug.ts",
@@ -32,6 +74,7 @@
     "demo:dev": "ladle serve",
     "demo:preview": "ladle preview",
     "demo:build": "ladle build",
+    "build": "node .scripts/build.ts src --outDir build",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "lint": "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts",
@@ -73,6 +116,7 @@
     "react-dom": "19.2.3",
     "rollup": "4.55.1",
     "sorcery": "1.0.0",
+    "tsdown": "0.20.3",
     "tsx": "4.21.0",
     "type-fest": "5.3.1",
     "typescript": "5.9.3",

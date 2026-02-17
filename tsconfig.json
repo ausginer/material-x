@@ -39,6 +39,7 @@
     "src",
     "src/.tproc/**/*",
     "./types.d.ts",
+    "./tsdown.config.ts",
     "./eslint.config.ts",
     "./vite.config.ts",
     "./vitest.config.ts"
