@@ -70,7 +70,7 @@ const COMPONENTS = [
 ] as const;
 
 const TYPES = ['react'] as const;
-const OUT_DIR = 'dist' as const;
+const OUT_DIR = '.' as const;
 
 const config: UserConfig = defineConfig({
   entry: [...COMPONENTS, ...TYPES].map((entry) => `src/${entry}.ts`),
@@ -118,6 +118,7 @@ const config: UserConfig = defineConfig({
   target: 'esnext',
   outDir: OUT_DIR,
   external: [/node_modules/],
+  clean: false,
   inputOptions: {
     experimental: {
       nativeMagicString: true,

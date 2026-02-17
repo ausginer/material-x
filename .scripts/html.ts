@@ -21,6 +21,7 @@ const MINIFY_CONFIG = {
   minify_css: true,
   minify_js: true,
   keep_comments: false,
+  allow_removing_spaces_between_attributes: true,
 } as const;
 
 function locAtEndOf(text: string): { line: number; column: number } {
@@ -46,7 +47,10 @@ export async function compileHTML(
   const url = pathToFileURL(id);
 
   const minified = JSON.stringify(
-    minifier.minify(Buffer.from(source), MINIFY_CONFIG).toString(),
+    minifier
+      .minify(Buffer.from(source), MINIFY_CONFIG)
+      .toString()
+      .replace(/>\s+</gu, '><'),
   );
 
   const interPath = fileURLToPath(createSourcePath(url, '.min.html'));

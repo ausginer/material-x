@@ -15,51 +15,51 @@
   "type": "module",
   "exports": {
     "./button-group/button-group.js": {
-      "types": "./dist/button-group/button-group.d.ts",
-      "default": "./dist/button-group/button-group.js"
+      "types": "./button-group/button-group.d.ts",
+      "default": "./button-group/button-group.js"
     },
     "./button-group/connected-button-group.js": {
-      "types": "./dist/button-group/connected-button-group.d.ts",
-      "default": "./dist/button-group/connected-button-group.js"
+      "types": "./button-group/connected-button-group.d.ts",
+      "default": "./button-group/connected-button-group.js"
     },
     "./button/button.js": {
-      "types": "./dist/button/button.d.ts",
-      "default": "./dist/button/button.js"
+      "types": "./button/button.d.ts",
+      "default": "./button/button.js"
     },
     "./button/icon-button.js": {
-      "types": "./dist/button/icon-button.d.ts",
-      "default": "./dist/button/icon-button.js"
+      "types": "./button/icon-button.d.ts",
+      "default": "./button/icon-button.js"
     },
     "./button/link-button.js": {
-      "types": "./dist/button/link-button.d.ts",
-      "default": "./dist/button/link-button.js"
+      "types": "./button/link-button.d.ts",
+      "default": "./button/link-button.js"
     },
     "./button/split-button.js": {
-      "types": "./dist/button/split-button.d.ts",
-      "default": "./dist/button/split-button.js"
+      "types": "./button/split-button.d.ts",
+      "default": "./button/split-button.js"
     },
     "./button/switch-button.js": {
-      "types": "./dist/button/switch-button.d.ts",
-      "default": "./dist/button/switch-button.js"
+      "types": "./button/switch-button.d.ts",
+      "default": "./button/switch-button.js"
     },
     "./button/switch-icon-button.js": {
-      "types": "./dist/button/switch-icon-button.d.ts",
-      "default": "./dist/button/switch-icon-button.js"
+      "types": "./button/switch-icon-button.d.ts",
+      "default": "./button/switch-icon-button.js"
     },
     "./fab/fab.js": {
-      "types": "./dist/fab/fab.d.ts",
-      "default": "./dist/fab/fab.js"
+      "types": "./fab/fab.d.ts",
+      "default": "./fab/fab.js"
     },
     "./icon/icon.js": {
-      "types": "./dist/icon/icon.d.ts",
-      "default": "./dist/icon/icon.js"
+      "types": "./icon/icon.d.ts",
+      "default": "./icon/icon.js"
     },
     "./react.js": {
-      "types": "./dist/react.d.ts"
+      "types": "./react.d.ts"
     },
     "./text-field/text-field.js": {
-      "types": "./dist/text-field/text-field.d.ts",
-      "default": "./dist/text-field/text-field.js"
+      "types": "./text-field/text-field.d.ts",
+      "default": "./text-field/text-field.js"
     },
     "./package.json": "./package.json"
   },

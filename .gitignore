@@ -12,3 +12,11 @@ storybook-static
 !*.module.css
 !*.styles.css
 !*.ctr.css
+
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+
+!src/**/*
+!/types.d.ts
