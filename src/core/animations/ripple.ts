@@ -1,3 +1,11 @@
+/**
+ * Adapted from Google's Material Web ripple implementation:
+ * https://github.com/material-components/material-web/blob/main/ripple/internal/ripple.ts
+ *
+ * Original source is part of Material Web (Apache-2.0), with slight
+ * adaptations for this project's style and needs.
+ */
+
 import { useEvents } from '../controllers/useEvents.ts';
 import type { ReactiveController } from '../elements/reactive-controller.ts';
 import { type ReactiveElement, use } from '../elements/reactive-element.ts';
