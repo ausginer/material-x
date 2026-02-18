@@ -119,6 +119,7 @@ const config: UserConfig = defineConfig({
   outDir: OUT_DIR,
   external: [/node_modules/],
   clean: false,
+  publint: true,
   inputOptions: {
     experimental: {
       nativeMagicString: true,
