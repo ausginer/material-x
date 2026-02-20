@@ -26,13 +26,66 @@ function normalizePath(target: string, base?: string): string {
 
   const url = new URL(
     target,
-    base ? pathToFileURL(base) : pathToFileURL(import.meta.dirname),
+    base ? pathToFileURL(base) : pathToFileURL(process.cwd()),
   );
 
   url.search = '';
   url.hash = '';
 
   return fileURLToPath(url);
+}
+
+const CUSTOM_ELEMENTS_HMR_VIRTUAL_ID = 'virtual:mx-custom-elements-hmr';
+const RESOLVED_CUSTOM_ELEMENTS_HMR_VIRTUAL_ID = `\0${CUSTOM_ELEMENTS_HMR_VIRTUAL_ID}`;
+const CUSTOM_ELEMENTS_HMR_IMPORT = `import '${CUSTOM_ELEMENTS_HMR_VIRTUAL_ID}';`;
+const CUSTOM_ELEMENTS_HMR_FILE = fileURLToPath(
+  new URL('./ce-hmr.ts', import.meta.url),
+);
+const REACTIVE_ELEMENT_FILE = normalizePath(
+  fileURLToPath(
+    new URL('../src/core/elements/reactive-element.ts', import.meta.url),
+  ),
+);
+
+export function constructCustomElementsHMR(): Plugin {
+  return {
+    name: 'vite-construct-custom-elements-hmr',
+    apply: 'serve',
+    enforce: 'pre',
+    resolveId(id) {
+      if (id === CUSTOM_ELEMENTS_HMR_VIRTUAL_ID) {
+        return RESOLVED_CUSTOM_ELEMENTS_HMR_VIRTUAL_ID;
+      }
+
+      return null;
+    },
+    load(id) {
+      if (id === RESOLVED_CUSTOM_ELEMENTS_HMR_VIRTUAL_ID) {
+        return `import ${JSON.stringify(CUSTOM_ELEMENTS_HMR_FILE)};`;
+      }
+
+      return null;
+    },
+    transform: {
+      filter: {
+        id: {
+          include: /core\/elements\/reactive-element\.ts/u,
+        },
+      },
+      handler(code, id) {
+        if (
+          normalizePath(id) !== REACTIVE_ELEMENT_FILE ||
+          code.includes(CUSTOM_ELEMENTS_HMR_IMPORT)
+        ) {
+          return null;
+        }
+
+        return {
+          code: `${CUSTOM_ELEMENTS_HMR_IMPORT}\n${code}`,
+        };
+      },
+    },
+  };
 }
 
 export function constructCSSStyles(

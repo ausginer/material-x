@@ -1,8 +1,9 @@
-import type { Story, StoryDefault } from '@ladle/react';
+import type { Meta } from '@storybook/react-vite';
 import {
   useState,
   type CSSProperties,
   type FC,
+  type JSX,
   type PropsWithChildren,
 } from 'react';
 import '../icon/icon.ts';
@@ -10,10 +11,10 @@ import css from '../story.module.css';
 import './fab.ts';
 import type { FABProperties } from './fab.ts';
 
-const storyDefault: StoryDefault = {
+const meta: Meta = {
+  title: 'FAB',
   decorators: [
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    (Component) => (
+    (Component: () => JSX.Element): JSX.Element => (
       <div className={css['layout']}>
         <Component />
       </div>
@@ -21,7 +22,7 @@ const storyDefault: StoryDefault = {
   ],
 };
 
-export default storyDefault;
+export default meta;
 
 type RowProps = Readonly<
   PropsWithChildren<{
@@ -38,7 +39,7 @@ const Row: FC<RowProps> = ({ title, children }) => (
   </div>
 );
 
-export const Regular: Story = () => (
+export const Regular = (): JSX.Element => (
   <>
     <Row title="Color">
       <mx-fab>
@@ -88,6 +89,7 @@ function ControlledFABExtended({
 }: PropsWithChildren<ControlledFABExtendedProps>) {
   const [open, setOpen] = useState(false);
   const canHover =
+    // oxlint-disable-next-line typescript/prefer-optional-chain
     typeof window !== 'undefined' &&
     window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
@@ -104,7 +106,7 @@ function ControlledFABExtended({
   );
 }
 
-export const Extended: Story = () => (
+export const Extended = (): JSX.Element => (
   <>
     <Row title="Color">
       <ControlledFABExtended>

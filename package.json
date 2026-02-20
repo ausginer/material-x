@@ -12,7 +12,6 @@
     "type": "git",
     "url": "git+https://github.com/ausginer/material-x.git"
   },
-  "type": "module",
   "files": [
     "button",
     "button-group",
@@ -22,6 +21,7 @@
     "text-field",
     "react.d.ts"
   ],
+  "type": "module",
   "exports": {
     "./button-group/button-group.js": {
       "types": "./button-group/button-group.d.ts",
@@ -80,23 +80,29 @@
     "check": "concurrently npm:fmt:check npm:lint npm:typecheck",
     "test": "vitest run",
     "generate": "node .scripts/generator.ts",
-    "docs": "concurrently npm:demo:themes npm:build:props; npm run demo:build",
-    "demo:themes": "node .scripts/ladle-theme.ts",
-    "demo:dev": "ladle serve",
-    "demo:preview": "ladle preview",
-    "demo:build": "ladle build",
+    "docs": "concurrently npm:docs:themes npm:build:props; npm run demo:build",
+    "docs:themes": "node .scripts/storybook-theme.ts",
+    "demo:themes": "npm run docs:themes",
+    "demo:dev": "node .scripts/storybook.ts dev -h 127.0.0.1 -p 6006 --ci",
+    "demo:preview": "node .scripts/storybook.ts dev -h 127.0.0.1 -p 6006 --preview-only --ci",
+    "demo:build": "node .scripts/storybook.ts build -o .docs",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "lint": "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts",
-    "lint:fix": "npm run lint -- --fix",
+    "lint": "npm run lint:oxlint && npm run lint:eslint",
+    "lint:oxlint": "oxlint --type-aware",
+    "lint:oxlint:migrate": "node .scripts/oxlint-migrate.ts",
+    "lint:eslint": "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts",
+    "lint:fix": "npm run lint:oxlint -- --fix && npm run lint:eslint -- --fix",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@eslint/config-helpers": "0.5.2",
     "@jridgewell/gen-mapping": "0.3.13",
-    "@ladle/react": "5.1.1",
     "@minify-html/node": "0.18.1",
     "@preact/signals-core": "1.13.0",
+    "@storybook/addon-docs": "10.2.10",
+    "@storybook/addon-themes": "10.2.10",
+    "@storybook/react-vite": "10.2.10",
     "@types/node": "25.2.3",
     "@types/postcss-import": "14.0.3",
     "@types/postcss-pxtorem": "6.1.0",
@@ -109,9 +115,10 @@
     "@vitest/coverage-v8": "4.0.18",
     "@vitest/ui": "4.0.18",
     "concurrently": "9.2.1",
-    "eslint": "10.0.0",
+    "eslint": "9.39.2",
     "eslint-config-vaadin": "1.0.0-beta.5",
     "eslint-plugin-import-x": "4.16.1",
+    "eslint-plugin-oxlint": "1.48.0",
     "just-camel-case": "6.2.0",
     "just-kebab-case": "4.2.0",
     "just-safe-get": "4.2.0",
@@ -120,6 +127,8 @@
     "magic-string": "0.30.21",
     "oxc-transform": "0.114.0",
     "oxfmt": "0.33.0",
+    "oxlint": "1.48.0",
+    "oxlint-tsgolint": "0.14.0",
     "playwright": "1.58.2",
     "publint": "0.3.17",
     "puppeteer-core": "24.37.3",
@@ -127,7 +136,9 @@
     "react-dom": "19.2.4",
     "rollup": "4.57.1",
     "sorcery": "1.0.0",
+    "storybook": "10.2.10",
     "tsdown": "0.20.3",
+    "tsgolint": "0.0.1",
     "tsx": "4.21.0",
     "type-fest": "5.4.4",
     "typescript": "5.9.3",
@@ -137,10 +148,10 @@
     "vitest": "4.0.18"
   },
   "overrides": {
+    "eslint": "$eslint",
     "react": "$react",
     "typescript": "$typescript",
-    "vite": "$vite",
-    "eslint": "$eslint"
+    "vite": "$vite"
   },
   "engines": {
     "node": ">=24"

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
 import {
   ButtonCore,
   DEFAULT_BUTTON_ATTRIBUTES,
@@ -26,7 +25,7 @@ import {
   type ChangedAttribute,
 } from './button-group-context.ts';
 
-type ButtonGroupLikeDescriptor = {};
+type ButtonGroupLikeDescriptor = Record<never, never>;
 
 const $buttonGroupLike: unique symbol = Symbol('ButtonGroupLike');
 

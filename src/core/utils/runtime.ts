@@ -8,8 +8,7 @@ export function when<A extends readonly unknown[], R>(
   condition: (...args: A) => boolean,
   andThen: (...args: A) => R,
   orElse?: (...args: A) => R,
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-): (...args: A) => R | void {
+): (...args: A) => R | undefined {
   return (...args) =>
     condition(...args) ? andThen(...args) : orElse?.(...args);
 }

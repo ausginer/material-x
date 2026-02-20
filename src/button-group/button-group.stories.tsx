@@ -1,5 +1,5 @@
-import type { Story, StoryDefault } from '@ladle/react';
-import { useState, type FC, type PropsWithChildren } from 'react';
+import type { Meta } from '@storybook/react-vite';
+import { useState, type FC, type JSX, type PropsWithChildren } from 'react';
 import '../button/button.ts';
 import '../button/switch-icon-button.ts';
 import '../icon/icon.ts';
@@ -7,10 +7,10 @@ import css from '../story.module.css';
 import './button-group.ts';
 import './connected-button-group.ts';
 
-const storyDefault: StoryDefault = {
+const meta: Meta = {
+  title: 'Button Group',
   decorators: [
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    (Component) => (
+    (Component: () => JSX.Element): JSX.Element => (
       <div className={css['layout']}>
         <Component />
       </div>
@@ -18,7 +18,7 @@ const storyDefault: StoryDefault = {
   ],
 };
 
-export default storyDefault;
+export default meta;
 
 type RowProps = Readonly<
   PropsWithChildren<{
@@ -32,7 +32,7 @@ const Row: FC<RowProps> = ({ children }) => (
   </div>
 );
 
-export const Regular: Story = () => (
+export const Regular = (): JSX.Element => (
   <>
     <Row title="Size">
       <mx-button-group size="xsmall">
@@ -68,7 +68,7 @@ export const Regular: Story = () => (
   </>
 );
 
-export const Connected: Story = () => (
+export const Connected = (): JSX.Element => (
   <>
     <Row title="Size">
       <mx-connected-button-group size="xsmall">
@@ -104,7 +104,7 @@ export const Connected: Story = () => (
   </>
 );
 
-export const Switch: Story = () => {
+export const Switch = (): JSX.Element => {
   const [selected, setSelected] = useState<string | undefined>();
 
   return (
@@ -144,7 +144,7 @@ export const Switch: Story = () => {
   );
 };
 
-export const ConnectedSwitch: Story = () => {
+export const ConnectedSwitch = (): JSX.Element => {
   const [selected, setSelected] = useState<string | undefined>();
 
   return (

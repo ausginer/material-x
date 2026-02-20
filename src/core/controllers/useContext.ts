@@ -2,7 +2,6 @@ import { use, type ReactiveElement } from '../elements/reactive-element.ts';
 import { DEFAULT_EVENT_INIT } from '../utils/DOM.ts';
 import { useEvents } from './useEvents.ts';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const $ctx: unique symbol;
 
 export type Context<T> = string & { brand: typeof $ctx; value: T };
@@ -29,16 +28,16 @@ export function useProvider<T>(
   });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-export type ContextEffect<T> = (value: T | undefined) => AbortController | void;
+export type ContextEffect<T> = (
+  value: T | undefined,
+) => AbortController | undefined;
 
 export function useContext<T>(
   host: ReactiveElement,
   ctx: Context<T>,
   effect: ContextEffect<T>,
 ): void {
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  let disposer: AbortController | void;
+  let disposer: AbortController | undefined;
 
   use(host, {
     connected() {

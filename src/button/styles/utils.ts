@@ -19,7 +19,6 @@ import {
 import * as CSSVariable from '../../.tproc/variable.ts';
 import type { Predicate } from '../../core/utils/runtime.ts';
 import { not } from '../../core/utils/runtime.ts';
-import { disabledTokenSelector } from './default/tokens.ts';
 
 export const BUTTON_STATES = [
   'default',
@@ -156,6 +155,10 @@ export const buttonAllowedTokensSelector: GroupSelector =
     'state-layer.opacity',
     'level',
   ]);
+
+export function disabledTokenSelector(path: string): boolean {
+  return path === 'disabled';
+}
 
 export const notDisabledTokenSelector: Predicate<[path: string]> = not(
   disabledTokenSelector,

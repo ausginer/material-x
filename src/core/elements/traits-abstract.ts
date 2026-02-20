@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-unsafe-type-assertion */
+/* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
 import type { Constructor } from 'type-fest';
 
 export interface Trait<P extends object, B extends symbol> {
@@ -38,7 +38,7 @@ export function trait<P extends object, B extends symbol>(
 
 type TraitProps<
   TL extends ReadonlyArray<Trait<any, any>>,
-  P = {},
+  P = Record<never, never>,
 > = TL extends [infer T, ...infer Rest]
   ? T extends Trait<infer PP, infer B>
     ? TraitProps<

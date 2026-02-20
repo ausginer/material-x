@@ -21,6 +21,6 @@ html[data-theme="dark"] {
 }
 `;
 
-const url = new URL(`.ladle/theme.css`, root);
+const url = new URL(`.storybook/theme.css`, root);
 
 await writeFile(url, contents, 'utf8');

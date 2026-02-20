@@ -1,12 +1,13 @@
-import type { Story, StoryDefault } from '@ladle/react';
+import type { Meta } from '@storybook/react-vite';
+import type { JSX } from 'react';
 import '../icon/icon.ts';
 import './text-field.ts';
 import css from './text-field.story.module.css';
 
-const storyDefault: StoryDefault = {
+const meta: Meta = {
+  title: 'Text Field',
   decorators: [
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    (Component) => (
+    (Component: () => JSX.Element): JSX.Element => (
       <div
         className={css['layout']}
         onKeyDown={(ev) => {
@@ -19,7 +20,7 @@ const storyDefault: StoryDefault = {
   ],
 };
 
-export default storyDefault;
+export default meta;
 
 const filledInputValue = 'Input';
 const filledPrefixValue = '1.43';
@@ -27,7 +28,7 @@ const filledSuffixValue = '25';
 const filledMultilineValue =
   'This is a long input in a multi-line text field that wraps overflow text onto a new line';
 
-export const Filled: Story = () => (
+export const Filled = (): JSX.Element => (
   <>
     <mx-text-field>
       <div slot="label">Label</div>
@@ -91,9 +92,8 @@ export const Filled: Story = () => (
     </mx-text-field>
   </>
 );
-Filled.storyName = 'Filled';
 
-export const Outlined: Story = () => (
+export const Outlined = (): JSX.Element => (
   <>
     <mx-text-field outlined>
       <div slot="label">Label</div>
@@ -157,4 +157,3 @@ export const Outlined: Story = () => (
     </mx-text-field>
   </>
 );
-Outlined.storyName = 'Outlined';

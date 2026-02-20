@@ -49,6 +49,10 @@ function isTouch(event: PointerEvent): boolean {
   return event.pointerType === 'touch';
 }
 
+function shouldIgnoreForForcedColors(): boolean {
+  return FORCED_COLORS.matches;
+}
+
 const FORCED_COLORS = matchMedia('(forced-colors: active)');
 
 function determineRippleSize(
@@ -155,7 +159,7 @@ class RippleAnimationController implements ReactiveController {
     useEvents(host, {
       click() {
         if (
-          self.#shouldIgnoreForForcedColors() ||
+          shouldIgnoreForForcedColors() ||
           // Click is a MouseEvent in Firefox and Safari, so we cannot use
           // `shouldReactToEvent`
           self.#isHostDisabled()
@@ -175,7 +179,7 @@ class RippleAnimationController implements ReactiveController {
         }
       },
       contextmenu() {
-        if (self.#shouldIgnoreForForcedColors() || self.#isHostDisabled()) {
+        if (shouldIgnoreForForcedColors() || self.#isHostDisabled()) {
           return;
         }
 
@@ -183,10 +187,7 @@ class RippleAnimationController implements ReactiveController {
         void self.#endAnimation();
       },
       pointerdown(event: PointerEvent) {
-        if (
-          self.#shouldIgnoreForForcedColors() ||
-          !self.#shouldReactToEvent(event)
-        ) {
+        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
           return;
         }
 
@@ -221,10 +222,7 @@ class RippleAnimationController implements ReactiveController {
         }, TOUCH_DELAY_MS);
       },
       pointerleave(event: PointerEvent) {
-        if (
-          self.#shouldIgnoreForForcedColors() ||
-          !self.#shouldReactToEvent(event)
-        ) {
+        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
           return;
         }
 
@@ -234,10 +232,7 @@ class RippleAnimationController implements ReactiveController {
         }
       },
       pointerup(event: PointerEvent) {
-        if (
-          self.#shouldIgnoreForForcedColors() ||
-          !self.#shouldReactToEvent(event)
-        ) {
+        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
           return;
         }
 
@@ -253,10 +248,7 @@ class RippleAnimationController implements ReactiveController {
         }
       },
       pointercancel(event: PointerEvent) {
-        if (
-          self.#shouldIgnoreForForcedColors() ||
-          !self.#shouldReactToEvent(event)
-        ) {
+        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
           return;
         }
 
@@ -360,10 +352,6 @@ class RippleAnimationController implements ReactiveController {
 
     const isPrimaryButton = event.buttons === 1;
     return isTouch(event) || isPrimaryButton;
-  }
-
-  #shouldIgnoreForForcedColors(): boolean {
-    return FORCED_COLORS.matches;
   }
 }
 

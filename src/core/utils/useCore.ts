@@ -14,7 +14,7 @@ function converter(name: string, value: string | null): string | null {
   return value;
 }
 
-// eslint-disable-next-line @typescript-eslint/max-params
+// oxlint-disable-next-line max-params
 export function useCore(
   host: ReactiveElement,
   template: HTMLTemplateElement,

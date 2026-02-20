@@ -10,6 +10,7 @@ import {
   buttonSwitchTokenSelector,
   createButtonExtensions,
   createButtonScopedDeclarationRenderer,
+  disabledTokenSelector,
   fixFullShape,
   groupButtonTokens,
   notDisabledTokenSelector,
@@ -42,10 +43,6 @@ const specialUnselectedTokens = {
 const specialSelectedTokens = {
   'state-layer.color': `${GENERAL_SET_NAME}.selected.pressed.state-layer.color`,
 };
-
-export function disabledTokenSelector(path: string): boolean {
-  return path === 'disabled';
-}
 
 const renderer = createButtonScopedDeclarationRenderer();
 

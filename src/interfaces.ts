@@ -12,19 +12,18 @@ declare global {
     fromEntries<T extends Iterable<readonly [PropertyKey, any]>>(
       entries: T,
     ): T extends Iterable<readonly [infer K, infer V]>
-      ? // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
-        Readonly<{ [P in K & PropertyKey]: V }>
+      ? Readonly<Record<K & PropertyKey, V>>
       : never;
   }
 
   /* @internal */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   interface ReadonlyArray<T> {
     includes(searchElement: unknown, fromIndex?: number): boolean;
   }
 
   /* @internal */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   interface Array<T> {
     includes(searchElement: unknown, fromIndex?: number): boolean;
   }
@@ -36,10 +35,9 @@ declare global {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
-export type FromKeys<T extends readonly PropertyKey[], V> = Readonly<{
-  [K in T[number]]: V;
-}>;
+export type FromKeys<T extends readonly PropertyKey[], V> = Readonly<
+  Record<T[number], V>
+>;
 
 export type CustomElementProperties<
   Attrs extends Record<string, unknown>,

@@ -1,15 +1,31 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseArgs } from 'node:util';
 import react from '@vitejs/plugin-react';
 import { defineConfig, type ConfigEnv, type UserConfigFnObject } from 'vite';
 import inspect from 'vite-plugin-inspect';
 import {
+  constructCustomElementsHMR,
   constructCSSTokens,
   constructCSSStyles,
   constructHTMLTemplate,
 } from './.scripts/vite-plugins.js';
 
 const root = pathToFileURL(`${import.meta.dirname}/`);
-const isCI = process.env['CI'] === 'true';
+
+const { values: cliOptions } = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    inspect: {
+      type: 'boolean',
+      default: false,
+    },
+  },
+  allowPositionals: true,
+  strict: false,
+});
+
+const inspectEnabled =
+  process.env['MX_VITE_INSPECT'] === 'true' || cliOptions.inspect === true;
 
 const config: UserConfigFnObject = defineConfig(({ command }: ConfigEnv) => ({
   root: fileURLToPath(root),
@@ -29,12 +45,13 @@ const config: UserConfigFnObject = defineConfig(({ command }: ConfigEnv) => ({
   },
   cacheDir: fileURLToPath(new URL('.vite/', root)),
   plugins: [
-    isCI
-      ? null
-      : inspect({
+    inspectEnabled
+      ? inspect({
           include: [/\.css\.ts/],
           build: true,
-        }),
+        })
+      : null,
+    constructCustomElementsHMR(),
     constructCSSStyles({ isProd: command === 'build' }),
     constructHTMLTemplate(),
     constructCSSTokens({ isProd: command === 'build' }),

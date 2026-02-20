@@ -68,7 +68,7 @@ export function App() {
 
 ## Local Demo
 
-Run the component playground locally:
+Run Storybook locally:
 
 ```bash
 npm run demo:dev

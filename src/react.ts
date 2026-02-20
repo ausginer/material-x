@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-namespace */
+// oxlint-disable typescript/no-namespace, no-unused-vars
 import type { DetailedHTMLProps, HTMLAttributes } from 'react';
 import type Button from './button/button.ts';
 import type {

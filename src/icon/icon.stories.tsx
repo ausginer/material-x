@@ -1,12 +1,12 @@
-import type { Story, StoryDefault } from '@ladle/react';
-import type { CSSProperties, FC, PropsWithChildren } from 'react';
+import type { Meta } from '@storybook/react-vite';
+import type { CSSProperties, FC, JSX, PropsWithChildren } from 'react';
 import css from '../story.module.css';
 import './icon.ts';
 
-const storyDefault: StoryDefault = {
+const meta: Meta = {
+  title: 'Icon',
   decorators: [
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    (Component) => (
+    (Component: () => JSX.Element): JSX.Element => (
       <div className={css['layout']}>
         <Component />
       </div>
@@ -14,7 +14,7 @@ const storyDefault: StoryDefault = {
   ],
 };
 
-export default storyDefault;
+export default meta;
 
 type RowProps = Readonly<
   PropsWithChildren<{
@@ -37,7 +37,7 @@ const DEFAULTS: CSSProperties = {
   color: 'var(--md-sys-color-primary)',
 };
 
-export const Default: Story = () => (
+export const Default = (): JSX.Element => (
   <>
     <Row title="Outlined" style={DEFAULTS}>
       <mx-icon>wifi</mx-icon>

@@ -34,8 +34,7 @@
   },
   "include": [
     "./.scripts/**/*",
-    "./.ladle/**/*",
-    "./src",
+    "./.storybook/**/*",
     "src",
     "src/.tproc/**/*",
     "./types.d.ts",

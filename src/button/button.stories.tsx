@@ -1,5 +1,5 @@
-import type { Story, StoryDefault } from '@ladle/react';
-import { useState, type FC, type PropsWithChildren } from 'react';
+import type { Meta } from '@storybook/react-vite';
+import { useState, type FC, type JSX, type PropsWithChildren } from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
 import './button.ts';
@@ -12,10 +12,10 @@ import type { SplitButtonProperties } from './split-button.ts';
 import type { SwitchButtonProperties } from './switch-button.ts';
 import type { SwitchIconButtonProperties } from './switch-icon-button.ts';
 
-const storyDefault: StoryDefault = {
+const meta: Meta = {
+  title: 'Button',
   decorators: [
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    (Component) => (
+    (Component: () => JSX.Element): JSX.Element => (
       <div className={css['layout']}>
         <Component />
       </div>
@@ -23,7 +23,7 @@ const storyDefault: StoryDefault = {
   ],
 };
 
-export default storyDefault;
+export default meta;
 
 type RowProps = Readonly<
   PropsWithChildren<{
@@ -40,7 +40,7 @@ const Row: FC<RowProps> = ({ title, children }) => (
   </div>
 );
 
-export const Regular: Story = () => (
+export const Regular = (): JSX.Element => (
   <>
     <Row title="Size">
       <mx-button size="xsmall">Extra small</mx-button>
@@ -95,7 +95,7 @@ export const Regular: Story = () => (
 const HREF = 'https://m3.material.io/components/buttons/overview';
 const TARGET = '_blank';
 
-export const Link: Story = () => (
+export const Link = (): JSX.Element => (
   <>
     <Row title="Size">
       <mx-link-button href={HREF} size="xsmall" target={TARGET}>
@@ -173,7 +173,7 @@ export const Link: Story = () => (
   </>
 );
 
-export const Icon: Story = () => (
+export const Icon = (): JSX.Element => (
   <>
     <Row title="Size">
       <mx-icon-button size="xsmall">
@@ -256,7 +256,7 @@ function ControlledSwitchButton({
   );
 }
 
-export const Switch: Story = () => (
+export const Switch = (): JSX.Element => (
   <>
     <Row title="Size">
       <ControlledSwitchButton size="xsmall">Extra small</ControlledSwitchButton>
@@ -321,7 +321,7 @@ function ControlledSwitchIconButton(
   );
 }
 
-export const SwitchIcon: Story = () => (
+export const SwitchIcon = (): JSX.Element => (
   <>
     <Row title="Size">
       <ControlledSwitchIconButton size="xsmall">
@@ -395,7 +395,7 @@ function ControlledSplitButton(
   );
 }
 
-export const Split: Story = () => (
+export const Split = (): JSX.Element => (
   <>
     <Row title="Size">
       <ControlledSplitButton size="xsmall">Extra small</ControlledSplitButton>
