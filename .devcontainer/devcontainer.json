@@ -34,7 +34,8 @@
         "oxc.oxc-vscode",
         "YoavBls.pretty-ts-errors",
         "acoreyj.restart-ts-eslint-server",
-        "TypeScriptTeam.native-preview"
+        "TypeScriptTeam.native-preview",
+        "eamodio.gitlens"
       ]
     }
   },
