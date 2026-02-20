@@ -17,6 +17,7 @@
   user-select: none;
   white-space: nowrap;
   word-wrap: normal;
+  writing-mode: horizontal-tb;
   flex-shrink: 0;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizelegibility;

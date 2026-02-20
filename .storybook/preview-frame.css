@@ -1,0 +1,27 @@
+:root {
+  color-scheme: light dark;
+}
+
+html,
+body {
+  color: var(--md-sys-color-on-surface);
+  transition: color 180ms ease;
+}
+
+body {
+  margin: 0;
+}
+
+#storybook-root,
+#root,
+#storybook-docs,
+.docs-story,
+.sbdocs,
+.sbdocs-wrapper,
+.sbdocs-content,
+.sb-show-main,
+.sb-main-padded,
+.sb-main-centered,
+.sb-main-fullscreen {
+  color: inherit;
+}

@@ -93,7 +93,7 @@
     "lint:oxlint:migrate": "node .scripts/oxlint-migrate.ts",
     "lint:eslint": "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts",
     "lint:fix": "npm run lint:oxlint -- --fix && npm run lint:eslint -- --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsgo --noEmit"
   },
   "devDependencies": {
     "@eslint/config-helpers": "0.5.2",
@@ -104,8 +104,6 @@
     "@storybook/addon-themes": "10.2.10",
     "@storybook/react-vite": "10.2.10",
     "@types/node": "25.2.3",
-    "@types/postcss-import": "14.0.3",
-    "@types/postcss-pxtorem": "6.1.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@typescript/native-preview": "7.0.0-dev.20260217.1",

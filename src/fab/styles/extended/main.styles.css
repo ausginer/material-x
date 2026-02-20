@@ -1,8 +1,9 @@
 :host([extended]) {
   .host {
     display: inline-grid;
-    grid-template-columns: var(--_icon-size) 0fr;
-    place-content: start;
+    grid-template-columns: var(--_icon-size) 0;
+    justify-content: start;
+    align-items: center;
     color: var(--_label-text-color);
     line-height: var(--_label-text-line-height);
     font-family: var(--_label-text-font-name);

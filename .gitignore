@@ -18,5 +18,6 @@ storybook-static
 *.d.ts
 *.d.ts.map
 
+!.storybook/preview-frame.css
 !src/**/*
 !/types.d.ts
