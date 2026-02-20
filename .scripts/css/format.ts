@@ -8,7 +8,8 @@ export default async function format(
   const { code, errors } = await fmt(
     fileName,
     input,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     oxfmtConfig as FormatOptions,
   );
 

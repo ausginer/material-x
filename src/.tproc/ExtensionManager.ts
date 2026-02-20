@@ -42,7 +42,7 @@ export class ExtensionManager<_ extends boolean = false> {
     this.#callback(current, parents);
     this.#current = undefined;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return current as ParentState;
   }
 }

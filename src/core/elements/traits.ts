@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
+// oxlint-disable typescript/no-unsafe-type-assertion
 import type { Constructor, Simplify } from 'type-fest';
 import {
   ATTRIBUTE,

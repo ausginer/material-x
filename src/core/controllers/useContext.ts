@@ -11,7 +11,7 @@ class ContextEvent extends Event {
 }
 
 export function createContext<T>(): Context<T> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   return crypto.randomUUID() as Context<T>;
 }
 
@@ -43,7 +43,7 @@ export function useContext<T>(
     connected() {
       const event = new ContextEvent(ctx, DEFAULT_EVENT_INIT);
       host.dispatchEvent(event);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+
       disposer = effect(event.value as T | undefined);
     },
     disconnected() {

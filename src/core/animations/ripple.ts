@@ -259,7 +259,8 @@ class RippleAnimationController implements ReactiveController {
 
   connected(): void {
     const self = this;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     self.#varValues = readCSSVariables(
       self.#host,
       self.#cssVariables,

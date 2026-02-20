@@ -47,7 +47,7 @@ export function readCSSVariables<
 ): Readonly<{ [K in keyof V]: T }> {
   const styles = getComputedStyle(host);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   return Object.fromEntries(
     Object.entries(vars).map(([name, variable]) => {
       const value = styles.getPropertyValue(variable).trim();

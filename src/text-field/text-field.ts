@@ -219,13 +219,12 @@ export default class TextField extends TextFieldCore {
             toggleState(
               internals,
               'populated',
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+
+              // oxlint-disable-next-line typescript/no-unsafe-type-assertion
               !!(target as FieldElement).value,
             );
-            internals.setFormValue(
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-              (target as FieldElement).value,
-            );
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+            internals.setFormValue((target as FieldElement).value);
           },
         },
         field,

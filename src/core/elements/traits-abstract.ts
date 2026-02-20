@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
+// oxlint-disable typescript/no-unsafe-type-assertion
 import type { Constructor } from 'type-fest';
 
 export interface Trait<P extends object, B extends symbol> {

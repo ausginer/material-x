@@ -18,7 +18,7 @@ export function useEvents(
   use(host, {
     connected() {
       for (const [name, listener] of Object.entries(listeners)) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
         target.addEventListener(name, listener as EventListener, {
           signal: controller.signal,
         });

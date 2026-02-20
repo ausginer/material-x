@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
-
+// oxlint-disable typescript/no-unsafe-type-assertion
 declare const $param: unique symbol;
 
 export type Param = string & { brand: typeof $param };
