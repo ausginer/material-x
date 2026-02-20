@@ -70,10 +70,6 @@ Files with `.css.ts` extensions are ment to be compiled for browser usage. They 
 
 Eventually, I plan to extract core implementation (`ReactiveElement` and other parts) to a separate package. That's why `useCore` function is implemented separately from other controllers: it is going to be used only in `material-x` package. So, if you have to implement something for core, make it as independent as possible.
 
-## Implementation
-
-When you are going to implement any feature, fix or anything else, first prepare a plan. Then you have to discuss the plan with me, and only then you can start the real implementation.
-
 ## Architecture
 
 You can find architecture insights from your analysis in `.agent/docs/architecture.md`.
@@ -85,7 +81,3 @@ You can find accessibility review in `.agent/docs/accessibility.md`
 ## Component migration
 
 If you asked to migrate an already existing component to a new architecture, please read `.agent/docs/component-migration.md`.
-
-## Documentation
-
-When you work with docs in `.agent/docs`, always leave an emply line at the end of the file.
