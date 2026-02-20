@@ -44,6 +44,7 @@ export function useContext<T>(
       const event = new ContextEvent(ctx, DEFAULT_EVENT_INIT);
       host.dispatchEvent(event);
 
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
       disposer = effect(event.value as T | undefined);
     },
     disconnected() {
