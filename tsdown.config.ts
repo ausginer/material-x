@@ -46,9 +46,8 @@ function dropEmptyChunksPlugin(): Rolldown.Plugin {
           continue;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+        // oxlint-disable-next-line typescript/no-dynamic-delete
         delete bundle[fileName];
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete bundle[`${fileName}.map`];
       }
     },
