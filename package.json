@@ -1,5 +1,5 @@
 {
-  "name": "material-x",
+  "name": "@ausginer/material-x",
   "version": "0.1.0",
   "description": "Material Design 3 Expressive dependless implementation for web",
   "homepage": "https://github.com/ausginer/material-x#readme",
@@ -73,6 +73,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
+    "prepublish": "npm run build",
     "build": "tsdown",
     "build:props": "node .scripts/css/collect-props.ts",
     "publint": "publint",
