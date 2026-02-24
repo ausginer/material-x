@@ -1,7 +1,7 @@
 import type { EmptyObject } from 'type-fest';
 import { define } from '../core/elements/reactive-element.ts';
 import { impl, type ConstructorWithTraits } from '../core/elements/traits.ts';
-import { useButtonCore } from './ButtonCore.ts';
+import { useButtonCore, type ButtonSharedCSSProperties } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import { IconButtonLike, type IconButtonProperties } from './icon-button.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts' with { type: 'css' };
@@ -18,7 +18,7 @@ import { SwitchCore, useSwitch, type SwitchProps } from './SwitchCore.ts';
 
 export type SwitchIconButtonProperties = IconButtonProperties & SwitchProps;
 export type SwitchIconButtonEvents = EmptyObject;
-export type SwitchIconButtonCSSProperties = EmptyObject;
+export type SwitchIconButtonCSSProperties = ButtonSharedCSSProperties;
 
 const SwitchIconButtonCore: ConstructorWithTraits<
   InstanceType<typeof SwitchCore>,

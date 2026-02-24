@@ -5,6 +5,7 @@ import {
   ButtonCore,
   useButtonCore,
   type ButtonCoreProps,
+  type ButtonSharedCSSProperties,
 } from './ButtonCore.ts';
 import elevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
 import outlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
@@ -13,7 +14,7 @@ import tonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
 export type ButtonProperties = ButtonCoreProps;
 export type ButtonEvents = EmptyObject;
-export type ButtonCSSProperties = EmptyObject;
+export type ButtonCSSProperties = ButtonSharedCSSProperties;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically

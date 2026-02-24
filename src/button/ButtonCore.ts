@@ -68,6 +68,17 @@ export const ButtonCore: ConstructorWithTraits<
 
 export type ButtonCoreProps = ButtonLikeProps & DisableableProps;
 
+export type ButtonSharedCSSProperties = Readonly<{
+  '--md-button-container-height'?: string;
+  '--md-button-leading-space'?: string;
+  '--md-button-trailing-space'?: string;
+  '--md-button-icon-size'?: string;
+  '--md-button-icon-label-space'?: string;
+  '--md-button-label-text-line-height'?: string;
+  '--md-button-press-duration'?: string;
+  '--md-button-press-easing'?: string;
+}>;
+
 function updateByContext(
   internals: ElementInternals,
   oldValue: string | boolean | number | null,

@@ -5,6 +5,7 @@ import {
   useButtonCore,
   type ButtonColor,
   type ButtonCoreProps,
+  type ButtonSharedCSSProperties,
 } from './ButtonCore.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts' with { type: 'css' };
 import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
@@ -24,7 +25,7 @@ export type SwitchButtonProperties = ButtonCoreProps &
     color?: SwitchButtonColor;
   }>;
 export type SwitchButtonEvents = EmptyObject;
-export type SwitchButtonCSSProperties = EmptyObject;
+export type SwitchButtonCSSProperties = ButtonSharedCSSProperties;
 
 /**
  * @attr {string} color

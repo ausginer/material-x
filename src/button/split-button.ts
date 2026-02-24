@@ -1,4 +1,4 @@
-import type { EmptyObject, Simplify } from 'type-fest';
+import type { Simplify } from 'type-fest';
 import '../button-group/connected-button-group.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
@@ -20,6 +20,7 @@ import {
   ButtonCore,
   DEFAULT_BUTTON_ATTRIBUTES,
   type ButtonCoreProps,
+  type ButtonSharedCSSProperties,
 } from './ButtonCore.ts';
 import './icon-button.ts';
 import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
@@ -54,7 +55,7 @@ export type SplitButtonEvents = Readonly<{
   toggle: Event;
 }>;
 
-export type SplitButtonCSSProperties = EmptyObject;
+export type SplitButtonCSSProperties = ButtonSharedCSSProperties;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically

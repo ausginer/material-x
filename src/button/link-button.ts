@@ -16,6 +16,7 @@ import {
   ButtonCore,
   useButtonCore,
   type ButtonCoreProps,
+  type ButtonSharedCSSProperties,
 } from './ButtonCore.ts';
 import linkButtonTemplate from './link-button.tpl.html' with { type: 'html' };
 import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
@@ -51,7 +52,7 @@ const LinkButtonCore: ConstructorWithTraits<
 
 export type LinkButtonProps = Simplify<ButtonCoreProps & LinkButtonLikeProps>;
 export type LinkButtonEvents = EmptyObject;
-export type LinkButtonCSSProperties = EmptyObject;
+export type LinkButtonCSSProperties = ButtonSharedCSSProperties;
 
 /**
  * @attr {string} color

@@ -34,17 +34,13 @@ function isItem(node: unknown): node is Item {
   );
 }
 
-const Edge = {
-  FIRST: 0,
-  LAST: -1,
-} as const;
-type Edge = (typeof Edge)[keyof typeof Edge];
+const EDGE_FIRST = 0;
+const EDGE_LAST = -1;
+type Edge = typeof EDGE_FIRST | typeof EDGE_LAST;
 
-const Direction = {
-  LEFT: -1,
-  RIGHT: 1,
-} as const;
-type Direction = (typeof Direction)[keyof typeof Direction];
+const DIRECTION_LEFT = -1;
+const DIRECTION_RIGHT = 1;
+type Direction = typeof DIRECTION_LEFT | typeof DIRECTION_RIGHT;
 
 class RovingItems {
   readonly #host: Host;
@@ -184,15 +180,15 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
     // Mirror arrow key behavior in RTL layout.
     getComputedStyle(host).direction === 'rtl';
 
-  const right = createStepHandler(Direction.RIGHT);
-  const left = createStepHandler(Direction.LEFT);
+  const right = createStepHandler(DIRECTION_RIGHT);
+  const left = createStepHandler(DIRECTION_LEFT);
 
   const previous = when(hasRtl, right, left);
   const next = when(hasRtl, left, right);
 
   useKeyboard(host, {
-    Home: { down: createEdgeHandler(Edge.FIRST) },
-    End: { down: createEdgeHandler(Edge.LAST) },
+    Home: { down: createEdgeHandler(EDGE_FIRST) },
+    End: { down: createEdgeHandler(EDGE_LAST) },
     ArrowLeft: { down: previous },
     ArrowUp: { down: previous },
     ArrowRight: { down: next },

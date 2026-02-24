@@ -1,9 +1,17 @@
 :host {
-  --_shape-full: calc(var(--_container-height) / 2);
+  --_shape-full: calc(
+    var(--md-button-container-height, var(--_container-height)) / 2
+  );
   --_padding-block: calc(
     (
-        var(--_container-height) -
-          max(var(--_icon-size), var(--_label-text-line-height))
+        var(--md-button-container-height, var(--_container-height)) -
+          max(
+            var(--md-button-icon-size, var(--_icon-size)),
+            var(
+              --md-button-label-text-line-height,
+              var(--_label-text-line-height)
+            )
+          )
       ) /
       2
   );
@@ -18,29 +26,38 @@
   background-color: var(--_container-color);
   color: var(--_label-text-color);
   padding-block: var(--_padding-block);
-  padding-inline: var(--_leading-space) var(--_trailing-space);
+  padding-inline: var(--md-button-leading-space, var(--_leading-space))
+    var(--md-button-trailing-space, var(--_trailing-space));
   border-radius: var(--_border-radius, var(--_container-shape));
   font-weight: var(--_label-text-font-weight);
   font-size: var(--_label-text-font-size);
-  line-height: var(--_label-text-line-height);
+  line-height: var(
+    --md-button-label-text-line-height,
+    var(--_label-text-line-height)
+  );
   font-family: var(--_label-text-font-name);
   place-items: center;
   place-content: center;
-  gap: 8px;
+  gap: var(--md-button-icon-label-space, var(--_icon-label-space));
   text-align: center;
 
   transition:
-    border-radius var(--_press-duration) var(--_press-easing),
-    background-color var(--_press-duration) var(--_press-easing),
-    color var(--_press-duration) var(--_press-easing),
-    padding-inline var(--_press-duration) var(--_press-easing);
+    border-radius var(--md-button-press-duration, var(--_press-duration))
+      var(--md-button-press-easing, var(--_press-easing)),
+    background-color var(--md-button-press-duration, var(--_press-duration))
+      var(--md-button-press-easing, var(--_press-easing)),
+    color var(--md-button-press-duration, var(--_press-duration))
+      var(--md-button-press-easing, var(--_press-easing)),
+    padding-inline var(--md-button-press-duration, var(--_press-duration))
+      var(--md-button-press-easing, var(--_press-easing));
 }
 
 .icon::slotted(*) {
-  font-size: var(--_icon-size);
+  font-size: var(--md-button-icon-size, var(--_icon-size));
   color: var(--_icon-color);
-  flex: 1 0 var(--_icon-size);
-  transition: color var(--_press-duration) var(--_press-easing);
+  flex: 1 0 var(--md-button-icon-size, var(--_icon-size));
+  transition: color var(--md-button-press-duration, var(--_press-duration))
+    var(--md-button-press-easing, var(--_press-easing));
   pointer-events: none;
 }
 

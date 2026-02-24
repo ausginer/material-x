@@ -1,8 +1,8 @@
-<mx-connected-button-group class="host" part="group" part="impl">
-  <mx-button part="leading">
+<mx-connected-button-group class="host" part="group impl">
+  <mx-button part="leading" exportparts="impl:leading-impl">
     <slot name="icon" slot="icon"></slot><slot></slot>
   </mx-button>
-  <mx-icon-button part="trailing">
+  <mx-icon-button part="trailing" exportparts="impl:trailing-impl">
     <mx-icon>keyboard_arrow_down</mx-icon>
   </mx-icon-button>
 </mx-connected-button-group>

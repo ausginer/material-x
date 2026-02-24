@@ -15,6 +15,7 @@ import {
   type ButtonColor,
   type ButtonCoreProps,
   type ButtonLike,
+  type ButtonSharedCSSProperties,
 } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
@@ -59,7 +60,7 @@ export type IconButtonProperties = Simplify<
     }>
 >;
 export type IconButtonEvents = EmptyObject;
-export type IconButtonCSSProperties = EmptyObject;
+export type IconButtonCSSProperties = ButtonSharedCSSProperties;
 
 /**
  * @summary Buttons communicate actions that people can take. They are typically
