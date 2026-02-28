@@ -21,7 +21,7 @@ import {
 } from '../core/traits/disableable.ts';
 import { $, notify } from '../core/utils/DOM.ts';
 import { useCore } from '../core/utils/useCore.ts';
-import fabTemplate from './fab.tpl.html' with { type: 'html' };
+import template from './fab.tpl.html' with { type: 'html' };
 import colorStyles from './styles/color/main.css.ts' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 import extendedStyles from './styles/extended/main.css.ts' with { type: 'css' };
@@ -79,7 +79,7 @@ export type FABCSSProperties = EmptyObject;
 export default class FAB extends FABCore {
   constructor() {
     super();
-    useCore(this, fabTemplate, {}, [
+    useCore(this, [template], {}, [
       elevationStyles,
       focusStyles,
       defaultStyles,

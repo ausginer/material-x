@@ -45,6 +45,7 @@ const config: readonly Config[] = defineConfig(
     // `buildFromOxlintConfigFile`.
     rules: {
       '@typescript-eslint/no-unsafe-type-assertion': 'off',
+      'import-x/no-mutable-exports': 'off',
     },
   },
 );

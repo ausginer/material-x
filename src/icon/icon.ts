@@ -1,7 +1,7 @@
 import type { EmptyObject } from 'type-fest';
 import { define, ReactiveElement } from '../core/elements/reactive-element.ts';
 import { useCore } from '../core/utils/useCore.ts';
-import iconTemplate from './icon.tpl.html' with { type: 'html' };
+import template from './icon.tpl.html' with { type: 'html' };
 import iconStyles from './styles/icon.ctr.css' with { type: 'css' };
 
 export type IconProperties = EmptyObject;
@@ -14,7 +14,7 @@ export type IconCSSProperties = Readonly<{
 export default class Icon extends ReactiveElement {
   constructor() {
     super();
-    useCore(this, iconTemplate, {}, [iconStyles]);
+    useCore(this, [template], {}, [iconStyles]);
   }
 }
 

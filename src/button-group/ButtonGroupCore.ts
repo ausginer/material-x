@@ -51,7 +51,7 @@ export function useButtonGroupCore(
   aria: Partial<ARIAMixin>,
   styles: ReadonlyArray<CSSStyleSheet | string>,
 ): void {
-  useCore(host, template, aria, styles);
+  useCore(host, [template], aria, styles);
 
   const emitter = new EventEmitter<ChangedAttribute>();
 

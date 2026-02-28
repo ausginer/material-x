@@ -103,7 +103,7 @@ export function useButtonCore(
 
   useCore(
     host,
-    template,
+    [template],
     {},
     [
       shapeStyles,

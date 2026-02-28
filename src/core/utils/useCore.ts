@@ -17,12 +17,12 @@ function converter(name: string, value: string | null): string | null {
 // oxlint-disable-next-line max-params
 export function useCore(
   host: ReactiveElement,
-  template: HTMLTemplateElement,
+  templates: readonly HTMLTemplateElement[],
   aria: Partial<ARIAMixin>,
   styles: ReadonlyArray<CSSStyleSheet | string>,
   init?: Partial<ShadowRootInit>,
 ): void {
-  useShadowDOM(host, template, styles, init);
+  useShadowDOM(host, templates, styles, init);
   useARIAInternals(host, aria, ARIA_MAPPING, converter);
 }
 

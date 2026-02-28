@@ -1,4 +1,4 @@
-/* eslint-disable import-x/no-mutable-exports */
+// oxlint-disable import/no-mutable-exports
 import type { Constructor } from 'type-fest';
 import type { ReactiveController } from './reactive-controller.ts';
 
@@ -42,10 +42,14 @@ export type CustomElementStatics = {
 
 export class ReactiveElement extends HTMLElement {
   static {
-    use = (element, ...controllers) => {
+    use = (
+      element: ReactiveElement,
+      ...controllers: readonly ReactiveController[]
+    ): void => {
       element.#controllers.push(...controllers);
     };
-    getInternals = (element) => element.#internals;
+    getInternals = (element: ReactiveElement): ElementInternals =>
+      element.#internals;
   }
 
   readonly #internals = this.attachInternals();

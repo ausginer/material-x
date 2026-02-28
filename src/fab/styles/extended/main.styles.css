@@ -17,18 +17,22 @@
 
   .icon {
     grid-column: 1;
+    display: block;
   }
 
   .label {
     grid-column: 2;
-    opacity: 0;
     display: block;
-    min-inline-size: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    font-size: var(--_label-text-font-size);
-    transition: var(--_unfold-duration) var(--_unfold-easing);
-    transition-property: opacity;
+
+    &::slotted(*) {
+      opacity: 0;
+      min-inline-size: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      font-size: var(--_label-text-font-size);
+      transition: var(--_unfold-duration) var(--_unfold-easing);
+      transition-property: opacity;
+    }
   }
 }
 

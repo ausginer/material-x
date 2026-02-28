@@ -56,12 +56,11 @@ import type {
   IconEvents,
   IconProperties,
 } from './icon/icon.ts';
+import type MultilineTextField from './text-field/multiline-text-field.ts';
 import type TextField from './text-field/text-field.ts';
-import type {
-  TextFieldCSSProperties,
-  TextFieldEvents,
-  TextFieldProperties,
-} from './text-field/text-field.ts';
+import type { TextFieldCSSProperties } from './text-field/TextFieldCore.ts';
+import type { TextFieldEvents } from './text-field/TextFieldCore.ts';
+import type { TextFieldProperties } from './text-field/TextFieldCore.ts';
 
 type JSXWrapper<
   C extends HTMLElement,
@@ -120,6 +119,11 @@ type FABJSX = JSXWrapper<FAB, FABProperties, FABEvents>;
 type IconJSX = JSXWrapper<Icon, IconProperties, IconEvents>;
 
 type TextFieldJSX = JSXWrapper<TextField, TextFieldProperties, TextFieldEvents>;
+type MultilineTextFieldJSX = JSXWrapper<
+  MultilineTextField,
+  TextFieldProperties,
+  TextFieldEvents
+>;
 
 declare module 'react' {
   namespace JSX {
@@ -135,6 +139,7 @@ declare module 'react' {
       'mx-fab': FABJSX;
       'mx-icon': IconJSX;
       'mx-text-field': TextFieldJSX;
+      'mx-multiline-text-field': MultilineTextFieldJSX;
     }
   }
   export interface CSSProperties

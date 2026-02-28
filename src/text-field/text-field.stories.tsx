@@ -25,8 +25,6 @@ export default meta;
 const filledInputValue = 'Input';
 const filledPrefixValue = '1.43';
 const filledSuffixValue = '25';
-const filledMultilineValue =
-  'This is a long input in a multi-line text field that wraps overflow text onto a new line';
 
 export const Filled = (): JSX.Element => (
   <>
@@ -82,13 +80,6 @@ export const Filled = (): JSX.Element => (
     <mx-text-field value={filledSuffixValue}>
       <div slot="label">Label</div>
       <span slot="suffix">lbs</span>
-    </mx-text-field>
-
-    <mx-text-field multiline>
-      <div slot="label">Label</div>
-    </mx-text-field>
-    <mx-text-field multiline value={filledMultilineValue}>
-      <div slot="label">Label</div>
     </mx-text-field>
   </>
 );
@@ -147,13 +138,6 @@ export const Outlined = (): JSX.Element => (
     <mx-text-field outlined value={filledSuffixValue}>
       <div slot="label">Label</div>
       <span slot="suffix">lbs</span>
-    </mx-text-field>
-
-    <mx-text-field outlined multiline>
-      <div slot="label">Label</div>
-    </mx-text-field>
-    <mx-text-field outlined multiline value={filledMultilineValue}>
-      <div slot="label">Label</div>
     </mx-text-field>
   </>
 );

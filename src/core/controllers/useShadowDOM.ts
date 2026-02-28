@@ -28,11 +28,14 @@ function resolveStyles(
 
 export function useShadowDOM(
   host: ReactiveElement,
-  template: HTMLTemplateElement,
+  templates: readonly HTMLTemplateElement[],
   styles: ReadonlyArray<CSSStyleSheet | string>,
   init?: Partial<ShadowRootInit>,
 ): void {
   const root = host.attachShadow({ mode: 'open', ...init });
   root.adoptedStyleSheets = resolveStyles(styles);
-  root.append(template.content.cloneNode(true));
+
+  for (const template of templates) {
+    root.append(template.content.cloneNode(true));
+  }
 }
