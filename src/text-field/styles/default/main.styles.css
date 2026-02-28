@@ -1,6 +1,10 @@
 :host {
   --_default-margin-block: calc(
-    (var(--_container-height) - var(--_input-text-line-height)) / 2
+    (
+        var(--md-text-field-container-height, var(--_container-height)) -
+          var(--md-text-field-input-line-height, var(--_input-text-line-height))
+      ) /
+      2
   );
 
   display: grid;
@@ -8,8 +12,14 @@
     '. lead . prefix . field . suffix . trail .'
     '. support support support support support support support counter counter .';
   grid-template-columns:
-    var(--_padding-inline-start, var(--_container-padding-inline))
-    var(--_leading-icon-size)
+    var(
+      --_padding-inline-start,
+      var(
+        --md-text-field-container-padding-inline,
+        var(--_container-padding-inline)
+      )
+    )
+    var(--md-text-field-leading-icon-size, var(--_leading-icon-size))
     var(--_lead-icon-gap, 0)
     min-content
     var(--_prefix-gap, 0)
@@ -17,8 +27,14 @@
     var(--_suffix-gap, 0)
     min-content
     var(--_trail-icon-gap, 0)
-    var(--_trailing-icon-size)
-    var(--_padding-inline-end, var(--_container-padding-inline));
+    var(--md-text-field-trailing-icon-size, var(--_trailing-icon-size))
+    var(
+      --_padding-inline-end,
+      var(
+        --md-text-field-container-padding-inline,
+        var(--_container-padding-inline)
+      )
+    );
   grid-template-rows: auto 0;
   position: relative;
 
@@ -36,24 +52,36 @@
 
 /* TODO: ':host:has(.lead:has-slotted)' */
 :host(:state(has-lead)) {
-  --_padding-inline-start: var(--_container-icon-padding-inline);
-  --_lead-icon-gap: var(--_container-padding-inline);
+  --_padding-inline-start: var(
+    --md-text-field-container-icon-padding-inline,
+    var(--_container-icon-padding-inline)
+  );
+  --_lead-icon-gap: var(
+    --md-text-field-container-padding-inline,
+    var(--_container-padding-inline)
+  );
 }
 
 /* TODO: ':host:has(.trail:has-slotted)' */
 :host(:state(has-trail)) {
-  --_padding-inline-end: var(--_container-icon-padding-inline);
-  --_trail-icon-gap: var(--_container-padding-inline);
+  --_padding-inline-end: var(
+    --md-text-field-container-icon-padding-inline,
+    var(--_container-icon-padding-inline)
+  );
+  --_trail-icon-gap: var(
+    --md-text-field-container-padding-inline,
+    var(--_container-padding-inline)
+  );
 }
 
 /* TODO: ':host:has(.prefix:has-slotted)' */
 :host(:state(has-prefix)) {
-  --_prefix-gap: var(--_input-text-prefix-gap);
+  --_prefix-gap: var(--md-text-field-prefix-gap, var(--_input-text-prefix-gap));
 }
 
 /* TODO: ':host:has(.suffix:has-slotted)' */
 :host(:state(has-suffix)) {
-  --_suffix-gap: var(--_input-text-suffix-gap);
+  --_suffix-gap: var(--md-text-field-suffix-gap, var(--_input-text-suffix-gap));
 }
 
 /* TODO: ':host:has(.support > :has-slotted)' */
@@ -82,7 +110,10 @@
   font-family: var(--_input-text-font);
   font-weight: var(--_input-text-weight);
   font-size: var(--_input-text-size);
-  line-height: var(--_input-text-line-height);
+  line-height: var(
+    --md-text-field-input-line-height,
+    var(--_input-text-line-height)
+  );
   color: var(--_input-text-color);
   caret-color: var(--_caret-color);
 }
@@ -105,7 +136,9 @@
 .prefix,
 .suffix {
   transform: scaleY(0);
-  transition: transform var(--_focus-duration) var(--_focus-easing);
+  transition: transform
+    var(--md-text-field-focus-duration, var(--_focus-duration))
+    var(--md-text-field-focus-easing, var(--_focus-easing));
   transform-origin: bottom;
   visibility: hidden;
 }
@@ -137,8 +170,14 @@
   grid-area: prefix / prefix / prefix / suffix;
   transform-origin: bottom left;
   transition-property: translate, scale, font-size, color;
-  transition-duration: var(--_focus-duration);
-  transition-timing-function: var(--_focus-easing);
+  transition-duration: var(
+    --md-text-field-focus-duration,
+    var(--_focus-duration)
+  );
+  transition-timing-function: var(
+    --md-text-field-focus-easing,
+    var(--_focus-easing)
+  );
 }
 
 /* =======================
@@ -149,14 +188,17 @@
 :host(:state(has-lead)) .lead {
   grid-area: lead;
   color: var(--_leading-icon-color);
-  font-size: var(--_leading-icon-size);
+  font-size: var(--md-text-field-leading-icon-size, var(--_leading-icon-size));
 }
 
 /* TODO: '.trail:has-slotted' */
 :host(:state(has-trail)) .trail {
   grid-area: trail;
   color: var(--_trailing-icon-color);
-  font-size: var(--_trailing-icon-size);
+  font-size: var(
+    --md-text-field-trailing-icon-size,
+    var(--_trailing-icon-size)
+  );
 }
 
 /* ===========================
@@ -174,7 +216,16 @@
 :host(:state(has-prefix)) .prefix,
 :host(:state(has-suffix)) .suffix {
   margin-block: calc(
-      ((var(--_container-height) - var(--_input-text-line-height)) / 2) +
+      (
+          (
+              var(--md-text-field-container-height, var(--_container-height)) -
+                var(
+                  --md-text-field-input-line-height,
+                  var(--_input-text-line-height)
+                )
+            ) /
+            2
+        ) +
         var(--_container-focus-padding-block)
     )
     var(--_container-focus-padding-block);
@@ -186,7 +237,10 @@
 
 .support,
 .counter {
-  padding-block-start: var(--_supporting-text-gap);
+  padding-block-start: var(
+    --md-text-field-supporting-text-gap,
+    var(--_supporting-text-gap)
+  );
   color: var(--_supporting-text-color);
   font-family: var(--_supporting-text-font);
   font-size: var(--_supporting-text-size);
@@ -214,7 +268,11 @@
     color: var(--_label-text-color);
     translate: 0
       calc(
-        -1 * var(--_input-text-line-height) +
+        -1 *
+          var(
+            --md-text-field-input-line-height,
+            var(--_input-text-line-height)
+          ) +
           var(--_container-focus-padding-block)
       );
     scale: var(--_label-text-populated-scale);

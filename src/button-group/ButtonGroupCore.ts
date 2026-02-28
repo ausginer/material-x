@@ -45,6 +45,12 @@ export const ButtonGroupCore: ConstructorWithTraits<
   [typeof ButtonGroupLike]
 > = impl(ButtonCore, [ButtonGroupLike]);
 
+export type ButtonGroupSharedCSSProperties = Readonly<{
+  '--md-button-group-between-space'?: string;
+  '--md-button-group-interaction-width-multiplier'?: string;
+  '--md-button-group-inner-corner-size'?: string;
+}>;
+
 export function useButtonGroupCore(
   host: ReactiveElement & ButtonLike & ButtonGroupLike & Disableable,
   template: HTMLTemplateElement,

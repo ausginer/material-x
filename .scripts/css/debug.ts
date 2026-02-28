@@ -3,9 +3,9 @@ import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { root } from '../utils.ts';
+import { injectStateEnforcer } from './css-docs.ts';
 import format from './format.ts';
 import transform from './transform.ts';
-import { injectStateEnforcer } from './css-docs.ts';
 
 interface JSModule<T> {
   default?: T;

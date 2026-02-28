@@ -77,7 +77,18 @@ export type TextFieldLikeProps = Omit<Props<typeof TextFieldLike>, 'value'> & {
 export type TextFieldProperties = TextFieldLikeProps & DisableableProps;
 export type TextFieldEvents = EmptyObject;
 export type TextFieldCSSProperties = Readonly<{
-  '--md-outlined-text-field-notch-bg'?: string;
+  '--md-text-field-notch-bg'?: string;
+  '--md-text-field-container-height'?: string;
+  '--md-text-field-input-line-height'?: string;
+  '--md-text-field-container-padding-inline'?: string;
+  '--md-text-field-container-icon-padding-inline'?: string;
+  '--md-text-field-leading-icon-size'?: string;
+  '--md-text-field-trailing-icon-size'?: string;
+  '--md-text-field-focus-duration'?: string;
+  '--md-text-field-focus-easing'?: string;
+  '--md-text-field-prefix-gap'?: string;
+  '--md-text-field-suffix-gap'?: string;
+  '--md-text-field-supporting-text-gap'?: string;
 }>;
 
 export const TextFieldCoreBase: ConstructorWithTraits<

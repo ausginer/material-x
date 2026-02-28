@@ -2,10 +2,13 @@
   --_shape-full: calc(var(--_container-height) / 2);
 
   display: flex;
-  gap: var(--_between-space);
+  gap: var(--md-button-group-between-space, var(--_between-space));
 
   ::slotted(*) {
-    --_border-radius: var(--_inner-corner-corner-size);
+    --_border-radius: var(
+      --md-button-group-inner-corner-size,
+      var(--_inner-corner-corner-size)
+    );
   }
 
   ::slotted(:active),
@@ -14,12 +17,18 @@
   }
 
   ::slotted([data-first]) {
-    --_border-radius: var(--_container-shape) var(--_inner-corner-corner-size)
-      var(--_inner-corner-corner-size) var(--_container-shape);
+    --_border-radius: var(--_container-shape)
+      var(--md-button-group-inner-corner-size, var(--_inner-corner-corner-size))
+      var(--md-button-group-inner-corner-size, var(--_inner-corner-corner-size))
+      var(--_container-shape);
   }
 
   ::slotted([data-last]) {
-    --_border-radius: var(--_inner-corner-corner-size) var(--_container-shape)
-      var(--_container-shape) var(--_inner-corner-corner-size);
+    --_border-radius: var(
+        --md-button-group-inner-corner-size,
+        var(--_inner-corner-corner-size)
+      )
+      var(--_container-shape) var(--_container-shape)
+      var(--md-button-group-inner-corner-size, var(--_inner-corner-corner-size));
   }
 }

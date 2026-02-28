@@ -15,7 +15,7 @@
 :host([outlined]:focus-within:state(has-label)),
 :host([outlined]:state(populated):state(has-label)) {
   .label {
-    background: var(--md-outlined-text-field-notch-bg, canvas);
+    background: var(--md-text-field-notch-bg, canvas);
     padding: 0 var(--_label-populated-padding);
 
     /*
@@ -25,11 +25,26 @@
     translate: calc(
         -1 *
           (
-            var(--_padding-inline-start, var(--_container-padding-inline)) +
-              var(--_leading-icon-size, 0px) + var(--_lead-icon-gap, 0px) -
-              var(--_label-populated-space)
+            var(
+                --_padding-inline-start,
+                var(
+                  --md-text-field-container-padding-inline,
+                  var(--_container-padding-inline)
+                )
+              ) +
+              var(
+                --md-text-field-leading-icon-size,
+                var(--_leading-icon-size, 0px)
+              ) +
+              var(--_lead-icon-gap, 0px) - var(--_label-populated-space)
           )
       )
-      calc(-1 * (var(--_container-height) / 2) - var(--_outline-width-max));
+      calc(
+        -1 *
+          (
+            var(--md-text-field-container-height, var(--_container-height)) / 2
+          ) -
+          var(--_outline-width-max)
+      );
   }
 }

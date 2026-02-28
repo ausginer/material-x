@@ -3,21 +3,27 @@
   --_interaction-direction-trailing: 0;
 
   display: flex;
-  gap: var(--_between-space);
+  gap: var(--md-button-group-between-space, var(--_between-space));
 
   ::slotted(*) {
     padding-inline: calc(
         var(--_leading-space) *
           (
             1 + var(--_interaction-direction-leading) *
-              var(--_interaction-width-multiplier)
+              var(
+                --md-button-group-interaction-width-multiplier,
+                var(--_interaction-width-multiplier)
+              )
           )
       )
       calc(
         var(--_trailing-space) *
           (
             1 + var(--_interaction-direction-trailing) *
-              var(--_interaction-width-multiplier)
+              var(
+                --md-button-group-interaction-width-multiplier,
+                var(--_interaction-width-multiplier)
+              )
           )
       );
   }

@@ -7,13 +7,17 @@ import {
   type ReactiveElement,
 } from '../core/elements/reactive-element.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
-import { ButtonGroupCore, useButtonGroupCore } from './ButtonGroupCore.ts';
+import {
+  ButtonGroupCore,
+  useButtonGroupCore,
+  type ButtonGroupSharedCSSProperties,
+} from './ButtonGroupCore.ts';
 import standardStyles from './styles/standard/main.css.ts' with { type: 'css' };
 import { getTarget } from './utils.ts';
 
 export type ButtonGroupProperties = ButtonCoreProps;
 export type ButtonGroupEvents = EmptyObject;
-export type ButtonGroupCSSProperties = EmptyObject;
+export type ButtonGroupCSSProperties = ButtonGroupSharedCSSProperties;
 
 const LEADING_PROP = '--_interaction-direction-leading';
 const TRAILING_PROP = '--_interaction-direction-trailing';

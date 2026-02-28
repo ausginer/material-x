@@ -1,7 +1,7 @@
 :host([extended]) {
   .host {
     display: inline-grid;
-    grid-template-columns: var(--_icon-size) 0;
+    grid-template-columns: var(--md-fab-icon-size, var(--_icon-size)) 0;
     justify-content: start;
     align-items: center;
     color: var(--_label-text-color);
@@ -12,7 +12,8 @@
     user-select: none;
     gap: 0;
     transition-property: grid-template-columns, gap;
-    transition: var(--_unfold-duration) var(--_unfold-easing);
+    transition: var(--md-fab-unfold-duration, var(--_unfold-duration))
+      var(--md-fab-unfold-easing, var(--_unfold-easing));
   }
 
   .icon {
@@ -30,7 +31,8 @@
       white-space: nowrap;
       overflow: hidden;
       font-size: var(--_label-text-font-size);
-      transition: var(--_unfold-duration) var(--_unfold-easing);
+      transition: var(--md-fab-unfold-duration, var(--_unfold-duration))
+        var(--md-fab-unfold-easing, var(--_unfold-easing));
       transition-property: opacity;
     }
   }
@@ -38,8 +40,8 @@
 
 :host([extended='open']) {
   .host {
-    grid-template-columns: var(--_icon-size) 1fr;
-    gap: var(--_icon-label-space);
+    grid-template-columns: var(--md-fab-icon-size, var(--_icon-size)) 1fr;
+    gap: var(--md-fab-icon-label-space, var(--_icon-label-space));
   }
 
   .label {

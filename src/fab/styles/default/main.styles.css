@@ -1,11 +1,12 @@
 :host {
-  --_level: var(--_elevation-default);
-  transition: --_level var(--_unfold-duration) var(--_unfold-easing);
+  --_level: var(--md-fab-level, var(--_elevation-default));
+  transition: --_level var(--md-fab-unfold-duration, var(--_unfold-duration))
+    var(--md-fab-unfold-easing, var(--_unfold-easing));
   display: contents;
 }
 
 :host:has(.host:hover) {
-  --_level: var(--_elevation-hovered);
+  --_level: var(--md-fab-hover-level, var(--_elevation-hovered));
 }
 
 .host {
@@ -13,8 +14,20 @@
   display: inline-flex;
   background-color: var(--_container-color);
   border-radius: var(--_container-shape);
-  padding: calc((var(--_container-height) - var(--_icon-size)) / 2)
-    calc((var(--_container-width) - var(--_icon-size)) / 2);
+  padding: calc(
+      (
+          var(--md-fab-container-height, var(--_container-height)) -
+            var(--md-fab-icon-size, var(--_icon-size))
+        ) /
+        2
+    )
+    calc(
+      (
+          var(--md-fab-container-width, var(--_container-width)) -
+            var(--md-fab-icon-size, var(--_icon-size))
+        ) /
+        2
+    );
 
   &::before,
   &::after {
@@ -24,5 +37,5 @@
 
 .icon::slotted(*) {
   color: var(--_icon-color);
-  font-size: var(--_icon-size);
+  font-size: var(--md-fab-icon-size, var(--_icon-size));
 }

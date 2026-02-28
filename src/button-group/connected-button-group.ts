@@ -10,12 +10,16 @@ import { impl, type ConstructorWithTraits } from '../core/elements/traits.ts';
 import type { Checkable } from '../core/traits/checkable.ts';
 import { Valuable, type ValuableProps } from '../core/traits/valuable.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
-import { ButtonGroupCore, useButtonGroupCore } from './ButtonGroupCore.ts';
+import {
+  ButtonGroupCore,
+  useButtonGroupCore,
+  type ButtonGroupSharedCSSProperties,
+} from './ButtonGroupCore.ts';
 import connectedStyles from './styles/connected/main.css.ts' with { type: 'css' };
 
 export type ConnectedButtonGroupProperties = ButtonCoreProps & ValuableProps;
 export type ConnectedButtonGroupEvents = EmptyObject;
-export type ConnectedButtonGroupCSSProperties = EmptyObject;
+export type ConnectedButtonGroupCSSProperties = ButtonGroupSharedCSSProperties;
 
 const ConnectedButtonGroupCore: ConstructorWithTraits<
   InstanceType<typeof ButtonGroupCore>,

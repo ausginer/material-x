@@ -1,4 +1,3 @@
-import type { EmptyObject } from 'type-fest';
 import { useRipple } from '../core/animations/ripple.ts';
 import { useARIATransfer } from '../core/controllers/useARIA.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
@@ -66,7 +65,16 @@ export type FABProperties = Readonly<FABLikeProps & DisableableProps>;
 export type FABEvents = Readonly<{
   fabtoggle: Event;
 }>;
-export type FABCSSProperties = EmptyObject;
+export type FABCSSProperties = Readonly<{
+  '--md-fab-container-height'?: string;
+  '--md-fab-container-width'?: string;
+  '--md-fab-icon-size'?: string;
+  '--md-fab-icon-label-space'?: string;
+  '--md-fab-unfold-duration'?: string;
+  '--md-fab-unfold-easing'?: string;
+  '--md-fab-level'?: string;
+  '--md-fab-hover-level'?: string;
+}>;
 
 /**
  * @attr {FABSize} size

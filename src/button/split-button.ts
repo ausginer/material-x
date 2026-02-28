@@ -79,7 +79,7 @@ export default class SplitButton extends SplitButtonCore {
 
   constructor() {
     super();
-    useCore(this, splitButtonTemplate, {}, [splitButtonStyles]);
+    useCore(this, [splitButtonTemplate], {}, [splitButtonStyles]);
 
     useEvents(
       this,
