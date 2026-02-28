@@ -5,6 +5,7 @@ import { parseArgs } from 'node:util';
 import { root } from '../utils.ts';
 import format from './format.ts';
 import transform from './transform.ts';
+import { injectStateEnforcer } from './css-docs.ts';
 
 interface JSModule<T> {
   default?: T;
@@ -31,7 +32,7 @@ const { default: imported }: JSModule<string> = await import(
 const fileName = basename(fileURLToPath(url));
 
 const result = await format(
-  transform(imported ?? '', fileName).code,
+  transform(imported ?? '', fileName, { visitor: injectStateEnforcer() }).code,
   // Remove TS extension to avoid oxfmt hiccup
   fileName.replace(/\.ts$/, ''),
 );

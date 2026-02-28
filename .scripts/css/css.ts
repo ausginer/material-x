@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import MagicString from 'magic-string';
 import type { SourceMap } from 'rollup';
 import { cssCache, type JSONModule } from '../utils.ts';
+import { injectStateEnforcer } from './css-docs.ts';
 import format from './format.ts';
 import transform from './transform.ts';
 
@@ -48,8 +49,11 @@ export async function compileCSS(
   const { code: processedCode } = transform(
     await format(css, fileName),
     fileName,
-    false,
-    options?.isProd,
+    {
+      minify: false,
+      sourceMap: options?.isProd,
+      visitor: options?.isProd ? undefined : injectStateEnforcer(),
+    },
   );
 
   if (!processedCode) {
