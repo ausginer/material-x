@@ -51,6 +51,7 @@ export default class Button extends ButtonCore {
 
   constructor() {
     super();
+
     useButtonCore(
       this,
       buttonTemplate,

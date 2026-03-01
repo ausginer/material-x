@@ -8,11 +8,8 @@
   .support,
   .label,
   .counter {
-    &.has-slotted,
-    &:has(.has-slotted) {
-      color: var(--_label-text-color);
-      fill: var(--_label-text-color);
-      opacity: var(--_label-text-opacity);
-    }
+    color: var(--_label-text-color);
+    fill: var(--_label-text-color);
+    opacity: var(--_label-text-opacity);
   }
 }

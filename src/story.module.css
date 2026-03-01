@@ -39,3 +39,11 @@
     align-items: flex-start;
   }
 }
+
+.layout2 {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+}

@@ -1,21 +1,14 @@
 import type { Meta } from '@storybook/react-vite';
-import {
-  useState,
-  type CSSProperties,
-  type FC,
-  type JSX,
-  type PropsWithChildren,
-} from 'react';
+import type { JSX } from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
 import './fab.ts';
-import type { FABProperties } from './fab.ts';
 
 const meta: Meta = {
-  title: 'FAB',
+  title: 'FAB / Regular',
   decorators: [
     (Component: () => JSX.Element): JSX.Element => (
-      <div className={css['layout']}>
+      <div className={css['layout2']}>
         <Component />
       </div>
     ),
@@ -24,149 +17,58 @@ const meta: Meta = {
 
 export default meta;
 
-type RowProps = Readonly<
-  PropsWithChildren<{
-    title?: string;
-  }>
->;
-
-const Row: FC<RowProps> = ({ title, children }) => (
-  <div className={css['row']}>
-    <header>
-      <h3>{title}</h3>
-    </header>
-    <section>{children}</section>
-  </div>
-);
-
-export const Regular = (): JSX.Element => (
+export const States = (): JSX.Element => (
   <>
-    <Row title="Color">
-      <mx-fab>
-        <mx-icon slot="icon">check</mx-icon>
-      </mx-fab>
-      <mx-fab color="primary">
-        <mx-icon slot="icon">check</mx-icon>
-      </mx-fab>
-      <mx-fab color="secondary">
-        <mx-icon slot="icon">check</mx-icon>
-      </mx-fab>
-    </Row>
-
-    <Row title="Tonal Color">
-      <mx-fab tonal>
-        <mx-icon slot="icon">check</mx-icon>
-      </mx-fab>
-      <mx-fab tonal color="primary">
-        <mx-icon slot="icon">check</mx-icon>
-      </mx-fab>
-      <mx-fab tonal color="secondary">
-        <mx-icon slot="icon">check</mx-icon>
-      </mx-fab>
-    </Row>
-
-    <Row title="Size">
-      <mx-fab size="medium">
-        <mx-icon slot="icon">check</mx-icon>
-      </mx-fab>
-      <mx-fab size="large">
-        <mx-icon slot="icon">check</mx-icon>
-      </mx-fab>
-    </Row>
+    <mx-fab color="primary">
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
+    <mx-fab color="primary" data-force="hovered">
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
+    <mx-fab color="primary" data-force="focused">
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
+    <mx-fab color="primary" data-force="pressed">
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
   </>
 );
 
-type ControlledFABExtendedProps = Omit<FABProperties, 'extended'> &
-  Readonly<{
-    className?: string;
-    dir?: 'ltr' | 'rtl' | 'auto';
-    style?: CSSProperties;
-  }>;
-
-function ControlledFABExtended({
-  children,
-  ...other
-}: PropsWithChildren<ControlledFABExtendedProps>) {
-  const [open, setOpen] = useState(false);
-  const canHover =
-    // oxlint-disable-next-line typescript/prefer-optional-chain
-    typeof window !== 'undefined' &&
-    window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-  return (
-    <mx-fab
-      extended={open ? 'open' : 'closed'}
-      onMouseEnter={canHover ? () => setOpen(true) : undefined}
-      onMouseLeave={canHover ? () => setOpen(false) : undefined}
-      onClick={!canHover ? () => setOpen((v) => !v) : undefined}
-      {...other}
-    >
-      {children}
-    </mx-fab>
-  );
-}
-
-export const Extended = (): JSX.Element => (
+export const Colors = (): JSX.Element => (
   <>
-    <Row title="Color">
-      <ControlledFABExtended>
-        <mx-icon slot="icon">check</mx-icon>
-        Submit
-      </ControlledFABExtended>
-      <ControlledFABExtended color="primary">
-        <mx-icon slot="icon">check</mx-icon>
-        Submit
-      </ControlledFABExtended>
-      <ControlledFABExtended color="secondary">
-        <mx-icon slot="icon">check</mx-icon>
-        Submit
-      </ControlledFABExtended>
-    </Row>
+    <mx-fab>
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
+    <mx-fab color="primary">
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
+    <mx-fab color="secondary">
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
+  </>
+);
 
-    <Row title="Tonal Color">
-      <ControlledFABExtended tonal>
-        <mx-icon slot="icon">check</mx-icon>
-        Submit
-      </ControlledFABExtended>
-      <ControlledFABExtended tonal color="primary">
-        <mx-icon slot="icon">check</mx-icon>
-        Submit
-      </ControlledFABExtended>
-      <ControlledFABExtended tonal color="secondary">
-        <mx-icon slot="icon">check</mx-icon>
-        Submit
-      </ControlledFABExtended>
-    </Row>
+export const TonalColors = (): JSX.Element => (
+  <>
+    <mx-fab tonal>
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
+    <mx-fab tonal color="primary">
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
+    <mx-fab tonal color="secondary">
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
+  </>
+);
 
-    <Row title="Size">
-      <ControlledFABExtended tonal size="medium">
-        <mx-icon slot="icon">check</mx-icon>
-        Submit
-      </ControlledFABExtended>
-      <ControlledFABExtended tonal size="large">
-        <mx-icon slot="icon">check</mx-icon>
-        Submit
-      </ControlledFABExtended>
-    </Row>
-
-    <Row title="Direction">
-      <ControlledFABExtended>
-        <mx-icon slot="icon">check</mx-icon>
-        Submit
-      </ControlledFABExtended>
-      <ControlledFABExtended dir="rtl">
-        <mx-icon slot="icon">check</mx-icon>
-        ارسال
-      </ControlledFABExtended>
-      <ControlledFABExtended
-        style={{
-          writingMode: 'vertical-rl',
-          textOrientation: 'upright',
-        }}
-      >
-        <mx-icon slot="icon">check</mx-icon>
-        送信
-      </ControlledFABExtended>
-    </Row>
+export const Sizes = (): JSX.Element => (
+  <>
+    <mx-fab size="medium">
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
+    <mx-fab size="large">
+      <mx-icon slot="icon">check</mx-icon>
+    </mx-fab>
   </>
 );

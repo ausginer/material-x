@@ -5,7 +5,7 @@
   display: contents;
 }
 
-:host:has(.host:hover) {
+:host(:hover) {
   --_level: var(--md-fab-hover-level, var(--_elevation-hovered));
 }
 

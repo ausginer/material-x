@@ -104,6 +104,7 @@
   all: unset;
   field-sizing: content;
   min-inline-size: 0;
+  min-block-size: 1lh;
   inline-size: 100%;
   grid-area: field;
   justify-self: stretch;
@@ -292,8 +293,4 @@
 :host(:focus-within:state(has-suffix)) .suffix {
   transform: scaleY(1);
   visibility: visible;
-}
-
-.input[hidden] {
-  display: none;
 }

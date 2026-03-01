@@ -5,8 +5,8 @@ import './text-field.ts';
 import './multiline-text-field.ts';
 import css from './text-field.story.module.css';
 
-const meta: Meta = {
-  title: 'Multiline Text Field',
+const Meta: Meta = {
+  title: 'Text Field / Multiline',
   decorators: [
     (Component: () => JSX.Element): JSX.Element => (
       <div
@@ -21,9 +21,9 @@ const meta: Meta = {
   ],
 };
 
-export default meta;
+export default Meta;
 
-const filledMultilineValue =
+const FILLED_MULTILINE_VALUE =
   'This is a long input in a multi-line text field that wraps overflow text onto a new line';
 
 export const Filled = (): JSX.Element => (
@@ -31,7 +31,7 @@ export const Filled = (): JSX.Element => (
     <mx-multiline-text-field>
       <div slot="label">Label</div>
     </mx-multiline-text-field>
-    <mx-multiline-text-field value={filledMultilineValue}>
+    <mx-multiline-text-field value={FILLED_MULTILINE_VALUE}>
       <div slot="label">Label</div>
     </mx-multiline-text-field>
   </>
@@ -42,8 +42,42 @@ export const Outlined = (): JSX.Element => (
     <mx-multiline-text-field outlined>
       <div slot="label">Label</div>
     </mx-multiline-text-field>
-    <mx-multiline-text-field outlined value={filledMultilineValue}>
+    <mx-multiline-text-field outlined value={FILLED_MULTILINE_VALUE}>
       <div slot="label">Label</div>
+    </mx-multiline-text-field>
+  </>
+);
+
+export const FilledStates = (): JSX.Element => (
+  <>
+    <mx-multiline-text-field>
+      <div slot="label">Default</div>
+    </mx-multiline-text-field>
+    <mx-multiline-text-field data-force="hovered">
+      <div slot="label">Hovered</div>
+    </mx-multiline-text-field>
+    <mx-multiline-text-field data-force="focused">
+      <div slot="label">Focused</div>
+    </mx-multiline-text-field>
+    <mx-multiline-text-field disabled>
+      <div slot="label">Disabled</div>
+    </mx-multiline-text-field>
+  </>
+);
+
+export const OutlinedStates = (): JSX.Element => (
+  <>
+    <mx-multiline-text-field outlined>
+      <div slot="label">Default</div>
+    </mx-multiline-text-field>
+    <mx-multiline-text-field data-force="hovered" outlined>
+      <div slot="label">Hovered</div>
+    </mx-multiline-text-field>
+    <mx-multiline-text-field data-force="focused" outlined>
+      <div slot="label">Focused</div>
+    </mx-multiline-text-field>
+    <mx-multiline-text-field outlined disabled>
+      <div slot="label">Disabled</div>
     </mx-multiline-text-field>
   </>
 );
