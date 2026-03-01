@@ -1,0 +1,29 @@
+import { Meta } from '@storybook/blocks';
+import { foundationM3Links } from '../data/m3-links.ts';
+
+<Meta title="Docs/Foundations/Accessibility" />
+
+# Accessibility
+
+Material X components prioritize native semantics where possible, then layer in
+ElementInternals and ARIA forwarding.
+
+## General Guidance
+
+- Prefer native labels or explicit `aria-label`/`aria-labelledby`.
+- Keep switch-style controls controlled by app state.
+- Ensure grouped controls have a group label.
+- Validate with keyboard-only and assistive technology testing in your app.
+
+## Known Component Caveats
+
+- Switch components emit activation events and rely on consumers to update
+  `checked`.
+- Button group hosts should always provide accessible naming attributes.
+- Text fields should always receive meaningful label content.
+
+## Material 3 Reference
+
+<a href={foundationM3Links.accessibility} rel="noreferrer" target="_blank">
+  Accessible Design (Material 3)
+</a>

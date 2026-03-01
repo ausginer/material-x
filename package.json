@@ -66,6 +66,10 @@
     "./react.js": {
       "types": "./react.d.ts"
     },
+    "./text-field/multiline-text-field.js": {
+      "types": "./text-field/multiline-text-field.d.ts",
+      "default": "./text-field/multiline-text-field.js"
+    },
     "./text-field/text-field.js": {
       "types": "./text-field/text-field.d.ts",
       "default": "./text-field/text-field.js"
@@ -81,7 +85,9 @@
     "check": "concurrently npm:fmt:check npm:lint npm:typecheck",
     "test": "vitest run",
     "generate": "node .scripts/generator.ts",
-    "docs": "concurrently npm:docs:themes npm:build:props; npm run demo:build",
+    "docs": "concurrently npm:docs:themes npm:build:props npm:docs:api; npm run demo:build",
+    "docs:api": "node .scripts/docs/extract-api.ts && node .scripts/docs/check-coverage.ts",
+    "docs:api:check": "npm run docs:api && git diff --exit-code -- src/docs/.generated/components",
     "docs:themes": "node .scripts/storybook-theme.ts",
     "demo:themes": "npm run docs:themes",
     "demo:dev": "node .scripts/storybook.ts dev -h 127.0.0.1 -p 6006 --ci",

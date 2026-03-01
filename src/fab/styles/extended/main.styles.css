@@ -24,17 +24,14 @@
   .label {
     grid-column: 2;
     display: block;
-
-    &::slotted(*) {
-      opacity: 0;
-      min-inline-size: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      font-size: var(--_label-text-font-size);
-      transition: var(--md-fab-unfold-duration, var(--_unfold-duration))
-        var(--md-fab-unfold-easing, var(--_unfold-easing));
-      transition-property: opacity;
-    }
+    opacity: 0;
+    min-inline-size: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: var(--_label-text-font-size);
+    transition: var(--md-fab-unfold-duration, var(--_unfold-duration))
+      var(--md-fab-unfold-easing, var(--_unfold-easing));
+    transition-property: opacity;
   }
 }
 

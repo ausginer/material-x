@@ -1,0 +1,43 @@
+import { Meta } from '@storybook/blocks';
+import { foundationM3Links } from '../data/m3-links.ts';
+
+<Meta title="Docs/Foundations/Tokens and Theming" />
+
+# Tokens and Theming
+
+Material X uses a token-driven pipeline and exposes stable public CSS variables
+(`--md-*`) for customization.
+
+## Theming Model
+
+- System colors for Storybook docs are generated into `.storybook/theme.css`.
+- Component styling is built from Material 3 token sets and adjusted through the
+  local token processor.
+- Private internal variables (`--_...`) are implementation details and should
+  not be relied on by application code.
+
+## Public Overrides
+
+Override public custom properties on host elements or theme scopes:
+
+```css
+:root {
+  --md-sys-color-primary: #0057d8;
+}
+
+mx-button {
+  --md-button-container-height: 44px;
+}
+```
+
+## Material 3 References
+
+- <a href={foundationM3Links.designTokens} rel="noreferrer" target="_blank">
+    M3 Design Tokens
+  </a>
+- <a href={foundationM3Links.color} rel="noreferrer" target="_blank">
+    M3 Color System
+  </a>
+- <a href={foundationM3Links.typography} rel="noreferrer" target="_blank">
+    M3 Typography
+  </a>

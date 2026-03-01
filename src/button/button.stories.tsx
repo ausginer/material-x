@@ -1,5 +1,11 @@
 import type { Meta } from '@storybook/react-vite';
-import { useState, type FC, type JSX, type PropsWithChildren } from 'react';
+import {
+  useState,
+  type CSSProperties,
+  type FC,
+  type JSX,
+  type PropsWithChildren,
+} from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
 import './button.ts';
@@ -25,6 +31,10 @@ const meta: Meta = {
 
 export default meta;
 
+const darkThemeParameters = {
+  themes: { themeOverride: 'dark' },
+} as const;
+
 type RowProps = Readonly<
   PropsWithChildren<{
     title?: string;
@@ -38,6 +48,43 @@ const Row: FC<RowProps> = ({ title, children }) => (
     </header>
     <section>{children}</section>
   </div>
+);
+
+const stateTableStyle: CSSProperties = {
+  borderCollapse: 'collapse',
+  minWidth: 'min(100%, 740px)',
+};
+
+const stateCellStyle: CSSProperties = {
+  borderBottom:
+    '1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent)',
+  padding: '8px 12px',
+  textAlign: 'left',
+  verticalAlign: 'middle',
+};
+
+type StateTableProps = Readonly<
+  PropsWithChildren<{
+    title: string;
+  }>
+>;
+
+const StateTable: FC<StateTableProps> = ({ title, children }) => (
+  <Row title={title}>
+    <table style={stateTableStyle}>
+      <thead>
+        <tr>
+          <th style={stateCellStyle}>Variant</th>
+          <th style={stateCellStyle}>Default</th>
+          <th style={stateCellStyle}>Hover</th>
+          <th style={stateCellStyle}>Active</th>
+          <th style={stateCellStyle}>Focus</th>
+          <th style={stateCellStyle}>Disabled</th>
+        </tr>
+      </thead>
+      <tbody>{children}</tbody>
+    </table>
+  </Row>
 );
 
 export const Regular = (): JSX.Element => (
@@ -446,3 +493,241 @@ export const Split = (): JSX.Element => (
     </Row>
   </>
 );
+
+export const ButtonVariants = (): JSX.Element => <Regular />;
+
+export const ButtonVariantsDark = (): JSX.Element => <Regular />;
+ButtonVariantsDark.parameters = darkThemeParameters;
+
+export const ButtonStates = (): JSX.Element => (
+  <StateTable title="Button States">
+    <tr>
+      <th scope="row" style={stateCellStyle}>
+        Filled
+      </th>
+      <td style={stateCellStyle}>
+        <mx-button>Action</mx-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-button data-force="hover">Action</mx-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-button data-force="active">Action</mx-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-button data-force="focus">Action</mx-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-button disabled>Action</mx-button>
+      </td>
+    </tr>
+  </StateTable>
+);
+
+export const ButtonStatesDark = (): JSX.Element => <ButtonStates />;
+ButtonStatesDark.parameters = darkThemeParameters;
+
+export const LinkButtonVariants = (): JSX.Element => <Link />;
+
+export const LinkButtonVariantsDark = (): JSX.Element => <Link />;
+LinkButtonVariantsDark.parameters = darkThemeParameters;
+
+export const LinkButtonStates = (): JSX.Element => (
+  <StateTable title="Link Button States">
+    <tr>
+      <th scope="row" style={stateCellStyle}>
+        Filled
+      </th>
+      <td style={stateCellStyle}>
+        <mx-link-button href={HREF} target={TARGET}>
+          Action
+        </mx-link-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-link-button data-force="hover" href={HREF} target={TARGET}>
+          Action
+        </mx-link-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-link-button data-force="active" href={HREF} target={TARGET}>
+          Action
+        </mx-link-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-link-button data-force="focus" href={HREF} target={TARGET}>
+          Action
+        </mx-link-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-link-button disabled href={HREF} target={TARGET}>
+          Action
+        </mx-link-button>
+      </td>
+    </tr>
+  </StateTable>
+);
+
+export const LinkButtonStatesDark = (): JSX.Element => <LinkButtonStates />;
+LinkButtonStatesDark.parameters = darkThemeParameters;
+
+export const IconButtonVariants = (): JSX.Element => <Icon />;
+
+export const IconButtonVariantsDark = (): JSX.Element => <Icon />;
+IconButtonVariantsDark.parameters = darkThemeParameters;
+
+export const IconButtonStates = (): JSX.Element => (
+  <StateTable title="Icon Button States">
+    <tr>
+      <th scope="row" style={stateCellStyle}>
+        Standard
+      </th>
+      <td style={stateCellStyle}>
+        <mx-icon-button>
+          <mx-icon>search</mx-icon>
+        </mx-icon-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-icon-button data-force="hover">
+          <mx-icon>search</mx-icon>
+        </mx-icon-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-icon-button data-force="active">
+          <mx-icon>search</mx-icon>
+        </mx-icon-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-icon-button data-force="focus">
+          <mx-icon>search</mx-icon>
+        </mx-icon-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-icon-button disabled>
+          <mx-icon>search</mx-icon>
+        </mx-icon-button>
+      </td>
+    </tr>
+  </StateTable>
+);
+
+export const IconButtonStatesDark = (): JSX.Element => <IconButtonStates />;
+IconButtonStatesDark.parameters = darkThemeParameters;
+
+export const SwitchButtonVariants = (): JSX.Element => <Switch />;
+
+export const SwitchButtonVariantsDark = (): JSX.Element => <Switch />;
+SwitchButtonVariantsDark.parameters = darkThemeParameters;
+
+export const SwitchButtonStates = (): JSX.Element => (
+  <StateTable title="Switch Button States">
+    <tr>
+      <th scope="row" style={stateCellStyle}>
+        Filled
+      </th>
+      <td style={stateCellStyle}>
+        <mx-switch-button checked>Toggle</mx-switch-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-switch-button checked data-force="hover">
+          Toggle
+        </mx-switch-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-switch-button checked data-force="active">
+          Toggle
+        </mx-switch-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-switch-button checked data-force="focus">
+          Toggle
+        </mx-switch-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-switch-button checked disabled>
+          Toggle
+        </mx-switch-button>
+      </td>
+    </tr>
+  </StateTable>
+);
+
+export const SwitchButtonStatesDark = (): JSX.Element => <SwitchButtonStates />;
+SwitchButtonStatesDark.parameters = darkThemeParameters;
+
+export const SwitchIconButtonVariants = (): JSX.Element => <SwitchIcon />;
+
+export const SwitchIconButtonVariantsDark = (): JSX.Element => <SwitchIcon />;
+SwitchIconButtonVariantsDark.parameters = darkThemeParameters;
+
+export const SwitchIconButtonStates = (): JSX.Element => (
+  <StateTable title="Switch Icon Button States">
+    <tr>
+      <th scope="row" style={stateCellStyle}>
+        Standard
+      </th>
+      <td style={stateCellStyle}>
+        <mx-switch-icon-button checked>
+          <mx-icon>favorite</mx-icon>
+        </mx-switch-icon-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-switch-icon-button checked data-force="hover">
+          <mx-icon>favorite</mx-icon>
+        </mx-switch-icon-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-switch-icon-button checked data-force="active">
+          <mx-icon>favorite</mx-icon>
+        </mx-switch-icon-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-switch-icon-button checked data-force="focus">
+          <mx-icon>favorite</mx-icon>
+        </mx-switch-icon-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-switch-icon-button checked disabled>
+          <mx-icon>favorite</mx-icon>
+        </mx-switch-icon-button>
+      </td>
+    </tr>
+  </StateTable>
+);
+
+export const SwitchIconButtonStatesDark = (): JSX.Element => (
+  <SwitchIconButtonStates />
+);
+SwitchIconButtonStatesDark.parameters = darkThemeParameters;
+
+export const SplitButtonVariants = (): JSX.Element => <Split />;
+
+export const SplitButtonVariantsDark = (): JSX.Element => <Split />;
+SplitButtonVariantsDark.parameters = darkThemeParameters;
+
+export const SplitButtonStates = (): JSX.Element => (
+  <StateTable title="Split Button States">
+    <tr>
+      <th scope="row" style={stateCellStyle}>
+        Filled
+      </th>
+      <td style={stateCellStyle}>
+        <mx-split-button>Action</mx-split-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-split-button data-force="hover">Action</mx-split-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-split-button data-force="active">Action</mx-split-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-split-button data-force="focus">Action</mx-split-button>
+      </td>
+      <td style={stateCellStyle}>
+        <mx-split-button disabled>Action</mx-split-button>
+      </td>
+    </tr>
+  </StateTable>
+);
+
+export const SplitButtonStatesDark = (): JSX.Element => <SplitButtonStates />;
+SplitButtonStatesDark.parameters = darkThemeParameters;

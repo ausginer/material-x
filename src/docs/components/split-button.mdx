@@ -1,0 +1,31 @@
+import { Canvas, Meta } from '@storybook/blocks';
+import * as ButtonStories from '../../button/button.stories.tsx';
+import splitButton from '../.generated/components/split-button.json';
+import { ComponentDocSection } from '../components/ComponentDocSection.tsx';
+import { ComponentGuideSection } from '../components/ComponentGuideSection.tsx';
+
+<Meta of={ButtonStories} title="Docs/Components/Split Button" />
+
+# Split Button
+
+<ComponentGuideSection doc={splitButton} />
+
+## Demos
+
+### Variants / Playground
+
+<Canvas of={ButtonStories.SplitButtonVariants} />
+
+### Variants / Playground (Dark)
+
+<Canvas of={ButtonStories.SplitButtonVariantsDark} />
+
+### States
+
+<Canvas of={ButtonStories.SplitButtonStates} />
+
+### States (Dark)
+
+<Canvas of={ButtonStories.SplitButtonStatesDark} />
+
+<ComponentDocSection doc={splitButton} />

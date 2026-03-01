@@ -1,0 +1,31 @@
+import { Canvas, Meta } from '@storybook/blocks';
+import * as ButtonGroupStories from '../../button-group/button-group.stories.tsx';
+import connectedButtonGroup from '../.generated/components/connected-button-group.json';
+import { ComponentDocSection } from '../components/ComponentDocSection.tsx';
+import { ComponentGuideSection } from '../components/ComponentGuideSection.tsx';
+
+<Meta of={ButtonGroupStories} title="Docs/Components/Connected Button Group" />
+
+# Connected Button Group
+
+<ComponentGuideSection doc={connectedButtonGroup} />
+
+## Demos
+
+### Variants / Playground
+
+<Canvas of={ButtonGroupStories.ConnectedButtonGroupVariants} />
+
+### Variants / Playground (Dark)
+
+<Canvas of={ButtonGroupStories.ConnectedButtonGroupVariantsDark} />
+
+### States
+
+<Canvas of={ButtonGroupStories.ConnectedButtonGroupStates} />
+
+### States (Dark)
+
+<Canvas of={ButtonGroupStories.ConnectedButtonGroupStatesDark} />
+
+<ComponentDocSection doc={connectedButtonGroup} />

@@ -1,0 +1,109 @@
+{
+  "id": "icon-button",
+  "title": "Icon Button",
+  "tagName": "mx-icon-button",
+  "importPath": "@ausginer/material-x/button/icon-button.js",
+  "properties": [
+    {
+      "name": "color",
+      "optional": true,
+      "type": "IconButtonColor | undefined"
+    },
+    {
+      "name": "disabled",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "shape",
+      "optional": true,
+      "type": "NonNullable<ButtonShape> | undefined"
+    },
+    {
+      "name": "size",
+      "optional": true,
+      "type": "NonNullable<ButtonSize> | undefined"
+    },
+    {
+      "name": "width",
+      "optional": true,
+      "type": "NonNullable<IconButtonWidth> | undefined"
+    }
+  ],
+  "events": [],
+  "cssProperties": [
+    {
+      "name": "--md-button-container-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-icon-label-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-icon-size",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-label-text-line-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-leading-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-press-duration",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-press-easing",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-trailing-space",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default"
+    }
+  ],
+  "parts": [
+    {
+      "name": "impl"
+    }
+  ],
+  "exportedParts": [],
+  "meta": {
+    "id": "icon-button",
+    "title": "Icon Button",
+    "docPage": "src/docs/components/icon-button.mdx",
+    "summary": "Icon buttons provide compact, icon-only actions when space is constrained. They are useful for utility actions in toolbars, cards, and list items.",
+    "whenToUse": [
+      "Use for compact actions represented by a single icon.",
+      "Prefer when layout density is limited and label is unnecessary."
+    ],
+    "pitfalls": [
+      "Do not rely on icon shape alone for meaning; provide `aria-label`/`aria-labelledby` for accessible naming.",
+      "Avoid using icon buttons for destructive actions without additional confirmation context."
+    ],
+    "deltas": [
+      "`width` supports `wide`/`narrow` sizing presets in addition to base shape and size tokens."
+    ],
+    "a11yCaveats": [],
+    "m3": {
+      "overview": "https://m3.material.io/components/icon-buttons/overview",
+      "specs": "https://m3.material.io/components/icon-buttons/specs"
+    }
+  }
+}

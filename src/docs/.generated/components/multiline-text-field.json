@@ -1,0 +1,187 @@
+{
+  "id": "multiline-text-field",
+  "title": "Multiline Text Field",
+  "tagName": "mx-multiline-text-field",
+  "importPath": "@ausginer/material-x/text-field/multiline-text-field.js",
+  "properties": [
+    {
+      "name": "disabled",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "inputmode",
+      "optional": true,
+      "type": "NonNullable<TextFieldInputMode> | undefined"
+    },
+    {
+      "name": "outlined",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "type",
+      "optional": true,
+      "type": "NonNullable<TextFieldType> | undefined"
+    },
+    {
+      "name": "value",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "optional": false,
+      "type": "Event",
+      "description": "Native change event from the internal textarea control."
+    },
+    {
+      "name": "input",
+      "optional": false,
+      "type": "InputEvent",
+      "description": "Native input event from the internal textarea control."
+    }
+  ],
+  "cssProperties": [
+    {
+      "name": "--md-text-field-container-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-text-field-container-icon-padding-inline",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-text-field-container-padding-inline",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-text-field-focus-duration",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-text-field-focus-easing",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-text-field-input-line-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-text-field-leading-icon-size",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-text-field-notch-bg",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-text-field-prefix-gap",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-text-field-suffix-gap",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-text-field-supporting-text-gap",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-text-field-trailing-icon-size",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "slots": [
+    {
+      "name": "counter"
+    },
+    {
+      "name": "label"
+    },
+    {
+      "name": "lead"
+    },
+    {
+      "name": "prefix"
+    },
+    {
+      "name": "suffix"
+    },
+    {
+      "name": "support"
+    },
+    {
+      "name": "trail"
+    }
+  ],
+  "parts": [
+    {
+      "name": "counter"
+    },
+    {
+      "name": "field"
+    },
+    {
+      "name": "label"
+    },
+    {
+      "name": "lead"
+    },
+    {
+      "name": "prefix"
+    },
+    {
+      "name": "suffix"
+    },
+    {
+      "name": "support"
+    },
+    {
+      "name": "trail"
+    }
+  ],
+  "exportedParts": [],
+  "meta": {
+    "id": "multiline-text-field",
+    "title": "Multiline Text Field",
+    "docPage": "src/docs/components/multiline-text-field.mdx",
+    "summary": "Multiline text fields support wrapped long-form input while keeping the same Material X text-field anatomy. They share slots, tokens, and accessibility patterns with single-line fields.",
+    "whenToUse": [
+      "Use for long-form text with wrapping content.",
+      "Use when you need text-field anatomy plus textarea behavior."
+    ],
+    "pitfalls": [
+      "Always provide meaningful label content or explicit ARIA naming.",
+      "Avoid multiline fields for short constrained values where single-line input is clearer."
+    ],
+    "deltas": [
+      "Implements multiline support with `textarea` while reusing the same slot and token system as `mx-text-field`."
+    ],
+    "a11yCaveats": [
+      {
+        "title": "Always provide a label slot or explicit ARIA name",
+        "detail": "Without a meaningful label, assistive technologies can receive an empty accessible name."
+      }
+    ],
+    "m3": {
+      "overview": "https://m3.material.io/components/text-fields/overview",
+      "specs": "https://m3.material.io/components/text-fields/specs",
+      "accessibility": "https://m3.material.io/components/text-fields/accessibility"
+    }
+  }
+}

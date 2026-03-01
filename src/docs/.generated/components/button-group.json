@@ -1,0 +1,80 @@
+{
+  "id": "button-group",
+  "title": "Button Group",
+  "tagName": "mx-button-group",
+  "importPath": "@ausginer/material-x/button-group/button-group.js",
+  "properties": [
+    {
+      "name": "color",
+      "optional": true,
+      "type": "NonNullable<ButtonColor> | undefined"
+    },
+    {
+      "name": "disabled",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "shape",
+      "optional": true,
+      "type": "NonNullable<ButtonShape> | undefined"
+    },
+    {
+      "name": "size",
+      "optional": true,
+      "type": "NonNullable<ButtonSize> | undefined"
+    }
+  ],
+  "events": [],
+  "cssProperties": [
+    {
+      "name": "--md-button-group-between-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-group-inner-corner-size",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-group-interaction-width-multiplier",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default"
+    }
+  ],
+  "parts": [],
+  "exportedParts": [],
+  "meta": {
+    "id": "button-group",
+    "title": "Button Group",
+    "docPage": "src/docs/components/button-group.mdx",
+    "summary": "Button groups provide coordinated styling and behavior for related action sets. Shared size/shape/color context is propagated to child controls.",
+    "whenToUse": [
+      "Use to visually and semantically group related actions.",
+      "Use for grouped actions that share size/shape/color context."
+    ],
+    "pitfalls": [
+      "Do not leave groups unnamed for assistive technologies.",
+      "Avoid overloading groups with too many actions that reduce scanability."
+    ],
+    "deltas": [
+      "Group-level attributes are propagated to child buttons via internal context."
+    ],
+    "a11yCaveats": [
+      {
+        "title": "Provide an accessible group label",
+        "detail": "Set `aria-label` or `aria-labelledby` on the group host to expose a useful accessible name."
+      }
+    ],
+    "m3": {
+      "overview": "https://m3.material.io/components/segmented-buttons/overview",
+      "specs": "https://m3.material.io/components/segmented-buttons/specs"
+    }
+  }
+}

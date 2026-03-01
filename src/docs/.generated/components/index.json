@@ -1,0 +1,14 @@
+{
+  "button": "./button.json",
+  "button-group": "./button-group.json",
+  "connected-button-group": "./connected-button-group.json",
+  "fab": "./fab.json",
+  "icon": "./icon.json",
+  "icon-button": "./icon-button.json",
+  "link-button": "./link-button.json",
+  "multiline-text-field": "./multiline-text-field.json",
+  "split-button": "./split-button.json",
+  "switch-button": "./switch-button.json",
+  "switch-icon-button": "./switch-icon-button.json",
+  "text-field": "./text-field.json"
+}

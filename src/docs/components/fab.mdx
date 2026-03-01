@@ -1,0 +1,31 @@
+import { Canvas, Meta } from '@storybook/blocks';
+import * as FABStories from '../../fab/fab.stories.tsx';
+import fab from '../.generated/components/fab.json';
+import { ComponentDocSection } from '../components/ComponentDocSection.tsx';
+import { ComponentGuideSection } from '../components/ComponentGuideSection.tsx';
+
+<Meta of={FABStories} title="Docs/Components/FAB" />
+
+# Floating Action Button
+
+<ComponentGuideSection doc={fab} />
+
+## Demos
+
+### Variants / Playground
+
+<Canvas of={FABStories.Variants} />
+
+### Variants / Playground (Dark)
+
+<Canvas of={FABStories.VariantsDark} />
+
+### States
+
+<Canvas of={FABStories.States} />
+
+### States (Dark)
+
+<Canvas of={FABStories.StatesDark} />
+
+<ComponentDocSection doc={fab} />

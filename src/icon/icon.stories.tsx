@@ -16,6 +16,10 @@ const meta: Meta = {
 
 export default meta;
 
+const darkThemeParameters = {
+  themes: { themeOverride: 'dark' },
+} as const;
+
 type RowProps = Readonly<
   PropsWithChildren<{
     title?: string;
@@ -62,3 +66,8 @@ export const Default = (): JSX.Element => (
     </Row>
   </>
 );
+
+export const Variants = (): JSX.Element => <Default />;
+
+export const VariantsDark = (): JSX.Element => <Default />;
+VariantsDark.parameters = darkThemeParameters;

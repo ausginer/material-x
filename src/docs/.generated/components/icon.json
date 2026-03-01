@@ -1,0 +1,47 @@
+{
+  "id": "icon",
+  "title": "Icon",
+  "tagName": "mx-icon",
+  "importPath": "@ausginer/material-x/icon/icon.js",
+  "properties": [],
+  "events": [],
+  "cssProperties": [
+    {
+      "name": "--md-icon-font",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-icon-size",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default"
+    }
+  ],
+  "parts": [],
+  "exportedParts": [],
+  "meta": {
+    "id": "icon",
+    "title": "Icon",
+    "docPage": "src/docs/components/icon.mdx",
+    "summary": "Icons are presentational building blocks used across components and slots. The `mx-icon` element exposes lightweight typography-driven customization via CSS variables.",
+    "whenToUse": [
+      "Use as a presentational companion with button, fab, and text-field slots.",
+      "Set icon font and size via CSS custom properties for consistent theming."
+    ],
+    "pitfalls": [
+      "Do not rely on icon-only content to communicate critical meaning without text or ARIA labeling context."
+    ],
+    "deltas": [
+      "Material Symbols font selection is controlled by `--md-icon-font` CSS variable."
+    ],
+    "a11yCaveats": [],
+    "m3": {
+      "overview": "https://m3.material.io/styles/icons/overview"
+    }
+  }
+}

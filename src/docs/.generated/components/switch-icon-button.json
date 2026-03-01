@@ -1,0 +1,137 @@
+{
+  "id": "switch-icon-button",
+  "title": "Switch Icon Button",
+  "tagName": "mx-switch-icon-button",
+  "importPath": "@ausginer/material-x/button/switch-icon-button.js",
+  "properties": [
+    {
+      "name": "checked",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "color",
+      "optional": true,
+      "type": "IconButtonColor | undefined"
+    },
+    {
+      "name": "disabled",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "shape",
+      "optional": true,
+      "type": "NonNullable<ButtonShape> | undefined"
+    },
+    {
+      "name": "size",
+      "optional": true,
+      "type": "NonNullable<ButtonSize> | undefined"
+    },
+    {
+      "name": "value",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "width",
+      "optional": true,
+      "type": "NonNullable<IconButtonWidth> | undefined"
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "optional": false,
+      "type": "Event",
+      "description": "Emitted on activation. Consumers are expected to update `checked`."
+    },
+    {
+      "name": "input",
+      "optional": false,
+      "type": "Event",
+      "description": "Emitted on activation to support controlled switch patterns."
+    }
+  ],
+  "cssProperties": [
+    {
+      "name": "--md-button-container-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-icon-label-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-icon-size",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-label-text-line-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-leading-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-press-duration",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-press-easing",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-trailing-space",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default"
+    }
+  ],
+  "parts": [
+    {
+      "name": "impl"
+    }
+  ],
+  "exportedParts": [],
+  "meta": {
+    "id": "switch-icon-button",
+    "title": "Switch Icon Button",
+    "docPage": "src/docs/components/switch-icon-button.mdx",
+    "summary": "Switch icon buttons combine icon-only density with toggle semantics. They are useful in segmented or compact selection surfaces.",
+    "whenToUse": [
+      "Use for icon-only toggle states in constrained layouts.",
+      "Prefer in segmented/connected button groups when selection is visual."
+    ],
+    "pitfalls": [
+      "Do not expect automatic toggling; update `checked` in your `change` handler.",
+      "Ensure each icon-only control has an accessible name."
+    ],
+    "deltas": [
+      "Switch state is consumer-controlled through `checked` updates in response to `change`."
+    ],
+    "a11yCaveats": [
+      {
+        "title": "Controlled switch behavior is required",
+        "detail": "Activation emits `input`/`change`, but state announcements rely on consumer updating `checked`."
+      }
+    ],
+    "m3": {
+      "overview": "https://m3.material.io/components/segmented-buttons/overview",
+      "specs": "https://m3.material.io/components/segmented-buttons/specs"
+    }
+  }
+}

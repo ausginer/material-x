@@ -66,6 +66,7 @@ const COMPONENTS = [
   'fab/fab',
   'icon/icon',
   'text-field/text-field',
+  'text-field/multiline-text-field',
 ] as const;
 
 const TYPES = ['react'] as const;

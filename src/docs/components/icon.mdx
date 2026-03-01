@@ -1,0 +1,23 @@
+import { Canvas, Meta } from '@storybook/blocks';
+import * as IconStories from '../../icon/icon.stories.tsx';
+import icon from '../.generated/components/icon.json';
+import { ComponentDocSection } from '../components/ComponentDocSection.tsx';
+import { ComponentGuideSection } from '../components/ComponentGuideSection.tsx';
+
+<Meta of={IconStories} title="Docs/Components/Icon" />
+
+# Icon
+
+<ComponentGuideSection doc={icon} />
+
+## Demos
+
+### Variants / Playground
+
+<Canvas of={IconStories.Variants} />
+
+### Variants / Playground (Dark)
+
+<Canvas of={IconStories.VariantsDark} />
+
+<ComponentDocSection doc={icon} />

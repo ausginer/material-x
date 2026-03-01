@@ -1,0 +1,134 @@
+{
+  "id": "split-button",
+  "title": "Split Button",
+  "tagName": "mx-split-button",
+  "importPath": "@ausginer/material-x/button/split-button.js",
+  "properties": [
+    {
+      "name": "color",
+      "optional": true,
+      "type": "NonNullable<ButtonColor> | undefined"
+    },
+    {
+      "name": "disabled",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "open",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "shape",
+      "optional": true,
+      "type": "NonNullable<ButtonShape> | undefined"
+    },
+    {
+      "name": "size",
+      "optional": true,
+      "type": "NonNullable<ButtonSize> | undefined"
+    }
+  ],
+  "events": [
+    {
+      "name": "toggle",
+      "optional": false,
+      "type": "Event"
+    }
+  ],
+  "cssProperties": [
+    {
+      "name": "--md-button-container-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-icon-label-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-icon-size",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-label-text-line-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-leading-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-press-duration",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-press-easing",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-trailing-space",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default"
+    },
+    {
+      "name": "icon"
+    }
+  ],
+  "parts": [
+    {
+      "name": "group"
+    },
+    {
+      "name": "impl"
+    },
+    {
+      "name": "leading"
+    },
+    {
+      "name": "trailing"
+    }
+  ],
+  "exportedParts": [
+    {
+      "name": "leading-impl"
+    },
+    {
+      "name": "trailing-impl"
+    }
+  ],
+  "meta": {
+    "id": "split-button",
+    "title": "Split Button",
+    "docPage": "src/docs/components/split-button.mdx",
+    "summary": "Split buttons expose a primary action plus a secondary trigger for related alternatives. Material X handles this as a composed control with a `toggle` event for menu/popover flows.",
+    "whenToUse": [
+      "Use when primary action and alternative actions are closely related.",
+      "Use `toggle` event to open an attached menu/popover."
+    ],
+    "pitfalls": [
+      "Do not use split buttons when there is no meaningful secondary action list.",
+      "Avoid nesting additional action menus that create deep interaction stacks."
+    ],
+    "deltas": [
+      "Implemented as composition of `mx-button` and `mx-icon-button` inside `mx-connected-button-group`."
+    ],
+    "a11yCaveats": [],
+    "m3": {
+      "overview": "https://m3.material.io/components/buttons/overview",
+      "specs": "https://m3.material.io/components/buttons/specs"
+    }
+  }
+}

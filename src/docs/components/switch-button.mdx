@@ -1,0 +1,31 @@
+import { Canvas, Meta } from '@storybook/blocks';
+import * as ButtonStories from '../../button/button.stories.tsx';
+import switchButton from '../.generated/components/switch-button.json';
+import { ComponentDocSection } from '../components/ComponentDocSection.tsx';
+import { ComponentGuideSection } from '../components/ComponentGuideSection.tsx';
+
+<Meta of={ButtonStories} title="Docs/Components/Switch Button" />
+
+# Switch Button
+
+<ComponentGuideSection doc={switchButton} />
+
+## Demos
+
+### Variants / Playground
+
+<Canvas of={ButtonStories.SwitchButtonVariants} />
+
+### Variants / Playground (Dark)
+
+<Canvas of={ButtonStories.SwitchButtonVariantsDark} />
+
+### States
+
+<Canvas of={ButtonStories.SwitchButtonStates} />
+
+### States (Dark)
+
+<Canvas of={ButtonStories.SwitchButtonStatesDark} />
+
+<ComponentDocSection doc={switchButton} />

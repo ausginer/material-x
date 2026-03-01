@@ -1,0 +1,107 @@
+{
+  "id": "button",
+  "title": "Button",
+  "tagName": "mx-button",
+  "importPath": "@ausginer/material-x/button/button.js",
+  "properties": [
+    {
+      "name": "color",
+      "optional": true,
+      "type": "NonNullable<ButtonColor> | undefined"
+    },
+    {
+      "name": "disabled",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "shape",
+      "optional": true,
+      "type": "NonNullable<ButtonShape> | undefined"
+    },
+    {
+      "name": "size",
+      "optional": true,
+      "type": "NonNullable<ButtonSize> | undefined"
+    }
+  ],
+  "events": [],
+  "cssProperties": [
+    {
+      "name": "--md-button-container-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-icon-label-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-icon-size",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-label-text-line-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-leading-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-press-duration",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-press-easing",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-trailing-space",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default"
+    },
+    {
+      "name": "icon"
+    }
+  ],
+  "parts": [
+    {
+      "name": "impl"
+    }
+  ],
+  "exportedParts": [],
+  "meta": {
+    "id": "button",
+    "title": "Button",
+    "docPage": "src/docs/components/button.mdx",
+    "summary": "Buttons communicate high-emphasis and medium-emphasis actions in flows like forms, dialogs, and toolbars. Material X provides one `mx-button` element with multiple visual variants controlled by attributes.",
+    "whenToUse": [
+      "Use for high-emphasis and medium-emphasis actions such as save, submit, or continue.",
+      "Use with icon slot when action benefit from a visual cue."
+    ],
+    "pitfalls": [
+      "Do not use button variants for navigation; prefer `mx-link-button` when the action changes location.",
+      "Avoid mixing too many emphasis levels in the same action group."
+    ],
+    "deltas": [
+      "Material X keeps one tag with color variants (`filled`, `elevated`, `tonal`, `outlined`, `text`) via `color` attribute."
+    ],
+    "a11yCaveats": [],
+    "m3": {
+      "overview": "https://m3.material.io/components/buttons/overview",
+      "specs": "https://m3.material.io/components/buttons/specs"
+    }
+  }
+}

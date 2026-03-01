@@ -1,0 +1,47 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Docs/Get Started/Quick Start" />
+
+# Quick Start
+
+## Vanilla
+
+```js
+import '@ausginer/material-x/button/button.js';
+import '@ausginer/material-x/button/icon-button.js';
+import '@ausginer/material-x/icon/icon.js';
+
+document.body.innerHTML = `
+  <mx-button>
+    <mx-icon slot="icon">edit</mx-icon>
+    Save
+  </mx-button>
+`;
+```
+
+## React
+
+```tsx
+import '@ausginer/material-x/button/switch-button.js';
+import { useState } from 'react';
+
+export function NotificationsToggle() {
+  const [checked, setChecked] = useState(false);
+
+  return (
+    <mx-switch-button
+      checked={checked}
+      onChange={() => {
+        setChecked((value) => !value);
+      }}
+    >
+      Notifications
+    </mx-switch-button>
+  );
+}
+```
+
+## Controlled Components Guidance
+
+`mx-switch-button` and `mx-switch-icon-button` are designed for controlled
+usage: update `checked` in your event handler.

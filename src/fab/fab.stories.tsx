@@ -24,6 +24,10 @@ const meta: Meta = {
 
 export default meta;
 
+const darkThemeParameters = {
+  themes: { themeOverride: 'dark' },
+} as const;
+
 type RowProps = Readonly<
   PropsWithChildren<{
     title?: string;
@@ -38,6 +42,19 @@ const Row: FC<RowProps> = ({ title, children }) => (
     <section>{children}</section>
   </div>
 );
+
+const stateTableStyle: CSSProperties = {
+  borderCollapse: 'collapse',
+  minWidth: 'min(100%, 740px)',
+};
+
+const stateCellStyle: CSSProperties = {
+  borderBottom:
+    '1px solid color-mix(in srgb, var(--md-sys-color-outline) 28%, transparent)',
+  padding: '8px 12px',
+  textAlign: 'left',
+  verticalAlign: 'middle',
+};
 
 export const Regular = (): JSX.Element => (
   <>
@@ -170,3 +187,100 @@ export const Extended = (): JSX.Element => (
     </Row>
   </>
 );
+
+export const Variants = (): JSX.Element => (
+  <>
+    <Regular />
+    <Extended />
+  </>
+);
+
+export const VariantsDark = (): JSX.Element => <Variants />;
+VariantsDark.parameters = darkThemeParameters;
+
+export const States = (): JSX.Element => (
+  <Row title="States">
+    <table style={stateTableStyle}>
+      <thead>
+        <tr>
+          <th style={stateCellStyle}>Variant</th>
+          <th style={stateCellStyle}>Default</th>
+          <th style={stateCellStyle}>Hover</th>
+          <th style={stateCellStyle}>Active</th>
+          <th style={stateCellStyle}>Focus</th>
+          <th style={stateCellStyle}>Disabled</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row" style={stateCellStyle}>
+            Standard
+          </th>
+          <td style={stateCellStyle}>
+            <mx-fab>
+              <mx-icon slot="icon">check</mx-icon>
+            </mx-fab>
+          </td>
+          <td style={stateCellStyle}>
+            <mx-fab data-force="hover">
+              <mx-icon slot="icon">check</mx-icon>
+            </mx-fab>
+          </td>
+          <td style={stateCellStyle}>
+            <mx-fab data-force="active">
+              <mx-icon slot="icon">check</mx-icon>
+            </mx-fab>
+          </td>
+          <td style={stateCellStyle}>
+            <mx-fab data-force="focus">
+              <mx-icon slot="icon">check</mx-icon>
+            </mx-fab>
+          </td>
+          <td style={stateCellStyle}>
+            <mx-fab disabled>
+              <mx-icon slot="icon">check</mx-icon>
+            </mx-fab>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row" style={stateCellStyle}>
+            Extended
+          </th>
+          <td style={stateCellStyle}>
+            <mx-fab extended="open">
+              <mx-icon slot="icon">check</mx-icon>
+              Compose
+            </mx-fab>
+          </td>
+          <td style={stateCellStyle}>
+            <mx-fab data-force="hover" extended="open">
+              <mx-icon slot="icon">check</mx-icon>
+              Compose
+            </mx-fab>
+          </td>
+          <td style={stateCellStyle}>
+            <mx-fab data-force="active" extended="open">
+              <mx-icon slot="icon">check</mx-icon>
+              Compose
+            </mx-fab>
+          </td>
+          <td style={stateCellStyle}>
+            <mx-fab data-force="focus" extended="open">
+              <mx-icon slot="icon">check</mx-icon>
+              Compose
+            </mx-fab>
+          </td>
+          <td style={stateCellStyle}>
+            <mx-fab disabled extended="open">
+              <mx-icon slot="icon">check</mx-icon>
+              Compose
+            </mx-fab>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </Row>
+);
+
+export const StatesDark = (): JSX.Element => <States />;
+StatesDark.parameters = darkThemeParameters;

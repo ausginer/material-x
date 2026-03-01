@@ -1,0 +1,85 @@
+{
+  "id": "connected-button-group",
+  "title": "Connected Button Group",
+  "tagName": "mx-connected-button-group",
+  "importPath": "@ausginer/material-x/button-group/connected-button-group.js",
+  "properties": [
+    {
+      "name": "color",
+      "optional": true,
+      "type": "NonNullable<ButtonColor> | undefined"
+    },
+    {
+      "name": "disabled",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "shape",
+      "optional": true,
+      "type": "NonNullable<ButtonShape> | undefined"
+    },
+    {
+      "name": "size",
+      "optional": true,
+      "type": "NonNullable<ButtonSize> | undefined"
+    },
+    {
+      "name": "value",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "events": [],
+  "cssProperties": [
+    {
+      "name": "--md-button-group-between-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-group-inner-corner-size",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-group-interaction-width-multiplier",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default"
+    }
+  ],
+  "parts": [],
+  "exportedParts": [],
+  "meta": {
+    "id": "connected-button-group",
+    "title": "Connected Button Group",
+    "docPage": "src/docs/components/connected-button-group.mdx",
+    "summary": "Connected button groups are segmented controls with coordinated selection and keyboard navigation. They are optimized for exclusive-option UIs.",
+    "whenToUse": [
+      "Use for segmented controls with single active selection and keyboard roving behavior.",
+      "Use `value` to reflect the selected child option."
+    ],
+    "pitfalls": [
+      "Do not omit accessible group naming (`aria-label` or `aria-labelledby`).",
+      "Avoid mixed semantics inside one group (e.g., mixing toggles and command actions)."
+    ],
+    "deltas": [
+      "Implements roving tabindex navigation for keyboard selection flow."
+    ],
+    "a11yCaveats": [
+      {
+        "title": "Provide an accessible group label",
+        "detail": "Set `aria-label` or `aria-labelledby` on the group host to expose a useful accessible name."
+      }
+    ],
+    "m3": {
+      "overview": "https://m3.material.io/components/segmented-buttons/overview",
+      "specs": "https://m3.material.io/components/segmented-buttons/specs"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Docs/Foundations/Styling and CSS Vars" />
+
+# Styling and CSS Variables
+
+## Public vs Private Variables
+
+- Public API: `--md-*` variables. These are documented and safe to override.
+- Internal implementation: `--_*` variables. These are not stable API.
+
+## Override Scope
+
+- Global theme scope (`:root`, theme container)
+- Component host scope (`mx-button`, `mx-fab`, etc.)
+- Contextual scope (feature-specific container classes)
+
+## Example
+
+```css
+.theme-brand {
+  --md-sys-color-primary: #00639b;
+  --md-sys-color-on-primary: #ffffff;
+}
+
+.theme-brand mx-fab {
+  --md-fab-container-height: 64px;
+}
+```
+
+## Performance Notes
+
+- Prefer variable overrides over deep selector overrides.
+- Keep override sets small and intentional.
+- Avoid coupling app styles to shadow-internal selectors.

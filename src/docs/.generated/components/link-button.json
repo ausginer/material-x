@@ -1,0 +1,117 @@
+{
+  "id": "link-button",
+  "title": "Link Button",
+  "tagName": "mx-link-button",
+  "importPath": "@ausginer/material-x/button/link-button.js",
+  "properties": [
+    {
+      "name": "color",
+      "optional": true,
+      "type": "NonNullable<ButtonColor> | undefined"
+    },
+    {
+      "name": "disabled",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "href",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "shape",
+      "optional": true,
+      "type": "NonNullable<ButtonShape> | undefined"
+    },
+    {
+      "name": "size",
+      "optional": true,
+      "type": "NonNullable<ButtonSize> | undefined"
+    },
+    {
+      "name": "target",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "events": [],
+  "cssProperties": [
+    {
+      "name": "--md-button-container-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-icon-label-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-icon-size",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-label-text-line-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-leading-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-press-duration",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-press-easing",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-button-trailing-space",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default"
+    },
+    {
+      "name": "icon"
+    }
+  ],
+  "parts": [
+    {
+      "name": "impl"
+    }
+  ],
+  "exportedParts": [],
+  "meta": {
+    "id": "link-button",
+    "title": "Link Button",
+    "docPage": "src/docs/components/link-button.mdx",
+    "summary": "Link buttons combine button visuals with anchor semantics for navigation-focused actions. They preserve standard link capabilities such as `href` and `target`.",
+    "whenToUse": [
+      "Use when action semantically navigates to another location.",
+      "Prefer over regular button when you need native anchor behavior (`href`, `target`)."
+    ],
+    "pitfalls": [
+      "Do not use for in-place form actions; use `mx-button` instead.",
+      "If disabled, ensure surrounding UX still communicates why navigation is unavailable."
+    ],
+    "deltas": [
+      "Disabled state is emulated (`aria-disabled`, `tabindex=-1`) because anchors do not support native `disabled`."
+    ],
+    "a11yCaveats": [],
+    "m3": {
+      "overview": "https://m3.material.io/components/buttons/overview",
+      "specs": "https://m3.material.io/components/buttons/specs"
+    }
+  }
+}

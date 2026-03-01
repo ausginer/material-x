@@ -1,0 +1,34 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Docs/Get Started/Installation" />
+
+# Installation
+
+## Requirements
+
+- Node.js `>=24` for local development workflows.
+
+## Install
+
+```bash
+npm install @ausginer/material-x
+```
+
+## Import Strategy
+
+Material X is entrypoint-based. Import only components you use:
+
+```ts
+import '@ausginer/material-x/button/button.js';
+import '@ausginer/material-x/icon/icon.js';
+```
+
+## React Typings
+
+React intrinsic element and CSS property typings are exposed by:
+
+```ts
+import type {} from '@ausginer/material-x/react.js';
+```
+
+Use this once in your app typing entrypoint if needed.

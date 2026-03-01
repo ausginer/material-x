@@ -1,0 +1,31 @@
+import { Canvas, Meta } from '@storybook/blocks';
+import * as ButtonStories from '../../button/button.stories.tsx';
+import linkButton from '../.generated/components/link-button.json';
+import { ComponentDocSection } from '../components/ComponentDocSection.tsx';
+import { ComponentGuideSection } from '../components/ComponentGuideSection.tsx';
+
+<Meta of={ButtonStories} title="Docs/Components/Link Button" />
+
+# Link Button
+
+<ComponentGuideSection doc={linkButton} />
+
+## Demos
+
+### Variants / Playground
+
+<Canvas of={ButtonStories.LinkButtonVariants} />
+
+### Variants / Playground (Dark)
+
+<Canvas of={ButtonStories.LinkButtonVariantsDark} />
+
+### States
+
+<Canvas of={ButtonStories.LinkButtonStates} />
+
+### States (Dark)
+
+<Canvas of={ButtonStories.LinkButtonStatesDark} />
+
+<ComponentDocSection doc={linkButton} />

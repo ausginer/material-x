@@ -1,0 +1,118 @@
+{
+  "id": "fab",
+  "title": "FAB",
+  "tagName": "mx-fab",
+  "importPath": "@ausginer/material-x/fab/fab.js",
+  "properties": [
+    {
+      "name": "color",
+      "optional": true,
+      "type": "NonNullable<FABColor> | undefined"
+    },
+    {
+      "name": "disabled",
+      "optional": true,
+      "type": "boolean | undefined"
+    },
+    {
+      "name": "extended",
+      "optional": true,
+      "type": "NonNullable<FABExtended> | undefined"
+    },
+    {
+      "name": "size",
+      "optional": true,
+      "type": "NonNullable<FABSize> | undefined"
+    },
+    {
+      "name": "tonal",
+      "optional": true,
+      "type": "boolean | undefined"
+    }
+  ],
+  "events": [
+    {
+      "name": "fabtoggle",
+      "optional": false,
+      "type": "Event"
+    }
+  ],
+  "cssProperties": [
+    {
+      "name": "--md-fab-container-height",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-fab-container-width",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-fab-hover-level",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-fab-icon-label-space",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-fab-icon-size",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-fab-level",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-fab-unfold-duration",
+      "optional": true,
+      "type": "string | undefined"
+    },
+    {
+      "name": "--md-fab-unfold-easing",
+      "optional": true,
+      "type": "string | undefined"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default"
+    },
+    {
+      "name": "icon"
+    }
+  ],
+  "parts": [
+    {
+      "name": "impl"
+    }
+  ],
+  "exportedParts": [],
+  "meta": {
+    "id": "fab",
+    "title": "FAB",
+    "docPage": "src/docs/components/fab.mdx",
+    "summary": "Floating action buttons highlight a primary promoted action for a screen or workflow. Material X supports both regular and extended FAB patterns with token-driven styling.",
+    "whenToUse": [
+      "Use to highlight a primary, promoted action on a screen.",
+      "Use `extended` mode for actions that benefit from a label."
+    ],
+    "pitfalls": [
+      "Do not use multiple competing FABs in a single viewport area.",
+      "Avoid FABs for low-priority or secondary actions."
+    ],
+    "deltas": [
+      "Extended transition state is controlled with explicit `extended=\"open|closed\"` attribute."
+    ],
+    "a11yCaveats": [],
+    "m3": {
+      "overview": "https://m3.material.io/components/floating-action-button/overview",
+      "specs": "https://m3.material.io/components/floating-action-button/specs"
+    }
+  }
+}

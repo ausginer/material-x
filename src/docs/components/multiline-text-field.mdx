@@ -1,0 +1,34 @@
+import { Canvas, Meta } from '@storybook/blocks';
+import * as MultilineTextFieldStories from '../../text-field/multiline-text-field.stories.tsx';
+import multilineTextField from '../.generated/components/multiline-text-field.json';
+import { ComponentDocSection } from '../components/ComponentDocSection.tsx';
+import { ComponentGuideSection } from '../components/ComponentGuideSection.tsx';
+
+<Meta
+  of={MultilineTextFieldStories}
+  title="Docs/Components/Multiline Text Field"
+/>
+
+# Multiline Text Field
+
+<ComponentGuideSection doc={multilineTextField} />
+
+## Demos
+
+### Variants / Playground
+
+<Canvas of={MultilineTextFieldStories.Variants} />
+
+### Variants / Playground (Dark)
+
+<Canvas of={MultilineTextFieldStories.VariantsDark} />
+
+### States
+
+<Canvas of={MultilineTextFieldStories.States} />
+
+### States (Dark)
+
+<Canvas of={MultilineTextFieldStories.StatesDark} />
+
+<ComponentDocSection doc={multilineTextField} />
