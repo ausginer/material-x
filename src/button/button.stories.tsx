@@ -8,7 +8,7 @@ const meta: Meta = {
   title: 'Button/Regular',
   decorators: [
     (Component: () => JSX.Element): JSX.Element => (
-      <div className={css['layout2']}>
+      <div className={css['layout']}>
         <Component />
       </div>
     ),

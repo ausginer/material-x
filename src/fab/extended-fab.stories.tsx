@@ -12,7 +12,7 @@ const meta: Meta = {
   title: 'FAB / Extended',
   decorators: [
     (Component: () => JSX.Element): JSX.Element => (
-      <div className={css['layout2']}>
+      <div className={css['layout']}>
         <Component />
       </div>
     ),

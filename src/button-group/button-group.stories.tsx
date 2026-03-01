@@ -10,7 +10,7 @@ const meta: Meta = {
   title: 'Button Group/Standard',
   decorators: [
     (Component: () => JSX.Element): JSX.Element => (
-      <div className={css['layout2']}>
+      <div className={`${css['layout']} ${css['vertical']}`}>
         <Component />
       </div>
     ),

@@ -9,7 +9,7 @@ const meta: Meta = {
   title: 'Button/Switch',
   decorators: [
     (Component: () => JSX.Element): JSX.Element => (
-      <div className={css['layout2']}>
+      <div className={css['layout']}>
         <Component />
       </div>
     ),
