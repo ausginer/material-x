@@ -4,6 +4,7 @@
 /models
 /.vite
 /.vite-inspect
+/custom-elements.json
 
 *storybook.log
 storybook-static

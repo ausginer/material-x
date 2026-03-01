@@ -1,6 +1,10 @@
 import { posix } from 'node:path/posix';
 import { defineConfig, type Rolldown, type UserConfig } from 'tsdown';
 import {
+  COMPONENT_ENTRYPOINTS,
+  TYPE_ENTRYPOINTS,
+} from './.scripts/entrypoints.ts';
+import {
   constructCSSStyles,
   constructCSSTokens,
   constructHTMLTemplate,
@@ -54,25 +58,12 @@ function dropEmptyChunksPlugin(): Rolldown.Plugin {
   };
 }
 
-const COMPONENTS = [
-  'button/button',
-  'button/icon-button',
-  'button/link-button',
-  'button/switch-button',
-  'button/switch-icon-button',
-  'button/split-button',
-  'button-group/button-group',
-  'button-group/connected-button-group',
-  'fab/fab',
-  'icon/icon',
-  'text-field/text-field',
-] as const;
-
-const TYPES = ['react'] as const;
 const OUT_DIR = '.' as const;
 
 const config: UserConfig = defineConfig({
-  entry: [...COMPONENTS, ...TYPES].map((entry) => `src/${entry}.ts`),
+  entry: [...COMPONENT_ENTRYPOINTS, ...TYPE_ENTRYPOINTS].map(
+    (entry) => `src/${entry}.ts`,
+  ),
   platform: 'neutral',
   exports: {
     customExports(exports) {
@@ -83,7 +74,7 @@ const config: UserConfig = defineConfig({
           }
 
           const entry = key.startsWith('./') ? key.slice(2) : key;
-          const typeOnly = TYPES.includes(entry);
+          const typeOnly = TYPE_ENTRYPOINTS.includes(entry);
 
           if (typeof value !== 'string') {
             if (!typeOnly) {

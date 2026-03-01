@@ -58,21 +58,40 @@ export type SplitButtonEvents = Readonly<{
 export type SplitButtonCSSProperties = ButtonSharedCSSProperties;
 
 /**
- * @summary Buttons communicate actions that people can take. They are typically
- * placed throughout the UI, in places like:
+ * @tag mx-split-button
  *
- * - Dialogs
- * - Modal windows
- * - Forms
- * - Cards
- * - Toolbars
+ * @summary Split buttons combine a primary action with a secondary toggle
+ * action.
  *
- * They can also be placed within standard button groups.
+ * @attr {"outlined"|"elevated"|"text"|"tonal"} color - Visual style variant.
+ * Omit to use the default filled style.
+ * @attr {"xsmall"|"medium"|"large"|"xlarge"} size - Button size. Omit to use
+ * the default (small) size.
+ * @attr {"round"|"square"} shape - Button shape. Omit to use round corners.
+ * @attr {boolean} disabled - Disables both actions.
+ * @attr {boolean} open - Marks the trailing toggle as opened.
  *
- * @attr {string} color
- * @attr {boolean|undefined} disabled
- * @attr {string} size
- * @attr {string} shape
+ * @slot - Primary action label/content.
+ * @slot icon - Primary action leading icon content.
+ *
+ * @csspart impl - Internal button-group wrapper.
+ * @csspart group - Internal button-group wrapper.
+ * @csspart leading - Leading action button host.
+ * @csspart trailing - Trailing toggle button host.
+ * @csspart leading-impl - Re-exported leading internal control part.
+ * @csspart trailing-impl - Re-exported trailing internal control part.
+ *
+ * @cssprop --md-button-container-height - Overrides button height.
+ * @cssprop --md-button-leading-space - Overrides start padding.
+ * @cssprop --md-button-trailing-space - Overrides end padding.
+ * @cssprop --md-button-icon-size - Overrides icon size.
+ * @cssprop --md-button-icon-label-space - Overrides spacing between icon and
+ * label.
+ * @cssprop --md-button-label-text-line-height - Overrides label line height.
+ * @cssprop --md-button-press-duration - Overrides press transition duration.
+ * @cssprop --md-button-press-easing - Overrides press transition easing.
+ *
+ * @event toggle - Fired when the trailing action is activated.
  */
 export default class SplitButton extends SplitButtonCore {
   static readonly formAssociated = true;

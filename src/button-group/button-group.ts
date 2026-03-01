@@ -23,7 +23,24 @@ const LEADING_PROP = '--_interaction-direction-leading';
 const TRAILING_PROP = '--_interaction-direction-trailing';
 
 /**
- * @attr {string} size
+ * @tag mx-button-group
+ *
+ * @summary Button groups arrange buttons in a single row with shared visual
+ * context.
+ *
+ * @attr {"outlined"|"elevated"|"text"|"tonal"} color - Shared color variant
+ * for child buttons.
+ * @attr {"xsmall"|"medium"|"large"|"xlarge"} size - Shared size for child
+ * buttons.
+ * @attr {"round"|"square"} shape - Shared shape for child buttons.
+ * @attr {boolean} disabled - Group disabled state.
+ *
+ * @slot - Button elements.
+ *
+ * @cssprop --md-button-group-between-space - Overrides spacing between buttons.
+ * @cssprop --md-button-group-interaction-width-multiplier - Overrides active
+ * overlap width factor.
+ * @cssprop --md-button-group-inner-corner-size - Overrides inner corner radius.
  */
 export default class ButtonGroup extends ButtonGroupCore {
   constructor() {

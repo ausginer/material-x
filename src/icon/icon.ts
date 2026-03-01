@@ -11,6 +11,16 @@ export type IconCSSProperties = Readonly<{
   '--md-icon-font'?: string;
 }>;
 
+/**
+ * @tag mx-icon
+ *
+ * @summary Icons display a single symbol from an icon font.
+ *
+ * @slot - Icon glyph text/content.
+ *
+ * @cssprop --md-icon-size - Overrides icon font size.
+ * @cssprop --md-icon-font - Overrides icon font family.
+ */
 export default class Icon extends ReactiveElement {
   constructor() {
     super();

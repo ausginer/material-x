@@ -27,7 +27,25 @@ const ConnectedButtonGroupCore: ConstructorWithTraits<
 > = impl(ButtonGroupCore, [Valuable]);
 
 /**
- * @attr {string} size
+ * @tag mx-connected-button-group
+ *
+ * @summary Connected button groups arrange checkable buttons as a segmented
+ * control.
+ *
+ * @attr {"outlined"|"elevated"|"text"|"tonal"} color - Shared color variant
+ * for child buttons.
+ * @attr {"xsmall"|"medium"|"large"|"xlarge"} size - Shared size for child
+ * buttons.
+ * @attr {"round"|"square"} shape - Shared shape for child buttons.
+ * @attr {boolean} disabled - Group disabled state.
+ * @attr {string} value - Selected group value.
+ *
+ * @slot - Checkable button elements.
+ *
+ * @cssprop --md-button-group-between-space - Overrides spacing between buttons.
+ * @cssprop --md-button-group-interaction-width-multiplier - Overrides active
+ * overlap width factor.
+ * @cssprop --md-button-group-inner-corner-size - Overrides inner corner radius.
  */
 export default class ConnectedButtonGroup extends ConnectedButtonGroupCore {
   constructor() {

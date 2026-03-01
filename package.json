@@ -16,6 +16,7 @@
     "button",
     "button-group",
     "core",
+    "custom-elements.json",
     "fab",
     "icon",
     "text-field",
@@ -74,7 +75,9 @@
   },
   "scripts": {
     "prepublish": "npm run build",
-    "build": "tsdown",
+    "build": "npm run build:lib && npm run build:cem",
+    "build:lib": "tsdown",
+    "build:cem": "custom-elements-manifest analyze --config cem.config.ts",
     "build:props": "node .scripts/css/collect-props.ts",
     "publint": "publint",
     "debug": "node .scripts/css/debug.ts",
@@ -97,6 +100,7 @@
     "typecheck": "tsgo --noEmit"
   },
   "devDependencies": {
+    "@custom-elements-manifest/analyzer": "0.11.0",
     "@eslint/config-helpers": "0.5.2",
     "@jridgewell/gen-mapping": "0.3.13",
     "@minify-html/node": "0.18.1",
@@ -154,5 +158,6 @@
   },
   "engines": {
     "node": ">=24"
-  }
+  },
+  "customElements": "custom-elements.json"
 }

@@ -63,22 +63,33 @@ export type IconButtonEvents = EmptyObject;
 export type IconButtonCSSProperties = ButtonSharedCSSProperties;
 
 /**
- * @summary Buttons communicate actions that people can take. They are typically
- * placed throughout the UI, in places like:
+ * @tag mx-icon-button
  *
- * - Dialogs
- * - Modal windows
- * - Forms
- * - Cards
- * - Toolbars
+ * @summary Icon buttons communicate compact actions with icon-only content.
  *
- * They can also be placed within standard button groups.
+ * @attr {"outlined"|"elevated"|"tonal"|"standard"} color - Visual style
+ * variant. Omit to use the default filled style.
+ * @attr {"xsmall"|"medium"|"large"|"xlarge"} size - Button size. Omit to use
+ * the default (small) size.
+ * @attr {"round"|"square"} shape - Button shape. Omit to use round corners.
+ * @attr {"wide"|"narrow"} width - Container width style.
+ * @attr {boolean} disabled - Disables interaction and form participation.
  *
- * @attribute {string} color
- * @attribute {string} size
- * @attribute {string} shape
- * @attribute {string} width
- * @attribute {boolean|undefined} disabled
+ * @slot - Icon content.
+ *
+ * @csspart impl - Internal native button element.
+ *
+ * @cssprop --md-button-container-height - Overrides button height.
+ * @cssprop --md-button-leading-space - Overrides start padding.
+ * @cssprop --md-button-trailing-space - Overrides end padding.
+ * @cssprop --md-button-icon-size - Overrides icon size.
+ * @cssprop --md-button-icon-label-space - Overrides spacing between icon and
+ * label.
+ * @cssprop --md-button-label-text-line-height - Overrides label line height.
+ * @cssprop --md-button-press-duration - Overrides press transition duration.
+ * @cssprop --md-button-press-easing - Overrides press transition easing.
+ *
+ * @event click - Fired when the button is activated.
  */
 export default class IconButton extends IconButtonCore {
   static readonly formAssociated = true;

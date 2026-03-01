@@ -77,12 +77,34 @@ export type FABCSSProperties = Readonly<{
 }>;
 
 /**
- * @attr {FABSize} size
- * @attr {FABColor} color
- * @attr {FABExtended} extended
- * @attr {FABExtended} direction
- * @attr {boolean|undefined} tonal
- * @attr {boolean|undefined} disabled
+ * @tag mx-fab
+ *
+ * @summary Floating action buttons represent a promoted primary action.
+ *
+ * @attr {"medium"|"large"} size - Container size. Omit to use the default
+ * size.
+ * @attr {"primary"|"secondary"} color - Color variant. Omit to use the
+ * tertiary default.
+ * @attr {"open"|"closed"} extended - Extended label state.
+ * @attr {boolean} tonal - Enables tonal style.
+ * @attr {boolean} disabled - Disables interaction and form participation.
+ *
+ * @slot - Label content for extended FAB.
+ * @slot icon - Leading icon content.
+ *
+ * @csspart impl - Internal native button element.
+ *
+ * @cssprop --md-fab-container-height - Overrides container height.
+ * @cssprop --md-fab-container-width - Overrides container width.
+ * @cssprop --md-fab-icon-size - Overrides icon size.
+ * @cssprop --md-fab-icon-label-space - Overrides icon and label spacing.
+ * @cssprop --md-fab-unfold-duration - Overrides unfold transition duration.
+ * @cssprop --md-fab-unfold-easing - Overrides unfold transition easing.
+ * @cssprop --md-fab-level - Overrides default elevation level.
+ * @cssprop --md-fab-hover-level - Overrides hovered elevation level.
+ *
+ * @event click - Fired when the FAB is activated.
+ * @event fabtoggle - Fired when the `extended` state changes.
  */
 export default class FAB extends FABCore {
   constructor() {

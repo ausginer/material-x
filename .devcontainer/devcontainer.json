@@ -35,7 +35,8 @@
         "YoavBls.pretty-ts-errors",
         "acoreyj.restart-ts-eslint-server",
         "TypeScriptTeam.native-preview",
-        "eamodio.gitlens"
+        "eamodio.gitlens",
+        "unifiedjs.vscode-mdx"
       ]
     }
   },
