@@ -76,6 +76,7 @@
   "scripts": {
     "prepublish": "npm run build",
     "build": "npm run build:lib && npm run build:cem",
+    "prebuild:lib": "npm run build:props",
     "build:lib": "tsdown",
     "build:cem": "custom-elements-manifest analyze --config cem.config.ts",
     "build:props": "node .scripts/css/collect-props.ts",
