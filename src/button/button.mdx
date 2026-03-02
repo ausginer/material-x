@@ -1,0 +1,272 @@
+import { Canvas, Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { Source } from '../../.storybook/docs/Source.tsx';
+import { ThemeToggleLink } from '../../.storybook/docs/ThemeToggleLink.tsx';
+import * as ButtonStories from './button.stories';
+import manifest from '../../custom-elements.json';
+import './link-button.ts';
+
+export const TAG = 'mx-button';
+
+export const declaration = manifest.modules
+  .flatMap((entry) => entry.declarations ?? [])
+  .find((entry) => entry.tagName === TAG);
+
+export const summary =
+  declaration?.summary ??
+  'Buttons communicate actions users can take in dialogs, forms, cards, and toolbars.';
+
+export const attributes = declaration?.attributes ?? [];
+export const slots = (declaration?.slots ?? []).map((slot) => ({
+  ...slot,
+  name: slot.name || 'default',
+}));
+export const cssParts = declaration?.cssParts ?? [];
+export const cssProperties = declaration?.cssProperties ?? [];
+export const events = declaration?.events ?? [];
+
+export const importSnippet = "import '@ausginer/material-x/button/button.js';";
+export const usageSnippet = '<mx-button>Save</mx-button>';
+
+export const textOrDash = (value) => value || '-';
+export const attributeType = (attribute) => attribute.type?.text ?? 'string';
+
+<Meta of={ButtonStories} />
+
+# Button
+
+## Summary
+
+{summary}
+
+## When to use
+
+- Use for primary and secondary actions in forms, dialogs, cards, and toolbars.
+- Use when users should trigger an immediate action (for example, save, submit, retry).
+- Keep one primary action per surface and use other button variants for lower emphasis.
+
+## When not to use
+
+- Navigation to another page or URL. Use `mx-link-button` instead.
+- Persistent on/off choices. Use `mx-switch-button` for toggle semantics.
+- Dense repeated actions without text labels. Use `mx-icon-button`.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Variants
+
+### Color variants
+
+<Canvas of={ButtonStories.Color} />
+
+### Sizes
+
+<Canvas of={ButtonStories.Sizes} />
+
+### Shape
+
+<Canvas of={ButtonStories.Shape} />
+
+### With icon
+
+<Canvas of={ButtonStories.WithIcon} />
+
+## States
+
+<Canvas of={ButtonStories.States} sourceState="none" />
+
+## Accessibility
+
+- **Keyboard:** Focusable with `Tab`; activates with keyboard using native button behavior.
+- **Focus indicator:** Uses shared focus styles and delegates focus to the internal button.
+- **Name:** The default slot label provides the accessible name.
+- **Icon + text:** Use icon as supporting affordance, not a replacement for the text label.
+- **Disabled:** `disabled` blocks interaction and form participation.
+
+## Content guidelines
+
+- Use short verb-first labels (e.g. “Save”, “Add item”, “Retry”).
+- Avoid ambiguous labels (“OK”) unless context is extremely clear.
+- Keep icons meaningful and aligned with the button action.
+
+## Anatomy
+
+- `default` slot: label/content.
+- `icon` slot: leading icon content.
+- `impl` CSS part: internal native button element.
+
+## Theming
+
+- Uses CSS custom properties for sizing/spacing/typography overrides.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>Toggle Theme</ThemeToggleLink>
+
+## API reference
+
+{!declaration ? (
+
+  <blockquote>
+    Could not find <code>{TAG}</code> in <code>custom-elements.json</code>. Run{' '}
+    <code>npm run build:cem</code> and rebuild docs.
+  </blockquote>
+) : null}
+
+### Attributes
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {attributes.length === 0 ? (
+      <tr>
+        <td colSpan="3">No attributes found.</td>
+      </tr>
+    ) : (
+      attributes.map((attribute) => (
+        <tr key={attribute.name}>
+          <td>
+            <code>{attribute.name}</code>
+          </td>
+          <td>
+            <code>{attributeType(attribute)}</code>
+          </td>
+          <td>{textOrDash(attribute.description)}</td>
+        </tr>
+      ))
+    )}
+  </tbody>
+</table>
+
+### Slots
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {slots.length === 0 ? (
+      <tr>
+        <td colSpan="2">No slots found.</td>
+      </tr>
+    ) : (
+      slots.map((slot) => (
+        <tr key={slot.name}>
+          <td>
+            <code>{slot.name}</code>
+          </td>
+          <td>{textOrDash(slot.description)}</td>
+        </tr>
+      ))
+    )}
+  </tbody>
+</table>
+
+### CSS parts
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {cssParts.length === 0 ? (
+      <tr>
+        <td colSpan="2">No CSS parts found.</td>
+      </tr>
+    ) : (
+      cssParts.map((part) => (
+        <tr key={part.name}>
+          <td>
+            <code>{part.name}</code>
+          </td>
+          <td>{textOrDash(part.description)}</td>
+        </tr>
+      ))
+    )}
+  </tbody>
+</table>
+
+### CSS custom properties
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {cssProperties.length === 0 ? (
+      <tr>
+        <td colSpan="2">No CSS custom properties found.</td>
+      </tr>
+    ) : (
+      cssProperties.map((property) => (
+        <tr key={property.name}>
+          <td>
+            <code>{property.name}</code>
+          </td>
+          <td>{textOrDash(property.description)}</td>
+        </tr>
+      ))
+    )}
+  </tbody>
+</table>
+
+### Events
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {events.length === 0 ? (
+      <tr>
+        <td colSpan="2">No events found.</td>
+      </tr>
+    ) : (
+      events.map((event) => (
+        <tr key={event.name}>
+          <td>
+            <code>{event.name}</code>
+          </td>
+          <td>{textOrDash(event.description)}</td>
+        </tr>
+      ))
+    )}
+  </tbody>
+</table>
+
+## Material 3 reference and deltas
+
+- Material 3 overview:
+  [https://m3.material.io/components/buttons/overview](https://m3.material.io/components/buttons/overview)
+- Material 3 guidelines:
+  [https://m3.material.io/components/buttons/guidelines](https://m3.material.io/components/buttons/guidelines)
+- Deltas:
+  - Filled style is the default when `color` is omitted.
+  - API metadata in this page is generated from the local CEM output.
+
+## Changelog / stability
+
+- Status: early-stage / pre-release.
+- Breaking changes: follow repository changelog and release notes.

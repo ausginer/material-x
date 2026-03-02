@@ -1,7 +1,8 @@
 import { withThemeByDataAttribute } from '@storybook/addon-themes';
 import type { Preview } from '@storybook/react-vite';
-import './theme.css';
 import './preview-frame.css';
+import './theme.css';
+import { DocsContainer } from './docs/DocsContainer.tsx';
 
 const preview: Preview = {
   decorators: [
@@ -15,18 +16,10 @@ const preview: Preview = {
     }),
   ],
   parameters: {
-    backgrounds: {
-      default: 'surface',
-      values: [
-        {
-          name: 'surface',
-          value: 'var(--md-sys-color-surface)',
-        },
-      ],
+    docs: {
+      container: DocsContainer,
     },
-  },
-  initialGlobals: {
-    backgrounds: { value: 'surface' },
+    backgrounds: { disable: true },
   },
 };
 
