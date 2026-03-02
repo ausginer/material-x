@@ -1,0 +1,119 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../.storybook/docs/cem.ts';
+import * as Stories from './extended-fab.stories';
+import '../button/link-button.ts';
+
+export const TAG = 'mx-fab';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet = "import '@ausginer/material-x/fab/fab.js';";
+export const usageSnippet = `<mx-fab extended="open">
+  <mx-icon slot="icon">add</mx-icon>
+  Create
+</mx-fab>`;
+
+<Meta of={Stories} />
+
+# Extended FAB
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use when a promoted action needs both icon and text label.
+- Use when the action label should expand/collapse by interaction context.
+- Use when directionality or writing mode can affect label presentation.
+
+## When not to use
+
+- Screens that need multiple competing primary actions.
+- Tertiary or low-emphasis actions better served by regular buttons.
+- Very dense control sets where FAB prominence is excessive.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Variants
+
+### Colors
+
+<Canvas of={Stories.Colors} />
+
+### Tonal colors
+
+<Canvas of={Stories.TonalColors} />
+
+### Sizes
+
+<Canvas of={Stories.Sizes} />
+
+### Direction
+
+<Canvas of={Stories.Direction} />
+
+## States
+
+<Canvas of={Stories.States} sourceState="none" />
+
+## Accessibility
+
+- **Name:** The visible extended label should clearly describe the promoted action.
+- **Keyboard:** Focusable and activatable with keyboard using native semantics.
+- **State:** `extended` and `fabtoggle` represent expanded/collapsed label behavior.
+- **Disabled:** `disabled` prevents activation while preserving visual context.
+
+## Content guidelines
+
+- Keep extended label concise and action-oriented.
+- Use icons that reinforce the text action rather than replacing it.
+- Avoid lengthy labels that break FAB compactness.
+
+## Anatomy
+
+- `default` slot: action label/content.
+- `icon` slot: leading icon content.
+- `impl` CSS part: internal interactive element.
+
+## Theming
+
+- Uses CSS custom properties for extended/open states and color/size treatment.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview:
+  [https://m3.material.io/components/floating-action-button/overview](https://m3.material.io/components/floating-action-button/overview)
+- Material 3 guidelines:
+  [https://m3.material.io/components/floating-action-button/guidelines](https://m3.material.io/components/floating-action-button/guidelines)
+- Deltas:
+  - Uses `extended` state values for open/closed extended behavior.
+  - API metadata in this page is generated from the local CEM output.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

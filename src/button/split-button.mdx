@@ -1,0 +1,117 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../.storybook/docs/cem.ts';
+import * as Stories from './split-button.stories';
+import './link-button.ts';
+
+export const TAG = 'mx-split-button';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet =
+  "import '@ausginer/material-x/button/split-button.js';";
+export const usageSnippet = '<mx-split-button>Actions</mx-split-button>';
+
+<Meta of={Stories} />
+
+# Split Button
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use when one primary action and a related secondary menu action must coexist.
+- Use where direct click and expanded options are both needed in one control.
+- Use for action sets where the default action should stay prominent.
+
+## When not to use
+
+- Single action without secondary choices. Use `mx-button`.
+- Pure navigation actions. Use `mx-link-button`.
+- Persistent toggles. Use `mx-switch-button` or `mx-switch-icon-button`.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Variants
+
+### Color variants
+
+<Canvas of={Stories.Color} />
+
+### Sizes
+
+<Canvas of={Stories.Sizes} />
+
+### Shape
+
+<Canvas of={Stories.Shape} />
+
+### With icon
+
+<Canvas of={Stories.WithIcon} />
+
+## States
+
+<Canvas of={Stories.States} sourceState="none" />
+
+## Accessibility
+
+- **Structure:** Exposes distinct leading/trailing controls through internal parts.
+- **Keyboard:** Supports focus and activation using native button keyboard behavior.
+- **State:** `open` and `toggle` communicate expanded/collapsed secondary action state.
+- **Disabled:** `disabled` disables both split action segments.
+
+## Content guidelines
+
+- Keep primary action text explicit and verb-first.
+- Reserve trailing segment for secondary or less frequent choices.
+- Use icons as support for action recognition, not replacement for labels.
+
+## Anatomy
+
+- `default` slot: primary label/content.
+- `icon` slot: leading icon content.
+- CSS parts: `impl`, `group`, `leading`, `trailing`, `leading-impl`, `trailing-impl`.
+
+## Theming
+
+- Uses CSS custom properties for container, split segments, and state styling.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview:
+  [https://m3.material.io/components/split-button/overview](https://m3.material.io/components/split-button/overview)
+- Material 3 guidelines:
+  [https://m3.material.io/components/split-button/guidelines](https://m3.material.io/components/split-button/guidelines)
+- Deltas:
+  - Includes explicit `open` state and `toggle` event.
+  - API metadata in this page is generated from the local CEM output.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

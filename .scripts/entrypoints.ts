@@ -9,6 +9,7 @@ export const COMPONENT_ENTRYPOINTS = [
   'button-group/connected-button-group',
   'fab/fab',
   'icon/icon',
+  'text-field/multiline-text-field',
   'text-field/text-field',
 ] as const;
 

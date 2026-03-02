@@ -1,34 +1,24 @@
-import { Canvas, Meta, Unstyled } from '@storybook/addon-docs/blocks';
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../.storybook/docs/DocCopy.ts';
 import { Source } from '../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../.storybook/docs/SummaryOrWarning.tsx';
 import { ThemeToggleLink } from '../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../.storybook/docs/cem.ts';
 import * as ButtonStories from './button.stories';
-import manifest from '../../custom-elements.json';
 import './link-button.ts';
 
 export const TAG = 'mx-button';
 
-export const declaration = manifest.modules
-  .flatMap((entry) => entry.declarations ?? [])
-  .find((entry) => entry.tagName === TAG);
-
-export const summary =
-  declaration?.summary ??
-  'Buttons communicate actions users can take in dialogs, forms, cards, and toolbars.';
-
-export const attributes = declaration?.attributes ?? [];
-export const slots = (declaration?.slots ?? []).map((slot) => ({
-  ...slot,
-  name: slot.name || 'default',
-}));
-export const cssParts = declaration?.cssParts ?? [];
-export const cssProperties = declaration?.cssProperties ?? [];
-export const events = declaration?.events ?? [];
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
 
 export const importSnippet = "import '@ausginer/material-x/button/button.js';";
 export const usageSnippet = '<mx-button>Save</mx-button>';
-
-export const textOrDash = (value) => value || '-';
-export const attributeType = (attribute) => attribute.type?.text ?? 'string';
 
 <Meta of={ButtonStories} />
 
@@ -36,7 +26,7 @@ export const attributeType = (attribute) => attribute.type?.text ?? 'string';
 
 ## Summary
 
-{summary}
+<SummaryOrWarning summary={summary} tag={TAG} />
 
 ## When to use
 
@@ -105,156 +95,12 @@ export const attributeType = (attribute) => attribute.type?.text ?? 'string';
 ## Theming
 
 - Uses CSS custom properties for sizing/spacing/typography overrides.
-- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>Toggle Theme</ThemeToggleLink>
+- Works with the global Storybook light/dark theme toggle.{' '}
+  <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
 
 ## API reference
 
-{!declaration ? (
-
-  <blockquote>
-    Could not find <code>{TAG}</code> in <code>custom-elements.json</code>. Run{' '}
-    <code>npm run build:cem</code> and rebuild docs.
-  </blockquote>
-) : null}
-
-### Attributes
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    {attributes.length === 0 ? (
-      <tr>
-        <td colSpan="3">No attributes found.</td>
-      </tr>
-    ) : (
-      attributes.map((attribute) => (
-        <tr key={attribute.name}>
-          <td>
-            <code>{attribute.name}</code>
-          </td>
-          <td>
-            <code>{attributeType(attribute)}</code>
-          </td>
-          <td>{textOrDash(attribute.description)}</td>
-        </tr>
-      ))
-    )}
-  </tbody>
-</table>
-
-### Slots
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    {slots.length === 0 ? (
-      <tr>
-        <td colSpan="2">No slots found.</td>
-      </tr>
-    ) : (
-      slots.map((slot) => (
-        <tr key={slot.name}>
-          <td>
-            <code>{slot.name}</code>
-          </td>
-          <td>{textOrDash(slot.description)}</td>
-        </tr>
-      ))
-    )}
-  </tbody>
-</table>
-
-### CSS parts
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    {cssParts.length === 0 ? (
-      <tr>
-        <td colSpan="2">No CSS parts found.</td>
-      </tr>
-    ) : (
-      cssParts.map((part) => (
-        <tr key={part.name}>
-          <td>
-            <code>{part.name}</code>
-          </td>
-          <td>{textOrDash(part.description)}</td>
-        </tr>
-      ))
-    )}
-  </tbody>
-</table>
-
-### CSS custom properties
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    {cssProperties.length === 0 ? (
-      <tr>
-        <td colSpan="2">No CSS custom properties found.</td>
-      </tr>
-    ) : (
-      cssProperties.map((property) => (
-        <tr key={property.name}>
-          <td>
-            <code>{property.name}</code>
-          </td>
-          <td>{textOrDash(property.description)}</td>
-        </tr>
-      ))
-    )}
-  </tbody>
-</table>
-
-### Events
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    {events.length === 0 ? (
-      <tr>
-        <td colSpan="2">No events found.</td>
-      </tr>
-    ) : (
-      events.map((event) => (
-        <tr key={event.name}>
-          <td>
-            <code>{event.name}</code>
-          </td>
-          <td>{textOrDash(event.description)}</td>
-        </tr>
-      ))
-    )}
-  </tbody>
-</table>
+<ApiTables tag={TAG} />
 
 ## Material 3 reference and deltas
 
@@ -268,5 +114,5 @@ export const attributeType = (attribute) => attribute.type?.text ?? 'string';
 
 ## Changelog / stability
 
-- Status: early-stage / pre-release.
-- Breaking changes: follow repository changelog and release notes.
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

@@ -4,7 +4,6 @@
   --md-ref-typeface-mono:
     'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     'Liberation Mono', 'Courier New', monospace;
-  --md-text-field-notch-bg: var(--md-sys-color-surface);
 
   color-scheme: light dark;
 }
@@ -30,11 +29,21 @@ body {
 }
 
 .sbdocs-preview {
-  background-color: color-mix(in srgb, black 5%, transparent) !important;
+  --md-text-field-notch-bg: white;
+  background-color: white !important;
 }
 
 [data-theme='dark'] .sbdocs-preview {
-  background-color: color-mix(in srgb, white 5%, transparent) !important;
+  --md-text-field-notch-bg: black;
+  background-color: black !important;
+}
+
+.sbdocs-content,
+.sbdocs-preview {
+  pre.prismjs {
+    background-color: #272b21 !important;
+    font-family: var(--md-ref-typeface-mono);
+  }
 }
 
 .sbdocs-content {
@@ -105,17 +114,12 @@ body {
   }
 
   code {
-    background-color: var(--md-sys-color-surface-container-high);
     border: 1px solid var(--md-sys-color-outline-variant);
     border-radius: 0.45rem;
     color: var(--md-sys-color-on-surface);
     font-family: var(--md-ref-typeface-mono);
     font-size: 0.9em;
     padding: 0.1em 0.4em;
-  }
-
-  .prismjs * {
-    font-family: var(--md-ref-typeface-mono) !important;
   }
 
   blockquote {

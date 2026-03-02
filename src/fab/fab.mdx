@@ -1,0 +1,114 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../.storybook/docs/cem.ts';
+import * as Stories from './fab.stories';
+import '../button/link-button.ts';
+
+export const TAG = 'mx-fab';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet = "import '@ausginer/material-x/fab/fab.js';";
+export const usageSnippet = `<mx-fab>
+  <mx-icon slot="icon">add</mx-icon>
+</mx-fab>`;
+
+<Meta of={Stories} />
+
+# FAB
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use for the single most important action on a screen.
+- Use where a promoted action should remain visually distinctive.
+- Use in contexts where icon-led affordance communicates quick action.
+
+## When not to use
+
+- Multiple primary actions competing for attention.
+- Low-priority actions that should be standard buttons.
+- Dense action sets where toolbar/menus are more appropriate.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Variants
+
+### Colors
+
+<Canvas of={Stories.Colors} />
+
+### Tonal colors
+
+<Canvas of={Stories.TonalColors} />
+
+### Sizes
+
+<Canvas of={Stories.Sizes} />
+
+## States
+
+<Canvas of={Stories.States} sourceState="none" />
+
+## Accessibility
+
+- **Name:** Provide accessible text when icon alone is ambiguous (e.g. `aria-label`).
+- **Keyboard:** Focusable and activatable using native button interaction.
+- **Focus indicator:** Uses shared focus treatment from core button primitives.
+- **Disabled:** `disabled` prevents activation.
+
+## Content guidelines
+
+- Reserve FAB for one clear high-priority action.
+- Use widely recognized action icons.
+- Keep FAB usage consistent across related surfaces.
+
+## Anatomy
+
+- `default` slot: icon or content.
+- `icon` slot: explicit icon placement.
+- `impl` CSS part: internal native button element.
+
+## Theming
+
+- Uses CSS custom properties for size, color, tonal, and state overrides.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview:
+  [https://m3.material.io/components/floating-action-button/overview](https://m3.material.io/components/floating-action-button/overview)
+- Material 3 guidelines:
+  [https://m3.material.io/components/floating-action-button/guidelines](https://m3.material.io/components/floating-action-button/guidelines)
+- Deltas:
+  - Supports tonal variants via `tonal`.
+  - API metadata in this page is generated from the local CEM output.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

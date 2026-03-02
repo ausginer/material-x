@@ -67,6 +67,10 @@
     "./react.js": {
       "types": "./react.d.ts"
     },
+    "./text-field/multiline-text-field.js": {
+      "types": "./text-field/multiline-text-field.d.ts",
+      "default": "./text-field/multiline-text-field.js"
+    },
     "./text-field/text-field.js": {
       "types": "./text-field/text-field.d.ts",
       "default": "./text-field/text-field.js"
