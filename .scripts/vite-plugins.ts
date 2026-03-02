@@ -7,11 +7,13 @@ import { compileHTML } from './html.ts';
 import { cssCache, type JSONModule } from './utils.ts';
 
 export type ConstructCSSTokensOptions = Readonly<{
-  isProd: boolean;
+  isProd?: boolean;
+  isDocs?: boolean;
 }>;
 
 export type ConstructCSSStylesOptions = Readonly<{
-  isProd: boolean;
+  isProd?: boolean;
+  isDocs?: boolean;
 }>;
 
 const { default: propList }: JSONModule<Readonly<Record<string, string>>> =

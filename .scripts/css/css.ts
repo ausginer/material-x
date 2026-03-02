@@ -21,7 +21,8 @@ export type CSSCompilationResult = Readonly<{
 }>;
 
 export type CompileCSSOptions = Readonly<{
-  isProd: boolean;
+  isProd?: boolean;
+  isDocs?: boolean;
 }>;
 
 export async function compileCSS(
@@ -50,9 +51,9 @@ export async function compileCSS(
     await format(css, fileName),
     fileName,
     {
-      minify: false,
+      minify: options?.isProd,
       sourceMap: options?.isProd,
-      visitor: options?.isProd ? undefined : injectStateEnforcer(),
+      visitor: options?.isDocs ? injectStateEnforcer() : undefined,
     },
   );
 

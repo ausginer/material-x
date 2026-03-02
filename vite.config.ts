@@ -52,9 +52,9 @@ const config: UserConfigFnObject = defineConfig(({ command }: ConfigEnv) => ({
         })
       : null,
     constructCustomElementsHMR(),
-    constructCSSStyles({ isProd: command === 'build' }),
+    constructCSSStyles({ isProd: command === 'build', isDocs: true }),
     constructHTMLTemplate(),
-    constructCSSTokens({ isProd: command === 'build' }),
+    constructCSSTokens({ isProd: command === 'build', isDocs: true }),
     react(),
   ],
 }));
