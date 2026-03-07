@@ -1,5 +1,7 @@
 # Accessibility
 
+Note: `[Docs]` tag is for those requirements that cannot be fixed and considered an appropriate limitation we have to mention in documentation when documentation is ready.
+
 ## Button
 
 ### Fulfilled requirements
@@ -26,3 +28,34 @@
 ### Missing requirements
 
 - There is no labeling mechanism on the host (`aria-label` or `aria-labelledby`) or in templates, so groups can be exposed without an accessible name unless the consumer provides one (`src/button-group/button-group.ts`, `src/button-group/button-group.tpl.html`). [Docs]
+
+## FAB
+
+### Fulfilled requirements
+
+- The component renders a native `<button>` inside the shadow DOM, so Enter/Space activation and button semantics are handled by the browser (`src/fab/fab.tpl.html`).
+- Slotted label text is rendered inside the internal button, so extended FABs with visible text expose a native button name (`src/fab/fab.tpl.html`).
+- `disabled` is forwarded to the internal `<button>`, so disabled FABs are unfocus-host and non-interactive (`src/fab/fab.ts`, `src/fab/fab.tpl.html`).
+- Host `aria-*` attributes are mirrored to the internal `<button>`, so icon-only FABs can be named via `aria-label` on the host (`src/fab/fab.ts`, `src/core/controllers/useARIA.ts`).
+- Focus indicator styles are provided via the shared focus tokens and `:focus-visible` rules applied to `.host` (`src/core/styles/focus/focus.ctr.css`, `src/fab/fab.ts`).
+- The internal button explicitly sets `type="button"`, preventing accidental form submission (`src/fab/fab.tpl.html`).
+
+### Missing requirements
+
+- None noted.
+
+## Text Field
+
+### Fulfilled requirements
+
+- Native `<input>` and `<textarea>` are used for single- and multi-line entry, so core text input semantics and IME behavior are provided by the browser (`src/text-field/text-field.tpl.html`, `src/text-field/multiline-text-field.tpl.html`).
+- Focus delegation is enabled at shadow root creation, so pointer/focus interaction targets the internal editable field (`src/text-field/TextFieldCore.ts`).
+- `disabled`, `inputmode`, and `type` are forwarded to the internal field, preserving core native field behavior for those attributes (`src/text-field/TextFieldCore.ts`, `src/text-field/text-field.ts`).
+- Host `aria-*` attributes are mirrored to the internal field via `useARIATransfer`, allowing consumer-provided ARIA naming/description/state (`src/text-field/TextFieldCore.ts`, `src/core/controllers/useARIA.ts`).
+- Slot observers conditionally add/remove `label`, `support`, and `counter` IDs in `aria-labelledby` / `aria-describedby` only when slot content is present and when the corresponding host ARIA attribute is not explicitly set (`src/text-field/TextFieldCore.ts`, `src/core/controllers/useSlot.ts`).
+- Focus indicator is shown via underline/outline changes on `:focus-within`, which matches expected text-field focus behavior (`src/text-field/styles/default/main.styles.css`, `src/text-field/styles/outlined/main.styles.css`).
+
+### Missing requirements
+
+- Native text-field attributes important for accessibility and form UX (for example `required`, `readonly`, and `autocomplete`) are not forwarded to the internal `<input>`/`<textarea>`, because only `disabled`, `inputmode`, and `type` are transferred (`src/text-field/TextFieldCore.ts`, `src/text-field/text-field.ts`). [Docs]
+- If a consumer removes host `aria-labelledby` or `aria-describedby` at runtime, slot-based fallback IDs are not immediately restored; fallback recomputation currently happens on `slotchange`, not on host ARIA attribute changes (`src/text-field/TextFieldCore.ts`, `src/core/controllers/useARIA.ts`).
