@@ -34,15 +34,16 @@ export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';
 export type ButtonShape = 'round' | 'square';
 
-export const DEFAULT_BUTTON_ATTRIBUTES: Readonly<{
-  color: Str;
-  size: Str;
-  shape: Str;
-}> = {
+export const DEFAULT_BUTTON_ATTRIBUTES: DEFAULT_BUTTON_ATTRIBUTES = {
   color: Str,
   size: Str,
   shape: Str,
 };
+export type DEFAULT_BUTTON_ATTRIBUTES = Readonly<{
+  color: Str;
+  size: Str;
+  shape: Str;
+}>;
 
 export type ButtonLikeDescriptor = {
   color: ButtonColor;
@@ -138,7 +139,7 @@ export function useButtonCore(
         updateByContext(internals, null, data.provider[attr]);
       }
 
-      return data.emitter.on(({ old: oldValue, new: newValue }) => {
+      return data.emitter.on((_, oldValue, newValue) => {
         updateByContext(internals, oldValue, newValue);
       });
     }

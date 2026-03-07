@@ -71,11 +71,11 @@ export function useButtonGroupCore(
           [
             attr,
             ((oldValue, newValue) =>
-              emitter.emit({
+              emitter.emit(
                 attr,
-                old: from(oldValue),
-                new: from(newValue),
-              })) satisfies UpdateCallback,
+                from(oldValue),
+                from(newValue),
+              )) satisfies UpdateCallback,
           ] as const,
       ),
     ),

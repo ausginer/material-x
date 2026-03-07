@@ -1,3 +1,4 @@
+import type { Unsubscribe } from '../elements/emitter.ts';
 import { use, type ReactiveElement } from '../elements/reactive-element.ts';
 import { DEFAULT_EVENT_INIT } from '../utils/DOM.ts';
 import { useEvents } from './useEvents.ts';
@@ -30,14 +31,14 @@ export function useProvider<T>(
 
 export type ContextEffect<T> = (
   value: T | undefined,
-) => AbortController | undefined;
+) => Unsubscribe | undefined;
 
 export function useContext<T>(
   host: ReactiveElement,
   ctx: Context<T>,
   effect: ContextEffect<T>,
 ): void {
-  let disposer: AbortController | undefined;
+  let disposer: Unsubscribe | undefined;
 
   use(host, {
     connected() {
@@ -48,7 +49,7 @@ export function useContext<T>(
       disposer = effect(event.value as T | undefined);
     },
     disconnected() {
-      disposer?.abort();
+      disposer?.();
     },
   });
 }

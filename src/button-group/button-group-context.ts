@@ -8,11 +8,7 @@ type ButtonGroupProvider = ButtonLike & ButtonGroupLike;
 
 export type ChangedAttribute<
   T extends AttributePrimitive = AttributePrimitive,
-> = Readonly<{
-  attr: keyof ButtonGroupProvider;
-  old: T | null;
-  new: T | null;
-}>;
+> = readonly [attr: keyof ButtonGroupProvider, old: T | null, new: T | null];
 
 export type ContextData = Readonly<{
   emitter: EventEmitter<ChangedAttribute>;

@@ -1,21 +1,19 @@
+export type UpdateCallback<T extends readonly unknown[]> = (
+  ...data: T
+) => void | Promise<void>;
 export type Unsubscribe = () => void;
 
-export class EventEmitter<T> extends EventTarget {
-  on(
-    callback: (data: T) => void | Promise<void>,
-    controller: AbortController = new AbortController(),
-  ): AbortController {
-    this.addEventListener(
-      '',
+export class EventEmitter<T extends readonly unknown[]> {
+  readonly #dependencies = new Set<UpdateCallback<T>>();
 
-      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      (({ detail }: CustomEvent<T>) => void callback(detail)) as EventListener,
-      { signal: controller.signal },
-    );
-    return controller;
+  on(callback: UpdateCallback<T>): Unsubscribe {
+    this.#dependencies.add(callback);
+    return () => this.#dependencies.delete(callback);
   }
 
-  emit(data: T): void {
-    this.dispatchEvent(new CustomEvent<T>('', { detail: data }));
+  emit(...data: T): void {
+    this.#dependencies
+      .values()
+      .forEach((subscriber) => void subscriber(...data));
   }
 }

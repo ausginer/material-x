@@ -4,6 +4,7 @@ import {
   use,
   type ReactiveElement,
 } from '../elements/reactive-element.ts';
+import { useMutationObserver } from './useMutationObserver.ts';
 
 export type ARIAStringProperties = Readonly<{
   [K in keyof ARIAMixin as ARIAMixin[K] extends string | null
@@ -45,36 +46,39 @@ export function useARIAInternals(
   useARIA(host, _internals, mapping, converter);
 }
 
+export type ARIATransferTransformer = (
+  name: string,
+  value: string | null,
+) => string | null;
+
 export function useARIATransfer(
   host: ReactiveElement,
   target: HTMLElement,
+  transform: ARIATransferTransformer = (_, value) => value,
 ): void {
-  const syncAttribute = (name: string, value: string | null) => {
+  const syncAttribute = (name: string) => {
     if (name.startsWith('aria-')) {
-      ATTRIBUTE.setRaw(target, name, value);
+      ATTRIBUTE.setRaw(
+        target,
+        name,
+        transform(name, ATTRIBUTE.getRaw(host, name)),
+      );
     }
   };
 
-  const observer = new MutationObserver((records) => {
-    for (const record of records) {
-      if (record.type === 'attributes' && record.attributeName) {
-        syncAttribute(
-          record.attributeName,
-          ATTRIBUTE.getRaw(host, record.attributeName),
-        );
+  useMutationObserver(host, {
+    attributes: true,
+    callback(records) {
+      for (const { type, attributeName } of records) {
+        if (type === 'attributes' && attributeName) {
+          syncAttribute(attributeName);
+        }
       }
-    }
-  });
-
-  use(host, {
+    },
     connected() {
       for (const { name } of Array.from(host.attributes)) {
-        syncAttribute(name, ATTRIBUTE.getRaw(host, name));
+        syncAttribute(name);
       }
-      observer.observe(host, { attributes: true });
-    },
-    disconnected() {
-      observer.disconnect();
     },
   });
 }

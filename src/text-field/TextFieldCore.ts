@@ -9,9 +9,10 @@ import {
   getInternals,
   ReactiveElement,
 } from '../core/elements/reactive-element.ts';
-import { type ConstructorWithTraits, impl } from '../core/elements/traits.ts';
 import {
+  impl,
   trait,
+  type ConstructorWithTraits,
   type Interface,
   type Props,
   type Trait,
@@ -22,7 +23,6 @@ import {
 } from '../core/traits/disableable.ts';
 import { $, toggleState } from '../core/utils/DOM.ts';
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
-import { join } from '../core/utils/runtime.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import textFieldCoreTemplate from './text-field-core.tpl.html' with { type: 'html' };
 
@@ -45,7 +45,7 @@ export type TextFieldInputMode =
   | 'email'
   | 'none';
 
-type FieldElement = HTMLInputElement | HTMLTextAreaElement;
+type InputElement = HTMLInputElement | HTMLTextAreaElement;
 
 type TextFieldLikeDescriptor = {
   type: TextFieldType;
@@ -97,11 +97,46 @@ export const TextFieldCoreBase: ConstructorWithTraits<
 > = impl(ReactiveElement, [TextFieldLike, Disableable]);
 export type TextFieldCoreBase = typeof TextFieldCoreBase;
 
-const ariaParamsMap = {
-  label: 'aria-labelledby',
-  support: 'aria-describedby',
-  counter: 'aria-describedby',
+const ARIA_PARAMS = {
+  'aria-labelledby': ['label'],
+  'aria-describedby': ['support', 'counter'],
 } as const;
+
+function getFallback(
+  slots: ReadonlyArray<Readonly<{ id: string; slot: HTMLSlotElement }>>,
+): string | null {
+  const ids = slots.flatMap(({ id, slot }) =>
+    slot.assignedElements().length > 0 ? [id] : [],
+  );
+
+  return ids.length > 0 ? ids.join(' ') : null;
+}
+
+function useTextFieldARIA(host: ReactiveElement, input: InputElement): void {
+  const ariaParams = Object.fromEntries(
+    Object.entries(ARIA_PARAMS).map(([attr, ids]) => [
+      attr,
+      ids.map((id) => ({ id, slot: $<HTMLSlotElement>(host, `#${id} slot`)! })),
+    ]),
+  );
+
+  useARIATransfer(host, input, (name, value) =>
+    name in ariaParams && value == null
+      ? // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+        getFallback(ariaParams[name as keyof typeof ARIA_PARAMS])
+      : value,
+  );
+
+  for (const [attr, slots] of Object.entries(ariaParams)) {
+    for (const { slot } of slots) {
+      useSlot(host, slot, () => {
+        if (ATTRIBUTE.getRaw(host, attr) == null) {
+          ATTRIBUTE.setRaw(input, attr, getFallback(slots));
+        }
+      });
+    }
+  }
+}
 
 export let getInput: (
   element: TextFieldCore,
@@ -115,6 +150,7 @@ export class TextFieldCore extends TextFieldCoreBase {
   }
 
   readonly #input: HTMLInputElement | HTMLTextAreaElement;
+  readonly #internals: ElementInternals;
 
   constructor(
     template: HTMLTemplateElement,
@@ -130,47 +166,19 @@ export class TextFieldCore extends TextFieldCoreBase {
 
     const internals = getInternals(this);
 
-    useARIATransfer(this, input);
-
     useAttributes(this, {
-      disabled: join(transfer(input, 'disabled')),
-      inputmode: join(transfer(input, 'inputmode')),
+      disabled: transfer(input, 'disabled'),
+      inputmode: transfer(input, 'inputmode'),
     });
 
-    for (const [id, param] of Object.entries(ariaParamsMap)) {
-      useSlot(this, `#${id} slot`, (_, elements) => {
-        if (!ATTRIBUTE.getRaw(this, param)) {
-          const current =
-            ATTRIBUTE.getRaw(input, param)
-              ?.split(' ')
-              .filter((value) => value.length > 0) ?? [];
-          const values = new Set(current);
-
-          if (elements.length > 0) {
-            values.add(id);
-          } else {
-            values.delete(id);
-          }
-
-          const next = Array.from(values).join(' ');
-          ATTRIBUTE.setRaw(input, param, next.length > 0 ? next : null);
-        }
-      });
-    }
+    useTextFieldARIA(this, input);
 
     useEvents(
       this,
       {
-        input({ target }) {
-          toggleState(
-            internals,
-            'populated',
-
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-            !!(target as FieldElement).value,
-          );
-          // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-          internals.setFormValue((target as FieldElement).value);
+        input() {
+          toggleState(internals, 'populated', !!input.value);
+          internals.setFormValue(input.value);
         },
       },
       input,
@@ -180,10 +188,11 @@ export class TextFieldCore extends TextFieldCoreBase {
     useHasSlottedPolyfill(this);
 
     this.#input = input;
+    this.#internals = internals;
   }
 
   get isPopulated(): boolean {
-    return getInternals(this).states.has('populated');
+    return this.#internals.states.has('populated');
   }
 
   override get value(): string {
@@ -192,23 +201,23 @@ export class TextFieldCore extends TextFieldCoreBase {
 
   override set value(value: string | null) {
     this.#input.value = value ?? '';
-    toggleState(getInternals(this), 'populated', !!this.#input.value);
-    getInternals(this).setFormValue(value);
+    toggleState(this.#internals, 'populated', !!this.#input.value);
+    this.#internals.setFormValue(value);
   }
 
   checkValidity(): boolean {
-    const valid = getInternals(this).checkValidity();
-    toggleState(getInternals(this), 'error', !valid);
+    const valid = this.#internals.checkValidity();
+    toggleState(this.#internals, 'error', !valid);
     return valid;
   }
 
   reportValidity(): boolean {
-    const valid = getInternals(this).reportValidity();
-    toggleState(getInternals(this), 'error', !valid);
+    const valid = this.#internals.reportValidity();
+    toggleState(this.#internals, 'error', !valid);
     return valid;
   }
 
   setValidity(flags?: ValidityStateFlags, message?: string): void {
-    getInternals(this).setValidity(flags, message, this);
+    this.#internals.setValidity(flags, message, this);
   }
 }
