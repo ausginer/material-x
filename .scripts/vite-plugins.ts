@@ -208,11 +208,10 @@ export function constructCSSTokens(
     enforce: 'pre',
     config(config) {
       if (config.oxc === false) {
-        return config;
+        return null;
       }
 
       return {
-        ...config,
         oxc: {
           ...config.oxc,
           exclude: [
