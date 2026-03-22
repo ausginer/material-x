@@ -22,3 +22,5 @@ storybook-static
 !.storybook/preview-frame.css
 !src/**/*
 !/types.d.ts
+
+.agents/codex

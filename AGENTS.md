@@ -72,12 +72,16 @@ Eventually, I plan to extract core implementation (`ReactiveElement` and other p
 
 ## Architecture
 
-You can find architecture insights from your analysis in `.agent/docs/architecture.md`.
-You can find CSS architecture reiteration in `.agent/docs/css-inheritance.md`.
-You can find accessibility review in `.agent/docs/accessibility.md`
+You can find architecture insights from your analysis in `.agents/docs/architecture.md`.
+You can find CSS architecture reiteration in `.agents/docs/css-inheritance.md`.
+You can find accessibility review in `.agents/docs/accessibility.md`
 
-`src2/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
+`src/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
 
 ## Component migration
 
-If you asked to migrate an already existing component to a new architecture, please read `.agent/docs/component-migration.md`.
+If you asked to migrate an already existing component to a new architecture, please read `.agents/docs/component-migration.md`.
+
+## Sub-agents
+
+Use as many sub-agents as it's necessary to solve the task efficiently.

@@ -110,7 +110,7 @@ Notes:
 
 - Use token grouping rules consistent with `src2/button/styles/utils.ts`.
 - Use explicit inheritance with `extend(...)` (see
-  `.agent/docs/css-inheritance.md`).
+  `.agents/docs/css-inheritance.md`).
 - Keep `main` and `switch` token outputs separate if the component needs both.
   If logic is shared, create a shared `tokens.ts` and re-export from
   `main.tokens.css.ts` and `switch.tokens.css.ts` to avoid duplication.
