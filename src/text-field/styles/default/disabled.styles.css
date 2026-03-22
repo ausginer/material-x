@@ -1,8 +1,4 @@
 :host(:disabled) {
-  &::before {
-    opacity: var(--_container-opacity);
-  }
-
   .lead,
   .trail,
   .support,

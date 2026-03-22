@@ -81,6 +81,7 @@
 .outline {
   grid-area: 1 / 1 / 2 / -1;
   background-color: var(--_container-color);
+  opacity: var(--_container-opacity, 1);
   border-radius: var(--_container-shape-top-left)
     var(--_container-shape-top-right) var(--_container-shape-bottom-right)
     var(--_container-shape-bottom-left);
