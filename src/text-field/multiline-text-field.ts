@@ -38,8 +38,6 @@ export type {
  * @csspart support - Supporting text presenter container.
  * @csspart counter - Counter presenter container.
  *
- * @cssprop --md-text-field-notch-bg - Overrides outlined label notch
- * background.
  * @cssprop --md-text-field-container-height - Overrides field height.
  * @cssprop --md-text-field-input-line-height - Overrides input line height.
  * @cssprop --md-text-field-container-padding-inline - Overrides horizontal

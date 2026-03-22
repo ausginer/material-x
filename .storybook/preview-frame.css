@@ -4,7 +4,6 @@
   --md-ref-typeface-mono:
     'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     'Liberation Mono', 'Courier New', monospace;
-  --md-text-field-notch-bg: var(--md-sys-color-surface);
 
   color-scheme: light dark;
 }
@@ -30,12 +29,10 @@ body {
 }
 
 .sbdocs-preview {
-  --md-text-field-notch-bg: white;
   background-color: white !important;
 }
 
 [data-theme='dark'] .sbdocs-preview {
-  --md-text-field-notch-bg: black;
   background-color: black !important;
 }
 

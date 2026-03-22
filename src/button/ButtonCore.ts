@@ -1,5 +1,5 @@
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
-import { useRipple } from '../core/animations/ripple.ts';
+import { useRipple } from '../core/animations/ripple/ripple.ts';
 import { useARIATransfer } from '../core/controllers/useARIA.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useContext } from '../core/controllers/useContext.ts';
@@ -126,10 +126,14 @@ export function useButtonCore(
 
   useARIATransfer(host, target);
 
-  useRipple(host, {
-    easing: '--_ripple-easing',
-    duration: '--_ripple-duration',
-  });
+  useRipple(
+    host,
+    {
+      easing: '--_ripple-easing',
+      duration: '--_ripple-duration',
+    },
+    target,
+  );
 
   const internals = getInternals(host);
 

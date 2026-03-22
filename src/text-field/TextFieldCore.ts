@@ -1,5 +1,6 @@
 // oxlint-disable import/no-mutable-exports
 import type { EmptyObject } from 'type-fest';
+import { useOutline } from '../core/animations/outline/outline.ts';
 import { useARIATransfer } from '../core/controllers/useARIA.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
@@ -77,7 +78,6 @@ export type TextFieldLikeProps = Omit<Props<typeof TextFieldLike>, 'value'> & {
 export type TextFieldProperties = TextFieldLikeProps & DisableableProps;
 export type TextFieldEvents = EmptyObject;
 export type TextFieldCSSProperties = Readonly<{
-  '--md-text-field-notch-bg'?: string;
   '--md-text-field-container-height'?: string;
   '--md-text-field-input-line-height'?: string;
   '--md-text-field-container-padding-inline'?: string;
@@ -163,6 +163,7 @@ export class TextFieldCore extends TextFieldCoreBase {
     });
 
     const input = $<HTMLInputElement | HTMLTextAreaElement>(this, '.input')!;
+    const label = $<HTMLLabelElement>(this, '.label')!;
 
     const internals = getInternals(this);
 
@@ -172,6 +173,7 @@ export class TextFieldCore extends TextFieldCoreBase {
     });
 
     useTextFieldARIA(this, input);
+    useOutline(this, label);
 
     useEvents(
       this,

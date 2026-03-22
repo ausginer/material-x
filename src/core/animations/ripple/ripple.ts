@@ -6,15 +6,16 @@
  * adaptations for this project's style and needs.
  */
 
-import { useEvents } from '../controllers/useEvents.ts';
-import type { ReactiveController } from '../elements/reactive-controller.ts';
-import { type ReactiveElement, use } from '../elements/reactive-element.ts';
-import { $ } from '../utils/DOM.ts';
+import { useEvents } from '../../controllers/useEvents.ts';
+import type { ReactiveController } from '../../elements/reactive-controller.ts';
+import { type ReactiveElement, use } from '../../elements/reactive-element.ts';
+import { $ } from '../../utils/DOM.ts';
 import {
   readCSSVariables,
   transformNumericVariable,
-} from '../utils/readCSSVariables.ts';
-import css from './styles/ripple.ctr.css' with { type: 'css' };
+} from '../../utils/readCSSVariables.ts';
+import css from './ripple.ctr.css' with { type: 'css' };
+import template from './ripple.tpl.html' with { type: 'html' };
 
 type Point = Readonly<{
   x: number;
@@ -147,9 +148,14 @@ class RippleAnimationController implements ReactiveController {
   #startEvent: PointerEvent | null = null;
   #checkBoundsAfterContextMenu = false;
 
-  constructor(host: ReactiveElement, vars: CSSVariables) {
+  constructor(
+    host: ReactiveElement,
+    container: DocumentFragment | HTMLElement,
+    vars: CSSVariables,
+  ) {
     this.#host = host;
     host.shadowRoot!.adoptedStyleSheets.push(css);
+    container.append(template.content.cloneNode(true));
     this.#rippleHost = $(host, '.host')!;
     this.#rippleElement = $(host, `.ripple`)!;
     this.#cssVariables = vars;
@@ -356,6 +362,10 @@ class RippleAnimationController implements ReactiveController {
   }
 }
 
-export function useRipple(host: ReactiveElement, vars: CSSVariables): void {
-  use(host, new RippleAnimationController(host, vars));
+export function useRipple(
+  host: ReactiveElement,
+  vars: CSSVariables,
+  container: DocumentFragment | HTMLElement = host.shadowRoot!,
+): void {
+  use(host, new RippleAnimationController(host, container, vars));
 }

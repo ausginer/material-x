@@ -37,17 +37,6 @@
     );
   grid-template-rows: auto 0;
   position: relative;
-
-  &::before {
-    content: '';
-    grid-area: 1 / 1 / 2 / -1;
-    background-color: var(--_container-color);
-    border-radius: var(--_container-shape-top-left)
-      var(--_container-shape-top-right) var(--_container-shape-bottom-right)
-      var(--_container-shape-bottom-left);
-    border-block-end: var(--_active-indicator-thickness) solid
-      var(--_active-indicator-color);
-  }
 }
 
 /* TODO: ':host:has(.lead:has-slotted)' */
@@ -87,6 +76,16 @@
 /* TODO: ':host:has(.support > :has-slotted)' */
 :host(:state(has-support)) {
   grid-template-rows: auto min-content;
+}
+
+.outline {
+  grid-area: 1 / 1 / 2 / -1;
+  background-color: var(--_container-color);
+  border-radius: var(--_container-shape-top-left)
+    var(--_container-shape-top-right) var(--_container-shape-bottom-right)
+    var(--_container-shape-bottom-left);
+  border-block-end: var(--_active-indicator-thickness) solid
+    var(--_active-indicator-color);
 }
 
 .presenter {

@@ -1,4 +1,4 @@
-import { useRipple } from '../core/animations/ripple.ts';
+import { useRipple } from '../core/animations/ripple/ripple.ts';
 import { useARIATransfer } from '../core/controllers/useARIA.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { Bool, Str } from '../core/elements/attribute.ts';
@@ -122,10 +122,14 @@ export default class FAB extends FABCore {
     const target = $<HTMLButtonElement>(this, '.host')!;
     useARIATransfer(this, target);
 
-    useRipple(this, {
-      easing: '--_ripple-easing',
-      duration: '--_ripple-duration',
-    });
+    useRipple(
+      this,
+      {
+        easing: '--_ripple-easing',
+        duration: '--_ripple-duration',
+      },
+      target,
+    );
 
     useAttributes(this, {
       disabled: transfer(target, 'disabled'),

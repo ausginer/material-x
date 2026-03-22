@@ -1,8 +1,21 @@
 :host([outlined]) {
-  &::before {
+  .outline {
+    --_outline-border: var(--_outline-width) solid var(--_outline-color);
+    --_outline-border-radius: var(--_container-shape);
+    --_outline-start-width: calc(
+      var(--_label-populated-space) - var(--_label-populated-padding)
+    );
+    --_outline-transition-duration: var(
+      --md-text-field-focus-duration,
+      var(--_focus-duration)
+    );
+    --_outline-transition-easing: var(
+      --md-text-field-focus-easing,
+      var(--_focus-easing)
+    );
+
     background: none;
-    border: var(--_outline-width) solid var(--_outline-color);
-    border-radius: var(--_container-shape);
+    border: none;
   }
 }
 
@@ -15,7 +28,6 @@
 :host([outlined]:focus-within:state(has-label)),
 :host([outlined]:state(populated):state(has-label)) {
   .label {
-    background: var(--md-text-field-notch-bg, canvas);
     padding: 0 var(--_label-populated-padding);
 
     /*
