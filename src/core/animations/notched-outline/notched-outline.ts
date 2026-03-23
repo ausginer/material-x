@@ -1,12 +1,12 @@
 import { useResizeObserver } from '../../controllers/useResizeObserver.ts';
 import type { ReactiveElement } from '../../elements/reactive-element.ts';
 import { $ } from '../../utils/DOM.ts';
-import css from './outline.ctr.css' with { type: 'css' };
-import template from './outline.tpl.html' with { type: 'html' };
+import css from './notched-outline.ctr.css' with { type: 'css' };
+import template from './notched-outline.tpl.html' with { type: 'html' };
 
-const NOTCH_WIDTH_VAR_NAME = '--_outline-notch-width';
+const NOTCH_WIDTH_VAR_NAME = '--_notched-outline-notch-width';
 
-export function useOutline(
+export function useNotchedOutline(
   host: ReactiveElement,
   label: HTMLElement,
   container: DocumentFragment | HTMLElement = host.shadowRoot!,
@@ -14,7 +14,7 @@ export function useOutline(
   host.shadowRoot!.adoptedStyleSheets.push(css);
   container.prepend(template.content.cloneNode(true));
 
-  const outline = $<HTMLElement>(host, '.outline')!;
+  const outline = $<HTMLElement>(host, '.notched-outline')!;
 
   useResizeObserver(
     host,

@@ -1,12 +1,14 @@
 :host([outlined]) {
-  .outline {
-    --_outline-border: var(--_outline-width) solid var(--_outline-color);
-    --_outline-border-radius: var(--_container-shape);
-    --_outline-notch-padding: var(--_label-populated-padding);
-    --_outline-start-width: calc(
+  .notched-outline {
+    --_notched-outline-border: var(--_outline-width) solid var(--_outline-color);
+    --_notched-outline-border-radius: var(--_container-shape);
+    --_notched-outline-notch-padding: var(--_label-populated-padding);
+    --_notched-outline-start-width: calc(
       var(--_label-populated-space) - var(--_outline-width)
     );
-    --_outline-notch-scale: var(--_label-text-populated-scale);
+    --_notched-outline-notch-scale: var(--_label-text-populated-scale);
+    --_notched-outline-transition-easing: var(--_outline-transition-easing);
+    --_notched-outline-transition-duration: var(--_outline-transition-duration);
 
     background: none;
     border: none;
@@ -21,6 +23,10 @@
 
 :host([outlined]:focus-within:state(has-label)),
 :host([outlined]:state(populated):state(has-label)) {
+  .notched-outline {
+    --_notched-outline-notch-open: 1;
+  }
+
   .label {
     /*
      * Since the populated label should be placed at the border of the text

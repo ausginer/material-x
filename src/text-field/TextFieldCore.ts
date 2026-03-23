@@ -1,6 +1,6 @@
 // oxlint-disable import/no-mutable-exports
 import type { EmptyObject } from 'type-fest';
-import { useOutline } from '../core/animations/outline/outline.ts';
+import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
 import { useARIATransfer } from '../core/controllers/useARIA.ts';
 import { transfer, useAttributes } from '../core/controllers/useAttributes.ts';
 import { useEvents } from '../core/controllers/useEvents.ts';
@@ -173,7 +173,7 @@ export class TextFieldCore extends TextFieldCoreBase {
     });
 
     useTextFieldARIA(this, input);
-    useOutline(this, label);
+    useNotchedOutline(this, label);
 
     useEvents(
       this,

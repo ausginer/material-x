@@ -78,7 +78,7 @@
   grid-template-rows: auto min-content;
 }
 
-.outline {
+.notched-outline {
   grid-area: 1 / 1 / 2 / -1;
   background-color: var(--_container-color);
   opacity: var(--_container-opacity, 1);
