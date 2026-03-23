@@ -2,17 +2,11 @@
   .outline {
     --_outline-border: var(--_outline-width) solid var(--_outline-color);
     --_outline-border-radius: var(--_container-shape);
+    --_outline-notch-padding: var(--_label-populated-padding);
     --_outline-start-width: calc(
-      var(--_label-populated-space) - var(--_label-populated-padding)
+      var(--_label-populated-space) - var(--_outline-width)
     );
-    --_outline-transition-duration: var(
-      --md-text-field-focus-duration,
-      var(--_focus-duration)
-    );
-    --_outline-transition-easing: var(
-      --md-text-field-focus-easing,
-      var(--_focus-easing)
-    );
+    --_outline-notch-scale: var(--_label-text-populated-scale);
 
     background: none;
     border: none;
@@ -28,28 +22,24 @@
 :host([outlined]:focus-within:state(has-label)),
 :host([outlined]:state(populated):state(has-label)) {
   .label {
-    padding: 0 var(--_label-populated-padding);
-
     /*
      * Since the populated label should be placed at the border of the text
      * field, we have to do some sophisticated computations here.
      */
     translate: calc(
-        -1 *
-          (
+        var(--_label-populated-space) + var(--_label-populated-padding) -
+          var(
+            --_padding-inline-start,
             var(
-                --_padding-inline-start,
-                var(
-                  --md-text-field-container-padding-inline,
-                  var(--_container-padding-inline)
-                )
-              ) +
-              var(
-                --md-text-field-leading-icon-size,
-                var(--_leading-icon-size, 0px)
-              ) +
-              var(--_lead-icon-gap, 0px) - var(--_label-populated-space)
-          )
+              --md-text-field-container-padding-inline,
+              var(--_container-padding-inline)
+            )
+          ) -
+          var(
+            --md-text-field-leading-icon-size,
+            var(--_leading-icon-size, 0px)
+          ) -
+          var(--_lead-icon-gap, 0px)
       )
       calc(
         -1 *

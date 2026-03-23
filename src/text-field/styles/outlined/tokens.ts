@@ -1,4 +1,5 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
+import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
 import { attribute } from '../../../.tproc/selector.ts';
 import type { ProcessorAdjuster, TokenSet } from '../../../.tproc/utils.ts';
@@ -17,6 +18,9 @@ const SPECIAL_OUTLINED_TOKENS: TokenSet = {
   'label.populated.space': '12px',
   'label.populated.padding': '4px',
   'outline.width.max': 'md.comp.outlined-text-field.focus.outline.width',
+  'outline.transition.easing': motionEffects['expressive.fast-effects'],
+  'outline.transition.duration':
+    motionEffects['expressive.fast-effects.duration'],
 };
 
 function createPackage(adjuster: ProcessorAdjuster = (processor) => processor) {

@@ -17,7 +17,10 @@
   border-inline: none;
   border-block-start: none;
   position: relative;
-  width: var(--_outline-notch-width, 0);
+  width: calc(
+    var(--_outline-notch-width, 0) * var(--_outline-notch-scale, 1) + 2 *
+      var(--_outline-notch-padding)
+  );
   border-radius: 0;
 }
 
