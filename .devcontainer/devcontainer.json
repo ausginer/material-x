@@ -1,20 +1,14 @@
 {
   "name": "material-x",
-  "image": "node:25-bookworm-slim",
+  "image": "ghcr.io/ausginer/devimages/node:latest",
+  "workspaceFolder": "/workspaces/material-x",
   "runArgs": ["--name=materialx_dev"],
   "containerEnv": {
-    "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
     "CODEX_HOME": "/workspaces/material-x/.agents/codex"
-  },
-  "features": {
-    "ghcr.io/devcontainers/features/common-utils:2": {
-      "installZsh": false,
-      "installOhMyZsh": false,
-      "installOhMyZshConfig": false
-    }
   },
   "forwardPorts": [9876, 6006, 5176, 24678],
   "remoteUser": "node",
+  "updateRemoteUserUID": true,
   "mounts": [
     {
       "source": "${localWorkspaceFolderBasename}_nodemodules",
