@@ -1,6 +1,6 @@
 import { writeFile } from 'node:fs/promises';
 import kebabCase from 'just-kebab-case';
-import db from '../src/.tproc/DB/index.ts';
+import db from '../packages/material-x/src/.tproc/DB/index.ts';
 import { root } from './utils.ts';
 
 const { light, dark } = db.theme.schemes;

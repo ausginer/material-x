@@ -8,6 +8,7 @@
     "builtin": true
   },
   "ignorePatterns": [
+    ".nx/**/*",
     ".vite/**/*",
     ".vite-inspect/**/*",
     ".docs/**/*",
@@ -18,7 +19,22 @@
     "fab/**/*",
     "icon/**/*",
     "text-field/**/*",
-    "react.d.ts"
+    "custom-elements.json",
+    "react.d.ts",
+    "packages/*/dist/**/*",
+    "packages/*/custom-elements.json",
+    "packages/material-x/**/*.js",
+    "packages/material-x/**/*.js.map",
+    "packages/material-x/**/*.d.ts",
+    "packages/material-x/**/*.d.ts.map",
+    "packages/core/**/*.js",
+    "packages/core/**/*.js.map",
+    "packages/core/**/*.d.ts",
+    "packages/core/**/*.d.ts.map",
+    "packages/traits-abstract/**/*.js",
+    "packages/traits-abstract/**/*.js.map",
+    "packages/traits-abstract/**/*.d.ts",
+    "packages/traits-abstract/**/*.d.ts.map"
   ],
   "rules": {
     "typescript/no-implied-eval": "error",

@@ -2,7 +2,8 @@ import { basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const root: URL = new URL('../', import.meta.url);
-export const src: URL = new URL('src/', root);
+export const materialXRoot: URL = new URL('packages/material-x/', root);
+export const src: URL = new URL('src/', materialXRoot);
 export const cache: URL = new URL('node_modules/.cache/', root);
 export const cssCache: URL = new URL('css/', cache);
 

@@ -1,0 +1,83 @@
+import {
+  ButtonCore,
+  DEFAULT_BUTTON_ATTRIBUTES,
+  type ButtonLike,
+} from '../button/ButtonCore.ts';
+import {
+  useAttributes,
+  type UpdateCallback,
+  useProvider,
+} from 'ydin/controllers';
+import {
+  EventEmitter,
+  impl,
+  trait,
+  type ConstructorWithTraits,
+  type Interface,
+  type Props,
+  type ReactiveElement,
+  type Trait,
+} from 'ydin/elements';
+import type { Disableable } from 'ydin/traits';
+import { useCore } from '../core/utils/useCore.ts';
+import {
+  BUTTON_GROUP_CTX,
+  type ChangedAttribute,
+} from './button-group-context.ts';
+
+type ButtonGroupLikeDescriptor = Record<never, never>;
+
+const $buttonGroupLike: unique symbol = Symbol('ButtonGroupLike');
+
+export const ButtonGroupLike: Trait<
+  ButtonGroupLikeDescriptor,
+  typeof $buttonGroupLike
+> = trait<ButtonGroupLikeDescriptor, typeof $buttonGroupLike>(
+  {},
+  $buttonGroupLike,
+);
+
+export type ButtonGroupLike = Interface<typeof ButtonGroupLike>;
+export type ButtonGroupLikeProps = Props<typeof ButtonGroupLike>;
+
+export const ButtonGroupCore: ConstructorWithTraits<
+  InstanceType<typeof ButtonCore>,
+  [typeof ButtonGroupLike]
+> = impl(ButtonCore, [ButtonGroupLike]);
+
+export type ButtonGroupSharedCSSProperties = Readonly<{
+  '--md-button-group-between-space'?: string;
+  '--md-button-group-interaction-width-multiplier'?: string;
+  '--md-button-group-inner-corner-size'?: string;
+}>;
+
+export function useButtonGroupCore(
+  host: ReactiveElement & ButtonLike & ButtonGroupLike & Disableable,
+  template: HTMLTemplateElement,
+  aria: Partial<ARIAMixin>,
+  styles: ReadonlyArray<CSSStyleSheet | string>,
+): void {
+  useCore(host, [template], aria, styles);
+
+  const emitter = new EventEmitter<ChangedAttribute>();
+
+  useProvider(host, BUTTON_GROUP_CTX, { emitter, provider: host });
+
+  useAttributes(
+    host,
+    Object.fromEntries(
+      Object.entries(DEFAULT_BUTTON_ATTRIBUTES).map(
+        ([attr, [from]]) =>
+          [
+            attr,
+            ((oldValue, newValue) =>
+              emitter.emit(
+                attr,
+                from(oldValue),
+                from(newValue),
+              )) satisfies UpdateCallback,
+          ] as const,
+      ),
+    ),
+  );
+}

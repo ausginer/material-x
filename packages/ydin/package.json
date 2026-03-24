@@ -1,0 +1,17 @@
+{
+  "name": "ydin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm exec -- tsdown --config tsdown.config.ts",
+    "clean:build": "git clean -fx -e .vite -e node_modules -- _virtual index.js index.js.map index.d.ts index.d.ts.map attribute.js attribute.js.map attribute.d.ts attribute.d.ts.map controllers.js controllers.js.map controllers.d.ts controllers.d.ts.map controllers elements.js elements.js.map elements.d.ts elements.d.ts.map emitter.js emitter.js.map emitter.d.ts emitter.d.ts.map reactive-controller.js reactive-controller.js.map reactive-controller.d.ts reactive-controller.d.ts.map reactive-element.js reactive-element.js.map reactive-element.d.ts reactive-element.d.ts.map traits.js traits.js.map traits.d.ts traits.d.ts.map traits utils.js utils.js.map utils.d.ts utils.d.ts.map utils",
+    "typecheck": "tsgo -p tsconfig.json --noEmit",
+    "lint": "oxlint --type-aware . && eslint --flag unstable_native_nodejs_ts_config -c ../../eslint.config.ts .",
+    "test": "node --eval \"\""
+  },
+  "dependencies": {
+    "@ausginer/traits-abstract": "0.1.0",
+    "type-fest": "5.5.0"
+  }
+}

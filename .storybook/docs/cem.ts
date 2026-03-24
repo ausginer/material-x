@@ -1,4 +1,4 @@
-import manifest from '../../custom-elements.json';
+import manifestJSON from '../../packages/material-x/custom-elements.json' with { type: 'json' };
 
 type CEMAttribute = Readonly<{
   name?: string;
@@ -47,8 +47,16 @@ export type NormalizedItem = Readonly<{
   description?: string;
 }>;
 
+type CEMModule = Readonly<{
+  declarations?: readonly CEMDeclaration[];
+}>;
+
+const manifest: Readonly<{
+  modules: readonly CEMModule[];
+}> = manifestJSON;
+
 const declarations: readonly CEMDeclaration[] = manifest.modules.flatMap(
-  (moduleEntry) => moduleEntry.declarations as readonly CEMDeclaration[],
+  (moduleEntry) => moduleEntry.declarations ?? [],
 );
 
 function normalizeName(

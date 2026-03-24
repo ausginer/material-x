@@ -1,0 +1,370 @@
+/**
+ * Adapted from Google's Material Web ripple implementation:
+ * https://github.com/material-components/material-web/blob/main/ripple/internal/ripple.ts
+ *
+ * Original source is part of Material Web (Apache-2.0), with slight
+ * adaptations for this project's style and needs.
+ */
+
+import { useEvents } from 'ydin/controllers';
+import {
+  type ReactiveController,
+  type ReactiveElement,
+  use,
+} from 'ydin/elements';
+import { $ } from 'ydin/utils';
+import { readCSSVariables, transformNumericVariable } from 'ydin/utils';
+import css from './ripple.ctr.css' with { type: 'css' };
+import template from './ripple.tpl.html' with { type: 'html' };
+
+type Point = Readonly<{
+  x: number;
+  y: number;
+}>;
+
+// States of the ripple animation controller
+const INACTIVE = 0;
+const TOUCH_DELAY = 1;
+const HOLDING = 2;
+const WAITING_FOR_CLICK = 3;
+
+type State =
+  | typeof INACTIVE
+  | typeof TOUCH_DELAY
+  | typeof HOLDING
+  | typeof WAITING_FOR_CLICK;
+
+const MINIMUM_PRESS_MS = 225;
+const INITIAL_ORIGIN_SCALE = 0.2;
+const PADDING = 10;
+const SOFT_EDGE_MINIMUM_SIZE = 75;
+const SOFT_EDGE_CONTAINER_RATIO = 0.35;
+
+/**
+ * Delay reacting to touch so that we do not show the ripple for a swipe or
+ * scroll interaction.
+ */
+const TOUCH_DELAY_MS = 150;
+const FORCED_COLORS = matchMedia('(forced-colors: active)');
+
+function isTouch(event: PointerEvent): boolean {
+  return event.pointerType === 'touch';
+}
+
+function shouldIgnoreForForcedColors(): boolean {
+  return FORCED_COLORS.matches;
+}
+
+function determineRippleSize(
+  { currentCSSZoom }: HTMLElement,
+  { height, width }: DOMRect,
+): readonly [size: number, scale: number] {
+  const maxDim = Math.max(height, width);
+  const softEdgeSize = Math.max(
+    SOFT_EDGE_CONTAINER_RATIO * maxDim,
+    SOFT_EDGE_MINIMUM_SIZE,
+  );
+
+  // `?? 1` may be removed once `currentCSSZoom` is widely available.
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const zoom = currentCSSZoom ?? 1;
+  const size = Math.floor((maxDim * INITIAL_ORIGIN_SCALE) / zoom);
+  const maxRadius = Math.sqrt(width ** 2 + height ** 2) + PADDING;
+
+  // The dimensions may be altered by CSS `zoom`, which needs to be
+  // compensated for in the final scale() value.
+  const maybeZoomedScale = (maxRadius + softEdgeSize) / size;
+  const scale = maybeZoomedScale / zoom;
+
+  return [size, scale];
+}
+
+function getNormalizedPointerEventCoords(
+  element: HTMLElement,
+  rect: DOMRect,
+  pointerEvent: PointerEvent,
+): Point {
+  const { scrollX, scrollY } = window;
+  const documentX = scrollX + rect.left;
+  const documentY = scrollY + rect.top;
+  const { pageX, pageY } = pointerEvent;
+  // `?? 1` may be removed once `currentCSSZoom` is widely available.
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const zoom = element.currentCSSZoom ?? 1;
+  return {
+    x: (pageX - documentX) / zoom,
+    y: (pageY - documentY) / zoom,
+  };
+}
+
+function getTranslationCoordinates(
+  element: HTMLElement,
+  rect: DOMRect,
+  rippleSize: number,
+  positionEvent: MouseEvent | null,
+) {
+  // `?? 1` may be removed once `currentCSSZoom` is widely available.
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const zoom = element.currentCSSZoom ?? 1;
+  // end in the center
+  const endPoint = {
+    x: (rect.width / zoom - rippleSize) / 2,
+    y: (rect.height / zoom - rippleSize) / 2,
+  };
+
+  let startPoint;
+  if (positionEvent instanceof PointerEvent) {
+    startPoint = getNormalizedPointerEventCoords(element, rect, positionEvent);
+  } else {
+    startPoint = {
+      x: rect.width / zoom / 2,
+      y: rect.height / zoom / 2,
+    };
+  }
+
+  // center around start point
+  startPoint = {
+    x: startPoint.x - rippleSize / 2,
+    y: startPoint.y - rippleSize / 2,
+  };
+
+  return { startPoint, endPoint };
+}
+
+export type CSSVariables = Readonly<{
+  easing: string;
+  duration: string;
+}>;
+
+class RippleAnimationController implements ReactiveController {
+  readonly #host: ReactiveElement;
+  readonly #rippleHost: HTMLElement;
+  readonly #rippleElement: HTMLElement;
+  readonly #cssVariables: CSSVariables;
+  #state: State = INACTIVE;
+  #animation: Animation | undefined;
+  #varValues: CSSVariables | undefined;
+  #startEvent: PointerEvent | null = null;
+  #checkBoundsAfterContextMenu = false;
+
+  constructor(
+    host: ReactiveElement,
+    container: DocumentFragment | HTMLElement,
+    vars: CSSVariables,
+  ) {
+    this.#host = host;
+    host.shadowRoot!.adoptedStyleSheets.push(css);
+    container.append(template.content.cloneNode(true));
+    this.#rippleHost = $(host, '.host')!;
+    this.#rippleElement = $(host, `.ripple`)!;
+    this.#cssVariables = vars;
+
+    const self = this;
+
+    useEvents(host, {
+      click() {
+        if (
+          shouldIgnoreForForcedColors() ||
+          // Click is a MouseEvent in Firefox and Safari, so we cannot use
+          // `shouldReactToEvent`
+          self.#isHostDisabled()
+        ) {
+          return;
+        }
+
+        if (self.#state === WAITING_FOR_CLICK) {
+          void self.#endAnimation();
+          return;
+        }
+
+        if (self.#state === INACTIVE) {
+          // keyboard synthesized click event
+          self.#startAnimation();
+          void self.#endAnimation();
+        }
+      },
+      contextmenu() {
+        if (shouldIgnoreForForcedColors() || self.#isHostDisabled()) {
+          return;
+        }
+
+        self.#checkBoundsAfterContextMenu = true;
+        void self.#endAnimation();
+      },
+      pointerdown(event: PointerEvent) {
+        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
+          return;
+        }
+
+        self.#startEvent = event;
+
+        if (!isTouch(event)) {
+          self.#state = WAITING_FOR_CLICK;
+          self.#startAnimation();
+          return;
+        }
+
+        // after a longpress contextmenu event, an extra `pointerdown` can be
+        // dispatched to the pressed element. Check that the down is within
+        // bounds of the element in this case.
+        if (self.#checkBoundsAfterContextMenu && !self.#inBounds(event)) {
+          return;
+        }
+
+        self.#checkBoundsAfterContextMenu = false;
+
+        // Wait for a hold after touch delay
+        self.#state = TOUCH_DELAY;
+
+        setTimeout(() => {
+          // State may have changed while waiting for the timeout.
+          if (self.#state !== TOUCH_DELAY) {
+            return;
+          }
+
+          self.#state = HOLDING;
+          self.#startAnimation();
+        }, TOUCH_DELAY_MS);
+      },
+      pointerleave(event: PointerEvent) {
+        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
+          return;
+        }
+
+        // release a held mouse or pen press that moves outside the element
+        if (self.#state !== INACTIVE) {
+          void self.#endAnimation();
+        }
+      },
+      pointerup(event: PointerEvent) {
+        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
+          return;
+        }
+
+        if (self.#state === HOLDING) {
+          self.#state = WAITING_FOR_CLICK;
+          return;
+        }
+
+        if (self.#state === TOUCH_DELAY) {
+          self.#state = WAITING_FOR_CLICK;
+          self.#startAnimation();
+          return;
+        }
+      },
+      pointercancel(event: PointerEvent) {
+        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
+          return;
+        }
+
+        void self.#endAnimation();
+      },
+    });
+  }
+
+  connected(): void {
+    const self = this;
+
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    self.#varValues = readCSSVariables(
+      self.#host,
+      self.#cssVariables,
+      (name, value, host) =>
+        name === 'duration'
+          ? // converting duration to ms
+            transformNumericVariable(name, value, host) * 1000
+          : value,
+    ) as CSSVariables;
+  }
+
+  #inBounds({ x, y }: PointerEvent): boolean {
+    const { top, left, bottom, right } =
+      this.#rippleHost.getBoundingClientRect();
+    return x >= left && x <= right && y >= top && y <= bottom;
+  }
+
+  #startAnimation(): void {
+    const self = this;
+    const rippleHost = self.#rippleHost;
+    const rect = rippleHost.getBoundingClientRect();
+
+    self.#animation?.cancel();
+    const [size, scale] = determineRippleSize(rippleHost, rect);
+    const { startPoint, endPoint } = getTranslationCoordinates(
+      rippleHost,
+      rect,
+      size,
+      self.#startEvent,
+    );
+
+    const pxSize = `${size}px`;
+
+    self.#animation = self.#rippleElement.animate(
+      {
+        width: [pxSize, pxSize],
+        height: [pxSize, pxSize],
+        transform: [
+          `translate(${startPoint.x}px,${startPoint.y}px) scale(1)`,
+          `translate(${endPoint.x}px,${endPoint.y}px) scale(${scale})`,
+        ],
+      },
+      {
+        pseudoElement: '::after',
+        fill: 'forwards',
+        ...self.#varValues,
+      },
+    );
+  }
+
+  async #endAnimation(): Promise<void> {
+    const self = this;
+    self.#startEvent = null;
+    self.#state = INACTIVE;
+    const animation = self.#animation;
+    let pressAnimationPlayState = Infinity;
+    if (typeof animation?.currentTime === 'number') {
+      pressAnimationPlayState = animation.currentTime;
+    } else if (animation?.currentTime) {
+      pressAnimationPlayState = animation.currentTime.to('ms').value;
+    }
+
+    if (pressAnimationPlayState >= MINIMUM_PRESS_MS) {
+      return;
+    }
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, MINIMUM_PRESS_MS - pressAnimationPlayState);
+    });
+  }
+
+  #isHostDisabled(): boolean {
+    return this.#host.hasAttribute('disabled');
+  }
+
+  #shouldReactToEvent(event: PointerEvent): boolean {
+    const self = this;
+
+    if (self.#isHostDisabled() || !event.isPrimary) {
+      return false;
+    }
+
+    if (self.#startEvent && self.#startEvent.pointerId !== event.pointerId) {
+      return false;
+    }
+
+    if (event.type === 'pointerenter' || event.type === 'pointerleave') {
+      return !isTouch(event);
+    }
+
+    const isPrimaryButton = event.buttons === 1;
+    return isTouch(event) || isPrimaryButton;
+  }
+}
+
+export function useRipple(
+  host: ReactiveElement,
+  vars: CSSVariables,
+  container: DocumentFragment | HTMLElement = host.shadowRoot!,
+): void {
+  use(host, new RippleAnimationController(host, container, vars));
+}

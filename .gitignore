@@ -4,7 +4,32 @@
 /models
 /.vite
 /.vite-inspect
+/.nx
 /custom-elements.json
+/packages/*/custom-elements.json
+/packages/material-x/button
+/packages/material-x/button-group
+/packages/material-x/fab
+/packages/material-x/icon
+/packages/material-x/text-field
+/packages/material-x/*.js
+/packages/material-x/*.js.map
+/packages/material-x/*.d.ts.map
+/packages/material-x/*.d.ts
+/packages/core/_virtual
+/packages/core/controllers
+/packages/core/elements
+/packages/core/traits
+/packages/core/utils
+/packages/core/*.js
+/packages/core/*.js.map
+/packages/core/*.d.ts
+/packages/core/*.d.ts.map
+/packages/traits-abstract/elements
+/packages/traits-abstract/*.js
+/packages/traits-abstract/*.js.map
+/packages/traits-abstract/*.d.ts
+/packages/traits-abstract/*.d.ts.map
 
 *storybook.log
 storybook-static
@@ -18,9 +43,11 @@ storybook-static
 *.js.map
 *.d.ts
 *.d.ts.map
+/packages/*/dist
 
 !.storybook/preview-frame.css
 !src/**/*
+!packages/**/*
 !/types.d.ts
 
 .agents/codex
