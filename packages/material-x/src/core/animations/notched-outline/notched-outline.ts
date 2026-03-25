@@ -1,6 +1,6 @@
-import { useResizeObserver } from 'ydin/controllers';
-import type { ReactiveElement } from 'ydin/elements';
-import { $ } from 'ydin/utils';
+import { useResizeObserver } from 'ydin/controllers/useResizeObserver.js';
+import type { ReactiveElement } from 'ydin/reactive-element.js';
+import { $ } from 'ydin/utils/DOM.js';
 import css from './notched-outline.ctr.css' with { type: 'css' };
 import template from './notched-outline.tpl.html' with { type: 'html' };
 

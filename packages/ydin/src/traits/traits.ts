@@ -4,14 +4,14 @@ import {
   ATTRIBUTE,
   type AttributePrimitive,
   type ToConverter,
-} from './attribute.ts';
-import type { CustomElementStatics } from './reactive-element.ts';
+} from '../attribute.ts';
+import type { CustomElementStatics } from '../reactive-element.ts';
 import {
   type ConstructorWithTraits as AbstractConstructorWithTraits,
   impl as abstractImpl,
   trait as abstractTrait,
   type Trait as AbstractTrait,
-} from '@ausginer/traits-abstract';
+} from './piirre.ts';
 
 type ConvertersFromAttributePrimitives<
   T extends Readonly<Record<string, AttributePrimitive | null>>,

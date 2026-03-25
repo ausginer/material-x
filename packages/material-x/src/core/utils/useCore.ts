@@ -1,5 +1,6 @@
-import { useARIA, useARIAInternals, useShadowDOM } from 'ydin/controllers';
-import type { ReactiveElement } from 'ydin/elements';
+import { useARIA, useARIAInternals } from 'ydin/controllers/useARIA.js';
+import { useShadowDOM } from 'ydin/controllers/useShadowDOM.js';
+import type { ReactiveElement } from 'ydin/reactive-element.js';
 
 const ARIA_MAPPING = {
   checked: 'ariaChecked',

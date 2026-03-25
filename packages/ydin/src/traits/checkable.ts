@@ -1,5 +1,5 @@
 import { Bool } from '../attribute.ts';
-import { trait, type Interface, type Props, type Trait } from '../traits.ts';
+import { trait, type Interface, type Props, type Trait } from './traits.ts';
 
 type CheckableDescriptor = { checked: boolean };
 const $checkable: unique symbol = Symbol('Checkable');

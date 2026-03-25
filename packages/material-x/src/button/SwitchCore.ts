@@ -1,16 +1,9 @@
-import { useEvents } from 'ydin/controllers';
-import {
-  impl,
-  type ConstructorWithTraits,
-  type ReactiveElement,
-} from 'ydin/elements';
-import {
-  Checkable,
-  type CheckableProps,
-  Valuable,
-  type ValuableProps,
-} from 'ydin/traits';
-import { $, notify } from 'ydin/utils';
+import { useEvents } from 'ydin/controllers/useEvents.js';
+import { impl, type ConstructorWithTraits } from 'ydin/traits/traits.js';
+import type { ReactiveElement } from 'ydin/reactive-element.js';
+import { Checkable, type CheckableProps } from 'ydin/traits/checkable.js';
+import { Valuable, type ValuableProps } from 'ydin/traits/valuable.js';
+import { $, notify } from 'ydin/utils/DOM.js';
 import { useTargetedARIA } from '../core/utils/useCore.ts';
 import { ButtonCore } from './ButtonCore.ts';
 

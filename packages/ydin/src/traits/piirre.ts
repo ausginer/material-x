@@ -63,7 +63,7 @@ export function impl<
   TL extends ReadonlyArray<Trait<any, any>>,
 >(target: Constructor<T> & S, traits: TL): ConstructorWithTraits<T, S, TL> {
   return traits.reduce(
-    (acc, t) => t(acc),
+    (acc, traitImpl) => traitImpl(acc),
     class extends target {},
   ) as ConstructorWithTraits<T, S, TL>;
 }

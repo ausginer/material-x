@@ -1,34 +1,9 @@
-import { posix } from 'node:path/posix';
-import type { Rolldown, UserConfig } from 'tsdown';
+import type { Rolldown } from 'tsdown';
 import {
   constructCSSStyles,
   constructCSSTokens,
   constructHTMLTemplate,
 } from './.scripts/vite-plugins.ts';
-
-export type PackageExportDefinition = Readonly<{
-  path: string;
-  typeOnly?: boolean;
-}>;
-
-export type PackageExportsMap = Readonly<
-  Record<string, string | PackageExportDefinition>
->;
-
-function normalizeOutputPath(path: string): string {
-  return posix
-    .normalize(path)
-    .replace(/^\.?\//u, '')
-    .replace(/(?:\.d)?\.(?:t|j)s$/u, '');
-}
-
-function normalizeExportKey(key: string): string {
-  if (key === '.' || key.endsWith('.json') || key.endsWith('.js')) {
-    return key;
-  }
-
-  return `${key}.js`;
-}
 
 export function classVarCleanupPlugin(): Rolldown.Plugin {
   return {
@@ -74,38 +49,6 @@ export function dropEmptyChunksPlugin(): Rolldown.Plugin {
         delete bundle[fileName];
         delete bundle[`${fileName}.map`];
       }
-    },
-  };
-}
-
-export function createPackageCustomExports(
-  exportsMap: PackageExportsMap,
-): UserConfig['exports'] {
-  return {
-    customExports() {
-      return Object.fromEntries(
-        Object.entries(exportsMap).map(([key, definition]) => {
-          if (key.endsWith('.json')) {
-            return [
-              key,
-              typeof definition === 'string' ? definition : definition.path,
-            ];
-          }
-
-          const { path, typeOnly = false } =
-            typeof definition === 'string' ? { path: definition } : definition;
-          const normalizedPath = normalizeOutputPath(path);
-          const outputPath = `./${normalizedPath}.js`;
-
-          return [
-            normalizeExportKey(key),
-            {
-              types: `./${normalizedPath}.d.ts`,
-              ...(typeOnly ? {} : { default: outputPath }),
-            },
-          ];
-        }),
-      );
     },
   };
 }

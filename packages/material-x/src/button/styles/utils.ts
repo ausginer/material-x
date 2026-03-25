@@ -17,8 +17,8 @@ import {
   type GroupSelector,
 } from '../../.tproc/utils.ts';
 import * as CSSVariable from '../../.tproc/variable.ts';
-import type { Predicate } from 'ydin/utils';
-import { not } from 'ydin/utils';
+import type { Predicate } from 'ydin/utils/runtime.js';
+import { not } from 'ydin/utils/runtime.js';
 
 export const BUTTON_STATES = [
   'default',

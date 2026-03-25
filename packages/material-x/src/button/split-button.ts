@@ -1,17 +1,18 @@
 import type { Simplify } from 'type-fest';
 import '../button-group/connected-button-group.ts';
-import { transfer, useAttributes, useEvents } from 'ydin/controllers';
+import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
+import { useEvents } from 'ydin/controllers/useEvents.js';
+import { Bool } from 'ydin/attribute.js';
+import { define } from 'ydin/reactive-element.js';
 import {
-  Bool,
-  define,
   impl,
   trait,
   type ConstructorWithTraits,
   type Interface,
   type Props,
   type Trait,
-} from 'ydin/elements';
-import { $, notify } from 'ydin/utils';
+} from 'ydin/traits/traits.js';
+import { $, notify } from 'ydin/utils/DOM.js';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';

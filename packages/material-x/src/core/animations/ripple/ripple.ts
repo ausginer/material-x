@@ -6,14 +6,14 @@
  * adaptations for this project's style and needs.
  */
 
-import { useEvents } from 'ydin/controllers';
+import { useEvents } from 'ydin/controllers/useEvents.js';
+import type { ReactiveController } from 'ydin/reactive-controller.js';
+import { type ReactiveElement, use } from 'ydin/reactive-element.js';
+import { $ } from 'ydin/utils/DOM.js';
 import {
-  type ReactiveController,
-  type ReactiveElement,
-  use,
-} from 'ydin/elements';
-import { $ } from 'ydin/utils';
-import { readCSSVariables, transformNumericVariable } from 'ydin/utils';
+  readCSSVariables,
+  transformNumericVariable,
+} from 'ydin/utils/readCSSVariables.js';
 import css from './ripple.ctr.css' with { type: 'css' };
 import template from './ripple.tpl.html' with { type: 'html' };
 

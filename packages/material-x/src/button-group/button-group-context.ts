@@ -1,6 +1,7 @@
 import type { ButtonLike } from '../button/ButtonCore.ts';
-import { createContext, type Context } from 'ydin/controllers';
-import type { AttributePrimitive, EventEmitter } from 'ydin/elements';
+import { createContext, type Context } from 'ydin/controllers/useContext.js';
+import type { AttributePrimitive } from 'ydin/attribute.js';
+import type { EventEmitter } from 'ydin/emitter.js';
 import type { ButtonGroupLike } from './ButtonGroupCore.ts';
 
 type ButtonGroupProvider = ButtonLike & ButtonGroupLike;

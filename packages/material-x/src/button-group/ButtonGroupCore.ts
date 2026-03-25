@@ -6,19 +6,19 @@ import {
 import {
   useAttributes,
   type UpdateCallback,
-  useProvider,
-} from 'ydin/controllers';
+} from 'ydin/controllers/useAttributes.js';
+import { useProvider } from 'ydin/controllers/useContext.js';
+import { EventEmitter } from 'ydin/emitter.js';
 import {
-  EventEmitter,
   impl,
   trait,
   type ConstructorWithTraits,
   type Interface,
   type Props,
-  type ReactiveElement,
   type Trait,
-} from 'ydin/elements';
-import type { Disableable } from 'ydin/traits';
+} from 'ydin/traits/traits.js';
+import type { ReactiveElement } from 'ydin/reactive-element.js';
+import type { Disableable } from 'ydin/traits/disableable.js';
 import { useCore } from '../core/utils/useCore.ts';
 import {
   BUTTON_GROUP_CTX,

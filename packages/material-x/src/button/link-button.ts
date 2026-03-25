@@ -1,17 +1,17 @@
 import type { EmptyObject, Simplify } from 'type-fest';
-import { transfer, useAttributes, useEvents } from 'ydin/controllers';
+import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
+import { useEvents } from 'ydin/controllers/useEvents.js';
+import { ATTRIBUTE, Str } from 'ydin/attribute.js';
+import { define } from 'ydin/reactive-element.js';
 import {
-  ATTRIBUTE,
-  Str,
-  define,
   impl,
   trait,
   type ConstructorWithTraits,
   type Interface,
   type Props,
   type Trait,
-} from 'ydin/elements';
-import { $ } from 'ydin/utils';
+} from 'ydin/traits/traits.js';
+import { $ } from 'ydin/utils/DOM.js';
 import {
   ButtonCore,
   useButtonCore,

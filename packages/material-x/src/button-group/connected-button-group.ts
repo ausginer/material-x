@@ -1,13 +1,11 @@
 import type { EmptyObject } from 'type-fest';
 import type { ButtonCoreProps, ButtonLike } from '../button/ButtonCore.ts';
-import {
-  define,
-  impl,
-  type ConstructorWithTraits,
-  type ReactiveElement,
-} from 'ydin/elements';
-import { useRovingTabindex, useSlot } from 'ydin/controllers';
-import { Valuable, type Checkable, type ValuableProps } from 'ydin/traits';
+import { define, type ReactiveElement } from 'ydin/reactive-element.js';
+import { impl, type ConstructorWithTraits } from 'ydin/traits/traits.js';
+import { useRovingTabindex } from 'ydin/controllers/useRovingTabindex.js';
+import { useSlot } from 'ydin/controllers/useSlot.js';
+import { Valuable, type ValuableProps } from 'ydin/traits/valuable.js';
+import type { Checkable } from 'ydin/traits/checkable.js';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
   ButtonGroupCore,

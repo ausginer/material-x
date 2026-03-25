@@ -1,22 +1,21 @@
 import { useRipple } from '../core/animations/ripple/ripple.ts';
-import { transfer, useARIATransfer, useAttributes } from 'ydin/controllers';
+import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
+import { useARIATransfer } from 'ydin/controllers/useARIA.js';
+import { Bool, Str } from 'ydin/attribute.js';
+import { define, ReactiveElement } from 'ydin/reactive-element.js';
 import {
-  Bool,
-  Str,
-  define,
-  ReactiveElement,
   impl,
   trait,
   type ConstructorWithTraits,
   type Interface,
   type Props,
   type Trait,
-} from 'ydin/elements';
+} from 'ydin/traits/traits.js';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import '../core/styles/elevation/elevation.runtime.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
-import { Disableable, type DisableableProps } from 'ydin/traits';
-import { $, notify } from 'ydin/utils';
+import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
+import { $, notify } from 'ydin/utils/DOM.js';
 import { useCore } from '../core/utils/useCore.ts';
 import template from './fab.tpl.html' with { type: 'html' };
 import colorStyles from './styles/color/main.css.ts' with { type: 'css' };

@@ -1,28 +1,22 @@
 // oxlint-disable import/no-mutable-exports
 import type { EmptyObject } from 'type-fest';
 import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
+import { useARIATransfer } from 'ydin/controllers/useARIA.js';
+import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
+import { useEvents } from 'ydin/controllers/useEvents.js';
+import { useSlot } from 'ydin/controllers/useSlot.js';
+import { ATTRIBUTE, Bool, Str } from 'ydin/attribute.js';
+import { getInternals, ReactiveElement } from 'ydin/reactive-element.js';
 import {
-  useARIATransfer,
-  transfer,
-  useAttributes,
-  useEvents,
-  useSlot,
-} from 'ydin/controllers';
-import {
-  ATTRIBUTE,
-  Bool,
-  Str,
-  getInternals,
-  ReactiveElement,
   impl,
   trait,
   type ConstructorWithTraits,
   type Interface,
   type Props,
   type Trait,
-} from 'ydin/elements';
-import { Disableable, type DisableableProps } from 'ydin/traits';
-import { $, toggleState } from 'ydin/utils';
+} from 'ydin/traits/traits.js';
+import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
+import { $, toggleState } from 'ydin/utils/DOM.js';
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import textFieldCoreTemplate from './text-field-core.tpl.html' with { type: 'html' };

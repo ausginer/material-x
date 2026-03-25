@@ -1,14 +1,14 @@
 import type { EmptyObject, Simplify } from 'type-fest';
+import { Str } from 'ydin/attribute.js';
+import { define } from 'ydin/reactive-element.js';
 import {
-  Str,
-  define,
   impl,
   trait,
   type ConstructorWithTraits,
   type Interface,
   type Props,
   type Trait,
-} from 'ydin/elements';
+} from 'ydin/traits/traits.js';
 import {
   ButtonCore,
   useButtonCore,

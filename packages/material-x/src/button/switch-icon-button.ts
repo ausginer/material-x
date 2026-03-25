@@ -1,5 +1,6 @@
 import type { EmptyObject } from 'type-fest';
-import { define, impl, type ConstructorWithTraits } from 'ydin/elements';
+import { define } from 'ydin/reactive-element.js';
+import { impl, type ConstructorWithTraits } from 'ydin/traits/traits.js';
 import { useButtonCore, type ButtonSharedCSSProperties } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import { IconButtonLike, type IconButtonProperties } from './icon-button.ts';

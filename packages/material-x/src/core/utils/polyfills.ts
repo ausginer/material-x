@@ -1,6 +1,10 @@
-import { useSlot } from 'ydin/controllers';
-import { getInternals, use, type ReactiveElement } from 'ydin/elements';
-import { $$, toggleState } from 'ydin/utils';
+import { useSlot } from 'ydin/controllers/useSlot.js';
+import {
+  getInternals,
+  use,
+  type ReactiveElement,
+} from 'ydin/reactive-element.js';
+import { $$, toggleState } from 'ydin/utils/DOM.js';
 
 export function useHasSlottedPolyfill(host: ReactiveElement): void {
   const internals = getInternals(host);

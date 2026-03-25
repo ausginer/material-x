@@ -6,15 +6,15 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "nx run-many -t build --projects=traits-abstract,ydin,material-x --skipNxCache",
-    "clean:build": "nx run-many -t clean:build --projects=traits-abstract,ydin,material-x --skipNxCache",
+    "build": "nx run-many -t build --projects=ydin,material-x --skipNxCache",
+    "clean:build": "nx run-many -t clean:build --projects=ydin,material-x --skipNxCache",
     "build:lib": "npm run build:lib -w @ausginer/material-x",
     "build:cem": "npm run build:cem -w @ausginer/material-x",
     "build:props": "node .scripts/css/collect-props.ts",
     "publint": "npm run publint -w @ausginer/material-x",
     "debug": "node .scripts/css/debug.ts",
     "check": "concurrently npm:fmt:check npm:lint npm:typecheck",
-    "test": "nx run-many -t test --projects=traits-abstract,ydin,material-x --skipNxCache",
+    "test": "nx run-many -t test --projects=ydin,material-x --skipNxCache",
     "test:browser": "npm run test:browser -w @ausginer/material-x",
     "graph": "nx graph",
     "generate": "node .scripts/generator.ts",
@@ -26,12 +26,12 @@
     "demo:build": "node .scripts/storybook.ts build -o .docs",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "lint": "nx run-many -t lint --projects=traits-abstract,ydin,material-x --skipNxCache",
+    "lint": "nx run-many -t lint --projects=ydin,material-x --skipNxCache",
     "lint:oxlint": "oxlint --type-aware",
     "lint:oxlint:migrate": "node .scripts/oxlint-migrate.ts",
     "lint:eslint": "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts",
     "lint:fix": "npm run lint:oxlint -- --fix && npm run lint:eslint -- --fix",
-    "typecheck": "nx run-many -t typecheck --projects=traits-abstract,ydin,material-x --skipNxCache"
+    "typecheck": "nx run-many -t typecheck --projects=ydin,material-x --skipNxCache"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "0.11.0",

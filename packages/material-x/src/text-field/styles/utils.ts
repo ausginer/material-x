@@ -10,8 +10,8 @@ import {
   type Grouper,
   type GroupSelector,
 } from '../../.tproc/utils.ts';
-import type { Predicate } from 'ydin/utils';
-import { not } from 'ydin/utils';
+import type { Predicate } from 'ydin/utils/runtime.js';
+import { not } from 'ydin/utils/runtime.js';
 
 export const TEXT_FIELD_STATES = [
   'default',

@@ -1,7 +1,8 @@
 import type { EmptyObject } from 'type-fest';
 import type { ButtonCoreProps, ButtonLike } from '../button/ButtonCore.ts';
-import { useEvents, useSlot } from 'ydin/controllers';
-import { define, type ReactiveElement } from 'ydin/elements';
+import { useEvents } from 'ydin/controllers/useEvents.js';
+import { useSlot } from 'ydin/controllers/useSlot.js';
+import { define, type ReactiveElement } from 'ydin/reactive-element.js';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
   ButtonGroupCore,

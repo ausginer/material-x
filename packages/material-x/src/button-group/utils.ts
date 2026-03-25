@@ -1,5 +1,5 @@
 import { ButtonLike } from '../button/ButtonCore.ts';
-import type { ReactiveElement } from 'ydin/elements';
+import type { ReactiveElement } from 'ydin/reactive-element.js';
 
 export type SiblingUpdateCallback = (sibling?: HTMLElement) => void;
 export type ExistingSiblingUpdateCallback = (sibling: HTMLElement) => void;

@@ -1,27 +1,23 @@
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
+import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
+import { useARIATransfer } from 'ydin/controllers/useARIA.js';
+import { useContext } from 'ydin/controllers/useContext.js';
+import { Str } from 'ydin/attribute.js';
+import { getInternals, ReactiveElement } from 'ydin/reactive-element.js';
 import {
-  transfer,
-  useARIATransfer,
-  useAttributes,
-  useContext,
-} from 'ydin/controllers';
-import {
-  Str,
-  getInternals,
-  ReactiveElement,
   impl,
   trait,
   type ConstructorWithTraits,
   type Interface,
   type Props,
   type Trait,
-} from 'ydin/elements';
+} from 'ydin/traits/traits.js';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import '../core/styles/elevation/elevation.runtime.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
-import { Disableable, type DisableableProps } from 'ydin/traits';
-import { $ } from 'ydin/utils';
+import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
+import { $ } from 'ydin/utils/DOM.js';
 import { useCore } from '../core/utils/useCore.ts';
 import disabledStyles from './styles/default/disabled.css.ts' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };

@@ -1,5 +1,5 @@
 import { Bool } from '../attribute.ts';
-import { trait, type Interface, type Props, type Trait } from '../traits.ts';
+import { trait, type Interface, type Props, type Trait } from './traits.ts';
 
 type DisableableDescriptor = { disabled: boolean };
 const $disableable: unique symbol = Symbol('Disableable');

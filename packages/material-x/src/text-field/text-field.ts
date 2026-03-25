@@ -1,6 +1,6 @@
 import '../button/icon-button.ts';
-import { transfer, useAttributes } from 'ydin/controllers';
-import { define } from 'ydin/elements';
+import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
+import { define } from 'ydin/reactive-element.js';
 import '../icon/icon.ts';
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 import outlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };

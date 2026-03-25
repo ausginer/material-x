@@ -1,5 +1,5 @@
 import type { EmptyObject } from 'type-fest';
-import { define, ReactiveElement } from 'ydin/elements';
+import { define, ReactiveElement } from 'ydin/reactive-element.js';
 import { useCore } from '../core/utils/useCore.ts';
 import template from './icon.tpl.html' with { type: 'html' };
 import iconStyles from './styles/icon.ctr.css' with { type: 'css' };

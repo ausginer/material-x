@@ -3,15 +3,113 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "exports": {
+    "./attribute.js": {
+      "types": "./attribute.d.ts",
+      "default": "./attribute.js"
+    },
+    "./controllers/useARIA.js": {
+      "types": "./controllers/useARIA.d.ts",
+      "default": "./controllers/useARIA.js"
+    },
+    "./controllers/useAttributes.js": {
+      "types": "./controllers/useAttributes.d.ts",
+      "default": "./controllers/useAttributes.js"
+    },
+    "./controllers/useConnected.js": {
+      "types": "./controllers/useConnected.d.ts",
+      "default": "./controllers/useConnected.js"
+    },
+    "./controllers/useContext.js": {
+      "types": "./controllers/useContext.d.ts",
+      "default": "./controllers/useContext.js"
+    },
+    "./controllers/useEvents.js": {
+      "types": "./controllers/useEvents.d.ts",
+      "default": "./controllers/useEvents.js"
+    },
+    "./controllers/useKeyboard.js": {
+      "types": "./controllers/useKeyboard.d.ts",
+      "default": "./controllers/useKeyboard.js"
+    },
+    "./controllers/useMutationObserver.js": {
+      "types": "./controllers/useMutationObserver.d.ts",
+      "default": "./controllers/useMutationObserver.js"
+    },
+    "./controllers/useResizeObserver.js": {
+      "types": "./controllers/useResizeObserver.d.ts",
+      "default": "./controllers/useResizeObserver.js"
+    },
+    "./controllers/useRovingTabindex.js": {
+      "types": "./controllers/useRovingTabindex.d.ts",
+      "default": "./controllers/useRovingTabindex.js"
+    },
+    "./controllers/useShadowDOM.js": {
+      "types": "./controllers/useShadowDOM.d.ts",
+      "default": "./controllers/useShadowDOM.js"
+    },
+    "./controllers/useSlot.js": {
+      "types": "./controllers/useSlot.d.ts",
+      "default": "./controllers/useSlot.js"
+    },
+    "./emitter.js": {
+      "types": "./emitter.d.ts",
+      "default": "./emitter.js"
+    },
+    "./reactive-controller.js": {
+      "types": "./reactive-controller.d.ts",
+      "default": "./reactive-controller.js"
+    },
+    "./reactive-element.js": {
+      "types": "./reactive-element.d.ts",
+      "default": "./reactive-element.js"
+    },
+    "./traits/checkable.js": {
+      "types": "./traits/checkable.d.ts",
+      "default": "./traits/checkable.js"
+    },
+    "./traits/disableable.js": {
+      "types": "./traits/disableable.d.ts",
+      "default": "./traits/disableable.js"
+    },
+    "./traits/piirre.js": {
+      "types": "./traits/piirre.d.ts",
+      "default": "./traits/piirre.js"
+    },
+    "./traits/traits.js": {
+      "types": "./traits/traits.d.ts",
+      "default": "./traits/traits.js"
+    },
+    "./traits/valuable.js": {
+      "types": "./traits/valuable.d.ts",
+      "default": "./traits/valuable.js"
+    },
+    "./utils/CSSVariableError.js": {
+      "types": "./utils/CSSVariableError.d.ts",
+      "default": "./utils/CSSVariableError.js"
+    },
+    "./utils/DOM.js": {
+      "types": "./utils/DOM.d.ts",
+      "default": "./utils/DOM.js"
+    },
+    "./utils/readCSSVariables.js": {
+      "types": "./utils/readCSSVariables.d.ts",
+      "default": "./utils/readCSSVariables.js"
+    },
+    "./utils/runtime.js": {
+      "types": "./utils/runtime.d.ts",
+      "default": "./utils/runtime.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "build": "npm exec -- tsdown --config tsdown.config.ts",
-    "clean:build": "git clean -fx -e .vite -e node_modules -- _virtual index.js index.js.map index.d.ts index.d.ts.map attribute.js attribute.js.map attribute.d.ts attribute.d.ts.map controllers.js controllers.js.map controllers.d.ts controllers.d.ts.map controllers elements.js elements.js.map elements.d.ts elements.d.ts.map emitter.js emitter.js.map emitter.d.ts emitter.d.ts.map reactive-controller.js reactive-controller.js.map reactive-controller.d.ts reactive-controller.d.ts.map reactive-element.js reactive-element.js.map reactive-element.d.ts reactive-element.d.ts.map traits.js traits.js.map traits.d.ts traits.d.ts.map traits utils.js utils.js.map utils.d.ts utils.d.ts.map utils",
+    "build": "tsdown --config tsdown.config.ts",
+    "clean:build": "node ../../.scripts/package-files.ts clean --package .",
     "typecheck": "tsgo -p tsconfig.json --noEmit",
     "lint": "oxlint --type-aware . && eslint --flag unstable_native_nodejs_ts_config -c ../../eslint.config.ts .",
     "test": "node --eval \"\""
   },
   "dependencies": {
-    "@ausginer/traits-abstract": "0.1.0",
     "type-fest": "5.5.0"
   }
 }

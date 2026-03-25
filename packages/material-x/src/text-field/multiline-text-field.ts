@@ -1,4 +1,4 @@
-import { define } from 'ydin/elements';
+import { define } from 'ydin/reactive-element.js';
 import { useFieldSizingContentPolyfill } from '../core/utils/polyfills.ts';
 import multilineTextFieldTemplate from './multiline-text-field.tpl.html' with { type: 'html' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
