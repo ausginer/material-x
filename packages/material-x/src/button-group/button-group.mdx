@@ -1,0 +1,111 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
+import * as Stories from './button-group.stories';
+import '../button/link-button.ts';
+
+export const TAG = 'mx-button-group';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet =
+  "import '@ausginer/material-x/button-group/button-group.js';";
+export const usageSnippet = `<mx-button-group>
+  <mx-button>One</mx-button>
+  <mx-button>Two</mx-button>
+</mx-button-group>`;
+
+<Meta of={Stories} />
+
+# Button Group
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use to group related actions into one compact horizontal control.
+- Use when sibling actions should share size, shape, and color context.
+- Use for mutually related commands where order matters visually.
+
+## When not to use
+
+- Single standalone actions. Use `mx-button`.
+- Connected/toggleable segmented selections. Use `mx-connected-button-group`.
+- Navigation clusters where each action is a route link. Use `mx-link-button`.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Variants
+
+### Sizes
+
+<Canvas of={Stories.Sizes} />
+
+### Switch behavior
+
+<Canvas of={Stories.Switch} />
+
+## States
+
+<Canvas of={Stories.States} sourceState="none" />
+
+## Accessibility
+
+- **Grouping:** Communicates related actions as one grouped control region.
+- **Keyboard:** Individual child buttons remain keyboard focusable and operable.
+- **Name:** Each child action should have clear visible text or accessible icon labels.
+- **Disabled:** Group-level disabled state propagates to child interaction behavior.
+
+## Content guidelines
+
+- Keep action labels short and parallel in phrasing.
+- Avoid mixing unrelated actions in the same group.
+- Order actions according to usage frequency and user intent flow.
+
+## Anatomy
+
+- `default` slot: grouped button content.
+- Group host applies shared visual context to child controls.
+
+## Theming
+
+- Uses CSS custom properties inherited by grouped child buttons.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview:
+  [https://m3.material.io/components/segmented-buttons/overview](https://m3.material.io/components/segmented-buttons/overview)
+- Material 3 guidelines:
+  [https://m3.material.io/components/segmented-buttons/guidelines](https://m3.material.io/components/segmented-buttons/guidelines)
+- Deltas:
+  - Standard group preserves button semantics without connected segmented selection behavior.
+  - API metadata in this page is generated from the local CEM output.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

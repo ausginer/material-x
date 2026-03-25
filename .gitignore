@@ -1,10 +1,17 @@
 /target
 /.idea
 /node_modules
-/models
 /.vite
 /.vite-inspect
-/custom-elements.json
+/.nx
+/packages/*/.vite
+/packages/*/custom-elements.json
+/packages/**/*.js
+/packages/**/*.js.map
+/packages/**/*.d.ts.map
+/packages/**/*.d.ts
+
+!/packages/*/src
 
 *storybook.log
 storybook-static
@@ -14,13 +21,6 @@ storybook-static
 !*.styles.css
 !*.ctr.css
 
-*.js
-*.js.map
-*.d.ts
-*.d.ts.map
-
 !.storybook/preview-frame.css
-!src/**/*
-!/types.d.ts
 
 .agents/codex

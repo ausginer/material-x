@@ -1,0 +1,117 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
+import * as Stories from './icon-button.stories';
+import './link-button.ts';
+
+export const TAG = 'mx-icon-button';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet =
+  "import '@ausginer/material-x/button/icon-button.js';";
+export const usageSnippet =
+  '<mx-icon-button><mx-icon>favorite</mx-icon></mx-icon-button>';
+
+<Meta of={Stories} />
+
+# Icon Button
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use for compact icon-only actions where a text label is not required.
+- Use in dense toolbars, cards, and controls with limited horizontal space.
+- Use `width="wide"` or `width="narrow"` when layout requires emphasis tuning.
+
+## When not to use
+
+- Primary actions that need explicit text labels. Use `mx-button`.
+- Navigation actions that should use anchor semantics. Use `mx-link-button`.
+- Persistent toggles. Use `mx-switch-icon-button`.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Variants
+
+### Color variants
+
+<Canvas of={Stories.Color} />
+
+### Sizes
+
+<Canvas of={Stories.Sizes} />
+
+### Shape
+
+<Canvas of={Stories.Shape} />
+
+### Width
+
+<Canvas of={Stories.Width} />
+
+## States
+
+<Canvas of={Stories.States} sourceState="none" />
+
+## Accessibility
+
+- **Name:** Provide an accessible label with `aria-label` when there is no visible text.
+- **Keyboard:** Focusable with `Tab`; activatable with keyboard via native button behavior.
+- **Focus indicator:** Uses shared focus visuals through the internal button implementation.
+- **Disabled:** `disabled` blocks interaction and form participation.
+
+## Content guidelines
+
+- Use clear, familiar icons with predictable action meaning.
+- Do not rely on ambiguous glyphs for destructive or irreversible actions.
+- Keep icon choices consistent across related surfaces.
+
+## Anatomy
+
+- `default` slot: icon content.
+- `impl` CSS part: internal native button element.
+
+## Theming
+
+- Uses CSS custom properties for sizing, spacing, and icon layout overrides.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview:
+  [https://m3.material.io/components/icon-buttons/overview](https://m3.material.io/components/icon-buttons/overview)
+- Material 3 guidelines:
+  [https://m3.material.io/components/icon-buttons/guidelines](https://m3.material.io/components/icon-buttons/guidelines)
+- Deltas:
+  - `width` supports wide/narrow layout options.
+  - API metadata in this page is generated from the local CEM output.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

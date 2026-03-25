@@ -1,0 +1,20 @@
+{
+  "runtime": [
+    "button/button",
+    "button/icon-button",
+    "button/link-button",
+    "button/switch-button",
+    "button/switch-icon-button",
+    "button/split-button",
+    "button-group/button-group",
+    "button-group/connected-button-group",
+    "fab/fab",
+    "icon/icon",
+    "text-field/multiline-text-field",
+    "text-field/text-field"
+  ],
+  "typeOnly": ["react"],
+  "clean": {
+    "extras": ["core", "custom-elements.json"]
+  }
+}

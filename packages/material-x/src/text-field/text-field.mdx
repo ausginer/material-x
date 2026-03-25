@@ -1,0 +1,116 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
+import * as Stories from './text-field.stories';
+import '../button/link-button.ts';
+
+export const TAG = 'mx-text-field';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet =
+  "import '@ausginer/material-x/text-field/text-field.js';";
+export const usageSnippet = `<mx-text-field>
+  <div slot="label">Email</div>
+</mx-text-field>`;
+
+<Meta of={Stories} />
+
+# Text field
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use for short, editable, single-line text input.
+- Use for form fields requiring labels, supporting text, and validation.
+- Use outlined or filled variants based on surface emphasis.
+
+## When not to use
+
+- Multi-line freeform text. Use `mx-multiline-text-field`.
+- Single-choice selection controls like switches, radios, or segmented buttons.
+- Non-editable read-only data display without input intent.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Variants
+
+### Filled
+
+<Canvas of={Stories.Filled} />
+
+### Outlined
+
+<Canvas of={Stories.Outlined} />
+
+## States
+
+### Filled
+
+<Canvas of={Stories.FilledStates} sourceState="none" />
+
+### Outlined
+
+<Canvas of={Stories.OutlinedStates} sourceState="none" />
+
+## Accessibility
+
+- **Labeling:** Provide a visible label slot for accessible naming.
+- **Support text:** Use support/counter slots for helper and validation guidance.
+- **Keyboard:** Input remains focusable and editable with native text-field behavior.
+- **Disabled:** `disabled` prevents user editing and interaction.
+
+## Content guidelines
+
+- Keep labels short, specific, and field-oriented.
+- Use supporting text for constraints, format hints, or validation context.
+- Avoid placeholder-only labeling for essential field meaning.
+
+## Anatomy
+
+- Slots: `label`, `support`, `counter`, `lead`, `trail`, `prefix`, `suffix`.
+- CSS parts: `field`, `lead`, `prefix`, `label`, `suffix`, `trail`, `support`, `counter`.
+
+## Theming
+
+- Uses CSS custom properties for field shape, spacing, typography, and states.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview:
+  [https://m3.material.io/components/text-fields/overview](https://m3.material.io/components/text-fields/overview)
+- Material 3 guidelines:
+  [https://m3.material.io/components/text-fields/guidelines](https://m3.material.io/components/text-fields/guidelines)
+- Deltas:
+  - CEM metadata currently includes one invalid blank attribute row; docs filter it out.
+  - API metadata in this page is generated from the local CEM output.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

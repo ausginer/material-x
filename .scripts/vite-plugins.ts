@@ -45,7 +45,7 @@ const CUSTOM_ELEMENTS_HMR_FILE = fileURLToPath(
 );
 const REACTIVE_ELEMENT_FILE = normalizePath(
   fileURLToPath(
-    new URL('../src/core/elements/reactive-element.ts', import.meta.url),
+    new URL('../packages/ydin/src/reactive-element.ts', import.meta.url),
   ),
 );
 
@@ -71,7 +71,7 @@ export function constructCustomElementsHMR(): Plugin {
     transform: {
       filter: {
         id: {
-          include: /core\/elements\/reactive-element\.ts/u,
+          include: /ydin\/src\/reactive-element\.ts/u,
         },
       },
       handler(code, id) {
@@ -174,11 +174,18 @@ export function constructHTMLTemplate(): Plugin {
   };
 }
 
-function processComplexOxcSetting(
+function normalizeOxcSetting(
   setting: string | RegExp | ReadonlyArray<string | RegExp> | null | undefined,
 ): ReadonlyArray<string | RegExp> {
-  const s = setting ?? [];
-  return Array.isArray(s) ? s : [s];
+  if (setting == null) {
+    return [];
+  }
+
+  if (typeof setting === 'string' || setting instanceof RegExp) {
+    return [setting];
+  }
+
+  return setting;
 }
 
 export function constructCSSTokens(
@@ -214,12 +221,9 @@ export function constructCSSTokens(
       return {
         oxc: {
           ...config.oxc,
-          exclude: [
-            ...processComplexOxcSetting(config.oxc?.exclude),
-            /\.css\.ts/u,
-          ],
+          exclude: [...normalizeOxcSetting(config.oxc?.exclude), /\.css\.ts/u],
           jsxRefreshExclude: [
-            ...processComplexOxcSetting(config.oxc?.jsxRefreshExclude),
+            ...normalizeOxcSetting(config.oxc?.jsxRefreshExclude),
             /\.css\.ts/u,
           ],
         },

@@ -1,0 +1,31 @@
+{
+  "runtime": [
+    "attribute",
+    "controllers/useARIA",
+    "controllers/useAttributes",
+    "controllers/useConnected",
+    "controllers/useContext",
+    "controllers/useEvents",
+    "controllers/useKeyboard",
+    "controllers/useMutationObserver",
+    "controllers/useResizeObserver",
+    "controllers/useRovingTabindex",
+    "controllers/useShadowDOM",
+    "controllers/useSlot",
+    "emitter",
+    "reactive-controller",
+    "reactive-element",
+    "traits/checkable",
+    "traits/disableable",
+    "traits/piirre",
+    "traits/traits",
+    "traits/valuable",
+    "utils/CSSVariableError",
+    "utils/DOM",
+    "utils/readCSSVariables",
+    "utils/runtime"
+  ],
+  "clean": {
+    "extras": ["_virtual"]
+  }
+}

@@ -1,9 +1,9 @@
 import { glob, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { register } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { execPattern, root, type JSModule } from '../utils.ts';
+import { execPattern, root, src, type JSModule } from '../utils.ts';
 
-const srcDir = new URL('src/', root);
+const srcDir = src;
 const cacheDir = new URL('node_modules/.cache/css/', root);
 
 const registry = new Set<string>();

@@ -2,7 +2,7 @@ import { register } from 'node:module';
 import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { root } from '../utils.ts';
+import { materialXRoot, root } from '../utils.ts';
 import { injectStateEnforcer } from './css-docs.ts';
 import format from './format.ts';
 import transform from './transform.ts';
@@ -23,7 +23,9 @@ if (!file) {
 
 register('./styles-import.ts', import.meta.url);
 
-const url = new URL(file, root);
+const url = file.startsWith('src/')
+  ? new URL(file.slice(4), new URL('src/', materialXRoot))
+  : new URL(file, root);
 
 const { default: imported }: JSModule<string> = await import(
   fileURLToPath(url)

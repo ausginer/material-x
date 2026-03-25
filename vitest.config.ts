@@ -1,13 +1,22 @@
 import type { UserConfig, UserConfigFnObject } from 'vite';
-import { mergeConfig } from 'vitest/config';
-import defaultConfig from './.scripts/vitest.base.config.ts';
+import { defineConfig, mergeConfig } from 'vitest/config';
+import viteConfig from './vite.config.ts';
 
-const config: UserConfigFnObject = (env) =>
-  mergeConfig(defaultConfig(env), {
+const isCI = process.env['CI'] === 'true';
+
+const config: UserConfigFnObject = defineConfig((env) =>
+  mergeConfig(viteConfig(env), {
     test: {
-      include: ['src/.tproc/**/*.(spec|test).ts'],
-      setupFiles: ['src/.tproc/__tests__/setup.ts'],
+      coverage: {
+        enabled: false,
+        provider: 'v8',
+        reportsDirectory: '.coverage',
+        clean: true,
+        reporter: isCI ? ['lcov'] : ['html'],
+      },
+      includeTaskLocation: !isCI,
     },
-  } satisfies UserConfig);
+  } satisfies UserConfig),
+);
 
 export default config;

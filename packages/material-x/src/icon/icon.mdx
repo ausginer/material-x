@@ -1,0 +1,101 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
+import * as Stories from './icon.stories';
+import '../button/link-button.ts';
+
+export const TAG = 'mx-icon';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet = "import '@ausginer/material-x/icon/icon.js';";
+export const usageSnippet = '<mx-icon>search</mx-icon>';
+
+<Meta of={Stories} />
+
+# Icon
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use to support recognition of actions, objects, and states.
+- Use alongside text labels for faster visual scanning.
+- Use where icon font glyphs provide consistent symbolic language.
+
+## When not to use
+
+- As the only communication for critical or ambiguous actions.
+- As decorative noise without functional meaning.
+- As a substitute for required explanatory text.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Variants
+
+### Outlined
+
+<Canvas of={Stories.Outlined} />
+
+### Rounded
+
+<Canvas of={Stories.Rounded} />
+
+## Accessibility
+
+- **Decorative icons:** Mark with `aria-hidden="true"` when purely decorative.
+- **Informative icons:** Provide nearby text or ARIA labeling context.
+- **Consistency:** Keep icon semantics stable across screens and components.
+
+## Content guidelines
+
+- Choose universally understood symbols whenever possible.
+- Pair icons with text labels for low-confidence or domain-specific glyphs.
+- Avoid using too many icon styles in a single flow.
+
+## Anatomy
+
+- `default` slot: icon glyph name.
+
+## Theming
+
+- Inherits typography and color from surrounding context and CSS variables.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 iconography overview:
+  [https://m3.material.io/styles/icons/overview](https://m3.material.io/styles/icons/overview)
+- Material Symbols library:
+  [https://fonts.google.com/icons](https://fonts.google.com/icons)
+- Deltas:
+  - Supports icon font family switching through CSS custom properties.
+  - API metadata in this page is generated from the local CEM output.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

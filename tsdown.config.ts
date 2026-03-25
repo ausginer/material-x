@@ -1,16 +1,11 @@
-import { posix } from 'node:path/posix';
-import { defineConfig, type Rolldown, type UserConfig } from 'tsdown';
-import {
-  COMPONENT_ENTRYPOINTS,
-  TYPE_ENTRYPOINTS,
-} from './.scripts/entrypoints.ts';
+import type { Rolldown } from 'tsdown';
 import {
   constructCSSStyles,
   constructCSSTokens,
   constructHTMLTemplate,
 } from './.scripts/vite-plugins.ts';
 
-function classVarCleanupPlugin(): Rolldown.Plugin {
+export function classVarCleanupPlugin(): Rolldown.Plugin {
   return {
     name: 'tsdown:class-var-cleanup',
     renderChunk(code: string, _, __, { magicString }) {
@@ -41,7 +36,7 @@ function classVarCleanupPlugin(): Rolldown.Plugin {
   };
 }
 
-function dropEmptyChunksPlugin(): Rolldown.Plugin {
+export function dropEmptyChunksPlugin(): Rolldown.Plugin {
   return {
     name: 'tsdown:drop-empty-chunks',
     generateBundle(_, bundle) {
@@ -58,72 +53,20 @@ function dropEmptyChunksPlugin(): Rolldown.Plugin {
   };
 }
 
-const OUT_DIR = '.' as const;
+export function constructLibraryTsdownPlugins(): Rolldown.Plugin[] {
+  return [dropEmptyChunksPlugin(), classVarCleanupPlugin()];
+}
 
-const config: UserConfig = defineConfig({
-  entry: [...COMPONENT_ENTRYPOINTS, ...TYPE_ENTRYPOINTS].map(
-    (entry) => `src/${entry}.ts`,
-  ),
-  platform: 'neutral',
-  exports: {
-    customExports(exports) {
-      return Object.fromEntries(
-        Object.entries(exports).flatMap(([key, value]) => {
-          if (key.includes('package.json')) {
-            return [[key, value]];
-          }
+function asRolldownPlugin(plugin: unknown): Rolldown.Plugin {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+  return plugin as Rolldown.Plugin;
+}
 
-          const entry = key.startsWith('./') ? key.slice(2) : key;
-          const typeOnly = TYPE_ENTRYPOINTS.includes(entry);
-
-          if (typeof value !== 'string') {
-            if (!typeOnly) {
-              throw new Error(`${value} is not of type string`);
-            }
-
-            return [
-              [
-                `${key}.js`,
-                { types: `./${posix.normalize(`${OUT_DIR}/${entry}.d.ts`)}` },
-              ],
-            ];
-          }
-
-          return [
-            [
-              `${key}.js`,
-              {
-                types: value.replace('.js', '.d.ts'),
-                ...(typeOnly ? {} : { default: value }),
-              },
-            ],
-          ];
-        }),
-      );
-    },
-  },
-  dts: true,
-  sourcemap: true,
-  format: 'esm',
-  target: 'esnext',
-  outDir: OUT_DIR,
-  external: [/node_modules/],
-  clean: false,
-  publint: true,
-  inputOptions: {
-    experimental: {
-      nativeMagicString: true,
-    },
-  },
-  plugins: [
-    dropEmptyChunksPlugin(),
-    classVarCleanupPlugin(),
-    constructCSSStyles({ isProd: true }),
-    constructHTMLTemplate(),
-    constructCSSTokens({ isProd: true }),
-  ],
-  watch: false,
-  unbundle: true,
-});
-
-export default config;
+export function constructComponentTsdownPlugins(): Rolldown.Plugin[] {
+  return [
+    ...constructLibraryTsdownPlugins(),
+    asRolldownPlugin(constructCSSStyles({ isProd: true })),
+    asRolldownPlugin(constructHTMLTemplate()),
+    asRolldownPlugin(constructCSSTokens({ isProd: true })),
+  ];
+}
