@@ -17,11 +17,13 @@ export interface ElementController {
    * @param name - The changed attribute name.
    * @param oldValue - The previous serialized value.
    * @param newValue - The next serialized value.
+   * @param namespace - The namespace of the changed attribute, if any.
    */
   attrChanged?(
     name: string,
     oldValue: string | null,
     newValue: string | null,
+    namespace: string | null,
   ): void | Promise<void>;
 
   /**
@@ -106,12 +108,16 @@ export class ControlledElement extends HTMLElement {
   readonly #internals = this.attachInternals();
   readonly #controllers: ElementController[] = [];
 
+  /**
+   * Invoked by the platform when one of `observedAttributes` changes.
+   *
+   * @param name - The changed attribute name.
+   * @param oldValue - The previous serialized value.
+   * @param newValue - The next serialized value.
+   * @param namespace - The namespace of the changed attribute, if any.
+   */
   attributeChangedCallback(
-    ...args: readonly [
-      name: string,
-      oldValue: string | null,
-      newValue: string | null,
-    ]
+    ...args: Readonly<Parameters<NonNullable<ElementController['attrChanged']>>>
   ): void {
     this.#exec((controller) => controller.attrChanged?.(...args));
   }

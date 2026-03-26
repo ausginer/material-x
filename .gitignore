@@ -3,10 +3,12 @@
 /node_modules
 /.vite
 /.vite-inspect
+/.vitest-attachments
 /.nx
 /.coverage
 /packages/*/.vite
 /packages/*/.coverage
+/packages/*/.vitest-attachments
 /packages/*/custom-elements.json
 /packages/**/*.js
 /packages/**/*.js.map
