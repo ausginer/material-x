@@ -8,7 +8,7 @@ declare const $ctx: unique symbol;
 /**
  * Opaque identifier for a provider/consumer context channel.
  *
- * @typeParam T The stable value shape exposed by the provider.
+ * @typeParam T - The stable value shape exposed by the provider.
  */
 export type Context<T> = string & { brand: typeof $ctx; value: T };
 
@@ -19,8 +19,8 @@ class ContextEvent extends Event {
 /**
  * Creates a unique context identifier that providers and consumers can share.
  *
- * @typeParam T The stable value shape exposed through this context.
- * @returns A unique opaque context token.
+ * @typeParam T - The stable value shape exposed through this context.
+ * @returns A - unique opaque context token.
  */
 export function createContext<T>(): Context<T> {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
@@ -38,11 +38,10 @@ export function createContext<T>(): Context<T> {
  * Provider and consumer composition on the same host is unsupported. For
  * same-host coordination, use a local `EventEmitter` directly.
  *
- * @typeParam T The stable value shape exposed through this context.
- * @param host The provider host element.
- * @param ctx The context channel to resolve.
- * @param value The stable provider value shared with descendants.
- * @returns Nothing.
+ * @typeParam T - The stable value shape exposed through this context.
+ * @param host - The provider host element.
+ * @param ctx - The context channel to resolve.
+ * @param value - The stable provider value shared with descendants.
  */
 export function useProvider<T>(
   host: ControlledElement,
@@ -62,9 +61,9 @@ export function useProvider<T>(
  *
  * The returned cleanup function is called when the consumer is disconnected.
  *
- * @typeParam T The stable value shape exposed through this context.
- * @param value The currently resolved provider value, if any.
- * @returns Cleanup for manual subscriptions, if needed.
+ * @typeParam T - The stable value shape exposed through this context.
+ * @param value - The currently resolved provider value, if any.
+ * @returns Cleanup - for manual subscriptions, if needed.
  */
 export type ContextEffect<T> = (
   value: T | undefined,
@@ -80,11 +79,10 @@ export type ContextEffect<T> = (
  *
  * The effect may return a cleanup function for manual subscriptions.
  *
- * @typeParam T The stable value shape exposed through this context.
- * @param host The consumer host element.
- * @param ctx The context channel to resolve.
- * @param effect Callback invoked with the resolved provider value.
- * @returns Nothing.
+ * @typeParam T - The stable value shape exposed through this context.
+ * @param host - The consumer host element.
+ * @param ctx - The context channel to resolve.
+ * @param effect - Callback invoked with the resolved provider value.
  */
 export function useContext<T>(
   host: ControlledElement,
