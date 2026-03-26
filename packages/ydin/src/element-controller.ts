@@ -1,4 +1,4 @@
-export interface ReactiveController {
+export interface ElementController {
   attrChanged?(
     name: string,
     oldValue: string | null,

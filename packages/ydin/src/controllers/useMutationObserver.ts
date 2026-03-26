@@ -1,21 +1,15 @@
-import { use, type ReactiveElement } from '../reactive-element.ts';
-
-export type MutationObserverHookOptions = MutationObserverInit &
-  Readonly<{
-    callback: MutationCallback;
-    connected?(observer: MutationObserver): void;
-  }>;
+import { use, type ControlledElement } from '../controlled-element.ts';
 
 export function useMutationObserver(
-  host: ReactiveElement,
-  options: MutationObserverHookOptions,
+  host: ControlledElement,
+  callback: MutationCallback,
+  options?: MutationObserverInit,
   target: HTMLElement = host,
 ): void {
-  const observer = new MutationObserver(options.callback);
+  const observer = new MutationObserver(callback);
 
   use(host, {
     connected() {
-      options.connected?.(observer);
       observer.observe(target, options);
     },
     disconnected() {

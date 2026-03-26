@@ -20,3 +20,23 @@ export function not<T extends readonly unknown[]>(
 ): Predicate<T> {
   return (...args) => !predicate(...args);
 }
+
+export type ForEachMaybePromiseCallback<T> = (
+  item: T,
+  // oxlint-disable-next-line typescript/no-invalid-void-type
+) => void | null | undefined | Promise<void | null | undefined>;
+
+export function forEachMaybePromise<T>(
+  iterable: Iterable<T>,
+  callback: ForEachMaybePromiseCallback<T>,
+): void {
+  for (const item of iterable) {
+    const result = callback(item);
+
+    if (result instanceof Promise) {
+      void result.catch((error: unknown) => {
+        throw error;
+      });
+    }
+  }
+}

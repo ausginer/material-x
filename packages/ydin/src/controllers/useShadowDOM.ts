@@ -1,4 +1,4 @@
-import type { ReactiveElement } from '../reactive-element.ts';
+import type { ControlledElement } from '../controlled-element.ts';
 
 const sheetCache = new Map<string, CSSStyleSheet>();
 
@@ -27,7 +27,7 @@ function resolveStyles(
 }
 
 export function useShadowDOM(
-  host: ReactiveElement,
+  host: ControlledElement,
   templates: readonly HTMLTemplateElement[],
   styles: ReadonlyArray<CSSStyleSheet | string>,
   init?: Partial<ShadowRootInit>,

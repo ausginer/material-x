@@ -1,4 +1,4 @@
-import type { ReactiveElement } from '../reactive-element.ts';
+import type { ControlledElement } from '../controlled-element.ts';
 import { useEvents } from './useEvents.ts';
 
 export type KeyboardListener = (e: KeyboardEvent) => void;
@@ -9,7 +9,7 @@ export type KeyboardListenerSet = Readonly<{
 }>;
 
 export function useKeyboard(
-  host: ReactiveElement,
+  host: ControlledElement,
   listeners: Readonly<Record<string, KeyboardListenerSet>>,
   target: HTMLElement = host,
 ): void {

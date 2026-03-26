@@ -1,3 +1,5 @@
+import { forEachMaybePromise } from './utils/runtime.ts';
+
 export type UpdateCallback<T extends readonly unknown[]> = (
   ...data: T
 ) => void | Promise<void>;
@@ -12,8 +14,9 @@ export class EventEmitter<T extends readonly unknown[]> {
   }
 
   emit(...data: T): void {
-    this.#dependencies
-      .values()
-      .forEach((subscriber) => void subscriber(...data));
+    // oxlint-disable-next-line typescript/promise-function-async
+    forEachMaybePromise(this.#dependencies.values(), (subscriber) =>
+      subscriber(...data),
+    );
   }
 }

@@ -1,17 +1,20 @@
-import { ATTRIBUTE } from '../attribute.ts';
-import { type ReactiveElement, use } from '../reactive-element.ts';
+import { attr } from '../attribute.ts';
+import { type ControlledElement, use } from '../controlled-element.ts';
 
 export type UpdateCallback = (
   oldValue: string | null,
   newValue: string | null,
 ) => void;
 
-export function transfer(target: HTMLElement, attr: string): UpdateCallback {
-  return (_, value) => ATTRIBUTE.setRaw(target, attr, value);
+export function transfer(
+  target: HTMLElement,
+  attribute: string,
+): UpdateCallback {
+  return (_, value) => attr.setRaw(target, attribute, value);
 }
 
 export function useAttributes(
-  host: ReactiveElement,
+  host: ControlledElement,
   attributes: Readonly<Record<string, UpdateCallback>>,
 ): void {
   use(host, {

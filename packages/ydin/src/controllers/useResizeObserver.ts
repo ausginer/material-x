@@ -1,21 +1,15 @@
-import { use, type ReactiveElement } from '../reactive-element.ts';
-
-export type ResizeObserverHookOptions = ResizeObserverOptions &
-  Readonly<{
-    callback: ResizeObserverCallback;
-    connected?(): void;
-  }>;
+import { use, type ControlledElement } from '../controlled-element.ts';
 
 export function useResizeObserver(
-  host: ReactiveElement,
-  options: ResizeObserverHookOptions,
+  host: ControlledElement,
+  callback: ResizeObserverCallback,
+  options: ResizeObserverOptions,
   ...targets: readonly HTMLElement[]
 ): ResizeObserver {
-  const observer = new ResizeObserver(options.callback);
+  const observer = new ResizeObserver(callback);
 
   use(host, {
     connected() {
-      options.connected?.();
       for (const target of targets) {
         observer.observe(target, options);
       }

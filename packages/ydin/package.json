@@ -107,7 +107,8 @@
     "clean:build": "node ../../.scripts/package-files.ts clean --package .",
     "typecheck": "tsgo -p tsconfig.json --noEmit",
     "lint": "oxlint --type-aware . && eslint --flag unstable_native_nodejs_ts_config -c ../../eslint.config.ts .",
-    "test": "node --eval \"\""
+    "test:browser": "vitest run -c vitest.browser.config.ts",
+    "test:browser:inspect": "vitest run --inspect-brk -c vitest.browser.config.ts"
   },
   "dependencies": {
     "type-fest": "5.5.0"

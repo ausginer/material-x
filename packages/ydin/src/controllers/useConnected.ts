@@ -1,9 +1,9 @@
-import { use, type ReactiveElement } from '../reactive-element.ts';
+import { use, type ControlledElement } from '../controlled-element.ts';
 
 export type ConnectedSetupCallback = () => void;
 
 export function useConnected(
-  element: ReactiveElement,
+  element: ControlledElement,
   callback: ConnectedSetupCallback,
 ): void {
   use(element, { connected: callback });

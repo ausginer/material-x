@@ -2,8 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "./src/**/*",
+    "./tests/**/*",
     "../../types.d.ts",
     "./files.json",
-    "./tsdown.config.ts"
+    "./tsdown.config.ts",
+    "./vite.config.ts",
+    "./vitest.browser.config.ts"
   ]
 }

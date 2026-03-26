@@ -45,7 +45,7 @@ const CUSTOM_ELEMENTS_HMR_FILE = fileURLToPath(
 );
 const REACTIVE_ELEMENT_FILE = normalizePath(
   fileURLToPath(
-    new URL('../packages/ydin/src/reactive-element.ts', import.meta.url),
+    new URL('../packages/ydin/src/controlled-element.ts', import.meta.url),
   ),
 );
 

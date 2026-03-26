@@ -1,50 +1,7 @@
-import { ATTRIBUTE } from '../attribute.ts';
-import {
-  getInternals,
-  use,
-  type ReactiveElement,
-} from '../reactive-element.ts';
+import { attr } from '../attribute.ts';
+import type { ControlledElement } from '../controlled-element.ts';
+import { useConnected } from './useConnected.ts';
 import { useMutationObserver } from './useMutationObserver.ts';
-
-export type ARIAStringProperties = Readonly<{
-  [K in keyof ARIAMixin as ARIAMixin[K] extends string | null
-    ? K
-    : never]: ARIAMixin[K];
-}>;
-
-export type ARIAConverter = (
-  name: string,
-  value: string | null,
-) => string | null;
-
-export function useARIA(
-  host: ReactiveElement,
-  target: Partial<ARIAMixin>,
-  mapping: Readonly<Record<string, keyof ARIAStringProperties>>,
-  converter: ARIAConverter,
-): void {
-  for (const mappingName of Object.values(mapping)) {
-    target[mappingName] = converter(mappingName, null);
-  }
-
-  use(host, {
-    attrChanged(name, _, newValue) {
-      if (mapping[name]) {
-        target[mapping[name]] = converter(mapping[name], newValue);
-      }
-    },
-  });
-}
-
-export function useARIAInternals(
-  host: ReactiveElement,
-  init: Partial<ARIAMixin>,
-  mapping: Readonly<Record<string, keyof ARIAStringProperties>>,
-  converter: ARIAConverter,
-): void {
-  const _internals = Object.assign(getInternals(host), init);
-  useARIA(host, _internals, mapping, converter);
-}
 
 export type ARIATransferTransformer = (
   name: string,
@@ -52,33 +9,27 @@ export type ARIATransferTransformer = (
 ) => string | null;
 
 export function useARIATransfer(
-  host: ReactiveElement,
+  host: ControlledElement,
   target: HTMLElement,
   transform: ARIATransferTransformer = (_, value) => value,
 ): void {
-  const syncAttribute = (name: string) => {
-    if (name.startsWith('aria-')) {
-      ATTRIBUTE.setRaw(
-        target,
-        name,
-        transform(name, ATTRIBUTE.getRaw(host, name)),
-      );
+  useConnected(host, () => {
+    for (const { name } of host.attributes) {
+      if (name.startsWith('aria-')) {
+        attr.setRaw(target, name, transform(name, attr.getRaw(host, name)));
+      }
     }
-  };
+  });
 
-  useMutationObserver(host, {
-    attributes: true,
-    callback(records) {
-      for (const { type, attributeName } of records) {
-        if (type === 'attributes' && attributeName) {
-          syncAttribute(attributeName);
+  useMutationObserver(
+    host,
+    (records) => {
+      for (const { type, attributeName: name } of records) {
+        if (type === 'attributes' && name?.startsWith('aria-')) {
+          attr.setRaw(target, name, transform(name, attr.getRaw(host, name)));
         }
       }
     },
-    connected() {
-      for (const { name } of Array.from(host.attributes)) {
-        syncAttribute(name);
-      }
-    },
-  });
+    { attributes: true },
+  );
 }

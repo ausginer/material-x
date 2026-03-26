@@ -1,11 +1,11 @@
 // oxlint-disable typescript/no-unsafe-type-assertion
 import type { Constructor, Simplify } from 'type-fest';
 import {
-  ATTRIBUTE,
+  attr,
   type AttributePrimitive,
   type ToConverter,
 } from '../attribute.ts';
-import type { CustomElementStatics } from '../reactive-element.ts';
+import type { CustomElementStatics } from '../controlled-element.ts';
 import {
   type ConstructorWithTraits as AbstractConstructorWithTraits,
   impl as abstractImpl,
@@ -63,12 +63,12 @@ export function trait<
               // @ts-expect-error: https://github.com/microsoft/TypeScript/issues/52923
               get [attribute](this: HTMLElement) {
                 // @ts-ignore: generic attribute/converter pairing
-                return ATTRIBUTE.get(this, attributeName, resolvedConverter);
+                return attr.get(this, attributeName, resolvedConverter);
               },
               // @ts-expect-error: https://github.com/microsoft/TypeScript/issues/52923
               set [attribute](this: HTMLElement, value: string | null) {
                 // @ts-ignore: generic attribute/converter pairing
-                ATTRIBUTE.set(this, attributeName, value, resolvedConverter);
+                attr.set(this, attributeName, value, resolvedConverter);
               },
             }),
           );
@@ -93,10 +93,14 @@ export function impl<
   target: Constructor<T> & CustomElementStatics,
   traits: TL,
 ): ConstructorWithTraits<T, TL> {
-  target.observedAttributes = [
-    ...(target.observedAttributes ?? []),
-    ...traits.flatMap((t) => t.observed),
+  const traited = abstractImpl(target, traits);
+
+  traited.observedAttributes = [
+    ...new Set([
+      ...(target.observedAttributes ?? []),
+      ...traits.flatMap((t) => t.observed),
+    ]),
   ];
 
-  return abstractImpl(target, traits);
+  return traited;
 }

@@ -1,21 +1,38 @@
+import { existsSync } from 'node:fs';
 import { playwright } from '@vitest/browser-playwright';
 import type { UserConfig, UserConfigFnObject } from 'vite';
 import { defineConfig, mergeConfig } from 'vitest/config';
-import viteConfig from './vite.config.ts';
+import vitestConfig from './vitest.config.ts';
 
-const config: UserConfigFnObject = defineConfig((env) =>
-  mergeConfig(viteConfig(env), {
-    test: {
-      include: ['src/**/*.spec.ts'],
-      exclude: ['src/.tproc/**/*.ts'],
-      browser: {
-        enabled: true,
-        headless: true,
-        provider: playwright(),
-        instances: [{ browser: 'chromium' }],
+function resolveChromeExecutable(): string {
+  const executable =
+    process.env['CHROME_EXECUTABLE'] ?? '/usr/local/bin/chrome';
+
+  if (!existsSync(executable)) {
+    throw new Error(
+      `Chrome executable was not found at '${executable}'. Set CHROME_EXECUTABLE to override it.`,
+    );
+  }
+
+  return executable;
+}
+
+const config: UserConfigFnObject = defineConfig(
+  (env) =>
+    mergeConfig(vitestConfig(env), {
+      test: {
+        browser: {
+          enabled: true,
+          headless: true,
+          provider: playwright({
+            launchOptions: {
+              executablePath: resolveChromeExecutable(),
+            },
+          }),
+          instances: [{ browser: 'chromium' }],
+        },
       },
-    },
-  } satisfies UserConfig),
+    }) satisfies UserConfig,
 );
 
 export default config;

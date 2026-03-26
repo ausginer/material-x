@@ -1,4 +1,4 @@
-import { use, type ReactiveElement } from '../reactive-element.ts';
+import { use, type ControlledElement } from '../controlled-element.ts';
 
 export type HTMLElementEventListener<N extends keyof HTMLElementEventMap> = (
   event: HTMLElementEventMap[N],
@@ -9,11 +9,11 @@ export type HTMLElementEventListenerMap = Readonly<{
 }>;
 
 export function useEvents(
-  host: ReactiveElement,
+  host: ControlledElement,
   listeners: HTMLElementEventListenerMap,
   target: HTMLElement = host,
 ): void {
-  const controller = new AbortController();
+  let controller = new AbortController();
 
   use(host, {
     connected() {
@@ -26,6 +26,7 @@ export function useEvents(
     },
     disconnected() {
       controller.abort();
+      controller = new AbortController();
     },
   });
 }

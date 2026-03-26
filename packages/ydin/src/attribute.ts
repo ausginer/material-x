@@ -13,7 +13,7 @@ export type Bool = typeof Bool;
 export const Num = [
   (value: string | null): number | null => (value ? Number(value) : null),
   (value: number | null): string | null =>
-    value && !isNaN(value) ? String(value) : null,
+    value != null && !isNaN(value) ? String(value) : null,
 ] as const;
 export type Num = typeof Num;
 
@@ -73,14 +73,14 @@ export interface AttributeOperator {
   setRaw(host: HTMLElement, name: string, value: string | null): void;
 }
 
-export const ATTRIBUTE: AttributeOperator = {
+export const attr: AttributeOperator = {
   // @ts-expect-error: too generic for TS
   get(host, name, [from]) {
-    return from(ATTRIBUTE.getRaw(host, name));
+    return from(attr.getRaw(host, name));
   },
   set(host, name, value, [, to]) {
     // @ts-expect-error: too generic for TS
-    ATTRIBUTE.setRaw(host, name, to(value));
+    attr.setRaw(host, name, to(value));
   },
   getRaw(host, name) {
     return host.getAttribute(name);

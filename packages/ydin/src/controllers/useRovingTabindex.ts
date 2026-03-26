@@ -1,4 +1,4 @@
-import { ReactiveElement } from '../reactive-element.ts';
+import { ControlledElement } from '../controlled-element.ts';
 import { Checkable } from '../traits/checkable.ts';
 import { Disableable } from '../traits/disableable.ts';
 import { Valuable } from '../traits/valuable.ts';
@@ -9,8 +9,8 @@ import { useEvents } from './useEvents.ts';
 import { useKeyboard, type KeyboardListener } from './useKeyboard.ts';
 import { useSlot } from './useSlot.ts';
 
-type Host = ReactiveElement & Valuable;
-type Item = ReactiveElement & Checkable & Valuable & Disableable;
+type Host = ControlledElement & Valuable;
+type Item = ControlledElement & Checkable & Valuable & Disableable;
 
 function notifyFocused(item: Item | undefined, event: Event): void {
   // Keep the host controlled-only: emit events but don't mutate state here.
@@ -27,7 +27,7 @@ function notifyFocused(item: Item | undefined, event: Event): void {
 function isItem(node: unknown): node is Item {
   // Accept only elements that implement the expected traits for roving groups.
   return (
-    node instanceof ReactiveElement &&
+    node instanceof ControlledElement &&
     node instanceof Valuable &&
     node instanceof Checkable &&
     node instanceof Disableable

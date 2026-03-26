@@ -1,22 +1,22 @@
 import type { UserConfig, UserConfigFnObject } from 'vite';
-import { defineConfig, mergeConfig } from 'vitest/config';
-import viteConfig from './vite.config.ts';
+import { defineConfig } from 'vitest/config';
 
 const isCI = process.env['CI'] === 'true';
 
-const config: UserConfigFnObject = defineConfig((env) =>
-  mergeConfig(viteConfig(env), {
-    test: {
-      coverage: {
-        enabled: false,
-        provider: 'v8',
-        reportsDirectory: '.coverage',
-        clean: true,
-        reporter: isCI ? ['lcov'] : ['html'],
+const config: UserConfigFnObject = defineConfig(
+  () =>
+    ({
+      test: {
+        coverage: {
+          enabled: false,
+          provider: 'v8',
+          reportsDirectory: '.coverage',
+          clean: true,
+          reporter: isCI ? ['lcov'] : ['html'],
+        },
+        includeTaskLocation: !isCI,
       },
-      includeTaskLocation: !isCI,
-    },
-  } satisfies UserConfig),
+    }) satisfies UserConfig,
 );
 
 export default config;

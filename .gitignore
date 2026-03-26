@@ -4,7 +4,9 @@
 /.vite
 /.vite-inspect
 /.nx
+/.coverage
 /packages/*/.vite
+/packages/*/.coverage
 /packages/*/custom-elements.json
 /packages/**/*.js
 /packages/**/*.js.map

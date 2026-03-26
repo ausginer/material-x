@@ -3,7 +3,12 @@
     "target": "esnext",
     "module": "esnext",
     "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable"],
-    "types": ["vitest/importMeta", "vite/client"],
+    "types": [
+      "vitest/importMeta",
+      "vite/client",
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ],
     "skipLibCheck": true,
     "useDefineForClassFields": true,
 
@@ -31,6 +36,13 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitOverride": true,
     "noImplicitAny": true,
-    "useUnknownInCatchVariables": true
+    "useUnknownInCatchVariables": true,
+    "paths": {
+      "ydin/package.json": ["./packages/ydin/package.json"],
+      "ydin/*.js": ["./packages/ydin/src/*.ts"],
+      "ydin/controllers/*.js": ["./packages/ydin/src/controllers/*.ts"],
+      "ydin/traits/*.js": ["./packages/ydin/src/traits/*.ts"],
+      "ydin/utils/*.js": ["./packages/ydin/src/utils/*.ts"]
+    }
   }
 }

@@ -1,4 +1,4 @@
-import type { ReactiveElement } from '../reactive-element.ts';
+import type { ControlledElement } from '../controlled-element.ts';
 import { $ } from '../utils/DOM.ts';
 import { useEvents } from './useEvents.ts';
 
@@ -8,7 +8,7 @@ export type SlotControllerUpdateCallback<T extends Element> = (
 ) => void;
 
 export function useSlot<T extends Element = Element>(
-  host: ReactiveElement,
+  host: ControlledElement,
   slotOrSelector: string | HTMLSlotElement,
   callback: SlotControllerUpdateCallback<T>,
 ): void {
