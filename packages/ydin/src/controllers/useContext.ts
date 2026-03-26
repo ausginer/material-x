@@ -35,8 +35,8 @@ export function createContext<T>(): Context<T> {
  * same object and publish updates through a nested `EventEmitter` or another
  * manual observable mechanism instead of replacing the whole value object.
  *
- * Provider and consumer composition on the same host is unsupported. For
- * same-host coordination, use a local `EventEmitter` directly.
+ * @remarks Provider and consumer composition on the same host is unsupported.
+ * For same-host coordination, use a local `EventEmitter` directly.
  *
  * @typeParam T - The stable value shape exposed through this context.
  * @param host - The provider host element.

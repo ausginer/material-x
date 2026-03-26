@@ -52,17 +52,13 @@
       "types": "./controllers/useSlot.d.ts",
       "default": "./controllers/useSlot.js"
     },
+    "./element.js": {
+      "types": "./element.d.ts",
+      "default": "./element.js"
+    },
     "./emitter.js": {
       "types": "./emitter.d.ts",
       "default": "./emitter.js"
-    },
-    "./reactive-controller.js": {
-      "types": "./reactive-controller.d.ts",
-      "default": "./reactive-controller.js"
-    },
-    "./reactive-element.js": {
-      "types": "./reactive-element.d.ts",
-      "default": "./reactive-element.js"
     },
     "./traits/checkable.js": {
       "types": "./traits/checkable.d.ts",

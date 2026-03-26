@@ -25,9 +25,10 @@ export type SlotControllerUpdateCallback<T extends Element> = (
  * driven by the browser `slotchange` event, and the callback receives the
  * current `assignedElements()` snapshot for that slot.
  *
- * This controller does not emit an initial update manually. The callback runs
- * only when the platform dispatches `slotchange`. Because it relies on
- * `assignedElements()`, text nodes and other non-element nodes are excluded.
+ * @remarks This controller does not emit an initial update manually. The
+ * callback runs only when the platform dispatches `slotchange`. Because it
+ * relies on `assignedElements()`, text nodes and other non-element nodes are
+ * excluded.
  *
  * @typeParam T - The element type expected from the observed slot.
  * @param host - The host element that owns the observed slot.
