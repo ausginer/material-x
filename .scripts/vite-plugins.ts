@@ -44,9 +44,7 @@ const CUSTOM_ELEMENTS_HMR_FILE = fileURLToPath(
   new URL('./ce-hmr.ts', import.meta.url),
 );
 const REACTIVE_ELEMENT_FILE = normalizePath(
-  fileURLToPath(
-    new URL('../packages/ydin/src/controlled-element.ts', import.meta.url),
-  ),
+  fileURLToPath(new URL('../packages/ydin/src/element.ts', import.meta.url)),
 );
 
 export function constructCustomElementsHMR(): Plugin {

@@ -1,4 +1,4 @@
-import type { ControlledElement } from '../controlled-element.ts';
+import type { ControlledElement } from '../element.ts';
 import { $ } from '../utils/DOM.ts';
 import { useEvents } from './useEvents.ts';
 

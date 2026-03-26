@@ -5,7 +5,7 @@ import {
   useSlot,
   type SlotControllerUpdateCallback,
 } from '../../src/controllers/useSlot.ts';
-import { ControlledElement } from '../../src/controlled-element.ts';
+import { ControlledElement } from '../../src/element.ts';
 import { defineCE, nextFrame, nameCE, matcher } from '../browser.ts';
 
 describe('useSlot', () => {

@@ -5,7 +5,7 @@ import {
   type AttributePrimitive,
   type ToConverter,
 } from '../attribute.ts';
-import type { CustomElementStatics } from '../controlled-element.ts';
+import type { CustomElementStatics } from '../element.ts';
 import {
   type ConstructorWithTraits as AbstractConstructorWithTraits,
   impl as abstractImpl,

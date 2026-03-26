@@ -1,4 +1,4 @@
-import type { ControlledElement } from '../controlled-element.ts';
+import type { ControlledElement } from '../element.ts';
 import { useEvents } from './useEvents.ts';
 
 export type KeyboardListener = (e: KeyboardEvent) => void;

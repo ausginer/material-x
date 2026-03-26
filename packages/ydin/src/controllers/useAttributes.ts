@@ -1,5 +1,5 @@
 import { attr } from '../attribute.ts';
-import { type ControlledElement, use } from '../controlled-element.ts';
+import { type ControlledElement, use } from '../element.ts';
 
 export type UpdateCallback = (
   oldValue: string | null,

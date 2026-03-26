@@ -1,5 +1,5 @@
 import { attr } from '../attribute.ts';
-import type { ControlledElement } from '../controlled-element.ts';
+import type { ControlledElement } from '../element.ts';
 import { useConnected } from './useConnected.ts';
 import { useMutationObserver } from './useMutationObserver.ts';
 

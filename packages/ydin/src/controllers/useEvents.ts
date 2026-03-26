@@ -1,4 +1,4 @@
-import { use, type ControlledElement } from '../controlled-element.ts';
+import { use, type ControlledElement } from '../element.ts';
 
 export type HTMLElementEventListener<N extends keyof HTMLElementEventMap> = (
   event: HTMLElementEventMap[N],

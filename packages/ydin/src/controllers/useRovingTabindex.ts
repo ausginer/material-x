@@ -1,4 +1,4 @@
-import { ControlledElement } from '../controlled-element.ts';
+import { ControlledElement } from '../element.ts';
 import { Checkable } from '../traits/checkable.ts';
 import { Disableable } from '../traits/disableable.ts';
 import { Valuable } from '../traits/valuable.ts';

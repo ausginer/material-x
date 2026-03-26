@@ -1,4 +1,4 @@
-import type { ControlledElement } from '../controlled-element.ts';
+import type { ControlledElement } from '../element.ts';
 
 const sheetCache = new Map<string, CSSStyleSheet>();
 
