@@ -22,52 +22,13 @@ import {
 export { impl, type TraitedConstructor } from './piirre.ts';
 
 /**
- * Maps descriptor primitive fields to the built-in attribute converter tuples
- * expected by `trait(...)`.
- *
- * @typeParam T - Descriptor shape declared for the element trait.
- */
-type AttributePrimitiveFromConverter<
-  T extends Readonly<Record<string, Converter | null>>,
-> = {
-  [K in keyof T]: T[K] extends null ? null : FromConverter<NonNullable<T[K]>>;
-};
-
-/**
  * Maps converter descriptors to the actual instance field types exposed by
  * generated accessors.
  *
- * A `null` descriptor entry acts as a placeholder for a field that will be
- * defined manually on the final instance, so no default converter-backed
- * accessor is generated for it.
- *
- * @typeParam T - Descriptor shape declared for the DOM trait.
+ * @typeParam T - Descriptor shape declared for the element trait.
  */
-type FieldsFromConverters<
-  T extends Readonly<Record<string, Converter | null>>,
-> = {
-  [K in keyof T]: T[K] extends null
-    ? unknown
-    : FromConverter<NonNullable<T[K]>>;
-};
-
-/**
- * Maps descriptor primitive fields to the actual instance field types exposed
- * by generated accessors.
- *
- * `boolean` fields stay non-nullable, while `number` and `string` become
- * nullable through `NullablePrimitive`. A `null` descriptor entry acts as a
- * placeholder for a field that will be defined manually on the final
- * instance, so no default converter-backed accessor is generated for it.
- *
- * @typeParam T - Descriptor shape declared for the DOM trait.
- */
-type FieldsFromAttributePrimitives<
-  T extends Readonly<Record<string, AttributePrimitive | null>>,
-> = {
-  [K in keyof T]: T[K] extends null
-    ? unknown
-    : NullablePrimitive<NonNullable<T[K]>>;
+type FieldsFromConverters<T extends Readonly<Record<string, Converter>>> = {
+  [K in keyof T]: FromConverter<T[K]>;
 };
 
 /**
@@ -81,28 +42,21 @@ type FieldsFromAttributePrimitives<
  * @typeParam B - External nominal brand symbol for the trait.
  */
 export type Trait<
-  P extends Readonly<Record<string, AttributePrimitive | null>>,
+  P extends Readonly<Record<string, NullablePrimitive<AttributePrimitive>>>,
   B extends symbol = symbol,
-> = AbstractTrait<
-  FieldsFromAttributePrimitives<P>,
-  {},
-  B,
-  ControlledElement,
-  CustomElementStatics
->;
+> = AbstractTrait<P, {}, B, ControlledElement, CustomElementStatics>;
 
 /**
  * Optional framework-facing props derived from a trait descriptor.
  *
  * This is intended for React and other UI frameworks that pass values as plain
- * props rather than through trait-aware instances. Placeholder entries
- * (`null`) are omitted from the value side, while concrete primitive fields
+ * props rather than through trait-aware instances. Concrete trait fields
  * become optional props with non-null values.
  *
- * @typeParam T - Descriptor shape declared for the DOM trait.
+ * @typeParam T - Descriptor shape declared for the element trait.
  */
-export type PropsFromAttributePrimitives<
-  T extends Readonly<Record<string, AttributePrimitive | null>>,
+type PropsFromTraitFields<
+  T extends Readonly<Record<string, NullablePrimitive<AttributePrimitive>>>,
 > = {
   [K in keyof T]?: NonNullable<T[K]>;
 };
@@ -116,7 +70,7 @@ export type PropsFromAttributePrimitives<
  * @typeParam T - Element trait whose props should be extracted.
  */
 export type Props<T extends Trait<any, any>> =
-  T extends Trait<infer P, any> ? PropsFromAttributePrimitives<P> : never;
+  T extends Trait<infer P, any> ? PropsFromTraitFields<P> : never;
 
 /**
  * Branded instance interface exposed by a concrete element trait.
@@ -130,7 +84,7 @@ export type Props<T extends Trait<any, any>> =
  */
 export type Interface<T extends Trait<any, any>> =
   T extends Trait<infer P, infer B>
-    ? Simplify<FieldsFromAttributePrimitives<P> & Readonly<Record<B, true>>>
+    ? Simplify<P & Readonly<Record<B, true>>>
     : never;
 
 /**
@@ -138,21 +92,17 @@ export type Interface<T extends Trait<any, any>> =
  *
  * The returned trait creates a subclass of the provided base constructor,
  * merges `observedAttributes`, and generates converter-backed accessors for
- * all non-null descriptor entries. The descriptor itself remains the source of
- * truth for the public trait field contract.
+ * every descriptor entry. The descriptor itself remains the source of truth
+ * for the public trait field contract.
  *
- * @remarks A `null` descriptor entry is intentional. It acts as a placeholder
- * for a field that should be typed as part of the trait but defined manually
- * on the final instance, so no default accessor is created for it. Placeholder
- * entries still contribute their key to `observedAttributes`. This layer does
- * not rely on auto-inferred field shapes from `Object.defineProperty(...)`;
- * the returned trait is normalized explicitly from the descriptor shape `P`.
+ * @remarks This layer does not rely on auto-inferred field shapes from
+ * `Object.defineProperty(...)`; the returned trait is normalized explicitly
+ * from the converter descriptor shape `P`.
  *
  * @typeParam P - Descriptor shape for the trait fields.
  * @typeParam B - External nominal brand symbol for the trait.
  *
- * @param props - Descriptor mapping from trait fields to converters or
- *   placeholders.
+ * @param props - Descriptor mapping from trait fields to converters.
  * @param brand - External symbol used for nominal typing and `instanceof`
  *   checks.
  *
@@ -160,43 +110,42 @@ export type Interface<T extends Trait<any, any>> =
  *   the re-exported `impl(...)`.
  */
 export function trait<
-  P extends Readonly<Record<string, Converter | null>>,
+  P extends Readonly<Record<string, Converter>>,
   B extends symbol,
->(props: P, brand: B): Trait<AttributePrimitiveFromConverter<P>, B> {
+>(props: P, brand: B): Trait<FieldsFromConverters<P>, B> {
   return abstractTrait(
     (base: Constructor<ControlledElement> & CustomElementStatics) => {
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-      const attributeNames = Reflect.ownKeys(props).filter(
-        (key): key is string => typeof key === 'string',
-      );
+      const entries = Object.entries(props);
       const traited = class extends base {
         static override observedAttributes: readonly string[] = [
           ...new Set<string>([
             ...(base.observedAttributes ?? []),
-            ...attributeNames,
+            // we expect attribute to only be string.
+            ...entries.map(([attribute]) => attribute as string),
           ]),
         ];
       };
 
       type TraitFields = FieldsFromConverters<P>;
 
-      for (const [attribute, converter] of Object.entries(props)) {
-        if (converter != null) {
-          Object.defineProperty(traited.prototype, attribute, {
-            get(this: HTMLElement): TraitFields[typeof attribute] {
-              // @ts-expect-error: generic attribute/converter pairing
-              return attr.get(this, attribute, converter);
-            },
-            set(this: HTMLElement, value: TraitFields[typeof attribute]) {
-              // @ts-expect-error: generic attribute/converter pairing
-              attr.set(this, attribute, value, converter);
-            },
-          });
-        }
+      for (const [attribute, converter] of entries) {
+        Object.defineProperty(traited.prototype, attribute, {
+          get(this: HTMLElement): TraitFields[typeof attribute] {
+            return attr.get(
+              this,
+              attribute as string,
+              converter,
+            ) as TraitFields[typeof attribute];
+          },
+          set(this: HTMLElement, value: TraitFields[typeof attribute]) {
+            attr.set(this, attribute as string, value, converter);
+          },
+        });
       }
 
       return traited;
     },
     brand,
-  ) as Trait<AttributePrimitiveFromConverter<P>, B>;
+  ) as Trait<FieldsFromConverters<P>, B>;
 }

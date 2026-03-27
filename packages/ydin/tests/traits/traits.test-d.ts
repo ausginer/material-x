@@ -1,3 +1,4 @@
+// oxlint-disable typescript/no-unsafe-type-assertion
 import { assertType, describe, expectTypeOf, it } from 'vitest';
 import { Bool, Num, Str } from '../../src/attribute.ts';
 import { ControlledElement } from '../../src/element.ts';
@@ -23,8 +24,6 @@ const Valuable = trait({ value: Str }, $value);
 
 const Countable = trait({ count: Num }, $count);
 
-const Manual = trait({ manual: null }, $manual);
-
 describe('traits types', () => {
   it('should expose boolean element fields as non-nullable', () => {
     const Combined = impl(BaseElement, [Checked] as const);
@@ -45,15 +44,6 @@ describe('traits types', () => {
     const instance = null as unknown as InstanceType<typeof Combined>;
 
     expectTypeOf(instance.count).toEqualTypeOf<number | null>();
-  });
-
-  it('should treat null descriptor entries as placeholder slots', () => {
-    const Combined = impl(BaseElement, [Manual] as const);
-    const instance = null as unknown as InstanceType<typeof Combined>;
-
-    expectTypeOf(instance.manual).toEqualTypeOf<unknown>();
-    // @ts-expect-error: placeholder slots are not converter-backed field contracts
-    assertType<string | null>(instance.manual);
   });
 
   it('should project framework props from a concrete element trait', () => {
@@ -81,5 +71,10 @@ describe('traits types', () => {
     expectTypeOf(instance.checked).toEqualTypeOf<boolean>();
     expectTypeOf(instance.value).toEqualTypeOf<string | null>();
     expectTypeOf(instance.count).toEqualTypeOf<number | null>();
+  });
+
+  it('should reject null placeholder descriptors', () => {
+    // @ts-expect-error: element traits no longer support null placeholders
+    trait({ manual: null }, $manual);
   });
 });

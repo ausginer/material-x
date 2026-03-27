@@ -15,6 +15,7 @@ function createElement<T extends CustomElementConstructor>(
 
   defineCE(tag, element);
 
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   return document.createElement(tag) as InstanceType<T>;
 }
 
@@ -107,23 +108,5 @@ describe('traits', () => {
     const Combined = impl(BaseElement, [Checked, Valuable] as const);
 
     expect(Combined.observedAttributes).toEqual(['base', 'checked', 'value']);
-  });
-
-  it('should not define a default accessor for a null placeholder descriptor', () => {
-    const $manual: unique symbol = Symbol('Manual');
-
-    const Manual = trait({ manual: null }, $manual);
-
-    expect(
-      Object.getOwnPropertyDescriptor(Manual(BaseElement).prototype, 'manual'),
-    ).toBeUndefined();
-  });
-
-  it('should keep placeholder keys in observedAttributes', () => {
-    const $manual: unique symbol = Symbol('Manual');
-
-    const Manual = trait({ manual: null }, $manual);
-
-    expect(Manual(BaseElement).observedAttributes).toEqual(['base', 'manual']);
   });
 });
