@@ -6,8 +6,8 @@ import {
   useProvider,
   type ContextEffect,
 } from '../../src/controllers/useContext.ts';
-import { EventEmitter, type UpdateCallback } from '../../src/emitter.ts';
 import { ControlledElement } from '../../src/element.ts';
+import { EventEmitter, type UpdateCallback } from '../../src/emitter.ts';
 import { defineCE, nameCE } from '../browser.ts';
 
 type ContextValue = Readonly<{

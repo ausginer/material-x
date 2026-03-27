@@ -1,8 +1,7 @@
-/* eslint-disable import-x/no-unresolved, @typescript-eslint/no-unsafe-call */
-import vitestBrowserConfig from '@ausginer/material-x-workspace/vitest.browser.config.ts';
+/* eslint-disable import-x/no-relative-packages */
 import type { UserConfig, UserConfigFnObject } from 'vite';
-
 import { defineConfig, mergeConfig } from 'vitest/config';
+import vitestBrowserConfig from '../../vitest.browser.config.ts';
 import viteConfig from './vite.config.ts';
 
 const config: UserConfigFnObject = defineConfig((env) =>

@@ -1,5 +1,5 @@
-import type { Unsubscribe } from '../emitter.ts';
 import { use, type ControlledElement } from '../element.ts';
+import type { Unsubscribe } from '../emitter.ts';
 import { DEFAULT_EVENT_INIT } from '../utils/DOM.ts';
 import { useEvents } from './useEvents.ts';
 
