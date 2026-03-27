@@ -1,7 +1,12 @@
-import { assertType, describe, expectTypeOf, test } from 'vitest';
+import { assertType, describe, expectTypeOf, it } from 'vitest';
 import { Bool, Num, Str } from '../../src/attribute.ts';
 import { ControlledElement } from '../../src/element.ts';
-import { impl, trait } from '../../src/traits/traits.ts';
+import {
+  impl,
+  type Interface,
+  type Props,
+  trait,
+} from '../../src/traits/traits.ts';
 
 class BaseElement extends ControlledElement {
   static observedAttributes = ['base'];
@@ -21,28 +26,28 @@ const Countable = trait({ count: Num }, $count);
 const Manual = trait({ manual: null }, $manual);
 
 describe('traits types', () => {
-  test('should expose boolean DOM fields as non-nullable', () => {
+  it('should expose boolean element fields as non-nullable', () => {
     const Combined = impl(BaseElement, [Checked] as const);
     const instance = null as unknown as InstanceType<typeof Combined>;
 
     expectTypeOf(instance.checked).toEqualTypeOf<boolean>();
   });
 
-  test('should expose string DOM fields as nullable', () => {
+  it('should expose string element fields as nullable', () => {
     const Combined = impl(BaseElement, [Valuable] as const);
     const instance = null as unknown as InstanceType<typeof Combined>;
 
     expectTypeOf(instance.value).toEqualTypeOf<string | null>();
   });
 
-  test('should expose number DOM fields as nullable', () => {
+  it('should expose number element fields as nullable', () => {
     const Combined = impl(BaseElement, [Countable] as const);
     const instance = null as unknown as InstanceType<typeof Combined>;
 
     expectTypeOf(instance.count).toEqualTypeOf<number | null>();
   });
 
-  test('should treat null descriptor entries as placeholder slots', () => {
+  it('should treat null descriptor entries as placeholder slots', () => {
     const Combined = impl(BaseElement, [Manual] as const);
     const instance = null as unknown as InstanceType<typeof Combined>;
 
@@ -51,7 +56,25 @@ describe('traits types', () => {
     assertType<string | null>(instance.manual);
   });
 
-  test('should accumulate DOM trait field types across tuple composition', () => {
+  it('should project framework props from a concrete element trait', () => {
+    type CheckedProps = Props<typeof Checked>;
+
+    assertType<CheckedProps>({});
+    assertType<CheckedProps>({ checked: true });
+    // @ts-expect-error: framework props should keep boolean value types
+    assertType<CheckedProps>({ checked: 'true' });
+  });
+
+  it('should expose a branded instance interface from a concrete element trait', () => {
+    type CheckedInterface = Interface<typeof Checked>;
+    const instance = null as unknown as CheckedInterface;
+
+    expectTypeOf(instance.checked).toEqualTypeOf<boolean>();
+    // @ts-expect-error: Interface should retain the trait brand
+    assertType<CheckedInterface>({ checked: true });
+  });
+
+  it('should accumulate element trait field types across tuple composition', () => {
     const Combined = impl(BaseElement, [Checked, Valuable, Countable] as const);
     const instance = null as unknown as InstanceType<typeof Combined>;
 

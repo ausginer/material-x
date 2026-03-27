@@ -1,5 +1,5 @@
 // oxlint-disable typescript/no-unsafe-type-assertion
-import { assertType, describe, expectTypeOf, test } from 'vitest';
+import { assertType, describe, expectTypeOf, it } from 'vitest';
 import { impl, trait } from '../../src/traits/piirre.ts';
 
 class Base {
@@ -26,7 +26,7 @@ const Counted = trait(
 );
 
 describe('piirre types', () => {
-  test('should accumulate branded instance fields from tuple composition', () => {
+  it('should accumulate branded instance fields from tuple composition', () => {
     const Combined = impl(Base, [Named, Counted] as const);
     const instance = null as unknown as InstanceType<typeof Combined>;
 
@@ -35,7 +35,7 @@ describe('piirre types', () => {
     expectTypeOf(instance.count).toEqualTypeOf<number>();
   });
 
-  test('should narrow through instanceof the applied trait shape', () => {
+  it('should narrow through instanceof the applied trait shape', () => {
     const value = null as unknown as Base;
 
     if (value instanceof Named) {
@@ -45,7 +45,7 @@ describe('piirre types', () => {
     }
   });
 
-  test('should infer plain arrays weaker than tuple composition', () => {
+  it('should infer plain arrays weaker than tuple composition', () => {
     const traits = [Named, Counted];
     const Combined = impl(Base, traits);
     const instance = null as unknown as InstanceType<typeof Combined>;
