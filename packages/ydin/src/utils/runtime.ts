@@ -26,17 +26,24 @@ export type ForEachMaybePromiseCallback<T> = (
   // oxlint-disable-next-line typescript/no-invalid-void-type
 ) => void | null | undefined | Promise<void | null | undefined>;
 
+export type ForEachMaybePromiseErrorHandler = (error: unknown) => void;
+
 export function forEachMaybePromise<T>(
   iterable: Iterable<T>,
   callback: ForEachMaybePromiseCallback<T>,
+  onError: ForEachMaybePromiseErrorHandler = (error: unknown) => {
+    throw error;
+  },
 ): void {
   for (const item of iterable) {
-    const result = callback(item);
+    try {
+      const result = callback(item);
 
-    if (result instanceof Promise) {
-      void result.catch((error: unknown) => {
-        throw error;
-      });
+      if (result instanceof Promise) {
+        void result.catch(onError);
+      }
+    } catch (error: unknown) {
+      onError(error);
     }
   }
 }
