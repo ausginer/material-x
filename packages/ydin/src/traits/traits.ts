@@ -1,5 +1,5 @@
 // oxlint-disable typescript/no-unsafe-type-assertion, typescript/no-empty-object-type
-import type { Constructor } from 'type-fest';
+import type { Constructor, Simplify } from 'type-fest';
 import attr, {
   type AttributePrimitive,
   type Converter,
@@ -25,7 +25,7 @@ export { impl, type TraitedConstructor } from './piirre.ts';
  * Maps descriptor primitive fields to the built-in attribute converter tuples
  * expected by `trait(...)`.
  *
- * @typeParam T - Descriptor shape declared for the DOM trait.
+ * @typeParam T - Descriptor shape declared for the element trait.
  */
 type AttributePrimitiveFromConverter<
   T extends Readonly<Record<string, Converter | null>>,
@@ -71,7 +71,7 @@ type FieldsFromAttributePrimitives<
 };
 
 /**
- * DOM-specific trait contract built on top of the generic `piirre` engine.
+ * Element trait contract built on top of the generic `piirre` engine.
  *
  * This variant is intended for `ControlledElement` subclasses and keeps the
  * custom element static shape intact while adding descriptor-defined,
@@ -92,7 +92,49 @@ export type Trait<
 >;
 
 /**
- * Creates a DOM-aware trait with attribute-backed accessors.
+ * Optional framework-facing props derived from a trait descriptor.
+ *
+ * This is intended for React and other UI frameworks that pass values as plain
+ * props rather than through trait-aware instances. Placeholder entries
+ * (`null`) are omitted from the value side, while concrete primitive fields
+ * become optional props with non-null values.
+ *
+ * @typeParam T - Descriptor shape declared for the DOM trait.
+ */
+export type PropsFromAttributePrimitives<
+  T extends Readonly<Record<string, AttributePrimitive | null>>,
+> = {
+  [K in keyof T]?: NonNullable<T[K]>;
+};
+
+/**
+ * Framework-facing props derived from a concrete element trait.
+ *
+ * This helper projects a trait back to its descriptor-based prop shape, which
+ * is useful when exposing framework adapters or component prop types.
+ *
+ * @typeParam T - Element trait whose props should be extracted.
+ */
+export type Props<T extends Trait<any, any>> =
+  T extends Trait<infer P, any> ? PropsFromAttributePrimitives<P> : never;
+
+/**
+ * Branded instance interface exposed by a concrete element trait.
+ *
+ * This helper is the instance-side counterpart to `Props`: it produces the
+ * field interface contributed by the trait together with its nominal brand, so
+ * it can be reused in host and component instance types.
+ *
+ * @typeParam T - Element trait whose branded instance interface should be
+ *   extracted.
+ */
+export type Interface<T extends Trait<any, any>> =
+  T extends Trait<infer P, infer B>
+    ? Simplify<FieldsFromAttributePrimitives<P> & Readonly<Record<B, true>>>
+    : never;
+
+/**
+ * Creates an element trait with attribute-backed accessors.
  *
  * The returned trait creates a subclass of the provided base constructor,
  * merges `observedAttributes`, and generates converter-backed accessors for
@@ -114,7 +156,7 @@ export type Trait<
  * @param brand - External symbol used for nominal typing and `instanceof`
  *   checks.
  *
- * @returns DOM-specific trait that can be applied directly or composed through
+ * @returns Element trait that can be applied directly or composed through
  *   the re-exported `impl(...)`.
  */
 export function trait<
