@@ -1,8 +1,10 @@
+// oxlint-disable typescript/no-unsafe-type-assertion, typescript/no-empty-object-type
 import type { Constructor } from 'type-fest';
 import attr, {
   type AttributePrimitive,
+  type Converter,
+  type FromConverter,
   type NullablePrimitive,
-  type ToConverter,
 } from '../attribute.ts';
 import type { ControlledElement, CustomElementStatics } from '../element.js';
 import {
@@ -25,10 +27,28 @@ export { impl, type TraitedConstructor } from './piirre.ts';
  *
  * @typeParam T - Descriptor shape declared for the DOM trait.
  */
-type ConvertersFromAttributePrimitives<
-  T extends Readonly<Record<string, AttributePrimitive | null>>,
+type AttributePrimitiveFromConverter<
+  T extends Readonly<Record<string, Converter | null>>,
 > = {
-  [K in keyof T]: T[K] extends null ? null : ToConverter<NonNullable<T[K]>>;
+  [K in keyof T]: T[K] extends null ? null : FromConverter<NonNullable<T[K]>>;
+};
+
+/**
+ * Maps converter descriptors to the actual instance field types exposed by
+ * generated accessors.
+ *
+ * A `null` descriptor entry acts as a placeholder for a field that will be
+ * defined manually on the final instance, so no default converter-backed
+ * accessor is generated for it.
+ *
+ * @typeParam T - Descriptor shape declared for the DOM trait.
+ */
+type FieldsFromConverters<
+  T extends Readonly<Record<string, Converter | null>>,
+> = {
+  [K in keyof T]: T[K] extends null
+    ? unknown
+    : FromConverter<NonNullable<T[K]>>;
 };
 
 /**
@@ -54,35 +74,38 @@ type FieldsFromAttributePrimitives<
  * DOM-specific trait contract built on top of the generic `piirre` engine.
  *
  * This variant is intended for `ControlledElement` subclasses and keeps the
- * custom element static shape intact while adding converter-backed instance
- * fields.
+ * custom element static shape intact while adding descriptor-defined,
+ * converter-backed instance fields.
  *
- * @typeParam T - Instance side of the base controlled element.
- * @typeParam U - Static custom-element side of the base constructor.
  * @typeParam P - Descriptor shape for the trait fields.
  * @typeParam B - External nominal brand symbol for the trait.
  */
 export type Trait<
-  T extends ControlledElement,
-  U extends CustomElementStatics,
   P extends Readonly<Record<string, AttributePrimitive | null>>,
   B extends symbol = symbol,
-> = AbstractTrait<T, U, FieldsFromAttributePrimitives<P>, U, B>;
+> = AbstractTrait<
+  FieldsFromAttributePrimitives<P>,
+  {},
+  B,
+  ControlledElement,
+  CustomElementStatics
+>;
 
 /**
  * Creates a DOM-aware trait with attribute-backed accessors.
  *
  * The returned trait creates a subclass of the provided base constructor,
  * merges `observedAttributes`, and generates converter-backed accessors for
- * all non-null descriptor entries.
+ * all non-null descriptor entries. The descriptor itself remains the source of
+ * truth for the public trait field contract.
  *
  * @remarks A `null` descriptor entry is intentional. It acts as a placeholder
  * for a field that should be typed as part of the trait but defined manually
  * on the final instance, so no default accessor is created for it. Placeholder
- * entries still contribute their key to `observedAttributes`.
+ * entries still contribute their key to `observedAttributes`. This layer does
+ * not rely on auto-inferred field shapes from `Object.defineProperty(...)`;
+ * the returned trait is normalized explicitly from the descriptor shape `P`.
  *
- * @typeParam T - Instance side of the base controlled element.
- * @typeParam U - Static custom-element side of the base constructor.
  * @typeParam P - Descriptor shape for the trait fields.
  * @typeParam B - External nominal brand symbol for the trait.
  *
@@ -90,40 +113,48 @@ export type Trait<
  *   placeholders.
  * @param brand - External symbol used for nominal typing and `instanceof`
  *   checks.
+ *
  * @returns DOM-specific trait that can be applied directly or composed through
  *   the re-exported `impl(...)`.
  */
 export function trait<
-  T extends ControlledElement,
-  U extends CustomElementStatics,
-  P extends Readonly<Record<string, AttributePrimitive | null>>,
+  P extends Readonly<Record<string, Converter | null>>,
   B extends symbol,
->(props: ConvertersFromAttributePrimitives<P>, brand: B): Trait<T, U, P, B> {
-  return abstractTrait<T, U, FieldsFromAttributePrimitives<P>, U, B>((base) => {
-    const traited = class extends base {
-      static override observedAttributes = [
-        ...new Set([...(base.observedAttributes ?? []), ...Object.keys(props)]),
-      ];
-    };
+>(props: P, brand: B): Trait<AttributePrimitiveFromConverter<P>, B> {
+  return abstractTrait(
+    (base: Constructor<ControlledElement> & CustomElementStatics) => {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      const attributeNames = Reflect.ownKeys(props).filter(
+        (key): key is string => typeof key === 'string',
+      );
+      const traited = class extends base {
+        static override observedAttributes: readonly string[] = [
+          ...new Set<string>([
+            ...(base.observedAttributes ?? []),
+            ...attributeNames,
+          ]),
+        ];
+      };
 
-    type TraitFields = FieldsFromAttributePrimitives<P>;
+      type TraitFields = FieldsFromConverters<P>;
 
-    for (const [attribute, converter] of Object.entries(props)) {
-      if (converter != null) {
-        Object.defineProperty(traited.prototype, attribute, {
-          get(this: HTMLElement): TraitFields[typeof attribute] {
-            // @ts-expect-error: generic attribute/converter pairing
-            return attr.get(this, attribute, converter);
-          },
-          set(this: HTMLElement, value: TraitFields[typeof attribute]) {
-            // @ts-expect-error: generic attribute/converter pairing
-            attr.set(this, attribute, value, converter);
-          },
-        });
+      for (const [attribute, converter] of Object.entries(props)) {
+        if (converter != null) {
+          Object.defineProperty(traited.prototype, attribute, {
+            get(this: HTMLElement): TraitFields[typeof attribute] {
+              // @ts-expect-error: generic attribute/converter pairing
+              return attr.get(this, attribute, converter);
+            },
+            set(this: HTMLElement, value: TraitFields[typeof attribute]) {
+              // @ts-expect-error: generic attribute/converter pairing
+              attr.set(this, attribute, value, converter);
+            },
+          });
+        }
       }
-    }
 
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    return traited as Constructor<T & TraitFields> & U;
-  }, brand);
+      return traited;
+    },
+    brand,
+  ) as Trait<AttributePrimitiveFromConverter<P>, B>;
 }
