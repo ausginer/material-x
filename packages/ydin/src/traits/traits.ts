@@ -1,7 +1,6 @@
 // oxlint-disable typescript/no-unsafe-type-assertion
 import type { Constructor, Simplify } from 'type-fest';
-import {
-  attr,
+import attr, {
   type AttributePrimitive,
   type ToConverter,
 } from '../attribute.ts';

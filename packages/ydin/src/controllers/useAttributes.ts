@@ -1,4 +1,4 @@
-import { attr } from '../attribute.ts';
+import attr from '../attribute.ts';
 import { type ControlledElement, use } from '../element.ts';
 
 export type UpdateCallback = (
