@@ -1,7 +1,21 @@
+/**
+ * Callback invoked with an optional sibling element.
+ *
+ * When the sibling does not exist, the callback receives `undefined`.
+ */
 export type SiblingUpdateCallback = (sibling?: HTMLElement) => void;
 
+/**
+ * Callback invoked only when a sibling element is known to exist.
+ */
 export type ExistingSiblingUpdateCallback = (sibling: HTMLElement) => void;
 
+/**
+ * Queries a single element from the host shadow root.
+ *
+ * @remarks This helper searches only inside `host.shadowRoot`. If the host has
+ * no shadow root, it returns `undefined`.
+ */
 export function $<K extends keyof HTMLElementTagNameMap>(
   host: HTMLElement,
   selectors: K,
@@ -31,6 +45,12 @@ export function $(
   return host.shadowRoot?.querySelector(selectors);
 }
 
+/**
+ * Queries multiple elements from the host shadow root.
+ *
+ * @remarks This helper searches only inside `host.shadowRoot`. If the host has
+ * no shadow root, it returns `undefined`.
+ */
 export function $$<K extends keyof HTMLElementTagNameMap>(
   host: HTMLElement,
   selectors: K,
@@ -59,41 +79,21 @@ export function $$(
   return host.shadowRoot?.querySelectorAll(selectors);
 }
 
-export function applyToSiblings(
-  target: HTMLElement,
-  prev?: SiblingUpdateCallback | null,
-  next?: SiblingUpdateCallback | null,
-): void;
-export function applyToSiblings(
-  target: HTMLElement,
-  prev: ExistingSiblingUpdateCallback | undefined | null,
-  next: ExistingSiblingUpdateCallback | undefined | null,
-  shouldCheckExistence: true,
-): void;
-export function applyToSiblings(
-  target: HTMLElement,
-  prev?: SiblingUpdateCallback | ExistingSiblingUpdateCallback | null,
-  next?: SiblingUpdateCallback | ExistingSiblingUpdateCallback | null,
-  shouldCheckExistence = false,
-): void {
-  const update = (
-    node: Element | null,
-    callback?: SiblingUpdateCallback | ExistingSiblingUpdateCallback | null,
-  ) => {
-    const element = node instanceof HTMLElement ? node : undefined;
-    if (!shouldCheckExistence || element) callback?.(element!);
-  };
-
-  update(target.previousElementSibling, prev);
-  update(target.nextElementSibling, next);
-}
-
+/**
+ * Default event init used by `notify(...)`.
+ */
 export const DEFAULT_EVENT_INIT: EventInit = {
   bubbles: true,
   composed: true,
   cancelable: true,
 };
 
+/**
+ * Dispatches one or more bubbling composed cancelable events on a target.
+ *
+ * @param target - Target that should receive the dispatched events.
+ * @param events - Event names to dispatch in order.
+ */
 export function notify(
   target: EventTarget,
   ...events: readonly string[]
@@ -103,6 +103,13 @@ export function notify(
   }
 }
 
+/**
+ * Adds or removes a custom state from `ElementInternals.states`.
+ *
+ * @param internals - Host internals whose state set should be updated.
+ * @param state - State token to add or remove.
+ * @param condition - Whether the state should be present.
+ */
 export function toggleState(
   internals: ElementInternals,
   state: string,
