@@ -1,5 +1,5 @@
 import type { EmptyObject } from 'type-fest';
-import { define } from 'ydin/reactive-element.js';
+import { define } from 'ydin/element.js';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {
   useButtonCore,
@@ -15,7 +15,7 @@ import switchOutlinedStyles from './styles/outlined/switch.css.ts' with { type: 
 import switchSizeStyles from './styles/size/switch.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' };
-import { SwitchCore, useSwitch, type SwitchProps } from './SwitchCore.ts';
+import { SwitchCore, useSwitchCore, type SwitchProps } from './SwitchCore.ts';
 
 export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
 
@@ -61,11 +61,11 @@ export type SwitchButtonCSSProperties = ButtonSharedCSSProperties;
  * @event change - Fired when switch interaction occurs.
  */
 export default class SwitchButton extends SwitchCore {
-  static readonly formAssociated = true;
+  static override readonly formAssociated = true;
 
   constructor() {
     super();
-    useButtonCore(this, buttonTemplate, [
+    useSwitchCore(this, buttonTemplate, [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainTonalStyles,
@@ -75,7 +75,6 @@ export default class SwitchButton extends SwitchCore {
       switchSizeStyles,
       switchTonalStyles,
     ]);
-    useSwitch(this);
   }
 }
 

@@ -15,15 +15,16 @@ export type TransformCallback<N extends PropertyKey, V> = (
   host: HTMLElement,
 ) => V;
 
-const NUMBER_RE = /^[+-]?(?:\d+|\d*\.\d+)(?:px)?$/u;
+const NUMBER_RE = /^[+-]?(?:\d+|\d*\.\d+)(?:px|s)?$/u;
 const MILLISECONDS_RE = /^[+-]?(?:\d+|\d*\.\d+)ms$/u;
 
 /**
  * Parses a numeric CSS variable value.
  *
- * Supported values include plain numbers, `px`, and `ms`. Millisecond values
- * are converted to seconds so they can be passed directly to Web Animations
- * timing APIs. Minified decimal forms such as `.5` are supported.
+ * Supported values include plain numbers, `px`, `s`, and `ms`. Second values
+ * are returned as-is, while millisecond values are converted to seconds so
+ * they can be passed directly to Web Animations timing APIs. Minified decimal
+ * forms such as `.5` are supported.
  *
  * @param name - Variable name used for error reporting.
  * @param value - Trimmed CSS variable value to parse.

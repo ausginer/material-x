@@ -1,10 +1,10 @@
 import type { EmptyObject, Simplify } from 'type-fest';
-import { Str } from 'ydin/attribute.js';
-import { define } from 'ydin/reactive-element.js';
+import { Str, type ConverterOf } from 'ydin/attribute.js';
+import { define } from 'ydin/element.js';
 import {
   impl,
   trait,
-  type ConstructorWithTraits,
+  type TraitedConstructor,
   type Interface,
   type Props,
   type Trait,
@@ -28,7 +28,7 @@ export type IconButtonWidth = 'wide' | 'narrow';
 export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
 
 type IconButtonLikeDescriptor = {
-  width: IconButtonWidth;
+  width: IconButtonWidth | null;
 };
 
 const $iconButtonLike: unique symbol = Symbol('IconButtonLike');
@@ -36,10 +36,7 @@ const $iconButtonLike: unique symbol = Symbol('IconButtonLike');
 export const IconButtonLike: Trait<
   IconButtonLikeDescriptor,
   typeof $iconButtonLike
-> = trait<IconButtonLikeDescriptor, typeof $iconButtonLike>(
-  { width: Str },
-  $iconButtonLike,
-);
+> = trait({ width: Str as ConverterOf<IconButtonWidth> }, $iconButtonLike);
 
 export type IconButtonLike = Omit<ButtonLike, 'color'> & {
   color: IconButtonColor | null;
@@ -47,8 +44,9 @@ export type IconButtonLike = Omit<ButtonLike, 'color'> & {
 
 export type IconButtonLikeProps = Props<typeof IconButtonLike>;
 
-const IconButtonCore: ConstructorWithTraits<
-  InstanceType<typeof ButtonCore>,
+const IconButtonCore: TraitedConstructor<
+  ButtonCore,
+  typeof ButtonCore,
   [typeof IconButtonLike]
 > = impl(ButtonCore, [IconButtonLike]);
 
@@ -92,7 +90,7 @@ export type IconButtonCSSProperties = ButtonSharedCSSProperties;
  * @event click - Fired when the button is activated.
  */
 export default class IconButton extends IconButtonCore {
-  static readonly formAssociated = true;
+  static override readonly formAssociated = true;
 
   constructor() {
     super();

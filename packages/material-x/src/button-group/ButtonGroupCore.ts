@@ -1,38 +1,33 @@
 import {
-  ButtonCore,
-  DEFAULT_BUTTON_ATTRIBUTES,
-  type ButtonLike,
-} from '../button/ButtonCore.ts';
-import {
   useAttributes,
   type UpdateCallback,
 } from 'ydin/controllers/useAttributes.js';
 import { useProvider } from 'ydin/controllers/useContext.js';
+import type { ControlledElement } from 'ydin/element.js';
 import { EventEmitter } from 'ydin/emitter.js';
+import type { Disableable } from 'ydin/traits/disableable.js';
 import {
   impl,
   trait,
-  type ConstructorWithTraits,
+  type TraitedConstructor,
   type Interface,
   type Props,
   type Trait,
 } from 'ydin/traits/traits.js';
-import type { ReactiveElement } from 'ydin/reactive-element.js';
-import type { Disableable } from 'ydin/traits/disableable.js';
+import {
+  ButtonCore,
+  DEFAULT_BUTTON_ATTRIBUTES,
+  type ButtonLike,
+} from '../button/ButtonCore.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import {
   BUTTON_GROUP_CTX,
   type ChangedAttribute,
 } from './button-group-context.ts';
 
-type ButtonGroupLikeDescriptor = Record<never, never>;
-
 const $buttonGroupLike: unique symbol = Symbol('ButtonGroupLike');
 
-export const ButtonGroupLike: Trait<
-  ButtonGroupLikeDescriptor,
-  typeof $buttonGroupLike
-> = trait<ButtonGroupLikeDescriptor, typeof $buttonGroupLike>(
+export const ButtonGroupLike: Trait<{}, typeof $buttonGroupLike> = trait(
   {},
   $buttonGroupLike,
 );
@@ -40,10 +35,12 @@ export const ButtonGroupLike: Trait<
 export type ButtonGroupLike = Interface<typeof ButtonGroupLike>;
 export type ButtonGroupLikeProps = Props<typeof ButtonGroupLike>;
 
-export const ButtonGroupCore: ConstructorWithTraits<
-  InstanceType<typeof ButtonCore>,
+export const ButtonGroupCore: TraitedConstructor<
+  ButtonCore,
+  typeof ButtonCore,
   [typeof ButtonGroupLike]
 > = impl(ButtonCore, [ButtonGroupLike]);
+export type ButtonGroupCore = InstanceType<typeof ButtonGroupCore>;
 
 export type ButtonGroupSharedCSSProperties = Readonly<{
   '--md-button-group-between-space'?: string;
@@ -52,7 +49,7 @@ export type ButtonGroupSharedCSSProperties = Readonly<{
 }>;
 
 export function useButtonGroupCore(
-  host: ReactiveElement & ButtonLike & ButtonGroupLike & Disableable,
+  host: ControlledElement & ButtonLike & ButtonGroupLike & Disableable,
   template: HTMLTemplateElement,
   aria: Partial<ARIAMixin>,
   styles: ReadonlyArray<CSSStyleSheet | string>,

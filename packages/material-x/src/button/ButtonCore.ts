@@ -1,14 +1,18 @@
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
-import { useARIATransfer } from 'ydin/controllers/useARIA.js';
+import { useARIA } from 'ydin/controllers/useARIA.js';
 import { useContext } from 'ydin/controllers/useContext.js';
-import { Str } from 'ydin/attribute.js';
-import { getInternals, ReactiveElement } from 'ydin/reactive-element.js';
+import { Str, type ConverterOf } from 'ydin/attribute.js';
+import {
+  getInternals,
+  ControlledElement,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
 import {
   impl,
   trait,
-  type ConstructorWithTraits,
+  type TraitedConstructor,
   type Interface,
   type Props,
   type Trait,
@@ -28,38 +32,33 @@ export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';
 export type ButtonShape = 'round' | 'square';
 
-export const DEFAULT_BUTTON_ATTRIBUTES: DEFAULT_BUTTON_ATTRIBUTES = {
-  color: Str,
-  size: Str,
-  shape: Str,
-};
-export type DEFAULT_BUTTON_ATTRIBUTES = Readonly<{
-  color: Str;
-  size: Str;
-  shape: Str;
-}>;
-
-export type ButtonLikeDescriptor = {
-  color: ButtonColor;
-  size: ButtonSize;
-  shape: ButtonShape;
-};
+export const DEFAULT_BUTTON_ATTRIBUTES = {
+  color: Str as ConverterOf<ButtonColor>,
+  size: Str as ConverterOf<ButtonSize>,
+  shape: Str as ConverterOf<ButtonShape>,
+} as const;
+export type DEFAULT_BUTTON_ATTRIBUTES = typeof DEFAULT_BUTTON_ATTRIBUTES;
 
 const $buttonLike: unique symbol = Symbol('ButtonLike');
 
-export const ButtonLike: Trait<ButtonLikeDescriptor, typeof $buttonLike> =
-  trait<ButtonLikeDescriptor, typeof $buttonLike>(
-    DEFAULT_BUTTON_ATTRIBUTES,
-    $buttonLike,
-  );
+export const ButtonLike: Trait<
+  {
+    color: ButtonColor | null;
+    size: ButtonSize | null;
+    shape: ButtonShape | null;
+  },
+  typeof $buttonLike
+> = trait(DEFAULT_BUTTON_ATTRIBUTES, $buttonLike);
 
 export type ButtonLike = Interface<typeof ButtonLike>;
 export type ButtonLikeProps = Props<typeof ButtonLike>;
 
-export const ButtonCore: ConstructorWithTraits<
-  ReactiveElement,
+export const ButtonCore: TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
   [typeof ButtonLike, typeof Disableable]
-> = impl(ReactiveElement, [ButtonLike, Disableable]);
+> = impl(ControlledElement, [ButtonLike, Disableable]);
+export type ButtonCore = InstanceType<typeof ButtonCore>;
 
 export type ButtonCoreProps = ButtonLikeProps & DisableableProps;
 
@@ -89,7 +88,7 @@ function updateByContext(
 }
 
 export function useButtonCore(
-  host: ButtonLike & ReactiveElement,
+  host: ButtonCore,
   template: HTMLTemplateElement,
   styles: ReadonlyArray<CSSStyleSheet | string>,
   init?: Partial<ShadowRootInit>,
@@ -118,7 +117,7 @@ export function useButtonCore(
     disabled: transfer(target, 'disabled'),
   });
 
-  useARIATransfer(host, target);
+  useARIA(host, target);
 
   useRipple(
     host,
@@ -134,10 +133,12 @@ export function useButtonCore(
   useContext(host, BUTTON_GROUP_CTX, (data) => {
     if (data) {
       for (const attr of Object.keys(DEFAULT_BUTTON_ATTRIBUTES)) {
+        console.log('init', data.provider[attr]);
         updateByContext(internals, null, data.provider[attr]);
       }
 
       return data.emitter.on((_, oldValue, newValue) => {
+        console.log('emit', { oldValue, newValue });
         updateByContext(internals, oldValue, newValue);
       });
     }

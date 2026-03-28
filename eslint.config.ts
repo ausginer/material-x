@@ -3,7 +3,6 @@ import tsImports from 'eslint-config-vaadin/imports-typescript';
 import prettier from 'eslint-config-vaadin/prettier';
 import testing from 'eslint-config-vaadin/testing';
 import tsRequireTypeChecking from 'eslint-config-vaadin/typescript-requiring-type-checking';
-import importX from 'eslint-plugin-import-x';
 import oxlint from 'eslint-plugin-oxlint';
 
 const config: readonly Config[] = defineConfig(
@@ -49,10 +48,6 @@ const config: readonly Config[] = defineConfig(
   ...testing,
   ...prettier,
   {
-    plugins: {
-      // @ts-expect-error: https://github.com/un-ts/eslint-plugin-import-x/issues/439
-      'import-x': importX,
-    },
     rules: {
       '@typescript-eslint/no-use-before-define': 'off',
       '@typescript-eslint/no-shadow': 'off',
@@ -65,6 +60,7 @@ const config: readonly Config[] = defineConfig(
       ],
       'import-x/no-unassigned-import': 'off',
       'import-x/no-duplicates': 'off',
+      'import-x/no-extraneous-dependencies': 'off',
       'import-x/prefer-default-export': 'off',
     },
   },

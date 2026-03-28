@@ -1,6 +1,6 @@
 import '../button/icon-button.ts';
 import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
-import { define } from 'ydin/reactive-element.js';
+import { define } from 'ydin/element.js';
 import '../icon/icon.ts';
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 import outlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
@@ -62,7 +62,7 @@ export type {
  * @event change - Fired when value is committed.
  */
 export default class TextField extends TextFieldCore {
-  static formAssociated = true;
+  static override formAssociated = true;
 
   constructor() {
     super(textFieldTemplate, [defaultStyles, outlinedStyles]);

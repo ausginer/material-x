@@ -7,8 +7,8 @@
  */
 
 import { useEvents } from 'ydin/controllers/useEvents.js';
-import type { ReactiveController } from 'ydin/reactive-controller.js';
-import { type ReactiveElement, use } from 'ydin/reactive-element.js';
+import type { ElementController } from 'ydin/element.js';
+import { type ControlledElement, use } from 'ydin/element.js';
 import { $ } from 'ydin/utils/DOM.js';
 import {
   readCSSVariables,
@@ -136,8 +136,8 @@ export type CSSVariables = Readonly<{
   duration: string;
 }>;
 
-class RippleAnimationController implements ReactiveController {
-  readonly #host: ReactiveElement;
+class RippleAnimationController implements ElementController {
+  readonly #host: ControlledElement;
   readonly #rippleHost: HTMLElement;
   readonly #rippleElement: HTMLElement;
   readonly #cssVariables: CSSVariables;
@@ -148,7 +148,7 @@ class RippleAnimationController implements ReactiveController {
   #checkBoundsAfterContextMenu = false;
 
   constructor(
-    host: ReactiveElement,
+    host: ControlledElement,
     container: DocumentFragment | HTMLElement,
     vars: CSSVariables,
   ) {
@@ -362,7 +362,7 @@ class RippleAnimationController implements ReactiveController {
 }
 
 export function useRipple(
-  host: ReactiveElement,
+  host: ControlledElement,
   vars: CSSVariables,
   container: DocumentFragment | HTMLElement = host.shadowRoot!,
 ): void {

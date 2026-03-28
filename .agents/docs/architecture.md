@@ -18,7 +18,7 @@ inter-component coordination.
 
 ## Runtime Architecture
 
-- **Base element**: `ReactiveElement` (`src/core/elements/reactive-element.ts`)
+- **Base element**: `ControlledElement` (`src/core/elements/element.ts`)
   extends `HTMLElement` and wires a small controller lifecycle.
   - `use(host, controller)`: registers controllers that receive lifecycle hooks.
   - `getInternals(host)`: exposes `ElementInternals` for ARIA and state.

@@ -1,13 +1,13 @@
 import type { Simplify } from 'type-fest';
 import '../button-group/connected-button-group.ts';
+import { Bool } from 'ydin/attribute.js';
 import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
-import { Bool } from 'ydin/attribute.js';
-import { define } from 'ydin/reactive-element.js';
+import { define } from 'ydin/element.js';
 import {
   impl,
   trait,
-  type ConstructorWithTraits,
+  type TraitedConstructor,
   type Interface,
   type Props,
   type Trait,
@@ -35,16 +35,14 @@ const $splitButtonLike: unique symbol = Symbol('SplitButtonLike');
 export const SplitButtonLike: Trait<
   SplitButtonLikeDescriptor,
   typeof $splitButtonLike
-> = trait<SplitButtonLikeDescriptor, typeof $splitButtonLike>(
-  { open: Bool },
-  $splitButtonLike,
-);
+> = trait({ open: Bool }, $splitButtonLike);
 
 export type SplitButtonLike = Interface<typeof SplitButtonLike>;
 export type SplitButtonLikeProps = Props<typeof SplitButtonLike>;
 
-export const SplitButtonCore: ConstructorWithTraits<
-  InstanceType<typeof ButtonCore>,
+export const SplitButtonCore: TraitedConstructor<
+  ButtonCore,
+  typeof ButtonCore,
   [typeof SplitButtonLike]
 > = impl(ButtonCore, [SplitButtonLike]);
 
@@ -94,7 +92,7 @@ export type SplitButtonCSSProperties = ButtonSharedCSSProperties;
  * @event toggle - Fired when the trailing action is activated.
  */
 export default class SplitButton extends SplitButtonCore {
-  static readonly formAssociated = true;
+  static override readonly formAssociated = true;
 
   constructor() {
     super();

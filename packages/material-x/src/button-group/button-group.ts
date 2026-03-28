@@ -2,7 +2,7 @@ import type { EmptyObject } from 'type-fest';
 import type { ButtonCoreProps, ButtonLike } from '../button/ButtonCore.ts';
 import { useEvents } from 'ydin/controllers/useEvents.js';
 import { useSlot } from 'ydin/controllers/useSlot.js';
-import { define, type ReactiveElement } from 'ydin/reactive-element.js';
+import { define, type ControlledElement } from 'ydin/element.js';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
   ButtonGroupCore,
@@ -46,9 +46,9 @@ export default class ButtonGroup extends ButtonGroupCore {
       standardStyles,
     ]);
 
-    let elements: ReadonlyArray<ButtonLike & ReactiveElement> = [];
+    let elements: ReadonlyArray<ButtonLike & ControlledElement> = [];
 
-    useSlot<ButtonLike & ReactiveElement>(this, 'slot', (_, newElements) => {
+    useSlot<ButtonLike & ControlledElement>(this, 'slot', (_, newElements) => {
       elements = newElements;
     });
 

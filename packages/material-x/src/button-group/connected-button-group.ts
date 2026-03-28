@@ -1,11 +1,11 @@
 import type { EmptyObject } from 'type-fest';
-import type { ButtonCoreProps, ButtonLike } from '../button/ButtonCore.ts';
-import { define, type ReactiveElement } from 'ydin/reactive-element.js';
-import { impl, type ConstructorWithTraits } from 'ydin/traits/traits.js';
 import { useRovingTabindex } from 'ydin/controllers/useRovingTabindex.js';
 import { useSlot } from 'ydin/controllers/useSlot.js';
-import { Valuable, type ValuableProps } from 'ydin/traits/valuable.js';
+import { define, type ControlledElement } from 'ydin/element.js';
 import type { Checkable } from 'ydin/traits/checkable.js';
+import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+import { Valuable, type ValuableProps } from 'ydin/traits/valuable.js';
+import type { ButtonCoreProps, ButtonLike } from '../button/ButtonCore.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
   ButtonGroupCore,
@@ -18,8 +18,9 @@ export type ConnectedButtonGroupProperties = ButtonCoreProps & ValuableProps;
 export type ConnectedButtonGroupEvents = EmptyObject;
 export type ConnectedButtonGroupCSSProperties = ButtonGroupSharedCSSProperties;
 
-const ConnectedButtonGroupCore: ConstructorWithTraits<
-  InstanceType<typeof ButtonGroupCore>,
+const ConnectedButtonGroupCore: TraitedConstructor<
+  ButtonGroupCore,
+  typeof ButtonGroupCore,
   [typeof Valuable]
 > = impl(ButtonGroupCore, [Valuable]);
 
@@ -53,7 +54,7 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupCore {
 
     useRovingTabindex(this);
 
-    useSlot<ButtonLike & Checkable & ReactiveElement>(
+    useSlot<ButtonLike & Checkable & ControlledElement>(
       this,
       'slot',
       (_, newElements) => {

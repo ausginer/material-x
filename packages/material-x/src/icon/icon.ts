@@ -1,5 +1,5 @@
 import type { EmptyObject } from 'type-fest';
-import { define, ReactiveElement } from 'ydin/reactive-element.js';
+import { define, ControlledElement } from 'ydin/element.js';
 import { useCore } from '../core/utils/useCore.ts';
 import template from './icon.tpl.html' with { type: 'html' };
 import iconStyles from './styles/icon.ctr.css' with { type: 'css' };
@@ -21,7 +21,7 @@ export type IconCSSProperties = Readonly<{
  * @cssprop --md-icon-size - Overrides icon font size.
  * @cssprop --md-icon-font - Overrides icon font family.
  */
-export default class Icon extends ReactiveElement {
+export default class Icon extends ControlledElement {
   constructor() {
     super();
     useCore(this, [template], {}, [iconStyles]);

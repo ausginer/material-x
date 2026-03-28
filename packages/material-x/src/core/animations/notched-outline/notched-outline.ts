@@ -1,5 +1,5 @@
 import { useResizeObserver } from 'ydin/controllers/useResizeObserver.js';
-import type { ReactiveElement } from 'ydin/reactive-element.js';
+import type { ControlledElement } from 'ydin/element.js';
 import { $ } from 'ydin/utils/DOM.js';
 import css from './notched-outline.ctr.css' with { type: 'css' };
 import template from './notched-outline.tpl.html' with { type: 'html' };
@@ -7,7 +7,7 @@ import template from './notched-outline.tpl.html' with { type: 'html' };
 const NOTCH_WIDTH_VAR_NAME = '--_notched-outline-notch-width';
 
 export function useNotchedOutline(
-  host: ReactiveElement,
+  host: ControlledElement,
   label: HTMLElement,
   container: DocumentFragment | HTMLElement = host.shadowRoot!,
 ): void {
@@ -18,17 +18,17 @@ export function useNotchedOutline(
 
   useResizeObserver(
     host,
+    (entries) => {
+      if (entries[0]?.contentBoxSize[0]) {
+        outline.style.setProperty(
+          NOTCH_WIDTH_VAR_NAME,
+          `${entries[0].contentBoxSize[0].inlineSize}px`,
+        );
+      }
+    },
     {
-      callback(entries) {
-        if (entries[0]?.contentBoxSize[0]) {
-          outline.style.setProperty(
-            NOTCH_WIDTH_VAR_NAME,
-            `${entries[0].contentBoxSize[0].inlineSize}px`,
-          );
-        }
-      },
       box: 'content-box',
     },
-    label,
+    [label],
   );
 }

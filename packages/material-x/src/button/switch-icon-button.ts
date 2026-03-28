@@ -1,6 +1,6 @@
 import type { EmptyObject } from 'type-fest';
-import { define } from 'ydin/reactive-element.js';
-import { impl, type ConstructorWithTraits } from 'ydin/traits/traits.js';
+import { define } from 'ydin/element.js';
+import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import { useButtonCore, type ButtonSharedCSSProperties } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import { IconButtonLike, type IconButtonProperties } from './icon-button.ts';
@@ -14,14 +14,15 @@ import switchOutlinedStyles from './styles/outlined/switch.css.ts' with { type: 
 import switchSizeStyles from './styles/size/switch.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' };
-import { SwitchCore, useSwitch, type SwitchProps } from './SwitchCore.ts';
+import { SwitchCore, useSwitchCore, type SwitchProps } from './SwitchCore.ts';
 
 export type SwitchIconButtonProperties = IconButtonProperties & SwitchProps;
 export type SwitchIconButtonEvents = EmptyObject;
 export type SwitchIconButtonCSSProperties = ButtonSharedCSSProperties;
 
-const SwitchIconButtonCore: ConstructorWithTraits<
-  InstanceType<typeof SwitchCore>,
+const SwitchIconButtonCore: TraitedConstructor<
+  SwitchCore,
+  typeof SwitchCore,
   [typeof IconButtonLike]
 > = impl(SwitchCore, [IconButtonLike]);
 
@@ -60,11 +61,11 @@ const SwitchIconButtonCore: ConstructorWithTraits<
  * @event change - Fired when switch interaction occurs.
  */
 export default class SwitchIconButton extends SwitchIconButtonCore {
-  static readonly formAssociated = true;
+  static override readonly formAssociated = true;
 
   constructor() {
     super();
-    useButtonCore(this, iconButtonTemplate, [
+    useSwitchCore(this, iconButtonTemplate, [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainTonalStyles,
@@ -76,7 +77,6 @@ export default class SwitchIconButton extends SwitchIconButtonCore {
       switchTonalStyles,
       switchIconStyles,
     ]);
-    useSwitch(this);
   }
 }
 

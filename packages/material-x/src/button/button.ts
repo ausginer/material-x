@@ -1,5 +1,5 @@
 import type { EmptyObject } from 'type-fest';
-import { define } from 'ydin/reactive-element.js';
+import { define } from 'ydin/element.js';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {
   ButtonCore,

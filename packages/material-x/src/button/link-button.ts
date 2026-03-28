@@ -1,12 +1,12 @@
 import type { EmptyObject, Simplify } from 'type-fest';
+import ATTR, { Str } from 'ydin/attribute.js';
 import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
-import { ATTRIBUTE, Str } from 'ydin/attribute.js';
-import { define } from 'ydin/reactive-element.js';
+import { define } from 'ydin/element.js';
 import {
   impl,
   trait,
-  type ConstructorWithTraits,
+  type TraitedConstructor,
   type Interface,
   type Props,
   type Trait,
@@ -25,8 +25,8 @@ import mainTextStyles from './styles/text/main.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
 type LinkButtonLikeDescriptor = {
-  href: HTMLAnchorElement['href'];
-  target: HTMLAnchorElement['target'];
+  href: string | null;
+  target: string | null;
 };
 
 const $linkButtonLike: unique symbol = Symbol('LinkButtonLike');
@@ -34,7 +34,7 @@ const $linkButtonLike: unique symbol = Symbol('LinkButtonLike');
 export const LinkButtonLike: Trait<
   LinkButtonLikeDescriptor,
   typeof $linkButtonLike
-> = trait<LinkButtonLikeDescriptor, typeof $linkButtonLike>(
+> = trait(
   {
     href: Str,
     target: Str,
@@ -45,8 +45,9 @@ export const LinkButtonLike: Trait<
 export type LinkButtonLike = Interface<typeof LinkButtonLike>;
 export type LinkButtonLikeProps = Props<typeof LinkButtonLike>;
 
-const LinkButtonCore: ConstructorWithTraits<
-  InstanceType<typeof ButtonCore>,
+const LinkButtonCore: TraitedConstructor<
+  ButtonCore,
+  typeof ButtonCore,
   [typeof LinkButtonLike]
 > = impl(ButtonCore, [LinkButtonLike]);
 
@@ -102,20 +103,20 @@ export default class LinkButton extends LinkButtonCore {
       target: transfer(target, 'target'),
       href: (_, value) => {
         if (!this.disabled) {
-          ATTRIBUTE.setRaw(target, 'href', value);
+          ATTR.setRaw(target, 'href', value);
         }
       },
       disabled: (_, value) => {
         if (value != null) {
           // Disabling anchor element manually since it doesn't accept
           // standard `disabled` attribute.
-          ATTRIBUTE.setRaw(target, 'aria-disabled', 'true');
-          ATTRIBUTE.setRaw(target, 'tabindex', '-1');
-          ATTRIBUTE.setRaw(target, 'href', null);
+          ATTR.setRaw(target, 'aria-disabled', 'true');
+          ATTR.setRaw(target, 'tabindex', '-1');
+          ATTR.setRaw(target, 'href', null);
         } else {
           // restoring attributes from the host.
           for (const attr of ['aria-disabled', 'tabindex', 'href']) {
-            ATTRIBUTE.setRaw(target, attr, ATTRIBUTE.getRaw(this, attr));
+            ATTR.setRaw(target, attr, ATTR.getRaw(this, attr));
           }
         }
       },

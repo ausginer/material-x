@@ -43,6 +43,13 @@ describe('transformNumericVariable', () => {
     expect(transformNumericVariable('duration', '.5ms', host)).toBe(0.0005);
   });
 
+  it('should parse s values as seconds', () => {
+    const host = createHost();
+
+    expect(transformNumericVariable('duration', '1s', host)).toBe(1);
+    expect(transformNumericVariable('duration', '.5s', host)).toBe(0.5);
+  });
+
   it('should reject invalid numeric values', () => {
     const host = createHost();
 
@@ -81,12 +88,14 @@ describe('readCSSVariables', () => {
     const host = createHost();
 
     host.style.setProperty('--duration', '150ms');
+    host.style.setProperty('--delay', '.5s');
     host.style.setProperty('--size', '.5px');
 
     const values = readCSSVariables(
       host,
       {
         duration: '--duration',
+        delay: '--delay',
         size: '--size',
       },
       transformNumericVariable,
@@ -94,6 +103,7 @@ describe('readCSSVariables', () => {
 
     expect(values).toEqual({
       duration: 0.15,
+      delay: 0.5,
       size: 0.5,
     });
   });

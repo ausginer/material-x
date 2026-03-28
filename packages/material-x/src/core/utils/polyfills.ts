@@ -1,12 +1,8 @@
 import { useSlot } from 'ydin/controllers/useSlot.js';
-import {
-  getInternals,
-  use,
-  type ReactiveElement,
-} from 'ydin/reactive-element.js';
+import { getInternals, use, type ControlledElement } from 'ydin/element.js';
 import { $$, toggleState } from 'ydin/utils/DOM.js';
 
-export function useHasSlottedPolyfill(host: ReactiveElement): void {
+export function useHasSlottedPolyfill(host: ControlledElement): void {
   const internals = getInternals(host);
 
   for (const element of $$<HTMLSlotElement>(host, 'slot')!) {
@@ -17,7 +13,7 @@ export function useHasSlottedPolyfill(host: ReactiveElement): void {
 }
 
 export function useFieldSizingContentPolyfill(
-  host: ReactiveElement,
+  host: ControlledElement,
   textarea: HTMLTextAreaElement,
 ): void {
   if (CSS.supports('field-sizing', 'content')) {

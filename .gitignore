@@ -9,6 +9,7 @@
 /packages/*/.vite
 /packages/*/.coverage
 /packages/*/.vitest-attachments
+/packages/*/node_modules
 /packages/*/custom-elements.json
 /packages/**/*.js
 /packages/**/*.js.map

@@ -1,4 +1,4 @@
-import { define } from 'ydin/reactive-element.js';
+import { define } from 'ydin/element.js';
 import { useFieldSizingContentPolyfill } from '../core/utils/polyfills.ts';
 import multilineTextFieldTemplate from './multiline-text-field.tpl.html' with { type: 'html' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
@@ -58,7 +58,7 @@ export type {
  * @event change - Fired when value is committed.
  */
 export default class MultilineTextField extends TextFieldCore {
-  static formAssociated = true;
+  static override formAssociated = true;
 
   constructor() {
     super(multilineTextFieldTemplate, [defaultStyles, outlinedStyles]);

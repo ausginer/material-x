@@ -1,21 +1,25 @@
-import { useRipple } from '../core/animations/ripple/ripple.ts';
+import { Bool, Str, type ConverterOf } from 'ydin/attribute.js';
+import { useARIA } from 'ydin/controllers/useARIA.js';
 import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
-import { useARIATransfer } from 'ydin/controllers/useARIA.js';
-import { Bool, Str } from 'ydin/attribute.js';
-import { define, ReactiveElement } from 'ydin/reactive-element.js';
+import {
+  define,
+  ControlledElement,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
+import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
 import {
   impl,
   trait,
-  type ConstructorWithTraits,
+  type TraitedConstructor,
   type Interface,
   type Props,
   type Trait,
 } from 'ydin/traits/traits.js';
-import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
-import '../core/styles/elevation/elevation.runtime.ts';
-import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
-import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
 import { $, notify } from 'ydin/utils/DOM.js';
+import { useRipple } from '../core/animations/ripple/ripple.ts';
+import '../core/styles/elevation/elevation.runtime.ts';
+import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
+import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import { useCore } from '../core/utils/useCore.ts';
 import template from './fab.tpl.html' with { type: 'html' };
 import colorStyles from './styles/color/main.css.ts' with { type: 'css' };
@@ -28,23 +32,21 @@ export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
 export type FABExtended = 'open' | 'closed';
 
-type FABLikeDescriptor = {
-  size: FABSize;
-  color: FABColor;
-  extended: FABExtended;
-  tonal: boolean;
-};
-
 const $fabLike: unique symbol = Symbol('FABLike');
 
-export const FABLike: Trait<FABLikeDescriptor, typeof $fabLike> = trait<
-  FABLikeDescriptor,
-  typeof $fabLike
->(
+export const FABLike: Trait<
   {
-    size: Str,
-    color: Str,
-    extended: Str,
+    size: FABSize | null;
+    color: FABColor | null;
+    extended: FABExtended | null;
+    tonal: boolean;
+  },
+  typeof $fabLike
+> = trait(
+  {
+    size: Str as ConverterOf<FABSize>,
+    color: Str as ConverterOf<FABColor>,
+    extended: Str as ConverterOf<FABExtended>,
     tonal: Bool,
   },
   $fabLike,
@@ -53,10 +55,11 @@ export const FABLike: Trait<FABLikeDescriptor, typeof $fabLike> = trait<
 export type FABLike = Interface<typeof FABLike>;
 export type FABLikeProps = Props<typeof FABLike>;
 
-const FABCore: ConstructorWithTraits<
-  ReactiveElement,
+const FABCore: TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
   [typeof FABLike, typeof Disableable]
-> = impl(ReactiveElement, [FABLike, Disableable]);
+> = impl(ControlledElement, [FABLike, Disableable]);
 
 export type FABProperties = Readonly<FABLikeProps & DisableableProps>;
 export type FABEvents = Readonly<{
@@ -117,7 +120,7 @@ export default class FAB extends FABCore {
     ]);
 
     const target = $<HTMLButtonElement>(this, '.host')!;
-    useARIATransfer(this, target);
+    useARIA(this, target);
 
     useRipple(
       this,
