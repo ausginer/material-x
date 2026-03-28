@@ -19,6 +19,9 @@ class ContextEvent extends Event {
 /**
  * Creates a unique context identifier that providers and consumers can share.
  *
+ * @remarks Requires launch over HTTPS because it uses `crypto.randomUUID`
+ * internally.
+ *
  * @typeParam T - The stable value shape exposed through this context.
  * @returns A - unique opaque context token.
  */
