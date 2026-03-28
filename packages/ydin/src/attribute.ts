@@ -16,12 +16,28 @@ export type NullablePrimitive<T extends AttributePrimitive> = T extends boolean
   : T | null;
 
 /**
+ * Generic attribute converter tuple for a primitive value type.
+ *
+ * This helper allows built-in converters such as {@link Str} to be narrowed
+ * at compile time, for example `Str as ConverterOf<'primary' | 'secondary'>`.
+ *
+ * @remarks This narrowing affects only the static type contract. Runtime
+ * conversion stays unchanged and does not validate string unions.
+ *
+ * @typeParam T - The primitive value represented by the converter.
+ */
+export type ConverterOf<T extends AttributePrimitive> = readonly [
+  (value: string | null) => NullablePrimitive<T>,
+  (value: NullablePrimitive<T>) => string | null,
+];
+
+/**
  * Presence-based attribute converter.
  *
  * Reads `null` as `false` and any present attribute value as `true`. Writes
  * `true` as an empty string and removes the attribute for `false`.
  */
-export const Bool = [
+export const Bool: ConverterOf<boolean> = [
   (value: string | null): boolean => value !== null,
   (value: boolean): string | null => (value ? '' : null),
 ] as const;
@@ -37,7 +53,7 @@ export type Bool = typeof Bool;
  * Missing, empty, and invalid numeric strings are normalized to `null`.
  * Writing `null` or `NaN` removes the attribute.
  */
-export const Num = [
+export const Num: ConverterOf<number> = [
   (value: string | null): number | null => {
     if (value == null || value === '') {
       return null;
@@ -58,7 +74,7 @@ export type Num = typeof Num;
 /**
  * Identity converter for nullable string attributes.
  */
-export const Str = [
+export const Str: ConverterOf<string> = [
   (value: string | null): string | null => value,
   (value: string | null): string | null => value,
 ] as const;
@@ -71,20 +87,19 @@ export type Str = typeof Str;
 /**
  * Built-in converter tuple understood by {@link operator}.
  */
-export type Converter = Bool | Num | Str;
+export type Converter<T extends AttributePrimitive = any> = ConverterOf<T>;
 
 /**
  * JavaScript value produced when reading through a converter.
  *
  * @typeParam C - The converter used to read the attribute.
  */
-export type FromConverter<C extends Converter> = C extends Bool
-  ? boolean
-  : C extends Num
-    ? number | null
-    : C extends Str
-      ? string | null
-      : never;
+export type FromConverter<C extends Converter> = C extends readonly [
+  (value: string | null) => infer T,
+  ...(readonly unknown[]),
+]
+  ? T
+  : never;
 
 /**
  * Built-in converter selected for a primitive value type.
@@ -107,36 +122,20 @@ export interface AttributeOperator {
   /**
    * Reads an attribute and converts it to a typed JavaScript value.
    */
-  get(host: HTMLElement, name: string, converter: Bool): boolean;
-  get(host: HTMLElement, name: string, converter: Num): number | null;
-  get(host: HTMLElement, name: string, converter: Str): string | null;
-  get(
+  get<C extends Converter>(
     host: HTMLElement,
     name: string,
-    converter: Converter,
-  ): AttributePrimitive | null;
+    converter: C,
+  ): FromConverter<C>;
 
   /**
    * Converts a typed JavaScript value and writes it back to the DOM attribute.
    */
-  set(host: HTMLElement, name: string, value: boolean, converter: Bool): void;
-  set(
+  set<C extends Converter>(
     host: HTMLElement,
     name: string,
-    value: number | null,
-    converter: Num,
-  ): void;
-  set(
-    host: HTMLElement,
-    name: string,
-    value: string | null,
-    converter: Str,
-  ): void;
-  set(
-    host: HTMLElement,
-    name: string,
-    value: AttributePrimitive | null,
-    converter: Converter,
+    value: FromConverter<C>,
+    converter: C,
   ): void;
 
   /**
@@ -160,12 +159,19 @@ export interface AttributeOperator {
  * `getRaw` and `setRaw`.
  */
 export const operator: AttributeOperator = {
-  // @ts-expect-error: too generic for TS
-  get(host, name, [from]) {
+  get<C extends Converter>(
+    host: HTMLElement,
+    name: string,
+    [from]: C,
+  ): FromConverter<C> {
     return from(operator.getRaw(host, name));
   },
-  set(host, name, value, [, to]) {
-    // @ts-expect-error: too generic for TS
+  set<C extends Converter>(
+    host: HTMLElement,
+    name: string,
+    value: FromConverter<C>,
+    [, to]: C,
+  ) {
     operator.setRaw(host, name, to(value));
   },
   getRaw(host, name) {

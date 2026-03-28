@@ -99,6 +99,14 @@ export type Interface<T extends Trait<any, any>> =
  * `Object.defineProperty(...)`; the returned trait is normalized explicitly
  * from the converter descriptor shape `P`.
  *
+ * @remarks TypeScript currently treats trait-generated members as plain
+ * properties in some class-override paths, even though this helper installs
+ * runtime accessors with `Object.defineProperty(...)`. This means subclass
+ * `override get` / `override set` declarations may still hit `TS2611`. See
+ * https://github.com/microsoft/TypeScript/issues/54879 for the closest known
+ * limitation. At the moment there is no framework-level workaround here; for
+ * intentional accessor overrides, prefer a local `@ts-expect-error`.
+ *
  * @typeParam P - Descriptor shape for the trait fields.
  * @typeParam B - External nominal brand symbol for the trait.
  *

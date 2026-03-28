@@ -134,3 +134,6 @@ export class ControlledElement extends HTMLElement {
     forEachMaybePromise(this.#controllers, callback);
   }
 }
+
+export type ControlledElementConstructor = typeof ControlledElement &
+  CustomElementStatics;
