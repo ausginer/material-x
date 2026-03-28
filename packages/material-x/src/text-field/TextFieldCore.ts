@@ -26,6 +26,7 @@ import { useCore } from '../core/utils/useCore.ts';
 import textFieldCoreTemplate from './text-field-core.tpl.html' with { type: 'html' };
 import type { ConverterOf } from 'ydin/attribute.js';
 import { Valuable } from 'ydin/traits/valuable.js';
+import type { ValuableProps } from 'ydin/traits/valuable.js';
 
 export type TextFieldType =
   | 'text'
@@ -69,7 +70,9 @@ export const TextFieldLike: Trait<
 export type TextFieldLike = Interface<typeof TextFieldLike>;
 export type TextFieldLikeProps = Props<typeof TextFieldLike>;
 
-export type TextFieldProperties = TextFieldLikeProps & DisableableProps;
+export type TextFieldProperties = TextFieldLikeProps &
+  DisableableProps &
+  ValuableProps;
 export type TextFieldEvents = EmptyObject;
 export type TextFieldCSSProperties = Readonly<{
   '--md-text-field-container-height'?: string;

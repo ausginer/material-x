@@ -47,7 +47,7 @@ export type ButtonCSSProperties = ButtonSharedCSSProperties;
  * @event click - Fired when the button is activated.
  */
 export default class Button extends ButtonCore {
-  static readonly formAssociated = true;
+  static override readonly formAssociated = true;
 
   constructor() {
     super();
