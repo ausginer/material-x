@@ -18,13 +18,16 @@ export type UpdateCallback = (
  *
  * @param target - Element that should receive the mirrored attribute value.
  * @param attribute - Target attribute name to write.
+ * @param transform - Optional transformer applied before writing the value.
+ *
  * @returns Update callback that forwards the new serialized value.
  */
 export function transfer(
   target: HTMLElement,
   attribute: string,
+  transform: (value: string | null) => string | null = (value) => value,
 ): UpdateCallback {
-  return (_, value) => attr.setRaw(target, attribute, value);
+  return (_, value) => attr.setRaw(target, attribute, transform(value));
 }
 
 /**
