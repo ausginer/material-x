@@ -1,10 +1,11 @@
+/* eslint-disable import-x/no-relative-packages */
 import { defineConfig, type UserConfig } from 'tsdown';
-import files from './files.json' with { type: 'json' };
-import { constructComponentTsdownPlugins } from '../../tsdown.config.ts';
 import {
   packageFilesToCustomExports,
   packageFilesToTsdownEntries,
 } from '../../.scripts/package-files.ts';
+import { constructComponentTsdownPlugins } from '../../.scripts/tsdown-component.ts';
+import files from './files.json' with { type: 'json' };
 
 const config: UserConfig = defineConfig({
   entry: packageFilesToTsdownEntries(files),

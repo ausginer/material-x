@@ -1,9 +1,4 @@
 import type { Rolldown } from 'tsdown';
-import {
-  constructCSSStyles,
-  constructCSSTokens,
-  constructHTMLTemplate,
-} from './.scripts/vite-plugins.ts';
 
 export function classVarCleanupPlugin(): Rolldown.Plugin {
   return {
@@ -55,18 +50,4 @@ export function dropEmptyChunksPlugin(): Rolldown.Plugin {
 
 export function constructLibraryTsdownPlugins(): Rolldown.Plugin[] {
   return [dropEmptyChunksPlugin(), classVarCleanupPlugin()];
-}
-
-function asRolldownPlugin(plugin: unknown): Rolldown.Plugin {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-  return plugin as Rolldown.Plugin;
-}
-
-export function constructComponentTsdownPlugins(): Rolldown.Plugin[] {
-  return [
-    ...constructLibraryTsdownPlugins(),
-    asRolldownPlugin(constructCSSStyles({ isProd: true })),
-    asRolldownPlugin(constructHTMLTemplate()),
-    asRolldownPlugin(constructCSSTokens({ isProd: true })),
-  ];
 }

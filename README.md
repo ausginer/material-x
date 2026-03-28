@@ -71,7 +71,7 @@ export function App() {
 Run Storybook locally:
 
 ```bash
-npm run demo:dev
+npm run docs:dev
 ```
 
 Build the demo:
