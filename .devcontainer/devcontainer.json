@@ -4,6 +4,7 @@
   "workspaceFolder": "/workspaces/material-x",
   "runArgs": ["--name=materialx_dev"],
   "containerEnv": {
+    "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
     "CODEX_HOME": "/workspaces/material-x/.agents/codex"
   },
   "forwardPorts": [9876, 6006, 5176, 24678],

@@ -1,0 +1,26 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { withDocsBase } from '../../../../.storybook/docs/paths.ts';
+
+export const ydinApiHref = withDocsBase('api/ydin/index.html');
+export const materialXApiHref = withDocsBase('api/material-x/index.html');
+
+<Meta title="Reference/API" />
+
+# API reference
+
+This docs site separates component guides from package-level API reference.
+
+## Packages
+
+- <a href={ydinApiHref} target="_top">
+    `ydin` Typedoc
+  </a>
+- <a href={materialXApiHref} target="_top">
+    `material-x` API section
+  </a>
+
+## How to use this section
+
+- Use Storybook pages for component behavior, examples, accessibility notes, and CEM-backed tables.
+- Use package API docs when you want the exported TypeScript surface and symbol-level reference.
+- `material-x` keeps its package API section reserved for future expansion; for now, Storybook remains the canonical component reference.
