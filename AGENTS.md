@@ -7,6 +7,7 @@
 - After every source-related task completed run `npm run lint:fix -- <changed files>` command to find and fix ESLint issues (preferably against the changed files only). If autofix didn't work, the linting issue should be addressed.
   - It is preferred that linting issue is addressed correctly without suppressing.
   - However, if addressing linting issue looks too cumbersome, issue should be suppressed.
+- After every source-related task, run `/simplify` to review the changes for style, quality, and reuse.
 - Codestyle component importance:
   - Performance. This is the essential part of the code. Code should be as fast as possible for the end user.
   - Code size. Sometimes, the smaller codebase gives more performance (loading speed) over the performance bigger codebase could give. So, code size should also be as small as possible unless it starts to hurt performance. However, keep in mind that the code will be shipped to production minified, so the private variables/fields/functions/methods could have long names since they eventually are mangled.
@@ -74,6 +75,8 @@ You can find accessibility review in `.agents/docs/accessibility.md`
 
 `src/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
 
-## Sub-agents
+## Sub-agents and teams
 
-Use as many sub-agents as it's necessary to solve the task efficiently.
+Use sub-agents for research and exploration tasks that can run in parallel (e.g. investigating different parts of the codebase simultaneously).
+
+Use an agent team (`TeamCreate`) only when the task has clearly independent parallel work — for example, migrating several components at the same time. Do not create teams for review, small changes, or tasks with sequential dependencies.
