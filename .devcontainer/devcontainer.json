@@ -4,6 +4,7 @@
   "workspaceFolder": "/workspaces/material-x",
   "runArgs": ["--name=materialx_dev"],
   "containerEnv": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
     "CODEX_HOME": "/workspaces/material-x/.agents/codex"
   },
@@ -15,6 +16,11 @@
       "source": "${localWorkspaceFolderBasename}_nodemodules",
       "target": "${containerWorkspaceFolder}/node_modules",
       "type": "volume"
+    },
+    {
+      "source": "${localEnv:HOME}/.claude",
+      "target": "/home/node/.claude",
+      "type": "bind"
     }
   ],
   "customizations": {
@@ -32,7 +38,8 @@
         "acoreyj.restart-ts-eslint-server",
         "TypeScriptTeam.native-preview",
         "eamodio.gitlens",
-        "unifiedjs.vscode-mdx"
+        "unifiedjs.vscode-mdx",
+        "Anthropic.claude-code"
       ]
     }
   },

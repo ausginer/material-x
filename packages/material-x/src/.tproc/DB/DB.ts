@@ -30,6 +30,10 @@ function isTokenTable(value: unknown): value is TokenTable {
   return typeof system === 'object' && system !== null;
 }
 
+function isTokenSetDeprecated(set?: MaybeOrphanTokenSet): boolean {
+  return !!set?.displayName?.startsWith('[Deprecated]');
+}
+
 async function download(url: URL): Promise<TokenTable> {
   const cacheFile = new URL(
     url.pathname.substring(url.pathname.lastIndexOf('/') + 1),
@@ -257,8 +261,4 @@ export class DB {
 
     return undefined;
   }
-}
-
-function isTokenSetDeprecated(set?: MaybeOrphanTokenSet): boolean {
-  return !!set?.displayName?.startsWith('[Deprecated]');
 }

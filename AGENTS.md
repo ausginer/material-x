@@ -74,10 +74,6 @@ You can find accessibility review in `.agents/docs/accessibility.md`
 
 `src/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
 
-## Component migration
-
-If you asked to migrate an already existing component to a new architecture, please read `.agents/docs/component-migration.md`.
-
 ## Sub-agents
 
 Use as many sub-agents as it's necessary to solve the task efficiently.

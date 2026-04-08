@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "./src/**/*",
+    "./src/.tproc/**/*",
     "../../types.d.ts",
     "./cem.config.ts",
     "./files.json",

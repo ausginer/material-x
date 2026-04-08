@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import { not } from 'ydin/utils';
 import type { Token } from '../TokenTable.ts';
 import {
   composeGroupSelectors,
@@ -62,9 +61,7 @@ describe('token utils', () => {
 
   it('should compose group selectors', () => {
     const tokensOnly = createAllowedTokensSelector(['container.color']);
-    const notHovered = not<[path: string]>(
-      (path: string) => path === 'hovered',
-    );
+    const notHovered = (path: string) => path !== 'hovered';
     const selector = composeGroupSelectors(tokensOnly, notHovered);
 
     expect(selector('default', 'container.color')).toBe(true);
