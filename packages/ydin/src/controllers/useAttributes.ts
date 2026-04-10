@@ -1,4 +1,8 @@
-import attr from '../attribute.ts';
+import attr, {
+  type AttributePrimitive,
+  type Converter,
+  type NullablePrimitive,
+} from '../attribute.ts';
 import { type ControlledElement, use } from '../element.ts';
 
 /**
@@ -28,6 +32,17 @@ export function transfer(
   transform: (value: string | null) => string | null = (value) => value,
 ): UpdateCallback {
   return (_, value) => attr.setRaw(target, attribute, transform(value));
+}
+
+export type ConvertedUpdateCallback<
+  T extends AttributePrimitive = AttributePrimitive,
+> = (oldValue: NullablePrimitive<T>, newValue: NullablePrimitive<T>) => void;
+
+export function via<T extends AttributePrimitive = AttributePrimitive>(
+  [from]: Converter<T>,
+  callback: ConvertedUpdateCallback<T>,
+): UpdateCallback {
+  return (oldValue, newValue) => callback(from(oldValue), from(newValue));
 }
 
 /**
