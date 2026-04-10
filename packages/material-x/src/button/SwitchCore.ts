@@ -1,10 +1,9 @@
+import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
-import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import { Checkable, type CheckableProps } from 'ydin/traits/checkable.js';
+import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import { Valuable, type ValuableProps } from 'ydin/traits/valuable.js';
 import { $, notify } from 'ydin/utils/DOM.js';
-import { useAttributes } from 'ydin/controllers/useAttributes.js';
-import { transfer } from 'ydin/controllers/useAttributes.js';
 import { ButtonCore, useButtonCore } from './ButtonCore.ts';
 
 export type SwitchProps = CheckableProps & ValuableProps;

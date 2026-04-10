@@ -1,7 +1,7 @@
 import type { EmptyObject } from 'type-fest';
 import { define } from 'ydin/element.js';
 import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
-import { useButtonCore, type ButtonSharedCSSProperties } from './ButtonCore.ts';
+import type { ButtonSharedCSSProperties } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import { IconButtonLike, type IconButtonProperties } from './icon-button.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts' with { type: 'css' };

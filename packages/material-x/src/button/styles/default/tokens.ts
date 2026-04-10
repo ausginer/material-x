@@ -6,15 +6,15 @@ import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
 import * as CSSVariable from '../../../.tproc/variable.ts';
 import {
   buttonAllowedTokensSelector,
-  buttonMainTokenSelector,
-  buttonSwitchTokenSelector,
   createButtonExtensions,
-  createButtonScopedDeclarationRenderer,
+  createScopedDeclarationRenderer,
   disabledTokenSelector,
   fixFullShape,
   groupButtonTokens,
+  mainTokenSelector,
   notDisabledTokenSelector,
   omitSelectedShape,
+  switchTokenSelector,
 } from '../utils.ts';
 
 const GENERAL_SET_NAME = 'md.comp.button';
@@ -44,7 +44,7 @@ const specialSelectedTokens = {
   'state-layer.color': `${GENERAL_SET_NAME}.selected.pressed.state-layer.color`,
 };
 
-const renderer = createButtonScopedDeclarationRenderer();
+const renderer = createScopedDeclarationRenderer();
 
 const createPackage = (
   set: Sets,
@@ -62,7 +62,7 @@ const createPackage = (
 export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage(GENERAL_SET_NAME, (processor) =>
     processor
-      .select(buttonMainTokenSelector, notDisabledTokenSelector)
+      .select(mainTokenSelector, notDisabledTokenSelector)
       .append('default', specialTokens)
       .extend(createButtonExtensions()),
   ),
@@ -71,7 +71,7 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
 export const defaultFilledTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage(FILLED_SET_NAME, (processor) =>
     processor
-      .select(buttonMainTokenSelector, notDisabledTokenSelector)
+      .select(mainTokenSelector, notDisabledTokenSelector)
       .extend(createButtonExtensions(defaultTokens.value)),
   ),
 );
@@ -79,11 +79,7 @@ export const defaultFilledTokens: ReadonlySignal<TokenPackage> = computed(() =>
 export const defaultSwitchTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage(GENERAL_SET_NAME, (processor) =>
     processor
-      .select(
-        buttonSwitchTokenSelector,
-        notDisabledTokenSelector,
-        omitSelectedShape,
-      )
+      .select(switchTokenSelector, notDisabledTokenSelector, omitSelectedShape)
       .append('unselected.default', specialUnselectedTokens)
       .append('selected.default', specialSelectedTokens)
       .extend(createButtonExtensions()),
@@ -95,7 +91,7 @@ export const defaultSwitchFilledTokens: ReadonlySignal<TokenPackage> = computed(
     createPackage(FILLED_SET_NAME, (processor) =>
       processor
         .select(
-          buttonSwitchTokenSelector,
+          switchTokenSelector,
           notDisabledTokenSelector,
           omitSelectedShape,
         )

@@ -23,10 +23,10 @@ import {
 import {
   BUTTON_STATE_MAP,
   buttonAllowedTokensSelector,
-  buttonMainTokenSelector,
-  buttonSwitchTokenSelector,
+  mainTokenSelector,
+  switchTokenSelector,
   createButtonExtensions,
-  createButtonScopedDeclarationRenderer,
+  createScopedDeclarationRenderer,
   fixFullShape,
   groupButtonTokens,
   notDisabledTokenSelector,
@@ -95,10 +95,10 @@ export const variantTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
 
       return createPackage(
         setName,
-        createButtonScopedDeclarationRenderer(variantScope(variant)),
+        createScopedDeclarationRenderer(variantScope(variant)),
         (processor) =>
           processor
-            .select(buttonMainTokenSelector)
+            .select(mainTokenSelector)
             .append('default', {
               ...(variant === 'standard'
                 ? { 'container.color': 'transparent' }
@@ -122,11 +122,11 @@ export const variantSwitchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
 
       return createPackage(
         setName,
-        createButtonScopedDeclarationRenderer(variantScope(variant)),
+        createScopedDeclarationRenderer(variantScope(variant)),
         (processor) =>
           processor
             .select(
-              buttonSwitchTokenSelector,
+              switchTokenSelector,
               notDisabledTokenSelector,
               omitSelectedShape,
             )
@@ -201,7 +201,7 @@ const createWidthPackage = (size: string, width: string): TokenPackage =>
   t
     .set(`md.comp.icon-button.${size}`)
     .group(widthGroup(width))
-    .select(buttonMainTokenSelector, widthAllowedTokenSelector)
+    .select(mainTokenSelector, widthAllowedTokenSelector)
     .adjustTokens(fixFullShape)
     .extend(
       createButtonExtensions(defaultTokens.value, defaultFilledTokens.value),

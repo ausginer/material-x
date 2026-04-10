@@ -1,6 +1,6 @@
-import { renderButtonStylesInOrder } from '../utils.ts';
+import { renderStylesInOrder } from '../utils.ts';
 import { shapeTokens } from './tokens.ts';
 
-const styles: string = renderButtonStylesInOrder(shapeTokens);
+const styles: string = renderStylesInOrder(shapeTokens);
 
 export default styles;

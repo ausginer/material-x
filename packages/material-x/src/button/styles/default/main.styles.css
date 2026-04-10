@@ -21,6 +21,7 @@
 .host {
   all: unset;
   display: inline-flex;
+  position: relative; /* For ripple */
   cursor: default;
   user-select: none;
   background-color: var(--_container-color);

@@ -1,4 +1,6 @@
 import type { ReadonlySignal } from '@preact/signals-core';
+import type { Predicate } from 'ydin/utils/runtime.js';
+import { not } from 'ydin/utils/runtime.js';
 import { pseudoClass, selector, type Param } from '../../.tproc/selector.ts';
 import type {
   DeclarationBlockRenderer,
@@ -10,8 +12,6 @@ import {
   type Grouper,
   type GroupSelector,
 } from '../../.tproc/utils.ts';
-import type { Predicate } from 'ydin/utils/runtime.js';
-import { not } from 'ydin/utils/runtime.js';
 
 export const TEXT_FIELD_STATES = [
   'default',

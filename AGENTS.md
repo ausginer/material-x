@@ -63,6 +63,10 @@ describe('buildSelector', () => {
 });
 ```
 
+## CLI commands
+
+You don't need anything to run TS in this repo. Just use direct `node my-file.ts`, and this project's node will do the rest.
+
 ## CSS.TS
 
 Files with `.css.ts` extensions are ment to be compiled for browser usage. They are transformed into regular CSS files. To debug them and check how they look in CSS form, you should use `npm run debug -- <relative file path>` command. E.g., if you want to see how `src/button/styles/default/main.css.ts` file gonna look like in the CSS format, you have to run `npm run debug -- src/button/styles/default/main.css.ts`. Then, stdout will give you the CSS text.

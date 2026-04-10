@@ -1,5 +1,5 @@
 import type { ReadonlySignal } from '@preact/signals-core';
-import type { ProcessedTokenValue } from '../../.tproc/processTokenSet.ts';
+import type { ResolveAdjuster } from '../../.tproc/resolve.ts';
 import {
   attribute,
   pseudoClass,
@@ -17,8 +17,11 @@ import {
   type GroupSelector,
 } from '../../.tproc/utils.ts';
 import * as CSSVariable from '../../.tproc/variable.ts';
-import type { Predicate } from 'ydin/utils/runtime.js';
-import { not } from 'ydin/utils/runtime.js';
+import {
+  createFullShapeFix,
+  disabledTokenSelector,
+  notDisabledTokenSelector,
+} from '../../core/styles/utils.ts';
 
 export const BUTTON_STATES = [
   'default',
@@ -107,19 +110,10 @@ export function createButtonExtensions(
   };
 }
 
-export function fixFullShape(
-  value: ProcessedTokenValue,
-  path: readonly string[],
-): ProcessedTokenValue | null {
-  if (
-    path.some((entry) => entry.includes('container.shape')) &&
-    value === 'full'
-  ) {
-    return CSSVariable.ref('shape.full');
-  }
-
-  return value;
-}
+export const fixFullShape: ResolveAdjuster = createFullShapeFix(
+  CSSVariable.ref('shape.full'),
+  (entry) => entry.includes('container.shape'),
+);
 
 export const buttonAllowedTokensSelector: GroupSelector =
   createAllowedTokensSelector([
@@ -156,20 +150,14 @@ export const buttonAllowedTokensSelector: GroupSelector =
     'level',
   ]);
 
-export function disabledTokenSelector(path: string): boolean {
-  return path === 'disabled';
-}
+export { disabledTokenSelector, notDisabledTokenSelector };
 
-export const notDisabledTokenSelector: Predicate<[path: string]> = not(
-  disabledTokenSelector,
-);
-
-export function buttonSwitchTokenSelector(path: string): boolean {
+export function switchTokenSelector(path: string): boolean {
   return SELECTION_STATES.some((s) => path.includes(s));
 }
 
-export function buttonMainTokenSelector(path: string): boolean {
-  return !buttonSwitchTokenSelector(path);
+export function mainTokenSelector(path: string): boolean {
+  return !switchTokenSelector(path);
 }
 
 export function omitSelectedShape(path: string, tokenName?: string): boolean {
@@ -190,7 +178,7 @@ export type ButtonScope = Readonly<{
   useState?: boolean;
 }>;
 
-export function createButtonScopedDeclarationRenderer(
+export function createScopedDeclarationRenderer(
   scope?: ButtonScope,
 ): DeclarationBlockRenderer {
   return (path, declarations) => {
@@ -234,7 +222,7 @@ export function createButtonScopedDeclarationRenderer(
   };
 }
 
-export function renderButtonStylesInOrder(
+export function renderStylesInOrder(
   tokens: ReadonlyArray<ReadonlySignal<TokenPackage>>,
 ): string {
   return BUTTON_STATES.flatMap((state) =>

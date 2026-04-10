@@ -12,6 +12,7 @@
 .host {
   all: unset;
   display: inline-flex;
+  position: relative; /* For ripple */
   background-color: var(--_container-color);
   border-radius: var(--_container-shape);
   padding: calc(

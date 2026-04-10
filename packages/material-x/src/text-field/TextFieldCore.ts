@@ -1,32 +1,32 @@
 // oxlint-disable import/no-mutable-exports
 import type { EmptyObject } from 'type-fest';
-import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
+import type { ConverterOf } from 'ydin/attribute.js';
+import ATTR, { Bool, Str } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
 import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
 import { useSlot } from 'ydin/controllers/useSlot.js';
-import ATTR, { Bool, Str } from 'ydin/attribute.js';
 import {
-  getInternals,
   ControlledElement,
+  getInternals,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
+import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
 import {
   impl,
   trait,
-  type TraitedConstructor,
   type Interface,
   type Props,
   type Trait,
+  type TraitedConstructor,
 } from 'ydin/traits/traits.js';
-import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
+import type { ValuableProps } from 'ydin/traits/valuable.js';
+import { Valuable } from 'ydin/traits/valuable.js';
 import { $, toggleState } from 'ydin/utils/DOM.js';
+import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import textFieldCoreTemplate from './text-field-core.tpl.html' with { type: 'html' };
-import type { ConverterOf } from 'ydin/attribute.js';
-import { Valuable } from 'ydin/traits/valuable.js';
-import type { ValuableProps } from 'ydin/traits/valuable.js';
 
 export type TextFieldType =
   | 'text'
@@ -60,7 +60,9 @@ export const TextFieldLike: Trait<
   typeof $textFieldLike
 > = trait(
   {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     type: Str as ConverterOf<TextFieldType>,
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     inputmode: Str as ConverterOf<TextFieldInputMode>,
     outlined: Bool,
   },
@@ -148,7 +150,6 @@ export class TextFieldCore extends TextFieldCoreBase {
   }
 
   readonly #input: HTMLInputElement | HTMLTextAreaElement;
-  readonly #internals: ElementInternals;
 
   constructor(
     template: HTMLTemplateElement,
@@ -188,11 +189,10 @@ export class TextFieldCore extends TextFieldCoreBase {
     useHasSlottedPolyfill(this);
 
     this.#input = input;
-    this.#internals = internals;
   }
 
   get isPopulated(): boolean {
-    return this.#internals.states.has('populated');
+    return getInternals(this).states.has('populated');
   }
 
   // @ts-expect-error: https://github.com/microsoft/TypeScript/issues/54879
@@ -202,23 +202,23 @@ export class TextFieldCore extends TextFieldCoreBase {
 
   override set value(value: string | null) {
     this.#input.value = value ?? '';
-    toggleState(this.#internals, 'populated', !!this.#input.value);
-    this.#internals.setFormValue(value);
+    toggleState(getInternals(this), 'populated', !!this.#input.value);
+    getInternals(this).setFormValue(value);
   }
 
   checkValidity(): boolean {
-    const valid = this.#internals.checkValidity();
-    toggleState(this.#internals, 'error', !valid);
+    const valid = getInternals(this).checkValidity();
+    toggleState(getInternals(this), 'error', !valid);
     return valid;
   }
 
   reportValidity(): boolean {
-    const valid = this.#internals.reportValidity();
-    toggleState(this.#internals, 'error', !valid);
+    const valid = getInternals(this).reportValidity();
+    toggleState(getInternals(this), 'error', !valid);
     return valid;
   }
 
   setValidity(flags?: ValidityStateFlags, message?: string): void {
-    this.#internals.setValidity(flags, message, this);
+    getInternals(this).setValidity(flags, message, this);
   }
 }

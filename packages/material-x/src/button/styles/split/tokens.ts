@@ -9,9 +9,9 @@ import {
   type ProcessorAdjuster,
 } from '../../../.tproc/utils.ts';
 import {
-  buttonMainTokenSelector,
+  mainTokenSelector,
   createButtonExtensions,
-  createButtonScopedDeclarationRenderer,
+  createScopedDeclarationRenderer,
   fixFullShape,
   groupButtonTokens,
 } from '../utils.ts';
@@ -55,7 +55,7 @@ const createPackage = (
       .extend(createButtonExtensions())
       .adjustTokens(fixFullShape)
       .renderDeclarations(
-        createButtonScopedDeclarationRenderer(
+        createScopedDeclarationRenderer(
           isDefaultSize(size)
             ? undefined
             : {
@@ -70,8 +70,6 @@ const createPackage = (
 export const sizeTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
   SIZES.toSorted(createDefaultFirstSorter(isDefaultSize)).map((size) =>
     computed(() =>
-      createPackage(size, (processor) =>
-        processor.select(buttonMainTokenSelector),
-      ),
+      createPackage(size, (processor) => processor.select(mainTokenSelector)),
     ),
   );

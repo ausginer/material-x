@@ -6,6 +6,7 @@
   ],
   "type": "module",
   "scripts": {
+    "debug": "node .scripts/css/debug.ts",
     "build": "nx run-many -t build --projects=ydin,material-x --skipNxCache",
     "clean:build": "nx run-many -t clean:build --projects=ydin,material-x --skipNxCache",
     "check": "concurrently npm:fmt:check npm:lint npm:typecheck",

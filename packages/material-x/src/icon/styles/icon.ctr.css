@@ -8,8 +8,6 @@
   font-family: var(--md-icon-font, 'Material Symbols Outlined');
   display: inline-block;
   font-style: normal;
-  place-items: center;
-  place-content: center;
   line-height: 1;
   overflow: hidden;
   letter-spacing: normal;
@@ -18,7 +16,6 @@
   white-space: nowrap;
   word-wrap: normal;
   writing-mode: horizontal-tb;
-  flex-shrink: 0;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizelegibility;
   -moz-osx-font-smoothing: grayscale;

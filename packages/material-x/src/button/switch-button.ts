@@ -1,11 +1,10 @@
 import type { EmptyObject } from 'type-fest';
 import { define } from 'ydin/element.js';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
-import {
-  useButtonCore,
-  type ButtonColor,
-  type ButtonCoreProps,
-  type ButtonSharedCSSProperties,
+import type {
+  ButtonColor,
+  ButtonCoreProps,
+  ButtonSharedCSSProperties,
 } from './ButtonCore.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts' with { type: 'css' };
 import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };

@@ -4,9 +4,9 @@ import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import { defaultFilledTokens, defaultTokens } from '../default/tokens.ts';
 import {
   buttonAllowedTokensSelector,
-  buttonMainTokenSelector,
+  mainTokenSelector,
   createButtonExtensions,
-  createButtonScopedDeclarationRenderer,
+  createScopedDeclarationRenderer,
   fixFullShape,
   groupButtonTokens,
 } from '../utils.ts';
@@ -18,7 +18,7 @@ const specialTokens = {
   'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
 };
 
-const renderer = createButtonScopedDeclarationRenderer({
+const renderer = createScopedDeclarationRenderer({
   name: 'color',
   value: 'text',
   useState: true,
@@ -29,7 +29,7 @@ export const textTokens: ReadonlySignal<TokenPackage> = computed(() =>
     .set(SET_NAME)
     .group(groupButtonTokens)
     .select(buttonAllowedTokensSelector)
-    .select(buttonMainTokenSelector)
+    .select(mainTokenSelector)
     .append('default', specialTokens)
     .extend(
       createButtonExtensions(defaultTokens.value, defaultFilledTokens.value),

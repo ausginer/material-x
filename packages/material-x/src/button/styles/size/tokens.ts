@@ -11,10 +11,10 @@ import {
 } from '../default/tokens.ts';
 import {
   buttonAllowedTokensSelector,
-  buttonMainTokenSelector,
-  buttonSwitchTokenSelector,
+  mainTokenSelector,
+  switchTokenSelector,
   createButtonExtensions,
-  createButtonScopedDeclarationRenderer,
+  createScopedDeclarationRenderer,
   fixFullShape,
   groupButtonTokens,
   notDisabledTokenSelector,
@@ -39,7 +39,7 @@ const createPackage = (
       .select(buttonAllowedTokensSelector)
       .adjustTokens(fixFullShape)
       .renderDeclarations(
-        createButtonScopedDeclarationRenderer(
+        createScopedDeclarationRenderer(
           isDefaultSize(size)
             ? undefined
             : {
@@ -51,13 +51,13 @@ const createPackage = (
       ),
   ).build();
 
-const defaultRenderer = createButtonScopedDeclarationRenderer();
+const defaultRenderer = createScopedDeclarationRenderer();
 
 export const defaultSizeMainTokens: ReadonlySignal<TokenPackage> = computed(
   () =>
     createPackage('small', (processor) =>
       processor
-        .select(buttonMainTokenSelector)
+        .select(mainTokenSelector)
         .extend(
           createButtonExtensions(
             defaultTokens.value,
@@ -73,7 +73,7 @@ export const defaultSizeSwitchTokens: ReadonlySignal<TokenPackage> = computed(
     createPackage('small', (processor) =>
       processor
         .select(
-          buttonSwitchTokenSelector,
+          switchTokenSelector,
           notDisabledTokenSelector,
           omitSelectedShape,
         )
@@ -90,7 +90,7 @@ export const defaultSizeSwitchTokens: ReadonlySignal<TokenPackage> = computed(
 );
 
 function createNonDefaultRenderer(size: Sizes) {
-  return createButtonScopedDeclarationRenderer({
+  return createScopedDeclarationRenderer({
     name: 'size',
     value: size,
     useState: true,
@@ -102,7 +102,7 @@ export const mainTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
     computed(() =>
       createPackage(size, (processor) =>
         processor
-          .select(buttonMainTokenSelector)
+          .select(mainTokenSelector)
           .extend(
             createButtonExtensions(
               defaultTokens.value,
@@ -120,7 +120,7 @@ export const switchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
       createPackage(size, (processor) =>
         processor
           .select(
-            buttonSwitchTokenSelector,
+            switchTokenSelector,
             notDisabledTokenSelector,
             omitSelectedShape,
           )

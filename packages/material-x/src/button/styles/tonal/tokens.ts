@@ -10,10 +10,10 @@ import {
 } from '../default/tokens.ts';
 import {
   buttonAllowedTokensSelector,
-  buttonMainTokenSelector,
-  buttonSwitchTokenSelector,
+  mainTokenSelector,
+  switchTokenSelector,
   createButtonExtensions,
-  createButtonScopedDeclarationRenderer,
+  createScopedDeclarationRenderer,
   fixFullShape,
   groupButtonTokens,
   notDisabledTokenSelector,
@@ -31,7 +31,7 @@ const specialSelectedTokens = {
   'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
 };
 
-const renderer = createButtonScopedDeclarationRenderer({
+const renderer = createScopedDeclarationRenderer({
   name: 'color',
   value: 'tonal',
   useState: true,
@@ -52,7 +52,7 @@ const createPackage = (
 export const tonalTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage((processor) =>
     processor
-      .select(buttonMainTokenSelector)
+      .select(mainTokenSelector)
       .append('default', specialTokens)
       .extend(
         createButtonExtensions(defaultTokens.value, defaultFilledTokens.value),
@@ -63,11 +63,7 @@ export const tonalTokens: ReadonlySignal<TokenPackage> = computed(() =>
 export const tonalSwitchTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage((processor) =>
     processor
-      .select(
-        buttonSwitchTokenSelector,
-        notDisabledTokenSelector,
-        omitSelectedShape,
-      )
+      .select(switchTokenSelector, notDisabledTokenSelector, omitSelectedShape)
       .append('selected.default', specialSelectedTokens)
       .extend(
         createButtonExtensions(

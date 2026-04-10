@@ -1,9 +1,6 @@
-import { renderButtonStylesInOrder } from '../utils.ts';
+import { renderStylesInOrder } from '../utils.ts';
 import { variantTokens, widthTokens } from './tokens.ts';
 
-const styles: string = renderButtonStylesInOrder([
-  ...variantTokens,
-  ...widthTokens,
-]);
+const styles: string = renderStylesInOrder([...variantTokens, ...widthTokens]);
 
 export default styles;

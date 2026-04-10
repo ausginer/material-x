@@ -1,5 +1,4 @@
 import { useShadowDOM } from 'ydin/controllers/useShadowDOM.js';
-import { useAttributes } from 'ydin/controllers/useAttributes.js';
 import type { ControlledElement } from 'ydin/element.js';
 import { getInternals } from 'ydin/element.js';
 
@@ -12,5 +11,6 @@ export function useCore(
   init?: Partial<ShadowRootInit>,
 ): void {
   Object.assign(getInternals(host), aria);
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   useShadowDOM(host, templates, styles as readonly CSSStyleSheet[], init);
 }

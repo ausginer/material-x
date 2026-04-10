@@ -118,6 +118,10 @@ export class DB {
         'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.082d7fd6e058b011.json',
         // Split Buttons
         'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.624e8f2da4007fc8.json',
+        // Checkbox
+        'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.31f16b44fe03b0c0.json',
+        // Radio
+        'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.6acb269a58d5f93f.json',
       ].map(async (url) => (await download(new URL(url))).system),
     ]);
 

@@ -1,27 +1,27 @@
-import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
-import { useRipple } from '../core/animations/ripple/ripple.ts';
-import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
-import { useARIA } from 'ydin/controllers/useARIA.js';
-import { useContext } from 'ydin/controllers/useContext.js';
 import { Str, type ConverterOf } from 'ydin/attribute.js';
+import { useARIA } from 'ydin/controllers/useARIA.js';
+import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
+import { useContext } from 'ydin/controllers/useContext.js';
 import {
-  getInternals,
   ControlledElement,
+  getInternals,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
+import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
 import {
   impl,
   trait,
-  type TraitedConstructor,
   type Interface,
   type Props,
   type Trait,
+  type TraitedConstructor,
 } from 'ydin/traits/traits.js';
+import { $ } from 'ydin/utils/DOM.js';
+import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
+import { useRipple } from '../core/animations/ripple/ripple.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import '../core/styles/elevation/elevation.runtime.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
-import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
-import { $ } from 'ydin/utils/DOM.js';
 import { useCore } from '../core/utils/useCore.ts';
 import disabledStyles from './styles/default/disabled.css.ts' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
@@ -33,8 +33,11 @@ export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';
 export type ButtonShape = 'round' | 'square';
 
 export const DEFAULT_BUTTON_ATTRIBUTES = {
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   color: Str as ConverterOf<ButtonColor>,
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   size: Str as ConverterOf<ButtonSize>,
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   shape: Str as ConverterOf<ButtonShape>,
 } as const;
 export type DEFAULT_BUTTON_ATTRIBUTES = typeof DEFAULT_BUTTON_ATTRIBUTES;
