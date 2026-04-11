@@ -111,7 +111,6 @@ export const allowedTokensSelector: GroupSelector = createAllowedTokensSelector(
     'container.shape',
     'container.size',
     'container.opacity',
-    'icon.size',
     'state-layer.color',
     'state-layer.opacity',
     'state-layer.shape',
@@ -120,6 +119,7 @@ export const allowedTokensSelector: GroupSelector = createAllowedTokensSelector(
 );
 
 const checked = attribute('checked');
+const indeterminate = attribute('indeterminate');
 
 export function createScopedDeclarationRenderer(): DeclarationBlockRenderer {
   return (path, declarations) => {
@@ -137,10 +137,16 @@ export function createScopedDeclarationRenderer(): DeclarationBlockRenderer {
     const stateParam = state === 'default' ? null : (STATE_MAP[state] ?? null);
     const selectionParam = selection === 'selected' ? checked : null;
 
+    const selectors = [selector(':host', selectionParam, stateParam)];
+
+    if (selection === 'selected') {
+      selectors.push(selector(':host', indeterminate, stateParam));
+    }
+
     return {
       path,
       declarations,
-      selectors: [selector(':host', selectionParam, stateParam)],
+      selectors,
     };
   };
 }

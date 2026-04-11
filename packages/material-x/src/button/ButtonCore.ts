@@ -130,12 +130,10 @@ export function useButtonCore(
   useContext(host, BUTTON_GROUP_CTX, (data) => {
     if (data) {
       for (const attr of Object.keys(DEFAULT_BUTTON_ATTRIBUTES)) {
-        console.log('init', data.provider[attr]);
         updateByContext(internals, null, data.provider[attr]);
       }
 
       return data.emitter.on((_, oldValue, newValue) => {
-        console.log('emit', { oldValue, newValue });
         updateByContext(internals, oldValue, newValue);
       });
     }

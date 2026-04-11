@@ -31,3 +31,7 @@ export function createSourcePath(previousURL: URL, ext: string): URL {
     new URL('./', previousURL),
   );
 }
+
+export function escapeTemplateLiteral(str: string): string {
+  return str.trim().replaceAll('`', '\\`').replaceAll('${', '\\${');
+}

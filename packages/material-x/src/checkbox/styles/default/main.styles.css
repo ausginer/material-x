@@ -1,3 +1,15 @@
+/*
+ * Public CSS custom properties
+ *
+ * `--md-checkbox-check-duration`
+ *   Used in both transition (::after background/border) and animation
+ *   (check-reveal, indeterminate-reveal); three separate rules share it,
+ *   so a single override point is essential.
+ *
+ * `--md-checkbox-check-easing`
+ *   Same reasoning as check-duration.
+ */
+
 :host {
   --_shape-full: calc(var(--_state-layer-size) / 2);
 
@@ -17,8 +29,10 @@
     border-radius: var(--_container-shape);
     border: var(--_outline-width) solid var(--_outline-color);
     transition:
-      background var(--_check-duration) var(--_check-easing),
-      border-color var(--_check-duration) var(--_check-easing);
+      background var(--md-checkbox-check-duration, var(--_check-duration))
+        var(--md-checkbox-check-easing, var(--_check-easing)),
+      border-color var(--md-checkbox-check-duration, var(--_check-duration))
+        var(--md-checkbox-check-easing, var(--_check-easing));
   }
 }
 
@@ -38,8 +52,6 @@
 .icon {
   pointer-events: none;
   clip-path: inset(0 100% 0 0);
-  inline-size: var(--_icon-size);
-  aspect-ratio: 1;
   color: var(--_icon-color);
   font-size: var(--_icon-size);
 }
@@ -59,14 +71,17 @@
 :host([checked]),
 :host(:state(checked)) {
   .icon {
-    animation: check-reveal var(--_check-duration) forwards;
+    animation: check-reveal
+      var(--md-checkbox-check-duration, var(--_check-duration)) forwards;
   }
 }
 
 :host([indeterminate]),
 :host(:state(indeterminate)) {
   .icon {
-    animation: indeterminate-reveal var(--_check-duration) ease-out forwards;
+    animation: indeterminate-reveal
+      var(--md-checkbox-check-duration, var(--_check-duration)) ease-out
+      forwards;
   }
 }
 

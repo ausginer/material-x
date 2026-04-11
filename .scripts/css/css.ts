@@ -2,7 +2,7 @@ import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import MagicString from 'magic-string';
 import type { SourceMap } from 'rollup';
-import { cssCache, type JSONModule } from '../utils.ts';
+import { cssCache, escapeTemplateLiteral, type JSONModule } from '../utils.ts';
 import { injectStateEnforcer } from './css-docs.ts';
 import format from './format.ts';
 import transform from './transform.ts';
@@ -63,7 +63,8 @@ export async function compileCSS(
     };
   }
 
-  const m = new MagicString(processedCode);
+  const escaped = escapeTemplateLiteral(processedCode);
+  const m = new MagicString(escaped);
   m.prepend('const css = new CSSStyleSheet();css.replaceSync(`');
   m.append('`);export default css;');
 

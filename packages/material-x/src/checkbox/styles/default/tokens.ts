@@ -21,6 +21,11 @@ const fixFullShape = createFullShapeFix(
 );
 
 const specialTokens = {
+  // Token spec sets icon size to 18px (matching container.size), but Figma
+  // uses 24px for the `check_small` and `check_indeterminate_small` Material
+  // Symbols, which visually overflow the container to match M3 proportions. The
+  // token value is overridden here to match the Figma intent.
+  'icon.size': '24px',
   'outline.width': `${SET_NAME}.unselected.outline.width`,
   'outline.color': `${SET_NAME}.unselected.outline.color`,
   'state-layer.color': `${SET_NAME}.unselected.pressed.state-layer.color`,

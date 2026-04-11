@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { register, type LoadHook } from 'node:module';
+import { escapeTemplateLiteral } from '../utils.ts';
 
 const EXT = '.styles.css';
 
@@ -12,7 +13,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
     return {
       format: 'module',
       shortCircuit: true,
-      source: `export default \`${result.trim()}\``,
+      source: `export default \`${escapeTemplateLiteral(result)}\``,
     };
   }
 

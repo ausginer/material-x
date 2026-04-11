@@ -36,6 +36,9 @@ export type RadioCSSProperties = EmptyObject;
  * @attr {string} value - The value submitted with a form when checked.
  *   Defaults to `"on"`.
  *
+ * @cssprop --md-radio-check-duration - Overrides selection animation duration.
+ * @cssprop --md-radio-check-easing - Overrides selection animation easing.
+ *
  * @csspart impl - Internal host element (the visible radio control).
  *
  * @event change - Fired when this radio button becomes selected (user interaction only).

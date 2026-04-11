@@ -1,0 +1,106 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
+import * as RadioStories from './radio.stories';
+
+export const TAG = 'mx-radio';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet = "import '@ausginer/material-x/radio/radio.js';";
+export const usageSnippet = '<mx-radio name="group" value="a"></mx-radio>';
+
+<Meta of={RadioStories} />
+
+# Radio
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use when users must select exactly one option from a set of two or more mutually exclusive choices.
+- Use when all options need to be visible at the same time for comparison.
+
+## When not to use
+
+- Multiple independent selections. Use `mx-checkbox` instead.
+- A single on/off choice. Use `mx-checkbox` or `mx-switch-button` instead.
+- More than ~6 options. Consider a select/dropdown to save space.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Grouping
+
+Radio buttons are grouped by the `name` attribute. The browser enforces mutual exclusion and provides arrow-key navigation within the group automatically — no JavaScript wrapper is needed for that behavior.
+
+<Canvas of={RadioStories.Group} />
+
+## With label
+
+Associate a label using a wrapping `<label>` element or via `for`/`id`.
+
+<Canvas of={RadioStories.WithLabel} />
+
+## States
+
+<Canvas of={RadioStories.States} sourceState="none" />
+
+## Accessibility
+
+- **Keyboard:** `Tab` moves focus to the selected radio in the group (or the first if none selected); arrow keys navigate within the group and select the focused option.
+- **Focus indicator:** Drawn around the radio icon (not the full touch target).
+- **Name:** Provide an accessible name via a wrapping `<label>` or `aria-label`.
+- **Grouping:** Use the same `name` attribute on all radios in a group. The browser provides `role="radiogroup"` semantics automatically.
+- **Disabled:** `disabled` blocks interaction and form participation.
+
+## Content guidelines
+
+- List options in a logical order (alphabetical, chronological, or by likelihood).
+- Keep labels short and mutually exclusive in meaning.
+- Use sentence case for labels.
+
+## Anatomy
+
+- `impl` CSS part: internal native `<input type="radio">` element.
+
+## Theming
+
+- `--md-radio-check-duration` — overrides the selection animation duration.
+- `--md-radio-check-easing` — overrides the selection animation easing.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview: [https://m3.material.io/components/radio-button/overview](https://m3.material.io/components/radio-button/overview)
+- Material 3 guidelines: [https://m3.material.io/components/radio-button/guidelines](https://m3.material.io/components/radio-button/guidelines)
+- Deltas:
+  - This is a controlled component — the host application manages `checked` state in response to `change`/`input` events.
+  - Native browser grouping via `name` is used instead of a custom group wrapper element.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

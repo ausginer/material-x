@@ -86,5 +86,13 @@ export function useCheckableCore(
     input,
   );
 
+  useEvents(host, {
+    click(e) {
+      if (e.target === host) {
+        input.click();
+      }
+    },
+  });
+
   return input;
 }

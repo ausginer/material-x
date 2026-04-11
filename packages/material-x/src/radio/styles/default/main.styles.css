@@ -1,3 +1,14 @@
+/*
+ * Public CSS custom properties
+ *
+ * `--md-radio-check-duration`
+ *   Shared across two transitions (.off color, .on clip-path); a single
+ *   override point keeps them in sync.
+ *
+ * `--md-radio-check-easing`
+ *   Same reasoning as check-duration.
+ */
+
 :host {
   display: inline-grid;
   grid-template: 1fr / 1fr;
@@ -28,13 +39,15 @@
 
 .off {
   border-radius: calc(var(--_icon-size) / 2);
-  transition: color var(--_check-duration) var(--_check-easing);
+  transition: color var(--md-radio-check-duration, var(--_check-duration))
+    var(--md-radio-check-easing, var(--_check-easing));
   color: var(--_icon-color);
 }
 
 .on {
   clip-path: circle(0% at 50% 50%);
-  transition: clip-path var(--_check-duration) var(--_check-easing);
+  transition: clip-path var(--md-radio-check-duration, var(--_check-duration))
+    var(--md-radio-check-easing, var(--_check-easing));
   color: var(--_icon-color);
 }
 

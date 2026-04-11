@@ -20,14 +20,7 @@ import type Icon from '../icon/icon.ts';
 import checkboxTemplate from './checkbox.tpl.html' with { type: 'html' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 
-export type CheckboxProperties = CheckableCoreProps;
-export type CheckboxEvents = {
-  change: Event;
-  input: Event;
-};
-export type CheckboxCSSProperties = EmptyObject;
-
-const CHECKED_ICON = 'check';
+const CHECKED_ICON = 'check_small';
 const INDETERMINATE_ICON = 'check_indeterminate_small';
 
 const $indeterminable: unique symbol = Symbol('Indeterminable');
@@ -44,6 +37,14 @@ export const CheckboxCore: TraitedConstructor<
   typeof CheckableCore,
   [typeof Indeterminable]
 > = impl(CheckableCore, [Indeterminable]);
+
+export type CheckboxProperties = CheckableCoreProps & IndeterminatableProps;
+export type CheckboxEvents = Readonly<{
+  change: Event;
+  input: Event;
+}>;
+
+export type CheckboxCSSProperties = EmptyObject;
 
 /**
  * @tag mx-checkbox
@@ -73,6 +74,11 @@ export const CheckboxCore: TraitedConstructor<
  * @attr {string} name - Name submitted with form data.
  * @attr {string} value - The value submitted with a form when checked.
  *   Defaults to `"on"`.
+ *
+ * @cssprop --md-checkbox-check-duration - Overrides check/indeterminate animation
+ *   duration.
+ * @cssprop --md-checkbox-check-easing - Overrides check/indeterminate animation
+ *   easing.
  *
  * @csspart impl - Internal host element (the visible checkbox box).
  *

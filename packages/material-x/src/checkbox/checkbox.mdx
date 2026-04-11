@@ -1,0 +1,108 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
+import * as CheckboxStories from './checkbox.stories';
+
+export const TAG = 'mx-checkbox';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet = "import '@ausginer/material-x/checkbox/checkbox.js';";
+export const usageSnippet = '<mx-checkbox></mx-checkbox>';
+
+<Meta of={CheckboxStories} />
+
+# Checkbox
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## When to use
+
+- Use when users need to select one or more independent options from a set.
+- Use for binary on/off choices that take effect immediately or on form submit.
+- Use `indeterminate` to indicate a partially selected parent state (e.g. "select all" with mixed child states).
+
+## When not to use
+
+- Mutually exclusive choices from a set. Use `mx-radio` instead.
+- A single on/off toggle with immediate effect. Use `mx-switch-button` instead.
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Variants
+
+### Checked states
+
+Unselected, checked, and indeterminate.
+
+<Canvas of={CheckboxStories.Checked} />
+
+### With label
+
+Associate a label using a wrapping `<label>` element or via `for`/`id`.
+
+<Canvas of={CheckboxStories.WithLabel} />
+
+## States
+
+<Canvas of={CheckboxStories.States} sourceState="none" />
+
+## Accessibility
+
+- **Keyboard:** Focusable with `Tab`; toggles with `Space`.
+- **Focus indicator:** Drawn around the state-layer area (40 × 40 px touch target).
+- **Name:** Provide an accessible name via a wrapping `<label>` or `aria-label`.
+- **`indeterminate`:** Purely visual — it does not affect the submitted form value. Screen readers announce the element as "mixed". Clear `indeterminate` before toggling `checked` to reflect a definite state.
+- **Disabled:** `disabled` blocks interaction and form participation.
+
+## Content guidelines
+
+- Keep labels short and descriptive.
+- Use sentence case for labels.
+- Avoid negatively worded labels that require double-negation to understand.
+
+## Anatomy
+
+- `impl` CSS part: internal native `<input type="checkbox">` element.
+
+## Theming
+
+- `--md-checkbox-check-duration` — overrides the check/indeterminate animation duration.
+- `--md-checkbox-check-easing` — overrides the check/indeterminate animation easing.
+- Works with the global Storybook light/dark theme toggle. <ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag={TAG} />
+
+## Material 3 reference and deltas
+
+- Material 3 overview: [https://m3.material.io/components/checkbox/overview](https://m3.material.io/components/checkbox/overview)
+- Material 3 guidelines: [https://m3.material.io/components/checkbox/guidelines](https://m3.material.io/components/checkbox/guidelines)
+- Deltas:
+  - This is a controlled component — the host application manages `checked` and `indeterminate` state.
+  - External `<label>` association is preferred over built-in slot label.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

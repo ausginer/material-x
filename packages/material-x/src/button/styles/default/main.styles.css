@@ -1,3 +1,36 @@
+/*
+ * Public CSS custom properties
+ *
+ * `--md-button-container-height`
+ *   Feeds into --_padding-block calc(); changing height without it would
+ *   break vertical centering.
+ *
+ * `--md-button-leading-space`
+ *   padding-inline start; not reachable via ::part.
+ *
+ * `--md-button-trailing-space`
+ *   padding-inline end; not reachable via ::part.
+ *
+ * `--md-button-icon-size`
+ *   Used in max() inside --_padding-block so the button grows when the icon
+ *   is larger than the label line-height; setting font-size on <mx-icon>
+ *   directly would not affect this calculation.
+ *
+ * `--md-button-icon-label-space`
+ *   gap on .host; not reachable from outside.
+ *
+ * `--md-button-label-text-line-height`
+ *   Also feeds into the --_padding-block max(); affects button height, not
+ *   just typography.
+ *
+ * `--md-button-press-duration`
+ *   Applied to 4 transition properties across .host and .icon::slotted;
+ *   ::part only covers .host.
+ *
+ * `--md-button-press-easing`
+ *   Same reasoning as press-duration.
+ */
+
 :host {
   --_shape-full: calc(
     var(--md-button-container-height, var(--_container-height)) / 2
