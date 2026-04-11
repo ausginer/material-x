@@ -20,6 +20,7 @@ export type {
  * inputmode - Virtual keyboard hint.
  * @attr {boolean} outlined - Enables outlined style.
  * @attr {boolean} disabled - Disables interaction and form participation.
+ * @attr {string} name - Name submitted with form data.
  *
  * @slot label - Label content.
  * @slot support - Supporting text content.

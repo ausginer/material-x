@@ -48,6 +48,12 @@ import type {
   ConnectedButtonGroupProperties,
 } from './button-group/connected-button-group.ts';
 import type ConnectedButtonGroup from './button-group/connected-button-group.ts';
+import type Checkbox from './checkbox/checkbox.ts';
+import type {
+  CheckboxCSSProperties,
+  CheckboxEvents,
+  CheckboxProperties,
+} from './checkbox/checkbox.ts';
 import type FAB from './fab/fab.ts';
 import type { FABCSSProperties, FABEvents, FABProperties } from './fab/fab.ts';
 import type Icon from './icon/icon.ts';
@@ -56,11 +62,19 @@ import type {
   IconEvents,
   IconProperties,
 } from './icon/icon.ts';
+import type Radio from './radio/radio.ts';
+import type {
+  RadioCSSProperties,
+  RadioEvents,
+  RadioProperties,
+} from './radio/radio.ts';
 import type MultilineTextField from './text-field/multiline-text-field.ts';
 import type TextField from './text-field/text-field.ts';
-import type { TextFieldCSSProperties } from './text-field/TextFieldCore.ts';
-import type { TextFieldEvents } from './text-field/TextFieldCore.ts';
-import type { TextFieldProperties } from './text-field/TextFieldCore.ts';
+import type {
+  TextFieldCSSProperties,
+  TextFieldEvents,
+  TextFieldProperties,
+} from './text-field/TextFieldCore.ts';
 
 type JSXWrapper<
   C extends HTMLElement,
@@ -118,6 +132,10 @@ type FABJSX = JSXWrapper<FAB, FABProperties, FABEvents>;
 
 type IconJSX = JSXWrapper<Icon, IconProperties, IconEvents>;
 
+type CheckboxJSX = JSXWrapper<Checkbox, CheckboxProperties, CheckboxEvents>;
+
+type RadioJSX = JSXWrapper<Radio, RadioProperties, RadioEvents>;
+
 type TextFieldJSX = JSXWrapper<TextField, TextFieldProperties, TextFieldEvents>;
 type MultilineTextFieldJSX = JSXWrapper<
   MultilineTextField,
@@ -136,7 +154,9 @@ declare module 'react' {
       'mx-switch-icon-button': SwitchIconButtonJSX;
       'mx-button-group': ButtonGroupJSX;
       'mx-connected-button-group': ConnectedButtonGroupJSX;
+      'mx-checkbox': CheckboxJSX;
       'mx-fab': FABJSX;
+      'mx-radio': RadioJSX;
       'mx-icon': IconJSX;
       'mx-text-field': TextFieldJSX;
       'mx-multiline-text-field': MultilineTextFieldJSX;
@@ -152,7 +172,9 @@ declare module 'react' {
       SwitchIconButtonCSSProperties,
       ButtonGroupCSSProperties,
       ConnectedButtonGroupCSSProperties,
+      CheckboxCSSProperties,
       FABCSSProperties,
       IconCSSProperties,
+      RadioCSSProperties,
       TextFieldCSSProperties {}
 }

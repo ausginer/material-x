@@ -141,8 +141,6 @@ export const buttonAllowedTokensSelector: GroupSelector =
     'press.duration',
     'press.easing',
     'ripple.color',
-    'ripple.duration',
-    'ripple.easing',
     'ripple.opacity',
     'shadow.color',
     'state-layer.color',

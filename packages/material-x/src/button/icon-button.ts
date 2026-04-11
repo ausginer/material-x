@@ -36,7 +36,13 @@ const $iconButtonLike: unique symbol = Symbol('IconButtonLike');
 export const IconButtonLike: Trait<
   IconButtonLikeDescriptor,
   typeof $iconButtonLike
-> = trait({ width: Str as ConverterOf<IconButtonWidth> }, $iconButtonLike);
+> = trait(
+  {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    width: Str as ConverterOf<IconButtonWidth>,
+  },
+  $iconButtonLike,
+);
 
 export type IconButtonLike = Omit<ButtonLike, 'color'> & {
   color: IconButtonColor | null;

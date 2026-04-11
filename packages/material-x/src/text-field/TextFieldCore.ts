@@ -11,7 +11,12 @@ import {
   getInternals,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
-import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
+import {
+  Disableable,
+  useDisableable,
+  type DisableableProps,
+} from 'ydin/traits/disableable.js';
+import { Nameable, useNameable } from 'ydin/traits/nameable.js';
 import {
   impl,
   trait,
@@ -93,8 +98,8 @@ export type TextFieldCSSProperties = Readonly<{
 export const TextFieldCoreBase: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
-  [typeof TextFieldLike, typeof Disableable, typeof Valuable]
-> = impl(ControlledElement, [TextFieldLike, Disableable, Valuable]);
+  [typeof TextFieldLike, typeof Disableable, typeof Valuable, typeof Nameable]
+> = impl(ControlledElement, [TextFieldLike, Disableable, Valuable, Nameable]);
 export type TextFieldCoreBase = InstanceType<typeof TextFieldCoreBase>;
 
 const ARIA_PARAMS = {
@@ -166,8 +171,10 @@ export class TextFieldCore extends TextFieldCoreBase {
 
     const internals = getInternals(this);
 
+    useNameable(this, input);
+    useDisableable(this, input);
+
     useAttributes(this, {
-      disabled: transfer(input, 'disabled'),
       inputmode: transfer(input, 'inputmode'),
     });
 

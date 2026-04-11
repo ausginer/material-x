@@ -79,8 +79,6 @@ export const fabAllowedTokensSelector: GroupSelector =
     'elevation.default',
     'elevation.hovered',
     'ripple.color',
-    'ripple.easing',
-    'ripple.duration',
     'ripple.opacity',
     'unfold.duration',
     'unfold.easing',

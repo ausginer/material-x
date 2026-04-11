@@ -28,8 +28,6 @@ const specialTokens = {
   'press.easing': motionEffects['expressive.fast-spatial'],
   'press.duration': motionEffects['expressive.fast-spatial.duration'],
   'ripple.color': CSSVariable.ref('state-layer.color'),
-  'ripple.easing': motionEffects['expressive.default-spatial'],
-  'ripple.duration': motionEffects['expressive.default-spatial.duration'],
   'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
   'shadow.color': CSSVariable.ref('container.shadow-color'),
 };

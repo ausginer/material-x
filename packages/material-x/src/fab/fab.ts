@@ -1,24 +1,28 @@
 import { Bool, Str, type ConverterOf } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
-import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
+import { useAttributes } from 'ydin/controllers/useAttributes.js';
 import {
-  define,
   ControlledElement,
+  define,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
-import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
+import {
+  Disableable,
+  useDisableable,
+  type DisableableProps,
+} from 'ydin/traits/disableable.js';
 import {
   impl,
   trait,
-  type TraitedConstructor,
   type Interface,
   type Props,
   type Trait,
+  type TraitedConstructor,
 } from 'ydin/traits/traits.js';
 import { $, notify } from 'ydin/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
-import '../core/styles/elevation/elevation.runtime.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
+import '../core/styles/elevation/elevation.runtime.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import { useCore } from '../core/utils/useCore.ts';
 import template from './fab.tpl.html' with { type: 'html' };
@@ -44,8 +48,11 @@ export const FABLike: Trait<
   typeof $fabLike
 > = trait(
   {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     size: Str as ConverterOf<FABSize>,
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     color: Str as ConverterOf<FABColor>,
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     extended: Str as ConverterOf<FABExtended>,
     tonal: Bool,
   },
@@ -122,17 +129,11 @@ export default class FAB extends FABCore {
     const target = $<HTMLButtonElement>(this, '.host')!;
     useARIA(this, target);
 
-    useRipple(
-      this,
-      {
-        easing: '--_ripple-easing',
-        duration: '--_ripple-duration',
-      },
-      target,
-    );
+    useRipple(this, target, target);
+
+    useDisableable(this, target);
 
     useAttributes(this, {
-      disabled: transfer(target, 'disabled'),
       extended: () => notify(this, 'fabtoggle'),
     });
   }

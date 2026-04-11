@@ -70,6 +70,7 @@ export const CheckboxCore: TraitedConstructor<
  *   state. Visually overrides `checked` — clear this attribute first to show
  *   the checked/unchecked icon.
  * @attr {boolean} disabled - Disables interaction and form participation.
+ * @attr {string} name - Name submitted with form data.
  * @attr {string} value - The value submitted with a form when checked.
  *   Defaults to `"on"`.
  *

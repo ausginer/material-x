@@ -441,7 +441,7 @@
         "typescript/no-confusing-non-null-assertion": "error",
         "typescript/no-duplicate-enum-values": "error",
         "typescript/no-dynamic-delete": "error",
-        "typescript/no-empty-object-type": "error",
+        "typescript/no-empty-object-type": "off",
         "typescript/no-explicit-any": "off",
         "typescript/no-extra-non-null-assertion": "error",
         "typescript/no-extraneous-class": "error",

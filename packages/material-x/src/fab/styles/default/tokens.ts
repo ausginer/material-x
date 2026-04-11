@@ -13,8 +13,6 @@ const SET_NAME_GENERAL = 'md.comp.fab';
 
 const specialTokens = {
   'ripple.color': CSSVariable.ref('state-layer.color'),
-  'ripple.easing': motionEffects['expressive.default-spatial'],
-  'ripple.duration': motionEffects['expressive.default-spatial.duration'],
   'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
   'unfold.duration': motionEffects['expressive.fast-spatial.duration'],
   'unfold.easing': motionEffects['expressive.fast-spatial'],

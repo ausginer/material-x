@@ -20,7 +20,7 @@ import {
   notDisabledTokenSelector,
 } from '../../core/styles/utils.ts';
 
-export const CHECKBOX_STATES = [
+export const STATES = [
   'default',
   'hover',
   'focus',
@@ -44,16 +44,12 @@ export function groupTokens(tokenName: string): GroupResult | null {
   const nameParts: string[] = [];
 
   for (const part of parts) {
-    if (part === 'error') {
-      return null;
-    }
-
-    if (SELECTION_STATES.includes(part)) {
+    if ((SELECTION_STATES as readonly string[]).includes(part)) {
       selection = part;
       continue;
     }
 
-    if (CHECKBOX_STATES.includes(part)) {
+    if ((STATES as readonly string[]).includes(part)) {
       state = part;
       continue;
     }
@@ -107,14 +103,11 @@ export function createExtensions(): ExtensionCallback {
 
 export const allowedTokensSelector: GroupSelector = createAllowedTokensSelector(
   [
-    'container.color',
-    'container.shape',
-    'container.size',
-    'container.opacity',
+    'icon.color',
     'icon.size',
+    'icon.opacity',
     'state-layer.color',
     'state-layer.opacity',
-    'state-layer.shape',
     'state-layer.size',
   ],
 );
@@ -149,9 +142,9 @@ export function renderStylesInOrder(
   tokens: ReadonlyArray<ReadonlySignal<TokenPackage>>,
 ): string {
   return [
-    ...CHECKBOX_STATES.filter((state) => state !== 'disabled'),
+    ...STATES.filter((state) => state !== 'disabled'),
     ...SELECTION_STATES.flatMap((selection) =>
-      CHECKBOX_STATES.filter((state) => state !== 'disabled').map(
+      STATES.filter((state) => state !== 'disabled').map(
         (state) => `${selection}.${state}`,
       ),
     ),

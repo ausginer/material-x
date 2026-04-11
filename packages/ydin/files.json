@@ -16,6 +16,8 @@
     "emitter",
     "traits/checkable",
     "traits/disableable",
+    "traits/nameable",
+    "traits/typeable",
     "traits/piirre",
     "traits/traits",
     "traits/valuable",

@@ -67,6 +67,14 @@
       "types": "./traits/disableable.d.ts",
       "default": "./traits/disableable.js"
     },
+    "./traits/nameable.js": {
+      "types": "./traits/nameable.d.ts",
+      "default": "./traits/nameable.js"
+    },
+    "./traits/typeable.js": {
+      "types": "./traits/typeable.d.ts",
+      "default": "./traits/typeable.js"
+    },
     "./traits/piirre.js": {
       "types": "./traits/piirre.d.ts",
       "default": "./traits/piirre.js"

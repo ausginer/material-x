@@ -1,8 +1,16 @@
 import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
-import { Checkable, type CheckableProps } from 'ydin/traits/checkable.js';
+import {
+  Checkable,
+  useCheckable,
+  type CheckableProps,
+} from 'ydin/traits/checkable.js';
 import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
-import { Valuable, type ValuableProps } from 'ydin/traits/valuable.js';
+import {
+  Valuable,
+  useValuable,
+  type ValuableProps,
+} from 'ydin/traits/valuable.js';
 import { $, notify } from 'ydin/utils/DOM.js';
 import { ButtonCore, useButtonCore } from './ButtonCore.ts';
 
@@ -27,6 +35,9 @@ export function useSwitchCore(
 
   target.role = 'switch';
   target.ariaChecked = 'false';
+
+  useCheckable(host, target);
+  useValuable(host, target);
 
   useAttributes(host, {
     checked: transfer(target, 'aria-checked', (value) =>

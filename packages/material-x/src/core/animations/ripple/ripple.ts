@@ -5,7 +5,6 @@
  * Original source is part of Material Web (Apache-2.0), with slight
  * adaptations for this project's style and needs.
  */
-
 import { useEvents } from 'ydin/controllers/useEvents.js';
 import type { ElementController } from 'ydin/element.js';
 import { type ControlledElement, use } from 'ydin/element.js';
@@ -14,8 +13,8 @@ import {
   readCSSVariables,
   transformNumericVariable,
 } from 'ydin/utils/readCSSVariables.js';
-import css from './ripple.ctr.css' with { type: 'css' };
 import template from './ripple.tpl.html' with { type: 'html' };
+import css from './styles/main.css.ts' with { type: 'css' };
 
 type Point = Readonly<{
   x: number;
@@ -46,6 +45,11 @@ const SOFT_EDGE_CONTAINER_RATIO = 0.35;
  */
 const TOUCH_DELAY_MS = 150;
 const FORCED_COLORS = matchMedia('(forced-colors: active)');
+
+const CSS_VARS: CSSVariables = {
+  easing: '--_ripple-easing',
+  duration: '--_ripple-duration',
+};
 
 function isTouch(event: PointerEvent): boolean {
   return event.pointerType === 'touch';
@@ -140,7 +144,6 @@ class RippleAnimationController implements ElementController {
   readonly #host: ControlledElement;
   readonly #rippleHost: HTMLElement;
   readonly #rippleElement: HTMLElement;
-  readonly #cssVariables: CSSVariables;
   #state: State = INACTIVE;
   #animation: Animation | undefined;
   #varValues: CSSVariables | undefined;
@@ -150,14 +153,15 @@ class RippleAnimationController implements ElementController {
   constructor(
     host: ControlledElement,
     container: DocumentFragment | HTMLElement,
-    vars: CSSVariables,
+    rippleHost: HTMLElement,
   ) {
     this.#host = host;
-    host.shadowRoot!.adoptedStyleSheets.push(css);
+    // @ts-expect-error: Import not correctly typed
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    host.shadowRoot!.adoptedStyleSheets.push(css as CSSStyleSheet);
     container.append(template.content.cloneNode(true));
-    this.#rippleHost = $(host, '.host')!;
+    this.#rippleHost = rippleHost;
     this.#rippleElement = $(host, `.ripple`)!;
-    this.#cssVariables = vars;
 
     const self = this;
 
@@ -268,7 +272,7 @@ class RippleAnimationController implements ElementController {
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     self.#varValues = readCSSVariables(
       self.#host,
-      self.#cssVariables,
+      CSS_VARS,
       (name, value, host) =>
         name === 'duration'
           ? // converting duration to ms
@@ -363,8 +367,8 @@ class RippleAnimationController implements ElementController {
 
 export function useRipple(
   host: ControlledElement,
-  vars: CSSVariables,
   container: DocumentFragment | HTMLElement = host.shadowRoot!,
+  rippleHost: HTMLElement = host,
 ): void {
-  use(host, new RippleAnimationController(host, container, vars));
+  use(host, new RippleAnimationController(host, container, rippleHost));
 }

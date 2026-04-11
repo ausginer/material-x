@@ -8,8 +8,11 @@
     "button/split-button",
     "button-group/button-group",
     "button-group/connected-button-group",
+    "checkbox/checkbox",
     "fab/fab",
     "icon/icon",
+    "radio/radio",
+    "radio/radio-group",
     "text-field/multiline-text-field",
     "text-field/text-field"
   ],

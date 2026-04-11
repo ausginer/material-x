@@ -1,13 +1,16 @@
 import { Str, type ConverterOf } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
-import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
 import { useContext } from 'ydin/controllers/useContext.js';
 import {
   ControlledElement,
   getInternals,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
-import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
+import {
+  Disableable,
+  useDisableable,
+  type DisableableProps,
+} from 'ydin/traits/disableable.js';
 import {
   impl,
   trait,
@@ -95,7 +98,7 @@ export function useButtonCore(
   template: HTMLTemplateElement,
   styles: ReadonlyArray<CSSStyleSheet | string>,
   init?: Partial<ShadowRootInit>,
-): void {
+): HTMLElement {
   const shadowInit = { delegatesFocus: true, ...init };
 
   useCore(
@@ -116,20 +119,11 @@ export function useButtonCore(
 
   const target = $<HTMLElement>(host, '.host')!;
 
-  useAttributes(host, {
-    disabled: transfer(target, 'disabled'),
-  });
+  useDisableable(host, target);
 
   useARIA(host, target);
 
-  useRipple(
-    host,
-    {
-      easing: '--_ripple-easing',
-      duration: '--_ripple-duration',
-    },
-    target,
-  );
+  useRipple(host, target, target);
 
   const internals = getInternals(host);
 
@@ -148,4 +142,6 @@ export function useButtonCore(
 
     return undefined;
   });
+
+  return target;
 }

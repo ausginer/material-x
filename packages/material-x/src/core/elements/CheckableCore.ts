@@ -1,32 +1,47 @@
 import { Bool } from 'ydin/attribute.js';
-import {
-  transfer,
-  useAttributes,
-  via,
-} from 'ydin/controllers/useAttributes.js';
+import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
 import {
   ControlledElement,
   getInternals,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
-import { Checkable, type CheckableProps } from 'ydin/traits/checkable.js';
-import { Disableable, type DisableableProps } from 'ydin/traits/disableable.js';
+import {
+  Checkable,
+  useCheckable,
+  type CheckableProps,
+} from 'ydin/traits/checkable.js';
+import {
+  Disableable,
+  useDisableable,
+  type DisableableProps,
+} from 'ydin/traits/disableable.js';
+import {
+  Nameable,
+  useNameable,
+  type NameableProps,
+} from 'ydin/traits/nameable.js';
 import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
-import { Valuable, type ValuableProps } from 'ydin/traits/valuable.js';
+import {
+  useValuable,
+  Valuable,
+  type ValuableProps,
+} from 'ydin/traits/valuable.js';
 import { $, notify, toggleState } from 'ydin/utils/DOM.js';
 import { useRipple } from '../animations/ripple/ripple.ts';
 import { useCore } from '../utils/useCore.ts';
+import css from './styles/main.css.ts' with { type: 'css' };
 
 export type CheckableCoreProps = CheckableProps &
   ValuableProps &
-  DisableableProps;
+  DisableableProps &
+  NameableProps;
 
 export const CheckableCore: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
-  [typeof Checkable, typeof Valuable, typeof Disableable]
-> = impl(ControlledElement, [Checkable, Valuable, Disableable]);
+  [typeof Checkable, typeof Valuable, typeof Disableable, typeof Nameable]
+> = impl(ControlledElement, [Checkable, Valuable, Disableable, Nameable]);
 export type CheckableCore = InstanceType<typeof CheckableCore>;
 
 // oxlint-disable-next-line max-params
@@ -37,18 +52,21 @@ export function useCheckableCore(
   styles: ReadonlyArray<CSSStyleSheet | string>,
   init?: Partial<ShadowRootInit>,
 ): HTMLInputElement {
-  useCore(host, templates, aria, styles, init);
+  useCore(host, templates, aria, [...styles, css], init);
 
   const input = $<HTMLInputElement>(host, '#input')!;
   const internals = getInternals(host);
 
+  useCheckable(host, input);
+  useValuable(host, input);
+  useDisableable(host, input);
+  useNameable(host, input);
+
   useAttributes(host, {
     checked: via(Bool, (_, value) => {
-      input.checked = value;
       toggleState(internals, 'checked', value);
       internals.setFormValue(value ? (host.value ?? 'on') : null);
     }),
-    disabled: transfer(input, 'disabled'),
     value(_, newValue) {
       if (input.checked) {
         internals.setFormValue(newValue);
@@ -56,10 +74,7 @@ export function useCheckableCore(
     },
   });
 
-  useRipple(host, {
-    easing: '--_ripple-easing',
-    duration: '--_ripple-duration',
-  });
+  useRipple(host);
 
   useEvents(
     host,

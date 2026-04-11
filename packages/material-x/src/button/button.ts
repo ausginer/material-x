@@ -1,8 +1,13 @@
 import type { EmptyObject } from 'type-fest';
 import { define } from 'ydin/element.js';
+import type { NameableProps } from 'ydin/traits/nameable.js';
+import { Nameable, useNameable } from 'ydin/traits/nameable.js';
+import type { TraitedConstructor } from 'ydin/traits/traits.js';
+import { impl } from 'ydin/traits/traits.js';
+import { useTypeable, Typeable } from 'ydin/traits/typeable.js';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {
-  ButtonCore,
+  ButtonCore as ButtonCoreBase,
   useButtonCore,
   type ButtonCoreProps,
   type ButtonSharedCSSProperties,
@@ -12,7 +17,13 @@ import outlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
 import textStyles from './styles/text/main.css.ts' with { type: 'css' };
 import tonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
-export type ButtonProperties = ButtonCoreProps;
+const ButtonCore: TraitedConstructor<
+  ButtonCoreBase,
+  typeof ButtonCoreBase,
+  [typeof Nameable, typeof Typeable]
+> = impl(ButtonCoreBase, [Nameable, Typeable]);
+
+export type ButtonProperties = ButtonCoreProps & NameableProps;
 export type ButtonEvents = EmptyObject;
 export type ButtonCSSProperties = ButtonSharedCSSProperties;
 
@@ -28,6 +39,9 @@ export type ButtonCSSProperties = ButtonSharedCSSProperties;
  * the default (small) size.
  * @attr {"round"|"square"} shape - Button shape. Omit to use round corners.
  * @attr {boolean} disabled - Disables interaction and form participation.
+ * @attr {string} name - Name submitted with form data.
+ * @attr {"submit"|"button"|"reset"} type - Native button type. Defaults to
+ *   `"submit"` when inside a form.
  *
  * @slot - Button label/content.
  * @slot icon - Leading icon content.
@@ -52,12 +66,15 @@ export default class Button extends ButtonCore {
   constructor() {
     super();
 
-    useButtonCore(
+    const target = useButtonCore(
       this,
       buttonTemplate,
       [elevatedStyles, outlinedStyles, textStyles, tonalStyles],
       { delegatesFocus: true },
     );
+
+    useNameable(this, target);
+    useTypeable(this, target);
   }
 }
 

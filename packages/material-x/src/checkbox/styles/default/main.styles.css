@@ -1,26 +1,34 @@
 :host {
   --_shape-full: calc(var(--_state-layer-size) / 2);
 
-  display: grid;
+  display: inline-grid;
   grid-template: 1fr / 1fr;
   inline-size: var(--_state-layer-size);
   aspect-ratio: 1;
   border-radius: var(--_state-layer-shape);
   position: relative; /* For ripple */
+
+  &::after {
+    content: '';
+    pointer-events: none;
+    inline-size: calc(var(--_container-size) - var(--_outline-width));
+    aspect-ratio: 1;
+    background: var(--_container-color, transparent);
+    border-radius: var(--_container-shape);
+    border: var(--_outline-width) solid var(--_outline-color);
+    transition:
+      background var(--_check-duration) var(--_check-easing),
+      border-color var(--_check-duration) var(--_check-easing);
+  }
 }
 
 .input {
   all: unset;
-  inline-size: calc(var(--_container-size) - var(--_outline-width));
+  inline-size: var(--_state-layer-size);
   aspect-ratio: 1;
-  background: var(--_container-color, transparent);
-  border-radius: var(--_container-shape);
-  border: var(--_outline-width) solid var(--_outline-color);
-  transition:
-    background var(--_check-duration) var(--_check-easing),
-    border-color var(--_check-duration) var(--_check-easing);
 }
 
+:host::after,
 .input,
 .icon {
   grid-area: 1 / 1;
@@ -36,13 +44,13 @@
   font-size: var(--_icon-size);
 }
 
+.input:focus-visible {
+  outline: none;
+}
+
 :host:has(.input:focus-visible) {
   outline: var(--_indicator-thickness) solid var(--_indicator-color);
   outline-offset: var(--_indicator-outline-offset);
-}
-
-.input:focus-visible {
-  outline: none;
 }
 
 :host([checked]),

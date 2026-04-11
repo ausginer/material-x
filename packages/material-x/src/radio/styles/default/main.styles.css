@@ -1,0 +1,62 @@
+:host {
+  display: inline-grid;
+  grid-template: 1fr / 1fr;
+  inline-size: var(--_state-layer-size);
+  aspect-ratio: 1;
+  position: relative; /* For ripple */
+  border-radius: calc(var(--_state-layer-size) / 2);
+}
+
+.input {
+  all: unset;
+  inline-size: var(--_state-layer-size);
+  aspect-ratio: 1;
+}
+
+.input,
+.on,
+.off {
+  grid-area: 1 / 1;
+  place-self: center;
+}
+
+.on,
+.off {
+  pointer-events: none;
+  font-size: var(--_icon-size);
+}
+
+.off {
+  border-radius: calc(var(--_icon-size) / 2);
+  transition: color var(--_check-duration) var(--_check-easing);
+  color: var(--_icon-color);
+}
+
+.on {
+  clip-path: circle(0% at 50% 50%);
+  transition: clip-path var(--_check-duration) var(--_check-easing);
+  color: var(--_icon-color);
+}
+
+:host:has(.input:focus-visible) {
+  .off {
+    outline: var(--_indicator-thickness) solid var(--_indicator-color);
+    outline-offset: var(--_indicator-outline-offset);
+  }
+}
+
+:host([checked]),
+:host(:state(checked)) {
+  .off {
+    color: var(--_icon-color);
+  }
+
+  .on {
+    clip-path: circle(50% at 50% 50%);
+  }
+}
+
+:host(:disabled) {
+  cursor: default;
+  pointer-events: none;
+}
