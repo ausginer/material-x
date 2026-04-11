@@ -44,10 +44,6 @@
   font-size: var(--_icon-size);
 }
 
-.input:focus-visible {
-  outline: none;
-}
-
 :host:has(.input:focus-visible) {
   outline: var(--_indicator-thickness) solid var(--_indicator-color);
   outline-offset: var(--_indicator-outline-offset);

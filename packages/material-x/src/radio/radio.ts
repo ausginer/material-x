@@ -1,6 +1,5 @@
 import type { EmptyObject } from 'type-fest';
 import { define } from 'ydin/element.js';
-import { useNameable } from 'ydin/traits/nameable.js';
 import {
   CheckableCore,
   useCheckableCore,
@@ -47,11 +46,9 @@ export default class Radio extends CheckableCore {
 
   constructor() {
     super();
-    const input = useCheckableCore(this, [radioTemplate], {}, [defaultStyles], {
+    useCheckableCore(this, [radioTemplate], {}, [defaultStyles], {
       delegatesFocus: true,
     });
-
-    useNameable(this, input);
   }
 }
 
