@@ -7,8 +7,10 @@ export const COMPONENT_ENTRYPOINTS = [
   'button/split-button',
   'button-group/button-group',
   'button-group/connected-button-group',
+  'checkbox/checkbox',
   'fab/fab',
   'icon/icon',
+  'radio/radio',
   'text-field/multiline-text-field',
   'text-field/text-field',
 ] as const;

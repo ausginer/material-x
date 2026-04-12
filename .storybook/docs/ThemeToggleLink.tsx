@@ -1,76 +1,18 @@
-import type { JSX, ReactNode } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+/* eslint-disable import-x/no-relative-packages */
+// oxlint-disable-next-line typescript/triple-slash-reference
+/// <reference path="../../packages/material-x/src/react.ts" />
 
-type ThemeName = 'light' | 'dark';
+import { type JSX, type ReactNode, useEffect, useState } from 'react';
+import { addons } from 'storybook/preview-api';
+import { THEME_EVENT } from '../preview.ts';
+import '../../packages/material-x/src/button/button.ts';
 
-function getCurrentThemeName(): ThemeName {
-  if (typeof document === 'undefined') {
-    return 'light';
-  }
+type Theme = 'light' | 'dark';
 
+function getTheme(): Theme {
   return document.documentElement.dataset['theme'] === 'dark'
     ? 'dark'
     : 'light';
-}
-
-function getToggledThemeName(theme: ThemeName): ThemeName {
-  return theme === 'dark' ? 'light' : 'dark';
-}
-
-function getStorybookHref(): string {
-  if (typeof window === 'undefined') {
-    return '#';
-  }
-
-  try {
-    if (window.top?.location.href) {
-      return window.top.location.href;
-    }
-  } catch {
-    // Ignore cross-origin access errors and use iframe URL fallback.
-  }
-
-  return window.location.href;
-}
-
-function buildThemeToggleHref(nextTheme: ThemeName): string {
-  if (typeof window === 'undefined') {
-    return '#';
-  }
-
-  const url = new URL(getStorybookHref());
-  const globals = url.searchParams.get('globals');
-  const globalEntries = new Map<string, string>();
-
-  if (globals) {
-    for (const entry of globals.split(';')) {
-      const separatorIndex = entry.indexOf(':');
-
-      if (separatorIndex <= 0) {
-        continue;
-      }
-
-      const key = entry.slice(0, separatorIndex);
-      const value = entry.slice(separatorIndex + 1);
-
-      if (!key) {
-        continue;
-      }
-
-      globalEntries.set(key, value);
-    }
-  }
-
-  globalEntries.set('theme', nextTheme);
-
-  const nextGlobals = Array.from(
-    globalEntries.entries(),
-    ([key, value]) => `${key}:${value}`,
-  ).join(';');
-
-  url.searchParams.set('globals', nextGlobals);
-
-  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 export function ThemeToggleLink({
@@ -78,23 +20,14 @@ export function ThemeToggleLink({
 }: {
   children: ReactNode;
 }): JSX.Element {
-  const [theme, setTheme] = useState<ThemeName>(() => getCurrentThemeName());
-  const href = useMemo(
-    () => buildThemeToggleHref(getToggledThemeName(theme)),
-    [theme],
-  );
+  const [theme, setTheme] = useState<Theme>(getTheme);
 
   useEffect(() => {
-    if (typeof document === 'undefined') {
-      return undefined;
-    }
-
-    const root = document.documentElement;
     const observer = new MutationObserver(() => {
-      setTheme(getCurrentThemeName());
+      setTheme(getTheme());
     });
 
-    observer.observe(root, {
+    observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['data-theme'],
     });
@@ -105,8 +38,15 @@ export function ThemeToggleLink({
   }, []);
 
   return (
-    <mx-link-button color="outlined" size="xsmall" href={href} target="_top">
+    <mx-button
+      color="outlined"
+      size="xsmall"
+      onClick={() => {
+        const next: Theme = theme === 'dark' ? 'light' : 'dark';
+        addons.getChannel().emit(THEME_EVENT, next);
+      }}
+    >
       {children}
-    </mx-link-button>
+    </mx-button>
   );
 }

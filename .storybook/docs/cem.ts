@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-relative-packages */
 import manifestJSON from '../../packages/material-x/custom-elements.json' with { type: 'json' };
 
 type CEMAttribute = Readonly<{

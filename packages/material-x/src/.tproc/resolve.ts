@@ -80,9 +80,10 @@ export function resolve(
     }
   }
 
-  return [...adjusts, ...defaultAdjusters].reduce<
-    ProcessedTokenValue | null | undefined
-  >((acc, adjust) => (acc == null ? null : adjust(acc, path)), v);
+  return [...adjusts, ...defaultAdjusters].reduce(
+    (acc, adjust) => (acc == null ? null : adjust(acc, path)),
+    v,
+  );
 }
 
 export function resolveSet(
