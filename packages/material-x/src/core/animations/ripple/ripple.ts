@@ -5,15 +5,13 @@
  * Original source is part of Material Web (Apache-2.0), with slight
  * adaptations for this project's style and needs.
  */
+import { useConnected } from 'ydin/controllers/useConnected.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
-import type { ElementController } from 'ydin/element.js';
-import { type ControlledElement, use } from 'ydin/element.js';
-import { $ } from 'ydin/utils/DOM.js';
+import type { ControlledElement } from 'ydin/element.js';
 import {
   readCSSVariables,
   transformNumericVariable,
 } from 'ydin/utils/readCSSVariables.js';
-import template from './ripple.tpl.html' with { type: 'html' };
 import css from './styles/main.css.ts' with { type: 'css' };
 
 type Point = Readonly<{
@@ -34,10 +32,9 @@ type State =
   | typeof WAITING_FOR_CLICK;
 
 const MINIMUM_PRESS_MS = 225;
-const INITIAL_ORIGIN_SCALE = 0.2;
+const INITIAL_ORIGIN_SCALE = 0.1;
 const PADDING = 10;
-const SOFT_EDGE_MINIMUM_SIZE = 75;
-const SOFT_EDGE_CONTAINER_RATIO = 0.35;
+const EXIT_OPACITY_DURATION_MS = 150;
 
 /**
  * Delay reacting to touch so that we do not show the ripple for a swipe or
@@ -46,10 +43,21 @@ const SOFT_EDGE_CONTAINER_RATIO = 0.35;
 const TOUCH_DELAY_MS = 150;
 const FORCED_COLORS = matchMedia('(forced-colors: active)');
 
-const CSS_VARS: CSSVariables = {
+const CSS_VARS = {
   easing: '--_ripple-easing',
   duration: '--_ripple-duration',
-};
+  driftEasing: '--_ripple-drift-easing',
+  driftDuration: '--_ripple-drift-duration',
+  opacity: '--_ripple-opacity',
+} as const;
+
+export type CSSVariables = Readonly<{
+  easing: string;
+  duration: number;
+  driftEasing: string;
+  driftDuration: number;
+  opacity: number;
+}>;
 
 function isTouch(event: PointerEvent): boolean {
   return event.pointerType === 'touch';
@@ -63,22 +71,14 @@ function determineRippleSize(
   { currentCSSZoom }: HTMLElement,
   { height, width }: DOMRect,
 ): readonly [size: number, scale: number] {
-  const maxDim = Math.max(height, width);
-  const softEdgeSize = Math.max(
-    SOFT_EDGE_CONTAINER_RATIO * maxDim,
-    SOFT_EDGE_MINIMUM_SIZE,
-  );
+  const minDim = Math.min(height, width);
 
   // `?? 1` may be removed once `currentCSSZoom` is widely available.
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const zoom = currentCSSZoom ?? 1;
-  const size = Math.floor((maxDim * INITIAL_ORIGIN_SCALE) / zoom);
+  const size = Math.floor((minDim * INITIAL_ORIGIN_SCALE) / zoom);
   const maxRadius = Math.sqrt(width ** 2 + height ** 2) + PADDING;
-
-  // The dimensions may be altered by CSS `zoom`, which needs to be
-  // compensated for in the final scale() value.
-  const maybeZoomedScale = (maxRadius + softEdgeSize) / size;
-  const scale = maybeZoomedScale / zoom;
+  const scale = maxRadius / size / zoom;
 
   return [size, scale];
 }
@@ -88,16 +88,13 @@ function getNormalizedPointerEventCoords(
   rect: DOMRect,
   pointerEvent: PointerEvent,
 ): Point {
-  const { scrollX, scrollY } = window;
-  const documentX = scrollX + rect.left;
-  const documentY = scrollY + rect.top;
-  const { pageX, pageY } = pointerEvent;
+  const { clientX, clientY } = pointerEvent;
   // `?? 1` may be removed once `currentCSSZoom` is widely available.
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const zoom = element.currentCSSZoom ?? 1;
   return {
-    x: (pageX - documentX) / zoom,
-    y: (pageY - documentY) / zoom,
+    x: (clientX - rect.left) / zoom,
+    y: (clientY - rect.top) / zoom,
   };
 }
 
@@ -135,234 +132,39 @@ function getTranslationCoordinates(
   return { startPoint, endPoint };
 }
 
-export type CSSVariables = Readonly<{
-  easing: string;
-  duration: string;
-}>;
+function isHostDisabled(host: ControlledElement): boolean {
+  return host.hasAttribute('disabled');
+}
 
-class RippleAnimationController implements ElementController {
-  readonly #host: ControlledElement;
-  readonly #rippleHost: HTMLElement;
-  readonly #rippleElement: HTMLElement;
-  #state: State = INACTIVE;
-  #animation: Animation | undefined;
-  #varValues: CSSVariables | undefined;
-  #startEvent: PointerEvent | null = null;
-  #checkBoundsAfterContextMenu = false;
+function inBounds(
+  { clientX, clientY }: PointerEvent,
+  rippleHost: HTMLElement,
+): boolean {
+  const { top, left, bottom, right } = rippleHost.getBoundingClientRect();
+  return (
+    clientX >= left && clientX <= right && clientY >= top && clientY <= bottom
+  );
+}
 
-  constructor(
-    host: ControlledElement,
-    container: DocumentFragment | HTMLElement,
-    rippleHost: HTMLElement,
-  ) {
-    this.#host = host;
-    // @ts-expect-error: Import not correctly typed
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    host.shadowRoot!.adoptedStyleSheets.push(css as CSSStyleSheet);
-    container.append(template.content.cloneNode(true));
-    this.#rippleHost = rippleHost;
-    this.#rippleElement = $(host, `.ripple`)!;
-
-    const self = this;
-
-    useEvents(host, {
-      click() {
-        if (
-          shouldIgnoreForForcedColors() ||
-          // Click is a MouseEvent in Firefox and Safari, so we cannot use
-          // `shouldReactToEvent`
-          self.#isHostDisabled()
-        ) {
-          return;
-        }
-
-        if (self.#state === WAITING_FOR_CLICK) {
-          void self.#endAnimation();
-          return;
-        }
-
-        if (self.#state === INACTIVE) {
-          // keyboard synthesized click event
-          self.#startAnimation();
-          void self.#endAnimation();
-        }
-      },
-      contextmenu() {
-        if (shouldIgnoreForForcedColors() || self.#isHostDisabled()) {
-          return;
-        }
-
-        self.#checkBoundsAfterContextMenu = true;
-        void self.#endAnimation();
-      },
-      pointerdown(event: PointerEvent) {
-        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
-          return;
-        }
-
-        self.#startEvent = event;
-
-        if (!isTouch(event)) {
-          self.#state = WAITING_FOR_CLICK;
-          self.#startAnimation();
-          return;
-        }
-
-        // after a longpress contextmenu event, an extra `pointerdown` can be
-        // dispatched to the pressed element. Check that the down is within
-        // bounds of the element in this case.
-        if (self.#checkBoundsAfterContextMenu && !self.#inBounds(event)) {
-          return;
-        }
-
-        self.#checkBoundsAfterContextMenu = false;
-
-        // Wait for a hold after touch delay
-        self.#state = TOUCH_DELAY;
-
-        setTimeout(() => {
-          // State may have changed while waiting for the timeout.
-          if (self.#state !== TOUCH_DELAY) {
-            return;
-          }
-
-          self.#state = HOLDING;
-          self.#startAnimation();
-        }, TOUCH_DELAY_MS);
-      },
-      pointerleave(event: PointerEvent) {
-        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
-          return;
-        }
-
-        // release a held mouse or pen press that moves outside the element
-        if (self.#state !== INACTIVE) {
-          void self.#endAnimation();
-        }
-      },
-      pointerup(event: PointerEvent) {
-        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
-          return;
-        }
-
-        if (self.#state === HOLDING) {
-          self.#state = WAITING_FOR_CLICK;
-          return;
-        }
-
-        if (self.#state === TOUCH_DELAY) {
-          self.#state = WAITING_FOR_CLICK;
-          self.#startAnimation();
-          return;
-        }
-      },
-      pointercancel(event: PointerEvent) {
-        if (shouldIgnoreForForcedColors() || !self.#shouldReactToEvent(event)) {
-          return;
-        }
-
-        void self.#endAnimation();
-      },
-    });
+function shouldReactToEvent(
+  event: PointerEvent,
+  host: ControlledElement,
+  startEvent: PointerEvent | null,
+): boolean {
+  if (isHostDisabled(host) || !event.isPrimary) {
+    return false;
   }
 
-  connected(): void {
-    const self = this;
-
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    self.#varValues = readCSSVariables(
-      self.#host,
-      CSS_VARS,
-      (name, value, host) =>
-        name === 'duration'
-          ? // converting duration to ms
-            transformNumericVariable(name, value, host) * 1000
-          : value,
-    ) as CSSVariables;
+  if (startEvent && startEvent.pointerId !== event.pointerId) {
+    return false;
   }
 
-  #inBounds({ x, y }: PointerEvent): boolean {
-    const { top, left, bottom, right } =
-      this.#rippleHost.getBoundingClientRect();
-    return x >= left && x <= right && y >= top && y <= bottom;
+  if (event.type === 'pointerenter' || event.type === 'pointerleave') {
+    return !isTouch(event);
   }
 
-  #startAnimation(): void {
-    const self = this;
-    const rippleHost = self.#rippleHost;
-    const rect = rippleHost.getBoundingClientRect();
-
-    self.#animation?.cancel();
-    const [size, scale] = determineRippleSize(rippleHost, rect);
-    const { startPoint, endPoint } = getTranslationCoordinates(
-      rippleHost,
-      rect,
-      size,
-      self.#startEvent,
-    );
-
-    const pxSize = `${size}px`;
-
-    self.#animation = self.#rippleElement.animate(
-      {
-        width: [pxSize, pxSize],
-        height: [pxSize, pxSize],
-        transform: [
-          `translate(${startPoint.x}px,${startPoint.y}px) scale(1)`,
-          `translate(${endPoint.x}px,${endPoint.y}px) scale(${scale})`,
-        ],
-      },
-      {
-        pseudoElement: '::after',
-        fill: 'forwards',
-        ...self.#varValues,
-      },
-    );
-  }
-
-  async #endAnimation(): Promise<void> {
-    const self = this;
-    self.#startEvent = null;
-    self.#state = INACTIVE;
-    const animation = self.#animation;
-    let pressAnimationPlayState = Infinity;
-    if (typeof animation?.currentTime === 'number') {
-      pressAnimationPlayState = animation.currentTime;
-    } else if (animation?.currentTime) {
-      pressAnimationPlayState = animation.currentTime.to('ms').value;
-    }
-
-    if (pressAnimationPlayState >= MINIMUM_PRESS_MS) {
-      return;
-    }
-
-    await new Promise((resolve) => {
-      setTimeout(resolve, MINIMUM_PRESS_MS - pressAnimationPlayState);
-    });
-  }
-
-  #isHostDisabled(): boolean {
-    return this.#host.hasAttribute('disabled');
-  }
-
-  #shouldReactToEvent(event: PointerEvent): boolean {
-    const self = this;
-
-    if (self.#isHostDisabled() || !event.isPrimary) {
-      return false;
-    }
-
-    if (self.#startEvent && self.#startEvent.pointerId !== event.pointerId) {
-      return false;
-    }
-
-    if (event.type === 'pointerenter' || event.type === 'pointerleave') {
-      return !isTouch(event);
-    }
-
-    const isPrimaryButton = event.buttons === 1;
-    return isTouch(event) || isPrimaryButton;
-  }
+  const isPrimaryButton = event.buttons === 1;
+  return isTouch(event) || isPrimaryButton;
 }
 
 export function useRipple(
@@ -370,5 +172,262 @@ export function useRipple(
   container: DocumentFragment | HTMLElement = host.shadowRoot!,
   rippleHost: HTMLElement = host,
 ): void {
-  use(host, new RippleAnimationController(host, container, rippleHost));
+  // @ts-expect-error: Import not correctly typed
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  host.shadowRoot!.adoptedStyleSheets.push(css as CSSStyleSheet);
+
+  const rippleElement = document.createElement('div');
+  rippleElement.classList.add('ripple');
+  container.append(rippleElement);
+
+  let state: State = INACTIVE;
+  let scaleAnimation: Animation | undefined;
+  let moveAnimation: Animation | undefined;
+  let opacityAnimation: Animation | undefined;
+  let animationGeneration = 0;
+  let varValues: CSSVariables;
+  let startEvent: PointerEvent | null = null;
+  let checkBoundsAfterContextMenu = false;
+
+  useConnected(host, () => {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    varValues = readCSSVariables(host, CSS_VARS, (name, value, h) => {
+      if (name === 'duration' || name === 'driftDuration') {
+        // converting duration to ms
+        return transformNumericVariable(name, value, h) * 1000;
+      }
+
+      if (name === 'opacity') {
+        return parseFloat(value);
+      }
+
+      return value;
+    }) as CSSVariables;
+  });
+
+  const startAnimation = () => {
+    scaleAnimation?.cancel();
+    moveAnimation?.cancel();
+    opacityAnimation?.cancel();
+    animationGeneration++;
+
+    const rect = rippleHost.getBoundingClientRect();
+    const [size, scale] = determineRippleSize(rippleHost, rect);
+    const { startPoint, endPoint } = getTranslationCoordinates(
+      rippleHost,
+      rect,
+      size,
+      startEvent,
+    );
+
+    const pxSize = `${size}px`;
+
+    const { easing, duration, driftEasing, driftDuration } = varValues;
+    const startTranslate = `${startPoint.x}px ${startPoint.y}px`;
+    const endTranslate = `${endPoint.x}px ${endPoint.y}px`;
+
+    // Keep scale and drift as separate token-driven animations. This preserves
+    // the "fast fill + living edge" feel without baking custom motion into
+    // handcrafted keyframe ratios that are expensive to maintain.
+    scaleAnimation = rippleElement.animate(
+      [
+        {
+          width: pxSize,
+          height: pxSize,
+          scale: '1',
+          offset: 0,
+        },
+        {
+          width: pxSize,
+          height: pxSize,
+          scale: String(scale),
+          offset: 1,
+        },
+      ],
+      {
+        pseudoElement: '::after',
+        fill: 'forwards' as const,
+        easing,
+        duration,
+      },
+    );
+
+    moveAnimation = rippleElement.animate(
+      [
+        {
+          translate: startTranslate,
+          offset: 0,
+        },
+        {
+          translate: endTranslate,
+          offset: 1,
+        },
+      ],
+      {
+        pseudoElement: '::after',
+        fill: 'forwards' as const,
+        easing: driftEasing,
+        duration: driftDuration,
+      },
+    );
+  };
+
+  const endAnimation = async () => {
+    startEvent = null;
+    state = INACTIVE;
+
+    const generation = ++animationGeneration;
+    // Ensure the ripple has been visible long enough before fading out
+    const { currentTime } = scaleAnimation ?? {};
+
+    const elapsed =
+      typeof currentTime === 'number'
+        ? currentTime
+        : (currentTime?.to('ms').value ?? Infinity);
+
+    const remaining = MINIMUM_PRESS_MS - elapsed;
+
+    if (remaining > 0) {
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, remaining);
+      });
+    }
+
+    // Bail if a new press started while we were waiting
+    if (generation !== animationGeneration) {
+      return;
+    }
+
+    opacityAnimation?.cancel();
+    opacityAnimation = rippleElement.animate(
+      { opacity: [varValues.opacity, 0] },
+      {
+        pseudoElement: '::after',
+        duration: EXIT_OPACITY_DURATION_MS,
+        easing: 'linear',
+        fill: 'forwards',
+      },
+    );
+    await opacityAnimation.finished;
+
+    if (generation !== animationGeneration) {
+      return;
+    }
+
+    scaleAnimation?.cancel();
+    moveAnimation?.cancel();
+    opacityAnimation.cancel();
+  };
+
+  useEvents(host, {
+    click() {
+      if (
+        shouldIgnoreForForcedColors() ||
+        // Click is a MouseEvent in Firefox and Safari, so we cannot use
+        // `shouldReactToEvent`
+        isHostDisabled(host)
+      ) {
+        return;
+      }
+
+      if (state === WAITING_FOR_CLICK) {
+        void endAnimation();
+        return;
+      }
+
+      if (state === INACTIVE) {
+        // keyboard synthesized click event
+        startAnimation();
+        void endAnimation();
+      }
+    },
+    contextmenu() {
+      if (shouldIgnoreForForcedColors() || isHostDisabled(host)) {
+        return;
+      }
+
+      checkBoundsAfterContextMenu = true;
+      void endAnimation();
+    },
+    pointerdown(event: PointerEvent) {
+      if (
+        shouldIgnoreForForcedColors() ||
+        !shouldReactToEvent(event, host, startEvent)
+      ) {
+        return;
+      }
+
+      startEvent = event;
+
+      if (!isTouch(event)) {
+        state = WAITING_FOR_CLICK;
+        startAnimation();
+        return;
+      }
+
+      // after a longpress contextmenu event, an extra `pointerdown` can be
+      // dispatched to the pressed element. Check that the down is within
+      // bounds of the element in this case.
+      if (checkBoundsAfterContextMenu && !inBounds(event, rippleHost)) {
+        return;
+      }
+
+      checkBoundsAfterContextMenu = false;
+
+      // Wait for a hold after touch delay
+      state = TOUCH_DELAY;
+
+      setTimeout(() => {
+        // State may have changed while waiting for the timeout.
+        if (state !== TOUCH_DELAY) {
+          return;
+        }
+
+        state = HOLDING;
+        startAnimation();
+      }, TOUCH_DELAY_MS);
+    },
+    pointerleave(event: PointerEvent) {
+      if (
+        shouldIgnoreForForcedColors() ||
+        !shouldReactToEvent(event, host, startEvent)
+      ) {
+        return;
+      }
+
+      // release a held mouse or pen press that moves outside the element
+      if (state !== INACTIVE) {
+        void endAnimation();
+      }
+    },
+    pointerup(event: PointerEvent) {
+      if (
+        shouldIgnoreForForcedColors() ||
+        !shouldReactToEvent(event, host, startEvent)
+      ) {
+        return;
+      }
+
+      if (state === HOLDING) {
+        state = WAITING_FOR_CLICK;
+        return;
+      }
+
+      if (state === TOUCH_DELAY) {
+        state = WAITING_FOR_CLICK;
+        startAnimation();
+        return;
+      }
+    },
+    pointercancel(event: PointerEvent) {
+      if (
+        shouldIgnoreForForcedColors() ||
+        !shouldReactToEvent(event, host, startEvent)
+      ) {
+        return;
+      }
+
+      void endAnimation();
+    },
+  });
 }

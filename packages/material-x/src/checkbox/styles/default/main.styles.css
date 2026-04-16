@@ -54,6 +54,7 @@
   clip-path: inset(0 100% 0 0);
   color: var(--_icon-color);
   font-size: var(--_icon-size);
+  opacity: var(--_icon-opacity);
 }
 
 :host:has(.input:focus-visible) {

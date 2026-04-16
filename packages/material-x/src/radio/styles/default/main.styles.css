@@ -35,6 +35,7 @@
 .off {
   pointer-events: none;
   font-size: var(--_icon-size);
+  opacity: var(--_icon-opacity, 1);
 }
 
 .off {

@@ -1,17 +1,23 @@
 ## Code style
 
-- Always use Baseline-2025 features. Choose modern features over their older analogues even though they could have less support.
-- Use native browser / NodeJS features wherever possible over libraries (e.g., you should use native private fields / methods over TypeScript ones).
-- Each edited source file (.tsx?, .css, .html) should be formatted afterwards. Use `npm run fmt -- <changed files>` for that (preferably against the changed files only).
-- After every source-related task completed, run `npm run typecheck` command to find all TypeScript issues. They should be fixed before linting.
-- After every source-related task completed run `npm run lint:fix -- <changed files>` command to find and fix ESLint issues (preferably against the changed files only). If autofix didn't work, the linting issue should be addressed.
-  - It is preferred that linting issue is addressed correctly without suppressing.
-  - However, if addressing linting issue looks too cumbersome, issue should be suppressed.
-- After every source-related task, run `/simplify` to review the changes for style, quality, and reuse.
-- Codestyle component importance:
-  - Performance. This is the essential part of the code. Code should be as fast as possible for the end user.
-  - Code size. Sometimes, the smaller codebase gives more performance (loading speed) over the performance bigger codebase could give. So, code size should also be as small as possible unless it starts to hurt performance. However, keep in mind that the code will be shipped to production minified, so the private variables/fields/functions/methods could have long names since they eventually are mangled.
-  - Readability. Though readability has the less priority, it doesn't mean it is not important. Code has to be maintainable. The least priority just means that DX shouldn't preveal over UX. Sometimes, comment is better than less performant / more robust implementation.
+- Install dependencies via `npm i` rather than editing `package.json` directly, to get the latest compatible version.
+- Always use Baseline-2025 features.
+- Prefer native browser / Node.js APIs over pulling in a library when the native API covers the use case (e.g. use `fetch` instead of axios, use `Array.groupBy` instead of lodash, use # instead of `private` keyword). This does not apply to libraries that provide substantial value beyond what native APIs offer (e.g. TanStack Query, React Router).
+- Prefer TypeScript `type` over `interface` unless it is an interface the class to implement or it is required for extending global interfaces.
+- Always use `Readonly<>` wrapper type / `readonly` modifier for TS `type`/`interface` unless mutability is required.
+- Always prefer CSS classes over inline style.
+- Each edited source file (`.tsx?`, `.css`, `.html`) should be:
+  - formatted via `npm run fmt -- <changed files>`,
+  - linted and fixed via `npm run lint:fix -- <changed files>`. If autofix fails for any file, list those files — do not attempt to resolve lint errors manually; report them and continue,
+  - typechecked via `npm run typecheck`. This checks the entire project. Ignore errors in files you did not touch — unless your change caused them, in which case fix them.
+- Codestyle priorities (in order):
+  1. **Performance** — code should be as fast as possible for the end user.
+  2. **Code size** — a smaller bundle can outperform a faster-but-larger one due to load time. Keep code size minimal unless it hurts runtime performance. Private identifiers can have long names — they are mangled in production builds.
+  3. **Readability** — code must be maintainable. DX should not prevail over UX. A comment is sometimes better than a less performant but "cleaner" implementation.
+- Always put the block expression like `if`, `for`, etc. into `{}`. Never use "one-liners".
+- Always use `AbortController` instead of `removeEventListener` where applicable.
+- Always use `{ once: true }` instead of `removeEventListener` where applicable.
+- All top-level functions should be declared via `function` unless they are a product of another function. All internal functions (e.g., created inside another function) should be declared via arrow functions. Note: this rule doesn't apply to object methods, they should remain shorthand as much as possible.
 
 ### Unit-tests
 
@@ -67,9 +73,9 @@ describe('buildSelector', () => {
 
 You don't need anything to run TS in this repo. Just use direct `node my-file.ts`, and this project's node will do the rest.
 
-## CSS.TS
+## .css.ts files
 
-Files with `.css.ts` extensions are ment to be compiled for browser usage. They are transformed into regular CSS files. To debug them and check how they look in CSS form, you should use `npm run debug -- <relative file path>` command. E.g., if you want to see how `src/button/styles/default/main.css.ts` file gonna look like in the CSS format, you have to run `npm run debug -- src/button/styles/default/main.css.ts`. Then, stdout will give you the CSS text.
+Files with `.css.ts` extensions are meant to be compiled for browser usage. They are transformed into regular CSS files. To debug them and check how they look in CSS form, use `npm run debug -- <relative file path>`. E.g., to see how `src/button/styles/default/main.css.ts` will look in CSS format, run `npm run debug -- src/button/styles/default/main.css.ts`. The CSS output is printed to stdout.
 
 ## Architecture
 
