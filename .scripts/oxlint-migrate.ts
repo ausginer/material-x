@@ -1,191 +1,54 @@
 import { spawn } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import type { JsonValue, JsonObject, JsonArray, Writable } from 'type-fest';
 
-type Counters = Readonly<{
-  renamedRuleAliases: number;
-  overwrittenRuleAliases: number;
-  renamedPlugins: number;
-  dedupedPlugins: number;
-}>;
+type JSONRecord = Record<string, unknown>;
 
 const configPath = fileURLToPath(new URL('../.oxlintrc.json', import.meta.url));
+const JS_FILES = [
+  '**/*.{js,jsx,mjs,cjs,mjsx,cjsx}',
+] as const satisfies readonly string[];
+const TS_FILES = [
+  '**/*.{ts,tsx,mts,cts,mtsx,ctsx}',
+] as const satisfies readonly string[];
 
-function isJsonObject(value: unknown): value is JsonObject {
+function isRecord(value: unknown): value is JSONRecord {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function normalizeRuleName(ruleName: string): string {
-  if (ruleName.startsWith('@typescript-eslint/')) {
-    return `typescript/${ruleName.slice('@typescript-eslint/'.length)}`;
-  }
-
-  if (ruleName.startsWith('import-x/')) {
-    return `import/${ruleName.slice('import-x/'.length)}`;
-  }
-
-  return ruleName;
-}
-
-function normalizePluginName(pluginName: string): string {
+function hasSameFiles(
+  files: unknown,
+  expectedFiles: readonly string[],
+): boolean {
   if (
-    pluginName === '@typescript-eslint' ||
-    pluginName === 'typescript-eslint'
+    !Array.isArray(files) ||
+    files.length !== expectedFiles.length ||
+    !files.every((file) => typeof file === 'string')
   ) {
-    return 'typescript';
+    return false;
   }
 
-  if (pluginName === 'import-x' || pluginName === 'eslint-plugin-import-x') {
-    return 'import';
-  }
-
-  return pluginName;
+  return files.every((file, index) => file === expectedFiles[index]);
 }
 
-function normalizeRules(rules: JsonObject): Readonly<{
-  rules: JsonObject;
-  renamedRuleAliases: number;
-  overwrittenRuleAliases: number;
-}> {
-  const nextRules: JsonObject = {};
-  let renamedRuleAliases = 0;
-  let overwrittenRuleAliases = 0;
-
-  for (const [ruleName, ruleValue] of Object.entries(rules)) {
-    const normalizedRuleName = normalizeRuleName(ruleName);
-
-    if (normalizedRuleName !== ruleName) {
-      renamedRuleAliases += 1;
-      if (Object.hasOwn(nextRules, normalizedRuleName)) {
-        overwrittenRuleAliases += 1;
-      }
-    }
-
-    nextRules[normalizedRuleName] = ruleValue;
+function retargetJsOnlyOverrides(config: JSONRecord): number {
+  const { overrides } = config;
+  if (!Array.isArray(overrides)) {
+    return 0;
   }
 
-  return {
-    rules: nextRules,
-    renamedRuleAliases,
-    overwrittenRuleAliases,
-  };
-}
+  let retargetedOverrides = 0;
 
-function normalizePlugins(plugins: JsonValue | undefined): Readonly<{
-  plugins: JsonValue | undefined;
-  renamedPlugins: number;
-  dedupedPlugins: number;
-}> {
-  if (!Array.isArray(plugins)) {
-    return {
-      plugins,
-      renamedPlugins: 0,
-      dedupedPlugins: 0,
-    };
-  }
-
-  const seen = new Set<string>();
-  const nextPlugins: Writable<JsonArray> = [];
-  let renamedPlugins = 0;
-  let dedupedPlugins = 0;
-
-  for (const pluginValue of plugins) {
-    if (typeof pluginValue !== 'string') {
-      nextPlugins.push(pluginValue);
+  for (const override of overrides) {
+    if (!isRecord(override) || !hasSameFiles(override['files'], JS_FILES)) {
       continue;
     }
 
-    const normalizedPluginName = normalizePluginName(pluginValue);
-
-    if (normalizedPluginName !== pluginValue) {
-      renamedPlugins += 1;
-    }
-
-    if (seen.has(normalizedPluginName)) {
-      dedupedPlugins += 1;
-      continue;
-    }
-
-    seen.add(normalizedPluginName);
-    nextPlugins.push(normalizedPluginName);
+    override['files'] = [...TS_FILES];
+    retargetedOverrides += 1;
   }
 
-  return {
-    plugins: nextPlugins,
-    renamedPlugins,
-    dedupedPlugins,
-  };
-}
-
-function normalizeConfig(config: JsonObject): Readonly<{
-  config: JsonObject;
-  counters: Counters;
-}> {
-  const nextConfig = structuredClone(config);
-  let renamedRuleAliases = 0;
-  let overwrittenRuleAliases = 0;
-  let renamedPlugins = 0;
-  let dedupedPlugins = 0;
-
-  const rootRules = nextConfig['rules'];
-  if (isJsonObject(rootRules)) {
-    const result = normalizeRules(rootRules);
-    nextConfig['rules'] = result.rules;
-    renamedRuleAliases += result.renamedRuleAliases;
-    overwrittenRuleAliases += result.overwrittenRuleAliases;
-  }
-
-  const rootPluginsResult = normalizePlugins(nextConfig['plugins']);
-  if (rootPluginsResult.plugins !== undefined) {
-    nextConfig['plugins'] = rootPluginsResult.plugins;
-  }
-
-  renamedPlugins += rootPluginsResult.renamedPlugins;
-  dedupedPlugins += rootPluginsResult.dedupedPlugins;
-
-  const { overrides } = nextConfig;
-  if (Array.isArray(overrides)) {
-    const nextOverrides: Writable<JsonArray> = [];
-
-    for (const overrideValue of overrides) {
-      if (!isJsonObject(overrideValue)) {
-        nextOverrides.push(overrideValue);
-        continue;
-      }
-
-      const nextOverride = structuredClone(overrideValue);
-      const overrideRules = nextOverride['rules'];
-      if (isJsonObject(overrideRules)) {
-        const result = normalizeRules(overrideRules);
-        nextOverride['rules'] = result.rules;
-        renamedRuleAliases += result.renamedRuleAliases;
-        overwrittenRuleAliases += result.overwrittenRuleAliases;
-      }
-
-      const overridePluginsResult = normalizePlugins(nextOverride['plugins']);
-      if (overridePluginsResult.plugins !== undefined) {
-        nextOverride['plugins'] = overridePluginsResult.plugins;
-      }
-
-      renamedPlugins += overridePluginsResult.renamedPlugins;
-      dedupedPlugins += overridePluginsResult.dedupedPlugins;
-
-      nextOverrides.push(nextOverride);
-    }
-
-    nextConfig['overrides'] = nextOverrides;
-  }
-
-  return {
-    config: nextConfig,
-    counters: {
-      renamedRuleAliases,
-      overwrittenRuleAliases,
-      renamedPlugins,
-      dedupedPlugins,
-    },
-  };
+  return retargetedOverrides;
 }
 
 async function runMigrate(): Promise<void> {
@@ -198,10 +61,7 @@ async function runMigrate(): Promise<void> {
       },
     );
 
-    child.on('error', (error) => {
-      reject(error);
-    });
-
+    child.on('error', reject);
     child.on('exit', (code, signal) => {
       if (signal !== null) {
         reject(new Error(`Migration was interrupted by signal: ${signal}`));
@@ -222,27 +82,23 @@ async function runMigrate(): Promise<void> {
 
 await runMigrate();
 
-const configText = await import('../.oxlintrc.json', {
-  with: { type: 'json' },
-});
-if (!isJsonObject(configText)) {
+const { default: config } = await import(
+  new URL(`../.oxlintrc.json?ts=${Date.now()}`, import.meta.url).toString(),
+  { with: { type: 'json' } }
+);
+
+if (!isRecord(config)) {
   throw new TypeError('Expected .oxlintrc.json to contain a JSON object.');
 }
 
-const normalized = normalizeConfig(configText);
+const retargetedOverrides = retargetJsOnlyOverrides(config);
 
-await writeFile(
-  configPath,
-  `${JSON.stringify(normalized.config, null, 2)}\n`,
-  'utf8',
-);
+await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, 'utf8');
 
+// oxlint-disable-next-line no-console
 console.log(
   [
-    'Native oxlint normalization complete.',
-    `Rules renamed: ${normalized.counters.renamedRuleAliases}`,
-    `Rule alias conflicts overwritten: ${normalized.counters.overwrittenRuleAliases}`,
-    `Plugins renamed: ${normalized.counters.renamedPlugins}`,
-    `Duplicate plugins removed: ${normalized.counters.dedupedPlugins}`,
+    'Native oxlint migration post-fix complete.',
+    `JS-only overrides retargeted to TS: ${retargetedOverrides}`,
   ].join('\n'),
 );
