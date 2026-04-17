@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-relative-packages */
 import { fileURLToPath } from 'node:url';
 import { defineConfig, mergeConfig, type UserConfigFnObject } from 'vite';
 import viteConfig from '../../vite.config.ts';

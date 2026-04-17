@@ -1,3 +1,4 @@
+// oxlint-disable no-new
 import { describe, expect, it, vi } from 'vitest';
 import { useConnected } from '../../src/controllers/useConnected.ts';
 import { ControlledElement } from '../../src/element.ts';

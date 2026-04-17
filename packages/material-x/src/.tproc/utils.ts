@@ -43,11 +43,12 @@ export type ProcessorAdjuster = (
 /** Default grouping: places all tokens in the "default" bucket. */
 export const defaultGrouper: Grouper = (tokenName) => ({
   path: 'default',
-  tokenName: tokenName,
+  tokenName,
 });
 
 /** Converts RGBA byte values to hex, trimming the alpha channel when opaque. */
 export function rgbaToHex(r: number, g: number, b: number, a: number): string {
+  // oxlint-disable-next-line no-bitwise
   const hex = (((r << 24) | (g << 16) | (b << 8) | a) >>> 0)
     .toString(16)
     .padStart(8, '0');

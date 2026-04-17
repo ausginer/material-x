@@ -1,5 +1,4 @@
-import type { Predicate } from 'ydin/utils/runtime.js';
-import { not } from 'ydin/utils/runtime.js';
+import { not, type Predicate } from 'ydin/utils/runtime.js';
 import type { ProcessedTokenValue } from '../../.tproc/processTokenSet.ts';
 import type { ResolveAdjuster } from '../../.tproc/resolve.ts';
 

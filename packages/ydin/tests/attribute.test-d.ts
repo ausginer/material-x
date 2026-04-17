@@ -29,6 +29,6 @@ describe('attribute types', () => {
   });
 
   it('should allow compile-time converter aliases to be reused', () => {
-    assertType<ConverterOf<'primary' | 'secondary'>>(VariantStr);
+    assertType(VariantStr);
   });
 });

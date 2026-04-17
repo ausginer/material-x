@@ -2,6 +2,7 @@ import type { Meta } from '@storybook/react-vite';
 import { useState, type JSX, type PropsWithChildren } from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
+// oxlint-disable-next-line import/no-duplicates
 import './switch-button.ts';
 import type { SwitchButtonProperties } from './switch-button.ts';
 

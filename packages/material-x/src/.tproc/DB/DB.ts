@@ -1,3 +1,4 @@
+// oxlint-disable no-console
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { SetRequired } from 'type-fest';
@@ -46,6 +47,7 @@ async function download(url: URL): Promise<TokenTable> {
       { with: { type: 'json' } }
     );
     return contents.default;
+    // oxlint-disable-next-line preserve-caught-error
   } catch {
     console.log(`Caching tokens from ${url}`);
 

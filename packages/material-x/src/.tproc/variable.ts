@@ -30,5 +30,5 @@ export function ref(name: string, fallback?: string, isPublic = false): string {
     result += `, ${fallback}`;
   }
 
-  return result + ')';
+  return `${result})`;
 }

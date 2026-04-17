@@ -1,3 +1,4 @@
+// oxlint-disable no-console
 import { describe, it, expect, vi } from 'vitest';
 import { resolve, resolveSet, isLinkedToken } from '../resolve.ts';
 import { createToken, createValue, mockDB } from './helpers.ts';

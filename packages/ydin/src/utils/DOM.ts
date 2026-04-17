@@ -33,7 +33,7 @@ export function $<K extends keyof HTMLElementDeprecatedTagNameMap>(
   host: HTMLElement,
   selectors: K,
 ): HTMLElementDeprecatedTagNameMap[K] | null | undefined;
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+// oxlint-disable-next-line typescript/no-unnecessary-type-parameters
 export function $<E extends Element = Element>(
   host: HTMLElement,
   selectors: string,

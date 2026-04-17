@@ -119,7 +119,7 @@ describe('EventEmitter', () => {
   it('should route an async subscriber rejection through the installed error handler', async () => {
     const emitter = new EventEmitter<[string]>();
     const error = new Error('async subscriber error');
-    const subscriber = vi.fn( async () => await Promise.reject(error));
+    const subscriber = vi.fn(async () => await Promise.reject(error));
     const handler = vi.fn();
 
     emitter.on(subscriber);
@@ -135,7 +135,7 @@ describe('EventEmitter', () => {
   it('should still deliver to other subscribers when one async subscriber rejects', async () => {
     const emitter = new EventEmitter<[string]>();
     const error = new Error('async subscriber error');
-    const firstSubscriber = vi.fn( async () => await Promise.reject(error));
+    const firstSubscriber = vi.fn(async () => await Promise.reject(error));
     const secondSubscriber = vi.fn();
     const handler = vi.fn();
 

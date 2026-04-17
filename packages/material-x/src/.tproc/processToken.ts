@@ -1,3 +1,4 @@
+// oxlint-disable no-console
 import kebabCase from 'just-kebab-case';
 import db from './DB/index.ts';
 import type { ProcessedTokenValue } from './processTokenSet.ts';
@@ -122,18 +123,17 @@ export default function processToken(token: Token): ProcessedTokenValue | null {
 
     if (family === TokenShapeFamily.FULL) {
       return 'full';
-    } else {
-      if (defaultSize?.value != null) {
-        return `${defaultSize.value ?? 0}px`;
-      }
-
-      return {
-        'top-left': `${topLeft?.value ?? top?.value ?? 0}px`,
-        'top-right': `${topRight?.value ?? right?.value ?? 0}px`,
-        'bottom-right': `${bottomRight?.value ?? bottom?.value ?? 0}px`,
-        'bottom-left': `${bottomLeft?.value ?? left?.value ?? 0}px`,
-      };
     }
+    if (defaultSize?.value != null) {
+      return `${defaultSize.value ?? 0}px`;
+    }
+
+    return {
+      'top-left': `${topLeft?.value ?? top?.value ?? 0}px`,
+      'top-right': `${topRight?.value ?? right?.value ?? 0}px`,
+      'bottom-right': `${bottomRight?.value ?? bottom?.value ?? 0}px`,
+      'bottom-left': `${bottomLeft?.value ?? left?.value ?? 0}px`,
+    };
   }
 
   if (cubicBezier != null) {
@@ -150,7 +150,6 @@ export default function processToken(token: Token): ProcessedTokenValue | null {
   }
 
   if (textTransform != null) {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (textTransform !== TextTransform.NONE) {
       throw new Error(`Unknown text transform: ${String(textTransform)}`);
     }

@@ -1,8 +1,8 @@
 import type { EmptyObject } from 'type-fest';
-import type { ButtonCoreProps, ButtonLike } from '../button/ButtonCore.ts';
 import { useEvents } from 'ydin/controllers/useEvents.js';
 import { useSlot } from 'ydin/controllers/useSlot.js';
 import { define, type ControlledElement } from 'ydin/element.js';
+import type { ButtonCoreProps, ButtonLike } from '../button/ButtonCore.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
   ButtonGroupCore,

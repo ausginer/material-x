@@ -7,7 +7,8 @@ export function cleanupDOM(): void {
 }
 
 export function nameCE(): string {
-  return `test-${nextCustomElementId++}`;
+  nextCustomElementId += 1;
+  return `test-${nextCustomElementId}`;
 }
 
 export function defineCE(

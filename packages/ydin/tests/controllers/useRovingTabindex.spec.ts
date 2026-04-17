@@ -536,36 +536,29 @@ describe('useRovingTabindex', () => {
       expect(selection.change).not.toHaveBeenCalled();
     });
 
-    it('should ignore modified key combos with Shift, Alt, Ctrl, and Meta', async () => {
-      const host = createHost({ dir: 'ltr' });
-      const first = createItem({ value: 'first' });
-      const second = createItem({ value: 'second' });
+    it.each([
+      ['Shift', '{Shift>}{ArrowRight}{/Shift}'],
+      ['Alt', '{Alt>}{ArrowRight}{/Alt}'],
+      ['Ctrl', '{Control>}{ArrowRight}{/Control}'],
+      ['Meta', '{Meta>}{ArrowRight}{/Meta}'],
+    ])(
+      'should ignore modified key combo: %s',
+      async (_modifierName, shortcut) => {
+        const host = createHost({ dir: 'ltr' });
+        const first = createItem({ value: 'first' });
+        const second = createItem({ value: 'second' });
 
-      await mountHost(host, first, second);
+        await mountHost(host, first, second);
 
-      const modifiers = [
-        { shiftKey: true },
-        { altKey: true },
-        { ctrlKey: true },
-        { metaKey: true },
-      ] satisfies readonly KeyboardEventInit[];
-
-      for (const modifier of modifiers) {
         first.focus();
 
-        const defaultPrevented = modifier.shiftKey
-          ? await press(host, '{Shift>}{ArrowRight}{/Shift}')
-          : modifier.altKey
-            ? await press(host, '{Alt>}{ArrowRight}{/Alt}')
-            : modifier.ctrlKey
-              ? await press(host, '{Control>}{ArrowRight}{/Control}')
-              : await press(host, '{Meta>}{ArrowRight}{/Meta}');
+        const defaultPrevented = await press(host, shortcut);
 
         expect(defaultPrevented).toBe(false);
         expect(document.activeElement).toBe(first);
         expectTabStop([first, second], first);
-      }
-    });
+      },
+    );
   });
 
   describe('RTL behavior', () => {

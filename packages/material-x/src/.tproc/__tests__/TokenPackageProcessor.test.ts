@@ -49,7 +49,7 @@ describe('TokenPackageProcessor', () => {
           return { path: 'hovered', tokenName: rest.join('.') };
         }
 
-        return { path: 'default', tokenName: tokenName };
+        return { path: 'default', tokenName };
       })
       .select(
         createAllowedTokensSelector(['container.color', 'state-layer.opacity']),

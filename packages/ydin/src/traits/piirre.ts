@@ -112,13 +112,17 @@ export function trait<
   InstanceType<T>,
   ConstructorStatics<T>
 > {
+  // oxlint-disable-next-line no-extend-native
   return Object.defineProperties(
     (base: T) => {
       const result = transformer(base);
 
       if (
         Object.is(result, base) ||
-        !(base.prototype as object).isPrototypeOf(result.prototype)
+        !Object.prototype.isPrototypeOf.call(
+          base.prototype as object,
+          result.prototype,
+        )
       ) {
         throw new TypeError(
           'Trait transformer must return a subclass of the input constructor.',

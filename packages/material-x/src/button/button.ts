@@ -1,10 +1,12 @@
 import type { EmptyObject } from 'type-fest';
 import { define } from 'ydin/element.js';
-import type { NameableProps } from 'ydin/traits/nameable.js';
-import { Nameable, useNameable } from 'ydin/traits/nameable.js';
-import type { TraitedConstructor } from 'ydin/traits/traits.js';
-import { impl } from 'ydin/traits/traits.js';
-import { useTypeable, Typeable } from 'ydin/traits/typeable.js';
+import {
+  Nameable,
+  useNameable,
+  type NameableProps,
+} from 'ydin/traits/nameable.js';
+import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+import { Typeable, useTypeable } from 'ydin/traits/typeable.js';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {
   ButtonCore as ButtonCoreBase,

@@ -1,3 +1,4 @@
+// oxlint-disable no-console
 import { describe, it, expect } from 'vitest';
 import processTokenSet from '../processTokenSet.ts';
 import type { Token } from '../TokenTable.ts';

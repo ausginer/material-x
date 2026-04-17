@@ -1,3 +1,4 @@
+// oxlint-disable no-new
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useResizeObserver } from '../../src/controllers/useResizeObserver.ts';
 import { ControlledElement } from '../../src/element.ts';

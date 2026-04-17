@@ -56,6 +56,7 @@ class RovingItems {
   }
 
   // Signal-style API: avoids `items.items` at the call site.
+  // oxlint-disable-next-line accessor-pairs
   set value(value: readonly Item[]) {
     this.#items = value;
   }

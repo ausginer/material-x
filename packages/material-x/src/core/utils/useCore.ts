@@ -1,6 +1,5 @@
 import { useShadowDOM } from 'ydin/controllers/useShadowDOM.js';
-import type { ControlledElement } from 'ydin/element.js';
-import { getInternals } from 'ydin/element.js';
+import { getInternals, type ControlledElement } from 'ydin/element.js';
 
 // oxlint-disable-next-line max-params
 export function useCore(

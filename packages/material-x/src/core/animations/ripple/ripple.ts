@@ -74,7 +74,6 @@ function determineRippleSize(
   const minDim = Math.min(height, width);
 
   // `?? 1` may be removed once `currentCSSZoom` is widely available.
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const zoom = currentCSSZoom ?? 1;
   const size = Math.floor((minDim * INITIAL_ORIGIN_SCALE) / zoom);
   const maxRadius = Math.sqrt(width ** 2 + height ** 2) + PADDING;
@@ -90,7 +89,6 @@ function getNormalizedPointerEventCoords(
 ): Point {
   const { clientX, clientY } = pointerEvent;
   // `?? 1` may be removed once `currentCSSZoom` is widely available.
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const zoom = element.currentCSSZoom ?? 1;
   return {
     x: (clientX - rect.left) / zoom,
@@ -105,7 +103,6 @@ function getTranslationCoordinates(
   positionEvent: MouseEvent | null,
 ) {
   // `?? 1` may be removed once `currentCSSZoom` is widely available.
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const zoom = element.currentCSSZoom ?? 1;
   // end in the center
   const endPoint = {
@@ -209,7 +206,7 @@ export function useRipple(
     scaleAnimation?.cancel();
     moveAnimation?.cancel();
     opacityAnimation?.cancel();
-    animationGeneration++;
+    animationGeneration += 1;
 
     const rect = rippleHost.getBoundingClientRect();
     const [size, scale] = determineRippleSize(rippleHost, rect);
@@ -276,7 +273,8 @@ export function useRipple(
     startEvent = null;
     state = INACTIVE;
 
-    const generation = ++animationGeneration;
+    animationGeneration += 1;
+    const generation = animationGeneration;
     // Ensure the ripple has been visible long enough before fading out
     const { currentTime } = scaleAnimation ?? {};
 
@@ -416,7 +414,6 @@ export function useRipple(
       if (state === TOUCH_DELAY) {
         state = WAITING_FOR_CLICK;
         startAnimation();
-        return;
       }
     },
     pointercancel(event: PointerEvent) {

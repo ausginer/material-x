@@ -1,7 +1,6 @@
 // oxlint-disable import/no-mutable-exports
 import type { EmptyObject } from 'type-fest';
-import type { ConverterOf } from 'ydin/attribute.js';
-import ATTR, { Bool, Str } from 'ydin/attribute.js';
+import ATTR, { Bool, Str, type ConverterOf } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
 import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
@@ -25,8 +24,7 @@ import {
   type Trait,
   type TraitedConstructor,
 } from 'ydin/traits/traits.js';
-import type { ValuableProps } from 'ydin/traits/valuable.js';
-import { Valuable } from 'ydin/traits/valuable.js';
+import { Valuable, type ValuableProps } from 'ydin/traits/valuable.js';
 import { $, toggleState } from 'ydin/utils/DOM.js';
 import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';

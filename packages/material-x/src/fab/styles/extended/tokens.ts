@@ -1,8 +1,10 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
 import { attribute } from '../../../.tproc/selector.ts';
-import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
-import { createDefaultFirstSorter } from '../../../.tproc/utils.ts';
+import {
+  createDefaultFirstSorter,
+  type ProcessorAdjuster,
+} from '../../../.tproc/utils.ts';
 import * as CSSVariable from '../../../.tproc/variable.ts';
 import { defaultColorTokens } from '../color/tokens.ts';
 import { defaultTokens } from '../default/tokens.ts';
