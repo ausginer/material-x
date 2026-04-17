@@ -43,9 +43,14 @@ const CUSTOM_ELEMENTS_HMR_IMPORT = `import '${CUSTOM_ELEMENTS_HMR_VIRTUAL_ID}';`
 const CUSTOM_ELEMENTS_HMR_FILE = fileURLToPath(
   new URL('./ce-hmr.ts', import.meta.url),
 );
-const REACTIVE_ELEMENT_FILE = normalizePath(
-  fileURLToPath(new URL('../packages/ydin/src/element.ts', import.meta.url)),
-);
+const CUSTOM_ELEMENTS_HMR_TARGET_FILES = new Set([
+  normalizePath(
+    fileURLToPath(new URL('../packages/ydin/element.js', import.meta.url)),
+  ),
+  normalizePath(
+    fileURLToPath(new URL('../packages/ydin/src/element.ts', import.meta.url)),
+  ),
+]);
 
 export function constructCustomElementsHMR(): Plugin {
   return {
@@ -69,12 +74,12 @@ export function constructCustomElementsHMR(): Plugin {
     transform: {
       filter: {
         id: {
-          include: /ydin\/src\/reactive-element\.ts/u,
+          include: /ydin\/(?:src\/element\.ts|element\.js)/u,
         },
       },
       handler(code, id) {
         if (
-          normalizePath(id) !== REACTIVE_ELEMENT_FILE ||
+          !CUSTOM_ELEMENTS_HMR_TARGET_FILES.has(normalizePath(id)) ||
           code.includes(CUSTOM_ELEMENTS_HMR_IMPORT)
         ) {
           return null;
@@ -102,7 +107,7 @@ export function constructCSSStyles(
       },
       order: 'pre',
       async handler(source, importer) {
-        return await this.resolve(source + '?raw', importer, {
+        return await this.resolve(`${source}?raw`, importer, {
           skipSelf: true,
         });
       },
@@ -145,7 +150,7 @@ export function constructHTMLTemplate(): Plugin {
       },
       order: 'pre',
       async handler(source, importer) {
-        return await this.resolve(source + '?raw', importer, {
+        return await this.resolve(`${source}?raw`, importer, {
           skipSelf: true,
         });
       },

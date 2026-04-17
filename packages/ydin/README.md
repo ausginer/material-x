@@ -114,8 +114,8 @@ All controllers are registered with `use(host, controller)` in the constructor.
 ```ts
 import { $, $$, notify, toggleState } from 'ydin/utils/DOM.js';
 
-$(host, selector);           // host.shadowRoot?.querySelector(selector)
-$$(host, selector);          // host.shadowRoot?.querySelectorAll(selector)
+$(host, selector); // host.shadowRoot?.querySelector(selector)
+$$(host, selector); // host.shadowRoot?.querySelectorAll(selector)
 notify(host, 'change', 'input'); // dispatch multiple bubbling composed events in order
 toggleState(internals, 'checked', true); // add/remove a custom state from ElementInternals.states
 ```
@@ -133,7 +133,10 @@ import { $ } from 'ydin/utils/DOM.js';
 
 const brand = Symbol('MyButton');
 const MyButtonTrait = trait({ color: Str }, brand);
-const MyButtonCore = impl(ControlledElement, [MyButtonTrait, Disableable] as const);
+const MyButtonCore = impl(ControlledElement, [
+  MyButtonTrait,
+  Disableable,
+] as const);
 
 const template = document.createElement('template');
 template.innerHTML = `<button type="button"><slot></slot></button>`;

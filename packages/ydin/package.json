@@ -111,7 +111,10 @@
     "docs:api:dev": "typedoc --options typedoc.json --out ../../node_modules/.cache/docs/api/ydin",
     "docs:api:build": "typedoc --options typedoc.json --out ../../.docs/api/ydin",
     "typecheck": "tsgo -p tsconfig.json --noEmit",
-    "lint": "oxlint --type-aware . && eslint --flag unstable_native_nodejs_ts_config -c ../../eslint.config.ts .",
+    "fmt": "oxfmt .",
+    "fmt:check": "oxfmt --check .",
+    "lint": "oxlint . && eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .",
+    "lint:fix": "oxlint --fix . && eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --fix .",
     "test:browser": "vitest run -c vitest.browser.config.ts",
     "test:browser:inspect": "vitest run --inspect-brk -c vitest.browser.config.ts"
   },

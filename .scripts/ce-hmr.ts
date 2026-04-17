@@ -13,6 +13,88 @@ type HMRState = {
 
 const STATE_KEY = Symbol.for('mx.custom-elements.hmr.state');
 
+function cleanup(refSet: Set<WeakRef<object>>): void {
+  requestIdleCallback(() => {
+    for (const ref of refSet) {
+      if (ref.deref() === undefined) {
+        refSet.delete(ref);
+      }
+    }
+  });
+}
+
+function createReplacement(
+  name: string,
+  options: ElementDefinitionOptions | undefined,
+  ownerDocument: Document,
+): HTMLElement {
+  const replacement =
+    options?.extends === undefined
+      ? ownerDocument.createElement(name)
+      : ownerDocument.createElement(options.extends, { is: name });
+
+  if (!(replacement instanceof HTMLElement)) {
+    throw new TypeError(`Expected HTMLElement replacement for "${name}"`);
+  }
+
+  return replacement;
+}
+
+function remountConnectedElements(name: string, entry: HMREntry): void {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  for (const currentElement of entry.instances
+    .values()
+    .map((ref) => ref.deref())
+    .filter(
+      (element): element is HTMLElement =>
+        !!element?.isConnected && element.parentNode != null,
+    )) {
+    const replacement = createReplacement(
+      name,
+      entry.options,
+      currentElement.ownerDocument,
+    );
+
+    const shouldRestoreFocus =
+      currentElement.ownerDocument.activeElement === currentElement;
+
+    for (const attributeName of currentElement.getAttributeNames()) {
+      const attributeValue = currentElement.getAttribute(attributeName);
+      if (attributeValue !== null) {
+        replacement.setAttribute(attributeName, attributeValue);
+      }
+    }
+
+    while (currentElement.firstChild !== null) {
+      replacement.append(currentElement.firstChild);
+    }
+
+    currentElement.replaceWith(replacement);
+
+    if (shouldRestoreFocus) {
+      queueMicrotask(() => replacement.focus());
+    }
+  }
+
+  cleanup(entry.instances);
+}
+
+function queueRemount(name: string, entry: HMREntry): void {
+  if (entry.refreshQueued) {
+    return;
+  }
+
+  entry.refreshQueued = true;
+
+  queueMicrotask(() => {
+    entry.refreshQueued = false;
+    remountConnectedElements(name, entry);
+  });
+}
+
 function patchCustomElementsRegistry(): void {
   const { prototype } = CustomElementRegistry;
 
@@ -20,6 +102,7 @@ function patchCustomElementsRegistry(): void {
   if (!(STATE_KEY in prototype.define)) {
     const define: CustomElementRegistry['define'] & { [STATE_KEY]: HMRState } =
       Object.assign(
+        // oxlint-disable-next-line func-names
         function (this: CustomElementRegistry, name, constructor, options) {
           const existingEntry = define[STATE_KEY].entries.get(name);
 
@@ -70,89 +153,6 @@ function patchCustomElementsRegistry(): void {
       writable: true,
     });
   }
-}
-
-function createReplacement(
-  name: string,
-  options: ElementDefinitionOptions | undefined,
-  ownerDocument: Document,
-): HTMLElement {
-  const replacement =
-    options?.extends === undefined
-      ? ownerDocument.createElement(name)
-      : ownerDocument.createElement(options.extends, { is: name });
-
-  if (!(replacement instanceof HTMLElement)) {
-    throw new TypeError(`Expected HTMLElement replacement for "${name}"`);
-  }
-
-  return replacement;
-}
-
-function cleanup(refSet: Set<WeakRef<object>>): void {
-  requestIdleCallback(() => {
-    for (const ref of refSet) {
-      if (ref.deref() === undefined) {
-        refSet.delete(ref);
-      }
-    }
-  });
-}
-
-function remountConnectedElements(name: string, entry: HMREntry): void {
-  if (typeof document === 'undefined') {
-    return;
-  }
-
-  for (const currentElement of entry.instances
-    .values()
-    .map((ref) => ref.deref())
-    .filter(
-      (element): element is HTMLElement =>
-        !!element?.isConnected && element.parentNode != null,
-    )
-    .toArray()) {
-    const replacement = createReplacement(
-      name,
-      entry.options,
-      currentElement.ownerDocument,
-    );
-
-    const shouldRestoreFocus =
-      currentElement.ownerDocument.activeElement === currentElement;
-
-    for (const attributeName of currentElement.getAttributeNames()) {
-      const attributeValue = currentElement.getAttribute(attributeName);
-      if (attributeValue !== null) {
-        replacement.setAttribute(attributeName, attributeValue);
-      }
-    }
-
-    while (currentElement.firstChild !== null) {
-      replacement.append(currentElement.firstChild);
-    }
-
-    currentElement.replaceWith(replacement);
-
-    if (shouldRestoreFocus) {
-      queueMicrotask(() => replacement.focus());
-    }
-  }
-
-  cleanup(entry.instances);
-}
-
-function queueRemount(name: string, entry: HMREntry): void {
-  if (entry.refreshQueued) {
-    return;
-  }
-
-  entry.refreshQueued = true;
-
-  queueMicrotask(() => {
-    entry.refreshQueued = false;
-    remountConnectedElements(name, entry);
-  });
 }
 
 if (

@@ -89,7 +89,10 @@
     "docs:build": "npm run docs:prepare && node ../../.scripts/storybook.ts build --config-dir ../../.storybook -o ../../.docs",
     "publint": "publint",
     "typecheck": "tsgo -p tsconfig.json --noEmit",
-    "lint": "oxlint --type-aware . && eslint --flag unstable_native_nodejs_ts_config -c ../../eslint.config.ts .",
+    "fmt": "oxfmt .",
+    "fmt:check": "oxfmt --check .",
+    "lint": "oxlint . && eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .",
+    "lint:fix": "oxlint --fix . && eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --fix .",
     "test": "vitest run -c vitest.config.ts && vitest run -c vitest.browser.config.ts",
     "test:browser": "vitest run -c vitest.browser.config.ts"
   },

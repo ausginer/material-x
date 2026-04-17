@@ -35,7 +35,6 @@
         "github.vscode-github-actions",
         "oxc.oxc-vscode",
         "YoavBls.pretty-ts-errors",
-        "acoreyj.restart-ts-eslint-server",
         "TypeScriptTeam.native-preview",
         "eamodio.gitlens",
         "unifiedjs.vscode-mdx",
