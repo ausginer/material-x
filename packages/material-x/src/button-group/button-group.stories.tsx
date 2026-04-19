@@ -1,8 +1,13 @@
-import type { Meta } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type JSX } from 'react';
 import '../button/button.ts';
 import '../button/switch-icon-button.ts';
 import '../icon/icon.ts';
+import type {
+  ButtonColor,
+  ButtonShape,
+  ButtonSize,
+} from '../button/ButtonCore.ts';
 import css from '../story.module.css';
 import './button-group.ts';
 
@@ -18,6 +23,53 @@ const meta: Meta = {
 };
 
 export default meta;
+
+type PlaygroundArgs = Readonly<{
+  color: ButtonColor | 'filled';
+  size: ButtonSize | 'small';
+  shape: ButtonShape | 'round';
+  disabled: boolean;
+}>;
+
+export const Playground: StoryObj<PlaygroundArgs> = {
+  args: {
+    color: 'filled',
+    size: 'small',
+    shape: 'round',
+    disabled: false,
+  },
+  argTypes: {
+    color: {
+      control: 'inline-radio',
+      options: ['filled', 'elevated', 'outlined', 'tonal', 'text'],
+    },
+    size: {
+      control: 'inline-radio',
+      options: ['xsmall', 'small', 'medium', 'large', 'xlarge'],
+    },
+    shape: {
+      control: 'inline-radio',
+      options: ['round', 'square'],
+    },
+    disabled: {
+      control: 'boolean',
+    },
+  },
+  render({ color, size, shape, disabled }) {
+    return (
+      <mx-button-group
+        color={color === 'filled' ? undefined : color}
+        size={size === 'small' ? undefined : size}
+        shape={shape === 'round' ? undefined : shape}
+        disabled={disabled}
+      >
+        <mx-button>Back</mx-button>
+        <mx-button>Save</mx-button>
+        <mx-button>Next</mx-button>
+      </mx-button-group>
+    );
+  },
+};
 
 export const States = (): JSX.Element => (
   <mx-button-group size="medium">

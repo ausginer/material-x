@@ -1,7 +1,8 @@
-import type { Meta } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { JSX } from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
+import type { ButtonColor, ButtonShape, ButtonSize } from './ButtonCore.ts';
 import './link-button.ts';
 
 const meta: Meta = {
@@ -19,6 +20,68 @@ export default meta;
 
 const HREF = 'https://m3.material.io/components/buttons/overview';
 const TARGET = '_blank';
+
+type PlaygroundArgs = Readonly<{
+  color: ButtonColor | 'filled';
+  size: ButtonSize | 'small';
+  shape: ButtonShape | 'round';
+  icon: string;
+  label: string;
+  href: string;
+  disabled: boolean;
+}>;
+
+export const Playground: StoryObj<PlaygroundArgs> = {
+  args: {
+    color: 'filled',
+    size: 'small',
+    shape: 'round',
+    icon: '',
+    label: 'Submit',
+    href: '#',
+    disabled: false,
+  },
+  argTypes: {
+    color: {
+      control: 'inline-radio',
+      options: ['filled', 'elevated', 'outlined', 'tonal', 'text'],
+    },
+    size: {
+      control: 'inline-radio',
+      options: ['xsmall', 'small', 'medium', 'large', 'xlarge'],
+    },
+    shape: {
+      control: 'inline-radio',
+      options: ['round', 'square'],
+    },
+    icon: {
+      control: 'text',
+    },
+    label: {
+      control: 'text',
+    },
+    href: {
+      control: 'text',
+    },
+    disabled: {
+      control: 'boolean',
+    },
+  },
+  render({ color, size, shape, icon, label, href, disabled }) {
+    return (
+      <mx-link-button
+        color={color === 'filled' ? undefined : color}
+        size={size === 'small' ? undefined : size}
+        shape={shape === 'round' ? undefined : shape}
+        href={href}
+        disabled={disabled}
+      >
+        {icon && <mx-icon slot="icon">{icon}</mx-icon>}
+        {label}
+      </mx-link-button>
+    );
+  },
+};
 
 export const States = (): JSX.Element => (
   <>

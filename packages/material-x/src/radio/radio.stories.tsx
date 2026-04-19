@@ -1,4 +1,4 @@
-import type { Meta } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type JSX } from 'react';
 import css from '../story.module.css';
 import './radio.ts';
@@ -43,6 +43,51 @@ function ControlledRadioGroup({
     </>
   );
 }
+
+const PLAYGROUND_ID = 'mx-playground-radio';
+
+type PlaygroundArgs = Readonly<{
+  label: string;
+  checked: boolean;
+  disabled: boolean;
+  value: string;
+}>;
+
+export const Playground: StoryObj<PlaygroundArgs> = {
+  args: {
+    label: 'Option',
+    checked: false,
+    disabled: false,
+    value: 'option',
+  },
+  argTypes: {
+    label: {
+      control: 'text',
+    },
+    checked: {
+      control: 'boolean',
+    },
+    disabled: {
+      control: 'boolean',
+    },
+    value: {
+      control: 'text',
+    },
+  },
+  render({ label, checked, disabled, value }) {
+    return (
+      <>
+        <mx-radio
+          id={PLAYGROUND_ID}
+          checked={checked}
+          disabled={disabled}
+          value={value}
+        />
+        <label htmlFor={PLAYGROUND_ID}>{label}</label>
+      </>
+    );
+  },
+};
 
 export const States = (): JSX.Element => (
   <>

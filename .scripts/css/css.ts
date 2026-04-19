@@ -3,7 +3,6 @@ import { fileURLToPath } from 'node:url';
 import MagicString from 'magic-string';
 import type { SourceMap } from 'rollup';
 import { cssCache, escapeTemplateLiteral, type JSONModule } from '../utils.ts';
-import { injectStateEnforcer } from './css-docs.ts';
 import format from './format.ts';
 import transform from './transform.ts';
 
@@ -22,7 +21,6 @@ export type CSSCompilationResult = Readonly<{
 
 export type CompileCSSOptions = Readonly<{
   isProd?: boolean;
-  isDocs?: boolean;
 }>;
 
 export async function compileCSS(
@@ -33,7 +31,7 @@ export async function compileCSS(
   const path = fileURLToPath(url);
   const cssPath = path.replace(/\.ts$/, '');
 
-  let css = options?.isProd
+  const css = options?.isProd
     ? code.replace(CSS_VARIABLE_NAME_REGEXP, (propName) => {
         const mangled = propList[propName];
 
@@ -53,7 +51,6 @@ export async function compileCSS(
     {
       minify: options?.isProd,
       sourceMap: options?.isProd,
-      visitor: options?.isDocs ? injectStateEnforcer() : undefined,
     },
   );
 

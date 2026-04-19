@@ -1,11 +1,18 @@
 import type { EmptyObject } from 'type-fest';
+import { useAttributes } from 'ydin/controllers/useAttributes.js';
+import { useProvider } from 'ydin/controllers/useContext.js';
 import { useRovingTabindex } from 'ydin/controllers/useRovingTabindex.js';
 import { useSlot } from 'ydin/controllers/useSlot.js';
 import { define, type ControlledElement } from 'ydin/element.js';
+import { EventEmitter } from 'ydin/emitter.js';
 import type { Checkable } from 'ydin/traits/checkable.js';
 import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import { Valuable, type ValuableProps } from 'ydin/traits/valuable.js';
 import type { ButtonCoreProps, ButtonLike } from '../button/ButtonCore.ts';
+import {
+  CONNECTED_GROUP_CTX,
+  type ConnectedButtonGroupProviderChangedAttribute,
+} from './button-group-context.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
   ButtonGroupCore,
@@ -53,6 +60,17 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupCore {
     ]);
 
     useRovingTabindex(this);
+
+    const emitter =
+      new EventEmitter<ConnectedButtonGroupProviderChangedAttribute>();
+
+    useProvider(this, CONNECTED_GROUP_CTX, { emitter, provider: this });
+
+    useAttributes(this, {
+      value(oldValue, newValue) {
+        emitter.emit('value', oldValue, newValue);
+      },
+    });
 
     useSlot<ButtonLike & Checkable & ControlledElement>(
       this,

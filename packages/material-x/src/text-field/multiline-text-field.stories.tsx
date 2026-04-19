@@ -1,4 +1,4 @@
-import type { Meta } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { JSX } from 'react';
 import '../icon/icon.ts';
 import './text-field.ts';
@@ -25,6 +25,44 @@ export default Meta;
 
 const FILLED_MULTILINE_VALUE =
   'This is a long input in a multi-line text field that wraps overflow text onto a new line';
+
+type PlaygroundArgs = Readonly<{
+  outlined: boolean;
+  label: string;
+  supportText: string;
+  disabled: boolean;
+}>;
+
+export const Playground: StoryObj<PlaygroundArgs> = {
+  args: {
+    outlined: false,
+    label: 'Message',
+    supportText: '',
+    disabled: false,
+  },
+  argTypes: {
+    outlined: {
+      control: 'boolean',
+    },
+    label: {
+      control: 'text',
+    },
+    supportText: {
+      control: 'text',
+    },
+    disabled: {
+      control: 'boolean',
+    },
+  },
+  render({ outlined, label, supportText, disabled }) {
+    return (
+      <mx-multiline-text-field outlined={outlined} disabled={disabled}>
+        <div slot="label">{label}</div>
+        {supportText && <div slot="support">{supportText}</div>}
+      </mx-multiline-text-field>
+    );
+  },
+};
 
 export const Filled = (): JSX.Element => (
   <>

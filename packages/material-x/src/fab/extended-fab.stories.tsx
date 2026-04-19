@@ -1,4 +1,4 @@
-import type { Meta } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   useState,
   type CSSProperties,
@@ -6,7 +6,9 @@ import {
   type PropsWithChildren,
 } from 'react';
 import css from '../story.module.css';
-import type { FABProperties } from './fab.ts';
+// oxlint-disable-next-line import/no-duplicates
+import './fab.ts';
+import type { FABColor, FABExtended, FABProperties, FABSize } from './fab.ts';
 
 const meta: Meta = {
   title: 'FAB / Extended',
@@ -50,6 +52,68 @@ function ControlledFABExtended({
     </mx-fab>
   );
 }
+
+type PlaygroundArgs = Readonly<{
+  color: FABColor | 'tertiary';
+  size: FABSize;
+  tonal: boolean;
+  extended: FABExtended;
+  icon: string;
+  label: string;
+  disabled: boolean;
+}>;
+
+export const Playground: StoryObj<PlaygroundArgs> = {
+  args: {
+    color: 'tertiary',
+    size: 'medium',
+    tonal: false,
+    extended: 'open',
+    icon: 'check',
+    label: 'Create',
+    disabled: false,
+  },
+  argTypes: {
+    color: {
+      control: 'inline-radio',
+      options: ['tertiary', 'primary', 'secondary'],
+    },
+    size: {
+      control: 'inline-radio',
+      options: ['medium', 'large'],
+    },
+    tonal: {
+      control: 'boolean',
+    },
+    extended: {
+      control: 'inline-radio',
+      options: ['open', 'closed'],
+    },
+    icon: {
+      control: 'text',
+    },
+    label: {
+      control: 'text',
+    },
+    disabled: {
+      control: 'boolean',
+    },
+  },
+  render({ color, size, tonal, extended, icon, label, disabled }) {
+    return (
+      <mx-fab
+        color={color === 'tertiary' ? undefined : color}
+        size={size === 'medium' ? undefined : size}
+        tonal={tonal}
+        extended={extended}
+        disabled={disabled}
+      >
+        <mx-icon slot="icon">{icon}</mx-icon>
+        {label}
+      </mx-fab>
+    );
+  },
+};
 
 export const States = (): JSX.Element => (
   <>

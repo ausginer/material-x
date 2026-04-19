@@ -32,11 +32,19 @@ export type CheckableProps = Props<typeof Checkable>;
  */
 export function useCheckable(
   host: Checkable & ControlledElement,
-  target: HTMLInputElement,
+  target: HTMLElement,
 ): void {
-  useAttributes(host, {
-    checked: via(Bool, (_, value) => {
-      target.checked = value;
-    }),
-  });
+  if (target instanceof HTMLInputElement) {
+    useAttributes(host, {
+      checked: via(Bool, (_, value) => {
+        target.checked = value;
+      }),
+    });
+  } else {
+    useAttributes(host, {
+      'aria-checked': via(Bool, (_, value) => {
+        target.ariaChecked = String(value);
+      }),
+    });
+  }
 }

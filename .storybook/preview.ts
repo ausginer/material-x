@@ -4,6 +4,14 @@ import './preview-frame.css';
 import './theme.css';
 import { DocsContainer } from './docs/DocsContainer.tsx';
 
+const theme = new URL(
+  window.top?.location.href ?? window.location.href,
+).searchParams.get('theme');
+
+if (theme === 'dark') {
+  document.documentElement.dataset['theme'] = 'dark';
+}
+
 export const THEME_EVENT = 'THEME_CHANGED';
 const THEME_PARAM = 'theme';
 
@@ -51,6 +59,7 @@ const preview: Preview = {
   parameters: {
     docs: {
       container: DocsContainer,
+      codePanel: true,
     },
     backgrounds: { disable: true },
   },

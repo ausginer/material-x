@@ -1,4 +1,4 @@
-import type { Meta } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type JSX } from 'react';
 import css from '../story.module.css';
 import './checkbox.ts';
@@ -29,6 +29,51 @@ function ControlledCheckbox(props: JSX.IntrinsicElements['mx-checkbox']) {
     />
   );
 }
+
+const PLAYGROUND_ID = 'mx-playground-checkbox';
+
+type PlaygroundArgs = Readonly<{
+  label: string;
+  checked: boolean;
+  indeterminate: boolean;
+  disabled: boolean;
+}>;
+
+export const Playground: StoryObj<PlaygroundArgs> = {
+  args: {
+    label: 'Label',
+    checked: false,
+    indeterminate: false,
+    disabled: false,
+  },
+  argTypes: {
+    label: {
+      control: 'text',
+    },
+    checked: {
+      control: 'boolean',
+    },
+    indeterminate: {
+      control: 'boolean',
+    },
+    disabled: {
+      control: 'boolean',
+    },
+  },
+  render({ label, checked, indeterminate, disabled }) {
+    return (
+      <>
+        <mx-checkbox
+          id={PLAYGROUND_ID}
+          checked={checked}
+          indeterminate={indeterminate}
+          disabled={disabled}
+        />
+        <label htmlFor={PLAYGROUND_ID}>{label}</label>
+      </>
+    );
+  },
+};
 
 export const States = (): JSX.Element => (
   <>

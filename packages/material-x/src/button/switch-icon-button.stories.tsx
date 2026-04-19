@@ -1,9 +1,11 @@
-import type { Meta } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type JSX, type PropsWithChildren } from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
+import type { ButtonShape, ButtonSize } from './ButtonCore.ts';
 // oxlint-disable-next-line import/no-duplicates
 import './switch-icon-button.ts';
+import type { IconButtonColor, IconButtonWidth } from './icon-button.ts';
 import type { SwitchIconButtonProperties } from './switch-icon-button.ts';
 
 const meta: Meta = {
@@ -34,6 +36,69 @@ function ControlledSwitchIconButton(
     />
   );
 }
+
+type PlaygroundArgs = Readonly<{
+  color: IconButtonColor | 'filled';
+  size: ButtonSize | 'small';
+  shape: ButtonShape | 'round';
+  width: IconButtonWidth | 'default';
+  icon: string;
+  checked: boolean;
+  disabled: boolean;
+}>;
+
+export const Playground: StoryObj<PlaygroundArgs> = {
+  args: {
+    color: 'filled',
+    size: 'small',
+    shape: 'round',
+    width: 'default',
+    icon: 'wifi',
+    checked: false,
+    disabled: false,
+  },
+  argTypes: {
+    color: {
+      control: 'inline-radio',
+      options: ['filled', 'elevated', 'tonal', 'outlined', 'standard'],
+    },
+    size: {
+      control: 'inline-radio',
+      options: ['xsmall', 'small', 'medium', 'large', 'xlarge'],
+    },
+    shape: {
+      control: 'inline-radio',
+      options: ['round', 'square'],
+    },
+    width: {
+      control: 'inline-radio',
+      options: ['default', 'wide', 'narrow'],
+    },
+    icon: {
+      control: 'text',
+    },
+    checked: {
+      control: 'boolean',
+    },
+    disabled: {
+      control: 'boolean',
+    },
+  },
+  render({ color, size, shape, width, icon, checked, disabled }) {
+    return (
+      <mx-switch-icon-button
+        color={color === 'filled' ? undefined : color}
+        size={size === 'small' ? undefined : size}
+        shape={shape === 'round' ? undefined : shape}
+        width={width === 'default' ? undefined : width}
+        checked={checked}
+        disabled={disabled}
+      >
+        <mx-icon>{icon}</mx-icon>
+      </mx-switch-icon-button>
+    );
+  },
+};
 
 export const States = (): JSX.Element => (
   <>

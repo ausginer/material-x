@@ -1,8 +1,10 @@
-import type { Meta } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { JSX } from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
+// oxlint-disable-next-line import/no-duplicates
 import './fab.ts';
+import type { FABColor, FABSize } from './fab.ts';
 
 const meta: Meta = {
   title: 'FAB / Regular',
@@ -16,6 +18,55 @@ const meta: Meta = {
 };
 
 export default meta;
+
+type PlaygroundArgs = Readonly<{
+  color: FABColor | 'tertiary';
+  size: FABSize;
+  tonal: boolean;
+  icon: string;
+  disabled: boolean;
+}>;
+
+export const Playground: StoryObj<PlaygroundArgs> = {
+  args: {
+    color: 'tertiary',
+    size: 'medium',
+    tonal: false,
+    icon: 'check',
+    disabled: false,
+  },
+  argTypes: {
+    color: {
+      control: 'inline-radio',
+      options: ['tertiary', 'primary', 'secondary'],
+    },
+    size: {
+      control: 'inline-radio',
+      options: ['medium', 'large'],
+    },
+    tonal: {
+      control: 'boolean',
+    },
+    icon: {
+      control: 'text',
+    },
+    disabled: {
+      control: 'boolean',
+    },
+  },
+  render({ color, size, tonal, icon, disabled }) {
+    return (
+      <mx-fab
+        color={color === 'tertiary' ? undefined : color}
+        size={size === 'medium' ? undefined : size}
+        tonal={tonal}
+        disabled={disabled}
+      >
+        <mx-icon slot="icon">{icon}</mx-icon>
+      </mx-fab>
+    );
+  },
+};
 
 export const States = (): JSX.Element => (
   <>

@@ -169,6 +169,7 @@ export function omitSelectedShape(path: string, tokenName?: string): boolean {
 }
 
 const checked = attribute('checked');
+const checkedState = pseudoClass('state', 'checked');
 
 export type ButtonScope = Readonly<{
   name: string;
@@ -176,10 +177,35 @@ export type ButtonScope = Readonly<{
   useState?: boolean;
 }>;
 
+/**
+ * Builds a `DeclarationBlockRenderer` that maps token paths to `:host` CSS
+ * selectors, expanding across two independent dimensions:
+ *
+ * **Dimension 1 — scope** (how the color/variant is addressed):
+ *   - Always: attribute form   → `:host([color="standard"]…)`
+ *   - When `useState: true`: custom-state form → `:host(:state(standard):not([color])…)`
+ *
+ * **Dimension 2 — checked** (only for `selected.*` token paths):
+ *   - Attribute form   → `[checked]`
+ *   - Custom-state form → `:state(checked)`
+ *
+ * The two dimensions are crossed via `flatMap`, so the output is:
+ *   - Unselected tokens: 1–2 selectors  (scope variants only)
+ *   - Selected tokens:   2–4 selectors  (scope × checked variants)
+ *
+ * Example output for `selected.pressed` with `useState`:
+ * ```css
+ * :host([color="standard"][checked]:active),
+ * :host([color="standard"]:state(checked):active),
+ * :host(:state(standard):not([color])[checked]:active),
+ * :host(:state(standard):not([color]):state(checked):active)
+ * ```
+ */
 export function createScopedDeclarationRenderer(
   scope?: ButtonScope,
 ): DeclarationBlockRenderer {
   return (path, declarations) => {
+    // path format: "state" or "selection.state"  e.g. "pressed" / "selected.hovered"
     let state: string;
     let selection: string | undefined;
 
@@ -191,31 +217,37 @@ export function createScopedDeclarationRenderer(
       state = path.slice(index + 1);
     }
 
-    const scopeAttribute = scope
-      ? attribute(scope.name, scope.value)
-      : undefined;
-
-    const scopeState = scope?.useState
-      ? [
-          pseudoClass('state', scope.value),
-          pseudoClass('not', attribute(scope.name)),
-        ]
-      : [];
-
-    const commonParams = [
-      selection === 'selected' ? checked : null,
-      state === 'default' ? null : BUTTON_STATE_MAP[state],
+    // Dimension 1: scope selector variants.
+    // Each entry is a list of params that together identify the color/variant.
+    const scopeBases = [
+      // Attribute form: [color="standard"] — always present
+      [scope ? attribute(scope.name, scope.value) : undefined],
+      // Custom-state form: :state(standard):not([color]) — only when useState
+      ...(scope?.useState
+        ? [
+            [
+              pseudoClass('state', scope.value),
+              pseudoClass('not', attribute(scope.name)),
+            ],
+          ]
+        : []),
     ];
 
+    // Dimension 2: checked selector variants.
+    // Selected tokens need both [checked] and :state(checked) forms;
+    // unselected tokens need neither ([null] produces no extra param).
+    const checkedVariants =
+      selection === 'selected' ? [checked, checkedState] : [null];
+
+    const stateParam = state === 'default' ? null : BUTTON_STATE_MAP[state];
+
+    // Cross the two dimensions to produce all required selectors.
     return {
       path,
       declarations,
-      selectors: [
-        selector(':host', scopeAttribute, ...commonParams),
-        scope?.useState
-          ? selector(':host', ...scopeState, ...commonParams)
-          : null,
-      ],
+      selectors: scopeBases.flatMap((base) =>
+        checkedVariants.map((c) => selector(':host', ...base, c, stateParam)),
+      ),
     };
   };
 }

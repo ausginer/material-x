@@ -1,3 +1,4 @@
+import { Bool } from 'ydin/attribute.js';
 import {
   useAttributes,
   type UpdateCallback,
@@ -9,10 +10,10 @@ import type { Disableable } from 'ydin/traits/disableable.js';
 import {
   impl,
   trait,
-  type TraitedConstructor,
   type Interface,
   type Props,
   type Trait,
+  type TraitedConstructor,
 } from 'ydin/traits/traits.js';
 import {
   ButtonCore,
@@ -22,7 +23,7 @@ import {
 import { useCore } from '../core/utils/useCore.ts';
 import {
   BUTTON_GROUP_CTX,
-  type ChangedAttribute,
+  type ButtonGroupProvierChangedAttribute,
 } from './button-group-context.ts';
 
 const $buttonGroupLike: unique symbol = Symbol('ButtonGroupLike');
@@ -56,7 +57,7 @@ export function useButtonGroupCore(
 ): void {
   useCore(host, [template], aria, styles);
 
-  const emitter = new EventEmitter<ChangedAttribute>();
+  const emitter = new EventEmitter<ButtonGroupProvierChangedAttribute>();
 
   useProvider(host, BUTTON_GROUP_CTX, { emitter, provider: host });
 
@@ -77,4 +78,10 @@ export function useButtonGroupCore(
       ),
     ),
   );
+
+  useAttributes(host, {
+    disabled: (oldValue, newValue) => {
+      emitter.emit('disabled', Bool[0](oldValue), Bool[0](newValue));
+    },
+  });
 }

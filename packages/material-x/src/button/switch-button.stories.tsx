@@ -1,10 +1,14 @@
-import type { Meta } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type JSX, type PropsWithChildren } from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
+import type { ButtonShape, ButtonSize } from './ButtonCore.ts';
 // oxlint-disable-next-line import/no-duplicates
 import './switch-button.ts';
-import type { SwitchButtonProperties } from './switch-button.ts';
+import type {
+  SwitchButtonColor,
+  SwitchButtonProperties,
+} from './switch-button.ts';
 
 const meta: Meta = {
   title: 'Button/Switch',
@@ -37,6 +41,68 @@ function ControlledSwitchButton({
     </mx-switch-button>
   );
 }
+
+type PlaygroundArgs = Readonly<{
+  color: SwitchButtonColor | 'filled';
+  size: ButtonSize | 'small';
+  shape: ButtonShape | 'round';
+  icon: string;
+  label: string;
+  checked: boolean;
+  disabled: boolean;
+}>;
+
+export const Playground: StoryObj<PlaygroundArgs> = {
+  args: {
+    color: 'filled',
+    size: 'small',
+    shape: 'round',
+    icon: '',
+    label: 'Submit',
+    checked: false,
+    disabled: false,
+  },
+  argTypes: {
+    color: {
+      control: 'inline-radio',
+      options: ['filled', 'elevated', 'tonal', 'outlined'],
+    },
+    size: {
+      control: 'inline-radio',
+      options: ['xsmall', 'small', 'medium', 'large', 'xlarge'],
+    },
+    shape: {
+      control: 'inline-radio',
+      options: ['round', 'square'],
+    },
+    icon: {
+      control: 'text',
+    },
+    label: {
+      control: 'text',
+    },
+    checked: {
+      control: 'boolean',
+    },
+    disabled: {
+      control: 'boolean',
+    },
+  },
+  render({ color, size, shape, icon, label, checked, disabled }) {
+    return (
+      <mx-switch-button
+        color={color === 'filled' ? undefined : color}
+        size={size === 'small' ? undefined : size}
+        shape={shape === 'round' ? undefined : shape}
+        checked={checked}
+        disabled={disabled}
+      >
+        {icon && <mx-icon slot="icon">{icon}</mx-icon>}
+        {label}
+      </mx-switch-button>
+    );
+  },
+};
 
 export const States = (): JSX.Element => (
   <>

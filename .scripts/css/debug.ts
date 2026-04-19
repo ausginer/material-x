@@ -1,9 +1,9 @@
 import { register } from 'node:module';
 import { basename } from 'node:path';
+import { stdout } from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { materialXRoot, root } from '../utils.ts';
-import { injectStateEnforcer } from './css-docs.ts';
 import format from './format.ts';
 import transform from './transform.ts';
 
@@ -34,8 +34,8 @@ const { default: imported }: JSModule<string> = await import(
 const fileName = basename(fileURLToPath(url));
 
 const result = await format(
-  transform(imported ?? '', fileName, { visitor: injectStateEnforcer() }).code,
+  transform(imported ?? '', fileName).code,
   // Remove TS extension to avoid oxfmt hiccup
   fileName.replace(/\.ts$/, ''),
 );
-console.log(result);
+stdout.write(`${result}\n`);

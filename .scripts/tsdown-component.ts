@@ -7,7 +7,7 @@ import {
   constructHTMLTemplate,
 } from './vite-plugins.ts';
 
-export function constructComponentTsdownPlugins(): readonly Rolldown.Plugin[] {
+export function constructComponentTsdownPlugins(): Rolldown.Plugin[] {
   return [
     ...constructLibraryTsdownPlugins(),
     constructCSSStyles({ isProd: true }),

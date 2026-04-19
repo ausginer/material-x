@@ -1,4 +1,5 @@
-:host(:disabled) {
+:host(:disabled),
+:host(:state(disabled)) {
   .host {
     background-color: color-mix(
       in srgb,

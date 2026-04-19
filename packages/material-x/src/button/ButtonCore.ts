@@ -1,4 +1,8 @@
-import { Str, type ConverterOf } from 'ydin/attribute.js';
+import {
+  Str,
+  type ConverterOf,
+  type AttributePrimitive,
+} from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
 import { useContext } from 'ydin/controllers/useContext.js';
 import {
@@ -79,11 +83,11 @@ export type ButtonSharedCSSProperties = Readonly<{
   '--md-button-press-easing'?: string;
 }>;
 
-function updateByContext(
+export function updateByContext(
   internals: ElementInternals,
-  oldValue: string | boolean | number | null,
-  newValue: string | boolean | number | null,
-) {
+  oldValue: AttributePrimitive | null,
+  newValue: AttributePrimitive | null,
+): void {
   if (oldValue) {
     internals.states.delete(String(oldValue));
   }
@@ -117,7 +121,7 @@ export function useButtonCore(
     shadowInit,
   );
 
-  const target = $<HTMLElement>(host, '.host')!;
+  const target = $<HTMLButtonElement>(host, '.host')!;
 
   useDisableable(host, target);
 
@@ -133,8 +137,14 @@ export function useButtonCore(
         updateByContext(internals, null, data.provider[attr]);
       }
 
-      return data.emitter.on((_, oldValue, newValue) => {
-        updateByContext(internals, oldValue, newValue);
+      target.disabled = host.disabled || data.provider.disabled;
+
+      return data.emitter.on((attr, _, newValue) => {
+        if (attr === 'disabled') {
+          target.disabled = host.disabled || (newValue as boolean);
+        } else {
+          updateByContext(internals, _, newValue);
+        }
       });
     }
 

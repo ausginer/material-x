@@ -1,7 +1,8 @@
-import type { Meta } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type JSX, type PropsWithChildren } from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
+import type { ButtonColor, ButtonShape, ButtonSize } from './ButtonCore.ts';
 // oxlint-disable-next-line import/no-duplicates
 import './split-button.ts';
 import type { SplitButtonProperties } from './split-button.ts';
@@ -28,6 +29,68 @@ function ControlledSplitButton(
     <mx-split-button open={open} ontoggle={() => setOpen(!open)} {...props} />
   );
 }
+
+type PlaygroundArgs = Readonly<{
+  color: ButtonColor | 'filled';
+  size: ButtonSize | 'small';
+  shape: ButtonShape | 'round';
+  icon: string;
+  label: string;
+  open: boolean;
+  disabled: boolean;
+}>;
+
+export const Playground: StoryObj<PlaygroundArgs> = {
+  args: {
+    color: 'filled',
+    size: 'small',
+    shape: 'round',
+    icon: '',
+    label: 'Submit',
+    open: false,
+    disabled: false,
+  },
+  argTypes: {
+    color: {
+      control: 'inline-radio',
+      options: ['filled', 'elevated', 'outlined', 'tonal', 'text'],
+    },
+    size: {
+      control: 'inline-radio',
+      options: ['xsmall', 'small', 'medium', 'large', 'xlarge'],
+    },
+    shape: {
+      control: 'inline-radio',
+      options: ['round', 'square'],
+    },
+    icon: {
+      control: 'text',
+    },
+    label: {
+      control: 'text',
+    },
+    open: {
+      control: 'boolean',
+    },
+    disabled: {
+      control: 'boolean',
+    },
+  },
+  render({ color, size, shape, icon, label, open, disabled }) {
+    return (
+      <mx-split-button
+        color={color === 'filled' ? undefined : color}
+        size={size === 'small' ? undefined : size}
+        shape={shape === 'round' ? undefined : shape}
+        open={open}
+        disabled={disabled}
+      >
+        {icon && <mx-icon slot="icon">{icon}</mx-icon>}
+        {label}
+      </mx-split-button>
+    );
+  },
+};
 
 export const States = (): JSX.Element => (
   <>

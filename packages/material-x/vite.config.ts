@@ -45,12 +45,10 @@ const config: UserConfigFnObject = defineConfig((env) =>
       constructCustomElementsHMR(),
       constructCSSStyles({
         isProd: env.command === 'build',
-        isDocs: true,
       }),
       constructHTMLTemplate(),
       constructCSSTokens({
         isProd: env.command === 'build',
-        isDocs: true,
       }),
       react(),
       inspectEnabled

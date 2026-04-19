@@ -40,6 +40,18 @@ body {
 
 body {
   margin: 0;
+  min-height: 100vh;
+}
+
+#storybook-root {
+  min-height: calc(100vh - 2 * 1rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &[hidden] {
+    display: none;
+  }
 }
 
 .sbdocs-wrapper,

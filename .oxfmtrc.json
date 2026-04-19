@@ -1,5 +1,6 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": ["packages/material-x/.data"],
   "singleQuote": true,
   "printWidth": 80,
   "trailingComma": "all",
