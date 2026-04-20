@@ -1,12 +1,8 @@
-import { Bool } from 'ydin/attribute.js';
-import {
-  useAttributes,
-  type UpdateCallback,
-} from 'ydin/controllers/useAttributes.js';
-import { useProvider } from 'ydin/controllers/useContext.js';
 import type { ControlledElement } from 'ydin/element.js';
-import { EventEmitter } from 'ydin/emitter.js';
-import type { Disableable } from 'ydin/traits/disableable.js';
+import {
+  DISABLEABLE_ATTRS,
+  type Disableable,
+} from 'ydin/traits/disableable.js';
 import {
   impl,
   trait,
@@ -17,13 +13,13 @@ import {
 } from 'ydin/traits/traits.js';
 import {
   ButtonCore,
-  DEFAULT_BUTTON_ATTRIBUTES,
+  BUTTON_ATTRS,
   type ButtonLike,
 } from '../button/ButtonCore.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import {
   BUTTON_GROUP_CTX,
-  type ButtonGroupProvierChangedAttribute,
+  useButtonGroupProvider,
 } from './button-group-context.ts';
 
 const $buttonGroupLike: unique symbol = Symbol('ButtonGroupLike');
@@ -49,6 +45,11 @@ export type ButtonGroupSharedCSSProperties = Readonly<{
   '--md-button-group-inner-corner-size'?: string;
 }>;
 
+const BUTTON_CORE_ATTRIBUTES = {
+  ...BUTTON_ATTRS,
+  ...DISABLEABLE_ATTRS,
+};
+
 export function useButtonGroupCore(
   host: ControlledElement & ButtonLike & ButtonGroupLike & Disableable,
   template: HTMLTemplateElement,
@@ -56,32 +57,5 @@ export function useButtonGroupCore(
   styles: ReadonlyArray<CSSStyleSheet | string>,
 ): void {
   useCore(host, [template], aria, styles);
-
-  const emitter = new EventEmitter<ButtonGroupProvierChangedAttribute>();
-
-  useProvider(host, BUTTON_GROUP_CTX, { emitter, provider: host });
-
-  useAttributes(
-    host,
-    Object.fromEntries(
-      Object.entries(DEFAULT_BUTTON_ATTRIBUTES).map(
-        ([attr, [from]]) =>
-          [
-            attr,
-            ((oldValue, newValue) =>
-              emitter.emit(
-                attr,
-                from(oldValue),
-                from(newValue),
-              )) satisfies UpdateCallback,
-          ] as const,
-      ),
-    ),
-  );
-
-  useAttributes(host, {
-    disabled: (oldValue, newValue) => {
-      emitter.emit('disabled', Bool[0](oldValue), Bool[0](newValue));
-    },
-  });
+  useButtonGroupProvider(host, BUTTON_GROUP_CTX, BUTTON_CORE_ATTRIBUTES);
 }

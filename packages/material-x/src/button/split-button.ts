@@ -18,7 +18,7 @@ import '../icon/icon.ts';
 import './button.ts';
 import {
   ButtonCore,
-  DEFAULT_BUTTON_ATTRIBUTES,
+  BUTTON_ATTRS,
   type ButtonCoreProps,
   type ButtonSharedCSSProperties,
 } from './ButtonCore.ts';
@@ -113,10 +113,7 @@ export default class SplitButton extends SplitButtonCore {
     useAttributes(
       this,
       Object.fromEntries(
-        Object.keys(DEFAULT_BUTTON_ATTRIBUTES).map((attr) => [
-          attr,
-          transfer(group, attr),
-        ]),
+        Object.keys(BUTTON_ATTRS).map((attr) => [attr, transfer(group, attr)]),
       ),
     );
   }

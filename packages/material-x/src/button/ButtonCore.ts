@@ -1,7 +1,7 @@
 import {
   Str,
-  type ConverterOf,
   type AttributePrimitive,
+  type ConverterOf,
 } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
 import { useContext } from 'ydin/controllers/useContext.js';
@@ -39,7 +39,7 @@ export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';
 export type ButtonShape = 'round' | 'square';
 
-export const DEFAULT_BUTTON_ATTRIBUTES = {
+export const BUTTON_ATTRS = {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   color: Str as ConverterOf<ButtonColor>,
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
@@ -47,7 +47,7 @@ export const DEFAULT_BUTTON_ATTRIBUTES = {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   shape: Str as ConverterOf<ButtonShape>,
 } as const;
-export type DEFAULT_BUTTON_ATTRIBUTES = typeof DEFAULT_BUTTON_ATTRIBUTES;
+export type BUTTON_ATTRS = typeof BUTTON_ATTRS;
 
 const $buttonLike: unique symbol = Symbol('ButtonLike');
 
@@ -58,7 +58,7 @@ export const ButtonLike: Trait<
     shape: ButtonShape | null;
   },
   typeof $buttonLike
-> = trait(DEFAULT_BUTTON_ATTRIBUTES, $buttonLike);
+> = trait(BUTTON_ATTRS, $buttonLike);
 
 export type ButtonLike = Interface<typeof ButtonLike>;
 export type ButtonLikeProps = Props<typeof ButtonLike>;
@@ -133,7 +133,7 @@ export function useButtonCore(
 
   useContext(host, BUTTON_GROUP_CTX, (data) => {
     if (data) {
-      for (const attr of Object.keys(DEFAULT_BUTTON_ATTRIBUTES)) {
+      for (const attr of Object.keys(BUTTON_ATTRS)) {
         updateByContext(internals, null, data.provider[attr]);
       }
 

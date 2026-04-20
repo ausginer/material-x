@@ -1,15 +1,19 @@
-import { Str } from '../attribute.ts';
+import { Str, type ConverterOf } from '../attribute.ts';
 import { transfer, useAttributes } from '../controllers/useAttributes.ts';
 import type { ControlledElement } from '../element.ts';
 import { trait, type Interface, type Props, type Trait } from './traits.ts';
 
 const $typeable: unique symbol = Symbol('Typeable');
 
+export const TYPEABLE_ATTRS: Readonly<{ type: ConverterOf<string> }> = {
+  type: Str,
+};
+
 /**
  * Element trait that exposes a string-backed nullable `type` field.
  */
 export const Typeable: Trait<{ type: string | null }, typeof $typeable> = trait(
-  { type: Str },
+  TYPEABLE_ATTRS,
   $typeable,
 );
 

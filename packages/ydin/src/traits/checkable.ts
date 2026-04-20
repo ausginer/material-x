@@ -1,15 +1,19 @@
-import { Bool } from '../attribute.ts';
+import { Bool, type ConverterOf } from '../attribute.ts';
 import { useAttributes, via } from '../controllers/useAttributes.ts';
 import type { ControlledElement } from '../element.ts';
 import { trait, type Interface, type Props, type Trait } from './traits.ts';
 
 const $checkable: unique symbol = Symbol('Checkable');
 
+export const CHECKABLE_ATTRS: Readonly<{ checked: ConverterOf<boolean> }> = {
+  checked: Bool,
+};
+
 /**
  * Element trait that exposes a presence-based `checked` boolean field.
  */
 export const Checkable: Trait<{ checked: boolean }, typeof $checkable> = trait(
-  { checked: Bool },
+  CHECKABLE_ATTRS,
   $checkable,
 );
 
