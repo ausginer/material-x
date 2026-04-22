@@ -45,10 +45,10 @@ export type ButtonGroupSharedCSSProperties = Readonly<{
   '--md-button-group-inner-corner-size'?: string;
 }>;
 
-const BUTTON_CORE_ATTRIBUTES = {
+const BUTTON_CORE_ATTR_NAMES = Object.keys({
   ...BUTTON_ATTRS,
   ...DISABLEABLE_ATTRS,
-};
+});
 
 export function useButtonGroupCore(
   host: ControlledElement & ButtonLike & ButtonGroupLike & Disableable,
@@ -57,5 +57,5 @@ export function useButtonGroupCore(
   styles: ReadonlyArray<CSSStyleSheet | string>,
 ): void {
   useCore(host, [template], aria, styles);
-  useButtonGroupProvider(host, BUTTON_GROUP_CTX, BUTTON_CORE_ATTRIBUTES);
+  useButtonGroupProvider(host, BUTTON_GROUP_CTX, BUTTON_CORE_ATTR_NAMES);
 }

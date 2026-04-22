@@ -170,6 +170,7 @@ export function omitSelectedShape(path: string, tokenName?: string): boolean {
 
 const checked = attribute('checked');
 const checkedState = pseudoClass('state', 'checked');
+const disabledState = pseudoClass('state', 'disabled');
 
 export type ButtonScope = Readonly<{
   name: string;
@@ -179,7 +180,7 @@ export type ButtonScope = Readonly<{
 
 /**
  * Builds a `DeclarationBlockRenderer` that maps token paths to `:host` CSS
- * selectors, expanding across two independent dimensions:
+ * selectors, expanding across three independent dimensions:
  *
  * **Dimension 1 — scope** (how the color/variant is addressed):
  *   - Always: attribute form   → `:host([color="standard"]…)`
@@ -189,16 +190,22 @@ export type ButtonScope = Readonly<{
  *   - Attribute form   → `[checked]`
  *   - Custom-state form → `:state(checked)`
  *
- * The two dimensions are crossed via `flatMap`, so the output is:
- *   - Unselected tokens: 1–2 selectors  (scope variants only)
- *   - Selected tokens:   2–4 selectors  (scope × checked variants)
+ * **Dimension 3 — disabled** (only for `disabled` token paths):
+ *   - Native form        → `:disabled`  (element's own `disabled` attr)
+ *   - Custom-state form  → `:state(disabled)`  (set by group context)
  *
- * Example output for `selected.pressed` with `useState`:
+ * All three dimensions are crossed via `flatMap`, so the output is:
+ *   - Default/other tokens:  1–2 selectors  (scope variants only)
+ *   - Selected tokens:       2–4 selectors  (scope × checked)
+ *   - Disabled tokens:       2–4 selectors  (scope × disabled)
+ *   - Selected+disabled:     4–8 selectors  (scope × checked × disabled)
+ *
+ * Example output for `disabled` with `useState`:
  * ```css
- * :host([color="standard"][checked]:active),
- * :host([color="standard"]:state(checked):active),
- * :host(:state(standard):not([color])[checked]:active),
- * :host(:state(standard):not([color]):state(checked):active)
+ * :host([color="standard"]:disabled),
+ * :host([color="standard"]:state(disabled)),
+ * :host(:state(standard):not([color]):disabled),
+ * :host(:state(standard):not([color]):state(disabled))
  * ```
  */
 export function createScopedDeclarationRenderer(
@@ -239,14 +246,22 @@ export function createScopedDeclarationRenderer(
     const checkedVariants =
       selection === 'selected' ? [checked, checkedState] : [null];
 
-    const stateParam = state === 'default' ? null : BUTTON_STATE_MAP[state];
+    // Dimension 3: disabled selector variants.
+    // Disabled tokens need both :disabled (native attr) and :state(disabled)
+    // (custom state set by group context); all other states use a single param.
+    const stateVariants =
+      state === 'disabled'
+        ? [BUTTON_STATE_MAP['disabled'], disabledState]
+        : [state === 'default' ? null : BUTTON_STATE_MAP[state]];
 
-    // Cross the two dimensions to produce all required selectors.
+    // Cross all three dimensions to produce all required selectors.
     return {
       path,
       declarations,
       selectors: scopeBases.flatMap((base) =>
-        checkedVariants.map((c) => selector(':host', ...base, c, stateParam)),
+        checkedVariants.flatMap((c) =>
+          stateVariants.map((s) => selector(':host', ...base, c, s)),
+        ),
       ),
     };
   };

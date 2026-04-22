@@ -1,8 +1,3 @@
-import type {
-  AttributePrimitive,
-  Converter,
-  NullablePrimitive,
-} from 'ydin/attribute.js';
 import {
   useAttributes,
   type UpdateCallback,
@@ -15,27 +10,28 @@ import {
 import type { ControlledElement } from 'ydin/element.js';
 import { EventEmitter } from 'ydin/emitter.js';
 import type { Disableable } from 'ydin/traits/disableable.js';
+import type { Valuable } from 'ydin/traits/valuable.js';
 import type { ButtonLike } from '../button/ButtonCore.ts';
+import type {
+  ChangedAttribute,
+  ContextData,
+} from '../core/utils/useContext.ts';
 import type { ButtonGroupLike } from './ButtonGroupCore.ts';
 
-export type ChangedAttribute = readonly [
-  attr: string,
-  oldValue: NullablePrimitive<AttributePrimitive>,
-  newValue: NullablePrimitive<AttributePrimitive>,
-];
-export type ContextData = Readonly<{
-  emitter: EventEmitter<ChangedAttribute>;
-  provider: ControlledElement & ButtonLike & ButtonGroupLike & Disableable;
-}>;
+export const BUTTON_GROUP_CTX: Context<
+  ContextData<ControlledElement & ButtonLike & ButtonGroupLike & Disableable>
+> = createContext();
 
-export const BUTTON_GROUP_CTX: Context<ContextData> = createContext();
+export const CONNECTED_GROUP_CTX: Context<
+  ContextData<
+    ControlledElement & ButtonLike & ButtonGroupLike & Disableable & Valuable
+  >
+> = createContext();
 
-export const CONNECTED_GROUP_CTX: Context<ContextData> = createContext();
-
-export function useButtonGroupProvider(
-  host: ControlledElement & ButtonLike & ButtonGroupLike & Disableable,
-  ctx: Context<ContextData>,
-  attributeConverters: Readonly<Record<string, Converter>>,
+export function useButtonGroupProvider<T extends ControlledElement>(
+  host: T,
+  ctx: Context<ContextData<T>>,
+  attributes: ReadonlyArray<Exclude<keyof T & string, keyof ControlledElement>>,
 ): void {
   const emitter = new EventEmitter<ChangedAttribute>();
 
@@ -44,16 +40,12 @@ export function useButtonGroupProvider(
   useAttributes(
     host,
     Object.fromEntries(
-      Object.entries(attributeConverters).map(
-        ([attr, [from]]) =>
+      attributes.map(
+        (attr) =>
           [
             attr,
             ((oldValue, newValue) =>
-              emitter.emit(
-                attr,
-                from(oldValue),
-                from(newValue),
-              )) satisfies UpdateCallback,
+              emitter.emit(attr, oldValue, newValue)) satisfies UpdateCallback,
           ] as const,
       ),
     ),

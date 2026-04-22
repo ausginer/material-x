@@ -32,6 +32,8 @@ const ConnectedButtonGroupCore: TraitedConstructor<
   [typeof Valuable]
 > = impl(ButtonGroupCore, [Valuable]);
 
+const CONNECTED_BUTTON_ATTR_NAMES = Object.keys(VALUABLE_ATTRS);
+
 /**
  * @tag mx-connected-button-group
  *
@@ -62,7 +64,11 @@ export default class ConnectedButtonGroup extends ConnectedButtonGroupCore {
 
     useRovingTabindex(this);
 
-    useButtonGroupProvider(this, CONNECTED_GROUP_CTX, VALUABLE_ATTRS);
+    useButtonGroupProvider(
+      this,
+      CONNECTED_GROUP_CTX,
+      CONNECTED_BUTTON_ATTR_NAMES,
+    );
 
     useSlot<ButtonLike & Checkable & ControlledElement>(
       this,
