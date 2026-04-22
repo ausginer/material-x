@@ -89,6 +89,7 @@
 :host(:disabled) {
   cursor: default;
   pointer-events: none;
+  opacity: var(--_container-opacity);
 }
 
 @keyframes check-reveal {

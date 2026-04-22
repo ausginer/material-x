@@ -7,7 +7,7 @@ const meta: Meta = {
   title: 'Checkbox',
   decorators: [
     (Component: () => JSX.Element): JSX.Element => (
-      <div className={css['layout']}>
+      <div className={`${css['layout']} ${css['checkable-with-label']}`}>
         <Component />
       </div>
     ),

@@ -1,4 +1,5 @@
 import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import LinkTo from '@storybook/addon-links/react';
 import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
 import {
   BREAKING_CHANGES_NOTE,
@@ -79,7 +80,9 @@ Use the live example below to inspect interaction states:
 - click to toggle the label on touch-style interaction
 - move focus with `Tab` / `Shift+Tab` to inspect keyboard focus
 
-<Canvas of={Stories.Playground} />
+<LinkTo kind="FAB / Extended" story="Playground">
+  Playground
+</LinkTo>
 
 ## Accessibility
 

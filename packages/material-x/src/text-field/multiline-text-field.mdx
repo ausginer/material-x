@@ -1,4 +1,5 @@
 import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import LinkTo from '@storybook/addon-links/react';
 import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
 import {
   BREAKING_CHANGES_NOTE,
@@ -71,7 +72,9 @@ Use the live example below to inspect interaction states:
 - click into the field and type to inspect focus and label behavior
 - move focus with `Tab` / `Shift+Tab` to inspect keyboard focus
 
-<Canvas of={Stories.Playground} />
+<LinkTo kind="Text Field / Multiline" story="Playground">
+  Playground
+</LinkTo>
 
 ## Accessibility
 

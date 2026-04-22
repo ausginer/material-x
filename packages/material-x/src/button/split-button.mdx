@@ -1,4 +1,5 @@
 import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import LinkTo from '@storybook/addon-links/react';
 import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
 import {
   BREAKING_CHANGES_NOTE,
@@ -78,7 +79,9 @@ Use the live example below to inspect interaction states:
 - use `Tab` to move focus across the split control
 - click the trailing segment to inspect the expanded state
 
-<Canvas of={Stories.Playground} />
+<LinkTo kind="Button/Split" story="Playground">
+  Playground
+</LinkTo>
 
 ## Accessibility
 

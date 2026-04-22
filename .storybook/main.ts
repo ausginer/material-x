@@ -15,7 +15,7 @@ const config: StorybookConfig = {
     ...(existsSync(videosDir) ? [{ from: videosDir, to: '/videos' }] : []),
     ...(apiStaticDir ? [{ from: apiStaticDir, to: '/api' }] : []),
   ],
-  addons: ['@storybook/addon-docs'],
+  addons: ['@storybook/addon-docs', '@storybook/addon-links'],
   framework: {
     name: '@storybook/react-vite',
     options: {},

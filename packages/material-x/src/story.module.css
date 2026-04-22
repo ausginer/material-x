@@ -13,7 +13,10 @@
 }
 
 .checkable-with-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  &:has(mx-checkbox:disabled),
+  &:has(mx-radio:disabled) {
+    label {
+      opacity: 0.38;
+    }
+  }
 }
