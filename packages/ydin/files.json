@@ -2,6 +2,7 @@
   "runtime": [
     "attribute",
     "controllers/useARIA",
+    "controllers/useAnchor",
     "controllers/useAttributes",
     "controllers/useConnected",
     "controllers/useContext",

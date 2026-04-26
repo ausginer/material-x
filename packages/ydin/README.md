@@ -100,6 +100,7 @@ All controllers are registered with `use(host, controller)` in the constructor.
 | `ydin/controllers/useShadowDOM.js`        | Attach shadow root, adopt stylesheets               |
 | `ydin/controllers/useAttributes.js`       | Mirror host attributes to an internal element       |
 | `ydin/controllers/useARIA.js`             | Sync `aria-*` host attributes to `ElementInternals` |
+| `ydin/controllers/useAnchor.js`           | Wire host navigation attrs to a shadow anchor       |
 | `ydin/controllers/useContext.js`          | Lightweight provider / consumer context             |
 | `ydin/controllers/useEvents.js`           | Declarative event listener registration             |
 | `ydin/controllers/useConnected.js`        | Connected / disconnected callbacks                  |

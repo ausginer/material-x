@@ -11,6 +11,10 @@
       "types": "./controllers/useARIA.d.ts",
       "default": "./controllers/useARIA.js"
     },
+    "./controllers/useAnchor.js": {
+      "types": "./controllers/useAnchor.d.ts",
+      "default": "./controllers/useAnchor.js"
+    },
     "./controllers/useAttributes.js": {
       "types": "./controllers/useAttributes.d.ts",
       "default": "./controllers/useAttributes.js"

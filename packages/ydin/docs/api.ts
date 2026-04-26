@@ -1,5 +1,6 @@
 export * as attribute from '../src/attribute.ts';
 export * as useARIA from '../src/controllers/useARIA.ts';
+export * as useAnchor from '../src/controllers/useAnchor.ts';
 export * as useAttributes from '../src/controllers/useAttributes.ts';
 export * as useConnected from '../src/controllers/useConnected.ts';
 export * as useContext from '../src/controllers/useContext.ts';
