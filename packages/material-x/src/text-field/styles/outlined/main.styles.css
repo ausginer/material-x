@@ -62,8 +62,22 @@
   * - S = suffix
   */
 
-:host([outlined]) {
-  .notched-outline {
+.input {
+  :host([outlined]) & {
+    margin-block: var(--_default-margin-block);
+  }
+}
+
+:host([outlined]:state(has-prefix)) .prefix::slotted(*) {
+  margin-block: var(--_default-margin-block);
+}
+
+:host([outlined]:state(has-suffix)) .suffix::slotted(*) {
+  margin-block: var(--_default-margin-block);
+}
+
+.notched-outline {
+  :host([outlined]) & {
     --_notched-outline-border: var(--_outline-width) solid var(--_outline-color);
     --_notched-outline-border-radius: var(--_container-shape);
     --_notched-outline-notch-padding: var(--_label-populated-padding);
@@ -75,21 +89,16 @@
     background: none;
     border: none;
   }
-}
 
-:host([outlined]) .input,
-:host([outlined]:state(has-suffix)) .suffix,
-:host([outlined]:state(has-prefix)) .prefix {
-  margin-block: var(--_default-margin-block);
-}
-
-:host([outlined]:focus-within:state(has-label)),
-:host([outlined]:state(populated):state(has-label)) {
-  .notched-outline {
+  :host([outlined]:focus-within:state(has-label)) &,
+  :host([outlined]:state(populated):state(has-label)) & {
     --_notched-outline-notch-open: 1;
   }
+}
 
-  .label {
+.label {
+  :host([outlined]:focus-within:state(has-label)) &,
+  :host([outlined]:state(populated):state(has-label)) & {
     /*
      * Since the populated label should be placed at the border of the text
      * field, we have to do some sophisticated computations here.

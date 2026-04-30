@@ -35,6 +35,20 @@
       ) /
       2
   );
+  --_filled-margin-block: calc(
+      (
+          (
+              var(--md-text-field-container-height, var(--_container-height)) -
+                var(
+                  --md-text-field-input-line-height,
+                  var(--_input-text-line-height)
+                )
+            ) /
+            2
+        ) +
+        var(--_container-focus-padding-block)
+    )
+    var(--_container-focus-padding-block);
   --_padding-inline-start: var(
     --md-text-field-container-padding-inline,
     var(--_container-padding-inline)
@@ -45,6 +59,7 @@
   );
 
   box-sizing: border-box;
+  position: relative;
   display: grid;
   grid-template:
     'ps L lg P Input Input S tg T pe'
@@ -90,7 +105,8 @@
 }
 
 /* TODO: ':host:has(.support > :has-slotted)' */
-:host(:state(has-support)) {
+:host(:state(has-support)),
+:host(:state(has-counter)) {
   grid-template-rows: auto min-content;
   row-gap: var(
     --md-text-field-supporting-text-gap,
@@ -112,13 +128,6 @@
   max-height: 100%;
   border-block-end: var(--_active-indicator-thickness) solid
     var(--_active-indicator-color);
-}
-
-.presenter {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  user-select: none;
 }
 
 /* =======================
@@ -161,12 +170,15 @@
 
 .prefix,
 .suffix {
-  transform: scaleY(0);
-  transition: transform
-    var(--md-text-field-focus-duration, var(--_focus-duration))
-    var(--md-text-field-focus-easing, var(--_focus-easing));
-  transform-origin: bottom;
-  visibility: hidden;
+  &::slotted(*) {
+    margin-block: var(--_filled-margin-block);
+    transform: scaleY(0);
+    transition: transform
+      var(--md-text-field-focus-duration, var(--_focus-duration))
+      var(--md-text-field-focus-easing, var(--_focus-easing));
+    transform-origin: bottom;
+    visibility: hidden;
+  }
 }
 
 .prefix,
@@ -181,90 +193,99 @@
   text-wrap: nowrap;
 }
 
-.prefix {
+.prefix::slotted(*) {
   grid-area: P;
-}
-
-.suffix {
-  grid-area: S;
-}
-
-.label {
-  grid-area: P / Input / S; /* P Input S */
-  max-width: min-content;
-}
-
-/* TODO: '.prefix:has-slotted' */
-:host(:state(has-prefix)) .prefix {
   margin-inline-end: var(
     --md-text-field-prefix-gap,
     var(--_input-text-prefix-gap)
   );
 }
 
-/* TODO: '.suffix:has-slotted' */
-:host(:state(has-suffix)) .suffix {
+.suffix::slotted(*) {
+  grid-area: S;
   margin-inline-start: var(
     --md-text-field-suffix-gap,
     var(--_input-text-suffix-gap)
   );
 }
 
-/* TODO: '.label:has(:has-slotted)' */
-:host(:state(has-label)) .label {
-  transform-origin: bottom left;
-  transition-property: translate, scale, font-size, color;
-  transition-duration: var(
-    --md-text-field-focus-duration,
-    var(--_focus-duration)
-  );
-  transition-timing-function: var(
-    --md-text-field-focus-easing,
-    var(--_focus-easing)
-  );
+:host(:state(populated)),
+:host(:focus-within) {
+  .prefix::slotted(*),
+  .suffix::slotted(*) {
+    transform: scaleY(1);
+    visibility: visible;
+  }
+}
+
+.label {
+  position: absolute;
+  grid-column: P / S; /* P Input S */
+  max-width: min-content;
+
+  /* TODO: '&:has(:has-slotted)' */
+  :host(:state(populated):state(has-label)) &,
+  :host(:focus-within:state(has-label)) & {
+    color: var(--_label-text-color);
+    translate: 0
+      calc(
+        -1 *
+          var(
+            --md-text-field-input-line-height,
+            var(--_input-text-line-height)
+          ) +
+          var(--_container-focus-padding-block)
+      );
+    scale: var(--_label-text-populated-scale);
+
+    /*
+    TODO: restore after https://bugzilla.mozilla.org/show_bug.cgi?id=1827404
+    is closed.
+
+    scale: calc(var(--_label-text-populated-size) / var(--_label-text-size));
+    */
+  }
+
+  :host(:state(has-label)) & {
+    transform-origin: bottom left;
+    transition-property: translate, scale, font-size, color;
+    transition-duration: var(
+      --md-text-field-focus-duration,
+      var(--_focus-duration)
+    );
+    transition-timing-function: var(
+      --md-text-field-focus-easing,
+      var(--_focus-easing)
+    );
+    margin-block: var(--_default-margin-block);
+  }
 }
 
 /* =======================
  * Icons
  * ======================= */
 
-.lead {
+.lead::slotted(*) {
   grid-area: L;
-}
-
-.trail {
-  grid-area: T;
-}
-
-/* TODO: '.lead:has-slotted' */
-:host(:state(has-lead)) .lead {
   color: var(--_leading-icon-color);
   font-size: var(--md-text-field-leading-icon-size, var(--_leading-icon-size));
+  margin-block: var(--_default-margin-block);
 }
 
-/* TODO: '.trail:has-slotted' */
-:host(:state(has-trail)) .trail {
+.trail::slotted(*) {
+  grid-area: T;
   color: var(--_trailing-icon-color);
   font-size: var(
     --md-text-field-trailing-icon-size,
     var(--_trailing-icon-size)
   );
+  margin-block: var(--_default-margin-block);
 }
 
 /* ===========================
  * Positioning
  * =========================== */
-/* TODO: '.label:has(:has-slotted), .lead:has-slotted, .trail:has-slotted' */
-:host(:state(has-label)) .label,
-:host(:state(has-lead)) .lead,
-:host(:state(has-trail)) .trail {
-  margin-block: var(--_default-margin-block);
-}
-
-/* TODO: '.input, .suffix:has-slotted, .prefix:has-slotted' */
-.input,
-:host(:state(has-prefix)) .prefix,
-:host(:state(has-suffix)) .suffix {
+.input {
   margin-block: calc(
       (
           (
@@ -301,40 +322,4 @@
 .counter {
   grid-area: c;
   margin-inline-start: 8px;
-}
-
-/* ===========================
- * Focused / Populated
- * =========================== */
-
-:host(:state(populated):state(has-label)),
-:host(:focus-within:state(has-label)) {
-  .label {
-    color: var(--_label-text-color);
-    translate: 0
-      calc(
-        -1 *
-          var(
-            --md-text-field-input-line-height,
-            var(--_input-text-line-height)
-          ) +
-          var(--_container-focus-padding-block)
-      );
-    scale: var(--_label-text-populated-scale);
-
-    /*
-    TODO: restore after https://bugzilla.mozilla.org/show_bug.cgi?id=1827404
-    is closed.
-
-    scale: calc(var(--_label-text-populated-size) / var(--_label-text-size));
-    */
-  }
-}
-
-:host(:state(populated):state(has-prefix)) .prefix,
-:host(:focus-within:state(has-prefix)) .prefix,
-:host(:state(populated):state(has-suffix)) .suffix,
-:host(:focus-within:state(has-suffix)) .suffix {
-  transform: scaleY(1);
-  visibility: visible;
 }
