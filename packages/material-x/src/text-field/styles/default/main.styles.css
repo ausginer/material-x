@@ -1,3 +1,32 @@
+/**
+  * Field schema
+  * ┌────────────────────────────────────────────────┐
+  * |   ┌───┐   ┌────────────────────────┐   ┌───┐   │
+  * │ b │ L │ c │ P Label text         S │ c │ T │ b │
+  * │   └───┘   └────────────────────────┘   └───┘   │
+  * └────────────────────────────────────────────────┘
+  *  support                                  counter
+  *
+  * Grid setup of the field.
+  * ┌────┬───┬────┬───┬────────┬────────┬───┬────┬───┬────┐
+  * |    |   |    |   |        |        |   |    |   |    │
+  * │ ps │ L │ lg │ P │ Input  │ Input  │ S │ tg │ T │ pe │
+  * ├────┼───┼────┼───┼────────┼────────┼───┼────┼───┼────┤
+  * │ s  │ s │  s │ s │ s      │ c      │ c │  c │ c │ c  │
+  * └────┴───┴────┴───┴────────┴────────┴───┴────┴───┴────┘
+  * where:
+  * - ps — the inline-start padding
+  * - L — leading icon (optional)
+  * - lg — leading icon gap (optional)
+  * - P — prefix (optional)
+  * - S — suffix (optional)
+  * - tg — trailing icon gap (optional)
+  * - T — trailing icon (optional)
+  * - pe — the inline-end padding
+  *
+  * Additionally, there is background element that covers first
+  * row of the grid and displays background/outline for the field.
+ */
 :host {
   --_default-margin-block: calc(
     (
@@ -6,37 +35,32 @@
       ) /
       2
   );
+  --_padding-inline-start: var(
+    --md-text-field-container-padding-inline,
+    var(--_container-padding-inline)
+  );
+  --_padding-inline-end: var(
+    --md-text-field-container-padding-inline,
+    var(--_container-padding-inline)
+  );
 
+  box-sizing: border-box;
   display: grid;
-  grid-template-areas:
-    '. lead . prefix . field . suffix . trail .'
-    '. support support support support support support support counter counter .';
-  grid-template-columns:
-    var(
-      --_padding-inline-start,
-      var(
-        --md-text-field-container-padding-inline,
-        var(--_container-padding-inline)
-      )
-    )
-    var(--md-text-field-leading-icon-size, var(--_leading-icon-size))
-    var(--_lead-icon-gap, 0)
-    min-content
-    var(--_prefix-gap, 0)
-    1fr
-    var(--_suffix-gap, 0)
-    min-content
-    var(--_trail-icon-gap, 0)
-    var(--md-text-field-trailing-icon-size, var(--_trailing-icon-size))
-    var(
-      --_padding-inline-end,
-      var(
-        --md-text-field-container-padding-inline,
-        var(--_container-padding-inline)
-      )
-    );
-  grid-template-rows: auto 0;
-  position: relative;
+  grid-template:
+    'ps L lg P Input Input S tg T pe'
+    's s s s s c c c c c' 0 /
+    /* ps */ var(--_padding-inline-start)
+    /* L */ min-content
+    /* lg */ var(--_leading-icon-gap, 0)
+    /* P */ min-content
+    /* Input */ auto
+    /* Input */ auto
+    /* S */ min-content
+    /* tg */ var(--_trailing-icon-gap, 0)
+    /* T */ min-content
+    /* pe */ var(--_padding-inline-end);
+
+  row-gap: 0;
 }
 
 /* TODO: ':host:has(.lead:has-slotted)' */
@@ -45,10 +69,12 @@
     --md-text-field-container-icon-padding-inline,
     var(--_container-icon-padding-inline)
   );
-  --_lead-icon-gap: var(
+  --_leading-icon-gap: var(
     --md-text-field-container-padding-inline,
     var(--_container-padding-inline)
   );
+  /* For correct calculations */
+  --_leading-icon-size-actual: var(--_leading-icon-size);
 }
 
 /* TODO: ':host:has(.trail:has-slotted)' */
@@ -57,34 +83,33 @@
     --md-text-field-container-icon-padding-inline,
     var(--_container-icon-padding-inline)
   );
-  --_trail-icon-gap: var(
+  --_trailing-icon-gap: var(
     --md-text-field-container-padding-inline,
     var(--_container-padding-inline)
   );
 }
 
-/* TODO: ':host:has(.prefix:has-slotted)' */
-:host(:state(has-prefix)) {
-  --_prefix-gap: var(--md-text-field-prefix-gap, var(--_input-text-prefix-gap));
-}
-
-/* TODO: ':host:has(.suffix:has-slotted)' */
-:host(:state(has-suffix)) {
-  --_suffix-gap: var(--md-text-field-suffix-gap, var(--_input-text-suffix-gap));
-}
-
 /* TODO: ':host:has(.support > :has-slotted)' */
 :host(:state(has-support)) {
   grid-template-rows: auto min-content;
+  row-gap: var(
+    --md-text-field-supporting-text-gap,
+    var(--_supporting-text-gap)
+  );
+}
+
+.layout,
+.notched-outline {
+  border-radius: var(--_container-shape-top-left)
+    var(--_container-shape-top-right) var(--_container-shape-bottom-right)
+    var(--_container-shape-bottom-left);
 }
 
 .notched-outline {
   grid-area: 1 / 1 / 2 / -1;
   background-color: var(--_container-color);
   opacity: var(--_container-opacity, 1);
-  border-radius: var(--_container-shape-top-left)
-    var(--_container-shape-top-right) var(--_container-shape-bottom-right)
-    var(--_container-shape-bottom-left);
+  max-height: 100%;
   border-block-end: var(--_active-indicator-thickness) solid
     var(--_active-indicator-color);
 }
@@ -102,11 +127,11 @@
 .input,
 .input-polyfill {
   all: unset;
+  grid-area: Input;
   field-sizing: content;
   min-inline-size: 0;
   min-block-size: 1lh;
   inline-size: 100%;
-  grid-area: field;
   justify-self: stretch;
   font-family: var(--_input-text-font);
   font-weight: var(--_input-text-weight);
@@ -155,20 +180,38 @@
   color: var(--_input-text-placeholder-color);
   text-wrap: nowrap;
 }
+
+.prefix {
+  grid-area: P;
+}
+
+.suffix {
+  grid-area: S;
+}
+
+.label {
+  grid-area: P / Input / S; /* P Input S */
+  max-width: min-content;
+}
+
 /* TODO: '.prefix:has-slotted' */
 :host(:state(has-prefix)) .prefix {
-  grid-area: prefix;
+  margin-inline-end: var(
+    --md-text-field-prefix-gap,
+    var(--_input-text-prefix-gap)
+  );
 }
 
 /* TODO: '.suffix:has-slotted' */
 :host(:state(has-suffix)) .suffix {
-  grid-area: suffix;
+  margin-inline-start: var(
+    --md-text-field-suffix-gap,
+    var(--_input-text-suffix-gap)
+  );
 }
 
 /* TODO: '.label:has(:has-slotted)' */
 :host(:state(has-label)) .label {
-  position: absolute;
-  grid-area: prefix / prefix / prefix / suffix;
   transform-origin: bottom left;
   transition-property: translate, scale, font-size, color;
   transition-duration: var(
@@ -185,16 +228,22 @@
  * Icons
  * ======================= */
 
+.lead {
+  grid-area: L;
+}
+
+.trail {
+  grid-area: T;
+}
+
 /* TODO: '.lead:has-slotted' */
 :host(:state(has-lead)) .lead {
-  grid-area: lead;
   color: var(--_leading-icon-color);
   font-size: var(--md-text-field-leading-icon-size, var(--_leading-icon-size));
 }
 
 /* TODO: '.trail:has-slotted' */
 :host(:state(has-trail)) .trail {
-  grid-area: trail;
   color: var(--_trailing-icon-color);
   font-size: var(
     --md-text-field-trailing-icon-size,
@@ -238,10 +287,6 @@
 
 .support,
 .counter {
-  padding-block-start: var(
-    --md-text-field-supporting-text-gap,
-    var(--_supporting-text-gap)
-  );
   color: var(--_supporting-text-color);
   font-family: var(--_supporting-text-font);
   font-size: var(--_supporting-text-size);
@@ -249,14 +294,13 @@
   line-height: var(--_supporting-text-line-height);
 }
 
-/* TODO: '.support:has(:has-slotted)' */
-:host(:state(has-support)) .support {
-  grid-area: support;
+.support {
+  grid-area: s;
 }
 
-/* TODO: '.counter:has(:has-slotted)' */
-:host(:state(has-counter)) .counter {
-  grid-area: counter;
+.counter {
+  grid-area: c;
+  margin-inline-start: 8px;
 }
 
 /* ===========================

@@ -3,6 +3,7 @@ import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
 import { attribute } from '../../../.tproc/selector.ts';
 import type { ProcessorAdjuster, TokenSet } from '../../../.tproc/utils.ts';
+import { defaultTokens } from '../default/tokens.ts';
 import {
   createTextFieldExtensions,
   createTextFieldScopedDeclarationRenderer,
@@ -15,7 +16,6 @@ import {
 } from '../utils.ts';
 
 const SPECIAL_OUTLINED_TOKENS: TokenSet = {
-  'label.populated.space': '12px',
   'label.populated.padding': '4px',
   'outline.width.max': 'md.comp.outlined-text-field.focus.outline.width',
   'outline.transition.easing': motionEffects['expressive.fast-effects'],
@@ -37,7 +37,7 @@ export const outlinedTokens: ReadonlySignal<TokenPackage> = computed(() =>
     processor
       .select(notDisabledTokenSelector, notErrorTokenSelector)
       .append('default', SPECIAL_OUTLINED_TOKENS)
-      .extend(createTextFieldExtensions())
+      .extend(createTextFieldExtensions(defaultTokens.value))
       .renderDeclarations(
         createTextFieldScopedDeclarationRenderer(attribute('outlined')),
       ),

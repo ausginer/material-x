@@ -28,9 +28,14 @@ const FILLED_PREFIX_VALUE = '1.43';
 const FILLED_SUFFIX_VALUE = '25';
 
 type PlaygroundArgs = Readonly<{
+  leadingIcon: string;
+  trailingIcon: string;
+  prefix: string;
+  suffix: string;
   outlined: boolean;
   type: TextFieldType;
   label: string;
+  counter: string;
   supportText: string;
   disabled: boolean;
 }>;
@@ -41,11 +46,28 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     type: 'text',
     label: 'Email',
     supportText: '',
+    prefix: '',
+    suffix: '',
+    leadingIcon: '',
+    trailingIcon: '',
+    counter: '',
     disabled: false,
   },
   argTypes: {
     outlined: {
       control: 'boolean',
+    },
+    leadingIcon: {
+      control: 'text',
+    },
+    trailingIcon: {
+      control: 'text',
+    },
+    prefix: {
+      control: 'text',
+    },
+    suffix: {
+      control: 'text',
     },
     type: {
       control: 'inline-radio',
@@ -57,19 +79,38 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     supportText: {
       control: 'text',
     },
+    counter: {
+      control: 'text',
+    },
     disabled: {
       control: 'boolean',
     },
   },
-  render({ outlined, type, label, supportText, disabled }) {
+  render({
+    outlined,
+    type,
+    label,
+    supportText,
+    disabled,
+    trailingIcon,
+    leadingIcon,
+    prefix,
+    suffix,
+    counter,
+  }) {
     return (
       <mx-text-field
         outlined={outlined}
         type={type === 'text' ? undefined : type}
         disabled={disabled}
       >
+        {leadingIcon && <mx-icon slot="lead">{leadingIcon}</mx-icon>}
+        {prefix && <span slot="prefix">{prefix}</span>}
         <div slot="label">{label}</div>
+        {suffix && <span slot="suffix">{suffix}</span>}
+        {trailingIcon && <mx-icon slot="trail">{trailingIcon}</mx-icon>}
         {supportText && <div slot="support">{supportText}</div>}
+        {counter && <div slot="counter">{counter}</div>}
       </mx-text-field>
     );
   },

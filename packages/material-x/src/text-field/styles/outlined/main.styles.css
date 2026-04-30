@@ -1,11 +1,73 @@
+/**
+  * Schema of outlined text field.
+  *
+  * 1. Basic (non-focused) schema.
+  *
+  * 1.1. Outlined field without icon:
+  *    ┌──────────────────────────────────┐
+  *    o    ┌────────────────────────┐    │
+  * ↑a↓│←b1→│ Label text             │←b1→│
+  *    │    └────────────────────────┘    │
+  *    └──────────────────────────────────┘
+  *
+  * where:
+  * - a = 56px (--_container-height)
+  * - b1 = 16px (--_padding-inline-start / --_padding-inline-end)
+  * - o = 1px (--_outline-width)
+  *
+  * 1.2. Outlined field with icon:
+  *    ┌──────────────────────────────────────────────────┐
+  *    o    ┌───┐   ┌────────────────────────┐   ┌───┐    │
+  * ↑a↓│←b2→│ I │←c→│ Label text             │←c→│ I │←b2→│
+  *    │    └───┘   └────────────────────────┘   └───┘    │
+  *    └──────────────────────────────────────────────────┘
+  *
+  * where:
+  * - a = 56px (--_container-height)
+  * - o = 1px (--_outline-width)
+  * - b2 = 12px (--_padding-inline-start / --_padding-inline-end)
+  * - I = 24px (--_leading-icon-size / --_trailing-icon-size)
+  * - c = 16px (--_leading-icon-gap / --_trailing-icon-gap)
+  *
+  * 2. Focused schema.
+  *
+  * 2.1. Outlined field without icon:
+  *
+  * ←b1→
+  * ┌─── ←e→ Label text ←e→ ───────┐
+  * o   ┌──────────────────────┐   │
+  * │   │ P Input text      S  │   │
+  * │   └──────────────────────┘   │
+  * └──────────────────────────────┘
+  *
+  * where:
+  * - o = 3px (--_outline-width)
+  * - e = 4px (--_label-populated-padding)
+  * - P = prefix
+  * - S = suffix
+  *
+  * 2.2. Outlined field with icon:
+  *
+  * ←b2→
+  * ┌── ←e→ Label text ←e→ ─────────────────┐
+  * o ┌───┐  ┌──────────────────────┐ ┌───┐ │
+  * │ │ I │  │ P Input text      S  │ │ I │ │
+  * │ └───┘  └──────────────────────┘ └───┘ │
+  * └───────────────────────────────────────┘
+  *
+  * where:
+  * - o = 3px (--_outline-width)
+  * - e = 4px (--_label-populated-padding)
+  * - P = prefix
+  * - S = suffix
+  */
+
 :host([outlined]) {
   .notched-outline {
     --_notched-outline-border: var(--_outline-width) solid var(--_outline-color);
     --_notched-outline-border-radius: var(--_container-shape);
     --_notched-outline-notch-padding: var(--_label-populated-padding);
-    --_notched-outline-start-width: calc(
-      var(--_label-populated-space) - var(--_outline-width)
-    );
+    --_notched-outline-start-width: var(--_padding-inline-start);
     --_notched-outline-notch-scale: var(--_label-text-populated-scale);
     --_notched-outline-transition-easing: var(--_outline-transition-easing);
     --_notched-outline-transition-duration: var(--_outline-transition-duration);
@@ -31,21 +93,25 @@
     /*
      * Since the populated label should be placed at the border of the text
      * field, we have to do some sophisticated computations here.
+     *
+     * So, the idea, considering the schema on the top, is the following:
+     * - move label to the left edge of the field (x1 = -1 * (b + I + c)); no
+     * `o` here because border is _inside_ the padding (border-box).
+     * - move label back to where the notch is placed (x = x1 + o + b + e)
+     *
+     * So, the final formula is the following:
+     * x = o + b + e - b - I - c       | b is removed; let's reduce.
+     *
+     * x = o + e - I - c               | note that `I` could be 0 if there is no
+     *                                 | leading icon.
      */
     translate: calc(
-        var(--_label-populated-space) + var(--_label-populated-padding) -
-          var(
-            --_padding-inline-start,
-            var(
-              --md-text-field-container-padding-inline,
-              var(--_container-padding-inline)
-            )
-          ) -
+        var(--_outline-width) + var(--_label-populated-padding) -
           var(
             --md-text-field-leading-icon-size,
-            var(--_leading-icon-size, 0px)
+            var(--_leading-icon-size-actual, 0px)
           ) -
-          var(--_lead-icon-gap, 0px)
+          var(--_leading-icon-gap, 0px)
       )
       calc(
         -1 *
