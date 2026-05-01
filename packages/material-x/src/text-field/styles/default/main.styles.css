@@ -1,31 +1,85 @@
 /**
-  * Field schema
+  * Schema of filled text field.
+  *
+  * 1. Resting schema.
+  *
+  * 1.1. Filled field without icon:
+  *    ┌──────────────────────────────────┐
+  *    │              ↑c↓                 │
+  *    │    ┌────────────────────────┐    │
+  * ↑a↓│←b1→│ Label text          ↑d↓│←b1→│
+  *    │    └────────────────────────┘    │
+  *    │              ↑c↓                 │
+  *    └──────────────────────────────────┘
+  *           ↑e↓
+  *     ←f→ support         ←f→ counter ←f→
+  *
+  * where:
+  * - a = 56px (--_container-height)
+  * - b1 = 16px (--_padding-inline-start / --_padding-inline-end)
+  * - c = 16px (by formula `(a - d) / 2))
+  * - d = 24px (--_label-text-line-height)
+  * - e = 4px (--_supporting-text-row-gap)
+  * - f = 16px (
+  *
+  * 1.2. Filled field with icon:
+  *    ┌──────────────────────────────────────────────────┐
+  *    │    ┌───┐   ┌────────────────────────┐   ┌───┐    │
+  * ↑a↓│←b2→│ I │←c→│ Label text             │←c→│ I │←b2→│
+  *    │    └───┘   └────────────────────────┘   └───┘    │
+  *    └──────────────────────────────────────────────────┘
+  *
+  * where:
+  * - a = 56px (--_container-height)
+  * - b2 = 12px (--_padding-inline-start / --_padding-inline-end)
+  * - I = 24px (--_leading-icon-size / --_trailing-icon-size)
+  * - c = 16px (--_leading-icon-gap / --_trailing-icon-gap)
+  *
+  * 2. Focused or populated schema.
+  *
+  * 2.1. Filled field without icon:
+  *
+  * ┌──────────────────────────────────┐
+  * │    Label text                    │
+  * │←b1→┌────────────────────────┐←b1→│
+  * │    │ P Input text        S  │    │
+  * │    └────────────────────────┘    │
+  * └──────────────────────────────────┘
+  *
+  * where:
+  * - P = prefix
+  * - S = suffix
+  *
+  * 2.2. Filled field with icon:
+  *
   * ┌────────────────────────────────────────────────┐
-  * |   ┌───┐   ┌────────────────────────┐   ┌───┐   │
-  * │ b │ L │ c │ P Label text         S │ c │ T │ b │
-  * │   └───┘   └────────────────────────┘   └───┘   │
+  * │    ┌───┐   Label text                 ┌───┐    │
+  * │←b2→│ I │←c→┌──────────────────────┐←c→│ I │←b2→│
+  * │    │   │   │ P Input text      S  │   │   │    │
+  * │    └───┘   └──────────────────────┘   └───┘    │
   * └────────────────────────────────────────────────┘
-  *  support                                  counter
+  *
+  * where:
+  * - P = prefix
+  * - S = suffix
   *
   * Grid setup of the field.
-  * ┌────┬───┬────┬───┬────────┬────────┬───┬────┬───┬────┐
-  * |    |   |    |   |        |        |   |    |   |    │
-  * │ ps │ L │ lg │ P │ Input  │ Input  │ S │ tg │ T │ pe │
-  * ├────┼───┼────┼───┼────────┼────────┼───┼────┼───┼────┤
-  * │ s  │ s │  s │ s │ s      │ c      │ c │  c │ c │ c  │
-  * └────┴───┴────┴───┴────────┴────────┴───┴────┴───┴────┘
+  * ┌───┬───┬───┬─────────┬─────────┬───┬───┬───┐
+  * │ a │ L │ P │    I    │    I    │ S │ T │ z │
+  * ├───┼───┼───┼─────────┼─────────┼───┼───┼───┤
+  * │ s │ s │ s │    s    │    c    │ c │ c │ c │
+  * └───┴───┴───┴─────────┴─────────┴───┴───┴───┘
   * where:
-  * - ps — the inline-start padding
+  * - a — the inline-start padding
   * - L — leading icon (optional)
-  * - lg — leading icon gap (optional)
   * - P — prefix (optional)
+  * - I — Input field
   * - S — suffix (optional)
-  * - tg — trailing icon gap (optional)
   * - T — trailing icon (optional)
-  * - pe — the inline-end padding
+  * - z — the inline-end padding
   *
   * Additionally, there is background element that covers first
-  * row of the grid and displays background/outline for the field.
+  * row of the grid and displays container/active indicator for the field.
  */
 :host {
   --_default-margin-block: calc(
@@ -62,18 +116,16 @@
   position: relative;
   display: grid;
   grid-template:
-    'ps L lg P Input Input S tg T pe'
-    's s s s s c c c c c' 0 /
-    /* ps */ var(--_padding-inline-start)
+    'a L P I I S T z'
+    's s s s c c c c' 0 /
+    /* a */ var(--_padding-inline-start)
     /* L */ min-content
-    /* lg */ var(--_leading-icon-gap, 0)
     /* P */ min-content
-    /* Input */ auto
-    /* Input */ auto
+    /* I */ auto
+    /* I */ auto
     /* S */ min-content
-    /* tg */ var(--_trailing-icon-gap, 0)
     /* T */ min-content
-    /* pe */ var(--_padding-inline-end);
+    /* z */ var(--_padding-inline-end);
 
   row-gap: 0;
 }
@@ -109,8 +161,8 @@
 :host(:state(has-counter)) {
   grid-template-rows: auto min-content;
   row-gap: var(
-    --md-text-field-supporting-text-gap,
-    var(--_supporting-text-gap)
+    --md-text-field-supporting-text-row-gap,
+    var(--_supporting-text-row-gap)
   );
 }
 
@@ -136,7 +188,7 @@
 .input,
 .input-polyfill {
   all: unset;
-  grid-area: Input;
+  grid-area: I;
   field-sizing: content;
   min-inline-size: 0;
   min-block-size: 1lh;
@@ -220,7 +272,7 @@
 
 .label {
   position: absolute;
-  grid-column: P / S; /* P Input S */
+  grid-column: P / S; /* P I S */
   max-width: min-content;
 
   /* TODO: '&:has(:has-slotted)' */
@@ -270,6 +322,7 @@
   color: var(--_leading-icon-color);
   font-size: var(--md-text-field-leading-icon-size, var(--_leading-icon-size));
   margin-block: var(--_default-margin-block);
+  margin-inline-end: var(--_leading-icon-gap, 0);
 }
 
 .trail::slotted(*) {
@@ -280,6 +333,7 @@
     var(--_trailing-icon-size)
   );
   margin-block: var(--_default-margin-block);
+  margin-inline-start: var(--_trailing-icon-gap, 0);
 }
 
 /* ===========================
@@ -317,9 +371,13 @@
 
 .support {
   grid-area: s;
+  padding-inline-start: var(--_supporting-text-padding-inline);
 }
 
 .counter {
   grid-area: c;
-  margin-inline-start: 8px;
+  display: flex;
+  justify-content: end;
+  padding-inline: var(--_supporting-text-column-gap)
+    var(--_supporting-text-padding-inline);
 }

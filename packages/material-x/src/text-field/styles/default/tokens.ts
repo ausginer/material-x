@@ -18,7 +18,9 @@ import {
 const SPECIAL_FILLED_TOKENS: TokenSet = {
   'container.icon.padding.inline': '12px',
   'container.padding.inline': '16px',
-  'supporting-text.gap': '4px',
+  'supporting-text.row-gap': '4px',
+  'supporting-text.column-gap': '16px',
+  'supporting-text.padding-inline': '16px',
   'container.focus.padding.block': '8px',
   'input-text.prefix.gap': '2px',
   'input-text.suffix.gap': '2px',

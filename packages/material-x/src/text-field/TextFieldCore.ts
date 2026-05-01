@@ -90,7 +90,7 @@ export type TextFieldCSSProperties = Readonly<{
   '--md-text-field-focus-easing'?: string;
   '--md-text-field-prefix-gap'?: string;
   '--md-text-field-suffix-gap'?: string;
-  '--md-text-field-supporting-text-gap'?: string;
+  '--md-text-field-supporting-text-row-gap'?: string;
 }>;
 
 export const TextFieldCoreBase: TraitedConstructor<

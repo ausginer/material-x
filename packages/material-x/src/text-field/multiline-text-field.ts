@@ -52,7 +52,7 @@ export type {
  * @cssprop --md-text-field-focus-easing - Overrides focus transition easing.
  * @cssprop --md-text-field-prefix-gap - Overrides gap after prefix content.
  * @cssprop --md-text-field-suffix-gap - Overrides gap before suffix content.
- * @cssprop --md-text-field-supporting-text-gap - Overrides gap above
+ * @cssprop --md-text-field-supporting-text-row-gap - Overrides gap above
  * supporting text.
  *
  * @event input - Fired when the textarea value changes.
