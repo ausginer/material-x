@@ -41,6 +41,18 @@
   display: contents;
 }
 
+slot {
+  display: none;
+}
+
+:host(:state(has-lead)) .lead,
+:host(:state(has-overline)) .overline,
+:host(:state(has-default)) .label,
+:host(:state(has-support)) .support,
+:host(:state(has-trail)) .trail {
+  display: var(--_slot-display, block);
+}
+
 :host(:state(has-support)),
 :host(:state(has-overline)) {
   --_resolved-container-height: var(
@@ -90,15 +102,12 @@
 .overline,
 .support,
 .trail {
-  &::slotted(*) {
-    min-inline-size: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .label {
-  display: block;
   grid-area: l;
   color: var(--_label-text-color);
   opacity: var(--_label-text-opacity, 1);
@@ -109,7 +118,7 @@
   letter-spacing: var(--_label-text-tracking);
 }
 
-.overline::slotted(*) {
+.overline {
   grid-area: o;
   color: var(--_overline-color);
   opacity: var(--_overline-opacity, 1);
@@ -120,7 +129,7 @@
   letter-spacing: var(--_overline-tracking);
 }
 
-.support::slotted(*) {
+.support {
   grid-area: s;
   color: var(--_supporting-text-color);
   opacity: var(--_supporting-text-opacity, 1);
@@ -132,11 +141,9 @@
 }
 
 .lead {
-  &::slotted(*) {
-    grid-area: L;
-    align-self: center;
-    margin-inline-end: var(--_between-space);
-  }
+  grid-area: L;
+  align-self: center;
+  margin-inline-end: var(--_between-space);
 
   &::slotted([data-icon]),
   &::slotted(mx-icon) {
@@ -186,11 +193,9 @@
 }
 
 .trail {
-  &::slotted(*) {
-    grid-area: T;
-    align-self: center;
-    margin-inline-start: var(--_between-space);
-  }
+  grid-area: T;
+  align-self: center;
+  margin-inline-start: var(--_between-space);
 
   &::slotted(:not(mx-icon):not([data-icon])) {
     color: var(--_trailing-supporting-text-color);

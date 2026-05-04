@@ -119,19 +119,34 @@
     'a L P I I S T z'
     's s s s c c c c' 0 /
     /* a */ var(--_padding-inline-start)
-    /* L */ min-content
-    /* P */ min-content
+    /* L */ var(--_lead-column-size, 0)
+    /* P */ var(--_prefix-column-size, 0)
     /* I */ auto
     /* I */ auto
-    /* S */ min-content
-    /* T */ min-content
+    /* S */ var(--_suffix-column-size, 0)
+    /* T */ var(--_trail-column-size, 0)
     /* z */ var(--_padding-inline-end);
 
   row-gap: 0;
 }
 
+slot {
+  display: none;
+}
+
+:host(:state(has-lead)) .lead,
+:host(:state(has-prefix)) .prefix,
+:host(:state(has-label)) .label slot,
+:host(:state(has-suffix)) .suffix,
+:host(:state(has-trail)) .trail,
+:host(:state(has-support)) .support slot,
+:host(:state(has-counter)) .counter slot {
+  display: var(--_slot-display, block);
+}
+
 /* TODO: ':host:has(.lead:has-slotted)' */
 :host(:state(has-lead)) {
+  --_lead-column-size: min-content;
   --_padding-inline-start: var(
     --md-text-field-container-icon-padding-inline,
     var(--_container-icon-padding-inline)
@@ -146,6 +161,7 @@
 
 /* TODO: ':host:has(.trail:has-slotted)' */
 :host(:state(has-trail)) {
+  --_trail-column-size: min-content;
   --_padding-inline-end: var(
     --md-text-field-container-icon-padding-inline,
     var(--_container-icon-padding-inline)
@@ -154,6 +170,14 @@
     --md-text-field-container-padding-inline,
     var(--_container-padding-inline)
   );
+}
+
+:host(:state(has-prefix)) {
+  --_prefix-column-size: min-content;
+}
+
+:host(:state(has-suffix)) {
+  --_suffix-column-size: min-content;
 }
 
 /* TODO: ':host:has(.support > :has-slotted)' */
@@ -222,15 +246,13 @@
 
 .prefix,
 .suffix {
-  &::slotted(*) {
-    margin-block: var(--_filled-margin-block);
-    transform: scaleY(0);
-    transition: transform
-      var(--md-text-field-focus-duration, var(--_focus-duration))
-      var(--md-text-field-focus-easing, var(--_focus-easing));
-    transform-origin: bottom;
-    visibility: hidden;
-  }
+  margin-block: var(--_filled-margin-block);
+  transform: scaleY(0);
+  transition: transform
+    var(--md-text-field-focus-duration, var(--_focus-duration))
+    var(--md-text-field-focus-easing, var(--_focus-easing));
+  transform-origin: bottom;
+  visibility: hidden;
 }
 
 .prefix,
@@ -245,7 +267,7 @@
   text-wrap: nowrap;
 }
 
-.prefix::slotted(*) {
+.prefix {
   grid-area: P;
   margin-inline-end: var(
     --md-text-field-prefix-gap,
@@ -253,7 +275,7 @@
   );
 }
 
-.suffix::slotted(*) {
+.suffix {
   grid-area: S;
   margin-inline-start: var(
     --md-text-field-suffix-gap,
@@ -263,8 +285,8 @@
 
 :host(:state(populated)),
 :host(:focus-within) {
-  .prefix::slotted(*),
-  .suffix::slotted(*) {
+  .prefix,
+  .suffix {
     transform: scaleY(1);
     visibility: visible;
   }
@@ -317,7 +339,12 @@
  * Icons
  * ======================= */
 
-.lead::slotted(*) {
+.trail,
+.lead {
+  line-height: 0;
+}
+
+.lead {
   grid-area: L;
   color: var(--_leading-icon-color);
   font-size: var(--md-text-field-leading-icon-size, var(--_leading-icon-size));
@@ -325,7 +352,7 @@
   margin-inline-end: var(--_leading-icon-gap, 0);
 }
 
-.trail::slotted(*) {
+.trail {
   grid-area: T;
   color: var(--_trailing-icon-color);
   font-size: var(
@@ -375,9 +402,12 @@
 }
 
 .counter {
+  --_slot-display: flex;
   grid-area: c;
-  display: flex;
-  justify-content: end;
-  padding-inline: var(--_supporting-text-column-gap)
-    var(--_supporting-text-padding-inline);
+
+  slot {
+    justify-content: end;
+    padding-inline: var(--_supporting-text-column-gap)
+      var(--_supporting-text-padding-inline);
+  }
 }
