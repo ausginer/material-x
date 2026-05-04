@@ -1,3 +1,4 @@
 {
-  "just.justExecutable": "${workspaceFolder}/node_modules/.bin/just"
+  "just.justExecutable": "${workspaceFolder}/node_modules/.bin/just",
+  "typescript.native-preview.tsdk": "/workspaces/material-x/node_modules/@typescript/native-preview"
 }

@@ -62,6 +62,30 @@ import type {
   IconEvents,
   IconProperties,
 } from './icon/icon.ts';
+import type ListButtonItem from './list/list-button-item.ts';
+import type {
+  ListButtonItemCSSProperties,
+  ListButtonItemEvents,
+  ListButtonItemProperties,
+} from './list/list-button-item.ts';
+import type ListItem from './list/list-item.ts';
+import type {
+  ListItemCSSProperties,
+  ListItemEvents,
+  ListItemProperties,
+} from './list/list-item.ts';
+import type ListLinkItem from './list/list-link-item.ts';
+import type {
+  ListLinkItemCSSProperties,
+  ListLinkItemEvents,
+  ListLinkItemProperties,
+} from './list/list-link-item.ts';
+import type {
+  ListCSSProperties,
+  ListEvents,
+  ListProperties,
+} from './list/list.ts';
+import type List from './list/list.ts';
 import type Radio from './radio/radio.ts';
 import type {
   RadioCSSProperties,
@@ -136,6 +160,22 @@ type CheckboxJSX = JSXWrapper<Checkbox, CheckboxProperties, CheckboxEvents>;
 
 type RadioJSX = JSXWrapper<Radio, RadioProperties, RadioEvents>;
 
+type ListJSX = JSXWrapper<List, ListProperties, ListEvents>;
+
+type ListItemJSX = JSXWrapper<ListItem, ListItemProperties, ListItemEvents>;
+
+type ListButtonItemJSX = JSXWrapper<
+  ListButtonItem,
+  ListButtonItemProperties,
+  ListButtonItemEvents
+>;
+
+type ListLinkItemJSX = JSXWrapper<
+  ListLinkItem,
+  ListLinkItemProperties,
+  ListLinkItemEvents
+>;
+
 type TextFieldJSX = JSXWrapper<TextField, TextFieldProperties, TextFieldEvents>;
 type MultilineTextFieldJSX = JSXWrapper<
   MultilineTextField,
@@ -156,6 +196,10 @@ declare module 'react' {
       'mx-connected-button-group': ConnectedButtonGroupJSX;
       'mx-checkbox': CheckboxJSX;
       'mx-fab': FABJSX;
+      'mx-list': ListJSX;
+      'mx-list-item': ListItemJSX;
+      'mx-list-button-item': ListButtonItemJSX;
+      'mx-list-link-item': ListLinkItemJSX;
       'mx-radio': RadioJSX;
       'mx-icon': IconJSX;
       'mx-text-field': TextFieldJSX;
@@ -175,6 +219,10 @@ declare module 'react' {
       CheckboxCSSProperties,
       FABCSSProperties,
       IconCSSProperties,
+      ListCSSProperties,
+      ListItemCSSProperties,
+      ListButtonItemCSSProperties,
+      ListLinkItemCSSProperties,
       RadioCSSProperties,
       TextFieldCSSProperties {}
 }

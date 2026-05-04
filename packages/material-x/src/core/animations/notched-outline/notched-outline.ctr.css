@@ -1,3 +1,22 @@
+/**
+  * Notch calculation schema.
+  *
+  * Let's take the outlined text field as an example.
+  *
+  * ←a→
+  * ┌── ←b→ ←w→ ←b→ ───────┐
+  * o  ┌───────────────┐   │
+  * │  │ Input text    │   │
+  * │  └───────────────┘   │
+  * └──────────────────────┘
+  *
+  * where (for outlined text field without icon):
+  * - a (--_notched-outline-start-width)
+  * - o (--_notched-outline-border)
+  * - b (--_notched-outline-padding)
+  * - w (--_notched-outline-notch-width) - computed in JS.
+*/
+
 .notched-outline {
   display: flex;
   align-items: stretch;

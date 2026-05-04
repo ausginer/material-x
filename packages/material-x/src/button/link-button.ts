@@ -1,16 +1,12 @@
 import type { EmptyObject, Simplify } from 'type-fest';
-import ATTR, { Str } from 'ydin/attribute.js';
-import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
-import { useEvents } from 'ydin/controllers/useEvents.js';
 import { define } from 'ydin/element.js';
 import {
-  impl,
-  trait,
-  type TraitedConstructor,
-  type Interface,
-  type Props,
-  type Trait,
-} from 'ydin/traits/traits.js';
+  Linkable,
+  type LinkableProps,
+  useLinkable,
+  useDisableableLinkable,
+} from 'ydin/traits/linkable.js';
+import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import { $ } from 'ydin/utils/DOM.js';
 import {
   ButtonCore,
@@ -24,34 +20,13 @@ import mainOutlinedStyles from './styles/outlined/main.css.ts' with { type: 'css
 import mainTextStyles from './styles/text/main.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
-type LinkButtonLikeDescriptor = {
-  href: string | null;
-  target: string | null;
-};
-
-const $linkButtonLike: unique symbol = Symbol('LinkButtonLike');
-
-export const LinkButtonLike: Trait<
-  LinkButtonLikeDescriptor,
-  typeof $linkButtonLike
-> = trait(
-  {
-    href: Str,
-    target: Str,
-  },
-  $linkButtonLike,
-);
-
-export type LinkButtonLike = Interface<typeof LinkButtonLike>;
-export type LinkButtonLikeProps = Props<typeof LinkButtonLike>;
-
 const LinkButtonCore: TraitedConstructor<
   ButtonCore,
   typeof ButtonCore,
-  [typeof LinkButtonLike]
-> = impl(ButtonCore, [LinkButtonLike]);
+  [typeof Linkable]
+> = impl(ButtonCore, [Linkable]);
 
-export type LinkButtonProps = Simplify<ButtonCoreProps & LinkButtonLikeProps>;
+export type LinkButtonProps = Simplify<ButtonCoreProps & LinkableProps>;
 export type LinkButtonEvents = EmptyObject;
 export type LinkButtonCSSProperties = ButtonSharedCSSProperties;
 
@@ -97,43 +72,9 @@ export default class LinkButton extends LinkButtonCore {
       { delegatesFocus: true },
     );
 
-    const target = $<HTMLAnchorElement>(this, '.host')!;
-
-    useAttributes(this, {
-      target: transfer(target, 'target'),
-      href: (_, value) => {
-        if (!this.disabled) {
-          ATTR.setRaw(target, 'href', value);
-        }
-      },
-      disabled: (_, value) => {
-        if (value != null) {
-          // Disabling anchor element manually since it doesn't accept
-          // standard `disabled` attribute.
-          ATTR.setRaw(target, 'aria-disabled', 'true');
-          ATTR.setRaw(target, 'tabindex', '-1');
-          ATTR.setRaw(target, 'href', null);
-        } else {
-          // restoring attributes from the host.
-          for (const attr of ['aria-disabled', 'tabindex', 'href']) {
-            ATTR.setRaw(target, attr, ATTR.getRaw(this, attr));
-          }
-        }
-      },
-    });
-
-    useEvents(
-      this,
-      {
-        click: (event) => {
-          if (this.disabled) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-        },
-      },
-      target,
-    );
+    const anchor = $<HTMLAnchorElement>(this, '.host')!;
+    useLinkable(this, anchor);
+    useDisableableLinkable(this, anchor);
   }
 }
 

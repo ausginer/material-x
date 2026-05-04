@@ -1,0 +1,108 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import LinkTo from '@storybook/addon-links/react';
+import { ApiTables } from '../../../../.storybook/docs/ApiTables.tsx';
+import {
+  BREAKING_CHANGES_NOTE,
+  EARLY_STAGE_STATUS,
+  THEME_TOGGLE_LABEL,
+} from '../../../../.storybook/docs/DocCopy.ts';
+import { Source } from '../../../../.storybook/docs/Source.tsx';
+import { SummaryOrWarning } from '../../../../.storybook/docs/SummaryOrWarning.tsx';
+import { ThemeToggleLink } from '../../../../.storybook/docs/ThemeToggleLink.tsx';
+import { getDeclarationByTag } from '../../../../.storybook/docs/cem.ts';
+import * as Stories from './list.stories';
+import './list-button-item.ts';
+import './list-link-item.ts';
+
+export const TAG = 'mx-list';
+
+export const declaration = getDeclarationByTag(TAG);
+export const summary = declaration?.summary?.trim();
+
+export const importSnippet = "import '@ausginer/material-x/list/list.js';";
+export const usageSnippet = `<mx-list>
+  <mx-list-button-item>
+    <mx-icon slot="start">inbox</mx-icon>
+    Inbox
+  </mx-list-button-item>
+</mx-list>`;
+
+<Meta of={Stories} />
+
+# List
+
+## Summary
+
+<SummaryOrWarning summary={summary} tag={TAG} />
+
+## Quick start
+
+### Import
+
+<Source code={importSnippet} language="ts" />
+
+### Basic usage
+
+<Source code={usageSnippet} language="html" />
+
+## Examples
+
+### Content density
+
+<Canvas of={Stories.ContentDensity} />
+
+### Interactive items
+
+<Canvas of={Stories.Interactive} />
+
+### Media
+
+<Canvas of={Stories.Media} />
+
+## Playground
+
+Use the live example below to inspect selected state, disabled state, and
+slotted content combinations.
+
+<LinkTo kind="List" story="Playground">
+  Playground
+</LinkTo>
+
+## Anatomy
+
+- `mx-list`: container for list items.
+- `mx-list-item`: static content item.
+- `mx-list-button-item`: native button-backed action item.
+- `mx-list-link-item`: native anchor-backed navigation item.
+- `start` and `end` slots: leading and trailing affordances.
+- `supporting-text`, `overline`, and `trailing-supporting-text` slots:
+  secondary text regions.
+
+## Theming
+
+Uses Material 3 Expressive list tokens and works with the global Storybook
+light/dark theme toggle.
+
+<ThemeToggleLink>{THEME_TOGGLE_LABEL}</ThemeToggleLink>
+
+## API reference
+
+<ApiTables tag="mx-list" />
+<ApiTables tag="mx-list-item" />
+<ApiTables tag="mx-list-button-item" />
+<ApiTables tag="mx-list-link-item" />
+
+## Material 3 reference and deltas
+
+- Material 3 overview:
+  [https://m3.material.io/components/lists/overview](https://m3.material.io/components/lists/overview)
+- Deltas:
+  - One-line is the default; denser rows are inferred from slotted overline and
+    supporting text.
+  - Reveal, reorder, expandable, segmented-list behavior, and dividers are not
+    included in this first implementation.
+
+## Changelog / stability
+
+- {EARLY_STAGE_STATUS}
+- {BREAKING_CHANGES_NOTE}

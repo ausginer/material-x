@@ -1,0 +1,215 @@
+/*
+ * Public CSS custom properties
+ *
+ * `--md-list-item-container-height`
+ *   Overrides the resolved one-, two-, or three-line container height.
+ *
+ * `--md-list-item-leading-space` and `--md-list-item-trailing-space`
+ *   Override inline spacing that is not reachable via ::part.
+ *
+ * `--md-list-item-leading-icon-size` and `--md-list-item-trailing-icon-size`
+ *   Override slotted icon sizing for leading/trailing affordances.
+ *
+ * Grid setup of the list item.
+ * ┌─────┬─────────┬─────┐
+ * │  L  │    o    │  T  │
+ * ├─────┼─────────┼─────┤
+ * │  L  │    l    │  T  │
+ * ├─────┼─────────┼─────┤
+ * │  L  │    s    │  T  │
+ * └─────┴─────────┴─────┘
+ *
+ * where:
+ * - L — leading element (icon, control, avatar, image, video)
+ * - o — overline
+ * - l — label
+ * - s — supporting text
+ * - T — trailing element (icon, control, text)
+ */
+
+:host {
+  --_shape-full: var(--md-list-item-container-height, var(--_container-height));
+  --_resolved-container-height: var(
+    --md-list-item-container-height,
+    var(--_container-height, var(--_one-line-container-height))
+  );
+  --_resolved-container-shape: var(
+    --md-list-item-container-shape,
+    var(--_container-shape)
+  );
+
+  display: contents;
+}
+
+:host(:state(has-support)),
+:host(:state(has-overline)) {
+  --_resolved-container-height: var(
+    --md-list-item-container-height,
+    var(--_two-line-container-height)
+  );
+}
+
+:host(:state(has-support):state(has-overline)) {
+  --_resolved-container-height: var(
+    --md-list-item-container-height,
+    var(--_three-line-container-height)
+  );
+}
+
+.host {
+  all: unset;
+  position: relative;
+  box-sizing: border-box;
+  display: grid;
+  grid-template:
+    'L o T' min-content
+    'L l T'
+    'L s T' min-content / min-content auto min-content;
+  inline-size: 100%;
+  padding-block: var(--_top-space) var(--_bottom-space);
+  padding-inline: var(--md-list-item-leading-space, var(--_leading-space))
+    var(--md-list-item-trailing-space, var(--_trailing-space));
+  border-radius: var(--_resolved-container-shape);
+  background: var(--md-list-item-container-color, var(--_container-color));
+  color: var(--_label-text-color);
+  cursor: default;
+
+  user-select: none;
+  text-decoration: none;
+  font: inherit;
+  text-align: start;
+  -webkit-tap-highlight-color: transparent;
+
+  :host(:state(has-support)) &,
+  :host(:state(has-overline)) & {
+    align-items: start;
+  }
+}
+
+.label,
+.overline,
+.support,
+.trail {
+  &::slotted(*) {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.label {
+  display: block;
+  grid-area: l;
+  color: var(--_label-text-color);
+  opacity: var(--_label-text-opacity, 1);
+  font-family: var(--_label-text-font);
+  font-size: var(--_label-text-size);
+  font-weight: var(--_label-text-weight);
+  line-height: var(--_label-text-line-height);
+  letter-spacing: var(--_label-text-tracking);
+}
+
+.overline::slotted(*) {
+  grid-area: o;
+  color: var(--_overline-color);
+  opacity: var(--_overline-opacity, 1);
+  font-family: var(--_overline-font);
+  font-size: var(--_overline-size);
+  font-weight: var(--_overline-weight);
+  line-height: var(--_overline-line-height);
+  letter-spacing: var(--_overline-tracking);
+}
+
+.support::slotted(*) {
+  grid-area: s;
+  color: var(--_supporting-text-color);
+  opacity: var(--_supporting-text-opacity, 1);
+  font-family: var(--_supporting-text-font);
+  font-size: var(--_supporting-text-size);
+  font-weight: var(--_supporting-text-weight);
+  line-height: var(--_supporting-text-line-height);
+  letter-spacing: var(--_supporting-text-tracking);
+}
+
+.lead {
+  &::slotted(*) {
+    grid-area: L;
+    align-self: center;
+    margin-inline-end: var(--_between-space);
+  }
+
+  &::slotted([data-icon]),
+  &::slotted(mx-icon) {
+    color: var(--_leading-icon-icon-color, var(--_leading-icon-color));
+    font-size: var(--md-list-item-leading-icon-size, var(--_leading-icon-size));
+    opacity: var(--_leading-icon-opacity, 1);
+  }
+
+  &::slotted([data-avatar]) {
+    display: grid;
+    place-items: center;
+    inline-size: var(--_leading-avatar-size);
+    aspect-ratio: 1;
+    border-radius: var(--_leading-avatar-shape);
+    background: var(--_leading-avatar-color);
+    color: var(--_leading-avatar-label-color);
+    font-family: var(--_leading-avatar-label-font);
+    font-size: var(--_leading-avatar-label-size);
+    font-weight: var(--_leading-avatar-label-weight);
+    line-height: var(--_leading-avatar-label-line-height);
+    letter-spacing: var(--_leading-avatar-label-tracking);
+  }
+
+  &::slotted(img),
+  &::slotted([data-image]) {
+    inline-size: var(--_leading-image-width);
+    block-size: var(--_leading-image-height);
+    border-radius: var(--_leading-image-shape);
+    object-fit: cover;
+  }
+
+  &::slotted(video),
+  &::slotted([data-video]) {
+    inline-size: var(--_leading-video-width);
+    block-size: var(--_small-leading-video-height);
+    border-radius: var(--_leading-video-shape);
+    object-fit: cover;
+  }
+
+  :host(:state(has-support):state(has-overline)) & {
+    &::slotted([data-video]),
+    &::slotted(video) {
+      inline-size: var(--_large-leading-video-width);
+      block-size: var(--_large-leading-video-height);
+    }
+  }
+}
+
+.trail {
+  &::slotted(*) {
+    grid-area: T;
+    align-self: center;
+    margin-inline-start: var(--_between-space);
+  }
+
+  &::slotted(:not(mx-icon):not([data-icon])) {
+    color: var(--_trailing-supporting-text-color);
+    opacity: var(--_trailing-supporting-text-opacity, 1);
+    font-family: var(--_trailing-supporting-text-font);
+    font-size: var(--_trailing-supporting-text-size);
+    font-weight: var(--_trailing-supporting-text-weight);
+    line-height: var(--_trailing-supporting-text-line-height);
+    letter-spacing: var(--_trailing-supporting-text-tracking);
+    white-space: nowrap;
+  }
+
+  &::slotted(mx-icon),
+  &::slotted([data-icon]) {
+    color: var(--_trailing-icon-icon-color, var(--_trailing-icon-color));
+    font-size: var(
+      --md-list-item-trailing-icon-size,
+      var(--_trailing-icon-size)
+    );
+    opacity: var(--_trailing-icon-opacity, 1);
+  }
+}

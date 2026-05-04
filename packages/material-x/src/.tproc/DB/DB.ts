@@ -124,6 +124,8 @@ export class DB {
         'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.31f16b44fe03b0c0.json',
         // Radio
         'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.6acb269a58d5f93f.json',
+        // List
+        'https://m3.material.io/_dsm/data/dsdb-m3/latest/TOKEN_TABLE.6c818a16475113bd.json',
       ].map(async (url) => (await download(new URL(url))).system),
     ]);
 

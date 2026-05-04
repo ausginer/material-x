@@ -44,6 +44,18 @@ Note: `[Docs]` tag is for those requirements that cannot be fixed and considered
 
 - None noted.
 
+## List
+
+### Accessibility test notes
+
+- `mx-list` exposes `role="list"` through `ElementInternals`, and list items currently expose `role="listitem"` through `ElementInternals` on the custom-element host (`src/list/list.ts`, `src/list/ListItemCore.ts`).
+- List item hosts use `display: contents` so their internal `div`, `button`, or `a` implementation can participate in layout without an extra host box (`src/list/styles/default/main.styles.css`). Future accessibility tests must verify that the host `listitem` role is still exposed in the accessibility tree for `mx-list-item`, `mx-list-button-item`, and `mx-list-link-item` in the supported Baseline browser matrix.
+- Tests should also verify that interactive items retain their native control semantics: `mx-list-button-item` remains operable and exposed as a button, while `mx-list-link-item` remains exposed as a link when enabled and is removed from focus/navigation when disabled (`src/list/list-button-item.ts`, `src/list/list-link-item.ts`).
+
+### Missing requirements
+
+- No automated accessibility coverage exists yet for the `display: contents` host plus `ElementInternals.role` combination. If tests show that a supported browser/AT combination drops the host `listitem` role, move list item semantics to a non-`display: contents` wrapper or another tested structure.
+
 ## Text Field
 
 ### Fulfilled requirements
