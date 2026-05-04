@@ -18,6 +18,7 @@
     "custom-elements.json",
     "fab",
     "icon",
+    "list",
     "react.d.ts",
     "text-field"
   ],
@@ -62,6 +63,22 @@
     "./icon/icon.js": {
       "types": "./icon/icon.d.ts",
       "default": "./icon/icon.js"
+    },
+    "./list/list.js": {
+      "types": "./list/list.d.ts",
+      "default": "./list/list.js"
+    },
+    "./list/list-item.js": {
+      "types": "./list/list-item.d.ts",
+      "default": "./list/list-item.js"
+    },
+    "./list/list-button-item.js": {
+      "types": "./list/list-button-item.d.ts",
+      "default": "./list/list-button-item.js"
+    },
+    "./list/list-link-item.js": {
+      "types": "./list/list-link-item.d.ts",
+      "default": "./list/list-link-item.js"
     },
     "./text-field/multiline-text-field.js": {
       "types": "./text-field/multiline-text-field.d.ts",

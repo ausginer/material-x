@@ -11,8 +11,11 @@
     "checkbox/checkbox",
     "fab/fab",
     "icon/icon",
+    "list/list",
+    "list/list-item",
+    "list/list-button-item",
+    "list/list-link-item",
     "radio/radio",
-    "radio/radio-group",
     "text-field/multiline-text-field",
     "text-field/text-field"
   ],

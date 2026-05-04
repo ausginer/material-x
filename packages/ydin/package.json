@@ -11,10 +11,6 @@
       "types": "./controllers/useARIA.d.ts",
       "default": "./controllers/useARIA.js"
     },
-    "./controllers/useAnchor.js": {
-      "types": "./controllers/useAnchor.d.ts",
-      "default": "./controllers/useAnchor.js"
-    },
     "./controllers/useAttributes.js": {
       "types": "./controllers/useAttributes.d.ts",
       "default": "./controllers/useAttributes.js"
@@ -55,6 +51,10 @@
       "types": "./controllers/useSlot.d.ts",
       "default": "./controllers/useSlot.js"
     },
+    "./controllers/useState.js": {
+      "types": "./controllers/useState.d.ts",
+      "default": "./controllers/useState.js"
+    },
     "./element.js": {
       "types": "./element.d.ts",
       "default": "./element.js"
@@ -71,21 +71,29 @@
       "types": "./traits/disableable.d.ts",
       "default": "./traits/disableable.js"
     },
+    "./traits/linkable.js": {
+      "types": "./traits/linkable.d.ts",
+      "default": "./traits/linkable.js"
+    },
     "./traits/nameable.js": {
       "types": "./traits/nameable.d.ts",
       "default": "./traits/nameable.js"
-    },
-    "./traits/typeable.js": {
-      "types": "./traits/typeable.d.ts",
-      "default": "./traits/typeable.js"
     },
     "./traits/piirre.js": {
       "types": "./traits/piirre.d.ts",
       "default": "./traits/piirre.js"
     },
+    "./traits/selectable.js": {
+      "types": "./traits/selectable.d.ts",
+      "default": "./traits/selectable.js"
+    },
     "./traits/traits.js": {
       "types": "./traits/traits.d.ts",
       "default": "./traits/traits.js"
+    },
+    "./traits/typeable.js": {
+      "types": "./traits/typeable.d.ts",
+      "default": "./traits/typeable.js"
     },
     "./traits/valuable.js": {
       "types": "./traits/valuable.d.ts",

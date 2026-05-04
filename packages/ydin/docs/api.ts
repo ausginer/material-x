@@ -1,6 +1,6 @@
 export * as attribute from '../src/attribute.ts';
 export * as useARIA from '../src/controllers/useARIA.ts';
-export * as useAnchor from '../src/controllers/useAnchor.ts';
+export * as linkable from '../src/traits/linkable.ts';
 export * as useAttributes from '../src/controllers/useAttributes.ts';
 export * as useConnected from '../src/controllers/useConnected.ts';
 export * as useContext from '../src/controllers/useContext.ts';
@@ -15,6 +15,7 @@ export * as element from '../src/element.ts';
 export * as emitter from '../src/emitter.ts';
 export * as checkable from '../src/traits/checkable.ts';
 export * as disableable from '../src/traits/disableable.ts';
+export * as selectable from '../src/traits/selectable.ts';
 export * as piirre from '../src/traits/piirre.ts';
 export * as traits from '../src/traits/traits.ts';
 export * as valuable from '../src/traits/valuable.ts';
