@@ -87,6 +87,8 @@ You can find accessibility review in `.agents/docs/accessibility.md`
 
 `src/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
 
+Material X runtime entrypoints are listed in `packages/material-x/files.json`; update it when adding or removing a component.
+
 ## Sub-agents and teams
 
 Use sub-agents for research and exploration tasks that can run in parallel (e.g. investigating different parts of the codebase simultaneously).
