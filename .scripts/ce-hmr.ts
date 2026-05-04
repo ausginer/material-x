@@ -108,6 +108,7 @@ function patchCustomElementsRegistry(): void {
 
           if (existingEntry) {
             existingEntry.current = constructor;
+            Object.setPrototypeOf(existingEntry.wrapper, constructor);
             Object.setPrototypeOf(
               existingEntry.wrapper.prototype,
               constructor.prototype,
