@@ -246,8 +246,8 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
       notifyFocused(target);
     });
 
-  useSlot(host, slotSelector, (_, elements) => {
-    items.value = elements.filter(isItem);
+  useSlot(host, slotSelector, (_, nodes) => {
+    items.value = nodes.filter(isItem);
     // When slot content changes, recompute the active tab stop.
     items.setTabStop(items.getTabStopCandidate());
   });

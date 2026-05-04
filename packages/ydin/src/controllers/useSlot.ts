@@ -5,38 +5,36 @@ import { useEvents } from './useEvents.ts';
 /**
  * Callback invoked when the observed slot dispatches `slotchange`.
  *
- * The `elements` argument mirrors `slot.assignedElements()` for the current
- * slot state, so it includes element nodes only.
+ * The `nodes` argument mirrors `slot.assignedNodes()` for the current slot
+ * state, so it includes text nodes and other non-element nodes.
  *
- * @typeParam T - The element type expected from the observed slot.
+ * @typeParam T - The node type expected from the observed slot.
  * @param slot - The slot that dispatched the update.
- * @param elements - The currently assigned element children for this slot.
+ * @param nodes - The currently assigned child nodes for this slot.
  */
-export type SlotControllerUpdateCallback<T extends Element> = (
+export type SlotControllerUpdateCallback<T extends Node> = (
   slot: HTMLSlotElement,
-  elements: readonly T[],
+  nodes: readonly T[],
 ) => void;
 
 /**
- * Observes a slot and runs a callback whenever its assigned elements change.
+ * Observes a slot and runs a callback whenever its assigned nodes change.
  *
  * The slot can be passed either as a selector resolved inside
  * `host.shadowRoot`, or as a direct `HTMLSlotElement` reference. Updates are
  * driven by the browser `slotchange` event, and the callback receives the
- * current `assignedElements()` snapshot for that slot.
+ * current `assignedNodes()` snapshot for that slot.
  *
  * @remarks This controller does not emit an initial update manually. The
- * callback runs only when the platform dispatches `slotchange`. Because it
- * relies on `assignedElements()`, text nodes and other non-element nodes are
- * excluded.
+ * callback runs only when the platform dispatches `slotchange`.
  *
- * @typeParam T - The element type expected from the observed slot.
+ * @typeParam T - The node type expected from the observed slot.
  * @param host - The host element that owns the observed slot.
  * @param slotOrSelector - The slot to observe, either by selector or direct
  *   element reference.
  * @param callback - Callback invoked for each `slotchange` update.
  */
-export function useSlot<T extends Element = Element>(
+export function useSlot<T extends Node = Node>(
   host: ControlledElement,
   slotOrSelector: string | HTMLSlotElement,
   callback: SlotControllerUpdateCallback<T>,
@@ -51,7 +49,7 @@ export function useSlot<T extends Element = Element>(
     {
       slotchange() {
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-        callback(slot, slot.assignedElements() as T[]);
+        callback(slot, slot.assignedNodes() as T[]);
       },
     },
     slot,

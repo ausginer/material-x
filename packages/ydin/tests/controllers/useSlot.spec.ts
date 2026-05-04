@@ -22,7 +22,7 @@ describe('useSlot', () => {
   const namedSlotMatcher = matcher('<slot name="label"></slot>');
 
   function createDefaultHostWithSelectorMock(): readonly [
-    mock: Mock<SlotControllerUpdateCallback<HTMLElement>>,
+    mock: Mock<SlotControllerUpdateCallback<Node>>,
     ctr: Constructor<HTMLElement>,
   ] {
     const mock = vi.fn();
@@ -40,7 +40,7 @@ describe('useSlot', () => {
   }
 
   function createDefaultHostWithElementMock(): readonly [
-    mock: Mock<SlotControllerUpdateCallback<HTMLElement>>,
+    mock: Mock<SlotControllerUpdateCallback<Node>>,
     ctr: Constructor<HTMLElement>,
   ] {
     const mock = vi.fn();
@@ -58,7 +58,7 @@ describe('useSlot', () => {
   }
 
   function createNamedHostWithMock(): readonly [
-    mock: Mock<SlotControllerUpdateCallback<HTMLElement>>,
+    mock: Mock<SlotControllerUpdateCallback<Node>>,
     ctr: Constructor<HTMLElement>,
   ] {
     const mock = vi.fn();
@@ -76,8 +76,8 @@ describe('useSlot', () => {
   }
 
   function createDualHostWithMocks(): readonly [
-    defaultMock: Mock<SlotControllerUpdateCallback<HTMLElement>>,
-    namedMock: Mock<SlotControllerUpdateCallback<HTMLElement>>,
+    defaultMock: Mock<SlotControllerUpdateCallback<Node>>,
+    namedMock: Mock<SlotControllerUpdateCallback<Node>>,
     ctr: Constructor<HTMLElement>,
   ] {
     const defaultMock = vi.fn();
@@ -97,7 +97,7 @@ describe('useSlot', () => {
     ];
   }
 
-  it('should snapshot initially assigned elements after upgrade from HTML', async () => {
+  it('should snapshot initially assigned nodes after upgrade from HTML', async () => {
     const tag = nameCE();
 
     const [mock, ctr] = createDefaultHostWithSelectorMock();
@@ -115,7 +115,7 @@ describe('useSlot', () => {
     ]);
   });
 
-  it('should snapshot initially assigned elements when appended after definition', async () => {
+  it('should snapshot initially assigned nodes when appended after definition', async () => {
     const tag = nameCE();
     const [mock, ctr] = createDefaultHostWithSelectorMock();
 
@@ -136,7 +136,7 @@ describe('useSlot', () => {
     ]);
   });
 
-  it('should update assigned elements when slotted content is added', async () => {
+  it('should update assigned nodes when slotted content is added', async () => {
     const tag = nameCE();
     const [mock, ctr] = createDefaultHostWithSelectorMock();
 
@@ -162,7 +162,7 @@ describe('useSlot', () => {
     ]);
   });
 
-  it('should update assigned elements when slotted content is removed', async () => {
+  it('should update assigned nodes when slotted content is removed', async () => {
     const tag = nameCE();
     const [mock, ctr] = createDefaultHostWithSelectorMock();
 
@@ -237,7 +237,7 @@ describe('useSlot', () => {
     ]);
   });
 
-  it('should move assigned element between default and named slots when slot attribute changes', async () => {
+  it('should move assigned node between default and named slots when slot attribute changes', async () => {
     const tag = nameCE();
     const [defaultMock, namedMock, ctr] = createDualHostWithMocks();
 
@@ -299,7 +299,7 @@ describe('useSlot', () => {
     ]);
   });
 
-  it('should preserve assignedElements order after slotted children reorder', async () => {
+  it('should preserve assignedNodes order after slotted children reorder', async () => {
     const tag = nameCE();
     const [mock, ctr] = createDefaultHostWithSelectorMock();
 
@@ -326,7 +326,7 @@ describe('useSlot', () => {
     ]);
   });
 
-  it('should ignore text nodes and only report assigned elements', async () => {
+  it('should include text nodes assigned to the default slot', async () => {
     const tag = nameCE();
     const [mock, ctr] = createDefaultHostWithSelectorMock();
 
@@ -341,8 +341,11 @@ describe('useSlot', () => {
 
     await nextFrame();
 
-    expect(mock).toHaveBeenCalledTimes(1);
     expect(mock).toHaveBeenLastCalledWith(slotMatcher, [
+      expect.objectContaining({
+        nodeType: Node.TEXT_NODE,
+        textContent: 'text',
+      }),
       matcher('<span>element</span>'),
     ]);
   });

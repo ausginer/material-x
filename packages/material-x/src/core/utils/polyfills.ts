@@ -2,17 +2,17 @@ import { useSlot } from 'ydin/controllers/useSlot.js';
 import { getInternals, use, type ControlledElement } from 'ydin/element.js';
 import { $$, toggleState } from 'ydin/utils/DOM.js';
 
-const DEFAULT_SLOT_STATE_NAME = '$default';
+const DEFAULT_SLOT_STATE_NAME = 'default';
 
 export function useHasSlottedPolyfill(host: ControlledElement): void {
   const internals = getInternals(host);
 
-  for (const element of $$<HTMLSlotElement>(host, 'slot')!) {
-    useSlot(host, element, (slot, elements) => {
+  for (const slot of $$<HTMLSlotElement>(host, 'slot')!) {
+    useSlot(host, slot, (slot, nodes) => {
       toggleState(
         internals,
         `has-${slot.name || DEFAULT_SLOT_STATE_NAME}`,
-        elements.length > 0,
+        nodes.length > 0,
       );
     });
   }
