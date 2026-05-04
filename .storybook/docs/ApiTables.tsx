@@ -28,6 +28,10 @@ export function ApiTables({ tag }: Readonly<{ tag: string }>): JSX.Element {
 
   return (
     <>
+      <h3>
+        <code>{tag}</code>
+      </h3>
+
       {!declaration ? (
         <blockquote>
           Could not find <code>{tag}</code> in <code>custom-elements.json</code>
@@ -35,7 +39,7 @@ export function ApiTables({ tag }: Readonly<{ tag: string }>): JSX.Element {
         </blockquote>
       ) : null}
 
-      <h3>Attributes</h3>
+      <h4>Attributes</h4>
       <table>
         <thead>
           <tr>
@@ -61,7 +65,7 @@ export function ApiTables({ tag }: Readonly<{ tag: string }>): JSX.Element {
         </tbody>
       </table>
 
-      <h3>Slots</h3>
+      <h4>Slots</h4>
       <table>
         <thead>
           <tr>
@@ -83,7 +87,7 @@ export function ApiTables({ tag }: Readonly<{ tag: string }>): JSX.Element {
         </tbody>
       </table>
 
-      <h3>CSS parts</h3>
+      <h4>CSS parts</h4>
       <table>
         <thead>
           <tr>
@@ -105,7 +109,7 @@ export function ApiTables({ tag }: Readonly<{ tag: string }>): JSX.Element {
         </tbody>
       </table>
 
-      <h3>CSS custom properties</h3>
+      <h4>CSS custom properties</h4>
       <table>
         <thead>
           <tr>
@@ -127,7 +131,7 @@ export function ApiTables({ tag }: Readonly<{ tag: string }>): JSX.Element {
         </tbody>
       </table>
 
-      <h3>Events</h3>
+      <h4>Events</h4>
       <table>
         <thead>
           <tr>
