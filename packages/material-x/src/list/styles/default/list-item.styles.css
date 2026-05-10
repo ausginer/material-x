@@ -29,10 +29,10 @@
 
 :host {
   --_shape-full: var(--md-list-item-container-height, var(--_container-height));
-  --_resolved-container-height: var(
+  /* --_resolved-container-height: var(
     --md-list-item-container-height,
     var(--_container-height, var(--_one-line-container-height))
-  );
+  ); */
   --_resolved-container-shape: var(
     --md-list-item-container-shape,
     var(--_container-shape)
@@ -43,40 +43,58 @@
 
 slot {
   display: none;
+  line-height: 0;
 }
 
-:host(:state(has-lead)) .lead,
-:host(:state(has-overline)) .overline,
-:host(:state(has-default)) .label,
-:host(:state(has-support)) .support,
-:host(:state(has-trail)) .trail {
+slot:has-slotted {
   display: var(--_slot-display, block);
 }
 
-:host(:state(has-support)),
+:host:has(.lead:has-slotted) {
+  --_lead-column-size: min-content;
+}
+
+:host:has(.overline:has-slotted) {
+  --_overline-row-size: min-content;
+}
+
+:host:has(.trail:has-slotted) {
+  --_trail-column-size: min-content;
+}
+
+:host:has(.support:has-slotted) {
+  --_support-row-size: min-content;
+}
+
+/* :host(:state(has-support)),
 :host(:state(has-overline)) {
   --_resolved-container-height: var(
     --md-list-item-container-height,
     var(--_two-line-container-height)
   );
-}
+} */
 
+/* :host:has(.support:has-slotted):has(.overline:has-slotted),
 :host(:state(has-support):state(has-overline)) {
   --_resolved-container-height: var(
     --md-list-item-container-height,
     var(--_three-line-container-height)
   );
-}
+} */
 
 .host {
   all: unset;
   position: relative;
   box-sizing: border-box;
   display: grid;
+  align-content: center;
   grid-template:
-    'L o T' min-content
+    'L o T' var(--_outline-row-size, 0)
     'L l T'
-    'L s T' min-content / min-content auto min-content;
+    'L s T' var(--_support-row-size, 0) / var(--_lead-column-size, 0) auto var(
+      --_trail-column-size,
+      0
+    );
   inline-size: 100%;
   padding-block: var(--_top-space) var(--_bottom-space);
   padding-inline: var(--md-list-item-leading-space, var(--_leading-space))
@@ -92,9 +110,9 @@ slot {
   text-align: start;
   -webkit-tap-highlight-color: transparent;
 
-  :host(:state(has-support)) &,
-  :host(:state(has-overline)) & {
-    align-items: start;
+  :host:has(.support:has-slotted) &,
+  :host:has(.overline:has-slotted) & {
+    align-content: start;
   }
 }
 
@@ -102,7 +120,6 @@ slot {
 .overline,
 .support,
 .trail {
-  min-inline-size: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -183,7 +200,7 @@ slot {
     object-fit: cover;
   }
 
-  :host(:state(has-support):state(has-overline)) & {
+  :host:has(.support:has-slotted):has(.overline:has-slotted) & {
     &::slotted([data-video]),
     &::slotted(video) {
       inline-size: var(--_large-leading-video-width);

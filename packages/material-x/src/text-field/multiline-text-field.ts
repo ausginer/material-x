@@ -1,8 +1,6 @@
 import { define } from 'ydin/element.js';
 import { useFieldSizingContentPolyfill } from '../core/utils/polyfills.ts';
 import multilineTextFieldTemplate from './multiline-text-field.tpl.html' with { type: 'html' };
-import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
-import outlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
 import { getInput, TextFieldCore } from './TextFieldCore.ts';
 
 export type {
@@ -62,7 +60,7 @@ export default class MultilineTextField extends TextFieldCore {
   static override formAssociated = true;
 
   constructor() {
-    super(multilineTextFieldTemplate, [defaultStyles, outlinedStyles]);
+    super(multilineTextFieldTemplate);
 
     // TODO: Remove when `field-sizing: content;` is baseline.
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion

@@ -3,17 +3,34 @@ import { getInternals, use, type ControlledElement } from 'ydin/element.js';
 import { $$, toggleState } from 'ydin/utils/DOM.js';
 
 const DEFAULT_SLOT_STATE_NAME = 'default';
+const HOST_HAS_SUPPORTED = (() => {
+  const host = document.createElement('div');
+  const shadow = host.attachShadow({ mode: 'open' });
+  shadow.innerHTML =
+    '<style>:host{--_has:0}:host:has(slot){--_has:1}</style><slot></slot>';
+  document.body.append(host);
+  const hasSupport = getComputedStyle(host).getPropertyValue('--_has') === '1';
+  host.remove();
+
+  return hasSupport;
+})();
 
 export function useHasSlottedPolyfill(host: ControlledElement): void {
   const internals = getInternals(host);
 
   for (const slot of $$<HTMLSlotElement>(host, 'slot')!) {
     useSlot(host, slot, (slot, nodes) => {
-      toggleState(
-        internals,
-        `has-${slot.name || DEFAULT_SLOT_STATE_NAME}`,
-        nodes.length > 0,
-      );
+      const hasNodes = nodes.length > 0;
+
+      slot.classList.toggle('has-slotted', hasNodes);
+
+      if (!HOST_HAS_SUPPORTED) {
+        toggleState(
+          internals,
+          `has-${slot.name || DEFAULT_SLOT_STATE_NAME}`,
+          hasNodes,
+        );
+      }
     });
   }
 }

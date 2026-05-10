@@ -62,22 +62,20 @@
   * - S = suffix
   */
 
-.input {
-  :host([outlined]) & {
+:host([outlined]) {
+  .input {
     margin-block: var(--_default-margin-block);
   }
-}
 
-:host([outlined]:state(has-prefix)) .prefix::slotted(*) {
-  margin-block: var(--_default-margin-block);
-}
+  .prefix:has-slotted {
+    margin-block: var(--_default-margin-block);
+  }
 
-:host([outlined]:state(has-suffix)) .suffix::slotted(*) {
-  margin-block: var(--_default-margin-block);
-}
+  .suffix:has-slotted {
+    margin-block: var(--_default-margin-block);
+  }
 
-.notched-outline {
-  :host([outlined]) & {
+  .notched-outline {
     --_notched-outline-border: var(--_outline-width) solid var(--_outline-color);
     --_notched-outline-border-radius: var(--_container-shape);
     --_notched-outline-notch-padding: var(--_label-populated-padding);
@@ -89,16 +87,13 @@
     background: none;
     border: none;
   }
-
-  :host([outlined]:focus-within:state(has-label)) &,
-  :host([outlined]:state(populated):state(has-label)) & {
-    --_notched-outline-notch-open: 1;
-  }
 }
 
-.label {
-  :host([outlined]:focus-within:state(has-label)) &,
-  :host([outlined]:state(populated):state(has-label)) & {
+:host([outlined]:focus-within),
+:host([outlined]:state(populated)) {
+  --_notched-outline-notch-open: 1;
+
+  .label :has-slotted {
     /*
      * Since the populated label should be placed at the border of the text
      * field, we have to do some sophisticated computations here.
@@ -106,16 +101,16 @@
      * So, the idea, considering the schema on the top, is the following:
      * - move label to the left edge of the field (x1 = -1 * (b + I + c)); no
      * `o` here because border is _inside_ the padding (border-box).
-     * - move label back to where the notch is placed (x = x1 + o + b + e)
+     * - move label back to where the notch is placed (x = x1 + b + e)
      *
      * So, the final formula is the following:
-     * x = o + b + e - b - I - c       | b is removed; let's reduce.
+     * x = b + e - b - I - c       | b is removed; let's reduce.
      *
-     * x = o + e - I - c               | note that `I` could be 0 if there is no
-     *                                 | leading icon.
+     * x = e - I - c               | note that `I` could be 0 if there is no
+     *                             | leading icon.
      */
     translate: calc(
-        var(--_outline-width) + var(--_label-populated-padding) -
+        var(--_label-populated-padding) -
           var(
             --md-text-field-leading-icon-size,
             var(--_leading-icon-size-actual, 0px)

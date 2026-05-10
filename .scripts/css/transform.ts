@@ -1,5 +1,11 @@
-import { transform as t, type CustomAtRules, type Visitor } from 'lightningcss';
+import {
+  composeVisitors,
+  transform as t,
+  type CustomAtRules,
+  type Visitor,
+} from 'lightningcss';
 import type { SourceMap } from 'rollup';
+import hasSlottedFallbackVisitor from './hasSlottedFallbackVisitor.ts';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -21,12 +27,13 @@ export default function transform(
     code: encoder.encode(input),
     minify: options?.minify ?? false,
     sourceMap: options?.sourceMap ?? false,
-    visitor: options?.visitor ?? undefined,
+    visitor: options?.visitor
+      ? composeVisitors([hasSlottedFallbackVisitor, options.visitor])
+      : hasSlottedFallbackVisitor,
   });
 
-  const _map: SourceMap | undefined = map
-    ? JSON.parse(decoder.decode(map))
-    : undefined;
-
-  return { code: decoder.decode(encoded), map: _map };
+  return {
+    code: decoder.decode(encoded),
+    map: map ? JSON.parse(decoder.decode(map)) : undefined,
+  };
 }

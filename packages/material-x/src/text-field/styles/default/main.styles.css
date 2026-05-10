@@ -134,18 +134,11 @@ slot {
   display: none;
 }
 
-:host(:state(has-lead)) .lead,
-:host(:state(has-prefix)) .prefix,
-:host(:state(has-label)) .label slot,
-:host(:state(has-suffix)) .suffix,
-:host(:state(has-trail)) .trail,
-:host(:state(has-support)) .support slot,
-:host(:state(has-counter)) .counter slot {
-  display: var(--_slot-display, block);
+slot:has-slotted {
+  display: block;
 }
 
-/* TODO: ':host:has(.lead:has-slotted)' */
-:host(:state(has-lead)) {
+:host:has(.lead:has-slotted) {
   --_lead-column-size: min-content;
   --_padding-inline-start: var(
     --md-text-field-container-icon-padding-inline,
@@ -159,8 +152,7 @@ slot {
   --_leading-icon-size-actual: var(--_leading-icon-size);
 }
 
-/* TODO: ':host:has(.trail:has-slotted)' */
-:host(:state(has-trail)) {
+:host:has(.trail:has-slotted) {
   --_trail-column-size: min-content;
   --_padding-inline-end: var(
     --md-text-field-container-icon-padding-inline,
@@ -172,17 +164,16 @@ slot {
   );
 }
 
-:host(:state(has-prefix)) {
+:host:has(.prefix:has-slotted) {
   --_prefix-column-size: min-content;
 }
 
-:host(:state(has-suffix)) {
+:host:has(.suffix:has-slotted) {
   --_suffix-column-size: min-content;
 }
 
-/* TODO: ':host:has(.support > :has-slotted)' */
-:host(:state(has-support)),
-:host(:state(has-counter)) {
+:host:has(.support :has-slotted),
+:host:has(.counter :has-slotted) {
   grid-template-rows: auto min-content;
   row-gap: var(
     --md-text-field-supporting-text-row-gap,
@@ -283,6 +274,26 @@ slot {
   );
 }
 
+.label {
+  position: absolute;
+  grid-column: P / S; /* P I S */
+  max-width: min-content;
+
+  & :has-slotted {
+    transform-origin: bottom left;
+    transition-property: translate, scale, font-size, color;
+    transition-duration: var(
+      --md-text-field-focus-duration,
+      var(--_focus-duration)
+    );
+    transition-timing-function: var(
+      --md-text-field-focus-easing,
+      var(--_focus-easing)
+    );
+    margin-block: var(--_default-margin-block);
+  }
+}
+
 :host(:state(populated)),
 :host(:focus-within) {
   .prefix,
@@ -290,16 +301,8 @@ slot {
     transform: scaleY(1);
     visibility: visible;
   }
-}
 
-.label {
-  position: absolute;
-  grid-column: P / S; /* P I S */
-  max-width: min-content;
-
-  /* TODO: '&:has(:has-slotted)' */
-  :host(:state(populated):state(has-label)) &,
-  :host(:focus-within:state(has-label)) & {
+  .label :has-slotted {
     color: var(--_label-text-color);
     translate: 0
       calc(
@@ -318,20 +321,6 @@ slot {
 
     scale: calc(var(--_label-text-populated-size) / var(--_label-text-size));
     */
-  }
-
-  :host(:state(has-label)) & {
-    transform-origin: bottom left;
-    transition-property: translate, scale, font-size, color;
-    transition-duration: var(
-      --md-text-field-focus-duration,
-      var(--_focus-duration)
-    );
-    transition-timing-function: var(
-      --md-text-field-focus-easing,
-      var(--_focus-easing)
-    );
-    margin-block: var(--_default-margin-block);
   }
 }
 
@@ -402,10 +391,10 @@ slot {
 }
 
 .counter {
-  --_slot-display: flex;
   grid-area: c;
 
-  slot {
+  :has-slotted {
+    display: flex;
     justify-content: end;
     padding-inline: var(--_supporting-text-column-gap)
       var(--_supporting-text-padding-inline);

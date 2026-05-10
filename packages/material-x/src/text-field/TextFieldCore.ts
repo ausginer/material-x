@@ -29,6 +29,8 @@ import { $, toggleState } from 'ydin/utils/DOM.js';
 import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
+import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
+import outlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
 import textFieldCoreTemplate from './text-field-core.tpl.html' with { type: 'html' };
 
 export type TextFieldType =
@@ -154,15 +156,18 @@ export class TextFieldCore extends TextFieldCoreBase {
 
   readonly #input: HTMLInputElement | HTMLTextAreaElement;
 
-  constructor(
-    template: HTMLTemplateElement,
-    styles: ReadonlyArray<CSSStyleSheet | string>,
-  ) {
+  constructor(template: HTMLTemplateElement) {
     super();
 
-    useCore(this, [template, textFieldCoreTemplate], {}, styles, {
-      delegatesFocus: true,
-    });
+    useCore(
+      this,
+      [template, textFieldCoreTemplate],
+      {},
+      [defaultStyles, outlinedStyles],
+      {
+        delegatesFocus: true,
+      },
+    );
 
     const input = $<HTMLInputElement | HTMLTextAreaElement>(this, '.input')!;
     const label = $<HTMLLabelElement>(this, '.label')!;
@@ -190,7 +195,7 @@ export class TextFieldCore extends TextFieldCoreBase {
       input,
     );
 
-    // TODO: Remove when :has-slotted pseudo class is baseline.
+    // TODO: Remove when :has-slotted and :host:has() are baseline.
     useHasSlottedPolyfill(this);
 
     this.#input = input;
