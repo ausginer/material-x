@@ -1,6 +1,6 @@
 import attr, {
   type AttributePrimitive,
-  type Converter,
+  type ConverterOf,
   type NullablePrimitive,
 } from '../attribute.ts';
 import { type ControlledElement, use } from '../element.ts';
@@ -39,7 +39,7 @@ export type ConvertedUpdateCallback<
 > = (oldValue: NullablePrimitive<T>, newValue: NullablePrimitive<T>) => void;
 
 export function via<T extends AttributePrimitive = AttributePrimitive>(
-  [from]: Converter<T>,
+  { from }: ConverterOf<T>,
   callback: ConvertedUpdateCallback<T>,
 ): UpdateCallback {
   return (oldValue, newValue) => callback(from(oldValue), from(newValue));

@@ -1,4 +1,4 @@
-import attribute, { type Converter } from 'ydin/attribute.js';
+import attribute, { type ConverterOf } from 'ydin/attribute.js';
 import {
   useContext as _useContext,
   type Context,
@@ -28,18 +28,18 @@ export function useContext<
 >(
   host: ControlledElement,
   ctx: Context<ContextData<T>>,
-  attributes: Readonly<Record<A, Converter>>,
+  attributes: Readonly<Record<A, ConverterOf<any>>>,
   effect: ContextEffect<T, A>,
 ): void {
   _useContext(host, ctx, (data) => {
     if (data) {
-      for (const [attr, [from]] of Object.entries(attributes)) {
+      for (const [attr, { from }] of Object.entries(attributes)) {
         effect(attr, from(null), from(attribute.getRaw(data.provider, attr)));
       }
 
       return data.emitter.on((attr, oldValue, newValue) => {
         if (attr in attributes) {
-          const [from] = attributes[attr as keyof typeof attributes];
+          const { from } = attributes[attr as keyof typeof attributes];
           effect(
             attr as keyof typeof attributes,
             from(oldValue),

@@ -26,10 +26,10 @@ export type NullablePrimitive<T extends AttributePrimitive> = T extends boolean
  *
  * @typeParam T - The primitive value represented by the converter.
  */
-export type ConverterOf<T extends AttributePrimitive> = readonly [
-  (value: string | null) => NullablePrimitive<T>,
-  (value: NullablePrimitive<T>) => string | null,
-];
+export type ConverterOf<T extends AttributePrimitive> = Readonly<{
+  from(value: string | null): NullablePrimitive<T>;
+  to(value: NullablePrimitive<T>): string | null;
+}>;
 
 /**
  * Presence-based attribute converter.
@@ -37,10 +37,10 @@ export type ConverterOf<T extends AttributePrimitive> = readonly [
  * Reads `null` as `false` and any present attribute value as `true`. Writes
  * `true` as an empty string and removes the attribute for `false`.
  */
-export const Bool: ConverterOf<boolean> = [
-  (value: string | null): boolean => value !== null,
-  (value: boolean): string | null => (value ? '' : null),
-] as const;
+export const Bool: ConverterOf<boolean> = {
+  from: (value: string | null): boolean => value !== null,
+  to: (value: boolean): string | null => (value ? '' : null),
+};
 
 /**
  * Presence-based attribute converter tuple.
@@ -53,8 +53,8 @@ export type Bool = typeof Bool;
  * Missing, empty, and invalid numeric strings are normalized to `null`.
  * Writing `null` or `NaN` removes the attribute.
  */
-export const Num: ConverterOf<number> = [
-  (value: string | null): number | null => {
+export const Num: ConverterOf<number> = {
+  from(value: string | null): number | null {
     if (value == null || value === '') {
       return null;
     }
@@ -62,9 +62,9 @@ export const Num: ConverterOf<number> = [
     const num = Number(value);
     return Number.isNaN(num) ? null : num;
   },
-  (value: number | null): string | null =>
+  to: (value: number | null): string | null =>
     value != null && !isNaN(value) ? String(value) : null,
-] as const;
+};
 
 /**
  * Numeric attribute converter tuple.
@@ -74,10 +74,10 @@ export type Num = typeof Num;
 /**
  * Identity converter for nullable string attributes.
  */
-export const Str: ConverterOf<string> = [
-  (value: string | null): string | null => value,
-  (value: string | null): string | null => value,
-] as const;
+export const Str: ConverterOf<string> = {
+  from: (value: string | null): string | null => value,
+  to: (value: string | null): string | null => value,
+};
 
 /**
  * Nullable string attribute converter tuple.
@@ -85,19 +85,13 @@ export const Str: ConverterOf<string> = [
 export type Str = typeof Str;
 
 /**
- * Built-in converter tuple understood by {@link operator}.
- */
-export type Converter<T extends AttributePrimitive = any> = ConverterOf<T>;
-
-/**
  * JavaScript value produced when reading through a converter.
  *
  * @typeParam C - The converter used to read the attribute.
  */
-export type FromConverter<C extends Converter> = C extends readonly [
-  (value: string | null) => infer T,
-  ...(readonly unknown[]),
-]
+export type FromConverter<C extends ConverterOf<any>> = C extends {
+  from(value: string | null): infer T;
+}
   ? T
   : never;
 
@@ -122,7 +116,7 @@ export interface AttributeOperator {
   /**
    * Reads an attribute and converts it to a typed JavaScript value.
    */
-  get<C extends Converter>(
+  get<C extends ConverterOf<any>>(
     host: HTMLElement,
     name: string,
     converter: C,
@@ -131,7 +125,7 @@ export interface AttributeOperator {
   /**
    * Converts a typed JavaScript value and writes it back to the DOM attribute.
    */
-  set<C extends Converter>(
+  set<C extends ConverterOf<any>>(
     host: HTMLElement,
     name: string,
     value: FromConverter<C>,
@@ -159,18 +153,18 @@ export interface AttributeOperator {
  * `getRaw` and `setRaw`.
  */
 export const operator: AttributeOperator = {
-  get<C extends Converter>(
+  get<C extends ConverterOf<any>>(
     host: HTMLElement,
     name: string,
-    [from]: C,
+    { from }: C,
   ): FromConverter<C> {
     return from(operator.getRaw(host, name));
   },
-  set<C extends Converter>(
+  set<C extends ConverterOf<any>>(
     host: HTMLElement,
     name: string,
     value: FromConverter<C>,
-    [, to]: C,
+    { to }: C,
   ) {
     operator.setRaw(host, name, to(value));
   },

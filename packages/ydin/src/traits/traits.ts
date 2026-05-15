@@ -2,7 +2,7 @@
 import type { Constructor, Simplify } from 'type-fest';
 import attr, {
   type AttributePrimitive,
-  type Converter,
+  type ConverterOf,
   type FromConverter,
   type NullablePrimitive,
 } from '../attribute.ts';
@@ -27,7 +27,9 @@ export { impl, type TraitedConstructor } from './piirre.ts';
  *
  * @typeParam T - Descriptor shape declared for the element trait.
  */
-type FieldsFromConverters<T extends Readonly<Record<string, Converter>>> = {
+type FieldsFromConverters<
+  T extends Readonly<Record<string, ConverterOf<any>>>,
+> = {
   [K in keyof T]: FromConverter<T[K]>;
 };
 
@@ -118,7 +120,7 @@ export type Interface<T extends Trait<any, any>> =
  *   the re-exported `impl(...)`.
  */
 export function trait<
-  P extends Readonly<Record<string, Converter>>,
+  P extends Readonly<Record<string, ConverterOf<any>>>,
   B extends symbol,
 >(props: P, brand: B): Trait<FieldsFromConverters<P>, B> {
   return abstractTrait(

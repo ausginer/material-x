@@ -2,6 +2,19 @@
   "name": "ydin",
   "version": "0.1.0",
   "type": "module",
+  "scripts": {
+    "build": "just build-ydin",
+    "clean:build": "just clean-build-ydin",
+    "docs:api:dev": "just docs-api-ydin",
+    "docs:api:build": "just docs-api-build-ydin",
+    "typecheck": "just typecheck-ydin",
+    "fmt": "just fmt-ydin",
+    "fmt:check": "just fmt-check-ydin",
+    "lint": "just lint-ydin",
+    "lint:fix": "just lint-fix-ydin",
+    "test:browser": "just test-ydin-browser",
+    "test:browser:inspect": "just test-ydin-browser-inspect"
+  },
   "exports": {
     "./attribute.js": {
       "types": "./attribute.d.ts",
@@ -116,19 +129,6 @@
       "default": "./utils/runtime.js"
     },
     "./package.json": "./package.json"
-  },
-  "scripts": {
-    "build": "just build-ydin",
-    "clean:build": "just clean-build-ydin",
-    "docs:api:dev": "just docs-api-ydin",
-    "docs:api:build": "just docs-api-build-ydin",
-    "typecheck": "just typecheck-ydin",
-    "fmt": "just fmt-ydin",
-    "fmt:check": "just fmt-check-ydin",
-    "lint": "just lint-ydin",
-    "lint:fix": "just lint-fix-ydin",
-    "test:browser": "just test-ydin-browser",
-    "test:browser:inspect": "just test-ydin-browser-inspect"
   },
   "dependencies": {
     "type-fest": "5.5.0"
