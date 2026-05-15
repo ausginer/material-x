@@ -12,7 +12,6 @@
     "controllers/useRovingTabindex",
     "controllers/useShadowDOM",
     "controllers/useSlot",
-    "controllers/useState",
     "element",
     "emitter",
     "traits/checkable",

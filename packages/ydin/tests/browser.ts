@@ -1,4 +1,5 @@
 import { expect } from 'vitest';
+import { ControlledElement } from '../src/element.ts';
 
 let nextCustomElementId = 0;
 
@@ -16,6 +17,25 @@ export function defineCE(
   element: CustomElementConstructor,
 ): void {
   customElements.define(name, element);
+}
+
+export function host(
+  observed: readonly string[],
+  init: (instance: ControlledElement) => void,
+  tag: string = nameCE(),
+): ControlledElement {
+  class Host extends ControlledElement {
+    static observedAttributes = observed;
+
+    constructor() {
+      super();
+      init(this);
+    }
+  }
+
+  defineCE(tag, Host);
+
+  return new Host();
 }
 
 export async function nextFrame(): Promise<void> {

@@ -64,10 +64,6 @@
       "types": "./controllers/useSlot.d.ts",
       "default": "./controllers/useSlot.js"
     },
-    "./controllers/useState.js": {
-      "types": "./controllers/useState.d.ts",
-      "default": "./controllers/useState.js"
-    },
     "./element.js": {
       "types": "./element.d.ts",
       "default": "./element.js"

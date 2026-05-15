@@ -1,78 +1,31 @@
-import type { Constructor } from 'type-fest';
 import { describe, expect, it, vi } from 'vitest';
-import { ControlledElement } from '../../src/element.ts';
 import {
   useDisableableLinkable,
   useLinkable,
 } from '../../src/traits/linkable.ts';
-import { defineCE, nameCE } from '../browser.ts';
-
-function createLinkableHost(): readonly [
-  ctr: Constructor<ControlledElement>,
-  target: HTMLAnchorElement,
-] {
-  const target = document.createElement('a');
-
-  class Host extends ControlledElement {
-    static observedAttributes = ['href', 'target'] as string[];
-
-    constructor() {
-      super();
-      useLinkable(this, target);
-      this.append(target);
-    }
-  }
-
-  return [Host, target] as const;
-}
-
-function createDisableableHost(): readonly [
-  ctr: Constructor<ControlledElement>,
-  target: HTMLAnchorElement,
-] {
-  const native = document.createElement('a');
-
-  class Host extends ControlledElement {
-    static observedAttributes = [
-      'aria-disabled',
-      'disabled',
-      'href',
-      'tabindex',
-      'target',
-    ];
-
-    constructor() {
-      super();
-      useLinkable(this, native);
-      useDisableableLinkable(this, native);
-      this.append(native);
-    }
-  }
-
-  return [Host, native] as const;
-}
+import { host } from '../browser.ts';
 
 describe('useLinkable', () => {
   it('should mirror href to the anchor', () => {
-    const [Host, native] = createLinkableHost();
+    const native = document.createElement('a');
+    const el = host(['href', 'target'], (h) => {
+      useLinkable(h, native);
+      h.append(native);
+    });
 
-    defineCE(nameCE(), Host);
-
-    const host = new Host();
-
-    host.setAttribute('href', '/settings');
+    el.setAttribute('href', '/settings');
 
     expect(native).toHaveAttribute('href', '/settings');
   });
 
   it('should mirror target to the anchor', () => {
-    const [Host, native] = createLinkableHost();
+    const native = document.createElement('a');
+    const el = host(['href', 'target'], (h) => {
+      useLinkable(h, native);
+      h.append(native);
+    });
 
-    defineCE(nameCE(), Host);
-
-    const host = new Host();
-
-    host.setAttribute('target', '_blank');
+    el.setAttribute('target', '_blank');
 
     expect(native.target).toBe('_blank');
   });
@@ -80,14 +33,18 @@ describe('useLinkable', () => {
 
 describe('useDisableableLinkable', () => {
   it('should disable native navigation and focus while disabled', () => {
-    const [Host, native] = createDisableableHost();
+    const native = document.createElement('a');
+    const el = host(
+      ['aria-disabled', 'disabled', 'href', 'tabindex', 'target'],
+      (h) => {
+        useLinkable(h, native);
+        useDisableableLinkable(h, native);
+        h.append(native);
+      },
+    );
 
-    defineCE(nameCE(), Host);
-
-    const host = new Host();
-
-    host.setAttribute('href', '/settings');
-    host.setAttribute('disabled', '');
+    el.setAttribute('href', '/settings');
+    el.setAttribute('disabled', '');
 
     expect(native).not.toHaveAttribute('href');
     expect(native.ariaDisabled).toBe('true');
@@ -95,18 +52,22 @@ describe('useDisableableLinkable', () => {
   });
 
   it('should restore the latest host href when re-enabled', () => {
-    const [Host, native] = createDisableableHost();
+    const native = document.createElement('a');
+    const el = host(
+      ['aria-disabled', 'disabled', 'href', 'tabindex', 'target'],
+      (h) => {
+        useLinkable(h, native);
+        useDisableableLinkable(h, native);
+        h.append(native);
+      },
+    );
 
-    defineCE(nameCE(), Host);
-
-    const host = new Host();
-
-    host.setAttribute('disabled', '');
-    host.setAttribute('href', '/settings');
+    el.setAttribute('disabled', '');
+    el.setAttribute('href', '/settings');
 
     expect(native).not.toHaveAttribute('href');
 
-    host.removeAttribute('disabled');
+    el.removeAttribute('disabled');
 
     expect(native).toHaveAttribute('href', '/settings');
   });
@@ -115,50 +76,62 @@ describe('useDisableableLinkable', () => {
     // useLinkable fires first (sets href), then useDisableableLinkable fires
     // and overrides it (clears href). This relies on controller registration
     // order — useLinkable must be called before useDisableableLinkable.
-    const [Host, native] = createDisableableHost();
+    const native = document.createElement('a');
+    const el = host(
+      ['aria-disabled', 'disabled', 'href', 'tabindex', 'target'],
+      (h) => {
+        useLinkable(h, native);
+        useDisableableLinkable(h, native);
+        h.append(native);
+      },
+    );
 
-    defineCE(nameCE(), Host);
-
-    const host = new Host();
-
-    host.setAttribute('disabled', '');
-    host.setAttribute('href', '/new-page');
+    el.setAttribute('disabled', '');
+    el.setAttribute('href', '/new-page');
 
     expect(native).not.toHaveAttribute('href');
   });
 
   it('should restore host-provided tabindex and aria-disabled when re-enabled', () => {
-    const [Host, native] = createDisableableHost();
+    const native = document.createElement('a');
+    const el = host(
+      ['aria-disabled', 'disabled', 'href', 'tabindex', 'target'],
+      (h) => {
+        useLinkable(h, native);
+        useDisableableLinkable(h, native);
+        h.append(native);
+      },
+    );
 
-    defineCE(nameCE(), Host);
-
-    const host = new Host();
-
-    host.setAttribute('aria-disabled', 'false');
-    host.setAttribute('tabindex', '3');
-    host.setAttribute('disabled', '');
+    el.setAttribute('aria-disabled', 'false');
+    el.setAttribute('tabindex', '3');
+    el.setAttribute('disabled', '');
 
     expect(native.ariaDisabled).toBe('true');
     expect(native.tabIndex).toBe(-1);
 
-    host.removeAttribute('disabled');
+    el.removeAttribute('disabled');
 
     expect(native.ariaDisabled).toBe('false');
     expect(native).toHaveAttribute('tabindex', '3');
   });
 
   it('should prevent disabled click activation', () => {
-    const [Host, native] = createDisableableHost();
+    const native = document.createElement('a');
     const click = vi.fn();
-
-    defineCE(nameCE(), Host);
-
-    const host = new Host();
+    const el = host(
+      ['aria-disabled', 'disabled', 'href', 'tabindex', 'target'],
+      (h) => {
+        useLinkable(h, native);
+        useDisableableLinkable(h, native);
+        h.append(native);
+      },
+    );
     const event = new MouseEvent('click', { bubbles: true, cancelable: true });
 
-    host.setAttribute('disabled', '');
-    host.addEventListener('click', click);
-    document.body.append(host);
+    el.setAttribute('disabled', '');
+    el.addEventListener('click', click);
+    document.body.append(el);
     native.dispatchEvent(event);
 
     expect(event.defaultPrevented).toBe(true);
