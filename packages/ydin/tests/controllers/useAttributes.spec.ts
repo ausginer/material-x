@@ -1,12 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
-  toState,
   transfer,
   useAttributes,
-  type StateCondition,
   type UpdateCallback,
 } from '../../src/controllers/useAttributes.ts';
-import { type ControlledElement, internals } from '../../src/element.ts';
 import { host, nameCE } from '../browser.ts';
 
 describe('useAttributes', () => {
@@ -85,110 +82,5 @@ describe('useAttributes', () => {
 
     expect(callback).toHaveBeenCalledOnce();
     expect(callback).toHaveBeenCalledWith(null, 'open');
-  });
-});
-
-describe('toState', () => {
-  it('should add the state when the attribute is set', () => {
-    const el = host(['checked'], (h) => {
-      useAttributes(h, { checked: toState(internals(h), 'checked') });
-    });
-
-    el.setAttribute('checked', '');
-
-    expect(internals(el).states.has('checked')).toBe(true);
-  });
-
-  it('should remove the state when the attribute is removed', () => {
-    const el = host(['checked'], (h) => {
-      useAttributes(h, { checked: toState(internals(h), 'checked') });
-    });
-
-    el.setAttribute('checked', '');
-    el.removeAttribute('checked');
-
-    expect(internals(el).states.has('checked')).toBe(false);
-  });
-
-  it('should not affect an unrelated state when a different attribute changes', () => {
-    const el = host(['checked', 'disabled'], (h) => {
-      useAttributes(h, { checked: toState(internals(h), 'checked') });
-    });
-
-    el.setAttribute('disabled', '');
-
-    expect(internals(el).states.has('checked')).toBe(false);
-  });
-
-  it('should use a custom state name when provided', () => {
-    const el = host(['aria-disabled'], (h) => {
-      useAttributes(h, {
-        'aria-disabled': toState(internals(h), 'disabled'),
-      });
-    });
-
-    el.setAttribute('aria-disabled', '');
-
-    expect(internals(el).states.has('disabled')).toBe(true);
-    expect(internals(el).states.has('aria-disabled')).toBe(false);
-  });
-
-  it('should apply a custom condition to determine state presence', () => {
-    const condition: StateCondition = (_, newValue) => newValue === 'true';
-    const el = host(['active'], (h) => {
-      useAttributes(h, {
-        active: toState(internals(h), 'active', condition),
-      });
-    });
-
-    el.setAttribute('active', 'true');
-    expect(internals(el).states.has('active')).toBe(true);
-
-    el.setAttribute('active', 'false');
-    expect(internals(el).states.has('active')).toBe(false);
-
-    el.removeAttribute('active');
-    expect(internals(el).states.has('active')).toBe(false);
-  });
-
-  it('should reflect a pre-set attribute as state after upgrade', () => {
-    const tag = nameCE();
-
-    document.body.innerHTML = `<${tag} checked></${tag}>`;
-    host(
-      ['checked'],
-      (h) => {
-        useAttributes(h, { checked: toState(internals(h), 'checked') });
-      },
-      tag,
-    );
-
-    const el = document.querySelector(tag) as ControlledElement;
-
-    expect(internals(el).states.has('checked')).toBe(true);
-  });
-
-  it('should manage multiple states independently on the same host', () => {
-    const el = host(['checked', 'disabled'], (h) => {
-      useAttributes(h, {
-        checked: toState(internals(h), 'checked'),
-        disabled: toState(internals(h), 'disabled'),
-      });
-    });
-
-    el.setAttribute('checked', '');
-
-    expect(internals(el).states.has('checked')).toBe(true);
-    expect(internals(el).states.has('disabled')).toBe(false);
-
-    el.setAttribute('disabled', '');
-
-    expect(internals(el).states.has('checked')).toBe(true);
-    expect(internals(el).states.has('disabled')).toBe(true);
-
-    el.removeAttribute('checked');
-
-    expect(internals(el).states.has('checked')).toBe(false);
-    expect(internals(el).states.has('disabled')).toBe(true);
   });
 });

@@ -121,3 +121,29 @@ export function toggleState(
     internals.states.delete(state);
   }
 }
+
+/**
+ * Switches a custom state from one value to another in `ElementInternals.states`.
+ *
+ * Removes `oldState` if non-null and adds `newState` if non-null. Use for
+ * value-based attributes where the attribute value is the state name itself
+ * (e.g. `color='elevated'` → state `elevated`). Pass old and new serialized
+ * attribute values directly — null is treated as "no state".
+ *
+ * @param internals - Host internals whose state set should be updated.
+ * @param oldState - State token to remove, or null.
+ * @param newState - State token to add, or null.
+ */
+export function switchState(
+  internals: ElementInternals,
+  oldState: string | null,
+  newState: string | null,
+): void {
+  if (oldState != null) {
+    internals.states.delete(oldState);
+  }
+
+  if (newState != null) {
+    internals.states.add(newState);
+  }
+}

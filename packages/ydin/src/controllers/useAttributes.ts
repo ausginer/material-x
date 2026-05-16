@@ -1,11 +1,9 @@
 import attr, {
-  Bool,
   type AttributePrimitive,
   type ConverterOf,
   type NullablePrimitive,
 } from '../attribute.ts';
 import { use, type ControlledElement } from '../element.ts';
-import { toggleState } from '../utils/DOM.js';
 
 /**
  * Handles a serialized host attribute update.
@@ -68,28 +66,6 @@ export type StateCondition = (
   oldValue: string | null,
   newValue: string | null,
 ) => boolean;
-
-/**
- * Creates an update callback that toggles a custom state on the host
- * `ElementInternals` in response to an attribute change.
- *
- * @param host - Host element whose internals carry the custom state.
- * @param attribute - Observed attribute that drives the state. Typed against
- *   the host so only known attribute names are accepted.
- * @param state - Custom state token to toggle. Defaults to `attribute`.
- * @param condition - Predicate that maps old and new attribute values to a
- *   boolean. Defaults to presence-based `Bool.from` applied to the new value.
- *
- * @returns Update callback suitable for use inside a `useAttributes` map.
- */
-export function toState(
-  internals: ElementInternals,
-  state: string,
-  condition: StateCondition = (_, value) => Bool.from(value),
-): UpdateCallback {
-  return (oldValue, newValue) =>
-    toggleState(internals, state, condition(oldValue, newValue));
-}
 
 /**
  * Registers attribute update handlers on a host element.
