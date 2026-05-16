@@ -1,6 +1,0 @@
-:host {
-  display: block;
-  overflow: hidden;
-  background: var(--md-list-container-color, var(--_container-color));
-  border-radius: var(--md-list-container-shape, var(--_container-shape));
-}

@@ -7,7 +7,7 @@ import '../core/styles/elevation/elevation.runtime.ts';
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import nestedTemplate from './list-item-shared.tpl.html' with { type: 'html' };
-import defaultStyles from './styles/default/list-item.css.ts' with { type: 'css' };
+import defaultStyles from './styles/item/main.css.ts' with { type: 'css' };
 
 export const ListItemCore: ControlledElementConstructor = ControlledElement;
 export type ListItemCore = InstanceType<typeof ListItemCore>;

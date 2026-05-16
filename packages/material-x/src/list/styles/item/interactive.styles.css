@@ -6,7 +6,13 @@
     var(--md-list-item-press-easing, var(--_press-easing));
 }
 
-:host([disabled]) {
-  cursor: default;
-  pointer-events: none;
+:host(:state(disabled)) {
+  .host {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  slot {
+    opacity: var(--_opacity);
+  }
 }

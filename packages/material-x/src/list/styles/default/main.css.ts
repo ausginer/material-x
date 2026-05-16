@@ -1,4 +1,4 @@
-import css from './list.styles.css';
+import css from './main.styles.css';
 import { listTokens } from './tokens.ts';
 
 const tokens = listTokens.value.render();

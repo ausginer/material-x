@@ -1,5 +1,5 @@
 import { renderListItemInteractiveStyles } from '../utils.ts';
-import css from './list-item-interactive.styles.css';
+import css from './interactive.styles.css';
 import { listItemInteractiveTokens } from './tokens.ts';
 
 const tokens = renderListItemInteractiveStyles([listItemInteractiveTokens]);

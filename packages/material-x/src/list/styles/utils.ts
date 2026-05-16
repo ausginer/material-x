@@ -17,44 +17,27 @@ import {
 
 export const LIST_ITEM_STATES = [
   'default',
-  'hover',
-  'focus',
+  'hovered',
+  'focused',
   'pressed',
   'disabled',
 ] as const;
 
 export const LIST_ITEM_SELECTION_STATES = ['unselected', 'selected'] as const;
 
-const STATE_MAP: Readonly<Record<string, Param>> = {
-  hover: pseudoClass('hover'),
-  focus: pseudoClass('focus-within'),
+const STATE_MAP: Readonly<Record<string, Param | readonly Param[]>> = {
+  hovered: pseudoClass('hover'),
+  focused: [pseudoClass('focus-within'), attribute('selected')],
+  dragged: pseudoClass('drag'),
   pressed: pseudoClass('active'),
   disabled: attribute('disabled'),
 };
-
-const SELECTED = attribute('selected');
-
-function normalizeState(part: string): string | undefined {
-  if (part === 'hovered') {
-    return 'hover';
-  }
-
-  if (part === 'focused') {
-    return 'focus';
-  }
-
-  if (LIST_ITEM_STATES.includes(part)) {
-    return part;
-  }
-
-  return undefined;
-}
 
 export function groupListItemTokens(tokenName: string): GroupResult | null {
   if (tokenName.startsWith('focus.indicator.')) {
     return {
       path: 'default',
-      tokenName: tokenName.replace('focus.indicator.', 'focus-indicator.'),
+      tokenName,
     };
   }
 
@@ -63,27 +46,20 @@ export function groupListItemTokens(tokenName: string): GroupResult | null {
   }
 
   const parts = tokenName.slice('list-item.'.length).split('.');
+
   let selection: string | undefined;
   let state = 'default';
+
   const nameParts: string[] = [];
 
   for (const part of parts) {
-    if (part === 'dragged') {
-      return null;
-    }
-
-    if (part === 'expressive') {
-      continue;
-    }
-
     if (LIST_ITEM_SELECTION_STATES.includes(part)) {
       selection = part;
       continue;
     }
 
-    const normalizedState = normalizeState(part);
-    if (normalizedState) {
-      state = normalizedState;
+    if (LIST_ITEM_STATES.includes(part)) {
+      state = part;
       continue;
     }
 
@@ -97,15 +73,10 @@ export function groupListItemTokens(tokenName: string): GroupResult | null {
 }
 
 export function groupListTokens(tokenName: string): GroupResult | null {
-  if (tokenName === 'container.shape') {
-    return { path: 'default', tokenName: 'container.shape' };
-  }
-
-  if (tokenName === 'list-item.container.color') {
-    return { path: 'default', tokenName: 'container.color' };
-  }
-
-  return null;
+  return {
+    path: 'default',
+    tokenName,
+  };
 }
 
 export const listItemAllowedTokensSelector: GroupSelector =
@@ -114,7 +85,7 @@ export const listItemAllowedTokensSelector: GroupSelector =
     'between-space',
     'container.color',
     'container.elevation',
-    'container.shape',
+    'container.expressive.shape',
     'container.height',
     'container.opacity',
     'focus-indicator.color',
@@ -124,7 +95,6 @@ export const listItemAllowedTokensSelector: GroupSelector =
     'label-text.color',
     'label-text.font',
     'label-text.line-height',
-    'label-text.opacity',
     'label-text.size',
     'label-text.tracking',
     'label-text.type',
@@ -143,9 +113,8 @@ export const listItemAllowedTokensSelector: GroupSelector =
     'leading-avatar.shape',
     'leading-avatar.size',
     'leading-icon.color',
-    'leading-icon.size',
-    'leading-icon.opacity',
-    'leading-image.shape',
+    'leading-icon.expressive.size',
+    'leading-image.expressive.shape',
     'leading-image.height',
     'leading-image.width',
     'leading-space',
@@ -156,13 +125,10 @@ export const listItemAllowedTokensSelector: GroupSelector =
     'overline.color',
     'overline.font',
     'overline.line-height',
-    'overline.opacity',
     'overline.size',
     'overline.tracking',
     'overline.type',
     'overline.weight',
-    'ripple.color',
-    'ripple.opacity',
     'selected.container.color',
     'shadow.color',
     'small.leading-video.height',
@@ -173,7 +139,6 @@ export const listItemAllowedTokensSelector: GroupSelector =
     'supporting-text.color',
     'supporting-text.font',
     'supporting-text.line-height',
-    'supporting-text.opacity',
     'supporting-text.size',
     'supporting-text.tracking',
     'supporting-text.type',
@@ -181,14 +146,12 @@ export const listItemAllowedTokensSelector: GroupSelector =
     'three-line.container.height',
     'top-space',
     'trailing-icon.color',
-    'trailing-icon.size',
-    'trailing-icon.opacity',
+    'trailing-icon.expressive.size',
     'trailing-space',
     'trailing-supporting-text',
     'trailing-supporting-text.color',
     'trailing-supporting-text.font',
     'trailing-supporting-text.line-height',
-    'trailing-supporting-text.opacity',
     'trailing-supporting-text.size',
     'trailing-supporting-text.tracking',
     'trailing-supporting-text.type',
@@ -232,33 +195,34 @@ export function listItemInteractiveTokenSelector(
 }
 
 export const listAllowedTokensSelector: GroupSelector =
-  createAllowedTokensSelector(['container.color', 'container.shape']);
+  createAllowedTokensSelector([
+    'container.color',
+    'container.shape',
+    'segmented.gap',
+  ]);
 
 export function createListItemDeclarationRenderer(): DeclarationBlockRenderer {
   return (path, declarations) => {
-    let state: string;
-    let selection: string | undefined;
-
     const index = path.indexOf('.');
-    if (index < 0) {
-      state = path;
-    } else {
-      selection = path.slice(0, index);
-      state = path.slice(index + 1);
-    }
 
-    const stateParam = state === 'default' ? null : (STATE_MAP[state] ?? null);
+    const state = index < 0 ? path : path.slice(index + 1);
+    let selectors: string[];
+
+    if (state === 'default') {
+      selectors = [selector(':host')];
+    } else {
+      const params = STATE_MAP[state]
+        ? Array.isArray(STATE_MAP[state])
+          ? STATE_MAP[state]
+          : [STATE_MAP[state]]
+        : [];
+      selectors = params.map((p) => selector(':host', p));
+    }
 
     return {
       path,
       declarations,
-      selectors: [
-        selector(
-          ':host',
-          selection === 'selected' ? SELECTED : null,
-          stateParam,
-        ),
-      ],
+      selectors,
     };
   };
 }

@@ -28,14 +28,10 @@
  */
 
 :host {
-  --_shape-full: var(--md-list-item-container-height, var(--_container-height));
-  /* --_resolved-container-height: var(
+  --_shape-full: calc(var(--_container-height) / 2);
+  --_container-height: var(
     --md-list-item-container-height,
-    var(--_container-height, var(--_one-line-container-height))
-  ); */
-  --_resolved-container-shape: var(
-    --md-list-item-container-shape,
-    var(--_container-shape)
+    var(--_one-line-container-height)
   );
 
   display: contents;
@@ -47,7 +43,7 @@ slot {
 }
 
 slot:has-slotted {
-  display: var(--_slot-display, block);
+  display: block;
 }
 
 :host:has(.lead:has-slotted) {
@@ -55,7 +51,8 @@ slot:has-slotted {
 }
 
 :host:has(.overline:has-slotted) {
-  --_overline-row-size: min-content;
+  --_overline-row: min-content;
+  --_overline-row-size: var(--_overline-line-height);
 }
 
 :host:has(.trail:has-slotted) {
@@ -63,24 +60,35 @@ slot:has-slotted {
 }
 
 :host:has(.support:has-slotted) {
-  --_support-row-size: min-content;
+  --_support-row: min-content;
+  --_support-row-size: var(--_supporting-text-line-height);
 }
 
-/* :host(:state(has-support)),
-:host(:state(has-overline)) {
-  --_resolved-container-height: var(
+:host:has(.support:has-slotted),
+:host:has(.overline:has-slotted) {
+  --_container-height: var(
     --md-list-item-container-height,
     var(--_two-line-container-height)
   );
-} */
+}
 
-/* :host:has(.support:has-slotted):has(.overline:has-slotted),
-:host(:state(has-support):state(has-overline)) {
-  --_resolved-container-height: var(
+:host:has(.overline:has-slotted) {
+  .overline {
+    align-content: end;
+  }
+
+  .label {
+    align-content: start;
+  }
+}
+
+:host:has(.support:has-slotted):has(.overline:has-slotted) {
+  --_container-height: var(
     --md-list-item-container-height,
     var(--_three-line-container-height)
   );
-} */
+  --_support-row-size: calc(2 * var(--_supporting-text-line-height));
+}
 
 .host {
   all: unset;
@@ -89,31 +97,37 @@ slot:has-slotted {
   display: grid;
   align-content: center;
   grid-template:
-    'L o T' var(--_outline-row-size, 0)
-    'L l T'
-    'L s T' var(--_support-row-size, 0) / var(--_lead-column-size, 0) auto var(
-      --_trail-column-size,
-      0
-    );
+    'L o T' var(--_overline-row, 0)
+    'L l T' auto
+    'L s T' var(--_support-row, 0) / min-content auto
+    min-content;
   inline-size: 100%;
   padding-block: var(--_top-space) var(--_bottom-space);
   padding-inline: var(--md-list-item-leading-space, var(--_leading-space))
     var(--md-list-item-trailing-space, var(--_trailing-space));
-  border-radius: var(--_resolved-container-shape);
+  border-radius: var(
+    --md-list-item-container-shape,
+    var(--_container-expressive-shape)
+  );
+  min-block-size: var(--_container-height);
   background: var(--md-list-item-container-color, var(--_container-color));
   color: var(--_label-text-color);
   cursor: default;
-
-  user-select: none;
   text-decoration: none;
   font: inherit;
   text-align: start;
   -webkit-tap-highlight-color: transparent;
+}
 
-  :host:has(.support:has-slotted) &,
-  :host:has(.overline:has-slotted) & {
-    align-content: start;
-  }
+.lead,
+.trail {
+  min-inline-size: 0;
+}
+
+.label,
+.overline,
+.support {
+  min-block-size: 0;
 }
 
 .label,
@@ -122,12 +136,12 @@ slot:has-slotted {
 .trail {
   overflow: hidden;
   text-overflow: ellipsis;
+  align-content: center;
 }
 
 .label {
   grid-area: l;
   color: var(--_label-text-color);
-  opacity: var(--_label-text-opacity, 1);
   font-family: var(--_label-text-font);
   font-size: var(--_label-text-size);
   font-weight: var(--_label-text-weight);
@@ -138,35 +152,37 @@ slot:has-slotted {
 .overline {
   grid-area: o;
   color: var(--_overline-color);
-  opacity: var(--_overline-opacity, 1);
   font-family: var(--_overline-font);
   font-size: var(--_overline-size);
   font-weight: var(--_overline-weight);
   line-height: var(--_overline-line-height);
   letter-spacing: var(--_overline-tracking);
+  max-block-size: var(--_overline-row-size, 0);
 }
 
 .support {
   grid-area: s;
   color: var(--_supporting-text-color);
-  opacity: var(--_supporting-text-opacity, 1);
   font-family: var(--_supporting-text-font);
   font-size: var(--_supporting-text-size);
   font-weight: var(--_supporting-text-weight);
   line-height: var(--_supporting-text-line-height);
   letter-spacing: var(--_supporting-text-tracking);
+  max-block-size: var(--_support-row-size, 0);
 }
 
 .lead {
   grid-area: L;
-  align-self: center;
+  align-content: center;
   margin-inline-end: var(--_between-space);
 
   &::slotted([data-icon]),
   &::slotted(mx-icon) {
     color: var(--_leading-icon-icon-color, var(--_leading-icon-color));
-    font-size: var(--md-list-item-leading-icon-size, var(--_leading-icon-size));
-    opacity: var(--_leading-icon-opacity, 1);
+    font-size: var(
+      --md-list-item-leading-icon-size,
+      var(--_leading-icon-expressive-size)
+    );
   }
 
   &::slotted([data-avatar]) {
@@ -188,7 +204,7 @@ slot:has-slotted {
   &::slotted([data-image]) {
     inline-size: var(--_leading-image-width);
     block-size: var(--_leading-image-height);
-    border-radius: var(--_leading-image-shape);
+    border-radius: var(--_leading-image-expressive-shape);
     object-fit: cover;
   }
 
@@ -211,7 +227,6 @@ slot:has-slotted {
 
 .trail {
   grid-area: T;
-  align-self: center;
   margin-inline-start: var(--_between-space);
 
   &::slotted(:not(mx-icon):not([data-icon])) {
@@ -230,8 +245,7 @@ slot:has-slotted {
     color: var(--_trailing-icon-icon-color, var(--_trailing-icon-color));
     font-size: var(
       --md-list-item-trailing-icon-size,
-      var(--_trailing-icon-size)
+      var(--_trailing-icon-expressive-size)
     );
-    opacity: var(--_trailing-icon-opacity, 1);
   }
 }

@@ -2,7 +2,7 @@ import type { EmptyObject } from 'type-fest';
 import { ControlledElement, define } from 'ydin/element.js';
 import { useCore } from '../core/utils/useCore.ts';
 import template from './list.tpl.html' with { type: 'html' };
-import defaultStyles from './styles/default/list.css.ts' with { type: 'css' };
+import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 
 export type ListProperties = EmptyObject;
 export type ListEvents = EmptyObject;

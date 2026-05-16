@@ -1,5 +1,5 @@
 import { renderListItemBaseStyles } from '../utils.ts';
-import css from './list-item.styles.css';
+import css from './main.styles.css';
 import { listItemBaseTokens } from './tokens.ts';
 
 const tokens = renderListItemBaseStyles([listItemBaseTokens]);

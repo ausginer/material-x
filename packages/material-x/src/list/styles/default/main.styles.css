@@ -1,0 +1,6 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_segmented-gap);
+  border-radius: var(--md-list-container-shape, var(--_container-shape));
+}
