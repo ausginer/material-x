@@ -71,7 +71,7 @@ export let use: (
  * @param element - The host element whose internals should be returned.
  * @returns The host `ElementInternals` instance.
  */
-export let getInternals: (element: ControlledElement) => ElementInternals;
+export let internals: (element: ControlledElement) => ElementInternals;
 
 /**
  * Optional static shape supported by custom elements built on this base class.
@@ -101,7 +101,7 @@ export class ControlledElement extends HTMLElement {
     use = (element: ControlledElement, controller: ElementController): void => {
       element.#controllers.push(controller);
     };
-    getInternals = (element: ControlledElement): ElementInternals =>
+    internals = (element: ControlledElement): ElementInternals =>
       element.#internals;
   }
 
