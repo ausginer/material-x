@@ -1,7 +1,7 @@
 import type { EmptyObject } from 'type-fest';
 import { Bool } from 'ydin/attribute.js';
 import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
-import { define, getInternals } from 'ydin/element.js';
+import { define, internals } from 'ydin/element.js';
 import {
   impl,
   type Interface,
@@ -101,7 +101,7 @@ export default class Checkbox extends CheckboxCore {
       { delegatesFocus: true },
     );
 
-    const internals = getInternals(this);
+    const innards = internals(this);
     const icon = $<Icon>(this, '.icon')!;
 
     useAttributes(this, {
@@ -118,7 +118,7 @@ export default class Checkbox extends CheckboxCore {
             : '';
 
         input.indeterminate = value;
-        toggleState(internals, 'indeterminate', value);
+        toggleState(innards, 'indeterminate', value);
       }),
     });
   }

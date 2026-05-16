@@ -3,7 +3,7 @@ import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
 import {
   ControlledElement,
-  getInternals,
+  internals,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
 import {
@@ -55,7 +55,7 @@ export function useCheckableCore(
   useCore(host, templates, aria, [...styles, css], init);
 
   const input = $<HTMLInputElement>(host, '#input')!;
-  const internals = getInternals(host);
+  const innards = internals(host);
 
   useCheckable(host, input);
   useValuable(host, input);
@@ -64,12 +64,12 @@ export function useCheckableCore(
 
   useAttributes(host, {
     checked: via(Bool, (_, value) => {
-      toggleState(internals, 'checked', value);
-      internals.setFormValue(value ? (host.value ?? 'on') : null);
+      toggleState(innards, 'checked', value);
+      innards.setFormValue(value ? (host.value ?? 'on') : null);
     }),
     value(_, newValue) {
       if (input.checked) {
-        internals.setFormValue(newValue);
+        innards.setFormValue(newValue);
       }
     },
   });

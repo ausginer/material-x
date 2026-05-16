@@ -7,7 +7,7 @@ import { useEvents } from 'ydin/controllers/useEvents.js';
 import { useSlot } from 'ydin/controllers/useSlot.js';
 import {
   ControlledElement,
-  getInternals,
+  internals,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
 import {
@@ -172,7 +172,7 @@ export class TextFieldCore extends TextFieldCoreBase {
     const input = $<HTMLInputElement | HTMLTextAreaElement>(this, '.input')!;
     const label = $<HTMLLabelElement>(this, '.label')!;
 
-    const internals = getInternals(this);
+    const innards = internals(this);
 
     useNameable(this, input);
     useDisableable(this, input);
@@ -188,8 +188,8 @@ export class TextFieldCore extends TextFieldCoreBase {
       this,
       {
         input() {
-          toggleState(internals, 'populated', !!input.value);
-          internals.setFormValue(input.value);
+          toggleState(innards, 'populated', !!input.value);
+          innards.setFormValue(input.value);
         },
       },
       input,
@@ -202,7 +202,7 @@ export class TextFieldCore extends TextFieldCoreBase {
   }
 
   get isPopulated(): boolean {
-    return getInternals(this).states.has('populated');
+    return internals(this).states.has('populated');
   }
 
   // @ts-expect-error: https://github.com/microsoft/TypeScript/issues/54879
@@ -212,23 +212,23 @@ export class TextFieldCore extends TextFieldCoreBase {
 
   override set value(value: string | null) {
     this.#input.value = value ?? '';
-    toggleState(getInternals(this), 'populated', !!this.#input.value);
-    getInternals(this).setFormValue(value);
+    toggleState(internals(this), 'populated', !!this.#input.value);
+    internals(this).setFormValue(value);
   }
 
   checkValidity(): boolean {
-    const valid = getInternals(this).checkValidity();
-    toggleState(getInternals(this), 'error', !valid);
+    const valid = internals(this).checkValidity();
+    toggleState(internals(this), 'error', !valid);
     return valid;
   }
 
   reportValidity(): boolean {
-    const valid = getInternals(this).reportValidity();
-    toggleState(getInternals(this), 'error', !valid);
+    const valid = internals(this).reportValidity();
+    toggleState(internals(this), 'error', !valid);
     return valid;
   }
 
   setValidity(flags?: ValidityStateFlags, message?: string): void {
-    getInternals(this).setValidity(flags, message, this);
+    internals(this).setValidity(flags, message, this);
   }
 }

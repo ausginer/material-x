@@ -2,7 +2,7 @@ import { Str, type ConverterOf } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
 import {
   ControlledElement,
-  getInternals,
+  internals,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
 import {
@@ -114,7 +114,7 @@ export function useButtonCore(
 
   useRipple(host, target, target);
 
-  const internals = getInternals(host);
+  const innards = internals(host);
 
   useContext(
     host,
@@ -123,20 +123,18 @@ export function useButtonCore(
     (attr, oldValue, newValue) => {
       if (attr === 'disabled') {
         target.disabled = host.disabled || (newValue as boolean);
-        toggleState(internals, 'disabled', newValue as boolean);
+        toggleState(innards, 'disabled', newValue as boolean);
         return;
       }
 
       if (oldValue != null) {
-        internals.states.delete(
+        innards.states.delete(
           oldValue as ButtonColor | ButtonSize | ButtonShape,
         );
       }
 
       if (newValue != null) {
-        internals.states.add(
-          newValue as ButtonColor | ButtonSize | ButtonShape,
-        );
+        innards.states.add(newValue as ButtonColor | ButtonSize | ButtonShape);
       }
     },
   );

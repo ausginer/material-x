@@ -1,6 +1,6 @@
 import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
-import { getInternals } from 'ydin/element.js';
+import { internals } from 'ydin/element.js';
 import {
   Checkable,
   useCheckable,
@@ -50,7 +50,7 @@ export function useSwitchCore(
     ),
   });
 
-  const internals = getInternals(host);
+  const innards = internals(host);
 
   useContext(
     host,
@@ -58,10 +58,10 @@ export function useSwitchCore(
     VALUABLE_ATTRS,
     (_, oldValue, newValue) => {
       if (oldValue === host.value) {
-        internals.states.delete('checked');
+        innards.states.delete('checked');
         target.ariaChecked = 'false';
       } else if (newValue === host.value) {
-        internals.states.add('checked');
+        innards.states.add('checked');
         target.ariaChecked = 'true';
       }
     },
