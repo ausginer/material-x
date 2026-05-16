@@ -61,7 +61,6 @@ const createPackage = (
             : {
                 name: 'size',
                 value: size,
-                useState: true,
               },
         ),
       ),

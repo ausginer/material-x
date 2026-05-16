@@ -8,8 +8,8 @@ const pack = t
   .set({
     'ripple.easing': motionEffects['expressive.fast-effects'],
     'ripple.duration': motionEffects['expressive.fast-effects.duration'],
-    'ripple.drift-easing': motionEffects['expressive.default-spatial'],
-    'ripple.drift-duration':
+    'ripple.drift.easing': motionEffects['expressive.default-spatial'],
+    'ripple.drift.duration':
       motionEffects['expressive.default-spatial.duration'],
   })
   .build();

@@ -34,7 +34,6 @@ const specialSelectedTokens = {
 const renderer = createScopedDeclarationRenderer({
   name: 'color',
   value: 'elevated',
-  useState: true,
 });
 
 const createPackage = (adjuster: ProcessorAdjuster) =>

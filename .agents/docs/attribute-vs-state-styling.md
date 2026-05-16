@@ -140,3 +140,27 @@ Public attributes remain the external API and should be documented and transferr
 
 - Use **custom states** for any condition that can come from more than one source: parent context, group membership, internal resolution, or own attribute. This is the default for interactive and variant states.
 - Use **attributes directly** in CSS only when the condition is purely local and authored — it will never be set by a parent, a controller, or internal logic — and no contextual resolution is expected now or in the future.
+
+## Implementation helpers
+
+Two utilities in `ydin/utils/DOM.js` cover the common mapping patterns:
+
+**`toggleState(internals, name, condition)`** — for boolean or presence-based attributes. Adds the state when `condition` is true, removes it when false.
+
+```ts
+// disabled attribute present → :state(disabled) matches
+useAttributes(host, {
+  disabled(_, newValue) { toggleState(innards, 'disabled', Bool.from(newValue)); },
+});
+```
+
+**`switchState(internals, oldValue, newValue)`** — for value-based attributes where the attribute value is the state name itself. Removes the old value state and adds the new one atomically. Pass the raw serialized old and new attribute values directly.
+
+```ts
+// color='elevated' → :state(elevated); changing to 'outlined' removes elevated, adds outlined
+useAttributes(host, {
+  color: (oldValue, newValue) => switchState(innards, oldValue, newValue),
+});
+```
+
+Both are used inside `useAttributes` handlers. `internals(host)` should be called once before the `useAttributes` block and stored as `innards` to avoid repeated lookups.

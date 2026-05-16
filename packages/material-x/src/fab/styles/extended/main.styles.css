@@ -1,4 +1,4 @@
-:host([extended]) {
+:host(:state(extended)) {
   .host {
     display: inline-grid;
     grid-template-columns: var(--md-fab-icon-size, var(--_icon-size)) 0;
@@ -34,7 +34,7 @@
   }
 }
 
-:host([extended='open']) {
+:host(:state(open)) {
   .host {
     grid-template-columns: var(--md-fab-icon-size, var(--_icon-size)) 1fr;
     gap: var(--md-fab-icon-label-space, var(--_icon-label-space));

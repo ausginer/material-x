@@ -179,6 +179,9 @@ export class TextFieldCore extends TextFieldCoreBase {
 
     useAttributes(this, {
       inputmode: transfer(input, 'inputmode'),
+      outlined(_, newValue) {
+        toggleState(innards, 'outlined', Bool.from(newValue));
+      },
     });
 
     useTextFieldARIA(this, input);

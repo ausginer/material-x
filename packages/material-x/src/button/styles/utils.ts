@@ -1,11 +1,6 @@
 import type { ReadonlySignal } from '@preact/signals-core';
 import type { ResolveAdjuster } from '../../.tproc/resolve.ts';
-import {
-  attribute,
-  pseudoClass,
-  selector,
-  type Param,
-} from '../../.tproc/selector.ts';
+import { pseudoClass, selector, type Param } from '../../.tproc/selector.ts';
 import type {
   DeclarationBlockRenderer,
   TokenPackage,
@@ -168,14 +163,12 @@ export function omitSelectedShape(path: string, tokenName?: string): boolean {
   );
 }
 
-const checked = attribute('checked');
 const checkedState = pseudoClass('state', 'checked');
 const disabledState = pseudoClass('state', 'disabled');
 
 export type ButtonScope = Readonly<{
   name: string;
   value: string;
-  useState?: boolean;
 }>;
 
 /**
@@ -183,29 +176,25 @@ export type ButtonScope = Readonly<{
  * selectors, expanding across three independent dimensions:
  *
  * **Dimension 1 — scope** (how the color/variant is addressed):
- *   - Always: attribute form   → `:host([color="standard"]…)`
- *   - When `useState: true`: custom-state form → `:host(:state(standard):not([color])…)`
+ *   - Custom-state form → `:host(:state(standard)…)`
  *
  * **Dimension 2 — checked** (only for `selected.*` token paths):
- *   - Attribute form   → `[checked]`
  *   - Custom-state form → `:state(checked)`
  *
  * **Dimension 3 — disabled** (only for `disabled` token paths):
  *   - Native form        → `:disabled`  (element's own `disabled` attr)
  *   - Custom-state form  → `:state(disabled)`  (set by group context)
  *
- * All three dimensions are crossed via `flatMap`, so the output is:
- *   - Default/other tokens:  1–2 selectors  (scope variants only)
- *   - Selected tokens:       2–4 selectors  (scope × checked)
- *   - Disabled tokens:       2–4 selectors  (scope × disabled)
- *   - Selected+disabled:     4–8 selectors  (scope × checked × disabled)
+ * Dimensions 2 and 3 are crossed via `flatMap`, so the output is:
+ *   - Default/other tokens:  1 selector  (scope only)
+ *   - Selected tokens:       1 selector  (scope + :state(checked))
+ *   - Disabled tokens:       2 selectors (scope × disabled)
+ *   - Selected+disabled:     2 selectors (scope × checked × disabled)
  *
- * Example output for `disabled` with `useState`:
+ * Example output for `disabled`:
  * ```css
- * :host([color="standard"]:disabled),
- * :host([color="standard"]:state(disabled)),
- * :host(:state(standard):not([color]):disabled),
- * :host(:state(standard):not([color]):state(disabled))
+ * :host(:state(standard):disabled),
+ * :host(:state(standard):state(disabled))
  * ```
  */
 export function createScopedDeclarationRenderer(
@@ -224,27 +213,14 @@ export function createScopedDeclarationRenderer(
       state = path.slice(index + 1);
     }
 
-    // Dimension 1: scope selector variants.
-    // Each entry is a list of params that together identify the color/variant.
+    // Dimension 1: scope — always the custom-state form only.
     const scopeBases = [
-      // Attribute form: [color="standard"] — always present
-      [scope ? attribute(scope.name, scope.value) : undefined],
-      // Custom-state form: :state(standard):not([color]) — only when useState
-      ...(scope?.useState
-        ? [
-            [
-              pseudoClass('state', scope.value),
-              pseudoClass('not', attribute(scope.name)),
-            ],
-          ]
-        : []),
+      [scope ? pseudoClass('state', scope.value) : undefined],
     ];
 
     // Dimension 2: checked selector variants.
-    // Selected tokens need both [checked] and :state(checked) forms;
-    // unselected tokens need neither ([null] produces no extra param).
-    const checkedVariants =
-      selection === 'selected' ? [checked, checkedState] : [null];
+    // Selected tokens use :state(checked); unselected use no extra param.
+    const checkedVariants = selection === 'selected' ? [checkedState] : [null];
 
     // Dimension 3: disabled selector variants.
     // Disabled tokens need both :disabled (native attr) and :state(disabled)

@@ -1,6 +1,6 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
-import { attribute } from '../../../.tproc/selector.ts';
+import { pseudoClass } from '../../../.tproc/selector.ts';
 import {
   createDefaultFirstSorter,
   type ProcessorAdjuster,
@@ -30,8 +30,8 @@ type Variant = (typeof VARIANTS)[number];
 
 const DEFAULTS = ['tertiary', 'tertiary-container', 'small'] as const;
 
-const EXTENDED = attribute('extended');
-const TONAL = attribute('tonal');
+const EXTENDED = pseudoClass('state', 'extended');
+const TONAL = pseudoClass('state', 'tonal');
 
 function isDefaultVariant(v: Variant) {
   return DEFAULTS.includes(v);
@@ -43,18 +43,18 @@ function getScope(variant: Variant) {
   }
 
   if (COLORS.includes(variant)) {
-    return attribute('color', variant);
+    return pseudoClass('state', variant);
   }
 
   if (TONAL_COLORS.includes(variant)) {
-    return attribute(
-      'color',
+    return pseudoClass(
+      'state',
       variant.substring(0, variant.length - '-container'.length),
     );
   }
 
   if (SIZES.includes(variant)) {
-    return attribute('size', variant);
+    return pseudoClass('state', variant);
   }
 
   return null;

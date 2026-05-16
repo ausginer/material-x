@@ -62,7 +62,7 @@
   * - S = suffix
   */
 
-:host([outlined]) {
+:host(:state(outlined)) {
   .input {
     margin-block: var(--_default-margin-block);
   }

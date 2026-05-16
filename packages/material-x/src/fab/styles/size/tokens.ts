@@ -1,6 +1,6 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
-import { attribute } from '../../../.tproc/selector.ts';
+import { pseudoClass } from '../../../.tproc/selector.ts';
 import { defaultColorTokens } from '../color/tokens.ts';
 import { defaultTokens } from '../default/tokens.ts';
 import {
@@ -25,7 +25,7 @@ const createSizePackage = (size: string) => {
     .append('default', specialTokens)
     .extend(createFABExtensions(defaultTokens.value, defaultColorTokens.value))
     .renderDeclarations(
-      createFABScopedDeclarationRenderer(attribute('size', size)),
+      createFABScopedDeclarationRenderer(pseudoClass('state', size)),
     )
     .build();
 };

@@ -1,5 +1,6 @@
-import { Str, type ConverterOf } from 'ydin/attribute.js';
+import { Bool, Str, type ConverterOf } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
+import { useAttributes } from 'ydin/controllers/useAttributes.js';
 import {
   ControlledElement,
   internals,
@@ -19,7 +20,7 @@ import {
   type Trait,
   type TraitedConstructor,
 } from 'ydin/traits/traits.js';
-import { $, toggleState } from 'ydin/utils/DOM.js';
+import { $, toggleState, switchState } from 'ydin/utils/DOM.js';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
@@ -34,7 +35,7 @@ import sizeStyles from './styles/size/main.css.ts' with { type: 'css' };
 
 export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
 export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';
-export type ButtonShape = 'round' | 'square';
+export type ButtonShape = 'square';
 
 export const BUTTON_ATTRS = {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
@@ -116,6 +117,14 @@ export function useButtonCore(
 
   const innards = internals(host);
 
+  useAttributes(host, {
+    color: (oldValue, newValue) => switchState(innards, oldValue, newValue),
+    size: (oldValue, newValue) => switchState(innards, oldValue, newValue),
+    shape: (oldValue, newValue) => switchState(innards, oldValue, newValue),
+    disabled: (_, newValue) =>
+      toggleState(innards, 'disabled', Bool.from(newValue)),
+  });
+
   useContext(
     host,
     BUTTON_GROUP_CTX,
@@ -124,17 +133,12 @@ export function useButtonCore(
       if (attr === 'disabled') {
         target.disabled = host.disabled || (newValue as boolean);
         toggleState(innards, 'disabled', newValue as boolean);
-        return;
-      }
-
-      if (oldValue != null) {
-        innards.states.delete(
-          oldValue as ButtonColor | ButtonSize | ButtonShape,
+      } else {
+        switchState(
+          innards,
+          oldValue as ButtonColor | ButtonSize | ButtonShape | null,
+          newValue as ButtonColor | ButtonSize | ButtonShape | null,
         );
-      }
-
-      if (newValue != null) {
-        innards.states.add(newValue as ButtonColor | ButtonSize | ButtonShape);
       }
     },
   );

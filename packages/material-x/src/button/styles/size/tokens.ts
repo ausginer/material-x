@@ -45,7 +45,6 @@ const createPackage = (
             : {
                 name: 'size',
                 value: size,
-                useState: true,
               },
         ),
       ),
@@ -93,7 +92,6 @@ function createNonDefaultRenderer(size: Sizes) {
   return createScopedDeclarationRenderer({
     name: 'size',
     value: size,
-    useState: true,
   });
 }
 

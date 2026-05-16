@@ -4,6 +4,7 @@ import { useAttributes } from 'ydin/controllers/useAttributes.js';
 import {
   ControlledElement,
   define,
+  internals,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
 import {
@@ -19,7 +20,7 @@ import {
   type Trait,
   type TraitedConstructor,
 } from 'ydin/traits/traits.js';
-import { $, notify } from 'ydin/utils/DOM.js';
+import { $, notify, switchState, toggleState } from 'ydin/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import '../core/styles/elevation/elevation.runtime.ts';
@@ -133,8 +134,17 @@ export default class FAB extends FABCore {
 
     useDisableable(this, target);
 
+    const innards = internals(this);
+
     useAttributes(this, {
-      extended: () => notify(this, 'fabtoggle'),
+      extended: (_, newValue) => {
+        notify(this, 'fabtoggle');
+        toggleState(innards, 'extended', Bool.from(newValue));
+        toggleState(innards, 'open', newValue === 'open');
+      },
+      color: (oldValue, newValue) => switchState(innards, oldValue, newValue),
+      size: (oldValue, newValue) => switchState(innards, oldValue, newValue),
+      tonal: (_, newValue) => toggleState(innards, 'tonal', Bool.from(newValue)),
     });
   }
 }

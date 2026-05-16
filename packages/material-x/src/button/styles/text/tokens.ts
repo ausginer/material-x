@@ -21,7 +21,6 @@ const specialTokens = {
 const renderer = createScopedDeclarationRenderer({
   name: 'color',
   value: 'text',
-  useState: true,
 });
 
 export const textTokens: ReadonlySignal<TokenPackage> = computed(() =>

@@ -1,7 +1,7 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import type { TupleToUnion } from 'type-fest';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
-import { attribute } from '../../../.tproc/selector.ts';
+import { pseudoClass } from '../../../.tproc/selector.ts';
 import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
 import { defaultTokens } from '../default/tokens.ts';
 import {
@@ -57,7 +57,7 @@ export const colorTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
       createPackage(color, (processor) =>
         processor
           .renderDeclarations(
-            createFABScopedDeclarationRenderer(attribute('color', color)),
+            createFABScopedDeclarationRenderer(pseudoClass('state', color)),
           )
           .extend(
             createFABExtensions(defaultTokens.value, defaultColorTokens.value),

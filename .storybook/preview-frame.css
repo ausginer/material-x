@@ -31,7 +31,7 @@
 html,
 body {
   color: var(--md-sys-color-on-surface);
-  background-color: var(--md-sys-color-surface);
+  background-color: var(--md-sys-color-surface-container-lowest);
   font-family: var(--md-ref-typeface-plain);
   transition:
     color 180ms ease,
@@ -44,7 +44,7 @@ body {
 }
 
 #storybook-root {
-  min-height: calc(100vh - 2 * 1rem);
+  min-height: calc(100vh - 2rem);
   display: flex;
   align-items: center;
   justify-content: center;

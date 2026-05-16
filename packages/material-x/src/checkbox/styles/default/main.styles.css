@@ -62,14 +62,11 @@
   outline-offset: var(--_indicator-outline-offset);
 }
 
-:host([checked]),
 :host(:state(checked)),
-:host([indeterminate]),
 :host(:state(indeterminate)) {
   --_outline-color: var(--_container-color);
 }
 
-:host([checked]),
 :host(:state(checked)) {
   .icon {
     animation: check-reveal
@@ -77,7 +74,6 @@
   }
 }
 
-:host([indeterminate]),
 :host(:state(indeterminate)) {
   .icon {
     animation: indeterminate-reveal

@@ -8,7 +8,7 @@ mx-icon-button {
 }
 
 mx-icon-button:active,
-:host([open]) mx-icon-button {
+:host(:state(open)) mx-icon-button {
   --_container-shape: var(--_shape-full);
   --_inner-corner-corner-size: var(--_shape-full);
 }
@@ -32,6 +32,6 @@ mx-icon {
 }
 
 mx-icon:active,
-:host([open]) mx-icon {
+:host(:state(open)) mx-icon {
   transform: rotate(180deg);
 }

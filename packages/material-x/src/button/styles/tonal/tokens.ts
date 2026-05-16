@@ -34,7 +34,6 @@ const specialSelectedTokens = {
 const renderer = createScopedDeclarationRenderer({
   name: 'color',
   value: 'tonal',
-  useState: true,
 });
 
 const createPackage = (

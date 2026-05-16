@@ -59,7 +59,6 @@ function variantScope(variant: string) {
     return {
       name: 'color',
       value: variant,
-      useState: true,
     };
   }
 
@@ -67,7 +66,6 @@ function variantScope(variant: string) {
     return {
       name: 'size',
       value: variant,
-      useState: true,
     };
   }
 

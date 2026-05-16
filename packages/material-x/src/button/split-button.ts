@@ -3,7 +3,7 @@ import '../button-group/connected-button-group.ts';
 import { Bool } from 'ydin/attribute.js';
 import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
-import { define } from 'ydin/element.js';
+import { define, internals } from 'ydin/element.js';
 import {
   impl,
   trait,
@@ -12,7 +12,7 @@ import {
   type Props,
   type Trait,
 } from 'ydin/traits/traits.js';
-import { $, notify } from 'ydin/utils/DOM.js';
+import { $, notify, toggleState } from 'ydin/utils/DOM.js';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
@@ -108,6 +108,14 @@ export default class SplitButton extends SplitButtonCore {
       },
       $(this, 'mx-icon-button') ?? undefined,
     );
+
+    const innards = internals(this);
+
+    useAttributes(this, {
+      open(_, newValue) {
+        toggleState(innards, 'open', Bool.from(newValue));
+      },
+    });
 
     const group = $(this, 'mx-connected-button-group')!;
     useAttributes(

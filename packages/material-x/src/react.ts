@@ -80,12 +80,12 @@ import type {
   ListLinkItemEvents,
   ListLinkItemProperties,
 } from './list/list-link-item.ts';
+import type List from './list/list.ts';
 import type {
   ListCSSProperties,
   ListEvents,
   ListProperties,
 } from './list/list.ts';
-import type List from './list/list.ts';
 import type Radio from './radio/radio.ts';
 import type {
   RadioCSSProperties,
@@ -105,7 +105,7 @@ type JSXWrapper<
   P extends Record<string, unknown>,
   E extends Record<string, Event>,
 > = DetailedHTMLProps<
-  HTMLAttributes<C> &
+  Omit<HTMLAttributes<C>, keyof P> &
     P & {
       [K in keyof E as `on${K & string}`]?: (event: E[K]) => void;
     },
