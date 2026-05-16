@@ -16,6 +16,18 @@ export type NullablePrimitive<T extends AttributePrimitive> = T extends boolean
   : T | null;
 
 /**
+ * Shape accepted when writing attribute-backed values.
+ *
+ * `undefined` is accepted as a framework-friendly absent value and serializes
+ * like `null` for nullable converters.
+ *
+ * @typeParam T - The primitive value represented by the attribute.
+ */
+type WritablePrimitive<T extends AttributePrimitive> = T extends boolean
+  ? T
+  : T | null | undefined;
+
+/**
  * Generic attribute converter tuple for a primitive value type.
  *
  * This helper allows built-in converters such as {@link Str} to be narrowed
@@ -28,7 +40,7 @@ export type NullablePrimitive<T extends AttributePrimitive> = T extends boolean
  */
 export type ConverterOf<T extends AttributePrimitive> = Readonly<{
   from(value: string | null): NullablePrimitive<T>;
-  to(value: NullablePrimitive<T>): string | null;
+  to(value: WritablePrimitive<T>): string | null;
 }>;
 
 /**
@@ -38,8 +50,8 @@ export type ConverterOf<T extends AttributePrimitive> = Readonly<{
  * `true` as an empty string and removes the attribute for `false`.
  */
 export const Bool: ConverterOf<boolean> = {
-  from: (value: string | null): boolean => value !== null,
-  to: (value: boolean): string | null => (value ? '' : null),
+  from: (value) => value !== null,
+  to: (value) => (value ? '' : null),
 };
 
 /**
@@ -51,19 +63,18 @@ export type Bool = typeof Bool;
  * Numeric attribute converter.
  *
  * Missing, empty, and invalid numeric strings are normalized to `null`.
- * Writing `null` or `NaN` removes the attribute.
+ * Writing `null`, `undefined`, or `NaN` removes the attribute.
  */
 export const Num: ConverterOf<number> = {
-  from(value: string | null): number | null {
-    if (value == null || value === '') {
+  from(value) {
+    if (!value) {
       return null;
     }
 
     const num = Number(value);
     return Number.isNaN(num) ? null : num;
   },
-  to: (value: number | null): string | null =>
-    value != null && !isNaN(value) ? String(value) : null,
+  to: (value) => (value != null && !isNaN(value) ? String(value) : null),
 };
 
 /**
@@ -73,10 +84,12 @@ export type Num = typeof Num;
 
 /**
  * Identity converter for nullable string attributes.
+ *
+ * Writing `null` or `undefined` removes the attribute.
  */
 export const Str: ConverterOf<string> = {
-  from: (value: string | null): string | null => value,
-  to: (value: string | null): string | null => value,
+  from: (value) => value,
+  to: (value) => value ?? null,
 };
 
 /**
@@ -85,26 +98,34 @@ export const Str: ConverterOf<string> = {
 export type Str = typeof Str;
 
 /**
- * JavaScript value produced when reading through a converter.
+ * Built-in converter selected for a primitive JavaScript value type.
  *
- * @typeParam C - The converter used to read the attribute.
+ * @typeParam T - Primitive value whose built-in converter should be selected.
  */
-export type FromConverter<C extends ConverterOf<any>> = C extends {
+export type ConverterForPrimitive<T extends AttributePrimitive> =
+  T extends boolean ? Bool : T extends number ? Num : Str;
+
+/**
+ * JavaScript value produced by a converter's `from(...)` reader.
+ *
+ * @typeParam C - Converter whose read value should be extracted.
+ */
+export type ConverterReadValue<C extends ConverterOf<any>> = C extends {
   from(value: string | null): infer T;
 }
   ? T
   : never;
 
 /**
- * Built-in converter selected for a primitive value type.
+ * JavaScript value accepted by a converter's `to(...)` writer.
  *
- * @typeParam T - The primitive value written to the attribute.
+ * @typeParam C - Converter whose write value should be extracted.
  */
-export type ToConverter<T extends AttributePrimitive> = T extends boolean
-  ? Bool
-  : T extends number
-    ? Num
-    : Str;
+export type ConverterWriteValue<C extends ConverterOf<any>> = C extends {
+  to(value: infer T): string | null;
+}
+  ? T
+  : never;
 
 /**
  * Typed helpers for reading and writing DOM attributes through converters.
@@ -120,7 +141,7 @@ export interface AttributeOperator {
     host: HTMLElement,
     name: string,
     converter: C,
-  ): FromConverter<C>;
+  ): ConverterReadValue<C>;
 
   /**
    * Converts a typed JavaScript value and writes it back to the DOM attribute.
@@ -128,7 +149,7 @@ export interface AttributeOperator {
   set<C extends ConverterOf<any>>(
     host: HTMLElement,
     name: string,
-    value: FromConverter<C>,
+    value: ConverterWriteValue<C>,
     converter: C,
   ): void;
 
@@ -153,26 +174,17 @@ export interface AttributeOperator {
  * `getRaw` and `setRaw`.
  */
 export const operator: AttributeOperator = {
-  get<C extends ConverterOf<any>>(
-    host: HTMLElement,
-    name: string,
-    { from }: C,
-  ): FromConverter<C> {
+  get(host, name, { from }) {
     return from(operator.getRaw(host, name));
   },
-  set<C extends ConverterOf<any>>(
-    host: HTMLElement,
-    name: string,
-    value: FromConverter<C>,
-    { to }: C,
-  ) {
+  set(host, name, value, { to }) {
     operator.setRaw(host, name, to(value));
   },
   getRaw(host, name) {
     return host.getAttribute(name);
   },
   setRaw(host, name, value): void {
-    if (value !== null) {
+    if (value != null) {
       host.setAttribute(name, value);
     } else {
       host.removeAttribute(name);

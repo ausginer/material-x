@@ -3,7 +3,8 @@ import type { Constructor, Simplify } from 'type-fest';
 import attr, {
   type AttributePrimitive,
   type ConverterOf,
-  type FromConverter,
+  type ConverterReadValue,
+  type ConverterWriteValue,
   type NullablePrimitive,
 } from '../attribute.ts';
 import type { ControlledElement, CustomElementStatics } from '../element.js';
@@ -27,10 +28,16 @@ export { impl, type TraitedConstructor } from './piirre.ts';
  *
  * @typeParam T - Descriptor shape declared for the element trait.
  */
-type FieldsFromConverters<
+type FieldReadersFromConverters<
   T extends Readonly<Record<string, ConverterOf<any>>>,
 > = {
-  [K in keyof T]: FromConverter<T[K]>;
+  [K in keyof T]: ConverterReadValue<T[K]>;
+};
+
+type FieldWritersFromConverters<
+  T extends Readonly<Record<string, ConverterOf<any>>>,
+> = {
+  [K in keyof T]: ConverterWriteValue<T[K]>;
 };
 
 /**
@@ -60,7 +67,7 @@ export type Trait<
 type PropsFromTraitFields<
   T extends Readonly<Record<string, NullablePrimitive<AttributePrimitive>>>,
 > = {
-  [K in keyof T]?: NonNullable<T[K]>;
+  [K in keyof T]?: T[K];
 };
 
 /**
@@ -122,7 +129,7 @@ export type Interface<T extends Trait<any, any>> =
 export function trait<
   P extends Readonly<Record<string, ConverterOf<any>>>,
   B extends symbol,
->(props: P, brand: B): Trait<FieldsFromConverters<P>, B> {
+>(props: P, brand: B): Trait<FieldReadersFromConverters<P>, B> {
   return abstractTrait(
     (base: Constructor<ControlledElement> & CustomElementStatics) => {
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion
@@ -137,18 +144,21 @@ export function trait<
         ];
       };
 
-      type TraitFields = FieldsFromConverters<P>;
-
       for (const [attribute, converter] of entries) {
         Object.defineProperty(traited.prototype, attribute, {
-          get(this: HTMLElement): TraitFields[typeof attribute] {
+          get(
+            this: HTMLElement,
+          ): FieldReadersFromConverters<P>[typeof attribute] {
             return attr.get(
               this,
               attribute as string,
               converter,
-            ) as TraitFields[typeof attribute];
+            ) as FieldReadersFromConverters<P>[typeof attribute];
           },
-          set(this: HTMLElement, value: TraitFields[typeof attribute]) {
+          set(
+            this: HTMLElement,
+            value: FieldWritersFromConverters<P>[typeof attribute],
+          ) {
             attr.set(this, attribute as string, value, converter);
           },
         });
@@ -157,5 +167,5 @@ export function trait<
       return traited;
     },
     brand,
-  ) as Trait<FieldsFromConverters<P>, B>;
+  ) as Trait<FieldReadersFromConverters<P>, B>;
 }

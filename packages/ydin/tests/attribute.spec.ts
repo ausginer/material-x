@@ -78,6 +78,13 @@ describe('attr', () => {
     expect(host.hasAttribute('tabindex')).toBe(false);
   });
 
+  it('should remove numeric attribute when writing undefined', () => {
+    host.setAttribute('tabindex', '42');
+    attr.set(host, 'tabindex', undefined, Num);
+
+    expect(host.hasAttribute('tabindex')).toBe(false);
+  });
+
   it('should remove numeric attribute when writing NaN', () => {
     host.setAttribute('tabindex', '42');
     attr.set(host, 'tabindex', Number.NaN, Num);
@@ -104,6 +111,13 @@ describe('attr', () => {
   it('should remove string attribute when writing null', () => {
     host.setAttribute('aria-label', 'Close');
     attr.set(host, 'aria-label', null, Str);
+
+    expect(host.hasAttribute('aria-label')).toBe(false);
+  });
+
+  it('should remove string attribute when writing undefined', () => {
+    host.setAttribute('aria-label', 'Close');
+    attr.set(host, 'aria-label', undefined, Str);
 
     expect(host.hasAttribute('aria-label')).toBe(false);
   });
