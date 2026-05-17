@@ -8,9 +8,11 @@ import { host, nextFrame } from '../browser.ts';
 describe('useARIA', () => {
   it('should sync existing aria attributes on connect', async () => {
     const target = document.createElement('div');
-    const el = host([], (h) => {
-      useARIA(h, target);
-      h.append(target);
+    const el = host({
+      init(h) {
+        useARIA(h, target);
+        h.append(target);
+      },
     });
 
     el.setAttribute('aria-label', 'Launch');
@@ -22,9 +24,11 @@ describe('useARIA', () => {
 
   it('should ignore non-aria attributes during initial sync', async () => {
     const target = document.createElement('div');
-    const el = host([], (h) => {
-      useARIA(h, target);
-      h.append(target);
+    const el = host({
+      init(h) {
+        useARIA(h, target);
+        h.append(target);
+      },
     });
 
     el.setAttribute('title', 'Launch');
@@ -36,9 +40,11 @@ describe('useARIA', () => {
 
   it('should sync aria attribute updates after connection', async () => {
     const target = document.createElement('div');
-    const el = host([], (h) => {
-      useARIA(h, target);
-      h.append(target);
+    const el = host({
+      init(h) {
+        useARIA(h, target);
+        h.append(target);
+      },
     });
 
     document.body.append(el);
@@ -52,9 +58,11 @@ describe('useARIA', () => {
 
   it('should remove the target aria attribute when the host value becomes null', async () => {
     const target = document.createElement('div');
-    const el = host([], (h) => {
-      useARIA(h, target);
-      h.append(target);
+    const el = host({
+      init(h) {
+        useARIA(h, target);
+        h.append(target);
+      },
     });
 
     el.setAttribute('aria-label', 'Launch');
@@ -71,9 +79,11 @@ describe('useARIA', () => {
     const transform: ARIATransformer = (name, value) =>
       value == null ? null : `${name}:${value.toUpperCase()}`;
     const target = document.createElement('div');
-    const el = host([], (h) => {
-      useARIA(h, target, transform);
-      h.append(target);
+    const el = host({
+      init(h) {
+        useARIA(h, target, transform);
+        h.append(target);
+      },
     });
 
     el.setAttribute('aria-label', 'launch');
@@ -85,9 +95,11 @@ describe('useARIA', () => {
 
   it('should ignore non-aria attribute mutations after connection', async () => {
     const target = document.createElement('div');
-    const el = host([], (h) => {
-      useARIA(h, target);
-      h.append(target);
+    const el = host({
+      init(h) {
+        useARIA(h, target);
+        h.append(target);
+      },
     });
 
     document.body.append(el);
@@ -101,9 +113,11 @@ describe('useARIA', () => {
 
   it('should preserve multiple aria attributes independently', async () => {
     const target = document.createElement('div');
-    const el = host([], (h) => {
-      useARIA(h, target);
-      h.append(target);
+    const el = host({
+      init(h) {
+        useARIA(h, target);
+        h.append(target);
+      },
     });
 
     el.setAttribute('aria-label', 'Launch');

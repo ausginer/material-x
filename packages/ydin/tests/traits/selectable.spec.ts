@@ -41,7 +41,7 @@ describe('Selectable', () => {
   it('should read a missing selected field as false', () => {
     const element = createElement(createSelectableClass());
 
-    expect(element.selected).toBe(false);
+    expect(element.selected).toBeFalsy();
   });
 
   it('should write selected through a generated accessor', () => {

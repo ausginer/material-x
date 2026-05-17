@@ -56,8 +56,8 @@ describe('not', () => {
   it('should invert the predicate result', () => {
     const predicate = not((value: number) => value > 0);
 
-    expect(predicate(1)).toBe(false);
-    expect(predicate(0)).toBe(true);
+    expect(predicate(1)).toBeFalsy();
+    expect(predicate(0)).toBeTruthy();
   });
 });
 

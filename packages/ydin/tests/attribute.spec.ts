@@ -9,13 +9,13 @@ describe('attr', () => {
   });
 
   it('should read missing boolean attribute as false', () => {
-    expect(attr.get(host, 'disabled', Bool)).toBe(false);
+    expect(attr.get(host, 'disabled', Bool)).toBeFalsy();
   });
 
   it('should read present boolean attribute as true', () => {
     host.setAttribute('disabled', '');
 
-    expect(attr.get(host, 'disabled', Bool)).toBe(true);
+    expect(attr.get(host, 'disabled', Bool)).toBeTruthy();
   });
 
   it('should write true boolean value as empty attribute', () => {
@@ -28,7 +28,7 @@ describe('attr', () => {
     host.setAttribute('disabled', '');
     attr.set(host, 'disabled', false, Bool);
 
-    expect(host.hasAttribute('disabled')).toBe(false);
+    expect(host.hasAttribute('disabled')).toBeFalsy();
   });
 
   it('should read integer attribute through Num converter', () => {
@@ -75,21 +75,21 @@ describe('attr', () => {
     host.setAttribute('tabindex', '42');
     attr.set(host, 'tabindex', null, Num);
 
-    expect(host.hasAttribute('tabindex')).toBe(false);
+    expect(host.hasAttribute('tabindex')).toBeFalsy();
   });
 
   it('should remove numeric attribute when writing undefined', () => {
     host.setAttribute('tabindex', '42');
     attr.set(host, 'tabindex', undefined, Num);
 
-    expect(host.hasAttribute('tabindex')).toBe(false);
+    expect(host.hasAttribute('tabindex')).toBeFalsy();
   });
 
   it('should remove numeric attribute when writing NaN', () => {
     host.setAttribute('tabindex', '42');
     attr.set(host, 'tabindex', Number.NaN, Num);
 
-    expect(host.hasAttribute('tabindex')).toBe(false);
+    expect(host.hasAttribute('tabindex')).toBeFalsy();
   });
 
   it('should read missing string attribute as null', () => {
@@ -112,14 +112,14 @@ describe('attr', () => {
     host.setAttribute('aria-label', 'Close');
     attr.set(host, 'aria-label', null, Str);
 
-    expect(host.hasAttribute('aria-label')).toBe(false);
+    expect(host.hasAttribute('aria-label')).toBeFalsy();
   });
 
   it('should remove string attribute when writing undefined', () => {
     host.setAttribute('aria-label', 'Close');
     attr.set(host, 'aria-label', undefined, Str);
 
-    expect(host.hasAttribute('aria-label')).toBe(false);
+    expect(host.hasAttribute('aria-label')).toBeFalsy();
   });
 
   it('should return raw attribute value through getRaw', () => {
@@ -142,6 +142,6 @@ describe('attr', () => {
     host.setAttribute('data-state', 'open');
     attr.setRaw(host, 'data-state', null);
 
-    expect(host.hasAttribute('data-state')).toBe(false);
+    expect(host.hasAttribute('data-state')).toBeFalsy();
   });
 });

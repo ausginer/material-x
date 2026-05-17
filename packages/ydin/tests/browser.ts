@@ -1,5 +1,10 @@
+import type { Constructor } from 'type-fest';
 import { expect } from 'vitest';
-import { ControlledElement } from '../src/element.ts';
+import {
+  ControlledElement,
+  type ControlledElementConstructor,
+  type CustomElementStatics,
+} from '../src/element.ts';
 
 let nextCustomElementId = 0;
 
@@ -19,13 +24,32 @@ export function defineCE(
   customElements.define(name, element);
 }
 
+export type HostOptions<T extends ControlledElement> = Readonly<{
+  observed?: readonly string[];
+  init?(instance: T): void;
+  tag?: string;
+}>;
+
 export function host(
-  observed: readonly string[],
-  init: (instance: ControlledElement) => void,
-  tag: string = nameCE(),
+  options: HostOptions<ControlledElement>,
+): ControlledElement;
+export function host<T extends ControlledElement>(
+  options: HostOptions<T>,
+  base: Constructor<T> & CustomElementStatics,
+): T;
+export function host(
+  {
+    observed = [],
+    init = () => {},
+    tag = nameCE(),
+  }: HostOptions<ControlledElement>,
+  base: ControlledElementConstructor = ControlledElement,
 ): ControlledElement {
-  class Host extends ControlledElement {
-    static observedAttributes = observed;
+  class Host extends base {
+    static override observedAttributes = [
+      ...(base.observedAttributes ?? []),
+      ...observed,
+    ];
 
     constructor() {
       super();

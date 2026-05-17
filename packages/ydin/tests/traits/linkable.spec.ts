@@ -5,12 +5,24 @@ import {
 } from '../../src/traits/linkable.ts';
 import { host } from '../browser.ts';
 
+const LINKABLE_ATTRS = ['href', 'target'] as const;
+const DISABLEABLE_LINKABLE_ATTRS = [
+  'aria-disabled',
+  'disabled',
+  'href',
+  'tabindex',
+  'target',
+] as const;
+
 describe('useLinkable', () => {
   it('should mirror href to the anchor', () => {
     const native = document.createElement('a');
-    const el = host(['href', 'target'], (h) => {
-      useLinkable(h, native);
-      h.append(native);
+    const el = host({
+      observed: LINKABLE_ATTRS,
+      init(h) {
+        useLinkable(h, native);
+        h.append(native);
+      },
     });
 
     el.setAttribute('href', '/settings');
@@ -20,9 +32,12 @@ describe('useLinkable', () => {
 
   it('should mirror target to the anchor', () => {
     const native = document.createElement('a');
-    const el = host(['href', 'target'], (h) => {
-      useLinkable(h, native);
-      h.append(native);
+    const el = host({
+      observed: LINKABLE_ATTRS,
+      init(h) {
+        useLinkable(h, native);
+        h.append(native);
+      },
     });
 
     el.setAttribute('target', '_blank');
@@ -34,14 +49,14 @@ describe('useLinkable', () => {
 describe('useDisableableLinkable', () => {
   it('should disable native navigation and focus while disabled', () => {
     const native = document.createElement('a');
-    const el = host(
-      ['aria-disabled', 'disabled', 'href', 'tabindex', 'target'],
-      (h) => {
+    const el = host({
+      observed: DISABLEABLE_LINKABLE_ATTRS,
+      init(h) {
         useLinkable(h, native);
         useDisableableLinkable(h, native);
         h.append(native);
       },
-    );
+    });
 
     el.setAttribute('href', '/settings');
     el.setAttribute('disabled', '');
@@ -53,14 +68,14 @@ describe('useDisableableLinkable', () => {
 
   it('should restore the latest host href when re-enabled', () => {
     const native = document.createElement('a');
-    const el = host(
-      ['aria-disabled', 'disabled', 'href', 'tabindex', 'target'],
-      (h) => {
+    const el = host({
+      observed: DISABLEABLE_LINKABLE_ATTRS,
+      init(h) {
         useLinkable(h, native);
         useDisableableLinkable(h, native);
         h.append(native);
       },
-    );
+    });
 
     el.setAttribute('disabled', '');
     el.setAttribute('href', '/settings');
@@ -77,14 +92,14 @@ describe('useDisableableLinkable', () => {
     // and overrides it (clears href). This relies on controller registration
     // order — useLinkable must be called before useDisableableLinkable.
     const native = document.createElement('a');
-    const el = host(
-      ['aria-disabled', 'disabled', 'href', 'tabindex', 'target'],
-      (h) => {
+    const el = host({
+      observed: DISABLEABLE_LINKABLE_ATTRS,
+      init(h) {
         useLinkable(h, native);
         useDisableableLinkable(h, native);
         h.append(native);
       },
-    );
+    });
 
     el.setAttribute('disabled', '');
     el.setAttribute('href', '/new-page');
@@ -94,14 +109,14 @@ describe('useDisableableLinkable', () => {
 
   it('should restore host-provided tabindex and aria-disabled when re-enabled', () => {
     const native = document.createElement('a');
-    const el = host(
-      ['aria-disabled', 'disabled', 'href', 'tabindex', 'target'],
-      (h) => {
+    const el = host({
+      observed: DISABLEABLE_LINKABLE_ATTRS,
+      init(h) {
         useLinkable(h, native);
         useDisableableLinkable(h, native);
         h.append(native);
       },
-    );
+    });
 
     el.setAttribute('aria-disabled', 'false');
     el.setAttribute('tabindex', '3');
@@ -119,14 +134,14 @@ describe('useDisableableLinkable', () => {
   it('should prevent disabled click activation', () => {
     const native = document.createElement('a');
     const click = vi.fn();
-    const el = host(
-      ['aria-disabled', 'disabled', 'href', 'tabindex', 'target'],
-      (h) => {
+    const el = host({
+      observed: DISABLEABLE_LINKABLE_ATTRS,
+      init(h) {
         useLinkable(h, native);
         useDisableableLinkable(h, native);
         h.append(native);
       },
-    );
+    });
     const event = new MouseEvent('click', { bubbles: true, cancelable: true });
 
     el.setAttribute('disabled', '');
@@ -134,7 +149,7 @@ describe('useDisableableLinkable', () => {
     document.body.append(el);
     native.dispatchEvent(event);
 
-    expect(event.defaultPrevented).toBe(true);
+    expect(event.defaultPrevented).toBeTruthy();
     expect(click).not.toHaveBeenCalled();
   });
 });

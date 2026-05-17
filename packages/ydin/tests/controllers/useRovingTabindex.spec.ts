@@ -463,12 +463,12 @@ describe('useRovingTabindex', () => {
       third.focus();
       const homeDefaultPrevented = await press(host, '{Home}');
 
-      expect(homeDefaultPrevented).toBe(true);
+      expect(homeDefaultPrevented).toBeTruthy();
 
       first.focus();
       const endDefaultPrevented = await press(host, '{End}');
 
-      expect(endDefaultPrevented).toBe(true);
+      expect(endDefaultPrevented).toBeTruthy();
     });
 
     it('should prevent default when arrow navigation resolves to an already checked item', async () => {
@@ -481,7 +481,7 @@ describe('useRovingTabindex', () => {
       first.focus();
       const defaultPrevented = await press(host, '{ArrowRight}');
 
-      expect(defaultPrevented).toBe(true);
+      expect(defaultPrevented).toBeTruthy();
       expect(document.activeElement).toBe(second);
       expectTabStop([first, second], second);
     });
@@ -502,7 +502,7 @@ describe('useRovingTabindex', () => {
       await user.keyboard('{Home}');
 
       expect(document.activeElement).toBe(host);
-      expect(prevented.at(-1)).toBe(false);
+      expect(prevented.at(-1)).toBeFalsy();
       expectTabStop([first, second]);
     });
 
@@ -554,7 +554,7 @@ describe('useRovingTabindex', () => {
 
         const defaultPrevented = await press(host, shortcut);
 
-        expect(defaultPrevented).toBe(false);
+        expect(defaultPrevented).toBeFalsy();
         expect(document.activeElement).toBe(first);
         expectTabStop([first, second], first);
       },

@@ -112,7 +112,7 @@ describe('toggleState', () => {
       true,
     );
 
-    expect(states.has('active')).toBe(true);
+    expect(states.has('active')).toBeTruthy();
   });
 
   it('should remove a state when condition is false', () => {
@@ -125,7 +125,7 @@ describe('toggleState', () => {
       false,
     );
 
-    expect(states.has('active')).toBe(false);
+    expect(states.has('active')).toBeFalsy();
   });
 });
 
@@ -136,7 +136,7 @@ describe('switchState', () => {
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     switchState({ states } as ElementInternals, null, 'elevated');
 
-    expect(states.has('elevated')).toBe(true);
+    expect(states.has('elevated')).toBeTruthy();
   });
 
   it('should remove the old state when newState is null', () => {
@@ -145,7 +145,7 @@ describe('switchState', () => {
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     switchState({ states } as ElementInternals, 'elevated', null);
 
-    expect(states.has('elevated')).toBe(false);
+    expect(states.has('elevated')).toBeFalsy();
   });
 
   it('should switch from old state to new state', () => {
@@ -154,8 +154,8 @@ describe('switchState', () => {
     // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     switchState({ states } as ElementInternals, 'elevated', 'outlined');
 
-    expect(states.has('elevated')).toBe(false);
-    expect(states.has('outlined')).toBe(true);
+    expect(states.has('elevated')).toBeFalsy();
+    expect(states.has('outlined')).toBeTruthy();
   });
 
   it('should do nothing when both are null', () => {

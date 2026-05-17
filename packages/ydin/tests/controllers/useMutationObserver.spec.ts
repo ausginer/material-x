@@ -41,8 +41,10 @@ describe('useMutationObserver', () => {
     const instances = mockMutationObserver();
     const callback = vi.fn<MutationCallback>();
     const options = { attributes: true } satisfies MutationObserverInit;
-    const el = host([], (h) => {
-      useMutationObserver(h, callback, options);
+    const el = host({
+      init(h) {
+        useMutationObserver(h, callback, options);
+      },
     });
 
     document.body.append(el);
@@ -56,8 +58,10 @@ describe('useMutationObserver', () => {
     const instances = mockMutationObserver();
     const callback = vi.fn<MutationCallback>();
     const target = document.createElement('div');
-    const el = host([], (h) => {
-      useMutationObserver(h, callback, { childList: true }, target);
+    const el = host({
+      init(h) {
+        useMutationObserver(h, callback, { childList: true }, target);
+      },
     });
 
     document.body.append(el);
@@ -76,8 +80,10 @@ describe('useMutationObserver', () => {
     } satisfies MutationObserverInit;
 
     document.body.append(
-      host([], (h) => {
-        useMutationObserver(h, callback, options);
+      host({
+        init(h) {
+          useMutationObserver(h, callback, options);
+        },
       }),
     );
 
@@ -89,8 +95,10 @@ describe('useMutationObserver', () => {
 
   it('should disconnect the observer on host disconnect', () => {
     const instances = mockMutationObserver();
-    const el = host([], (h) => {
-      useMutationObserver(h, vi.fn(), { attributes: true });
+    const el = host({
+      init(h) {
+        useMutationObserver(h, vi.fn(), { attributes: true });
+      },
     });
 
     document.body.append(el);
@@ -101,8 +109,10 @@ describe('useMutationObserver', () => {
 
   it('should resume observation after reconnect', () => {
     const instances = mockMutationObserver();
-    const el = host([], (h) => {
-      useMutationObserver(h, vi.fn(), { attributes: true });
+    const el = host({
+      init(h) {
+        useMutationObserver(h, vi.fn(), { attributes: true });
+      },
     });
 
     document.body.append(el);

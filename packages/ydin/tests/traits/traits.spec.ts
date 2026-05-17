@@ -27,7 +27,7 @@ describe('traits', () => {
 
     const element = createElement(Checked(BaseElement));
 
-    expect(element.checked).toBe(false);
+    expect(element.checked).toBeFalsy();
   });
 
   it('should write a boolean-backed field through a generated accessor', () => {

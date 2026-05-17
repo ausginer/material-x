@@ -13,8 +13,10 @@ describe('useShadowDOM', () => {
   it('should attach an open shadow root and clone all template contents', () => {
     const first = createTemplate('<div id="first"></div>');
     const second = createTemplate('<div id="second"></div>');
-    const el = host([], (h) => {
-      useShadowDOM(h, [first, second], []);
+    const el = host({
+      init(h) {
+        useShadowDOM(h, [first, second], []);
+      },
     });
 
     expect(el.shadowRoot).not.toBeNull();
@@ -25,8 +27,10 @@ describe('useShadowDOM', () => {
   it('should adopt the provided stylesheets', () => {
     const template = createTemplate('<div></div>');
     const sheet = new CSSStyleSheet();
-    const el = host([], (h) => {
-      useShadowDOM(h, [template], [sheet]);
+    const el = host({
+      init(h) {
+        useShadowDOM(h, [template], [sheet]);
+      },
     });
 
     expect(el.shadowRoot?.adoptedStyleSheets).toEqual([sheet]);
@@ -34,18 +38,22 @@ describe('useShadowDOM', () => {
 
   it('should apply provided shadow root init options', () => {
     const template = createTemplate('<div></div>');
-    const el = host([], (h) => {
-      useShadowDOM(h, [template], [], { delegatesFocus: true });
+    const el = host({
+      init(h) {
+        useShadowDOM(h, [template], [], { delegatesFocus: true });
+      },
     });
 
-    expect(el.shadowRoot?.delegatesFocus).toBe(true);
+    expect(el.shadowRoot?.delegatesFocus).toBeTruthy();
   });
 
   it('should preserve template order when appending contents', () => {
     const first = createTemplate('<div id="first"></div>');
     const second = createTemplate('<div id="second"></div>');
-    const el = host([], (h) => {
-      useShadowDOM(h, [first, second], []);
+    const el = host({
+      init(h) {
+        useShadowDOM(h, [first, second], []);
+      },
     });
     const ids = Array.from(el.shadowRoot?.children ?? []).map(
       (child) => child.id,
