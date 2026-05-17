@@ -195,15 +195,16 @@ const widthAllowedTokenSelector = createAllowedTokensSelector([
   'trailing-space',
 ]);
 
+// No extend() here — width packages are standalone overrides, not part of the
+// button state inheritance chain. Extending from base tokens would cause delta
+// deduplication to silently drop rules where the override value happens to
+// match the base.
 const createWidthPackage = (size: string, width: string): TokenPackage =>
   t
     .set(`md.comp.icon-button.${size}`)
     .group(widthGroup(width))
     .select(mainTokenSelector, widthAllowedTokenSelector)
     .adjustTokens(fixFullShape)
-    .extend(
-      createButtonExtensions(defaultTokens.value, defaultFilledTokens.value),
-    )
     .renderDeclarations(createWidthRenderer(size, width))
     .build();
 

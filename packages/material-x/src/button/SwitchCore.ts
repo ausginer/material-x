@@ -14,7 +14,7 @@ import {
   type ValuableProps,
 } from 'ydin/traits/valuable.js';
 import { $, notify } from 'ydin/utils/DOM.js';
-import { CONNECTED_GROUP_CTX } from '../button-group/button-group-context.ts';
+import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { useContext } from '../core/utils/useContext.ts';
 import { ButtonCore, useButtonCore } from './ButtonCore.ts';
 
@@ -54,7 +54,7 @@ export function useSwitchCore(
 
   useContext(
     host,
-    CONNECTED_GROUP_CTX,
+    BUTTON_GROUP_CTX,
     VALUABLE_ATTRS,
     (_, oldValue, newValue) => {
       if (oldValue === host.value) {
