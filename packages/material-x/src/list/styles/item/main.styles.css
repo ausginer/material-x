@@ -9,22 +9,6 @@
  *
  * `--md-list-item-leading-icon-size` and `--md-list-item-trailing-icon-size`
  *   Override slotted icon sizing for leading/trailing affordances.
- *
- * Grid setup of the list item.
- * ┌─────┬─────────┬─────┐
- * │  L  │    o    │  T  │
- * ├─────┼─────────┼─────┤
- * │  L  │    l    │  T  │
- * ├─────┼─────────┼─────┤
- * │  L  │    s    │  T  │
- * └─────┴─────────┴─────┘
- *
- * where:
- * - L — leading element (icon, control, avatar, image, video)
- * - o — overline
- * - l — label
- * - s — supporting text
- * - T — trailing element (icon, control, text)
  */
 
 :host {
@@ -46,40 +30,12 @@ slot:has-slotted {
   display: block;
 }
 
-:host:has(.lead:has-slotted) {
-  --_lead-column-size: min-content;
-}
-
-:host:has(.overline:has-slotted) {
-  --_overline-row: min-content;
-  --_overline-row-size: var(--_overline-line-height);
-}
-
-:host:has(.trail:has-slotted) {
-  --_trail-column-size: min-content;
-}
-
-:host:has(.support:has-slotted) {
-  --_support-row: min-content;
-  --_support-row-size: var(--_supporting-text-line-height);
-}
-
 :host:has(.support:has-slotted),
 :host:has(.overline:has-slotted) {
   --_container-height: var(
     --md-list-item-container-height,
     var(--_two-line-container-height)
   );
-}
-
-:host:has(.overline:has-slotted) {
-  .overline {
-    align-content: end;
-  }
-
-  .label {
-    align-content: start;
-  }
 }
 
 :host:has(.support:has-slotted):has(.overline:has-slotted) {
@@ -90,18 +46,18 @@ slot:has-slotted {
   --_support-row-size: calc(2 * var(--_supporting-text-line-height));
 }
 
+:host(:state(lead-large)) {
+  --_leading-space: 0;
+}
+
 .host {
   all: unset;
   position: relative;
   box-sizing: border-box;
-  display: grid;
-  align-content: center;
-  grid-template:
-    'L o T' var(--_overline-row, 0)
-    'L l T' auto
-    'L s T' var(--_support-row, 0) / min-content auto
-    min-content;
+  display: flex;
+  align-items: center;
   inline-size: 100%;
+  min-block-size: var(--_container-height);
   padding-block: var(--_top-space) var(--_bottom-space);
   padding-inline: var(--md-list-item-leading-space, var(--_leading-space))
     var(--md-list-item-trailing-space, var(--_trailing-space));
@@ -109,7 +65,6 @@ slot:has-slotted {
     --md-list-item-container-shape,
     var(--_container-expressive-shape)
   );
-  min-block-size: var(--_container-height);
   background: var(--md-list-item-container-color, var(--_container-color));
   color: var(--_label-text-color);
   cursor: default;
@@ -119,8 +74,15 @@ slot:has-slotted {
   -webkit-tap-highlight-color: transparent;
 }
 
+.content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
 .lead,
 .trail {
+  flex: 0 0 min-content;
   min-inline-size: 0;
 }
 
@@ -140,7 +102,6 @@ slot:has-slotted {
 }
 
 .label {
-  grid-area: l;
   color: var(--_label-text-color);
   font-family: var(--_label-text-font);
   font-size: var(--_label-text-size);
@@ -150,30 +111,26 @@ slot:has-slotted {
 }
 
 .overline {
-  grid-area: o;
   color: var(--_overline-color);
   font-family: var(--_overline-font);
   font-size: var(--_overline-size);
   font-weight: var(--_overline-weight);
   line-height: var(--_overline-line-height);
   letter-spacing: var(--_overline-tracking);
-  max-block-size: var(--_overline-row-size, 0);
+  max-block-size: var(--_supporting-text-line-height);
 }
 
 .support {
-  grid-area: s;
   color: var(--_supporting-text-color);
   font-family: var(--_supporting-text-font);
   font-size: var(--_supporting-text-size);
   font-weight: var(--_supporting-text-weight);
   line-height: var(--_supporting-text-line-height);
   letter-spacing: var(--_supporting-text-tracking);
-  max-block-size: var(--_support-row-size, 0);
+  max-block-size: calc(2 * var(--_supporting-text-line-height));
 }
 
 .lead {
-  grid-area: L;
-  align-content: center;
   margin-inline-end: var(--_between-space);
 
   &::slotted([data-icon]),
@@ -226,7 +183,6 @@ slot:has-slotted {
 }
 
 .trail {
-  grid-area: T;
   margin-inline-start: var(--_between-space);
 
   &::slotted(:not(mx-icon):not([data-icon])) {

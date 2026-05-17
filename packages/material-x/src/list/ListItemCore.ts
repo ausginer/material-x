@@ -1,8 +1,10 @@
+import { useSlot } from 'ydin/controllers/useSlot.js';
 import {
   ControlledElement,
+  internals,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
-import { $ } from 'ydin/utils/DOM.js';
+import { $, toggleState } from 'ydin/utils/DOM.js';
 import '../core/styles/elevation/elevation.runtime.ts';
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
@@ -40,6 +42,14 @@ export function useListItemCore(
   target.append(nestedTemplate.content.cloneNode(true));
 
   useHasSlottedPolyfill(host);
+
+  useSlot(host, '.lead', (_, nodes) => {
+    toggleState(
+      internals(host),
+      'lead-large',
+      nodes.some((n) => n instanceof HTMLElement && 'large' in n.dataset),
+    );
+  });
 
   return target;
 }

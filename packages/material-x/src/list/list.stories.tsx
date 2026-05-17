@@ -101,7 +101,7 @@ export const Playground: StoryObj<PlaygroundArgs> = {
       <mx-list>
         <mx-list-button-item selected={selected} disabled={disabled}>
           {leadingVideo ? (
-            <video data-wide slot="lead" muted autoPlay playsInline loop>
+            <video data-large slot="lead" muted autoPlay playsInline loop>
               <source
                 src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
                 type="video/mp4"
@@ -195,7 +195,7 @@ export const Interactive = (): JSX.Element => (
 export const Media = (): JSX.Element => (
   <mx-list>
     <mx-list-item>
-      <video data-wide slot="lead" muted autoPlay playsInline loop>
+      <video data-large slot="lead" muted autoPlay playsInline loop>
         <source
           src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
           type="video/mp4"
