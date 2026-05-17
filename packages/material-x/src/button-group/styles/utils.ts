@@ -1,5 +1,4 @@
 import {
-  attribute,
   pseudoClass,
   pseudoElement,
   selector,
@@ -76,7 +75,7 @@ export function buttonGroupDefaultSelector(path: string): boolean {
 }
 
 const pressedState = pseudoClass('active');
-const selectedState = attribute('checked');
+const selectedState = pseudoClass('state', 'checked');
 const slottedPressedState = pseudoElement('slotted', pressedState);
 const slottedSelectedState = pseudoElement('slotted', selectedState);
 

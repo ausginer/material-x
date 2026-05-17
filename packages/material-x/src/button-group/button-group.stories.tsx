@@ -71,16 +71,6 @@ export const Playground: StoryObj<PlaygroundArgs> = {
   },
 };
 
-export const States = (): JSX.Element => (
-  <mx-button-group size="medium">
-    <mx-button>Default</mx-button>
-    <mx-button data-force="hovered">Hovered</mx-button>
-    <mx-button data-force="focused">Focused</mx-button>
-    <mx-button data-force="pressed">Pressed</mx-button>
-    <mx-button disabled>Disabled</mx-button>
-  </mx-button-group>
-);
-
 export const Sizes = (): JSX.Element => (
   <>
     <mx-button-group size="xsmall">
@@ -122,7 +112,6 @@ export const Switch = (): JSX.Element => {
     <mx-button-group size="medium">
       <mx-switch-icon-button
         width="narrow"
-        checked={selected === 'bluetooth'}
         onChange={() => setSelected('bluetooth')}
       >
         <mx-icon>bluetooth</mx-icon>

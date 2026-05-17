@@ -1,10 +1,5 @@
 import type { ReadonlySignal } from '@preact/signals-core';
-import {
-  attribute,
-  pseudoClass,
-  selector,
-  type Param,
-} from '../../.tproc/selector.ts';
+import { pseudoClass, selector, type Param } from '../../.tproc/selector.ts';
 import type {
   DeclarationBlockRenderer,
   TokenPackage,
@@ -27,10 +22,10 @@ export const LIST_ITEM_SELECTION_STATES = ['unselected', 'selected'] as const;
 
 const STATE_MAP: Readonly<Record<string, Param | readonly Param[]>> = {
   hovered: pseudoClass('hover'),
-  focused: [pseudoClass('focus-within'), attribute('selected')],
+  focused: [pseudoClass('focus-within'), pseudoClass('state', 'selected')],
   dragged: pseudoClass('drag'),
   pressed: pseudoClass('active'),
-  disabled: attribute('disabled'),
+  disabled: pseudoClass('state', 'disabled'),
 };
 
 export function groupListItemTokens(tokenName: string): GroupResult | null {

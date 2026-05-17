@@ -3,9 +3,8 @@ import type { JSX } from 'react';
 import '../icon/icon.ts';
 import css from '../story.module.css';
 import type { ButtonShape, ButtonSize } from './ButtonCore.ts';
-// oxlint-disable-next-line import/no-duplicates
 import './icon-button.ts';
-import type { IconButtonColor, IconButtonWidth } from './icon-button.ts';
+import type { IconButtonColor, IconButtonWidth } from './IconButtonCore.ts';
 
 const meta: Meta = {
   title: 'Button/Icon',
@@ -76,26 +75,6 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     );
   },
 };
-
-export const States = (): JSX.Element => (
-  <>
-    <mx-icon-button>
-      <mx-icon>wifi</mx-icon>
-    </mx-icon-button>
-    <mx-icon-button data-force="hovered">
-      <mx-icon>bluetooth</mx-icon>
-    </mx-icon-button>
-    <mx-icon-button data-force="focused">
-      <mx-icon>alarm</mx-icon>
-    </mx-icon-button>
-    <mx-icon-button data-force="pressed">
-      <mx-icon>search</mx-icon>
-    </mx-icon-button>
-    <mx-icon-button disabled>
-      <mx-icon>play_arrow</mx-icon>
-    </mx-icon-button>
-  </>
-);
 
 export const Sizes = (): JSX.Element => (
   <>

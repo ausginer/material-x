@@ -74,6 +74,8 @@
   place-content: center;
   gap: var(--md-button-icon-label-space, var(--_icon-label-space));
   text-align: center;
+  box-sizing: border-box;
+  max-block-size: var(--_container-height);
 
   transition:
     border-radius var(--md-button-press-duration, var(--_press-duration))

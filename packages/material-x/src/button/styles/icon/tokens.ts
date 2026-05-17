@@ -1,7 +1,7 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import { t } from '../../../.tproc/index.ts';
 import {
-  attribute,
+  pseudoClass,
   pseudoElement,
   selector,
 } from '../../../.tproc/selector.ts';
@@ -167,8 +167,8 @@ function createWidthRenderer(
 ): DeclarationBlockRenderer {
   const sizeAttribute = DEFAULTS.includes(size)
     ? null
-    : attribute('size', size);
-  const widthAttribute = attribute('width', width);
+    : pseudoClass('state', size);
+  const widthAttribute = pseudoClass('state', width);
   const slotted = pseudoElement('slotted', widthAttribute);
 
   return (path, declarations) => {

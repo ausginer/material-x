@@ -1,16 +1,16 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import type { TupleToUnion } from 'type-fest';
 import { t } from '../../../.tproc/index.ts';
-import { attribute } from '../../../.tproc/selector.ts';
+import { pseudoClass } from '../../../.tproc/selector.ts';
 import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
 import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
 import { fixFullShape } from '../../../button/styles/utils.ts';
 import {
   BUTTON_GROUP_SIZES,
   buttonGroupDefaultSelector,
-  createButtonGroupDeclarationRenderer,
   connectedAllowedTokensSelector,
   connectedAllowedTokensWithShapeSelector,
+  createButtonGroupDeclarationRenderer,
   groupButtonGroupTokens,
 } from '../utils.ts';
 
@@ -33,7 +33,7 @@ const createPackage = (
       .adjustTokens(fixFullShape)
       .renderDeclarations(
         createButtonGroupDeclarationRenderer({
-          scope: isSmall ? null : attribute('size', size),
+          scope: isSmall ? null : pseudoClass('state', size),
           onlyDefault: true,
         }),
       ),

@@ -1,70 +1,12 @@
-import type { EmptyObject, Simplify } from 'type-fest';
-import { Str, type ConverterOf } from 'ydin/attribute.js';
 import { define } from 'ydin/element.js';
-import {
-  impl,
-  trait,
-  type TraitedConstructor,
-  type Interface,
-  type Props,
-  type Trait,
-} from 'ydin/traits/traits.js';
-import {
-  ButtonCore,
-  useButtonCore,
-  type ButtonColor,
-  type ButtonCoreProps,
-  type ButtonLike,
-  type ButtonSharedCSSProperties,
-} from './ButtonCore.ts';
+import { useButtonCore } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
+import { IconButtonCore, useIconButtonCore } from './IconButtonCore.ts';
 import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
 import mainIconStyles from './styles/icon/main.css.ts' with { type: 'css' };
 import mainOutlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
 import mainTextStyles from './styles/text/main.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
-
-export type IconButtonWidth = 'wide' | 'narrow';
-export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
-
-type IconButtonLikeDescriptor = {
-  width: IconButtonWidth | null;
-};
-
-const $iconButtonLike: unique symbol = Symbol('IconButtonLike');
-
-export const IconButtonLike: Trait<
-  IconButtonLikeDescriptor,
-  typeof $iconButtonLike
-> = trait(
-  {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    width: Str as ConverterOf<IconButtonWidth>,
-  },
-  $iconButtonLike,
-);
-
-export type IconButtonLike = Omit<ButtonLike, 'color'> & {
-  color: IconButtonColor | null;
-} & Interface<typeof IconButtonLike>;
-
-export type IconButtonLikeProps = Props<typeof IconButtonLike>;
-
-const IconButtonCore: TraitedConstructor<
-  ButtonCore,
-  typeof ButtonCore,
-  [typeof IconButtonLike]
-> = impl(ButtonCore, [IconButtonLike]);
-
-export type IconButtonProperties = Simplify<
-  Omit<ButtonCoreProps, 'color'> &
-    IconButtonLikeProps &
-    Readonly<{
-      color?: IconButtonColor;
-    }>
->;
-export type IconButtonEvents = EmptyObject;
-export type IconButtonCSSProperties = ButtonSharedCSSProperties;
 
 /**
  * @tag mx-icon-button
@@ -107,6 +49,8 @@ export default class IconButton extends IconButtonCore {
       mainTonalStyles,
       mainIconStyles,
     ]);
+
+    useIconButtonCore(this);
   }
 }
 

@@ -1,7 +1,7 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
 import motionEffects from '../../../.tproc/default/motion-effects.ts';
 import { t, type TokenPackage } from '../../../.tproc/index.ts';
-import { attribute } from '../../../.tproc/selector.ts';
+import { pseudoClass } from '../../../.tproc/selector.ts';
 import type { ProcessorAdjuster, TokenSet } from '../../../.tproc/utils.ts';
 import { defaultTokens } from '../default/tokens.ts';
 import {
@@ -39,7 +39,9 @@ export const outlinedTokens: ReadonlySignal<TokenPackage> = computed(() =>
       .append('default', SPECIAL_OUTLINED_TOKENS)
       .extend(createTextFieldExtensions(defaultTokens.value))
       .renderDeclarations(
-        createTextFieldScopedDeclarationRenderer(attribute('outlined')),
+        createTextFieldScopedDeclarationRenderer(
+          pseudoClass('state', 'outlined'),
+        ),
       ),
   ),
 );
@@ -50,7 +52,9 @@ export const outlinedErrorTokens: ReadonlySignal<TokenPackage> = computed(() =>
       .select(notDisabledTokenSelector, errorTokenSelector)
       .extend(createTextFieldExtensions(outlinedTokens.value))
       .renderDeclarations(
-        createTextFieldScopedDeclarationRenderer(attribute('outlined')),
+        createTextFieldScopedDeclarationRenderer(
+          pseudoClass('state', 'outlined'),
+        ),
       ),
   ),
 );
@@ -62,7 +66,9 @@ export const outlinedDisabledTokens: ReadonlySignal<TokenPackage> = computed(
         .select(disabledTokenSelector, notErrorTokenSelector)
         .extend(createTextFieldExtensions(outlinedTokens.value))
         .renderDeclarations(
-          createTextFieldScopedDeclarationRenderer(attribute('outlined')),
+          createTextFieldScopedDeclarationRenderer(
+            pseudoClass('state', 'outlined'),
+          ),
         ),
     ),
 );

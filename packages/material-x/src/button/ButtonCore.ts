@@ -116,11 +116,13 @@ export function useButtonCore(
   useRipple(host, target, target);
 
   const innards = internals(host);
+  const switcher = (oldValue: string | null, newValue: string | null) =>
+    switchState(innards, oldValue, newValue);
 
   useAttributes(host, {
-    color: (oldValue, newValue) => switchState(innards, oldValue, newValue),
-    size: (oldValue, newValue) => switchState(innards, oldValue, newValue),
-    shape: (oldValue, newValue) => switchState(innards, oldValue, newValue),
+    color: switcher,
+    size: switcher,
+    shape: switcher,
     disabled: (_, newValue) =>
       toggleState(innards, 'disabled', Bool.from(newValue)),
   });

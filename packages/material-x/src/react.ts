@@ -11,7 +11,10 @@ import type {
   IconButtonCSSProperties,
   IconButtonEvents,
   IconButtonProperties,
-} from './button/icon-button.ts';
+  SwitchIconButtonCSSProperties,
+  SwitchIconButtonEvents,
+  SwitchIconButtonProperties,
+} from './button/IconButtonCore.ts';
 import type LinkButton from './button/link-button.ts';
 import type {
   LinkButtonCSSProperties,
@@ -31,11 +34,6 @@ import type {
   SwitchButtonProperties,
 } from './button/switch-button.ts';
 import type SwitchIconButton from './button/switch-icon-button.ts';
-import type {
-  SwitchIconButtonCSSProperties,
-  SwitchIconButtonEvents,
-  SwitchIconButtonProperties,
-} from './button/switch-icon-button.ts';
 import type {
   ButtonGroupCSSProperties,
   ButtonGroupEvents,

@@ -1,10 +1,5 @@
 import type { ReadonlySignal } from '@preact/signals-core';
-import {
-  attribute,
-  pseudoClass,
-  selector,
-  type Param,
-} from '../../.tproc/selector.ts';
+import { pseudoClass, selector, type Param } from '../../.tproc/selector.ts';
 import type {
   DeclarationBlockRenderer,
   TokenPackage,
@@ -118,8 +113,8 @@ export const allowedTokensSelector: GroupSelector = createAllowedTokensSelector(
   ],
 );
 
-const checked = attribute('checked');
-const indeterminate = attribute('indeterminate');
+const checked = pseudoClass('state', 'checked');
+const indeterminate = pseudoClass('state', 'indeterminate');
 
 export function createScopedDeclarationRenderer(): DeclarationBlockRenderer {
   return (path, declarations) => {

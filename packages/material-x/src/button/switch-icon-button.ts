@@ -1,9 +1,6 @@
-import type { EmptyObject } from 'type-fest';
 import { define } from 'ydin/element.js';
-import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
-import type { ButtonSharedCSSProperties } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
-import { IconButtonLike, type IconButtonProperties } from './icon-button.ts';
+import { SwitchIconButtonCore, useIconButtonCore } from './IconButtonCore.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts' with { type: 'css' };
 import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
 import switchElevatedStyles from './styles/elevated/switch.css.ts' with { type: 'css' };
@@ -14,17 +11,7 @@ import switchOutlinedStyles from './styles/outlined/switch.css.ts' with { type: 
 import switchSizeStyles from './styles/size/switch.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' };
-import { SwitchCore, useSwitchCore, type SwitchProps } from './SwitchCore.ts';
-
-export type SwitchIconButtonProperties = IconButtonProperties & SwitchProps;
-export type SwitchIconButtonEvents = EmptyObject;
-export type SwitchIconButtonCSSProperties = ButtonSharedCSSProperties;
-
-const SwitchIconButtonCore: TraitedConstructor<
-  SwitchCore,
-  typeof SwitchCore,
-  [typeof IconButtonLike]
-> = impl(SwitchCore, [IconButtonLike]);
+import { useSwitchCore } from './SwitchCore.ts';
 
 /**
  * @tag mx-switch-icon-button
@@ -77,6 +64,8 @@ export default class SwitchIconButton extends SwitchIconButtonCore {
       switchTonalStyles,
       switchIconStyles,
     ]);
+
+    useIconButtonCore(this);
   }
 }
 
