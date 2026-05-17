@@ -1,15 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useState, type JSX } from 'react';
+import { useState, type ChangeEvent, type JSX } from 'react';
 import '../button/button.ts';
-import '../button/switch-icon-button.ts';
-import '../icon/icon.ts';
 import type {
   ButtonColor,
   ButtonShape,
   ButtonSize,
 } from '../button/ButtonCore.ts';
+import '../button/switch-icon-button.ts';
+import type SwitchIconButton from '../button/switch-icon-button.ts';
+import '../icon/icon.ts';
 import css from '../story.module.css';
 import './button-group.ts';
+import type ButtonGroup from './button-group.ts';
 
 const meta: Meta = {
   title: 'Button Group/Standard',
@@ -109,31 +111,23 @@ export const Switch = (): JSX.Element => {
   const [selected, setSelected] = useState<string | undefined>();
 
   return (
-    <mx-button-group size="medium">
-      <mx-switch-icon-button
-        width="narrow"
-        onChange={() => setSelected('bluetooth')}
-      >
+    <mx-button-group
+      size="medium"
+      value={selected}
+      onChange={({ target }: ChangeEvent<ButtonGroup, SwitchIconButton>) =>
+        setSelected(target.value ?? undefined)
+      }
+    >
+      <mx-switch-icon-button width="narrow" value="bluetooth">
         <mx-icon>bluetooth</mx-icon>
       </mx-switch-icon-button>
-      <mx-switch-icon-button
-        checked={selected === 'alarm'}
-        onChange={() => setSelected('alarm')}
-      >
+      <mx-switch-icon-button value="alarm">
         <mx-icon>alarm</mx-icon>
       </mx-switch-icon-button>
-      <mx-switch-icon-button
-        width="narrow"
-        checked={selected === 'link'}
-        onChange={() => setSelected('link')}
-      >
+      <mx-switch-icon-button width="narrow" value="link">
         <mx-icon>link</mx-icon>
       </mx-switch-icon-button>
-      <mx-switch-icon-button
-        width="wide"
-        checked={selected === 'wifi'}
-        onChange={() => setSelected('wifi')}
-      >
+      <mx-switch-icon-button width="wide" value="wifi">
         <mx-icon>wifi</mx-icon>
       </mx-switch-icon-button>
     </mx-button-group>

@@ -19,12 +19,8 @@ import type {
 import type { ButtonGroupLike } from './ButtonGroupCore.ts';
 
 export const BUTTON_GROUP_CTX: Context<
-  ContextData<ControlledElement & ButtonLike & ButtonGroupLike & Disableable>
-> = createContext();
-
-export const CONNECTED_GROUP_CTX: Context<
   ContextData<
-    ControlledElement & ButtonLike & ButtonGroupLike & Disableable & Valuable
+    ControlledElement & ButtonLike & ButtonGroupLike & Valuable & Disableable
   >
 > = createContext();
 

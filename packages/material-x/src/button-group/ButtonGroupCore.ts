@@ -1,8 +1,5 @@
-import type { ControlledElement } from 'ydin/element.js';
-import {
-  DISABLEABLE_ATTRS,
-  type Disableable,
-} from 'ydin/traits/disableable.js';
+import type { EmptyObject } from 'type-fest';
+import { DISABLEABLE_ATTRS } from 'ydin/traits/disableable.js';
 import {
   impl,
   trait,
@@ -12,9 +9,14 @@ import {
   type TraitedConstructor,
 } from 'ydin/traits/traits.js';
 import {
-  ButtonCore,
+  Valuable,
+  VALUABLE_ATTRS,
+  type ValuableProps,
+} from 'ydin/traits/valuable.js';
+import {
   BUTTON_ATTRS,
-  type ButtonLike,
+  ButtonCore,
+  type ButtonCoreProps,
 } from '../button/ButtonCore.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import {
@@ -35,11 +37,14 @@ export type ButtonGroupLikeProps = Props<typeof ButtonGroupLike>;
 export const ButtonGroupCore: TraitedConstructor<
   ButtonCore,
   typeof ButtonCore,
-  [typeof ButtonGroupLike]
-> = impl(ButtonCore, [ButtonGroupLike]);
-export type ButtonGroupCore = InstanceType<typeof ButtonGroupCore>;
+  [typeof ButtonGroupLike, typeof Valuable]
+> = impl(ButtonCore, [ButtonGroupLike, Valuable]);
 
-export type ButtonGroupSharedCSSProperties = Readonly<{
+export type ButtonGroupCore = InstanceType<typeof ButtonGroupCore>;
+export type ButtonGroupCoreEvents = EmptyObject;
+export type ButtonGroupCoreProps = ButtonCoreProps & ValuableProps;
+
+export type ButtonGroupCoreCSSProperties = Readonly<{
   '--md-button-group-between-space'?: string;
   '--md-button-group-interaction-width-multiplier'?: string;
   '--md-button-group-inner-corner-size'?: string;
@@ -48,10 +53,11 @@ export type ButtonGroupSharedCSSProperties = Readonly<{
 const BUTTON_CORE_ATTR_NAMES = Object.keys({
   ...BUTTON_ATTRS,
   ...DISABLEABLE_ATTRS,
+  ...VALUABLE_ATTRS,
 });
 
 export function useButtonGroupCore(
-  host: ControlledElement & ButtonLike & ButtonGroupLike & Disableable,
+  host: ButtonGroupCore,
   template: HTMLTemplateElement,
   aria: Partial<ARIAMixin>,
   styles: ReadonlyArray<CSSStyleSheet | string>,
