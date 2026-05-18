@@ -26,7 +26,6 @@
     "traits/valuable",
     "utils/CSSVariableError",
     "utils/DOM",
-    "utils/events",
     "utils/readCSSVariables",
     "utils/runtime"
   ],

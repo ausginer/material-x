@@ -92,6 +92,10 @@
       "types": "./traits/piirre.d.ts",
       "default": "./traits/piirre.js"
     },
+    "./traits/reorderable.js": {
+      "types": "./traits/reorderable.d.ts",
+      "default": "./traits/reorderable.js"
+    },
     "./traits/selectable.js": {
       "types": "./traits/selectable.d.ts",
       "default": "./traits/selectable.js"

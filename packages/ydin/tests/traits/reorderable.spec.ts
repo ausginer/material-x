@@ -7,12 +7,12 @@ import { useShadowDOM } from '../../src/controllers/useShadowDOM.ts';
 import { ControlledElement, internals } from '../../src/element.ts';
 import {
   Reorderable,
+  ReorderEvent,
   useReorderable,
   useReorderableItem,
   type ReorderableContextData,
 } from '../../src/traits/reorderable.ts';
 import { impl } from '../../src/traits/traits.ts';
-import { ReorderEvent } from '../../src/utils/events.ts';
 import { defineCE, nextFrame, host, nameCE } from '../browser.ts';
 
 function createCtx(): Context<ReorderableContextData> {
@@ -80,16 +80,7 @@ describe('Reorderable', () => {
 });
 
 describe('useReorderableItem', () => {
-  it('should set draggable to false when no context is present', () => {
-    const ctx = createCtx();
-    const item = createItem(ctx);
-
-    document.body.append(item);
-
-    expect(item.draggable).toBeFalsy();
-  });
-
-  it('should set draggable to false when parent is not reorderable', () => {
+  it('should cancel dragstart when the parent is not reorderable', () => {
     const ctx = createCtx();
     const list = createList(ctx);
     const item = createItem(ctx);
@@ -97,22 +88,16 @@ describe('useReorderableItem', () => {
     document.body.append(list);
     list.append(item);
 
-    expect(item.draggable).toBeFalsy();
+    const event = new DragEvent('dragstart', {
+      bubbles: true,
+      cancelable: true,
+    });
+    item.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBeTruthy();
   });
 
-  it('should set draggable to true when parent becomes reorderable', () => {
-    const ctx = createCtx();
-    const list = createList(ctx);
-    const item = createItem(ctx);
-
-    document.body.append(list);
-    list.append(item);
-    list.reorderable = true;
-
-    expect(item.draggable).toBeTruthy();
-  });
-
-  it('should set draggable to false when parent stops being reorderable', () => {
+  it('should allow dragstart when the parent is reorderable', () => {
     const ctx = createCtx();
     const list = createList(ctx);
     const item = createItem(ctx);
@@ -120,12 +105,17 @@ describe('useReorderableItem', () => {
     document.body.append(list);
     list.append(item);
     list.reorderable = true;
-    list.reorderable = false;
 
-    expect(item.draggable).toBeFalsy();
+    const event = new DragEvent('dragstart', {
+      bubbles: true,
+      cancelable: true,
+    });
+    item.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBeFalsy();
   });
 
-  it('should cancel dragstart when no data-handle is in the composed path', () => {
+  it('should cancel dragstart when no context is present', () => {
     const ctx = createCtx();
     const item = createItem(ctx);
 
@@ -138,24 +128,6 @@ describe('useReorderableItem', () => {
     item.dispatchEvent(event);
 
     expect(event.defaultPrevented).toBeTruthy();
-  });
-
-  it('should allow dragstart when a data-handle element is in the composed path', () => {
-    const ctx = createCtx();
-    const item = createItem(ctx);
-    const handle = document.createElement('span');
-
-    handle.dataset['handle'] = '';
-    item.append(handle);
-    document.body.append(item);
-
-    const event = new DragEvent('dragstart', {
-      bubbles: true,
-      cancelable: true,
-    });
-    handle.dispatchEvent(event);
-
-    expect(event.defaultPrevented).toBeFalsy();
   });
 });
 
@@ -281,8 +253,8 @@ describe('useReorderable', () => {
 
     const reorderEvent = event as ReorderEvent;
     expect(reorderEvent.item).toBe(item1);
-    expect(reorderEvent.fromIndex).toBe(0);
-    expect(reorderEvent.toIndex).toBe(2);
+    expect(reorderEvent.from).toBe(0);
+    expect(reorderEvent.to).toBe(2);
   });
 
   it('should not dispatch ReorderEvent when no drag target was set', async () => {

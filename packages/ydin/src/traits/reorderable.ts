@@ -1,20 +1,33 @@
 import { Bool } from '../attribute.ts';
+import { useAttributes } from '../controllers/useAttributes.ts';
 import {
-  useAttributes,
-  type UpdateCallback,
-} from '../controllers/useAttributes.ts';
-import {
-  useProvider,
   useContext,
+  useProvider,
   type Context,
 } from '../controllers/useContext.ts';
 import { useEvents } from '../controllers/useEvents.ts';
 import { useSlot } from '../controllers/useSlot.ts';
 import { ControlledElement, internals } from '../element.ts';
 import { EventEmitter } from '../emitter.ts';
-import { toggleState } from '../utils/DOM.ts';
-import { ReorderEvent } from '../utils/events.ts';
+import { DEFAULT_EVENT_INIT, toggleState } from '../utils/DOM.ts';
 import { trait, type Interface, type Props, type Trait } from './traits.ts';
+
+/**
+ * Fired by a reorderable container when the user drops a dragged item at a new
+ * position. DOM reordering is left to the consumer.
+ */
+export class ReorderEvent extends Event {
+  readonly item: HTMLElement;
+  readonly from: number;
+  readonly to: number;
+
+  constructor(item: HTMLElement, from: number, to: number) {
+    super('reorder', DEFAULT_EVENT_INIT);
+    this.item = item;
+    this.from = from;
+    this.to = to;
+  }
+}
 
 const $reorderable: unique symbol = Symbol('Reorderable');
 
@@ -84,8 +97,7 @@ export function useReorderable(
   useProvider(host, ctx, { emitter, provider: host });
 
   useAttributes(host, {
-    reorderable: ((oldValue, newValue) =>
-      emitter.emit(oldValue, newValue)) satisfies UpdateCallback,
+    reorderable: (oldValue, newValue) => emitter.emit(oldValue, newValue),
   });
 
   let items: readonly ControlledElement[] = [];
@@ -188,63 +200,70 @@ export function useReorderable(
         return;
       }
 
-      const fromIndex = items.indexOf(dragged);
-      const toIndex = items.indexOf(target);
+      const from = items.indexOf(dragged);
+      const to = items.indexOf(target);
 
-      if (fromIndex === -1 || toIndex === -1) {
+      if (from === -1 || to === -1) {
         return;
       }
 
-      host.dispatchEvent(new ReorderEvent(dragged, fromIndex, toIndex));
+      host.dispatchEvent(new ReorderEvent(dragged, from, to));
     },
   });
 }
 
 /**
- * Registers drag-handle behaviour on a list item.
+ * Registers drag ghost behaviour on a reorderable item.
  *
  * The item subscribes to the provided context (published by
- * {@link useReorderable}) and keeps `host.draggable` in sync with the
- * provider's `reorderable` property. When the parent becomes reorderable, the
- * item becomes draggable; when it stops, draggability is removed.
+ * {@link useReorderable}) to track whether the parent container is currently
+ * reorderable. The consumer is responsible for setting `draggable` on the
+ * desired handle element — this hook does not manage `draggable` itself.
  *
- * Drag is filtered to elements marked with `data-handle` in the composed path.
- * Any `dragstart` that does not originate from such an element is cancelled via
- * `preventDefault()`, so interactive content (buttons, links) inside the item
- * is not accidentally dragged.
+ * When a `dragstart` fires on the host while the parent is reorderable, a
+ * custom drag image is set using `target` (the visual inner element) so the
+ * whole item appears as the drag ghost rather than just the handle. If the
+ * parent is not reorderable, `dragstart` is cancelled so unrelated interactive
+ * content is not accidentally dragged.
  *
- * @param host - The item host element.
+ * @param host - The item host element. `dragstart` is listened here so light
+ *   DOM handle drags are caught before they cross the shadow boundary.
  * @param ctx - Context channel shared with {@link useReorderable}.
+ * @param target - Visual element used as the drag ghost. Defaults to `host`.
  */
 export function useReorderableItem(
   host: ControlledElement,
   ctx: Context<ReorderableContextData>,
+  target: HTMLElement = host,
 ): void {
+  let reorderable = false;
+
   useContext(host, ctx, (data) => {
     if (!data) {
-      host.draggable = false;
+      reorderable = false;
       return undefined;
     }
 
-    host.draggable = data.provider.reorderable;
+    ({ reorderable } = data.provider);
 
     return data.emitter.on((_, newValue) => {
-      host.draggable = newValue !== null;
+      reorderable = newValue !== null;
     });
   });
 
   useEvents(host, {
     dragstart(event: DragEvent) {
-      const hasHandle = event
-        .composedPath()
-        .some(
-          (n): n is HTMLElement =>
-            n instanceof HTMLElement && 'handle' in n.dataset,
-        );
-
-      if (!hasHandle) {
+      if (!reorderable) {
         event.preventDefault();
+        return;
       }
+
+      const { left, top } = target.getBoundingClientRect();
+      event.dataTransfer?.setDragImage(
+        target,
+        event.clientX - left,
+        event.clientY - top,
+      );
     },
   });
 }
