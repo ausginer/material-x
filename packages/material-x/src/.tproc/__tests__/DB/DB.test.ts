@@ -82,8 +82,8 @@ describe('DB', () => {
       [],
     );
 
-    expect(db.isTokenDeprecated(deprecatedToken)).toBe(true);
-    expect(db.isTokenDeprecated(explicitToken)).toBe(true);
+    expect(db.isTokenDeprecated(deprecatedToken)).toBeTruthy();
+    expect(db.isTokenDeprecated(explicitToken)).toBeTruthy();
   });
 
   it('should return tokens for a set', () => {

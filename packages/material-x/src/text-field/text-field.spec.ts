@@ -126,7 +126,7 @@ if (isBrowser) {
 
       await flushDOM();
 
-      expect(input.hasAttribute('aria-describedby')).toBe(false);
+      expect(input.hasAttribute('aria-describedby')).toBeFalsy();
     });
 
     it('should update slot label fallback as label content is added and removed', async () => {
@@ -138,7 +138,7 @@ if (isBrowser) {
 
       const input = getInput(field);
 
-      expect(input.hasAttribute('aria-labelledby')).toBe(false);
+      expect(input.hasAttribute('aria-labelledby')).toBeFalsy();
 
       const label = addSlottedContent(field, 'label', 'Field label');
 
@@ -150,7 +150,7 @@ if (isBrowser) {
 
       await flushDOM();
 
-      expect(input.hasAttribute('aria-labelledby')).toBe(false);
+      expect(input.hasAttribute('aria-labelledby')).toBeFalsy();
     });
 
     it('should keep populated state in sync for value setter and input events', async () => {
@@ -164,7 +164,7 @@ if (isBrowser) {
 
       field.value = 'filled';
 
-      expect(field.isPopulated).toBe(true);
+      expect(field.isPopulated).toBeTruthy();
 
       input.value = '';
       input.dispatchEvent(
@@ -173,7 +173,7 @@ if (isBrowser) {
 
       await flushDOM();
 
-      expect(field.isPopulated).toBe(false);
+      expect(field.isPopulated).toBeFalsy();
     });
   });
 } else {

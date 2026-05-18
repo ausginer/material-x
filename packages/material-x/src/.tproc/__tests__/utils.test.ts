@@ -64,8 +64,8 @@ describe('token utils', () => {
     const notHovered = (path: string) => path !== 'hovered';
     const selector = composeGroupSelectors(tokensOnly, notHovered);
 
-    expect(selector('default', 'container.color')).toBe(true);
-    expect(selector('hovered', 'container.color')).toBe(false);
-    expect(selector('default', 'container.opacity')).toBe(false);
+    expect(selector('default', 'container.color')).toBeTruthy();
+    expect(selector('hovered', 'container.color')).toBeFalsy();
+    expect(selector('default', 'container.opacity')).toBeFalsy();
   });
 });

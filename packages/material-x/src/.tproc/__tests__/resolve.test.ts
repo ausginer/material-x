@@ -5,8 +5,8 @@ import { createToken, createValue, mockDB } from './helpers.ts';
 
 describe('resolve', () => {
   it('should detect linked tokens', () => {
-    expect(isLinkedToken('md.test.token')).toBe(true);
-    expect(isLinkedToken('plain-token')).toBe(false);
+    expect(isLinkedToken('md.test.token')).toBeTruthy();
+    expect(isLinkedToken('plain-token')).toBeFalsy();
   });
 
   it('should resolve color tokens using theme', () => {
