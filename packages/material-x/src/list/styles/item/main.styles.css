@@ -49,6 +49,10 @@ slot:has-slotted {
 :host(:state(lead-large)) {
   --_leading-space: 0;
 }
+/*
+:host(:state(dragged)) {
+  --_level: 6;
+} */
 
 .host {
   all: unset;
@@ -72,6 +76,12 @@ slot:has-slotted {
   font: inherit;
   text-align: start;
   -webkit-tap-highlight-color: transparent;
+
+  /* For shadow */
+  &::before,
+  &::after {
+    content: '';
+  }
 }
 
 .content {

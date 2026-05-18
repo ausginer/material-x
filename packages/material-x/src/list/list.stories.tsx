@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { JSX } from 'react';
+import { useState, type JSX } from 'react';
 import '../button/icon-button.ts';
 import '../icon/icon.ts';
 import css from '../story.module.css';
@@ -225,3 +225,32 @@ export const Media = (): JSX.Element => (
     </mx-list-item>
   </mx-list>
 );
+
+export const Draggable = (): JSX.Element => {
+  const [items, setItems] = useState([
+    'Item 1',
+    'Item 2',
+    'Item 3',
+    'Item 4',
+    'Item 5',
+  ]);
+
+  return (
+    <mx-list
+      reorderable
+      onreorder={({ from, to }) => {
+        const item = items[from]!;
+        setItems(items.filter((i) => i !== item).toSpliced(to, 0, item));
+      }}
+    >
+      {items.map((item) => (
+        <mx-list-item key={item}>
+          <mx-icon draggable slot="lead">
+            drag_handle
+          </mx-icon>
+          {item}
+        </mx-list-item>
+      ))}
+    </mx-list>
+  );
+};

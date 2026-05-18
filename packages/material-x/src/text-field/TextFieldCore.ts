@@ -2,7 +2,11 @@
 import type { EmptyObject } from 'type-fest';
 import ATTR, { Bool, Str, type ConverterOf } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
-import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
+import {
+  transfer,
+  useAttributes,
+  via,
+} from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
 import { useSlot } from 'ydin/controllers/useSlot.js';
 import {
@@ -179,9 +183,9 @@ export class TextFieldCore extends TextFieldCoreBase {
 
     useAttributes(this, {
       inputmode: transfer(input, 'inputmode'),
-      outlined(_, newValue) {
-        toggleState(innards, 'outlined', Bool.from(newValue));
-      },
+      outlined: via(Bool, (_, newValue) => {
+        toggleState(innards, 'outlined', newValue);
+      }),
     });
 
     useTextFieldARIA(this, input);

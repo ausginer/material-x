@@ -4,11 +4,14 @@ import {
   internals,
   type ControlledElementConstructor,
 } from 'ydin/element.js';
+import { useReorderableItem } from 'ydin/traits/reorderable.js';
 import { $, toggleState } from 'ydin/utils/DOM.js';
 import '../core/styles/elevation/elevation.runtime.ts';
+import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import nestedTemplate from './list-item-shared.tpl.html' with { type: 'html' };
+import { LIST_REORDERABLE_CTX } from './list-reorderable-context.ts';
 import defaultStyles from './styles/item/main.css.ts' with { type: 'css' };
 
 export const ListItemCore: ControlledElementConstructor = ControlledElement;
@@ -34,7 +37,7 @@ export function useListItemCore(
   styles: ReadonlyArray<CSSStyleSheet | string> = [defaultStyles],
   init?: Partial<ShadowRootInit>,
 ): HTMLDivElement | HTMLButtonElement | HTMLAnchorElement {
-  useCore(host, [template], { role: 'listitem' }, styles, init);
+  useCore(host, [template], {}, [elevationStyles, ...styles], init);
   const target = $<HTMLDivElement | HTMLButtonElement | HTMLAnchorElement>(
     host,
     '.host',
@@ -42,6 +45,7 @@ export function useListItemCore(
   target.append(nestedTemplate.content.cloneNode(true));
 
   useHasSlottedPolyfill(host);
+  useReorderableItem(host, LIST_REORDERABLE_CTX, target);
 
   useSlot(host, '.lead', (_, nodes) => {
     toggleState(

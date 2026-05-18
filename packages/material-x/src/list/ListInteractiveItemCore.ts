@@ -1,6 +1,6 @@
 import { Bool } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
-import { useAttributes } from 'ydin/controllers/useAttributes.js';
+import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
 import { internals } from 'ydin/element.js';
 import {
   Disableable,
@@ -11,7 +11,6 @@ import { Selectable, type SelectableProps } from 'ydin/traits/selectable.js';
 import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import { toggleState } from 'ydin/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
-import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import {
   ListItemCore,
@@ -47,7 +46,7 @@ export function useInteractiveListItemCore(
   const target = useListItemCore(
     host,
     template,
-    [elevationStyles, focusStyles, defaultStyles, interactiveStyles],
+    [focusStyles, defaultStyles, interactiveStyles],
     { delegatesFocus: true },
   ) as HTMLButtonElement | HTMLAnchorElement;
 
@@ -55,12 +54,12 @@ export function useInteractiveListItemCore(
   useARIA(host, target);
   useRipple(host, target, target);
   useAttributes(host, {
-    selected(_, newValue) {
-      toggleState(internals(host), 'selected', Bool.from(newValue));
-    },
-    disabled(_, newValue) {
-      toggleState(internals(host), 'disabled', Bool.from(newValue));
-    },
+    selected: via(Bool, (_, newValue) => {
+      toggleState(internals(host), 'selected', newValue);
+    }),
+    disabled: via(Bool, (_, newValue) => {
+      toggleState(internals(host), 'disabled', newValue);
+    }),
   });
 
   return target;
