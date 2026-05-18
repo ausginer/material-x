@@ -64,10 +64,6 @@ export type ReorderableContextData = Readonly<{
 const DRAG_OVER_STATE = 'drag-over';
 const DRAGGED_STATE = 'dragged';
 
-function clearState(item: ControlledElement, state: string): void {
-  toggleState(internals(item), state, false);
-}
-
 /**
  * Registers drag-and-drop reorder coordination on a container host.
  *
@@ -128,7 +124,7 @@ export function useReorderable(
       }
 
       draggedItem = target;
-      toggleState(internals(target), DRAGGED_STATE, true);
+      toggleState(internals(host), DRAGGED_STATE, true);
     },
 
     dragover(event: DragEvent) {
@@ -152,7 +148,7 @@ export function useReorderable(
       }
 
       if (dragOverItem) {
-        clearState(dragOverItem, DRAG_OVER_STATE);
+        toggleState(internals(dragOverItem), DRAG_OVER_STATE, false);
       }
 
       dragOverItem = target ?? null;
@@ -166,16 +162,16 @@ export function useReorderable(
       if (!dragOverItem) {
         return;
       }
-      clearState(dragOverItem, DRAG_OVER_STATE);
+      toggleState(internals(dragOverItem), DRAG_OVER_STATE, false);
       dragOverItem = null;
     },
 
     dragend() {
       if (draggedItem) {
-        clearState(draggedItem, DRAGGED_STATE);
+        toggleState(internals(draggedItem), DRAGGED_STATE, false);
       }
       if (dragOverItem) {
-        clearState(dragOverItem, DRAG_OVER_STATE);
+        toggleState(internals(dragOverItem), DRAG_OVER_STATE, false);
       }
       draggedItem = null;
       dragOverItem = null;
@@ -188,10 +184,10 @@ export function useReorderable(
       const target = dragOverItem;
 
       if (draggedItem) {
-        clearState(draggedItem, DRAGGED_STATE);
+        toggleState(internals(draggedItem), DRAGGED_STATE, false);
       }
       if (dragOverItem) {
-        clearState(dragOverItem, DRAG_OVER_STATE);
+        toggleState(internals(dragOverItem), DRAG_OVER_STATE, false);
       }
       draggedItem = null;
       dragOverItem = null;
