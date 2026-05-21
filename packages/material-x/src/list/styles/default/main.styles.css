@@ -4,3 +4,12 @@
   gap: var(--_segmented-gap);
   border-radius: var(--md-list-container-shape, var(--_container-shape));
 }
+
+::slotted(.drag-footprint) {
+  box-sizing: border-box;
+  inline-size: var(--_drag-footprint-inline-size);
+  block-size: var(--_drag-footprint-block-size);
+  border-radius: var(--md-list-container-shape, var(--_container-shape));
+  border: 2px dashed currentColor;
+  opacity: 0.2;
+}

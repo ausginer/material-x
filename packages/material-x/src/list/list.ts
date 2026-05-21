@@ -11,7 +11,6 @@ import {
 } from 'ydin/traits/reorderable.js';
 import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import { useCore } from '../core/utils/useCore.ts';
-import { LIST_REORDERABLE_CTX } from './list-reorderable-context.ts';
 import template from './list.tpl.html' with { type: 'html' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 
@@ -50,7 +49,7 @@ export default class List extends ListCore {
   constructor() {
     super();
     useCore(this, [template], { role: 'list' }, [defaultStyles]);
-    useReorderable(this, LIST_REORDERABLE_CTX);
+    useReorderable(this);
   }
 }
 

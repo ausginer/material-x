@@ -11,7 +11,6 @@ import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { t
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import nestedTemplate from './list-item-shared.tpl.html' with { type: 'html' };
-import { LIST_REORDERABLE_CTX } from './list-reorderable-context.ts';
 import defaultStyles from './styles/item/main.css.ts' with { type: 'css' };
 
 export const ListItemCore: ControlledElementConstructor = ControlledElement;
@@ -45,7 +44,7 @@ export function useListItemCore(
   target.append(nestedTemplate.content.cloneNode(true));
 
   useHasSlottedPolyfill(host);
-  useReorderableItem(host, LIST_REORDERABLE_CTX, target);
+  useReorderableItem(host, target);
 
   useSlot(host, '.lead', (_, nodes) => {
     toggleState(

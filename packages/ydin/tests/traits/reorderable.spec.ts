@@ -1,8 +1,4 @@
 import { describe, expect, it, vi } from 'vitest';
-import {
-  createContext,
-  type Context,
-} from '../../src/controllers/useContext.ts';
 import { useShadowDOM } from '../../src/controllers/useShadowDOM.ts';
 import { ControlledElement, internals } from '../../src/element.ts';
 import {
@@ -10,14 +6,9 @@ import {
   ReorderEvent,
   useReorderable,
   useReorderableItem,
-  type ReorderableContextData,
 } from '../../src/traits/reorderable.ts';
 import { impl } from '../../src/traits/traits.ts';
-import { defineCE, nextFrame, host, nameCE } from '../browser.ts';
-
-function createCtx(): Context<ReorderableContextData> {
-  return createContext<ReorderableContextData>();
-}
+import { defineCE, flushDOM, host, nameCE } from '../browser.ts';
 
 function createListTemplate(): HTMLTemplateElement {
   const template = document.createElement('template');
@@ -27,29 +18,58 @@ function createListTemplate(): HTMLTemplateElement {
 
 const ReorderableCore = impl(ControlledElement, [Reorderable] as const);
 
-function createList(ctx: Context<ReorderableContextData>) {
+function createList() {
   return host(
     {
       init(h) {
         useShadowDOM(h, [createListTemplate()], []);
-        useReorderable(h, ctx);
+        useReorderable(h);
       },
     },
     ReorderableCore,
   );
 }
 
-function createItem(ctx: Context<ReorderableContextData>) {
+function createItem() {
   return host({
     init(h) {
-      useReorderableItem(h, ctx);
+      useReorderableItem(h);
     },
   });
 }
 
-function dispatchDrag(target: HTMLElement, type: string) {
+function pointerdown(target: HTMLElement, clientY = 50, pointerId = 1) {
   target.dispatchEvent(
-    new DragEvent(type, { bubbles: true, composed: true, cancelable: true }),
+    new PointerEvent('pointerdown', {
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+      pointerId,
+      clientX: 0,
+      clientY,
+    }),
+  );
+}
+
+function pointermove(target: HTMLElement, clientY: number, pointerId = 1) {
+  target.dispatchEvent(
+    new PointerEvent('pointermove', {
+      bubbles: true,
+      composed: true,
+      pointerId,
+      clientX: 0,
+      clientY,
+    }),
+  );
+}
+
+function pointerup(target: HTMLElement, pointerId = 1) {
+  target.dispatchEvent(
+    new PointerEvent('pointerup', {
+      bubbles: true,
+      composed: true,
+      pointerId,
+    }),
   );
 }
 
@@ -79,199 +99,148 @@ describe('Reorderable', () => {
   });
 });
 
-describe('useReorderableItem', () => {
-  it('should cancel dragstart when the parent is not reorderable', () => {
-    const ctx = createCtx();
-    const list = createList(ctx);
-    const item = createItem(ctx);
-
-    document.body.append(list);
-    list.append(item);
-
-    const event = new DragEvent('dragstart', {
-      bubbles: true,
-      cancelable: true,
-    });
-    item.dispatchEvent(event);
-
-    expect(event.defaultPrevented).toBeTruthy();
-  });
-
-  it('should allow dragstart when the parent is reorderable', () => {
-    const ctx = createCtx();
-    const list = createList(ctx);
-    const item = createItem(ctx);
-
-    document.body.append(list);
-    list.append(item);
-    list.reorderable = true;
-
-    const event = new DragEvent('dragstart', {
-      bubbles: true,
-      cancelable: true,
-    });
-    item.dispatchEvent(event);
-
-    expect(event.defaultPrevented).toBeFalsy();
-  });
-
-  it('should cancel dragstart when no context is present', () => {
-    const ctx = createCtx();
-    const item = createItem(ctx);
-
-    document.body.append(item);
-
-    const event = new DragEvent('dragstart', {
-      bubbles: true,
-      cancelable: true,
-    });
-    item.dispatchEvent(event);
-
-    expect(event.defaultPrevented).toBeTruthy();
-  });
-});
-
 describe('useReorderable', () => {
   it('should not set dragged state when reorderable is false', async () => {
-    const ctx = createCtx();
-    const list = createList(ctx);
-    const item = createItem(ctx);
+    const list = createList();
+    const item = createItem();
 
     document.body.append(list);
     list.append(item);
-    await nextFrame();
+    await flushDOM();
 
-    dispatchDrag(item, 'dragstart');
+    pointerdown(item);
 
     expect(
       internals(item as unknown as ControlledElement).states.has('dragged'),
     ).toBeFalsy();
   });
 
-  it('should set dragged state on dragstart when reorderable is true', async () => {
-    const ctx = createCtx();
-    const list = createList(ctx);
-    const item = createItem(ctx);
+  it('should set dragged state on pointerdown when reorderable is true', async () => {
+    const list = createList();
+    const item = createItem();
 
     document.body.append(list);
     list.append(item);
     list.reorderable = true;
-    await nextFrame();
+    await flushDOM();
 
-    dispatchDrag(item, 'dragstart');
+    pointerdown(item);
 
     expect(
       internals(item as unknown as ControlledElement).states.has('dragged'),
     ).toBeTruthy();
   });
 
-  it('should set drag-over state on dragover for the target item', async () => {
-    const ctx = createCtx();
-    const list = createList(ctx);
-    const item1 = createItem(ctx);
-    const item2 = createItem(ctx);
+  it('should create a footprint placeholder on pointerdown', async () => {
+    const list = createList();
+    const item = createItem();
+
+    document.body.append(list);
+    list.append(item);
+    list.reorderable = true;
+    await flushDOM();
+
+    pointerdown(item);
+
+    expect(list.querySelector('.drag-footprint')).not.toBeNull();
+  });
+
+  it('should move footprint on pointermove when sibling midpoint is crossed', async () => {
+    const list = createList();
+    const item1 = createItem();
+    const item2 = createItem();
 
     document.body.append(list);
     list.append(item1, item2);
     list.reorderable = true;
-    await nextFrame();
+    await flushDOM();
 
-    dispatchDrag(item1, 'dragstart');
-    dispatchDrag(item2, 'dragover');
+    pointerdown(item1, 10);
 
-    expect(
-      internals(item2 as unknown as ControlledElement).states.has('drag-over'),
-    ).toBeTruthy();
+    const fp = list.querySelector('.drag-footprint')!;
+
+    // Move pointer well below item2 so footprint moves after it
+    pointermove(fp as HTMLElement, 9999);
+
+    // Footprint should now be last child (after item2)
+    expect(list.lastElementChild).toBe(fp);
   });
 
-  it('should clear drag-over state on dragleave', async () => {
-    const ctx = createCtx();
-    const list = createList(ctx);
-    const item1 = createItem(ctx);
-    const item2 = createItem(ctx);
-
-    document.body.append(list);
-    list.append(item1, item2);
-    list.reorderable = true;
-    await nextFrame();
-
-    dispatchDrag(item1, 'dragstart');
-    dispatchDrag(item2, 'dragover');
-    dispatchDrag(list, 'dragleave');
-
-    expect(
-      internals(item2 as unknown as ControlledElement).states.has('drag-over'),
-    ).toBeFalsy();
-  });
-
-  it('should clear all drag states on dragend', async () => {
-    const ctx = createCtx();
-    const list = createList(ctx);
-    const item1 = createItem(ctx);
-    const item2 = createItem(ctx);
-
-    document.body.append(list);
-    list.append(item1, item2);
-    list.reorderable = true;
-    await nextFrame();
-
-    dispatchDrag(item1, 'dragstart');
-    dispatchDrag(item2, 'dragover');
-    dispatchDrag(item1, 'dragend');
-
-    expect(
-      internals(item1 as unknown as ControlledElement).states.has('dragged'),
-    ).toBeFalsy();
-    expect(
-      internals(item2 as unknown as ControlledElement).states.has('drag-over'),
-    ).toBeFalsy();
-  });
-
-  it('should dispatch ReorderEvent with correct indices on drop', async () => {
-    const ctx = createCtx();
-    const list = createList(ctx);
-    const item1 = createItem(ctx);
-    const item2 = createItem(ctx);
-    const item3 = createItem(ctx);
+  it('should dispatch ReorderEvent with correct indices on pointerup', async () => {
+    const list = createList();
+    const item1 = createItem();
+    const item2 = createItem();
+    const item3 = createItem();
 
     document.body.append(list);
     list.append(item1, item2, item3);
     list.reorderable = true;
-    await nextFrame();
+    await flushDOM();
 
     const reorderSpy = vi.fn<(e: Event) => void>();
     list.addEventListener('reorder', reorderSpy);
 
-    dispatchDrag(item1, 'dragstart');
-    dispatchDrag(item3, 'dragover');
-    dispatchDrag(list, 'drop');
+    pointerdown(item1, 10);
+
+    const fp = list.querySelector('.drag-footprint') as HTMLElement;
+
+    // Move footprint after item3
+    pointermove(fp, 9999);
+    pointerup(fp);
+
+    // Wait for the 200ms animation to finish
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 250);
+    });
 
     expect(reorderSpy).toHaveBeenCalledOnce();
 
-    const event = reorderSpy.mock.calls[0]?.[0];
+    const event = reorderSpy.mock.calls[0]?.[0] as ReorderEvent;
     expect(event).toBeInstanceOf(ReorderEvent);
-
-    const reorderEvent = event as ReorderEvent;
-    expect(reorderEvent.item).toBe(item1);
-    expect(reorderEvent.from).toBe(0);
-    expect(reorderEvent.to).toBe(2);
+    expect(event.item).toBe(item1);
+    expect(event.from).toBe(0);
+    expect(event.to).toBe(2);
   });
 
-  it('should not dispatch ReorderEvent when no drag target was set', async () => {
-    const ctx = createCtx();
-    const list = createList(ctx);
-    const item1 = createItem(ctx);
+  it('should not dispatch ReorderEvent when no drag is active', async () => {
+    const list = createList();
+    const item1 = createItem();
 
     document.body.append(list);
     list.append(item1);
     list.reorderable = true;
-    await nextFrame();
+    await flushDOM();
 
     const reorderSpy = vi.fn();
     list.addEventListener('reorder', reorderSpy);
 
-    dispatchDrag(list, 'drop');
+    pointerup(list);
 
     expect(reorderSpy).not.toHaveBeenCalled();
+  });
+
+  it('should clear dragged state on pointercancel', async () => {
+    const list = createList();
+    const item = createItem();
+
+    document.body.append(list);
+    list.append(item);
+    list.reorderable = true;
+    await flushDOM();
+
+    pointerdown(item);
+
+    const fp = list.querySelector('.drag-footprint') as HTMLElement;
+    fp.dispatchEvent(
+      new PointerEvent('pointercancel', { bubbles: true, composed: true }),
+    );
+
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 250);
+    });
+
+    expect(
+      internals(item as unknown as ControlledElement).states.has('dragged'),
+    ).toBeFalsy();
   });
 });

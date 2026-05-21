@@ -2,7 +2,7 @@
   "name": "material-x",
   "image": "ghcr.io/ausginer/devimages/node:latest",
   "workspaceFolder": "/workspaces/material-x",
-  "runArgs": ["--name=materialx_dev"],
+  "runArgs": ["--name=materialx_dev", "-p", "127.0.0.1:2222:2222"],
   "containerEnv": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
@@ -20,6 +20,11 @@
     {
       "source": "${localEnv:HOME}/.claude",
       "target": "/home/node/.claude",
+      "type": "bind"
+    },
+    {
+      "source": "${localEnv:ZED_DEV_SSH}",
+      "target": "/tmp/zed_devcontainer.pub",
       "type": "bind"
     }
   ],
