@@ -7,16 +7,12 @@ import { createFullShapeFix } from '../../../core/styles/utils.ts';
 import {
   createListItemDeclarationRenderer,
   groupListItemTokens,
-  groupListTokens,
-  listAllowedTokensSelector,
   listItemAllowedTokensSelector,
-  listItemBaseTokenSelector,
-  listItemInteractiveTokenSelector,
 } from '../utils.ts';
 
 const SET_NAME = 'md.comp.list';
 
-const SPECIAL_INTERACTIVE_TOKENS = {
+const SPECIAL_TOKENS = {
   'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
   'state-layer.opacity': `${SET_NAME}.pressed.state-layer.opacity`,
   'press.duration': motionEffects['expressive.fast-spatial.duration'],
@@ -25,7 +21,7 @@ const SPECIAL_INTERACTIVE_TOKENS = {
   'ripple.opacity': CSSVariable.ref('state-layer.opacity'),
 };
 
-const SPECIAL_DISABLED_INTERACTIVE_TOKENS = {
+const SPECIAL_DISABLED_TOKENS = {
   opacity: `${SET_NAME}.list-item.disabled.label-text.opacity`,
 };
 
@@ -36,33 +32,14 @@ const fixFullShape: ResolveAdjuster = createFullShapeFix(
 
 const itemRenderer = createListItemDeclarationRenderer();
 
-function createListItemPackage() {
-  return t
+export const listItemTokens: ReadonlySignal<TokenPackage> = computed(() =>
+  t
     .set(SET_NAME)
     .group(groupListItemTokens)
     .select(listItemAllowedTokensSelector)
     .adjustTokens(fixFullShape)
-    .renderDeclarations(itemRenderer);
-}
-
-export const listTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  t
-    .set(SET_NAME)
-    .group(groupListTokens)
-    .select(listAllowedTokensSelector)
-    .adjustTokens(fixFullShape)
+    .renderDeclarations(itemRenderer)
+    .append('default', SPECIAL_TOKENS)
+    .append('disabled', SPECIAL_DISABLED_TOKENS)
     .build(),
-);
-
-export const listItemBaseTokens: ReadonlySignal<TokenPackage> = computed(() =>
-  createListItemPackage().select(listItemBaseTokenSelector).build(),
-);
-
-export const listItemInteractiveTokens: ReadonlySignal<TokenPackage> = computed(
-  () =>
-    createListItemPackage()
-      .select(listItemInteractiveTokenSelector)
-      .append('default', SPECIAL_INTERACTIVE_TOKENS)
-      .append('disabled', SPECIAL_DISABLED_INTERACTIVE_TOKENS)
-      .build(),
 );

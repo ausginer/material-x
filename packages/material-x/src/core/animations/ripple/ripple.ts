@@ -5,13 +5,14 @@
  * Original source is part of Material Web (Apache-2.0), with slight
  * adaptations for this project's style and needs.
  */
-import { useConnected } from 'ydin/controllers/useConnected.js';
+import {
+  useCSSProps,
+  type CSSPropParser,
+  type CSSPropDescription,
+} from 'ydin/controllers/useCSSProps.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
 import type { ControlledElement } from 'ydin/element.js';
-import {
-  readCSSVariables,
-  transformNumericVariable,
-} from 'ydin/utils/readCSSVariables.js';
+import { identity, parseMs, parseNum } from '../../utils/fns.ts';
 import css from './styles/main.css.ts' with { type: 'css' };
 
 type Point = Readonly<{
@@ -43,15 +44,15 @@ const EXIT_OPACITY_DURATION_MS = 150;
 const TOUCH_DELAY_MS = 150;
 const FORCED_COLORS = matchMedia('(forced-colors: active)');
 
-const CSS_VARS = {
-  easing: '--_ripple-easing',
-  duration: '--_ripple-duration',
-  driftEasing: '--_ripple-drift-easing',
-  driftDuration: '--_ripple-drift-duration',
-  opacity: '--_ripple-opacity',
-} as const;
+const CSS_PROPS = {
+  easing: ['--_ripple-easing', identity as CSSPropParser<string>],
+  duration: ['--_ripple-duration', parseMs],
+  driftEasing: ['--_ripple-drift-easing', identity as CSSPropParser<string>],
+  driftDuration: ['--_ripple-drift-duration', parseMs],
+  opacity: ['--_ripple-opacity', parseNum],
+} satisfies Readonly<Record<string, CSSPropDescription<unknown>>>;
 
-export type CSSVariables = Readonly<{
+export type CSSProps = Readonly<{
   easing: string;
   duration: number;
   driftEasing: string;
@@ -170,7 +171,6 @@ export function useRipple(
   rippleHost: HTMLElement = host,
 ): void {
   // @ts-expect-error: Import not correctly typed
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   host.shadowRoot!.adoptedStyleSheets.push(css as CSSStyleSheet);
 
   const rippleElement = document.createElement('div');
@@ -182,25 +182,10 @@ export function useRipple(
   let moveAnimation: Animation | undefined;
   let opacityAnimation: Animation | undefined;
   let animationGeneration = 0;
-  let varValues: CSSVariables;
   let startEvent: PointerEvent | null = null;
   let checkBoundsAfterContextMenu = false;
 
-  useConnected(host, () => {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    varValues = readCSSVariables(host, CSS_VARS, (name, value, h) => {
-      if (name === 'duration' || name === 'driftDuration') {
-        // converting duration to ms
-        return transformNumericVariable(name, value, h) * 1000;
-      }
-
-      if (name === 'opacity') {
-        return parseFloat(value);
-      }
-
-      return value;
-    }) as CSSVariables;
-  });
+  const cssProps = useCSSProps(host, CSS_PROPS);
 
   const startAnimation = () => {
     scaleAnimation?.cancel();
@@ -219,7 +204,7 @@ export function useRipple(
 
     const pxSize = `${size}px`;
 
-    const { easing, duration, driftEasing, driftDuration } = varValues;
+    const { easing, duration, driftEasing, driftDuration } = cssProps();
     const startTranslate = `${startPoint.x}px ${startPoint.y}px`;
     const endTranslate = `${endPoint.x}px ${endPoint.y}px`;
 
@@ -298,7 +283,7 @@ export function useRipple(
 
     opacityAnimation?.cancel();
     opacityAnimation = rippleElement.animate(
-      { opacity: [varValues.opacity, 0] },
+      { opacity: [cssProps().opacity, 0] },
       {
         pseudoElement: '::after',
         duration: EXIT_OPACITY_DURATION_MS,

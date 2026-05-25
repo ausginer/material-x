@@ -1,9 +1,9 @@
-import { renderListItemInteractiveStyles } from '../utils.ts';
-import css from './interactive.styles.css';
-import { listItemInteractiveTokens } from './tokens.ts';
+import { renderListItemSelectableStyles } from '../utils.ts';
+import { listItemTokens } from './tokens.ts';
+import css from './interactive.styles.css' with { type: 'css' };
 
-const tokens = renderListItemInteractiveStyles([listItemInteractiveTokens]);
+const selectableTokens = renderListItemSelectableStyles([listItemTokens]);
 
-const styles: string = [tokens, css].join('\n\n');
+const styles: string = [selectableTokens, css].join('\n\n');
 
 export default styles;

@@ -23,7 +23,7 @@ function createList() {
     {
       init(h) {
         useShadowDOM(h, [createListTemplate()], []);
-        useReorderable(h);
+        useReorderable(h, { duration: 200, easing: 'ease-out' });
       },
     },
     ReorderableCore,

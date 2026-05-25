@@ -19,7 +19,5 @@ export * as selectable from '../src/traits/selectable.ts';
 export * as piirre from '../src/traits/piirre.ts';
 export * as traits from '../src/traits/traits.ts';
 export * as valuable from '../src/traits/valuable.ts';
-export * as CSSVariableError from '../src/utils/CSSVariableError.ts';
 export * as DOM from '../src/utils/DOM.ts';
-export * as readCSSVariables from '../src/utils/readCSSVariables.ts';
 export * as runtime from '../src/utils/runtime.ts';

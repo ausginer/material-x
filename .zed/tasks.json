@@ -1,0 +1,24 @@
+[
+  {
+    "label": "vitest",
+    "command": "bash",
+    "args": [
+      "\"$ZED_WORKTREE_ROOT/.scripts/zed-test.sh\"",
+      "\"$ZED_FILE\"",
+      "\"$ZED_SYMBOL\""
+    ],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "tags": ["js-test"]
+  },
+  {
+    "label": "npm run",
+    "command": "npm",
+    "args": ["run", "$ZED_SYMBOL"],
+    "cwd": "$ZED_DIRNAME",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "tags": ["package-script"]
+  }
+]

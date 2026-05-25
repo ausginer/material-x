@@ -1,3 +1,7 @@
+export function identity<T>(value: T): T {
+  return value;
+}
+
 /**
  * Joins multiple callbacks into a single function that calls them in order.
  *

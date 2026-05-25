@@ -1,4 +1,9 @@
 import {
+  useCSSProps,
+  type CSSPropDescription,
+  type CSSPropParser,
+} from 'ydin/controllers/useCSSProps.js';
+import {
   ControlledElement,
   define,
   type ControlledElementConstructor,
@@ -10,9 +15,15 @@ import {
   type ReorderEvent,
 } from 'ydin/traits/reorderable.js';
 import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+import { identity, parseMs } from '../core/utils/fns.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import template from './list.tpl.html' with { type: 'html' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
+
+const CSS_PROPS = {
+  easing: ['--_drag-easing', identity as CSSPropParser<string>],
+  duration: ['--_drag-duration', parseMs],
+} satisfies Readonly<Record<string, CSSPropDescription<unknown>>>;
 
 export type ListProperties = ReorderableProps;
 export type ListEvents = Readonly<{ reorder: ReorderEvent }>;
@@ -49,7 +60,8 @@ export default class List extends ListCore {
   constructor() {
     super();
     useCore(this, [template], { role: 'list' }, [defaultStyles]);
-    useReorderable(this);
+    const cssProps = useCSSProps(this, CSS_PROPS);
+    useReorderable(this, cssProps);
   }
 }
 

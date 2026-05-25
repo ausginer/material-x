@@ -33,10 +33,16 @@ export type ListItemCoreCSSProperties = Readonly<{
 export function useListItemCore(
   host: ListItemCore,
   template: HTMLTemplateElement,
-  styles: ReadonlyArray<CSSStyleSheet | string> = [defaultStyles],
+  styles: ReadonlyArray<CSSStyleSheet | string> = [],
   init?: Partial<ShadowRootInit>,
 ): HTMLDivElement | HTMLButtonElement | HTMLAnchorElement {
-  useCore(host, [template], {}, [elevationStyles, ...styles], init);
+  useCore(
+    host,
+    [template],
+    {},
+    [elevationStyles, defaultStyles, ...styles],
+    init,
+  );
   const target = $<HTMLDivElement | HTMLButtonElement | HTMLAnchorElement>(
     host,
     '.host',

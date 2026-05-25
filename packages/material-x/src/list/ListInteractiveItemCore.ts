@@ -18,8 +18,6 @@ import {
   type ListItemCoreCSSProperties,
   type ListItemCoreProperties,
 } from './ListItemCore.ts';
-import interactiveStyles from './styles/item/interactive.css.ts' with { type: 'css' };
-import defaultStyles from './styles/item/main.css.ts' with { type: 'css' };
 
 export type ListInteractiveItemCoreProperties = ListItemCoreProperties &
   SelectableProps &
@@ -43,12 +41,9 @@ export function useInteractiveListItemCore(
   host: ListInteractiveItemCore,
   template: HTMLTemplateElement,
 ): HTMLButtonElement | HTMLAnchorElement {
-  const target = useListItemCore(
-    host,
-    template,
-    [focusStyles, defaultStyles, interactiveStyles],
-    { delegatesFocus: true },
-  ) as HTMLButtonElement | HTMLAnchorElement;
+  const target = useListItemCore(host, template, [focusStyles], {
+    delegatesFocus: true,
+  }) as HTMLButtonElement | HTMLAnchorElement;
 
   useDisableable(host, target);
   useARIA(host, target);

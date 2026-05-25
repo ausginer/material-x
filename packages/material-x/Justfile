@@ -1,0 +1,86 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+_eslint := "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts"
+
+# List available recipes
+default:
+    @just --list
+
+# Build material-x (lib + CEM manifest)
+build:
+    just build-prepare
+    just build-lib
+    just build-cem
+
+# Collect CSS custom properties
+build-prepare:
+    node ../../.scripts/css/collect-props.ts
+
+# Build the JS library
+build-lib:
+    tsdown --config tsdown.config.ts
+
+# Build the Custom Elements Manifest
+build-cem:
+    custom-elements-manifest analyze --config cem.config.ts
+
+# Delete build artefacts
+clean-build:
+    node ../../.scripts/package-files.ts clean --package .
+
+# Run publint
+publint:
+    publint
+
+# Generate Storybook themes
+docs-themes:
+    node ../../.scripts/storybook-theme.ts
+
+# Prepare docs (themes + CSS props + CEM, in parallel)
+docs-prepare:
+    concurrently --kill-others-on-fail "just docs-themes" "just build-prepare" "just build-cem"
+
+# Start Storybook dev server
+docs-dev:
+    just docs-prepare
+    node ../../.scripts/storybook.ts dev --config-dir ../../.storybook -h 127.0.0.1 -p 6006 --ci
+
+# Build Storybook site
+docs-build:
+    just docs-prepare
+    node ../../.scripts/storybook.ts build --config-dir ../../.storybook -o ../../.docs
+
+# Run unit and browser tests
+test:
+    vitest run -c vitest.config.ts
+    vitest run -c vitest.browser.config.ts
+
+# Run browser tests
+test-browser:
+    vitest run -c vitest.browser.config.ts
+
+# Type-check
+typecheck:
+    tsgo -p tsconfig.json --noEmit
+
+# Format files (paths are relative to this package)
+fmt *FILES:
+    oxfmt -c ../../.oxfmtrc.json {{ if FILES == "" { "." } else { FILES } }}
+
+# Check formatting without writing
+fmt-check *FILES:
+    oxfmt -c ../../.oxfmtrc.json --check {{ if FILES == "" { "." } else { FILES } }}
+
+# Lint files
+lint *FILES:
+    oxlint {{ if FILES == "" { "." } else { FILES } }}
+    {{ _eslint }} {{ if FILES == "" { "." } else { FILES } }}
+
+# Lint and auto-fix files
+lint-fix *FILES:
+    oxlint --fix {{ if FILES == "" { "." } else { FILES } }}
+    {{ _eslint }} --fix {{ if FILES == "" { "." } else { FILES } }}
+
+# Debug a .css.ts file — prints compiled CSS (path relative to src)
+debug FILE:
+    node ../../.scripts/css/debug.ts {{ FILE }}

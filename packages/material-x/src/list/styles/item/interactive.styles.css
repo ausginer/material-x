@@ -1,6 +1,4 @@
 .host {
-  --_level: var(--_container-elevation);
-
   transition: border-radius
     var(--md-list-item-press-duration, var(--_press-duration))
     var(--md-list-item-press-easing, var(--_press-easing));

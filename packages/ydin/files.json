@@ -5,6 +5,7 @@
     "controllers/useAttributes",
     "controllers/useConnected",
     "controllers/useContext",
+    "controllers/useCSSProps",
     "controllers/useEvents",
     "controllers/useKeyboard",
     "controllers/useMutationObserver",
@@ -24,9 +25,7 @@
     "traits/traits",
     "traits/typeable",
     "traits/valuable",
-    "utils/CSSVariableError",
     "utils/DOM",
-    "utils/readCSSVariables",
     "utils/runtime"
   ],
   "clean": {

@@ -43,7 +43,7 @@ export type ReorderableProps = Props<typeof Reorderable>;
 
 type ReorderableHost = ControlledElement & Reorderable;
 
-const DRAGGED_STATE = 'dragged';
+const DRAGGED_STATE = 'drag';
 
 /**
  * Maps each reorderable item to the inner visual element used as the drag
@@ -63,6 +63,8 @@ const DRAGGING_PROPS = [
   'z-index',
   'transform',
 ];
+
+export type AnimationTiming = Pick<EffectTiming, 'duration' | 'easing'>;
 
 /**
  * Registers pointer-based drag-and-drop reorder coordination on a container
@@ -96,8 +98,10 @@ const DRAGGING_PROPS = [
  */
 export function useReorderable(
   host: ReorderableHost,
+  timing: AnimationTiming | (() => AnimationTiming),
   slotSelector = 'slot',
 ): void {
+  const rectCache = new WeakMap<HTMLElement, DOMRect>();
   let items: readonly ControlledElement[] = [];
   let itemSet = new Set<ControlledElement>();
   let draggedItem: ControlledElement | null | undefined;
@@ -110,7 +114,8 @@ export function useReorderable(
   let currentDeltaX = 0;
   let currentDeltaY = 0;
   let originalIndex = -1;
-  const rectCache = new WeakMap<HTMLElement, DOMRect>();
+  let currentToIndex = -1;
+  let frameRequestHandle = -1;
 
   useSlot<ControlledElement>(host, slotSelector, (_, nodes) => {
     items = nodes.filter(
@@ -119,24 +124,13 @@ export function useReorderable(
     itemSet = new Set(items);
   });
 
-  const computeToIndex = () => {
-    let index = 0;
-
-    for (const child of host.children) {
-      if (child === footprint) {
-        return index;
-      }
-
-      if (
-        child instanceof ControlledElement &&
-        itemSet.has(child) &&
-        child !== draggedItem
-      ) {
-        index += 1;
+  const refreshRects = () => {
+    for (const item of items) {
+      if (item !== draggedItem) {
+        const visual = getItemTarget(item);
+        rectCache.set(visual, visual.getBoundingClientRect());
       }
     }
-
-    return Math.max(0, items.length - 1);
   };
 
   const findInsertionPoint = (pointerY: number): ControlledElement | null => {
@@ -155,18 +149,6 @@ export function useReorderable(
     return null;
   };
 
-  const invalidateRects = (
-    a: ControlledElement | null,
-    b: ControlledElement | null,
-  ) => {
-    for (const item of [a, b]) {
-      if (item) {
-        const visual = getItemTarget(item);
-        rectCache.set(visual, visual.getBoundingClientRect());
-      }
-    }
-  };
-
   const endDrag = async (fireEvent: boolean) => {
     if (!draggedItem || !draggedVisual || !footprint) {
       return;
@@ -175,7 +157,7 @@ export function useReorderable(
     const dragged = draggedItem;
     const visual = draggedVisual;
     const fp = footprint;
-    const toIndex = computeToIndex();
+    const toIndex = currentToIndex;
 
     draggedItem = null;
     draggedVisual = null;
@@ -190,22 +172,25 @@ export function useReorderable(
         { transform: `translate(${currentDeltaX}px, ${currentDeltaY}px)` },
         { transform: `translate(${toDeltaX}px, ${toDeltaY}px)` },
       ],
-      { duration: 200, easing: 'ease-out' },
+      typeof timing === 'function' ? timing() : timing,
     );
-
-    await animation.finished;
-
-    fp.replaceWith(dragged);
-
-    for (const prop of DRAGGING_PROPS) {
-      visual.style.removeProperty(prop);
-    }
 
     toggleState(internals(dragged), DRAGGED_STATE, false);
 
-    if (fireEvent) {
-      host.dispatchEvent(new ReorderEvent(dragged, originalIndex, toIndex));
-    }
+    await animation.finished;
+
+    cancelAnimationFrame(frameRequestHandle);
+    frameRequestHandle = requestAnimationFrame(() => {
+      fp.replaceWith(dragged);
+
+      for (const prop of DRAGGING_PROPS) {
+        visual.style.removeProperty(prop);
+      }
+
+      if (fireEvent) {
+        host.dispatchEvent(new ReorderEvent(dragged, originalIndex, toIndex));
+      }
+    });
   };
 
   useEvents(host, {
@@ -237,9 +222,10 @@ export function useReorderable(
       currentDeltaX = 0;
       currentDeltaY = 0;
       originalIndex = items.indexOf(draggedItem);
+      currentToIndex = originalIndex;
 
       footprint = document.createElement('div');
-      footprint.classList.add('drag-footprint');
+      footprint.dataset['footprint'] = '';
       footprint.style.inlineSize = `${width}px`;
       footprint.style.blockSize = `${height}px`;
       footprint.setAttribute('aria-hidden', 'true');
@@ -251,12 +237,7 @@ export function useReorderable(
       draggedVisual.style.width = `${width}px`;
       draggedVisual.style.zIndex = '9999';
 
-      for (const item of items) {
-        if (item !== draggedItem) {
-          const visual = getItemTarget(item);
-          rectCache.set(visual, visual.getBoundingClientRect());
-        }
-      }
+      refreshRects();
 
       footprint.setPointerCapture(event.pointerId);
       toggleState(internals(draggedItem), DRAGGED_STATE, true);
@@ -280,21 +261,36 @@ export function useReorderable(
         return;
       }
 
-      const insertBefore = findInsertionPoint(event.clientY);
-      const next = footprint.nextElementSibling;
+      const pointerY = event.clientY;
 
-      if (next !== insertBefore) {
-        invalidateRects(
-          next instanceof ControlledElement ? next : null,
-          insertBefore,
-        );
-
-        if (insertBefore) {
-          insertBefore.before(footprint);
-        } else {
-          host.append(footprint);
+      cancelAnimationFrame(frameRequestHandle);
+      frameRequestHandle = requestAnimationFrame(() => {
+        if (!draggedVisual || !footprint) {
+          return;
         }
-      }
+
+        const insertBefore = findInsertionPoint(pointerY);
+
+        if (footprint.nextElementSibling !== insertBefore) {
+          if (insertBefore) {
+            insertBefore.before(footprint);
+            let idx = 0;
+            for (const item of items) {
+              if (item === insertBefore) {
+                break;
+              }
+              if (item !== draggedItem) {
+                idx += 1;
+              }
+            }
+            currentToIndex = idx;
+          } else {
+            host.append(footprint);
+            currentToIndex = items.length - 1;
+          }
+          refreshRects();
+        }
+      });
     },
 
     pointerup() {

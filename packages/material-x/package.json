@@ -23,6 +23,26 @@
     "text-field"
   ],
   "type": "module",
+  "scripts": {
+    "build": "just build",
+    "build:prepare": "just build-prepare",
+    "build:lib": "just build-lib",
+    "build:cem": "just build-cem",
+    "clean:build": "just clean-build",
+    "build:props": "just build-prepare",
+    "docs:themes": "just docs-themes",
+    "docs:prepare": "just docs-prepare",
+    "docs:dev": "just docs-dev",
+    "docs:build": "just docs-build",
+    "publint": "just publint",
+    "typecheck": "just typecheck",
+    "fmt": "just fmt",
+    "fmt:check": "just fmt-check",
+    "lint": "just lint",
+    "lint:fix": "just lint-fix",
+    "test": "just test",
+    "test:browser": "just test-browser"
+  },
   "exports": {
     "./button/button.js": {
       "types": "./button/button.d.ts",
@@ -92,26 +112,6 @@
       "types": "./react.d.ts"
     },
     "./package.json": "./package.json"
-  },
-  "scripts": {
-    "build": "just build-mx",
-    "build:prepare": "just build-prepare-mx",
-    "build:lib": "just build-lib-mx",
-    "build:cem": "just build-cem-mx",
-    "clean:build": "just clean-build-mx",
-    "build:props": "just build-prepare-mx",
-    "docs:themes": "just docs-themes-mx",
-    "docs:prepare": "just docs-prepare-mx",
-    "docs:dev": "just docs-dev-mx",
-    "docs:build": "just docs-build-mx",
-    "publint": "just publint",
-    "typecheck": "just typecheck-mx",
-    "fmt": "just fmt-mx",
-    "fmt:check": "just fmt-check-mx",
-    "lint": "just lint-mx",
-    "lint:fix": "just lint-fix-mx",
-    "test": "just test-mx",
-    "test:browser": "just test-mx-browser"
   },
   "dependencies": {
     "type-fest": "5.5.0",

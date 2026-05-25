@@ -1,8 +1,8 @@
-import { renderListItemBaseStyles } from '../utils.ts';
+import { renderListItemStyles } from '../utils.ts';
 import css from './main.styles.css';
-import { listItemBaseTokens } from './tokens.ts';
+import { listItemTokens } from './tokens.ts';
 
-const tokens = renderListItemBaseStyles([listItemBaseTokens]);
+const tokens = renderListItemStyles([listItemTokens]);
 
 const styles: string = [tokens, css].join('\n\n');
 

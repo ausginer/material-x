@@ -147,3 +147,20 @@ export function switchState(
     internals.states.add(newState);
   }
 }
+
+export class FrameRequestHandler {
+  #scheduled = false;
+  #handle = -1;
+
+  schedule(callback: FrameRequestCallback): void {
+    if (!this.#scheduled) {
+      this.#handle = requestAnimationFrame(callback);
+      this.#scheduled = true;
+    }
+  }
+
+  cancel(): void {
+    cancelAnimationFrame(this.#handle);
+    this.#scheduled = false;
+  }
+}

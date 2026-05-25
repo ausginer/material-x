@@ -17,8 +17,10 @@
     --md-list-item-container-height,
     var(--_one-line-container-height)
   );
+  --_level: var(--_container-elevation, 0);
 
   display: contents;
+  transition: --_level var(--_drag-duration) var(--_drag-easing);
 }
 
 slot {
@@ -49,10 +51,6 @@ slot:has-slotted {
 :host(:state(lead-large)) {
   --_leading-space: 0;
 }
-/*
-:host(:state(dragged)) {
-  --_level: 6;
-} */
 
 .host {
   all: unset;

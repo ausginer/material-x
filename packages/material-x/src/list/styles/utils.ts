@@ -14,6 +14,7 @@ export const LIST_ITEM_STATES = [
   'default',
   'hovered',
   'focused',
+  'dragged',
   'pressed',
   'disabled',
 ] as const;
@@ -23,7 +24,7 @@ export const LIST_ITEM_SELECTION_STATES = ['unselected', 'selected'] as const;
 const STATE_MAP: Readonly<Record<string, Param | readonly Param[]>> = {
   hovered: pseudoClass('hover'),
   focused: [pseudoClass('focus-within'), pseudoClass('state', 'selected')],
-  dragged: pseudoClass('drag'),
+  dragged: pseudoClass('state', 'drag'),
   pressed: pseudoClass('active'),
   disabled: pseudoClass('state', 'disabled'),
 };
@@ -73,6 +74,13 @@ export function groupListTokens(tokenName: string): GroupResult | null {
     tokenName,
   };
 }
+
+export const listAllowedTokensSelector: GroupSelector =
+  createAllowedTokensSelector([
+    'container.color',
+    'container.shape',
+    'segmented.gap',
+  ]);
 
 export const listItemAllowedTokensSelector: GroupSelector =
   createAllowedTokensSelector([
@@ -128,8 +136,6 @@ export const listItemAllowedTokensSelector: GroupSelector =
     'shadow.color',
     'small.leading-video.height',
     'small.leading-video.width',
-    'state-layer.color',
-    'state-layer.opacity',
     'supporting-text',
     'supporting-text.color',
     'supporting-text.font',
@@ -152,48 +158,6 @@ export const listItemAllowedTokensSelector: GroupSelector =
     'trailing-supporting-text.type',
     'trailing-supporting-text.weight',
     'two-line.container.height',
-  ]);
-
-const INTERACTIVE_DEFAULT_TOKENS = new Set([
-  'container.elevation',
-  'focus-indicator.color',
-  'focus-indicator.outline.offset',
-  'focus-indicator.thickness',
-  'press.duration',
-  'press.easing',
-  'ripple.color',
-  'ripple.opacity',
-  'shadow.color',
-  'state-layer.color',
-  'state-layer.opacity',
-]);
-
-export function listItemBaseTokenSelector(
-  path: string,
-  tokenName?: string,
-): boolean {
-  return (
-    path === 'default' &&
-    tokenName != null &&
-    !INTERACTIVE_DEFAULT_TOKENS.has(tokenName)
-  );
-}
-
-export function listItemInteractiveTokenSelector(
-  path: string,
-  tokenName?: string,
-): boolean {
-  return (
-    path !== 'default' ||
-    (tokenName != null && INTERACTIVE_DEFAULT_TOKENS.has(tokenName))
-  );
-}
-
-export const listAllowedTokensSelector: GroupSelector =
-  createAllowedTokensSelector([
-    'container.color',
-    'container.shape',
-    'segmented.gap',
   ]);
 
 export function createListItemDeclarationRenderer(): DeclarationBlockRenderer {
@@ -222,15 +186,7 @@ export function createListItemDeclarationRenderer(): DeclarationBlockRenderer {
   };
 }
 
-export function renderListItemBaseStyles(
-  tokens: ReadonlyArray<ReadonlySignal<TokenPackage>>,
-): string {
-  return tokens
-    .map((pack) => pack.value.render({ state: 'default' }))
-    .join('\n\n');
-}
-
-export function renderListItemInteractiveStyles(
+export function renderListItemStyles(
   tokens: ReadonlyArray<ReadonlySignal<TokenPackage>>,
 ): string {
   return LIST_ITEM_STATES.flatMap((state) =>
