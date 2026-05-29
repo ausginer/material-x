@@ -1,5 +1,6 @@
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
+[private]
 _eslint := "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts"
 
 # List available recipes

@@ -1,5 +1,6 @@
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
+[private]
 _eslint := "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts"
 
 # List available recipes
@@ -24,11 +25,11 @@ docs-api-build:
 
 # Run browser tests
 test-browser *ARGS:
-    vitest run -c vitest.browser.config.ts {{ARGS}}
+    vitest run -c vitest.browser.config.ts {{ ARGS }}
 
 # Run browser tests in inspect/debug mode
 test-browser-inspect *ARGS:
-    vitest run --inspect-brk -c vitest.browser.config.ts {{ARGS}}
+    vitest run --inspect-brk -c vitest.browser.config.ts {{ ARGS }}
 
 # Type-check
 typecheck:
