@@ -1,4 +1,3 @@
-// oxlint-disable typescript/promise-function-async
 // oxlint-disable import/no-mutable-exports
 import type { Constructor } from 'type-fest';
 import {

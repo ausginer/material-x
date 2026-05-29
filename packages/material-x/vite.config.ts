@@ -1,4 +1,3 @@
-/* eslint-disable import-x/no-relative-packages */
 import { parseArgs } from 'node:util';
 import react from '@vitejs/plugin-react';
 import { defineConfig, mergeConfig, type UserConfigFnObject } from 'vite';

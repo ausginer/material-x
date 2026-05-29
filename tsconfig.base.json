@@ -31,13 +31,6 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitOverride": true,
     "noImplicitAny": true,
-    "useUnknownInCatchVariables": true,
-    "paths": {
-      "ydin/package.json": ["./packages/ydin/package.json"],
-      "ydin/*.js": ["./packages/ydin/src/*.ts"],
-      "ydin/controllers/*.js": ["./packages/ydin/src/controllers/*.ts"],
-      "ydin/traits/*.js": ["./packages/ydin/src/traits/*.ts"],
-      "ydin/utils/*.js": ["./packages/ydin/src/utils/*.ts"]
-    }
+    "useUnknownInCatchVariables": true
   }
 }

@@ -22,6 +22,7 @@ const config: StorybookConfig = {
   },
   core: {
     disableTelemetry: true,
+    allowedHosts: true,
     builder: {
       name: '@storybook/builder-vite',
       options: {

@@ -43,7 +43,7 @@ docs-prepare:
 # Start Storybook dev server
 docs-dev:
     just docs-prepare
-    node ../../.scripts/storybook.ts dev --config-dir ../../.storybook -h 127.0.0.1 -p 6006 --ci
+    node ../../.scripts/storybook.ts dev --config-dir ../../.storybook -h 0.0.0.0 -p 6006 --ci
 
 # Build Storybook site
 docs-build:

@@ -75,7 +75,6 @@ export class EventEmitter<T extends readonly unknown[]> {
   emit(...data: T): void {
     forEachMaybePromise(
       this.#dependencies.values(),
-      // oxlint-disable-next-line typescript/promise-function-async
       (subscriber) => subscriber(...data),
       this.#handler,
     );
