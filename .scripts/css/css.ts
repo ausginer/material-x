@@ -1,7 +1,6 @@
 import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import MagicString from 'magic-string';
-import type { SourceMap } from 'rollup';
+import { RolldownMagicString, type SourceMapInput } from 'rolldown';
 import { cssCache, escapeTemplateLiteral, type JSONModule } from '../utils.ts';
 import format from './format.ts';
 import transform from './transform.ts';
@@ -15,7 +14,7 @@ const { default: propList }: JSONModule<Readonly<Record<string, string>>> =
 
 export type CSSCompilationResult = Readonly<{
   code: string;
-  map?: SourceMap;
+  map?: SourceMapInput;
   urls?: readonly URL[];
 }>;
 
@@ -61,16 +60,18 @@ export async function compileCSS(
   }
 
   const escaped = escapeTemplateLiteral(processedCode);
-  const m = new MagicString(escaped);
+  const m = new RolldownMagicString(escaped);
   m.prepend('const css = new CSSStyleSheet();css.replaceSync(`');
   m.append('`);export default css;');
 
   const compiled = m.toString();
-  const compiledMap = m.generateMap({
-    hires: true,
-    source: cssPath,
-    includeContent: true,
-  });
+  const compiledMap = m
+    .generateMap({
+      hires: true,
+      source: cssPath,
+      includeContent: true,
+    })
+    .toString();
 
   return {
     code: compiled,

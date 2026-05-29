@@ -10,7 +10,6 @@ import hasSlottedFallbackVisitor from './hasSlottedFallbackVisitor.ts';
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-// oxlint-disable-next-line typescript/no-empty-object-type
 export type TransformOptions<C extends CustomAtRules = {}> = Readonly<{
   sourceMap?: boolean;
   minify?: boolean;

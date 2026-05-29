@@ -19,7 +19,7 @@
 - Always use `AbortController` instead of `removeEventListener` where applicable.
 - Always use `{ once: true }` instead of `removeEventListener` where applicable.
 - All top-level functions should be declared via `function` unless they are a product of another function. All internal functions (e.g., created inside another function) should be declared via arrow functions. Note: this rule doesn't apply to object methods, they should remain shorthand as much as possible.
-- Never use `sync` versions of `node:fs`.
+- Never use `sync` versions of `node:fs` unless there is truly no async alternative (e.g. `registerHooks` from `node:module` requires synchronous hooks — that is the only known exception).
 
 ### Unit-tests
 

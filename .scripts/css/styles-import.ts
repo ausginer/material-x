@@ -1,21 +1,23 @@
-import { readFile } from 'node:fs/promises';
-import { register, type LoadHook } from 'node:module';
+import { readFileSync } from 'node:fs';
+import { registerHooks } from 'node:module';
 import { escapeTemplateLiteral } from '../utils.ts';
 
 const EXT = '.styles.css';
 
-register(import.meta.url);
+// registerHooks requires synchronous hooks — readFileSync is the only option
+// here.
+registerHooks({
+  load(url, context, nextLoad) {
+    if (url.endsWith(EXT)) {
+      const result = readFileSync(new URL(url), 'utf8');
 
-export const load: LoadHook = async (url, context, nextLoad) => {
-  if (url.endsWith(EXT)) {
-    const result = await readFile(new URL(url), 'utf8');
+      return {
+        format: 'module',
+        shortCircuit: true,
+        source: `export default \`${escapeTemplateLiteral(result)}\``,
+      };
+    }
 
-    return {
-      format: 'module',
-      shortCircuit: true,
-      source: `export default \`${escapeTemplateLiteral(result)}\``,
-    };
-  }
-
-  return await nextLoad(url, context);
-};
+    return nextLoad(url, context);
+  },
+});

@@ -1,6 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { posix } from 'node:path';
-import { resolve } from 'node:path';
+import { resolve, posix } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import type { UserConfig } from 'tsdown';

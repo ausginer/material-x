@@ -1,6 +1,6 @@
 import { glob, mkdir, readFile, writeFile } from 'node:fs/promises';
-import { register } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import './styles-import.ts';
 import { execPattern, root, src, type JSModule } from '../utils.ts';
 
 const srcDir = src;
@@ -9,8 +9,6 @@ const cacheDir = new URL('node_modules/.cache/css/', root);
 const registry = new Set<string>();
 
 const CSS_VARIABLE_NAME_REGEXP = /(--_[\w-]+)/gu;
-
-register('./styles-import.ts', import.meta.url);
 
 for await (const filename of glob(['**/*.css.ts', '**/*.ctr.css'], {
   cwd: srcDir,
@@ -37,12 +35,10 @@ function* createLetterProvider(): Generator<string, undefined, void> {
   const letters = 'abcdefghijklmnopqrstuvwxyz';
   let length = 1;
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     const indexes = Array.from({ length }, () => 0);
     const lastIndex = letters.length - 1;
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     while (true) {
       yield indexes.map((i) => letters[i]).join('');
 
@@ -82,4 +78,5 @@ await writeFile(
   'utf8',
 );
 
+// oxlint-disable-next-line no-console
 console.log('Created CSS private properties list: ', listFile.toString());

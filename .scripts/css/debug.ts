@@ -1,12 +1,11 @@
 // oxlint-disable no-console
-/* eslint-disable import-x/no-relative-packages */
-import { register } from 'node:module';
 import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import processTokenSet from '../../packages/material-x/src/.tproc/processTokenSet.ts';
 import { materialXRoot, root } from '../utils.ts';
 import format from './format.ts';
+import './styles-import.ts';
 import transform from './transform.ts';
 
 interface JSModule<T> {
@@ -24,8 +23,6 @@ const {
 });
 
 if (file) {
-  register('./styles-import.ts', import.meta.url);
-
   const url = file.startsWith('src/')
     ? new URL(file.slice(4), new URL('src/', materialXRoot))
     : new URL(file, root);

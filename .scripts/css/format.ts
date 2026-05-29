@@ -1,4 +1,5 @@
-import { format as fmt, type FormatOptions } from 'oxfmt';
+// oxlint-disable no-console
+import { format as fmt, type FormatConfig } from 'oxfmt';
 import oxfmtConfig from '../../.oxfmtrc.json' with { type: 'json' };
 
 export default async function format(
@@ -8,9 +9,7 @@ export default async function format(
   const { code, errors } = await fmt(
     fileName,
     input,
-
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    oxfmtConfig as FormatOptions,
+    oxfmtConfig as FormatConfig,
   );
 
   if (errors.length > 0) {
