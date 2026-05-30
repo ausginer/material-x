@@ -51,7 +51,9 @@ export class EventEmitter<T extends readonly unknown[]> {
    */
   on(callback: UpdateCallback<T>): Unsubscribe {
     this.#dependencies.add(callback);
-    return () => this.#dependencies.delete(callback);
+    return () => {
+      this.#dependencies.delete(callback);
+    };
   }
 
   /**

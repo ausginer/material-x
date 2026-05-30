@@ -1,3 +1,4 @@
+/* eslint-disable import-x/order */
 import { renderListItemSelectableStyles } from '../utils.ts';
 import { listItemTokens } from './tokens.ts';
 import css from './interactive.styles.css' with { type: 'css' };

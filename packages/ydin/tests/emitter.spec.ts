@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
-import { EventEmitter } from '../src/emitter.ts';
+import { describe, expect, it, vi, type Mock } from 'vitest';
+import { EventEmitter, type ErrorHandler } from '../src/emitter.ts';
 
 async function nextMicrotask(): Promise<void> {
   return await Promise.resolve();
@@ -84,7 +84,7 @@ describe('EventEmitter', () => {
     const subscriber = vi.fn(() => {
       throw error;
     });
-    const handler = vi.fn();
+    const handler: Mock<ErrorHandler> = vi.fn();
 
     emitter.on(subscriber);
     emitter.err(handler);
@@ -102,7 +102,7 @@ describe('EventEmitter', () => {
       throw error;
     });
     const secondSubscriber = vi.fn();
-    const handler = vi.fn();
+    const handler: Mock<ErrorHandler> = vi.fn();
 
     emitter.on(firstSubscriber);
     emitter.on(secondSubscriber);
@@ -120,7 +120,7 @@ describe('EventEmitter', () => {
     const emitter = new EventEmitter<[string]>();
     const error = new Error('async subscriber error');
     const subscriber = vi.fn(async () => await Promise.reject(error));
-    const handler = vi.fn();
+    const handler: Mock<ErrorHandler> = vi.fn();
 
     emitter.on(subscriber);
     emitter.err(handler);
@@ -137,7 +137,7 @@ describe('EventEmitter', () => {
     const error = new Error('async subscriber error');
     const firstSubscriber = vi.fn(async () => await Promise.reject(error));
     const secondSubscriber = vi.fn();
-    const handler = vi.fn();
+    const handler: Mock<ErrorHandler> = vi.fn();
 
     emitter.on(firstSubscriber);
     emitter.on(secondSubscriber);

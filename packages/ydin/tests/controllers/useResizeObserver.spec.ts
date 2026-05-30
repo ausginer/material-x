@@ -1,5 +1,5 @@
 // oxlint-disable no-new
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { useResizeObserver } from '../../src/controllers/useResizeObserver.ts';
 import { ControlledElement } from '../../src/element.ts';
 import { defineCE, nameCE } from '../browser.ts';
@@ -48,7 +48,11 @@ describe('useResizeObserver', () => {
     const Host = class extends ControlledElement {
       constructor() {
         super();
-        useResizeObserver(this, vi.fn(), options);
+        useResizeObserver(
+          this,
+          vi.fn() satisfies Mock<ResizeObserverCallback>,
+          options,
+        );
       }
     };
     const tag = nameCE();
@@ -71,10 +75,12 @@ describe('useResizeObserver', () => {
     const Host = class extends ControlledElement {
       constructor() {
         super();
-        useResizeObserver(this, vi.fn(), { box: 'border-box' }, [
-          first,
-          second,
-        ]);
+        useResizeObserver(
+          this,
+          vi.fn() satisfies Mock<ResizeObserverCallback>,
+          { box: 'border-box' },
+          [first, second],
+        );
       }
     };
     const tag = nameCE();
@@ -98,7 +104,12 @@ describe('useResizeObserver', () => {
     const Host = class extends ControlledElement {
       constructor() {
         super();
-        useResizeObserver(this, vi.fn(), options, [target]);
+        useResizeObserver(
+          this,
+          vi.fn() satisfies Mock<ResizeObserverCallback>,
+          options,
+          [target],
+        );
       }
     };
     const tag = nameCE();
@@ -115,7 +126,11 @@ describe('useResizeObserver', () => {
     const Host = class extends ControlledElement {
       constructor() {
         super();
-        useResizeObserver(this, vi.fn(), { box: 'content-box' });
+        useResizeObserver(
+          this,
+          vi.fn() satisfies Mock<ResizeObserverCallback>,
+          { box: 'content-box' },
+        );
       }
     };
     const tag = nameCE();
@@ -135,7 +150,11 @@ describe('useResizeObserver', () => {
     const Host = class extends ControlledElement {
       constructor() {
         super();
-        useResizeObserver(this, vi.fn(), { box: 'content-box' });
+        useResizeObserver(
+          this,
+          vi.fn() satisfies Mock<ResizeObserverCallback>,
+          { box: 'content-box' },
+        );
       }
     };
     const tag = nameCE();
@@ -157,7 +176,11 @@ describe('useResizeObserver', () => {
     const Host = class extends ControlledElement {
       constructor() {
         super();
-        observer = useResizeObserver(this, vi.fn(), { box: 'content-box' });
+        observer = useResizeObserver(
+          this,
+          vi.fn() satisfies Mock<ResizeObserverCallback>,
+          { box: 'content-box' },
+        );
       }
     };
     const tag = nameCE();

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, type Mock } from 'vitest';
 import {
   useDisableableLinkable,
   useLinkable,
@@ -133,7 +133,7 @@ describe('useDisableableLinkable', () => {
 
   it('should prevent disabled click activation', () => {
     const native = document.createElement('a');
-    const click = vi.fn();
+    const click: Mock<EventListener> = vi.fn();
     const el = host({
       observed: DISABLEABLE_LINKABLE_ATTRS,
       init(h) {

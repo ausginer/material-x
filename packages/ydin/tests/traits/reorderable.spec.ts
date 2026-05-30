@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, type Mock } from 'vitest';
 import { useShadowDOM } from '../../src/controllers/useShadowDOM.ts';
 import { ControlledElement, internals } from '../../src/element.ts';
 import {
@@ -211,7 +211,7 @@ describe('useReorderable', () => {
     list.reorderable = true;
     await flushDOM();
 
-    const reorderSpy = vi.fn();
+    const reorderSpy: Mock<EventListener> = vi.fn();
     list.addEventListener('reorder', reorderSpy);
 
     pointerup(list);

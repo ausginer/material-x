@@ -49,11 +49,8 @@ export const FABLike: Trait<
   typeof $fabLike
 > = trait(
   {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     size: Str as ConverterOf<FABSize>,
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     color: Str as ConverterOf<FABColor>,
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     extended: Str as ConverterOf<FABExtended>,
     tonal: Bool,
   },
@@ -144,7 +141,8 @@ export default class FAB extends FABCore {
       },
       color: (oldValue, newValue) => switchState(innards, oldValue, newValue),
       size: (oldValue, newValue) => switchState(innards, oldValue, newValue),
-      tonal: (_, newValue) => toggleState(innards, 'tonal', Bool.from(newValue)),
+      tonal: (_, newValue) =>
+        toggleState(innards, 'tonal', Bool.from(newValue)),
     });
   }
 }

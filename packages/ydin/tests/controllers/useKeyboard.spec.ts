@@ -1,5 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
-import { useKeyboard } from '../../src/controllers/useKeyboard.ts';
+import { describe, expect, it, vi, type Mock } from 'vitest';
+import {
+  useKeyboard,
+  type KeyboardListener,
+} from '../../src/controllers/useKeyboard.ts';
 import { ControlledElement } from '../../src/element.ts';
 import { defineCE, nameCE } from '../browser.ts';
 
@@ -26,7 +29,7 @@ function createHost(
 
 describe('useKeyboard', () => {
   it('should call the down listener for a matching keydown event', () => {
-    const down = vi.fn();
+    const down: Mock<KeyboardListener> = vi.fn();
     const [Host] = createHost({ Enter: { down } });
     const tag = nameCE();
 
@@ -41,7 +44,7 @@ describe('useKeyboard', () => {
   });
 
   it('should call the up listener for a matching keyup event', () => {
-    const up = vi.fn();
+    const up: Mock<KeyboardListener> = vi.fn();
     const [Host] = createHost({ Enter: { up } });
     const tag = nameCE();
 
@@ -56,7 +59,7 @@ describe('useKeyboard', () => {
   });
 
   it('should ignore keys without listeners', () => {
-    const down = vi.fn();
+    const down: Mock<KeyboardListener> = vi.fn();
     const [Host] = createHost({ Enter: { down } });
     const tag = nameCE();
 
@@ -71,7 +74,7 @@ describe('useKeyboard', () => {
   });
 
   it('should not call the wrong phase listener', () => {
-    const down = vi.fn();
+    const down: Mock<KeyboardListener> = vi.fn();
     const [Host] = createHost({ Enter: { down } });
     const tag = nameCE();
 
@@ -86,7 +89,7 @@ describe('useKeyboard', () => {
   });
 
   it('should attach keyboard listeners to a custom target when provided', () => {
-    const down = vi.fn();
+    const down: Mock<KeyboardListener> = vi.fn();
     const target = document.createElement('button');
     const Host = class extends ControlledElement {
       constructor() {

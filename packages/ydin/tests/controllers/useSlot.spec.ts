@@ -25,7 +25,7 @@ describe('useSlot', () => {
     mock: Mock<SlotControllerUpdateCallback<Node>>,
     ctr: Constructor<HTMLElement>,
   ] {
-    const mock = vi.fn();
+    const mock: Mock<SlotControllerUpdateCallback<Node>> = vi.fn();
 
     return [
       mock,
@@ -43,7 +43,7 @@ describe('useSlot', () => {
     mock: Mock<SlotControllerUpdateCallback<Node>>,
     ctr: Constructor<HTMLElement>,
   ] {
-    const mock = vi.fn();
+    const mock: Mock<SlotControllerUpdateCallback<Node>> = vi.fn();
 
     return [
       mock,
@@ -61,7 +61,7 @@ describe('useSlot', () => {
     mock: Mock<SlotControllerUpdateCallback<Node>>,
     ctr: Constructor<HTMLElement>,
   ] {
-    const mock = vi.fn();
+    const mock: Mock<SlotControllerUpdateCallback<Node>> = vi.fn();
 
     return [
       mock,
@@ -80,8 +80,8 @@ describe('useSlot', () => {
     namedMock: Mock<SlotControllerUpdateCallback<Node>>,
     ctr: Constructor<HTMLElement>,
   ] {
-    const defaultMock = vi.fn();
-    const namedMock = vi.fn();
+    const defaultMock: Mock<SlotControllerUpdateCallback<Node>> = vi.fn();
+    const namedMock: Mock<SlotControllerUpdateCallback<Node>> = vi.fn();
 
     return [
       defaultMock,

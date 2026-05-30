@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { useMutationObserver } from '../../src/controllers/useMutationObserver.ts';
 import { host } from '../browser.ts';
 
@@ -97,7 +97,9 @@ describe('useMutationObserver', () => {
     const instances = mockMutationObserver();
     const el = host({
       init(h) {
-        useMutationObserver(h, vi.fn(), { attributes: true });
+        useMutationObserver(h, vi.fn() satisfies Mock<MutationCallback>, {
+          attributes: true,
+        });
       },
     });
 
@@ -111,7 +113,9 @@ describe('useMutationObserver', () => {
     const instances = mockMutationObserver();
     const el = host({
       init(h) {
-        useMutationObserver(h, vi.fn(), { attributes: true });
+        useMutationObserver(h, vi.fn() satisfies Mock<MutationCallback>, {
+          attributes: true,
+        });
       },
     });
 

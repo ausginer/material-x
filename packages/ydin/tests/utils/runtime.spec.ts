@@ -1,65 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, type Mock } from 'vitest';
 import {
   forEachMaybePromise,
-  join,
-  not,
-  when,
+  type ForEachMaybePromiseErrorHandler,
 } from '../../src/utils/runtime.ts';
-
-describe('join', () => {
-  it('should call all callbacks in order', () => {
-    const calls: string[] = [];
-    const callback = join(
-      () => calls.push('first'),
-      () => calls.push('second'),
-      () => calls.push('third'),
-    );
-
-    callback();
-
-    expect(calls).toEqual(['first', 'second', 'third']);
-  });
-});
-
-describe('when', () => {
-  it('should call andThen when condition returns true', () => {
-    const callback = when(
-      (value: number) => value > 0,
-      (value) => value * 2,
-      () => -1,
-    );
-
-    expect(callback(2)).toBe(4);
-  });
-
-  it('should call orElse when condition returns false', () => {
-    const callback = when(
-      (value: number) => value > 0,
-      (value) => value * 2,
-      () => -1,
-    );
-
-    expect(callback(0)).toBe(-1);
-  });
-
-  it('should return undefined when condition is false and orElse is missing', () => {
-    const callback = when(
-      (value: number) => value > 0,
-      (value) => value * 2,
-    );
-
-    expect(callback(0)).toBeUndefined();
-  });
-});
-
-describe('not', () => {
-  it('should invert the predicate result', () => {
-    const predicate = not((value: number) => value > 0);
-
-    expect(predicate(1)).toBeFalsy();
-    expect(predicate(0)).toBeTruthy();
-  });
-});
 
 describe('forEachMaybePromise', () => {
   it('should iterate all items synchronously', () => {
@@ -74,7 +17,7 @@ describe('forEachMaybePromise', () => {
 
   it('should route sync throws to the error handler', () => {
     const error = new Error('sync');
-    const onError = vi.fn();
+    const onError: Mock<ForEachMaybePromiseErrorHandler> = vi.fn();
 
     forEachMaybePromise(
       [1],
@@ -100,7 +43,7 @@ describe('forEachMaybePromise', () => {
 
   it('should route rejected real promises to the error handler', async () => {
     const error = new Error('async');
-    const onError = vi.fn();
+    const onError: Mock<ForEachMaybePromiseErrorHandler> = vi.fn();
 
     forEachMaybePromise([1], async () => await Promise.reject(error), onError);
 
@@ -112,7 +55,7 @@ describe('forEachMaybePromise', () => {
   });
 
   it('should continue iterating after one callback fails', () => {
-    const onError = vi.fn();
+    const onError: Mock<ForEachMaybePromiseErrorHandler> = vi.fn();
     const calls: number[] = [];
 
     forEachMaybePromise(

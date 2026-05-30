@@ -55,9 +55,9 @@ export default class ButtonGroup extends ButtonGroupCore {
 
     const pointerup = () => {
       elements.forEach((element) => {
-        [LEADING_PROP, TRAILING_PROP].forEach((prop) =>
-          element.style.removeProperty(prop),
-        );
+        [LEADING_PROP, TRAILING_PROP].forEach((prop) => {
+          element.style.removeProperty(prop);
+        });
       });
     };
 

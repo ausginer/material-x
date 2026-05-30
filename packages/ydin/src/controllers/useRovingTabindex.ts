@@ -3,7 +3,6 @@ import { Checkable } from '../traits/checkable.ts';
 import { Disableable } from '../traits/disableable.ts';
 import { Valuable } from '../traits/valuable.ts';
 import { notify } from '../utils/DOM.ts';
-import { when } from '../utils/runtime.ts';
 import { useAttributes } from './useAttributes.ts';
 import { useEvents } from './useEvents.ts';
 import { useKeyboard, type KeyboardListener } from './useKeyboard.ts';
@@ -199,8 +198,8 @@ class RovingItems {
 }
 
 // Don't hijack modified key combos; let the browser handle them.
-function hasNoKeyModifier(event: KeyboardEvent): boolean {
-  return !(event.altKey || event.ctrlKey || event.metaKey || event.shiftKey);
+function hasKeyModifier(event: KeyboardEvent): boolean {
+  return event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 }
 
 /**
@@ -226,25 +225,31 @@ function hasNoKeyModifier(event: KeyboardEvent): boolean {
 export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
   const items = new RovingItems(host);
 
-  const createEdgeHandler = (edge: Edge): KeyboardListener =>
-    when(hasNoKeyModifier, (event) => {
-      const target = items.focusEdge(edge);
-      if (!target) return;
+  const createEdgeHandler =
+    (edge: Edge): KeyboardListener =>
+    (event: KeyboardEvent) => {
+      if (!hasKeyModifier(event)) {
+        const target = items.focusEdge(edge);
+        if (!target) return;
 
-      // Prevent scrolling when moving focus via Home/End.
-      event.preventDefault();
-      notifyFocused(target);
-    });
+        // Prevent scrolling when moving focus via Home/End.
+        event.preventDefault();
+        notifyFocused(target);
+      }
+    };
 
-  const createStepHandler = (direction: Direction): KeyboardListener =>
-    when(hasNoKeyModifier, (event) => {
-      const target = items.focus(items.step(direction));
-      if (!target) return;
+  const createStepHandler =
+    (direction: Direction): KeyboardListener =>
+    (event: KeyboardEvent) => {
+      if (!hasKeyModifier(event)) {
+        const target = items.focus(items.step(direction));
+        if (!target) return;
 
-      // Move focus (wrapping) and emit selection.
-      event.preventDefault();
-      notifyFocused(target);
-    });
+        // Move focus (wrapping) and emit selection.
+        event.preventDefault();
+        notifyFocused(target);
+      }
+    };
 
   useSlot(host, slotSelector, (_, nodes) => {
     items.value = nodes.filter(isItem);
@@ -252,15 +257,17 @@ export function useRovingTabindex(host: Host, slotSelector = 'slot'): void {
     items.setTabStop(items.getTabStopCandidate());
   });
 
-  const hasRtl = (_: KeyboardEvent) =>
+  const hasRtl = () =>
     // Mirror arrow key behavior in RTL layout.
     getComputedStyle(host).direction === 'rtl';
 
   const right = createStepHandler(DIRECTION_RIGHT);
   const left = createStepHandler(DIRECTION_LEFT);
 
-  const previous = when(hasRtl, right, left);
-  const next = when(hasRtl, left, right);
+  const previous = (event: KeyboardEvent) =>
+    hasRtl() ? right(event) : left(event);
+  const next = (event: KeyboardEvent) =>
+    hasRtl() ? left(event) : right(event);
 
   useKeyboard(host, {
     Home: { down: createEdgeHandler(EDGE_FIRST) },

@@ -7,7 +7,11 @@ import {
   type ContextEffect,
 } from '../../src/controllers/useContext.ts';
 import { ControlledElement } from '../../src/element.ts';
-import { EventEmitter, type UpdateCallback } from '../../src/emitter.ts';
+import {
+  EventEmitter,
+  type Unsubscribe,
+  type UpdateCallback,
+} from '../../src/emitter.ts';
 import { defineCE, nameCE } from '../browser.ts';
 
 type ContextValue = Readonly<{
@@ -213,8 +217,8 @@ describe('useContext', () => {
       emitter: new EventEmitter<[string]>(),
       name: 'second',
     } as const;
-    const firstCleanup = vi.fn();
-    const secondCleanup = vi.fn();
+    const firstCleanup: Mock<Unsubscribe> = vi.fn();
+    const secondCleanup: Mock<Unsubscribe> = vi.fn();
     const effectMock = vi
       .fn<ContextEffect<ContextValue>>()
       .mockReturnValueOnce(firstCleanup)

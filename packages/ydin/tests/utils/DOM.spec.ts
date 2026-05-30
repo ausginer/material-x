@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, type Mock } from 'vitest';
 import {
   $,
   $$,
@@ -65,8 +65,8 @@ describe('DEFAULT_EVENT_INIT', () => {
 describe('notify', () => {
   it('should dispatch all requested events', () => {
     const target = document.createElement('div');
-    const first = vi.fn();
-    const second = vi.fn();
+    const first: Mock<EventListener> = vi.fn();
+    const second: Mock<EventListener> = vi.fn();
 
     target.addEventListener('first', first);
     target.addEventListener('second', second);

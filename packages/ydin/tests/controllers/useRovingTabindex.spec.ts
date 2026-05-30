@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { useRovingTabindex } from '../../src/controllers/useRovingTabindex.ts';
 import { ControlledElement } from '../../src/element.ts';
 import { Checkable } from '../../src/traits/checkable.ts';
@@ -179,8 +179,8 @@ function expectTabStop(
 }
 
 function watchSelection(target: HTMLElement) {
-  const input = vi.fn();
-  const change = vi.fn();
+  const input: Mock<EventListener> = vi.fn();
+  const change: Mock<EventListener> = vi.fn();
 
   target.addEventListener('input', input);
   target.addEventListener('change', change);

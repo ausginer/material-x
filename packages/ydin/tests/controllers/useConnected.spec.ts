@@ -1,6 +1,9 @@
 // oxlint-disable no-new
-import { describe, expect, it, vi } from 'vitest';
-import { useConnected } from '../../src/controllers/useConnected.ts';
+import { describe, expect, it, vi, type Mock } from 'vitest';
+import {
+  useConnected,
+  type ConnectedSetupCallback,
+} from '../../src/controllers/useConnected.ts';
 import { ControlledElement } from '../../src/element.ts';
 import { defineCE, nameCE } from '../browser.ts';
 
@@ -15,7 +18,7 @@ function createHost(callback: () => void): CustomElementConstructor {
 
 describe('useConnected', () => {
   it('should call the callback when the host connects', () => {
-    const callback = vi.fn();
+    const callback: Mock<ConnectedSetupCallback> = vi.fn();
     const Host = createHost(callback);
     const tag = nameCE();
 
@@ -27,7 +30,7 @@ describe('useConnected', () => {
   });
 
   it('should not call the callback before connection', () => {
-    const callback = vi.fn();
+    const callback: Mock<ConnectedSetupCallback> = vi.fn();
     const Host = createHost(callback);
     const tag = nameCE();
 
@@ -39,7 +42,7 @@ describe('useConnected', () => {
   });
 
   it('should call the callback again after reconnect', () => {
-    const callback = vi.fn();
+    const callback: Mock<ConnectedSetupCallback> = vi.fn();
     const Host = createHost(callback);
     const tag = nameCE();
 
