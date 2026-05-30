@@ -19,22 +19,15 @@ function createListTemplate(): HTMLTemplateElement {
 const ReorderableCore = impl(ControlledElement, [Reorderable] as const);
 
 function createList() {
-  return host(
-    {
-      init(h) {
-        useShadowDOM(h, [createListTemplate()], []);
-        useReorderable(h, { duration: 200, easing: 'ease-out' });
-      },
-    },
-    ReorderableCore,
-  );
+  return host((h) => {
+    useShadowDOM(h, [createListTemplate()], []);
+    useReorderable(h, { duration: 200, easing: 'ease-out' });
+  }, ReorderableCore);
 }
 
 function createItem() {
-  return host({
-    init(h) {
-      useReorderableItem(h);
-    },
+  return host((h) => {
+    useReorderableItem(h);
   });
 }
 
@@ -126,9 +119,7 @@ describe('useReorderable', () => {
 
     pointerdown(item);
 
-    expect(
-      internals(item as unknown as ControlledElement).states.has('dragged'),
-    ).toBeTruthy();
+    expect(internals(item).states.has('drag')).toBeTruthy();
   });
 
   it('should create a footprint placeholder on pointerdown', async () => {
@@ -157,10 +148,10 @@ describe('useReorderable', () => {
 
     pointerdown(item1, 10);
 
-    const fp = list.querySelector('.drag-footprint')!;
+    const fp = list.querySelector<HTMLElement>('[data-footprint]')!;
 
     // Move pointer well below item2 so footprint moves after it
-    pointermove(fp as HTMLElement, 9999);
+    pointermove(fp, 9999);
 
     // Footprint should now be last child (after item2)
     expect(list.lastElementChild).toBe(fp);
@@ -182,7 +173,7 @@ describe('useReorderable', () => {
 
     pointerdown(item1, 10);
 
-    const fp = list.querySelector('.drag-footprint') as HTMLElement;
+    const fp = list.querySelector<HTMLElement>('[data-footprint]')!;
 
     // Move footprint after item3
     pointermove(fp, 9999);
@@ -230,7 +221,7 @@ describe('useReorderable', () => {
 
     pointerdown(item);
 
-    const fp = list.querySelector('.drag-footprint') as HTMLElement;
+    const fp = list.querySelector<HTMLElement>('[data-footprint]')!;
     fp.dispatchEvent(
       new PointerEvent('pointercancel', { bubbles: true, composed: true }),
     );

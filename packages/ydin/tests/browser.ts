@@ -2,7 +2,6 @@ import type { Constructor } from 'type-fest';
 import { expect } from 'vitest';
 import {
   ControlledElement,
-  type ControlledElementConstructor,
   type CustomElementStatics,
 } from '../src/element.ts';
 
@@ -24,31 +23,42 @@ export function defineCE(
   customElements.define(name, element);
 }
 
-export type HostOptions<T extends ControlledElement> = Readonly<{
+export type HostOptions = Readonly<{
   observed?: readonly string[];
-  init?(instance: T): void;
   tag?: string;
 }>;
 
 export function host(
-  options: HostOptions<ControlledElement>,
+  init: (instance: ControlledElement) => void,
+  options?: HostOptions,
 ): ControlledElement;
 export function host<T extends ControlledElement>(
-  options: HostOptions<T>,
+  init: (instance: T) => void,
   base: Constructor<T> & CustomElementStatics,
+  options?: HostOptions,
 ): T;
 export function host(
-  {
-    observed = [],
-    init = () => {},
-    tag = nameCE(),
-  }: HostOptions<ControlledElement>,
-  base: ControlledElementConstructor = ControlledElement,
+  init: (instance: ControlledElement) => void,
+  baseOrOptions?:
+    | (Constructor<ControlledElement> & CustomElementStatics)
+    | HostOptions,
+  options?: HostOptions,
 ): ControlledElement {
+  let base: Constructor<ControlledElement> & CustomElementStatics;
+  let opts: HostOptions | undefined;
+
+  if (typeof baseOrOptions === 'function') {
+    base = baseOrOptions;
+    opts = options;
+  } else {
+    base = ControlledElement;
+    opts = baseOrOptions;
+  }
+
   class Host extends base {
     static override observedAttributes = [
       ...(base.observedAttributes ?? []),
-      ...observed,
+      ...(opts?.observed ?? []),
     ];
 
     constructor() {
@@ -57,7 +67,7 @@ export function host(
     }
   }
 
-  defineCE(tag, Host);
+  defineCE(opts?.tag ?? nameCE(), Host);
 
   return new Host();
 }

@@ -7,11 +7,9 @@ describe('ControlledElement', () => {
     const firstConnected = vi.fn();
     const secondConnected = vi.fn();
 
-    const h = host({
-      init(h) {
-        use(h, { connected: firstConnected });
-        use(h, { connected: secondConnected });
-      },
+    const h = host((h) => {
+      use(h, { connected: firstConnected });
+      use(h, { connected: secondConnected });
     });
 
     document.body.append(h);
@@ -24,11 +22,9 @@ describe('ControlledElement', () => {
     const firstDisconnected = vi.fn();
     const secondDisconnected = vi.fn();
 
-    const h = host({
-      init(h) {
-        use(h, { disconnected: firstDisconnected });
-        use(h, { disconnected: secondDisconnected });
-      },
+    const h = host((h) => {
+      use(h, { disconnected: firstDisconnected });
+      use(h, { disconnected: secondDisconnected });
     });
 
     document.body.append(h);
@@ -40,12 +36,12 @@ describe('ControlledElement', () => {
 
   it('should forward observed attribute changes to attrChanged hooks', () => {
     const attrChanged = vi.fn();
-    const h = host({
-      observed: ['data-state'],
-      init(h) {
+    const h = host(
+      (h) => {
         use(h, { attrChanged });
       },
-    });
+      { observed: ['data-state'] },
+    );
 
     h.setAttribute('data-state', 'on');
     h.removeAttribute('data-state');
@@ -70,9 +66,8 @@ describe('ControlledElement', () => {
   it('should preserve controller registration order for host callbacks', () => {
     const calls: string[] = [];
 
-    const h = host({
-      observed: ['data-state'],
-      init(h) {
+    const h = host(
+      (h) => {
         use(h, {
           connected() {
             calls.push('first:connected');
@@ -97,7 +92,8 @@ describe('ControlledElement', () => {
           },
         });
       },
-    });
+      { observed: ['data-state'] },
+    );
 
     document.body.append(h);
     h.setAttribute('data-state', 'on');
@@ -117,13 +113,13 @@ describe('ControlledElement', () => {
     const connected = vi.fn();
     const attrChanged = vi.fn();
 
-    const h = host({
-      observed: ['data-state'],
-      init(h) {
+    const h = host(
+      (h) => {
         use(h, {});
         use(h, { connected, attrChanged });
       },
-    });
+      { observed: ['data-state'] },
+    );
 
     document.body.append(h);
     h.setAttribute('data-state', 'on');
@@ -143,13 +139,13 @@ describe('ControlledElement', () => {
       calls.push('second');
     });
 
-    const h = host({
-      observed: ['data-state'],
-      init(h) {
+    const h = host(
+      (h) => {
         use(h, { connected: firstConnected });
         use(h, { connected: secondConnected });
       },
-    });
+      { observed: ['data-state'] },
+    );
 
     document.body.append(h);
 
@@ -159,7 +155,7 @@ describe('ControlledElement', () => {
   });
 
   it('should return the same ElementInternals instance for the same host', () => {
-    const h = host({});
+    const h = host(() => {});
 
     expect(internals(h)).toBe(internals(h));
   });

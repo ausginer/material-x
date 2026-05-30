@@ -4,55 +4,39 @@ import {
   useConnected,
   type ConnectedSetupCallback,
 } from '../../src/controllers/useConnected.ts';
-import { ControlledElement } from '../../src/element.ts';
-import { defineCE, nameCE } from '../browser.ts';
-
-function createHost(callback: () => void): CustomElementConstructor {
-  return class Host extends ControlledElement {
-    constructor() {
-      super();
-      useConnected(this, callback);
-    }
-  };
-}
+import { host } from '../browser.ts';
 
 describe('useConnected', () => {
   it('should call the callback when the host connects', () => {
     const callback: Mock<ConnectedSetupCallback> = vi.fn();
-    const Host = createHost(callback);
-    const tag = nameCE();
+    const el = host((h) => {
+      useConnected(h, callback);
+    });
 
-    defineCE(tag, Host);
-
-    document.body.append(new Host());
+    document.body.append(el);
 
     expect(callback).toHaveBeenCalledOnce();
   });
 
   it('should not call the callback before connection', () => {
     const callback: Mock<ConnectedSetupCallback> = vi.fn();
-    const Host = createHost(callback);
-    const tag = nameCE();
 
-    defineCE(tag, Host);
-
-    new Host();
+    host((h) => {
+      useConnected(h, callback);
+    });
 
     expect(callback).not.toHaveBeenCalled();
   });
 
   it('should call the callback again after reconnect', () => {
     const callback: Mock<ConnectedSetupCallback> = vi.fn();
-    const Host = createHost(callback);
-    const tag = nameCE();
+    const el = host((h) => {
+      useConnected(h, callback);
+    });
 
-    defineCE(tag, Host);
-
-    const host = new Host();
-
-    document.body.append(host);
-    host.remove();
-    document.body.append(host);
+    document.body.append(el);
+    el.remove();
+    document.body.append(el);
 
     expect(callback).toHaveBeenCalledTimes(2);
   });

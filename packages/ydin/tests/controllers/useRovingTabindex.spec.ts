@@ -6,7 +6,7 @@ import { Checkable } from '../../src/traits/checkable.ts';
 import { Disableable } from '../../src/traits/disableable.ts';
 import { impl } from '../../src/traits/traits.ts';
 import { Valuable } from '../../src/traits/valuable.ts';
-import { cleanupDOM, defineCE, nameCE, nextFrame } from '../browser.ts';
+import { cleanupDOM, defineCE, host, nameCE, nextFrame } from '../browser.ts';
 
 const HostBase = impl(ControlledElement, [Valuable] as const);
 const ItemBase = impl(ControlledElement, [
@@ -46,42 +46,32 @@ afterEach(() => {
 let isTestItemDefined = false;
 let isShadowItemDefined = false;
 
-function defineElement(element: CustomElementConstructor): void {
-  defineCE(nameCE(), element);
-}
-
 function createHost(options?: {
   readonly dir?: 'ltr' | 'rtl';
   readonly slotName?: string;
   readonly slotSelector?: string;
 }): InstanceType<typeof HostBase> & { slotElement: HTMLSlotElement } {
-  class Host extends HostBase {
-    readonly slotElement: HTMLSlotElement;
+  let slotElement!: HTMLSlotElement;
 
-    constructor() {
-      super();
+  const el = host((h) => {
+    const root = h.attachShadow({ mode: 'open' });
 
-      const root = this.attachShadow({ mode: 'open' });
-      const slotElement = document.createElement('slot');
+    slotElement = document.createElement('slot');
 
-      if (options?.slotName) {
-        slotElement.name = options.slotName;
-      }
-
-      root.append(slotElement);
-      this.slotElement = slotElement;
-
-      if (options?.dir) {
-        this.dir = options.dir;
-      }
-
-      useRovingTabindex(this, options?.slotSelector);
+    if (options?.slotName) {
+      slotElement.name = options.slotName;
     }
-  }
 
-  defineElement(Host);
+    root.append(slotElement);
 
-  return new Host();
+    if (options?.dir) {
+      h.dir = options.dir;
+    }
+
+    useRovingTabindex(h, options?.slotSelector);
+  }, HostBase);
+
+  return Object.assign(el, { slotElement });
 }
 
 function createItem(options?: {
@@ -91,7 +81,7 @@ function createItem(options?: {
   readonly value?: string | null;
 }): TestItem {
   if (!isTestItemDefined) {
-    defineElement(TestItem);
+    defineCE(nameCE(), TestItem);
     isTestItemDefined = true;
   }
 
@@ -123,7 +113,7 @@ function createShadowItem(options?: {
   readonly value?: string | null;
 }): ShadowItem {
   if (!isShadowItemDefined) {
-    defineElement(ShadowItem);
+    defineCE(nameCE(), ShadowItem);
     isShadowItemDefined = true;
   }
 

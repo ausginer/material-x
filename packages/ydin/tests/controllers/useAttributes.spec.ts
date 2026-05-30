@@ -9,12 +9,12 @@ import { host, nameCE } from '../browser.ts';
 describe('useAttributes', () => {
   it('should transfer attribute updates through the transfer helper', () => {
     const target = document.createElement('div');
-    const el = host({
-      observed: ['data-state'],
-      init(h) {
+    const el = host(
+      (h) => {
         useAttributes(h, { 'data-state': transfer(target, 'data-state') });
       },
-    });
+      { observed: ['data-state'] },
+    );
 
     el.setAttribute('data-state', 'open');
 
@@ -23,12 +23,12 @@ describe('useAttributes', () => {
 
   it('should call a custom update callback with old and new values', () => {
     const callback = vi.fn<UpdateCallback>();
-    const el = host({
-      observed: ['data-state'],
-      init(h) {
+    const el = host(
+      (h) => {
         useAttributes(h, { 'data-state': callback });
       },
-    });
+      { observed: ['data-state'] },
+    );
 
     el.setAttribute('data-state', 'open');
     el.setAttribute('data-state', 'closed');
@@ -39,12 +39,12 @@ describe('useAttributes', () => {
 
   it('should ignore attribute changes without a registered handler', () => {
     const callback = vi.fn<UpdateCallback>();
-    const el = host({
-      observed: ['data-state'],
-      init(h) {
+    const el = host(
+      (h) => {
         useAttributes(h, { 'aria-label': callback });
       },
-    });
+      { observed: ['data-state'] },
+    );
 
     el.setAttribute('data-state', 'open');
 
@@ -53,12 +53,12 @@ describe('useAttributes', () => {
 
   it('should ignore attribute changes when old and new values are equal', () => {
     const callback = vi.fn<UpdateCallback>();
-    const el = host({
-      observed: ['data-state'],
-      init(h) {
+    const el = host(
+      (h) => {
         useAttributes(h, { 'data-state': callback });
       },
-    });
+      { observed: ['data-state'] },
+    );
 
     el.setAttribute('data-state', 'open');
     callback.mockClear();
@@ -69,12 +69,12 @@ describe('useAttributes', () => {
 
   it('should react to observed attribute initialization via attrChanged', () => {
     const callback = vi.fn<UpdateCallback>();
-    const el = host({
-      observed: ['data-state'],
-      init(h) {
+    const el = host(
+      (h) => {
         useAttributes(h, { 'data-state': callback });
       },
-    });
+      { observed: ['data-state'] },
+    );
 
     el.setAttribute('data-state', 'open');
 
@@ -87,13 +87,12 @@ describe('useAttributes', () => {
     const tag = nameCE();
 
     document.body.innerHTML = `<${tag} data-state="open"></${tag}>`;
-    host({
-      observed: ['data-state'],
-      tag,
-      init(h) {
+    host(
+      (h) => {
         useAttributes(h, { 'data-state': callback });
       },
-    });
+      { observed: ['data-state'], tag },
+    );
 
     expect(callback).toHaveBeenCalledOnce();
     expect(callback).toHaveBeenCalledWith(null, 'open');

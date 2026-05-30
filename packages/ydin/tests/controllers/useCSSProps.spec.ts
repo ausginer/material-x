@@ -16,10 +16,8 @@ function setupCSSProps<
   target?: HTMLElement,
 ): readonly [element: ControlledElement, props: () => CSSPropsResult<T>] {
   let props: () => CSSPropsResult<T>;
-  const element = host({
-    init(instance) {
-      props = useCSSProps(instance, vars, target);
-    },
+  const element = host((instance) => {
+    props = useCSSProps(instance, vars, target);
   });
 
   return [element, props!] as const;
