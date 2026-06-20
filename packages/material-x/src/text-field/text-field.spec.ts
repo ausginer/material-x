@@ -51,12 +51,6 @@ async function nextFrame(): Promise<void> {
   });
 }
 
-async function flushDOM(): Promise<void> {
-  await Promise.resolve();
-  await nextFrame();
-  await Promise.resolve();
-}
-
 afterEach(() => {
   if (isBrowser) {
     document.body.replaceChildren();
@@ -72,7 +66,7 @@ if (isBrowser) {
       field.setAttribute('aria-labelledby', 'external-label');
       document.body.append(field);
 
-      await flushDOM();
+      await nextFrame();
 
       const input = getInput(field);
 
@@ -80,7 +74,7 @@ if (isBrowser) {
 
       field.removeAttribute('aria-labelledby');
 
-      await flushDOM();
+      await nextFrame();
 
       expect(input.getAttribute('aria-labelledby')).toBe('label');
     });
@@ -93,7 +87,7 @@ if (isBrowser) {
       field.setAttribute('aria-describedby', 'external-description');
       document.body.append(field);
 
-      await flushDOM();
+      await nextFrame();
 
       const input = getInput(field);
 
@@ -103,7 +97,7 @@ if (isBrowser) {
 
       field.removeAttribute('aria-describedby');
 
-      await flushDOM();
+      await nextFrame();
 
       expect(input.getAttribute('aria-describedby')).toBe('support counter');
     });
@@ -115,7 +109,7 @@ if (isBrowser) {
 
       document.body.append(field);
 
-      await flushDOM();
+      await nextFrame();
 
       const input = getInput(field);
 
@@ -124,7 +118,7 @@ if (isBrowser) {
       support.remove();
       counter.remove();
 
-      await flushDOM();
+      await nextFrame();
 
       expect(input.hasAttribute('aria-describedby')).toBeFalsy();
     });
@@ -134,7 +128,7 @@ if (isBrowser) {
 
       document.body.append(field);
 
-      await flushDOM();
+      await nextFrame();
 
       const input = getInput(field);
 
@@ -142,13 +136,13 @@ if (isBrowser) {
 
       const label = addSlottedContent(field, 'label', 'Field label');
 
-      await flushDOM();
+      await nextFrame();
 
       expect(input.getAttribute('aria-labelledby')).toBe('label');
 
       label.remove();
 
-      await flushDOM();
+      await nextFrame();
 
       expect(input.hasAttribute('aria-labelledby')).toBeFalsy();
     });
@@ -158,7 +152,7 @@ if (isBrowser) {
 
       document.body.append(field);
 
-      await flushDOM();
+      await nextFrame();
 
       const input = getInput(field);
 
@@ -171,7 +165,7 @@ if (isBrowser) {
         new Event('input', { bubbles: true, composed: true }),
       );
 
-      await flushDOM();
+      await nextFrame();
 
       expect(field.isPopulated).toBeFalsy();
     });

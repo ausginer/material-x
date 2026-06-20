@@ -1,4 +1,3 @@
-import { not, type Predicate } from 'ydin/utils/runtime.js';
 import type { ProcessedTokenValue } from '../../.tproc/processTokenSet.ts';
 import type { ResolveAdjuster } from '../../.tproc/resolve.ts';
 
@@ -21,6 +20,6 @@ export function disabledTokenSelector(path: string): boolean {
   return path === 'disabled';
 }
 
-export const notDisabledTokenSelector: Predicate<[path: string]> = not(
-  disabledTokenSelector,
-);
+export function notDisabledTokenSelector(path: string): boolean {
+  return !disabledTokenSelector(path);
+}

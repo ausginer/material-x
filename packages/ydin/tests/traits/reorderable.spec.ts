@@ -1,4 +1,5 @@
-import { describe, expect, it, vi, type Mock } from 'vitest';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { useShadowDOM } from '../../src/controllers/useShadowDOM.ts';
 import { ControlledElement, internals } from '../../src/element.ts';
 import {
@@ -8,7 +9,7 @@ import {
   useReorderableItem,
 } from '../../src/traits/reorderable.ts';
 import { impl } from '../../src/traits/traits.ts';
-import { defineCE, flushDOM, host, nameCE } from '../browser.ts';
+import { defineCE, host, nameCE, nextFrame } from '../browser.ts';
 
 function createListTemplate(): HTMLTemplateElement {
   const template = document.createElement('template');
@@ -29,41 +30,6 @@ function createItem() {
   return host((h) => {
     useReorderableItem(h);
   });
-}
-
-function pointerdown(target: HTMLElement, clientY = 50, pointerId = 1) {
-  target.dispatchEvent(
-    new PointerEvent('pointerdown', {
-      bubbles: true,
-      composed: true,
-      cancelable: true,
-      pointerId,
-      clientX: 0,
-      clientY,
-    }),
-  );
-}
-
-function pointermove(target: HTMLElement, clientY: number, pointerId = 1) {
-  target.dispatchEvent(
-    new PointerEvent('pointermove', {
-      bubbles: true,
-      composed: true,
-      pointerId,
-      clientX: 0,
-      clientY,
-    }),
-  );
-}
-
-function pointerup(target: HTMLElement, pointerId = 1) {
-  target.dispatchEvent(
-    new PointerEvent('pointerup', {
-      bubbles: true,
-      composed: true,
-      pointerId,
-    }),
-  );
 }
 
 describe('Reorderable', () => {
@@ -93,15 +59,21 @@ describe('Reorderable', () => {
 });
 
 describe('useReorderable', () => {
+  let ue: UserEvent;
+
+  beforeEach(() => {
+    ue = userEvent.setup();
+  });
+
   it('should not set dragged state when reorderable is false', async () => {
     const list = createList();
     const item = createItem();
 
     document.body.append(list);
     list.append(item);
-    await flushDOM();
+    await nextFrame();
 
-    pointerdown(item);
+    await ue.pointer([{ target: item, keys: '[MouseLeft>]' }]);
 
     expect(
       internals(item as unknown as ControlledElement).states.has('dragged'),
@@ -115,9 +87,9 @@ describe('useReorderable', () => {
     document.body.append(list);
     list.append(item);
     list.reorderable = true;
-    await flushDOM();
+    await nextFrame();
 
-    pointerdown(item);
+    await ue.pointer([{ target: item, keys: '[MouseLeft>]' }]);
 
     expect(internals(item).states.has('drag')).toBeTruthy();
   });
@@ -129,11 +101,11 @@ describe('useReorderable', () => {
     document.body.append(list);
     list.append(item);
     list.reorderable = true;
-    await flushDOM();
+    await nextFrame();
 
-    pointerdown(item);
+    await ue.pointer([{ target: item, keys: '[MouseLeft>]' }]);
 
-    expect(list.querySelector('.drag-footprint')).not.toBeNull();
+    expect(list.querySelector('[data-footprint]')).not.toBeNull();
   });
 
   it('should move footprint on pointermove when sibling midpoint is crossed', async () => {
@@ -144,14 +116,19 @@ describe('useReorderable', () => {
     document.body.append(list);
     list.append(item1, item2);
     list.reorderable = true;
-    await flushDOM();
+    await nextFrame();
 
-    pointerdown(item1, 10);
+    await ue.pointer([
+      { target: item1, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+    ]);
 
     const fp = list.querySelector<HTMLElement>('[data-footprint]')!;
 
     // Move pointer well below item2 so footprint moves after it
-    pointermove(fp, 9999);
+    await ue.pointer([{ coords: { clientY: 9999 } }]);
+
+    // Wait for the rAF inside the pointermove handler to reposition the footprint
+    await nextFrame();
 
     // Footprint should now be last child (after item2)
     expect(list.lastElementChild).toBe(fp);
@@ -166,25 +143,22 @@ describe('useReorderable', () => {
     document.body.append(list);
     list.append(item1, item2, item3);
     list.reorderable = true;
-    await flushDOM();
+    await nextFrame();
 
     const reorderSpy = vi.fn<(e: Event) => void>();
     list.addEventListener('reorder', reorderSpy);
 
-    pointerdown(item1, 10);
+    // Drag item1 past item3 and release
+    await ue.pointer([
+      { target: item1, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 9999 } },
+      { keys: '[/MouseLeft]' },
+    ]);
 
-    const fp = list.querySelector<HTMLElement>('[data-footprint]')!;
-
-    // Move footprint after item3
-    pointermove(fp, 9999);
-    pointerup(fp);
-
-    // Wait for the 200ms animation to finish
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 250);
+    // Wait for the animation to finish and the event to fire
+    await vi.waitFor(() => expect(reorderSpy).toHaveBeenCalledOnce(), {
+      timeout: 1000,
     });
-
-    expect(reorderSpy).toHaveBeenCalledOnce();
 
     const event = reorderSpy.mock.calls[0]?.[0] as ReorderEvent;
     expect(event).toBeInstanceOf(ReorderEvent);
@@ -200,12 +174,12 @@ describe('useReorderable', () => {
     document.body.append(list);
     list.append(item1);
     list.reorderable = true;
-    await flushDOM();
+    await nextFrame();
 
     const reorderSpy: Mock<EventListener> = vi.fn();
     list.addEventListener('reorder', reorderSpy);
 
-    pointerup(list);
+    await ue.pointer([{ target: list, keys: '[MouseLeft]' }]);
 
     expect(reorderSpy).not.toHaveBeenCalled();
   });
@@ -217,18 +191,16 @@ describe('useReorderable', () => {
     document.body.append(list);
     list.append(item);
     list.reorderable = true;
-    await flushDOM();
+    await nextFrame();
 
-    pointerdown(item);
+    await ue.pointer([{ target: item, keys: '[MouseLeft>]' }]);
 
     const fp = list.querySelector<HTMLElement>('[data-footprint]')!;
     fp.dispatchEvent(
       new PointerEvent('pointercancel', { bubbles: true, composed: true }),
     );
 
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 250);
-    });
+    await nextFrame();
 
     expect(
       internals(item as unknown as ControlledElement).states.has('dragged'),

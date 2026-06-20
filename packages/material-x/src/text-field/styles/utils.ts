@@ -1,5 +1,4 @@
 import type { ReadonlySignal } from '@preact/signals-core';
-import { not, type Predicate } from 'ydin/utils/runtime.js';
 import { pseudoClass, selector, type Param } from '../../.tproc/selector.ts';
 import type {
   DeclarationBlockRenderer,
@@ -152,16 +151,20 @@ export function disabledTokenSelector(
   return path === 'disabled' && ALLOWED_DISABLED_TOKENS.includes(tokenName);
 }
 
-export const notDisabledTokenSelector: Predicate<
-  [path: string, tokenName?: string]
-> = not(disabledTokenSelector);
+export function notDisabledTokenSelector(
+  path: string,
+  tokenName?: string,
+): boolean {
+  return !disabledTokenSelector(path, tokenName);
+}
 
 export function errorTokenSelector(path: string): boolean {
   return path.startsWith('error');
 }
 
-export const notErrorTokenSelector: Predicate<[path: string]> =
-  not(errorTokenSelector);
+export function notErrorTokenSelector(path: string): boolean {
+  return !errorTokenSelector(path);
+}
 
 export function createTextFieldScopedDeclarationRenderer(
   scope?: Param | null,
