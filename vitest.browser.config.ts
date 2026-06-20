@@ -17,16 +17,33 @@ function resolveChromeExecutable(): string {
   return executable;
 }
 
+const isDebug = process.env['DEBUG'] === '1';
+
 const config: UserConfigFnObject = defineConfig(
   (env) =>
     mergeConfig(vitestConfig(env), {
       test: {
+        fileParallelism: !isDebug,
         browser: {
           enabled: true,
           headless: true,
+          ui: isDebug,
+          api: {
+            host: '0.0.0.0',
+            port: 9876,
+            allowExec: true,
+            // strictPort: true,
+          },
           provider: playwright({
             launchOptions: {
               executablePath: resolveChromeExecutable(),
+              args: isDebug
+                ? [
+                    '--remote-debugging-port=9222',
+                    '--remote-allow-origins=*',
+                    '--no-sandbox',
+                  ]
+                : [],
             },
           }),
           instances: [{ browser: 'chromium' }],

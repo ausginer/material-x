@@ -3,6 +3,7 @@ set -eu
 
 file="${1:?Missing file path}"
 symbol="${2:-}"
+mode="${3:-}"
 
 dir="$(dirname "$file")"
 
@@ -49,8 +50,32 @@ cd "$package_root"
 
 test_file="${file#"$package_root"/}"
 
-if [ -n "$symbol" ]; then
-  npm t -- "$test_file" --testNamePattern=\""$symbol"\"
+cleanup-debug-processes() {
+  echo "Stopping previous Vitest browser debug processes..." >&2
+
+  # Previous Playwright/Chrome instance that owns the CDP port.
+  pkill -f 'chrome.*--remote-debugging-port=9222' 2>/dev/null || true
+
+  # Previous Vitest browser/watch runner. Otherwise it may respawn Chrome again.
+  pkill -f 'vitest.*browser' 2>/dev/null || true
+
+  sleep 0.3
+}
+
+run-vitest() {
+  cmd="${1:-test}"
+  shift || true
+
+  if [ -n "$symbol" ]; then
+    npm run "${cmd}" -- "$test_file" --testNamePattern=\""$symbol"\" "$@"
+  else
+    npm run "${cmd}" -- "$test_file" "$@"
+  fi
+}
+
+if [ "$mode" = "debug" ]; then
+  cleanup-debug-processes
+  run-vitest test:debug
 else
-  npm t -- "$test_file"
+  run-vitest
 fi

@@ -1,0 +1,13 @@
+[
+  {
+    "label": "Attach Vitest Browser",
+    "adapter": "JavaScript",
+    "type": "chrome",
+    "request": "attach",
+    "address": "127.0.0.1",
+    "port": 9222,
+    "webRoot": "${ZED_WORKTREE_ROOT}",
+    "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+    "tags": ["js-test"]
+  }
+]
