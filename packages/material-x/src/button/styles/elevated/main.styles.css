@@ -4,3 +4,9 @@
     content: '';
   }
 }
+
+/* Spec: the elevated button drops to elevation 0 when disabled. */
+:host(:state(elevated):disabled),
+:host(:state(elevated):state(disabled)) {
+  --_container-elevation: 0;
+}
