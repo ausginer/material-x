@@ -81,9 +81,3 @@ export async function nextFrame(): Promise<void> {
 export function matcher(html: string): object {
   return expect.objectContaining({ outerHTML: html });
 }
-
-export async function flushDOM(): Promise<void> {
-  await Promise.resolve();
-  await nextFrame();
-  await Promise.resolve();
-}

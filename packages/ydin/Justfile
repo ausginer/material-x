@@ -28,8 +28,8 @@ test-browser *ARGS:
     vitest run -c vitest.browser.config.ts {{ ARGS }}
 
 # Run browser tests in inspect/debug mode
-test-browser-inspect *ARGS:
-    vitest run --inspect-brk -c vitest.browser.config.ts {{ ARGS }}
+test-browser-debug *ARGS:
+    DEBUG=1 vitest -c vitest.browser.config.ts --no-file-parallelism --test-timeout=0 --watch {{ ARGS }}
 
 # Type-check
 typecheck:

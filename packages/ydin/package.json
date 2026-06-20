@@ -124,7 +124,7 @@
     "lint": "just lint",
     "lint:fix": "just lint-fix",
     "test": "just test-browser",
-    "test:inspect": "just test-browser-inspect"
+    "test:debug": "just test-browser-debug"
   },
   "dependencies": {
     "type-fest": "5.5.0"
