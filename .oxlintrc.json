@@ -666,10 +666,6 @@
     },
     {
       "files": [
-        "**/*.spec.js",
-        "**/*.spec.ts",
-        "**/*.spec.jsx",
-        "**/*.spec.tsx",
         "**/*.test.js",
         "**/*.test.ts",
         "**/*.test.jsx",

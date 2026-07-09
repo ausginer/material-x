@@ -147,7 +147,11 @@ export function constructHTMLTemplate(): Plugin {
         },
       },
       order: 'pre',
-      async handler(source, importer) {
+      async handler(source, importer, options) {
+        if ('scan' in options && options.scan === true) {
+          return source;
+        }
+
         return await this.resolve(`${source}?raw`, importer, {
           skipSelf: true,
         });

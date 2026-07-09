@@ -9,6 +9,6 @@
     "./tsdown.config.ts",
     "./eslint.config.ts",
     "./vite.config.ts",
-    "./vitest.browser.config.ts"
+    "./vitest.config.ts"
   ]
 }

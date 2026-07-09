@@ -23,13 +23,9 @@ docs-api:
 docs-api-build:
     typedoc --options typedoc.json --out ../../.docs/api/ydin
 
-# Run browser tests
-test-browser *ARGS:
-    vitest run -c vitest.browser.config.ts {{ ARGS }}
-
-# Run browser tests in inspect/debug mode
-test-browser-debug *ARGS:
-    DEBUG=1 vitest -c vitest.browser.config.ts --no-file-parallelism --test-timeout=0 --watch {{ ARGS }}
+# Run tests
+test *ARGS:
+    vitest run -c vitest.config.ts {{ ARGS }}
 
 # Type-check
 typecheck:

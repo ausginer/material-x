@@ -123,8 +123,7 @@
     "fmt:check": "just fmt-check",
     "lint": "just lint",
     "lint:fix": "just lint-fix",
-    "test": "just test-browser",
-    "test:debug": "just test-browser-debug"
+    "test": "just test"
   },
   "dependencies": {
     "type-fest": "5.5.0"

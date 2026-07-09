@@ -73,9 +73,19 @@ run-vitest() {
   fi
 }
 
+run-vitest-debug() {
+  vitest_bin="../../node_modules/.bin/vitest"
+
+  if [ -n "$symbol" ]; then
+    DEBUG=1 "$vitest_bin" -c vitest.config.ts --no-file-parallelism --test-timeout=0 --watch "$test_file" --testNamePattern="$symbol"
+  else
+    DEBUG=1 "$vitest_bin" -c vitest.config.ts --no-file-parallelism --test-timeout=0 --watch "$test_file"
+  fi
+}
+
 if [ "$mode" = "debug" ]; then
   cleanup-debug-processes
-  run-vitest test:debug
+  run-vitest-debug
 else
   run-vitest
 fi

@@ -1,22 +1,13 @@
-import type { UserConfig, UserConfigFnObject } from 'vite';
+import type { UserConfigFnObject } from 'vite';
 import { defineConfig } from 'vitest/config';
+import { createWorkspaceTestConfig } from './.scripts/vitest-config.ts';
 
-const isCI = process.env['CI'] === 'true';
-
-const config: UserConfigFnObject = defineConfig(
-  () =>
-    ({
-      test: {
-        coverage: {
-          enabled: false,
-          provider: 'v8',
-          reportsDirectory: '.coverage',
-          clean: true,
-          reporter: isCI ? ['lcov'] : ['html'],
-        },
-        includeTaskLocation: !isCI,
-      },
-    }) satisfies UserConfig,
+const config: UserConfigFnObject = defineConfig((env) =>
+  createWorkspaceTestConfig(env, {
+    root: new URL('./', import.meta.url),
+    materialXRoot: new URL('./packages/material-x/', import.meta.url),
+    ydinRoot: new URL('./packages/ydin/', import.meta.url),
+  }),
 );
 
 export default config;

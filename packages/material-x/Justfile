@@ -51,14 +51,9 @@ docs-build:
     just docs-prepare
     node ../../.scripts/storybook.ts build --config-dir ../../.storybook -o ../../.docs
 
-# Run unit and browser tests
-test:
-    vitest run -c vitest.config.ts
-    vitest run -c vitest.browser.config.ts
-
-# Run browser tests
-test-browser:
-    vitest run -c vitest.browser.config.ts
+# Run tests
+test *ARGS:
+    vitest run -c vitest.config.ts {{ ARGS }}
 
 # Type-check
 typecheck:

@@ -1,12 +1,9 @@
 /* eslint-disable import-x/no-relative-packages */
-import { fileURLToPath } from 'node:url';
-import { defineConfig, mergeConfig, type UserConfigFnObject } from 'vite';
-import viteConfig from '../../vite.config.ts';
+import { defineConfig, type UserConfigFnObject } from 'vite';
+import { createYdinViteConfig } from '../../.scripts/vite-config.ts';
 
-const config: UserConfigFnObject = defineConfig((env) =>
-  mergeConfig(viteConfig(env), {
-    root: fileURLToPath(new URL('./', import.meta.url)),
-  }),
+const config: UserConfigFnObject = defineConfig(() =>
+  createYdinViteConfig(new URL('./', import.meta.url)),
 );
 
 export default config;
