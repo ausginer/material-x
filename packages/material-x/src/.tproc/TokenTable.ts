@@ -44,12 +44,29 @@ export type TokenValues = Readonly<{
   values: readonly string[];
 }>;
 
+export type TokenTypeVariationAxis = Readonly<{
+  axisValueTokenName: string;
+}>;
+
+export type TokenTypeVariationAxes = Readonly<{
+  wght: TokenTypeVariationAxis;
+  GRAD: TokenTypeVariationAxis;
+  wdth: TokenTypeVariationAxis;
+  ROND: TokenTypeVariationAxis;
+  opsz: TokenTypeVariationAxis;
+  CRSV: TokenTypeVariationAxis;
+  slnt: TokenTypeVariationAxis;
+  FILL: TokenTypeVariationAxis;
+  HEXP: TokenTypeVariationAxis;
+}>;
+
 export type TokenType = Readonly<{
   fontNameTokenName: string;
   fontWeightTokenName: string;
   fontSizeTokenName: string;
   fontTrackingTokenName: string;
   lineHeightTokenName: string;
+  variationAxes: TokenTypeVariationAxes;
 }>;
 
 export type Token = Readonly<{

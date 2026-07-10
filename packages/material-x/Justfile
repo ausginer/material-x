@@ -57,7 +57,7 @@ test *ARGS:
 
 # Type-check
 typecheck:
-    tsgo -p tsconfig.json --noEmit
+    tsc -p tsconfig.json --noEmit
 
 # Format files (paths are relative to this package)
 fmt *FILES:

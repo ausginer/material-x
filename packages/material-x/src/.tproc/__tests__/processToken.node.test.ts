@@ -1,9 +1,35 @@
 import { describe, it, expect, vi } from 'vitest';
 import processToken from '../processToken.ts';
-import { TextTransform, TokenShapeFamily } from '../TokenTable.ts';
+import {
+  TextTransform,
+  TokenShapeFamily,
+  type TokenType,
+  type TokenTypeVariationAxes,
+} from '../TokenTable.ts';
 import { createToken, createValue, mockDB } from './helpers.ts';
 
 describe('processToken', () => {
+  const variationAxes: TokenTypeVariationAxes = {
+    wght: { axisValueTokenName: 'md.ref.wght' },
+    GRAD: { axisValueTokenName: 'md.ref.GRAD' },
+    wdth: { axisValueTokenName: 'md.ref.wdth' },
+    ROND: { axisValueTokenName: 'md.ref.ROND' },
+    opsz: { axisValueTokenName: 'md.ref.opsz' },
+    CRSV: { axisValueTokenName: 'md.ref.CRSV' },
+    slnt: { axisValueTokenName: 'md.ref.slnt' },
+    FILL: { axisValueTokenName: 'md.ref.FILL' },
+    HEXP: { axisValueTokenName: 'md.ref.HEXP' },
+  };
+
+  const createType = (): TokenType => ({
+    fontNameTokenName: 'md.ref.typeface',
+    fontWeightTokenName: 'md.ref.weight',
+    fontSizeTokenName: 'md.ref.size',
+    fontTrackingTokenName: 'md.ref.tracking',
+    lineHeightTokenName: 'md.ref.line',
+    variationAxes,
+  });
+
   const setupValue = (
     value: ReturnType<typeof createValue>,
     setName?: string,
@@ -70,17 +96,7 @@ describe('processToken', () => {
 
   it('should map type tokens to kebab keys', () => {
     const token = createToken();
-    setupValue(
-      createValue({
-        type: {
-          fontNameTokenName: 'md.ref.typeface',
-          fontWeightTokenName: 'md.ref.weight',
-          fontSizeTokenName: 'md.ref.size',
-          fontTrackingTokenName: 'md.ref.tracking',
-          lineHeightTokenName: 'md.ref.line',
-        },
-      }),
-    );
+    setupValue(createValue({ type: createType() }));
 
     expect(processToken(token)).toEqual({
       'font-name': 'md.ref.typeface',
@@ -88,6 +104,16 @@ describe('processToken', () => {
       'font-size': 'md.ref.size',
       'font-tracking': 'md.ref.tracking',
       'line-height': 'md.ref.line',
+      'variation-axes': variationAxes,
+    });
+  });
+
+  it('should preserve type variation axes for resolution', () => {
+    const token = createToken();
+    setupValue(createValue({ type: createType() }));
+
+    expect(processToken(token)).toMatchObject({
+      'variation-axes': variationAxes,
     });
   });
 

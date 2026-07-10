@@ -94,3 +94,7 @@ Material X runtime entrypoints are listed in `packages/material-x/files.json`; u
 Use sub-agents for research and exploration tasks that can run in parallel (e.g. investigating different parts of the codebase simultaneously).
 
 Use an agent team (`TeamCreate`) only when the task has clearly independent parallel work — for example, migrating several components at the same time. Do not create teams for review, small changes, or tasks with sequential dependencies.
+
+## Tokens DB
+
+If you need to access any file in `.data/tokens`, use skill `use-tokens-db`.

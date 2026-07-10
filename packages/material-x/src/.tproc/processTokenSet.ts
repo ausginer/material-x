@@ -4,7 +4,7 @@ import processToken from './processToken.ts';
 export type ProcessedTokenValue =
   | string
   | number
-  | Readonly<Record<string, string | number | null>>;
+  | Readonly<{ [key: string]: ProcessedTokenValue | null }>;
 
 export type ProcessedTokenSet = Readonly<Record<string, ProcessedTokenValue>>;
 

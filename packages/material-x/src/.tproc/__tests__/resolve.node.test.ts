@@ -1,7 +1,7 @@
 // oxlint-disable no-console
 import { describe, it, expect, vi } from 'vitest';
 import { resolve, resolveSet, isLinkedToken } from '../resolve.ts';
-import { createToken, createValue, mockDB } from './helpers.ts';
+import { createToken, createValue, mockDB, state } from './helpers.ts';
 
 describe('resolve', () => {
   it('should detect linked tokens', () => {
@@ -68,6 +68,46 @@ describe('resolve', () => {
       'container.color': 'red',
       'typography.size': 12,
       'typography.weight': 500,
+    });
+  });
+
+  it('should resolve variation axes to a CSS font variation value', () => {
+    const weightToken = createToken({
+      name: 'md.ref.wght',
+      tokenName: 'md.ref.wght',
+      tokenNameSuffix: 'wght',
+    });
+    const gradeToken = createToken({
+      name: 'md.ref.GRAD',
+      tokenName: 'md.ref.GRAD',
+      tokenNameSuffix: 'GRAD',
+    });
+    const values = new Map([
+      [
+        weightToken.name,
+        { value: createValue({ name: weightToken.name, numeric: 400 }) },
+      ],
+      [
+        gradeToken.name,
+        { value: createValue({ name: gradeToken.name, numeric: 0 }) },
+      ],
+    ]);
+
+    state.tokens = [weightToken, gradeToken];
+    mockDB.getSet.mockReturnValue({ tokenSetName: 'md.ref.test' });
+    mockDB.getValue.mockImplementation((token) => values.get(token.name));
+
+    const result = resolveSet({
+      typography: {
+        'variation-axes': {
+          wght: { axisValueTokenName: weightToken.tokenName },
+          GRAD: { axisValueTokenName: gradeToken.tokenName },
+        },
+      },
+    });
+
+    expect(result).toEqual({
+      'typography.variation-axes': '"wght" 400, "GRAD" 0',
     });
   });
 
