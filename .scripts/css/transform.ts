@@ -4,7 +4,7 @@ import {
   type CustomAtRules,
   type Visitor,
 } from 'lightningcss';
-import type { SourceMap } from 'rollup';
+import type { SourceMapInput } from 'rolldown';
 import hasSlottedFallbackVisitor from './hasSlottedFallbackVisitor.ts';
 
 const encoder = new TextEncoder();
@@ -20,7 +20,7 @@ export default function transform(
   input: string,
   fileName = 'unknown.css',
   options?: TransformOptions,
-): Readonly<{ code: string; map?: SourceMap }> {
+): Readonly<{ code: string; map?: SourceMapInput }> {
   const { code: encoded, map } = t({
     filename: fileName,
     code: encoder.encode(input),

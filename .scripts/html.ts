@@ -1,4 +1,3 @@
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   GenMapping,
   addMapping,
@@ -6,15 +5,15 @@ import {
   toEncodedMap,
 } from '@jridgewell/gen-mapping';
 import minifier from '@minify-html/node';
-import MagicString from 'magic-string';
-import type { SourceMap } from 'rollup';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 // eslint-disable-next-line import-x/no-unresolved
+import { type SourceMapInput, RolldownMagicString } from 'rolldown';
 import * as sorcery from 'sorcery';
 import { createSourcePath } from './utils.ts';
 
 export type HTMLCompilationResult = Readonly<{
   code: string;
-  map: SourceMap;
+  map: SourceMapInput;
 }>;
 
 const MINIFY_CONFIG = {
@@ -32,7 +31,7 @@ function locAtEndOf(text: string): { line: number; column: number } {
   for (let i = 0; i < text.length; i++) {
     if (text.charCodeAt(i) === 10) {
       // '\n'
-      line++;
+      line += 1;
       lastLineStart = i + 1;
     }
   }
@@ -71,7 +70,7 @@ export async function compileHTML(
     original: srcEnd,
   });
 
-  const m = new MagicString(minified);
+  const m = new RolldownMagicString(minified);
   m.prepend(`const tpl = document.createElement('template');tpl.innerHTML = `);
   m.append(';export default tpl;');
 

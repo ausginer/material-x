@@ -1,6 +1,6 @@
 /* eslint-disable import-x/unambiguous */
 declare module 'sorcery' {
-  import type { SourceMap } from 'rollup';
+  import type { SourceMapInput } from 'rolldown';
 
   export type ChainWriteOptions = Readonly<{
     inline?: boolean;
@@ -8,7 +8,7 @@ declare module 'sorcery' {
   }>;
 
   export interface Chain {
-    apply(): SourceMap;
+    apply(): SourceMapInput;
     toString(): string;
     toUrl(): string;
     write(name: string, options: ChainWriteOptions): Promise<void>;

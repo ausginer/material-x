@@ -31,6 +31,11 @@ export function createViteConfig(root: URL): UserConfig {
     root: fileURLToPath(root),
     build: {
       target: 'esnext',
+      rolldownOptions: {
+        experimental: {
+          nativeMagicString: true,
+        },
+      },
     },
     cacheDir: '.vite',
   };
