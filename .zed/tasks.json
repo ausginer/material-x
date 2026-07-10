@@ -27,9 +27,22 @@
     "tags": ["js-test"]
   },
   {
-    "label": "npm run",
+    "label": "npm",
     "command": "npm",
     "args": ["run", "$ZED_SYMBOL"],
+    "cwd": "$ZED_DIRNAME",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "tags": ["package-script"]
+  },
+  {
+    "label": "npm:debug",
+    "command": "npm",
+    "args": [
+      "--node-options=\"--inspect-brk=127.0.0.1:9229\"",
+      "run",
+      "$ZED_SYMBOL"
+    ],
     "cwd": "$ZED_DIRNAME",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,

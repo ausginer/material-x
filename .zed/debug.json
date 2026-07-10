@@ -1,13 +1,14 @@
 [
   {
-    "label": "Attach Vitest Browser",
     "adapter": "JavaScript",
-    "type": "chrome",
+    "label": "Attach Node 9229",
+    "type": "node",
     "request": "attach",
     "address": "127.0.0.1",
-    "port": 9222,
-    "webRoot": "${ZED_WORKTREE_ROOT}",
-    "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-    "tags": ["js-test"]
+    "port": 9229,
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "sourceMaps": true,
+    "continueOnAttach": true,
+    "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
   }
 ]

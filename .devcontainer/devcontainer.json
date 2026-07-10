@@ -6,42 +6,42 @@
   "containerEnv": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
-    "SSH_AUTH_SOCK": "/ssh-agent",
+    "SSH_AUTH_SOCK": "/ssh-agent"
   },
-  "appPort": [9222, 9229, 9876, 6006, 5176, 24678],
+  "forwardPorts": [9876, 6006, 5176, 24678],
   "remoteUser": "node",
   "updateRemoteUserUID": true,
   "mounts": [
     {
       "source": "${localEnv:HOME}/.gitconfig",
       "target": "/home/node/.gitconfig",
-      "type": "bind",
+      "type": "bind"
     },
     {
       "source": "${localEnv:SSH_AUTH_SOCK}",
       "target": "/ssh-agent",
-      "type": "bind",
+      "type": "bind"
     },
     {
       "source": "${localWorkspaceFolderBasename}_nodemodules",
       "target": "${containerWorkspaceFolder}/node_modules",
-      "type": "volume",
+      "type": "volume"
     },
     {
       "source": "${localEnv:HOME}/.codex",
       "target": "/home/node/.codex",
-      "type": "bind",
+      "type": "bind"
     },
     {
       "source": "${localEnv:HOME}/.claude",
       "target": "/home/node/.claude",
-      "type": "bind",
+      "type": "bind"
     },
     {
       "source": "${localEnv:HOME}/.claude.json",
       "target": "/home/node/.claude.json",
-      "type": "bind",
-    },
+      "type": "bind"
+    }
   ],
   "customizations": {
     "vscode": {
@@ -58,10 +58,10 @@
         "TypeScriptTeam.native-preview",
         "eamodio.gitlens",
         "unifiedjs.vscode-mdx",
-        "Anthropic.claude-code",
-      ],
-    },
+        "Anthropic.claude-code"
+      ]
+    }
   },
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "postStartCommand": "bash .devcontainer/on-start.sh \"${containerWorkspaceFolder}\"",
+  "postStartCommand": "bash .devcontainer/on-start.sh \"${containerWorkspaceFolder}\""
 }
