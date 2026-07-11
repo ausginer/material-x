@@ -145,6 +145,20 @@ export const buttonAllowedTokensSelector: GroupSelector =
 
 export { disabledTokenSelector, notDisabledTokenSelector };
 
+/**
+ * The general `md.comp.button` set still carries the obsolete, non-Expressive
+ * baseline inline spacing (`leading-space`/`trailing-space` = 24px). Only the
+ * per-size sets (`md.comp.button.<size>`) hold the correct Expressive values —
+ * small (the default) is 16px. This selector drops those two tokens so they
+ * never enter a base/variant package's effective values, leaving the size layer
+ * as their single source. Do not apply it to the size packages.
+ */
+const OBSOLETE_BASE_SPACING = new Set(['leading-space', 'trailing-space']);
+
+export function omitBaseSpacing(_path: string, tokenName?: string): boolean {
+  return !tokenName || !OBSOLETE_BASE_SPACING.has(tokenName);
+}
+
 export function switchTokenSelector(path: string): boolean {
   return SELECTION_STATES.some((s) => path.includes(s));
 }

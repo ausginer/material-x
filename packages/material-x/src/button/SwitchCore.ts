@@ -50,15 +50,24 @@ export function useSwitchCore(
   target.role = 'switch';
 
   useCheckable(host, target);
-
   useValuable(host, target);
 
   const innards = internals(host);
 
+  const submitValue = (checked: boolean) => {
+    innards.setFormValue(checked ? (host.value ?? 'on') : null);
+  };
+
   useAttributes(host, {
     checked: via(Bool, (_, value) => {
       toggleState(innards, 'checked', value);
+      submitValue(value);
     }),
+    value(_, newValue) {
+      if (target.checked) {
+        innards.setFormValue(newValue);
+      }
+    },
   });
 
   useContext(
@@ -69,9 +78,11 @@ export function useSwitchCore(
       if (oldValue === host.value) {
         innards.states.delete('checked');
         target.checked = false;
+        submitValue(false);
       } else if (newValue === host.value) {
         innards.states.add('checked');
         target.checked = true;
+        submitValue(true);
       }
     },
   );
@@ -80,6 +91,7 @@ export function useSwitchCore(
     host,
     {
       change() {
+        submitValue(target.checked);
         notify(host, 'change');
       },
     },

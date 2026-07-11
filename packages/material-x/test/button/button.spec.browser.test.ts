@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { commands } from 'vitest/browser';
+import { $ } from 'ydin/utils/DOM.js';
 import '../../src/button/button.ts';
 import { pixels, resolveComputed } from '../support/dom.ts';
 import {
@@ -28,8 +29,7 @@ function createButton(testCase: ButtonSizeCase, shape?: 'square'): HTMLElement {
 }
 
 function getImplementation(button: HTMLElement): HTMLButtonElement {
-  const implementation =
-    button.shadowRoot?.querySelector<HTMLButtonElement>('.host');
+  const implementation = $<HTMLButtonElement>(button, '.host');
 
   if (!implementation) {
     throw new Error('Missing button implementation');
@@ -141,14 +141,7 @@ describe.each(BUTTON_SIZE_CASES)(
       );
     });
 
-    // Known discrepancy: the `medium` size set resolves its inline space to
-    // 24px, but tproc drops the declaration during dedup (it equals the filled
-    // base's 24px), so the small size's `:host` 16px wins the cascade and a
-    // medium button renders 16px inline padding instead of 24px. `it.fails`
-    // pins the bug and will flip red once the component is corrected.
-    const paddingRunner = testCase.name === 'medium' ? it.fails : it;
-
-    paddingRunner('should render the tokenized inline padding', async () => {
+    it('should render the tokenized inline padding', async () => {
       const expected = await sizeTokens(testCase);
       const style = getComputedStyle(getImplementation(createButton(testCase)));
 

@@ -3,6 +3,7 @@ import '../../src/button/button.ts';
 import '../../src/button/icon-button.ts';
 import '../../src/button/link-button.ts';
 import '../../src/button-group/button-group.ts';
+import { $ } from 'ydin/utils/DOM.js';
 
 type ButtonTag = 'mx-button' | 'mx-icon-button';
 
@@ -15,7 +16,7 @@ function createElement<Tag extends keyof HTMLElementTagNameMap>(
 }
 
 function getNativeButton(element: HTMLElement): HTMLButtonElement {
-  const button = element.shadowRoot?.querySelector<HTMLButtonElement>('.host');
+  const button = $<HTMLButtonElement>(element, '.host');
 
   if (!button) {
     throw new Error('Missing internal native button');
@@ -25,7 +26,7 @@ function getNativeButton(element: HTMLElement): HTMLButtonElement {
 }
 
 function getNativeAnchor(element: HTMLElement): HTMLAnchorElement {
-  const anchor = element.shadowRoot?.querySelector<HTMLAnchorElement>('.host');
+  const anchor = $<HTMLAnchorElement>(element, '.host');
 
   if (!anchor) {
     throw new Error('Missing internal native anchor');
@@ -84,11 +85,7 @@ describe('mx-button', () => {
     expect(getNativeButton(element).type).toBe('reset');
   });
 
-  // Known gap: `mx-button` sets `formAssociated = true` but never calls
-  // `internals.setFormValue` or requests submission, so the internal native
-  // button is isolated from the outer form. These `it.fails` cases pin the
-  // missing participation and will flip red once it is implemented.
-  it.fails('should submit its associated form when activated', () => {
+  it('should submit its associated form when activated', () => {
     const form = document.createElement('form');
     const button = document.createElement('mx-button');
     button.setAttribute('type', 'submit');
@@ -105,14 +102,70 @@ describe('mx-button', () => {
     expect(submit).toHaveBeenCalledOnce();
   });
 
-  it.fails('should contribute its name and value to the form data', () => {
+  it('should submit its associated form by default when it has no type', () => {
     const form = document.createElement('form');
     const button = document.createElement('mx-button');
-    button.setAttribute('name', 'action');
     form.append(button);
     document.body.append(form);
 
-    expect([...new FormData(form).keys()]).toContain('action');
+    const submit: Mock<EventListener> = vi.fn((event) => {
+      event.preventDefault();
+    });
+    form.addEventListener('submit', submit);
+
+    button.click();
+
+    expect(submit).toHaveBeenCalledOnce();
+  });
+
+  it('should attribute the submission to itself as the submitter', () => {
+    const form = document.createElement('form');
+    const button = document.createElement('mx-button');
+    form.append(button);
+    document.body.append(form);
+
+    let submitEvent: SubmitEvent | undefined;
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      submitEvent = event;
+    });
+
+    button.click();
+
+    expect(submitEvent?.submitter).toBe(button);
+  });
+
+  it('should reset its associated form when activated with type reset', () => {
+    const form = document.createElement('form');
+    const input = document.createElement('input');
+    input.name = 'field';
+    input.defaultValue = 'initial';
+    input.value = 'changed';
+    const button = document.createElement('mx-button');
+    button.setAttribute('type', 'reset');
+    form.append(input, button);
+    document.body.append(form);
+
+    button.click();
+
+    expect(input.value).toBe('initial');
+  });
+
+  it('should not submit its associated form with type button', () => {
+    const form = document.createElement('form');
+    const button = document.createElement('mx-button');
+    button.setAttribute('type', 'button');
+    form.append(button);
+    document.body.append(form);
+
+    const submit: Mock<EventListener> = vi.fn((event) => {
+      event.preventDefault();
+    });
+    form.addEventListener('submit', submit);
+
+    button.click();
+
+    expect(submit).not.toHaveBeenCalled();
   });
 });
 

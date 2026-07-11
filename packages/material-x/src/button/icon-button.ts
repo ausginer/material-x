@@ -1,4 +1,5 @@
 import { define } from 'ydin/element.js';
+import { useFormActivation } from '../core/utils/events.ts';
 import { useButtonCore } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import { IconButtonCore, useIconButtonCore } from './IconButtonCore.ts';
@@ -51,6 +52,7 @@ export default class IconButton extends IconButtonCore {
     ]);
 
     useIconButtonCore(this);
+    useFormActivation(this);
   }
 }
 

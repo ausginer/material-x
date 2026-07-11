@@ -9,6 +9,7 @@ import {
   createScopedDeclarationRenderer,
   fixFullShape,
   groupButtonTokens,
+  omitBaseSpacing,
 } from '../utils.ts';
 
 const SET_NAME = 'md.comp.button.text';
@@ -27,7 +28,7 @@ export const textTokens: ReadonlySignal<TokenPackage> = computed(() =>
   t
     .set(SET_NAME)
     .group(groupButtonTokens)
-    .select(buttonAllowedTokensSelector)
+    .select(buttonAllowedTokensSelector, omitBaseSpacing)
     .select(mainTokenSelector)
     .append('default', specialTokens)
     .extend(

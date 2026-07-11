@@ -17,6 +17,7 @@ import {
   createScopedDeclarationRenderer,
   fixFullShape,
   groupButtonTokens,
+  omitBaseSpacing,
   omitSelectedShape,
 } from '../utils.ts';
 
@@ -41,7 +42,7 @@ const createPackage = (adjuster: ProcessorAdjuster) =>
     t
       .set(SET_NAME)
       .group(groupButtonTokens)
-      .select(buttonAllowedTokensSelector)
+      .select(buttonAllowedTokensSelector, omitBaseSpacing)
       .adjustTokens(fixFullShape)
       .renderDeclarations(renderer),
   ).build();

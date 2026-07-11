@@ -1,5 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
+import { $ } from 'ydin/utils/DOM.js';
 
 const isBrowser =
   typeof window !== 'undefined' && typeof document !== 'undefined';
@@ -20,7 +21,7 @@ function createCheckable(tag: CheckableTag): HTMLElement {
 }
 
 function getInput(checkable: HTMLElement): HTMLInputElement {
-  const input = checkable.shadowRoot?.querySelector<HTMLInputElement>('#input');
+  const input = $<HTMLInputElement>(checkable, '#input');
 
   if (!input) {
     throw new Error('Missing internal checkable input');

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi, type Mock } from 'vitest';
+import { $ } from 'ydin/utils/DOM.js';
 import '../../src/button/split-button.ts';
 
 function createSplitButton(): HTMLElement {
@@ -8,9 +9,8 @@ function createSplitButton(): HTMLElement {
 }
 
 function getTrailingButton(splitButton: HTMLElement): HTMLButtonElement {
-  const trailing = splitButton.shadowRoot?.querySelector('mx-icon-button');
-  const button =
-    trailing?.shadowRoot?.querySelector<HTMLButtonElement>('.host');
+  const trailing = $(splitButton, 'mx-icon-button');
+  const button = trailing && $<HTMLButtonElement>(trailing, '.host');
 
   if (!button) {
     throw new Error('Missing trailing split button action');

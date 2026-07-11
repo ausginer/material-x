@@ -7,6 +7,7 @@ import {
 } from 'ydin/traits/nameable.js';
 import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import { Typeable, useTypeable } from 'ydin/traits/typeable.js';
+import { useFormActivation } from '../core/utils/events.ts';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {
   ButtonCore as ButtonCoreBase,
@@ -77,6 +78,7 @@ export default class Button extends ButtonCore {
 
     useNameable(this, target);
     useTypeable(this, target);
+    useFormActivation(this);
   }
 }
 

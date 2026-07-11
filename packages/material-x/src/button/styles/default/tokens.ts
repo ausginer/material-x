@@ -13,6 +13,7 @@ import {
   groupButtonTokens,
   mainTokenSelector,
   notDisabledTokenSelector,
+  omitBaseSpacing,
   omitSelectedShape,
   switchTokenSelector,
 } from '../utils.ts';
@@ -52,7 +53,7 @@ const createPackage = (
     t
       .set(set)
       .group(groupButtonTokens)
-      .select(buttonAllowedTokensSelector)
+      .select(buttonAllowedTokensSelector, omitBaseSpacing)
       .adjustTokens(fixFullShape)
       .renderDeclarations(renderer),
   ).build();

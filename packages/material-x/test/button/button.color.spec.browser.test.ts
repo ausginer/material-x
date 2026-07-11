@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { commands, userEvent } from 'vitest/browser';
+import { $ } from 'ydin/utils/DOM.js';
 import '../../src/button/button.ts';
 import { resolveComputed } from '../support/dom.ts';
 
@@ -43,7 +44,7 @@ function createButton(
 }
 
 function getImplementation(button: HTMLElement): HTMLElement {
-  const implementation = button.shadowRoot?.querySelector<HTMLElement>('.host');
+  const implementation = $<HTMLElement>(button, '.host');
 
   if (!implementation) {
     throw new Error('Missing button implementation');

@@ -10,6 +10,7 @@ import {
   type Trait,
   type TraitedConstructor,
 } from 'ydin/traits/traits.js';
+import { Typeable } from 'ydin/traits/typeable.js';
 import { switchState } from 'ydin/utils/DOM.js';
 import {
   ButtonCore,
@@ -51,8 +52,8 @@ export type IconButtonLikeProps = Props<typeof IconButtonLike>;
 export const IconButtonCore: TraitedConstructor<
   ButtonCore,
   typeof ButtonCore,
-  [typeof IconButtonLike]
-> = impl(ButtonCore, [IconButtonLike]);
+  [typeof IconButtonLike, typeof Typeable]
+> = impl(ButtonCore, [IconButtonLike, Typeable]);
 
 export type IconButtonProperties = Omit<ButtonCoreProps, 'color'> &
   IconButtonLikeProps;

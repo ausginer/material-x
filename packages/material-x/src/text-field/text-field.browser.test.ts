@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { $ } from 'ydin/utils/DOM.js';
 
 const isBrowser =
   typeof window !== 'undefined' && typeof document !== 'undefined';
@@ -22,9 +23,7 @@ function createField(tag: FieldTag): FieldElement {
 }
 
 function getInput(field: HTMLElement): InternalFieldElement {
-  const input = field.shadowRoot?.querySelector<
-    HTMLInputElement | HTMLTextAreaElement
-  >('.input');
+  const input = $<HTMLInputElement | HTMLTextAreaElement>(field, '.input');
 
   if (!input) {
     throw new Error('Missing internal text field');

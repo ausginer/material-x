@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
+import { $ } from 'ydin/utils/DOM.js';
 import '../../src/button/switch-button.ts';
 import '../../src/button/switch-icon-button.ts';
 
@@ -14,8 +15,7 @@ function createSwitch(tag: SwitchTag): HTMLElement {
 }
 
 function getControl(element: HTMLElement): HTMLInputElement {
-  const control =
-    element.shadowRoot?.querySelector<HTMLInputElement>('.control');
+  const control = $<HTMLInputElement>(element, '.control');
 
   if (!control) {
     throw new Error('Missing internal switch control');
@@ -155,10 +155,7 @@ describe('mx-switch-button value', () => {
     expect(getControl(element).value).toBe('on');
   });
 
-  // Known gap: switches are `formAssociated` but never call
-  // `internals.setFormValue`, so a checked switch contributes nothing to the
-  // outer form. Pinned until form participation is wired.
-  it.fails('should contribute its value to the form data when checked', () => {
+  it('should contribute its value to the form data when checked', () => {
     const form = document.createElement('form');
     const element = createSwitch('mx-switch-button');
     element.setAttribute('name', 'toggle');
@@ -168,5 +165,16 @@ describe('mx-switch-button value', () => {
     document.body.append(form);
 
     expect([...new FormData(form).entries()]).toContainEqual(['toggle', 'on']);
+  });
+
+  it('should omit its value from the form data when unchecked', () => {
+    const form = document.createElement('form');
+    const element = createSwitch('mx-switch-button');
+    element.setAttribute('name', 'toggle');
+    element.setAttribute('value', 'on');
+    form.append(element);
+    document.body.append(form);
+
+    expect([...new FormData(form).keys()]).not.toContain('toggle');
   });
 });
