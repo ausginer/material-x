@@ -1,5 +1,4 @@
 import { define } from 'ydin/element.js';
-import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import { SwitchIconButtonCore, useIconButtonCore } from './IconButtonCore.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts' with { type: 'css' };
 import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
@@ -11,6 +10,7 @@ import switchOutlinedStyles from './styles/outlined/switch.css.ts' with { type: 
 import switchSizeStyles from './styles/size/switch.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' };
+import switchIconButtonTemplate from './switch-icon-button.tpl.html' with { type: 'html' };
 import { useSwitchCore } from './SwitchCore.ts';
 
 /**
@@ -31,7 +31,8 @@ import { useSwitchCore } from './SwitchCore.ts';
  *
  * @slot - Icon content.
  *
- * @csspart impl - Internal native button element.
+ * @csspart impl - Visual button container.
+ * @csspart control - Internal native checkbox control.
  *
  * @cssprop --md-button-container-height - Overrides button height.
  * @cssprop --md-button-leading-space - Overrides start padding.
@@ -52,7 +53,7 @@ export default class SwitchIconButton extends SwitchIconButtonCore {
 
   constructor() {
     super();
-    useSwitchCore(this, iconButtonTemplate, [
+    useSwitchCore(this, switchIconButtonTemplate, [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainTonalStyles,

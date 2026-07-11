@@ -32,6 +32,24 @@ function createItem() {
   });
 }
 
+function createReorderEvent(): ReorderEvent {
+  return new ReorderEvent(document.createElement('div'), 0, 1);
+}
+
+describe('ReorderEvent', () => {
+  it('should bubble', () => {
+    expect(createReorderEvent().bubbles).toBeTruthy();
+  });
+
+  it('should cross shadow DOM boundaries', () => {
+    expect(createReorderEvent().composed).toBeTruthy();
+  });
+
+  it('should not be cancelable after the reorder lands', () => {
+    expect(createReorderEvent().cancelable).toBeFalsy();
+  });
+});
+
 describe('Reorderable', () => {
   it('should read reorderable as false when attribute is absent', () => {
     defineCE(nameCE(), ReorderableCore);
@@ -75,9 +93,7 @@ describe('useReorderable', () => {
 
     await ue.pointer([{ target: item, keys: '[MouseLeft>]' }]);
 
-    expect(
-      internals(item as unknown as ControlledElement).states.has('dragged'),
-    ).toBeFalsy();
+    expect(internals(item).states.has('dragged')).toBeFalsy();
   });
 
   it('should set dragged state on pointerdown when reorderable is true', async () => {
@@ -202,8 +218,6 @@ describe('useReorderable', () => {
 
     await nextFrame();
 
-    expect(
-      internals(item as unknown as ControlledElement).states.has('dragged'),
-    ).toBeFalsy();
+    expect(internals(item).states.has('dragged')).toBeFalsy();
   });
 });

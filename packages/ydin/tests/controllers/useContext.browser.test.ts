@@ -74,6 +74,44 @@ function createConsumer(
   return [effectMock, updateMock, createConsumerWithEffect(ctx, effectMock)];
 }
 
+function captureContextEvent(): Event {
+  const ctx = createContext<ContextValue>();
+  const effectMock = vi.fn<ContextEffect<ContextValue>>();
+  const Consumer = createConsumerWithEffect(ctx, effectMock);
+  const consumerTag = nameCE();
+  let lookupEvent: Event | undefined;
+
+  defineCE(consumerTag, Consumer);
+  document.addEventListener(
+    ctx,
+    (event) => {
+      lookupEvent = event;
+    },
+    { once: true },
+  );
+  document.body.append(new Consumer());
+
+  if (!lookupEvent) {
+    throw new Error('Expected a context lookup event.');
+  }
+
+  return lookupEvent;
+}
+
+describe('context lookup event', () => {
+  it('should bubble', () => {
+    expect(captureContextEvent().bubbles).toBeTruthy();
+  });
+
+  it('should cross shadow DOM boundaries', () => {
+    expect(captureContextEvent().composed).toBeTruthy();
+  });
+
+  it('should not be cancelable', () => {
+    expect(captureContextEvent().cancelable).toBeFalsy();
+  });
+});
+
 describe('useContext', () => {
   it('should call effect with undefined when no provider is found', () => {
     const ctx = createContext<ContextValue>();

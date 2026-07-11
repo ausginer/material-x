@@ -1,5 +1,4 @@
 // oxlint-disable import/no-mutable-exports
-import type { EmptyObject } from 'type-fest';
 import ATTR, { Bool, Str, type ConverterOf } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
 import {
@@ -31,6 +30,7 @@ import {
 import { Valuable, type ValuableProps } from 'ydin/traits/valuable.js';
 import { $, toggleState } from 'ydin/utils/DOM.js';
 import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
+import { notify } from '../core/utils/events.ts';
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
@@ -84,7 +84,10 @@ export type TextFieldLikeProps = Props<typeof TextFieldLike>;
 export type TextFieldProperties = TextFieldLikeProps &
   DisableableProps &
   ValuableProps;
-export type TextFieldEvents = EmptyObject;
+export type TextFieldEvents = Readonly<{
+  change: Event;
+  input: InputEvent;
+}>;
 export type TextFieldCSSProperties = Readonly<{
   '--md-text-field-container-height'?: string;
   '--md-text-field-input-line-height'?: string;
@@ -197,6 +200,9 @@ export class TextFieldCore extends TextFieldCoreBase {
         input() {
           toggleState(innards, 'populated', !!input.value);
           innards.setFormValue(input.value);
+        },
+        change: () => {
+          notify(this, 'change');
         },
       },
       input,

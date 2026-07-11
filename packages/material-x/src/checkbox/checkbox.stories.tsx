@@ -75,16 +75,6 @@ export const Playground: StoryObj<PlaygroundArgs> = {
   },
 };
 
-export const States = (): JSX.Element => (
-  <>
-    <mx-checkbox />
-    <mx-checkbox data-force="hovered" />
-    <mx-checkbox data-force="focused" />
-    <mx-checkbox data-force="pressed" />
-    <mx-checkbox disabled />
-  </>
-);
-
 export const Checked = (): JSX.Element => (
   <>
     <ControlledCheckbox />

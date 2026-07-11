@@ -1,3 +1,4 @@
+import type { EmptyObject } from 'type-fest';
 import { Bool, Str, type ConverterOf } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
 import { useAttributes } from 'ydin/controllers/useAttributes.js';
@@ -20,7 +21,7 @@ import {
   type Trait,
   type TraitedConstructor,
 } from 'ydin/traits/traits.js';
-import { $, notify, switchState, toggleState } from 'ydin/utils/DOM.js';
+import { $, switchState, toggleState } from 'ydin/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import '../core/styles/elevation/elevation.runtime.ts';
@@ -67,9 +68,7 @@ const FABCore: TraitedConstructor<
 > = impl(ControlledElement, [FABLike, Disableable]);
 
 export type FABProperties = Readonly<FABLikeProps & DisableableProps>;
-export type FABEvents = Readonly<{
-  fabtoggle: Event;
-}>;
+export type FABEvents = EmptyObject;
 export type FABCSSProperties = Readonly<{
   '--md-fab-container-height'?: string;
   '--md-fab-container-width'?: string;
@@ -109,7 +108,6 @@ export type FABCSSProperties = Readonly<{
  * @cssprop --md-fab-hover-level - Overrides hovered elevation level.
  *
  * @event click - Fired when the FAB is activated.
- * @event fabtoggle - Fired when the `extended` state changes.
  */
 export default class FAB extends FABCore {
   constructor() {
@@ -135,7 +133,6 @@ export default class FAB extends FABCore {
 
     useAttributes(this, {
       extended: (_, newValue) => {
-        notify(this, 'fabtoggle');
         toggleState(innards, 'extended', Bool.from(newValue));
         toggleState(innards, 'open', newValue === 'open');
       },
@@ -152,9 +149,5 @@ define('mx-fab', FAB);
 declare global {
   interface HTMLElementTagNameMap {
     'mx-fab': FAB;
-  }
-
-  interface HTMLElementEventMap {
-    fabtoggle: Event;
   }
 }

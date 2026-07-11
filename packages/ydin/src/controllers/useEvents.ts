@@ -5,15 +5,30 @@ import { use, type ControlledElement } from '../element.ts';
  *
  * @typeParam N - Event name from `HTMLElementEventMap`.
  */
-export type HTMLElementEventListener<N extends keyof HTMLElementEventMap> = (
-  event: HTMLElementEventMap[N],
-) => void | Promise<void>;
+export type ControlledElementEventListener<
+  N extends keyof HTMLElementEventMap,
+> = (event: HTMLElementEventMap[N]) => void | Promise<void>;
+
+/**
+ * `addEventListener` options callers may set. `signal` is owned by
+ * {@link useEvents} and cannot be overridden.
+ */
+export type ListenerOptions = Omit<AddEventListenerOptions, 'signal'>;
+
+/**
+ * A listener, optionally paired with `addEventListener` options.
+ *
+ * @typeParam N - Event name from `HTMLElementEventMap`.
+ */
+export type ControlledElementEventEntry<N extends keyof HTMLElementEventMap> =
+  | ControlledElementEventListener<N>
+  | readonly [ControlledElementEventListener<N>, ListenerOptions];
 
 /**
  * Partial mapping of `HTMLElement` event names to listeners.
  */
-export type HTMLElementEventListenerMap = Readonly<{
-  [N in keyof HTMLElementEventMap]?: HTMLElementEventListener<N>;
+export type ControlledElementEventListenerMap = Readonly<{
+  [N in keyof HTMLElementEventMap]?: ControlledElementEventEntry<N>;
 }>;
 
 /**
@@ -30,16 +45,18 @@ export type HTMLElementEventListenerMap = Readonly<{
  */
 export function useEvents(
   host: ControlledElement,
-  listeners: HTMLElementEventListenerMap,
+  listeners: ControlledElementEventListenerMap,
   target: HTMLElement = host,
 ): void {
   let controller = new AbortController();
 
   use(host, {
     connected() {
-      for (const [name, listener] of Object.entries(listeners)) {
+      for (const [name, entry] of Object.entries(listeners)) {
+        const [listener, options] = Array.isArray(entry) ? entry : [entry];
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion
         target.addEventListener(name, listener as EventListener, {
+          ...options,
           signal: controller.signal,
         });
       }

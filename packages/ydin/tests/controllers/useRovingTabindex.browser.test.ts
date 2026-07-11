@@ -511,6 +511,37 @@ describe('useRovingTabindex', () => {
       expect(selection.change).toHaveBeenCalledOnce();
     });
 
+    it('should emit native radio-like selection events in order', async () => {
+      const host = createHost({ dir: 'ltr' });
+      const first = createItem({ value: 'first' });
+      const second = createItem({ value: 'second' });
+      const events: Event[] = [];
+
+      second.addEventListener('input', (event) => {
+        events.push(event);
+      });
+      second.addEventListener('change', (event) => {
+        events.push(event);
+      });
+
+      await mountHost(host, first, second);
+
+      first.focus();
+      await userEvent.setup().keyboard('{ArrowRight}');
+
+      expect(events.map(({ type }) => type)).toEqual(['input', 'change']);
+      expect(
+        events.map(({ bubbles, cancelable, composed }) => ({
+          bubbles,
+          cancelable,
+          composed,
+        })),
+      ).toEqual([
+        { bubbles: true, cancelable: false, composed: true },
+        { bubbles: true, cancelable: false, composed: false },
+      ]);
+    });
+
     it('should not emit input and change when navigation lands on a checked item', async () => {
       const host = createHost({ dir: 'ltr' });
       const first = createItem({ value: 'first' });

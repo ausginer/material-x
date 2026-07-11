@@ -107,13 +107,16 @@ export function useButtonCore(
     shadowInit,
   );
 
-  const target = $<HTMLButtonElement>(host, '.host')!;
+  const rippleHost = $<HTMLElement>(host, '.host')!;
+  const target =
+    $<HTMLInputElement>(host, '.control') ??
+    $<HTMLButtonElement>(host, '.host')!;
 
   useDisableable(host, target);
 
   useARIA(host, target);
 
-  useRipple(host, target, target);
+  useRipple(host, rippleHost, rippleHost);
 
   const innards = internals(host);
   const switcher = (oldValue: string | null, newValue: string | null) =>

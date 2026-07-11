@@ -1,6 +1,4 @@
-import type { EmptyObject } from 'type-fest';
 import { define } from 'ydin/element.js';
-import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import type {
   ButtonColor,
   ButtonCoreProps,
@@ -14,7 +12,13 @@ import switchOutlinedStyles from './styles/outlined/switch.css.ts' with { type: 
 import switchSizeStyles from './styles/size/switch.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' };
-import { SwitchCore, useSwitchCore, type SwitchProps } from './SwitchCore.ts';
+import switchButtonTemplate from './switch-button.tpl.html' with { type: 'html' };
+import {
+  SwitchCore,
+  useSwitchCore,
+  type SwitchEvents,
+  type SwitchProps,
+} from './SwitchCore.ts';
 
 export type SwitchButtonColor = Exclude<ButtonColor, 'text'>;
 
@@ -23,7 +27,7 @@ export type SwitchButtonProperties = ButtonCoreProps &
   Readonly<{
     color?: SwitchButtonColor;
   }>;
-export type SwitchButtonEvents = EmptyObject;
+export type SwitchButtonEvents = SwitchEvents;
 export type SwitchButtonCSSProperties = ButtonSharedCSSProperties;
 
 /**
@@ -43,7 +47,8 @@ export type SwitchButtonCSSProperties = ButtonSharedCSSProperties;
  * @slot - Button label/content.
  * @slot icon - Leading icon content.
  *
- * @csspart impl - Internal native button element.
+ * @csspart impl - Visual button container.
+ * @csspart control - Internal native checkbox control.
  *
  * @cssprop --md-button-container-height - Overrides button height.
  * @cssprop --md-button-leading-space - Overrides start padding.
@@ -64,7 +69,7 @@ export default class SwitchButton extends SwitchCore {
 
   constructor() {
     super();
-    useSwitchCore(this, buttonTemplate, [
+    useSwitchCore(this, switchButtonTemplate, [
       mainElevatedStyles,
       mainOutlinedStyles,
       mainTonalStyles,

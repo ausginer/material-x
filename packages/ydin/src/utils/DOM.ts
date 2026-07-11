@@ -80,27 +80,65 @@ export function $$(
 }
 
 /**
- * Default event init used by `notify(...)`.
+ * Default initialization for events dispatched by notifiers created with
+ * {@link createEventNotifier}.
+ *
+ * @remarks Event-specific definitions override these values.
  */
-export const DEFAULT_EVENT_INIT: EventInit = {
+export const DEFAULT_EVENT_INIT: Readonly<EventInit> = {
   bubbles: true,
   composed: true,
   cancelable: true,
 };
 
 /**
- * Dispatches one or more bubbling composed cancelable events on a target.
+ * Event initialization overrides keyed by event name.
  *
- * @param target - Target that should receive the dispatched events.
- * @param events - Event names to dispatch in order.
+ * @typeParam T - Event names accepted by the configured notifier.
  */
-export function notify(
+export type EventDefinitions<T extends string> = Readonly<
+  Record<T, Readonly<EventInit>>
+>;
+
+/**
+ * Dispatches configured events on a target.
+ *
+ * @remarks Events are created immediately before dispatch and dispatched in
+ * the order provided.
+ *
+ * @typeParam T - Event names accepted by the notifier.
+ * @param target - Target on which to dispatch the events.
+ * @param types - Event names to create and dispatch in order.
+ */
+export type EventNotifier<T extends string> = (
   target: EventTarget,
-  ...events: readonly string[]
-): void {
-  for (const event of events) {
-    target.dispatchEvent(new Event(event, DEFAULT_EVENT_INIT));
-  }
+  ...types: readonly T[]
+) => void;
+
+/**
+ * Creates a type-safe notifier from event initialization definitions.
+ *
+ * @remarks Each notification creates a fresh {@link Event}. Definitions are
+ * merged over {@link DEFAULT_EVENT_INIT}, allowing individual events to
+ * override bubbling, composition, or cancellation behavior.
+ *
+ * @typeParam T - Event names defined by `definitions`.
+ * @param definitions - Initialization overrides keyed by event name.
+ * @returns A notifier restricted to the configured event names.
+ */
+export function createEventNotifier<T extends string>(
+  definitions: EventDefinitions<T>,
+): EventNotifier<T> {
+  return (target, ...types) => {
+    for (const type of types) {
+      target.dispatchEvent(
+        new Event(type, {
+          ...DEFAULT_EVENT_INIT,
+          ...definitions[type],
+        }),
+      );
+    }
+  };
 }
 
 /**

@@ -18,7 +18,7 @@ type InternalFieldElement = HTMLInputElement | HTMLTextAreaElement;
 const FIELD_TAGS = ['mx-text-field', 'mx-multiline-text-field'] as const;
 
 function createField(tag: FieldTag): FieldElement {
-  return document.createElement(tag) as FieldElement;
+  return document.createElement(tag);
 }
 
 function getInput(field: HTMLElement): InternalFieldElement {
@@ -168,6 +168,61 @@ if (isBrowser) {
       await nextFrame();
 
       expect(field.isPopulated).toBeFalsy();
+    });
+
+    it('should expose the original native-like input event', async () => {
+      const field = createField(tag);
+
+      document.body.append(field);
+
+      await nextFrame();
+
+      const input = getInput(field);
+      const events: Array<
+        Readonly<{ event: Event; target: EventTarget | null }>
+      > = [];
+
+      field.addEventListener('input', (event) => {
+        events.push({ event, target: event.target });
+      });
+
+      const event = new InputEvent('input', {
+        bubbles: true,
+        composed: true,
+        data: 'a',
+        inputType: 'insertText',
+      });
+      input.dispatchEvent(event);
+
+      expect(events).toEqual([{ event, target: field }]);
+    });
+
+    it('should bridge change from the internal field to the host', async () => {
+      const field = createField(tag);
+
+      document.body.append(field);
+
+      await nextFrame();
+
+      const input = getInput(field);
+      const events: Event[] = [];
+
+      field.addEventListener('change', (event) => {
+        events.push(event);
+      });
+
+      const internalEvent = new Event('change', { bubbles: true });
+      input.dispatchEvent(internalEvent);
+
+      expect(events).toHaveLength(1);
+
+      const [event] = events;
+
+      expect(event).not.toBe(internalEvent);
+      expect(event?.target).toBe(field);
+      expect(event?.bubbles).toBeTruthy();
+      expect(event?.composed).toBeFalsy();
+      expect(event?.cancelable).toBeFalsy();
     });
   });
 } else {

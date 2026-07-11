@@ -113,11 +113,15 @@ All controllers are registered with `use(host, controller)` in the constructor.
 ### Utils
 
 ```ts
-import { $, $$, notify, toggleState } from 'ydin/utils/DOM.js';
+import { $, $$, createEventNotifier, toggleState } from 'ydin/utils/DOM.js';
 
 $(host, selector); // host.shadowRoot?.querySelector(selector)
 $$(host, selector); // host.shadowRoot?.querySelectorAll(selector)
-notify(host, 'change', 'input'); // dispatch multiple bubbling composed events in order
+const notify = createEventNotifier({
+  input: { cancelable: false },
+  change: { cancelable: false, composed: false },
+});
+notify(host, 'input', 'change'); // create and dispatch configured events in order
 toggleState(internals, 'checked', true); // add/remove a custom state from ElementInternals.states
 ```
 

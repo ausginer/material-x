@@ -1,0 +1,26 @@
+.interaction {
+  display: inline-grid;
+  position: relative;
+}
+
+.control,
+.host {
+  grid-area: 1 / 1;
+}
+
+.control {
+  appearance: none;
+  cursor: default;
+  margin: 0;
+  opacity: 0;
+  z-index: 1;
+}
+
+.control:focus-visible + .host {
+  outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
+  outline-offset: var(--_focus-indicator-outline-offset);
+}
+
+.control:disabled {
+  pointer-events: none;
+}

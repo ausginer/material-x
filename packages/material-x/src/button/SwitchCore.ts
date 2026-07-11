@@ -1,4 +1,5 @@
-import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
+import { Bool } from 'ydin/attribute.js';
+import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
 import { internals } from 'ydin/element.js';
 import {
@@ -13,12 +14,18 @@ import {
   useValuable,
   type ValuableProps,
 } from 'ydin/traits/valuable.js';
-import { $, notify } from 'ydin/utils/DOM.js';
+import { toggleState } from 'ydin/utils/DOM.js';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
+import { notify, useClickActivation } from '../core/utils/events.ts';
 import { useContext } from '../core/utils/useContext.ts';
 import { ButtonCore, useButtonCore } from './ButtonCore.ts';
+import controlStyles from './styles/default/switch-control.css.ts' with { type: 'css' };
 
 export type SwitchProps = CheckableProps & ValuableProps;
+export type SwitchEvents = Readonly<{
+  change: Event;
+  input: Event;
+}>;
 
 export const SwitchCore: TraitedConstructor<
   ButtonCore,
@@ -33,24 +40,26 @@ export function useSwitchCore(
   styles: ReadonlyArray<CSSStyleSheet | string>,
   init?: Partial<ShadowRootInit>,
 ): void {
-  useButtonCore(host, template, styles, init);
-
-  const target = $<HTMLButtonElement>(host, '.host')!;
+  const target = useButtonCore(
+    host,
+    template,
+    [...styles, controlStyles],
+    init,
+  ) as HTMLInputElement;
 
   target.role = 'switch';
-  target.ariaChecked = 'false';
 
   useCheckable(host, target);
 
   useValuable(host, target);
 
-  useAttributes(host, {
-    checked: transfer(target, 'aria-checked', (value) =>
-      value == null ? 'false' : 'true',
-    ),
-  });
-
   const innards = internals(host);
+
+  useAttributes(host, {
+    checked: via(Bool, (_, value) => {
+      toggleState(innards, 'checked', value);
+    }),
+  });
 
   useContext(
     host,
@@ -59,17 +68,23 @@ export function useSwitchCore(
     (_, oldValue, newValue) => {
       if (oldValue === host.value) {
         innards.states.delete('checked');
-        target.ariaChecked = 'false';
+        target.checked = false;
       } else if (newValue === host.value) {
         innards.states.add('checked');
-        target.ariaChecked = 'true';
+        target.checked = true;
       }
     },
   );
 
-  useEvents(host, {
-    pointerdown() {
-      notify(host, 'input', 'change');
+  useEvents(
+    host,
+    {
+      change() {
+        notify(host, 'change');
+      },
     },
-  });
+    target,
+  );
+
+  useClickActivation(host, target);
 }

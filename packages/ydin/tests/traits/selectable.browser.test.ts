@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ControlledElement } from '../../src/element.ts';
-import {
-  Selectable,
-  type Selectable as SelectableInterface,
-  useSelectable,
-} from '../../src/traits/selectable.ts';
+import { Selectable, useSelectable } from '../../src/traits/selectable.ts';
 import { impl } from '../../src/traits/traits.ts';
 import { defineCE, nameCE } from '../browser.ts';
 
@@ -30,7 +26,7 @@ function createHostWithTarget() {
   class Host extends SelectableElement {
     constructor() {
       super();
-      useSelectable(this as SelectableInterface & ControlledElement, native);
+      useSelectable(this, native);
     }
   }
 

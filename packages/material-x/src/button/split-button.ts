@@ -12,7 +12,8 @@ import {
   type Props,
   type Trait,
 } from 'ydin/traits/traits.js';
-import { $, notify, toggleState } from 'ydin/utils/DOM.js';
+import { $, toggleState } from 'ydin/utils/DOM.js';
+import { notify } from '../core/utils/events.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
@@ -50,7 +51,7 @@ export type SplitButtonProperties = Simplify<
   ButtonCoreProps & SplitButtonLikeProps
 >;
 export type SplitButtonEvents = Readonly<{
-  toggle: Event;
+  secondaryaction: Event;
 }>;
 
 export type SplitButtonCSSProperties = ButtonSharedCSSProperties;
@@ -89,7 +90,7 @@ export type SplitButtonCSSProperties = ButtonSharedCSSProperties;
  * @cssprop --md-button-press-duration - Overrides press transition duration.
  * @cssprop --md-button-press-easing - Overrides press transition easing.
  *
- * @event toggle - Fired when the trailing action is activated.
+ * @event secondaryaction - Fired when the trailing action is activated.
  */
 export default class SplitButton extends SplitButtonCore {
   static override readonly formAssociated = true;
@@ -103,7 +104,7 @@ export default class SplitButton extends SplitButtonCore {
       {
         click: (event) => {
           event.stopPropagation();
-          notify(this, 'toggle');
+          notify(this, 'secondaryaction');
         },
       },
       $(this, 'mx-icon-button') ?? undefined,

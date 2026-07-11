@@ -1,9 +1,9 @@
-import { describe, expect, it, vi, type Mock } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   $,
   $$,
+  createEventNotifier,
   DEFAULT_EVENT_INIT,
-  notify,
   switchState,
   toggleState,
 } from '../../src/utils/DOM.ts';
@@ -62,24 +62,44 @@ describe('DEFAULT_EVENT_INIT', () => {
   });
 });
 
-describe('notify', () => {
-  it('should dispatch all requested events', () => {
+describe('createEventNotifier', () => {
+  it('should dispatch requested events in order', () => {
     const target = document.createElement('div');
-    const first: Mock<EventListener> = vi.fn();
-    const second: Mock<EventListener> = vi.fn();
+    const types: string[] = [];
+    const notifyEvent = createEventNotifier({ first: {}, second: {} });
 
-    target.addEventListener('first', first);
-    target.addEventListener('second', second);
+    target.addEventListener('first', (event) => {
+      types.push(event.type);
+    });
+    target.addEventListener('second', (event) => {
+      types.push(event.type);
+    });
 
-    notify(target, 'first', 'second');
+    notifyEvent(target, 'first', 'second');
 
-    expect(first).toHaveBeenCalledOnce();
-    expect(second).toHaveBeenCalledOnce();
+    expect(types).toEqual(['first', 'second']);
   });
 
-  it('should dispatch bubbling composed cancelable events', () => {
+  it('should create a fresh event for every dispatch', () => {
+    const target = document.createElement('div');
+    const events: Event[] = [];
+    const notifyEvent = createEventNotifier({ test: {} });
+
+    target.addEventListener('test', (event) => {
+      events.push(event);
+    });
+
+    notifyEvent(target, 'test', 'test');
+
+    expect(events[0]).not.toBe(events[1]);
+  });
+
+  it('should merge definitions over the default initialization', () => {
     const target = document.createElement('div');
     const states: EventInit[] = [];
+    const notifyEvent = createEventNotifier({
+      test: { cancelable: false, composed: false },
+    });
 
     target.addEventListener('test', (event) => {
       states.push({
@@ -89,13 +109,13 @@ describe('notify', () => {
       });
     });
 
-    notify(target, 'test');
+    notifyEvent(target, 'test');
 
     expect(states).toEqual([
       {
         bubbles: true,
-        cancelable: true,
-        composed: true,
+        cancelable: false,
+        composed: false,
       },
     ]);
   });

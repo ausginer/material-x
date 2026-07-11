@@ -27,8 +27,9 @@ import {
   Valuable,
   type ValuableProps,
 } from 'ydin/traits/valuable.js';
-import { $, notify, toggleState } from 'ydin/utils/DOM.js';
+import { $, toggleState } from 'ydin/utils/DOM.js';
 import { useRipple } from '../animations/ripple/ripple.ts';
+import { notify, useClickActivation } from '../utils/events.ts';
 import { useCore } from '../utils/useCore.ts';
 import css from './styles/main.css.ts' with { type: 'css' };
 
@@ -79,20 +80,14 @@ export function useCheckableCore(
   useEvents(
     host,
     {
-      input() {
-        notify(host, 'input', 'change');
+      change() {
+        notify(host, 'change');
       },
     },
     input,
   );
 
-  useEvents(host, {
-    click(e) {
-      if (e.target === host) {
-        input.click();
-      }
-    },
-  });
+  useClickActivation(host, input);
 
   return input;
 }

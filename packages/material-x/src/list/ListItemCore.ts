@@ -18,7 +18,7 @@ export type ListItemCore = InstanceType<typeof ListItemCore>;
 
 export type ListItemCoreProperties = Record<never, never>;
 export type ListItemCoreEvents = Readonly<{
-  click: MouseEvent;
+  click: HTMLElementEventMap['click'];
 }>;
 export type ListItemCoreCSSProperties = Readonly<{
   '--md-list-item-container-color'?: string;

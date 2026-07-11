@@ -26,7 +26,11 @@ function ControlledSplitButton(
   const [open, setOpen] = useState(false);
 
   return (
-    <mx-split-button open={open} ontoggle={() => setOpen(!open)} {...props} />
+    <mx-split-button
+      open={open}
+      onsecondaryaction={() => setOpen(!open)}
+      {...props}
+    />
   );
 }
 

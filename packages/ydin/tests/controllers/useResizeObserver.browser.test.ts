@@ -29,10 +29,7 @@ function mockResizeObserver(): readonly [
     }
   }
 
-  vi.stubGlobal(
-    'ResizeObserver',
-    MockResizeObserver as unknown as typeof ResizeObserver,
-  );
+  vi.stubGlobal('ResizeObserver', MockResizeObserver);
 
   return [instances, created] as const;
 }

@@ -50,7 +50,8 @@ const ListCore: TraitedConstructor<
  * @slot - List item elements.
  *
  * @event reorder - Fired when the user drops an item at a new position.
- *   The event detail contains the dragged item and its `fromIndex`/`toIndex`.
+ *   The event exposes the dragged `item` and its `from` and `to` indices
+ *   directly.
  *   The consumer is responsible for updating the DOM order.
  *
  * @cssprop --md-list-container-color - Overrides the list container color.

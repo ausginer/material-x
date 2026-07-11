@@ -24,10 +24,7 @@ function mockMutationObserver(): readonly MockMutationObserverInstance[] {
     }
   }
 
-  vi.stubGlobal(
-    'MutationObserver',
-    MockMutationObserver as unknown as typeof MutationObserver,
-  );
+  vi.stubGlobal('MutationObserver', MockMutationObserver);
 
   return instances;
 }

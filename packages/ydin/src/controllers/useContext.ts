@@ -1,9 +1,14 @@
 import { use, type ControlledElement } from '../element.ts';
 import type { Unsubscribe } from '../emitter.ts';
-import { DEFAULT_EVENT_INIT } from '../utils/DOM.ts';
 import { useEvents } from './useEvents.ts';
 
 declare const $ctx: unique symbol;
+
+const CONTEXT_EVENT_INIT: Readonly<EventInit> = {
+  bubbles: true,
+  cancelable: false,
+  composed: true,
+};
 
 /**
  * Opaque identifier for a provider/consumer context channel.
@@ -96,7 +101,7 @@ export function useContext<T>(
 
   use(host, {
     connected() {
-      const event = new ContextEvent(ctx, DEFAULT_EVENT_INIT);
+      const event = new ContextEvent(ctx, CONTEXT_EVENT_INIT);
       host.dispatchEvent(event);
 
       // oxlint-disable-next-line typescript/no-unsafe-type-assertion

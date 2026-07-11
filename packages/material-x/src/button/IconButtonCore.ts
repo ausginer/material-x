@@ -18,7 +18,11 @@ import {
   type ButtonLike,
   type ButtonSharedCSSProperties,
 } from './ButtonCore.ts';
-import { SwitchCore, type SwitchProps } from './SwitchCore.ts';
+import {
+  SwitchCore,
+  type SwitchEvents,
+  type SwitchProps,
+} from './SwitchCore.ts';
 
 export type IconButtonWidth = 'wide' | 'narrow';
 export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
@@ -56,7 +60,7 @@ export type IconButtonEvents = EmptyObject;
 export type IconButtonCSSProperties = ButtonSharedCSSProperties;
 
 export type SwitchIconButtonProperties = IconButtonProperties & SwitchProps;
-export type SwitchIconButtonEvents = EmptyObject;
+export type SwitchIconButtonEvents = SwitchEvents;
 export type SwitchIconButtonCSSProperties = ButtonSharedCSSProperties;
 
 export const SwitchIconButtonCore: TraitedConstructor<

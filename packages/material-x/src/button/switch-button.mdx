@@ -85,7 +85,8 @@ Use the live example below to inspect interaction states:
 
 ## Accessibility
 
-- **Semantics:** Exposes switch-like semantics via `checked`, `input`, and `change`.
+- **Semantics:** Uses an internal native checkbox with `switch` semantics and
+  exposes its `checked`, `input`, and `change` behavior.
 - **Keyboard:** Supports focus and activation using native keyboard behavior.
 - **Name:** Label text in the default slot provides the accessible name.
 - **Disabled:** `disabled` blocks interaction and updates assistive-state signaling.
@@ -100,7 +101,8 @@ Use the live example below to inspect interaction states:
 
 - `default` slot: label/content.
 - `icon` slot: leading icon content.
-- `impl` CSS part: internal interactive element.
+- `impl` CSS part: visual button container.
+- `control` CSS part: internal native checkbox control.
 
 ## Theming
 

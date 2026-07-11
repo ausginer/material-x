@@ -2,12 +2,21 @@ import { Bool } from '../attribute.ts';
 import { useEvents } from '../controllers/useEvents.ts';
 import { useSlot } from '../controllers/useSlot.ts';
 import { ControlledElement, internals } from '../element.ts';
-import { DEFAULT_EVENT_INIT, toggleState } from '../utils/DOM.ts';
+import { toggleState } from '../utils/DOM.ts';
 import { trait, type Interface, type Props, type Trait } from './traits.ts';
+
+const REORDER_EVENT_INIT: Readonly<EventInit> = {
+  bubbles: true,
+  cancelable: false,
+  composed: true,
+};
 
 /**
  * Fired by a reorderable container when the user drops a dragged item at a new
  * position. DOM reordering is left to the consumer.
+ *
+ * @remarks This post-commit notification bubbles and crosses shadow DOM
+ * boundaries. It is not cancelable because the drag has already landed.
  */
 export class ReorderEvent extends Event {
   readonly item: HTMLElement;
@@ -15,7 +24,7 @@ export class ReorderEvent extends Event {
   readonly to: number;
 
   constructor(item: HTMLElement, from: number, to: number) {
-    super('reorder', DEFAULT_EVENT_INIT);
+    super('reorder', REORDER_EVENT_INIT);
     this.item = item;
     this.from = from;
     this.to = to;
@@ -318,7 +327,7 @@ export function useReorderable(
  */
 export function useReorderableItem(
   host: ControlledElement,
-  target: HTMLElement = host as HTMLElement,
+  target: HTMLElement = host,
 ): void {
   itemTargets.set(host, target);
 }
