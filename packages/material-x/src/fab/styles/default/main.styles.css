@@ -16,17 +16,13 @@
   background-color: var(--_container-color);
   border-radius: var(--_container-shape);
   padding: calc(
-      (
-          var(--md-fab-container-height, var(--_container-height)) -
-            var(--md-fab-icon-size, var(--_icon-size))
-        ) /
+      (var(--md-fab-container-height, var(--_container-height)) -
+          var(--md-fab-icon-size, var(--_icon-size))) /
         2
     )
     calc(
-      (
-          var(--md-fab-container-width, var(--_container-width)) -
-            var(--md-fab-icon-size, var(--_icon-size))
-        ) /
+      (var(--md-fab-container-width, var(--_container-width)) -
+          var(--md-fab-icon-size, var(--_icon-size))) /
         2
     );
 

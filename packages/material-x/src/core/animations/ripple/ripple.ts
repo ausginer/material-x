@@ -7,7 +7,6 @@
  */
 import {
   useCSSProps,
-  type CSSPropParser,
   type CSSPropDescription,
 } from 'ydin/controllers/useCSSProps.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
@@ -45,12 +44,12 @@ const TOUCH_DELAY_MS = 150;
 const FORCED_COLORS = matchMedia('(forced-colors: active)');
 
 const CSS_PROPS = {
-  easing: ['--_ripple-easing', identity as CSSPropParser<string>],
+  easing: ['--_ripple-easing', identity<string>],
   duration: ['--_ripple-duration', parseMs],
-  driftEasing: ['--_ripple-drift-easing', identity as CSSPropParser<string>],
+  driftEasing: ['--_ripple-drift-easing', identity<string>],
   driftDuration: ['--_ripple-drift-duration', parseMs],
   opacity: ['--_ripple-opacity', parseNum],
-} satisfies Readonly<Record<string, CSSPropDescription<unknown>>>;
+} as const satisfies Readonly<Record<string, CSSPropDescription<unknown>>>;
 
 export type CSSProps = Readonly<{
   easing: string;

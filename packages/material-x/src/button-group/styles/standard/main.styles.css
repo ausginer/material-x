@@ -8,23 +8,19 @@
   ::slotted(*) {
     padding-inline: calc(
         var(--_leading-space) *
-          (
-            1 + var(--_interaction-direction-leading) *
-              var(
-                --md-button-group-interaction-width-multiplier,
-                var(--_interaction-width-multiplier)
-              )
-          )
+          (1 + var(--_interaction-direction-leading) *
+            var(
+              --md-button-group-interaction-width-multiplier,
+              var(--_interaction-width-multiplier)
+            ))
       )
       calc(
         var(--_trailing-space) *
-          (
-            1 + var(--_interaction-direction-trailing) *
-              var(
-                --md-button-group-interaction-width-multiplier,
-                var(--_interaction-width-multiplier)
-              )
-          )
+          (1 + var(--_interaction-direction-trailing) *
+            var(
+              --md-button-group-interaction-width-multiplier,
+              var(--_interaction-width-multiplier)
+            ))
       );
   }
 

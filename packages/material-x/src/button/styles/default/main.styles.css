@@ -36,16 +36,14 @@
     var(--md-button-container-height, var(--_container-height)) / 2
   );
   --_padding-block: calc(
-    (
-        var(--md-button-container-height, var(--_container-height)) -
-          max(
-            var(--md-button-icon-size, var(--_icon-size)),
-            var(
-              --md-button-label-text-line-height,
-              var(--_label-text-line-height)
-            )
+    (var(--md-button-container-height, var(--_container-height)) -
+        max(
+          var(--md-button-icon-size, var(--_icon-size)),
+          var(
+            --md-button-label-text-line-height,
+            var(--_label-text-line-height)
           )
-      ) /
+        )) /
       2
   );
   display: contents;

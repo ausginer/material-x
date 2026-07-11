@@ -83,23 +83,17 @@
  */
 :host {
   --_default-margin-block: calc(
-    (
-        var(--md-text-field-container-height, var(--_container-height)) -
-          var(--md-text-field-input-line-height, var(--_input-text-line-height))
-      ) /
+    (var(--md-text-field-container-height, var(--_container-height)) -
+        var(--md-text-field-input-line-height, var(--_input-text-line-height))) /
       2
   );
   --_filled-margin-block: calc(
-      (
-          (
-              var(--md-text-field-container-height, var(--_container-height)) -
-                var(
-                  --md-text-field-input-line-height,
-                  var(--_input-text-line-height)
-                )
-            ) /
-            2
-        ) +
+      ((var(--md-text-field-container-height, var(--_container-height)) -
+            var(
+              --md-text-field-input-line-height,
+              var(--_input-text-line-height)
+            )) /
+          2) +
         var(--_container-focus-padding-block)
     )
     var(--_container-focus-padding-block);
@@ -357,16 +351,12 @@ slot:has-slotted {
  * =========================== */
 .input {
   margin-block: calc(
-      (
-          (
-              var(--md-text-field-container-height, var(--_container-height)) -
-                var(
-                  --md-text-field-input-line-height,
-                  var(--_input-text-line-height)
-                )
-            ) /
-            2
-        ) +
+      ((var(--md-text-field-container-height, var(--_container-height)) -
+            var(
+              --md-text-field-input-line-height,
+              var(--_input-text-line-height)
+            )) /
+          2) +
         var(--_container-focus-padding-block)
     )
     var(--_container-focus-padding-block);

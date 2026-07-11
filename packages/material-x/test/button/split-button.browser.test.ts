@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi, type Mock } from 'vitest';
-import './split-button.ts';
+import '../../src/button/split-button.ts';
 
 function createSplitButton(): HTMLElement {
   const splitButton = document.createElement('mx-split-button');

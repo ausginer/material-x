@@ -90,6 +90,10 @@ You can find accessibility review in `.agents/docs/accessibility.md`
 
 Material X runtime entrypoints are listed in `packages/material-x/files.json`; update it when adding or removing a component.
 
+## Testing
+
+When adding, moving, or reviewing a component's tests, use skill `test-component` (placement under `packages/material-x/test`, file suffixes and Vitest project routing, rendering/interaction rules, definition of done). When writing or debugging a tproc-backed visual contract — a `*.spec.browser.test.ts`, a token binding, the resolve-token bridge, or a normalization adapter — use skill `test-visual-contract`. Both skills apply even if the request doesn't name them. The reasoning behind the layers lives in `.agents/docs/test-architecture.md`.
+
 ## Sub-agents and teams
 
 Use sub-agents for research and exploration tasks that can run in parallel (e.g. investigating different parts of the codebase simultaneously).

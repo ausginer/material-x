@@ -1,7 +1,6 @@
 import {
   useCSSProps,
   type CSSPropDescription,
-  type CSSPropParser,
 } from 'ydin/controllers/useCSSProps.js';
 import {
   ControlledElement,
@@ -21,9 +20,9 @@ import template from './list.tpl.html' with { type: 'html' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 
 const CSS_PROPS = {
-  easing: ['--_drag-easing', identity as CSSPropParser<string>],
+  easing: ['--_drag-easing', identity<string>],
   duration: ['--_drag-duration', parseMs],
-} satisfies Readonly<Record<string, CSSPropDescription<unknown>>>;
+} as const satisfies Readonly<Record<string, CSSPropDescription<unknown>>>;
 
 export type ListProperties = ReorderableProps;
 export type ListEvents = Readonly<{ reorder: ReorderEvent }>;

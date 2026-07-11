@@ -8,6 +8,9 @@ import { constructComponentTsdownPlugins } from '../../.scripts/tsdown-component
 import files from './files.json' with { type: 'json' };
 
 const config: UserConfig = defineConfig({
+  deps: {
+    neverBundle: [/node_modules/],
+  },
   entry: packageFilesToTsdownEntries(files),
   platform: 'neutral',
   exports: packageFilesToCustomExports(files),
@@ -16,7 +19,6 @@ const config: UserConfig = defineConfig({
   format: 'esm',
   target: 'esnext',
   outDir: '.',
-  external: [/node_modules/],
   clean: false,
   publint: true,
   inputOptions: {

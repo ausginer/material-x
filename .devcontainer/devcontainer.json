@@ -6,6 +6,7 @@
   "containerEnv": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
+    "ENABLE_LSP_TOOL": "1",
     "SSH_AUTH_SOCK": "/ssh-agent"
   },
   "forwardPorts": [9876, 6006, 5176, 24678],

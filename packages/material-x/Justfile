@@ -55,6 +55,22 @@ docs-build:
 test *ARGS:
     vitest run -c vitest.config.ts {{ ARGS }}
 
+# Run browser behavior tests
+test-behavior *ARGS:
+    vitest run -c vitest.config.ts --project browser {{ ARGS }}
+
+# Run tproc-backed visual contract tests
+test-spec *ARGS:
+    vitest run -c vitest.config.ts --project spec {{ ARGS }}
+
+# Run visual regression tests
+test-visual *ARGS:
+    vitest run -c vitest.config.ts --project visual {{ ARGS }}
+
+# Explicitly update visual regression baselines
+test-visual-update *ARGS:
+    vitest run -c vitest.config.ts --project visual --update {{ ARGS }}
+
 # Type-check
 typecheck:
     tsc -p tsconfig.json --noEmit
