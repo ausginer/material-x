@@ -7,10 +7,11 @@
 - Always use `Readonly<>` wrapper type / `readonly` modifier for TS `type`/`interface` unless mutability is required.
 - Always prefer CSS classes over inline style.
 - Each edited source file (`.tsx?`, `.css`, `.html`) should be:
-  - formatted via `npx just fmt-mx <changed files>` (material-x) or `npx just fmt-ydin <changed files>` (ydin),
-  - linted and fixed via `npx just lint-fix-mx <changed files>` or `npx just lint-fix-ydin <changed files>`. If autofix fails for any file, list those files — do not attempt to resolve lint errors manually; report them and continue,
+  - formatted via `npx just fmt <changed files>`,
+  - linted and fixed via `npx just lint-fix <changed files>`. If autofix fails for any file, list those files — do not attempt to resolve lint errors manually; report them and continue,
   - typechecked via `npx just typecheck`. This checks all packages. Ignore errors in files you did not touch — unless your change caused them, in which case fix them.
-  - File paths passed to `npx just` recipes are relative to the package directory (`packages/material-x` or `packages/ydin`).
+  - The `fmt`, `lint-fix`, and `typecheck` recipes live in each package's own Justfile, so run them from the package directory (`packages/material-x` or `packages/ydin`). File paths passed to them are relative to that package directory.
+  - When you change a `ydin` source file that material-x consumes, rebuild ydin (`npx just build` from `packages/ydin`) before typechecking material-x — material-x resolves `ydin` through its built `.d.ts` at the package root, not `src`, so type changes are invisible until rebuilt.
 - Codestyle priorities (in order):
   1. **Performance** — code should be as fast as possible for the end user.
   2. **Code size** — a smaller bundle can outperform a faster-but-larger one due to load time. Keep code size minimal unless it hurts runtime performance. Private identifiers can have long names — they are mangled in production builds.
