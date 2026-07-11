@@ -1,3 +1,7 @@
+## LSP
+
+Prefer LSP over grep for code-symbol tasks (definitions, references, types, call hierarchy); grep is still right for plain-text/non-symbol searches. The LSP plugin is a deferred tool and can be unavailable — at the start of any code task, load it (via ToolSearch) and try it; if it errors, re-probe once, then fall back to grep. State its status each time as `LSP plugin - available/unavailable`.
+
 ## Code style
 
 - Install dependencies via `npm i` rather than editing `package.json` directly, to get the latest compatible version.
@@ -82,9 +86,7 @@ Files with `.css.ts` extensions are meant to be compiled for browser usage. They
 
 ## Architecture
 
-You can find architecture insights from your analysis in `.agents/docs/architecture.md`.
-You can find CSS architecture reiteration in `.agents/docs/css-inheritance.md`.
-You can find accessibility review in `.agents/docs/accessibility.md`
+You can find architecture insights from your analysis in `.agents/docs/architecture.md`. You can find CSS architecture reiteration in `.agents/docs/css-inheritance.md`. You can find accessibility review in `.agents/docs/accessibility.md`
 
 `src/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
 

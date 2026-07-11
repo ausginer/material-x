@@ -25,8 +25,8 @@ const renderPage = ({
   title: string;
   heading: string;
   body: string;
-}): string => {
-  return `<!doctype html>
+}): string =>
+  `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -57,7 +57,6 @@ const renderPage = ({
   </body>
 </html>
 `;
-};
 
 await mkdir(outputRoot, { recursive: true });
 await mkdir(materialXRoot, { recursive: true });

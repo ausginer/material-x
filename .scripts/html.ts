@@ -1,3 +1,4 @@
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   GenMapping,
   addMapping,
@@ -5,9 +6,8 @@ import {
   toEncodedMap,
 } from '@jridgewell/gen-mapping';
 import minifier from '@minify-html/node';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-// eslint-disable-next-line import-x/no-unresolved
 import { type SourceMapInput, RolldownMagicString } from 'rolldown';
+// eslint-disable-next-line import-x/no-unresolved
 import * as sorcery from 'sorcery';
 import { createSourcePath } from './utils.ts';
 
