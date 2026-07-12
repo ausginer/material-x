@@ -1,11 +1,16 @@
 import { useRovingTabindex } from 'ydin/controllers/useRovingTabindex.js';
 import { useSlot } from 'ydin/controllers/useSlot.js';
-import { define, type ControlledElement } from 'ydin/element.js';
+import {
+  ControlledElement,
+  define,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
 import type { Checkable } from 'ydin/traits/checkable.js';
+import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import type { ButtonLike } from '../button/ButtonCore.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
-  ButtonGroupCore,
+  BUTTON_GROUP_CORE_TRAITS,
   useButtonGroupCore,
   type ButtonGroupCoreCSSProperties,
   type ButtonGroupCoreEvents,
@@ -16,6 +21,12 @@ import connectedStyles from './styles/connected/main.css.ts' with { type: 'css' 
 export type ConnectedButtonGroupProperties = ButtonGroupCoreProps;
 export type ConnectedButtonGroupEvents = ButtonGroupCoreEvents;
 export type ConnectedButtonGroupCSSProperties = ButtonGroupCoreCSSProperties;
+
+export type ConnectedButtonGroupConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  typeof BUTTON_GROUP_CORE_TRAITS
+>;
 
 /**
  * @tag mx-connected-button-group
@@ -38,35 +49,44 @@ export type ConnectedButtonGroupCSSProperties = ButtonGroupCoreCSSProperties;
  * overlap width factor.
  * @cssprop --md-button-group-inner-corner-size - Overrides inner corner radius.
  */
-export default class ConnectedButtonGroup extends ButtonGroupCore {
-  constructor() {
-    super();
-    useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [
-      connectedStyles,
-    ]);
+const ConnectedButtonGroup: ConnectedButtonGroupConstructor = impl(
+  ControlledElement,
+  BUTTON_GROUP_CORE_TRAITS,
+)(
+  (Base) =>
+    class extends Base {
+      constructor() {
+        super();
+        useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [
+          connectedStyles,
+        ]);
 
-    useRovingTabindex(this);
+        useRovingTabindex(this);
 
-    useSlot<ButtonLike & Checkable & ControlledElement>(
-      this,
-      'slot',
-      (_, newElements) => {
-        newElements.forEach((element) => {
-          delete element.dataset['first'];
-          delete element.dataset['last'];
-        });
+        useSlot<ButtonLike & Checkable & ControlledElement>(
+          this,
+          'slot',
+          (_, newElements) => {
+            newElements.forEach((element) => {
+              delete element.dataset['first'];
+              delete element.dataset['last'];
+            });
 
-        if (newElements[0]) {
-          newElements[0].dataset['first'] = '';
-        }
+            if (newElements[0]) {
+              newElements[0].dataset['first'] = '';
+            }
 
-        if (newElements.at(-1)) {
-          newElements.at(-1)!.dataset['last'] = '';
-        }
-      },
-    );
-  }
-}
+            if (newElements.at(-1)) {
+              newElements.at(-1)!.dataset['last'] = '';
+            }
+          },
+        );
+      }
+    },
+);
+type ConnectedButtonGroup = InstanceType<typeof ConnectedButtonGroup>;
+
+export default ConnectedButtonGroup;
 
 define('mx-connected-button-group', ConnectedButtonGroup);
 
