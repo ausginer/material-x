@@ -1,5 +1,13 @@
-import { define } from 'ydin/element.js';
-import { SwitchIconButtonCore, useIconButtonCore } from './IconButtonCore.ts';
+import {
+  ControlledElement,
+  define,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
+import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+import {
+  SWITCH_ICON_BUTTON_CORE_TRAITS,
+  useIconButtonCore,
+} from './IconButtonCore.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts' with { type: 'css' };
 import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
 import switchElevatedStyles from './styles/elevated/switch.css.ts' with { type: 'css' };
@@ -12,6 +20,12 @@ import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' };
 import switchIconButtonTemplate from './switch-icon-button.tpl.html' with { type: 'html' };
 import { useSwitchCore } from './SwitchCore.ts';
+
+export type SwitchIconButtonConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  typeof SWITCH_ICON_BUTTON_CORE_TRAITS
+>;
 
 /**
  * @tag mx-switch-icon-button
@@ -48,27 +62,36 @@ import { useSwitchCore } from './SwitchCore.ts';
  * @event input - Fired when switch interaction occurs.
  * @event change - Fired when switch interaction occurs.
  */
-export default class SwitchIconButton extends SwitchIconButtonCore {
-  static override readonly formAssociated = true;
+const SwitchIconButton: SwitchIconButtonConstructor = impl(
+  ControlledElement,
+  SWITCH_ICON_BUTTON_CORE_TRAITS,
+)(
+  (Base) =>
+    class extends Base {
+      static readonly formAssociated = true;
 
-  constructor() {
-    super();
-    useSwitchCore(this, switchIconButtonTemplate, [
-      mainElevatedStyles,
-      mainOutlinedStyles,
-      mainTonalStyles,
-      mainIconStyles,
-      switchDefaultStyles,
-      switchElevatedStyles,
-      switchOutlinedStyles,
-      switchSizeStyles,
-      switchTonalStyles,
-      switchIconStyles,
-    ]);
+      constructor() {
+        super();
+        useSwitchCore(this, switchIconButtonTemplate, [
+          mainElevatedStyles,
+          mainOutlinedStyles,
+          mainTonalStyles,
+          mainIconStyles,
+          switchDefaultStyles,
+          switchElevatedStyles,
+          switchOutlinedStyles,
+          switchSizeStyles,
+          switchTonalStyles,
+          switchIconStyles,
+        ]);
 
-    useIconButtonCore(this);
-  }
-}
+        useIconButtonCore(this);
+      }
+    },
+);
+type SwitchIconButton = InstanceType<typeof SwitchIconButton>;
+
+export default SwitchIconButton;
 
 define('mx-switch-icon-button', SwitchIconButton);
 

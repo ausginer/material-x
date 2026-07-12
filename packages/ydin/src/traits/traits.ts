@@ -20,7 +20,7 @@ import {
  * tuple trait lists are the intended path, while plain arrays weaken type
  * inference.
  */
-export { impl, type TraitedConstructor } from './piirre.ts';
+export { impl, type Traited, type TraitedConstructor } from './piirre.ts';
 
 /**
  * Maps converter descriptors to the actual instance field types exposed by

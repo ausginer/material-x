@@ -1,5 +1,9 @@
 import type { EmptyObject } from 'type-fest';
-import { define } from 'ydin/element.js';
+import {
+  ControlledElement,
+  define,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
 import {
   Nameable,
   useNameable,
@@ -10,7 +14,7 @@ import { Typeable, useTypeable } from 'ydin/traits/typeable.js';
 import { useFormActivation } from '../core/utils/events.ts';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {
-  ButtonCore as ButtonCoreBase,
+  BUTTON_CORE_TRAITS,
   useButtonCore,
   type ButtonCoreProps,
   type ButtonSharedCSSProperties,
@@ -24,6 +28,11 @@ export type ButtonProperties = ButtonCoreProps & NameableProps;
 export type ButtonEvents = EmptyObject;
 export type ButtonCSSProperties = ButtonSharedCSSProperties;
 
+export type ButtonConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  [...typeof BUTTON_CORE_TRAITS, typeof Nameable, typeof Typeable]
+>;
 /**
  * @tag mx-button
  *
@@ -57,14 +66,14 @@ export type ButtonCSSProperties = ButtonSharedCSSProperties;
  *
  * @event click - Fired when the button is activated.
  */
-const Button: TraitedConstructor<
-  ButtonCoreBase,
-  typeof ButtonCoreBase,
-  [typeof Nameable, typeof Typeable]
-> = impl(ButtonCoreBase, [Nameable, Typeable])(
+const Button: ButtonConstructor = impl(ControlledElement, [
+  ...BUTTON_CORE_TRAITS,
+  Nameable,
+  Typeable,
+])(
   (Base) =>
     class extends Base {
-      static override readonly formAssociated = true;
+      static readonly formAssociated = true;
 
       constructor() {
         super();

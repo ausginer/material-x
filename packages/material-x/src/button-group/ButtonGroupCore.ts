@@ -1,6 +1,10 @@
 import type { EmptyObject } from 'type-fest';
 import { useAttributes } from 'ydin/controllers/useAttributes.js';
-import { internals } from 'ydin/element.js';
+import {
+  ControlledElement,
+  internals,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
 import { DISABLEABLE_ATTRS } from 'ydin/traits/disableable.js';
 import {
   impl,
@@ -18,7 +22,7 @@ import {
 import { switchState } from 'ydin/utils/DOM.js';
 import {
   BUTTON_ATTRS,
-  ButtonCore,
+  BUTTON_CORE_TRAITS,
   type ButtonCoreProps,
 } from '../button/ButtonCore.ts';
 import { useCore } from '../core/utils/useCore.ts';
@@ -38,10 +42,10 @@ export type ButtonGroupLike = Interface<typeof ButtonGroupLike>;
 export type ButtonGroupLikeProps = Props<typeof ButtonGroupLike>;
 
 export const ButtonGroupCore: TraitedConstructor<
-  ButtonCore,
-  typeof ButtonCore,
-  [typeof ButtonGroupLike, typeof Valuable]
-> = impl(ButtonCore, [ButtonGroupLike, Valuable])(
+  ControlledElement,
+  ControlledElementConstructor,
+  [...typeof BUTTON_CORE_TRAITS, typeof ButtonGroupLike, typeof Valuable]
+> = impl(ControlledElement, [...BUTTON_CORE_TRAITS, ButtonGroupLike, Valuable])(
   (Base) => class extends Base {},
 );
 

@@ -1,11 +1,7 @@
 import { Bool, Str, type ConverterOf } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
 import { useAttributes } from 'ydin/controllers/useAttributes.js';
-import {
-  ControlledElement,
-  internals,
-  type ControlledElementConstructor,
-} from 'ydin/element.js';
+import { internals, type ControlledElement } from 'ydin/element.js';
 import {
   Disableable,
   DISABLEABLE_ATTRS,
@@ -13,12 +9,11 @@ import {
   type DisableableProps,
 } from 'ydin/traits/disableable.js';
 import {
-  impl,
   trait,
   type Interface,
   type Props,
   type Trait,
-  type TraitedConstructor,
+  type Traited,
 } from 'ydin/traits/traits.js';
 import { $, toggleState, switchState } from 'ydin/utils/DOM.js';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
@@ -61,14 +56,12 @@ export const ButtonLike: Trait<
 export type ButtonLike = Interface<typeof ButtonLike>;
 export type ButtonLikeProps = Props<typeof ButtonLike>;
 
-export const ButtonCore: TraitedConstructor<
-  ControlledElement,
-  ControlledElementConstructor,
-  [typeof ButtonLike, typeof Disableable]
-> = impl(ControlledElement, [ButtonLike, Disableable])(
-  (Base) => class extends Base {},
-);
-export type ButtonCore = InstanceType<typeof ButtonCore>;
+export const BUTTON_CORE_TRAITS: readonly [
+  typeof ButtonLike,
+  typeof Disableable,
+] = [ButtonLike, Disableable];
+
+export type ButtonCore = Traited<ControlledElement, typeof BUTTON_CORE_TRAITS>;
 
 export type ButtonCoreProps = ButtonLikeProps & DisableableProps;
 

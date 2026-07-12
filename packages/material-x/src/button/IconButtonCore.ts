@@ -3,24 +3,22 @@ import { Str, type ConverterOf } from 'ydin/attribute.js';
 import { useAttributes } from 'ydin/controllers/useAttributes.js';
 import { internals, type ControlledElement } from 'ydin/element.js';
 import {
-  impl,
   trait,
   type Interface,
   type Props,
   type Trait,
-  type TraitedConstructor,
 } from 'ydin/traits/traits.js';
 import { Typeable } from 'ydin/traits/typeable.js';
 import { switchState } from 'ydin/utils/DOM.js';
 import {
-  ButtonCore,
+  BUTTON_CORE_TRAITS,
   type ButtonColor,
   type ButtonCoreProps,
   type ButtonLike,
   type ButtonSharedCSSProperties,
 } from './ButtonCore.ts';
 import {
-  SwitchCore,
+  SWITCH_CORE_TRAITS,
   type SwitchEvents,
   type SwitchProps,
 } from './SwitchCore.ts';
@@ -49,13 +47,11 @@ export type IconButtonLike = Omit<ButtonLike, 'color'> &
 
 export type IconButtonLikeProps = Props<typeof IconButtonLike>;
 
-export const IconButtonCore: TraitedConstructor<
-  ButtonCore,
-  typeof ButtonCore,
-  [typeof IconButtonLike, typeof Typeable]
-> = impl(ButtonCore, [IconButtonLike, Typeable])(
-  (Base) => class extends Base {},
-);
+export const ICON_BUTTON_CORE_TRAITS: readonly [
+  ...typeof BUTTON_CORE_TRAITS,
+  typeof IconButtonLike,
+  typeof Typeable,
+] = [...BUTTON_CORE_TRAITS, IconButtonLike, Typeable];
 
 export type IconButtonProperties = Omit<ButtonCoreProps, 'color'> &
   IconButtonLikeProps;
@@ -66,11 +62,10 @@ export type SwitchIconButtonProperties = IconButtonProperties & SwitchProps;
 export type SwitchIconButtonEvents = SwitchEvents;
 export type SwitchIconButtonCSSProperties = ButtonSharedCSSProperties;
 
-export const SwitchIconButtonCore: TraitedConstructor<
-  SwitchCore,
-  typeof SwitchCore,
-  [typeof IconButtonLike]
-> = impl(SwitchCore, [IconButtonLike])((Base) => class extends Base {});
+export const SWITCH_ICON_BUTTON_CORE_TRAITS: readonly [
+  ...typeof SWITCH_CORE_TRAITS,
+  typeof IconButtonLike,
+] = [...SWITCH_CORE_TRAITS, IconButtonLike];
 
 export function useIconButtonCore(host: ControlledElement): void {
   useAttributes(host, {

@@ -191,6 +191,23 @@ type TraitListStaticProps<
   : S;
 
 /**
+ * Accumulated instance type produced by applying a tuple of traits to a base
+ * instance type.
+ *
+ * This is the instance-side counterpart to {@link TraitedConstructor}: it is
+ * exactly `InstanceType<TraitedConstructor<T, U, TL>>`. Use it to type a host
+ * that receives a traited element without materializing an intermediate
+ * constructor — e.g. the `host` parameter of a `use*Core` helper.
+ *
+ * @typeParam T - Base instance type the traits are applied to.
+ * @typeParam TL - Tuple-like readonly list of applied traits.
+ */
+export type Traited<
+  T extends object,
+  TL extends ReadonlyArray<Trait<any, any, any, any, any>>,
+> = T & TraitListProps<TL>;
+
+/**
  * Accumulated constructor type produced by applying a tuple of traits.
  *
  * @typeParam T - Instance side of the original base constructor.
@@ -201,7 +218,7 @@ export type TraitedConstructor<
   T extends object,
   U extends object,
   TL extends ReadonlyArray<Trait<any, any, any, any, any>>,
-> = Constructor<T & TraitListProps<TL>> & U & TraitListStaticProps<TL>;
+> = Constructor<Traited<T, TL>> & U & TraitListStaticProps<TL>;
 
 /**
  * Applies a tuple of traits to a base constructor in declaration order, then

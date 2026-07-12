@@ -1,13 +1,13 @@
 import { Bool } from 'ydin/attribute.js';
 import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
-import { internals } from 'ydin/element.js';
+import { internals, type ControlledElement } from 'ydin/element.js';
 import {
   Checkable,
   useCheckable,
   type CheckableProps,
 } from 'ydin/traits/checkable.js';
-import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+import type { Traited } from 'ydin/traits/traits.js';
 import {
   VALUABLE_ATTRS,
   Valuable,
@@ -18,7 +18,7 @@ import { toggleState } from 'ydin/utils/DOM.js';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { notify, useClickActivation } from '../core/utils/events.ts';
 import { useContext } from '../core/utils/useContext.ts';
-import { ButtonCore, useButtonCore } from './ButtonCore.ts';
+import { BUTTON_CORE_TRAITS, useButtonCore } from './ButtonCore.ts';
 import controlStyles from './styles/default/switch-control.css.ts' with { type: 'css' };
 
 export type SwitchProps = CheckableProps & ValuableProps;
@@ -27,12 +27,13 @@ export type SwitchEvents = Readonly<{
   input: Event;
 }>;
 
-export const SwitchCore: TraitedConstructor<
-  ButtonCore,
-  typeof ButtonCore,
-  [typeof Checkable, typeof Valuable]
-> = impl(ButtonCore, [Checkable, Valuable])((Base) => class extends Base {});
-export type SwitchCore = InstanceType<typeof SwitchCore>;
+export const SWITCH_CORE_TRAITS: readonly [
+  ...typeof BUTTON_CORE_TRAITS,
+  typeof Checkable,
+  typeof Valuable,
+] = [...BUTTON_CORE_TRAITS, Checkable, Valuable];
+
+export type SwitchCore = Traited<ControlledElement, typeof SWITCH_CORE_TRAITS>;
 
 export function useSwitchCore(
   host: SwitchCore,

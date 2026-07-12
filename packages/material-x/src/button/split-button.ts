@@ -3,7 +3,12 @@ import '../button-group/connected-button-group.ts';
 import { Bool } from 'ydin/attribute.js';
 import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
-import { define, internals } from 'ydin/element.js';
+import {
+  ControlledElement,
+  define,
+  internals,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
 import {
   impl,
   trait,
@@ -18,7 +23,7 @@ import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
 import {
-  ButtonCore,
+  BUTTON_CORE_TRAITS,
   BUTTON_ATTRS,
   type ButtonCoreProps,
   type ButtonSharedCSSProperties,
@@ -49,6 +54,12 @@ export type SplitButtonEvents = Readonly<{
 }>;
 
 export type SplitButtonCSSProperties = ButtonSharedCSSProperties;
+
+export type SplitButtonConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  [...typeof BUTTON_CORE_TRAITS, typeof SplitButtonLike]
+>;
 
 /**
  * @tag mx-split-button
@@ -86,14 +97,13 @@ export type SplitButtonCSSProperties = ButtonSharedCSSProperties;
  *
  * @event secondaryaction - Fired when the trailing action is activated.
  */
-const SplitButton: TraitedConstructor<
-  ButtonCore,
-  typeof ButtonCore,
-  [typeof SplitButtonLike]
-> = impl(ButtonCore, [SplitButtonLike])(
+const SplitButton: SplitButtonConstructor = impl(ControlledElement, [
+  ...BUTTON_CORE_TRAITS,
+  SplitButtonLike,
+])(
   (Base) =>
     class extends Base {
-      static override readonly formAssociated = true;
+      static readonly formAssociated = true;
 
       constructor() {
         super();

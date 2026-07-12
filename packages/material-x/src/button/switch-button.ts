@@ -1,4 +1,9 @@
-import { define } from 'ydin/element.js';
+import {
+  ControlledElement,
+  define,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
+import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import type {
   ButtonColor,
   ButtonCoreProps,
@@ -14,7 +19,7 @@ import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' };
 import switchButtonTemplate from './switch-button.tpl.html' with { type: 'html' };
 import {
-  SwitchCore,
+  SWITCH_CORE_TRAITS,
   useSwitchCore,
   type SwitchEvents,
   type SwitchProps,
@@ -29,6 +34,12 @@ export type SwitchButtonProperties = ButtonCoreProps &
   }>;
 export type SwitchButtonEvents = SwitchEvents;
 export type SwitchButtonCSSProperties = ButtonSharedCSSProperties;
+
+export type SwitchButtonConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  typeof SWITCH_CORE_TRAITS
+>;
 
 /**
  * @tag mx-switch-button
@@ -64,23 +75,32 @@ export type SwitchButtonCSSProperties = ButtonSharedCSSProperties;
  * @event input - Fired when switch interaction occurs.
  * @event change - Fired when switch interaction occurs.
  */
-export default class SwitchButton extends SwitchCore {
-  static override readonly formAssociated = true;
+const SwitchButton: SwitchButtonConstructor = impl(
+  ControlledElement,
+  SWITCH_CORE_TRAITS,
+)(
+  (Base) =>
+    class extends Base {
+      static readonly formAssociated = true;
 
-  constructor() {
-    super();
-    useSwitchCore(this, switchButtonTemplate, [
-      mainElevatedStyles,
-      mainOutlinedStyles,
-      mainTonalStyles,
-      switchDefaultStyles,
-      switchElevatedStyles,
-      switchOutlinedStyles,
-      switchSizeStyles,
-      switchTonalStyles,
-    ]);
-  }
-}
+      constructor() {
+        super();
+        useSwitchCore(this, switchButtonTemplate, [
+          mainElevatedStyles,
+          mainOutlinedStyles,
+          mainTonalStyles,
+          switchDefaultStyles,
+          switchElevatedStyles,
+          switchOutlinedStyles,
+          switchSizeStyles,
+          switchTonalStyles,
+        ]);
+      }
+    },
+);
+type SwitchButton = InstanceType<typeof SwitchButton>;
+
+export default SwitchButton;
 
 define('mx-switch-button', SwitchButton);
 

@@ -1,5 +1,9 @@
 import type { EmptyObject, Simplify } from 'type-fest';
-import { define } from 'ydin/element.js';
+import {
+  ControlledElement,
+  define,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
 import {
   Linkable,
   type LinkableProps,
@@ -9,7 +13,7 @@ import {
 import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import { $ } from 'ydin/utils/DOM.js';
 import {
-  ButtonCore,
+  BUTTON_CORE_TRAITS,
   useButtonCore,
   type ButtonCoreProps,
   type ButtonSharedCSSProperties,
@@ -23,6 +27,12 @@ import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 export type LinkButtonProps = Simplify<ButtonCoreProps & LinkableProps>;
 export type LinkButtonEvents = EmptyObject;
 export type LinkButtonCSSProperties = ButtonSharedCSSProperties;
+
+export type LinkButtonConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  [...typeof BUTTON_CORE_TRAITS, typeof Linkable]
+>;
 
 /**
  * @tag mx-link-button
@@ -56,11 +66,10 @@ export type LinkButtonCSSProperties = ButtonSharedCSSProperties;
  *
  * @event click - Fired when the link button is activated.
  */
-const LinkButton: TraitedConstructor<
-  ButtonCore,
-  typeof ButtonCore,
-  [typeof Linkable]
-> = impl(ButtonCore, [Linkable])(
+const LinkButton: LinkButtonConstructor = impl(ControlledElement, [
+  ...BUTTON_CORE_TRAITS,
+  Linkable,
+])(
   (Base) =>
     class extends Base {
       constructor() {
