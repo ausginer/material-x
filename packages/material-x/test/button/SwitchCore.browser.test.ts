@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { $ } from 'ydin/utils/DOM.js';
 import '../../src/button/switch-button.ts';
@@ -35,10 +35,6 @@ function recordEvents(target: HTMLElement): readonly Event[] {
 
   return events;
 }
-
-afterEach(() => {
-  document.body.replaceChildren();
-});
 
 describe.each(SWITCH_TAGS)('%s activation events', (tag) => {
   it('should expose the native checkbox activation sequence', () => {

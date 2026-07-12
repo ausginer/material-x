@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi, type Mock } from 'vitest';
+import { describe, expect, it, vi, type Mock } from 'vitest';
 import '../../src/button/button.ts';
 import '../../src/button/icon-button.ts';
 import '../../src/button/link-button.ts';
@@ -34,10 +34,6 @@ function getNativeAnchor(element: HTMLElement): HTMLAnchorElement {
 
   return anchor;
 }
-
-afterEach(() => {
-  document.body.replaceChildren();
-});
 
 describe.each<ButtonTag>(['mx-button', 'mx-icon-button'])('%s', (tag) => {
   it('should delegate focus to the native button', () => {

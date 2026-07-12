@@ -28,15 +28,20 @@ type ContractRegistry = Readonly<Record<string, ReadonlySignal<TokenPackage>>>;
 let registry: Promise<ContractRegistry> | undefined;
 
 async function loadRegistry(): Promise<ContractRegistry> {
-  const [size, def, elevated, tonal, outlined, text] = await Promise.all([
-    import('../../src/button/styles/size/tokens.ts'),
-    import('../../src/button/styles/default/tokens.ts'),
-    import('../../src/button/styles/elevated/tokens.ts'),
-    import('../../src/button/styles/tonal/tokens.ts'),
-    import('../../src/button/styles/outlined/tokens.ts'),
-    import('../../src/button/styles/text/tokens.ts'),
-  ]);
+  const [size, def, elevated, tonal, outlined, text, standard, connected] =
+    await Promise.all([
+      import('../../src/button/styles/size/tokens.ts'),
+      import('../../src/button/styles/default/tokens.ts'),
+      import('../../src/button/styles/elevated/tokens.ts'),
+      import('../../src/button/styles/tonal/tokens.ts'),
+      import('../../src/button/styles/outlined/tokens.ts'),
+      import('../../src/button/styles/text/tokens.ts'),
+      import('../../src/button-group/styles/standard/tokens.ts'),
+      import('../../src/button-group/styles/connected/tokens.ts'),
+    ]);
 
+  // Both group token arrays are indexed by `BUTTON_GROUP_SIZES`:
+  // [xsmall, small, medium, large, xlarge].
   return {
     'button.size.xsmall': size.mainTokens[0]!,
     'button.size.small': size.defaultSizeMainTokens,
@@ -48,6 +53,16 @@ async function loadRegistry(): Promise<ContractRegistry> {
     'button.color.tonal': tonal.tonalTokens,
     'button.color.outlined': outlined.outlinedTokens,
     'button.color.text': text.textTokens,
+    'button-group.standard.xsmall': standard.standardTokens[0]!,
+    'button-group.standard.small': standard.standardTokens[1]!,
+    'button-group.standard.medium': standard.standardTokens[2]!,
+    'button-group.standard.large': standard.standardTokens[3]!,
+    'button-group.standard.xlarge': standard.standardTokens[4]!,
+    'button-group.connected.xsmall': connected.connectedTokens[0]!,
+    'button-group.connected.small': connected.connectedTokens[1]!,
+    'button-group.connected.medium': connected.connectedTokens[2]!,
+    'button-group.connected.large': connected.connectedTokens[3]!,
+    'button-group.connected.xlarge': connected.connectedTokens[4]!,
   };
 }
 

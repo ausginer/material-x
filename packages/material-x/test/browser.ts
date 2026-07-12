@@ -1,13 +1,22 @@
 /**
  * Shared browser-side helpers for Material X component tests.
  *
- * These centralize the normalization the visual-contract layer relies on:
+ * This is the single home for cross-test browser utilities (the material-x
+ * analogue of `packages/ydin/tests/browser.ts`): frame/font/upgrade
+ * synchronization, and the normalization the visual-contract layer relies on —
  * turning a tproc-emitted CSS string (which may contain `var()`, a colour, a
  * font list, or a length) into the exact serialization the browser produces for
  * the rendered element, so an expected token value can be compared against an
  * independent browser observation without reimplementing per-component
  * conversion.
  */
+
+/** Resolves after the next animation frame, so slot/layout updates settle. */
+export async function nextFrame(): Promise<void> {
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+}
 
 /** Parses a CSS pixel string (`"40px"`) into its numeric value. */
 export function pixels(value: string | number): number {

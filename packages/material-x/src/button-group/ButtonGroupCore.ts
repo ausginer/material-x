@@ -1,4 +1,6 @@
 import type { EmptyObject } from 'type-fest';
+import { useAttributes } from 'ydin/controllers/useAttributes.js';
+import { internals } from 'ydin/element.js';
 import { DISABLEABLE_ATTRS } from 'ydin/traits/disableable.js';
 import {
   impl,
@@ -13,6 +15,7 @@ import {
   VALUABLE_ATTRS,
   type ValuableProps,
 } from 'ydin/traits/valuable.js';
+import { switchState } from 'ydin/utils/DOM.js';
 import {
   BUTTON_ATTRS,
   ButtonCore,
@@ -63,5 +66,17 @@ export function useButtonGroupCore(
   styles: ReadonlyArray<CSSStyleSheet | string>,
 ): void {
   useCore(host, [template], aria, styles);
+
+  // The group forwards `size` to its child buttons through the context provider,
+  // but the group's own per-size tokens (`between-space`, connected
+  // `inner-corner`) live behind `:host(:state(<size>))` rules. Mirror `size`
+  // onto the host as a custom state so those rules activate — the value is the
+  // state name (e.g. `size="large"` → `:state(large)`); `small` is the default
+  // and carries no attribute, matching the base `:host` rule.
+  const innards = internals(host);
+  useAttributes(host, {
+    size: (oldValue, newValue) => switchState(innards, oldValue, newValue),
+  });
+
   useButtonGroupProvider(host, BUTTON_GROUP_CTX, BUTTON_CORE_ATTR_NAMES);
 }

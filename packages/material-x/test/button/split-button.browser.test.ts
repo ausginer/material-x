@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi, type Mock } from 'vitest';
+import { describe, expect, it, vi, type Mock } from 'vitest';
 import { $ } from 'ydin/utils/DOM.js';
 import '../../src/button/split-button.ts';
 
@@ -18,10 +18,6 @@ function getTrailingButton(splitButton: HTMLElement): HTMLButtonElement {
 
   return button;
 }
-
-afterEach(() => {
-  document.body.replaceChildren();
-});
 
 describe('mx-split-button events', () => {
   it('should expose a secondary action without exposing its internal click', () => {

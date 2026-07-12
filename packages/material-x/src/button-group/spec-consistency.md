@@ -10,9 +10,9 @@ Review of `mx-button-group` (standard) and `mx-connected-button-group` (connecte
 
 ## Summary
 
-Structure, variants, sizing model, connected corner morphing, and the standard press interaction are all consistent with M3 Expressive. **One root-cause bug** produces most of the deltas:
+Structure, variants, sizing model, connected corner morphing, and the standard press interaction are all consistent with M3 Expressive.
 
-1. **The group host never receives its own size custom-state**, so the group's per-size tokens (`between-space`, `inner-corner.corner-size`) never apply. Every standard group renders with the _small_ spacing, and connected L/XL render with the _small_ inner-corner radius.
+1. **~~The group host never receives its own size custom-state~~ — FIXED (2026-07-12).** Previously the group's per-size tokens (`between-space`, `inner-corner.corner-size`) never applied, so every standard group rendered with the _small_ spacing and connected L/XL rendered with the _small_ inner-corner radius. `useButtonGroupCore` (`ButtonGroupCore.ts`) now mirrors `size` onto the host as a custom state via `switchState`, activating the `:host(:state(<size>))` rules. Covered by `test/button-group/button-group.spec.browser.test.ts` (between-space + inner-corner per size) and the host-size-state behavior tests.
 2. (Minor, **not a bug in this repo**) The connected **XS inner-corner** resolves to `8px`, where the spec's _measurement diagram_ says `4dp`. This is an **upstream contradiction**: M3's own token table defines the value as 8dp, so the implementation is token-faithful.
 
 ## What matches the spec ✅
@@ -47,7 +47,9 @@ The compiled `:host(:state(<size>))` rules carry the correct spec values (XS 18 
 
 ## Deltas / gaps ⚠️
 
-### 1. Group host never gets its own size custom-state (root cause)
+### 1. Group host never gets its own size custom-state (root cause) — FIXED
+
+> Resolved 2026-07-12: `useButtonGroupCore` now calls `switchState` for `size` on the group host, so the per-size `:host(:state(<size>))` rules activate. The description below is retained for context.
 
 - **Symptom (measured):**
   - **Standard `between-space`** is `12px` for **all five sizes** (XS, S, M, L, XL). Spec: XS **18** · S **12** · M **8** · L **8** · XL **8** dp. Only `small` happens to be correct because 12px is the default.
@@ -70,5 +72,5 @@ The compiled `:host(:state(<size>))` rules carry the correct spec values (XS 18 
 
 ## Suggested follow-ups
 
-1. **Apply the group's own size (and shape) as a custom-state on the host** so the per-size `between-space` and `inner-corner.corner-size` rules activate. This is the single fix that resolves delta 1 for both standard and connected groups — e.g. add a `switchState` call for `size`/`shape` in `useButtonGroupCore` (or in `useButtonGroupProvider`) alongside the existing context forwarding.
+1. ~~Apply the group's own size as a custom-state on the host~~ **Done (2026-07-12)** — `useButtonGroupCore` mirrors `size` onto the host via `switchState`, activating the per-size `between-space` and `inner-corner.corner-size` rules for both standard and connected groups. Only `size` is wired: the compiled group styles key exclusively on `:host(:state(<size>))`; `shape` is forwarded to child buttons and needs no group-host state.
 2. No action needed for the connected **XS inner-corner** in this repo — the value tracks the upstream token (8dp). If pixel-matching the spec diagram's 4dp is desired, it would be an intentional override of the M3 token, and ideally reported upstream as a token-vs-diagram inconsistency.

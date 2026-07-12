@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { commands, userEvent } from 'vitest/browser';
 import { $ } from 'ydin/utils/DOM.js';
 import '../../src/button/button.ts';
-import { resolveComputed } from '../support/dom.ts';
+import { resolveComputed } from '../browser.ts';
 
 type ColorCase = Readonly<{
   name: string;

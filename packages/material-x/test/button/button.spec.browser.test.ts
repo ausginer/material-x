@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { commands } from 'vitest/browser';
 import { $ } from 'ydin/utils/DOM.js';
 import '../../src/button/button.ts';
-import { pixels, resolveComputed } from '../support/dom.ts';
+import { pixels, resolveComputed } from '../browser.ts';
 import {
   BUTTON_SIZE_CASES,
   type ButtonSizeCase,

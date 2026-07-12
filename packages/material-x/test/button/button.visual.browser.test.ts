@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import '../../src/button/button.ts';
 import '../../src/button/switch-button.ts';
-import { whenFontsReady } from '../support/dom.ts';
+import { whenFontsReady } from '../browser.ts';
 
 function createFixture(name: string): HTMLDivElement {
   const fixture = document.createElement('div');
