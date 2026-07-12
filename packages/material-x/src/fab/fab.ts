@@ -74,6 +74,12 @@ export type FABCSSProperties = Readonly<{
   '--md-fab-hover-level'?: string;
 }>;
 
+export type FABConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  [typeof FABLike, typeof Disableable]
+>;
+
 /**
  * @tag mx-fab
  *
@@ -103,11 +109,7 @@ export type FABCSSProperties = Readonly<{
  *
  * @event click - Fired when the FAB is activated.
  */
-const FAB: TraitedConstructor<
-  ControlledElement,
-  ControlledElementConstructor,
-  [typeof FABLike, typeof Disableable]
-> = impl(ControlledElement, [FABLike, Disableable])(
+const FAB: FABConstructor = impl(ControlledElement, [FABLike, Disableable])(
   (Base) =>
     class extends Base {
       constructor() {
