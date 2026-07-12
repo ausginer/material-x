@@ -28,17 +28,29 @@ type ContractRegistry = Readonly<Record<string, ReadonlySignal<TokenPackage>>>;
 let registry: Promise<ContractRegistry> | undefined;
 
 async function loadRegistry(): Promise<ContractRegistry> {
-  const [size, def, elevated, tonal, outlined, text, standard, connected] =
-    await Promise.all([
-      import('../../src/button/styles/size/tokens.ts'),
-      import('../../src/button/styles/default/tokens.ts'),
-      import('../../src/button/styles/elevated/tokens.ts'),
-      import('../../src/button/styles/tonal/tokens.ts'),
-      import('../../src/button/styles/outlined/tokens.ts'),
-      import('../../src/button/styles/text/tokens.ts'),
-      import('../../src/button-group/styles/standard/tokens.ts'),
-      import('../../src/button-group/styles/connected/tokens.ts'),
-    ]);
+  const [
+    size,
+    def,
+    elevated,
+    tonal,
+    outlined,
+    text,
+    standard,
+    connected,
+    checkbox,
+    radio,
+  ] = await Promise.all([
+    import('../../src/button/styles/size/tokens.ts'),
+    import('../../src/button/styles/default/tokens.ts'),
+    import('../../src/button/styles/elevated/tokens.ts'),
+    import('../../src/button/styles/tonal/tokens.ts'),
+    import('../../src/button/styles/outlined/tokens.ts'),
+    import('../../src/button/styles/text/tokens.ts'),
+    import('../../src/button-group/styles/standard/tokens.ts'),
+    import('../../src/button-group/styles/connected/tokens.ts'),
+    import('../../src/checkbox/styles/default/tokens.ts'),
+    import('../../src/radio/styles/default/tokens.ts'),
+  ]);
 
   // Both group token arrays are indexed by `BUTTON_GROUP_SIZES`:
   // [xsmall, small, medium, large, xlarge].
@@ -63,6 +75,8 @@ async function loadRegistry(): Promise<ContractRegistry> {
     'button-group.connected.medium': connected.connectedTokens[2]!,
     'button-group.connected.large': connected.connectedTokens[3]!,
     'button-group.connected.xlarge': connected.connectedTokens[4]!,
+    'checkbox.default': checkbox.defaultTokens,
+    'radio.default': radio.defaultTokens,
   };
 }
 

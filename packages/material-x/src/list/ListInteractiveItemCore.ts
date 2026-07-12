@@ -32,7 +32,9 @@ export const ListInteractiveItemCore: TraitedConstructor<
   ListItemCore,
   typeof ListItemCore,
   [typeof Disableable, typeof Selectable]
-> = impl(ListItemCore, [Disableable, Selectable]);
+> = impl(ListItemCore, [Disableable, Selectable])(
+  (Base) => class extends Base {},
+);
 export type ListInteractiveItemCore = InstanceType<
   typeof ListInteractiveItemCore
 >;

@@ -146,6 +146,7 @@ export function trait<
 
       for (const [attribute, converter] of entries) {
         Object.defineProperty(traited.prototype, attribute, {
+          configurable: true,
           get(
             this: HTMLElement,
           ): FieldReadersFromConverters<P>[typeof attribute] {

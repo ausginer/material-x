@@ -41,7 +41,9 @@ export const ButtonGroupCore: TraitedConstructor<
   ButtonCore,
   typeof ButtonCore,
   [typeof ButtonGroupLike, typeof Valuable]
-> = impl(ButtonCore, [ButtonGroupLike, Valuable]);
+> = impl(ButtonCore, [ButtonGroupLike, Valuable])(
+  (Base) => class extends Base {},
+);
 
 export type ButtonGroupCore = InstanceType<typeof ButtonGroupCore>;
 export type ButtonGroupCoreEvents = EmptyObject;

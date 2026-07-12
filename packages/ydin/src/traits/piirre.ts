@@ -204,16 +204,28 @@ export type TraitedConstructor<
 > = Constructor<T & TraitListProps<TL>> & U & TraitListStaticProps<TL>;
 
 /**
- * Applies a tuple of traits to a base constructor in declaration order.
+ * Applies a tuple of traits to a base constructor in declaration order, then
+ * hands the composed constructor to a builder that returns the final subclass.
  *
  * @remarks `traits` is intended to be a tuple-like readonly list so TypeScript
  * can preserve the precise accumulated instance and static types. Plain arrays
  * are allowed, but they weaken inference and are not the primary ergonomic
  * target of this API.
  *
+ * @example
+ * ```ts
+ * const MyComponent = impl(Base, [Trait1, Trait2])(
+ *   (Traited) =>
+ *     class extends Traited {
+ *       // ...arbitrary component code
+ *     },
+ * );
+ * ```
+ *
  * @param base - Base constructor that receives the traits.
  * @param traits - Tuple-like readonly list of traits to apply.
- * @returns Constructor with the accumulated trait instance and static types.
+ * @returns A function that takes a builder mapping the traited constructor to
+ *   its final subclass and returns that subclass.
  *
  * @typeParam T - Instance side of the base constructor.
  * @typeParam U - Static side of the base constructor.
@@ -222,7 +234,17 @@ export type TraitedConstructor<
 export function impl<
   T extends object,
   U extends object,
-  TL extends ReadonlyArray<Trait<any, any, any, any, any>>,
->(base: Constructor<T> & U, traits: TL): TraitedConstructor<T, U, TL> {
-  return traits.reduce((acc, trait) => trait(acc), base) as any;
+  const TL extends ReadonlyArray<Trait<any, any, any, any, any>>,
+>(
+  base: Constructor<T> & U,
+  traits: TL,
+): <R extends TraitedConstructor<T, U, TL>>(
+  build: (base: TraitedConstructor<T, U, TL>) => R,
+) => R {
+  const traited = traits.reduce(
+    (acc, trait) => trait(acc),
+    base,
+  ) as TraitedConstructor<T, U, TL>;
+
+  return (build) => build(traited);
 }

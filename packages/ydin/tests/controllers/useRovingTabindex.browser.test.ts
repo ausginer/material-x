@@ -8,12 +8,14 @@ import { impl } from '../../src/traits/traits.ts';
 import { Valuable } from '../../src/traits/valuable.ts';
 import { cleanupDOM, defineCE, host, nameCE, nextFrame } from '../browser.ts';
 
-const HostBase = impl(ControlledElement, [Valuable] as const);
+const HostBase = impl(ControlledElement, [Valuable] as const)(
+  (Base) => class extends Base {},
+);
 const ItemBase = impl(ControlledElement, [
   Checkable,
   Valuable,
   Disableable,
-] as const);
+] as const)((Base) => class extends Base {});
 
 class TestItem extends ItemBase {
   constructor() {

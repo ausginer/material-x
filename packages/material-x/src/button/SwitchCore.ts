@@ -31,7 +31,7 @@ export const SwitchCore: TraitedConstructor<
   ButtonCore,
   typeof ButtonCore,
   [typeof Checkable, typeof Valuable]
-> = impl(ButtonCore, [Checkable, Valuable]);
+> = impl(ButtonCore, [Checkable, Valuable])((Base) => class extends Base {});
 export type SwitchCore = InstanceType<typeof SwitchCore>;
 
 export function useSwitchCore(

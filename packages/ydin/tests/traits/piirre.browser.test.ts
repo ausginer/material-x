@@ -119,7 +119,9 @@ describe('piirre', () => {
       $second,
     );
 
-    const Combined = impl(Base, [First, Second] as const);
+    const Combined = impl(Base, [First, Second] as const)(
+      (Traited) => class extends Traited {},
+    );
 
     expect(new Combined().order).toEqual(['base', 'first', 'second']);
   });

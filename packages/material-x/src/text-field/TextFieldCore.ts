@@ -106,7 +106,9 @@ export const TextFieldCoreBase: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   [typeof TextFieldLike, typeof Disableable, typeof Valuable, typeof Nameable]
-> = impl(ControlledElement, [TextFieldLike, Disableable, Valuable, Nameable]);
+> = impl(ControlledElement, [TextFieldLike, Disableable, Valuable, Nameable])(
+  (Base) => class extends Base {},
+);
 export type TextFieldCoreBase = InstanceType<typeof TextFieldCoreBase>;
 
 const ARIA_PARAMS = {

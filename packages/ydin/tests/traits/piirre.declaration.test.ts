@@ -27,7 +27,9 @@ const Counted = trait(
 
 describe('piirre types', () => {
   it('should accumulate branded instance fields from tuple composition', () => {
-    const Combined = impl(Base, [Named, Counted] as const);
+    const Combined = impl(Base, [Named, Counted] as const)(
+      (Traited) => class extends Traited {},
+    );
     const instance = null as unknown as InstanceType<typeof Combined>;
 
     expectTypeOf(instance.base).toEqualTypeOf<boolean>();
@@ -47,7 +49,7 @@ describe('piirre types', () => {
 
   it('should infer plain arrays weaker than tuple composition', () => {
     const traits = [Named, Counted];
-    const Combined = impl(Base, traits);
+    const Combined = impl(Base, traits)((Traited) => class extends Traited {});
     const instance = null as unknown as InstanceType<typeof Combined>;
 
     expectTypeOf(instance).toExtend<Base>();

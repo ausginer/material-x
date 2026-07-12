@@ -20,12 +20,6 @@ import outlinedStyles from './styles/outlined/main.css.ts' with { type: 'css' };
 import textStyles from './styles/text/main.css.ts' with { type: 'css' };
 import tonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
-const ButtonCore: TraitedConstructor<
-  ButtonCoreBase,
-  typeof ButtonCoreBase,
-  [typeof Nameable, typeof Typeable]
-> = impl(ButtonCoreBase, [Nameable, Typeable]);
-
 export type ButtonProperties = ButtonCoreProps & NameableProps;
 export type ButtonEvents = EmptyObject;
 export type ButtonCSSProperties = ButtonSharedCSSProperties;
@@ -63,24 +57,34 @@ export type ButtonCSSProperties = ButtonSharedCSSProperties;
  *
  * @event click - Fired when the button is activated.
  */
-export default class Button extends ButtonCore {
-  static override readonly formAssociated = true;
+const Button: TraitedConstructor<
+  ButtonCoreBase,
+  typeof ButtonCoreBase,
+  [typeof Nameable, typeof Typeable]
+> = impl(ButtonCoreBase, [Nameable, Typeable])(
+  (Base) =>
+    class extends Base {
+      static override readonly formAssociated = true;
 
-  constructor() {
-    super();
+      constructor() {
+        super();
 
-    const target = useButtonCore(
-      this,
-      buttonTemplate,
-      [elevatedStyles, outlinedStyles, textStyles, tonalStyles],
-      { delegatesFocus: true },
-    );
+        const target = useButtonCore(
+          this,
+          buttonTemplate,
+          [elevatedStyles, outlinedStyles, textStyles, tonalStyles],
+          { delegatesFocus: true },
+        );
 
-    useNameable(this, target);
-    useTypeable(this, target);
-    useFormActivation(this);
-  }
-}
+        useNameable(this, target);
+        useTypeable(this, target);
+        useFormActivation(this);
+      }
+    },
+);
+type Button = InstanceType<typeof Button>;
+
+export default Button;
 
 define('mx-button', Button);
 

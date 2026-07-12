@@ -17,12 +17,6 @@ import {
   type ListInteractiveItemCoreProperties,
 } from './ListInteractiveItemCore.ts';
 
-const LinkListItemCore: TraitedConstructor<
-  ListInteractiveItemCore,
-  typeof ListInteractiveItemCore,
-  [typeof Linkable]
-> = impl(ListInteractiveItemCore, [Linkable]);
-
 export type ListLinkItemProperties = Simplify<
   ListInteractiveItemCoreProperties & LinkableProps
 >;
@@ -50,23 +44,33 @@ export type ListLinkItemCSSProperties = ListInteractiveItemCoreCSSProperties;
  *
  * @event click - Fired when the item is activated.
  */
-export default class ListLinkItem extends LinkListItemCore {
-  constructor() {
-    super();
-    const target = useInteractiveListItemCore(
-      this,
-      template,
-    ) as HTMLAnchorElement;
-    useLinkable(this, target);
-    useDisableableLinkable(this, target);
+const ListLinkItem: TraitedConstructor<
+  ListInteractiveItemCore,
+  typeof ListInteractiveItemCore,
+  [typeof Linkable]
+> = impl(ListInteractiveItemCore, [Linkable])(
+  (Base) =>
+    class extends Base {
+      constructor() {
+        super();
+        const target = useInteractiveListItemCore(
+          this,
+          template,
+        ) as HTMLAnchorElement;
+        useLinkable(this, target);
+        useDisableableLinkable(this, target);
 
-    useAttributes(this, {
-      selected: via(Bool, (_, value) => {
-        target.ariaCurrent = value ? 'page' : null;
-      }),
-    });
-  }
-}
+        useAttributes(this, {
+          selected: via(Bool, (_, value) => {
+            target.ariaCurrent = value ? 'page' : null;
+          }),
+        });
+      }
+    },
+);
+type ListLinkItem = InstanceType<typeof ListLinkItem>;
+
+export default ListLinkItem;
 
 define('mx-list-link-item', ListLinkItem);
 

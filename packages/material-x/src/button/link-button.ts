@@ -20,12 +20,6 @@ import mainOutlinedStyles from './styles/outlined/main.css.ts' with { type: 'css
 import mainTextStyles from './styles/text/main.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
-const LinkButtonCore: TraitedConstructor<
-  ButtonCore,
-  typeof ButtonCore,
-  [typeof Linkable]
-> = impl(ButtonCore, [Linkable]);
-
 export type LinkButtonProps = Simplify<ButtonCoreProps & LinkableProps>;
 export type LinkButtonEvents = EmptyObject;
 export type LinkButtonCSSProperties = ButtonSharedCSSProperties;
@@ -62,21 +56,36 @@ export type LinkButtonCSSProperties = ButtonSharedCSSProperties;
  *
  * @event click - Fired when the link button is activated.
  */
-export default class LinkButton extends LinkButtonCore {
-  constructor() {
-    super();
-    useButtonCore(
-      this,
-      linkButtonTemplate,
-      [mainElevatedStyles, mainOutlinedStyles, mainTextStyles, mainTonalStyles],
-      { delegatesFocus: true },
-    );
+const LinkButton: TraitedConstructor<
+  ButtonCore,
+  typeof ButtonCore,
+  [typeof Linkable]
+> = impl(ButtonCore, [Linkable])(
+  (Base) =>
+    class extends Base {
+      constructor() {
+        super();
+        useButtonCore(
+          this,
+          linkButtonTemplate,
+          [
+            mainElevatedStyles,
+            mainOutlinedStyles,
+            mainTextStyles,
+            mainTonalStyles,
+          ],
+          { delegatesFocus: true },
+        );
 
-    const anchor = $<HTMLAnchorElement>(this, '.host')!;
-    useLinkable(this, anchor);
-    useDisableableLinkable(this, anchor);
-  }
-}
+        const anchor = $<HTMLAnchorElement>(this, '.host')!;
+        useLinkable(this, anchor);
+        useDisableableLinkable(this, anchor);
+      }
+    },
+);
+type LinkButton = InstanceType<typeof LinkButton>;
+
+export default LinkButton;
 
 define('mx-link-button', LinkButton);
 

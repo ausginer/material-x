@@ -42,7 +42,9 @@ export const CheckableCore: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   [typeof Checkable, typeof Valuable, typeof Disableable, typeof Nameable]
-> = impl(ControlledElement, [Checkable, Valuable, Disableable, Nameable]);
+> = impl(ControlledElement, [Checkable, Valuable, Disableable, Nameable])(
+  (Base) => class extends Base {},
+);
 export type CheckableCore = InstanceType<typeof CheckableCore>;
 
 // oxlint-disable-next-line max-params

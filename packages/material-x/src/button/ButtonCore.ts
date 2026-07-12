@@ -65,7 +65,9 @@ export const ButtonCore: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   [typeof ButtonLike, typeof Disableable]
-> = impl(ControlledElement, [ButtonLike, Disableable]);
+> = impl(ControlledElement, [ButtonLike, Disableable])(
+  (Base) => class extends Base {},
+);
 export type ButtonCore = InstanceType<typeof ButtonCore>;
 
 export type ButtonCoreProps = ButtonLikeProps & DisableableProps;

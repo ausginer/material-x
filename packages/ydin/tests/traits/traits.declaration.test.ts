@@ -30,21 +30,27 @@ const Variantable = trait({ variant: VariantStr }, $variant);
 
 describe('traits types', () => {
   it('should expose boolean element fields as non-nullable', () => {
-    const Combined = impl(BaseElement, [Checked] as const);
+    const Combined = impl(BaseElement, [Checked] as const)(
+      (Traited) => class extends Traited {},
+    );
     const instance = null as unknown as InstanceType<typeof Combined>;
 
     expectTypeOf(instance.checked).toEqualTypeOf<boolean>();
   });
 
   it('should expose string element fields as nullable', () => {
-    const Combined = impl(BaseElement, [Valuable] as const);
+    const Combined = impl(BaseElement, [Valuable] as const)(
+      (Traited) => class extends Traited {},
+    );
     const instance = null as unknown as InstanceType<typeof Combined>;
 
     expectTypeOf(instance.value).toEqualTypeOf<string | null>();
   });
 
   it('should expose number element fields as nullable', () => {
-    const Combined = impl(BaseElement, [Countable] as const);
+    const Combined = impl(BaseElement, [Countable] as const)(
+      (Traited) => class extends Traited {},
+    );
     const instance = null as unknown as InstanceType<typeof Combined>;
 
     expectTypeOf(instance.count).toEqualTypeOf<number | null>();
@@ -69,7 +75,9 @@ describe('traits types', () => {
   });
 
   it('should accumulate element trait field types across tuple composition', () => {
-    const Combined = impl(BaseElement, [Checked, Valuable, Countable] as const);
+    const Combined = impl(BaseElement, [Checked, Valuable, Countable] as const)(
+      (Traited) => class extends Traited {},
+    );
     const instance = null as unknown as InstanceType<typeof Combined>;
 
     expectTypeOf(instance.checked).toEqualTypeOf<boolean>();

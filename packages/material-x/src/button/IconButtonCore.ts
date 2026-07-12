@@ -53,7 +53,9 @@ export const IconButtonCore: TraitedConstructor<
   ButtonCore,
   typeof ButtonCore,
   [typeof IconButtonLike, typeof Typeable]
-> = impl(ButtonCore, [IconButtonLike, Typeable]);
+> = impl(ButtonCore, [IconButtonLike, Typeable])(
+  (Base) => class extends Base {},
+);
 
 export type IconButtonProperties = Omit<ButtonCoreProps, 'color'> &
   IconButtonLikeProps;
@@ -68,7 +70,7 @@ export const SwitchIconButtonCore: TraitedConstructor<
   SwitchCore,
   typeof SwitchCore,
   [typeof IconButtonLike]
-> = impl(SwitchCore, [IconButtonLike]);
+> = impl(SwitchCore, [IconButtonLike])((Base) => class extends Base {});
 
 export function useIconButtonCore(host: ControlledElement): void {
   useAttributes(host, {
