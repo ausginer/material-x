@@ -1,10 +1,7 @@
 import { useSlot } from 'ydin/controllers/useSlot.js';
-import {
-  ControlledElement,
-  internals,
-  type ControlledElementConstructor,
-} from 'ydin/element.js';
+import { type ControlledElement, internals } from 'ydin/element.js';
 import { useReorderableItem } from 'ydin/traits/reorderable.js';
+import type { Traited } from 'ydin/traits/traits.js';
 import { $, toggleState } from 'ydin/utils/DOM.js';
 import '../core/styles/elevation/elevation.runtime.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
@@ -13,8 +10,11 @@ import { useCore } from '../core/utils/useCore.ts';
 import nestedTemplate from './list-item-shared.tpl.html' with { type: 'html' };
 import defaultStyles from './styles/item/main.css.ts' with { type: 'css' };
 
-export const ListItemCore: ControlledElementConstructor = ControlledElement;
-export type ListItemCore = InstanceType<typeof ListItemCore>;
+export const LIST_ITEM_CORE_TRAITS: readonly [] = [];
+export type ListItemCore = Traited<
+  ControlledElement,
+  typeof LIST_ITEM_CORE_TRAITS
+>;
 
 export type ListItemCoreProperties = Record<never, never>;
 export type ListItemCoreEvents = Readonly<{

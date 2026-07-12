@@ -1,7 +1,11 @@
 import type { EmptyObject, Simplify } from 'type-fest';
 import { Bool } from 'ydin/attribute.js';
 import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
-import { define } from 'ydin/element.js';
+import {
+  ControlledElement,
+  define,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
 import {
   Linkable,
   useDisableableLinkable,
@@ -11,7 +15,7 @@ import {
 import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import template from './list-link-item.tpl.html' with { type: 'html' };
 import {
-  ListInteractiveItemCore,
+  LIST_INTERACTIVE_ITEM_CORE_TRAITS,
   useInteractiveListItemCore,
   type ListInteractiveItemCoreCSSProperties,
   type ListInteractiveItemCoreProperties,
@@ -22,6 +26,12 @@ export type ListLinkItemProperties = Simplify<
 >;
 export type ListLinkItemEvents = EmptyObject;
 export type ListLinkItemCSSProperties = ListInteractiveItemCoreCSSProperties;
+
+export type ListLinkItemConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  [...typeof LIST_INTERACTIVE_ITEM_CORE_TRAITS, typeof Linkable]
+>;
 
 /**
  * @tag mx-list-link-item
@@ -44,11 +54,10 @@ export type ListLinkItemCSSProperties = ListInteractiveItemCoreCSSProperties;
  *
  * @event click - Fired when the item is activated.
  */
-const ListLinkItem: TraitedConstructor<
-  ListInteractiveItemCore,
-  typeof ListInteractiveItemCore,
-  [typeof Linkable]
-> = impl(ListInteractiveItemCore, [Linkable])(
+const ListLinkItem: ListLinkItemConstructor = impl(ControlledElement, [
+  ...LIST_INTERACTIVE_ITEM_CORE_TRAITS,
+  Linkable,
+])(
   (Base) =>
     class extends Base {
       constructor() {

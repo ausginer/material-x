@@ -1,19 +1,19 @@
 import { Bool } from 'ydin/attribute.js';
 import { useARIA } from 'ydin/controllers/useARIA.js';
 import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
-import { internals } from 'ydin/element.js';
+import { internals, type ControlledElement } from 'ydin/element.js';
 import {
   Disableable,
   useDisableable,
   type DisableableProps,
 } from 'ydin/traits/disableable.js';
 import { Selectable, type SelectableProps } from 'ydin/traits/selectable.js';
-import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+import type { Traited } from 'ydin/traits/traits.js';
 import { toggleState } from 'ydin/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import {
-  ListItemCore,
+  LIST_ITEM_CORE_TRAITS,
   useListItemCore,
   type ListItemCoreCSSProperties,
   type ListItemCoreProperties,
@@ -28,15 +28,15 @@ export type ListInteractiveItemCoreCSSProperties = ListItemCoreCSSProperties &
     '--md-list-item-press-easing'?: string;
   }>;
 
-export const ListInteractiveItemCore: TraitedConstructor<
-  ListItemCore,
-  typeof ListItemCore,
-  [typeof Disableable, typeof Selectable]
-> = impl(ListItemCore, [Disableable, Selectable])(
-  (Base) => class extends Base {},
-);
-export type ListInteractiveItemCore = InstanceType<
-  typeof ListInteractiveItemCore
+export const LIST_INTERACTIVE_ITEM_CORE_TRAITS: readonly [
+  ...typeof LIST_ITEM_CORE_TRAITS,
+  typeof Disableable,
+  typeof Selectable,
+] = [...LIST_ITEM_CORE_TRAITS, Disableable, Selectable];
+
+export type ListInteractiveItemCore = Traited<
+  ControlledElement,
+  typeof LIST_INTERACTIVE_ITEM_CORE_TRAITS
 >;
 
 export function useInteractiveListItemCore(

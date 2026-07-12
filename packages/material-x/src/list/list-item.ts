@@ -1,7 +1,12 @@
-import { define } from 'ydin/element.js';
+import {
+  ControlledElement,
+  define,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
+import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import template from './list-item.tpl.html' with { type: 'html' };
 import {
-  ListItemCore,
+  LIST_ITEM_CORE_TRAITS,
   useListItemCore,
   type ListItemCoreCSSProperties,
   type ListItemCoreEvents,
@@ -11,6 +16,12 @@ import {
 export type ListItemProperties = ListItemCoreProperties;
 export type ListItemEvents = ListItemCoreEvents;
 export type ListItemCSSProperties = ListItemCoreCSSProperties;
+
+export type ListItemConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  typeof LIST_ITEM_CORE_TRAITS
+>;
 
 /**
  * @tag mx-list-item
@@ -26,12 +37,21 @@ export type ListItemCSSProperties = ListItemCoreCSSProperties;
  *
  * @csspart impl - Internal list item container.
  */
-export default class ListItem extends ListItemCore {
-  constructor() {
-    super();
-    useListItemCore(this, template);
-  }
-}
+const ListItem: ListItemConstructor = impl(
+  ControlledElement,
+  LIST_ITEM_CORE_TRAITS,
+)(
+  (Base) =>
+    class extends Base {
+      constructor() {
+        super();
+        useListItemCore(this, template);
+      }
+    },
+);
+type ListItem = InstanceType<typeof ListItem>;
+
+export default ListItem;
 
 define('mx-list-item', ListItem);
 

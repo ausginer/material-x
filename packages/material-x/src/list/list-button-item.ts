@@ -1,9 +1,14 @@
 import type { EmptyObject } from 'type-fest';
-import { define } from 'ydin/element.js';
+import {
+  ControlledElement,
+  define,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
 import { useSelectable } from 'ydin/traits/selectable.js';
+import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
 import template from './list-button-item.tpl.html' with { type: 'html' };
 import {
-  ListInteractiveItemCore,
+  LIST_INTERACTIVE_ITEM_CORE_TRAITS,
   useInteractiveListItemCore,
   type ListInteractiveItemCoreCSSProperties,
   type ListInteractiveItemCoreProperties,
@@ -12,6 +17,12 @@ import {
 export type ListButtonItemProperties = ListInteractiveItemCoreProperties;
 export type ListButtonItemEvents = EmptyObject;
 export type ListButtonItemCSSProperties = ListInteractiveItemCoreCSSProperties;
+
+export type ListButtonItemConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  typeof LIST_INTERACTIVE_ITEM_CORE_TRAITS
+>;
 
 /**
  * @tag mx-list-button-item
@@ -32,13 +43,22 @@ export type ListButtonItemCSSProperties = ListInteractiveItemCoreCSSProperties;
  *
  * @event click - Fired when the item is activated.
  */
-export default class ListButtonItem extends ListInteractiveItemCore {
-  constructor() {
-    super();
-    const target = useInteractiveListItemCore(this, template);
-    useSelectable(this, target);
-  }
-}
+const ListButtonItem: ListButtonItemConstructor = impl(
+  ControlledElement,
+  LIST_INTERACTIVE_ITEM_CORE_TRAITS,
+)(
+  (Base) =>
+    class extends Base {
+      constructor() {
+        super();
+        const target = useInteractiveListItemCore(this, template);
+        useSelectable(this, target);
+      }
+    },
+);
+type ListButtonItem = InstanceType<typeof ListButtonItem>;
+
+export default ListButtonItem;
 
 define('mx-list-button-item', ListButtonItem);
 
