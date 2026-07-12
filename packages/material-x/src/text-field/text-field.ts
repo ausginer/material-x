@@ -3,7 +3,7 @@ import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
 import { define } from 'ydin/element.js';
 import '../icon/icon.ts';
 import textFieldTemplate from './text-field.tpl.html' with { type: 'html' };
-import { getInput, TextFieldCore } from './TextFieldCore.ts';
+import { input, TextFieldCore } from './TextFieldCore.ts';
 
 export type {
   TextFieldProperties,
@@ -67,7 +67,7 @@ export default class TextField extends TextFieldCore {
     super(textFieldTemplate);
 
     useAttributes(this, {
-      type: transfer(getInput(this), 'type'),
+      type: transfer(input(this), 'type'),
     });
   }
 }

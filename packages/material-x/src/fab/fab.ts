@@ -74,11 +74,11 @@ export type FABCSSProperties = Readonly<{
   '--md-fab-hover-level'?: string;
 }>;
 
-export type FABConstructor = TraitedConstructor<
+const FABConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   [typeof FABLike, typeof Disableable]
->;
+> = impl(ControlledElement, [FABLike, Disableable]);
 
 /**
  * @tag mx-fab
@@ -109,48 +109,40 @@ export type FABConstructor = TraitedConstructor<
  *
  * @event click - Fired when the FAB is activated.
  */
-const FAB: FABConstructor = impl(ControlledElement, [FABLike, Disableable])(
-  (Base) =>
-    class extends Base {
-      constructor() {
-        super();
-        useCore(this, [template], {}, [
-          elevationStyles,
-          focusStyles,
-          defaultStyles,
-          colorStyles,
-          sizeStyles,
-          tonalStyles,
-          extendedStyles,
-        ]);
+export default class FAB extends FABConstructor {
+  constructor() {
+    super();
+    useCore(this, [template], {}, [
+      elevationStyles,
+      focusStyles,
+      defaultStyles,
+      colorStyles,
+      sizeStyles,
+      tonalStyles,
+      extendedStyles,
+    ]);
 
-        const target = $<HTMLButtonElement>(this, '.host')!;
-        useARIA(this, target);
+    const target = $<HTMLButtonElement>(this, '.host')!;
+    useARIA(this, target);
 
-        useRipple(this, target, target);
+    useRipple(this, target, target);
 
-        useDisableable(this, target);
+    useDisableable(this, target);
 
-        const innards = internals(this);
+    const innards = internals(this);
 
-        useAttributes(this, {
-          extended: (_, newValue) => {
-            toggleState(innards, 'extended', Bool.from(newValue));
-            toggleState(innards, 'open', newValue === 'open');
-          },
-          color: (oldValue, newValue) =>
-            switchState(innards, oldValue, newValue),
-          size: (oldValue, newValue) =>
-            switchState(innards, oldValue, newValue),
-          tonal: (_, newValue) =>
-            toggleState(innards, 'tonal', Bool.from(newValue)),
-        });
-      }
-    },
-);
-type FAB = InstanceType<typeof FAB>;
-
-export default FAB;
+    useAttributes(this, {
+      extended: (_, newValue) => {
+        toggleState(innards, 'extended', Bool.from(newValue));
+        toggleState(innards, 'open', newValue === 'open');
+      },
+      color: (oldValue, newValue) => switchState(innards, oldValue, newValue),
+      size: (oldValue, newValue) => switchState(innards, oldValue, newValue),
+      tonal: (_, newValue) =>
+        toggleState(innards, 'tonal', Bool.from(newValue)),
+    });
+  }
+}
 
 define('mx-fab', FAB);
 

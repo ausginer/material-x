@@ -102,14 +102,18 @@ export type TextFieldCSSProperties = Readonly<{
   '--md-text-field-supporting-text-row-gap'?: string;
 }>;
 
-export const TextFieldCoreBase: TraitedConstructor<
+export const TEXT_FIELD_CORE_TRAITS: readonly [
+  typeof TextFieldLike,
+  typeof Disableable,
+  typeof Valuable,
+  typeof Nameable,
+] = [TextFieldLike, Disableable, Valuable, Nameable];
+
+const TextFieldCoreConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
-  [typeof TextFieldLike, typeof Disableable, typeof Valuable, typeof Nameable]
-> = impl(ControlledElement, [TextFieldLike, Disableable, Valuable, Nameable])(
-  (Base) => class extends Base {},
-);
-export type TextFieldCoreBase = InstanceType<typeof TextFieldCoreBase>;
+  typeof TEXT_FIELD_CORE_TRAITS
+> = impl(ControlledElement, TEXT_FIELD_CORE_TRAITS);
 
 const ARIA_PARAMS = {
   'aria-labelledby': ['label'],
@@ -152,18 +156,14 @@ function useTextFieldARIA(host: ControlledElement, input: InputElement): void {
   }
 }
 
-export let getInput: (
-  element: TextFieldCore,
-) => HTMLInputElement | HTMLTextAreaElement;
+export let input: (element: TextFieldCore) => InputElement;
 
-export class TextFieldCore extends TextFieldCoreBase {
+export class TextFieldCore extends TextFieldCoreConstructor {
   static {
-    getInput = (
-      element: TextFieldCore,
-    ): HTMLInputElement | HTMLTextAreaElement => element.#input;
+    input = (element: TextFieldCore): InputElement => element.#input;
   }
 
-  readonly #input: HTMLInputElement | HTMLTextAreaElement;
+  readonly #input: InputElement;
 
   constructor(template: HTMLTemplateElement) {
     super();
@@ -178,42 +178,42 @@ export class TextFieldCore extends TextFieldCoreBase {
       },
     );
 
-    const input = $<HTMLInputElement | HTMLTextAreaElement>(this, '.input')!;
+    const field = $<InputElement>(this, '.input')!;
     const label = $<HTMLLabelElement>(this, '.label')!;
 
     const innards = internals(this);
 
-    useNameable(this, input);
-    useDisableable(this, input);
+    useNameable(this, field);
+    useDisableable(this, field);
 
     useAttributes(this, {
-      inputmode: transfer(input, 'inputmode'),
+      inputmode: transfer(field, 'inputmode'),
       outlined: via(Bool, (_, newValue) => {
         toggleState(innards, 'outlined', newValue);
       }),
     });
 
-    useTextFieldARIA(this, input);
+    useTextFieldARIA(this, field);
     useNotchedOutline(this, label);
 
     useEvents(
       this,
       {
         input() {
-          toggleState(innards, 'populated', !!input.value);
-          innards.setFormValue(input.value);
+          toggleState(innards, 'populated', !!field.value);
+          innards.setFormValue(field.value);
         },
         change: () => {
           notify(this, 'change');
         },
       },
-      input,
+      field,
     );
 
     // TODO: Remove when :has-slotted and :host:has() are baseline.
     useHasSlottedPolyfill(this);
 
-    this.#input = input;
+    this.#input = field;
   }
 
   get isPopulated(): boolean {

@@ -28,11 +28,11 @@ export type LinkButtonProps = Simplify<ButtonCoreProps & LinkableProps>;
 export type LinkButtonEvents = EmptyObject;
 export type LinkButtonCSSProperties = ButtonSharedCSSProperties;
 
-export type LinkButtonConstructor = TraitedConstructor<
+const LinkButtonConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   [...typeof BUTTON_CORE_TRAITS, typeof Linkable]
->;
+> = impl(ControlledElement, [...BUTTON_CORE_TRAITS, Linkable]);
 
 /**
  * @tag mx-link-button
@@ -66,35 +66,21 @@ export type LinkButtonConstructor = TraitedConstructor<
  *
  * @event click - Fired when the link button is activated.
  */
-const LinkButton: LinkButtonConstructor = impl(ControlledElement, [
-  ...BUTTON_CORE_TRAITS,
-  Linkable,
-])(
-  (Base) =>
-    class extends Base {
-      constructor() {
-        super();
-        useButtonCore(
-          this,
-          linkButtonTemplate,
-          [
-            mainElevatedStyles,
-            mainOutlinedStyles,
-            mainTextStyles,
-            mainTonalStyles,
-          ],
-          { delegatesFocus: true },
-        );
+export default class LinkButton extends LinkButtonConstructor {
+  constructor() {
+    super();
+    useButtonCore(
+      this,
+      linkButtonTemplate,
+      [mainElevatedStyles, mainOutlinedStyles, mainTextStyles, mainTonalStyles],
+      { delegatesFocus: true },
+    );
 
-        const anchor = $<HTMLAnchorElement>(this, '.host')!;
-        useLinkable(this, anchor);
-        useDisableableLinkable(this, anchor);
-      }
-    },
-);
-type LinkButton = InstanceType<typeof LinkButton>;
-
-export default LinkButton;
+    const anchor = $<HTMLAnchorElement>(this, '.host')!;
+    useLinkable(this, anchor);
+    useDisableableLinkable(this, anchor);
+  }
+}
 
 define('mx-link-button', LinkButton);
 

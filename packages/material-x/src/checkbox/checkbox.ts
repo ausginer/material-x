@@ -47,11 +47,11 @@ export type CheckboxEvents = Readonly<{
 
 export type CheckboxCSSProperties = EmptyObject;
 
-export type CheckboxConstructor = TraitedConstructor<
+const CheckboxConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   [...typeof CHECKABLE_CORE_TRAITS, typeof Indeterminable]
->;
+> = impl(ControlledElement, [...CHECKABLE_CORE_TRAITS, Indeterminable]);
 
 /**
  * @tag mx-checkbox
@@ -92,51 +92,42 @@ export type CheckboxConstructor = TraitedConstructor<
  * @event change - Fired when the checked state changes (user interaction only).
  * @event input - Fired when the checked state changes (user interaction only).
  */
-const Checkbox: CheckboxConstructor = impl(ControlledElement, [
-  ...CHECKABLE_CORE_TRAITS,
-  Indeterminable,
-])(
-  (Base) =>
-    class extends Base {
-      static readonly formAssociated = true;
+export default class Checkbox extends CheckboxConstructor {
+  static override formAssociated = true;
 
-      constructor() {
-        super();
+  constructor() {
+    super();
 
-        const input = useCheckableCore(
-          this,
-          [checkboxTemplate],
-          {},
-          [defaultStyles],
-          { delegatesFocus: true },
-        );
+    const input = useCheckableCore(
+      this,
+      [checkboxTemplate],
+      {},
+      [defaultStyles],
+      { delegatesFocus: true },
+    );
 
-        const innards = internals(this);
-        const icon = $<Icon>(this, '.icon')!;
+    const innards = internals(this);
+    const icon = $<Icon>(this, '.icon')!;
 
-        useAttributes(this, {
-          checked: via(Bool, (_, value) => {
-            if (!this.indeterminate) {
-              icon.textContent = value ? CHECKED_ICON : '';
-            }
-          }),
-          indeterminate: via(Bool, (_, value) => {
-            icon.textContent = value
-              ? INDETERMINATE_ICON
-              : this.checked
-                ? CHECKED_ICON
-                : '';
+    useAttributes(this, {
+      checked: via(Bool, (_, value) => {
+        if (!this.indeterminate) {
+          icon.textContent = value ? CHECKED_ICON : '';
+        }
+      }),
+      indeterminate: via(Bool, (_, value) => {
+        icon.textContent = value
+          ? INDETERMINATE_ICON
+          : this.checked
+            ? CHECKED_ICON
+            : '';
 
-            input.indeterminate = value;
-            toggleState(innards, 'indeterminate', value);
-          }),
-        });
-      }
-    },
-);
-type Checkbox = InstanceType<typeof Checkbox>;
-
-export default Checkbox;
+        input.indeterminate = value;
+        toggleState(innards, 'indeterminate', value);
+      }),
+    });
+  }
+}
 
 define('mx-checkbox', Checkbox);
 

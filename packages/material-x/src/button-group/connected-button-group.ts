@@ -22,11 +22,11 @@ export type ConnectedButtonGroupProperties = ButtonGroupCoreProps;
 export type ConnectedButtonGroupEvents = ButtonGroupCoreEvents;
 export type ConnectedButtonGroupCSSProperties = ButtonGroupCoreCSSProperties;
 
-export type ConnectedButtonGroupConstructor = TraitedConstructor<
+const ConnectedButtonGroupConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   typeof BUTTON_GROUP_CORE_TRAITS
->;
+> = impl(ControlledElement, BUTTON_GROUP_CORE_TRAITS);
 
 /**
  * @tag mx-connected-button-group
@@ -49,44 +49,35 @@ export type ConnectedButtonGroupConstructor = TraitedConstructor<
  * overlap width factor.
  * @cssprop --md-button-group-inner-corner-size - Overrides inner corner radius.
  */
-const ConnectedButtonGroup: ConnectedButtonGroupConstructor = impl(
-  ControlledElement,
-  BUTTON_GROUP_CORE_TRAITS,
-)(
-  (Base) =>
-    class extends Base {
-      constructor() {
-        super();
-        useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [
-          connectedStyles,
-        ]);
+export default class ConnectedButtonGroup extends ConnectedButtonGroupConstructor {
+  constructor() {
+    super();
+    useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [
+      connectedStyles,
+    ]);
 
-        useRovingTabindex(this);
+    useRovingTabindex(this);
 
-        useSlot<ButtonLike & Checkable & ControlledElement>(
-          this,
-          'slot',
-          (_, newElements) => {
-            newElements.forEach((element) => {
-              delete element.dataset['first'];
-              delete element.dataset['last'];
-            });
+    useSlot<ButtonLike & Checkable & ControlledElement>(
+      this,
+      'slot',
+      (_, newElements) => {
+        newElements.forEach((element) => {
+          delete element.dataset['first'];
+          delete element.dataset['last'];
+        });
 
-            if (newElements[0]) {
-              newElements[0].dataset['first'] = '';
-            }
+        if (newElements[0]) {
+          newElements[0].dataset['first'] = '';
+        }
 
-            if (newElements.at(-1)) {
-              newElements.at(-1)!.dataset['last'] = '';
-            }
-          },
-        );
-      }
-    },
-);
-type ConnectedButtonGroup = InstanceType<typeof ConnectedButtonGroup>;
-
-export default ConnectedButtonGroup;
+        if (newElements.at(-1)) {
+          newElements.at(-1)!.dataset['last'] = '';
+        }
+      },
+    );
+  }
+}
 
 define('mx-connected-button-group', ConnectedButtonGroup);
 

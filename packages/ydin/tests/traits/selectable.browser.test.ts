@@ -16,9 +16,7 @@ function createElement<T extends CustomElementConstructor>(
 }
 
 function createSelectableClass() {
-  return impl(ControlledElement, [Selectable] as const)(
-    (Base) => class extends Base {},
-  );
+  return impl(ControlledElement, [Selectable] as const);
 }
 
 function createHostWithTarget() {

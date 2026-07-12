@@ -21,11 +21,11 @@ export type RadioEvents = {
 };
 export type RadioCSSProperties = EmptyObject;
 
-export type RadioConstructor = TraitedConstructor<
+const RadioConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   typeof CHECKABLE_CORE_TRAITS
->;
+> = impl(ControlledElement, CHECKABLE_CORE_TRAITS);
 
 /**
  * @tag mx-radio
@@ -55,25 +55,16 @@ export type RadioConstructor = TraitedConstructor<
  * @event change - Fired when this radio button becomes selected (user interaction only).
  * @event input - Fired when this radio button becomes selected (user interaction only).
  */
-const Radio: RadioConstructor = impl(
-  ControlledElement,
-  CHECKABLE_CORE_TRAITS,
-)(
-  (Base) =>
-    class extends Base {
-      static readonly formAssociated = true;
+export default class Radio extends RadioConstructor {
+  static override formAssociated = true;
 
-      constructor() {
-        super();
-        useCheckableCore(this, [radioTemplate], {}, [defaultStyles], {
-          delegatesFocus: true,
-        });
-      }
-    },
-);
-type Radio = InstanceType<typeof Radio>;
-
-export default Radio;
+  constructor() {
+    super();
+    useCheckableCore(this, [radioTemplate], {}, [defaultStyles], {
+      delegatesFocus: true,
+    });
+  }
+}
 
 define('mx-radio', Radio);
 

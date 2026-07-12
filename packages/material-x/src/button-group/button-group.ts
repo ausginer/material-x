@@ -25,11 +25,11 @@ export type ButtonGroupCSSProperties = ButtonGroupCoreCSSProperties;
 const LEADING_PROP = '--_interaction-direction-leading';
 const TRAILING_PROP = '--_interaction-direction-trailing';
 
-export type ButtonGroupConstructor = TraitedConstructor<
+const ButtonGroupConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   typeof BUTTON_GROUP_CORE_TRAITS
->;
+> = impl(ControlledElement, BUTTON_GROUP_CORE_TRAITS);
 
 /**
  * @tag mx-button-group
@@ -51,55 +51,42 @@ export type ButtonGroupConstructor = TraitedConstructor<
  * overlap width factor.
  * @cssprop --md-button-group-inner-corner-size - Overrides inner corner radius.
  */
-const ButtonGroup: ButtonGroupConstructor = impl(
-  ControlledElement,
-  BUTTON_GROUP_CORE_TRAITS,
-)(
-  (Base) =>
-    class extends Base {
-      constructor() {
-        super();
-        useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [
-          standardStyles,
-        ]);
+export default class ButtonGroup extends ButtonGroupConstructor {
+  constructor() {
+    super();
+    useButtonGroupCore(this, buttonGroupTemplate, { role: 'group' }, [
+      standardStyles,
+    ]);
 
-        let elements: ReadonlyArray<ButtonLike & ControlledElement> = [];
+    let elements: ReadonlyArray<ButtonLike & ControlledElement> = [];
 
-        useSlot<ButtonLike & ControlledElement>(
-          this,
-          'slot',
-          (_, newElements) => {
-            elements = newElements;
-          },
-        );
+    useSlot<ButtonLike & ControlledElement>(this, 'slot', (_, newElements) => {
+      elements = newElements;
+    });
 
-        const pointerup = () => {
-          elements.forEach((element) => {
-            [LEADING_PROP, TRAILING_PROP].forEach((prop) => {
-              element.style.removeProperty(prop);
-            });
-          });
-        };
-
-        useEvents(this, {
-          pointerdown: (event) => {
-            const target = getTarget(event);
-
-            if (target) {
-              const index = elements.indexOf(target);
-              elements[index - 1]?.style.setProperty(LEADING_PROP, '-1');
-              elements[index + 1]?.style.setProperty(TRAILING_PROP, '-1');
-            }
-          },
-          pointerup,
-          pointercancel: pointerup,
+    const pointerup = () => {
+      elements.forEach((element) => {
+        [LEADING_PROP, TRAILING_PROP].forEach((prop) => {
+          element.style.removeProperty(prop);
         });
-      }
-    },
-);
-type ButtonGroup = InstanceType<typeof ButtonGroup>;
+      });
+    };
 
-export default ButtonGroup;
+    useEvents(this, {
+      pointerdown: (event) => {
+        const target = getTarget(event);
+
+        if (target) {
+          const index = elements.indexOf(target);
+          elements[index - 1]?.style.setProperty(LEADING_PROP, '-1');
+          elements[index + 1]?.style.setProperty(TRAILING_PROP, '-1');
+        }
+      },
+      pointerup,
+      pointercancel: pointerup,
+    });
+  }
+}
 
 define('mx-button-group', ButtonGroup);
 

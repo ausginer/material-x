@@ -55,11 +55,11 @@ export type SplitButtonEvents = Readonly<{
 
 export type SplitButtonCSSProperties = ButtonSharedCSSProperties;
 
-export type SplitButtonConstructor = TraitedConstructor<
+const SplitButtonConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   [...typeof BUTTON_CORE_TRAITS, typeof SplitButtonLike]
->;
+> = impl(ControlledElement, [...BUTTON_CORE_TRAITS, SplitButtonLike]);
 
 /**
  * @tag mx-split-button
@@ -97,53 +97,41 @@ export type SplitButtonConstructor = TraitedConstructor<
  *
  * @event secondaryaction - Fired when the trailing action is activated.
  */
-const SplitButton: SplitButtonConstructor = impl(ControlledElement, [
-  ...BUTTON_CORE_TRAITS,
-  SplitButtonLike,
-])(
-  (Base) =>
-    class extends Base {
-      static readonly formAssociated = true;
+export default class SplitButton extends SplitButtonConstructor {
+  static override formAssociated = true;
 
-      constructor() {
-        super();
-        useCore(this, [splitButtonTemplate], {}, [splitButtonStyles]);
+  constructor() {
+    super();
+    useCore(this, [splitButtonTemplate], {}, [splitButtonStyles]);
 
-        useEvents(
-          this,
-          {
-            click: (event) => {
-              event.stopPropagation();
-              notify(this, 'secondaryaction');
-            },
-          },
-          $(this, 'mx-icon-button') ?? undefined,
-        );
+    useEvents(
+      this,
+      {
+        click: (event) => {
+          event.stopPropagation();
+          notify(this, 'secondaryaction');
+        },
+      },
+      $(this, 'mx-icon-button') ?? undefined,
+    );
 
-        const innards = internals(this);
+    const innards = internals(this);
 
-        useAttributes(this, {
-          open(_, newValue) {
-            toggleState(innards, 'open', Bool.from(newValue));
-          },
-        });
+    useAttributes(this, {
+      open(_, newValue) {
+        toggleState(innards, 'open', Bool.from(newValue));
+      },
+    });
 
-        const group = $(this, 'mx-connected-button-group')!;
-        useAttributes(
-          this,
-          Object.fromEntries(
-            Object.keys(BUTTON_ATTRS).map((attr) => [
-              attr,
-              transfer(group, attr),
-            ]),
-          ),
-        );
-      }
-    },
-);
-type SplitButton = InstanceType<typeof SplitButton>;
-
-export default SplitButton;
+    const group = $(this, 'mx-connected-button-group')!;
+    useAttributes(
+      this,
+      Object.fromEntries(
+        Object.keys(BUTTON_ATTRS).map((attr) => [attr, transfer(group, attr)]),
+      ),
+    );
+  }
+}
 
 define('mx-split-button', SplitButton);
 

@@ -18,11 +18,11 @@ export type ListButtonItemProperties = ListInteractiveItemCoreProperties;
 export type ListButtonItemEvents = EmptyObject;
 export type ListButtonItemCSSProperties = ListInteractiveItemCoreCSSProperties;
 
-export type ListButtonItemConstructor = TraitedConstructor<
+const ListButtonItemConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   typeof LIST_INTERACTIVE_ITEM_CORE_TRAITS
->;
+> = impl(ControlledElement, LIST_INTERACTIVE_ITEM_CORE_TRAITS);
 
 /**
  * @tag mx-list-button-item
@@ -43,22 +43,13 @@ export type ListButtonItemConstructor = TraitedConstructor<
  *
  * @event click - Fired when the item is activated.
  */
-const ListButtonItem: ListButtonItemConstructor = impl(
-  ControlledElement,
-  LIST_INTERACTIVE_ITEM_CORE_TRAITS,
-)(
-  (Base) =>
-    class extends Base {
-      constructor() {
-        super();
-        const target = useInteractiveListItemCore(this, template);
-        useSelectable(this, target);
-      }
-    },
-);
-type ListButtonItem = InstanceType<typeof ListButtonItem>;
-
-export default ListButtonItem;
+export default class ListButtonItem extends ListButtonItemConstructor {
+  constructor() {
+    super();
+    const target = useInteractiveListItemCore(this, template);
+    useSelectable(this, target);
+  }
+}
 
 define('mx-list-button-item', ListButtonItem);
 

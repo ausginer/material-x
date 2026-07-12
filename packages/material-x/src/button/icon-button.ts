@@ -17,11 +17,11 @@ import mainOutlinedStyles from './styles/outlined/main.css.ts' with { type: 'css
 import mainTextStyles from './styles/text/main.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
-export type IconButtonConstructor = TraitedConstructor<
+const IconButtonConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   typeof ICON_BUTTON_CORE_TRAITS
->;
+> = impl(ControlledElement, ICON_BUTTON_CORE_TRAITS);
 
 /**
  * @tag mx-icon-button
@@ -52,32 +52,23 @@ export type IconButtonConstructor = TraitedConstructor<
  *
  * @event click - Fired when the button is activated.
  */
-const IconButton: IconButtonConstructor = impl(
-  ControlledElement,
-  ICON_BUTTON_CORE_TRAITS,
-)(
-  (Base) =>
-    class extends Base {
-      static readonly formAssociated = true;
+export default class IconButton extends IconButtonConstructor {
+  static override formAssociated = true;
 
-      constructor() {
-        super();
-        useButtonCore(this, iconButtonTemplate, [
-          mainElevatedStyles,
-          mainOutlinedStyles,
-          mainTextStyles,
-          mainTonalStyles,
-          mainIconStyles,
-        ]);
+  constructor() {
+    super();
+    useButtonCore(this, iconButtonTemplate, [
+      mainElevatedStyles,
+      mainOutlinedStyles,
+      mainTextStyles,
+      mainTonalStyles,
+      mainIconStyles,
+    ]);
 
-        useIconButtonCore(this);
-        useFormActivation(this);
-      }
-    },
-);
-type IconButton = InstanceType<typeof IconButton>;
-
-export default IconButton;
+    useIconButtonCore(this);
+    useFormActivation(this);
+  }
+}
 
 define('mx-icon-button', IconButton);
 

@@ -28,11 +28,11 @@ export type ButtonProperties = ButtonCoreProps & NameableProps;
 export type ButtonEvents = EmptyObject;
 export type ButtonCSSProperties = ButtonSharedCSSProperties;
 
-export type ButtonConstructor = TraitedConstructor<
+const ButtonConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   [...typeof BUTTON_CORE_TRAITS, typeof Nameable, typeof Typeable]
->;
+> = impl(ControlledElement, [...BUTTON_CORE_TRAITS, Nameable, Typeable]);
 /**
  * @tag mx-button
  *
@@ -66,34 +66,24 @@ export type ButtonConstructor = TraitedConstructor<
  *
  * @event click - Fired when the button is activated.
  */
-const Button: ButtonConstructor = impl(ControlledElement, [
-  ...BUTTON_CORE_TRAITS,
-  Nameable,
-  Typeable,
-])(
-  (Base) =>
-    class extends Base {
-      static readonly formAssociated = true;
+export default class Button extends ButtonConstructor {
+  static override formAssociated = true;
 
-      constructor() {
-        super();
+  constructor() {
+    super();
 
-        const target = useButtonCore(
-          this,
-          buttonTemplate,
-          [elevatedStyles, outlinedStyles, textStyles, tonalStyles],
-          { delegatesFocus: true },
-        );
+    const target = useButtonCore(
+      this,
+      buttonTemplate,
+      [elevatedStyles, outlinedStyles, textStyles, tonalStyles],
+      { delegatesFocus: true },
+    );
 
-        useNameable(this, target);
-        useTypeable(this, target);
-        useFormActivation(this);
-      }
-    },
-);
-type Button = InstanceType<typeof Button>;
-
-export default Button;
+    useNameable(this, target);
+    useTypeable(this, target);
+    useFormActivation(this);
+  }
+}
 
 define('mx-button', Button);
 

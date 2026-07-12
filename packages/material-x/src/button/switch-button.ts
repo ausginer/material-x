@@ -35,11 +35,11 @@ export type SwitchButtonProperties = ButtonCoreProps &
 export type SwitchButtonEvents = SwitchEvents;
 export type SwitchButtonCSSProperties = ButtonSharedCSSProperties;
 
-export type SwitchButtonConstructor = TraitedConstructor<
+const SwitchButtonConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   typeof SWITCH_CORE_TRAITS
->;
+> = impl(ControlledElement, SWITCH_CORE_TRAITS);
 
 /**
  * @tag mx-switch-button
@@ -75,32 +75,23 @@ export type SwitchButtonConstructor = TraitedConstructor<
  * @event input - Fired when switch interaction occurs.
  * @event change - Fired when switch interaction occurs.
  */
-const SwitchButton: SwitchButtonConstructor = impl(
-  ControlledElement,
-  SWITCH_CORE_TRAITS,
-)(
-  (Base) =>
-    class extends Base {
-      static readonly formAssociated = true;
+export default class SwitchButton extends SwitchButtonConstructor {
+  static override formAssociated = true;
 
-      constructor() {
-        super();
-        useSwitchCore(this, switchButtonTemplate, [
-          mainElevatedStyles,
-          mainOutlinedStyles,
-          mainTonalStyles,
-          switchDefaultStyles,
-          switchElevatedStyles,
-          switchOutlinedStyles,
-          switchSizeStyles,
-          switchTonalStyles,
-        ]);
-      }
-    },
-);
-type SwitchButton = InstanceType<typeof SwitchButton>;
-
-export default SwitchButton;
+  constructor() {
+    super();
+    useSwitchCore(this, switchButtonTemplate, [
+      mainElevatedStyles,
+      mainOutlinedStyles,
+      mainTonalStyles,
+      switchDefaultStyles,
+      switchElevatedStyles,
+      switchOutlinedStyles,
+      switchSizeStyles,
+      switchTonalStyles,
+    ]);
+  }
+}
 
 define('mx-switch-button', SwitchButton);
 

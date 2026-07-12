@@ -21,11 +21,11 @@ import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' 
 import switchIconButtonTemplate from './switch-icon-button.tpl.html' with { type: 'html' };
 import { useSwitchCore } from './SwitchCore.ts';
 
-export type SwitchIconButtonConstructor = TraitedConstructor<
+const SwitchIconButtonConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   typeof SWITCH_ICON_BUTTON_CORE_TRAITS
->;
+> = impl(ControlledElement, SWITCH_ICON_BUTTON_CORE_TRAITS);
 
 /**
  * @tag mx-switch-icon-button
@@ -62,36 +62,27 @@ export type SwitchIconButtonConstructor = TraitedConstructor<
  * @event input - Fired when switch interaction occurs.
  * @event change - Fired when switch interaction occurs.
  */
-const SwitchIconButton: SwitchIconButtonConstructor = impl(
-  ControlledElement,
-  SWITCH_ICON_BUTTON_CORE_TRAITS,
-)(
-  (Base) =>
-    class extends Base {
-      static readonly formAssociated = true;
+export default class SwitchIconButton extends SwitchIconButtonConstructor {
+  static override formAssociated = true;
 
-      constructor() {
-        super();
-        useSwitchCore(this, switchIconButtonTemplate, [
-          mainElevatedStyles,
-          mainOutlinedStyles,
-          mainTonalStyles,
-          mainIconStyles,
-          switchDefaultStyles,
-          switchElevatedStyles,
-          switchOutlinedStyles,
-          switchSizeStyles,
-          switchTonalStyles,
-          switchIconStyles,
-        ]);
+  constructor() {
+    super();
+    useSwitchCore(this, switchIconButtonTemplate, [
+      mainElevatedStyles,
+      mainOutlinedStyles,
+      mainTonalStyles,
+      mainIconStyles,
+      switchDefaultStyles,
+      switchElevatedStyles,
+      switchOutlinedStyles,
+      switchSizeStyles,
+      switchTonalStyles,
+      switchIconStyles,
+    ]);
 
-        useIconButtonCore(this);
-      }
-    },
-);
-type SwitchIconButton = InstanceType<typeof SwitchIconButton>;
-
-export default SwitchIconButton;
+    useIconButtonCore(this);
+  }
+}
 
 define('mx-switch-icon-button', SwitchIconButton);
 

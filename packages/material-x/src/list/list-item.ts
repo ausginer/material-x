@@ -17,11 +17,11 @@ export type ListItemProperties = ListItemCoreProperties;
 export type ListItemEvents = ListItemCoreEvents;
 export type ListItemCSSProperties = ListItemCoreCSSProperties;
 
-export type ListItemConstructor = TraitedConstructor<
+const ListItemConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   typeof LIST_ITEM_CORE_TRAITS
->;
+> = impl(ControlledElement, LIST_ITEM_CORE_TRAITS);
 
 /**
  * @tag mx-list-item
@@ -37,21 +37,12 @@ export type ListItemConstructor = TraitedConstructor<
  *
  * @csspart impl - Internal list item container.
  */
-const ListItem: ListItemConstructor = impl(
-  ControlledElement,
-  LIST_ITEM_CORE_TRAITS,
-)(
-  (Base) =>
-    class extends Base {
-      constructor() {
-        super();
-        useListItemCore(this, template);
-      }
-    },
-);
-type ListItem = InstanceType<typeof ListItem>;
-
-export default ListItem;
+export default class ListItem extends ListItemConstructor {
+  constructor() {
+    super();
+    useListItemCore(this, template);
+  }
+}
 
 define('mx-list-item', ListItem);
 

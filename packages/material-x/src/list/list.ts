@@ -31,11 +31,11 @@ export type ListCSSProperties = Readonly<{
   '--md-list-container-shape'?: string;
 }>;
 
-export type ListConstructor = TraitedConstructor<
+const ListConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
   [typeof Reorderable]
->;
+> = impl(ControlledElement, [Reorderable]);
 
 /**
  * @tag mx-list
@@ -56,20 +56,14 @@ export type ListConstructor = TraitedConstructor<
  * @cssprop --md-list-container-color - Overrides the list container color.
  * @cssprop --md-list-container-shape - Overrides the list container shape.
  */
-const List: ListConstructor = impl(ControlledElement, [Reorderable])(
-  (Base) =>
-    class extends Base {
-      constructor() {
-        super();
-        useCore(this, [template], { role: 'list' }, [defaultStyles]);
-        const cssProps = useCSSProps(this, CSS_PROPS);
-        useReorderable(this, cssProps);
-      }
-    },
-);
-type List = InstanceType<typeof List>;
-
-export default List;
+export default class List extends ListConstructor {
+  constructor() {
+    super();
+    useCore(this, [template], { role: 'list' }, [defaultStyles]);
+    const cssProps = useCSSProps(this, CSS_PROPS);
+    useReorderable(this, cssProps);
+  }
+}
 
 define('mx-list', List);
 

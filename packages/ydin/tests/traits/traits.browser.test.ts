@@ -105,9 +105,7 @@ describe('traits', () => {
 
     const Valuable = trait({ value: Str }, $value);
 
-    const Combined = impl(BaseElement, [Checked, Valuable] as const)(
-      (Traited) => class extends Traited {},
-    );
+    const Combined = impl(BaseElement, [Checked, Valuable] as const);
 
     expect(Combined.observedAttributes).toEqual(['base', 'checked', 'value']);
   });

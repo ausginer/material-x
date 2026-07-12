@@ -17,9 +17,7 @@ function createListTemplate(): HTMLTemplateElement {
   return template;
 }
 
-const ReorderableCore = impl(ControlledElement, [Reorderable] as const)(
-  (Base) => class extends Base {},
-);
+const ReorderableCore = impl(ControlledElement, [Reorderable] as const);
 
 function createList() {
   return host((h) => {
