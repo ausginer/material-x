@@ -1,7 +1,12 @@
 import type { EmptyObject } from 'type-fest';
 import { Bool } from 'ydin/attribute.js';
 import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
-import { define, internals } from 'ydin/element.js';
+import {
+  ControlledElement,
+  define,
+  internals,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
 import {
   impl,
   type Interface,
@@ -12,7 +17,7 @@ import {
 } from 'ydin/traits/traits.js';
 import { $, toggleState } from 'ydin/utils/DOM.js';
 import {
-  CheckableCore,
+  CHECKABLE_CORE_TRAITS,
   useCheckableCore,
   type CheckableCoreProps,
 } from '../core/elements/CheckableCore.ts';
@@ -41,6 +46,12 @@ export type CheckboxEvents = Readonly<{
 }>;
 
 export type CheckboxCSSProperties = EmptyObject;
+
+export type CheckboxConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  [...typeof CHECKABLE_CORE_TRAITS, typeof Indeterminable]
+>;
 
 /**
  * @tag mx-checkbox
@@ -81,14 +92,13 @@ export type CheckboxCSSProperties = EmptyObject;
  * @event change - Fired when the checked state changes (user interaction only).
  * @event input - Fired when the checked state changes (user interaction only).
  */
-const Checkbox: TraitedConstructor<
-  CheckableCore,
-  typeof CheckableCore,
-  [typeof Indeterminable]
-> = impl(CheckableCore, [Indeterminable])(
+const Checkbox: CheckboxConstructor = impl(ControlledElement, [
+  ...CHECKABLE_CORE_TRAITS,
+  Indeterminable,
+])(
   (Base) =>
     class extends Base {
-      static override readonly formAssociated = true;
+      static readonly formAssociated = true;
 
       constructor() {
         super();

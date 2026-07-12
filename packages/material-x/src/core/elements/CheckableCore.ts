@@ -1,11 +1,7 @@
 import { Bool } from 'ydin/attribute.js';
 import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
 import { useEvents } from 'ydin/controllers/useEvents.js';
-import {
-  ControlledElement,
-  internals,
-  type ControlledElementConstructor,
-} from 'ydin/element.js';
+import { internals, type ControlledElement } from 'ydin/element.js';
 import {
   Checkable,
   useCheckable,
@@ -21,7 +17,7 @@ import {
   useNameable,
   type NameableProps,
 } from 'ydin/traits/nameable.js';
-import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+import type { Traited } from 'ydin/traits/traits.js';
 import {
   useValuable,
   Valuable,
@@ -38,14 +34,17 @@ export type CheckableCoreProps = CheckableProps &
   DisableableProps &
   NameableProps;
 
-export const CheckableCore: TraitedConstructor<
+export const CHECKABLE_CORE_TRAITS: readonly [
+  typeof Checkable,
+  typeof Valuable,
+  typeof Disableable,
+  typeof Nameable,
+] = [Checkable, Valuable, Disableable, Nameable];
+
+export type CheckableCore = Traited<
   ControlledElement,
-  ControlledElementConstructor,
-  [typeof Checkable, typeof Valuable, typeof Disableable, typeof Nameable]
-> = impl(ControlledElement, [Checkable, Valuable, Disableable, Nameable])(
-  (Base) => class extends Base {},
-);
-export type CheckableCore = InstanceType<typeof CheckableCore>;
+  typeof CHECKABLE_CORE_TRAITS
+>;
 
 // oxlint-disable-next-line max-params
 export function useCheckableCore(

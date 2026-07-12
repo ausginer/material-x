@@ -1,7 +1,12 @@
 import type { EmptyObject } from 'type-fest';
-import { define } from 'ydin/element.js';
 import {
-  CheckableCore,
+  ControlledElement,
+  define,
+  type ControlledElementConstructor,
+} from 'ydin/element.js';
+import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+import {
+  CHECKABLE_CORE_TRAITS,
   useCheckableCore,
   type CheckableCoreProps,
 } from '../core/elements/CheckableCore.ts';
@@ -15,6 +20,12 @@ export type RadioEvents = {
   input: Event;
 };
 export type RadioCSSProperties = EmptyObject;
+
+export type RadioConstructor = TraitedConstructor<
+  ControlledElement,
+  ControlledElementConstructor,
+  typeof CHECKABLE_CORE_TRAITS
+>;
 
 /**
  * @tag mx-radio
@@ -44,16 +55,25 @@ export type RadioCSSProperties = EmptyObject;
  * @event change - Fired when this radio button becomes selected (user interaction only).
  * @event input - Fired when this radio button becomes selected (user interaction only).
  */
-export default class Radio extends CheckableCore {
-  static override readonly formAssociated = true;
+const Radio: RadioConstructor = impl(
+  ControlledElement,
+  CHECKABLE_CORE_TRAITS,
+)(
+  (Base) =>
+    class extends Base {
+      static readonly formAssociated = true;
 
-  constructor() {
-    super();
-    useCheckableCore(this, [radioTemplate], {}, [defaultStyles], {
-      delegatesFocus: true,
-    });
-  }
-}
+      constructor() {
+        super();
+        useCheckableCore(this, [radioTemplate], {}, [defaultStyles], {
+          delegatesFocus: true,
+        });
+      }
+    },
+);
+type Radio = InstanceType<typeof Radio>;
+
+export default Radio;
 
 define('mx-radio', Radio);
 
