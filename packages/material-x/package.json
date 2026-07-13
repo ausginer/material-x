@@ -56,6 +56,10 @@
       "types": "./button-group/connected-button-group.d.ts",
       "default": "./button-group/connected-button-group.js"
     },
+    "./checkbox/checkbox.js": {
+      "types": "./checkbox/checkbox.d.ts",
+      "default": "./checkbox/checkbox.js"
+    },
     "./fab/fab.js": {
       "types": "./fab/fab.d.ts",
       "default": "./fab/fab.js"
@@ -79,6 +83,10 @@
     "./list/list-link-item.js": {
       "types": "./list/list-link-item.d.ts",
       "default": "./list/list-link-item.js"
+    },
+    "./radio/radio.js": {
+      "types": "./radio/radio.d.ts",
+      "default": "./radio/radio.js"
     },
     "./text-field/multiline-text-field.js": {
       "types": "./text-field/multiline-text-field.d.ts",
