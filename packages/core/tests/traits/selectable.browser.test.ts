@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ControlledElement } from '../../src/element.ts';
+import { impl } from '../../src/traits/attributes.ts';
 import { Selectable, useSelectable } from '../../src/traits/selectable.ts';
-import { impl } from '../../src/traits/traits.ts';
 import { defineCE, nameCE } from '../browser.ts';
 
 function createElement<T extends CustomElementConstructor>(

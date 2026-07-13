@@ -2,7 +2,7 @@ import attr, { Str, type ConverterOf } from '../attribute.ts';
 import { useAttributes } from '../controllers/useAttributes.ts';
 import { useEvents } from '../controllers/useEvents.ts';
 import type { ControlledElement } from '../element.ts';
-import { trait, type Interface, type Props, type Trait } from './traits.ts';
+import { trait, type Interface, type Props, type Trait } from './attributes.ts';
 
 const $linkable: unique symbol = Symbol('Linkable');
 

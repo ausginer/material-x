@@ -1,7 +1,7 @@
 import { Str, type ConverterOf } from '../attribute.ts';
 import { transfer, useAttributes } from '../controllers/useAttributes.ts';
 import type { ControlledElement } from '../element.ts';
-import { trait, type Interface, type Props, type Trait } from './traits.ts';
+import { trait, type Interface, type Props, type Trait } from './attributes.ts';
 
 const $valuable: unique symbol = Symbol('Valuable');
 

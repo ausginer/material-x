@@ -4,10 +4,10 @@ import { Bool, Num, Str, type ConverterOf } from '../../src/attribute.ts';
 import { ControlledElement } from '../../src/element.ts';
 import {
   impl,
+  trait,
   type Interface,
   type Props,
-  trait,
-} from '../../src/traits/traits.ts';
+} from '../../src/traits/attributes.ts';
 
 class BaseElement extends ControlledElement {
   static observedAttributes = ['base'];

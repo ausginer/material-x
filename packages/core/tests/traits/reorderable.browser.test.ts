@@ -2,13 +2,13 @@ import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { useShadowDOM } from '../../src/controllers/useShadowDOM.ts';
 import { ControlledElement, internals } from '../../src/element.ts';
+import { impl } from '../../src/traits/attributes.ts';
 import {
   Reorderable,
   ReorderEvent,
   useReorderable,
   useReorderableItem,
 } from '../../src/traits/reorderable.ts';
-import { impl } from '../../src/traits/traits.ts';
 import { defineCE, host, nameCE, nextFrame } from '../browser.ts';
 
 function createListTemplate(): HTMLTemplateElement {

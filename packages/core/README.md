@@ -70,7 +70,7 @@ import { Bool, Num, Str } from '@ydinjs/core/attribute.js';
 Traits add attribute-backed properties to an element class without manual `observedAttributes` wiring.
 
 ```ts
-import { trait, impl } from '@ydinjs/core/traits/traits.js';
+import { trait, impl } from '@ydinjs/core/traits/attributes.js';
 import { Bool, Str } from '@ydinjs/core/attribute.js';
 
 const brand = Symbol('MyTrait');

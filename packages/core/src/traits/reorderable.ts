@@ -3,7 +3,7 @@ import { useEvents } from '../controllers/useEvents.ts';
 import { useSlot } from '../controllers/useSlot.ts';
 import { ControlledElement, internals } from '../element.ts';
 import { toggleState } from '../utils/DOM.ts';
-import { trait, type Interface, type Props, type Trait } from './traits.ts';
+import { trait, type Interface, type Props, type Trait } from './attributes.ts';
 
 const REORDER_EVENT_INIT: Readonly<EventInit> = {
   bubbles: true,

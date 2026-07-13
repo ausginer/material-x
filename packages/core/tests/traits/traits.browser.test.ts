@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Bool, Num, Str } from '../../src/attribute.ts';
 import { ControlledElement } from '../../src/element.ts';
-import { impl, trait } from '../../src/traits/traits.ts';
+import { impl, trait } from '../../src/traits/attributes.ts';
 import { defineCE, nameCE } from '../browser.ts';
 
 class BaseElement extends ControlledElement {

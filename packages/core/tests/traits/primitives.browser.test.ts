@@ -1,6 +1,6 @@
 import type { Constructor } from 'type-fest';
 import { describe, expect, it } from 'vitest';
-import { impl, trait } from '../../src/traits/piirre.ts';
+import { impl, trait } from '../../src/traits/primitives.ts';
 
 describe('piirre', () => {
   it('should return a new subclass when applying a trait directly', () => {

@@ -11,7 +11,7 @@ import type { ControlledElement, CustomElementStatics } from '../element.js';
 import {
   trait as abstractTrait,
   type Trait as AbstractTrait,
-} from './piirre.ts';
+} from './primitives.ts';
 
 /**
  * Re-exported generic trait composition helpers from `piirre`.
@@ -20,7 +20,7 @@ import {
  * tuple trait lists are the intended path, while plain arrays weaken type
  * inference.
  */
-export { impl, type Traited, type TraitedConstructor } from './piirre.ts';
+export { impl, type Traited, type TraitedConstructor } from './primitives.ts';
 
 /**
  * Maps converter descriptors to the actual instance field types exposed by
@@ -150,11 +150,7 @@ export function trait<
           get(
             this: HTMLElement,
           ): FieldReadersFromConverters<P>[typeof attribute] {
-            return attr.get(
-              this,
-              attribute as string,
-              converter,
-            ) as FieldReadersFromConverters<P>[typeof attribute];
+            return attr.get(this, attribute as string, converter);
           },
           set(
             this: HTMLElement,

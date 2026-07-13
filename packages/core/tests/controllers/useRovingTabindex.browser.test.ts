@@ -2,9 +2,9 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { useRovingTabindex } from '../../src/controllers/useRovingTabindex.ts';
 import { ControlledElement } from '../../src/element.ts';
+import { impl } from '../../src/traits/attributes.ts';
 import { Checkable } from '../../src/traits/checkable.ts';
 import { Disableable } from '../../src/traits/disableable.ts';
-import { impl } from '../../src/traits/traits.ts';
 import { Valuable } from '../../src/traits/valuable.ts';
 import { cleanupDOM, defineCE, host, nameCE, nextFrame } from '../browser.ts';
 

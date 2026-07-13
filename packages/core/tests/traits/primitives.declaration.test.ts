@@ -1,6 +1,6 @@
 // oxlint-disable typescript/no-unsafe-type-assertion
 import { assertType, describe, expectTypeOf, it } from 'vitest';
-import { impl, trait } from '../../src/traits/piirre.ts';
+import { impl, trait } from '../../src/traits/primitives.ts';
 
 class Base {
   base = true;
