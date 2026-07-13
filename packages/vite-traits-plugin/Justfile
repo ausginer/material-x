@@ -12,6 +12,9 @@ clean-build:
 typecheck:
     tsc -p tsconfig.json --noEmit
 
+test *ARGS:
+    vitest run -c vitest.config.ts {{ ARGS }}
+
 fmt *FILES:
     oxfmt -c ../../.oxfmtrc.json {{ if FILES == "" { "." } else { FILES } }}
 

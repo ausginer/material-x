@@ -23,6 +23,7 @@
     "build": "tsdown --config tsdown.config.ts",
     "clean:build": "node ../../.scripts/package-files.ts clean --package .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "just test",
     "fmt": "oxfmt -c ../../.oxfmtrc.json",
     "fmt:check": "oxfmt -c ../../.oxfmtrc.json --check",
     "lint": "oxlint && eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts",
