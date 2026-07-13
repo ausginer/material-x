@@ -1,0 +1,8 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "@ydinjs/material-x",
+  "implicitDependencies": [
+    "@ydinjs/vite-custom-element-assets",
+    "@ydinjs/vite-traits-plugin"
+  ]
+}

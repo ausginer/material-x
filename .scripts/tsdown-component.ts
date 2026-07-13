@@ -5,7 +5,7 @@ import {
   constructCSSStyles,
   constructCSSTokens,
   constructHTMLTemplate,
-} from './vite-plugins.ts';
+} from '@ydinjs/vite-custom-element-assets';
 
 export function constructComponentTsdownPlugins(): Rolldown.Plugin[] {
   return [

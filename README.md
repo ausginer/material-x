@@ -7,6 +7,7 @@ This repository contains four packages:
 | [`@ydinjs/core`](packages/core) | Framework-agnostic Web Components foundation, including the interim traits API |
 | [`@ydinjs/tproc`](packages/tproc) | Private Material token processor used during builds and tests |
 | [`@ydinjs/vite-traits-plugin`](packages/vite-traits-plugin) | Vite/Rolldown trait-composition build plugin |
+| [`@ydinjs/vite-custom-element-assets`](packages/vite-custom-element-assets) | Private Vite plugins for custom-element CSS and HTML assets |
 | [`@ydinjs/material-x`](packages/material-x) | Material Design 3 component library |
 
 ## Development

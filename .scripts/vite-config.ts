@@ -3,12 +3,12 @@ import { parseArgs } from 'node:util';
 import react from '@vitejs/plugin-react';
 import { mergeConfig, type ConfigEnv, type UserConfig } from 'vite';
 import inspect from 'vite-plugin-inspect';
+import { constructCustomElementsHMR } from './vite-plugins.ts';
 import {
   constructCSSStyles,
   constructCSSTokens,
-  constructCustomElementsHMR,
   constructHTMLTemplate,
-} from './vite-plugins.ts';
+} from '@ydinjs/vite-custom-element-assets';
 import { viteTraitsPlugin } from '@ydinjs/vite-traits-plugin';
 
 const parsedArgs = parseArgs({

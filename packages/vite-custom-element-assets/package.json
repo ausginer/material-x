@@ -1,0 +1,47 @@
+{
+  "name": "@ydinjs/vite-custom-element-assets",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Private Vite plugins for custom-element CSS and HTML assets",
+  "files": [
+    "index.js",
+    "index.js.map",
+    "index.d.ts",
+    "css"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./css/format.js": "./css/format.js",
+    "./css/styles-import.js": "./css/styles-import.js",
+    "./css/transform.js": "./css/transform.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "just build",
+    "clean:build": "just clean-build",
+    "typecheck": "just typecheck",
+    "fmt": "just fmt",
+    "fmt:check": "just fmt-check",
+    "lint": "just lint",
+    "lint:fix": "just lint-fix"
+  },
+  "dependencies": {
+    "@jridgewell/gen-mapping": "0.3.13",
+    "@minify-html/node": "0.18.1",
+    "@preact/signals-core": "1.14.4",
+    "lightningcss": "1.32.0",
+    "oxfmt": "0.58.0",
+    "rolldown": "1.1.5",
+    "sorcery": "1.0.0"
+  },
+  "peerDependencies": {
+    "vite": "^8.1.4"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

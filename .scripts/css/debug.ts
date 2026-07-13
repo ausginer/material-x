@@ -2,11 +2,11 @@
 import { basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import processTokenSet from '../../packages/material-x/src/.tproc/processTokenSet.ts';
 import { materialXRoot, root } from '../utils.ts';
-import format from './format.ts';
-import './styles-import.ts';
-import transform from './transform.ts';
+import processTokenSet from '@ydinjs/tproc/processTokenSet.js';
+import format from '@ydinjs/vite-custom-element-assets/css/format.js';
+import '@ydinjs/vite-custom-element-assets/css/styles-import.js';
+import transform from '@ydinjs/vite-custom-element-assets/css/transform.js';
 
 interface JSModule<T> {
   default?: T;

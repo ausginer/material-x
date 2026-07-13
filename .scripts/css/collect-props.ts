@@ -1,6 +1,6 @@
 import { glob, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import './styles-import.ts';
+import '@ydinjs/vite-custom-element-assets/css/styles-import.js';
 import { execPattern, root, src, type JSModule } from '../utils.ts';
 
 const srcDir = src;
