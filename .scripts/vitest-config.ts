@@ -5,7 +5,7 @@ import { mergeConfig } from 'vitest/config';
 import type { BrowserCommand } from 'vitest/node';
 import {
   createMaterialXViteConfig,
-  createYdinViteConfig,
+  createCoreViteConfig,
 } from './vite-config.ts';
 
 const isCI = process.env['CI'] === 'true';
@@ -38,7 +38,7 @@ type WorkspaceTestConfigOptions = Readonly<{
   root: URL;
   materialXRoot: URL;
   materialXCommands: Record<string, BrowserCommand<any[]>>;
-  ydinRoot: URL;
+  coreRoot: URL;
 }>;
 
 function resolveChromeExecutable(): string {
@@ -206,14 +206,14 @@ function createMaterialXTestProjects(
   ];
 }
 
-function createYdinTestProjects(root: URL, browserName?: string): UserConfig[] {
+function createCoreTestProjects(root: URL, browserName?: string): UserConfig[] {
   return [
     createBrowserTestProject({
       name: browserName,
       root,
       include: ['tests/**/*.browser.test.ts'],
       setupFiles: ['tests/setup.ts'],
-      viteConfig: createYdinViteConfig(root),
+      viteConfig: createCoreViteConfig(root),
     }),
     createDeclarationTestProject({
       root,
@@ -235,10 +235,10 @@ export function createMaterialXTestConfig(
   };
 }
 
-export function createYdinTestConfig(root: URL): UserConfig {
+export function createCoreTestConfig(root: URL): UserConfig {
   return {
     test: {
-      projects: createYdinTestProjects(root),
+      projects: createCoreTestProjects(root),
     },
   };
 }
@@ -259,9 +259,9 @@ export function createWorkspaceTestConfig(
     options.materialXCommands,
     'browser/material-x',
   );
-  const [ydinBrowser, ydinDeclaration] = createYdinTestProjects(
-    options.ydinRoot,
-    'browser/ydin',
+  const [coreBrowser, coreDeclaration] = createCoreTestProjects(
+    options.coreRoot,
+    'browser/core',
   );
 
   return mergeConfig(createTestBaseConfig(options.root), {
@@ -270,10 +270,10 @@ export function createWorkspaceTestConfig(
         materialXBrowser,
         materialXSpec,
         materialXVisual,
-        ydinBrowser,
+        coreBrowser,
         materialXNode,
         materialXSupportNode,
-        ydinDeclaration,
+        coreDeclaration,
       ],
     },
   });

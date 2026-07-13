@@ -1,5 +1,5 @@
 import type { Rolldown } from 'tsdown';
-import { constructTraitFlattenerPlugin } from './flattener/plugin.ts';
+import { viteTraitsPlugin } from '@ydinjs/vite-traits-plugin';
 
 export function classVarCleanupPlugin(): Rolldown.Plugin {
   return {
@@ -50,9 +50,5 @@ export function dropEmptyChunksPlugin(): Rolldown.Plugin {
 }
 
 export function constructLibraryTsdownPlugins(): Rolldown.Plugin[] {
-  return [
-    constructTraitFlattenerPlugin(),
-    dropEmptyChunksPlugin(),
-    classVarCleanupPlugin(),
-  ];
+  return [viteTraitsPlugin(), dropEmptyChunksPlugin(), classVarCleanupPlugin()];
 }

@@ -1,6 +1,9 @@
 import '../button/icon-button.ts';
-import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
-import { define } from 'ydin/element.js';
+import {
+  transfer,
+  useAttributes,
+} from '@ydinjs/core/controllers/useAttributes.js';
+import { define } from '@ydinjs/core/element.js';
 import '../icon/icon.ts';
 import textFieldTemplate from './text-field.tpl.html' with { type: 'html' };
 import { input, TextFieldCore } from './TextFieldCore.ts';

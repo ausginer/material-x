@@ -1,16 +1,16 @@
 import {
   useAttributes,
   type UpdateCallback,
-} from 'ydin/controllers/useAttributes.js';
+} from '@ydinjs/core/controllers/useAttributes.js';
 import {
   createContext,
   useProvider,
   type Context,
-} from 'ydin/controllers/useContext.js';
-import type { ControlledElement } from 'ydin/element.js';
-import { EventEmitter } from 'ydin/emitter.js';
-import type { Disableable } from 'ydin/traits/disableable.js';
-import type { Valuable } from 'ydin/traits/valuable.js';
+} from '@ydinjs/core/controllers/useContext.js';
+import type { ControlledElement } from '@ydinjs/core/element.js';
+import { EventEmitter } from '@ydinjs/core/emitter.js';
+import type { Disableable } from '@ydinjs/core/traits/disableable.js';
+import type { Valuable } from '@ydinjs/core/traits/valuable.js';
 import type { ButtonLike } from '../button/ButtonCore.ts';
 import type {
   ChangedAttribute,

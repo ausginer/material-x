@@ -1,8 +1,8 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
-import motionEffects from '../../../.tproc/default/motion-effects.ts';
-import { t } from '../../../.tproc/index.ts';
-import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
-import * as CSSVariable from '../../../.tproc/variable.ts';
+import motionEffects from '@ydinjs/tproc/default/motion-effects.js';
+import { t } from '@ydinjs/tproc/index.js';
+import type { TokenPackage } from '@ydinjs/tproc/TokenPackage.js';
+import * as CSSVariable from '@ydinjs/tproc/variable.js';
 import { createFullShapeFix } from '../../../core/styles/utils.ts';
 import {
   allowedTokensSelector,

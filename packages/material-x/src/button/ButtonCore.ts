@@ -1,21 +1,21 @@
-import { Bool, Str, type ConverterOf } from 'ydin/attribute.js';
-import { useARIA } from 'ydin/controllers/useARIA.js';
-import { useAttributes } from 'ydin/controllers/useAttributes.js';
-import { internals, type ControlledElement } from 'ydin/element.js';
+import { Bool, Str, type ConverterOf } from '@ydinjs/core/attribute.js';
+import { useARIA } from '@ydinjs/core/controllers/useARIA.js';
+import { useAttributes } from '@ydinjs/core/controllers/useAttributes.js';
+import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import {
   Disableable,
   DISABLEABLE_ATTRS,
   useDisableable,
   type DisableableProps,
-} from 'ydin/traits/disableable.js';
+} from '@ydinjs/core/traits/disableable.js';
 import {
   trait,
   type Interface,
   type Props,
   type Trait,
   type Traited,
-} from 'ydin/traits/traits.js';
-import { $, toggleState, switchState } from 'ydin/utils/DOM.js';
+} from '@ydinjs/core/traits/traits.js';
+import { $, toggleState, switchState } from '@ydinjs/core/utils/DOM.js';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };

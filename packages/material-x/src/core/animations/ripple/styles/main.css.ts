@@ -1,5 +1,5 @@
-import motionEffects from '../../../../.tproc/default/motion-effects.ts';
-import { t } from '../../../../.tproc/index.ts';
+import motionEffects from '@ydinjs/tproc/default/motion-effects.js';
+import { t } from '@ydinjs/tproc/index.js';
 import css from './main.styles.css';
 
 // Keep ripple motion token-driven: effect tokens control the fill/grow phase,

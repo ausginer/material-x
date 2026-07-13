@@ -1,5 +1,5 @@
+import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it, vi, type Mock } from 'vitest';
-import { $ } from 'ydin/utils/DOM.js';
 import '../../src/button/split-button.ts';
 
 function createSplitButton(): HTMLElement {

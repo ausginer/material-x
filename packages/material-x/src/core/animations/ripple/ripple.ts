@@ -8,9 +8,9 @@
 import {
   useCSSProps,
   type CSSPropDescription,
-} from 'ydin/controllers/useCSSProps.js';
-import { useEvents } from 'ydin/controllers/useEvents.js';
-import type { ControlledElement } from 'ydin/element.js';
+} from '@ydinjs/core/controllers/useCSSProps.js';
+import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
+import type { ControlledElement } from '@ydinjs/core/element.js';
 import { identity, parseMs, parseNum } from '../../utils/fns.ts';
 import css from './styles/main.css.ts' with { type: 'css' };
 

@@ -1,20 +1,20 @@
-import { Bool } from 'ydin/attribute.js';
-import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
-import { useEvents } from 'ydin/controllers/useEvents.js';
-import { internals, type ControlledElement } from 'ydin/element.js';
+import { Bool } from '@ydinjs/core/attribute.js';
+import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
+import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
+import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import {
   Checkable,
   useCheckable,
   type CheckableProps,
-} from 'ydin/traits/checkable.js';
-import type { Traited } from 'ydin/traits/traits.js';
+} from '@ydinjs/core/traits/checkable.js';
+import type { Traited } from '@ydinjs/core/traits/traits.js';
 import {
   VALUABLE_ATTRS,
   Valuable,
   useValuable,
   type ValuableProps,
-} from 'ydin/traits/valuable.js';
-import { toggleState } from 'ydin/utils/DOM.js';
+} from '@ydinjs/core/traits/valuable.js';
+import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { notify, useClickActivation } from '../core/utils/events.ts';
 import { useContext } from '../core/utils/useContext.ts';

@@ -1,14 +1,17 @@
 import type { Simplify } from 'type-fest';
 import '../button-group/connected-button-group.ts';
-import { Bool } from 'ydin/attribute.js';
-import { transfer, useAttributes } from 'ydin/controllers/useAttributes.js';
-import { useEvents } from 'ydin/controllers/useEvents.js';
+import { Bool } from '@ydinjs/core/attribute.js';
+import {
+  transfer,
+  useAttributes,
+} from '@ydinjs/core/controllers/useAttributes.js';
+import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import {
   ControlledElement,
   define,
   internals,
   type ControlledElementConstructor,
-} from 'ydin/element.js';
+} from '@ydinjs/core/element.js';
 import {
   impl,
   trait,
@@ -16,8 +19,8 @@ import {
   type Interface,
   type Props,
   type Trait,
-} from 'ydin/traits/traits.js';
-import { $, toggleState } from 'ydin/utils/DOM.js';
+} from '@ydinjs/core/traits/traits.js';
+import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
 import { notify } from '../core/utils/events.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';

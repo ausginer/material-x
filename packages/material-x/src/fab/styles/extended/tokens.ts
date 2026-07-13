@@ -1,11 +1,11 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
-import { t, type TokenPackage } from '../../../.tproc/index.ts';
-import { pseudoClass } from '../../../.tproc/selector.ts';
+import { t, type TokenPackage } from '@ydinjs/tproc/index.js';
+import { pseudoClass } from '@ydinjs/tproc/selector.js';
 import {
   createDefaultFirstSorter,
   type ProcessorAdjuster,
-} from '../../../.tproc/utils.ts';
-import * as CSSVariable from '../../../.tproc/variable.ts';
+} from '@ydinjs/tproc/utils.js';
+import * as CSSVariable from '@ydinjs/tproc/variable.js';
 import { defaultColorTokens } from '../color/tokens.ts';
 import { defaultTokens } from '../default/tokens.ts';
 import {

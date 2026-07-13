@@ -1,5 +1,5 @@
 {
-  "name": "@ausginer/material-x-workspace",
+  "name": "@ydinjs/material-x-workspace",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -7,19 +7,19 @@
   "type": "module",
   "scripts": {
     "debug": "just debug",
-    "build": "nx run-many -t build --projects=ydin,material-x --skipNxCache",
-    "clean:build": "nx run-many -t clean:build --projects=ydin,material-x --skipNxCache",
+    "build": "npm --workspace=@ydinjs/vite-traits-plugin run build && nx run-many -t build --projects=core,tproc,material-x --skipNxCache",
+    "clean:build": "nx run-many -t clean:build --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache",
     "check": "concurrently npm:fmt:check npm:lint npm:typecheck",
-    "test": "nx run-many -t test --projects=ydin,material-x --skipNxCache",
+    "test": "nx run-many -t test --projects=core,tproc,material-x --skipNxCache",
     "docs": "just docs-build",
     "docs:dev": "just docs-dev",
-    "fmt": "nx run-many -t fmt --projects=ydin,material-x --skipNxCache",
-    "fmt:check": "nx run-many -t fmt:check --projects=ydin,material-x --skipNxCache",
+    "fmt": "nx run-many -t fmt --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache",
+    "fmt:check": "nx run-many -t fmt:check --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache",
     "lint": "concurrently npm:lint:packages",
-    "lint:packages": "nx run-many -t lint --projects=ydin,material-x --skipNxCache",
-    "lint:fix": "nx run-many -t lint:fix --projects=ydin,material-x --skipNxCache",
+    "lint:packages": "nx run-many -t lint --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache",
+    "lint:fix": "nx run-many -t lint:fix --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache",
     "oxlint:migrate": "just oxlint-migrate",
-    "typecheck": "nx run-many -t typecheck --projects=ydin,material-x --skipNxCache",
+    "typecheck": "npm --workspace=@ydinjs/vite-traits-plugin run build && nx run-many -t typecheck --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache",
     "postinstall": "node ./.scripts/link-tsserver.ts"
   },
   "devDependencies": {

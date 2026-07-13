@@ -1,24 +1,24 @@
 // oxlint-disable import/no-mutable-exports
-import ATTR, { Bool, Str, type ConverterOf } from 'ydin/attribute.js';
-import { useARIA } from 'ydin/controllers/useARIA.js';
+import ATTR, { Bool, Str, type ConverterOf } from '@ydinjs/core/attribute.js';
+import { useARIA } from '@ydinjs/core/controllers/useARIA.js';
 import {
   transfer,
   useAttributes,
   via,
-} from 'ydin/controllers/useAttributes.js';
-import { useEvents } from 'ydin/controllers/useEvents.js';
-import { useSlot } from 'ydin/controllers/useSlot.js';
+} from '@ydinjs/core/controllers/useAttributes.js';
+import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
+import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import {
   ControlledElement,
   internals,
   type ControlledElementConstructor,
-} from 'ydin/element.js';
+} from '@ydinjs/core/element.js';
 import {
   Disableable,
   useDisableable,
   type DisableableProps,
-} from 'ydin/traits/disableable.js';
-import { Nameable, useNameable } from 'ydin/traits/nameable.js';
+} from '@ydinjs/core/traits/disableable.js';
+import { Nameable, useNameable } from '@ydinjs/core/traits/nameable.js';
 import {
   impl,
   trait,
@@ -26,9 +26,9 @@ import {
   type Props,
   type Trait,
   type TraitedConstructor,
-} from 'ydin/traits/traits.js';
-import { Valuable, type ValuableProps } from 'ydin/traits/valuable.js';
-import { $, toggleState } from 'ydin/utils/DOM.js';
+} from '@ydinjs/core/traits/traits.js';
+import { Valuable, type ValuableProps } from '@ydinjs/core/traits/valuable.js';
+import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
 import { notify } from '../core/utils/events.ts';
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';

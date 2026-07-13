@@ -1,17 +1,17 @@
 import type { ReadonlySignal } from '@preact/signals-core';
-import type { ResolveAdjuster } from '../../.tproc/resolve.ts';
-import { pseudoClass, selector, type Param } from '../../.tproc/selector.ts';
+import type { ResolveAdjuster } from '@ydinjs/tproc/resolve.js';
+import { pseudoClass, selector, type Param } from '@ydinjs/tproc/selector.js';
 import type {
   DeclarationBlockRenderer,
   TokenPackage,
-} from '../../.tproc/TokenPackage.ts';
-import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
+} from '@ydinjs/tproc/TokenPackage.js';
+import type { ExtensionCallback } from '@ydinjs/tproc/TokenPackageProcessor.js';
 import {
   createAllowedTokensSelector,
   type GroupResult,
   type GroupSelector,
-} from '../../.tproc/utils.ts';
-import * as CSSVariable from '../../.tproc/variable.ts';
+} from '@ydinjs/tproc/utils.js';
+import * as CSSVariable from '@ydinjs/tproc/variable.js';
 import {
   createFullShapeFix,
   disabledTokenSelector,

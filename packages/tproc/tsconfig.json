@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "./src/**/*",
+    "./test/**/*",
+    "../../types.d.ts",
+    "./files.json",
+    "./tsdown.config.ts",
+    "./eslint.config.ts",
+    "./vitest.config.ts"
+  ]
+}

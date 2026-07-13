@@ -10,7 +10,7 @@ const config: UserConfigFnObject = defineConfig((env) =>
     root: new URL('./', import.meta.url),
     materialXRoot: new URL('./packages/material-x/', import.meta.url),
     materialXCommands: materialXBrowserCommands,
-    ydinRoot: new URL('./packages/ydin/', import.meta.url),
+    coreRoot: new URL('./packages/core/', import.meta.url),
   }),
 );
 

@@ -1,5 +1,5 @@
+import { define, ControlledElement } from '@ydinjs/core/element.js';
 import type { EmptyObject } from 'type-fest';
-import { define, ControlledElement } from 'ydin/element.js';
 import { useCore } from '../core/utils/useCore.ts';
 import template from './icon.tpl.html' with { type: 'html' };
 import iconStyles from './styles/icon.ctr.css' with { type: 'css' };

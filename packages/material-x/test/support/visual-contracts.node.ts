@@ -1,7 +1,7 @@
 import type { ReadonlySignal } from '@preact/signals-core';
 import { defineBrowserCommand } from '@vitest/browser';
+import type { TokenPackage } from '@ydinjs/tproc/TokenPackage.js';
 import type { BrowserCommand } from 'vitest/node';
-import type { TokenPackage } from '../../src/.tproc/TokenPackage.ts';
 
 export type TokenContractRequest = Readonly<{
   contract: string;
@@ -22,7 +22,7 @@ type ContractRegistry = Readonly<Record<string, ReadonlySignal<TokenPackage>>>;
  * The registry is built lazily. Importing a component's `styles/**\/tokens.ts`
  * pulls in tproc, whose DB performs a top-level async load; doing that at module
  * scope would initialize Material tproc for every project that merely imports
- * the browser-command map (including ydin). Loading on first use scopes the
+ * the browser-command map (including core). Loading on first use scopes the
  * cost to the Material X projects that actually resolve a contract.
  */
 let registry: Promise<ContractRegistry> | undefined;

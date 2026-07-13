@@ -1,0 +1,27 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+[private]
+_eslint := "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts"
+
+build:
+    tsdown --config tsdown.config.ts
+
+clean-build:
+    node ../../.scripts/package-files.ts clean --package .
+
+typecheck:
+    tsc -p tsconfig.json --noEmit
+
+fmt *FILES:
+    oxfmt -c ../../.oxfmtrc.json {{ if FILES == "" { "." } else { FILES } }}
+
+fmt-check *FILES:
+    oxfmt -c ../../.oxfmtrc.json --check {{ if FILES == "" { "." } else { FILES } }}
+
+lint *FILES:
+    oxlint {{ if FILES == "" { "." } else { FILES } }}
+    {{ _eslint }} {{ if FILES == "" { "." } else { FILES } }}
+
+lint-fix *FILES:
+    oxlint --fix {{ if FILES == "" { "." } else { FILES } }}
+    {{ _eslint }} --fix {{ if FILES == "" { "." } else { FILES } }}

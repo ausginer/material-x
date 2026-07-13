@@ -1,7 +1,7 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
-import { t } from '../../../.tproc/index.ts';
-import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
-import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
+import { t } from '@ydinjs/tproc/index.js';
+import type { TokenPackage } from '@ydinjs/tproc/TokenPackage.js';
+import type { ProcessorAdjuster } from '@ydinjs/tproc/utils.js';
 import {
   defaultFilledTokens,
   defaultSwitchFilledTokens,

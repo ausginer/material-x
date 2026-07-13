@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "./src/**/*",
+    "./files.json",
+    "./tsdown.config.ts",
+    "./eslint.config.ts"
+  ],
+  "exclude": ["./src/__fixtures__/**"]
+}

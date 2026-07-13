@@ -1,0 +1,22 @@
+{
+  "runtime": [
+    "DB/DB",
+    "DB/index",
+    "ExtensionManager",
+    "MaterialTheme",
+    "TokenPackage",
+    "TokenPackageProcessor",
+    "TokenTable",
+    "default/motion-effects",
+    "index",
+    "processToken",
+    "processTokenSet",
+    "resolve",
+    "selector",
+    "utils",
+    "variable"
+  ],
+  "clean": {
+    "extras": ["default-theme.json"]
+  }
+}

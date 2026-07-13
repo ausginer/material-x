@@ -1,4 +1,4 @@
-# @ausginer/material-x
+# @ydinjs/material-x
 
 Material X is a set of framework-agnostic Web Components inspired by Material Design 3 (Expressive), with a token-driven styling system.
 
@@ -22,14 +22,14 @@ Project status: early-stage / pre-release.
 ## Installation
 
 ```bash
-npm install @ausginer/material-x
+npm install @ydinjs/material-x
 ```
 
 ## Quick Start (Vanilla)
 
 ```js
-import '@ausginer/material-x/button/button.js';
-import '@ausginer/material-x/button/icon-button.js';
+import '@ydinjs/material-x/button/button.js';
+import '@ydinjs/material-x/button/icon-button.js';
 
 const button = document.createElement('mx-button');
 button.textContent = 'Save';
@@ -40,8 +40,8 @@ document.body.append(button);
 
 ```jsx
 import { useState } from 'react';
-import '@ausginer/material-x/button/button.js';
-import '@ausginer/material-x/button/switch-button.js';
+import '@ydinjs/material-x/button/button.js';
+import '@ydinjs/material-x/button/switch-button.js';
 
 export function App() {
   const [enabled, setEnabled] = useState(false);

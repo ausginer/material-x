@@ -1,5 +1,5 @@
+import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
-import { $ } from 'ydin/utils/DOM.js';
 import '../../src/button/button.ts';
 
 /*

@@ -14,8 +14,8 @@ Prefer LSP over grep for code-symbol tasks (definitions, references, types, call
   - formatted via `npx just fmt <changed files>`,
   - linted and fixed via `npx just lint-fix <changed files>`. If autofix fails for any file, list those files — do not attempt to resolve lint errors manually; report them and continue,
   - typechecked via `npx just typecheck`. This checks all packages. Ignore errors in files you did not touch — unless your change caused them, in which case fix them.
-  - The `fmt`, `lint-fix`, and `typecheck` recipes live in each package's own Justfile, so run them from the package directory (`packages/material-x` or `packages/ydin`). File paths passed to them are relative to that package directory.
-  - When you change a `ydin` source file that material-x consumes, rebuild ydin (`npx just build` from `packages/ydin`) before typechecking material-x — material-x resolves `ydin` through its built `.d.ts` at the package root, not `src`, so type changes are invisible until rebuilt.
+  - The `fmt`, `lint-fix`, and `typecheck` recipes live in each package's own Justfile, so run them from the package directory (`packages/material-x`, `packages/core`, or another package workspace). File paths passed to them are relative to that package directory.
+  - When you change a core source file that Material-X consumes, rebuild core (`npx just build` from `packages/core`) before typechecking Material-X — it resolves `@ydinjs/core` through its built `.d.ts` at the package root, not `src`, so type changes are invisible until rebuilt.
 - Codestyle priorities (in order):
   1. **Performance** — code should be as fast as possible for the end user.
   2. **Code size** — a smaller bundle can outperform a faster-but-larger one due to load time. Keep code size minimal unless it hurts runtime performance. Private identifiers can have long names — they are mangled in production builds.

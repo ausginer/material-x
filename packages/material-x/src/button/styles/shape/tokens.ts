@@ -1,9 +1,9 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
-import { t } from '../../../.tproc/index.ts';
-import { pseudoClass, selector } from '../../../.tproc/selector.ts';
-import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
-import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
-import * as CSSVariable from '../../../.tproc/variable.ts';
+import { t } from '@ydinjs/tproc/index.js';
+import { pseudoClass, selector } from '@ydinjs/tproc/selector.js';
+import type { TokenPackage } from '@ydinjs/tproc/TokenPackage.js';
+import type { ProcessorAdjuster } from '@ydinjs/tproc/utils.js';
+import * as CSSVariable from '@ydinjs/tproc/variable.js';
 
 type Shapes = 'round' | 'square';
 

@@ -1,29 +1,29 @@
-import { Bool } from 'ydin/attribute.js';
-import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
-import { useEvents } from 'ydin/controllers/useEvents.js';
-import { internals, type ControlledElement } from 'ydin/element.js';
+import { Bool } from '@ydinjs/core/attribute.js';
+import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
+import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
+import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import {
   Checkable,
   useCheckable,
   type CheckableProps,
-} from 'ydin/traits/checkable.js';
+} from '@ydinjs/core/traits/checkable.js';
 import {
   Disableable,
   useDisableable,
   type DisableableProps,
-} from 'ydin/traits/disableable.js';
+} from '@ydinjs/core/traits/disableable.js';
 import {
   Nameable,
   useNameable,
   type NameableProps,
-} from 'ydin/traits/nameable.js';
-import type { Traited } from 'ydin/traits/traits.js';
+} from '@ydinjs/core/traits/nameable.js';
+import type { Traited } from '@ydinjs/core/traits/traits.js';
 import {
   useValuable,
   Valuable,
   type ValuableProps,
-} from 'ydin/traits/valuable.js';
-import { $, toggleState } from 'ydin/utils/DOM.js';
+} from '@ydinjs/core/traits/valuable.js';
+import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useRipple } from '../animations/ripple/ripple.ts';
 import { notify, useClickActivation } from '../utils/events.ts';
 import { useCore } from '../utils/useCore.ts';

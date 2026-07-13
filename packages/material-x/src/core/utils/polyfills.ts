@@ -1,6 +1,10 @@
-import { useSlot } from 'ydin/controllers/useSlot.js';
-import { internals, use, type ControlledElement } from 'ydin/element.js';
-import { $$, toggleState } from 'ydin/utils/DOM.js';
+import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
+import {
+  internals,
+  use,
+  type ControlledElement,
+} from '@ydinjs/core/element.js';
+import { $$, toggleState } from '@ydinjs/core/utils/DOM.js';
 
 const DEFAULT_SLOT_STATE_NAME = 'default';
 const HOST_HAS_SUPPORTED = (() => {

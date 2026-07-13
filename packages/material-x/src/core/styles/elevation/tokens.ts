@@ -1,6 +1,6 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
-import { t, type TokenPackage } from '../../../.tproc/index.ts';
-import * as CSSVariable from '../../../.tproc/variable.ts';
+import { t, type TokenPackage } from '@ydinjs/tproc/index.js';
+import * as CSSVariable from '@ydinjs/tproc/variable.js';
 
 function multiply(multiplier: number): string {
   return `calc(${CSSVariable.ref('level')} * ${multiplier}px)`;

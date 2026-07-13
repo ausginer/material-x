@@ -1,4 +1,4 @@
-import { t } from '../../../.tproc/index.ts';
+import { t } from '@ydinjs/tproc/index.js';
 
 const SET_NAME = 'md.comp.checkbox';
 

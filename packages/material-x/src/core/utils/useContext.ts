@@ -1,10 +1,10 @@
-import attribute, { type ConverterOf } from 'ydin/attribute.js';
+import attribute, { type ConverterOf } from '@ydinjs/core/attribute.js';
 import {
   useContext as _useContext,
   type Context,
-} from 'ydin/controllers/useContext.js';
-import type { ControlledElement } from 'ydin/element.js';
-import type { EventEmitter } from 'ydin/emitter.js';
+} from '@ydinjs/core/controllers/useContext.js';
+import type { ControlledElement } from '@ydinjs/core/element.js';
+import type { EventEmitter } from '@ydinjs/core/emitter.js';
 
 export type ChangedAttribute = readonly [
   attr: string,

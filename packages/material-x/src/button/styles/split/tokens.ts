@@ -1,13 +1,13 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
-import type { TupleToUnion } from 'type-fest';
-import motionEffects from '../../../.tproc/default/motion-effects.ts';
-import { t } from '../../../.tproc/index.ts';
-import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
+import motionEffects from '@ydinjs/tproc/default/motion-effects.js';
+import { t } from '@ydinjs/tproc/index.js';
+import type { TokenPackage } from '@ydinjs/tproc/TokenPackage.js';
 import {
   createAllowedTokensSelector,
   createDefaultFirstSorter,
   type ProcessorAdjuster,
-} from '../../../.tproc/utils.ts';
+} from '@ydinjs/tproc/utils.js';
+import type { TupleToUnion } from 'type-fest';
 import {
   mainTokenSelector,
   createButtonExtensions,

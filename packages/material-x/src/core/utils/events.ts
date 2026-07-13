@@ -1,7 +1,10 @@
-import { useEvents } from 'ydin/controllers/useEvents.js';
-import { internals, type ControlledElement } from 'ydin/element.js';
-import type { Typeable } from 'ydin/traits/typeable.js';
-import { createEventNotifier, type EventNotifier } from 'ydin/utils/DOM.js';
+import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
+import { internals, type ControlledElement } from '@ydinjs/core/element.js';
+import type { Typeable } from '@ydinjs/core/traits/typeable.js';
+import {
+  createEventNotifier,
+  type EventNotifier,
+} from '@ydinjs/core/utils/DOM.js';
 
 export const notify: EventNotifier<'change' | 'input' | 'secondaryaction'> =
   createEventNotifier({

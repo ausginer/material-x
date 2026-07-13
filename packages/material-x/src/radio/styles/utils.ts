@@ -1,15 +1,15 @@
 import type { ReadonlySignal } from '@preact/signals-core';
-import { pseudoClass, selector, type Param } from '../../.tproc/selector.ts';
+import { pseudoClass, selector, type Param } from '@ydinjs/tproc/selector.js';
 import type {
   DeclarationBlockRenderer,
   TokenPackage,
-} from '../../.tproc/TokenPackage.ts';
-import type { ExtensionCallback } from '../../.tproc/TokenPackageProcessor.ts';
+} from '@ydinjs/tproc/TokenPackage.js';
+import type { ExtensionCallback } from '@ydinjs/tproc/TokenPackageProcessor.js';
 import {
   createAllowedTokensSelector,
   type GroupResult,
   type GroupSelector,
-} from '../../.tproc/utils.ts';
+} from '@ydinjs/tproc/utils.js';
 import {
   disabledTokenSelector,
   notDisabledTokenSelector,

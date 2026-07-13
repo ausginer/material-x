@@ -1,17 +1,17 @@
-import type { EmptyObject, Simplify } from 'type-fest';
 import {
   ControlledElement,
   define,
   type ControlledElementConstructor,
-} from 'ydin/element.js';
+} from '@ydinjs/core/element.js';
 import {
   Linkable,
   type LinkableProps,
   useLinkable,
   useDisableableLinkable,
-} from 'ydin/traits/linkable.js';
-import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
-import { $ } from 'ydin/utils/DOM.js';
+} from '@ydinjs/core/traits/linkable.js';
+import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
+import { $ } from '@ydinjs/core/utils/DOM.js';
+import type { EmptyObject, Simplify } from 'type-fest';
 import {
   BUTTON_CORE_TRAITS,
   useButtonCore,

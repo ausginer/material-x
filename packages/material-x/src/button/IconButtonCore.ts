@@ -1,15 +1,15 @@
-import type { EmptyObject } from 'type-fest';
-import { Str, type ConverterOf } from 'ydin/attribute.js';
-import { useAttributes } from 'ydin/controllers/useAttributes.js';
-import { internals, type ControlledElement } from 'ydin/element.js';
+import { Str, type ConverterOf } from '@ydinjs/core/attribute.js';
+import { useAttributes } from '@ydinjs/core/controllers/useAttributes.js';
+import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import {
   trait,
   type Interface,
   type Props,
   type Trait,
-} from 'ydin/traits/traits.js';
-import { Typeable } from 'ydin/traits/typeable.js';
-import { switchState } from 'ydin/utils/DOM.js';
+} from '@ydinjs/core/traits/traits.js';
+import { Typeable } from '@ydinjs/core/traits/typeable.js';
+import { switchState } from '@ydinjs/core/utils/DOM.js';
+import type { EmptyObject } from 'type-fest';
 import {
   BUTTON_CORE_TRAITS,
   type ButtonColor,

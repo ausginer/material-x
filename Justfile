@@ -10,28 +10,29 @@ default:
 
 # Build all packages
 build:
-    nx run-many -t build --projects=ydin,material-x --skipNxCache
+    npm --workspace=@ydinjs/vite-traits-plugin run build
+    nx run-many -t build --projects=core,tproc,material-x --skipNxCache
 
 # Delete build artefacts for all packages
 clean-build:
-    nx run-many -t clean:build --projects=ydin,material-x --skipNxCache
+    nx run-many -t clean:build --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Docs
 # ---------------------------------------------------------------------------
 
-# Start the Storybook dev server (full stack: ydin API + material-x Storybook)
+# Start the Storybook dev server (full stack: core API + material-x Storybook)
 docs-dev:
-    npm --workspace=ydin run build
-    npm --workspace=ydin run docs:api:dev
+    npm --workspace=@ydinjs/core run build
+    npm --workspace=@ydinjs/core run docs:api:dev
     node .scripts/docs-api.ts --out node_modules/.cache/docs/api
-    MATERIAL_X_API_STATIC_DIR=$PWD/node_modules/.cache/docs/api npm --workspace=@ausginer/material-x run docs:dev
+    MATERIAL_X_API_STATIC_DIR=$PWD/node_modules/.cache/docs/api npm --workspace=@ydinjs/material-x run docs:dev
 
 # Build the full docs site (Storybook + API)
 docs-build:
-    npm --workspace=ydin run build
-    npm --workspace=@ausginer/material-x run docs:build
-    npm --workspace=ydin run docs:api:build
+    npm --workspace=@ydinjs/core run build
+    npm --workspace=@ydinjs/material-x run docs:build
+    npm --workspace=@ydinjs/core run docs:api:build
     node .scripts/docs-api.ts --out .docs/api
 
 # Debug a material-x .css.ts file — path is relative to packages/material-x/src
@@ -44,7 +45,7 @@ debug FILE:
 
 # Run all tests across all packages
 test:
-    nx run-many -t test --projects=ydin,material-x --skipNxCache
+    nx run-many -t test --projects=core,tproc,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Type checking
@@ -52,7 +53,8 @@ test:
 
 # Type-check all packages
 typecheck:
-    nx run-many -t typecheck --projects=ydin,material-x --skipNxCache
+    npm --workspace=@ydinjs/vite-traits-plugin run build
+    nx run-many -t typecheck --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Formatting
@@ -60,11 +62,11 @@ typecheck:
 
 # Format all packages
 fmt:
-    nx run-many -t fmt --projects=ydin,material-x --skipNxCache
+    nx run-many -t fmt --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache
 
 # Check formatting for all packages without writing
 fmt-check:
-    nx run-many -t fmt:check --projects=ydin,material-x --skipNxCache
+    nx run-many -t fmt:check --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Linting
@@ -72,11 +74,11 @@ fmt-check:
 
 # Lint all packages
 lint:
-    nx run-many -t lint --projects=ydin,material-x --skipNxCache
+    nx run-many -t lint --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache
 
 # Lint and auto-fix all packages
 lint-fix:
-    nx run-many -t lint:fix --projects=ydin,material-x --skipNxCache
+    nx run-many -t lint:fix --projects=core,tproc,vite-traits-plugin,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Misc

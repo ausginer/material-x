@@ -1,0 +1,87 @@
+{
+  "name": "@ydinjs/tproc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./DB/DB.js": {
+      "types": "./DB/DB.d.ts",
+      "default": "./DB/DB.js"
+    },
+    "./DB/index.js": {
+      "types": "./DB/index.d.ts",
+      "default": "./DB/index.js"
+    },
+    "./ExtensionManager.js": {
+      "types": "./ExtensionManager.d.ts",
+      "default": "./ExtensionManager.js"
+    },
+    "./MaterialTheme.js": {
+      "types": "./MaterialTheme.d.ts",
+      "default": "./MaterialTheme.js"
+    },
+    "./TokenPackage.js": {
+      "types": "./TokenPackage.d.ts",
+      "default": "./TokenPackage.js"
+    },
+    "./TokenPackageProcessor.js": {
+      "types": "./TokenPackageProcessor.d.ts",
+      "default": "./TokenPackageProcessor.js"
+    },
+    "./TokenTable.js": {
+      "types": "./TokenTable.d.ts",
+      "default": "./TokenTable.js"
+    },
+    "./default/motion-effects.js": {
+      "types": "./default/motion-effects.d.ts",
+      "default": "./default/motion-effects.js"
+    },
+    "./index.js": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./processToken.js": {
+      "types": "./processToken.d.ts",
+      "default": "./processToken.js"
+    },
+    "./processTokenSet.js": {
+      "types": "./processTokenSet.d.ts",
+      "default": "./processTokenSet.js"
+    },
+    "./resolve.js": {
+      "types": "./resolve.d.ts",
+      "default": "./resolve.js"
+    },
+    "./selector.js": {
+      "types": "./selector.d.ts",
+      "default": "./selector.js"
+    },
+    "./utils.js": {
+      "types": "./utils.d.ts",
+      "default": "./utils.js"
+    },
+    "./variable.js": {
+      "types": "./variable.d.ts",
+      "default": "./variable.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "just build",
+    "clean:build": "just clean-build",
+    "typecheck": "just typecheck",
+    "fmt": "just fmt",
+    "fmt:check": "just fmt-check",
+    "lint": "just lint",
+    "lint:fix": "just lint-fix",
+    "test": "just test"
+  },
+  "dependencies": {
+    "just-camel-case": "6.2.0",
+    "just-kebab-case": "4.2.0",
+    "type-fest": "5.5.0"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

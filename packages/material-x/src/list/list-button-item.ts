@@ -1,11 +1,11 @@
-import type { EmptyObject } from 'type-fest';
 import {
   ControlledElement,
   define,
   type ControlledElementConstructor,
-} from 'ydin/element.js';
-import { useSelectable } from 'ydin/traits/selectable.js';
-import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+} from '@ydinjs/core/element.js';
+import { useSelectable } from '@ydinjs/core/traits/selectable.js';
+import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
+import type { EmptyObject } from 'type-fest';
 import template from './list-button-item.tpl.html' with { type: 'html' };
 import {
   LIST_INTERACTIVE_ITEM_CORE_TRAITS,

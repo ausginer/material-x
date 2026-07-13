@@ -1,11 +1,13 @@
 # material-x monorepo
 
-This repository contains two packages:
+This repository contains four packages:
 
 | Package | Description |
 |---|---|
-| [`ydin`](packages/ydin) | Framework-agnostic Web Components foundation |
-| [`@ausginer/material-x`](packages/material-x) | Material Design 3 component library |
+| [`@ydinjs/core`](packages/core) | Framework-agnostic Web Components foundation, including the interim traits API |
+| [`@ydinjs/tproc`](packages/tproc) | Private Material token processor used during builds and tests |
+| [`@ydinjs/vite-traits-plugin`](packages/vite-traits-plugin) | Vite/Rolldown trait-composition build plugin |
+| [`@ydinjs/material-x`](packages/material-x) | Material Design 3 component library |
 
 ## Development
 

@@ -1,5 +1,5 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
-import { t, type TokenPackage } from '../../../.tproc/index.ts';
+import { t, type TokenPackage } from '@ydinjs/tproc/index.js';
 
 export const focusTokens: ReadonlySignal<TokenPackage> = computed(() =>
   t

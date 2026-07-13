@@ -1,7 +1,7 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
-import motionEffects from '../../../.tproc/default/motion-effects.ts';
-import { t, type TokenPackage } from '../../../.tproc/index.ts';
-import * as CSSVariable from '../../../.tproc/variable.ts';
+import motionEffects from '@ydinjs/tproc/default/motion-effects.js';
+import { t, type TokenPackage } from '@ydinjs/tproc/index.js';
+import * as CSSVariable from '@ydinjs/tproc/variable.js';
 import {
   createFABExtensions,
   createFABScopedDeclarationRenderer,

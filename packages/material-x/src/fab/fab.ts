@@ -1,18 +1,17 @@
-import type { EmptyObject } from 'type-fest';
-import { Bool, Str, type ConverterOf } from 'ydin/attribute.js';
-import { useARIA } from 'ydin/controllers/useARIA.js';
-import { useAttributes } from 'ydin/controllers/useAttributes.js';
+import { Bool, Str, type ConverterOf } from '@ydinjs/core/attribute.js';
+import { useARIA } from '@ydinjs/core/controllers/useARIA.js';
+import { useAttributes } from '@ydinjs/core/controllers/useAttributes.js';
 import {
   ControlledElement,
   define,
   internals,
   type ControlledElementConstructor,
-} from 'ydin/element.js';
+} from '@ydinjs/core/element.js';
 import {
   Disableable,
   useDisableable,
   type DisableableProps,
-} from 'ydin/traits/disableable.js';
+} from '@ydinjs/core/traits/disableable.js';
 import {
   impl,
   trait,
@@ -20,8 +19,9 @@ import {
   type Props,
   type Trait,
   type TraitedConstructor,
-} from 'ydin/traits/traits.js';
-import { $, switchState, toggleState } from 'ydin/utils/DOM.js';
+} from '@ydinjs/core/traits/traits.js';
+import { $, switchState, toggleState } from '@ydinjs/core/utils/DOM.js';
+import type { EmptyObject } from 'type-fest';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import '../core/styles/elevation/elevation.runtime.ts';

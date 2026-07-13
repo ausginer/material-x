@@ -1,8 +1,8 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
+import { t, type TokenPackage } from '@ydinjs/tproc/index.js';
+import { pseudoClass } from '@ydinjs/tproc/selector.js';
+import type { ProcessorAdjuster } from '@ydinjs/tproc/utils.js';
 import type { TupleToUnion } from 'type-fest';
-import { t, type TokenPackage } from '../../../.tproc/index.ts';
-import { pseudoClass } from '../../../.tproc/selector.ts';
-import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
 import { defaultTokens } from '../default/tokens.ts';
 import {
   createFABExtensions,

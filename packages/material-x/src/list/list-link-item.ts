@@ -1,18 +1,18 @@
-import type { EmptyObject, Simplify } from 'type-fest';
-import { Bool } from 'ydin/attribute.js';
-import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
+import { Bool } from '@ydinjs/core/attribute.js';
+import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import {
   ControlledElement,
   define,
   type ControlledElementConstructor,
-} from 'ydin/element.js';
+} from '@ydinjs/core/element.js';
 import {
   Linkable,
   useDisableableLinkable,
   useLinkable,
   type LinkableProps,
-} from 'ydin/traits/linkable.js';
-import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+} from '@ydinjs/core/traits/linkable.js';
+import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
+import type { EmptyObject, Simplify } from 'type-fest';
 import template from './list-link-item.tpl.html' with { type: 'html' };
 import {
   LIST_INTERACTIVE_ITEM_CORE_TRAITS,

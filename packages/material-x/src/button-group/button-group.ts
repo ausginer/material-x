@@ -1,11 +1,11 @@
-import { useEvents } from 'ydin/controllers/useEvents.js';
-import { useSlot } from 'ydin/controllers/useSlot.js';
+import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
+import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import {
   ControlledElement,
   define,
   type ControlledElementConstructor,
-} from 'ydin/element.js';
-import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+} from '@ydinjs/core/element.js';
+import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
 import type { ButtonLike } from '../button/ButtonCore.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {

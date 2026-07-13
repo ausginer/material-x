@@ -69,7 +69,7 @@ await writeFile(
     body: `
       <p>Package-level API docs published for this site.</p>
       <ul>
-        <li><a href="./ydin/index.html">ydin Typedoc</a></li>
+        <li><a href="./core/index.html">@ydinjs/core Typedoc</a></li>
         <li><a href="./material-x/index.html">material-x API landing page</a></li>
         <li><a href="../?path=/docs/reference-api--docs">Storybook API overview</a></li>
       </ul>
@@ -91,7 +91,7 @@ await writeFile(
       <ul>
         <li><a href="../../?path=/docs/reference-api--docs">Storybook API overview</a></li>
         <li><a href="../../">Storybook component docs</a></li>
-        <li><a href="../ydin/index.html">ydin Typedoc</a></li>
+        <li><a href="../core/index.html">@ydinjs/core Typedoc</a></li>
       </ul>
     `,
   }),

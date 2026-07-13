@@ -1,12 +1,11 @@
-import type { EmptyObject } from 'type-fest';
-import { Bool } from 'ydin/attribute.js';
-import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
+import { Bool } from '@ydinjs/core/attribute.js';
+import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import {
   ControlledElement,
   define,
   internals,
   type ControlledElementConstructor,
-} from 'ydin/element.js';
+} from '@ydinjs/core/element.js';
 import {
   impl,
   type Interface,
@@ -14,8 +13,9 @@ import {
   trait,
   type Trait,
   type TraitedConstructor,
-} from 'ydin/traits/traits.js';
-import { $, toggleState } from 'ydin/utils/DOM.js';
+} from '@ydinjs/core/traits/traits.js';
+import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
+import type { EmptyObject } from 'type-fest';
 import {
   CHECKABLE_CORE_TRAITS,
   useCheckableCore,

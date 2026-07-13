@@ -3,7 +3,7 @@ import '../../src/button/button.ts';
 import '../../src/button/icon-button.ts';
 import '../../src/button/link-button.ts';
 import '../../src/button-group/button-group.ts';
-import { $ } from 'ydin/utils/DOM.js';
+import { $ } from '@ydinjs/core/utils/DOM.js';
 
 type ButtonTag = 'mx-button' | 'mx-icon-button';
 

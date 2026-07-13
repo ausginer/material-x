@@ -1,4 +1,4 @@
-import type { ControlledElement } from 'ydin/element.js';
+import type { ControlledElement } from '@ydinjs/core/element.js';
 import { ButtonLike } from '../button/ButtonCore.ts';
 
 export type SiblingUpdateCallback = (sibling?: HTMLElement) => void;

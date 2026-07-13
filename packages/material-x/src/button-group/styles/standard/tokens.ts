@@ -1,9 +1,9 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
-import motionEffects from '../../../.tproc/default/motion-effects.ts';
-import { t } from '../../../.tproc/index.ts';
-import { pseudoClass } from '../../../.tproc/selector.ts';
-import type { TokenPackage } from '../../../.tproc/TokenPackage.ts';
-import type { ProcessorAdjuster } from '../../../.tproc/utils.ts';
+import motionEffects from '@ydinjs/tproc/default/motion-effects.js';
+import { t } from '@ydinjs/tproc/index.js';
+import { pseudoClass } from '@ydinjs/tproc/selector.js';
+import type { TokenPackage } from '@ydinjs/tproc/TokenPackage.js';
+import type { ProcessorAdjuster } from '@ydinjs/tproc/utils.js';
 import { fixFullShape } from '../../../button/styles/utils.ts';
 import {
   BUTTON_GROUP_SIZES,

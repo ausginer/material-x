@@ -1,0 +1,42 @@
+{
+  "name": "@ydinjs/vite-traits-plugin",
+  "version": "0.1.0",
+  "description": "Vite plugin that flattens trait compositions at build time",
+  "license": "Apache-2.0",
+  "files": [
+    "index.js",
+    "index.js.map",
+    "index.d.ts"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown --config tsdown.config.ts",
+    "clean:build": "node ../../.scripts/package-files.ts clean --package .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "fmt": "oxfmt -c ../../.oxfmtrc.json",
+    "fmt:check": "oxfmt -c ../../.oxfmtrc.json --check",
+    "lint": "oxlint && eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts",
+    "lint:fix": "oxlint --fix && eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --fix"
+  },
+  "dependencies": {
+    "@oxc-project/types": "0.139.0",
+    "oxc-parser": "0.127.0",
+    "rolldown": "1.1.5"
+  },
+  "peerDependencies": {
+    "vite": "^8.1.4"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

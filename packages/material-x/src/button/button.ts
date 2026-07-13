@@ -1,16 +1,16 @@
-import type { EmptyObject } from 'type-fest';
 import {
   ControlledElement,
   define,
   type ControlledElementConstructor,
-} from 'ydin/element.js';
+} from '@ydinjs/core/element.js';
 import {
   Nameable,
   useNameable,
   type NameableProps,
-} from 'ydin/traits/nameable.js';
-import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
-import { Typeable, useTypeable } from 'ydin/traits/typeable.js';
+} from '@ydinjs/core/traits/nameable.js';
+import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
+import { Typeable, useTypeable } from '@ydinjs/core/traits/typeable.js';
+import type { EmptyObject } from 'type-fest';
 import { useFormActivation } from '../core/utils/events.ts';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {

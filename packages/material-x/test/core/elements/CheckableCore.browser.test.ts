@@ -1,6 +1,6 @@
+import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
-import { $ } from 'ydin/utils/DOM.js';
 import '../../../src/checkbox/checkbox.ts';
 import '../../../src/radio/radio.ts';
 

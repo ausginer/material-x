@@ -1,7 +1,7 @@
 import {
   type CSSPropParser,
   CSSVariableError,
-} from 'ydin/controllers/useCSSProps.js';
+} from '@ydinjs/core/controllers/useCSSProps.js';
 
 export const identity = <T>(v: T): T => v;
 

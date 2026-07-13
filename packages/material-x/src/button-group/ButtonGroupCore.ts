@@ -1,20 +1,20 @@
-import type { EmptyObject } from 'type-fest';
-import { useAttributes } from 'ydin/controllers/useAttributes.js';
-import { internals, type ControlledElement } from 'ydin/element.js';
-import { DISABLEABLE_ATTRS } from 'ydin/traits/disableable.js';
+import { useAttributes } from '@ydinjs/core/controllers/useAttributes.js';
+import { internals, type ControlledElement } from '@ydinjs/core/element.js';
+import { DISABLEABLE_ATTRS } from '@ydinjs/core/traits/disableable.js';
 import {
   trait,
   type Interface,
   type Props,
   type Trait,
   type Traited,
-} from 'ydin/traits/traits.js';
+} from '@ydinjs/core/traits/traits.js';
 import {
   Valuable,
   VALUABLE_ATTRS,
   type ValuableProps,
-} from 'ydin/traits/valuable.js';
-import { switchState } from 'ydin/utils/DOM.js';
+} from '@ydinjs/core/traits/valuable.js';
+import { switchState } from '@ydinjs/core/utils/DOM.js';
+import type { EmptyObject } from 'type-fest';
 import {
   BUTTON_ATTRS,
   BUTTON_CORE_TRAITS,

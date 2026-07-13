@@ -2,7 +2,7 @@
  * Shared browser-side helpers for Material X component tests.
  *
  * This is the single home for cross-test browser utilities (the material-x
- * analogue of `packages/ydin/tests/browser.ts`): frame/font/upgrade
+ * analogue of `packages/@ydinjs/core/tests/browser.ts`): frame/font/upgrade
  * synchronization, and the normalization the visual-contract layer relies on —
  * turning a tproc-emitted CSS string (which may contain `var()`, a colour, a
  * font list, or a length) into the exact serialization the browser produces for

@@ -1,5 +1,5 @@
-import type { ProcessedTokenValue } from '../../.tproc/processTokenSet.ts';
-import type { ResolveAdjuster } from '../../.tproc/resolve.ts';
+import type { ProcessedTokenValue } from '@ydinjs/tproc/processTokenSet.js';
+import type { ResolveAdjuster } from '@ydinjs/tproc/resolve.js';
 
 export type FullShapeFixCondition = (entry: string) => boolean;
 

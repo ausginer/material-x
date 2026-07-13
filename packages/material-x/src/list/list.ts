@@ -1,19 +1,19 @@
 import {
   useCSSProps,
   type CSSPropDescription,
-} from 'ydin/controllers/useCSSProps.js';
+} from '@ydinjs/core/controllers/useCSSProps.js';
 import {
   ControlledElement,
   define,
   type ControlledElementConstructor,
-} from 'ydin/element.js';
+} from '@ydinjs/core/element.js';
 import {
   Reorderable,
   useReorderable,
   type ReorderableProps,
   type ReorderEvent,
-} from 'ydin/traits/reorderable.js';
-import { impl, type TraitedConstructor } from 'ydin/traits/traits.js';
+} from '@ydinjs/core/traits/reorderable.js';
+import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
 import { identity, parseMs } from '../core/utils/fns.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import template from './list.tpl.html' with { type: 'html' };

@@ -1,5 +1,5 @@
+import { $ } from '@ydinjs/core/utils/DOM.js';
 import { afterEach, describe, expect, it } from 'vitest';
-import { $ } from 'ydin/utils/DOM.js';
 
 const isBrowser =
   typeof window !== 'undefined' && typeof document !== 'undefined';

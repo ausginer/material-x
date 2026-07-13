@@ -3,13 +3,13 @@ import {
   pseudoElement,
   selector,
   type Param,
-} from '../../.tproc/selector.ts';
-import type { DeclarationBlockRenderer } from '../../.tproc/TokenPackage.ts';
+} from '@ydinjs/tproc/selector.js';
+import type { DeclarationBlockRenderer } from '@ydinjs/tproc/TokenPackage.js';
 import {
   createAllowedTokensSelector,
   type GroupResult,
   type GroupSelector,
-} from '../../.tproc/utils.ts';
+} from '@ydinjs/tproc/utils.js';
 
 const STATE_NAMES = ['pressed', 'selected'] as const;
 

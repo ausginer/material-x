@@ -1,4 +1,4 @@
-import { define } from 'ydin/element.js';
+import { define } from '@ydinjs/core/element.js';
 import { useFieldSizingContentPolyfill } from '../core/utils/polyfills.ts';
 import multilineTextFieldTemplate from './multiline-text-field.tpl.html' with { type: 'html' };
 import { input, TextFieldCore } from './TextFieldCore.ts';

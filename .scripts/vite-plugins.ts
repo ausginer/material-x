@@ -43,10 +43,10 @@ const CUSTOM_ELEMENTS_HMR_FILE = fileURLToPath(
 );
 const CUSTOM_ELEMENTS_HMR_TARGET_FILES = new Set([
   normalizePath(
-    fileURLToPath(new URL('../packages/ydin/element.js', import.meta.url)),
+    fileURLToPath(new URL('../packages/core/element.js', import.meta.url)),
   ),
   normalizePath(
-    fileURLToPath(new URL('../packages/ydin/src/element.ts', import.meta.url)),
+    fileURLToPath(new URL('../packages/core/src/element.ts', import.meta.url)),
   ),
 ]);
 

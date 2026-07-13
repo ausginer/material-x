@@ -1,8 +1,8 @@
-import { useSlot } from 'ydin/controllers/useSlot.js';
-import { type ControlledElement, internals } from 'ydin/element.js';
-import { useReorderableItem } from 'ydin/traits/reorderable.js';
-import type { Traited } from 'ydin/traits/traits.js';
-import { $, toggleState } from 'ydin/utils/DOM.js';
+import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
+import { type ControlledElement, internals } from '@ydinjs/core/element.js';
+import { useReorderableItem } from '@ydinjs/core/traits/reorderable.js';
+import type { Traited } from '@ydinjs/core/traits/traits.js';
+import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
 import '../core/styles/elevation/elevation.runtime.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import { useHasSlottedPolyfill } from '../core/utils/polyfills.ts';

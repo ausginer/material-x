@@ -1,19 +1,19 @@
 import { computed, type ReadonlySignal } from '@preact/signals-core';
-import { t } from '../../../.tproc/index.ts';
+import { t } from '@ydinjs/tproc/index.js';
 import {
   pseudoClass,
   pseudoElement,
   selector,
-} from '../../../.tproc/selector.ts';
+} from '@ydinjs/tproc/selector.js';
 import type {
   DeclarationBlockRenderer,
   TokenPackage,
-} from '../../../.tproc/TokenPackage.ts';
+} from '@ydinjs/tproc/TokenPackage.js';
 import {
   createAllowedTokensSelector,
   type Grouper,
   type ProcessorAdjuster,
-} from '../../../.tproc/utils.ts';
+} from '@ydinjs/tproc/utils.js';
 import {
   defaultFilledTokens,
   defaultSwitchFilledTokens,

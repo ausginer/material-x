@@ -1,5 +1,5 @@
 {
-  "name": "@ausginer/material-x",
+  "name": "@ydinjs/material-x",
   "version": "0.1.0",
   "description": "Material Design 3 Expressive dependless implementation for web",
   "homepage": "https://github.com/ausginer/material-x#readme",
@@ -15,10 +15,12 @@
   "files": [
     "button",
     "button-group",
+    "checkbox",
     "custom-elements.json",
     "fab",
     "icon",
     "list",
+    "radio",
     "react.d.ts",
     "text-field"
   ],
@@ -101,6 +103,9 @@
     },
     "./package.json": "./package.json"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "just build",
     "build:prepare": "just build-prepare",
@@ -121,8 +126,8 @@
     "test": "just test"
   },
   "dependencies": {
-    "type-fest": "5.5.0",
-    "ydin": "0.1.0"
+    "@ydinjs/core": "0.1.0",
+    "type-fest": "5.5.0"
   },
   "engines": {
     "node": ">=24"

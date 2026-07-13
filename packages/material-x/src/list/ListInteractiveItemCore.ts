@@ -1,15 +1,18 @@
-import { Bool } from 'ydin/attribute.js';
-import { useARIA } from 'ydin/controllers/useARIA.js';
-import { useAttributes, via } from 'ydin/controllers/useAttributes.js';
-import { internals, type ControlledElement } from 'ydin/element.js';
+import { Bool } from '@ydinjs/core/attribute.js';
+import { useARIA } from '@ydinjs/core/controllers/useARIA.js';
+import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
+import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import {
   Disableable,
   useDisableable,
   type DisableableProps,
-} from 'ydin/traits/disableable.js';
-import { Selectable, type SelectableProps } from 'ydin/traits/selectable.js';
-import type { Traited } from 'ydin/traits/traits.js';
-import { toggleState } from 'ydin/utils/DOM.js';
+} from '@ydinjs/core/traits/disableable.js';
+import {
+  Selectable,
+  type SelectableProps,
+} from '@ydinjs/core/traits/selectable.js';
+import type { Traited } from '@ydinjs/core/traits/traits.js';
+import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import {
