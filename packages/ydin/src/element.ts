@@ -34,6 +34,39 @@ export interface ElementController {
    * Invoked when the host disconnects from the document.
    */
   disconnected?(): void | Promise<void>;
+
+  /**
+   * Invoked when the host is moved to a new document via `adoptNode`.
+   */
+  adopted?(): void | Promise<void>;
+
+  /**
+   * Invoked when the host is moved within the DOM without being disconnected
+   * (for example via `moveBefore`).
+   */
+  moved?(): void | Promise<void>;
+
+  /**
+   * Invoked when the host is associated with a form.
+   */
+  formAssociated?(): void | Promise<void>;
+
+  /**
+   * Invoked when the host's disabled state changes due to its owning form or
+   * fieldset.
+   */
+  formDisabled?(): void | Promise<void>;
+
+  /**
+   * Invoked when the host's owning form is reset.
+   */
+  formReset?(): void | Promise<void>;
+
+  /**
+   * Invoked when the host's state is restored, such as on navigation or
+   * browser autofill.
+   */
+  formStateRestore?(): void | Promise<void>;
 }
 
 /**
@@ -73,6 +106,71 @@ export let use: (
 export let internals: (element: ControlledElement) => ElementInternals;
 
 /**
+ * The subset of the custom element lifecycle callbacks recognized by the
+ * platform. Implemented by {@link ControlledElement}, which forwards each
+ * callback to its registered {@link ElementController}s.
+ */
+export interface CustomElement {
+  /**
+   * Invoked by the platform when one of `observedAttributes` changes.
+   *
+   * @param name - The changed attribute name.
+   * @param oldValue - The previous serialized value.
+   * @param newValue - The next serialized value.
+   * @param namespace - The namespace of the changed attribute, if any.
+   */
+  attributeChangedCallback(
+    name: string,
+    oldValue: string | null,
+    newValue: string | null,
+    namespace: string | null,
+  ): void;
+
+  /**
+   * Invoked when the host connects to the document.
+   */
+  connectedCallback(): void;
+
+  /**
+   * Invoked when the host disconnects from the document.
+   */
+  disconnectedCallback(): void;
+
+  /**
+   * Invoked when the host is moved to a new document via `adoptNode`.
+   */
+  adoptedCallback(): void;
+
+  /**
+   * Invoked when the host is moved within the DOM without being disconnected
+   * (for example via `moveBefore`).
+   */
+  movedCallback(): void;
+
+  /**
+   * Invoked when the host is associated with a form.
+   */
+  formAssociatedCallback(): void;
+
+  /**
+   * Invoked when the host's disabled state changes due to its owning form or
+   * fieldset.
+   */
+  formDisabledCallback(): void;
+
+  /**
+   * Invoked when the host's owning form is reset.
+   */
+  formResetCallback(): void;
+
+  /**
+   * Invoked when the host's state is restored, such as on navigation or
+   * browser autofill.
+   */
+  formStateRestoreCallback(): void;
+}
+
+/**
  * Optional static shape supported by custom elements built on this base class.
  */
 export interface CustomElementStatics {
@@ -95,7 +193,7 @@ export interface CustomElementStatics {
  * It acts as a lifecycle host that dispatches `connected`, `disconnected`, and
  * `attrChanged` hooks to controllers registered via `use(...)`.
  */
-export class ControlledElement extends HTMLElement {
+export class ControlledElement extends HTMLElement implements CustomElement {
   static {
     use = (element: ControlledElement, controller: ElementController): void => {
       element.#controllers.push(controller);
@@ -107,14 +205,6 @@ export class ControlledElement extends HTMLElement {
   readonly #internals = this.attachInternals();
   readonly #controllers: ElementController[] = [];
 
-  /**
-   * Invoked by the platform when one of `observedAttributes` changes.
-   *
-   * @param name - The changed attribute name.
-   * @param oldValue - The previous serialized value.
-   * @param newValue - The next serialized value.
-   * @param namespace - The namespace of the changed attribute, if any.
-   */
   attributeChangedCallback(
     ...args: Readonly<Parameters<NonNullable<ElementController['attrChanged']>>>
   ): void {
@@ -127,6 +217,30 @@ export class ControlledElement extends HTMLElement {
 
   disconnectedCallback(): void {
     this.#exec((controller) => controller.disconnected?.());
+  }
+
+  adoptedCallback(): void {
+    this.#exec((controller) => controller.adopted?.());
+  }
+
+  movedCallback(): void {
+    this.#exec((controller) => controller.moved?.());
+  }
+
+  formAssociatedCallback(): void {
+    this.#exec((controller) => controller.formAssociated?.());
+  }
+
+  formDisabledCallback(): void {
+    this.#exec((controller) => controller.formDisabled?.());
+  }
+
+  formResetCallback(): void {
+    this.#exec((controller) => controller.formReset?.());
+  }
+
+  formStateRestoreCallback(): void {
+    this.#exec((controller) => controller.formStateRestore?.());
   }
 
   #exec(callback: ForEachMaybePromiseCallback<ElementController>) {

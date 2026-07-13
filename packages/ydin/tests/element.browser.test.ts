@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { internals, use } from '../src/element.ts';
+import { ControlledElement, internals, use } from '../src/element.ts';
 import { host } from './browser.ts';
+
+class FormHost extends ControlledElement {
+  static formAssociated = true;
+}
 
 describe('ControlledElement', () => {
   it('should call connected hooks for all registered controllers', () => {
@@ -152,6 +156,107 @@ describe('ControlledElement', () => {
     expect(firstConnected).toHaveBeenCalledOnce();
     expect(secondConnected).toHaveBeenCalledOnce();
     expect(calls).toEqual(['first:start', 'second']);
+  });
+
+  it('should call adopted hooks for all registered controllers', () => {
+    const firstAdopted = vi.fn();
+    const secondAdopted = vi.fn();
+
+    const h = host((h) => {
+      use(h, { adopted: firstAdopted });
+      use(h, { adopted: secondAdopted });
+    });
+
+    const other = document.implementation.createHTMLDocument();
+    other.adoptNode(h);
+
+    expect(firstAdopted).toHaveBeenCalledOnce();
+    expect(secondAdopted).toHaveBeenCalledOnce();
+  });
+
+  it('should call moved hooks for all registered controllers', () => {
+    const firstMoved = vi.fn();
+    const secondMoved = vi.fn();
+
+    const h = host((h) => {
+      use(h, { moved: firstMoved });
+      use(h, { moved: secondMoved });
+    });
+
+    h.movedCallback();
+
+    expect(firstMoved).toHaveBeenCalledOnce();
+    expect(secondMoved).toHaveBeenCalledOnce();
+  });
+
+  it('should call formAssociated hooks for all registered controllers', () => {
+    const firstFormAssociated = vi.fn();
+    const secondFormAssociated = vi.fn();
+
+    const h = host((h) => {
+      use(h, { formAssociated: firstFormAssociated });
+      use(h, { formAssociated: secondFormAssociated });
+    }, FormHost);
+
+    const form = document.createElement('form');
+    form.append(h);
+    document.body.append(form);
+
+    expect(firstFormAssociated).toHaveBeenCalledOnce();
+    expect(secondFormAssociated).toHaveBeenCalledOnce();
+  });
+
+  it('should call formDisabled hooks for all registered controllers', () => {
+    const firstFormDisabled = vi.fn();
+    const secondFormDisabled = vi.fn();
+
+    const h = host((h) => {
+      use(h, { formDisabled: firstFormDisabled });
+      use(h, { formDisabled: secondFormDisabled });
+    }, FormHost);
+
+    const form = document.createElement('form');
+    const fieldset = document.createElement('fieldset');
+    fieldset.append(h);
+    form.append(fieldset);
+    document.body.append(form);
+    fieldset.disabled = true;
+
+    expect(firstFormDisabled).toHaveBeenCalledOnce();
+    expect(secondFormDisabled).toHaveBeenCalledOnce();
+  });
+
+  it('should call formReset hooks for all registered controllers', () => {
+    const firstFormReset = vi.fn();
+    const secondFormReset = vi.fn();
+
+    const h = host((h) => {
+      use(h, { formReset: firstFormReset });
+      use(h, { formReset: secondFormReset });
+    }, FormHost);
+
+    const form = document.createElement('form');
+    form.append(h);
+    document.body.append(form);
+    form.reset();
+
+    expect(firstFormReset).toHaveBeenCalledOnce();
+    expect(secondFormReset).toHaveBeenCalledOnce();
+  });
+
+  it('should call formStateRestore hooks for all registered controllers', () => {
+    const firstFormStateRestore = vi.fn();
+    const secondFormStateRestore = vi.fn();
+
+    const h = host((h) => {
+      use(h, { formStateRestore: firstFormStateRestore });
+      use(h, { formStateRestore: secondFormStateRestore });
+    }, FormHost);
+
+    h.formStateRestoreCallback();
+
+    expect(firstFormStateRestore).toHaveBeenCalledOnce();
+    expect(secondFormStateRestore).toHaveBeenCalledOnce();
   });
 
   it('should return the same ElementInternals instance for the same host', () => {
