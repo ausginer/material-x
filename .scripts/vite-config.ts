@@ -3,6 +3,7 @@ import { parseArgs } from 'node:util';
 import react from '@vitejs/plugin-react';
 import { mergeConfig, type ConfigEnv, type UserConfig } from 'vite';
 import inspect from 'vite-plugin-inspect';
+import { constructTraitFlattenerPlugin } from './flattener/plugin.ts';
 import {
   constructCSSStyles,
   constructCSSTokens,
@@ -58,6 +59,7 @@ export function createMaterialXViteConfig(
       },
     },
     plugins: [
+      constructTraitFlattenerPlugin(),
       constructCustomElementsHMR(),
       constructCSSStyles({
         isProd: env.command === 'build',
@@ -78,5 +80,7 @@ export function createMaterialXViteConfig(
 }
 
 export function createYdinViteConfig(root: URL): UserConfig {
-  return createViteConfig(root);
+  return mergeConfig(createViteConfig(root), {
+    plugins: [constructTraitFlattenerPlugin()],
+  });
 }

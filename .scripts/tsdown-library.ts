@@ -1,4 +1,5 @@
 import type { Rolldown } from 'tsdown';
+import { constructTraitFlattenerPlugin } from './flattener/plugin.ts';
 
 export function classVarCleanupPlugin(): Rolldown.Plugin {
   return {
@@ -49,5 +50,9 @@ export function dropEmptyChunksPlugin(): Rolldown.Plugin {
 }
 
 export function constructLibraryTsdownPlugins(): Rolldown.Plugin[] {
-  return [dropEmptyChunksPlugin(), classVarCleanupPlugin()];
+  return [
+    constructTraitFlattenerPlugin(),
+    dropEmptyChunksPlugin(),
+    classVarCleanupPlugin(),
+  ];
 }
