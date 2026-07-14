@@ -14,8 +14,8 @@ Prefer LSP over grep for code-symbol tasks (definitions, references, types, call
   - formatted via `npx just fmt <changed files>`,
   - linted and fixed via `npx just lint-fix <changed files>`. If autofix fails for any file, list those files — do not attempt to resolve lint errors manually; report them and continue,
   - typechecked via `npx just typecheck`. This checks all packages. Ignore errors in files you did not touch — unless your change caused them, in which case fix them.
-  - The `fmt`, `lint-fix`, and `typecheck` recipes live in each package's own Justfile, so run them from the package directory (`packages/material-x`, `packages/core`, or another package workspace). File paths passed to them are relative to that package directory.
-  - When you change a core source file that Material-X consumes, rebuild core (`npx just build` from `packages/core`) before typechecking Material-X — it resolves `@ydinjs/core` through its built `.d.ts` at the package root, not `src`, so type changes are invisible until rebuilt.
+  - The `fmt`, `lint-fix`, and `typecheck` recipes live in each package's own Justfile, so run them from the relevant `@ydinjs` package directory (`packages/core`, `packages/tproc`, `packages/material-x`, or another package workspace). File paths passed to them are relative to that package directory.
+  - When you change a core source file that `@ydinjs/material-x` consumes, rebuild core (`npx just build` from `packages/core`) before typechecking Material X — it resolves `@ydinjs/core` through its built `.d.ts` at the package root, not `src`, so type changes are invisible until rebuilt.
 - Codestyle priorities (in order):
   1. **Performance** — code should be as fast as possible for the end user.
   2. **Code size** — a smaller bundle can outperform a faster-but-larger one due to load time. Keep code size minimal unless it hurts runtime performance. Private identifiers can have long names — they are mangled in production builds.
@@ -86,15 +86,15 @@ Files with `.css.ts` extensions are meant to be compiled for browser usage. They
 
 ## Architecture
 
-You can find architecture insights from your analysis in `.agents/docs/architecture.md`. You can find CSS architecture reiteration in `.agents/docs/css-inheritance.md`. You can find accessibility review in `.agents/docs/accessibility.md`
+You can find `@ydinjs` architecture insights in `.agents/docs/architecture.md`. You can find CSS architecture reiteration in `.agents/docs/css-inheritance.md`. You can find accessibility review in `.agents/docs/accessibility.md`
 
 `src/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
 
-Material X runtime entrypoints are listed in `packages/material-x/files.json`; update it when adding or removing a component.
+`@ydinjs/material-x` runtime entrypoints are listed in `packages/material-x/files.json`; update it when adding or removing a component.
 
 ## Testing
 
-When adding, moving, or reviewing a component's tests, use skill `test-component` (placement under `packages/material-x/test`, file suffixes and Vitest project routing, rendering/interaction rules, definition of done). When writing or debugging a tproc-backed visual contract — a `*.spec.browser.test.ts`, a token binding, the resolve-token bridge, or a normalization adapter — use skill `test-visual-contract`. Both skills apply even if the request doesn't name them. The reasoning behind the layers lives in `.agents/docs/test-architecture.md`.
+When adding, moving, or reviewing an `@ydinjs/material-x` component's tests, use skill `test-component` (placement under `packages/material-x/test`, file suffixes and Vitest project routing, rendering/interaction rules, definition of done). When writing or debugging an `@ydinjs/tproc`-backed visual contract — a `*.spec.browser.test.ts`, a token binding, the resolve-token bridge, or a normalization adapter — use skill `test-visual-contract`. Both skills apply even if the request doesn't name them. The reasoning behind the layers lives in `.agents/docs/test-architecture.md`.
 
 ## Sub-agents and teams
 

@@ -1,6 +1,6 @@
 # Testing Architecture
 
-This document explains _why_ Material X testing is shaped the way it is. It is the shared reference for humans and agents who need to understand the model, judgment calls, and trade-offs behind the tests.
+This document explains _why_ `@ydinjs/material-x` testing is shaped the way it is. It is the shared reference for humans and agents who need to understand the model, judgment calls, and trade-offs behind the tests.
 
 The **actionable rules** — where files go, how to name and route them, the interaction rules, and the definition of done — live in two skills, so agents load only what a task needs and the rules have a single home:
 
@@ -91,7 +91,7 @@ If only the final screenshot exists, failures are hard to diagnose. If only tpro
 
 ## What screenshots prove — and don't
 
-A reviewed baseline says "this approved rendering must not change without review." It does **not** say "this rendering is correct because it matches a file the same implementation produced." So initial and updated baselines are reviewed against passing behavior + spec contracts, the relevant Material/Figma reference, the intended Material X theme, and expected environment changes. Baselines are committed artifacts, updated only via an explicit command, never in CI, and every changed baseline gets human review.
+A reviewed baseline says "this approved rendering must not change without review." It does **not** say "this rendering is correct because it matches a file the same implementation produced." So initial and updated baselines are reviewed against passing behavior + spec contracts, the relevant Material/Figma reference, the intended `@ydinjs/material-x` theme, and expected environment changes. Baselines are committed artifacts, updated only via an explicit command, never in CI, and every changed baseline gets human review.
 
 Screenshots are valid only for a pinned environment (OS/container image, Chromium version, headless mode, device scale/viewport, fonts/icons, color scheme/theme, GPU config where it matters). The ordinary PR gate uses one pinned Chromium environment; local runs must use the same pinned image so developer output matches CI. Broader browser/platform runs are scheduled or manual until their baselines and maintenance cost are justified.
 
@@ -129,9 +129,8 @@ Scheduled or manual jobs may add the full visual state matrix, dark/contrast the
 
 The architecture is being adopted incrementally. Status is tracked in the tests themselves and the Vitest config (`.scripts/vitest-config.ts`), not duplicated here. Remaining sequence:
 
-1. Finish moving Material X tests from `src` into their mirrored `test` directories without behavior changes, then remove the old `src/**` includes.
-2. Move `src/.tproc/__tests__` in full to `test/tproc`, preserving its `DB` structure and helpers.
-3. Grow the Node-side visual-contract registry and normalization adapters as components adopt the spec layer.
+1. Finish moving `@ydinjs/material-x` tests from `src` into their mirrored `test` directories without behavior changes, then remove the old `src/**` includes.
+2. Grow the Node-side visual-contract registry and normalization adapters as components adopt the spec layer.
 4. Pilot findings from `button/spec-consistency.md` into executable tproc-backed assertions.
 5. Extend the curated visual matrix and CI gating.
 6. Apply the shared convention to checkbox and radio, then migrate other components by family.

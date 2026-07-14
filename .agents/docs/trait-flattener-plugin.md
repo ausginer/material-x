@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Ydin traits are constructor transformers. `impl(Base, [First, Second])` currently creates `Second(First(Base))`, after which a component normally adds one more subclass. The flattener removes those runtime subclass layers when it can prove the transformation safe and emits one class that directly extends `Base`.
+`@ydinjs/core` traits are constructor transformers. `impl(Base, [First, Second])` currently creates `Second(First(Base))`, after which a component normally adds one more subclass. The flattener removes those runtime subclass layers when it can prove the transformation safe and emits one class that directly extends `Base`.
 
 The plugin is an optimization. The source trait model remains the type-level and development authoring API. A composition the plugin cannot prove safe is left unchanged and produces a build warning.
 
@@ -27,7 +27,7 @@ Flattening removes runtime subclass layers. Applied trait implementations and fa
 
 ## Eligibility
 
-The plugin recognizes `impl` and `trait` by their resolved ydin imports rather than by spelling alone. An `impl` site is eligible only when it initializes a local composition constructor that is used solely as the superclass of one local class. Exported, instantiated, reassigned, escaping, or multiply consumed intermediaries are retained.
+The plugin recognizes `impl` and `trait` by their resolved `@ydinjs/core` imports rather than by spelling alone. An `impl` site is eligible only when it initializes a local composition constructor that is used solely as the superclass of one local class. Exported, instantiated, reassigned, escaping, or multiply consumed intermediaries are retained.
 
 Trait lists may be inline readonly arrays or statically resolvable readonly tuples. Local/imported tuple references and tuple spreads are expanded in source order. Mutable or computed arrays, conditional elements, holes, and cycles are unsupported.
 
@@ -35,7 +35,7 @@ Supported trait definitions must be module-scoped declarations initialized direc
 
 Lowered members may reference imports and module-scoped bindings. Existing exports are reused. Private module-scoped bindings may receive collision-free, build-only synthetic exports so the flattened consumer can import the original live binding without copying its dependency graph. These synthetic exports are not emitted in declarations and are not part of the package's supported public API. References to nested lexical bindings bail out.
 
-The supported generic subset accepts a direct pure transformer whose result is a class extending its parameter. It accepts public fields, constructors, methods, accessors, and statically named safe static members. It rejects private names, decorators, dynamic computed names, dynamic `super`, constructor object returns, `eval`, escaping class/base references, and factory statements outside the returned class. Descriptor traits created by `ydin/traits/traits` are a first-class specialization.
+The supported generic subset accepts a direct pure transformer whose result is a class extending its parameter. It accepts public fields, constructors, methods, accessors, and statically named safe static members. It rejects private names, decorators, dynamic computed names, dynamic `super`, constructor object returns, `eval`, escaping class/base references, and factory statements outside the returned class. Descriptor traits created by `@ydinjs/core/traits/attributes.js` are a first-class specialization.
 
 Supported constructors must have exactly one statically identifiable `super(...)` call executed on every constructor path. Conditional or repeated `super`, control flow crossing `super`, `try`/`finally` around `super`, object returns, and parameter/constructor behavior whose `this`, `arguments`, or `new.target` semantics cannot be retained bail out.
 
@@ -85,7 +85,7 @@ where `brand` is the directly linked original symbol binding. Descriptor accesso
 
 `.scripts/flattener` contains a small normalization, analysis, and lowering core plus a plugin adapter configured with `enforce: 'pre'`. The adapter uses the host resolver, registers every analyzed definition with `addWatchFile`, caches parsed modules by id and source, detects resolution cycles, applies synthetic exports and imports transactionally, and emits sourcemapped edits. The same adapter is installed before other transforms in tsdown and Vite/Vitest for both packages.
 
-The internal constructor is `constructTraitFlattenerPlugin()`. It is workspace build tooling, not a ydin runtime export, and is not listed in `files.json`.
+The internal constructor is `constructTraitFlattenerPlugin()`. It is `@ydinjs` workspace build tooling, not an `@ydinjs/core` runtime export, and is not listed in `files.json`.
 
 Diagnostics contain the source location, composition name, and stable reason code. Unsupported sites warn and retain runtime composition; malformed plugin configuration and internal invariant failures are build errors.
 
@@ -101,4 +101,4 @@ Runtime equivalence fixtures compare composed and flattened classes for member p
 
 Descriptor fixtures cover converter accessors, linked converter bindings, direct brand linking, tree-shaking of unused trait factories, and ordered/deduplicated `observedAttributes`. Negative fixtures cover every documented bailout, including nested trait factories, constructor control flow, dynamic `super`, unsafe static reflection, and unsupported lexical captures.
 
-Finally, ydin and Material X builds and browser suites run with the plugin, and representative emitted components are checked for a direct `ControlledElement` superclass, absence of `impl(...)`, no unnecessary runtime trait factory import, and unchanged declaration output.
+Finally, `@ydinjs/core` and `@ydinjs/material-x` builds and browser suites run with the plugin, and representative emitted components are checked for a direct `ControlledElement` superclass, absence of `impl(...)`, no unnecessary runtime trait factory import, and unchanged declaration output.

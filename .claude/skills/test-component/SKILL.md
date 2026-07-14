@@ -1,9 +1,9 @@
 ---
 name: test-component
-description: Write or migrate tests for a Material X component — file placement under packages/material-x/test, the .browser/.spec.browser/.visual.browser/.node suffix and Vitest project routing, rendering/interaction rules (real custom element, real browser input), and the component definition-of-done checklist. Use when adding, moving, or reviewing a component's tests. For the tproc-backed visual-contract layer specifically (token oracles, the bridge, normalization), use the test-visual-contract skill.
+description: Write or migrate tests for an @ydinjs/material-x component — file placement under packages/material-x/test, the .browser/.spec.browser/.visual.browser/.node suffix and Vitest project routing, rendering/interaction rules (real custom element, real browser input), and the component definition-of-done checklist. Use when adding, moving, or reviewing a component's tests. For the @ydinjs/tproc-backed visual-contract layer specifically (token oracles, the bridge, normalization), use the test-visual-contract skill.
 ---
 
-# Testing a Material X component
+# Testing an @ydinjs/material-x component
 
 Rationale (why four layers, non-goals, the failure-interpretation table) lives in `.agents/docs/test-architecture.md`. This skill is the actionable rules. The tproc-contract layer has its own skill: **test-visual-contract**.
 
@@ -11,14 +11,13 @@ Reference component (closest to the target architecture): `test/button/`.
 
 ## Where tests go
 
-All Material X tests live under `packages/material-x/test`, mirroring the production tree. No `*.test.ts`, fixture, screenshot baseline, or test-only helper below `packages/material-x/src`.
+All `@ydinjs/material-x` tests live under `packages/material-x/test`, mirroring the production tree. No `*.test.ts`, fixture, screenshot baseline, or test-only helper below `packages/material-x/src`.
 
 - `src/button` → `test/button`
 - `src/core/elements` → `test/core/elements`
-- `src/.tproc` → `test/tproc`
 - shared test-only infrastructure → `test/support`
 
-The directory is singular `test`. Do **not** create `tests`, `__tests__`, or source-colocated test roots in material-x (ydin's `packages/ydin/tests` is an intentional, separate divergence — do not reconcile it). Tests still `import` production modules from `src`; separation is organizational, not black-box. Test files MUST NOT become runtime entrypoints or be added to `files.json`, and production code MUST NOT import from `test`.
+The directory is singular `test`. Do **not** create `tests`, `__tests__`, or source-colocated test roots in Material X. The separate `@ydinjs/core` and `@ydinjs/tproc` packages own their own test layouts; do not reconcile them with Material X. Tests still `import` production modules from `src`; separation is organizational, not black-box. Test files MUST NOT become runtime entrypoints or be added to `files.json`, and production code MUST NOT import from `test`.
 
 Migration is in progress: some tests are still colocated under `src` and the Vitest browser project still includes `src/**/*.browser.test.ts`. When moving a test, preserve its behavior and update imports/includes; remove the old include rather than running both trees.
 

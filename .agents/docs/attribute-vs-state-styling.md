@@ -1,6 +1,6 @@
 # Attribute vs Custom State Styling
 
-Material X components often have two possible CSS hooks for the same visual condition:
+`@ydinjs/material-x` components often have two possible CSS hooks for the same visual condition:
 
 - a public attribute, such as `[disabled]`, `[selected]`, or `[color='elevated']`
 - an internal custom state, such as `:state(disabled)`, `:state(selected)`, or `:state(elevated)`
@@ -104,7 +104,7 @@ But host-level token generation should not rely on native pseudo-classes unless 
 
 A common alternative is to resolve effective state in JS and write it back as an attribute — for example, setting `disabled` on a child when a parent group is disabled. This avoids the upgrade-dependency of `:state()` and keeps attributes as the sole styling surface.
 
-Material X rejects this pattern for the same reason the browser rejects it. When a `<button>` inside a `<fieldset disabled>` becomes disabled, the browser does not stamp `disabled` onto the `<button>` element — it simply makes `:disabled` match. The attribute on the element remains what the author wrote. Mutating a child's attribute to reflect a parent's state conflates the public contract (what the developer authored) with the resolved runtime condition (what the component tree produced). These are separate concerns and should be represented separately.
+`@ydinjs/material-x` rejects this pattern for the same reason the browser rejects it. When a `<button>` inside a `<fieldset disabled>` becomes disabled, the browser does not stamp `disabled` onto the `<button>` element — it simply makes `:disabled` match. The attribute on the element remains what the author wrote. Mutating a child's attribute to reflect a parent's state conflates the public contract (what the developer authored) with the resolved runtime condition (what the component tree produced). These are separate concerns and should be represented separately.
 
 Custom states are the web platform's intended mechanism for this second layer. Attributes remain the author's input; states carry the component's resolved answer.
 
@@ -114,7 +114,7 @@ Because the flow is strictly `attribute → state` (never the reverse), the orig
 
 ## Decision
 
-Material X treats public attributes as **inputs** and custom states as the CSS-facing **resolved styling model**. This mirrors the browser's own separation: attribute = what the author wrote, pseudo-class / state = what is effectively true.
+`@ydinjs/material-x` treats public attributes as **inputs** and custom states as the CSS-facing **resolved styling model**. This mirrors the browser's own separation: attribute = what the author wrote, pseudo-class / state = what is effectively true.
 
 Component logic should resolve all relevant inputs into custom states:
 
@@ -143,7 +143,7 @@ Public attributes remain the external API and should be documented and transferr
 
 ## Implementation helpers
 
-Two utilities in `ydin/utils/DOM.js` cover the common mapping patterns:
+Two utilities in `@ydinjs/core/utils/DOM.js` cover the common mapping patterns:
 
 **`toggleState(internals, name, condition)`** — for boolean or presence-based attributes. Adds the state when `condition` is true, removes it when false.
 

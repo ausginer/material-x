@@ -1,11 +1,11 @@
 ---
 name: test-visual-contract
-description: Author tproc-backed visual-contract tests (*.spec.browser.test.ts) for Material X components — assert that the rendered custom element agrees with the tokens tproc selected, using independent browser observations rather than circular token-vs-token comparisons. Use when writing a spec-contract test, adding a token contract to the bridge, or building a normalization adapter. For general behavior tests, the DoD checklist, or file routing, use the test-component skill instead.
+description: Author @ydinjs/tproc-backed visual-contract tests (*.spec.browser.test.ts) for @ydinjs/material-x components — assert that the rendered custom element agrees with the tokens tproc selected, using independent browser observations rather than circular token-vs-token comparisons. Use when writing a spec-contract test, adding a token contract to the bridge, or building a normalization adapter. For general behavior tests, the DoD checklist, or file routing, use the test-component skill instead.
 ---
 
-# Authoring tproc-backed visual contracts
+# Authoring @ydinjs/tproc-backed visual contracts
 
-A visual-contract test proves the _rendered_ component agrees with the tokens tproc selected for it. It is the `*.spec.browser.test.ts` layer. Reference implementation: `packages/material-x/test/button/button.spec.browser.test.ts` — read it before writing a new one.
+A visual-contract test proves the _rendered_ component agrees with the `@ydinjs/tproc` tokens selected for it. It is the `*.spec.browser.test.ts` layer. Reference implementation: `packages/material-x/test/button/button.spec.browser.test.ts` — read it before writing a new one.
 
 Rationale (four-layer model, oracle hierarchy, what this layer does and does not prove) lives in `.agents/docs/test-architecture.md`. This skill is the _how_.
 

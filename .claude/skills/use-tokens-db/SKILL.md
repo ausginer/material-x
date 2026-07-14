@@ -1,18 +1,18 @@
 ---
 name: use-tokens-db
-description: Query Material Design upstream design tokens (colors, typography, elevation, shapes, motion) for buttons, FABs, text fields, checkboxes, lists, etc. Use when you need a token's resolved value, its reference tree, its token set, deprecation status, or need to enumerate tokens/sets/tags from the cached M3 token tables in packages/material-x/src/.tproc/DB.
+description: Query Material Design upstream design tokens through @ydinjs/tproc (colors, typography, elevation, shapes, motion) for buttons, FABs, text fields, checkboxes, lists, etc. Use when you need a token's resolved value, its reference tree, its token set, deprecation status, or need to enumerate tokens/sets/tags from the cached M3 token tables in packages/tproc/.data/tokens.
 ---
 
 # Using the tokens DB
 
-`DB` (`packages/material-x/src/.tproc/DB/DB.ts`) is an in-memory query layer over Material Design's upstream M3 token tables. On first load it downloads each table from `m3.material.io` and caches it under `.data/tokens/`; later loads read the cache, so you can work offline after the first run.
+`DB` is the `@ydinjs/tproc` in-memory query layer over Material Design's upstream M3 token tables. Its source lives in `packages/tproc/src/DB/`; on first load it downloads each table from `m3.material.io` and caches it under `packages/tproc/.data/tokens/`; later loads read the cache, so you can work offline after the first run.
 
 ## Loading
 
 The singleton in `index.ts` is the entrypoint — it already calls `DB.load()`:
 
 ```ts
-import db from 'packages/material-x/src/.tproc/DB/index.ts';
+import db from '@ydinjs/tproc/DB/index.js';
 ```
 
 Run any script with plain `node` (this repo runs `.ts` directly):
@@ -35,7 +35,7 @@ Notes:
 - **ContextTag / ContextTagGroup** — variant selectors (e.g. `expressive`, `web`). Value resolution is filtered by the DB's `allowedTags`.
 - **ReferenceTree** — the alias chain a token resolves through; `ResolvedValue` is the final concrete value after resolving references for the active tags.
 
-Full type definitions live in `packages/material-x/src/.tproc/TokenTable.ts`.
+Full type definitions live in `packages/tproc/src/TokenTable.ts`.
 
 ## Collections (getters)
 
@@ -71,7 +71,7 @@ const buttonTokens = db.tokens
 Resolve a token's value by its dotted name:
 
 ```ts
-import db from 'packages/material-x/src/.tproc/DB/index.ts';
+import db from '@ydinjs/tproc/DB/index.js';
 
 const token = db.tokens.find(
   (t) => t.tokenName === 'md.comp.button.container.color',
@@ -102,4 +102,4 @@ console.log(db.tags.map((t) => t.tagName).toArray());
 - Iterators are single-pass. Re-read the getter (e.g. `db.tokens`) for each traversal rather than reusing a consumed iterator.
 - `getValue` filters by the DB's `allowedTags` (`expressive`, `web`). A token may have other contextual values you won't see unless you call `getReferenceTreeAndResolvedValue` with different tags.
 - Adding a new component's tokens means adding its `TOKEN_TABLE.*.json` URL to the list in `DB.load()`.
-- The cache lives in `.data/tokens/`. Delete a file there to force a fresh download of that table.
+- The cache lives in `packages/tproc/.data/tokens/`. Delete a file there to force a fresh download of that table.
