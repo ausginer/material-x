@@ -196,16 +196,13 @@ function createHostStateFallback(
   return dedupeSelectors([replaceHasSlotted(fallback)]);
 }
 
-const hasSlottedFallbackVisitor: Visitor<CustomAtRules> = {
+export const hasSlottedFallbackVisitor: Visitor<CustomAtRules> = {
   Selector(selector) {
-    if (!hasSlotted(selector)) {
-      return;
-    }
-
-    const fallbacks = createHostStateFallback(selector);
-
-    return dedupeSelectors([replaceHasSlotted(selector), ...(fallbacks ?? [])]);
+    return hasSlotted(selector)
+      ? dedupeSelectors([
+          replaceHasSlotted(selector),
+          ...(createHostStateFallback(selector) ?? []),
+        ])
+      : undefined;
   },
 };
-
-export default hasSlottedFallbackVisitor;

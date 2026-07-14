@@ -4,15 +4,15 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import {
-  Linkable,
-  type LinkableProps,
-  useLinkable,
-  useDisableableLinkable,
-} from '@ydinjs/core/traits/linkable.js';
-import {
   impl,
   type TraitedConstructor,
 } from '@ydinjs/core/traits/attributes.js';
+import {
+  Linkable,
+  useDisableableLinkable,
+  useLinkable,
+  type LinkableProps,
+} from '@ydinjs/core/traits/linkable.js';
 import { $ } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject, Simplify } from 'type-fest';
 import {

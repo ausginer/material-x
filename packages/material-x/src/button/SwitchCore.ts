@@ -2,12 +2,12 @@ import { Bool } from '@ydinjs/core/attribute.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
+import type { Traited } from '@ydinjs/core/traits/attributes.js';
 import {
   Checkable,
   useCheckable,
   type CheckableProps,
 } from '@ydinjs/core/traits/checkable.js';
-import type { Traited } from '@ydinjs/core/traits/attributes.js';
 import {
   VALUABLE_ATTRS,
   Valuable,

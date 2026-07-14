@@ -8,11 +8,6 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import {
-  Disableable,
-  useDisableable,
-  type DisableableProps,
-} from '@ydinjs/core/traits/disableable.js';
-import {
   impl,
   trait,
   type Interface,
@@ -20,6 +15,11 @@ import {
   type Trait,
   type TraitedConstructor,
 } from '@ydinjs/core/traits/attributes.js';
+import {
+  Disableable,
+  useDisableable,
+  type DisableableProps,
+} from '@ydinjs/core/traits/disableable.js';
 import { $, switchState, toggleState } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject } from 'type-fest';
 import { useRipple } from '../core/animations/ripple/ripple.ts';

@@ -1,6 +1,5 @@
 import { useAttributes } from '@ydinjs/core/controllers/useAttributes.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
-import { DISABLEABLE_ATTRS } from '@ydinjs/core/traits/disableable.js';
 import {
   trait,
   type Interface,
@@ -8,6 +7,7 @@ import {
   type Trait,
   type Traited,
 } from '@ydinjs/core/traits/attributes.js';
+import { DISABLEABLE_ATTRS } from '@ydinjs/core/traits/disableable.js';
 import {
   Valuable,
   VALUABLE_ATTRS,

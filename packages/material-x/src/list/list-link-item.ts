@@ -6,15 +6,15 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
+import {
   Linkable,
   useDisableableLinkable,
   useLinkable,
   type LinkableProps,
 } from '@ydinjs/core/traits/linkable.js';
-import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
 import type { EmptyObject, Simplify } from 'type-fest';
 import template from './list-link-item.tpl.html' with { type: 'html' };
 import {

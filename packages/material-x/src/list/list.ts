@@ -8,15 +8,15 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
+import {
   Reorderable,
   useReorderable,
   type ReorderableProps,
   type ReorderEvent,
 } from '@ydinjs/core/traits/reorderable.js';
-import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
 import { identity, parseMs } from '../core/utils/fns.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import template from './list.tpl.html' with { type: 'html' };

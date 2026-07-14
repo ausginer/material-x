@@ -1,7 +1,7 @@
 import { useSlot } from '@ydinjs/core/controllers/useSlot.js';
 import { type ControlledElement, internals } from '@ydinjs/core/element.js';
-import { useReorderableItem } from '@ydinjs/core/traits/reorderable.js';
 import type { Traited } from '@ydinjs/core/traits/attributes.js';
+import { useReorderableItem } from '@ydinjs/core/traits/reorderable.js';
 import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
 import '../core/styles/elevation/elevation.runtime.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };

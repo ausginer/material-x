@@ -3,11 +3,11 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import { useSelectable } from '@ydinjs/core/traits/selectable.js';
 import {
   impl,
   type TraitedConstructor,
 } from '@ydinjs/core/traits/attributes.js';
+import { useSelectable } from '@ydinjs/core/traits/selectable.js';
 import type { EmptyObject } from 'type-fest';
 import template from './list-button-item.tpl.html' with { type: 'html' };
 import {

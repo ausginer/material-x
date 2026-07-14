@@ -5,7 +5,7 @@ import {
   type Visitor,
 } from 'lightningcss';
 import type { SourceMapInput } from 'rolldown';
-import hasSlottedFallbackVisitor from './hasSlottedFallbackVisitor.ts';
+import { hasSlottedFallbackVisitor } from './utils.ts';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();

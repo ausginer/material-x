@@ -14,12 +14,6 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import {
-  Disableable,
-  useDisableable,
-  type DisableableProps,
-} from '@ydinjs/core/traits/disableable.js';
-import { Nameable, useNameable } from '@ydinjs/core/traits/nameable.js';
-import {
   impl,
   trait,
   type Interface,
@@ -27,6 +21,12 @@ import {
   type Trait,
   type TraitedConstructor,
 } from '@ydinjs/core/traits/attributes.js';
+import {
+  Disableable,
+  useDisableable,
+  type DisableableProps,
+} from '@ydinjs/core/traits/disableable.js';
+import { Nameable, useNameable } from '@ydinjs/core/traits/nameable.js';
 import { Valuable, type ValuableProps } from '@ydinjs/core/traits/valuable.js';
 import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';

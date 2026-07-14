@@ -2,6 +2,7 @@ import { Bool } from '@ydinjs/core/attribute.js';
 import { useARIA } from '@ydinjs/core/controllers/useARIA.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
+import type { Traited } from '@ydinjs/core/traits/attributes.js';
 import {
   Disableable,
   useDisableable,
@@ -11,7 +12,6 @@ import {
   Selectable,
   type SelectableProps,
 } from '@ydinjs/core/traits/selectable.js';
-import type { Traited } from '@ydinjs/core/traits/attributes.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
