@@ -33,7 +33,7 @@ describe('appendSyntheticExports', () => {
     const augmented = appendSyntheticExports(code, synthetics)?.toString();
 
     expect(augmented).toMatch(
-      /export \{ \$checkable as __mxflat_\$checkable_[0-9a-f]{8} \};/u,
+      /export \{ \$checkable as __mxflat_\$checkable_[0-9a-f]{8}, \$checkable \};/u,
     );
   });
 });

@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import type { RolldownMagicString } from 'rolldown';
 import type { Plugin } from 'vite';
 import {
   analyzeModule,
@@ -25,8 +26,28 @@ const CANDIDATE = /\.[cm]?[jt]sx?$/u;
  * warns and leaves the site unchanged.
  */
 export function viteTraitsPlugin(): Plugin {
+  // A `RolldownMagicString` is only understood by rolldown's native build
+  // pipeline. Vite's dev-server plugin container treats `code` as a plain
+  // string and forwards the object verbatim to the builtin native transforms,
+  // where Rust fails to convert it (`Object {}` -> `String`). So in `serve`
+  // emit a string + sourcemap; keep the zero-copy native path for `build`.
+  let serve = false;
+
+  const emit = (magic: RolldownMagicString, id: string) =>
+    serve
+      ? {
+          code: magic.toString(),
+          map: magic
+            .generateMap({ source: id, includeContent: true, hires: true })
+            .toString(),
+        }
+      : { code: magic };
+
   const plugin: Plugin = {
     name: 'trait-flattener',
+    configResolved(config) {
+      serve = config.command === 'serve';
+    },
     watchChange(id) {
       invalidateModule(id);
     },
@@ -89,7 +110,7 @@ export function viteTraitsPlugin(): Plugin {
             // sourcemap from it natively.
             const magic = lowerModule(code, compositions);
             annotatePureTraitCalls(magic, program, factoryLocals);
-            return { code: magic };
+            return emit(magic, cleanId);
           }
         } catch (error) {
           if (error instanceof BailoutError) {
@@ -115,7 +136,7 @@ export function viteTraitsPlugin(): Plugin {
       );
       const augmented = augmentOrigin(code, synthetics, program, factoryLocals);
 
-      return augmented ? { code: augmented } : null;
+      return augmented ? emit(augmented, cleanId) : null;
     },
   };
 

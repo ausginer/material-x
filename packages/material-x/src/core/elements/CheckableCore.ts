@@ -2,6 +2,7 @@ import { Bool } from '@ydinjs/core/attribute.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
+import type { Traited } from '@ydinjs/core/traits/attributes.js';
 import {
   Checkable,
   useCheckable,
@@ -17,7 +18,6 @@ import {
   useNameable,
   type NameableProps,
 } from '@ydinjs/core/traits/nameable.js';
-import type { Traited } from '@ydinjs/core/traits/attributes.js';
 import {
   useValuable,
   Valuable,

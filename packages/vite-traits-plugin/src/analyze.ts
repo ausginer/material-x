@@ -243,9 +243,14 @@ function consumerSpecifier(
   if (originId === r.consumerId) {
     return '';
   }
-  if (!rawSpecifier.startsWith('.')) {
+  // A bare package specifier reaches the origin from anywhere unchanged.
+  if (rawSpecifier && !rawSpecifier.startsWith('.')) {
     return rawSpecifier;
   }
+  // Otherwise the origin is a file reached by path — either a trait defined in
+  // an *intermediate* module (empty `rawSpecifier`, e.g. `ButtonLike` inside
+  // `ButtonCore`, reached through a spread list) or one imported relatively.
+  // Both must be re-pathed from the actual consumer, not treated as in-scope.
   const rel = relative(r.consumerDir, originId).replaceAll('\\', '/');
   return rel.startsWith('.') ? rel : `./${rel}`;
 }

@@ -1,7 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import kebabCase from 'just-kebab-case';
 // eslint-disable-next-line import-x/no-relative-packages
-import db from '../packages/material-x/src/.tproc/DB/index.ts';
+import db from '../packages/tproc/src/DB/index.ts';
 import { root } from './utils.ts';
 
 const { light, dark } = db.theme.schemes;

@@ -16,8 +16,17 @@ function appendSyntheticExportsInto(
   if (synthetics.length === 0) {
     return false;
   }
+  // Each private binding is surfaced under TWO export names:
+  //   1. the stable synthetic alias — used by a consumer that keeps this module
+  //      truly external and imports the alias verbatim;
+  //   2. its clean local name — a consumer built with `unbundle` (e.g.
+  //      material-x over the built core) reads this module's real graph and
+  //      canonicalizes the synthetic import back to the source-local name while
+  //      keeping the module external, so that local name MUST resolve to a real
+  //      export or ESM linking throws `does not provide an export named '…'`.
+  // Both are `.js`-only; the `.d.ts` is emitted from source and stays clean.
   const clause = synthetics
-    .map(({ local, exportName }) => `${local} as ${exportName}`)
+    .map(({ local, exportName }) => `${local} as ${exportName}, ${local}`)
     .join(', ');
   magic.append(`\nexport { ${clause} };\n`);
 

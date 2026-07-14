@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { flattenToDir, type Flattening } from './helpers.ts';
 
 type Ctor = new () => {
+  group: string | null;
   size: string | null;
   checked: boolean;
   name: string | null;
@@ -12,8 +13,11 @@ type Ctor = new () => {
 /**
  * Exercises the full resolver against a material-x-shaped composition:
  * `impl(Base, [...CORE_TRAITS, Nameable, Local])` where `CORE_TRAITS` is an
- * imported const array `[Sizeable, Checkable]`, and `Local` is a trait defined
- * in the consumer module itself (inline attrs + private brand, linked in place).
+ * imported const array `[Groupable, Sizeable, Checkable]`. `Groupable` is a
+ * trait DEFINED in the intermediate `core-traits.ts` (like `ButtonLike` inside
+ * `ButtonCore`) — its brand/attrs must be linked THROUGH that module, not
+ * mistaken for the consumer's scope. `Local` is a trait defined in the consumer
+ * module itself (inline attrs + private brand, linked in place).
  */
 describe('composite flattening runtime equivalence', () => {
   let gen: Flattening;
@@ -22,8 +26,8 @@ describe('composite flattening runtime equivalence', () => {
 
   beforeAll(async () => {
     gen = await flattenToDir('composite-consumer.ts', {
-      augment: ['sizeable.ts', 'checkable.ts', 'nameable.ts'],
-      passthrough: ['base.ts', 'core-traits.ts'],
+      augment: ['sizeable.ts', 'checkable.ts', 'nameable.ts', 'core-traits.ts'],
+      passthrough: ['base.ts'],
     });
     const [composedMod, flatMod] = (await Promise.all([
       import(gen.url('foo-composed.ts')),
@@ -41,6 +45,16 @@ describe('composite flattening runtime equivalence', () => {
     ['composed', composed],
     ['flattened', flattened],
   ];
+
+  it('should install the intermediate-module-local trait accessor (group)', () => {
+    // `Groupable` is defined inside the spread list's own module; its brand and
+    // attrs must be linked through that module, not treated as consumer-scoped.
+    for (const [label, Ctor] of cases()) {
+      const instance = new Ctor();
+      instance.group = 'primary';
+      expect(instance.group, label).toBe('primary');
+    }
+  });
 
   it('should install the spread const-array accessors (size, checked)', () => {
     for (const [label, Ctor] of cases()) {
@@ -77,6 +91,7 @@ describe('composite flattening runtime equivalence', () => {
         'active',
         'checked',
         'data-base',
+        'group',
         'name',
         'size',
       ]);

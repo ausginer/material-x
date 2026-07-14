@@ -70,7 +70,9 @@ describe('viteTraitsPlugin', () => {
       fixtureId('checkable.ts'),
     );
 
-    expect(String(result?.code)).toMatch(/export \{ \$checkable as __mxflat_/u);
+    expect(String(result?.code)).toMatch(
+      /export \{ \$checkable as __mxflat_\S+, \$checkable \};/u,
+    );
   });
 
   it('should mark descriptor trait() calls pure for downstream tree-shaking', async () => {
