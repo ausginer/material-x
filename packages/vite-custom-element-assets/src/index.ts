@@ -1,6 +1,7 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { MessageChannel, Worker } from 'node:worker_threads';
 import { computed, signal } from '@preact/signals-core';
+import { RolldownMagicString } from 'rolldown';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
 import { compileHTML } from './html.ts';
@@ -267,12 +268,15 @@ export function constructCSSTokens(
               },
             },
             handler(code) {
-              return {
-                code: replaceList.reduce(
-                  (acc, [pattern, short]) => acc.replace(pattern, `'${short}'`),
-                  code,
-                ),
-              };
+              const s = new RolldownMagicString(code);
+
+              for (const [pattern, short] of replaceList) {
+                s.replaceRegex(pattern, `'${short}'`);
+              }
+
+              // Rolldown derives the sourcemap from the returned magic string
+              // over its native channel, so no explicit map is needed.
+              return s.hasChanged() ? { code: s } : null;
             },
           },
         }

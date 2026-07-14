@@ -1,4 +1,7 @@
-import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
+import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
 import { Base } from './base.ts';
 import { Checkable } from './checkable.ts';
 import { Nameable } from './nameable.ts';

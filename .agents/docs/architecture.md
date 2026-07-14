@@ -51,7 +51,7 @@ The codebase focuses on a token-driven styling pipeline, a trait composition sys
 
 ### Trait System
 
-`ydin/traits/traits.js` provides a composition system that replaces direct subclassing:
+`ydin/traits/attributes.js` provides a composition system that replaces direct subclassing:
 
 - `trait(descriptor)` — creates a trait with attribute converters and accessor generation
 - `impl(BaseClass, [Trait1, Trait2, ...])` — composes traits into a class, auto-generates `observedAttributes` and typed property accessors

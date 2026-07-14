@@ -3,7 +3,10 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
+import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
 import type { EmptyObject } from 'type-fest';
 import {
   CHECKABLE_CORE_TRAITS,

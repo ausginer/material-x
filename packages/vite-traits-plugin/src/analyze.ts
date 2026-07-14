@@ -1,5 +1,7 @@
+import { dirname, join, relative } from 'node:path';
 import type {
   Class,
+  Expression,
   Node,
   Program,
   VariableDeclaration,
@@ -9,9 +11,14 @@ import { parseSync } from 'oxc-parser';
 import { bail, BailoutError, REASON } from './diagnostics.ts';
 import { TRAIT_IR_VERSION, type CompositionIR, type TraitIR } from './ir.ts';
 import {
+  collectImports,
+  collectTopBindings,
+  type LocalImport,
   normalizeDescriptorTrait,
   resolveFactoryLocals,
   type SyntheticExport,
+  type TopBinding,
+  unwrapTS,
 } from './normalize.ts';
 
 /**
@@ -25,9 +32,13 @@ export type ModuleLoader = Readonly<{
   load(id: string): Promise<string>;
 }>;
 
-/** Specifiers whose `impl` export is the composition builder. */
+/**
+ * Specifiers whose `impl` export is the composition builder. Matches both the
+ * current module names (`attributes`, `primitives`) and the pre-rename ones
+ * (`traits`, `piirre`) so the plugin is robust to the in-flight migration.
+ */
 const IMPL_MODULE =
-  /(?:^|\/)@ydinjs\/core\/traits\/(?:traits|piirre)(?:\.[jt]s)?$/u;
+  /(?:^|\/)@ydinjs\/core\/traits\/(?:attributes|primitives|traits|piirre)(?:\.[cm]?[jt]sx?)?$/u;
 
 /** Range in the consumer source, as `[start, end)` byte offsets. */
 export type Span = readonly [number, number];
@@ -78,32 +89,6 @@ function walk(root: Node, visit: (node: Node) => void): void {
       stack.push((current as Record<string, unknown>)[key]);
     }
   }
-}
-
-type LocalImport = Readonly<{ specifier: string; imported: string }>;
-
-function collectImports(program: Program): Map<string, LocalImport> {
-  const imports = new Map<string, LocalImport>();
-
-  for (const node of program.body) {
-    if (node.type !== 'ImportDeclaration') {
-      continue;
-    }
-
-    for (const spec of node.specifiers ?? []) {
-      if (spec.type === 'ImportSpecifier') {
-        imports.set(spec.local.name, {
-          specifier: node.source.value,
-          imported:
-            spec.imported.type === 'Identifier'
-              ? spec.imported.name
-              : spec.imported.value,
-        });
-      }
-    }
-  }
-
-  return imports;
 }
 
 type ImplSite = Readonly<{
@@ -209,6 +194,294 @@ export function invalidateModule(id: string): void {
   parseCache.delete(id);
 }
 
+/** A trait module resolved to the module context it lives in. */
+type ModuleCtx = Readonly<{
+  id: string;
+  program: Program;
+  imports: Map<string, LocalImport>;
+  bindings: Map<string, TopBinding>;
+}>;
+
+/** A single trait occurrence resolved to where it is defined/exported. */
+type TraitRef = Readonly<{
+  /** Identifier name, for diagnostics. */
+  name: string;
+  /** Absolute id of the module defining the trait. */
+  originId: string;
+  /** Parsed origin module. */
+  program: Program;
+  /** Specifier the consumer imports the trait's links through; `''` when local. */
+  specifier: string;
+  /** Name the trait binding has in its origin module. */
+  exportName: string;
+}>;
+
+/** Shared state threaded through the mutually-recursive trait-list resolver. */
+type Resolver = Readonly<{
+  consumerId: string;
+  consumerDir: string;
+  loader: ModuleLoader;
+  ctxCache: Map<string, ModuleCtx>;
+  /** Per-origin cache of relative-import → consumer-usable specifier. */
+  rebaseCache: Map<string, Map<string, string | null>>;
+  dependencies: Set<string>;
+  /** Ordered trait references accumulated in declaration/layer order. */
+  out: TraitRef[];
+}>;
+
+/**
+ * Specifier the consumer uses to import from `originId`: empty when the trait is
+ * defined in the consumer module itself (linked in place), the original bare
+ * specifier for package imports, or a path rebased onto the consumer for
+ * relative ones (which may have been reached through an intermediate module).
+ */
+function consumerSpecifier(
+  r: Resolver,
+  originId: string,
+  rawSpecifier: string,
+): string {
+  if (originId === r.consumerId) {
+    return '';
+  }
+  if (!rawSpecifier.startsWith('.')) {
+    return rawSpecifier;
+  }
+  const rel = relative(r.consumerDir, originId).replaceAll('\\', '/');
+  return rel.startsWith('.') ? rel : `./${rel}`;
+}
+
+/** Loads, parses and indexes a module, caching the result. */
+async function buildCtx(r: Resolver, originId: string): Promise<ModuleCtx> {
+  const cached = r.ctxCache.get(originId);
+  if (cached) {
+    return cached;
+  }
+  r.dependencies.add(originId);
+  const parsed = parseModule(originId, await r.loader.load(originId));
+  const ctx: ModuleCtx = {
+    id: originId,
+    program: parsed,
+    imports: collectImports(parsed),
+    bindings: collectTopBindings(parsed),
+  };
+  r.ctxCache.set(originId, ctx);
+  return ctx;
+}
+
+/** The array literal a trait-list binding is initialized to, if any. */
+function arrayInit(binding: TopBinding | undefined): Expression | undefined {
+  const init = binding?.declarator.init;
+  if (!init) {
+    return undefined;
+  }
+  const unwrapped = unwrapTS(init);
+  return unwrapped.type === 'ArrayExpression' ? unwrapped : undefined;
+}
+
+/**
+ * Rebases a specifier imported *inside* an origin module onto one a consumer in
+ * another package can use. A relative import is resolved to disk and remapped
+ * through the nearest `package.json` to `<name>/<path-from-package-root>` (e.g.
+ * a cross-package trait's `../attribute.js` → `@ydinjs/core/attribute.js`).
+ * Bare specifiers already work everywhere and pass through; anything that can't
+ * be mapped returns `null`.
+ */
+async function rebaseOriginSpecifier(
+  r: Resolver,
+  originId: string,
+  originSpecifier: string,
+): Promise<string | null> {
+  if (!originSpecifier.startsWith('.')) {
+    return originSpecifier;
+  }
+  const abs = await r.loader.resolve(originSpecifier, originId);
+  if (!abs) {
+    return null;
+  }
+  let dir = dirname(abs);
+  for (;;) {
+    let name: string | undefined;
+    try {
+      // oxlint-disable-next-line no-await-in-loop
+      const raw = await r.loader.load(join(dir, 'package.json'));
+      ({ name } = JSON.parse(raw) as { name?: string });
+    } catch {
+      name = undefined;
+    }
+    if (name) {
+      const sub = relative(dir, abs).replaceAll('\\', '/');
+      return sub ? `${name}/${sub}` : name;
+    }
+    const parent = dirname(dir);
+    if (parent === dir) {
+      return null;
+    }
+    dir = parent;
+  }
+}
+
+/**
+ * Pre-resolves every relative import of an origin module to a consumer-usable
+ * specifier, so the synchronous normalizer can rebase converter/brand links
+ * without doing I/O itself. Cached per origin.
+ */
+async function originRebases(
+  r: Resolver,
+  originId: string,
+): Promise<Map<string, string | null>> {
+  const cached = r.rebaseCache.get(originId);
+  if (cached) {
+    return cached;
+  }
+  const map = new Map<string, string | null>();
+  const ctx = r.ctxCache.get(originId);
+  for (const [, imported] of ctx?.imports ?? []) {
+    if (imported.specifier.startsWith('.') && !map.has(imported.specifier)) {
+      map.set(
+        imported.specifier,
+        // oxlint-disable-next-line no-await-in-loop
+        await rebaseOriginSpecifier(r, originId, imported.specifier),
+      );
+    }
+  }
+  r.rebaseCache.set(originId, map);
+  return map;
+}
+
+/** Resolves a single trait identifier to where it is defined and pushes it. */
+async function resolveTraitRef(
+  r: Resolver,
+  name: string,
+  ctx: ModuleCtx,
+  site: ImplSite,
+): Promise<void> {
+  if (ctx.bindings.has(name)) {
+    // Defined in this module: link locally when it IS the consumer, else
+    // through the specifier that reaches this module.
+    r.out.push({
+      name,
+      originId: ctx.id,
+      program: ctx.program,
+      specifier: consumerSpecifier(r, ctx.id, ''),
+      exportName: name,
+    });
+    return;
+  }
+
+  const imported = ctx.imports.get(name);
+  if (!imported) {
+    bail(
+      REASON.UNSUPPORTED_TRAIT,
+      site.name,
+      `trait ${name} is not resolvable`,
+    );
+  }
+  const originId = await r.loader.resolve(imported.specifier, ctx.id);
+  if (!originId) {
+    bail(
+      REASON.UNSUPPORTED_TRAIT,
+      site.name,
+      `cannot resolve trait module ${imported.specifier}`,
+    );
+  }
+  const origin = await buildCtx(r, originId);
+  r.out.push({
+    name,
+    originId,
+    program: origin.program,
+    specifier: consumerSpecifier(r, originId, imported.specifier),
+    exportName: imported.imported,
+  });
+}
+
+/**
+ * Expands a trait list into ordered trait references. A list is either an array
+ * literal (whose elements are trait identifiers or spreads of other lists) or an
+ * identifier referencing a trait-list const, local or imported — followed across
+ * module boundaries. Self-recursive; awaits stay sequential so declaration order
+ * fixes prototype-layer precedence.
+ */
+async function resolveList(
+  r: Resolver,
+  expr: Expression,
+  ctx: ModuleCtx,
+  site: ImplSite,
+): Promise<void> {
+  const node = unwrapTS(expr);
+
+  if (node.type === 'Identifier') {
+    const localArray = arrayInit(ctx.bindings.get(node.name));
+    if (localArray) {
+      await resolveList(r, localArray, ctx, site);
+      return;
+    }
+    if (ctx.bindings.has(node.name)) {
+      bail(
+        REASON.UNSUPPORTED_TRAIT_LIST,
+        site.name,
+        `${node.name} is not an array literal`,
+      );
+    }
+
+    const imported = ctx.imports.get(node.name);
+    if (!imported) {
+      bail(
+        REASON.UNSUPPORTED_TRAIT_LIST,
+        site.name,
+        `trait list reference ${node.name} is not defined`,
+      );
+    }
+    const originId = await r.loader.resolve(imported.specifier, ctx.id);
+    if (!originId) {
+      bail(
+        REASON.UNSUPPORTED_TRAIT_LIST,
+        site.name,
+        `cannot resolve trait-list module ${imported.specifier}`,
+      );
+    }
+    const origin = await buildCtx(r, originId);
+    const importedArray = arrayInit(origin.bindings.get(imported.imported));
+    if (!importedArray) {
+      bail(
+        REASON.UNSUPPORTED_TRAIT_LIST,
+        site.name,
+        `imported trait list ${node.name} is not an array literal`,
+      );
+    }
+    await resolveList(r, importedArray, origin, site);
+    return;
+  }
+
+  if (node.type !== 'ArrayExpression') {
+    bail(
+      REASON.UNSUPPORTED_TRAIT_LIST,
+      site.name,
+      'trait list is not an array literal or a reference to one',
+    );
+  }
+
+  for (const element of node.elements) {
+    if (!element) {
+      bail(REASON.UNSUPPORTED_TRAIT_LIST, site.name, 'trait list has a hole');
+    }
+    if (element.type === 'SpreadElement') {
+      // oxlint-disable-next-line no-await-in-loop
+      await resolveList(r, element.argument, ctx, site);
+      continue;
+    }
+    const el = unwrapTS(element);
+    if (el.type !== 'Identifier') {
+      bail(
+        REASON.UNSUPPORTED_TRAIT_LIST,
+        site.name,
+        'trait list element is not an identifier',
+      );
+    }
+    // oxlint-disable-next-line no-await-in-loop
+    await resolveTraitRef(r, el.name, ctx, site);
+  }
+}
+
 /**
  * Analyzes a consumer module and returns every eligible, fully-normalized
  * composition together with the private bindings that need synthetic exports in
@@ -244,6 +517,20 @@ export async function analyzeModule(
   const compositions: AnalyzedComposition[] = [];
   const syntheticsByModule = new Map<string, Map<string, SyntheticExport>>();
   const dependencies = new Set<string>();
+  const ctxCache = new Map<string, ModuleCtx>();
+  const factoryCache = new Map<string, ReadonlySet<string>>();
+
+  // The resolver expands a trait list into an ordered list of trait references,
+  // following const-array references and spreads across module boundaries.
+  const resolver: Resolver = {
+    consumerId: id,
+    consumerDir: dirname(id),
+    loader,
+    ctxCache,
+    rebaseCache: new Map(),
+    dependencies,
+    out: [],
+  };
 
   for (const site of sites) {
     const consumer = requireSingleConsumer(program, site);
@@ -260,79 +547,48 @@ export async function analyzeModule(
         'missing base constructor',
       );
     }
-    if (listArg?.type !== 'ArrayExpression') {
-      bail(
-        REASON.UNSUPPORTED_TRAIT_LIST,
-        site.name,
-        'trait list is not an inline array literal',
-      );
+    if (!listArg || listArg.type === 'SpreadElement') {
+      bail(REASON.UNSUPPORTED_TRAIT_LIST, site.name, 'missing trait list');
     }
 
+    resolver.out.length = 0;
+    const consumerCtx: ModuleCtx = {
+      id,
+      program,
+      imports,
+      bindings: collectTopBindings(program),
+    };
+    ctxCache.set(id, consumerCtx);
+    // oxlint-disable-next-line no-await-in-loop
+    await resolveList(resolver, listArg, consumerCtx, site);
+
     const traits: TraitIR[] = [];
-    for (const element of listArg.elements) {
-      if (element?.type !== 'Identifier') {
-        bail(
-          REASON.UNSUPPORTED_TRAIT_LIST,
-          site.name,
-          'trait list has a hole, spread, or non-identifier element',
-        );
-      }
+    for (const ref of resolver.out) {
+      const factoryLocals =
+        factoryCache.get(ref.originId) ?? resolveFactoryLocals(ref.program);
+      factoryCache.set(ref.originId, factoryLocals);
 
-      const imported = imports.get(element.name);
-      if (!imported) {
-        bail(
-          REASON.UNSUPPORTED_TRAIT,
-          site.name,
-          `trait ${element.name} is not an import`,
-        );
-      }
-
-      // Traits are resolved in declaration order to preserve layer precedence.
-      // oxlint-disable-next-line no-await-in-loop
-      const traitId = await loader.resolve(imported.specifier, id);
-      if (!traitId) {
-        bail(
-          REASON.UNSUPPORTED_TRAIT,
-          site.name,
-          `cannot resolve trait module ${imported.specifier}`,
-        );
-      }
-      dependencies.add(traitId);
-
-      let traitSource: string;
-      try {
-        // oxlint-disable-next-line no-await-in-loop
-        traitSource = await loader.load(traitId);
-      } catch {
-        return bail(
-          REASON.UNSUPPORTED_TRAIT,
-          site.name,
-          `cannot load trait module ${traitId}`,
-        );
-      }
-      const traitProgram = parseModule(traitId, traitSource);
       const moduleSynthetics =
-        syntheticsByModule.get(traitId) ?? new Map<string, SyntheticExport>();
-      syntheticsByModule.set(traitId, moduleSynthetics);
+        syntheticsByModule.get(ref.originId) ??
+        new Map<string, SyntheticExport>();
+      syntheticsByModule.set(ref.originId, moduleSynthetics);
 
       // oxlint-disable-next-line no-await-in-loop
-      const factoryLocals = await resolveFactoryLocals(
-        traitProgram,
-        (specifier) => loader.resolve(specifier, traitId),
-      );
+      const rebases = await originRebases(resolver, ref.originId);
       const ir = normalizeDescriptorTrait(
-        traitProgram,
-        traitId,
-        imported.specifier,
-        imported.imported,
+        ref.program,
+        ref.originId,
+        ref.specifier,
+        ref.exportName,
         moduleSynthetics,
         factoryLocals,
+        (specifier) => rebases.get(specifier) ?? null,
       );
       if (!ir) {
         bail(
           REASON.UNSUPPORTED_TRAIT,
           site.name,
-          `trait ${element.name} is not a supported descriptor trait`,
+          `trait ${ref.name} is not a supported descriptor trait`,
         );
       }
       traits.push(ir);

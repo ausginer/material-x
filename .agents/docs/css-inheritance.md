@@ -16,9 +16,7 @@
 
 ## Core Idea
 
-Move from an implicit "reshape" tree to an explicit, flattened node list with
-declared inheritance. This avoids heuristic parsing and keeps variant scope
-explicit.
+Move from an implicit "reshape" tree to an explicit, flattened node list with declared inheritance. This avoids heuristic parsing and keeps variant scope explicit.
 
 ## Processor API Surface
 
@@ -77,13 +75,11 @@ export type TokenManager = Readonly<{
 export const t: TokenManager;
 ```
 
-`TokenPackage.state(...)` returns the deduped token map for a state. This can be
-passed into `extends(...)` to inherit from another package without a registry.
+`TokenPackage.state(...)` returns the deduped token map for a state. This can be passed into `extends(...)` to inherit from another package without a registry.
 
 ## Flattening (Replacing `reshape`)
 
-Instead of `reshape` heuristics, we define a grouping function that maps a
-token name to a `{ path, name }` pair.
+Instead of `reshape` heuristics, we define a grouping function that maps a token name to a `{ path, name }` pair.
 
 Your initial callback already illustrates the intent:
 
@@ -127,19 +123,14 @@ function group(tokenName: string): GroupResult {
 
 We can formalize this into a processor step:
 
-- `group()` returns `{ path, tokenName }`, where `tokenName` is the token path with
-  prefixes removed.
+- `group()` returns `{ path, tokenName }`, where `tokenName` is the token path with prefixes removed.
 - The result is a flat list of token nodes, not a tree.
 
-This makes grouping rules explicit and avoids relying on `reshape` path
-matching.
+This makes grouping rules explicit and avoids relying on `reshape` path matching.
 
 ## Selector Emission
 
-Selectors are emitted by the component layer, not by the processor. The
-package only provides state groupings and an optional `scope` attribute.
-Components decide how to map `state(...)` to selectors (for example with the
-existing `state.*()` helpers).
+Selectors are emitted by the component layer, not by the processor. The package only provides state groupings and an optional `scope` attribute. Components decide how to map `state(...)` to selectors (for example with the existing `state.*()` helpers).
 
 ## Precedence Rules
 
@@ -155,25 +146,18 @@ Dedup runs after `resolveSet` and compares values with `===`.
 
 For each node:
 
-1. `inherited = merge(parent1, parent2, ..., parentN)` in the given `extends`
-   order (later parents override earlier).
+1. `inherited = merge(parent1, parent2, ..., parentN)` in the given `extends` order (later parents override earlier).
 2. Remove tokens where `node.tokens[key] === inherited[key]`.
 
 This keeps only values that actually change the effective result.
 
 ## Multi-attribute Variants (Deferred)
 
-Multi-attribute inheritance is postponed. For now, we focus on `default` vs a
-single attribute scope (e.g. `[color=elevated]`) and its interaction states.
+Multi-attribute inheritance is postponed. For now, we focus on `default` vs a single attribute scope (e.g. `[color=elevated]`) and its interaction states.
 
 ## Set Boundaries
 
-Each build handles exactly one token set and yields one CSSStyleSheet. This
-keeps the current separation of styles per file. Cross-set inheritance can be
-handled explicitly by importing another built set and referencing its nodes,
-but there is no implicit set merging. A built set may expose its own attribute
-scope (for example, `scope('color', 'elevated')`) so other builds can attach it
-as a variant. Variant sets depend on base sets, not vice versa.
+Each build handles exactly one token set and yields one CSSStyleSheet. This keeps the current separation of styles per file. Cross-set inheritance can be handled explicitly by importing another built set and referencing its nodes, but there is no implicit set merging. A built set may expose its own attribute scope (for example, `scope('color', 'elevated')`) so other builds can attach it as a variant. Variant sets depend on base sets, not vice versa.
 
 ## Processor API (Proposed)
 
@@ -221,11 +205,8 @@ const elevated = t
 - `set(name)`: loads and processes a single token set (one build per set).
 - `scope(name, value)`: assigns a single attribute scope for all selectors in the set.
 - `group(fn)`: maps each token to a `path` string and a local token name.
-- `extend(fn)`: explicit inheritance list per node via the processor DSL;
-  calling `extends()` with no args clears the parent list and implies
-  "no inheritance".
-- `append(obj)`: adds tokens before `resolveSet` so refs can resolve. Keys are
-  dot-separated paths (for example, `'selected.hovered'`).
+- `extend(fn)`: explicit inheritance list per node via the processor DSL; calling `extends()` with no args clears the parent list and implies "no inheritance".
+- `append(obj)`: adds tokens before `resolveSet` so refs can resolve. Keys are dot-separated paths (for example, `'selected.hovered'`).
 - `allowTokens(list)`: filters the final token list.
 - `build()`: returns a `TokenPackage` that can be rendered or extended.
 
@@ -249,8 +230,7 @@ Proposed:
 6. `allowTokens`
 7. `createVariables` + `pack`
 
-This removes implicit `reshape` heuristics and replaces them with explicit,
-ordered, graph-based inheritance.
+This removes implicit `reshape` heuristics and replaces them with explicit, ordered, graph-based inheritance.
 
 ## Validation Rules
 

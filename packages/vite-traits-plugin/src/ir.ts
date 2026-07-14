@@ -42,6 +42,12 @@ export type BindingRef = Readonly<{
    * build-only synthetic export. Holds the original local name.
    */
   synthetic?: string;
+  /**
+   * When true, the binding is already in the consumer module's scope (the trait
+   * was defined there), so it is referenced by `exportName` directly with no
+   * import emitted. `specifier` is empty in this case.
+   */
+  local?: boolean;
 }>;
 
 /**

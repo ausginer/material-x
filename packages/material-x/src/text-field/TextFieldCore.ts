@@ -26,7 +26,7 @@ import {
   type Props,
   type Trait,
   type TraitedConstructor,
-} from '@ydinjs/core/traits/traits.js';
+} from '@ydinjs/core/traits/attributes.js';
 import { Valuable, type ValuableProps } from '@ydinjs/core/traits/valuable.js';
 import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';

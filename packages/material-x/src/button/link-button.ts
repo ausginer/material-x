@@ -9,7 +9,10 @@ import {
   useLinkable,
   useDisableableLinkable,
 } from '@ydinjs/core/traits/linkable.js';
-import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
+import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
 import { $ } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject, Simplify } from 'type-fest';
 import {

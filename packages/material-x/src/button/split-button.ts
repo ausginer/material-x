@@ -1,5 +1,3 @@
-import type { Simplify } from 'type-fest';
-import '../button-group/connected-button-group.ts';
 import { Bool } from '@ydinjs/core/attribute.js';
 import {
   transfer,
@@ -15,19 +13,21 @@ import {
 import {
   impl,
   trait,
-  type TraitedConstructor,
   type Interface,
   type Props,
   type Trait,
-} from '@ydinjs/core/traits/traits.js';
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
 import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
+import type { Simplify } from 'type-fest';
+import '../button-group/connected-button-group.ts';
 import { notify } from '../core/utils/events.ts';
 import { useCore } from '../core/utils/useCore.ts';
 import '../icon/icon.ts';
 import './button.ts';
 import {
-  BUTTON_CORE_TRAITS,
   BUTTON_ATTRS,
+  BUTTON_CORE_TRAITS,
   type ButtonCoreProps,
   type ButtonSharedCSSProperties,
 } from './ButtonCore.ts';

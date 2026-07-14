@@ -5,7 +5,10 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
+import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
 import type { ButtonLike } from '../button/ButtonCore.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {

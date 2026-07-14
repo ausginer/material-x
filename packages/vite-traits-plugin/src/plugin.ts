@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import {
   analyzeModule,
@@ -7,7 +8,7 @@ import {
   type ModuleLoader,
 } from './analyze.ts';
 import { BailoutError } from './diagnostics.ts';
-import { appendSyntheticExports, lowerModule } from './lower.ts';
+import { annotatePureTraitCalls, augmentOrigin, lowerModule } from './lower.ts';
 import {
   collectModuleSyntheticExports,
   resolveFactoryLocals,
@@ -44,19 +45,34 @@ export function viteTraitsPlugin(): Plugin {
           const resolved = await this.resolve(specifier, importer, {
             skipSelf: true,
           });
-          const id = resolved?.id.split('?', 1)[0];
-          // External modules (e.g. the `@ydinjs/core` package when building a
-          // consumer) have no readable on-disk id here; treat as unresolvable
-          // so the site bails gracefully rather than crashing the build.
-          if (!id || resolved?.external || !id.startsWith('/')) {
-            return null;
+          if (resolved && !resolved.external) {
+            const onDisk = resolved.id.split('?', 1)[0]!;
+            if (onDisk.startsWith('/')) {
+              return onDisk;
+            }
           }
-          return id;
+          // A workspace package (`@ydinjs/*`) is external to a consumer build,
+          // so the bundler hands back a bare/external id with nothing to read.
+          // Its built trait modules are still on disk, though, so resolve them
+          // through Node — this is what lets cross-package compositions flatten.
+          if (specifier.startsWith('@ydinjs/')) {
+            try {
+              return fileURLToPath(import.meta.resolve(specifier));
+            } catch {
+              return null;
+            }
+          }
+          return null;
         },
         load: (moduleId) => readFile(moduleId, 'utf8'),
       };
 
-      // Consumer responsibility: flatten eligible compositions.
+      const program = parseModule(cleanId, code);
+      const factoryLocals = resolveFactoryLocals(program);
+
+      // Consumer responsibility: flatten eligible compositions. A flattened
+      // module still gets its `trait(...)` calls marked pure so the now-unused
+      // intermediary scaffolding can be tree-shaken downstream.
       if (code.includes('impl(')) {
         try {
           const { compositions, dependencies } = await analyzeModule(
@@ -71,7 +87,9 @@ export function viteTraitsPlugin(): Plugin {
           if (compositions.length > 0) {
             // Return the native MagicString as `code`; the bundler derives the
             // sourcemap from it natively.
-            return { code: lowerModule(code, compositions) };
+            const magic = lowerModule(code, compositions);
+            annotatePureTraitCalls(magic, program, factoryLocals);
+            return { code: magic };
           }
         } catch (error) {
           if (error instanceof BailoutError) {
@@ -88,18 +106,14 @@ export function viteTraitsPlugin(): Plugin {
       }
 
       // Origin responsibility: expose private brand/converter bindings so a
-      // flattened consumer in another module can link them.
-      const program = parseModule(cleanId, code);
-      const factoryLocals = await resolveFactoryLocals(program, (specifier) =>
-        loader.resolve(specifier, cleanId),
-      );
+      // flattened consumer in another module can link them, and mark descriptor
+      // `trait(...)` calls pure.
       const synthetics = collectModuleSyntheticExports(
         program,
         cleanId,
         factoryLocals,
       );
-
-      const augmented = appendSyntheticExports(code, synthetics);
+      const augmented = augmentOrigin(code, synthetics, program, factoryLocals);
 
       return augmented ? { code: augmented } : null;
     },

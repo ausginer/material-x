@@ -139,7 +139,7 @@ toggleState(internals, 'checked', true); // add/remove a custom state from Eleme
 
 ```ts
 import { ControlledElement, define } from '@ydinjs/core/element.js';
-import { trait, impl } from '@ydinjs/core/traits/traits.js';
+import { trait, impl } from '@ydinjs/core/traits/attributes.js';
 import { Disableable } from '@ydinjs/core/traits/disableable.js';
 import { useShadowDOM } from '@ydinjs/core/controllers/useShadowDOM.js';
 import {

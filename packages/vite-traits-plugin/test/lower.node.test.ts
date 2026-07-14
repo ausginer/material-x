@@ -24,13 +24,10 @@ describe('appendSyntheticExports', () => {
     const id = fixtureId('checkable.ts');
     const code = await readFixture('checkable.ts');
     const program = parseModule(id, code);
-    const factoryLocals = await resolveFactoryLocals(program, (specifier) =>
-      nodeLoader.resolve(specifier, id),
-    );
     const synthetics = collectModuleSyntheticExports(
       program,
       id,
-      factoryLocals,
+      resolveFactoryLocals(program),
     );
 
     const augmented = appendSyntheticExports(code, synthetics)?.toString();
@@ -56,10 +53,24 @@ describe('lowerModule', () => {
     );
   });
 
-  it('should emit an accessor for every trait attribute', async () => {
+  it('should emit class getters/setters for trait attributes', async () => {
     const flat = await lowerConsumer();
-    expect(flat).toContain('"checked"');
-    expect(flat).toContain('"name"');
+    expect(flat).toMatch(/get "checked"\(\) \{ return __mxflat_attr\.get\(/u);
+    expect(flat).toMatch(/set "checked"\(value\) \{ __mxflat_attr\.set\(/u);
+    expect(flat).toMatch(/get "name"\(\)/u);
+  });
+
+  it('should not install attribute accessors via defineProperty', async () => {
+    // Only the symbol brands use a data-property install now.
+    expect(await lowerConsumer()).not.toContain('Object.defineProperty(');
+  });
+
+  it('should install every brand through a single Object.defineProperties', async () => {
+    const flat = await lowerConsumer();
+    expect(
+      flat.match(/Object\.defineProperties\(this\.prototype, \{/gu),
+    ).toHaveLength(1);
+    expect(flat).toMatch(/\]: \{ value: true \},/u);
   });
 
   it('should import the attribute operator once', async () => {

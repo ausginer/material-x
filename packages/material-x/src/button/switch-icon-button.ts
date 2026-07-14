@@ -3,7 +3,10 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
+import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
 import {
   SWITCH_ICON_BUTTON_CORE_TRAITS,
   useIconButtonCore,

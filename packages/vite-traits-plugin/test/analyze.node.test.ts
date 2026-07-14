@@ -4,7 +4,7 @@ import { BailoutError, REASON } from '../src/diagnostics.ts';
 import { fixtureId, nodeLoader, readFixture } from './helpers.ts';
 
 const CONSUMER_HEAD = [
-  "import { impl } from '@ydinjs/core/traits/traits.js';",
+  "import { impl } from '@ydinjs/core/traits/attributes.js';",
   "import { Base } from './base.ts';",
   "import { Checkable } from './checkable.ts';",
 ].join('\n');
@@ -53,27 +53,29 @@ describe('analyzeModule', () => {
     expect(dependencies).toHaveLength(2);
   });
 
-  it('should bail when the trait list is not an inline array', async () => {
+  it('should resolve a trait list given as a const-array reference', async () => {
     const code = `${CONSUMER_HEAD}
 const list = [Checkable];
 const FooBase = impl(Base, list);
 export default class Foo extends FooBase {}`;
 
-    await expect(
-      analyzeSource('list-not-array.ts', code),
-    ).rejects.toMatchObject({
-      reason: REASON.UNSUPPORTED_TRAIT_LIST,
-    });
+    const { compositions } = await analyzeSource('list-ref.ts', code);
+    expect(compositions[0]?.composition.traits.map((t) => t.name)).toEqual([
+      'Checkable',
+    ]);
   });
 
-  it('should bail when a trait list element is a spread', async () => {
+  it('should expand a spread element in the trait list', async () => {
     const code = `${CONSUMER_HEAD}
-const FooBase = impl(Base, [...[Checkable]]);
+import { Nameable } from './nameable.ts';
+const FooBase = impl(Base, [...[Checkable], Nameable]);
 export default class Foo extends FooBase {}`;
 
-    await expect(analyzeSource('list-spread.ts', code)).rejects.toMatchObject({
-      reason: REASON.UNSUPPORTED_TRAIT_LIST,
-    });
+    const { compositions } = await analyzeSource('list-spread.ts', code);
+    expect(compositions[0]?.composition.traits.map((t) => t.name)).toEqual([
+      'Checkable',
+      'Nameable',
+    ]);
   });
 
   it('should bail when the intermediary is never used as a superclass', async () => {

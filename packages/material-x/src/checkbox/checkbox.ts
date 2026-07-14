@@ -8,12 +8,12 @@ import {
 } from '@ydinjs/core/element.js';
 import {
   impl,
+  trait,
   type Interface,
   type Props,
-  trait,
   type Trait,
   type TraitedConstructor,
-} from '@ydinjs/core/traits/traits.js';
+} from '@ydinjs/core/traits/attributes.js';
 import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject } from 'type-fest';
 import {

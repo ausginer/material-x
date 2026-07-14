@@ -73,6 +73,16 @@ describe('viteTraitsPlugin', () => {
     expect(String(result?.code)).toMatch(/export \{ \$checkable as __mxflat_/u);
   });
 
+  it('should mark descriptor trait() calls pure for downstream tree-shaking', async () => {
+    const result = await runTransform(
+      mockContext(),
+      await readFixture('checkable.ts'),
+      fixtureId('checkable.ts'),
+    );
+
+    expect(String(result?.code)).toMatch(/\/\*@__PURE__\*\/ trait\(/u);
+  });
+
   it('should skip modules with neither impl nor trait', async () => {
     const result = await runTransform(
       mockContext(),
@@ -87,7 +97,7 @@ describe('viteTraitsPlugin', () => {
     const context = mockContext();
     const warnSpy = vi.spyOn(context, 'warn');
     const code = [
-      "import { impl } from '@ydinjs/core/traits/traits.js';",
+      "import { impl } from '@ydinjs/core/traits/attributes.js';",
       "import { Base } from './base.ts';",
       "import { Checkable } from './checkable.ts';",
       'const FooBase = impl(Base, [Checkable]);',

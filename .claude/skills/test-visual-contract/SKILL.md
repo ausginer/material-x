@@ -91,6 +91,6 @@ It proves the component selected the intended production package and effective s
 
 ## Validating or debugging the upstream source
 
-When you suspect the *input* is wrong — a token resolves to an unexpected value, a token is deprecated, or you need to see what upstream tokens exist — inspect the raw M3 DB with the **use-tokens-db** skill (`db.getValue`, reference trees, deprecation, tag enumeration).
+When you suspect the _input_ is wrong — a token resolves to an unexpected value, a token is deprecated, or you need to see what upstream tokens exist — inspect the raw M3 DB with the **use-tokens-db** skill (`db.getValue`, reference trees, deprecation, tag enumeration).
 
-Use it for investigation only. The raw DB is **not** an independent oracle for a contract: tproc reads that same DB, so asserting a rendered value against `db.getValue` is as circular as reading back the generated custom property. Contract expectations come from the bridge (`resolveTokenContract` → `effective`); raw-DB queries help you decide whether a *disagreement* is an upstream/tproc problem or a runtime/CSS one.
+Use it for investigation only. The raw DB is **not** an independent oracle for a contract: tproc reads that same DB, so asserting a rendered value against `db.getValue` is as circular as reading back the generated custom property. Contract expectations come from the bridge (`resolveTokenContract` → `effective`); raw-DB queries help you decide whether a _disagreement_ is an upstream/tproc problem or a runtime/CSS one.

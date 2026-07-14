@@ -3,7 +3,10 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
+import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
 import { useFormActivation } from '../core/utils/events.ts';
 import { useButtonCore } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };

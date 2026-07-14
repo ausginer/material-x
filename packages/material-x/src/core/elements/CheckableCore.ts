@@ -17,7 +17,7 @@ import {
   useNameable,
   type NameableProps,
 } from '@ydinjs/core/traits/nameable.js';
-import type { Traited } from '@ydinjs/core/traits/traits.js';
+import type { Traited } from '@ydinjs/core/traits/attributes.js';
 import {
   useValuable,
   Valuable,

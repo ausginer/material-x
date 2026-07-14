@@ -6,7 +6,10 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import type { Checkable } from '@ydinjs/core/traits/checkable.js';
-import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
+import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
 import type { ButtonLike } from '../button/ButtonCore.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {

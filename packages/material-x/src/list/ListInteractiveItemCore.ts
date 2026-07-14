@@ -11,7 +11,7 @@ import {
   Selectable,
   type SelectableProps,
 } from '@ydinjs/core/traits/selectable.js';
-import type { Traited } from '@ydinjs/core/traits/traits.js';
+import type { Traited } from '@ydinjs/core/traits/attributes.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };

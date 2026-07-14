@@ -3,19 +3,19 @@ import { useARIA } from '@ydinjs/core/controllers/useARIA.js';
 import { useAttributes } from '@ydinjs/core/controllers/useAttributes.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import {
-  Disableable,
-  DISABLEABLE_ATTRS,
-  useDisableable,
-  type DisableableProps,
-} from '@ydinjs/core/traits/disableable.js';
-import {
   trait,
   type Interface,
   type Props,
   type Trait,
   type Traited,
-} from '@ydinjs/core/traits/traits.js';
-import { $, toggleState, switchState } from '@ydinjs/core/utils/DOM.js';
+} from '@ydinjs/core/traits/attributes.js';
+import {
+  Disableable,
+  DISABLEABLE_ATTRS,
+  useDisableable,
+  type DisableableProps,
+} from '@ydinjs/core/traits/disableable.js';
+import { $, switchState, toggleState } from '@ydinjs/core/utils/DOM.js';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };

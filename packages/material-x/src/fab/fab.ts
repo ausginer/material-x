@@ -19,7 +19,7 @@ import {
   type Props,
   type Trait,
   type TraitedConstructor,
-} from '@ydinjs/core/traits/traits.js';
+} from '@ydinjs/core/traits/attributes.js';
 import { $, switchState, toggleState } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject } from 'type-fest';
 import { useRipple } from '../core/animations/ripple/ripple.ts';

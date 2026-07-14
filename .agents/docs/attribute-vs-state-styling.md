@@ -150,7 +150,9 @@ Two utilities in `ydin/utils/DOM.js` cover the common mapping patterns:
 ```ts
 // disabled attribute present → :state(disabled) matches
 useAttributes(host, {
-  disabled(_, newValue) { toggleState(innards, 'disabled', Bool.from(newValue)); },
+  disabled(_, newValue) {
+    toggleState(innards, 'disabled', Bool.from(newValue));
+  },
 });
 ```
 

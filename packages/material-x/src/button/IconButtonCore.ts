@@ -6,7 +6,7 @@ import {
   type Interface,
   type Props,
   type Trait,
-} from '@ydinjs/core/traits/traits.js';
+} from '@ydinjs/core/traits/attributes.js';
 import { Typeable } from '@ydinjs/core/traits/typeable.js';
 import { switchState } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject } from 'type-fest';

@@ -7,7 +7,7 @@ import {
   type Props,
   type Trait,
   type Traited,
-} from '@ydinjs/core/traits/traits.js';
+} from '@ydinjs/core/traits/attributes.js';
 import {
   Valuable,
   VALUABLE_ATTRS,

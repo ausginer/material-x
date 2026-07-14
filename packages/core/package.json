@@ -63,6 +63,10 @@
       "types": "./emitter.d.ts",
       "default": "./emitter.js"
     },
+    "./traits/attributes.js": {
+      "types": "./traits/attributes.d.ts",
+      "default": "./traits/attributes.js"
+    },
     "./traits/checkable.js": {
       "types": "./traits/checkable.d.ts",
       "default": "./traits/checkable.js"
@@ -79,9 +83,9 @@
       "types": "./traits/nameable.d.ts",
       "default": "./traits/nameable.js"
     },
-    "./traits/piirre.js": {
-      "types": "./traits/piirre.d.ts",
-      "default": "./traits/piirre.js"
+    "./traits/primitives.js": {
+      "types": "./traits/primitives.d.ts",
+      "default": "./traits/primitives.js"
     },
     "./traits/reorderable.js": {
       "types": "./traits/reorderable.d.ts",
@@ -90,10 +94,6 @@
     "./traits/selectable.js": {
       "types": "./traits/selectable.d.ts",
       "default": "./traits/selectable.js"
-    },
-    "./traits/traits.js": {
-      "types": "./traits/traits.d.ts",
-      "default": "./traits/traits.js"
     },
     "./traits/typeable.js": {
       "types": "./traits/typeable.d.ts",

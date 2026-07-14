@@ -1,5 +1,5 @@
 import { Bool, type ConverterOf } from '@ydinjs/core/attribute.js';
-import { trait, type Trait } from '@ydinjs/core/traits/traits.js';
+import { trait, type Trait } from '@ydinjs/core/traits/attributes.js';
 
 const $checkable: unique symbol = Symbol('Checkable');
 

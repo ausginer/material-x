@@ -4,11 +4,14 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
+import {
   Nameable,
   useNameable,
   type NameableProps,
 } from '@ydinjs/core/traits/nameable.js';
-import { impl, type TraitedConstructor } from '@ydinjs/core/traits/traits.js';
 import { Typeable, useTypeable } from '@ydinjs/core/traits/typeable.js';
 import type { EmptyObject } from 'type-fest';
 import { useFormActivation } from '../core/utils/events.ts';

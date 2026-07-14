@@ -7,7 +7,7 @@ import {
   useCheckable,
   type CheckableProps,
 } from '@ydinjs/core/traits/checkable.js';
-import type { Traited } from '@ydinjs/core/traits/traits.js';
+import type { Traited } from '@ydinjs/core/traits/attributes.js';
 import {
   VALUABLE_ATTRS,
   Valuable,
