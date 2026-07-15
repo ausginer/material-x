@@ -44,9 +44,16 @@ const RadioConstructor: TraitedConstructor<
  * `value` when `checked`. It can be associated with an external `<label>`
  * via the standard `for`/`id` mechanism.
  *
+ * **Single selection is not enforced.** Each radio renders its own
+ * `<input type="radio">` inside its own shadow root, so native radio grouping
+ * does not apply: same-named radios can all be `checked` at once. Enforcing one
+ * selection per group, arrow-key roving, and `role="radiogroup"` semantics are
+ * the host application's responsibility.
+ *
  * @attr {boolean} checked - Whether this radio button is selected.
  * @attr {boolean} disabled - Disables interaction and form participation.
- * @attr {string} name - Groups radio buttons; only one per group can be checked.
+ * @attr {string} name - The form-data key submitted with `value`, shared by the
+ *   radios of a group. Does not by itself enforce single selection.
  * @attr {string} value - The value submitted with a form when checked.
  *   Defaults to `"on"`.
  *

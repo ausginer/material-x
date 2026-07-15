@@ -56,6 +56,22 @@ Note: `[Docs]` tag is for those requirements that cannot be fixed and considered
 
 - No automated accessibility coverage exists yet for the `display: contents` host plus `ElementInternals.role` combination. If tests show that a supported browser/AT combination drops the host `listitem` role, move list item semantics to a non-`display: contents` wrapper or another tested structure.
 
+## Radio
+
+### Fulfilled requirements
+
+- Native `<input type="radio">` is used inside the shadow root, so `Space` activation, `:disabled` semantics, and the `checked` state are built-in (`src/radio/radio.tpl.html`, `src/core/elements/CheckableCore.ts`).
+- Focus is delegated to the internal control via `delegatesFocus`, and a visible focus indicator is drawn on `:focus-visible` (`src/radio/radio.ts`, `src/radio/styles/default/main.css.ts`).
+- The element is form-associated and submits `value` under `name` when checked (`src/core/elements/CheckableCore.ts`).
+
+### Missing requirements
+
+- **No `role="radiogroup"` and no accessible group name.** Nothing in the repo exposes radiogroup semantics, so a set of `mx-radio` elements is announced as unrelated radios rather than "N of M" within a named group (verified 2026-07-15 in Chromium: no `[role="radiogroup"]` is produced for same-named radios). [Docs]
+- **No arrow-key roving.** Each `mx-radio` is its own tab stop; `ArrowDown`/`ArrowUp`/`ArrowLeft`/`ArrowRight` do not move or change selection within a group (verified 2026-07-15 in Chromium). This departs from the expected radio-group keyboard pattern, where the group is one tab stop and arrows select. [Docs]
+- **Single selection is not enforced.** Each control lives in its own shadow root, so native radio grouping does not apply and same-named radios can all be checked simultaneously; the host application must enforce mutual exclusion. Pinned by `test/radio/radio.browser.test.ts`. [Docs]
+
+These three gaps share one root cause and one intended fix: a grouping component (`mx-radio-group`) owning the wrapper role, accessible name, roving tabindex, and single-selection logic. `src/radio/spec-consistency.md` records this as a deliberate deferral, not a defect in `mx-radio` itself. Until it exists, the obligation sits with the host application and is documented in `src/radio/radio.mdx`.
+
 ## Text Field
 
 ### Fulfilled requirements

@@ -1,4 +1,29 @@
-import { afterEach, beforeEach } from 'vitest';
+import { afterEach, beforeAll, beforeEach } from 'vitest';
+import iconFontUrl from './fonts/material-symbols-subset.ttf?url';
+
+/*
+ * `mx-icon` resolves its family through
+ * `var(--md-icon-font, "Material Symbols Outlined")` and renders glyphs as
+ * ligatures of their names. Storybook loads that font from the Google Fonts
+ * CDN, which tests must not depend on, and nothing vendors it — so without this
+ * the ligature never forms and the icon paints its raw name ("check_small") in
+ * whatever last-resort font the machine happens to have. That is both wrong and
+ * machine-dependent, which would silently poison visual baselines.
+ *
+ * The vendored file is a subset built from the same upstream family, holding
+ * only the glyphs Material X renders internally (see `fonts/README.md`). It is
+ * registered document-wide because the font must be reachable from inside each
+ * component's shadow root, where a fixture-scoped rule cannot land.
+ */
+beforeAll(async () => {
+  const font = new FontFace(
+    'Material Symbols Outlined',
+    `url(${iconFontUrl})`,
+    { display: 'block' },
+  );
+
+  document.fonts.add(await font.load());
+});
 
 beforeEach(() => {
   document.documentElement.style.colorScheme = 'light';

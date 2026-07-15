@@ -37,6 +37,26 @@ function getIcon(element: Checkbox): HTMLElement {
   return icon;
 }
 
+/** The glyph's clip-path once fully revealed, as the browser serializes it. */
+const REVEALED_CLIP_PATH = 'inset(0px 0% 0px 0px)';
+
+/**
+ * The glyph's resting clip-path with the reveal animation suppressed.
+ *
+ * The check and indeterminate glyphs are revealed by a keyframe animation, so
+ * the selected state must declare its own revealed appearance rather than lean
+ * on `forwards` to hold the final frame — otherwise a checked box paints empty
+ * anywhere the animation does not run (`prefers-reduced-motion`, print). This
+ * cancels the animations to observe the state the CSS describes on its own.
+ */
+function revealedClipPathWithoutAnimation(element: Checkbox): string {
+  for (const animation of element.shadowRoot?.getAnimations() ?? []) {
+    animation.cancel();
+  }
+
+  return getComputedStyle(getIcon(element)).clipPath;
+}
+
 describe('mx-checkbox control', () => {
   it('should use a native checkbox control', () => {
     expect(getControl(createCheckbox()).type).toBe('checkbox');
@@ -50,6 +70,13 @@ describe('mx-checkbox icon', () => {
     element.toggleAttribute('checked', true);
 
     expect(getIcon(element).textContent).toBe(CHECKED_ICON);
+  });
+
+  it('should reveal the check glyph without relying on the animation', () => {
+    const element = createCheckbox();
+    element.toggleAttribute('checked', true);
+
+    expect(revealedClipPathWithoutAnimation(element)).toBe(REVEALED_CLIP_PATH);
   });
 
   it('should clear the check icon when unchecked again', () => {
@@ -131,6 +158,13 @@ describe('mx-checkbox indeterminate', () => {
     element.indeterminate = false;
 
     expect(getIcon(element).textContent).toBe('');
+  });
+
+  it('should reveal the indeterminate glyph without relying on the animation', () => {
+    const element = createCheckbox();
+    element.indeterminate = true;
+
+    expect(revealedClipPathWithoutAnimation(element)).toBe(REVEALED_CLIP_PATH);
   });
 
   it('should still contribute its value to the form data when indeterminate and checked', () => {

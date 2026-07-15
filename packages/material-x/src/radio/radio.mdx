@@ -51,7 +51,11 @@ export const usageSnippet = '<mx-radio name="group" value="a"></mx-radio>';
 
 ## Grouping
 
-Radio buttons are grouped by the `name` attribute. The browser enforces mutual exclusion and provides arrow-key navigation within the group automatically — no JavaScript wrapper is needed for that behavior.
+Radio buttons of a group share the same `name` attribute, which is the key their `value` is submitted under.
+
+`name` does **not** enforce mutual exclusion. Each `mx-radio` renders its own `<input type="radio">` inside its own shadow root, so native radio grouping does not apply — same-named radios can all be checked at once. As a controlled component, `mx-radio` leaves single selection to the host application: listen for `change` and set `checked` on exactly one radio, as the example below does.
+
+Arrow-key navigation and `role="radiogroup"` semantics are likewise not provided; see [Accessibility](#accessibility).
 
 <Canvas of={RadioStories.Group} />
 
@@ -66,8 +70,8 @@ Associate a label using a wrapping `<label>` element or via `for`/`id`.
 Use the live example below to inspect interaction states:
 
 - click to change the selected radio
-- use arrow keys to move within the group
 - move focus with `Tab` / `Shift+Tab` to inspect keyboard focus
+- press `Space` to select the focused radio
 
 <LinkTo kind="Radio" story="Playground">
   Playground
@@ -75,11 +79,13 @@ Use the live example below to inspect interaction states:
 
 ## Accessibility
 
-- **Keyboard:** `Tab` moves focus to the selected radio in the group (or the first if none selected); arrow keys navigate within the group and select the focused option.
+- **Keyboard:** `Tab` moves focus to each radio in turn; `Space` selects the focused radio. Arrow-key roving **is not implemented** — every radio is a separate tab stop, which departs from the expected radio-group keyboard pattern.
 - **Focus indicator:** Drawn around the radio icon (not the full touch target).
 - **Name:** Provide an accessible name via a wrapping `<label>` or `aria-label`.
-- **Grouping:** Use the same `name` attribute on all radios in a group. The browser provides `role="radiogroup"` semantics automatically.
+- **Grouping:** `role="radiogroup"` is **not** provided automatically. Wrap a group in an element with `role="radiogroup"` and give it an accessible name, or assistive technology will announce each radio in isolation.
 - **Disabled:** `disabled` blocks interaction and form participation.
+
+> **Known gap.** Because roving tabindex and `radiogroup` semantics are absent, a bare set of `mx-radio` elements does not meet the expected radio-group interaction pattern. Until a grouping component exists, the host application must supply the wrapper role, the accessible name, and single-selection logic.
 
 ## Content guidelines
 
@@ -107,7 +113,7 @@ Use the live example below to inspect interaction states:
 - Material 3 guidelines: [https://m3.material.io/components/radio-button/guidelines](https://m3.material.io/components/radio-button/guidelines)
 - Deltas:
   - This is a controlled component — the host application manages `checked` state in response to `change`/`input` events.
-  - Native browser grouping via `name` is used instead of a custom group wrapper element.
+  - There is no group wrapper component, and native browser grouping does not apply across shadow roots. Single selection, arrow-key roving, and `role="radiogroup"` are therefore the host application's responsibility.
 
 ## Changelog / stability
 

@@ -23,7 +23,10 @@
   &::after {
     content: '';
     pointer-events: none;
-    inline-size: calc(var(--_container-size) - var(--_outline-width));
+    /* The outline is drawn inside the container, so the token is the full
+     * border-box size (M3: 18dp container with a 2dp outline within it). */
+    box-sizing: border-box;
+    inline-size: var(--_container-size);
     aspect-ratio: 1;
     background: var(--_container-color, transparent);
     border-radius: var(--_container-shape);
@@ -67,8 +70,16 @@
   --_outline-color: var(--_container-color);
 }
 
+/*
+ * The revealed clip-path is declared here as well as in the keyframes' final
+ * frame: the animation plays the reveal, but the selected state must still
+ * describe its own resting appearance. Relying on `forwards` alone would leave
+ * the glyph fully clipped — an invisible check on a checked box — wherever the
+ * animation does not run, such as under `prefers-reduced-motion`.
+ */
 :host(:state(checked)) {
   .icon {
+    clip-path: inset(0 0% 0 0);
     animation: check-reveal
       var(--md-checkbox-check-duration, var(--_check-duration)) forwards;
   }
@@ -76,6 +87,7 @@
 
 :host(:state(indeterminate)) {
   .icon {
+    clip-path: inset(0 0% 0 0);
     animation: indeterminate-reveal
       var(--md-checkbox-check-duration, var(--_check-duration)) ease-out
       forwards;

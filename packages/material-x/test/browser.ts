@@ -55,3 +55,37 @@ export async function whenUpgraded(element: HTMLElement): Promise<void> {
 export async function whenFontsReady(): Promise<void> {
   await document.fonts.ready;
 }
+
+/**
+ * Fast-forwards the finite animations inside `element`'s shadow root to their
+ * end state, so a raster captures the settled rendering rather than a frame
+ * mid-flight.
+ *
+ * Reveal animations (the checkbox `check-reveal`) declare their final frame in
+ * `@keyframes` and hold it with `forwards`, so the end state does not exist
+ * until the animation completes — screenshotting early captures a partially
+ * revealed glyph. Two details make this necessary rather than optional: the
+ * shared fixture's `animation: none` rule cannot reach these, because
+ * `.mx-test-fixture *` does not match through a shadow boundary; and
+ * `Document.getAnimations()` does not report them, so the shadow root has to be
+ * asked directly. Infinite animations are skipped — `finish()` throws on them,
+ * and they have no end state to settle to.
+ */
+export async function settleAnimations(element: HTMLElement): Promise<void> {
+  const root = element.shadowRoot;
+
+  if (!root) {
+    return;
+  }
+
+  await Promise.all(
+    root.getAnimations().map(async (animation) => {
+      if (animation.effect?.getComputedTiming().iterations === Infinity) {
+        return;
+      }
+
+      animation.finish();
+      await animation.finished;
+    }),
+  );
+}
