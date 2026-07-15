@@ -22,7 +22,7 @@ const ReorderableCore = impl(ControlledElement, [Reorderable] as const);
 function createList() {
   return host((h) => {
     useShadowDOM(h, [createListTemplate()], []);
-    useReorderable(h, { duration: 200, easing: 'ease-out' });
+    useReorderable(h, () => ({ duration: 200, easing: 'ease-out' }));
   }, ReorderableCore);
 }
 
@@ -93,7 +93,7 @@ describe('useReorderable', () => {
 
     await ue.pointer([{ target: item, keys: '[MouseLeft>]' }]);
 
-    expect(internals(item).states.has('dragged')).toBeFalsy();
+    expect(internals(item).states.has('drag')).toBeFalsy();
   });
 
   it('should set dragged state on pointerdown when reorderable is true', async () => {
@@ -218,6 +218,98 @@ describe('useReorderable', () => {
 
     await nextFrame();
 
-    expect(internals(item).states.has('dragged')).toBeFalsy();
+    expect(internals(item).states.has('drag')).toBeFalsy();
+  });
+
+  // Asserted on the receiver rather than via `hasPointerCapture`, because
+  // `user-event` dispatches untrusted pointer events and Chromium silently
+  // no-ops `setPointerCapture` for those — real capture cannot be observed here.
+  it('should take pointer capture on the host rather than the footprint', async () => {
+    const list = createList();
+    const item = createItem();
+
+    document.body.append(list);
+    list.append(item);
+    list.reorderable = true;
+    await nextFrame();
+
+    const targets: Element[] = [];
+    const spy = vi
+      .spyOn(Element.prototype, 'setPointerCapture')
+      .mockImplementation(function spy(this: Element) {
+        targets.push(this);
+      });
+
+    await ue.pointer([{ target: item, keys: '[MouseLeft>]' }]);
+    spy.mockRestore();
+
+    // The footprint is re-inserted every time it moves, and leaving the
+    // document releases its capture. Only the host survives the whole gesture.
+    expect(targets).toStrictEqual([list]);
+  });
+
+  it('should tear the session down when the host disconnects mid-drag', async () => {
+    const list = createList();
+    const item = createItem();
+
+    document.body.append(list);
+    list.append(item);
+    list.reorderable = true;
+    await nextFrame();
+
+    await ue.pointer([{ target: item, keys: '[MouseLeft>]' }]);
+    expect(list.querySelector('[data-footprint]')).not.toBeNull();
+
+    list.remove();
+    await nextFrame();
+
+    expect(list.querySelector('[data-footprint]')).toBeNull();
+    expect(internals(item).states.has('drag')).toBeFalsy();
+  });
+
+  // The session's pointermove listener lives outside the useEvents lifecycle,
+  // so without an explicit teardown a disconnect would strand the session and
+  // block every later drag.
+  it('should allow a new drag after disconnecting mid-drag and reconnecting', async () => {
+    const list = createList();
+    const item = createItem();
+
+    document.body.append(list);
+    list.append(item);
+    list.reorderable = true;
+    await nextFrame();
+
+    await ue.pointer([{ target: item, keys: '[MouseLeft>]' }]);
+
+    list.remove();
+    await nextFrame();
+    document.body.append(list);
+    await nextFrame();
+
+    await ue.pointer([{ target: item, keys: '[MouseLeft>]' }]);
+
+    expect(internals(item).states.has('drag')).toBeTruthy();
+  });
+
+  it('should ignore pointerdown while a previous drag is settling', async () => {
+    const list = createList();
+    const item1 = createItem();
+    const item2 = createItem();
+
+    document.body.append(list);
+    list.append(item1, item2);
+    list.reorderable = true;
+    await nextFrame();
+
+    await ue.pointer([
+      { target: item1, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 9999 } },
+      { keys: '[/MouseLeft]' },
+    ]);
+
+    // The landing animation is still in flight here.
+    await ue.pointer([{ target: item2, keys: '[MouseLeft>]' }]);
+
+    expect(internals(item2).states.has('drag')).toBeFalsy();
   });
 });
