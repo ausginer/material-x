@@ -132,5 +132,8 @@
   "engines": {
     "node": ">=24"
   },
-  "customElements": "custom-elements.json"
+  "customElements": "custom-elements.json",
+  "devDependencies": {
+    "@ydinjs/tproc": "0.1.0"
+  }
 }

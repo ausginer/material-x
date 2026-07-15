@@ -6,6 +6,18 @@
     },
     "typecheck": {
       "dependsOn": ["^build"]
+    },
+    "docs:build": {
+      "dependsOn": ["^build"]
+    },
+    "docs:dev": {
+      "dependsOn": ["^build"]
+    },
+    "docs:api:build": {
+      "dependsOn": ["^build"]
+    },
+    "docs:api:dev": {
+      "dependsOn": ["^build"]
     }
   },
   "analytics": false

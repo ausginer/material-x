@@ -10,8 +10,6 @@ default:
 
 # Build all packages
 build:
-    npm --workspace=@ydinjs/vite-custom-element-assets run build
-    npm --workspace=@ydinjs/vite-traits-plugin run build
     nx run-many -t build --projects=core,tproc,material-x --skipNxCache
 
 # Delete build artefacts for all packages
@@ -24,16 +22,14 @@ clean-build:
 
 # Start the Storybook dev server (full stack: core API + material-x Storybook)
 docs-dev:
-    npm --workspace=@ydinjs/core run build
-    npm --workspace=@ydinjs/core run docs:api:dev
+    nx run @ydinjs/core:docs:api:dev --skipNxCache
     node .scripts/docs-api.ts --out node_modules/.cache/docs/api
-    MATERIAL_X_API_STATIC_DIR=$PWD/node_modules/.cache/docs/api npm --workspace=@ydinjs/material-x run docs:dev
+    MATERIAL_X_API_STATIC_DIR=$PWD/node_modules/.cache/docs/api nx run @ydinjs/material-x:docs:dev --skipNxCache
 
 # Build the full docs site (Storybook + API)
 docs-build:
-    npm --workspace=@ydinjs/core run build
-    npm --workspace=@ydinjs/material-x run docs:build
-    npm --workspace=@ydinjs/core run docs:api:build
+    nx run @ydinjs/material-x:docs:build --skipNxCache
+    nx run @ydinjs/core:docs:api:build --skipNxCache
     node .scripts/docs-api.ts --out .docs/api
 
 # Debug a material-x .css.ts file — path is relative to packages/material-x/src
@@ -54,8 +50,6 @@ test:
 
 # Type-check all packages
 typecheck:
-    npm --workspace=@ydinjs/vite-custom-element-assets run build
-    npm --workspace=@ydinjs/vite-traits-plugin run build
     nx run-many -t typecheck --projects=core,tproc,vite-custom-element-assets,vite-traits-plugin,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
