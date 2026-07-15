@@ -39,6 +39,8 @@ type WorkspaceTestConfigOptions = Readonly<{
   materialXRoot: URL;
   materialXCommands: Record<string, BrowserCommand<any[]>>;
   coreRoot: URL;
+  tprocRoot: URL;
+  viteTraitsPluginRoot: URL;
 }>;
 
 function resolveChromeExecutable(): string {
@@ -194,12 +196,7 @@ function createMaterialXTestProjects(
       viteConfig: createMaterialXViteConfig(env, root),
     }),
     createNodeTestProject({
-      root,
-      include: ['src/.tproc/**/*.node.test.ts'],
-      setupFiles: ['src/.tproc/__tests__/setup.ts'],
-    }),
-    createNodeTestProject({
-      name: browserName ? 'node/material-x-support' : 'node-support',
+      name: browserName ? 'node/material-x' : 'node',
       root,
       include: ['test/**/*.node.test.ts'],
     }),
@@ -219,6 +216,30 @@ function createCoreTestProjects(root: URL, browserName?: string): UserConfig[] {
       root,
       include: ['tests/**/*.declaration.test.ts'],
       tsconfig: './tsconfig.json',
+    }),
+  ];
+}
+
+function createTprocTestProjects(root: URL, nodeName?: string): UserConfig[] {
+  return [
+    createNodeTestProject({
+      name: nodeName,
+      root,
+      include: ['test/**/*.node.test.ts'],
+      setupFiles: ['test/setup.ts'],
+    }),
+  ];
+}
+
+function createViteTraitsPluginTestProjects(
+  root: URL,
+  nodeName?: string,
+): UserConfig[] {
+  return [
+    createNodeTestProject({
+      name: nodeName,
+      root,
+      include: ['test/**/*.node.test.ts'],
     }),
   ];
 }
@@ -243,25 +264,41 @@ export function createCoreTestConfig(root: URL): UserConfig {
   };
 }
 
+export function createTprocTestConfig(root: URL): UserConfig {
+  return {
+    test: {
+      projects: createTprocTestProjects(root),
+    },
+  };
+}
+
+export function createViteTraitsPluginTestConfig(root: URL): UserConfig {
+  return {
+    test: {
+      projects: createViteTraitsPluginTestProjects(root),
+    },
+  };
+}
+
 export function createWorkspaceTestConfig(
   env: ConfigEnv,
   options: WorkspaceTestConfigOptions,
 ): UserConfig {
-  const [
-    materialXBrowser,
-    materialXSpec,
-    materialXVisual,
-    materialXNode,
-    materialXSupportNode,
-  ] = createMaterialXTestProjects(
-    env,
-    options.materialXRoot,
-    options.materialXCommands,
-    'browser/material-x',
-  );
+  const [materialXBrowser, materialXSpec, materialXVisual, materialXNode] =
+    createMaterialXTestProjects(
+      env,
+      options.materialXRoot,
+      options.materialXCommands,
+      'browser/material-x',
+    );
   const [coreBrowser, coreDeclaration] = createCoreTestProjects(
     options.coreRoot,
     'browser/core',
+  );
+  const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'node/tproc');
+  const [viteTraitsPluginNode] = createViteTraitsPluginTestProjects(
+    options.viteTraitsPluginRoot,
+    'node/vite-traits-plugin',
   );
 
   return mergeConfig(createTestBaseConfig(options.root), {
@@ -272,8 +309,9 @@ export function createWorkspaceTestConfig(
         materialXVisual,
         coreBrowser,
         materialXNode,
-        materialXSupportNode,
         coreDeclaration,
+        tprocNode,
+        viteTraitsPluginNode,
       ],
     },
   });

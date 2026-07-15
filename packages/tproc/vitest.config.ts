@@ -1,12 +1,10 @@
-import type { UserConfig } from 'vite';
+import type { UserConfigFnObject } from 'vite';
 import { defineConfig } from 'vitest/config';
+// eslint-disable-next-line import-x/no-relative-packages
+import { createTprocTestConfig } from '../../.scripts/vitest-config.ts';
 
-const config: UserConfig = defineConfig({
-  test: {
-    environment: 'node',
-    include: ['test/**/*.node.test.ts'],
-    setupFiles: ['./test/setup.ts'],
-  },
-});
+const config: UserConfigFnObject = defineConfig(() =>
+  createTprocTestConfig(new URL('./', import.meta.url)),
+);
 
 export default config;
