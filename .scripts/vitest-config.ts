@@ -170,7 +170,7 @@ function createMaterialXTestProjects(
     createBrowserTestProject({
       name: browserName,
       root,
-      include: ['test/**/*.browser.test.ts', 'src/**/*.browser.test.ts'],
+      include: ['test/**/*.browser.test.ts'],
       exclude: [
         'test/**/*.spec.browser.test.ts',
         'test/**/*.visual.browser.test.ts',
