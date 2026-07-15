@@ -36,16 +36,28 @@ function getControl(element: HTMLElement): HTMLInputElement {
   return control;
 }
 
-function recordEvents(target: HTMLElement): readonly Event[] {
+type EventRecording = Readonly<{
+  events: readonly Event[];
+  /**
+   * `composedPath()[0]` per event: the node the event actually originated from,
+   * observed from a host listener. Retargeting rewrites `target` to the host,
+   * so the composed path is the only way to assert the internal origin.
+   */
+  origins: readonly EventTarget[];
+}>;
+
+function recordEvents(target: HTMLElement): EventRecording {
   const events: Event[] = [];
+  const origins: EventTarget[] = [];
 
   for (const type of ['click', 'input', 'change']) {
     target.addEventListener(type, (event) => {
       events.push(event);
+      origins.push(event.composedPath()[0]!);
     });
   }
 
-  return events;
+  return { events, origins };
 }
 
 describe.each(CHECKABLE_TAGS)('%s state synchronization', (tag) => {
@@ -118,7 +130,7 @@ describe.each(CHECKABLE_TAGS)('%s state synchronization', (tag) => {
 describe.each(CHECKABLE_TAGS)('%s activation', (tag) => {
   it('should expose the native activation sequence on control click', () => {
     const element = createCheckable(tag);
-    const events = recordEvents(element);
+    const { events } = recordEvents(element);
 
     getControl(element).click();
 
@@ -129,9 +141,22 @@ describe.each(CHECKABLE_TAGS)('%s activation', (tag) => {
     ]);
   });
 
+  it('should expose one activation sequence for real pointer interaction', async () => {
+    const element = createCheckable(tag);
+    const { events } = recordEvents(element);
+
+    await userEvent.click(getControl(element));
+
+    expect(events.map(({ type }) => type)).toEqual([
+      'click',
+      'input',
+      'change',
+    ]);
+  });
+
   it('should expose one activation sequence on host click', () => {
     const element = createCheckable(tag);
-    const events = recordEvents(element);
+    const { events } = recordEvents(element);
 
     element.click();
 
@@ -139,6 +164,63 @@ describe.each(CHECKABLE_TAGS)('%s activation', (tag) => {
       'click',
       'input',
       'change',
+    ]);
+  });
+
+  it('should retarget a host click to the internal control', () => {
+    const element = createCheckable(tag);
+    const { origins } = recordEvents(element);
+
+    element.click();
+
+    expect(origins[0]).toBe(getControl(element));
+  });
+
+  it('should activate the internal control through an external label', () => {
+    const element = createCheckable(tag);
+    element.id = `${tag}-control`;
+    const label = document.createElement('label');
+    label.htmlFor = element.id;
+    document.body.prepend(label);
+    const { events, origins } = recordEvents(element);
+
+    label.click();
+
+    expect(events.map(({ type }) => type)).toEqual([
+      'click',
+      'input',
+      'change',
+    ]);
+    expect(origins[0]).toBe(getControl(element));
+  });
+
+  it('should preserve the native event interfaces', () => {
+    const element = createCheckable(tag);
+    const { events } = recordEvents(element);
+
+    getControl(element).click();
+
+    expect(events[0]).toBeInstanceOf(PointerEvent);
+    expect(events[1]?.constructor).toBe(Event);
+    expect(events[2]?.constructor).toBe(Event);
+  });
+
+  it('should preserve the native event flags', () => {
+    const element = createCheckable(tag);
+    const { events } = recordEvents(element);
+
+    getControl(element).click();
+
+    expect(
+      events.map(({ bubbles, cancelable, composed }) => ({
+        bubbles,
+        cancelable,
+        composed,
+      })),
+    ).toEqual([
+      { bubbles: true, cancelable: true, composed: true },
+      { bubbles: true, cancelable: false, composed: true },
+      { bubbles: true, cancelable: false, composed: false },
     ]);
   });
 
@@ -152,7 +234,7 @@ describe.each(CHECKABLE_TAGS)('%s activation', (tag) => {
 
   it('should activate with a real Space key press', async () => {
     const element = createCheckable(tag);
-    const events = recordEvents(element);
+    const { events } = recordEvents(element);
 
     getControl(element).focus();
     await userEvent.keyboard(' ');
@@ -167,7 +249,7 @@ describe.each(CHECKABLE_TAGS)('%s activation', (tag) => {
   it('should suppress activation when disabled', () => {
     const element = createCheckable(tag);
     element.disabled = true;
-    const events = recordEvents(element);
+    const { events } = recordEvents(element);
 
     element.click();
 
