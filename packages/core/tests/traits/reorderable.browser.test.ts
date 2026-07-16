@@ -705,6 +705,80 @@ describe('useReorderable', () => {
     expect(fp.getAttribute('slot')).toBe('items');
   });
 
+  it('should lift the dragged visual into the top layer as a popover', async () => {
+    const list = createList();
+    const item = createItem();
+
+    document.body.append(list);
+    list.append(item);
+    list.reorderable = true;
+    await nextFrame();
+
+    await ue.pointer([
+      { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 100 } },
+    ]);
+    await nextFrame();
+
+    // The visual target defaults to the item itself in these tests.
+    expect(item.matches(':popover-open')).toBeTruthy();
+  });
+
+  it('should take the visual out of the top layer once the drag lands', async () => {
+    const list = createList();
+    const item = createItem();
+
+    document.body.append(list);
+    list.append(item);
+    list.reorderable = true;
+    await nextFrame();
+
+    const reorderSpy = vi.fn<(e: Event) => void>();
+    list.addEventListener('reorder', reorderSpy);
+
+    await ue.pointer([
+      { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 100 } },
+      { keys: '[/MouseLeft]' },
+    ]);
+    await vi.waitFor(() => expect(reorderSpy).toHaveBeenCalledOnce(), {
+      timeout: 1000,
+    });
+
+    expect(item.matches(':popover-open')).toBeFalsy();
+    expect(item.hasAttribute('popover')).toBeFalsy();
+  });
+
+  it('should remeasure item geometry after a scroll', async () => {
+    const list = createList();
+    const item1 = createItem();
+    const item2 = createItem();
+
+    document.body.append(list);
+    list.append(item1, item2);
+    list.reorderable = true;
+    await nextFrame();
+
+    // Activate a drag on item1.
+    await ue.pointer([
+      { target: item1, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 100 } },
+    ]);
+    await nextFrame();
+
+    // Only count measurements taken after activation has settled.
+    const rectSpy = vi.spyOn(item2, 'getBoundingClientRect');
+
+    // A scroll invalidates the cached rects; the next hit test must remeasure
+    // rather than trust stale viewport coordinates.
+    window.dispatchEvent(new Event('scroll'));
+    await nextFrame();
+    await nextFrame();
+
+    expect(rectSpy).toHaveBeenCalled();
+    rectSpy.mockRestore();
+  });
+
   it('should not dispatch ReorderEvent for a press that never crosses the threshold', async () => {
     const list = createList();
     const item = createItem();

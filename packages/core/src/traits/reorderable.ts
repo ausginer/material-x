@@ -75,14 +75,17 @@ const DRAG_THRESHOLD = 8;
 /**
  * Inline properties written onto the dragged visual while it is lifted. On
  * teardown each is restored to its pre-drag inline value, or removed if it had
- * none.
+ * none. No `z-index`: the lift renders in the top layer, above everything.
  */
 const DRAGGING_PROPS: readonly string[] = [
   'position',
+  'inset',
   'top',
   'left',
   'width',
-  'z-index',
+  'height',
+  'margin',
+  'border',
   'transform',
 ];
 
@@ -230,6 +233,9 @@ function createDragSession(
   let footprint: HTMLDivElement;
   let origin: Point = ORIGIN;
   let rects: ReadonlyMap<HTMLElement, DOMRect> = new Map();
+  // Set when scroll or resize invalidates the cached rects; the next hit test
+  // remeasures rather than trusting stale viewport coordinates.
+  let rectsDirty = false;
   let delta: Point = ORIGIN;
   let toIndex = fromIndex;
   let frame = -1;
@@ -262,6 +268,13 @@ function createDragSession(
   /** Undoes the lift: footprint gone, styles cleared, dragged state removed. */
   const teardown = () => {
     footprint.remove();
+
+    // Return the visual from the top layer before restoring its styles.
+    if (visual.matches(':popover-open')) {
+      visual.hidePopover();
+    }
+    visual.removeAttribute('popover');
+
     clearVisual();
     toggleState(internals(item), DRAGGED_STATE, false);
   };
@@ -299,11 +312,28 @@ function createDragSession(
       }
     }
 
+    // Lift into the top layer via a manual popover. The top layer escapes any
+    // transformed / filtered / contained ancestor, so `position: fixed` with the
+    // item's viewport rect lands correctly — a plain fixed shadow descendant
+    // would be offset by such an ancestor's containing block. It also paints
+    // above everything (no z-index needed), and the element keeps its own styles
+    // and inherited tokens because it stays put in the DOM; only its rendering
+    // moves.
     visual.style.position = 'fixed';
+    // Cancel the UA popover `inset: 0` before pinning top/left, or the ghost
+    // would stretch to the viewport edges.
+    visual.style.inset = 'auto';
     visual.style.top = `${top}px`;
     visual.style.left = `${left}px`;
     visual.style.width = `${width}px`;
-    visual.style.zIndex = '9999';
+    visual.style.height = `${height}px`;
+    // Strip the UA popover chrome (`border: solid`, centering `margin: auto`)
+    // that `.host` does not otherwise override.
+    visual.style.margin = '0';
+    visual.style.border = '0';
+
+    visual.popover = 'manual';
+    visual.showPopover();
 
     // Capture on the host: it is the only element guaranteed to stay in the
     // document for the whole gesture, so the pointer cannot escape the listeners.
@@ -317,6 +347,13 @@ function createDragSession(
   /** Moves the footprint to track the pointer, and with it the landing index. */
   const reposition = (pointerY: number) => {
     frame = -1;
+
+    // Scrolling or a reflow since the last measurement moved every item under
+    // the pointer; refresh before hit testing against them.
+    if (rectsDirty) {
+      rects = measure(items(), item);
+      rectsDirty = false;
+    }
 
     const before = findInsertionPoint(items(), item, rects, pointerY);
 
@@ -441,6 +478,33 @@ function createDragSession(
     { signal: tracking.signal },
   );
 
+  // Scroll (of the list or any ancestor) and viewport resize shift the items in
+  // viewport space without a pointermove, invalidating the cached rects. Mark
+  // them stale and re-hit-test against the pointer's last position, so a drop or
+  // a stationary-pointer scroll still lands correctly.
+  const invalidate = () => {
+    if (!activated) {
+      return;
+    }
+
+    rectsDirty = true;
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => {
+      reposition(start.y + delta.y);
+    });
+  };
+
+  // `capture` catches scrolls from descendant scrollers (scroll does not bubble).
+  addEventListener('scroll', invalidate, {
+    capture: true,
+    passive: true,
+    signal: tracking.signal,
+  });
+  addEventListener('resize', invalidate, {
+    passive: true,
+    signal: tracking.signal,
+  });
+
   return {
     pointerId,
 
@@ -513,8 +577,10 @@ function createDragSession(
  * The press does not lift anything until the pointer has travelled past the
  * activation threshold — a click, or a press with no meaningful movement, leaves
  * the DOM untouched and dispatches nothing. Once the threshold is crossed the
- * item's visual element lifts to a fixed position following the pointer, and a
- * footprint placeholder — a `<div>` carrying a `data-footprint` attribute, sized
+ * item's visual element lifts into the top layer (as a manual popover) and
+ * follows the pointer — escaping any transformed or contained ancestor while
+ * keeping its own styles — and a footprint placeholder — a `<div>` carrying a
+ * `data-footprint` attribute, sized
  * inline to match the lifted item — is inserted to show the insertion point,
  * moving among siblings as the pointer crosses their midpoints. Style it from
  * the caller's shadow styles via `::slotted([data-footprint])`.
