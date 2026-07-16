@@ -268,7 +268,11 @@ describe('useReorderable', () => {
     await nextFrame();
 
     list.dispatchEvent(
-      new PointerEvent('pointercancel', { bubbles: true, composed: true }),
+      new PointerEvent('pointercancel', {
+        pointerId: 1,
+        bubbles: true,
+        composed: true,
+      }),
     );
     await nextFrame();
 
@@ -292,7 +296,11 @@ describe('useReorderable', () => {
     await nextFrame();
 
     list.dispatchEvent(
-      new PointerEvent('pointercancel', { bubbles: true, composed: true }),
+      new PointerEvent('pointercancel', {
+        pointerId: 1,
+        bubbles: true,
+        composed: true,
+      }),
     );
     await nextFrame();
 
@@ -375,7 +383,11 @@ describe('useReorderable', () => {
     await nextFrame();
 
     list.dispatchEvent(
-      new PointerEvent('pointercancel', { bubbles: true, composed: true }),
+      new PointerEvent('pointercancel', {
+        pointerId: 1,
+        bubbles: true,
+        composed: true,
+      }),
     );
 
     await nextFrame();
@@ -612,6 +624,85 @@ describe('useReorderable', () => {
     expect(internals(item).states.has('drag')).toBeFalsy();
 
     reportSpy.mockRestore();
+  });
+
+  it('should not finish the drag when a different pointer is released', async () => {
+    const list = createList();
+    const item1 = createItem();
+    const item2 = createItem();
+
+    document.body.append(list);
+    list.append(item1, item2);
+    list.reorderable = true;
+    await nextFrame();
+
+    await ue.pointer([
+      { target: item1, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 9999 } },
+    ]);
+    await nextFrame();
+
+    // A foreign pointer releasing over the host must not end someone else's drag.
+    list.dispatchEvent(
+      new PointerEvent('pointerup', { pointerId: 424242, bubbles: true }),
+    );
+    await nextFrame();
+
+    expect(internals(item1).states.has('drag')).toBeTruthy();
+  });
+
+  it('should restore pre-existing inline styles on the target after landing', async () => {
+    const list = createList();
+    const item = createItem();
+
+    // The target already carries inline geometry the lift will overwrite.
+    item.style.position = 'relative';
+    item.style.transform = 'translateX(5px)';
+
+    document.body.append(list);
+    list.append(item);
+    list.reorderable = true;
+    await nextFrame();
+
+    const reorderSpy = vi.fn<(e: Event) => void>();
+    list.addEventListener('reorder', reorderSpy);
+
+    await ue.pointer([
+      { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 100 } },
+      { keys: '[/MouseLeft]' },
+    ]);
+    await vi.waitFor(() => expect(reorderSpy).toHaveBeenCalledOnce(), {
+      timeout: 1000,
+    });
+
+    expect(item.style.position).toBe('relative');
+    expect(item.style.transform).toBe('translateX(5px)');
+  });
+
+  it('should assign the footprint to the same named slot as the item', async () => {
+    const template = document.createElement('template');
+    template.innerHTML = '<slot name="items"></slot>';
+    const list = host((h) => {
+      useShadowDOM(h, [template], []);
+      useReorderable(h, () => ({ duration: 200, easing: 'ease-out' }));
+    }, ReorderableCore);
+    const item = createItem();
+    item.slot = 'items';
+
+    document.body.append(list);
+    list.append(item);
+    list.reorderable = true;
+    await nextFrame();
+
+    await ue.pointer([
+      { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 100 } },
+    ]);
+    await nextFrame();
+
+    const fp = list.querySelector<HTMLElement>('[data-footprint]')!;
+    expect(fp.getAttribute('slot')).toBe('items');
   });
 
   it('should not dispatch ReorderEvent for a press that never crosses the threshold', async () => {

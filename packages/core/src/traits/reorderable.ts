@@ -73,8 +73,9 @@ const DRAGGED_STATE = 'drag';
 const DRAG_THRESHOLD = 8;
 
 /**
- * Inline properties written onto the dragged visual while it is lifted, removed
- * again once it lands.
+ * Inline properties written onto the dragged visual while it is lifted. On
+ * teardown each is restored to its pre-drag inline value, or removed if it had
+ * none.
  */
 const DRAGGING_PROPS: readonly string[] = [
   'position',
@@ -174,6 +175,8 @@ function landingIndex(
  * one.
  */
 type DragSession = Readonly<{
+  /** The `pointerId` that initiated the gesture; only this pointer drives it. */
+  pointerId: number;
   /**
    * Animates the item home and dispatches {@link ReorderEvent}, then resolves
    * once it has landed. Idempotent — repeat calls return the in-flight landing
@@ -236,10 +239,23 @@ function createDragSession(
   // stop the animation and skip the announcement, but still clean up.
   let canceled = false;
   let animation: Animation | undefined;
+  // Pre-existing inline values of the properties the lift overwrites, captured
+  // at activation and restored on teardown so a custom target keeps its own
+  // inline geometry/transform. `undefined` means the property was not set.
+  const savedStyles = new Map<
+    string,
+    readonly [value: string, priority: string]
+  >();
 
   const clearVisual = () => {
     for (const prop of DRAGGING_PROPS) {
-      visual.style.removeProperty(prop);
+      const saved = savedStyles.get(prop);
+
+      if (saved) {
+        visual.style.setProperty(prop, saved[0], saved[1]);
+      } else {
+        visual.style.removeProperty(prop);
+      }
     }
   };
 
@@ -266,7 +282,22 @@ function createDragSession(
     footprint.style.inlineSize = `${width}px`;
     footprint.style.blockSize = `${height}px`;
     footprint.setAttribute('aria-hidden', 'true');
+    // Take the item's slot so the footprint is assigned to the same named slot
+    // and lays out where the item did.
+    if (item.slot) {
+      footprint.slot = item.slot;
+    }
     item.before(footprint);
+
+    // Snapshot before overwriting, so teardown can put back whatever inline
+    // geometry the target already had.
+    for (const prop of DRAGGING_PROPS) {
+      const value = visual.style.getPropertyValue(prop);
+
+      if (value) {
+        savedStyles.set(prop, [value, visual.style.getPropertyPriority(prop)]);
+      }
+    }
 
     visual.style.position = 'fixed';
     visual.style.top = `${top}px`;
@@ -411,6 +442,8 @@ function createDragSession(
   );
 
   return {
+    pointerId,
+
     commit() {
       if (!settling) {
         if (activated) {
@@ -594,19 +627,25 @@ export function useReorderable(
       session = createDragSession(host, timing, getItems, item, event);
     },
 
-    pointerup() {
-      settle(true);
+    pointerup(event: PointerEvent) {
+      if (session?.pointerId === event.pointerId) {
+        settle(true);
+      }
     },
 
-    pointercancel() {
-      settle(false);
+    pointercancel(event: PointerEvent) {
+      if (session?.pointerId === event.pointerId) {
+        settle(false);
+      }
     },
 
     // Fires right after pointerup too, where the landing is already in flight
     // and `cancel` no-ops onto the same promise. It only does real work when the
     // browser takes capture away mid-gesture.
-    lostpointercapture() {
-      settle(false);
+    lostpointercapture(event: PointerEvent) {
+      if (session?.pointerId === event.pointerId) {
+        settle(false);
+      }
     },
   });
 }
