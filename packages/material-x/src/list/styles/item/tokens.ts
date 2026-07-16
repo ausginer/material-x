@@ -13,8 +13,8 @@ import {
 const SET_NAME = 'md.comp.list';
 
 const SPECIAL_TOKENS = {
-  'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
-  'state-layer.opacity': `${SET_NAME}.pressed.state-layer.opacity`,
+  'state-layer.color': `${SET_NAME}.list-item.pressed.state-layer.color`,
+  'state-layer.opacity': `${SET_NAME}.list-item.pressed.state-layer.opacity`,
   'press.duration': motionEffects['expressive.fast-spatial.duration'],
   'press.easing': motionEffects['expressive.fast-spatial'],
   'ripple.color': CSSVariable.ref('state-layer.color'),
