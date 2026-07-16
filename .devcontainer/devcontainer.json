@@ -5,9 +5,13 @@
   "runArgs": ["--name=materialx_dev"],
   "containerEnv": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CONFIG_DIR": "/agents/claude",
+    "CODEX_HOME": "/agents/codex",
     "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
     "ENABLE_LSP_TOOL": "1",
-    "SSH_AUTH_SOCK": "/ssh-agent"
+    "SSH_AUTH_SOCK": "/ssh-agent",
+    "LANG": "C.UTF-8",
+    "LC_CTYPE": "C.UTF-8"
   },
   "forwardPorts": [9876, 6006, 5176, 24678],
   "remoteUser": "node",
@@ -30,17 +34,22 @@
     },
     {
       "source": "${localEnv:HOME}/.codex",
-      "target": "/home/node/.codex",
+      "target": "/agents/codex",
       "type": "bind"
     },
     {
       "source": "${localEnv:HOME}/.claude",
-      "target": "/home/node/.claude",
+      "target": "/agents/claude",
       "type": "bind"
     },
     {
       "source": "${localEnv:HOME}/.claude.json",
-      "target": "/home/node/.claude.json",
+      "target": "/agents/claude/.claude.json",
+      "type": "bind"
+    },
+    {
+      "source": "${localEnv:HOME}/.config/gh",
+      "target": "/home/node/.config/gh",
       "type": "bind"
     }
   ],
