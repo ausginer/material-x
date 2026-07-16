@@ -17,6 +17,12 @@ const REORDER_EVENT_INIT: Readonly<EventInit> = {
  *
  * @remarks This post-commit notification bubbles and crosses shadow DOM
  * boundaries. It is not cancelable because the drag has already landed.
+ *
+ * Reorder **synchronously** inside the handler (e.g. a synchronous `setState`),
+ * not in a microtask, `await`, or a later frame. The dropped item is restored
+ * to its original position as this event is dispatched, so a deferred reorder
+ * makes it visibly snap back to its old slot for a frame before landing in the
+ * new one.
  */
 export class ReorderEvent extends Event {
   readonly item: HTMLElement;
@@ -169,19 +175,33 @@ function landingIndex(
  */
 type DragSession = Readonly<{
   /**
-   * Animates the item home, dispatches {@link ReorderEvent} when `fireEvent`,
-   * and resolves once it has landed. Idempotent — repeat calls return the
-   * in-flight landing rather than starting a second one.
+   * Animates the item home and dispatches {@link ReorderEvent}, then resolves
+   * once it has landed. Idempotent — repeat calls return the in-flight landing
+   * rather than starting a second one. The trait does not reorder siblings; the
+   * consumer does, in response to the event.
    */
-  drop(fireEvent: boolean): Promise<void>;
-  /** Tears the session down immediately, without landing or announcing. */
-  cancel(): void;
+  commit(): Promise<void>;
+  /**
+   * Tears a pending or live drag down synchronously, restoring the item and
+   * announcing nothing. A no-op once a landing is in flight, so the
+   * `lostpointercapture` that fires right after a normal `pointerup` cannot
+   * interrupt the landing that `pointerup` started.
+   */
+  cancel(): Promise<void>;
+  /**
+   * Force-ends the gesture in any phase, including a landing in flight: stops
+   * the animation, suppresses the event, and cleans up. For teardown that must
+   * win unconditionally, such as the host disconnecting mid-gesture.
+   */
+  abandon(): Promise<void>;
 }>;
 
 /**
- * Lifts `item` and starts tracking the pointer. Creating the session *is* the
- * `pointerdown` transition: the footprint is inserted, the visual is lifted,
- * and a session-scoped `pointermove` listener starts following the pointer.
+ * Starts tracking a potential drag. Creating the session *is* the `pointerdown`
+ * transition, but nothing is lifted yet: the session watches the pointer and
+ * only activates — inserting the footprint, lifting the visual, taking capture —
+ * once the pointer has travelled past {@link DRAG_THRESHOLD}. A press that never
+ * crosses the threshold stays a plain click: no footprint, no lift, no event.
  *
  * @param host - Container the drag belongs to, and the pointer capture target.
  * @param timing - Called at drop time for the landing animation's timing.
@@ -198,42 +218,69 @@ function createDragSession(
   event: PointerEvent,
 ): DragSession {
   const visual = getItemTarget(item);
-  const { left, top, width, height } = visual.getBoundingClientRect();
-  const origin: Point = { x: left, y: top };
   const start: Point = { x: event.clientX, y: event.clientY };
+  const { pointerId } = event;
   const fromIndex = items().indexOf(item);
   const tracking = new AbortController();
 
-  const footprint = document.createElement('div');
-  footprint.dataset['footprint'] = '';
-  footprint.style.inlineSize = `${width}px`;
-  footprint.style.blockSize = `${height}px`;
-  footprint.setAttribute('aria-hidden', 'true');
-  item.before(footprint);
-
-  visual.style.position = 'fixed';
-  visual.style.top = `${top}px`;
-  visual.style.left = `${left}px`;
-  visual.style.width = `${width}px`;
-  visual.style.zIndex = '9999';
-
-  // Capture on the host: it is the only element guaranteed to stay in the
-  // document for the whole gesture, so the pointer cannot escape the listeners.
-  host.setPointerCapture(event.pointerId);
-  toggleState(internals(item), DRAGGED_STATE, true);
-  event.preventDefault();
-
-  // Measured after the lift, so the footprint already occupies the gap.
-  let rects = measure(items(), item);
+  // Assigned by activate(); only ever read once activated is true.
+  let footprint: HTMLDivElement;
+  let origin: Point = ORIGIN;
+  let rects: ReadonlyMap<HTMLElement, DOMRect> = new Map();
   let delta: Point = ORIGIN;
   let toIndex = fromIndex;
   let frame = -1;
-  let landing: Promise<void> | null = null;
+  let activated = false;
+  let settling: Promise<void> | null = null;
+  // Set when a landing must be abandoned (host disconnected mid-animation):
+  // stop the animation and skip the announcement, but still clean up.
+  let canceled = false;
+  let animation: Animation | undefined;
 
   const clearVisual = () => {
     for (const prop of DRAGGING_PROPS) {
       visual.style.removeProperty(prop);
     }
+  };
+
+  /** Undoes the lift: footprint gone, styles cleared, dragged state removed. */
+  const teardown = () => {
+    footprint.remove();
+    clearVisual();
+    toggleState(internals(item), DRAGGED_STATE, false);
+  };
+
+  /**
+   * Promotes a pending press into a live drag: the visual is lifted to a fixed
+   * position, the footprint fills the gap, and the host takes pointer capture.
+   * Runs once, the first time the pointer crosses the threshold.
+   */
+  const activate = () => {
+    activated = true;
+
+    const { left, top, width, height } = visual.getBoundingClientRect();
+    origin = { x: left, y: top };
+
+    footprint = document.createElement('div');
+    footprint.dataset['footprint'] = '';
+    footprint.style.inlineSize = `${width}px`;
+    footprint.style.blockSize = `${height}px`;
+    footprint.setAttribute('aria-hidden', 'true');
+    item.before(footprint);
+
+    visual.style.position = 'fixed';
+    visual.style.top = `${top}px`;
+    visual.style.left = `${left}px`;
+    visual.style.width = `${width}px`;
+    visual.style.zIndex = '9999';
+
+    // Capture on the host: it is the only element guaranteed to stay in the
+    // document for the whole gesture, so the pointer cannot escape the listeners.
+    host.setPointerCapture(pointerId);
+    toggleState(internals(item), DRAGGED_STATE, true);
+
+    // Measured after the lift, so the footprint already occupies the gap.
+    rects = measure(items(), item);
   };
 
   /** Moves the footprint to track the pointer, and with it the landing index. */
@@ -268,62 +315,90 @@ function createDragSession(
     }
   };
 
-  const land = async (fireEvent: boolean): Promise<void> => {
+  const land = async (): Promise<void> => {
     flush();
     // Stop following the pointer the moment the gesture is over.
     tracking.abort();
 
-    const fp = footprint.getBoundingClientRect();
-    const animation = visual.animate(
-      [
-        { transform: `translate(${delta.x}px, ${delta.y}px)` },
-        {
-          transform: `translate(${fp.left - origin.x}px, ${fp.top - origin.y}px)`,
-        },
-      ],
-      timing(),
-    );
-
-    toggleState(internals(item), DRAGGED_STATE, false);
-
+    // All cleanup lives in the finally, so a throw from `timing()` or
+    // `animate()` — or an abandoned landing — can never leave the item stuck
+    // lifted with a dangling footprint.
     try {
-      await animation.finished;
-    } catch {
-      // Cancelled mid-flight — land anyway rather than stall the session.
+      const fp = footprint.getBoundingClientRect();
+      animation = visual.animate(
+        [
+          { transform: `translate(${delta.x}px, ${delta.y}px)` },
+          {
+            transform: `translate(${fp.left - origin.x}px, ${fp.top - origin.y}px)`,
+          },
+        ],
+        timing(),
+      );
+
+      toggleState(internals(item), DRAGGED_STATE, false);
+
+      try {
+        await animation.finished;
+      } catch {
+        // Finished rejects when the animation is cancelled — either because the
+        // session was abandoned, or the browser interrupted it. Fall through.
+      }
+
+      // Abandoned mid-flight (e.g. host disconnected): clean up, announce nothing.
+      if (!canceled) {
+        await new Promise<void>((resolve) => {
+          requestAnimationFrame(() => {
+            // The trait never reorders siblings itself — the consumer does, in
+            // response to the event. Dispatch before the finally clears the lift
+            // so a consumer that reorders synchronously lands the item in its new
+            // slot without a flash.
+            if (!canceled) {
+              host.dispatchEvent(new ReorderEvent(item, fromIndex, toIndex));
+            }
+
+            resolve();
+          });
+        });
+      }
+    } finally {
+      teardown();
     }
-
-    await new Promise<void>((resolve) => {
-      requestAnimationFrame(() => {
-        footprint.replaceWith(item);
-        clearVisual();
-
-        if (fireEvent) {
-          host.dispatchEvent(new ReorderEvent(item, fromIndex, toIndex));
-        }
-
-        resolve();
-      });
-    });
   };
 
   host.addEventListener(
     'pointermove',
     (moveEvent: PointerEvent) => {
+      // Only the initiating pointer drives the gesture; a second touch moving
+      // over the host must not steer someone else's drag.
+      if (moveEvent.pointerId !== pointerId) {
+        return;
+      }
+
       delta = {
         x: moveEvent.clientX - start.x,
         y: moveEvent.clientY - start.y,
       };
 
-      visual.style.transform = `translate(${delta.x}px, ${delta.y}px)`;
+      // The threshold is a one-time activation gate. Until the pointer has
+      // travelled far enough once, the press stays a plain click — nothing is
+      // lifted. After activation the drag is live and every move re-hit-tests,
+      // including a return close to the origin, which must carry the footprint
+      // back rather than freeze it wherever it last went.
+      if (!activated) {
+        if (
+          Math.abs(delta.x) < DRAG_THRESHOLD &&
+          Math.abs(delta.y) < DRAG_THRESHOLD
+        ) {
+          return;
+        }
 
-      // Below the threshold, leave any scheduled frame alone: the pointer has
-      // been further out than this and that reposition is still owed.
-      if (
-        Math.abs(delta.x) < DRAG_THRESHOLD &&
-        Math.abs(delta.y) < DRAG_THRESHOLD
-      ) {
-        return;
+        activate();
+        // Now a real drag: suppress text selection and native behaviours. Held
+        // off pointerdown so a plain click keeps its focus and activation.
+        moveEvent.preventDefault();
       }
+
+      visual.style.transform = `translate(${delta.x}px, ${delta.y}px)`;
 
       const { clientY } = moveEvent;
 
@@ -336,17 +411,57 @@ function createDragSession(
   );
 
   return {
-    drop(fireEvent) {
-      landing ??= land(fireEvent);
-      return landing;
+    commit() {
+      if (!settling) {
+        if (activated) {
+          settling = land();
+        } else {
+          // A press that never crossed the threshold is a click, not a drop:
+          // tear down quietly and announce nothing.
+          tracking.abort();
+          settling = Promise.resolve();
+        }
+      }
+
+      return settling;
     },
 
     cancel() {
-      tracking.abort();
-      cancelAnimationFrame(frame);
-      footprint.remove();
-      clearVisual();
-      toggleState(internals(item), DRAGGED_STATE, false);
+      // A landing already owns its teardown; a stray lostpointercapture right
+      // after pointerup must not interrupt it.
+      if (!settling) {
+        tracking.abort();
+        cancelAnimationFrame(frame);
+
+        if (activated) {
+          teardown();
+        }
+
+        settling = Promise.resolve();
+      }
+
+      return settling;
+    },
+
+    abandon() {
+      // Suppress any announcement whatever phase we are in.
+      canceled = true;
+
+      if (settling) {
+        // A landing is in flight: stop it. `land`'s finally still runs teardown.
+        animation?.cancel();
+      } else {
+        tracking.abort();
+        cancelAnimationFrame(frame);
+
+        if (activated) {
+          teardown();
+        }
+
+        settling = Promise.resolve();
+      }
+
+      return settling;
     },
   };
 }
@@ -358,18 +473,26 @@ function createDragSession(
  * The host must implement {@link Reorderable}. Drag behaviour is gated by
  * `host.reorderable` — `pointerdown` is a no-op when false.
  *
- * On `pointerdown` over a tracked item the item's visual element lifts to a
- * fixed position following the pointer. A footprint placeholder — a `<div>`
- * carrying a `data-footprint` attribute, sized inline to match the lifted item
- * — is inserted in the list to show the insertion point, and moves among
- * siblings as the pointer crosses their midpoints. Style it from the caller's
- * shadow styles via `::slotted([data-footprint])`.
+ * A drag begins only on a primary press (left button / first touch) over a
+ * tracked item. If the item contains a `[data-handle]` element the press must
+ * land on that handle; items without one are draggable by their whole surface.
  *
- * On `pointerup` the item animates back to the footprint position, lands there,
- * and a {@link ReorderEvent} is dispatched. The hook never mutates the DOM
- * order beyond the animation landing — the consumer handles final reordering if
- * needed. A `pointerdown` arriving while a previous item is still animating
- * home is ignored.
+ * The press does not lift anything until the pointer has travelled past the
+ * activation threshold — a click, or a press with no meaningful movement, leaves
+ * the DOM untouched and dispatches nothing. Once the threshold is crossed the
+ * item's visual element lifts to a fixed position following the pointer, and a
+ * footprint placeholder — a `<div>` carrying a `data-footprint` attribute, sized
+ * inline to match the lifted item — is inserted to show the insertion point,
+ * moving among siblings as the pointer crosses their midpoints. Style it from
+ * the caller's shadow styles via `::slotted([data-footprint])`.
+ *
+ * On `pointerup` the lifted visual animates to the footprint's position and a
+ * {@link ReorderEvent} is dispatched. The hook never reorders siblings itself —
+ * the consumer performs the actual reorder in response to the event, and should
+ * do so synchronously to avoid a snap-back flash (see {@link ReorderEvent}). On
+ * `pointercancel` or lost capture the item is restored to its original position
+ * and nothing is dispatched. A `pointerdown` arriving while a previous item is
+ * still animating home is ignored.
  *
  * @param host - Container host implementing {@link Reorderable}.
  * @param timing - Called at drop time for the landing animation's timing, so
@@ -397,18 +520,18 @@ export function useReorderable(
   });
 
   /**
-   * Ends the active gesture, if any. Fire-and-forget by design — the pointer
-   * handlers cannot wait on the landing animation.
+   * Ends the active gesture, if any: `commit` lands the item and dispatches,
+   * otherwise the gesture is cancelled and the item restored. Fire-and-forget by
+   * design — the pointer handlers cannot wait on the landing animation.
    */
-  const finalize = (fireEvent: boolean): void => {
+  const settle = (commit: boolean): void => {
     const current = session;
 
     if (!current) {
       return;
     }
 
-    current
-      .drop(fireEvent)
+    (commit ? current.commit() : current.cancel())
       .finally(() => {
         // Released even if the landing threw, so a failure cannot strand the
         // session and block every future drag. Only release if nothing has
@@ -424,42 +547,66 @@ export function useReorderable(
     disconnected() {
       // The session owns a listener outside the useEvents lifecycle; without
       // this it would strand a non-null session and block every future drag.
-      session?.cancel();
+      // Abandon rather than cancel so a landing in flight is stopped too, not
+      // left to finish and dispatch on a detached host.
+      session?.abandon().catch(reportError);
       session = null;
     },
   });
 
   useEvents(host, {
     pointerdown(event: PointerEvent) {
-      if (session || !host.reorderable) {
+      // Only a primary press starts a drag: no right-click, no secondary touch.
+      if (
+        session ||
+        !host.reorderable ||
+        event.button !== 0 ||
+        !event.isPrimary
+      ) {
         return;
       }
 
-      const item = event
-        .composedPath()
-        .find(
-          (n): n is ControlledElement =>
-            n instanceof ControlledElement && itemSet.has(n),
-        );
+      const path = event.composedPath();
+      const itemIndex = path.findIndex(
+        (n) => n instanceof ControlledElement && itemSet.has(n),
+      );
 
-      if (item) {
-        session = createDragSession(host, timing, getItems, item, event);
+      if (itemIndex === -1) {
+        return;
       }
+
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      const item = path[itemIndex] as ControlledElement;
+
+      // If the item declares a drag handle, the press must land on it. Items
+      // without a `[data-handle]` stay draggable by their whole surface, so the
+      // handle is opt-in strictness rather than a hard requirement.
+      if (item.querySelector('[data-handle]')) {
+        const onHandle = path
+          .slice(0, itemIndex)
+          .some((n) => n instanceof Element && n.hasAttribute('data-handle'));
+
+        if (!onHandle) {
+          return;
+        }
+      }
+
+      session = createDragSession(host, timing, getItems, item, event);
     },
 
     pointerup() {
-      finalize(true);
+      settle(true);
     },
 
     pointercancel() {
-      finalize(false);
+      settle(false);
     },
 
     // Fires right after pointerup too, where the landing is already in flight
-    // and `drop` hands back the same promise. It only does real work when the
+    // and `cancel` no-ops onto the same promise. It only does real work when the
     // browser takes capture away mid-gesture.
     lostpointercapture() {
-      finalize(false);
+      settle(false);
     },
   });
 }

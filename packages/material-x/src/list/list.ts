@@ -46,15 +46,19 @@ const ListConstructor: TraitedConstructor<
  * @summary Lists are continuous groups of text or image-based content.
  *
  * @attr {boolean} reorderable - Enables drag-and-drop reordering of items.
- *   Items must have a `data-handle` element in their lead or trail slot to
- *   serve as the drag grip.
+ *   An item may designate a `data-handle` element (e.g. in its lead or trail
+ *   slot) as the drag grip; if it has none, its whole surface starts the drag.
+ *   A drag begins only on a primary press that moves past a small threshold, so
+ *   plain clicks and taps on nested controls are unaffected.
  *
  * @slot - List item elements.
  *
  * @event reorder - Fired when the user drops an item at a new position.
  *   The event exposes the dragged `item` and its `from` and `to` indices
  *   directly.
- *   The consumer is responsible for updating the DOM order.
+ *   The consumer is responsible for updating the DOM order, and should do so
+ *   synchronously in the handler — a deferred reorder makes the dropped item
+ *   snap back to its old slot for a frame before landing.
  *
  * @cssprop --md-list-container-color - Overrides the list container color.
  * @cssprop --md-list-container-shape - Overrides the list container shape.

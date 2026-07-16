@@ -245,7 +245,7 @@ export const Draggable = (): JSX.Element => {
     >
       {items.map((item) => (
         <mx-list-item key={item}>
-          <mx-icon draggable slot="lead">
+          <mx-icon data-handle slot="lead">
             drag_handle
           </mx-icon>
           {item}

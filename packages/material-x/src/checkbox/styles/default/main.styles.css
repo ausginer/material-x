@@ -17,6 +17,7 @@
   grid-template: 1fr / 1fr;
   inline-size: var(--_state-layer-size);
   aspect-ratio: 1;
+  user-select: none;
   border-radius: var(--_state-layer-shape);
   position: relative; /* For ripple */
 
@@ -28,11 +29,11 @@
     box-sizing: border-box;
     inline-size: var(--_container-size);
     aspect-ratio: 1;
-    background: var(--_container-color, transparent);
+    background-color: var(--_container-color, transparent);
     border-radius: var(--_container-shape);
     border: var(--_outline-width) solid var(--_outline-color);
     transition:
-      background var(--md-checkbox-check-duration, var(--_check-duration))
+      background-color var(--md-checkbox-check-duration, var(--_check-duration))
         var(--md-checkbox-check-easing, var(--_check-easing)),
       border-color var(--md-checkbox-check-duration, var(--_check-duration))
         var(--md-checkbox-check-easing, var(--_check-easing));

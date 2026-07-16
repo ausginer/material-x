@@ -94,7 +94,12 @@ Pre-built traits:
 import { Disableable } from '@ydinjs/core/traits/disableable.js'; // disabled: boolean
 import { Valuable } from '@ydinjs/core/traits/valuable.js'; // value: string | null
 import { Checkable } from '@ydinjs/core/traits/checkable.js'; // checked: boolean, indeterminate: boolean
+import { Reorderable } from '@ydinjs/core/traits/reorderable.js'; // reorderable: boolean
 ```
+
+`Reorderable`, paired with the `useReorderable` controller, provides pointer drag-and-drop reordering. The controller never mutates sibling order itself — it dispatches a `reorder` event carrying `from`/`to`, and **the consumer performs the actual reorder**.
+
+> **Reorder synchronously.** Apply the new order in the `reorder` handler itself (e.g. a synchronous `setState`), not in a microtask, `await`, or later frame. The dropped item is restored to its original position as the event is dispatched; if the consumer's reorder is deferred, the item visibly snaps back to its old slot for a frame before landing in the new one.
 
 ### Controllers
 
