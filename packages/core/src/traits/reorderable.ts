@@ -118,16 +118,39 @@ function measure(
   return rects;
 }
 
+/** Centre point of a rect. */
+function center(rect: DOMRect): Point {
+  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+}
+
+/** Squared distance between two points — order-preserving without the sqrt. */
+function distanceSquared(a: Point, b: Point): number {
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  return dx * dx + dy * dy;
+}
+
 /**
- * First item whose midpoint the pointer sits above, i.e. the item the footprint
- * should precede. `null` means "past every item" — append to the end.
+ * The item whose centre is nearest the pointer, or `null` when the footprint's
+ * own slot is nearest — meaning the footprint should stay put.
+ *
+ * The reorder area is treated as a plain field of rectangles, with no notion of
+ * rows, columns, or a flow axis: a vertical list, a horizontal row, and a grid
+ * are all just centres to measure against. Including the footprint as a
+ * candidate is what lets the dragged item rest in its own slot, and gives the
+ * gesture its hysteresis — the footprint only moves once another item's centre
+ * is genuinely closer than its own.
  */
-function findInsertionPoint(
+function nearestItem(
   items: readonly ControlledElement[],
   dragged: ControlledElement,
   rects: ReadonlyMap<HTMLElement, DOMRect>,
-  pointerY: number,
+  footprintCentre: Point,
+  pointer: Point,
 ): ControlledElement | null {
+  let best = distanceSquared(pointer, footprintCentre);
+  let nearest: ControlledElement | null = null;
+
   for (const item of items) {
     if (item === dragged) {
       continue;
@@ -137,32 +160,35 @@ function findInsertionPoint(
     // skip it rather than throw.
     const rect = rects.get(getItemTarget(item));
 
-    if (rect && pointerY < rect.top + rect.height / 2) {
-      return item;
+    if (rect) {
+      const d = distanceSquared(pointer, center(rect));
+
+      if (d < best) {
+        best = d;
+        nearest = item;
+      }
     }
   }
 
-  return null;
+  return nearest;
 }
 
-/** Index the dragged item would occupy once removed from its old position. */
-function landingIndex(
+/** Landing index of the dragged item: non-dragged items before the footprint. */
+function footprintIndex(
   items: readonly ControlledElement[],
   dragged: ControlledElement,
-  before: ControlledElement | null,
+  footprint: Element,
 ): number {
-  if (!before) {
-    return items.length - 1;
-  }
-
   let index = 0;
 
   for (const item of items) {
-    if (item === before) {
-      break;
-    }
+    const precedes =
+      // oxlint-disable-next-line no-bitwise
+      (footprint.compareDocumentPosition(item) &
+        Node.DOCUMENT_POSITION_PRECEDING) !==
+      0;
 
-    if (item !== dragged) {
+    if (item !== dragged && precedes) {
       index += 1;
     }
   }
@@ -287,13 +313,17 @@ function createDragSession(
   const activate = () => {
     activated = true;
 
-    const { left, top, width, height } = visual.getBoundingClientRect();
+    const draggedRect = visual.getBoundingClientRect();
+    const { left, top, width, height } = draggedRect;
     origin = { x: left, y: top };
 
     footprint = document.createElement('div');
     footprint.dataset['footprint'] = '';
-    footprint.style.inlineSize = `${width}px`;
-    footprint.style.blockSize = `${height}px`;
+    // Physical width/height, not logical inline/block-size: the rect is measured
+    // in physical pixels, so mapping it through logical sizes would swap the
+    // dimensions under a vertical writing mode.
+    footprint.style.width = `${width}px`;
+    footprint.style.height = `${height}px`;
     footprint.setAttribute('aria-hidden', 'true');
     // Take the item's slot so the footprint is assigned to the same named slot
     // and lays out where the item did.
@@ -344,8 +374,14 @@ function createDragSession(
     rects = measure(items(), item);
   };
 
-  /** Moves the footprint to track the pointer, and with it the landing index. */
-  const reposition = (pointerY: number) => {
+  /** Current pointer position in viewport coordinates. */
+  const currentPointer = (): Point => ({
+    x: start.x + delta.x,
+    y: start.y + delta.y,
+  });
+
+  /** Moves the footprint to the item slot nearest the pointer. */
+  const reposition = (pointer: Point) => {
     frame = -1;
 
     // Scrolling or a reflow since the last measurement moved every item under
@@ -355,19 +391,30 @@ function createDragSession(
       rectsDirty = false;
     }
 
-    const before = findInsertionPoint(items(), item, rects, pointerY);
+    const footprintCentre = center(footprint.getBoundingClientRect());
+    const nearest = nearestItem(items(), item, rects, footprintCentre, pointer);
 
-    if (footprint.nextElementSibling === before) {
+    // The footprint's own slot is nearest — nothing to do.
+    if (!nearest) {
       return;
     }
 
-    if (before) {
-      before.before(footprint);
+    // Move the footprint to the near side of that item, in DOM order: if the
+    // item currently follows the footprint the pointer has moved forward past
+    // it, otherwise backward before it.
+    const follows =
+      // oxlint-disable-next-line no-bitwise
+      (footprint.compareDocumentPosition(nearest) &
+        Node.DOCUMENT_POSITION_FOLLOWING) !==
+      0;
+
+    if (follows) {
+      nearest.after(footprint);
     } else {
-      host.append(footprint);
+      nearest.before(footprint);
     }
 
-    toIndex = landingIndex(items(), item, before);
+    toIndex = footprintIndex(items(), item, footprint);
     rects = measure(items(), item);
   };
 
@@ -379,7 +426,7 @@ function createDragSession(
   const flush = () => {
     if (frame !== -1) {
       cancelAnimationFrame(frame);
-      reposition(start.y + delta.y);
+      reposition(currentPointer());
     }
   };
 
@@ -393,12 +440,11 @@ function createDragSession(
     // lifted with a dangling footprint.
     try {
       const fp = footprint.getBoundingClientRect();
+      const landed = `translate(${fp.left - origin.x}px, ${fp.top - origin.y}px)`;
       animation = visual.animate(
         [
           { transform: `translate(${delta.x}px, ${delta.y}px)` },
-          {
-            transform: `translate(${fp.left - origin.x}px, ${fp.top - origin.y}px)`,
-          },
+          { transform: landed },
         ],
         timing(),
       );
@@ -414,6 +460,10 @@ function createDragSession(
 
       // Abandoned mid-flight (e.g. host disconnected): clean up, announce nothing.
       if (!canceled) {
+        // Pin the landed transform so removing the (fill: none) animation's
+        // effect doesn't snap the ghost back to the drag delta for a frame.
+        visual.style.transform = landed;
+
         await new Promise<void>((resolve) => {
           requestAnimationFrame(() => {
             // The trait never reorders siblings itself — the consumer does, in
@@ -468,11 +518,11 @@ function createDragSession(
 
       visual.style.transform = `translate(${delta.x}px, ${delta.y}px)`;
 
-      const { clientY } = moveEvent;
+      const pointer = currentPointer();
 
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        reposition(clientY);
+        reposition(pointer);
       });
     },
     { signal: tracking.signal },
@@ -490,7 +540,7 @@ function createDragSession(
     rectsDirty = true;
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
-      reposition(start.y + delta.y);
+      reposition(currentPointer());
     });
   };
 
@@ -581,9 +631,11 @@ function createDragSession(
  * follows the pointer — escaping any transformed or contained ancestor while
  * keeping its own styles — and a footprint placeholder — a `<div>` carrying a
  * `data-footprint` attribute, sized
- * inline to match the lifted item — is inserted to show the insertion point,
- * moving among siblings as the pointer crosses their midpoints. Style it from
- * the caller's shadow styles via `::slotted([data-footprint])`.
+ * inline to match the lifted item — is inserted to show the insertion point. The
+ * footprint moves to whichever item slot is nearest the pointer, treating the
+ * reorder area as a plain field of rectangles — so vertical lists, horizontal
+ * rows, and grids are all handled without configuration. Style the footprint
+ * from the caller's shadow styles via `::slotted([data-footprint])`.
  *
  * On `pointerup` the lifted visual animates to the footprint's position and a
  * {@link ReorderEvent} is dispatched. The hook never reorders siblings itself —

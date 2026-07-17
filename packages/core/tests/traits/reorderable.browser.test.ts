@@ -165,6 +165,13 @@ describe('useReorderable', () => {
     const item1 = createItem();
     const item2 = createItem();
 
+    // Real, stacked heights so the item centres are distinguishable.
+    list.style.display = 'block';
+    for (const item of [item1, item2]) {
+      item.style.display = 'block';
+      item.style.height = '50px';
+    }
+
     document.body.append(list);
     list.append(item1, item2);
     list.reorderable = true;
@@ -186,11 +193,108 @@ describe('useReorderable', () => {
     expect(list.lastElementChild).toBe(fp);
   });
 
+  it('should reorder a horizontal row', async () => {
+    const list = createList();
+    const item1 = createItem();
+    const item2 = createItem();
+    const item3 = createItem();
+
+    // Lay the items out in a row.
+    list.style.display = 'flex';
+    for (const item of [item1, item2, item3]) {
+      item.style.display = 'block';
+      item.style.width = '60px';
+      item.style.height = '24px';
+    }
+
+    document.body.append(list);
+    list.append(item1, item2, item3);
+    list.reorderable = true;
+    await nextFrame();
+
+    const reorderSpy = vi.fn<(e: Event) => void>();
+    list.addEventListener('reorder', reorderSpy);
+
+    // Drag item1 far to the right, past both siblings, and release.
+    await ue.pointer([
+      {
+        target: item1,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 10, clientY: 10 },
+      },
+      { coords: { clientX: 9999, clientY: 10 } },
+    ]);
+    await nextFrame();
+
+    // The footprint should have tracked the pointer to the end of the row.
+    expect(list.lastElementChild).toBe(list.querySelector('[data-footprint]'));
+
+    await ue.pointer([{ keys: '[/MouseLeft]' }]);
+    await vi.waitFor(() => expect(reorderSpy).toHaveBeenCalledOnce(), {
+      timeout: 1000,
+    });
+
+    const event = reorderSpy.mock.calls[0]?.[0] as ReorderEvent;
+    expect(event.from).toBe(0);
+    expect(event.to).toBe(2);
+  });
+
+  it('should reorder within a 2D grid by nearest cell', async () => {
+    const list = createList();
+    const items = [createItem(), createItem(), createItem(), createItem()];
+
+    // A 2x2 grid: item1 top-left, item2 top-right, item3/4 on the row below.
+    list.style.display = 'grid';
+    list.style.gridTemplateColumns = '50px 50px';
+    for (const item of items) {
+      item.style.display = 'block';
+      item.style.width = '50px';
+      item.style.height = '50px';
+    }
+
+    document.body.append(list);
+    list.append(...items);
+    list.reorderable = true;
+    await nextFrame();
+
+    const reorderSpy = vi.fn<(e: Event) => void>();
+    list.addEventListener('reorder', reorderSpy);
+
+    // Drag item1 onto the far (bottom-right) cell that item4 occupies.
+    const from = items[0]!.getBoundingClientRect();
+    const target = items[3]!.getBoundingClientRect();
+    await ue.pointer([
+      {
+        target: items[0],
+        keys: '[MouseLeft>]',
+        coords: { clientX: from.left + 25, clientY: from.top + 25 },
+      },
+      { coords: { clientX: target.left + 25, clientY: target.top + 25 } },
+    ]);
+    await nextFrame();
+    await ue.pointer([{ keys: '[/MouseLeft]' }]);
+
+    await vi.waitFor(() => expect(reorderSpy).toHaveBeenCalledOnce(), {
+      timeout: 1000,
+    });
+
+    const event = reorderSpy.mock.calls[0]?.[0] as ReorderEvent;
+    expect(event.from).toBe(0);
+    expect(event.to).toBe(3);
+  });
+
   it('should dispatch ReorderEvent with correct indices on pointerup', async () => {
     const list = createList();
     const item1 = createItem();
     const item2 = createItem();
     const item3 = createItem();
+
+    // Real, stacked heights so the item centres are distinguishable.
+    list.style.display = 'block';
+    for (const item of [item1, item2, item3]) {
+      item.style.display = 'block';
+      item.style.height = '50px';
+    }
 
     document.body.append(list);
     list.append(item1, item2, item3);
