@@ -10,7 +10,7 @@
     "build": "nx run-many -t build --all --skipNxCache",
     "clean:build": "nx run-many -t clean:build --all --skipNxCache",
     "check": "concurrently npm:fmt:check npm:lint npm:typecheck",
-    "test": "nx run-many -t test --projects=core,tproc,material-x,vite-traits-plugin --skipNxCache",
+    "test": "vitest",
     "docs": "just docs-build",
     "docs:dev": "just docs-dev",
     "fmt": "nx run-many -t fmt --all --skipNxCache",

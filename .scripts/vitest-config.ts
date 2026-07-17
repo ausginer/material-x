@@ -12,7 +12,7 @@ const isCI = process.env['CI'] === 'true';
 const isDebug = process.env['DEBUG'] === '1';
 
 type BrowserTestProjectOptions = Readonly<{
-  name?: string;
+  name: string;
   root: URL;
   include: readonly string[];
   exclude?: readonly string[];
@@ -22,13 +22,14 @@ type BrowserTestProjectOptions = Readonly<{
 }>;
 
 type NodeTestProjectOptions = Readonly<{
-  name?: string;
+  name: string;
   root: URL;
   include: readonly string[];
   setupFiles?: readonly string[];
 }>;
 
 type DeclarationTestProjectOptions = Readonly<{
+  name: string;
   root: URL;
   include: readonly string[];
   tsconfig: string;
@@ -37,14 +38,23 @@ type DeclarationTestProjectOptions = Readonly<{
 type WorkspaceTestConfigOptions = Readonly<{
   root: URL;
   materialXRoot: URL;
-  materialXCommands: Record<string, BrowserCommand<any[]>>;
+  materialXCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
   coreRoot: URL;
+  dragRoot: URL;
   tprocRoot: URL;
   viteTraitsPluginRoot: URL;
 }>;
 
 function resolveChromeExecutable(): string {
   return process.env['CHROME_EXECUTABLE'] ?? '/usr/local/bin/chrome';
+}
+
+// Vitest project names must be unique. In per-package mode `scope` is undefined
+// and the bare base name (e.g. 'browser') is fine; in the combined workspace
+// run every package contributes projects, so each name is suffixed with the
+// package scope (e.g. 'browser/material-x') to avoid collisions.
+function scopedName(base: string, scope?: string): string {
+  return scope ? `${base}/${scope}` : base;
 }
 
 function createBrowserTestConfig(
@@ -123,7 +133,7 @@ function createBrowserTestProject(
     mergeConfig(baseConfig, createBrowserTestConfig(options.commands)),
     {
       test: {
-        name: options.name ?? 'browser',
+        name: options.name,
         include: [...options.include],
         exclude: options.exclude ? [...options.exclude] : [],
         setupFiles: options.setupFiles ? [...options.setupFiles] : [],
@@ -135,7 +145,7 @@ function createBrowserTestProject(
 function createNodeTestProject(options: NodeTestProjectOptions): UserConfig {
   return mergeConfig(createTestBaseConfig(options.root), {
     test: {
-      name: options.name ?? 'node',
+      name: options.name,
       include: [...options.include],
       setupFiles: options.setupFiles ? [...options.setupFiles] : [],
     },
@@ -147,7 +157,7 @@ function createDeclarationTestProject(
 ): UserConfig {
   return mergeConfig(createTestBaseConfig(options.root), {
     test: {
-      name: 'declaration',
+      name: options.name,
       typecheck: {
         enabled: true,
         only: true,
@@ -164,11 +174,11 @@ function createMaterialXTestProjects(
   env: ConfigEnv,
   root: URL,
   commands: Record<string, BrowserCommand<any[]>>,
-  browserName?: string,
+  scope?: string,
 ): UserConfig[] {
   return [
     createBrowserTestProject({
-      name: browserName,
+      name: scopedName('browser', scope),
       root,
       include: ['test/**/*.browser.test.ts'],
       exclude: [
@@ -180,7 +190,7 @@ function createMaterialXTestProjects(
       viteConfig: createMaterialXViteConfig(env, root),
     }),
     createBrowserTestProject({
-      name: browserName ? 'spec/material-x' : 'spec',
+      name: scopedName('spec', scope),
       root,
       include: ['test/**/*.spec.browser.test.ts'],
       setupFiles: ['test/support/browser-setup.ts'],
@@ -188,7 +198,7 @@ function createMaterialXTestProjects(
       viteConfig: createMaterialXViteConfig(env, root),
     }),
     createBrowserTestProject({
-      name: browserName ? 'visual/material-x' : 'visual',
+      name: scopedName('visual', scope),
       root,
       include: ['test/**/*.visual.browser.test.ts'],
       setupFiles: ['test/support/browser-setup.ts'],
@@ -196,23 +206,24 @@ function createMaterialXTestProjects(
       viteConfig: createMaterialXViteConfig(env, root),
     }),
     createNodeTestProject({
-      name: browserName ? 'node/material-x' : 'node',
+      name: scopedName('node', scope),
       root,
       include: ['test/**/*.node.test.ts'],
     }),
   ];
 }
 
-function createCoreTestProjects(root: URL, browserName?: string): UserConfig[] {
+function createCoreTestProjects(root: URL, scope?: string): UserConfig[] {
   return [
     createBrowserTestProject({
-      name: browserName,
+      name: scopedName('browser', scope),
       root,
       include: ['tests/**/*.browser.test.ts'],
       setupFiles: ['tests/setup.ts'],
       viteConfig: createCoreViteConfig(root),
     }),
     createDeclarationTestProject({
+      name: scopedName('declaration', scope),
       root,
       include: ['tests/**/*.declaration.test.ts'],
       tsconfig: './tsconfig.json',
@@ -220,10 +231,32 @@ function createCoreTestProjects(root: URL, browserName?: string): UserConfig[] {
   ];
 }
 
-function createTprocTestProjects(root: URL, nodeName?: string): UserConfig[] {
+function createDragTestProjects(root: URL, scope?: string): UserConfig[] {
+  return [
+    createBrowserTestProject({
+      name: scopedName('browser', scope),
+      root,
+      include: ['test/**/*.browser.test.ts'],
+      viteConfig: createCoreViteConfig(root),
+    }),
+    createDeclarationTestProject({
+      name: scopedName('declaration', scope),
+      root,
+      include: ['test/**/*.declaration.test.ts'],
+      tsconfig: './tsconfig.json',
+    }),
+    createNodeTestProject({
+      name: scopedName('node', scope),
+      root,
+      include: ['test/**/*.node.test.ts'],
+    }),
+  ];
+}
+
+function createTprocTestProjects(root: URL, scope?: string): UserConfig[] {
   return [
     createNodeTestProject({
-      name: nodeName,
+      name: scopedName('node', scope),
       root,
       include: ['test/**/*.node.test.ts'],
       setupFiles: ['test/setup.ts'],
@@ -233,11 +266,11 @@ function createTprocTestProjects(root: URL, nodeName?: string): UserConfig[] {
 
 function createViteTraitsPluginTestProjects(
   root: URL,
-  nodeName?: string,
+  scope?: string,
 ): UserConfig[] {
   return [
     createNodeTestProject({
-      name: nodeName,
+      name: scopedName('node', scope),
       root,
       include: ['test/**/*.node.test.ts'],
     }),
@@ -260,6 +293,14 @@ export function createCoreTestConfig(root: URL): UserConfig {
   return {
     test: {
       projects: createCoreTestProjects(root),
+    },
+  };
+}
+
+export function createDragTestConfig(root: URL): UserConfig {
+  return {
+    test: {
+      projects: createDragTestProjects(root),
     },
   };
 }
@@ -289,16 +330,20 @@ export function createWorkspaceTestConfig(
       env,
       options.materialXRoot,
       options.materialXCommands,
-      'browser/material-x',
+      'material-x',
     );
   const [coreBrowser, coreDeclaration] = createCoreTestProjects(
     options.coreRoot,
-    'browser/core',
+    'core',
   );
-  const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'node/tproc');
+  const [dragBrowser, dragDeclaration, dragNode] = createDragTestProjects(
+    options.dragRoot,
+    'drag',
+  );
+  const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'tproc');
   const [viteTraitsPluginNode] = createViteTraitsPluginTestProjects(
     options.viteTraitsPluginRoot,
-    'node/vite-traits-plugin',
+    'vite-traits-plugin',
   );
 
   return mergeConfig(createTestBaseConfig(options.root), {
@@ -310,6 +355,9 @@ export function createWorkspaceTestConfig(
         coreBrowser,
         materialXNode,
         coreDeclaration,
+        dragBrowser,
+        dragNode,
+        dragDeclaration,
         tprocNode,
         viteTraitsPluginNode,
       ],
