@@ -8,7 +8,7 @@ const CONTRACT = 'checkbox.default';
 /**
  * `mx-checkbox` visual-contract deltas. The state-layer box, full radius and
  * icon size shared with `mx-radio` are covered in
- * `test/core/elements/CheckableCore.spec.browser.test.ts`.
+ * `tests/core/elements/CheckableCore.spec.browser.test.ts`.
  *
  * The visible box is the `:host::after` pseudo-element, so its geometry is read
  * through `getComputedStyle(host, '::after')` rather than a `DOMRect`.

@@ -180,35 +180,35 @@ function createMaterialXTestProjects(
     createBrowserTestProject({
       name: scopedName('browser', scope),
       root,
-      include: ['test/**/*.browser.test.ts'],
+      include: ['tests/**/*.browser.test.ts'],
       exclude: [
-        'test/**/*.spec.browser.test.ts',
-        'test/**/*.visual.browser.test.ts',
+        'tests/**/*.spec.browser.test.ts',
+        'tests/**/*.visual.browser.test.ts',
       ],
-      setupFiles: ['test/support/browser-setup.ts'],
+      setupFiles: ['tests/support/browser-setup.ts'],
       commands,
       viteConfig: createMaterialXViteConfig(env, root),
     }),
     createBrowserTestProject({
       name: scopedName('spec', scope),
       root,
-      include: ['test/**/*.spec.browser.test.ts'],
-      setupFiles: ['test/support/browser-setup.ts'],
+      include: ['tests/**/*.spec.browser.test.ts'],
+      setupFiles: ['tests/support/browser-setup.ts'],
       commands,
       viteConfig: createMaterialXViteConfig(env, root),
     }),
     createBrowserTestProject({
       name: scopedName('visual', scope),
       root,
-      include: ['test/**/*.visual.browser.test.ts'],
-      setupFiles: ['test/support/browser-setup.ts'],
+      include: ['tests/**/*.visual.browser.test.ts'],
+      setupFiles: ['tests/support/browser-setup.ts'],
       commands,
       viteConfig: createMaterialXViteConfig(env, root),
     }),
     createNodeTestProject({
       name: scopedName('node', scope),
       root,
-      include: ['test/**/*.node.test.ts'],
+      include: ['tests/**/*.node.test.ts'],
     }),
   ];
 }
@@ -236,19 +236,19 @@ function createDragTestProjects(root: URL, scope?: string): UserConfig[] {
     createBrowserTestProject({
       name: scopedName('browser', scope),
       root,
-      include: ['test/**/*.browser.test.ts'],
+      include: ['tests/**/*.browser.test.ts'],
       viteConfig: createCoreViteConfig(root),
     }),
     createDeclarationTestProject({
       name: scopedName('declaration', scope),
       root,
-      include: ['test/**/*.declaration.test.ts'],
+      include: ['tests/**/*.declaration.test.ts'],
       tsconfig: './tsconfig.json',
     }),
     createNodeTestProject({
       name: scopedName('node', scope),
       root,
-      include: ['test/**/*.node.test.ts'],
+      include: ['tests/**/*.node.test.ts'],
     }),
   ];
 }
@@ -258,8 +258,8 @@ function createTprocTestProjects(root: URL, scope?: string): UserConfig[] {
     createNodeTestProject({
       name: scopedName('node', scope),
       root,
-      include: ['test/**/*.node.test.ts'],
-      setupFiles: ['test/setup.ts'],
+      include: ['tests/**/*.node.test.ts'],
+      setupFiles: ['tests/setup.ts'],
     }),
   ];
 }
@@ -272,7 +272,7 @@ function createViteTraitsPluginTestProjects(
     createNodeTestProject({
       name: scopedName('node', scope),
       root,
-      include: ['test/**/*.node.test.ts'],
+      include: ['tests/**/*.node.test.ts'],
     }),
   ];
 }

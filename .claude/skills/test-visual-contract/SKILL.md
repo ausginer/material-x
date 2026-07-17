@@ -5,7 +5,7 @@ description: Author @ydinjs/tproc-backed visual-contract tests (*.spec.browser.t
 
 # Authoring @ydinjs/tproc-backed visual contracts
 
-A visual-contract test proves the _rendered_ component agrees with the `@ydinjs/tproc` tokens selected for it. It is the `*.spec.browser.test.ts` layer. Reference implementation: `packages/material-x/test/button/button.spec.browser.test.ts` — read it before writing a new one.
+A visual-contract test proves the _rendered_ component agrees with the `@ydinjs/tproc` tokens selected for it. It is the `*.spec.browser.test.ts` layer. Reference implementation: `packages/material-x/tests/button/button.spec.browser.test.ts` — read it before writing a new one.
 
 Rationale (four-layer model, oracle hierarchy, what this layer does and does not prove) lives in `.agents/docs/test-architecture.md`. This skill is the _how_.
 
@@ -35,8 +35,8 @@ Prefer, in order: `DOMRect` geometry → computed CSS properties on the rendered
 
 tproc is Node-only (top-level async DB load). Browser tests reach it through a Vitest Browser command, **not** by importing the DB.
 
-- Node side: `packages/material-x/test/support/visual-contracts.node.ts` — defines `resolveTokenContract` and the contract registry (`BUTTON_SIZE_CONTRACTS`, …). This is the live source of truth for **which contract IDs exist** — read it; do not maintain a list of IDs anywhere else.
-- Browser side: `commands.resolveTokenContract({ contract, state, tokens })` from `vitest/browser`, typed in `test/support/browser-commands.ts`.
+- Node side: `packages/material-x/tests/support/visual-contracts.node.ts` — defines `resolveTokenContract` and the contract registry (`BUTTON_SIZE_CONTRACTS`, …). This is the live source of truth for **which contract IDs exist** — read it; do not maintain a list of IDs anywhere else.
+- Browser side: `commands.resolveTokenContract({ contract, state, tokens })` from `vitest/browser`, typed in `tests/support/browser-commands.ts`.
 
 ```ts
 import { commands } from 'vitest/browser';
@@ -71,7 +71,7 @@ A component's spec fixtures (`*.spec.fixtures.ts`) describe _how to observe_ a t
 tproc emits CSS-oriented strings (`px`, `ms`, colors, font lists, `var()` with fallbacks); browser APIs may serialize the same value differently. Convert once, in one tested place:
 
 - If an adapter is used by **one** component, a small local helper (like `pixels()` in the button spec) is fine.
-- The moment a second component needs the same conversion, promote it to `test/support` and unit-test it there. Do not reimplement color/length/font normalization per component.
+- The moment a second component needs the same conversion, promote it to `tests/support` and unit-test it there. Do not reimplement color/length/font normalization per component.
 
 Adapters to expect as they arrive: CSS color → canonical serialization; font-family list normalization; length → CSS px / numeric DOMRect; border-radius expansion; opacity → number; duration → ms; `full` shape → `rendered block size / 2`; elevation level → shadow; state-layer opacity observed on a pseudo-element.
 

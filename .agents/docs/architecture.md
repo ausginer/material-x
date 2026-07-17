@@ -23,7 +23,7 @@ The workspace also contains build-time packages: the public `@ydinjs/vite-traits
 │   │   └── .data/tokens/             # cached upstream M3 tables
 │   ├── material-x/                   # @ydinjs/material-x components
 │   │   ├── src/                      # component source and styles
-│   │   └── test/                     # browser, spec, visual, and Node tests
+│   │   └── tests/                    # browser, spec, visual, and Node tests
 │   ├── vite-traits-plugin/           # @ydinjs/vite-traits-plugin
 │   └── vite-custom-element-assets/   # private Vite asset transforms
 ├── .scripts/                         # shared build and development tooling
@@ -75,7 +75,7 @@ Each component combines the core runtime and token processor:
 
 The component package contains buttons, button groups, checkboxes, FABs, icons, lists, radios, and text fields. Its public runtime entrypoints are declared in `packages/material-x/files.json`; add or remove entries with components.
 
-`packages/material-x/test` mirrors the production tree. It owns browser behavior tests, tproc-backed visual-contract tests, visual-regression tests, and Material-X-specific Node tests. The core and tproc packages own their own test trees.
+`packages/material-x/tests` mirrors the production tree. It owns browser behavior tests, tproc-backed visual-contract tests, visual-regression tests, and Material-X-specific Node tests. The core and tproc packages own their own test trees.
 
 ## Build and tooling
 
@@ -91,5 +91,5 @@ When a `@ydinjs/core` change affects Material X, rebuild core before typecheckin
 
 - **Core capability:** add an `@ydinjs/core` controller or trait and export it through that package's `files.json`.
 - **Token capability:** add or adjust an `@ydinjs/tproc` token-processing primitive or upstream table source.
-- **Material component:** create a `packages/material-x/src/<component>/` implementation, consume core and tproc through their `@ydinjs/*` imports, add public entrypoints to `packages/material-x/files.json`, and add mirrored tests under `packages/material-x/test/<component>/`.
+- **Material component:** create a `packages/material-x/src/<component>/` implementation, consume core and tproc through their `@ydinjs/*` imports, add public entrypoints to `packages/material-x/files.json`, and add mirrored tests under `packages/material-x/tests/<component>/`.
 - **Build optimization:** add trait-lowering support in `@ydinjs/vite-traits-plugin`, keeping unsupported compositions safe at runtime.

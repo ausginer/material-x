@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "./src/**/*",
-    "./test/**/*",
+    "./tests/**/*",
     "../../types.d.ts",
     "./files.json",
     "./tsdown.config.ts",

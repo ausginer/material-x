@@ -6,7 +6,7 @@ import '../../src/radio/radio.ts';
 /**
  * `mx-radio` deltas only. The checked/value/name/disabled sync, activation
  * sequence, focus delegation and form participation shared with `mx-checkbox`
- * are covered once in `test/core/elements/CheckableCore.browser.test.ts`.
+ * are covered once in `tests/core/elements/CheckableCore.browser.test.ts`.
  */
 function createRadio(name?: string): Radio {
   const element = document.createElement('mx-radio');

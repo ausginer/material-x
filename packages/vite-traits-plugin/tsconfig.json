@@ -2,11 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "./src/**/*",
-    "./test/**/*",
+    "./tests/**/*",
     "./files.json",
     "./tsdown.config.ts",
     "./eslint.config.ts",
     "./vitest.config.ts"
   ],
-  "exclude": ["./test/fixtures/**"]
+  "exclude": ["./tests/fixtures/**"]
 }

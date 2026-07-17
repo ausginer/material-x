@@ -6,7 +6,7 @@ import config from '../../eslint.config.ts';
 // the package tsconfig, so keep the typed linter off them too.
 const withIgnores: typeof config = [
   ...config,
-  { ignores: ['test/fixtures/**'] },
+  { ignores: ['tests/fixtures/**'] },
 ];
 
 export default withIgnores;

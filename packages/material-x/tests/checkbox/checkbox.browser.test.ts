@@ -6,7 +6,7 @@ import '../../src/checkbox/checkbox.ts';
 /**
  * `mx-checkbox` deltas only. The checked/value/name/disabled sync, activation
  * sequence, focus delegation and form participation shared with `mx-radio` are
- * covered once in `test/core/elements/CheckableCore.browser.test.ts`.
+ * covered once in `tests/core/elements/CheckableCore.browser.test.ts`.
  */
 const CHECKED_ICON = 'check_small';
 const INDETERMINATE_ICON = 'check_indeterminate_small';

@@ -129,11 +129,11 @@
     "@ydinjs/core": "0.1.0",
     "type-fest": "5.5.0"
   },
+  "devDependencies": {
+    "@ydinjs/tproc": "0.1.0"
+  },
   "engines": {
     "node": ">=24"
   },
-  "customElements": "custom-elements.json",
-  "devDependencies": {
-    "@ydinjs/tproc": "0.1.0"
-  }
+  "customElements": "custom-elements.json"
 }

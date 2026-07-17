@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 import { createWorkspaceTestConfig } from './.scripts/vitest-config.ts';
 // Test-only infrastructure is deliberately not a package runtime export.
 // eslint-disable-next-line import-x/no-relative-packages
-import { materialXBrowserCommands } from './packages/material-x/test/support/visual-contracts.node.ts';
+import { materialXBrowserCommands } from './packages/material-x/tests/support/visual-contracts.node.ts';
 
 const config: UserConfigFnObject = defineConfig((env) =>
   createWorkspaceTestConfig(env, {

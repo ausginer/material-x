@@ -1,21 +1,21 @@
 ---
 name: test-component
-description: Write or migrate tests for an @ydinjs/material-x component — file placement under packages/material-x/test, the .browser/.spec.browser/.visual.browser/.node suffix and Vitest project routing, rendering/interaction rules (real custom element, real browser input), and the component definition-of-done checklist. Use when adding, moving, or reviewing a component's tests. For the @ydinjs/tproc-backed visual-contract layer specifically (token oracles, the bridge, normalization), use the test-visual-contract skill.
+description: Write or migrate tests for an @ydinjs/material-x component — file placement under packages/material-x/tests, the .browser/.spec.browser/.visual.browser/.node suffix and Vitest project routing, rendering/interaction rules (real custom element, real browser input), and the component definition-of-done checklist. Use when adding, moving, or reviewing a component's tests. For the @ydinjs/tproc-backed visual-contract layer specifically (token oracles, the bridge, normalization), use the test-visual-contract skill.
 ---
 
 # Testing an @ydinjs/material-x component
 
 Rationale (why four layers, non-goals, the failure-interpretation table) lives in `.agents/docs/test-architecture.md`. This skill is the actionable rules. The tproc-contract layer has its own skill: **test-visual-contract**.
 
-Reference component (closest to the target architecture): `test/button/`.
+Reference component (closest to the target architecture): `tests/button/`.
 
 ## Where tests go
 
-All `@ydinjs/material-x` tests live under `packages/material-x/test`, mirroring the production tree. No `*.test.ts`, fixture, screenshot baseline, or test-only helper below `packages/material-x/src`.
+All `@ydinjs/material-x` tests live under `packages/material-x/tests`, mirroring the production tree. No `*.test.ts`, fixture, screenshot baseline, or test-only helper below `packages/material-x/src`.
 
-- `src/button` → `test/button`
-- `src/core/elements` → `test/core/elements`
-- shared test-only infrastructure → `test/support`
+- `src/button` → `tests/button`
+- `src/core/elements` → `tests/core/elements`
+- shared test-only infrastructure → `tests/support`
 
 The directory is singular `test`. Do **not** create `tests`, `__tests__`, or source-colocated test roots in Material X. The separate `@ydinjs/core` and `@ydinjs/tproc` packages own their own test layouts; do not reconcile them with Material X. Tests still `import` production modules from `src`; separation is organizational, not black-box. Test files MUST NOT become runtime entrypoints or be added to `files.json`, and production code MUST NOT import from `test`.
 
@@ -43,11 +43,11 @@ Convert `accessibility.md` requirements into browser tests where the browser exp
 - **Render the real custom element** (`document.createElement('mx-…')`). Never the Storybook React renderer or a captured iframe. Storybook may reuse data-only fixtures, but it is not the test runtime.
 - **Select the meaningful target.** Many hosts use `display: contents`, so the host `DOMRect` is empty/misleading. Query the shadow implementation (`.host`, `.control`, an internal input) — see `getImplementation` in the button spec. Use `::before`/`::after` when the state layer is a pseudo-element; slotted targets when the contract belongs to slotted content.
 - **Enter states through public behavior.** Variant/persistent state via attributes, properties, methods, form/parent context. **Transient interaction** (`:hover`, `:active`, `:focus-visible`) via **real browser input** — `userEvent`/locators from `vitest/browser`. `@testing-library/user-event` cannot create browser-owned pseudo-classes; new state-sensitive tests MUST use the Vitest Browser API. Synthetic `dispatchEvent` is only appropriate when the event itself is the unit under test.
-- **Wait for explicit stability**, never arbitrary sleeps: element upgrade readiness, a frame boundary where layout needs it, `document.fonts.ready`, observer/slot settlement. Put these in shared `test/support` helpers.
+- **Wait for explicit stability**, never arbitrary sleeps: element upgrade readiness, a frame boundary where layout needs it, `document.fonts.ready`, observer/slot settlement. Put these in shared `tests/support` helpers.
 
 ## Determinism
 
-`test/support/browser-setup.ts` is the shared setup (cleanup via `document.body.replaceChildren()`, fixed light scheme, canonical background/font, disabled animations/transitions). Tests MUST NOT depend on network, current time, random IDs, system fonts, or machine-specific data. Use deterministic fixture content. Reuse the setup rather than re-establishing environment per test.
+`tests/support/browser-setup.ts` is the shared setup (cleanup via `document.body.replaceChildren()`, fixed light scheme, canonical background/font, disabled animations/transitions). Tests MUST NOT depend on network, current time, random IDs, system fonts, or machine-specific data. Use deterministic fixture content. Reuse the setup rather than re-establishing environment per test.
 
 ## Coverage: equivalence classes, not Cartesian product
 

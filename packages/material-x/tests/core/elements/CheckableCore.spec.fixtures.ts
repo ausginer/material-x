@@ -7,7 +7,7 @@
 export type CheckableSpecCase = Readonly<{
   name: string;
   tag: 'mx-checkbox' | 'mx-radio';
-  /** Contract ID registered in `test/support/visual-contracts.node.ts`. */
+  /** Contract ID registered in `tests/support/visual-contracts.node.ts`. */
   contract: string;
   /**
    * Shadow selector for the element carrying `icon.size`. Checkbox renders one
