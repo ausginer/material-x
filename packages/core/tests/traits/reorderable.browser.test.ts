@@ -44,6 +44,22 @@ function grip(item: HTMLElement): HTMLElement {
   return item.querySelector<HTMLElement>('[data-handle]')!;
 }
 
+/**
+ * Simulates a controlled consumer: on the reorder intent, move the item node to
+ * the proposed index (via `insertBefore`, the way a framework reorder would, so
+ * the lifted popover stays connected).
+ */
+function commitOnReorder(list: HTMLElement): void {
+  list.addEventListener('reorder', (event) => {
+    const e = event as ReorderEvent;
+    const others = [...list.children].filter(
+      (c): c is ControlledElement =>
+        c instanceof ControlledElement && c !== e.item,
+    );
+    list.insertBefore(e.item, others[e.to] ?? null);
+  });
+}
+
 function createReorderEvent(): ReorderEvent {
   return new ReorderEvent(document.createElement('div'), 0, 1);
 }
@@ -57,8 +73,8 @@ describe('ReorderEvent', () => {
     expect(createReorderEvent().composed).toBeTruthy();
   });
 
-  it('should not be cancelable after the reorder lands', () => {
-    expect(createReorderEvent().cancelable).toBeFalsy();
+  it('should be cancelable, being a proposed move rather than a commit', () => {
+    expect(createReorderEvent().cancelable).toBeTruthy();
   });
 });
 
@@ -323,18 +339,88 @@ describe('useReorderable', () => {
     expect(event.to).toBe(2);
   });
 
-  it('should not reorder the DOM itself on drop, leaving that to the consumer', async () => {
+  it('should propose a move without reordering the DOM itself', async () => {
     const list = createList();
     const item1 = createItem();
     const item2 = createItem();
     const item3 = createItem();
+
+    list.style.display = 'block';
+    for (const item of [item1, item2, item3]) {
+      item.style.display = 'block';
+      item.style.height = '50px';
+    }
 
     document.body.append(list);
     list.append(item1, item2, item3);
     list.reorderable = true;
     await nextFrame();
 
+    // Capture the item order at the moment the intent fires — the trait must not
+    // have moved anything itself; that is the consumer's job.
+    let orderAtIntent: readonly ControlledElement[] | null = null;
+    list.addEventListener('reorder', () => {
+      orderAtIntent = [...list.children].filter(
+        (c): c is ControlledElement => c instanceof ControlledElement,
+      );
+    });
+
+    await ue.pointer([
+      { target: item1, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 9999 } },
+      { keys: '[/MouseLeft]' },
+    ]);
+
+    await vi.waitFor(() => expect(orderAtIntent).not.toBeNull(), {
+      timeout: 1000,
+    });
+
+    expect(orderAtIntent).toStrictEqual([item1, item2, item3]);
+  });
+
+  it('should not dispatch a reorder for a no-op drop', async () => {
+    const list = createList();
+    const item = createItem();
+
+    document.body.append(list);
+    list.append(item);
+    list.reorderable = true;
+    await nextFrame();
+
     const reorderSpy = vi.fn<(e: Event) => void>();
+    list.addEventListener('reorder', reorderSpy);
+
+    // Sole item: it can only land where it started, so nothing is proposed.
+    await ue.pointer([
+      { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 100 } },
+      { keys: '[/MouseLeft]' },
+    ]);
+    await vi.waitFor(() => expect(item.matches(':popover-open')).toBeFalsy(), {
+      timeout: 1000,
+    });
+
+    expect(reorderSpy).not.toHaveBeenCalled();
+  });
+
+  it('should animate home and not move when the intent is prevented', async () => {
+    const list = createList();
+    const item1 = createItem();
+    const item2 = createItem();
+    const item3 = createItem();
+
+    list.style.display = 'block';
+    for (const item of [item1, item2, item3]) {
+      item.style.display = 'block';
+      item.style.height = '50px';
+    }
+
+    document.body.append(list);
+    list.append(item1, item2, item3);
+    list.reorderable = true;
+    await nextFrame();
+
+    const reorderSpy = vi.fn<(e: Event) => void>((e) => e.preventDefault());
     list.addEventListener('reorder', reorderSpy);
 
     await ue.pointer([
@@ -343,13 +429,50 @@ describe('useReorderable', () => {
       { keys: '[/MouseLeft]' },
     ]);
 
-    await vi.waitFor(() => expect(reorderSpy).toHaveBeenCalledOnce(), {
+    await vi.waitFor(
+      () => expect(internals(item1).states.has('drag')).toBeFalsy(),
+      { timeout: 1000 },
+    );
+
+    // The intent was dispatched, but rejecting it leaves the order untouched.
+    expect(reorderSpy).toHaveBeenCalledOnce();
+    expect(
+      [...list.children].filter((c) => c instanceof ControlledElement),
+    ).toStrictEqual([item1, item2, item3]);
+  });
+
+  it('should settle once the consumer commits the proposed move', async () => {
+    const list = createList();
+    const item1 = createItem();
+    const item2 = createItem();
+    const item3 = createItem();
+
+    list.style.display = 'block';
+    for (const item of [item1, item2, item3]) {
+      item.style.display = 'block';
+      item.style.height = '50px';
+    }
+
+    document.body.append(list);
+    list.append(item1, item2, item3);
+    list.reorderable = true;
+    commitOnReorder(list);
+    await nextFrame();
+
+    await ue.pointer([
+      { target: item1, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 9999 } },
+      { keys: '[/MouseLeft]' },
+    ]);
+
+    // The consumer moved item1 to the end; the session settles on that commit.
+    await vi.waitFor(() => expect(item1.matches(':popover-open')).toBeFalsy(), {
       timeout: 1000,
     });
 
-    // The trait reports from/to but never moves the item — sibling order is
-    // exactly as it started, and the footprint is gone.
-    expect([...list.children]).toStrictEqual([item1, item2, item3]);
+    expect(
+      [...list.children].filter((c) => c instanceof ControlledElement),
+    ).toStrictEqual([item2, item3, item1]);
   });
 
   it('should not dispatch ReorderEvent on pointercancel after movement', async () => {
@@ -431,27 +554,23 @@ describe('useReorderable', () => {
     list.reorderable = true;
     await nextFrame();
 
-    const reorderSpy = vi.fn<(e: Event) => void>();
-    list.addEventListener('reorder', reorderSpy);
-
-    // Drag to the bottom, then return to the starting point and release. The
-    // threshold must only gate the first activation, so the footprint follows
-    // back and the item lands where it started (to === from).
+    // Drag to the bottom (footprint moves after item2), then return near the
+    // origin. The threshold only gates the first activation, so the footprint
+    // must follow back to the front rather than freeze at the bottom.
     await ue.pointer([
       { target: item1, keys: '[MouseLeft>]', coords: { clientY: 10 } },
       { coords: { clientY: 9999 } },
     ]);
     await nextFrame();
+    expect(list.lastElementChild).toBe(list.querySelector('[data-footprint]'));
+
     await ue.pointer([{ coords: { clientY: 10 } }]);
     await nextFrame();
-    await ue.pointer([{ keys: '[/MouseLeft]' }]);
 
-    await vi.waitFor(() => expect(reorderSpy).toHaveBeenCalledOnce(), {
-      timeout: 1000,
-    });
-
-    const event = reorderSpy.mock.calls[0]?.[0] as ReorderEvent;
-    expect(event.to).toBe(0);
+    // Footprint has tracked back to sit before item2 again.
+    expect(list.querySelector('[data-footprint]')!.nextElementSibling).toBe(
+      item2,
+    );
   });
 
   it('should not dispatch ReorderEvent when no drag is active', async () => {
@@ -768,19 +887,17 @@ describe('useReorderable', () => {
     list.reorderable = true;
     await nextFrame();
 
-    const reorderSpy = vi.fn<(e: Event) => void>();
-    list.addEventListener('reorder', reorderSpy);
-
     await ue.pointer([
       { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
       { coords: { clientY: 100 } },
       { keys: '[/MouseLeft]' },
     ]);
-    await vi.waitFor(() => expect(reorderSpy).toHaveBeenCalledOnce(), {
+
+    // Sole item, so the drop is a no-op that just animates home; wait for the
+    // teardown to restore the target's own inline styles.
+    await vi.waitFor(() => expect(item.style.position).toBe('relative'), {
       timeout: 1000,
     });
-
-    expect(item.style.position).toBe('relative');
     expect(item.style.transform).toBe('translateX(5px)');
   });
 
@@ -837,19 +954,16 @@ describe('useReorderable', () => {
     list.reorderable = true;
     await nextFrame();
 
-    const reorderSpy = vi.fn<(e: Event) => void>();
-    list.addEventListener('reorder', reorderSpy);
-
     await ue.pointer([
       { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
       { coords: { clientY: 100 } },
       { keys: '[/MouseLeft]' },
     ]);
-    await vi.waitFor(() => expect(reorderSpy).toHaveBeenCalledOnce(), {
+
+    // Wait for the landing to settle and hand the visual back from the top layer.
+    await vi.waitFor(() => expect(item.matches(':popover-open')).toBeFalsy(), {
       timeout: 1000,
     });
-
-    expect(item.matches(':popover-open')).toBeFalsy();
     expect(item.hasAttribute('popover')).toBeFalsy();
   });
 

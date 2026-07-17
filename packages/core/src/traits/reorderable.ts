@@ -7,22 +7,22 @@ import { trait, type Interface, type Props, type Trait } from './attributes.ts';
 
 const REORDER_EVENT_INIT: Readonly<EventInit> = {
   bubbles: true,
-  cancelable: false,
+  cancelable: true,
   composed: true,
 };
 
 /**
- * Fired by a reorderable container when the user drops a dragged item at a new
- * position. DOM reordering is left to the consumer.
+ * Fired by a reorderable container when the user drops a dragged item, proposing
+ * a move from `from` to `to`. It is an *intent*, dispatched before anything is
+ * committed: the consumer owns the collection and decides whether and how to
+ * apply the move, then updates its own state so the item lands at `to`.
  *
- * @remarks This post-commit notification bubbles and crosses shadow DOM
- * boundaries. It is not cancelable because the drag has already landed.
- *
- * Reorder **synchronously** inside the handler (e.g. a synchronous `setState`),
- * not in a microtask, `await`, or a later frame. The dropped item is restored
- * to its original position as this event is dispatched, so a deferred reorder
- * makes it visibly snap back to its old slot for a frame before landing in the
- * new one.
+ * @remarks Bubbles and crosses shadow DOM boundaries. Call `preventDefault()` to
+ * reject the move — the item animates back to where it started and nothing is
+ * committed. The event is dispatched as the landing animation begins, so the
+ * consumer's (possibly asynchronous) re-render runs *concurrently* with the
+ * animation; the container watches its slot and only settles once the item has
+ * actually reached `to`, so no synchronous `flushSync` is required.
  */
 export class ReorderEvent extends Event {
   readonly item: HTMLElement;
@@ -71,6 +71,15 @@ const DRAGGED_STATE = 'drag';
  * which would jump the footprint away from its initial position.
  */
 const DRAG_THRESHOLD = 8;
+
+/**
+ * How long, after the landing animation, to keep waiting for the consumer to
+ * commit the reorder before settling anyway. With the intent dispatched up
+ * front, a normal consumer commits *during* the animation, so this grace is only
+ * spent when a render lands late (or the consumer ignores the event); it bounds
+ * how long the session stays busy rather than hanging forever.
+ */
+const COMMIT_TIMEOUT = 500;
 
 /**
  * Inline properties written onto the dragged visual while it is lifted. On
@@ -207,6 +216,12 @@ type DragSession = Readonly<{
   /** The `pointerId` that initiated the gesture; only this pointer drives it. */
   pointerId: number;
   /**
+   * Notifies the session that the container's assigned items changed, so a
+   * landing waiting on the consumer's commit can settle once the item has
+   * reached its proposed slot.
+   */
+  itemsChanged(): void;
+  /**
    * Animates the item home and dispatches {@link ReorderEvent}, then resolves
    * once it has landed. Idempotent — repeat calls return the in-flight landing
    * rather than starting a second one. The trait does not reorder siblings; the
@@ -271,6 +286,12 @@ function createDragSession(
   // stop the animation and skip the announcement, but still clean up.
   let canceled = false;
   let animation: Animation | undefined;
+  // The item the dragged one should end up before once committed (null = last),
+  // captured at drop. Anchoring to a neighbour rather than a raw index survives
+  // the collection changing while the consumer commits.
+  let anchor: ControlledElement | null = null;
+  // Resolver for the in-flight "consumer has committed" wait, if any.
+  let commitResolve: (() => void) | null = null;
   // Pre-existing inline values of the properties the lift overwrites, captured
   // at activation and restored on teardown so a custom target keeps its own
   // inline geometry/transform. `undefined` means the property was not set.
@@ -430,53 +451,112 @@ function createDragSession(
     }
   };
 
+  /** First item that follows the footprint in DOM order (null = footprint last). */
+  const itemAfterFootprint = (): ControlledElement | null => {
+    for (const it of items()) {
+      if (
+        it !== item &&
+        // oxlint-disable-next-line no-bitwise
+        (footprint.compareDocumentPosition(it) &
+          Node.DOCUMENT_POSITION_FOLLOWING) !==
+          0
+      ) {
+        return it;
+      }
+    }
+
+    return null;
+  };
+
+  /** Whether the consumer has moved the dragged item to sit before `anchor`. */
+  const committed = (): boolean => {
+    const list = items();
+    const index = list.indexOf(item);
+
+    // Removed by the consumer — treat as resolved rather than wait forever.
+    if (index === -1) {
+      return true;
+    }
+
+    return anchor ? list[index + 1] === anchor : index === list.length - 1;
+  };
+
+  /** Resolves once the consumer has committed, or after {@link COMMIT_TIMEOUT}. */
+  const awaitCommit = (): Promise<void> => {
+    if (committed()) {
+      return Promise.resolve();
+    }
+
+    return new Promise<void>((resolve) => {
+      let timer: ReturnType<typeof setTimeout>;
+
+      const done = () => {
+        clearTimeout(timer);
+        commitResolve = null;
+        resolve();
+      };
+
+      commitResolve = done;
+      timer = setTimeout(done, COMMIT_TIMEOUT);
+    });
+  };
+
+  /** Animates the ghost to `endTransform` and pins it there once it lands. */
+  const animateTo = async (endTransform: string): Promise<void> => {
+    animation = visual.animate(
+      [
+        { transform: `translate(${delta.x}px, ${delta.y}px)` },
+        { transform: endTransform },
+      ],
+      timing(),
+    );
+
+    toggleState(internals(item), DRAGGED_STATE, false);
+
+    try {
+      await animation.finished;
+    } catch {
+      // Finished rejects when the animation is cancelled — abandoned session or
+      // a browser interruption. Fall through to pinning + teardown.
+    }
+
+    // Pin the landed transform so removing the (fill: none) effect doesn't snap
+    // the ghost back to the drag delta for a frame.
+    if (!canceled) {
+      visual.style.transform = endTransform;
+    }
+  };
+
   const land = async (): Promise<void> => {
     flush();
     // Stop following the pointer the moment the gesture is over.
     tracking.abort();
+    anchor = itemAfterFootprint();
 
-    // All cleanup lives in the finally, so a throw from `timing()` or
-    // `animate()` — or an abandoned landing — can never leave the item stuck
-    // lifted with a dangling footprint.
+    // A no-op drop proposes nothing; only a real move is announced. The intent
+    // goes out *before* the animation so the consumer's commit overlaps it.
+    const move = toIndex !== fromIndex;
+    const accepted =
+      move && host.dispatchEvent(new ReorderEvent(item, fromIndex, toIndex));
+
+    // All cleanup lives in the finally, so a throw from `timing()`/`animate()` —
+    // or an abandoned landing — can never leave the item stuck lifted with a
+    // dangling footprint.
     try {
-      const fp = footprint.getBoundingClientRect();
-      const landed = `translate(${fp.left - origin.x}px, ${fp.top - origin.y}px)`;
-      animation = visual.animate(
-        [
-          { transform: `translate(${delta.x}px, ${delta.y}px)` },
-          { transform: landed },
-        ],
-        timing(),
-      );
+      if (accepted) {
+        const fp = footprint.getBoundingClientRect();
+        await animateTo(
+          `translate(${fp.left - origin.x}px, ${fp.top - origin.y}px)`,
+        );
 
-      toggleState(internals(item), DRAGGED_STATE, false);
-
-      try {
-        await animation.finished;
-      } catch {
-        // Finished rejects when the animation is cancelled — either because the
-        // session was abandoned, or the browser interrupted it. Fall through.
-      }
-
-      // Abandoned mid-flight (e.g. host disconnected): clean up, announce nothing.
-      if (!canceled) {
-        // Pin the landed transform so removing the (fill: none) animation's
-        // effect doesn't snap the ghost back to the drag delta for a frame.
-        visual.style.transform = landed;
-
-        await new Promise<void>((resolve) => {
-          requestAnimationFrame(() => {
-            // The trait never reorders siblings itself — the consumer does, in
-            // response to the event. Dispatch before the finally clears the lift
-            // so a consumer that reorders synchronously lands the item in its new
-            // slot without a flash.
-            if (!canceled) {
-              host.dispatchEvent(new ReorderEvent(item, fromIndex, toIndex));
-            }
-
-            resolve();
-          });
-        });
+        // Wait for the consumer's reorder to actually land the item at `to`, so
+        // teardown never reveals it in the wrong slot for a frame.
+        if (!canceled) {
+          await awaitCommit();
+        }
+      } else {
+        // No move, or the consumer rejected it: return the item home.
+        await animateTo('translate(0px, 0px)');
       }
     } finally {
       teardown();
@@ -558,6 +638,14 @@ function createDragSession(
   return {
     pointerId,
 
+    itemsChanged() {
+      // Slot changed: if we are waiting on the consumer and the item has now
+      // reached its proposed slot, the landing can settle.
+      if (commitResolve && committed()) {
+        commitResolve();
+      }
+    },
+
     commit() {
       if (!settling) {
         if (activated) {
@@ -597,6 +685,8 @@ function createDragSession(
       if (settling) {
         // A landing is in flight: stop it. `land`'s finally still runs teardown.
         animation?.cancel();
+        // Unblock a commit-wait too, so teardown isn't held by the timeout.
+        commitResolve?.();
       } else {
         tracking.abort();
         cancelAnimationFrame(frame);
@@ -637,13 +727,16 @@ function createDragSession(
  * rows, and grids are all handled without configuration. Style the footprint
  * from the caller's shadow styles via `::slotted([data-footprint])`.
  *
- * On `pointerup` the lifted visual animates to the footprint's position and a
- * {@link ReorderEvent} is dispatched. The hook never reorders siblings itself —
- * the consumer performs the actual reorder in response to the event, and should
- * do so synchronously to avoid a snap-back flash (see {@link ReorderEvent}). On
- * `pointercancel` or lost capture the item is restored to its original position
- * and nothing is dispatched. A `pointerdown` arriving while a previous item is
- * still animating home is ignored.
+ * On `pointerup`, if the item would actually move, a {@link ReorderEvent} intent
+ * is dispatched and the lifted visual animates to the footprint's position. The
+ * hook never reorders siblings itself — the consumer applies the move in
+ * response to the event; because the intent is dispatched as the animation
+ * begins, the consumer's (async) re-render overlaps it, and the hook watches its
+ * slot to settle only once the item has reached the proposed slot, so no
+ * `flushSync` is needed. A no-op drop (or a `preventDefault()`'d intent) just
+ * animates the item home and announces nothing. On `pointercancel` or lost
+ * capture the item is restored to its original position. A `pointerdown`
+ * arriving while a previous item is still settling is ignored.
  *
  * @param host - Container host implementing {@link Reorderable}.
  * @param timing - Called at drop time for the landing animation's timing, so
@@ -668,6 +761,8 @@ export function useReorderable(
       (n): n is ControlledElement => n instanceof ControlledElement,
     );
     itemSet = new Set(items);
+    // A landing may be waiting for this change to confirm the consumer's commit.
+    session?.itemsChanged();
   });
 
   /**

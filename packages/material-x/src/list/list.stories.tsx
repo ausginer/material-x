@@ -239,8 +239,12 @@ export const Draggable = (): JSX.Element => {
     <mx-list
       reorderable
       onreorder={({ from, to }) => {
-        const item = items[from]!;
-        setItems(items.filter((i) => i !== item).toSpliced(to, 0, item));
+        setItems((current) => {
+          const next = current.slice();
+          const [moved] = next.splice(from, 1);
+          next.splice(to, 0, moved!);
+          return next;
+        });
       }}
     >
       {items.map((item) => (
