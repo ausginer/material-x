@@ -1,0 +1,6 @@
+{
+  "runtime": ["draggable", "sortable"],
+  "clean": {
+    "extras": ["_virtual"]
+  }
+}

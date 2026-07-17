@@ -1,0 +1,34 @@
+{
+  "name": "@ydinjs/drag",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./draggable.js": {
+      "types": "./draggable.d.ts",
+      "default": "./draggable.js"
+    },
+    "./sortable.js": {
+      "types": "./sortable.d.ts",
+      "default": "./sortable.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "just build",
+    "clean:build": "just clean-build",
+    "docs:api:dev": "just docs-api",
+    "docs:api:build": "just docs-api-build",
+    "typecheck": "just typecheck",
+    "fmt": "just fmt",
+    "fmt:check": "just fmt-check",
+    "lint": "just lint",
+    "lint:fix": "just lint-fix",
+    "test": "just test"
+  },
+  "dependencies": {
+    "type-fest": "5.5.0"
+  }
+}
