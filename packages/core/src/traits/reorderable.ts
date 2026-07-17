@@ -206,6 +206,212 @@ function footprintIndex(
 }
 
 /**
+ * The non-dragged item immediately after (`following`) or before the footprint
+ * in DOM order, or `null` at that edge. Used to step the footprint one slot for
+ * keyboard moves and to capture the landing anchor.
+ */
+function neighbor(
+  items: readonly ControlledElement[],
+  dragged: ControlledElement,
+  footprint: Element,
+  following: boolean,
+): ControlledElement | null {
+  const bit = following
+    ? Node.DOCUMENT_POSITION_FOLLOWING
+    : Node.DOCUMENT_POSITION_PRECEDING;
+  let result: ControlledElement | null = null;
+
+  for (const item of items) {
+    if (item === dragged) {
+      continue;
+    }
+
+    // oxlint-disable-next-line no-bitwise
+    if ((footprint.compareDocumentPosition(item) & bit) !== 0) {
+      // The first following item, or the last preceding one — both are the
+      // footprint's nearest neighbour on that side.
+      if (following) {
+        return item;
+      }
+
+      result = item;
+    }
+  }
+
+  return result;
+}
+
+/** Builds the placeholder that fills the lifted item's slot. */
+function createFootprint(
+  item: ControlledElement,
+  width: number,
+  height: number,
+): HTMLDivElement {
+  const footprint = document.createElement('div');
+  footprint.dataset['footprint'] = '';
+  // Physical width/height, not logical inline/block-size: the rect is measured
+  // in physical pixels, so mapping it through logical sizes would swap the
+  // dimensions under a vertical writing mode.
+  footprint.style.width = `${width}px`;
+  footprint.style.height = `${height}px`;
+  footprint.setAttribute('aria-hidden', 'true');
+  // Take the item's slot so the footprint is assigned to the same named slot and
+  // lays out where the item did.
+  if (item.slot) {
+    footprint.slot = item.slot;
+  }
+
+  return footprint;
+}
+
+/** Pre-existing inline values of the properties the lift overwrites. */
+type SavedStyles = ReadonlyMap<
+  string,
+  readonly [value: string, priority: string]
+>;
+
+/** Snapshots the inline {@link DRAGGING_PROPS} so teardown can restore them. */
+function snapshotStyles(visual: HTMLElement): SavedStyles {
+  const saved = new Map<string, readonly [string, string]>();
+
+  for (const prop of DRAGGING_PROPS) {
+    const value = visual.style.getPropertyValue(prop);
+
+    if (value) {
+      saved.set(prop, [value, visual.style.getPropertyPriority(prop)]);
+    }
+  }
+
+  return saved;
+}
+
+/** Restores the snapshot from {@link snapshotStyles}, clearing what it lacks. */
+function restoreStyles(visual: HTMLElement, saved: SavedStyles): void {
+  for (const prop of DRAGGING_PROPS) {
+    const value = saved.get(prop);
+
+    if (value) {
+      visual.style.setProperty(prop, value[0], value[1]);
+    } else {
+      visual.style.removeProperty(prop);
+    }
+  }
+}
+
+/** Pins the visual as a fixed-position box exactly over `rect`. */
+function pinVisual(visual: HTMLElement, rect: DOMRect): void {
+  visual.style.position = 'fixed';
+  // Cancel the UA popover `inset: 0` before pinning top/left, or the ghost would
+  // stretch to the viewport edges.
+  visual.style.inset = 'auto';
+  visual.style.top = `${rect.top}px`;
+  visual.style.left = `${rect.left}px`;
+  visual.style.width = `${rect.width}px`;
+  visual.style.height = `${rect.height}px`;
+  // Strip the UA popover chrome (`border: solid`, centering `margin: auto`).
+  visual.style.margin = '0';
+  visual.style.border = '0';
+}
+
+/**
+ * Lifts the visual into the top layer via a manual popover. The top layer
+ * escapes any transformed / filtered / contained ancestor, so `position: fixed`
+ * with the item's viewport rect lands correctly — a plain fixed shadow
+ * descendant would be offset by such an ancestor's containing block. It also
+ * paints above everything (no z-index needed), and the element keeps its own
+ * styles and inherited tokens because it stays put in the DOM; only its
+ * rendering moves.
+ */
+function enterTopLayer(visual: HTMLElement, rect: DOMRect): void {
+  pinVisual(visual, rect);
+  visual.popover = 'manual';
+  visual.showPopover();
+}
+
+/** Returns the visual from the top layer and clears the popover attribute. */
+function exitTopLayer(visual: HTMLElement): void {
+  if (visual.matches(':popover-open')) {
+    visual.hidePopover();
+  }
+  visual.removeAttribute('popover');
+}
+
+/**
+ * Observes the consumer's commit of a proposed move. The trait never reorders
+ * the light DOM itself; instead it captures the item's target neighbour at drop
+ * and watches assigned-node changes to recognise when the consumer has actually
+ * placed the item there — anchoring to a neighbour rather than a raw index
+ * survives the collection changing while the (possibly async) commit lands.
+ */
+type CommitTracker = Readonly<{
+  /** Captures the item's landing anchor from the footprint's current slot. */
+  capture(footprint: Element): void;
+  /** Resolves once the consumer has committed, or after {@link COMMIT_TIMEOUT}. */
+  wait(): Promise<void>;
+  /** A slot change happened: resolve the wait if the item has now landed. */
+  notify(): void;
+  /** Force-resolves a pending wait unconditionally (abandoned gesture). */
+  release(): void;
+}>;
+
+function createCommitTracker(
+  items: () => readonly ControlledElement[],
+  item: ControlledElement,
+): CommitTracker {
+  // The item the dragged one should end up before once committed (null = last).
+  let anchor: ControlledElement | null = null;
+  // Resolver for the in-flight "consumer has committed" wait, if any.
+  let resolve: (() => void) | null = null;
+
+  const committed = (): boolean => {
+    const list = items();
+    const index = list.indexOf(item);
+
+    // Removed by the consumer — treat as resolved rather than wait forever.
+    if (index === -1) {
+      return true;
+    }
+
+    return anchor ? list[index + 1] === anchor : index === list.length - 1;
+  };
+
+  return {
+    capture(footprint) {
+      anchor = neighbor(items(), item, footprint, true);
+    },
+
+    wait() {
+      if (committed()) {
+        return Promise.resolve();
+      }
+
+      return new Promise<void>((res) => {
+        let timer: ReturnType<typeof setTimeout>;
+
+        const done = () => {
+          clearTimeout(timer);
+          resolve = null;
+          res();
+        };
+
+        resolve = done;
+        timer = setTimeout(done, COMMIT_TIMEOUT);
+      });
+    },
+
+    notify() {
+      if (resolve && committed()) {
+        resolve();
+      }
+    },
+
+    release() {
+      resolve?.();
+    },
+  };
+}
+
+/**
  * One drag gesture, from `pointerdown` to the moment the item lands.
  *
  * @remarks Every value belonging to the gesture lives in the session closure,
@@ -286,43 +492,19 @@ function createDragSession(
   // stop the animation and skip the announcement, but still clean up.
   let canceled = false;
   let animation: Animation | undefined;
-  // The item the dragged one should end up before once committed (null = last),
-  // captured at drop. Anchoring to a neighbour rather than a raw index survives
-  // the collection changing while the consumer commits.
-  let anchor: ControlledElement | null = null;
-  // Resolver for the in-flight "consumer has committed" wait, if any.
-  let commitResolve: (() => void) | null = null;
+  // Captured drop-time neighbour and commit-observation for the consumer's move.
+  const tracker = createCommitTracker(items, item);
   // Pre-existing inline values of the properties the lift overwrites, captured
   // at activation and restored on teardown so a custom target keeps its own
-  // inline geometry/transform. `undefined` means the property was not set.
-  const savedStyles = new Map<
-    string,
-    readonly [value: string, priority: string]
-  >();
-
-  const clearVisual = () => {
-    for (const prop of DRAGGING_PROPS) {
-      const saved = savedStyles.get(prop);
-
-      if (saved) {
-        visual.style.setProperty(prop, saved[0], saved[1]);
-      } else {
-        visual.style.removeProperty(prop);
-      }
-    }
-  };
+  // inline geometry/transform.
+  let savedStyles: SavedStyles = new Map();
 
   /** Undoes the lift: footprint gone, styles cleared, dragged state removed. */
   const teardown = () => {
     footprint.remove();
-
     // Return the visual from the top layer before restoring its styles.
-    if (visual.matches(':popover-open')) {
-      visual.hidePopover();
-    }
-    visual.removeAttribute('popover');
-
-    clearVisual();
+    exitTopLayer(visual);
+    restoreStyles(visual, savedStyles);
     toggleState(internals(item), DRAGGED_STATE, false);
   };
 
@@ -335,56 +517,15 @@ function createDragSession(
     activated = true;
 
     const draggedRect = visual.getBoundingClientRect();
-    const { left, top, width, height } = draggedRect;
-    origin = { x: left, y: top };
+    origin = { x: draggedRect.left, y: draggedRect.top };
 
-    footprint = document.createElement('div');
-    footprint.dataset['footprint'] = '';
-    // Physical width/height, not logical inline/block-size: the rect is measured
-    // in physical pixels, so mapping it through logical sizes would swap the
-    // dimensions under a vertical writing mode.
-    footprint.style.width = `${width}px`;
-    footprint.style.height = `${height}px`;
-    footprint.setAttribute('aria-hidden', 'true');
-    // Take the item's slot so the footprint is assigned to the same named slot
-    // and lays out where the item did.
-    if (item.slot) {
-      footprint.slot = item.slot;
-    }
+    footprint = createFootprint(item, draggedRect.width, draggedRect.height);
     item.before(footprint);
 
     // Snapshot before overwriting, so teardown can put back whatever inline
     // geometry the target already had.
-    for (const prop of DRAGGING_PROPS) {
-      const value = visual.style.getPropertyValue(prop);
-
-      if (value) {
-        savedStyles.set(prop, [value, visual.style.getPropertyPriority(prop)]);
-      }
-    }
-
-    // Lift into the top layer via a manual popover. The top layer escapes any
-    // transformed / filtered / contained ancestor, so `position: fixed` with the
-    // item's viewport rect lands correctly — a plain fixed shadow descendant
-    // would be offset by such an ancestor's containing block. It also paints
-    // above everything (no z-index needed), and the element keeps its own styles
-    // and inherited tokens because it stays put in the DOM; only its rendering
-    // moves.
-    visual.style.position = 'fixed';
-    // Cancel the UA popover `inset: 0` before pinning top/left, or the ghost
-    // would stretch to the viewport edges.
-    visual.style.inset = 'auto';
-    visual.style.top = `${top}px`;
-    visual.style.left = `${left}px`;
-    visual.style.width = `${width}px`;
-    visual.style.height = `${height}px`;
-    // Strip the UA popover chrome (`border: solid`, centering `margin: auto`)
-    // that `.host` does not otherwise override.
-    visual.style.margin = '0';
-    visual.style.border = '0';
-
-    visual.popover = 'manual';
-    visual.showPopover();
+    savedStyles = snapshotStyles(visual);
+    enterTopLayer(visual, draggedRect);
 
     // Capture on the host: it is the only element guaranteed to stay in the
     // document for the whole gesture, so the pointer cannot escape the listeners.
@@ -451,56 +592,6 @@ function createDragSession(
     }
   };
 
-  /** First item that follows the footprint in DOM order (null = footprint last). */
-  const itemAfterFootprint = (): ControlledElement | null => {
-    for (const it of items()) {
-      if (
-        it !== item &&
-        // oxlint-disable-next-line no-bitwise
-        (footprint.compareDocumentPosition(it) &
-          Node.DOCUMENT_POSITION_FOLLOWING) !==
-          0
-      ) {
-        return it;
-      }
-    }
-
-    return null;
-  };
-
-  /** Whether the consumer has moved the dragged item to sit before `anchor`. */
-  const committed = (): boolean => {
-    const list = items();
-    const index = list.indexOf(item);
-
-    // Removed by the consumer — treat as resolved rather than wait forever.
-    if (index === -1) {
-      return true;
-    }
-
-    return anchor ? list[index + 1] === anchor : index === list.length - 1;
-  };
-
-  /** Resolves once the consumer has committed, or after {@link COMMIT_TIMEOUT}. */
-  const awaitCommit = (): Promise<void> => {
-    if (committed()) {
-      return Promise.resolve();
-    }
-
-    return new Promise<void>((resolve) => {
-      let timer: ReturnType<typeof setTimeout>;
-
-      const done = () => {
-        clearTimeout(timer);
-        commitResolve = null;
-        resolve();
-      };
-
-      commitResolve = done;
-      timer = setTimeout(done, COMMIT_TIMEOUT);
-    });
-  };
-
   /** Animates the ghost to `endTransform` and pins it there once it lands. */
   const animateTo = async (endTransform: string): Promise<void> => {
     animation = visual.animate(
@@ -531,7 +622,7 @@ function createDragSession(
     flush();
     // Stop following the pointer the moment the gesture is over.
     tracking.abort();
-    anchor = itemAfterFootprint();
+    tracker.capture(footprint);
 
     // A no-op drop proposes nothing; only a real move is announced. The intent
     // goes out *before* the animation so the consumer's commit overlaps it.
@@ -552,7 +643,7 @@ function createDragSession(
         // Wait for the consumer's reorder to actually land the item at `to`, so
         // teardown never reveals it in the wrong slot for a frame.
         if (!canceled) {
-          await awaitCommit();
+          await tracker.wait();
         }
       } else {
         // No move, or the consumer rejected it: return the item home.
@@ -641,9 +732,7 @@ function createDragSession(
     itemsChanged() {
       // Slot changed: if we are waiting on the consumer and the item has now
       // reached its proposed slot, the landing can settle.
-      if (commitResolve && committed()) {
-        commitResolve();
-      }
+      tracker.notify();
     },
 
     commit() {
@@ -686,7 +775,7 @@ function createDragSession(
         // A landing is in flight: stop it. `land`'s finally still runs teardown.
         animation?.cancel();
         // Unblock a commit-wait too, so teardown isn't held by the timeout.
-        commitResolve?.();
+        tracker.release();
       } else {
         tracking.abort();
         cancelAnimationFrame(frame);
@@ -695,6 +784,163 @@ function createDragSession(
           teardown();
         }
 
+        settling = Promise.resolve();
+      }
+
+      return settling;
+    },
+  };
+}
+
+/** Announces reorder feedback to assistive tech via a live region. */
+type Announce = (message: string) => void;
+
+/**
+ * One keyboard-driven reorder gesture, from grab to drop. The item is lifted the
+ * same way a pointer drag lifts it — into the top layer over a footprint — but
+ * the destination is chosen with arrow keys rather than pointer coordinates, and
+ * each step is announced by position so a screen-reader user can follow it. The
+ * drop dispatches the same {@link ReorderEvent} intent and waits for the same
+ * consumer commit, so keyboard and pointer share one transaction model.
+ */
+type KeyboardSession = Readonly<{
+  /** Steps the footprint one slot back (`-1`) or forward (`1`). */
+  move(step: -1 | 1): void;
+  /** Dispatches the intent and resolves once the consumer commits (or times out). */
+  commit(): Promise<void>;
+  /** Aborts the grab, returning the item home and announcing nothing was moved. */
+  cancel(): Promise<void>;
+  /** Force-ends the gesture in any phase (e.g. the host disconnecting). */
+  abandon(): Promise<void>;
+}>;
+
+/**
+ * Starts a keyboard reorder: lifts `item` immediately (there is no travel
+ * threshold to arm — the grab key is the intent) and returns handles the caller
+ * drives from subsequent key presses.
+ *
+ * @param host - Container the reorder belongs to, and the event target.
+ * @param items - Current item children, re-read because slotting can change them.
+ * @param item - The grabbed item.
+ * @param announce - Sink for the position feedback announced at each step.
+ */
+function createKeyboardSession(
+  host: ReorderableHost,
+  items: () => readonly ControlledElement[],
+  item: ControlledElement,
+  announce: Announce,
+): KeyboardSession {
+  const visual = getItemTarget(item);
+  const fromIndex = items().indexOf(item);
+  const tracker = createCommitTracker(items, item);
+  let toIndex = fromIndex;
+  let settling: Promise<void> | null = null;
+  let canceled = false;
+
+  const total = (): number => items().length;
+
+  const draggedRect = visual.getBoundingClientRect();
+  const footprint = createFootprint(
+    item,
+    draggedRect.width,
+    draggedRect.height,
+  );
+  item.before(footprint);
+  const savedStyles = snapshotStyles(visual);
+  enterTopLayer(visual, draggedRect);
+  toggleState(internals(item), DRAGGED_STATE, true);
+  announce(
+    `Grabbed. Item ${fromIndex + 1} of ${total()}. ` +
+      `Use the arrow keys to move, space or enter to drop, escape to cancel.`,
+  );
+
+  const teardown = () => {
+    footprint.remove();
+    exitTopLayer(visual);
+    restoreStyles(visual, savedStyles);
+    toggleState(internals(item), DRAGGED_STATE, false);
+  };
+
+  return {
+    move(step) {
+      if (settling) {
+        return;
+      }
+
+      // Step the footprint past its nearest neighbour on that side; at the edge
+      // there is none, so the move is a no-op with nothing new to announce.
+      const target = neighbor(items(), item, footprint, step > 0);
+
+      if (!target) {
+        return;
+      }
+
+      if (step > 0) {
+        target.after(footprint);
+      } else {
+        target.before(footprint);
+      }
+
+      toIndex = footprintIndex(items(), item, footprint);
+      // Move the lifted visual onto the footprint's new slot so the item is seen
+      // to travel, not just the placeholder.
+      pinVisual(visual, footprint.getBoundingClientRect());
+      announce(`Item ${toIndex + 1} of ${total()}.`);
+    },
+
+    commit() {
+      if (settling) {
+        return settling;
+      }
+
+      settling = (async () => {
+        const move = toIndex !== fromIndex;
+        const accepted =
+          move &&
+          host.dispatchEvent(new ReorderEvent(item, fromIndex, toIndex));
+
+        try {
+          if (accepted) {
+            tracker.capture(footprint);
+            announce(`Dropped. Item ${toIndex + 1} of ${total()}.`);
+
+            if (!canceled) {
+              await tracker.wait();
+            }
+          } else {
+            // No move, or the consumer rejected it: the item is already home.
+            announce(
+              move
+                ? 'Reorder cancelled.'
+                : `Item ${fromIndex + 1} of ${total()}.`,
+            );
+          }
+        } finally {
+          teardown();
+        }
+      })();
+
+      return settling;
+    },
+
+    cancel() {
+      if (!settling) {
+        announce('Reorder cancelled.');
+        teardown();
+        settling = Promise.resolve();
+      }
+
+      return settling;
+    },
+
+    abandon() {
+      canceled = true;
+
+      if (settling) {
+        // Unblock a commit-wait so teardown isn't held by the timeout.
+        tracker.release();
+      } else {
+        teardown();
         settling = Promise.resolve();
       }
 
@@ -738,6 +984,15 @@ function createDragSession(
  * capture the item is restored to its original position. A `pointerdown`
  * arriving while a previous item is still settling is ignored.
  *
+ * The same reorder is available from the keyboard: pressing space or enter on an
+ * item's `[data-handle]` grabs it (a handle is required — the whole-surface
+ * affordance is pointer-only), the arrow keys step it through the siblings, and
+ * space/enter drops it while escape cancels. A keyboard drop dispatches the same
+ * {@link ReorderEvent} intent and awaits the same consumer commit as a pointer
+ * drop; each step is announced by position through a visually hidden live region
+ * the hook owns in the host's shadow root, and focus returns to the handle once
+ * the reorder settles.
+ *
  * @param host - Container host implementing {@link Reorderable}.
  * @param timing - Called at drop time for the landing animation's timing, so
  *   the values can track live CSS custom properties.
@@ -751,10 +1006,33 @@ export function useReorderable(
   let items: readonly ControlledElement[] = [];
   let itemSet: ReadonlySet<ControlledElement> = new Set();
   // Non-null for the whole gesture, including the landing animation, so it
-  // doubles as the "a drag is already happening" guard.
+  // doubles as the "a pointer drag is already happening" guard.
   let session: DragSession | null = null;
+  // The active keyboard reorder, if any — the equivalent guard for key control.
+  let keyboard: KeyboardSession | null = null;
+  // The handle that started the keyboard grab, refocused after it settles.
+  let keyboardItem: ControlledElement | null = null;
+  // Lazily created shadow-owned live region for keyboard reorder announcements.
+  let liveRegion: HTMLElement | null = null;
 
   const getItems = () => items;
+
+  /** Announces `message` to assistive tech via a visually hidden live region. */
+  const announce: Announce = (message) => {
+    if (!liveRegion) {
+      liveRegion = document.createElement('div');
+      liveRegion.setAttribute('aria-live', 'assertive');
+      liveRegion.setAttribute('aria-atomic', 'true');
+      // Visually hidden but exposed to assistive tech. Injected without a
+      // stylesheet, so the utility styles are inline here by necessity.
+      liveRegion.style.cssText =
+        'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0';
+      // Kept in the shadow root so it is never slotted or seen as a child item.
+      (host.shadowRoot ?? host).append(liveRegion);
+    }
+
+    liveRegion.textContent = message;
+  };
 
   useSlot<ControlledElement>(host, slotSelector, (_, nodes) => {
     items = nodes.filter(
@@ -789,6 +1067,31 @@ export function useReorderable(
       .catch(reportError);
   };
 
+  /**
+   * Ends the active keyboard reorder, then returns focus to the drag handle so
+   * the user keeps their place — the item may have been re-rendered by the
+   * consumer's commit, so the handle is re-resolved from its current subtree.
+   */
+  const settleKeyboard = (commit: boolean): void => {
+    const current = keyboard;
+    const grabbed = keyboardItem;
+
+    if (!current) {
+      return;
+    }
+
+    (commit ? current.commit() : current.cancel())
+      .finally(() => {
+        if (keyboard === current) {
+          keyboard = null;
+          keyboardItem = null;
+        }
+
+        grabbed?.querySelector<HTMLElement>('[data-handle]')?.focus();
+      })
+      .catch(reportError);
+  };
+
   use(host, {
     disconnected() {
       // The session owns a listener outside the useEvents lifecycle; without
@@ -797,14 +1100,88 @@ export function useReorderable(
       // left to finish and dispatch on a detached host.
       session?.abandon().catch(reportError);
       session = null;
+      keyboard?.abandon().catch(reportError);
+      keyboard = null;
+      keyboardItem = null;
     },
   });
 
   useEvents(host, {
+    keydown(event: KeyboardEvent) {
+      // While a keyboard reorder is live, arrows move it and space/enter/escape
+      // resolve it — the grab has swallowed the item's normal key behaviour.
+      if (keyboard) {
+        switch (event.key) {
+          case 'ArrowUp':
+          case 'ArrowLeft':
+            event.preventDefault();
+            keyboard.move(-1);
+            break;
+          case 'ArrowDown':
+          case 'ArrowRight':
+            event.preventDefault();
+            keyboard.move(1);
+            break;
+          case ' ':
+          case 'Enter':
+            event.preventDefault();
+            settleKeyboard(true);
+            break;
+          case 'Escape':
+            event.preventDefault();
+            settleKeyboard(false);
+            break;
+          case 'Tab':
+            // Let focus leave, but cancel the grab first so it can't linger.
+            settleKeyboard(false);
+            break;
+          default:
+            break;
+        }
+
+        return;
+      }
+
+      // Otherwise a grab starts on space/enter pressed on an item's handle.
+      // Keyboard reorder requires that explicit, focusable handle: the
+      // whole-surface affordance is pointer-only, since there is no key that
+      // could start a grab without clashing with the item's own activation.
+      if (
+        session ||
+        !host.reorderable ||
+        (event.key !== ' ' && event.key !== 'Enter')
+      ) {
+        return;
+      }
+
+      const path = event.composedPath();
+      const itemIndex = path.findIndex(
+        (n) => n instanceof ControlledElement && itemSet.has(n),
+      );
+
+      if (itemIndex === -1) {
+        return;
+      }
+
+      const handle = path
+        .slice(0, itemIndex)
+        .find((n) => n instanceof Element && n.hasAttribute('data-handle'));
+
+      if (!handle) {
+        return;
+      }
+
+      event.preventDefault();
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      keyboardItem = path[itemIndex] as ControlledElement;
+      keyboard = createKeyboardSession(host, getItems, keyboardItem, announce);
+    },
+
     pointerdown(event: PointerEvent) {
       // Only a primary press starts a drag: no right-click, no secondary touch.
       if (
         session ||
+        keyboard ||
         !host.reorderable ||
         event.button !== 0 ||
         !event.isPrimary

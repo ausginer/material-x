@@ -44,6 +44,18 @@ function grip(item: HTMLElement): HTMLElement {
   return item.querySelector<HTMLElement>('[data-handle]')!;
 }
 
+/** Dispatches a bubbling, composed `keydown` so the host handler sees it. */
+function pressKey(target: HTMLElement, key: string): void {
+  target.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key,
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+    }),
+  );
+}
+
 /**
  * Simulates a controlled consumer: on the reorder intent, move the item node to
  * the proposed index (via `insertBefore`, the way a framework reorder would, so
@@ -1019,5 +1031,107 @@ describe('useReorderable', () => {
     expect(reorderSpy).not.toHaveBeenCalled();
     expect(internals(item).states.has('drag')).toBeFalsy();
     expect(list.querySelector('[data-footprint]')).toBeNull();
+  });
+});
+
+describe('useReorderable keyboard', () => {
+  async function mountKeyboardList(count: number) {
+    const list = createList();
+    const items = Array.from({ length: count }, () => createHandleItem());
+
+    document.body.append(list);
+    list.append(...items);
+    list.reorderable = true;
+    await nextFrame();
+
+    return { list, items };
+  }
+
+  it('should grab the item when space is pressed on its handle', async () => {
+    const { list, items } = await mountKeyboardList(2);
+
+    pressKey(grip(items[0]!), ' ');
+
+    expect(internals(items[0]!).states.has('drag')).toBeTruthy();
+    expect(list.querySelector('[data-footprint]')).not.toBeNull();
+  });
+
+  it('should not grab when the key lands off the handle', async () => {
+    const { list, items } = await mountKeyboardList(2);
+
+    // The item body, not its handle, gets the key.
+    pressKey(items[0]!, ' ');
+
+    expect(internals(items[0]!).states.has('drag')).toBeFalsy();
+    expect(list.querySelector('[data-footprint]')).toBeNull();
+  });
+
+  it('should step the footprint forward on ArrowDown', async () => {
+    const { list, items } = await mountKeyboardList(3);
+
+    pressKey(grip(items[0]!), ' ');
+    pressKey(grip(items[0]!), 'ArrowDown');
+
+    // Footprint moved from before item1 to after item2.
+    const fp = list.querySelector<HTMLElement>('[data-footprint]')!;
+    expect(fp.previousElementSibling).toBe(items[1]);
+  });
+
+  it('should dispatch ReorderEvent with the stepped indices on drop', async () => {
+    const { list, items } = await mountKeyboardList(3);
+
+    const reorderSpy = vi.fn<(e: Event) => void>();
+    list.addEventListener('reorder', reorderSpy);
+
+    pressKey(grip(items[0]!), ' ');
+    pressKey(grip(items[0]!), 'ArrowDown');
+    pressKey(grip(items[0]!), 'ArrowDown');
+    pressKey(grip(items[0]!), ' ');
+
+    expect(reorderSpy).toHaveBeenCalledOnce();
+    const event = reorderSpy.mock.calls[0]?.[0] as ReorderEvent;
+    expect(event.from).toBe(0);
+    expect(event.to).toBe(2);
+  });
+
+  it('should not dispatch a reorder when the grab is cancelled with Escape', async () => {
+    const { list, items } = await mountKeyboardList(3);
+
+    const reorderSpy = vi.fn<(e: Event) => void>();
+    list.addEventListener('reorder', reorderSpy);
+
+    pressKey(grip(items[0]!), ' ');
+    pressKey(grip(items[0]!), 'ArrowDown');
+    pressKey(grip(items[0]!), 'Escape');
+
+    expect(reorderSpy).not.toHaveBeenCalled();
+    expect(internals(items[0]!).states.has('drag')).toBeFalsy();
+    expect(list.querySelector('[data-footprint]')).toBeNull();
+  });
+
+  it('should not dispatch a reorder for a keyboard drop that never moved', async () => {
+    const { list, items } = await mountKeyboardList(3);
+
+    const reorderSpy = vi.fn<(e: Event) => void>();
+    list.addEventListener('reorder', reorderSpy);
+
+    pressKey(grip(items[0]!), ' ');
+    // Drop immediately, without any arrow move.
+    pressKey(grip(items[0]!), ' ');
+
+    expect(reorderSpy).not.toHaveBeenCalled();
+    await vi.waitFor(
+      () => expect(internals(items[0]!).states.has('drag')).toBeFalsy(),
+      { timeout: 1000 },
+    );
+  });
+
+  it('should announce the grab through a shadow-owned live region', async () => {
+    const { list, items } = await mountKeyboardList(2);
+
+    pressKey(grip(items[0]!), ' ');
+
+    const live = list.shadowRoot!.querySelector('[aria-live]');
+    expect(live?.textContent).toContain('Grabbed');
   });
 });

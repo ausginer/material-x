@@ -30,6 +30,37 @@ export type ListItemCoreCSSProperties = Readonly<{
   '--md-list-item-trailing-icon-size'?: string;
 }>;
 
+/**
+ * Turns a slotted `[data-handle]` grip into a focusable, button-like control so
+ * the reorder gesture is operable from the keyboard, not just the pointer: the
+ * {@link useReorderable} keyboard path is armed by space/enter on this handle.
+ * Consumer-supplied `role`, `tabindex`, and accessible name are left untouched.
+ */
+function enhanceHandle(nodes: readonly Node[]): void {
+  const handle = nodes.find(
+    (n): n is HTMLElement => n instanceof HTMLElement && 'handle' in n.dataset,
+  );
+
+  if (!handle) {
+    return;
+  }
+
+  if (!handle.hasAttribute('tabindex')) {
+    handle.tabIndex = 0;
+  }
+  if (!handle.hasAttribute('role')) {
+    handle.setAttribute('role', 'button');
+  }
+  if (
+    !handle.hasAttribute('aria-label') &&
+    !handle.hasAttribute('aria-labelledby')
+  ) {
+    handle.setAttribute('aria-label', 'Reorder');
+  }
+  // A drag grip should claim touch gestures rather than let them scroll.
+  handle.style.touchAction = 'none';
+}
+
 export function useListItemCore(
   host: ListItemCore,
   template: HTMLTemplateElement,
@@ -58,6 +89,11 @@ export function useListItemCore(
       'lead-large',
       nodes.some((n) => n instanceof HTMLElement && 'large' in n.dataset),
     );
+    enhanceHandle(nodes);
+  });
+
+  useSlot(host, '.trail', (_, nodes) => {
+    enhanceHandle(nodes);
   });
 
   return target;
