@@ -1094,6 +1094,27 @@ describe('useReorderable keyboard', () => {
     expect(event.to).toBe(2);
   });
 
+  it('should settle promptly on the consumer commit rather than waiting for the timeout', async () => {
+    const { list, items } = await mountKeyboardList(3);
+    commitOnReorder(list);
+
+    pressKey(grip(items[0]!), ' ');
+    pressKey(grip(items[0]!), 'ArrowDown');
+    pressKey(grip(items[0]!), 'ArrowDown');
+    pressKey(grip(items[0]!), ' ');
+
+    // The consumer moves the item; the drop settles on that slot change. If the
+    // commit notification were not wired, this would only clear after the full
+    // COMMIT_TIMEOUT (500ms), so a tight timeout guards against that regression.
+    await vi.waitFor(
+      () => expect(internals(items[0]!).states.has('drag')).toBeFalsy(),
+      { timeout: 300 },
+    );
+    expect(
+      [...list.children].filter((c) => c instanceof ControlledElement),
+    ).toStrictEqual([items[1], items[2], items[0]]);
+  });
+
   it('should not dispatch a reorder when the grab is cancelled with Escape', async () => {
     const { list, items } = await mountKeyboardList(3);
 

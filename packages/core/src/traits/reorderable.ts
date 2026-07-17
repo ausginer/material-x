@@ -806,6 +806,12 @@ type Announce = (message: string) => void;
 type KeyboardSession = Readonly<{
   /** Steps the footprint one slot back (`-1`) or forward (`1`). */
   move(step: -1 | 1): void;
+  /**
+   * Notifies the session that assigned items changed, so a drop waiting on the
+   * consumer's commit settles as soon as the item reaches its slot rather than
+   * lingering until the timeout.
+   */
+  itemsChanged(): void;
   /** Dispatches the intent and resolves once the consumer commits (or times out). */
   commit(): Promise<void>;
   /** Aborts the grab, returning the item home and announcing nothing was moved. */
@@ -886,6 +892,10 @@ function createKeyboardSession(
       // to travel, not just the placeholder.
       pinVisual(visual, footprint.getBoundingClientRect());
       announce(`Item ${toIndex + 1} of ${total()}.`);
+    },
+
+    itemsChanged() {
+      tracker.notify();
     },
 
     commit() {
@@ -1039,8 +1049,10 @@ export function useReorderable(
       (n): n is ControlledElement => n instanceof ControlledElement,
     );
     itemSet = new Set(items);
-    // A landing may be waiting for this change to confirm the consumer's commit.
+    // A landing (pointer or keyboard) may be waiting for this change to confirm
+    // the consumer's commit.
     session?.itemsChanged();
+    keyboard?.itemsChanged();
   });
 
   /**
