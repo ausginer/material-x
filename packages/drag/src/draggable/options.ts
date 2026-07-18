@@ -24,6 +24,22 @@ export type DraggableOptions = Readonly<{
   handle?: HTMLElement | ((item: HTMLElement) => HTMLElement | null);
   /** The element actually lifted; defaults to the item itself. */
   getVisual?(item: HTMLElement): HTMLElement;
+  /**
+   * How the visual is promoted during a drag. Defaults to `'top-layer'`.
+   *
+   * - `'top-layer'` — lift into the top layer (escaping ancestor transforms,
+   *   clipping, and stacking) and track in viewport space. The visual paints
+   *   above everything but flattens: ancestor `zoom`/`transform` is dropped.
+   * - `'top-layer-transformed'` — lift into the top layer, then re-apply the
+   *   element's captured local→viewport matrix so it keeps its ancestor
+   *   `zoom`/`transform` while still escaping clipping and stacking. Best of
+   *   both, at the cost of one matrix computation at grab.
+   * - `'none'` — drag in place: the visual stays inside its container, keeping
+   *   ancestor `zoom`/`transform` but subject to that container's clipping and
+   *   stacking. Movement is mapped through the coordinate space so the pointer
+   *   stays anchored under a scaled or rotated container.
+   */
+  lift?: 'top-layer' | 'top-layer-transformed' | 'none';
   /** Which axes movement is allowed on. Defaults to `'both'`. */
   axis?: DragAxis;
   /** Optional movement bounds, in viewport space. */

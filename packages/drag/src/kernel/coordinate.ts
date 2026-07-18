@@ -90,6 +90,24 @@ export function viewportMatrix(element: HTMLElement): DOMMatrix {
   return new DOMMatrix().translateSelf(-scrollX, -scrollY).multiply(matrix);
 }
 
+/**
+ * The cumulative CSS `zoom` of `element`'s ancestors, excluding its own. Unlike
+ * `transform`, `zoom` is not escaped by the top layer — it compounds onto a
+ * lifted element through the DOM ancestry — so a lifted visual cancels this to
+ * render in true viewport pixels.
+ */
+export function ancestorZoom(element: HTMLElement): number {
+  let zoom = 1;
+  let node = element.parentElement;
+
+  while (node) {
+    zoom *= Number.parseFloat(getComputedStyle(node).zoom) || 1;
+    node = node.parentElement;
+  }
+
+  return zoom;
+}
+
 /** Drops the translation of `matrix`, leaving only its linear (2×2) part. */
 function linearOf(matrix: DOMMatrix): DOMMatrix {
   return new DOMMatrix([matrix.a, matrix.b, matrix.c, matrix.d, 0, 0]);

@@ -21,6 +21,7 @@ import { draggable } from '@ydinjs/drag/draggable';
 const drag = draggable(element, {
   axis: 'both', // 'x' | 'y' | 'both'
   bounds: 'viewport', // 'viewport' | HTMLElement | () => DOMRect | null
+  lift: 'top-layer', // 'top-layer' | 'none'
   touchAction: 'none',
   async onDrop(request) {
     const position = constrain(request.localPosition);
@@ -38,6 +39,23 @@ drag.destroy(); // tear down; safe to call repeatedly
 `onDrop` may be async and returns `{ accepted, position? }`; the visual stays
 under engine control until the transaction resolves. A rejected drop animates the
 element home.
+
+**Lift mode.**
+
+- `lift: 'top-layer'` (default) promotes the visual into the top layer — it
+  escapes ancestor transforms, clipping, and stacking, and paints above
+  everything, tracked in viewport space. The visual *flattens*: ancestor
+  `zoom`/`transform` is dropped for the duration of the drag.
+- `lift: 'top-layer-transformed'` also lifts into the top layer, then re-applies
+  the element's captured local→viewport matrix, so it keeps its ancestor
+  `zoom`/`transform` while still escaping clipping and stacking. Costs one matrix
+  computation at grab.
+- `lift: 'none'` drags in place: the visual stays inside its (possibly
+  transformed) container, keeping any ancestor `zoom`/`transform`, at the cost of
+  that container's clipping and stacking.
+
+Every mode maps movement through the coordinate space, so the pointer stays
+anchored under a scaled or rotated container.
 
 ## Controlled reordering
 

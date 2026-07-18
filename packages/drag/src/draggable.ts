@@ -28,7 +28,11 @@ import type {
   FreeDragController,
 } from './draggable/options.ts';
 import { animateTranslate, type LandingAnimation } from './kernel/animation.ts';
-import { createMapper, IDENTITY_MAPPER } from './kernel/coordinate.ts';
+import {
+  createMapper,
+  IDENTITY_MAPPER,
+  viewportMatrix,
+} from './kernel/coordinate.ts';
 import { DEFAULT_THRESHOLD, DEFAULT_TIMING } from './kernel/defaults.ts';
 import {
   AWAITING_COMMIT,
@@ -41,6 +45,7 @@ import {
 } from './kernel/fsm.ts';
 import {
   enterTopLayer,
+  enterTopLayerTransformed,
   exitTopLayer,
   restoreStyles,
   snapshotStyles,
@@ -120,9 +125,11 @@ export function draggable(
   let delta: Point = ORIGIN;
   let latestPointer: Point = ORIGIN;
   let savedStyles: SavedStyles = new Map();
-  // The visual's own authored transform, captured at grab so drag translation
-  // can be composed with (not replace) it. Empty when the visual has none.
-  let authoredTransform = '';
+  // The transform the drag translation is composed with, captured at grab. For a
+  // plain or in-place lift it is the visual's own authored transform (empty when
+  // it has none); for a transform-preserving lift it is the full local→viewport
+  // matrix re-applied in the top layer.
+  let liftBase = '';
   // Document scroll offset at grab, so a rollback can aim at the item's live
   // home slot rather than the stale grab-time viewport position.
   let grabScroll: Point = ORIGIN;
@@ -161,12 +168,20 @@ export function draggable(
     currentRect: currentRect(),
   });
 
-  // The drag translation is prepended to the visual's authored transform: the
-  // lifted visual sits in the top layer, so the translation is viewport-space
-  // while the authored rotate/scale/skew still renders about the visual's box.
+  // Maps a viewport delta into the space the transform's translate acts in. In
+  // the top layer that is viewport space; dragging in place, the translate acts
+  // inside the (possibly transformed) container, so the viewport delta is mapped
+  // to a local delta that renders as the same viewport movement — keeping the
+  // pointer anchored under a scaled or rotated container.
+  const toTranslate = (viewport: Point): Point =>
+    opts.lift === 'none' ? mapper().deltaFromViewport(viewport) : viewport;
+
+  // The drag translation is prepended to the visual's authored transform so the
+  // authored rotate/scale/skew still renders about the visual's own box.
   const composedTransform = (): string => {
-    const move = `translate(${delta.x}px, ${delta.y}px)`;
-    return authoredTransform ? `${move} ${authoredTransform}` : move;
+    const move = toTranslate(delta);
+    const translate = `translate(${move.x}px, ${move.y}px)`;
+    return liftBase ? `${translate} ${liftBase}` : translate;
   };
 
   const applyTransform = (): void => {
@@ -219,11 +234,25 @@ export function draggable(
       context instanceof HTMLElement ? context : document.documentElement,
     );
 
-    const own = getComputedStyle(visual).transform;
-    authoredTransform = own === 'none' ? '' : own;
+    if (opts.lift === 'top-layer-transformed') {
+      // Re-apply the element's full local→viewport matrix in the top layer so
+      // its ancestor transforms survive the lift.
+      liftBase = viewportMatrix(visual).toString();
+      savedStyles = snapshotStyles(visual);
+      enterTopLayerTransformed(visual);
+    } else {
+      // Plain and in-place lifts compose with the visual's own transform only.
+      const own = getComputedStyle(visual).transform;
+      liftBase = own === 'none' ? '' : own;
+      savedStyles = snapshotStyles(visual);
 
-    savedStyles = snapshotStyles(visual);
-    enterTopLayer(visual, originRect);
+      // In-place drags stay in the container and only ride the `transform`; the
+      // top-layer lift is skipped so ancestor transforms are preserved.
+      if (opts.lift !== 'none') {
+        enterTopLayer(visual, originRect);
+      }
+    }
+
     item.setPointerCapture(pointerId);
     updateDelta(pointer);
     applyTransform();
@@ -336,13 +365,14 @@ export function draggable(
   };
 
   const beginSettling = (result: SettleTarget): void => {
-    // A rollback aims at the item's live home slot: the visual is pinned at the
-    // grab-time viewport rect, so any document scroll since grab shifts the home
-    // slot by the negative scroll delta. Accepted drops keep the pointer delta.
-    const home: Point = {
-      x: grabScroll.x - scrollX,
-      y: grabScroll.y - scrollY,
-    };
+    // A rollback aims at the item's live home slot. A lifted visual is pinned at
+    // the grab-time viewport rect, so document scroll since grab shifts its home
+    // by the negative scroll delta; an in-place visual rides the flow, so its
+    // home is simply the origin. Accepted drops keep the pointer delta.
+    const home: Point =
+      opts.lift === 'none'
+        ? ORIGIN
+        : { x: grabScroll.x - scrollX, y: grabScroll.y - scrollY };
     const target = result === 'accepted' ? delta : home;
 
     if (result === 'canceled') {
@@ -350,12 +380,14 @@ export function draggable(
     }
 
     const timing = opts.landingTiming?.() ?? DEFAULT_TIMING;
+    // Animate in the transform's own space so an in-place landing tracks the
+    // container just as live movement does.
     landing = animateTranslate(
       visual,
-      delta,
-      target,
+      toTranslate(delta),
+      toTranslate(target),
       timing,
-      authoredTransform,
+      liftBase,
     );
     landing.done.then(
       () => transit({ type: 'animation-finished' }),
