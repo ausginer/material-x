@@ -244,4 +244,125 @@ describe('draggable', () => {
 
     expect(onMove).toHaveBeenCalledOnce();
   });
+
+  it('should install the touch-action policy before any gesture', () => {
+    const item = createItem();
+    const drag = draggable(item, { touchAction: 'none' });
+
+    expect(item.style.touchAction).toBe('none');
+
+    drag.destroy();
+
+    expect(item.style.touchAction).toBe('');
+  });
+
+  it('should not finish or restart after destroy mid-drag', async () => {
+    const item = createItem();
+    const onFinish = vi.fn<(accepted: boolean) => void>();
+    const drag = draggable(item, {
+      onFinish,
+      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+    });
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 170, clientY: 110 } },
+    ]);
+
+    drag.destroy();
+    // Give any stray landing animation a chance to resolve and re-enter cleanup.
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20);
+    });
+
+    expect(onFinish).not.toHaveBeenCalled();
+    expect(item.matches(':popover-open')).toBeFalsy();
+    expect(item.style.transform).toBe('');
+  });
+
+  it('should forward the cancel reason to onCancel', async () => {
+    const item = createItem();
+    const onCancel = vi.fn<(reason: unknown) => void>();
+    const drag = draggable(item, {
+      onCancel,
+      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+    });
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 170, clientY: 110 } },
+    ]);
+
+    await drag.cancel('outside');
+
+    expect(onCancel).toHaveBeenCalledWith('outside');
+  });
+
+  it('should roll back and recover when an effect throws', async () => {
+    const item = createItem();
+    const onError = vi.fn<(error: unknown) => void>();
+    let failing = true;
+    draggable(item, {
+      onStart() {
+        if (failing) {
+          throw new Error('boom');
+        }
+      },
+      onError,
+    });
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 170, clientY: 110 } },
+      { keys: '[/MouseLeft]' },
+    ]);
+
+    // The throw during activation is reported and rolled back, not stranded.
+    expect(onError).toHaveBeenCalledOnce();
+    expect(item.matches(':popover-open')).toBeFalsy();
+
+    // A later gesture still works — the session was reset, not wedged.
+    failing = false;
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 170, clientY: 110 } },
+    ]);
+
+    expect(item.matches(':popover-open')).toBeTruthy();
+  });
+
+  it('should keep tracking a mouse that leaves the item before activation', async () => {
+    const item = createItem();
+    const onStart = vi.fn<() => void>();
+    draggable(item, { onStart });
+
+    // Press on the item, then move far outside it before crossing the threshold.
+    // Document-level tracking must still activate the drag.
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { target: document.body, coords: { clientX: 500, clientY: 500 } },
+    ]);
+
+    expect(onStart).toHaveBeenCalledOnce();
+  });
 });

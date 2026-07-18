@@ -48,10 +48,11 @@ import {
 } from './kernel/lift.ts';
 import {
   applyTouchAction,
-  attachPointerListeners,
+  attachSessionListeners,
+  attachStartListener,
   isPrimaryPress,
 } from './kernel/pointer.ts';
-import { createSession } from './kernel/session.ts';
+import { createSession, type Session } from './kernel/session.ts';
 import {
   ORIGIN,
   type CoordinateMapper,
@@ -67,6 +68,16 @@ export type {
   DropOutcome,
   FreeDragController,
 } from './draggable/options.ts';
+export type {
+  AnimationTiming,
+  CoordinateMapper,
+  DragAxis,
+  DragController,
+  DragGeometry,
+  FreeDropRequest,
+  FreeDropResult,
+  Point,
+} from './kernel/types.ts';
 
 /** The subset of settle results the free-drag entry animates towards. */
 type SettleTarget = 'accepted' | 'rejected' | 'canceled';
@@ -87,6 +98,17 @@ export function draggable(
   const mapper = (): CoordinateMapper =>
     opts.coordinateSpace ?? IDENTITY_MAPPER;
 
+  // The touch-action policy is installed for the controller's lifetime: the
+  // browser decides gesture behaviour when the press begins, so it must be in
+  // place before `pointerdown`, not after activation.
+  let restoreTouch: (() => void) | null = null;
+
+  if (opts.touchAction) {
+    const target =
+      typeof opts.handle === 'function' ? opts.handle(item) : opts.handle;
+    restoreTouch = applyTouchAction(target ?? item, opts.touchAction);
+  }
+
   // Per-session mutable context, live between activation and cleanup.
   let originPointer: Point = ORIGIN;
   let originRect: DOMRectReadOnly = new DOMRectReadOnly();
@@ -95,10 +117,29 @@ export function draggable(
   let savedStyles: SavedStyles = new Map();
   let activated = false;
   let pointerId = -1;
-  let restoreTouch: (() => void) | null = null;
   let landing: LandingAnimation | null = null;
+  let cancelReason: unknown = 'canceled';
+  // Once destroyed, no effect or async continuation may touch the DOM again.
+  let destroyed = false;
   // Scroll/resize listeners, attached only while a drag is live.
   let dragScope: AbortController | null = null;
+  // Document-level pointer/Escape listeners, live only while a session is armed.
+  let sessionScope: AbortController | null = null;
+  // The state machine and its re-entrant transit wrapper, created synchronously
+  // below (definite-assignment) before any effect can run.
+  let session!: Session;
+  let transit: (event: DragSessionEvent) => void;
+
+  // The visual is a fixed-size box translated by `delta` from its origin rect,
+  // so its current rect is derived arithmetically — reading it back would force
+  // a layout on every pointer move.
+  const currentRect = (): DOMRectReadOnly =>
+    new DOMRectReadOnly(
+      originRect.x + delta.x,
+      originRect.y + delta.y,
+      originRect.width,
+      originRect.height,
+    );
 
   const geometry = (): DragGeometry => ({
     pointer: latestPointer,
@@ -106,7 +147,7 @@ export function draggable(
     viewportDelta: delta,
     localDelta: mapper().deltaFromViewport(delta),
     originRect,
-    currentRect: visual.getBoundingClientRect(),
+    currentRect: currentRect(),
   });
 
   const applyTransform = (): void => {
@@ -140,17 +181,15 @@ export function draggable(
     }
   };
 
+  /** Aborts the document-level session listeners, if any are attached. */
+  const endSession = (): void => {
+    sessionScope?.abort();
+    sessionScope = null;
+  };
+
   const activate = (pointer: Point): void => {
     activated = true;
     originRect = visual.getBoundingClientRect();
-
-    if (opts.touchAction) {
-      const handle =
-        typeof opts.handle === 'function'
-          ? opts.handle(item)
-          : (opts.handle ?? item);
-      restoreTouch = handle ? applyTouchAction(handle, opts.touchAction) : null;
-    }
 
     savedStyles = snapshotStyles(visual);
     enterTopLayer(visual, originRect);
@@ -177,12 +216,36 @@ export function draggable(
   const cleanup = (): void => {
     dragScope?.abort();
     dragScope = null;
+
+    if (pointerId !== -1 && item.hasPointerCapture(pointerId)) {
+      item.releasePointerCapture(pointerId);
+    }
+
     exitTopLayer(visual);
     restoreStyles(visual, savedStyles);
-    restoreTouch?.();
-    restoreTouch = null;
     activated = false;
     landing = null;
+  };
+
+  /** Reports a recoverable error without letting a bad handler mask cleanup. */
+  const safeError = (error: unknown): void => {
+    try {
+      opts.onError?.(error);
+    } catch (handlerError) {
+      reportError(handlerError);
+    }
+  };
+
+  /** Rolls a failed session back to a safe idle so a later drag can start. */
+  const failSession = (error: unknown): void => {
+    safeError(error);
+
+    if (activated) {
+      cleanup();
+    }
+
+    session.reset();
+    endSession();
   };
 
   const dropRequest = (): FreeDropRequest => {
@@ -201,9 +264,6 @@ export function draggable(
     };
   };
 
-  // Assigned once the session exists so effects can drive it re-entrantly.
-  let transit: (event: DragSessionEvent) => void;
-
   const proposeDrop = (): void => {
     const request = dropRequest();
     let outcome: DropOutcome;
@@ -211,13 +271,17 @@ export function draggable(
     try {
       outcome = opts.onDrop?.(request);
     } catch (error) {
-      opts.onError?.(error);
+      safeError(error);
       transit({ type: 'drop-rejected' });
       return;
     }
 
     Promise.resolve(outcome ?? { accepted: true })
       .then((result) => {
+        if (destroyed) {
+          return;
+        }
+
         if (result.accepted && result.position) {
           // Adjusted landing target: map the consumer position back to a
           // viewport delta relative to the origin rect.
@@ -235,7 +299,7 @@ export function draggable(
         );
       })
       .catch((error: unknown) => {
-        opts.onError?.(error);
+        safeError(error);
         transit({ type: 'drop-rejected' });
       });
   };
@@ -244,7 +308,7 @@ export function draggable(
     const target = result === 'accepted' ? delta : ORIGIN;
 
     if (result === 'canceled') {
-      opts.onCancel?.('canceled');
+      opts.onCancel?.(cancelReason);
     }
 
     const timing = opts.landingTiming?.() ?? DEFAULT_TIMING;
@@ -255,7 +319,7 @@ export function draggable(
     );
   };
 
-  const applyEffects = (
+  const runEffects = (
     previous: DragSessionState,
     next: DragSessionState,
     event: DragSessionEvent,
@@ -294,31 +358,60 @@ export function draggable(
     }
   };
 
-  const session = createSession({ threshold }, applyEffects);
-  ({ transit } = session);
-
-  attachPointerListeners(item, listeners.signal, (event) => {
-    if (
-      event instanceof PointerEvent &&
-      event.type === 'pointerdown' &&
-      session.state().type === IDLE
-    ) {
-      if (!isPrimaryPress(event)) {
-        return;
-      }
-
-      const handle =
-        typeof opts.handle === 'function' ? opts.handle(item) : opts.handle;
-
-      if (handle && !event.composedPath().includes(handle)) {
-        return;
-      }
-
-      ({ pointerId } = event);
-      originPointer = { x: event.clientX, y: event.clientY };
+  // Effects run behind a destroyed guard and an exception boundary: a throw
+  // (from a lift, an animation, or a consumer callback) rolls the session back
+  // rather than stranding an open popover, capture, or temporary styles.
+  const applyEffects = (
+    previous: DragSessionState,
+    next: DragSessionState,
+    event: DragSessionEvent,
+  ): void => {
+    if (destroyed) {
+      return;
     }
 
+    try {
+      runEffects(previous, next, event);
+    } catch (error) {
+      failSession(error);
+    }
+  };
+
+  session = createSession({ threshold }, applyEffects);
+
+  // Every transit goes through here so the document-level listeners are torn
+  // down the moment the machine settles back to idle.
+  transit = (event: DragSessionEvent): void => {
     session.transit(event);
+
+    if (session.state().type === IDLE) {
+      endSession();
+    }
+  };
+
+  attachStartListener(item, listeners.signal, (event) => {
+    if (session.state().type !== IDLE || !isPrimaryPress(event)) {
+      return;
+    }
+
+    const handle =
+      typeof opts.handle === 'function' ? opts.handle(item) : opts.handle;
+
+    if (handle && !event.composedPath().includes(handle)) {
+      return;
+    }
+
+    ({ pointerId } = event);
+    originPointer = { x: event.clientX, y: event.clientY };
+    cancelReason = 'canceled';
+
+    // Track the rest of the gesture on the document so a mouse leaving the item
+    // before capture is acquired cannot lose it, and Escape reaches an unfocused
+    // drag. Torn down by `transit` once the machine returns to idle.
+    sessionScope = new AbortController();
+    attachSessionListeners(item.ownerDocument, sessionScope.signal, transit);
+
+    transit(event);
   });
 
   return {
@@ -326,9 +419,9 @@ export function draggable(
       const { position, ...rest } = next;
       Object.assign(opts, rest);
 
-      // A controlled position retargets the live visual (or, adjusted during an
-      // async drop, the landing) to a consumer coordinate; ignored while idle,
-      // where the consumer owns the element's resting position directly.
+      // A controlled position retargets the live visual to a consumer
+      // coordinate; ignored while idle, where the consumer owns the element's
+      // resting position directly. It does not retarget an in-flight landing.
       if (position && activated) {
         const viewport = mapper().toViewport(position);
         delta = {
@@ -340,21 +433,30 @@ export function draggable(
       }
     },
 
-    async cancel() {
+    async cancel(reason) {
       if (session.state().type !== IDLE) {
-        session.transit({ type: 'escape' });
+        cancelReason = reason ?? 'canceled';
+        transit({ type: 'escape' });
         await landing?.done;
       }
     },
 
     destroy() {
+      if (destroyed) {
+        return;
+      }
+
+      destroyed = true;
       landing?.cancel();
+      // Advances the machine; effects are inert now that `destroyed` is set.
       session.transit({ type: 'destroy' });
 
       if (activated) {
         cleanup();
       }
 
+      restoreTouch?.();
+      endSession();
       listeners.abort();
     },
   };

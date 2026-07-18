@@ -95,34 +95,6 @@ export type MoveResult = Readonly<{
 /** Timing shared by lift and landing animations. */
 export type AnimationTiming = Pick<EffectTiming, 'duration' | 'easing'>;
 
-/** Lifecycle payload emitted when a drag begins. */
-export type DragStart = Readonly<{
-  item: HTMLElement;
-  visual: HTMLElement;
-  pointerEvent: PointerEvent;
-  geometry: DragGeometry;
-}>;
-
-/** Lifecycle payload emitted on every tracked pointer move. */
-export type DragMove = Readonly<{
-  item: HTMLElement;
-  visual: HTMLElement;
-  pointerEvent: PointerEvent;
-  geometry: DragGeometry;
-}>;
-
-/** Lifecycle payload emitted when a drag is cancelled. */
-export type DragCancel = Readonly<{
-  item: HTMLElement;
-  reason: unknown;
-}>;
-
-/** Lifecycle payload emitted once a drag has fully settled. */
-export type DragFinish = Readonly<{
-  item: HTMLElement;
-  accepted: boolean;
-}>;
-
 /** Base controller shared by both entry points. */
 export type DragController = Readonly<{
   cancel(reason?: unknown): Promise<void>;

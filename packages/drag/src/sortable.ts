@@ -47,10 +47,11 @@ import {
 } from './kernel/lift.ts';
 import {
   applyTouchAction,
-  attachPointerListeners,
+  attachSessionListeners,
+  attachStartListener,
   isPrimaryPress,
 } from './kernel/pointer.ts';
-import { createSession } from './kernel/session.ts';
+import { createSession, type Session } from './kernel/session.ts';
 import { ORIGIN, type Point, type ReorderRequest } from './kernel/types.ts';
 import { createAnchor } from './sortable/anchor.ts';
 import type {
@@ -66,6 +67,16 @@ export type {
   SortableController,
   SortableOptions,
 } from './sortable/options.ts';
+export type {
+  AnimationTiming,
+  CoordinateMapper,
+  DragController,
+  Insertion,
+  MoveResult,
+  Point,
+  ReorderRequest,
+  ReorderResult,
+} from './kernel/types.ts';
 
 export function sortable(
   container: HTMLElement,
@@ -82,6 +93,13 @@ export function sortable(
 
   const getItems = (): readonly HTMLElement[] => items;
 
+  // The touch-action policy is installed on the container for the controller's
+  // lifetime: it must be in place before `pointerdown` for the browser to
+  // suppress native panning when a drag starts on any child.
+  const restoreTouch: (() => void) | null = options.touchAction
+    ? applyTouchAction(container, options.touchAction)
+    : null;
+
   // Per-session mutable context, live between activation and cleanup.
   let dragged: HTMLElement | null = null;
   let visual: HTMLElement | null = null;
@@ -97,16 +115,29 @@ export function sortable(
   let rects: ReadonlyMap<HTMLElement, DOMRect> = new Map();
   let rectsDirty = false;
   let savedStyles: SavedStyles = new Map();
-  let restoreTouch: (() => void) | null = null;
   let landing: LandingAnimation | null = null;
-
-  // Assigned once the session exists so effects can drive it re-entrantly.
+  let cancelReason: unknown = 'canceled';
+  // Once destroyed, no effect or async continuation may touch the DOM again.
+  let destroyed = false;
+  // Scroll/resize listeners, attached only while a drag is live.
+  let dragScope: AbortController | null = null;
+  // Document-level pointer/Escape listeners, live only while a session is armed.
+  let sessionScope: AbortController | null = null;
+  // The state machine and its re-entrant transit wrapper, created synchronously
+  // below (definite-assignment) before any effect can run.
+  let session!: Session;
   let transit: (event: DragSessionEvent) => void;
 
   const currentPointer = (): Point => ({
     x: start.x + delta.x,
     y: start.y + delta.y,
   });
+
+  /** Aborts the document-level session listeners, if any are attached. */
+  const endSession = (): void => {
+    sessionScope?.abort();
+    sessionScope = null;
+  };
 
   /** Moves the anchor to the item slot nearest the pointer. */
   const reposition = (pointer: Point): void => {
@@ -178,22 +209,21 @@ export function sortable(
     enterTopLayer(visual, originRect);
     container.setPointerCapture(pointerId);
 
-    if (options.touchAction) {
-      restoreTouch = applyTouchAction(current, options.touchAction);
-    }
-
     tracker = createCommitTracker(getItems, current);
     rects = measure(items, current, getVisual);
     options.onStart?.(current);
 
+    // `capture` catches scrolls from descendant scrollers (scroll does not
+    // bubble); per-drag so they never accumulate across gestures.
+    dragScope = new AbortController();
     addEventListener('scroll', invalidate, {
       capture: true,
       passive: true,
-      signal: listeners.signal,
+      signal: dragScope.signal,
     });
     addEventListener('resize', invalidate, {
       passive: true,
-      signal: listeners.signal,
+      signal: dragScope.signal,
     });
   };
 
@@ -204,6 +234,13 @@ export function sortable(
   };
 
   const cleanup = (): void => {
+    dragScope?.abort();
+    dragScope = null;
+
+    if (pointerId !== -1 && container.hasPointerCapture(pointerId)) {
+      container.releasePointerCapture(pointerId);
+    }
+
     anchor?.remove();
 
     if (visual) {
@@ -211,8 +248,6 @@ export function sortable(
       restoreStyles(visual, savedStyles);
     }
 
-    restoreTouch?.();
-    restoreTouch = null;
     cancelAnimationFrame(frame);
     frame = -1;
     dragged = null;
@@ -220,6 +255,27 @@ export function sortable(
     anchor = null;
     tracker = null;
     landing = null;
+  };
+
+  /** Reports a recoverable error without letting a bad handler mask cleanup. */
+  const safeError = (error: unknown): void => {
+    try {
+      options.onError?.(error);
+    } catch (handlerError) {
+      reportError(handlerError);
+    }
+  };
+
+  /** Rolls a failed session back to a safe idle so a later drag can start. */
+  const failSession = (error: unknown): void => {
+    safeError(error);
+
+    if (dragged) {
+      cleanup();
+    }
+
+    session.reset();
+    endSession();
   };
 
   const reorderRequest = (): ReorderRequest | null => {
@@ -255,13 +311,17 @@ export function sortable(
     try {
       outcome = options.onReorder?.(request);
     } catch (error) {
-      options.onError?.(error);
+      safeError(error);
       transit({ type: 'drop-rejected' });
       return;
     }
 
     Promise.resolve(outcome ?? { accepted: true })
       .then((result) => {
+        if (destroyed) {
+          return;
+        }
+
         transit(
           result.accepted
             ? { type: 'drop-accepted' }
@@ -269,7 +329,7 @@ export function sortable(
         );
       })
       .catch((error: unknown) => {
-        options.onError?.(error);
+        safeError(error);
         transit({ type: 'drop-rejected' });
       });
   };
@@ -283,7 +343,7 @@ export function sortable(
     const current = dragged;
 
     if (result === 'canceled') {
-      options.onCancel?.(current!, 'canceled');
+      options.onCancel?.(current!, cancelReason);
     }
 
     // Accepted: land on the anchor's slot. Otherwise return home.
@@ -303,7 +363,7 @@ export function sortable(
       .then(async () => {
         // Wait for the consumer's reorder to land the item at `to`, so teardown
         // never reveals it in the wrong slot for a frame.
-        if (result === 'accepted') {
+        if (result === 'accepted' && !destroyed) {
           await tracker?.wait();
         }
       })
@@ -313,7 +373,7 @@ export function sortable(
       );
   };
 
-  const applyEffects = (
+  const runEffects = (
     previous: DragSessionState,
     next: DragSessionState,
     event: DragSessionEvent,
@@ -362,31 +422,64 @@ export function sortable(
     }
   };
 
-  const session = createSession({ threshold }, applyEffects);
-  ({ transit } = session);
-
-  attachPointerListeners(container, listeners.signal, (event) => {
-    if (
-      event instanceof PointerEvent &&
-      event.type === 'pointerdown' &&
-      session.state().type === IDLE
-    ) {
-      if (!isPrimaryPress(event)) {
-        return;
-      }
-
-      const resolved = resolveItem(event, items, options);
-
-      if (!resolved) {
-        return;
-      }
-
-      dragged = resolved;
-      ({ pointerId } = event);
-      start = { x: event.clientX, y: event.clientY };
+  // Effects run behind a destroyed guard and an exception boundary: a throw
+  // (from a lift, an animation, or a consumer callback) rolls the session back
+  // rather than stranding an open popover, capture, anchor, or temporary styles.
+  const applyEffects = (
+    previous: DragSessionState,
+    next: DragSessionState,
+    event: DragSessionEvent,
+  ): void => {
+    if (destroyed) {
+      return;
     }
 
+    try {
+      runEffects(previous, next, event);
+    } catch (error) {
+      failSession(error);
+    }
+  };
+
+  session = createSession({ threshold }, applyEffects);
+
+  // Every transit goes through here so the document-level listeners are torn
+  // down the moment the machine settles back to idle.
+  transit = (event: DragSessionEvent): void => {
     session.transit(event);
+
+    if (session.state().type === IDLE) {
+      endSession();
+    }
+  };
+
+  attachStartListener(container, listeners.signal, (event) => {
+    if (session.state().type !== IDLE || !isPrimaryPress(event)) {
+      return;
+    }
+
+    const resolved = resolveItem(event, items, options);
+
+    if (!resolved) {
+      return;
+    }
+
+    dragged = resolved;
+    ({ pointerId } = event);
+    start = { x: event.clientX, y: event.clientY };
+    cancelReason = 'canceled';
+
+    // Track the rest of the gesture on the document so a mouse leaving the item
+    // before capture is acquired cannot lose it, and Escape reaches an unfocused
+    // drag. Torn down by `transit` once the machine returns to idle.
+    sessionScope = new AbortController();
+    attachSessionListeners(
+      container.ownerDocument,
+      sessionScope.signal,
+      transit,
+    );
+
+    transit(event);
   });
 
   return {
@@ -394,6 +487,13 @@ export function sortable(
       items = next;
       // A landing waiting on the consumer's commit may settle on this change.
       tracker?.notify();
+
+      // New or relaid-out items invalidate cached geometry; remeasure on the
+      // next frame so hit testing sees them.
+      if (dragged) {
+        rectsDirty = true;
+        scheduleReposition(currentPointer());
+      }
     },
 
     async move(item, destination) {
@@ -420,22 +520,31 @@ export function sortable(
       return { accepted: result.accepted };
     },
 
-    async cancel() {
+    async cancel(reason) {
       if (session.state().type !== IDLE) {
-        session.transit({ type: 'escape' });
+        cancelReason = reason ?? 'canceled';
+        transit({ type: 'escape' });
         await landing?.done;
       }
     },
 
     destroy() {
+      if (destroyed) {
+        return;
+      }
+
+      destroyed = true;
       landing?.cancel();
       tracker?.release();
+      // Advances the machine; effects are inert now that `destroyed` is set.
       session.transit({ type: 'destroy' });
 
       if (dragged) {
         cleanup();
       }
 
+      restoreTouch?.();
+      endSession();
       listeners.abort();
     },
   };

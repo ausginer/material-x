@@ -17,11 +17,11 @@ clean-build:
 
 # Build TypeDoc API into the cache (dev/watch use)
 docs-api:
-    typedoc --options typedoc.json --out ../../node_modules/.cache/docs/api/core
+    typedoc --options typedoc.json --out ../../node_modules/.cache/docs/api/drag
 
 # Build TypeDoc API into the output directory
 docs-api-build:
-    typedoc --options typedoc.json --out ../../.docs/api/core
+    typedoc --options typedoc.json --out ../../.docs/api/drag
 
 # Run tests
 test *ARGS:

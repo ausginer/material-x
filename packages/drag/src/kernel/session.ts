@@ -29,6 +29,11 @@ export type Session = Readonly<{
   state(): DragSessionState;
   /** Feeds one event through the machine and applies the resulting effects. */
   transit(event: DragSessionEvent): void;
+  /**
+   * Forces the machine back to idle without running effects. Used by an entry's
+   * exception boundary to abandon a failed session so a later drag can start.
+   */
+  reset(): void;
 }>;
 
 export function createSession(
@@ -50,7 +55,16 @@ export function createSession(
       // follow-ups see the advanced state.
       current = next;
 
-      applyEffects(previous, next, event);
+      // An event that defines no transition returns the identical state object;
+      // running effects for it would let a foreign or duplicate event repeat
+      // movement or settling work, so only meaningful transitions get effects.
+      if (next !== previous) {
+        applyEffects(previous, next, event);
+      }
+    },
+
+    reset() {
+      current = IDLE_STATE;
     },
   };
 }

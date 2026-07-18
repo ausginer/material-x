@@ -44,9 +44,13 @@ export type DraggableOptions = Readonly<{
   onError?(error: unknown): void;
 }>;
 
-/** Options accepted by {@link FreeDragController.update}. */
+/**
+ * Options accepted by {@link FreeDragController.update}. `threshold` and
+ * `getVisual` are omitted: both are captured at construction and cannot change
+ * for a live controller.
+ */
 export type DragUpdate = Readonly<
-  Partial<DraggableOptions> & {
+  Partial<Omit<DraggableOptions, 'threshold' | 'getVisual'>> & {
     /** A new controlled position, in the consumer coordinate space. */
     position?: Point;
   }

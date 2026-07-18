@@ -2,27 +2,11 @@
   "$schema": "https://typedoc.org/schema.json",
   "name": "@ydinjs/drag",
   "tsconfig": "./tsconfig.json",
-  "entryPoints": ["./docs/api.ts"],
+  "entryPoints": ["./src/draggable.ts", "./src/sortable.ts"],
   "entryPointStrategy": "resolve",
   "readme": "none",
   "excludePrivate": true,
   "excludeProtected": true,
   "excludeInternal": true,
-  "intentionallyNotExported": [
-    "$checkable",
-    "$ctx",
-    "$disableable",
-    "$valuable",
-    "Branded",
-    "ConstructorStatics",
-    "FieldReadersFromConverters",
-    "FieldWritersFromConverters",
-    "Host",
-    "PropsFromTraitFields",
-    "TraitListProps",
-    "TraitListStaticProps",
-    "TraitProps",
-    "TraitStaticProps"
-  ],
   "sort": ["source-order"]
 }

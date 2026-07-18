@@ -65,4 +65,40 @@ describe('createSession', () => {
     expect(states).toEqual([PENDING, IDLE]);
     expect(session.state().type).toBe(IDLE);
   });
+
+  it('should not run effects for an event that does not change state', () => {
+    const effect = vi.fn<ApplyEffects>();
+    const session = createSession(CONFIG, effect);
+
+    // A pointermove while idle defines no transition, so effects must not fire.
+    session.transit(pointer('pointermove', 1));
+
+    expect(effect).not.toHaveBeenCalled();
+    expect(session.state().type).toBe(IDLE);
+  });
+
+  it('should not run effects for a foreign pointer during a drag', () => {
+    const effect = vi.fn<ApplyEffects>();
+    const session = createSession(CONFIG, effect);
+
+    session.transit(pointer('pointerdown', 1));
+    session.transit(pointer('pointermove', 1)); // pending -> pending (below threshold)
+    effect.mockClear();
+
+    // A move from a different pointer leaves the state identical, so no effect.
+    session.transit(pointer('pointermove', 2));
+
+    expect(effect).not.toHaveBeenCalled();
+  });
+
+  it('should force the machine back to idle on reset', () => {
+    const session = createSession(CONFIG, () => {});
+
+    session.transit(pointer('pointerdown', 1));
+    expect(session.state().type).toBe(PENDING);
+
+    session.reset();
+
+    expect(session.state().type).toBe(IDLE);
+  });
 });

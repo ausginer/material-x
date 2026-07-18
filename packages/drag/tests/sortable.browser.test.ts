@@ -218,4 +218,134 @@ describe('sortable', () => {
     expect(items[0]!.matches(':popover-open')).toBeFalsy();
     expect(container.querySelector('[data-drag-placeholder]')).toBeNull();
   });
+
+  it('should install the touch-action policy on the container upfront', () => {
+    const { container, items } = createList(2);
+    const controller = sortable(container, {
+      items: () => items,
+      touchAction: 'none',
+    });
+
+    expect(container.style.touchAction).toBe('none');
+
+    controller.destroy();
+
+    expect(container.style.touchAction).toBe('');
+  });
+
+  it('should forward the cancel reason to onCancel', async () => {
+    const { container, items } = createList(3);
+    const onCancel = vi.fn<(item: HTMLElement, reason: unknown) => void>();
+    const controller = sortable(container, {
+      items: () => items,
+      onCancel,
+      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+    });
+
+    await ue.pointer([
+      {
+        target: items[0]!,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 20, clientY: 10 },
+      },
+      { coords: { clientX: 20, clientY: 9999 } },
+    ]);
+    await nextFrame();
+
+    await controller.cancel('nope');
+
+    expect(onCancel).toHaveBeenCalledWith(items[0]!, 'nope');
+  });
+
+  it('should not accumulate global scroll listeners across drags', async () => {
+    const { container, items } = createList(2);
+    const scrollSignals: AbortSignal[] = [];
+    const original = window.addEventListener.bind(window);
+    vi.spyOn(window, 'addEventListener').mockImplementation(
+      (type, listener, options) => {
+        if (
+          type === 'scroll' &&
+          options &&
+          typeof options === 'object' &&
+          options.signal
+        ) {
+          scrollSignals.push(options.signal);
+        }
+
+        return original(type, listener, options);
+      },
+    );
+
+    sortable(container, {
+      items: () => items,
+      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+    });
+
+    const drag = async (): Promise<void> => {
+      await ue.pointer([
+        {
+          target: items[0]!,
+          keys: '[MouseLeft>]',
+          coords: { clientX: 20, clientY: 10 },
+        },
+        { coords: { clientX: 20, clientY: 9999 } },
+      ]);
+      await nextFrame();
+      await ue.pointer([{ keys: '[/MouseLeft]' }]);
+      await vi.waitFor(() => {
+        expect(container.querySelector('[data-drag-placeholder]')).toBeNull();
+      });
+    };
+
+    await drag();
+    await drag();
+
+    vi.restoreAllMocks();
+
+    // Each drag registers exactly one scroll listener, and every one is torn
+    // down (its per-drag signal aborted) rather than left live for the next.
+    expect(scrollSignals).toHaveLength(2);
+    expect(scrollSignals.every((signal) => signal.aborted)).toBeTruthy();
+  });
+
+  it('should measure items added through updateItems during a drag', async () => {
+    const { container, items } = createList(2);
+    const onReorder = vi.fn<(request: ReorderRequest) => undefined>(
+      () => undefined,
+    );
+    const list = [...items];
+    const controller = sortable(container, {
+      items: () => list,
+      onReorder,
+      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+    });
+
+    await ue.pointer([
+      {
+        target: items[0]!,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 20, clientY: 10 },
+      },
+      { coords: { clientX: 20, clientY: 60 } },
+    ]);
+    await nextFrame();
+
+    // Add a third item below and publish it mid-drag.
+    const third = document.createElement('div');
+    third.style.display = 'block';
+    third.style.height = '50px';
+    container.append(third);
+    list.push(third);
+    controller.updateItems(list);
+
+    // Drive the pointer past the newly added item; it must be hit-tested.
+    await ue.pointer([{ coords: { clientX: 20, clientY: 9999 } }]);
+    await nextFrame();
+    await ue.pointer([{ keys: '[/MouseLeft]' }]);
+
+    expect(onReorder).toHaveBeenCalled();
+    const [request] = onReorder.mock.calls.at(-1)!;
+    // Dragged to the very end of the now three-item collection.
+    expect(request.to).toBe(2);
+  });
 });

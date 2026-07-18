@@ -10,6 +10,13 @@
  * Native `PointerEvent` objects are accepted directly as input, discriminated on
  * `event.type`; lifecycle signals that have no DOM event are small tagged objects.
  */
+import {
+  LOST_POINTER_CAPTURE,
+  POINTER_CANCEL,
+  POINTER_DOWN,
+  POINTER_MOVE,
+  POINTER_UP,
+} from './pointer.ts';
 import type { Point } from './types.ts';
 
 export const IDLE = 'idle';
@@ -17,13 +24,6 @@ export const PENDING = 'pending';
 export const DRAGGING = 'dragging';
 export const AWAITING_COMMIT = 'awaiting-commit';
 export const SETTLING = 'settling';
-
-// Pointer event types the machine reacts to.
-const POINTER_DOWN = 'pointerdown';
-const POINTER_MOVE = 'pointermove';
-const POINTER_UP = 'pointerup';
-const POINTER_CANCEL = 'pointercancel';
-const LOST_POINTER_CAPTURE = 'lostpointercapture';
 
 // Non-pointer lifecycle signal types.
 export const ESCAPE = 'escape';
