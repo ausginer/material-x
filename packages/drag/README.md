@@ -91,10 +91,15 @@ item's slot.
   a shadow descendant). The lift assumes the visual vacates its layout box when
   promoted; hosts that keep flow space (e.g. not `display: contents`) can
   double-occupy alongside the placeholder.
-- **Coordinate space (current).** Geometry is viewport-space. Zoom and nested
-  CSS transforms on the visual/container are **not yet** composed — that is the
-  next milestone. `coordinateSpace` accepts a `CoordinateMapper` but defaults to
-  identity today.
+- **Coordinate space.** Active pointer tracking is viewport-space; `viewport*`
+  values are raw. `localDelta`/`localPosition` are mapped into the consumer's
+  coordinate space by a mapper derived at grab time from the element's layout
+  context — a `DOMMatrix` compositor that composes cumulative `zoom` and nested
+  CSS transforms (translate, scale including non-uniform, rotate, skew,
+  `matrix()`, custom `transform-origin`). Matrices are read only at grab, drop,
+  and settle, never in the pointer-move hot path. The visual's own authored
+  transform is preserved and the drag translation is composed with it. Pass
+  `coordinateSpace` to override the derived mapper.
 - **Lifecycle.** `destroy()` is idempotent and terminal: it cancels any animation,
   releases pointer capture, removes temporary DOM, restores styles, and prevents
   any later callback or async continuation from running. `cancel(reason)` rolls

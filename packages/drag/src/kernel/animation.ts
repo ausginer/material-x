@@ -29,8 +29,11 @@ const translate = (delta: Point): string =>
  * not snap back for a frame. Reduced motion collapses the animation to an
  * instant jump while preserving the same completion semantics.
  *
- * `base` is the visual's authored transform, if any, so drag translation is
- * composed with it rather than replacing it.
+ * `base` is the visual's authored transform, if any. The drag translation is
+ * *prepended* to it, so the authored rotate/scale/skew still renders about the
+ * visual's own box while the translation acts in the (viewport-aligned) space of
+ * the lifted, top-layer visual — the translation stays viewport-space regardless
+ * of the authored transform.
  */
 export function animateTranslate(
   visual: HTMLElement,
@@ -39,11 +42,11 @@ export function animateTranslate(
   timing: AnimationTiming,
   base = '',
 ): LandingAnimation {
-  const prefix = base ? `${base} ` : '';
-  const toTransform = `${prefix}${translate(to)}`;
+  const suffix = base ? ` ${base}` : '';
+  const toTransform = `${translate(to)}${suffix}`;
 
   const animation = visual.animate(
-    [{ transform: `${prefix}${translate(from)}` }, { transform: toTransform }],
+    [{ transform: `${translate(from)}${suffix}` }, { transform: toTransform }],
     prefersReducedMotion() ? { ...timing, duration: 0 } : timing,
   );
 

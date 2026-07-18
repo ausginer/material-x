@@ -117,6 +117,9 @@ export function sortable(
   let rects: ReadonlyMap<HTMLElement, DOMRect> = new Map();
   let rectsDirty = false;
   let savedStyles: SavedStyles = new Map();
+  // The dragged visual's own authored transform, captured at grab so the drag
+  // translation composes with (not replaces) it. Empty when it has none.
+  let authoredTransform = '';
   let landing: LandingAnimation | null = null;
   let cancelReason: unknown = 'canceled';
   // Whether the consumer's DOM commit was observed for the current accepted
@@ -205,6 +208,10 @@ export function sortable(
 
     visual = getVisual(current);
     originRect = visual.getBoundingClientRect();
+
+    const own = getComputedStyle(visual).transform;
+    authoredTransform = own === 'none' ? '' : own;
+
     fromIndex = items.indexOf(current);
     toIndex = fromIndex;
 
@@ -235,7 +242,13 @@ export function sortable(
 
   const applyTransform = (): void => {
     if (visual) {
-      visual.style.transform = `translate(${delta.x}px, ${delta.y}px)`;
+      // Prepend the drag translation to the visual's authored transform: the
+      // lifted visual is in the top layer, so the translation is viewport-space
+      // while the authored transform still renders about the visual's own box.
+      const move = `translate(${delta.x}px, ${delta.y}px)`;
+      visual.style.transform = authoredTransform
+        ? `${move} ${authoredTransform}`
+        : move;
     }
   };
 
@@ -383,22 +396,28 @@ export function sortable(
       options.onCancel?.(current!, cancelReason);
     }
 
-    // Accepted: land on the anchor's slot. Otherwise return home.
-    const target: Point =
-      result === 'accepted'
-        ? (() => {
-            const rect = anchor.getBoundingClientRect();
-            return {
-              x: rect.left - originRect.left,
-              y: rect.top - originRect.top,
-            };
-          })()
-        : ORIGIN;
+    // A rollback returns the anchor to the dragged item's original DOM slot
+    // (the item never moved in the DOM, only lifted), so the landing aims at the
+    // live home position wherever scrolling or sibling shifts left it — not the
+    // stale grab-time origin. An accepted drop keeps the anchor at its landing
+    // slot, whose commit was already observed before this state.
+    if (result !== 'accepted' && current) {
+      current.before(anchor);
+    }
 
-    // For an accepted drop the consumer's commit was already observed before
-    // this state (it is what advanced the machine here), so the visual can land
-    // on the now-settled slot and tear down without a second wait.
-    landing = animateTranslate(visual, delta, target, landingTiming());
+    const rect = anchor.getBoundingClientRect();
+    const target: Point = {
+      x: rect.left - originRect.left,
+      y: rect.top - originRect.top,
+    };
+
+    landing = animateTranslate(
+      visual,
+      delta,
+      target,
+      landingTiming(),
+      authoredTransform,
+    );
     landing.done.then(
       () => transit({ type: 'animation-finished' }),
       () => transit({ type: 'animation-finished' }),

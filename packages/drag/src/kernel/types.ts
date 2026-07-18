@@ -14,9 +14,9 @@ export type Point = Readonly<{
 export const ORIGIN: Point = { x: 0, y: 0 };
 
 /**
- * Geometry snapshot handed to movement callbacks. All values are viewport-space
- * in M1; once the coordinate model lands (M2), `localDelta`/`localPosition`
- * carry the consumer coordinate space and the viewport values stay raw.
+ * Geometry snapshot handed to movement callbacks. The `viewport*` values are raw
+ * viewport space; `localDelta` (and `localPosition` on a drop) carry the consumer
+ * coordinate space, mapped through the active {@link CoordinateMapper}.
  */
 export type DragGeometry = Readonly<{
   /** Current pointer position, viewport space. */
@@ -38,8 +38,10 @@ export type DragAxis = 'both' | 'x' | 'y';
 
 /**
  * Maps points and deltas between viewport space and a consumer-selected local
- * space. M1 ships an identity mapper; M2 replaces it with a `DOMMatrix`-backed
- * implementation that accounts for zoom and nested transforms.
+ * space. The default is derived at grab time from the element's layout context
+ * via a `DOMMatrix` compositor that accounts for cumulative `zoom` and nested
+ * CSS transforms (translate, scale, rotate, skew, `matrix()`, custom origins); a
+ * consumer may supply its own mapper through `coordinateSpace`.
  */
 export type CoordinateMapper = Readonly<{
   toViewport(point: Point): Point;

@@ -28,7 +28,7 @@ import type {
   FreeDragController,
 } from './draggable/options.ts';
 import { animateTranslate, type LandingAnimation } from './kernel/animation.ts';
-import { IDENTITY_MAPPER } from './kernel/coordinate.ts';
+import { createMapper, IDENTITY_MAPPER } from './kernel/coordinate.ts';
 import { DEFAULT_THRESHOLD, DEFAULT_TIMING } from './kernel/defaults.ts';
 import {
   AWAITING_COMMIT,
@@ -95,8 +95,13 @@ export function draggable(
   const visual = opts.getVisual?.(item) ?? item;
   const listeners = new AbortController();
 
+  // The coordinate mapper for the current session: a consumer-supplied mapper
+  // wins; otherwise one is derived at grab time from the item's layout context
+  // (below), falling back to identity before any drag.
+  let sessionMapper: CoordinateMapper | null = null;
+
   const mapper = (): CoordinateMapper =>
-    opts.coordinateSpace ?? IDENTITY_MAPPER;
+    opts.coordinateSpace ?? sessionMapper ?? IDENTITY_MAPPER;
 
   // The touch-action policy is installed for the controller's lifetime: the
   // browser decides gesture behaviour when the press begins, so it must be in
@@ -115,6 +120,12 @@ export function draggable(
   let delta: Point = ORIGIN;
   let latestPointer: Point = ORIGIN;
   let savedStyles: SavedStyles = new Map();
+  // The visual's own authored transform, captured at grab so drag translation
+  // can be composed with (not replace) it. Empty when the visual has none.
+  let authoredTransform = '';
+  // Document scroll offset at grab, so a rollback can aim at the item's live
+  // home slot rather than the stale grab-time viewport position.
+  let grabScroll: Point = ORIGIN;
   let activated = false;
   let pointerId = -1;
   let landing: LandingAnimation | null = null;
@@ -150,8 +161,16 @@ export function draggable(
     currentRect: currentRect(),
   });
 
+  // The drag translation is prepended to the visual's authored transform: the
+  // lifted visual sits in the top layer, so the translation is viewport-space
+  // while the authored rotate/scale/skew still renders about the visual's box.
+  const composedTransform = (): string => {
+    const move = `translate(${delta.x}px, ${delta.y}px)`;
+    return authoredTransform ? `${move} ${authoredTransform}` : move;
+  };
+
   const applyTransform = (): void => {
-    visual.style.transform = `translate(${delta.x}px, ${delta.y}px)`;
+    visual.style.transform = composedTransform();
   };
 
   const updateDelta = (pointer: Point): void => {
@@ -190,6 +209,18 @@ export function draggable(
   const activate = (pointer: Point): void => {
     activated = true;
     originRect = visual.getBoundingClientRect();
+    grabScroll = { x: scrollX, y: scrollY };
+
+    // Capture the transform context while the item is still in flow: the top
+    // layer will make the visual `position: fixed`, which severs `offsetParent`.
+    // A consumer-supplied `coordinateSpace` overrides this derived mapper.
+    const context = item.offsetParent;
+    sessionMapper = createMapper(
+      context instanceof HTMLElement ? context : document.documentElement,
+    );
+
+    const own = getComputedStyle(visual).transform;
+    authoredTransform = own === 'none' ? '' : own;
 
     savedStyles = snapshotStyles(visual);
     enterTopLayer(visual, originRect);
@@ -305,14 +336,27 @@ export function draggable(
   };
 
   const beginSettling = (result: SettleTarget): void => {
-    const target = result === 'accepted' ? delta : ORIGIN;
+    // A rollback aims at the item's live home slot: the visual is pinned at the
+    // grab-time viewport rect, so any document scroll since grab shifts the home
+    // slot by the negative scroll delta. Accepted drops keep the pointer delta.
+    const home: Point = {
+      x: grabScroll.x - scrollX,
+      y: grabScroll.y - scrollY,
+    };
+    const target = result === 'accepted' ? delta : home;
 
     if (result === 'canceled') {
       opts.onCancel?.(cancelReason);
     }
 
     const timing = opts.landingTiming?.() ?? DEFAULT_TIMING;
-    landing = animateTranslate(visual, delta, target, timing);
+    landing = animateTranslate(
+      visual,
+      delta,
+      target,
+      timing,
+      authoredTransform,
+    );
     landing.done.then(
       () => transit({ type: 'animation-finished' }),
       () => transit({ type: 'animation-finished' }),

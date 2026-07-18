@@ -18,9 +18,13 @@ export function createAnchor(
 
   anchor.dataset['dragPlaceholder'] = '';
   anchor.setAttribute('aria-hidden', 'true');
-  // Physical width/height so a vertical writing mode does not swap them.
-  anchor.style.width = `${rect.width}px`;
-  anchor.style.height = `${rect.height}px`;
+  // Size from the layout (offset) box, not the viewport rect: `offsetWidth`/
+  // `offsetHeight` are local CSS pixels, unaffected by the item's own transform
+  // or by ancestor `zoom`/`scale`, so the anchor fills exactly the item's slot
+  // instead of doubling under a scaled container. Physical width/height so a
+  // vertical writing mode does not swap them.
+  anchor.style.width = `${visual.offsetWidth}px`;
+  anchor.style.height = `${visual.offsetHeight}px`;
 
   // Participate in the same named slot so the anchor lays out where the item did.
   if (item.slot) {

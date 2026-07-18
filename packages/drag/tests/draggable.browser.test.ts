@@ -347,6 +347,67 @@ describe('draggable', () => {
     expect(item.matches(':popover-open')).toBeTruthy();
   });
 
+  it('should preserve the authored transform while dragging', async () => {
+    const item = createItem();
+    item.style.transform = 'rotate(30deg)';
+    draggable(item);
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 170, clientY: 110 } },
+    ]);
+
+    // The drag translation is prepended; the authored rotate (a matrix in
+    // computed form) is still composed in rather than discarded.
+    expect(
+      item.style.transform.startsWith('translate(60px, 0px)'),
+    ).toBeTruthy();
+    expect(item.style.transform).toContain('matrix(');
+  });
+
+  it('should report the local delta through a scaled coordinate context', async () => {
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '0';
+    container.style.top = '0';
+    container.style.transform = 'scale(2)';
+    document.body.append(container);
+
+    const item = document.createElement('div');
+    item.style.position = 'absolute';
+    item.style.left = '20px';
+    item.style.top = '20px';
+    item.style.width = '25px';
+    item.style.height = '25px';
+    container.append(item);
+
+    const onMove = vi.fn<(geometry: DragGeometry) => void>();
+    draggable(item, { onMove });
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 60, clientY: 60 },
+      },
+      // First move activates the drag; the second is a tracked drag move that
+      // reports geometry.
+      { coords: { clientX: 90, clientY: 70 } },
+      { coords: { clientX: 120, clientY: 80 } },
+    ]);
+
+    const [geometry] = onMove.mock.calls.at(-1)!;
+    // The container scales local space 2×, so a viewport delta maps to half the
+    // local delta, while the viewport delta stays raw.
+    expect(geometry.viewportDelta).toEqual({ x: 60, y: 20 });
+    expect(geometry.localDelta.x).toBeCloseTo(30, 1);
+    expect(geometry.localDelta.y).toBeCloseTo(10, 1);
+  });
+
   it('should keep tracking a mouse that leaves the item before activation', async () => {
     const item = createItem();
     const onStart = vi.fn<() => void>();
