@@ -1,7 +1,7 @@
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { draggable } from '../src/draggable.ts';
-import type { FreeDropRequest } from '../src/kernel/types.ts';
+import type { DragGeometry, FreeDropRequest } from '../src/kernel/types.ts';
 
 const accept = (_request: FreeDropRequest) => ({ accepted: true });
 
@@ -199,5 +199,49 @@ describe('draggable', () => {
 
     expect(item.matches(':popover-open')).toBeFalsy();
     expect(item.style.position).toBe('absolute');
+  });
+
+  it('should retarget the live position through update()', async () => {
+    const item = createItem();
+    const onMove = vi.fn<(geometry: DragGeometry) => void>();
+    const drag = draggable(item, { onMove });
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 140, clientY: 110 } },
+    ]);
+
+    onMove.mockClear();
+    // Origin rect is the item at (100, 100); an identity-space position of
+    // (200, 200) is a viewport delta of (100, 100).
+    drag.update({ position: { x: 200, y: 200 } });
+
+    expect(onMove).toHaveBeenCalledOnce();
+    const [geometry] = onMove.mock.calls[0]!;
+    expect(geometry.viewportDelta).toEqual({ x: 100, y: 100 });
+  });
+
+  it('should re-report geometry on scroll while dragging', async () => {
+    const item = createItem();
+    const onMove = vi.fn<(geometry: DragGeometry) => void>();
+    draggable(item, { onMove });
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 140, clientY: 110 } },
+    ]);
+
+    onMove.mockClear();
+    dispatchEvent(new Event('scroll'));
+
+    expect(onMove).toHaveBeenCalledOnce();
   });
 });

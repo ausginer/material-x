@@ -17,8 +17,19 @@
  * });
  * ```
  */
+import {
+  clampDelta,
+  constrainAxis,
+  resolveBounds,
+} from './draggable/bounds.ts';
+import type {
+  DraggableOptions,
+  DropOutcome,
+  FreeDragController,
+} from './draggable/options.ts';
 import { animateTranslate, type LandingAnimation } from './kernel/animation.ts';
 import { IDENTITY_MAPPER } from './kernel/coordinate.ts';
+import { DEFAULT_THRESHOLD, DEFAULT_TIMING } from './kernel/defaults.ts';
 import {
   AWAITING_COMMIT,
   DRAGGING,
@@ -43,114 +54,38 @@ import {
 import { createSession } from './kernel/session.ts';
 import {
   ORIGIN,
-  type AnimationTiming,
   type CoordinateMapper,
-  type DragAxis,
-  type DragController,
   type DragGeometry,
   type FreeDropRequest,
-  type FreeDropResult,
   type Point,
 } from './kernel/types.ts';
 
-/** A source of drag bounds, expressed in viewport space. */
-export type DragBounds =
-  | 'viewport'
-  | HTMLElement
-  | (() => DOMRectReadOnly | null);
+export type {
+  DragBounds,
+  DraggableOptions,
+  DragUpdate,
+  DropOutcome,
+  FreeDragController,
+} from './draggable/options.ts';
 
-/** The result an `onDrop` callback may produce (or nothing, meaning accept). */
-export type DropOutcome = FreeDropResult | Promise<FreeDropResult> | undefined;
-
-export type DraggableOptions = Readonly<{
-  /** Element (or resolver) that must be pressed to start the drag. */
-  handle?: HTMLElement | ((item: HTMLElement) => HTMLElement | null);
-  /** The element actually lifted; defaults to the item itself. */
-  getVisual?(item: HTMLElement): HTMLElement;
-  /** Which axes movement is allowed on. Defaults to `'both'`. */
-  axis?: DragAxis;
-  /** Optional movement bounds, in viewport space. */
-  bounds?: DragBounds;
-  /** Maps viewport space to the consumer's coordinate space. */
-  coordinateSpace?: CoordinateMapper;
-  /** `touch-action` applied to the handle/item for the gesture. */
-  touchAction?: string;
-  /** Activation travel, in viewport pixels. Defaults to 8. */
-  threshold?: number;
-  /** Landing animation timing, read at drop time. */
-  landingTiming?(): AnimationTiming;
-  onStart?(geometry: DragGeometry): void;
-  onMove?(geometry: DragGeometry): void;
-  onDrop?(request: FreeDropRequest): DropOutcome;
-  onCancel?(reason: unknown): void;
-  onFinish?(accepted: boolean): void;
-  onError?(error: unknown): void;
-}>;
-
-const DEFAULT_THRESHOLD = 8;
-const DEFAULT_TIMING: AnimationTiming = { duration: 200, easing: 'ease' };
-
-/** Resolves a bounds source to a viewport rect, or `null` for unbounded. */
-function resolveBounds(bounds: DragBounds | undefined): DOMRectReadOnly | null {
-  if (!bounds) {
-    return null;
-  }
-
-  if (bounds === 'viewport') {
-    return new DOMRectReadOnly(0, 0, innerWidth, innerHeight);
-  }
-
-  if (typeof bounds === 'function') {
-    return bounds();
-  }
-
-  return bounds.getBoundingClientRect();
-}
-
-/** Clamps a delta so `rect` translated by it stays within `bounds`. */
-function clampDelta(
-  delta: Point,
-  rect: DOMRectReadOnly,
-  bounds: DOMRectReadOnly,
-): Point {
-  const minX = bounds.left - rect.left;
-  const maxX = bounds.right - rect.right;
-  const minY = bounds.top - rect.top;
-  const maxY = bounds.bottom - rect.bottom;
-
-  return {
-    x: Math.min(Math.max(delta.x, minX), maxX),
-    y: Math.min(Math.max(delta.y, minY), maxY),
-  };
-}
-
-/** Constrains a delta to the permitted axis. */
-function constrainAxis(delta: Point, axis: DragAxis): Point {
-  if (axis === 'x') {
-    return { x: delta.x, y: 0 };
-  }
-
-  if (axis === 'y') {
-    return { x: 0, y: delta.y };
-  }
-
-  return delta;
-}
+/** The subset of settle results the free-drag entry animates towards. */
+type SettleTarget = 'accepted' | 'rejected' | 'canceled';
 
 export function draggable(
   item: HTMLElement,
   options: DraggableOptions = {},
-): DragController {
-  const {
-    getVisual = (element) => element,
-    axis = 'both',
-    coordinateSpace = IDENTITY_MAPPER,
-    threshold = DEFAULT_THRESHOLD,
-    landingTiming = () => DEFAULT_TIMING,
-  } = options;
+): FreeDragController {
+  // A mutable copy so `update()` can revise runtime-read options live. The
+  // activation threshold is captured once by the session config below, so
+  // changing it after construction has no effect.
+  const opts: DraggableOptions = { ...options };
+  const threshold = options.threshold ?? DEFAULT_THRESHOLD;
 
-  const visual = getVisual(item);
+  const visual = opts.getVisual?.(item) ?? item;
   const listeners = new AbortController();
+
+  const mapper = (): CoordinateMapper =>
+    opts.coordinateSpace ?? IDENTITY_MAPPER;
 
   // Per-session mutable context, live between activation and cleanup.
   let originPointer: Point = ORIGIN;
@@ -162,12 +97,14 @@ export function draggable(
   let pointerId = -1;
   let restoreTouch: (() => void) | null = null;
   let landing: LandingAnimation | null = null;
+  // Scroll/resize listeners, attached only while a drag is live.
+  let dragScope: AbortController | null = null;
 
   const geometry = (): DragGeometry => ({
     pointer: latestPointer,
     originPointer,
     viewportDelta: delta,
-    localDelta: coordinateSpace.deltaFromViewport(delta),
+    localDelta: mapper().deltaFromViewport(delta),
     originRect,
     currentRect: visual.getBoundingClientRect(),
   });
@@ -180,10 +117,10 @@ export function draggable(
     latestPointer = pointer;
     let next = constrainAxis(
       { x: pointer.x - originPointer.x, y: pointer.y - originPointer.y },
-      axis,
+      opts.axis ?? 'both',
     );
 
-    const bounds = resolveBounds(options.bounds);
+    const bounds = resolveBounds(opts.bounds);
 
     if (bounds) {
       next = clampDelta(next, originRect, bounds);
@@ -192,18 +129,27 @@ export function draggable(
     delta = next;
   };
 
+  // Scroll or resize moves the bounds and the item's flow position in viewport
+  // space without a pointermove; re-clamp against the latest pointer so a bounded
+  // drag stays correct and the reported geometry keeps up.
+  const invalidate = (): void => {
+    if (activated) {
+      updateDelta(latestPointer);
+      applyTransform();
+      opts.onMove?.(geometry());
+    }
+  };
+
   const activate = (pointer: Point): void => {
     activated = true;
     originRect = visual.getBoundingClientRect();
 
-    if (options.touchAction) {
+    if (opts.touchAction) {
       const handle =
-        typeof options.handle === 'function'
-          ? options.handle(item)
-          : (options.handle ?? item);
-      restoreTouch = handle
-        ? applyTouchAction(handle, options.touchAction)
-        : null;
+        typeof opts.handle === 'function'
+          ? opts.handle(item)
+          : (opts.handle ?? item);
+      restoreTouch = handle ? applyTouchAction(handle, opts.touchAction) : null;
     }
 
     savedStyles = snapshotStyles(visual);
@@ -211,10 +157,26 @@ export function draggable(
     item.setPointerCapture(pointerId);
     updateDelta(pointer);
     applyTransform();
-    options.onStart?.(geometry());
+
+    // `capture` catches scrolls from descendant scrollers (scroll does not
+    // bubble); both are torn down when the drag settles.
+    dragScope = new AbortController();
+    addEventListener('scroll', invalidate, {
+      capture: true,
+      passive: true,
+      signal: dragScope.signal,
+    });
+    addEventListener('resize', invalidate, {
+      passive: true,
+      signal: dragScope.signal,
+    });
+
+    opts.onStart?.(geometry());
   };
 
   const cleanup = (): void => {
+    dragScope?.abort();
+    dragScope = null;
     exitTopLayer(visual);
     restoreStyles(visual, savedStyles);
     restoreTouch?.();
@@ -232,9 +194,9 @@ export function draggable(
       visual,
       pointer: latestPointer,
       viewportPosition,
-      localPosition: coordinateSpace.fromViewport(viewportPosition),
+      localPosition: mapper().fromViewport(viewportPosition),
       viewportDelta: delta,
-      localDelta: coordinateSpace.deltaFromViewport(delta),
+      localDelta: mapper().deltaFromViewport(delta),
       visualRect,
     };
   };
@@ -247,9 +209,9 @@ export function draggable(
     let outcome: DropOutcome;
 
     try {
-      outcome = options.onDrop?.(request);
+      outcome = opts.onDrop?.(request);
     } catch (error) {
-      options.onError?.(error);
+      opts.onError?.(error);
       transit({ type: 'drop-rejected' });
       return;
     }
@@ -259,7 +221,7 @@ export function draggable(
         if (result.accepted && result.position) {
           // Adjusted landing target: map the consumer position back to a
           // viewport delta relative to the origin rect.
-          const viewport = coordinateSpace.toViewport(result.position);
+          const viewport = mapper().toViewport(result.position);
           delta = {
             x: viewport.x - originRect.left,
             y: viewport.y - originRect.top,
@@ -273,7 +235,7 @@ export function draggable(
         );
       })
       .catch((error: unknown) => {
-        options.onError?.(error);
+        opts.onError?.(error);
         transit({ type: 'drop-rejected' });
       });
   };
@@ -282,10 +244,11 @@ export function draggable(
     const target = result === 'accepted' ? delta : ORIGIN;
 
     if (result === 'canceled') {
-      options.onCancel?.('canceled');
+      opts.onCancel?.('canceled');
     }
 
-    landing = animateTranslate(visual, delta, target, landingTiming());
+    const timing = opts.landingTiming?.() ?? DEFAULT_TIMING;
+    landing = animateTranslate(visual, delta, target, timing);
     landing.done.then(
       () => transit({ type: 'animation-finished' }),
       () => transit({ type: 'animation-finished' }),
@@ -310,7 +273,7 @@ export function draggable(
     ) {
       updateDelta(next.latest);
       applyTransform();
-      options.onMove?.(geometry());
+      opts.onMove?.(geometry());
       return;
     }
 
@@ -327,7 +290,7 @@ export function draggable(
     if (previous.type === SETTLING && next.type === IDLE) {
       const accepted = previous.result === 'accepted';
       cleanup();
-      options.onFinish?.(accepted);
+      opts.onFinish?.(accepted);
     }
   };
 
@@ -345,9 +308,7 @@ export function draggable(
       }
 
       const handle =
-        typeof options.handle === 'function'
-          ? options.handle(item)
-          : options.handle;
+        typeof opts.handle === 'function' ? opts.handle(item) : opts.handle;
 
       if (handle && !event.composedPath().includes(handle)) {
         return;
@@ -361,6 +322,24 @@ export function draggable(
   });
 
   return {
+    update(next) {
+      const { position, ...rest } = next;
+      Object.assign(opts, rest);
+
+      // A controlled position retargets the live visual (or, adjusted during an
+      // async drop, the landing) to a consumer coordinate; ignored while idle,
+      // where the consumer owns the element's resting position directly.
+      if (position && activated) {
+        const viewport = mapper().toViewport(position);
+        delta = {
+          x: viewport.x - originRect.left,
+          y: viewport.y - originRect.top,
+        };
+        applyTransform();
+        opts.onMove?.(geometry());
+      }
+    },
+
     async cancel() {
       if (session.state().type !== IDLE) {
         session.transit({ type: 'escape' });
@@ -380,6 +359,3 @@ export function draggable(
     },
   };
 }
-
-/** The subset of settle results the free-drag entry animates towards. */
-type SettleTarget = 'accepted' | 'rejected' | 'canceled';

@@ -117,7 +117,7 @@ function isPointerEvent(event: DragSessionEvent): event is PointerEvent {
 }
 
 /** Whether a pointer event belongs to the pointer that owns the session. */
-function ownsSession(
+function doesOwnSession(
   state: PendingState | DraggingState,
   event: PointerEvent,
 ): boolean {
@@ -129,7 +129,7 @@ function pointOf(event: PointerEvent): Point {
 }
 
 /** Whether travel from `origin` to `latest` has crossed the activation gate. */
-function crossedThreshold(
+function hasCrossedThreshold(
   origin: Point,
   latest: Point,
   threshold: number,
@@ -165,7 +165,7 @@ function transitionPending(
   config: FsmConfig,
 ): DragSessionState {
   if (isPointerEvent(event)) {
-    if (!ownsSession(state, event)) {
+    if (!doesOwnSession(state, event)) {
       return state;
     }
 
@@ -173,7 +173,7 @@ function transitionPending(
       case POINTER_MOVE: {
         const latest = pointOf(event);
 
-        if (crossedThreshold(state.origin, latest, config.threshold)) {
+        if (hasCrossedThreshold(state.origin, latest, config.threshold)) {
           return {
             type: DRAGGING,
             pointerId: state.pointerId,
@@ -209,7 +209,7 @@ function transitionDragging(
   event: DragSessionEvent,
 ): DragSessionState {
   if (isPointerEvent(event)) {
-    if (!ownsSession(state, event)) {
+    if (!doesOwnSession(state, event)) {
       return state;
     }
 
@@ -257,7 +257,6 @@ function transitionAwaitingCommit(
     case COMMIT_OBSERVED:
     case ANIMATION_FINISHED:
     case ANIMATION_CANCELED:
-      return state;
     default:
       return state;
   }

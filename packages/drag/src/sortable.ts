@@ -19,6 +19,7 @@
  */
 import { animateTranslate, type LandingAnimation } from './kernel/animation.ts';
 import { createCommitTracker } from './kernel/commit.ts';
+import { DEFAULT_THRESHOLD, DEFAULT_TIMING } from './kernel/defaults.ts';
 import {
   AWAITING_COMMIT,
   DRAGGING,
@@ -50,119 +51,21 @@ import {
   isPrimaryPress,
 } from './kernel/pointer.ts';
 import { createSession } from './kernel/session.ts';
-import {
-  ORIGIN,
-  type AnimationTiming,
-  type DragController,
-  type MoveResult,
-  type Point,
-  type ReorderRequest,
-  type ReorderResult,
-} from './kernel/types.ts';
+import { ORIGIN, type Point, type ReorderRequest } from './kernel/types.ts';
+import { createAnchor } from './sortable/anchor.ts';
+import type {
+  ReorderOutcome,
+  SortableController,
+  SortableOptions,
+} from './sortable/options.ts';
+import { resolveItem } from './sortable/resolve.ts';
 
-/** The result an `onReorder` callback may produce (or nothing, meaning accept). */
-export type ReorderOutcome = ReorderResult | Promise<ReorderResult> | undefined;
-
-/** Geometry passed to a consumer's placeholder factory. */
-export type PlaceholderContext = Readonly<{
-  item: HTMLElement;
-  visual: HTMLElement;
-  rect: DOMRectReadOnly;
-}>;
-
-export type SortableOptions = Readonly<{
-  /** The current ordered item collection. */
-  items(): readonly HTMLElement[];
-  /** The lifted element for an item; defaults to the item itself. */
-  getVisual?(item: HTMLElement): HTMLElement;
-  /** Whether an item requires its press to land on a handle. */
-  getHandle?(item: HTMLElement): HTMLElement | null;
-  /**
-   * Builds the visible placeholder occupying the dragged item's slot. Optional:
-   * when omitted, the engine uses an internal, non-styleable anchor purely for
-   * geometry, and no placeholder DOM is exposed to the consumer.
-   */
-  createPlaceholder?(context: PlaceholderContext): HTMLElement;
-  /** `touch-action` applied to the item for the gesture. */
-  touchAction?: string;
-  /** Activation travel, in viewport pixels. Defaults to 8. */
-  threshold?: number;
-  /** Landing animation timing, read at drop time. */
-  landingTiming?(): AnimationTiming;
-  onStart?(item: HTMLElement): void;
-  onReorder?(request: ReorderRequest): ReorderOutcome;
-  onCancel?(item: HTMLElement, reason: unknown): void;
-  onFinish?(item: HTMLElement, accepted: boolean): void;
-  onError?(error: unknown): void;
-}>;
-
-/** A sortable controller adds collection updates and programmatic moves. */
-export type SortableController = DragController &
-  Readonly<{
-    updateItems(items: readonly HTMLElement[]): void;
-    move(
-      item: HTMLElement,
-      destination: {
-        before: HTMLElement | null;
-        after: HTMLElement | null;
-      },
-    ): Promise<MoveResult>;
-  }>;
-
-const DEFAULT_THRESHOLD = 8;
-const DEFAULT_TIMING: AnimationTiming = { duration: 200, easing: 'ease' };
-
-/** Builds the anchor that fills the lifted item's slot. */
-function createAnchor(
-  options: SortableOptions,
-  item: HTMLElement,
-  visual: HTMLElement,
-  rect: DOMRectReadOnly,
-): HTMLElement {
-  const anchor =
-    options.createPlaceholder?.({ item, visual, rect }) ??
-    document.createElement('div');
-
-  anchor.dataset['dragPlaceholder'] = '';
-  anchor.setAttribute('aria-hidden', 'true');
-  // Physical width/height so a vertical writing mode does not swap them.
-  anchor.style.width = `${rect.width}px`;
-  anchor.style.height = `${rect.height}px`;
-
-  // Participate in the same named slot so the anchor lays out where the item did.
-  if (item.slot) {
-    anchor.slot = item.slot;
-  }
-
-  return anchor;
-}
-
-/** Resolves the tracked item pressed, honouring an optional handle gate. */
-function resolveItem(
-  event: PointerEvent,
-  items: readonly HTMLElement[],
-  options: SortableOptions,
-): HTMLElement | null {
-  const path = event.composedPath();
-  const itemSet = new Set(items);
-  const itemIndex = path.findIndex(
-    (node) => node instanceof HTMLElement && itemSet.has(node),
-  );
-
-  if (itemIndex === -1) {
-    return null;
-  }
-
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  const item = path[itemIndex] as HTMLElement;
-  const handle = options.getHandle?.(item);
-
-  if (handle && !path.slice(0, itemIndex).includes(handle)) {
-    return null;
-  }
-
-  return item;
-}
+export type {
+  PlaceholderContext,
+  ReorderOutcome,
+  SortableController,
+  SortableOptions,
+} from './sortable/options.ts';
 
 export function sortable(
   container: HTMLElement,
