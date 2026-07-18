@@ -166,6 +166,18 @@ describe('transition', () => {
       expect(state).toEqual({ type: SETTLING, result: 'rejected' });
     });
 
+    it('should settle accepted on commit-observed', () => {
+      // The sortable path settles through an observed DOM commit rather than an
+      // outright drop acceptance; both reach the same accepted settle.
+      const state = transition(
+        toAwaiting(),
+        { type: 'commit-observed' },
+        CONFIG,
+      );
+
+      expect(state).toEqual({ type: SETTLING, result: 'accepted' });
+    });
+
     it('should ignore pointer input while awaiting an external decision', () => {
       const state = transition(
         toAwaiting(),

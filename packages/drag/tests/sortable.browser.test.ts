@@ -1,6 +1,7 @@
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ReorderRequest } from '../src/kernel/types.ts';
+import type { ReorderFinish } from '../src/sortable/options.ts';
 import { sortable } from '../src/sortable.ts';
 
 const reject = (_request: ReorderRequest) => ({ accepted: false });
@@ -155,7 +156,8 @@ describe('sortable', () => {
 
   it('should finish rejected when the consumer rejects the reorder', async () => {
     const { container, items } = createList(3);
-    const onFinish = vi.fn<(item: HTMLElement, accepted: boolean) => void>();
+    const onFinish =
+      vi.fn<(item: HTMLElement, outcome: ReorderFinish) => void>();
     sortable(container, {
       items: () => items,
       onReorder: reject,
@@ -166,13 +168,14 @@ describe('sortable', () => {
     await dragToEnd(ue, items[0]!);
 
     await vi.waitFor(() => {
-      expect(onFinish).toHaveBeenCalledWith(items[0]!, false);
+      expect(onFinish).toHaveBeenCalledWith(items[0]!, 'rejected');
     });
   });
 
-  it('should settle once the consumer commits the reorder', async () => {
+  it('should finish committed once the consumer commits synchronously', async () => {
     const { container, items } = createList(3);
-    const onFinish = vi.fn<(item: HTMLElement, accepted: boolean) => void>();
+    const onFinish =
+      vi.fn<(item: HTMLElement, outcome: ReorderFinish) => void>();
     const controller = sortable(container, {
       items: () => items,
       onReorder(request) {
@@ -193,8 +196,65 @@ describe('sortable', () => {
     await dragToEnd(ue, items[0]!);
 
     await vi.waitFor(() => {
-      expect(onFinish).toHaveBeenCalledWith(expect.anything(), true);
+      expect(onFinish).toHaveBeenCalledWith(expect.anything(), 'committed');
     });
+  });
+
+  it('should finish committed when the consumer commits asynchronously', async () => {
+    const { container, items } = createList(3);
+    const onFinish =
+      vi.fn<(item: HTMLElement, outcome: ReorderFinish) => void>();
+    const controller = sortable(container, {
+      items: () => items,
+      onReorder(request) {
+        // The commit lands a frame later, after the drop resolves — the session
+        // must hold through `awaiting-commit` until `updateItems` reports it.
+        return new Promise((resolve) => {
+          requestAnimationFrame(() => {
+            const rest = items.filter((item) => item !== request.item);
+            rest.splice(request.to, 0, request.item);
+            container.insertBefore(
+              request.item,
+              container.children[request.to] ?? null,
+            );
+            items.splice(0, items.length, ...rest);
+            controller.updateItems(items);
+            resolve({ accepted: true });
+          });
+        });
+      },
+      onFinish,
+      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+    });
+
+    await dragToEnd(ue, items[0]!);
+
+    await vi.waitFor(() => {
+      expect(onFinish).toHaveBeenCalledWith(expect.anything(), 'committed');
+    });
+  });
+
+  it('should finish accepted-but-uncommitted when no commit is observed', async () => {
+    const { container, items } = createList(3);
+    const onFinish =
+      vi.fn<(item: HTMLElement, outcome: ReorderFinish) => void>();
+    sortable(container, {
+      // Accept the reorder but never move the DOM or call updateItems, so the
+      // commit wait times out and the outcome is `accepted`, not `committed`.
+      items: () => items,
+      onReorder: () => ({ accepted: true }),
+      onFinish,
+      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+    });
+
+    await dragToEnd(ue, items[0]!);
+
+    await vi.waitFor(
+      () => {
+        expect(onFinish).toHaveBeenCalledWith(items[0]!, 'accepted');
+      },
+      { timeout: 2000 },
+    );
   });
 
   it('should restore the item when destroyed mid-drag', async () => {

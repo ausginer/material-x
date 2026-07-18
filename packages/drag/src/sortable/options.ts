@@ -10,6 +10,16 @@ import type {
 /** The result an `onReorder` callback may produce (or nothing, meaning accept). */
 export type ReorderOutcome = ReorderResult | Promise<ReorderResult> | undefined;
 
+/**
+ * How a reorder gesture concluded, reported to `onFinish`:
+ * - `committed` — accepted, and the consumer's DOM commit was observed;
+ * - `accepted` — accepted, but no commit was observed before the timeout (the
+ *   item may still sit in its original slot);
+ * - `rejected` — the consumer rejected the proposal, or the drop was a no-op;
+ * - `canceled` — the gesture was cancelled, escaped, or destroyed.
+ */
+export type ReorderFinish = 'committed' | 'accepted' | 'rejected' | 'canceled';
+
 /** Geometry passed to a consumer's placeholder factory. */
 export type PlaceholderContext = Readonly<{
   item: HTMLElement;
@@ -39,7 +49,7 @@ export type SortableOptions = Readonly<{
   onStart?(item: HTMLElement): void;
   onReorder?(request: ReorderRequest): ReorderOutcome;
   onCancel?(item: HTMLElement, reason: unknown): void;
-  onFinish?(item: HTMLElement, accepted: boolean): void;
+  onFinish?(item: HTMLElement, outcome: ReorderFinish): void;
   onError?(error: unknown): void;
 }>;
 

@@ -55,6 +55,7 @@ import { createSession, type Session } from './kernel/session.ts';
 import { ORIGIN, type Point, type ReorderRequest } from './kernel/types.ts';
 import { createAnchor } from './sortable/anchor.ts';
 import type {
+  ReorderFinish,
   ReorderOutcome,
   SortableController,
   SortableOptions,
@@ -63,6 +64,7 @@ import { resolveItem } from './sortable/resolve.ts';
 
 export type {
   PlaceholderContext,
+  ReorderFinish,
   ReorderOutcome,
   SortableController,
   SortableOptions,
@@ -117,6 +119,10 @@ export function sortable(
   let savedStyles: SavedStyles = new Map();
   let landing: LandingAnimation | null = null;
   let cancelReason: unknown = 'canceled';
+  // Whether the consumer's DOM commit was observed for the current accepted
+  // drop, as opposed to the commit wait timing out. Distinguishes the `onFinish`
+  // outcome; reset when a session arms.
+  let commitObserved = false;
   // Once destroyed, no effect or async continuation may touch the DOM again.
   let destroyed = false;
   // Scroll/resize listeners, attached only while a drag is live.
@@ -234,6 +240,10 @@ export function sortable(
   };
 
   const cleanup = (): void => {
+    // Abandon any commit wait still pending (e.g. a cancelled gesture) so its
+    // timeout can't fire into a torn-down session.
+    tracker?.release();
+
     dragScope?.abort();
     dragScope = null;
 
@@ -322,16 +332,43 @@ export function sortable(
           return;
         }
 
-        transit(
-          result.accepted
-            ? { type: 'drop-accepted' }
-            : { type: 'drop-rejected' },
-        );
+        if (!result.accepted) {
+          transit({ type: 'drop-rejected' });
+          return;
+        }
+
+        // Accepted: hold the visual until the consumer's DOM commit is observed
+        // (or the wait times out), so teardown never reveals a half-committed
+        // collection. The tracker feeds that observation back through the FSM as
+        // a `commit-observed` transition — the same path a committed and a
+        // timed-out reorder both settle through.
+        if (!tracker) {
+          transit({ type: 'commit-observed' });
+          return;
+        }
+
+        tracker.watch((observed) => {
+          if (destroyed) {
+            return;
+          }
+
+          commitObserved = observed;
+          transit({ type: 'commit-observed' });
+        });
       })
       .catch((error: unknown) => {
         safeError(error);
         transit({ type: 'drop-rejected' });
       });
+  };
+
+  /** Maps a settle result to the outcome reported to `onFinish`. */
+  const finishOutcome = (result: SettleResult): ReorderFinish => {
+    if (result === 'accepted') {
+      return commitObserved ? 'committed' : 'accepted';
+    }
+
+    return result === 'rejected' ? 'rejected' : 'canceled';
   };
 
   const beginSettling = (result: SettleResult): void => {
@@ -358,19 +395,14 @@ export function sortable(
           })()
         : ORIGIN;
 
+    // For an accepted drop the consumer's commit was already observed before
+    // this state (it is what advanced the machine here), so the visual can land
+    // on the now-settled slot and tear down without a second wait.
     landing = animateTranslate(visual, delta, target, landingTiming());
-    landing.done
-      .then(async () => {
-        // Wait for the consumer's reorder to land the item at `to`, so teardown
-        // never reveals it in the wrong slot for a frame.
-        if (result === 'accepted' && !destroyed) {
-          await tracker?.wait();
-        }
-      })
-      .then(
-        () => transit({ type: 'animation-finished' }),
-        () => transit({ type: 'animation-finished' }),
-      );
+    landing.done.then(
+      () => transit({ type: 'animation-finished' }),
+      () => transit({ type: 'animation-finished' }),
+    );
   };
 
   const runEffects = (
@@ -412,12 +444,12 @@ export function sortable(
     }
 
     if (previous.type === SETTLING && next.type === IDLE) {
-      const accepted = previous.result === 'accepted';
+      const outcome = finishOutcome(previous.result);
       const finished = dragged;
       cleanup();
 
       if (finished) {
-        options.onFinish?.(finished, accepted);
+        options.onFinish?.(finished, outcome);
       }
     }
   };
@@ -468,6 +500,7 @@ export function sortable(
     ({ pointerId } = event);
     start = { x: event.clientX, y: event.clientY };
     cancelReason = 'canceled';
+    commitObserved = false;
 
     // Track the rest of the gesture on the document so a mouse leaving the item
     // before capture is acquired cannot lose it, and Escape reaches an unfocused

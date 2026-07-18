@@ -247,14 +247,17 @@ function transitionAwaitingCommit(
   }
 
   switch (event.type) {
+    // Two ways to reach an accepted settle: the free-drag consumer accepts the
+    // drop outright, or the sortable consumer's DOM commit is observed (the
+    // engine holds the visual until the reorder actually lands).
     case DROP_ACCEPTED:
+    case COMMIT_OBSERVED:
       return { type: SETTLING, result: ACCEPTED };
     case DROP_REJECTED:
       return { type: SETTLING, result: REJECTED };
     case ESCAPE:
     case DESTROY:
       return { type: SETTLING, result: CANCELED };
-    case COMMIT_OBSERVED:
     case ANIMATION_FINISHED:
     case ANIMATION_CANCELED:
     default:

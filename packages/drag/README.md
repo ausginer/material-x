@@ -61,6 +61,16 @@ The engine **never mutates the collection** — it dispatches a proposed reorder
 watches for the consumer's commit (by neighbour identity, tolerating async
 renders). A no-op or rejected drop animates home and reports no change.
 
+`onFinish(item, outcome)` reports how the gesture concluded so an
+accepted-and-committed reorder is distinguishable from one that was accepted but
+never landed:
+
+- `committed` — accepted, and the DOM commit was observed;
+- `accepted` — accepted, but no commit arrived before the ~500 ms wait timed out
+  (the item may still sit in its original slot);
+- `rejected` — rejected by the consumer, or a no-op drop;
+- `canceled` — cancelled, escaped, or destroyed.
+
 ### Placeholder
 
 `createPlaceholder` is optional. When omitted, the engine inserts an internal,
