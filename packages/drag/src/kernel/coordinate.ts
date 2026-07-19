@@ -38,6 +38,37 @@ function origin(style: CSSStyleDeclaration): Point {
   };
 }
 
+/**
+ * The cumulative CSS `zoom` of `element`'s ancestors, excluding its own. Unlike
+ * `transform`, `zoom` is not escaped by the top layer — it compounds onto a
+ * lifted element through the DOM ancestry — so a lifted visual cancels this to
+ * render in true viewport pixels.
+ */
+export function ancestorZoom(element: HTMLElement): number {
+  let zoom = 1;
+  let node = element.parentElement;
+
+  while (node) {
+    zoom *= Number.parseFloat(getComputedStyle(node).zoom) || 1;
+    node = node.parentElement;
+  }
+
+  return zoom;
+}
+
+/**
+ * The cumulative CSS `zoom` scaling `element` on screen — its own `zoom` times
+ * {@link ancestorZoom}. Used to reconcile the zoom the `offsetParent` walk in
+ * {@link viewportMatrix} skips over (a static zoomed ancestor is not an
+ * `offsetParent`).
+ */
+function cumulativeZoom(element: HTMLElement): number {
+  return (
+    (Number.parseFloat(getComputedStyle(element).zoom) || 1) *
+    ancestorZoom(element)
+  );
+}
+
 /** An element's own CSS transform, taken about its transform-origin. */
 function ownTransform(style: CSSStyleDeclaration): DOMMatrix {
   if (style.transform === 'none') {
@@ -55,16 +86,25 @@ function ownTransform(style: CSSStyleDeclaration): DOMMatrix {
 /**
  * The transform mapping `element`'s border-box local space (origin at its
  * top-left border corner, CSS-pixel axes) to viewport coordinates, with the
- * element's own transform applied. Points map as `matrix.transformPoint(p)`.
+ * element's own transform and cumulative `zoom` applied. Points map as
+ * `matrix.transformPoint(p)`.
+ *
+ * Accumulates up the `offsetParent` chain, folding in each element's layout
+ * position, `zoom`, and CSS transform (about its origin). Because any
+ * transformed element is itself an `offsetParent`, the intermediate elements a
+ * single `offsetLeft`/`offsetTop` skips over are always transform-free, so the
+ * layout offsets stay valid under arbitrarily nested transforms.
  */
 export function viewportMatrix(element: HTMLElement): DOMMatrix {
   let matrix = new DOMMatrix();
   let node: Element | null = element;
+  // Product of the `zoom` folded in along the way, so the skipped-ancestor gap
+  // below can be reconciled against the true cumulative zoom.
+  let visitedZoom = 1;
 
   while (node instanceof HTMLElement) {
     const style = getComputedStyle(node);
     const offsetParent: Element | null = node.offsetParent;
-    const zoom = Number.parseFloat(style.zoom) || 1;
 
     // node-local (post its own transform) → offsetParent border-box space.
     const step = new DOMMatrix();
@@ -77,35 +117,36 @@ export function viewportMatrix(element: HTMLElement): DOMMatrix {
         .translateSelf(-offsetParent.scrollLeft, -offsetParent.scrollTop);
     }
 
-    step
-      .translateSelf(node.offsetLeft, node.offsetTop)
-      .scaleSelf(zoom)
-      .multiplySelf(ownTransform(style));
+    // A node's own `zoom` scales its content *and* its layout offset (a
+    // `zoom: 2; left: 20px` box renders its left edge at 40), so the scale wraps
+    // the offset translate rather than following it.
+    const zoom = Number.parseFloat(style.zoom) || 1;
+    step.scaleSelf(zoom);
+    visitedZoom *= zoom;
+
+    step.translateSelf(node.offsetLeft, node.offsetTop);
+    step.multiplySelf(ownTransform(style));
 
     matrix = step.multiply(matrix);
     node = offsetParent;
   }
 
   // Fold in document scrolling once the chain reaches the root.
-  return new DOMMatrix().translateSelf(-scrollX, -scrollY).multiply(matrix);
-}
+  matrix = new DOMMatrix().translateSelf(-scrollX, -scrollY).multiply(matrix);
 
-/**
- * The cumulative CSS `zoom` of `element`'s ancestors, excluding its own. Unlike
- * `transform`, `zoom` is not escaped by the top layer — it compounds onto a
- * lifted element through the DOM ancestry — so a lifted visual cancels this to
- * render in true viewport pixels.
- */
-export function ancestorZoom(element: HTMLElement): number {
-  let zoom = 1;
-  let node = element.parentElement;
+  // A static zoomed ancestor is not an `offsetParent`, so the walk above steps
+  // straight over it and never folds its `zoom` in — `offsetLeft`/`offsetTop`
+  // are reported in unzoomed layout units. Reconcile that gap by scaling the
+  // whole result by the cumulative zoom the walk missed. (Uniform `zoom` scales
+  // descendant geometry about the zoomed box; this approximates it about the
+  // viewport origin, exact when the zoomed ancestor sits at that origin.)
+  const gap = cumulativeZoom(element) / visitedZoom;
 
-  while (node) {
-    zoom *= Number.parseFloat(getComputedStyle(node).zoom) || 1;
-    node = node.parentElement;
+  if (gap !== 1) {
+    matrix = new DOMMatrix().scaleSelf(gap).multiply(matrix);
   }
 
-  return zoom;
+  return matrix;
 }
 
 /** Drops the translation of `matrix`, leaving only its linear (2×2) part. */

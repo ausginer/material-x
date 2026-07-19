@@ -130,14 +130,14 @@ export const AsyncDropConfirmation: StoryObj = {
   render: () => <AsyncDrop />,
 };
 
-type LiftMode = 'top-layer' | 'top-layer-transformed' | 'none';
+type LiftMode = 'top-layer' | 'flatten' | 'none';
 type TransformedArgs = Readonly<{ lift: LiftMode }>;
 
 const LIFT_HINT: Record<LiftMode, string> = {
   'top-layer':
-    'top-layer lift — floats above, but flattens the stage transform',
-  'top-layer-transformed':
-    'top-layer, transform preserved — floats above and keeps the stage transform',
+    'faithful top-layer lift — floats above and keeps the stage transform, undistorted',
+  flatten:
+    'flatten — floats above, dropping the stage transform (drags upright at natural size)',
   none: 'in place — keeps the transform but is clipped by the stage',
 };
 
@@ -197,7 +197,7 @@ export const TransformedStage: StoryObj<TransformedArgs> = {
   argTypes: {
     lift: {
       control: 'inline-radio',
-      options: ['top-layer', 'top-layer-transformed', 'none'],
+      options: ['top-layer', 'flatten', 'none'],
       description: 'How the visual is promoted during the drag.',
     },
   },

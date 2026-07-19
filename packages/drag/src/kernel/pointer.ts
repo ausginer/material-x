@@ -73,6 +73,21 @@ export function isPrimaryPress(event: PointerEvent): boolean {
 }
 
 /**
+ * Captures `pointerId` on `element`, best-effort. Capture only keeps a pointer
+ * that wanders off the element bound to the gesture; the session is tracked on
+ * the document regardless, so it is never essential. Some pointers reject the
+ * call — notably touch, which already holds implicit capture and can report "no
+ * active pointer" — and that must not abort an otherwise valid drag.
+ */
+export function capturePointer(element: HTMLElement, pointerId: number): void {
+  try {
+    element.setPointerCapture(pointerId);
+  } catch {
+    // Non-fatal: fall back to the document-level session listeners.
+  }
+}
+
+/**
  * Applies a `touch-action` to an element and returns a restore function that
  * puts back the previous inline value.
  */

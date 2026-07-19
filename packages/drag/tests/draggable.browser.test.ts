@@ -71,6 +71,28 @@ describe('draggable', () => {
     expect(item.matches(':popover-open')).toBeTruthy();
   });
 
+  it('should activate with a touch pointer despite failed capture', async () => {
+    // A touch pointer rejects `setPointerCapture`; the drag must still start
+    // rather than being aborted by the effect exception boundary.
+    const item = createItem();
+    const onStart = vi.fn<() => void>();
+    const onError = vi.fn<() => void>();
+    draggable(item, { touchAction: 'none', onStart, onError });
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[TouchA>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { pointerName: 'TouchA', coords: { clientX: 160, clientY: 110 } },
+      { keys: '[/TouchA]' },
+    ]);
+
+    expect(onStart).toHaveBeenCalledOnce();
+    expect(onError).not.toHaveBeenCalled();
+  });
+
   it('should leave a click without movement untouched', async () => {
     const item = createItem();
     const onStart = vi.fn<() => void>();
@@ -108,6 +130,108 @@ describe('draggable', () => {
     expect(onDrop).toHaveBeenCalledOnce();
     const [request] = onDrop.mock.calls[0]!;
     expect(request.viewportDelta).toEqual({ x: 60, y: 20 });
+  });
+
+  it('should use the release position, not the last move, for the drop', async () => {
+    const item = createItem();
+    const onDrop = vi.fn(accept);
+    draggable(item, { onDrop });
+
+    // Release lands apart from the last pointermove; the drop must reflect it.
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 150, clientY: 110 } },
+      { keys: '[/MouseLeft]', coords: { clientX: 190, clientY: 130 } },
+    ]);
+
+    const [request] = onDrop.mock.calls[0]!;
+    expect(request.viewportDelta).toEqual({ x: 80, y: 20 });
+  });
+
+  it('should stay terminal when onCancel destroys the controller', async () => {
+    const item = createItem();
+    const onFinish = vi.fn<(accepted: boolean) => void>();
+    const drag = draggable(item, {
+      onCancel: () => drag.destroy(),
+      onFinish,
+      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+    });
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 170, clientY: 110 } },
+    ]);
+
+    // Cancelling triggers onCancel, which destroys mid-settle: no throw, no
+    // stranded animation, no post-destroy finish.
+    await drag.cancel();
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20);
+    });
+
+    expect(item.matches(':popover-open')).toBeFalsy();
+    expect(item.style.transform).toBe('');
+    expect(onFinish).not.toHaveBeenCalled();
+  });
+
+  it('should not let a cancelled drop settle a later gesture', async () => {
+    const item = createItem();
+    const resolvers: Array<(r: { accepted: boolean }) => void> = [];
+    const finishes: boolean[] = [];
+    const drag = draggable(item, {
+      onDrop: () =>
+        new Promise<{ accepted: boolean }>((resolve) => {
+          resolvers.push(resolve);
+        }),
+      onFinish: (accepted) => {
+        finishes.push(accepted);
+      },
+      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+    });
+
+    const pressMoveRelease = async (): Promise<void> => {
+      await ue.pointer([
+        {
+          target: item,
+          keys: '[MouseLeft>]',
+          coords: { clientX: 110, clientY: 110 },
+        },
+        { coords: { clientX: 170, clientY: 110 } },
+        { keys: '[/MouseLeft]' },
+      ]);
+    };
+
+    // Gesture A: drop pending on resolvers[0]. Cancelling it finishes A itself
+    // as rejected (finishes: [false]).
+    await pressMoveRelease();
+    await drag.cancel();
+    await vi.waitFor(() => {
+      expect(finishes).toEqual([false]);
+    });
+
+    // Gesture B: a fresh drop, pending on resolvers[1].
+    await pressMoveRelease();
+
+    // A's stale resolution must be ignored — it cannot accept B.
+    resolvers[0]!({ accepted: true });
+    await new Promise((resolve) => {
+      setTimeout(resolve, 20);
+    });
+    expect(finishes).toEqual([false]);
+
+    // B's own resolution settles B.
+    resolvers[1]!({ accepted: true });
+    await vi.waitFor(() => {
+      expect(finishes).toEqual([false, true]);
+    });
   });
 
   it('should constrain movement to the x axis', async () => {
@@ -456,6 +580,99 @@ describe('draggable', () => {
     expect(moved.width).toBeCloseTo(start.width, 0);
   });
 
+  it('should not jump at activation under a static zoomed ancestor', async () => {
+    // The reported bug: a static (non-offsetParent) zoomed ancestor offset from
+    // the origin. The compositor skipped its `zoom`, and the lift relied on the
+    // browser re-applying inherited zoom to the fixed element — which Firefox
+    // does not — so the tile jumped toward the origin at grab.
+    const zoomed = document.createElement('div');
+    zoomed.style.zoom = '1.25';
+    const spacer = document.createElement('div');
+    spacer.style.height = '200px';
+    const box = document.createElement('div');
+    Object.assign(box.style, { width: '60px', height: '60px' });
+    zoomed.append(spacer, box);
+    document.body.append(zoomed);
+
+    const before = box.getBoundingClientRect();
+    draggable(box, { touchAction: 'none' });
+
+    await ue.pointer([
+      {
+        target: box,
+        keys: '[MouseLeft>]',
+        coords: { clientX: before.left + 10, clientY: before.top + 10 },
+      },
+      { coords: { clientX: before.left + 10, clientY: before.top + 20 } },
+    ]);
+
+    const after = box.getBoundingClientRect();
+    // The tile stays put (only the 10px drag), keeping its zoomed size.
+    expect(after.left).toBeCloseTo(before.left, 0);
+    expect(after.top - before.top).toBeCloseTo(10, 0);
+    expect(after.width).toBeCloseTo(before.width, 0);
+  });
+
+  it('should track the pointer under a CSS zoom on the visual itself', async () => {
+    const box = document.createElement('div');
+    Object.assign(box.style, {
+      position: 'absolute',
+      left: '20px',
+      top: '20px',
+      width: '30px',
+      height: '30px',
+      zoom: '2',
+    });
+    document.body.append(box);
+
+    draggable(box, { touchAction: 'none' });
+
+    const start = box.getBoundingClientRect();
+    const cx = start.left + start.width / 2;
+    const cy = start.top + start.height / 2;
+
+    await ue.pointer([
+      {
+        target: box,
+        keys: '[MouseLeft>]',
+        coords: { clientX: cx, clientY: cy },
+      },
+      { coords: { clientX: cx + 40, clientY: cy + 40 } },
+    ]);
+
+    const moved = box.getBoundingClientRect();
+    // The lifted element's net zoom is neutralized to 1 and the 2× is reproduced
+    // by the matrix, so it tracks 1:1: 40px of pointer travel is 40px of viewport
+    // movement, not 80px, with no activation jump.
+    expect(moved.left - start.left).toBeCloseTo(40, 0);
+    expect(moved.top - start.top).toBeCloseTo(40, 0);
+    // …and the box keeps its zoomed rendered size.
+    expect(moved.width).toBeCloseTo(start.width, 0);
+  });
+
+  it('should apply transform writes instantly despite an authored transition', async () => {
+    const item = createItem();
+    // A long transform transition would animate the lift matrix and retarget on
+    // every move, jumping and lagging the drag — the lift must suppress it.
+    item.style.transition = 'transform 10s linear';
+    const before = item.getBoundingClientRect();
+    draggable(item);
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 170, clientY: 110 } },
+    ]);
+
+    // The transition is suppressed inline while lifted, so the move lands at once.
+    expect(item.style.transition).toBe('none');
+    const after = item.getBoundingClientRect();
+    expect(after.left - before.left).toBeCloseTo(60, 0);
+  });
+
   it('should preserve the authored transform while dragging', async () => {
     const item = createItem();
     item.style.transform = 'rotate(30deg)';
@@ -551,7 +768,7 @@ describe('draggable', () => {
     expect(item.style.transform).toBe('translate(30px, 0px)');
   });
 
-  it('should lift into the top layer while preserving the ancestor transform', async () => {
+  it('should lift faithfully by default, preserving the ancestor transform', async () => {
     const container = document.createElement('div');
     container.style.position = 'absolute';
     container.style.left = '0';
@@ -567,7 +784,8 @@ describe('draggable', () => {
     item.style.height = '25px';
     container.append(item);
 
-    draggable(item, { lift: 'top-layer-transformed', touchAction: 'none' });
+    // Default lift is the faithful matrix lift.
+    draggable(item, { touchAction: 'none' });
 
     await ue.pointer([
       {
@@ -586,6 +804,51 @@ describe('draggable', () => {
       item.style.transform.startsWith('translate(60px, 0px)'),
     ).toBeTruthy();
     expect(item.style.transform).toContain('matrix(2, 0, 0, 2');
+  });
+
+  it('should not distort a self-transformed visual on the default lift', async () => {
+    const item = createItem();
+    // A 50px box scaled to 100px on screen.
+    item.style.transform = 'scale(2)';
+    const before = item.getBoundingClientRect().width;
+    expect(before).toBeCloseTo(100, 0);
+
+    draggable(item, { touchAction: 'none' });
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 150, clientY: 110 } },
+    ]);
+
+    // The faithful lift reproduces the rendered size — it is not pinned to the
+    // already-scaled bounding rect and scaled again (which gave 200px).
+    expect(item.getBoundingClientRect().width).toBeCloseTo(100, 0);
+  });
+
+  it('should flatten a self-transformed visual to its natural size when asked', async () => {
+    const item = createItem();
+    item.style.transform = 'scale(2)'; // 50px → 100px on screen
+
+    draggable(item, { lift: 'flatten', touchAction: 'none' });
+
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+      { coords: { clientX: 150, clientY: 110 } },
+    ]);
+
+    // Flatten drops the transform: the visual renders at its natural 50px size,
+    // axis-aligned, with only a translation applied.
+    expect(item.matches(':popover-open')).toBeTruthy();
+    expect(item.getBoundingClientRect().width).toBeCloseTo(50, 0);
+    expect(item.style.transform).toBe('translate(40px, 0px)');
   });
 
   it('should keep tracking a mouse that leaves the item before activation', async () => {

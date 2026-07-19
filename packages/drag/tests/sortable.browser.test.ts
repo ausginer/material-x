@@ -76,6 +76,113 @@ describe('sortable', () => {
     expect(items[0]!.matches(':popover-open')).toBeTruthy();
   });
 
+  it('should accept the item itself as its handle', async () => {
+    const { container, items } = createList(2);
+    sortable(container, { items: () => items, getHandle: (item) => item });
+
+    await ue.pointer([
+      {
+        target: items[0]!,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 20, clientY: 10 },
+      },
+      { coords: { clientX: 20, clientY: 9999 } },
+    ]);
+
+    // `getHandle: (item) => item` must not be rejected by the path slice.
+    expect(items[0]!.matches(':popover-open')).toBeTruthy();
+  });
+
+  it('should not distort or run away from the pointer under CSS zoom', async () => {
+    const { container, items } = createList(3);
+    const zoomed = document.createElement('div');
+    zoomed.style.zoom = '1.5';
+    zoomed.append(container);
+    document.body.append(zoomed);
+
+    sortable(container, { items: () => items });
+
+    const before = items[0]!.getBoundingClientRect();
+
+    await ue.pointer([
+      {
+        target: items[0]!,
+        keys: '[MouseLeft>]',
+        coords: { clientX: before.left + 10, clientY: before.top + 10 },
+      },
+      { coords: { clientX: before.left + 10, clientY: before.top + 40 } },
+    ]);
+    await nextFrame();
+
+    const after = items[0]!.getBoundingClientRect();
+    // Faithful lift under zoom: the tile keeps its rendered size (not enlarged
+    // by the zoom) and tracks the 30px pointer move rather than flying off at
+    // 30 × 1.5.
+    expect(after.width).toBeCloseTo(before.width, 0);
+    expect(after.top - before.top).toBeCloseTo(30, 0);
+  });
+
+  it('should track the pointer when the dragged item has its own CSS zoom', async () => {
+    const { container, items } = createList(3);
+    // A `zoom` on the item itself: the lift neutralizes net zoom to 1 and the
+    // matrix reproduces the 2×, so tracking stays 1:1 (own zoom, not just
+    // ancestor zoom, must be handled).
+    for (const item of items) {
+      item.style.zoom = '2';
+    }
+    document.body.append(container);
+
+    sortable(container, { items: () => items });
+
+    const before = items[0]!.getBoundingClientRect();
+
+    await ue.pointer([
+      {
+        target: items[0]!,
+        keys: '[MouseLeft>]',
+        coords: { clientX: before.left + 10, clientY: before.top + 10 },
+      },
+      { coords: { clientX: before.left + 10, clientY: before.top + 40 } },
+    ]);
+    await nextFrame();
+
+    const after = items[0]!.getBoundingClientRect();
+    // 30px of pointer travel is 30px of viewport movement, not 60px.
+    expect(after.width).toBeCloseTo(before.width, 0);
+    expect(after.top - before.top).toBeCloseTo(30, 0);
+  });
+
+  it('should reorder via a touch pointer', async () => {
+    // Touch pointers hold implicit capture and reject `setPointerCapture` with
+    // "no active pointer"; that must not abort the gesture (regression: sorting
+    // was dead on mobile). The session is tracked on the document regardless.
+    const { container, items } = createList(3);
+    let reordered = false;
+
+    sortable(container, {
+      items: () => items,
+      touchAction: 'none',
+      onReorder() {
+        reordered = true;
+        return { accepted: true };
+      },
+    });
+
+    await ue.pointer([
+      {
+        target: items[0]!,
+        keys: '[TouchA>]',
+        coords: { clientX: 20, clientY: 10 },
+      },
+      { pointerName: 'TouchA', coords: { clientX: 20, clientY: 45 } },
+      { pointerName: 'TouchA', coords: { clientX: 20, clientY: 9999 } },
+      { keys: '[/TouchA]' },
+    ]);
+    await nextFrame();
+
+    expect(reordered).toBe(true);
+  });
+
   it('should insert an internal anchor when no placeholder is provided', async () => {
     const { container, items } = createList(2);
     sortable(container, { items: () => items });

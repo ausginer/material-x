@@ -1,0 +1,20 @@
+{
+  "runtime": [
+    "index",
+    "css/css-worker",
+    "css/deps-tracker",
+    "css/format",
+    "css/styles-import",
+    "css/transform"
+  ],
+  "clean": {
+    "extras": [
+      "format-*.js",
+      "format-*.js.map",
+      "transform-*.js",
+      "transform-*.js.map",
+      "utils-*.js",
+      "utils-*.js.map"
+    ]
+  }
+}

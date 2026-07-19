@@ -115,6 +115,22 @@ describe('viewportMatrix', () => {
   it('should anchor local points under CSS zoom', () => {
     expectAnchored(reference({ zoom: '1.6' }));
   });
+
+  it('should fold in zoom on a static (non-offsetParent) ancestor', () => {
+    // The zoom lives on a static ancestor the `offsetParent` walk steps over, so
+    // its offsets are reported unzoomed. The compositor must reconcile that gap;
+    // otherwise the mapped origin lands at the unzoomed position (the drag-jump
+    // bug). Offset from the origin to make any scaling error visible.
+    const ref = reference({});
+    const zoomed = document.createElement('div');
+    zoomed.style.zoom = '1.25';
+    const spacer = document.createElement('div');
+    spacer.style.height = '120px';
+    ref.replaceWith(zoomed);
+    zoomed.append(spacer, ref);
+
+    expectAnchored(ref);
+  });
 });
 
 describe('createMapper', () => {

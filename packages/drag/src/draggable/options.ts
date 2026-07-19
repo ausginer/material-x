@@ -27,19 +27,21 @@ export type DraggableOptions = Readonly<{
   /**
    * How the visual is promoted during a drag. Defaults to `'top-layer'`.
    *
-   * - `'top-layer'` — lift into the top layer (escaping ancestor transforms,
-   *   clipping, and stacking) and track in viewport space. The visual paints
-   *   above everything but flattens: ancestor `zoom`/`transform` is dropped.
-   * - `'top-layer-transformed'` — lift into the top layer, then re-apply the
-   *   element's captured local→viewport matrix so it keeps its ancestor
-   *   `zoom`/`transform` while still escaping clipping and stacking. Best of
-   *   both, at the cost of one matrix computation at grab.
+   * - `'top-layer'` — lift into the top layer, faithfully reproducing the
+   *   visual's on-screen appearance via its captured local→viewport matrix. It
+   *   escapes clipping and stacking, keeps any ancestor/own `zoom`/`transform`,
+   *   and is never distorted (a `scale`/`rotate`/`skew` visual keeps its exact
+   *   size and orientation). Costs one matrix computation at grab.
+   * - `'flatten'` — lift into the top layer *flattened*: axis-aligned at the
+   *   visual's natural (untransformed) size, escaping ancestor transforms
+   *   entirely. Use it to drag a visual "upright" out of a rotated or scaled
+   *   container.
    * - `'none'` — drag in place: the visual stays inside its container, keeping
    *   ancestor `zoom`/`transform` but subject to that container's clipping and
    *   stacking. Movement is mapped through the coordinate space so the pointer
    *   stays anchored under a scaled or rotated container.
    */
-  lift?: 'top-layer' | 'top-layer-transformed' | 'none';
+  lift?: 'top-layer' | 'flatten' | 'none';
   /** Which axes movement is allowed on. Defaults to `'both'`. */
   axis?: DragAxis;
   /** Optional movement bounds, in viewport space. */
@@ -61,12 +63,19 @@ export type DraggableOptions = Readonly<{
 }>;
 
 /**
- * Options accepted by {@link FreeDragController.update}. `threshold` and
- * `getVisual` are omitted: both are captured at construction and cannot change
- * for a live controller.
+ * Options accepted by {@link FreeDragController.update}. Omitted are the options
+ * that cannot consistently change for a live controller: `threshold` and
+ * `getVisual` are captured at construction; `touchAction` is installed on the
+ * construction-time target; and `handle`/`lift` determine how the current visual
+ * was already grabbed and lifted. Set those at construction instead.
  */
 export type DragUpdate = Readonly<
-  Partial<Omit<DraggableOptions, 'threshold' | 'getVisual'>> & {
+  Partial<
+    Omit<
+      DraggableOptions,
+      'threshold' | 'getVisual' | 'touchAction' | 'handle' | 'lift'
+    >
+  > & {
     /** A new controlled position, in the consumer coordinate space. */
     position?: Point;
   }

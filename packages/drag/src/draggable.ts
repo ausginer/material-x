@@ -44,17 +44,19 @@ import {
   type DragSessionState,
 } from './kernel/fsm.ts';
 import {
-  enterTopLayer,
-  enterTopLayerTransformed,
+  enterTopLayerFlat,
+  enterTopLayerMatrix,
   exitTopLayer,
   restoreStyles,
   snapshotStyles,
+  suppressTransitions,
   type SavedStyles,
 } from './kernel/lift.ts';
 import {
   applyTouchAction,
   attachSessionListeners,
   attachStartListener,
+  capturePointer,
   isPrimaryPress,
 } from './kernel/pointer.ts';
 import { createSession, type Session } from './kernel/session.ts';
@@ -125,10 +127,9 @@ export function draggable(
   let delta: Point = ORIGIN;
   let latestPointer: Point = ORIGIN;
   let savedStyles: SavedStyles = new Map();
-  // The transform the drag translation is composed with, captured at grab. For a
-  // plain or in-place lift it is the visual's own authored transform (empty when
-  // it has none); for a transform-preserving lift it is the full local→viewport
-  // matrix re-applied in the top layer.
+  // The transform the drag translation is composed with, captured at grab: for
+  // the faithful lift the full local→viewport matrix (zoom included); for an
+  // in-place drag the visual's own authored transform; empty for a flat lift.
   let liftBase = '';
   // Document scroll offset at grab, so a rollback can aim at the item's live
   // home slot rather than the stale grab-time viewport position.
@@ -137,6 +138,10 @@ export function draggable(
   let pointerId = -1;
   let landing: LandingAnimation | null = null;
   let cancelReason: unknown = 'canceled';
+  // Bumped when a new gesture arms. An async drop decision captures the value at
+  // dispatch and no-ops if it changed, so a stale `onDrop` from a cancelled
+  // gesture can never settle a later one.
+  let generation = 0;
   // Once destroyed, no effect or async continuation may touch the DOM again.
   let destroyed = false;
   // Scroll/resize listeners, attached only while a drag is live.
@@ -147,6 +152,9 @@ export function draggable(
   // below (definite-assignment) before any effect can run.
   let session!: Session;
   let transit: (event: DragSessionEvent) => void;
+  // Forward-declared so the scroll/resize guard (defined above the settling
+  // machinery) can roll a failed session back.
+  let failSession!: (error: unknown) => void;
 
   // The visual is a fixed-size box translated by `delta` from its origin rect,
   // so its current rect is derived arithmetically — reading it back would force
@@ -173,8 +181,16 @@ export function draggable(
   // inside the (possibly transformed) container, so the viewport delta is mapped
   // to a local delta that renders as the same viewport movement — keeping the
   // pointer anchored under a scaled or rotated container.
-  const toTranslate = (viewport: Point): Point =>
-    opts.lift === 'none' ? mapper().deltaFromViewport(viewport) : viewport;
+  const toTranslate = (viewport: Point): Point => {
+    if (opts.lift === 'none') {
+      // In place: the translate acts in the container's transformed space.
+      return mapper().deltaFromViewport(viewport);
+    }
+
+    // Top layer (faithful or flat): the lifted element has net zoom 1 and is
+    // positioned in viewport space, so a viewport delta translates it directly.
+    return viewport;
+  };
 
   // The drag translation is prepended to the visual's authored transform so the
   // authored rotate/scale/skew still renders about the visual's own box.
@@ -208,10 +224,19 @@ export function draggable(
   // space without a pointermove; re-clamp against the latest pointer so a bounded
   // drag stays correct and the reported geometry keeps up.
   const invalidate = (): void => {
-    if (activated) {
+    if (!activated) {
+      return;
+    }
+
+    // Runs outside the transition boundary (scroll/resize), so it needs its own
+    // exception guard: a throw from bounds resolution or `onMove` must roll the
+    // session back, not strand a lifted, captured visual.
+    try {
       updateDelta(latestPointer);
       applyTransform();
       opts.onMove?.(geometry());
+    } catch (error) {
+      failSession(error);
     }
   };
 
@@ -234,26 +259,34 @@ export function draggable(
       context instanceof HTMLElement ? context : document.documentElement,
     );
 
-    if (opts.lift === 'top-layer-transformed') {
-      // Re-apply the element's full local→viewport matrix in the top layer so
-      // its ancestor transforms survive the lift.
+    const lift = opts.lift ?? 'top-layer';
+
+    if (lift === 'top-layer') {
+      // Faithful lift: re-apply the element's full local→viewport matrix (zoom
+      // included) in the top layer so its exact appearance — own and ancestor
+      // `zoom`/`transform` — survives undistorted. The lift neutralizes the
+      // element's net zoom to 1 so the matrix is the sole source of scale,
+      // consistently across browsers (see `enterTopLayerMatrix`).
       liftBase = viewportMatrix(visual).toString();
       savedStyles = snapshotStyles(visual);
-      enterTopLayerTransformed(visual);
+      enterTopLayerMatrix(visual);
     } else {
-      // Plain and in-place lifts compose with the visual's own transform only.
+      // Flatten and in-place lifts ride only the visual's own transform (empty
+      // for flatten, which renders axis-aligned).
       const own = getComputedStyle(visual).transform;
-      liftBase = own === 'none' ? '' : own;
+      liftBase = lift === 'flatten' || own === 'none' ? '' : own;
       savedStyles = snapshotStyles(visual);
 
-      // In-place drags stay in the container and only ride the `transform`; the
-      // top-layer lift is skipped so ancestor transforms are preserved.
-      if (opts.lift !== 'none') {
-        enterTopLayer(visual, originRect);
+      if (lift === 'flatten') {
+        enterTopLayerFlat(visual, originRect);
+      } else {
+        // `lift === 'none'` stays in the container and only rides the transform;
+        // still suppress transitions so engine transform writes apply instantly.
+        suppressTransitions(visual);
       }
     }
 
-    item.setPointerCapture(pointerId);
+    capturePointer(item, pointerId);
     updateDelta(pointer);
     applyTransform();
 
@@ -297,7 +330,7 @@ export function draggable(
   };
 
   /** Rolls a failed session back to a safe idle so a later drag can start. */
-  const failSession = (error: unknown): void => {
+  failSession = (error: unknown): void => {
     safeError(error);
 
     if (activated) {
@@ -326,6 +359,9 @@ export function draggable(
 
   const proposeDrop = (): void => {
     const request = dropRequest();
+    // Snapshot the gesture identity: a decision that resolves after this gesture
+    // was cancelled and another started must not settle the new one.
+    const g = generation;
     let outcome: DropOutcome;
 
     try {
@@ -338,7 +374,7 @@ export function draggable(
 
     Promise.resolve(outcome ?? { accepted: true })
       .then((result) => {
-        if (destroyed) {
+        if (destroyed || g !== generation) {
           return;
         }
 
@@ -359,6 +395,10 @@ export function draggable(
         );
       })
       .catch((error: unknown) => {
+        if (destroyed || g !== generation) {
+          return;
+        }
+
         safeError(error);
         transit({ type: 'drop-rejected' });
       });
@@ -380,6 +420,13 @@ export function draggable(
     }
 
     const timing = opts.landingTiming?.() ?? DEFAULT_TIMING;
+
+    // A consumer callback above (or the timing getter) may have destroyed the
+    // controller; cleanup has then already run, so do not start a new animation.
+    if (destroyed) {
+      return;
+    }
+
     // Animate in the transform's own space so an in-place landing tracks the
     // container just as live movement does.
     landing = animateTranslate(
@@ -418,6 +465,13 @@ export function draggable(
     }
 
     if (previous.type === DRAGGING && next.type === AWAITING_COMMIT) {
+      // Flush the release position: the `pointerup` that ended the drag may sit
+      // apart from the last `pointermove`, and the drop geometry must reflect it.
+      if (event instanceof PointerEvent) {
+        updateDelta({ x: event.clientX, y: event.clientY });
+        applyTransform();
+      }
+
       proposeDrop();
       return;
     }
@@ -480,6 +534,7 @@ export function draggable(
     ({ pointerId } = event);
     originPointer = { x: event.clientX, y: event.clientY };
     cancelReason = 'canceled';
+    generation += 1;
 
     // Track the rest of the gesture on the document so a mouse leaving the item
     // before capture is acquired cannot lose it, and Escape reaches an unfocused

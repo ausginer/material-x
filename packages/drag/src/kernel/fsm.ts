@@ -11,7 +11,6 @@
  * `event.type`; lifecycle signals that have no DOM event are small tagged objects.
  */
 import {
-  LOST_POINTER_CAPTURE,
   POINTER_CANCEL,
   POINTER_DOWN,
   POINTER_MOVE,
@@ -188,9 +187,10 @@ function transitionPending(
       // A press that never crossed the threshold is a plain click: back to idle.
       case POINTER_UP:
       case POINTER_CANCEL:
-      case LOST_POINTER_CAPTURE:
         return IDLE_STATE;
 
+      // `lostpointercapture` is not gesture-ending — capture is optional (the
+      // press is tracked on the document) and touch transfers it implicitly.
       default:
         return state;
     }
@@ -221,8 +221,11 @@ function transitionDragging(
       case POINTER_UP:
         return { type: AWAITING_COMMIT };
 
+      // Only a real gesture abort cancels. `lostpointercapture` is *not* one:
+      // the drag is tracked on the document, so losing pointer capture (which
+      // touch transfers implicitly when the engine re-captures) is benign and
+      // must not end the drag.
       case POINTER_CANCEL:
-      case LOST_POINTER_CAPTURE:
         return { type: SETTLING, result: CANCELED };
 
       default:

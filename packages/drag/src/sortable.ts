@@ -19,6 +19,7 @@
  */
 import { animateTranslate, type LandingAnimation } from './kernel/animation.ts';
 import { createCommitTracker } from './kernel/commit.ts';
+import { viewportMatrix } from './kernel/coordinate.ts';
 import { DEFAULT_THRESHOLD, DEFAULT_TIMING } from './kernel/defaults.ts';
 import {
   AWAITING_COMMIT,
@@ -39,7 +40,7 @@ import {
   nearestItem,
 } from './kernel/geometry.ts';
 import {
-  enterTopLayer,
+  enterTopLayerMatrix,
   exitTopLayer,
   restoreStyles,
   snapshotStyles,
@@ -49,6 +50,7 @@ import {
   applyTouchAction,
   attachSessionListeners,
   attachStartListener,
+  capturePointer,
   isPrimaryPress,
 } from './kernel/pointer.ts';
 import { createSession, type Session } from './kernel/session.ts';
@@ -117,15 +119,20 @@ export function sortable(
   let rects: ReadonlyMap<HTMLElement, DOMRect> = new Map();
   let rectsDirty = false;
   let savedStyles: SavedStyles = new Map();
-  // The dragged visual's own authored transform, captured at grab so the drag
-  // translation composes with (not replaces) it. Empty when it has none.
-  let authoredTransform = '';
+  // The dragged visual's captured full local→viewport matrix (zoom included),
+  // re-applied in the top layer so the faithful lift reproduces its exact
+  // appearance; the drag translation is composed with it.
+  let liftBase = '';
   let landing: LandingAnimation | null = null;
   let cancelReason: unknown = 'canceled';
   // Whether the consumer's DOM commit was observed for the current accepted
   // drop, as opposed to the commit wait timing out. Distinguishes the `onFinish`
   // outcome; reset when a session arms.
   let commitObserved = false;
+  // Bumped when a new gesture arms. An async reorder decision (and its commit
+  // watch) captures the value at dispatch and no-ops if it changed, so a stale
+  // `onReorder` from a cancelled gesture can never settle a later one.
+  let generation = 0;
   // Once destroyed, no effect or async continuation may touch the DOM again.
   let destroyed = false;
   // Scroll/resize listeners, attached only while a drag is live.
@@ -136,6 +143,8 @@ export function sortable(
   // below (definite-assignment) before any effect can run.
   let session!: Session;
   let transit: (event: DragSessionEvent) => void;
+  // Forward-declared so the rAF reposition guard can roll a failed session back.
+  let failSession!: (error: unknown) => void;
 
   const currentPointer = (): Point => ({
     x: start.x + delta.x,
@@ -181,7 +190,14 @@ export function sortable(
   const scheduleReposition = (pointer: Point): void => {
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
-      reposition(pointer);
+      // The rAF reposition runs outside the transition boundary, so a throw from
+      // measurement, `getVisual`, or a DOM move needs its own guard to roll the
+      // session back rather than strand a lifted, captured item.
+      try {
+        reposition(pointer);
+      } catch (error) {
+        failSession(error);
+      }
     });
   };
 
@@ -208,19 +224,23 @@ export function sortable(
 
     visual = getVisual(current);
     originRect = visual.getBoundingClientRect();
-
-    const own = getComputedStyle(visual).transform;
-    authoredTransform = own === 'none' ? '' : own;
+    // Capture the full faithful lift matrix (zoom included) while the visual is
+    // still in flow.
+    liftBase = viewportMatrix(visual).toString();
 
     fromIndex = items.indexOf(current);
     toIndex = fromIndex;
 
+    // Snapshot before building the placeholder: a throwing `createPlaceholder`
+    // must roll back from a real snapshot, not an empty one that would strip the
+    // visual's authored inline styles.
+    savedStyles = snapshotStyles(visual);
+
     anchor = createAnchor(options, current, visual, originRect);
     current.before(anchor);
 
-    savedStyles = snapshotStyles(visual);
-    enterTopLayer(visual, originRect);
-    container.setPointerCapture(pointerId);
+    enterTopLayerMatrix(visual);
+    capturePointer(container, pointerId);
 
     tracker = createCommitTracker(getItems, current);
     rects = measure(items, current, getVisual);
@@ -240,15 +260,19 @@ export function sortable(
     });
   };
 
+  // The lifted tile has net zoom 1 and is positioned in viewport space, so a
+  // viewport delta translates it directly.
+  const toTranslate = (viewport: Point): Point => viewport;
+
   const applyTransform = (): void => {
     if (visual) {
-      // Prepend the drag translation to the visual's authored transform: the
-      // lifted visual is in the top layer, so the translation is viewport-space
-      // while the authored transform still renders about the visual's own box.
-      const move = `translate(${delta.x}px, ${delta.y}px)`;
-      visual.style.transform = authoredTransform
-        ? `${move} ${authoredTransform}`
-        : move;
+      // Prepend the drag translation to the faithful lift matrix so the tile
+      // keeps its exact appearance and tracks the pointer.
+      const move = toTranslate(delta);
+      const translate = `translate(${move.x}px, ${move.y}px)`;
+      visual.style.transform = liftBase
+        ? `${translate} ${liftBase}`
+        : translate;
     }
   };
 
@@ -290,7 +314,7 @@ export function sortable(
   };
 
   /** Rolls a failed session back to a safe idle so a later drag can start. */
-  const failSession = (error: unknown): void => {
+  failSession = (error: unknown): void => {
     safeError(error);
 
     if (dragged) {
@@ -329,6 +353,9 @@ export function sortable(
       return;
     }
 
+    // Snapshot the gesture identity: a decision that resolves after this gesture
+    // was cancelled and another started must not settle the new one.
+    const g = generation;
     let outcome: ReorderOutcome;
 
     try {
@@ -341,7 +368,7 @@ export function sortable(
 
     Promise.resolve(outcome ?? { accepted: true })
       .then((result) => {
-        if (destroyed) {
+        if (destroyed || g !== generation) {
           return;
         }
 
@@ -361,7 +388,7 @@ export function sortable(
         }
 
         tracker.watch((observed) => {
-          if (destroyed) {
+          if (destroyed || g !== generation) {
             return;
           }
 
@@ -370,6 +397,10 @@ export function sortable(
         });
       })
       .catch((error: unknown) => {
+        if (destroyed || g !== generation) {
+          return;
+        }
+
         safeError(error);
         transit({ type: 'drop-rejected' });
       });
@@ -394,6 +425,12 @@ export function sortable(
 
     if (result === 'canceled') {
       options.onCancel?.(current!, cancelReason);
+
+      // `onCancel` may have destroyed the controller; cleanup has then run, so
+      // do not start a new landing animation on the torn-down visual.
+      if (destroyed) {
+        return;
+      }
     }
 
     // A rollback returns the anchor to the dragged item's original DOM slot
@@ -411,12 +448,14 @@ export function sortable(
       y: rect.top - originRect.top,
     };
 
+    // Animate in the lift's own (zoom-divided) translate space so the landing
+    // tracks the pointer just as live movement does.
     landing = animateTranslate(
       visual,
-      delta,
-      target,
+      toTranslate(delta),
+      toTranslate(target),
       landingTiming(),
-      authoredTransform,
+      liftBase,
     );
     landing.done.then(
       () => transit({ type: 'animation-finished' }),
@@ -453,6 +492,14 @@ export function sortable(
     }
 
     if (previous.type === DRAGGING && next.type === AWAITING_COMMIT) {
+      // Flush the release position: the `pointerup` that ended the drag may sit
+      // apart from the last `pointermove`, and the insertion (which `flush()`
+      // inside `proposeReorder` computes from the current pointer) must use it.
+      if (event instanceof PointerEvent) {
+        delta = { x: event.clientX - start.x, y: event.clientY - start.y };
+        applyTransform();
+      }
+
       proposeReorder();
       return;
     }
@@ -520,6 +567,7 @@ export function sortable(
     start = { x: event.clientX, y: event.clientY };
     cancelReason = 'canceled';
     commitObserved = false;
+    generation += 1;
 
     // Track the rest of the gesture on the document so a mouse leaving the item
     // before capture is acquired cannot lose it, and Escape reaches an unfocused

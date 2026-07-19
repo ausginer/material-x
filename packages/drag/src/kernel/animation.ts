@@ -52,6 +52,10 @@ export function animateTranslate(
 
   let settled = false;
 
+  // Hold the final transform once the animation ends, so removing the WAAPI
+  // effect does not snap back for a frame. Skipped when the animation is
+  // cancelled by the caller (an interrupt/teardown), so no write lands in a
+  // microtask after the caller has already restored the visual's styles.
   const pin = (): void => {
     if (!settled) {
       settled = true;
@@ -64,6 +68,7 @@ export function animateTranslate(
   return {
     done,
     cancel() {
+      settled = true;
       animation.cancel();
     },
   };

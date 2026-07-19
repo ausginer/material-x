@@ -24,7 +24,10 @@ export function resolveItem(
   const item = path[itemIndex] as HTMLElement;
   const handle = options.getHandle?.(item);
 
-  if (handle && !path.slice(0, itemIndex).includes(handle)) {
+  // The handle may be the item itself or a descendant, so the search includes
+  // the item's own path node (`itemIndex + 1`); slicing to `itemIndex` would
+  // reject `getHandle: (item) => item`.
+  if (handle && !path.slice(0, itemIndex + 1).includes(handle)) {
     return null;
   }
 

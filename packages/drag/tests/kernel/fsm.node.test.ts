@@ -98,6 +98,15 @@ describe('transition', () => {
 
       expect(state.type).toBe(PENDING);
     });
+
+    it('should stay pending through a lost pointer capture', () => {
+      const state = run(
+        pointer('pointerdown', 1),
+        pointer('lostpointercapture', 1),
+      );
+
+      expect(state.type).toBe(PENDING);
+    });
   });
 
   describe('from dragging', () => {
@@ -141,6 +150,19 @@ describe('transition', () => {
 
     it('should not react to a foreign pointer release', () => {
       const state = transition(toDragging(), pointer('pointerup', 2), CONFIG);
+
+      expect(state.type).toBe(DRAGGING);
+    });
+
+    it('should keep dragging through a lost pointer capture', () => {
+      // Touch transfers implicit capture when the engine re-captures, firing
+      // `lostpointercapture`; the drag is tracked on the document, so it must
+      // survive (regression: this cancelled sorting on mobile).
+      const state = transition(
+        toDragging(),
+        pointer('lostpointercapture', 1),
+        CONFIG,
+      );
 
       expect(state.type).toBe(DRAGGING);
     });
