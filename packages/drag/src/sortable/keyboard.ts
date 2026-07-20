@@ -8,7 +8,10 @@
 import type { CollectionSnapshot, Insertion } from './options.ts';
 
 /** Which way a command moves the item through the collection. */
-export type KeyboardDirection = 'up' | 'down';
+export const DIRECTION_UP: unique symbol = Symbol('up');
+export const DIRECTION_DOWN: unique symbol = Symbol('down');
+
+export type KeyboardDirection = typeof DIRECTION_UP | typeof DIRECTION_DOWN;
 
 /**
  * The destination gap for moving `item` one slot toward the start (`up`) or end
@@ -26,7 +29,7 @@ export function keyboardInsertion(
   const { items, version } = snapshot;
   const from = items.indexOf(item);
 
-  if (from === -1) {
+  if (from < 0) {
     return null;
   }
 
@@ -34,7 +37,7 @@ export function keyboardInsertion(
   // `from` keep their index; elements after it shift down by one.
   const destination = items.filter((candidate) => candidate !== item);
 
-  if (direction === 'up') {
+  if (direction === DIRECTION_UP) {
     if (from <= 0) {
       return null;
     }

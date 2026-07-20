@@ -12,6 +12,40 @@
 import type { OperationIdentitySource } from '../kernel/operation-id.ts';
 import type { LiftMode } from '../kernel/presentation.ts';
 import {
+  LIFECYCLE_ACTIVATE,
+  LIFECYCLE_ACTIVATION_FAILED,
+  LIFECYCLE_ACTIVATION_READY,
+  LIFECYCLE_ADMIT,
+  LIFECYCLE_CANCEL,
+  CANCEL_ESCAPE,
+  LIFECYCLE_DISARM,
+  FAILURE_DROP_RESOLUTION,
+  FAILURE_HOME_TARGET,
+  LIFECYCLE_IGNORE,
+  LANDING_COMPLETING,
+  LANDING_PREPARING,
+  LANDING_RUNNING,
+  LANDING_SKIPPED,
+  LIFECYCLE_MOVE,
+  OPERATION_ADMITTED,
+  OPERATION_ACTIVE,
+  OPERATION_CANDIDATE,
+  OUTCOME_ACCEPTED,
+  OUTCOME_CANCELED,
+  OUTCOME_FAILED,
+  OUTCOME_REJECTED,
+  PHASE_AWAITING_RESULT,
+  PHASE_DRAGGING,
+  PHASE_IDLE,
+  PHASE_PENDING,
+  PHASE_SETTLING,
+  RECOVERY_HOME,
+  RECOVERY_IMMEDIATE,
+  LIFECYCLE_RELEASE,
+  LIFECYCLE_RESOLVED,
+  LIFECYCLE_SETTLE_COMPLETE,
+  LIFECYCLE_SETTLE_PROGRESS,
+  LIFECYCLE_START_SUCCEEDED,
   transitionKernelPhase,
   type CancellationReason,
   type DragPhase,
@@ -24,6 +58,7 @@ import {
   type SettlementState,
 } from '../kernel/protocol.ts';
 import {
+  AXIS_BOTH,
   ORIGIN,
   type CoordinateMapper,
   type DragAxis,
@@ -37,6 +72,29 @@ import type {
 } from './options.ts';
 import { buildFreeDropProposal } from './request.ts';
 
+export const INVALIDATE: unique symbol = Symbol('invalidate');
+export const CONTROLLED: unique symbol = Symbol('controlled');
+export const SET_POLICY: unique symbol = Symbol('set-policy');
+export const EFFECT_FAILED: unique symbol = Symbol('effect-failed');
+export const RESOLUTION_STARTED: unique symbol = Symbol('resolution-started');
+export const DROP_RESOLVED: unique symbol = Symbol('drop-resolved');
+export const DROP_RESOLUTION_FAILED: unique symbol = Symbol(
+  'drop-resolution-failed',
+);
+export const LANDING_PLAN_READY: unique symbol = Symbol('landing-plan-ready');
+export const LANDING_STARTED: unique symbol = Symbol('landing-started');
+export const LANDING_FINISHED: unique symbol = Symbol('landing-finished');
+export const LANDING_PINNED: unique symbol = Symbol('landing-pinned');
+export const SETTLEMENT_FAILED: unique symbol = Symbol('settlement-failed');
+export const SETTLEMENT_COMPLETED: unique symbol = Symbol(
+  'settlement-completed',
+);
+export const HOME_INVALID: unique symbol = Symbol('home-invalid');
+export const DROP_NONE: unique symbol = Symbol('none');
+export const DROP_PROPOSAL_READY: unique symbol = Symbol('proposal-ready');
+export const DROP_AWAITING_CONSUMER: unique symbol =
+  Symbol('awaiting-consumer');
+
 // --- Semantic slices -------------------------------------------------------
 
 /** Immutable activation snapshot committed when acquisition succeeds. */
@@ -48,9 +106,13 @@ export type FreeCandidate = Readonly<{
 }>;
 
 export type FreeOperation =
-  | Readonly<{ type: 'admitted'; operationId: number; item: HTMLElement }>
   | Readonly<{
-      type: 'candidate' | 'active';
+      type: typeof OPERATION_ADMITTED;
+      operationId: number;
+      item: HTMLElement;
+    }>
+  | Readonly<{
+      type: typeof OPERATION_CANDIDATE | typeof OPERATION_ACTIVE;
       operationId: number;
       item: HTMLElement;
       visual: HTMLElement;
@@ -67,10 +129,10 @@ export type FreePolicy = Readonly<{
 export type FreeMotion = Readonly<{ viewportDelta: Point }>;
 
 export type FreeDropState =
-  | Readonly<{ stage: 'none' }>
-  | Readonly<{ stage: 'proposal-ready'; proposal: FreeDropProposal }>
+  | Readonly<{ stage: typeof DROP_NONE }>
+  | Readonly<{ stage: typeof DROP_PROPOSAL_READY; proposal: FreeDropProposal }>
   | Readonly<{
-      stage: 'awaiting-consumer';
+      stage: typeof DROP_AWAITING_CONSUMER;
       proposal: FreeDropProposal;
       resolutionId: number;
     }>;
@@ -89,94 +151,98 @@ export type DraggableState = Readonly<{
 
 export type DraggableEvent =
   | Readonly<{
-      type: 'admit';
+      type: typeof LIFECYCLE_ADMIT;
       operationId: number;
       item: HTMLElement;
       pointerId: number;
       point: Point;
     }>
   | Readonly<{
-      type: 'move';
+      type: typeof LIFECYCLE_MOVE;
       pointerId: number;
       point: Point;
       bounds: DOMRectReadOnly | null;
     }>
   | Readonly<{
-      type: 'release';
+      type: typeof LIFECYCLE_RELEASE;
       pointerId: number;
       point: Point;
       bounds: DOMRectReadOnly | null;
     }>
   | Readonly<{
-      type: 'invalidate';
+      type: typeof INVALIDATE;
       point: Point;
       bounds: DOMRectReadOnly | null;
     }>
-  | Readonly<{ type: 'controlled'; viewportDelta: Point }>
-  | Readonly<{ type: 'cancel'; reason: CancellationReason }>
+  | Readonly<{ type: typeof CONTROLLED; viewportDelta: Point }>
+  | Readonly<{ type: typeof LIFECYCLE_CANCEL; reason: CancellationReason }>
   | Readonly<{
-      type: 'set-policy';
+      type: typeof SET_POLICY;
       axis?: DragAxis;
       coordinateOverride?: CoordinateMapper | null;
     }>
   | Readonly<{
-      type: 'activation-ready';
+      type: typeof LIFECYCLE_ACTIVATION_READY;
       operationId: number;
       candidate: FreeCandidate;
     }>
-  | Readonly<{ type: 'start-succeeded'; operationId: number }>
-  | Readonly<{ type: 'activation-failed'; operationId: number }>
+  | Readonly<{ type: typeof LIFECYCLE_START_SUCCEEDED; operationId: number }>
+  | Readonly<{ type: typeof LIFECYCLE_ACTIVATION_FAILED; operationId: number }>
   | Readonly<{
-      type: 'effect-failed';
+      type: typeof EFFECT_FAILED;
       operationId: number;
       stage: FailureCause['stage'];
-      recovery: 'home' | 'immediate';
+      recovery: typeof RECOVERY_HOME | typeof RECOVERY_IMMEDIATE;
       error: unknown;
     }>
   | Readonly<{
-      type: 'resolution-started';
+      type: typeof RESOLUTION_STARTED;
       operationId: number;
       resolutionId: number;
     }>
   | Readonly<{
-      type: 'drop-resolved';
+      type: typeof DROP_RESOLVED;
       operationId: number;
       resolutionId: number;
       resolution: FreeDropResolution;
     }>
   | Readonly<{
-      type: 'drop-resolution-failed';
+      type: typeof DROP_RESOLUTION_FAILED;
       operationId: number;
       resolutionId: number;
       error: unknown;
     }>
   | Readonly<{
-      type: 'landing-plan-ready';
+      type: typeof LANDING_PLAN_READY;
       operationId: number;
       landingId: number;
       plan: LandingPlan;
     }>
   | Readonly<{
-      type: 'landing-started';
+      type: typeof LANDING_STARTED;
       operationId: number;
       landingId: number;
     }>
   | Readonly<{
-      type: 'landing-finished';
+      type: typeof LANDING_FINISHED;
       operationId: number;
       landingId: number;
     }>
-  | Readonly<{ type: 'landing-pinned'; operationId: number; landingId: number }>
   | Readonly<{
-      type: 'settlement-failed';
+      type: typeof LANDING_PINNED;
+      operationId: number;
+      landingId: number;
+    }>
+  | Readonly<{
+      type: typeof SETTLEMENT_FAILED;
       operationId: number;
       landingId: number;
       stage: FailureCause['stage'];
       error: unknown;
     }>
-  | Readonly<{ type: 'settlement-completed'; operationId: number }>
+  | Readonly<{ type: typeof SETTLEMENT_COMPLETED; operationId: number }>
   | Readonly<{
-      type: 'home-invalid';
+      type: typeof HOME_INVALID;
       operationId: number;
       landingId: number;
       error: unknown;
@@ -188,12 +254,12 @@ export type DraggableConfig = Readonly<{
 }>;
 
 export const INITIAL_DRAGGABLE_STATE: DraggableState = {
-  phase: 'idle',
+  phase: PHASE_IDLE,
   pointer: null,
-  policy: { axis: 'both', coordinateOverride: null },
+  policy: { axis: AXIS_BOTH, coordinateOverride: null },
   operation: null,
   motion: null,
-  drop: { stage: 'none' },
+  drop: { stage: DROP_NONE },
   settlement: null,
 };
 
@@ -216,7 +282,7 @@ function effectiveMapper(state: DraggableState): CoordinateMapper | null {
   }
 
   const op = state.operation;
-  return op && op.type !== 'admitted' ? op.coordinateSpace : null;
+  return op && op.type !== OPERATION_ADMITTED ? op.coordinateSpace : null;
 }
 
 // --- Lifecycle classification ---------------------------------------------
@@ -226,67 +292,70 @@ function classify(
   event: DraggableEvent,
 ): LifecycleEvent {
   switch (event.type) {
-    case 'admit':
-      return { kind: state.phase === 'idle' ? 'admit' : 'ignore' };
-    case 'move':
+    case LIFECYCLE_ADMIT:
+      return state.phase === PHASE_IDLE ? LIFECYCLE_ADMIT : LIFECYCLE_IGNORE;
+    case LIFECYCLE_MOVE:
       // Pending threshold crossing is refined in the root (needs config); an
       // active move keeps the phase.
       return ownsPointer(state, event.pointerId)
-        ? { kind: 'move' }
-        : { kind: 'ignore' };
-    case 'release':
+        ? LIFECYCLE_MOVE
+        : LIFECYCLE_IGNORE;
+    case LIFECYCLE_RELEASE:
       return ownsPointer(state, event.pointerId)
-        ? { kind: state.phase === 'dragging' ? 'release' : 'ignore' }
-        : { kind: 'ignore' };
-    case 'invalidate':
-      return { kind: 'ignore' };
-    case 'controlled':
-      return { kind: 'ignore' };
-    case 'cancel':
-      if (state.phase === 'pending') {
-        return { kind: 'disarm' };
+        ? state.phase === PHASE_DRAGGING
+          ? LIFECYCLE_RELEASE
+          : LIFECYCLE_IGNORE
+        : LIFECYCLE_IGNORE;
+    case INVALIDATE:
+      return LIFECYCLE_IGNORE;
+    case CONTROLLED:
+      return LIFECYCLE_IGNORE;
+    case LIFECYCLE_CANCEL:
+      if (state.phase === PHASE_PENDING) {
+        return LIFECYCLE_DISARM;
       }
-      return { kind: 'cancel' };
-    case 'set-policy':
-      return { kind: 'ignore' };
-    case 'activation-ready':
+      return LIFECYCLE_CANCEL;
+    case SET_POLICY:
+      return LIFECYCLE_IGNORE;
+    case LIFECYCLE_ACTIVATION_READY:
       return isActiveOp(state, event.operationId)
-        ? { kind: 'activation-ready' }
-        : { kind: 'ignore' };
-    case 'start-succeeded':
+        ? LIFECYCLE_ACTIVATION_READY
+        : LIFECYCLE_IGNORE;
+    case LIFECYCLE_START_SUCCEEDED:
       return isActiveOp(state, event.operationId)
-        ? { kind: 'start-succeeded' }
-        : { kind: 'ignore' };
-    case 'activation-failed':
+        ? LIFECYCLE_START_SUCCEEDED
+        : LIFECYCLE_IGNORE;
+    case LIFECYCLE_ACTIVATION_FAILED:
       return isActiveOp(state, event.operationId)
-        ? { kind: 'activation-failed' }
-        : { kind: 'ignore' };
-    case 'effect-failed':
+        ? LIFECYCLE_ACTIVATION_FAILED
+        : LIFECYCLE_IGNORE;
+    case EFFECT_FAILED:
       return isActiveOp(state, event.operationId) &&
-        (state.phase === 'dragging' || state.phase === 'awaiting-result')
-        ? { kind: 'cancel' }
-        : { kind: 'ignore' };
-    case 'resolution-started':
-      return { kind: 'ignore' };
-    case 'drop-resolved':
-    case 'drop-resolution-failed':
+        (state.phase === PHASE_DRAGGING ||
+          state.phase === PHASE_AWAITING_RESULT)
+        ? LIFECYCLE_CANCEL
+        : LIFECYCLE_IGNORE;
+    case RESOLUTION_STARTED:
+      return LIFECYCLE_IGNORE;
+    case DROP_RESOLVED:
+    case DROP_RESOLUTION_FAILED:
       return isActiveOp(state, event.operationId) &&
-        state.phase === 'awaiting-result' &&
-        state.drop.stage === 'awaiting-consumer' &&
+        state.phase === PHASE_AWAITING_RESULT &&
+        state.drop.stage === DROP_AWAITING_CONSUMER &&
         state.drop.resolutionId === event.resolutionId
-        ? { kind: 'resolved' }
-        : { kind: 'ignore' };
-    case 'landing-pinned':
-    case 'settlement-completed':
-      return { kind: 'settle-complete' };
-    case 'landing-plan-ready':
-    case 'landing-started':
-    case 'landing-finished':
-    case 'settlement-failed':
-    case 'home-invalid':
-      return { kind: 'settle-progress' };
+        ? LIFECYCLE_RESOLVED
+        : LIFECYCLE_IGNORE;
+    case LANDING_PINNED:
+    case SETTLEMENT_COMPLETED:
+      return LIFECYCLE_SETTLE_COMPLETE;
+    case LANDING_PLAN_READY:
+    case LANDING_STARTED:
+    case LANDING_FINISHED:
+    case SETTLEMENT_FAILED:
+    case HOME_INVALID:
+      return LIFECYCLE_SETTLE_PROGRESS;
     default:
-      return { kind: 'ignore' };
+      return LIFECYCLE_IGNORE;
   }
 }
 
@@ -303,10 +372,14 @@ function classifyMove(
   config: DraggableConfig,
   base: LifecycleEvent,
 ): LifecycleEvent {
-  if (event.type === 'move' && from.phase === 'pending' && from.pointer) {
+  if (
+    event.type === LIFECYCLE_MOVE &&
+    from.phase === PHASE_PENDING &&
+    from.pointer
+  ) {
     return crossed(from.pointer.origin, event.point, config.threshold)
-      ? { kind: 'activate' }
-      : { kind: 'ignore' };
+      ? LIFECYCLE_ACTIVATE
+      : LIFECYCLE_IGNORE;
   }
 
   return base;
@@ -317,12 +390,12 @@ function makeLanding(
   ids: OperationIdentitySource,
   operationId: number,
 ): LandingState {
-  if (recovery === 'immediate') {
-    return { stage: 'skipped' };
+  if (recovery === RECOVERY_IMMEDIATE) {
+    return { stage: LANDING_SKIPPED };
   }
 
   return {
-    stage: 'preparing',
+    stage: LANDING_PREPARING,
     currency: { operationId, landingId: ids.next() },
     plan: null,
   };
@@ -336,8 +409,8 @@ function withRecovery(
   operationId: number,
 ): SettlementState<FreeDropResult> {
   const recovery: SettlementRecovery = config.hasHomeTarget
-    ? 'home'
-    : 'immediate';
+    ? RECOVERY_HOME
+    : RECOVERY_IMMEDIATE;
   return {
     outcome,
     recovery,
@@ -355,42 +428,42 @@ function enterSettling(
 ): SettlementState<FreeDropResult> {
   const operationId = from.operation?.operationId ?? 0;
   const proposal =
-    from.drop.stage === 'proposal-ready' ||
-    from.drop.stage === 'awaiting-consumer'
+    from.drop.stage === DROP_PROPOSAL_READY ||
+    from.drop.stage === DROP_AWAITING_CONSUMER
       ? from.drop.proposal
       : null;
 
   // Accepted free drop: immediate authored restoration (v1).
   if (
-    event.type === 'drop-resolved' &&
-    event.resolution.type === 'accepted' &&
+    event.type === DROP_RESOLVED &&
+    event.resolution.type === OUTCOME_ACCEPTED &&
     proposal
   ) {
     return {
-      outcome: { result: 'accepted' },
-      recovery: 'immediate',
-      domain: { type: 'accepted', proposal },
-      landing: { stage: 'skipped' },
+      outcome: { result: OUTCOME_ACCEPTED },
+      recovery: RECOVERY_IMMEDIATE,
+      domain: { type: OUTCOME_ACCEPTED, proposal },
+      landing: { stage: LANDING_SKIPPED },
     };
   }
 
   if (
-    event.type === 'drop-resolved' &&
-    event.resolution.type === 'rejected' &&
+    event.type === DROP_RESOLVED &&
+    event.resolution.type === OUTCOME_REJECTED &&
     proposal
   ) {
     return withRecovery(
-      { result: 'rejected' },
-      { type: 'rejected', proposal, reason: event.resolution.reason },
+      { result: OUTCOME_REJECTED },
+      { type: OUTCOME_REJECTED, proposal, reason: event.resolution.reason },
       config,
       ids,
       operationId,
     );
   }
 
-  if (event.type === 'drop-resolution-failed') {
+  if (event.type === DROP_RESOLUTION_FAILED) {
     return withRecovery(
-      { result: 'failed', failure: { stage: 'drop-resolution' } },
+      { result: OUTCOME_FAILED, failure: { stage: FAILURE_DROP_RESOLUTION } },
       null,
       config,
       ids,
@@ -398,11 +471,13 @@ function enterSettling(
     );
   }
 
-  if (event.type === 'effect-failed') {
+  if (event.type === EFFECT_FAILED) {
     const recovery: SettlementRecovery =
-      event.recovery === 'home' && config.hasHomeTarget ? 'home' : 'immediate';
+      event.recovery === RECOVERY_HOME && config.hasHomeTarget
+        ? RECOVERY_HOME
+        : RECOVERY_IMMEDIATE;
     return {
-      outcome: { result: 'failed', failure: { stage: event.stage } },
+      outcome: { result: OUTCOME_FAILED, failure: { stage: event.stage } },
       recovery,
       domain: from.settlement?.domain ?? null,
       landing: makeLanding(recovery, ids, operationId),
@@ -411,9 +486,9 @@ function enterSettling(
 
   // Cancellation (escape / pointer-cancel / consumer / removal).
   const reason: CancellationReason =
-    event.type === 'cancel' ? event.reason : { type: 'escape' };
+    event.type === LIFECYCLE_CANCEL ? event.reason : { type: CANCEL_ESCAPE };
   return withRecovery(
-    { result: 'canceled', reason },
+    { result: OUTCOME_CANCELED, reason },
     null,
     config,
     ids,
@@ -430,35 +505,36 @@ export function createDraggableReducer(
     event: DraggableEvent,
     phase: DragPhase,
   ): FreeMotion | null => {
-    if (phase === 'idle') {
+    if (phase === PHASE_IDLE) {
       return null;
     }
 
     const op = from.operation;
 
     if (
-      event.type === 'activation-ready' &&
+      event.type === LIFECYCLE_ACTIVATION_READY &&
       isActiveOp(from, event.operationId)
     ) {
       return { viewportDelta: ORIGIN };
     }
 
-    if (!op || op.type === 'admitted' || !from.pointer) {
+    if (!op || op.type === OPERATION_ADMITTED || !from.pointer) {
       return from.motion;
     }
 
-    if (event.type === 'controlled') {
+    if (event.type === CONTROLLED) {
       return { viewportDelta: event.viewportDelta };
     }
 
     if (
-      (event.type === 'move' && ownsPointer(from, event.pointerId)) ||
-      (event.type === 'release' && ownsPointer(from, event.pointerId)) ||
-      event.type === 'invalidate'
+      (event.type === LIFECYCLE_MOVE && ownsPointer(from, event.pointerId)) ||
+      (event.type === LIFECYCLE_RELEASE &&
+        ownsPointer(from, event.pointerId)) ||
+      event.type === INVALIDATE
     ) {
       const point =
-        event.type === 'invalidate' ? from.pointer.latest : event.point;
-      const bounds = event.type === 'invalidate' ? event.bounds : event.bounds;
+        event.type === INVALIDATE ? from.pointer.latest : event.point;
+      const bounds = event.type === INVALIDATE ? event.bounds : event.bounds;
       return {
         viewportDelta: pointerDelta(
           point,
@@ -478,11 +554,11 @@ export function createDraggableReducer(
     event: DraggableEvent,
     phase: DragPhase,
   ): PointerState | null => {
-    if (phase === 'idle') {
+    if (phase === PHASE_IDLE) {
       return null;
     }
 
-    if (event.type === 'admit') {
+    if (event.type === LIFECYCLE_ADMIT) {
       return {
         id: event.pointerId,
         origin: event.point,
@@ -495,11 +571,14 @@ export function createDraggableReducer(
       return from.pointer;
     }
 
-    if (event.type === 'move' && ownsPointer(from, event.pointerId)) {
+    if (event.type === LIFECYCLE_MOVE && ownsPointer(from, event.pointerId)) {
       return { ...from.pointer, latest: event.point };
     }
 
-    if (event.type === 'release' && ownsPointer(from, event.pointerId)) {
+    if (
+      event.type === LIFECYCLE_RELEASE &&
+      ownsPointer(from, event.pointerId)
+    ) {
       return { ...from.pointer, latest: event.point, release: event.point };
     }
 
@@ -511,13 +590,13 @@ export function createDraggableReducer(
     event: DraggableEvent,
     phase: DragPhase,
   ): FreeOperation | null => {
-    if (phase === 'idle') {
+    if (phase === PHASE_IDLE) {
       return null;
     }
 
-    if (event.type === 'admit') {
+    if (event.type === LIFECYCLE_ADMIT) {
       return {
-        type: 'admitted',
+        type: OPERATION_ADMITTED,
         operationId: event.operationId,
         item: event.item,
       };
@@ -530,11 +609,11 @@ export function createDraggableReducer(
     }
 
     if (
-      event.type === 'activation-ready' &&
+      event.type === LIFECYCLE_ACTIVATION_READY &&
       isActiveOp(from, event.operationId)
     ) {
       return {
-        type: 'candidate',
+        type: OPERATION_CANDIDATE,
         operationId: op.operationId,
         item: op.item,
         visual: event.candidate.visual,
@@ -545,11 +624,11 @@ export function createDraggableReducer(
     }
 
     if (
-      event.type === 'start-succeeded' &&
+      event.type === LIFECYCLE_START_SUCCEEDED &&
       isActiveOp(from, event.operationId) &&
-      op.type === 'candidate'
+      op.type === OPERATION_CANDIDATE
     ) {
-      return { ...op, type: 'active' };
+      return { ...op, type: OPERATION_ACTIVE };
     }
 
     return op;
@@ -559,7 +638,7 @@ export function createDraggableReducer(
     from: DraggableState,
     event: DraggableEvent,
   ): FreePolicy => {
-    if (event.type === 'set-policy') {
+    if (event.type === SET_POLICY) {
       return {
         axis: event.axis ?? from.policy.axis,
         coordinateOverride:
@@ -578,15 +657,15 @@ export function createDraggableReducer(
     phase: DragPhase,
     nextDelta: Point,
   ): FreeDropState => {
-    if (phase !== 'awaiting-result') {
-      return { stage: 'none' };
+    if (phase !== PHASE_AWAITING_RESULT) {
+      return { stage: DROP_NONE };
     }
 
     // Entering awaiting-result on release: commit one proposal-ready value.
-    if (event.type === 'release' && from.phase === 'dragging') {
+    if (event.type === LIFECYCLE_RELEASE && from.phase === PHASE_DRAGGING) {
       const op = from.operation;
 
-      if (op && op.type !== 'admitted' && from.pointer) {
+      if (op && op.type !== OPERATION_ADMITTED && from.pointer) {
         const mapper = effectiveMapper(from) ?? op.coordinateSpace;
         const proposal = buildFreeDropProposal(
           op.item,
@@ -596,17 +675,17 @@ export function createDraggableReducer(
           op.originRect,
           mapper,
         );
-        return { stage: 'proposal-ready', proposal };
+        return { stage: DROP_PROPOSAL_READY, proposal };
       }
     }
 
     if (
-      event.type === 'resolution-started' &&
-      from.drop.stage === 'proposal-ready' &&
+      event.type === RESOLUTION_STARTED &&
+      from.drop.stage === DROP_PROPOSAL_READY &&
       isActiveOp(from, event.operationId)
     ) {
       return {
-        stage: 'awaiting-consumer',
+        stage: DROP_AWAITING_CONSUMER,
         proposal: from.drop.proposal,
         resolutionId: event.resolutionId,
       };
@@ -620,16 +699,16 @@ export function createDraggableReducer(
     event: DraggableEvent,
     phase: DragPhase,
   ): SettlementState<FreeDropResult> | null => {
-    if (phase === 'idle') {
+    if (phase === PHASE_IDLE) {
       return null;
     }
 
-    if (phase !== 'settling') {
+    if (phase !== PHASE_SETTLING) {
       return from.settlement;
     }
 
     // First entry into settling.
-    if (from.phase !== 'settling') {
+    if (from.phase !== PHASE_SETTLING) {
       return enterSettling(from, event, config, ids);
     }
 
@@ -643,14 +722,14 @@ export function createDraggableReducer(
     const { landing } = settlement;
 
     if (
-      event.type === 'landing-plan-ready' &&
-      landing.stage === 'preparing' &&
+      event.type === LANDING_PLAN_READY &&
+      landing.stage === LANDING_PREPARING &&
       landing.currency.landingId === event.landingId
     ) {
       return {
         ...settlement,
         landing: {
-          stage: 'preparing',
+          stage: LANDING_PREPARING,
           currency: landing.currency,
           plan: event.plan,
         },
@@ -658,15 +737,15 @@ export function createDraggableReducer(
     }
 
     if (
-      event.type === 'landing-started' &&
-      landing.stage === 'preparing' &&
+      event.type === LANDING_STARTED &&
+      landing.stage === LANDING_PREPARING &&
       landing.plan &&
       landing.currency.landingId === event.landingId
     ) {
       return {
         ...settlement,
         landing: {
-          stage: 'running',
+          stage: LANDING_RUNNING,
           currency: landing.currency,
           plan: landing.plan,
         },
@@ -674,14 +753,14 @@ export function createDraggableReducer(
     }
 
     if (
-      event.type === 'landing-finished' &&
-      landing.stage === 'running' &&
+      event.type === LANDING_FINISHED &&
+      landing.stage === LANDING_RUNNING &&
       landing.currency.landingId === event.landingId
     ) {
       return {
         ...settlement,
         landing: {
-          stage: 'completing',
+          stage: LANDING_COMPLETING,
           currency: landing.currency,
           plan: landing.plan,
         },
@@ -689,17 +768,17 @@ export function createDraggableReducer(
     }
 
     if (
-      (event.type === 'settlement-failed' || event.type === 'home-invalid') &&
-      landing.stage !== 'skipped' &&
+      (event.type === SETTLEMENT_FAILED || event.type === HOME_INVALID) &&
+      landing.stage !== LANDING_SKIPPED &&
       landing.currency.landingId === event.landingId
     ) {
       const stage: FailureCause['stage'] =
-        event.type === 'home-invalid' ? 'home-target' : event.stage;
+        event.type === HOME_INVALID ? FAILURE_HOME_TARGET : event.stage;
       return {
-        outcome: { result: 'failed', failure: { stage } },
-        recovery: 'immediate',
+        outcome: { result: OUTCOME_FAILED, failure: { stage } },
+        recovery: RECOVERY_IMMEDIATE,
         domain: settlement.domain,
-        landing: { stage: 'skipped' },
+        landing: { stage: LANDING_SKIPPED },
       };
     }
 

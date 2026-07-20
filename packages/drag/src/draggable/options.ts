@@ -1,8 +1,11 @@
 /** Public option, controller, and result types for the free-drag entry. */
-import type {
-  CancellationReason,
-  DragErrorContext,
-  ResolutionContext,
+import {
+  OUTCOME_ACCEPTED,
+  OUTCOME_CANCELED,
+  OUTCOME_REJECTED,
+  type CancellationReason,
+  type DragErrorContext,
+  type ResolutionContext,
 } from '../kernel/protocol.ts';
 import type {
   AnimationTiming,
@@ -13,51 +16,49 @@ import type {
   MaybePromise,
   Point,
 } from '../kernel/types.ts';
+import type { BOUNDS_VIEWPORT } from './bounds.ts';
+
+/* PUBLIC */
 
 /** A source of drag bounds, expressed in viewport space. */
 export type DragBounds =
-  | 'viewport'
+  | typeof BOUNDS_VIEWPORT
   | HTMLElement
   | (() => DOMRectReadOnly | null);
 
-/** How a free drop's coordinate space defined its request values. */
-export type FreeDropProposal = Readonly<{
-  request: FreeDropRequest;
-  coordinateSpace: CoordinateMapper;
-}>;
+/** How the visual is promoted during a drag. */
+export type LiftMode =
+  | typeof LIFT_TOP_LAYER
+  | typeof LIFT_FLATTEN
+  | typeof LIFT_NONE;
 
 /** The explicit consumer response to a free drop. */
+export const FreeDropResolution = {
+  accept: (): AcceptedFreeDropResolution => ({ type: OUTCOME_ACCEPTED }),
+  reject: (reason?: unknown): RejectedFreeDropResolution => ({
+    type: OUTCOME_REJECTED,
+    reason,
+  }),
+} as const;
+
 export type FreeDropResolution =
-  | Readonly<{ type: 'accepted' }>
-  | Readonly<{ type: 'rejected'; reason?: unknown }>;
+  | AcceptedFreeDropResolution
+  | RejectedFreeDropResolution;
 
-/** The terminal free-drop result carried through settlement. */
-export type FreeDropResult =
-  | Readonly<{ type: 'accepted'; proposal: FreeDropProposal }>
-  | Readonly<{
-      type: 'rejected';
-      proposal: FreeDropProposal;
-      reason?: unknown;
-    }>;
+export type FreeDropFinishResult = AcceptedFreeDropResult;
 
-export type FreeDragFinishResult = Extract<
-  FreeDropResult,
-  { type: 'accepted' }
->;
+export type FreeDropCancelResult =
+  | RejectedFreeDropResult
+  | CanceledFreeDropResult;
 
-export type FreeDragCancelResult =
-  | Extract<FreeDropResult, { type: 'rejected' }>
-  | Readonly<{
-      type: 'canceled';
-      reason: CancellationReason;
-      proposal: FreeDropProposal | null;
-    }>;
-
-/** Dedicated signal handed to the drop resolver. */
-export type OnDrop = (
-  request: FreeDropRequest,
-  context: ResolutionContext,
-) => MaybePromise<FreeDropResolution>;
+export const FreeDropResult = {
+  isAccepted: (result: FreeDropResult): result is AcceptedFreeDropResult =>
+    result.type === OUTCOME_ACCEPTED,
+  isRejected: (result: FreeDropResult): result is RejectedFreeDropResult =>
+    result.type === OUTCOME_REJECTED,
+  isCanceled: (result: FreeDropResult): result is CanceledFreeDropResult =>
+    result.type === OUTCOME_CANCELED,
+} as const;
 
 /** A finite viewport-space rollback target: the visual's target border-box origin. */
 export type FreeHomeTarget = Readonly<{
@@ -65,23 +66,13 @@ export type FreeHomeTarget = Readonly<{
   space: 'viewport';
 }>;
 
-/** Request handed to the optional home-target resolver. */
-export type FreeHomeRequest = Readonly<{
-  item: HTMLElement;
-  visual: HTMLElement;
-}>;
-
-export type ResolveFreeHomeTarget = (
-  request: FreeHomeRequest,
-) => FreeHomeTarget;
-
 export type DraggableOptions = Readonly<{
   /** Element (or resolver) that must be pressed to start the drag. */
   handle?: HTMLElement | ((item: HTMLElement) => HTMLElement | null);
   /** The element actually lifted; defaults to the item itself. */
   getVisual?(item: HTMLElement): HTMLElement;
   /** How the visual is promoted during a drag. Defaults to `'top-layer'`. */
-  lift?: 'top-layer' | 'flatten' | 'none';
+  lift?: LiftMode;
   /** Which axes movement is allowed on. Defaults to `'both'`. */
   axis?: DragAxis;
   /** Optional movement bounds, in viewport space. */
@@ -98,8 +89,8 @@ export type DraggableOptions = Readonly<{
   resolveHomeTarget?: ResolveFreeHomeTarget;
   onStart?(geometry: DragGeometry): void;
   onMove?(geometry: DragGeometry): void;
-  onFinish?(result: FreeDragFinishResult): void;
-  onCancel?(result: FreeDragCancelResult): void;
+  onFinish?(result: FreeDropFinishResult): void;
+  onCancel?(result: FreeDropCancelResult): void;
   onError?(error: unknown, context: DragErrorContext<FreeDropResult>): void;
 }>;
 
@@ -114,12 +105,62 @@ export type DragUpdate = Readonly<{
   position?: Point;
 }>;
 
-/** Controller returned by `draggable`. */
-export type FreeDragController = Readonly<{
-  /** Revises runtime options and/or retargets a controlled position. */
-  update(options: DragUpdate): void;
-  /** Cancels any live gesture. */
-  cancel(reason?: unknown): void;
-  /** Terminal, idempotent teardown. */
-  destroy(): void;
+/* PRIVATE */
+
+export const LIFT_TOP_LAYER = 'top-layer';
+export const LIFT_FLATTEN = 'flatten';
+export const LIFT_NONE = 'none';
+
+/** How a free drop's coordinate space defined its request values. */
+export type FreeDropProposal = Readonly<{
+  request: FreeDropRequest;
+  coordinateSpace: CoordinateMapper;
 }>;
+
+export type AcceptedFreeDropResolution = Readonly<{
+  type: typeof OUTCOME_ACCEPTED;
+}>;
+
+export type RejectedFreeDropResolution = Readonly<{
+  type: typeof OUTCOME_REJECTED;
+  reason?: unknown;
+}>;
+
+/** The terminal free-drop result carried through settlement. */
+export type AcceptedFreeDropResult = Readonly<{
+  type: typeof OUTCOME_ACCEPTED;
+  proposal: FreeDropProposal;
+}>;
+
+export type RejectedFreeDropResult = Readonly<{
+  type: typeof OUTCOME_REJECTED;
+  proposal: FreeDropProposal;
+  reason?: unknown;
+}>;
+
+export type FreeDropResult =
+  | AcceptedFreeDropResult
+  | RejectedFreeDropResult
+  | CanceledFreeDropResult;
+
+export type CanceledFreeDropResult = Readonly<{
+  type: typeof OUTCOME_CANCELED;
+  reason: CancellationReason;
+  proposal: FreeDropProposal | null;
+}>;
+
+/** Dedicated signal handed to the drop resolver. */
+export type OnDrop = (
+  request: FreeDropRequest,
+  context: ResolutionContext,
+) => MaybePromise<FreeDropResolution>;
+
+/** Request handed to the optional home-target resolver. */
+export type FreeHomeRequest = Readonly<{
+  item: HTMLElement;
+  visual: HTMLElement;
+}>;
+
+export type ResolveFreeHomeTarget = (
+  request: FreeHomeRequest,
+) => FreeHomeTarget;

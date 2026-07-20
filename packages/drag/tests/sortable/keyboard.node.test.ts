@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { keyboardInsertion } from '../../src/sortable/keyboard.ts';
+import {
+  DIRECTION_DOWN,
+  DIRECTION_UP,
+  keyboardInsertion,
+} from '../../src/sortable/keyboard.ts';
 import type { CollectionSnapshot } from '../../src/sortable/options.ts';
 
 /** Identity-comparable element stand-in; `keyboardInsertion` only compares references. */
@@ -16,21 +20,21 @@ describe('keyboardInsertion', () => {
     const item = el('item');
     const snap = snapshot([el('a'), el('b')], 3);
 
-    expect(keyboardInsertion(snap, item, 'up')).toBeNull();
+    expect(keyboardInsertion(snap, item, DIRECTION_UP)).toBeNull();
   });
 
   it('should return null moving up from the first slot', () => {
     const a = el('a');
     const snap = snapshot([a, el('b'), el('c')], 3);
 
-    expect(keyboardInsertion(snap, a, 'up')).toBeNull();
+    expect(keyboardInsertion(snap, a, DIRECTION_UP)).toBeNull();
   });
 
   it('should return null moving down from the last slot', () => {
     const c = el('c');
     const snap = snapshot([el('a'), el('b'), c], 3);
 
-    expect(keyboardInsertion(snap, c, 'down')).toBeNull();
+    expect(keyboardInsertion(snap, c, DIRECTION_DOWN)).toBeNull();
   });
 
   it('should move an internal item up ahead of its predecessor', () => {
@@ -41,7 +45,7 @@ describe('keyboardInsertion', () => {
     // item c at index 2; up → gap a|b in destination [a, b, d] at index 1.
     const snap = snapshot([a, b, c, d], 3);
 
-    expect(keyboardInsertion(snap, c, 'up')).toEqual({
+    expect(keyboardInsertion(snap, c, DIRECTION_UP)).toEqual({
       version: 3,
       index: 1,
       before: a,
@@ -57,7 +61,7 @@ describe('keyboardInsertion', () => {
     // item b at index 1; down → gap c|d in destination [a, c, d] at index 2.
     const snap = snapshot([a, b, c, d], 3);
 
-    expect(keyboardInsertion(snap, b, 'down')).toEqual({
+    expect(keyboardInsertion(snap, b, DIRECTION_DOWN)).toEqual({
       version: 3,
       index: 2,
       before: c,
@@ -72,7 +76,7 @@ describe('keyboardInsertion', () => {
     const c = el('c');
     const snap = snapshot([a, b, c], 3);
 
-    expect(keyboardInsertion(snap, b, 'up')).toEqual({
+    expect(keyboardInsertion(snap, b, DIRECTION_UP)).toEqual({
       version: 3,
       index: 0,
       before: null,
@@ -87,7 +91,7 @@ describe('keyboardInsertion', () => {
     // item b at index 1; down → end gap in destination [a, c] at index 2.
     const snap = snapshot([a, b, c], 3);
 
-    expect(keyboardInsertion(snap, b, 'down')).toEqual({
+    expect(keyboardInsertion(snap, b, DIRECTION_DOWN)).toEqual({
       version: 3,
       index: 2,
       before: c,
@@ -100,6 +104,6 @@ describe('keyboardInsertion', () => {
     const b = el('b');
     const snap = snapshot([a, b], 17);
 
-    expect(keyboardInsertion(snap, b, 'up')?.version).toBe(17);
+    expect(keyboardInsertion(snap, b, DIRECTION_UP)?.version).toBe(17);
   });
 });

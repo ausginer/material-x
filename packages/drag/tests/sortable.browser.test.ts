@@ -3,14 +3,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   sortable,
   type ReorderRequest,
-  type ReorderResolution,
+  ReorderResolution,
+  SortableResult,
   type SortableCancelResult,
   type SortableController,
   type SortableFinishResult,
   type SortableOptions,
 } from '../src/sortable.ts';
 
-const accept = (): ReorderResolution => ({ type: 'accepted' });
+const accept = (): ReorderResolution => ReorderResolution.accept();
 
 const live: SortableController[] = [];
 
@@ -81,7 +82,8 @@ describe('sortable', () => {
     const container = createList(3);
     const items = rows(container);
     const onReorder = vi.fn(
-      (_request: ReorderRequest): ReorderResolution => ({ type: 'accepted' }),
+      (_request: ReorderRequest): ReorderResolution =>
+        ReorderResolution.accept(),
     );
     const onFinish = vi.fn<(r: SortableFinishResult) => void>();
     sort(container, { items: () => rows(container), onReorder, onFinish });
@@ -107,7 +109,7 @@ describe('sortable', () => {
     expect(request.from).toBe(0);
     expect(request.to).toBeGreaterThan(0);
     expect(onFinish).toHaveBeenCalledOnce();
-    expect(onFinish.mock.calls[0]![0].type).toBe('accepted');
+    expect(SortableResult.isAccepted(onFinish.mock.calls[0]![0])).toBeTruthy();
   });
 
   it('should finish a drop in place as a no-op without calling onReorder', async () => {
@@ -128,7 +130,7 @@ describe('sortable', () => {
 
     expect(onReorder).not.toHaveBeenCalled();
     expect(onFinish).toHaveBeenCalledOnce();
-    expect(onFinish.mock.calls[0]![0].type).toBe('no-op');
+    expect(SortableResult.isNoOp(onFinish.mock.calls[0]![0])).toBeTruthy();
   });
 
   it('should route an explicit rejection through onCancel', async () => {
@@ -138,7 +140,7 @@ describe('sortable', () => {
     const onError = vi.fn<(...a: unknown[]) => void>();
     sort(container, {
       items: () => rows(container),
-      onReorder: () => ({ type: 'rejected', reason: 'no' }),
+      onReorder: () => ReorderResolution.reject('no'),
       onCancel,
       onError,
     });
@@ -157,7 +159,7 @@ describe('sortable', () => {
       timeout: 1000,
     });
 
-    expect(onCancel.mock.calls[0]![0].type).toBe('rejected');
+    expect(SortableResult.isRejected(onCancel.mock.calls[0]![0])).toBeTruthy();
     expect(onError).not.toHaveBeenCalled();
   });
 
@@ -181,7 +183,7 @@ describe('sortable', () => {
       timeout: 1000,
     });
 
-    expect(onCancel.mock.calls[0]![0].type).toBe('canceled');
+    expect(SortableResult.isCanceled(onCancel.mock.calls[0]![0])).toBeTruthy();
   });
 
   it('should animate the visual home before onCancel on an explicit rejection', async () => {
@@ -190,7 +192,7 @@ describe('sortable', () => {
     const onCancel = vi.fn<(r: SortableCancelResult) => void>();
     sort(container, {
       items: () => rows(container),
-      onReorder: () => ({ type: 'rejected', reason: 'no' }),
+      onReorder: () => ReorderResolution.reject('no'),
       onCancel,
     });
 
@@ -240,14 +242,15 @@ describe('sortable', () => {
       timeout: 1000,
     });
 
-    expect(onCancel.mock.calls[0]![0].type).toBe('canceled');
+    expect(SortableResult.isCanceled(onCancel.mock.calls[0]![0])).toBeTruthy();
   });
 
   it('should reorder through an arrow-key command and finish accepted', async () => {
     const container = createList(3);
     const items = rows(container);
     const onReorder = vi.fn(
-      (_request: ReorderRequest): ReorderResolution => ({ type: 'accepted' }),
+      (_request: ReorderRequest): ReorderResolution =>
+        ReorderResolution.accept(),
     );
     const onFinish = vi.fn<(r: SortableFinishResult) => void>();
     sort(container, { items: () => rows(container), onReorder, onFinish });
@@ -269,7 +272,7 @@ describe('sortable', () => {
     expect(request.item).toBe(items[0]);
     expect(request.from).toBe(0);
     expect(request.to).toBe(1);
-    expect(onFinish.mock.calls[0]![0].type).toBe('accepted');
+    expect(SortableResult.isAccepted(onFinish.mock.calls[0]![0])).toBeTruthy();
   });
 
   it('should ignore an arrow-key command that cannot move the edge item', async () => {
@@ -299,7 +302,7 @@ describe('sortable', () => {
     const onCancel = vi.fn<(r: SortableCancelResult) => void>();
     sort(container, {
       items: () => rows(container),
-      onReorder: () => ({ type: 'rejected', reason: 'no' }),
+      onReorder: () => ReorderResolution.reject('no'),
       onCancel,
     });
 
@@ -315,7 +318,7 @@ describe('sortable', () => {
       timeout: 1000,
     });
 
-    expect(onCancel.mock.calls[0]![0].type).toBe('rejected');
+    expect(SortableResult.isRejected(onCancel.mock.calls[0]![0])).toBeTruthy();
   });
 
   it('should stay silent on destroy', async () => {

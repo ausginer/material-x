@@ -58,9 +58,7 @@ export function insertPlaceholder(
 
   return {
     element: anchor,
-    rect() {
-      return anchor.getBoundingClientRect();
-    },
+    rect: () => anchor.getBoundingClientRect(),
     placeBefore(reference) {
       parent?.insertBefore(anchor, reference);
     },

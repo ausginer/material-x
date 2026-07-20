@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import {
+  ReorderResolution,
+  SortableResult,
   sortable,
   type PlaceholderContext,
   type SortableController,
@@ -69,7 +71,7 @@ function SortableDemo({
     let controller: SortableController;
 
     const commit = (result: SortableFinishResult): void => {
-      if (result.type !== 'accepted') {
+      if (!SortableResult.isAccepted(result)) {
         return;
       }
 
@@ -95,8 +97,8 @@ function SortableDemo({
       createPlaceholder,
       onReorder: (request) =>
         request.item.dataset['label'] == null
-          ? { type: 'rejected' }
-          : { type: 'accepted' },
+          ? ReorderResolution.reject()
+          : ReorderResolution.accept(),
       onFinish: commit,
     });
 

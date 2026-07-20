@@ -9,6 +9,9 @@
  * through the document.
  */
 import {
+  CANCEL_ESCAPE,
+  KEY_DOWN,
+  KEY_ESCAPE,
   LOST_POINTER_CAPTURE,
   POINTER_CANCEL,
   POINTER_DOWN,
@@ -25,7 +28,7 @@ const SESSION_POINTER_EVENTS = [
 ] as const;
 
 /** An internal Escape signal, emitted alongside raw pointer events. */
-export type EscapeSignal = Readonly<{ type: 'escape' }>;
+export type EscapeSignal = Readonly<{ type: typeof CANCEL_ESCAPE }>;
 
 export type PointerSource = Readonly<{
   /** Arms document-level move/up/cancel/lostcapture and Escape for one gesture. */
@@ -57,10 +60,10 @@ export function createPointerSource(
       }
 
       realm.document.addEventListener(
-        'keydown',
+        KEY_DOWN,
         (event: Event) => {
-          if ((event as KeyboardEvent).key === 'Escape') {
-            emit({ type: 'escape' });
+          if ((event as KeyboardEvent).key === KEY_ESCAPE) {
+            emit({ type: CANCEL_ESCAPE });
           }
         },
         { signal },

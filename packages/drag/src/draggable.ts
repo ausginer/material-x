@@ -26,36 +26,48 @@
 import { resolveDraggablePress } from './draggable/admission.ts';
 import { resolveBounds } from './draggable/bounds.ts';
 import { FreeDragGesture } from './draggable/gesture.ts';
-import type {
-  DragUpdate,
-  DraggableOptions,
-  FreeDragController,
-} from './draggable/options.ts';
+import type { DraggableOptions, DragUpdate } from './draggable/options.ts';
 import {
+  CONTROLLED,
   createDraggableReducer,
   INITIAL_DRAGGABLE_STATE,
+  SET_POLICY,
   type DraggableEvent,
   type DraggableState,
 } from './draggable/reducer.ts';
 import { createInvalidationSource } from './kernel/invalidation.ts';
 import { createIdentitySource } from './kernel/operation-id.ts';
 import { createPointerSource, type EscapeSignal } from './kernel/pointer.ts';
+import {
+  CANCEL_CONSUMER,
+  CANCEL_ESCAPE,
+  CANCEL_POINTER,
+  LIFECYCLE_ADMIT,
+  LIFECYCLE_CANCEL,
+  LIFECYCLE_MOVE,
+  LIFECYCLE_RELEASE,
+  OPERATION_ADMITTED,
+  PHASE_IDLE,
+  PHASE_PENDING,
+  POINTER_CANCEL,
+  POINTER_MOVE,
+  POINTER_UP,
+} from './kernel/protocol.ts';
 import { createRealm } from './kernel/realm.ts';
 import { createSession, type DragSession } from './kernel/session.ts';
 
-export type {
-  DragBounds,
-  DraggableOptions,
-  DragUpdate,
-  FreeDragController,
-  FreeDropProposal,
+/* PUBLIC */
+
+export {
   FreeDropResolution,
   FreeDropResult,
-  FreeDragFinishResult,
-  FreeDragCancelResult,
-  FreeHomeTarget,
-  OnDrop,
-  ResolveFreeHomeTarget,
+  type DragBounds,
+  type DraggableOptions,
+  type DragUpdate,
+  type FreeDropCancelResult as FreeDragCancelResult,
+  type FreeDropFinishResult as FreeDragFinishResult,
+  type FreeHomeTarget,
+  type LiftMode,
 } from './draggable/options.ts';
 export type {
   AnimationTiming,
@@ -66,74 +78,185 @@ export type {
   Point,
 } from './kernel/types.ts';
 
-const DEFAULT_THRESHOLD = 8;
+export interface FreeDragController {
+  update(options: DragUpdate): void;
+  cancel(reason?: unknown): void;
+  destroy(): void;
+}
 
 export function draggable(
   item: HTMLElement,
   options: DraggableOptions,
 ): FreeDragController {
-  if (typeof options?.onDrop !== 'function') {
-    throw new TypeError('draggable: `onDrop` is required.');
+  // oxlint-disable-next-line no-use-before-define
+  return new FreeDragControllerImpl(item, options);
+}
+
+/* PRIVATE */
+
+const DEFAULT_THRESHOLD = 8;
+
+type MutableDraggableOptions = {
+  -readonly [K in keyof DraggableOptions]: DraggableOptions[K];
+};
+
+class FreeDragControllerImpl implements FreeDragController {
+  readonly #item: HTMLElement;
+  readonly #opts: MutableDraggableOptions;
+  readonly #realm: ReturnType<typeof createRealm>;
+  readonly #visual: HTMLElement;
+  readonly #ids = createIdentitySource();
+  readonly #invalidation: ReturnType<typeof createInvalidationSource>;
+  readonly #controllerAbort = new AbortController();
+  readonly #session: DragSession<DraggableState, DraggableEvent>;
+  readonly #pointerSource: ReturnType<typeof createPointerSource>;
+  #gesture: FreeDragGesture | null = null;
+  #terminal = false;
+
+  constructor(item: HTMLElement, options: DraggableOptions) {
+    if (typeof options?.onDrop !== 'function') {
+      throw new TypeError('draggable: `onDrop` is required.');
+    }
+
+    this.#item = item;
+    this.#opts = { ...options };
+    this.#realm = createRealm(item);
+    this.#visual = this.#opts.getVisual?.(item) ?? item;
+    this.#invalidation = createInvalidationSource(this.#realm);
+
+    const reduce = createDraggableReducer(
+      {
+        threshold: options.threshold ?? DEFAULT_THRESHOLD,
+        hasHomeTarget: typeof options.resolveHomeTarget === 'function',
+      },
+      this.#ids,
+    );
+
+    this.#pointerSource = createPointerSource(
+      item,
+      this.#realm,
+      this.#controllerAbort.signal,
+      (event) => {
+        this.#admitPress(event);
+      },
+    );
+
+    this.#session = createSession<DraggableState, DraggableEvent>(
+      INITIAL_DRAGGABLE_STATE,
+      reduce,
+      (from, to, event) => {
+        this.#transition(from, to, event);
+      },
+    );
   }
 
-  // A mutable copy so `update()` may revise live options. Threshold and the
-  // presence of a home target are captured once for the reducer config.
-  const opts: { -readonly [K in keyof DraggableOptions]: DraggableOptions[K] } =
-    {
-      ...options,
-    };
-  const realm = createRealm(item);
-  const visual = opts.getVisual?.(item) ?? item;
-  const ids = createIdentitySource();
-  const invalidation = createInvalidationSource(realm);
-  const controllerAbort = new AbortController();
+  /** Revises runtime options and/or retargets a controlled position. */
+  update(next: DragUpdate): void {
+    if (next.axis || next.coordinateSpace) {
+      if (next.axis) {
+        this.#opts.axis = next.axis;
+      }
 
-  const reduce = createDraggableReducer(
-    {
-      threshold: options.threshold ?? DEFAULT_THRESHOLD,
-      hasHomeTarget: typeof options.resolveHomeTarget === 'function',
-    },
-    ids,
-  );
+      if (next.coordinateSpace) {
+        this.#opts.coordinateSpace = next.coordinateSpace;
+      }
 
-  let gesture: FreeDragGesture | null = null;
-  let terminal = false;
-  let session: DragSession<DraggableState, DraggableEvent>;
+      this.#session.dispatch({
+        type: SET_POLICY,
+        axis: next.axis,
+        coordinateOverride: next.coordinateSpace,
+      });
+    }
 
-  const currentBounds = (): DOMRectReadOnly | null =>
-    resolveBounds(opts.bounds, realm);
+    if (next.bounds !== undefined) {
+      this.#opts.bounds = next.bounds;
+    }
+    if (next.landingTiming) {
+      this.#opts.landingTiming = next.landingTiming;
+    }
+    if (next.onMove) {
+      this.#opts.onMove = next.onMove;
+    }
 
-  function emit(raw: PointerEvent | EscapeSignal): void {
-    if ('type' in raw && raw.type === 'escape') {
-      session.dispatch({ type: 'cancel', reason: { type: 'escape' } });
+    if (next.position) {
+      const state = this.#session.state();
+      const op = state.operation;
+
+      if (op && op.type !== OPERATION_ADMITTED) {
+        const mapper = state.policy.coordinateOverride ?? op.coordinateSpace;
+        const viewport = mapper.toViewport(next.position);
+        this.#session.dispatch({
+          type: CONTROLLED,
+          viewportDelta: {
+            x: viewport.x - op.originRect.left,
+            y: viewport.y - op.originRect.top,
+          },
+        });
+      }
+    }
+  }
+
+  /** Cancels any live gesture. */
+  cancel(reason?: unknown): void {
+    if (this.#session.state().phase !== PHASE_IDLE) {
+      this.#session.dispatch({
+        type: LIFECYCLE_CANCEL,
+        reason: { type: CANCEL_CONSUMER, detail: reason },
+      });
+    }
+  }
+
+  /** Terminal, idempotent teardown. */
+  destroy(): void {
+    if (this.#terminal) {
       return;
     }
 
-    const event = raw as PointerEvent;
+    this.#terminal = true;
+    this.#session.close();
+    this.#gesture?.destroy();
+    this.#gesture = null;
+    this.#controllerAbort.abort();
+  }
+
+  #currentBounds(): DOMRectReadOnly | null {
+    return resolveBounds(this.#opts.bounds, this.#realm);
+  }
+
+  #emit(raw: PointerEvent | EscapeSignal): void {
+    if (raw.type === CANCEL_ESCAPE) {
+      this.#session.dispatch({
+        type: LIFECYCLE_CANCEL,
+        reason: { type: CANCEL_ESCAPE },
+      });
+      return;
+    }
+
+    const event = raw;
     const point = { x: event.clientX, y: event.clientY };
 
     switch (event.type) {
-      case 'pointermove':
-        session.dispatch({
-          type: 'move',
+      case POINTER_MOVE:
+        this.#session.dispatch({
+          type: LIFECYCLE_MOVE,
           pointerId: event.pointerId,
           point,
-          bounds: currentBounds(),
+          bounds: this.#currentBounds(),
         });
         break;
-      case 'pointerup':
-        session.dispatch({
-          type: 'release',
+      case POINTER_UP:
+        this.#session.dispatch({
+          type: LIFECYCLE_RELEASE,
           pointerId: event.pointerId,
           point,
-          bounds: currentBounds(),
+          bounds: this.#currentBounds(),
         });
         break;
-      case 'pointercancel':
-        if (session.state().pointer?.id === event.pointerId) {
-          session.dispatch({
-            type: 'cancel',
-            reason: { type: 'pointer-canceled' },
+      case POINTER_CANCEL:
+        if (this.#session.state().pointer?.id === event.pointerId) {
+          this.#session.dispatch({
+            type: LIFECYCLE_CANCEL,
+            reason: { type: CANCEL_POINTER },
           });
         }
         break;
@@ -143,124 +266,56 @@ export function draggable(
     }
   }
 
-  const pointerSource = createPointerSource(
-    item,
-    realm,
-    controllerAbort.signal,
-    (event) => {
-      if (terminal || session.state().phase !== 'idle') {
-        return;
-      }
+  #admitPress(event: PointerEvent): void {
+    if (this.#terminal || this.#session.state().phase !== PHASE_IDLE) {
+      return;
+    }
 
-      const handle =
-        typeof opts.handle === 'function'
-          ? opts.handle(item)
-          : (opts.handle ?? null);
-      const press = resolveDraggablePress(event, item, handle ?? null);
+    const handle =
+      typeof this.#opts.handle === 'function'
+        ? this.#opts.handle(this.#item)
+        : (this.#opts.handle ?? null);
+    const press = resolveDraggablePress(event, this.#item, handle ?? null);
 
-      if (!press) {
-        return;
-      }
+    if (!press) {
+      return;
+    }
 
-      session.dispatch({
-        type: 'admit',
-        operationId: ids.next(),
-        item,
-        pointerId: press.pointerId,
-        point: press.point,
+    this.#session.dispatch({
+      type: LIFECYCLE_ADMIT,
+      operationId: this.#ids.next(),
+      item: this.#item,
+      pointerId: press.pointerId,
+      point: press.point,
+    });
+  }
+
+  #transition(
+    from: DraggableState,
+    to: DraggableState,
+    event: DraggableEvent,
+  ): void {
+    if (from.phase === PHASE_IDLE && to.phase === PHASE_PENDING) {
+      this.#gesture = new FreeDragGesture({
+        realm: this.#realm,
+        ids: this.#ids,
+        options: this.#opts,
+        item: this.#item,
+        visual: this.#visual,
+        invalidation: this.#invalidation,
+        dispatch: this.#session.dispatch,
+        currentBounds: this.#currentBounds.bind(this),
       });
-    },
-  );
+      this.#pointerSource.armSession(
+        this.#gesture.scope.signal,
+        this.#emit.bind(this),
+      );
+    }
 
-  session = createSession<DraggableState, DraggableEvent>(
-    INITIAL_DRAGGABLE_STATE,
-    reduce,
-    (from, to, event) => {
-      if (from.phase === 'idle' && to.phase === 'pending') {
-        gesture = new FreeDragGesture({
-          realm,
-          ids,
-          options: opts,
-          item,
-          visual,
-          invalidation,
-          dispatch: session.dispatch,
-          currentBounds,
-        });
-        pointerSource.armSession(gesture.scope.signal, emit);
-      }
+    this.#gesture?.handle(from, to, event);
 
-      gesture?.handle(from, to, event);
-
-      if (to.phase === 'idle' && from.phase !== 'idle') {
-        gesture = null;
-      }
-    },
-  );
-
-  return {
-    update(next: DragUpdate) {
-      if (next.axis !== undefined || next.coordinateSpace !== undefined) {
-        if (next.axis !== undefined) {
-          opts.axis = next.axis;
-        }
-        if (next.coordinateSpace !== undefined) {
-          opts.coordinateSpace = next.coordinateSpace;
-        }
-        session.dispatch({
-          type: 'set-policy',
-          axis: next.axis,
-          coordinateOverride: next.coordinateSpace,
-        });
-      }
-
-      if (next.bounds !== undefined) {
-        opts.bounds = next.bounds;
-      }
-      if (next.landingTiming) {
-        opts.landingTiming = next.landingTiming;
-      }
-      if (next.onMove) {
-        opts.onMove = next.onMove;
-      }
-
-      if (next.position) {
-        const state = session.state();
-        const op = state.operation;
-
-        if (op && op.type !== 'admitted') {
-          const mapper = state.policy.coordinateOverride ?? op.coordinateSpace;
-          const viewport = mapper.toViewport(next.position);
-          session.dispatch({
-            type: 'controlled',
-            viewportDelta: {
-              x: viewport.x - op.originRect.left,
-              y: viewport.y - op.originRect.top,
-            },
-          });
-        }
-      }
-    },
-
-    cancel(reason?: unknown) {
-      if (session.state().phase !== 'idle') {
-        session.dispatch({
-          type: 'cancel',
-          reason: { type: 'consumer', detail: reason },
-        });
-      }
-    },
-
-    destroy() {
-      if (terminal) {
-        return;
-      }
-
-      terminal = true;
-      session.close();
-      gesture?.destroy();
-      gesture = null;
-      controllerAbort.abort();
-    },
-  };
+    if (to.phase === PHASE_IDLE && from.phase !== PHASE_IDLE) {
+      this.#gesture = null;
+    }
+  }
 }

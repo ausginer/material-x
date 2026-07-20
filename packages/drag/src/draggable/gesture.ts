@@ -20,11 +20,41 @@ import { acquirePointerCapture } from '../kernel/pointer.ts';
 import {
   createDragRenderer,
   acquireLift,
+  LIFT_FAITHFUL,
+  LIFT_FLAT,
+  LIFT_IN_PLACE,
   type DragRenderer,
   type LiftMode,
   type VisualLiftSession,
 } from '../kernel/presentation.ts';
-import type { FailureCause } from '../kernel/protocol.ts';
+import {
+  LIFECYCLE_ACTIVATION_FAILED,
+  LIFECYCLE_ACTIVATION_READY,
+  FAILURE_ACTIVATION,
+  FAILURE_CANCEL_CALLBACK,
+  FAILURE_FINISH_CALLBACK,
+  FAILURE_LANDING_INTERRUPTED,
+  FAILURE_MOVE,
+  LANDING_COMPLETING,
+  LANDING_PREPARING,
+  LANDING_RUNNING,
+  LANDING_SKIPPED,
+  OPERATION_ADMITTED,
+  OPERATION_CANDIDATE,
+  OUTCOME_ACCEPTED,
+  OUTCOME_CANCELED,
+  OUTCOME_FAILED,
+  OUTCOME_REJECTED,
+  PHASE_ACTIVATING,
+  PHASE_AWAITING_RESULT,
+  PHASE_DRAGGING,
+  PHASE_IDLE,
+  PHASE_PENDING,
+  PHASE_SETTLING,
+  RECOVERY_HOME,
+  LIFECYCLE_START_SUCCEEDED,
+  type FailureCause,
+} from '../kernel/protocol.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import {
   ORIGIN,
@@ -35,15 +65,30 @@ import {
 } from '../kernel/types.ts';
 import { homeLandingPlan, isValidHomeTarget } from './landing.ts';
 import { geometryOf } from './motion.ts';
-import type {
-  DraggableOptions,
-  FreeDropResult,
-  FreeHomeTarget,
+import {
+  LIFT_FLATTEN,
+  LIFT_NONE,
+  LIFT_TOP_LAYER,
+  type DraggableOptions,
+  type FreeDropResult,
+  type FreeHomeTarget,
 } from './options.ts';
-import type {
-  DraggableEvent,
-  DraggableState,
-  FreeOperation,
+import {
+  DROP_AWAITING_CONSUMER,
+  DROP_PROPOSAL_READY,
+  EFFECT_FAILED,
+  HOME_INVALID,
+  INVALIDATE,
+  LANDING_FINISHED,
+  LANDING_PINNED,
+  LANDING_PLAN_READY,
+  LANDING_STARTED,
+  RESOLUTION_STARTED,
+  SETTLEMENT_COMPLETED,
+  SETTLEMENT_FAILED,
+  type DraggableEvent,
+  type DraggableState,
+  type FreeOperation,
 } from './reducer.ts';
 import {
   createDropResolution,
@@ -55,9 +100,9 @@ const DEFAULT_TIMING: AnimationTiming = { duration: 200, easing: 'ease' };
 const LIFT_MODES: Readonly<
   Record<NonNullable<DraggableOptions['lift']>, LiftMode>
 > = {
-  'top-layer': 'faithful',
-  flatten: 'flat',
-  none: 'in-place',
+  [LIFT_TOP_LAYER]: LIFT_FAITHFUL,
+  [LIFT_FLATTEN]: LIFT_FLAT,
+  [LIFT_NONE]: LIFT_IN_PLACE,
 };
 
 export type FreeGestureDeps = Readonly<{
@@ -77,7 +122,7 @@ function freeGeometry(to: DraggableState): DragGeometry {
   const op = to.operation;
   const { pointer } = to;
 
-  if (!op || op.type === 'admitted' || !pointer) {
+  if (!op || op.type === OPERATION_ADMITTED || !pointer) {
     throw new Error('drag: geometry requested without an active operation');
   }
 
@@ -114,7 +159,7 @@ export class FreeDragGesture {
     reportError_(
       error,
       onError
-        ? (e) => onError(e, { cause: { stage: 'activation' }, domain })
+        ? (e) => onError(e, { cause: { stage: FAILURE_ACTIVATION }, domain })
         : undefined,
     );
   }
@@ -137,30 +182,30 @@ export class FreeDragGesture {
     event: DraggableEvent,
   ): void {
     // pending -> activating: transactional activation acquisition.
-    if (from.phase === 'pending' && to.phase === 'activating') {
+    if (from.phase === PHASE_PENDING && to.phase === PHASE_ACTIVATING) {
       this.#acquire(to);
       return;
     }
 
     // activating(admitted) -> activating(candidate): run onStart, then succeed.
     if (
-      from.operation?.type === 'admitted' &&
-      to.operation?.type === 'candidate'
+      from.operation?.type === OPERATION_ADMITTED &&
+      to.operation?.type === OPERATION_CANDIDATE
     ) {
       this.#start(to);
       return;
     }
 
     // activating(candidate) -> dragging(active): begin active rendering.
-    if (from.phase === 'activating' && to.phase === 'dragging') {
+    if (from.phase === PHASE_ACTIVATING && to.phase === PHASE_DRAGGING) {
       this.#render(to);
       return;
     }
 
     // dragging -> dragging: render committed motion.
     if (
-      from.phase === 'dragging' &&
-      to.phase === 'dragging' &&
+      from.phase === PHASE_DRAGGING &&
+      to.phase === PHASE_DRAGGING &&
       to.motion !== from.motion
     ) {
       this.#render(to);
@@ -169,7 +214,7 @@ export class FreeDragGesture {
     }
 
     // dragging -> awaiting-result: proposal-ready; render release, start resolution.
-    if (from.phase === 'dragging' && to.phase === 'awaiting-result') {
+    if (from.phase === PHASE_DRAGGING && to.phase === PHASE_AWAITING_RESULT) {
       this.#render(to);
       this.#startResolution(to);
       return;
@@ -177,21 +222,21 @@ export class FreeDragGesture {
 
     // proposal-ready -> awaiting-consumer: invoke onDrop.
     if (
-      from.drop.stage === 'proposal-ready' &&
-      to.drop.stage === 'awaiting-consumer'
+      from.drop.stage === DROP_PROPOSAL_READY &&
+      to.drop.stage === DROP_AWAITING_CONSUMER
     ) {
       this.#invokeResolution(to);
       return;
     }
 
     // Settlement.
-    if (to.phase === 'settling') {
+    if (to.phase === PHASE_SETTLING) {
       this.#settle(from, to, event);
       return;
     }
 
     // settling -> idle: dispose presentation, run completion callbacks.
-    if (from.phase === 'settling' && to.phase === 'idle') {
+    if (from.phase === PHASE_SETTLING && to.phase === PHASE_IDLE) {
       this.#complete(from);
     }
   }
@@ -209,7 +254,7 @@ export class FreeDragGesture {
   #acquire(to: DraggableState): void {
     const op = to.operation;
 
-    if (op?.type !== 'admitted' || !to.pointer) {
+    if (op?.type !== OPERATION_ADMITTED || !to.pointer) {
       return;
     }
 
@@ -229,7 +274,7 @@ export class FreeDragGesture {
         ) ??
         IDENTITY_MAPPER;
 
-      const mode = LIFT_MODES[options.lift ?? 'top-layer'];
+      const mode = LIFT_MODES[options.lift ?? LIFT_TOP_LAYER];
       const lift = acquireLift(
         visual,
         mode,
@@ -246,22 +291,22 @@ export class FreeDragGesture {
 
       invalidation.arm(this.#scope.signal, () => {
         dispatch({
-          type: 'invalidate',
+          type: INVALIDATE,
           point: ORIGIN,
           bounds: this.#deps.currentBounds(),
         });
       });
 
       dispatch({
-        type: 'activation-ready',
+        type: LIFECYCLE_ACTIVATION_READY,
         operationId,
         candidate: { visual, lift: mode, originRect, coordinateSpace: derived },
       });
     } catch (error) {
-      this.#reportCause(error, { stage: 'activation' }, null);
+      this.#reportCause(error, { stage: FAILURE_ACTIVATION }, null);
       this.#scope.settle();
       this.#scope.finish();
-      dispatch({ type: 'activation-failed', operationId });
+      dispatch({ type: LIFECYCLE_ACTIVATION_FAILED, operationId });
     }
   }
 
@@ -269,18 +314,24 @@ export class FreeDragGesture {
     const { options, dispatch } = this.#deps;
     const op = to.operation;
 
-    if (!op || op.type === 'admitted') {
+    if (!op || op.type === OPERATION_ADMITTED) {
       return;
     }
 
     try {
       options.onStart?.(freeGeometry(to));
-      dispatch({ type: 'start-succeeded', operationId: op.operationId });
+      dispatch({
+        type: LIFECYCLE_START_SUCCEEDED,
+        operationId: op.operationId,
+      });
     } catch (error) {
-      this.#reportCause(error, { stage: 'activation' }, null);
+      this.#reportCause(error, { stage: FAILURE_ACTIVATION }, null);
       this.#scope.settle();
       this.#scope.finish();
-      dispatch({ type: 'activation-failed', operationId: op.operationId });
+      dispatch({
+        type: LIFECYCLE_ACTIVATION_FAILED,
+        operationId: op.operationId,
+      });
     }
   }
 
@@ -299,12 +350,12 @@ export class FreeDragGesture {
       options.onMove(freeGeometry(to));
     } catch (error) {
       const op = to.operation;
-      this.#reportCause(error, { stage: 'move' }, null);
+      this.#reportCause(error, { stage: FAILURE_MOVE }, null);
       this.#deps.dispatch({
-        type: 'effect-failed',
+        type: EFFECT_FAILED,
         operationId: op?.operationId ?? 0,
-        stage: 'move',
-        recovery: 'home',
+        stage: FAILURE_MOVE,
+        recovery: RECOVERY_HOME,
         error,
       });
     }
@@ -313,7 +364,7 @@ export class FreeDragGesture {
   #startResolution(to: DraggableState): void {
     const op = to.operation;
 
-    if (!op || op.type === 'admitted') {
+    if (!op || op.type === OPERATION_ADMITTED) {
       return;
     }
 
@@ -328,14 +379,14 @@ export class FreeDragGesture {
       () => resolution.abort(),
     );
     this.#deps.dispatch({
-      type: 'resolution-started',
+      type: RESOLUTION_STARTED,
       operationId: op.operationId,
       resolutionId,
     });
   }
 
   #invokeResolution(to: DraggableState): void {
-    if (to.drop.stage !== 'awaiting-consumer' || !this.#resolution) {
+    if (to.drop.stage !== DROP_AWAITING_CONSUMER || !this.#resolution) {
       return;
     }
 
@@ -360,8 +411,8 @@ export class FreeDragGesture {
 
     // Newly failed: report through onError before recovery.
     if (
-      settlement.outcome.result === 'failed' &&
-      from.settlement?.outcome.result !== 'failed'
+      settlement.outcome.result === OUTCOME_FAILED &&
+      from.settlement?.outcome.result !== OUTCOME_FAILED
     ) {
       const error =
         'error' in event ? (event as { error: unknown }).error : undefined;
@@ -369,11 +420,11 @@ export class FreeDragGesture {
     }
 
     // First entry into settling: abort interaction, prepare recovery.
-    if (from.phase !== 'settling') {
+    if (from.phase !== PHASE_SETTLING) {
       this.#scope.settle();
 
-      if (settlement.landing.stage === 'skipped') {
-        this.#deps.dispatch({ type: 'settlement-completed', operationId });
+      if (settlement.landing.stage === LANDING_SKIPPED) {
+        this.#deps.dispatch({ type: SETTLEMENT_COMPLETED, operationId });
         return;
       }
 
@@ -385,9 +436,9 @@ export class FreeDragGesture {
 
     // preparing + plan committed: create the runner.
     if (
-      landing.stage === 'preparing' &&
+      landing.stage === LANDING_PREPARING &&
       landing.plan &&
-      from.settlement?.landing.stage === 'preparing'
+      from.settlement?.landing.stage === LANDING_PREPARING
     ) {
       this.#startLanding(landing.currency, landing.plan);
       return;
@@ -395,12 +446,12 @@ export class FreeDragGesture {
 
     // running -> completing: pin then finish landing.
     if (
-      landing.stage === 'completing' &&
-      from.settlement?.landing.stage === 'running'
+      landing.stage === LANDING_COMPLETING &&
+      from.settlement?.landing.stage === LANDING_RUNNING
     ) {
       this.#landing?.pin();
       this.#deps.dispatch({
-        type: 'landing-pinned',
+        type: LANDING_PINNED,
         operationId,
         landingId: landing.currency.landingId,
       });
@@ -409,10 +460,10 @@ export class FreeDragGesture {
 
     // Refined to skipped (settlement/home failure): complete deterministically.
     if (
-      landing.stage === 'skipped' &&
-      from.settlement?.landing.stage !== 'skipped'
+      landing.stage === LANDING_SKIPPED &&
+      from.settlement?.landing.stage !== LANDING_SKIPPED
     ) {
-      this.#deps.dispatch({ type: 'settlement-completed', operationId });
+      this.#deps.dispatch({ type: SETTLEMENT_COMPLETED, operationId });
     }
   }
 
@@ -421,9 +472,9 @@ export class FreeDragGesture {
     const op = to.operation;
 
     if (
-      settlement?.landing.stage !== 'preparing' ||
+      settlement?.landing.stage !== LANDING_PREPARING ||
       !op ||
-      op.type === 'admitted'
+      op.type === OPERATION_ADMITTED
     ) {
       return;
     }
@@ -433,7 +484,7 @@ export class FreeDragGesture {
 
     if (!options.resolveHomeTarget) {
       this.#deps.dispatch({
-        type: 'home-invalid',
+        type: HOME_INVALID,
         operationId: currency.operationId,
         landingId: currency.landingId,
         error: new Error('drag: no home target'),
@@ -447,7 +498,7 @@ export class FreeDragGesture {
       target = options.resolveHomeTarget({ item: op.item, visual: op.visual });
     } catch (error) {
       this.#deps.dispatch({
-        type: 'home-invalid',
+        type: HOME_INVALID,
         operationId: currency.operationId,
         landingId: currency.landingId,
         error,
@@ -457,7 +508,7 @@ export class FreeDragGesture {
 
     if (!isValidHomeTarget(target)) {
       this.#deps.dispatch({
-        type: 'home-invalid',
+        type: HOME_INVALID,
         operationId: currency.operationId,
         landingId: currency.landingId,
         error: new Error('drag: invalid home target'),
@@ -471,7 +522,7 @@ export class FreeDragGesture {
       op.originRect,
     );
     this.#deps.dispatch({
-      type: 'landing-plan-ready',
+      type: LANDING_PLAN_READY,
       operationId: currency.operationId,
       landingId: currency.landingId,
       plan,
@@ -496,21 +547,21 @@ export class FreeDragGesture {
       this.#deps.realm,
       (c) =>
         this.#deps.dispatch({
-          type: 'landing-finished',
+          type: LANDING_FINISHED,
           operationId: c.operationId,
           landingId: c.landingId,
         }),
       (c, error) =>
         this.#deps.dispatch({
-          type: 'settlement-failed',
+          type: SETTLEMENT_FAILED,
           operationId: c.operationId,
           landingId: c.landingId,
-          stage: 'landing-interrupted',
+          stage: FAILURE_LANDING_INTERRUPTED,
           error,
         }),
     );
     this.#deps.dispatch({
-      type: 'landing-started',
+      type: LANDING_STARTED,
       operationId: currency.operationId,
       landingId: currency.landingId,
     });
@@ -530,38 +581,38 @@ export class FreeDragGesture {
     const { outcome } = settlement;
 
     if (
-      outcome.result === 'accepted' &&
-      settlement.domain?.type === 'accepted'
+      outcome.result === OUTCOME_ACCEPTED &&
+      settlement.domain?.type === OUTCOME_ACCEPTED
     ) {
       this.#guardCallback(
         () => options.onFinish?.(settlement.domain as FreeDragFinishResultLike),
-        'finish-callback',
+        FAILURE_FINISH_CALLBACK,
         settlement.domain,
       );
       return;
     }
 
     if (
-      outcome.result === 'rejected' &&
-      settlement.domain?.type === 'rejected'
+      outcome.result === OUTCOME_REJECTED &&
+      settlement.domain?.type === OUTCOME_REJECTED
     ) {
       this.#guardCallback(
         () => options.onCancel?.(settlement.domain as never),
-        'cancel-callback',
+        FAILURE_CANCEL_CALLBACK,
         settlement.domain,
       );
       return;
     }
 
-    if (outcome.result === 'canceled') {
+    if (outcome.result === OUTCOME_CANCELED) {
       this.#guardCallback(
         () =>
           options.onCancel?.({
-            type: 'canceled',
+            type: OUTCOME_CANCELED,
             reason: outcome.reason,
             proposal: null,
           }),
-        'cancel-callback',
+        FAILURE_CANCEL_CALLBACK,
         null,
       );
     }
@@ -581,7 +632,10 @@ export class FreeDragGesture {
   }
 }
 
-type FreeDragFinishResultLike = Extract<FreeDropResult, { type: 'accepted' }>;
+type FreeDragFinishResultLike = Extract<
+  FreeDropResult,
+  { type: typeof OUTCOME_ACCEPTED }
+>;
 
 // Referenced only for the FreeOperation type import stability.
 export type { FreeOperation };

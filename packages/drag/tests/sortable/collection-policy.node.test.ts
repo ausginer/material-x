@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CHANGE_CANCEL,
+  CHANGE_REBASE,
   reconcileCollection,
   type CollectionChange,
 } from '../../src/sortable/collection-policy.ts';
@@ -30,9 +32,9 @@ const insertion = (
 
 const expectRebase = (
   change: CollectionChange,
-): Extract<CollectionChange, { type: 'rebase' }> => {
-  expect(change.type).toBe('rebase');
-  return change as Extract<CollectionChange, { type: 'rebase' }>;
+): Extract<CollectionChange, { type: typeof CHANGE_REBASE }> => {
+  expect(change.type).toBe(CHANGE_REBASE);
+  return change as Extract<CollectionChange, { type: typeof CHANGE_REBASE }>;
 };
 
 describe('reconcileCollection', () => {
@@ -41,7 +43,7 @@ describe('reconcileCollection', () => {
     const next = snapshot([dragged, el('a')], 2);
 
     expect(reconcileCollection(next, dragged, null)).toEqual({
-      type: 'cancel',
+      type: CHANGE_CANCEL,
     });
   });
 
@@ -73,7 +75,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(0, null, a, 4);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
 
@@ -85,7 +87,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(0, null, a, 4);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
   });
@@ -119,7 +121,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(2, b, null, 6);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
 
@@ -131,7 +133,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(2, b, null, 6);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
   });
@@ -167,7 +169,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(1, b, c, 8);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
 
@@ -179,7 +181,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(1, b, c, 8);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
 
@@ -191,7 +193,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(1, b, c, 8);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
   });

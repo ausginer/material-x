@@ -24,10 +24,39 @@ import { acquirePointerCapture } from '../kernel/pointer.ts';
 import {
   acquireLift,
   createDragRenderer,
+  LIFT_FAITHFUL,
   type DragRenderer,
   type VisualLiftSession,
 } from '../kernel/presentation.ts';
-import type { FailureCause } from '../kernel/protocol.ts';
+import {
+  LIFECYCLE_ACTIVATION_FAILED,
+  LIFECYCLE_ACTIVATION_READY,
+  FAILURE_ACTIVATION,
+  FAILURE_CANCEL_CALLBACK,
+  FAILURE_FINISH_CALLBACK,
+  FAILURE_LANDING_INTERRUPTED,
+  FAILURE_PRESENTATION_LEASE,
+  FAILURE_REORDER_RESOLUTION,
+  LANDING_COMPLETING,
+  LANDING_PREPARING,
+  LANDING_RUNNING,
+  LANDING_SKIPPED,
+  OUTCOME_ACCEPTED,
+  OUTCOME_CANCELED,
+  OUTCOME_FAILED,
+  OPERATION_ADMITTED,
+  OPERATION_CANDIDATE,
+  OUTCOME_NO_OP,
+  OUTCOME_REJECTED,
+  PHASE_ACTIVATING,
+  PHASE_DRAGGING,
+  PHASE_IDLE,
+  PHASE_PENDING,
+  PHASE_SETTLING,
+  RECOVERY_HOME,
+  LIFECYCLE_START_SUCCEEDED,
+  type FailureCause,
+} from '../kernel/protocol.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { AnimationTiming, Point } from '../kernel/types.ts';
 import { anchorIndex } from './geometry.ts';
@@ -43,14 +72,34 @@ import {
   insertPlaceholder,
   type PlaceholderLease,
 } from './placeholder.ts';
-import type { SortableEvent, SortableState } from './reducer.ts';
+import {
+  EFFECT_FAILED,
+  INPUT_KEYBOARD,
+  INSERTION_READY,
+  INSERTION_RESOLVED,
+  LANDING_FINISHED,
+  LANDING_PINNED,
+  LANDING_PLAN_READY,
+  LANDING_STARTED,
+  PROPOSAL_BUILT,
+  REORDER_NOOP,
+  RESOLUTION_STARTED,
+  SETTLEMENT_COMPLETED,
+  SETTLEMENT_FAILED,
+  TRANSACTION_AWAITING_CONSUMER,
+  TRANSACTION_PROPOSAL_READY,
+  TRANSACTION_RESOLVING_PROPOSAL,
+  type SortableEvent,
+  type SortableState,
+} from './reducer.ts';
 import { buildReorderProposal } from './request.ts';
 import {
   createReorderResolution,
   type ReorderResolutionEffect,
 } from './resolution.ts';
 
-const DEFAULT_TIMING: AnimationTiming = { duration: 200, easing: 'ease' };
+const EASING_EASE = 'ease';
+const DEFAULT_TIMING: AnimationTiming = { duration: 200, easing: EASING_EASE };
 
 export type SortableGestureDeps = Readonly<{
   realm: DOMRealm;
@@ -85,7 +134,7 @@ export class SortableGesture {
   constructor(deps: SortableGestureDeps) {
     this.#deps = deps;
     this.#scope = createGestureScope((error) =>
-      this.#report(error, { stage: 'presentation-lease' }, null),
+      this.#report(error, { stage: FAILURE_PRESENTATION_LEASE }, null),
     );
   }
 
@@ -106,51 +155,51 @@ export class SortableGesture {
   }
 
   handle(from: SortableState, to: SortableState, event: SortableEvent): void {
-    if (from.phase === 'pending' && to.phase === 'activating') {
+    if (from.phase === PHASE_PENDING && to.phase === PHASE_ACTIVATING) {
       this.#acquire(to);
       return;
     }
     if (
-      from.operation?.type === 'admitted' &&
-      to.operation?.type === 'candidate'
+      from.operation?.type === OPERATION_ADMITTED &&
+      to.operation?.type === OPERATION_CANDIDATE
     ) {
       this.#start(to);
       return;
     }
-    if (from.phase === 'activating' && to.phase === 'dragging') {
+    if (from.phase === PHASE_ACTIVATING && to.phase === PHASE_DRAGGING) {
       this.#render(to);
       return;
     }
-    if (from.phase === 'dragging' && to.phase === 'dragging') {
+    if (from.phase === PHASE_DRAGGING && to.phase === PHASE_DRAGGING) {
       this.#drag(from, to);
       return;
     }
     if (
-      to.transaction.stage === 'resolving-proposal' &&
-      from.transaction.stage !== 'resolving-proposal'
+      to.transaction.stage === TRANSACTION_RESOLVING_PROPOSAL &&
+      from.transaction.stage !== TRANSACTION_RESOLVING_PROPOSAL
     ) {
       this.#stabilize(to);
       return;
     }
     if (
-      to.transaction.stage === 'proposal-ready' &&
-      from.transaction.stage !== 'proposal-ready'
+      to.transaction.stage === TRANSACTION_PROPOSAL_READY &&
+      from.transaction.stage !== TRANSACTION_PROPOSAL_READY
     ) {
       this.#afterProposal(to);
       return;
     }
     if (
-      from.transaction.stage === 'proposal-ready' &&
-      to.transaction.stage === 'awaiting-consumer'
+      from.transaction.stage === TRANSACTION_PROPOSAL_READY &&
+      to.transaction.stage === TRANSACTION_AWAITING_CONSUMER
     ) {
       this.#invoke(to);
       return;
     }
-    if (to.phase === 'settling') {
+    if (to.phase === PHASE_SETTLING) {
       this.#settle(from, to, event);
       return;
     }
-    if (from.phase === 'settling' && to.phase === 'idle') {
+    if (from.phase === PHASE_SETTLING && to.phase === PHASE_IDLE) {
       this.#complete(from);
     }
   }
@@ -164,7 +213,7 @@ export class SortableGesture {
 
   #acquire(to: SortableState): void {
     const op = to.operation;
-    if (op?.type !== 'admitted' || !to.pointer) {
+    if (op?.type !== OPERATION_ADMITTED || !to.pointer) {
       return;
     }
     const { realm, options, visual, invalidation, dispatch } = this.#deps;
@@ -189,7 +238,7 @@ export class SortableGesture {
       );
       const lift = acquireLift(
         visual,
-        'faithful',
+        LIFT_FAITHFUL,
         originRect,
         (d) => mapper.deltaFromViewport(d),
         realm,
@@ -209,7 +258,7 @@ export class SortableGesture {
       // so the preview keeps up with a moved layout.
       invalidation.arm(this.#scope.signal, () => {
         const current = this.#currentOperation;
-        if (current && current.type !== 'admitted' && this.#lastPoint) {
+        if (current && current.type !== OPERATION_ADMITTED && this.#lastPoint) {
           this.#renderer?.render(this.#lastDelta);
           this.#resolveInsertion(this.#lastPoint);
         }
@@ -223,7 +272,7 @@ export class SortableGesture {
       );
 
       dispatch({
-        type: 'activation-ready',
+        type: LIFECYCLE_ACTIVATION_READY,
         operationId,
         candidate: {
           visual,
@@ -237,10 +286,10 @@ export class SortableGesture {
         },
       });
     } catch (error) {
-      this.#report(error, { stage: 'activation' }, null);
+      this.#report(error, { stage: FAILURE_ACTIVATION }, null);
       this.#scope.settle();
       this.#scope.finish();
-      dispatch({ type: 'activation-failed', operationId });
+      dispatch({ type: LIFECYCLE_ACTIVATION_FAILED, operationId });
     }
   }
 
@@ -252,15 +301,15 @@ export class SortableGesture {
     try {
       this.#deps.options.onStart?.(op.item);
       this.#deps.dispatch({
-        type: 'start-succeeded',
+        type: LIFECYCLE_START_SUCCEEDED,
         operationId: op.operationId,
       });
     } catch (error) {
-      this.#report(error, { stage: 'activation' }, null);
+      this.#report(error, { stage: FAILURE_ACTIVATION }, null);
       this.#scope.settle();
       this.#scope.finish();
       this.#deps.dispatch({
-        type: 'activation-failed',
+        type: LIFECYCLE_ACTIVATION_FAILED,
         operationId: op.operationId,
       });
     }
@@ -275,7 +324,7 @@ export class SortableGesture {
       // A committed insertion change (spatial resolution or collection rebase) is
       // the sole trigger for moving the placeholder to the ready gap.
       if (
-        to.insertion.type === 'ready' &&
+        to.insertion.type === INSERTION_READY &&
         to.insertion !== from.insertion &&
         this.#placeholder
       ) {
@@ -298,7 +347,7 @@ export class SortableGesture {
     if (
       !placeholder ||
       !op ||
-      op.type === 'admitted' ||
+      op.type === OPERATION_ADMITTED ||
       !op.operationCollection
     ) {
       return;
@@ -314,7 +363,7 @@ export class SortableGesture {
     );
     if (insertion) {
       this.#deps.dispatch({
-        type: 'insertion-resolved',
+        type: INSERTION_RESOLVED,
         operationId: op.operationId,
         insertion,
       });
@@ -338,9 +387,9 @@ export class SortableGesture {
     this.#frame?.cancel();
 
     if (
-      tx.stage !== 'resolving-proposal' ||
+      tx.stage !== TRANSACTION_RESOLVING_PROPOSAL ||
       !op ||
-      op.type === 'admitted' ||
+      op.type === OPERATION_ADMITTED ||
       !placeholder ||
       !to.pointer
     ) {
@@ -350,7 +399,7 @@ export class SortableGesture {
     const { snapshot, incumbent } = tx.basis;
 
     let insertion: Insertion | null;
-    if (op.input === 'keyboard') {
+    if (op.input === INPUT_KEYBOARD) {
       // The keyboard command carries its destination gap as the basis incumbent.
       insertion = incumbent;
     } else {
@@ -384,9 +433,9 @@ export class SortableGesture {
 
     if (!build) {
       this.#deps.dispatch({
-        type: 'effect-failed',
+        type: EFFECT_FAILED,
         operationId: op.operationId,
-        stage: 'reorder-resolution',
+        stage: FAILURE_REORDER_RESOLUTION,
         error: new Error('drag: could not build a reorder proposal'),
       });
       return;
@@ -396,12 +445,12 @@ export class SortableGesture {
     this.#deps.dispatch(
       build.noop
         ? {
-            type: 'reorder-noop',
+            type: REORDER_NOOP,
             operationId: op.operationId,
             proposal: build.proposal,
           }
         : {
-            type: 'proposal-built',
+            type: PROPOSAL_BUILT,
             operationId: op.operationId,
             proposal: build.proposal,
           },
@@ -409,7 +458,7 @@ export class SortableGesture {
   }
 
   #afterProposal(to: SortableState): void {
-    if (to.transaction.stage !== 'proposal-ready' || !to.operation) {
+    if (to.transaction.stage !== TRANSACTION_PROPOSAL_READY || !to.operation) {
       return;
     }
     const { operationId } = to.operation;
@@ -425,14 +474,17 @@ export class SortableGesture {
       () => resolution.abort(),
     );
     this.#deps.dispatch({
-      type: 'resolution-started',
+      type: RESOLUTION_STARTED,
       operationId,
       resolutionId,
     });
   }
 
   #invoke(to: SortableState): void {
-    if (to.transaction.stage !== 'awaiting-consumer' || !this.#resolution) {
+    if (
+      to.transaction.stage !== TRANSACTION_AWAITING_CONSUMER ||
+      !this.#resolution
+    ) {
       return;
     }
     this.#resolution.invoke(
@@ -449,19 +501,19 @@ export class SortableGesture {
     const operationId = to.operation?.operationId ?? 0;
 
     if (
-      settlement.outcome.result === 'failed' &&
-      from.settlement?.outcome.result !== 'failed'
+      settlement.outcome.result === OUTCOME_FAILED &&
+      from.settlement?.outcome.result !== OUTCOME_FAILED
     ) {
       const error =
         'error' in event ? (event as { error: unknown }).error : undefined;
       this.#report(error, settlement.outcome.failure, settlement.domain);
     }
 
-    if (from.phase !== 'settling') {
+    if (from.phase !== PHASE_SETTLING) {
       this.#scope.settle();
 
-      if (settlement.landing.stage === 'skipped') {
-        this.#deps.dispatch({ type: 'settlement-completed', operationId });
+      if (settlement.landing.stage === LANDING_SKIPPED) {
+        this.#deps.dispatch({ type: SETTLEMENT_COMPLETED, operationId });
         return;
       }
       this.#prepareLanding(to);
@@ -471,37 +523,37 @@ export class SortableGesture {
     const { landing } = settlement;
 
     if (
-      landing.stage === 'preparing' &&
+      landing.stage === LANDING_PREPARING &&
       landing.plan &&
-      from.settlement?.landing.stage === 'preparing'
+      from.settlement?.landing.stage === LANDING_PREPARING
     ) {
       this.#startLanding(landing.currency, landing.plan);
       return;
     }
     if (
-      landing.stage === 'completing' &&
-      from.settlement?.landing.stage === 'running'
+      landing.stage === LANDING_COMPLETING &&
+      from.settlement?.landing.stage === LANDING_RUNNING
     ) {
       this.#landing?.pin();
       this.#deps.dispatch({
-        type: 'landing-pinned',
+        type: LANDING_PINNED,
         operationId,
         landingId: landing.currency.landingId,
       });
       return;
     }
     if (
-      landing.stage === 'skipped' &&
-      from.settlement?.landing.stage !== 'skipped'
+      landing.stage === LANDING_SKIPPED &&
+      from.settlement?.landing.stage !== LANDING_SKIPPED
     ) {
-      this.#deps.dispatch({ type: 'settlement-completed', operationId });
+      this.#deps.dispatch({ type: SETTLEMENT_COMPLETED, operationId });
     }
   }
 
   #prepareLanding(to: SortableState): void {
     const { settlement } = to;
     const placeholder = this.#placeholder;
-    if (settlement?.landing.stage !== 'preparing' || !placeholder) {
+    if (settlement?.landing.stage !== LANDING_PREPARING || !placeholder) {
       return;
     }
     const { currency } = settlement.landing;
@@ -510,14 +562,14 @@ export class SortableGesture {
     // no home or destination to animate toward; complete without a landing.
     if (!this.#lift?.visual.isConnected) {
       this.#deps.dispatch({
-        type: 'settlement-completed',
+        type: SETTLEMENT_COMPLETED,
         operationId: currency.operationId,
       });
       return;
     }
 
     let plan;
-    if (settlement.recovery === 'home') {
+    if (settlement.recovery === RECOVERY_HOME) {
       // Reserve the home slot behind the animating visual, then aim at the origin.
       placeholder.returnHome();
       plan = homePlan(sortableDelta(to));
@@ -529,7 +581,7 @@ export class SortableGesture {
       );
     }
     this.#deps.dispatch({
-      type: 'landing-plan-ready',
+      type: LANDING_PLAN_READY,
       operationId: currency.operationId,
       landingId: currency.landingId,
       plan,
@@ -552,21 +604,21 @@ export class SortableGesture {
       this.#deps.realm,
       (c) =>
         this.#deps.dispatch({
-          type: 'landing-finished',
+          type: LANDING_FINISHED,
           operationId: c.operationId,
           landingId: c.landingId,
         }),
       (c, error) =>
         this.#deps.dispatch({
-          type: 'settlement-failed',
+          type: SETTLEMENT_FAILED,
           operationId: c.operationId,
           landingId: c.landingId,
-          stage: 'landing-interrupted',
+          stage: FAILURE_LANDING_INTERRUPTED,
           error,
         }),
     );
     this.#deps.dispatch({
-      type: 'landing-started',
+      type: LANDING_STARTED,
       operationId: currency.operationId,
       landingId: currency.landingId,
     });
@@ -585,7 +637,8 @@ export class SortableGesture {
     const { outcome, domain } = settlement;
 
     if (
-      (outcome.result === 'accepted' || outcome.result === 'no-op') &&
+      (outcome.result === OUTCOME_ACCEPTED ||
+        outcome.result === OUTCOME_NO_OP) &&
       domain
     ) {
       this.#guard(
@@ -593,16 +646,17 @@ export class SortableGesture {
           options.onFinish?.(
             domain as Extract<
               ReorderTransactionResult,
-              { type: 'accepted' | 'no-op' }
+              { type: typeof OUTCOME_ACCEPTED | typeof OUTCOME_NO_OP }
             >,
           ),
-        'finish-callback',
+        FAILURE_FINISH_CALLBACK,
         domain,
       );
       return;
     }
     if (
-      (outcome.result === 'rejected' || outcome.result === 'canceled') &&
+      (outcome.result === OUTCOME_REJECTED ||
+        outcome.result === OUTCOME_CANCELED) &&
       domain
     ) {
       this.#guard(
@@ -610,10 +664,10 @@ export class SortableGesture {
           options.onCancel?.(
             domain as Extract<
               ReorderTransactionResult,
-              { type: 'rejected' | 'canceled' }
+              { type: typeof OUTCOME_REJECTED | typeof OUTCOME_CANCELED }
             >,
           ),
-        'cancel-callback',
+        FAILURE_CANCEL_CALLBACK,
         domain,
       );
     }

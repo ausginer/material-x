@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, useState, type JSX } from 'react';
-import { draggable, type DragAxis } from './draggable.ts';
+import { draggable, FreeDropResolution, type DragAxis } from './draggable.ts';
 import css from './stories.module.css';
 
 const meta: Meta = {
@@ -35,7 +35,7 @@ function Playground({ axis, bounded, tilted }: PlaygroundArgs): JSX.Element {
     const controller = draggable(box, {
       axis,
       bounds: bounded ? area : 'viewport',
-      onDrop: () => ({ type: 'accepted' }),
+      onDrop: () => FreeDropResolution.accept(),
     });
 
     return () => {
@@ -101,7 +101,7 @@ function AsyncDrop(): JSX.Element {
         await new Promise((resolve) => {
           setTimeout(resolve, 600);
         });
-        return { type: 'accepted' };
+        return FreeDropResolution.accept();
       },
       onFinish: () => setStatus('saved'),
     });
@@ -162,7 +162,7 @@ function TransformedContext({ lift }: TransformedArgs): JSX.Element {
 
     const controller = draggable(box, {
       lift,
-      onDrop: () => ({ type: 'accepted' }),
+      onDrop: () => FreeDropResolution.accept(),
       onMove: (geometry) =>
         setLocal({
           x: Math.round(geometry.localDelta.x),

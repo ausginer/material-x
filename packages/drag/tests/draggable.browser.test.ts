@@ -2,13 +2,15 @@ import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   draggable,
+  FreeDropResolution,
+  FreeDropResult,
   type DraggableOptions,
   type FreeDragCancelResult,
   type FreeDragController,
   type FreeDragFinishResult,
-  type FreeDropResolution,
   type FreeDropRequest,
 } from '../src/draggable.ts';
+import { FAILURE_HOME_TARGET } from '../src/kernel/protocol.ts';
 
 const live: FreeDragController[] = [];
 
@@ -22,7 +24,7 @@ function drag(
   return controller;
 }
 
-const accept = (): FreeDropResolution => ({ type: 'accepted' });
+const accept = (): FreeDropResolution => FreeDropResolution.accept();
 
 function flush(): Promise<void> {
   return new Promise((resolve) => {
@@ -109,7 +111,8 @@ describe('draggable', () => {
     const item = createItem();
     const onFinish = vi.fn<(r: FreeDragFinishResult) => void>();
     const onDrop = vi.fn(
-      (_request: FreeDropRequest): FreeDropResolution => ({ type: 'accepted' }),
+      (_request: FreeDropRequest): FreeDropResolution =>
+        FreeDropResolution.accept(),
     );
     drag(item, { onDrop, onFinish });
 
@@ -129,7 +132,7 @@ describe('draggable', () => {
     const [request] = onDrop.mock.calls[0]!;
     expect(request.item).toBe(item);
     expect(onFinish).toHaveBeenCalledOnce();
-    expect(onFinish.mock.calls[0]![0].type).toBe('accepted');
+    expect(FreeDropResult.isAccepted(onFinish.mock.calls[0]![0])).toBeTruthy();
     expect(item.matches(':popover-open')).toBeFalsy();
   });
 
@@ -138,7 +141,7 @@ describe('draggable', () => {
     const onCancel = vi.fn<(r: FreeDragCancelResult) => void>();
     const onError = vi.fn<(...a: unknown[]) => void>();
     drag(item, {
-      onDrop: () => ({ type: 'rejected', reason: 'nope' }),
+      onDrop: () => FreeDropResolution.reject('nope'),
       onCancel,
       onError,
     });
@@ -156,7 +159,7 @@ describe('draggable', () => {
     await flush();
 
     expect(onCancel).toHaveBeenCalledOnce();
-    expect(onCancel.mock.calls[0]![0].type).toBe('rejected');
+    expect(FreeDropResult.isRejected(onCancel.mock.calls[0]![0])).toBeTruthy();
     expect(onError).not.toHaveBeenCalled();
   });
 
@@ -166,7 +169,7 @@ describe('draggable', () => {
     drag(item, {
       onDrop: async () => {
         await Promise.resolve();
-        return { type: 'accepted' };
+        return FreeDropResolution.accept();
       },
       onFinish,
     });
@@ -221,7 +224,7 @@ describe('draggable', () => {
     const onCancel = vi.fn<(r: FreeDragCancelResult) => void>();
     const onError = vi.fn<(...a: unknown[]) => void>();
     drag(item, {
-      onDrop: () => ({ type: 'rejected', reason: 'nope' }),
+      onDrop: () => FreeDropResolution.reject('nope'),
       resolveHomeTarget: () => ({
         position: { x: 100, y: 100 },
         space: 'viewport',
@@ -245,7 +248,7 @@ describe('draggable', () => {
       timeout: 1000,
     });
 
-    expect(onCancel.mock.calls[0]![0].type).toBe('rejected');
+    expect(FreeDropResult.isRejected(onCancel.mock.calls[0]![0])).toBeTruthy();
     expect(onError).not.toHaveBeenCalled();
     expect(item.matches(':popover-open')).toBeFalsy();
   });
@@ -256,7 +259,7 @@ describe('draggable', () => {
     const onFinish = vi.fn<(...a: unknown[]) => void>();
     const onError = vi.fn<(...a: unknown[]) => void>();
     drag(item, {
-      onDrop: () => ({ type: 'rejected', reason: 'nope' }),
+      onDrop: () => FreeDropResolution.reject('nope'),
       resolveHomeTarget: () => {
         throw new Error('no home');
       },
@@ -279,7 +282,7 @@ describe('draggable', () => {
 
     expect(onError).toHaveBeenCalledOnce();
     expect(onError.mock.calls[0]![1]).toMatchObject({
-      cause: { stage: 'home-target' },
+      cause: { stage: FAILURE_HOME_TARGET },
     });
     expect(onCancel).not.toHaveBeenCalled();
     expect(onFinish).not.toHaveBeenCalled();
@@ -291,7 +294,7 @@ describe('draggable', () => {
     const onCancel = vi.fn<(...a: unknown[]) => void>();
     const onError = vi.fn<(...a: unknown[]) => void>();
     drag(item, {
-      onDrop: () => ({ type: 'rejected', reason: 'nope' }),
+      onDrop: () => FreeDropResolution.reject('nope'),
       // oxlint-disable-next-line typescript/no-explicit-any typescript/no-unsafe-type-assertion
       resolveHomeTarget: () =>
         ({ position: { x: Number.NaN, y: 0 }, space: 'viewport' }) as any,
@@ -313,7 +316,7 @@ describe('draggable', () => {
 
     expect(onError).toHaveBeenCalledOnce();
     expect(onError.mock.calls[0]![1]).toMatchObject({
-      cause: { stage: 'home-target' },
+      cause: { stage: FAILURE_HOME_TARGET },
     });
     expect(onCancel).not.toHaveBeenCalled();
   });
@@ -333,7 +336,7 @@ describe('draggable', () => {
     await flush();
 
     expect(onCancel).toHaveBeenCalledOnce();
-    expect(onCancel.mock.calls[0]![0].type).toBe('canceled');
+    expect(FreeDropResult.isCanceled(onCancel.mock.calls[0]![0])).toBeTruthy();
     expect(item.matches(':popover-open')).toBeFalsy();
   });
 
