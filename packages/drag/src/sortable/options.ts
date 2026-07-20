@@ -1,24 +1,72 @@
 /** Public option, controller, and result types for the sortable entry. */
 import type {
+  CancellationReason,
+  DragErrorContext,
+  ResolutionContext,
+} from '../kernel/protocol.ts';
+import type {
   AnimationTiming,
-  DragController,
-  MoveResult,
+  MaybePromise,
   ReorderRequest,
-  ReorderResult,
 } from '../kernel/types.ts';
 
-/** The result an `onReorder` callback may produce (or nothing, meaning accept). */
-export type ReorderOutcome = ReorderResult | Promise<ReorderResult> | undefined;
+/** An immutable ordered snapshot of the collection and its version. */
+export type CollectionSnapshot = Readonly<{
+  items: readonly HTMLElement[];
+  version: number;
+}>;
 
-/**
- * How a reorder gesture concluded, reported to `onFinish`:
- * - `committed` — accepted, and the consumer's DOM commit was observed;
- * - `accepted` — accepted, but no commit was observed before the timeout (the
- *   item may still sit in its original slot);
- * - `rejected` — the consumer rejected the proposal, or the drop was a no-op;
- * - `canceled` — the gesture was cancelled, escaped, or destroyed.
- */
-export type ReorderFinish = 'committed' | 'accepted' | 'rejected' | 'canceled';
+/** A proposed insertion gap within a destination view of one snapshot. */
+export type Insertion = Readonly<{
+  version: number;
+  index: number;
+  before: HTMLElement | null;
+  after: HTMLElement | null;
+}>;
+
+/** An immutable, version-stabilized reorder proposal. */
+export type ReorderProposal = Readonly<{
+  snapshot: CollectionSnapshot;
+  request: ReorderRequest;
+}>;
+
+/** The explicit consumer response to a reorder. */
+export type ReorderResolution =
+  | Readonly<{ type: 'accepted' }>
+  | Readonly<{ type: 'rejected'; reason?: unknown }>;
+
+/** The terminal transaction result carried through settlement. */
+export type ReorderTransactionResult =
+  | Readonly<{ type: 'accepted'; proposal: ReorderProposal }>
+  | Readonly<{
+      type: 'rejected';
+      reason: 'consumer';
+      detail?: unknown;
+      proposal: ReorderProposal;
+    }>
+  | Readonly<{ type: 'no-op'; proposal: ReorderProposal }>
+  | Readonly<{
+      type: 'canceled';
+      reason: CancellationReason;
+      at: 'proposal' | 'consumer';
+      proposal: ReorderProposal | null;
+    }>;
+
+export type SortableFinishResult = Extract<
+  ReorderTransactionResult,
+  { type: 'accepted' | 'no-op' }
+>;
+
+export type SortableCancelResult = Extract<
+  ReorderTransactionResult,
+  { type: 'rejected' | 'canceled' }
+>;
+
+/** Dedicated signal handed to the reorder resolver. */
+export type OnReorder = (
+  request: ReorderRequest,
+  context: ResolutionContext,
+) => MaybePromise<ReorderResolution>;
 
 /** Geometry passed to a consumer's placeholder factory. */
 export type PlaceholderContext = Readonly<{
@@ -34,34 +82,25 @@ export type SortableOptions = Readonly<{
   getVisual?(item: HTMLElement): HTMLElement;
   /** Whether an item requires its press to land on a handle. */
   getHandle?(item: HTMLElement): HTMLElement | null;
-  /**
-   * Builds the visible placeholder occupying the dragged item's slot. Optional:
-   * when omitted, the engine uses an internal, non-styleable anchor purely for
-   * geometry, and no placeholder DOM is exposed to the consumer.
-   */
+  /** Builds the visible placeholder occupying the dragged item's slot. */
   createPlaceholder?(context: PlaceholderContext): HTMLElement;
-  /** `touch-action` applied to the item for the gesture. */
-  touchAction?: string;
   /** Activation travel, in viewport pixels. Defaults to 8. */
   threshold?: number;
-  /** Landing animation timing, read at drop time. */
+  /** Landing animation timing, read at settle time. */
   landingTiming?(): AnimationTiming;
+  /** Required: the explicit consumer reorder resolution. */
+  onReorder: OnReorder;
   onStart?(item: HTMLElement): void;
-  onReorder?(request: ReorderRequest): ReorderOutcome;
-  onCancel?(item: HTMLElement, reason: unknown): void;
-  onFinish?(item: HTMLElement, outcome: ReorderFinish): void;
-  onError?(error: unknown): void;
+  onFinish?(result: SortableFinishResult): void;
+  onCancel?(result: SortableCancelResult): void;
+  onError?(
+    error: unknown,
+    context: DragErrorContext<ReorderTransactionResult>,
+  ): void;
 }>;
 
-/** A sortable controller adds collection updates and programmatic moves. */
-export type SortableController = DragController &
-  Readonly<{
-    updateItems(items: readonly HTMLElement[]): void;
-    move(
-      item: HTMLElement,
-      destination: {
-        before: HTMLElement | null;
-        after: HTMLElement | null;
-      },
-    ): Promise<MoveResult>;
-  }>;
+export type SortableController = Readonly<{
+  updateItems(items: readonly HTMLElement[]): void;
+  cancel(reason?: unknown): void;
+  destroy(): void;
+}>;

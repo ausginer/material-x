@@ -1,25 +1,22 @@
 /**
- * Shared pointer wiring. Forwards browser input into a session's transition
- * mechanism without holding any state-specific drag logic.
+ * Pointer input plumbing. Forwards browser input for the appropriate lifetime
+ * and holds no feature policy: primary-button, handle, and phase checks live in
+ * feature admission.
  *
- * A press starts on the item/container (`attachStartListener`), but once a
- * session is armed the remaining events are tracked on the document
- * (`attachSessionListeners`): before pointer capture is acquired a mouse can
- * leave the element, so item-scoped move/up listeners would lose the gesture,
- * and Escape only reaches an unfocused drag through the document.
+ * A press starts on the item/container; once a gesture is armed the remaining
+ * events are tracked on the document, because before pointer capture is acquired
+ * a pointer can leave the element, and Escape only reaches an unfocused drag
+ * through the document.
  */
-import type { DragSessionEvent } from './fsm.ts';
+import {
+  LOST_POINTER_CAPTURE,
+  POINTER_CANCEL,
+  POINTER_DOWN,
+  POINTER_MOVE,
+  POINTER_UP,
+} from './protocol.ts';
+import type { DOMRealm } from './realm.ts';
 
-// Pointer events
-export const POINTER_DOWN = 'pointerdown';
-export const POINTER_MOVE = 'pointermove';
-export const POINTER_UP = 'pointerup';
-export const POINTER_CANCEL = 'pointercancel';
-export const LOST_POINTER_CAPTURE = 'lostpointercapture';
-
-const TOUCH_ACTION = 'touch-action';
-
-/** The pointer event types tracked for the duration of a session. */
 const SESSION_POINTER_EVENTS = [
   POINTER_MOVE,
   POINTER_UP,
@@ -27,41 +24,49 @@ const SESSION_POINTER_EVENTS = [
   LOST_POINTER_CAPTURE,
 ] as const;
 
-/** Attaches the `pointerdown` that arms a session. */
-export function attachStartListener(
+/** An internal Escape signal, emitted alongside raw pointer events. */
+export type EscapeSignal = Readonly<{ type: 'escape' }>;
+
+export type PointerSource = Readonly<{
+  /** Arms document-level move/up/cancel/lostcapture and Escape for one gesture. */
+  armSession(
+    signal: AbortSignal,
+    emit: (event: PointerEvent | EscapeSignal) => void,
+  ): void;
+}>;
+
+/** Attaches the controller-lifetime `pointerdown` and returns the session arm. */
+export function createPointerSource(
   target: HTMLElement,
-  signal: AbortSignal,
+  realm: DOMRealm,
+  controllerSignal: AbortSignal,
   onDown: (event: PointerEvent) => void,
-): void {
-  target.addEventListener(POINTER_DOWN, onDown, { signal });
-}
+): PointerSource {
+  target.addEventListener(POINTER_DOWN, onDown as EventListener, {
+    signal: controllerSignal,
+  });
 
-/**
- * Attaches the per-session listeners on `doc`: pointer tracking plus an Escape
- * handler. All are removed when `signal` aborts (i.e. when the session ends).
- */
-export function attachSessionListeners(
-  doc: Document,
-  signal: AbortSignal,
-  transit: (event: DragSessionEvent) => void,
-): void {
-  const onPointer = (event: PointerEvent): void => {
-    transit(event);
-  };
+  return {
+    armSession(signal, emit) {
+      const onPointer = (event: Event): void => {
+        emit(event as PointerEvent);
+      };
 
-  for (const type of SESSION_POINTER_EVENTS) {
-    doc.addEventListener(type, onPointer, { signal });
-  }
-
-  doc.addEventListener(
-    'keydown',
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        transit({ type: 'escape' });
+      for (const type of SESSION_POINTER_EVENTS) {
+        realm.document.addEventListener(type, onPointer, { signal });
       }
+
+      realm.document.addEventListener(
+        'keydown',
+        (event: Event) => {
+          if ((event as KeyboardEvent).key === 'Escape') {
+            emit({ type: 'escape' });
+          }
+        },
+        { signal },
+      );
     },
-    { signal },
-  );
+  };
 }
 
 /**
@@ -73,37 +78,36 @@ export function isPrimaryPress(event: PointerEvent): boolean {
 }
 
 /**
- * Captures `pointerId` on `element`, best-effort. Capture only keeps a pointer
- * that wanders off the element bound to the gesture; the session is tracked on
- * the document regardless, so it is never essential. Some pointers reject the
- * call — notably touch, which already holds implicit capture and can report "no
- * active pointer" — and that must not abort an otherwise valid drag.
+ * Pairs best-effort pointer capture with a safe release. Capture only keeps a
+ * pointer that wanders off the bound element; the gesture is tracked on the
+ * document regardless, so capture is never essential and its failure is benign.
  */
-export function capturePointer(element: HTMLElement, pointerId: number): void {
+export type PointerCaptureLease = Readonly<{
+  dispose(): void;
+}>;
+
+export function acquirePointerCapture(
+  element: HTMLElement,
+  pointerId: number,
+): PointerCaptureLease {
+  let held = false;
+
   try {
     element.setPointerCapture(pointerId);
+    held = true;
   } catch {
     // Non-fatal: fall back to the document-level session listeners.
   }
-}
 
-/**
- * Applies a `touch-action` to an element and returns a restore function that
- * puts back the previous inline value.
- */
-export function applyTouchAction(
-  element: HTMLElement,
-  value: string,
-): () => void {
-  const previous = element.style.getPropertyValue(TOUCH_ACTION);
-  const priority = element.style.getPropertyPriority(TOUCH_ACTION);
-  element.style.setProperty(TOUCH_ACTION, value);
-
-  return () => {
-    if (previous) {
-      element.style.setProperty(TOUCH_ACTION, previous, priority);
-    } else {
-      element.style.removeProperty(TOUCH_ACTION);
-    }
+  return {
+    dispose() {
+      if (held) {
+        try {
+          element.releasePointerCapture(pointerId);
+        } catch {
+          // Already released or pointer gone.
+        }
+      }
+    },
   };
 }

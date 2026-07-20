@@ -1,75 +1,83 @@
 /**
- * Web Animations helpers for lift and landing.
- *
- * Animations are transform-based and interrupt-tolerant: a cancelled animation
- * is an expected lifecycle event, so callers await {@link LandingAnimation.done}
- * (which never rejects) rather than the raw `animation.finished`.
+ * Owns one landing animation's mechanics. It receives the committed
+ * {@link LandingCurrency}, creates the realm-local `Animation`, applies
+ * reduced-motion timing, and dispatches currency-tagged finished/interrupted
+ * events. The FSM — not the runner — owns whether landing is preparing, running,
+ * completing, or whether settlement is accepted/rejected/canceled/failed. The
+ * runner's private bits exist only for idempotency and browser callback races.
  */
-import type { AnimationTiming, Point } from './types.ts';
+import type { VisualLiftSession } from './presentation.ts';
+import type { LandingCurrency, LandingPlan } from './protocol.ts';
+import type { DOMRealm } from './realm.ts';
+import type { AnimationTiming } from './types.ts';
 
-/** Whether the user has asked for reduced motion. */
-export function prefersReducedMotion(): boolean {
-  return matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-}
-
-export type LandingAnimation = Readonly<{
-  /** Resolves once the animation ends or is cancelled; never rejects. */
-  done: Promise<void>;
-  /** Stops the animation immediately (its `done` still resolves). */
-  cancel(): void;
+export type LandingRunner = Readonly<{
+  /** Idempotently commit the completed target; only from an accepted completing transition. */
+  pin(): void;
+  /** Silent terminal teardown: mark destroyed, cancel, never pin, dispatch nothing. */
+  destroy(): void;
+  /** Unexpected presentation failure: cancel without pinning, dispatch the tagged failure. */
+  interrupt(error: unknown): void;
 }>;
 
-/** `translate(x, y)` from a viewport-space delta. */
-const translate = (delta: Point): string =>
-  `translate(${delta.x}px, ${delta.y}px)`;
+/** Whether the owning realm reports a reduced-motion preference. */
+function prefersReducedMotion(realm: DOMRealm): boolean {
+  return (
+    realm.window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ??
+    false
+  );
+}
 
-/**
- * Animates `visual`'s transform from `from` to `to` (both viewport-space
- * deltas), pinning the final transform once it lands so removing the effect does
- * not snap back for a frame. Reduced motion collapses the animation to an
- * instant jump while preserving the same completion semantics.
- *
- * `base` is the visual's authored transform, if any. The drag translation is
- * *prepended* to it, so the authored rotate/scale/skew still renders about the
- * visual's own box while the translation acts in the (viewport-aligned) space of
- * the lifted, top-layer visual — the translation stays viewport-space regardless
- * of the authored transform.
- */
-export function animateTranslate(
-  visual: HTMLElement,
-  from: Point,
-  to: Point,
+export function createLandingRunner(
+  lift: VisualLiftSession,
+  plan: LandingPlan,
+  currency: LandingCurrency,
   timing: AnimationTiming,
-  base = '',
-): LandingAnimation {
-  const suffix = base ? ` ${base}` : '';
-  const toTransform = `${translate(to)}${suffix}`;
+  realm: DOMRealm,
+  onFinished: (currency: LandingCurrency) => void,
+  onInterrupted: (currency: LandingCurrency, error: unknown) => void,
+): LandingRunner {
+  const toTransform = lift.compose(plan.target);
+  let terminal = false;
+  let pinned = false;
 
-  const animation = visual.animate(
-    [{ transform: `${translate(from)}${suffix}` }, { transform: toTransform }],
-    prefersReducedMotion() ? { ...timing, duration: 0 } : timing,
+  const animation = lift.visual.animate(
+    [{ transform: lift.compose(plan.from) }, { transform: toTransform }],
+    prefersReducedMotion(realm) ? { ...timing, duration: 0 } : timing,
   );
 
-  let settled = false;
-
-  // Hold the final transform once the animation ends, so removing the WAAPI
-  // effect does not snap back for a frame. Skipped when the animation is
-  // cancelled by the caller (an interrupt/teardown), so no write lands in a
-  // microtask after the caller has already restored the visual's styles.
-  const pin = (): void => {
-    if (!settled) {
-      settled = true;
-      visual.style.transform = toTransform;
-    }
-  };
-
-  const done = animation.finished.then(pin, pin);
+  animation.finished.then(
+    () => {
+      if (!terminal) {
+        onFinished(currency);
+      }
+    },
+    () => {
+      // A cancel (destroy/interrupt) rejects `finished`; those paths set
+      // `terminal` first, so an ordinary interruption is not double-reported.
+      if (!terminal) {
+        onInterrupted(currency, new Error('drag: landing animation canceled'));
+      }
+    },
+  );
 
   return {
-    done,
-    cancel() {
-      settled = true;
+    pin() {
+      if (!pinned) {
+        pinned = true;
+        lift.visual.style.transform = toTransform;
+      }
+    },
+
+    destroy() {
+      terminal = true;
       animation.cancel();
+    },
+
+    interrupt(error) {
+      terminal = true;
+      animation.cancel();
+      onInterrupted(currency, error);
     },
   };
 }

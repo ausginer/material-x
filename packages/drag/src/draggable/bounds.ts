@@ -1,17 +1,24 @@
 /** Stateless movement geometry: axis constraint and bounds clamping. */
+import type { DOMRealm } from '../kernel/realm.ts';
 import type { DragAxis, Point } from '../kernel/types.ts';
 import type { DragBounds } from './options.ts';
 
 /** Resolves a bounds source to a viewport rect, or `null` for unbounded. */
 export function resolveBounds(
   bounds: DragBounds | undefined,
+  realm: DOMRealm,
 ): DOMRectReadOnly | null {
   if (!bounds) {
     return null;
   }
 
   if (bounds === 'viewport') {
-    return new DOMRectReadOnly(0, 0, innerWidth, innerHeight);
+    return new realm.window.DOMRectReadOnly(
+      0,
+      0,
+      realm.window.innerWidth,
+      realm.window.innerHeight,
+    );
   }
 
   if (typeof bounds === 'function') {

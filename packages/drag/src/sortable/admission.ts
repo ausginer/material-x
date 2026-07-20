@@ -1,14 +1,11 @@
-/** Resolves which tracked item a pointer press targets. */
-import type { SortableOptions } from './options.ts';
-
 /**
- * The tracked item pressed, honouring an optional handle gate, or `null` when
- * the press missed a tracked item (or its required handle).
+ * Resolves one admitted item from a pointer path. Validates tracked item
+ * identity and handle membership, including the item itself as its handle.
  */
-export function resolveItem(
+export function resolveSortablePress(
   event: PointerEvent,
   items: readonly HTMLElement[],
-  options: SortableOptions,
+  getHandle: ((item: HTMLElement) => HTMLElement | null) | undefined,
 ): HTMLElement | null {
   const path = event.composedPath();
   const itemSet = new Set(items);
@@ -22,11 +19,10 @@ export function resolveItem(
 
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   const item = path[itemIndex] as HTMLElement;
-  const handle = options.getHandle?.(item);
+  const handle = getHandle?.(item);
 
   // The handle may be the item itself or a descendant, so the search includes
-  // the item's own path node (`itemIndex + 1`); slicing to `itemIndex` would
-  // reject `getHandle: (item) => item`.
+  // the item's own path node (`itemIndex + 1`).
   if (handle && !path.slice(0, itemIndex + 1).includes(handle)) {
     return null;
   }

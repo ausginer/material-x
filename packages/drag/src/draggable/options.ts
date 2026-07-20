@@ -1,12 +1,16 @@
 /** Public option, controller, and result types for the free-drag entry. */
 import type {
+  CancellationReason,
+  DragErrorContext,
+  ResolutionContext,
+} from '../kernel/protocol.ts';
+import type {
   AnimationTiming,
   CoordinateMapper,
   DragAxis,
-  DragController,
   DragGeometry,
   FreeDropRequest,
-  FreeDropResult,
+  MaybePromise,
   Point,
 } from '../kernel/types.ts';
 
@@ -16,31 +20,67 @@ export type DragBounds =
   | HTMLElement
   | (() => DOMRectReadOnly | null);
 
-/** The result an `onDrop` callback may produce (or nothing, meaning accept). */
-export type DropOutcome = FreeDropResult | Promise<FreeDropResult> | undefined;
+/** How a free drop's coordinate space defined its request values. */
+export type FreeDropProposal = Readonly<{
+  request: FreeDropRequest;
+  coordinateSpace: CoordinateMapper;
+}>;
+
+/** The explicit consumer response to a free drop. */
+export type FreeDropResolution =
+  | Readonly<{ type: 'accepted' }>
+  | Readonly<{ type: 'rejected'; reason?: unknown }>;
+
+/** The terminal free-drop result carried through settlement. */
+export type FreeDropResult =
+  | Readonly<{ type: 'accepted'; proposal: FreeDropProposal }>
+  | Readonly<{
+      type: 'rejected';
+      proposal: FreeDropProposal;
+      reason?: unknown;
+    }>;
+
+export type FreeDragFinishResult = Extract<
+  FreeDropResult,
+  { type: 'accepted' }
+>;
+
+export type FreeDragCancelResult =
+  | Extract<FreeDropResult, { type: 'rejected' }>
+  | Readonly<{
+      type: 'canceled';
+      reason: CancellationReason;
+      proposal: FreeDropProposal | null;
+    }>;
+
+/** Dedicated signal handed to the drop resolver. */
+export type OnDrop = (
+  request: FreeDropRequest,
+  context: ResolutionContext,
+) => MaybePromise<FreeDropResolution>;
+
+/** A finite viewport-space rollback target: the visual's target border-box origin. */
+export type FreeHomeTarget = Readonly<{
+  position: Point;
+  space: 'viewport';
+}>;
+
+/** Request handed to the optional home-target resolver. */
+export type FreeHomeRequest = Readonly<{
+  item: HTMLElement;
+  visual: HTMLElement;
+}>;
+
+export type ResolveFreeHomeTarget = (
+  request: FreeHomeRequest,
+) => FreeHomeTarget;
 
 export type DraggableOptions = Readonly<{
   /** Element (or resolver) that must be pressed to start the drag. */
   handle?: HTMLElement | ((item: HTMLElement) => HTMLElement | null);
   /** The element actually lifted; defaults to the item itself. */
   getVisual?(item: HTMLElement): HTMLElement;
-  /**
-   * How the visual is promoted during a drag. Defaults to `'top-layer'`.
-   *
-   * - `'top-layer'` — lift into the top layer, faithfully reproducing the
-   *   visual's on-screen appearance via its captured local→viewport matrix. It
-   *   escapes clipping and stacking, keeps any ancestor/own `zoom`/`transform`,
-   *   and is never distorted (a `scale`/`rotate`/`skew` visual keeps its exact
-   *   size and orientation). Costs one matrix computation at grab.
-   * - `'flatten'` — lift into the top layer *flattened*: axis-aligned at the
-   *   visual's natural (untransformed) size, escaping ancestor transforms
-   *   entirely. Use it to drag a visual "upright" out of a rotated or scaled
-   *   container.
-   * - `'none'` — drag in place: the visual stays inside its container, keeping
-   *   ancestor `zoom`/`transform` but subject to that container's clipping and
-   *   stacking. Movement is mapped through the coordinate space so the pointer
-   *   stays anchored under a scaled or rotated container.
-   */
+  /** How the visual is promoted during a drag. Defaults to `'top-layer'`. */
   lift?: 'top-layer' | 'flatten' | 'none';
   /** Which axes movement is allowed on. Defaults to `'both'`. */
   axis?: DragAxis;
@@ -48,42 +88,38 @@ export type DraggableOptions = Readonly<{
   bounds?: DragBounds;
   /** Maps viewport space to the consumer's coordinate space. */
   coordinateSpace?: CoordinateMapper;
-  /** `touch-action` applied to the handle/item for the gesture. */
-  touchAction?: string;
   /** Activation travel, in viewport pixels. Defaults to 8. */
   threshold?: number;
-  /** Landing animation timing, read at drop time. */
+  /** Landing animation timing, read at settle time. */
   landingTiming?(): AnimationTiming;
+  /** Required: the explicit consumer drop resolution. */
+  onDrop: OnDrop;
+  /** Optional synchronous rollback target for rejected/canceled drops. */
+  resolveHomeTarget?: ResolveFreeHomeTarget;
   onStart?(geometry: DragGeometry): void;
   onMove?(geometry: DragGeometry): void;
-  onDrop?(request: FreeDropRequest): DropOutcome;
-  onCancel?(reason: unknown): void;
-  onFinish?(accepted: boolean): void;
-  onError?(error: unknown): void;
+  onFinish?(result: FreeDragFinishResult): void;
+  onCancel?(result: FreeDragCancelResult): void;
+  onError?(error: unknown, context: DragErrorContext<FreeDropResult>): void;
 }>;
 
-/**
- * Options accepted by {@link FreeDragController.update}. Omitted are the options
- * that cannot consistently change for a live controller: `threshold` and
- * `getVisual` are captured at construction; `touchAction` is installed on the
- * construction-time target; and `handle`/`lift` determine how the current visual
- * was already grabbed and lifted. Set those at construction instead.
- */
-export type DragUpdate = Readonly<
-  Partial<
-    Omit<
-      DraggableOptions,
-      'threshold' | 'getVisual' | 'touchAction' | 'handle' | 'lift'
-    >
-  > & {
-    /** A new controlled position, in the consumer coordinate space. */
-    position?: Point;
-  }
->;
+/** Options accepted by {@link FreeDragController.update}. */
+export type DragUpdate = Readonly<{
+  axis?: DragAxis;
+  bounds?: DragBounds;
+  coordinateSpace?: CoordinateMapper;
+  landingTiming?(): AnimationTiming;
+  onMove?(geometry: DragGeometry): void;
+  /** A new controlled position, in the consumer coordinate space. */
+  position?: Point;
+}>;
 
 /** Controller returned by `draggable`. */
-export type FreeDragController = DragController &
-  Readonly<{
-    /** Revises runtime options and/or retargets a controlled position. */
-    update(options: DragUpdate): void;
-  }>;
+export type FreeDragController = Readonly<{
+  /** Revises runtime options and/or retargets a controlled position. */
+  update(options: DragUpdate): void;
+  /** Cancels any live gesture. */
+  cancel(reason?: unknown): void;
+  /** Terminal, idempotent teardown. */
+  destroy(): void;
+}>;

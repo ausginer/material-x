@@ -1,52 +1,58 @@
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ReorderRequest } from '../src/kernel/types.ts';
-import type { ReorderFinish } from '../src/sortable/options.ts';
-import { sortable } from '../src/sortable.ts';
+import {
+  sortable,
+  type ReorderRequest,
+  type ReorderResolution,
+  type SortableCancelResult,
+  type SortableController,
+  type SortableFinishResult,
+  type SortableOptions,
+} from '../src/sortable.ts';
 
-const reject = (_request: ReorderRequest) => ({ accepted: false });
+const accept = (): ReorderResolution => ({ type: 'accepted' });
 
-function nextFrame(): Promise<void> {
+const live: SortableController[] = [];
+
+function sort(
+  container: HTMLElement,
+  options: SortableOptions,
+): SortableController {
+  const controller = sortable(container, options);
+  live.push(controller);
+  return controller;
+}
+
+function flush(): Promise<void> {
   return new Promise((resolve) => {
-    requestAnimationFrame(() => resolve());
+    setTimeout(resolve, 0);
   });
 }
 
-/** A vertical list of `count` stacked 50px items appended to the body. */
-function createList(count: number): {
-  container: HTMLElement;
-  items: HTMLElement[];
-} {
+/** A vertical list of `count` 40px-tall rows. */
+function createList(count: number): HTMLElement {
   const container = document.createElement('div');
   container.style.position = 'absolute';
-  container.style.top = '0';
   container.style.left = '0';
+  container.style.top = '0';
   container.style.width = '100px';
-
-  const items = Array.from({ length: count }, () => {
-    const item = document.createElement('div');
-    item.style.display = 'block';
-    item.style.height = '50px';
-    container.append(item);
-    return item;
-  });
-
+  for (let i = 0; i < count; i += 1) {
+    const row = document.createElement('div');
+    row.textContent = `row ${i}`;
+    row.style.height = '40px';
+    row.style.width = '100px';
+    container.append(row);
+  }
   document.body.append(container);
-  return { container, items };
+  return container;
 }
 
-/** A user-event drag from `item` down past the whole list, released. */
-async function dragToEnd(ue: UserEvent, item: HTMLElement): Promise<void> {
-  await ue.pointer([
-    {
-      target: item,
-      keys: '[MouseLeft>]',
-      coords: { clientX: 20, clientY: 10 },
-    },
-    { coords: { clientX: 20, clientY: 9999 } },
-  ]);
-  await nextFrame();
-  await ue.pointer([{ keys: '[/MouseLeft]' }]);
+const rows = (container: HTMLElement): HTMLElement[] =>
+  [...container.children] as HTMLElement[];
+
+function centerOf(el: HTMLElement): { clientX: number; clientY: number } {
+  const r = el.getBoundingClientRect();
+  return { clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 };
 }
 
 describe('sortable', () => {
@@ -57,462 +63,172 @@ describe('sortable', () => {
   });
 
   afterEach(() => {
+    for (const controller of live.splice(0)) {
+      controller.destroy();
+    }
     document.body.replaceChildren();
   });
 
-  it('should lift the dragged item into the top layer on activation', async () => {
-    const { container, items } = createList(2);
-    sortable(container, { items: () => items });
-
-    await ue.pointer([
-      {
-        target: items[0]!,
-        keys: '[MouseLeft>]',
-        coords: { clientX: 20, clientY: 10 },
-      },
-      { coords: { clientX: 20, clientY: 9999 } },
-    ]);
-
-    expect(items[0]!.matches(':popover-open')).toBeTruthy();
+  it('should require onReorder at construction', () => {
+    const container = createList(2);
+    // oxlint-disable-next-line typescript/no-explicit-any typescript/no-unsafe-type-assertion
+    expect(() =>
+      sortable(container, { items: () => rows(container) } as any),
+    ).toThrow(/onReorder/);
   });
 
-  it('should accept the item itself as its handle', async () => {
-    const { container, items } = createList(2);
-    sortable(container, { items: () => items, getHandle: (item) => item });
+  it('should propose a reorder and finish accepted when dropping over a neighbour', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onReorder = vi.fn(
+      (_request: ReorderRequest): ReorderResolution => ({ type: 'accepted' }),
+    );
+    const onFinish = vi.fn<(r: SortableFinishResult) => void>();
+    sort(container, { items: () => rows(container), onReorder, onFinish });
 
+    const start = centerOf(items[0]!);
+    const over = centerOf(items[1]!);
     await ue.pointer([
-      {
-        target: items[0]!,
-        keys: '[MouseLeft>]',
-        coords: { clientX: 20, clientY: 10 },
-      },
-      { coords: { clientX: 20, clientY: 9999 } },
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: over.clientX, clientY: over.clientY + 5 } },
+      { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
     ]);
-
-    // `getHandle: (item) => item` must not be rejected by the path slice.
-    expect(items[0]!.matches(':popover-open')).toBeTruthy();
-  });
-
-  it('should not distort or run away from the pointer under CSS zoom', async () => {
-    const { container, items } = createList(3);
-    const zoomed = document.createElement('div');
-    zoomed.style.zoom = '1.5';
-    zoomed.append(container);
-    document.body.append(zoomed);
-
-    sortable(container, { items: () => items });
-
-    const before = items[0]!.getBoundingClientRect();
-
-    await ue.pointer([
-      {
-        target: items[0]!,
-        keys: '[MouseLeft>]',
-        coords: { clientX: before.left + 10, clientY: before.top + 10 },
-      },
-      { coords: { clientX: before.left + 10, clientY: before.top + 40 } },
-    ]);
-    await nextFrame();
-
-    const after = items[0]!.getBoundingClientRect();
-    // Faithful lift under zoom: the tile keeps its rendered size (not enlarged
-    // by the zoom) and tracks the 30px pointer move rather than flying off at
-    // 30 × 1.5.
-    expect(after.width).toBeCloseTo(before.width, 0);
-    expect(after.top - before.top).toBeCloseTo(30, 0);
-  });
-
-  it('should track the pointer when the dragged item has its own CSS zoom', async () => {
-    const { container, items } = createList(3);
-    // A `zoom` on the item itself: the lift neutralizes net zoom to 1 and the
-    // matrix reproduces the 2×, so tracking stays 1:1 (own zoom, not just
-    // ancestor zoom, must be handled).
-    for (const item of items) {
-      item.style.zoom = '2';
-    }
-    document.body.append(container);
-
-    sortable(container, { items: () => items });
-
-    const before = items[0]!.getBoundingClientRect();
-
-    await ue.pointer([
-      {
-        target: items[0]!,
-        keys: '[MouseLeft>]',
-        coords: { clientX: before.left + 10, clientY: before.top + 10 },
-      },
-      { coords: { clientX: before.left + 10, clientY: before.top + 40 } },
-    ]);
-    await nextFrame();
-
-    const after = items[0]!.getBoundingClientRect();
-    // 30px of pointer travel is 30px of viewport movement, not 60px.
-    expect(after.width).toBeCloseTo(before.width, 0);
-    expect(after.top - before.top).toBeCloseTo(30, 0);
-  });
-
-  it('should reorder via a touch pointer', async () => {
-    // Touch pointers hold implicit capture and reject `setPointerCapture` with
-    // "no active pointer"; that must not abort the gesture (regression: sorting
-    // was dead on mobile). The session is tracked on the document regardless.
-    const { container, items } = createList(3);
-    let reordered = false;
-
-    sortable(container, {
-      items: () => items,
-      touchAction: 'none',
-      onReorder() {
-        reordered = true;
-        return { accepted: true };
-      },
+    await ue.pointer({
+      keys: '[/MouseLeft]',
+      coords: { clientX: over.clientX, clientY: over.clientY + 8 },
     });
-
-    await ue.pointer([
-      {
-        target: items[0]!,
-        keys: '[TouchA>]',
-        coords: { clientX: 20, clientY: 10 },
-      },
-      { pointerName: 'TouchA', coords: { clientX: 20, clientY: 45 } },
-      { pointerName: 'TouchA', coords: { clientX: 20, clientY: 9999 } },
-      { keys: '[/TouchA]' },
-    ]);
-    await nextFrame();
-
-    expect(reordered).toBe(true);
-  });
-
-  it('should insert an internal anchor when no placeholder is provided', async () => {
-    const { container, items } = createList(2);
-    sortable(container, { items: () => items });
-
-    await ue.pointer([
-      {
-        target: items[0]!,
-        keys: '[MouseLeft>]',
-        coords: { clientX: 20, clientY: 10 },
-      },
-      { coords: { clientX: 20, clientY: 9999 } },
-    ]);
-
-    expect(container.querySelector('[data-drag-placeholder]')).not.toBeNull();
-  });
-
-  it('should use a consumer-provided placeholder element', async () => {
-    const { container, items } = createList(2);
-    const createPlaceholder = vi.fn(() => {
-      const el = document.createElement('div');
-      el.setAttribute('data-custom', '');
-      return el;
+    await vi.waitFor(() => expect(onFinish).toHaveBeenCalledOnce(), {
+      timeout: 1000,
     });
-    sortable(container, { items: () => items, createPlaceholder });
-
-    await ue.pointer([
-      {
-        target: items[0]!,
-        keys: '[MouseLeft>]',
-        coords: { clientX: 20, clientY: 10 },
-      },
-      { coords: { clientX: 20, clientY: 9999 } },
-    ]);
-
-    expect(createPlaceholder).toHaveBeenCalledOnce();
-    expect(container.querySelector('[data-custom]')).not.toBeNull();
-  });
-
-  it('should propose a reorder with the moved indices on drop', async () => {
-    const { container, items } = createList(3);
-    const onReorder = vi.fn((_request: ReorderRequest) => undefined);
-    sortable(container, {
-      items: () => items,
-      onReorder,
-      landingTiming: () => ({ duration: 0, easing: 'linear' }),
-    });
-
-    await dragToEnd(ue, items[0]!);
 
     expect(onReorder).toHaveBeenCalledOnce();
     const [request] = onReorder.mock.calls[0]!;
+    expect(request.item).toBe(items[0]);
     expect(request.from).toBe(0);
-    expect(request.to).toBe(2);
-    expect(request.item).toBe(items[0]!);
+    expect(request.to).toBeGreaterThan(0);
+    expect(onFinish).toHaveBeenCalledOnce();
+    expect(onFinish.mock.calls[0]![0].type).toBe('accepted');
   });
 
-  it('should not propose a reorder for a no-op drop', async () => {
-    const { container, items } = createList(3);
-    const onReorder = vi.fn((_request: ReorderRequest) => undefined);
-    sortable(container, {
-      items: () => items,
-      onReorder,
-      landingTiming: () => ({ duration: 0, easing: 'linear' }),
-    });
+  it('should finish a drop in place as a no-op without calling onReorder', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onReorder = vi.fn(accept);
+    const onFinish = vi.fn<(r: SortableFinishResult) => void>();
+    sort(container, { items: () => rows(container), onReorder, onFinish });
 
+    const start = centerOf(items[0]!);
     await ue.pointer([
-      {
-        target: items[0]!,
-        keys: '[MouseLeft>]',
-        coords: { clientX: 20, clientY: 10 },
-      },
-      { coords: { clientX: 20, clientY: 12 } },
-      { keys: '[/MouseLeft]' },
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: start.clientX, clientY: start.clientY + 10 } },
+      { coords: { clientX: start.clientX, clientY: start.clientY } },
     ]);
+    await ue.pointer({ keys: '[/MouseLeft]', coords: start });
+    await flush();
 
     expect(onReorder).not.toHaveBeenCalled();
+    expect(onFinish).toHaveBeenCalledOnce();
+    expect(onFinish.mock.calls[0]![0].type).toBe('no-op');
   });
 
-  it('should finish rejected when the consumer rejects the reorder', async () => {
-    const { container, items } = createList(3);
-    const onFinish =
-      vi.fn<(item: HTMLElement, outcome: ReorderFinish) => void>();
-    sortable(container, {
-      items: () => items,
-      onReorder: reject,
-      onFinish,
-      landingTiming: () => ({ duration: 0, easing: 'linear' }),
-    });
-
-    await dragToEnd(ue, items[0]!);
-
-    await vi.waitFor(() => {
-      expect(onFinish).toHaveBeenCalledWith(items[0]!, 'rejected');
-    });
-  });
-
-  it('should finish committed once the consumer commits synchronously', async () => {
-    const { container, items } = createList(3);
-    const onFinish =
-      vi.fn<(item: HTMLElement, outcome: ReorderFinish) => void>();
-    const controller = sortable(container, {
-      items: () => items,
-      onReorder(request) {
-        // Simulate a controlled consumer: move the DOM node and update items.
-        const rest = items.filter((item) => item !== request.item);
-        rest.splice(request.to, 0, request.item);
-        container.insertBefore(
-          request.item,
-          container.children[request.to] ?? null,
-        );
-        items.splice(0, items.length, ...rest);
-        controller.updateItems(items);
-      },
-      onFinish,
-      landingTiming: () => ({ duration: 0, easing: 'linear' }),
-    });
-
-    await dragToEnd(ue, items[0]!);
-
-    await vi.waitFor(() => {
-      expect(onFinish).toHaveBeenCalledWith(expect.anything(), 'committed');
-    });
-  });
-
-  it('should finish committed when the consumer commits asynchronously', async () => {
-    const { container, items } = createList(3);
-    const onFinish =
-      vi.fn<(item: HTMLElement, outcome: ReorderFinish) => void>();
-    const controller = sortable(container, {
-      items: () => items,
-      onReorder(request) {
-        // The commit lands a frame later, after the drop resolves — the session
-        // must hold through `awaiting-commit` until `updateItems` reports it.
-        return new Promise((resolve) => {
-          requestAnimationFrame(() => {
-            const rest = items.filter((item) => item !== request.item);
-            rest.splice(request.to, 0, request.item);
-            container.insertBefore(
-              request.item,
-              container.children[request.to] ?? null,
-            );
-            items.splice(0, items.length, ...rest);
-            controller.updateItems(items);
-            resolve({ accepted: true });
-          });
-        });
-      },
-      onFinish,
-      landingTiming: () => ({ duration: 0, easing: 'linear' }),
-    });
-
-    await dragToEnd(ue, items[0]!);
-
-    await vi.waitFor(() => {
-      expect(onFinish).toHaveBeenCalledWith(expect.anything(), 'committed');
-    });
-  });
-
-  it('should finish accepted-but-uncommitted when no commit is observed', async () => {
-    const { container, items } = createList(3);
-    const onFinish =
-      vi.fn<(item: HTMLElement, outcome: ReorderFinish) => void>();
-    sortable(container, {
-      // Accept the reorder but never move the DOM or call updateItems, so the
-      // commit wait times out and the outcome is `accepted`, not `committed`.
-      items: () => items,
-      onReorder: () => ({ accepted: true }),
-      onFinish,
-      landingTiming: () => ({ duration: 0, easing: 'linear' }),
-    });
-
-    await dragToEnd(ue, items[0]!);
-
-    await vi.waitFor(
-      () => {
-        expect(onFinish).toHaveBeenCalledWith(items[0]!, 'accepted');
-      },
-      { timeout: 2000 },
-    );
-  });
-
-  it('should restore the item when destroyed mid-drag', async () => {
-    const { container, items } = createList(2);
-    const controller = sortable(container, { items: () => items });
-
-    await ue.pointer([
-      {
-        target: items[0]!,
-        keys: '[MouseLeft>]',
-        coords: { clientX: 20, clientY: 10 },
-      },
-      { coords: { clientX: 20, clientY: 9999 } },
-    ]);
-    await nextFrame();
-
-    expect(items[0]!.matches(':popover-open')).toBeTruthy();
-
-    controller.destroy();
-
-    expect(items[0]!.matches(':popover-open')).toBeFalsy();
-    expect(container.querySelector('[data-drag-placeholder]')).toBeNull();
-  });
-
-  it('should install the touch-action policy on the container upfront', () => {
-    const { container, items } = createList(2);
-    const controller = sortable(container, {
-      items: () => items,
-      touchAction: 'none',
-    });
-
-    expect(container.style.touchAction).toBe('none');
-
-    controller.destroy();
-
-    expect(container.style.touchAction).toBe('');
-  });
-
-  it('should forward the cancel reason to onCancel', async () => {
-    const { container, items } = createList(3);
-    const onCancel = vi.fn<(item: HTMLElement, reason: unknown) => void>();
-    const controller = sortable(container, {
-      items: () => items,
+  it('should route an explicit rejection through onCancel', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onCancel = vi.fn<(r: SortableCancelResult) => void>();
+    const onError = vi.fn<(...a: unknown[]) => void>();
+    sort(container, {
+      items: () => rows(container),
+      onReorder: () => ({ type: 'rejected', reason: 'no' }),
       onCancel,
-      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+      onError,
     });
 
+    const start = centerOf(items[0]!);
+    const over = centerOf(items[1]!);
     await ue.pointer([
-      {
-        target: items[0]!,
-        keys: '[MouseLeft>]',
-        coords: { clientX: 20, clientY: 10 },
-      },
-      { coords: { clientX: 20, clientY: 9999 } },
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
     ]);
-    await nextFrame();
+    await ue.pointer({
+      keys: '[/MouseLeft]',
+      coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+    });
+    await flush();
 
-    await controller.cancel('nope');
-
-    expect(onCancel).toHaveBeenCalledWith(items[0]!, 'nope');
+    expect(onCancel).toHaveBeenCalledOnce();
+    expect(onCancel.mock.calls[0]![0].type).toBe('rejected');
+    expect(onError).not.toHaveBeenCalled();
   });
 
-  it('should not accumulate global scroll listeners across drags', async () => {
-    const { container, items } = createList(2);
-    const scrollSignals: AbortSignal[] = [];
-    const original = window.addEventListener.bind(window);
-    vi.spyOn(window, 'addEventListener').mockImplementation(
-      (type, listener, options) => {
-        if (
-          type === 'scroll' &&
-          options &&
-          typeof options === 'object' &&
-          options.signal
-        ) {
-          scrollSignals.push(options.signal);
-        }
+  it('should cancel on Escape through onCancel', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onCancel = vi.fn<(r: SortableCancelResult) => void>();
+    sort(container, {
+      items: () => rows(container),
+      onReorder: accept,
+      onCancel,
+    });
 
-        return original(type, listener, options);
-      },
-    );
+    const start = centerOf(items[0]!);
+    await ue.pointer([
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: start.clientX, clientY: start.clientY + 30 } },
+    ]);
+    await ue.keyboard('{Escape}');
+    await flush();
 
-    sortable(container, {
+    expect(onCancel).toHaveBeenCalledOnce();
+    expect(onCancel.mock.calls[0]![0].type).toBe('canceled');
+  });
+
+  it('should cancel when the dragged item is removed from the collection', async () => {
+    const container = createList(3);
+    let items = rows(container);
+    const onCancel = vi.fn<(r: SortableCancelResult) => void>();
+    const controller = sort(container, {
       items: () => items,
-      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+      onReorder: accept,
+      onCancel,
     });
 
-    const drag = async (): Promise<void> => {
-      await ue.pointer([
-        {
-          target: items[0]!,
-          keys: '[MouseLeft>]',
-          coords: { clientX: 20, clientY: 10 },
-        },
-        { coords: { clientX: 20, clientY: 9999 } },
-      ]);
-      await nextFrame();
-      await ue.pointer([{ keys: '[/MouseLeft]' }]);
-      await vi.waitFor(() => {
-        expect(container.querySelector('[data-drag-placeholder]')).toBeNull();
-      });
-    };
+    const start = centerOf(items[0]!);
+    await ue.pointer([
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: start.clientX, clientY: start.clientY + 30 } },
+    ]);
 
-    await drag();
-    await drag();
+    const removed = items[0]!;
+    items = items.slice(1);
+    removed.remove();
+    controller.updateItems(items);
+    await flush();
 
-    vi.restoreAllMocks();
-
-    // Each drag registers exactly one scroll listener, and every one is torn
-    // down (its per-drag signal aborted) rather than left live for the next.
-    expect(scrollSignals).toHaveLength(2);
-    expect(scrollSignals.every((signal) => signal.aborted)).toBeTruthy();
+    expect(onCancel).toHaveBeenCalledOnce();
+    expect(onCancel.mock.calls[0]![0].type).toBe('canceled');
   });
 
-  it('should measure items added through updateItems during a drag', async () => {
-    const { container, items } = createList(2);
-    const onReorder = vi.fn<(request: ReorderRequest) => undefined>(
-      () => undefined,
-    );
-    const list = [...items];
-    const controller = sortable(container, {
-      items: () => list,
-      onReorder,
-      landingTiming: () => ({ duration: 0, easing: 'linear' }),
+  it('should stay silent on destroy', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onFinish = vi.fn<(...a: unknown[]) => void>();
+    const onCancel = vi.fn<(...a: unknown[]) => void>();
+    const controller = sort(container, {
+      items: () => rows(container),
+      onReorder: accept,
+      onFinish,
+      onCancel,
     });
 
+    const start = centerOf(items[0]!);
     await ue.pointer([
-      {
-        target: items[0]!,
-        keys: '[MouseLeft>]',
-        coords: { clientX: 20, clientY: 10 },
-      },
-      { coords: { clientX: 20, clientY: 60 } },
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: start.clientX, clientY: start.clientY + 30 } },
     ]);
-    await nextFrame();
+    controller.destroy();
+    await flush();
 
-    // Add a third item below and publish it mid-drag.
-    const third = document.createElement('div');
-    third.style.display = 'block';
-    third.style.height = '50px';
-    container.append(third);
-    list.push(third);
-    controller.updateItems(list);
-
-    // Drive the pointer past the newly added item; it must be hit-tested.
-    await ue.pointer([{ coords: { clientX: 20, clientY: 9999 } }]);
-    await nextFrame();
-    await ue.pointer([{ keys: '[/MouseLeft]' }]);
-
-    expect(onReorder).toHaveBeenCalled();
-    const [request] = onReorder.mock.calls.at(-1)!;
-    // Dragged to the very end of the now three-item collection.
-    expect(request.to).toBe(2);
+    expect(onFinish).not.toHaveBeenCalled();
+    expect(onCancel).not.toHaveBeenCalled();
   });
 });

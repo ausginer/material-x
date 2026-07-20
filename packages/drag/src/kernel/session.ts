@@ -1,70 +1,76 @@
 /**
- * The transition boundary. All state updates and effects for one session pass
- * through {@link Session.transit}: the next state is assigned *before* effects
- * run, so a synchronous browser follow-up caused by an effect (for example a
- * `lostpointercapture` emitted by releasing capture) observes the new state and
- * cannot repeat drop or cleanup logic.
+ * The generic transition store. All state updates and effects for one feature
+ * pass through {@link DragSession.dispatch}: the next state is assigned *before*
+ * effects run, so a synchronous browser follow-up caused by an effect observes
+ * the advanced state and cannot repeat work.
  *
- * Effects may re-enter `transit` (a consumer callback might destroy the
+ * Effects may re-enter `dispatch` (a consumer callback may destroy the
  * controller); because state is already advanced, the nested transition starts
- * from the current state rather than the stale one.
+ * from the current state. An event that defines no transition returns the
+ * identical previous state, and effects are skipped for it, so foreign and
+ * duplicate events cannot repeat movement or settling work.
  */
-import {
-  transition,
-  type DragSessionEvent,
-  type DragSessionState,
-  type FsmConfig,
-  IDLE_STATE,
-} from './fsm.ts';
 
-/** Runs the DOM effects implied by one transition. Free of state assignment. */
-export type ApplyEffects = (
-  previous: DragSessionState,
-  next: DragSessionState,
-  event: DragSessionEvent,
-) => void;
+/**
+ * Describes one meaningful protocol edge that has already occurred. Passed as
+ * three positional arguments, not an allocated record, so the hot path stays
+ * allocation-light.
+ */
+export type DragTransition<S, E> = (from: S, to: S, event: E) => void;
 
-export type Session = Readonly<{
-  /** The current session state. Always the value after the latest transition. */
-  state(): DragSessionState;
-  /** Feeds one event through the machine and applies the resulting effects. */
-  transit(event: DragSessionEvent): void;
+/** A pure feature root reducer: one complete next state from previous + event. */
+export type Reducer<S, E> = (from: S, event: E) => S;
+
+export type DragSession<S, E> = Readonly<{
+  /** The current complete feature state. */
+  state(): S;
+  /** Feeds one event through the reducer and routes the resulting effects. */
+  dispatch(event: E): void;
   /**
-   * Forces the machine back to idle without running effects. Used by an entry's
-   * exception boundary to abandon a failed session so a later drag can start.
+   * Terminal, idempotent. Marks the session closed, replaces its state with the
+   * feature's initial idle state, and makes later dispatches inert. Does not
+   * route effects.
    */
-  reset(): void;
+  close(): void;
 }>;
 
-export function createSession(
-  config: FsmConfig,
-  applyEffects: ApplyEffects,
-): Session {
-  let current: DragSessionState = IDLE_STATE;
+export function createSession<S, E>(
+  initial: S,
+  reduce: Reducer<S, E>,
+  onTransition: DragTransition<S, E>,
+): DragSession<S, E> {
+  let current = initial;
+  let closed = false;
 
   return {
     state() {
       return current;
     },
 
-    transit(event) {
-      const previous = current;
-      const next = transition(previous, event, config);
+    dispatch(event) {
+      if (closed) {
+        return;
+      }
 
-      // Assign before effects so re-entrant transits and synchronous browser
+      const previous = current;
+      const next = reduce(previous, event);
+
+      // Assign before effects so re-entrant dispatches and synchronous browser
       // follow-ups see the advanced state.
       current = next;
 
-      // An event that defines no transition returns the identical state object;
-      // running effects for it would let a foreign or duplicate event repeat
-      // movement or settling work, so only meaningful transitions get effects.
       if (next !== previous) {
-        applyEffects(previous, next, event);
+        onTransition(previous, next, event);
       }
     },
 
-    reset() {
-      current = IDLE_STATE;
+    close() {
+      if (closed) {
+        return;
+      }
+
+      closed = true;
+      current = initial;
     },
   };
 }

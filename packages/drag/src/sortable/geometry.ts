@@ -1,28 +1,17 @@
 /**
- * Spatial hit testing for sortable collections.
- *
- * The collection is treated as a plain field of rectangles with no notion of
- * rows, columns, or a flow axis: a vertical list, a horizontal row, and a grid
- * are all just centres to measure against. An anchor element (the placeholder,
- * or an internal marker when the consumer supplies none) occupies the dragged
- * item's proposed slot; including the anchor as a candidate gives the gesture its
- * hysteresis — the anchor moves only once another item's centre is genuinely
- * closer than its own.
- *
- * Ported and generalized from `@ydinjs/core`'s reorderable trait.
+ * Pure spatial primitives for sortable hit testing. The collection is a plain
+ * field of rectangles with no notion of rows, columns, or a flow axis; a
+ * vertical list, horizontal row, and grid are all just centres to measure.
  */
-// DOM order is tested through `compareDocumentPosition`'s bitmask, so the bitwise
-// AND is intrinsic to this module.
+// DOM order is tested through `compareDocumentPosition`'s bitmask.
 /* oxlint-disable no-bitwise */
-
-import type { Point } from './types.ts';
+import type { Point } from '../kernel/types.ts';
 
 /** Centre point of a rect. */
 export function center(rect: DOMRectReadOnly): Point {
   return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 }
 
-/** Squared distance — order-preserving without the sqrt. */
 function distanceSquared(a: Point, b: Point): number {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
@@ -39,8 +28,7 @@ export function measure(
 
   for (const item of items) {
     if (item !== dragged) {
-      const visual = getVisual(item);
-      rects.set(item, visual.getBoundingClientRect());
+      rects.set(item, getVisual(item).getBoundingClientRect());
     }
   }
 
@@ -50,7 +38,7 @@ export function measure(
 /**
  * The item whose centre is nearest the pointer, or `null` when the anchor's own
  * slot is nearest — meaning the anchor should stay put. The anchor centre is the
- * incumbent to beat, which is what resists oscillation between two positions.
+ * incumbent to beat, which resists oscillation.
  */
 export function nearestItem(
   items: readonly HTMLElement[],
@@ -67,8 +55,6 @@ export function nearestItem(
       continue;
     }
 
-    // Missing rect means the item appeared mid-drag and was never measured;
-    // skip it rather than throw.
     const rect = rects.get(item);
 
     if (rect) {
@@ -84,17 +70,8 @@ export function nearestItem(
   return nearest;
 }
 
-/**
- * Whether `b` sits on `flag`'s side of `a` in document order. The single bitmask
- * test is confined here so the bitwise operator lives in one guarded place.
- */
 const hasPosition = (a: Node, b: Node, flag: number): boolean =>
   (a.compareDocumentPosition(b) & flag) !== 0;
-
-/** Whether `item` follows `anchor` in DOM order. */
-export function follows(anchor: Element, item: Element): boolean {
-  return hasPosition(anchor, item, Node.DOCUMENT_POSITION_FOLLOWING);
-}
 
 /** Landing index of the dragged item: non-dragged items before the anchor. */
 export function anchorIndex(
@@ -118,8 +95,7 @@ export function anchorIndex(
 
 /**
  * The non-dragged item immediately after (`following`) or before the anchor in
- * DOM order, or `null` at that edge. Used to capture the landing neighbour and to
- * step the anchor one slot for programmatic moves.
+ * DOM order, or `null` at that edge.
  */
 export function neighbor(
   items: readonly HTMLElement[],
@@ -147,4 +123,9 @@ export function neighbor(
   }
 
   return result;
+}
+
+/** Whether `item` follows `anchor` in DOM order. */
+export function follows(anchor: Element, item: Element): boolean {
+  return hasPosition(anchor, item, Node.DOCUMENT_POSITION_FOLLOWING);
 }
