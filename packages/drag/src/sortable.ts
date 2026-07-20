@@ -29,6 +29,10 @@ import { createSession, type DragSession } from './kernel/session.ts';
 import { resolveSortablePress } from './sortable/admission.ts';
 import { createCollection } from './sortable/collection.ts';
 import { SortableGesture } from './sortable/gesture.ts';
+import {
+  keyboardInsertion,
+  type KeyboardDirection,
+} from './sortable/keyboard.ts';
 import type {
   SortableController,
   SortableOptions,
@@ -144,6 +148,76 @@ export function sortable(
         collection: snapshot,
       });
     },
+  );
+
+  // Maps arrow keys to a one-slot move toward the collection start or end.
+  const commandOf = (key: string): KeyboardDirection | null => {
+    if (key === 'ArrowUp' || key === 'ArrowLeft') {
+      return 'up';
+    }
+    if (key === 'ArrowDown' || key === 'ArrowRight') {
+      return 'down';
+    }
+    return null;
+  };
+
+  // Runs one discrete keyboard reorder through the shared proposal protocol:
+  // admit, immediately activate, then carry the command gap into stabilization.
+  // The command target lives only in this closure; the gesture never retains it.
+  const commandKeyboard = (
+    item: HTMLElement,
+    insertion: ReturnType<typeof keyboardInsertion>,
+    snapshot: ReturnType<typeof collection.snapshot>,
+    point: { x: number; y: number },
+  ): void => {
+    if (!insertion) {
+      return;
+    }
+    const operationId = ids.next();
+    session.dispatch({
+      type: 'admit',
+      operationId,
+      input: 'keyboard',
+      item,
+      pointerId: -1,
+      point,
+      collection: snapshot,
+    });
+    session.dispatch({ type: 'keyboard-activate', operationId });
+    const active = session.state().operation;
+    if (
+      session.state().phase === 'dragging' &&
+      active?.operationId === operationId
+    ) {
+      session.dispatch({ type: 'keyboard-propose', operationId, insertion });
+    }
+  };
+
+  container.addEventListener(
+    'keydown',
+    (event: KeyboardEvent) => {
+      const direction = commandOf(event.key);
+      if (terminal || direction === null || session.state().phase !== 'idle') {
+        return;
+      }
+      const snapshot = collection.snapshot();
+      const item = resolveSortablePress(
+        event,
+        snapshot.items,
+        options.getHandle,
+      );
+      const insertion = item && keyboardInsertion(snapshot, item, direction);
+      if (!item || !insertion) {
+        return;
+      }
+      event.preventDefault();
+      const rect = item.getBoundingClientRect();
+      commandKeyboard(item, insertion, snapshot, {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      });
+    },
+    { signal: controllerAbort.signal },
   );
 
   collection.subscribe((snapshot) => {

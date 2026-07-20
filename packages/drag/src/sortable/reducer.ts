@@ -28,6 +28,7 @@ import { reconcileCollection } from './collection-policy.ts';
 import type {
   CollectionSnapshot,
   Insertion,
+  ProposalBasis,
   ReorderProposal,
   ReorderResolution,
   ReorderTransactionResult,
@@ -60,10 +61,10 @@ export type InsertionState =
 
 export type SortableTransaction =
   | Readonly<{ stage: 'none' }>
+  | Readonly<{ stage: 'resolving-proposal'; basis: ProposalBasis }>
   | Readonly<{
       stage: 'proposal-ready';
       proposal: ReorderProposal;
-      noop: boolean;
     }>
   | Readonly<{
       stage: 'awaiting-consumer';
@@ -101,6 +102,12 @@ export type SortableEvent =
   | Readonly<{ type: 'move'; pointerId: number; point: Point }>
   | Readonly<{ type: 'release'; pointerId: number; point: Point }>
   | Readonly<{ type: 'cancel'; reason: CancellationReason }>
+  | Readonly<{ type: 'keyboard-activate'; operationId: number }>
+  | Readonly<{
+      type: 'keyboard-propose';
+      operationId: number;
+      insertion: Insertion;
+    }>
   | Readonly<{
       type: 'activation-ready';
       operationId: number;
@@ -122,9 +129,12 @@ export type SortableEvent =
       type: 'proposal-built';
       operationId: number;
       proposal: ReorderProposal;
-      noop: boolean;
     }>
-  | Readonly<{ type: 'reorder-noop'; operationId: number }>
+  | Readonly<{
+      type: 'reorder-noop';
+      operationId: number;
+      proposal: ReorderProposal;
+    }>
   | Readonly<{
       type: 'resolution-started';
       operationId: number;
@@ -229,6 +239,18 @@ function classify(
       return state.phase === 'dragging' || state.phase === 'awaiting-result'
         ? { kind: 'cancel' }
         : { kind: 'ignore' };
+    case 'keyboard-activate':
+      // Immediate keyboard activation: admission moved to `pending`, this edge
+      // carries it into `activating` without waiting for pointer travel.
+      return isActiveOp(state, event.operationId) && state.phase === 'pending'
+        ? { kind: 'activate' }
+        : { kind: 'ignore' };
+    case 'keyboard-propose':
+      // The command's destination gap enters proposal stabilization, mirroring a
+      // pointer release.
+      return isActiveOp(state, event.operationId) && state.phase === 'dragging'
+        ? { kind: 'release' }
+        : { kind: 'ignore' };
     case 'snapshot':
       // Removal of the dragged item is a phase-sensitive classification.
       if (!isActiveOp(state, event.operationId) || !state.operation) {
@@ -264,9 +286,10 @@ function classify(
     case 'insertion-resolved':
       return { kind: 'ignore' };
     case 'reorder-noop':
+      // An engine-owned no-op moves straight from stabilization into settling.
       return isActiveOp(state, event.operationId) &&
         state.phase === 'awaiting-result' &&
-        state.transaction.stage === 'proposal-ready'
+        state.transaction.stage === 'resolving-proposal'
         ? { kind: 'resolved' }
         : { kind: 'ignore' };
     case 'resolution-started':
@@ -322,21 +345,45 @@ function skipped(
   };
 }
 
+function preparingLanding(
+  ids: OperationIdentitySource,
+  operationId: number,
+): LandingState {
+  return {
+    stage: 'preparing',
+    currency: { operationId, landingId: ids.next() },
+    plan: null,
+  };
+}
+
 function landed(
   domain: ReorderTransactionResult,
   ids: OperationIdentitySource,
   operationId: number,
 ): SettlementState<ReorderTransactionResult> {
-  const landing: LandingState = {
-    stage: 'preparing',
-    currency: { operationId, landingId: ids.next() },
-    plan: null,
-  };
   return {
     outcome: outcomeOf(domain),
     recovery: 'destination',
     domain,
-    landing,
+    landing: preparingLanding(ids, operationId),
+  };
+}
+
+/**
+ * A rejected/canceled transaction that still owns a live placeholder animates
+ * the visual home rather than snapping. The placeholder is returned to the home
+ * slot at plan time; the plan targets the grab origin.
+ */
+function rolledBack(
+  domain: ReorderTransactionResult,
+  ids: OperationIdentitySource,
+  operationId: number,
+): SettlementState<ReorderTransactionResult> {
+  return {
+    outcome: outcomeOf(domain),
+    recovery: 'home',
+    domain,
+    landing: preparingLanding(ids, operationId),
   };
 }
 
@@ -419,20 +466,25 @@ function enterSettling(
       ? from.transaction.proposal
       : null;
 
-  if (event.type === 'reorder-noop' && proposal) {
-    return skipped({ type: 'no-op', proposal });
+  // A no-op arrives straight from stabilization and carries its own proposal.
+  if (event.type === 'reorder-noop') {
+    return skipped({ type: 'no-op', proposal: event.proposal });
   }
 
   if (event.type === 'reorder-resolved' && proposal) {
     if (event.resolution.type === 'accepted') {
       return landed({ type: 'accepted', proposal }, ids, operationId);
     }
-    return skipped({
-      type: 'rejected',
-      reason: 'consumer',
-      detail: event.resolution.reason,
-      proposal,
-    });
+    return rolledBack(
+      {
+        type: 'rejected',
+        reason: 'consumer',
+        detail: event.resolution.reason,
+        proposal,
+      },
+      ids,
+      operationId,
+    );
   }
 
   if (event.type === 'reorder-resolution-failed') {
@@ -455,12 +507,16 @@ function enterSettling(
 
   const reason: CancellationReason =
     event.type === 'cancel' ? event.reason : { type: 'escape' };
-  return skipped({
-    type: 'canceled',
-    reason,
-    at: proposal ? 'consumer' : 'proposal',
-    proposal,
-  });
+  return rolledBack(
+    {
+      type: 'canceled',
+      reason,
+      at: proposal ? 'consumer' : 'proposal',
+      proposal,
+    },
+    ids,
+    operationId,
+  );
 }
 
 export function createSortableReducer(
@@ -554,10 +610,12 @@ export function createSortableReducer(
         return { ...op, operationCollection: event.snapshot };
       }
     }
-    // On release, the operation collection ownership transfers to the proposal.
+    // On release or a keyboard command, the operation's snapshot ownership
+    // transfers into the proposal basis; the operation no longer holds it.
     if (
-      event.type === 'proposal-built' &&
-      isActiveOp(from, event.operationId) &&
+      (event.type === 'release' || event.type === 'keyboard-propose') &&
+      phase === 'awaiting-result' &&
+      from.phase === 'dragging' &&
       op.type !== 'admitted'
     ) {
       return { ...op, operationCollection: null };
@@ -570,7 +628,13 @@ export function createSortableReducer(
     event: SortableEvent,
     phase: DragPhase,
   ): InsertionState => {
-    if (phase === 'idle' || phase === 'settling') {
+    // The active insertion slice is meaningful only while dragging; on release
+    // its last ready gap has already transferred into the proposal basis.
+    if (
+      phase === 'idle' ||
+      phase === 'settling' ||
+      phase === 'awaiting-result'
+    ) {
       return from.insertion.type === 'none' ? from.insertion : { type: 'none' };
     }
     if (
@@ -620,16 +684,36 @@ export function createSortableReducer(
         ? from.transaction
         : { stage: 'none' };
     }
+    // Release (or a keyboard command) transfers the operation's snapshot into a
+    // fresh proposal basis, carrying the last ready gap as the incumbent.
+    if (
+      (event.type === 'release' || event.type === 'keyboard-propose') &&
+      phase === 'awaiting-result' &&
+      from.phase === 'dragging' &&
+      from.operation?.type !== 'admitted' &&
+      from.operation?.operationCollection
+    ) {
+      const incumbent =
+        event.type === 'keyboard-propose'
+          ? event.insertion
+          : from.insertion.type === 'ready'
+            ? from.insertion.value
+            : null;
+      return {
+        stage: 'resolving-proposal',
+        basis: {
+          snapshot: from.operation.operationCollection,
+          spatialId: ids.next(),
+          incumbent,
+        },
+      };
+    }
     if (
       event.type === 'proposal-built' &&
       isActiveOp(from, event.operationId) &&
-      phase === 'awaiting-result'
+      from.transaction.stage === 'resolving-proposal'
     ) {
-      return {
-        stage: 'proposal-ready',
-        proposal: event.proposal,
-        noop: event.noop,
-      };
+      return { stage: 'proposal-ready', proposal: event.proposal };
     }
     if (
       event.type === 'resolution-started' &&

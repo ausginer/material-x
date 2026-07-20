@@ -1,9 +1,11 @@
 /**
- * Resolves one admitted item from a pointer path. Validates tracked item
- * identity and handle membership, including the item itself as its handle.
+ * Resolves one admitted item from an event's composed path. Validates tracked
+ * item identity and handle membership, including the item itself as its handle.
+ * Accepts any {@link Event} so pointer presses and keyboard commands share one
+ * admission rule.
  */
 export function resolveSortablePress(
-  event: PointerEvent,
+  event: Event,
   items: readonly HTMLElement[],
   getHandle: ((item: HTMLElement) => HTMLElement | null) | undefined,
 ): HTMLElement | null {

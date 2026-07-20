@@ -153,9 +153,10 @@ describe('sortable', () => {
       keys: '[/MouseLeft]',
       coords: { clientX: over.clientX, clientY: over.clientY + 8 },
     });
-    await flush();
+    await vi.waitFor(() => expect(onCancel).toHaveBeenCalledOnce(), {
+      timeout: 1000,
+    });
 
-    expect(onCancel).toHaveBeenCalledOnce();
     expect(onCancel.mock.calls[0]![0].type).toBe('rejected');
     expect(onError).not.toHaveBeenCalled();
   });
@@ -176,10 +177,43 @@ describe('sortable', () => {
       { coords: { clientX: start.clientX, clientY: start.clientY + 30 } },
     ]);
     await ue.keyboard('{Escape}');
-    await flush();
+    await vi.waitFor(() => expect(onCancel).toHaveBeenCalledOnce(), {
+      timeout: 1000,
+    });
 
-    expect(onCancel).toHaveBeenCalledOnce();
     expect(onCancel.mock.calls[0]![0].type).toBe('canceled');
+  });
+
+  it('should animate the visual home before onCancel on an explicit rejection', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onCancel = vi.fn<(r: SortableCancelResult) => void>();
+    sort(container, {
+      items: () => rows(container),
+      onReorder: () => ({ type: 'rejected', reason: 'no' }),
+      onCancel,
+    });
+
+    const start = centerOf(items[0]!);
+    const over = centerOf(items[1]!);
+    await ue.pointer([
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
+    ]);
+    // A landing animation runs, so the visual is still lifted when onCancel is
+    // not yet called; it is disposed (popover closed, transform cleared) only
+    // after the home animation completes.
+    expect(onCancel).not.toHaveBeenCalled();
+    await ue.pointer({
+      keys: '[/MouseLeft]',
+      coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+    });
+    await vi.waitFor(() => expect(onCancel).toHaveBeenCalledOnce(), {
+      timeout: 1000,
+    });
+
+    expect(items[0]!.matches(':popover-open')).toBeFalsy();
+    expect(items[0]!.style.transform).toBe('');
   });
 
   it('should cancel when the dragged item is removed from the collection', async () => {
@@ -202,10 +236,86 @@ describe('sortable', () => {
     items = items.slice(1);
     removed.remove();
     controller.updateItems(items);
+    await vi.waitFor(() => expect(onCancel).toHaveBeenCalledOnce(), {
+      timeout: 1000,
+    });
+
+    expect(onCancel.mock.calls[0]![0].type).toBe('canceled');
+  });
+
+  it('should reorder through an arrow-key command and finish accepted', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onReorder = vi.fn(
+      (_request: ReorderRequest): ReorderResolution => ({ type: 'accepted' }),
+    );
+    const onFinish = vi.fn<(r: SortableFinishResult) => void>();
+    sort(container, { items: () => rows(container), onReorder, onFinish });
+
+    items[0]!.focus();
+    items[0]!.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'ArrowDown',
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await vi.waitFor(() => expect(onFinish).toHaveBeenCalledOnce(), {
+      timeout: 1000,
+    });
+
+    expect(onReorder).toHaveBeenCalledOnce();
+    const [request] = onReorder.mock.calls[0]!;
+    expect(request.item).toBe(items[0]);
+    expect(request.from).toBe(0);
+    expect(request.to).toBe(1);
+    expect(onFinish.mock.calls[0]![0].type).toBe('accepted');
+  });
+
+  it('should ignore an arrow-key command that cannot move the edge item', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onReorder = vi.fn(accept);
+    const onFinish = vi.fn<(...a: unknown[]) => void>();
+    sort(container, { items: () => rows(container), onReorder, onFinish });
+
+    items[0]!.focus();
+    items[0]!.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'ArrowUp',
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
     await flush();
 
-    expect(onCancel).toHaveBeenCalledOnce();
-    expect(onCancel.mock.calls[0]![0].type).toBe('canceled');
+    expect(onReorder).not.toHaveBeenCalled();
+    expect(onFinish).not.toHaveBeenCalled();
+  });
+
+  it('should route an explicit rejection of a keyboard command through onCancel', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onCancel = vi.fn<(r: SortableCancelResult) => void>();
+    sort(container, {
+      items: () => rows(container),
+      onReorder: () => ({ type: 'rejected', reason: 'no' }),
+      onCancel,
+    });
+
+    items[1]!.focus();
+    items[1]!.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'ArrowUp',
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await vi.waitFor(() => expect(onCancel).toHaveBeenCalledOnce(), {
+      timeout: 1000,
+    });
+
+    expect(onCancel.mock.calls[0]![0].type).toBe('rejected');
   });
 
   it('should stay silent on destroy', async () => {

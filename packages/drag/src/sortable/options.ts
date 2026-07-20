@@ -24,6 +24,18 @@ export type Insertion = Readonly<{
   after: HTMLElement | null;
 }>;
 
+/**
+ * The basis owned by an in-flight proposal stabilization. On release (or a
+ * keyboard command) the operation's snapshot ownership transfers here, together
+ * with the last ready gap as `incumbent`; the stabilization effect resolves the
+ * final insertion against `snapshot` before the immutable proposal is built.
+ */
+export type ProposalBasis = Readonly<{
+  snapshot: CollectionSnapshot;
+  spatialId: number;
+  incumbent: Insertion | null;
+}>;
+
 /** An immutable, version-stabilized reorder proposal. */
 export type ReorderProposal = Readonly<{
   snapshot: CollectionSnapshot;

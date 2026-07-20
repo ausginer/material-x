@@ -41,6 +41,8 @@ export type PlaceholderLease = Readonly<{
   rect(): DOMRectReadOnly;
   /** Inserts the anchor immediately before `reference` (or appends to parent). */
   placeBefore(reference: ChildNode | null): void;
+  /** Returns the anchor to the dragged item's home slot (idempotent). */
+  returnHome(): void;
   /** Removes the anchor from the DOM. */
   dispose(): void;
 }>;
@@ -61,6 +63,14 @@ export function insertPlaceholder(
     },
     placeBefore(reference) {
       parent?.insertBefore(anchor, reference);
+    },
+    returnHome() {
+      // `item` never leaves its DOM slot (only its rendering lifts), so its
+      // current next sibling marks the home gap. Skip when already seated there,
+      // since inserting a node before itself is invalid.
+      if (item.nextSibling !== anchor) {
+        parent?.insertBefore(anchor, item.nextSibling);
+      }
     },
     dispose() {
       if (!disposed) {

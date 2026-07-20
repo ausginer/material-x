@@ -32,8 +32,12 @@ import type { DOMRealm } from '../kernel/realm.ts';
 import type { AnimationTiming, Point } from '../kernel/types.ts';
 import { anchorIndex } from './geometry.ts';
 import { currentInsertion, resolveSpatialInsertion } from './insertion.ts';
-import { destinationPlan } from './landing.ts';
-import type { ReorderTransactionResult, SortableOptions } from './options.ts';
+import { destinationPlan, homePlan } from './landing.ts';
+import type {
+  Insertion,
+  ReorderTransactionResult,
+  SortableOptions,
+} from './options.ts';
 import {
   createAnchor,
   insertPlaceholder,
@@ -121,8 +125,11 @@ export class SortableGesture {
       this.#drag(from, to, event);
       return;
     }
-    if (from.phase === 'dragging' && to.phase === 'awaiting-result') {
-      this.#release(to);
+    if (
+      to.transaction.stage === 'resolving-proposal' &&
+      from.transaction.stage !== 'resolving-proposal'
+    ) {
+      this.#stabilize(to);
       return;
     }
     if (
@@ -319,42 +326,58 @@ export class SortableGesture {
     this.#currentOperation = state.operation;
   }
 
-  #release(to: SortableState): void {
+  // Stabilizes the transferred basis into an immutable proposal. Keyboard uses
+  // the commanded gap directly; pointer resolves a spatial gap from the true
+  // release point, falling back to the basis incumbent. Both feed one factory,
+  // so an engine no-op and a real move share request semantics.
+  #stabilize(to: SortableState): void {
+    const tx = to.transaction;
     const op = to.operation;
     const placeholder = this.#placeholder;
     this.#frame?.cancel();
 
     if (
+      tx.stage !== 'resolving-proposal' ||
       !op ||
       op.type === 'admitted' ||
-      !op.operationCollection ||
       !placeholder ||
       !to.pointer
     ) {
       return;
     }
 
-    const snapshot = op.operationCollection;
-    const resolved = resolveSpatialInsertion(
-      placeholder,
-      snapshot.items,
-      op.item,
-      this.#deps.getVisual,
-      to.pointer.release ?? to.pointer.latest,
-      snapshot.version,
-    );
-    const insertion =
-      resolved ??
-      (to.insertion.type === 'ready'
-        ? to.insertion.value
-        : currentInsertion(
-            placeholder,
-            snapshot.items,
-            op.item,
-            snapshot.version,
-          ));
+    const { snapshot, incumbent } = tx.basis;
 
-    const build = buildReorderProposal(snapshot, op.item, insertion);
+    let insertion: Insertion | null;
+    if (op.input === 'keyboard') {
+      insertion = incumbent;
+      // No interactive drag moved the placeholder, so seat it at the commanded
+      // gap now; the landing plan targets the placeholder's slot.
+      if (insertion) {
+        placeholder.placeBefore(insertion.after);
+      }
+    } else {
+      const resolved = resolveSpatialInsertion(
+        placeholder,
+        snapshot.items,
+        op.item,
+        this.#deps.getVisual,
+        to.pointer.release ?? to.pointer.latest,
+        snapshot.version,
+      );
+      insertion =
+        resolved ??
+        incumbent ??
+        currentInsertion(
+          placeholder,
+          snapshot.items,
+          op.item,
+          snapshot.version,
+        );
+    }
+
+    const build =
+      insertion && buildReorderProposal(snapshot, op.item, insertion);
 
     if (!build) {
       this.#deps.dispatch({
@@ -367,12 +390,19 @@ export class SortableGesture {
     }
 
     this.#render(to);
-    this.#deps.dispatch({
-      type: 'proposal-built',
-      operationId: op.operationId,
-      proposal: build.proposal,
-      noop: build.noop,
-    });
+    this.#deps.dispatch(
+      build.noop
+        ? {
+            type: 'reorder-noop',
+            operationId: op.operationId,
+            proposal: build.proposal,
+          }
+        : {
+            type: 'proposal-built',
+            operationId: op.operationId,
+            proposal: build.proposal,
+          },
+    );
   }
 
   #afterProposal(to: SortableState): void {
@@ -380,11 +410,6 @@ export class SortableGesture {
       return;
     }
     const { operationId } = to.operation;
-
-    if (to.transaction.noop) {
-      this.#deps.dispatch({ type: 'reorder-noop', operationId });
-      return;
-    }
 
     const resolutionId = this.#deps.ids.next();
     const resolution = createReorderResolution(
@@ -477,11 +502,29 @@ export class SortableGesture {
       return;
     }
     const { currency } = settlement.landing;
-    const plan = destinationPlan(
-      placeholder.rect(),
-      this.#originRect,
-      sortableDelta(to),
-    );
+
+    // A disconnected visual (e.g. the item was removed from the collection) has
+    // no home or destination to animate toward; complete without a landing.
+    if (!this.#lift?.visual.isConnected) {
+      this.#deps.dispatch({
+        type: 'settlement-completed',
+        operationId: currency.operationId,
+      });
+      return;
+    }
+
+    let plan;
+    if (settlement.recovery === 'home') {
+      // Reserve the home slot behind the animating visual, then aim at the origin.
+      placeholder.returnHome();
+      plan = homePlan(sortableDelta(to));
+    } else {
+      plan = destinationPlan(
+        placeholder.rect(),
+        this.#originRect,
+        sortableDelta(to),
+      );
+    }
     this.#deps.dispatch({
       type: 'landing-plan-ready',
       operationId: currency.operationId,
