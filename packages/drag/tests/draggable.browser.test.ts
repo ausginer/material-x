@@ -216,6 +216,108 @@ describe('draggable', () => {
     expect(onCancel).not.toHaveBeenCalled();
   });
 
+  it('should animate home and cancel on rejection when a valid home target is configured', async () => {
+    const item = createItem();
+    const onCancel = vi.fn<(r: FreeDragCancelResult) => void>();
+    const onError = vi.fn<(...a: unknown[]) => void>();
+    drag(item, {
+      onDrop: () => ({ type: 'rejected', reason: 'nope' }),
+      resolveHomeTarget: () => ({
+        position: { x: 100, y: 100 },
+        space: 'viewport',
+      }),
+      onCancel,
+      onError,
+    });
+
+    await press(
+      ue,
+      item,
+      { clientX: 110, clientY: 110 },
+      { clientX: 200, clientY: 200 },
+    );
+    await ue.pointer({
+      keys: '[/MouseLeft]',
+      coords: { clientX: 200, clientY: 200 },
+    });
+    // A home animation runs, so onCancel is deferred until it completes.
+    await vi.waitFor(() => expect(onCancel).toHaveBeenCalledOnce(), {
+      timeout: 1000,
+    });
+
+    expect(onCancel.mock.calls[0]![0].type).toBe('rejected');
+    expect(onError).not.toHaveBeenCalled();
+    expect(item.matches(':popover-open')).toBeFalsy();
+  });
+
+  it('should treat a throwing home-target resolver as an error, not a cancel', async () => {
+    const item = createItem();
+    const onCancel = vi.fn<(...a: unknown[]) => void>();
+    const onFinish = vi.fn<(...a: unknown[]) => void>();
+    const onError = vi.fn<(...a: unknown[]) => void>();
+    drag(item, {
+      onDrop: () => ({ type: 'rejected', reason: 'nope' }),
+      resolveHomeTarget: () => {
+        throw new Error('no home');
+      },
+      onCancel,
+      onFinish,
+      onError,
+    });
+
+    await press(
+      ue,
+      item,
+      { clientX: 110, clientY: 110 },
+      { clientX: 200, clientY: 200 },
+    );
+    await ue.pointer({
+      keys: '[/MouseLeft]',
+      coords: { clientX: 200, clientY: 200 },
+    });
+    await flush();
+
+    expect(onError).toHaveBeenCalledOnce();
+    expect(onError.mock.calls[0]![1]).toMatchObject({
+      cause: { stage: 'home-target' },
+    });
+    expect(onCancel).not.toHaveBeenCalled();
+    expect(onFinish).not.toHaveBeenCalled();
+    expect(item.matches(':popover-open')).toBeFalsy();
+  });
+
+  it('should treat an invalid home-target result as an error', async () => {
+    const item = createItem();
+    const onCancel = vi.fn<(...a: unknown[]) => void>();
+    const onError = vi.fn<(...a: unknown[]) => void>();
+    drag(item, {
+      onDrop: () => ({ type: 'rejected', reason: 'nope' }),
+      // oxlint-disable-next-line typescript/no-explicit-any typescript/no-unsafe-type-assertion
+      resolveHomeTarget: () =>
+        ({ position: { x: Number.NaN, y: 0 }, space: 'viewport' }) as any,
+      onCancel,
+      onError,
+    });
+
+    await press(
+      ue,
+      item,
+      { clientX: 110, clientY: 110 },
+      { clientX: 200, clientY: 200 },
+    );
+    await ue.pointer({
+      keys: '[/MouseLeft]',
+      coords: { clientX: 200, clientY: 200 },
+    });
+    await flush();
+
+    expect(onError).toHaveBeenCalledOnce();
+    expect(onError.mock.calls[0]![1]).toMatchObject({
+      cause: { stage: 'home-target' },
+    });
+    expect(onCancel).not.toHaveBeenCalled();
+  });
+
   it('should cancel a live drag on Escape through onCancel', async () => {
     const item = createItem();
     const onCancel = vi.fn<(r: FreeDragCancelResult) => void>();

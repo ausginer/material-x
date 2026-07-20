@@ -122,7 +122,7 @@ export class SortableGesture {
       return;
     }
     if (from.phase === 'dragging' && to.phase === 'dragging') {
-      this.#drag(from, to, event);
+      this.#drag(from, to);
       return;
     }
     if (
@@ -270,12 +270,13 @@ export class SortableGesture {
     this.#renderer?.render(sortableDelta(to));
   }
 
-  #drag(from: SortableState, to: SortableState, event: SortableEvent): void {
+  #drag(from: SortableState, to: SortableState): void {
     if (to.pointer?.latest === from.pointer?.latest) {
-      // Insertion committed (rebase or spatial result): keep the placeholder in sync.
+      // A committed insertion change (spatial resolution or collection rebase) is
+      // the sole trigger for moving the placeholder to the ready gap.
       if (
-        event.type === 'snapshot' &&
         to.insertion.type === 'ready' &&
+        to.insertion !== from.insertion &&
         this.#placeholder
       ) {
         this.#placeholder.placeBefore(to.insertion.value.after);
@@ -350,12 +351,8 @@ export class SortableGesture {
 
     let insertion: Insertion | null;
     if (op.input === 'keyboard') {
+      // The keyboard command carries its destination gap as the basis incumbent.
       insertion = incumbent;
-      // No interactive drag moved the placeholder, so seat it at the commanded
-      // gap now; the landing plan targets the placeholder's slot.
-      if (insertion) {
-        placeholder.placeBefore(insertion.after);
-      }
     } else {
       const resolved = resolveSpatialInsertion(
         placeholder,
@@ -374,6 +371,12 @@ export class SortableGesture {
           op.item,
           snapshot.version,
         );
+    }
+
+    // Seat the placeholder at the final committed gap; the landing plan targets
+    // the placeholder's slot.
+    if (insertion) {
+      placeholder.placeBefore(insertion.after);
     }
 
     const build =
