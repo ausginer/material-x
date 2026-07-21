@@ -1,12 +1,14 @@
 [
   {
     "name": "draggable",
-    "path": "src/draggable.ts",
-    "limit": "8.3 KB"
+    "path": "src/draggable.ts"
   },
   {
     "name": "sortable",
-    "path": "src/sortable.ts",
-    "limit": "9.4 KB"
+    "path": "src/sortable.ts"
+  },
+  {
+    "name": "combined",
+    "path": ["src/draggable.ts", "src/sortable.ts"]
   }
 ]

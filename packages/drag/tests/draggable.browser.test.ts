@@ -1176,4 +1176,64 @@ describe('draggable', () => {
       expect(aborted).toBeFalsy();
     });
   });
+
+  // Bounds clamping forces a synchronous layout. Resolving it on sub-threshold
+  // moves would flush layout on every `pointermove` for a value the reducer
+  // discards while pending — a perf regression the behavioural tests cannot see,
+  // since the outcome is identical either way. These pin the read to the phase
+  // that actually consumes it.
+  describe('bounds layout reads', () => {
+    function createBounds(): HTMLElement {
+      const el = document.createElement('div');
+      el.style.position = 'absolute';
+      el.style.left = '0px';
+      el.style.top = '0px';
+      el.style.width = '1000px';
+      el.style.height = '1000px';
+      document.body.append(el);
+      return el;
+    }
+
+    it('should not resolve bounds for sub-threshold moves', async () => {
+      const item = createItem();
+      const bounds = createBounds();
+      const spy = vi.spyOn(bounds, 'getBoundingClientRect');
+      drag(item, { bounds, onDrop: accept });
+
+      // Every step stays within the 8px activation threshold of the origin.
+      await ue.pointer([
+        {
+          target: item,
+          keys: '[MouseLeft>]',
+          coords: { clientX: 110, clientY: 110 },
+        },
+        { coords: { clientX: 112, clientY: 111 } },
+        { coords: { clientX: 113, clientY: 113 } },
+        { coords: { clientX: 114, clientY: 112 } },
+      ]);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should resolve bounds once dragging', async () => {
+      const item = createItem();
+      const bounds = createBounds();
+      const spy = vi.spyOn(bounds, 'getBoundingClientRect');
+      drag(item, { bounds, onDrop: accept });
+
+      // The crossing move activates but still dispatches while pending; the move
+      // after it is the first that runs in the dragging phase and clamps.
+      await ue.pointer([
+        {
+          target: item,
+          keys: '[MouseLeft>]',
+          coords: { clientX: 110, clientY: 110 },
+        },
+        { coords: { clientX: 140, clientY: 140 } },
+        { coords: { clientX: 150, clientY: 150 } },
+      ]);
+
+      expect(spy).toHaveBeenCalled();
+    });
+  });
 });

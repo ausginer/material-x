@@ -141,43 +141,41 @@ export function viewportMatrix(
   return matrix;
 }
 
-/** Drops the translation of `matrix`, leaving only its linear (2x2) part. */
-function linearOf(matrix: DOMMatrix, realm: DOMRealm): DOMMatrix {
-  return new realm.window.DOMMatrix([
-    matrix.a,
-    matrix.b,
-    matrix.c,
-    matrix.d,
-    0,
-    0,
-  ]);
-}
-
-const pointOf = (mapped: DOMPoint): Point => ({ x: mapped.x, y: mapped.y });
-
 /**
  * A {@link CoordinateMapper} over `element`'s local space, capturing its
  * transform to the viewport once. The capture is a snapshot taken at the
  * required discrete moment and reused through the gesture.
+ *
+ * The six affine coefficients are read out of the captured matrices once, so the
+ * warm mapping calls are plain scalar arithmetic — no per-call `DOMPoint`
+ * allocation and no `transformPoint` dispatch. A 2D point maps as
+ * `(a·x + c·y + e, b·x + d·y + f)`; a delta drops the translation (`e`/`f`),
+ * which is why `deltaFromViewport` uses the inverse's linear part alone.
  */
 export function createMapper(
   element: HTMLElement,
   realm: DOMRealm,
 ): CoordinateMapper {
-  const P = realm.window.DOMPoint;
   const matrix = viewportMatrix(element, realm);
   const inverse = matrix.inverse();
-  const inverseLinear = linearOf(inverse, realm);
+  const { a, b, c, d, e, f } = matrix;
+  const { a: ia, b: ib, c: ic, d: id, e: ie, f: iff } = inverse;
 
   return {
     toViewport(point) {
-      return pointOf(matrix.transformPoint(new P(point.x, point.y)));
+      return {
+        x: a * point.x + c * point.y + e,
+        y: b * point.x + d * point.y + f,
+      };
     },
     fromViewport(point) {
-      return pointOf(inverse.transformPoint(new P(point.x, point.y)));
+      return {
+        x: ia * point.x + ic * point.y + ie,
+        y: ib * point.x + id * point.y + iff,
+      };
     },
     deltaFromViewport(delta) {
-      return pointOf(inverseLinear.transformPoint(new P(delta.x, delta.y)));
+      return { x: ia * delta.x + ic * delta.y, y: ib * delta.x + id * delta.y };
     },
   };
 }

@@ -703,14 +703,13 @@ export function createDraggableReducer(
     ) {
       const point =
         event.type === INVALIDATE ? from.pointer.latest : event.point;
-      const bounds = event.type === INVALIDATE ? event.bounds : event.bounds;
       return {
         viewportDelta: pointerDelta(
           point,
           from.pointer.origin,
           op.originRect,
           from.policy.axis,
-          bounds,
+          event.bounds,
         ),
       };
     }
@@ -1006,15 +1005,15 @@ export function createDraggableReducer(
     const lifecycle = classifyMove(from, event, config, classify(from, event));
     const phase = transitionKernelPhase(from.phase, lifecycle);
 
+    // One motion projection per reduction: `reduceDropSlice` needs the committed
+    // delta and the motion slice needs the same value, so compute it once.
+    const motion = reduceMotionSlice(from, event, phase);
     const nextDelta =
-      reduceMotionSlice(from, event, phase)?.viewportDelta ??
-      from.motion?.viewportDelta ??
-      ORIGIN;
+      motion?.viewportDelta ?? from.motion?.viewportDelta ?? ORIGIN;
 
     const pointer = reducePointerSlice(from, event, phase);
     const policy = reducePolicySlice(from, event);
     const operation = reduceOperationSlice(from, event, phase);
-    const motion = reduceMotionSlice(from, event, phase);
     const drop = reduceDropSlice(from, event, phase, nextDelta);
     const settlement = reduceSettlementSlice(from, event, phase);
 

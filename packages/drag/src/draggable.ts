@@ -47,6 +47,7 @@ import {
   LIFECYCLE_MOVE,
   LIFECYCLE_RELEASE,
   OPERATION_ADMITTED,
+  PHASE_DRAGGING,
   PHASE_IDLE,
   PHASE_PENDING,
   POINTER_CANCEL,
@@ -238,13 +239,20 @@ class FreeDragControllerImpl implements FreeDragController {
     const event = raw;
     const point = { x: event.clientX, y: event.clientY };
 
+    // Bounds clamp only an active move or the drop it commits. Below the
+    // threshold the motion slice returns `from.motion` untouched and never reads
+    // them, so resolving bounds there would force a synchronous layout on every
+    // sub-threshold `pointermove` for a value the reducer discards. Gate the read
+    // on the dragging phase; a foreign pointer is ignored regardless.
+    const dragging = this.#session.state().phase === PHASE_DRAGGING;
+
     switch (event.type) {
       case POINTER_MOVE:
         this.#session.dispatch({
           type: LIFECYCLE_MOVE,
           pointerId: event.pointerId,
           point,
-          bounds: this.#currentBounds(),
+          bounds: dragging ? this.#currentBounds() : null,
         });
         break;
       case POINTER_UP:
@@ -252,7 +260,7 @@ class FreeDragControllerImpl implements FreeDragController {
           type: LIFECYCLE_RELEASE,
           pointerId: event.pointerId,
           point,
-          bounds: this.#currentBounds(),
+          bounds: dragging ? this.#currentBounds() : null,
         });
         break;
       case POINTER_CANCEL:
