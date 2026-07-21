@@ -1,5 +1,7 @@
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PRESENTATION_READY_TIMEOUT } from '../src/kernel/presentation-ready.ts';
+import { FAILURE_PRESENTATION_READY } from '../src/kernel/protocol.ts';
 import {
   sortable,
   type ReorderRequest,
@@ -343,5 +345,139 @@ describe('sortable', () => {
 
     expect(onFinish).not.toHaveBeenCalled();
     expect(onCancel).not.toHaveBeenCalled();
+  });
+
+  describe('presentationReady barrier', () => {
+    /** A manually settled acknowledgement, so the test owns the timing. */
+    function deferred(): {
+      promise: Promise<void>;
+      resolve(): void;
+      reject(error: unknown): void;
+    } {
+      let resolve!: () => void;
+      let reject!: (error: unknown) => void;
+      const promise = new Promise<void>((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+      return { promise, resolve, reject };
+    }
+
+    /** Drags row 0 over row 1 and releases. */
+    async function dropOverNeighbour(
+      items: readonly HTMLElement[],
+    ): Promise<void> {
+      const start = centerOf(items[0]!);
+      const over = centerOf(items[1]!);
+      await ue.pointer([
+        { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+        { coords: { clientX: over.clientX, clientY: over.clientY + 5 } },
+        { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
+      ]);
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+      });
+    }
+
+    /** The engine's placeholder is the only child without text content. */
+    const placeholderIn = (container: HTMLElement): HTMLElement | undefined =>
+      rows(container).find((row) => !row.textContent);
+
+    it('should hold the placeholder until the consumer acknowledges', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const ready = deferred();
+      const onFinish = vi.fn<(...a: unknown[]) => void>();
+      sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: () => ReorderResolution.accept(ready.promise),
+        onFinish,
+        landingTiming: () => ({ duration: 0, easing: 'linear' }),
+      });
+
+      await dropOverNeighbour(items);
+      await flush();
+
+      // Landing has a zero duration, so only the barrier can still be holding
+      // the temporary presentation here.
+      expect(placeholderIn(container)).toBeDefined();
+      expect(onFinish).not.toHaveBeenCalled();
+
+      ready.resolve();
+      await vi.waitFor(() => expect(onFinish).toHaveBeenCalledOnce(), {
+        timeout: 1000,
+      });
+
+      expect(placeholderIn(container)).toBeUndefined();
+    });
+
+    it('should release immediately when no acknowledgement is supplied', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const onFinish = vi.fn<(...a: unknown[]) => void>();
+      sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: accept,
+        onFinish,
+        landingTiming: () => ({ duration: 0, easing: 'linear' }),
+      });
+
+      await dropOverNeighbour(items);
+      await vi.waitFor(() => expect(onFinish).toHaveBeenCalledOnce(), {
+        timeout: 1000,
+      });
+
+      expect(placeholderIn(container)).toBeUndefined();
+    });
+
+    it('should report a rejected acknowledgement as a presentation failure', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const ready = deferred();
+      const onError = vi.fn<(...a: unknown[]) => void>();
+      sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: () => ReorderResolution.accept(ready.promise),
+        onError,
+        landingTiming: () => ({ duration: 0, easing: 'linear' }),
+      });
+
+      await dropOverNeighbour(items);
+      await flush();
+      ready.reject(new Error('render failed'));
+
+      await vi.waitFor(() => expect(onError).toHaveBeenCalledOnce(), {
+        timeout: 1000,
+      });
+
+      expect(onError.mock.calls[0]![1]).toMatchObject({
+        cause: { stage: FAILURE_PRESENTATION_READY },
+      });
+      // Cleanup still runs: a failed acknowledgement must not strand the drag.
+      await vi.waitFor(() => expect(placeholderIn(container)).toBeUndefined());
+    });
+
+    it('should give up and clean up when the acknowledgement never settles', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const onError = vi.fn<(...a: unknown[]) => void>();
+      sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: () => ReorderResolution.accept(new Promise<void>(() => {})),
+        onError,
+        landingTiming: () => ({ duration: 0, easing: 'linear' }),
+      });
+
+      await dropOverNeighbour(items);
+      await vi.waitFor(() => expect(onError).toHaveBeenCalledOnce(), {
+        timeout: PRESENTATION_READY_TIMEOUT + 500,
+      });
+
+      expect(onError.mock.calls[0]![1]).toMatchObject({
+        cause: { stage: FAILURE_PRESENTATION_READY },
+      });
+      await vi.waitFor(() => expect(placeholderIn(container)).toBeUndefined());
+    });
   });
 });

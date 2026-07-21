@@ -19,6 +19,7 @@ import {
   POINTER_UP,
 } from './protocol.ts';
 import type { DOMRealm } from './realm.ts';
+import type { Disposer } from './resource-scope.ts';
 
 const SESSION_POINTER_EVENTS = [
   POINTER_MOVE,
@@ -85,14 +86,10 @@ export function isPrimaryPress(event: PointerEvent): boolean {
  * pointer that wanders off the bound element; the gesture is tracked on the
  * document regardless, so capture is never essential and its failure is benign.
  */
-export type PointerCaptureLease = Readonly<{
-  dispose(): void;
-}>;
-
 export function acquirePointerCapture(
   element: HTMLElement,
   pointerId: number,
-): PointerCaptureLease {
+): Disposer {
   let held = false;
 
   try {
@@ -102,15 +99,15 @@ export function acquirePointerCapture(
     // Non-fatal: fall back to the document-level session listeners.
   }
 
-  return {
-    dispose() {
-      if (held) {
-        try {
-          element.releasePointerCapture(pointerId);
-        } catch {
-          // Already released or pointer gone.
-        }
+  return () => {
+    if (held) {
+      held = false;
+
+      try {
+        element.releasePointerCapture(pointerId);
+      } catch {
+        // Already released or pointer gone.
       }
-    },
+    }
   };
 }

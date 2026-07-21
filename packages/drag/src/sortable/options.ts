@@ -12,6 +12,7 @@ import type {
   AnimationTiming,
   MaybePromise,
   ReorderRequest,
+  DragSubject,
 } from '../kernel/types.ts';
 
 /* PUBLIC */
@@ -22,11 +23,17 @@ export type ReorderResolution =
   | RejectedReorderResolution;
 
 export const ReorderResolution = {
-  accept: (): AcceptedReorderResolution => ({ type: OUTCOME_ACCEPTED }),
-  reject: (reason?: unknown): RejectedReorderResolution => ({
-    type: OUTCOME_REJECTED,
-    reason,
-  }),
+  accept: (presentationReady?: PromiseLike<void>): AcceptedReorderResolution =>
+    presentationReady
+      ? { type: OUTCOME_ACCEPTED, presentationReady }
+      : { type: OUTCOME_ACCEPTED },
+  reject: (
+    reason?: unknown,
+    presentationReady?: PromiseLike<void>,
+  ): RejectedReorderResolution =>
+    presentationReady
+      ? { type: OUTCOME_REJECTED, reason, presentationReady }
+      : { type: OUTCOME_REJECTED, reason },
 } as const;
 
 export type SortableFinishResult =
@@ -56,11 +63,10 @@ export const SortableResult = {
 } as const;
 
 /** Geometry passed to a consumer's placeholder factory. */
-export type PlaceholderContext = Readonly<{
-  item: HTMLElement;
-  visual: HTMLElement;
-  rect: DOMRectReadOnly;
-}>;
+export type PlaceholderContext = DragSubject &
+  Readonly<{
+    rect: DOMRectReadOnly;
+  }>;
 
 export type SortableOptions = Readonly<{
   /** The current ordered item collection. */
@@ -122,11 +128,24 @@ export type ReorderProposal = Readonly<{
 
 export type AcceptedReorderResolution = Readonly<{
   type: typeof OUTCOME_ACCEPTED;
+  /**
+   * Resolves once the consumer's *authored* presentation for this outcome has
+   * actually been committed. The engine keeps the lift and placeholder in place
+   * until it settles (bounded by `PRESENTATION_READY_TIMEOUT`), so the authored
+   * DOM is never revealed before it exists.
+   *
+   * Apply the reorder from `onReorder` and return the promise here — do not
+   * `await` it before returning, which would serialize the render ahead of the
+   * landing animation instead of overlapping it.
+   */
+  presentationReady?: PromiseLike<void>;
 }>;
 
 export type RejectedReorderResolution = Readonly<{
   type: typeof OUTCOME_REJECTED;
   reason?: unknown;
+  /** As {@link AcceptedReorderResolution.presentationReady}, for async rollback. */
+  presentationReady?: PromiseLike<void>;
 }>;
 
 /** The terminal transaction result carried through settlement. */

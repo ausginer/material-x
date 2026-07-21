@@ -10,6 +10,7 @@
  */
 import { ancestorZoom, viewportMatrix } from './coordinate.ts';
 import type { DOMRealm } from './realm.ts';
+import type { Disposer } from './resource-scope.ts';
 import type { Point } from './types.ts';
 
 /** Which lift strategy a free/sortable operation uses. */
@@ -59,11 +60,7 @@ const LIFTED_PROPS: readonly string[] = [
 // ---------------------------------------------------------------------------
 
 /** Captures the inline lifted properties before the first write; restores once. */
-export type InlineStyleLeaseDisposer = () => void;
-
-export function captureInlineStyles(
-  visual: HTMLElement,
-): InlineStyleLeaseDisposer {
+export function captureInlineStyles(visual: HTMLElement): Disposer {
   const saved = new Map<string, readonly [string, string]>();
 
   for (const prop of LIFTED_PROPS) {
@@ -100,9 +97,7 @@ export function captureInlineStyles(
 // ---------------------------------------------------------------------------
 
 /** Enters and restores top-layer/popover state, remembering the prior state. */
-export type TopLayerLeaseDisposer = () => void;
-
-export function acquireTopLayer(visual: HTMLElement): TopLayerLeaseDisposer {
+export function acquireTopLayer(visual: HTMLElement): Disposer {
   const priorAttribute = visual.getAttribute('popover');
   const priorOpen = visual.matches(':popover-open');
 
@@ -188,7 +183,7 @@ export type VisualLiftSession = Readonly<{
   project(viewportDelta: Point): Point;
   /** The full transform string for a viewport delta. */
   compose(viewportDelta: Point): string;
-  dispose(): void;
+  dispose: Disposer;
 }>;
 
 const translate = (p: Point): string => `translate(${p.x}px, ${p.y}px)`;
@@ -197,7 +192,7 @@ function makeSession(
   visual: HTMLElement,
   baseTransform: string,
   project: (delta: Point) => Point,
-  dispose: () => void,
+  dispose: Disposer,
 ): VisualLiftSession {
   const compose = (viewportDelta: Point): string => {
     const move = translate(project(viewportDelta));

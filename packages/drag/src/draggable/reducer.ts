@@ -12,23 +12,39 @@
 import type { OperationIdentitySource } from '../kernel/operation-id.ts';
 import type { LiftMode } from '../kernel/presentation.ts';
 import {
+  CANCEL_ESCAPE,
+  type CancellationReason,
+  type DragPhase,
+  FAILURE_DROP_RESOLUTION,
+  FAILURE_HOME_TARGET,
+  FAILURE_PRESENTATION_READY,
+  type FailureCause,
+  isLandingSettled,
+  LANDING_COMPLETING,
+  LANDING_PREPARING,
+  LANDING_RUNNING,
+  LANDING_SETTLED,
+  LANDING_SKIPPED,
+  type LandingCurrency,
+  sameLanding,
+  type LandingPlan,
+  type LandingState,
   LIFECYCLE_ACTIVATE,
   LIFECYCLE_ACTIVATION_FAILED,
   LIFECYCLE_ACTIVATION_READY,
   LIFECYCLE_ADMIT,
   LIFECYCLE_CANCEL,
-  CANCEL_ESCAPE,
   LIFECYCLE_DISARM,
-  FAILURE_DROP_RESOLUTION,
-  FAILURE_HOME_TARGET,
   LIFECYCLE_IGNORE,
-  LANDING_COMPLETING,
-  LANDING_PREPARING,
-  LANDING_RUNNING,
-  LANDING_SKIPPED,
   LIFECYCLE_MOVE,
-  OPERATION_ADMITTED,
+  LIFECYCLE_RELEASE,
+  LIFECYCLE_RESOLVED,
+  LIFECYCLE_SETTLE_COMPLETE,
+  LIFECYCLE_SETTLE_PROGRESS,
+  LIFECYCLE_START_SUCCEEDED,
+  type LifecycleEvent,
   OPERATION_ACTIVE,
+  OPERATION_ADMITTED,
   OPERATION_CANDIDATE,
   OUTCOME_ACCEPTED,
   OUTCOME_CANCELED,
@@ -39,29 +55,24 @@ import {
   PHASE_IDLE,
   PHASE_PENDING,
   PHASE_SETTLING,
+  type PointerSample,
+  type PointerState,
+  PRESENTATION_PENDING,
+  PRESENTATION_READY,
+  type PresentationReadiness,
   RECOVERY_HOME,
   RECOVERY_IMMEDIATE,
-  LIFECYCLE_RELEASE,
-  LIFECYCLE_RESOLVED,
-  LIFECYCLE_SETTLE_COMPLETE,
-  LIFECYCLE_SETTLE_PROGRESS,
-  LIFECYCLE_START_SUCCEEDED,
-  transitionKernelPhase,
-  type CancellationReason,
-  type DragPhase,
-  type FailureCause,
-  type LandingPlan,
-  type LandingState,
-  type LifecycleEvent,
-  type PointerState,
+  type ResolutionCurrency,
   type SettlementRecovery,
   type SettlementState,
+  transitionKernelPhase,
 } from '../kernel/protocol.ts';
 import {
   AXIS_BOTH,
-  ORIGIN,
   type CoordinateMapper,
   type DragAxis,
+  type DragSubject,
+  ORIGIN,
   type Point,
 } from '../kernel/types.ts';
 import { pointerDelta } from './motion.ts';
@@ -90,6 +101,9 @@ export const SETTLEMENT_COMPLETED: unique symbol = Symbol(
   'settlement-completed',
 );
 export const HOME_INVALID: unique symbol = Symbol('home-invalid');
+export const PRESENTATION_SETTLED: unique symbol = Symbol(
+  'presentation-settled',
+);
 export const DROP_NONE: unique symbol = Symbol('none');
 export const DROP_PROPOSAL_READY: unique symbol = Symbol('proposal-ready');
 export const DROP_AWAITING_CONSUMER: unique symbol =
@@ -111,15 +125,14 @@ export type AdmittedFreeOperation = Readonly<{
   item: HTMLElement;
 }>;
 
-export type AcquiredFreeOperation = Readonly<{
-  type: typeof OPERATION_CANDIDATE | typeof OPERATION_ACTIVE;
-  operationId: number;
-  item: HTMLElement;
-  visual: HTMLElement;
-  lift: LiftMode;
-  originRect: DOMRectReadOnly;
-  coordinateSpace: CoordinateMapper;
-}>;
+export type AcquiredFreeOperation = DragSubject &
+  Readonly<{
+    type: typeof OPERATION_CANDIDATE | typeof OPERATION_ACTIVE;
+    operationId: number;
+    lift: LiftMode;
+    originRect: DOMRectReadOnly;
+    coordinateSpace: CoordinateMapper;
+  }>;
 
 export type FreeOperation = AdmittedFreeOperation | AcquiredFreeOperation;
 
@@ -160,27 +173,24 @@ export type DraggableState = Readonly<{
 
 // --- Events ----------------------------------------------------------------
 
-export type AdmitDraggableEvent = Readonly<{
-  type: typeof LIFECYCLE_ADMIT;
-  operationId: number;
-  item: HTMLElement;
-  pointerId: number;
-  point: Point;
-}>;
+export type AdmitDraggableEvent = PointerSample &
+  Readonly<{
+    type: typeof LIFECYCLE_ADMIT;
+    operationId: number;
+    item: HTMLElement;
+  }>;
 
-export type MoveDraggableEvent = Readonly<{
-  type: typeof LIFECYCLE_MOVE;
-  pointerId: number;
-  point: Point;
-  bounds: DOMRectReadOnly | null;
-}>;
+export type MoveDraggableEvent = PointerSample &
+  Readonly<{
+    type: typeof LIFECYCLE_MOVE;
+    bounds: DOMRectReadOnly | null;
+  }>;
 
-export type ReleaseDraggableEvent = Readonly<{
-  type: typeof LIFECYCLE_RELEASE;
-  pointerId: number;
-  point: Point;
-  bounds: DOMRectReadOnly | null;
-}>;
+export type ReleaseDraggableEvent = PointerSample &
+  Readonly<{
+    type: typeof LIFECYCLE_RELEASE;
+    bounds: DOMRectReadOnly | null;
+  }>;
 
 export type InvalidateDraggableEvent = Readonly<{
   type: typeof INVALIDATE;
@@ -228,70 +238,71 @@ export type EffectFailedDraggableEvent = Readonly<{
   error: unknown;
 }>;
 
-export type ResolutionStartedDraggableEvent = Readonly<{
-  type: typeof RESOLUTION_STARTED;
-  operationId: number;
-  resolutionId: number;
-}>;
+export type ResolutionStartedDraggableEvent = ResolutionCurrency &
+  Readonly<{
+    type: typeof RESOLUTION_STARTED;
+  }>;
 
-export type DropResolvedDraggableEvent = Readonly<{
-  type: typeof DROP_RESOLVED;
-  operationId: number;
-  resolutionId: number;
-  resolution: FreeDropResolution;
-}>;
+export type DropResolvedDraggableEvent = ResolutionCurrency &
+  Readonly<{
+    type: typeof DROP_RESOLVED;
+    resolution: FreeDropResolution;
+  }>;
 
-export type DropResolutionFailedDraggableEvent = Readonly<{
-  type: typeof DROP_RESOLUTION_FAILED;
-  operationId: number;
-  resolutionId: number;
-  error: unknown;
-}>;
+export type DropResolutionFailedDraggableEvent = ResolutionCurrency &
+  Readonly<{
+    type: typeof DROP_RESOLUTION_FAILED;
+    error: unknown;
+  }>;
 
-export type LandingPlanReadyDraggableEvent = Readonly<{
-  type: typeof LANDING_PLAN_READY;
-  operationId: number;
-  landingId: number;
-  plan: LandingPlan;
-}>;
+export type LandingPlanReadyDraggableEvent = LandingCurrency &
+  Readonly<{
+    type: typeof LANDING_PLAN_READY;
+    plan: LandingPlan;
+  }>;
 
-export type LandingStartedDraggableEvent = Readonly<{
-  type: typeof LANDING_STARTED;
-  operationId: number;
-  landingId: number;
-}>;
+export type LandingStartedDraggableEvent = LandingCurrency &
+  Readonly<{
+    type: typeof LANDING_STARTED;
+  }>;
 
-export type LandingFinishedDraggableEvent = Readonly<{
-  type: typeof LANDING_FINISHED;
-  operationId: number;
-  landingId: number;
-}>;
+export type LandingFinishedDraggableEvent = LandingCurrency &
+  Readonly<{
+    type: typeof LANDING_FINISHED;
+  }>;
 
-export type LandingPinnedDraggableEvent = Readonly<{
-  type: typeof LANDING_PINNED;
-  operationId: number;
-  landingId: number;
-}>;
+export type LandingPinnedDraggableEvent = LandingCurrency &
+  Readonly<{
+    type: typeof LANDING_PINNED;
+  }>;
 
-export type SettlementFailedDraggableEvent = Readonly<{
-  type: typeof SETTLEMENT_FAILED;
-  operationId: number;
-  landingId: number;
-  stage: FailureCause['stage'];
-  error: unknown;
-}>;
+export type SettlementFailedDraggableEvent = LandingCurrency &
+  Readonly<{
+    type: typeof SETTLEMENT_FAILED;
+    stage: FailureCause['stage'];
+    error: unknown;
+  }>;
 
 export type SettlementCompletedDraggableEvent = Readonly<{
   type: typeof SETTLEMENT_COMPLETED;
   operationId: number;
 }>;
 
-export type HomeInvalidDraggableEvent = Readonly<{
-  type: typeof HOME_INVALID;
-  operationId: number;
-  landingId: number;
-  error: unknown;
-}>;
+export type HomeInvalidDraggableEvent = LandingCurrency &
+  Readonly<{
+    type: typeof HOME_INVALID;
+    error: unknown;
+  }>;
+
+/**
+ * The consumer's authored presentation settled: `error` is `null` on success,
+ * or the rejection/timeout that failed it.
+ */
+export type PresentationSettledDraggableEvent = ResolutionCurrency &
+  Readonly<{
+    type: typeof PRESENTATION_SETTLED;
+    error: unknown;
+  }>;
 
 export type DraggableEvent =
   | AdmitDraggableEvent
@@ -314,7 +325,8 @@ export type DraggableEvent =
   | LandingPinnedDraggableEvent
   | SettlementFailedDraggableEvent
   | SettlementCompletedDraggableEvent
-  | HomeInvalidDraggableEvent;
+  | HomeInvalidDraggableEvent
+  | PresentationSettledDraggableEvent;
 
 export type DraggableConfig = Readonly<{
   threshold: number;
@@ -413,9 +425,22 @@ function classify(
         state.drop.resolutionId === event.resolutionId
         ? LIFECYCLE_RESOLVED
         : LIFECYCLE_IGNORE;
+    // Landing is done, but the operation only leaves `settling` once the
+    // consumer's authored presentation is ready too — otherwise the temporary
+    // presentation would be torn down before the authored DOM exists.
     case LANDING_PINNED:
     case SETTLEMENT_COMPLETED:
-      return LIFECYCLE_SETTLE_COMPLETE;
+      return state.settlement?.presentation === PRESENTATION_PENDING
+        ? LIFECYCLE_SETTLE_PROGRESS
+        : LIFECYCLE_SETTLE_COMPLETE;
+    // Completes the operation when it is the last of the two barriers to land.
+    case PRESENTATION_SETTLED:
+      return isActiveOp(state, event.operationId) &&
+        state.settlement?.presentation === PRESENTATION_PENDING &&
+        event.error === null &&
+        isLandingSettled(state.settlement.landing)
+        ? LIFECYCLE_SETTLE_COMPLETE
+        : LIFECYCLE_SETTLE_PROGRESS;
     case LANDING_PLAN_READY:
     case LANDING_STARTED:
     case LANDING_FINISHED:
@@ -475,6 +500,7 @@ function withRecovery(
   config: DraggableConfig,
   ids: OperationIdentitySource,
   operationId: number,
+  presentation: PresentationReadiness = PRESENTATION_READY,
 ): SettlementState<FreeDropResult> {
   const recovery: SettlementRecovery = config.hasHomeTarget
     ? RECOVERY_HOME
@@ -483,6 +509,7 @@ function withRecovery(
     outcome,
     recovery,
     domain,
+    presentation,
     landing: makeLanding(recovery, ids, operationId),
   };
 }
@@ -501,6 +528,13 @@ function enterSettling(
       ? from.drop.proposal
       : null;
 
+  // A resolution carrying `presentationReady` holds the temporary presentation
+  // until the consumer acknowledges; without one there is nothing to wait for.
+  const presentation: PresentationReadiness =
+    event.type === DROP_RESOLVED && event.resolution.presentationReady
+      ? PRESENTATION_PENDING
+      : PRESENTATION_READY;
+
   // Accepted free drop: immediate authored restoration (v1).
   if (
     event.type === DROP_RESOLVED &&
@@ -511,6 +545,7 @@ function enterSettling(
       outcome: { result: OUTCOME_ACCEPTED },
       recovery: RECOVERY_IMMEDIATE,
       domain: { type: OUTCOME_ACCEPTED, proposal },
+      presentation,
       landing: { stage: LANDING_SKIPPED },
     };
   }
@@ -526,6 +561,7 @@ function enterSettling(
       config,
       ids,
       operationId,
+      presentation,
     );
   }
 
@@ -548,6 +584,7 @@ function enterSettling(
       outcome: { result: OUTCOME_FAILED, failure: { stage: event.stage } },
       recovery,
       domain: from.settlement?.domain ?? null,
+      presentation: PRESENTATION_READY,
       landing: makeLanding(recovery, ids, operationId),
     };
   }
@@ -792,7 +829,7 @@ export function createDraggableReducer(
     if (
       event.type === LANDING_PLAN_READY &&
       landing.stage === LANDING_PREPARING &&
-      landing.currency.landingId === event.landingId
+      sameLanding(landing.currency, event)
     ) {
       return {
         ...settlement,
@@ -808,7 +845,7 @@ export function createDraggableReducer(
       event.type === LANDING_STARTED &&
       landing.stage === LANDING_PREPARING &&
       landing.plan &&
-      landing.currency.landingId === event.landingId
+      sameLanding(landing.currency, event)
     ) {
       return {
         ...settlement,
@@ -823,7 +860,7 @@ export function createDraggableReducer(
     if (
       event.type === LANDING_FINISHED &&
       landing.stage === LANDING_RUNNING &&
-      landing.currency.landingId === event.landingId
+      sameLanding(landing.currency, event)
     ) {
       return {
         ...settlement,
@@ -835,10 +872,46 @@ export function createDraggableReducer(
       };
     }
 
+    // Landing pinned: it no longer holds the temporary presentation. Release
+    // still waits on the authored-presentation half of the barrier.
+    if (
+      event.type === LANDING_PINNED &&
+      landing.stage === LANDING_COMPLETING &&
+      sameLanding(landing.currency, event)
+    ) {
+      return { ...settlement, landing: { stage: LANDING_SETTLED } };
+    }
+
+    if (
+      event.type === PRESENTATION_SETTLED &&
+      settlement.presentation === PRESENTATION_PENDING &&
+      isActiveOp(from, event.operationId)
+    ) {
+      // A rejected or timed-out acknowledgement means the destination authored
+      // presentation cannot be assumed to exist, so recover home instead of
+      // revealing it. `withRecovery` issues a fresh landing when a home target
+      // is configured, otherwise recovery is immediate.
+      if (event.error !== null) {
+        return withRecovery(
+          {
+            result: OUTCOME_FAILED,
+            failure: { stage: FAILURE_PRESENTATION_READY },
+          },
+          settlement.domain,
+          config,
+          ids,
+          from.operation?.operationId ?? 0,
+        );
+      }
+
+      return { ...settlement, presentation: PRESENTATION_READY };
+    }
+
     if (
       (event.type === SETTLEMENT_FAILED || event.type === HOME_INVALID) &&
       landing.stage !== LANDING_SKIPPED &&
-      landing.currency.landingId === event.landingId
+      landing.stage !== LANDING_SETTLED &&
+      sameLanding(landing.currency, event)
     ) {
       const stage: FailureCause['stage'] =
         event.type === HOME_INVALID ? FAILURE_HOME_TARGET : event.stage;
@@ -846,6 +919,7 @@ export function createDraggableReducer(
         outcome: { result: OUTCOME_FAILED, failure: { stage } },
         recovery: RECOVERY_IMMEDIATE,
         domain: settlement.domain,
+        presentation: PRESENTATION_READY,
         landing: { stage: LANDING_SKIPPED },
       };
     }

@@ -21,6 +21,7 @@ import {
 } from '../kernel/invalidation.ts';
 import type { OperationIdentitySource } from '../kernel/operation-id.ts';
 import { acquirePointerCapture } from '../kernel/pointer.ts';
+import { watchPresentationReady } from '../kernel/presentation-ready.ts';
 import {
   acquireLift,
   createDragRenderer,
@@ -41,6 +42,7 @@ import {
   LANDING_PREPARING,
   LANDING_RUNNING,
   LANDING_SKIPPED,
+  isLandingSettled,
   OUTCOME_ACCEPTED,
   OUTCOME_CANCELED,
   OUTCOME_FAILED,
@@ -55,9 +57,12 @@ import {
   PHASE_SETTLING,
   RECOVERY_HOME,
   LIFECYCLE_START_SUCCEEDED,
+  type LandingCurrency,
+  type LandingPlan,
   type FailureCause,
 } from '../kernel/protocol.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
+import type { Disposer } from '../kernel/resource-scope.ts';
 import type { AnimationTiming, Point } from '../kernel/types.ts';
 import { anchorIndex } from './geometry.ts';
 import { currentInsertion, resolveSpatialInsertion } from './insertion.ts';
@@ -86,6 +91,8 @@ import {
   PROPOSAL_BUILT,
   REORDER_NOOP,
   RESOLUTION_STARTED,
+  PRESENTATION_SETTLED,
+  REORDER_RESOLVED,
   SETTLEMENT_COMPLETED,
   SETTLEMENT_FAILED,
   TRANSACTION_AWAITING_CONSUMER,
@@ -129,6 +136,7 @@ export class SortableGesture {
   #frame: FrameTask<Point> | null = null;
   #resolution: ReorderResolutionEffect | null = null;
   #landing: LandingRunner | null = null;
+  #presentationWatchDisposer: Disposer | null = null;
   #originRect: DOMRectReadOnly = new DOMRectReadOnly();
   #lastPoint: Point | null = null;
   #lastDelta: Point = { x: 0, y: 0 };
@@ -250,7 +258,7 @@ export class SortableGesture {
       this.#renderer = createDragRenderer(lift);
 
       const capture = acquirePointerCapture(op.item, to.pointer.id);
-      this.#scope.interaction.use(() => capture.dispose());
+      this.#scope.interaction.use(capture);
 
       this.#frame = createFrameTask<Point>(realm, (point) =>
         this.#resolveInsertion(point),
@@ -513,6 +521,7 @@ export class SortableGesture {
 
     if (from.phase !== PHASE_SETTLING) {
       this.#scope.settle();
+      this.#watchPresentation(event);
 
       if (settlement.landing.stage === LANDING_SKIPPED) {
         this.#deps.dispatch({ type: SETTLEMENT_COMPLETED, operationId });
@@ -523,6 +532,19 @@ export class SortableGesture {
     }
 
     const { landing } = settlement;
+
+    // The authored-presentation barrier settled. On success with landing still
+    // running there is nothing to do — landing drives completion. Otherwise
+    // this is the last barrier, and a failed acknowledgement has replaced the
+    // settlement with a fresh home recovery that nothing else would run.
+    if (event.type === PRESENTATION_SETTLED) {
+      if (landing.stage === LANDING_PREPARING && !landing.plan) {
+        this.#prepareLanding(to);
+      } else if (isLandingSettled(landing)) {
+        this.#deps.dispatch({ type: SETTLEMENT_COMPLETED, operationId });
+      }
+      return;
+    }
 
     if (
       landing.stage === LANDING_PREPARING &&
@@ -590,10 +612,7 @@ export class SortableGesture {
     });
   }
 
-  #startLanding(
-    currency: { operationId: number; landingId: number },
-    plan: { from: Point; target: Point },
-  ): void {
+  #startLanding(currency: LandingCurrency, plan: LandingPlan): void {
     if (!this.#lift) {
       return;
     }
@@ -626,9 +645,39 @@ export class SortableGesture {
     });
   }
 
+  /**
+   * Arms the authored-presentation barrier when the consumer's resolution
+   * carried one. The promise stays out of reducer state — only its settlement
+   * is dispatched back, tagged with the resolution currency.
+   */
+  #watchPresentation(event: SortableEvent): void {
+    if (
+      event.type !== REORDER_RESOLVED ||
+      !event.resolution.presentationReady
+    ) {
+      return;
+    }
+
+    this.#presentationWatchDisposer = watchPresentationReady(
+      event.resolution.presentationReady,
+      { operationId: event.operationId, resolutionId: event.resolutionId },
+      this.#deps.realm,
+      (currency, error) => {
+        this.#deps.dispatch({
+          type: PRESENTATION_SETTLED,
+          operationId: currency.operationId,
+          resolutionId: currency.resolutionId,
+          error,
+        });
+      },
+    );
+  }
+
   #complete(from: SortableState): void {
     const { settlement } = from;
     this.#scope.finish();
+    this.#presentationWatchDisposer?.();
+    this.#presentationWatchDisposer = null;
     this.#landing = null;
     this.#resolution = null;
     this.#placeholder = null;

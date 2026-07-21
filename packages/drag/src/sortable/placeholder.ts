@@ -7,6 +7,7 @@
  * current rect, and removes it on disposal.
  */
 import type { DOMRealm } from '../kernel/realm.ts';
+import type { Disposer } from '../kernel/resource-scope.ts';
 import type { PlaceholderContext, SortableOptions } from './options.ts';
 
 /** Builds and sizes the anchor without inserting or measuring it. */
@@ -44,7 +45,7 @@ export type PlaceholderLease = Readonly<{
   /** Returns the anchor to the dragged item's home slot (idempotent). */
   returnHome(): void;
   /** Removes the anchor from the DOM. */
-  dispose(): void;
+  dispose: Disposer;
 }>;
 
 /** Inserts `anchor` at `item`'s original slot and returns its lease. */

@@ -16,6 +16,17 @@ export type Point = Readonly<{
 export type DragAxis = typeof AXIS_BOTH | typeof AXIS_X | typeof AXIS_Y;
 
 /**
+ * What a gesture acts on: the collection member being dragged, and the element
+ * that visually represents it. They are the same element unless the consumer
+ * supplies a `getVisual`, in which case only the visual is lifted — `item` never
+ * leaves its DOM slot.
+ */
+export type DragSubject = Readonly<{
+  item: HTMLElement;
+  visual: HTMLElement;
+}>;
+
+/**
  * Maps points and deltas between viewport space and a consumer-selected local
  * space. The default is derived at activation from the visual's layout context;
  * a consumer may supply its own mapper through `coordinateSpace`. A mapper is an
@@ -48,16 +59,15 @@ export type DragGeometry = Readonly<{
 }>;
 
 /** Geometry describing where a free drag was released. */
-export type FreeDropRequest = Readonly<{
-  item: HTMLElement;
-  visual: HTMLElement;
-  pointer: Point;
-  viewportPosition: Point;
-  localPosition: Point;
-  viewportDelta: Point;
-  localDelta: Point;
-  visualRect: DOMRectReadOnly;
-}>;
+export type FreeDropRequest = DragSubject &
+  Readonly<{
+    pointer: Point;
+    viewportPosition: Point;
+    localPosition: Point;
+    viewportDelta: Point;
+    localDelta: Point;
+    visualRect: DOMRectReadOnly;
+  }>;
 
 /** A proposed reorder, carrying both indices and stable neighbour identity. */
 export type ReorderRequest = Readonly<{

@@ -15,6 +15,7 @@ import type {
   FreeDropRequest,
   MaybePromise,
   Point,
+  DragSubject,
 } from '../kernel/types.ts';
 import type { BOUNDS_VIEWPORT } from './bounds.ts';
 
@@ -32,13 +33,26 @@ export type LiftMode =
   | typeof LIFT_FLATTEN
   | typeof LIFT_NONE;
 
-/** The explicit consumer response to a free drop. */
+/**
+ * The explicit consumer response to a free drop.
+ *
+ * Both responses optionally carry `presentationReady` — see
+ * {@link AcceptedFreeDropResolution}.
+ */
 export const FreeDropResolution = {
-  accept: (): AcceptedFreeDropResolution => ({ type: OUTCOME_ACCEPTED }),
-  reject: (reason?: unknown): RejectedFreeDropResolution => ({
-    type: OUTCOME_REJECTED,
-    reason,
-  }),
+  accept: (
+    presentationReady?: PromiseLike<void>,
+  ): AcceptedFreeDropResolution =>
+    presentationReady
+      ? { type: OUTCOME_ACCEPTED, presentationReady }
+      : { type: OUTCOME_ACCEPTED },
+  reject: (
+    reason?: unknown,
+    presentationReady?: PromiseLike<void>,
+  ): RejectedFreeDropResolution =>
+    presentationReady
+      ? { type: OUTCOME_REJECTED, reason, presentationReady }
+      : { type: OUTCOME_REJECTED, reason },
 } as const;
 
 export type FreeDropResolution =
@@ -119,11 +133,24 @@ export type FreeDropProposal = Readonly<{
 
 export type AcceptedFreeDropResolution = Readonly<{
   type: typeof OUTCOME_ACCEPTED;
+  /**
+   * Resolves once the consumer's *authored* presentation for this outcome has
+   * actually been committed. The engine keeps the lift pinned until it settles
+   * (bounded by `PRESENTATION_READY_TIMEOUT`), so the authored DOM is never
+   * revealed before it exists.
+   *
+   * Apply the change from the resolution callback and return the promise here —
+   * do not `await` it before returning, which would serialize the render ahead
+   * of the landing animation instead of overlapping it.
+   */
+  presentationReady?: PromiseLike<void>;
 }>;
 
 export type RejectedFreeDropResolution = Readonly<{
   type: typeof OUTCOME_REJECTED;
   reason?: unknown;
+  /** As {@link AcceptedFreeDropResolution.presentationReady}, for async rollback. */
+  presentationReady?: PromiseLike<void>;
 }>;
 
 /** The terminal free-drop result carried through settlement. */
@@ -156,10 +183,7 @@ export type OnDrop = (
 ) => MaybePromise<FreeDropResolution>;
 
 /** Request handed to the optional home-target resolver. */
-export type FreeHomeRequest = Readonly<{
-  item: HTMLElement;
-  visual: HTMLElement;
-}>;
+export type FreeHomeRequest = DragSubject;
 
 export type ResolveFreeHomeTarget = (
   request: FreeHomeRequest,

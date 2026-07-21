@@ -3,13 +3,12 @@
  * listeners and mutates no gesture state.
  */
 import { isPrimaryPress } from '../kernel/pointer.ts';
-import type { Point } from '../kernel/types.ts';
+import type { PointerSample } from '../kernel/protocol.ts';
 
-export type DraggablePress = Readonly<{
-  item: HTMLElement;
-  pointerId: number;
-  point: Point;
-}>;
+export type DraggablePress = PointerSample &
+  Readonly<{
+    item: HTMLElement;
+  }>;
 
 /**
  * Resolves an admitted press, or `null` when the press is non-primary or misses

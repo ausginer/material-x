@@ -12,20 +12,36 @@
  */
 import type { OperationIdentitySource } from '../kernel/operation-id.ts';
 import {
+  CANCEL_ESCAPE,
+  type CancellationReason,
+  type DragPhase,
+  FAILURE_PRESENTATION_READY,
+  FAILURE_REORDER_RESOLUTION,
+  type FailureCause,
+  isLandingSettled,
+  LANDING_COMPLETING,
+  LANDING_PREPARING,
+  LANDING_RUNNING,
+  LANDING_SETTLED,
+  LANDING_SKIPPED,
+  type LandingCurrency,
+  sameLanding,
+  type LandingPlan,
+  type LandingState,
   LIFECYCLE_ACTIVATE,
   LIFECYCLE_ACTIVATION_FAILED,
   LIFECYCLE_ACTIVATION_READY,
   LIFECYCLE_ADMIT,
   LIFECYCLE_CANCEL,
-  CANCEL_ESCAPE,
   LIFECYCLE_DISARM,
-  FAILURE_REORDER_RESOLUTION,
   LIFECYCLE_IGNORE,
-  LANDING_COMPLETING,
-  LANDING_PREPARING,
-  LANDING_RUNNING,
-  LANDING_SKIPPED,
   LIFECYCLE_MOVE,
+  LIFECYCLE_RELEASE,
+  LIFECYCLE_RESOLVED,
+  LIFECYCLE_SETTLE_COMPLETE,
+  LIFECYCLE_SETTLE_PROGRESS,
+  LIFECYCLE_START_SUCCEEDED,
+  type LifecycleEvent,
   OPERATION_ACTIVE,
   OPERATION_ADMITTED,
   OPERATION_CANDIDATE,
@@ -40,27 +56,21 @@ import {
   PHASE_IDLE,
   PHASE_PENDING,
   PHASE_SETTLING,
+  type PointerSample,
+  type PointerState,
+  PRESENTATION_PENDING,
+  PRESENTATION_READY,
+  type PresentationReadiness,
   RECOVERY_DESTINATION,
   RECOVERY_HOME,
   RECOVERY_IMMEDIATE,
-  LIFECYCLE_RELEASE,
-  LIFECYCLE_RESOLVED,
-  LIFECYCLE_SETTLE_COMPLETE,
-  LIFECYCLE_SETTLE_PROGRESS,
-  LIFECYCLE_START_SUCCEEDED,
-  transitionKernelPhase,
-  type CancellationReason,
-  type DragPhase,
-  type FailureCause,
-  type LandingPlan,
-  type LandingState,
-  type LifecycleEvent,
-  type PointerState,
+  type ResolutionCurrency,
+  type SettlementOutcome,
   type SettlementRecovery,
   type SettlementState,
-  type SettlementOutcome,
+  transitionKernelPhase,
 } from '../kernel/protocol.ts';
-import type { Point } from '../kernel/types.ts';
+import type { DragSubject, Point } from '../kernel/types.ts';
 import { CHANGE_REBASE, reconcileCollection } from './collection-policy.ts';
 import {
   REORDER_CANCELED_AT_CONSUMER,
@@ -97,6 +107,9 @@ export const SETTLEMENT_FAILED: unique symbol = Symbol('settlement-failed');
 export const SETTLEMENT_COMPLETED: unique symbol = Symbol(
   'settlement-completed',
 );
+export const PRESENTATION_SETTLED: unique symbol = Symbol(
+  'presentation-settled',
+);
 
 export type SortableInput = typeof INPUT_POINTER | typeof INPUT_KEYBOARD;
 
@@ -108,16 +121,15 @@ export type AdmittedSortableOperation = Readonly<{
   operationCollection: CollectionSnapshot;
 }>;
 
-export type CandidateSortableOperation = Readonly<{
-  type: typeof OPERATION_CANDIDATE | typeof OPERATION_ACTIVE;
-  operationId: number;
-  input: SortableInput;
-  item: HTMLElement;
-  visual: HTMLElement;
-  activationVersion: number;
-  activationIndex: number;
-  operationCollection: CollectionSnapshot | null;
-}>;
+export type CandidateSortableOperation = DragSubject &
+  Readonly<{
+    type: typeof OPERATION_CANDIDATE | typeof OPERATION_ACTIVE;
+    operationId: number;
+    input: SortableInput;
+    activationVersion: number;
+    activationIndex: number;
+    operationCollection: CollectionSnapshot | null;
+  }>;
 
 export type SortableOperation =
   | AdmittedSortableOperation
@@ -157,12 +169,11 @@ export type ProposalReadySortableTransaction = Readonly<{
   proposal: ReorderProposal;
 }>;
 
-export type AwaitingConsumerSortableTransaction = Readonly<{
-  stage: typeof TRANSACTION_AWAITING_CONSUMER;
-  proposal: ReorderProposal;
-  operationId: number;
-  resolutionId: number;
-}>;
+export type AwaitingConsumerSortableTransaction = ResolutionCurrency &
+  Readonly<{
+    stage: typeof TRANSACTION_AWAITING_CONSUMER;
+    proposal: ReorderProposal;
+  }>;
 
 export type SortableTransaction =
   | NoneSortableTransaction
@@ -186,27 +197,24 @@ export type SortableCandidate = Readonly<{
   insertion: Insertion;
 }>;
 
-export type AdmitSortableEvent = Readonly<{
-  type: typeof LIFECYCLE_ADMIT;
-  operationId: number;
-  input: SortableInput;
-  item: HTMLElement;
-  pointerId: number;
-  point: Point;
-  collection: CollectionSnapshot;
-}>;
+export type AdmitSortableEvent = PointerSample &
+  Readonly<{
+    type: typeof LIFECYCLE_ADMIT;
+    operationId: number;
+    input: SortableInput;
+    item: HTMLElement;
+    collection: CollectionSnapshot;
+  }>;
 
-export type MoveSortableEvent = Readonly<{
-  type: typeof LIFECYCLE_MOVE;
-  pointerId: number;
-  point: Point;
-}>;
+export type MoveSortableEvent = PointerSample &
+  Readonly<{
+    type: typeof LIFECYCLE_MOVE;
+  }>;
 
-export type ReleaseSortableEvent = Readonly<{
-  type: typeof LIFECYCLE_RELEASE;
-  pointerId: number;
-  point: Point;
-}>;
+export type ReleaseSortableEvent = PointerSample &
+  Readonly<{
+    type: typeof LIFECYCLE_RELEASE;
+  }>;
 
 export type CancelSortableEvent = Readonly<{
   type: typeof LIFECYCLE_CANCEL;
@@ -264,25 +272,22 @@ export type ReorderNoopSortableEvent = Readonly<{
   proposal: ReorderProposal;
 }>;
 
-export type ResolutionStartedSortableEvent = Readonly<{
-  type: typeof RESOLUTION_STARTED;
-  operationId: number;
-  resolutionId: number;
-}>;
+export type ResolutionStartedSortableEvent = ResolutionCurrency &
+  Readonly<{
+    type: typeof RESOLUTION_STARTED;
+  }>;
 
-export type ReorderResolvedSortableEvent = Readonly<{
-  type: typeof REORDER_RESOLVED;
-  operationId: number;
-  resolutionId: number;
-  resolution: ReorderResolution;
-}>;
+export type ReorderResolvedSortableEvent = ResolutionCurrency &
+  Readonly<{
+    type: typeof REORDER_RESOLVED;
+    resolution: ReorderResolution;
+  }>;
 
-export type ReorderResolutionFailedSortableEvent = Readonly<{
-  type: typeof REORDER_RESOLUTION_FAILED;
-  operationId: number;
-  resolutionId: number;
-  error: unknown;
-}>;
+export type ReorderResolutionFailedSortableEvent = ResolutionCurrency &
+  Readonly<{
+    type: typeof REORDER_RESOLUTION_FAILED;
+    error: unknown;
+  }>;
 
 export type EffectFailedSortableEvent = Readonly<{
   type: typeof EFFECT_FAILED;
@@ -291,38 +296,43 @@ export type EffectFailedSortableEvent = Readonly<{
   error: unknown;
 }>;
 
-export type LandingPlanReadySortableEvent = Readonly<{
-  type: typeof LANDING_PLAN_READY;
-  operationId: number;
-  landingId: number;
-  plan: LandingPlan;
-}>;
+export type LandingPlanReadySortableEvent = LandingCurrency &
+  Readonly<{
+    type: typeof LANDING_PLAN_READY;
+    plan: LandingPlan;
+  }>;
 
-export type LandingStartedSortableEvent = Readonly<{
-  type: typeof LANDING_STARTED;
-  operationId: number;
-  landingId: number;
-}>;
+export type LandingStartedSortableEvent = LandingCurrency &
+  Readonly<{
+    type: typeof LANDING_STARTED;
+  }>;
 
-export type LandingFinishedSortableEvent = Readonly<{
-  type: typeof LANDING_FINISHED;
-  operationId: number;
-  landingId: number;
-}>;
+export type LandingFinishedSortableEvent = LandingCurrency &
+  Readonly<{
+    type: typeof LANDING_FINISHED;
+  }>;
 
-export type LandingPinnedSortableEvent = Readonly<{
-  type: typeof LANDING_PINNED;
-  operationId: number;
-  landingId: number;
-}>;
+export type LandingPinnedSortableEvent = LandingCurrency &
+  Readonly<{
+    type: typeof LANDING_PINNED;
+  }>;
 
-export type SettlementFailedSortableEvent = Readonly<{
-  type: typeof SETTLEMENT_FAILED;
-  operationId: number;
-  landingId: number;
-  stage: FailureCause['stage'];
-  error: unknown;
-}>;
+export type SettlementFailedSortableEvent = LandingCurrency &
+  Readonly<{
+    type: typeof SETTLEMENT_FAILED;
+    stage: FailureCause['stage'];
+    error: unknown;
+  }>;
+
+/**
+ * The consumer's authored presentation settled: `error` is `null` on success,
+ * or the rejection/timeout that failed it.
+ */
+export type PresentationSettledSortableEvent = ResolutionCurrency &
+  Readonly<{
+    type: typeof PRESENTATION_SETTLED;
+    error: unknown;
+  }>;
 
 export type SettlementCompletedSortableEvent = Readonly<{
   type: typeof SETTLEMENT_COMPLETED;
@@ -352,7 +362,8 @@ export type SortableEvent =
   | LandingFinishedSortableEvent
   | LandingPinnedSortableEvent
   | SettlementFailedSortableEvent
-  | SettlementCompletedSortableEvent;
+  | SettlementCompletedSortableEvent
+  | PresentationSettledSortableEvent;
 
 export type SortableConfig = Readonly<{ threshold: number }>;
 
@@ -480,9 +491,22 @@ function classify(
         state.transaction.resolutionId === event.resolutionId
         ? LIFECYCLE_RESOLVED
         : LIFECYCLE_IGNORE;
+    // Landing is done, but the operation only leaves `settling` once the
+    // consumer's authored presentation is ready too — otherwise the temporary
+    // presentation would be torn down before the authored DOM exists.
     case LANDING_PINNED:
     case SETTLEMENT_COMPLETED:
-      return LIFECYCLE_SETTLE_COMPLETE;
+      return state.settlement?.presentation === PRESENTATION_PENDING
+        ? LIFECYCLE_SETTLE_PROGRESS
+        : LIFECYCLE_SETTLE_COMPLETE;
+    // Completes the operation when it is the last of the two barriers to land.
+    case PRESENTATION_SETTLED:
+      return isActiveOp(state, event.operationId) &&
+        state.settlement?.presentation === PRESENTATION_PENDING &&
+        event.error === null &&
+        isLandingSettled(state.settlement.landing)
+        ? LIFECYCLE_SETTLE_COMPLETE
+        : LIFECYCLE_SETTLE_PROGRESS;
     case LANDING_PLAN_READY:
     case LANDING_STARTED:
     case LANDING_FINISHED:
@@ -510,6 +534,7 @@ function outcomeOf(domain: ReorderTransactionResult): SettlementOutcome {
 
 function skipped(
   domain: ReorderTransactionResult,
+  presentation: PresentationReadiness = PRESENTATION_READY,
 ): SettlementState<ReorderTransactionResult> {
   const recovery: SettlementRecovery =
     domain.type === OUTCOME_ACCEPTED ? RECOVERY_DESTINATION : RECOVERY_HOME;
@@ -517,6 +542,7 @@ function skipped(
     outcome: outcomeOf(domain),
     recovery,
     domain,
+    presentation,
     landing: { stage: LANDING_SKIPPED },
   };
 }
@@ -536,11 +562,13 @@ function landed(
   domain: ReorderTransactionResult,
   ids: OperationIdentitySource,
   operationId: number,
+  presentation: PresentationReadiness = PRESENTATION_READY,
 ): SettlementState<ReorderTransactionResult> {
   return {
     outcome: outcomeOf(domain),
     recovery: RECOVERY_DESTINATION,
     domain,
+    presentation,
     landing: preparingLanding(ids, operationId),
   };
 }
@@ -554,11 +582,13 @@ function rolledBack(
   domain: ReorderTransactionResult,
   ids: OperationIdentitySource,
   operationId: number,
+  presentation: PresentationReadiness = PRESENTATION_READY,
 ): SettlementState<ReorderTransactionResult> {
   return {
     outcome: outcomeOf(domain),
     recovery: RECOVERY_HOME,
     domain,
+    presentation,
     landing: preparingLanding(ids, operationId),
   };
 }
@@ -566,6 +596,7 @@ function rolledBack(
 function progressSettling(
   settlement: SettlementState<ReorderTransactionResult> | null,
   event: SortableEvent,
+  ids: OperationIdentitySource,
 ): SettlementState<ReorderTransactionResult> | null {
   if (!settlement) {
     return settlement;
@@ -575,7 +606,7 @@ function progressSettling(
   if (
     event.type === LANDING_PLAN_READY &&
     landing.stage === LANDING_PREPARING &&
-    landing.currency.landingId === event.landingId
+    sameLanding(landing.currency, event)
   ) {
     return {
       ...settlement,
@@ -590,7 +621,7 @@ function progressSettling(
     event.type === LANDING_STARTED &&
     landing.stage === LANDING_PREPARING &&
     landing.plan &&
-    landing.currency.landingId === event.landingId
+    sameLanding(landing.currency, event)
   ) {
     return {
       ...settlement,
@@ -604,7 +635,7 @@ function progressSettling(
   if (
     event.type === LANDING_FINISHED &&
     landing.stage === LANDING_RUNNING &&
-    landing.currency.landingId === event.landingId
+    sameLanding(landing.currency, event)
   ) {
     return {
       ...settlement,
@@ -615,15 +646,47 @@ function progressSettling(
       },
     };
   }
+  // Landing pinned: it no longer holds the temporary presentation. Release
+  // still waits on the authored-presentation half of the barrier.
+  if (
+    event.type === LANDING_PINNED &&
+    landing.stage === LANDING_COMPLETING &&
+    sameLanding(landing.currency, event)
+  ) {
+    return { ...settlement, landing: { stage: LANDING_SETTLED } };
+  }
+  if (
+    event.type === PRESENTATION_SETTLED &&
+    settlement.presentation === PRESENTATION_PENDING
+  ) {
+    // A rejected or timed-out acknowledgement means the destination authored
+    // presentation cannot be assumed to exist, so recover home instead of
+    // revealing it.
+    if (event.error !== null) {
+      return {
+        outcome: {
+          result: OUTCOME_FAILED,
+          failure: { stage: FAILURE_PRESENTATION_READY },
+        },
+        recovery: RECOVERY_HOME,
+        domain: settlement.domain,
+        presentation: PRESENTATION_READY,
+        landing: preparingLanding(ids, event.operationId),
+      };
+    }
+    return { ...settlement, presentation: PRESENTATION_READY };
+  }
   if (
     event.type === SETTLEMENT_FAILED &&
     landing.stage !== LANDING_SKIPPED &&
-    landing.currency.landingId === event.landingId
+    landing.stage !== LANDING_SETTLED &&
+    sameLanding(landing.currency, event)
   ) {
     return {
       outcome: { result: OUTCOME_FAILED, failure: { stage: event.stage } },
       recovery: RECOVERY_IMMEDIATE,
       domain: settlement.domain,
+      presentation: PRESENTATION_READY,
       landing: { stage: LANDING_SKIPPED },
     };
   }
@@ -648,8 +711,21 @@ function enterSettling(
   }
 
   if (event.type === REORDER_RESOLVED && proposal) {
+    // A resolution carrying `presentationReady` holds the temporary
+    // presentation until the consumer acknowledges; without one there is
+    // nothing to wait for.
+    const presentation: PresentationReadiness = event.resolution
+      .presentationReady
+      ? PRESENTATION_PENDING
+      : PRESENTATION_READY;
+
     if (event.resolution.type === OUTCOME_ACCEPTED) {
-      return landed({ type: OUTCOME_ACCEPTED, proposal }, ids, operationId);
+      return landed(
+        { type: OUTCOME_ACCEPTED, proposal },
+        ids,
+        operationId,
+        presentation,
+      );
     }
     return rolledBack(
       {
@@ -660,6 +736,7 @@ function enterSettling(
       },
       ids,
       operationId,
+      presentation,
     );
   }
 
@@ -671,6 +748,7 @@ function enterSettling(
       },
       recovery: RECOVERY_IMMEDIATE,
       domain: null,
+      presentation: PRESENTATION_READY,
       landing: { stage: LANDING_SKIPPED },
     };
   }
@@ -680,6 +758,7 @@ function enterSettling(
       outcome: { result: OUTCOME_FAILED, failure: { stage: event.stage } },
       recovery: RECOVERY_IMMEDIATE,
       domain: null,
+      presentation: PRESENTATION_READY,
       landing: { stage: LANDING_SKIPPED },
     };
   }
@@ -930,7 +1009,7 @@ export function createSortableReducer(
     if (from.phase !== PHASE_SETTLING) {
       return enterSettling(from, event, ids);
     }
-    return progressSettling(from.settlement, event);
+    return progressSettling(from.settlement, event, ids);
   };
 
   return (from, event) => {

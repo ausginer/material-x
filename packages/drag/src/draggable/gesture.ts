@@ -17,6 +17,7 @@ import {
 import type { InvalidationSource } from '../kernel/invalidation.ts';
 import type { OperationIdentitySource } from '../kernel/operation-id.ts';
 import { acquirePointerCapture } from '../kernel/pointer.ts';
+import { watchPresentationReady } from '../kernel/presentation-ready.ts';
 import {
   createDragRenderer,
   acquireLift,
@@ -28,17 +29,22 @@ import {
   type VisualLiftSession,
 } from '../kernel/presentation.ts';
 import {
-  LIFECYCLE_ACTIVATION_FAILED,
-  LIFECYCLE_ACTIVATION_READY,
   FAILURE_ACTIVATION,
   FAILURE_CANCEL_CALLBACK,
   FAILURE_FINISH_CALLBACK,
   FAILURE_LANDING_INTERRUPTED,
   FAILURE_MOVE,
+  type LandingCurrency,
+  type LandingPlan,
+  type FailureCause,
+  isLandingSettled,
   LANDING_COMPLETING,
   LANDING_PREPARING,
   LANDING_RUNNING,
   LANDING_SKIPPED,
+  LIFECYCLE_ACTIVATION_FAILED,
+  LIFECYCLE_ACTIVATION_READY,
+  LIFECYCLE_START_SUCCEEDED,
   OPERATION_ADMITTED,
   OPERATION_CANDIDATE,
   OUTCOME_ACCEPTED,
@@ -52,16 +58,15 @@ import {
   PHASE_PENDING,
   PHASE_SETTLING,
   RECOVERY_HOME,
-  LIFECYCLE_START_SUCCEEDED,
-  type FailureCause,
 } from '../kernel/protocol.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
+import type { Disposer } from '../kernel/resource-scope.ts';
 import {
-  ORIGIN,
   type AnimationTiming,
   type CoordinateMapper,
   type DragGeometry,
-  type Point,
+  type DragSubject,
+  ORIGIN,
 } from '../kernel/types.ts';
 import { homeLandingPlan, isValidHomeTarget } from './landing.ts';
 import { geometryOf } from './motion.ts';
@@ -78,7 +83,9 @@ import {
   DROP_AWAITING_CONSUMER,
   DROP_PROPOSAL_READY,
   EFFECT_FAILED,
+  DROP_RESOLVED,
   HOME_INVALID,
+  PRESENTATION_SETTLED,
   INVALIDATE,
   LANDING_FINISHED,
   LANDING_PINNED,
@@ -106,17 +113,16 @@ const LIFT_MODES: Readonly<
   [LIFT_NONE]: LIFT_IN_PLACE,
 };
 
-export type FreeGestureDeps = Readonly<{
-  realm: DOMRealm;
-  ids: OperationIdentitySource;
-  options: DraggableOptions;
-  item: HTMLElement;
-  visual: HTMLElement;
-  invalidation: InvalidationSource;
-  dispatch(event: DraggableEvent): void;
-  /** Resolves the live bounds rect for a pointer move (effectful). */
-  currentBounds(): DOMRectReadOnly | null;
-}>;
+export type FreeGestureDeps = DragSubject &
+  Readonly<{
+    realm: DOMRealm;
+    ids: OperationIdentitySource;
+    options: DraggableOptions;
+    invalidation: InvalidationSource;
+    dispatch(event: DraggableEvent): void;
+    /** Resolves the live bounds rect for a pointer move (effectful). */
+    currentBounds(): DOMRectReadOnly | null;
+  }>;
 
 /** The reported geometry for an active/candidate draggable state. */
 function freeGeometry(to: DraggableState): DragGeometry {
@@ -145,6 +151,7 @@ export class FreeDragGesture {
   #renderer: DragRenderer | null = null;
   #resolution: DropResolutionEffect | null = null;
   #landing: LandingRunner | null = null;
+  #presentationWatchDisposer: Disposer | null = null;
 
   constructor(deps: FreeGestureDeps) {
     this.#deps = deps;
@@ -288,7 +295,7 @@ export class FreeDragGesture {
       this.#renderer = createDragRenderer(lift);
 
       const capture = acquirePointerCapture(item, to.pointer.id);
-      this.#scope.interaction.use(() => capture.dispose());
+      this.#scope.interaction.use(capture);
 
       invalidation.arm(this.#scope.signal, () => {
         dispatch({
@@ -423,6 +430,7 @@ export class FreeDragGesture {
     // First entry into settling: abort interaction, prepare recovery.
     if (from.phase !== PHASE_SETTLING) {
       this.#scope.settle();
+      this.#watchPresentation(event);
 
       if (settlement.landing.stage === LANDING_SKIPPED) {
         this.#deps.dispatch({ type: SETTLEMENT_COMPLETED, operationId });
@@ -434,6 +442,19 @@ export class FreeDragGesture {
     }
 
     const { landing } = settlement;
+
+    // The authored-presentation barrier settled. On success with landing still
+    // running there is nothing to do — landing drives completion. Otherwise
+    // this is the last barrier, and a failed acknowledgement has replaced the
+    // settlement with a fresh home recovery that nothing else would run.
+    if (event.type === PRESENTATION_SETTLED) {
+      if (landing.stage === LANDING_PREPARING && !landing.plan) {
+        this.#resolveHome(to);
+      } else if (isLandingSettled(landing)) {
+        this.#deps.dispatch({ type: SETTLEMENT_COMPLETED, operationId });
+      }
+      return;
+    }
 
     // preparing + plan committed: create the runner.
     if (
@@ -530,10 +551,7 @@ export class FreeDragGesture {
     });
   }
 
-  #startLanding(
-    currency: { operationId: number; landingId: number },
-    plan: { from: Point; target: Point },
-  ): void {
+  #startLanding(currency: LandingCurrency, plan: LandingPlan): void {
     if (!this.#lift) {
       return;
     }
@@ -568,9 +586,36 @@ export class FreeDragGesture {
     });
   }
 
+  /**
+   * Arms the authored-presentation barrier when the consumer's resolution
+   * carried one. The promise stays out of reducer state — only its settlement
+   * is dispatched back, tagged with the resolution currency.
+   */
+  #watchPresentation(event: DraggableEvent): void {
+    if (event.type !== DROP_RESOLVED || !event.resolution.presentationReady) {
+      return;
+    }
+
+    this.#presentationWatchDisposer = watchPresentationReady(
+      event.resolution.presentationReady,
+      { operationId: event.operationId, resolutionId: event.resolutionId },
+      this.#deps.realm,
+      (currency, error) => {
+        this.#deps.dispatch({
+          type: PRESENTATION_SETTLED,
+          operationId: currency.operationId,
+          resolutionId: currency.resolutionId,
+          error,
+        });
+      },
+    );
+  }
+
   #complete(from: DraggableState): void {
     const { settlement } = from;
     this.#scope.finish();
+    this.#presentationWatchDisposer?.();
+    this.#presentationWatchDisposer = null;
     this.#landing = null;
     this.#resolution = null;
 

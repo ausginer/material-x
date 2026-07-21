@@ -66,6 +66,7 @@ export {
   type DragUpdate,
   type FreeDropCancelResult as FreeDragCancelResult,
   type FreeDropFinishResult as FreeDragFinishResult,
+  type FreeHomeRequest,
   type FreeHomeTarget,
   type LiftMode,
 } from './draggable/options.ts';
@@ -74,6 +75,7 @@ export type {
   CoordinateMapper,
   DragAxis,
   DragGeometry,
+  DragSubject,
   FreeDropRequest,
   Point,
 } from './kernel/types.ts';

@@ -147,6 +147,31 @@ export type LandingCurrency = Readonly<{
   landingId: number;
 }>;
 
+/**
+ * Whether two currencies name the same landing attempt. Landing events are
+ * themselves `LandingCurrency`, so a reducer can pass one straight in against
+ * the currency held in settlement state.
+ *
+ * Both halves are compared deliberately. Matching `landingId` alone is
+ * sufficient *today* — ids come from one controller-wide counter and are never
+ * reused — but that invariant lives in `operation-id.ts`, not here, and scoping
+ * the counter per operation would silently turn a half-check into a stale-event
+ * match.
+ */
+export function sameLanding(a: LandingCurrency, b: LandingCurrency): boolean {
+  return a.operationId === b.operationId && a.landingId === b.landingId;
+}
+
+/**
+ * One pointer position reading, tagged with the pointer it came from. The unit
+ * of raw input: a press, a move, a release. Distinct from {@link PointerState},
+ * which is the accumulated history the reducer owns.
+ */
+export type PointerSample = Readonly<{
+  pointerId: number;
+  point: Point;
+}>;
+
 /** Pointer identity and history, owned from admission until idle. */
 export type PointerState = Readonly<{
   id: number;
@@ -165,6 +190,7 @@ export const LANDING_PREPARING: unique symbol = Symbol('preparing');
 export const LANDING_RUNNING: unique symbol = Symbol('running');
 export const LANDING_COMPLETING: unique symbol = Symbol('completing');
 export const LANDING_SKIPPED: unique symbol = Symbol('skipped');
+export const LANDING_SETTLED: unique symbol = Symbol('landing-settled');
 
 export type PreparingLandingState = Readonly<{
   stage: typeof LANDING_PREPARING;
@@ -188,12 +214,27 @@ export type SkippedLandingState = Readonly<{
   stage: typeof LANDING_SKIPPED;
 }>;
 
+/**
+ * Landing ran to completion and the visual is pinned at its landed transform.
+ * Terminal, like {@link SkippedLandingState}: neither still holds the temporary
+ * presentation, so both satisfy the landing half of the release barrier.
+ */
+export type SettledLandingState = Readonly<{
+  stage: typeof LANDING_SETTLED;
+}>;
+
 /** The landing sub-state of settlement. */
 export type LandingState =
   | PreparingLandingState
   | RunningLandingState
   | CompletingLandingState
-  | SkippedLandingState;
+  | SkippedLandingState
+  | SettledLandingState;
+
+/** Whether landing no longer holds the temporary presentation. */
+export function isLandingSettled(landing: LandingState): boolean {
+  return landing.stage === LANDING_SKIPPED || landing.stage === LANDING_SETTLED;
+}
 
 export const FAILURE_MOVE: unique symbol = Symbol('move');
 export const FAILURE_CONTROLLED_UPDATE: unique symbol =
@@ -219,6 +260,8 @@ export const FAILURE_REORDER_RESOLUTION: unique symbol =
 export const FAILURE_FINISH_CALLBACK: unique symbol = Symbol('finish-callback');
 export const FAILURE_CANCEL_CALLBACK: unique symbol = Symbol('cancel-callback');
 export const FAILURE_ACTIVATION: unique symbol = Symbol('activation');
+export const FAILURE_PRESENTATION_READY: unique symbol =
+  Symbol('presentation-ready');
 
 /** Stable classification of where a real execution failure occurred. */
 export type FailureCause = Readonly<{
@@ -239,7 +282,8 @@ export type FailureCause = Readonly<{
     | typeof FAILURE_REORDER_RESOLUTION
     | typeof FAILURE_FINISH_CALLBACK
     | typeof FAILURE_CANCEL_CALLBACK
-    | typeof FAILURE_ACTIVATION;
+    | typeof FAILURE_ACTIVATION
+    | typeof FAILURE_PRESENTATION_READY;
 }>;
 
 export const CANCEL_POINTER: unique symbol = Symbol('pointer-canceled');
@@ -307,13 +351,51 @@ export type SettlementRecovery =
   | typeof RECOVERY_HOME
   | typeof RECOVERY_IMMEDIATE;
 
+export const PRESENTATION_PENDING: unique symbol = Symbol(
+  'presentation-pending',
+);
+export const PRESENTATION_READY: unique symbol = Symbol('presentation-ready');
+
+/**
+ * Whether the consumer's *authored* (persistent) presentation is ready to be
+ * revealed. A resolution that carries no `presentationReady` is
+ * {@link PRESENTATION_READY} from the start — the barrier is opt-in.
+ */
+export type PresentationReadiness =
+  | typeof PRESENTATION_PENDING
+  | typeof PRESENTATION_READY;
+
 /** The complete settlement slice, parameterised by feature domain result. */
 export type SettlementState<DomainResult> = Readonly<{
   outcome: SettlementOutcome;
   recovery: SettlementRecovery;
   domain: DomainResult | null;
   landing: LandingState;
+  presentation: PresentationReadiness;
 }>;
+
+/**
+ * The release barrier. The temporary presentation (lift, placeholder) may only
+ * be torn down once landing no longer needs it *and* the consumer's authored
+ * presentation is ready to take over.
+ *
+ * The two run concurrently and are joined here rather than serialized: a
+ * consumer that commits quickly overlaps the landing animation, and whichever
+ * finishes first waits for the other. Serializing them — by awaiting the commit
+ * inside the resolution callback before returning `accepted` — would delay the
+ * landing animation behind the consumer's render and make every drop feel
+ * laggy. That is the whole reason `presentationReady` is a separate field on the
+ * resolution rather than something the callback can simply `await`; do not
+ * "simplify" it away.
+ */
+export function canReleasePresentation(
+  settlement: SettlementState<unknown>,
+): boolean {
+  return (
+    isLandingSettled(settlement.landing) &&
+    settlement.presentation === PRESENTATION_READY
+  );
+}
 
 // Shared operation-identity lifecycle vocabulary: both features carry an
 // admitted/candidate/active operation through activation the same way.

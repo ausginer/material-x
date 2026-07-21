@@ -86,7 +86,11 @@ export {
   type SortableFinishResult,
   type SortableOptions,
 } from './sortable/options.ts';
-export type { AnimationTiming, ReorderRequest } from './kernel/types.ts';
+export type {
+  AnimationTiming,
+  DragSubject,
+  ReorderRequest,
+} from './kernel/types.ts';
 
 type SortableController = Readonly<{
   updateItems(items: readonly HTMLElement[]): void;
