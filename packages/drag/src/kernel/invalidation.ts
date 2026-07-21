@@ -11,6 +11,9 @@
  */
 import type { DOMRealm } from './realm.ts';
 
+const SCROLL = 'scroll';
+const RESIZE = 'resize';
+
 export type InvalidationSource = Readonly<{
   /** Attaches scroll/resize listeners that call `onInvalidate` until aborted. */
   arm(signal: AbortSignal, onInvalidate: () => void): void;
@@ -24,12 +27,12 @@ export function createInvalidationSource(realm: DOMRealm): InvalidationSource {
       };
 
       // Capture scroll so nested scrollers also invalidate.
-      realm.window.addEventListener('scroll', handler, {
+      realm.window.addEventListener(SCROLL, handler, {
         signal,
         capture: true,
         passive: true,
       });
-      realm.window.addEventListener('resize', handler, {
+      realm.window.addEventListener(RESIZE, handler, {
         signal,
         passive: true,
       });

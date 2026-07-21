@@ -9,6 +9,9 @@
  * through the document.
  */
 import {
+  CANCEL_ESCAPE,
+  KEY_DOWN,
+  KEY_ESCAPE,
   LOST_POINTER_CAPTURE,
   POINTER_CANCEL,
   POINTER_DOWN,
@@ -16,6 +19,7 @@ import {
   POINTER_UP,
 } from './protocol.ts';
 import type { DOMRealm } from './realm.ts';
+import type { Disposer } from './resource-scope.ts';
 
 const SESSION_POINTER_EVENTS = [
   POINTER_MOVE,
@@ -25,7 +29,7 @@ const SESSION_POINTER_EVENTS = [
 ] as const;
 
 /** An internal Escape signal, emitted alongside raw pointer events. */
-export type EscapeSignal = Readonly<{ type: 'escape' }>;
+export type EscapeSignal = Readonly<{ type: typeof CANCEL_ESCAPE }>;
 
 export type PointerSource = Readonly<{
   /** Arms document-level move/up/cancel/lostcapture and Escape for one gesture. */
@@ -57,10 +61,10 @@ export function createPointerSource(
       }
 
       realm.document.addEventListener(
-        'keydown',
+        KEY_DOWN,
         (event: Event) => {
-          if ((event as KeyboardEvent).key === 'Escape') {
-            emit({ type: 'escape' });
+          if ((event as KeyboardEvent).key === KEY_ESCAPE) {
+            emit({ type: CANCEL_ESCAPE });
           }
         },
         { signal },
@@ -82,14 +86,10 @@ export function isPrimaryPress(event: PointerEvent): boolean {
  * pointer that wanders off the bound element; the gesture is tracked on the
  * document regardless, so capture is never essential and its failure is benign.
  */
-export type PointerCaptureLease = Readonly<{
-  dispose(): void;
-}>;
-
 export function acquirePointerCapture(
   element: HTMLElement,
   pointerId: number,
-): PointerCaptureLease {
+): Disposer {
   let held = false;
 
   try {
@@ -99,15 +99,15 @@ export function acquirePointerCapture(
     // Non-fatal: fall back to the document-level session listeners.
   }
 
-  return {
-    dispose() {
-      if (held) {
-        try {
-          element.releasePointerCapture(pointerId);
-        } catch {
-          // Already released or pointer gone.
-        }
+  return () => {
+    if (held) {
+      held = false;
+
+      try {
+        element.releasePointerCapture(pointerId);
+      } catch {
+        // Already released or pointer gone.
       }
-    },
+    }
   };
 }

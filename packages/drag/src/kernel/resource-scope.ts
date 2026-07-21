@@ -1,4 +1,15 @@
 /**
+ * Releases one acquisition. Every disposer in this package is idempotent: a
+ * second call is a no-op, never an error, so teardown paths may run
+ * unconditionally.
+ *
+ * This is the package's single release shape. Anything acquired — a pointer
+ * capture, an inline-style snapshot, a top-layer entry, a readiness watch —
+ * hands back one of these rather than its own one-method handle type.
+ */
+export type Disposer = () => void;
+
+/**
  * A LIFO stack of idempotent disposers. `use(disposer)` registers one successful
  * acquisition; `dispose()` runs every registered disposer once, in reverse
  * acquisition order, best-effort, so one failed restoration cannot suppress
@@ -7,7 +18,6 @@
  *
  * The scope owns no abort signal, phase, or feature policy.
  */
-export type Disposer = () => void;
 
 export type ResourceScope = Readonly<{
   /** Registers one successful acquisition's release. */

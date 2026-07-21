@@ -6,10 +6,18 @@
  * currency. Semantic resolution state lives only in `DraggableState`; this effect
  * only gates currency/abort so a stale or post-completion continuation is inert.
  */
-import type { ResolutionCurrency } from '../kernel/protocol.ts';
+import {
+  OUTCOME_ACCEPTED,
+  OUTCOME_REJECTED,
+  type ResolutionCurrency,
+} from '../kernel/protocol.ts';
 import type { FreeDropRequest } from '../kernel/types.ts';
 import type { FreeDropResolution, OnDrop } from './options.ts';
-import type { DraggableEvent } from './reducer.ts';
+import {
+  DROP_RESOLVED,
+  DROP_RESOLUTION_FAILED,
+  type DraggableEvent,
+} from './reducer.ts';
 
 /** Whether `value` is a well-formed consumer resolution. */
 function isResolution(value: unknown): value is FreeDropResolution {
@@ -18,7 +26,7 @@ function isResolution(value: unknown): value is FreeDropResolution {
   }
 
   const { type } = value as { type?: unknown };
-  return type === 'accepted' || type === 'rejected';
+  return type === OUTCOME_ACCEPTED || type === OUTCOME_REJECTED;
 }
 
 export type DropResolutionEffect = Readonly<{
@@ -62,7 +70,7 @@ export function createDropResolution(
       let value: ReturnType<OnDrop>;
 
       const failed = (error: unknown): DraggableEvent => ({
-        type: 'drop-resolution-failed',
+        type: DROP_RESOLUTION_FAILED,
         operationId: currency.operationId,
         resolutionId: currency.resolutionId,
         error,
@@ -80,7 +88,7 @@ export function createDropResolution(
           finish(
             isResolution(result)
               ? {
-                  type: 'drop-resolved',
+                  type: DROP_RESOLVED,
                   operationId: currency.operationId,
                   resolutionId: currency.resolutionId,
                   resolution: result,

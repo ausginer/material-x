@@ -4,17 +4,25 @@
  * continuation, and the captured immutable proposal currency; semantic state
  * lives only in `SortableState`.
  */
-import type { ResolutionCurrency } from '../kernel/protocol.ts';
+import {
+  OUTCOME_ACCEPTED,
+  OUTCOME_REJECTED,
+  type ResolutionCurrency,
+} from '../kernel/protocol.ts';
 import type { ReorderRequest } from '../kernel/types.ts';
 import type { OnReorder, ReorderResolution } from './options.ts';
-import type { SortableEvent } from './reducer.ts';
+import {
+  REORDER_RESOLVED,
+  REORDER_RESOLUTION_FAILED,
+  type SortableEvent,
+} from './reducer.ts';
 
 function isResolution(value: unknown): value is ReorderResolution {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
   const { type } = value as { type?: unknown };
-  return type === 'accepted' || type === 'rejected';
+  return type === OUTCOME_ACCEPTED || type === OUTCOME_REJECTED;
 }
 
 export type ReorderResolutionEffect = Readonly<{
@@ -40,7 +48,7 @@ export function createReorderResolution(
   };
 
   const failed = (error: unknown): SortableEvent => ({
-    type: 'reorder-resolution-failed',
+    type: REORDER_RESOLUTION_FAILED,
     operationId: currency.operationId,
     resolutionId: currency.resolutionId,
     error,
@@ -69,7 +77,7 @@ export function createReorderResolution(
           finish(
             isResolution(result)
               ? {
-                  type: 'reorder-resolved',
+                  type: REORDER_RESOLVED,
                   operationId: currency.operationId,
                   resolutionId: currency.resolutionId,
                   resolution: result,

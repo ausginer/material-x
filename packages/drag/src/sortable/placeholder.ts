@@ -7,6 +7,7 @@
  * current rect, and removes it on disposal.
  */
 import type { DOMRealm } from '../kernel/realm.ts';
+import type { Disposer } from '../kernel/resource-scope.ts';
 import type { PlaceholderContext, SortableOptions } from './options.ts';
 
 /** Builds and sizes the anchor without inserting or measuring it. */
@@ -41,8 +42,10 @@ export type PlaceholderLease = Readonly<{
   rect(): DOMRectReadOnly;
   /** Inserts the anchor immediately before `reference` (or appends to parent). */
   placeBefore(reference: ChildNode | null): void;
+  /** Returns the anchor to the dragged item's home slot (idempotent). */
+  returnHome(): void;
   /** Removes the anchor from the DOM. */
-  dispose(): void;
+  dispose: Disposer;
 }>;
 
 /** Inserts `anchor` at `item`'s original slot and returns its lease. */
@@ -56,11 +59,17 @@ export function insertPlaceholder(
 
   return {
     element: anchor,
-    rect() {
-      return anchor.getBoundingClientRect();
-    },
+    rect: () => anchor.getBoundingClientRect(),
     placeBefore(reference) {
       parent?.insertBefore(anchor, reference);
+    },
+    returnHome() {
+      // `item` never leaves its DOM slot (only its rendering lifts), so its
+      // current next sibling marks the home gap. Skip when already seated there,
+      // since inserting a node before itself is invalid.
+      if (item.nextSibling !== anchor) {
+        parent?.insertBefore(anchor, item.nextSibling);
+      }
     },
     dispose() {
       if (!disposed) {

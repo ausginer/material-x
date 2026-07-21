@@ -1,7 +1,9 @@
 /** Stateless movement geometry: axis constraint and bounds clamping. */
 import type { DOMRealm } from '../kernel/realm.ts';
-import type { DragAxis, Point } from '../kernel/types.ts';
+import { AXIS_X, AXIS_Y, type DragAxis, type Point } from '../kernel/types.ts';
 import type { DragBounds } from './options.ts';
+
+export const BOUNDS_VIEWPORT = 'viewport';
 
 /** Resolves a bounds source to a viewport rect, or `null` for unbounded. */
 export function resolveBounds(
@@ -12,7 +14,7 @@ export function resolveBounds(
     return null;
   }
 
-  if (bounds === 'viewport') {
+  if (bounds === BOUNDS_VIEWPORT) {
     return new realm.window.DOMRectReadOnly(
       0,
       0,
@@ -47,11 +49,11 @@ export function clampDelta(
 
 /** Constrains a delta to the permitted axis. */
 export function constrainAxis(delta: Point, axis: DragAxis): Point {
-  if (axis === 'x') {
+  if (axis === AXIS_X) {
     return { x: delta.x, y: 0 };
   }
 
-  if (axis === 'y') {
+  if (axis === AXIS_Y) {
     return { x: 0, y: delta.y };
   }
 

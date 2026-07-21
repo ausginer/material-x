@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CHANGE_CANCEL,
+  CHANGE_REBASE,
   reconcileCollection,
   type CollectionChange,
+  type RebaseCollectionChange,
 } from '../../src/sortable/collection-policy.ts';
 import type {
   CollectionSnapshot,
@@ -28,11 +31,9 @@ const insertion = (
   version: number,
 ): Insertion => ({ index, before, after, version });
 
-const expectRebase = (
-  change: CollectionChange,
-): Extract<CollectionChange, { type: 'rebase' }> => {
-  expect(change.type).toBe('rebase');
-  return change as Extract<CollectionChange, { type: 'rebase' }>;
+const expectRebase = (change: CollectionChange): RebaseCollectionChange => {
+  expect(change.type).toBe(CHANGE_REBASE);
+  return change as RebaseCollectionChange;
 };
 
 describe('reconcileCollection', () => {
@@ -41,7 +42,7 @@ describe('reconcileCollection', () => {
     const next = snapshot([dragged, el('a')], 2);
 
     expect(reconcileCollection(next, dragged, null)).toEqual({
-      type: 'cancel',
+      type: CHANGE_CANCEL,
     });
   });
 
@@ -73,7 +74,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(0, null, a, 4);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
 
@@ -85,7 +86,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(0, null, a, 4);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
   });
@@ -119,7 +120,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(2, b, null, 6);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
 
@@ -131,7 +132,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(2, b, null, 6);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
   });
@@ -167,7 +168,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(1, b, c, 8);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
 
@@ -179,7 +180,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(1, b, c, 8);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
 
@@ -191,7 +192,7 @@ describe('reconcileCollection', () => {
       const incumbent = insertion(1, b, c, 8);
 
       expect(reconcileCollection(next, dragged, incumbent)).toEqual({
-        type: 'cancel',
+        type: CHANGE_CANCEL,
       });
     });
   });

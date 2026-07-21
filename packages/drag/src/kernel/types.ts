@@ -4,27 +4,27 @@
  * consumer callbacks and compared without risk of mutation.
  */
 
+/* PUBLIC */
+
 /** A coordinate pair. The space (viewport vs local) is documented per use. */
 export type Point = Readonly<{
   x: number;
   y: number;
 }>;
 
-/** The zero point, reused to avoid churning allocations. */
-export const ORIGIN: Point = { x: 0, y: 0 };
-
-/** Whether both coordinates of a point are finite numbers. */
-export function isFinitePoint(point: unknown): point is Point {
-  return (
-    typeof point === 'object' &&
-    point !== null &&
-    Number.isFinite((point as Point).x) &&
-    Number.isFinite((point as Point).y)
-  );
-}
-
 /** Which axes a free drag may move along. */
-export type DragAxis = 'both' | 'x' | 'y';
+export type DragAxis = typeof AXIS_BOTH | typeof AXIS_X | typeof AXIS_Y;
+
+/**
+ * What a gesture acts on: the collection member being dragged, and the element
+ * that visually represents it. They are the same element unless the consumer
+ * supplies a `getVisual`, in which case only the visual is lifted — `item` never
+ * leaves its DOM slot.
+ */
+export type DragSubject = Readonly<{
+  item: HTMLElement;
+  visual: HTMLElement;
+}>;
 
 /**
  * Maps points and deltas between viewport space and a consumer-selected local
@@ -59,16 +59,15 @@ export type DragGeometry = Readonly<{
 }>;
 
 /** Geometry describing where a free drag was released. */
-export type FreeDropRequest = Readonly<{
-  item: HTMLElement;
-  visual: HTMLElement;
-  pointer: Point;
-  viewportPosition: Point;
-  localPosition: Point;
-  viewportDelta: Point;
-  localDelta: Point;
-  visualRect: DOMRectReadOnly;
-}>;
+export type FreeDropRequest = DragSubject &
+  Readonly<{
+    pointer: Point;
+    viewportPosition: Point;
+    localPosition: Point;
+    viewportDelta: Point;
+    localDelta: Point;
+    visualRect: DOMRectReadOnly;
+  }>;
 
 /** A proposed reorder, carrying both indices and stable neighbour identity. */
 export type ReorderRequest = Readonly<{
@@ -79,6 +78,25 @@ export type ReorderRequest = Readonly<{
   before: HTMLElement | null;
   after: HTMLElement | null;
 }>;
+
+/* PRIVATE */
+
+/** The zero point, reused to avoid churning allocations. */
+export const ORIGIN: Point = { x: 0, y: 0 };
+
+/** Whether both coordinates of a point are finite numbers. */
+export function isFinitePoint(point: unknown): point is Point {
+  return (
+    typeof point === 'object' &&
+    point !== null &&
+    Number.isFinite((point as Point).x) &&
+    Number.isFinite((point as Point).y)
+  );
+}
+
+export const AXIS_BOTH = 'both';
+export const AXIS_X = 'x';
+export const AXIS_Y = 'y';
 
 /** A value that may be produced synchronously or as a promise. */
 export type MaybePromise<T> = T | Promise<T>;

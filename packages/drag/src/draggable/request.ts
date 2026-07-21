@@ -3,6 +3,7 @@
  * rect is derived arithmetically from the activation origin rect and committed
  * motion, so no layout read is needed and the request is reproducible.
  */
+import type { DOMRealm } from '../kernel/realm.ts';
 import type {
   CoordinateMapper,
   FreeDropRequest,
@@ -18,8 +19,9 @@ export function buildFreeDropProposal(
   viewportDelta: Point,
   originRect: DOMRectReadOnly,
   coordinateSpace: CoordinateMapper,
+  realm: DOMRealm,
 ): FreeDropProposal {
-  const visualRect = currentRect(originRect, viewportDelta);
+  const visualRect = currentRect(originRect, viewportDelta, realm);
   const viewportPosition: Point = { x: visualRect.left, y: visualRect.top };
 
   const request: FreeDropRequest = {

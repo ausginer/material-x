@@ -10,10 +10,18 @@
  */
 import { ancestorZoom, viewportMatrix } from './coordinate.ts';
 import type { DOMRealm } from './realm.ts';
+import type { Disposer } from './resource-scope.ts';
 import type { Point } from './types.ts';
 
 /** Which lift strategy a free/sortable operation uses. */
-export type LiftMode = 'faithful' | 'flat' | 'in-place';
+export const LIFT_FAITHFUL: unique symbol = Symbol('faithful');
+export const LIFT_FLAT: unique symbol = Symbol('flat');
+export const LIFT_IN_PLACE: unique symbol = Symbol('in-place');
+
+export type LiftMode =
+  | typeof LIFT_FAITHFUL
+  | typeof LIFT_FLAT
+  | typeof LIFT_IN_PLACE;
 
 /**
  * UA popover stylesheet properties that would change the visual's box or
@@ -52,11 +60,7 @@ const LIFTED_PROPS: readonly string[] = [
 // ---------------------------------------------------------------------------
 
 /** Captures the inline lifted properties before the first write; restores once. */
-export type InlineStyleLease = Readonly<{
-  dispose(): void;
-}>;
-
-export function captureInlineStyles(visual: HTMLElement): InlineStyleLease {
+export function captureInlineStyles(visual: HTMLElement): Disposer {
   const saved = new Map<string, readonly [string, string]>();
 
   for (const prop of LIFTED_PROPS) {
@@ -69,24 +73,22 @@ export function captureInlineStyles(visual: HTMLElement): InlineStyleLease {
 
   let restored = false;
 
-  return {
-    dispose() {
-      if (restored) {
-        return;
+  return () => {
+    if (restored) {
+      return;
+    }
+
+    restored = true;
+
+    for (const prop of LIFTED_PROPS) {
+      const value = saved.get(prop);
+
+      if (value) {
+        visual.style.setProperty(prop, value[0], value[1]);
+      } else {
+        visual.style.removeProperty(prop);
       }
-
-      restored = true;
-
-      for (const prop of LIFTED_PROPS) {
-        const value = saved.get(prop);
-
-        if (value) {
-          visual.style.setProperty(prop, value[0], value[1]);
-        } else {
-          visual.style.removeProperty(prop);
-        }
-      }
-    },
+    }
   };
 }
 
@@ -95,11 +97,7 @@ export function captureInlineStyles(visual: HTMLElement): InlineStyleLease {
 // ---------------------------------------------------------------------------
 
 /** Enters and restores top-layer/popover state, remembering the prior state. */
-export type TopLayerLease = Readonly<{
-  dispose(): void;
-}>;
-
-export function acquireTopLayer(visual: HTMLElement): TopLayerLease {
+export function acquireTopLayer(visual: HTMLElement): Disposer {
   const priorAttribute = visual.getAttribute('popover');
   const priorOpen = visual.matches(':popover-open');
 
@@ -111,28 +109,26 @@ export function acquireTopLayer(visual: HTMLElement): TopLayerLease {
 
   let disposed = false;
 
-  return {
-    dispose() {
-      if (disposed) {
-        return;
-      }
+  return () => {
+    if (disposed) {
+      return;
+    }
 
-      disposed = true;
+    disposed = true;
 
-      if (visual.matches(':popover-open')) {
-        visual.hidePopover();
-      }
+    if (visual.matches(':popover-open')) {
+      visual.hidePopover();
+    }
 
-      if (priorAttribute == null) {
-        visual.removeAttribute('popover');
-      } else {
-        visual.setAttribute('popover', priorAttribute);
-      }
+    if (priorAttribute == null) {
+      visual.removeAttribute('popover');
+    } else {
+      visual.setAttribute('popover', priorAttribute);
+    }
 
-      if (priorOpen && visual.matches('[popover]')) {
-        visual.showPopover();
-      }
-    },
+    if (priorOpen && visual.matches('[popover]')) {
+      visual.showPopover();
+    }
   };
 }
 
@@ -187,7 +183,7 @@ export type VisualLiftSession = Readonly<{
   project(viewportDelta: Point): Point;
   /** The full transform string for a viewport delta. */
   compose(viewportDelta: Point): string;
-  dispose(): void;
+  dispose: Disposer;
 }>;
 
 const translate = (p: Point): string => `translate(${p.x}px, ${p.y}px)`;
@@ -196,7 +192,7 @@ function makeSession(
   visual: HTMLElement,
   baseTransform: string,
   project: (delta: Point) => Point,
-  dispose: () => void,
+  dispose: Disposer,
 ): VisualLiftSession {
   const compose = (viewportDelta: Point): string => {
     const move = translate(project(viewportDelta));
@@ -220,9 +216,9 @@ export function acquireLift(
   realm: DOMRealm,
 ): VisualLiftSession {
   const style = realm.window.getComputedStyle(visual);
-  const styleLease = captureInlineStyles(visual);
+  const styleLeaseDisposer = captureInlineStyles(visual);
 
-  if (mode === 'faithful') {
+  if (mode === LIFT_FAITHFUL) {
     const base = viewportMatrix(visual, realm).toString();
     const [width, height] = borderBox(style);
 
@@ -238,20 +234,20 @@ export function acquireLift(
     visual.style.height = `${height}px`;
     visual.style.transformOrigin = '0 0';
 
-    const topLayer = acquireTopLayer(visual);
+    const topLayerDisposer = acquireTopLayer(visual);
 
     return makeSession(
       visual,
       base,
       (viewportDelta) => viewportDelta,
       () => {
-        topLayer.dispose();
-        styleLease.dispose();
+        topLayerDisposer();
+        styleLeaseDisposer();
       },
     );
   }
 
-  if (mode === 'flat') {
+  if (mode === LIFT_FLAT) {
     const [width, height] = borderBox(style);
 
     neutralizeUA(visual, style);
@@ -270,15 +266,15 @@ export function acquireLift(
     visual.style.width = `${width}px`;
     visual.style.height = `${height}px`;
 
-    const topLayer = acquireTopLayer(visual);
+    const topLayerDisposer = acquireTopLayer(visual);
 
     return makeSession(
       visual,
       '',
       (viewportDelta) => viewportDelta,
       () => {
-        topLayer.dispose();
-        styleLease.dispose();
+        topLayerDisposer();
+        styleLeaseDisposer();
       },
     );
   }
@@ -290,7 +286,7 @@ export function acquireLift(
   visual.style.transition = 'none';
 
   return makeSession(visual, base, projectInPlace, () => {
-    styleLease.dispose();
+    styleLeaseDisposer();
   });
 }
 
