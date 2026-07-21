@@ -65,6 +65,8 @@ import { destinationPlan, homePlan } from './landing.ts';
 import type {
   Insertion,
   ReorderTransactionResult,
+  SortableCancelResult,
+  SortableFinishResult,
   SortableOptions,
 } from './options.ts';
 import {
@@ -642,13 +644,7 @@ export class SortableGesture {
       domain
     ) {
       this.#guard(
-        () =>
-          options.onFinish?.(
-            domain as Extract<
-              ReorderTransactionResult,
-              { type: typeof OUTCOME_ACCEPTED | typeof OUTCOME_NO_OP }
-            >,
-          ),
+        () => options.onFinish?.(domain as SortableFinishResult),
         FAILURE_FINISH_CALLBACK,
         domain,
       );
@@ -660,13 +656,7 @@ export class SortableGesture {
       domain
     ) {
       this.#guard(
-        () =>
-          options.onCancel?.(
-            domain as Extract<
-              ReorderTransactionResult,
-              { type: typeof OUTCOME_REJECTED | typeof OUTCOME_CANCELED }
-            >,
-          ),
+        () => options.onCancel?.(domain as SortableCancelResult),
         FAILURE_CANCEL_CALLBACK,
         domain,
       );

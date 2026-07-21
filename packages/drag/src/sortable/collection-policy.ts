@@ -12,9 +12,16 @@ import type { CollectionSnapshot, Insertion } from './options.ts';
 export const CHANGE_REBASE: unique symbol = Symbol('rebase');
 export const CHANGE_CANCEL: unique symbol = Symbol('cancel');
 
-export type CollectionChange =
-  | Readonly<{ type: typeof CHANGE_REBASE; insertion: Insertion }>
-  | Readonly<{ type: typeof CHANGE_CANCEL }>;
+export type RebaseCollectionChange = Readonly<{
+  type: typeof CHANGE_REBASE;
+  insertion: Insertion;
+}>;
+
+export type CancelCollectionChange = Readonly<{
+  type: typeof CHANGE_CANCEL;
+}>;
+
+export type CollectionChange = RebaseCollectionChange | CancelCollectionChange;
 
 /**
  * `dragged` must remain in `next`; callers classify its removal separately. An
@@ -67,7 +74,7 @@ export function reconcileCollection(
   // Internal gap: `before` and `after` must remain adjacent.
   const beforeIndex = destination.indexOf(before);
 
-  if (beforeIndex !== -1 && destination[beforeIndex + 1] === after) {
+  if (beforeIndex >= 0 && destination[beforeIndex + 1] === after) {
     return {
       type: CHANGE_REBASE,
       insertion: {

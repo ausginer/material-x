@@ -100,31 +100,40 @@ export const SETTLEMENT_COMPLETED: unique symbol = Symbol(
 
 export type SortableInput = typeof INPUT_POINTER | typeof INPUT_KEYBOARD;
 
+export type AdmittedSortableOperation = Readonly<{
+  type: typeof OPERATION_ADMITTED;
+  operationId: number;
+  input: SortableInput;
+  item: HTMLElement;
+  operationCollection: CollectionSnapshot;
+}>;
+
+export type CandidateSortableOperation = Readonly<{
+  type: typeof OPERATION_CANDIDATE | typeof OPERATION_ACTIVE;
+  operationId: number;
+  input: SortableInput;
+  item: HTMLElement;
+  visual: HTMLElement;
+  activationVersion: number;
+  activationIndex: number;
+  operationCollection: CollectionSnapshot | null;
+}>;
+
 export type SortableOperation =
-  | Readonly<{
-      type: typeof OPERATION_ADMITTED;
-      operationId: number;
-      input: SortableInput;
-      item: HTMLElement;
-      operationCollection: CollectionSnapshot;
-    }>
-  | Readonly<{
-      type: typeof OPERATION_CANDIDATE | typeof OPERATION_ACTIVE;
-      operationId: number;
-      input: SortableInput;
-      item: HTMLElement;
-      visual: HTMLElement;
-      activationVersion: number;
-      activationIndex: number;
-      operationCollection: CollectionSnapshot | null;
-    }>;
+  | AdmittedSortableOperation
+  | CandidateSortableOperation;
 
 export const INSERTION_NONE: unique symbol = Symbol('none');
 export const INSERTION_READY: unique symbol = Symbol('ready');
 
-export type InsertionState =
-  | Readonly<{ type: typeof INSERTION_NONE }>
-  | Readonly<{ type: typeof INSERTION_READY; value: Insertion }>;
+export type NoneInsertionState = Readonly<{ type: typeof INSERTION_NONE }>;
+
+export type ReadyInsertionState = Readonly<{
+  type: typeof INSERTION_READY;
+  value: Insertion;
+}>;
+
+export type InsertionState = NoneInsertionState | ReadyInsertionState;
 
 export const TRANSACTION_NONE: unique symbol = Symbol('none');
 export const TRANSACTION_RESOLVING_PROPOSAL: unique symbol =
@@ -134,22 +143,32 @@ export const TRANSACTION_PROPOSAL_READY: unique symbol =
 export const TRANSACTION_AWAITING_CONSUMER: unique symbol =
   Symbol('awaiting-consumer');
 
+export type NoneSortableTransaction = Readonly<{
+  stage: typeof TRANSACTION_NONE;
+}>;
+
+export type ResolvingProposalSortableTransaction = Readonly<{
+  stage: typeof TRANSACTION_RESOLVING_PROPOSAL;
+  basis: ProposalBasis;
+}>;
+
+export type ProposalReadySortableTransaction = Readonly<{
+  stage: typeof TRANSACTION_PROPOSAL_READY;
+  proposal: ReorderProposal;
+}>;
+
+export type AwaitingConsumerSortableTransaction = Readonly<{
+  stage: typeof TRANSACTION_AWAITING_CONSUMER;
+  proposal: ReorderProposal;
+  operationId: number;
+  resolutionId: number;
+}>;
+
 export type SortableTransaction =
-  | Readonly<{ stage: typeof TRANSACTION_NONE }>
-  | Readonly<{
-      stage: typeof TRANSACTION_RESOLVING_PROPOSAL;
-      basis: ProposalBasis;
-    }>
-  | Readonly<{
-      stage: typeof TRANSACTION_PROPOSAL_READY;
-      proposal: ReorderProposal;
-    }>
-  | Readonly<{
-      stage: typeof TRANSACTION_AWAITING_CONSUMER;
-      proposal: ReorderProposal;
-      operationId: number;
-      resolutionId: number;
-    }>;
+  | NoneSortableTransaction
+  | ResolvingProposalSortableTransaction
+  | ProposalReadySortableTransaction
+  | AwaitingConsumerSortableTransaction;
 
 export type SortableState = Readonly<{
   phase: DragPhase;
@@ -167,108 +186,173 @@ export type SortableCandidate = Readonly<{
   insertion: Insertion;
 }>;
 
+export type AdmitSortableEvent = Readonly<{
+  type: typeof LIFECYCLE_ADMIT;
+  operationId: number;
+  input: SortableInput;
+  item: HTMLElement;
+  pointerId: number;
+  point: Point;
+  collection: CollectionSnapshot;
+}>;
+
+export type MoveSortableEvent = Readonly<{
+  type: typeof LIFECYCLE_MOVE;
+  pointerId: number;
+  point: Point;
+}>;
+
+export type ReleaseSortableEvent = Readonly<{
+  type: typeof LIFECYCLE_RELEASE;
+  pointerId: number;
+  point: Point;
+}>;
+
+export type CancelSortableEvent = Readonly<{
+  type: typeof LIFECYCLE_CANCEL;
+  reason: CancellationReason;
+}>;
+
+export type KeyboardActivateSortableEvent = Readonly<{
+  type: typeof KEYBOARD_ACTIVATE;
+  operationId: number;
+}>;
+
+export type KeyboardProposeSortableEvent = Readonly<{
+  type: typeof KEYBOARD_PROPOSE;
+  operationId: number;
+  insertion: Insertion;
+}>;
+
+export type ActivationReadySortableEvent = Readonly<{
+  type: typeof LIFECYCLE_ACTIVATION_READY;
+  operationId: number;
+  candidate: SortableCandidate;
+}>;
+
+export type StartSucceededSortableEvent = Readonly<{
+  type: typeof LIFECYCLE_START_SUCCEEDED;
+  operationId: number;
+}>;
+
+export type ActivationFailedSortableEvent = Readonly<{
+  type: typeof LIFECYCLE_ACTIVATION_FAILED;
+  operationId: number;
+}>;
+
+export type InsertionResolvedSortableEvent = Readonly<{
+  type: typeof INSERTION_RESOLVED;
+  operationId: number;
+  insertion: Insertion;
+}>;
+
+export type SnapshotSortableEvent = Readonly<{
+  type: typeof SNAPSHOT;
+  operationId: number;
+  snapshot: CollectionSnapshot;
+}>;
+
+export type ProposalBuiltSortableEvent = Readonly<{
+  type: typeof PROPOSAL_BUILT;
+  operationId: number;
+  proposal: ReorderProposal;
+}>;
+
+export type ReorderNoopSortableEvent = Readonly<{
+  type: typeof REORDER_NOOP;
+  operationId: number;
+  proposal: ReorderProposal;
+}>;
+
+export type ResolutionStartedSortableEvent = Readonly<{
+  type: typeof RESOLUTION_STARTED;
+  operationId: number;
+  resolutionId: number;
+}>;
+
+export type ReorderResolvedSortableEvent = Readonly<{
+  type: typeof REORDER_RESOLVED;
+  operationId: number;
+  resolutionId: number;
+  resolution: ReorderResolution;
+}>;
+
+export type ReorderResolutionFailedSortableEvent = Readonly<{
+  type: typeof REORDER_RESOLUTION_FAILED;
+  operationId: number;
+  resolutionId: number;
+  error: unknown;
+}>;
+
+export type EffectFailedSortableEvent = Readonly<{
+  type: typeof EFFECT_FAILED;
+  operationId: number;
+  stage: FailureCause['stage'];
+  error: unknown;
+}>;
+
+export type LandingPlanReadySortableEvent = Readonly<{
+  type: typeof LANDING_PLAN_READY;
+  operationId: number;
+  landingId: number;
+  plan: LandingPlan;
+}>;
+
+export type LandingStartedSortableEvent = Readonly<{
+  type: typeof LANDING_STARTED;
+  operationId: number;
+  landingId: number;
+}>;
+
+export type LandingFinishedSortableEvent = Readonly<{
+  type: typeof LANDING_FINISHED;
+  operationId: number;
+  landingId: number;
+}>;
+
+export type LandingPinnedSortableEvent = Readonly<{
+  type: typeof LANDING_PINNED;
+  operationId: number;
+  landingId: number;
+}>;
+
+export type SettlementFailedSortableEvent = Readonly<{
+  type: typeof SETTLEMENT_FAILED;
+  operationId: number;
+  landingId: number;
+  stage: FailureCause['stage'];
+  error: unknown;
+}>;
+
+export type SettlementCompletedSortableEvent = Readonly<{
+  type: typeof SETTLEMENT_COMPLETED;
+  operationId: number;
+}>;
+
 export type SortableEvent =
-  | Readonly<{
-      type: typeof LIFECYCLE_ADMIT;
-      operationId: number;
-      input: SortableInput;
-      item: HTMLElement;
-      pointerId: number;
-      point: Point;
-      collection: CollectionSnapshot;
-    }>
-  | Readonly<{ type: typeof LIFECYCLE_MOVE; pointerId: number; point: Point }>
-  | Readonly<{
-      type: typeof LIFECYCLE_RELEASE;
-      pointerId: number;
-      point: Point;
-    }>
-  | Readonly<{ type: typeof LIFECYCLE_CANCEL; reason: CancellationReason }>
-  | Readonly<{ type: typeof KEYBOARD_ACTIVATE; operationId: number }>
-  | Readonly<{
-      type: typeof KEYBOARD_PROPOSE;
-      operationId: number;
-      insertion: Insertion;
-    }>
-  | Readonly<{
-      type: typeof LIFECYCLE_ACTIVATION_READY;
-      operationId: number;
-      candidate: SortableCandidate;
-    }>
-  | Readonly<{ type: typeof LIFECYCLE_START_SUCCEEDED; operationId: number }>
-  | Readonly<{ type: typeof LIFECYCLE_ACTIVATION_FAILED; operationId: number }>
-  | Readonly<{
-      type: typeof INSERTION_RESOLVED;
-      operationId: number;
-      insertion: Insertion;
-    }>
-  | Readonly<{
-      type: typeof SNAPSHOT;
-      operationId: number;
-      snapshot: CollectionSnapshot;
-    }>
-  | Readonly<{
-      type: typeof PROPOSAL_BUILT;
-      operationId: number;
-      proposal: ReorderProposal;
-    }>
-  | Readonly<{
-      type: typeof REORDER_NOOP;
-      operationId: number;
-      proposal: ReorderProposal;
-    }>
-  | Readonly<{
-      type: typeof RESOLUTION_STARTED;
-      operationId: number;
-      resolutionId: number;
-    }>
-  | Readonly<{
-      type: typeof REORDER_RESOLVED;
-      operationId: number;
-      resolutionId: number;
-      resolution: ReorderResolution;
-    }>
-  | Readonly<{
-      type: typeof REORDER_RESOLUTION_FAILED;
-      operationId: number;
-      resolutionId: number;
-      error: unknown;
-    }>
-  | Readonly<{
-      type: typeof EFFECT_FAILED;
-      operationId: number;
-      stage: FailureCause['stage'];
-      error: unknown;
-    }>
-  | Readonly<{
-      type: typeof LANDING_PLAN_READY;
-      operationId: number;
-      landingId: number;
-      plan: LandingPlan;
-    }>
-  | Readonly<{
-      type: typeof LANDING_STARTED;
-      operationId: number;
-      landingId: number;
-    }>
-  | Readonly<{
-      type: typeof LANDING_FINISHED;
-      operationId: number;
-      landingId: number;
-    }>
-  | Readonly<{
-      type: typeof LANDING_PINNED;
-      operationId: number;
-      landingId: number;
-    }>
-  | Readonly<{
-      type: typeof SETTLEMENT_FAILED;
-      operationId: number;
-      landingId: number;
-      stage: FailureCause['stage'];
-      error: unknown;
-    }>
-  | Readonly<{ type: typeof SETTLEMENT_COMPLETED; operationId: number }>;
+  | AdmitSortableEvent
+  | MoveSortableEvent
+  | ReleaseSortableEvent
+  | CancelSortableEvent
+  | KeyboardActivateSortableEvent
+  | KeyboardProposeSortableEvent
+  | ActivationReadySortableEvent
+  | StartSucceededSortableEvent
+  | ActivationFailedSortableEvent
+  | InsertionResolvedSortableEvent
+  | SnapshotSortableEvent
+  | ProposalBuiltSortableEvent
+  | ReorderNoopSortableEvent
+  | ResolutionStartedSortableEvent
+  | ReorderResolvedSortableEvent
+  | ReorderResolutionFailedSortableEvent
+  | EffectFailedSortableEvent
+  | LandingPlanReadySortableEvent
+  | LandingStartedSortableEvent
+  | LandingFinishedSortableEvent
+  | LandingPinnedSortableEvent
+  | SettlementFailedSortableEvent
+  | SettlementCompletedSortableEvent;
 
 export type SortableConfig = Readonly<{ threshold: number }>;
 

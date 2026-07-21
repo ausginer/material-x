@@ -69,6 +69,7 @@ import {
   LIFT_FLATTEN,
   LIFT_NONE,
   LIFT_TOP_LAYER,
+  type AcceptedFreeDropResult,
   type DraggableOptions,
   type FreeDropResult,
   type FreeHomeTarget,
@@ -585,7 +586,7 @@ export class FreeDragGesture {
       settlement.domain?.type === OUTCOME_ACCEPTED
     ) {
       this.#guardCallback(
-        () => options.onFinish?.(settlement.domain as FreeDragFinishResultLike),
+        () => options.onFinish?.(settlement.domain as AcceptedFreeDropResult),
         FAILURE_FINISH_CALLBACK,
         settlement.domain,
       );
@@ -631,11 +632,6 @@ export class FreeDragGesture {
     }
   }
 }
-
-type FreeDragFinishResultLike = Extract<
-  FreeDropResult,
-  { type: typeof OUTCOME_ACCEPTED }
->;
 
 // Referenced only for the FreeOperation type import stability.
 export type { FreeOperation };

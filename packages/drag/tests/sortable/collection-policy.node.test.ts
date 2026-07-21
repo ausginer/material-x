@@ -4,6 +4,7 @@ import {
   CHANGE_REBASE,
   reconcileCollection,
   type CollectionChange,
+  type RebaseCollectionChange,
 } from '../../src/sortable/collection-policy.ts';
 import type {
   CollectionSnapshot,
@@ -30,11 +31,9 @@ const insertion = (
   version: number,
 ): Insertion => ({ index, before, after, version });
 
-const expectRebase = (
-  change: CollectionChange,
-): Extract<CollectionChange, { type: typeof CHANGE_REBASE }> => {
+const expectRebase = (change: CollectionChange): RebaseCollectionChange => {
   expect(change.type).toBe(CHANGE_REBASE);
-  return change as Extract<CollectionChange, { type: typeof CHANGE_REBASE }>;
+  return change as RebaseCollectionChange;
 };
 
 describe('reconcileCollection', () => {

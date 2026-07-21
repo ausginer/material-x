@@ -105,21 +105,23 @@ export type FreeCandidate = Readonly<{
   coordinateSpace: CoordinateMapper;
 }>;
 
-export type FreeOperation =
-  | Readonly<{
-      type: typeof OPERATION_ADMITTED;
-      operationId: number;
-      item: HTMLElement;
-    }>
-  | Readonly<{
-      type: typeof OPERATION_CANDIDATE | typeof OPERATION_ACTIVE;
-      operationId: number;
-      item: HTMLElement;
-      visual: HTMLElement;
-      lift: LiftMode;
-      originRect: DOMRectReadOnly;
-      coordinateSpace: CoordinateMapper;
-    }>;
+export type AdmittedFreeOperation = Readonly<{
+  type: typeof OPERATION_ADMITTED;
+  operationId: number;
+  item: HTMLElement;
+}>;
+
+export type AcquiredFreeOperation = Readonly<{
+  type: typeof OPERATION_CANDIDATE | typeof OPERATION_ACTIVE;
+  operationId: number;
+  item: HTMLElement;
+  visual: HTMLElement;
+  lift: LiftMode;
+  originRect: DOMRectReadOnly;
+  coordinateSpace: CoordinateMapper;
+}>;
+
+export type FreeOperation = AdmittedFreeOperation | AcquiredFreeOperation;
 
 export type FreePolicy = Readonly<{
   axis: DragAxis;
@@ -128,14 +130,23 @@ export type FreePolicy = Readonly<{
 
 export type FreeMotion = Readonly<{ viewportDelta: Point }>;
 
+export type NoneFreeDropState = Readonly<{ stage: typeof DROP_NONE }>;
+
+export type ProposalReadyFreeDropState = Readonly<{
+  stage: typeof DROP_PROPOSAL_READY;
+  proposal: FreeDropProposal;
+}>;
+
+export type AwaitingConsumerFreeDropState = Readonly<{
+  stage: typeof DROP_AWAITING_CONSUMER;
+  proposal: FreeDropProposal;
+  resolutionId: number;
+}>;
+
 export type FreeDropState =
-  | Readonly<{ stage: typeof DROP_NONE }>
-  | Readonly<{ stage: typeof DROP_PROPOSAL_READY; proposal: FreeDropProposal }>
-  | Readonly<{
-      stage: typeof DROP_AWAITING_CONSUMER;
-      proposal: FreeDropProposal;
-      resolutionId: number;
-    }>;
+  | NoneFreeDropState
+  | ProposalReadyFreeDropState
+  | AwaitingConsumerFreeDropState;
 
 export type DraggableState = Readonly<{
   phase: DragPhase;
@@ -149,104 +160,161 @@ export type DraggableState = Readonly<{
 
 // --- Events ----------------------------------------------------------------
 
+export type AdmitDraggableEvent = Readonly<{
+  type: typeof LIFECYCLE_ADMIT;
+  operationId: number;
+  item: HTMLElement;
+  pointerId: number;
+  point: Point;
+}>;
+
+export type MoveDraggableEvent = Readonly<{
+  type: typeof LIFECYCLE_MOVE;
+  pointerId: number;
+  point: Point;
+  bounds: DOMRectReadOnly | null;
+}>;
+
+export type ReleaseDraggableEvent = Readonly<{
+  type: typeof LIFECYCLE_RELEASE;
+  pointerId: number;
+  point: Point;
+  bounds: DOMRectReadOnly | null;
+}>;
+
+export type InvalidateDraggableEvent = Readonly<{
+  type: typeof INVALIDATE;
+  point: Point;
+  bounds: DOMRectReadOnly | null;
+}>;
+
+export type ControlledDraggableEvent = Readonly<{
+  type: typeof CONTROLLED;
+  viewportDelta: Point;
+}>;
+
+export type CancelDraggableEvent = Readonly<{
+  type: typeof LIFECYCLE_CANCEL;
+  reason: CancellationReason;
+}>;
+
+export type SetPolicyDraggableEvent = Readonly<{
+  type: typeof SET_POLICY;
+  axis?: DragAxis;
+  coordinateOverride?: CoordinateMapper | null;
+}>;
+
+export type ActivationReadyDraggableEvent = Readonly<{
+  type: typeof LIFECYCLE_ACTIVATION_READY;
+  operationId: number;
+  candidate: FreeCandidate;
+}>;
+
+export type StartSucceededDraggableEvent = Readonly<{
+  type: typeof LIFECYCLE_START_SUCCEEDED;
+  operationId: number;
+}>;
+
+export type ActivationFailedDraggableEvent = Readonly<{
+  type: typeof LIFECYCLE_ACTIVATION_FAILED;
+  operationId: number;
+}>;
+
+export type EffectFailedDraggableEvent = Readonly<{
+  type: typeof EFFECT_FAILED;
+  operationId: number;
+  stage: FailureCause['stage'];
+  recovery: typeof RECOVERY_HOME | typeof RECOVERY_IMMEDIATE;
+  error: unknown;
+}>;
+
+export type ResolutionStartedDraggableEvent = Readonly<{
+  type: typeof RESOLUTION_STARTED;
+  operationId: number;
+  resolutionId: number;
+}>;
+
+export type DropResolvedDraggableEvent = Readonly<{
+  type: typeof DROP_RESOLVED;
+  operationId: number;
+  resolutionId: number;
+  resolution: FreeDropResolution;
+}>;
+
+export type DropResolutionFailedDraggableEvent = Readonly<{
+  type: typeof DROP_RESOLUTION_FAILED;
+  operationId: number;
+  resolutionId: number;
+  error: unknown;
+}>;
+
+export type LandingPlanReadyDraggableEvent = Readonly<{
+  type: typeof LANDING_PLAN_READY;
+  operationId: number;
+  landingId: number;
+  plan: LandingPlan;
+}>;
+
+export type LandingStartedDraggableEvent = Readonly<{
+  type: typeof LANDING_STARTED;
+  operationId: number;
+  landingId: number;
+}>;
+
+export type LandingFinishedDraggableEvent = Readonly<{
+  type: typeof LANDING_FINISHED;
+  operationId: number;
+  landingId: number;
+}>;
+
+export type LandingPinnedDraggableEvent = Readonly<{
+  type: typeof LANDING_PINNED;
+  operationId: number;
+  landingId: number;
+}>;
+
+export type SettlementFailedDraggableEvent = Readonly<{
+  type: typeof SETTLEMENT_FAILED;
+  operationId: number;
+  landingId: number;
+  stage: FailureCause['stage'];
+  error: unknown;
+}>;
+
+export type SettlementCompletedDraggableEvent = Readonly<{
+  type: typeof SETTLEMENT_COMPLETED;
+  operationId: number;
+}>;
+
+export type HomeInvalidDraggableEvent = Readonly<{
+  type: typeof HOME_INVALID;
+  operationId: number;
+  landingId: number;
+  error: unknown;
+}>;
+
 export type DraggableEvent =
-  | Readonly<{
-      type: typeof LIFECYCLE_ADMIT;
-      operationId: number;
-      item: HTMLElement;
-      pointerId: number;
-      point: Point;
-    }>
-  | Readonly<{
-      type: typeof LIFECYCLE_MOVE;
-      pointerId: number;
-      point: Point;
-      bounds: DOMRectReadOnly | null;
-    }>
-  | Readonly<{
-      type: typeof LIFECYCLE_RELEASE;
-      pointerId: number;
-      point: Point;
-      bounds: DOMRectReadOnly | null;
-    }>
-  | Readonly<{
-      type: typeof INVALIDATE;
-      point: Point;
-      bounds: DOMRectReadOnly | null;
-    }>
-  | Readonly<{ type: typeof CONTROLLED; viewportDelta: Point }>
-  | Readonly<{ type: typeof LIFECYCLE_CANCEL; reason: CancellationReason }>
-  | Readonly<{
-      type: typeof SET_POLICY;
-      axis?: DragAxis;
-      coordinateOverride?: CoordinateMapper | null;
-    }>
-  | Readonly<{
-      type: typeof LIFECYCLE_ACTIVATION_READY;
-      operationId: number;
-      candidate: FreeCandidate;
-    }>
-  | Readonly<{ type: typeof LIFECYCLE_START_SUCCEEDED; operationId: number }>
-  | Readonly<{ type: typeof LIFECYCLE_ACTIVATION_FAILED; operationId: number }>
-  | Readonly<{
-      type: typeof EFFECT_FAILED;
-      operationId: number;
-      stage: FailureCause['stage'];
-      recovery: typeof RECOVERY_HOME | typeof RECOVERY_IMMEDIATE;
-      error: unknown;
-    }>
-  | Readonly<{
-      type: typeof RESOLUTION_STARTED;
-      operationId: number;
-      resolutionId: number;
-    }>
-  | Readonly<{
-      type: typeof DROP_RESOLVED;
-      operationId: number;
-      resolutionId: number;
-      resolution: FreeDropResolution;
-    }>
-  | Readonly<{
-      type: typeof DROP_RESOLUTION_FAILED;
-      operationId: number;
-      resolutionId: number;
-      error: unknown;
-    }>
-  | Readonly<{
-      type: typeof LANDING_PLAN_READY;
-      operationId: number;
-      landingId: number;
-      plan: LandingPlan;
-    }>
-  | Readonly<{
-      type: typeof LANDING_STARTED;
-      operationId: number;
-      landingId: number;
-    }>
-  | Readonly<{
-      type: typeof LANDING_FINISHED;
-      operationId: number;
-      landingId: number;
-    }>
-  | Readonly<{
-      type: typeof LANDING_PINNED;
-      operationId: number;
-      landingId: number;
-    }>
-  | Readonly<{
-      type: typeof SETTLEMENT_FAILED;
-      operationId: number;
-      landingId: number;
-      stage: FailureCause['stage'];
-      error: unknown;
-    }>
-  | Readonly<{ type: typeof SETTLEMENT_COMPLETED; operationId: number }>
-  | Readonly<{
-      type: typeof HOME_INVALID;
-      operationId: number;
-      landingId: number;
-      error: unknown;
-    }>;
+  | AdmitDraggableEvent
+  | MoveDraggableEvent
+  | ReleaseDraggableEvent
+  | InvalidateDraggableEvent
+  | ControlledDraggableEvent
+  | CancelDraggableEvent
+  | SetPolicyDraggableEvent
+  | ActivationReadyDraggableEvent
+  | StartSucceededDraggableEvent
+  | ActivationFailedDraggableEvent
+  | EffectFailedDraggableEvent
+  | ResolutionStartedDraggableEvent
+  | DropResolvedDraggableEvent
+  | DropResolutionFailedDraggableEvent
+  | LandingPlanReadyDraggableEvent
+  | LandingStartedDraggableEvent
+  | LandingFinishedDraggableEvent
+  | LandingPinnedDraggableEvent
+  | SettlementFailedDraggableEvent
+  | SettlementCompletedDraggableEvent
+  | HomeInvalidDraggableEvent;
 
 export type DraggableConfig = Readonly<{
   threshold: number;

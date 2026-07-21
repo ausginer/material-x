@@ -166,24 +166,34 @@ export const LANDING_RUNNING: unique symbol = Symbol('running');
 export const LANDING_COMPLETING: unique symbol = Symbol('completing');
 export const LANDING_SKIPPED: unique symbol = Symbol('skipped');
 
+export type PreparingLandingState = Readonly<{
+  stage: typeof LANDING_PREPARING;
+  currency: LandingCurrency;
+  plan: LandingPlan | null;
+}>;
+
+export type RunningLandingState = Readonly<{
+  stage: typeof LANDING_RUNNING;
+  currency: LandingCurrency;
+  plan: LandingPlan;
+}>;
+
+export type CompletingLandingState = Readonly<{
+  stage: typeof LANDING_COMPLETING;
+  currency: LandingCurrency;
+  plan: LandingPlan;
+}>;
+
+export type SkippedLandingState = Readonly<{
+  stage: typeof LANDING_SKIPPED;
+}>;
+
 /** The landing sub-state of settlement. */
 export type LandingState =
-  | Readonly<{
-      stage: typeof LANDING_PREPARING;
-      currency: LandingCurrency;
-      plan: LandingPlan | null;
-    }>
-  | Readonly<{
-      stage: typeof LANDING_RUNNING;
-      currency: LandingCurrency;
-      plan: LandingPlan;
-    }>
-  | Readonly<{
-      stage: typeof LANDING_COMPLETING;
-      currency: LandingCurrency;
-      plan: LandingPlan;
-    }>
-  | Readonly<{ stage: typeof LANDING_SKIPPED }>;
+  | PreparingLandingState
+  | RunningLandingState
+  | CompletingLandingState
+  | SkippedLandingState;
 
 export const FAILURE_MOVE: unique symbol = Symbol('move');
 export const FAILURE_CONTROLLED_UPDATE: unique symbol =
@@ -257,13 +267,35 @@ export const OUTCOME_NO_OP: unique symbol = Symbol('no-op');
 export const OUTCOME_CANCELED: unique symbol = Symbol('canceled');
 export const OUTCOME_FAILED: unique symbol = Symbol('failed');
 
+export type AcceptedSettlementOutcome = Readonly<{
+  result: typeof OUTCOME_ACCEPTED;
+}>;
+
+export type RejectedSettlementOutcome = Readonly<{
+  result: typeof OUTCOME_REJECTED;
+}>;
+
+export type NoOpSettlementOutcome = Readonly<{
+  result: typeof OUTCOME_NO_OP;
+}>;
+
+export type CanceledSettlementOutcome = Readonly<{
+  result: typeof OUTCOME_CANCELED;
+  reason: CancellationReason;
+}>;
+
+export type FailedSettlementOutcome = Readonly<{
+  result: typeof OUTCOME_FAILED;
+  failure: FailureCause;
+}>;
+
 /** The common settlement outcome, independent of feature domain result. */
 export type SettlementOutcome =
-  | Readonly<{ result: typeof OUTCOME_ACCEPTED }>
-  | Readonly<{ result: typeof OUTCOME_REJECTED }>
-  | Readonly<{ result: typeof OUTCOME_NO_OP }>
-  | Readonly<{ result: typeof OUTCOME_CANCELED; reason: CancellationReason }>
-  | Readonly<{ result: typeof OUTCOME_FAILED; failure: FailureCause }>;
+  | AcceptedSettlementOutcome
+  | RejectedSettlementOutcome
+  | NoOpSettlementOutcome
+  | CanceledSettlementOutcome
+  | FailedSettlementOutcome;
 
 export const RECOVERY_DESTINATION: unique symbol = Symbol('destination');
 export const RECOVERY_HOME: unique symbol = Symbol('home');
