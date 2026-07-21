@@ -66,6 +66,7 @@
     "react-dom": "19.2.7",
     "rolldown": "1.1.5",
     "rust-just": "1.56.0",
+    "size-limit": "12.1.0",
     "sorcery": "1.0.0",
     "storybook": "10.5.0",
     "tsdown": "0.22.7",
