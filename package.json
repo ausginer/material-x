@@ -28,6 +28,7 @@
     "@jridgewell/gen-mapping": "0.3.13",
     "@mdx-js/react": "3.1.1",
     "@minify-html/node": "0.18.1",
+    "@mizchi/lsmcp": "0.10.0",
     "@preact/signals-core": "1.14.4",
     "@storybook/addon-docs": "10.5.0",
     "@storybook/addon-links": "10.5.0",
