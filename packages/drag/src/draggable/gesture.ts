@@ -247,6 +247,15 @@ export class FreeDragGesture {
     // settling -> idle: dispose presentation, run completion callbacks.
     if (from.phase === PHASE_SETTLING && to.phase === PHASE_IDLE) {
       this.#complete(from);
+      return;
+    }
+
+    // pending -> idle: the press never activated, so there is no outcome to
+    // report — but the armed document listeners must still go, or every click
+    // on a draggable leaks one session's worth of them.
+    if (from.phase === PHASE_PENDING && to.phase === PHASE_IDLE) {
+      this.#scope.disarm();
+      this.#scope.finish();
     }
   }
 

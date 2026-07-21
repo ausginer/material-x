@@ -562,4 +562,571 @@ describe('draggable', () => {
     expect(item.matches(':popover-open')).toBeFalsy();
     expect(item.style.position).toBe('absolute');
   });
+
+  /**
+   * Pending-to-idle must always disarm without producing a normal completion:
+   * nothing was ever activated, so there is no outcome to report.
+   */
+  describe('pending disarm', () => {
+    /** Arms a press and moves it, but never past the activation threshold. */
+    const arm = (user: UserEvent, item: HTMLElement): Promise<void> =>
+      user.pointer([
+        {
+          target: item,
+          keys: '[MouseLeft>]',
+          coords: { clientX: 110, clientY: 110 },
+        },
+        { coords: { clientX: 112, clientY: 111 } },
+      ]);
+
+    it('should disarm on pointercancel without any completion callback', async () => {
+      const item = createItem();
+      const onFinish = vi.fn();
+      const onCancel = vi.fn();
+      const onError = vi.fn();
+      drag(item, { onDrop: accept, onFinish, onCancel, onError });
+
+      await arm(ue, item);
+      document.dispatchEvent(
+        new PointerEvent('pointercancel', {
+          pointerId: 1,
+          isPrimary: true,
+          bubbles: true,
+        }),
+      );
+      await flush();
+
+      expect(onFinish).not.toHaveBeenCalled();
+      expect(onCancel).not.toHaveBeenCalled();
+      expect(onError).not.toHaveBeenCalled();
+      expect(item.matches(':popover-open')).toBeFalsy();
+    });
+
+    it('should leave nothing armed after pointercancel', async () => {
+      const item = createItem();
+      const onStart = vi.fn();
+      drag(item, { onDrop: accept, onStart });
+
+      await arm(ue, item);
+      document.dispatchEvent(
+        new PointerEvent('pointercancel', {
+          pointerId: 1,
+          isPrimary: true,
+          bubbles: true,
+        }),
+      );
+      // The distinguishing assertion: an operation merely left pending would
+      // activate here, with no button held.
+      await ue.pointer({ coords: { clientX: 400, clientY: 400 } });
+      await flush();
+
+      expect(onStart).not.toHaveBeenCalled();
+      expect(item.matches(':popover-open')).toBeFalsy();
+    });
+
+    it('should disarm on Escape without any completion callback', async () => {
+      const item = createItem();
+      const onFinish = vi.fn();
+      const onCancel = vi.fn();
+      const onError = vi.fn();
+      drag(item, { onDrop: accept, onFinish, onCancel, onError });
+
+      await arm(ue, item);
+      await ue.keyboard('{Escape}');
+      await flush();
+
+      expect(onFinish).not.toHaveBeenCalled();
+      expect(onCancel).not.toHaveBeenCalled();
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    it('should leave nothing armed after Escape', async () => {
+      const item = createItem();
+      const onStart = vi.fn();
+      drag(item, { onDrop: accept, onStart });
+
+      await arm(ue, item);
+      await ue.keyboard('{Escape}');
+      await ue.pointer({ coords: { clientX: 400, clientY: 400 } });
+      await flush();
+
+      expect(onStart).not.toHaveBeenCalled();
+      expect(item.matches(':popover-open')).toBeFalsy();
+    });
+
+    it('should disarm silently on destroy', async () => {
+      const item = createItem();
+      const onFinish = vi.fn();
+      const onCancel = vi.fn();
+      const onError = vi.fn();
+      const controller = drag(item, {
+        onDrop: accept,
+        onFinish,
+        onCancel,
+        onError,
+      });
+
+      await arm(ue, item);
+      controller.destroy();
+      await flush();
+
+      expect(onFinish).not.toHaveBeenCalled();
+      expect(onCancel).not.toHaveBeenCalled();
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    it('should not activate after a pending gesture was disarmed by destroy', async () => {
+      const item = createItem();
+      const onStart = vi.fn();
+      const controller = drag(item, { onDrop: accept, onStart });
+
+      await arm(ue, item);
+      controller.destroy();
+      await ue.pointer({ coords: { clientX: 400, clientY: 400 } });
+      await flush();
+
+      expect(onStart).not.toHaveBeenCalled();
+      expect(item.matches(':popover-open')).toBeFalsy();
+    });
+  });
+
+  describe('public callback contract', () => {
+    it('should release the visual before onFinish runs', async () => {
+      const item = createItem();
+      let openAtCallback: boolean | null = null;
+      let positionAtCallback: string | null = null;
+      drag(item, {
+        onDrop: accept,
+        onFinish: () => {
+          // Visual ownership must be back with the consumer by now.
+          openAtCallback = item.matches(':popover-open');
+          positionAtCallback = item.style.position;
+        },
+      });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 160, clientY: 160 },
+      );
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: 160, clientY: 160 },
+      });
+      await vi.waitFor(() => expect(openAtCallback).not.toBeNull());
+
+      expect(openAtCallback).toBeFalsy();
+      expect(positionAtCallback).toBe('absolute');
+    });
+
+    it('should release the visual before onCancel runs on rejection', async () => {
+      const item = createItem();
+      let openAtCallback: boolean | null = null;
+      drag(item, {
+        onDrop: () => FreeDropResolution.reject('no'),
+        onCancel: () => {
+          openAtCallback = item.matches(':popover-open');
+        },
+      });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 160, clientY: 160 },
+      );
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: 160, clientY: 160 },
+      });
+      await vi.waitFor(() => expect(openAtCallback).not.toBeNull());
+
+      expect(openAtCallback).toBeFalsy();
+    });
+
+    it('should never run both onFinish and onCancel for one operation', async () => {
+      const item = createItem();
+      const onFinish = vi.fn();
+      const onCancel = vi.fn();
+      drag(item, { onDrop: accept, onFinish, onCancel });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 160, clientY: 160 },
+      );
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: 160, clientY: 160 },
+      });
+      await vi.waitFor(() => expect(onFinish).toHaveBeenCalledOnce());
+      await flush();
+
+      expect(onCancel).not.toHaveBeenCalled();
+    });
+
+    it('should forward an error thrown by onFinish through onError', async () => {
+      const item = createItem();
+      const failure = new Error('consumer finish failed');
+      const onError = vi.fn<(...a: unknown[]) => void>();
+      drag(item, {
+        onDrop: accept,
+        onFinish: () => {
+          throw failure;
+        },
+        onError,
+      });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 160, clientY: 160 },
+      );
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: 160, clientY: 160 },
+      });
+      await vi.waitFor(() => expect(onError).toHaveBeenCalledOnce());
+
+      expect(onError.mock.calls[0]![0]).toBe(failure);
+    });
+  });
+
+  describe('destroy', () => {
+    it('should close event ingress so later input is inert', async () => {
+      const item = createItem();
+      const onStart = vi.fn();
+      const onDrop = vi.fn(accept);
+      const controller = drag(item, { onDrop, onStart });
+
+      controller.destroy();
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 200, clientY: 200 },
+      );
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: 200, clientY: 200 },
+      });
+      await flush();
+
+      expect(onStart).not.toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
+    });
+
+    it('should be idempotent', () => {
+      const item = createItem();
+      const controller = drag(item, { onDrop: accept });
+
+      expect(() => {
+        controller.destroy();
+        controller.destroy();
+      }).not.toThrow();
+    });
+
+    it('should restore the visual when destroyed mid-drag', async () => {
+      const item = createItem();
+      const controller = drag(item, { onDrop: accept });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 200, clientY: 200 },
+      );
+      expect(item.matches(':popover-open')).toBeTruthy();
+
+      controller.destroy();
+      await flush();
+
+      expect(item.matches(':popover-open')).toBeFalsy();
+      expect(item.style.position).toBe('absolute');
+    });
+
+    it('should stay silent when destroyed mid-drag', async () => {
+      const item = createItem();
+      const onFinish = vi.fn();
+      const onCancel = vi.fn();
+      const onError = vi.fn();
+      const controller = drag(item, {
+        onDrop: accept,
+        onFinish,
+        onCancel,
+        onError,
+      });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 200, clientY: 200 },
+      );
+      controller.destroy();
+      await flush();
+
+      // Destroy is out-of-band teardown, not an outcome.
+      expect(onFinish).not.toHaveBeenCalled();
+      expect(onCancel).not.toHaveBeenCalled();
+      expect(onError).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * Document-level session listeners exist only while a gesture is armed. They
+   * are counted directly rather than inferred from behaviour, because a leaked
+   * listener that happens to be inert still accumulates across gestures.
+   */
+  describe('listener lifetime', () => {
+    /** Counts live document listeners by tracking add/remove and abort signals. */
+    function trackDocumentListeners(): {
+      live(): number;
+      restore(): void;
+    } {
+      const add = document.addEventListener.bind(document);
+      const remove = document.removeEventListener.bind(document);
+      let live = 0;
+
+      document.addEventListener = ((
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+      ) => {
+        live += 1;
+        const signal = typeof options === 'object' ? options.signal : undefined;
+        signal?.addEventListener('abort', () => {
+          live -= 1;
+        });
+        add(type, listener, options);
+      }) as typeof document.addEventListener;
+
+      document.removeEventListener = ((
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+      ) => {
+        live -= 1;
+        remove(type, listener, options);
+      }) as typeof document.removeEventListener;
+
+      return {
+        live: () => live,
+        restore() {
+          document.addEventListener = add;
+          document.removeEventListener = remove;
+        },
+      };
+    }
+
+    it('should hold no document listeners once a gesture completes', async () => {
+      const item = createItem();
+      const onFinish = vi.fn();
+      drag(item, { onDrop: accept, onFinish });
+      const tracker = trackDocumentListeners();
+
+      try {
+        const before = tracker.live();
+        await press(
+          ue,
+          item,
+          { clientX: 110, clientY: 110 },
+          { clientX: 160, clientY: 160 },
+        );
+        expect(tracker.live()).toBeGreaterThan(before);
+
+        await ue.pointer({
+          keys: '[/MouseLeft]',
+          coords: { clientX: 160, clientY: 160 },
+        });
+        await vi.waitFor(() => expect(onFinish).toHaveBeenCalledOnce());
+        await flush();
+
+        expect(tracker.live()).toBe(before);
+      } finally {
+        tracker.restore();
+      }
+    });
+
+    it('should release document listeners when a pending press is disarmed', async () => {
+      const item = createItem();
+      drag(item, { onDrop: accept });
+      const tracker = trackDocumentListeners();
+
+      try {
+        const before = tracker.live();
+        await ue.pointer([
+          {
+            target: item,
+            keys: '[MouseLeft>]',
+            coords: { clientX: 110, clientY: 110 },
+          },
+          { coords: { clientX: 112, clientY: 111 } },
+        ]);
+        expect(tracker.live()).toBeGreaterThan(before);
+
+        await ue.pointer({
+          keys: '[/MouseLeft]',
+          coords: { clientX: 112, clientY: 111 },
+        });
+        await flush();
+
+        expect(tracker.live()).toBe(before);
+      } finally {
+        tracker.restore();
+      }
+    });
+
+    it('should release document listeners on destroy mid-gesture', async () => {
+      const item = createItem();
+      const controller = drag(item, { onDrop: accept });
+      const tracker = trackDocumentListeners();
+
+      try {
+        const before = tracker.live();
+        await press(
+          ue,
+          item,
+          { clientX: 110, clientY: 110 },
+          { clientX: 160, clientY: 160 },
+        );
+        expect(tracker.live()).toBeGreaterThan(before);
+
+        controller.destroy();
+        await flush();
+
+        expect(tracker.live()).toBe(before);
+      } finally {
+        tracker.restore();
+      }
+    });
+  });
+
+  describe('resolution currency', () => {
+    it('should ignore an acceptance that arrives after the gesture was canceled', async () => {
+      const item = createItem();
+      let settle!: () => void;
+      const onFinish = vi.fn();
+      const onCancel = vi.fn();
+      const controller = drag(item, {
+        onDrop: () =>
+          new Promise<FreeDropResolution>((resolve) => {
+            settle = () => resolve(FreeDropResolution.accept());
+          }),
+        onFinish,
+        onCancel,
+      });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 200, clientY: 200 },
+      );
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: 200, clientY: 200 },
+      });
+      // The resolver is still open; cancelling supersedes it.
+      controller.cancel('superseded');
+      await vi.waitFor(() => expect(onCancel).toHaveBeenCalledOnce());
+
+      settle();
+      await flush();
+
+      // The late acceptance belongs to a resolution that no longer exists.
+      expect(onFinish).not.toHaveBeenCalled();
+      expect(onCancel).toHaveBeenCalledOnce();
+    });
+
+    it('should ignore an acceptance that arrives after destroy', async () => {
+      const item = createItem();
+      let settle!: () => void;
+      const onFinish = vi.fn();
+      const controller = drag(item, {
+        onDrop: () =>
+          new Promise<FreeDropResolution>((resolve) => {
+            settle = () => resolve(FreeDropResolution.accept());
+          }),
+        onFinish,
+      });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 200, clientY: 200 },
+      );
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: 200, clientY: 200 },
+      });
+      controller.destroy();
+      settle();
+      await flush();
+
+      expect(onFinish).not.toHaveBeenCalled();
+    });
+
+    it('should abort the resolution signal when the gesture is canceled', async () => {
+      const item = createItem();
+      let aborted = false;
+      const controller = drag(item, {
+        onDrop: (_request, { signal }) => {
+          signal.addEventListener('abort', () => {
+            aborted = true;
+          });
+          return new Promise<FreeDropResolution>(() => {});
+        },
+      });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 200, clientY: 200 },
+      );
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: 200, clientY: 200 },
+      });
+      expect(aborted).toBeFalsy();
+
+      controller.cancel();
+      await vi.waitFor(() => expect(aborted).toBeTruthy());
+    });
+
+    it('should not abort the resolution signal after normal completion', async () => {
+      const item = createItem();
+      let aborted = false;
+      const onFinish = vi.fn();
+      drag(item, {
+        onDrop: (_request, { signal }) => {
+          signal.addEventListener('abort', () => {
+            aborted = true;
+          });
+          return FreeDropResolution.accept();
+        },
+        onFinish,
+      });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 200, clientY: 200 },
+      );
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: 200, clientY: 200 },
+      });
+      await vi.waitFor(() => expect(onFinish).toHaveBeenCalledOnce());
+      await flush();
+
+      expect(aborted).toBeFalsy();
+    });
+  });
 });

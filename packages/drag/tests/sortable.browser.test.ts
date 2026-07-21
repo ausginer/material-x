@@ -53,6 +53,10 @@ function createList(count: number): HTMLElement {
 const rows = (container: HTMLElement): HTMLElement[] =>
   [...container.children] as HTMLElement[];
 
+/** The engine's placeholder is the only child without text content. */
+const placeholderIn = (container: HTMLElement): HTMLElement | undefined =>
+  rows(container).find((row) => !row.textContent);
+
 function centerOf(el: HTMLElement): { clientX: number; clientY: number } {
   const r = el.getBoundingClientRect();
   return { clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 };
@@ -380,10 +384,6 @@ describe('sortable', () => {
       });
     }
 
-    /** The engine's placeholder is the only child without text content. */
-    const placeholderIn = (container: HTMLElement): HTMLElement | undefined =>
-      rows(container).find((row) => !row.textContent);
-
     it('should hold the placeholder until the consumer acknowledges', async () => {
       const container = createList(3);
       const items = rows(container);
@@ -508,5 +508,578 @@ describe('sortable', () => {
     expect(items[0]!.matches(':popover-open')).toBeFalsy();
     expect(items[0]!.style.position).toBe('');
     expect(rows(container)).toHaveLength(3);
+  });
+
+  /**
+   * Pending-to-idle must always disarm without producing a normal completion.
+   * Each case asserts the *observable* consequence — that a later move cannot
+   * activate — because "no callback ran" is equally true of a gesture wrongly
+   * left armed.
+   */
+  describe('pending disarm', () => {
+    /** Arms a press and moves it, but never past the activation threshold. */
+    const arm = (
+      user: UserEvent,
+      item: HTMLElement,
+      at: { clientX: number; clientY: number },
+    ): Promise<void> =>
+      user.pointer([
+        { target: item, keys: '[MouseLeft>]', coords: at },
+        { coords: { clientX: at.clientX + 2, clientY: at.clientY + 1 } },
+      ]);
+
+    it('should leave nothing armed after pointercancel', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const onStart = vi.fn<(item: HTMLElement) => void>();
+      sort(container, {
+        items: () => rows(container),
+        onReorder: accept,
+        onStart,
+      });
+
+      const start = centerOf(items[0]!);
+      await arm(ue, items[0]!, start);
+      document.dispatchEvent(
+        new PointerEvent('pointercancel', {
+          pointerId: 1,
+          isPrimary: true,
+          bubbles: true,
+        }),
+      );
+      await ue.pointer({
+        coords: { clientX: start.clientX, clientY: start.clientY + 200 },
+      });
+      await flush();
+
+      expect(onStart).not.toHaveBeenCalled();
+      expect(placeholderIn(container)).toBeUndefined();
+    });
+
+    it('should leave nothing armed after Escape', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const onStart = vi.fn<(item: HTMLElement) => void>();
+      sort(container, {
+        items: () => rows(container),
+        onReorder: accept,
+        onStart,
+      });
+
+      const start = centerOf(items[0]!);
+      await arm(ue, items[0]!, start);
+      await ue.keyboard('{Escape}');
+      await ue.pointer({
+        coords: { clientX: start.clientX, clientY: start.clientY + 200 },
+      });
+      await flush();
+
+      expect(onStart).not.toHaveBeenCalled();
+      expect(placeholderIn(container)).toBeUndefined();
+    });
+
+    it('should leave nothing armed after destroy', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const onStart = vi.fn<(item: HTMLElement) => void>();
+      const controller = sort(container, {
+        items: () => rows(container),
+        onReorder: accept,
+        onStart,
+      });
+
+      const start = centerOf(items[0]!);
+      await arm(ue, items[0]!, start);
+      controller.destroy();
+      await ue.pointer({
+        coords: { clientX: start.clientX, clientY: start.clientY + 200 },
+      });
+      await flush();
+
+      expect(onStart).not.toHaveBeenCalled();
+      expect(placeholderIn(container)).toBeUndefined();
+    });
+
+    it('should disarm without cancelling when the dragged item is removed before activation', async () => {
+      const container = createList(3);
+      let items = rows(container);
+      const onCancel = vi.fn<(r: SortableCancelResult) => void>();
+      const onStart = vi.fn<(item: HTMLElement) => void>();
+      const controller = sort(container, {
+        items: () => items,
+        onReorder: accept,
+        onCancel,
+        onStart,
+      });
+
+      const start = centerOf(items[0]!);
+      await arm(ue, items[0]!, start);
+
+      const removed = items[0]!;
+      items = items.slice(1);
+      removed.remove();
+      controller.updateItems(items);
+      await flush();
+
+      // Removal before activation disarms; there is no activated operation to
+      // report, so `onCancel` must stay silent — unlike removal mid-drag.
+      expect(onCancel).not.toHaveBeenCalled();
+      expect(onStart).not.toHaveBeenCalled();
+    });
+
+    it('should not run any completion callback for a disarmed press', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const onFinish = vi.fn<(r: SortableFinishResult) => void>();
+      const onCancel = vi.fn<(r: SortableCancelResult) => void>();
+      const onError = vi.fn<(...a: unknown[]) => void>();
+      sort(container, {
+        items: () => rows(container),
+        onReorder: accept,
+        onFinish,
+        onCancel,
+        onError,
+      });
+
+      const start = centerOf(items[0]!);
+      await arm(ue, items[0]!, start);
+      await ue.pointer({ keys: '[/MouseLeft]', coords: start });
+      await flush();
+
+      expect(onFinish).not.toHaveBeenCalled();
+      expect(onCancel).not.toHaveBeenCalled();
+      expect(onError).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('public callback contract', () => {
+    it('should remove the placeholder and release the lift before onFinish runs', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      let placeholderAtCallback: HTMLElement | undefined;
+      let openAtCallback: boolean | null = null;
+      sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: accept,
+        onFinish: () => {
+          placeholderAtCallback = placeholderIn(container);
+          openAtCallback = items[0]!.matches(':popover-open');
+        },
+        landingTiming: () => ({ duration: 0, easing: 'linear' }),
+      });
+
+      const over = centerOf(items[1]!);
+      await ue.pointer([
+        {
+          target: items[0]!,
+          keys: '[MouseLeft>]',
+          coords: centerOf(items[0]!),
+        },
+        { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
+      ]);
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+      });
+      await vi.waitFor(() => expect(openAtCallback).not.toBeNull(), {
+        timeout: 1000,
+      });
+
+      expect(placeholderAtCallback).toBeUndefined();
+      expect(openAtCallback).toBeFalsy();
+    });
+
+    it('should never run both onFinish and onCancel for one operation', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const onFinish = vi.fn<(r: SortableFinishResult) => void>();
+      const onCancel = vi.fn<(r: SortableCancelResult) => void>();
+      sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: accept,
+        onFinish,
+        onCancel,
+      });
+
+      const over = centerOf(items[1]!);
+      await ue.pointer([
+        {
+          target: items[0]!,
+          keys: '[MouseLeft>]',
+          coords: centerOf(items[0]!),
+        },
+        { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
+      ]);
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+      });
+      await vi.waitFor(() => expect(onFinish).toHaveBeenCalledOnce(), {
+        timeout: 1000,
+      });
+      await flush();
+
+      expect(onCancel).not.toHaveBeenCalled();
+    });
+
+    it('should forward an error thrown by onFinish through onError', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const failure = new Error('consumer finish failed');
+      const onError = vi.fn<(...a: unknown[]) => void>();
+      sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: accept,
+        onFinish: () => {
+          throw failure;
+        },
+        onError,
+      });
+
+      const over = centerOf(items[1]!);
+      await ue.pointer([
+        {
+          target: items[0]!,
+          keys: '[MouseLeft>]',
+          coords: centerOf(items[0]!),
+        },
+        { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
+      ]);
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+      });
+      await vi.waitFor(() => expect(onError).toHaveBeenCalledOnce(), {
+        timeout: 1000,
+      });
+
+      expect(onError.mock.calls[0]![0]).toBe(failure);
+    });
+  });
+
+  describe('destroy', () => {
+    it('should close event ingress so later input is inert', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const onStart = vi.fn<(item: HTMLElement) => void>();
+      const onReorder = vi.fn(accept);
+      const controller = sort(container, {
+        items: () => rows(container),
+        onReorder,
+        onStart,
+      });
+
+      controller.destroy();
+      const over = centerOf(items[1]!);
+      await ue.pointer([
+        {
+          target: items[0]!,
+          keys: '[MouseLeft>]',
+          coords: centerOf(items[0]!),
+        },
+        { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
+      ]);
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+      });
+      await flush();
+
+      expect(onStart).not.toHaveBeenCalled();
+      expect(onReorder).not.toHaveBeenCalled();
+    });
+
+    it('should be idempotent', () => {
+      const container = createList(3);
+      const controller = sort(container, {
+        items: () => rows(container),
+        onReorder: accept,
+      });
+
+      expect(() => {
+        controller.destroy();
+        controller.destroy();
+      }).not.toThrow();
+    });
+
+    it('should remove the placeholder and restore the item when destroyed mid-drag', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const controller = sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: accept,
+      });
+
+      await ue.pointer([
+        {
+          target: items[0]!,
+          keys: '[MouseLeft>]',
+          coords: centerOf(items[0]!),
+        },
+        { coords: { clientX: 50, clientY: 120 } },
+      ]);
+      expect(placeholderIn(container)).toBeDefined();
+
+      controller.destroy();
+      await flush();
+
+      expect(placeholderIn(container)).toBeUndefined();
+      expect(items[0]!.matches(':popover-open')).toBeFalsy();
+    });
+
+    it('should stay silent when destroyed mid-drag', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const onFinish = vi.fn<(r: SortableFinishResult) => void>();
+      const onCancel = vi.fn<(r: SortableCancelResult) => void>();
+      const onError = vi.fn<(...a: unknown[]) => void>();
+      const controller = sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: accept,
+        onFinish,
+        onCancel,
+        onError,
+      });
+
+      await ue.pointer([
+        {
+          target: items[0]!,
+          keys: '[MouseLeft>]',
+          coords: centerOf(items[0]!),
+        },
+        { coords: { clientX: 50, clientY: 120 } },
+      ]);
+      controller.destroy();
+      await flush();
+
+      expect(onFinish).not.toHaveBeenCalled();
+      expect(onCancel).not.toHaveBeenCalled();
+      expect(onError).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * Document-level session listeners exist only while a gesture is armed.
+   * Counted directly: a leaked listener that happens to be inert still
+   * accumulates across gestures.
+   */
+  describe('listener lifetime', () => {
+    /** Counts live document listeners by tracking add/remove and abort signals. */
+    function trackDocumentListeners(): { live(): number; restore(): void } {
+      const add = document.addEventListener.bind(document);
+      const remove = document.removeEventListener.bind(document);
+      let live = 0;
+
+      document.addEventListener = ((
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+      ) => {
+        live += 1;
+        const signal = typeof options === 'object' ? options.signal : undefined;
+        signal?.addEventListener('abort', () => {
+          live -= 1;
+        });
+        add(type, listener, options);
+      }) as typeof document.addEventListener;
+
+      document.removeEventListener = ((
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | EventListenerOptions,
+      ) => {
+        live -= 1;
+        remove(type, listener, options);
+      }) as typeof document.removeEventListener;
+
+      return {
+        live: () => live,
+        restore() {
+          document.addEventListener = add;
+          document.removeEventListener = remove;
+        },
+      };
+    }
+
+    it('should release document listeners when a pending press is disarmed', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      sort(container, { items: () => rows(container), onReorder: accept });
+      const tracker = trackDocumentListeners();
+
+      try {
+        const before = tracker.live();
+        const start = centerOf(items[0]!);
+        await ue.pointer([
+          { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+          {
+            coords: { clientX: start.clientX + 2, clientY: start.clientY + 1 },
+          },
+        ]);
+        expect(tracker.live()).toBeGreaterThan(before);
+
+        await ue.pointer({ keys: '[/MouseLeft]', coords: start });
+        await flush();
+
+        expect(tracker.live()).toBe(before);
+      } finally {
+        tracker.restore();
+      }
+    });
+
+    it('should hold no document listeners once a gesture completes', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      const onFinish = vi.fn<(r: SortableFinishResult) => void>();
+      sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: accept,
+        onFinish,
+        landingTiming: () => ({ duration: 0, easing: 'linear' }),
+      });
+      const tracker = trackDocumentListeners();
+
+      try {
+        const before = tracker.live();
+        const over = centerOf(items[1]!);
+        await ue.pointer([
+          {
+            target: items[0]!,
+            keys: '[MouseLeft>]',
+            coords: centerOf(items[0]!),
+          },
+          { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
+        ]);
+        expect(tracker.live()).toBeGreaterThan(before);
+
+        await ue.pointer({
+          keys: '[/MouseLeft]',
+          coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+        });
+        await vi.waitFor(() => expect(onFinish).toHaveBeenCalledOnce(), {
+          timeout: 1000,
+        });
+        await flush();
+
+        expect(tracker.live()).toBe(before);
+      } finally {
+        tracker.restore();
+      }
+    });
+  });
+
+  describe('resolution currency', () => {
+    it('should ignore an acceptance that arrives after the gesture was canceled', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      let settle!: () => void;
+      const onFinish = vi.fn<(r: SortableFinishResult) => void>();
+      const onCancel = vi.fn<(r: SortableCancelResult) => void>();
+      const controller = sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: () =>
+          new Promise<ReorderResolution>((resolve) => {
+            settle = () => {
+              resolve(ReorderResolution.accept());
+            };
+          }),
+        onFinish,
+        onCancel,
+      });
+
+      const over = centerOf(items[1]!);
+      await ue.pointer([
+        {
+          target: items[0]!,
+          keys: '[MouseLeft>]',
+          coords: centerOf(items[0]!),
+        },
+        { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
+      ]);
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+      });
+      controller.cancel('superseded');
+      await vi.waitFor(() => expect(onCancel).toHaveBeenCalledOnce(), {
+        timeout: 1000,
+      });
+
+      settle();
+      await flush();
+
+      expect(onFinish).not.toHaveBeenCalled();
+      expect(onCancel).toHaveBeenCalledOnce();
+    });
+
+    it('should abort the resolution signal when the gesture is canceled', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      let aborted = false;
+      const controller = sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: (_request, { signal }) => {
+          signal.addEventListener('abort', () => {
+            aborted = true;
+          });
+          return new Promise<ReorderResolution>(() => {});
+        },
+      });
+
+      const over = centerOf(items[1]!);
+      await ue.pointer([
+        {
+          target: items[0]!,
+          keys: '[MouseLeft>]',
+          coords: centerOf(items[0]!),
+        },
+        { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
+      ]);
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+      });
+      expect(aborted).toBeFalsy();
+
+      controller.cancel();
+      await vi.waitFor(() => expect(aborted).toBeTruthy(), { timeout: 1000 });
+    });
+
+    it('should not abort the resolution signal after normal completion', async () => {
+      const container = createList(3);
+      const items = rows(container);
+      let aborted = false;
+      const onFinish = vi.fn<(r: SortableFinishResult) => void>();
+      sort(container, {
+        items: () => rows(container).filter((row) => row.textContent),
+        onReorder: (_request, { signal }) => {
+          signal.addEventListener('abort', () => {
+            aborted = true;
+          });
+          return ReorderResolution.accept();
+        },
+        onFinish,
+      });
+
+      const over = centerOf(items[1]!);
+      await ue.pointer([
+        {
+          target: items[0]!,
+          keys: '[MouseLeft>]',
+          coords: centerOf(items[0]!),
+        },
+        { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
+      ]);
+      await ue.pointer({
+        keys: '[/MouseLeft]',
+        coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+      });
+      await vi.waitFor(() => expect(onFinish).toHaveBeenCalledOnce(), {
+        timeout: 1000,
+      });
+      await flush();
+
+      expect(aborted).toBeFalsy();
+    });
   });
 });
