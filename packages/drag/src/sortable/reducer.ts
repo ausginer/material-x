@@ -383,6 +383,22 @@ const crossed = (origin: Point, latest: Point, threshold: number): boolean =>
 const ownsPointer = (state: SortableState, pointerId: number): boolean =>
   state.pointer?.id === pointerId;
 
+/** Whether a landing-pinned report belongs to the landing currently running. */
+function isActivePin(
+  state: SortableState,
+  event: LandingCurrency & { operationId: number },
+): boolean {
+  const landing = state.settlement?.landing;
+
+  if (!landing || landing.stage === LANDING_SKIPPED) {
+    return false;
+  }
+
+  return landing.stage === LANDING_SETTLED
+    ? false
+    : sameLanding(landing.currency, event);
+}
+
 const isActiveOp = (state: SortableState, operationId: number): boolean =>
   state.operation?.operationId === operationId;
 
@@ -504,10 +520,20 @@ function classify(
     // consumer's authored presentation is ready too — otherwise the temporary
     // presentation would be torn down before the authored DOM exists.
     case LANDING_PINNED:
+      // A pin from a superseded landing must not complete the current
+      // settlement. The settlement slice already rejects it by currency, so
+      // without this the phase would advance while the slice stood still.
+      return isActivePin(state, event)
+        ? state.settlement?.presentation === PRESENTATION_PENDING
+          ? LIFECYCLE_SETTLE_PROGRESS
+          : LIFECYCLE_SETTLE_COMPLETE
+        : LIFECYCLE_IGNORE;
     case SETTLEMENT_COMPLETED:
-      return state.settlement?.presentation === PRESENTATION_PENDING
-        ? LIFECYCLE_SETTLE_PROGRESS
-        : LIFECYCLE_SETTLE_COMPLETE;
+      return isActiveOp(state, event.operationId)
+        ? state.settlement?.presentation === PRESENTATION_PENDING
+          ? LIFECYCLE_SETTLE_PROGRESS
+          : LIFECYCLE_SETTLE_COMPLETE
+        : LIFECYCLE_IGNORE;
     // Completes the operation when it is the last of the two barriers to land.
     case PRESENTATION_SETTLED:
       return isActiveOp(state, event.operationId) &&
@@ -800,7 +826,10 @@ export function createSortableReducer(
     if (phase === PHASE_IDLE) {
       return null;
     }
-    if (event.type === LIFECYCLE_ADMIT) {
+    // Only an admit the classifier honoured may re-arm: a duplicate admit
+    // while an operation is already armed is inert, so the slice must not
+    // rewrite identity behind the unchanged phase.
+    if (event.type === LIFECYCLE_ADMIT && from.phase === PHASE_IDLE) {
       return {
         id: event.pointerId,
         origin: event.point,
@@ -831,7 +860,10 @@ export function createSortableReducer(
     if (phase === PHASE_IDLE) {
       return null;
     }
-    if (event.type === LIFECYCLE_ADMIT) {
+    // Only an admit the classifier honoured may re-arm: a duplicate admit
+    // while an operation is already armed is inert, so the slice must not
+    // rewrite identity behind the unchanged phase.
+    if (event.type === LIFECYCLE_ADMIT && from.phase === PHASE_IDLE) {
       return {
         type: OPERATION_ADMITTED,
         operationId: event.operationId,

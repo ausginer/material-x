@@ -3,6 +3,7 @@
  * pointer position, and the reported {@link DragGeometry} from committed state.
  * Reads no DOM, no callbacks, no mutable options.
  */
+import type { DOMRealm } from '../kernel/realm.ts';
 import type {
   CoordinateMapper,
   DragAxis,
@@ -30,12 +31,19 @@ export function pointerDelta(
   return bounds ? clampDelta(raw, originRect, bounds) : raw;
 }
 
-/** The visual's current rect, derived arithmetically (no layout read). */
+/**
+ * The visual's current rect, derived arithmetically (no layout read).
+ *
+ * The constructor comes from the owning {@link DOMRealm} rather than the ambient
+ * global, so a controller created inside an iframe hands its consumer a rect
+ * belonging to that document's realm.
+ */
 export function currentRect(
   originRect: DOMRectReadOnly,
   viewportDelta: Point,
+  realm: DOMRealm,
 ): DOMRectReadOnly {
-  return new DOMRectReadOnly(
+  return new realm.window.DOMRectReadOnly(
     originRect.x + viewportDelta.x,
     originRect.y + viewportDelta.y,
     originRect.width,
@@ -50,6 +58,7 @@ export function geometryOf(
   viewportDelta: Point,
   originRect: DOMRectReadOnly,
   mapper: CoordinateMapper,
+  realm: DOMRealm,
 ): DragGeometry {
   return {
     pointer,
@@ -57,6 +66,6 @@ export function geometryOf(
     viewportDelta,
     localDelta: mapper.deltaFromViewport(viewportDelta),
     originRect,
-    currentRect: currentRect(originRect, viewportDelta),
+    currentRect: currentRect(originRect, viewportDelta, realm),
   };
 }

@@ -137,12 +137,15 @@ export class SortableGesture {
   #resolution: ReorderResolutionEffect | null = null;
   #landing: LandingRunner | null = null;
   #presentationWatchDisposer: Disposer | null = null;
-  #originRect: DOMRectReadOnly = new DOMRectReadOnly();
+  #originRect: DOMRectReadOnly;
   #lastPoint: Point | null = null;
   #lastDelta: Point = { x: 0, y: 0 };
 
   constructor(deps: SortableGestureDeps) {
     this.#deps = deps;
+    // Placeholder until acquisition measures the real one; constructed from the
+    // owning realm so no ambient global is touched.
+    this.#originRect = new deps.realm.window.DOMRectReadOnly();
     this.#scope = createGestureScope((error) =>
       this.#report(error, { stage: FAILURE_PRESENTATION_LEASE }, null),
     );

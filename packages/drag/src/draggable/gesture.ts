@@ -125,7 +125,7 @@ export type FreeGestureDeps = DragSubject &
   }>;
 
 /** The reported geometry for an active/candidate draggable state. */
-function freeGeometry(to: DraggableState): DragGeometry {
+function freeGeometry(to: DraggableState, realm: DOMRealm): DragGeometry {
   const op = to.operation;
   const { pointer } = to;
 
@@ -141,6 +141,7 @@ function freeGeometry(to: DraggableState): DragGeometry {
     to.motion?.viewportDelta ?? ORIGIN,
     op.originRect,
     mapper,
+    realm,
   );
 }
 
@@ -327,7 +328,7 @@ export class FreeDragGesture {
     }
 
     try {
-      options.onStart?.(freeGeometry(to));
+      options.onStart?.(freeGeometry(to, this.#deps.realm));
       dispatch({
         type: LIFECYCLE_START_SUCCEEDED,
         operationId: op.operationId,
@@ -355,7 +356,7 @@ export class FreeDragGesture {
     }
 
     try {
-      options.onMove(freeGeometry(to));
+      options.onMove(freeGeometry(to, this.#deps.realm));
     } catch (error) {
       const op = to.operation;
       this.#reportCause(error, { stage: FAILURE_MOVE }, null);

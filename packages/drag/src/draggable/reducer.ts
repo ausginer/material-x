@@ -67,6 +67,7 @@ import {
   type SettlementState,
   transitionKernelPhase,
 } from '../kernel/protocol.ts';
+import type { DOMRealm } from '../kernel/realm.ts';
 import {
   AXIS_BOTH,
   type CoordinateMapper,
@@ -331,6 +332,12 @@ export type DraggableEvent =
 export type DraggableConfig = Readonly<{
   threshold: number;
   hasHomeTarget: boolean;
+  /**
+   * The owning realm. The reducer reads no DOM, but it does construct the
+   * release rect handed to the consumer, and that constructor must come from
+   * the controller's own document rather than the ambient global.
+   */
+  realm: DOMRealm;
 }>;
 
 export const INITIAL_DRAGGABLE_STATE: DraggableState = {
@@ -344,6 +351,25 @@ export const INITIAL_DRAGGABLE_STATE: DraggableState = {
 };
 
 // --- Helpers ---------------------------------------------------------------
+
+/** The shared "no drop in flight" value, reused to keep slice identity stable. */
+const NO_FREE_DROP: FreeDropState = { stage: DROP_NONE };
+
+/** Whether a landing-pinned report belongs to the landing currently running. */
+function isActivePin(
+  state: DraggableState,
+  event: LandingCurrency & { operationId: number },
+): boolean {
+  const landing = state.settlement?.landing;
+
+  if (!landing || landing.stage === LANDING_SKIPPED) {
+    return false;
+  }
+
+  return landing.stage === LANDING_SETTLED
+    ? false
+    : sameLanding(landing.currency, event);
+}
 
 const crossed = (origin: Point, latest: Point, threshold: number): boolean =>
   Math.abs(latest.x - origin.x) >= threshold ||
@@ -437,10 +463,20 @@ function classify(
     // consumer's authored presentation is ready too — otherwise the temporary
     // presentation would be torn down before the authored DOM exists.
     case LANDING_PINNED:
+      // A pin from a superseded landing must not complete the current
+      // settlement. The settlement slice already rejects it by currency, so
+      // without this the phase would advance while the slice stood still.
+      return isActivePin(state, event)
+        ? state.settlement?.presentation === PRESENTATION_PENDING
+          ? LIFECYCLE_SETTLE_PROGRESS
+          : LIFECYCLE_SETTLE_COMPLETE
+        : LIFECYCLE_IGNORE;
     case SETTLEMENT_COMPLETED:
-      return state.settlement?.presentation === PRESENTATION_PENDING
-        ? LIFECYCLE_SETTLE_PROGRESS
-        : LIFECYCLE_SETTLE_COMPLETE;
+      return isActiveOp(state, event.operationId)
+        ? state.settlement?.presentation === PRESENTATION_PENDING
+          ? LIFECYCLE_SETTLE_PROGRESS
+          : LIFECYCLE_SETTLE_COMPLETE
+        : LIFECYCLE_IGNORE;
     // Completes the operation when it is the last of the two barriers to land.
     case PRESENTATION_SETTLED:
       return isActiveOp(state, event.operationId) &&
@@ -476,7 +512,11 @@ function classifyMove(
   if (
     event.type === LIFECYCLE_MOVE &&
     from.phase === PHASE_PENDING &&
-    from.pointer
+    from.pointer &&
+    // Ownership is re-checked rather than inherited from `base`: this refinement
+    // replaces the base classification outright, and a foreign pointer must not
+    // cross the threshold on behalf of the one that armed the press.
+    ownsPointer(from, event.pointerId)
   ) {
     return crossed(from.pointer.origin, event.point, config.threshold)
       ? LIFECYCLE_ACTIVATE
@@ -671,7 +711,10 @@ export function createDraggableReducer(
       return null;
     }
 
-    if (event.type === LIFECYCLE_ADMIT) {
+    // Only an admit the classifier honoured may re-arm: a duplicate admit
+    // while an operation is already armed is inert, so the slice must not
+    // rewrite identity behind the unchanged phase.
+    if (event.type === LIFECYCLE_ADMIT && from.phase === PHASE_IDLE) {
       return {
         id: event.pointerId,
         origin: event.point,
@@ -707,7 +750,10 @@ export function createDraggableReducer(
       return null;
     }
 
-    if (event.type === LIFECYCLE_ADMIT) {
+    // Only an admit the classifier honoured may re-arm: a duplicate admit
+    // while an operation is already armed is inert, so the slice must not
+    // rewrite identity behind the unchanged phase.
+    if (event.type === LIFECYCLE_ADMIT && from.phase === PHASE_IDLE) {
       return {
         type: OPERATION_ADMITTED,
         operationId: event.operationId,
@@ -771,7 +817,11 @@ export function createDraggableReducer(
     nextDelta: Point,
   ): FreeDropState => {
     if (phase !== PHASE_AWAITING_RESULT) {
-      return { stage: DROP_NONE };
+      // Preserve identity when the drop is already absent: the root compares
+      // slices by reference to return `from` unchanged, so allocating a fresh
+      // equivalent here would defeat the no-effect guard for every ignored
+      // event and allocate on the pointer-move hot path.
+      return from.drop.stage === DROP_NONE ? from.drop : NO_FREE_DROP;
     }
 
     // Entering awaiting-result on release: commit one proposal-ready value.
@@ -787,6 +837,7 @@ export function createDraggableReducer(
           nextDelta,
           op.originRect,
           mapper,
+          config.realm,
         );
         return { stage: DROP_PROPOSAL_READY, proposal };
       }

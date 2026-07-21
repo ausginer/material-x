@@ -130,6 +130,7 @@ class FreeDragControllerImpl implements FreeDragController {
       {
         threshold: options.threshold ?? DEFAULT_THRESHOLD,
         hasHomeTarget: typeof options.resolveHomeTarget === 'function',
+        realm: this.#realm,
       },
       this.#ids,
     );
