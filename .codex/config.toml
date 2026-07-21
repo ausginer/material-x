@@ -1,0 +1,10 @@
+[mcp_servers.lsmcp]
+command = "npx"
+args = ["lsmcp"]
+
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+
+# Чтение выполняется автоматически,
+# для rename/format/replace Codex запросит разрешение.
+default_tools_approval_mode = "writes"
