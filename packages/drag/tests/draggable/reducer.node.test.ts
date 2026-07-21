@@ -183,6 +183,15 @@ describe('draggable reducer: admission and activation', () => {
     expect(state.phase).toBe(PHASE_PENDING);
   });
 
+  it('should return the same state for a sub-threshold move', () => {
+    const { reduce, run } = harness();
+    const pending = run(INITIAL_DRAGGABLE_STATE, admit());
+
+    // A pending move changes nothing observable: it must return `from` by
+    // reference so the session skips effect routing and no pointer state churns.
+    expect(reduce(pending, move(3, 4))).toBe(pending);
+  });
+
   it('should activate once movement reaches the threshold', () => {
     const { run } = harness();
     const state = run(INITIAL_DRAGGABLE_STATE, admit(), move(8, 0));

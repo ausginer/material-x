@@ -1235,5 +1235,49 @@ describe('draggable', () => {
 
       expect(spy).toHaveBeenCalled();
     });
+
+    it('should resolve a static bounds element once across many dragging moves', async () => {
+      const item = createItem();
+      const bounds = createBounds();
+      const spy = vi.spyOn(bounds, 'getBoundingClientRect');
+      drag(item, { bounds, onDrop: accept });
+
+      // An element rect only changes on scroll/resize, none of which happen here,
+      // so the first dragging read fills the cache and every later move reuses it.
+      await ue.pointer([
+        {
+          target: item,
+          keys: '[MouseLeft>]',
+          coords: { clientX: 110, clientY: 110 },
+        },
+        { coords: { clientX: 140, clientY: 140 } },
+        { coords: { clientX: 150, clientY: 150 } },
+        { coords: { clientX: 160, clientY: 170 } },
+        { coords: { clientX: 180, clientY: 190 } },
+      ]);
+
+      expect(spy).toHaveBeenCalledOnce();
+    });
+
+    it('should invoke a function bounds provider on every dragging move', async () => {
+      const item = createItem();
+      const provide = vi.fn(() => new DOMRectReadOnly(0, 0, 1000, 1000));
+      drag(item, { bounds: provide, onDrop: accept });
+
+      await ue.pointer([
+        {
+          target: item,
+          keys: '[MouseLeft>]',
+          coords: { clientX: 110, clientY: 110 },
+        },
+        { coords: { clientX: 140, clientY: 140 } },
+        { coords: { clientX: 150, clientY: 150 } },
+        { coords: { clientX: 160, clientY: 170 } },
+      ]);
+
+      // A function provider is never cached: its value may vary independently of
+      // scroll/resize, so each dragging move calls it afresh.
+      expect(provide.mock.calls.length).toBeGreaterThan(1);
+    });
   });
 });

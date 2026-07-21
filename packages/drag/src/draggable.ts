@@ -174,6 +174,8 @@ class FreeDragControllerImpl implements FreeDragController {
 
     if (next.bounds !== undefined) {
       this.#opts.bounds = next.bounds;
+      // The source changed, so any cached static rect is stale.
+      this.#boundsCached = false;
     }
     if (next.landingTiming) {
       this.#opts.landingTiming = next.landingTiming;
@@ -223,8 +225,32 @@ class FreeDragControllerImpl implements FreeDragController {
     this.#controllerAbort.abort();
   }
 
+  // Static bounds (an element or `'viewport'`) resolve to a rect that only
+  // changes on scroll, resize, or an option change, so the active gesture caches
+  // it and re-reads it once per invalidation instead of forcing a layout every
+  // move. A function provider is never cached: its value may vary independently,
+  // so it stays live and is invoked per active move/release.
+  #boundsCache: DOMRectReadOnly | null = null;
+  #boundsCached = false;
+
+  /** Cached bounds for the hot move/release path. */
   #currentBounds(): DOMRectReadOnly | null {
-    return resolveBounds(this.#opts.bounds, this.#realm);
+    if (typeof this.#opts.bounds === 'function') {
+      return resolveBounds(this.#opts.bounds, this.#realm);
+    }
+
+    if (!this.#boundsCached) {
+      this.#boundsCache = resolveBounds(this.#opts.bounds, this.#realm);
+      this.#boundsCached = true;
+    }
+
+    return this.#boundsCache;
+  }
+
+  /** Fresh bounds for the scroll/resize path, refilling the static cache. */
+  #refreshBounds(): DOMRectReadOnly | null {
+    this.#boundsCached = false;
+    return this.#currentBounds();
   }
 
   #emit(raw: PointerEvent | EscapeSignal): void {
@@ -239,12 +265,14 @@ class FreeDragControllerImpl implements FreeDragController {
     const event = raw;
     const point = { x: event.clientX, y: event.clientY };
 
-    // Bounds clamp only an active move or the drop it commits. Below the
-    // threshold the motion slice returns `from.motion` untouched and never reads
-    // them, so resolving bounds there would force a synchronous layout on every
-    // sub-threshold `pointermove` for a value the reducer discards. Gate the read
-    // on the dragging phase; a foreign pointer is ignored regardless.
-    const dragging = this.#session.state().phase === PHASE_DRAGGING;
+    // Bounds clamp only an active move (or the drop it commits) made by the
+    // pointer that owns the gesture. Below the threshold the motion slice returns
+    // `from.motion` untouched and never reads them, and a foreign pointer is
+    // ignored outright, so resolving bounds outside those cases would force a
+    // synchronous layout for a value the reducer discards.
+    const state = this.#session.state();
+    const clamp =
+      state.phase === PHASE_DRAGGING && state.pointer?.id === event.pointerId;
 
     switch (event.type) {
       case POINTER_MOVE:
@@ -252,7 +280,7 @@ class FreeDragControllerImpl implements FreeDragController {
           type: LIFECYCLE_MOVE,
           pointerId: event.pointerId,
           point,
-          bounds: dragging ? this.#currentBounds() : null,
+          bounds: clamp ? this.#currentBounds() : null,
         });
         break;
       case POINTER_UP:
@@ -260,7 +288,7 @@ class FreeDragControllerImpl implements FreeDragController {
           type: LIFECYCLE_RELEASE,
           pointerId: event.pointerId,
           point,
-          bounds: dragging ? this.#currentBounds() : null,
+          bounds: clamp ? this.#currentBounds() : null,
         });
         break;
       case POINTER_CANCEL:
@@ -307,6 +335,9 @@ class FreeDragControllerImpl implements FreeDragController {
     event: DraggableEvent,
   ): void {
     if (from.phase === PHASE_IDLE && to.phase === PHASE_PENDING) {
+      // No scroll/resize listener spans the idle gap between operations, so the
+      // static rect cached by the previous gesture may be stale; start fresh.
+      this.#boundsCached = false;
       this.#gesture = new FreeDragGesture({
         realm: this.#realm,
         ids: this.#ids,
@@ -315,7 +346,9 @@ class FreeDragControllerImpl implements FreeDragController {
         visual: this.#visual,
         invalidation: this.#invalidation,
         dispatch: this.#session.dispatch,
-        currentBounds: this.#currentBounds.bind(this),
+        // The gesture reads bounds only from its scroll/resize handler, where the
+        // rect must be re-measured and the static cache refilled.
+        currentBounds: this.#refreshBounds.bind(this),
       });
       this.#pointerSource.armSession(
         this.#gesture.scope.signal,

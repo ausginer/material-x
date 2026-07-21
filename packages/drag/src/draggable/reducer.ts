@@ -743,6 +743,14 @@ export function createDraggableReducer(
     }
 
     if (event.type === LIFECYCLE_MOVE && ownsPointer(from, event.pointerId)) {
+      // A still-pending move is sub-threshold: `latest` is unused until the
+      // crossing move (which sets it from its own `event.point`) and the
+      // threshold test reads `event.point`, not `latest`. Committing fresh
+      // pointer state here would defeat the no-effect guard and route effects
+      // for a move that changes nothing, so keep identity while pending.
+      if (phase === PHASE_PENDING) {
+        return from.pointer;
+      }
       return { ...from.pointer, latest: event.point };
     }
 
