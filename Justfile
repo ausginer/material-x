@@ -14,7 +14,7 @@ build:
 
 # Delete build artefacts for all packages
 clean-build:
-    nx run-many -t clean:build --projects=core,tproc,vite-custom-element-assets,vite-traits-plugin,material-x --skipNxCache
+    nx run-many -t clean:build --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-vite,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Docs
@@ -45,12 +45,20 @@ test:
     nx run-many -t test --projects=core,tproc,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
+# Bundle size
+# ---------------------------------------------------------------------------
+
+# Check bundle-size budgets for all measured packages
+size:
+    nx run-many -t size --projects=core,drag --skipNxCache
+
+# ---------------------------------------------------------------------------
 # Type checking
 # ---------------------------------------------------------------------------
 
 # Type-check all packages
 typecheck:
-    nx run-many -t typecheck --projects=core,tproc,vite-custom-element-assets,vite-traits-plugin,material-x --skipNxCache
+    nx run-many -t typecheck --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-vite,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Formatting
@@ -58,11 +66,11 @@ typecheck:
 
 # Format all packages
 fmt:
-    nx run-many -t fmt --projects=core,tproc,vite-custom-element-assets,vite-traits-plugin,material-x --skipNxCache
+    nx run-many -t fmt --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-vite,material-x --skipNxCache
 
 # Check formatting for all packages without writing
 fmt-check:
-    nx run-many -t fmt:check --projects=core,tproc,vite-custom-element-assets,vite-traits-plugin,material-x --skipNxCache
+    nx run-many -t fmt:check --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-vite,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Linting
@@ -70,11 +78,11 @@ fmt-check:
 
 # Lint all packages
 lint:
-    nx run-many -t lint --projects=core,tproc,vite-custom-element-assets,vite-traits-plugin,material-x --skipNxCache
+    nx run-many -t lint --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-vite,material-x --skipNxCache
 
 # Lint and auto-fix all packages
 lint-fix:
-    nx run-many -t lint:fix --projects=core,tproc,vite-custom-element-assets,vite-traits-plugin,material-x --skipNxCache
+    nx run-many -t lint:fix --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-vite,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Misc

@@ -36,6 +36,11 @@
     "fmt:check": "just fmt-check",
     "lint": "just lint",
     "lint:fix": "just lint-fix",
-    "test": "just test"
+    "test": "just test",
+    "size": "just size"
+  },
+  "devDependencies": {
+    "size-limit": "12.1.0",
+    "size-limit-preset-vite": "0.1.0"
   }
 }

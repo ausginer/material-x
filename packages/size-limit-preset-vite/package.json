@@ -1,0 +1,41 @@
+{
+  "name": "size-limit-preset-vite",
+  "version": "0.1.0",
+  "description": "Size Limit preset that measures bundles produced by the project's own Vite config",
+  "license": "Apache-2.0",
+  "files": [
+    "index.js",
+    "index.js.map",
+    "index.d.ts"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "just build",
+    "clean:build": "just clean-build",
+    "typecheck": "just typecheck",
+    "fmt": "just fmt",
+    "fmt:check": "just fmt-check",
+    "lint": "just lint",
+    "lint:fix": "just lint-fix"
+  },
+  "dependencies": {
+    "@size-limit/file": "12.1.0"
+  },
+  "peerDependencies": {
+    "size-limit": "^12.1.0",
+    "vite": "^8.1.4"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
