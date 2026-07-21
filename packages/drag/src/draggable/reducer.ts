@@ -668,7 +668,23 @@ export function createDraggableReducer(
       event.type === LIFECYCLE_ACTIVATION_READY &&
       isActiveOp(from, event.operationId)
     ) {
-      return { viewportDelta: ORIGIN };
+      // The pointer has already travelled at least the activation threshold,
+      // and `viewportDelta` is defined as `pointer - originPointer`. Committing
+      // ORIGIN here would misreport the geometry handed to `onStart` and leave
+      // the accumulated delta to be applied by the *next* move, popping the
+      // visual by the whole activating distance. Bounds are not yet known at
+      // activation; the following move clamps.
+      return from.pointer
+        ? {
+            viewportDelta: pointerDelta(
+              from.pointer.latest,
+              from.pointer.origin,
+              event.candidate.originRect,
+              from.policy.axis,
+              null,
+            ),
+          }
+        : { viewportDelta: ORIGIN };
     }
 
     if (!op || op.type === OPERATION_ADMITTED || !from.pointer) {

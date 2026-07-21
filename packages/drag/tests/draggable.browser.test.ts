@@ -9,6 +9,7 @@ import {
   type FreeDragController,
   type FreeDragFinishResult,
   type FreeDropRequest,
+  type Point,
 } from '../src/draggable.ts';
 import { PRESENTATION_READY_TIMEOUT } from '../src/kernel/presentation-ready.ts';
 import {
@@ -687,6 +688,52 @@ describe('draggable', () => {
 
       expect(onStart).not.toHaveBeenCalled();
       expect(item.matches(':popover-open')).toBeFalsy();
+    });
+  });
+
+  describe('activation continuity', () => {
+    it('should follow the pointer without a jump on the move after activation', async () => {
+      const item = createItem();
+      drag(item, { onDrop: accept });
+      const before = item.getBoundingClientRect();
+
+      // One move crosses the threshold; a real pointer often reports a large
+      // first delta, so the activating move must not be discarded.
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 150, clientY: 150 },
+      );
+      const activated = item.getBoundingClientRect();
+
+      await ue.pointer({ coords: { clientX: 155, clientY: 158 } });
+      const after = item.getBoundingClientRect();
+
+      // The visual may only move as far as the pointer did between the two
+      // events; anything more is the activating delta being applied late.
+      expect(after.left - activated.left).toBeCloseTo(5, 0);
+      expect(after.top - activated.top).toBeCloseTo(8, 0);
+      expect(activated.left - before.left).toBeCloseTo(40, 0);
+      expect(activated.top - before.top).toBeCloseTo(40, 0);
+    });
+
+    it('should report the accumulated grab delta to onStart', async () => {
+      const item = createItem();
+      const onStart = vi.fn<(geometry: { viewportDelta: Point }) => void>();
+      drag(item, { onDrop: accept, onStart });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 150, clientY: 150 },
+      );
+
+      // `viewportDelta` is documented as `pointer - originPointer`, and the
+      // pointer has already travelled 40px by the time the drag starts.
+      expect(onStart).toHaveBeenCalledOnce();
+      expect(onStart.mock.calls[0]![0].viewportDelta).toEqual({ x: 40, y: 40 });
     });
   });
 
