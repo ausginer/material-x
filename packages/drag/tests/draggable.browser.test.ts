@@ -531,4 +531,35 @@ describe('draggable', () => {
       expect(item.matches(':popover-open')).toBeFalsy();
     });
   });
+
+  it('should disarm a press released before the activation threshold', async () => {
+    const item = createItem();
+    const onDrop = vi.fn(accept);
+    const onStart = vi.fn();
+    drag(item, { onDrop, onStart });
+
+    // A click: pressed and released in place, never crossing the threshold.
+    await ue.pointer([
+      {
+        target: item,
+        keys: '[MouseLeft>]',
+        coords: { clientX: 110, clientY: 110 },
+      },
+    ]);
+    await ue.pointer({
+      keys: '[/MouseLeft]',
+      coords: { clientX: 110, clientY: 110 },
+    });
+    await flush();
+
+    // Moving far past the threshold afterwards must not drag: no button is
+    // held, and the released press no longer arms anything.
+    await ue.pointer({ coords: { clientX: 200, clientY: 200 } });
+    await flush();
+
+    expect(onStart).not.toHaveBeenCalled();
+    expect(onDrop).not.toHaveBeenCalled();
+    expect(item.matches(':popover-open')).toBeFalsy();
+    expect(item.style.position).toBe('absolute');
+  });
 });

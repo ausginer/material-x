@@ -234,11 +234,6 @@ export class SortableGesture {
       const originRect = visual.getBoundingClientRect();
       this.#originRect = originRect;
 
-      const anchor = createAnchor(options, realm, op.item, visual, originRect);
-      const placeholder = insertPlaceholder(anchor, op.item);
-      this.#scope.presentation.use(() => placeholder.dispose());
-      this.#placeholder = placeholder;
-
       const context = op.item.offsetParent;
       const mapper = createMapper(
         context instanceof realm.window.HTMLElement
@@ -246,6 +241,12 @@ export class SortableGesture {
           : realm.document.documentElement,
         realm,
       );
+      // Lift before the placeholder exists. The placeholder occupies a slot
+      // while the item is still in flow, so inserting it first grows the
+      // container by one item — and in any layout that distributes free space
+      // (centered, wrapping, space-between) that reflow moves the item itself.
+      // The lift would then bake a stale origin into its base matrix and the
+      // visual would visibly jump at activation.
       const lift = acquireLift(
         visual,
         LIFT_FAITHFUL,
@@ -253,9 +254,19 @@ export class SortableGesture {
         (d) => mapper.deltaFromViewport(d),
         realm,
       );
-      this.#scope.presentation.use(() => lift.dispose());
       this.#lift = lift;
       this.#renderer = createDragRenderer(lift);
+
+      // Now that the item is out of flow, the placeholder replaces it in the
+      // same slot, so the container's size never changes.
+      const anchor = createAnchor(options, realm, op.item, visual, originRect);
+      const placeholder = insertPlaceholder(anchor, op.item);
+      // Registered before the lift's disposer even though it is acquired after:
+      // the scope disposes LIFO, and teardown must return the item to flow
+      // before the placeholder leaves it, or release reproduces the same jump.
+      this.#scope.presentation.use(() => placeholder.dispose());
+      this.#placeholder = placeholder;
+      this.#scope.presentation.use(() => lift.dispose());
 
       const capture = acquirePointerCapture(op.item, to.pointer.id);
       this.#scope.interaction.use(capture);

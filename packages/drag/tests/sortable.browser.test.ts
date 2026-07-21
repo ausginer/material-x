@@ -480,4 +480,33 @@ describe('sortable', () => {
       await vi.waitFor(() => expect(placeholderIn(container)).toBeUndefined());
     });
   });
+
+  it('should disarm a press released before the activation threshold', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onReorder = vi.fn(accept);
+    const onStart = vi.fn<(item: HTMLElement) => void>();
+    sort(container, { items: () => rows(container), onReorder, onStart });
+
+    // A click: pressed and released in place, never crossing the threshold.
+    const start = centerOf(items[0]!);
+    await ue.pointer([
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+    ]);
+    await ue.pointer({ keys: '[/MouseLeft]', coords: start });
+    await flush();
+
+    // Moving far past the threshold afterwards must not drag: no button is
+    // held, and the released press no longer arms anything.
+    await ue.pointer({
+      coords: { clientX: start.clientX, clientY: start.clientY + 60 },
+    });
+    await flush();
+
+    expect(onStart).not.toHaveBeenCalled();
+    expect(onReorder).not.toHaveBeenCalled();
+    expect(items[0]!.matches(':popover-open')).toBeFalsy();
+    expect(items[0]!.style.position).toBe('');
+    expect(rows(container)).toHaveLength(3);
+  });
 });

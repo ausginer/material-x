@@ -410,8 +410,17 @@ function classify(
       }
       return LIFECYCLE_MOVE;
     case LIFECYCLE_RELEASE:
-      return ownsPointer(state, event.pointerId) &&
-        state.phase === PHASE_DRAGGING
+      if (!ownsPointer(state, event.pointerId)) {
+        return LIFECYCLE_IGNORE;
+      }
+      // Releasing before the threshold is crossed ends the gesture: the press
+      // was a click, not a drag. Ignoring it instead would leave the operation
+      // armed with no pointer down, so the next button-less move crosses the
+      // threshold and the item sticks to the cursor.
+      if (state.phase === PHASE_PENDING) {
+        return LIFECYCLE_DISARM;
+      }
+      return state.phase === PHASE_DRAGGING
         ? LIFECYCLE_RELEASE
         : LIFECYCLE_IGNORE;
     case LIFECYCLE_CANCEL:
