@@ -1,14 +1,14 @@
 [
   {
     "name": "draggable",
-    "path": "src/draggable.ts"
+    "path": "draggable.js"
   },
   {
     "name": "sortable",
-    "path": "src/sortable.ts"
+    "path": "sortable.js"
   },
   {
     "name": "combined",
-    "path": ["src/draggable.ts", "src/sortable.ts"]
+    "path": ["draggable.js", "sortable.js"]
   }
 ]

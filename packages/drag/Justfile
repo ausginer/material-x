@@ -49,6 +49,6 @@ lint-fix *FILES:
     oxlint --fix {{ if FILES == "" { "." } else { FILES } }}
     {{ _eslint }} --fix {{ if FILES == "" { "." } else { FILES } }}
 
-# Measure bundle size budgets
-size *ARGS:
+# Measure bundle size budgets (builds first — Size Limit weighs built output)
+size *ARGS: build
     size-limit {{ ARGS }}
