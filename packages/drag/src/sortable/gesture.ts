@@ -80,6 +80,11 @@ import {
   type PlaceholderLease,
 } from './placeholder.ts';
 import {
+  createRectIndex,
+  markRectIndexDirty,
+  type RectIndex,
+} from './rect-index.ts';
+import {
   EFFECT_FAILED,
   INPUT_KEYBOARD,
   INSERTION_READY,
@@ -140,6 +145,9 @@ export class SortableGesture {
   #originRect: DOMRectReadOnly;
   #lastPoint: Point | null = null;
   #lastDelta: Point = { x: 0, y: 0 };
+  // One packed geometry buffer, reused for every spatial resolution across the
+  // operation's lifetime.
+  readonly #rectIndex: RectIndex = createRectIndex();
 
   constructor(deps: SortableGestureDeps) {
     this.#deps = deps;
@@ -291,6 +299,8 @@ export class SortableGesture {
       invalidation.arm(this.#scope.signal, () => {
         const current = this.#currentOperation;
         if (current && current.type !== OPERATION_ADMITTED && this.#lastPoint) {
+          // A scroll or resize moved the field under the cache; re-measure.
+          markRectIndexDirty(this.#rectIndex);
           this.#renderer?.render(this.#lastDelta);
           this.#resolveInsertion(this.#lastPoint);
         }
@@ -361,13 +371,17 @@ export class SortableGesture {
         this.#placeholder
       ) {
         this.#placeholder.placeBefore(to.insertion.value.after);
+        // The committed move reflows the field, so the cached rects are stale.
+        markRectIndexDirty(this.#rectIndex);
       }
       return;
     }
-    this.#render(to);
+    // One delta per drag frame: the renderer and the cached last-delta share it.
+    const delta = sortableDelta(to);
+    this.#renderer?.render(delta);
     if (to.pointer) {
       this.#lastPoint = to.pointer.latest;
-      this.#lastDelta = sortableDelta(to);
+      this.#lastDelta = delta;
       this.#frame?.schedule(to.pointer.latest);
     }
   }
@@ -386,6 +400,7 @@ export class SortableGesture {
     }
     const snapshot = op.operationCollection;
     const insertion = resolveSpatialInsertion(
+      this.#rectIndex,
       placeholder,
       snapshot.items,
       op.item,
@@ -417,6 +432,9 @@ export class SortableGesture {
     const op = to.operation;
     const placeholder = this.#placeholder;
     this.#frame?.cancel();
+    // Release must resolve against current geometry: the last committed move may
+    // have left the cache dirty, and a stale field would seat the final gap wrong.
+    markRectIndexDirty(this.#rectIndex);
 
     if (
       tx.stage !== TRANSACTION_RESOLVING_PROPOSAL ||
@@ -436,6 +454,7 @@ export class SortableGesture {
       insertion = incumbent;
     } else {
       const resolved = resolveSpatialInsertion(
+        this.#rectIndex,
         placeholder,
         snapshot.items,
         op.item,

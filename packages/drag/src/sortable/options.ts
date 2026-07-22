@@ -179,9 +179,9 @@ export type ReorderTransactionResult =
   | NoOpReorderTransactionResult
   | CanceledReorderTransactionResult;
 
-export const REORDER_REJECTION_CONSUMER: unique symbol = Symbol('consumer');
-export const REORDER_CANCELED_AT_PROPOSAL: unique symbol = Symbol('proposal');
-export const REORDER_CANCELED_AT_CONSUMER: unique symbol = Symbol('consumer');
+export const REORDER_REJECTION_CONSUMER = 107;
+export const REORDER_CANCELED_AT_PROPOSAL = 108;
+export const REORDER_CANCELED_AT_CONSUMER = 109;
 
 /** Dedicated signal handed to the reorder resolver. */
 export type OnReorder = (

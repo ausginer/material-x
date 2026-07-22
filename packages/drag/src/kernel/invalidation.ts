@@ -55,21 +55,27 @@ export function createFrameTask<T>(
   run: (value: T) => void,
 ): FrameTask<T> {
   let handle = 0;
-  let pending: { value: T } | null = null;
+  // The latest scheduled value is held directly with a presence flag, so
+  // `schedule` — called per pointer move — allocates no wrapper object.
+  let hasPending = false;
+  let pending: T | undefined;
 
   const runNow = (): void => {
     handle = 0;
-    const current = pending;
-    pending = null;
 
-    if (current) {
-      run(current.value);
+    if (hasPending) {
+      hasPending = false;
+      const value = pending as T;
+      // Drop the reference so a stale value cannot outlive the frame.
+      pending = undefined;
+      run(value);
     }
   };
 
   return {
     schedule(value) {
-      pending = { value };
+      pending = value;
+      hasPending = true;
 
       if (handle === 0) {
         handle = realm.window.requestAnimationFrame(runNow);
@@ -89,7 +95,8 @@ export function createFrameTask<T>(
         handle = 0;
       }
 
-      pending = null;
+      hasPending = false;
+      pending = undefined;
     },
   };
 }

@@ -84,31 +84,24 @@ import type {
 } from './options.ts';
 import { buildFreeDropProposal } from './request.ts';
 
-export const INVALIDATE: unique symbol = Symbol('invalidate');
-export const CONTROLLED: unique symbol = Symbol('controlled');
-export const SET_POLICY: unique symbol = Symbol('set-policy');
-export const EFFECT_FAILED: unique symbol = Symbol('effect-failed');
-export const RESOLUTION_STARTED: unique symbol = Symbol('resolution-started');
-export const DROP_RESOLVED: unique symbol = Symbol('drop-resolved');
-export const DROP_RESOLUTION_FAILED: unique symbol = Symbol(
-  'drop-resolution-failed',
-);
-export const LANDING_PLAN_READY: unique symbol = Symbol('landing-plan-ready');
-export const LANDING_STARTED: unique symbol = Symbol('landing-started');
-export const LANDING_FINISHED: unique symbol = Symbol('landing-finished');
-export const LANDING_PINNED: unique symbol = Symbol('landing-pinned');
-export const SETTLEMENT_FAILED: unique symbol = Symbol('settlement-failed');
-export const SETTLEMENT_COMPLETED: unique symbol = Symbol(
-  'settlement-completed',
-);
-export const HOME_INVALID: unique symbol = Symbol('home-invalid');
-export const PRESENTATION_SETTLED: unique symbol = Symbol(
-  'presentation-settled',
-);
-export const DROP_NONE: unique symbol = Symbol('none');
-export const DROP_PROPOSAL_READY: unique symbol = Symbol('proposal-ready');
-export const DROP_AWAITING_CONSUMER: unique symbol =
-  Symbol('awaiting-consumer');
+export const INVALIDATE = 64;
+export const CONTROLLED = 65;
+export const SET_POLICY = 66;
+export const EFFECT_FAILED = 67;
+export const RESOLUTION_STARTED = 68;
+export const DROP_RESOLVED = 69;
+export const DROP_RESOLUTION_FAILED = 70;
+export const LANDING_PLAN_READY = 71;
+export const LANDING_STARTED = 72;
+export const LANDING_FINISHED = 73;
+export const LANDING_PINNED = 74;
+export const SETTLEMENT_FAILED = 75;
+export const SETTLEMENT_COMPLETED = 76;
+export const HOME_INVALID = 77;
+export const PRESENTATION_SETTLED = 78;
+export const DROP_NONE = 79;
+export const DROP_PROPOSAL_READY = 80;
+export const DROP_AWAITING_CONSUMER = 81;
 
 // --- Semantic slices -------------------------------------------------------
 
@@ -703,14 +696,13 @@ export function createDraggableReducer(
     ) {
       const point =
         event.type === INVALIDATE ? from.pointer.latest : event.point;
-      const bounds = event.type === INVALIDATE ? event.bounds : event.bounds;
       return {
         viewportDelta: pointerDelta(
           point,
           from.pointer.origin,
           op.originRect,
           from.policy.axis,
-          bounds,
+          event.bounds,
         ),
       };
     }
@@ -744,6 +736,14 @@ export function createDraggableReducer(
     }
 
     if (event.type === LIFECYCLE_MOVE && ownsPointer(from, event.pointerId)) {
+      // A still-pending move is sub-threshold: `latest` is unused until the
+      // crossing move (which sets it from its own `event.point`) and the
+      // threshold test reads `event.point`, not `latest`. Committing fresh
+      // pointer state here would defeat the no-effect guard and route effects
+      // for a move that changes nothing, so keep identity while pending.
+      if (phase === PHASE_PENDING) {
+        return from.pointer;
+      }
       return { ...from.pointer, latest: event.point };
     }
 
@@ -1006,15 +1006,15 @@ export function createDraggableReducer(
     const lifecycle = classifyMove(from, event, config, classify(from, event));
     const phase = transitionKernelPhase(from.phase, lifecycle);
 
+    // One motion projection per reduction: `reduceDropSlice` needs the committed
+    // delta and the motion slice needs the same value, so compute it once.
+    const motion = reduceMotionSlice(from, event, phase);
     const nextDelta =
-      reduceMotionSlice(from, event, phase)?.viewportDelta ??
-      from.motion?.viewportDelta ??
-      ORIGIN;
+      motion?.viewportDelta ?? from.motion?.viewportDelta ?? ORIGIN;
 
     const pointer = reducePointerSlice(from, event, phase);
     const policy = reducePolicySlice(from, event);
     const operation = reduceOperationSlice(from, event, phase);
-    const motion = reduceMotionSlice(from, event, phase);
     const drop = reduceDropSlice(from, event, phase, nextDelta);
     const settlement = reduceSettlementSlice(from, event, phase);
 

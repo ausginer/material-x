@@ -24,12 +24,12 @@ export const KEY_DOWN = 'keydown';
 export const KEY_ESCAPE = 'Escape';
 
 /** The common lifecycle phase of one operation. */
-export const PHASE_IDLE: unique symbol = Symbol('idle');
-export const PHASE_PENDING: unique symbol = Symbol('pending');
-export const PHASE_ACTIVATING: unique symbol = Symbol('activating');
-export const PHASE_DRAGGING: unique symbol = Symbol('dragging');
-export const PHASE_AWAITING_RESULT: unique symbol = Symbol('awaiting-result');
-export const PHASE_SETTLING: unique symbol = Symbol('settling');
+export const PHASE_IDLE = 1;
+export const PHASE_PENDING = 2;
+export const PHASE_ACTIVATING = 3;
+export const PHASE_DRAGGING = 4;
+export const PHASE_AWAITING_RESULT = 5;
+export const PHASE_SETTLING = 6;
 
 export type DragPhase =
   | typeof PHASE_IDLE
@@ -41,24 +41,19 @@ export type DragPhase =
 
 // `LifecycleEvent.kind` vocabulary. The phase graph reacts to `kind` alone;
 // feature-specific payloads never reach it.
-export const LIFECYCLE_ADMIT: unique symbol = Symbol('admit'); // idle -> pending
-export const LIFECYCLE_DISARM: unique symbol = Symbol('disarm'); // pending -> idle
-export const LIFECYCLE_ACTIVATE: unique symbol = Symbol('activate'); // pending -> activating
-export const LIFECYCLE_ACTIVATION_READY: unique symbol =
-  Symbol('activation-ready'); // activating -> activating (commit candidate)
-export const LIFECYCLE_START_SUCCEEDED: unique symbol =
-  Symbol('start-succeeded'); // activating -> dragging
-export const LIFECYCLE_ACTIVATION_FAILED: unique symbol =
-  Symbol('activation-failed'); // activating -> idle
-export const LIFECYCLE_MOVE: unique symbol = Symbol('move'); // dragging -> dragging
-export const LIFECYCLE_RELEASE: unique symbol = Symbol('release'); // dragging -> awaiting-result
-export const LIFECYCLE_RESOLVED: unique symbol = Symbol('resolved'); // awaiting-result -> settling
-export const LIFECYCLE_CANCEL: unique symbol = Symbol('cancel'); // dragging | awaiting-result -> settling
-export const LIFECYCLE_SETTLE_PROGRESS: unique symbol =
-  Symbol('settle-progress'); // settling -> settling
-export const LIFECYCLE_SETTLE_COMPLETE: unique symbol =
-  Symbol('settle-complete'); // settling -> idle
-export const LIFECYCLE_IGNORE: unique symbol = Symbol('ignore'); // no phase edge
+export const LIFECYCLE_ADMIT = 7; // idle -> pending
+export const LIFECYCLE_DISARM = 8; // pending -> idle
+export const LIFECYCLE_ACTIVATE = 9; // pending -> activating
+export const LIFECYCLE_ACTIVATION_READY = 10; // activating -> activating (commit candidate)
+export const LIFECYCLE_START_SUCCEEDED = 11; // activating -> dragging
+export const LIFECYCLE_ACTIVATION_FAILED = 12; // activating -> idle
+export const LIFECYCLE_MOVE = 13; // dragging -> dragging
+export const LIFECYCLE_RELEASE = 14; // dragging -> awaiting-result
+export const LIFECYCLE_RESOLVED = 15; // awaiting-result -> settling
+export const LIFECYCLE_CANCEL = 16; // dragging | awaiting-result -> settling
+export const LIFECYCLE_SETTLE_PROGRESS = 17; // settling -> settling
+export const LIFECYCLE_SETTLE_COMPLETE = 18; // settling -> idle
+export const LIFECYCLE_IGNORE = 19; // no phase edge
 
 /**
  * A lifecycle event, already classified by a feature from a raw event. The phase
@@ -186,11 +181,11 @@ export type LandingPlan = Readonly<{
   target: Point;
 }>;
 
-export const LANDING_PREPARING: unique symbol = Symbol('preparing');
-export const LANDING_RUNNING: unique symbol = Symbol('running');
-export const LANDING_COMPLETING: unique symbol = Symbol('completing');
-export const LANDING_SKIPPED: unique symbol = Symbol('skipped');
-export const LANDING_SETTLED: unique symbol = Symbol('landing-settled');
+export const LANDING_PREPARING = 20;
+export const LANDING_RUNNING = 21;
+export const LANDING_COMPLETING = 22;
+export const LANDING_SKIPPED = 23;
+export const LANDING_SETTLED = 24;
 
 export type PreparingLandingState = Readonly<{
   stage: typeof LANDING_PREPARING;
@@ -236,32 +231,24 @@ export function isLandingSettled(landing: LandingState): boolean {
   return landing.stage === LANDING_SKIPPED || landing.stage === LANDING_SETTLED;
 }
 
-export const FAILURE_MOVE: unique symbol = Symbol('move');
-export const FAILURE_CONTROLLED_UPDATE: unique symbol =
-  Symbol('controlled-update');
-export const FAILURE_INVALIDATION: unique symbol = Symbol('invalidation');
-export const FAILURE_SCHEDULED_FRAME: unique symbol = Symbol('scheduled-frame');
-export const FAILURE_LANDING_TIMING: unique symbol = Symbol('landing-timing');
-export const FAILURE_ANIMATION_CREATE: unique symbol =
-  Symbol('animation-create');
-export const FAILURE_LANDING_PIN: unique symbol = Symbol('landing-pin');
-export const FAILURE_LANDING_INTERRUPTED: unique symbol = Symbol(
-  'landing-interrupted',
-);
-export const FAILURE_HOME_TARGET: unique symbol = Symbol('home-target');
-export const FAILURE_PLACEHOLDER_TARGET: unique symbol =
-  Symbol('placeholder-target');
-export const FAILURE_RENDERER_WRITE: unique symbol = Symbol('renderer-write');
-export const FAILURE_PRESENTATION_LEASE: unique symbol =
-  Symbol('presentation-lease');
-export const FAILURE_DROP_RESOLUTION: unique symbol = Symbol('drop-resolution');
-export const FAILURE_REORDER_RESOLUTION: unique symbol =
-  Symbol('reorder-resolution');
-export const FAILURE_FINISH_CALLBACK: unique symbol = Symbol('finish-callback');
-export const FAILURE_CANCEL_CALLBACK: unique symbol = Symbol('cancel-callback');
-export const FAILURE_ACTIVATION: unique symbol = Symbol('activation');
-export const FAILURE_PRESENTATION_READY: unique symbol =
-  Symbol('presentation-ready');
+export const FAILURE_MOVE = 25;
+export const FAILURE_CONTROLLED_UPDATE = 26;
+export const FAILURE_INVALIDATION = 27;
+export const FAILURE_SCHEDULED_FRAME = 28;
+export const FAILURE_LANDING_TIMING = 29;
+export const FAILURE_ANIMATION_CREATE = 30;
+export const FAILURE_LANDING_PIN = 31;
+export const FAILURE_LANDING_INTERRUPTED = 32;
+export const FAILURE_HOME_TARGET = 33;
+export const FAILURE_PLACEHOLDER_TARGET = 34;
+export const FAILURE_RENDERER_WRITE = 35;
+export const FAILURE_PRESENTATION_LEASE = 36;
+export const FAILURE_DROP_RESOLUTION = 37;
+export const FAILURE_REORDER_RESOLUTION = 38;
+export const FAILURE_FINISH_CALLBACK = 39;
+export const FAILURE_CANCEL_CALLBACK = 40;
+export const FAILURE_ACTIVATION = 41;
+export const FAILURE_PRESENTATION_READY = 42;
 
 /** Stable classification of where a real execution failure occurred. */
 export type FailureCause = Readonly<{
@@ -286,13 +273,11 @@ export type FailureCause = Readonly<{
     | typeof FAILURE_PRESENTATION_READY;
 }>;
 
-export const CANCEL_POINTER: unique symbol = Symbol('pointer-canceled');
-export const CANCEL_ESCAPE: unique symbol = Symbol('escape');
-export const CANCEL_CONSUMER: unique symbol = Symbol('consumer');
-export const CANCEL_ITEM_REMOVED: unique symbol = Symbol('item-removed');
-export const CANCEL_COLLECTION_INVALIDATED: unique symbol = Symbol(
-  'collection-invalidated',
-);
+export const CANCEL_POINTER = 43;
+export const CANCEL_ESCAPE = 44;
+export const CANCEL_CONSUMER = 45;
+export const CANCEL_ITEM_REMOVED = 46;
+export const CANCEL_COLLECTION_INVALIDATED = 47;
 
 /** Why an operation was cancelled. */
 export type CancellationReason = Readonly<{
@@ -305,11 +290,11 @@ export type CancellationReason = Readonly<{
   detail?: unknown;
 }>;
 
-export const OUTCOME_ACCEPTED: unique symbol = Symbol('accepted');
-export const OUTCOME_REJECTED: unique symbol = Symbol('rejected');
-export const OUTCOME_NO_OP: unique symbol = Symbol('no-op');
-export const OUTCOME_CANCELED: unique symbol = Symbol('canceled');
-export const OUTCOME_FAILED: unique symbol = Symbol('failed');
+export const OUTCOME_ACCEPTED = 48;
+export const OUTCOME_REJECTED = 49;
+export const OUTCOME_NO_OP = 50;
+export const OUTCOME_CANCELED = 51;
+export const OUTCOME_FAILED = 52;
 
 export type AcceptedSettlementOutcome = Readonly<{
   result: typeof OUTCOME_ACCEPTED;
@@ -341,9 +326,9 @@ export type SettlementOutcome =
   | CanceledSettlementOutcome
   | FailedSettlementOutcome;
 
-export const RECOVERY_DESTINATION: unique symbol = Symbol('destination');
-export const RECOVERY_HOME: unique symbol = Symbol('home');
-export const RECOVERY_IMMEDIATE: unique symbol = Symbol('immediate');
+export const RECOVERY_DESTINATION = 53;
+export const RECOVERY_HOME = 54;
+export const RECOVERY_IMMEDIATE = 55;
 
 /** How a settling operation recovers its presentation. */
 export type SettlementRecovery =
@@ -351,10 +336,8 @@ export type SettlementRecovery =
   | typeof RECOVERY_HOME
   | typeof RECOVERY_IMMEDIATE;
 
-export const PRESENTATION_PENDING: unique symbol = Symbol(
-  'presentation-pending',
-);
-export const PRESENTATION_READY: unique symbol = Symbol('presentation-ready');
+export const PRESENTATION_PENDING = 56;
+export const PRESENTATION_READY = 57;
 
 /**
  * Whether the consumer's *authored* (persistent) presentation is ready to be
@@ -399,9 +382,9 @@ export function canReleasePresentation(
 
 // Shared operation-identity lifecycle vocabulary: both features carry an
 // admitted/candidate/active operation through activation the same way.
-export const OPERATION_ADMITTED: unique symbol = Symbol('admitted');
-export const OPERATION_CANDIDATE: unique symbol = Symbol('candidate');
-export const OPERATION_ACTIVE: unique symbol = Symbol('active');
+export const OPERATION_ADMITTED = 58;
+export const OPERATION_CANDIDATE = 59;
+export const OPERATION_ACTIVE = 60;
 
 export type OperationStage =
   | typeof OPERATION_ADMITTED
