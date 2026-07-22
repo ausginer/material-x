@@ -1,17 +1,17 @@
 [
   {
     "name": "element",
-    "path": "src/element.ts",
-    "limit": "420 B"
+    "path": "element.js",
+    "limit": "340 B"
   },
   {
     "name": "emitter",
-    "path": "src/emitter.ts",
-    "limit": "310 B"
+    "path": "emitter.js",
+    "limit": "210 B"
   },
   {
     "name": "traits/reorderable",
-    "path": "src/traits/reorderable.ts",
-    "limit": "4 KB"
+    "path": "traits/reorderable.js",
+    "limit": "3.5 KB"
   }
 ]

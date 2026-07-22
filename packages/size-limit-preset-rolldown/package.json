@@ -1,7 +1,7 @@
 {
-  "name": "size-limit-preset-vite",
+  "name": "size-limit-preset-rolldown",
   "version": "0.1.0",
-  "description": "Size Limit preset that measures bundles produced by the project's own Vite config",
+  "description": "Size Limit preset that bundles built .js entrypoints with Rolldown",
   "license": "Apache-2.0",
   "files": [
     "index.js",
@@ -31,9 +31,11 @@
   "dependencies": {
     "@size-limit/file": "12.1.0"
   },
+  "devDependencies": {
+    "@types/node": "26.1.1"
+  },
   "peerDependencies": {
-    "size-limit": "^12.1.0",
-    "vite": "^8.1.4"
+    "size-limit": "^12.1.0"
   },
   "engines": {
     "node": ">=24"
