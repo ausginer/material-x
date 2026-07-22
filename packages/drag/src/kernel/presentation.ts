@@ -14,9 +14,9 @@ import type { Disposer } from './resource-scope.ts';
 import type { Point } from './types.ts';
 
 /** Which lift strategy a free/sortable operation uses. */
-export const LIFT_FAITHFUL: unique symbol = Symbol('faithful');
-export const LIFT_FLAT: unique symbol = Symbol('flat');
-export const LIFT_IN_PLACE: unique symbol = Symbol('in-place');
+export const LIFT_FAITHFUL = 61;
+export const LIFT_FLAT = 62;
+export const LIFT_IN_PLACE = 63;
 
 export type LiftMode =
   | typeof LIFT_FAITHFUL

@@ -8,8 +8,8 @@
 import type { CollectionSnapshot, Insertion } from './options.ts';
 
 /** Which way a command moves the item through the collection. */
-export const DIRECTION_UP: unique symbol = Symbol('up');
-export const DIRECTION_DOWN: unique symbol = Symbol('down');
+export const DIRECTION_UP = 110;
+export const DIRECTION_DOWN = 111;
 
 export type KeyboardDirection = typeof DIRECTION_UP | typeof DIRECTION_DOWN;
 

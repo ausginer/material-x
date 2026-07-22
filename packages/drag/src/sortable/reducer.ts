@@ -84,32 +84,26 @@ import {
   type ReorderTransactionResult,
 } from './options.ts';
 
-export const INPUT_POINTER: unique symbol = Symbol('pointer');
-export const INPUT_KEYBOARD: unique symbol = Symbol('keyboard');
+export const INPUT_POINTER = 82;
+export const INPUT_KEYBOARD = 83;
 
-export const EFFECT_FAILED: unique symbol = Symbol('effect-failed');
-export const KEYBOARD_ACTIVATE: unique symbol = Symbol('keyboard-activate');
-export const KEYBOARD_PROPOSE: unique symbol = Symbol('keyboard-propose');
-export const INSERTION_RESOLVED: unique symbol = Symbol('insertion-resolved');
-export const SNAPSHOT: unique symbol = Symbol('snapshot');
-export const PROPOSAL_BUILT: unique symbol = Symbol('proposal-built');
-export const REORDER_NOOP: unique symbol = Symbol('reorder-noop');
-export const RESOLUTION_STARTED: unique symbol = Symbol('resolution-started');
-export const REORDER_RESOLVED: unique symbol = Symbol('reorder-resolved');
-export const REORDER_RESOLUTION_FAILED: unique symbol = Symbol(
-  'reorder-resolution-failed',
-);
-export const LANDING_PLAN_READY: unique symbol = Symbol('landing-plan-ready');
-export const LANDING_STARTED: unique symbol = Symbol('landing-started');
-export const LANDING_FINISHED: unique symbol = Symbol('landing-finished');
-export const LANDING_PINNED: unique symbol = Symbol('landing-pinned');
-export const SETTLEMENT_FAILED: unique symbol = Symbol('settlement-failed');
-export const SETTLEMENT_COMPLETED: unique symbol = Symbol(
-  'settlement-completed',
-);
-export const PRESENTATION_SETTLED: unique symbol = Symbol(
-  'presentation-settled',
-);
+export const EFFECT_FAILED = 84;
+export const KEYBOARD_ACTIVATE = 85;
+export const KEYBOARD_PROPOSE = 86;
+export const INSERTION_RESOLVED = 87;
+export const SNAPSHOT = 88;
+export const PROPOSAL_BUILT = 89;
+export const REORDER_NOOP = 90;
+export const RESOLUTION_STARTED = 91;
+export const REORDER_RESOLVED = 92;
+export const REORDER_RESOLUTION_FAILED = 93;
+export const LANDING_PLAN_READY = 94;
+export const LANDING_STARTED = 95;
+export const LANDING_FINISHED = 96;
+export const LANDING_PINNED = 97;
+export const SETTLEMENT_FAILED = 98;
+export const SETTLEMENT_COMPLETED = 99;
+export const PRESENTATION_SETTLED = 100;
 
 export type SortableInput = typeof INPUT_POINTER | typeof INPUT_KEYBOARD;
 
@@ -135,8 +129,8 @@ export type SortableOperation =
   | AdmittedSortableOperation
   | CandidateSortableOperation;
 
-export const INSERTION_NONE: unique symbol = Symbol('none');
-export const INSERTION_READY: unique symbol = Symbol('ready');
+export const INSERTION_NONE = 101;
+export const INSERTION_READY = 102;
 
 export type NoneInsertionState = Readonly<{ type: typeof INSERTION_NONE }>;
 
@@ -147,13 +141,10 @@ export type ReadyInsertionState = Readonly<{
 
 export type InsertionState = NoneInsertionState | ReadyInsertionState;
 
-export const TRANSACTION_NONE: unique symbol = Symbol('none');
-export const TRANSACTION_RESOLVING_PROPOSAL: unique symbol =
-  Symbol('resolving-proposal');
-export const TRANSACTION_PROPOSAL_READY: unique symbol =
-  Symbol('proposal-ready');
-export const TRANSACTION_AWAITING_CONSUMER: unique symbol =
-  Symbol('awaiting-consumer');
+export const TRANSACTION_NONE = 103;
+export const TRANSACTION_RESOLVING_PROPOSAL = 104;
+export const TRANSACTION_PROPOSAL_READY = 105;
+export const TRANSACTION_AWAITING_CONSUMER = 106;
 
 export type NoneSortableTransaction = Readonly<{
   stage: typeof TRANSACTION_NONE;

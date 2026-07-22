@@ -9,8 +9,8 @@ import type { CollectionSnapshot, Insertion } from './options.ts';
 // Local to this file: `type` here is a `CollectionChange` discriminant, a
 // concept unrelated to the shared kernel `CANCEL` lifecycle-event kind, even
 // though `CHANGE_CANCEL`'s value happens to coincide with it.
-export const CHANGE_REBASE: unique symbol = Symbol('rebase');
-export const CHANGE_CANCEL: unique symbol = Symbol('cancel');
+export const CHANGE_REBASE = 112;
+export const CHANGE_CANCEL = 113;
 
 export type RebaseCollectionChange = Readonly<{
   type: typeof CHANGE_REBASE;
