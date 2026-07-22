@@ -79,6 +79,7 @@ import {
   insertPlaceholder,
   type PlaceholderLease,
 } from './placeholder.ts';
+import { createRectIndex, type RectIndex } from './rect-index.ts';
 import {
   EFFECT_FAILED,
   INPUT_KEYBOARD,
@@ -140,6 +141,9 @@ export class SortableGesture {
   #originRect: DOMRectReadOnly;
   #lastPoint: Point | null = null;
   #lastDelta: Point = { x: 0, y: 0 };
+  // One packed geometry buffer, reused for every spatial resolution across the
+  // operation's lifetime.
+  readonly #rectIndex: RectIndex = createRectIndex();
 
   constructor(deps: SortableGestureDeps) {
     this.#deps = deps;
@@ -388,6 +392,7 @@ export class SortableGesture {
     }
     const snapshot = op.operationCollection;
     const insertion = resolveSpatialInsertion(
+      this.#rectIndex,
       placeholder,
       snapshot.items,
       op.item,
@@ -438,6 +443,7 @@ export class SortableGesture {
       insertion = incumbent;
     } else {
       const resolved = resolveSpatialInsertion(
+        this.#rectIndex,
         placeholder,
         snapshot.items,
         op.item,

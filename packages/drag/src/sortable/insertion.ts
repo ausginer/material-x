@@ -9,16 +9,10 @@
  * centre is genuinely closer than its own slot.
  */
 import type { Point } from '../kernel/types.ts';
-import {
-  anchorIndex,
-  center,
-  follows,
-  measure,
-  neighbor,
-  nearestItem,
-} from './geometry.ts';
+import { anchorIndex, follows, neighbor } from './geometry.ts';
 import type { Insertion } from './options.ts';
 import type { PlaceholderLease } from './placeholder.ts';
+import { nearestSlot, rebuildRectIndex, type RectIndex } from './rect-index.ts';
 
 /**
  * Measures the field and finds the nearest item; if it beats the placeholder's
@@ -30,6 +24,7 @@ import type { PlaceholderLease } from './placeholder.ts';
  * placeholder move is needed to read the resulting neighbours.
  */
 export function resolveSpatialInsertion(
+  index: RectIndex,
   placeholder: PlaceholderLease,
   items: readonly HTMLElement[],
   dragged: HTMLElement,
@@ -37,32 +32,33 @@ export function resolveSpatialInsertion(
   pointer: Point,
   version: number,
 ): Insertion | null {
-  const rects = measure(items, dragged, getVisual);
-  const anchorCentre = center(placeholder.rect());
-  const nearest = nearestItem(items, dragged, rects, anchorCentre, pointer);
+  rebuildRectIndex(index, items, dragged, getVisual);
 
-  if (!nearest) {
+  const anchorRect = placeholder.rect();
+  const anchor: Point = {
+    x: anchorRect.left + anchorRect.width / 2,
+    y: anchorRect.top + anchorRect.height / 2,
+  };
+  const slot = nearestSlot(index, anchor, pointer);
+
+  if (slot === -1) {
     return null;
   }
 
-  const destination = items.filter((item) => item !== dragged);
-  const nearestIndex = destination.indexOf(nearest);
-
-  if (nearestIndex === -1) {
-    return null;
-  }
+  // `index.items` is the destination view (collection minus dragged, in DOM
+  // order), so the slot is already the destination index and its neighbours are
+  // the adjacent elements.
+  const nearest = index.items[slot]!;
 
   // The gap sits on the side of `nearest` the anchor is travelling from: after
   // it when `nearest` currently follows the placeholder, otherwise before it.
-  const index = follows(placeholder.element, nearest)
-    ? nearestIndex + 1
-    : nearestIndex;
+  const gap = follows(placeholder.element, nearest) ? slot + 1 : slot;
 
   return {
     version,
-    index,
-    before: destination[index - 1] ?? null,
-    after: destination[index] ?? null,
+    index: gap,
+    before: index.items[gap - 1] ?? null,
+    after: index.items[gap] ?? null,
   };
 }
 
