@@ -69,12 +69,11 @@ export function createDropResolution(
     invoke(request, onDrop) {
       let value: ReturnType<OnDrop>;
 
-      const failed = (error: unknown): DraggableEvent => ({
-        type: DROP_RESOLUTION_FAILED,
-        operationId: currency.operationId,
-        resolutionId: currency.resolutionId,
+      const failed = (error: unknown): DraggableEvent => [
+        DROP_RESOLUTION_FAILED,
+        currency,
         error,
-      });
+      ];
 
       try {
         value = onDrop(request, { signal: controller.signal });
@@ -87,12 +86,7 @@ export function createDropResolution(
         (result) => {
           finish(
             isResolution(result)
-              ? {
-                  type: DROP_RESOLVED,
-                  operationId: currency.operationId,
-                  resolutionId: currency.resolutionId,
-                  resolution: result,
-                }
+              ? [DROP_RESOLVED, currency, result]
               : failed(
                   new Error('drag: onDrop returned an invalid resolution'),
                 ),

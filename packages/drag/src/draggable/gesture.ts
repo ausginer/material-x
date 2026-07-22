@@ -94,6 +94,7 @@ import {
   RESOLUTION_STARTED,
   SETTLEMENT_COMPLETED,
   SETTLEMENT_FAILED,
+  eventError,
   type DraggableEvent,
   type DraggableState,
   type FreeOperation,
@@ -308,23 +309,19 @@ export class FreeDragGesture {
       this.#scope.interaction.use(capture);
 
       invalidation.arm(this.#scope.signal, () => {
-        dispatch({
-          type: INVALIDATE,
-          point: ORIGIN,
-          bounds: this.#deps.currentBounds(),
-        });
+        dispatch([INVALIDATE, ORIGIN, this.#deps.currentBounds()]);
       });
 
-      dispatch({
-        type: LIFECYCLE_ACTIVATION_READY,
+      dispatch([
+        LIFECYCLE_ACTIVATION_READY,
         operationId,
-        candidate: { visual, lift: mode, originRect, coordinateSpace: derived },
-      });
+        { visual, lift: mode, originRect, coordinateSpace: derived },
+      ]);
     } catch (error) {
       this.#reportCause(error, { stage: FAILURE_ACTIVATION }, null);
       this.#scope.settle();
       this.#scope.finish();
-      dispatch({ type: LIFECYCLE_ACTIVATION_FAILED, operationId });
+      dispatch([LIFECYCLE_ACTIVATION_FAILED, operationId]);
     }
   }
 
@@ -338,18 +335,12 @@ export class FreeDragGesture {
 
     try {
       options.onStart?.(freeGeometry(to, this.#deps.realm));
-      dispatch({
-        type: LIFECYCLE_START_SUCCEEDED,
-        operationId: op.operationId,
-      });
+      dispatch([LIFECYCLE_START_SUCCEEDED, op.operationId]);
     } catch (error) {
       this.#reportCause(error, { stage: FAILURE_ACTIVATION }, null);
       this.#scope.settle();
       this.#scope.finish();
-      dispatch({
-        type: LIFECYCLE_ACTIVATION_FAILED,
-        operationId: op.operationId,
-      });
+      dispatch([LIFECYCLE_ACTIVATION_FAILED, op.operationId]);
     }
   }
 
@@ -369,13 +360,13 @@ export class FreeDragGesture {
     } catch (error) {
       const op = to.operation;
       this.#reportCause(error, { stage: FAILURE_MOVE }, null);
-      this.#deps.dispatch({
-        type: EFFECT_FAILED,
-        operationId: op?.operationId ?? 0,
-        stage: FAILURE_MOVE,
-        recovery: RECOVERY_HOME,
+      this.#deps.dispatch([
+        EFFECT_FAILED,
+        op?.operationId ?? 0,
+        FAILURE_MOVE,
+        RECOVERY_HOME,
         error,
-      });
+      ]);
     }
   }
 
@@ -396,11 +387,10 @@ export class FreeDragGesture {
       () => !resolution.completed(),
       () => resolution.abort(),
     );
-    this.#deps.dispatch({
-      type: RESOLUTION_STARTED,
-      operationId: op.operationId,
-      resolutionId,
-    });
+    this.#deps.dispatch([
+      RESOLUTION_STARTED,
+      { operationId: op.operationId, resolutionId },
+    ]);
   }
 
   #invokeResolution(to: DraggableState): void {
@@ -432,9 +422,11 @@ export class FreeDragGesture {
       settlement.outcome.result === OUTCOME_FAILED &&
       from.settlement?.outcome.result !== OUTCOME_FAILED
     ) {
-      const error =
-        'error' in event ? (event as { error: unknown }).error : undefined;
-      this.#reportCause(error, settlement.outcome.failure, settlement.domain);
+      this.#reportCause(
+        eventError(event),
+        settlement.outcome.failure,
+        settlement.domain,
+      );
     }
 
     // First entry into settling: abort interaction, prepare recovery.
@@ -443,7 +435,7 @@ export class FreeDragGesture {
       this.#watchPresentation(event);
 
       if (settlement.landing.stage === LANDING_SKIPPED) {
-        this.#deps.dispatch({ type: SETTLEMENT_COMPLETED, operationId });
+        this.#deps.dispatch([SETTLEMENT_COMPLETED, operationId]);
         return;
       }
 
@@ -457,11 +449,11 @@ export class FreeDragGesture {
     // running there is nothing to do — landing drives completion. Otherwise
     // this is the last barrier, and a failed acknowledgement has replaced the
     // settlement with a fresh home recovery that nothing else would run.
-    if (event.type === PRESENTATION_SETTLED) {
+    if (event[0] === PRESENTATION_SETTLED) {
       if (landing.stage === LANDING_PREPARING && !landing.plan) {
         this.#resolveHome(to);
       } else if (isLandingSettled(landing)) {
-        this.#deps.dispatch({ type: SETTLEMENT_COMPLETED, operationId });
+        this.#deps.dispatch([SETTLEMENT_COMPLETED, operationId]);
       }
       return;
     }
@@ -482,11 +474,7 @@ export class FreeDragGesture {
       from.settlement?.landing.stage === LANDING_RUNNING
     ) {
       this.#landing?.pin();
-      this.#deps.dispatch({
-        type: LANDING_PINNED,
-        operationId,
-        landingId: landing.currency.landingId,
-      });
+      this.#deps.dispatch([LANDING_PINNED, landing.currency]);
       return;
     }
 
@@ -495,7 +483,7 @@ export class FreeDragGesture {
       landing.stage === LANDING_SKIPPED &&
       from.settlement?.landing.stage !== LANDING_SKIPPED
     ) {
-      this.#deps.dispatch({ type: SETTLEMENT_COMPLETED, operationId });
+      this.#deps.dispatch([SETTLEMENT_COMPLETED, operationId]);
     }
   }
 
@@ -515,12 +503,11 @@ export class FreeDragGesture {
     const { options } = this.#deps;
 
     if (!options.resolveHomeTarget) {
-      this.#deps.dispatch({
-        type: HOME_INVALID,
-        operationId: currency.operationId,
-        landingId: currency.landingId,
-        error: new Error('drag: no home target'),
-      });
+      this.#deps.dispatch([
+        HOME_INVALID,
+        currency,
+        new Error('drag: no home target'),
+      ]);
       return;
     }
 
@@ -529,22 +516,16 @@ export class FreeDragGesture {
     try {
       target = options.resolveHomeTarget({ item: op.item, visual: op.visual });
     } catch (error) {
-      this.#deps.dispatch({
-        type: HOME_INVALID,
-        operationId: currency.operationId,
-        landingId: currency.landingId,
-        error,
-      });
+      this.#deps.dispatch([HOME_INVALID, currency, error]);
       return;
     }
 
     if (!isValidHomeTarget(target)) {
-      this.#deps.dispatch({
-        type: HOME_INVALID,
-        operationId: currency.operationId,
-        landingId: currency.landingId,
-        error: new Error('drag: invalid home target'),
-      });
+      this.#deps.dispatch([
+        HOME_INVALID,
+        currency,
+        new Error('drag: invalid home target'),
+      ]);
       return;
     }
 
@@ -553,12 +534,7 @@ export class FreeDragGesture {
       to.motion?.viewportDelta ?? ORIGIN,
       op.originRect,
     );
-    this.#deps.dispatch({
-      type: LANDING_PLAN_READY,
-      operationId: currency.operationId,
-      landingId: currency.landingId,
-      plan,
-    });
+    this.#deps.dispatch([LANDING_PLAN_READY, currency, plan]);
   }
 
   #startLanding(currency: LandingCurrency, plan: LandingPlan): void {
@@ -574,26 +550,16 @@ export class FreeDragGesture {
       currency,
       timing,
       this.#deps.realm,
-      (c) =>
-        this.#deps.dispatch({
-          type: LANDING_FINISHED,
-          operationId: c.operationId,
-          landingId: c.landingId,
-        }),
+      (c) => this.#deps.dispatch([LANDING_FINISHED, c]),
       (c, error) =>
-        this.#deps.dispatch({
-          type: SETTLEMENT_FAILED,
-          operationId: c.operationId,
-          landingId: c.landingId,
-          stage: FAILURE_LANDING_INTERRUPTED,
+        this.#deps.dispatch([
+          SETTLEMENT_FAILED,
+          c,
+          FAILURE_LANDING_INTERRUPTED,
           error,
-        }),
+        ]),
     );
-    this.#deps.dispatch({
-      type: LANDING_STARTED,
-      operationId: currency.operationId,
-      landingId: currency.landingId,
-    });
+    this.#deps.dispatch([LANDING_STARTED, currency]);
   }
 
   /**
@@ -602,21 +568,16 @@ export class FreeDragGesture {
    * is dispatched back, tagged with the resolution currency.
    */
   #watchPresentation(event: DraggableEvent): void {
-    if (event.type !== DROP_RESOLVED || !event.resolution.presentationReady) {
+    if (event[0] !== DROP_RESOLVED || !event[2].presentationReady) {
       return;
     }
 
     this.#presentationWatchDisposer = watchPresentationReady(
-      event.resolution.presentationReady,
-      { operationId: event.operationId, resolutionId: event.resolutionId },
+      event[2].presentationReady,
+      event[1],
       this.#deps.realm,
       (currency, error) => {
-        this.#deps.dispatch({
-          type: PRESENTATION_SETTLED,
-          operationId: currency.operationId,
-          resolutionId: currency.resolutionId,
-          error,
-        });
+        this.#deps.dispatch([PRESENTATION_SETTLED, currency, error]);
       },
     );
   }

@@ -167,136 +167,142 @@ export type DraggableState = Readonly<{
 
 // --- Events ----------------------------------------------------------------
 
-export type AdmitDraggableEvent = PointerSample &
-  Readonly<{
-    type: typeof LIFECYCLE_ADMIT;
-    operationId: number;
-    item: HTMLElement;
-  }>;
+// Events are discriminated tuples: element 0 is the integer tag, element 1 is
+// the event's subject (a shared `PointerSample` or branded currency object where
+// it has one, otherwise the first scalar), and later elements are the remaining
+// payload. Positional over named to drop the repeated key strings from every
+// construct and read site; narrowing still flows from the literal tag at [0].
 
-export type MoveDraggableEvent = PointerSample &
-  Readonly<{
-    type: typeof LIFECYCLE_MOVE;
-    bounds: DOMRectReadOnly | null;
-  }>;
+export type AdmitDraggableEvent = readonly [
+  tag: typeof LIFECYCLE_ADMIT,
+  sample: PointerSample,
+  operationId: number,
+  item: HTMLElement,
+];
 
-export type ReleaseDraggableEvent = PointerSample &
-  Readonly<{
-    type: typeof LIFECYCLE_RELEASE;
-    bounds: DOMRectReadOnly | null;
-  }>;
+export type MoveDraggableEvent = readonly [
+  tag: typeof LIFECYCLE_MOVE,
+  sample: PointerSample,
+  bounds: DOMRectReadOnly | null,
+];
 
-export type InvalidateDraggableEvent = Readonly<{
-  type: typeof INVALIDATE;
-  point: Point;
-  bounds: DOMRectReadOnly | null;
-}>;
+export type ReleaseDraggableEvent = readonly [
+  tag: typeof LIFECYCLE_RELEASE,
+  sample: PointerSample,
+  bounds: DOMRectReadOnly | null,
+];
 
-export type ControlledDraggableEvent = Readonly<{
-  type: typeof CONTROLLED;
-  viewportDelta: Point;
-}>;
+export type InvalidateDraggableEvent = readonly [
+  tag: typeof INVALIDATE,
+  point: Point,
+  bounds: DOMRectReadOnly | null,
+];
 
-export type CancelDraggableEvent = Readonly<{
-  type: typeof LIFECYCLE_CANCEL;
-  reason: CancellationReason;
-}>;
+export type ControlledDraggableEvent = readonly [
+  tag: typeof CONTROLLED,
+  viewportDelta: Point,
+];
 
-export type SetPolicyDraggableEvent = Readonly<{
-  type: typeof SET_POLICY;
-  axis?: DragAxis;
-  coordinateOverride?: CoordinateMapper | null;
-}>;
+export type CancelDraggableEvent = readonly [
+  tag: typeof LIFECYCLE_CANCEL,
+  reason: CancellationReason,
+];
 
-export type ActivationReadyDraggableEvent = Readonly<{
-  type: typeof LIFECYCLE_ACTIVATION_READY;
-  operationId: number;
-  candidate: FreeCandidate;
-}>;
+export type SetPolicyDraggableEvent = readonly [
+  tag: typeof SET_POLICY,
+  axis: DragAxis | undefined,
+  coordinateOverride: CoordinateMapper | null | undefined,
+];
 
-export type StartSucceededDraggableEvent = Readonly<{
-  type: typeof LIFECYCLE_START_SUCCEEDED;
-  operationId: number;
-}>;
+export type ActivationReadyDraggableEvent = readonly [
+  tag: typeof LIFECYCLE_ACTIVATION_READY,
+  operationId: number,
+  candidate: FreeCandidate,
+];
 
-export type ActivationFailedDraggableEvent = Readonly<{
-  type: typeof LIFECYCLE_ACTIVATION_FAILED;
-  operationId: number;
-}>;
+export type StartSucceededDraggableEvent = readonly [
+  tag: typeof LIFECYCLE_START_SUCCEEDED,
+  operationId: number,
+];
 
-export type EffectFailedDraggableEvent = Readonly<{
-  type: typeof EFFECT_FAILED;
-  operationId: number;
-  stage: FailureCause['stage'];
-  recovery: typeof RECOVERY_HOME | typeof RECOVERY_IMMEDIATE;
-  error: unknown;
-}>;
+export type ActivationFailedDraggableEvent = readonly [
+  tag: typeof LIFECYCLE_ACTIVATION_FAILED,
+  operationId: number,
+];
 
-export type ResolutionStartedDraggableEvent = ResolutionCurrency &
-  Readonly<{
-    type: typeof RESOLUTION_STARTED;
-  }>;
+export type EffectFailedDraggableEvent = readonly [
+  tag: typeof EFFECT_FAILED,
+  operationId: number,
+  stage: FailureCause['stage'],
+  recovery: typeof RECOVERY_HOME | typeof RECOVERY_IMMEDIATE,
+  error: unknown,
+];
 
-export type DropResolvedDraggableEvent = ResolutionCurrency &
-  Readonly<{
-    type: typeof DROP_RESOLVED;
-    resolution: FreeDropResolution;
-  }>;
+export type ResolutionStartedDraggableEvent = readonly [
+  tag: typeof RESOLUTION_STARTED,
+  currency: ResolutionCurrency,
+];
 
-export type DropResolutionFailedDraggableEvent = ResolutionCurrency &
-  Readonly<{
-    type: typeof DROP_RESOLUTION_FAILED;
-    error: unknown;
-  }>;
+export type DropResolvedDraggableEvent = readonly [
+  tag: typeof DROP_RESOLVED,
+  currency: ResolutionCurrency,
+  resolution: FreeDropResolution,
+];
 
-export type LandingPlanReadyDraggableEvent = LandingCurrency &
-  Readonly<{
-    type: typeof LANDING_PLAN_READY;
-    plan: LandingPlan;
-  }>;
+export type DropResolutionFailedDraggableEvent = readonly [
+  tag: typeof DROP_RESOLUTION_FAILED,
+  currency: ResolutionCurrency,
+  error: unknown,
+];
 
-export type LandingStartedDraggableEvent = LandingCurrency &
-  Readonly<{
-    type: typeof LANDING_STARTED;
-  }>;
+export type LandingPlanReadyDraggableEvent = readonly [
+  tag: typeof LANDING_PLAN_READY,
+  currency: LandingCurrency,
+  plan: LandingPlan,
+];
 
-export type LandingFinishedDraggableEvent = LandingCurrency &
-  Readonly<{
-    type: typeof LANDING_FINISHED;
-  }>;
+export type LandingStartedDraggableEvent = readonly [
+  tag: typeof LANDING_STARTED,
+  currency: LandingCurrency,
+];
 
-export type LandingPinnedDraggableEvent = LandingCurrency &
-  Readonly<{
-    type: typeof LANDING_PINNED;
-  }>;
+export type LandingFinishedDraggableEvent = readonly [
+  tag: typeof LANDING_FINISHED,
+  currency: LandingCurrency,
+];
 
-export type SettlementFailedDraggableEvent = LandingCurrency &
-  Readonly<{
-    type: typeof SETTLEMENT_FAILED;
-    stage: FailureCause['stage'];
-    error: unknown;
-  }>;
+export type LandingPinnedDraggableEvent = readonly [
+  tag: typeof LANDING_PINNED,
+  currency: LandingCurrency,
+];
 
-export type SettlementCompletedDraggableEvent = Readonly<{
-  type: typeof SETTLEMENT_COMPLETED;
-  operationId: number;
-}>;
+export type SettlementFailedDraggableEvent = readonly [
+  tag: typeof SETTLEMENT_FAILED,
+  currency: LandingCurrency,
+  stage: FailureCause['stage'],
+  error: unknown,
+];
 
-export type HomeInvalidDraggableEvent = LandingCurrency &
-  Readonly<{
-    type: typeof HOME_INVALID;
-    error: unknown;
-  }>;
+export type SettlementCompletedDraggableEvent = readonly [
+  tag: typeof SETTLEMENT_COMPLETED,
+  operationId: number,
+];
+
+export type HomeInvalidDraggableEvent = readonly [
+  tag: typeof HOME_INVALID,
+  currency: LandingCurrency,
+  error: unknown,
+];
 
 /**
- * The consumer's authored presentation settled: `error` is `null` on success,
- * or the rejection/timeout that failed it.
+ * The consumer's authored presentation settled: the error slot is `null` on
+ * success, or the rejection/timeout that failed it.
  */
-export type PresentationSettledDraggableEvent = ResolutionCurrency &
-  Readonly<{
-    type: typeof PRESENTATION_SETTLED;
-    error: unknown;
-  }>;
+export type PresentationSettledDraggableEvent = readonly [
+  tag: typeof PRESENTATION_SETTLED,
+  currency: ResolutionCurrency,
+  error: unknown,
+];
 
 export type DraggableEvent =
   | AdmitDraggableEvent
@@ -348,11 +354,24 @@ export const INITIAL_DRAGGABLE_STATE: DraggableState = {
 /** The shared "no drop in flight" value, reused to keep slice identity stable. */
 const NO_FREE_DROP: FreeDropState = { stage: DROP_NONE };
 
+/** The error an event carries in its error slot, or `undefined` if it has none. */
+export function eventError(event: DraggableEvent): unknown {
+  switch (event[0]) {
+    case EFFECT_FAILED:
+      return event[4];
+    case SETTLEMENT_FAILED:
+      return event[3];
+    case DROP_RESOLUTION_FAILED:
+    case HOME_INVALID:
+    case PRESENTATION_SETTLED:
+      return event[2];
+    default:
+      return undefined;
+  }
+}
+
 /** Whether a landing-pinned report belongs to the landing currently running. */
-function isActivePin(
-  state: DraggableState,
-  event: LandingCurrency & { operationId: number },
-): boolean {
+function isActivePin(state: DraggableState, currency: LandingCurrency): boolean {
   const landing = state.settlement?.landing;
 
   if (!landing || landing.stage === LANDING_SKIPPED) {
@@ -361,7 +380,7 @@ function isActivePin(
 
   return landing.stage === LANDING_SETTLED
     ? false
-    : sameLanding(landing.currency, event);
+    : sameLanding(landing.currency, currency);
 }
 
 const crossed = (origin: Point, latest: Point, threshold: number): boolean =>
@@ -390,17 +409,17 @@ function classify(
   state: DraggableState,
   event: DraggableEvent,
 ): LifecycleEvent {
-  switch (event.type) {
+  switch (event[0]) {
     case LIFECYCLE_ADMIT:
       return state.phase === PHASE_IDLE ? LIFECYCLE_ADMIT : LIFECYCLE_IGNORE;
     case LIFECYCLE_MOVE:
       // Pending threshold crossing is refined in the root (needs config); an
       // active move keeps the phase.
-      return ownsPointer(state, event.pointerId)
+      return ownsPointer(state, event[1].pointerId)
         ? LIFECYCLE_MOVE
         : LIFECYCLE_IGNORE;
     case LIFECYCLE_RELEASE:
-      if (!ownsPointer(state, event.pointerId)) {
+      if (!ownsPointer(state, event[1].pointerId)) {
         return LIFECYCLE_IGNORE;
       }
       // Releasing before the threshold is crossed ends the gesture: the press
@@ -425,19 +444,19 @@ function classify(
     case SET_POLICY:
       return LIFECYCLE_IGNORE;
     case LIFECYCLE_ACTIVATION_READY:
-      return isActiveOp(state, event.operationId)
+      return isActiveOp(state, event[1])
         ? LIFECYCLE_ACTIVATION_READY
         : LIFECYCLE_IGNORE;
     case LIFECYCLE_START_SUCCEEDED:
-      return isActiveOp(state, event.operationId)
+      return isActiveOp(state, event[1])
         ? LIFECYCLE_START_SUCCEEDED
         : LIFECYCLE_IGNORE;
     case LIFECYCLE_ACTIVATION_FAILED:
-      return isActiveOp(state, event.operationId)
+      return isActiveOp(state, event[1])
         ? LIFECYCLE_ACTIVATION_FAILED
         : LIFECYCLE_IGNORE;
     case EFFECT_FAILED:
-      return isActiveOp(state, event.operationId) &&
+      return isActiveOp(state, event[1]) &&
         (state.phase === PHASE_DRAGGING ||
           state.phase === PHASE_AWAITING_RESULT)
         ? LIFECYCLE_CANCEL
@@ -446,10 +465,10 @@ function classify(
       return LIFECYCLE_IGNORE;
     case DROP_RESOLVED:
     case DROP_RESOLUTION_FAILED:
-      return isActiveOp(state, event.operationId) &&
+      return isActiveOp(state, event[1].operationId) &&
         state.phase === PHASE_AWAITING_RESULT &&
         state.drop.stage === DROP_AWAITING_CONSUMER &&
-        state.drop.resolutionId === event.resolutionId
+        state.drop.resolutionId === event[1].resolutionId
         ? LIFECYCLE_RESOLVED
         : LIFECYCLE_IGNORE;
     // Landing is done, but the operation only leaves `settling` once the
@@ -459,22 +478,22 @@ function classify(
       // A pin from a superseded landing must not complete the current
       // settlement. The settlement slice already rejects it by currency, so
       // without this the phase would advance while the slice stood still.
-      return isActivePin(state, event)
+      return isActivePin(state, event[1])
         ? state.settlement?.presentation === PRESENTATION_PENDING
           ? LIFECYCLE_SETTLE_PROGRESS
           : LIFECYCLE_SETTLE_COMPLETE
         : LIFECYCLE_IGNORE;
     case SETTLEMENT_COMPLETED:
-      return isActiveOp(state, event.operationId)
+      return isActiveOp(state, event[1])
         ? state.settlement?.presentation === PRESENTATION_PENDING
           ? LIFECYCLE_SETTLE_PROGRESS
           : LIFECYCLE_SETTLE_COMPLETE
         : LIFECYCLE_IGNORE;
     // Completes the operation when it is the last of the two barriers to land.
     case PRESENTATION_SETTLED:
-      return isActiveOp(state, event.operationId) &&
+      return isActiveOp(state, event[1].operationId) &&
         state.settlement?.presentation === PRESENTATION_PENDING &&
-        event.error === null &&
+        event[2] === null &&
         isLandingSettled(state.settlement.landing)
         ? LIFECYCLE_SETTLE_COMPLETE
         : LIFECYCLE_SETTLE_PROGRESS;
@@ -503,15 +522,15 @@ function classifyMove(
   base: LifecycleEvent,
 ): LifecycleEvent {
   if (
-    event.type === LIFECYCLE_MOVE &&
+    event[0] === LIFECYCLE_MOVE &&
     from.phase === PHASE_PENDING &&
     from.pointer &&
     // Ownership is re-checked rather than inherited from `base`: this refinement
     // replaces the base classification outright, and a foreign pointer must not
     // cross the threshold on behalf of the one that armed the press.
-    ownsPointer(from, event.pointerId)
+    ownsPointer(from, event[1].pointerId)
   ) {
-    return crossed(from.pointer.origin, event.point, config.threshold)
+    return crossed(from.pointer.origin, event[1].point, config.threshold)
       ? LIFECYCLE_ACTIVATE
       : LIFECYCLE_IGNORE;
   }
@@ -572,14 +591,14 @@ function enterSettling(
   // A resolution carrying `presentationReady` holds the temporary presentation
   // until the consumer acknowledges; without one there is nothing to wait for.
   const presentation: PresentationReadiness =
-    event.type === DROP_RESOLVED && event.resolution.presentationReady
+    event[0] === DROP_RESOLVED && event[2].presentationReady
       ? PRESENTATION_PENDING
       : PRESENTATION_READY;
 
   // Accepted free drop: immediate authored restoration (v1).
   if (
-    event.type === DROP_RESOLVED &&
-    event.resolution.type === OUTCOME_ACCEPTED &&
+    event[0] === DROP_RESOLVED &&
+    event[2].type === OUTCOME_ACCEPTED &&
     proposal
   ) {
     return {
@@ -592,13 +611,13 @@ function enterSettling(
   }
 
   if (
-    event.type === DROP_RESOLVED &&
-    event.resolution.type === OUTCOME_REJECTED &&
+    event[0] === DROP_RESOLVED &&
+    event[2].type === OUTCOME_REJECTED &&
     proposal
   ) {
     return withRecovery(
       { result: OUTCOME_REJECTED },
-      { type: OUTCOME_REJECTED, proposal, reason: event.resolution.reason },
+      { type: OUTCOME_REJECTED, proposal, reason: event[2].reason },
       config,
       ids,
       operationId,
@@ -606,7 +625,7 @@ function enterSettling(
     );
   }
 
-  if (event.type === DROP_RESOLUTION_FAILED) {
+  if (event[0] === DROP_RESOLUTION_FAILED) {
     return withRecovery(
       { result: OUTCOME_FAILED, failure: { stage: FAILURE_DROP_RESOLUTION } },
       null,
@@ -616,13 +635,13 @@ function enterSettling(
     );
   }
 
-  if (event.type === EFFECT_FAILED) {
+  if (event[0] === EFFECT_FAILED) {
     const recovery: SettlementRecovery =
-      event.recovery === RECOVERY_HOME && config.hasHomeTarget
+      event[3] === RECOVERY_HOME && config.hasHomeTarget
         ? RECOVERY_HOME
         : RECOVERY_IMMEDIATE;
     return {
-      outcome: { result: OUTCOME_FAILED, failure: { stage: event.stage } },
+      outcome: { result: OUTCOME_FAILED, failure: { stage: event[2] } },
       recovery,
       domain: from.settlement?.domain ?? null,
       presentation: PRESENTATION_READY,
@@ -632,7 +651,7 @@ function enterSettling(
 
   // Cancellation (escape / pointer-cancel / consumer / removal).
   const reason: CancellationReason =
-    event.type === LIFECYCLE_CANCEL ? event.reason : { type: CANCEL_ESCAPE };
+    event[0] === LIFECYCLE_CANCEL ? event[1] : { type: CANCEL_ESCAPE };
   return withRecovery(
     { result: OUTCOME_CANCELED, reason },
     null,
@@ -658,8 +677,8 @@ export function createDraggableReducer(
     const op = from.operation;
 
     if (
-      event.type === LIFECYCLE_ACTIVATION_READY &&
-      isActiveOp(from, event.operationId)
+      event[0] === LIFECYCLE_ACTIVATION_READY &&
+      isActiveOp(from, event[1])
     ) {
       // The pointer has already travelled at least the activation threshold,
       // and `viewportDelta` is defined as `pointer - originPointer`. Committing
@@ -672,7 +691,7 @@ export function createDraggableReducer(
             viewportDelta: pointerDelta(
               from.pointer.latest,
               from.pointer.origin,
-              event.candidate.originRect,
+              event[2].originRect,
               from.policy.axis,
               null,
             ),
@@ -684,25 +703,25 @@ export function createDraggableReducer(
       return from.motion;
     }
 
-    if (event.type === CONTROLLED) {
-      return { viewportDelta: event.viewportDelta };
+    if (event[0] === CONTROLLED) {
+      return { viewportDelta: event[1] };
     }
 
     if (
-      (event.type === LIFECYCLE_MOVE && ownsPointer(from, event.pointerId)) ||
-      (event.type === LIFECYCLE_RELEASE &&
-        ownsPointer(from, event.pointerId)) ||
-      event.type === INVALIDATE
+      (event[0] === LIFECYCLE_MOVE && ownsPointer(from, event[1].pointerId)) ||
+      (event[0] === LIFECYCLE_RELEASE &&
+        ownsPointer(from, event[1].pointerId)) ||
+      event[0] === INVALIDATE
     ) {
       const point =
-        event.type === INVALIDATE ? from.pointer.latest : event.point;
+        event[0] === INVALIDATE ? from.pointer.latest : event[1].point;
       return {
         viewportDelta: pointerDelta(
           point,
           from.pointer.origin,
           op.originRect,
           from.policy.axis,
-          event.bounds,
+          event[2],
         ),
       };
     }
@@ -722,11 +741,11 @@ export function createDraggableReducer(
     // Only an admit the classifier honoured may re-arm: a duplicate admit
     // while an operation is already armed is inert, so the slice must not
     // rewrite identity behind the unchanged phase.
-    if (event.type === LIFECYCLE_ADMIT && from.phase === PHASE_IDLE) {
+    if (event[0] === LIFECYCLE_ADMIT && from.phase === PHASE_IDLE) {
       return {
-        id: event.pointerId,
-        origin: event.point,
-        latest: event.point,
+        id: event[1].pointerId,
+        origin: event[1].point,
+        latest: event[1].point,
         release: null,
       };
     }
@@ -735,7 +754,7 @@ export function createDraggableReducer(
       return from.pointer;
     }
 
-    if (event.type === LIFECYCLE_MOVE && ownsPointer(from, event.pointerId)) {
+    if (event[0] === LIFECYCLE_MOVE && ownsPointer(from, event[1].pointerId)) {
       // A still-pending move is sub-threshold: `latest` is unused until the
       // crossing move (which sets it from its own `event.point`) and the
       // threshold test reads `event.point`, not `latest`. Committing fresh
@@ -744,14 +763,18 @@ export function createDraggableReducer(
       if (phase === PHASE_PENDING) {
         return from.pointer;
       }
-      return { ...from.pointer, latest: event.point };
+      return { ...from.pointer, latest: event[1].point };
     }
 
     if (
-      event.type === LIFECYCLE_RELEASE &&
-      ownsPointer(from, event.pointerId)
+      event[0] === LIFECYCLE_RELEASE &&
+      ownsPointer(from, event[1].pointerId)
     ) {
-      return { ...from.pointer, latest: event.point, release: event.point };
+      return {
+        ...from.pointer,
+        latest: event[1].point,
+        release: event[1].point,
+      };
     }
 
     return from.pointer;
@@ -769,11 +792,11 @@ export function createDraggableReducer(
     // Only an admit the classifier honoured may re-arm: a duplicate admit
     // while an operation is already armed is inert, so the slice must not
     // rewrite identity behind the unchanged phase.
-    if (event.type === LIFECYCLE_ADMIT && from.phase === PHASE_IDLE) {
+    if (event[0] === LIFECYCLE_ADMIT && from.phase === PHASE_IDLE) {
       return {
         type: OPERATION_ADMITTED,
-        operationId: event.operationId,
-        item: event.item,
+        operationId: event[2],
+        item: event[3],
       };
     }
 
@@ -784,23 +807,23 @@ export function createDraggableReducer(
     }
 
     if (
-      event.type === LIFECYCLE_ACTIVATION_READY &&
-      isActiveOp(from, event.operationId)
+      event[0] === LIFECYCLE_ACTIVATION_READY &&
+      isActiveOp(from, event[1])
     ) {
       return {
         type: OPERATION_CANDIDATE,
         operationId: op.operationId,
         item: op.item,
-        visual: event.candidate.visual,
-        lift: event.candidate.lift,
-        originRect: event.candidate.originRect,
-        coordinateSpace: event.candidate.coordinateSpace,
+        visual: event[2].visual,
+        lift: event[2].lift,
+        originRect: event[2].originRect,
+        coordinateSpace: event[2].coordinateSpace,
       };
     }
 
     if (
-      event.type === LIFECYCLE_START_SUCCEEDED &&
-      isActiveOp(from, event.operationId) &&
+      event[0] === LIFECYCLE_START_SUCCEEDED &&
+      isActiveOp(from, event[1]) &&
       op.type === OPERATION_CANDIDATE
     ) {
       return { ...op, type: OPERATION_ACTIVE };
@@ -813,13 +836,11 @@ export function createDraggableReducer(
     from: DraggableState,
     event: DraggableEvent,
   ): FreePolicy => {
-    if (event.type === SET_POLICY) {
+    if (event[0] === SET_POLICY) {
       return {
-        axis: event.axis ?? from.policy.axis,
+        axis: event[1] ?? from.policy.axis,
         coordinateOverride:
-          event.coordinateOverride === undefined
-            ? from.policy.coordinateOverride
-            : event.coordinateOverride,
+          event[2] === undefined ? from.policy.coordinateOverride : event[2],
       };
     }
 
@@ -841,7 +862,7 @@ export function createDraggableReducer(
     }
 
     // Entering awaiting-result on release: commit one proposal-ready value.
-    if (event.type === LIFECYCLE_RELEASE && from.phase === PHASE_DRAGGING) {
+    if (event[0] === LIFECYCLE_RELEASE && from.phase === PHASE_DRAGGING) {
       const op = from.operation;
 
       if (op && op.type !== OPERATION_ADMITTED && from.pointer) {
@@ -849,7 +870,7 @@ export function createDraggableReducer(
         const proposal = buildFreeDropProposal(
           op.item,
           op.visual,
-          event.point,
+          event[1].point,
           nextDelta,
           op.originRect,
           mapper,
@@ -860,14 +881,14 @@ export function createDraggableReducer(
     }
 
     if (
-      event.type === RESOLUTION_STARTED &&
+      event[0] === RESOLUTION_STARTED &&
       from.drop.stage === DROP_PROPOSAL_READY &&
-      isActiveOp(from, event.operationId)
+      isActiveOp(from, event[1].operationId)
     ) {
       return {
         stage: DROP_AWAITING_CONSUMER,
         proposal: from.drop.proposal,
-        resolutionId: event.resolutionId,
+        resolutionId: event[1].resolutionId,
       };
     }
 
@@ -902,25 +923,25 @@ export function createDraggableReducer(
     const { landing } = settlement;
 
     if (
-      event.type === LANDING_PLAN_READY &&
+      event[0] === LANDING_PLAN_READY &&
       landing.stage === LANDING_PREPARING &&
-      sameLanding(landing.currency, event)
+      sameLanding(landing.currency, event[1])
     ) {
       return {
         ...settlement,
         landing: {
           stage: LANDING_PREPARING,
           currency: landing.currency,
-          plan: event.plan,
+          plan: event[2],
         },
       };
     }
 
     if (
-      event.type === LANDING_STARTED &&
+      event[0] === LANDING_STARTED &&
       landing.stage === LANDING_PREPARING &&
       landing.plan &&
-      sameLanding(landing.currency, event)
+      sameLanding(landing.currency, event[1])
     ) {
       return {
         ...settlement,
@@ -933,9 +954,9 @@ export function createDraggableReducer(
     }
 
     if (
-      event.type === LANDING_FINISHED &&
+      event[0] === LANDING_FINISHED &&
       landing.stage === LANDING_RUNNING &&
-      sameLanding(landing.currency, event)
+      sameLanding(landing.currency, event[1])
     ) {
       return {
         ...settlement,
@@ -950,23 +971,23 @@ export function createDraggableReducer(
     // Landing pinned: it no longer holds the temporary presentation. Release
     // still waits on the authored-presentation half of the barrier.
     if (
-      event.type === LANDING_PINNED &&
+      event[0] === LANDING_PINNED &&
       landing.stage === LANDING_COMPLETING &&
-      sameLanding(landing.currency, event)
+      sameLanding(landing.currency, event[1])
     ) {
       return { ...settlement, landing: { stage: LANDING_SETTLED } };
     }
 
     if (
-      event.type === PRESENTATION_SETTLED &&
+      event[0] === PRESENTATION_SETTLED &&
       settlement.presentation === PRESENTATION_PENDING &&
-      isActiveOp(from, event.operationId)
+      isActiveOp(from, event[1].operationId)
     ) {
       // A rejected or timed-out acknowledgement means the destination authored
       // presentation cannot be assumed to exist, so recover home instead of
       // revealing it. `withRecovery` issues a fresh landing when a home target
       // is configured, otherwise recovery is immediate.
-      if (event.error !== null) {
+      if (event[2] !== null) {
         return withRecovery(
           {
             result: OUTCOME_FAILED,
@@ -983,13 +1004,13 @@ export function createDraggableReducer(
     }
 
     if (
-      (event.type === SETTLEMENT_FAILED || event.type === HOME_INVALID) &&
+      (event[0] === SETTLEMENT_FAILED || event[0] === HOME_INVALID) &&
       landing.stage !== LANDING_SKIPPED &&
       landing.stage !== LANDING_SETTLED &&
-      sameLanding(landing.currency, event)
+      sameLanding(landing.currency, event[1])
     ) {
       const stage: FailureCause['stage'] =
-        event.type === HOME_INVALID ? FAILURE_HOME_TARGET : event.stage;
+        event[0] === HOME_INVALID ? FAILURE_HOME_TARGET : event[2];
       return {
         outcome: { result: OUTCOME_FAILED, failure: { stage } },
         recovery: RECOVERY_IMMEDIATE,

@@ -165,11 +165,7 @@ class FreeDragControllerImpl implements FreeDragController {
         this.#opts.coordinateSpace = next.coordinateSpace;
       }
 
-      this.#session.dispatch({
-        type: SET_POLICY,
-        axis: next.axis,
-        coordinateOverride: next.coordinateSpace,
-      });
+      this.#session.dispatch([SET_POLICY, next.axis, next.coordinateSpace]);
     }
 
     if (next.bounds !== undefined) {
@@ -191,13 +187,13 @@ class FreeDragControllerImpl implements FreeDragController {
       if (op && op.type !== OPERATION_ADMITTED) {
         const mapper = state.policy.coordinateOverride ?? op.coordinateSpace;
         const viewport = mapper.toViewport(next.position);
-        this.#session.dispatch({
-          type: CONTROLLED,
-          viewportDelta: {
+        this.#session.dispatch([
+          CONTROLLED,
+          {
             x: viewport.x - op.originRect.left,
             y: viewport.y - op.originRect.top,
           },
-        });
+        ]);
       }
     }
   }
@@ -205,10 +201,10 @@ class FreeDragControllerImpl implements FreeDragController {
   /** Cancels any live gesture. */
   cancel(reason?: unknown): void {
     if (this.#session.state().phase !== PHASE_IDLE) {
-      this.#session.dispatch({
-        type: LIFECYCLE_CANCEL,
-        reason: { type: CANCEL_CONSUMER, detail: reason },
-      });
+      this.#session.dispatch([
+        LIFECYCLE_CANCEL,
+        { type: CANCEL_CONSUMER, detail: reason },
+      ]);
     }
   }
 
@@ -255,10 +251,7 @@ class FreeDragControllerImpl implements FreeDragController {
 
   #emit(raw: PointerEvent | EscapeSignal): void {
     if (raw.type === CANCEL_ESCAPE) {
-      this.#session.dispatch({
-        type: LIFECYCLE_CANCEL,
-        reason: { type: CANCEL_ESCAPE },
-      });
+      this.#session.dispatch([LIFECYCLE_CANCEL, { type: CANCEL_ESCAPE }]);
       return;
     }
 
@@ -276,27 +269,22 @@ class FreeDragControllerImpl implements FreeDragController {
 
     switch (event.type) {
       case POINTER_MOVE:
-        this.#session.dispatch({
-          type: LIFECYCLE_MOVE,
-          pointerId: event.pointerId,
-          point,
-          bounds: clamp ? this.#currentBounds() : null,
-        });
+        this.#session.dispatch([
+          LIFECYCLE_MOVE,
+          { pointerId: event.pointerId, point },
+          clamp ? this.#currentBounds() : null,
+        ]);
         break;
       case POINTER_UP:
-        this.#session.dispatch({
-          type: LIFECYCLE_RELEASE,
-          pointerId: event.pointerId,
-          point,
-          bounds: clamp ? this.#currentBounds() : null,
-        });
+        this.#session.dispatch([
+          LIFECYCLE_RELEASE,
+          { pointerId: event.pointerId, point },
+          clamp ? this.#currentBounds() : null,
+        ]);
         break;
       case POINTER_CANCEL:
         if (this.#session.state().pointer?.id === event.pointerId) {
-          this.#session.dispatch({
-            type: LIFECYCLE_CANCEL,
-            reason: { type: CANCEL_POINTER },
-          });
+          this.#session.dispatch([LIFECYCLE_CANCEL, { type: CANCEL_POINTER }]);
         }
         break;
       // `lostpointercapture` is benign: the gesture is tracked on the document.
@@ -320,13 +308,12 @@ class FreeDragControllerImpl implements FreeDragController {
       return;
     }
 
-    this.#session.dispatch({
-      type: LIFECYCLE_ADMIT,
-      operationId: this.#ids.next(),
-      item: this.#item,
-      pointerId: press.pointerId,
-      point: press.point,
-    });
+    this.#session.dispatch([
+      LIFECYCLE_ADMIT,
+      { pointerId: press.pointerId, point: press.point },
+      this.#ids.next(),
+      this.#item,
+    ]);
   }
 
   #transition(
