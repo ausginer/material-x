@@ -28,10 +28,33 @@ export type RectIndex = {
   count: number;
   /** Allocated slot capacity of `values`. */
   capacity: number;
+  /**
+   * Whether the cached geometry may be stale. Any single invalidation reason —
+   * scroll, resize, a committed placeholder move, release — sets it; the next
+   * refresh does one full rebuild regardless of how many accumulated, so no
+   * separate per-reason flags are needed.
+   */
+  dirty: boolean;
+  /** Collection version the cached geometry reflects; a change forces a rebuild. */
+  version: number;
 };
 
 export function createRectIndex(): RectIndex {
-  return { values: new Float64Array(0), items: [], count: 0, capacity: 0 };
+  return {
+    values: new Float64Array(0),
+    items: [],
+    count: 0,
+    capacity: 0,
+    // Start stale so the first resolution measures; -1 never matches a real
+    // collection version.
+    dirty: true,
+    version: -1,
+  };
+}
+
+/** Marks the cache stale so the next refresh re-measures. */
+export function markRectIndexDirty(index: RectIndex): void {
+  index.dirty = true;
 }
 
 const nextPow2 = (n: number): number => {
@@ -91,6 +114,27 @@ export function rebuildRectIndex(
   // Truncate so stale references from a larger previous rebuild neither pin
   // memory nor leak into a neighbour lookup.
   index.items.length = n;
+}
+
+/**
+ * Re-measures only when the cache is stale or the collection version moved. On a
+ * frame where the pointer merely moves within the same slot — nothing dirtied,
+ * same version — this reads no DOM geometry at all and the prior scan stands.
+ */
+export function refreshRectIndex(
+  index: RectIndex,
+  items: readonly HTMLElement[],
+  dragged: HTMLElement,
+  getVisual: (item: HTMLElement) => HTMLElement,
+  version: number,
+): void {
+  if (!index.dirty && index.version === version) {
+    return;
+  }
+
+  rebuildRectIndex(index, items, dragged, getVisual);
+  index.version = version;
+  index.dirty = false;
 }
 
 /**

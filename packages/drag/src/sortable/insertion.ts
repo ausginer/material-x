@@ -12,7 +12,7 @@ import type { Point } from '../kernel/types.ts';
 import { anchorIndex, follows, neighbor } from './geometry.ts';
 import type { Insertion } from './options.ts';
 import type { PlaceholderLease } from './placeholder.ts';
-import { nearestSlot, rebuildRectIndex, type RectIndex } from './rect-index.ts';
+import { nearestSlot, refreshRectIndex, type RectIndex } from './rect-index.ts';
 
 /**
  * Measures the field and finds the nearest item; if it beats the placeholder's
@@ -32,7 +32,7 @@ export function resolveSpatialInsertion(
   pointer: Point,
   version: number,
 ): Insertion | null {
-  rebuildRectIndex(index, items, dragged, getVisual);
+  refreshRectIndex(index, items, dragged, getVisual, version);
 
   const anchorRect = placeholder.rect();
   const anchor: Point = {

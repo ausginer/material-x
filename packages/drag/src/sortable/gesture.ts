@@ -79,7 +79,11 @@ import {
   insertPlaceholder,
   type PlaceholderLease,
 } from './placeholder.ts';
-import { createRectIndex, type RectIndex } from './rect-index.ts';
+import {
+  createRectIndex,
+  markRectIndexDirty,
+  type RectIndex,
+} from './rect-index.ts';
 import {
   EFFECT_FAILED,
   INPUT_KEYBOARD,
@@ -295,6 +299,8 @@ export class SortableGesture {
       invalidation.arm(this.#scope.signal, () => {
         const current = this.#currentOperation;
         if (current && current.type !== OPERATION_ADMITTED && this.#lastPoint) {
+          // A scroll or resize moved the field under the cache; re-measure.
+          markRectIndexDirty(this.#rectIndex);
           this.#renderer?.render(this.#lastDelta);
           this.#resolveInsertion(this.#lastPoint);
         }
@@ -365,6 +371,8 @@ export class SortableGesture {
         this.#placeholder
       ) {
         this.#placeholder.placeBefore(to.insertion.value.after);
+        // The committed move reflows the field, so the cached rects are stale.
+        markRectIndexDirty(this.#rectIndex);
       }
       return;
     }
@@ -424,6 +432,9 @@ export class SortableGesture {
     const op = to.operation;
     const placeholder = this.#placeholder;
     this.#frame?.cancel();
+    // Release must resolve against current geometry: the last committed move may
+    // have left the cache dirty, and a stale field would seat the final gap wrong.
+    markRectIndexDirty(this.#rectIndex);
 
     if (
       tx.stage !== TRANSACTION_RESOLVING_PROPOSAL ||

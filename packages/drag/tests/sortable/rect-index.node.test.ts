@@ -1,9 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { Point } from '../../src/kernel/types.ts';
 import {
   createRectIndex,
+  markRectIndexDirty,
   nearestSlot,
   rebuildRectIndex,
+  refreshRectIndex,
 } from '../../src/sortable/rect-index.ts';
 
 /** A stand-in element exposing only the rect the index reads. */
@@ -27,6 +29,28 @@ const box = (
   }) as unknown as HTMLElement;
 
 const identity = (item: HTMLElement): HTMLElement => item;
+
+/** A box whose `getBoundingClientRect` is a spy, so measurement can be counted. */
+const spyBox = (
+  label: string,
+  left: number,
+  top: number,
+  right: number,
+  bottom: number,
+): { el: HTMLElement; measured: () => number } => {
+  const fn = vi.fn(() => ({
+    left,
+    top,
+    right,
+    bottom,
+    width: right - left,
+    height: bottom - top,
+  }));
+  return {
+    el: { label, getBoundingClientRect: fn } as unknown as HTMLElement,
+    measured: () => fn.mock.calls.length,
+  };
+};
 
 describe('rebuildRectIndex', () => {
   it('should populate one slot per non-dragged item', () => {
@@ -124,5 +148,54 @@ describe('nearestSlot', () => {
     const pointer: Point = { x: 5, y: 0 };
 
     expect(nearestSlot(index, anchor, pointer)).toBe(-1);
+  });
+});
+
+describe('refreshRectIndex', () => {
+  it('should measure on the first refresh', () => {
+    const a = spyBox('a', 0, 0, 10, 10);
+    const b = spyBox('b', 0, 20, 10, 30);
+    const index = createRectIndex();
+
+    refreshRectIndex(index, [a.el, b.el], b.el, identity, 1);
+
+    expect(a.measured()).toBe(1);
+    expect(index.count).toBe(1);
+  });
+
+  it('should not re-measure a clean cache at the same version', () => {
+    const a = spyBox('a', 0, 0, 10, 10);
+    const dragged = spyBox('d', 0, 40, 10, 50);
+    const index = createRectIndex();
+
+    refreshRectIndex(index, [a.el, dragged.el], dragged.el, identity, 1);
+    refreshRectIndex(index, [a.el, dragged.el], dragged.el, identity, 1);
+
+    // The pointer moving within a slot dirties nothing, so the second frame
+    // reads no geometry — the whole point of the cache.
+    expect(a.measured()).toBe(1);
+  });
+
+  it('should re-measure after markRectIndexDirty', () => {
+    const a = spyBox('a', 0, 0, 10, 10);
+    const dragged = spyBox('d', 0, 40, 10, 50);
+    const index = createRectIndex();
+
+    refreshRectIndex(index, [a.el, dragged.el], dragged.el, identity, 1);
+    markRectIndexDirty(index);
+    refreshRectIndex(index, [a.el, dragged.el], dragged.el, identity, 1);
+
+    expect(a.measured()).toBe(2);
+  });
+
+  it('should re-measure when the collection version changes', () => {
+    const a = spyBox('a', 0, 0, 10, 10);
+    const dragged = spyBox('d', 0, 40, 10, 50);
+    const index = createRectIndex();
+
+    refreshRectIndex(index, [a.el, dragged.el], dragged.el, identity, 1);
+    refreshRectIndex(index, [a.el, dragged.el], dragged.el, identity, 2);
+
+    expect(a.measured()).toBe(2);
   });
 });
