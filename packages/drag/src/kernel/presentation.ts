@@ -157,11 +157,17 @@ function borderBox(style: CSSStyleDeclaration): readonly [number, number] {
 }
 
 function neutralizeUA(visual: HTMLElement, style: CSSStyleDeclaration): void {
+  // Read every UA value up front, while the computed style is still clean.
+  // Interleaving these reads with the writes below forces a style recalc per
+  // property (each `setProperty` dirties the style the next `getPropertyValue`
+  // must then flush); batching collapses that whole cluster into one recalc.
+  const values = UA_PROPS.map((prop) => style.getPropertyValue(prop));
+
   visual.style.boxSizing = 'border-box';
   visual.style.margin = '0';
 
-  for (const prop of UA_PROPS) {
-    visual.style.setProperty(prop, style.getPropertyValue(prop));
+  for (let i = 0; i < UA_PROPS.length; i += 1) {
+    visual.style.setProperty(UA_PROPS[i]!, values[i]!);
   }
 }
 
@@ -221,11 +227,14 @@ export function acquireLift(
   if (mode === LIFT_FAITHFUL) {
     const base = viewportMatrix(visual, realm).toString();
     const [width, height] = borderBox(style);
+    // Read the zoom before any inline write, so it shares the reads' single
+    // recalc rather than forcing another once neutralizeUA dirties the style.
+    const inverseZoom = 1 / ancestorZoom(visual, realm);
 
     neutralizeUA(visual, style);
     visual.style.transition = 'none';
     // Net zoom 1: the matrix is the sole source of scale.
-    visual.style.zoom = `${1 / ancestorZoom(visual, realm)}`;
+    visual.style.zoom = `${inverseZoom}`;
     visual.style.position = 'fixed';
     visual.style.inset = 'auto';
     visual.style.top = '0';
@@ -249,11 +258,11 @@ export function acquireLift(
 
   if (mode === LIFT_FLAT) {
     const [width, height] = borderBox(style);
+    // Read the zoom before any inline write shares the reads' single recalc.
+    const zoom = ancestorZoom(visual, realm);
 
     neutralizeUA(visual, style);
     visual.style.transition = 'none';
-
-    const zoom = ancestorZoom(visual, realm);
 
     if (zoom !== 1) {
       visual.style.zoom = `${1 / zoom}`;
