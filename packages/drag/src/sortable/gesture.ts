@@ -364,10 +364,12 @@ export class SortableGesture {
       }
       return;
     }
-    this.#render(to);
+    // One delta per drag frame: the renderer and the cached last-delta share it.
+    const delta = sortableDelta(to);
+    this.#renderer?.render(delta);
     if (to.pointer) {
       this.#lastPoint = to.pointer.latest;
-      this.#lastDelta = sortableDelta(to);
+      this.#lastDelta = delta;
       this.#frame?.schedule(to.pointer.latest);
     }
   }

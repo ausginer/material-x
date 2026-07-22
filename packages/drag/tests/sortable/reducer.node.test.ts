@@ -20,6 +20,7 @@ import {
   INITIAL_SORTABLE_STATE,
   INPUT_POINTER,
   INSERTION_READY,
+  INSERTION_RESOLVED,
   LANDING_PINNED,
   type SortableCandidate,
   type SortableEvent,
@@ -165,6 +166,21 @@ describe('sortable reducer: admission and activation', () => {
     const { run } = harness();
 
     expect(dragging(run).phase).toBe(PHASE_DRAGGING);
+  });
+
+  it('should return the same state for an unchanged resolved insertion', () => {
+    const { reduce, run } = harness();
+    const state = dragging(run);
+
+    // The committed insertion is the activation candidate's. Re-resolving to a
+    // structurally identical gap must not churn state or route effects.
+    const resolved: SortableEvent = {
+      type: INSERTION_RESOLVED,
+      operationId: 1,
+      insertion: { version: 1, index: 2, before: B, after: C },
+    };
+
+    expect(reduce(state, resolved)).toBe(state);
   });
 
   it('should return to idle when activation fails', () => {

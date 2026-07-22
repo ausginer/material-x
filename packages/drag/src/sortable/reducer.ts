@@ -402,6 +402,18 @@ function isActivePin(
 const isActiveOp = (state: SortableState, operationId: number): boolean =>
   state.operation?.operationId === operationId;
 
+/**
+ * Whether two insertions describe the same committed gap. The placeholder
+ * position is fully determined by `before`/`after`, and `index`/`version` pin
+ * the collection view, so an equal reading is a genuine no-op that must not churn
+ * insertion state or re-place the placeholder.
+ */
+const sameInsertion = (a: Insertion, b: Insertion): boolean =>
+  a.version === b.version &&
+  a.index === b.index &&
+  a.before === b.before &&
+  a.after === b.after;
+
 /** Whether `snapshot` still contains the dragged item. */
 function contains(snapshot: CollectionSnapshot, item: HTMLElement): boolean {
   return snapshot.items.includes(item);
@@ -954,6 +966,15 @@ export function createSortableReducer(
       isActiveOp(from, event.operationId) &&
       phase === PHASE_DRAGGING
     ) {
+      // An insertion equal to the committed one is a no-op: preserve identity so
+      // the root guard returns `from` and no redundant placeholder move, dispatch,
+      // or effect routing follows.
+      if (
+        from.insertion.type === INSERTION_READY &&
+        sameInsertion(from.insertion.value, event.insertion)
+      ) {
+        return from.insertion;
+      }
       return { type: INSERTION_READY, value: event.insertion };
     }
     if (
