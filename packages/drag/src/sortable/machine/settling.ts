@@ -1,11 +1,17 @@
 import {
+  FAILURE_ANIMATION_CREATE,
+  FAILURE_HOME_TARGET,
   FAILURE_LANDING_INTERRUPTED,
+  FAILURE_LANDING_PIN,
+  FAILURE_LANDING_TIMING,
+  FAILURE_PLACEHOLDER_TARGET,
   FAILURE_PRESENTATION_READY,
   OUTCOME_FAILED,
+  RECOVERY_HOME,
   RECOVERY_IMMEDIATE,
 } from '../../kernel/protocol.ts';
+import { ignored } from '../../kernel/session.ts';
 import {
-  FINALIZE_OPERATION,
   PIN_LANDING,
   START_LANDING,
   type SortableDecision,
@@ -13,19 +19,19 @@ import {
 } from './effect.ts';
 import {
   INTERACTION_STOPPED,
+  LANDING_ANIMATION_CREATE_FAILED,
   LANDING_FAILED,
   LANDING_FINISHED,
   LANDING_PIN_FAILED,
   LANDING_PINNED,
   LANDING_PLAN_FAILED,
   LANDING_PLAN_RESOLVED,
-  LANDING_START_FAILED,
   LANDING_STARTED,
-  PRESENTATION_FAILED,
+  LANDING_TIMING_FAILED,
   PRESENTATION_SETTLED,
   type SortableEvent,
 } from './event.ts';
-import { ignoreSortable, reportFailure } from './helpers.ts';
+import { finalizeSettlement, reportFailure } from './helpers.ts';
 import {
   LANDING_COMPLETING,
   LANDING_PREPARING,
@@ -34,7 +40,6 @@ import {
   LANDING_TERMINAL,
   PRESENTATION_TERMINAL,
   PRESENTATION_WATCHING,
-  SORTABLE_FINALIZING,
   type SettlingSortableState,
 } from './state.ts';
 
@@ -48,21 +53,7 @@ function advance(
     next.landing.stage === LANDING_TERMINAL &&
     next.presentation.stage !== PRESENTATION_WATCHING
   ) {
-    return {
-      state: {
-        phase: SORTABLE_FINALIZING,
-        nextOperationId: next.nextOperationId,
-        operation: next.operation,
-        terminal: next.outcome,
-      },
-      effects: {
-        type: FINALIZE_OPERATION,
-        operationId: next.operation.operationId,
-        terminal: next.outcome,
-        onFinish: config.onFinish,
-        onCancel: config.onCancel,
-      },
-    };
+    return finalizeSettlement(next, config);
   }
   return { state: next, effects: null };
 }
@@ -122,27 +113,6 @@ export function decideSettling(
   }
 
   if (
-    event.type === PRESENTATION_FAILED &&
-    event.operationId === state.operation.operationId
-  ) {
-    return reportFailure(
-      state,
-      state.operation,
-      { stage: FAILURE_PRESENTATION_READY },
-      event.error,
-      state.outcome.domain,
-      {
-        ...state,
-        outcome: { result: OUTCOME_FAILED, domain: state.outcome.domain },
-        recovery: RECOVERY_IMMEDIATE,
-        landing: { stage: LANDING_TERMINAL },
-        presentation: { stage: PRESENTATION_TERMINAL },
-      },
-      config,
-    );
-  }
-
-  if (
     event.type === LANDING_PLAN_RESOLVED &&
     state.landing.stage === LANDING_PREPARING &&
     landingMatches(state, event)
@@ -167,7 +137,8 @@ export function decideSettling(
 
   if (
     (event.type === LANDING_PLAN_FAILED ||
-      event.type === LANDING_START_FAILED ||
+      event.type === LANDING_TIMING_FAILED ||
+      event.type === LANDING_ANIMATION_CREATE_FAILED ||
       event.type === LANDING_FAILED ||
       event.type === LANDING_PIN_FAILED) &&
     landingMatches(state, event)
@@ -175,7 +146,20 @@ export function decideSettling(
     return reportFailure(
       state,
       state.operation,
-      { stage: FAILURE_LANDING_INTERRUPTED },
+      {
+        stage:
+          event.type === LANDING_PLAN_FAILED
+            ? state.recovery === RECOVERY_HOME
+              ? FAILURE_HOME_TARGET
+              : FAILURE_PLACEHOLDER_TARGET
+            : event.type === LANDING_TIMING_FAILED
+              ? FAILURE_LANDING_TIMING
+              : event.type === LANDING_ANIMATION_CREATE_FAILED
+                ? FAILURE_ANIMATION_CREATE
+                : event.type === LANDING_PIN_FAILED
+                  ? FAILURE_LANDING_PIN
+                  : FAILURE_LANDING_INTERRUPTED,
+      },
       event.error,
       state.outcome.domain,
       {
@@ -229,5 +213,5 @@ export function decideSettling(
     );
   }
 
-  return ignoreSortable(state);
+  return ignored(state);
 }

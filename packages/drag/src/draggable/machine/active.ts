@@ -6,6 +6,7 @@ import {
   RECOVERY_IMMEDIATE,
   type FailureCause,
 } from '../../kernel/protocol.ts';
+import { ignored } from '../../kernel/session.ts';
 import { pointerDelta } from '../motion.ts';
 import {
   INVOKE_MOVE,
@@ -37,7 +38,6 @@ import {
   createSettlement,
   failedSettlement,
   geometryRequest,
-  ignoreDraggable,
   initialSettlementEffects,
   replacePhase,
   reportFailure,
@@ -57,6 +57,7 @@ function motionEffects(
   lifecycle: DraggingLifecycle,
   currency: MotionCurrency,
   callback: ActiveDraggableState['policy']['onMove'],
+  coordinateSpace: ActiveOperation['coordinateSpace'],
 ): DraggableEffect | readonly DraggableEffect[] {
   const present: PresentMotionEffect = {
     ...currency,
@@ -74,7 +75,7 @@ function motionEffects(
       ...currency,
       type: INVOKE_MOVE,
       callback,
-      geometry: geometryRequest(lifecycle.operation),
+      geometry: geometryRequest(lifecycle.operation, coordinateSpace),
     },
   ];
 }
@@ -106,6 +107,8 @@ export function decideActive(
           point: event.point,
           refresh: false,
           axis: state.policy.axis,
+          coordinateSpace:
+            state.policy.coordinateSpace ?? operation.coordinateSpace,
           callback: state.policy.onMove,
         },
       },
@@ -138,6 +141,8 @@ export function decideActive(
           point: operation.latestPointer,
           refresh: true,
           axis: state.policy.axis,
+          coordinateSpace:
+            state.policy.coordinateSpace ?? operation.coordinateSpace,
           callback: state.policy.onMove,
         },
       },
@@ -157,6 +162,8 @@ export function decideActive(
       operationId: operation.operationId,
       motionId,
     };
+    const coordinateSpace =
+      state.policy.coordinateSpace ?? operation.coordinateSpace;
     return {
       state: {
         ...state,
@@ -170,6 +177,7 @@ export function decideActive(
           point: operation.latestPointer,
           refresh: false,
           axis: state.policy.axis,
+          coordinateSpace,
           callback: state.policy.onMove,
         },
       },
@@ -178,8 +186,7 @@ export function decideActive(
         ...currency,
         position: event.position,
         originRect: operation.originRect,
-        coordinateSpace:
-          state.policy.coordinateSpace ?? operation.coordinateSpace,
+        coordinateSpace,
       },
     };
   }
@@ -214,6 +221,7 @@ export function decideActive(
         nextLifecycle,
         event,
         lifecycle.pendingMotion.callback,
+        lifecycle.pendingMotion.coordinateSpace,
       ),
     };
   }
@@ -238,15 +246,33 @@ export function decideActive(
         nextLifecycle,
         event,
         lifecycle.pendingMotion.callback,
+        lifecycle.pendingMotion.coordinateSpace,
       ),
     };
   }
 
   if (
     (event.type === MOTION_OBSERVATION_FAILED ||
-      event.type === CONTROLLED_POSITION_FAILED ||
-      event.type === MOTION_PRESENTATION_FAILED ||
+      event.type === CONTROLLED_POSITION_FAILED) &&
+    lifecycle.pendingMotion &&
+    lifecycle.pendingMotion.currency.motionId === event.motionId &&
+    sameOperation(operation, event)
+  ) {
+    return reportFailure(
+      state,
+      operation,
+      { stage: FAILURE_MOVE },
+      event.error,
+      null,
+      failedSettlement(operation, null, config.hasHomeTarget),
+      config.onError,
+    );
+  }
+
+  if (
+    (event.type === MOTION_PRESENTATION_FAILED ||
       event.type === MOVE_CALLBACK_FAILED) &&
+    event.motionId === operation.nextMotionId - 1 &&
     sameOperation(operation, event)
   ) {
     const cause: FailureCause =
@@ -318,5 +344,5 @@ export function decideActive(
     };
   }
 
-  return ignoreDraggable(state);
+  return ignored(state);
 }

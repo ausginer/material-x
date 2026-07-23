@@ -1,3 +1,4 @@
+import { ignored } from '../../kernel/session.ts';
 import {
   PREPARE_FREE_LANDING,
   RETIRE_OPERATION,
@@ -7,12 +8,7 @@ import {
   type DraggableMachineConfig,
 } from './effect.ts';
 import { FAILURE_REPORTED, type DraggableEvent } from './event.ts';
-import {
-  advanceSettlement,
-  ignoreDraggable,
-  replacePhase,
-  sameOperation,
-} from './helpers.ts';
+import { advanceSettlement, replacePhase, sameOperation } from './helpers.ts';
 import {
   DRAG_IDLE,
   LANDING_PREPARING,
@@ -30,7 +26,7 @@ export function decideReporting(
     event.type !== FAILURE_REPORTED ||
     !sameOperation(lifecycle.operation, event)
   ) {
-    return ignoreDraggable(state);
+    return ignored(state);
   }
 
   if (lifecycle.continuation.phase === DRAG_IDLE) {

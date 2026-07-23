@@ -1,11 +1,15 @@
 import {
+  FAILURE_ANIMATION_CREATE,
   FAILURE_HOME_TARGET,
   FAILURE_LANDING_INTERRUPTED,
+  FAILURE_LANDING_PIN,
+  FAILURE_LANDING_TIMING,
   FAILURE_PRESENTATION_READY,
   OUTCOME_FAILED,
   RECOVERY_IMMEDIATE,
   type FailureCause,
 } from '../../kernel/protocol.ts';
+import { ignored } from '../../kernel/session.ts';
 import {
   PIN_LANDING,
   START_LANDING,
@@ -14,21 +18,21 @@ import {
 } from './effect.ts';
 import {
   INTERACTION_STOPPED,
+  LANDING_ANIMATION_FAILED,
   LANDING_FAILED,
   LANDING_FINISHED,
   LANDING_PIN_FAILED,
   LANDING_PINNED,
   LANDING_PLAN_FAILED,
   LANDING_PLAN_RESOLVED,
-  LANDING_START_FAILED,
   LANDING_STARTED,
+  LANDING_TIMING_FAILED,
   PRESENTATION_SETTLED,
   type DraggableEvent,
 } from './event.ts';
 import {
   advanceSettlement,
   failedSettlement,
-  ignoreDraggable,
   replacePhase,
   reportFailure,
   sameOperation,
@@ -125,17 +129,34 @@ export function decideSettling(
 
   if (
     (event.type === LANDING_PLAN_FAILED ||
-      event.type === LANDING_START_FAILED ||
+      event.type === LANDING_TIMING_FAILED ||
+      event.type === LANDING_ANIMATION_FAILED ||
       event.type === LANDING_FAILED ||
       event.type === LANDING_PIN_FAILED) &&
     'currency' in lifecycle.landing &&
     event.operationId === lifecycle.landing.currency.operationId &&
     event.landingId === lifecycle.landing.currency.landingId
   ) {
-    const cause: FailureCause =
-      event.type === LANDING_PLAN_FAILED
-        ? { stage: FAILURE_HOME_TARGET }
-        : { stage: FAILURE_LANDING_INTERRUPTED };
+    let cause: FailureCause;
+    // The check above is already exhaustive
+    // oxlint-disable-next-line default-case
+    switch (event.type) {
+      case LANDING_PLAN_FAILED:
+        cause = { stage: FAILURE_HOME_TARGET };
+        break;
+      case LANDING_TIMING_FAILED:
+        cause = { stage: FAILURE_LANDING_TIMING };
+        break;
+      case LANDING_ANIMATION_FAILED:
+        cause = { stage: FAILURE_ANIMATION_CREATE };
+        break;
+      case LANDING_PIN_FAILED:
+        cause = { stage: FAILURE_LANDING_PIN };
+        break;
+      case LANDING_FAILED:
+        cause = { stage: FAILURE_LANDING_INTERRUPTED };
+        break;
+    }
     const continuation: SettlingLifecycle = {
       phase: lifecycle.phase,
       operation,
@@ -212,5 +233,5 @@ export function decideSettling(
     );
   }
 
-  return ignoreDraggable(state);
+  return ignored(state);
 }

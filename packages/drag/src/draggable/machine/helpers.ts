@@ -1,12 +1,12 @@
 import {
   OUTCOME_CANCELED,
   OUTCOME_FAILED,
+  OUTCOME_REJECTED,
   RECOVERY_HOME,
   RECOVERY_IMMEDIATE,
   type CancellationReason,
   type FailureCause,
 } from '../../kernel/protocol.ts';
-import { ignored } from '../../kernel/session.ts';
 import type {
   DraggableOptions,
   FreeDropResult,
@@ -53,10 +53,6 @@ export function sameOperation(
   return operation.operationId === event.operationId;
 }
 
-export function ignoreDraggable(state: DraggableState): DraggableDecision {
-  return ignored<DraggableState, DraggableEffect>(state);
-}
-
 export function replacePhase<Lifecycle extends DraggableLifecycle>(
   state: DraggableState,
   lifecycle: Lifecycle,
@@ -68,13 +64,16 @@ export function replacePhase<Lifecycle extends DraggableLifecycle>(
   };
 }
 
-export function geometryRequest(operation: ActiveOperation): GeometryRequest {
+export function geometryRequest(
+  operation: ActiveOperation,
+  coordinateSpace: ActiveOperation['coordinateSpace'] = operation.coordinateSpace,
+): GeometryRequest {
   return {
     pointer: operation.latestPointer,
     originPointer: operation.originPointer,
     viewportDelta: operation.viewportDelta,
     originRect: operation.originRect,
-    coordinateSpace: operation.coordinateSpace,
+    coordinateSpace,
   };
 }
 
@@ -197,6 +196,31 @@ export function advanceSettlement(
   config: DraggableMachineConfig,
 ): DraggableDecision {
   if (settlementReady(lifecycle)) {
+    const { domain } = lifecycle.outcome;
+    let callback: (() => void) | undefined;
+
+    if (lifecycle.outcome.result === OUTCOME_FAILED) {
+      callback = undefined;
+    } else if (domain?.type === OUTCOME_CANCELED) {
+      callback = config.onCancel
+        ? () => {
+            config.onCancel?.(domain);
+          }
+        : undefined;
+    } else if (domain?.type === OUTCOME_REJECTED) {
+      callback = config.onCancel
+        ? () => {
+            config.onCancel?.(domain);
+          }
+        : undefined;
+    } else if (domain) {
+      callback = config.onFinish
+        ? () => {
+            config.onFinish?.(domain);
+          }
+        : undefined;
+    }
+
     return {
       state: replacePhase(state, {
         phase: DRAG_FINALIZING,
@@ -206,9 +230,7 @@ export function advanceSettlement(
       effects: {
         type: FINALIZE_OPERATION,
         operationId: lifecycle.operation.operationId,
-        terminal: lifecycle.outcome,
-        onFinish: config.onFinish,
-        onCancel: config.onCancel,
+        callback,
       },
     };
   }

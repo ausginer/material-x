@@ -48,6 +48,10 @@ export type SpatialCurrency = Readonly<{
   collectionVersion: number;
   spatialId: number;
 }>;
+export type MotionCurrency = Readonly<{
+  operationId: number;
+  motionId: number;
+}>;
 export type ResolutionCurrency = Readonly<{
   operationId: number;
   resolutionId: number;
@@ -74,6 +78,7 @@ export type SortableOperation = OperationCurrency &
     latestPoint: Point;
     insertion: Insertion | null;
     nextSpatialId: number;
+    nextMotionId: number;
     nextResolutionId: number;
     nextLandingId: number;
   }>;
@@ -145,6 +150,7 @@ export type ActiveSortableState = Readonly<{
   nextOperationId: number;
   operation: ActiveSortableOperation;
   pendingSpatial: SpatialCurrency | null;
+  latestMotion: MotionCurrency;
 }>;
 
 export type SpatialSortableState = Readonly<{
@@ -194,6 +200,7 @@ export type FinalizingSortableState = Readonly<{
   nextOperationId: number;
   operation: ActiveSortableOperation;
   terminal: TerminalOutcome;
+  failureCause: FailureCause;
 }>;
 
 export type SortableState =

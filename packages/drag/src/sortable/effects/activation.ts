@@ -1,179 +1,108 @@
-import { createMapper } from '../../kernel/coordinate.ts';
-import type { OperationResources } from '../../kernel/operation-resources.ts';
 import { acquirePointerCapture } from '../../kernel/pointer.ts';
 import {
-  acquireLift,
-  createDragRenderer,
-  LIFT_FAITHFUL,
-  type DragRenderer,
-  type VisualLiftSession,
-} from '../../kernel/presentation.ts';
-import { anchorIndex } from '../geometry.ts';
-import { currentInsertion, resolveSpatialInsertion } from '../insertion.ts';
+  CONTINUE_BATCH,
+  STOP_BATCH,
+  type EffectDisposition,
+} from '../../kernel/session.ts';
 import {
+  ACTIVATION_FAILED,
+  ACTIVATION_READY,
   INPUT_POINTER,
+  type AcquireSortableActivationEffect,
   type SortableEffectDeps,
-  type SpatialRequest,
-  type SortableOperation,
+  type SortableEvent,
 } from '../machine.ts';
-import {
-  createAnchor,
-  insertPlaceholder,
-  type PlaceholderLease,
-} from '../placeholder.ts';
-import {
-  createRectIndex,
-  markRectIndexDirty,
-  type RectIndex,
-} from '../rect-index.ts';
+import type { OperationInputOwner } from './operation.ts';
+import type { SortablePlaceholderOwner } from './placeholder.ts';
+import type { SpatialInsertionOwner } from './spatial.ts';
+import type { SortableVisualOwner } from './visual.ts';
 
-export type ActivationResult = Readonly<{
-  activationVersion: number;
-  activationIndex: number;
-  insertion: NonNullable<SortableOperation['insertion']>;
+export type SortableActivationCoordinator = Readonly<{
+  acquire(effect: AcquireSortableActivationEffect): EffectDisposition;
 }>;
 
-export type SortablePresentationOwner = Readonly<{
-  acquire(
-    operation: SortableOperation,
-    resources: OperationResources,
-  ): ActivationResult;
-  render(
-    origin: Readonly<{ x: number; y: number }>,
-    point: Readonly<{ x: number; y: number }>,
-  ): void;
-  resolve(request: SpatialRequest): NonNullable<SortableOperation['insertion']>;
-  place(insertion: NonNullable<SortableOperation['insertion']>): void;
-  returnHome(): void;
-  placeholderRect(): DOMRectReadOnly;
-  originRect(): DOMRectReadOnly;
-  lift(): VisualLiftSession | null;
-  visualConnected(): boolean;
-  invalidate(): void;
-  destroy(): void;
-}>;
-
-export function createSortablePresentationOwner(
+export function createSortableActivationCoordinator(
   deps: SortableEffectDeps,
-): SortablePresentationOwner {
-  let lift: VisualLiftSession | null = null;
-  let renderer: DragRenderer | null = null;
-  let placeholder: PlaceholderLease | null = null;
-  let origin = new deps.realm.window.DOMRectReadOnly();
-  const index: RectIndex = createRectIndex();
-
+  visual: SortableVisualOwner,
+  placeholder: SortablePlaceholderOwner,
+  spatial: SpatialInsertionOwner,
+  operation: OperationInputOwner,
+  dispatch: (event: SortableEvent) => void,
+): SortableActivationCoordinator {
   return {
-    acquire(operation, resources) {
-      origin = operation.visual.getBoundingClientRect();
-      const context = operation.item.offsetParent;
-      const mapper = createMapper(
-        context instanceof deps.realm.window.HTMLElement
-          ? context
-          : deps.realm.document.documentElement,
-        deps.realm,
-      );
-      lift = acquireLift(
-        operation.visual,
-        LIFT_FAITHFUL,
-        origin,
-        (delta) => mapper.deltaFromViewport(delta),
-        deps.realm,
-      );
-      renderer = createDragRenderer(lift);
-      const anchor = createAnchor(
-        { createPlaceholder: deps.createPlaceholder },
-        deps.realm,
-        operation.item,
-        operation.visual,
-        origin,
-      );
-      placeholder = insertPlaceholder(anchor, operation.item);
-      const ownedPlaceholder = placeholder;
-      const ownedLift = lift;
-      resources.presentation.use(() => ownedPlaceholder.dispose());
-      resources.presentation.use(() => ownedLift.dispose());
-
-      if (operation.input.type === INPUT_POINTER) {
-        resources.interaction.use(
-          acquirePointerCapture(operation.item, operation.input.pointerId),
-        );
+    acquire(effect) {
+      if (!operation.current(effect)) {
+        return STOP_BATCH;
       }
-
-      deps.invalidation.arm(resources.signal, () => {
-        markRectIndexDirty(index);
-      });
-      const insertion = currentInsertion(
-        placeholder,
-        operation.snapshot.items,
-        operation.item,
-        operation.snapshot.version,
-      );
-      return {
-        activationVersion: operation.snapshot.version,
-        activationIndex: anchorIndex(
-          operation.snapshot.items,
-          operation.item,
-          placeholder.element,
-        ),
-        insertion,
+      const sortable = effect.operation;
+      const resources = operation.resources();
+      const rollback: Array<
+        Readonly<{
+          interaction: boolean;
+          release(): void;
+        }>
+      > = [];
+      const rollbackNow = (): void => {
+        for (let i = rollback.length - 1; i >= 0; i -= 1) {
+          try {
+            rollback[i]!.release();
+          } catch {
+            // Preserve the acquisition failure.
+          }
+        }
       };
-    },
-    render(originPoint, point) {
-      renderer?.render({
-        x: point.x - originPoint.x,
-        y: point.y - originPoint.y,
-      });
-    },
-    resolve(request) {
-      if (request.keyboard && request.incumbent) {
-        return request.incumbent;
+      const activation = new AbortController();
+      try {
+        visual.acquire(sortable);
+        rollback.push({ release: visual.release, interaction: false });
+
+        const result = placeholder.acquire(sortable, visual);
+        rollback.push({ release: placeholder.release, interaction: false });
+
+        if (sortable.input.type === INPUT_POINTER) {
+          const releaseCapture = acquirePointerCapture(
+            sortable.item,
+            sortable.input.pointerId,
+          );
+          rollback.push({ release: releaseCapture, interaction: true });
+        }
+
+        deps.invalidation.arm(
+          AbortSignal.any([resources.signal, activation.signal]),
+          spatial.invalidate,
+        );
+        rollback.push({
+          release: () => activation.abort(),
+          interaction: true,
+        });
+
+        if (!operation.current(effect)) {
+          rollbackNow();
+          return STOP_BATCH;
+        }
+        for (const acquisition of rollback) {
+          (acquisition.interaction
+            ? resources.interaction
+            : resources.presentation
+          ).use(acquisition.release);
+        }
+        dispatch({
+          type: ACTIVATION_READY,
+          operationId: effect.operationId,
+          ...result,
+        });
+        return CONTINUE_BATCH;
+      } catch (error) {
+        rollbackNow();
+        if (operation.current(effect)) {
+          dispatch({
+            type: ACTIVATION_FAILED,
+            operationId: effect.operationId,
+            error,
+          });
+        }
+        return STOP_BATCH;
       }
-      if (!placeholder) {
-        throw new Error('drag: sortable placeholder is unavailable');
-      }
-      markRectIndexDirty(index);
-      return (
-        resolveSpatialInsertion(
-          index,
-          placeholder,
-          request.snapshot.items,
-          request.item,
-          deps.getVisual,
-          request.point,
-          request.snapshot.version,
-        ) ??
-        request.incumbent ??
-        currentInsertion(
-          placeholder,
-          request.snapshot.items,
-          request.item,
-          request.snapshot.version,
-        )
-      );
-    },
-    place(insertion) {
-      placeholder?.placeBefore(insertion.after);
-      markRectIndexDirty(index);
-    },
-    returnHome() {
-      placeholder?.returnHome();
-    },
-    placeholderRect() {
-      if (!placeholder) {
-        throw new Error('drag: sortable placeholder is unavailable');
-      }
-      return placeholder.rect();
-    },
-    originRect: () => origin,
-    lift: () => lift,
-    visualConnected: () => lift?.visual.isConnected ?? false,
-    invalidate() {
-      markRectIndexDirty(index);
-    },
-    destroy() {
-      placeholder = null;
-      renderer = null;
-      lift = null;
     },
   };
 }

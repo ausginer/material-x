@@ -84,6 +84,131 @@ describe('sortable', () => {
     ).toThrow(/onReorder/);
   });
 
+  it('should roll back a partial activation when placeholder creation fails', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onError = vi.fn<(...args: unknown[]) => void>();
+    sort(container, {
+      items: () => rows(container),
+      onReorder: accept,
+      onError,
+      createPlaceholder() {
+        throw new Error('placeholder failed');
+      },
+    });
+
+    const start = centerOf(items[0]!);
+    await ue.pointer([
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: start.clientX, clientY: start.clientY + 20 } },
+    ]);
+    await vi.waitFor(() => expect(onError).toHaveBeenCalledOnce());
+
+    expect(placeholderIn(container)).toBeUndefined();
+    expect(items[0]!.matches(':popover-open')).toBeFalsy();
+    expect(items[0]!.style.transform).toBe('');
+    expect(items[0]!.hasPointerCapture(1)).toBeFalsy();
+  });
+
+  it('should roll back visual and placeholder when insertion fails', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onError = vi.fn<(...args: unknown[]) => void>();
+    const insertBefore = container.insertBefore.bind(container);
+    vi.spyOn(container, 'insertBefore').mockImplementation((node, child) => {
+      insertBefore(node, child);
+      throw new Error('insertion failed');
+    });
+    sort(container, {
+      items: () => rows(container),
+      onReorder: accept,
+      onError,
+    });
+
+    const start = centerOf(items[0]!);
+    await ue.pointer([
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: start.clientX, clientY: start.clientY + 20 } },
+    ]);
+    await vi.waitFor(() => expect(onError).toHaveBeenCalledOnce());
+
+    expect(placeholderIn(container)).toBeUndefined();
+    expect(items[0]!.matches(':popover-open')).toBeFalsy();
+    expect(items[0]!.style.transform).toBe('');
+    expect(items[0]!.hasPointerCapture(1)).toBeFalsy();
+  });
+
+  it('should roll back local activation when placeholder creation destroys', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    const onError = vi.fn<(...args: unknown[]) => void>();
+    const onStart = vi.fn();
+    let controller: SortableController;
+    controller = sort(container, {
+      items: () => rows(container),
+      onReorder: accept,
+      onError,
+      onStart,
+      createPlaceholder() {
+        controller.destroy();
+        return document.createElement('div');
+      },
+    });
+
+    const start = centerOf(items[0]!);
+    await ue.pointer([
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: start.clientX, clientY: start.clientY + 20 } },
+    ]);
+    await flush();
+
+    expect(placeholderIn(container)).toBeUndefined();
+    expect(items[0]!.matches(':popover-open')).toBeFalsy();
+    expect(items[0]!.style.transform).toBe('');
+    expect(onStart).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
+  });
+
+  it('should reuse measured rectangles for an unchanged active insertion', async () => {
+    const container = createList(4);
+    const items = rows(container);
+    const measurements = items
+      .slice(1)
+      .map((item) => vi.spyOn(item, 'getBoundingClientRect'));
+    sort(container, {
+      items: () => rows(container),
+      onReorder: accept,
+    });
+
+    const start = centerOf(items[0]!);
+    await ue.pointer([
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: start.clientX, clientY: start.clientY + 10 } },
+    ]);
+    await ue.pointer({
+      coords: { clientX: start.clientX + 1, clientY: start.clientY + 11 },
+    });
+    await vi.waitFor(() => {
+      expect(
+        measurements.every((measure) => measure.mock.calls.length > 0),
+      ).toBe(true);
+    });
+    for (const measure of measurements) {
+      measure.mockClear();
+    }
+
+    await ue.pointer({
+      coords: { clientX: start.clientX + 2, clientY: start.clientY + 12 },
+    });
+    await flush();
+
+    expect(measurements.map((measure) => measure.mock.calls.length)).toEqual([
+      0, 0, 0,
+    ]);
+
+    await ue.pointer({ keys: '[/MouseLeft]' });
+  });
+
   it('should propose a reorder and finish accepted when dropping over a neighbour', async () => {
     const container = createList(3);
     const items = rows(container);

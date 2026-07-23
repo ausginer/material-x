@@ -24,7 +24,6 @@ import type {
   MotionCurrency,
   OperationCurrency,
   ResolutionCurrency,
-  TerminalOutcome,
 } from './state.ts';
 
 export const BEGIN_POINTER_OPERATION = 260;
@@ -161,9 +160,7 @@ export type ReportFailureEffect = OperationCurrency &
 export type FinalizeOperationEffect = OperationCurrency &
   Readonly<{
     type: typeof FINALIZE_OPERATION;
-    terminal: TerminalOutcome;
-    onFinish: DraggableOptions['onFinish'];
-    onCancel: DraggableOptions['onCancel'];
+    callback: (() => void) | undefined;
   }>;
 
 export type RetireOperationEffect = OperationCurrency &

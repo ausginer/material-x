@@ -3,20 +3,19 @@ import {
   OUTCOME_REJECTED,
   type ResolutionContext,
 } from '../../kernel/protocol.ts';
-import type { ReorderRequest } from '../../kernel/types.ts';
+import {
+  CONTINUE_BATCH,
+  STOP_BATCH,
+  type EffectDisposition,
+} from '../../kernel/session.ts';
 import {
   REORDER_RESOLVED,
   REORDER_RESOLUTION_FAILED,
-  type ResolutionCurrency,
+  type OpenReorderResolutionEffect,
   type SortableEvent,
 } from '../machine.ts';
-import type { ReorderResolution, SortableOptions } from '../options.ts';
-
-export type ReorderResolutionOwner = Readonly<{
-  abort(): void;
-  completed(): boolean;
-  invoke(request: ReorderRequest, callback: SortableOptions['onReorder']): void;
-}>;
+import type { ReorderResolution } from '../options.ts';
+import type { OperationInputOwner } from './operation.ts';
 
 function isResolution(value: unknown): value is ReorderResolution {
   return (
@@ -27,51 +26,117 @@ function isResolution(value: unknown): value is ReorderResolution {
   );
 }
 
+export type ReorderResolutionOwner = Readonly<{
+  open(effect: OpenReorderResolutionEffect): EffectDisposition;
+  stop(): void;
+  destroy(): void;
+}>;
+
 export function createReorderResolutionOwner(
-  currency: ResolutionCurrency,
+  operation: OperationInputOwner,
   dispatch: (event: SortableEvent) => void,
 ): ReorderResolutionOwner {
-  const controller = new AbortController();
-  let done = false;
+  let controller: AbortController | null = null;
+  let completed = false;
+
+  const stop = (): void => {
+    if (!completed) {
+      controller?.abort();
+    }
+    controller = null;
+    completed = false;
+  };
 
   return {
-    abort() {
-      if (!done) {
-        controller.abort();
+    open(effect) {
+      if (!operation.current(effect)) {
+        return STOP_BATCH;
       }
+      stop();
+      const owned = new AbortController();
+      controller = owned;
+      try {
+        operation.useInteraction(() => {
+          if (!completed && controller === owned) {
+            owned.abort();
+          }
+        });
+      } catch (error) {
+        stop();
+        dispatch({
+          type: REORDER_RESOLUTION_FAILED,
+          operationId: effect.operationId,
+          resolutionId: effect.resolutionId,
+          error,
+        });
+        return STOP_BATCH;
+      }
+
+      const accept = (): boolean => {
+        if (
+          controller !== owned ||
+          completed ||
+          owned.signal.aborted ||
+          !operation.current(effect)
+        ) {
+          return false;
+        }
+        completed = true;
+        return true;
+      };
+      const context: ResolutionContext = { signal: owned.signal };
+      let result: ReturnType<typeof effect.callback>;
+      try {
+        result = effect.callback(effect.proposal.request, context);
+      } catch (error) {
+        if (accept()) {
+          dispatch({
+            type: REORDER_RESOLUTION_FAILED,
+            operationId: effect.operationId,
+            resolutionId: effect.resolutionId,
+            error,
+          });
+        }
+        return STOP_BATCH;
+      }
+      if (!operation.current(effect)) {
+        return STOP_BATCH;
+      }
+      Promise.resolve(result).then(
+        (resolution) => {
+          if (!accept()) {
+            return;
+          }
+          dispatch(
+            isResolution(resolution)
+              ? {
+                  type: REORDER_RESOLVED,
+                  operationId: effect.operationId,
+                  resolutionId: effect.resolutionId,
+                  resolution,
+                }
+              : {
+                  type: REORDER_RESOLUTION_FAILED,
+                  operationId: effect.operationId,
+                  resolutionId: effect.resolutionId,
+                  error: new TypeError('drag: invalid reorder resolution'),
+                },
+          );
+        },
+        (error: unknown) => {
+          if (accept()) {
+            dispatch({
+              type: REORDER_RESOLUTION_FAILED,
+              operationId: effect.operationId,
+              resolutionId: effect.resolutionId,
+              error,
+            });
+          }
+        },
+      );
+      return CONTINUE_BATCH;
     },
-    completed: () => done,
-    invoke(request, callback) {
-      const context: ResolutionContext = { signal: controller.signal };
-      Promise.resolve()
-        .then(() => callback(request, context))
-        .then(
-          (resolution) => {
-            if (done || controller.signal.aborted) {
-              return;
-            }
-            done = true;
-            if (!isResolution(resolution)) {
-              dispatch({
-                type: REORDER_RESOLUTION_FAILED,
-                ...currency,
-                error: new TypeError('drag: invalid reorder resolution'),
-              });
-              return;
-            }
-            dispatch({ ...currency, type: REORDER_RESOLVED, resolution });
-          },
-          (error: unknown) => {
-            if (!done && !controller.signal.aborted) {
-              done = true;
-              dispatch({
-                type: REORDER_RESOLUTION_FAILED,
-                ...currency,
-                error,
-              });
-            }
-          },
-        );
-    },
+    stop,
+    destroy: stop,
   };
 }

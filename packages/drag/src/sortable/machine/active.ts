@@ -1,9 +1,12 @@
 import {
   CANCEL_POINTER,
   FAILURE_INVALIDATION,
+  FAILURE_PLACEHOLDER_TARGET,
+  FAILURE_RENDERER_WRITE,
   RECOVERY_HOME,
   RECOVERY_IMMEDIATE,
 } from '../../kernel/protocol.ts';
+import { ignored } from '../../kernel/session.ts';
 import { CHANGE_REBASE, reconcileCollection } from '../collection-policy.ts';
 import {
   PLACE_COMMITTED_INSERTION,
@@ -18,7 +21,9 @@ import {
   ACTIVE_INSERTION_FAILED,
   ACTIVE_INSERTION_RESOLVED,
   COLLECTION_UPDATED,
+  MOTION_PRESENTATION_FAILED,
   OPERATION_CANCELED,
+  PLACEHOLDER_WRITE_FAILED,
   POINTER_MOVED,
   POINTER_RELEASED,
   type SortableEvent,
@@ -26,13 +31,13 @@ import {
 import {
   cancelResult,
   createSettlement,
-  ignoreSortable,
   reportFailure,
   sameOperation,
   settlementEffects,
 } from './helpers.ts';
 import {
   INPUT_KEYBOARD,
+  PRESENTATION_ABSENT,
   SORTABLE_SPATIAL,
   type ActiveSortableState,
 } from './state.ts';
@@ -61,6 +66,49 @@ export function decideActive(
 ): SortableDecision {
   const { operation } = state;
 
+  if (
+    event.type === MOTION_PRESENTATION_FAILED &&
+    event.operationId === state.latestMotion.operationId &&
+    event.motionId === state.latestMotion.motionId
+  ) {
+    return reportFailure(
+      state,
+      operation,
+      { stage: FAILURE_RENDERER_WRITE },
+      event.error,
+      null,
+      createSettlement(
+        state.nextOperationId,
+        operation,
+        cancelResult({ type: CANCEL_POINTER }, null),
+        RECOVERY_HOME,
+        { stage: PRESENTATION_ABSENT },
+      ),
+      config,
+    );
+  }
+
+  if (
+    event.type === PLACEHOLDER_WRITE_FAILED &&
+    sameOperation(operation, event)
+  ) {
+    return reportFailure(
+      state,
+      operation,
+      { stage: FAILURE_PLACEHOLDER_TARGET },
+      event.error,
+      null,
+      createSettlement(
+        state.nextOperationId,
+        operation,
+        cancelResult({ type: CANCEL_POINTER }, null),
+        RECOVERY_HOME,
+        { stage: PRESENTATION_ABSENT },
+      ),
+      config,
+    );
+  }
+
   if (event.type === OPERATION_CANCELED) {
     return settlementEffects(
       createSettlement(
@@ -68,9 +116,8 @@ export function decideActive(
         operation,
         cancelResult(event.reason, null),
         RECOVERY_HOME,
-        { stage: 0 },
+        { stage: PRESENTATION_ABSENT },
       ),
-      config,
     );
   }
 
@@ -82,9 +129,8 @@ export function decideActive(
           operation,
           cancelResult({ type: CANCEL_POINTER }, null),
           RECOVERY_IMMEDIATE,
-          { stage: 0 },
+          { stage: PRESENTATION_ABSENT },
         ),
-        config,
       );
     }
     const change = reconcileCollection(
@@ -99,9 +145,8 @@ export function decideActive(
           operation,
           cancelResult({ type: CANCEL_POINTER }, null),
           RECOVERY_IMMEDIATE,
-          { stage: 0 },
+          { stage: PRESENTATION_ABSENT },
         ),
-        config,
       );
     }
     const nextOperation = {
@@ -156,14 +201,9 @@ export function decideActive(
       createSettlement(
         state.nextOperationId,
         operation,
-        {
-          type: 51,
-          reason: { type: CANCEL_POINTER },
-          at: 108,
-          proposal: null,
-        },
+        cancelResult({ type: CANCEL_POINTER }, null),
         RECOVERY_HOME,
-        { stage: 0 },
+        { stage: PRESENTATION_ABSENT },
       ),
       config,
     );
@@ -175,18 +215,28 @@ export function decideActive(
     sameOperation(operation, event) &&
     event.pointerId === operation.input.pointerId
   ) {
+    const motion = {
+      operationId: operation.operationId,
+      motionId: operation.nextMotionId,
+    };
     const nextOperation = {
       ...operation,
       latestPoint: event.point,
       nextSpatialId: operation.nextSpatialId + 1,
+      nextMotionId: operation.nextMotionId + 1,
     };
     const request = spatialRequest(operation, event.point, false);
     return {
-      state: { ...state, operation: nextOperation, pendingSpatial: request },
+      state: {
+        ...state,
+        operation: nextOperation,
+        pendingSpatial: request,
+        latestMotion: motion,
+      },
       effects: [
         {
           type: PRESENT_MOTION,
-          operationId: operation.operationId,
+          ...motion,
           origin: operation.originPoint,
           point: event.point,
         },
@@ -203,7 +253,7 @@ export function decideActive(
 
   if (pointerRelease || operation.input.type === INPUT_KEYBOARD) {
     if (!pointerRelease && event.type !== ACTIVE_INSERTION_RESOLVED) {
-      return ignoreSortable(state);
+      return ignored(state);
     }
     const point = pointerRelease ? event.point : operation.latestPoint;
     const request = spatialRequest(
@@ -227,5 +277,5 @@ export function decideActive(
     };
   }
 
-  return ignoreSortable(state);
+  return ignored(state);
 }

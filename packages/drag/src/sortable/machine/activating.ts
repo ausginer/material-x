@@ -1,6 +1,7 @@
+import { ignored } from '../../kernel/session.ts';
 import {
-  ACQUIRE_SORTABLE_ACTIVATION,
   INVOKE_START,
+  PRESENT_MOTION,
   RESOLVE_PROPOSAL_INSERTION,
   type SortableDecision,
   type SortableMachineConfig,
@@ -14,7 +15,7 @@ import {
   START_SUCCEEDED,
   type SortableEvent,
 } from './event.ts';
-import { activationFailure, ignoreSortable, sameOperation } from './helpers.ts';
+import { activationFailure, sameOperation } from './helpers.ts';
 import {
   SORTABLE_ACTIVE,
   SORTABLE_SPATIAL,
@@ -115,16 +116,24 @@ export function decideActivating(
         },
       };
     }
+    const motion = {
+      operationId: operation.operationId,
+      motionId: operation.nextMotionId,
+    };
     return {
       state: {
         phase: SORTABLE_ACTIVE,
         nextOperationId: state.nextOperationId,
-        operation,
+        operation: {
+          ...operation,
+          nextMotionId: operation.nextMotionId + 1,
+        },
         pendingSpatial: null,
+        latestMotion: motion,
       },
       effects: {
-        type: 365,
-        operationId: operation.operationId,
+        type: PRESENT_MOTION,
+        ...motion,
         origin: operation.originPoint,
         point: operation.latestPoint,
       },
@@ -132,8 +141,7 @@ export function decideActivating(
   }
 
   if (event.type === ACTIVATION_READY && state.stage !== 'acquiring') {
-    return ignoreSortable(state);
+    return ignored(state);
   }
-  void ACQUIRE_SORTABLE_ACTIVATION;
-  return ignoreSortable(state);
+  return ignored(state);
 }

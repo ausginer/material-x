@@ -1,4 +1,5 @@
 import { FAILURE_ACTIVATION } from '../../kernel/protocol.ts';
+import { ignored } from '../../kernel/session.ts';
 import type { Point } from '../../kernel/types.ts';
 import {
   ACQUIRE_FREE_ACTIVATION,
@@ -14,12 +15,7 @@ import {
   POINTER_RELEASED,
   type DraggableEvent,
 } from './event.ts';
-import {
-  ignoreDraggable,
-  replacePhase,
-  reportFailure,
-  sameOperation,
-} from './helpers.ts';
+import { replacePhase, reportFailure, sameOperation } from './helpers.ts';
 import {
   DRAG_ACQUIRING,
   DRAG_IDLE,
@@ -89,14 +85,14 @@ export function decidePending(
   }
 
   if (event.type !== POINTER_MOVED || event.pointerId !== operation.pointerId) {
-    return ignoreDraggable(state);
+    return ignored(state);
   }
 
   if (
     state.phase === DRAG_PENDING_ARMING ||
     !crossed(operation.originPointer, event.point, config.threshold)
   ) {
-    return ignoreDraggable(state);
+    return ignored(state);
   }
 
   const nextOperation = {

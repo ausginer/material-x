@@ -8,6 +8,7 @@ import {
   RECOVERY_HOME,
   RECOVERY_IMMEDIATE,
 } from '../../kernel/protocol.ts';
+import { ignored } from '../../kernel/session.ts';
 import type { FreeDropResult } from '../options.ts';
 import {
   OPEN_DROP_RESOLUTION,
@@ -28,7 +29,6 @@ import {
   canceledResult,
   createSettlement,
   failedSettlement,
-  ignoreDraggable,
   initialSettlementEffects,
   replacePhase,
   reportFailure,
@@ -126,7 +126,7 @@ export function decideResolvingRelease(
     };
   }
 
-  return ignoreDraggable(state);
+  return ignored(state);
 }
 
 export function decideAwaitingConsumer(
@@ -138,7 +138,8 @@ export function decideAwaitingConsumer(
 
   if (
     event.type === MOTION_PRESENTATION_FAILED &&
-    sameOperation(operation, event)
+    sameOperation(operation, event) &&
+    event.motionId === operation.nextMotionId - 1
   ) {
     return reportFailure(
       state,
@@ -223,5 +224,5 @@ export function decideAwaitingConsumer(
     };
   }
 
-  return ignoreDraggable(state);
+  return ignored(state);
 }

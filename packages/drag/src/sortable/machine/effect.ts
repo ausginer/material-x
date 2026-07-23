@@ -14,12 +14,12 @@ import type {
 import type {
   ActiveSortableOperation,
   LandingCurrency,
+  MotionCurrency,
   OperationCurrency,
   ResolutionCurrency,
-  SortableState,
   SortableOperation,
+  SortableState,
   SpatialCurrency,
-  TerminalOutcome,
 } from './state.ts';
 
 export const BEGIN_POINTER_OPERATION = 360;
@@ -69,7 +69,7 @@ export type SortableEffect =
         item: HTMLElement;
         callback: SortableOptions['onStart'];
       }>)
-  | (OperationCurrency &
+  | (MotionCurrency &
       Readonly<{
         type: typeof PRESENT_MOTION;
         origin: Point;
@@ -121,11 +121,83 @@ export type SortableEffect =
   | (OperationCurrency &
       Readonly<{
         type: typeof FINALIZE_OPERATION;
-        terminal: TerminalOutcome;
-        onFinish: SortableOptions['onFinish'];
-        onCancel: SortableOptions['onCancel'];
+        callback: (() => void) | undefined;
+        failureCause: FailureCause;
       }>)
   | (OperationCurrency & Readonly<{ type: typeof RETIRE_OPERATION }>);
+
+export type BeginPointerOperationEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof BEGIN_POINTER_OPERATION }>
+>;
+export type BeginKeyboardOperationEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof BEGIN_KEYBOARD_OPERATION }>
+>;
+export type DisarmOperationEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof DISARM_OPERATION }>
+>;
+export type AcquireSortableActivationEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof ACQUIRE_SORTABLE_ACTIVATION }>
+>;
+export type InvokeStartEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof INVOKE_START }>
+>;
+export type PresentMotionEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof PRESENT_MOTION }>
+>;
+export type ResolveActiveInsertionEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof RESOLVE_ACTIVE_INSERTION }>
+>;
+export type PlaceCommittedInsertionEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof PLACE_COMMITTED_INSERTION }>
+>;
+export type ResolveProposalInsertionEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof RESOLVE_PROPOSAL_INSERTION }>
+>;
+export type OpenReorderResolutionEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof OPEN_REORDER_RESOLUTION }>
+>;
+export type StopInteractionEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof STOP_INTERACTION }>
+>;
+export type WatchPresentationEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof WATCH_PRESENTATION }>
+>;
+export type PrepareSortableLandingEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof PREPARE_SORTABLE_LANDING }>
+>;
+export type StartLandingEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof START_LANDING }>
+>;
+export type PinLandingEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof PIN_LANDING }>
+>;
+export type ReportFailureEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof REPORT_FAILURE }>
+>;
+export type FinalizeOperationEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof FINALIZE_OPERATION }>
+>;
+export type RetireOperationEffect = Extract<
+  SortableEffect,
+  Readonly<{ type: typeof RETIRE_OPERATION }>
+>;
 
 export type SortableDecision = Decision<SortableState, SortableEffect>;
 

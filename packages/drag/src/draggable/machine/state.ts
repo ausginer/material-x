@@ -115,6 +115,7 @@ export type PendingMotion = Readonly<{
   point: Point;
   refresh: boolean;
   axis: DragAxis;
+  coordinateSpace: CoordinateMapper;
   callback: DraggableOptions['onMove'];
 }>;
 

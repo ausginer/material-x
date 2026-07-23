@@ -1,15 +1,14 @@
+import { ignored } from '../../kernel/session.ts';
 import {
-  FINALIZE_OPERATION,
   RETIRE_OPERATION,
   type SortableDecision,
   type SortableMachineConfig,
 } from './effect.ts';
 import { FAILURE_REPORTED, type SortableEvent } from './event.ts';
-import { ignoreSortable, settlementEffects } from './helpers.ts';
+import { finalizeSettlement, settlementEffects } from './helpers.ts';
 import {
   LANDING_TERMINAL,
   PRESENTATION_WATCHING,
-  SORTABLE_FINALIZING,
   SORTABLE_SETTLING,
   type ReportingSortableState,
 } from './state.ts';
@@ -30,24 +29,10 @@ export function decideReporting(
       continuation.landing.stage === LANDING_TERMINAL &&
       continuation.presentation.stage !== PRESENTATION_WATCHING
     ) {
-      return {
-        state: {
-          phase: SORTABLE_FINALIZING,
-          nextOperationId: state.nextOperationId,
-          operation: continuation.operation,
-          terminal: continuation.outcome,
-        },
-        effects: {
-          type: FINALIZE_OPERATION,
-          operationId: continuation.operation.operationId,
-          terminal: continuation.outcome,
-          onFinish: config.onFinish,
-          onCancel: config.onCancel,
-        },
-      };
+      return finalizeSettlement(continuation, config);
     }
     if (continuation.phase === SORTABLE_SETTLING) {
-      return settlementEffects(continuation, config);
+      return settlementEffects(continuation);
     }
     return {
       state: continuation,
@@ -57,5 +42,5 @@ export function decideReporting(
       },
     };
   }
-  return ignoreSortable(state);
+  return ignored(state);
 }

@@ -1,16 +1,24 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CANCEL_ESCAPE } from '../../src/kernel/protocol.ts';
+import {
+  CANCEL_ESCAPE,
+  FAILURE_PLACEHOLDER_TARGET,
+  FAILURE_RENDERER_WRITE,
+} from '../../src/kernel/protocol.ts';
 import {
   ACTIVATION_READY,
   ADMIT_KEYBOARD,
   ADMIT_POINTER,
+  MOTION_PRESENTATION_FAILED,
   OPERATION_ARMED,
   OPERATION_CANCELED,
+  PLACEHOLDER_WRITE_FAILED,
   POINTER_MOVED,
   PROPOSAL_INSERTION_RESOLVED,
   SORTABLE_ACTIVATING,
+  SORTABLE_ACTIVE,
   SORTABLE_IDLE,
   SORTABLE_PENDING,
+  SORTABLE_REPORTING,
   SORTABLE_RESOLVING,
   SORTABLE_SPATIAL,
   START_SUCCEEDED,
@@ -175,5 +183,93 @@ describe('createSortableMachine', () => {
     expect(
       current.phase === SORTABLE_RESOLVING && current.currency.resolutionId,
     ).toBe(1);
+  });
+
+  it('should reject stale motion-presentation failure currency', () => {
+    const { decide, run } = harness();
+    const active = run(
+      createInitialSortableState(),
+      pointerAdmission(),
+      { type: OPERATION_ARMED, operationId: 1 },
+      {
+        type: POINTER_MOVED,
+        operationId: 1,
+        pointerId: 7,
+        point: { x: 9, y: 0 },
+      },
+      {
+        type: ACTIVATION_READY,
+        operationId: 1,
+        activationVersion: 1,
+        activationIndex: 0,
+        insertion: INSERTION,
+      },
+      { type: START_SUCCEEDED, operationId: 1 },
+      {
+        type: POINTER_MOVED,
+        operationId: 1,
+        pointerId: 7,
+        point: { x: 20, y: 0 },
+      },
+    );
+    expect(active.phase).toBe(SORTABLE_ACTIVE);
+    if (active.phase !== SORTABLE_ACTIVE) {
+      return;
+    }
+
+    const stale = decide(active, {
+      type: MOTION_PRESENTATION_FAILED,
+      operationId: 1,
+      motionId: active.latestMotion.motionId - 1,
+      error: new Error('stale'),
+    }).state;
+    const current = decide(active, {
+      type: MOTION_PRESENTATION_FAILED,
+      ...active.latestMotion,
+      error: new Error('current'),
+    }).state;
+
+    expect(stale).toBe(active);
+    expect(current.phase).toBe(SORTABLE_REPORTING);
+    expect(current.phase === SORTABLE_REPORTING && current.cause.stage).toBe(
+      FAILURE_RENDERER_WRITE,
+    );
+  });
+
+  it('should route a placeholder write failure through reporting', () => {
+    const { decide, run } = harness();
+    const active = run(
+      createInitialSortableState(),
+      pointerAdmission(),
+      { type: OPERATION_ARMED, operationId: 1 },
+      {
+        type: POINTER_MOVED,
+        operationId: 1,
+        pointerId: 7,
+        point: { x: 9, y: 0 },
+      },
+      {
+        type: ACTIVATION_READY,
+        operationId: 1,
+        activationVersion: 1,
+        activationIndex: 0,
+        insertion: INSERTION,
+      },
+      { type: START_SUCCEEDED, operationId: 1 },
+    );
+    expect(active.phase).toBe(SORTABLE_ACTIVE);
+    if (active.phase !== SORTABLE_ACTIVE) {
+      return;
+    }
+    const failed = decide(active, {
+      type: PLACEHOLDER_WRITE_FAILED,
+      operationId: 1,
+      error: new Error('write'),
+    }).state;
+
+    expect(failed.phase).toBe(SORTABLE_REPORTING);
+    expect(failed.phase === SORTABLE_REPORTING && failed.cause.stage).toBe(
+      FAILURE_PLACEHOLDER_TARGET,
+    );
   });
 });

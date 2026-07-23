@@ -2,17 +2,21 @@ import {
   createLandingRunner,
   type LandingRunner,
 } from '../../kernel/animation.ts';
-import { RECOVERY_HOME } from '../../kernel/protocol.ts';
-import type { DOMRealm } from '../../kernel/realm.ts';
 import {
   CONTINUE_BATCH,
   STOP_BATCH,
   type EffectDisposition,
 } from '../../kernel/session.ts';
 import type { AnimationTiming } from '../../kernel/types.ts';
-import { destinationPlan, homePlan } from '../landing.ts';
+import { homeLandingPlan, isValidHomeTarget } from '../landing.ts';
+import type {
+  DraggableEffectDeps,
+  PinLandingEffect,
+  PrepareFreeLandingEffect,
+  StartLandingEffect,
+} from '../machine/effect.ts';
 import {
-  LANDING_ANIMATION_CREATE_FAILED,
+  LANDING_ANIMATION_FAILED,
   LANDING_FAILED,
   LANDING_FINISHED,
   LANDING_PIN_FAILED,
@@ -21,174 +25,189 @@ import {
   LANDING_PLAN_RESOLVED,
   LANDING_STARTED,
   LANDING_TIMING_FAILED,
-  type PinLandingEffect,
-  type PrepareSortableLandingEffect,
-  type SortableEvent,
-  type StartLandingEffect,
-} from '../machine.ts';
+  type DraggableEvent,
+} from '../machine/event.ts';
 import type { OperationInputOwner } from './operation.ts';
-import type { SortablePlaceholderOwner } from './placeholder.ts';
-import type { SortableVisualOwner } from './visual.ts';
+import type { DraggablePresentationOwner } from './presentation.ts';
 
 const DEFAULT_TIMING = { duration: 200, easing: 'ease' } as const;
 
-export type SortableLandingOwner = Readonly<{
-  prepare(effect: PrepareSortableLandingEffect): EffectDisposition;
+export type FreeLandingOwner = Readonly<{
+  prepare(effect: PrepareFreeLandingEffect): EffectDisposition;
   start(effect: StartLandingEffect): EffectDisposition;
   pin(effect: PinLandingEffect): EffectDisposition;
+  stop(): void;
   destroy(): void;
 }>;
 
-export function createSortableLandingOwner(
-  realm: DOMRealm,
-  visual: SortableVisualOwner,
-  placeholder: SortablePlaceholderOwner,
+export function createFreeLandingOwner(
+  deps: Pick<DraggableEffectDeps, 'realm'>,
   operation: OperationInputOwner,
-  dispatch: (event: SortableEvent) => void,
-): SortableLandingOwner {
+  presentation: DraggablePresentationOwner,
+  dispatch: (event: DraggableEvent) => void,
+): FreeLandingOwner {
   let runner: LandingRunner | null = null;
+
+  const stop = (): void => {
+    runner?.destroy();
+    runner = null;
+  };
 
   return {
     prepare(effect) {
       if (!operation.current(effect)) {
         return STOP_BATCH;
       }
-      runner?.destroy();
-      runner = null;
+
+      stop();
+
       try {
-        if (!visual.connected()) {
-          throw new Error('drag: sortable visual is disconnected');
-        }
-        const delta = {
-          x: effect.operation.latestPoint.x - effect.operation.originPoint.x,
-          y: effect.operation.latestPoint.y - effect.operation.originPoint.y,
-        };
-        if (effect.recovery === RECOVERY_HOME) {
-          placeholder.returnHome();
-        }
-        const plan =
-          effect.recovery === RECOVERY_HOME
-            ? homePlan(delta)
-            : destinationPlan(placeholder.rect(), visual.originRect(), delta);
+        const target = effect.resolve({
+          item: effect.item,
+          visual: effect.visual,
+        });
+
         if (!operation.current(effect)) {
           return STOP_BATCH;
         }
+
+        if (!isValidHomeTarget(target)) {
+          throw new Error('drag: invalid home target');
+        }
+
         dispatch({
+          type: LANDING_PLAN_RESOLVED,
           operationId: effect.operationId,
           landingId: effect.landingId,
-          type: LANDING_PLAN_RESOLVED,
-          plan,
+          plan: homeLandingPlan(
+            target,
+            effect.viewportDelta,
+            effect.originRect,
+          ),
         });
         return CONTINUE_BATCH;
       } catch (error) {
         if (operation.current(effect)) {
           dispatch({
+            type: LANDING_PLAN_FAILED,
             operationId: effect.operationId,
             landingId: effect.landingId,
-            type: LANDING_PLAN_FAILED,
             error,
           });
         }
         return STOP_BATCH;
       }
     },
+
     start(effect) {
       if (!operation.current(effect)) {
         return STOP_BATCH;
       }
+
+      stop();
+
       let timing: AnimationTiming;
       try {
         timing = effect.timing?.() ?? DEFAULT_TIMING;
       } catch (error) {
         if (operation.current(effect)) {
           dispatch({
+            type: LANDING_TIMING_FAILED,
             operationId: effect.operationId,
             landingId: effect.landingId,
-            type: LANDING_TIMING_FAILED,
             error,
           });
         }
         return STOP_BATCH;
       }
+
       if (!operation.current(effect)) {
         return STOP_BATCH;
       }
+
       try {
-        const lift = visual.lift();
-        runner?.destroy();
+        const lift = presentation.lift();
+
+        if (!lift) {
+          throw new Error('drag: landing lift unavailable');
+        }
+
         runner = createLandingRunner(
           lift,
           effect.plan,
           effect,
           timing,
-          realm,
-          (settled) => {
-            if (operation.current(settled)) {
-              dispatch({ ...settled, type: LANDING_FINISHED });
+          deps.realm,
+          (currency) => {
+            if (operation.current(currency)) {
+              dispatch({
+                type: LANDING_FINISHED,
+                operationId: currency.operationId,
+                landingId: currency.landingId,
+              });
             }
           },
-          (settled, error) => {
-            if (operation.current(settled)) {
-              dispatch({ ...settled, type: LANDING_FAILED, error });
+          (currency, error) => {
+            if (operation.current(currency)) {
+              dispatch({
+                type: LANDING_FAILED,
+                operationId: currency.operationId,
+                landingId: currency.landingId,
+                error,
+              });
             }
           },
         );
-        if (!operation.current(effect)) {
-          runner.destroy();
-          runner = null;
-          return STOP_BATCH;
-        }
         dispatch({
+          type: LANDING_STARTED,
           operationId: effect.operationId,
           landingId: effect.landingId,
-          type: LANDING_STARTED,
         });
         return CONTINUE_BATCH;
       } catch (error) {
         if (operation.current(effect)) {
           dispatch({
+            type: LANDING_ANIMATION_FAILED,
             operationId: effect.operationId,
             landingId: effect.landingId,
-            type: LANDING_ANIMATION_CREATE_FAILED,
             error,
           });
         }
         return STOP_BATCH;
       }
     },
+
     pin(effect) {
       if (!operation.current(effect)) {
         return STOP_BATCH;
       }
+
       try {
         if (!runner) {
           throw new Error('drag: landing runner unavailable');
         }
+
         runner.pin();
-        if (!operation.current(effect)) {
-          return STOP_BATCH;
-        }
         dispatch({
+          type: LANDING_PINNED,
           operationId: effect.operationId,
           landingId: effect.landingId,
-          type: LANDING_PINNED,
         });
         return CONTINUE_BATCH;
       } catch (error) {
         if (operation.current(effect)) {
           dispatch({
+            type: LANDING_PIN_FAILED,
             operationId: effect.operationId,
             landingId: effect.landingId,
-            type: LANDING_PIN_FAILED,
             error,
           });
         }
         return STOP_BATCH;
       }
     },
-    destroy() {
-      runner?.destroy();
-      runner = null;
-    },
+
+    stop,
+    destroy: stop,
   };
 }

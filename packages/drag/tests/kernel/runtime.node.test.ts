@@ -14,7 +14,7 @@ type RuntimeEvent = Readonly<{
 }>;
 
 function decide(
-  state: number,
+  _: number,
   event: RuntimeEvent,
 ): Decision<number, RuntimeEffect> {
   return event.value === 1

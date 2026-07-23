@@ -3,6 +3,7 @@ import {
   FAILURE_FINISH_CALLBACK,
   OUTCOME_ACCEPTED,
 } from '../../kernel/protocol.ts';
+import { ignored } from '../../kernel/session.ts';
 import {
   RETIRE_OPERATION,
   type DraggableDecision,
@@ -13,12 +14,7 @@ import {
   FINALIZATION_FAILED,
   type DraggableEvent,
 } from './event.ts';
-import {
-  ignoreDraggable,
-  replacePhase,
-  reportFailure,
-  sameOperation,
-} from './helpers.ts';
+import { replacePhase, reportFailure, sameOperation } from './helpers.ts';
 import { DRAG_IDLE, type FinalizingDraggableState } from './state.ts';
 
 export function decideFinalizing(
@@ -60,5 +56,5 @@ export function decideFinalizing(
     );
   }
 
-  return ignoreDraggable(state);
+  return ignored(state);
 }

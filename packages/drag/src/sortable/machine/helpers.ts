@@ -1,12 +1,16 @@
 import {
   FAILURE_ACTIVATION,
+  FAILURE_CANCEL_CALLBACK,
+  FAILURE_FINISH_CALLBACK,
+  OUTCOME_ACCEPTED,
   OUTCOME_CANCELED,
   OUTCOME_FAILED,
+  OUTCOME_NO_OP,
+  OUTCOME_REJECTED,
   RECOVERY_IMMEDIATE,
   type CancellationReason,
   type FailureCause,
 } from '../../kernel/protocol.ts';
-import { ignored } from '../../kernel/session.ts';
 import {
   REORDER_CANCELED_AT_PROPOSAL,
   type ReorderProposal,
@@ -14,6 +18,7 @@ import {
 } from '../options.ts';
 import {
   PREPARE_SORTABLE_LANDING,
+  FINALIZE_OPERATION,
   REPORT_FAILURE,
   STOP_INTERACTION,
   type SortableDecision,
@@ -27,6 +32,7 @@ import {
   PRESENTATION_ABSENT,
   PRESENTATION_TERMINAL,
   SORTABLE_IDLE,
+  SORTABLE_FINALIZING,
   SORTABLE_REPORTING,
   SORTABLE_SETTLING,
   type ActiveSortableOperation,
@@ -35,10 +41,6 @@ import {
   type SortableOperation,
   type SortableState,
 } from './state.ts';
-
-export function ignoreSortable(state: SortableState): SortableDecision {
-  return ignored(state);
-}
 
 export function sameOperation(
   operation: SortableOperation,
@@ -155,7 +157,6 @@ export function activationFailure(
 
 export function settlementEffects(
   state: SettlingSortableState,
-  config: SortableMachineConfig,
 ): SortableDecision {
   const effects: SortableEffect[] = [];
   effects.push({
@@ -173,6 +174,39 @@ export function settlementEffects(
   if (state.presentation.stage !== PRESENTATION_ABSENT) {
     // The watch effect is emitted by the resolution branch because it owns the promise.
   }
-  void config;
   return { state, effects };
+}
+
+export function finalizeSettlement(
+  state: SettlingSortableState,
+  config: SortableMachineConfig,
+): SortableDecision {
+  const { domain } = state.outcome;
+  const finishes =
+    domain?.type === OUTCOME_ACCEPTED || domain?.type === OUTCOME_NO_OP;
+  const failureCause = {
+    stage: finishes ? FAILURE_FINISH_CALLBACK : FAILURE_CANCEL_CALLBACK,
+  } as const;
+  const callback =
+    domain?.type === OUTCOME_ACCEPTED || domain?.type === OUTCOME_NO_OP
+      ? () => config.onFinish?.(domain)
+      : domain?.type === OUTCOME_REJECTED || domain?.type === OUTCOME_CANCELED
+        ? () => config.onCancel?.(domain)
+        : undefined;
+
+  return {
+    state: {
+      phase: SORTABLE_FINALIZING,
+      nextOperationId: state.nextOperationId,
+      operation: state.operation,
+      terminal: state.outcome,
+      failureCause,
+    },
+    effects: {
+      type: FINALIZE_OPERATION,
+      operationId: state.operation.operationId,
+      callback,
+      failureCause,
+    },
+  };
 }

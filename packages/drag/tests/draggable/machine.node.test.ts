@@ -26,6 +26,7 @@ import {
   INVOKE_MOVE,
   INVOKE_START,
   MOTION_OBSERVED,
+  MOTION_PRESENTATION_FAILED,
   OBSERVE_CONTROLLED_POSITION,
   OBSERVE_FREE_MOTION,
   OPEN_DROP_RESOLUTION,
@@ -352,6 +353,67 @@ describe('decideDraggable motion', () => {
       viewportDelta: { x: 290, y: 280 },
     });
     expect(committed.effects).toMatchObject({ type: PRESENT_MOTION });
+  });
+
+  it('should use one captured coordinate mapper for controlled motion', () => {
+    const callback: Mock<NonNullable<DraggablePolicy['onMove']>> = vi.fn();
+    const capturedMapper: CoordinateMapper = {
+      ...mapper,
+      toViewport: ({ x, y }) => ({ x: x + 10, y: y + 20 }),
+    };
+    const laterMapper: CoordinateMapper = {
+      ...mapper,
+      toViewport: ({ x, y }) => ({ x: x + 100, y: y + 200 }),
+    };
+    const active = {
+      ...dragging(callback),
+      policy: { ...policy(callback), coordinateSpace: capturedMapper },
+    };
+    const pending = decide(active, {
+      type: CONTROLLED_POSITION,
+      position: { x: 300, y: 300 },
+    });
+    const updated = decide(pending.state, {
+      type: POLICY_UPDATED,
+      policy: { ...policy(callback), coordinateSpace: laterMapper },
+    });
+    const committed = decide(updated.state, {
+      type: CONTROLLED_POSITION_RESOLVED,
+      operationId: 1,
+      motionId: 1,
+      viewportDelta: { x: 300, y: 300 },
+    });
+
+    expect(pending.effects).toMatchObject({
+      type: OBSERVE_CONTROLLED_POSITION,
+      coordinateSpace: capturedMapper,
+    });
+    expect(committed.effects).toEqual([
+      expect.objectContaining({ type: PRESENT_MOTION }),
+      expect.objectContaining({
+        type: INVOKE_MOVE,
+        geometry: expect.objectContaining({
+          coordinateSpace: capturedMapper,
+        }),
+      }),
+    ]);
+  });
+
+  it('should ignore a stale motion presentation failure', () => {
+    const pending = decide(dragging(), {
+      type: POINTER_MOVED,
+      pointerId: 1,
+      point: { x: 20, y: 30 },
+    }).state;
+    const decision = decide(pending, {
+      type: MOTION_PRESENTATION_FAILED,
+      operationId: 1,
+      motionId: 0,
+      error: new Error('stale renderer failure'),
+    });
+
+    expect(decision.state).toBe(pending);
+    expect(decision.effects).toBeNull();
   });
 });
 

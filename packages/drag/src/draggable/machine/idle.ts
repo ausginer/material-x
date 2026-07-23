@@ -1,6 +1,7 @@
+import { ignored } from '../../kernel/session.ts';
 import { BEGIN_POINTER_OPERATION, type DraggableDecision } from './effect.ts';
 import { ADMIT_POINTER, type DraggableEvent } from './event.ts';
-import { ignoreDraggable, replacePhase } from './helpers.ts';
+import { replacePhase } from './helpers.ts';
 import {
   DRAG_PENDING_ARMING,
   type IdleDraggableState,
@@ -12,7 +13,7 @@ export function decideIdle(
   event: DraggableEvent,
 ): DraggableDecision {
   if (event.type !== ADMIT_POINTER) {
-    return ignoreDraggable(state);
+    return ignored(state);
   }
 
   const operationId = state.nextOperationId;

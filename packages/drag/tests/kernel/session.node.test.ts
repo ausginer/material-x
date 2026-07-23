@@ -11,13 +11,17 @@ const EFFECT_RECORD = 1;
 const EFFECT_NESTED = 2;
 const EFFECT_STOP = 3;
 const EFFECT_CLOSE = 4;
+const EFFECT_FAIL_AND_DISPATCH = 5;
+const EFFECT_FORBIDDEN = 6;
 
 type TestEffect = Readonly<{
   type:
     | typeof EFFECT_RECORD
     | typeof EFFECT_NESTED
     | typeof EFFECT_STOP
-    | typeof EFFECT_CLOSE;
+    | typeof EFFECT_CLOSE
+    | typeof EFFECT_FAIL_AND_DISPATCH
+    | typeof EFFECT_FORBIDDEN;
   value?: number;
 }>;
 
@@ -101,6 +105,34 @@ describe('createSession', () => {
     });
 
     expect(execute).toHaveBeenCalledTimes(2);
+  });
+
+  it('should reduce a queued failure continuation after stopping its batch', () => {
+    const executed: number[] = [];
+    const session = createSession(
+      0,
+      decide,
+      (effect) => {
+        executed.push(effect.type);
+
+        if (effect.type === EFFECT_FAIL_AND_DISPATCH) {
+          session.dispatch({ value: 2 });
+          return STOP_BATCH;
+        }
+
+        return CONTINUE_BATCH;
+      },
+      vi.fn(),
+    );
+
+    session.dispatch({
+      value: 1,
+      effects: [{ type: EFFECT_FAIL_AND_DISPATCH }, { type: EFFECT_FORBIDDEN }],
+    });
+
+    expect(executed).toEqual([EFFECT_FAIL_AND_DISPATCH]);
+    expect(session.state()).toBe(2);
+    expect(session.closed()).toBe(false);
   });
 
   it('should stop the remaining effect batch after close', () => {

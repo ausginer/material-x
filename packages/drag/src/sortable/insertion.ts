@@ -11,8 +11,12 @@
 import type { Point } from '../kernel/types.ts';
 import { anchorIndex, follows, neighbor } from './geometry.ts';
 import type { Insertion } from './options.ts';
-import type { PlaceholderLease } from './placeholder.ts';
 import { nearestSlot, refreshRectIndex, type RectIndex } from './rect-index.ts';
+
+export type PlaceholderGeometry = Readonly<{
+  element: HTMLElement;
+  rect(): DOMRectReadOnly;
+}>;
 
 /**
  * Measures the field and finds the nearest item; if it beats the placeholder's
@@ -25,7 +29,7 @@ import { nearestSlot, refreshRectIndex, type RectIndex } from './rect-index.ts';
  */
 export function resolveSpatialInsertion(
   index: RectIndex,
-  placeholder: PlaceholderLease,
+  placeholder: PlaceholderGeometry,
   items: readonly HTMLElement[],
   dragged: HTMLElement,
   getVisual: (item: HTMLElement) => HTMLElement,
@@ -64,7 +68,7 @@ export function resolveSpatialInsertion(
 
 /** The insertion describing the placeholder's current (initial) slot. */
 export function currentInsertion(
-  placeholder: PlaceholderLease,
+  placeholder: PlaceholderGeometry,
   items: readonly HTMLElement[],
   dragged: HTMLElement,
   version: number,

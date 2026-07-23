@@ -1,7 +1,4 @@
-import {
-  FAILURE_CANCEL_CALLBACK,
-  FAILURE_FINISH_CALLBACK,
-} from '../../kernel/protocol.ts';
+import { ignored } from '../../kernel/session.ts';
 import {
   REPORT_FAILURE,
   RETIRE_OPERATION,
@@ -13,7 +10,7 @@ import {
   FINALIZATION_FAILED,
   type SortableEvent,
 } from './event.ts';
-import { createIdle, ignoreSortable } from './helpers.ts';
+import { createIdle } from './helpers.ts';
 import { SORTABLE_REPORTING, type FinalizingSortableState } from './state.ts';
 
 export function decideFinalizing(
@@ -40,26 +37,21 @@ export function decideFinalizing(
         phase: SORTABLE_REPORTING,
         nextOperationId: state.nextOperationId,
         operation: state.operation,
-        cause: event.cause,
+        cause: state.failureCause,
         error: event.error,
         domain: state.terminal.domain,
         continuation: createIdle(state.nextOperationId),
       },
-      effects: [
-        {
-          type: REPORT_FAILURE,
-          operationId: state.operation.operationId,
-          cause: event.cause,
-          error: event.error,
-          domain: state.terminal.domain,
-          callback: config.onError,
-        },
-        { type: RETIRE_OPERATION, operationId: state.operation.operationId },
-      ],
+      effects: {
+        type: REPORT_FAILURE,
+        operationId: state.operation.operationId,
+        cause: state.failureCause,
+        error: event.error,
+        domain: state.terminal.domain,
+        callback: config.onError,
+      },
     };
   }
 
-  void FAILURE_CANCEL_CALLBACK;
-  void FAILURE_FINISH_CALLBACK;
-  return ignoreSortable(state);
+  return ignored(state);
 }

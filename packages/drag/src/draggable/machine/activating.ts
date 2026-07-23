@@ -4,6 +4,7 @@ import {
   RECOVERY_HOME,
   RECOVERY_IMMEDIATE,
 } from '../../kernel/protocol.ts';
+import { ignored } from '../../kernel/session.ts';
 import { pointerDelta } from '../motion.ts';
 import {
   DISARM_OPERATION,
@@ -24,7 +25,6 @@ import {
   canceledResult,
   createSettlement,
   geometryRequest,
-  ignoreDraggable,
   initialSettlementEffects,
   replacePhase,
   reportFailure,
@@ -98,7 +98,7 @@ export function decideAcquiring(
     };
   }
 
-  return ignoreDraggable(state);
+  return ignored(state);
 }
 
 export function decideStarting(
@@ -154,5 +154,5 @@ export function decideStarting(
     };
   }
 
-  return ignoreDraggable(state);
+  return ignored(state);
 }

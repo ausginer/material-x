@@ -37,17 +37,17 @@ export const PRESENTATION_SETTLED = 233;
 export const LANDING_PLAN_RESOLVED = 234;
 export const LANDING_PLAN_FAILED = 235;
 export const LANDING_STARTED = 236;
-export const LANDING_START_FAILED = 237;
+export const LANDING_ANIMATION_FAILED = 237;
 export const LANDING_FINISHED = 238;
 export const LANDING_FAILED = 239;
 export const LANDING_PINNED = 240;
 export const LANDING_PIN_FAILED = 241;
 export const MOTION_PRESENTATION_FAILED = 242;
-export const MOVE_CALLBACK_SUCCEEDED = 243;
 export const MOVE_CALLBACK_FAILED = 244;
 export const FAILURE_REPORTED = 245;
 export const FINALIZATION_COMPLETED = 246;
 export const FINALIZATION_FAILED = 247;
+export const LANDING_TIMING_FAILED = 248;
 
 type BasePointerEvent = Readonly<{
   pointerId: number;
@@ -150,8 +150,11 @@ export type LandingPlanFailedDraggableEvent = LandingCurrency &
 export type LandingStartedDraggableEvent = LandingCurrency &
   Readonly<{ type: typeof LANDING_STARTED }>;
 
-export type LandingStartFailedDraggableEvent = LandingCurrency &
-  Readonly<{ type: typeof LANDING_START_FAILED; error: unknown }>;
+export type LandingAnimationFailedDraggableEvent = LandingCurrency &
+  Readonly<{ type: typeof LANDING_ANIMATION_FAILED; error: unknown }>;
+
+export type LandingTimingFailedDraggableEvent = LandingCurrency &
+  Readonly<{ type: typeof LANDING_TIMING_FAILED; error: unknown }>;
 
 export type LandingFinishedDraggableEvent = LandingCurrency &
   Readonly<{ type: typeof LANDING_FINISHED }>;
@@ -167,9 +170,6 @@ export type LandingPinFailedDraggableEvent = LandingCurrency &
 
 export type MotionPresentationFailedDraggableEvent = MotionCurrency &
   Readonly<{ type: typeof MOTION_PRESENTATION_FAILED; error: unknown }>;
-
-export type MoveCallbackSucceededDraggableEvent = MotionCurrency &
-  Readonly<{ type: typeof MOVE_CALLBACK_SUCCEEDED }>;
 
 export type MoveCallbackFailedDraggableEvent = MotionCurrency &
   Readonly<{ type: typeof MOVE_CALLBACK_FAILED; error: unknown }>;
@@ -210,13 +210,13 @@ export type DraggableEvent =
   | LandingPlanResolvedDraggableEvent
   | LandingPlanFailedDraggableEvent
   | LandingStartedDraggableEvent
-  | LandingStartFailedDraggableEvent
+  | LandingAnimationFailedDraggableEvent
+  | LandingTimingFailedDraggableEvent
   | LandingFinishedDraggableEvent
   | LandingFailedDraggableEvent
   | LandingPinnedDraggableEvent
   | LandingPinFailedDraggableEvent
   | MotionPresentationFailedDraggableEvent
-  | MoveCallbackSucceededDraggableEvent
   | MoveCallbackFailedDraggableEvent
   | FailureReportedDraggableEvent
   | FinalizationCompletedDraggableEvent

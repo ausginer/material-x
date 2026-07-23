@@ -1,8 +1,4 @@
-import type {
-  CancellationReason,
-  FailureCause,
-  LandingPlan,
-} from '../../kernel/protocol.ts';
+import type { CancellationReason, LandingPlan } from '../../kernel/protocol.ts';
 import type { Point } from '../../kernel/types.ts';
 import type {
   CollectionSnapshot,
@@ -11,6 +7,7 @@ import type {
 } from '../options.ts';
 import type {
   LandingCurrency,
+  MotionCurrency,
   ResolutionCurrency,
   SpatialCurrency,
 } from './state.ts';
@@ -36,7 +33,6 @@ export const PRESENTATION_SETTLED = 337;
 export const LANDING_PLAN_RESOLVED = 338;
 export const LANDING_PLAN_FAILED = 339;
 export const LANDING_STARTED = 340;
-export const LANDING_START_FAILED = 341;
 export const LANDING_FINISHED = 342;
 export const LANDING_FAILED = 343;
 export const LANDING_PINNED = 344;
@@ -46,7 +42,10 @@ export const FINALIZATION_COMPLETED = 347;
 export const FINALIZATION_FAILED = 348;
 export const OPERATION_ARMED = 349;
 export const OPERATION_ARM_FAILED = 350;
-export const PRESENTATION_FAILED = 351;
+export const MOTION_PRESENTATION_FAILED = 351;
+export const PLACEHOLDER_WRITE_FAILED = 352;
+export const LANDING_TIMING_FAILED = 353;
+export const LANDING_ANIMATION_CREATE_FAILED = 354;
 
 type Admission = Readonly<{
   item: HTMLElement;
@@ -134,8 +133,10 @@ export type LandingPlanFailedSortableEvent = LandingCurrency &
   Readonly<{ type: typeof LANDING_PLAN_FAILED; error: unknown }>;
 export type LandingStartedSortableEvent = LandingCurrency &
   Readonly<{ type: typeof LANDING_STARTED }>;
-export type LandingStartFailedSortableEvent = LandingCurrency &
-  Readonly<{ type: typeof LANDING_START_FAILED; error: unknown }>;
+export type LandingTimingFailedSortableEvent = LandingCurrency &
+  Readonly<{ type: typeof LANDING_TIMING_FAILED; error: unknown }>;
+export type LandingAnimationCreateFailedSortableEvent = LandingCurrency &
+  Readonly<{ type: typeof LANDING_ANIMATION_CREATE_FAILED; error: unknown }>;
 export type LandingFinishedSortableEvent = LandingCurrency &
   Readonly<{ type: typeof LANDING_FINISHED }>;
 export type LandingFailedSortableEvent = LandingCurrency &
@@ -144,8 +145,13 @@ export type LandingPinnedSortableEvent = LandingCurrency &
   Readonly<{ type: typeof LANDING_PINNED }>;
 export type LandingPinFailedSortableEvent = LandingCurrency &
   Readonly<{ type: typeof LANDING_PIN_FAILED; error: unknown }>;
-export type PresentationFailedSortableEvent = Readonly<{
-  type: typeof PRESENTATION_FAILED;
+export type MotionPresentationFailedSortableEvent = MotionCurrency &
+  Readonly<{
+    type: typeof MOTION_PRESENTATION_FAILED;
+    error: unknown;
+  }>;
+export type PlaceholderWriteFailedSortableEvent = Readonly<{
+  type: typeof PLACEHOLDER_WRITE_FAILED;
   operationId: number;
   error: unknown;
 }>;
@@ -160,7 +166,6 @@ export type FinalizationCompletedSortableEvent = Readonly<{
 export type FinalizationFailedSortableEvent = Readonly<{
   type: typeof FINALIZATION_FAILED;
   operationId: number;
-  cause: FailureCause;
   error: unknown;
 }>;
 
@@ -188,12 +193,14 @@ export type SortableEvent =
   | LandingPlanResolvedSortableEvent
   | LandingPlanFailedSortableEvent
   | LandingStartedSortableEvent
-  | LandingStartFailedSortableEvent
+  | LandingTimingFailedSortableEvent
+  | LandingAnimationCreateFailedSortableEvent
   | LandingFinishedSortableEvent
   | LandingFailedSortableEvent
   | LandingPinnedSortableEvent
   | LandingPinFailedSortableEvent
-  | PresentationFailedSortableEvent
+  | MotionPresentationFailedSortableEvent
+  | PlaceholderWriteFailedSortableEvent
   | FailureReportedSortableEvent
   | FinalizationCompletedSortableEvent
   | FinalizationFailedSortableEvent;

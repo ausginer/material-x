@@ -1,4 +1,5 @@
 import { FAILURE_PRESENTATION_LEASE } from '../../kernel/protocol.ts';
+import { ignored } from '../../kernel/session.ts';
 import {
   ACQUIRE_SORTABLE_ACTIVATION,
   DISARM_OPERATION,
@@ -14,12 +15,7 @@ import {
   POINTER_RELEASED,
   type SortableEvent,
 } from './event.ts';
-import {
-  createIdle,
-  ignoreSortable,
-  reportFailure,
-  sameOperation,
-} from './helpers.ts';
+import { createIdle, reportFailure, sameOperation } from './helpers.ts';
 import {
   INPUT_KEYBOARD,
   SORTABLE_ACTIVATING,
@@ -143,10 +139,10 @@ export function decidePending(
   }
 
   if (event.type === OPERATION_ARMED) {
-    return ignoreSortable(state);
+    return ignored(state);
   }
   if (event.type === OPERATION_ARM_FAILED) {
-    return ignoreSortable(state);
+    return ignored(state);
   }
-  return ignoreSortable(state);
+  return ignored(state);
 }

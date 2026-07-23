@@ -1,9 +1,11 @@
 import {
   CANCEL_CONSUMER,
+  FAILURE_PLACEHOLDER_TARGET,
   FAILURE_REORDER_RESOLUTION,
   OUTCOME_NO_OP,
   RECOVERY_IMMEDIATE,
 } from '../../kernel/protocol.ts';
+import { ignored } from '../../kernel/session.ts';
 import { buildReorderProposal } from '../request.ts';
 import {
   OPEN_REORDER_RESOLUTION,
@@ -13,6 +15,7 @@ import {
 } from './effect.ts';
 import {
   OPERATION_CANCELED,
+  PLACEHOLDER_WRITE_FAILED,
   PROPOSAL_INSERTION_FAILED,
   PROPOSAL_INSERTION_RESOLVED,
   type SortableEvent,
@@ -20,11 +23,14 @@ import {
 import {
   cancelResult,
   createSettlement,
-  ignoreSortable,
   reportFailure,
   settlementEffects,
 } from './helpers.ts';
-import { SORTABLE_RESOLVING, type SpatialSortableState } from './state.ts';
+import {
+  PRESENTATION_ABSENT,
+  SORTABLE_RESOLVING,
+  type SpatialSortableState,
+} from './state.ts';
 
 export function decideSpatial(
   state: SpatialSortableState,
@@ -39,8 +45,28 @@ export function decideSpatial(
         state.nextOperationId,
         operation,
         cancelResult(event.reason, null),
-        54,
-        { stage: 0 },
+        RECOVERY_IMMEDIATE,
+        { stage: PRESENTATION_ABSENT },
+      ),
+    );
+  }
+
+  if (
+    event.type === PLACEHOLDER_WRITE_FAILED &&
+    event.operationId === operation.operationId
+  ) {
+    return reportFailure(
+      state,
+      operation,
+      { stage: FAILURE_PLACEHOLDER_TARGET },
+      event.error,
+      null,
+      createSettlement(
+        state.nextOperationId,
+        operation,
+        cancelResult({ type: CANCEL_CONSUMER }, null),
+        RECOVERY_IMMEDIATE,
+        { stage: PRESENTATION_ABSENT },
       ),
       config,
     );
@@ -62,21 +88,16 @@ export function decideSpatial(
       createSettlement(
         state.nextOperationId,
         operation,
-        {
-          type: 51,
-          reason: { type: CANCEL_CONSUMER },
-          at: 108,
-          proposal: null,
-        },
-        54,
-        { stage: 0 },
+        cancelResult({ type: CANCEL_CONSUMER }, null),
+        RECOVERY_IMMEDIATE,
+        { stage: PRESENTATION_ABSENT },
       ),
       config,
     );
   }
 
   if (event.type !== PROPOSAL_INSERTION_RESOLVED || !current) {
-    return ignoreSortable(state);
+    return ignored(state);
   }
 
   const build = buildReorderProposal(
@@ -94,14 +115,9 @@ export function decideSpatial(
       createSettlement(
         state.nextOperationId,
         operation,
-        {
-          type: 51,
-          reason: { type: CANCEL_CONSUMER },
-          at: 108,
-          proposal: null,
-        },
-        54,
-        { stage: 0 },
+        cancelResult({ type: CANCEL_CONSUMER }, null),
+        RECOVERY_IMMEDIATE,
+        { stage: PRESENTATION_ABSENT },
       ),
       config,
     );
@@ -115,9 +131,8 @@ export function decideSpatial(
         nextOperation,
         { type: OUTCOME_NO_OP, proposal: build.proposal },
         RECOVERY_IMMEDIATE,
-        { stage: 0 },
+        { stage: PRESENTATION_ABSENT },
       ),
-      config,
     );
   }
 
