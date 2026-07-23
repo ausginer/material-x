@@ -26,7 +26,7 @@ type TestEvent = Readonly<{
   effects?: TestEffect | readonly TestEffect[] | null;
 }>;
 
-function decide(state: number, event: TestEvent): Decision<number, TestEffect> {
+function decide(_: number, event: TestEvent): Decision<number, TestEffect> {
   return {
     state: event.value,
     effects: event.effects ?? null,
@@ -36,11 +36,7 @@ function decide(state: number, event: TestEvent): Decision<number, TestEffect> {
 describe('createSession', () => {
   it('should commit state before executing effects', () => {
     let observed: number | null | undefined;
-    let session: ReturnType<
-      typeof createSession<number, TestEvent, TestEffect>
-    >;
-
-    session = createSession(
+    const session = createSession(
       0,
       decide,
       () => {
@@ -60,11 +56,7 @@ describe('createSession', () => {
 
   it('should process nested dispatch after the current batch', () => {
     const order: number[] = [];
-    let session: ReturnType<
-      typeof createSession<number, TestEvent, TestEffect>
-    >;
-
-    session = createSession(
+    const session = createSession(
       0,
       decide,
       (effect) => {
@@ -112,9 +104,6 @@ describe('createSession', () => {
   });
 
   it('should stop the remaining effect batch after close', () => {
-    let session: ReturnType<
-      typeof createSession<number, TestEvent, TestEffect>
-    >;
     const execute = vi.fn((effect: TestEffect): EffectDisposition => {
       if (effect.type === EFFECT_CLOSE) {
         session.close();
@@ -122,7 +111,8 @@ describe('createSession', () => {
 
       return CONTINUE_BATCH;
     });
-    session = createSession(0, decide, execute, vi.fn());
+
+    const session = createSession(0, decide, execute, vi.fn());
 
     session.dispatch({
       value: 1,
@@ -134,12 +124,8 @@ describe('createSession', () => {
   });
 
   it('should clear queued events and reject later dispatch after close', () => {
-    let session: ReturnType<
-      typeof createSession<number, TestEvent, TestEffect>
-    >;
     const decide_ = vi.fn(decide);
-
-    session = createSession(
+    const session = createSession(
       0,
       decide_,
       () => {

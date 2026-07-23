@@ -1,5 +1,13 @@
 import userEvent, { type UserEvent } from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mock,
+} from 'vitest';
 import {
   draggable,
   FreeDropResolution,
@@ -82,7 +90,8 @@ describe('draggable', () => {
 
   it('should not activate before the threshold is crossed', async () => {
     const item = createItem();
-    const onStart = vi.fn<(...a: unknown[]) => void>();
+    const onStart: Mock<NonNullable<DraggableOptions['onStart']>> =
+      vi.fn<(...a: unknown[]) => void>();
     drag(item, { onStart, onDrop: accept });
 
     await press(
@@ -98,7 +107,8 @@ describe('draggable', () => {
 
   it('should lift the item into the top layer once activated', async () => {
     const item = createItem();
-    const onStart = vi.fn<(...a: unknown[]) => void>();
+    const onStart: Mock<NonNullable<DraggableOptions['onStart']>> =
+      vi.fn<(...a: unknown[]) => void>();
     drag(item, { onStart, onDrop: accept });
 
     await press(
@@ -114,7 +124,8 @@ describe('draggable', () => {
 
   it('should resolve an accepted drop through onFinish and restore the visual', async () => {
     const item = createItem();
-    const onFinish = vi.fn<(r: FreeDragFinishResult) => void>();
+    const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> =
+      vi.fn<(r: FreeDragFinishResult) => void>();
     const onDrop = vi.fn(
       (_request: FreeDropRequest): FreeDropResolution =>
         FreeDropResolution.accept(),
@@ -143,7 +154,8 @@ describe('draggable', () => {
 
   it('should route an explicit rejection through onCancel', async () => {
     const item = createItem();
-    const onCancel = vi.fn<(r: FreeDragCancelResult) => void>();
+    const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> =
+      vi.fn<(r: FreeDragCancelResult) => void>();
     const onError = vi.fn<(...a: unknown[]) => void>();
     drag(item, {
       onDrop: () => FreeDropResolution.reject('nope'),
@@ -170,7 +182,8 @@ describe('draggable', () => {
 
   it('should await an asynchronous acceptance', async () => {
     const item = createItem();
-    const onFinish = vi.fn<(...a: unknown[]) => void>();
+    const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> =
+      vi.fn<(...a: unknown[]) => void>();
     drag(item, {
       onDrop: async () => {
         await Promise.resolve();
@@ -196,8 +209,10 @@ describe('draggable', () => {
 
   it('should treat an invalid resolution as an error, not acceptance', async () => {
     const item = createItem();
-    const onFinish = vi.fn<(...a: unknown[]) => void>();
-    const onCancel = vi.fn<(...a: unknown[]) => void>();
+    const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> =
+      vi.fn<(...a: unknown[]) => void>();
+    const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> =
+      vi.fn<(...a: unknown[]) => void>();
     const onError = vi.fn<(...a: unknown[]) => void>();
     drag(item, {
       // oxlint-disable-next-line typescript/no-explicit-any typescript/no-unsafe-type-assertion
@@ -226,7 +241,8 @@ describe('draggable', () => {
 
   it('should animate home and cancel on rejection when a valid home target is configured', async () => {
     const item = createItem();
-    const onCancel = vi.fn<(r: FreeDragCancelResult) => void>();
+    const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> =
+      vi.fn<(r: FreeDragCancelResult) => void>();
     const onError = vi.fn<(...a: unknown[]) => void>();
     drag(item, {
       onDrop: () => FreeDropResolution.reject('nope'),
@@ -260,8 +276,10 @@ describe('draggable', () => {
 
   it('should treat a throwing home-target resolver as an error, not a cancel', async () => {
     const item = createItem();
-    const onCancel = vi.fn<(...a: unknown[]) => void>();
-    const onFinish = vi.fn<(...a: unknown[]) => void>();
+    const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> =
+      vi.fn<(...a: unknown[]) => void>();
+    const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> =
+      vi.fn<(...a: unknown[]) => void>();
     const onError = vi.fn<(...a: unknown[]) => void>();
     drag(item, {
       onDrop: () => FreeDropResolution.reject('nope'),
@@ -296,7 +314,8 @@ describe('draggable', () => {
 
   it('should treat an invalid home-target result as an error', async () => {
     const item = createItem();
-    const onCancel = vi.fn<(...a: unknown[]) => void>();
+    const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> =
+      vi.fn<(...a: unknown[]) => void>();
     const onError = vi.fn<(...a: unknown[]) => void>();
     drag(item, {
       onDrop: () => FreeDropResolution.reject('nope'),
@@ -328,7 +347,8 @@ describe('draggable', () => {
 
   it('should cancel a live drag on Escape through onCancel', async () => {
     const item = createItem();
-    const onCancel = vi.fn<(r: FreeDragCancelResult) => void>();
+    const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> =
+      vi.fn<(r: FreeDragCancelResult) => void>();
     drag(item, { onDrop: accept, onCancel });
 
     await press(
@@ -347,8 +367,10 @@ describe('draggable', () => {
 
   it('should stay silent on destroy', async () => {
     const item = createItem();
-    const onFinish = vi.fn<(...a: unknown[]) => void>();
-    const onCancel = vi.fn<(...a: unknown[]) => void>();
+    const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> =
+      vi.fn<(...a: unknown[]) => void>();
+    const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> =
+      vi.fn<(...a: unknown[]) => void>();
     const controller = drag(item, { onDrop: accept, onFinish, onCancel });
 
     await press(
@@ -367,7 +389,8 @@ describe('draggable', () => {
 
   it('should not start after destroy', async () => {
     const item = createItem();
-    const onStart = vi.fn<(...a: unknown[]) => void>();
+    const onStart: Mock<NonNullable<DraggableOptions['onStart']>> =
+      vi.fn<(...a: unknown[]) => void>();
     const controller = drag(item, { onDrop: accept, onStart });
     controller.destroy();
 
@@ -417,7 +440,8 @@ describe('draggable', () => {
     it('should hold the lift until the consumer acknowledges', async () => {
       const item = createItem();
       const ready = deferred();
-      const onFinish = vi.fn<(...a: unknown[]) => void>();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> =
+        vi.fn<(...a: unknown[]) => void>();
       drag(item, {
         onDrop: () => FreeDropResolution.accept(ready.promise),
         onFinish,
@@ -449,7 +473,8 @@ describe('draggable', () => {
 
     it('should release immediately when no acknowledgement is supplied', async () => {
       const item = createItem();
-      const onFinish = vi.fn<(...a: unknown[]) => void>();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> =
+        vi.fn<(...a: unknown[]) => void>();
       drag(item, { onDrop: accept, onFinish });
 
       await press(
@@ -472,7 +497,8 @@ describe('draggable', () => {
       const item = createItem();
       const ready = deferred();
       const onError = vi.fn<(...a: unknown[]) => void>();
-      const onFinish = vi.fn<(...a: unknown[]) => void>();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> =
+        vi.fn<(...a: unknown[]) => void>();
       drag(item, {
         onDrop: () => FreeDropResolution.accept(ready.promise),
         onError,
@@ -536,7 +562,7 @@ describe('draggable', () => {
   it('should disarm a press released before the activation threshold', async () => {
     const item = createItem();
     const onDrop = vi.fn(accept);
-    const onStart = vi.fn();
+    const onStart: Mock<NonNullable<DraggableOptions['onStart']>> = vi.fn();
     drag(item, { onDrop, onStart });
 
     // A click: pressed and released in place, never crossing the threshold.
@@ -582,9 +608,9 @@ describe('draggable', () => {
 
     it('should disarm on pointercancel without any completion callback', async () => {
       const item = createItem();
-      const onFinish = vi.fn();
-      const onCancel = vi.fn();
-      const onError = vi.fn();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
+      const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> = vi.fn();
+      const onError: Mock<NonNullable<DraggableOptions['onError']>> = vi.fn();
       drag(item, { onDrop: accept, onFinish, onCancel, onError });
 
       await arm(ue, item);
@@ -605,7 +631,7 @@ describe('draggable', () => {
 
     it('should leave nothing armed after pointercancel', async () => {
       const item = createItem();
-      const onStart = vi.fn();
+      const onStart: Mock<NonNullable<DraggableOptions['onStart']>> = vi.fn();
       drag(item, { onDrop: accept, onStart });
 
       await arm(ue, item);
@@ -627,9 +653,9 @@ describe('draggable', () => {
 
     it('should disarm on Escape without any completion callback', async () => {
       const item = createItem();
-      const onFinish = vi.fn();
-      const onCancel = vi.fn();
-      const onError = vi.fn();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
+      const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> = vi.fn();
+      const onError: Mock<NonNullable<DraggableOptions['onError']>> = vi.fn();
       drag(item, { onDrop: accept, onFinish, onCancel, onError });
 
       await arm(ue, item);
@@ -643,7 +669,7 @@ describe('draggable', () => {
 
     it('should leave nothing armed after Escape', async () => {
       const item = createItem();
-      const onStart = vi.fn();
+      const onStart: Mock<NonNullable<DraggableOptions['onStart']>> = vi.fn();
       drag(item, { onDrop: accept, onStart });
 
       await arm(ue, item);
@@ -657,9 +683,9 @@ describe('draggable', () => {
 
     it('should disarm silently on destroy', async () => {
       const item = createItem();
-      const onFinish = vi.fn();
-      const onCancel = vi.fn();
-      const onError = vi.fn();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
+      const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> = vi.fn();
+      const onError: Mock<NonNullable<DraggableOptions['onError']>> = vi.fn();
       const controller = drag(item, {
         onDrop: accept,
         onFinish,
@@ -678,7 +704,7 @@ describe('draggable', () => {
 
     it('should not activate after a pending gesture was disarmed by destroy', async () => {
       const item = createItem();
-      const onStart = vi.fn();
+      const onStart: Mock<NonNullable<DraggableOptions['onStart']>> = vi.fn();
       const controller = drag(item, { onDrop: accept, onStart });
 
       await arm(ue, item);
@@ -720,7 +746,8 @@ describe('draggable', () => {
 
     it('should report the accumulated grab delta to onStart', async () => {
       const item = createItem();
-      const onStart = vi.fn<(geometry: { viewportDelta: Point }) => void>();
+      const onStart: Mock<NonNullable<DraggableOptions['onStart']>> =
+        vi.fn<(geometry: { viewportDelta: Point }) => void>();
       drag(item, { onDrop: accept, onStart });
 
       await press(
@@ -794,8 +821,8 @@ describe('draggable', () => {
 
     it('should never run both onFinish and onCancel for one operation', async () => {
       const item = createItem();
-      const onFinish = vi.fn();
-      const onCancel = vi.fn();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
+      const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> = vi.fn();
       drag(item, { onDrop: accept, onFinish, onCancel });
 
       await press(
@@ -845,7 +872,7 @@ describe('draggable', () => {
   describe('destroy', () => {
     it('should close event ingress so later input is inert', async () => {
       const item = createItem();
-      const onStart = vi.fn();
+      const onStart: Mock<NonNullable<DraggableOptions['onStart']>> = vi.fn();
       const onDrop = vi.fn(accept);
       const controller = drag(item, { onDrop, onStart });
 
@@ -897,9 +924,9 @@ describe('draggable', () => {
 
     it('should stay silent when destroyed mid-drag', async () => {
       const item = createItem();
-      const onFinish = vi.fn();
-      const onCancel = vi.fn();
-      const onError = vi.fn();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
+      const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> = vi.fn();
+      const onError: Mock<NonNullable<DraggableOptions['onError']>> = vi.fn();
       const controller = drag(item, {
         onDrop: accept,
         onFinish,
@@ -971,7 +998,7 @@ describe('draggable', () => {
 
     it('should hold no document listeners once a gesture completes', async () => {
       const item = createItem();
-      const onFinish = vi.fn();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
       drag(item, { onDrop: accept, onFinish });
       const tracker = trackDocumentListeners();
 
@@ -1056,8 +1083,8 @@ describe('draggable', () => {
     it('should ignore an acceptance that arrives after the gesture was canceled', async () => {
       const item = createItem();
       let settle!: () => void;
-      const onFinish = vi.fn();
-      const onCancel = vi.fn();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
+      const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> = vi.fn();
       const controller = drag(item, {
         onDrop: () =>
           new Promise<FreeDropResolution>((resolve) => {
@@ -1092,7 +1119,7 @@ describe('draggable', () => {
     it('should ignore an acceptance that arrives after destroy', async () => {
       const item = createItem();
       let settle!: () => void;
-      const onFinish = vi.fn();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
       const controller = drag(item, {
         onDrop: () =>
           new Promise<FreeDropResolution>((resolve) => {
@@ -1149,7 +1176,7 @@ describe('draggable', () => {
     it('should not abort the resolution signal after normal completion', async () => {
       const item = createItem();
       let aborted = false;
-      const onFinish = vi.fn();
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
       drag(item, {
         onDrop: (_request, { signal }) => {
           signal.addEventListener('abort', () => {
@@ -1285,9 +1312,8 @@ describe('draggable', () => {
     it('should let onStart cancellation win over start acknowledgement', async () => {
       const item = createItem();
       const onDrop = vi.fn(accept);
-      const onCancel = vi.fn();
-      let controller: FreeDragController;
-      controller = drag(item, {
+      const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> = vi.fn();
+      const controller = drag(item, {
         onDrop,
         onCancel,
         onStart() {
@@ -1310,10 +1336,9 @@ describe('draggable', () => {
     it('should stop start acknowledgement after onStart destroys', async () => {
       const item = createItem();
       const onDrop = vi.fn(accept);
-      const onFinish = vi.fn();
-      const onCancel = vi.fn();
-      let controller: FreeDragController;
-      controller = drag(item, {
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
+      const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> = vi.fn();
+      const controller = drag(item, {
         onDrop,
         onFinish,
         onCancel,
@@ -1337,9 +1362,8 @@ describe('draggable', () => {
 
     it('should let onMove cancellation win over move acknowledgement', async () => {
       const item = createItem();
-      const onCancel = vi.fn();
-      let controller: FreeDragController;
-      controller = drag(item, {
+      const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> = vi.fn();
+      const controller = drag(item, {
         onDrop: accept,
         onCancel,
         onMove() {
@@ -1363,10 +1387,9 @@ describe('draggable', () => {
 
     it('should let onDrop cancellation make its returned acceptance stale', async () => {
       const item = createItem();
-      const onFinish = vi.fn();
-      const onCancel = vi.fn();
-      let controller: FreeDragController;
-      controller = drag(item, {
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
+      const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> = vi.fn();
+      const controller = drag(item, {
         onFinish,
         onCancel,
         onDrop() {
@@ -1392,10 +1415,9 @@ describe('draggable', () => {
 
     it('should make failure acknowledgement inert when onError destroys', async () => {
       const item = createItem();
-      const onFinish = vi.fn();
-      const onCancel = vi.fn();
-      let controller: FreeDragController;
-      controller = drag(item, {
+      const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
+      const onCancel: Mock<NonNullable<DraggableOptions['onCancel']>> = vi.fn();
+      const controller = drag(item, {
         onDrop: () => FreeDropResolution.reject(),
         onFinish,
         onCancel,

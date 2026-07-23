@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, type Mock } from 'vitest';
 import {
   ACQUIRE_FREE_ACTIVATION,
   ACTIVATION_READY,
@@ -16,8 +16,8 @@ import {
   DRAG_SETTLING,
   DRAG_STARTING,
   DRAGGING,
-  DROP_RESOLVED,
   DROP_RESOLUTION_FAILED,
+  DROP_RESOLVED,
   FAILURE_REPORTED,
   FINALIZATION_COMPLETED,
   FINALIZATION_FAILED,
@@ -42,7 +42,6 @@ import {
   RETIRE_OPERATION,
   START_SUCCEEDED,
   STOP_INTERACTION,
-  type DraggableEffect,
   type DraggableEvent,
   type DraggablePolicy,
   type DraggableState,
@@ -55,8 +54,11 @@ import {
 } from '../../src/kernel/protocol.ts';
 import type { CoordinateMapper } from '../../src/kernel/types.ts';
 
+// oxlint-disable-next-line typescript/consistent-type-assertions
 const item = {} as HTMLElement;
+// oxlint-disable-next-line typescript/consistent-type-assertions
 const visual = {} as HTMLElement;
+// oxlint-disable-next-line typescript/consistent-type-assertions
 const rect = {
   left: 10,
   top: 20,
@@ -313,7 +315,7 @@ describe('decideDraggable motion', () => {
   });
 
   it('should present before invoking move', () => {
-    const callback = vi.fn();
+    const callback: Mock<NonNullable<DraggablePolicy['onMove']>> = vi.fn();
     const pending = decide(dragging(callback), {
       type: POINTER_MOVED,
       pointerId: 1,

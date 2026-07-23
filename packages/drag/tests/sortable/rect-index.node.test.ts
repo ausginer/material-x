@@ -37,7 +37,7 @@ const spyBox = (
   top: number,
   right: number,
   bottom: number,
-): { el: HTMLElement; measured: () => number } => {
+): { el: HTMLElement; measured(): number } => {
   const fn = vi.fn(() => ({
     left,
     top,

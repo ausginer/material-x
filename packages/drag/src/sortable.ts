@@ -1,82 +1,41 @@
 /**
- * Sortable (reorder) entry point. Items in a collection can be lifted and
- * reordered; the consumer owns the persisted order through the required, explicit
- * `onReorder` resolution. There is no public programmatic `move()` in v1.
- *
- * The public function owns only controller-lifetime composition: it creates the
- * collection, session, pointer source, and identity source; arbitrates admission
- * into one `SortableGesture`; connects protocol dispatch to that gesture; and
- * forwards `updateItems`, `cancel`, and `destroy`.
- *
- * @example
- * ```ts
- * import { sortable } from '@ydinjs/drag/sortable';
- *
- * const sorter = sortable(container, {
- *   items: () => [...container.children] as HTMLElement[],
- *   async onReorder(request, { signal }) {
- *     await persistOrder(request, { signal });
- *     return { type: 'accepted' };
- *   },
- * });
- * ```
+ * Sortable (reorder) entry point. Semantic decisions live in the sortable
+ * machine; DOM work and resource ownership live in its effect runtime.
  */
+import { reportError_ } from './kernel/errors.ts';
+import { createInvalidationSource } from './kernel/invalidation.ts';
+import { createPointerSource } from './kernel/pointer.ts';
+import { CANCEL_CONSUMER } from './kernel/protocol.ts';
+import { createRealm } from './kernel/realm.ts';
 import {
-  createInvalidationSource,
-  type InvalidationSource,
-} from './kernel/invalidation.ts';
-import { createIdentitySource } from './kernel/operation-id.ts';
-import {
-  createPointerSource,
-  type EscapeSignal,
-  type PointerSource,
-} from './kernel/pointer.ts';
-import {
-  LIFECYCLE_ADMIT,
-  LIFECYCLE_CANCEL,
-  CANCEL_CONSUMER,
-  CANCEL_ESCAPE,
-  CANCEL_POINTER,
-  LIFECYCLE_MOVE,
-  PHASE_DRAGGING,
-  PHASE_IDLE,
-  PHASE_PENDING,
-  POINTER_CANCEL,
-  POINTER_MOVE,
-  POINTER_UP,
-  LIFECYCLE_RELEASE,
-} from './kernel/protocol.ts';
-import { createRealm, type DOMRealm } from './kernel/realm.ts';
-import { createLegacySession, type LegacySession } from './kernel/session.ts';
+  createControllerRuntime,
+  type ControllerRuntime,
+} from './kernel/runtime.ts';
 import { resolveSortablePress } from './sortable/admission.ts';
 import {
   createCollection,
   type SortableCollection,
 } from './sortable/collection.ts';
-import { SortableGesture } from './sortable/gesture.ts';
+import { createSortableEffects } from './sortable/effects.ts';
 import {
   DIRECTION_DOWN,
   DIRECTION_UP,
   keyboardInsertion,
   type KeyboardDirection,
 } from './sortable/keyboard.ts';
-import type {
-  CollectionSnapshot,
-  SortableOptions,
-} from './sortable/options.ts';
 import {
-  createSortableReducer,
-  INITIAL_SORTABLE_STATE,
-  INPUT_KEYBOARD,
-  INPUT_POINTER,
-  KEYBOARD_ACTIVATE,
-  KEYBOARD_PROPOSE,
-  SNAPSHOT,
+  ADMIT_KEYBOARD,
+  ADMIT_POINTER,
+  COLLECTION_UPDATED,
+  createInitialSortableState,
+  createSortableMachine,
+  OPERATION_CANCELED,
+  SORTABLE_IDLE,
+  type SortableEffect,
   type SortableEvent,
   type SortableState,
-} from './sortable/reducer.ts';
-
-/* PUBLIC */
+} from './sortable/machine.ts';
+import type { SortableOptions } from './sortable/options.ts';
 
 export {
   type PlaceholderContext,
@@ -92,13 +51,11 @@ export type {
   ReorderRequest,
 } from './kernel/types.ts';
 
-type SortableController = Readonly<{
+export type SortableController = Readonly<{
   updateItems(items: readonly HTMLElement[]): void;
   cancel(reason?: unknown): void;
   destroy(): void;
 }>;
-
-export type { SortableController };
 
 export function sortable(
   container: HTMLElement,
@@ -107,8 +64,6 @@ export function sortable(
   // oxlint-disable-next-line no-use-before-define
   return new SortableControllerImpl(container, options);
 }
-
-/* PRIVATE */
 
 const ARROW_UP = 'ArrowUp';
 const ARROW_LEFT = 'ArrowLeft';
@@ -128,15 +83,10 @@ function commandOf(key: string): KeyboardDirection | null {
 
 class SortableControllerImpl implements SortableController {
   readonly #options: SortableOptions;
-  readonly #realm: DOMRealm;
-  readonly #ids = createIdentitySource();
-  readonly #invalidation: InvalidationSource;
   readonly #collection: SortableCollection;
   readonly #getVisual: (item: HTMLElement) => HTMLElement;
   readonly #controllerAbort = new AbortController();
-  readonly #session: LegacySession<SortableState, SortableEvent>;
-  readonly #pointerSource: PointerSource;
-  #gesture: SortableGesture | null = null;
+  readonly #runtime: ControllerRuntime<SortableState, SortableEvent>;
   #terminal = false;
 
   constructor(container: HTMLElement, options: SortableOptions) {
@@ -145,27 +95,50 @@ class SortableControllerImpl implements SortableController {
     }
 
     this.#options = options;
-    this.#realm = createRealm(container);
-    this.#invalidation = createInvalidationSource(this.#realm);
     this.#collection = createCollection(options.items());
     this.#getVisual = options.getVisual ?? ((item) => item);
 
-    const reduce = createSortableReducer(
-      { threshold: options.threshold ?? DEFAULT_THRESHOLD },
-      this.#ids,
-    );
-
-    this.#pointerSource = createPointerSource(
+    const realm = createRealm(container);
+    const invalidation = createInvalidationSource(realm);
+    const pointerSource = createPointerSource(
       container,
-      this.#realm,
+      realm,
       this.#controllerAbort.signal,
-      this.#admitPress.bind(this),
+      (event) => {
+        this.#admitPress(event);
+      },
     );
+    const decide = createSortableMachine({
+      threshold: options.threshold ?? DEFAULT_THRESHOLD,
+      onStart: options.onStart,
+      onReorder: options.onReorder,
+      onFinish: options.onFinish,
+      onCancel: options.onCancel,
+      onError: options.onError,
+      landingTiming: options.landingTiming,
+    });
 
-    this.#session = createLegacySession<SortableState, SortableEvent>(
-      INITIAL_SORTABLE_STATE,
-      reduce,
-      this.#transition.bind(this),
+    this.#runtime = createControllerRuntime<
+      SortableState,
+      SortableEvent,
+      SortableEffect
+    >(
+      createInitialSortableState(),
+      decide,
+      (dispatch) =>
+        createSortableEffects(
+          {
+            realm,
+            pointerSource,
+            invalidation,
+            getVisual: this.#getVisual,
+            createPlaceholder: options.createPlaceholder,
+          },
+          dispatch,
+        ),
+      (error) => {
+        reportError_(error, undefined);
+      },
     );
 
     container.addEventListener('keydown', this.#handleKeydown.bind(this), {
@@ -175,13 +148,16 @@ class SortableControllerImpl implements SortableController {
   }
 
   updateItems(items: readonly HTMLElement[]): void {
-    this.#collection.replace(items);
+    if (!this.#terminal) {
+      this.#collection.replace(items);
+    }
   }
 
   cancel(reason?: unknown): void {
-    if (this.#session.state().phase !== PHASE_IDLE) {
-      this.#session.dispatch({
-        type: LIFECYCLE_CANCEL,
+    const state = this.#runtime.state();
+    if (state && state.phase !== SORTABLE_IDLE) {
+      this.#runtime.dispatch({
+        type: OPERATION_CANCELED,
         reason: { type: CANCEL_CONSUMER, detail: reason },
       });
     }
@@ -191,56 +167,17 @@ class SortableControllerImpl implements SortableController {
     if (this.#terminal) {
       return;
     }
-
     this.#terminal = true;
-    this.#session.close();
-    this.#gesture?.destroy();
-    this.#gesture = null;
+    this.#runtime.destroy();
     this.#controllerAbort.abort();
   }
 
-  #emit(raw: PointerEvent | EscapeSignal): void {
-    if (raw.type === CANCEL_ESCAPE) {
-      this.#session.dispatch({
-        type: LIFECYCLE_CANCEL,
-        reason: { type: CANCEL_ESCAPE },
-      });
-      return;
-    }
-    const event = raw;
-    const point = { x: event.clientX, y: event.clientY };
-    switch (event.type) {
-      case POINTER_MOVE:
-        this.#session.dispatch({
-          type: LIFECYCLE_MOVE,
-          pointerId: event.pointerId,
-          point,
-        });
-        break;
-      case POINTER_UP:
-        this.#session.dispatch({
-          type: LIFECYCLE_RELEASE,
-          pointerId: event.pointerId,
-          point,
-        });
-        break;
-      case POINTER_CANCEL:
-        if (this.#session.state().pointer?.id === event.pointerId) {
-          this.#session.dispatch({
-            type: LIFECYCLE_CANCEL,
-            reason: { type: CANCEL_POINTER },
-          });
-        }
-        break;
-      default:
-        break;
-    }
-  }
-
   #admitPress(event: PointerEvent): void {
+    const state = this.#runtime?.state();
     if (
       this.#terminal ||
-      this.#session.state().phase !== PHASE_IDLE ||
+      !state ||
+      state.phase !== SORTABLE_IDLE ||
       event.button !== 0 ||
       !event.isPrimary
     ) {
@@ -255,56 +192,24 @@ class SortableControllerImpl implements SortableController {
     if (!item) {
       return;
     }
-    this.#session.dispatch({
-      type: LIFECYCLE_ADMIT,
-      operationId: this.#ids.next(),
-      input: INPUT_POINTER,
+    this.#runtime.dispatch({
+      type: ADMIT_POINTER,
       item,
+      visual: this.#getVisual(item),
       pointerId: event.pointerId,
       point: { x: event.clientX, y: event.clientY },
-      collection: snapshot,
+      snapshot,
     });
-  }
-
-  #commandKeyboard(
-    item: HTMLElement,
-    insertion: ReturnType<typeof keyboardInsertion>,
-    snapshot: CollectionSnapshot,
-    point: { x: number; y: number },
-  ): void {
-    if (!insertion) {
-      return;
-    }
-    const operationId = this.#ids.next();
-    this.#session.dispatch({
-      type: LIFECYCLE_ADMIT,
-      operationId,
-      input: INPUT_KEYBOARD,
-      item,
-      pointerId: -1,
-      point,
-      collection: snapshot,
-    });
-    this.#session.dispatch({ type: KEYBOARD_ACTIVATE, operationId });
-    const active = this.#session.state().operation;
-    if (
-      this.#session.state().phase === PHASE_DRAGGING &&
-      active?.operationId === operationId
-    ) {
-      this.#session.dispatch({
-        type: KEYBOARD_PROPOSE,
-        operationId,
-        insertion,
-      });
-    }
   }
 
   #handleKeydown(event: KeyboardEvent): void {
     const direction = commandOf(event.key);
+    const state = this.#runtime.state();
     if (
       this.#terminal ||
       direction === null ||
-      this.#session.state().phase !== PHASE_IDLE
+      !state ||
+      state.phase !== SORTABLE_IDLE
     ) {
       return;
     }
@@ -320,49 +225,27 @@ class SortableControllerImpl implements SortableController {
     }
     event.preventDefault();
     const rect = item.getBoundingClientRect();
-    this.#commandKeyboard(item, insertion, snapshot, {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
+    this.#runtime.dispatch({
+      type: ADMIT_KEYBOARD,
+      item,
+      visual: this.#getVisual(item),
+      insertion,
+      point: {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      },
+      snapshot,
     });
   }
 
-  #handleSnapshot(snapshot: CollectionSnapshot): void {
-    const op = this.#session.state().operation;
-    if (op) {
-      this.#session.dispatch({
-        type: SNAPSHOT,
-        operationId: op.operationId,
+  #handleSnapshot(snapshot: ReturnType<SortableCollection['snapshot']>): void {
+    const state = this.#runtime.state();
+    if (state && 'operation' in state) {
+      this.#runtime.dispatch({
+        type: COLLECTION_UPDATED,
+        operationId: state.operation.operationId,
         snapshot,
       });
-    }
-  }
-
-  #transition(
-    from: SortableState,
-    to: SortableState,
-    event: SortableEvent,
-  ): void {
-    if (from.phase === PHASE_IDLE && to.phase === PHASE_PENDING) {
-      this.#gesture = new SortableGesture({
-        realm: this.#realm,
-        ids: this.#ids,
-        options: this.#options,
-        visual: this.#getVisual(to.operation!.item),
-        getVisual: this.#getVisual,
-        invalidation: this.#invalidation,
-        dispatch: this.#session.dispatch,
-      });
-      this.#pointerSource.armSession(
-        this.#gesture.scope.signal,
-        this.#emit.bind(this),
-      );
-    }
-
-    this.#gesture?.observe(to);
-    this.#gesture?.handle(from, to, event);
-
-    if (to.phase === PHASE_IDLE && from.phase !== PHASE_IDLE) {
-      this.#gesture = null;
     }
   }
 }

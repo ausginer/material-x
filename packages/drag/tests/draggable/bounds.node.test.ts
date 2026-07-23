@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { DOMRealm } from '../../src/kernel/realm.ts';
-import { AXIS_BOTH, AXIS_X, AXIS_Y } from '../../src/kernel/types.ts';
 import {
   BOUNDS_VIEWPORT,
   clampDelta,
   constrainAxis,
   resolveBounds,
 } from '../../src/draggable/bounds.ts';
+import type { DOMRealm } from '../../src/kernel/realm.ts';
+import { AXIS_BOTH, AXIS_X, AXIS_Y } from '../../src/kernel/types.ts';
 
 /**
  * A rect literal. These functions only read the edge properties, so a plain
@@ -18,6 +18,7 @@ const rect = (
   width: number,
   height: number,
 ): DOMRectReadOnly =>
+  // oxlint-disable-next-line typescript/consistent-type-assertions
   ({
     left,
     top,

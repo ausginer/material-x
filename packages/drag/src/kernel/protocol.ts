@@ -147,11 +147,8 @@ export type LandingCurrency = Readonly<{
  * themselves `LandingCurrency`, so a reducer can pass one straight in against
  * the currency held in settlement state.
  *
- * Both halves are compared deliberately. Matching `landingId` alone is
- * sufficient *today* — ids come from one controller-wide counter and are never
- * reused — but that invariant lives in `operation-id.ts`, not here, and scoping
- * the counter per operation would silently turn a half-check into a stale-event
- * match.
+ * Both halves are compared deliberately so an identifier scoped to one
+ * operation can never accept an event from another operation.
  */
 export function sameLanding(a: LandingCurrency, b: LandingCurrency): boolean {
   return a.operationId === b.operationId && a.landingId === b.landingId;
@@ -379,17 +376,6 @@ export function canReleasePresentation(
     settlement.presentation === PRESENTATION_READY
   );
 }
-
-// Shared operation-identity lifecycle vocabulary: both features carry an
-// admitted/candidate/active operation through activation the same way.
-export const OPERATION_ADMITTED = 58;
-export const OPERATION_CANDIDATE = 59;
-export const OPERATION_ACTIVE = 60;
-
-export type OperationStage =
-  | typeof OPERATION_ADMITTED
-  | typeof OPERATION_CANDIDATE
-  | typeof OPERATION_ACTIVE;
 
 /** Context handed to a public `onError` callback. */
 export type DragErrorContext<DomainResult> = Readonly<{

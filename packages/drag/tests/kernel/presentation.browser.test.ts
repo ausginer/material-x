@@ -31,15 +31,18 @@ function createBox(
   parent: HTMLElement = document.body,
 ): HTMLElement {
   const el = document.createElement('div');
-  Object.assign(el.style, {
-    position: 'absolute',
-    left: '40px',
-    top: '60px',
-    width: '80px',
-    height: '50px',
-    boxSizing: 'border-box',
-    ...styles,
-  });
+  Object.assign(
+    el.style,
+    {
+      position: 'absolute',
+      left: '40px',
+      top: '60px',
+      width: '80px',
+      height: '50px',
+      boxSizing: 'border-box',
+    },
+    styles,
+  );
   parent.append(el);
   return el;
 }
