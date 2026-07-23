@@ -12,7 +12,7 @@ import type { PlaceholderContext, SortableOptions } from './options.ts';
 
 /** Builds and sizes the anchor without inserting or measuring it. */
 export function createAnchor(
-  options: SortableOptions,
+  options: Pick<SortableOptions, 'createPlaceholder'>,
   realm: DOMRealm,
   item: HTMLElement,
   visual: HTMLElement,

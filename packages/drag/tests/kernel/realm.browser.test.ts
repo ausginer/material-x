@@ -1,6 +1,10 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { draggable, type FreeDragController } from '../../src/draggable.ts';
+import { afterEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { FreeDropResolution } from '../../src/draggable/options.ts';
+import {
+  draggable,
+  type DraggableOptions,
+  type FreeDragController,
+} from '../../src/draggable.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
 
 const live: FreeDragController[] = [];
@@ -144,8 +148,8 @@ describe('draggable inside an iframe realm', () => {
   it('should run a whole gesture against the owning realm', async () => {
     const doc = createFrame();
     const item = createBoxIn(doc);
-    const onStart = vi.fn();
-    const onFinish = vi.fn();
+    const onStart: Mock<NonNullable<DraggableOptions['onStart']>> = vi.fn();
+    const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> = vi.fn();
     const controller = draggable(item, {
       onDrop: () => FreeDropResolution.accept(),
       onStart,
@@ -171,8 +175,8 @@ describe('draggable inside an iframe realm', () => {
     const item = createBoxIn(doc);
     let visualRect: unknown;
     const controller = draggable(item, {
-      onDrop: (request) => {
-        visualRect = request.visualRect;
+      onDrop(request) {
+        ({ visualRect } = request);
         return FreeDropResolution.accept();
       },
     });
@@ -227,7 +231,7 @@ describe('draggable inside an iframe realm', () => {
   it('should ignore host-document input for an iframe-owned gesture', () => {
     const doc = createFrame();
     const item = createBoxIn(doc);
-    const onStart = vi.fn();
+    const onStart: Mock<NonNullable<DraggableOptions['onStart']>> = vi.fn();
     const controller = draggable(item, {
       onDrop: () => FreeDropResolution.accept(),
       onStart,
