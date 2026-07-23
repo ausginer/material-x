@@ -47,7 +47,7 @@ import {
   LIFECYCLE_RELEASE,
 } from './kernel/protocol.ts';
 import { createRealm, type DOMRealm } from './kernel/realm.ts';
-import { createSession, type DragSession } from './kernel/session.ts';
+import { createLegacySession, type LegacySession } from './kernel/session.ts';
 import { resolveSortablePress } from './sortable/admission.ts';
 import {
   createCollection,
@@ -134,7 +134,7 @@ class SortableControllerImpl implements SortableController {
   readonly #collection: SortableCollection;
   readonly #getVisual: (item: HTMLElement) => HTMLElement;
   readonly #controllerAbort = new AbortController();
-  readonly #session: DragSession<SortableState, SortableEvent>;
+  readonly #session: LegacySession<SortableState, SortableEvent>;
   readonly #pointerSource: PointerSource;
   #gesture: SortableGesture | null = null;
   #terminal = false;
@@ -162,7 +162,7 @@ class SortableControllerImpl implements SortableController {
       this.#admitPress.bind(this),
     );
 
-    this.#session = createSession<SortableState, SortableEvent>(
+    this.#session = createLegacySession<SortableState, SortableEvent>(
       INITIAL_SORTABLE_STATE,
       reduce,
       this.#transition.bind(this),

@@ -1,44 +1,165 @@
 /**
- * The generic transition store. All state updates and effects for one feature
- * pass through {@link DragSession.dispatch}: the next state is assigned *before*
- * effects run, so a synchronous browser follow-up caused by an effect observes
- * the advanced state and cannot repeat work.
- *
- * Effects may re-enter `dispatch` (a consumer callback may destroy the
- * controller); because state is already advanced, the nested transition starts
- * from the current state. An event that defines no transition returns the
- * identical previous state, and effects are skipped for it, so foreign and
- * duplicate events cannot repeat movement or settling work.
+ * Pure decision and FIFO run-to-completion session contracts shared by the
+ * feature machines.
  */
+
+export type TaggedEffect = Readonly<{
+  type: number;
+}>;
+
+export type Effects<Effect extends TaggedEffect> =
+  | null
+  | Effect
+  | readonly Effect[];
+
+export type Decision<State, Effect extends TaggedEffect> = Readonly<{
+  state: State;
+  effects: Effects<Effect>;
+}>;
+
+export type Machine<State, Event, Effect extends TaggedEffect> = (
+  state: State,
+  event: Event,
+) => Decision<State, Effect>;
+
+export const CONTINUE_BATCH = 0;
+export const STOP_BATCH = 1;
+
+export type EffectDisposition = typeof CONTINUE_BATCH | typeof STOP_BATCH;
+
+export type Execute<Effect extends TaggedEffect> = (
+  effect: Effect,
+) => EffectDisposition;
+
+export type Session<State, Event> = Readonly<{
+  dispatch(event: Event): void;
+  state(): State | null;
+  close(): void;
+  closed(): boolean;
+}>;
 
 /**
- * Describes one meaningful protocol edge that has already occurred. Passed as
- * three positional arguments, not an allocated record, so the hot path stays
- * allocation-light.
+ * Stores one complete machine state and executes accepted decisions in FIFO
+ * order. Nested dispatch appends to the queue; it never interrupts an effect
+ * batch that is already running.
  */
-export type DragTransition<S, E> = (from: S, to: S, event: E) => void;
+export function createSession<State, Event, Effect extends TaggedEffect>(
+  initial: State,
+  decide: Machine<State, Event, Effect>,
+  execute: Execute<Effect>,
+  panic: (error: unknown) => void,
+): Session<State, Event> {
+  let state: State | null = initial;
+  let running = false;
+  let terminal = false;
+  const queue: Event[] = [];
 
-/** A pure feature root reducer: one complete next state from previous + event. */
-export type Reducer<S, E> = (from: S, event: E) => S;
+  const close = (): void => {
+    if (terminal) {
+      return;
+    }
 
-export type DragSession<S, E> = Readonly<{
-  /** The current complete feature state. */
-  state(): S;
-  /** Feeds one event through the reducer and routes the resulting effects. */
-  dispatch(event: E): void;
-  /**
-   * Terminal, idempotent. Marks the session closed, replaces its state with the
-   * feature's initial idle state, and makes later dispatches inert. Does not
-   * route effects.
-   */
+    terminal = true;
+    queue.length = 0;
+    state = null;
+  };
+
+  const runEffect = (effect: Effect): boolean => {
+    const disposition = execute(effect);
+    return !terminal && disposition === CONTINUE_BATCH;
+  };
+
+  const runEffects = (effects: Effects<Effect>): void => {
+    if (!effects || terminal) {
+      return;
+    }
+
+    if (!Array.isArray(effects)) {
+      runEffect(effects);
+      return;
+    }
+
+    for (const effect of effects) {
+      if (!runEffect(effect)) {
+        break;
+      }
+    }
+  };
+
+  const dispatch = (event: Event): void => {
+    if (terminal) {
+      return;
+    }
+
+    queue.push(event);
+
+    if (running) {
+      return;
+    }
+
+    running = true;
+
+    try {
+      // `execute` can synchronously call `close`, mutating `terminal` through its closure.
+      // oxlint-disable-next-line no-unmodified-loop-condition
+      for (let index = 0; !terminal && index < queue.length; index += 1) {
+        const current = state;
+
+        if (current === null) {
+          break;
+        }
+
+        const decision = decide(current, queue[index]!);
+        ({ state } = decision);
+        runEffects(decision.effects);
+      }
+    } catch (error) {
+      close();
+      panic(error);
+    } finally {
+      queue.length = 0;
+      running = false;
+    }
+  };
+
+  return {
+    dispatch,
+    state: () => state,
+    close,
+    closed: () => terminal,
+  };
+}
+
+/** Returns an ignored decision without allocating an effect collection. */
+export function ignored<State, Effect extends TaggedEffect>(
+  state: State,
+): Decision<State, Effect> {
+  return { state, effects: null };
+}
+
+/**
+ * Legacy recursive transition store retained only while sortable still uses
+ * the old `(from, to, event)` interpreter.
+ */
+export type LegacyTransition<State, Event> = (
+  from: State,
+  to: State,
+  event: Event,
+) => void;
+
+export type LegacyReducer<State, Event> = (from: State, event: Event) => State;
+
+export type LegacySession<State, Event> = Readonly<{
+  state(): State;
+  dispatch(event: Event): void;
   close(): void;
 }>;
 
-export function createSession<S, E>(
-  initial: S,
-  reduce: Reducer<S, E>,
-  onTransition: DragTransition<S, E>,
-): DragSession<S, E> {
+export function createLegacySession<State, Event>(
+  initial: State,
+  reduce: LegacyReducer<State, Event>,
+  onTransition: LegacyTransition<State, Event>,
+): LegacySession<State, Event> {
   let current = initial;
   let closed = false;
 
@@ -54,9 +175,6 @@ export function createSession<S, E>(
 
       const previous = current;
       const next = reduce(previous, event);
-
-      // Assign before effects so re-entrant dispatches and synchronous browser
-      // follow-ups see the advanced state.
       current = next;
 
       if (next !== previous) {

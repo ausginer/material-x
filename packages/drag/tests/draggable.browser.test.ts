@@ -1280,4 +1280,147 @@ describe('draggable', () => {
       expect(provide.mock.calls.length).toBeGreaterThan(1);
     });
   });
+
+  describe('FIFO callback re-entry', () => {
+    it('should let onStart cancellation win over start acknowledgement', async () => {
+      const item = createItem();
+      const onDrop = vi.fn(accept);
+      const onCancel = vi.fn();
+      let controller: FreeDragController;
+      controller = drag(item, {
+        onDrop,
+        onCancel,
+        onStart() {
+          controller.cancel('from start');
+        },
+      });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 140, clientY: 140 },
+      );
+      await flush();
+
+      expect(onDrop).not.toHaveBeenCalled();
+      expect(onCancel).toHaveBeenCalledOnce();
+    });
+
+    it('should stop start acknowledgement after onStart destroys', async () => {
+      const item = createItem();
+      const onDrop = vi.fn(accept);
+      const onFinish = vi.fn();
+      const onCancel = vi.fn();
+      let controller: FreeDragController;
+      controller = drag(item, {
+        onDrop,
+        onFinish,
+        onCancel,
+        onStart() {
+          controller.destroy();
+        },
+      });
+
+      await press(
+        ue,
+        item,
+        { clientX: 110, clientY: 110 },
+        { clientX: 140, clientY: 140 },
+      );
+      await flush();
+
+      expect(onDrop).not.toHaveBeenCalled();
+      expect(onFinish).not.toHaveBeenCalled();
+      expect(onCancel).not.toHaveBeenCalled();
+    });
+
+    it('should let onMove cancellation win over move acknowledgement', async () => {
+      const item = createItem();
+      const onCancel = vi.fn();
+      let controller: FreeDragController;
+      controller = drag(item, {
+        onDrop: accept,
+        onCancel,
+        onMove() {
+          controller.cancel('from move');
+        },
+      });
+
+      await ue.pointer([
+        {
+          target: item,
+          keys: '[MouseLeft>]',
+          coords: { clientX: 110, clientY: 110 },
+        },
+        { coords: { clientX: 140, clientY: 140 } },
+        { coords: { clientX: 150, clientY: 150 } },
+      ]);
+      await flush();
+
+      expect(onCancel).toHaveBeenCalledOnce();
+    });
+
+    it('should let onDrop cancellation make its returned acceptance stale', async () => {
+      const item = createItem();
+      const onFinish = vi.fn();
+      const onCancel = vi.fn();
+      let controller: FreeDragController;
+      controller = drag(item, {
+        onFinish,
+        onCancel,
+        onDrop() {
+          controller.cancel('from drop');
+          return FreeDropResolution.accept();
+        },
+      });
+
+      await ue.pointer([
+        {
+          target: item,
+          keys: '[MouseLeft>]',
+          coords: { clientX: 110, clientY: 110 },
+        },
+        { coords: { clientX: 140, clientY: 140 } },
+        { keys: '[/MouseLeft]', coords: { clientX: 150, clientY: 150 } },
+      ]);
+      await flush();
+
+      expect(onFinish).not.toHaveBeenCalled();
+      expect(onCancel).toHaveBeenCalledOnce();
+    });
+
+    it('should make failure acknowledgement inert when onError destroys', async () => {
+      const item = createItem();
+      const onFinish = vi.fn();
+      const onCancel = vi.fn();
+      let controller: FreeDragController;
+      controller = drag(item, {
+        onDrop: () => FreeDropResolution.reject(),
+        onFinish,
+        onCancel,
+        resolveHomeTarget() {
+          throw new Error('home failed');
+        },
+        onError() {
+          controller.destroy();
+        },
+      });
+
+      await ue.pointer([
+        {
+          target: item,
+          keys: '[MouseLeft>]',
+          coords: { clientX: 110, clientY: 110 },
+        },
+        { coords: { clientX: 140, clientY: 140 } },
+        { keys: '[/MouseLeft]', coords: { clientX: 150, clientY: 150 } },
+      ]);
+      await flush();
+
+      expect(onFinish).not.toHaveBeenCalled();
+      expect(onCancel).not.toHaveBeenCalled();
+      expect(item.matches(':popover-open')).toBe(false);
+    });
+  });
 });
