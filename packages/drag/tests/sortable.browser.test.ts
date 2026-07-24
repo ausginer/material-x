@@ -142,9 +142,8 @@ describe('sortable', () => {
     const container = createList(3);
     const items = rows(container);
     const onError = vi.fn<(...args: unknown[]) => void>();
-    const onStart = vi.fn();
-    let controller: SortableController;
-    controller = sort(container, {
+    const onStart = vi.fn<(...args: unknown[]) => void>();
+    const controller: SortableController = sort(container, {
       items: () => rows(container),
       onReorder: accept,
       onError,

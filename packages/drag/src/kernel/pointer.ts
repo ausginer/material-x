@@ -28,6 +28,15 @@ const SESSION_POINTER_EVENTS = [
   LOST_POINTER_CAPTURE,
 ] as const;
 
+/**
+ * The stable native fields an internal handler may read. A queued sample is the
+ * browser's own event, retained only for the synchronous drain.
+ */
+export type PointerCoordinates = Pick<
+  PointerEvent,
+  'pointerId' | 'clientX' | 'clientY'
+>;
+
 /** An internal Escape signal, emitted alongside raw pointer events. */
 export type EscapeSignal = Readonly<{ type: typeof CANCEL_ESCAPE }>;
 
@@ -71,6 +80,40 @@ export function createPointerSource(
       );
     },
   };
+}
+
+/**
+ * Arms one operation's document-level input across two independent lifetimes.
+ *
+ * Motion (move/up/cancel/lostpointercapture) rides `motionSignal` and is closed
+ * at release. Escape rides `cancelSignal` and outlives it, so a consumer can
+ * still abandon a gesture whose resolver has not settled. Sharing one signal
+ * would make that impossible.
+ */
+export function armOperationInput(
+  realm: DOMRealm,
+  motionSignal: AbortSignal,
+  cancelSignal: AbortSignal,
+  onPointer: (event: PointerEvent) => void,
+  onEscape: () => void,
+): void {
+  const forward = (event: Event): void => {
+    onPointer(event as PointerEvent);
+  };
+
+  for (const type of SESSION_POINTER_EVENTS) {
+    realm.document.addEventListener(type, forward, { signal: motionSignal });
+  }
+
+  realm.document.addEventListener(
+    KEY_DOWN,
+    (event: Event) => {
+      if ((event as KeyboardEvent).key === KEY_ESCAPE) {
+        onEscape();
+      }
+    },
+    { signal: cancelSignal },
+  );
 }
 
 /**

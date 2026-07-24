@@ -47,7 +47,10 @@ function createFrameHarness(): FrameHarness {
 describe('createFrameTask', () => {
   it('should coalesce multiple schedules into one frame', () => {
     const harness = createFrameHarness();
-    const task = createFrameTask(harness.realm, vi.fn());
+    const task = createFrameTask(
+      harness.realm,
+      vi.fn<(value: number) => void>(),
+    );
 
     task.schedule(1);
     task.schedule(2);
@@ -58,7 +61,7 @@ describe('createFrameTask', () => {
 
   it('should run only the latest scheduled value', () => {
     const harness = createFrameHarness();
-    const run = vi.fn();
+    const run = vi.fn<(value: number) => void>();
     const task = createFrameTask(harness.realm, run);
 
     task.schedule(1);
@@ -70,7 +73,7 @@ describe('createFrameTask', () => {
 
   it('should synchronously flush the latest pending value', () => {
     const harness = createFrameHarness();
-    const run = vi.fn();
+    const run = vi.fn<(value: number) => void>();
     const task = createFrameTask(harness.realm, run);
 
     task.schedule(1);
@@ -83,7 +86,7 @@ describe('createFrameTask', () => {
 
   it('should make canceled work inert', () => {
     const harness = createFrameHarness();
-    const run = vi.fn();
+    const run = vi.fn<(value: number) => void>();
     const task = createFrameTask(harness.realm, run);
 
     task.schedule(1);
@@ -117,7 +120,7 @@ describe('createFrameTask', () => {
 
   it('should cancel and flush idempotently without pending work', () => {
     const harness = createFrameHarness();
-    const run = vi.fn();
+    const run = vi.fn<(value: number) => void>();
     const task = createFrameTask(harness.realm, run);
 
     task.cancel();
