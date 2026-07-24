@@ -17,10 +17,28 @@
  */
 import { createLandingRunner } from '../../kernel/animation.ts';
 import { createMapper, IDENTITY_MAPPER } from '../../kernel/coordinate.ts';
+import { reportError_ } from '../../kernel/errors.ts';
+import {
+  ACTIVATING,
+  ACTIVE,
+  beginTransition,
+  createResolutionAttempt,
+  commitTransition,
+  FINALIZING,
+  IDLE,
+  isExplicitResolution,
+  isThenable,
+  PENDING,
+  preparationValid,
+  RELEASING,
+  REPORTING,
+  SETTLING,
+} from '../../kernel/lifecycle.ts';
 import { createOperationLifetimes } from '../../kernel/lifetimes.ts';
 import {
   acquirePointerCapture,
   armOperationInput,
+  type PointerCoordinates,
 } from '../../kernel/pointer.ts';
 import { watchPresentationReady } from '../../kernel/presentation-ready.ts';
 import { acquireLift, createDragRenderer } from '../../kernel/presentation.ts';
@@ -59,19 +77,7 @@ import { homeLandingPlan, isValidHomeTarget } from '../landing.ts';
 import { applyMotionDelta, geometryOf } from '../motion.ts';
 import type { FreeDropResolution, FreeDropResult } from '../options.ts';
 import { buildFreeDropProposal } from '../request.ts';
-import {
-  beginTransition,
-  commitTransition,
-  DRAG_ACTIVATING,
-  DRAG_FINALIZING,
-  DRAG_IDLE,
-  DRAG_PENDING,
-  DRAG_RELEASING,
-  DRAG_REPORTING,
-  DRAG_SETTLING,
-  DRAGGING,
-  type OperationIdentity,
-} from './frames.ts';
+import type { OperationIdentity } from './frames.ts';
 import {
   isCurrent,
   nextOperation,
@@ -114,12 +120,6 @@ export const FAILED = 12;
 export const CONTINUE_AFTER_ERROR_REPORT = 13;
 /** Checkpoint: the terminal callback returned; retire the operation. */
 export const RETIRE_AFTER_TERMINAL_CALLBACK = 14;
-
-/** The stable native fields an internal handler is allowed to read. */
-export type PointerCoordinates = Pick<
-  PointerEvent,
-  'pointerId' | 'clientX' | 'clientY'
->;
 
 /** A press admitted during native dispatch, owned by the library. */
 export type AdmittedPress = Readonly<{
@@ -228,19 +228,6 @@ function handleAction(
 }
 
 /* ------------------------------------------------------------------ helpers */
-
-/** Whether the preparing action may still touch anything observable. */
-function preparationValid(
-  runtime: DraggableRuntime,
-  operation: OperationIdentity,
-): boolean {
-  return (
-    !runtime.closed &&
-    !runtime.destroyRequested &&
-    runtime.cancelRequest?.operation !== operation &&
-    runtime.current.operation === operation
-  );
-}
 
 /** Queues a classified failure. Always queued, so consumer work stays ahead. */
 function fail(
@@ -368,7 +355,7 @@ function invokeMove(
 function handleAdmit(runtime: DraggableRuntime, press: AdmittedPress): void {
   const { current } = runtime;
 
-  if (current.phase !== DRAG_IDLE) {
+  if (current.phase !== IDLE) {
     return;
   }
 
@@ -398,7 +385,7 @@ function handleAdmit(runtime: DraggableRuntime, press: AdmittedPress): void {
   runtime.lifetimes = lifetimes;
 
   const next = beginTransition(runtime);
-  next.phase = DRAG_PENDING;
+  next.phase = PENDING;
   next.operation = operation;
   next.item = runtime.item;
   next.visual = runtime.visual;
@@ -468,7 +455,7 @@ function handlePointerMove(
     return;
   }
 
-  if (current.phase === DRAG_PENDING) {
+  if (current.phase === PENDING) {
     const { threshold } = runtime.config;
 
     if (
@@ -481,7 +468,7 @@ function handlePointerMove(
     return;
   }
 
-  if (current.phase !== DRAGGING) {
+  if (current.phase !== ACTIVE) {
     return;
   }
 
@@ -503,7 +490,7 @@ function handleInvalidate(
   runtime: DraggableRuntime,
   operation: OperationIdentity,
 ): void {
-  if (runtime.current.phase !== DRAGGING || !isCurrent(runtime, operation)) {
+  if (runtime.current.phase !== ACTIVE || !isCurrent(runtime, operation)) {
     return;
   }
 
@@ -536,7 +523,7 @@ function handleInvalidate(
 function handleControlled(runtime: DraggableRuntime, position: Point): void {
   const { current } = runtime;
 
-  if (current.phase !== DRAGGING) {
+  if (current.phase !== ACTIVE) {
     return;
   }
 
@@ -629,7 +616,7 @@ function activate(runtime: DraggableRuntime, event: PointerCoordinates): void {
   runtime.renderer = createDragRenderer(lift);
 
   const next = beginTransition(runtime);
-  next.phase = DRAG_ACTIVATING;
+  next.phase = ACTIVATING;
   next.originRect = originRect;
   next.coordinateSpace = coordinateSpace;
   next.pointerX = event.clientX;
@@ -682,15 +669,12 @@ function handleStartCommitted(
   runtime: DraggableRuntime,
   operation: OperationIdentity,
 ): void {
-  if (
-    runtime.current.phase !== DRAG_ACTIVATING ||
-    !isCurrent(runtime, operation)
-  ) {
+  if (runtime.current.phase !== ACTIVATING || !isCurrent(runtime, operation)) {
     return;
   }
 
   const next = beginTransition(runtime);
-  next.phase = DRAGGING;
+  next.phase = ACTIVE;
   commitTransition(runtime);
 
   presentMotion(runtime, operation);
@@ -713,12 +697,12 @@ function handlePointerUp(
     return;
   }
 
-  if (current.phase === DRAG_PENDING) {
+  if (current.phase === PENDING) {
     retireOperation(runtime);
     return;
   }
 
-  if (current.phase !== DRAGGING) {
+  if (current.phase !== ACTIVE) {
     return;
   }
 
@@ -743,7 +727,7 @@ function handlePointerUp(
   // First commit: the exact release point, and a phase that accepts no more
   // positional input.
   const next = beginTransition(runtime);
-  next.phase = DRAG_RELEASING;
+  next.phase = RELEASING;
   next.pointerX = event.clientX;
   next.pointerY = event.clientY;
   applyMotionDelta(next, runtime.policy.axis, bounds);
@@ -790,12 +774,7 @@ function handlePointerUp(
 }
 
 function openResolution(runtime: DraggableRuntime): void {
-  const attempt: ResolutionAttempt = {
-    controller: new AbortController(),
-    completed: false,
-    settlement: null,
-    resolution: null,
-  };
+  const attempt = createResolutionAttempt<FreeDropResolution>();
   runtime.resolution = attempt;
 
   // The attempt owns its controller; the cancellation stage owns only the
@@ -834,14 +813,6 @@ function openResolution(runtime: DraggableRuntime): void {
   settleResolution(runtime, attempt, { ok: true, value: result });
 }
 
-function isThenable(value: unknown): value is PromiseLike<FreeDropResolution> {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as PromiseLike<unknown>).then === 'function'
-  );
-}
-
 function settleResolution(
   runtime: DraggableRuntime,
   attempt: ResolutionAttempt,
@@ -856,15 +827,6 @@ function settleResolution(
   dispatch(runtime, RESOLUTION_SETTLED, attempt);
 }
 
-function isResolution(value: unknown): value is FreeDropResolution {
-  if (typeof value !== 'object' || value === null) {
-    return false;
-  }
-
-  const { type } = value as { type?: unknown };
-  return type === OUTCOME_ACCEPTED || type === OUTCOME_REJECTED;
-}
-
 function handleResolutionSettled(
   runtime: DraggableRuntime,
   attempt: ResolutionAttempt,
@@ -873,7 +835,7 @@ function handleResolutionSettled(
 
   if (
     runtime.resolution !== attempt ||
-    current.phase !== DRAG_RELEASING ||
+    current.phase !== RELEASING ||
     attempt.settlement === null
   ) {
     return;
@@ -900,7 +862,7 @@ function handleResolutionSettled(
     return;
   }
 
-  if (!isResolution(settlement.value)) {
+  if (!isExplicitResolution(settlement.value)) {
     fail(
       runtime,
       operation,
@@ -913,7 +875,7 @@ function handleResolutionSettled(
     return;
   }
 
-  const resolution = settlement.value;
+  const resolution = settlement.value as FreeDropResolution;
   const accepted = resolution.type === OUTCOME_ACCEPTED;
   const proposal = current.proposal!;
   const domain: FreeDropResult = accepted
@@ -947,7 +909,7 @@ function enterSettlement(
   ready: PromiseLike<void> | undefined,
 ): void {
   const next = beginTransition(runtime);
-  next.phase = DRAG_SETTLING;
+  next.phase = SETTLING;
   next.outcome = outcome;
   next.domain = domain;
   next.recovery = recovery;
@@ -1003,7 +965,7 @@ function handleReadinessSettled(
 ): void {
   const { current } = runtime;
 
-  if (runtime.readiness !== attempt || current.phase !== DRAG_SETTLING) {
+  if (runtime.readiness !== attempt || current.phase !== SETTLING) {
     return;
   }
 
@@ -1148,7 +1110,7 @@ function handleLandingSettled(
 ): void {
   const { current } = runtime;
 
-  if (runtime.landing !== attempt || current.phase !== DRAG_SETTLING) {
+  if (runtime.landing !== attempt || current.phase !== SETTLING) {
     return;
   }
 
@@ -1206,7 +1168,7 @@ function advanceSettlement(
   const { current } = runtime;
 
   if (
-    current.phase !== DRAG_SETTLING ||
+    current.phase !== SETTLING ||
     !current.landingDone ||
     !current.authoredPresentationReady ||
     !isCurrent(runtime, operation)
@@ -1217,7 +1179,7 @@ function advanceSettlement(
   const { outcome, domain } = current;
 
   const next = beginTransition(runtime);
-  next.phase = DRAG_FINALIZING;
+  next.phase = FINALIZING;
   commitTransition(runtime);
 
   // Temporary presentation goes before the terminal callback, so the consumer
@@ -1293,10 +1255,10 @@ export function requestCancel(
 
   if (
     operation === null ||
-    phase === DRAG_IDLE ||
-    phase === DRAG_SETTLING ||
-    phase === DRAG_REPORTING ||
-    phase === DRAG_FINALIZING
+    phase === IDLE ||
+    phase === SETTLING ||
+    phase === REPORTING ||
+    phase === FINALIZING
   ) {
     return;
   }
@@ -1323,17 +1285,13 @@ function handleCancel(runtime: DraggableRuntime, request: CancelRequest): void {
   const { phase } = current;
   runtime.cancelRequest = null;
 
-  if (phase === DRAG_PENDING) {
+  if (phase === PENDING) {
     // Nothing was ever presented; abandon silently.
     retireOperation(runtime);
     return;
   }
 
-  if (
-    phase !== DRAG_ACTIVATING &&
-    phase !== DRAGGING &&
-    phase !== DRAG_RELEASING
-  ) {
+  if (phase !== ACTIVATING && phase !== ACTIVE && phase !== RELEASING) {
     return;
   }
 
@@ -1370,7 +1328,7 @@ function handleFailed(runtime: DraggableRuntime, record: FailureRecord): void {
   }
 
   const next = beginTransition(runtime);
-  next.phase = DRAG_REPORTING;
+  next.phase = REPORTING;
   next.failureStage = record.cause.stage;
   next.failureError = record.error;
   commitTransition(runtime);
@@ -1385,17 +1343,14 @@ function handleFailed(runtime: DraggableRuntime, record: FailureRecord): void {
 
 function reportFailure(runtime: DraggableRuntime, record: FailureRecord): void {
   const { onError } = runtime.config;
-
-  if (!onError) {
-    reportError(record.error);
-    return;
-  }
-
-  try {
-    onError(record.error, { cause: record.cause, domain: record.domain });
-  } catch (callbackError) {
-    reportError(callbackError);
-  }
+  reportError_(
+    record.error,
+    onError
+      ? (error) => {
+          onError(error, { cause: record.cause, domain: record.domain });
+        }
+      : undefined,
+  );
 }
 
 function handleErrorReported(
@@ -1408,7 +1363,7 @@ function handleErrorReported(
   if (
     !record ||
     record.operation !== operation ||
-    runtime.current.phase !== DRAG_REPORTING ||
+    runtime.current.phase !== REPORTING ||
     !isCurrent(runtime, operation)
   ) {
     return;

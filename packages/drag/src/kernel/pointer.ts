@@ -28,6 +28,15 @@ const SESSION_POINTER_EVENTS = [
   LOST_POINTER_CAPTURE,
 ] as const;
 
+/**
+ * The stable native fields an internal handler may read. A queued sample is the
+ * browser's own event, retained only for the synchronous drain.
+ */
+export type PointerCoordinates = Pick<
+  PointerEvent,
+  'pointerId' | 'clientX' | 'clientY'
+>;
+
 /** An internal Escape signal, emitted alongside raw pointer events. */
 export type EscapeSignal = Readonly<{ type: typeof CANCEL_ESCAPE }>;
 

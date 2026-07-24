@@ -10,6 +10,11 @@
  * both frames still reference it.
  */
 import {
+  IDLE,
+  NO_POINTER as NO_POINTER_VALUE,
+  type OperationIdentity,
+} from '../../kernel/lifecycle.ts';
+import {
   OUTCOME_ACCEPTED,
   RECOVERY_IMMEDIATE,
   type CancellationReason,
@@ -17,30 +22,7 @@ import {
 import type { CoordinateMapper } from '../../kernel/types.ts';
 import type { FreeDropProposal, FreeDropResult } from '../options.ts';
 
-export const DRAG_IDLE = 0;
-/** Admitted; below the activation threshold. */
-export const DRAG_PENDING = 1;
-/** Threshold crossed; presentation acquired, `onStart` in flight. */
-export const DRAG_ACTIVATING = 2;
-/** Active free drag. */
-export const DRAGGING = 3;
-/** Released: motion ingress closed, geometry final, consumer resolving. */
-export const DRAG_RELEASING = 4;
-/** Outcome committed; awaiting the landing and readiness gates. */
-export const DRAG_SETTLING = 5;
-/** `onError` in flight. */
-export const DRAG_REPORTING = 6;
-/** Presentation released; terminal callback in flight. */
-export const DRAG_FINALIZING = 7;
-
-/** Sentinel for "no pointer owns this frame". Real pointer ids are >= 0. */
-export const NO_POINTER = -1;
-
-/**
- * One operation's identity. A bare object: identity comparison is cheaper and
- * more robust than a counter, and it cannot collide across controllers.
- */
-export type OperationIdentity = Readonly<{ id: number }>;
+export type { OperationIdentity } from '../../kernel/lifecycle.ts';
 
 export type DragStateFrame = {
   phase: number;
@@ -90,11 +72,11 @@ export type DragStateFrame = {
  */
 export function createStateFrame(): DragStateFrame {
   return {
-    phase: DRAG_IDLE,
+    phase: IDLE,
     operation: null,
     item: null,
     visual: null,
-    pointerId: NO_POINTER,
+    pointerId: NO_POINTER_VALUE,
     originX: 0,
     originY: 0,
     pointerX: 0,
@@ -122,11 +104,11 @@ export function createStateFrame(): DragStateFrame {
  * them.
  */
 export function resetStateFrame(frame: DragStateFrame): void {
-  frame.phase = DRAG_IDLE;
+  frame.phase = IDLE;
   frame.operation = null;
   frame.item = null;
   frame.visual = null;
-  frame.pointerId = NO_POINTER;
+  frame.pointerId = NO_POINTER_VALUE;
   frame.originRect = null;
   frame.coordinateSpace = null;
   frame.proposal = null;
@@ -135,23 +117,4 @@ export function resetStateFrame(frame: DragStateFrame): void {
   frame.cancelReason = null;
   frame.landingDone = false;
   frame.authoredPresentationReady = false;
-}
-
-/** Copies `current` into the reusable draft and returns it for mutation. */
-export function beginTransition(runtime: {
-  current: DragStateFrame;
-  draft: DragStateFrame;
-}): DragStateFrame {
-  Object.assign(runtime.draft, runtime.current);
-  return runtime.draft;
-}
-
-/** Publishes the draft by swapping the two frame references. Cannot throw. */
-export function commitTransition(runtime: {
-  current: DragStateFrame;
-  draft: DragStateFrame;
-}): void {
-  const previous = runtime.current;
-  runtime.current = runtime.draft;
-  runtime.draft = previous;
 }

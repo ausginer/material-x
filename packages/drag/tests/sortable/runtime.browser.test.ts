@@ -1,5 +1,6 @@
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { IDLE } from '../../src/kernel/lifecycle.ts';
 import {
   CANCEL_ITEM_REMOVED,
   OUTCOME_CANCELED,
@@ -13,10 +14,7 @@ import {
   createSortableControllerInternal,
   type SortableController,
 } from '../../src/sortable/runtime/controller.ts';
-import {
-  SORTABLE_IDLE,
-  type SortableStateFrame,
-} from '../../src/sortable/runtime/frames.ts';
+import type { SortableStateFrame } from '../../src/sortable/runtime/frames.ts';
 import type { SortableRuntime } from '../../src/sortable/runtime/runtime.ts';
 
 const accept = (): ReorderResolution => ReorderResolution.accept();
@@ -219,7 +217,7 @@ describe('sortable runtime', () => {
       expect(onStart).not.toHaveBeenCalled();
       expect(onCancel).not.toHaveBeenCalled();
       expect(onError).not.toHaveBeenCalled();
-      expect(runtime.current.phase).toBe(SORTABLE_IDLE);
+      expect(runtime.current.phase).toBe(IDLE);
     });
 
     it('should settle through onCancel once activation resources are held', async () => {
@@ -390,7 +388,7 @@ describe('sortable runtime', () => {
         expect(onFinish).toHaveBeenCalledOnce();
       });
 
-      expect(runtime.current.phase).toBe(SORTABLE_IDLE);
+      expect(runtime.current.phase).toBe(IDLE);
       expect(references(runtime.current).every((value) => value === null)).toBe(
         true,
       );

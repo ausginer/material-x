@@ -10,6 +10,10 @@ import type {
   FrameTask,
   InvalidationSource,
 } from '../../kernel/invalidation.ts';
+import {
+  isCurrentOperation,
+  type ResolutionAttempt as Attempt,
+} from '../../kernel/lifecycle.ts';
 import type { OperationLifetimes } from '../../kernel/lifetimes.ts';
 import type {
   DragRenderer,
@@ -54,22 +58,6 @@ export type SortableConfig = Readonly<{
   onCancel: SortableOptions['onCancel'];
   onError: SortableOptions['onError'];
 }>;
-
-export type ResolutionSettlement =
-  | Readonly<{ ok: true; value: unknown }>
-  | Readonly<{ ok: false; reason: unknown }>;
-
-/**
- * One `onReorder` invocation. Owns its `AbortController`; the cancellation
- * lifetime owns only the guarded registration that aborts it while unsettled.
- */
-export type ResolutionAttempt = {
-  controller: AbortController;
-  /** Whether the resolver produced a result. Never keyed off the payload, which is cleared on consumption. */
-  completed: boolean;
-  settlement: ResolutionSettlement | null;
-  resolution: ReorderResolution | null;
-};
 
 export type ReadinessAttempt = {
   dispose: Disposer | null;
@@ -189,11 +177,7 @@ export function isCurrent(
   runtime: SortableRuntime,
   operation: OperationIdentity | null,
 ): boolean {
-  return (
-    !runtime.closed &&
-    operation !== null &&
-    runtime.current.operation === operation
-  );
+  return isCurrentOperation(runtime, operation);
 }
 
 export function reportFatal(error: unknown): void {
@@ -284,3 +268,6 @@ export function panicRuntime(runtime: SortableRuntime, error: unknown): void {
   destroyRuntime(runtime);
   reportFatal(error);
 }
+
+/** This feature's consumer-resolution attempt. */
+export type ResolutionAttempt = Attempt<ReorderResolution>;

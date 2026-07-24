@@ -16,11 +16,29 @@
  */
 import { createLandingRunner } from '../../kernel/animation.ts';
 import { createMapper } from '../../kernel/coordinate.ts';
+import { reportError_ } from '../../kernel/errors.ts';
 import { createFrameTask } from '../../kernel/invalidation.ts';
+import {
+  ACTIVATING,
+  ACTIVE,
+  beginTransition,
+  createResolutionAttempt,
+  commitTransition,
+  FINALIZING,
+  IDLE,
+  isExplicitResolution,
+  isThenable,
+  PENDING,
+  preparationValid,
+  RELEASING,
+  REPORTING,
+  SETTLING,
+} from '../../kernel/lifecycle.ts';
 import { createOperationLifetimes } from '../../kernel/lifetimes.ts';
 import {
   acquirePointerCapture,
   armOperationInput,
+  type PointerCoordinates,
 } from '../../kernel/pointer.ts';
 import { watchPresentationReady } from '../../kernel/presentation-ready.ts';
 import { acquireLift, LIFT_FAITHFUL } from '../../kernel/presentation.ts';
@@ -71,19 +89,7 @@ import {
 import { createAnchor, insertPlaceholder } from '../placeholder.ts';
 import { markRectIndexDirty } from '../rect-index.ts';
 import { buildReorderProposal } from '../request.ts';
-import {
-  beginTransition,
-  commitTransition,
-  SORTABLE_ACTIVATING,
-  SORTABLE_ACTIVE,
-  SORTABLE_FINALIZING,
-  SORTABLE_IDLE,
-  SORTABLE_PENDING,
-  SORTABLE_RELEASING,
-  SORTABLE_REPORTING,
-  SORTABLE_SETTLING,
-  type OperationIdentity,
-} from './frames.ts';
+import type { OperationIdentity } from './frames.ts';
 import {
   isCurrent,
   nextOperation,
@@ -118,11 +124,6 @@ export const LANDING_SETTLED = 11;
 export const FAILED = 12;
 export const CONTINUE_AFTER_ERROR_REPORT = 13;
 export const RETIRE_AFTER_TERMINAL_CALLBACK = 14;
-
-export type PointerCoordinates = Pick<
-  PointerEvent,
-  'pointerId' | 'clientX' | 'clientY'
->;
 
 /** A press admitted during native dispatch, owned by the library. */
 export type AdmittedPress = Readonly<{
@@ -242,18 +243,6 @@ function handleAction(
 }
 
 /* ------------------------------------------------------------------ helpers */
-
-function preparationValid(
-  runtime: SortableRuntime,
-  operation: OperationIdentity,
-): boolean {
-  return (
-    !runtime.closed &&
-    !runtime.destroyRequested &&
-    runtime.cancelRequest?.operation !== operation &&
-    runtime.current.operation === operation
-  );
-}
 
 function fail(
   runtime: SortableRuntime,
@@ -378,7 +367,7 @@ function handleAdmitPointer(
   }
 
   const next = beginTransition(runtime);
-  next.phase = SORTABLE_PENDING;
+  next.phase = PENDING;
   next.operation = operation;
   next.keyboard = false;
   next.item = press.item;
@@ -404,7 +393,7 @@ function handleAdmitKeyboard(
   }
 
   const next = beginTransition(runtime);
-  next.phase = SORTABLE_PENDING;
+  next.phase = PENDING;
   next.operation = operation;
   next.keyboard = true;
   next.item = command.item;
@@ -426,7 +415,7 @@ function handleAdmitKeyboard(
 
 /** Mints identity and arms input, or returns `null` when admission fails. */
 function beginOperation(runtime: SortableRuntime): OperationIdentity | null {
-  if (runtime.current.phase !== SORTABLE_IDLE) {
+  if (runtime.current.phase !== IDLE) {
     return null;
   }
 
@@ -607,7 +596,7 @@ function activate(runtime: SortableRuntime): void {
   });
 
   const next = beginTransition(runtime);
-  next.phase = SORTABLE_ACTIVATING;
+  next.phase = ACTIVATING;
   // A pointer operation starts from the placeholder's home slot; a keyboard
   // command already carries its destination gap.
   next.insertion =
@@ -647,7 +636,7 @@ function handleStartCommitted(
 ): void {
   const { current } = runtime;
 
-  if (current.phase !== SORTABLE_ACTIVATING || !isCurrent(runtime, operation)) {
+  if (current.phase !== ACTIVATING || !isCurrent(runtime, operation)) {
     return;
   }
 
@@ -658,7 +647,7 @@ function handleStartCommitted(
   }
 
   const next = beginTransition(runtime);
-  next.phase = SORTABLE_ACTIVE;
+  next.phase = ACTIVE;
   commitTransition(runtime);
 
   presentMotion(runtime, operation);
@@ -676,7 +665,7 @@ function handlePointerMove(
     return;
   }
 
-  if (current.phase === SORTABLE_PENDING) {
+  if (current.phase === PENDING) {
     const next = beginTransition(runtime);
     next.pointerX = event.clientX;
     next.pointerY = event.clientY;
@@ -694,7 +683,7 @@ function handlePointerMove(
     return;
   }
 
-  if (current.phase !== SORTABLE_ACTIVE) {
+  if (current.phase !== ACTIVE) {
     return;
   }
 
@@ -724,7 +713,7 @@ function handleSpatialFrame(
 
   if (
     runtime.pendingSpatial !== attempt ||
-    current.phase !== SORTABLE_ACTIVE ||
+    current.phase !== ACTIVE ||
     !runtime.placeholder
   ) {
     return;
@@ -781,12 +770,12 @@ function handlePointerUp(
     return;
   }
 
-  if (current.phase === SORTABLE_PENDING) {
+  if (current.phase === PENDING) {
     retireOperation(runtime);
     return;
   }
 
-  if (current.phase !== SORTABLE_ACTIVE) {
+  if (current.phase !== ACTIVE) {
     return;
   }
 
@@ -806,7 +795,7 @@ function release(runtime: SortableRuntime, x: number, y: number): void {
   // First commit: the exact release point and a phase that accepts no more
   // positional input.
   const opening = beginTransition(runtime);
-  opening.phase = SORTABLE_RELEASING;
+  opening.phase = RELEASING;
   opening.pointerX = x;
   opening.pointerY = y;
   commitTransition(runtime);
@@ -915,12 +904,7 @@ function release(runtime: SortableRuntime, x: number, y: number): void {
 }
 
 function openResolution(runtime: SortableRuntime): void {
-  const attempt: ResolutionAttempt = {
-    controller: new AbortController(),
-    completed: false,
-    settlement: null,
-    resolution: null,
-  };
+  const attempt = createResolutionAttempt<ReorderResolution>();
   runtime.resolution = attempt;
 
   runtime.lifetimes?.cancellation.useWhile(
@@ -957,14 +941,6 @@ function openResolution(runtime: SortableRuntime): void {
   settleResolution(runtime, attempt, { ok: true, value: result });
 }
 
-function isThenable(value: unknown): value is PromiseLike<ReorderResolution> {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as PromiseLike<unknown>).then === 'function'
-  );
-}
-
 function settleResolution(
   runtime: SortableRuntime,
   attempt: ResolutionAttempt,
@@ -979,15 +955,6 @@ function settleResolution(
   dispatch(runtime, RESOLUTION_SETTLED, attempt);
 }
 
-function isResolution(value: unknown): value is ReorderResolution {
-  if (typeof value !== 'object' || value === null) {
-    return false;
-  }
-
-  const { type } = value as { type?: unknown };
-  return type === OUTCOME_ACCEPTED || type === OUTCOME_REJECTED;
-}
-
 function handleResolutionSettled(
   runtime: SortableRuntime,
   attempt: ResolutionAttempt,
@@ -996,7 +963,7 @@ function handleResolutionSettled(
 
   if (
     runtime.resolution !== attempt ||
-    current.phase !== SORTABLE_RELEASING ||
+    current.phase !== RELEASING ||
     attempt.settlement === null
   ) {
     return;
@@ -1024,7 +991,7 @@ function handleResolutionSettled(
     return;
   }
 
-  if (!isResolution(settlement.value)) {
+  if (!isExplicitResolution(settlement.value)) {
     fail(
       runtime,
       operation,
@@ -1037,7 +1004,7 @@ function handleResolutionSettled(
     return;
   }
 
-  const resolution = settlement.value;
+  const resolution = settlement.value as ReorderResolution;
   const accepted = resolution.type === OUTCOME_ACCEPTED;
   const domain: ReorderTransactionResult = accepted
     ? { type: OUTCOME_ACCEPTED, proposal }
@@ -1071,7 +1038,7 @@ function handleCollection(
   const { current } = runtime;
   const { phase } = current;
 
-  if (phase === SORTABLE_IDLE || current.operation === null) {
+  if (phase === IDLE || current.operation === null) {
     return;
   }
 
@@ -1079,7 +1046,7 @@ function handleCollection(
   const item = current.item!;
   const present = snapshot.items.includes(item);
 
-  if (phase === SORTABLE_PENDING) {
+  if (phase === PENDING) {
     if (!present) {
       retireOperation(runtime);
     }
@@ -1087,7 +1054,7 @@ function handleCollection(
     return;
   }
 
-  if (phase === SORTABLE_ACTIVATING) {
+  if (phase === ACTIVATING) {
     if (!present) {
       fail(
         runtime,
@@ -1103,7 +1070,7 @@ function handleCollection(
     return;
   }
 
-  if (phase !== SORTABLE_ACTIVE) {
+  if (phase !== ACTIVE) {
     // From release onward the transaction is decided; the collection is the
     // consumer's to reconcile.
     return;
@@ -1156,7 +1123,7 @@ function enterSettlement(
   ready: PromiseLike<void> | undefined,
 ): void {
   const next = beginTransition(runtime);
-  next.phase = SORTABLE_SETTLING;
+  next.phase = SETTLING;
   next.outcome = outcome;
   next.domain = domain;
   next.recovery = recovery;
@@ -1213,7 +1180,7 @@ function handleReadinessSettled(
 ): void {
   const { current } = runtime;
 
-  if (runtime.readiness !== attempt || current.phase !== SORTABLE_SETTLING) {
+  if (runtime.readiness !== attempt || current.phase !== SETTLING) {
     return;
   }
 
@@ -1348,7 +1315,7 @@ function handleLandingSettled(
 ): void {
   const { current } = runtime;
 
-  if (runtime.landing !== attempt || current.phase !== SORTABLE_SETTLING) {
+  if (runtime.landing !== attempt || current.phase !== SETTLING) {
     return;
   }
 
@@ -1405,7 +1372,7 @@ function advanceSettlement(
   const { current } = runtime;
 
   if (
-    current.phase !== SORTABLE_SETTLING ||
+    current.phase !== SETTLING ||
     !current.landingDone ||
     !current.authoredPresentationReady ||
     !isCurrent(runtime, operation)
@@ -1416,7 +1383,7 @@ function advanceSettlement(
   const { outcome, domain } = current;
 
   const next = beginTransition(runtime);
-  next.phase = SORTABLE_FINALIZING;
+  next.phase = FINALIZING;
   commitTransition(runtime);
 
   // The placeholder and the lift go before the terminal callback, so the
@@ -1490,10 +1457,10 @@ export function requestCancel(
 
   if (
     operation === null ||
-    phase === SORTABLE_IDLE ||
-    phase === SORTABLE_SETTLING ||
-    phase === SORTABLE_REPORTING ||
-    phase === SORTABLE_FINALIZING
+    phase === IDLE ||
+    phase === SETTLING ||
+    phase === REPORTING ||
+    phase === FINALIZING
   ) {
     return;
   }
@@ -1520,17 +1487,13 @@ function handleCancel(runtime: SortableRuntime, request: CancelRequest): void {
   const { phase } = current;
   runtime.cancelRequest = null;
 
-  if (phase === SORTABLE_PENDING) {
+  if (phase === PENDING) {
     // Nothing was presented; abandon silently.
     retireOperation(runtime);
     return;
   }
 
-  if (
-    phase !== SORTABLE_ACTIVATING &&
-    phase !== SORTABLE_ACTIVE &&
-    phase !== SORTABLE_RELEASING
-  ) {
+  if (phase !== ACTIVATING && phase !== ACTIVE && phase !== RELEASING) {
     return;
   }
 
@@ -1542,11 +1505,7 @@ function handleCancel(runtime: SortableRuntime, request: CancelRequest): void {
     runtime,
     request.operation,
     OUTCOME_CANCELED,
-    cancelResult(
-      request.reason,
-      phase === SORTABLE_RELEASING,
-      current.proposal,
-    ),
+    cancelResult(request.reason, phase === RELEASING, current.proposal),
     RECOVERY_HOME,
     undefined,
   );
@@ -1566,7 +1525,7 @@ function handleFailed(runtime: SortableRuntime, record: FailureRecord): void {
   }
 
   const next = beginTransition(runtime);
-  next.phase = SORTABLE_REPORTING;
+  next.phase = REPORTING;
   next.failureStage = record.cause.stage;
   next.failureError = record.error;
   commitTransition(runtime);
@@ -1581,17 +1540,14 @@ function handleFailed(runtime: SortableRuntime, record: FailureRecord): void {
 
 function reportFailure(runtime: SortableRuntime, record: FailureRecord): void {
   const { onError } = runtime.config;
-
-  if (!onError) {
-    reportError(record.error);
-    return;
-  }
-
-  try {
-    onError(record.error, { cause: record.cause, domain: record.domain });
-  } catch (callbackError) {
-    reportError(callbackError);
-  }
+  reportError_(
+    record.error,
+    onError
+      ? (error) => {
+          onError(error, { cause: record.cause, domain: record.domain });
+        }
+      : undefined,
+  );
 }
 
 function handleErrorReported(
@@ -1604,7 +1560,7 @@ function handleErrorReported(
   if (
     !record ||
     record.operation !== operation ||
-    runtime.current.phase !== SORTABLE_REPORTING ||
+    runtime.current.phase !== REPORTING ||
     !isCurrent(runtime, operation)
   ) {
     return;

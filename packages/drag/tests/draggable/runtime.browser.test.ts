@@ -9,11 +9,9 @@ import {
   createDraggableControllerInternal,
   type FreeDragController,
 } from '../../src/draggable/runtime/controller.ts';
-import {
-  DRAG_IDLE,
-  type DragStateFrame,
-} from '../../src/draggable/runtime/frames.ts';
+import type { DragStateFrame } from '../../src/draggable/runtime/frames.ts';
 import type { DraggableRuntime } from '../../src/draggable/runtime/runtime.ts';
+import { IDLE } from '../../src/kernel/lifecycle.ts';
 import { PRESENTATION_READY_TIMEOUT } from '../../src/kernel/presentation-ready.ts';
 import {
   FAILURE_PRESENTATION_READY,
@@ -168,7 +166,7 @@ describe('draggable runtime', () => {
 
       expect(onStart).not.toHaveBeenCalled();
       expect(onFinish).not.toHaveBeenCalled();
-      expect(runtime.current.phase).toBe(DRAG_IDLE);
+      expect(runtime.current.phase).toBe(IDLE);
     });
   });
 
@@ -531,7 +529,7 @@ describe('draggable runtime', () => {
       });
       await flush();
 
-      expect(runtime.current.phase).toBe(DRAG_IDLE);
+      expect(runtime.current.phase).toBe(IDLE);
       expect(references(runtime.current).every((value) => value === null)).toBe(
         true,
       );

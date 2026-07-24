@@ -11,6 +11,11 @@
  * frames may reference the same snapshot safely.
  */
 import {
+  IDLE,
+  NO_POINTER as NO_POINTER_VALUE,
+  type OperationIdentity,
+} from '../../kernel/lifecycle.ts';
+import {
   OUTCOME_ACCEPTED,
   RECOVERY_IMMEDIATE,
   type CancellationReason,
@@ -22,29 +27,7 @@ import type {
   ReorderTransactionResult,
 } from '../options.ts';
 
-export const SORTABLE_IDLE = 0;
-/** Admitted; below the activation threshold (pointer) or awaiting arm (keyboard). */
-export const SORTABLE_PENDING = 1;
-/** Presentation acquired and committed; `onStart` in flight. */
-export const SORTABLE_ACTIVATING = 2;
-/** Active pointer drag with coalesced spatial work. */
-export const SORTABLE_ACTIVE = 3;
-/**
- * Input closed. Final geometry has been resolved from the release point and the
- * consumer is resolving the proposal. No later sample can move it.
- */
-export const SORTABLE_RELEASING = 4;
-/** Outcome committed; awaiting the landing and readiness gates. */
-export const SORTABLE_SETTLING = 5;
-/** `onError` in flight. */
-export const SORTABLE_REPORTING = 6;
-/** Presentation released; terminal callback in flight. */
-export const SORTABLE_FINALIZING = 7;
-
-export const NO_POINTER = -1;
-
-/** One operation's identity, compared by object identity. */
-export type OperationIdentity = Readonly<{ id: number }>;
+export type { OperationIdentity } from '../../kernel/lifecycle.ts';
 
 export type SortableStateFrame = {
   phase: number;
@@ -86,12 +69,12 @@ export type SortableStateFrame = {
 /** Both frames come from here, so they share one shape and one hidden class. */
 export function createStateFrame(): SortableStateFrame {
   return {
-    phase: SORTABLE_IDLE,
+    phase: IDLE,
     operation: null,
     keyboard: false,
     item: null,
     visual: null,
-    pointerId: NO_POINTER,
+    pointerId: NO_POINTER_VALUE,
     snapshot: null,
     originX: 0,
     originY: 0,
@@ -115,12 +98,12 @@ export function createStateFrame(): SortableStateFrame {
  * retired frame must not pin collection snapshots, DOM elements or proposals.
  */
 export function resetStateFrame(frame: SortableStateFrame): void {
-  frame.phase = SORTABLE_IDLE;
+  frame.phase = IDLE;
   frame.operation = null;
   frame.keyboard = false;
   frame.item = null;
   frame.visual = null;
-  frame.pointerId = NO_POINTER;
+  frame.pointerId = NO_POINTER_VALUE;
   frame.snapshot = null;
   frame.insertion = null;
   frame.proposal = null;
@@ -129,23 +112,4 @@ export function resetStateFrame(frame: SortableStateFrame): void {
   frame.cancelReason = null;
   frame.landingDone = false;
   frame.authoredPresentationReady = false;
-}
-
-/** Copies `current` into the reusable draft and returns it for mutation. */
-export function beginTransition(runtime: {
-  current: SortableStateFrame;
-  draft: SortableStateFrame;
-}): SortableStateFrame {
-  Object.assign(runtime.draft, runtime.current);
-  return runtime.draft;
-}
-
-/** Publishes the draft by swapping the two frame references. Cannot throw. */
-export function commitTransition(runtime: {
-  current: SortableStateFrame;
-  draft: SortableStateFrame;
-}): void {
-  const previous = runtime.current;
-  runtime.current = runtime.draft;
-  runtime.draft = previous;
 }

@@ -106,6 +106,87 @@ Append one row per coherent vertical implementation.
 | 2026-07-24 | working tree | Phase 2 | 7.55 kB | 8.86 kB | 14.63 kB | 298/298 | not re-measured | New runtime private; see §6.1. |
 | 2026-07-24 | working tree | Phase 3 | **6.11 kB** | 8.84 kB | **13.62 kB** | 273/273 | not re-measured | Draggable cut over; old machine/effects deleted. See §6.2. |
 | 2026-07-24 | working tree | Phase 4 | 6.11 kB | **7.35 kB** | **11.92 kB** | 281/281 | not re-measured | Sortable cut over; kernel session/runtime deleted. See §6.3. |
+| 2026-07-24 | working tree | Phase 5 | 6.12 kB | 7.36 kB | 11.92 kB | 281/281 | not re-measured | Shared lifecycle extracted. Size-neutral; see §6.4. |
+
+### 6.4 Phase 5 — consolidate proven sharing
+
+Phase 5 is explicitly measure-first, and the measurements were mostly negative.
+They are recorded here in full, including the extraction that was tried and
+partly walked back, because "we measured and it did not pay" is the useful
+result.
+
+#### What the duplication actually was
+
+Comparing the two `runtime/actions.ts` files with the feature-specific runtime
+type name normalised away:
+
+| | Functions | Lines |
+| --- | ---: | ---: |
+| Byte-identical | 11 | 232 |
+| Analogous but genuinely different | 17 | 789 |
+
+And a stronger signal: **both features had independently converged on the same
+eight-phase lifecycle with the same numeric values** — draggable's `DRAGGING`
+and sortable's `SORTABLE_ACTIVE` were both `3`, and every other phase matched.
+That is a proven shared concept, not a speculative one.
+
+#### What was extracted
+
+`src/kernel/lifecycle.ts` — the phase vocabulary, `OperationIdentity`,
+`beginTransition` / `commitTransition`, `preparationValid`,
+`isCurrentOperation`, and the consumer-resolution attempt shape
+(`ResolutionAttempt`, `createResolutionAttempt`, `isThenable`,
+`isExplicitResolution`). Plus `PointerCoordinates` moved to `kernel/pointer.ts`,
+and both features' hand-rolled failure reporting replaced with the existing
+`reportError_`.
+
+No base class, no registry, no middleware, no generic effect runtime, and no
+dispatch indirection. Each feature still owns its frame shape, action table and
+every handler.
+
+#### Measurements
+
+| Step | draggable | sortable | combined |
+| --- | ---: | ---: | ---: |
+| Phase 4 baseline | 6.11 kB | 7.35 kB | 11.92 kB |
+| Extract to two kernel modules | 6.12 kB | 7.35 kB | **11.94 kB (+20 B)** |
+| Drop the per-feature alias re-exports | 6.12 kB | 7.35 kB | 11.94 kB (+20 B) |
+| Merge the two kernel modules into one | 6.12 kB | 7.36 kB | **11.92 kB (±0)** |
+
+Three findings:
+
+1. **Deduplicating source text bought nothing.** Brotli had already collapsed
+   the repetition; removing ~120 duplicated source lines moved the compressed
+   bundle by less than the module boundaries cost.
+2. **Module count, not code volume, was the lever.** Two new kernel modules cost
+   +20 B on `combined`; folding them into one recovered all of it.
+3. **The net is size-neutral**: `combined` unchanged at 11.92 kB, +10 B on each
+   individual entry (+0.16 % / +0.14 %, inside the §5 individual allowance).
+
+#### Decision
+
+**Kept, on correctness grounds rather than size.** It buys one definition of:
+the lifecycle both features run; the two-frame commit primitive; and the
+`completed`-versus-`settlement` distinction on a resolution attempt — which was
+the source of a real defect during the Phase 3 cutover, where a completed
+resolver had its own `AbortSignal` aborted because the guard keyed off a payload
+that is cleared on consumption.
+
+Because `combined` is flat rather than improved, this is a judgement call and is
+recorded as one. It is cleanly reversible: the shared module has no dependents
+beyond the two runtimes.
+
+#### Deliberately not shared
+
+The remaining 232 identical lines (`dispatch`, `receivePointer`, `requestCancel`,
+`watchReadiness`, `handleLandingSettled`, `handleFinalized`,
+`handleErrorReported`, `settleResolution`) all need to dispatch a feature action.
+Sharing them requires either a `dispatch` function reference on the runtime
+container or a generic runtime parameterised by its action table. Both add an
+indirect call to the hot pointer path, and the second is precisely the "generic
+effect runtime" the proposal prohibits. Given the measurements above showed no
+size upside from deduplication, there is no case for paying a runtime cost to
+get it. **Left duplicated, deliberately.**
 
 ### 6.3 Phase 4 — sortable cutover
 

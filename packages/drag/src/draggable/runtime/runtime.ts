@@ -12,6 +12,10 @@
 import type { LandingRunner } from '../../kernel/animation.ts';
 import { reportError_ } from '../../kernel/errors.ts';
 import type { InvalidationSource } from '../../kernel/invalidation.ts';
+import {
+  isCurrentOperation,
+  type ResolutionAttempt as Attempt,
+} from '../../kernel/lifecycle.ts';
 import type { OperationLifetimes } from '../../kernel/lifetimes.ts';
 import type {
   DragRenderer,
@@ -75,27 +79,6 @@ export type DraggablePolicy = Readonly<{
   landingTiming: (() => AnimationTiming) | undefined;
   onMove: DraggableOptions['onMove'];
 }>;
-
-/** A consumer resolution that settled exactly once, fulfilled or rejected. */
-export type ResolutionSettlement =
-  | Readonly<{ ok: true; value: unknown }>
-  | Readonly<{ ok: false; reason: unknown }>;
-
-/**
- * One `onDrop` invocation. Owns its own `AbortController`; the cancellation
- * lifetime owns only the guarded registration that aborts it while unsettled.
- */
-export type ResolutionAttempt = {
-  controller: AbortController;
-  /**
-   * Whether the resolver produced a result. Distinct from `settlement`, which is
-   * cleared once consumed — a completed resolution must never have its signal
-   * aborted, so the guard cannot key off the payload.
-   */
-  completed: boolean;
-  settlement: ResolutionSettlement | null;
-  resolution: FreeDropResolution | null;
-};
 
 /** One authored-presentation readiness watch. */
 export type ReadinessAttempt = {
@@ -221,11 +204,7 @@ export function isCurrent(
   runtime: DraggableRuntime,
   operation: OperationIdentity | null,
 ): boolean {
-  return (
-    !runtime.closed &&
-    operation !== null &&
-    runtime.current.operation === operation
-  );
+  return isCurrentOperation(runtime, operation);
 }
 
 /**
@@ -322,3 +301,6 @@ export function panicRuntime(runtime: DraggableRuntime, error: unknown): void {
   destroyRuntime(runtime);
   reportFatal(error);
 }
+
+/** This feature's consumer-resolution attempt. */
+export type ResolutionAttempt = Attempt<FreeDropResolution>;
