@@ -74,6 +74,40 @@ export function createPointerSource(
 }
 
 /**
+ * Arms one operation's document-level input across two independent lifetimes.
+ *
+ * Motion (move/up/cancel/lostpointercapture) rides `motionSignal` and is closed
+ * at release. Escape rides `cancelSignal` and outlives it, so a consumer can
+ * still abandon a gesture whose resolver has not settled. Sharing one signal
+ * would make that impossible.
+ */
+export function armOperationInput(
+  realm: DOMRealm,
+  motionSignal: AbortSignal,
+  cancelSignal: AbortSignal,
+  onPointer: (event: PointerEvent) => void,
+  onEscape: () => void,
+): void {
+  const forward = (event: Event): void => {
+    onPointer(event as PointerEvent);
+  };
+
+  for (const type of SESSION_POINTER_EVENTS) {
+    realm.document.addEventListener(type, forward, { signal: motionSignal });
+  }
+
+  realm.document.addEventListener(
+    KEY_DOWN,
+    (event: Event) => {
+      if ((event as KeyboardEvent).key === KEY_ESCAPE) {
+        onEscape();
+      }
+    },
+    { signal: cancelSignal },
+  );
+}
+
+/**
  * Whether `event` is a primary press eligible to start a drag: left button /
  * first touch only.
  */

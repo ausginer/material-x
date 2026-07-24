@@ -189,6 +189,12 @@ export type VisualLiftSession = Readonly<{
   project(viewportDelta: Point): Point;
   /** The full transform string for a viewport delta. */
   compose(viewportDelta: Point): string;
+  /**
+   * {@link compose} from loose scalars. The two lifted modes project identically,
+   * so this composes without allocating a `Point`; the in-place mode still needs
+   * one because its projection goes through the consumer's coordinate mapper.
+   */
+  composeXY(x: number, y: number): string;
   dispose: Disposer;
 }>;
 
@@ -199,13 +205,18 @@ function makeSession(
   baseTransform: string,
   project: (delta: Point) => Point,
   dispose: Disposer,
+  /** True when `project` is the identity, so scalars need no `Point`. */
+  projectsIdentity: boolean,
 ): VisualLiftSession {
-  const compose = (viewportDelta: Point): string => {
-    const move = translate(project(viewportDelta));
-    return baseTransform ? `${move} ${baseTransform}` : move;
-  };
+  const suffix = baseTransform ? ` ${baseTransform}` : '';
 
-  return { visual, baseTransform, project, compose, dispose };
+  const compose = (viewportDelta: Point): string =>
+    `${translate(project(viewportDelta))}${suffix}`;
+
+  const composeXY = (x: number, y: number): string =>
+    projectsIdentity ? `translate(${x}px, ${y}px)${suffix}` : compose({ x, y });
+
+  return { visual, baseTransform, project, compose, composeXY, dispose };
 }
 
 /**
@@ -253,6 +264,7 @@ export function acquireLift(
         topLayerDisposer();
         styleLeaseDisposer();
       },
+      true,
     );
   }
 
@@ -285,6 +297,7 @@ export function acquireLift(
         topLayerDisposer();
         styleLeaseDisposer();
       },
+      true,
     );
   }
 
@@ -294,9 +307,15 @@ export function acquireLift(
   const base = own === 'none' ? '' : own;
   visual.style.transition = 'none';
 
-  return makeSession(visual, base, projectInPlace, () => {
-    styleLeaseDisposer();
-  });
+  return makeSession(
+    visual,
+    base,
+    projectInPlace,
+    () => {
+      styleLeaseDisposer();
+    },
+    false,
+  );
 }
 
 // ---------------------------------------------------------------------------
