@@ -213,10 +213,17 @@ function makeSession(
   const compose = (viewportDelta: Point): string =>
     `${translate(project(viewportDelta))}${suffix}`;
 
-  const composeXY = (x: number, y: number): string =>
-    projectsIdentity ? `translate(${x}px, ${y}px)${suffix}` : compose({ x, y });
-
-  return { visual, baseTransform, project, compose, composeXY, dispose };
+  return {
+    visual,
+    baseTransform,
+    project,
+    compose,
+    composeXY: (x: number, y: number): string =>
+      projectsIdentity
+        ? `translate(${x}px, ${y}px)${suffix}`
+        : compose({ x, y }),
+    dispose,
+  };
 }
 
 /**

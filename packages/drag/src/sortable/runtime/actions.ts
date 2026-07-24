@@ -86,7 +86,6 @@ import {
   type ReorderResolution,
   type ReorderTransactionResult,
 } from '../options.ts';
-import { createAnchor, insertPlaceholder } from '../placeholder.ts';
 import { markRectIndexDirty } from '../rect-index.ts';
 import { buildReorderProposal } from '../request.ts';
 import type { OperationIdentity } from './frames.ts';
@@ -331,11 +330,15 @@ function placeInsertion(
   try {
     const reference = insertion.after;
     const unchanged =
-      reference === placeholder.element ||
-      placeholder.element.nextSibling === reference;
+      reference === placeholder || placeholder.nextSibling === reference;
 
     if (!unchanged) {
-      placeholder.placeBefore(reference);
+      if (reference) {
+        reference.before(placeholder);
+      } else {
+        placeholder.parentNode?.append(placeholder);
+      }
+
       markRectIndexDirty(runtime.rects);
     }
 
@@ -514,7 +517,7 @@ function activate(runtime: SortableRuntime): void {
 
   let originRect: DOMRectReadOnly;
   let lift: ReturnType<typeof acquireLift> | null = null;
-  let placeholder: ReturnType<typeof insertPlaceholder> | null = null;
+  let placeholder: HTMLElement | null = null;
   let releaseCapture: (() => void) | null = null;
 
   try {
@@ -535,27 +538,30 @@ function activate(runtime: SortableRuntime): void {
       runtime.realm,
     );
 
-    const anchor = createAnchor(
-      { createPlaceholder: runtime.config.createPlaceholder },
-      runtime.realm,
-      item,
-      visual,
-      originRect,
-    );
+    placeholder =
+      runtime.config.createPlaceholder?.({
+        item,
+        visual,
+        rect: originRect,
+      }) ?? runtime.realm.document.createElement('div');
+    placeholder.dataset['dragPlaceholder'] = '';
+    placeholder.setAttribute('aria-hidden', 'true');
+    // Local (offset) box: unaffected by the item's transform or ancestor zoom.
+    placeholder.style.width = `${visual.offsetWidth}px`;
+    placeholder.style.height = `${visual.offsetHeight}px`;
 
-    try {
-      placeholder = insertPlaceholder(anchor, item);
-    } catch (error) {
-      anchor.remove();
-      throw error;
+    if (item.slot) {
+      placeholder.slot = item.slot;
     }
+
+    item.after(placeholder);
 
     if (!current.keyboard) {
       releaseCapture = acquirePointerCapture(item, current.pointerId);
     }
   } catch (error) {
     releaseCapture?.();
-    placeholder?.dispose();
+    placeholder?.remove();
     lift?.dispose();
     fail(
       runtime,
@@ -573,13 +579,15 @@ function activate(runtime: SortableRuntime): void {
   // roll back rather than publishing.
   if (!preparationValid(runtime, operation)) {
     releaseCapture?.();
-    placeholder.dispose();
+    placeholder.remove();
     lift.dispose();
     return;
   }
 
   // Ownership transfers here; nothing above this line has been published.
-  lifetimes.presentation.use(placeholder.dispose);
+  lifetimes.presentation.use(() => {
+    placeholder.remove();
+  });
   lifetimes.presentation.use(lift.dispose);
 
   if (releaseCapture) {
@@ -591,7 +599,7 @@ function activate(runtime: SortableRuntime): void {
   runtime.originRect = originRect;
   markRectIndexDirty(runtime.rects);
 
-  runtime.invalidation.arm(lifetimes.motionSignal, () => {
+  runtime.invalidate(lifetimes.motionSignal, () => {
     markRectIndexDirty(runtime.rects);
   });
 
@@ -1237,11 +1245,15 @@ function startLanding(
     if (recovery === RECOVERY_HOME) {
       // The visual returns to its grab origin, so the placeholder must be back
       // in the home slot before the plan is measured.
-      placeholder.returnHome();
+      frame.item!.after(placeholder);
       markRectIndexDirty(runtime.rects);
       plan = homePlan(delta);
     } else {
-      plan = destinationPlan(placeholder.rect(), originRect, delta);
+      plan = destinationPlan(
+        placeholder.getBoundingClientRect(),
+        originRect,
+        delta,
+      );
     }
   } catch (error) {
     fail(

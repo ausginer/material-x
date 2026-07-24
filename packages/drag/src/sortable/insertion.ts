@@ -13,11 +13,6 @@ import { anchorIndex, follows, neighbor } from './geometry.ts';
 import type { Insertion } from './options.ts';
 import { nearestSlot, refreshRectIndex, type RectIndex } from './rect-index.ts';
 
-export type PlaceholderGeometry = Readonly<{
-  element: HTMLElement;
-  rect(): DOMRectReadOnly;
-}>;
-
 /**
  * Measures the field and finds the nearest item; if it beats the placeholder's
  * own slot, returns the version-tagged {@link Insertion} for the gap one slot
@@ -29,7 +24,7 @@ export type PlaceholderGeometry = Readonly<{
  */
 export function resolveSpatialInsertion(
   index: RectIndex,
-  placeholder: PlaceholderGeometry,
+  placeholder: HTMLElement,
   items: readonly HTMLElement[],
   dragged: HTMLElement,
   getVisual: (item: HTMLElement) => HTMLElement,
@@ -38,7 +33,7 @@ export function resolveSpatialInsertion(
 ): Insertion | null {
   refreshRectIndex(index, items, dragged, getVisual, version);
 
-  const anchorRect = placeholder.rect();
+  const anchorRect = placeholder.getBoundingClientRect();
   const anchor: Point = {
     x: anchorRect.left + anchorRect.width / 2,
     y: anchorRect.top + anchorRect.height / 2,
@@ -56,7 +51,7 @@ export function resolveSpatialInsertion(
 
   // The gap sits on the side of `nearest` the anchor is travelling from: after
   // it when `nearest` currently follows the placeholder, otherwise before it.
-  const gap = follows(placeholder.element, nearest) ? slot + 1 : slot;
+  const gap = follows(placeholder, nearest) ? slot + 1 : slot;
 
   return {
     version,
@@ -68,16 +63,15 @@ export function resolveSpatialInsertion(
 
 /** The insertion describing the placeholder's current (initial) slot. */
 export function currentInsertion(
-  placeholder: PlaceholderGeometry,
+  placeholder: HTMLElement,
   items: readonly HTMLElement[],
   dragged: HTMLElement,
   version: number,
 ): Insertion {
-  const anchor = placeholder.element;
   return {
     version,
-    index: anchorIndex(items, dragged, anchor),
-    before: neighbor(items, dragged, anchor, false),
-    after: neighbor(items, dragged, anchor, true),
+    index: anchorIndex(items, dragged, placeholder),
+    before: neighbor(items, dragged, placeholder, false),
+    after: neighbor(items, dragged, placeholder, true),
   };
 }

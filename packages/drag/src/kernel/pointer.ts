@@ -9,12 +9,10 @@
  * through the document.
  */
 import {
-  CANCEL_ESCAPE,
   KEY_DOWN,
   KEY_ESCAPE,
   LOST_POINTER_CAPTURE,
   POINTER_CANCEL,
-  POINTER_DOWN,
   POINTER_MOVE,
   POINTER_UP,
 } from './protocol.ts';
@@ -37,51 +35,6 @@ export type PointerCoordinates = Pick<
   'pointerId' | 'clientX' | 'clientY'
 >;
 
-/** An internal Escape signal, emitted alongside raw pointer events. */
-export type EscapeSignal = Readonly<{ type: typeof CANCEL_ESCAPE }>;
-
-export type PointerSource = Readonly<{
-  /** Arms document-level move/up/cancel/lostcapture and Escape for one gesture. */
-  armSession(
-    signal: AbortSignal,
-    emit: (event: PointerEvent | EscapeSignal) => void,
-  ): void;
-}>;
-
-/** Attaches the controller-lifetime `pointerdown` and returns the session arm. */
-export function createPointerSource(
-  target: HTMLElement,
-  realm: DOMRealm,
-  controllerSignal: AbortSignal,
-  onDown: (event: PointerEvent) => void,
-): PointerSource {
-  target.addEventListener(POINTER_DOWN, onDown as EventListener, {
-    signal: controllerSignal,
-  });
-
-  return {
-    armSession(signal, emit) {
-      const onPointer = (event: Event): void => {
-        emit(event as PointerEvent);
-      };
-
-      for (const type of SESSION_POINTER_EVENTS) {
-        realm.document.addEventListener(type, onPointer, { signal });
-      }
-
-      realm.document.addEventListener(
-        KEY_DOWN,
-        (event: Event) => {
-          if ((event as KeyboardEvent).key === KEY_ESCAPE) {
-            emit({ type: CANCEL_ESCAPE });
-          }
-        },
-        { signal },
-      );
-    },
-  };
-}
-
 /**
  * Arms one operation's document-level input across two independent lifetimes.
  *
@@ -97,18 +50,14 @@ export function armOperationInput(
   onPointer: (event: PointerEvent) => void,
   onEscape: () => void,
 ): void {
-  const forward = (event: Event): void => {
-    onPointer(event as PointerEvent);
-  };
-
   for (const type of SESSION_POINTER_EVENTS) {
-    realm.document.addEventListener(type, forward, { signal: motionSignal });
+    realm.document.addEventListener(type, onPointer, { signal: motionSignal });
   }
 
   realm.document.addEventListener(
     KEY_DOWN,
-    (event: Event) => {
-      if ((event as KeyboardEvent).key === KEY_ESCAPE) {
+    (event: KeyboardEvent) => {
+      if (event.key === KEY_ESCAPE) {
         onEscape();
       }
     },

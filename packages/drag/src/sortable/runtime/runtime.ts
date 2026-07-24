@@ -6,10 +6,7 @@
  */
 import type { LandingRunner } from '../../kernel/animation.ts';
 import { reportError_ } from '../../kernel/errors.ts';
-import type {
-  FrameTask,
-  InvalidationSource,
-} from '../../kernel/invalidation.ts';
+import type { FrameTask, Invalidator } from '../../kernel/invalidation.ts';
 import {
   isCurrentOperation,
   type ResolutionAttempt as Attempt,
@@ -36,7 +33,6 @@ import type {
   ReorderTransactionResult,
   SortableOptions,
 } from '../options.ts';
-import type { PlaceholderLease } from '../placeholder.ts';
 import { createRectIndex, type RectIndex } from '../rect-index.ts';
 import {
   createStateFrame,
@@ -94,14 +90,14 @@ export type SortableRuntime = ActionQueue & {
   readonly config: SortableConfig;
   readonly realm: DOMRealm;
   readonly container: HTMLElement;
-  readonly invalidation: InvalidationSource;
+  readonly invalidate: Invalidator;
 
   readonly ingress: AbortController;
 
   lifetimes: OperationLifetimes | null;
   lift: VisualLiftSession | null;
   renderer: DragRenderer | null;
-  placeholder: PlaceholderLease | null;
+  placeholder: HTMLElement | null;
   /** The visual's viewport rect at grab, the basis for every landing plan. */
   originRect: DOMRectReadOnly | null;
 
@@ -126,7 +122,7 @@ export type SortableRuntime = ActionQueue & {
 export type SortableRuntimeDeps = Readonly<{
   realm: DOMRealm;
   container: HTMLElement;
-  invalidation: InvalidationSource;
+  invalidation: Invalidator;
   config: SortableConfig;
 }>;
 
@@ -140,7 +136,7 @@ export function createSortableRuntime(
     config: deps.config,
     realm: deps.realm,
     container: deps.container,
-    invalidation: deps.invalidation,
+    invalidate: deps.invalidation,
     ingress: new AbortController(),
     lifetimes: null,
     lift: null,

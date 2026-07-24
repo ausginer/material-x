@@ -11,7 +11,7 @@
  */
 import type { LandingRunner } from '../../kernel/animation.ts';
 import { reportError_ } from '../../kernel/errors.ts';
-import type { InvalidationSource } from '../../kernel/invalidation.ts';
+import type { Invalidator } from '../../kernel/invalidation.ts';
 import {
   isCurrentOperation,
   type ResolutionAttempt as Attempt,
@@ -124,7 +124,7 @@ export type DraggableRuntime = ActionQueue & {
   readonly realm: DOMRealm;
   readonly item: HTMLElement;
   readonly visual: HTMLElement;
-  readonly invalidation: InvalidationSource;
+  readonly invalidate: Invalidator;
 
   /** Controller-lifetime ingress. Aborted by destroy and by panic. */
   readonly ingress: AbortController;
@@ -154,7 +154,7 @@ export type DraggableRuntimeDeps = Readonly<{
   realm: DOMRealm;
   item: HTMLElement;
   visual: HTMLElement;
-  invalidation: InvalidationSource;
+  invalidation: Invalidator;
   config: DraggableConfig;
   policy: DraggablePolicy;
 }>;
@@ -171,7 +171,7 @@ export function createDraggableRuntime(
     realm: deps.realm,
     item: deps.item,
     visual: deps.visual,
-    invalidation: deps.invalidation,
+    invalidate: deps.invalidation,
     ingress: new AbortController(),
     lifetimes: null,
     lift: null,

@@ -33,7 +33,7 @@ src/
   sortable/          collection reordering
     runtime/{frames,runtime,actions,controller}.ts
     options.ts admission.ts geometry.ts insertion.ts rect-index.ts
-    keyboard.ts landing.ts placeholder.ts request.ts collection-policy.ts
+    keyboard.ts landing.ts request.ts collection-policy.ts
 ```
 
 Each feature is four runtime files plus pure domain modules. The pure modules read no state and perform no effects; they are unit-tested directly.
@@ -116,11 +116,12 @@ Acquisition stays local until the commit point:
 ```ts
 try {
   lift = acquireLift(...);
-  placeholder = insertPlaceholder(...);
+  placeholder = createPlaceholder(...);
+  item.after(placeholder);
   releaseCapture = acquirePointerCapture(...);
 } catch (error) {
   releaseCapture?.(); // reverse order
-  placeholder?.dispose();
+  placeholder?.remove();
   lift?.dispose();
   fail(...);
   return;

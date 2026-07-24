@@ -624,7 +624,7 @@ function activate(runtime: DraggableRuntime, event: PointerCoordinates): void {
   applyMotionDelta(next, runtime.policy.axis, null);
   commitTransition(runtime);
 
-  runtime.invalidation.arm(lifetimes.motionSignal, () => {
+  runtime.invalidate(lifetimes.motionSignal, () => {
     dispatch(runtime, INVALIDATE, operation);
   });
 

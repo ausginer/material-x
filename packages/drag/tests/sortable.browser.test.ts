@@ -114,9 +114,9 @@ describe('sortable', () => {
     const container = createList(3);
     const items = rows(container);
     const onError = vi.fn<(...args: unknown[]) => void>();
-    const insertBefore = container.insertBefore.bind(container);
-    vi.spyOn(container, 'insertBefore').mockImplementation((node, child) => {
-      insertBefore(node, child);
+    const after = items[0]!.after.bind(items[0]);
+    vi.spyOn(items[0]!, 'after').mockImplementation((...nodes) => {
+      after(...nodes);
       throw new Error('insertion failed');
     });
     sort(container, {
@@ -346,6 +346,35 @@ describe('sortable', () => {
 
     expect(items[0]!.matches(':popover-open')).toBeFalsy();
     expect(items[0]!.style.transform).toBe('');
+  });
+
+  it('should return the placeholder home before reading rejected landing timing', async () => {
+    const container = createList(3);
+    const items = rows(container);
+    let siblingAtTiming: ChildNode | null = null;
+    sort(container, {
+      items: () => rows(container),
+      onReorder: () => ReorderResolution.reject('no'),
+      landingTiming() {
+        siblingAtTiming = items[0]!.nextSibling;
+        return { duration: 0, easing: 'linear' };
+      },
+    });
+
+    const start = centerOf(items[0]!);
+    const over = centerOf(items[1]!);
+    await ue.pointer([
+      { target: items[0]!, keys: '[MouseLeft>]', coords: start },
+      { coords: { clientX: over.clientX, clientY: over.clientY + 8 } },
+    ]);
+    const placeholder = placeholderIn(container);
+    expect(placeholder).toBeDefined();
+
+    await ue.pointer({
+      keys: '[/MouseLeft]',
+      coords: { clientX: over.clientX, clientY: over.clientY + 8 },
+    });
+    await vi.waitFor(() => expect(siblingAtTiming).toBe(placeholder));
   });
 
   it('should cancel when the dragged item is removed from the collection', async () => {

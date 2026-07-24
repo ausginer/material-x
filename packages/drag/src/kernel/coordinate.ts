@@ -158,24 +158,25 @@ export function createMapper(
 ): CoordinateMapper {
   const matrix = viewportMatrix(element, realm);
   const inverse = matrix.inverse();
-  const { a, b, c, d, e, f } = matrix;
-  const { a: ia, b: ib, c: ic, d: id, e: ie, f: iff } = inverse;
 
   return {
     toViewport(point) {
       return {
-        x: a * point.x + c * point.y + e,
-        y: b * point.x + d * point.y + f,
+        x: matrix.a * point.x + matrix.c * point.y + matrix.e,
+        y: matrix.b * point.x + matrix.d * point.y + matrix.f,
       };
     },
     fromViewport(point) {
       return {
-        x: ia * point.x + ic * point.y + ie,
-        y: ib * point.x + id * point.y + iff,
+        x: inverse.a * point.x + inverse.c * point.y + inverse.e,
+        y: inverse.b * point.x + inverse.d * point.y + inverse.f,
       };
     },
     deltaFromViewport(delta) {
-      return { x: ia * delta.x + ic * delta.y, y: ib * delta.x + id * delta.y };
+      return {
+        x: inverse.a * delta.x + inverse.c * delta.y,
+        y: inverse.b * delta.x + inverse.d * delta.y,
+      };
     },
   };
 }
