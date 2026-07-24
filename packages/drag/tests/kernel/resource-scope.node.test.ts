@@ -20,9 +20,15 @@ describe('createResourceScope', () => {
     const order: string[] = [];
     const { scope } = scopeWithReports();
 
-    scope.use(() => order.push('first'));
-    scope.use(() => order.push('second'));
-    scope.use(() => order.push('third'));
+    scope.use(() => {
+      order.push('first');
+    });
+    scope.use(() => {
+      order.push('second');
+    });
+    scope.use(() => {
+      order.push('third');
+    });
     scope.dispose();
 
     expect(order).toEqual(['third', 'second', 'first']);
@@ -32,11 +38,15 @@ describe('createResourceScope', () => {
     const order: string[] = [];
     const { scope } = scopeWithReports();
 
-    scope.use(() => order.push('outer'));
+    scope.use(() => {
+      order.push('outer');
+    });
     scope.use(() => {
       throw new Error('inner failed');
     });
-    scope.use(() => order.push('innermost'));
+    scope.use(() => {
+      order.push('innermost');
+    });
     scope.dispose();
 
     // The throwing disposer sits between the two survivors, so this proves one
@@ -73,7 +83,7 @@ describe('createResourceScope', () => {
   });
 
   it('should not run a disposer twice across repeated dispose calls', () => {
-    const disposer = vi.fn();
+    const disposer = vi.fn<() => void>();
     const { scope } = scopeWithReports();
 
     scope.use(disposer);
@@ -85,7 +95,7 @@ describe('createResourceScope', () => {
 
   it('should not re-run a disposer when one of them triggers a re-entrant dispose', () => {
     const { scope } = scopeWithReports();
-    const inner = vi.fn();
+    const inner = vi.fn<() => void>();
 
     scope.use(inner);
     scope.use(() => {
@@ -99,7 +109,7 @@ describe('createResourceScope', () => {
   });
 
   it('should run a guarded disposer while its guard holds', () => {
-    const disposer = vi.fn();
+    const disposer = vi.fn<() => void>();
     const { scope } = scopeWithReports();
 
     scope.useWhile(() => true, disposer);
@@ -109,7 +119,7 @@ describe('createResourceScope', () => {
   });
 
   it('should skip a guarded disposer once its guard no longer holds', () => {
-    const disposer = vi.fn();
+    const disposer = vi.fn<() => void>();
     const { scope } = scopeWithReports();
     let resolved = false;
 
@@ -137,12 +147,18 @@ describe('createResourceScope', () => {
     const order: string[] = [];
     const { scope } = scopeWithReports();
 
-    scope.use(() => order.push('plain-first'));
+    scope.use(() => {
+      order.push('plain-first');
+    });
     scope.useWhile(
       () => true,
-      () => order.push('guarded'),
+      () => {
+        order.push('guarded');
+      },
     );
-    scope.use(() => order.push('plain-last'));
+    scope.use(() => {
+      order.push('plain-last');
+    });
     scope.dispose();
 
     expect(order).toEqual(['plain-last', 'guarded', 'plain-first']);
@@ -159,9 +175,13 @@ describe('createResourceScope', () => {
     const order: string[] = [];
     const { scope } = scopeWithReports();
 
-    scope.use(() => order.push('first-cycle'));
+    scope.use(() => {
+      order.push('first-cycle');
+    });
     scope.dispose();
-    scope.use(() => order.push('second-cycle'));
+    scope.use(() => {
+      order.push('second-cycle');
+    });
     scope.dispose();
 
     expect(order).toEqual(['first-cycle', 'second-cycle']);

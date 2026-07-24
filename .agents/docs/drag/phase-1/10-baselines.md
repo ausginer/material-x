@@ -105,6 +105,57 @@ Append one row per coherent vertical implementation.
 | 2026-07-24 | `1ce3003d` | baseline | 7.52 kB | 8.83 kB | 14.61 kB | 276/276 | drag start 7–12 ms (Brave trace) | Pre-rewrite. |
 | 2026-07-24 | working tree | Phase 2 | 7.55 kB | 8.86 kB | 14.63 kB | 298/298 | not re-measured | New runtime private; see §6.1. |
 | 2026-07-24 | working tree | Phase 3 | **6.11 kB** | 8.84 kB | **13.62 kB** | 273/273 | not re-measured | Draggable cut over; old machine/effects deleted. See §6.2. |
+| 2026-07-24 | working tree | Phase 4 | 6.11 kB | **7.35 kB** | **11.92 kB** | 281/281 | not re-measured | Sortable cut over; kernel session/runtime deleted. See §6.3. |
+
+### 6.3 Phase 4 — sortable cutover
+
+`sortable()` now builds the action-driven runtime. Deleted: `sortable/machine.ts`
++ `machine/` (11 files), `sortable/effects.ts` + `effects/` (10 files),
+`sortable/collection.ts` (the snapshot is four lines in the controller), and —
+with the last consumer gone — `kernel/session.ts`, `kernel/runtime.ts` and
+`kernel/operation-resources.ts`.
+
+| Entry | Baseline | Phase 4 | Delta |
+| --- | ---: | ---: | ---: |
+| `draggable` | 7.52 kB | 6.11 kB | −1.41 kB, −18.8 % |
+| `sortable` | 8.83 kB | **7.35 kB** | **−1.48 kB, −16.8 %** |
+| `combined` | 14.61 kB | **11.92 kB** | **−2.69 kB, −18.4 %** |
+
+**The last ledger item is closed.** Sortable went 8.84 → 7.35 kB, so the +10 B
+`composeXY` residual from §6.2 is gone: the helper is now live code on the only
+path that exists, in both features.
+
+Source files: **90 → 38**. The whole `event → reducer → effect → router → owner
+→ result event` protocol is gone from both features; what remains is the pure
+domain (geometry, insertion, rect index, collection policy, keyboard, request,
+landing, placeholder), the platform kernel, and four runtime files per feature.
+
+Test movement (273 → 281):
+
+| Change | Δ |
+| --- | ---: |
+| deleted `sortable/machine.node.test.ts` (semantic, replaced) | −7 |
+| deleted `sortable/resolution.node.test.ts` (semantic, replaced) | −2 |
+| deleted `kernel/session.node.test.ts` (semantic, replaced by the queue) | −9 |
+| deleted `kernel/operation-resources.node.test.ts` (module replaced by lifetimes) | −5 |
+| deleted `kernel/runtime.node.test.ts` (representation-only, no replacement) | −3 |
+| added `kernel/queue.node.test.ts` | +10 |
+| added `kernel/lifetimes.node.test.ts` | +11 |
+| added `sortable/runtime.browser.test.ts` | +13 |
+
+All 37 tests in `sortable.browser.test.ts` pass **unmodified** apart from two
+type-only lint fixes (see below), which is the artifact 9 acceptance gate.
+
+#### Lint gate repaired
+
+`npx just lint` was failing on the committed tree — verified by stashing the
+branch and re-running. `just lint` runs oxlint then eslint, and oxlint exited
+first on a single `prefer-const`, so **eslint had never run**. Fixing that one
+error surfaced 19 pre-existing `strict-void-return` errors in
+`kernel/resource-scope.node.test.ts`, `kernel/invalidation.node.test.ts` and
+`sortable.browser.test.ts` — all mechanical (untyped `vi.fn()` in void callback
+slots, and `order.push(...)` as a concise arrow body). All fixed; the package
+now lints clean end to end for the first time.
 
 ### 6.1 Phase 2 — private draggable runtime
 
