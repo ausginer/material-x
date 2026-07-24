@@ -2,13 +2,23 @@
 
 ## Status
 
-**Revision 3 — Phase 1 approved; normative implementation proposal.**
+**Revision 3 — implemented and accepted. Historical.**
 
-This document supersedes the architectural direction currently described in `packages/drag/DESIGN.md` for the duration of this redesign.
+All six phases shipped. `packages/drag/DESIGN.md` has been rewritten to document
+the architecture that actually ships and is now the normative reference; this
+document is kept as the statement of intent that produced it.
 
-`packages/drag/DESIGN.md` must be treated as **obsolete** while implementing this proposal. In particular, its preference for immutable feature-state objects, data-carrying internal events, effect descriptions, resource-owner graphs, and its prohibition on shared mutable runtime state must not constrain the new implementation.
+**Where this proposal and the shipped code differ, the code and
+[`phase-1/`](phase-1/) win.** The phase-1 artifacts record every deviation that
+was accepted, with reasons — most importantly the three-lifetime split that D-1
+turned out to require, and the decision to leave the two feature action tables
+duplicated rather than pay for a generic action runtime.
 
-Do not rewrite or delete `DESIGN.md` before the replacement architecture has been implemented, measured, tested, and accepted. After acceptance, rewrite `DESIGN.md` so it documents the architecture that actually ships.
+Delivered against the original goals: `draggable` 7.52 → 6.11 kB, `sortable`
+8.83 → 7.35 kB, `combined` 14.61 → 11.92 kB (−18.4 %); source files 90 → 38;
+observable behaviour preserved except for the documented ledger decisions.
+
+The rest of this document is the proposal as approved, unedited.
 
 ## Purpose
 
