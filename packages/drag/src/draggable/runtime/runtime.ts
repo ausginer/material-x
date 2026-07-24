@@ -87,6 +87,12 @@ export type ResolutionSettlement =
  */
 export type ResolutionAttempt = {
   controller: AbortController;
+  /**
+   * Whether the resolver produced a result. Distinct from `settlement`, which is
+   * cleared once consumed — a completed resolution must never have its signal
+   * aborted, so the guard cannot key off the payload.
+   */
+  completed: boolean;
   settlement: ResolutionSettlement | null;
   resolution: FreeDropResolution | null;
 };
@@ -238,7 +244,7 @@ export function retireAttempts(runtime: DraggableRuntime): void {
   if (resolution) {
     runtime.resolution = null;
 
-    if (resolution.settlement === null) {
+    if (!resolution.completed) {
       resolution.controller.abort();
     }
 

@@ -104,6 +104,7 @@ Append one row per coherent vertical implementation.
 | --- | --- | --- | --: | --: | --: | --- | --- | --- |
 | 2026-07-24 | `1ce3003d` | baseline | 7.52 kB | 8.83 kB | 14.61 kB | 276/276 | drag start 7–12 ms (Brave trace) | Pre-rewrite. |
 | 2026-07-24 | working tree | Phase 2 | 7.55 kB | 8.86 kB | 14.63 kB | 298/298 | not re-measured | New runtime private; see §6.1. |
+| 2026-07-24 | working tree | Phase 3 | **6.11 kB** | 8.84 kB | **13.62 kB** | 273/273 | not re-measured | Draggable cut over; old machine/effects deleted. See §6.2. |
 
 ### 6.1 Phase 2 — private draggable runtime
 
@@ -138,3 +139,45 @@ Per §5 a `combined` regression needs an explicit decision, so it is recorded
 here rather than absorbed: **accepted as transient, to be re-checked at
 cutover.** If Phase 3 does not recover it, `composeXY` should be reconsidered
 against the allocation it saves.
+
+### 6.2 Phase 3 — atomic draggable cutover
+
+`draggable()` now builds the action-driven runtime. Deleted:
+`draggable/machine.ts`, `draggable/machine/` (13 files), `draggable/effects.ts`,
+`draggable/effects/` (7 files), and the now-orphaned `draggable/admission.ts`.
+
+| Entry | Baseline | Phase 3 | Delta |
+| --- | ---: | ---: | ---: |
+| `draggable` | 7.52 kB | **6.11 kB** | **−1.41 kB, −18.8 %** |
+| `sortable` | 8.83 kB | 8.84 kB | +10 B |
+| `combined` | 14.61 kB | **13.62 kB** | **−0.99 kB, −6.8 %** |
+
+**The §6.1 regression is resolved.** Combined is now 990 B *below* the original
+baseline. The residual +10 B on `sortable` is the same `composeXY` cost: sortable
+still runs the old machine and pays for the helper without using it. It should
+disappear at the Phase 4 sortable cutover, and is the last open item on that
+ledger entry.
+
+Test movement, reconciled exactly (276 → 273):
+
+| Change | Δ |
+| --- | ---: |
+| deleted `draggable/machine.node.test.ts` (semantic, replaced) | −23 |
+| deleted `draggable/effects.node.test.ts` (semantic, replaced) | −3 |
+| removed `clampDelta` / `constrainAxis` cases from `bounds.node.test.ts` | −12 |
+| added `draggable/motion.node.test.ts` | +13 |
+| added `draggable/runtime.browser.test.ts` | +22 |
+
+All 51 tests in `draggable.browser.test.ts` pass **unmodified**, which is the
+artifact 9 acceptance gate for this phase.
+
+#### Coverage correction made during the cutover
+
+`clampDelta` and `constrainAxis` had 12 unit tests but **no** browser coverage of
+the resulting values, and the new runtime clamped inline rather than calling
+them — so the shipped clamping was effectively untested while the tests
+exercised code nothing ran. The math now lives in exactly one place,
+`applyMotionDelta` (scalar, allocation-free, mutates the draft), and
+`draggable/motion.node.test.ts` covers it directly with the cases ported over
+plus two new ones (no origin rect; axis constrained before clamping).
+`bounds.ts` keeps only `resolveBounds`.

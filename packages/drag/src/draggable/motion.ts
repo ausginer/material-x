@@ -1,34 +1,53 @@
 /**
- * Pure free-motion calculation. Derives the canonical `viewportDelta` from a
- * pointer position, and the reported {@link DragGeometry} from committed state.
+ * Pure free-motion calculation. Derives the canonical motion delta from a
+ * committed frame, and the reported {@link DragGeometry} from committed state.
  * Reads no DOM, no callbacks, no mutable options.
  */
 import type { DOMRealm } from '../kernel/realm.ts';
-import type {
-  CoordinateMapper,
-  DragAxis,
-  DragGeometry,
-  Point,
+import {
+  AXIS_X,
+  AXIS_Y,
+  type CoordinateMapper,
+  type DragAxis,
+  type DragGeometry,
+  type Point,
 } from '../kernel/types.ts';
-import { clampDelta, constrainAxis } from './bounds.ts';
+import type { DragStateFrame } from './runtime/frames.ts';
 
 /**
- * Pointer-derived motion: raw delta constrained to the configured axis and, when
- * present, clamped so the origin rect translated by it stays within `bounds`.
+ * Writes the axis-constrained, bounds-clamped delta into the frame's scalars.
+ *
+ * This is the sole implementation of movement geometry. It works in loose
+ * numbers and mutates the target frame in place, so the per-pointer-move hot
+ * path allocates nothing — which is why it is not composed from smaller
+ * point-returning helpers.
+ *
+ * `frame` must be a draft under preparation, never the committed frame.
  */
-export function pointerDelta(
-  pointer: Point,
-  originPointer: Point,
-  originRect: DOMRectReadOnly,
+export function applyMotionDelta(
+  frame: DragStateFrame,
   axis: DragAxis,
   bounds: DOMRectReadOnly | null,
-): Point {
-  const raw = constrainAxis(
-    { x: pointer.x - originPointer.x, y: pointer.y - originPointer.y },
-    axis,
-  );
+): void {
+  let dx = axis === AXIS_Y ? 0 : frame.pointerX - frame.originX;
+  let dy = axis === AXIS_X ? 0 : frame.pointerY - frame.originY;
+  const rect = frame.originRect;
 
-  return bounds ? clampDelta(raw, originRect, bounds) : raw;
+  if (bounds && rect) {
+    // The lower clamp is applied first, so a bounds box smaller than the item
+    // pins deterministically to the far edge instead of producing NaN.
+    dx = Math.min(
+      Math.max(dx, bounds.left - rect.left),
+      bounds.right - rect.right,
+    );
+    dy = Math.min(
+      Math.max(dy, bounds.top - rect.top),
+      bounds.bottom - rect.bottom,
+    );
+  }
+
+  frame.deltaX = dx;
+  frame.deltaY = dy;
 }
 
 /**

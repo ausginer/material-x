@@ -49,16 +49,14 @@ import {
   type FailureCause,
 } from '../../kernel/protocol.ts';
 import { drain, enqueue } from '../../kernel/queue.ts';
-import {
-  AXIS_X,
-  AXIS_Y,
-  type AnimationTiming,
-  type CoordinateMapper,
-  type Point,
+import type {
+  AnimationTiming,
+  CoordinateMapper,
+  Point,
 } from '../../kernel/types.ts';
 import { resolveBounds } from '../bounds.ts';
 import { homeLandingPlan, isValidHomeTarget } from '../landing.ts';
-import { geometryOf } from '../motion.ts';
+import { applyMotionDelta, geometryOf } from '../motion.ts';
 import type { FreeDropResolution, FreeDropResult } from '../options.ts';
 import { buildFreeDropProposal } from '../request.ts';
 import {
@@ -72,7 +70,6 @@ import {
   DRAG_REPORTING,
   DRAG_SETTLING,
   DRAGGING,
-  type DragStateFrame,
   type OperationIdentity,
 } from './frames.ts';
 import {
@@ -287,35 +284,6 @@ function readBounds(
   return runtime.boundsRect;
 }
 
-/**
- * Writes the axis-constrained, bounds-clamped delta straight into the draft's
- * scalars. The hot path allocates no `Point`.
- */
-function applyDelta(
-  runtime: DraggableRuntime,
-  frame: DragStateFrame,
-  bounds: DOMRectReadOnly | null,
-): void {
-  const { axis } = runtime.policy;
-  let dx = axis === AXIS_Y ? 0 : frame.pointerX - frame.originX;
-  let dy = axis === AXIS_X ? 0 : frame.pointerY - frame.originY;
-  const rect = frame.originRect;
-
-  if (bounds && rect) {
-    dx = Math.min(
-      Math.max(dx, bounds.left - rect.left),
-      bounds.right - rect.right,
-    );
-    dy = Math.min(
-      Math.max(dy, bounds.top - rect.top),
-      bounds.bottom - rect.bottom,
-    );
-  }
-
-  frame.deltaX = dx;
-  frame.deltaY = dy;
-}
-
 /** The committed coordinate space, falling back to the activation-time one. */
 function activeMapper(runtime: DraggableRuntime): CoordinateMapper {
   return (
@@ -523,7 +491,7 @@ function handlePointerMove(
   const next = beginTransition(runtime);
   next.pointerX = event.clientX;
   next.pointerY = event.clientY;
-  applyDelta(runtime, next, bounds);
+  applyMotionDelta(next, runtime.policy.axis, bounds);
   commitTransition(runtime);
 
   if (presentMotion(runtime, operation)) {
@@ -557,7 +525,7 @@ function handleInvalidate(
   }
 
   const next = beginTransition(runtime);
-  applyDelta(runtime, next, bounds);
+  applyMotionDelta(next, runtime.policy.axis, bounds);
   commitTransition(runtime);
 
   if (presentMotion(runtime, operation)) {
@@ -666,7 +634,7 @@ function activate(runtime: DraggableRuntime, event: PointerCoordinates): void {
   next.coordinateSpace = coordinateSpace;
   next.pointerX = event.clientX;
   next.pointerY = event.clientY;
-  applyDelta(runtime, next, null);
+  applyMotionDelta(next, runtime.policy.axis, null);
   commitTransition(runtime);
 
   runtime.invalidation.arm(lifetimes.motionSignal, () => {
@@ -778,7 +746,7 @@ function handlePointerUp(
   next.phase = DRAG_RELEASING;
   next.pointerX = event.clientX;
   next.pointerY = event.clientY;
-  applyDelta(runtime, next, bounds);
+  applyMotionDelta(next, runtime.policy.axis, bounds);
   commitTransition(runtime);
 
   // Post-commit: motion ingress dies, cancellation survives.
@@ -824,6 +792,7 @@ function handlePointerUp(
 function openResolution(runtime: DraggableRuntime): void {
   const attempt: ResolutionAttempt = {
     controller: new AbortController(),
+    completed: false,
     settlement: null,
     resolution: null,
   };
@@ -832,7 +801,7 @@ function openResolution(runtime: DraggableRuntime): void {
   // The attempt owns its controller; the cancellation stage owns only the
   // guarded registration that aborts it while it is still unsettled.
   runtime.lifetimes?.cancellation.useWhile(
-    () => attempt.settlement === null,
+    () => !attempt.completed,
     () => {
       attempt.controller.abort();
     },
@@ -878,10 +847,11 @@ function settleResolution(
   attempt: ResolutionAttempt,
   settlement: ResolutionAttempt['settlement'],
 ): void {
-  if (runtime.resolution !== attempt || attempt.settlement !== null) {
+  if (runtime.resolution !== attempt || attempt.completed) {
     return;
   }
 
+  attempt.completed = true;
   attempt.settlement = settlement;
   dispatch(runtime, RESOLUTION_SETTLED, attempt);
 }
