@@ -1,0 +1,140 @@
+# Artifact 10 — Reproducible baselines
+
+## 1. Environment
+
+| Field | Value |
+| --- | --- |
+| Source commit | `1ce3003d2340ea60baa3b8134639d820fd67173b` (`main`) |
+| Working tree | clean for `packages/drag/src` and `packages/drag/tests`; untracked docs and `src/experiment/` present but not built into the entry points |
+| Package | `packages/drag` (`@ydinjs/drag`) |
+| Node | v26.4.0 |
+| tsdown | 0.22.7 |
+| Vitest | 4.1.10 |
+| Bundler for size | Rolldown, via `size-limit` |
+| Platform | linux-x64, Linux 7.1.4-202.fc44.x86_64 |
+| Date measured | 2026-07-24 |
+
+## 2. Bundle size — the primary gate
+
+Command:
+
+```sh
+cd packages/drag && npx just size
+```
+
+`just size` depends on `build`, so it always measures freshly built output. Entries come from `.size-limit.json`: `draggable.js`, `sortable.js`, and both together.
+
+| Entry       |       Brotli | Proposal's stated baseline | Match |
+| ----------- | -----------: | -------------------------: | :---: |
+| `draggable` |  **7.52 kB** |                    7,517 B |   ✓   |
+| `sortable`  |  **8.83 kB** |                    8,831 B |   ✓   |
+| `combined`  | **14.61 kB** |                   14,609 B |   ✓   |
+
+Supporting figure from the same run: 151 emitted files, 503.09 kB total unminified output, build time 114 ms.
+
+Record raw, minified and Brotli bytes after every coherent vertical implementation. `size-limit` reports Brotli only, so raw/minified must be read from the tsdown output listing in the same run.
+
+## 3. Test baseline
+
+```sh
+cd packages/drag && npx just test
+```
+
+| Metric      | Value                                                  |
+| ----------- | ------------------------------------------------------ |
+| Test files  | 20 passed / 20                                         |
+| Tests       | 276 passed / 276                                       |
+| Type errors | none (`typecheck` runs inside the Vitest config)       |
+| Duration    | 6.02 s (transform 1.33 s, import 2.81 s, tests 6.26 s) |
+
+Per-file counts are in [artifact 9](09-test-classification.md).
+
+## 4. Runtime performance — author-owned, measured manually
+
+**Runtime speed is the repo author's responsibility, measured by hand.** There is deliberately no committed benchmark harness and none is planned for this redesign. Automated agents do not gate on performance numbers.
+
+This policy and the observed **7–12 ms** sortable activation range were explicitly approved by the package owner on 2026-07-24.
+
+Current method: a Brave DevTools performance trace of a sortable drag start. Observed across several attempts:
+
+| Attempt          | Drag start |
+| ---------------- | ---------: |
+| slowest observed |     ~12 ms |
+| typical          |      ~9 ms |
+| fastest observed |      ~7 ms |
+
+The proposal's "≈ 11 ms, earlier iterations closer to 7 ms" is consistent with this.
+
+**Interpretation.** The spread is roughly ±40 % of the median across runs of identical code. That is larger than any plausible regression the redesign would introduce, so these numbers **cannot serve as a regression gate** — they are a sanity check for gross regressions (a drag start jumping to 50 ms or 200 ms), not a measurement of incremental change.
+
+Consequences for the redesign:
+
+1. Performance is not a Phase 2 exit criterion. The proposal's own framing already supports this: performance is "not currently a release blocker" and reduced runtime work is "a secondary result of simplifying the architecture".
+2. The gates that _are_ enforceable and reproducible — bundle size (§2) and the test suite (§3) — carry the measurement burden.
+3. If a specific hot path later needs a real number, the right response is a targeted one-off measurement of that path, not a general harness.
+
+Qualitative expectations worth checking by hand after each vertical slice (no thresholds, no pass/fail):
+
+- sortable drag start stays in the same order of magnitude;
+- pointer-move handling produces no visible jank at 60 Hz;
+- no obvious allocation churn on the hot path in a heap sample.
+
+## 5. <a id="waivers"></a>Allowed regressions and waivers
+
+Only the reproducible metrics are gated. Per §4, runtime timings are not.
+
+| Metric | Allowed regression without a waiver | Gated |
+| --- | --- | :-: |
+| `combined` Brotli | none — a regression requires an explicit review decision | ✓ |
+| `draggable` / `sortable` Brotli individually | +2 % if `combined` improves | ✓ |
+| observable contract tests | zero failures, no exceptions | ✓ |
+| typecheck | clean | ✓ |
+| sortable drag start | order-of-magnitude only, judged by the author | — |
+| pointer-move / hot-path allocations | judged by the author | — |
+
+Waiver approver: the package owner (Vladimir Rindevich). A waiver must be recorded in this file with the measured numbers and the reason.
+
+The proposal's own guidance applies: _"no arbitrary byte target overrides correctness and architectural clarity. A negligible size change must be explicitly justified by structural simplification; a material regression requires an explicit review decision."_
+
+## 6. Measurement log
+
+Append one row per coherent vertical implementation.
+
+| Date | Commit | Phase | draggable | sortable | combined | tests | Author perf check | Notes |
+| --- | --- | --- | --: | --: | --: | --- | --- | --- |
+| 2026-07-24 | `1ce3003d` | baseline | 7.52 kB | 8.83 kB | 14.61 kB | 276/276 | drag start 7–12 ms (Brave trace) | Pre-rewrite. |
+| 2026-07-24 | working tree | Phase 2 | 7.55 kB | 8.86 kB | 14.63 kB | 298/298 | not re-measured | New runtime private; see §6.1. |
+
+### 6.1 Phase 2 — private draggable runtime
+
+The action-driven runtime is complete but not reachable from a public entry, so
+it is absent from the shipped bundles. It was measured through a temporary
+`draggable-next` entry exporting `createDraggableController` plus the same
+public option/result types, built and weighed by the normal `just size`
+toolchain, then removed.
+
+| Entry | Brotli | Against current `draggable` |
+| --- | ---: | ---: |
+| `draggable` (current, protocol architecture) | 7.55 kB | — |
+| **`draggable-next` (action-driven runtime)** | **6.09 kB** | **−1.46 kB, −19.3 %** |
+
+That is the headline Phase 2 result: the same behavioural contract, minus the
+event/effect/owner protocol, is roughly a fifth smaller. It replaces
+`machine/{state,event,effect,decide,idle,pending,activating,active,resolving,settling,reporting,finalizing,helpers}.ts`
+and `effects/{operation,presentation,motion,resolution,barrier,landing,callbacks}.ts`
+with `runtime/{frames,runtime,actions,controller}.ts`.
+
+**Transient regression on the shipped entries: +30 B draggable, +30 B sortable,
++20 B combined.** Attributed by measurement, not inference: stashing only
+`kernel/presentation.ts` and `kernel/pointer.ts` and rebuilding returns exactly
+7.52 / 8.83 / 14.61 kB. The cost is `VisualLiftSession.composeXY`, a scalar
+transform composer added so the hot pointer path composes a transform without
+allocating a `Point` per move. Both shipped entries currently pay for it while
+only the private runtime uses it.
+
+This clears at the Phase 3 cutover, when the old draggable machine and effect
+tree are deleted and `composeXY` becomes live code on the only path that exists.
+Per §5 a `combined` regression needs an explicit decision, so it is recorded
+here rather than absorbed: **accepted as transient, to be re-checked at
+cutover.** If Phase 3 does not recover it, `composeXY` should be reconsidered
+against the allocation it saves.
