@@ -107,8 +107,6 @@ function references(frame: SortableStateFrame): readonly unknown[] {
     frame.insertion,
     frame.proposal,
     frame.domain,
-    frame.failureError,
-    frame.cancelReason,
   ];
 }
 

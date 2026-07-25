@@ -15,9 +15,8 @@
  * web component after the relevant `slotchange`, an imperative consumer
  * immediately after mutating the DOM).
  */
-import type { ResolutionCurrency } from './protocol.ts';
+import type { Disposer } from './lifetimes.ts';
 import type { DOMRealm } from './realm.ts';
-import type { Disposer } from './resource-scope.ts';
 
 /**
  * How long to wait for a consumer's `presentationReady` before giving up.
@@ -34,17 +33,12 @@ export const PRESENTATION_READY_TIMEOUT = 500;
  * that failed it, or `null` on success. A timeout reports a `TimeoutError`
  * `DOMException`.
  *
- * `currency` is echoed back so the feature can drop a settlement belonging to an
- * operation or resolution that has since been superseded — a promise from an
- * abandoned gesture can never resolve into the next one.
- *
  * Disposing drops the watch: any later settlement or timeout becomes inert.
  */
 export function watchPresentationReady(
   ready: PromiseLike<void>,
-  currency: ResolutionCurrency,
   realm: DOMRealm,
-  onSettled: (currency: ResolutionCurrency, error: unknown) => void,
+  onSettled: (error: unknown) => void,
 ): Disposer {
   let done = false;
   let timer = 0;
@@ -56,7 +50,7 @@ export function watchPresentationReady(
 
     done = true;
     realm.window.clearTimeout(timer);
-    onSettled(currency, error);
+    onSettled(error);
   };
 
   timer = realm.window.setTimeout(() => {

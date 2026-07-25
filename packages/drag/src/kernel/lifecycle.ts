@@ -39,7 +39,7 @@ export const NO_POINTER = -1;
  * One operation's identity. A bare object: identity comparison is cheaper and
  * more robust than a counter, and it cannot collide across controllers.
  */
-export type OperationIdentity = Readonly<{ id: number }>;
+export type OperationIdentity = object;
 
 /** Any runtime carrying a committed frame and its reusable candidate. */
 export type TransactionalFrames<Frame> = {
@@ -117,7 +117,7 @@ export type ResolutionSettlement =
   | Readonly<{ ok: true; value: unknown }>
   | Readonly<{ ok: false; reason: unknown }>;
 
-export type ResolutionAttempt<Resolution> = {
+export type ResolutionAttempt = {
   controller: AbortController;
   /**
    * Whether the resolver produced a result. Deliberately distinct from
@@ -126,18 +126,14 @@ export type ResolutionAttempt<Resolution> = {
    */
   completed: boolean;
   settlement: ResolutionSettlement | null;
-  resolution: Resolution | null;
 };
 
 /** A fresh, unsettled attempt. */
-export function createResolutionAttempt<
-  Resolution,
->(): ResolutionAttempt<Resolution> {
+export function createResolutionAttempt(): ResolutionAttempt {
   return {
     controller: new AbortController(),
     completed: false,
     settlement: null,
-    resolution: null,
   };
 }
 

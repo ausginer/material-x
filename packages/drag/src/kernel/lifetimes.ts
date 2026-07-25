@@ -18,85 +18,91 @@
  * Every close is latched, so teardown paths may run unconditionally and in any
  * order.
  */
-import { createResourceScope, type ResourceScope } from './resource-scope.ts';
+
+/**
+ * Releases one acquisition. Every disposer in this package is idempotent: a
+ * second call is a no-op, never an error, so teardown paths may run
+ * unconditionally.
+ *
+ * This is the package's single release shape. Anything acquired — a pointer
+ * capture, an inline-style snapshot, a top-layer entry, a readiness watch —
+ * hands back one of these rather than its own one-method handle type.
+ */
+export type Disposer = () => void;
+
+export type Lifetime = Readonly<{
+  signal: AbortSignal;
+  finalized: boolean;
+  use(disposer: Disposer): void;
+  useWhile(guard: () => boolean, disposer: Disposer): void;
+  dispose(): void;
+}>;
+
+export function createLifetime(report: (error: unknown) => void): Lifetime {
+  const disposers: Disposer[] = [];
+  const controller = new AbortController();
+  let finalized = false;
+
+  return {
+    signal: controller.signal,
+
+    get finalized(): boolean {
+      return finalized;
+    },
+
+    use(disposer: Disposer): void {
+      disposers.push(disposer);
+    },
+
+    useWhile(guard: () => boolean, disposer: Disposer): void {
+      disposers.push(() => {
+        if (guard()) {
+          disposer();
+        }
+      });
+    },
+
+    dispose(): void {
+      if (finalized) {
+        return;
+      }
+
+      finalized = true;
+      controller.abort();
+
+      for (let i = disposers.length - 1; i >= 0; i--) {
+        try {
+          disposers[i]!();
+        } catch (error) {
+          report(error);
+        }
+      }
+    },
+  };
+}
 
 export type OperationLifetimes = Readonly<{
-  /** Aborts when motion ingress closes. Carries pointer and invalidation listeners. */
-  motionSignal: AbortSignal;
-  /** Aborts when cancellation closes. Carries the Escape listener. */
-  cancelSignal: AbortSignal;
-  motion: ResourceScope;
-  cancellation: ResourceScope;
-  presentation: ResourceScope;
-  /** Closes motion ingress. Idempotent. */
-  closeMotion(): void;
-  /** Closes cancellation, and motion first if it is still open. Idempotent. */
-  closeCancellation(): void;
-  /** Releases temporary presentation. Idempotent. */
-  releasePresentation(): void;
-  /** Whether motion ingress is already closed. */
-  motionClosed(): boolean;
-  /** Closes every stage, in order. Idempotent. */
-  destroy(): void;
+  motion: Lifetime;
+  cancellation: Lifetime;
+  presentation: Lifetime;
+  dispose: Disposer;
 }>;
 
 export function createOperationLifetimes(
   report: (error: unknown) => void,
 ): OperationLifetimes {
-  const motionController = new AbortController();
-  const cancelController = new AbortController();
-  const motion = createResourceScope(report);
-  const cancellation = createResourceScope(report);
-  const presentation = createResourceScope(report);
-  let motionDone = false;
-  let cancellationDone = false;
-  let presentationDone = false;
-
-  const closeMotion = (): void => {
-    if (motionDone) {
-      return;
-    }
-
-    motionDone = true;
-    motionController.abort();
-    motion.dispose();
-  };
-
-  const closeCancellation = (): void => {
-    closeMotion();
-
-    if (cancellationDone) {
-      return;
-    }
-
-    cancellationDone = true;
-    cancelController.abort();
-    cancellation.dispose();
-  };
-
-  const releasePresentation = (): void => {
-    if (presentationDone) {
-      return;
-    }
-
-    presentationDone = true;
-    presentation.dispose();
-  };
+  const motion = createLifetime(report);
+  const cancellation = createLifetime(report);
+  const presentation = createLifetime(report);
 
   return {
-    motionSignal: motionController.signal,
-    cancelSignal: cancelController.signal,
     motion,
     cancellation,
     presentation,
-    closeMotion,
-    closeCancellation,
-    releasePresentation,
-    motionClosed: () => motionDone,
-
-    destroy() {
-      closeCancellation();
-      releasePresentation();
+    dispose() {
+      motion.dispose();
+      cancellation.dispose();
+      presentation.dispose();
     },
   };
 }

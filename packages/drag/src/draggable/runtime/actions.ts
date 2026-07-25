@@ -16,7 +16,7 @@
  * named checkpoint, and nothing else re-enters the queue.
  */
 import { createLandingRunner } from '../../kernel/animation.ts';
-import { createMapper, IDENTITY_MAPPER } from '../../kernel/coordinate.ts';
+import { createMapper } from '../../kernel/coordinate.ts';
 import { reportError_ } from '../../kernel/errors.ts';
 import {
   ACTIVATING,
@@ -34,14 +34,17 @@ import {
   REPORTING,
   SETTLING,
 } from '../../kernel/lifecycle.ts';
-import { createOperationLifetimes } from '../../kernel/lifetimes.ts';
+import {
+  createOperationLifetimes,
+  type Disposer,
+} from '../../kernel/lifetimes.ts';
 import {
   acquirePointerCapture,
   armOperationInput,
   type PointerCoordinates,
 } from '../../kernel/pointer.ts';
 import { watchPresentationReady } from '../../kernel/presentation-ready.ts';
-import { acquireLift, createDragRenderer } from '../../kernel/presentation.ts';
+import { acquireLift } from '../../kernel/presentation.ts';
 import {
   CANCEL_ESCAPE,
   CANCEL_POINTER,
@@ -273,11 +276,7 @@ function readBounds(
 
 /** The committed coordinate space, falling back to the activation-time one. */
 function activeMapper(runtime: DraggableRuntime): CoordinateMapper {
-  return (
-    runtime.policy.coordinateSpace ??
-    runtime.current.coordinateSpace ??
-    IDENTITY_MAPPER
-  );
+  return runtime.policy.coordinateSpace ?? runtime.current.coordinateSpace!;
 }
 
 /** Writes the committed delta to the DOM. Post-commit; may fail. */
@@ -285,9 +284,9 @@ function presentMotion(
   runtime: DraggableRuntime,
   operation: OperationIdentity,
 ): boolean {
-  const { renderer, lift } = runtime;
+  const { lift } = runtime;
 
-  if (!renderer || !lift) {
+  if (!lift) {
     return true;
   }
 
@@ -359,7 +358,7 @@ function handleAdmit(runtime: DraggableRuntime, press: AdmittedPress): void {
     return;
   }
 
-  const operation = nextOperation(runtime);
+  const operation = nextOperation();
   const lifetimes = createOperationLifetimes((error) => {
     dispatchDisposerError(runtime, error);
   });
@@ -367,8 +366,8 @@ function handleAdmit(runtime: DraggableRuntime, press: AdmittedPress): void {
   try {
     armOperationInput(
       runtime.realm,
-      lifetimes.motionSignal,
-      lifetimes.cancelSignal,
+      lifetimes.motion.signal,
+      lifetimes.cancellation.signal,
       (event) => {
         receivePointer(runtime, operation, event);
       },
@@ -377,7 +376,7 @@ function handleAdmit(runtime: DraggableRuntime, press: AdmittedPress): void {
       },
     );
   } catch (error) {
-    lifetimes.destroy();
+    lifetimes.dispose();
     fail(runtime, null, FAILURE_MOVE, error, null, false, RECOVERY_IMMEDIATE);
     return;
   }
@@ -571,7 +570,7 @@ function activate(runtime: DraggableRuntime, event: PointerCoordinates): void {
   let originRect: DOMRectReadOnly;
   let coordinateSpace: CoordinateMapper;
   let lift: ReturnType<typeof acquireLift> | null = null;
-  let releaseCapture: (() => void) | null = null;
+  let releaseCapture: Disposer | null = null;
 
   try {
     originRect = runtime.visual.getBoundingClientRect();
@@ -583,8 +582,7 @@ function activate(runtime: DraggableRuntime, event: PointerCoordinates): void {
           ? context
           : runtime.realm.document.documentElement,
         runtime.realm,
-      ) ??
-      IDENTITY_MAPPER;
+      );
 
     lift = acquireLift(
       runtime.visual,
@@ -613,7 +611,6 @@ function activate(runtime: DraggableRuntime, event: PointerCoordinates): void {
   lifetimes.presentation.use(lift.dispose);
   lifetimes.motion.use(releaseCapture);
   runtime.lift = lift;
-  runtime.renderer = createDragRenderer(lift);
 
   const next = beginTransition(runtime);
   next.phase = ACTIVATING;
@@ -624,7 +621,7 @@ function activate(runtime: DraggableRuntime, event: PointerCoordinates): void {
   applyMotionDelta(next, runtime.policy.axis, null);
   commitTransition(runtime);
 
-  runtime.invalidation.arm(lifetimes.motionSignal, () => {
+  runtime.invalidate(lifetimes.motion.signal, () => {
     dispatch(runtime, INVALIDATE, operation);
   });
 
@@ -734,7 +731,7 @@ function handlePointerUp(
   commitTransition(runtime);
 
   // Post-commit: motion ingress dies, cancellation survives.
-  runtime.lifetimes?.closeMotion();
+  runtime.lifetimes?.motion.dispose();
 
   if (!presentMotion(runtime, operation)) {
     return;
@@ -774,7 +771,7 @@ function handlePointerUp(
 }
 
 function openResolution(runtime: DraggableRuntime): void {
-  const attempt = createResolutionAttempt<FreeDropResolution>();
+  const attempt = createResolutionAttempt();
   runtime.resolution = attempt;
 
   // The attempt owns its controller; the cancellation stage owns only the
@@ -918,10 +915,10 @@ function enterSettlement(
   commitTransition(runtime);
 
   // All input closes here: nothing further can affect the committed outcome.
-  runtime.lifetimes?.closeCancellation();
+  runtime.lifetimes?.cancellation.dispose();
 
   if (ready) {
-    watchReadiness(runtime, operation, ready);
+    watchReadiness(runtime, ready);
   }
 
   if (recovery === RECOVERY_HOME) {
@@ -933,30 +930,22 @@ function enterSettlement(
 
 function watchReadiness(
   runtime: DraggableRuntime,
-  operation: OperationIdentity,
   ready: PromiseLike<void>,
 ): void {
   const attempt: ReadinessAttempt = {
     dispose: null,
     error: null,
-    settled: false,
   };
   runtime.readiness = attempt;
 
-  attempt.dispose = watchPresentationReady(
-    ready,
-    { operationId: operation.id, resolutionId: 0 },
-    runtime.realm,
-    (_currency, error) => {
-      if (runtime.readiness !== attempt || attempt.settled) {
-        return;
-      }
+  attempt.dispose = watchPresentationReady(ready, runtime.realm, (error) => {
+    if (runtime.readiness !== attempt) {
+      return;
+    }
 
-      attempt.settled = true;
-      attempt.error = error;
-      dispatch(runtime, READINESS_SETTLED, attempt);
-    },
-  );
+    attempt.error = error;
+    dispatch(runtime, READINESS_SETTLED, attempt);
+  });
 }
 
 function handleReadinessSettled(
@@ -1075,7 +1064,6 @@ function startLanding(
     attempt.runner = createLandingRunner(
       lift,
       plan,
-      { operationId: operation.id, landingId: 0 },
       timing,
       runtime.realm,
       () => {
@@ -1083,7 +1071,7 @@ function startLanding(
           dispatch(runtime, LANDING_SETTLED, attempt);
         }
       },
-      (_currency, error) => {
+      (error) => {
         if (runtime.landing === attempt) {
           attempt.error = error;
           dispatch(runtime, LANDING_SETTLED, attempt);
@@ -1184,9 +1172,8 @@ function advanceSettlement(
 
   // Temporary presentation goes before the terminal callback, so the consumer
   // observes its own authored DOM rather than the lift.
-  runtime.lifetimes?.releasePresentation();
+  runtime.lifetimes?.presentation.dispose();
   runtime.lift = null;
-  runtime.renderer = null;
   retireAttempts(runtime);
 
   const { onFinish, onCancel } = runtime.config;
@@ -1295,10 +1282,6 @@ function handleCancel(runtime: DraggableRuntime, request: CancelRequest): void {
     return;
   }
 
-  const next = beginTransition(runtime);
-  next.cancelReason = request.reason;
-  commitTransition(runtime);
-
   enterSettlement(
     runtime,
     request.operation,
@@ -1329,8 +1312,6 @@ function handleFailed(runtime: DraggableRuntime, record: FailureRecord): void {
 
   const next = beginTransition(runtime);
   next.phase = REPORTING;
-  next.failureStage = record.cause.stage;
-  next.failureError = record.error;
   commitTransition(runtime);
 
   reportFailure(runtime, record);

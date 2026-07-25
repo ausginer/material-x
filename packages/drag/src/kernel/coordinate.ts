@@ -18,19 +18,6 @@
 import type { DOMRealm } from './realm.ts';
 import type { CoordinateMapper, Point } from './types.ts';
 
-/** A mapper that leaves points and deltas untouched (no transform context). */
-export const IDENTITY_MAPPER: CoordinateMapper = {
-  toViewport(point: Point) {
-    return point;
-  },
-  fromViewport(point: Point) {
-    return point;
-  },
-  deltaFromViewport(delta: Point) {
-    return delta;
-  },
-};
-
 /** The strictly-2D projection of a matrix, so no `multiply` ever mixes dims. */
 const flat2d = (m: DOMMatrix, M: typeof DOMMatrix): DOMMatrix =>
   new M([m.a, m.b, m.c, m.d, m.e, m.f]);
@@ -158,24 +145,25 @@ export function createMapper(
 ): CoordinateMapper {
   const matrix = viewportMatrix(element, realm);
   const inverse = matrix.inverse();
-  const { a, b, c, d, e, f } = matrix;
-  const { a: ia, b: ib, c: ic, d: id, e: ie, f: iff } = inverse;
 
   return {
     toViewport(point) {
       return {
-        x: a * point.x + c * point.y + e,
-        y: b * point.x + d * point.y + f,
+        x: matrix.a * point.x + matrix.c * point.y + matrix.e,
+        y: matrix.b * point.x + matrix.d * point.y + matrix.f,
       };
     },
     fromViewport(point) {
       return {
-        x: ia * point.x + ic * point.y + ie,
-        y: ib * point.x + id * point.y + iff,
+        x: inverse.a * point.x + inverse.c * point.y + inverse.e,
+        y: inverse.b * point.x + inverse.d * point.y + inverse.f,
       };
     },
     deltaFromViewport(delta) {
-      return { x: ia * delta.x + ic * delta.y, y: ib * delta.x + id * delta.y };
+      return {
+        x: inverse.a * delta.x + inverse.c * delta.y,
+        y: inverse.b * delta.x + inverse.d * delta.y,
+      };
     },
   };
 }

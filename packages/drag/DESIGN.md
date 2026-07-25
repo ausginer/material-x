@@ -13,8 +13,7 @@ src/
   kernel/            platform and lifecycle primitives, feature-agnostic
     lifecycle.ts       phase vocabulary, frame transaction, resolution attempts
     queue.ts           FIFO run-to-completion action queue
-    lifetimes.ts       the three releasable stages of one operation
-    resource-scope.ts  LIFO, idempotent, best-effort disposer stack
+    lifetimes.ts       `Disposer`, `Lifetime`, the three stages of one operation
     pointer.ts         pointer ingress, capture, admission predicate
     presentation.ts    inline-style and top-layer leases, lift strategies
     presentation-ready.ts  the authored-presentation barrier (500 ms)
@@ -33,7 +32,7 @@ src/
   sortable/          collection reordering
     runtime/{frames,runtime,actions,controller}.ts
     options.ts admission.ts geometry.ts insertion.ts rect-index.ts
-    keyboard.ts landing.ts placeholder.ts request.ts collection-policy.ts
+    keyboard.ts landing.ts request.ts collection-policy.ts
 ```
 
 Each feature is four runtime files plus pure domain modules. The pure modules read no state and perform no effects; they are unit-tested directly.
@@ -116,11 +115,12 @@ Acquisition stays local until the commit point:
 ```ts
 try {
   lift = acquireLift(...);
-  placeholder = insertPlaceholder(...);
+  placeholder = createPlaceholder(...);
+  item.after(placeholder);
   releaseCapture = acquirePointerCapture(...);
 } catch (error) {
   releaseCapture?.(); // reverse order
-  placeholder?.dispose();
+  placeholder?.remove();
   lift?.dispose();
   fail(...);
   return;
@@ -160,12 +160,14 @@ Five, in release order. `kernel/lifetimes.ts` owns the middle three.
 | 1 | Controller ingress | `pointerdown`; sortable's container `keydown` | `destroy()` / panic |
 | 2a | Motion ingress | pointer move/up/cancel, pointer capture, scroll + resize invalidation, spatial frame | **release** |
 | 2b | Cancellation & resolution | Escape listener, `cancel()` admissibility, the guarded abort for the current resolution attempt | resolver settles, or settlement entry |
-| 3 | Temporary presentation | lift, style snapshot, renderer, placeholder | finalization, after landing + readiness |
+| 3 | Temporary presentation | lift, style snapshot, placeholder | finalization, after landing + readiness |
 | 4 | Async attempts | resolution, readiness, landing, spatial | per-attempt retirement |
 
 **2a and 2b must stay separate.** Release closes motion so nothing can move the geometry the proposal was resolved from, while cancellation stays armed so a consumer can still abandon an unresolved drop. They previously shared one `AbortSignal`; closing them together would abort the resolver's signal the instant `onDrop` opened.
 
-Every close is latched and idempotent. Disposal within a stage is LIFO and best-effort: one disposer throwing is reported and does not stop the rest.
+Each stage is a `Lifetime`: an `AbortSignal`, a disposer stack, and a latched `dispose()`. `use(disposer)` registers unconditionally; `useWhile(guard, disposer)` registers a disposal that runs only if the guard still holds, which is how the resolution abort stays bound to the current attempt. Disposal aborts the signal, then unwinds the stack LIFO and best-effort: one disposer throwing is reported and does not stop the rest. `dispose()` is latched, so teardown paths may run unconditionally and in any order.
+
+There is one release shape in the package — `Disposer`, a bare `() => void`. A pointer capture, a style snapshot, a top-layer entry and a readiness watch all hand back the same type rather than their own one-method handle, so a lifetime stage stores them without adaptation.
 
 ## Async attempts and identity
 

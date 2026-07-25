@@ -86,7 +86,6 @@ import {
   type ReorderResolution,
   type ReorderTransactionResult,
 } from '../options.ts';
-import { createAnchor, insertPlaceholder } from '../placeholder.ts';
 import { markRectIndexDirty } from '../rect-index.ts';
 import { buildReorderProposal } from '../request.ts';
 import type { OperationIdentity } from './frames.ts';
@@ -331,11 +330,15 @@ function placeInsertion(
   try {
     const reference = insertion.after;
     const unchanged =
-      reference === placeholder.element ||
-      placeholder.element.nextSibling === reference;
+      reference === placeholder || placeholder.nextSibling === reference;
 
     if (!unchanged) {
-      placeholder.placeBefore(reference);
+      if (reference) {
+        reference.before(placeholder);
+      } else {
+        placeholder.parentNode?.append(placeholder);
+      }
+
       markRectIndexDirty(runtime.rects);
     }
 
@@ -419,7 +422,7 @@ function beginOperation(runtime: SortableRuntime): OperationIdentity | null {
     return null;
   }
 
-  const operation = nextOperation(runtime);
+  const operation = nextOperation();
   const lifetimes = createOperationLifetimes((error) => {
     reportDisposerError(runtime, error);
   });
@@ -427,8 +430,8 @@ function beginOperation(runtime: SortableRuntime): OperationIdentity | null {
   try {
     armOperationInput(
       runtime.realm,
-      lifetimes.motionSignal,
-      lifetimes.cancelSignal,
+      lifetimes.motion.signal,
+      lifetimes.cancellation.signal,
       (event) => {
         receivePointer(runtime, operation, event);
       },
@@ -437,7 +440,7 @@ function beginOperation(runtime: SortableRuntime): OperationIdentity | null {
       },
     );
   } catch (error) {
-    lifetimes.destroy();
+    lifetimes.dispose();
     fail(
       runtime,
       null,
@@ -514,7 +517,7 @@ function activate(runtime: SortableRuntime): void {
 
   let originRect: DOMRectReadOnly;
   let lift: ReturnType<typeof acquireLift> | null = null;
-  let placeholder: ReturnType<typeof insertPlaceholder> | null = null;
+  let placeholder: HTMLElement | null = null;
   let releaseCapture: (() => void) | null = null;
 
   try {
@@ -535,27 +538,30 @@ function activate(runtime: SortableRuntime): void {
       runtime.realm,
     );
 
-    const anchor = createAnchor(
-      { createPlaceholder: runtime.config.createPlaceholder },
-      runtime.realm,
-      item,
-      visual,
-      originRect,
-    );
+    placeholder =
+      runtime.config.createPlaceholder?.({
+        item,
+        visual,
+        rect: originRect,
+      }) ?? runtime.realm.document.createElement('div');
+    placeholder.dataset['dragPlaceholder'] = '';
+    placeholder.setAttribute('aria-hidden', 'true');
+    // Local (offset) box: unaffected by the item's transform or ancestor zoom.
+    placeholder.style.width = `${visual.offsetWidth}px`;
+    placeholder.style.height = `${visual.offsetHeight}px`;
 
-    try {
-      placeholder = insertPlaceholder(anchor, item);
-    } catch (error) {
-      anchor.remove();
-      throw error;
+    if (item.slot) {
+      placeholder.slot = item.slot;
     }
+
+    item.after(placeholder);
 
     if (!current.keyboard) {
       releaseCapture = acquirePointerCapture(item, current.pointerId);
     }
   } catch (error) {
     releaseCapture?.();
-    placeholder?.dispose();
+    placeholder?.remove();
     lift?.dispose();
     fail(
       runtime,
@@ -573,13 +579,15 @@ function activate(runtime: SortableRuntime): void {
   // roll back rather than publishing.
   if (!preparationValid(runtime, operation)) {
     releaseCapture?.();
-    placeholder.dispose();
+    placeholder.remove();
     lift.dispose();
     return;
   }
 
   // Ownership transfers here; nothing above this line has been published.
-  lifetimes.presentation.use(placeholder.dispose);
+  lifetimes.presentation.use(() => {
+    placeholder.remove();
+  });
   lifetimes.presentation.use(lift.dispose);
 
   if (releaseCapture) {
@@ -591,7 +599,7 @@ function activate(runtime: SortableRuntime): void {
   runtime.originRect = originRect;
   markRectIndexDirty(runtime.rects);
 
-  runtime.invalidation.arm(lifetimes.motionSignal, () => {
+  runtime.invalidate(lifetimes.motion.signal, () => {
     markRectIndexDirty(runtime.rects);
   });
 
@@ -700,7 +708,7 @@ function handlePointerMove(
 
   // Spatial work is latest-wins: a newer attempt supersedes any frame still
   // pending, so an outdated hit test can never commit an insertion.
-  const attempt = nextSpatial(runtime);
+  const attempt = nextSpatial();
   runtime.pendingSpatial = attempt;
   runtime.frame?.schedule(attempt);
 }
@@ -803,7 +811,7 @@ function release(runtime: SortableRuntime, x: number, y: number): void {
   // Post-commit: motion ingress and pending frame work die; cancellation lives.
   runtime.frame?.cancel();
   runtime.pendingSpatial = null;
-  runtime.lifetimes?.closeMotion();
+  runtime.lifetimes?.motion.dispose();
 
   if (!current.keyboard && !presentMotion(runtime, operation)) {
     return;
@@ -904,7 +912,7 @@ function release(runtime: SortableRuntime, x: number, y: number): void {
 }
 
 function openResolution(runtime: SortableRuntime): void {
-  const attempt = createResolutionAttempt<ReorderResolution>();
+  const attempt = createResolutionAttempt();
   runtime.resolution = attempt;
 
   runtime.lifetimes?.cancellation.useWhile(
@@ -1133,10 +1141,10 @@ function enterSettlement(
 
   runtime.frame?.cancel();
   runtime.pendingSpatial = null;
-  runtime.lifetimes?.closeCancellation();
+  runtime.lifetimes?.cancellation.dispose();
 
   if (ready) {
-    watchReadiness(runtime, operation, ready);
+    watchReadiness(runtime, ready);
   }
 
   if (recovery !== RECOVERY_IMMEDIATE) {
@@ -1148,30 +1156,22 @@ function enterSettlement(
 
 function watchReadiness(
   runtime: SortableRuntime,
-  operation: OperationIdentity,
   ready: PromiseLike<void>,
 ): void {
   const attempt: ReadinessAttempt = {
     dispose: null,
     error: null,
-    settled: false,
   };
   runtime.readiness = attempt;
 
-  attempt.dispose = watchPresentationReady(
-    ready,
-    { operationId: operation.id, resolutionId: 0 },
-    runtime.realm,
-    (_currency, error) => {
-      if (runtime.readiness !== attempt || attempt.settled) {
-        return;
-      }
+  attempt.dispose = watchPresentationReady(ready, runtime.realm, (error) => {
+    if (runtime.readiness !== attempt) {
+      return;
+    }
 
-      attempt.settled = true;
-      attempt.error = error;
-      dispatch(runtime, READINESS_SETTLED, attempt);
-    },
-  );
+    attempt.error = error;
+    dispatch(runtime, READINESS_SETTLED, attempt);
+  });
 }
 
 function handleReadinessSettled(
@@ -1237,11 +1237,15 @@ function startLanding(
     if (recovery === RECOVERY_HOME) {
       // The visual returns to its grab origin, so the placeholder must be back
       // in the home slot before the plan is measured.
-      placeholder.returnHome();
+      frame.item!.after(placeholder);
       markRectIndexDirty(runtime.rects);
       plan = homePlan(delta);
     } else {
-      plan = destinationPlan(placeholder.rect(), originRect, delta);
+      plan = destinationPlan(
+        placeholder.getBoundingClientRect(),
+        originRect,
+        delta,
+      );
     }
   } catch (error) {
     fail(
@@ -1280,7 +1284,6 @@ function startLanding(
     attempt.runner = createLandingRunner(
       lift,
       plan,
-      { operationId: operation.id, landingId: 0 },
       timing,
       runtime.realm,
       () => {
@@ -1288,7 +1291,7 @@ function startLanding(
           dispatch(runtime, LANDING_SETTLED, attempt);
         }
       },
-      (_currency, error) => {
+      (error) => {
         if (runtime.landing === attempt) {
           attempt.error = error;
           dispatch(runtime, LANDING_SETTLED, attempt);
@@ -1388,9 +1391,8 @@ function advanceSettlement(
 
   // The placeholder and the lift go before the terminal callback, so the
   // consumer observes its own authored DOM rather than the drag presentation.
-  runtime.lifetimes?.releasePresentation();
+  runtime.lifetimes?.presentation.dispose();
   runtime.lift = null;
-  runtime.renderer = null;
   runtime.placeholder = null;
   retireAttempts(runtime);
 
@@ -1497,10 +1499,6 @@ function handleCancel(runtime: SortableRuntime, request: CancelRequest): void {
     return;
   }
 
-  const next = beginTransition(runtime);
-  next.cancelReason = request.reason;
-  commitTransition(runtime);
-
   enterSettlement(
     runtime,
     request.operation,
@@ -1526,8 +1524,6 @@ function handleFailed(runtime: SortableRuntime, record: FailureRecord): void {
 
   const next = beginTransition(runtime);
   next.phase = REPORTING;
-  next.failureStage = record.cause.stage;
-  next.failureError = record.error;
   commitTransition(runtime);
 
   reportFailure(runtime, record);

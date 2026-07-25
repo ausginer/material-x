@@ -1,7 +1,7 @@
 /**
  * Active-layout invalidation and coalesced frame work.
  *
- * {@link InvalidationSource} owns active-gesture scroll and resize listeners and
+ * {@link Invalidator} owns active-gesture scroll and resize listeners and
  * disposes them with the gesture signal. It does not know whether invalidation
  * means re-clamping a free drag or remeasuring sortable items; the feature
  * decides the response.
@@ -14,29 +14,24 @@ import type { DOMRealm } from './realm.ts';
 const SCROLL = 'scroll';
 const RESIZE = 'resize';
 
-export type InvalidationSource = Readonly<{
-  /** Attaches scroll/resize listeners that call `onInvalidate` until aborted. */
-  arm(signal: AbortSignal, onInvalidate: () => void): void;
-}>;
+/** Attaches scroll/resize listeners that call `onInvalidate` until aborted. */
+export type Invalidator = (
+  signal: AbortSignal,
+  onInvalidate: () => void,
+) => void;
 
-export function createInvalidationSource(realm: DOMRealm): InvalidationSource {
-  return {
-    arm(signal, onInvalidate) {
-      const handler = (): void => {
-        onInvalidate();
-      };
-
-      // Capture scroll so nested scrollers also invalidate.
-      realm.window.addEventListener(SCROLL, handler, {
-        signal,
-        capture: true,
-        passive: true,
-      });
-      realm.window.addEventListener(RESIZE, handler, {
-        signal,
-        passive: true,
-      });
-    },
+export function createInvalidator(realm: DOMRealm): Invalidator {
+  return (signal, onInvalidate) => {
+    // Capture scroll so nested scrollers also invalidate.
+    realm.window.addEventListener(SCROLL, onInvalidate, {
+      signal,
+      capture: true,
+      passive: true,
+    });
+    realm.window.addEventListener(RESIZE, onInvalidate, {
+      signal,
+      passive: true,
+    });
   };
 }
 

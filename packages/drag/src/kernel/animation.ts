@@ -7,7 +7,7 @@
  * runner's private bits exist only for idempotency and browser callback races.
  */
 import type { VisualLiftSession } from './presentation.ts';
-import type { LandingCurrency, LandingPlan } from './protocol.ts';
+import type { LandingPlan } from './protocol.ts';
 import type { DOMRealm } from './realm.ts';
 import type { AnimationTiming } from './types.ts';
 
@@ -16,8 +16,6 @@ export type LandingRunner = Readonly<{
   pin(): void;
   /** Silent terminal teardown: mark destroyed, cancel, never pin, dispatch nothing. */
   destroy(): void;
-  /** Unexpected presentation failure: cancel without pinning, dispatch the tagged failure. */
-  interrupt(error: unknown): void;
 }>;
 
 /** Whether the owning realm reports a reduced-motion preference. */
@@ -31,15 +29,13 @@ function prefersReducedMotion(realm: DOMRealm): boolean {
 export function createLandingRunner(
   lift: VisualLiftSession,
   plan: LandingPlan,
-  currency: LandingCurrency,
   timing: AnimationTiming,
   realm: DOMRealm,
-  onFinished: (currency: LandingCurrency) => void,
-  onInterrupted: (currency: LandingCurrency, error: unknown) => void,
+  onFinished: () => void,
+  onInterrupted: (error: unknown) => void,
 ): LandingRunner {
   const toTransform = lift.compose(plan.target);
   let terminal = false;
-  let pinned = false;
 
   const animation = lift.visual.animate(
     [{ transform: lift.compose(plan.from) }, { transform: toTransform }],
@@ -49,35 +45,26 @@ export function createLandingRunner(
   animation.finished.then(
     () => {
       if (!terminal) {
-        onFinished(currency);
+        onFinished();
       }
     },
     () => {
       // A cancel (destroy/interrupt) rejects `finished`; those paths set
       // `terminal` first, so an ordinary interruption is not double-reported.
       if (!terminal) {
-        onInterrupted(currency, new Error('drag: landing animation canceled'));
+        onInterrupted(new Error('drag: landing animation canceled'));
       }
     },
   );
 
   return {
     pin() {
-      if (!pinned) {
-        pinned = true;
-        lift.visual.style.transform = toTransform;
-      }
+      lift.visual.style.transform = toTransform;
     },
 
     destroy() {
       terminal = true;
       animation.cancel();
-    },
-
-    interrupt(error) {
-      terminal = true;
-      animation.cancel();
-      onInterrupted(currency, error);
     },
   };
 }

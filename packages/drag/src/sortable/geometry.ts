@@ -6,9 +6,6 @@
 // DOM order is tested through `compareDocumentPosition`'s bitmask.
 /* oxlint-disable no-bitwise */
 
-const hasPosition = (a: Node, b: Node, flag: number): boolean =>
-  (a.compareDocumentPosition(b) & flag) !== 0;
-
 /** Landing index of the dragged item: non-dragged items before the anchor. */
 export function anchorIndex(
   items: readonly HTMLElement[],
@@ -20,7 +17,9 @@ export function anchorIndex(
   for (const item of items) {
     if (
       item !== dragged &&
-      hasPosition(anchor, item, Node.DOCUMENT_POSITION_PRECEDING)
+      (anchor.compareDocumentPosition(item) &
+        Node.DOCUMENT_POSITION_PRECEDING) !==
+        0
     ) {
       index += 1;
     }
@@ -39,7 +38,7 @@ export function neighbor(
   anchor: Element,
   following: boolean,
 ): HTMLElement | null {
-  const bit = following
+  const flag = following
     ? Node.DOCUMENT_POSITION_FOLLOWING
     : Node.DOCUMENT_POSITION_PRECEDING;
   let result: HTMLElement | null = null;
@@ -49,7 +48,7 @@ export function neighbor(
       continue;
     }
 
-    if (hasPosition(anchor, item, bit)) {
+    if ((anchor.compareDocumentPosition(item) & flag) !== 0) {
       if (following) {
         return item;
       }
@@ -63,5 +62,9 @@ export function neighbor(
 
 /** Whether `item` follows `anchor` in DOM order. */
 export function follows(anchor: Element, item: Element): boolean {
-  return hasPosition(anchor, item, Node.DOCUMENT_POSITION_FOLLOWING);
+  return (
+    (anchor.compareDocumentPosition(item) &
+      Node.DOCUMENT_POSITION_FOLLOWING) !==
+    0
+  );
 }

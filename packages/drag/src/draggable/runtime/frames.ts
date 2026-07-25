@@ -14,11 +14,7 @@ import {
   NO_POINTER as NO_POINTER_VALUE,
   type OperationIdentity,
 } from '../../kernel/lifecycle.ts';
-import {
-  OUTCOME_ACCEPTED,
-  RECOVERY_IMMEDIATE,
-  type CancellationReason,
-} from '../../kernel/protocol.ts';
+import { OUTCOME_ACCEPTED, RECOVERY_IMMEDIATE } from '../../kernel/protocol.ts';
 import type { CoordinateMapper } from '../../kernel/types.ts';
 import type { FreeDropProposal, FreeDropResult } from '../options.ts';
 
@@ -57,12 +53,6 @@ export type DragStateFrame = {
   landingDone: boolean;
   /** Settlement gate: the consumer's authored presentation is ready. */
   authoredPresentationReady: boolean;
-
-  /** `FAILURE_*` stage, meaningful in `DRAG_REPORTING`. */
-  failureStage: number;
-  failureError: unknown;
-  /** Why the operation was cancelled, when it was. */
-  cancelReason: CancellationReason | null;
 };
 
 /**
@@ -91,9 +81,6 @@ export function createStateFrame(): DragStateFrame {
     recovery: RECOVERY_IMMEDIATE,
     landingDone: false,
     authoredPresentationReady: false,
-    failureStage: 0,
-    failureError: null,
-    cancelReason: null,
   };
 }
 
@@ -113,8 +100,6 @@ export function resetStateFrame(frame: DragStateFrame): void {
   frame.coordinateSpace = null;
   frame.proposal = null;
   frame.domain = null;
-  frame.failureError = null;
-  frame.cancelReason = null;
   frame.landingDone = false;
   frame.authoredPresentationReady = false;
 }

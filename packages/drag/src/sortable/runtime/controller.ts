@@ -8,7 +8,7 @@
  * handle resolver and `preventDefault()` are valid only during native dispatch;
  * everything they decide is handed to the queue as a small owned value.
  */
-import { createInvalidationSource } from '../../kernel/invalidation.ts';
+import { createInvalidator } from '../../kernel/invalidation.ts';
 import { isPrimaryPress } from '../../kernel/pointer.ts';
 import {
   CANCEL_CONSUMER,
@@ -99,7 +99,7 @@ export function createSortableControllerInternal(
   const runtime = createSortableRuntime({
     realm,
     container,
-    invalidation: createInvalidationSource(realm),
+    invalidation: createInvalidator(realm),
     config,
   });
 

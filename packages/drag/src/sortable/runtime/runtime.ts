@@ -6,19 +6,13 @@
  */
 import type { LandingRunner } from '../../kernel/animation.ts';
 import { reportError_ } from '../../kernel/errors.ts';
-import type {
-  FrameTask,
-  InvalidationSource,
-} from '../../kernel/invalidation.ts';
+import type { FrameTask, Invalidator } from '../../kernel/invalidation.ts';
 import {
   isCurrentOperation,
   type ResolutionAttempt as Attempt,
 } from '../../kernel/lifecycle.ts';
-import type { OperationLifetimes } from '../../kernel/lifetimes.ts';
-import type {
-  DragRenderer,
-  VisualLiftSession,
-} from '../../kernel/presentation.ts';
+import type { Disposer, OperationLifetimes } from '../../kernel/lifetimes.ts';
+import type { VisualLiftSession } from '../../kernel/presentation.ts';
 import type {
   CancellationReason,
   FailureCause,
@@ -29,14 +23,8 @@ import {
   type ActionQueue,
 } from '../../kernel/queue.ts';
 import type { DOMRealm } from '../../kernel/realm.ts';
-import type { Disposer } from '../../kernel/resource-scope.ts';
 import type { AnimationTiming } from '../../kernel/types.ts';
-import type {
-  ReorderResolution,
-  ReorderTransactionResult,
-  SortableOptions,
-} from '../options.ts';
-import type { PlaceholderLease } from '../placeholder.ts';
+import type { ReorderTransactionResult, SortableOptions } from '../options.ts';
 import { createRectIndex, type RectIndex } from '../rect-index.ts';
 import {
   createStateFrame,
@@ -62,7 +50,6 @@ export type SortableConfig = Readonly<{
 export type ReadinessAttempt = {
   dispose: Disposer | null;
   error: unknown;
-  settled: boolean;
 };
 
 export type LandingAttempt = {
@@ -71,7 +58,7 @@ export type LandingAttempt = {
 };
 
 /** One coalesced spatial frame. Compared by object identity. */
-export type SpatialAttempt = Readonly<{ id: number }>;
+export type SpatialAttempt = object;
 
 export type CancelRequest = Readonly<{
   operation: OperationIdentity;
@@ -94,14 +81,13 @@ export type SortableRuntime = ActionQueue & {
   readonly config: SortableConfig;
   readonly realm: DOMRealm;
   readonly container: HTMLElement;
-  readonly invalidation: InvalidationSource;
+  readonly invalidate: Invalidator;
 
   readonly ingress: AbortController;
 
   lifetimes: OperationLifetimes | null;
   lift: VisualLiftSession | null;
-  renderer: DragRenderer | null;
-  placeholder: PlaceholderLease | null;
+  placeholder: HTMLElement | null;
   /** The visual's viewport rect at grab, the basis for every landing plan. */
   originRect: DOMRectReadOnly | null;
 
@@ -110,7 +96,6 @@ export type SortableRuntime = ActionQueue & {
   /** One coalesced spatial frame; the task is created with the runtime. */
   frame: FrameTask<SpatialAttempt> | null;
   pendingSpatial: SpatialAttempt | null;
-  nextSpatialId: number;
 
   resolution: ResolutionAttempt | null;
   readiness: ReadinessAttempt | null;
@@ -119,14 +104,12 @@ export type SortableRuntime = ActionQueue & {
   cancelRequest: CancelRequest | null;
   pendingContinuation: FailureContinuation | null;
   destroyRequested: boolean;
-
-  nextOperationId: number;
 };
 
 export type SortableRuntimeDeps = Readonly<{
   realm: DOMRealm;
   container: HTMLElement;
-  invalidation: InvalidationSource;
+  invalidation: Invalidator;
   config: SortableConfig;
 }>;
 
@@ -140,37 +123,30 @@ export function createSortableRuntime(
     config: deps.config,
     realm: deps.realm,
     container: deps.container,
-    invalidation: deps.invalidation,
+    invalidate: deps.invalidation,
     ingress: new AbortController(),
     lifetimes: null,
     lift: null,
-    renderer: null,
     placeholder: null,
     originRect: null,
     rects: createRectIndex(),
     frame: null,
     pendingSpatial: null,
-    nextSpatialId: 1,
     resolution: null,
     readiness: null,
     landing: null,
     cancelRequest: null,
     pendingContinuation: null,
     destroyRequested: false,
-    nextOperationId: 1,
   };
 }
 
-export function nextOperation(runtime: SortableRuntime): OperationIdentity {
-  const id = runtime.nextOperationId;
-  runtime.nextOperationId = id + 1;
-  return { id };
+export function nextOperation(): OperationIdentity {
+  return {};
 }
 
-export function nextSpatial(runtime: SortableRuntime): SpatialAttempt {
-  const id = runtime.nextSpatialId;
-  runtime.nextSpatialId = id + 1;
-  return { id };
+export function nextSpatial(): SpatialAttempt {
+  return {};
 }
 
 export function isCurrent(
@@ -199,7 +175,6 @@ export function retireAttempts(runtime: SortableRuntime): void {
     }
 
     resolution.settlement = null;
-    resolution.resolution = null;
   }
 
   if (readiness) {
@@ -229,11 +204,12 @@ export function retireOperation(runtime: SortableRuntime): void {
 
   if (lifetimes) {
     runtime.lifetimes = null;
-    lifetimes.destroy();
+    lifetimes.motion.dispose();
+    lifetimes.cancellation.dispose();
+    lifetimes.presentation.dispose();
   }
 
   runtime.lift = null;
-  runtime.renderer = null;
   runtime.placeholder = null;
   runtime.originRect = null;
   runtime.cancelRequest = null;
@@ -270,4 +246,4 @@ export function panicRuntime(runtime: SortableRuntime, error: unknown): void {
 }
 
 /** This feature's consumer-resolution attempt. */
-export type ResolutionAttempt = Attempt<ReorderResolution>;
+export type ResolutionAttempt = Attempt;

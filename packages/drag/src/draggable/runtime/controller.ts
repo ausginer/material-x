@@ -10,7 +10,7 @@
  * Phase 2: reachable through a test-only factory. The public `draggable()`
  * entry still runs the previous implementation until the Phase 3 cutover.
  */
-import { createInvalidationSource } from '../../kernel/invalidation.ts';
+import { createInvalidator } from '../../kernel/invalidation.ts';
 import { isPrimaryPress } from '../../kernel/pointer.ts';
 import {
   LIFT_FAITHFUL,
@@ -114,7 +114,7 @@ export function createDraggableControllerInternal(
     realm,
     item,
     visual,
-    invalidation: createInvalidationSource(realm),
+    invalidation: createInvalidator(realm),
     config,
     policy,
   });

@@ -3,10 +3,7 @@ import {
   PRESENTATION_READY_TIMEOUT,
   watchPresentationReady,
 } from '../../src/kernel/presentation-ready.ts';
-import type { ResolutionCurrency } from '../../src/kernel/protocol.ts';
 import type { DOMRealm } from '../../src/kernel/realm.ts';
-
-const currency: ResolutionCurrency = { operationId: 7, resolutionId: 3 };
 
 /**
  * `watchPresentationReady` only reaches the realm for its timer pair, so the
@@ -25,75 +22,46 @@ function flush(): Promise<void> {
 
 describe('watchPresentationReady', () => {
   it('should report success with a null error once the promise resolves', async () => {
-    const onSettled = vi.fn();
-    watchPresentationReady(
-      Promise.resolve(),
-      currency,
-      realm,
-      onSettled as never,
-    );
+    const onSettled = vi.fn<(error: unknown) => void>();
+    watchPresentationReady(Promise.resolve(), realm, onSettled);
 
     await flush();
 
     expect(onSettled).toHaveBeenCalledOnce();
-    expect(onSettled).toHaveBeenCalledWith(currency, null);
+    expect(onSettled).toHaveBeenCalledWith(null);
   });
 
   it('should report the rejection reason when the promise rejects', async () => {
-    const onSettled = vi.fn();
+    const onSettled = vi.fn<(error: unknown) => void>();
     const failure = new Error('commit failed');
-    watchPresentationReady(
-      Promise.reject(failure),
-      currency,
-      realm,
-      onSettled as never,
-    );
+    watchPresentationReady(Promise.reject(failure), realm, onSettled);
 
     await flush();
 
     expect(onSettled).toHaveBeenCalledOnce();
-    expect(onSettled.mock.calls[0]![1]).toBe(failure);
-  });
-
-  it('should echo the currency back so a stale settlement can be discarded', async () => {
-    const onSettled = vi.fn();
-    watchPresentationReady(
-      Promise.resolve(),
-      currency,
-      realm,
-      onSettled as never,
-    );
-
-    await flush();
-
-    expect(onSettled.mock.calls[0]![0]).toBe(currency);
+    expect(onSettled).toHaveBeenCalledWith(failure);
   });
 
   it('should report a TimeoutError when the promise never settles', () => {
     vi.useFakeTimers();
-    const onSettled = vi.fn();
+    const onSettled = vi.fn<(error: unknown) => void>();
 
     try {
-      watchPresentationReady(
-        new Promise<void>(() => {}),
-        currency,
-        realm,
-        onSettled as never,
-      );
+      watchPresentationReady(new Promise<void>(() => {}), realm, onSettled);
       vi.advanceTimersByTime(PRESENTATION_READY_TIMEOUT);
     } finally {
       vi.useRealTimers();
     }
 
     expect(onSettled).toHaveBeenCalledOnce();
-    expect((onSettled.mock.calls[0]![1] as DOMException).name).toBe(
+    expect((onSettled.mock.calls[0]![0] as DOMException).name).toBe(
       'TimeoutError',
     );
   });
 
   it('should not report twice when the promise settles after the timeout', async () => {
     vi.useFakeTimers();
-    const onSettled = vi.fn();
+    const onSettled = vi.fn<(error: unknown) => void>();
     let release!: () => void;
 
     try {
@@ -101,9 +69,8 @@ describe('watchPresentationReady', () => {
         new Promise<void>((resolve) => {
           release = resolve;
         }),
-        currency,
         realm,
-        onSettled as never,
+        onSettled,
       );
       vi.advanceTimersByTime(PRESENTATION_READY_TIMEOUT);
       release();
@@ -116,12 +83,11 @@ describe('watchPresentationReady', () => {
   });
 
   it('should be inert once disposed', async () => {
-    const onSettled = vi.fn();
+    const onSettled = vi.fn<(error: unknown) => void>();
     const watchDisposer = watchPresentationReady(
       Promise.resolve(),
-      currency,
       realm,
-      onSettled as never,
+      onSettled,
     );
     watchDisposer();
 
