@@ -8,6 +8,7 @@
  * a pointer can leave the element, and Escape only reaches an unfocused drag
  * through the document.
  */
+import type { Disposer } from './lifetimes.ts';
 import {
   KEY_DOWN,
   KEY_ESCAPE,
@@ -17,7 +18,6 @@ import {
   POINTER_UP,
 } from './protocol.ts';
 import type { DOMRealm } from './realm.ts';
-import type { Disposer } from './resource-scope.ts';
 
 const SESSION_POINTER_EVENTS = [
   POINTER_MOVE,

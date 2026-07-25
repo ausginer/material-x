@@ -430,8 +430,8 @@ function beginOperation(runtime: SortableRuntime): OperationIdentity | null {
   try {
     armOperationInput(
       runtime.realm,
-      lifetimes.motionSignal,
-      lifetimes.cancelSignal,
+      lifetimes.motion.signal,
+      lifetimes.cancellation.signal,
       (event) => {
         receivePointer(runtime, operation, event);
       },
@@ -440,7 +440,7 @@ function beginOperation(runtime: SortableRuntime): OperationIdentity | null {
       },
     );
   } catch (error) {
-    lifetimes.destroy();
+    lifetimes.dispose();
     fail(
       runtime,
       null,
@@ -599,7 +599,7 @@ function activate(runtime: SortableRuntime): void {
   runtime.originRect = originRect;
   markRectIndexDirty(runtime.rects);
 
-  runtime.invalidate(lifetimes.motionSignal, () => {
+  runtime.invalidate(lifetimes.motion.signal, () => {
     markRectIndexDirty(runtime.rects);
   });
 
@@ -811,7 +811,7 @@ function release(runtime: SortableRuntime, x: number, y: number): void {
   // Post-commit: motion ingress and pending frame work die; cancellation lives.
   runtime.frame?.cancel();
   runtime.pendingSpatial = null;
-  runtime.lifetimes?.closeMotion();
+  runtime.lifetimes?.motion.dispose();
 
   if (!current.keyboard && !presentMotion(runtime, operation)) {
     return;
@@ -1141,7 +1141,7 @@ function enterSettlement(
 
   runtime.frame?.cancel();
   runtime.pendingSpatial = null;
-  runtime.lifetimes?.closeCancellation();
+  runtime.lifetimes?.cancellation.dispose();
 
   if (ready) {
     watchReadiness(runtime, operation, ready);
@@ -1292,7 +1292,6 @@ function startLanding(
     attempt.runner = createLandingRunner(
       lift,
       plan,
-      { operationId: operation.id, landingId: 0 },
       timing,
       runtime.realm,
       () => {
@@ -1300,7 +1299,7 @@ function startLanding(
           dispatch(runtime, LANDING_SETTLED, attempt);
         }
       },
-      (_currency, error) => {
+      (error) => {
         if (runtime.landing === attempt) {
           attempt.error = error;
           dispatch(runtime, LANDING_SETTLED, attempt);
@@ -1400,7 +1399,7 @@ function advanceSettlement(
 
   // The placeholder and the lift go before the terminal callback, so the
   // consumer observes its own authored DOM rather than the drag presentation.
-  runtime.lifetimes?.releasePresentation();
+  runtime.lifetimes?.presentation.dispose();
   runtime.lift = null;
   runtime.renderer = null;
   runtime.placeholder = null;

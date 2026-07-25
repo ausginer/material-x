@@ -9,8 +9,8 @@
  * keeps its own styles and inherited custom properties.
  */
 import { ancestorZoom, viewportMatrix } from './coordinate.ts';
+import type { Disposer } from './lifetimes.ts';
 import type { DOMRealm } from './realm.ts';
-import type { Disposer } from './resource-scope.ts';
 import type { Point } from './types.ts';
 
 /** Which lift strategy a free/sortable operation uses. */

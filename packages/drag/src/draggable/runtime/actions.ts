@@ -34,7 +34,10 @@ import {
   REPORTING,
   SETTLING,
 } from '../../kernel/lifecycle.ts';
-import { createOperationLifetimes } from '../../kernel/lifetimes.ts';
+import {
+  createOperationLifetimes,
+  type Disposer,
+} from '../../kernel/lifetimes.ts';
 import {
   acquirePointerCapture,
   armOperationInput,
@@ -367,8 +370,8 @@ function handleAdmit(runtime: DraggableRuntime, press: AdmittedPress): void {
   try {
     armOperationInput(
       runtime.realm,
-      lifetimes.motionSignal,
-      lifetimes.cancelSignal,
+      lifetimes.motion.signal,
+      lifetimes.cancellation.signal,
       (event) => {
         receivePointer(runtime, operation, event);
       },
@@ -377,7 +380,7 @@ function handleAdmit(runtime: DraggableRuntime, press: AdmittedPress): void {
       },
     );
   } catch (error) {
-    lifetimes.destroy();
+    lifetimes.dispose();
     fail(runtime, null, FAILURE_MOVE, error, null, false, RECOVERY_IMMEDIATE);
     return;
   }
@@ -571,7 +574,7 @@ function activate(runtime: DraggableRuntime, event: PointerCoordinates): void {
   let originRect: DOMRectReadOnly;
   let coordinateSpace: CoordinateMapper;
   let lift: ReturnType<typeof acquireLift> | null = null;
-  let releaseCapture: (() => void) | null = null;
+  let releaseCapture: Disposer | null = null;
 
   try {
     originRect = runtime.visual.getBoundingClientRect();
@@ -624,7 +627,7 @@ function activate(runtime: DraggableRuntime, event: PointerCoordinates): void {
   applyMotionDelta(next, runtime.policy.axis, null);
   commitTransition(runtime);
 
-  runtime.invalidate(lifetimes.motionSignal, () => {
+  runtime.invalidate(lifetimes.motion.signal, () => {
     dispatch(runtime, INVALIDATE, operation);
   });
 
@@ -734,7 +737,7 @@ function handlePointerUp(
   commitTransition(runtime);
 
   // Post-commit: motion ingress dies, cancellation survives.
-  runtime.lifetimes?.closeMotion();
+  runtime.lifetimes?.motion.dispose();
 
   if (!presentMotion(runtime, operation)) {
     return;
@@ -918,7 +921,7 @@ function enterSettlement(
   commitTransition(runtime);
 
   // All input closes here: nothing further can affect the committed outcome.
-  runtime.lifetimes?.closeCancellation();
+  runtime.lifetimes?.cancellation.dispose();
 
   if (ready) {
     watchReadiness(runtime, operation, ready);
@@ -1075,7 +1078,6 @@ function startLanding(
     attempt.runner = createLandingRunner(
       lift,
       plan,
-      { operationId: operation.id, landingId: 0 },
       timing,
       runtime.realm,
       () => {
@@ -1083,7 +1085,7 @@ function startLanding(
           dispatch(runtime, LANDING_SETTLED, attempt);
         }
       },
-      (_currency, error) => {
+      (error) => {
         if (runtime.landing === attempt) {
           attempt.error = error;
           dispatch(runtime, LANDING_SETTLED, attempt);
@@ -1184,7 +1186,7 @@ function advanceSettlement(
 
   // Temporary presentation goes before the terminal callback, so the consumer
   // observes its own authored DOM rather than the lift.
-  runtime.lifetimes?.releasePresentation();
+  runtime.lifetimes?.presentation.dispose();
   runtime.lift = null;
   runtime.renderer = null;
   retireAttempts(runtime);

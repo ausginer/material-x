@@ -13,8 +13,7 @@ src/
   kernel/            platform and lifecycle primitives, feature-agnostic
     lifecycle.ts       phase vocabulary, frame transaction, resolution attempts
     queue.ts           FIFO run-to-completion action queue
-    lifetimes.ts       the three releasable stages of one operation
-    resource-scope.ts  LIFO, idempotent, best-effort disposer stack
+    lifetimes.ts       `Disposer`, `Lifetime`, the three stages of one operation
     pointer.ts         pointer ingress, capture, admission predicate
     presentation.ts    inline-style and top-layer leases, lift strategies
     presentation-ready.ts  the authored-presentation barrier (500 ms)
@@ -166,7 +165,9 @@ Five, in release order. `kernel/lifetimes.ts` owns the middle three.
 
 **2a and 2b must stay separate.** Release closes motion so nothing can move the geometry the proposal was resolved from, while cancellation stays armed so a consumer can still abandon an unresolved drop. They previously shared one `AbortSignal`; closing them together would abort the resolver's signal the instant `onDrop` opened.
 
-Every close is latched and idempotent. Disposal within a stage is LIFO and best-effort: one disposer throwing is reported and does not stop the rest.
+Each stage is a `Lifetime`: an `AbortSignal`, a disposer stack, and a latched `dispose()`. `use(disposer)` registers unconditionally; `useWhile(guard, disposer)` registers a disposal that runs only if the guard still holds, which is how the resolution abort stays bound to the current attempt. Disposal aborts the signal, then unwinds the stack LIFO and best-effort: one disposer throwing is reported and does not stop the rest. `dispose()` is latched, so teardown paths may run unconditionally and in any order.
+
+There is one release shape in the package — `Disposer`, a bare `() => void`. A pointer capture, a style snapshot, a top-layer entry and a readiness watch all hand back the same type rather than their own one-method handle, so a lifetime stage stores them without adaptation.
 
 ## Async attempts and identity
 

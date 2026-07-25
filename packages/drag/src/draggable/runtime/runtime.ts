@@ -16,7 +16,7 @@ import {
   isCurrentOperation,
   type ResolutionAttempt as Attempt,
 } from '../../kernel/lifecycle.ts';
-import type { OperationLifetimes } from '../../kernel/lifetimes.ts';
+import type { Disposer, OperationLifetimes } from '../../kernel/lifetimes.ts';
 import type {
   DragRenderer,
   LiftMode as PresentationLiftMode,
@@ -32,7 +32,6 @@ import {
   type ActionQueue,
 } from '../../kernel/queue.ts';
 import type { DOMRealm } from '../../kernel/realm.ts';
-import type { Disposer } from '../../kernel/resource-scope.ts';
 import type {
   AnimationTiming,
   CoordinateMapper,
@@ -261,7 +260,9 @@ export function retireOperation(runtime: DraggableRuntime): void {
 
   if (lifetimes) {
     runtime.lifetimes = null;
-    lifetimes.destroy();
+    lifetimes.motion.dispose();
+    lifetimes.cancellation.dispose();
+    lifetimes.presentation.dispose();
   }
 
   runtime.lift = null;

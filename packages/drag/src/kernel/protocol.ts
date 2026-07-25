@@ -22,12 +22,6 @@ export type ResolutionCurrency = Readonly<{
   resolutionId: number;
 }>;
 
-/** Currency identifying one landing attempt. */
-export type LandingCurrency = Readonly<{
-  operationId: number;
-  landingId: number;
-}>;
-
 /** One realm-neutral pointer position reading. */
 export type PointerSample = Readonly<{
   pointerId: number;

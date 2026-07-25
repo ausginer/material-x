@@ -15,9 +15,9 @@
  * web component after the relevant `slotchange`, an imperative consumer
  * immediately after mutating the DOM).
  */
+import type { Disposer } from './lifetimes.ts';
 import type { ResolutionCurrency } from './protocol.ts';
 import type { DOMRealm } from './realm.ts';
-import type { Disposer } from './resource-scope.ts';
 
 /**
  * How long to wait for a consumer's `presentationReady` before giving up.
