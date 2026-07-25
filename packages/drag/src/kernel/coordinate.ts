@@ -18,19 +18,6 @@
 import type { DOMRealm } from './realm.ts';
 import type { CoordinateMapper, Point } from './types.ts';
 
-/** A mapper that leaves points and deltas untouched (no transform context). */
-export const IDENTITY_MAPPER: CoordinateMapper = {
-  toViewport(point: Point) {
-    return point;
-  },
-  fromViewport(point: Point) {
-    return point;
-  },
-  deltaFromViewport(delta: Point) {
-    return delta;
-  },
-};
-
 /** The strictly-2D projection of a matrix, so no `multiply` ever mixes dims. */
 const flat2d = (m: DOMMatrix, M: typeof DOMMatrix): DOMMatrix =>
   new M([m.a, m.b, m.c, m.d, m.e, m.f]);

@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   ancestorZoom,
   createMapper,
-  IDENTITY_MAPPER,
   viewportMatrix,
 } from '../../src/kernel/coordinate.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
@@ -291,25 +290,5 @@ describe('createMapper', () => {
     // The mapper is an immutable snapshot taken at a discrete moment; coordinate
     // behaviour changes by supplying a replacement, never by mutating layout.
     expect(mapper.toViewport({ x: 0, y: 0 })).toEqual(before);
-  });
-});
-
-describe('IDENTITY_MAPPER', () => {
-  it('should return the same point from toViewport', () => {
-    const point: Point = { x: 3, y: 4 };
-
-    expect(IDENTITY_MAPPER.toViewport(point)).toBe(point);
-  });
-
-  it('should return the same point from fromViewport', () => {
-    const point: Point = { x: 3, y: 4 };
-
-    expect(IDENTITY_MAPPER.fromViewport(point)).toBe(point);
-  });
-
-  it('should return the same delta from deltaFromViewport', () => {
-    const delta: Point = { x: 3, y: 4 };
-
-    expect(IDENTITY_MAPPER.deltaFromViewport(delta)).toBe(delta);
   });
 });

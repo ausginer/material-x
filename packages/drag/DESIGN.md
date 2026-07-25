@@ -160,7 +160,7 @@ Five, in release order. `kernel/lifetimes.ts` owns the middle three.
 | 1 | Controller ingress | `pointerdown`; sortable's container `keydown` | `destroy()` / panic |
 | 2a | Motion ingress | pointer move/up/cancel, pointer capture, scroll + resize invalidation, spatial frame | **release** |
 | 2b | Cancellation & resolution | Escape listener, `cancel()` admissibility, the guarded abort for the current resolution attempt | resolver settles, or settlement entry |
-| 3 | Temporary presentation | lift, style snapshot, renderer, placeholder | finalization, after landing + readiness |
+| 3 | Temporary presentation | lift, style snapshot, placeholder | finalization, after landing + readiness |
 | 4 | Async attempts | resolution, readiness, landing, spatial | per-attempt retirement |
 
 **2a and 2b must stay separate.** Release closes motion so nothing can move the geometry the proposal was resolved from, while cancellation stays armed so a consumer can still abandon an unresolved drop. They previously shared one `AbortSignal`; closing them together would abort the resolver's signal the instant `onDrop` opened.

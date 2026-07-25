@@ -15,11 +15,7 @@ import {
   NO_POINTER as NO_POINTER_VALUE,
   type OperationIdentity,
 } from '../../kernel/lifecycle.ts';
-import {
-  OUTCOME_ACCEPTED,
-  RECOVERY_IMMEDIATE,
-  type CancellationReason,
-} from '../../kernel/protocol.ts';
+import { OUTCOME_ACCEPTED, RECOVERY_IMMEDIATE } from '../../kernel/protocol.ts';
 import type {
   CollectionSnapshot,
   Insertion,
@@ -60,10 +56,6 @@ export type SortableStateFrame = {
 
   landingDone: boolean;
   authoredPresentationReady: boolean;
-
-  failureStage: number;
-  failureError: unknown;
-  cancelReason: CancellationReason | null;
 };
 
 /** Both frames come from here, so they share one shape and one hidden class. */
@@ -87,9 +79,6 @@ export function createStateFrame(): SortableStateFrame {
     recovery: RECOVERY_IMMEDIATE,
     landingDone: false,
     authoredPresentationReady: false,
-    failureStage: 0,
-    failureError: null,
-    cancelReason: null,
   };
 }
 
@@ -108,8 +97,6 @@ export function resetStateFrame(frame: SortableStateFrame): void {
   frame.insertion = null;
   frame.proposal = null;
   frame.domain = null;
-  frame.failureError = null;
-  frame.cancelReason = null;
   frame.landingDone = false;
   frame.authoredPresentationReady = false;
 }

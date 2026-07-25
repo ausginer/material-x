@@ -422,7 +422,7 @@ function beginOperation(runtime: SortableRuntime): OperationIdentity | null {
     return null;
   }
 
-  const operation = nextOperation(runtime);
+  const operation = nextOperation();
   const lifetimes = createOperationLifetimes((error) => {
     reportDisposerError(runtime, error);
   });
@@ -708,7 +708,7 @@ function handlePointerMove(
 
   // Spatial work is latest-wins: a newer attempt supersedes any frame still
   // pending, so an outdated hit test can never commit an insertion.
-  const attempt = nextSpatial(runtime);
+  const attempt = nextSpatial();
   runtime.pendingSpatial = attempt;
   runtime.frame?.schedule(attempt);
 }
@@ -912,7 +912,7 @@ function release(runtime: SortableRuntime, x: number, y: number): void {
 }
 
 function openResolution(runtime: SortableRuntime): void {
-  const attempt = createResolutionAttempt<ReorderResolution>();
+  const attempt = createResolutionAttempt();
   runtime.resolution = attempt;
 
   runtime.lifetimes?.cancellation.useWhile(
@@ -1144,7 +1144,7 @@ function enterSettlement(
   runtime.lifetimes?.cancellation.dispose();
 
   if (ready) {
-    watchReadiness(runtime, operation, ready);
+    watchReadiness(runtime, ready);
   }
 
   if (recovery !== RECOVERY_IMMEDIATE) {
@@ -1156,30 +1156,22 @@ function enterSettlement(
 
 function watchReadiness(
   runtime: SortableRuntime,
-  operation: OperationIdentity,
   ready: PromiseLike<void>,
 ): void {
   const attempt: ReadinessAttempt = {
     dispose: null,
     error: null,
-    settled: false,
   };
   runtime.readiness = attempt;
 
-  attempt.dispose = watchPresentationReady(
-    ready,
-    { operationId: operation.id, resolutionId: 0 },
-    runtime.realm,
-    (_currency, error) => {
-      if (runtime.readiness !== attempt || attempt.settled) {
-        return;
-      }
+  attempt.dispose = watchPresentationReady(ready, runtime.realm, (error) => {
+    if (runtime.readiness !== attempt) {
+      return;
+    }
 
-      attempt.settled = true;
-      attempt.error = error;
-      dispatch(runtime, READINESS_SETTLED, attempt);
-    },
-  );
+    attempt.error = error;
+    dispatch(runtime, READINESS_SETTLED, attempt);
+  });
 }
 
 function handleReadinessSettled(
@@ -1401,7 +1393,6 @@ function advanceSettlement(
   // consumer observes its own authored DOM rather than the drag presentation.
   runtime.lifetimes?.presentation.dispose();
   runtime.lift = null;
-  runtime.renderer = null;
   runtime.placeholder = null;
   retireAttempts(runtime);
 
@@ -1508,10 +1499,6 @@ function handleCancel(runtime: SortableRuntime, request: CancelRequest): void {
     return;
   }
 
-  const next = beginTransition(runtime);
-  next.cancelReason = request.reason;
-  commitTransition(runtime);
-
   enterSettlement(
     runtime,
     request.operation,
@@ -1537,8 +1524,6 @@ function handleFailed(runtime: SortableRuntime, record: FailureRecord): void {
 
   const next = beginTransition(runtime);
   next.phase = REPORTING;
-  next.failureStage = record.cause.stage;
-  next.failureError = record.error;
   commitTransition(runtime);
 
   reportFailure(runtime, record);

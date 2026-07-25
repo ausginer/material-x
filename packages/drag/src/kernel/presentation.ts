@@ -178,7 +178,7 @@ function neutralizeUA(visual: HTMLElement, style: CSSStyleDeclaration): void {
 /**
  * One visual's active presentation mode. Composes the inline-style lease and,
  * where applicable, the top-layer lease. It exposes only the transform
- * composition downstream renderer/landing need, and never updates geometry,
+ * composition downstream movement/landing need, and never updates geometry,
  * animates, or invokes callbacks.
  */
 export type VisualLiftSession = Readonly<{
@@ -323,25 +323,4 @@ export function acquireLift(
     },
     false,
   );
-}
-
-// ---------------------------------------------------------------------------
-// DragRenderer
-// ---------------------------------------------------------------------------
-
-/**
- * The sole writer of the engine-owned transform during active movement. Entering
- * settlement transfers transform ownership to the landing runner; the renderer
- * performs no later writes.
- */
-export type DragRenderer = Readonly<{
-  render(viewportDelta: Point): void;
-}>;
-
-export function createDragRenderer(lift: VisualLiftSession): DragRenderer {
-  return {
-    render(viewportDelta) {
-      lift.visual.style.transform = lift.compose(viewportDelta);
-    },
-  };
 }

@@ -1,13 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { IDENTITY_MAPPER } from '../../src/kernel/coordinate.ts';
 import {
   acquireLift,
   acquireTopLayer,
   captureInlineStyles,
-  createDragRenderer,
   LIFT_FAITHFUL,
   LIFT_FLAT,
   LIFT_IN_PLACE,
+  type VisualLiftSession,
 } from '../../src/kernel/presentation.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
 import type { Point } from '../../src/kernel/types.ts';
@@ -47,6 +46,10 @@ function createBox(
   return el;
 }
 
+function render(lift: VisualLiftSession, delta: Point): void {
+  lift.visual.style.transform = lift.compose(delta);
+}
+
 describe('acquireLift geometry contract', () => {
   afterEach(() => {
     document.body.replaceChildren();
@@ -63,7 +66,7 @@ describe('acquireLift geometry contract', () => {
     const before = box.getBoundingClientRect();
 
     const lift = acquireLift(box, LIFT_FAITHFUL, before, (d) => d, realm);
-    createDragRenderer(lift).render({ x: 0, y: 0 });
+    render(lift, { x: 0, y: 0 });
 
     expectRectNear(box.getBoundingClientRect(), before);
     lift.dispose();
@@ -75,7 +78,7 @@ describe('acquireLift geometry contract', () => {
     const before = box.getBoundingClientRect();
 
     const lift = acquireLift(box, LIFT_FLAT, before, (d) => d, realm);
-    createDragRenderer(lift).render({ x: 0, y: 0 });
+    render(lift, { x: 0, y: 0 });
 
     expectRectNear(box.getBoundingClientRect(), before);
     lift.dispose();
@@ -87,7 +90,7 @@ describe('acquireLift geometry contract', () => {
     const before = box.getBoundingClientRect();
 
     const lift = acquireLift(box, LIFT_IN_PLACE, before, (d) => d, realm);
-    createDragRenderer(lift).render({ x: 0, y: 0 });
+    render(lift, { x: 0, y: 0 });
 
     expectRectNear(box.getBoundingClientRect(), before);
     lift.dispose();
@@ -108,7 +111,7 @@ describe('acquireLift geometry contract', () => {
     // The top layer escapes the ancestor transform, so the base matrix must
     // reintroduce it or the visual snaps to the untransformed position.
     const lift = acquireLift(box, LIFT_FAITHFUL, before, (d) => d, realm);
-    createDragRenderer(lift).render({ x: 0, y: 0 });
+    render(lift, { x: 0, y: 0 });
 
     expectRectNear(box.getBoundingClientRect(), before);
     lift.dispose();
@@ -138,7 +141,7 @@ describe('acquireLift geometry contract', () => {
     const before = box.getBoundingClientRect();
 
     const lift = acquireLift(box, LIFT_FAITHFUL, before, (d) => d, realm);
-    createDragRenderer(lift).render({ x: 0, y: 0 });
+    render(lift, { x: 0, y: 0 });
 
     expectRectNear(box.getBoundingClientRect(), before);
     lift.dispose();
@@ -151,7 +154,7 @@ describe('acquireLift geometry contract', () => {
     const delta: Point = { x: 35, y: -20 };
 
     const lift = acquireLift(box, LIFT_FAITHFUL, before, (d) => d, realm);
-    createDragRenderer(lift).render(delta);
+    render(lift, delta);
     const after = box.getBoundingClientRect();
 
     expect(after.left - before.left).toBeCloseTo(delta.x, 0);
@@ -171,7 +174,7 @@ describe('acquireLift geometry contract', () => {
     const delta: Point = { x: 40, y: 30 };
 
     const lift = acquireLift(box, LIFT_FAITHFUL, before, (d) => d, realm);
-    createDragRenderer(lift).render(delta);
+    render(lift, delta);
     const after = box.getBoundingClientRect();
 
     // Movement is authored in viewport pixels regardless of the ancestor.
@@ -186,7 +189,7 @@ describe('acquireLift geometry contract', () => {
     const before = box.getBoundingClientRect();
 
     const lift = acquireLift(box, LIFT_FAITHFUL, before, (d) => d, realm);
-    createDragRenderer(lift).render({ x: 90, y: 90 });
+    render(lift, { x: 90, y: 90 });
     lift.dispose();
 
     expectRectNear(box.getBoundingClientRect(), before);
@@ -233,7 +236,7 @@ describe('acquireLift geometry contract', () => {
       box,
       LIFT_IN_PLACE,
       box.getBoundingClientRect(),
-      (d) => IDENTITY_MAPPER.deltaFromViewport(d),
+      (d) => d,
       realm,
     );
 

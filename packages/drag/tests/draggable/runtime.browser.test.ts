@@ -82,8 +82,6 @@ function references(frame: DragStateFrame): readonly unknown[] {
     frame.coordinateSpace,
     frame.proposal,
     frame.domain,
-    frame.failureError,
-    frame.cancelReason,
   ];
 }
 

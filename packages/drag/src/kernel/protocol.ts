@@ -16,12 +16,6 @@ export type ResolutionContext = Readonly<{
   signal: AbortSignal;
 }>;
 
-/** Currency identifying one consumer-resolution invocation. */
-export type ResolutionCurrency = Readonly<{
-  operationId: number;
-  resolutionId: number;
-}>;
-
 /** One realm-neutral pointer position reading. */
 export type PointerSample = Readonly<{
   pointerId: number;

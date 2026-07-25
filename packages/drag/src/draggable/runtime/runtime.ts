@@ -18,7 +18,6 @@ import {
 } from '../../kernel/lifecycle.ts';
 import type { Disposer, OperationLifetimes } from '../../kernel/lifetimes.ts';
 import type {
-  DragRenderer,
   LiftMode as PresentationLiftMode,
   VisualLiftSession,
 } from '../../kernel/presentation.ts';
@@ -40,7 +39,6 @@ import type {
 import type {
   DragBounds,
   DraggableOptions,
-  FreeDropResolution,
   FreeDropResult,
   OnDrop,
   ResolveFreeHomeTarget,
@@ -83,7 +81,6 @@ export type DraggablePolicy = Readonly<{
 export type ReadinessAttempt = {
   dispose: Disposer | null;
   error: unknown;
-  settled: boolean;
 };
 
 /** One landing animation. */
@@ -131,7 +128,6 @@ export type DraggableRuntime = ActionQueue & {
   /** The three releasable stages of the live operation, or `null` when idle. */
   lifetimes: OperationLifetimes | null;
   lift: VisualLiftSession | null;
-  renderer: DragRenderer | null;
 
   resolution: ResolutionAttempt | null;
   readiness: ReadinessAttempt | null;
@@ -144,9 +140,6 @@ export type DraggableRuntime = ActionQueue & {
   cancelRequest: CancelRequest | null;
   pendingContinuation: FailureContinuation | null;
   destroyRequested: boolean;
-
-  /** Monotonic source for operation identity. */
-  nextOperationId: number;
 };
 
 export type DraggableRuntimeDeps = Readonly<{
@@ -174,7 +167,6 @@ export function createDraggableRuntime(
     ingress: new AbortController(),
     lifetimes: null,
     lift: null,
-    renderer: null,
     resolution: null,
     readiness: null,
     landing: null,
@@ -183,15 +175,12 @@ export function createDraggableRuntime(
     cancelRequest: null,
     pendingContinuation: null,
     destroyRequested: false,
-    nextOperationId: 1,
   };
 }
 
-/** Mints the next operation identity. */
-export function nextOperation(runtime: DraggableRuntime): OperationIdentity {
-  const id = runtime.nextOperationId;
-  runtime.nextOperationId = id + 1;
-  return { id };
+/** Mints a new identity object for the next operation. */
+export function nextOperation(): OperationIdentity {
+  return {};
 }
 
 /**
@@ -227,7 +216,6 @@ export function retireAttempts(runtime: DraggableRuntime): void {
     }
 
     resolution.settlement = null;
-    resolution.resolution = null;
   }
 
   if (readiness) {
@@ -266,7 +254,6 @@ export function retireOperation(runtime: DraggableRuntime): void {
   }
 
   runtime.lift = null;
-  runtime.renderer = null;
   runtime.boundsRect = null;
   runtime.boundsCachedVersion = -1;
   runtime.cancelRequest = null;
@@ -304,4 +291,4 @@ export function panicRuntime(runtime: DraggableRuntime, error: unknown): void {
 }
 
 /** This feature's consumer-resolution attempt. */
-export type ResolutionAttempt = Attempt<FreeDropResolution>;
+export type ResolutionAttempt = Attempt;
