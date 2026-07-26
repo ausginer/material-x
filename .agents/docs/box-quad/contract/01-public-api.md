@@ -6,8 +6,6 @@ The package has one public entrypoint:
 
 ```ts
 import {
-  createBoxQuadCache,
-  getBoxQuad,
   readBoxQuad,
   type BoxQuadCache,
   type Quad,
@@ -21,11 +19,19 @@ No subpath entrypoints are part of v1.
 ```ts
 export type Quad = Float64Array;
 
-export type BoxQuadCache = /* opaque mutable holder */;
+export type BoxQuadCache = WeakMap<HTMLElement, unknown>;
 ```
 
-`BoxQuadCache` is intentionally opaque. Consumers may retain it, pass it to
-reads and discard it. They must not inspect or mutate its internals.
+Consumers construct and own the cache identity and lifetime:
+
+```ts
+const cache: BoxQuadCache = new WeakMap();
+```
+
+The package owns every entry it writes. Consumers must not inspect, add,
+replace or delete entries. The `unknown` value type prevents typed consumers
+from depending on the private representation, but entry opacity is contractual
+because native `WeakMap` methods remain available.
 
 A valid `Quad` has eight values:
 
@@ -61,16 +67,7 @@ validate the output constructor, length or writability.
 
 ## 3. Functions
 
-### 3.1 `createBoxQuadCache`
-
-```ts
-export function createBoxQuadCache(): BoxQuadCache;
-```
-
-Creates a new empty consumer-owned cache. Calls never share an implicit cache.
-See [artifact 5](05-cache-semantics.md).
-
-### 3.2 `readBoxQuad`
+### 3.1 `readBoxQuad`
 
 ```ts
 export function readBoxQuad(
@@ -78,7 +75,6 @@ export function readBoxQuad(
   out: Quad,
   relativeTo?: HTMLElement,
   cache?: BoxQuadCache,
-  reset?: boolean,
 ): boolean;
 ```
 
@@ -99,25 +95,10 @@ escapes.
 `readBoxQuad` performs no replacement output allocation visible to the caller.
 Internal implementation choices remain subject to later performance work.
 
-### 3.3 `getBoxQuad`
-
-```ts
-export function getBoxQuad(
-  element: HTMLElement,
-  relativeTo?: HTMLElement,
-  cache?: BoxQuadCache,
-  reset?: boolean,
-): Quad | null;
-```
-
-The wrapper:
-
-1. allocates `new Float64Array(8)` from the package execution realm;
-2. delegates exactly once to `readBoxQuad` with the same source, target, cache
-   and reset value;
-3. returns that array when the delegated call returns `true`;
-4. returns `null` when the delegated call returns `false`;
-5. does not catch exceptions or contain separate geometry logic.
+Omitting `cache` performs a fresh uncached read and retains no observations for
+later public calls. Reusing one cache permits stale observations within that
+cache's epoch. Passing a newly constructed `WeakMap` starts a fresh epoch. See
+[artifact 5](05-cache-semantics.md).
 
 ## 4. Coordinate spaces
 
@@ -198,8 +179,6 @@ of the requested target space.
   `element.ownerDocument.defaultView`.
 - The initial/default matrix primitive is that owner-document realm's
   `DOMMatrix`.
-- `getBoxQuad` allocates its `Float64Array` from the package execution realm,
-  equivalent to the `Float64Array` binding visible to the executing module.
 - `readBoxQuad` uses the caller-supplied output and does not replace its realm or
   identity.
 - The public output is always a `Float64Array`, not `DOMPoint` or `DOMQuad`.
@@ -221,7 +200,7 @@ execution environment, and its ordinary platform/implementation error escapes.
 
 ## 7. Error boundary
 
-The following are ordinary `false`/`null` results only when explicitly
+The following are ordinary `false` results only when explicitly
 recognized by [artifact 3](03-failure-table.md):
 
 - unsupported geometry;
@@ -249,5 +228,7 @@ The API does not expose:
 - point or quad classes;
 - matrices or coordinate-space objects;
 - cache invalidation observers;
+- a cache factory or in-place reset operation;
+- an allocating output wrapper;
 - cross-document conversion;
 - native GeometryUtils compatibility.

@@ -1,4 +1,5 @@
 import { expect } from 'vitest';
+import { readBoxQuad, type BoxQuadCache, type Quad } from '../../src/index.js';
 
 export const QUAD_TOLERANCE = 0.000001;
 
@@ -86,6 +87,17 @@ export function expectQuad(
       QUAD_TOLERANCE,
     );
   }
+}
+
+export function readSuccessfulBoxQuad(
+  element: HTMLElement,
+  relativeTo?: HTMLElement,
+  cache?: BoxQuadCache,
+): Quad {
+  const out = new Float64Array(8);
+
+  expect(readBoxQuad(element, out, relativeTo, cache)).toBe(true);
+  return out;
 }
 
 export function createFrame(): Document {

@@ -2,11 +2,13 @@
 
 ## Status
 
-**Reviewed — accepted as iteration B input.**
+**Reviewed — revised public storage and cache API accepted.**
 
 The contract was accepted on 2026-07-26 after final review of target eligibility,
 transform reference spaces, cache obligations, realm ownership and flat-tree
-slot geometry.
+slot geometry. It was revised on 2026-07-26 to expose only `readBoxQuad`, make
+output storage explicitly caller-owned and make each caller-owned `WeakMap`
+identity one cache epoch.
 
 These documents define observable v1 behavior. They do not prescribe traversal
 algorithms, intermediate matrix shapes, module boundaries, or optimization
@@ -21,7 +23,7 @@ accepted expectation without returning to contract review.
 | 2 | Behavioral scenarios | [02-behavior-scenarios.md](02-behavior-scenarios.md) | BDD specification and expected semantics |
 | 3 | Failure table | [03-failure-table.md](03-failure-table.md) | Recognized unsupported/unrepresentable geometry |
 | 4 | Support matrix | [04-support-matrix.md](04-support-matrix.md) | Supported, unsupported and unguaranteed cases |
-| 5 | Cache semantics | [05-cache-semantics.md](05-cache-semantics.md) | Consumer-owned epochs, reset and reuse |
+| 5 | Cache semantics | [05-cache-semantics.md](05-cache-semantics.md) | Caller-owned weak-map epochs and reuse |
 
 ## Contract vocabulary
 
@@ -37,7 +39,7 @@ accepted expectation without returning to contract review.
   when a target is supplied, convertible through an invertible target space.
 - **Recognized failure** — an explicitly detected unsupported or
   unrepresentable case listed in [03-failure-table.md](03-failure-table.md).
-- **Measurement epoch** — all reads made through one cache between resets.
+- **Measurement epoch** — all reads made with one caller-owned cache identity.
 
 ## Binding decisions
 
@@ -55,10 +57,10 @@ accepted expectation without returning to contract review.
    rendered flat-tree geometry.
 7. Fixed and sticky positioning are supported within the same 2D,
    single-principal-box model.
-8. Boolean/null failure is reserved for recognized geometry failures. The
+8. Boolean failure is reserved for recognized geometry failures. The
    implementation must not blanket-catch platform or implementation errors.
-9. Every observation made within a cache epoch may remain stale until consumer
-   reset, whether a prior call succeeded or failed.
+9. Every observation made within a cache epoch may remain stale for the
+   lifetime of that cache identity, whether a prior call succeeded or failed.
 10. Caching is explicit, weak and consumer-owned. There is no global cache.
 11. Native `getBoxQuads()` is never called.
 12. One unfragmented principal box is necessary but not sufficient for support.
@@ -78,8 +80,8 @@ accepted expectation without returning to contract review.
 | Zoom coverage | scenarios `ZOOM-*` |
 | Scrolling coverage | scenarios `SCROLL-*` |
 | Unsupported geometry | failure table; support matrix §3 |
-| Cache/reset behavior | cache semantics; scenarios `CACHE-*` |
-| Atomic output and wrapper failure | API §3; scenarios `API-03`–`API-06` |
+| Cache/epoch behavior | cache semantics; scenarios `CACHE-*` |
+| Atomic caller-owned output | API §3; scenarios `API-01`–`API-03` |
 | Stable expected values | scenarios §2 |
 | Performance and bundle requirements | Explicitly deferred to iterations D/E |
 
@@ -90,11 +92,10 @@ accepted expectation without returning to contract review.
 - [x] Every required behavior category from the brief has scenario coverage.
 - [x] Fixed/sticky, shadow/slotted and non-horizontal writing modes have
       explicit v1 coverage.
-- [x] Every recognized unsupported case maps to `false`/`null`.
+- [x] Every recognized unsupported case maps to `false`.
 - [x] No false result can partially update the caller's output.
 - [x] Contract violations and unexpected platform errors are not converted into
       ordinary geometry failures.
-- [x] Cache reset is defined before the current calculation, including failure.
 - [x] Every cached observation may remain stale within a consumer-defined
       epoch, including an observation associated with a recognized failure.
 - [x] No document requires a display whitelist, custom matrix library, native

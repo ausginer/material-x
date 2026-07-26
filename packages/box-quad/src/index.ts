@@ -1,12 +1,8 @@
 /** A source border-box quad in p1, p2, p3, p4 physical-corner order. */
 export type Quad = Float64Array;
 
-/** Opaque consumer-owned cache for one box-quad measurement epoch. */
-declare const $boxQuadCache: unique symbol;
-
-export type BoxQuadCache = {
-  readonly [$boxQuadCache]: never;
-};
+/** Caller-owned epoch map whose entries are opaque and library-owned. */
+export type BoxQuadCache = WeakMap<HTMLElement, unknown>;
 
 type Space = {
   readonly document: Document;
@@ -16,14 +12,7 @@ type Space = {
   inverse?: DOMMatrix | null;
 };
 
-type InternalCache = BoxQuadCache & {
-  map: WeakMap<HTMLElement, Space>;
-};
-
-export function createCache(): BoxQuadCache {
-  // oxlint-disable-next-line typescript/consistent-type-assertions
-  return { map: new WeakMap<HTMLElement, Space>() } as InternalCache;
-}
+type InternalCache = WeakMap<HTMLElement, Space>;
 
 function getFlatParent(element: HTMLElement): HTMLElement | null {
   if (element.assignedSlot) {
@@ -281,7 +270,7 @@ function getSpace(
   element: HTMLElement,
   cache: InternalCache | undefined,
 ): Space | null {
-  const cached = cache?.map.get(element);
+  const cached = cache?.get(element);
 
   if (cached?.document === element.ownerDocument) {
     return cached;
@@ -290,7 +279,7 @@ function getSpace(
   const space = createSpace(element);
 
   if (space) {
-    cache?.map.set(element, space);
+    cache?.set(element, space);
   }
 
   return space;
@@ -324,19 +313,13 @@ function getInverse(element: HTMLElement, space: Space): DOMMatrix | null {
   return space.inverse;
 }
 
-// eslint-disable-next-line @typescript-eslint/max-params
 export function readBoxQuad(
   element: HTMLElement,
   out: Quad,
   relativeTo?: HTMLElement,
   cache?: BoxQuadCache,
-  reset?: boolean,
 ): boolean {
   const internalCache = cache as InternalCache | undefined;
-
-  if (internalCache && reset === true) {
-    internalCache.map = new WeakMap<HTMLElement, Space>();
-  }
 
   const document = element.ownerDocument;
 
@@ -408,14 +391,4 @@ export function readBoxQuad(
   out[6] = x4;
   out[7] = y4;
   return true;
-}
-
-export function getBoxQuad(
-  element: HTMLElement,
-  relativeTo?: HTMLElement,
-  cache?: BoxQuadCache,
-  reset?: boolean,
-): Quad | null {
-  const out = new Float64Array(8);
-  return readBoxQuad(element, out, relativeTo, cache, reset) ? out : null;
 }

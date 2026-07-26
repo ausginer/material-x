@@ -69,10 +69,9 @@ supported v1 behavior.
 | Case | Status | Boundary |
 | --- | :-: | --- |
 | Caller-owned reusable `Float64Array` output | **Supported** | No hot-path validation |
-| Allocating convenience wrapper | **Supported** | Thin delegation only |
-| Consumer-owned cache and explicit reset | **Supported** | Staleness permitted within an epoch |
+| Caller-owned `WeakMap` cache | **Supported** | One map identity is one potentially stale epoch |
+| Omitted cache | **Supported** | Fresh uncached read with no retained observations |
 | Realm-owned DOM geometry | **Supported** | `DOMMatrix`/constructed DOM geometry use the current source owner document |
-| Wrapper-owned output allocation | **Supported** | `Float64Array` uses the package execution realm |
 | Reads wholly within one iframe document | **Supported** | That document's realm and layout viewport |
 
 The cache permits completed coordinate-space and inverse reuse. Shared-ancestor
@@ -83,15 +82,15 @@ Iteration D concerns, not Iteration B behavioral obligations.
 
 | Case | Status | Observable behavior |
 | --- | :-: | --- |
-| Multi-fragment/multiline inline source | **Unsupported** | `false`/`null` |
-| Other fragmented principal layout | **Unsupported** | `false`/`null` where detected |
-| Genuinely 3D computed transform | **Unsupported** | `false`/`null` |
-| Perspective | **Unsupported** | `false`/`null` |
-| Relevant `transform-style: preserve-3d` | **Unsupported** | `false`/`null` |
-| Non-invertible `relativeTo` space | **Unsupported** | `false`/`null` |
-| Disconnected source or target | **Unsupported** | `false`/`null` |
-| Source/target without a principal box | **Unsupported** | `false`/`null` |
-| Cross-document conversion | **Unsupported** | `false`/`null` |
+| Multi-fragment/multiline inline source | **Unsupported** | `false` |
+| Other fragmented principal layout | **Unsupported** | `false` where detected |
+| Genuinely 3D computed transform | **Unsupported** | `false` |
+| Perspective | **Unsupported** | `false` |
+| Relevant `transform-style: preserve-3d` | **Unsupported** | `false` |
+| Non-invertible `relativeTo` space | **Unsupported** | `false` |
+| Disconnected source or target | **Unsupported** | `false` |
+| Source/target without a principal box | **Unsupported** | `false` |
+| Cross-document conversion | **Unsupported** | `false` |
 | Native `getBoxQuads()` delegation | **Unsupported** | Must never be invoked |
 | GeometryUtils polyfill/spec compatibility | **Unsupported** | No compatibility surface |
 | Requested output box modes other than border-box | **Unsupported** | No API option; distinct from a transform reference box |

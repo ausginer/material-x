@@ -53,17 +53,10 @@ rounding; tolerance must not excuse layout-pixel or composition-order errors.
 | `API-01` | `readBoxQuad(source, out)` succeeds | It returns `true` and writes all eight values into the supplied object. |
 | `API-02` | The same `out` is used for repeated successful reads | Each call reuses the object identity and replaces all eight values. |
 | `API-03` | A recognized failure occurs and `out` contains eight distinct sentinels | It returns `false` and every sentinel remains unchanged. |
-| `API-04` | `getBoxQuad(source)` succeeds | It returns a new `Float64Array(8)` containing the same values as `readBoxQuad`. |
-| `API-05` | Two successful wrapper calls have equal geometry | Their returned arrays are distinct objects. |
-| `API-06` | The delegated low-level read fails | `getBoxQuad` returns `null`. |
-| `API-07` | A platform operation unexpectedly throws | The error escapes; it is not converted to `false` or `null`. |
+| `API-07` | A platform operation unexpectedly throws | The error escapes; it is not converted to `false`. |
 | `API-08` | Native `getBoxQuads` is present and instrumented to throw if invoked | A supported read succeeds without invoking it. |
 | `API-09` | Source and target are both in the same iframe document | The read uses that document's constructors and viewport and succeeds without crossing into the parent document. |
-| `API-10` | `getBoxQuad` executes in a different realm from a supported source's owner document | DOM geometry uses the owner-document realm, while the returned array uses the package execution realm's `Float64Array`. |
-
-`API-04` and `API-06` pin delegation behavior, not a second geometry path.
-Iteration B may establish this through dependency injection/build inspection if
-direct spying would distort the public entrypoint.
+| `API-10` | A caller-supplied output comes from a different realm than a supported source's owner document | DOM geometry uses the owner-document realm while the supplied output retains its original identity and realm. |
 
 ## 4. Coordinate spaces and point identity
 
@@ -216,14 +209,13 @@ typed API and receive no runtime compatibility layer.
 | ID | Given / when | Then |
 | --- | --- | --- |
 | `CACHE-01` | Two unchanged reads share a cache within one epoch | Both calls return the same correct geometry; no particular reuse strategy is observable. |
-| `CACHE-04` | Layout changes after a successful cached read without reset | A later result may remain stale by contract. |
-| `CACHE-05` | Layout changes and the next call passes `reset: true` | The current call observes the new geometry. |
-| `CACHE-06` | `reset: true` is used on a call that later returns `false` | The old epoch was still discarded before that failed calculation. |
-| `CACHE-07` | `reset: true` is passed without a cache | Geometry is read normally; reset has no separate effect. |
-| `CACHE-10` | Two separately created caches are used | Their epochs and stale observations are independent. |
+| `CACHE-04` | Layout changes after a successful read using the same cache | A later result may remain stale by contract. |
+| `CACHE-05` | Layout changes and the next call uses a new cache | The current call observes the new geometry. |
+| `CACHE-10` | Two caller-created caches are used | Their epochs and stale observations are independent. |
 
-Every observation in an epoch may remain stale until reset, including one made
-by a call that returned `false`. The cache permits completed-space and inverse
+Every observation in an epoch may remain stale for the lifetime of that cache
+identity, including one made by a call that returned `false`. Calls that omit
+the cache are always fresh. The cache permits completed-space and inverse
 reuse, but shared-ancestor reuse, eager versus lazy inverse construction,
 internal hit counts, failure memoization strategy and allocation counts belong
 to iteration D. Iteration B must test only observable epoch behavior.

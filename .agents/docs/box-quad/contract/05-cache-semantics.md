@@ -3,183 +3,168 @@
 ## 1. Public model
 
 ```ts
-export type BoxQuadCache = /* opaque mutable holder */;
-
-export function createBoxQuadCache(): BoxQuadCache;
+export type BoxQuadCache = WeakMap<HTMLElement, unknown>;
 ```
 
-A cache is an opaque, mutable, consumer-owned measurement aid. Conceptually it
-owns a replaceable weak map:
+Consumers create and own cache objects directly:
 
 ```ts
-{
-  map: WeakMap<Element, InternalSpace>;
-}
+const cache: BoxQuadCache = new WeakMap();
 ```
 
-This shape is explanatory, not a public property layout.
+The map's identity and lifetime define one measurement epoch. The package owns
+the meaning and representation of every entry it writes. Consumers must not
+inspect, add, replace or delete entries. The public `unknown` value type
+prevents typed reliance on the representation but cannot remove the `WeakMap`
+methods; entry opacity is therefore a contractual requirement.
 
-The package never creates an immortal/global geometry cache. Omitting `cache`
-means the call does not retain reusable coordinate-space data for later public
-calls.
+The package never creates an immortal or global geometry cache. Omitting
+`cache` performs a fresh read and retains no reusable observations for later
+public calls.
 
 ## 2. Measurement epochs
 
-One cache defines a sequence of epochs:
+One caller-owned map is exactly one epoch:
 
 ```text
-create ── epoch 1 ── reset ── epoch 2 ── reset ── epoch 3
+new WeakMap() ── epoch 1
+new WeakMap() ── epoch 2
+new WeakMap() ── epoch 3
 ```
 
 Within an epoch, observations used to answer either successful or failed calls
-may be reused. The consumer owns the invalidation decision and accepts that
-DOM, style, layout, transform, zoom, scroll or support-state changes may not be
-observed until reset.
+may be reused. The consumer accepts that DOM, style, layout, transform, zoom,
+scroll or support-state changes may not be observed while it keeps passing the
+same map.
 
-Two separately created caches have independent epochs and observations.
+Two separately constructed maps have independent epochs and observations.
+There is no in-place reset operation. A consumer starts a fresh epoch by
+constructing and passing a new `WeakMap`.
 
-## 3. Reset ordering
-
-For a call with a supplied cache:
-
-| `reset` | Required behavior |
-| --- | --- |
-| omitted or not `true` | Reuse the current epoch. |
-| exactly `true` | Replace the cache's internal weak map before calculating the current request. |
-
-Reset is not a post-read cleanup. The current call is the first read in the new
-epoch and must observe geometry afresh.
-
-The replacement occurs before calculation even when the current call:
-
-- returns `false`;
-- later encounters a recognized unsupported ancestor;
-- throws an unexpected platform or implementation error.
-
-When no cache is supplied, `reset` has no separate observable effect.
-
-## 4. Cached values
+## 3. Cached values
 
 The reusable unit is a completed element-local-to-viewport coordinate space,
 not merely `DOMRect`.
 
 A completed space contains enough private information to reproduce the
 element's supported local physical border-box coordinates in viewport space.
-Its exact representation is deferred to correctness and performance work.
+Its exact representation is private and may change without an API revision.
 
 The cache permits successfully completed coordinate spaces and inverses to be
-retained and reused within an epoch.
+retained and reused within an epoch. Whether reuse occurs for a source, target,
+common ancestor or inverse is not observable behavior. Shared-ancestor reuse
+and the exact reuse strategy belong to Iteration D.
 
-Whether reuse occurs for a source, target, common ancestor or inverse is not
-observable behavior. Shared-ancestor reuse and the exact reuse strategy belong
-to Iteration D.
-
-## 5. Inverses
+## 4. Inverses
 
 When an element is used as `relativeTo`, its local-to-viewport space must be
 invertible to finite 2D values. A successful inverse may be retained and reused
 within the epoch.
 
-The contract does not require eager or lazy inverse construction. Construction
-timing, inverse counts and reuse policy belong to Iteration D.
-
-A failed/non-invertible inverse is a recognized call failure. The contract does
+The contract does not require eager or lazy inverse construction. A
+failed/non-invertible inverse is a recognized call failure. The contract does
 not constrain whether failure state or the observations leading to it are
-memoized. Repairing the geometry is guaranteed observable only after reset.
+memoized. Repairing geometry is guaranteed observable only through an
+uncached read or a newly constructed cache.
 
-## 6. Success, failure and partial work
+## 5. Success, failure and partial work
 
 | Event | Cache contract |
 | --- | --- |
 | Successful completed space | May be retained and reused for the epoch |
 | Successful target inverse | May be retained and reused for the epoch |
-| Recognized source/target-space failure | Its observations or outcome may remain stale until reset |
+| Recognized source/target-space failure | Its observations or outcome may remain stale for the epoch |
 | Recognized failure after other spaces completed | Those successfully completed spaces may remain reusable |
-| Unexpected escaping exception | No state guarantee beyond reset ordering, ownership invariants and no global cache |
+| Unexpected escaping exception | No state guarantee beyond ownership invariants and no global cache |
 
 Caching successful partial work must never weaken the atomic output guarantee:
 a `false` result leaves `out` unchanged.
 
-## 7. Staleness
+## 6. Fresh and stale reads
 
-The following sequence is permitted to return the old quad on the second call:
+The following sequence may return the old quad on the second call:
 
 ```ts
-const cache = createBoxQuadCache();
+const cache: BoxQuadCache = new WeakMap();
 
 readBoxQuad(element, first, undefined, cache);
 // Consumer mutates layout, style, transform, zoom or scroll.
 readBoxQuad(element, stale, undefined, cache);
 ```
 
-The consumer requests a fresh epoch explicitly:
+The consumer requests freshness with a new cache:
 
 ```ts
-readBoxQuad(element, fresh, undefined, cache, true);
+const freshCache: BoxQuadCache = new WeakMap();
+readBoxQuad(element, fresh, undefined, freshCache);
 ```
 
-That current call must not reuse any space or inverse from the prior epoch.
+Or performs an uncached read:
+
+```ts
+readBoxQuad(element, fresh);
+```
 
 Staleness is permission, not a requirement. An implementation may happen to
-recompute a value, but consumers must reset whenever freshness matters.
+recompute a value, but consumers must use a new map or omit the cache whenever
+freshness is required.
 
-## 8. Shared reads
+## 7. Shared reads
 
 The intended batch pattern is:
 
 ```ts
-const cache = createBoxQuadCache();
+const cache: BoxQuadCache = new WeakMap();
 
-readBoxQuad(first, firstOut, canvas, cache, true);
+readBoxQuad(first, firstOut, canvas, cache);
 readBoxQuad(second, secondOut, canvas, cache);
 readBoxQuad(third, thirdOut, canvas, cache);
 ```
 
 Observable requirements:
 
-- the first call starts the epoch before measuring `first`;
+- the map identity defines the epoch before the first read;
 - later calls may reuse completed spaces and inverses;
-- every successful result remains equivalent to calculating from that epoch's
-  first observations;
-- a failed observation may remain stale until the consumer resets.
+- every successful result remains equivalent to calculating from observations
+  available within that epoch;
+- a failed observation may remain stale for that map's lifetime.
 
-The wrapper accepts the same cache and reset values and participates in the
-same epoch.
-
-## 9. Lifetime and ownership
+## 8. Lifetime and weak ownership
 
 - The cache weakly keys element-owned data.
-- Cache internals must not keep an element alive solely through a strong key or
-  an incidental strong reference cycle rooted by the cache. This is a
-  code-review invariant.
-- Replacing the map on reset releases the prior epoch from the cache owner.
-- Discarding the cache releases the entire epoch for garbage collection.
-- There is no observer, timer or global registry attached to a cache.
+- Library-owned values must not keep an element alive through a strong
+  reference cycle rooted by the cache.
+- Discarding the map releases the epoch for garbage collection.
+- The package attaches no observer, timer or global registry to a cache.
+- Consumer inspection or mutation of entries violates the contract and voids
+  cache correctness guarantees for that map.
 
 Weak-retention GC checks are optional, non-blocking canaries because collection
-timing is not deterministic. They must not gate iteration B or package
-acceptance; the binding check is code review of ownership and reference paths.
+timing is not deterministic. The binding requirement is code review of
+ownership and reference paths.
 
-## 10. Cross-document use
+## 9. Cross-document use
 
-A cache object may be passed to calls for different top-level documents over
-its lifetime because its public type is not document-bound. Each element's
-space remains realm-owned.
+A cache may be passed to calls for different top-level documents over its
+lifetime because its public type is not document-bound. Each element's space
+remains realm-owned.
 
 This does not permit cross-document conversion:
 
-- a viewport-relative call is evaluated against the source's supported
-  document/realm constraints;
+- a viewport-relative call is evaluated against the source's current document
+  and realm;
 - a source and target from different documents fail;
 - reads wholly inside one iframe document use that document's own realm and
   viewport;
-- cached data from one document is never composed into another.
+- cached data from one document is never composed into another;
+- adoption invalidates reuse of an entry measured under the prior owner
+  document, even when the same map remains in use.
 
-## 11. Deferred performance details
+## 10. Deferred performance details
 
-Iteration A does not fix:
+The contract does not fix:
 
-- internal space/matrix property names;
+- internal space or matrix property names;
 - ancestor traversal representation;
 - exact matrix construction count;
 - exact cache hit rate;
@@ -187,5 +172,5 @@ Iteration A does not fix:
 - shared-ancestor reuse;
 - eager versus lazy inverse construction.
 
-Iteration D will measure these without changing the epoch, staleness, reset,
-failure or ownership semantics in this artifact.
+Iteration D may measure and change these without changing map identity,
+staleness, failure, realm or ownership semantics.

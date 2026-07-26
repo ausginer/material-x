@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { getBoxQuad, readBoxQuad } from '../src/index.js';
+import { readBoxQuad } from '../src/index.js';
 import {
   createBox,
   createFlowBox,
   expectQuad,
+  readSuccessfulBoxQuad,
   resetDocument,
   sentinels,
 } from './support/fixtures.ts';
@@ -82,7 +83,7 @@ describe('layout and physical coordinate spaces', () => {
   it('should read a plain block border box', () => {
     const source = createBox({ styles: { left: '30px', top: '40px' } });
 
-    expectQuad(getBoxQuad(source)!, [30, 40, 50, 40, 50, 50, 30, 50]);
+    expectQuad(readSuccessfulBoxQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
   // LAYOUT-03
@@ -95,7 +96,7 @@ describe('layout and physical coordinate spaces', () => {
       },
     });
 
-    expectQuad(getBoxQuad(source)!, [30, 0, 50, 0, 50, 10, 30, 10]);
+    expectQuad(readSuccessfulBoxQuad(source), [30, 0, 50, 0, 50, 10, 30, 10]);
   });
 
   // LAYOUT-04
@@ -114,7 +115,7 @@ describe('layout and physical coordinate spaces', () => {
       styles: { position: 'static', flex: '0 0 20px', height: '10px' },
     });
 
-    expectQuad(getBoxQuad(source)!, [30, 40, 50, 40, 50, 50, 30, 50]);
+    expectQuad(readSuccessfulBoxQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
   // LAYOUT-05
@@ -134,7 +135,7 @@ describe('layout and physical coordinate spaces', () => {
       styles: { position: 'static', height: '10px' },
     });
 
-    expectQuad(getBoxQuad(source)!, [30, 40, 50, 40, 50, 50, 30, 50]);
+    expectQuad(readSuccessfulBoxQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
   // LAYOUT-06
@@ -144,7 +145,7 @@ describe('layout and physical coordinate spaces', () => {
       styles: { left: '30px', top: '40px', width: '20px', height: '10px' },
     });
 
-    expectQuad(getBoxQuad(source)!, [30, 40, 50, 40, 50, 50, 30, 50]);
+    expectQuad(readSuccessfulBoxQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
   // LAYOUT-07
@@ -162,7 +163,7 @@ describe('layout and physical coordinate spaces', () => {
       },
     });
 
-    expectQuad(getBoxQuad(source)!, [30, 40, 60, 40, 60, 60, 30, 60]);
+    expectQuad(readSuccessfulBoxQuad(source), [30, 40, 60, 40, 60, 60, 30, 60]);
   });
 
   // LAYOUT-08
@@ -181,7 +182,7 @@ describe('layout and physical coordinate spaces', () => {
       styles: { left: '10px', top: '20px' },
     });
 
-    expectQuad(getBoxQuad(inner)!, [40, 60, 60, 60, 60, 70, 40, 70]);
+    expectQuad(readSuccessfulBoxQuad(inner), [40, 60, 60, 60, 60, 70, 40, 70]);
   });
 
   it.each([
@@ -245,7 +246,7 @@ describe('layout and physical coordinate spaces', () => {
       });
       const source = createBox({ parent: ancestor });
 
-      expectQuad(getBoxQuad(source)!, [0, 0, 20, 0, 20, 10, 0, 10]);
+      expectQuad(readSuccessfulBoxQuad(source), [0, 0, 20, 0, 20, 10, 0, 10]);
     },
   );
 });
@@ -311,7 +312,7 @@ describe('2D transforms', () => {
     ({ transform, expected }) => {
       const source = createBox({ styles: { transform } });
 
-      expectQuad(getBoxQuad(source)!, expected);
+      expectQuad(readSuccessfulBoxQuad(source), expected);
     },
   );
 
@@ -321,7 +322,7 @@ describe('2D transforms', () => {
       styles: { transform: 'rotate(180deg)', transformOrigin: '10px 5px' },
     });
 
-    expectQuad(getBoxQuad(source)!, [20, 10, 0, 10, 0, 0, 20, 0]);
+    expectQuad(readSuccessfulBoxQuad(source), [20, 10, 0, 10, 0, 0, 20, 0]);
   });
 
   // TRANSFORM-10
@@ -330,7 +331,10 @@ describe('2D transforms', () => {
       styles: { transform: 'scale(2)', transformOrigin: '50% 50%' },
     });
 
-    expectQuad(getBoxQuad(source)!, [-10, -5, 30, -5, 30, 15, -10, 15]);
+    expectQuad(
+      readSuccessfulBoxQuad(source),
+      [-10, -5, 30, -5, 30, 15, -10, 15],
+    );
   });
 
   // TRANSFORM-11
@@ -348,7 +352,7 @@ describe('2D transforms', () => {
     });
 
     // Parent maps (x, y) to (10 + 2x, 20 + 2y); source translation occurs first.
-    expectQuad(getBoxQuad(source)!, [26, 42, 66, 42, 66, 62, 26, 62]);
+    expectQuad(readSuccessfulBoxQuad(source), [26, 42, 66, 42, 66, 62, 26, 62]);
   });
 
   it.each([
@@ -371,19 +375,19 @@ describe('2D transforms', () => {
       expected: [0, 0, 40, 0, 40, 20, 0, 20],
     },
   ] as const)('should apply $description', ({ styles, expected }) => {
-    expectQuad(getBoxQuad(createBox({ styles }))!, expected);
+    expectQuad(readSuccessfulBoxQuad(createBox({ styles })), expected);
   });
 
   it('should treat a zero-angle 3D-axis individual rotation as 2D identity', () => {
     const source = createBox({ styles: { rotate: 'x 0deg' } });
 
-    expectQuad(getBoxQuad(source)!, [0, 0, 20, 0, 20, 10, 0, 10]);
+    expectQuad(readSuccessfulBoxQuad(source), [0, 0, 20, 0, 20, 10, 0, 10]);
   });
 
   it('should apply a z-axis individual rotation in 2D', () => {
     const source = createBox({ styles: { rotate: 'z 90deg' } });
 
-    expectQuad(getBoxQuad(source)!, [0, 0, 0, 20, -10, 20, -10, 0]);
+    expectQuad(readSuccessfulBoxQuad(source), [0, 0, 0, 20, -10, 20, -10, 0]);
   });
 
   // TRANSFORM-15
@@ -398,7 +402,7 @@ describe('2D transforms', () => {
     });
 
     // CSS individual transforms compose translate → rotate → scale before transform.
-    expectQuad(getBoxQuad(source)!, [-3, 6, -3, 46, -23, 46, -23, 6]);
+    expectQuad(readSuccessfulBoxQuad(source), [-3, 6, -3, 46, -23, 46, -23, 6]);
   });
 
   // TRANSFORM-17
@@ -419,13 +423,18 @@ describe('2D transforms', () => {
     });
 
     // Content-box bottom-right is border-local (38, 19): scale about that point.
-    expectQuad(getBoxQuad(source)!, [-38, -19, 62, -19, 62, 41, -38, 41]);
+    expectQuad(
+      readSuccessfulBoxQuad(source),
+      [-38, -19, 62, -19, 62, 41, -38, 41],
+    );
   });
 
   // TRANSFORM-18
   it('should resolve classic percentage translation against the border box', () => {
     expectQuad(
-      getBoxQuad(createBox({ styles: { transform: 'translate(50%, 50%)' } }))!,
+      readSuccessfulBoxQuad(
+        createBox({ styles: { transform: 'translate(50%, 50%)' } }),
+      ),
       [10, 5, 30, 5, 30, 15, 10, 15],
     );
   });
@@ -441,6 +450,6 @@ describe('2D transforms', () => {
     });
 
     // A 20px border box with 5px horizontal padding has a 10px content width.
-    expectQuad(getBoxQuad(source)!, [5, 0, 25, 0, 25, 10, 5, 10]);
+    expectQuad(readSuccessfulBoxQuad(source), [5, 0, 25, 0, 25, 10, 5, 10]);
   });
 });

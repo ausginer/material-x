@@ -1,11 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { createCache, getBoxQuad, readBoxQuad } from '../src/index.js';
+import { readBoxQuad, type BoxQuadCache } from '../src/index.js';
 import {
   createBox,
   createFrame,
   createFlowBox,
   createShadowBox,
   expectQuad,
+  readSuccessfulBoxQuad,
   resetDocument,
   sentinels,
   settleLayout,
@@ -65,7 +66,7 @@ describe('positioning, zoom, and scrolling', () => {
     window.scrollTo(0, 400);
     await settleLayout();
 
-    expectQuad(getBoxQuad(source)!, [30, 40, 50, 40, 50, 50, 30, 50]);
+    expectQuad(readSuccessfulBoxQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
   // POSITION-02
@@ -82,7 +83,7 @@ describe('positioning, zoom, and scrolling', () => {
       styles: { position: 'fixed', left: '5px', top: '7px' },
     });
 
-    expectQuad(getBoxQuad(source)!, [15, 27, 35, 27, 35, 37, 15, 37]);
+    expectQuad(readSuccessfulBoxQuad(source), [15, 27, 35, 27, 35, 37, 15, 37]);
   });
 
   // POSITION-03
@@ -104,7 +105,7 @@ describe('positioning, zoom, and scrolling', () => {
     });
     await settleLayout();
 
-    expectQuad(getBoxQuad(source)!, [0, 60, 20, 60, 20, 70, 0, 70]);
+    expectQuad(readSuccessfulBoxQuad(source), [0, 60, 20, 60, 20, 70, 0, 70]);
   });
 
   // POSITION-04
@@ -127,7 +128,7 @@ describe('positioning, zoom, and scrolling', () => {
     scroller.scrollTop = 40;
     await settleLayout();
 
-    expectQuad(getBoxQuad(source)!, [0, 30, 20, 30, 20, 40, 0, 40]);
+    expectQuad(readSuccessfulBoxQuad(source), [0, 30, 20, 30, 20, 40, 0, 40]);
   });
 
   // POSITION-05
@@ -182,7 +183,7 @@ describe('positioning, zoom, and scrolling', () => {
         : outer;
       const source = createBox({ parent, styles: sourceStyles });
 
-      expectQuad(getBoxQuad(source)!, expected);
+      expectQuad(readSuccessfulBoxQuad(source), expected);
     },
   );
 
@@ -192,7 +193,7 @@ describe('positioning, zoom, and scrolling', () => {
       styles: { left: '10px', top: '15px', zoom: '2' },
     });
 
-    expectQuad(getBoxQuad(source)!, [20, 30, 60, 30, 60, 50, 20, 50]);
+    expectQuad(readSuccessfulBoxQuad(source), [20, 30, 60, 30, 60, 50, 20, 50]);
   });
 
   // ZOOM-05
@@ -205,7 +206,10 @@ describe('positioning, zoom, and scrolling', () => {
       styles: { left: '10px', top: '15px' },
     });
 
-    expectQuad(getBoxQuad(source, target)!, [10, 15, 30, 15, 30, 25, 10, 25]);
+    expectQuad(
+      readSuccessfulBoxQuad(source, target),
+      [10, 15, 30, 15, 30, 25, 10, 25],
+    );
   });
 
   // ZOOM-06
@@ -226,7 +230,7 @@ describe('positioning, zoom, and scrolling', () => {
     });
 
     expectQuad(
-      getBoxQuad(source, target)!,
+      readSuccessfulBoxQuad(source, target),
       [-180, 10, -153.333333, 10, -153.333333, 23.333333, -180, 23.333333],
     );
   });
@@ -243,7 +247,7 @@ describe('positioning, zoom, and scrolling', () => {
     });
     const source = createBox({ parent, styles: { left: '5px', top: '7px' } });
 
-    expectQuad(getBoxQuad(source)!, [30, 54, 70, 54, 70, 74, 30, 74]);
+    expectQuad(readSuccessfulBoxQuad(source), [30, 54, 70, 54, 70, 74, 30, 74]);
   });
 
   // ZOOM-08
@@ -262,7 +266,10 @@ describe('positioning, zoom, and scrolling', () => {
     scroller.scrollTop = 30;
     await settleLayout();
 
-    expectQuad(getBoxQuad(source)!, [20, 140, 60, 140, 60, 160, 20, 160]);
+    expectQuad(
+      readSuccessfulBoxQuad(source),
+      [20, 140, 60, 140, 60, 160, 20, 160],
+    );
   });
 
   // SCROLL-01
@@ -274,7 +281,10 @@ describe('positioning, zoom, and scrolling', () => {
     window.scrollTo(0, 200);
     await settleLayout();
 
-    expectQuad(getBoxQuad(source)!, [0, 300, 20, 300, 20, 310, 0, 310]);
+    expectQuad(
+      readSuccessfulBoxQuad(source),
+      [0, 300, 20, 300, 20, 310, 0, 310],
+    );
   });
 
   // SCROLL-02
@@ -290,7 +300,7 @@ describe('positioning, zoom, and scrolling', () => {
     scroller.scrollTop = 30;
     await settleLayout();
 
-    expectQuad(getBoxQuad(source)!, [0, 70, 20, 70, 20, 80, 0, 80]);
+    expectQuad(readSuccessfulBoxQuad(source), [0, 70, 20, 70, 20, 80, 0, 80]);
   });
 
   // SCROLL-03
@@ -318,7 +328,10 @@ describe('positioning, zoom, and scrolling', () => {
     inner.scrollTop = 30;
     await settleLayout();
 
-    expectQuad(getBoxQuad(source)!, [0, 130, 20, 130, 20, 140, 0, 140]);
+    expectQuad(
+      readSuccessfulBoxQuad(source),
+      [0, 130, 20, 130, 20, 140, 0, 140],
+    );
   });
 
   // SCROLL-04
@@ -335,7 +348,10 @@ describe('positioning, zoom, and scrolling', () => {
     scroller.scrollTop = 20;
     await settleLayout();
 
-    expectQuad(getBoxQuad(source, target)!, [0, 70, 20, 70, 20, 80, 0, 80]);
+    expectQuad(
+      readSuccessfulBoxQuad(source, target),
+      [0, 70, 20, 70, 20, 80, 0, 80],
+    );
   });
 
   // SCROLL-05
@@ -372,7 +388,7 @@ describe('positioning, zoom, and scrolling', () => {
     await settleLayout();
 
     expectQuad(
-      getBoxQuad(source, target)!,
+      readSuccessfulBoxQuad(source, target),
       [-200, 40, -180, 40, -180, 50, -200, 50],
     );
   });
@@ -396,7 +412,10 @@ describe('positioning, zoom, and scrolling', () => {
     scroller.scrollTop = 30;
     await settleLayout();
 
-    expectQuad(getBoxQuad(source)!, [20, 180, 60, 180, 60, 200, 20, 200]);
+    expectQuad(
+      readSuccessfulBoxQuad(source),
+      [20, 180, 60, 180, 60, 200, 20, 200],
+    );
   });
 });
 
@@ -430,7 +449,7 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
       const source = createBox({ parent, styles: { left: '5px', top: '7px' } });
 
       expectQuad(
-        getBoxQuad(source, target)!,
+        readSuccessfulBoxQuad(source, target),
         distant
           ? [15, 17, 35, 17, 35, 27, 15, 27]
           : [5, 7, 25, 7, 25, 17, 5, 17],
@@ -444,7 +463,7 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
     const target = createBox({ styles: { left: '100px', top: '200px' } });
 
     expectQuad(
-      getBoxQuad(source, target)!,
+      readSuccessfulBoxQuad(source, target),
       [-70, -160, -50, -160, -50, -150, -70, -150],
     );
   });
@@ -456,7 +475,10 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
       styles: { transform: 'scale(2)', width: '100px', height: '100px' },
     });
 
-    expectQuad(getBoxQuad(source, target)!, [10, 5, 20, 5, 20, 10, 10, 10]);
+    expectQuad(
+      readSuccessfulBoxQuad(source, target),
+      [10, 5, 20, 5, 20, 10, 10, 10],
+    );
   });
 
   // REL-05
@@ -469,7 +491,10 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
       styles: { left: '10px', top: '5px' },
     });
 
-    expectQuad(getBoxQuad(source, target)!, [10, 5, 30, 5, 30, 15, 10, 15]);
+    expectQuad(
+      readSuccessfulBoxQuad(source, target),
+      [10, 5, 30, 5, 30, 15, 10, 15],
+    );
   });
 
   // REL-06
@@ -485,14 +510,20 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
     target.scrollTop = 30;
     await settleLayout();
 
-    expectQuad(getBoxQuad(source, target)!, [0, 70, 20, 70, 20, 80, 0, 80]);
+    expectQuad(
+      readSuccessfulBoxQuad(source, target),
+      [0, 70, 20, 70, 20, 80, 0, 80],
+    );
   });
 
   // REL-07
   it('should return local corners for an invertible self target', () => {
     const source = createBox({ styles: { transform: 'rotate(90deg)' } });
 
-    expectQuad(getBoxQuad(source, source)!, [0, 0, 20, 0, 20, 10, 0, 10]);
+    expectQuad(
+      readSuccessfulBoxQuad(source, source),
+      [0, 0, 20, 0, 20, 10, 0, 10],
+    );
   });
 
   it.each([
@@ -541,7 +572,10 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
       },
     });
 
-    expectQuad(getBoxQuad(source, target)!, [38, 19, 48, 19, 48, 24, 38, 24]);
+    expectQuad(
+      readSuccessfulBoxQuad(source, target),
+      [38, 19, 48, 19, 48, 24, 38, 24],
+    );
   });
 
   it.each([
@@ -552,7 +586,7 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
   ] as const)('should include host geometry for $description', ({ mode }) => {
     const { source } = createShadowBox(mode);
 
-    expectQuad(getBoxQuad(source)!, [30, 35, 50, 35, 50, 45, 30, 45]);
+    expectQuad(readSuccessfulBoxQuad(source), [30, 35, 50, 35, 50, 45, 30, 45]);
   });
 
   // SHADOW-03
@@ -565,7 +599,7 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
     root.append(slot);
     const source = createBox({ parent: host, styles: { position: 'static' } });
 
-    expectQuad(getBoxQuad(source)!, [10, 20, 30, 20, 30, 30, 10, 30]);
+    expectQuad(readSuccessfulBoxQuad(source), [10, 20, 30, 20, 30, 30, 10, 30]);
   });
 
   // SHADOW-04
@@ -574,7 +608,7 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
     const target = createBox({ styles: { left: '100px', top: '100px' } });
 
     expectQuad(
-      getBoxQuad(source, target)!,
+      readSuccessfulBoxQuad(source, target),
       [-70, -65, -50, -65, -50, -55, -70, -55],
     );
   });
@@ -598,7 +632,7 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
       styles: { position: 'static', zoom: '2' },
     });
 
-    expectQuad(getBoxQuad(source)!, [15, 27, 55, 27, 55, 47, 15, 47]);
+    expectQuad(readSuccessfulBoxQuad(source), [15, 27, 55, 27, 55, 47, 15, 47]);
   });
 
   it.each([
@@ -618,7 +652,7 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
     'should keep source corners in physical p1-to-p4 order for $description',
     ({ styles }) => {
       expectQuad(
-        getBoxQuad(createBox({ styles }))!,
+        readSuccessfulBoxQuad(createBox({ styles })),
         [0, 0, 20, 0, 20, 10, 0, 10],
       );
     },
@@ -631,7 +665,10 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
     });
     const target = createBox({ styles: { writingMode: 'vertical-lr' } });
 
-    expectQuad(getBoxQuad(source, target)!, [30, 40, 50, 40, 50, 50, 30, 50]);
+    expectQuad(
+      readSuccessfulBoxQuad(source, target),
+      [30, 40, 50, 40, 50, 50, 30, 50],
+    );
   });
 
   // WRITING-05
@@ -644,7 +681,7 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
       },
     });
 
-    expectQuad(getBoxQuad(source)!, [10, 14, 50, 14, 50, 34, 10, 34]);
+    expectQuad(readSuccessfulBoxQuad(source), [10, 14, 50, 14, 50, 34, 10, 34]);
   });
 });
 
@@ -713,7 +750,7 @@ describe('recognized unsupported geometry and cache epochs', () => {
 
   // CACHE-01
   it('should return correct unchanged geometry within one measurement epoch', () => {
-    const cache = createCache();
+    const cache: BoxQuadCache = new WeakMap();
     const source = createBox();
     const first = new Float64Array(8);
     const second = new Float64Array(8);
@@ -724,12 +761,12 @@ describe('recognized unsupported geometry and cache epochs', () => {
   });
 
   // CACHE-04
-  it('should permit a stale observation before an explicit reset', () => {
-    const cache = createCache();
+  it('should permit a stale observation while one cache identity is reused', () => {
+    const cache: BoxQuadCache = new WeakMap();
     const source = createBox();
-    const first = getBoxQuad(source, undefined, cache)!;
+    const first = readSuccessfulBoxQuad(source, undefined, cache);
     source.style.left = '30px';
-    const later = getBoxQuad(source, undefined, cache)!;
+    const later = readSuccessfulBoxQuad(source, undefined, cache);
 
     expect([Array.from(first), [30, 0, 50, 0, 50, 10, 30, 10]]).toContainEqual(
       Array.from(later),
@@ -737,43 +774,27 @@ describe('recognized unsupported geometry and cache epochs', () => {
   });
 
   // CACHE-05
-  it('should observe changed geometry when reset starts the current call epoch', () => {
-    const cache = createCache();
+  it('should observe changed geometry when a new cache starts an epoch', () => {
+    const cache: BoxQuadCache = new WeakMap();
     const source = createBox();
-    getBoxQuad(source, undefined, cache);
+    readSuccessfulBoxQuad(source, undefined, cache);
     source.style.left = '30px';
 
     expectQuad(
-      getBoxQuad(source, undefined, cache, true)!,
+      readSuccessfulBoxQuad(source, undefined, new WeakMap()),
       [30, 0, 50, 0, 50, 10, 30, 10],
     );
   });
 
-  // CACHE-06
-  it('should discard the old epoch before a failed reset read', () => {
-    const cache = createCache();
+  it('should perform fresh reads when no cache is supplied', () => {
     const source = createBox();
-    const target = createBox();
-    const out = sentinels();
-    getBoxQuad(source, undefined, cache);
+    const first = new Float64Array(8);
+    const second = new Float64Array(8);
+
+    expect(readBoxQuad(source, first)).toBe(true);
     source.style.left = '30px';
-    target.remove();
-
-    expect(readBoxQuad(source, out, target, cache, true)).toBe(false);
-    expectQuad(out, [11, 22, 33, 44, 55, 66, 77, 88]);
-    expectQuad(
-      getBoxQuad(source, undefined, cache)!,
-      [30, 0, 50, 0, 50, 10, 30, 10],
-    );
-  });
-
-  // CACHE-07
-  it('should ignore reset when no cache is supplied', () => {
-    const source = createBox();
-    const out = new Float64Array(8);
-
-    expect(readBoxQuad(source, out, undefined, undefined, true)).toBe(true);
-    expectQuad(out, [0, 0, 20, 0, 20, 10, 0, 10]);
+    expect(readBoxQuad(source, second)).toBe(true);
+    expectQuad(second, [30, 0, 50, 0, 50, 10, 30, 10]);
   });
 
   it('should remeasure cached geometry after cross-document adoption', () => {
@@ -783,10 +804,10 @@ describe('recognized unsupported geometry and cache epochs', () => {
     source.style.cssText =
       'position:absolute;left:10px;top:20px;width:20px;height:10px;box-sizing:border-box';
     firstDocument.body.append(source);
-    const cache = createCache();
+    const cache: BoxQuadCache = new WeakMap();
 
     expectQuad(
-      getBoxQuad(source, undefined, cache)!,
+      readSuccessfulBoxQuad(source, undefined, cache),
       [10, 20, 30, 20, 30, 30, 10, 30],
     );
 
@@ -800,7 +821,7 @@ describe('recognized unsupported geometry and cache epochs', () => {
     secondDocument.body.append(target);
 
     expectQuad(
-      getBoxQuad(source, target, cache)!,
+      readSuccessfulBoxQuad(source, target, cache),
       [30, 40, 50, 40, 50, 50, 30, 50],
     );
   });

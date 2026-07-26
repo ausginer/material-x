@@ -47,8 +47,6 @@ One entrypoint:
 
 ```ts
 import {
-  createBoxQuadCache,
-  getBoxQuad,
   readBoxQuad,
   type BoxQuadCache,
   type Quad,
@@ -88,7 +86,6 @@ export function readBoxQuad(
   out: Quad,
   relativeTo?: HTMLElement,
   cache?: BoxQuadCache,
-  reset?: boolean,
 ): boolean;
 ```
 
@@ -98,20 +95,7 @@ Contract:
 - `false`: result cannot be represented inside the supported model;
 - on failure, `out` remains unchanged;
 - no hot-path runtime validation of output type or length;
-- reusable output enables allocation-free repeated reads.
-
-### Convenience wrapper
-
-```ts
-export function getBoxQuad(
-  element: HTMLElement,
-  relativeTo?: HTMLElement,
-  cache?: BoxQuadCache,
-  reset?: boolean,
-): Quad | null;
-```
-
-It allocates `new Float64Array(8)`, delegates to `readBoxQuad`, and returns `null` on failure. No separate geometry logic.
+- reusable output avoids replacement/public output allocation.
 
 ## Coordinate semantics
 
@@ -163,35 +147,31 @@ Use constructors from `element.ownerDocument.defaultView`, not ambient globals.
 Caching is explicit and consumer-owned.
 
 ```ts
-export type BoxQuadCache = /* opaque mutable holder */;
-
-export function createBoxQuadCache(): BoxQuadCache;
+export type BoxQuadCache = WeakMap<HTMLElement, unknown>;
 ```
 
-Conceptually it owns:
+Consumers create the cache identity directly:
 
 ```ts
-{
-  map: WeakMap<Element, InternalSpace>;
-}
+const cache: BoxQuadCache = new WeakMap();
 ```
 
-When `cache` is supplied:
-
-- `reset !== true`: reuse cached coordinate-space data;
-- `reset === true`: replace its internal `WeakMap` before computing the current result.
+The package owns the opaque values stored in the map. Consumers own the map's
+identity and lifetime but must not inspect or mutate entries.
 
 Example:
 
 ```ts
-const cache = createBoxQuadCache();
+const cache: BoxQuadCache = new WeakMap();
 
-readBoxQuad(first, firstOut, canvas, cache, true);
+readBoxQuad(first, firstOut, canvas, cache);
 readBoxQuad(second, secondOut, canvas, cache);
 readBoxQuad(third, thirdOut, canvas, cache);
 ```
 
-The consumer defines the measurement epoch and decides when to reset. Stale values before reset are allowed by contract.
+One map identity defines one potentially stale measurement epoch. Consumers
+start a fresh epoch by passing a new `WeakMap`; omitting the cache always
+performs a fresh uncached read.
 
 Cache completed local-to-viewport coordinate spaces, not merely `DOMRect`. Compute inverse lazily when an element is used as `relativeTo`. Reuse common ancestors where practical. Do not keep a global immortal cache.
 
@@ -215,7 +195,7 @@ Implement the most direct understandable solution with `DOMMatrix`. No byte golf
 
 ### Phase 4 — cache/performance
 
-Add consumer-owned cache, reset semantics, common-ancestor reuse, lazy inverses, and allocation analysis.
+Add caller-owned WeakMap caching, common-ancestor reuse, lazy inverses, and allocation analysis.
 
 ### Phase 5 — bundle optimization
 
@@ -292,18 +272,15 @@ Unsupported cases should fail predictably, never silently return knowingly wrong
 - reuse inside one epoch;
 - shared ancestor reuse;
 - lazy inverse reuse;
-- geometry may be stale before reset;
-- reset observes updated geometry;
-- reset happens before the current calculation;
+- geometry may be stale while one map identity is reused;
+- a new map observes updated geometry;
 - removed elements are weakly held.
 
 ### API behavior
 
 - low-level function uses supplied output;
 - no replacement allocation in `readBoxQuad`;
-- wrapper allocates output and delegates;
 - failure leaves output unchanged;
-- wrapper returns `null`;
 - point ordering remains stable.
 
 ## Expected values
@@ -329,7 +306,7 @@ Measure full reads, not isolated matrix multiplication:
 - 100 siblings relative to one canvas;
 - 100 nested elements;
 - 100 elements sharing groups;
-- reset every read versus one epoch;
+- a fresh WeakMap every read versus one shared epoch;
 - nested zoom + transforms;
 - non-ancestor `relativeTo`.
 
@@ -340,7 +317,6 @@ Track total time, allocations, style/layout reads, matrix constructions, cache h
 Measure minified + Brotli for:
 
 - `readBoxQuad`;
-- `getBoxQuad`;
 - cache-enabled use;
 - complete entrypoint.
 
@@ -363,10 +339,9 @@ The target is not permission to sacrifice correctness. Do not grow this into a g
 7. Do not introduce a global geometry cache.
 8. Keep one public entrypoint.
 9. Centralize mechanics in `readBoxQuad`.
-10. Keep `getBoxQuad` a thin allocating wrapper.
-11. Cache invalidation belongs to the consumer.
-12. Preserve local-corner point ordering.
-13. Treat performance and Brotli size as product requirements.
+10. Cache invalidation belongs to the consumer through cache identity.
+11. Preserve local-corner point ordering.
+12. Treat performance and Brotli size as product requirements.
 
 ## Delivery checkpoints
 
@@ -397,15 +372,15 @@ package:              @ydinjs/box-quad
 entrypoints:          one
 output:               Float64Array(8)
 core API:             readBoxQuad
-wrapper:              getBoxQuad
+wrapper:              none
 box mode:             border-box
 default space:        viewport
 relativeTo:           any same-document HTMLElement
 matrix primitive:     DOMMatrix
 transforms:           classic and individual 2D properties
 CSS zoom:             required
-cache:                consumer-owned WeakMap holder
-reset:                explicit argument
+cache:                caller-owned WeakMap
+freshness:            new WeakMap or omitted cache
 fragments:            unsupported
 3D:                   unsupported
 iframes:              unsupported
