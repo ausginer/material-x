@@ -5,6 +5,7 @@
     "./tests/**/*",
     "../../types.d.ts",
     "./eslint.config.ts",
-    "./vitest.config.ts"
+    "./vitest.config.ts",
+    "./tsdown.config.ts"
   ]
 }

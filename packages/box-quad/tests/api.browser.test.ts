@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { createBoxQuadCache, getBoxQuad, readBoxQuad } from '../src/index.js';
+import { createCache, getBoxQuad, readBoxQuad } from '../src/index.js';
 import {
   createBox,
   createFrame,
@@ -140,6 +140,17 @@ describe('public API', () => {
     expectQuad(out, [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
+  // API-09
+  it('should use an iframe document viewport for default output', () => {
+    const frameDocument = createFrame();
+    const source = frameDocument.createElement('div');
+    source.style.cssText =
+      'position:absolute;left:40px;top:60px;width:20px;height:10px;box-sizing:border-box';
+    frameDocument.body.append(source);
+
+    expectQuad(getBoxQuad(source)!, [40, 60, 60, 60, 60, 70, 40, 70]);
+  });
+
   // API-10
   it('should use the source document DOMMatrix without changing wrapper array realm', () => {
     const frameDocument = createFrame();
@@ -174,8 +185,8 @@ describe('public API', () => {
   // CACHE-10
   it('should keep separate caches independent', () => {
     const source = createBox();
-    const first = createBoxQuadCache();
-    const second = createBoxQuadCache();
+    const first = createCache();
+    const second = createCache();
     const firstOut = new Float64Array(8);
     const secondOut = new Float64Array(8);
 

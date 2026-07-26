@@ -88,7 +88,11 @@ describe('layout and physical coordinate spaces', () => {
   // LAYOUT-03
   it('should read an inline-block without display-specific handling', () => {
     const source = createFlowBox({
-      styles: { display: 'inline-block', marginLeft: '30px' },
+      styles: {
+        display: 'inline-block',
+        marginLeft: '30px',
+        verticalAlign: 'top',
+      },
     });
 
     expectQuad(getBoxQuad(source)!, [30, 0, 50, 0, 50, 10, 30, 10]);
@@ -215,6 +219,35 @@ describe('layout and physical coordinate spaces', () => {
     expect(readBoxQuad(source, out, target)).toBe(false);
     expectQuad(out, [11, 22, 33, 44, 55, 66, 77, 88]);
   });
+
+  it.each([
+    {
+      description: 'a 2D transform',
+      styles: { transform: 'rotate(90deg)' },
+    },
+    {
+      description: 'a 3D transform',
+      styles: { transform: 'rotateX(90deg)' },
+    },
+    {
+      description: 'perspective',
+      styles: { perspective: '100px' },
+    },
+    {
+      description: 'preserve-3d',
+      styles: { transformStyle: 'preserve-3d' },
+    },
+  ] as const)(
+    'should ignore $description on a display:contents ancestor',
+    ({ styles }) => {
+      const ancestor = createBox({
+        styles: { display: 'contents', ...styles },
+      });
+      const source = createBox({ parent: ancestor });
+
+      expectQuad(getBoxQuad(source)!, [0, 0, 20, 0, 20, 10, 0, 10]);
+    },
+  );
 });
 
 describe('2D transforms', () => {
@@ -339,6 +372,18 @@ describe('2D transforms', () => {
     },
   ] as const)('should apply $description', ({ styles, expected }) => {
     expectQuad(getBoxQuad(createBox({ styles }))!, expected);
+  });
+
+  it('should treat a zero-angle 3D-axis individual rotation as 2D identity', () => {
+    const source = createBox({ styles: { rotate: 'x 0deg' } });
+
+    expectQuad(getBoxQuad(source)!, [0, 0, 20, 0, 20, 10, 0, 10]);
+  });
+
+  it('should apply a z-axis individual rotation in 2D', () => {
+    const source = createBox({ styles: { rotate: 'z 90deg' } });
+
+    expectQuad(getBoxQuad(source)!, [0, 0, 0, 20, -10, 20, -10, 0]);
   });
 
   // TRANSFORM-15

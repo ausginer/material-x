@@ -7,6 +7,22 @@ _eslint := "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts"
 default:
     @just --list
 
+# Build core
+build:
+    tsdown --config tsdown.config.ts
+
+# Delete build artefacts
+clean-build:
+    node ../../.scripts/package-files.ts clean --package .
+
+# Build TypeDoc API into the cache (dev/watch use)
+docs-api:
+    typedoc --options typedoc.json --out ../../node_modules/.cache/docs/api/drag
+
+# Build TypeDoc API into the output directory
+docs-api-build:
+    typedoc --options typedoc.json --out ../../.docs/api/drag
+
 # Run tests
 test *ARGS:
     vitest run -c vitest.config.ts {{ ARGS }}
@@ -36,3 +52,7 @@ lint *FILES:
 lint-fix *FILES:
     oxlint --fix {{ if FILES == "" { "." } else { FILES } }}
     {{ _eslint }} --fix {{ if FILES == "" { "." } else { FILES } }}
+
+# Measure bundle size budgets (builds first — Size Limit weighs built output)
+size *ARGS: build
+    size-limit {{ ARGS }}

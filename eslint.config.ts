@@ -51,6 +51,7 @@ const config: readonly Config[] = defineConfig(
       '@typescript-eslint/no-unsafe-type-assertion': 'off',
       'import-x/no-mutable-exports': 'off',
       '@typescript-eslint/promise-function-async': 'off',
+      '@typescript-eslint/consistent-type-assertions': 'off',
     },
   },
 );

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { createBoxQuadCache, getBoxQuad, readBoxQuad } from '../src/index.js';
+import { createCache, getBoxQuad, readBoxQuad } from '../src/index.js';
 import {
   createBox,
   createFrame,
@@ -662,6 +662,11 @@ describe('recognized unsupported geometry and cache epochs', () => {
       create: () => createBox({ styles: { transform: 'rotateX(20deg)' } }),
       fragmented: false,
     },
+    {
+      description: 'a genuinely 3D individual rotation',
+      create: () => createBox({ styles: { rotate: 'x 90deg' } }),
+      fragmented: false,
+    },
     // UNSUPPORTED-03
     {
       description: 'perspective',
@@ -696,9 +701,19 @@ describe('recognized unsupported geometry and cache epochs', () => {
     },
   );
 
+  it('should fail atomically for a fragmented target', () => {
+    const source = createBox();
+    const target = createColumnFragment();
+    const out = sentinels();
+
+    expect(target.getClientRects().length).toBeGreaterThan(1);
+    expect(readBoxQuad(source, out, target)).toBe(false);
+    expectQuad(out, [11, 22, 33, 44, 55, 66, 77, 88]);
+  });
+
   // CACHE-01
   it('should return correct unchanged geometry within one measurement epoch', () => {
-    const cache = createBoxQuadCache();
+    const cache = createCache();
     const source = createBox();
     const first = new Float64Array(8);
     const second = new Float64Array(8);
@@ -710,7 +725,7 @@ describe('recognized unsupported geometry and cache epochs', () => {
 
   // CACHE-04
   it('should permit a stale observation before an explicit reset', () => {
-    const cache = createBoxQuadCache();
+    const cache = createCache();
     const source = createBox();
     const first = getBoxQuad(source, undefined, cache)!;
     source.style.left = '30px';
@@ -723,7 +738,7 @@ describe('recognized unsupported geometry and cache epochs', () => {
 
   // CACHE-05
   it('should observe changed geometry when reset starts the current call epoch', () => {
-    const cache = createBoxQuadCache();
+    const cache = createCache();
     const source = createBox();
     getBoxQuad(source, undefined, cache);
     source.style.left = '30px';
@@ -736,7 +751,7 @@ describe('recognized unsupported geometry and cache epochs', () => {
 
   // CACHE-06
   it('should discard the old epoch before a failed reset read', () => {
-    const cache = createBoxQuadCache();
+    const cache = createCache();
     const source = createBox();
     const target = createBox();
     const out = sentinels();
@@ -759,5 +774,34 @@ describe('recognized unsupported geometry and cache epochs', () => {
 
     expect(readBoxQuad(source, out, undefined, undefined, true)).toBe(true);
     expectQuad(out, [0, 0, 20, 0, 20, 10, 0, 10]);
+  });
+
+  it('should remeasure cached geometry after cross-document adoption', () => {
+    const firstDocument = createFrame();
+    const secondDocument = createFrame();
+    const source = firstDocument.createElement('div');
+    source.style.cssText =
+      'position:absolute;left:10px;top:20px;width:20px;height:10px;box-sizing:border-box';
+    firstDocument.body.append(source);
+    const cache = createCache();
+
+    expectQuad(
+      getBoxQuad(source, undefined, cache)!,
+      [10, 20, 30, 20, 30, 30, 10, 30],
+    );
+
+    secondDocument.adoptNode(source);
+    source.style.left = '40px';
+    source.style.top = '60px';
+    secondDocument.body.append(source);
+    const target = secondDocument.createElement('div');
+    target.style.cssText =
+      'position:absolute;left:10px;top:20px;width:20px;height:10px;box-sizing:border-box';
+    secondDocument.body.append(target);
+
+    expectQuad(
+      getBoxQuad(source, target, cache)!,
+      [30, 40, 50, 40, 50, 50, 30, 50],
+    );
   });
 });
