@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { getBoxQuad, readBoxQuad } from '../src/index.js';
 import {
   createBox,
+  createFlowBox,
   expectQuad,
   resetDocument,
   sentinels,
@@ -86,8 +87,8 @@ describe('layout and physical coordinate spaces', () => {
 
   // LAYOUT-03
   it('should read an inline-block without display-specific handling', () => {
-    const source = createBox({
-      styles: { display: 'inline-block', left: '30px' },
+    const source = createFlowBox({
+      styles: { display: 'inline-block', marginLeft: '30px' },
     });
 
     expectQuad(getBoxQuad(source)!, [30, 0, 50, 0, 50, 10, 30, 10]);
@@ -352,7 +353,7 @@ describe('2D transforms', () => {
     });
 
     // CSS individual transforms compose translate → rotate → scale before transform.
-    expectQuad(getBoxQuad(source)!, [5, 6, 5, 46, -15, 46, -15, 6]);
+    expectQuad(getBoxQuad(source)!, [-3, 6, -3, 46, -23, 46, -23, 6]);
   });
 
   // TRANSFORM-17

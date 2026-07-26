@@ -78,19 +78,21 @@ describe('public API', () => {
     const out = sentinels();
     const original = Object.getOwnPropertyDescriptor(source, 'ownerDocument');
 
-    Object.defineProperty(source, 'ownerDocument', {
-      configurable: true,
-      get() {
-        throw new Error('owner document failed');
-      },
-    });
+    try {
+      Object.defineProperty(source, 'ownerDocument', {
+        configurable: true,
+        get() {
+          throw new Error('owner document failed');
+        },
+      });
 
-    expect(() => readBoxQuad(source, out)).toThrow('owner document failed');
-
-    if (original) {
-      Object.defineProperty(source, 'ownerDocument', original);
-    } else {
-      Reflect.deleteProperty(source, 'ownerDocument');
+      expect(() => readBoxQuad(source, out)).toThrow('owner document failed');
+    } finally {
+      if (original) {
+        Object.defineProperty(source, 'ownerDocument', original);
+      } else {
+        Reflect.deleteProperty(source, 'ownerDocument');
+      }
     }
   });
 
@@ -103,33 +105,39 @@ describe('public API', () => {
       'getBoxQuads',
     );
 
-    Object.defineProperty(Element.prototype, 'getBoxQuads', {
-      configurable: true,
-      value() {
-        throw new Error('native getBoxQuads must not be called');
-      },
-    });
+    try {
+      Object.defineProperty(Element.prototype, 'getBoxQuads', {
+        configurable: true,
+        value() {
+          throw new Error('native getBoxQuads must not be called');
+        },
+      });
 
-    expect(readBoxQuad(source, out)).toBe(true);
-
-    if (descriptor) {
-      Object.defineProperty(Element.prototype, 'getBoxQuads', descriptor);
-    } else {
-      Reflect.deleteProperty(Element.prototype, 'getBoxQuads');
+      expect(readBoxQuad(source, out)).toBe(true);
+    } finally {
+      if (descriptor) {
+        Object.defineProperty(Element.prototype, 'getBoxQuads', descriptor);
+      } else {
+        Reflect.deleteProperty(Element.prototype, 'getBoxQuads');
+      }
     }
   });
 
   // API-09
-  it('should read a source wholly inside its iframe document', () => {
+  it('should read source and target wholly inside their iframe document', () => {
     const frameDocument = createFrame();
     const source = frameDocument.createElement('div');
     source.style.cssText =
       'position:absolute;left:40px;top:60px;width:20px;height:10px;box-sizing:border-box';
     frameDocument.body.append(source);
+    const target = frameDocument.createElement('div');
+    target.style.cssText =
+      'position:absolute;left:10px;top:20px;width:40px;height:30px;box-sizing:border-box';
+    frameDocument.body.append(target);
     const out = new Float64Array(8);
 
-    expect(readBoxQuad(source, out)).toBe(true);
-    expectQuad(out, [40, 60, 60, 60, 60, 70, 40, 70]);
+    expect(readBoxQuad(source, out, target)).toBe(true);
+    expectQuad(out, [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
   // API-10
@@ -150,8 +158,13 @@ describe('public API', () => {
       }
     };
 
-    const result = getBoxQuad(source);
-    frameWindow.DOMMatrix = OriginalDOMMatrix;
+    let result: Float64Array | null;
+
+    try {
+      result = getBoxQuad(source);
+    } finally {
+      frameWindow.DOMMatrix = OriginalDOMMatrix;
+    }
 
     expect(constructed).toBeGreaterThan(0);
     expect(result).toBeInstanceOf(Float64Array);

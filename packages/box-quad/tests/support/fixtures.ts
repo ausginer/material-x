@@ -2,10 +2,18 @@ import { expect } from 'vitest';
 
 export const QUAD_TOLERANCE = 0.000001;
 
+export type Styles = Readonly<{
+  [K in keyof CSSStyleDeclaration as K extends string
+    ? CSSStyleDeclaration[K] extends string
+      ? K
+      : never
+    : never]?: string;
+}>;
+
 export type BoxOptions = Readonly<{
   parent?: HTMLElement;
   tag?: keyof HTMLElementTagNameMap;
-  styles?: Readonly<Partial<CSSStyleDeclaration>>;
+  styles?: Readonly<Partial<Styles>>;
 }>;
 
 export function createBox(options: BoxOptions = {}): HTMLElement {
@@ -22,6 +30,23 @@ export function createBox(options: BoxOptions = {}): HTMLElement {
       width: '20px',
       height: '10px',
       transformOrigin: '0 0',
+    },
+    options.styles,
+  );
+  parent.append(element);
+  return element;
+}
+
+export function createFlowBox(options: BoxOptions = {}): HTMLElement {
+  const element = document.createElement(options.tag ?? 'div');
+  const parent = options.parent ?? document.body;
+
+  Object.assign(
+    element.style,
+    {
+      boxSizing: 'border-box',
+      width: '20px',
+      height: '10px',
     },
     options.styles,
   );

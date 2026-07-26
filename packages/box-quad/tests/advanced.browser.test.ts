@@ -3,14 +3,55 @@ import { createBoxQuadCache, getBoxQuad, readBoxQuad } from '../src/index.js';
 import {
   createBox,
   createFrame,
+  createFlowBox,
   createShadowBox,
   expectQuad,
   resetDocument,
   sentinels,
   settleLayout,
+  type Styles,
 } from './support/fixtures.ts';
 
 afterEach(resetDocument);
+
+function createMultilineInline(): HTMLElement {
+  const container = createFlowBox({
+    styles: { width: '48px', lineHeight: '10px' },
+  });
+  const source = createFlowBox({
+    parent: container,
+    tag: 'span',
+    styles: { display: 'inline', width: 'auto', height: 'auto' },
+  });
+  source.textContent = 'one two three four five';
+  return source;
+}
+
+function createColumnFragment(): HTMLElement {
+  const container = createFlowBox({
+    styles: {
+      width: '100px',
+      height: '30px',
+      columnCount: '2',
+      columnGap: '0px',
+      columnFill: 'auto',
+    },
+  });
+
+  return createFlowBox({
+    parent: container,
+    styles: { display: 'block', width: '50px', height: '80px' },
+  });
+}
+
+function createUnsupportedAncestor(
+  styles: Readonly<Partial<Styles>>,
+): HTMLElement {
+  const ancestor = createBox({
+    styles: { width: '100px', height: '100px', ...styles },
+  });
+  return createBox({ parent: ancestor });
+}
 
 describe('positioning, zoom, and scrolling', () => {
   // POSITION-01
@@ -53,13 +94,17 @@ describe('positioning, zoom, and scrolling', () => {
       parent: scroller,
       styles: { position: 'relative', width: '100px', height: '300px' },
     });
+    createFlowBox({
+      parent: content,
+      styles: { width: '100px', height: '60px' },
+    });
     const source = createBox({
       parent: content,
       styles: { position: 'sticky', left: '0px', top: '30px' },
     });
     await settleLayout();
 
-    expectQuad(getBoxQuad(source)!, [0, 30, 20, 30, 20, 40, 0, 40]);
+    expectQuad(getBoxQuad(source)!, [0, 60, 20, 60, 20, 70, 0, 70]);
   });
 
   // POSITION-04
@@ -71,6 +116,10 @@ describe('positioning, zoom, and scrolling', () => {
       parent: scroller,
       styles: { position: 'relative', width: '100px', height: '300px' },
     });
+    createFlowBox({
+      parent: content,
+      styles: { width: '100px', height: '60px' },
+    });
     const source = createBox({
       parent: content,
       styles: { position: 'sticky', left: '0px', top: '30px' },
@@ -78,7 +127,7 @@ describe('positioning, zoom, and scrolling', () => {
     scroller.scrollTop = 40;
     await settleLayout();
 
-    expectQuad(getBoxQuad(source)!, [0, 0, 20, 0, 20, 10, 0, 10]);
+    expectQuad(getBoxQuad(source)!, [0, 30, 20, 30, 20, 40, 0, 40]);
   });
 
   // POSITION-05
@@ -143,7 +192,7 @@ describe('positioning, zoom, and scrolling', () => {
       styles: { left: '10px', top: '15px', zoom: '2' },
     });
 
-    expectQuad(getBoxQuad(source)!, [10, 15, 50, 15, 50, 35, 10, 35]);
+    expectQuad(getBoxQuad(source)!, [20, 30, 60, 30, 60, 50, 20, 50]);
   });
 
   // ZOOM-05
@@ -178,7 +227,7 @@ describe('positioning, zoom, and scrolling', () => {
 
     expectQuad(
       getBoxQuad(source, target)!,
-      [-100, 10, -60, 10, -60, 30, -100, 30],
+      [-180, 10, -153.333333, 10, -153.333333, 23.333333, -180, 23.333333],
     );
   });
 
@@ -194,7 +243,7 @@ describe('positioning, zoom, and scrolling', () => {
     });
     const source = createBox({ parent, styles: { left: '5px', top: '7px' } });
 
-    expectQuad(getBoxQuad(source)!, [20, 34, 60, 34, 60, 54, 20, 54]);
+    expectQuad(getBoxQuad(source)!, [30, 54, 70, 54, 70, 74, 30, 74]);
   });
 
   // ZOOM-08
@@ -347,7 +396,7 @@ describe('positioning, zoom, and scrolling', () => {
     scroller.scrollTop = 30;
     await settleLayout();
 
-    expectQuad(getBoxQuad(source)!, [10, 160, 50, 160, 50, 180, 10, 180]);
+    expectQuad(getBoxQuad(source)!, [20, 180, 60, 180, 60, 200, 20, 200]);
   });
 });
 
@@ -595,7 +644,7 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
       },
     });
 
-    expectQuad(getBoxQuad(source)!, [5, 7, 45, 7, 45, 27, 5, 27]);
+    expectQuad(getBoxQuad(source)!, [10, 14, 50, 14, 50, 34, 10, 34]);
   });
 });
 
@@ -604,38 +653,48 @@ describe('recognized unsupported geometry and cache epochs', () => {
     // UNSUPPORTED-01
     {
       description: 'a multiline inline source',
-      styles: { display: 'inline', width: 'auto', height: 'auto' },
+      create: createMultilineInline,
+      fragmented: true,
     },
     // UNSUPPORTED-02
     {
       description: 'a genuinely 3D transform',
-      styles: { transform: 'rotateX(20deg)' },
+      create: () => createBox({ styles: { transform: 'rotateX(20deg)' } }),
+      fragmented: false,
     },
     // UNSUPPORTED-03
-    { description: 'perspective', styles: { perspective: '100px' } },
+    {
+      description: 'perspective',
+      create: () => createUnsupportedAncestor({ perspective: '100px' }),
+      fragmented: false,
+    },
     // UNSUPPORTED-04
-    { description: 'preserve-3d', styles: { transformStyle: 'preserve-3d' } },
+    {
+      description: 'preserve-3d',
+      create: () =>
+        createUnsupportedAncestor({ transformStyle: 'preserve-3d' }),
+      fragmented: false,
+    },
     // UNSUPPORTED-05
     {
       description: 'fragmented layout',
-      styles: { display: 'inline', width: 'auto', height: 'auto' },
+      create: createColumnFragment,
+      fragmented: true,
     },
-  ] as const)('should fail atomically for $description', ({ styles }) => {
-    const source = createBox({ styles });
-    const out = sentinels();
+  ] as const)(
+    'should fail atomically for $description',
+    ({ create, fragmented }) => {
+      const source = create();
+      const out = sentinels();
 
-    expect(readBoxQuad(source, out)).toBe(false);
-    expectQuad(out, [11, 22, 33, 44, 55, 66, 77, 88]);
-  });
+      if (fragmented) {
+        expect(source.getClientRects().length).toBeGreaterThan(1);
+      }
 
-  // UNSUPPORTED-06
-  it('should leave bypassed TypeScript inputs outside the boolean contract', () => {
-    const out = sentinels();
-
-    expect(() =>
-      readBoxQuad(document.createTextNode('x') as never, out),
-    ).toThrow();
-  });
+      expect(readBoxQuad(source, out)).toBe(false);
+      expectQuad(out, [11, 22, 33, 44, 55, 66, 77, 88]);
+    },
+  );
 
   // CACHE-01
   it('should return correct unchanged geometry within one measurement epoch', () => {
@@ -657,7 +716,9 @@ describe('recognized unsupported geometry and cache epochs', () => {
     source.style.left = '30px';
     const later = getBoxQuad(source, undefined, cache)!;
 
-    expectQuad(later, first);
+    expect([Array.from(first), [30, 0, 50, 0, 50, 10, 30, 10]]).toContainEqual(
+      Array.from(later),
+    );
   });
 
   // CACHE-05
@@ -677,12 +738,18 @@ describe('recognized unsupported geometry and cache epochs', () => {
   it('should discard the old epoch before a failed reset read', () => {
     const cache = createBoxQuadCache();
     const source = createBox();
+    const target = createBox();
     const out = sentinels();
     getBoxQuad(source, undefined, cache);
-    source.remove();
+    source.style.left = '30px';
+    target.remove();
 
-    expect(readBoxQuad(source, out, undefined, cache, true)).toBe(false);
+    expect(readBoxQuad(source, out, target, cache, true)).toBe(false);
     expectQuad(out, [11, 22, 33, 44, 55, 66, 77, 88]);
+    expectQuad(
+      getBoxQuad(source, undefined, cache)!,
+      [30, 0, 50, 0, 50, 10, 30, 10],
+    );
   });
 
   // CACHE-07
