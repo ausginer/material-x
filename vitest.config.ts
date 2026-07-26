@@ -8,6 +8,7 @@ import { materialXBrowserCommands } from './packages/material-x/tests/support/vi
 const config: UserConfigFnObject = defineConfig((env) =>
   createWorkspaceTestConfig(env, {
     root: new URL('./', import.meta.url),
+    boxQuadRoot: new URL('./packages/box-quad/', import.meta.url),
     materialXRoot: new URL('./packages/material-x/', import.meta.url),
     materialXCommands: materialXBrowserCommands,
     coreRoot: new URL('./packages/core/', import.meta.url),
