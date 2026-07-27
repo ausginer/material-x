@@ -4,6 +4,7 @@ import type { ConfigEnv, UserConfig } from 'vite';
 import { mergeConfig } from 'vitest/config';
 import type { BrowserCommand } from 'vitest/node';
 import {
+  createViteConfig,
   createMaterialXViteConfig,
   createCoreViteConfig,
 } from './vite-config.ts';
@@ -37,6 +38,7 @@ type DeclarationTestProjectOptions = Readonly<{
 
 type WorkspaceTestConfigOptions = Readonly<{
   root: URL;
+  boxQuadRoot: URL;
   materialXRoot: URL;
   materialXCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
   coreRoot: URL;
@@ -253,6 +255,32 @@ function createDragTestProjects(root: URL, scope?: string): UserConfig[] {
   ];
 }
 
+export function createBoxQuadTestConfig(root: URL): UserConfig {
+  return {
+    test: {
+      projects: [
+        createBrowserTestProject({
+          name: 'browser',
+          root,
+          include: ['tests/**/*.browser.test.ts'],
+          viteConfig: createViteConfig(root),
+        }),
+      ],
+    },
+  };
+}
+
+function createBoxQuadTestProjects(root: URL, scope?: string): UserConfig[] {
+  return [
+    createBrowserTestProject({
+      name: scopedName('browser', scope),
+      root,
+      include: ['tests/**/*.browser.test.ts'],
+      viteConfig: createViteConfig(root),
+    }),
+  ];
+}
+
 function createTprocTestProjects(root: URL, scope?: string): UserConfig[] {
   return [
     createNodeTestProject({
@@ -325,6 +353,10 @@ export function createWorkspaceTestConfig(
   env: ConfigEnv,
   options: WorkspaceTestConfigOptions,
 ): UserConfig {
+  const [boxQuadBrowser] = createBoxQuadTestProjects(
+    options.boxQuadRoot,
+    'box-quad',
+  );
   const [materialXBrowser, materialXSpec, materialXVisual, materialXNode] =
     createMaterialXTestProjects(
       env,
@@ -355,6 +387,7 @@ export function createWorkspaceTestConfig(
         coreBrowser,
         materialXNode,
         coreDeclaration,
+        boxQuadBrowser,
         dragBrowser,
         dragNode,
         dragDeclaration,

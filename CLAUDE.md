@@ -25,6 +25,7 @@ Prefer LSP over grep for code-symbol tasks (definitions, references, types, call
 - Always use `{ once: true }` instead of `removeEventListener` where applicable.
 - All top-level functions should be declared via `function` unless they are a product of another function. All internal functions (e.g., created inside another function) should be declared via arrow functions. Note: this rule doesn't apply to object methods, they should remain shorthand as much as possible.
 - Never use `sync` versions of `node:fs` unless there is truly no async alternative (e.g. `registerHooks` from `node:module` requires synchronous hooks — that is the only known exception).
+- Treat `Object.assign` as an ordered multi-source assignment primitive. When sources already exist independently, pass them as separate arguments instead of pre-merging them with object spread. Pre-merging needlessly materializes a combined source and copies later-source properties twice; it may also change observable assignment behavior for setters, proxies, accessors, or other non-plain targets.
 
 ### Unit-tests
 

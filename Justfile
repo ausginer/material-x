@@ -42,7 +42,7 @@ debug FILE:
 
 # Run all tests across all packages
 test:
-    nx run-many -t test --projects=core,tproc,material-x --skipNxCache
+    nx run-many -t test --projects=box-quad,core,tproc,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Bundle size
@@ -58,7 +58,7 @@ size:
 
 # Type-check all packages
 typecheck:
-    nx run-many -t typecheck --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t typecheck --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Formatting
@@ -66,11 +66,11 @@ typecheck:
 
 # Format all packages
 fmt:
-    nx run-many -t fmt --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t fmt --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # Check formatting for all packages without writing
 fmt-check:
-    nx run-many -t fmt:check --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t fmt:check --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Linting
@@ -78,11 +78,11 @@ fmt-check:
 
 # Lint all packages
 lint:
-    nx run-many -t lint --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t lint --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # Lint and auto-fix all packages
 lint-fix:
-    nx run-many -t lint:fix --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t lint:fix --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Misc
