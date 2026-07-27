@@ -128,15 +128,14 @@ describe('public API', () => {
     const frameWindow = frameDocument.defaultView!;
     const source = frameDocument.createElement('div');
     source.style.cssText =
-      'position:absolute;width:20px;height:10px;box-sizing:border-box';
+      'position:absolute;width:20px;height:10px;box-sizing:border-box;transform:scale(2);transform-origin:0 0';
     frameDocument.body.append(source);
-    const OriginalDOMMatrix = frameWindow.DOMMatrix;
-    let constructed = 0;
+    const OriginalDOMMatrix = window.DOMMatrix;
 
-    frameWindow.DOMMatrix = class extends OriginalDOMMatrix {
+    window.DOMMatrix = class extends OriginalDOMMatrix {
       constructor(...args: ConstructorParameters<typeof DOMMatrix>) {
         super(...args);
-        constructed += 1;
+        throw new Error('ambient DOMMatrix used');
       }
     };
 
@@ -146,11 +145,11 @@ describe('public API', () => {
     try {
       result = readBoxQuad(source, out);
     } finally {
-      frameWindow.DOMMatrix = OriginalDOMMatrix;
+      window.DOMMatrix = OriginalDOMMatrix;
     }
 
     expect(result).toBe(true);
-    expect(constructed).toBeGreaterThan(0);
+    expectQuad(out, [0, 0, 40, 0, 40, 20, 0, 20]);
     expect(out).toBeInstanceOf(Float64Array);
     expect(out).not.toBeInstanceOf(frameWindow.Float64Array);
   });

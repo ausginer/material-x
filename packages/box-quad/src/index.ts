@@ -32,12 +32,11 @@ function getFlatParent(element: HTMLElement): HTMLElement | null {
 function getBorderSize(
   style: CSSStyleDeclaration,
   dimension: 'width' | 'height',
-  element: HTMLElement,
 ): number {
   const value = Number.parseFloat(style[dimension]);
 
   if (!Number.isFinite(value)) {
-    return dimension === 'width' ? element.offsetWidth : element.offsetHeight;
+    return value;
   }
 
   if (style.boxSizing === 'border-box') {
@@ -65,37 +64,17 @@ function getBorderSize(
 
 function get2DRotation(value: string): number | null {
   const values = value.split(' ');
-  const angleValue = values.at(-1)!;
-  const number = Number.parseFloat(angleValue);
-  let angle: number;
+  const angle = Number.parseFloat(values.at(-1)!);
 
-  if (angleValue.endsWith('deg')) {
-    angle = (number * Math.PI) / 180;
-  } else if (angleValue.endsWith('grad')) {
-    angle = (number * Math.PI) / 200;
-  } else if (angleValue.endsWith('turn')) {
-    angle = number * 2 * Math.PI;
-  } else {
-    angle = number;
-  }
-
-  if (values.length === 1 || values[0] === 'z') {
+  if (values.length === 1) {
     return angle;
   }
 
   if (
-    Math.abs(Math.sin(angle)) < 1e-12 &&
-    Math.abs(Math.cos(angle) - 1) < 1e-12
+    Math.abs(Math.sin((angle * Math.PI) / 180)) < 1e-12 &&
+    Math.abs(Math.cos((angle * Math.PI) / 180) - 1) < 1e-12
   ) {
     return 0;
-  }
-
-  if (
-    values.length === 4 &&
-    Number.parseFloat(values[0]!) === 0 &&
-    Number.parseFloat(values[1]!) === 0
-  ) {
-    return Number.parseFloat(values[2]!) < 0 ? -angle : angle;
   }
 
   return null;
@@ -108,18 +87,15 @@ function composeLinearMatrix(
 ): DOMMatrix | null {
   const Matrix = view.DOMMatrix;
   const result = new Matrix();
-  let a = 1;
-  let b = 0;
-  let c = 0;
-  let d = 1;
   let current: HTMLElement | null = element;
   let style = firstStyle;
 
   while (current) {
-    let nodeA = 1;
-    let nodeB = 0;
-    let nodeC = 0;
-    let nodeD = 1;
+    const zoom = Number.parseFloat(style.zoom);
+    let node =
+      zoom !== 1 && !Number.isNaN(zoom)
+        ? new Matrix().scaleSelf(zoom)
+        : undefined;
 
     if (style.display !== 'contents') {
       if (
@@ -129,17 +105,16 @@ function composeLinearMatrix(
         return null;
       }
 
-      if (style.transform !== 'none') {
-        const transform = new Matrix(style.transform);
+      const { rotate } = style;
 
-        if (!transform.is2D) {
+      if (rotate !== 'none') {
+        const angle = get2DRotation(rotate);
+
+        if (angle === null) {
           return null;
         }
 
-        nodeA = transform.a;
-        nodeB = transform.b;
-        nodeC = transform.c;
-        nodeD = transform.d;
+        (node ??= new Matrix()).rotateSelf(angle);
       }
 
       const { scale } = style;
@@ -153,30 +128,21 @@ function composeLinearMatrix(
           return null;
         }
 
-        nodeA *= scaleX;
-        nodeC *= scaleX;
-        nodeB *= scaleY;
-        nodeD *= scaleY;
+        (node ??= new Matrix()).scaleSelf(scaleX, scaleY);
       }
 
-      const { rotate } = style;
+      if (style.transform !== 'none') {
+        const transform = new Matrix(style.transform);
 
-      if (rotate !== 'none') {
-        const angle = get2DRotation(rotate);
-
-        if (angle === null) {
+        if (!transform.is2D) {
           return null;
         }
 
-        const cosine = Math.cos(angle);
-        const sine = Math.sin(angle);
-        const rotatedA = cosine * nodeA - sine * nodeB;
-        const rotatedB = sine * nodeA + cosine * nodeB;
-        const rotatedC = cosine * nodeC - sine * nodeD;
-        nodeD = sine * nodeC + cosine * nodeD;
-        nodeA = rotatedA;
-        nodeB = rotatedB;
-        nodeC = rotatedC;
+        if (node) {
+          node.multiplySelf(transform);
+        } else {
+          node = transform;
+        }
       }
 
       const { translate } = style;
@@ -190,22 +156,9 @@ function composeLinearMatrix(
       }
     }
 
-    const zoom = Number.parseFloat(style.zoom);
-
-    if (!Number.isNaN(zoom)) {
-      nodeA *= zoom;
-      nodeB *= zoom;
-      nodeC *= zoom;
-      nodeD *= zoom;
+    if (node) {
+      result.preMultiplySelf(node);
     }
-
-    const nextA = nodeA * a + nodeC * b;
-    const nextB = nodeB * a + nodeD * b;
-    const nextC = nodeA * c + nodeC * d;
-    d = nodeB * c + nodeD * d;
-    a = nextA;
-    b = nextB;
-    c = nextC;
 
     current = getFlatParent(current);
 
@@ -214,10 +167,6 @@ function composeLinearMatrix(
     }
   }
 
-  result.a = a;
-  result.b = b;
-  result.c = c;
-  result.d = d;
   return result;
 }
 
@@ -237,12 +186,28 @@ function createSpace(element: HTMLElement): Space | null {
 
   const rect = rects[0]!;
   const style = view.getComputedStyle(element);
-  const width = getBorderSize(style, 'width', element);
-  const height = getBorderSize(style, 'height', element);
   const matrix = composeLinearMatrix(element, style, view);
 
   if (!matrix) {
     return null;
+  }
+
+  const absoluteA = Math.abs(matrix.a);
+  const absoluteB = Math.abs(matrix.b);
+  const absoluteC = Math.abs(matrix.c);
+  const absoluteD = Math.abs(matrix.d);
+  const determinant = absoluteA * absoluteD - absoluteB * absoluteC;
+  const determinantScale = absoluteA * absoluteD + absoluteB * absoluteC;
+  let width: number;
+  let height: number;
+
+  // Fall back before AABB inversion significantly amplifies input error.
+  if (Math.abs(determinant) > determinantScale * 0.05) {
+    width = (rect.width * absoluteD - rect.height * absoluteC) / determinant;
+    height = (rect.height * absoluteA - rect.width * absoluteB) / determinant;
+  } else {
+    width = getBorderSize(style, 'width');
+    height = getBorderSize(style, 'height');
   }
 
   matrix.e =
@@ -285,20 +250,12 @@ function getSpace(
   return space;
 }
 
-function getInverse(element: HTMLElement, space: Space): DOMMatrix | null {
+function getInverse(space: Space): DOMMatrix | null {
   if (space.inverse !== undefined) {
     return space.inverse;
   }
 
-  const Matrix = element.ownerDocument.defaultView!.DOMMatrix;
-  const inverse = new Matrix();
-  inverse.a = space.matrix.a;
-  inverse.b = space.matrix.b;
-  inverse.c = space.matrix.c;
-  inverse.d = space.matrix.d;
-  inverse.e = space.matrix.e;
-  inverse.f = space.matrix.f;
-  inverse.invertSelf();
+  const inverse = space.matrix.inverse();
 
   space.inverse =
     inverse.is2D &&
@@ -342,7 +299,7 @@ export function readBoxQuad(
       return false;
     }
 
-    const inverse = getInverse(relativeTo, target);
+    const inverse = getInverse(target);
 
     if (!inverse) {
       return false;

@@ -110,6 +110,10 @@ Without `relativeTo`, output is in layout viewport coordinates. Values align
 with `clientX`/`clientY` and `getBoundingClientRect()`, including current page
 and container scroll positions.
 
+Fractional used border-box extents remain part of the rendered geometry.
+Implementations must not replace browser-observable fractional border edges
+with a lower-precision serialized CSS value.
+
 ### 4.2 Relative output
 
 With `relativeTo`, output is in the target's local physical border-box space.
@@ -177,10 +181,8 @@ of the requested target space.
 
 ## 6. Realm and primitive requirements
 
-- `DOMMatrix` and any other constructed DOM geometry primitives come from
-  `element.ownerDocument.defaultView`.
-- The initial/default matrix primitive is that owner-document realm's
-  `DOMMatrix`.
+- If `DOMMatrix` or another DOM geometry primitive is constructed, it comes
+  from `element.ownerDocument.defaultView`.
 - `readBoxQuad` uses the caller-supplied output and does not replace its realm or
   identity.
 - The public output is always a `Float64Array`, not `DOMPoint` or `DOMQuad`.

@@ -4,6 +4,7 @@ import {
   createBox,
   createFlowBox,
   expectQuad,
+  QUAD_TOLERANCE,
   readSuccessfulBoxQuad,
   resetDocument,
   sentinels,
@@ -84,6 +85,22 @@ describe('layout and physical coordinate spaces', () => {
     const source = createBox({ styles: { left: '30px', top: '40px' } });
 
     expectQuad(readSuccessfulBoxQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
+  });
+
+  // LAYOUT-02
+  it('should include content-box padding and borders', () => {
+    const source = createBox({
+      styles: {
+        boxSizing: 'content-box',
+        width: '20px',
+        height: '10px',
+        padding: '2px 3px 4px 5px',
+        border: '1px solid black',
+        transform: 'matrix(1, 1, 1, 1, 0, 0)',
+      },
+    });
+
+    expectQuad(readSuccessfulBoxQuad(source), [0, 0, 30, 30, 48, 48, 18, 18]);
   });
 
   // LAYOUT-03
@@ -390,6 +407,15 @@ describe('2D transforms', () => {
     expectQuad(readSuccessfulBoxQuad(source), [0, 0, 0, 20, -10, 20, -10, 0]);
   });
 
+  it.each(['100grad', '0.25turn', `${Math.PI / 2}rad`])(
+    'should apply a 90-degree individual rotation authored as %s',
+    (rotate) => {
+      const source = createBox({ styles: { rotate } });
+
+      expectQuad(readSuccessfulBoxQuad(source), [0, 0, 0, 20, -10, 20, -10, 0]);
+    },
+  );
+
   // TRANSFORM-15
   it('should use the browser composition order for individual and classic transforms', () => {
     const source = createBox({
@@ -452,4 +478,93 @@ describe('2D transforms', () => {
     // A 20px border box with 5px horizontal padding has a 10px content width.
     expectQuad(readSuccessfulBoxQuad(source), [5, 0, 25, 0, 25, 10, 5, 10]);
   });
+
+  // TRANSFORM-20
+  it('should preserve rendered fractional border-box precision under scale', () => {
+    const source = createBox({
+      styles: {
+        width: '33.333px',
+        transform: 'scale(2)',
+      },
+    });
+    const rect = source.getBoundingClientRect();
+
+    expectQuad(readSuccessfulBoxQuad(source), [
+      rect.left,
+      rect.top,
+      rect.right,
+      rect.top,
+      rect.right,
+      rect.bottom,
+      rect.left,
+      rect.bottom,
+    ]);
+  });
+
+  // TRANSFORM-21
+  it('should retain rect-based recovery for a well-conditioned fractional rotation', () => {
+    const source = createBox({
+      styles: {
+        width: '33.5px',
+        height: '17.25px',
+        transform: 'rotate(30deg)',
+      },
+    });
+    const out = readSuccessfulBoxQuad(source);
+    const rect = source.getBoundingClientRect();
+    const xValues = [out[0]!, out[2]!, out[4]!, out[6]!];
+    const yValues = [out[1]!, out[3]!, out[5]!, out[7]!];
+
+    expect(Math.abs(Math.min(...xValues) - rect.left)).toBeLessThanOrEqual(
+      QUAD_TOLERANCE,
+    );
+    expect(Math.abs(Math.max(...xValues) - rect.right)).toBeLessThanOrEqual(
+      QUAD_TOLERANCE,
+    );
+    expect(Math.abs(Math.min(...yValues) - rect.top)).toBeLessThanOrEqual(
+      QUAD_TOLERANCE,
+    );
+    expect(Math.abs(Math.max(...yValues) - rect.bottom)).toBeLessThanOrEqual(
+      QUAD_TOLERANCE,
+    );
+  });
+
+  it.each([
+    '44deg',
+    '44.99deg',
+    '44.999deg',
+    '44.9999deg',
+    '45deg',
+    '45.01deg',
+    '46deg',
+  ])(
+    'should use stable fractional dimensions near the AABB singular band at %s',
+    (angle) => {
+      const source = createBox({
+        styles: {
+          width: '33.5px',
+          height: '17.25px',
+          transform: `rotate(${angle})`,
+        },
+      });
+      const out = readSuccessfulBoxQuad(source);
+      const style = getComputedStyle(source);
+      const matrix = new DOMMatrix(style.transform);
+      const width = Number.parseFloat(style.width);
+      const height = Number.parseFloat(style.height);
+
+      expect(
+        Math.abs(out[2]! - out[0]! - matrix.a * width),
+      ).toBeLessThanOrEqual(QUAD_TOLERANCE);
+      expect(
+        Math.abs(out[3]! - out[1]! - matrix.b * width),
+      ).toBeLessThanOrEqual(QUAD_TOLERANCE);
+      expect(
+        Math.abs(out[6]! - out[0]! - matrix.c * height),
+      ).toBeLessThanOrEqual(QUAD_TOLERANCE);
+      expect(
+        Math.abs(out[7]! - out[1]! - matrix.d * height),
+      ).toBeLessThanOrEqual(QUAD_TOLERANCE);
+    },
+  );
 });

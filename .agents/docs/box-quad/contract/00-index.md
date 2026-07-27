@@ -76,7 +76,7 @@ accepted expectation without returning to contract review.
 | Public exports and signatures | API §§1–3 |
 | Quad representation and point identity | API §2; scenarios `API-*`, `SPACE-*` |
 | Viewport and `relativeTo` semantics | API §4; scenarios `SPACE-*`, `REL-*` |
-| Realm-owned `DOMMatrix` and no native delegation | API §6; support matrix §§2–3 |
+| Realm ownership of constructed DOM geometry and no native delegation | API §6; support matrix §§2–3 |
 | Layout coverage | scenarios `LAYOUT-*`, `POSITION-*`, `SHADOW-*`, `WRITING-*` |
 | Transform coverage | scenarios `TRANSFORM-*` |
 | Zoom coverage | scenarios `ZOOM-*` |

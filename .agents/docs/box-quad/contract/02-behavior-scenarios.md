@@ -75,6 +75,7 @@ rounding; tolerance must not excuse layout-pixel or composition-order errors.
 | ID | Given / when | Then |
 | --- | --- | --- |
 | `LAYOUT-01` | A plain block has known viewport position, border-box width and height | Output matches its four border corners. |
+| `LAYOUT-02` | A source uses `box-sizing:content-box` with padding and borders | Output corners use the resulting border-box width and height. |
 | `LAYOUT-03` | An inline-block has known dimensions | It succeeds without display-specific handling. |
 | `LAYOUT-04` | A flex item has known dimensions and placement | It succeeds with its rendered border-box quad. |
 | `LAYOUT-05` | A grid item has known dimensions and placement | It succeeds with its rendered border-box quad. |
@@ -126,6 +127,8 @@ compatibility.
 | `TRANSFORM-17` | An asymmetrically bordered/padded HTML source uses an effective content-box reference and percentage `transform-origin` | The origin resolves against content-box dimensions and includes the content box's offset from the local border-box origin. |
 | `TRANSFORM-18` | Classic `transform: translate(<percentage>)` uses an effective border-box or content-box reference | Each percentage resolves against the corresponding effective reference-box dimension. |
 | `TRANSFORM-19` | Individual `translate` uses percentages with an effective content-box reference | Percentages resolve against content-box dimensions while the output corners remain source border-box corners. |
+| `TRANSFORM-20` | A source with a fractional rendered border-box extent is scaled | Output preserves the browser-observable fractional border edge without CSS serialization loss. |
+| `TRANSFORM-21` | Fractional local dimensions are rotated near an AABB dimension-recovery singular band | Output preserves the local border-box dimensions without a near-singular discontinuity. |
 
 ## 8. CSS zoom
 

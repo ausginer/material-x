@@ -29,6 +29,7 @@ supported v1 behavior.
 | Sticky positioning | **Supported** | Current rendered position at read time |
 | Zero-width/zero-height principal box | **Supported** | Degenerate quad |
 | Borders and positioned ancestors | **Supported** | Border extents included |
+| `content-box` or `border-box` CSS box sizing | **Supported** | Output remains the rendered border box |
 | `display:contents` ancestor | **Supported** | Source must still have its own principal box |
 | Non-horizontal writing modes and RTL | **Supported** | Physical, not logical, corner coordinates |
 
@@ -71,7 +72,7 @@ supported v1 behavior.
 | Caller-owned reusable `Float64Array` output | **Supported** | No hot-path validation |
 | Caller-owned `WeakMap` cache | **Supported** | One map identity is one potentially stale epoch |
 | Omitted cache | **Supported** | Fresh uncached read with no retained observations |
-| Realm-owned DOM geometry | **Supported** | `DOMMatrix`/constructed DOM geometry use the current source owner document |
+| Realm-owned DOM geometry | **Supported** | Any constructed DOM geometry uses the current source owner document |
 | Reads wholly within one iframe document | **Supported** | That document's realm and layout viewport |
 
 The cache permits completed coordinate-space and inverse reuse. Shared-ancestor
