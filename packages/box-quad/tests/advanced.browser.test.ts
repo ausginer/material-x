@@ -786,6 +786,7 @@ describe('recognized unsupported geometry and cache epochs', () => {
     );
   });
 
+  // CACHE-06
   it('should perform fresh reads when no cache is supplied', () => {
     const source = createBox();
     const first = new Float64Array(8);
@@ -797,6 +798,7 @@ describe('recognized unsupported geometry and cache epochs', () => {
     expectQuad(second, [30, 0, 50, 0, 50, 10, 30, 10]);
   });
 
+  // CACHE-11
   it('should remeasure cached geometry after cross-document adoption', () => {
     const firstDocument = createFrame();
     const secondDocument = createFrame();

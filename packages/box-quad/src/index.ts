@@ -5,7 +5,7 @@ export type Quad = Float64Array;
 export type BoxQuadCache = WeakMap<HTMLElement, unknown>;
 
 type Space = {
-  readonly document: Document;
+  readonly ownerDocument: Document;
   readonly matrix: DOMMatrix;
   readonly width: number;
   readonly height: number;
@@ -222,8 +222,8 @@ function composeLinearMatrix(
 }
 
 function createSpace(element: HTMLElement): Space | null {
-  const document = element.ownerDocument;
-  const view = document.defaultView!;
+  const { ownerDocument } = element;
+  const view = ownerDocument.defaultView!;
 
   if (!element.isConnected) {
     return null;
@@ -263,7 +263,7 @@ function createSpace(element: HTMLElement): Space | null {
     return null;
   }
 
-  return { document, matrix, width, height };
+  return { ownerDocument, matrix, width, height };
 }
 
 function getSpace(
@@ -272,7 +272,7 @@ function getSpace(
 ): Space | null {
   const cached = cache?.get(element);
 
-  if (cached?.document === element.ownerDocument) {
+  if (cached?.ownerDocument === element.ownerDocument) {
     return cached;
   }
 

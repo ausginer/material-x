@@ -97,8 +97,10 @@ Internal implementation choices remain subject to later performance work.
 
 Omitting `cache` performs a fresh uncached read and retains no observations for
 later public calls. Reusing one cache permits stale observations within that
-cache's epoch. Passing a newly constructed `WeakMap` starts a fresh epoch. See
-[artifact 5](05-cache-semantics.md).
+cache's epoch while each cached element retains the same `ownerDocument`.
+Adoption into another document invalidates reuse of that element's entry.
+Passing a newly constructed `WeakMap` starts a fresh epoch. See [artifact
+5](05-cache-semantics.md).
 
 ## 4. Coordinate spaces
 

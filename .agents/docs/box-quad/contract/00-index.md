@@ -1,4 +1,4 @@
-# `@ydinjs/box-quad` — iteration A contract
+# `@ydinjs/box-quad` — behavioral contract
 
 ## Status
 
@@ -60,7 +60,9 @@ accepted expectation without returning to contract review.
 8. Boolean failure is reserved for recognized geometry failures. The
    implementation must not blanket-catch platform or implementation errors.
 9. Every observation made within a cache epoch may remain stale for the
-   lifetime of that cache identity, whether a prior call succeeded or failed.
+   lifetime of that cache identity while its element retains the same
+   `ownerDocument`, whether a prior call succeeded or failed. Adoption into a
+   different document invalidates reuse of that element's prior entry.
 10. Caching is explicit, weak and consumer-owned. There is no global cache.
 11. Native `getBoxQuads()` is never called.
 12. One unfragmented principal box is necessary but not sufficient for support.
@@ -83,7 +85,7 @@ accepted expectation without returning to contract review.
 | Cache/epoch behavior | cache semantics; scenarios `CACHE-*` |
 | Atomic caller-owned output | API §3; scenarios `API-01`–`API-03` |
 | Stable expected values | scenarios §2 |
-| Performance and bundle requirements | Explicitly deferred to iterations D/E |
+| Performance and bundle requirements | Outside this behavioral contract; tracked by package tooling and reports |
 
 ## Review checklist
 
@@ -97,16 +99,22 @@ accepted expectation without returning to contract review.
 - [x] Contract violations and unexpected platform errors are not converted into
       ordinary geometry failures.
 - [x] Every cached observation may remain stale within a consumer-defined
-      epoch, including an observation associated with a recognized failure.
+      epoch, including an observation associated with a recognized failure,
+      except when reuse would cross the element's current `ownerDocument`.
 - [x] No document requires a display whitelist, custom matrix library, native
-      delegation, global cache, production implementation or red tests.
+      delegation or global cache, and the contract does not prescribe a
+      production implementation or test harness.
 - [x] Expected values are independently intelligible and do not rely on the
-      future production algorithm.
+      production algorithm.
 
-## Iteration boundary
+## Original iteration boundary (historical)
 
-Iteration A delivers only these reviewed documents. Iteration B may turn the
+The following records the original process boundary; it does not describe the
+current project state, which now includes executable tests and production
+geometry.
+
+Iteration A delivered only these reviewed documents. Iteration B could turn the
 accepted scenarios into initially red real-browser tests and independently
 derive any complex numeric fixtures. Package scaffolding, executable
-declarations, production geometry, benchmark harnesses and bundle budgets are
+declarations, production geometry, benchmark harnesses and bundle budgets were
 outside iteration A.

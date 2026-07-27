@@ -211,11 +211,15 @@ typed API and receive no runtime compatibility layer.
 | `CACHE-01` | Two unchanged reads share a cache within one epoch | Both calls return the same correct geometry; no particular reuse strategy is observable. |
 | `CACHE-04` | Layout changes after a successful read using the same cache | A later result may remain stale by contract. |
 | `CACHE-05` | Layout changes and the next call uses a new cache | The current call observes the new geometry. |
+| `CACHE-06` | Layout changes between two calls that both omit the cache | The second uncached call observes the changed geometry. |
 | `CACHE-10` | Two caller-created caches are used | Their epochs and stale observations are independent. |
+| `CACHE-11` | An element is measured with a cache, adopted into another document, then measured again with the same cache | The prior entry is not reused; the second read uses the new owner document's realm and geometry. |
 
 Every observation in an epoch may remain stale for the lifetime of that cache
-identity, including one made by a call that returned `false`. Calls that omit
-the cache are always fresh. The cache permits completed-space and inverse
-reuse, but shared-ancestor reuse, eager versus lazy inverse construction,
-internal hit counts, failure memoization strategy and allocation counts belong
-to iteration D. Iteration B must test only observable epoch behavior.
+identity while the observed element retains the same `ownerDocument`, including
+one made by a call that returned `false`. Owner-document adoption is the
+mandatory invalidation exception. Calls that omit the cache are always fresh.
+The cache permits completed-space and inverse reuse, but shared-ancestor reuse,
+eager versus lazy inverse construction, internal hit counts, failure
+memoization strategy and allocation counts belong to iteration D. Iteration B
+must test only observable epoch behavior.

@@ -35,7 +35,13 @@ new WeakMap() ── epoch 3
 Within an epoch, observations used to answer either successful or failed calls
 may be reused. The consumer accepts that DOM, style, layout, transform, zoom,
 scroll or support-state changes may not be observed while it keeps passing the
-same map.
+same map and the cached element retains the same `ownerDocument`.
+
+Owner-document adoption is the mandatory exception to within-epoch staleness.
+When an element's current `ownerDocument` differs from the document recorded
+with its cached entry, the entry must not be reused. The element is remeasured
+using its new owner document and realm even when the caller passes the same
+map.
 
 Two separately constructed maps have independent epochs and observations.
 There is no in-place reset operation. A consumer starts a fresh epoch by
@@ -99,15 +105,18 @@ const freshCache: BoxQuadCache = new WeakMap();
 readBoxQuad(element, fresh, undefined, freshCache);
 ```
 
-Or performs an uncached read:
+Or performs uncached reads, which share no retained observations:
 
 ```ts
+readBoxQuad(element, first);
+// Consumer mutates layout, style, transform, zoom or scroll.
 readBoxQuad(element, fresh);
 ```
 
 Staleness is permission, not a requirement. An implementation may happen to
 recompute a value, but consumers must use a new map or omit the cache whenever
-freshness is required.
+freshness is required. Adoption does not require a new map because the library
+must reject the old-document entry automatically.
 
 ## 7. Shared reads
 
@@ -127,7 +136,9 @@ Observable requirements:
 - later calls may reuse completed spaces and inverses;
 - every successful result remains equivalent to calculating from observations
   available within that epoch;
-- a failed observation may remain stale for that map's lifetime.
+- a failed observation may remain stale for that map's lifetime while its
+  element retains the same `ownerDocument`;
+- an entry measured under a different owner document is never reused.
 
 ## 8. Lifetime and weak ownership
 
