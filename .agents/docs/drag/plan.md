@@ -215,6 +215,29 @@ rows), *Failure continuation* rows for activation and release, and
 *Placeholder and admission*'s admission rows. Sortable is still a test-double
 behavior at this point.
 
+**Deviations recorded while implementing.**
+
+- **`BehaviorSpec.reportFailure(stage, error)` is new.** Q-1 answers the
+  admission case with "the kernel reports through `onError` with
+  `FAILURE_ADMISSION` and no operation", but the kernel cannot reach `onError`
+  — the consumer callbacks belong to the behavior's `callbacks()` slot, and
+  `BehaviorSpec` had no hook that works without an operation. One member is the
+  smallest way to make the answer implementable. Phase 5 will route the ordinary
+  failure checkpoint through the settlement seam as a `SETTLED_FAILED` input as
+  the contract specifies; `reportFailure` stays for the no-operation case only.
+- **`runCore` gained an optional `effectStage`.** The action seam's two phases
+  fail at different stages (`INSERTION` in `prepare`, `PLACEHOLDER_MOVE` in
+  `effect`) and the driver classified both at one. This is kernel-internal, not
+  part of the behavior SPI the phase-5 gate freezes.
+- **The kernel stamps its own phase through a private slot consumed by
+  `commit()`**, rather than through a seam-driver parameter. Activation writes
+  `ACTIVATING` and settlement writes `SETTLING` *between* `preparationValid()`
+  and the swap, which is the kernel's write and not expressible through
+  `Draft<Part>`.
+- **Phase 5 boundaries left explicit in `kernel.ts`:** `openResolution`,
+  `settleCancellation` (a cancel at `ACTIVE`/`RELEASING` retires without a
+  terminal callback for now) and the failure checkpoint's settlement input.
+
 ---
 
 ## Phase 5 — Settlement, gates and the join

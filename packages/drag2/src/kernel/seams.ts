@@ -146,11 +146,18 @@ export type SeamDriver<Part extends object> = Readonly<{
    * slot, for the two seams whose staged value the *kernel* needs after the
    * seam returns — the release seam's `ResolutionCommand`, the settlement
    * seam's gate plan. Read it with {@link SeamDriver.consumeStaged}.
+   *
+   * `effectStage` defaults to `stage` and exists for the one seam whose two
+   * phases fail at different stages: a behavior action resolves an insertion in
+   * `prepare` and moves the placeholder in `effect`, and contract 02 classifies
+   * a throw in each at its own stage. An explicit `host.fail` narrows further
+   * from the inside; this is only the default a raw throw lands on.
    */
   runCore<Prepared extends {}, Capability>(
     transition: Transition<Part, Prepared, Capability>,
     capability: Capability,
     stage: FailureStage,
+    effectStage?: FailureStage,
   ): SeamOutcome;
 
   /**
@@ -352,7 +359,7 @@ export function createSeamDriver<Part extends object>(
   };
 
   return {
-    runCore(transition, capability, stage) {
+    runCore(transition, capability, stage, effectStage = stage) {
       // Not the same call as the one inside `runPhase`, and not redundant with
       // it: a transaction mutates kernel state *before* its first phase opens,
       // and `begin()` would rebuild the draft the outer seam is still building.
@@ -381,7 +388,7 @@ export function createSeamDriver<Part extends object>(
 
       context.commit();
 
-      const effected = runPhase(stage, () =>
+      const effected = runPhase(effectStage, () =>
         transition.effect(context.readCurrent(), prepared, capability),
       );
 

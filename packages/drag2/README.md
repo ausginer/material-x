@@ -9,19 +9,21 @@ The shipped `@ydinjs/drag` is untouched while this package is built. Merging the
 
 ## Status
 
-Phases 0–2 complete.
+Phases 0–4 complete.
 
 - **0 — scaffolding.** Every entrypoint declared in `files.json` exists as a stub.
 - **1 — kernel primitives.** `realm`, `lifetimes` (+`LifetimeScope`), `queue`, `reporter`, `failures`, `presentation` (+ the kernel's `lift.write` pin), `pointer`, `invalidation`. The WAAPI `animation` helper is deliberately absent: it belongs to `landing()`, in phase 8b.
 - **2 — frame slicing.** `KernelFrame`, `Frame`/`Draft`/`FramePartOf`, `composeFrame`, `validateFramePart`, `beginFrame`/`scrubFrame`, and the `DEV`-gated shape, descriptor and reset-completeness assertions.
 - **3 — the seam driver.** `Transition`/`ActionTransition`/`SeamRejection`, the five `SeamOutcome` constants, `runCore`, `runLeaf`/`runLeafValue`, both failure latches, and the activation and release continuation policies.
+- **4 — the lifecycle.** `draggable()`, the two-phase handshake, `KernelHost`, `arm()` with its unwind, admission with the post-`admit` revalidation, the threshold and activation, the hot path, release as two commits, behavior actions, the cancel latch and its precedence, the failure checkpoint, and the seven-step `destroy()`.
 
-No lifecycle exists yet — the driver is exercised against a fake kernel. Phase 4 supplies the real one.
+Settlement, the two gates and the join are phase 5. Until then a release commits and renders and the operation waits in `RELEASING`; a cancel at `ACTIVE`/`RELEASING` retires without a terminal callback; and a failure checkpoint reports and retires instead of settling as `OUTCOME_FAILED`. Every one of those boundaries is marked `**Phase 5.**` in `kernel.ts`.
 
 Deliberate behavioural differences from the shipped `@ydinjs/drag`:
 
 - `Lifetime.use()` after dispose runs the disposer immediately and reports.
 - `acquirePointerCapture` lets a capture failure throw so the caller can classify it as `FAILURE_ACTIVATION` (D-17) instead of silently degrading the drag.
+- `BehaviorSpec` carries a `reportFailure(stage, error)` member the frozen listing does not, because Q-1's answer for a throwing `admit` — report through `onError` with no operation — is otherwise unreachable from the kernel. See plan.md, phase 4.
 - `acquireLift` throws when the visual's box space cannot be read — a disconnected, fragmented, or 3D-transformed visual. The shipped package flattened 3D to its 2D projection, producing a wrong lift rather than a refused one.
 
 ## Geometry
