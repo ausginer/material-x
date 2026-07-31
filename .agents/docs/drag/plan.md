@@ -154,8 +154,16 @@ piece every later phase depends on and the one four separate findings
   error)` classified only inside a seam of the current operation, downgraded to
   a platform report otherwise (D-28, F-23).
 - Per-seam wrappers with their **own** discard and failure policies (the
-  four-row table in 02 §The core returns an outcome). Written now as thin
-  functions with the lifecycle hooks stubbed; Phases 4–5 fill them in.
+  four-row table in 02 §The core returns an outcome).
+
+  **Revised while implementing:** these landed as higher-order policies taking
+  their continuations as callbacks (`runActivationSeam(driver, transition,
+  capability, stage, { retire, committed })`), not as stubs. That is the real
+  policy, fully testable against a fake now, and phase 4 supplies the actual
+  callbacks — where a stub would have been speculative code. The settlement row
+  is **not** here: its policy is "seal, then discard every unarmed request",
+  which needs the settlement attempt, so it lands with phase 5. The `action`
+  row is `runCore` plus a per-tag stage and needs no wrapper.
 - `rollback` throw = best-effort report, never classified.
 
 **Done when.** Matrix *Gates and drivers*: an `effect` throw is classified, not a

@@ -14,8 +14,9 @@ Phases 0–2 complete.
 - **0 — scaffolding.** Every entrypoint declared in `files.json` exists as a stub.
 - **1 — kernel primitives.** `realm`, `lifetimes` (+`LifetimeScope`), `queue`, `reporter`, `failures`, `presentation` (+ the kernel's `lift.write` pin), `pointer`, `invalidation`. The WAAPI `animation` helper is deliberately absent: it belongs to `landing()`, in phase 8b.
 - **2 — frame slicing.** `KernelFrame`, `Frame`/`Draft`/`FramePartOf`, `composeFrame`, `validateFramePart`, `beginFrame`/`scrubFrame`, and the `DEV`-gated shape, descriptor and reset-completeness assertions.
+- **3 — the seam driver.** `Transition`/`ActionTransition`/`SeamRejection`, the five `SeamOutcome` constants, `runCore`, `runLeaf`/`runLeafValue`, both failure latches, and the activation and release continuation policies.
 
-No lifecycle exists yet — the seam driver is phase 3.
+No lifecycle exists yet — the driver is exercised against a fake kernel. Phase 4 supplies the real one.
 
 Deliberate behavioural differences from the shipped `@ydinjs/drag`:
 
