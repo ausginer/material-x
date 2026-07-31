@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { readBoxQuad, type BoxQuadCache } from '../src/index.js';
+import { cache } from '../src/index.ts';
 import {
   createBox,
   createFrame,
   expectQuad,
-  readSuccessfulBoxQuad,
+  readQuad,
+  readSuccessfulQuad,
   resetDocument,
   sentinels,
 } from './support/fixtures.ts';
@@ -17,7 +18,7 @@ describe('public API', () => {
     const source = createBox({ styles: { left: '100px', top: '50px' } });
     const out = sentinels();
 
-    expect(readBoxQuad(source, out)).toBe(true);
+    expect(readQuad(source, out)).toBe(true);
     expectQuad(out, [100, 50, 120, 50, 120, 60, 100, 60]);
   });
 
@@ -26,9 +27,9 @@ describe('public API', () => {
     const source = createBox();
     const out = sentinels();
 
-    expect(readBoxQuad(source, out)).toBe(true);
+    expect(readQuad(source, out)).toBe(true);
     source.style.left = '30px';
-    expect(readBoxQuad(source, out)).toBe(true);
+    expect(readQuad(source, out)).toBe(true);
     expectQuad(out, [30, 0, 50, 0, 50, 10, 30, 10]);
   });
 
@@ -39,7 +40,7 @@ describe('public API', () => {
 
     source.remove();
 
-    expect(readBoxQuad(source, out)).toBe(false);
+    expect(readQuad(source, out)).toBe(false);
     expectQuad(out, [11, 22, 33, 44, 55, 66, 77, 88]);
   });
 
@@ -57,7 +58,7 @@ describe('public API', () => {
         },
       });
 
-      expect(() => readBoxQuad(source, out)).toThrow('owner document failed');
+      expect(() => readQuad(source, out)).toThrow('owner document failed');
     } finally {
       if (original) {
         Object.defineProperty(source, 'ownerDocument', original);
@@ -84,7 +85,7 @@ describe('public API', () => {
         },
       });
 
-      expect(readBoxQuad(source, out)).toBe(true);
+      expect(readQuad(source, out)).toBe(true);
     } finally {
       if (descriptor) {
         Object.defineProperty(Element.prototype, 'getBoxQuads', descriptor);
@@ -107,7 +108,7 @@ describe('public API', () => {
     frameDocument.body.append(target);
     const out = new Float64Array(8);
 
-    expect(readBoxQuad(source, out, target)).toBe(true);
+    expect(readQuad(source, out, target)).toBe(true);
     expectQuad(out, [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
@@ -119,7 +120,7 @@ describe('public API', () => {
       'position:absolute;left:40px;top:60px;width:20px;height:10px;box-sizing:border-box';
     frameDocument.body.append(source);
 
-    expectQuad(readSuccessfulBoxQuad(source), [40, 60, 60, 60, 60, 70, 40, 70]);
+    expectQuad(readSuccessfulQuad(source), [40, 60, 60, 60, 60, 70, 40, 70]);
   });
 
   // API-10
@@ -143,7 +144,7 @@ describe('public API', () => {
     let result: boolean;
 
     try {
-      result = readBoxQuad(source, out);
+      result = readQuad(source, out);
     } finally {
       window.DOMMatrix = OriginalDOMMatrix;
     }
@@ -157,14 +158,14 @@ describe('public API', () => {
   // CACHE-10
   it('should keep separate caches independent', () => {
     const source = createBox();
-    const first: BoxQuadCache = new WeakMap();
-    const second: BoxQuadCache = new WeakMap();
+    const first = cache();
+    const second = cache();
     const firstOut = new Float64Array(8);
     const secondOut = new Float64Array(8);
 
-    expect(readBoxQuad(source, firstOut, undefined, first)).toBe(true);
+    expect(readQuad(source, firstOut, undefined, first)).toBe(true);
     source.style.left = '30px';
-    expect(readBoxQuad(source, secondOut, undefined, second)).toBe(true);
+    expect(readQuad(source, secondOut, undefined, second)).toBe(true);
     expectQuad(secondOut, [30, 0, 50, 0, 50, 10, 30, 10]);
   });
 });

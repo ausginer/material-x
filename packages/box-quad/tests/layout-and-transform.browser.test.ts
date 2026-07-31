@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { readBoxQuad } from '../src/index.js';
 import {
   createBox,
   createFlowBox,
   expectQuad,
   QUAD_TOLERANCE,
-  readSuccessfulBoxQuad,
+  readQuad,
+  readSuccessfulQuad,
   resetDocument,
   sentinels,
 } from './support/fixtures.ts';
@@ -18,7 +18,7 @@ describe('layout and physical coordinate spaces', () => {
     const out = new Float64Array(8);
 
     expect(
-      readBoxQuad(createBox({ styles: { left: '100px', top: '50px' } }), out),
+      readQuad(createBox({ styles: { left: '100px', top: '50px' } }), out),
     ).toBe(true);
     expectQuad(out, [100, 50, 120, 50, 120, 60, 100, 60]);
   });
@@ -28,7 +28,7 @@ describe('layout and physical coordinate spaces', () => {
     const out = new Float64Array(8);
     const source = createBox({ styles: { transform: 'rotate(180deg)' } });
 
-    expect(readBoxQuad(source, out)).toBe(true);
+    expect(readQuad(source, out)).toBe(true);
     expectQuad(out, [0, 0, -20, 0, -20, -10, 0, -10]);
   });
 
@@ -37,7 +37,7 @@ describe('layout and physical coordinate spaces', () => {
     const out = new Float64Array(8);
     const source = createBox({ styles: { transform: 'scale(-1, 1)' } });
 
-    expect(readBoxQuad(source, out)).toBe(true);
+    expect(readQuad(source, out)).toBe(true);
     expectQuad(out, [0, 0, -20, 0, -20, 10, 0, 10]);
   });
 
@@ -47,7 +47,7 @@ describe('layout and physical coordinate spaces', () => {
     const target = createBox({ styles: { left: '70px', top: '40px' } });
     const out = new Float64Array(8);
 
-    expect(readBoxQuad(source, out, target)).toBe(true);
+    expect(readQuad(source, out, target)).toBe(true);
     expectQuad(out, [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
@@ -58,7 +58,7 @@ describe('layout and physical coordinate spaces', () => {
     });
     const out = new Float64Array(8);
 
-    expect(readBoxQuad(source, out, source)).toBe(true);
+    expect(readQuad(source, out, source)).toBe(true);
     expectQuad(out, [0, 0, 20, 0, 20, 10, 0, 10]);
   });
 
@@ -67,7 +67,7 @@ describe('layout and physical coordinate spaces', () => {
     const source = createBox({ styles: { width: '0px' } });
     const out = new Float64Array(8);
 
-    expect(readBoxQuad(source, out)).toBe(true);
+    expect(readQuad(source, out)).toBe(true);
     expectQuad(out, [0, 0, 0, 0, 0, 10, 0, 10]);
   });
 
@@ -76,7 +76,7 @@ describe('layout and physical coordinate spaces', () => {
     const source = createBox({ styles: { transform: 'scale(0)' } });
     const out = new Float64Array(8);
 
-    expect(readBoxQuad(source, out)).toBe(true);
+    expect(readQuad(source, out)).toBe(true);
     expectQuad(out, [0, 0, 0, 0, 0, 0, 0, 0]);
   });
 
@@ -84,7 +84,7 @@ describe('layout and physical coordinate spaces', () => {
   it('should read a plain block border box', () => {
     const source = createBox({ styles: { left: '30px', top: '40px' } });
 
-    expectQuad(readSuccessfulBoxQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
+    expectQuad(readSuccessfulQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
   // LAYOUT-02
@@ -100,7 +100,7 @@ describe('layout and physical coordinate spaces', () => {
       },
     });
 
-    expectQuad(readSuccessfulBoxQuad(source), [0, 0, 30, 30, 48, 48, 18, 18]);
+    expectQuad(readSuccessfulQuad(source), [0, 0, 30, 30, 48, 48, 18, 18]);
   });
 
   // LAYOUT-03
@@ -113,7 +113,7 @@ describe('layout and physical coordinate spaces', () => {
       },
     });
 
-    expectQuad(readSuccessfulBoxQuad(source), [30, 0, 50, 0, 50, 10, 30, 10]);
+    expectQuad(readSuccessfulQuad(source), [30, 0, 50, 0, 50, 10, 30, 10]);
   });
 
   // LAYOUT-04
@@ -132,7 +132,7 @@ describe('layout and physical coordinate spaces', () => {
       styles: { position: 'static', flex: '0 0 20px', height: '10px' },
     });
 
-    expectQuad(readSuccessfulBoxQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
+    expectQuad(readSuccessfulQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
   // LAYOUT-05
@@ -152,7 +152,7 @@ describe('layout and physical coordinate spaces', () => {
       styles: { position: 'static', height: '10px' },
     });
 
-    expectQuad(readSuccessfulBoxQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
+    expectQuad(readSuccessfulQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
   // LAYOUT-06
@@ -162,7 +162,7 @@ describe('layout and physical coordinate spaces', () => {
       styles: { left: '30px', top: '40px', width: '20px', height: '10px' },
     });
 
-    expectQuad(readSuccessfulBoxQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
+    expectQuad(readSuccessfulQuad(source), [30, 40, 50, 40, 50, 50, 30, 50]);
   });
 
   // LAYOUT-07
@@ -180,7 +180,7 @@ describe('layout and physical coordinate spaces', () => {
       },
     });
 
-    expectQuad(readSuccessfulBoxQuad(source), [30, 40, 60, 40, 60, 60, 30, 60]);
+    expectQuad(readSuccessfulQuad(source), [30, 40, 60, 40, 60, 60, 30, 60]);
   });
 
   // LAYOUT-08
@@ -199,7 +199,7 @@ describe('layout and physical coordinate spaces', () => {
       styles: { left: '10px', top: '20px' },
     });
 
-    expectQuad(readSuccessfulBoxQuad(inner), [40, 60, 60, 60, 60, 70, 40, 70]);
+    expectQuad(readSuccessfulQuad(inner), [40, 60, 60, 60, 60, 70, 40, 70]);
   });
 
   it.each([
@@ -223,7 +223,7 @@ describe('layout and physical coordinate spaces', () => {
         source.remove();
       }
 
-      expect(readBoxQuad(source, out)).toBe(false);
+      expect(readQuad(source, out)).toBe(false);
       expectQuad(out, [11, 22, 33, 44, 55, 66, 77, 88]);
     },
   );
@@ -234,7 +234,7 @@ describe('layout and physical coordinate spaces', () => {
     const target = createBox({ styles: { display: 'none' } });
     const out = sentinels();
 
-    expect(readBoxQuad(source, out, target)).toBe(false);
+    expect(readQuad(source, out, target)).toBe(false);
     expectQuad(out, [11, 22, 33, 44, 55, 66, 77, 88]);
   });
 
@@ -263,7 +263,7 @@ describe('layout and physical coordinate spaces', () => {
       });
       const source = createBox({ parent: ancestor });
 
-      expectQuad(readSuccessfulBoxQuad(source), [0, 0, 20, 0, 20, 10, 0, 10]);
+      expectQuad(readSuccessfulQuad(source), [0, 0, 20, 0, 20, 10, 0, 10]);
     },
   );
 });
@@ -329,7 +329,7 @@ describe('2D transforms', () => {
     ({ transform, expected }) => {
       const source = createBox({ styles: { transform } });
 
-      expectQuad(readSuccessfulBoxQuad(source), expected);
+      expectQuad(readSuccessfulQuad(source), expected);
     },
   );
 
@@ -339,7 +339,7 @@ describe('2D transforms', () => {
       styles: { transform: 'rotate(180deg)', transformOrigin: '10px 5px' },
     });
 
-    expectQuad(readSuccessfulBoxQuad(source), [20, 10, 0, 10, 0, 0, 20, 0]);
+    expectQuad(readSuccessfulQuad(source), [20, 10, 0, 10, 0, 0, 20, 0]);
   });
 
   // TRANSFORM-10
@@ -348,10 +348,7 @@ describe('2D transforms', () => {
       styles: { transform: 'scale(2)', transformOrigin: '50% 50%' },
     });
 
-    expectQuad(
-      readSuccessfulBoxQuad(source),
-      [-10, -5, 30, -5, 30, 15, -10, 15],
-    );
+    expectQuad(readSuccessfulQuad(source), [-10, -5, 30, -5, 30, 15, -10, 15]);
   });
 
   // TRANSFORM-11
@@ -369,7 +366,7 @@ describe('2D transforms', () => {
     });
 
     // Parent maps (x, y) to (10 + 2x, 20 + 2y); source translation occurs first.
-    expectQuad(readSuccessfulBoxQuad(source), [26, 42, 66, 42, 66, 62, 26, 62]);
+    expectQuad(readSuccessfulQuad(source), [26, 42, 66, 42, 66, 62, 26, 62]);
   });
 
   it.each([
@@ -392,19 +389,25 @@ describe('2D transforms', () => {
       expected: [0, 0, 40, 0, 40, 20, 0, 20],
     },
   ] as const)('should apply $description', ({ styles, expected }) => {
-    expectQuad(readSuccessfulBoxQuad(createBox({ styles })), expected);
+    expectQuad(readSuccessfulQuad(createBox({ styles })), expected);
   });
 
   it('should treat a zero-angle 3D-axis individual rotation as 2D identity', () => {
     const source = createBox({ styles: { rotate: 'x 0deg' } });
 
-    expectQuad(readSuccessfulBoxQuad(source), [0, 0, 20, 0, 20, 10, 0, 10]);
+    expectQuad(readSuccessfulQuad(source), [0, 0, 20, 0, 20, 10, 0, 10]);
+  });
+
+  it('should treat a full-turn 3D-axis individual rotation as 2D identity', () => {
+    const source = createBox({ styles: { rotate: 'x 360deg' } });
+
+    expectQuad(readSuccessfulQuad(source), [0, 0, 20, 0, 20, 10, 0, 10]);
   });
 
   it('should apply a z-axis individual rotation in 2D', () => {
     const source = createBox({ styles: { rotate: 'z 90deg' } });
 
-    expectQuad(readSuccessfulBoxQuad(source), [0, 0, 0, 20, -10, 20, -10, 0]);
+    expectQuad(readSuccessfulQuad(source), [0, 0, 0, 20, -10, 20, -10, 0]);
   });
 
   it.each(['100grad', '0.25turn', `${Math.PI / 2}rad`])(
@@ -412,7 +415,7 @@ describe('2D transforms', () => {
     (rotate) => {
       const source = createBox({ styles: { rotate } });
 
-      expectQuad(readSuccessfulBoxQuad(source), [0, 0, 0, 20, -10, 20, -10, 0]);
+      expectQuad(readSuccessfulQuad(source), [0, 0, 0, 20, -10, 20, -10, 0]);
     },
   );
 
@@ -428,7 +431,7 @@ describe('2D transforms', () => {
     });
 
     // CSS individual transforms compose translate → rotate → scale before transform.
-    expectQuad(readSuccessfulBoxQuad(source), [-3, 6, -3, 46, -23, 46, -23, 6]);
+    expectQuad(readSuccessfulQuad(source), [-3, 6, -3, 46, -23, 46, -23, 6]);
   });
 
   // TRANSFORM-17
@@ -450,7 +453,7 @@ describe('2D transforms', () => {
 
     // Content-box bottom-right is border-local (38, 19): scale about that point.
     expectQuad(
-      readSuccessfulBoxQuad(source),
+      readSuccessfulQuad(source),
       [-38, -19, 62, -19, 62, 41, -38, 41],
     );
   });
@@ -458,7 +461,7 @@ describe('2D transforms', () => {
   // TRANSFORM-18
   it('should resolve classic percentage translation against the border box', () => {
     expectQuad(
-      readSuccessfulBoxQuad(
+      readSuccessfulQuad(
         createBox({ styles: { transform: 'translate(50%, 50%)' } }),
       ),
       [10, 5, 30, 5, 30, 15, 10, 15],
@@ -476,7 +479,7 @@ describe('2D transforms', () => {
     });
 
     // A 20px border box with 5px horizontal padding has a 10px content width.
-    expectQuad(readSuccessfulBoxQuad(source), [5, 0, 25, 0, 25, 10, 5, 10]);
+    expectQuad(readSuccessfulQuad(source), [5, 0, 25, 0, 25, 10, 5, 10]);
   });
 
   // TRANSFORM-20
@@ -489,7 +492,7 @@ describe('2D transforms', () => {
     });
     const rect = source.getBoundingClientRect();
 
-    expectQuad(readSuccessfulBoxQuad(source), [
+    expectQuad(readSuccessfulQuad(source), [
       rect.left,
       rect.top,
       rect.right,
@@ -510,7 +513,7 @@ describe('2D transforms', () => {
         transform: 'rotate(30deg)',
       },
     });
-    const out = readSuccessfulBoxQuad(source);
+    const out = readSuccessfulQuad(source);
     const rect = source.getBoundingClientRect();
     const xValues = [out[0]!, out[2]!, out[4]!, out[6]!];
     const yValues = [out[1]!, out[3]!, out[5]!, out[7]!];
@@ -547,7 +550,7 @@ describe('2D transforms', () => {
           transform: `rotate(${angle})`,
         },
       });
-      const out = readSuccessfulBoxQuad(source);
+      const out = readSuccessfulQuad(source);
       const style = getComputedStyle(source);
       const matrix = new DOMMatrix(style.transform);
       const width = Number.parseFloat(style.width);
