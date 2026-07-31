@@ -16,7 +16,7 @@
     "docs:api:build": {
       "dependsOn": ["^build"]
     },
-    "docs:api:dev": {
+    "docs:api:prepare": {
       "dependsOn": ["^build"]
     }
   },

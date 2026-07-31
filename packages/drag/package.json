@@ -29,7 +29,7 @@
   "scripts": {
     "build": "just build",
     "clean:build": "just clean-build",
-    "docs:api:dev": "just docs-api",
+    "docs:api:prepare": "just docs-api-prepare",
     "docs:api:build": "just docs-api-build",
     "typecheck": "just typecheck",
     "fmt": "just fmt",

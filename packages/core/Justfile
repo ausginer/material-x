@@ -15,8 +15,8 @@ build:
 clean-build:
     node ../../.scripts/package-files.ts clean --package .
 
-# Build TypeDoc API into the cache (dev/watch use)
-docs-api:
+# Build TypeDoc API into the cache consumed by the Storybook dev server
+docs-api-prepare:
     typedoc --options typedoc.json --out ../../node_modules/.cache/docs/api/core
 
 # Build TypeDoc API into the output directory
