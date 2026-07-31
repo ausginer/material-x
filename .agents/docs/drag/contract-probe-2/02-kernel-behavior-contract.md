@@ -788,8 +788,13 @@ against a half-built attempt. Reserving the hold before calling `start`, and
 publishing the handle only after `start` returns, makes both safe: the
 completion is queued, so it cannot be applied before the handle is stored.
 
-If `start` throws, the reserved hold is rolled back deterministically and the
-failure is `FAILURE_LANDING_CREATE` — the gate opens and settlement continues.
+If arm-time `anchorTarget` or `start` throws, or the attempt-scoped
+`fail()` wins synchronously, the reserved hold is rolled back deterministically
+and the failure is `FAILURE_LANDING_CREATE`. `armSettlement` returns
+`ARM_FAILED`: the original settlement is replaced, `advanceSettlement()` is not
+called, and no terminal callback from the original accepted/rejected/no-op result
+may run. Presentation remains owned until the queued failure checkpoint enters
+failed immediate recovery.
 
 Consequences:
 

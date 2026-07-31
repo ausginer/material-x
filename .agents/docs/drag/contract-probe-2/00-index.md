@@ -2,8 +2,8 @@
 
 ## Status
 
-**Consolidated, and corrected for implementation.** This is the construction
-model for `drag2`, revised after
+**Consolidated for an executable implementation probe.** This is the frozen
+construction model for `drag2`, revised after
 [review 1](../reviews/contract-probe-2-review-1.md) (answered in
 [`challenge-response.md`](challenge-response.md)), the React placeholder probe,
 [review 2](../reviews/contract-probe-2-review-2.md),
@@ -41,7 +41,27 @@ over an aggregate runtime type) is not carried forward.
 here; where it and these documents differ, **these documents win**. It is
 amended only for factual errata, never to carry a contract change — otherwise it
 drifts into being a second live version of the contract. Documents 00–06 are the
-only normative ones.
+only contract set.
+
+### Normative precedence and freeze
+
+The set is read with this precedence:
+
+1. **00–04 are normative contracts**: decisions, ownership, lifecycle SPI,
+   feature composition and frame rules.
+2. In **05**, the invariant table, open questions, measurements owed and test
+   matrix are normative. The chronological finding narratives are rationale; an
+   older finding paragraph cannot override a later decision or the contracts in
+   00–04.
+3. **06 is an illustrative execution trace.** It must agree with 02, but never
+   overrides 02 when wording drifts.
+4. `contract.ts` is a type fixture only. Review files and
+   `challenge-response.md` are provenance only.
+
+The architecture decisions are frozen for the implementation probe. A further
+contract change requires a failing executable lifecycle case that the frozen SPI
+cannot express; a prose-only review finding is not sufficient. Performance and
+bundle choices explicitly listed as measurements remain open until measured.
 
 ## The model
 

@@ -1,5 +1,10 @@
 # 5. Lifecycle invariants, findings and open questions
 
+The invariant table, open questions, measurements owed and test matrix are
+normative. Finding sections preserve the review history and rationale; where an
+older finding narrative conflicts with a later decision or documents 00–04, the
+later decision and documents 00–04 win.
+
 ## Invariants, by enforcement tier
 
 I-1…I-28 are inherited from the shipped package and probe 1. **I-29 and I-30 are
@@ -366,10 +371,13 @@ callbacks and failure stage — so the reference behavior mapped every
 non-fulfilled status to rejection with home recovery, turning a semantic **no-op
 into a rejected drop** that animates home and calls `onCancel`.
 
-Resolved by a discriminated `SettlementInput` of exactly three cases, a stated
-exhaustive mapping table, and `OUTCOME_NOOP`. Cancellation and kernel failure no
-longer reach `settlement.prepare` at all. A rejected thenable is now a named
-classified failure rather than an inferred consumer verdict.
+Resolved by a discriminated `SettlementInput` covering all five cases —
+fulfilled, rejected, skipped, canceled and failed — with an exhaustive mapping
+to outcome, recovery, domain result and callback. `OUTCOME_NOOP` prevents a
+semantic no-op from becoming rejected/home. A rejected thenable is a named
+classified failure rather than an inferred consumer verdict. The temporary
+three-case version was withdrawn by F-33: cancellation/failure are kernel-
+triggered, but the terminal domain fields they produce are behavior-owned.
 
 ### F-30 — a resource returned from a reentrant callback could leak · resolved
 
@@ -694,8 +702,9 @@ collected (F-19) · `arm()` throwing leaves no half-armed controller · both fra
 share a key set (F-2) · a `resetFramePart` that adds or deletes a key is caught
 in `__DEV__` · a frame part declaring `phase` is rejected in production
 (F-20/§7) · a symbol-keyed frame part is rejected · a displacement hook cannot
-reach `SettlementScope` (I-10) · a behavior action tag that is negative or
-fractional is rejected at `arm()`.
+reach `SettlementScope` (I-10) · `arm()` validates the declared action-tag
+count, while `dispatch()` rejects an actual negative, fractional or out-of-range
+tag before enqueue.
 
 **Gates and drivers — new** · a behavior with **no** `landing()` but a pending
 readiness promise still holds one gate and does **not** finalize in the
@@ -709,8 +718,9 @@ classified · `use()` on a disposed lifetime invokes the disposer immediately.
 
 **Landing completion — new** · synchronous `done()` from inside `start` ·
 synchronous `fail()` from inside `start` · duplicate completion is inert ·
-`done()` followed by a throw · `start` itself throws → hold rolled back, gate
-opens, `FAILURE_LANDING_CREATE` · **`start` calls `destroy()` and then returns a
+`done()` followed by a throw · `start` itself throws → hold rolled back,
+`FAILURE_LANDING_CREATE`, `ARM_FAILED`, no `advanceSettlement()` and no terminal
+callback from the replaced settlement · **`start` calls `destroy()` and then returns a
 live handle → the handle is destroyed exactly once and never published (F-30)** ·
 `settlement.effect` requests one hold then throws → no watch and no runner start
 (F-27) · a

@@ -1,5 +1,8 @@
 # 6. One complete vertical-sortable lifecycle
 
+This trace is illustrative. Document 02 is the normative lifecycle protocol; if
+a trace sentence drifts from it, document 02 wins and this trace must be fixed.
+
 A successful downward reorder in a controlled React application, with
 `layoutAnimation()` and `landing({ duration: 200 })` installed.
 
@@ -338,7 +341,6 @@ pointerup
               lift.visual.style.transform = lift.composeXY(dx, dy)
                                                   ← the FINAL sample, from the
                                                     committed release point
-              lift.visual.style.transform = lift.composeXY(dx, dy)
         [K] execute the command — `invoke` is non-null
                 [K] attempt = createResolutionAttempt()
                 [K] cancellation.useWhile(() => !attempt.completed, abort)
@@ -435,16 +437,21 @@ release stability wrong by sequencing its own seam badly. **[I-11, tier B]**
                               STILL returned this live handle. If stale:
                               handle.destroy() best-effort, never publish. [F-30]
                       [K] attempt.landing = handle
+                      [K] arm outcome = ARM_ARMED
                       [K] advanceSettlement: holds === 2 → return
+                          ← ARM_FAILED would return before this call; the original
+                            settlement would not finalize.
 ```
 
 The hold is reserved **before** `start` is called and the handle is stored
 **after** it returns. A `landing({ duration: 0 })` or custom runner that calls
 `done()` from inside `start` therefore always finds its hold, and its queued
 completion can never be applied before the handle exists. Had `start` or the
-provisional `anchorTarget` thrown, the reserved hold would be rolled back and
-the failure classified `FAILURE_LANDING_CREATE` — the gate opens and settlement
-continues. **[F-21]**
+provisional `anchorTarget` thrown, or had the runner called `fail()`
+synchronously, the reserved hold would be rolled back and the failure classified
+`FAILURE_LANDING_CREATE`. Arm would return `ARM_FAILED`: the original settlement
+would not advance or call its terminal callback; the queued failure checkpoint
+would take over while presentation remains owned. **[D-28, F-35]**
 
 **With no `landing()` feature installed**, `slots.startLanding` is `null`, so
 **no landing hold is taken and no animation module is in the bundle** — but the
@@ -638,7 +645,7 @@ anywhere above.
 | `lift.write()` throws at the join | `FAILURE_RENDERER_WRITE`; the visual stays where landing left it; presentation is **still** released. **[F-22]** |
 | `spec.finalized()` throws | `FAILURE_TERMINAL_CALLBACK`; the operation still retires. **[F-22]** |
 | A landing runner calls `done()` synchronously inside `start` | The hold was reserved before `start` was called, so the completion is queued against a real hold; the handle is stored before the queued completion can be applied. **[F-21]** |
-| `startLanding` throws | The reserved hold is rolled back, `FAILURE_LANDING_CREATE` is classified, the landing gate opens, and the join still pins. **[F-21]** |
+| `startLanding` throws | The reserved hold is rolled back, `FAILURE_LANDING_CREATE` is classified, arm returns `ARM_FAILED`, and the original settlement neither advances nor calls its terminal callback. The failure checkpoint owns recovery while presentation remains held. **[D-28, F-35]** |
 | A feature retire hook throws | Reported; the remaining hooks still run, in reverse installation order. **[F-22]** |
 | A feature factory throws mid-`assemble()` | The retire hooks collected so far run in reverse, each wrapped, and the error propagates. No controller is returned. **[F-19]** |
 | A behavior part declares `phase` | Rejected at `arm()` in production, and unconstructible at the authoring boundary via `FramePartOf`. **[I-5]** |
