@@ -22,14 +22,14 @@ clean-build:
 
 # Start the Storybook dev server (full stack: core API + material-x Storybook)
 docs-dev:
-    nx run @ydinjs/core:docs:api:dev --skipNxCache
+    nx run @ydinjs/core:docs:api:prepare --skipNxCache --tui=false
     node .scripts/docs-api.ts --out node_modules/.cache/docs/api
-    MATERIAL_X_API_STATIC_DIR=$PWD/node_modules/.cache/docs/api nx run @ydinjs/material-x:docs:dev --skipNxCache
+    MATERIAL_X_API_STATIC_DIR=$PWD/node_modules/.cache/docs/api nx run @ydinjs/material-x:docs:dev --skipNxCache --tui=false
 
 # Build the full docs site (Storybook + API)
 docs-build:
-    nx run @ydinjs/material-x:docs:build --skipNxCache
-    nx run @ydinjs/core:docs:api:build --skipNxCache
+    nx run @ydinjs/material-x:docs:build --skipNxCache --tui=false
+    nx run @ydinjs/core:docs:api:build --skipNxCache --tui=false
     node .scripts/docs-api.ts --out .docs/api
 
 # Debug a material-x .css.ts file — path is relative to packages/material-x/src
