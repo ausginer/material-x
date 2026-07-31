@@ -1,0 +1,12 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "@ydinjs/drag2",
+  "tsconfig": "./tsconfig.json",
+  "entryPoints": ["./src/drag.ts", "./src/sortable.ts"],
+  "entryPointStrategy": "resolve",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "sort": ["source-order"]
+}

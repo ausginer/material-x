@@ -13,6 +13,7 @@ const config: UserConfigFnObject = defineConfig((env) =>
     materialXCommands: materialXBrowserCommands,
     coreRoot: new URL('./packages/core/', import.meta.url),
     dragRoot: new URL('./packages/drag/', import.meta.url),
+    drag2Root: new URL('./packages/drag2/', import.meta.url),
     tprocRoot: new URL('./packages/tproc/', import.meta.url),
     viteTraitsPluginRoot: new URL(
       './packages/vite-traits-plugin/',

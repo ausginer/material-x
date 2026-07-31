@@ -76,7 +76,23 @@ retrofitting it after the modules exist reliably reintroduces an eager barrel.
 | `reporter.ts` | Platform reporter — the best-effort channel (disposer failures, late holds, quality-path throws) | 02 §Failure on the quality track |
 | `errors.ts` | `FailureStage` closed union + constants (**public**), `CancelStage` (**public**), stage→recovery table | 02 §Failure classification, D-31 |
 | `presentation.ts` | `VisualLiftSession`: acquire, `composeXY`, `write`, latched style restore, lift modes | 01 ownership table |
-| `pointer.ts`, `coordinate.ts`, `invalidation.ts`, `animation.ts` | Ported unchanged in behaviour | — |
+| `pointer.ts`, `invalidation.ts` | Ported unchanged in behaviour | — |
+
+**Geometry comes from `@ydinjs/box-quad`, not a ported coordinate walker.**
+box-quad was written after the shipped drag package and is a strictly better
+version of the same traversal — flat-tree (shadow-DOM aware), honest about 3D
+instead of silently flattening it, origin derived from `getClientRects()` rather
+than offsetParent arithmetic, with a caller-owned cache. Its API was reshaped
+for this (both packages are pre-alpha, all call sites ours) into one DOM
+measurement and one pure projection: `coordinates(element, out, recache?)`
+writes the canonical `Box` — element→viewport matrix, untransformed border-box
+size, ancestor zoom — and `projection(source, out, relativeTo?)` is scalar-only
+basis conversion with no DOM access. drag2 has no coordinate module.
+
+The shipped `animation.ts` is **not** ported here. It is the WAAPI helper the
+landing runner needs, and pulling it into the kernel would put an optional
+feature's dependency in the always-present layer. It lands with `landing()` in
+phase 8b.
 
 **Contract-driven changes vs the shipped versions.**
 
@@ -482,7 +498,15 @@ under test, sampling and statistics.
 | M-1 | Browser trace of the move path: generic 15-field `Object.assign` vs a specialized pointer-publication path vs shipped `@ydinjs/drag`, across multiple behavior frame shapes, with a correctness-equivalence check for any specialized path | whether the generic frame copy stays; I-26's honest number |
 | M-2 | Heap and move-call behaviour at realistic controller counts: closure model vs opaque-`S`-plus-static-spec; **and** three frame-task policies — eager-retained, lazy-retained, per-operation | F-4, and the frame-task allocation policy |
 | M-3 | Four fixtures (minimal; +`layoutAnimation()`; +`landing()`; complete) minified + Brotli, with module-graph assertions naming each module that must be **absent**, plus a feature-matched non-composed baseline **and** shipped `sortable.js` as a separate migration baseline | the tree-shaking claim; the first size budgets |
-| M-4 | Already executed as the Phase 8 Q-7 gate; written up here | the displacement element set and the shared layout read |
+| M-4 | Already executed as the Phase 8b Q-7 gate; written up here | the displacement element set and the shared layout read |
+
+**Carried into M-3: the `DEV` strip mechanism.** Phase 2 landed the dev-only
+frame assertions behind a module constant resolved from `process.env.NODE_ENV`,
+which gives in-repo tests the checks but does **not** remove them from a
+production build — the contract asks that they compile out. Stripping needs a
+build-time `define` replacing a bare identifier, a new mechanism for this
+repository. M-3 is where the carried weight becomes visible, so the decision is
+made there rather than assumed now.
 
 **Done when.** Each measurement replaces the corresponding intuition-based
 sentence in the contract documents, in place, with a dated result. Size budgets
