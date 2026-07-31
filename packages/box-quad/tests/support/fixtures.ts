@@ -1,5 +1,13 @@
 import { expect } from 'vitest';
-import { readBoxQuad, type BoxQuadCache, type Quad } from '../../src/index.js';
+import {
+  box,
+  coordinates,
+  projection,
+  quad,
+  type Box,
+  type BoxCache,
+  type Quad,
+} from '../../src/index.ts';
 
 export const QUAD_TOLERANCE = 0.000001;
 
@@ -78,25 +86,71 @@ export function sentinels(): Float64Array {
 export function expectQuad(
   actual: Float64Array,
   expected: ArrayLike<number>,
+  tolerance: number = QUAD_TOLERANCE,
 ): void {
   expect(actual).toHaveLength(8);
   expect(expected).toHaveLength(8);
 
   for (let index = 0; index < 8; index += 1) {
     expect(Math.abs(actual[index]! - expected[index]!)).toBeLessThanOrEqual(
-      QUAD_TOLERANCE,
+      tolerance,
     );
   }
 }
 
-export function readSuccessfulBoxQuad(
+/**
+ * The composed measure-then-project read, as a single boolean.
+ *
+ * The package deliberately no longer offers this in one call — measurement and
+ * projection are separate concerns — but most behavioural assertions here are
+ * about the end-to-end result, so the composition lives in the fixtures.
+ * Returns `false` if either step fails, leaving `out` untouched.
+ */
+export function readQuad(
+  element: HTMLElement,
+  out: Quad,
+  relativeTo?: HTMLElement,
+  recache?: BoxCache,
+): boolean {
+  const source = box();
+
+  if (!coordinates(element, source, recache)) {
+    return false;
+  }
+
+  if (!relativeTo) {
+    return projection(source, out);
+  }
+
+  const target = box();
+
+  return (
+    coordinates(relativeTo, target, recache) && projection(source, out, target)
+  );
+}
+
+/** Measures `element`, asserting the measurement succeeded. */
+export function measure(element: HTMLElement, recache?: BoxCache): Box {
+  const out = box();
+
+  expect(coordinates(element, out, recache)).toBe(true);
+  return out;
+}
+
+/**
+ * The two-step read: measure, then project. Asserts both steps succeeded, and
+ * measures `relativeTo` in the same epoch when one is given.
+ */
+export function readSuccessfulQuad(
   element: HTMLElement,
   relativeTo?: HTMLElement,
-  cache?: BoxQuadCache,
+  recache?: BoxCache,
 ): Quad {
-  const out = new Float64Array(8);
+  const out = quad();
+  const source = measure(element, recache);
+  const target = relativeTo ? measure(relativeTo, recache) : undefined;
 
-  expect(readBoxQuad(element, out, relativeTo, cache)).toBe(true);
+  expect(projection(source, out, target)).toBe(true);
   return out;
 }
 
