@@ -1,0 +1,15 @@
+{
+  "runtime": [
+    "drag",
+    "sortable",
+    "sortable/vertical",
+    "sortable/callbacks",
+    "sortable/placeholder",
+    "sortable/handle",
+    "sortable/landing",
+    "sortable/layout-animation"
+  ],
+  "clean": {
+    "extras": ["_virtual"]
+  }
+}

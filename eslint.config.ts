@@ -52,6 +52,7 @@ const config: readonly Config[] = defineConfig(
       'import-x/no-mutable-exports': 'off',
       '@typescript-eslint/promise-function-async': 'off',
       '@typescript-eslint/consistent-type-assertions': 'off',
+      '@typescript-eslint/max-params': 'off',
     },
   },
 );
