@@ -1,0 +1,1358 @@
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { draggable } from '../../src/drag.ts';
+import {
+  AT_CONSUMER,
+  AT_PROPOSAL,
+  FAILURE_RELEASE,
+  FAILURE_REORDER_RESOLUTION,
+  FAILURE_RENDERER_WRITE,
+  type FailureStage,
+} from '../../src/kernel/failures.ts';
+import type { LandingHandle, LandingStart } from '../../src/kernel/spec.ts';
+import { createSortableBehavior } from '../../src/sortable/behavior.ts';
+import type { SortableController } from '../../src/sortable/controller.ts';
+import {
+  CANCEL_COLLECTION_INVALIDATED,
+  CANCEL_ITEM_REMOVED,
+  type CollectionSnapshot,
+  type Insertion,
+  ReorderResolution,
+  type ReorderRequest,
+  type SortableCancelResult,
+  type SortableFinishResult,
+} from '../../src/sortable/domain.ts';
+import type {
+  DisplacementView,
+  InsertionFrameView,
+  InsertionRuntimeView,
+  SortableSlots,
+} from '../../src/sortable/slots.ts';
+
+const POINTER_ID = 11;
+const ITEM_HEIGHT = 40;
+
+type Harness = Readonly<{
+  root: HTMLElement;
+  items: HTMLElement[];
+  controller: SortableController;
+  /** Seams, hooks and callbacks, in order. */
+  calls: string[];
+  finishes: SortableFinishResult[];
+  cancels: SortableCancelResult[];
+  errors: Array<Readonly<{ stage: FailureStage; error: unknown }>>;
+  requests: ReorderRequest[];
+  /** The item each `onStart` received. */
+  started: HTMLElement[];
+  /** What the next `resolveInsertion` returns. Consumed once. */
+  next(insertion: Insertion | null): void;
+  /** The insertion for a destination gap index, against the live snapshot. */
+  gap(index: number, dragged?: HTMLElement): Insertion;
+  placeholder(): HTMLElement | null;
+  snapshot(): CollectionSnapshot;
+}>;
+
+type Overrides = Partial<
+  Pick<
+    SortableSlots,
+    | 'onReorder'
+    | 'getHandle'
+    | 'getVisual'
+    | 'createPlaceholder'
+    | 'startLanding'
+    | 'beforeMove'
+    | 'afterMove'
+    | 'retireHooks'
+    | 'threshold'
+  >
+> &
+  Readonly<{
+    /** Runs inside `onStart`, so a test can cancel, destroy or update. */
+    onStart?(harness: Harness): void;
+    itemCount?: number;
+  }>;
+
+const cleanup: Array<() => void> = [];
+
+type Reporting = { reportError?(error: unknown): void };
+
+let reported: unknown[] = [];
+
+beforeEach(() => {
+  reported = [];
+  (globalThis as Reporting).reportError = (error): void => {
+    reported.push(error);
+  };
+});
+
+afterEach(() => {
+  delete (globalThis as Reporting).reportError;
+
+  for (const dispose of cleanup.splice(0)) {
+    dispose();
+  }
+});
+
+function createHarness(overrides: Overrides = {}): Harness {
+  const root = document.createElement('div');
+
+  root.style.width = '200px';
+  document.body.append(root);
+
+  const items: HTMLElement[] = [];
+
+  for (let i = 0; i < (overrides.itemCount ?? 3); i += 1) {
+    const item = document.createElement('div');
+
+    item.textContent = `item ${i}`;
+    Object.assign(item.style, {
+      display: 'block',
+      width: '100px',
+      height: `${ITEM_HEIGHT}px`,
+    });
+    root.append(item);
+    items.push(item);
+  }
+
+  const calls: string[] = [];
+  const finishes: SortableFinishResult[] = [];
+  const cancels: SortableCancelResult[] = [];
+  const errors: Array<Readonly<{ stage: FailureStage; error: unknown }>> = [];
+  const requests: ReorderRequest[] = [];
+  const started: HTMLElement[] = [];
+
+  let queued: Insertion | null = null;
+  let published: CollectionSnapshot = { items: [...items], version: 0 };
+
+  let harness!: Harness;
+
+  const slots: SortableSlots = {
+    resolveInsertion(
+      _frame: InsertionFrameView,
+      runtime: InsertionRuntimeView,
+    ): Insertion | null {
+      calls.push('resolveInsertion');
+      // Recorded so a test can prove the per-operation view is published with a
+      // non-null placeholder before anything resolves against it.
+      expect(runtime.placeholder).toBeInstanceOf(HTMLElement);
+      published = runtime.snapshot;
+
+      const insertion = queued;
+
+      queued = null;
+      return insertion;
+    },
+    invalidateInsertion(): void {
+      calls.push('invalidateInsertion');
+    },
+    onReorder:
+      overrides.onReorder ??
+      ((request) => {
+        calls.push('onReorder');
+        requests.push(request);
+        return ReorderResolution.accept();
+      }),
+    onStart(item): void {
+      calls.push('onStart');
+      started.push(item);
+      overrides.onStart?.(harness);
+    },
+    createPlaceholder: overrides.createPlaceholder ?? null,
+    getHandle: overrides.getHandle ?? null,
+    getVisual: overrides.getVisual ?? null,
+    startLanding: overrides.startLanding ?? null,
+    onFinish(result): void {
+      calls.push('onFinish');
+      finishes.push(result);
+    },
+    onCancel(result): void {
+      calls.push('onCancel');
+      cancels.push(result);
+    },
+    onError(error, context): void {
+      calls.push('onError');
+      errors.push({ stage: context.stage, error });
+    },
+    beforeMove: overrides.beforeMove ?? [],
+    afterMove: overrides.afterMove ?? [],
+    retireHooks: overrides.retireHooks ?? [],
+    threshold: overrides.threshold ?? 8,
+  };
+
+  const controller = draggable(root, createSortableBehavior(items, slots));
+
+  // Synthetic pointer events have no active pointer, so the real
+  // `setPointerCapture` would throw `NotFoundError` for every activation.
+  root.setPointerCapture = (): void => {};
+  root.releasePointerCapture = (): void => {};
+
+  harness = {
+    root,
+    items,
+    controller,
+    calls,
+    finishes,
+    cancels,
+    errors,
+    requests,
+    started,
+    next(insertion): void {
+      queued = insertion;
+    },
+    gap(index, dragged = items[0]!): Insertion {
+      const destination = published.items.filter((item) => item !== dragged);
+
+      return {
+        version: published.version,
+        index,
+        before: destination[index - 1] ?? null,
+        after: destination[index] ?? null,
+      };
+    },
+    placeholder: () => root.querySelector('[data-drag-placeholder]'),
+    snapshot: () => published,
+  };
+
+  cleanup.push(() => {
+    controller.destroy();
+    root.remove();
+  });
+
+  return harness;
+}
+
+const press = (target: HTMLElement, x = 10, y = 10): PointerEvent => {
+  const event = new PointerEvent('pointerdown', {
+    bubbles: true,
+    composed: true,
+    cancelable: true,
+    pointerId: POINTER_ID,
+    isPrimary: true,
+    button: 0,
+    buttons: 1,
+    clientX: x,
+    clientY: y,
+  });
+
+  target.dispatchEvent(event);
+  return event;
+};
+
+const pointerEvent = (type: string, x: number, y: number): void => {
+  document.dispatchEvent(
+    new PointerEvent(type, {
+      bubbles: true,
+      pointerId: POINTER_ID,
+      isPrimary: true,
+      clientX: x,
+      clientY: y,
+    }),
+  );
+};
+
+const move = (y: number): void => {
+  pointerEvent('pointermove', 10, y);
+};
+
+const release = (y: number): void => {
+  pointerEvent('pointerup', 10, y);
+};
+
+/** Press the first item, then cross the activation threshold. */
+const activate = (harness: Harness): void => {
+  press(harness.items[0]!);
+  move(40);
+};
+
+/** Runs the coalesced spatial frame the last `moved` scheduled. */
+const nextFrame = (): Promise<void> =>
+  new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      resolve();
+    });
+  });
+
+/**
+ * A landing runner that holds the gate open, so a test can observe the DOM
+ * while presentation is still owned — the join removes the placeholder and
+ * restores the inline styles the moment both gates complete.
+ */
+function createRunner(): Readonly<{ start: LandingStart; done(): void }> {
+  let complete: (() => void) | null = null;
+
+  return {
+    start(_context, done): LandingHandle {
+      complete = done;
+      return { destroy: (): void => {} };
+    },
+    done(): void {
+      complete!();
+    },
+  };
+}
+
+/** The item order in the DOM, placeholder included as `_`. */
+const order = (harness: Harness): string =>
+  [...harness.root.children]
+    .map((child) => {
+      const index = harness.items.indexOf(child as HTMLElement);
+
+      return index === -1 ? '_' : String(index);
+    })
+    .join('');
+
+describe('admission', () => {
+  it('should resolve the pressed item from the composed path', () => {
+    const harness = createHarness();
+    const inner = document.createElement('span');
+
+    harness.items[1]!.append(inner);
+    press(inner);
+    move(40);
+
+    expect(harness.calls).toContain('onStart');
+  });
+
+  it('should ignore a press outside the collection', () => {
+    const harness = createHarness();
+
+    press(harness.root);
+    move(40);
+
+    expect(harness.calls).toEqual([]);
+  });
+
+  it('should preventDefault only when it admits', () => {
+    const harness = createHarness();
+    const admitted = press(harness.items[0]!);
+
+    expect(admitted.defaultPrevented).toBe(true);
+
+    harness.controller.cancel('reset');
+
+    const ignored = press(harness.root);
+
+    expect(ignored.defaultPrevented).toBe(false);
+  });
+
+  it('should narrow admission through the handle slot', () => {
+    const handle = document.createElement('span');
+    const harness = createHarness({
+      getHandle: (item) => (item.firstElementChild as HTMLElement) ?? null,
+    });
+
+    harness.items[0]!.append(handle);
+
+    // The press missed the handle.
+    press(harness.items[0]!);
+    move(40);
+    expect(harness.calls).toEqual([]);
+
+    // It landed on it.
+    press(handle);
+    move(40);
+    expect(harness.calls).toContain('onStart');
+  });
+
+  it('should lift the visual without replacing the item', () => {
+    const harness = createHarness({
+      getVisual: (item) => item.firstElementChild as HTMLElement,
+    });
+    const visual = document.createElement('div');
+
+    visual.style.height = '20px';
+    harness.items[0]!.append(visual);
+
+    activate(harness);
+
+    // The placeholder is inserted after the **item**, and is sized from the
+    // visual: a handle or visual slot narrows what is lifted, never what is
+    // sorted.
+    expect(harness.placeholder()!.previousElementSibling).toBe(
+      harness.items[0],
+    );
+    expect(harness.placeholder()!.style.height).toBe('20px');
+  });
+});
+
+describe('activation', () => {
+  it('should create the placeholder detached and insert it after the item', () => {
+    const created: HTMLElement[] = [];
+    const harness = createHarness({
+      createPlaceholder({ item, visual, rect }): HTMLElement {
+        const element = document.createElement('div');
+
+        // `prepare` may not touch the DOM: the element it returns is detached,
+        // and the kernel has not committed anything yet.
+        expect(item).toBe(harness.items[0]);
+        expect(visual).toBe(harness.items[0]);
+        expect(rect.height).toBe(ITEM_HEIGHT);
+        created.push(element);
+        expect(element.isConnected).toBe(false);
+        return element;
+      },
+    });
+
+    activate(harness);
+
+    expect(created).toHaveLength(1);
+    expect(created[0]!.isConnected).toBe(true);
+    expect(created[0]!.previousElementSibling).toBe(harness.items[0]);
+  });
+
+  it('should apply the default mechanics to a customised placeholder', () => {
+    const harness = createHarness({
+      createPlaceholder: () => document.createElement('section'),
+    });
+
+    harness.items[0]!.setAttribute('slot', 'row');
+    activate(harness);
+
+    const placeholder = harness.placeholder()!;
+
+    // Not configurable away, whoever created the element.
+    expect(placeholder.tagName).toBe('SECTION');
+    expect(placeholder.getAttribute('aria-hidden')).toBe('true');
+    expect(placeholder.getAttribute('slot')).toBe('row');
+    expect(placeholder.style.height).toBe(`${ITEM_HEIGHT}px`);
+  });
+
+  it('should publish the runtime before onStart runs', () => {
+    let seen: string[] = [];
+    const harness = createHarness({
+      onStart(each): void {
+        // I-30: every resource is owned and every private reference published
+        // before a consumer callback can cancel or destroy.
+        seen = [...each.calls];
+        expect(each.placeholder()).not.toBeNull();
+      },
+    });
+
+    activate(harness);
+
+    expect(seen).toContain('invalidateInsertion');
+  });
+
+  it('should not activate when the item left the collection', () => {
+    const harness = createHarness();
+
+    press(harness.items[0]!);
+    harness.controller.updateItems([harness.items[1]!, harness.items[2]!]);
+    move(40);
+
+    // The press is already cancelled by the item-removed reason, so activation
+    // never runs; the discard would refuse it anyway.
+    expect(harness.calls).not.toContain('onStart');
+  });
+});
+
+describe('the hot path', () => {
+  it('should render the committed sample and coalesce the spatial search', async () => {
+    const harness = createHarness();
+
+    activate(harness);
+    harness.calls.length = 0;
+
+    move(60);
+    move(80);
+    move(100);
+
+    // Three samples, one frame: pointer input never coalesces, the spatial
+    // search always does.
+    expect(harness.calls).toEqual([]);
+    expect(harness.items[0]!.style.transform).toContain('90px');
+
+    await nextFrame();
+    expect(
+      harness.calls.filter((name) => name === 'resolveInsertion'),
+    ).toHaveLength(1);
+  });
+
+  it('should not commit an insertion the resolver declined', async () => {
+    const harness = createHarness();
+
+    activate(harness);
+    const before = order(harness);
+
+    harness.next(null);
+    move(60);
+    await nextFrame();
+
+    // The incumbent stays authoritative until a genuinely better gap is
+    // selected; a frame resolving to `null` commits nothing.
+    expect(order(harness)).toBe(before);
+  });
+
+  it('should move the placeholder for a resolved insertion', async () => {
+    const harness = createHarness();
+
+    activate(harness);
+    expect(order(harness)).toBe('0_12');
+
+    harness.next(harness.gap(1));
+    move(60);
+    await nextFrame();
+
+    expect(order(harness)).toBe('01_2');
+  });
+
+  it('should bracket the placeholder move with the displacement hooks', async () => {
+    const seen: string[] = [];
+    const measure = (view: DisplacementView): void => {
+      seen.push(`before:${view.placeholder.isConnected}`);
+    };
+    const play = (): void => {
+      seen.push('after');
+    };
+    const harness = createHarness({
+      beforeMove: [measure],
+      afterMove: [play],
+    });
+
+    activate(harness);
+    harness.calls.length = 0;
+    harness.next(harness.gap(1));
+    move(60);
+    await nextFrame();
+
+    expect(seen).toEqual(['before:true', 'after']);
+    // Geometry is invalidated after the move, between the two pipelines.
+    expect(harness.calls).toEqual(['resolveInsertion', 'invalidateInsertion']);
+  });
+});
+
+describe('placeholder movement', () => {
+  it('should reach a start gap', async () => {
+    const harness = createHarness();
+
+    press(harness.items[1]!);
+    move(40);
+    expect(order(harness)).toBe('01_2');
+
+    harness.next(harness.gap(0, harness.items[1]));
+    move(60);
+    await nextFrame();
+
+    // Probe 1's `before?.after(…)` was a silent no-op here, because a start gap
+    // has no `before` (F-31).
+    expect(order(harness)).toBe('_012');
+  });
+
+  it('should reach an end gap', async () => {
+    const harness = createHarness();
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    move(60);
+    await nextFrame();
+
+    expect(order(harness)).toBe('012_');
+  });
+
+  it('should be inert when the placeholder is already in position', async () => {
+    const harness = createHarness();
+
+    activate(harness);
+
+    const placeholder = harness.placeholder()!;
+    let reinserted = false;
+    const observer = new MutationObserver(() => {
+      reinserted = true;
+    });
+
+    observer.observe(harness.root, { childList: true });
+    // The gap it already occupies.
+    harness.next(harness.gap(0));
+    move(60);
+    await nextFrame();
+    observer.disconnect();
+
+    // `before()`/`append()` on an already-correct position is a
+    // remove-and-reinsert that resets CSS transitions and forces a reflow.
+    expect(reinserted).toBe(false);
+    expect(harness.placeholder()).toBe(placeholder);
+  });
+});
+
+describe('release', () => {
+  it('should build the proposal from the committed release point', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(123);
+
+    expect(harness.requests).toHaveLength(1);
+    expect(harness.requests[0]).toMatchObject({
+      item: harness.items[0],
+      version: 0,
+      from: 0,
+      to: 2,
+      before: harness.items[2],
+      after: null,
+    });
+  });
+
+  it('should render the final sample, not the last processed move', () => {
+    let rendered = '';
+    const harness = createHarness({
+      onReorder(): ReorderResolution {
+        // Captured here because the join restores the inline styles: by the
+        // time the drop completes there is no transform left to read.
+        rendered = harness.items[0]!.style.transform;
+        return ReorderResolution.accept();
+      },
+    });
+
+    activate(harness);
+    move(60);
+    harness.next(harness.gap(2));
+    release(123);
+
+    // `pointerup` need not carry the last `pointermove`'s coordinates, and the
+    // proposal was computed from the committed release point (F-39).
+    expect(rendered).toContain('113px');
+  });
+
+  it('should skip the round-trip for a proven no-op', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    release(40);
+
+    // `from === to` is the only legitimate skip. It finishes as a no-op — not a
+    // rejection, and not a home recovery (F-29).
+    expect(harness.calls).not.toContain('onReorder');
+    expect(harness.finishes).toHaveLength(1);
+    expect(harness.finishes[0]!.type).toBe('noop');
+  });
+
+  it('should classify an incoherent insertion instead of dropping silently', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    // A gap whose captured neighbours do not describe the released snapshot.
+    harness.next({
+      version: 0,
+      index: 1,
+      before: harness.items[2]!,
+      after: null,
+    });
+    release(60);
+
+    // Reporting a broken invariant as a successful no-op drop would tell the
+    // consumer the drag completed normally.
+    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
+    expect(harness.finishes).toEqual([]);
+  });
+
+  it('should move the placeholder to the final gap before resolving', () => {
+    const harness = createHarness({
+      onReorder(): ReorderResolution {
+        // The placeholder is already at the proposed gap when the consumer is
+        // asked: `release.effect` runs before the kernel executes the command.
+        expect(order(harness)).toBe('012_');
+        return ReorderResolution.accept();
+      },
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    expect(harness.finishes).toHaveLength(1);
+  });
+});
+
+describe('settlement mapping', () => {
+  it('should map an accepted resolution to a destination recovery', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    expect(harness.finishes[0]!.type).toBe('accepted');
+    expect(harness.cancels).toEqual([]);
+  });
+
+  it('should map a rejected resolution to onCancel with its reason', () => {
+    const harness = createHarness({
+      onReorder: () => ReorderResolution.reject('no'),
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    expect(harness.cancels).toHaveLength(1);
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'rejected',
+      reason: 'no',
+    });
+    expect(harness.finishes).toEqual([]);
+  });
+
+  it('should classify a fulfilled non-resolution', () => {
+    const harness = createHarness({
+      onReorder: () => ({ ok: true }) as unknown as ReorderResolution,
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    // Acceptance is never inferred — not from callback silence, not from a
+    // truthy return.
+    expect(harness.errors[0]!.stage).toBe(FAILURE_REORDER_RESOLUTION);
+    expect(harness.finishes).toEqual([]);
+    expect(harness.cancels).toEqual([]);
+  });
+
+  it('should classify a rejected round-trip promise', async () => {
+    const error = new Error('resolver');
+    const harness = createHarness({
+      onReorder: () => Promise.reject(error),
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+    await nextFrame();
+
+    // A resolver malfunction is never reported as `onCancel`.
+    expect(harness.errors[0]).toEqual({
+      stage: FAILURE_REORDER_RESOLUTION,
+      error,
+    });
+    expect(harness.cancels).toEqual([]);
+  });
+
+  it('should map a cancel at ACTIVE to the proposal stage', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    harness.controller.cancel('escape');
+
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'canceled',
+      reason: 'escape',
+      stage: AT_PROPOSAL,
+      proposal: null,
+    });
+  });
+
+  it('should map a cancel during the round-trip to the consumer stage', () => {
+    const harness = createHarness({
+      onReorder: () => new Promise<ReorderResolution>(() => {}),
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+    harness.controller.cancel('gave up');
+
+    const result = harness.cancels[0] as { stage: number; proposal: unknown };
+
+    expect(result.stage).toBe(AT_CONSUMER);
+    // The proposal exists by now, and the cancel result carries it.
+    expect(result.proposal).not.toBeNull();
+  });
+
+  it('should report a classified failure through onError only', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    // A renderer write failure on the hot path.
+    Object.defineProperty(harness.items[0]!.style, 'transform', {
+      configurable: true,
+      get: (): string => '',
+      set(): never {
+        throw new Error('cssom');
+      },
+    });
+    move(60);
+
+    expect(harness.errors[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
+    expect(harness.finishes).toEqual([]);
+    expect(harness.cancels).toEqual([]);
+  });
+});
+
+describe('the landing target', () => {
+  it('should re-anchor to the item for a destination recovery', () => {
+    const runner = createRunner();
+    const harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    // With no readiness promise the consumer asserted its presentation is
+    // final **synchronously**, so `authoredReady` is true from sealing and the
+    // arm-time measurement re-anchors immediately.
+    //
+    // This consumer accepted without applying the reorder, so the item is still
+    // at its old slot — and the placeholder follows it there. That is the
+    // contract, not a defect: the anchor is always the item (I-25), and a
+    // consumer that accepts synchronously has asserted the DOM it is showing is
+    // the authored final one.
+    expect(order(harness)).toBe('_012');
+
+    runner.done();
+    expect(harness.finishes).toHaveLength(1);
+  });
+
+  it('should repair the semantic gap when the item moved', () => {
+    const runner = createRunner();
+    let applied: (() => void) | null = null;
+    const harness = createHarness({
+      startLanding: runner.start,
+      onReorder(): ReorderResolution {
+        // The consumer applies the reorder itself and lands the item past the
+        // placeholder, leaving the placeholder on the wrong side of it (F-15).
+        applied!();
+        return ReorderResolution.accept();
+      },
+    });
+
+    applied = (): void => {
+      harness.root.append(harness.items[0]!);
+    };
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    // The item is the anchor, and the repair puts the placeholder back in front
+    // of it — the gap the consumer's own commit describes.
+    expect(harness.items[0]!.previousElementSibling).toBe(
+      harness.placeholder(),
+    );
+  });
+
+  it('should not re-anchor while readiness is pending', () => {
+    const runner = createRunner();
+    let ready!: () => void;
+    const harness = createHarness({
+      startLanding: runner.start,
+      onReorder: () =>
+        ReorderResolution.accept(
+          new Promise<void>((resolve) => {
+            ready = resolve;
+          }),
+        ),
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    // `authoredReady` is false with a promise pending: the consumer has not
+    // committed, so re-anchoring now would drag the placeholder back beside the
+    // item's OLD slot. The provisional target is the gap as it stands.
+    expect(order(harness)).toBe('012_');
+
+    ready();
+  });
+
+  it('should re-anchor once readiness settles', async () => {
+    const runner = createRunner();
+    let ready!: () => void;
+    const harness = createHarness({
+      startLanding: runner.start,
+      onReorder: () =>
+        ReorderResolution.accept(
+          new Promise<void>((resolve) => {
+            ready = resolve;
+          }),
+        ),
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+    ready();
+    await nextFrame();
+
+    // The consumer's DOM is committed now, so the authoritative anchor — the
+    // item — is where the placeholder belongs.
+    expect(order(harness)).toBe('_012');
+  });
+
+  it('should not reinsert the placeholder when it is already anchored', async () => {
+    const runner = createRunner();
+    let applied: (() => void) | null = null;
+    const harness = createHarness({
+      startLanding: runner.start,
+      onReorder(): ReorderResolution {
+        applied!();
+        return ReorderResolution.accept();
+      },
+    });
+
+    applied = (): void => {
+      harness.root.append(harness.items[0]!);
+    };
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    // The arm-time measurement has repaired the gap. The join measures again,
+    // and the placeholder is already adjacent to the item.
+    //
+    // Captured before observing: the join removes the placeholder on its way
+    // out, so looking it up from inside the callback would find nothing.
+    const placeholder = harness.placeholder()!;
+    let removals = 0;
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        if ([...record.removedNodes].includes(placeholder)) {
+          removals += 1;
+        }
+      }
+    });
+
+    observer.observe(harness.root, { childList: true });
+    runner.done();
+    await nextFrame();
+    observer.disconnect();
+
+    // Exactly one removal: the join's own, releasing presentation. A second
+    // would mean the repair ran — `before()` on an already-correct position is
+    // a remove-and-reinsert that resets CSS transitions and forces a reflow, on
+    // every settlement.
+    expect(removals).toBe(1);
+    expect(harness.finishes).toHaveLength(1);
+  });
+
+  it('should follow the grabbed item when a replacement moves it', () => {
+    const runner = createRunner();
+    const harness = createHarness({
+      itemCount: 4,
+      startLanding: runner.start,
+      onReorder: () => ReorderResolution.reject('no'),
+    });
+
+    activate(harness);
+
+    // The consumer moves the grabbed item to the end of the collection. Its
+    // home gap moves with it — item 0 now belongs after item 3, not at the
+    // head — and the start gap the drag is holding still survives, so the
+    // operation continues.
+    harness.controller.updateItems([
+      harness.items[1]!,
+      harness.items[2]!,
+      harness.items[3]!,
+      harness.items[0]!,
+    ]);
+    expect(harness.cancels).toEqual([]);
+
+    // The DOM is untouched — a replacement changes the logical collection, not
+    // the elements — so the placeholder still sits at the head, where the home
+    // *start* gap put it.
+    expect(order(harness)).toBe('0_123');
+
+    release(60);
+
+    // Home recovery derives the gap from the **latest committed** collection:
+    // item 0 is now last, so its home gap is the end gap. Reusing the gap the
+    // drag started against would have left the placeholder at the head.
+    expect(order(harness)).toBe('0123_');
+
+    runner.done();
+    expect(harness.cancels[0]!.type).toBe('rejected');
+  });
+
+  it('should recover to the home gap of the frozen transaction', () => {
+    const runner = createRunner();
+    const harness = createHarness({
+      itemCount: 4,
+      startLanding: runner.start,
+      onReorder(): ReorderResolution {
+        // Arrives while the operation is resolving. It publishes — the update
+        // is never lost — but the transaction's own snapshot is decided.
+        harness.controller.updateItems([
+          harness.items[1]!,
+          harness.items[2]!,
+          harness.items[3]!,
+          harness.items[0]!,
+        ]);
+        return ReorderResolution.reject('no');
+      },
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+    expect(harness.cancels).toEqual([]);
+
+    // Home is the home *of the transaction being recovered*, so it comes from
+    // the frozen snapshot: the drag began with item 0 at the head, the consumer
+    // rejected, and that is where the item goes back to. Deriving it from the
+    // newer published collection would move the placeholder to a gap the
+    // transaction never agreed to.
+    expect(order(harness)).toBe('0_123');
+
+    runner.done();
+    expect(harness.cancels[0]!.type).toBe('rejected');
+  });
+
+  it('should not fabricate a gap for a removed item', async () => {
+    const runner = createRunner();
+    const harness = createHarness({ itemCount: 4, startLanding: runner.start });
+
+    activate(harness);
+    // Drag the placeholder away from the head first, so a fabricated home gap
+    // would be observable rather than coincidentally inert.
+    harness.next(harness.gap(3));
+    move(60);
+    await nextFrame();
+    expect(order(harness)).toBe('0123_');
+
+    // The item vanishes mid-drag, so the cancellation's home recovery has no
+    // gap to derive.
+    harness.controller.updateItems([
+      harness.items[1]!,
+      harness.items[2]!,
+      harness.items[3]!,
+    ]);
+
+    // `indexOf` is -1 there, and -1 is not a gap: without the guard the
+    // arithmetic yields a plausible *start* gap — `before` undefined, `after`
+    // the first item — and silently drags the placeholder across the list.
+    expect(order(harness)).toBe('0123_');
+  });
+
+  it('should not derive a home gap for an item the replacement removed', () => {
+    const harness = createHarness({ itemCount: 4 });
+
+    activate(harness);
+    expect(order(harness)).toBe('0_123');
+
+    // The grabbed item itself vanishes.
+    harness.controller.updateItems([
+      harness.items[1]!,
+      harness.items[2]!,
+      harness.items[3]!,
+    ]);
+
+    // It cancels for the *item*, not for the gap, and the home measurement has
+    // no gap to derive: `indexOf` is -1, and the placeholder is measured where
+    // it stands rather than moved to a fabricated index.
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'canceled',
+      reason: CANCEL_ITEM_REMOVED,
+    });
+    expect(harness.errors).toEqual([]);
+    expect(reported).toEqual([]);
+
+    // And it retires cleanly.
+    expect(harness.placeholder()).toBeNull();
+    expect(harness.items[0]!.style.transform).toBe('');
+  });
+
+  it('should stay usable after an item-removed cancellation', () => {
+    const harness = createHarness({ itemCount: 4 });
+
+    activate(harness);
+    harness.controller.updateItems([
+      harness.items[1]!,
+      harness.items[2]!,
+      harness.items[3]!,
+    ]);
+
+    // The removed item is no longer admissible; the survivors still are.
+    press(harness.items[0]!);
+    move(40);
+    expect(harness.started).toHaveLength(1);
+
+    press(harness.items[1]!);
+    move(40);
+    expect(harness.started).toHaveLength(2);
+  });
+
+  it('should return the placeholder home for a rejected drop', () => {
+    const runner = createRunner();
+    const harness = createHarness({
+      startLanding: runner.start,
+      onReorder: () => ReorderResolution.reject('no'),
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    // Home recovery deliberately returns the placeholder to the grab slot
+    // before measuring — recomputed from the committed snapshot, not stored.
+    expect(order(harness)).toBe('0_12');
+
+    runner.done();
+    expect(harness.cancels).toHaveLength(1);
+  });
+
+  it('should hold no landing gate for an immediate recovery', () => {
+    const runner = createRunner();
+    const harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(40);
+
+    // A no-op recovers immediately — the placeholder is already where the item
+    // belongs — so no landing hold is requested even though the feature is
+    // installed, and the drop finalizes in the same drain (I-9).
+    expect(harness.finishes[0]!.type).toBe('noop');
+    expect(order(harness)).toBe('012');
+  });
+});
+
+describe('the collection', () => {
+  it('should publish an idle replacement without binding it to a frame', () => {
+    const harness = createHarness();
+    const replacement = [harness.items[2]!, harness.items[1]!];
+
+    harness.controller.updateItems(replacement);
+    // Pressing the item that is now first proves the new snapshot is live.
+    press(harness.items[2]!);
+    move(40);
+
+    expect(harness.calls).toContain('onStart');
+  });
+
+  it('should copy the caller array at call time', () => {
+    const harness = createHarness();
+    const mutable = [harness.items[1]!, harness.items[0]!];
+
+    harness.controller.updateItems(mutable);
+    mutable.length = 0;
+    press(harness.items[1]!);
+    move(40);
+
+    // A caller that keeps mutating its own array cannot change a snapshot the
+    // behavior has already published.
+    expect(harness.calls).toContain('onStart');
+  });
+
+  it('should rebase a surviving gap during an active drag', async () => {
+    const harness = createHarness({ itemCount: 4 });
+
+    activate(harness);
+    harness.next(harness.gap(1));
+    move(60);
+    await nextFrame();
+    expect(order(harness)).toBe('01_23');
+
+    // The gap between items 1 and 2 survives: both remain adjacent.
+    harness.controller.updateItems([
+      harness.items[3]!,
+      harness.items[0]!,
+      harness.items[1]!,
+      harness.items[2]!,
+    ]);
+
+    expect(harness.cancels).toEqual([]);
+    expect(harness.errors).toEqual([]);
+  });
+
+  it('should publish and then cancel when the gap cannot survive', () => {
+    const harness = createHarness({ itemCount: 4 });
+
+    activate(harness);
+    // Break the gap — the incumbent neighbours are no longer adjacent — and
+    // drop an item in the same replacement.
+    harness.controller.updateItems([
+      harness.items[0]!,
+      harness.items[2]!,
+      harness.items[1]!,
+    ]);
+
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'canceled',
+      reason: CANCEL_COLLECTION_INVALIDATED,
+    });
+
+    // The consumer's update is never lost: the replacement published *before*
+    // the cancel, so the dropped item is no longer admissible (D-25, F-28).
+    press(harness.items[3]!);
+    move(40);
+    expect(harness.started).toHaveLength(1);
+  });
+
+  it('should rebase an internal gap that stays adjacent', () => {
+    const harness = createHarness({ itemCount: 4 });
+
+    // Dragging item 2 makes the home gap internal: item 1 before, item 3 after.
+    press(harness.items[2]!);
+    move(40);
+    expect(harness.started[0]).toBe(harness.items[2]);
+
+    // Item 0 moves to the end. Items 1 and 3 stay adjacent, so the gap between
+    // them survives.
+    harness.controller.updateItems([
+      harness.items[1]!,
+      harness.items[2]!,
+      harness.items[3]!,
+      harness.items[0]!,
+    ]);
+
+    expect(harness.cancels).toEqual([]);
+
+    // And the rebased gap is the one the release resolves against.
+    release(40);
+    expect(harness.finishes[0]!.type).toBe('noop');
+  });
+
+  it('should cancel when an internal gap loses its adjacency', () => {
+    const harness = createHarness({ itemCount: 4 });
+
+    press(harness.items[2]!);
+    move(40);
+
+    // Item 0 is inserted *between* the incumbent neighbours. The gap the
+    // consumer was shown no longer exists, and intent is never recomputed from
+    // the latest pointer position (I-14).
+    harness.controller.updateItems([
+      harness.items[1]!,
+      harness.items[0]!,
+      harness.items[3]!,
+      harness.items[2]!,
+    ]);
+
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'canceled',
+      reason: CANCEL_COLLECTION_INVALIDATED,
+    });
+  });
+
+  it('should refuse to build a proposal across versions', () => {
+    const harness = createHarness({ itemCount: 4 });
+
+    activate(harness);
+    // A replacement the home gap survives, so the drag continues — at version 1.
+    harness.controller.updateItems([
+      harness.items[0]!,
+      harness.items[1]!,
+      harness.items[3]!,
+      harness.items[2]!,
+    ]);
+
+    // An insertion still carrying version 0. Mixed-version arithmetic is
+    // invalid: the indices would describe a different ordering than the one the
+    // request claims.
+    harness.next({
+      version: 0,
+      index: 2,
+      before: harness.items[3]!,
+      after: harness.items[2]!,
+    });
+    release(60);
+
+    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
+    expect(harness.finishes).toEqual([]);
+  });
+
+  it('should cancel with item-removed when the dragged item vanishes', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    harness.controller.updateItems([harness.items[1]!, harness.items[2]!]);
+
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'canceled',
+      reason: CANCEL_ITEM_REMOVED,
+    });
+  });
+
+  it('should apply an update from inside onStart at ACTIVATING', async () => {
+    const harness = createHarness({
+      itemCount: 4,
+      onStart(each): void {
+        each.controller.updateItems([
+          each.items[0]!,
+          each.items[1]!,
+          each.items[3]!,
+          each.items[2]!,
+        ]);
+      },
+    });
+
+    activate(harness);
+    move(60);
+    await nextFrame();
+
+    // FIFO puts the update ahead of START_COMMITTED, so it is applied while the
+    // phase is still ACTIVATING — not deferred (F-32). The home gap after item
+    // 0 survives, so the drag continues against the new snapshot.
+    expect(harness.snapshot().items[2]).toBe(harness.items[3]);
+    expect(harness.snapshot().version).toBe(1);
+    expect(harness.cancels).toEqual([]);
+  });
+
+  it('should not rewrite the frozen snapshot after release', () => {
+    const harness = createHarness({
+      onReorder(): ReorderResolution {
+        // Arrives while the operation is resolving: it publishes, but the
+        // transaction's own snapshot is decided.
+        harness.controller.updateItems([harness.items[2]!, harness.items[1]!]);
+        return ReorderResolution.accept();
+      },
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    expect(harness.finishes[0]!.proposal.snapshot.items).toHaveLength(3);
+    expect(harness.finishes[0]!.proposal.request.version).toBe(0);
+  });
+});
+
+describe('retirement', () => {
+  it('should run the retire hooks, each wrapped', () => {
+    const seen: string[] = [];
+    const harness = createHarness({
+      retireHooks: [
+        (): void => {
+          seen.push('outer');
+          throw new Error('hook');
+        },
+        (): void => {
+          seen.push('inner');
+        },
+      ],
+    });
+
+    activate(harness);
+    harness.controller.cancel('reason');
+
+    // One throwing hook does not stop the rest from restoring their DOM.
+    expect(seen).toEqual(['outer', 'inner']);
+    expect(reported).toHaveLength(1);
+  });
+
+  it('should leave no placeholder and no item references behind', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    expect(harness.placeholder()).not.toBeNull();
+
+    harness.controller.cancel('reason');
+
+    // An idle controller retains no DOM from the completed drag (I-20).
+    expect(harness.placeholder()).toBeNull();
+    expect(harness.items[0]!.style.transform).toBe('');
+  });
+
+  it('should admit a second drag after the first completed', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    release(40);
+    expect(harness.finishes).toHaveLength(1);
+
+    activate(harness);
+    release(40);
+
+    expect(harness.finishes).toHaveLength(2);
+  });
+});

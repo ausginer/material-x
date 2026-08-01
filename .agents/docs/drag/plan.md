@@ -350,6 +350,31 @@ features stubbed by hand-written slot literals (Phase 7 supplies the assembler).
 protocol* (all six), *Placeholder movement* (all four), and the *Basic flow*
 group re-run against the real behavior.
 
+**Deviations recorded while implementing.**
+
+- **`homeInsertion` is recomputed, never stored.** The frame part is fixed at
+  eight fields and the runtime at seven, so the home gap a `RECOVERY_HOME`
+  settlement returns the placeholder to has nowhere to live. Deriving it from
+  the committed snapshot and item is pure, needs no slot, and cannot go stale
+  against a collection replacement — the item's own index in the full list *is*
+  the destination gap it occupies.
+- **The displacement pipelines do not bracket the release move.** The trace
+  shows `release.effect` calling `movePlaceholder` alone, and the hooks are
+  specified as bracketing "a committed placeholder move" on the spatial path.
+  If a fixture later shows the release move needs them, that is a behavior
+  change, not an SPI one.
+- **`DragErrorContext` lives in the sortable domain module for now.** The
+  export table puts it in `drag.js`, but its `domain` field is a sortable
+  result; phase 9 decides whether it is generic (`unknown`) or behavior-shaped.
+- **Two switches suppress `default-case`.** Exhaustive discrimination is the
+  point of both (F-29's five-row mapping, F-37's terminal routing): a `default`
+  would turn a missing case from a compile error into a plausible-looking
+  fall-through.
+- **One guard is kept without a test that isolates it**: the spatial attempt
+  comparison in `action.prepare`. The frame task coalesces and dispatches the
+  latest sequence synchronously, so a queued attempt is always current when it
+  applies. Marked as such in `spec.ts`.
+
 ---
 
 ## Checkpoint A — kernel machine + full lifecycle + real behavior

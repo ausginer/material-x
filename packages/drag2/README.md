@@ -9,7 +9,7 @@ The shipped `@ydinjs/drag` is untouched while this package is built. Merging the
 
 ## Status
 
-Phases 0–5 complete. **Phases 3–5 are the frozen SPI**: any change to a seam
+Phases 0–6 complete. **Phases 3–5 are the frozen SPI**: any change to a seam
 signature from here on requires the failing-executable-case justification from
 contract 00.
 
@@ -21,7 +21,9 @@ contract 00.
 
 - **5 — settlement, gates and the join.** The resolution attempt with its guarded abort and thenable/immediate split, the five-case `SettlementInput`, the settlement attempt with request → seal → arm, `ArmOutcome`, the once-only landing completion latch, the bounded readiness watch with its re-anchor and `retarget`, and the join (`FINALIZING` → measure → `destroy()` → pin → release → `finalized` → `RETIRE`).
 
-The behavior is still a test double: `packages/drag2/tests/kernel/kernel.browser.test.ts` drives every seam. The sortable behavior is phase 6.
+- **6 — the sortable behavior.** The eight-field frame part, the private runtime, the domain vocabulary, every seam, `reconcileCollection` and the per-phase collection staging table, the single canonical `movePlaceholder()`, and the controller's `updateItems()`.
+
+Features are still hand-written slot literals — `assemble()` is phase 7 and the feature modules are phase 8, so `sortable(items, ...features)` does not exist yet and `src/sortable.ts` is still a stub. The behavior is reached through `createSortableBehavior(items, slots)`.
 
 Deliberate behavioural differences from the shipped `@ydinjs/drag`:
 
