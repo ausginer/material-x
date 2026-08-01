@@ -9,7 +9,9 @@ The shipped `@ydinjs/drag` is untouched while this package is built. Merging the
 
 ## Status
 
-Phases 0–4 complete.
+Phases 0–5 complete. **Phases 3–5 are the frozen SPI**: any change to a seam
+signature from here on requires the failing-executable-case justification from
+contract 00.
 
 - **0 — scaffolding.** Every entrypoint declared in `files.json` exists as a stub.
 - **1 — kernel primitives.** `realm`, `lifetimes` (+`LifetimeScope`), `queue`, `reporter`, `failures`, `presentation` (+ the kernel's `lift.write` pin), `pointer`, `invalidation`. The WAAPI `animation` helper is deliberately absent: it belongs to `landing()`, in phase 8b.
@@ -17,13 +19,16 @@ Phases 0–4 complete.
 - **3 — the seam driver.** `Transition`/`ActionTransition`/`SeamRejection`, the five `SeamOutcome` constants, `runCore`, `runLeaf`/`runLeafValue`, both failure latches, and the activation and release continuation policies.
 - **4 — the lifecycle.** `draggable()`, the two-phase handshake, `KernelHost`, `arm()` with its unwind, admission with the post-`admit` revalidation, the threshold and activation, the hot path, release as two commits, behavior actions, the cancel latch and its precedence, the failure checkpoint, and the seven-step `destroy()`.
 
-Settlement, the two gates and the join are phase 5. Until then a release commits and renders and the operation waits in `RELEASING`; a cancel at `ACTIVE`/`RELEASING` retires without a terminal callback; and a failure checkpoint reports and retires instead of settling as `OUTCOME_FAILED`. Every one of those boundaries is marked `**Phase 5.**` in `kernel.ts`.
+- **5 — settlement, gates and the join.** The resolution attempt with its guarded abort and thenable/immediate split, the five-case `SettlementInput`, the settlement attempt with request → seal → arm, `ArmOutcome`, the once-only landing completion latch, the bounded readiness watch with its re-anchor and `retarget`, and the join (`FINALIZING` → measure → `destroy()` → pin → release → `finalized` → `RETIRE`).
+
+The behavior is still a test double: `packages/drag2/tests/kernel/kernel.browser.test.ts` drives every seam. The sortable behavior is phase 6.
 
 Deliberate behavioural differences from the shipped `@ydinjs/drag`:
 
 - `Lifetime.use()` after dispose runs the disposer immediately and reports.
 - `acquirePointerCapture` lets a capture failure throw so the caller can classify it as `FAILURE_ACTIVATION` (D-17) instead of silently degrading the drag.
 - `BehaviorSpec` carries a `reportFailure(stage, error)` member the frozen listing does not, because Q-1's answer for a throwing `admit` — report through `onError` with no operation — is otherwise unreachable from the kernel. See plan.md, phase 4.
+- `LandingContext.from` and `.target` are **origin-relative deltas**, not viewport points, and the readiness-time `retarget(target)` receives a delta too. `anchorTarget` produces a viewport point and the kernel converts. Contract 02 shows the raw point being handed to the runner, but the runner's only writer is `compose(x, y)`, which consumes a delta from the grab rect — a point it cannot convert, because the context carries no `originRect`. The shipped package's landing plans were already in delta space.
 - `acquireLift` throws when the visual's box space cannot be read — a disconnected, fragmented, or 3D-transformed visual. The shipped package flattened 3D to its 2D projection, producing a wrong lift rather than a refused one.
 
 ## Geometry

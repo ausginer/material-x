@@ -279,6 +279,38 @@ behavior at this point.
 **Gate.** Phases 3–5 are the frozen SPI. Any change to a seam signature after
 this point requires the failing-executable-case justification from 00.
 
+**Deviations recorded while implementing.**
+
+- **The failure checkpoint drives the settlement seam stamped `REPORTING`, not
+  `SETTLING`.** The contract gives the checkpoint no trace: the mapping table
+  requires `settlement.prepare(SETTLED_FAILED)` to build the terminal state,
+  while the phase table puts `onError` in `REPORTING`. Driving the same seam
+  with the `REPORTING` stamp and a **pre-sealed** scope satisfies both — the
+  behavior owns terminal classification, no gate can be held for a failed
+  settlement, no join runs, and `ERROR_REPORTED` → retirement releases
+  presentation. The input carries `stage`, which is what lets the behavior give
+  `TERMINAL_CALLBACK` the "none" recovery the stage table names while the rest
+  get immediate.
+- **`LandingContext.from`/`.target` and `retarget()` are origin-relative
+  deltas**, not viewport points. See README, deliberate differences.
+- **The settlement seam closes motion as well as cancellation**, before the
+  behavior's `effect`. The trace lists only `cancellation.dispose()`, because it
+  traces a *release*, where motion is already closed. A cancel at `ACTIVE`
+  reaches settlement with pointer input still open, and both closes are latched.
+- **A raw throw from `settlement.prepare`/`effect` classifies as
+  `FAILURE_REORDER_RESOLUTION`.** The contract names a stage for the seam's
+  `SeamRejection` but not for an unannotated throw; this is the stage the seam
+  owns, and it carries the home recovery the stage table gives it.
+- **`failOperation` dispatches rather than enqueues.** A checkpoint raised from
+  an async continuation — a readiness rejection, a landing runner's `fail()` —
+  is the outermost frame, so nothing else would ever drain it.
+- **Three guards are kept without a test that isolates them**, each redundant
+  with a second mechanism and each named by the contract: `attempt.failed` after
+  `start` (the latch already catches today's only route), `attempt.failed` in
+  `advanceSettlement` (a failure never releases its hold, so the count cannot
+  reach zero), and the phase half of the resolution's double validation. Marked
+  as such in `kernel.ts` rather than left to read as tested.
+
 ---
 
 ## Phase 6 — The sortable behavior
