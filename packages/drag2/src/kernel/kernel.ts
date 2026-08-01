@@ -1427,6 +1427,19 @@ export function createKernel<Part extends object>(
   // legality).
   // -------------------------------------------------------------------------
 
+  /**
+   * The active-movement leaf, hoisted to **one** controller-stable closure.
+   *
+   * Inlining it as an arrow at the call site allocated a fresh closure on every
+   * active pointer sample — the one path whose allocations the trace actually
+   * counts, and the emitted bundle kept the arrow rather than folding it away.
+   * Reading the swappable `current` and `lift` slots at call time is what makes
+   * hoisting sound: neither is captured by value.
+   */
+  const runMoved = (): void => {
+    spec!.moved(current, lift!);
+  };
+
   const handleMove = (sample: PointerCoordinates): void => {
     const { phase } = current;
 
@@ -1444,9 +1457,7 @@ export function createKernel<Part extends object>(
     commit();
 
     if (phase === ACTIVE) {
-      driver.runLeaf(() => {
-        spec!.moved(current, lift!);
-      }, FAILURE_RENDERER_WRITE);
+      driver.runLeaf(runMoved, FAILURE_RENDERER_WRITE);
       return;
     }
 

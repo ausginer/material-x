@@ -30,13 +30,21 @@ export function createRealm(element: Element): DOMRealm {
     document,
     window: view,
     isElement(value): value is HTMLElement {
-      // Structural, cross-realm safe: an element from another realm is not an
-      // `instanceof this.window.HTMLElement`, so duck-type on `nodeType`.
-      return (
-        typeof value === 'object' &&
-        value !== null &&
-        (value as Node).nodeType === 1
-      );
+      // This realm first. `instanceof` is exact where a bare `nodeType === 1`
+      // test is not: that test accepts SVG and MathML elements, and any plain
+      // object carrying the property, all of which the `HTMLElement` return
+      // type claims they are not.
+      if (value instanceof view.HTMLElement) {
+        return true;
+      }
+
+      // Another realm's element is not `instanceof` *this* realm's constructor,
+      // so reach that realm's constructor through the node's own document
+      // rather than weakening the check to a duck-type.
+      const foreign = (value as Node | null | undefined)?.ownerDocument
+        ?.defaultView;
+
+      return foreign != null && value instanceof foreign.HTMLElement;
     },
   };
 }

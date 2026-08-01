@@ -3,11 +3,22 @@ import { draggable } from '../../src/drag.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  FAILURE_ACTIVATION,
+  FAILURE_INVALIDATION,
   FAILURE_RELEASE,
   FAILURE_REORDER_RESOLUTION,
   FAILURE_RENDERER_WRITE,
+  FAILURE_SCHEDULED_FRAME,
   type FailureStage,
 } from '../../src/kernel/failures.ts';
+import {
+  ACTIVATING,
+  ACTIVE,
+  FINALIZING,
+  RELEASING,
+  SETTLING,
+} from '../../src/kernel/phases.ts';
+import { createRealm } from '../../src/kernel/realm.ts';
 import type { LandingHandle, LandingStart } from '../../src/kernel/spec.ts';
 import { createSortableBehavior } from '../../src/sortable/behavior.ts';
 import type { SortableController } from '../../src/sortable/controller.ts';
@@ -21,12 +32,18 @@ import {
   type SortableCancelResult,
   type SortableFinishResult,
 } from '../../src/sortable/domain.ts';
+import { createSortableFramePart } from '../../src/sortable/frames.ts';
+import {
+  createSortableRuntime,
+  TAG_SPATIAL,
+} from '../../src/sortable/runtime.ts';
 import type {
   DisplacementView,
   InsertionFrameView,
   InsertionRuntimeView,
   SortableSlots,
 } from '../../src/sortable/slots.ts';
+import { createSortableSpec, STAGED } from '../../src/sortable/spec.ts';
 
 const POINTER_ID = 11;
 const ITEM_HEIGHT = 40;
@@ -58,6 +75,7 @@ type Overrides = Partial<
     | 'getHandle'
     | 'getVisual'
     | 'createPlaceholder'
+    | 'invalidateInsertion'
     | 'startLanding'
     | 'beforeMove'
     | 'afterMove'
@@ -141,9 +159,11 @@ function createHarness(overrides: Overrides = {}): Harness {
       queued = null;
       return insertion;
     },
-    invalidateInsertion(): void {
-      calls.push('invalidateInsertion');
-    },
+    invalidateInsertion:
+      overrides.invalidateInsertion ??
+      ((): void => {
+        calls.push('invalidateInsertion');
+      }),
     onReorder:
       overrides.onReorder ??
       ((request) => {
@@ -312,6 +332,25 @@ customElements.define(
 afterEach(() => {
   reentrantPlaceholderConnected = null;
 });
+
+/** The minimum a behavior needs; used where construction itself is the test. */
+const EMPTY_SLOTS: SortableSlots = {
+  resolveInsertion: () => null,
+  invalidateInsertion: (): void => {},
+  onReorder: () => ReorderResolution.accept(),
+  onStart: (): void => {},
+  createPlaceholder: null,
+  getHandle: null,
+  getVisual: null,
+  startLanding: null,
+  onFinish: (): void => {},
+  onCancel: (): void => {},
+  onError: (): void => {},
+  beforeMove: [],
+  afterMove: [],
+  retireHooks: [],
+  threshold: 8,
+};
 
 /** The item order in the DOM, placeholder included as `_`. */
 const order = (harness: Harness): string =>
@@ -1422,5 +1461,457 @@ describe('retirement', () => {
     release(40);
 
     expect(harness.finishes).toHaveLength(2);
+  });
+});
+
+describe('collection identity', () => {
+  it('should give two updates queued in one drain distinct versions', () => {
+    // Both replacements preserve the incumbent gap, so neither cancels; the
+    // only thing under test is the version each is stamped with. Queued from
+    // `onStart`, they append to a drain already running, so neither has
+    // published when the other is minted.
+    const harness = createHarness({
+      onStart(h): void {
+        h.controller.updateItems([h.items[0]!, h.items[1]!, h.items[2]!]);
+        h.controller.updateItems([h.items[0]!, h.items[1]!, h.items[2]!]);
+      },
+    });
+
+    activate(harness);
+    harness.next(null);
+    move(80);
+
+    return nextFrame().then(() => {
+      expect(harness.calls).not.toContain('onCancel');
+      expect(harness.snapshot().version).toBe(2);
+    });
+  });
+
+  it('should keep versions increasing across separate drains', () => {
+    const harness = createHarness();
+
+    harness.controller.updateItems([harness.items[0]!, harness.items[1]!]);
+    harness.controller.updateItems([harness.items[0]!, harness.items[2]!]);
+    activate(harness);
+    harness.next(null);
+    move(80);
+
+    return nextFrame().then(() => {
+      expect(harness.snapshot().version).toBe(2);
+    });
+  });
+
+  it('should refuse a duplicated element at construction', () => {
+    const root = document.createElement('div');
+    const item = document.createElement('div');
+
+    root.append(item);
+    document.body.append(root);
+    cleanup.push(() => root.remove());
+
+    expect(() =>
+      draggable(root, createSortableBehavior([item, item], EMPTY_SLOTS)),
+    ).toThrow(/same element twice/u);
+  });
+
+  it('should refuse a duplicated element in updateItems', () => {
+    const harness = createHarness();
+
+    expect(() =>
+      harness.controller.updateItems([harness.items[0]!, harness.items[0]!]),
+    ).toThrow(/same element twice/u);
+  });
+
+  it('should not queue an update it refused', () => {
+    const harness = createHarness();
+
+    activate(harness);
+
+    try {
+      harness.controller.updateItems([harness.items[1]!, harness.items[1]!]);
+    } catch {
+      // expected
+    }
+
+    harness.next(null);
+    move(80);
+
+    return nextFrame().then(() => {
+      expect(harness.snapshot().version).toBe(0);
+      expect(harness.calls).not.toContain('onCancel');
+    });
+  });
+
+  it('should not consume a version for an update it refused', () => {
+    // The refused call produced no snapshot, so it must not leave a gap in the
+    // sequence: the next *valid* update is the first collection that exists
+    // after the initial one, and it has to be numbered as such.
+    const harness = createHarness();
+
+    activate(harness);
+
+    expect(() =>
+      harness.controller.updateItems([harness.items[1]!, harness.items[1]!]),
+    ).toThrow(/same element twice/u);
+
+    harness.controller.updateItems([
+      harness.items[0]!,
+      harness.items[1]!,
+      harness.items[2]!,
+    ]);
+    harness.next(null);
+    move(80);
+
+    return nextFrame().then(() => {
+      expect(harness.snapshot().version).toBe(1);
+    });
+  });
+});
+
+describe('invalidation failure classification', () => {
+  it('should classify a scroll-time invalidation failure', () => {
+    // A native listener is not a seam, so this error used to reach neither
+    // `onError` nor the platform channel.
+    let armed = false;
+    const harness = createHarness({
+      invalidateInsertion: (): void => {
+        if (armed) {
+          throw new Error('invalidation failed');
+        }
+      },
+    });
+
+    activate(harness);
+    armed = true;
+    window.dispatchEvent(new Event('scroll'));
+
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_INVALIDATION,
+    ]);
+  });
+
+  it('should classify an activation-time invalidation failure as its own stage', () => {
+    // Not `FAILURE_ACTIVATION`: the surrounding seam would otherwise name the
+    // wrong thing in `DragErrorContext.stage`.
+    const harness = createHarness({
+      invalidateInsertion: (): void => {
+        throw new Error('invalidation failed');
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_INVALIDATION,
+    ]);
+  });
+
+  it('should not start an operation whose activation invalidation failed', () => {
+    const harness = createHarness({
+      invalidateInsertion: (): void => {
+        throw new Error('invalidation failed');
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.calls).not.toContain('onStart');
+  });
+
+  it('should classify a scheduling failure as SCHEDULED_FRAME', () => {
+    // `moved` is one callback with two stages; the kernel wrapper classifies
+    // the whole call as a renderer write, so scheduling narrows from inside.
+    const harness = createHarness();
+    const native = window.requestAnimationFrame;
+
+    // Activation itself schedules nothing; the first *active* sample does.
+    activate(harness);
+    window.requestAnimationFrame = (): number => {
+      throw new Error('no frames');
+    };
+
+    try {
+      move(80);
+    } finally {
+      window.requestAnimationFrame = native;
+    }
+
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_SCHEDULED_FRAME,
+    ]);
+  });
+});
+
+describe('placeholder factory results', () => {
+  it('should refuse the dragged item as its own placeholder', () => {
+    const harness = createHarness({
+      createPlaceholder: ({ item }) => item,
+    });
+
+    activate(harness);
+
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_ACTIVATION,
+    ]);
+  });
+
+  it('should leave the dragged item in the document when it was refused', () => {
+    // The teardown disposer removes whatever was adopted as the placeholder.
+    // Adopting the item therefore *deleted* it once the drag ended.
+    const harness = createHarness({
+      createPlaceholder: ({ item }) => item,
+    });
+
+    activate(harness);
+    release(40);
+
+    expect(harness.root.contains(harness.items[0]!)).toBe(true);
+  });
+
+  it('should refuse the lifted visual as the placeholder', () => {
+    const harness = createHarness({
+      createPlaceholder: ({ visual }) => visual,
+    });
+
+    activate(harness);
+
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_ACTIVATION,
+    ]);
+  });
+
+  it('should refuse a node that is already in the document', () => {
+    const outside = document.createElement('div');
+
+    document.body.append(outside);
+    cleanup.push(() => outside.remove());
+
+    const harness = createHarness({
+      createPlaceholder: () => outside,
+    });
+
+    activate(harness);
+
+    expect(outside.parentElement).toBe(document.body);
+  });
+
+  it('should refuse a result that is not an element', () => {
+    const harness = createHarness({
+      createPlaceholder: () => ({}) as unknown as HTMLElement,
+    });
+
+    activate(harness);
+
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_ACTIVATION,
+    ]);
+  });
+
+  it('should clear a stale slot when the item has none', () => {
+    const harness = createHarness({
+      createPlaceholder: (): HTMLElement => {
+        const element = document.createElement('div');
+
+        element.setAttribute('slot', 'stale');
+        return element;
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.placeholder()!.hasAttribute('slot')).toBe(false);
+  });
+
+  it('should mirror the slot the item does have', () => {
+    const harness = createHarness({
+      createPlaceholder: (): HTMLElement => {
+        const element = document.createElement('div');
+
+        element.setAttribute('slot', 'stale');
+        return element;
+      },
+    });
+
+    harness.items[0]!.setAttribute('slot', 'list');
+    activate(harness);
+
+    expect(harness.placeholder()!.getAttribute('slot')).toBe('list');
+  });
+});
+
+describe('inert placeholder movement', () => {
+  it('should not run the move pipeline for an already-correct gap', async () => {
+    const seen: string[] = [];
+    const harness = createHarness({
+      beforeMove: [(): void => void seen.push('before')],
+      afterMove: [(): void => void seen.push('after')],
+    });
+
+    activate(harness);
+    await nextFrame();
+    expect(order(harness)).toBe('0_12');
+
+    const snapshot = harness.snapshot();
+    const destination = snapshot.items.filter(
+      (item) => item !== harness.items[0]!,
+    );
+
+    seen.length = 0;
+    harness.calls.length = 0;
+    // Exactly the gap the placeholder already occupies.
+    harness.next({
+      version: snapshot.version,
+      index: 0,
+      before: null,
+      after: destination[0]!,
+    });
+    move(90);
+    await nextFrame();
+
+    expect(seen).toEqual([]);
+  });
+
+  it('should not invalidate geometry for an already-correct gap', async () => {
+    const harness = createHarness();
+
+    activate(harness);
+    await nextFrame();
+
+    const snapshot = harness.snapshot();
+    const destination = snapshot.items.filter(
+      (item) => item !== harness.items[0]!,
+    );
+
+    harness.calls.length = 0;
+    harness.next({
+      version: snapshot.version,
+      index: 0,
+      before: null,
+      after: destination[0]!,
+    });
+    move(90);
+    await nextFrame();
+
+    expect(harness.calls).not.toContain('invalidateInsertion');
+  });
+
+  it('should still run the move pipeline for a real move', async () => {
+    const seen: string[] = [];
+    const harness = createHarness({
+      beforeMove: [(): void => void seen.push('before')],
+      afterMove: [(): void => void seen.push('after')],
+    });
+
+    activate(harness);
+    await nextFrame();
+
+    seen.length = 0;
+    harness.next(harness.gap(2));
+    move(90);
+    await nextFrame();
+
+    expect(order(harness)).toBe('012_');
+    expect(seen).toEqual(['before', 'after']);
+  });
+});
+
+describe('the spatial action legality guard', () => {
+  /**
+   * Driven directly, because no producer can reach the illegal phases: the
+   * frame task is cancelled when motion closes at release, and nothing else
+   * dispatches this tag. The guard exists so that a future producer — a
+   * replayed action, a flush from a hook — cannot commit a placeholder move
+   * into a transaction that is already decided.
+   */
+  const prepareSpatialAt = (phase: number): unknown => {
+    const root = document.createElement('div');
+    const item = document.createElement('div');
+
+    root.append(item);
+    document.body.append(root);
+    cleanup.push(() => root.remove());
+
+    let resolved = 0;
+    const rt = createSortableRuntime(
+      {
+        realm: createRealm(root),
+        root,
+        dispatch: (): void => {},
+        fail: (): void => {},
+        cancel: (): void => {},
+        destroy: (): void => {},
+      },
+      [item],
+      {
+        ...EMPTY_SLOTS,
+        resolveInsertion: () => {
+          resolved += 1;
+          return { version: 0, index: 0, before: null, after: null };
+        },
+      },
+    );
+
+    // A live presentation and a matching attempt, so the *only* thing that can
+    // discard the action is the phase.
+    rt.view = {
+      realm: rt.host.realm,
+      placeholder: item,
+      snapshot: rt.snapshot,
+    };
+    rt.pendingSpatial = 1;
+
+    const spec = createSortableSpec(rt);
+    const draft = {
+      ...createSortableFramePart(),
+      phase,
+      snapshot: rt.snapshot,
+      item,
+    } as unknown as Parameters<typeof spec.action.prepare>[2];
+
+    return { staged: spec.action.prepare(TAG_SPATIAL, 1, draft), resolved };
+  };
+
+  it('should stage a spatial action at ACTIVE', () => {
+    expect(prepareSpatialAt(ACTIVE)).toEqual({ staged: STAGED, resolved: 1 });
+  });
+
+  it('should discard a spatial action at RELEASING', () => {
+    expect(prepareSpatialAt(RELEASING)).toEqual({ staged: null, resolved: 0 });
+  });
+
+  it('should discard a spatial action at SETTLING', () => {
+    expect(prepareSpatialAt(SETTLING)).toEqual({ staged: null, resolved: 0 });
+  });
+
+  it('should discard a spatial action at FINALIZING', () => {
+    expect(prepareSpatialAt(FINALIZING)).toEqual({ staged: null, resolved: 0 });
+  });
+
+  it('should discard a spatial action at ACTIVATING', () => {
+    expect(prepareSpatialAt(ACTIVATING)).toEqual({ staged: null, resolved: 0 });
+  });
+});
+
+describe('the hoisted move leaf', () => {
+  it('should read the live frame and lift on a second operation', () => {
+    // The active-movement leaf is one controller-stable closure now. It stays
+    // correct only because it reads the swappable `current` and `lift` slots at
+    // call time rather than capturing them.
+    const harness = createHarness();
+
+    // The first operation must actually *move* while active, so the leaf has
+    // already run once with the first operation's lift before the second
+    // operation swaps it.
+    activate(harness);
+    move(90);
+    release(90);
+
+    press(harness.items[1]!);
+    move(40);
+    move(120);
+
+    expect(harness.started).toEqual([harness.items[0]!, harness.items[1]!]);
+    expect(harness.items[1]!.style.transform).not.toBe('');
+    expect(harness.items[0]!.style.transform).toBe('');
   });
 });
