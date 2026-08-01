@@ -22,6 +22,36 @@ export type CollectionChange =
   | Readonly<{ type: typeof CHANGE_REBASE; insertion: Insertion }>
   | Readonly<{ type: typeof CHANGE_CANCEL }>;
 
+/**
+ * The collection's **identity precondition**, enforced at every boundary that
+ * mints a snapshot.
+ *
+ * Element identity *is* the collection's key: `destinationOf` filters every
+ * occurrence of the dragged item while `buildReorderProposal` takes `from`
+ * from `indexOf`, the first. A duplicate therefore puts `from` and `to` in
+ * index spaces of different size, and the `{ from, to }` pair handed to
+ * `onReorder` cannot be applied coherently to the consumer's own array. There
+ * is no correct behaviour to define for that input, so it is refused where the
+ * caller can still see which call was wrong.
+ *
+ * Shallow-copies as it validates — one pass, one array, one set — because
+ * every caller needs the copy anyway: a caller that keeps mutating its own
+ * array must not be able to change a snapshot already queued.
+ */
+export function copyUniqueItems(
+  items: readonly HTMLElement[],
+): readonly HTMLElement[] {
+  const copy = [...items];
+
+  if (new Set(copy).size !== copy.length) {
+    throw new TypeError(
+      'drag: the sortable collection must not contain the same element twice',
+    );
+  }
+
+  return copy;
+}
+
 /** The snapshot minus the dragged item, in order. */
 const destinationOf = (
   snapshot: CollectionSnapshot,

@@ -7,8 +7,10 @@
  * the kernel owns — those are properties of the arguments, not of discipline.
  */
 import {
+  FAILURE_INVALIDATION,
   FAILURE_RELEASE,
   FAILURE_REORDER_RESOLUTION,
+  FAILURE_SCHEDULED_FRAME,
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
 } from '../kernel/failures.ts';
@@ -60,8 +62,17 @@ import {
   resetSortableFramePart,
   type SortableFramePart,
 } from './frames.ts';
-import { createPlaceholder, movePlaceholder } from './placement.ts';
-import { type SortableRuntime, TAG_SPATIAL } from './runtime.ts';
+import {
+  createPlaceholder,
+  movePlaceholder,
+  placeholderAt,
+} from './placement.ts';
+import {
+  SORTABLE_ACTION_TAGS,
+  type SortableRuntime,
+  TAG_INVALIDATION,
+  TAG_SPATIAL,
+} from './runtime.ts';
 
 /** What `action.prepare(COLLECTION)` stages. It never discards (D-25). */
 type PreparedCollection = Readonly<{
@@ -71,7 +82,12 @@ type PreparedCollection = Readonly<{
 }>;
 
 /** A staged value that carries nothing. */
-const STAGED = true;
+/**
+ * The spatial action's staged value. Exported so the legality guard can be
+ * driven directly in a test: no producer can reach the illegal phases, so the
+ * guard is otherwise unobservable.
+ */
+export const STAGED = true;
 
 const rejection = (stage: FailureStage, message: string): SeamRejection => ({
   stage,
@@ -89,11 +105,56 @@ export function createSortableSpec(
   /**
    * The failure the open settlement seam is reporting, handed from `prepare` to
    * `effect` because `PreparedSettlement` carries only the readiness promise.
-   * Safe as a slot: seams are non-reentrant, and the kernel drives exactly one
-   * settlement at a time.
+   *
+   * **This is an accepted out-of-band channel, not an oversight** — reviewed
+   * and deliberately kept rather than widening the frozen `PreparedSettlement`
+   * (checkpoint A, A-13). What makes it transaction-safe is not "seams do not
+   * currently re-enter" but a stronger, enforced property:
+   *
+   * 1. `runCore` is the only driver of this seam and always runs `prepare`
+   *    before `effect`, and `prepare` **clears the slot on entry** (below).
+   *    So a value can only ever be read by the effect of the very transaction
+   *    whose prepare wrote it — there is no window in which one settlement's
+   *    effect could observe another's failure.
+   * 2. Every path that abandons a transaction between the two phases —
+   *    `prepare` returning a `SeamRejection`, `SEAM_INVALIDATED` from a held
+   *    cancel latch, a reentrant `destroy()` — skips the effect and therefore
+   *    leaves the slot set; the *next* prepare's clear is what collects it.
+   *    Staleness is impossible by construction, not by timing.
+   * 3. The driver refuses a nested seam outright (`refuseReentry`), so no
+   *    third party can interleave a write between the pair.
+   *
+   * The cost of the alternative is a change to a frozen SPI type with no
+   * failing executable case behind it, which contract 00 forbids. Revisit only
+   * if a real case appears; the invariant to preserve if this is ever touched
+   * is (1) — **prepare must clear before it can write**.
    */
   let pendingFailure: Readonly<{ stage: FailureStage; error: unknown }> | null =
     null;
+
+  /**
+   * `invalidateInsertion()` narrowed to its own stage.
+   *
+   * Every call site below is inside a kernel-driven seam, so the surrounding
+   * phase would otherwise classify a throw as *its* stage — an activation
+   * failure, a placeholder-move failure — and `DragErrorContext.stage` would
+   * name the wrong thing. `host.fail` narrows from the inside, which is the
+   * mechanism the contract specifies for exactly this (contract 02 §Failure
+   * classification: `INVALIDATION` (home)).
+   *
+   * Returns whether it succeeded, because the latched failure already decides
+   * the seam's outcome: a caller that would go on to publish or to notify must
+   * stop instead.
+   */
+  const invalidateInSeam = (): boolean => {
+    try {
+      slots.invalidateInsertion();
+      return true;
+    } catch (error) {
+      host.fail(FAILURE_INVALIDATION, error);
+      return false;
+    }
+  };
 
   /** The gap the item came from, recomputed rather than stored. */
   const homeGap = (frame: Readonly<Frame<SortableFramePart>>): void => {
@@ -112,7 +173,7 @@ export function createSortableSpec(
       threshold: slots.threshold,
       liftMode: LIFT_FLAT,
       readinessTimeout: 500,
-      actionTags: 2,
+      actionTags: SORTABLE_ACTION_TAGS,
     },
 
     // -----------------------------------------------------------------------
@@ -195,16 +256,48 @@ export function createSortableSpec(
         });
         current.item!.after(placeholder);
 
+        // `after()` **connects** the placeholder, and a custom element's
+        // `connectedCallback` runs synchronously inside that call. It is
+        // consumer code — the placeholder may come from a `placeholder()`
+        // factory — reached from a plain DOM write, so no seam wraps it and no
+        // reentrancy guard above sees it. If it destroyed the controller,
+        // teardown has already run to completion: the disposer registered on
+        // the line above removed this node, motion and presentation are closed,
+        // and the operation is retired. Everything below would then register
+        // against closed lifetimes (releasing immediately and reporting),
+        // republish this operation's DOM into the runtime for the *next* drag
+        // to find, and call `onStart` after `destroy()` returned — the
+        // synchronous terminal barrier I-6 forbids crossing (D-26).
+        if (scope.presentation.signal.aborted) {
+          return;
+        }
+
         // Listeners bound to the signal are self-releasing, so the signal *is*
         // the registration; the explicit disposer cancels a scheduled frame.
         scope.motion.use(rt.frame.cancel);
-        invalidate(scope.motion.signal, slots.invalidateInsertion);
+        invalidate(scope.motion.signal, () => {
+          try {
+            slots.invalidateInsertion();
+          } catch (error) {
+            // A native scroll/resize listener is **not** a seam, so `host.fail`
+            // here would be downgraded to a platform report and the stage would
+            // never reach `onError` — one input path silently bypassing the
+            // classified-failure mechanism entirely. Queuing it as a behavior
+            // action gives it a seam: the action's own `prepare` runs against
+            // the live operation, which is where `FAILURE_INVALIDATION` can be
+            // classified with the recovery the contract gives it.
+            host.dispatch(TAG_INVALIDATION, error);
+          }
+        });
 
         // 3 — every resource above is now owned.
         rt.placeholder = placeholder;
         rt.lift = scope.lift;
         rt.view = { realm, placeholder, snapshot: current.snapshot! };
-        slots.invalidateInsertion();
+
+        if (!invalidateInSeam()) {
+          return; // classified; the operation is failing, so do not start it
+        }
 
         // 4 — last, because it may reentrantly cancel or destroy.
         slots.onStart(current.item!);
@@ -220,10 +313,19 @@ export function createSortableSpec(
         current.pointerX - current.originX,
         current.pointerY - current.originY,
       );
-      // Rendering and scheduling are one callback with two stages. The spatial
-      // search is coalesced to one per frame; pointer input never is.
+      // Rendering and scheduling are one callback with **two stages**. The
+      // kernel's wrapper classifies the whole call `FAILURE_RENDERER_WRITE`, so
+      // the scheduling half narrows from the inside — otherwise a scheduling
+      // failure is reported to the consumer as a render failure and
+      // `FAILURE_SCHEDULED_FRAME` has no producer at all (contract 02 §F-40).
+      // The spatial search is coalesced to one per frame; pointer input is not.
       rt.spatialSeq += 1;
-      rt.frame.schedule(rt.spatialSeq);
+
+      try {
+        rt.frame.schedule(rt.spatialSeq);
+      } catch (error) {
+        host.fail(FAILURE_SCHEDULED_FRAME, error);
+      }
     },
 
     // -----------------------------------------------------------------------
@@ -232,6 +334,14 @@ export function createSortableSpec(
 
     action: {
       prepare(tag, argument, draft) {
+        if (tag === TAG_INVALIDATION) {
+          // Re-raised where it can be classified; see the listener in
+          // `activation.effect`. `host.fail` latches, so the seam ends as a
+          // failure and the `null` below is never the deciding value.
+          host.fail(FAILURE_INVALIDATION, argument);
+          return null;
+        }
+
         if (tag === TAG_SPATIAL) {
           // The applied half of the double validation (I-4). The `view` test is
           // what bites today; the attempt comparison is unreachable as things
@@ -240,7 +350,20 @@ export function createSortableSpec(
           // it applies. It is kept because the contract states the check, and
           // because anything that later queues a spatial action from outside
           // the frame task reopens the window it closes.
-          if (argument !== rt.pendingSpatial || rt.view === null) {
+          // The legality table declares the spatial action inert outside
+          // `ACTIVE`, and `rt.view` cannot stand in for that: it is cleared
+          // only at retirement, so it stays non-null through `RELEASING`,
+          // `SETTLING` and `FINALIZING`. No producer can reach those phases
+          // today — the frame task is cancelled when motion closes at release,
+          // and no other call site dispatches this tag — so this guard is
+          // unreachable by construction rather than by luck. It is here so
+          // that a future producer (a replayed action, a flush from a hook)
+          // cannot commit a placeholder move into a decided transaction.
+          if (
+            draft.phase !== ACTIVE ||
+            argument !== rt.pendingSpatial ||
+            rt.view === null
+          ) {
             return null;
           }
 
@@ -306,15 +429,30 @@ export function createSortableSpec(
 
       effect(tag, _argument, current, prepared) {
         if (tag === TAG_SPATIAL) {
+          const placeholder = rt.placeholder!;
+          const insertion = current.insertion!;
+
+          // Decided **before** the hooks run, not by the writer's return value.
+          // The pipelines bracket the write, so a `beforeMove` hook that
+          // measures the whole list would otherwise be paid in full for a write
+          // that never happens — and with `layoutAnimation()` that is two
+          // list-wide measurements and a cache rebuild per inert frame. An
+          // already-correct gap is the common case, not the rare one.
+          if (placeholderAt(placeholder, insertion)) {
+            return;
+          }
+
           const view = rt.view!;
 
-          // The pipelines bracket the single writer of placeholder position.
           for (const hook of slots.beforeMove) {
             hook(view);
           }
 
-          movePlaceholder(rt.placeholder!, current.insertion!);
-          slots.invalidateInsertion();
+          movePlaceholder(placeholder, insertion);
+
+          if (!invalidateInSeam()) {
+            return; // classified; the geometry the hooks would read is stale
+          }
 
           for (const hook of slots.afterMove) {
             hook(view);
@@ -336,7 +474,11 @@ export function createSortableSpec(
         }
 
         if (phase === ACTIVATING || phase === ACTIVE) {
-          slots.invalidateInsertion();
+          // Not gated on success: publication already happened above, and the
+          // consumer's update must never be thrown away by a failing
+          // invalidation (D-25, F-28). The latched failure still decides the
+          // seam.
+          invalidateInSeam();
         }
 
         // Last, and only after publication: an invalid collection ends the
@@ -366,7 +508,9 @@ export function createSortableSpec(
         }
 
         // Motion is already closed, so this search runs against final geometry.
-        slots.invalidateInsertion();
+        if (!invalidateInSeam()) {
+          return { invoke: null };
+        }
 
         const insertion =
           slots.resolveInsertion(draft, view) ?? draft.insertion;

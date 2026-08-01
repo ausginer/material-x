@@ -39,7 +39,13 @@ function applyMechanics(
 
   const slot = item.getAttribute('slot');
 
-  if (slot !== null) {
+  // Mirrored, not merely copied. A custom placeholder may arrive carrying a
+  // `slot` of its own; leaving that in place when the item has none puts the
+  // footprint in a different slot from the item it stands for, which is the
+  // opposite of "inherits the item's slot".
+  if (slot === null) {
+    placeholder.removeAttribute('slot');
+  } else {
     placeholder.setAttribute('slot', slot);
   }
 
@@ -59,17 +65,68 @@ export function createPlaceholder(
   rect: DOMRectReadOnly,
   factory: PlaceholderFactory | null,
 ): HTMLElement {
-  const placeholder = factory
-    ? factory({ item, visual, rect })
-    : realm.document.createElement('div');
+  if (factory === null) {
+    const placeholder = realm.document.createElement('div');
+
+    applyMechanics(placeholder, item, visual);
+    return placeholder;
+  }
+
+  const placeholder = factory({ item, visual, rect });
+
+  // The factory is consumer code and its result is **adopted**: activation
+  // inserts it, every move relocates it, and teardown removes it. So returning
+  // the dragged item, its visual, or any node already in the document hands
+  // the library ownership of something the page owns — and the teardown
+  // removal then deletes it. Refused here, inside `activation.prepare`, where
+  // the seam classifies it as `FAILURE_ACTIVATION` and nothing has been
+  // inserted yet; the alternative is discovering it later as DOM corruption
+  // with no way to attribute it.
+  if (
+    !realm.isElement(placeholder) ||
+    placeholder === item ||
+    placeholder === visual ||
+    placeholder.isConnected
+  ) {
+    throw new TypeError(
+      'drag: placeholder() must return a detached element that is neither the dragged item nor its visual',
+    );
+  }
 
   applyMechanics(placeholder, item, visual);
   return placeholder;
 }
 
 /**
- * Moves the placeholder into `insertion`, and **does nothing when it is already
- * there**.
+ * Whether the placeholder already occupies `insertion`.
+ *
+ * Exported because inertness has to be decidable *before* the move: the move
+ * pipeline brackets the write with `beforeMove`/`afterMove` hooks, and a hook
+ * that measures the whole list must not be paid for a write that will not
+ * happen (contract 06 §the writer reports whether a move occurred).
+ */
+export function placeholderAt(
+  placeholder: HTMLElement,
+  insertion: Insertion,
+): boolean {
+  const { after, before } = insertion;
+
+  if (after !== null) {
+    return after.previousElementSibling === placeholder;
+  }
+
+  // An empty destination view: there is no gap to express, so the placeholder
+  // is trivially where it belongs.
+  if (before === null) {
+    return true;
+  }
+
+  return before.nextElementSibling === placeholder;
+}
+
+/**
+ * Moves the placeholder into `insertion` and reports **whether it moved**;
+ * does nothing when it is already there.
  *
  * Anchored on `after`, with an append fallback for an end gap. Probe 1's
  * `before?.after(…)` was a silent no-op for a start gap, where `before` is
@@ -83,22 +140,18 @@ export function createPlaceholder(
 export function movePlaceholder(
   placeholder: HTMLElement,
   insertion: Insertion,
-): void {
-  const { after, before } = insertion;
+): boolean {
+  if (placeholderAt(placeholder, insertion)) {
+    return false;
+  }
+
+  const { after } = insertion;
 
   if (after !== null) {
-    if (after.previousElementSibling !== placeholder) {
-      after.before(placeholder);
-    }
-
-    return;
+    after.before(placeholder);
+  } else {
+    insertion.before!.after(placeholder);
   }
 
-  if (before === null) {
-    return; // an empty destination view: there is no gap to express
-  }
-
-  if (before.nextElementSibling !== placeholder) {
-    before.after(placeholder);
-  }
+  return true;
 }
