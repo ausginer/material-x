@@ -15,13 +15,20 @@ import { createFrameTask, type FrameTask } from '../kernel/invalidation.ts';
 import type { VisualLiftSession } from '../kernel/presentation.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { KernelHost } from '../kernel/spec.ts';
+import { copyUniqueItems } from './collection.ts';
 import type { CollectionSnapshot } from './domain.ts';
 import type { SortableSlots } from './slots.ts';
 
 /** Behavior action tags. Behavior-local: the kernel offsets them. */
 export const TAG_SPATIAL = 0;
 export const TAG_COLLECTION = 1;
-export const SORTABLE_ACTION_TAGS = 2;
+/**
+ * Carries an invalidation failure raised from a native scroll/resize listener
+ * back into a seam, which is the only place a stage can be classified. Never
+ * dispatched on a healthy drag.
+ */
+export const TAG_INVALIDATION = 2;
+export const SORTABLE_ACTION_TAGS = 3;
 
 /**
  * The one per-operation object both feature views bind to. It exists because
@@ -90,9 +97,11 @@ export function createSortableRuntime(
     host,
     slots,
     frame,
-    // Shallow-copied, so a caller mutating its own array cannot change a
-    // snapshot the behavior has already published.
-    snapshot: { items: [...items], version: 0 },
+    // Copied *and* validated, so a caller mutating its own array cannot change
+    // a snapshot the behavior has already published, and the identity
+    // precondition holds from construction rather than only from the first
+    // `updateItems`.
+    snapshot: { items: copyUniqueItems(items), version: 0 },
     view: null,
     placeholder: null,
     lift: null,

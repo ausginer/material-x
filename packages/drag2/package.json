@@ -8,7 +8,8 @@
     "drag.d.ts",
     "sortable.js",
     "sortable.d.ts",
-    "sortable"
+    "sortable",
+    "kernel"
   ],
   "type": "module",
   "exports": {

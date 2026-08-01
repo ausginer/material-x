@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   acquireLift,
+  acquireTopLayer,
   LIFT_FAITHFUL,
   LIFT_FLAT,
   LIFT_IN_PLACE,
@@ -10,6 +11,22 @@ import { createRealm } from '../../src/kernel/realm.ts';
 
 const created: HTMLElement[] = [];
 const sessions: VisualLiftSession[] = [];
+
+type Reporting = { reportError?(error: unknown): void };
+
+/** The best-effort channel: a rollback that fails on its way out. */
+let reported: unknown[] = [];
+
+beforeEach(() => {
+  reported = [];
+  (globalThis as Reporting).reportError = (error): void => {
+    reported.push(error);
+  };
+});
+
+afterEach(() => {
+  delete (globalThis as Reporting).reportError;
+});
 
 afterEach(() => {
   for (const session of sessions.splice(0)) {
@@ -202,5 +219,173 @@ describe('in-place projection', () => {
 
     expect(moved.x).toBeCloseTo(30, 1);
     expect(moved.y).toBeCloseTo(0, 1);
+  });
+});
+
+describe('acquireLift cleanup', () => {
+  it('should restore the inline styles when top-layer acquisition throws', () => {
+    // A lift is all-or-nothing. The style lease is taken before the visual is
+    // mutated, but the *caller* only receives it through the returned session —
+    // so a throw after the mutation and before the return would leave the
+    // visual restyled with nothing left that could ever restore it.
+    const visual = createBox();
+
+    visual.showPopover = (): void => {
+      throw new Error('no top layer');
+    };
+
+    expect(() =>
+      acquireLift(
+        visual,
+        LIFT_FLAT,
+        visual.getBoundingClientRect(),
+        createRealm(visual),
+      ),
+    ).toThrow('no top layer');
+
+    expect(visual.style.position).toBe('absolute');
+    expect(visual.style.width).toBe('80px');
+  });
+
+  it('should restore the inline styles when the top-layer release throws', () => {
+    // The composite disposer releases the top layer first. That is consumer-
+    // adjacent DOM state — a popover the page also drives — and a throw there
+    // must not cost the visual its authored `position`, `width` and `transform`
+    // permanently.
+    const visual = createBox();
+    const session = acquireLift(
+      visual,
+      LIFT_FLAT,
+      visual.getBoundingClientRect(),
+      createRealm(visual),
+    );
+
+    visual.hidePopover = (): void => {
+      throw new Error('no hide');
+    };
+
+    expect(() => session.dispose()).toThrow('no hide');
+    expect(visual.style.position).toBe('absolute');
+    expect(visual.style.transform).toBe('');
+  });
+});
+
+describe('acquireTopLayer rollback', () => {
+  it('should leave no popover attribute when showPopover throws on a plain element', () => {
+    // Promotion is two writes. Setting `popover` lands first, and until the
+    // function returns there is no disposer that could undo it.
+    const visual = createBox();
+
+    visual.showPopover = (): void => {
+      throw new Error('cannot promote');
+    };
+
+    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(visual.hasAttribute('popover')).toBe(false);
+  });
+
+  it('should restore the authored popover attribute when showPopover throws', () => {
+    const visual = createBox();
+
+    visual.setAttribute('popover', 'auto');
+    visual.showPopover = (): void => {
+      throw new Error('cannot promote');
+    };
+
+    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(visual.getAttribute('popover')).toBe('auto');
+  });
+
+  it('should keep the acquisition error primary when the rollback also throws', () => {
+    // The rollback re-enters the very API that failed: restoring a
+    // previously-open popover *is* another `showPopover()`. The acquisition
+    // error is the one that explains why the lift was refused.
+    const visual = createBox();
+    let calls = 0;
+
+    visual.setAttribute('popover', 'auto');
+    visual.showPopover();
+    visual.showPopover = (): void => {
+      calls += 1;
+      throw new Error(calls === 1 ? 'cannot promote' : 'cannot restore');
+    };
+
+    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    // Both calls happened: the acquisition and the reopen the rollback tried.
+    expect(calls).toBe(2);
+  });
+
+  it('should report a throwing rollback through the best-effort channel', () => {
+    const visual = createBox();
+    let calls = 0;
+
+    visual.setAttribute('popover', 'auto');
+    visual.showPopover();
+    visual.showPopover = (): void => {
+      calls += 1;
+      throw new Error(calls === 1 ? 'cannot promote' : 'cannot restore');
+    };
+
+    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(reported.map((error) => (error as Error).message)).toEqual([
+      'cannot restore',
+    ]);
+  });
+
+  it('should restore the popover attribute even when the rollback throws', () => {
+    // The reopen is the last rollback step, so everything before it must have
+    // landed before the throw escaped.
+    const visual = createBox();
+    let calls = 0;
+
+    visual.setAttribute('popover', 'auto');
+    visual.showPopover();
+    visual.showPopover = (): void => {
+      calls += 1;
+      throw new Error(calls === 1 ? 'cannot promote' : 'cannot restore');
+    };
+
+    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(visual.getAttribute('popover')).toBe('auto');
+  });
+});
+
+describe('acquireTopLayer release', () => {
+  it('should reopen a popover the page had already opened', () => {
+    const visual = createBox();
+
+    visual.setAttribute('popover', 'auto');
+    visual.showPopover();
+    acquireTopLayer(visual)();
+
+    expect(visual.getAttribute('popover')).toBe('auto');
+    expect(visual.matches(':popover-open')).toBe(true);
+  });
+
+  it('should restore a previously-open popover exactly once', () => {
+    // The disposer is now reachable twice — from the acquisition catch and
+    // from the presentation lifetime — so the latch carries real weight. It
+    // cannot be observed through the *end state*, because restoring twice
+    // lands on the same state; what a second pass costs is a redundant
+    // close/reopen, two more top-layer transitions on a popover the page owns.
+    const visual = createBox();
+
+    visual.setAttribute('popover', 'auto');
+    visual.showPopover();
+
+    const dispose = acquireTopLayer(visual);
+    const nativeHide = HTMLElement.prototype.hidePopover;
+    let hides = 0;
+
+    visual.hidePopover = function hidePopover(): void {
+      hides += 1;
+      nativeHide.call(this);
+    };
+
+    dispose();
+    dispose();
+
+    expect(hides).toBe(1);
+    expect(visual.matches(':popover-open')).toBe(true);
   });
 });
