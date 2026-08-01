@@ -1,0 +1,69 @@
+{
+  "name": "@ydinjs/drag2",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "files": [
+    "drag.js",
+    "drag.d.ts",
+    "sortable.js",
+    "sortable.d.ts",
+    "sortable"
+  ],
+  "type": "module",
+  "exports": {
+    "./drag.js": {
+      "types": "./drag.d.ts",
+      "default": "./drag.js"
+    },
+    "./sortable.js": {
+      "types": "./sortable.d.ts",
+      "default": "./sortable.js"
+    },
+    "./sortable/vertical.js": {
+      "types": "./sortable/vertical.d.ts",
+      "default": "./sortable/vertical.js"
+    },
+    "./sortable/callbacks.js": {
+      "types": "./sortable/callbacks.d.ts",
+      "default": "./sortable/callbacks.js"
+    },
+    "./sortable/placeholder.js": {
+      "types": "./sortable/placeholder.d.ts",
+      "default": "./sortable/placeholder.js"
+    },
+    "./sortable/handle.js": {
+      "types": "./sortable/handle.d.ts",
+      "default": "./sortable/handle.js"
+    },
+    "./sortable/landing.js": {
+      "types": "./sortable/landing.d.ts",
+      "default": "./sortable/landing.js"
+    },
+    "./sortable/layout-animation.js": {
+      "types": "./sortable/layout-animation.d.ts",
+      "default": "./sortable/layout-animation.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "just build",
+    "clean:build": "just clean-build",
+    "docs:api:prepare": "just docs-api-prepare",
+    "docs:api:build": "just docs-api-build",
+    "typecheck": "just typecheck",
+    "fmt": "just fmt",
+    "fmt:check": "just fmt-check",
+    "lint": "just lint",
+    "lint:fix": "just lint-fix",
+    "test": "just test",
+    "size": "just size"
+  },
+  "dependencies": {
+    "@ydinjs/box-quad": "0.1.0"
+  },
+  "devDependencies": {
+    "size-limit": "12.1.0",
+    "size-limit-preset-rolldown": "0.1.0"
+  }
+}

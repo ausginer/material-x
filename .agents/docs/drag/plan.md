@@ -76,7 +76,23 @@ retrofitting it after the modules exist reliably reintroduces an eager barrel.
 | `reporter.ts` | Platform reporter — the best-effort channel (disposer failures, late holds, quality-path throws) | 02 §Failure on the quality track |
 | `errors.ts` | `FailureStage` closed union + constants (**public**), `CancelStage` (**public**), stage→recovery table | 02 §Failure classification, D-31 |
 | `presentation.ts` | `VisualLiftSession`: acquire, `composeXY`, `write`, latched style restore, lift modes | 01 ownership table |
-| `pointer.ts`, `coordinate.ts`, `invalidation.ts`, `animation.ts` | Ported unchanged in behaviour | — |
+| `pointer.ts`, `invalidation.ts` | Ported unchanged in behaviour | — |
+
+**Geometry comes from `@ydinjs/box-quad`, not a ported coordinate walker.**
+box-quad was written after the shipped drag package and is a strictly better
+version of the same traversal — flat-tree (shadow-DOM aware), honest about 3D
+instead of silently flattening it, origin derived from `getClientRects()` rather
+than offsetParent arithmetic, with a caller-owned cache. Its API was reshaped
+for this (both packages are pre-alpha, all call sites ours) into one DOM
+measurement and one pure projection: `coordinates(element, out, recache?)`
+writes the canonical `Box` — element→viewport matrix, untransformed border-box
+size, ancestor zoom — and `projection(source, out, relativeTo?)` is scalar-only
+basis conversion with no DOM access. drag2 has no coordinate module.
+
+The shipped `animation.ts` is **not** ported here. It is the WAAPI helper the
+landing runner needs, and pulling it into the kernel would put an optional
+feature's dependency in the always-present layer. It lands with `landing()` in
+phase 8b.
 
 **Contract-driven changes vs the shipped versions.**
 
@@ -138,8 +154,16 @@ piece every later phase depends on and the one four separate findings
   error)` classified only inside a seam of the current operation, downgraded to
   a platform report otherwise (D-28, F-23).
 - Per-seam wrappers with their **own** discard and failure policies (the
-  four-row table in 02 §The core returns an outcome). Written now as thin
-  functions with the lifecycle hooks stubbed; Phases 4–5 fill them in.
+  four-row table in 02 §The core returns an outcome).
+
+  **Revised while implementing:** these landed as higher-order policies taking
+  their continuations as callbacks (`runActivationSeam(driver, transition,
+  capability, stage, { retire, committed })`), not as stubs. That is the real
+  policy, fully testable against a fake now, and phase 4 supplies the actual
+  callbacks — where a stub would have been speculative code. The settlement row
+  is **not** here: its policy is "seal, then discard every unarmed request",
+  which needs the settlement attempt, so it lands with phase 5. The `action`
+  row is `runCore` plus a per-tag stage and needs no wrapper.
 - `rollback` throw = best-effort report, never classified.
 
 **Done when.** Matrix *Gates and drivers*: an `effect` throw is classified, not a
@@ -191,6 +215,29 @@ rows), *Failure continuation* rows for activation and release, and
 *Placeholder and admission*'s admission rows. Sortable is still a test-double
 behavior at this point.
 
+**Deviations recorded while implementing.**
+
+- **`BehaviorSpec.reportFailure(stage, error)` is new.** Q-1 answers the
+  admission case with "the kernel reports through `onError` with
+  `FAILURE_ADMISSION` and no operation", but the kernel cannot reach `onError`
+  — the consumer callbacks belong to the behavior's `callbacks()` slot, and
+  `BehaviorSpec` had no hook that works without an operation. One member is the
+  smallest way to make the answer implementable. Phase 5 will route the ordinary
+  failure checkpoint through the settlement seam as a `SETTLED_FAILED` input as
+  the contract specifies; `reportFailure` stays for the no-operation case only.
+- **`runCore` gained an optional `effectStage`.** The action seam's two phases
+  fail at different stages (`INSERTION` in `prepare`, `PLACEHOLDER_MOVE` in
+  `effect`) and the driver classified both at one. This is kernel-internal, not
+  part of the behavior SPI the phase-5 gate freezes.
+- **The kernel stamps its own phase through a private slot consumed by
+  `commit()`**, rather than through a seam-driver parameter. Activation writes
+  `ACTIVATING` and settlement writes `SETTLING` *between* `preparationValid()`
+  and the swap, which is the kernel's write and not expressible through
+  `Draft<Part>`.
+- **Phase 5 boundaries left explicit in `kernel.ts`:** `openResolution`,
+  `settleCancellation` (a cancel at `ACTIVE`/`RELEASING` retires without a
+  terminal callback for now) and the failure checkpoint's settlement input.
+
 ---
 
 ## Phase 5 — Settlement, gates and the join
@@ -232,6 +279,38 @@ behavior at this point.
 **Gate.** Phases 3–5 are the frozen SPI. Any change to a seam signature after
 this point requires the failing-executable-case justification from 00.
 
+**Deviations recorded while implementing.**
+
+- **The failure checkpoint drives the settlement seam stamped `REPORTING`, not
+  `SETTLING`.** The contract gives the checkpoint no trace: the mapping table
+  requires `settlement.prepare(SETTLED_FAILED)` to build the terminal state,
+  while the phase table puts `onError` in `REPORTING`. Driving the same seam
+  with the `REPORTING` stamp and a **pre-sealed** scope satisfies both — the
+  behavior owns terminal classification, no gate can be held for a failed
+  settlement, no join runs, and `ERROR_REPORTED` → retirement releases
+  presentation. The input carries `stage`, which is what lets the behavior give
+  `TERMINAL_CALLBACK` the "none" recovery the stage table names while the rest
+  get immediate.
+- **`LandingContext.from`/`.target` and `retarget()` are origin-relative
+  deltas**, not viewport points. See README, deliberate differences.
+- **The settlement seam closes motion as well as cancellation**, before the
+  behavior's `effect`. The trace lists only `cancellation.dispose()`, because it
+  traces a *release*, where motion is already closed. A cancel at `ACTIVE`
+  reaches settlement with pointer input still open, and both closes are latched.
+- **A raw throw from `settlement.prepare`/`effect` classifies as
+  `FAILURE_REORDER_RESOLUTION`.** The contract names a stage for the seam's
+  `SeamRejection` but not for an unannotated throw; this is the stage the seam
+  owns, and it carries the home recovery the stage table gives it.
+- **`failOperation` dispatches rather than enqueues.** A checkpoint raised from
+  an async continuation — a readiness rejection, a landing runner's `fail()` —
+  is the outermost frame, so nothing else would ever drain it.
+- **Three guards are kept without a test that isolates them**, each redundant
+  with a second mechanism and each named by the contract: `attempt.failed` after
+  `start` (the latch already catches today's only route), `attempt.failed` in
+  `advanceSettlement` (a failure never releases its hold, so the count cannot
+  reach zero), and the phase half of the resolution's double validation. Marked
+  as such in `kernel.ts` rather than left to read as tested.
+
 ---
 
 ## Phase 6 — The sortable behavior
@@ -270,6 +349,31 @@ features stubbed by hand-written slot literals (Phase 7 supplies the assembler).
 `onStart` → `updateItems()` row), *Settlement mapping* (all five), *Terminal
 protocol* (all six), *Placeholder movement* (all four), and the *Basic flow*
 group re-run against the real behavior.
+
+**Deviations recorded while implementing.**
+
+- **`homeInsertion` is recomputed, never stored.** The frame part is fixed at
+  eight fields and the runtime at seven, so the home gap a `RECOVERY_HOME`
+  settlement returns the placeholder to has nowhere to live. Deriving it from
+  the committed snapshot and item is pure, needs no slot, and cannot go stale
+  against a collection replacement — the item's own index in the full list *is*
+  the destination gap it occupies.
+- **The displacement pipelines do not bracket the release move.** The trace
+  shows `release.effect` calling `movePlaceholder` alone, and the hooks are
+  specified as bracketing "a committed placeholder move" on the spatial path.
+  If a fixture later shows the release move needs them, that is a behavior
+  change, not an SPI one.
+- **`DragErrorContext` lives in the sortable domain module for now.** The
+  export table puts it in `drag.js`, but its `domain` field is a sortable
+  result; phase 9 decides whether it is generic (`unknown`) or behavior-shaped.
+- **Two switches suppress `default-case`.** Exhaustive discrimination is the
+  point of both (F-29's five-row mapping, F-37's terminal routing): a `default`
+  would turn a missing case from a compile error into a plausible-looking
+  fall-through.
+- **One guard is kept without a test that isolates it**: the spatial attempt
+  comparison in `action.prepare`. The frame task coalesces and dispatches the
+  latest sequence synchronously, so a queued attempt is always current when it
+  applies. Marked as such in `spec.ts`.
 
 ---
 
@@ -482,7 +586,15 @@ under test, sampling and statistics.
 | M-1 | Browser trace of the move path: generic 15-field `Object.assign` vs a specialized pointer-publication path vs shipped `@ydinjs/drag`, across multiple behavior frame shapes, with a correctness-equivalence check for any specialized path | whether the generic frame copy stays; I-26's honest number |
 | M-2 | Heap and move-call behaviour at realistic controller counts: closure model vs opaque-`S`-plus-static-spec; **and** three frame-task policies — eager-retained, lazy-retained, per-operation | F-4, and the frame-task allocation policy |
 | M-3 | Four fixtures (minimal; +`layoutAnimation()`; +`landing()`; complete) minified + Brotli, with module-graph assertions naming each module that must be **absent**, plus a feature-matched non-composed baseline **and** shipped `sortable.js` as a separate migration baseline | the tree-shaking claim; the first size budgets |
-| M-4 | Already executed as the Phase 8 Q-7 gate; written up here | the displacement element set and the shared layout read |
+| M-4 | Already executed as the Phase 8b Q-7 gate; written up here | the displacement element set and the shared layout read |
+
+**Carried into M-3: the `DEV` strip mechanism.** Phase 2 landed the dev-only
+frame assertions behind a module constant resolved from `process.env.NODE_ENV`,
+which gives in-repo tests the checks but does **not** remove them from a
+production build — the contract asks that they compile out. Stripping needs a
+build-time `define` replacing a bare identifier, a new mechanism for this
+repository. M-3 is where the carried weight becomes visible, so the decision is
+made there rather than assumed now.
 
 **Done when.** Each measurement replaces the corresponding intuition-based
 sentence in the contract documents, in place, with a dated result. Size budgets

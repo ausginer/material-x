@@ -1,0 +1,104 @@
+/**
+ * The behavior's private runtime: an ordinary object, declared and created in
+ * one place, **never handed to the kernel and never widened** (H-2, D-4).
+ *
+ * Seven mutable fields. Probe 1's shared runtime had those plus fourteen kernel
+ * fields — the queue, the frame references, the attempt slots, the cancel latch
+ * — all of which are now unreachable, unnameable and untestable from outside,
+ * which is correct: none of them is a behavior concern.
+ *
+ * Note what is *not* here: `rects`. The geometry cache lives inside the axis
+ * feature, which is probe 1's open question about cache ownership answered by
+ * construction rather than by argument.
+ */
+import { createFrameTask, type FrameTask } from '../kernel/invalidation.ts';
+import type { VisualLiftSession } from '../kernel/presentation.ts';
+import type { DOMRealm } from '../kernel/realm.ts';
+import type { KernelHost } from '../kernel/spec.ts';
+import type { CollectionSnapshot } from './domain.ts';
+import type { SortableSlots } from './slots.ts';
+
+/** Behavior action tags. Behavior-local: the kernel offsets them. */
+export const TAG_SPATIAL = 0;
+export const TAG_COLLECTION = 1;
+export const SORTABLE_ACTION_TAGS = 2;
+
+/**
+ * The one per-operation object both feature views bind to. It exists because
+ * they need a **non-null** `placeholder`, which a controller-lifetime runtime
+ * cannot promise before activation.
+ *
+ * Two writes per operation — created in `activation.effect`, `snapshot`
+ * rewritten by a collection replacement — and none per call.
+ */
+export type PresentationView = {
+  readonly realm: DOMRealm;
+  readonly placeholder: HTMLElement;
+  snapshot: CollectionSnapshot;
+};
+
+export type SortableRuntime = {
+  readonly host: KernelHost;
+  readonly slots: SortableSlots;
+  /**
+   * Created once per **controller**, not per operation, and cancelled at
+   * retirement and at destroy.
+   *
+   * Per-controller removes both the nullability and an allocation from the
+   * activation path, and costs nothing in staleness handling: the task's
+   * identity is never operation-scoped, because staleness is carried by the
+   * monotonic attempt number it schedules. (Whether eager-per-controller or
+   * lazy-per-operation is the cheaper allocation policy is an open measurement,
+   * not a settled question — see plan.md, M-2.)
+   */
+  readonly frame: FrameTask<number>;
+  /** The published collection. Replaced wholesale, never mutated. */
+  snapshot: CollectionSnapshot;
+  /** Null when idle. */
+  view: PresentationView | null;
+  placeholder: HTMLElement | null;
+  /** Handed in at activation, cleared at retire. */
+  lift: VisualLiftSession | null;
+  /** Monotonic; the identity of the latest coalesced spatial attempt (D-11). */
+  spatialSeq: number;
+  /** The attempt the frame task actually dispatched. Zero when none is live. */
+  pendingSpatial: number;
+};
+
+export function createSortableRuntime(
+  host: KernelHost,
+  items: readonly HTMLElement[],
+  slots: SortableSlots,
+): SortableRuntime {
+  // The task's body reads the runtime it schedules against, and the runtime
+  // holds the task: one of the two has to be closed over rather than passed.
+  let runtime!: SortableRuntime;
+
+  const frame = createFrameTask<number>(host.realm, (attempt) => {
+    // The producer-side half of the double validation (I-4): a frame that fires
+    // after the operation lost its presentation has nothing to resolve against.
+    // `action.prepare` validates the attempt again when it applies.
+    if (runtime.view === null) {
+      return;
+    }
+
+    runtime.pendingSpatial = attempt;
+    host.dispatch(TAG_SPATIAL, attempt);
+  });
+
+  runtime = {
+    host,
+    slots,
+    frame,
+    // Shallow-copied, so a caller mutating its own array cannot change a
+    // snapshot the behavior has already published.
+    snapshot: { items: [...items], version: 0 },
+    view: null,
+    placeholder: null,
+    lift: null,
+    spatialSeq: 0,
+    pendingSpatial: 0,
+  };
+
+  return runtime;
+}

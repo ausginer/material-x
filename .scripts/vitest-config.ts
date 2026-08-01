@@ -43,6 +43,7 @@ type WorkspaceTestConfigOptions = Readonly<{
   materialXCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
   coreRoot: URL;
   dragRoot: URL;
+  drag2Root: URL;
   tprocRoot: URL;
   viteTraitsPluginRoot: URL;
 }>;
@@ -372,6 +373,10 @@ export function createWorkspaceTestConfig(
     options.dragRoot,
     'drag',
   );
+  const [drag2Browser, drag2Declaration, drag2Node] = createDragTestProjects(
+    options.drag2Root,
+    'drag2',
+  );
   const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'tproc');
   const [viteTraitsPluginNode] = createViteTraitsPluginTestProjects(
     options.viteTraitsPluginRoot,
@@ -391,6 +396,9 @@ export function createWorkspaceTestConfig(
         dragBrowser,
         dragNode,
         dragDeclaration,
+        drag2Browser,
+        drag2Node,
+        drag2Declaration,
         tprocNode,
         viteTraitsPluginNode,
       ],
