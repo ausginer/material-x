@@ -1609,15 +1609,27 @@ export function createKernel<Part extends object>(
 
     switch (current.phase) {
       case PENDING:
-      case ACTIVATING:
-        // Abandoned before there was anything to tell the consumer about.
+        // Abandoned before there was anything to tell the consumer about:
+        // `admit` is not a start notification, and no presentation exists.
         retireOperation(operation);
         break;
+      case ACTIVATING:
       case ACTIVE:
       case RELEASING:
+        // `ACTIVATING` settles like `ACTIVE`, and the reason is that the phase
+        // is committed **before** `activation.effect` runs: by the time a
+        // cancellation is applied here the placeholder is in the DOM, the lift
+        // is acquired and the behavior has already delivered its start
+        // notification. Retiring instead would leave a consumer that was told a
+        // drag began with no terminal callback at all — and there is nothing
+        // atomic left to protect, because settling un-commits nothing.
+        //
+        // The stage is `AT_PROPOSAL` ("abandoned before the consumer round-trip
+        // opened") and the behavior's own result carries a null proposal, which
+        // is the case its domain type already names.
         settleCancellation(
           request.reason,
-          current.phase === ACTIVE ? AT_PROPOSAL : AT_CONSUMER,
+          current.phase === RELEASING ? AT_CONSUMER : AT_PROPOSAL,
         );
         break;
       default:
@@ -1627,6 +1639,18 @@ export function createKernel<Part extends object>(
 
   const handleStartCommitted = (operation: OperationIdentity): void => {
     if (current.phase !== ACTIVATING || current.operation !== operation) {
+      return;
+    }
+
+    // The latch outranks the checkpoint: an operation cancelled during
+    // `ACTIVATING` must never reach `ACTIVE`. FIFO alone does not give this —
+    // an action whose *effect* cancels (a collection replacement that
+    // invalidates the gap, dispatched from `onStart`) queues its `CANCEL`
+    // behind this checkpoint, so without the check the operation would activate
+    // for exactly one drain and the cancellation would be reported at the wrong
+    // stage. Leaving the phase untouched is enough: the queued `CANCEL` finds
+    // `ACTIVATING` and settles it.
+    if (cancelRequest !== null) {
       return;
     }
 

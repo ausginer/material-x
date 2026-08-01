@@ -712,6 +712,13 @@ The alternative — activate, then cancel immediately afterwards — would be
 defensible only if nothing observable happened in between, and `START_COMMITTED`
 is a phase commit that later actions branch on.
 
+**The checkpoint defers; it does not retire.** Refusing to advance leaves the
+phase at `ACTIVATING`, and the `CANCEL` queued behind it settles there — which
+is what delivers the single terminal callback
+§[02](02-kernel-behavior-contract.md) §I-31 requires. Retiring from the
+checkpoint instead would race the cancellation to the same operation and swallow
+it.
+
 ## Tree-shaking
 
 Judged through consumer fixtures, not source intuition.

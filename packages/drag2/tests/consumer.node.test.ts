@@ -66,16 +66,15 @@ const MINUTE = 60_000;
 /**
  * Subpaths declared in the export topology from phase 0 whose module is still a
  * stub, so the build has no runtime code to emit for them. Each one moves out of
- * this set in the phase that implements it — `vertical()` and `callbacks()` in
- * 8a, the rest in 8b — and the test below fails until it does.
+ * this set in the phase that implements it — the four below in 8b — and the test
+ * fails until it does, which is what stops a landed feature from shipping
+ * unpacked.
  */
 const PENDING = [
-  './sortable/callbacks.js',
   './sortable/handle.js',
   './sortable/landing.js',
   './sortable/layout-animation.js',
   './sortable/placeholder.js',
-  './sortable/vertical.js',
 ];
 
 const CONSUMER = `import { draggable, type Behavior } from '@ydinjs/drag2/drag.js';

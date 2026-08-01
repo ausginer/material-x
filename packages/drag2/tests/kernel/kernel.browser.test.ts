@@ -2105,6 +2105,82 @@ describe('cancellation stages', () => {
     expect(harness.calls).toContain('presentation.released');
     expect(harness.calls).toContain('finalized');
   });
+
+  it('should cancel an activating drag at the proposal stage', () => {
+    // `ACTIVATING` is committed *before* `activation.effect` runs, so by the
+    // time a cancellation raised from inside that effect is applied, the
+    // presentation exists and the behavior has notified its consumer. Retiring
+    // instead would leave that notification with no terminal callback.
+    const harness = createHarness({
+      onStart: (host) => {
+        host.cancel('from the effect');
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.settlements).toEqual([
+      { type: SETTLED_CANCELED, reason: 'from the effect', stage: AT_PROPOSAL },
+    ]);
+    expect(harness.calls).toContain('finalized');
+  });
+});
+
+describe('the activation checkpoint against a held cancel', () => {
+  /**
+   * The ordering the latch check exists for. FIFO alone does not give it: an
+   * action whose *effect* cancels — a collection replacement that invalidates
+   * the gap, dispatched from `onStart` — queues its `CANCEL` **behind**
+   * `START_COMMITTED`, so the checkpoint is applied first and would activate an
+   * operation that is already decided.
+   */
+  const cancelFromAnActionEffect = (): Readonly<{
+    harness: Harness;
+    /** The committed phase each action preparation observed. */
+    seen: number[];
+  }> => {
+    const seen: number[] = [];
+    let host!: KernelHost;
+    const harness = createHarness({
+      onStart: (kernelHost) => {
+        host = kernelHost;
+        host.dispatch(0, null);
+      },
+      action: {
+        prepare(_tag, _argument, draft): {} | null {
+          seen.push(draft.phase);
+          return true;
+        },
+        effect(tag): void {
+          if (tag !== 0) {
+            return;
+          }
+
+          // Queued first, so it sits between `START_COMMITTED` and the
+          // cancellation and can observe which phase won.
+          host.dispatch(1, null);
+          host.cancel('invalidated');
+        },
+      },
+    });
+
+    activate(harness);
+    return { harness, seen };
+  };
+
+  it('should not reach ACTIVE when a cancel is latched during activation', () => {
+    const { seen } = cancelFromAnActionEffect();
+
+    expect(seen).toEqual([ACTIVATING, ACTIVATING]);
+  });
+
+  it('should settle the cancellation the checkpoint refused to overtake', () => {
+    const { harness } = cancelFromAnActionEffect();
+
+    expect(harness.settlements).toEqual([
+      { type: SETTLED_CANCELED, reason: 'invalidated', stage: AT_PROPOSAL },
+    ]);
+  });
 });
 
 describe('behavior actions', () => {

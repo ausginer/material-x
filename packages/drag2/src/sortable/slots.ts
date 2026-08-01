@@ -35,6 +35,18 @@ import type { PlaceholderFactory } from './placement.ts';
 export type InsertionFrameView = Readonly<{
   insertion: Insertion | null;
   pointerY: number;
+  /**
+   * The dragged item. **A deviation from the contract's two-field sketch**, and
+   * a necessary one: the destination view is the collection minus the dragged
+   * item, and an axis rule that cannot exclude it measures a lifted element
+   * whose centre tracks the pointer — so it would win every search and pin the
+   * gap to its own slot.
+   *
+   * Read off the frame rather than added to `InsertionRuntimeView`, because the
+   * item is already committed frame state. Duplicating it onto the per-operation
+   * view would create a second copy that a future seam could let drift.
+   */
+  item: HTMLElement | null;
 }>;
 
 /**

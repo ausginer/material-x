@@ -296,7 +296,18 @@ export function createSortableSpec(
         rt.view = { realm, placeholder, snapshot: current.snapshot! };
 
         if (!invalidateInSeam()) {
-          return; // classified; the operation is failing, so do not start it
+          // Classified; the operation is failing, so do not start it.
+          //
+          // This is the one path that reaches a terminal callback without a
+          // start notification — and only in combination with a second fault: a
+          // cancellation latched from the placeholder's `connectedCallback`
+          // above outranks this classified failure (I-22), so the operation
+          // settles as *canceled* for a drag `onStart` never announced. Either
+          // fault alone is fine: without the cancel this reports through
+          // `onError`, and without the throw `onStart` still runs. Recorded in
+          // contract 02 §I-31 as an admitted gap rather than closed with a
+          // per-operation "started" flag.
+          return;
         }
 
         // 4 — last, because it may reentrantly cancel or destroy.
