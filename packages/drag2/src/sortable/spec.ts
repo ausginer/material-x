@@ -195,6 +195,22 @@ export function createSortableSpec(
         });
         current.item!.after(placeholder);
 
+        // `after()` **connects** the placeholder, and a custom element's
+        // `connectedCallback` runs synchronously inside that call. It is
+        // consumer code — the placeholder may come from a `placeholder()`
+        // factory — reached from a plain DOM write, so no seam wraps it and no
+        // reentrancy guard above sees it. If it destroyed the controller,
+        // teardown has already run to completion: the disposer registered on
+        // the line above removed this node, motion and presentation are closed,
+        // and the operation is retired. Everything below would then register
+        // against closed lifetimes (releasing immediately and reporting),
+        // republish this operation's DOM into the runtime for the *next* drag
+        // to find, and call `onStart` after `destroy()` returned — the
+        // synchronous terminal barrier I-6 forbids crossing (D-26).
+        if (scope.presentation.signal.aborted) {
+          return;
+        }
+
         // Listeners bound to the signal are self-releasing, so the signal *is*
         // the registration; the explicit disposer cancels a scheduled frame.
         scope.motion.use(rt.frame.cancel);

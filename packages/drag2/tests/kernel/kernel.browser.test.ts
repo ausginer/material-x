@@ -81,6 +81,11 @@ type SpecOverrides = Partial<
     | 'anchorTarget'
     | 'finalized'
     | 'createFramePart'
+    // Injectable so the teardown matrix can be expressed through the shared
+    // harness: `resetFramePart` is a foreign teardown boundary the contract
+    // explicitly permits to throw.
+    | 'resetFramePart'
+    | 'retire'
   >
 > &
   Readonly<{
@@ -174,10 +179,12 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
       createFramePart:
         overrides.createFramePart ??
         ((): ExamplePart => ({ item: null, note: '' })),
-      resetFramePart(part): void {
-        part.item = null;
-        part.note = '';
-      },
+      resetFramePart:
+        overrides.resetFramePart ??
+        ((part): void => {
+          part.item = null;
+          part.note = '';
+        }),
       config: {
         threshold: overrides.threshold ?? 8,
         liftMode: LIFT_FLAT,
@@ -270,9 +277,11 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
       reportFailure(stage, error): void {
         failures.push({ stage, error });
       },
-      retire(): void {
-        calls.push('retire');
-      },
+      retire:
+        overrides.retire ??
+        ((): void => {
+          calls.push('retire');
+        }),
     };
 
     return { spec, controller: { cancel: host.cancel, destroy: host.destroy } };
@@ -2305,5 +2314,475 @@ describe('destroy', () => {
     move(200, 10);
 
     expect(harness.calls).not.toContain('action.prepare:0');
+  });
+});
+
+describe('terminal destruction during the join', () => {
+  it('should not pin after anchorTarget destroyed the controller', () => {
+    // The join captures `lift` in a local before it commits `FINALIZING`, so
+    // teardown clearing the kernel's slot does not stop it writing. Without a
+    // revalidation the pin stamps a transform back onto an element whose
+    // authored styles `destroy()` already restored (I-6).
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      anchorTarget: () => {
+        harness!.controller.destroy();
+        return { x: 300, y: 300 };
+      },
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(harness.item.style.transform).toBe('');
+  });
+
+  it('should not call the terminal callback after anchorTarget destroyed the controller', () => {
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      anchorTarget: () => {
+        harness!.controller.destroy();
+        return { x: 300, y: 300 };
+      },
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(harness.calls).not.toContain('finalized');
+  });
+
+  it('should not pin after the runner destroyed the controller', async () => {
+    let harness: Harness | null = null;
+    const runner = createRunner({
+      onDestroy: () => {
+        harness!.controller.destroy();
+      },
+    });
+
+    harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(40, 10);
+    await flush();
+    runner.done();
+
+    expect(harness.item.style.transform).toBe('');
+  });
+
+  it('should not call the terminal callback after the runner destroyed the controller', async () => {
+    let harness: Harness | null = null;
+    const runner = createRunner({
+      onDestroy: () => {
+        harness!.controller.destroy();
+      },
+    });
+
+    harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(40, 10);
+    await flush();
+    runner.done();
+
+    expect(harness.calls).not.toContain('finalized');
+  });
+});
+
+describe('teardown totality', () => {
+  /** Throws *before* clearing, so the dev scrub assertion trips as well. */
+  const throwingReset = (counter: { calls: number }) => (): void => {
+    counter.calls += 1;
+    throw new Error(`reset ${counter.calls}`);
+  };
+
+  it('should scrub the draft after the current frame reset throws', () => {
+    const counter = { calls: 0 };
+    const harness = createHarness({ resetFramePart: throwingReset(counter) });
+
+    activate(harness);
+    harness.controller.destroy();
+
+    expect(counter.calls).toBe(2);
+  });
+
+  it('should release ingress after a reset throws', () => {
+    const counter = { calls: 0 };
+    const harness = createHarness({ resetFramePart: throwingReset(counter) });
+
+    activate(harness);
+    harness.controller.destroy();
+    harness.calls.length = 0;
+    press(harness.item);
+
+    expect(harness.calls).toEqual([]);
+  });
+
+  it('should not let a throwing reset escape destroy', () => {
+    const counter = { calls: 0 };
+    const harness = createHarness({ resetFramePart: throwingReset(counter) });
+
+    activate(harness);
+
+    expect(() => harness.controller.destroy()).not.toThrow();
+  });
+
+  it('should report a reset failure rather than swallow it', () => {
+    const counter = { calls: 0 };
+    const harness = createHarness({ resetFramePart: throwingReset(counter) });
+
+    activate(harness);
+    reported = [];
+    harness.controller.destroy();
+
+    // Two resets, each reporting the thrown error and the scrub assertion it
+    // leaves behind.
+    expect(reported.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('should complete retirement after a reset throws mid-operation', () => {
+    // Ordinary retirement, not terminal destruction: the controller has to stay
+    // usable, which it cannot be if the scrub aborted before the draft.
+    const counter = { calls: 0 };
+    const harness = createHarness({ resetFramePart: throwingReset(counter) });
+
+    activate(harness);
+    release(40, 10);
+    harness.calls.length = 0;
+    activate(harness);
+
+    expect(harness.calls).toContain('activation.effect');
+  });
+});
+
+describe('arm unwind of a partial frame pair', () => {
+  const armWith = (
+    root: HTMLElement,
+    createFramePart: () => ExamplePart,
+    resetFramePart: (part: ExamplePart) => void,
+  ): void => {
+    draggable<Record<string, never>, ExamplePart>(root, () => ({
+      controller: {},
+      spec: {
+        createFramePart,
+        resetFramePart,
+        config: {
+          threshold: 8,
+          liftMode: LIFT_FLAT,
+          readinessTimeout: 500,
+          actionTags: 0,
+        },
+        admit: () => null,
+        activation: {
+          prepare: () => document.createElement('div'),
+          effect: (): void => {},
+        },
+        release: { prepare: () => ({ invoke: null }), effect: (): void => {} },
+        settlement: {
+          prepare: () => ({ ready: null }),
+          effect: (): void => {},
+        },
+        action: { prepare: () => null, effect: (): void => {} },
+        moved: (): void => {},
+        anchorTarget: () => ({ x: 0, y: 0 }),
+        finalized: (): void => {},
+        reportFailure: (): void => {},
+        retire: (): void => {},
+      },
+    }));
+  };
+
+  it('should scrub the first frame when the second factory throws', () => {
+    // `armedKeys` is captured from the first frame, so it cannot be the test
+    // for "a frame exists" while the *second* factory is still running. A part
+    // that already holds a DOM reference would be retained for the controller's
+    // whole life.
+    const root = document.createElement('div');
+    document.body.append(root);
+    cleanup.push(() => root.remove());
+
+    let made = 0;
+    let resets = 0;
+
+    expect(() => {
+      armWith(
+        root,
+        (): ExamplePart => {
+          made += 1;
+
+          if (made === 2) {
+            throw new Error('second factory');
+          }
+
+          return { item: null, note: '' };
+        },
+        (part): void => {
+          resets += 1;
+          part.item = null;
+          part.note = '';
+        },
+      );
+    }).toThrow('second factory');
+
+    expect(resets).toBe(1);
+  });
+
+  it('should scrub both frames when the shape assertion throws', () => {
+    const root = document.createElement('div');
+    document.body.append(root);
+    cleanup.push(() => root.remove());
+
+    let made = 0;
+    let resets = 0;
+
+    expect(() => {
+      armWith(
+        root,
+        (): ExamplePart => {
+          made += 1;
+
+          return made === 2
+            ? ({ item: null, other: '' } as unknown as ExamplePart)
+            : { item: null, note: '' };
+        },
+        (part): void => {
+          resets += 1;
+          part.item = null;
+        },
+      );
+    }).toThrow();
+
+    expect(resets).toBe(2);
+  });
+});
+
+describe('cancellation against a failure checkpoint', () => {
+  it('should drop a checkpoint queued while a cancel latch is held', () => {
+    // I-22: `DESTROY > CANCEL > FAILURE_CHECKPOINT`. `moved()` cancels and then
+    // throws on the same sample, so the queue holds `[CANCEL, FAILED]`; the
+    // cancellation finalizes and the checkpoint still ran behind it at
+    // `FINALIZING`, giving the consumer both `onCancel` and `onError`.
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      moved: (): void => {
+        harness!.host.cancel('gone');
+        throw new Error('write failed');
+      },
+    });
+
+    activate(harness);
+    move(60, 10);
+
+    expect(harness.failures).toEqual([]);
+  });
+
+  it('should still report a checkpoint the cancel latch outranked', () => {
+    let harness: Harness | null = null;
+    const error = new Error('write failed');
+
+    harness = createHarness({
+      moved: (): void => {
+        harness!.host.cancel('gone');
+        throw error;
+      },
+    });
+
+    activate(harness);
+    reported = [];
+    move(60, 10);
+
+    expect(reported).toContain(error);
+  });
+
+  it('should drop a checkpoint classified before the cancel latch was set', () => {
+    // `host.fail()` classifies *immediately*, inside the open phase, so this
+    // ordering queues `[FAILED, CANCEL]` — the latch does not exist when the
+    // checkpoint is queued, only when it is applied.
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      moved: (): void => {
+        harness!.host.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
+        harness!.host.cancel('gone');
+      },
+    });
+
+    activate(harness);
+    move(60, 10);
+
+    expect(harness.failures).toEqual([]);
+  });
+
+  it('should let the cancellation produce the single terminal callback', () => {
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      moved: (): void => {
+        harness!.host.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
+        harness!.host.cancel('gone');
+      },
+    });
+
+    activate(harness);
+    move(60, 10);
+
+    expect(harness.settlements.map((input) => input.type)).toEqual([
+      SETTLED_CANCELED,
+    ]);
+  });
+});
+
+describe('arbitrary thenables', () => {
+  it('should reject the resolution when the then accessor throws', () => {
+    // The SPI accepts any `PromiseLike`, so a broken thenable is ordinary
+    // consumer input: a semantic rejection, never a kernel panic.
+    const hostile = {
+      get then(): never {
+        throw new Error('hostile getter');
+      },
+    };
+    const harness = createHarness({
+      release: releaseWith(() => hostile),
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(harness.settlements.map((input) => input.type)).toContain(
+      SETTLED_REJECTED,
+    );
+  });
+
+  it('should reject the resolution when then() throws', () => {
+    const hostile = {
+      then(): never {
+        throw new Error('hostile then');
+      },
+    };
+    const harness = createHarness({
+      release: releaseWith(() => hostile),
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(harness.settlements.map((input) => input.type)).toContain(
+      SETTLED_REJECTED,
+    );
+  });
+
+  it('should keep the controller usable after a hostile thenable', () => {
+    const hostile = {
+      get then(): never {
+        throw new Error('hostile getter');
+      },
+    };
+    const harness = createHarness({
+      release: releaseWith(() => hostile),
+    });
+
+    activate(harness);
+    release(40, 10);
+    harness.calls.length = 0;
+    activate(harness);
+
+    expect(harness.calls).toContain('activation.effect');
+  });
+
+  it('should read the then accessor exactly once', () => {
+    // Classifying and subscribing were two separate reads, so a stateful getter
+    // could be classified as one value and subscribed to as another.
+    let reads = 0;
+    const stateful = {
+      get then() {
+        reads += 1;
+
+        return (resolve: (value: unknown) => void): void => {
+          resolve(1);
+        };
+      },
+    };
+    const harness = createHarness({
+      release: releaseWith(() => stateful),
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(reads).toBe(1);
+  });
+
+  it('should keep the first completion when a thenable resolves and then throws', () => {
+    const hostile = {
+      then(resolve: (value: unknown) => void): never {
+        resolve('first');
+        throw new Error('and then throw');
+      },
+    };
+    const harness = createHarness({
+      release: releaseWith(() => hostile),
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(harness.settlements).toEqual([
+      { type: SETTLED_FULFILLED, value: 'first' },
+    ]);
+  });
+
+  it('should classify a hostile readiness gate as a presentation failure', () => {
+    const hostile = {
+      get then(): never {
+        throw new Error('hostile readiness');
+      },
+    };
+    const harness = createHarness({
+      readiness: hostile as unknown as PromiseLike<void>,
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(harness.failures.map((failure) => failure.stage)).toContain(
+      FAILURE_PRESENTATION_READY,
+    );
+  });
+
+  it('should classify a readiness gate that is not thenable at all', () => {
+    const harness = createHarness({
+      readiness: {} as unknown as PromiseLike<void>,
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(harness.failures.map((failure) => failure.stage)).toContain(
+      FAILURE_PRESENTATION_READY,
+    );
+  });
+
+  it('should not arm the landing when readiness failed synchronously', () => {
+    // The gate plan is armed in one pass, readiness first. A gate that failed
+    // *synchronously* has already replaced the settlement, so starting the
+    // runner would land a drop the queued checkpoint is about to abandon.
+    const hostile = {
+      get then(): never {
+        throw new Error('hostile readiness');
+      },
+    };
+    const runner = createRunner();
+    const harness = createHarness({
+      readiness: hostile as unknown as PromiseLike<void>,
+      startLanding: runner.start,
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(runner.calls).toEqual([]);
   });
 });

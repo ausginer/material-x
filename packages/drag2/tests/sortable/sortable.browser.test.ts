@@ -290,6 +290,29 @@ function createRunner(): Readonly<{ start: LandingStart; done(): void }> {
   };
 }
 
+/**
+ * A placeholder element that runs a test hook from `connectedCallback` — the
+ * synchronous reentrancy window inside `item.after(placeholder)`. Registered
+ * once, because a custom element name cannot be redefined.
+ */
+const REENTRANT_PLACEHOLDER = 'drag2-reentrant-placeholder';
+
+let reentrantPlaceholderConnected: ((element: HTMLElement) => void) | null =
+  null;
+
+customElements.define(
+  REENTRANT_PLACEHOLDER,
+  class extends HTMLElement {
+    connectedCallback(): void {
+      reentrantPlaceholderConnected?.(this);
+    }
+  },
+);
+
+afterEach(() => {
+  reentrantPlaceholderConnected = null;
+});
+
 /** The item order in the DOM, placeholder included as `_`. */
 const order = (harness: Harness): string =>
   [...harness.root.children]
@@ -442,6 +465,51 @@ describe('activation', () => {
     // The press is already cancelled by the item-removed reason, so activation
     // never runs; the discard would refuse it anyway.
     expect(harness.calls).not.toContain('onStart');
+  });
+
+  it('should stop when the placeholder insertion destroyed the controller', () => {
+    // `after()` connects the placeholder, and a custom element's
+    // `connectedCallback` runs synchronously *inside* that call — the one point
+    // in activation where consumer code interleaves with a DOM write the kernel
+    // has no other guard around.
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      createPlaceholder: (): HTMLElement =>
+        document.createElement(REENTRANT_PLACEHOLDER),
+    });
+
+    reentrantPlaceholderConnected = (): void => {
+      harness.controller.destroy();
+    };
+
+    activate(harness);
+
+    expect(harness.calls).not.toContain('onStart');
+    expect(harness.placeholder()).toBeNull();
+    expect(harness.root.querySelector(REENTRANT_PLACEHOLDER)).toBeNull();
+  });
+
+  it('should not republish runtime state after a reentrant destruction', () => {
+    // The runtime slots are private, so the observable is what they *cause*:
+    // `invalidateInsertion` is called immediately after the view is published,
+    // and no scheduled frame or hook may run for a retired operation.
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      createPlaceholder: (): HTMLElement =>
+        document.createElement(REENTRANT_PLACEHOLDER),
+    });
+
+    reentrantPlaceholderConnected = (): void => {
+      harness.controller.destroy();
+    };
+
+    activate(harness);
+    move(80);
+
+    expect(harness.calls).not.toContain('invalidateInsertion');
+    expect(harness.calls).not.toContain('resolveInsertion');
   });
 });
 

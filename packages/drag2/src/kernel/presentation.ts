@@ -11,6 +11,7 @@
 import { box, coordinates, type Box } from '@ydinjs/box-quad';
 import type { Disposer } from './lifetimes.ts';
 import type { DOMRealm } from './realm.ts';
+import { guarded } from './reporter.ts';
 
 /** Which lift strategy a free/sortable operation uses. */
 export const LIFT_FAITHFUL = 61;
@@ -109,20 +110,27 @@ export function captureInlineStyles(visual: HTMLElement): Disposer {
 // TopLayerLease
 // ---------------------------------------------------------------------------
 
-/** Enters and restores top-layer/popover state, remembering the prior state. */
+/**
+ * Enters and restores top-layer/popover state, remembering the prior state.
+ *
+ * **Transactional.** Promotion is two writes, not one: setting the `popover`
+ * attribute, which by itself closes a popover the page had already opened, and
+ * then `showPopover()`. Either can throw — `showPopover()` does whenever the
+ * element is not in a state the UA will promote — and until this function
+ * returns, its disposer does not exist, so nothing else in the package can
+ * possibly restore what the first write already changed. So acquisition rolls
+ * itself back and rethrows: it either fully owns the top layer or leaves the
+ * element exactly as it found it.
+ */
 export function acquireTopLayer(visual: HTMLElement): Disposer {
   const priorAttribute = visual.getAttribute('popover');
   const priorOpen = visual.matches(':popover-open');
 
-  visual.popover = 'manual';
-
-  if (!visual.matches(':popover-open')) {
-    visual.showPopover();
-  }
-
   let disposed = false;
 
-  return () => {
+  // Built before the first mutation, so the rollback path and the disposer are
+  // the same code against the same captured prior state.
+  const restore = (): void => {
     if (disposed) {
       return;
     }
@@ -143,6 +151,25 @@ export function acquireTopLayer(visual: HTMLElement): Disposer {
       visual.showPopover();
     }
   };
+
+  try {
+    visual.popover = 'manual';
+
+    if (!visual.matches(':popover-open')) {
+      visual.showPopover();
+    }
+  } catch (error) {
+    // `guarded`, because the rollback re-enters the same popover API that just
+    // failed and can therefore fail again — restoring a previously-open
+    // popover is literally the call that threw. The **acquisition** error is
+    // the one that explains why the lift was refused and stays primary; a
+    // rollback failure is non-consequential and takes the platform channel
+    // (I-29).
+    guarded(restore);
+    throw error;
+  }
+
+  return restore;
 }
 
 // ---------------------------------------------------------------------------
@@ -321,54 +348,71 @@ export function acquireLift(
   const style = realm.window.getComputedStyle(visual);
   const styleLeaseDisposer = captureInlineStyles(visual);
 
-  if (mode === LIFT_IN_PLACE) {
-    // Stay in the container, ride the authored transform, and suppress
-    // transitions so engine transform writes apply instantly.
-    const own = style.transform;
-    visual.style.transition = 'none';
+  // Everything below mutates the visual. The style lease is already held, but
+  // the *caller* only learns about it through the returned session — so a throw
+  // from here on would leave the visual promoted and restyled with nothing that
+  // could ever restore it. Acquisition is all-or-nothing (contract 01
+  // §Partial activation).
+  try {
+    if (mode === LIFT_IN_PLACE) {
+      // Stay in the container, ride the authored transform, and suppress
+      // transitions so engine transform writes apply instantly.
+      const own = style.transform;
+      visual.style.transition = 'none';
 
-    return makeSession(
-      visual,
-      own === 'none' ? '' : own,
-      inPlaceProjection(measured),
-      styleLeaseDisposer,
-    );
-  }
-
-  neutralizeUA(visual, style);
-  visual.style.transition = 'none';
-  visual.style.position = 'fixed';
-  visual.style.inset = 'auto';
-  visual.style.width = `${width}px`;
-  visual.style.height = `${height}px`;
-
-  let base = '';
-
-  if (mode === LIFT_FAITHFUL) {
-    const a = measured[BOX_A]!;
-    const b = measured[BOX_B]!;
-    const c = measured[BOX_C]!;
-    const d = measured[BOX_D]!;
-
-    base = `matrix(${a}, ${b}, ${c}, ${d}, ${measured[BOX_E]!}, ${measured[BOX_F]!})`;
-    // Net zoom 1: the matrix is the sole source of scale.
-    visual.style.zoom = `${1 / ancestorZoom}`;
-    visual.style.top = '0';
-    visual.style.left = '0';
-    visual.style.transformOrigin = '0 0';
-  } else {
-    if (ancestorZoom !== 1) {
-      visual.style.zoom = `${1 / ancestorZoom}`;
+      return makeSession(
+        visual,
+        own === 'none' ? '' : own,
+        inPlaceProjection(measured),
+        styleLeaseDisposer,
+      );
     }
 
-    visual.style.top = `${originRect.top + originRect.height / 2 - height / 2}px`;
-    visual.style.left = `${originRect.left + originRect.width / 2 - width / 2}px`;
-  }
+    neutralizeUA(visual, style);
+    visual.style.transition = 'none';
+    visual.style.position = 'fixed';
+    visual.style.inset = 'auto';
+    visual.style.width = `${width}px`;
+    visual.style.height = `${height}px`;
 
-  const topLayerDisposer = acquireTopLayer(visual);
+    let base = '';
 
-  return makeSession(visual, base, null, () => {
-    topLayerDisposer();
+    if (mode === LIFT_FAITHFUL) {
+      const a = measured[BOX_A]!;
+      const b = measured[BOX_B]!;
+      const c = measured[BOX_C]!;
+      const d = measured[BOX_D]!;
+
+      base = `matrix(${a}, ${b}, ${c}, ${d}, ${measured[BOX_E]!}, ${measured[BOX_F]!})`;
+      // Net zoom 1: the matrix is the sole source of scale.
+      visual.style.zoom = `${1 / ancestorZoom}`;
+      visual.style.top = '0';
+      visual.style.left = '0';
+      visual.style.transformOrigin = '0 0';
+    } else {
+      if (ancestorZoom !== 1) {
+        visual.style.zoom = `${1 / ancestorZoom}`;
+      }
+
+      visual.style.top = `${originRect.top + originRect.height / 2 - height / 2}px`;
+      visual.style.left = `${originRect.left + originRect.width / 2 - width / 2}px`;
+    }
+
+    const topLayerDisposer = acquireTopLayer(visual);
+
+    return makeSession(visual, base, null, () => {
+      // `finally`, not sequence: restoring the inline styles is the one
+      // guarantee this module owns outright, and a `hidePopover()` that throws
+      // — or a prior-popover restoration that does — must not cost the visual
+      // its authored `position`, `width` and `transform` permanently.
+      try {
+        topLayerDisposer();
+      } finally {
+        styleLeaseDisposer();
+      }
+    });
+  } catch (error) {
     styleLeaseDisposer();
-  });
+    throw error;
+  }
 }

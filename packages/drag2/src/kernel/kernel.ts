@@ -385,7 +385,18 @@ export function createKernel<Part extends object>(
     guarded(() => {
       scrubFrame(frame, active.resetFramePart);
     });
-    assertFrameScrubbed(frame, armedKeys);
+    // Guarded too, and for the same reason as the reset itself. This is a
+    // *diagnostic*: it fires precisely when `resetFramePart` already
+    // misbehaved, which is exactly when the remaining teardown steps matter
+    // most. Letting it throw would make the second frame's scrub, the ingress
+    // abort and `clearOperationState` conditional on a dev assertion — so a
+    // throwing reset would defeat teardown totality through the very check
+    // meant to catch it (D-29/F-36). `guarded` reports it instead, which is
+    // where a dev assertion belongs. `DEV` is true in an ordinary browser
+    // (see `dev.ts`), so this is not a test-only path.
+    guarded(() => {
+      assertFrameScrubbed(frame, armedKeys);
+    });
   };
 
   /**
@@ -514,9 +525,21 @@ export function createKernel<Part extends object>(
     // unreachable today — `REPORTING` is entered and left inside one drain, so
     // nothing asynchronous can observe it — and is kept only so that making
     // `ERROR_REPORTED` asynchronous later cannot silently reopen the swallow.
+    //
+    // A held cancel latch outranks the checkpoint outright (I-22:
+    // `DESTROY > CANCEL > FAILURE_CHECKPOINT`). The latch is set synchronously
+    // and consumed by `handleCancel` before the cancellation settlement opens,
+    // so "still held" means the queued `CANCEL` has not run yet and the
+    // operation's terminal channel is already decided as *canceled*. Without
+    // this, a seam that cancels and then throws — `moved()` calling
+    // `controller.cancel()` and failing on the same sample — queues `CANCEL`
+    // then `FAILED`; the cancellation finalizes and queues `RETIRE`, and the
+    // checkpoint still runs ahead of it at `FINALIZING`, so the consumer gets
+    // both `onCancel` and `onError` for one operation.
     if (
       queue.closed ||
       operation === null ||
+      cancelRequest !== null ||
       reporting ||
       current.phase === REPORTING
     ) {
@@ -863,6 +886,22 @@ export function createKernel<Part extends object>(
   });
 
   /**
+   * Reads `then` **exactly once** and hands back the callable, or `null`.
+   *
+   * The SPI accepts any `PromiseLike`, not only a native `Promise`, so `then`
+   * may be an accessor — one that throws, or one that answers differently on a
+   * second read. Reading it twice (once to classify, once to subscribe) let a
+   * value be classified as thenable and then subscribed to as something else.
+   * A throw is the *caller's* to classify as a semantic failure; it is not a
+   * kernel invariant violation and must never reach the panic path (A-08).
+   */
+  const thenOf = (value: unknown): PromiseLike<unknown>['then'] | null => {
+    const then = (value as PromiseLike<unknown> | null | undefined)?.then;
+
+    return typeof then === 'function' ? then : null;
+  };
+
+  /**
    * Whether the attempt still owns a live operation in `SETTLING`. Checked on
    * both sides of `start`, because either `anchorTarget` or the runner itself
    * may have destroyed the controller (F-38, F-30).
@@ -873,6 +912,16 @@ export function createKernel<Part extends object>(
     cancelRequest === null &&
     current.operation !== null &&
     current.phase === SETTLING;
+
+  /**
+   * The `FINALIZING` counterpart of `settlementLive`. The join calls into three
+   * pieces of foreign code — `anchorTarget`, the runner's `destroy()`, and the
+   * terminal callback — and each of the first two may destroy the controller
+   * synchronously. Everything after such a call is checked against this
+   * (contract 01 §I-6: `destroy()` is a synchronous terminal barrier).
+   */
+  const joinLive = (): boolean =>
+    !queue.closed && current.operation !== null && current.phase === FINALIZING;
 
   const rollbackLandingHold = (attempt: SettlementAttempt): void => {
     if (attempt.landingHeld) {
@@ -981,14 +1030,31 @@ export function createKernel<Part extends object>(
       window.clearTimeout(timer);
     });
 
-    ready.then(
-      () => {
-        finish(false, null);
-      },
-      (error: unknown) => {
-        finish(true, error);
-      },
-    );
+    // Same treatment as the resolution round-trip: the gate is an arbitrary
+    // `PromiseLike` handed over by `holdForReadiness`, so a throwing `then`
+    // accessor, a throwing `then()` or a value that is not thenable at all is
+    // an ordinary `FAILURE_PRESENTATION_READY` — not a panic (A-08).
+    try {
+      const then = thenOf(ready);
+
+      if (then === null) {
+        throw new TypeError(
+          'drag: holdForReadiness() was given a value that is not thenable',
+        );
+      }
+
+      then.call(
+        ready,
+        () => {
+          finish(false, null);
+        },
+        (error: unknown) => {
+          finish(true, error);
+        },
+      );
+    } catch (error) {
+      finish(true, error);
+    }
   };
 
   /**
@@ -1005,6 +1071,14 @@ export function createKernel<Part extends object>(
   const armSettlement = (attempt: SettlementAttempt): ArmOutcome => {
     if (attempt.readiness !== null) {
       watchReadiness(attempt, attempt.readiness);
+
+      // A gate that failed *synchronously* — a broken thenable — has already
+      // replaced this settlement. Arming a runner for it would start a landing
+      // the queued checkpoint is about to abandon (F-27).
+      if (attempt.failed) {
+        rollbackLandingHold(attempt);
+        return ARM_FAILED;
+      }
     }
 
     const { start } = attempt;
@@ -1131,6 +1205,15 @@ export function createKernel<Part extends object>(
         failed = true;
       }
 
+      // `anchorTarget` is behavior code and may have destroyed the controller
+      // synchronously. Teardown restored the inline styles and cleared
+      // ownership, but `session` is a *local* the join captured before the
+      // phase commit, so it still writes: pinning here would stamp a transform
+      // back onto an element the kernel no longer owns (I-6, F-38).
+      if (!joinLive()) {
+        return;
+      }
+
       const handle = attempt.landing;
 
       if (handle !== null) {
@@ -1144,6 +1227,13 @@ export function createKernel<Part extends object>(
           // so I-24 is no longer claimed for this operation.
           attempt.relinquished = false;
           report(error);
+        }
+
+        // The runner is the consumer's code and gets the same treatment: a
+        // `destroy()` that destroys the controller already retired this
+        // attempt, so neither the pin nor the terminal callback may run.
+        if (!joinLive()) {
+          return;
         }
       }
 
@@ -1243,10 +1333,6 @@ export function createKernel<Part extends object>(
     advanceSettlement(attempt);
   };
 
-  const isThenable = (value: unknown): value is PromiseLike<unknown> =>
-    typeof (value as PromiseLike<unknown> | null | undefined)?.then ===
-    'function';
-
   /**
    * The producer-side half of the double validation (I-4). The queued action
    * revalidates when it is applied, because the attempt slot and the committed
@@ -1305,18 +1391,30 @@ export function createKernel<Part extends object>(
       return;
     }
 
-    if (isThenable(value)) {
-      value.then(
-        (settled) => {
-          settleResolution(attempt, {
-            type: SETTLED_FULFILLED,
-            value: settled,
-          });
-        },
-        (error: unknown) => {
-          settleResolution(attempt, { type: SETTLED_REJECTED, error });
-        },
-      );
+    // Reading `then` and subscribing are inside one `try`, because both are
+    // consumer code on an arbitrary thenable. A throw from either is the
+    // resolution rejecting. `settleResolution` latches, so a thenable that
+    // resolves synchronously and *then* throws keeps its first completion.
+    try {
+      const then = thenOf(value);
+
+      if (then !== null) {
+        then.call(
+          value as PromiseLike<unknown>,
+          (settled: unknown) => {
+            settleResolution(attempt, {
+              type: SETTLED_FULFILLED,
+              value: settled,
+            });
+          },
+          (error: unknown) => {
+            settleResolution(attempt, { type: SETTLED_REJECTED, error });
+          },
+        );
+        return;
+      }
+    } catch (error) {
+      settleResolution(attempt, { type: SETTLED_REJECTED, error });
       return;
     }
 
@@ -1529,6 +1627,19 @@ export function createKernel<Part extends object>(
   const handleFailed = (checkpoint: FailureCheckpoint): void => {
     const { phase } = current;
 
+    // The applied half of the I-22 precedence check, and not redundant with the
+    // one in `failOperation`: `host.fail()` classifies **immediately**, inside
+    // the open phase, so a seam that fails and *then* cancels queues
+    // `[FAILED, CANCEL]` — the latch does not exist yet when the checkpoint is
+    // queued, only when it is applied. Dropping it here leaves the phase
+    // untouched, so the `CANCEL` behind it still finds a live `ACTIVE`
+    // operation and produces the single terminal callback the consumer gets.
+    // The error is not lost; it takes the non-consequential channel.
+    if (cancelRequest !== null && current.operation === checkpoint.operation) {
+      report(checkpoint.error);
+      return;
+    }
+
     if (
       current.operation !== checkpoint.operation ||
       phase === IDLE ||
@@ -1712,6 +1823,11 @@ export function createKernel<Part extends object>(
     arm(next): void {
       spec = next;
 
+      // How many frames physically exist, which is what the unwind scrubs.
+      // `armedKeys.length` cannot answer that: it is captured once, from the
+      // first frame, so it is still empty while the *second* factory runs.
+      let composed = 0;
+
       try {
         if (
           !Number.isInteger(next.config.actionTags) ||
@@ -1727,9 +1843,13 @@ export function createKernel<Part extends object>(
         // deterministic, so checking only the first would let the second
         // introduce a colliding key (I-5, F-2).
         current = composeFrame(next.createFramePart);
-        draft = composeFrame(next.createFramePart);
-        assertFrameShapesMatch(current, draft);
+        // Captured from the first frame, before the second can fail, so the
+        // unwind always has a key set to check a scrub against.
         armedKeys = captureFrameKeys(current);
+        composed = 1;
+        draft = composeFrame(next.createFramePart);
+        composed = 2;
+        assertFrameShapesMatch(current, draft);
 
         root.addEventListener(POINTER_DOWN, onPointerDown, {
           signal: ingress.signal,
@@ -1738,11 +1858,16 @@ export function createKernel<Part extends object>(
         guarded(next.retire);
 
         // Totality applies to the unwind too: a reset that throws here must not
-        // replace the original arm failure or skip the ingress cleanup.
-        // `armedKeys` is non-empty exactly when both frames exist — the kernel
-        // slice alone contributes seven keys.
-        if (armedKeys.length > 0) {
+        // replace the original arm failure or skip the ingress cleanup. Scrub
+        // **whichever frame exists** — a second factory that throws, or a shape
+        // mismatch between the two, leaves a constructed frame the failure path
+        // is still responsible for, and a part that already holds a DOM
+        // reference would otherwise be retained by the controller for good.
+        if (composed > 0) {
           scrub(current);
+        }
+
+        if (composed > 1) {
           scrub(draft);
         }
 
