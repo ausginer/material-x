@@ -428,6 +428,52 @@ cleans the rejected contribution's private state**; one throwing retire hook doe
 not stop the rest and hooks run in reverse installation order; a displacement
 hook cannot reach `SettlementScope` (`@ts-expect-error`, I-10).
 
+**Deviations recorded while implementing.**
+
+- **`Behavior` carries its controller type.** The contract's brand sketch is
+  parameterless (`Readonly<{ [BRAND]: true }>`), but `draggable()` has to infer
+  what it returns, so the public type is `Behavior<Controller>` and the brand
+  field carries the controller. The **frame part is erased** at the brand, which
+  is the right direction anyway: it is the behavior's private type and no
+  consumer names it. The install function survives internally as
+  `BehaviorFactory<Controller, Part>`.
+- **Two runtime brand helpers, not one.** The contract names only
+  `unbrandFeature`. `brandFeature` and `brandBehavior` are its inverse and exist
+  because the cast has to happen *somewhere*: putting it in one shared identity
+  function keeps `as unknown as` out of every feature module and out of
+  `behavior.ts`. Both are declaration-only in effect and construction-time in
+  cost.
+- **`SortableFeature` is declared in `sortable/feature.ts` and re-exported
+  type-only from the `sortable.js` entry.** The contract asks for one resolvable
+  identity across the separate declaration files, which a re-export gives; what
+  it forbids is a *duplicate declaration* per subpath. Declaring it in the entry
+  module itself would have dragged the authoring types (`FeatureContext`,
+  `SortableContribution`) into the public entry's import graph.
+- **`SortableCallbacks` lives beside `SortableContribution`**, because the
+  contribution type references it and `sortable/callbacks.js` does not exist
+  until 8a. That subpath re-exports the type when it lands.
+- **`claim` labels the slot, not the two features.** The contract's compiled
+  assembler does the same; "names both features" is a capability the
+  full-contribution check *permits*, and features carry no name to print.
+  Labels beyond the contract's table: `placeholder()`, `handle()`, `visual()`,
+  `landing()`.
+- **`ReorderResolution` was pulled forward from 8a into `sortable.js`.** The
+  pack/extract fixture proved the entry had no runtime module at all: a type-only
+  entry emits no `.js`, while the `exports` map's `default` condition promised a
+  consumer one. The contract's export table already lists `ReorderResolution` as
+  a runtime export of this subpath and the value has existed since phase 6, so
+  the fix is the one line the topology was always going to need. The six feature
+  subpaths stay runtime-empty until 8a/8b, recorded as an explicit pending set
+  the fixture fails against once a phase lands one.
+- **`drag.js.map` was missing from `files`.** `kernel/` and `sortable/` ship as
+  whole directories and carry their maps along; the root entries are named file
+  by file, so the root map was the one artefact the allowlist could silently
+  drop while `drag.js` still pointed at it.
+- **Nothing needed converting in the behavior.** Phase 6 already called
+  `slots.*` throughout; the hand-written literals were only ever in the tests,
+  which keep them — driving the behavior through a real `assemble()` is 8a's
+  job, once real features exist to assemble.
+
 ---
 
 ## Phase 8a — The required minimal composition

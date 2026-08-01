@@ -13,7 +13,7 @@
  * ...features)` entry — which calls `assemble()` to produce one and drops the
  * feature array — is phase 7; the feature modules themselves are phase 8.
  */
-import type { Behavior } from '../kernel/spec.ts';
+import { type Behavior, brandBehavior } from '../kernel/spec.ts';
 import {
   createSortableController,
   type SortableController,
@@ -26,13 +26,13 @@ import { createSortableSpec } from './spec.ts';
 export function createSortableBehavior(
   items: readonly HTMLElement[],
   slots: SortableSlots,
-): Behavior<SortableController, SortableFramePart> {
-  return (host) => {
+): Behavior<SortableController> {
+  return brandBehavior<SortableController, SortableFramePart>((host) => {
     const rt = createSortableRuntime(host, items, slots);
 
     return {
       spec: createSortableSpec(rt),
       controller: createSortableController(host, rt),
     };
-  };
+  });
 }
