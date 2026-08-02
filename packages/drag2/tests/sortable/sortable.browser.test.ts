@@ -1857,6 +1857,7 @@ describe('the spatial action legality guard', () => {
       realm: rt.host.realm,
       placeholder: item,
       snapshot: rt.snapshot,
+      insertion: null,
     };
     rt.pendingSpatial = 1;
 

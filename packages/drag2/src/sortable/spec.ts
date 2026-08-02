@@ -67,6 +67,7 @@ import {
   movePlaceholder,
   placeholderAt,
 } from './placement.ts';
+import type { DisplacementView } from './slots.ts';
 import {
   SORTABLE_ACTION_TAGS,
   type SortableRuntime,
@@ -293,7 +294,12 @@ export function createSortableSpec(
         // 3 — every resource above is now owned.
         rt.placeholder = placeholder;
         rt.lift = scope.lift;
-        rt.view = { realm, placeholder, snapshot: current.snapshot! };
+        rt.view = {
+          realm,
+          placeholder,
+          snapshot: current.snapshot!,
+          insertion: null,
+        };
 
         if (!invalidateInSeam()) {
           // Classified; the operation is failing, so do not start it.
@@ -455,8 +461,13 @@ export function createSortableSpec(
 
           const view = rt.view!;
 
+          // Published before the bracket, so a hook knows *which* elements the
+          // move affects rather than having to measure the whole destination
+          // view to find out (M-4).
+          view.insertion = insertion;
+
           for (const hook of slots.beforeMove) {
-            hook(view);
+            hook(view as DisplacementView);
           }
 
           movePlaceholder(placeholder, insertion);
@@ -466,7 +477,7 @@ export function createSortableSpec(
           }
 
           for (const hook of slots.afterMove) {
-            hook(view);
+            hook(view as DisplacementView);
           }
 
           return;

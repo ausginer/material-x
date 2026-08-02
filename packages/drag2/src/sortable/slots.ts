@@ -64,6 +64,18 @@ export type DisplacementView = Readonly<{
   realm: DOMRealm;
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
+  /**
+   * The gap the placeholder is moving **to**. Meaningful only inside the
+   * bracket — the hooks are the only readers, and they run nowhere else.
+   *
+   * This is M-4's answer made expressible (`.agents/docs/drag/measurements/
+   * q7.md`). Without it a displacement feature cannot know which elements the
+   * move affects until after the write, so it has to measure the whole
+   * destination view twice: 2.3ms per committed move at 800 rows, against
+   * 0.16ms for the span the move actually touches. The endpoints are what turn
+   * an O(list) bracket into an O(distance) one.
+   */
+  insertion: Insertion;
 }>;
 
 export type DisplacementHook = (view: DisplacementView) => void;

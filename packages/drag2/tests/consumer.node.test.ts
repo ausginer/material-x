@@ -65,17 +65,12 @@ const MINUTE = 60_000;
 
 /**
  * Subpaths declared in the export topology from phase 0 whose module is still a
- * stub, so the build has no runtime code to emit for them. Each one moves out of
- * this set in the phase that implements it — the four below in 8b — and the test
- * fails until it does, which is what stops a landed feature from shipping
- * unpacked.
+ * stub, so the build has no runtime code to emit for them. **Empty since 8b**:
+ * every declared subpath now ships runtime code. It stays as a named list rather
+ * than being deleted, because a future subpath declared ahead of its
+ * implementation is exactly the case this guards.
  */
-const PENDING = [
-  './sortable/handle.js',
-  './sortable/landing.js',
-  './sortable/layout-animation.js',
-  './sortable/placeholder.js',
-];
+const PENDING: readonly string[] = [];
 
 const CONSUMER = `import { draggable, type Behavior } from '@ydinjs/drag2/drag.js';
 import {
