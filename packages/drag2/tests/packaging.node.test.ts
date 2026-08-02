@@ -83,6 +83,27 @@ describe('the published file list', () => {
     expect([...missing]).toEqual([]);
   });
 
+  it('should keep the minimal composition out of every optional feature', async () => {
+    // The measurement claim the export topology exists for: the minimal
+    // fixture's import graph *physically* cannot reach unselected geometry or
+    // optional work, independent of any bundler's tree-shaking heuristics.
+    const reachable = await reachableFrom([
+      'drag',
+      'sortable',
+      'sortable/vertical',
+      'sortable/callbacks',
+    ]);
+    const forbidden = [
+      'sortable/handle.ts',
+      'sortable/landing.ts',
+      'sortable/layout-animation.ts',
+      'sortable/placeholder.ts',
+    ];
+    const reached = [...reachable].map((file) => relative(SRC, file));
+
+    expect(reached.filter((file) => forbidden.includes(file))).toEqual([]);
+  });
+
   it('should not ship a directory nothing emits into', async () => {
     // The reverse drift: an allowlist entry that no longer names anything.
     const { files } = (await readJSON('package.json')) as {

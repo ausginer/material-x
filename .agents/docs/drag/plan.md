@@ -428,6 +428,52 @@ cleans the rejected contribution's private state**; one throwing retire hook doe
 not stop the rest and hooks run in reverse installation order; a displacement
 hook cannot reach `SettlementScope` (`@ts-expect-error`, I-10).
 
+**Deviations recorded while implementing.**
+
+- **`Behavior` carries its controller type.** The contract's brand sketch is
+  parameterless (`Readonly<{ [BRAND]: true }>`), but `draggable()` has to infer
+  what it returns, so the public type is `Behavior<Controller>` and the brand
+  field carries the controller. The **frame part is erased** at the brand, which
+  is the right direction anyway: it is the behavior's private type and no
+  consumer names it. The install function survives internally as
+  `BehaviorFactory<Controller, Part>`.
+- **Two runtime brand helpers, not one.** The contract names only
+  `unbrandFeature`. `brandFeature` and `brandBehavior` are its inverse and exist
+  because the cast has to happen *somewhere*: putting it in one shared identity
+  function keeps `as unknown as` out of every feature module and out of
+  `behavior.ts`. Both are declaration-only in effect and construction-time in
+  cost.
+- **`SortableFeature` is declared in `sortable/feature.ts` and re-exported
+  type-only from the `sortable.js` entry.** The contract asks for one resolvable
+  identity across the separate declaration files, which a re-export gives; what
+  it forbids is a *duplicate declaration* per subpath. Declaring it in the entry
+  module itself would have dragged the authoring types (`FeatureContext`,
+  `SortableContribution`) into the public entry's import graph.
+- **`SortableCallbacks` lives beside `SortableContribution`**, because the
+  contribution type references it and `sortable/callbacks.js` does not exist
+  until 8a. That subpath re-exports the type when it lands.
+- **`claim` labels the slot, not the two features.** The contract's compiled
+  assembler does the same; "names both features" is a capability the
+  full-contribution check *permits*, and features carry no name to print.
+  Labels beyond the contract's table: `placeholder()`, `handle()`, `visual()`,
+  `landing()`.
+- **`ReorderResolution` was pulled forward from 8a into `sortable.js`.** The
+  pack/extract fixture proved the entry had no runtime module at all: a type-only
+  entry emits no `.js`, while the `exports` map's `default` condition promised a
+  consumer one. The contract's export table already lists `ReorderResolution` as
+  a runtime export of this subpath and the value has existed since phase 6, so
+  the fix is the one line the topology was always going to need. The six feature
+  subpaths stay runtime-empty until 8a/8b, recorded as an explicit pending set
+  the fixture fails against once a phase lands one.
+- **`drag.js.map` was missing from `files`.** `kernel/` and `sortable/` ship as
+  whole directories and carry their maps along; the root entries are named file
+  by file, so the root map was the one artefact the allowlist could silently
+  drop while `drag.js` still pointed at it.
+- **Nothing needed converting in the behavior.** Phase 6 already called
+  `slots.*` throughout; the hand-written literals were only ever in the tests,
+  which keep them — driving the behavior through a real `assemble()` is 8a's
+  job, once real features exist to assemble.
+
 ---
 
 ## Phase 8a — The required minimal composition
@@ -465,6 +511,67 @@ still holds one gate and does not finalize in the resolution drain** (I-9).
 **Done when.** The minimal composition passes every row above; the import graph
 of the minimal fixture physically cannot reach landing, layout animation or any
 unselected geometry.
+
+**Deviations recorded while implementing.**
+
+- **`InsertionFrameView` gained `item`.** The contract's two-field sketch
+  (`insertion`, `pointerY`) is not sufficient to implement the rule it states
+  in the same document: the destination view is the collection *minus the
+  dragged item*, and an axis feature that cannot exclude it measures a lifted
+  element whose centre tracks the pointer — so it wins every search and pins the
+  gap to its own slot. Read off the frame rather than added to
+  `InsertionRuntimeView`, because the item is already committed frame state and
+  a second copy on the per-operation view could drift. `InsertionFrameView` is
+  internal and unstable by the contract's own boundary, so this is a behavior
+  -side widening, not a kernel-SPI change.
+- **`vertical()` compares centres on Y only, and never queries DOM order.** The
+  shipped `resolveSpatialInsertion` used a 2-D distance plus
+  `compareDocumentPosition` to decide which side of `nearest` the gap falls on.
+  The contract's rule is one-dimensional, and on a vertical axis "does `nearest`
+  follow the placeholder" *is* "is its centre below" — which the scan has
+  already measured. One fewer DOM call per resolution, and the axis assumption
+  stays in one place.
+- **`vertical()` measures the item, not `getVisual(item)`.** The shipped index
+  measured the resolved visual. `getVisual` is a behavior slot, and reaching it
+  from the axis feature would be a sibling-feature dependency in all but name;
+  the contract's rule says "centres of every non-dragged item".
+- **`sortable()` delegates to `createSortableBehavior`'s install seam.** The
+  behavior module exposes both: the composed entry assembles inside the install
+  function (a feature factory needs `realm` and `root`, and neither exists until
+  the kernel has a host), while the slot-taking entry stays for the suites that
+  drive a specific insertion or failure directly.
+- **The adversarial matrix runs at two layers, not one.** The composed suite
+  covers every group 8a names *that the public surface can reach*: basic flow,
+  boundary, reentrancy, async resolution, resource cleanup, collection and
+  staging, all five settlement mappings, the terminal protocol, placeholder
+  movement, failure continuation, teardown totality, and the I-9 gate row. Rows
+  that need a seam to throw on demand — explicit failure latching, an
+  invalidation or scheduled-frame failure — stay in the slot-literal suite,
+  because reaching them through the public API would mean shipping a feature
+  whose only purpose is to fail.
+
+**Contract amendment — I-31, decided after 8a.** A `cancel()` from inside
+`onStart` produced no terminal callback: 02's phase table said a `CANCEL` at
+`ACTIVATING` was abandoned. Amended, because the stated rationale ("nothing to
+tell the consumer about yet") holds at `PENDING` and not here — `ACTIVATING` is
+committed *before* `activation.effect`, so the presentation exists and `onStart`
+has already run. **Once a start is notified, exactly one terminal callback
+follows**: the cancellation settles at `AT_PROPOSAL` with a null proposal, which
+is the case `CanceledReorderResult` already modelled.
+
+The same pass closed a divergence 8a's composed suite exposed: `START_COMMITTED`
+did **not** consult the cancel latch, contrary to 03 and 05, so an invalidating
+`updateItems()` from `onStart` — whose cancel is queued *behind* the checkpoint —
+activated for one drain and reported from `ACTIVE`. The checkpoint now defers
+without retiring, leaving the phase at `ACTIVATING` for the cancellation to
+settle. Amended in 02 §phase table, 02 §I-31 (new), 03 §`ACTIVATING` is handled,
+and 05 (the *Reentrancy* row and F-32).
+
+One gap is admitted rather than closed: a cancel latched from a custom
+placeholder's `connectedCallback` **plus** a throwing `invalidateInsertion`
+settles a drag whose start was never notified. Two faults are required, the
+second already reports through `onError`, and closing it means carrying a
+per-operation "started" flag. Documented at both ends.
 
 ---
 

@@ -415,6 +415,13 @@ Resolved by **deleting the deferral**. I-30 already publishes `rt.view`,
 `rt.placeholder` and `rt.lift` before `onStart`, so an `ACTIVATING` frame is as
 reconcilable as an `ACTIVE` one. No pending slot, no requeue, no anti-spin rule.
 
+The invalidating case then has an ordering of its own: the cancel is raised by
+the collection action's *effect*, so it is queued **behind** `START_COMMITTED`
+rather than ahead of it. `START_COMMITTED` consults the latch and declines to
+advance, leaving the phase at `ACTIVATING` for the cancellation to settle
+(§[02](02-kernel-behavior-contract.md) §I-31). Without that check the operation
+would activate for exactly one drain and report the cancellation from `ACTIVE`.
+
 ### F-33 — kernel-owned cancel/failure could not build behavior-owned state · resolved
 
 Removing `canceled` and `failed` from `SettlementInput` created an ownership
@@ -672,7 +679,9 @@ React before landing · both immediate · stale readiness from an older operatio
 readiness never settles and the timeout applies · readiness resolved from a real
 `useLayoutEffect()` fixture.
 
-**Reentrancy** · `onStart` cancels · `onStart` destroys · **`onReorder` cancels
+**Reentrancy** · **`onStart` cancels → the operation settles as canceled at
+`AT_PROPOSAL` with a null proposal, and never reaches `ACTIVE` (I-31)** ·
+`onStart` destroys · **`onReorder` cancels
 → the cancel wins** and the later resolution is stale (F-25) · `onReorder`
 destroys · a callback queues work and then throws · a terminal callback
 destroys.
@@ -795,7 +804,8 @@ an iframe-hosted root uses its own `defaultView` · pointerup at coordinates
 newer than the last move renders the final sample (F-39) · a duplicate axis
 feature cleans the rejected contribution's private state · an `updateItems()`
 from `onStart` that invalidates the gap → `START_COMMITTED` observes the
-synchronous cancel latch and does not activate.
+synchronous cancel latch and does not activate, and the cancellation queued
+behind it **settles at `ACTIVATING`** rather than being abandoned (I-31).
 
 **Teardown robustness — new** · a landing handle whose `destroy()` throws during
 `controller.destroy()` → lifetimes, frame task, ingress and queue are still

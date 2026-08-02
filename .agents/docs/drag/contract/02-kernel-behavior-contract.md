@@ -429,6 +429,31 @@ This is **I-29's sibling, I-30**, and it is tier C — the API does not enforce
 ordering inside an effect. It is stated here because it is the one place where
 post-commit failure has a non-obvious correct answer.
 
+### I-31 — once a start is notified, exactly one terminal callback follows
+
+`onStart` is **post-commit**, not a preview: it runs inside `activation.effect`,
+after `ACTIVATING` is committed, the placeholder is in the DOM and the lift is
+acquired. A cancellation raised from inside it — directly, or by a collection
+replacement that invalidates the gap — therefore **settles as canceled** rather
+than retiring the operation silently, at stage `AT_PROPOSAL` and with a null
+proposal. The phase table above says so; this says why.
+
+An earlier draft abandoned `ACTIVATING` cancels with no callbacks, on the
+grounds that there was "nothing to tell the consumer about yet". That is true at
+`PENDING`, which still retires, and false here: the consumer has been told a
+drag began, and abandoning leaves it with state to unwind and no event that says
+to unwind it. Settling costs nothing structurally — nothing is un-committed, and
+the settlement transition stamps `SETTLING` from whatever phase preceded it.
+
+**The one admitted gap.** A cancellation latched from a custom placeholder's
+`connectedCallback` — which runs synchronously inside `item.after(placeholder)`,
+*before* the start notification — combined with a `slots.invalidateInsertion()`
+that then throws, produces a terminal callback for a drag whose start was never
+notified. Both faults are required: alone, the first still reaches `onStart` and
+the second reports its own classified failure. Recorded rather than closed,
+because closing it means carrying a per-operation "started" flag for a two-fault
+path that already reports through the error channel.
+
 ## Capabilities passed at call time
 
 The kernel grants exactly what a seam needs, as arguments. Behavior code *can*
@@ -1135,7 +1160,7 @@ total.
 | `ADMIT` | → PENDING | — | — | — | — | — | — | — |
 | `MOVE` | — | commit sample; maybe activate | — | commit sample; `moved()` | — | — | — | — |
 | `UP` | — | retire (below threshold) | — | → RELEASING | — | — | — | — |
-| `CANCEL` | — | retire | abandon, no callbacks | → SETTLING (canceled) | → SETTLING (canceled) | — | — | — |
+| `CANCEL` | — | retire | → SETTLING (canceled) | → SETTLING (canceled) | → SETTLING (canceled) | — | — | — |
 | `START_COMMITTED` | — | — | → ACTIVE | — | — | — | — | — |
 | behavior tag 0 (spatial) | — | — | — | `action` envelope | — | — | — | — |
 | behavior tag 1 (collection) | `action` envelope in every phase — the behavior decides per phase | | | | | | | |
