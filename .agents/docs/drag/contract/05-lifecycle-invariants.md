@@ -22,7 +22,7 @@ Probe 1 had every one of these at tier C.
 
 | ID | Invariant | Tier | Mechanism |
 | --- | --- | --- | --- |
-| I-1 | FIFO run-to-completion; a nested `dispatch` appends and never interrupts; each entry keeps its own argument | B | Kernel-private queue and drain |
+| I-1 | FIFO run-to-completion; a nested `dispatch` appends and never interrupts; each entry keeps its own argument. **Native admission is a queue boundary**: a dispatch from a handle/visual resolver enqueues without draining until admission commits or abandons, because admission is a transaction with no drain on the stack to append to (§[02](02-kernel-behavior-contract.md) §Queue semantics) | B | Kernel-private queue and drain |
 | I-2 | Preparation may not assign a **top-level** committed frame slot | **A** | `prepare` never receives `current`. Referent immutability is separate — see below. |
 | I-3 | Nothing is published until the operation is revalidated after `prepare` | B | The kernel's driver checks unconditionally between prepare and commit |
 | I-4 | Async completions are validated twice: at the producer boundary and when the queued action is applied | B | Both checks are kernel code |
@@ -402,7 +402,10 @@ reach the head of the list. `homeInsertion` compounded it by producing
 Resolved by one canonical `movePlaceholder()` used by both the action and
 release effects (anchor on `after`; append when it is `null`), and a
 `homeInsertion` that carries real identity neighbours. Keeping one writer also
-protects the non-oscillation rule from divergent implementations.
+protects the non-oscillation rule from divergent implementations — and gives the
+cross-container refusal a single home: the writer rejects an anchor whose parent
+is not the placeholder's, so a reparented item cannot silently relocate the
+footprint out of the list (D-27).
 
 ### F-32 — the `ACTIVATING` collection deferral contradicted FIFO · resolved
 

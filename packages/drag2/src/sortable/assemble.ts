@@ -140,6 +140,11 @@ export function assemble(
   return {
     resolveInsertion: insertion.resolve,
     invalidateInsertion: insertion.invalidate,
+    // Flattened like the other two, and normalized to `null` rather than to a
+    // no-op: the behavior's call site is already inside a guarded branch, so a
+    // null check costs nothing there and a shared no-op would hide from a
+    // reader that the eager read is optional.
+    measureInsertion: insertion.measure ?? null,
 
     onReorder: callbacks.onReorder,
     // Two normalization rules, because "optional callback" is not one thing.

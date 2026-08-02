@@ -660,8 +660,16 @@ describe('layoutAnimation', () => {
       }
     ).effect.getKeyframes();
 
-    expect(frames[0]!['transform']).toBe(`translateY(${ITEM_HEIGHT}px)`);
-    expect(frames.at(-1)!['transform']).toBe('translateY(0px)');
+    // On `translate`, never `transform`, and additively — so an authored
+    // transform on the row survives the displacement untouched.
+    expect(frames[0]!['translate']).toBe(`0px ${ITEM_HEIGHT}px`);
+    expect(frames.at(-1)!['translate']).toBe('0px');
+    // The composite lives on the effect; per-keyframe it reads back as `auto`,
+    // meaning "inherit from the effect".
+    expect(
+      (animation as Animation & { effect: KeyframeEffect }).effect.composite,
+    ).toBe('add');
+    expect(frames[0]!['transform']).toBeUndefined();
   });
 
   it('should replace a running displacement rather than stack one', async () => {
@@ -704,7 +712,6 @@ describe('layoutAnimation', () => {
       let reads = 0;
 
       activate(composed);
-      await drag(55);
 
       Element.prototype.getBoundingClientRect = function counted(
         this: Element,
@@ -717,7 +724,7 @@ describe('layoutAnimation', () => {
       };
 
       try {
-        await drag(95);
+        await drag(55);
       } finally {
         Element.prototype.getBoundingClientRect = native;
       }

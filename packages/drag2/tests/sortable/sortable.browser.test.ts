@@ -78,6 +78,7 @@ type Overrides = Partial<
     | 'getVisual'
     | 'createPlaceholder'
     | 'invalidateInsertion'
+    | 'measureInsertion'
     | 'startLanding'
     | 'beforeMove'
     | 'afterMove'
@@ -146,6 +147,7 @@ function createHarness(overrides: Overrides = {}): Harness {
   let harness!: Harness;
 
   const slots: SortableSlots = {
+    measureInsertion: overrides.measureInsertion ?? null,
     resolveInsertion(
       _frame: InsertionFrameView,
       runtime: InsertionRuntimeView,
@@ -339,6 +341,7 @@ afterEach(() => {
 const EMPTY_SLOTS: SortableSlots = {
   resolveInsertion: () => null,
   invalidateInsertion: (): void => {},
+  measureInsertion: null,
   onReorder: () => ReorderResolution.accept(),
   onStart: (): void => {},
   createPlaceholder: null,
@@ -1916,6 +1919,35 @@ describe('invalidation failure classification', () => {
     ]);
   });
 
+  it('should classify a failing settled-geometry measurement as an invalidation failure', async () => {
+    // The eager half of the same concern, so it shares the stage — and
+    // therefore the recovery — with the lazy half. The surrounding seam would
+    // otherwise report it as a placeholder-move failure.
+    const after: string[] = [];
+    const harness = createHarness({
+      measureInsertion: (): void => {
+        throw new Error('measurement failed');
+      },
+      afterMove: [
+        (): void => {
+          after.push('afterMove');
+        },
+      ],
+    });
+
+    activate(harness);
+    harness.next(harness.gap(1));
+    move(90);
+    await nextFrame();
+
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_INVALIDATION,
+    ]);
+    // Classified means stopped: the displacement hooks never run against an
+    // index that is neither the old geometry nor the new.
+    expect(after).toEqual([]);
+  });
+
   it('should classify an activation-time invalidation failure as its own stage', () => {
     // Not `FAILURE_ACTIVATION`: the surrounding seam would otherwise name the
     // wrong thing in `DragErrorContext.stage`.
@@ -2182,6 +2214,7 @@ describe('the spatial action legality guard', () => {
     rt.view = {
       realm: rt.host.realm,
       placeholder: item,
+      item,
       snapshot: rt.snapshot,
       insertion: null,
     };

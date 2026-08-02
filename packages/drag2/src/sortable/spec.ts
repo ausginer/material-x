@@ -67,13 +67,14 @@ import {
   movePlaceholder,
   placeholderAt,
 } from './placement.ts';
-import type { DisplacementView } from './slots.ts';
 import {
+  type PresentationView,
   SORTABLE_ACTION_TAGS,
   type SortableRuntime,
   TAG_INVALIDATION,
   TAG_SPATIAL,
 } from './runtime.ts';
+import type { DisplacementView } from './slots.ts';
 
 /** What `action.prepare(COLLECTION)` stages. It never discards (D-25). */
 type PreparedCollection = Readonly<{
@@ -150,6 +151,32 @@ export function createSortableSpec(
   const invalidateInSeam = (): boolean => {
     try {
       slots.invalidateInsertion();
+      return true;
+    } catch (error) {
+      host.fail(FAILURE_INVALIDATION, error);
+      return false;
+    }
+  };
+
+  /**
+   * `measureInsertion()` narrowed to `FAILURE_INVALIDATION`, for the same
+   * reason as {@link invalidateInSeam}: it is geometry-cache maintenance, and
+   * the surrounding phase would otherwise classify a throw as a
+   * placeholder-move failure. It is the eager half of the same concern and
+   * shares the stage — and therefore the recovery — with the lazy half.
+   */
+  const measureInSeam = (
+    frame: Readonly<Frame<SortableFramePart>>,
+    view: PresentationView,
+  ): boolean => {
+    const measure = slots.measureInsertion;
+
+    if (measure === null) {
+      return true;
+    }
+
+    try {
+      measure(frame, view);
       return true;
     } catch (error) {
       host.fail(FAILURE_INVALIDATION, error);
@@ -325,6 +352,7 @@ export function createSortableSpec(
         rt.view = {
           realm,
           placeholder,
+          item,
           snapshot: current.snapshot!,
           insertion: null,
         };
@@ -494,6 +522,15 @@ export function createSortableSpec(
           // view to find out (M-4).
           view.insertion = insertion;
 
+          // Three steps, and the order between them is the whole composition
+          // rule. `beforeMove` captures each element where it currently *looks*
+          // — offsets applied, which is what makes an interrupted displacement
+          // replay from where it visually is — and then releases every offset
+          // it owns. So between here and `afterMove` there is exactly one
+          // window in which nothing the library applied is visible, and the
+          // axis rebuild below lands in it. Reading lazily on the next spatial
+          // frame instead measures items mid-animation, which pits a freshly
+          // positioned placeholder against stale item centres and oscillates.
           for (const hook of slots.beforeMove) {
             hook(view as DisplacementView);
           }
@@ -502,6 +539,10 @@ export function createSortableSpec(
 
           if (!invalidateInSeam()) {
             return; // classified; the geometry the hooks would read is stale
+          }
+
+          if (!measureInSeam(current, view)) {
+            return; // classified; the axis index is neither old nor new
           }
 
           for (const hook of slots.afterMove) {

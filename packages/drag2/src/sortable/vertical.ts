@@ -193,6 +193,28 @@ export function vertical(): SortableFeature {
           dirty = true;
         },
 
+        /**
+         * The eager half. The behavior calls it inside the committed-move
+         * bracket, in the one window where no displacement offset is applied,
+         * so the rebuild reads **settled presentation geometry**.
+         *
+         * This is a re-timing, not an extra read: a committed move always
+         * dirties the cache and `resolve` always rebuilds it on the next
+         * spatial frame, which by then is mid-animation. The only case that
+         * pays for a pass it would not otherwise have is the last move before
+         * release — and release invalidates and re-resolves anyway.
+         */
+        measure(
+          frame: InsertionFrameView,
+          runtime: InsertionRuntimeView,
+        ): void {
+          const dragged = frame.item;
+
+          if (dragged !== null) {
+            refresh(runtime.snapshot, dragged);
+          }
+        },
+
         retire(): void {
           // The element array is what pins DOM between operations, so it is
           // emptied; the numeric buffer is kept and reused.
