@@ -698,7 +698,32 @@ export function createKernel<Part extends object>(
   };
 
   const onPointerDown = (event: PointerEvent): void => {
-    if (queue.closed || current.operation !== null || !isPrimaryPress(event)) {
+    // `admitting` is checked **first and here**, not one line later, because
+    // everything below this guard is already too late. A handle or visual
+    // resolver runs inside `admit`, and a resolver that dispatches a second
+    // `pointerdown` re-enters this function synchronously with the outer
+    // transaction half-written — and `current.operation` is still `null`,
+    // because the outer admission has not committed, so the ordinary guard
+    // waves it straight through.
+    //
+    // The nested pass would then `begin()` (rebuilding the draft the outer
+    // `admit` was handed by reference), run `spec.admit` a second time, mint an
+    // identity, arm ingress, and commit its own pointer origin. Control returns
+    // to the outer `admit`, which finishes writing *its* item and visual into
+    // the object that is now `current` — publishing an operation with one
+    // press's coordinates and the other's behavior state.
+    //
+    // Refusing before any of that keeps the boundary's ownership intact too:
+    // the nested call never reaches the `finally` that clears `admitting`.
+    // Behavior actions are unaffected — they are still deferred and drained by
+    // the boundary — and `destroy()` is not queued at all, so it remains the
+    // synchronous terminal barrier I-6 requires.
+    if (
+      queue.closed ||
+      admitting ||
+      current.operation !== null ||
+      !isPrimaryPress(event)
+    ) {
       return;
     }
 

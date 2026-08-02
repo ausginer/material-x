@@ -582,6 +582,86 @@ describe('the admission queue boundary', () => {
     expect(harness.snapshot().items).toEqual(harness.items);
   });
 
+  it('should refuse a nested press dispatched from the handle resolver', () => {
+    // A resolver runs inside `admit`, before anything is committed — so the
+    // ordinary "already have an operation" guard sees `null` and would wave a
+    // second `pointerdown` straight through. The nested pass would rebuild the
+    // draft the outer `admit` holds by reference, mint its own identity and
+    // commit its own origin; the outer `admit` would then finish writing its
+    // item into what is now the committed frame, publishing one press's
+    // coordinates with the other's behavior state.
+    let harness!: Harness;
+    const nest = once(() => {
+      press(harness.items[1]!, 10, 200);
+    });
+
+    harness = createHarness({
+      getHandle(item) {
+        nest();
+        return item;
+      },
+    });
+
+    press(harness.items[0]!, 10, 10);
+    move(40);
+    move(80);
+
+    // Behavior state is the outer press's...
+    expect(harness.started).toEqual([harness.items[0]!]);
+    expect(harness.placeholder()!.previousElementSibling).toBe(
+      harness.items[0],
+    );
+    // ...and so is the origin every later sample is measured against: 80 − 10,
+    // not 80 − 200.
+    expect(harness.items[0]!.style.transform).toContain('70px');
+  });
+
+  it('should refuse a nested press dispatched from the visual resolver', () => {
+    let harness!: Harness;
+    const nest = once(() => {
+      press(harness.items[1]!, 10, 200);
+    });
+
+    harness = createHarness({
+      getVisual(item) {
+        nest();
+        return item;
+      },
+    });
+
+    press(harness.items[0]!, 10, 10);
+    move(40);
+    move(80);
+
+    expect(harness.started).toEqual([harness.items[0]!]);
+    expect(harness.items[0]!.style.transform).toContain('70px');
+  });
+
+  it('should still admit the next press after refusing a nested one', () => {
+    // Refused, not latched: the boundary is per-admission, so the controller is
+    // untouched afterwards.
+    let harness!: Harness;
+    const nest = once(() => {
+      press(harness.items[1]!, 10, 200);
+    });
+
+    harness = createHarness({
+      getHandle(item) {
+        nest();
+        return item;
+      },
+    });
+
+    press(harness.items[0]!, 10, 10);
+    move(40);
+    release(40);
+
+    press(harness.items[2]!, 10, 90);
+    move(120);
+
+    expect(harness.started).toEqual([harness.items[0]!, harness.items[2]!]);
+  });
+
   it('should treat destroy from the handle resolver as an immediate terminal barrier', () => {
     let harness!: Harness;
     const terminate = once(() => {
@@ -2415,5 +2495,224 @@ describe('seam staging across whole operations', () => {
     release(40);
 
     expect(leaks()).toEqual([]);
+  });
+});
+
+describe('the displacement view lifetime', () => {
+  /**
+   * `PresentationView.insertion` is documented as meaningful **only** inside
+   * the committed-move bracket, and the hook-facing `DisplacementView` declares
+   * it non-null on that basis. A value left behind is a destination gap that
+   * outlives the move it described.
+   *
+   * Driven directly, because every exit that has to clear it is a failure exit:
+   * through the public surface the operation retires immediately afterwards and
+   * the view is gone before anything could read it.
+   */
+  const runBracket = (
+    overrides: Partial<SortableSlots> = {},
+    foreignAnchor = false,
+  ): Readonly<{ left: Insertion | null; threw: boolean }> => {
+    const root = document.createElement('div');
+    const items = [
+      document.createElement('div'),
+      document.createElement('div'),
+    ];
+    const placeholder = document.createElement('div');
+
+    root.append(items[0]!, placeholder, items[1]!);
+    document.body.append(root);
+    cleanup.push(() => {
+      root.remove();
+    });
+
+    const elsewhere = document.createElement('div');
+    const stray = document.createElement('div');
+
+    elsewhere.append(stray);
+    document.body.append(elsewhere);
+    cleanup.push(() => {
+      elsewhere.remove();
+    });
+
+    const rt = createSortableRuntime(
+      {
+        realm: createRealm(root),
+        root,
+        dispatch: (): void => {},
+        fail: (): void => {},
+        cancel: (): void => {},
+        destroy: (): void => {},
+      },
+      items,
+      { ...EMPTY_SLOTS, ...overrides },
+    );
+
+    rt.placeholder = placeholder;
+    rt.view = {
+      realm: rt.host.realm,
+      placeholder,
+      item: items[0]!,
+      snapshot: rt.snapshot,
+      insertion: null,
+    };
+
+    const spec = createSortableSpec(rt);
+    const current = {
+      ...createSortableFramePart(),
+      phase: ACTIVE,
+      snapshot: rt.snapshot,
+      item: items[0],
+      // An end gap, so the placeholder genuinely has to move — an inert move
+      // returns before the field is ever written.
+      insertion: {
+        version: 0,
+        index: 1,
+        before: foreignAnchor ? stray : items[1]!,
+        after: null,
+      },
+    } as unknown as Parameters<typeof spec.action.effect>[2];
+
+    let threw = false;
+
+    try {
+      spec.action.effect(TAG_SPATIAL, 1, current, STAGED);
+    } catch {
+      threw = true;
+    }
+
+    return { left: rt.view.insertion, threw };
+  };
+
+  it('should clear the gap after a successful bracket', () => {
+    expect(runBracket()).toEqual({ left: null, threw: false });
+  });
+
+  it('should clear the gap when the placeholder write is refused', () => {
+    // A cross-container anchor: the canonical writer throws rather than moving
+    // the placeholder out of the list.
+    expect(runBracket({}, true)).toEqual({ left: null, threw: true });
+  });
+
+  it('should clear the gap when the eager measurement fails', () => {
+    const result = runBracket({
+      measureInsertion: (): void => {
+        throw new Error('measure failed');
+      },
+    });
+
+    // Classified rather than thrown — `measureInSeam` narrows it — so this exit
+    // is a plain `return` out of the middle of the bracket.
+    expect(result).toEqual({ left: null, threw: false });
+  });
+
+  it('should clear the gap when the lazy invalidation fails', () => {
+    const result = runBracket({
+      invalidateInsertion: (): void => {
+        throw new Error('invalidation failed');
+      },
+    });
+
+    expect(result).toEqual({ left: null, threw: false });
+  });
+
+  it('should clear the gap when a beforeMove hook throws', () => {
+    expect(
+      runBracket({
+        beforeMove: [
+          (): void => {
+            throw new Error('hook failed');
+          },
+        ],
+      }),
+    ).toEqual({ left: null, threw: true });
+  });
+
+  it('should clear the gap when an afterMove hook throws', () => {
+    expect(
+      runBracket({
+        afterMove: [
+          (): void => {
+            throw new Error('hook failed');
+          },
+        ],
+      }),
+    ).toEqual({ left: null, threw: true });
+  });
+
+  it('should clear the gap the release settle published', () => {
+    // Release reuses the `beforeMove` pipeline to make displacement features
+    // hand back their offsets before it measures, so it opens the field too —
+    // and the only reader between that call and retirement is
+    // `resolveInsertion`, one line later, which must not see a gap.
+    const root = document.createElement('div');
+    const items = [
+      document.createElement('div'),
+      document.createElement('div'),
+    ];
+    const placeholder = document.createElement('div');
+
+    root.append(items[0]!, placeholder, items[1]!);
+    document.body.append(root);
+    cleanup.push(() => {
+      root.remove();
+    });
+
+    const rt = createSortableRuntime(
+      {
+        realm: createRealm(root),
+        root,
+        dispatch: (): void => {},
+        fail: (): void => {},
+        cancel: (): void => {},
+        destroy: (): void => {},
+      },
+      items,
+      { ...EMPTY_SLOTS, beforeMove: [(): void => {}] },
+    );
+
+    rt.placeholder = placeholder;
+    rt.view = {
+      realm: rt.host.realm,
+      placeholder,
+      item: items[0]!,
+      snapshot: rt.snapshot,
+      insertion: null,
+    };
+
+    const spec = createSortableSpec(rt);
+    const draft = {
+      ...createSortableFramePart(),
+      phase: RELEASING,
+      snapshot: rt.snapshot,
+      item: items[0],
+      insertion: { version: 0, index: 0, before: null, after: items[1]! },
+    } as unknown as Parameters<typeof spec.release.prepare>[0];
+
+    spec.release.prepare(draft);
+
+    expect(rt.view.insertion).toBeNull();
+  });
+
+  it('should publish the gap to the hooks while the bracket is open', () => {
+    // The counterpart: clearing it must not mean the hooks never see it.
+    const seen: Array<Insertion | null> = [];
+
+    runBracket({
+      beforeMove: [
+        (view): void => {
+          seen.push(view.insertion);
+        },
+      ],
+      afterMove: [
+        (view): void => {
+          seen.push(view.insertion);
+        },
+      ],
+    });
+
+    expect(seen).toHaveLength(2);
+    expect(seen[0]).not.toBeNull();
+    expect(seen[1]).toBe(seen[0]);
   });
 });

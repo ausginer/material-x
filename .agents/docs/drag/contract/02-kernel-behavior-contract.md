@@ -1317,6 +1317,24 @@ Ported unchanged from the shipped package. Entirely kernel-private.
   escaping admission cannot leave later dispatches queued with nothing to drain
   them.
 
+  **A nested `pointerdown` is refused for the same reason, and must be refused
+  before anything else runs.** A resolver can dispatch a second eligible press,
+  which re-enters the ingress handler synchronously — and the ordinary "an
+  operation is already live" guard does not stop it, because the outer
+  admission has not committed and `current.operation` is still `null`. The
+  nested pass would `begin()` (rebuilding the draft the outer `admit` holds by
+  reference, discarding whatever it had already staged there), run `spec.admit`
+  a second time, mint an identity and commit its own pointer origin; control
+  would then return to the outer `admit`, which finishes writing *its* item and
+  visual into the object that is now `current`. The result is one committed
+  operation carrying one press's coordinates and the other's behavior state.
+
+  The refusal is therefore the **first** condition in the handler — ahead of
+  the frame rebuild, ahead of `spec.admit`, ahead of any pointer write — and
+  the nested pass returns without reaching the `finally`, so the outer
+  boundary's ownership is never cleared out from under it. It is a refusal, not
+  a latch: the controller admits the next press normally.
+
 Only two things coalesce: the behavior's rAF frame task and, inside it, the
 single latest spatial attempt. Pointer input and collection replacement never
 coalesce.

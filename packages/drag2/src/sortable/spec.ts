@@ -184,6 +184,49 @@ export function createSortableSpec(
     }
   };
 
+  /**
+   * Releases every displacement offset before release measures anything.
+   *
+   * Release re-resolves after motion closes, and it does so while the last
+   * committed move's displacement is still in flight — so without this it
+   * measures items mid-animation and can propose a different gap from the one
+   * settled geometry gives. That gap is not an intermediate artefact: it is the
+   * `ReorderRequest` the consumer is asked to apply.
+   *
+   * `beforeMove` is reused rather than given a call site of its own, because it
+   * already means exactly this: *the placeholder is about to move, hand back
+   * what you are holding.* `release.effect` does move it. The gap passed is the
+   * incumbent one — the honest best estimate before resolution supersedes it,
+   * and the only cost of it being superseded is one element measured for
+   * nothing.
+   *
+   * **A deliberate, bounded exception to "prepare performs no DOM writes."**
+   * What it writes is the release of temporary offsets this library itself
+   * applied; it publishes nothing, changes no tree, and leaves every row at the
+   * position it was already animating towards. Release cannot discard, and a
+   * *failed* release retires the operation — where the feature's own `retire`
+   * would cancel these animations anyway. So the side effect is exactly what
+   * teardown would have done, one moment earlier.
+   */
+  const settleDisplacement = (
+    view: PresentationView,
+    insertion: SortableFramePart['insertion'],
+  ): void => {
+    if (insertion === null || slots.beforeMove.length === 0) {
+      return;
+    }
+
+    view.insertion = insertion;
+
+    try {
+      for (const hook of slots.beforeMove) {
+        hook(view as DisplacementView);
+      }
+    } finally {
+      view.insertion = null;
+    }
+  };
+
   /** The gap the item came from, recomputed rather than stored. */
   const homeGap = (frame: Readonly<Frame<SortableFramePart>>): void => {
     const home = homeInsertion(frame.snapshot!, frame.item!);
@@ -520,33 +563,48 @@ export function createSortableSpec(
           // Published before the bracket, so a hook knows *which* elements the
           // move affects rather than having to measure the whole destination
           // view to find out (M-4).
+          //
+          // Cleared in a `finally` covering every exit: the hooks succeeding,
+          // the placeholder write refusing a cross-container anchor, the eager
+          // measurement failing, and a `beforeMove`/`afterMove` hook throwing.
+          // The field is documented as meaningful **only** inside the bracket
+          // and the hook-facing view declares it non-null on that basis, so a
+          // value left behind would be a stale destination gap that outlives
+          // the move it described — readable by the next bracket's `collect`
+          // before it is overwritten, and by anything that reaches the
+          // per-operation view between moves.
           view.insertion = insertion;
 
-          // Three steps, and the order between them is the whole composition
-          // rule. `beforeMove` captures each element where it currently *looks*
-          // — offsets applied, which is what makes an interrupted displacement
-          // replay from where it visually is — and then releases every offset
-          // it owns. So between here and `afterMove` there is exactly one
-          // window in which nothing the library applied is visible, and the
-          // axis rebuild below lands in it. Reading lazily on the next spatial
-          // frame instead measures items mid-animation, which pits a freshly
-          // positioned placeholder against stale item centres and oscillates.
-          for (const hook of slots.beforeMove) {
-            hook(view as DisplacementView);
-          }
+          try {
+            // Three steps, and the order between them is the whole
+            // composition rule. `beforeMove` captures each element where it
+            // currently *looks* — offsets applied, which is what makes an
+            // interrupted displacement replay from where it visually is — and
+            // then releases every offset it owns. So between here and
+            // `afterMove` there is exactly one window in which nothing the
+            // library applied is visible, and the axis rebuild below lands in
+            // it. Reading lazily on the next spatial frame instead measures
+            // items mid-animation, which pits a freshly positioned placeholder
+            // against stale item centres and oscillates.
+            for (const hook of slots.beforeMove) {
+              hook(view as DisplacementView);
+            }
 
-          movePlaceholder(placeholder, insertion);
+            movePlaceholder(placeholder, insertion);
 
-          if (!invalidateInSeam()) {
-            return; // classified; the geometry the hooks would read is stale
-          }
+            if (!invalidateInSeam()) {
+              return; // classified; the geometry the hooks would read is stale
+            }
 
-          if (!measureInSeam(current, view)) {
-            return; // classified; the axis index is neither old nor new
-          }
+            if (!measureInSeam(current, view)) {
+              return; // classified; the axis index is neither old nor new
+            }
 
-          for (const hook of slots.afterMove) {
-            hook(view as DisplacementView);
+            for (const hook of slots.afterMove) {
+              hook(view as DisplacementView);
+            }
+          } finally {
+            view.insertion = null;
           }
 
           return;
@@ -598,7 +656,12 @@ export function createSortableSpec(
           );
         }
 
-        // Motion is already closed, so this search runs against final geometry.
+        // Settled first, then measured: motion is already closed, so this
+        // search runs against final geometry — and "final" has to mean settled
+        // presentation geometry, not wherever the last displacement happens to
+        // have reached.
+        settleDisplacement(view, draft.insertion);
+
         if (!invalidateInSeam()) {
           return { invoke: null };
         }

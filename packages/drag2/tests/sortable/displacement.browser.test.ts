@@ -331,6 +331,83 @@ describe('settled presentation geometry', () => {
     expect(await script(false)).toBe(await script(true));
   });
 
+  it('should resolve the release against settled geometry', async () => {
+    // Release re-resolves after motion closes, and it does so while the last
+    // committed move's displacement is still in flight. The coordinates are
+    // chosen so the two readings disagree: after the gap moves below row 1,
+    // row 1's settled centre is at 20 and its mid-flight centre is still near
+    // 60, against the placeholder's 60. Releasing at 45 is nearer the
+    // placeholder on settled geometry (25 vs 15 → no change, gap 1) and nearer
+    // row 1 on mid-flight geometry (≈14 vs 15 → gap 0).
+    //
+    // Asserted on the **request**, not the intermediate order: a wrong gap
+    // here is a wrong reorder reported to the consumer, which is the only
+    // consequence that leaves the library.
+    const composed = build({ features: withLayout(), itemCount: 4 });
+
+    activate(composed);
+    await drag(55);
+
+    const row = composed.items[1]!;
+    const [displacement] = running(row);
+
+    // Advanced deliberately. A freshly created animation is still pending, so
+    // its effect is not applied and *any* read looks settled — a release test
+    // that skips this passes without discriminating anything.
+    displacement!.pause();
+    displacement!.currentTime = DURATION * 0.2;
+    await displacement!.ready;
+
+    const placeholder = composed.root.querySelector<HTMLElement>(
+      '[data-drag-placeholder]',
+    )!;
+    const centre = (element: HTMLElement): number => {
+      const rect = element.getBoundingClientRect();
+
+      return (rect.top + rect.bottom) / 2;
+    };
+    const anchor = centre(placeholder);
+    const midFlight = centre(row);
+
+    // The premise, asserted rather than assumed: at these coordinates the row's
+    // mid-flight centre beats the placeholder's, and its settled centre — the
+    // row is 40px tall and has landed at the top of the list — does not.
+    expect(Math.abs(45 - midFlight)).toBeLessThan(Math.abs(45 - anchor));
+    expect(Math.abs(45 - 20)).toBeGreaterThan(Math.abs(45 - anchor));
+
+    release(45);
+
+    expect(composed.requests).toHaveLength(1);
+    expect(composed.requests[0]!.from).toBe(0);
+    expect(composed.requests[0]!.to).toBe(1);
+  });
+
+  it('should resolve the release the same way with and without layoutAnimation', async () => {
+    // The same script through a composition that cannot have an offset applied
+    // at all, so the expected value above is pinned by construction rather than
+    // by arithmetic in a comment.
+    const script = async (
+      features: readonly SortableFeature[],
+    ): Promise<ReorderRequest | undefined> => {
+      const composed = build({ features, itemCount: 4 });
+
+      activate(composed);
+      await drag(55);
+      release(45);
+
+      const [request] = composed.requests;
+
+      composed.dispose();
+      return request;
+    };
+
+    const plain = await script([]);
+    const animated = await script(withLayout());
+
+    expect(animated?.to).toBe(plain?.to);
+    expect(animated?.from).toBe(plain?.from);
+  });
+
   it('should reach the same outcome with and without layoutAnimation', async () => {
     // The strongest joint invariant available: a feature that only animates
     // must not change what the drag *decides*. Same pointer script, both

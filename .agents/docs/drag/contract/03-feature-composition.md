@@ -189,6 +189,28 @@ not work:
   which time it is mid-animation. Moving that rebuild into the bracket adds no
   reads at all; it only makes them land in the window where they are correct.
 
+**Release resolves against settled geometry too**, and it is the case that
+matters most: release re-resolves after motion closes, typically while the last
+committed move's displacement is still in flight, and what it produces is not an
+intermediate placeholder position but the `ReorderRequest` the consumer is asked
+to apply. A mid-flight reading there is a wrong reorder — or, when the wrong gap
+happens to equal the item's own index, no `onReorder` call at all.
+
+`release.prepare` therefore runs the `beforeMove` pipeline before it measures.
+That pipeline already means *the placeholder is about to move, hand back what
+you are holding*, and `release.effect` does move it; the gap passed is the
+incumbent one, which is the honest best estimate before resolution supersedes
+it. `afterMove` is deliberately not run — release does not animate, and the drop
+lands on a list at rest.
+
+This is a **deliberate, bounded exception to "prepare performs no DOM writes"**.
+What it writes is the release of temporary offsets the library itself applied: it
+publishes nothing, changes no tree, and leaves every row at the position it was
+already animating towards. Release cannot discard, and a failed release retires
+the operation — where the feature's own `retire` would cancel those animations
+anyway. The side effect is exactly what teardown would have done, one moment
+earlier.
+
 ## Assembly (D-12, H-5)
 
 The compiled version of everything below is in
