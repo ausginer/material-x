@@ -55,8 +55,27 @@ export type InsertionGeometry = Readonly<{
     frame: InsertionFrameView,
     runtime: InsertionRuntimeView,
   ): Insertion | null;
-  /** The behavior's only way to say "the geometry you cached is stale". */
+  /**
+   * "The geometry you cached is stale." **Lazy by contract** — scroll and
+   * resize raise it many times a second, so it must not read geometry.
+   */
   invalidate(): void;
+  /**
+   * Optional: "re-read your geometry **now**."
+   *
+   * The behavior calls this at exactly one instant — inside the committed-move
+   * bracket, once the placeholder has been written and every displacement
+   * feature has released its visual offsets. That is the only window in an
+   * active drag that yields **settled presentation geometry**, which is what
+   * the insertion rule is defined against (contract 03). A feature that omits
+   * it stays lazy and measures on its next `resolve`, which is correct only
+   * while nothing displaces items.
+   *
+   * It exists as a second method rather than as an eager `invalidate()`
+   * because the two callers want opposite things: the scroll listener must not
+   * measure, and the bracket must.
+   */
+  measure?(frame: InsertionFrameView, runtime: InsertionRuntimeView): void;
   retire(): void;
 }>;
 

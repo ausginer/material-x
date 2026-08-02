@@ -100,7 +100,21 @@ describe('movePlaceholder', () => {
 
     document.body.append(root);
     created.push(root);
-    return { root, items, placeholder: detached() };
+
+    const placeholder = detached();
+
+    // Inserted, and deliberately not at either end: `movePlaceholder` moves a
+    // placeholder that activation already put in the list, and it now refuses
+    // an anchor outside the placeholder's own container — a detached
+    // placeholder has none, so it would refuse everything. The middle slot is
+    // the one position that is neither of the two gaps these tests move to.
+    if (items.length > 1) {
+      items[1]!.before(placeholder);
+    } else {
+      root.append(placeholder);
+    }
+
+    return { root, items, placeholder };
   };
 
   const gapBefore = (after: HTMLElement | null, before: HTMLElement | null) =>
@@ -150,6 +164,54 @@ describe('movePlaceholder', () => {
 
     expect(movePlaceholder(placeholder, gapBefore(null, items[1]!))).toBe(true);
     expect(root.lastElementChild).toBe(placeholder);
+  });
+
+  it('should refuse an anchor in another container', () => {
+    // `before()` is relative to the anchor, so this does not fail on its own —
+    // it silently moves the placeholder out of the list and into the other
+    // container, taking the drag's layout footprint with it.
+    const { placeholder } = list(2);
+    const { items: foreign } = list(2);
+
+    expect(() =>
+      movePlaceholder(placeholder, gapBefore(foreign[0]!, null)),
+    ).toThrow(/not in the placeholder/u);
+  });
+
+  it('should refuse a foreign anchor used as an end gap', () => {
+    // The `before` branch is a separate insertion path and needs its own check.
+    const { placeholder } = list(2);
+    const { items: foreign } = list(2);
+
+    expect(() =>
+      movePlaceholder(placeholder, gapBefore(null, foreign[1]!)),
+    ).toThrow(/not in the placeholder/u);
+  });
+
+  it('should leave the placeholder where it was when it refuses', () => {
+    const { root, placeholder } = list(2);
+    const { items: foreign } = list(2);
+    const parent = placeholder.parentElement;
+
+    expect(() =>
+      movePlaceholder(placeholder, gapBefore(foreign[0]!, null)),
+    ).toThrow();
+
+    expect(parent).toBe(root);
+    expect(placeholder.parentElement).toBe(root);
+  });
+
+  it('should refuse to move a placeholder that is no longer in the tree', () => {
+    // A detached placeholder has no container, so every anchor is outside it.
+    // Reaching this means teardown already removed it, and re-inserting it
+    // would resurrect a footprint the operation has finished with.
+    const { items, placeholder } = list(2);
+
+    placeholder.remove();
+
+    expect(() =>
+      movePlaceholder(placeholder, gapBefore(items[0]!, null)),
+    ).toThrow(/not in the placeholder/u);
   });
 
   it('should report no move for an empty destination view', () => {

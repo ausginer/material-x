@@ -635,6 +635,100 @@ test double, the *Placeholder and admission* geometry rows (already-correct
 start/internal/end gap performs no reinsert; shadow-DOM press; iframe-hosted
 root), and Q-7 answered in writing with numbers.
 
+**Deviations recorded while implementing.**
+
+- **`DisplacementView` gained `insertion`; `SortableContribution` did not
+  change.** Q-7 was expected to possibly change the contribution shape; it did
+  not. What it changed is the *view* the displacement hooks see: the destination
+  gap is written to the shared per-operation view immediately before the
+  `beforeMove` pipeline, so a hook can name the elements a move affects instead
+  of measuring the whole destination view to find out. One property write per
+  **committed** move, no allocation, and `null` outside a bracket — the
+  hook-facing type declares it non-null because nothing but the bracket can
+  observe it.
+- **The span is a *cost* property, not a behavioural one.** Bracketing the whole
+  list produces identical animations, because every row outside the span has a
+  zero delta and is skipped either way. Three mutations that widened the
+  affected set therefore survived a purely behavioural suite. The only honest
+  pin is counting `getBoundingClientRect` calls, with a two-sided bound: a
+  bracket that measures nothing is broken, not cheap.
+- **`landing()` carries a generation counter.** WAAPI rejects `finished` on
+  `cancel()`, and both `retarget` and teardown cancel — so without it a landing
+  that is proceeding perfectly well reports a failure. Not anticipated by the
+  plan because the plan named `retarget` as trajectory quality only, which it is;
+  the completion channel is what leaks.
+- **`landing()` uses `fill: 'forwards'`.** The kernel destroys the runner
+  *before* it pins, so a forwards fill is released exactly when the
+  authoritative write lands. Without it the visual falls back to its last drag
+  transform for the microtask between the animation finishing and `finished`
+  resolving.
+- **`layoutAnimation()` measures the "First" rect with the running animation
+  still applied**, and cancels only before the *second* measurement. That is what
+  makes retargeting fall out for free — an interrupted displacement replays from
+  where the element visually is. Getting the order wrong subtracts the transform
+  from both sides and loses the offset silently.
+- **`PlaceholderOptions` narrowed to `create` + `className`.** Everything else a
+  placeholder might want to configure is either a default mechanic (not
+  configurable away, and owned by the behavior) or ordinary CSS on the class.
+- **The displacement-stacking assertion is an upper bound, not an equality.** A
+  round trip completed before the first displacement visibly progresses
+  legitimately produces a zero delta and therefore no second animation, so the
+  test asserts that no element is ever running two at once rather than that a
+  second one exists.
+
+**Deviations recorded in Checkpoint B pass 2 — the composition cluster.**
+
+- **Insertion geometry is now defined: *settled presentation geometry*.** It
+  includes authored element and ancestor transforms and any offset the consumer
+  applies; it excludes every displacement offset the library owns. The rule
+  exists because the two features *did* interact: `vertical()` reads with
+  `getBoundingClientRect()` and refreshed lazily on the next spatial frame, i.e.
+  mid-animation, so it measured items where they no longer were against a
+  placeholder where it now is — and proposed moving back. A purely visual
+  feature was changing what the drag decided.
+- **The bracket gained a settled-read window, at no cost.** `beforeMove` now
+  releases *every* offset the feature owns (not just this span's) after
+  capturing First, and the axis rebuild is re-timed into the gap between the
+  write and `afterMove`. It is a re-timing, not a shared read phase: a committed
+  move always dirties the axis and the axis always rebuilds on the next frame,
+  so no read is added — they only land where they are correct.
+- **Displacement writes `translate`, additively, never `transform`.** Assigning
+  `transform` replaces an authored `rotate()`; *additive* `transform` is wrong
+  too, because additive transform lists concatenate and the offset would land
+  inside the element's own `scale()` while the delta was measured in viewport
+  space. `translate` applies outside `transform` in the used-value chain, and
+  `composite: 'add'` composes with an authored `translate` or a consumer
+  animation on the same property.
+- **Ownership is explicit and had to be pinned by a read count.** The affected
+  set is snapshot members in the crossed span ∪ the in-flight set, minus the
+  dragged item and the placeholder. The dragged item was being collected on
+  every backward span — the placeholder sits immediately after it — and the bug
+  was invisible: `LIFT_FLAT` makes its rect identical across the bracket, so it
+  produced a zero delta and *looked* right. Only a `getBoundingClientRect` count
+  catches it, and only when the counted move is the first one and goes up.
+- **Two internal view widenings**, both recorded in contract 03 §Consumer
+  -declared views: `DisplacementView.item` (ownership — membership cannot
+  exclude the dragged item, because it is a member) and the optional
+  `InsertionGeometry.measure` flattened to `slots.measureInsertion`. Ordinary
+  `invalidate()` stays lazy: its other callers are the scroll and resize
+  listeners, which must not read geometry.
+- **Verified on Chromium only, because that is the only engine this repository
+  runs.** `.scripts/vitest-config.ts` declares a single browser instance and the
+  image sets `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1`, so Firefox and WebKit are not
+  installed and no cross-engine claim is made here. Additive `translate`
+  composition is asserted as its own test rather than assumed, so adding an
+  engine to `instances` reports it directly instead of surfacing as a sortable
+  regression.
+
+**Contract amendments applied after Checkpoint B pass 1** (foundational
+correctness fixes, documentation caught up in a later pass): native admission as
+a queue boundary (02 §Queue semantics, 05 I-1); the staged value never
+outliving its transaction (02 §The core returns an outcome); post-insertion
+validation in the activation effect (02 §I-30); the cross-container refusal in
+the canonical placeholder writer (00 D-27, 05 F-31); per-longhand inline-style
+restoration (01 §Ownership); and all-or-nothing landing acquisition (02 §Runner
+obligation).
+
 ---
 
 ## Phase 9 — Public surface

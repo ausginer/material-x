@@ -202,6 +202,32 @@ still need to say *this is a failure, at this stage*:
 type SeamRejection = Readonly<{ stage: FailureStage; error: unknown }>;
 ```
 
+#### The staged value never outlives its transaction
+
+A committed transition leaves its `Prepared` value in the driver's staging slot,
+for the seams whose staged value the *kernel* needs after the seam returns —
+today only the release seam's `ResolutionCommand`. That slot is
+consume-and-clear, and cleared again as every seam opens. Two further rules make
+it impossible for a command to survive the transaction that produced it:
+
+- **Staging is conditional on the preparation still being valid.** The
+  assignment is deliberately *after* `effect`, so nothing the effect triggers can
+  observe or clear it — which is also exactly when a reentrant `destroy()` has
+  already run. Clearing the slot inside teardown cannot help, because the write
+  that repopulates it comes next. So a transition whose effect abandoned the
+  operation stages `null`, and the release seam reads `null` on an otherwise
+  committed outcome and **does not execute the command**: the consumer
+  round-trip must not open for an operation the terminal barrier has retired.
+  This is the same shape as the `SEAM_COMMITTED`-only rule above, one step later.
+- **Every seam consumes its staged value or drops it.** The two seam policies
+  drop it for their callers; the seams the kernel drives directly — settlement,
+  the failure report, behavior actions — drop it themselves. Otherwise a later
+  seam that commits *without* staging anything would hand its caller the
+  previous seam's command, which is the precise failure the clear-on-read exists
+  to prevent. A value still sitting in the slot as the next seam opens is a bug
+  in the seam that left it there, and is **reported in `DEV`** rather than
+  silently dropped.
+
 ### Post-callback revalidation
 
 A rule the reserve-before-call discipline does not cover on its own:
@@ -421,6 +447,27 @@ Why each step sits where it does:
   are how `retire()` and the feature hooks find their targets. Publishing them
   before ownership is established would let a throw produce a runtime that
   points at resources nothing will release.
+- **Validation between insertion and publication.** `after()` *connects* the
+  placeholder, and a custom element's `connectedCallback` runs synchronously
+  inside that call. It is consumer code reached from a plain DOM write, so no
+  seam wraps it and no reentrancy guard sees it — and it can remove the
+  placeholder, move it, or reparent the item. The reentrant-`destroy()` check
+  already sits here; it is not enough on its own, because a `connectedCallback`
+  that only rearranges the DOM leaves the controller alive and nothing
+  downstream knows the footprint is wrong.
+
+  So the effect **validates that the insertion took** before publishing runtime
+  state or notifying: the placeholder is connected, and it is still the item's
+  next element sibling. Two conjuncts, each catching what the other cannot —
+  adjacency already implies same-parent, so a separate parentage test would be
+  unfalsifiable, but adjacency holds inside a detached fragment too, so
+  connectivity is not implied by it. Failing it is `FAILURE_ACTIVATION` from the
+  committed state: the placeholder disposer registered in step 1 removes the
+  element, nothing is published, `onStart` never runs, and the consumer learns
+  through `onError` with the activation stage. Everything after this point
+  assumes the insertion took — `placeholderAt` reads siblings, `movePlaceholder`
+  relocates relative to them, the landing measures a rect — so it is checked
+  rather than assumed and repaired later.
 - **Consumer callbacks last.** `onStart` may reentrantly `cancel()` or
   `destroy()`. Everything must be owned before that becomes possible, or
   teardown races an incomplete effect.
@@ -960,6 +1007,19 @@ restored. A terminal-callback throw still leads to retirement.
 else. After `destroy()` it must leave no committed animation that overrides
 inline style.
 
+**Acquisition is all-or-nothing.** A runner that starts something and then fails
+to return a handle must leave nothing running. Starting the animation is not the
+same as *acquiring* the runner: with WAAPI, `animate()` succeeding is followed by
+reading `finished` — an accessor — and calling `then` on it, and either can
+throw. The handle being built never reaches the kernel in that case, so an
+animation left playing keeps writing the transform with nothing able to stop it:
+the kernel's `destroy()`-then-pin ordering has no handle to destroy, and the pin
+loses to the running effect. The runner must cancel what it started and let the
+throw travel, where `FAILURE_LANDING_CREATE` classifies it. This is the same
+obligation as the stale-return disposal above, at the other end: there the
+kernel destroys a handle it cannot own, here the runner cancels an animation the
+kernel cannot see.
+
 ### `authoredReady` is not "a readiness promise was supplied"
 
 Those are two different questions, and an earlier draft conflated them
@@ -1237,6 +1297,43 @@ Ported unchanged from the shipped package. Entirely kernel-private.
   validates, prepares, commits, renders and notifies — not six.
 - **Behavior tags share the queue** and are offset from `BEHAVIOR_BASE` by the
   kernel, so a behavior declares `0` and `1` and never learns a kernel tag value.
+- **Native admission is a queue boundary.** Run-to-completion above says a
+  nested `dispatch` appends and returns because the outermost frame owns the
+  pass — which presumes a drain is on the stack. Admission is the one
+  transaction the kernel drives *outside* the seam driver: it mutates the draft
+  directly across the whole of `admit` and commits at the end, so the driver's
+  re-entry refusal cannot see it, and there is no drain to append to. A handle
+  or visual resolver calling `updateItems()` would therefore start a *new* drain
+  underneath a half-written admission — `begin()`, `commit()`, a frame-pair
+  swap — after `admit` has already captured the draft by reference. The item and
+  snapshot land on one frame, the phase and operation on the other, and the
+  committed operation has no item at all.
+
+  So dispatch **enqueues without draining for the whole of admission**, and the
+  boundary drains once, after admission has either committed (`PENDING`) or
+  abandoned. `destroy()` is exempt and unchanged: it is not queued, so it stays
+  the synchronous terminal barrier I-6 requires, and the queue it closes drops
+  whatever a resolver appended. The arming is cleared in a `finally`, so a throw
+  escaping admission cannot leave later dispatches queued with nothing to drain
+  them.
+
+  **A nested `pointerdown` is refused for the same reason, and must be refused
+  before anything else runs.** A resolver can dispatch a second eligible press,
+  which re-enters the ingress handler synchronously — and the ordinary "an
+  operation is already live" guard does not stop it, because the outer
+  admission has not committed and `current.operation` is still `null`. The
+  nested pass would `begin()` (rebuilding the draft the outer `admit` holds by
+  reference, discarding whatever it had already staged there), run `spec.admit`
+  a second time, mint an identity and commit its own pointer origin; control
+  would then return to the outer `admit`, which finishes writing *its* item and
+  visual into the object that is now `current`. The result is one committed
+  operation carrying one press's coordinates and the other's behavior state.
+
+  The refusal is therefore the **first** condition in the handler — ahead of
+  the frame rebuild, ahead of `spec.admit`, ahead of any pointer write — and
+  the nested pass returns without reaching the `finally`, so the outer
+  boundary's ownership is never cleared out from under it. It is a refusal, not
+  a latch: the controller admits the next press normally.
 
 Only two things coalesce: the behavior's rAF frame task and, inside it, the
 single latest spatial attempt. Pointer input and collection replacement never

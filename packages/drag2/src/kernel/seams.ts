@@ -171,7 +171,12 @@ export type SeamDriver<Part extends object> = Readonly<{
    * execute a resolution belonging to a transaction that is over.
    *
    * Returns `null` when the last seam staged nothing, discarded, was
-   * invalidated, or failed.
+   * invalidated, failed, or committed an effect that then abandoned the
+   * operation.
+   *
+   * **Every seam either consumes its staged value or drops it.** The two seam
+   * policies below drop it for their callers; the seams the kernel drives
+   * directly drop it themselves. A value left behind is reported in `DEV`.
    */
   consumeStaged(): unknown;
 
@@ -366,6 +371,18 @@ export function createSeamDriver<Part extends object>(
       // The refusal has to land before that, not one line later.
       refuseReentry();
 
+      if (DEV && staged !== null) {
+        // The clear below already makes this harmless; the report is what stops
+        // it from being *invisible*. A staged value still sitting here means the
+        // previous seam neither consumed nor dropped it, which is the one way a
+        // command can outlive its transaction.
+        report(
+          new Error(
+            'drag: a seam staged a value its owner never consumed; the value is dropped',
+          ),
+        );
+      }
+
       staged = null;
       context.begin();
 
@@ -400,7 +417,15 @@ export function createSeamDriver<Part extends object>(
       // — a queued action, a consumer callback — therefore cannot observe or
       // clear this transition's staged value, and the assignment lands last
       // regardless of what ran in between.
-      staged = prepared;
+      //
+      // Which is exactly why it is conditional. Staging last means staging
+      // *after* an effect that reentrantly destroyed the controller or
+      // abandoned the operation, and the caller would then execute a command
+      // belonging to a transaction that no longer has anything to execute
+      // against — the release seam invoking the consumer's resolver for an
+      // operation `destroy()` already retired. A preparation that is no longer
+      // valid stages nothing, and the caller reads `null`.
+      staged = context.preparationValid() ? prepared : null;
       return SEAM_COMMITTED;
     },
 
@@ -470,6 +495,11 @@ export function runActivationSeam<Part extends object, Capability>(
 ): SeamOutcome {
   const outcome = driver.runCore(transition, capability, stage);
 
+  // Dropped **before** the policy runs, so nothing this seam triggers can read
+  // the placeholder it staged. Activation's staged value is consumed by its own
+  // `effect` and has no reader afterwards.
+  driver.consumeStaged();
+
   if (seamDiscarded(outcome)) {
     policy.retire();
   } else if (outcome === SEAM_COMMITTED) {
@@ -500,7 +530,10 @@ export function runReleaseSeam<Part extends object, Prepared extends {}>(
   // seam left, and `execute` never sees it.
   const command = driver.consumeStaged();
 
-  if (outcome === SEAM_COMMITTED) {
+  // `null` on a committed seam means the effect abandoned the operation — a
+  // reentrant `destroy()`. The command has nothing left to run against, and
+  // executing it would open the consumer round-trip for a retired operation.
+  if (outcome === SEAM_COMMITTED && command !== null) {
     execute(command as Prepared);
   }
 
