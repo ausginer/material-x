@@ -137,6 +137,72 @@ describe('acquireLift', () => {
     // returns it rather than removing it.
     expect(visual.style.position).toBe('absolute');
   });
+
+  it('should restore an authored longhand the lift overwrote with a shorthand', () => {
+    // The lift writes `margin: 0`. A shorthand only serializes when every
+    // longhand is present, so capturing by shorthand records nothing here — and
+    // restoring by shorthand then removes the authored declaration outright.
+    const visual = createBox({ marginLeft: '17px' });
+    const session = lift(visual, LIFT_FLAT);
+
+    expect(visual.style.marginLeft).toBe('0px');
+    session.dispose();
+
+    expect(visual.style.marginLeft).toBe('17px');
+  });
+
+  it('should restore the authored longhands of every shorthand it writes', () => {
+    // One case per shorthand the lift writes, because each is a separate entry
+    // in the restored set and a missing one is silent.
+    const visual = createBox();
+
+    visual.style.setProperty('top', '11px');
+    visual.style.setProperty('padding-bottom', '3px');
+    visual.style.setProperty('border-right-width', '4px');
+    visual.style.setProperty('border-left-style', 'dashed');
+    visual.style.setProperty('border-top-color', 'rgb(1, 2, 3)');
+    visual.style.setProperty('overflow-x', 'scroll');
+    visual.style.setProperty('transition-duration', '3s');
+
+    const session = lift(visual, LIFT_FLAT);
+
+    session.dispose();
+
+    expect(visual.style.top).toBe('11px');
+    expect(visual.style.paddingBottom).toBe('3px');
+    expect(visual.style.borderRightWidth).toBe('4px');
+    expect(visual.style.borderLeftStyle).toBe('dashed');
+    expect(visual.style.borderTopColor).toBe('rgb(1, 2, 3)');
+    expect(visual.style.overflowX).toBe('scroll');
+    expect(visual.style.transitionDuration).toBe('3s');
+  });
+
+  it('should restore the priority of an authored declaration', () => {
+    // Priority is per declaration, so it can only be restored per longhand.
+    const visual = createBox();
+
+    visual.style.setProperty('padding-top', '5px', 'important');
+
+    const session = lift(visual, LIFT_FLAT);
+
+    session.dispose();
+
+    expect(visual.style.getPropertyValue('padding-top')).toBe('5px');
+    expect(visual.style.getPropertyPriority('padding-top')).toBe('important');
+  });
+
+  it('should leave a consumer write to an untouched property alone', () => {
+    // The reason restoration is per property rather than a saved `style`
+    // attribute: the consumer's own code runs during the drag and may write
+    // inline styles the lift never touches.
+    const visual = createBox();
+    const session = lift(visual, LIFT_FLAT);
+
+    visual.style.setProperty('opacity', '0.5');
+    session.dispose();
+
+    expect(visual.style.opacity).toBe('0.5');
+  });
 });
 
 describe('in-place projection', () => {

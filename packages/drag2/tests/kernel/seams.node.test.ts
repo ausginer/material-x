@@ -922,6 +922,51 @@ describe('staged value', () => {
   it('should report nothing staged before any seam has run', () => {
     expect(createHarness().driver.consumeStaged()).toBeNull();
   });
+
+  it('should stage nothing when the effect abandoned the operation', () => {
+    const harness = createHarness();
+
+    // The staging assignment lands *after* the effect, which is exactly when a
+    // reentrant `destroy()` has already run: clearing the slot inside teardown
+    // cannot help, because the write that repopulates it happens next. So the
+    // write itself is conditional.
+    const outcome = harness.driver.runCore(
+      createTransition({
+        prepare: () => ({ staged: 5 }),
+        effect(): void {
+          harness.invalidate();
+        },
+      }),
+      undefined,
+      FAILURE_RELEASE,
+    );
+
+    expect(outcome).toBe(SEAM_COMMITTED);
+    expect(harness.driver.consumeStaged()).toBeNull();
+  });
+
+  it('should report a value an earlier seam left unconsumed', () => {
+    const harness = createHarness();
+
+    harness.driver.runCore(
+      createTransition({ prepare: () => ({ staged: 5 }) }),
+      undefined,
+      FAILURE_RELEASE,
+    );
+    harness.driver.runCore(
+      createTransition({ prepare: () => null }),
+      undefined,
+      FAILURE_RELEASE,
+    );
+
+    // Dropping it is not enough on its own: a seam whose value nothing consumes
+    // is a bug in the *caller*, and it stays invisible for as long as the drop
+    // is silent.
+    expect(harness.reported).toHaveLength(1);
+    expect(harness.reported[0]).toMatchObject({
+      message: expect.stringContaining('never consumed'),
+    });
+  });
 });
 
 describe('runCore reentrancy', () => {
@@ -1330,6 +1375,33 @@ describe('runActivationSeam', () => {
     expect(policy.retire).not.toHaveBeenCalled();
   });
 
+  it('should leave nothing staged behind after a committed activation', () => {
+    const harness = createHarness();
+
+    runActivationSeam(harness.driver, activation(), scope, FAILURE_ACTIVATION, {
+      retire: vi.fn(),
+      committed: vi.fn(),
+    });
+
+    // Activation's staged value is the placeholder, consumed by its own effect.
+    // Nothing reads it afterwards, so nothing may still hold it.
+    expect(harness.driver.consumeStaged()).toBeNull();
+  });
+
+  it('should drop the staged value before the policy runs', () => {
+    const harness = createHarness();
+    let observed: unknown = 'unset';
+
+    runActivationSeam(harness.driver, activation(), scope, FAILURE_ACTIVATION, {
+      retire: vi.fn(),
+      committed(): void {
+        observed = harness.driver.consumeStaged();
+      },
+    });
+
+    expect(observed).toBeNull();
+  });
+
   it('should retire the operation when activation discards', () => {
     const harness = createHarness();
     const policy = { retire: vi.fn(), committed: vi.fn() };
@@ -1477,6 +1549,30 @@ describe('runReleaseSeam', () => {
 
     expect(outcome).toBe(SEAM_COMMITTED);
     expect(execute).toHaveBeenCalledExactlyOnceWith(command);
+  });
+
+  it('should never invoke the consumer when the release effect abandoned the operation', () => {
+    const harness = createHarness();
+    const execute = vi.fn();
+
+    // A `release.effect` that reentrantly destroys the controller still commits
+    // — I-18 does not revert it — but the command it staged addresses an
+    // operation that no longer exists, and running it would open the consumer
+    // round-trip after the terminal barrier.
+    const outcome = runReleaseSeam(
+      harness.driver,
+      {
+        prepare: () => ({ invoke: null }),
+        effect(): void {
+          harness.invalidate();
+        },
+      },
+      FAILURE_RELEASE,
+      execute,
+    );
+
+    expect(outcome).toBe(SEAM_COMMITTED);
+    expect(execute).not.toHaveBeenCalled();
   });
 
   it('should never invoke the consumer after a failed release effect', () => {

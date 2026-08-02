@@ -267,6 +267,25 @@ export function createKernel<Part extends object>(
   let armedStamp = NO_STAMP;
   let stamp = NO_STAMP;
 
+  /**
+   * True for the whole of native admission — `admit`, its consumer-supplied
+   * handle and visual resolvers, and the frame write that publishes `PENDING`.
+   *
+   * **Admission is a queue boundary.** It is the one transaction the kernel
+   * drives outside the seam driver: it mutates the draft directly and commits at
+   * the end, so the driver's re-entry refusal cannot see it. A resolver that
+   * calls `updateItems()` reaches `dispatchKernel`, and draining there would run
+   * a behavior action — `begin()`, `commit()`, a frame swap — *underneath* a
+   * half-written admission, publishing the action's frame and then having
+   * admission commit the stale one over it.
+   *
+   * So dispatch enqueues and returns while this is set, and the boundary drains
+   * once, after admission has either committed or abandoned. `destroy()` is
+   * unaffected: it is not queued, so it stays the synchronous terminal barrier
+   * I-6 requires, and the queue it closes drops everything a resolver appended.
+   */
+  let admitting = false;
+
   /** The behavior action being run. Safe as a slot: seams are non-reentrant. */
   let actionTag = 0;
   let actionArgument: unknown = null;
@@ -485,6 +504,11 @@ export function createKernel<Part extends object>(
     }
 
     enqueue(queue, action, argument);
+
+    if (admitting) {
+      return; // the admission boundary owns the drain
+    }
+
     // Re-entrant calls return immediately: the outermost frame owns the drain
     // and reaches the newly appended work in the same pass.
     drain(queue, handle, panic);
@@ -568,6 +592,19 @@ export function createKernel<Part extends object>(
   };
 
   const driver = createSeamDriver<Part>(context);
+
+  /**
+   * Drops whatever a seam staged, for the seams the kernel drives directly.
+   *
+   * Settlement stages its gate plan and the failure report stages its own; both
+   * are consumed by the seam's `effect` and have no reader afterwards. Leaving
+   * them in the driver's slot would let the *next* seam to commit without
+   * staging anything hand a caller a plan belonging to a transaction that is
+   * over — which is the whole reason the slot is consume-and-clear.
+   */
+  const dropStaged = (): void => {
+    driver.consumeStaged();
+  };
 
   // -------------------------------------------------------------------------
   // Admission — native dispatch, not queued
@@ -666,7 +703,23 @@ export function createKernel<Part extends object>(
     }
 
     begin();
-    admitPress(event);
+    admitting = true;
+
+    try {
+      admitPress(event);
+    } finally {
+      // Cleared in a `finally` so a throw escaping admission — a panicking
+      // resolver, a re-entry refusal — cannot leave every later dispatch
+      // silently queued with nothing to drain it.
+      admitting = false;
+    }
+
+    // Whatever a resolver dispatched now runs against the committed outcome of
+    // admission: `PENDING` when it was admitted, `IDLE` when it was refused,
+    // nothing at all when the resolver destroyed the controller.
+    if (!queue.closed) {
+      drain(queue, handle, panic);
+    }
   };
 
   // -------------------------------------------------------------------------
@@ -1307,6 +1360,7 @@ export function createKernel<Part extends object>(
       );
     });
 
+    dropStaged();
     settlementInput = null;
     attempt.sealed = true;
 
@@ -1723,6 +1777,7 @@ export function createKernel<Part extends object>(
         );
       });
     } finally {
+      dropStaged();
       reporting = false;
       settlementInput = null;
     }
@@ -1761,6 +1816,7 @@ export function createKernel<Part extends object>(
         FAILURE_PLACEHOLDER_MOVE,
       );
     } finally {
+      dropStaged();
       // Drop the retained argument: it may be a DOM element or a consumer
       // value, and nothing may keep it alive past its action.
       actionArgument = null;

@@ -5,6 +5,8 @@ import {
   AT_PROPOSAL,
   FAILURE_ACTIVATION,
   FAILURE_INVALIDATION,
+  FAILURE_LANDING_TARGET,
+  FAILURE_PLACEHOLDER_MOVE,
   FAILURE_RELEASE,
   FAILURE_REORDER_RESOLUTION,
   FAILURE_RENDERER_WRITE,
@@ -436,6 +438,198 @@ describe('admission', () => {
   });
 });
 
+describe('the admission queue boundary', () => {
+  /**
+   * A resolver that runs `act` on the first press only. `getHandle` and
+   * `getVisual` are the two consumer callbacks admission invokes, and both run
+   * inside the native `pointerdown` dispatch — before anything is committed.
+   */
+  const once = (act: () => void): (() => void) => {
+    let done = false;
+
+    return () => {
+      if (done) {
+        return;
+      }
+
+      done = true;
+      act();
+    };
+  };
+
+  it('should apply a replacement dispatched from the handle resolver after admission commits', () => {
+    let harness!: Harness;
+    const replace = once(() => {
+      harness.controller.updateItems([...harness.items]);
+    });
+
+    harness = createHarness({
+      getHandle(item) {
+        replace();
+        return item;
+      },
+    });
+
+    activate(harness);
+    release(40);
+
+    // The action must land *after* the admission transaction, not underneath
+    // it: draining inside `admit` swaps the frame pair mid-write, so the
+    // committed operation ends up with no item and no snapshot and activation
+    // fails instead of starting.
+    expect(harness.calls).toContain('onStart');
+    expect(harness.snapshot().version).toBe(1);
+  });
+
+  it('should apply a replacement dispatched from the visual resolver', () => {
+    let harness!: Harness;
+    const replace = once(() => {
+      harness.controller.updateItems([...harness.items]);
+    });
+
+    harness = createHarness({
+      getVisual(item) {
+        replace();
+        return item;
+      },
+    });
+
+    activate(harness);
+    release(40);
+
+    expect(harness.calls).toContain('onStart');
+    expect(harness.snapshot().version).toBe(1);
+  });
+
+  it('should rebase the drag onto a collection replaced during admission', () => {
+    let harness!: Harness;
+    const replace = once(() => {
+      harness.controller.updateItems([...harness.items].reverse());
+    });
+
+    harness = createHarness({
+      getHandle(item) {
+        replace();
+        return item;
+      },
+    });
+
+    activate(harness);
+
+    // The pressed item is last in the replacement, so its home index is 2. A
+    // proposal built against the pre-admission collection would say 0.
+    const reversed = [...harness.items].reverse();
+
+    harness.next({ version: 1, index: 0, before: null, after: reversed[0]! });
+    release(40);
+
+    expect(harness.requests).toHaveLength(1);
+    expect(harness.requests[0]!.from).toBe(2);
+    expect(harness.requests[0]!.to).toBe(0);
+  });
+
+  it('should retire the operation when the replacement removes the pressed item', () => {
+    let harness!: Harness;
+    const replace = once(() => {
+      harness.controller.updateItems(harness.items.slice(1));
+    });
+
+    harness = createHarness({
+      getHandle(item) {
+        replace();
+        return item;
+      },
+    });
+
+    press(harness.items[0]!);
+
+    // Abandoned at `PENDING`, which is silent: `admit` is not a start
+    // notification, so there is nothing to report a terminal callback for.
+    expect(harness.calls).toEqual([]);
+    expect(harness.placeholder()).toBeNull();
+
+    // And retired *within the press*, not lazily on whatever event happens to
+    // drain next: an operation still sitting at `PENDING` would refuse the
+    // press below, because the controller already holds one.
+    press(harness.items[1]!);
+    move(40);
+    expect(harness.started).toEqual([harness.items[1]!]);
+  });
+
+  it('should apply several queued replacements in dispatch order', () => {
+    let harness!: Harness;
+    const replace = once(() => {
+      harness.controller.updateItems(harness.items.slice(0, 2));
+      harness.controller.updateItems([...harness.items]);
+    });
+
+    harness = createHarness({
+      getHandle(item) {
+        replace();
+        return item;
+      },
+    });
+
+    activate(harness);
+    release(40);
+
+    // Both landed, in order: the second is the published collection, and it is
+    // version 2 rather than a single collapsed update.
+    expect(harness.snapshot().version).toBe(2);
+    expect(harness.snapshot().items).toEqual(harness.items);
+  });
+
+  it('should treat destroy from the handle resolver as an immediate terminal barrier', () => {
+    let harness!: Harness;
+    const terminate = once(() => {
+      harness.controller.destroy();
+      // Queued behind a closed queue: it must never be drained.
+      harness.controller.updateItems([...harness.items].reverse());
+    });
+
+    harness = createHarness({
+      getHandle(item) {
+        terminate();
+        return item;
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.calls).toEqual([]);
+    expect(harness.placeholder()).toBeNull();
+
+    // Terminal exactly once and for good: nothing admits afterwards.
+    press(harness.items[1]!);
+    move(40);
+    expect(harness.calls).toEqual([]);
+  });
+
+  it('should treat destroy from the visual resolver as an immediate terminal barrier', () => {
+    let harness!: Harness;
+    const terminate = once(() => {
+      harness.controller.destroy();
+      harness.controller.updateItems([...harness.items].reverse());
+    });
+
+    harness = createHarness({
+      getVisual(item) {
+        terminate();
+        return item;
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.calls).toEqual([]);
+    expect(harness.placeholder()).toBeNull();
+
+    press(harness.items[1]!);
+    move(40);
+    expect(harness.calls).toEqual([]);
+  });
+});
+
 describe('activation', () => {
   it('should create the placeholder detached and insert it after the item', () => {
     const created: HTMLElement[] = [];
@@ -527,6 +721,138 @@ describe('activation', () => {
     expect(harness.calls).not.toContain('onStart');
     expect(harness.placeholder()).toBeNull();
     expect(harness.root.querySelector(REENTRANT_PLACEHOLDER)).toBeNull();
+  });
+
+  it('should fail activation when the placeholder removes itself on connection', () => {
+    // The same window as the reentrant destroy above, used differently: the
+    // controller survives, so nothing downstream knows the footprint is gone.
+    // Everything after this point assumes the insertion took — `placeholderAt`
+    // reads siblings, the landing measures a rect — so it is checked, not
+    // assumed.
+    const harness = createHarness({
+      createPlaceholder: (): HTMLElement =>
+        document.createElement(REENTRANT_PLACEHOLDER),
+    });
+
+    reentrantPlaceholderConnected = (element): void => {
+      element.remove();
+    };
+
+    activate(harness);
+
+    expect(harness.calls).not.toContain('onStart');
+    expect(harness.errors).toHaveLength(1);
+    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    expect(harness.placeholder()).toBeNull();
+  });
+
+  it('should fail activation when the placeholder reparents itself on connection', () => {
+    const foreign = document.createElement('div');
+
+    document.body.append(foreign);
+    cleanup.push(() => {
+      foreign.remove();
+    });
+
+    const harness = createHarness({
+      createPlaceholder: (): HTMLElement =>
+        document.createElement(REENTRANT_PLACEHOLDER),
+    });
+
+    reentrantPlaceholderConnected = (element): void => {
+      foreign.append(element);
+    };
+
+    activate(harness);
+
+    expect(harness.calls).not.toContain('onStart');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    // Still connected, but not in the list — and teardown owns it either way.
+    expect(foreign.children).toHaveLength(0);
+  });
+
+  it('should fail activation when the whole list leaves the document', () => {
+    // Adjacency survives — the placeholder is still the item's next sibling —
+    // and only connectivity breaks. A drag against a detached tree measures
+    // rects that are all zero, so it is refused rather than started.
+    const harness = createHarness({
+      createPlaceholder: (): HTMLElement =>
+        document.createElement(REENTRANT_PLACEHOLDER),
+    });
+
+    reentrantPlaceholderConnected = (): void => {
+      harness.root.remove();
+    };
+
+    activate(harness);
+
+    expect(harness.calls).not.toContain('onStart');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+  });
+
+  it('should fail activation when the placeholder moves within the container', () => {
+    // Connectivity holds and so does parentage; only adjacency breaks. The
+    // placeholder stands for *this item's* slot, and at the head of the list it
+    // no longer does — every later gap decision is read from its siblings.
+    const harness = createHarness({
+      createPlaceholder: (): HTMLElement =>
+        document.createElement(REENTRANT_PLACEHOLDER),
+    });
+
+    reentrantPlaceholderConnected = (element): void => {
+      harness.root.prepend(element);
+    };
+
+    activate(harness);
+
+    expect(harness.calls).not.toContain('onStart');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+  });
+
+  it('should fail activation when the item is reparented away from the placeholder', () => {
+    // Connectivity and parentage both hold here; only adjacency breaks. The
+    // placeholder stands for *this item's* slot, and it no longer does.
+    const foreign = document.createElement('div');
+
+    document.body.append(foreign);
+    cleanup.push(() => {
+      foreign.remove();
+    });
+
+    const harness = createHarness({
+      createPlaceholder: (): HTMLElement =>
+        document.createElement(REENTRANT_PLACEHOLDER),
+    });
+
+    reentrantPlaceholderConnected = (): void => {
+      foreign.append(harness.items[0]!);
+    };
+
+    activate(harness);
+
+    expect(harness.calls).not.toContain('onStart');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+  });
+
+  it('should start normally when the placeholder survives connection', () => {
+    // The check must not refuse an ordinary custom-element placeholder that
+    // does something harmless on connection.
+    const connected: HTMLElement[] = [];
+    const harness = createHarness({
+      createPlaceholder: (): HTMLElement =>
+        document.createElement(REENTRANT_PLACEHOLDER),
+    });
+
+    reentrantPlaceholderConnected = (element): void => {
+      element.dataset['ready'] = 'yes';
+      connected.push(element);
+    };
+
+    activate(harness);
+
+    expect(connected).toHaveLength(1);
+    expect(harness.errors).toEqual([]);
+    expect(harness.calls).toContain('onStart');
   });
 
   it('should not republish runtime state after a reentrant destruction', () => {
@@ -1914,5 +2240,147 @@ describe('the hoisted move leaf', () => {
     expect(harness.started).toEqual([harness.items[0]!, harness.items[1]!]);
     expect(harness.items[1]!.style.transform).not.toBe('');
     expect(harness.items[0]!.style.transform).toBe('');
+  });
+});
+
+describe('the placeholder container guard', () => {
+  /** A container outside the sortable root, torn down with the test. */
+  const foreignContainer = (): HTMLElement => {
+    const foreign = document.createElement('div');
+
+    document.body.append(foreign);
+    cleanup.push(() => {
+      foreign.remove();
+    });
+
+    return foreign;
+  };
+
+  it('should refuse a spatial move whose anchor left the container', () => {
+    // The snapshot still contains the item, so the insertion is coherent — it
+    // is the *DOM* that moved. Without the guard `before()` succeeds and takes
+    // the placeholder out of the list with it.
+    const harness = createHarness();
+
+    activate(harness);
+
+    const foreign = foreignContainer();
+
+    foreign.append(harness.items[2]!);
+    harness.next(harness.gap(1));
+    move(90);
+
+    return nextFrame().then(() => {
+      expect(harness.errors).toHaveLength(1);
+      expect(harness.errors[0]!.stage).toBe(FAILURE_PLACEHOLDER_MOVE);
+      // The checkpoint has already retired the operation and removed the
+      // placeholder; what matters is that it never reached the other container.
+      expect(foreign.children).toHaveLength(1);
+    });
+  });
+
+  it('should refuse a release whose resolved anchor left the container', () => {
+    const harness = createHarness();
+
+    activate(harness);
+
+    const foreign = foreignContainer();
+
+    foreign.append(harness.items[2]!);
+    harness.next(harness.gap(1));
+    release(90);
+
+    // The write is `release.effect`, so the command staged by `prepare` is
+    // never executed: the consumer is not asked to apply a reorder the library
+    // could not render.
+    expect(harness.calls).not.toContain('onReorder');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
+    expect(foreign.children).toHaveLength(1);
+  });
+
+  it('should refuse a home recovery whose anchor left the container', () => {
+    const harness = createHarness();
+
+    activate(harness);
+
+    const foreign = foreignContainer();
+
+    foreign.append(harness.items[1]!);
+    harness.controller.cancel('gone');
+
+    // Home recovery runs inside `anchorTarget`, so it classifies at the landing
+    // target stage and the terminal callback is skipped for the outcome the
+    // checkpoint is about to replace.
+    expect(harness.errors[0]!.stage).toBe(FAILURE_LANDING_TARGET);
+    expect(harness.calls).not.toContain('onCancel');
+  });
+
+  it('should skip a destination recovery whose item left the container', () => {
+    // The destination branch never moves the placeholder across containers to
+    // begin with — it re-anchors only when the item is still a sibling — so the
+    // drop completes normally and the placeholder simply stays put.
+    const harness = createHarness();
+
+    activate(harness);
+
+    const foreign = foreignContainer();
+
+    harness.next(harness.gap(1));
+    release(90);
+    foreign.append(harness.items[0]!);
+
+    expect(harness.errors).toEqual([]);
+    expect(harness.calls).toContain('onFinish');
+    expect(foreign.children).toHaveLength(1);
+  });
+});
+
+describe('seam staging across whole operations', () => {
+  /**
+   * The dev-only report the driver emits when a seam's staged value is still
+   * sitting in the slot as the next seam opens. Nothing in a healthy drag may
+   * produce one: a staged command that outlives its transaction is exactly how
+   * a decided operation gets a second turn at executing.
+   */
+  const leaks = (): unknown[] =>
+    reported.filter(
+      (error) =>
+        error instanceof Error && error.message.includes('never consumed'),
+    );
+
+  it('should leave nothing staged across two consecutive drags', async () => {
+    const harness = createHarness();
+
+    activate(harness);
+    harness.next(harness.gap(1));
+    move(90);
+    await nextFrame();
+    release(90);
+
+    // The second operation is what makes the first one's leftovers visible:
+    // its activation seam is the next `runCore` after the first settlement.
+    press(harness.items[1]!);
+    move(40);
+    release(40);
+
+    expect(leaks()).toEqual([]);
+  });
+
+  it('should leave nothing staged after a failed drag', () => {
+    const harness = createHarness({
+      onReorder: () => 'not a resolution' as never,
+    });
+
+    activate(harness);
+    harness.next(harness.gap(1));
+    release(90);
+
+    expect(harness.errors[0]!.stage).toBe(FAILURE_REORDER_RESOLUTION);
+
+    press(harness.items[1]!);
+    move(40);
+    release(40);
+
+    expect(leaks()).toEqual([]);
   });
 });

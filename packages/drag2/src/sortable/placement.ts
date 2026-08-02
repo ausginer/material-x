@@ -136,6 +136,16 @@ export function placeholderAt(
  * an already-correct position are a remove-and-reinsert, which resets CSS
  * transitions on the placeholder and forces a reflow. Release invokes this
  * unconditionally, and the common case is that nothing needs to move.
+ *
+ * **The anchor must be in the placeholder's own container**, and that is
+ * checked rather than assumed. `before()`/`after()` are relative to the anchor,
+ * so an anchor the consumer has reparented mid-drag does not fail — it silently
+ * *moves the placeholder into the other container*, taking the drag's layout
+ * footprint out of the list it belongs to. Every caller reaches this with an
+ * insertion built from a snapshot that may be older than the DOM: the spatial
+ * move, the release write, home recovery and destination recovery alike. Refused
+ * here so each of them classifies it at its own stage (`PLACEHOLDER_MOVE`,
+ * `RELEASE`, `LANDING_TARGET`) instead of discovering it as DOM corruption.
  */
 export function movePlaceholder(
   placeholder: HTMLElement,
@@ -146,6 +156,13 @@ export function movePlaceholder(
   }
 
   const { after } = insertion;
+  const anchor = after ?? insertion.before!;
+
+  if (anchor.parentNode !== placeholder.parentNode) {
+    throw new Error(
+      'drag: the insertion anchor is not in the placeholder’s container; refusing to move the placeholder out of the list',
+    );
+  }
 
   if (after !== null) {
     after.before(placeholder);

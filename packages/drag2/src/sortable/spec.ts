@@ -273,6 +273,34 @@ export function createSortableSpec(
           return;
         }
 
+        // Everything below assumes the insertion actually took, and a
+        // `connectedCallback` gets to run between `after()` and this line. It
+        // can remove itself, move itself, or reparent the *item* — and a
+        // detached or misplaced placeholder is not a footprint: `placeholderAt`
+        // would read the wrong container's siblings, `movePlaceholder` would
+        // relocate a node the collection no longer contains, and the landing
+        // would measure a rect that is not in the list at all.
+        //
+        // Cheaper than trusting it and repairing later, and classified where it
+        // belongs: a throw here is `FAILURE_ACTIVATION` from the committed
+        // state, so the placeholder disposer registered above removes it, the
+        // consumer gets `onError` with the activation stage, and nothing was
+        // published or notified.
+        // Two conjuncts, each catching what the other cannot. Adjacency alone
+        // already implies same-parent, so a separate parentage test would be
+        // unfalsifiable; but adjacency holds inside a detached fragment too, so
+        // connectivity is not implied by it.
+        const item = current.item!;
+
+        if (
+          !placeholder.isConnected ||
+          item.nextElementSibling !== placeholder
+        ) {
+          throw new Error(
+            'drag: the placeholder did not survive insertion — it was removed or reparented before activation completed',
+          );
+        }
+
         // Listeners bound to the signal are self-releasing, so the signal *is*
         // the registration; the explicit disposer cancels a scheduled frame.
         scope.motion.use(rt.frame.cancel);
@@ -317,7 +345,7 @@ export function createSortableSpec(
         }
 
         // 4 — last, because it may reentrantly cancel or destroy.
-        slots.onStart(current.item!);
+        slots.onStart(item);
       },
     },
 

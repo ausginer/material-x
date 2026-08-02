@@ -491,6 +491,48 @@ describe('landing', () => {
     expect(composed.errors).toHaveLength(1);
   });
 
+  it('should cancel the animation when subscribing to it throws', async () => {
+    // `animate()` succeeding is not the same as acquiring a runner: `finished`
+    // is an accessor and `then` is a call, and either can throw. An animation
+    // left playing at that point keeps writing the transform with nothing able
+    // to stop it, because the handle being built never reaches the kernel.
+    const composed = compose(landing({ duration: 400 }));
+    const native = Element.prototype.animate;
+    let created: Animation | null = null;
+
+    Element.prototype.animate = function animate(
+      this: Element,
+      ...args: Parameters<Element['animate']>
+    ): Animation {
+      const animation = native.apply(this, args);
+
+      created = animation;
+      Object.defineProperty(animation, 'finished', {
+        configurable: true,
+        get(): never {
+          throw new Error('no finished for you');
+        },
+      });
+
+      return animation;
+    };
+
+    try {
+      activate(composed);
+      await drag(55);
+      release(55);
+    } finally {
+      Element.prototype.animate = native;
+    }
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(composed.errors).toHaveLength(1);
+    expect((created as Animation | null)?.playState).toBe('idle');
+    expect(composed.items[0]!.getAnimations()).toEqual([]);
+  });
+
   it('should collapse the duration under a reduced-motion preference', async () => {
     // Collapsed, not skipped: the gate is still held and still released through
     // the runner, so there is one lifecycle whatever the preference is.
