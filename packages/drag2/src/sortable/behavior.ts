@@ -9,30 +9,65 @@
  * Both halves are returned at once, which is what makes "no input can be
  * admitted before install returns" unexpressible rather than a rule (D-1).
  *
- * This module takes an assembled `SortableSlots`. The public `sortable(items,
- * ...features)` entry — which calls `assemble()` to produce one and drops the
- * feature array — is phase 7; the feature modules themselves are phase 8.
+ * Assembly happens **inside** the install function, not before it: a feature
+ * factory is handed `realm` and `root`, and neither exists until the kernel has
+ * a host. The public `sortable(items, ...features)` entry lives in `sortable.ts`
+ * and is the only caller that assembles.
  */
-import type { Behavior } from '../kernel/spec.ts';
+import { report } from '../kernel/reporter.ts';
+import {
+  type Behavior,
+  type BehaviorInstall,
+  brandBehavior,
+  type KernelHost,
+} from '../kernel/spec.ts';
+import { assemble } from './assemble.ts';
 import {
   createSortableController,
   type SortableController,
 } from './controller.ts';
+import type { SortableFeature } from './feature.ts';
 import type { SortableFramePart } from './frames.ts';
 import { createSortableRuntime } from './runtime.ts';
 import type { SortableSlots } from './slots.ts';
 import { createSortableSpec } from './spec.ts';
 
+function install(
+  host: KernelHost,
+  items: readonly HTMLElement[],
+  slots: SortableSlots,
+): BehaviorInstall<SortableController, SortableFramePart> {
+  const rt = createSortableRuntime(host, items, slots);
+
+  return {
+    spec: createSortableSpec(rt),
+    controller: createSortableController(host, rt),
+  };
+}
+
+/** Takes an already-assembled slot record. The seam the tests drive directly. */
 export function createSortableBehavior(
   items: readonly HTMLElement[],
   slots: SortableSlots,
-): Behavior<SortableController, SortableFramePart> {
-  return (host) => {
-    const rt = createSortableRuntime(host, items, slots);
+): Behavior<SortableController> {
+  return brandBehavior<SortableController, SortableFramePart>((host) =>
+    install(host, items, slots),
+  );
+}
 
-    return {
-      spec: createSortableSpec(rt),
-      controller: createSortableController(host, rt),
-    };
-  };
+/** Assembles the features first, against the host's realm and root. */
+export function createComposedSortableBehavior(
+  items: readonly HTMLElement[],
+  features: readonly SortableFeature[],
+): Behavior<SortableController> {
+  return brandBehavior<SortableController, SortableFramePart>((host) =>
+    install(
+      host,
+      items,
+      // `report`, not `fail`: a feature closure created here cannot know which
+      // operation is live, so classifying a failure from one would let a late
+      // continuation settle another.
+      assemble(features, { realm: host.realm, root: host.root, report }),
+    ),
+  );
 }

@@ -309,6 +309,39 @@ export type BehaviorInstall<Controller, Part extends object> = Readonly<{
   controller: Controller;
 }>;
 
-export type Behavior<Controller, Part extends object> = (
+/**
+ * The install function itself — **internal and unstable**. It is a function
+ * between `KernelHost` and `BehaviorSpec`, both of which are internal, so
+ * exporting it under a stability promise would make the whole SPI a semver
+ * surface by reference (D-30).
+ */
+export type BehaviorFactory<Controller, Part extends object> = (
   host: KernelHost,
 ) => BehaviorInstall<Controller, Part>;
+
+declare const BEHAVIOR_BRAND: unique symbol;
+
+/**
+ * What a consumer holds and passes to `draggable()`: **opaque** (D-30). It can
+ * be named and passed, and cannot be constructed — the brand is declaration-only
+ * and unexported, so a structurally matching function literal is not assignable.
+ *
+ * `Controller` is carried so `draggable()` can infer its return type; the frame
+ * part is erased, because no consumer names it.
+ */
+export type Behavior<Controller> = Readonly<{
+  [BEHAVIOR_BRAND]: Controller;
+}>;
+
+/** Declaration-only cast. Behaviors are built inside this package only. */
+export function brandBehavior<Controller, Part extends object>(
+  factory: BehaviorFactory<Controller, Part>,
+): Behavior<Controller> {
+  return factory as unknown as Behavior<Controller>;
+}
+
+export function unbrandBehavior<Controller>(
+  behavior: Behavior<Controller>,
+): BehaviorFactory<Controller, object> {
+  return behavior as unknown as BehaviorFactory<Controller, object>;
+}

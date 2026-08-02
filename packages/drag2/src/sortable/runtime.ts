@@ -16,7 +16,7 @@ import type { VisualLiftSession } from '../kernel/presentation.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { KernelHost } from '../kernel/spec.ts';
 import { copyUniqueItems } from './collection.ts';
-import type { CollectionSnapshot } from './domain.ts';
+import type { CollectionSnapshot, Insertion } from './domain.ts';
 import type { SortableSlots } from './slots.ts';
 
 /** Behavior action tags. Behavior-local: the kernel offsets them. */
@@ -42,6 +42,18 @@ export type PresentationView = {
   readonly realm: DOMRealm;
   readonly placeholder: HTMLElement;
   snapshot: CollectionSnapshot;
+  /**
+   * The destination gap of the placeholder move currently being bracketed.
+   *
+   * Written immediately before the `beforeMove` pipeline and read only by the
+   * displacement hooks, which run nowhere else — so it is a field on the shared
+   * per-operation object rather than a fresh view per move. One write per
+   * *committed* move, and none per pointer move.
+   *
+   * It is `null` outside a bracket, and the hook-facing `DisplacementView`
+   * declares it non-null: nothing but the bracket can observe it.
+   */
+  insertion: Insertion | null;
 };
 
 export type SortableRuntime = {
