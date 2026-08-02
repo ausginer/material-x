@@ -71,23 +71,44 @@ export function landing(options: LandingOptions = {}): SortableFeature {
 
     const play = (from: string, to: Point): void => {
       const mine = generation;
-
-      animation = visual.animate(
+      // Local until it is fully subscribed. `animate()` succeeding is not the
+      // same as *acquiring* a runner: `finished` is an accessor and `then` is a
+      // call, and either can throw — a polyfill, a patched prototype, an engine
+      // that refuses to construct the promise. An animation left playing at that
+      // point would keep writing the transform with nothing able to stop it,
+      // because the handle this function is building never reaches the kernel.
+      // So acquisition is all-or-nothing: cancel what was started, then let the
+      // throw travel, where `FAILURE_LANDING_CREATE` classifies it.
+      const started = visual.animate(
         [{ transform: from }, { transform: compose(to.x, to.y) }],
         timing,
       );
-      animation.finished.then(
-        () => {
-          if (mine === generation) {
-            done();
-          }
-        },
-        (error: unknown) => {
-          if (mine === generation) {
-            fail(error);
-          }
-        },
-      );
+
+      try {
+        started.finished.then(
+          () => {
+            if (mine === generation) {
+              done();
+            }
+          },
+          (error: unknown) => {
+            if (mine === generation) {
+              fail(error);
+            }
+          },
+        );
+      } catch (error) {
+        // Bumped first: the cancel below rejects `finished` if a subscription
+        // did land, and this play is already abandoned.
+        generation += 1;
+        started.cancel();
+        throw error;
+      }
+
+      // Published last, so `destroy()` and `retarget()` never see a half-built
+      // animation — a failed retarget leaves the previous, already-cancelled one
+      // in the slot, which cancels idempotently.
+      animation = started;
     };
 
     play(compose(context.from.x, context.from.y), context.target);

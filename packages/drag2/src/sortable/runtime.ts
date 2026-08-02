@@ -41,6 +41,12 @@ export const SORTABLE_ACTION_TAGS = 3;
 export type PresentationView = {
   readonly realm: DOMRealm;
   readonly placeholder: HTMLElement;
+  /**
+   * The dragged item, for the displacement hooks. Committed frame state, so it
+   * cannot change for the life of the view — hence `readonly` and written once
+   * at activation rather than rewritten per move.
+   */
+  readonly item: HTMLElement;
   snapshot: CollectionSnapshot;
   /**
    * The destination gap of the placeholder move currently being bracketed.

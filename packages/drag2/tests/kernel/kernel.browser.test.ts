@@ -597,6 +597,54 @@ describe('admission', () => {
     expect(harness.calls).toEqual([]);
   });
 
+  it('should refuse a nested press before it can touch either frame', () => {
+    // The SPI permits `admit` to write the draft *before* it reaches consumer
+    // code, and the sortable behavior happens not to — which is why this lives
+    // here rather than in the behavior suite. A nested press that gets as far
+    // as `begin()` rebuilds the draft from the committed frame, discarding
+    // whatever the outer `admit` had already staged in it, and then commits its
+    // own pointer origin.
+    let nested = false;
+    let admits = 0;
+    let observed: Readonly<{ note: string; originY: number }> | null = null;
+
+    const harness = createHarness({
+      admit(_event, draft): HTMLElement {
+        admits += 1;
+        // Staged **before** the reentrancy point, which is the whole test.
+        draft.note = 'outer';
+
+        if (!nested) {
+          nested = true;
+          // A second eligible press, at different coordinates, from inside the
+          // outer one — exactly what a handle or visual resolver can do.
+          press(harness.item, 10, 200);
+        }
+
+        draft.item = harness.item;
+        return harness.item;
+      },
+      activation: {
+        prepare(draft): HTMLElement {
+          observed = { note: draft.note, originY: draft.originY };
+          return document.createElement('div');
+        },
+        effect(): void {},
+      },
+    });
+
+    press(harness.item, 10, 10);
+    move(10, 40);
+
+    expect(nested).toBe(true);
+    // The nested press never reached `spec.admit`...
+    expect(admits).toBe(1);
+    // ...never rebuilt the draft over what the outer one staged...
+    expect(observed!.note).toBe('outer');
+    // ...and never became the grab point every later sample is measured from.
+    expect(observed!.originY).toBe(10);
+  });
+
   it('should ignore a press while an operation is live', () => {
     const harness = createHarness();
 

@@ -52,28 +52,80 @@ const UA_PROPS: readonly string[] = [
   'background-color',
 ];
 
-/** Inline properties a lift overwrites; teardown restores or removes each. */
+/**
+ * Inline properties a lift overwrites, **expanded to longhands**.
+ *
+ * The lift writes shorthands (`inset`, `margin`, `padding`, `border-width`…),
+ * but the page authors whatever it likes, and the two do not correspond. A
+ * `style="margin-left: 8px"` yields `''` for `getPropertyValue('margin')` —
+ * a shorthand only serializes when every longhand is present and consistent —
+ * so capturing by shorthand records nothing, and restoring by shorthand then
+ * calls `removeProperty('margin')`, which drops the authored `margin-left` for
+ * good. The same holds for `inset`, `overflow`, `border-*` and `transition`.
+ *
+ * Longhands are also what makes `!important` survive: priority is per
+ * declaration, so an authored `padding-top: 4px !important` beside three
+ * ordinary paddings cannot be expressed as one shorthand entry at all.
+ *
+ * Restoring longhand-by-longhand needs no separate "clear the shorthand" pass:
+ * removing every longhand of a shorthand is exactly removing the shorthand.
+ */
 const LIFTED_PROPS: readonly string[] = [
   'position',
-  'inset',
   'top',
+  'right',
+  'bottom',
   'left',
   'width',
   'height',
-  'margin',
+  'margin-top',
+  'margin-right',
+  'margin-bottom',
+  'margin-left',
   'zoom',
   'box-sizing',
   'transform',
   'transform-origin',
-  'transition',
-  ...UA_PROPS,
+  'transition-property',
+  'transition-duration',
+  'transition-timing-function',
+  'transition-delay',
+  'transition-behavior',
+  'padding-top',
+  'padding-right',
+  'padding-bottom',
+  'padding-left',
+  'border-top-width',
+  'border-right-width',
+  'border-bottom-width',
+  'border-left-width',
+  'border-top-style',
+  'border-right-style',
+  'border-bottom-style',
+  'border-left-style',
+  'border-top-color',
+  'border-right-color',
+  'border-bottom-color',
+  'border-left-color',
+  'overflow-x',
+  'overflow-y',
+  'color',
+  'background-color',
 ];
 
 // ---------------------------------------------------------------------------
 // InlineStyleLease
 // ---------------------------------------------------------------------------
 
-/** Captures the inline lifted properties before the first write; restores once. */
+/**
+ * Captures the inline lifted properties before the first write; restores once.
+ *
+ * Restoration is **per property, never the whole `style` attribute**. A drag is
+ * a window in which the consumer's own code runs — `onStart`, the resolver, a
+ * readiness promise — and it may legitimately write inline styles the lift never
+ * touches. Rewriting the attribute wholesale would silently revert those; this
+ * reverts exactly the declarations the lift is responsible for.
+ */
 export function captureInlineStyles(visual: HTMLElement): Disposer {
   const saved = new Map<string, readonly [string, string]>();
 

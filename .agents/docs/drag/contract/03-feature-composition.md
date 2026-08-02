@@ -118,8 +118,10 @@ which one wins.
 ```ts
 type InsertionGeometry = Readonly<{
   resolve(frame: InsertionFrameView, runtime: InsertionRuntimeView): Insertion | null;
-  /** The behavior's only way to say "the geometry you cached is stale". */
+  /** "Stale." **Lazy by contract** — scroll and resize raise it constantly. */
   invalidate(): void;
+  /** Optional. "Re-read **now**", in the one window that is safe to read in. */
+  measure?(frame: InsertionFrameView, runtime: InsertionRuntimeView): void;
   retire(): void;
 }>;
 ```
@@ -135,7 +137,79 @@ Pairing the three operations in one contribution means a single claim, a single
 diagnostic naming both offending features, and no way to install a resolver
 without its invalidator. The assembler **flattens** the pair into two direct
 slot fields, so the call sites stay one property read and one call:
-`slots.resolveInsertion(...)`, `slots.invalidateInsertion()`.
+`slots.resolveInsertion(...)`, `slots.invalidateInsertion()`,
+`slots.measureInsertion` (nullable).
+
+### Insertion geometry is *settled presentation geometry*
+
+The insertion rule resolves against where items **settle**, and settled
+presentation geometry is defined by what it includes and what it excludes:
+
+- it **includes** authored element and ancestor transforms, and any visual
+  offset the consumer's own code applies — those are real, and an item the page
+  has moved really is somewhere else;
+- it **excludes** every displacement offset the library itself owns.
+
+The distinction is not academic. `vertical()` reads with
+`getBoundingClientRect()`, which includes a running FLIP offset, and it refreshes
+lazily — so with `layoutAnimation()` installed it measured items where they no
+longer were while measuring the placeholder where it now is. That mixed field
+proposes moving back: the crossed row's animating centre is nearer the pointer
+than the placeholder's settled one, which re-commits, which re-animates. **A
+feature that only animates was changing what the drag decided**, and the
+hysteresis this document credits with having "nothing to mistune into
+oscillation" was defeated by composition rather than by tuning.
+
+The rule is enforced by *when* the read happens, not by asking the axis to
+compensate for something it must not know about:
+
+```text
+beforeMove   capture each owned element where it currently looks,
+             then RELEASE every offset this feature applied
+placeholder  the sole writer of placeholder position
+invalidate   the axis cache is marked stale
+measure      ← the axis rebuilds HERE: no library offset is applied anywhere
+afterMove    re-measure, invert, play
+```
+
+Three consequences worth stating, because each was a candidate design that does
+not work:
+
+- **The release must cover every element the feature is offsetting, not just
+  this move's span.** During a fast drag an element from the previous move is
+  still mid-flight, and one element still carrying an offset is enough to
+  corrupt the rebuild. It is released and replayed from the position captured a
+  moment earlier, so nothing snaps — no frame is painted inside an effect.
+- **`invalidate()` cannot simply become eager.** Its other callers are the
+  scroll and resize listeners, which must not read geometry. The two wants are
+  opposite, which is why `measure()` is a second method rather than a stronger
+  first one.
+- **This is a re-timing, not a shared read phase.** A committed move always
+  dirties the axis and the axis always rebuilds on the next spatial frame — by
+  which time it is mid-animation. Moving that rebuild into the bracket adds no
+  reads at all; it only makes them land in the window where they are correct.
+
+**Release resolves against settled geometry too**, and it is the case that
+matters most: release re-resolves after motion closes, typically while the last
+committed move's displacement is still in flight, and what it produces is not an
+intermediate placeholder position but the `ReorderRequest` the consumer is asked
+to apply. A mid-flight reading there is a wrong reorder — or, when the wrong gap
+happens to equal the item's own index, no `onReorder` call at all.
+
+`release.prepare` therefore runs the `beforeMove` pipeline before it measures.
+That pipeline already means *the placeholder is about to move, hand back what
+you are holding*, and `release.effect` does move it; the gap passed is the
+incumbent one, which is the honest best estimate before resolution supersedes
+it. `afterMove` is deliberately not run — release does not animate, and the drop
+lands on a list at rest.
+
+This is a **deliberate, bounded exception to "prepare performs no DOM writes"**.
+What it writes is the release of temporary offsets the library itself applied: it
+publishes nothing, changes no tree, and leaves every row at the position it was
+already animating towards. Release cannot discard, and a failed release retires
+the operation — where the feature's own `retire` would cancel those animations
+anyway. The side effect is exactly what teardown would have done, one moment
+earlier.
 
 ## Assembly (D-12, H-5)
 
@@ -364,6 +438,17 @@ Passing the two separately costs nothing and is honest about both:
   `action.effect(COLLECTION)`. Two writes per operation, none per call, and no
   feature has to guard a null it can never see.
 
+**Both views were widened during implementation, for the same reason.** The
+sketches above are the shapes the design started from; each was one field short
+of expressing the rule stated for it in this document. Both are behavior-internal
+and unstable by the boundary this document draws, so neither is a kernel-SPI
+change:
+
+| View | Added | Why the sketch could not work |
+| --- | --- | --- |
+| `InsertionFrameView` | `item: HTMLElement \| null` | The destination view is the collection *minus* the dragged item, and an axis rule that cannot exclude it measures a lifted element whose centre tracks the pointer — so it wins every search and pins the gap to its own slot. Read off the frame, where the item already is committed state, rather than copied onto the runtime view where it could drift. |
+| `DisplacementView` | `insertion: Insertion`, `item: HTMLElement` | `insertion` is M-4's answer made expressible: without the destination gap a displacement feature cannot know which elements a move affects until after the write, so it must measure the whole destination view twice. `item` is ownership: membership in `snapshot` cannot exclude the dragged item, because the dragged item *is* a member, and nothing else identifies it. |
+
 No view materialization on any path, no `Pick<>` anywhere, and no import edge
 from a feature to the behavior's runtime type. This is what makes H-6 work at the
 *runtime* level, the same way §[04](04-frame-slicing.md) makes it work at the
@@ -587,14 +672,39 @@ correction from a step into a smooth adjustment
 Two seams bracket the single placeholder-move writer:
 
 ```text
-slots.beforeMove[…]      measure current rects
+slots.beforeMove[…]      measure current rects, then release owned offsets
 placeholder DOM move     the sole writer of placeholder position
-slots.afterMove[…]       re-measure, write inverted transforms, play
+slots.measureInsertion   the axis rebuilds on settled presentation geometry
+slots.afterMove[…]       re-measure, write inverted offsets, play
 ```
 
-The library performs only the measurements and temporary transform writes that
-make CSS animation possible; duration and easing are the consumer's, through
-CSS. FLIP is the expected implementation, not a requirement.
+The library performs only the measurements and temporary offsets that make CSS
+animation possible; duration and easing are the consumer's. FLIP is the expected
+implementation, not a requirement.
+
+**What it may write: `translate`, additively. Never `transform`.** Three
+properties of the write, in the order they were ruled out:
+
+- Assigning `transform` *replaces* an authored `rotate(4deg)` for the duration
+  and overrides a consumer's own running transform animation.
+- Additive `transform` is wrong too. Additive transform lists **concatenate**,
+  so the offset lands inside the element's own `scale()` and moves it by a
+  multiple of the delta — while the delta was measured in viewport space.
+- The individual `translate` property applies *before* `transform` in the
+  used-value chain (`translate → rotate → scale → transform`), so the offset sits
+  outside the element's own transform and needs no correction; and
+  `composite: 'add'` composes it with an authored `translate`, or with a
+  consumer animation on the same property, instead of clobbering either.
+
+**What it may touch: snapshot members in the crossed span, and nothing else.**
+Not the placeholder, whose position the behavior owns; not unrelated siblings,
+which a sibling walk otherwise picks up; and **not the dragged item**, whose
+presentation the kernel's lift owns. The dragged item is not a hypothetical: the
+placeholder is inserted immediately after it, so it is the first sibling every
+backward span walks over. Under `LIFT_FLAT` its rect does not change across the
+bracket, so animating it produces a zero delta and *looks* correct — the
+ownership violation is visible only in the reads, which is how it has to be
+pinned.
 
 **It is not a lifecycle gate, and under D-7 it structurally cannot become one:**
 it has no access to `SettlementScope`, which is passed only to
@@ -602,22 +712,28 @@ it has no access to `SettlementScope`, which is passed only to
 or presentation teardown. This is a case where probe 2 turns a probe-1 *rule*
 into an absence of capability.
 
-Retargeting: a placeholder move while a previous displacement is running cancels
-it and replays from the element's current *computed* transform, not from its
-authored origin. A displacement completion carries no operation identity because
-it can affect nothing outside the feature's own element map; retirement empties
-that map, so a late completion finds nothing to write.
+**Retargeting** is the same mechanism as the release above, not a special case.
+Every owned element — this move's span **union** whatever is still in flight — is
+measured where it currently looks, released, and replayed from that position
+after the write. So an interrupted displacement continues from where it visually
+is rather than restarting from a full delta, and exactly one animation exists per
+owned element at any time. A displacement completion carries no operation
+identity because it can affect nothing outside the feature's own element map;
+retirement empties that map, so a late completion finds nothing to write.
 
-**Open cost, not yet measured.** `vertical()` rebuilds its rect index around the
-same placeholder move that `layoutAnimation()` brackets with its own before/after
-measurements, so a committed move can force two independent full-list layout
-reads. For a large list those reads plausibly dominate frame copy, callback
-overhead and everything else this document counts. Q-7 (which elements the
-displacement set contains) must be settled and the minimal affected set measured
-**before implementation sign-off**. If both features genuinely need the same
-pre-move rects, a behavior-owned read phase or a small shared geometry-read
-capability is the answer — duplicating a full-list measurement to preserve
-conceptual privacy would be the wrong trade.
+**Acquisition is all-or-nothing**, the same obligation `landing()` has: `finished`
+is an accessor and `then` is a call, and an animation that is started but never
+entered into the map would survive `retire()` and keep offsetting an element
+nothing owns.
+
+**Q-7 is answered** (`.agents/docs/drag/measurements/q7.md`, M-4). The
+displacement set is the crossed span, 0.16ms against 2.3ms per committed move at
+800 rows. The two features never contend for a shared read: the axis rebuild is
+*re-timed* into the bracket rather than duplicated, so a committed move performs
+one full pass — the one it was always going to perform on the next frame — plus
+`2 × |span ∪ in-flight|` element reads. The behavior-owned read phase the open
+question anticipated exists, but it costs nothing, and it is there for
+correctness rather than for cost.
 
 ## The collection model
 

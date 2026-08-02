@@ -67,13 +67,14 @@ import {
   movePlaceholder,
   placeholderAt,
 } from './placement.ts';
-import type { DisplacementView } from './slots.ts';
 import {
+  type PresentationView,
   SORTABLE_ACTION_TAGS,
   type SortableRuntime,
   TAG_INVALIDATION,
   TAG_SPATIAL,
 } from './runtime.ts';
+import type { DisplacementView } from './slots.ts';
 
 /** What `action.prepare(COLLECTION)` stages. It never discards (D-25). */
 type PreparedCollection = Readonly<{
@@ -154,6 +155,75 @@ export function createSortableSpec(
     } catch (error) {
       host.fail(FAILURE_INVALIDATION, error);
       return false;
+    }
+  };
+
+  /**
+   * `measureInsertion()` narrowed to `FAILURE_INVALIDATION`, for the same
+   * reason as {@link invalidateInSeam}: it is geometry-cache maintenance, and
+   * the surrounding phase would otherwise classify a throw as a
+   * placeholder-move failure. It is the eager half of the same concern and
+   * shares the stage — and therefore the recovery — with the lazy half.
+   */
+  const measureInSeam = (
+    frame: Readonly<Frame<SortableFramePart>>,
+    view: PresentationView,
+  ): boolean => {
+    const measure = slots.measureInsertion;
+
+    if (measure === null) {
+      return true;
+    }
+
+    try {
+      measure(frame, view);
+      return true;
+    } catch (error) {
+      host.fail(FAILURE_INVALIDATION, error);
+      return false;
+    }
+  };
+
+  /**
+   * Releases every displacement offset before release measures anything.
+   *
+   * Release re-resolves after motion closes, and it does so while the last
+   * committed move's displacement is still in flight — so without this it
+   * measures items mid-animation and can propose a different gap from the one
+   * settled geometry gives. That gap is not an intermediate artefact: it is the
+   * `ReorderRequest` the consumer is asked to apply.
+   *
+   * `beforeMove` is reused rather than given a call site of its own, because it
+   * already means exactly this: *the placeholder is about to move, hand back
+   * what you are holding.* `release.effect` does move it. The gap passed is the
+   * incumbent one — the honest best estimate before resolution supersedes it,
+   * and the only cost of it being superseded is one element measured for
+   * nothing.
+   *
+   * **A deliberate, bounded exception to "prepare performs no DOM writes."**
+   * What it writes is the release of temporary offsets this library itself
+   * applied; it publishes nothing, changes no tree, and leaves every row at the
+   * position it was already animating towards. Release cannot discard, and a
+   * *failed* release retires the operation — where the feature's own `retire`
+   * would cancel these animations anyway. So the side effect is exactly what
+   * teardown would have done, one moment earlier.
+   */
+  const settleDisplacement = (
+    view: PresentationView,
+    insertion: SortableFramePart['insertion'],
+  ): void => {
+    if (insertion === null || slots.beforeMove.length === 0) {
+      return;
+    }
+
+    view.insertion = insertion;
+
+    try {
+      for (const hook of slots.beforeMove) {
+        hook(view as DisplacementView);
+      }
+    } finally {
+      view.insertion = null;
     }
   };
 
@@ -273,6 +343,34 @@ export function createSortableSpec(
           return;
         }
 
+        // Everything below assumes the insertion actually took, and a
+        // `connectedCallback` gets to run between `after()` and this line. It
+        // can remove itself, move itself, or reparent the *item* — and a
+        // detached or misplaced placeholder is not a footprint: `placeholderAt`
+        // would read the wrong container's siblings, `movePlaceholder` would
+        // relocate a node the collection no longer contains, and the landing
+        // would measure a rect that is not in the list at all.
+        //
+        // Cheaper than trusting it and repairing later, and classified where it
+        // belongs: a throw here is `FAILURE_ACTIVATION` from the committed
+        // state, so the placeholder disposer registered above removes it, the
+        // consumer gets `onError` with the activation stage, and nothing was
+        // published or notified.
+        // Two conjuncts, each catching what the other cannot. Adjacency alone
+        // already implies same-parent, so a separate parentage test would be
+        // unfalsifiable; but adjacency holds inside a detached fragment too, so
+        // connectivity is not implied by it.
+        const item = current.item!;
+
+        if (
+          !placeholder.isConnected ||
+          item.nextElementSibling !== placeholder
+        ) {
+          throw new Error(
+            'drag: the placeholder did not survive insertion — it was removed or reparented before activation completed',
+          );
+        }
+
         // Listeners bound to the signal are self-releasing, so the signal *is*
         // the registration; the explicit disposer cancels a scheduled frame.
         scope.motion.use(rt.frame.cancel);
@@ -297,6 +395,7 @@ export function createSortableSpec(
         rt.view = {
           realm,
           placeholder,
+          item,
           snapshot: current.snapshot!,
           insertion: null,
         };
@@ -317,7 +416,7 @@ export function createSortableSpec(
         }
 
         // 4 — last, because it may reentrantly cancel or destroy.
-        slots.onStart(current.item!);
+        slots.onStart(item);
       },
     },
 
@@ -464,20 +563,48 @@ export function createSortableSpec(
           // Published before the bracket, so a hook knows *which* elements the
           // move affects rather than having to measure the whole destination
           // view to find out (M-4).
+          //
+          // Cleared in a `finally` covering every exit: the hooks succeeding,
+          // the placeholder write refusing a cross-container anchor, the eager
+          // measurement failing, and a `beforeMove`/`afterMove` hook throwing.
+          // The field is documented as meaningful **only** inside the bracket
+          // and the hook-facing view declares it non-null on that basis, so a
+          // value left behind would be a stale destination gap that outlives
+          // the move it described — readable by the next bracket's `collect`
+          // before it is overwritten, and by anything that reaches the
+          // per-operation view between moves.
           view.insertion = insertion;
 
-          for (const hook of slots.beforeMove) {
-            hook(view as DisplacementView);
-          }
+          try {
+            // Three steps, and the order between them is the whole
+            // composition rule. `beforeMove` captures each element where it
+            // currently *looks* — offsets applied, which is what makes an
+            // interrupted displacement replay from where it visually is — and
+            // then releases every offset it owns. So between here and
+            // `afterMove` there is exactly one window in which nothing the
+            // library applied is visible, and the axis rebuild below lands in
+            // it. Reading lazily on the next spatial frame instead measures
+            // items mid-animation, which pits a freshly positioned placeholder
+            // against stale item centres and oscillates.
+            for (const hook of slots.beforeMove) {
+              hook(view as DisplacementView);
+            }
 
-          movePlaceholder(placeholder, insertion);
+            movePlaceholder(placeholder, insertion);
 
-          if (!invalidateInSeam()) {
-            return; // classified; the geometry the hooks would read is stale
-          }
+            if (!invalidateInSeam()) {
+              return; // classified; the geometry the hooks would read is stale
+            }
 
-          for (const hook of slots.afterMove) {
-            hook(view as DisplacementView);
+            if (!measureInSeam(current, view)) {
+              return; // classified; the axis index is neither old nor new
+            }
+
+            for (const hook of slots.afterMove) {
+              hook(view as DisplacementView);
+            }
+          } finally {
+            view.insertion = null;
           }
 
           return;
@@ -529,7 +656,12 @@ export function createSortableSpec(
           );
         }
 
-        // Motion is already closed, so this search runs against final geometry.
+        // Settled first, then measured: motion is already closed, so this
+        // search runs against final geometry — and "final" has to mean settled
+        // presentation geometry, not wherever the last displacement happens to
+        // have reached.
+        settleDisplacement(view, draft.insertion);
+
         if (!invalidateInSeam()) {
           return { invoke: null };
         }

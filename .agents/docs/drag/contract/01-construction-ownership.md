@@ -231,6 +231,30 @@ The row that matters: **no participant can reach another's mutable state except
 through an argument that participant was deliberately given.** Probe 1 had one
 container everybody could reach and relied on `Pick<>` types to discourage it.
 
+### The inline-style snapshot is per longhand, and is never the `style` attribute
+
+The lift's style lease is the kernel's, and restoring it is the one guarantee
+the presentation module owns outright. Two properties of *how* it restores are
+normative rather than incidental:
+
+- **Capture and restore by longhand, with priority.** The lift writes
+  shorthands — `inset`, `margin`, `padding`, `border-width`/`-style`/`-color`,
+  `overflow`, `transition` — but the page authors whatever it likes, and the two
+  do not correspond. A shorthand only serializes when every longhand is present
+  and consistent, so `style="margin-left: 8px"` yields `''` for
+  `getPropertyValue('margin')`: capturing by shorthand records nothing, and
+  restoring by shorthand then calls `removeProperty('margin')` and drops the
+  authored declaration for good. Longhands are also the only way `!important`
+  survives, because priority is per declaration — an authored
+  `padding-top: 4px !important` beside three ordinary paddings cannot be one
+  shorthand entry at all. Removing every longhand of a shorthand is exactly
+  removing the shorthand, so no separate clearing pass is needed.
+- **Never restore the saved `style` attribute wholesale.** A drag is a window in
+  which the consumer's own code runs — `onStart`, the resolver, a readiness
+  promise — and it may legitimately write inline styles the lift never touches.
+  Restoration reverts exactly the declarations the lift is responsible for and
+  leaves everything else as the consumer left it.
+
 ### Lifetimes: five scopes, three objects, two arguments
 
 These three numbers all appear in the documents and are not in conflict; the

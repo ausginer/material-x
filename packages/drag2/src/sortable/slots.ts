@@ -65,6 +65,17 @@ export type DisplacementView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
   /**
+   * The dragged item, so a displacement feature can exclude it.
+   *
+   * Membership in `snapshot` cannot do it — the dragged item *is* a member —
+   * and nothing else identifies it: the element the lift owns is not reachable
+   * from here. It matters because the placeholder is inserted immediately after
+   * the item, so **the dragged item is the first sibling of every backward
+   * span**; a displacement that animates it fights the lift for the element the
+   * kernel owns. Same widening, same reason, as `InsertionFrameView.item`.
+   */
+  item: HTMLElement;
+  /**
    * The gap the placeholder is moving **to**. Meaningful only inside the
    * bracket — the hooks are the only readers, and they run nowhere else.
    *
@@ -86,8 +97,28 @@ export type SortableSlots = Readonly<{
     frame: InsertionFrameView,
     runtime: InsertionRuntimeView,
   ): Insertion | null;
-  /** The behavior's only way to say "the geometry you cached is stale". */
+  /**
+   * The behavior's only way to say "the geometry you cached is stale". **Lazy
+   * by contract**: scroll and resize call it many times a second, so it may not
+   * read geometry.
+   */
   invalidateInsertion(): void;
+  /**
+   * "Re-read your geometry **now**", or `null` when the axis feature offers no
+   * eager path.
+   *
+   * The counterpart to the lazy invalidation above, and it exists for exactly
+   * one instant: inside the committed-move bracket, after the placeholder has
+   * been written and after every displacement feature has released its visual
+   * offsets. That is the only window in an active drag in which a read yields
+   * **settled presentation geometry**, and the axis rule is defined against
+   * that (contract 03). Reading lazily on the next frame instead lands in the
+   * middle of a displacement animation and measures items where they no longer
+   * are.
+   */
+  measureInsertion:
+    | ((frame: InsertionFrameView, runtime: InsertionRuntimeView) => void)
+    | null;
 
   /* required, filled by callbacks() */
   onReorder: OnReorder;
