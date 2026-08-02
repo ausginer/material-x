@@ -751,7 +751,75 @@ here the remaining four subpaths join it and the whole surface is closed.
   `SortableFeature` literal does **not** typecheck (D-30).
 
 **Done when.** `npx just build` emits every subpath with declarations; the
-fixture consumer compiles; no internal identifier appears in any emitted `.d.ts`.
+fixture consumer compiles; and the surface is closed in the three ways that are
+actually enforceable:
+
+1. **No internal identifier is reachable through a declared public entry.** Each
+   entry's exports are asserted as an *equality* against the contract's table —
+   in `tests/exports.node.test.ts` against `src`, and in
+   `tests/consumer.node.test.ts` against the packed tarball — so a new export
+   fails as loudly as a missing one.
+2. **Undeclared deep imports fail.** The `exports` map is the boundary, not the
+   set of names each entry happens to re-export, and the consumer fixture proves
+   it for the kernel, for `src/`, and for the two internal modules whose
+   declaration files must ship anyway (`sortable/feature.js`, which declares the
+   feature brand, and `sortable/slots.js`).
+3. **Public documentation does not expose the internal SPI.** `typedoc.json`
+   lists the eight public entries and nothing else, so the documented surface is
+   the exported surface by construction.
+
+**The original wording — "no internal identifier appears in any emitted
+`.d.ts`" — was not an achievable property, and is replaced above.** Two reasons,
+both structural rather than fixable by discipline:
+
+- A public type has to be *declared* somewhere, and that file also declares its
+  neighbours. `Behavior` lives in `kernel/spec.d.ts`; `SortableFeature` lives in
+  `sortable/feature.d.ts`. Those files must ship for the public declarations to
+  resolve at all.
+- The emitter writes one `.d.ts` per source module, so modules no entry reaches
+  — `kernel/seams.d.ts`, `kernel/presentation.d.ts`, `sortable/slots.d.ts` —
+  are emitted and packed as orphans. Nothing imports them and no subpath
+  declares them, so they are unreachable; they are dead weight in the tarball,
+  which is a Phase 11 size question and not a boundary question.
+
+Declaration tree-shaking does most of the work regardless: `BehaviorSpec`,
+`KernelHost`, `ActivationScope`, `SettlementScope`, `SettlementInput`,
+`SeamOutcome`, `ResolutionCommand`, `SortableSlots`, `SortableContribution`,
+`InsertionGeometry`, `FeatureContext` and the outcome/recovery constants appear
+in **no** emitted declaration at all.
+
+**Deviations recorded while implementing.**
+
+- **Three contract decisions the export table left open**, all recorded in 03
+  §The export topology this requires: the `FailureStage`/`CancelStage`
+  **constants** are runtime exports (the boundary section already called them
+  public while the table shipped only the types — a numeric union whose members
+  are unnameable is not a public type); `DragErrorContext` ships from
+  `sortable.js` rather than `drag.js`, because it carries a sortable result and
+  `drag.js` exists to be behavior-agnostic; and `PlaceholderContext` is listed,
+  since `PlaceholderOptions.create` was already structurally public.
+- **`readinessTimeout` became a public option**, on `callbacks()`. It was a
+  behavior-fixed 500ms bound on a *consumer-supplied* promise with no escape.
+  This is the one addition to the frozen surface rather than a correction to it.
+- **`drag.js` was exporting six internal SPI types** — `BehaviorSpec`,
+  `KernelHost`, `BehaviorInstall`, `ActivationScope`, `ResolutionCommand`,
+  `SeamRejection` — left over from phase 4. Removed, and their unreachability is
+  now asserted rather than assumed.
+- **The landing coordinate space was already consistent in code**; phase 9 made
+  it normative (02 §Runner obligation) and pinned it with exact values. The
+  strongest of those tests is not a literal: `compose(from.x, from.y)` must
+  reproduce the transform the drag itself last wrote, which cannot be off by an
+  origin. The fixture is pinned at a non-zero offset on both axes, because a
+  delta and a viewport point agree at the origin and nowhere else.
+- **Every option is validated at construction**, throwing a `TypeError`. Domains
+  in 03 §Public option domains. `easing` is deliberately unvalidated, and
+  `landing({ run })` short-circuits before `duration` is read, so a replacement
+  runner is not held to an option it never sees.
+- **The consumer fixture now asserts the surface as an equality**, per subpath,
+  against the packed tarball — a new export fails as loudly as a missing one —
+  plus 29 `@ts-expect-error` lines covering every internal SPI name and both
+  undeclared deep-import shapes. An `@ts-expect-error` that stops erroring is
+  itself a compile failure, so the rejection list cannot rot into a no-op.
 
 ---
 

@@ -12,7 +12,6 @@
  * behavior-private frame state, never handed to a consumer.
  */
 import type { CancelStage, FailureStage } from '../kernel/failures.ts';
-import type { MaybePromise } from '../kernel/types.ts';
 
 // ---------------------------------------------------------------------------
 // The collection
@@ -106,10 +105,19 @@ export const ReorderResolution = {
       : { type: 'rejected', reason },
 } as const;
 
+/**
+ * The consumer's verdict on one proposed reorder.
+ *
+ * The return type is written out rather than routed through a `MaybePromise<T>`
+ * alias: that alias is a generic utility with no domain meaning, and exporting
+ * it to make the public signature resolvable would put a helper on the frozen
+ * surface for documentation's sake. `PromiseLike`, not `Promise`, because the
+ * kernel reads `then` exactly once and never assumes a native promise.
+ */
 export type OnReorder = (
   request: ReorderRequest,
   context: Readonly<{ signal: AbortSignal }>,
-) => MaybePromise<ReorderResolution>;
+) => ReorderResolution | PromiseLike<ReorderResolution>;
 
 /**
  * Whether a fulfilled round-trip value is an explicit resolution. A value that
@@ -166,8 +174,12 @@ export type SortableCancelResult =
 /**
  * What `onError` receives alongside the error.
  *
- * Phase 9 decides whether this type belongs to `drag.js` (the export table says
- * so) or stays behavior-shaped; `domain` is a sortable result today.
+ * **Ships from `sortable.js`, not `drag.js`** — the phase 9 decision the
+ * contract's export table left open. `stage` is kernel vocabulary, but `domain`
+ * is a sortable result, and `draggable()` has its own entry precisely so a
+ * future free-drag consumer never reaches the sortable behavior. Splitting it
+ * would mean two error-context types; putting it on `drag.js` would mean the
+ * behavior-agnostic entry declaring a behavior's result union.
  */
 export type DragErrorContext = Readonly<{
   stage: FailureStage;

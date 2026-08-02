@@ -1,21 +1,50 @@
 /**
  * Public entrypoint for the behavior-agnostic kernel.
  *
- * The public *type* surface is phase 9; what is exported here is what phase 4
- * produces. See `.agents/docs/drag/plan.md`.
+ * **Frozen surface** (contract 03 §The export topology this requires). What is
+ * exported here is `draggable`, the classified-failure vocabulary, and the four
+ * behavior-agnostic types the public shapes structurally depend on. Everything
+ * the kernel and a behavior say to each other — `BehaviorSpec`, `KernelHost`,
+ * `Transition`, every scope and every seam type — is internal and unstable, and
+ * reaches no entry module.
+ *
+ * `DragErrorContext` is deliberately **not** here despite the contract's
+ * original table: it carries `domain: ReorderTransactionResult`, a sortable
+ * result, and `draggable()` lives on its own entry precisely so a future
+ * free-drag consumer need not reach the sortable behavior. It ships from
+ * `sortable.js` instead; the kernel half of it, `FailureStage`, is here.
  */
 import { createKernel } from './kernel/kernel.ts';
 import { type Behavior, unbrandBehavior } from './kernel/spec.ts';
 
-export type {
-  ActivationScope,
-  Behavior,
-  BehaviorInstall,
-  BehaviorSpec,
-  KernelHost,
-  ResolutionCommand,
-  SeamRejection,
-} from './kernel/spec.ts';
+export type { Behavior } from './kernel/spec.ts';
+export type { Point } from './kernel/types.ts';
+export type { DOMRealm } from './kernel/realm.ts';
+
+/**
+ * The stages, as **values as well as a type**. `onError` receives a
+ * `FailureStage` and a consumer has to be able to switch on it; exporting the
+ * type while keeping the constants internal would be the same contradiction
+ * the opaque feature brand exists to avoid (contract 03 §The public/internal
+ * boundary).
+ */
+export {
+  FAILURE_ACTIVATION,
+  FAILURE_ADMISSION,
+  FAILURE_INSERTION,
+  FAILURE_INVALIDATION,
+  FAILURE_LANDING_CREATE,
+  FAILURE_LANDING_INTERRUPTED,
+  FAILURE_LANDING_TARGET,
+  FAILURE_PLACEHOLDER_MOVE,
+  FAILURE_PRESENTATION_READY,
+  FAILURE_RELEASE,
+  FAILURE_RENDERER_WRITE,
+  FAILURE_REORDER_RESOLUTION,
+  FAILURE_SCHEDULED_FRAME,
+  FAILURE_TERMINAL_CALLBACK,
+  type FailureStage,
+} from './kernel/failures.ts';
 
 /**
  * Creates one controller.

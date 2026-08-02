@@ -9,21 +9,29 @@ The shipped `@ydinjs/drag` is untouched while this package is built. Merging the
 
 ## Status
 
-Phases 0–6 complete. **Phases 3–5 are the frozen SPI**: any change to a seam
-signature from here on requires the failing-executable-case justification from
-contract 00.
+Phases 0–9 complete. **Phases 3–5 are the frozen SPI** and **phase 9 froze the public surface**: any change to a seam signature, or any addition to the export table below, requires the failing-executable-case justification from contract 00.
 
-- **0 — scaffolding.** Every entrypoint declared in `files.json` exists as a stub.
-- **1 — kernel primitives.** `realm`, `lifetimes` (+`LifetimeScope`), `queue`, `reporter`, `failures`, `presentation` (+ the kernel's `lift.write` pin), `pointer`, `invalidation`. The WAAPI `animation` helper is deliberately absent: it belongs to `landing()`, in phase 8b.
-- **2 — frame slicing.** `KernelFrame`, `Frame`/`Draft`/`FramePartOf`, `composeFrame`, `validateFramePart`, `beginFrame`/`scrubFrame`, and the `DEV`-gated shape, descriptor and reset-completeness assertions.
-- **3 — the seam driver.** `Transition`/`ActionTransition`/`SeamRejection`, the five `SeamOutcome` constants, `runCore`, `runLeaf`/`runLeafValue`, both failure latches, and the activation and release continuation policies.
-- **4 — the lifecycle.** `draggable()`, the two-phase handshake, `KernelHost`, `arm()` with its unwind, admission with the post-`admit` revalidation, the threshold and activation, the hot path, release as two commits, behavior actions, the cancel latch and its precedence, the failure checkpoint, and the seven-step `destroy()`.
+- **0–2 — scaffolding, kernel primitives, frame slicing.** Every entrypoint in `files.json`, `realm`/`lifetimes`/`queue`/`reporter`/`failures`/`presentation`/`pointer`/`invalidation`, and the composed frame with its `DEV` assertions.
+- **3–5 — the seam driver, the lifecycle, settlement.** `Transition`/`SeamOutcome`/`runCore` with both failure latches; `draggable()`, the two-phase handshake, admission, activation, the hot path, release, the cancel latch and its precedence, the failure checkpoint and the seven-step `destroy()`; the resolution attempt, the five-case `SettlementInput`, request → seal → arm, the landing completion latch and the join.
+- **6 — the sortable behavior.** Every seam, `reconcileCollection`, the single canonical `movePlaceholder()`, and `updateItems()`.
+- **7–8 — composition and the features.** `assemble()`, the opaque feature brand, `vertical()`, `callbacks()`, `placeholder()`, `handle()`/`visual()`, `landing()`, `layoutAnimation()`.
+- **9 — the public surface.** The export table below, frozen and asserted as an equality in `tests/exports.node.test.ts` and against the packed tarball in `tests/consumer.node.test.ts`.
 
-- **5 — settlement, gates and the join.** The resolution attempt with its guarded abort and thenable/immediate split, the five-case `SettlementInput`, the settlement attempt with request → seal → arm, `ArmOutcome`, the once-only landing completion latch, the bounded readiness watch with its re-anchor and `retarget`, and the join (`FINALIZING` → measure → `destroy()` → pin → release → `finalized` → `RETIRE`).
+## Migrating from `@ydinjs/drag`
 
-- **6 — the sortable behavior.** The eight-field frame part, the private runtime, the domain vocabulary, every seam, `reconcileCollection` and the per-phase collection staging table, the single canonical `movePlaceholder()`, and the controller's `updateItems()`.
+The two packages are not source-compatible; this is a rewrite against a frozen contract, and merging them is phase 12. The differences a consumer actually meets:
 
-Features are still hand-written slot literals — `assemble()` is phase 7 and the feature modules are phase 8, so `sortable(items, ...features)` does not exist yet and `src/sortable.ts` is still a stub. The behavior is reached through `createSortableBehavior(items, slots)`.
+| `@ydinjs/drag` | `@ydinjs/drag2` |
+| --- | --- |
+| `draggable.js` | `drag.js` — behavior-agnostic, so a future free-drag consumer never imports the sortable behavior |
+| one `sortable.js` barrel | `sortable.js` plus one subpath per optional feature; nothing is imported that is not composed |
+| options object | `sortable(items, ...features)`, composed once at construction and immutable for the controller's life |
+| callbacks passed inline | `callbacks({ onReorder, … })`, the sole owner of the `threshold` and `readinessTimeout` defaults |
+| acceptance inferred from silence, DOM mutation or elapsed time | acceptance is **explicit**: `onReorder` returns `ReorderResolution.accept()` or `.reject(reason)`, or the drop does not complete as accepted |
+| errors surfaced ad hoc | one `onError(error, { stage, domain })`, with `stage` a public `FailureStage` constant |
+| third-party feature authoring by structural typing | features are **opaque branded values**: nameable and passable, not constructible (contract 03 §Closed for real) |
+
+Behavioural differences are listed under _deliberate differences_ below.
 
 Deliberate behavioural differences from the shipped `@ydinjs/drag`:
 
@@ -46,6 +54,32 @@ One consequence worth noting against contract F-24: `compose` is now allocation-
 ## Export topology
 
 The eight subpaths in `files.json` are frozen from phase 0 rather than grown as features arrive. That is a measurement precondition: it makes the minimal fixture's import graph physically unable to reach an optional feature, independent of bundler heuristics (contract 03 §The export topology this requires).
+
+| Subpath | Runtime | Types |
+| --- | --- | --- |
+| `drag.js` | `draggable`, the 14 `FAILURE_*` constants | `Behavior` (opaque), `Point`, `DOMRealm`, `FailureStage` |
+| `sortable.js` | `sortable`, `ReorderResolution`, `AT_PROPOSAL`, `AT_CONSUMER` | `SortableFeature` (opaque), `SortableController`, `CancelStage`, `DragErrorContext`, `ReorderRequest`, `ReorderProposal`, `CollectionSnapshot`, `PlaceholderFactory`, `ReorderResolution` and its two members, the four result types and their two unions |
+| `sortable/vertical.js` | `vertical` | — |
+| `sortable/callbacks.js` | `callbacks` | `SortableCallbacks`, `OnReorder` |
+| `sortable/placeholder.js` | `placeholder` | `PlaceholderOptions`, `PlaceholderContext` |
+| `sortable/handle.js` | `handle`, `visual` | — |
+| `sortable/landing.js` | `landing` | `LandingOptions`, `LandingStart`, `LandingContext`, `LandingHandle` |
+| `sortable/layout-animation.js` | `layoutAnimation` | `LayoutAnimationOptions` |
+
+Every type a public type structurally depends on is exported, rather than left reachable-but-unnameable: that is why `FailureStage`, `DOMRealm`, `Point`, `CollectionSnapshot` and `PlaceholderFactory` are on the list. TypeDoc over these eight entries emits **zero** unresolved-reference warnings, and none are suppressed — a warning there means a public type depends on something a consumer cannot name.
+
+Everything the kernel and a behavior say to each other — `BehaviorSpec`, `KernelHost`, every seam, scope, contribution and slot type, and the phase/lift/outcome/recovery constants — is internal, unstable, and reaches no entry module. The consumer fixture asserts each one is unreachable, and a `@ts-expect-error` that stops erroring fails the build, so the list cannot rot into a no-op.
+
+### Option domains
+
+| Option                            | Unit   | Domain         | Default |
+| --------------------------------- | ------ | -------------- | ------- |
+| `callbacks({ threshold })`        | CSS px | finite, `>= 0` | `8`     |
+| `callbacks({ readinessTimeout })` | ms     | finite, `>= 1` | `500`   |
+| `landing({ duration })`           | ms     | finite, `>= 0` | `200`   |
+| `layoutAnimation({ duration })`   | ms     | finite, `>= 0` | `160`   |
+
+All four are validated at construction and throw a `TypeError` on a value outside the domain, so a `NaN` threshold fails at the call that introduced it rather than as a drag that never activates. `easing` is not validated: it is a CSS easing function and the platform is the only correct parser for one. `readinessTimeout` is a **failure bound, not a schedule** — exceeding it is `FAILURE_PRESENTATION_READY` and replaces the settlement.
 
 ## Size budgets
 

@@ -13,12 +13,14 @@ import type { LandingStart } from '../kernel/spec.ts';
 import {
   type FeatureContext,
   type InsertionGeometry,
+  requireFinite,
   type SortableCallbacks,
   type SortableFeature,
   unbrandFeature,
 } from './feature.ts';
 import type { PlaceholderFactory } from './placement.ts';
 import {
+  DEFAULT_READINESS_TIMEOUT,
   DEFAULT_THRESHOLD,
   type DisplacementHook,
   NOOP_START,
@@ -156,7 +158,18 @@ export function assemble(
     onFinish: callbacks.onFinish ?? null,
     onCancel: callbacks.onCancel ?? null,
     onError: callbacks.onError ?? null,
-    threshold: callbacks.threshold ?? DEFAULT_THRESHOLD,
+    // Defaulted and range-checked in one place, because `callbacks()` is the
+    // sole owner of both defaults and the only surface that can carry them.
+    threshold: requireFinite(
+      callbacks.threshold ?? DEFAULT_THRESHOLD,
+      'threshold',
+      0,
+    ),
+    readinessTimeout: requireFinite(
+      callbacks.readinessTimeout ?? DEFAULT_READINESS_TIMEOUT,
+      'readinessTimeout',
+      1,
+    ),
 
     createPlaceholder,
     getHandle,

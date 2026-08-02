@@ -9,6 +9,3 @@ export type Point = Readonly<{
   x: number;
   y: number;
 }>;
-
-/** A value that may be produced synchronously or as a promise. */
-export type MaybePromise<T> = T | Promise<T>;

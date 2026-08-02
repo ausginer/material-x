@@ -13,10 +13,29 @@ import type { SortableFeature } from './sortable/feature.ts';
 
 export type { SortableController } from './sortable/controller.ts';
 export type { SortableFeature } from './sortable/feature.ts';
-export type { CancelStage } from './kernel/failures.ts';
+/**
+ * The cancellation stages, as **values as well as a type**, for the same reason
+ * as `FailureStage` on `drag.js`: a `CanceledReorderResult` carries one and a
+ * consumer has to be able to discriminate it.
+ */
+export {
+  AT_CONSUMER,
+  AT_PROPOSAL,
+  type CancelStage,
+} from './kernel/failures.ts';
+export type { PlaceholderFactory } from './sortable/placement.ts';
 export type {
+  AcceptedReorderResolution,
+  AcceptedReorderResult,
+  CanceledReorderResult,
+  CollectionSnapshot,
+  DragErrorContext,
+  NoopReorderResult,
+  RejectedReorderResolution,
+  RejectedReorderResult,
   ReorderProposal,
   ReorderRequest,
+  ReorderTransactionResult,
   SortableCancelResult,
   SortableFinishResult,
 } from './sortable/domain.ts';
