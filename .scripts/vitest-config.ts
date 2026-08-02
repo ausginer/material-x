@@ -240,7 +240,14 @@ function createDragTestProjects(root: URL, scope?: string): UserConfig[] {
       name: scopedName('browser', scope),
       root,
       include: ['tests/**/*.browser.test.ts'],
-      viteConfig: createCoreViteConfig(root),
+      viteConfig: mergeConfig(createCoreViteConfig(root), {
+        // The React fixtures (`tests/**/react*.browser.test.ts`) need exactly
+        // one copy of React: without deduping, the optimizer gives `react-dom`
+        // its own inlined `react`, the hook dispatcher is null in the second
+        // copy, and every render throws. Harmless for the packages themselves —
+        // neither ships a React dependency.
+        resolve: { dedupe: ['react', 'react-dom'] },
+      } satisfies UserConfig),
     }),
     createDeclarationTestProject({
       name: scopedName('declaration', scope),

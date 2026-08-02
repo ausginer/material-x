@@ -568,27 +568,13 @@ measured before it is specified.
 | Q-9 | Is an injected placeholder safe inside a React-reconciled container? | **Yes, physically.** The probe disproved F-14. The residual problem was semantic (F-15) and is resolved by D-16. |
 | Q-10 | Does fail-before-commit justify keeping `setPointerCapture` in `prepare`? | **Moot.** D-17 makes capture kernel-owned on `root`, so it is not in `prepare` at all. No semantic reason was found requiring a behavior-chosen capture target. |
 | Q-11 | Should the reserved frame-part extension point ship unimplemented? | **The mechanism is documented; the prepare-phase seam it would need is not specified and not built.** D-10. |
+| Q-12 | What happens when a consumer breaks I-25? | **Answered in Phase 10: the degraded re-anchor is sufficient.** The operation finishes accepted, the placeholder is removed, nothing is classified or reported, and the controller admits the next press — there is nothing left to strand, because the element the pin would have moved is the element the consumer discarded. Cancelling the settlement outright, the alternative this question left open, would turn a consumer's own unmount into a reported failure and buy nothing. Two mechanics the fixtures made concrete: a row a framework merely *drops* is parentless, so `before()` is already a no-op and the guard is inert — the hazard needs a disconnected node that still has a parent (a recycle pool) or a connected node under a different parent (a row moved to a second list); and the re-anchor runs at the **join**, so with readiness pending it is skipped entirely. Fixtures: `packages/drag2/tests/sortable/react.browser.test.ts` › *that unmounts the dragged item (Q-12)*. |
 | Q-1 | Should `admit` throwing become a classified failure? | **No — it becomes a *controller-level* report.** Admission runs before operation identity is minted, so there is no operation for a failure checkpoint to settle and no `REPORTING` phase to enter; minting one purely to report would invent an operation that never existed. The kernel catches the throw, leaves the controller idle and usable, and reports through `onError` with `FAILURE_ADMISSION` and no operation. This keeps the shipped package's observable outcome (idle, usable controller) while adding the diagnostic, and it names the owner — "a queued classified failure while the controller stays idle" had no owner and was not implementable (review 6, §17). |
 
 ## Open before implementation
 
-Ordered by how much each could still move the design. **Q-1 is now answered**
-(see the resolved table above).
-
-**Q-12. What happens when a consumer breaks I-25?**
-**The mechanism is normative; only its sufficiency is open.** A consumer that
-unmounts or re-keys the dragged item as part of applying the reorder leaves
-`anchorTarget` with no anchor. The specified behavior is the connectivity- and
-parentage-guarded re-anchor (§[03](03-feature-composition.md) §`placeholder()`):
-if the guard fails, measure the still-connected placeholder where it stands, pin
-to that, release presentation — degraded but not stranded, and no crash. Without
-that guard, `item.before(placeholder)` on a detached item would move the
-placeholder into the detached tree and destroy the fallback target.
-
-What stays open is whether the fallback is *good enough*: the alternative is
-cancelling the settlement outright. The fallback is chosen because a consumer in
-this state has no meaningful landing target either way, but no fixture has
-exercised it.
+Ordered by how much each could still move the design. **Q-1 and Q-12 are now
+answered** (see the resolved table above).
 
 **Q-4. Does the two-behavior-tag count survive?**
 Inherited from probe 1's Q-6, and still a design assertion rather than a

@@ -842,6 +842,50 @@ fixture work.
 **Done when.** Every matrix row maps to a passing test or to a written,
 justified exclusion.
 
+**Landed.** The coverage map is `packages/drag2/tests/COVERAGE.md`: every matrix
+row, the test that closes it and the invariant it is about, with no exclusions —
+each row maps to a passing test. The React work is
+`tests/sortable/react.browser.test.ts` (11 tests, a real `createRoot` +
+`useLayoutEffect` fixture, no `act()`), and the F-6 witness is
+`tests/support/gates.ts`. Seven rows the audit found genuinely uncovered were
+closed: `onReorder` destroys, a callback that queues work then throws, a
+terminal callback that destroys, a late resolution after a newer operation,
+stale readiness after a newer operation, a throwing placeholder factory, and an
+authored CSS layout transition. 630 tests pass.
+
+**Deviations recorded while implementing.**
+
+- **The browser projects now dedupe React.** `.scripts/vitest-config.ts` adds
+  `resolve.dedupe` and `optimizeDeps.include` for `react`/`react-dom` to the
+  drag browser project. Without it the optimizer gives `react-dom` its own
+  inlined copy of `react`, the hook dispatcher is null in the second copy, and
+  every render throws — the fixture was unwritable. `react`, `react-dom` and
+  their types are `@ydinjs/drag2` **devDependencies**; nothing ships.
+- **Q-12 is answered: the degraded fallback is sufficient.** Written up in
+  `tests/COVERAGE.md` §Q-12 and in 05. Two things the fixtures made concrete:
+  a row React merely *drops* cannot exercise the guard at all (a parentless node
+  makes `before()` a no-op, so guarded and unguarded are indistinguishable), and
+  the re-anchor happens at the **join** rather than at arm time, so with
+  readiness pending the guard is unreachable. The shapes with teeth are a
+  disconnected node that still has a parent (a recycle pool) and a connected
+  node under a different parent (a row moved to a second list); both are now
+  fixtures, and the discriminating probe is a `MutationObserver` on the
+  container the consumer moved the row into, not the landing target.
+- **`onStart` throwing after it queued an update reports on the platform
+  channel, not `onError`.** Observed through the public surface for the first
+  time. It is the admitted I-31 gap 02 already records — the update invalidates
+  the gap, the cancellation latch outranks the failure checkpoint (I-22), and
+  the classified failure degrades to a best-effort report. The test asserts that
+  behaviour rather than the intuitive one.
+- **Two equivalent-mutant clusters recorded rather than removed**, in
+  `tests/COVERAGE.md` §Equivalent mutants: `item.isConnected` in the
+  destination re-anchor (strictly implied by the parentage conjunct beside it,
+  which *is* now falsifiable), and the `settlement !== attempt` identity checks
+  in `watchReadiness` and `handleReadinessSettled` (mutually redundant with
+  `readinessHeld` and the `SETTLING` phase test). Checkpoint B's precedent —
+  delete a conjunct no test can falsify — was not applied: one is a second line
+  of defence on a staleness rule, and both are free.
+
 ---
 
 ## Phase 11 — Measurements M-1 … M-4
@@ -914,4 +958,4 @@ and before any WAAPI or FLIP code exists.
 | Generic frame copy on the move path | F-24 / M-1 | Measured; a specialized path needs an equivalence check |
 | `resetFramePart` exhaustiveness | F-11, I-28 | `__DEV__` heuristic only; known and unsolved in both probes |
 | Keyboard sorting needs a lifecycle transition | Q-4, 02 §`ActionTransition` | Explicitly deferred to a kernel-contract revision, not a third tag |
-| Consumer breaks I-25 (unmounts the dragged item) | Q-12 | Guarded fallback is normative; Phase 10 fixture judges sufficiency |
+| Consumer breaks I-25 (unmounts the dragged item) | Q-12 | **Closed in Phase 10: the guarded fallback is sufficient.** Judged by `tests/sortable/react.browser.test.ts`; written up in `tests/COVERAGE.md` §Q-12 and 05's resolved table |
