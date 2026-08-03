@@ -837,7 +837,23 @@ it.
 
 ## Tree-shaking
 
-Judged through consumer fixtures, not source intuition.
+Judged through consumer fixtures, not source intuition — and **measured**
+(M-3, 2026-08-02 — [measurements/m3.md](../measurements/m3.md)):
+
+| composition | brotli | modules | vs minimal |
+| --- | --- | --- | --- |
+| minimal | **9.33 kB** | 29 | — |
+| + `layoutAnimation()` | 9.74 kB | 30 | +0.41 kB |
+| + `landing()` | 9.60 kB | 30 | +0.27 kB |
+| complete | **10.09 kB** | 33 | +0.76 kB |
+
+Each optional feature adds only itself, and the absences below are **asserted
+against the bundled module graph**, not inferred from the deltas — a module can
+be pulled in and mostly shaken, which produces a small delta and reads like
+success. **Composition itself costs 0.26 kB (2.6%)** against a feature-matched
+build that fills the slot record by hand; **migrating from the shipped
+`sortable.js` costs 2.44 kB**, and the two baselines answer different questions
+and are never substituted for each other.
 
 1. No global registry, no barrel that eagerly references every feature, no
    default options object naming an optional feature.

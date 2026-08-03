@@ -83,4 +83,19 @@ All four are validated at construction and throw a `TypeError` on a value outsid
 
 ## Size budgets
 
-`.size-limit.json` names the four M-3 compositions — minimal, minimal + `layoutAnimation()`, minimal + `landing()`, complete — deliberately **without limits**. They are unions of built entry files, which approximates a composition but is not the real measurement: M-3 requires checked-in consumer fixtures with their exact import statements and module-graph assertions naming each module that must be absent. Budgets are added only after that first measurement (contract 05 §Measurements owed).
+Measured 2026-08-02 (M-3 — `.agents/docs/drag/measurements/m3.md`). `just size` runs `bench/size/measure.ts`, where each composition is one declaration: the exact named imports a consumer writes, a budget, and the modules its graph must and must not contain. It exits non-zero on any of the three.
+
+| composition                                         | brotli       | modules |
+| --------------------------------------------------- | ------------ | ------- |
+| minimal                                             | **9.33 kB**  | 29      |
+| minimal + `layoutAnimation()`                       | 9.74 kB      | 30      |
+| minimal + `landing()`                               | 9.60 kB      | 30      |
+| complete                                            | **10.09 kB** | 33      |
+| _baseline A_ — feature-matched, non-composed        | 9.83 kB      | 28      |
+| _baseline B_ — shipped `@ydinjs/drag` `sortable.js` | 6.89 kB      | 26      |
+
+The import maps _are_ the measurement, and the graph half is why this is not a `size-limit` config: a byte delta cannot tell "absent" from "present and mostly shaken" (`.agents/docs/measure/brief.md`). The two baselines are checked-in modules under `bench/size/`, because neither is expressible as a set of imports.
+
+**The two baselines answer different questions and are never substituted for each other.** A costs 0.26 kB less than `complete` with the same features: that is what composition costs. B is 2.44 kB smaller than `minimal` and is not feature-equivalent to anything here: that is what migrating costs.
+
+`tests/bench/size.node.test.ts` runs the same declarations in CI, plus a determinism check and a fidelity check that the hand-written non-composed baseline still fills exactly the slots `assemble()` fills.

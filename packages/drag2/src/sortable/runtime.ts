@@ -72,9 +72,15 @@ export type SortableRuntime = {
    * Per-controller removes both the nullability and an allocation from the
    * activation path, and costs nothing in staleness handling: the task's
    * identity is never operation-scoped, because staleness is carried by the
-   * monotonic attempt number it schedules. (Whether eager-per-controller or
-   * lazy-per-operation is the cheaper allocation policy is an open measurement,
-   * not a settled question — see plan.md, M-2.)
+   * monotonic attempt number it schedules.
+   *
+   * **Measured against both alternatives** (M-2, 2026-08-02 —
+   * `.agents/docs/drag/measurements/m2.md`). Eager costs 148 B more on a
+   * controller that never drags, and wins everywhere else: an active controller
+   * is *cheaper* than under lazy-retained or per-operation (281 B against
+   * 309 B), because their nullable slot and initialization branch cost more than
+   * the task they defer, and `schedule` is half the price with no null check. No
+   * policy leaks across a thousand drag cycles.
    */
   readonly frame: FrameTask<number>;
   /** The published collection. Replaced wholesale, never mutated. */

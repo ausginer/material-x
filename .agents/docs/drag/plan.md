@@ -50,6 +50,9 @@ build/test/typecheck loop.
   `sortable/landing`, `sortable/layout-animation`. Entry files start as stubs.
 - `.size-limit.json` gets the four M-3 compositions as *named, unbudgeted*
   entries. Budgets are added only after the first measurement (05 §Measurements).
+  (Superseded in phase 11: `size-limit` is not used, and each composition is one
+  declaration in `bench/size/measure.ts` — imports, budget and module-graph
+  expectations together. See `.agents/docs/measure/brief.md`.)
 - `tests/` skeleton mirroring the source tree, routed by the existing
   `createDragTestConfig` suffix convention (`.browser.test.ts` / `.node.test.ts`).
 
@@ -911,12 +914,74 @@ made there rather than assumed now.
 
 **Done when.** Each measurement replaces the corresponding intuition-based
 sentence in the contract documents, in place, with a dated result. Size budgets
-are added to `.size-limit.json` only now. Report M-3's two baselines separately
-and never substitute one for the other.
+are added only now. Report M-3's two baselines separately and never substitute
+one for the other.
 
 **Sign-off gate.** The contract's own definition: measurements landed, Q-7
 answered, matrix closed. Only then is `drag2` a candidate to replace
 `@ydinjs/drag`.
+
+**Landed 2026-08-02.** Write-ups in `.agents/docs/drag/measurements/`
+(`m1.md`, `m2.md`, `m3.md`, `q7.md`); harnesses in
+`packages/drag2/tests/perf/` and `packages/drag2/bench/size/`. Every sentence
+the table above names is replaced in place: F-24 in 00 and 06, F-4 in 00 and 05,
+I-26's row in 05, 03 §Tree-shaking, 05 §Measurements, and the frame-task comment
+in `src/sortable/runtime.ts`.
+
+| # | Result |
+| --- | --- |
+| M-1 | The copy is **0.098 µs of a 2.64 µs sample (3.7%)** and stays — with a bound nobody had: its cost jumps **10× between 12 and 16 behavior-part fields**, and this frame sits 4 below that cliff. One sample is flat in list size. 20,000 samples: no measurable net heap growth. |
+| M-2 | Closures cost **3.6× the heap** (506 B vs 141 B) and **call ≥2.9× faster** — the trade is speed for memory, not simplicity for speed. **Eager-retained frame tasks stay**; lazy-retained was measured as a peer and lost on active heap, latency and `schedule`, winning only 148 B on a never-dragged controller. |
+| M-3 | minimal **9.33 kB**, complete **10.09 kB**, each feature adding only itself with module-graph absence asserted. **Composition costs 0.26 kB (2.6%)**; **migration costs 2.44 kB**. |
+| M-4 | Accepted as written up in phase 8b, plus the collection-mutation case discharged structurally. |
+
+**Deviations recorded while implementing.**
+
+- **`size-limit` is not used, and the reason is written up separately.**
+  Removed, briefly restored on its `import` option, then removed again. All
+  three states were measured and agree to the byte (9.33 kB minimal), so this is
+  about the shape of the measurement rather than the number: a composition is a
+  set of named imports *and* a set of modules that must be absent, and Size
+  Limit has no vocabulary for the second half. Splitting the halves across two
+  tools put a seam through one idea and made each composition a declaration in
+  two formats. `.agents/docs/measure/brief.md` records the whole finding —
+  including that Size Limit's `import` gate is a plugin **name** comparison
+  rather than a capability check, which is why
+  `size-limit-preset-rolldown`'s own `import` support has never been reachable,
+  and that the `{ "a.js": "{ a }" }` form takes **file paths**, not package
+  specifiers. It is the brief for a repository-wide replacement tool.
+- **The `DEV` strip needed a source change, not just a build flag.** The
+  measured finding: with the old `resolveDev()` form a consumer defining
+  `NODE_ENV=production` recovered **30 bytes**, because a minifier cannot fold a
+  call — every assertion still shipped *and still ran*. `src/kernel/dev.ts` now
+  reads a bare `__DEV__`, substituted `false` by `tsdown.config.ts` and `true`
+  by the repo's vite/vitest config; `kernel/dev.js` stops being emitted at all.
+  A consumer can no longer enable the assertions, which costs nothing while
+  behavior authoring is not public — recorded in the module and in m3.md.
+- **The browser projects gained two Chrome flags** (`--js-flags=--expose-gc`,
+  `--enable-precise-memory-info`), scoped to the drag projects. Without the
+  second, `usedJSHeapSize` is quantized to 100 kB and every M-2 figure would
+  have been a rounding artifact.
+- **The first heap harness measured zero and looked like good news.** Each run
+  overwrote the previous graph through a shared variable, so every reading freed
+  one generation while allocating the next. Fixed with a module-level sink
+  cleared *before* the baseline; the note is in the harness because the failure
+  mode is silent and reads as a result.
+- **M-1's cliff is a Chromium property, not a contract property**, and is
+  recorded as such: 12→16 part fields is where V8's `Object.assign` fast path
+  ends here, and another engine may put it elsewhere or nowhere.
+- **The measurement suites must be run one file at a time.** The browser project
+  runs test files in parallel and two measurement suites sharing a page inflate
+  every absolute figure by ~2×. Ratios and the cliff survive it; absolutes do
+  not. Noted in both harnesses and both write-ups.
+- **The four unreachable orphan declarations are gone**, which phase 9 deferred
+  here: `kernel/{frames,lifetimes,presentation,seams}.d.ts` were emitted by
+  `unbundle` and named by no public type — unreachable rather than exposed, but
+  6.5 kB of internal SPI in the tarball. `prune-declarations.ts` removes them in
+  a `build:done` hook and `tests/packaging.node.test.ts` asserts none come back.
+  Its first version deleted almost everything, because emitted declarations use
+  double-quoted specifiers and the walk matched single quotes only; it now
+  refuses to delete when the closure reaches nothing but its own entries.
 
 ---
 

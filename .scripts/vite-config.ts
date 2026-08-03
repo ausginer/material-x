@@ -82,5 +82,10 @@ export function createMaterialXViteConfig(
 export function createCoreViteConfig(root: URL): UserConfig {
   return mergeConfig(createViteConfig(root), {
     plugins: [viteTraitsPlugin()],
+    // `@ydinjs/drag2` compiles its dev-only assertions against a bare
+    // `__DEV__`, so that a published build can substitute `false` and drop the
+    // branches entirely (drag2 `src/kernel/dev.ts`). Anything built from source
+    // in this repository keeps them.
+    define: { __DEV__: 'true' },
   });
 }

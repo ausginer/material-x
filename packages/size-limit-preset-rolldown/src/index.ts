@@ -32,6 +32,15 @@ type Module = Readonly<{
  * Builds a virtual entry that re-exports only the requested named imports, so
  * a check can budget a tree-shaken slice of an entrypoint rather than all of
  * it. Mirrors the `import` option of `@size-limit/esbuild`.
+ *
+ * **Currently unreachable.** Size Limit gates `import` on a *capability* and
+ * implements the gate as a **name** check against the loaded plugin modules —
+ * `size-limit/get-config.js` `OPTIONS` maps it to `['webpack', 'esbuild']` and
+ * `load-plugins.js` `Plugins.has` compares `name` — so a config using `import`
+ * with this preset is rejected before this code runs. A preset can only satisfy
+ * the gate by answering to a name that is not its own, which is a worse lie
+ * than the dead branch. Kept because the capability is real and the planned
+ * replacement measurement tool needs it: see `.agents/docs/measure/brief.md`.
  */
 function createImportEntry(imports: Readonly<Record<string, string>>): string {
   return Object.entries(imports)
