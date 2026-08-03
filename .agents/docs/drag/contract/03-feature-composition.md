@@ -701,7 +701,7 @@ Not the placeholder, whose position the behavior owns; not unrelated siblings,
 which a sibling walk otherwise picks up; and **not the dragged item**, whose
 presentation the kernel's lift owns. The dragged item is not a hypothetical: the
 placeholder is inserted immediately after it, so it is the first sibling every
-backward span walks over. Under `LIFT_FLAT` its rect does not change across the
+backward span walks over. Under any top-layer lift its rect does not change across the
 bracket, so animating it produces a zero delta and *looks* correct — the
 ownership violation is visible only in the reads, which is how it has to be
 pinned.

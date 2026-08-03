@@ -1,73 +1,41 @@
 # `drag2` implementation plan
 
-Source of truth: [`contract/`](contract/) documents 00–06, read with the
-precedence stated in [`00-index.md`](contract/00-index.md) §Normative precedence.
-[`packages/drag/docs/contract-probe-2/contract.ts`](../../../packages/drag/docs/contract-probe-2/contract.ts)
-is a **type fixture only** — where it disagrees with the prose, the prose wins,
-and the fixture is the bug.
+Source of truth: [`contract/`](contract/) documents 00–06, read with the precedence stated in [`00-index.md`](contract/00-index.md) §Normative precedence. [`packages/drag/docs/contract-probe-2/contract.ts`](../../../packages/drag/docs/contract-probe-2/contract.ts) is a **type fixture only** — where it disagrees with the prose, the prose wins, and the fixture is the bug.
 
 ## Ground rules for every phase
 
-1. **Signatures come from the contract, not from the shipped package.** Where a
-   shipped module is ported (queue, lifetimes, realm, lift), it is ported
-   *behaviourally* and re-typed against the new ownership boundaries.
-2. **No phase lands red.** Each phase ends with `npx just fmt`, `npx just
-   lint-fix`, `npx just typecheck` and `npx just test` green from
-   `packages/drag2`.
-3. **Tests are written in the phase that introduces the behavior**, using the
-   [05](contract/05-lifecycle-invariants.md) §Test matrix rows named in each
-   phase's *Done when*. Phase 10 exists to close the residue, not to be the
-   first time the matrix is consulted.
-4. **Tier discipline.** Every invariant implemented at tier A or B must be
-   demonstrated by a compile error (`@ts-expect-error`) or an executable test.
-   Tier C invariants get a `__DEV__` assertion or a documented comment, never a
-   silent assumption.
-5. **Deviations are recorded.** If an executable case cannot be expressed
-   through the frozen SPI, stop and write the failing case down — that is the
-   only admissible trigger for a contract change (00 §Normative precedence).
+1. **Signatures come from the contract, not from the shipped package.** Where a shipped module is ported (queue, lifetimes, realm, lift), it is ported _behaviourally_ and re-typed against the new ownership boundaries.
+2. **No phase lands red.** Each phase ends with `npx just fmt`, `npx just lint-fix`, `npx just typecheck` and `npx just test` green from `packages/drag2`.
+3. **Tests are written in the phase that introduces the behavior**, using the [05](contract/05-lifecycle-invariants.md) §Test matrix rows named in each phase's _Done when_. Phase 10 exists to close the residue, not to be the first time the matrix is consulted.
+4. **Tier discipline.** Every invariant implemented at tier A or B must be demonstrated by a compile error (`@ts-expect-error`) or an executable test. Tier C invariants get a `__DEV__` assertion or a documented comment, never a silent assumption.
+5. **Deviations are recorded.** If an executable case cannot be expressed through the frozen SPI, stop and write the failing case down — that is the only admissible trigger for a contract change (00 §Normative precedence).
 
 ## Placement
 
-A new workspace, **`packages/drag2`** (`@ydinjs/drag2`), built alongside the
-shipped `@ydinjs/drag`. The shipped package is untouched for the whole plan; the
-merge back into `@ydinjs/drag` is Phase 12 and is a separate decision.
+A new workspace, **`packages/drag2`** (`@ydinjs/drag2`), built alongside the shipped `@ydinjs/drag`. The shipped package is untouched for the whole plan; the merge back into `@ydinjs/drag` is Phase 12 and is a separate decision.
 
 ---
 
 ## Phase 0 — Workspace scaffolding
 
-**Scope.** Create the package so every later phase has a working
-build/test/typecheck loop.
+**Scope.** Create the package so every later phase has a working build/test/typecheck loop.
 
 **Deliverables.**
 
-- `packages/drag2/{package.json,project.json,Justfile,tsconfig.json,eslint.config.ts,tsdown.config.ts,vite.config.ts,vitest.config.ts,typedoc.json,files.json,.size-limit.json,README.md}`,
-  copied structurally from `packages/drag` and renamed to `@ydinjs/drag2`.
-- `files.json` carries the **export topology** from
-  [03](contract/03-feature-composition.md) §The export topology this requires,
-  in full, from day one — `drag`, `sortable`, `sortable/vertical`,
-  `sortable/callbacks`, `sortable/placeholder`, `sortable/handle`,
-  `sortable/landing`, `sortable/layout-animation`. Entry files start as stubs.
-- `.size-limit.json` gets the four M-3 compositions as *named, unbudgeted*
-  entries. Budgets are added only after the first measurement (05 §Measurements).
-  (Superseded in phase 11: `size-limit` is not used, and each composition is one
-  declaration in `bench/size/measure.ts` — imports, budget and module-graph
-  expectations together. See `.agents/docs/measure/brief.md`.)
-- `tests/` skeleton mirroring the source tree, routed by the existing
-  `createDragTestConfig` suffix convention (`.browser.test.ts` / `.node.test.ts`).
+- `packages/drag2/{package.json,project.json,Justfile,tsconfig.json,eslint.config.ts,tsdown.config.ts,vite.config.ts,vitest.config.ts,typedoc.json,files.json,.size-limit.json,README.md}`, copied structurally from `packages/drag` and renamed to `@ydinjs/drag2`.
+- `files.json` carries the **export topology** from [03](contract/03-feature-composition.md) §The export topology this requires, in full, from day one — `drag`, `sortable`, `sortable/vertical`, `sortable/callbacks`, `sortable/placeholder`, `sortable/handle`, `sortable/landing`, `sortable/layout-animation`. Entry files start as stubs.
+- `.size-limit.json` gets the four M-3 compositions as _named, unbudgeted_ entries. Budgets are added only after the first measurement (05 §Measurements). (Superseded in phase 11: `size-limit` is not used, and each composition is one declaration in `bench/size/measure.ts` — imports, budget and module-graph expectations together. See `.agents/docs/measure/brief.md`.)
+- `tests/` skeleton mirroring the source tree, routed by the existing `createDragTestConfig` suffix convention (`.browser.test.ts` / `.node.test.ts`).
 
-**Done when.** `npx just build`, `typecheck`, `test` all run green on an empty
-package; each declared subpath resolves from a scratch consumer fixture.
+**Done when.** `npx just build`, `typecheck`, `test` all run green on an empty package; each declared subpath resolves from a scratch consumer fixture.
 
-**Why first.** The subpath topology is a measurement precondition (M-3) and
-retrofitting it after the modules exist reliably reintroduces an eager barrel.
+**Why first.** The subpath topology is a measurement precondition (M-3) and retrofitting it after the modules exist reliably reintroduces an eager barrel.
 
 ---
 
 ## Phase 1 — Kernel primitives
 
-**Scope.** The non-lifecycle machinery the executor needs, ported from
-`packages/drag/src/kernel` with the new ownership types.
+**Scope.** The non-lifecycle machinery the executor needs, ported from `packages/drag/src/kernel` with the new ownership types.
 
 **Deliverables.**
 
@@ -81,99 +49,52 @@ retrofitting it after the modules exist reliably reintroduces an eager barrel.
 | `presentation.ts` | `VisualLiftSession`: acquire, `composeXY`, `write`, latched style restore, lift modes | 01 ownership table |
 | `pointer.ts`, `invalidation.ts` | Ported unchanged in behaviour | — |
 
-**Geometry comes from `@ydinjs/box-quad`, not a ported coordinate walker.**
-box-quad was written after the shipped drag package and is a strictly better
-version of the same traversal — flat-tree (shadow-DOM aware), honest about 3D
-instead of silently flattening it, origin derived from `getClientRects()` rather
-than offsetParent arithmetic, with a caller-owned cache. Its API was reshaped
-for this (both packages are pre-alpha, all call sites ours) into one DOM
-measurement and one pure projection: `coordinates(element, out, recache?)`
-writes the canonical `Box` — element→viewport matrix, untransformed border-box
-size, ancestor zoom — and `projection(source, out, relativeTo?)` is scalar-only
-basis conversion with no DOM access. drag2 has no coordinate module.
+**Geometry comes from `@ydinjs/box-quad`, not a ported coordinate walker.** box-quad was written after the shipped drag package and is a strictly better version of the same traversal — flat-tree (shadow-DOM aware), honest about 3D instead of silently flattening it, origin derived from `getClientRects()` rather than offsetParent arithmetic, with a caller-owned cache. Its API was reshaped for this (both packages are pre-alpha, all call sites ours) into one DOM measurement and one pure projection: `coordinates(element, out, recache?)` writes the canonical `Box` — element→viewport matrix, untransformed border-box size, ancestor zoom — and `projection(source, out, relativeTo?)` is scalar-only basis conversion with no DOM access. drag2 has no coordinate module.
 
-The shipped `animation.ts` is **not** ported here. It is the WAAPI helper the
-landing runner needs, and pulling it into the kernel would put an optional
-feature's dependency in the always-present layer. It lands with `landing()` in
-phase 8b.
+The shipped `animation.ts` is **not** ported here. It is the WAAPI helper the landing runner needs, and pulling it into the kernel would put an optional feature's dependency in the always-present layer. It lands with `landing()` in phase 8b.
 
 **Contract-driven changes vs the shipped versions.**
 
-- `Lifetime.use()` on an already-disposed lifetime **invokes the disposer
-  immediately and reports** (02 §Registration after closure).
+- `Lifetime.use()` on an already-disposed lifetime **invokes the disposer immediately and reports** (02 §Registration after closure).
 - `dispose()` is never handed out — only `LifetimeScope` crosses the boundary.
 
-**Done when.** Ported node tests pass; new cases: `use()` after dispose runs the
-disposer immediately; one failing disposer does not stop the LIFO (I-19); a
-nested `dispatch` during a drain appends and is reached in the same drain (I-1);
-the drain handler identity is stable across outer dispatches.
+**Done when.** Ported node tests pass; new cases: `use()` after dispose runs the disposer immediately; one failing disposer does not stop the LIFO (I-19); a nested `dispatch` during a drain appends and is reached in the same drain (I-1); the drain handler identity is stable across outer dispatches.
 
 ---
 
 ## Phase 2 — Frame slicing
 
-**Scope.** [04](contract/04-frame-slicing.md) in its entirety, with no lifecycle
-attached yet.
+**Scope.** [04](contract/04-frame-slicing.md) in its entirety, with no lifecycle attached yet.
 
 **Deliverables.**
 
-- `KernelFrame` (7 fields), `Frame<Part>`, `Draft<Part>` (with the deliberate
-  `Omit`), `FramePartOf<Part>`, `FrameKeyCollision`.
-- `composeFrame()` — `Object.assign(createKernelFrame(), part)`, no cast; called
-  twice, **validating each factory result**.
-- `validateFramePart()` — production check rejecting kernel keys, own
-  `__proto__` data properties, symbol keys, non-enumerable/non-writable keys,
-  accessors and non-plain prototypes. Proxies are explicitly *not* claimed.
-- `begin()` / `commit()` / `scrub()` (`resetKernelFields` then
-  `spec.resetFramePart`, each individually wrapped at teardown).
-- `__DEV__` block: intra-controller key-set identity at `arm()`, post-scrub shape
-  stability against `armedKeys`, descriptor re-validation, reset-completeness
-  heuristic.
+- `KernelFrame` (7 fields), `Frame<Part>`, `Draft<Part>` (with the deliberate `Omit`), `FramePartOf<Part>`, `FrameKeyCollision`.
+- `composeFrame()` — `Object.assign(createKernelFrame(), part)`, no cast; called twice, **validating each factory result**.
+- `validateFramePart()` — production check rejecting kernel keys, own `__proto__` data properties, symbol keys, non-enumerable/non-writable keys, accessors and non-plain prototypes. Proxies are explicitly _not_ claimed.
+- `begin()` / `commit()` / `scrub()` (`resetKernelFields` then `spec.resetFramePart`, each individually wrapped at teardown).
+- `__DEV__` block: intra-controller key-set identity at `arm()`, post-scrub shape stability against `armedKeys`, descriptor re-validation, reset-completeness heuristic.
 
-**Done when.** Matrix rows *Construction model*: both frames share a key set
-(F-2); a part declaring `phase` is rejected in production and unwritable at the
-authoring boundary; symbol-keyed and `__proto__` parts are rejected; the
-**second** factory result returning a colliding key is rejected at `arm()`; a
-`resetFramePart` that adds or deletes a key is caught in `__DEV__`. Plus
-`@ts-expect-error` fixtures for `draft.phase = …` and `current.slot = …`.
+**Done when.** Matrix rows _Construction model_: both frames share a key set (F-2); a part declaring `phase` is rejected in production and unwritable at the authoring boundary; symbol-keyed and `__proto__` parts are rejected; the **second** factory result returning a colliding key is rejected at `arm()`; a `resetFramePart` that adds or deletes a key is caught in `__DEV__`. Plus `@ts-expect-error` fixtures for `draft.phase = …` and `current.slot = …`.
 
 ---
 
 ## Phase 3 — The seam driver
 
-**Scope.** [02](contract/02-kernel-behavior-contract.md) §The shared core — the
-piece every later phase depends on and the one four separate findings
-(F-19/F-27/F-34/F-40) were about.
+**Scope.** [02](contract/02-kernel-behavior-contract.md) §The shared core — the piece every later phase depends on and the one four separate findings (F-19/F-27/F-34/F-40) were about.
 
 **Deliverables.**
 
 - `Transition<Part, Prepared, Capability>`, `SeamRejection`.
-- `SeamOutcome` constants + `seamFailed`; `runCore` exactly as specified
-  (begin → prepare → latch check → discard check → revalidate → rollback-or-
-  commit → effect → latch check).
-- `runLeaf` wrapper giving `moved`, `anchorTarget` and `finalized` identical
-  throw/`host.fail` behaviour.
-- Kernel-private `inSeam` and `seamFailureRequested` latches; `host.fail(stage,
-  error)` classified only inside a seam of the current operation, downgraded to
-  a platform report otherwise (D-28, F-23).
-- Per-seam wrappers with their **own** discard and failure policies (the
-  four-row table in 02 §The core returns an outcome).
+- `SeamOutcome` constants + `seamFailed`; `runCore` exactly as specified (begin → prepare → latch check → discard check → revalidate → rollback-or- commit → effect → latch check).
+- `runLeaf` wrapper giving `moved`, `anchorTarget` and `finalized` identical throw/`host.fail` behaviour.
+- Kernel-private `inSeam` and `seamFailureRequested` latches; `host.fail(stage, error)` classified only inside a seam of the current operation, downgraded to a platform report otherwise (D-28, F-23).
+- Per-seam wrappers with their **own** discard and failure policies (the four-row table in 02 §The core returns an outcome).
 
-  **Revised while implementing:** these landed as higher-order policies taking
-  their continuations as callbacks (`runActivationSeam(driver, transition,
-  capability, stage, { retire, committed })`), not as stubs. That is the real
-  policy, fully testable against a fake now, and phase 4 supplies the actual
-  callbacks — where a stub would have been speculative code. The settlement row
-  is **not** here: its policy is "seal, then discard every unarmed request",
-  which needs the settlement attempt, so it lands with phase 5. The `action`
-  row is `runCore` plus a per-tag stage and needs no wrapper.
+  **Revised while implementing:** these landed as higher-order policies taking their continuations as callbacks (`runActivationSeam(driver, transition, capability, stage, { retire, committed })`), not as stubs. That is the real policy, fully testable against a fake now, and phase 4 supplies the actual callbacks — where a stub would have been speculative code. The settlement row is **not** here: its policy is "seal, then discard every unarmed request", which needs the settlement attempt, so it lands with phase 5. The `action` row is `runCore` plus a per-tag stage and needs no wrapper.
+
 - `rollback` throw = best-effort report, never classified.
 
-**Done when.** Matrix *Gates and drivers*: an `effect` throw is classified, not a
-panic; a `rollback` throw is reported, not classified; **and** the
-*Explicit failure latching* group's core assertion — each seam in turn calls
-`host.fail` and returns normally, and no success continuation runs. Driver-level
-tests use a fake spec, not the sortable behavior.
+**Done when.** Matrix _Gates and drivers_: an `effect` throw is classified, not a panic; a `rollback` throw is reported, not classified; **and** the _Explicit failure latching_ group's core assertion — each seam in turn calls `host.fail` and returns normally, and no success continuation runs. Driver-level tests use a fake spec, not the sortable behavior.
 
 ---
 
@@ -183,719 +104,276 @@ tests use a fake spec, not the sortable behavior.
 
 **Deliverables.**
 
-- `draggable(root, behavior)` and the two-phase handshake (D-1); `KernelHost`
-  with its six members (D-2); `arm(spec)` including the **unwind** on any
-  failure of the frame factories, validation, shape assertion or listener
-  attachment (01 §When construction itself fails).
-- Ingress listener, `admit` wrapping, and the **post-`admit` revalidation**
-  before minting identity (D-26/F-30); a throwing `admit` becomes a
-  controller-level `onError` report with `FAILURE_ADMISSION` and **no**
-  operation (Q-1 as answered).
-- `MOVE`: sample commit, threshold test, activation open; `originRect`, lift
-  acquisition, `root.isConnected` check then `setPointerCapture` on `root`
-  (D-17) with capture failure = `FAILURE_ACTIVATION`; guarded release disposer.
-- `ActivationScope`; the activation wrapper's discard policy (**retire**) versus
-  its failure policy (**no retirement** — the checkpoint owns it);
-  `START_COMMITTED` re-checking `preparationValid()` **and the cancel latch**
-  (F-32).
+- `draggable(root, behavior)` and the two-phase handshake (D-1); `KernelHost` with its six members (D-2); `arm(spec)` including the **unwind** on any failure of the frame factories, validation, shape assertion or listener attachment (01 §When construction itself fails).
+- Ingress listener, `admit` wrapping, and the **post-`admit` revalidation** before minting identity (D-26/F-30); a throwing `admit` becomes a controller-level `onError` report with `FAILURE_ADMISSION` and **no** operation (Q-1 as answered).
+- `MOVE`: sample commit, threshold test, activation open; `originRect`, lift acquisition, `root.isConnected` check then `setPointerCapture` on `root` (D-17) with capture failure = `FAILURE_ACTIVATION`; guarded release disposer.
+- `ActivationScope`; the activation wrapper's discard policy (**retire**) versus its failure policy (**no retirement** — the checkpoint owns it); `START_COMMITTED` re-checking `preparationValid()` **and the cancel latch** (F-32).
 - `moved` on the hot path, kernel-wrapped (F-40).
-- `ActionTransition` envelope, `dispatch(tag, argument)` with a static
-  `config.actionTags` bound-check and `BEHAVIOR_BASE` offset.
-- Release as **two commits** with motion disposal between them (D-6), and
-  `ResolutionCommand` executed by the kernel only on `SEAM_COMMITTED`.
-- Cancellation: synchronous `host.cancel` latch (I-21), precedence
-  `DESTROY > CANCEL > FAILURE_CHECKPOINT` (I-22), `CancelStage`.
+- `ActionTransition` envelope, `dispatch(tag, argument)` with a static `config.actionTags` bound-check and `BEHAVIOR_BASE` offset.
+- Release as **two commits** with motion disposal between them (D-6), and `ResolutionCommand` executed by the kernel only on `SEAM_COMMITTED`.
+- Cancellation: synchronous `host.cancel` latch (I-21), precedence `DESTROY > CANCEL > FAILURE_CHECKPOINT` (I-22), `CancelStage`.
 - Failure checkpoint, `REPORTING`, `ERROR_REPORTED`, `RETIRE`.
-- `destroy()` — the **seven-step** teardown, each step individually wrapped,
-  ingress abort in a `finally`, destroy never pins (01 §Teardown, D-29).
-- The phase/action legality table from 02 §Phases and legality, as the
-  authority for every handler's "ignore deterministically" branch.
+- `destroy()` — the **seven-step** teardown, each step individually wrapped, ingress abort in a `finally`, destroy never pins (01 §Teardown, D-29).
+- The phase/action legality table from 02 §Phases and legality, as the authority for every handler's "ignore deterministically" branch.
 
-**Done when.** Matrix *Basic flow*, *Boundary*, *Reentrancy* (`onStart` cancels /
-destroys; a callback queues work then throws), *Resource cleanup* (destroy during
-active movement, partial activation failure), *Teardown totality* (all four
-rows), *Failure continuation* rows for activation and release, and
-*Placeholder and admission*'s admission rows. Sortable is still a test-double
-behavior at this point.
+**Done when.** Matrix _Basic flow_, _Boundary_, _Reentrancy_ (`onStart` cancels / destroys; a callback queues work then throws), _Resource cleanup_ (destroy during active movement, partial activation failure), _Teardown totality_ (all four rows), _Failure continuation_ rows for activation and release, and _Placeholder and admission_'s admission rows. Sortable is still a test-double behavior at this point.
 
 **Deviations recorded while implementing.**
 
-- **`BehaviorSpec.reportFailure(stage, error)` is new.** Q-1 answers the
-  admission case with "the kernel reports through `onError` with
-  `FAILURE_ADMISSION` and no operation", but the kernel cannot reach `onError`
-  — the consumer callbacks belong to the behavior's `callbacks()` slot, and
-  `BehaviorSpec` had no hook that works without an operation. One member is the
-  smallest way to make the answer implementable. Phase 5 will route the ordinary
-  failure checkpoint through the settlement seam as a `SETTLED_FAILED` input as
-  the contract specifies; `reportFailure` stays for the no-operation case only.
-- **`runCore` gained an optional `effectStage`.** The action seam's two phases
-  fail at different stages (`INSERTION` in `prepare`, `PLACEHOLDER_MOVE` in
-  `effect`) and the driver classified both at one. This is kernel-internal, not
-  part of the behavior SPI the phase-5 gate freezes.
-- **The kernel stamps its own phase through a private slot consumed by
-  `commit()`**, rather than through a seam-driver parameter. Activation writes
-  `ACTIVATING` and settlement writes `SETTLING` *between* `preparationValid()`
-  and the swap, which is the kernel's write and not expressible through
-  `Draft<Part>`.
-- **Phase 5 boundaries left explicit in `kernel.ts`:** `openResolution`,
-  `settleCancellation` (a cancel at `ACTIVE`/`RELEASING` retires without a
-  terminal callback for now) and the failure checkpoint's settlement input.
+- **`BehaviorSpec.reportFailure(stage, error)` is new.** Q-1 answers the admission case with "the kernel reports through `onError` with `FAILURE_ADMISSION` and no operation", but the kernel cannot reach `onError` — the consumer callbacks belong to the behavior's `callbacks()` slot, and `BehaviorSpec` had no hook that works without an operation. One member is the smallest way to make the answer implementable. Phase 5 will route the ordinary failure checkpoint through the settlement seam as a `SETTLED_FAILED` input as the contract specifies; `reportFailure` stays for the no-operation case only.
+- **`runCore` gained an optional `effectStage`.** The action seam's two phases fail at different stages (`INSERTION` in `prepare`, `PLACEHOLDER_MOVE` in `effect`) and the driver classified both at one. This is kernel-internal, not part of the behavior SPI the phase-5 gate freezes.
+- **The kernel stamps its own phase through a private slot consumed by `commit()`**, rather than through a seam-driver parameter. Activation writes `ACTIVATING` and settlement writes `SETTLING` _between_ `preparationValid()` and the swap, which is the kernel's write and not expressible through `Draft<Part>`.
+- **Phase 5 boundaries left explicit in `kernel.ts`:** `openResolution`, `settleCancellation` (a cancel at `ACTIVE`/`RELEASING` retires without a terminal callback for now) and the failure checkpoint's settlement input.
 
 ---
 
 ## Phase 5 — Settlement, gates and the join
 
-**Scope.** [02](contract/02-kernel-behavior-contract.md) §Settlement gates and
-§Landing — the densest failure surface in the contract.
+**Scope.** [02](contract/02-kernel-behavior-contract.md) §Settlement gates and §Landing — the densest failure surface in the contract.
 
 **Deliverables.**
 
-- Resolution attempt: object identity, guarded abort keyed off `completed`,
-  double validation (I-4); thenable vs immediate settlement.
-- `SettlementInput` as the five-case discriminated union; `SettlementTransition`
-  returning `PreparedSettlement | SeamRejection`.
-- `SettlementAttempt` record with all eleven fields; `SettlementScope` whose two
-  methods **record a request and arm nothing**, ignoring-and-reporting duplicates
-  and post-seal calls.
-- **Request → seal → arm**, including: dropping every unarmed request on
-  `SEAM_EFFECT_FAILED`; `authoredReady = readiness === null`; revalidation on
-  **both** sides of `start` (F-38, F-30); `ArmOutcome`
-  (`ARM_ARMED`/`ARM_STALE`/`ARM_FAILED`) with `ARM_FAILED` suppressing
-  `advanceSettlement` and every terminal callback (F-35).
+- Resolution attempt: object identity, guarded abort keyed off `completed`, double validation (I-4); thenable vs immediate settlement.
+- `SettlementInput` as the five-case discriminated union; `SettlementTransition` returning `PreparedSettlement | SeamRejection`.
+- `SettlementAttempt` record with all eleven fields; `SettlementScope` whose two methods **record a request and arm nothing**, ignoring-and-reporting duplicates and post-seal calls.
+- **Request → seal → arm**, including: dropping every unarmed request on `SEAM_EFFECT_FAILED`; `authoredReady = readiness === null`; revalidation on **both** sides of `start` (F-38, F-30); `ArmOutcome` (`ARM_ARMED`/`ARM_STALE`/`ARM_FAILED`) with `ARM_FAILED` suppressing `advanceSettlement` and every terminal callback (F-35).
 - Once-only `completeLanding` latch (D-28).
-- Readiness watch bounded by `config.readinessTimeout` (default 500); rejection
-  or timeout **replaces** the settlement, keeps presentation owned, leaves
-  `authoredReady` false, reports through `onError` only.
-- The readiness-time re-anchor guarded on `attempt.landingHeld`, with
-  `anchorTarget`/`retarget` failures as **best-effort reports** (I-29, F-17).
-- The join: `FINALIZING` commit → `anchorTarget` → `landing.destroy()` →
-  `lift.write` pin → `presentation.dispose()` in a `finally` → skip `finalized`
-  after a consequential failure → `RETIRE` (D-16, F-22, F-27).
-- `LandingStart` / `LandingContext` / `LandingHandle` types (`retarget` optional,
-  no `pin`).
+- Readiness watch bounded by `config.readinessTimeout` (default 500); rejection or timeout **replaces** the settlement, keeps presentation owned, leaves `authoredReady` false, reports through `onError` only.
+- The readiness-time re-anchor guarded on `attempt.landingHeld`, with `anchorTarget`/`retarget` failures as **best-effort reports** (I-29, F-17).
+- The join: `FINALIZING` commit → `anchorTarget` → `landing.destroy()` → `lift.write` pin → `presentation.dispose()` in a `finally` → skip `finalized` after a consequential failure → `RETIRE` (D-16, F-22, F-27).
+- `LandingStart` / `LandingContext` / `LandingHandle` types (`retarget` optional, no `pin`).
 
-**Done when.** Matrix groups *Readiness*, *Async attempts*, *Gates and drivers*,
-*Landing completion* (all ten rows), *Landing target* (all rows), plus
-*Failure paths*' readiness/join rows. Note explicitly in the tests that I-24 is
-**not** claimed when `destroy()` throws.
+**Done when.** Matrix groups _Readiness_, _Async attempts_, _Gates and drivers_, _Landing completion_ (all ten rows), _Landing target_ (all rows), plus _Failure paths_' readiness/join rows. Note explicitly in the tests that I-24 is **not** claimed when `destroy()` throws.
 
-**Gate.** Phases 3–5 are the frozen SPI. Any change to a seam signature after
-this point requires the failing-executable-case justification from 00.
+**Gate.** Phases 3–5 are the frozen SPI. Any change to a seam signature after this point requires the failing-executable-case justification from 00.
 
 **Deviations recorded while implementing.**
 
-- **The failure checkpoint drives the settlement seam stamped `REPORTING`, not
-  `SETTLING`.** The contract gives the checkpoint no trace: the mapping table
-  requires `settlement.prepare(SETTLED_FAILED)` to build the terminal state,
-  while the phase table puts `onError` in `REPORTING`. Driving the same seam
-  with the `REPORTING` stamp and a **pre-sealed** scope satisfies both — the
-  behavior owns terminal classification, no gate can be held for a failed
-  settlement, no join runs, and `ERROR_REPORTED` → retirement releases
-  presentation. The input carries `stage`, which is what lets the behavior give
-  `TERMINAL_CALLBACK` the "none" recovery the stage table names while the rest
-  get immediate.
-- **`LandingContext.from`/`.target` and `retarget()` are origin-relative
-  deltas**, not viewport points. See README, deliberate differences.
-- **The settlement seam closes motion as well as cancellation**, before the
-  behavior's `effect`. The trace lists only `cancellation.dispose()`, because it
-  traces a *release*, where motion is already closed. A cancel at `ACTIVE`
-  reaches settlement with pointer input still open, and both closes are latched.
-- **A raw throw from `settlement.prepare`/`effect` classifies as
-  `FAILURE_REORDER_RESOLUTION`.** The contract names a stage for the seam's
-  `SeamRejection` but not for an unannotated throw; this is the stage the seam
-  owns, and it carries the home recovery the stage table gives it.
-- **`failOperation` dispatches rather than enqueues.** A checkpoint raised from
-  an async continuation — a readiness rejection, a landing runner's `fail()` —
-  is the outermost frame, so nothing else would ever drain it.
-- **Three guards are kept without a test that isolates them**, each redundant
-  with a second mechanism and each named by the contract: `attempt.failed` after
-  `start` (the latch already catches today's only route), `attempt.failed` in
-  `advanceSettlement` (a failure never releases its hold, so the count cannot
-  reach zero), and the phase half of the resolution's double validation. Marked
-  as such in `kernel.ts` rather than left to read as tested.
+- **The failure checkpoint drives the settlement seam stamped `REPORTING`, not `SETTLING`.** The contract gives the checkpoint no trace: the mapping table requires `settlement.prepare(SETTLED_FAILED)` to build the terminal state, while the phase table puts `onError` in `REPORTING`. Driving the same seam with the `REPORTING` stamp and a **pre-sealed** scope satisfies both — the behavior owns terminal classification, no gate can be held for a failed settlement, no join runs, and `ERROR_REPORTED` → retirement releases presentation. The input carries `stage`, which is what lets the behavior give `TERMINAL_CALLBACK` the "none" recovery the stage table names while the rest get immediate.
+- **`LandingContext.from`/`.target` and `retarget()` are origin-relative deltas**, not viewport points. See README, deliberate differences.
+- **The settlement seam closes motion as well as cancellation**, before the behavior's `effect`. The trace lists only `cancellation.dispose()`, because it traces a _release_, where motion is already closed. A cancel at `ACTIVE` reaches settlement with pointer input still open, and both closes are latched.
+- **A raw throw from `settlement.prepare`/`effect` classifies as `FAILURE_REORDER_RESOLUTION`.** The contract names a stage for the seam's `SeamRejection` but not for an unannotated throw; this is the stage the seam owns, and it carries the home recovery the stage table gives it.
+- **`failOperation` dispatches rather than enqueues.** A checkpoint raised from an async continuation — a readiness rejection, a landing runner's `fail()` — is the outermost frame, so nothing else would ever drain it.
+- **Three guards are kept without a test that isolates them**, each redundant with a second mechanism and each named by the contract: `attempt.failed` after `start` (the latch already catches today's only route), `attempt.failed` in `advanceSettlement` (a failure never releases its hold, so the count cannot reach zero), and the phase half of the resolution's double validation. Marked as such in `kernel.ts` rather than left to read as tested.
 
 ---
 
 ## Phase 6 — The sortable behavior
 
-**Scope.** [01](contract/01-construction-ownership.md) §The behavior instance,
-02 §Seam-by-seam, [04](contract/04-frame-slicing.md) §`SortableFramePart` — with
-features stubbed by hand-written slot literals (Phase 7 supplies the assembler).
+**Scope.** [01](contract/01-construction-ownership.md) §The behavior instance, 02 §Seam-by-seam, [04](contract/04-frame-slicing.md) §`SortableFramePart` — with features stubbed by hand-written slot literals (Phase 7 supplies the assembler).
 
 **Deliverables.**
 
 - `SortableFramePart` (8 fields) + `createSortableFramePart` / `resetFramePart`.
-- `SortableRuntime` (seven mutable fields, `frame` non-nullable and created once
-  per controller), `PresentationView`, `createSortableSpec`,
-  `createSortableController`.
-- Domain types: `CollectionSnapshot`, `Insertion`, `ReorderRequest`,
-  `ReorderProposal`, `ReorderResolution` (value **and** type),
-  `ReorderTransactionResult`, `SortableFinishResult`, `SortableCancelResult` —
-  narrowed unions with string discriminants (D-31, F-41).
-- Every seam: `admit`; `activation.prepare` (detached placeholder, offset-box
-  sizing, home insertion with **real identity neighbours**) and
-  `activation.effect` in **I-30 order**; `moved`; both action tags;
-  `release.prepare`/`effect` including the **final lift render** (F-39) and
-  `invoke: null` only for a proven `from === to` no-op; `settlement.prepare`
-  implementing the five-row mapping table exhaustively; `settlement.effect`
-  requesting holds; `anchorTarget` with the three-conjunct guarded re-anchor;
-  `finalized` as an **exhaustive switch on the domain discriminant** (F-37);
-  `retire`.
-- One canonical `movePlaceholder()` anchored on `insertion.after` with an append
-  fallback, inert when already in position (D-27), used by both the spatial
-  action and release.
-- `reconcileCollection` — pure, identity-based, the four survival rules — and
-  the per-phase `PreparedCollection` staging table, with `cancelReason`
-  dispatched **last** from `effect` (D-25, F-28).
+- `SortableRuntime` (seven mutable fields, `frame` non-nullable and created once per controller), `PresentationView`, `createSortableSpec`, `createSortableController`.
+- Domain types: `CollectionSnapshot`, `Insertion`, `ReorderRequest`, `ReorderProposal`, `ReorderResolution` (value **and** type), `ReorderTransactionResult`, `SortableFinishResult`, `SortableCancelResult` — narrowed unions with string discriminants (D-31, F-41).
+- Every seam: `admit`; `activation.prepare` (detached placeholder, offset-box sizing, home insertion with **real identity neighbours**) and `activation.effect` in **I-30 order**; `moved`; both action tags; `release.prepare`/`effect` including the **final lift render** (F-39) and `invoke: null` only for a proven `from === to` no-op; `settlement.prepare` implementing the five-row mapping table exhaustively; `settlement.effect` requesting holds; `anchorTarget` with the three-conjunct guarded re-anchor; `finalized` as an **exhaustive switch on the domain discriminant** (F-37); `retire`.
+- One canonical `movePlaceholder()` anchored on `insertion.after` with an append fallback, inert when already in position (D-27), used by both the spatial action and release.
+- `reconcileCollection` — pure, identity-based, the four survival rules — and the per-phase `PreparedCollection` staging table, with `cancelReason` dispatched **last** from `effect` (D-25, F-28).
 
-**Done when.** Matrix *Collection*, *Collection staging* (all rows including the
-`onStart` → `updateItems()` row), *Settlement mapping* (all five), *Terminal
-protocol* (all six), *Placeholder movement* (all four), and the *Basic flow*
-group re-run against the real behavior.
+**Done when.** Matrix _Collection_, _Collection staging_ (all rows including the `onStart` → `updateItems()` row), _Settlement mapping_ (all five), _Terminal protocol_ (all six), _Placeholder movement_ (all four), and the _Basic flow_ group re-run against the real behavior.
 
 **Deviations recorded while implementing.**
 
-- **`homeInsertion` is recomputed, never stored.** The frame part is fixed at
-  eight fields and the runtime at seven, so the home gap a `RECOVERY_HOME`
-  settlement returns the placeholder to has nowhere to live. Deriving it from
-  the committed snapshot and item is pure, needs no slot, and cannot go stale
-  against a collection replacement — the item's own index in the full list *is*
-  the destination gap it occupies.
-- **The displacement pipelines do not bracket the release move.** The trace
-  shows `release.effect` calling `movePlaceholder` alone, and the hooks are
-  specified as bracketing "a committed placeholder move" on the spatial path.
-  If a fixture later shows the release move needs them, that is a behavior
-  change, not an SPI one.
-- **`DragErrorContext` lives in the sortable domain module for now.** The
-  export table puts it in `drag.js`, but its `domain` field is a sortable
-  result; phase 9 decides whether it is generic (`unknown`) or behavior-shaped.
-- **Two switches suppress `default-case`.** Exhaustive discrimination is the
-  point of both (F-29's five-row mapping, F-37's terminal routing): a `default`
-  would turn a missing case from a compile error into a plausible-looking
-  fall-through.
-- **One guard is kept without a test that isolates it**: the spatial attempt
-  comparison in `action.prepare`. The frame task coalesces and dispatches the
-  latest sequence synchronously, so a queued attempt is always current when it
-  applies. Marked as such in `spec.ts`.
+- **`homeInsertion` is recomputed, never stored.** The frame part is fixed at eight fields and the runtime at seven, so the home gap a `RECOVERY_HOME` settlement returns the placeholder to has nowhere to live. Deriving it from the committed snapshot and item is pure, needs no slot, and cannot go stale against a collection replacement — the item's own index in the full list _is_ the destination gap it occupies.
+- **The displacement pipelines do not bracket the release move.** The trace shows `release.effect` calling `movePlaceholder` alone, and the hooks are specified as bracketing "a committed placeholder move" on the spatial path. If a fixture later shows the release move needs them, that is a behavior change, not an SPI one.
+- **`DragErrorContext` lives in the sortable domain module for now.** The export table puts it in `drag.js`, but its `domain` field is a sortable result; phase 9 decides whether it is generic (`unknown`) or behavior-shaped.
+- **Two switches suppress `default-case`.** Exhaustive discrimination is the point of both (F-29's five-row mapping, F-37's terminal routing): a `default` would turn a missing case from a compile error into a plausible-looking fall-through.
+- **One guard is kept without a test that isolates it**: the spatial attempt comparison in `action.prepare`. The frame task coalesces and dispatches the latest sequence synchronously, so a queued attempt is always current when it applies. Marked as such in `spec.ts`.
 
 ---
 
 ## Checkpoint A — kernel machine + full lifecycle + real behavior
 
-**What exists.** Everything the kernel owns, driving the real sortable behavior
-against hand-written slot literals. No assembler, no feature modules, no public
-entrypoints.
+**What exists.** Everything the kernel owns, driving the real sortable behavior against hand-written slot literals. No assembler, no feature modules, no public entrypoints.
 
-**What to review.** The parts that are expensive to change later and are now
-fully observable for the first time:
+**What to review.** The parts that are expensive to change later and are now fully observable for the first time:
 
-- the driver's five outcomes and the four per-seam continuation policies, end to
-  end through a real behavior rather than a fake spec;
+- the driver's five outcomes and the four per-seam continuation policies, end to end through a real behavior rather than a fake spec;
 - the settlement request→seal→arm sequence and the join's fallible ordering;
 - teardown totality and the seven-step order under a real behavior's `retire()`;
-- whether any seam signature needed a workaround in Phase 6 — the frozen-SPI
-  gate says that is the only admissible trigger for a contract change, so it is
-  found here or not at all;
-- the hot path as written, ahead of M-1 (three post-`MOVE` indirect calls, one
-  transform string).
+- whether any seam signature needed a workaround in Phase 6 — the frozen-SPI gate says that is the only admissible trigger for a contract change, so it is found here or not at all;
+- the hot path as written, ahead of M-1 (three post-`MOVE` indirect calls, one transform string).
 
-**Exit.** Phases 4–6 tests green; any SPI concern is either written down as a
-failing executable case or explicitly closed.
+**Exit.** Phases 4–6 tests green; any SPI concern is either written down as a failing executable case or explicitly closed.
 
 ---
 
 ## Phase 7 — Feature composition
 
-**Scope.** [03](contract/03-feature-composition.md) §A feature is a function
-factory through §Assembly.
+**Scope.** [03](contract/03-feature-composition.md) §A feature is a function factory through §Assembly.
 
 **Deliverables.**
 
-- `FeatureContext` (with `report`, **not** `fail`), `SortableContribution`
-  (flat, no discriminator), `InsertionGeometry` as the paired
-  resolve/invalidate/retire capability (D-19).
-- `assemble()` — `claim()` collisions naming both features, required-slot and
-  `onReorder` validation, **cleanup recorded immediately after each factory
-  returns**, unwind in reverse on any throw, single `reverse()`, contributions
-  dropped.
-- `SortableSlots` with the flattened geometry pair, `onStart` normalized to a
-  shared module-level no-op and the other callbacks left nullable.
-- The opaque brand: `declare const FEATURE_BRAND: unique symbol`,
-  `SortableFeature` and `Behavior` as brand-only public types, `unbrandFeature`
-  internal (D-30).
+- `FeatureContext` (with `report`, **not** `fail`), `SortableContribution` (flat, no discriminator), `InsertionGeometry` as the paired resolve/invalidate/retire capability (D-19).
+- `assemble()` — `claim()` collisions naming both features, required-slot and `onReorder` validation, **cleanup recorded immediately after each factory returns**, unwind in reverse on any throw, single `reverse()`, contributions dropped.
+- `SortableSlots` with the flattened geometry pair, `onStart` normalized to a shared module-level no-op and the other callbacks left nullable.
+- The opaque brand: `declare const FEATURE_BRAND: unique symbol`, `SortableFeature` and `Behavior` as brand-only public types, `unbrandFeature` internal (D-30).
 - Behavior call sites converted from Phase 6's hand-written slots to `slots.*`.
 
-**Done when.** Matrix *Construction model*: a feature factory throwing
-mid-`assemble` unwinds the hooks already collected; a **duplicate axis feature
-cleans the rejected contribution's private state**; one throwing retire hook does
-not stop the rest and hooks run in reverse installation order; a displacement
-hook cannot reach `SettlementScope` (`@ts-expect-error`, I-10).
+**Done when.** Matrix _Construction model_: a feature factory throwing mid-`assemble` unwinds the hooks already collected; a **duplicate axis feature cleans the rejected contribution's private state**; one throwing retire hook does not stop the rest and hooks run in reverse installation order; a displacement hook cannot reach `SettlementScope` (`@ts-expect-error`, I-10).
 
 **Deviations recorded while implementing.**
 
-- **`Behavior` carries its controller type.** The contract's brand sketch is
-  parameterless (`Readonly<{ [BRAND]: true }>`), but `draggable()` has to infer
-  what it returns, so the public type is `Behavior<Controller>` and the brand
-  field carries the controller. The **frame part is erased** at the brand, which
-  is the right direction anyway: it is the behavior's private type and no
-  consumer names it. The install function survives internally as
-  `BehaviorFactory<Controller, Part>`.
-- **Two runtime brand helpers, not one.** The contract names only
-  `unbrandFeature`. `brandFeature` and `brandBehavior` are its inverse and exist
-  because the cast has to happen *somewhere*: putting it in one shared identity
-  function keeps `as unknown as` out of every feature module and out of
-  `behavior.ts`. Both are declaration-only in effect and construction-time in
-  cost.
-- **`SortableFeature` is declared in `sortable/feature.ts` and re-exported
-  type-only from the `sortable.js` entry.** The contract asks for one resolvable
-  identity across the separate declaration files, which a re-export gives; what
-  it forbids is a *duplicate declaration* per subpath. Declaring it in the entry
-  module itself would have dragged the authoring types (`FeatureContext`,
-  `SortableContribution`) into the public entry's import graph.
-- **`SortableCallbacks` lives beside `SortableContribution`**, because the
-  contribution type references it and `sortable/callbacks.js` does not exist
-  until 8a. That subpath re-exports the type when it lands.
-- **`claim` labels the slot, not the two features.** The contract's compiled
-  assembler does the same; "names both features" is a capability the
-  full-contribution check *permits*, and features carry no name to print.
-  Labels beyond the contract's table: `placeholder()`, `handle()`, `visual()`,
-  `landing()`.
-- **`ReorderResolution` was pulled forward from 8a into `sortable.js`.** The
-  pack/extract fixture proved the entry had no runtime module at all: a type-only
-  entry emits no `.js`, while the `exports` map's `default` condition promised a
-  consumer one. The contract's export table already lists `ReorderResolution` as
-  a runtime export of this subpath and the value has existed since phase 6, so
-  the fix is the one line the topology was always going to need. The six feature
-  subpaths stay runtime-empty until 8a/8b, recorded as an explicit pending set
-  the fixture fails against once a phase lands one.
-- **`drag.js.map` was missing from `files`.** `kernel/` and `sortable/` ship as
-  whole directories and carry their maps along; the root entries are named file
-  by file, so the root map was the one artefact the allowlist could silently
-  drop while `drag.js` still pointed at it.
-- **Nothing needed converting in the behavior.** Phase 6 already called
-  `slots.*` throughout; the hand-written literals were only ever in the tests,
-  which keep them — driving the behavior through a real `assemble()` is 8a's
-  job, once real features exist to assemble.
+- **`Behavior` carries its controller type.** The contract's brand sketch is parameterless (`Readonly<{ [BRAND]: true }>`), but `draggable()` has to infer what it returns, so the public type is `Behavior<Controller>` and the brand field carries the controller. The **frame part is erased** at the brand, which is the right direction anyway: it is the behavior's private type and no consumer names it. The install function survives internally as `BehaviorFactory<Controller, Part>`.
+- **Two runtime brand helpers, not one.** The contract names only `unbrandFeature`. `brandFeature` and `brandBehavior` are its inverse and exist because the cast has to happen _somewhere_: putting it in one shared identity function keeps `as unknown as` out of every feature module and out of `behavior.ts`. Both are declaration-only in effect and construction-time in cost.
+- **`SortableFeature` is declared in `sortable/feature.ts` and re-exported type-only from the `sortable.js` entry.** The contract asks for one resolvable identity across the separate declaration files, which a re-export gives; what it forbids is a _duplicate declaration_ per subpath. Declaring it in the entry module itself would have dragged the authoring types (`FeatureContext`, `SortableContribution`) into the public entry's import graph.
+- **`SortableCallbacks` lives beside `SortableContribution`**, because the contribution type references it and `sortable/callbacks.js` does not exist until 8a. That subpath re-exports the type when it lands.
+- **`claim` labels the slot, not the two features.** The contract's compiled assembler does the same; "names both features" is a capability the full-contribution check _permits_, and features carry no name to print. Labels beyond the contract's table: `placeholder()`, `handle()`, `visual()`, `landing()`.
+- **`ReorderResolution` was pulled forward from 8a into `sortable.js`.** The pack/extract fixture proved the entry had no runtime module at all: a type-only entry emits no `.js`, while the `exports` map's `default` condition promised a consumer one. The contract's export table already lists `ReorderResolution` as a runtime export of this subpath and the value has existed since phase 6, so the fix is the one line the topology was always going to need. The six feature subpaths stay runtime-empty until 8a/8b, recorded as an explicit pending set the fixture fails against once a phase lands one.
+- **`drag.js.map` was missing from `files`.** `kernel/` and `sortable/` ship as whole directories and carry their maps along; the root entries are named file by file, so the root map was the one artefact the allowlist could silently drop while `drag.js` still pointed at it.
+- **Nothing needed converting in the behavior.** Phase 6 already called `slots.*` throughout; the hand-written literals were only ever in the tests, which keep them — driving the behavior through a real `assemble()` is 8a's job, once real features exist to assemble.
 
 ---
 
 ## Phase 8a — The required minimal composition
 
-**Scope.** The two required features, plus enough public surface to run
-`sortable(items, vertical(), callbacks({ onReorder }))` end to end from outside
-the package. No optional feature exists yet, so every adversarial case that does
-not need one is exercised against the smallest possible build.
+**Scope.** The two required features, plus enough public surface to run `sortable(items, vertical(), callbacks({ onReorder }))` end to end from outside the package. No optional feature exists yet, so every adversarial case that does not need one is exercised against the smallest possible build.
 
 **Deliverables.**
 
-- `vertical()` — packed `Float64Array` rect index (stride 6) + parallel element
-  array + dirty flag + last-seen collection version; the nearest-centre rule with
-  the placeholder as incumbent candidate; consumer-declared `InsertionFrameView`
-  / `InsertionRuntimeView` in its own module (D-13, D-20).
-- `callbacks()` — the consumer surface, sole owner of the `threshold` default;
-  `OnReorder`; `ReorderResolution.accept/reject` with `presentationReady`
-  **returned, not awaited**.
-- **Minimal end-to-end public API**: `drag.js`, `sortable.js`,
-  `sortable/vertical.js`, `sortable/callbacks.js` wired for real, with the
-  public types they carry. The four remaining subpaths stay stubs from Phase 0.
-- The behavior's own default placeholder mechanics
-  (`data-drag-placeholder`, `aria-hidden`, inherited `slot`, offset-box sizing)
-  exercised with **no** `placeholder()` feature installed.
+- `vertical()` — packed `Float64Array` rect index (stride 6) + parallel element array + dirty flag + last-seen collection version; the nearest-centre rule with the placeholder as incumbent candidate; consumer-declared `InsertionFrameView` / `InsertionRuntimeView` in its own module (D-13, D-20).
+- `callbacks()` — the consumer surface, sole owner of the `threshold` default; `OnReorder`; `ReorderResolution.accept/reject` with `presentationReady` **returned, not awaited**.
+- **Minimal end-to-end public API**: `drag.js`, `sortable.js`, `sortable/vertical.js`, `sortable/callbacks.js` wired for real, with the public types they carry. The four remaining subpaths stay stubs from Phase 0.
+- The behavior's own default placeholder mechanics (`data-drag-placeholder`, `aria-hidden`, inherited `slot`, offset-box sizing) exercised with **no** `placeholder()` feature installed.
 
-**All adversarial cases that do not require an optional feature**, run through
-the public entrypoint rather than internals: *Basic flow*, *Boundary*,
-*Reentrancy*, *Async attempts* (resolution only), *Resource cleanup*,
-*Collection* and *Collection staging*, *Settlement mapping*, *Terminal
-protocol*, *Placeholder movement*, *Failure continuation*, *Explicit failure
-latching*, *Teardown totality*, and the *Gates and drivers* row that matters
-most here — **a behavior with no `landing()` but a pending readiness promise
-still holds one gate and does not finalize in the resolution drain** (I-9).
+**All adversarial cases that do not require an optional feature**, run through the public entrypoint rather than internals: _Basic flow_, _Boundary_, _Reentrancy_, _Async attempts_ (resolution only), _Resource cleanup_, _Collection_ and _Collection staging_, _Settlement mapping_, _Terminal protocol_, _Placeholder movement_, _Failure continuation_, _Explicit failure latching_, _Teardown totality_, and the _Gates and drivers_ row that matters most here — **a behavior with no `landing()` but a pending readiness promise still holds one gate and does not finalize in the resolution drain** (I-9).
 
-**Done when.** The minimal composition passes every row above; the import graph
-of the minimal fixture physically cannot reach landing, layout animation or any
-unselected geometry.
+**Done when.** The minimal composition passes every row above; the import graph of the minimal fixture physically cannot reach landing, layout animation or any unselected geometry.
 
 **Deviations recorded while implementing.**
 
-- **`InsertionFrameView` gained `item`.** The contract's two-field sketch
-  (`insertion`, `pointerY`) is not sufficient to implement the rule it states
-  in the same document: the destination view is the collection *minus the
-  dragged item*, and an axis feature that cannot exclude it measures a lifted
-  element whose centre tracks the pointer — so it wins every search and pins the
-  gap to its own slot. Read off the frame rather than added to
-  `InsertionRuntimeView`, because the item is already committed frame state and
-  a second copy on the per-operation view could drift. `InsertionFrameView` is
-  internal and unstable by the contract's own boundary, so this is a behavior
-  -side widening, not a kernel-SPI change.
-- **`vertical()` compares centres on Y only, and never queries DOM order.** The
-  shipped `resolveSpatialInsertion` used a 2-D distance plus
-  `compareDocumentPosition` to decide which side of `nearest` the gap falls on.
-  The contract's rule is one-dimensional, and on a vertical axis "does `nearest`
-  follow the placeholder" *is* "is its centre below" — which the scan has
-  already measured. One fewer DOM call per resolution, and the axis assumption
-  stays in one place.
-- **`vertical()` measures the item, not `getVisual(item)`.** The shipped index
-  measured the resolved visual. `getVisual` is a behavior slot, and reaching it
-  from the axis feature would be a sibling-feature dependency in all but name;
-  the contract's rule says "centres of every non-dragged item".
-- **`sortable()` delegates to `createSortableBehavior`'s install seam.** The
-  behavior module exposes both: the composed entry assembles inside the install
-  function (a feature factory needs `realm` and `root`, and neither exists until
-  the kernel has a host), while the slot-taking entry stays for the suites that
-  drive a specific insertion or failure directly.
-- **The adversarial matrix runs at two layers, not one.** The composed suite
-  covers every group 8a names *that the public surface can reach*: basic flow,
-  boundary, reentrancy, async resolution, resource cleanup, collection and
-  staging, all five settlement mappings, the terminal protocol, placeholder
-  movement, failure continuation, teardown totality, and the I-9 gate row. Rows
-  that need a seam to throw on demand — explicit failure latching, an
-  invalidation or scheduled-frame failure — stay in the slot-literal suite,
-  because reaching them through the public API would mean shipping a feature
-  whose only purpose is to fail.
+- **`InsertionFrameView` gained `item`.** The contract's two-field sketch (`insertion`, `pointerY`) is not sufficient to implement the rule it states in the same document: the destination view is the collection _minus the dragged item_, and an axis feature that cannot exclude it measures a lifted element whose centre tracks the pointer — so it wins every search and pins the gap to its own slot. Read off the frame rather than added to `InsertionRuntimeView`, because the item is already committed frame state and a second copy on the per-operation view could drift. `InsertionFrameView` is internal and unstable by the contract's own boundary, so this is a behavior -side widening, not a kernel-SPI change.
+- **`vertical()` compares centres on Y only, and never queries DOM order.** The shipped `resolveSpatialInsertion` used a 2-D distance plus `compareDocumentPosition` to decide which side of `nearest` the gap falls on. The contract's rule is one-dimensional, and on a vertical axis "does `nearest` follow the placeholder" _is_ "is its centre below" — which the scan has already measured. One fewer DOM call per resolution, and the axis assumption stays in one place.
+- **`vertical()` measures the item, not `getVisual(item)`.** The shipped index measured the resolved visual. `getVisual` is a behavior slot, and reaching it from the axis feature would be a sibling-feature dependency in all but name; the contract's rule says "centres of every non-dragged item".
+- **`sortable()` delegates to `createSortableBehavior`'s install seam.** The behavior module exposes both: the composed entry assembles inside the install function (a feature factory needs `realm` and `root`, and neither exists until the kernel has a host), while the slot-taking entry stays for the suites that drive a specific insertion or failure directly.
+- **The adversarial matrix runs at two layers, not one.** The composed suite covers every group 8a names _that the public surface can reach_: basic flow, boundary, reentrancy, async resolution, resource cleanup, collection and staging, all five settlement mappings, the terminal protocol, placeholder movement, failure continuation, teardown totality, and the I-9 gate row. Rows that need a seam to throw on demand — explicit failure latching, an invalidation or scheduled-frame failure — stay in the slot-literal suite, because reaching them through the public API would mean shipping a feature whose only purpose is to fail.
 
-**Contract amendment — I-31, decided after 8a.** A `cancel()` from inside
-`onStart` produced no terminal callback: 02's phase table said a `CANCEL` at
-`ACTIVATING` was abandoned. Amended, because the stated rationale ("nothing to
-tell the consumer about yet") holds at `PENDING` and not here — `ACTIVATING` is
-committed *before* `activation.effect`, so the presentation exists and `onStart`
-has already run. **Once a start is notified, exactly one terminal callback
-follows**: the cancellation settles at `AT_PROPOSAL` with a null proposal, which
-is the case `CanceledReorderResult` already modelled.
+**Contract amendment — I-31, decided after 8a.** A `cancel()` from inside `onStart` produced no terminal callback: 02's phase table said a `CANCEL` at `ACTIVATING` was abandoned. Amended, because the stated rationale ("nothing to tell the consumer about yet") holds at `PENDING` and not here — `ACTIVATING` is committed _before_ `activation.effect`, so the presentation exists and `onStart` has already run. **Once a start is notified, exactly one terminal callback follows**: the cancellation settles at `AT_PROPOSAL` with a null proposal, which is the case `CanceledReorderResult` already modelled.
 
-The same pass closed a divergence 8a's composed suite exposed: `START_COMMITTED`
-did **not** consult the cancel latch, contrary to 03 and 05, so an invalidating
-`updateItems()` from `onStart` — whose cancel is queued *behind* the checkpoint —
-activated for one drain and reported from `ACTIVE`. The checkpoint now defers
-without retiring, leaving the phase at `ACTIVATING` for the cancellation to
-settle. Amended in 02 §phase table, 02 §I-31 (new), 03 §`ACTIVATING` is handled,
-and 05 (the *Reentrancy* row and F-32).
+The same pass closed a divergence 8a's composed suite exposed: `START_COMMITTED` did **not** consult the cancel latch, contrary to 03 and 05, so an invalidating `updateItems()` from `onStart` — whose cancel is queued _behind_ the checkpoint — activated for one drain and reported from `ACTIVE`. The checkpoint now defers without retiring, leaving the phase at `ACTIVATING` for the cancellation to settle. Amended in 02 §phase table, 02 §I-31 (new), 03 §`ACTIVATING` is handled, and 05 (the _Reentrancy_ row and F-32).
 
-One gap is admitted rather than closed: a cancel latched from a custom
-placeholder's `connectedCallback` **plus** a throwing `invalidateInsertion`
-settles a drag whose start was never notified. Two faults are required, the
-second already reports through `onError`, and closing it means carrying a
-per-operation "started" flag. Documented at both ends.
+One gap is admitted rather than closed: a cancel latched from a custom placeholder's `connectedCallback` **plus** a throwing `invalidateInsertion` settles a drag whose start was never notified. Two faults are required, the second already reports through `onError`, and closing it means carrying a per-operation "started" flag. Documented at both ends.
 
 ---
 
 ## Checkpoint B — real feature assembly + the minimal composition
 
-**What exists.** A complete, shippable minimal vertical sortable: real
-assembler, real features, real public entrypoints, adversarial matrix green —
-and **not one line of WAAPI, FLIP or optional-feature code**.
+**What exists.** A complete, shippable minimal vertical sortable: real assembler, real features, real public entrypoints, adversarial matrix green — and **not one line of WAAPI, FLIP or optional-feature code**.
 
-**What to review.** This is the last cheap moment to change the composition
-model:
+**What to review.** This is the last cheap moment to change the composition model:
 
-- the contribution/slot shape and the flattened geometry pair, now that two real
-  features have filled them (D-19, D-12);
-- the assembler's unwind, claim diagnostics and normalization rules under real
-  factories;
-- whether the consumer-declared view types held up without an import edge back
-  to the behavior runtime (D-13, D-20), or whether `vertical()` needed anything
-  the views could not express;
-- the minimal build's module graph and first size reading — an early, informal
-  M-3 signal, ahead of the real measurement;
-- the gate semantics observed rather than reasoned about: readiness held with no
-  landing feature installed.
+- the contribution/slot shape and the flattened geometry pair, now that two real features have filled them (D-19, D-12);
+- the assembler's unwind, claim diagnostics and normalization rules under real factories;
+- whether the consumer-declared view types held up without an import edge back to the behavior runtime (D-13, D-20), or whether `vertical()` needed anything the views could not express;
+- the minimal build's module graph and first size reading — an early, informal M-3 signal, ahead of the real measurement;
+- the gate semantics observed rather than reasoned about: readiness held with no landing feature installed.
 
-**Exit.** Phases 7–8a green; any composition-model concern resolved before
-optional features multiply the cost of changing it.
+**Exit.** Phases 7–8a green; any composition-model concern resolved before optional features multiply the cost of changing it.
 
 ---
 
 ## Phase 8b — Optional features
 
-**Scope.** The five optional features, one module each, no sibling import edges,
-no import edge to the behavior runtime.
+**Scope.** The five optional features, one module each, no sibling import edges, no import edge to the behavior runtime.
 
-**Order.** `placeholder()`, `handle()`, `visual()`, `landing()`, then
-`layoutAnimation()` last behind its gate.
+**Order.** `placeholder()`, `handle()`, `visual()`, `landing()`, then `layoutAnimation()` last behind its gate.
 
 **Deliverables.**
 
-- `placeholder()` — customisation only; the default mechanics validated in 8a
-  stay in the behavior and are not moved here.
+- `placeholder()` — customisation only; the default mechanics validated in 8a stay in the behavior and are not moved here.
 - `handle()` / `visual()` — pure resolvers, one module, one subpath.
-- `landing()` — WAAPI runner honouring `prefers-reduced-motion`, `run` full
-  replacement, optional `retarget`, `destroy` relinquishing the transform.
-- `layoutAnimation()` — FLIP over a private element map, retargeting from the
-  computed transform, retire restoring each touched element exactly once.
+- `landing()` — WAAPI runner honouring `prefers-reduced-motion`, `run` full replacement, optional `retarget`, `destroy` relinquishing the transform.
+- `layoutAnimation()` — FLIP over a private element map, retargeting from the computed transform, retire restoring each touched element exactly once.
 
-**Q-7 gate — blocking, before `layoutAnimation()` ships.**
-[05](contract/05-lifecycle-invariants.md) §Q-7: settle which elements the
-displacement set contains, and measure whether `vertical()`'s index rebuild and
-`layoutAnimation()`'s before/after measurements can share **one** layout read
-around the committed placeholder move. If they cannot be shared cheaply,
-introduce a behavior-owned read phase or a small shared geometry-read capability
-— duplicating a full-list measurement to preserve conceptual privacy is
-explicitly the wrong trade. This is M-4; its result may change
-`SortableContribution`, which is why 8a and Checkpoint B deliberately precede it.
+**Q-7 gate — blocking, before `layoutAnimation()` ships.** [05](contract/05-lifecycle-invariants.md) §Q-7: settle which elements the displacement set contains, and measure whether `vertical()`'s index rebuild and `layoutAnimation()`'s before/after measurements can share **one** layout read around the committed placeholder move. If they cannot be shared cheaply, introduce a behavior-owned read phase or a small shared geometry-read capability — duplicating a full-list measurement to preserve conceptual privacy is explicitly the wrong trade. This is M-4; its result may change `SortableContribution`, which is why 8a and Checkpoint B deliberately precede it.
 
-**Done when.** Matrix *Styling and animation*, the *Landing completion* and
-*Landing target* groups re-run with the real `landing()` runner rather than a
-test double, the *Placeholder and admission* geometry rows (already-correct
-start/internal/end gap performs no reinsert; shadow-DOM press; iframe-hosted
-root), and Q-7 answered in writing with numbers.
+**Done when.** Matrix _Styling and animation_, the _Landing completion_ and _Landing target_ groups re-run with the real `landing()` runner rather than a test double, the _Placeholder and admission_ geometry rows (already-correct start/internal/end gap performs no reinsert; shadow-DOM press; iframe-hosted root), and Q-7 answered in writing with numbers.
 
 **Deviations recorded while implementing.**
 
-- **`DisplacementView` gained `insertion`; `SortableContribution` did not
-  change.** Q-7 was expected to possibly change the contribution shape; it did
-  not. What it changed is the *view* the displacement hooks see: the destination
-  gap is written to the shared per-operation view immediately before the
-  `beforeMove` pipeline, so a hook can name the elements a move affects instead
-  of measuring the whole destination view to find out. One property write per
-  **committed** move, no allocation, and `null` outside a bracket — the
-  hook-facing type declares it non-null because nothing but the bracket can
-  observe it.
-- **The span is a *cost* property, not a behavioural one.** Bracketing the whole
-  list produces identical animations, because every row outside the span has a
-  zero delta and is skipped either way. Three mutations that widened the
-  affected set therefore survived a purely behavioural suite. The only honest
-  pin is counting `getBoundingClientRect` calls, with a two-sided bound: a
-  bracket that measures nothing is broken, not cheap.
-- **`landing()` carries a generation counter.** WAAPI rejects `finished` on
-  `cancel()`, and both `retarget` and teardown cancel — so without it a landing
-  that is proceeding perfectly well reports a failure. Not anticipated by the
-  plan because the plan named `retarget` as trajectory quality only, which it is;
-  the completion channel is what leaks.
-- **`landing()` uses `fill: 'forwards'`.** The kernel destroys the runner
-  *before* it pins, so a forwards fill is released exactly when the
-  authoritative write lands. Without it the visual falls back to its last drag
-  transform for the microtask between the animation finishing and `finished`
-  resolving.
-- **`layoutAnimation()` measures the "First" rect with the running animation
-  still applied**, and cancels only before the *second* measurement. That is what
-  makes retargeting fall out for free — an interrupted displacement replays from
-  where the element visually is. Getting the order wrong subtracts the transform
-  from both sides and loses the offset silently.
-- **`PlaceholderOptions` narrowed to `create` + `className`.** Everything else a
-  placeholder might want to configure is either a default mechanic (not
-  configurable away, and owned by the behavior) or ordinary CSS on the class.
-- **The displacement-stacking assertion is an upper bound, not an equality.** A
-  round trip completed before the first displacement visibly progresses
-  legitimately produces a zero delta and therefore no second animation, so the
-  test asserts that no element is ever running two at once rather than that a
-  second one exists.
+- **`DisplacementView` gained `insertion`; `SortableContribution` did not change.** Q-7 was expected to possibly change the contribution shape; it did not. What it changed is the _view_ the displacement hooks see: the destination gap is written to the shared per-operation view immediately before the `beforeMove` pipeline, so a hook can name the elements a move affects instead of measuring the whole destination view to find out. One property write per **committed** move, no allocation, and `null` outside a bracket — the hook-facing type declares it non-null because nothing but the bracket can observe it.
+- **The span is a _cost_ property, not a behavioural one.** Bracketing the whole list produces identical animations, because every row outside the span has a zero delta and is skipped either way. Three mutations that widened the affected set therefore survived a purely behavioural suite. The only honest pin is counting `getBoundingClientRect` calls, with a two-sided bound: a bracket that measures nothing is broken, not cheap.
+- **`landing()` carries a generation counter.** WAAPI rejects `finished` on `cancel()`, and both `retarget` and teardown cancel — so without it a landing that is proceeding perfectly well reports a failure. Not anticipated by the plan because the plan named `retarget` as trajectory quality only, which it is; the completion channel is what leaks.
+- **`landing()` uses `fill: 'forwards'`.** The kernel destroys the runner _before_ it pins, so a forwards fill is released exactly when the authoritative write lands. Without it the visual falls back to its last drag transform for the microtask between the animation finishing and `finished` resolving.
+- **`layoutAnimation()` measures the "First" rect with the running animation still applied**, and cancels only before the _second_ measurement. That is what makes retargeting fall out for free — an interrupted displacement replays from where the element visually is. Getting the order wrong subtracts the transform from both sides and loses the offset silently.
+- **`PlaceholderOptions` narrowed to `create` + `className`.** Everything else a placeholder might want to configure is either a default mechanic (not configurable away, and owned by the behavior) or ordinary CSS on the class.
+- **The displacement-stacking assertion is an upper bound, not an equality.** A round trip completed before the first displacement visibly progresses legitimately produces a zero delta and therefore no second animation, so the test asserts that no element is ever running two at once rather than that a second one exists.
 
 **Deviations recorded in Checkpoint B pass 2 — the composition cluster.**
 
-- **Insertion geometry is now defined: *settled presentation geometry*.** It
-  includes authored element and ancestor transforms and any offset the consumer
-  applies; it excludes every displacement offset the library owns. The rule
-  exists because the two features *did* interact: `vertical()` reads with
-  `getBoundingClientRect()` and refreshed lazily on the next spatial frame, i.e.
-  mid-animation, so it measured items where they no longer were against a
-  placeholder where it now is — and proposed moving back. A purely visual
-  feature was changing what the drag decided.
-- **The bracket gained a settled-read window, at no cost.** `beforeMove` now
-  releases *every* offset the feature owns (not just this span's) after
-  capturing First, and the axis rebuild is re-timed into the gap between the
-  write and `afterMove`. It is a re-timing, not a shared read phase: a committed
-  move always dirties the axis and the axis always rebuilds on the next frame,
-  so no read is added — they only land where they are correct.
-- **Displacement writes `translate`, additively, never `transform`.** Assigning
-  `transform` replaces an authored `rotate()`; *additive* `transform` is wrong
-  too, because additive transform lists concatenate and the offset would land
-  inside the element's own `scale()` while the delta was measured in viewport
-  space. `translate` applies outside `transform` in the used-value chain, and
-  `composite: 'add'` composes with an authored `translate` or a consumer
-  animation on the same property.
-- **Ownership is explicit and had to be pinned by a read count.** The affected
-  set is snapshot members in the crossed span ∪ the in-flight set, minus the
-  dragged item and the placeholder. The dragged item was being collected on
-  every backward span — the placeholder sits immediately after it — and the bug
-  was invisible: `LIFT_FLAT` makes its rect identical across the bracket, so it
-  produced a zero delta and *looked* right. Only a `getBoundingClientRect` count
-  catches it, and only when the counted move is the first one and goes up.
-- **Two internal view widenings**, both recorded in contract 03 §Consumer
-  -declared views: `DisplacementView.item` (ownership — membership cannot
-  exclude the dragged item, because it is a member) and the optional
-  `InsertionGeometry.measure` flattened to `slots.measureInsertion`. Ordinary
-  `invalidate()` stays lazy: its other callers are the scroll and resize
-  listeners, which must not read geometry.
-- **Verified on Chromium only, because that is the only engine this repository
-  runs.** `.scripts/vitest-config.ts` declares a single browser instance and the
-  image sets `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1`, so Firefox and WebKit are not
-  installed and no cross-engine claim is made here. Additive `translate`
-  composition is asserted as its own test rather than assumed, so adding an
-  engine to `instances` reports it directly instead of surfacing as a sortable
-  regression.
+- **Insertion geometry is now defined: _settled presentation geometry_.** It includes authored element and ancestor transforms and any offset the consumer applies; it excludes every displacement offset the library owns. The rule exists because the two features _did_ interact: `vertical()` reads with `getBoundingClientRect()` and refreshed lazily on the next spatial frame, i.e. mid-animation, so it measured items where they no longer were against a placeholder where it now is — and proposed moving back. A purely visual feature was changing what the drag decided.
+- **The bracket gained a settled-read window, at no cost.** `beforeMove` now releases _every_ offset the feature owns (not just this span's) after capturing First, and the axis rebuild is re-timed into the gap between the write and `afterMove`. It is a re-timing, not a shared read phase: a committed move always dirties the axis and the axis always rebuilds on the next frame, so no read is added — they only land where they are correct.
+- **Displacement writes `translate`, additively, never `transform`.** Assigning `transform` replaces an authored `rotate()`; _additive_ `transform` is wrong too, because additive transform lists concatenate and the offset would land inside the element's own `scale()` while the delta was measured in viewport space. `translate` applies outside `transform` in the used-value chain, and `composite: 'add'` composes with an authored `translate` or a consumer animation on the same property.
+- **Ownership is explicit and had to be pinned by a read count.** The affected set is snapshot members in the crossed span ∪ the in-flight set, minus the dragged item and the placeholder. The dragged item was being collected on every backward span — the placeholder sits immediately after it — and the bug was invisible: a top-layer lift makes its rect identical across the bracket, so it produced a zero delta and _looked_ right. Only a `getBoundingClientRect` count catches it, and only when the counted move is the first one and goes up.
+- **Two internal view widenings**, both recorded in contract 03 §Consumer -declared views: `DisplacementView.item` (ownership — membership cannot exclude the dragged item, because it is a member) and the optional `InsertionGeometry.measure` flattened to `slots.measureInsertion`. Ordinary `invalidate()` stays lazy: its other callers are the scroll and resize listeners, which must not read geometry.
+- **Verified on Chromium only, because that is the only engine this repository runs.** `.scripts/vitest-config.ts` declares a single browser instance and the image sets `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1`, so Firefox and WebKit are not installed and no cross-engine claim is made here. Additive `translate` composition is asserted as its own test rather than assumed, so adding an engine to `instances` reports it directly instead of surfacing as a sortable regression.
 
-**Contract amendments applied after Checkpoint B pass 1** (foundational
-correctness fixes, documentation caught up in a later pass): native admission as
-a queue boundary (02 §Queue semantics, 05 I-1); the staged value never
-outliving its transaction (02 §The core returns an outcome); post-insertion
-validation in the activation effect (02 §I-30); the cross-container refusal in
-the canonical placeholder writer (00 D-27, 05 F-31); per-longhand inline-style
-restoration (01 §Ownership); and all-or-nothing landing acquisition (02 §Runner
-obligation).
+**Contract amendments applied after Checkpoint B pass 1** (foundational correctness fixes, documentation caught up in a later pass): native admission as a queue boundary (02 §Queue semantics, 05 I-1); the staged value never outliving its transaction (02 §The core returns an outcome); post-insertion validation in the activation effect (02 §I-30); the cross-container refusal in the canonical placeholder writer (00 D-27, 05 F-31); per-longhand inline-style restoration (01 §Ownership); and all-or-nothing landing acquisition (02 §Runner obligation).
 
 ---
 
 ## Phase 9 — Public surface
 
-**Scope.** Freeze what ships. Phase 8a already built the minimal half of this;
-here the remaining four subpaths join it and the whole surface is closed.
+**Scope.** Freeze what ships. Phase 8a already built the minimal half of this; here the remaining four subpaths join it and the whole surface is closed.
 
 **Deliverables.**
 
-- Entry modules matching the export table exactly; `SortableFeature` declared in
-  `sortable.js` and re-exported nowhere; `draggable` on its own `drag.js`.
-- Public: `Point`, `DragErrorContext`, `FailureStage`, `CancelStage`, `DOMRealm`,
-  the request/proposal/result types, `ReorderResolution` as value **and** type.
-  Internal and unexported: every seam, spec, host, scope, contribution, slot and
-  phase/outcome/recovery constant (03 §The public/internal boundary).
-- `files.json` finalized; `typedoc.json` entry points; README + a migration note
-  against `@ydinjs/drag`.
-- A consumer type-fixture test asserting the public results **narrow without
-  importing an internal constant** (F-41), and that a hand-written
-  `SortableFeature` literal does **not** typecheck (D-30).
+- Entry modules matching the export table exactly; `SortableFeature` declared in `sortable.js` and re-exported nowhere; `draggable` on its own `drag.js`.
+- Public: `Point`, `DragErrorContext`, `FailureStage`, `CancelStage`, `DOMRealm`, the request/proposal/result types, `ReorderResolution` as value **and** type. Internal and unexported: every seam, spec, host, scope, contribution, slot and phase/outcome/recovery constant (03 §The public/internal boundary).
+- `files.json` finalized; `typedoc.json` entry points; README + a migration note against `@ydinjs/drag`.
+- A consumer type-fixture test asserting the public results **narrow without importing an internal constant** (F-41), and that a hand-written `SortableFeature` literal does **not** typecheck (D-30).
 
-**Done when.** `npx just build` emits every subpath with declarations; the
-fixture consumer compiles; and the surface is closed in the three ways that are
-actually enforceable:
+**Done when.** `npx just build` emits every subpath with declarations; the fixture consumer compiles; and the surface is closed in the three ways that are actually enforceable:
 
-1. **No internal identifier is reachable through a declared public entry.** Each
-   entry's exports are asserted as an *equality* against the contract's table —
-   in `tests/exports.node.test.ts` against `src`, and in
-   `tests/consumer.node.test.ts` against the packed tarball — so a new export
-   fails as loudly as a missing one.
-2. **Undeclared deep imports fail.** The `exports` map is the boundary, not the
-   set of names each entry happens to re-export, and the consumer fixture proves
-   it for the kernel, for `src/`, and for the two internal modules whose
-   declaration files must ship anyway (`sortable/feature.js`, which declares the
-   feature brand, and `sortable/slots.js`).
-3. **Public documentation does not expose the internal SPI.** `typedoc.json`
-   lists the eight public entries and nothing else, so the documented surface is
-   the exported surface by construction.
+1. **No internal identifier is reachable through a declared public entry.** Each entry's exports are asserted as an _equality_ against the contract's table — in `tests/exports.node.test.ts` against `src`, and in `tests/consumer.node.test.ts` against the packed tarball — so a new export fails as loudly as a missing one.
+2. **Undeclared deep imports fail.** The `exports` map is the boundary, not the set of names each entry happens to re-export, and the consumer fixture proves it for the kernel, for `src/`, and for the two internal modules whose declaration files must ship anyway (`sortable/feature.js`, which declares the feature brand, and `sortable/slots.js`).
+3. **Public documentation does not expose the internal SPI.** `typedoc.json` lists the eight public entries and nothing else, so the documented surface is the exported surface by construction.
 
-**The original wording — "no internal identifier appears in any emitted
-`.d.ts`" — was not an achievable property, and is replaced above.** Two reasons,
-both structural rather than fixable by discipline:
+**The original wording — "no internal identifier appears in any emitted `.d.ts`" — was not an achievable property, and is replaced above.** Two reasons, both structural rather than fixable by discipline:
 
-- A public type has to be *declared* somewhere, and that file also declares its
-  neighbours. `Behavior` lives in `kernel/spec.d.ts`; `SortableFeature` lives in
-  `sortable/feature.d.ts`. Those files must ship for the public declarations to
-  resolve at all.
-- The emitter writes one `.d.ts` per source module, so modules no entry reaches
-  — `kernel/seams.d.ts`, `kernel/presentation.d.ts`, `sortable/slots.d.ts` —
-  are emitted and packed as orphans. Nothing imports them and no subpath
-  declares them, so they are unreachable; they are dead weight in the tarball,
-  which is a Phase 11 size question and not a boundary question.
+- A public type has to be _declared_ somewhere, and that file also declares its neighbours. `Behavior` lives in `kernel/spec.d.ts`; `SortableFeature` lives in `sortable/feature.d.ts`. Those files must ship for the public declarations to resolve at all.
+- The emitter writes one `.d.ts` per source module, so modules no entry reaches — `kernel/seams.d.ts`, `kernel/presentation.d.ts`, `sortable/slots.d.ts` — are emitted and packed as orphans. Nothing imports them and no subpath declares them, so they are unreachable; they are dead weight in the tarball, which is a Phase 11 size question and not a boundary question.
 
-Declaration tree-shaking does most of the work regardless: `BehaviorSpec`,
-`KernelHost`, `ActivationScope`, `SettlementScope`, `SettlementInput`,
-`SeamOutcome`, `ResolutionCommand`, `SortableSlots`, `SortableContribution`,
-`InsertionGeometry`, `FeatureContext` and the outcome/recovery constants appear
-in **no** emitted declaration at all.
+Declaration tree-shaking does most of the work regardless: `BehaviorSpec`, `KernelHost`, `ActivationScope`, `SettlementScope`, `SettlementInput`, `SeamOutcome`, `ResolutionCommand`, `SortableSlots`, `SortableContribution`, `InsertionGeometry`, `FeatureContext` and the outcome/recovery constants appear in **no** emitted declaration at all.
 
 **Deviations recorded while implementing.**
 
-- **Three contract decisions the export table left open**, all recorded in 03
-  §The export topology this requires: the `FailureStage`/`CancelStage`
-  **constants** are runtime exports (the boundary section already called them
-  public while the table shipped only the types — a numeric union whose members
-  are unnameable is not a public type); `DragErrorContext` ships from
-  `sortable.js` rather than `drag.js`, because it carries a sortable result and
-  `drag.js` exists to be behavior-agnostic; and `PlaceholderContext` is listed,
-  since `PlaceholderOptions.create` was already structurally public.
-- **`readinessTimeout` became a public option**, on `callbacks()`. It was a
-  behavior-fixed 500ms bound on a *consumer-supplied* promise with no escape.
-  This is the one addition to the frozen surface rather than a correction to it.
-- **`drag.js` was exporting six internal SPI types** — `BehaviorSpec`,
-  `KernelHost`, `BehaviorInstall`, `ActivationScope`, `ResolutionCommand`,
-  `SeamRejection` — left over from phase 4. Removed, and their unreachability is
-  now asserted rather than assumed.
-- **The landing coordinate space was already consistent in code**; phase 9 made
-  it normative (02 §Runner obligation) and pinned it with exact values. The
-  strongest of those tests is not a literal: `compose(from.x, from.y)` must
-  reproduce the transform the drag itself last wrote, which cannot be off by an
-  origin. The fixture is pinned at a non-zero offset on both axes, because a
-  delta and a viewport point agree at the origin and nowhere else.
-- **Every option is validated at construction**, throwing a `TypeError`. Domains
-  in 03 §Public option domains. `easing` is deliberately unvalidated, and
-  `landing({ run })` short-circuits before `duration` is read, so a replacement
-  runner is not held to an option it never sees.
-- **The consumer fixture now asserts the surface as an equality**, per subpath,
-  against the packed tarball — a new export fails as loudly as a missing one —
-  plus 29 `@ts-expect-error` lines covering every internal SPI name and both
-  undeclared deep-import shapes. An `@ts-expect-error` that stops erroring is
-  itself a compile failure, so the rejection list cannot rot into a no-op.
+- **Three contract decisions the export table left open**, all recorded in 03 §The export topology this requires: the `FailureStage`/`CancelStage` **constants** are runtime exports (the boundary section already called them public while the table shipped only the types — a numeric union whose members are unnameable is not a public type); `DragErrorContext` ships from `sortable.js` rather than `drag.js`, because it carries a sortable result and `drag.js` exists to be behavior-agnostic; and `PlaceholderContext` is listed, since `PlaceholderOptions.create` was already structurally public.
+- **`readinessTimeout` became a public option**, on `callbacks()`. It was a behavior-fixed 500ms bound on a _consumer-supplied_ promise with no escape. This is the one addition to the frozen surface rather than a correction to it.
+- **`drag.js` was exporting six internal SPI types** — `BehaviorSpec`, `KernelHost`, `BehaviorInstall`, `ActivationScope`, `ResolutionCommand`, `SeamRejection` — left over from phase 4. Removed, and their unreachability is now asserted rather than assumed.
+- **The landing coordinate space was already consistent in code**; phase 9 made it normative (02 §Runner obligation) and pinned it with exact values. The strongest of those tests is not a literal: `compose(from.x, from.y)` must reproduce the transform the drag itself last wrote, which cannot be off by an origin. The fixture is pinned at a non-zero offset on both axes, because a delta and a viewport point agree at the origin and nowhere else.
+- **Every option is validated at construction**, throwing a `TypeError`. Domains in 03 §Public option domains. `easing` is deliberately unvalidated, and `landing({ run })` short-circuits before `duration` is read, so a replacement runner is not held to an option it never sees.
+- **The consumer fixture now asserts the surface as an equality**, per subpath, against the packed tarball — a new export fails as loudly as a missing one — plus 29 `@ts-expect-error` lines covering every internal SPI name and both undeclared deep-import shapes. An `@ts-expect-error` that stops erroring is itself a compile failure, so the rejection list cannot rot into a no-op.
 
 ---
 
 ## Phase 10 — Test matrix closure
 
-**Scope.** Every row of 05 §Test matrix not already covered, plus the React
-fixture work.
+**Scope.** Every row of 05 §Test matrix not already covered, plus the React fixture work.
 
 **Deliverables.**
 
-- Readiness resolved from a real `useLayoutEffect()` fixture; authored commit
-  inserting content above the placeholder; authored commit inserting a new keyed
-  item into the destination gap; the dragged item unmounted by the authored
-  commit (**Q-12** — record whether the degraded fallback proved sufficient).
-- A coverage map: matrix row → test file → invariant ID, checked in beside the
-  tests.
-- **F-6 obligation**: any fixture installing `landing()` or supplying
-  `presentationReady` fails loudly if the corresponding hold is never taken.
+- Readiness resolved from a real `useLayoutEffect()` fixture; authored commit inserting content above the placeholder; authored commit inserting a new keyed item into the destination gap; the dragged item unmounted by the authored commit (**Q-12** — record whether the degraded fallback proved sufficient).
+- A coverage map: matrix row → test file → invariant ID, checked in beside the tests.
+- **F-6 obligation**: any fixture installing `landing()` or supplying `presentationReady` fails loudly if the corresponding hold is never taken.
 
-**Done when.** Every matrix row maps to a passing test or to a written,
-justified exclusion.
+**Done when.** Every matrix row maps to a passing test or to a written, justified exclusion.
 
-**Landed.** The coverage map is `packages/drag2/tests/COVERAGE.md`: every matrix
-row, the test that closes it and the invariant it is about, with no exclusions —
-each row maps to a passing test. The React work is
-`tests/sortable/react.browser.test.ts` (11 tests, a real `createRoot` +
-`useLayoutEffect` fixture, no `act()`), and the F-6 witness is
-`tests/support/gates.ts`. Seven rows the audit found genuinely uncovered were
-closed: `onReorder` destroys, a callback that queues work then throws, a
-terminal callback that destroys, a late resolution after a newer operation,
-stale readiness after a newer operation, a throwing placeholder factory, and an
-authored CSS layout transition. 630 tests pass.
+**Landed.** The coverage map is `packages/drag2/tests/COVERAGE.md`: every matrix row, the test that closes it and the invariant it is about, with no exclusions — each row maps to a passing test. The React work is `tests/sortable/react.browser.test.ts` (11 tests, a real `createRoot` + `useLayoutEffect` fixture, no `act()`), and the F-6 witness is `tests/support/gates.ts`. Seven rows the audit found genuinely uncovered were closed: `onReorder` destroys, a callback that queues work then throws, a terminal callback that destroys, a late resolution after a newer operation, stale readiness after a newer operation, a throwing placeholder factory, and an authored CSS layout transition. 630 tests pass.
 
 **Deviations recorded while implementing.**
 
-- **The browser projects now dedupe React.** `.scripts/vitest-config.ts` adds
-  `resolve.dedupe` and `optimizeDeps.include` for `react`/`react-dom` to the
-  drag browser project. Without it the optimizer gives `react-dom` its own
-  inlined copy of `react`, the hook dispatcher is null in the second copy, and
-  every render throws — the fixture was unwritable. `react`, `react-dom` and
-  their types are `@ydinjs/drag2` **devDependencies**; nothing ships.
-- **Q-12 is answered: the degraded fallback is sufficient.** Written up in
-  `tests/COVERAGE.md` §Q-12 and in 05. Two things the fixtures made concrete:
-  a row React merely *drops* cannot exercise the guard at all (a parentless node
-  makes `before()` a no-op, so guarded and unguarded are indistinguishable), and
-  the re-anchor happens at the **join** rather than at arm time, so with
-  readiness pending the guard is unreachable. The shapes with teeth are a
-  disconnected node that still has a parent (a recycle pool) and a connected
-  node under a different parent (a row moved to a second list); both are now
-  fixtures, and the discriminating probe is a `MutationObserver` on the
-  container the consumer moved the row into, not the landing target.
-- **`onStart` throwing after it queued an update reports on the platform
-  channel, not `onError`.** Observed through the public surface for the first
-  time. It is the admitted I-31 gap 02 already records — the update invalidates
-  the gap, the cancellation latch outranks the failure checkpoint (I-22), and
-  the classified failure degrades to a best-effort report. The test asserts that
-  behaviour rather than the intuitive one.
-- **Two equivalent-mutant clusters recorded rather than removed**, in
-  `tests/COVERAGE.md` §Equivalent mutants: `item.isConnected` in the
-  destination re-anchor (strictly implied by the parentage conjunct beside it,
-  which *is* now falsifiable), and the `settlement !== attempt` identity checks
-  in `watchReadiness` and `handleReadinessSettled` (mutually redundant with
-  `readinessHeld` and the `SETTLING` phase test). Checkpoint B's precedent —
-  delete a conjunct no test can falsify — was not applied: one is a second line
-  of defence on a staleness rule, and both are free.
+- **The browser projects now dedupe React.** `.scripts/vitest-config.ts` adds `resolve.dedupe` and `optimizeDeps.include` for `react`/`react-dom` to the drag browser project. Without it the optimizer gives `react-dom` its own inlined copy of `react`, the hook dispatcher is null in the second copy, and every render throws — the fixture was unwritable. `react`, `react-dom` and their types are `@ydinjs/drag2` **devDependencies**; nothing ships.
+- **Q-12 is answered: the degraded fallback is sufficient.** Written up in `tests/COVERAGE.md` §Q-12 and in 05. Two things the fixtures made concrete: a row React merely _drops_ cannot exercise the guard at all (a parentless node makes `before()` a no-op, so guarded and unguarded are indistinguishable), and the re-anchor happens at the **join** rather than at arm time, so with readiness pending the guard is unreachable. The shapes with teeth are a disconnected node that still has a parent (a recycle pool) and a connected node under a different parent (a row moved to a second list); both are now fixtures, and the discriminating probe is a `MutationObserver` on the container the consumer moved the row into, not the landing target.
+- **`onStart` throwing after it queued an update reports on the platform channel, not `onError`.** Observed through the public surface for the first time. It is the admitted I-31 gap 02 already records — the update invalidates the gap, the cancellation latch outranks the failure checkpoint (I-22), and the classified failure degrades to a best-effort report. The test asserts that behaviour rather than the intuitive one.
+- **Two equivalent-mutant clusters recorded rather than removed**, in `tests/COVERAGE.md` §Equivalent mutants: `item.isConnected` in the destination re-anchor (strictly implied by the parentage conjunct beside it, which _is_ now falsifiable), and the `settlement !== attempt` identity checks in `watchReadiness` and `handleReadinessSettled` (mutually redundant with `readinessHeld` and the `SETTLING` phase test). Checkpoint B's precedent — delete a conjunct no test can falsify — was not applied: one is a second line of defence on a staleness rule, and both are free.
 
 ---
 
 ## Phase 11 — Measurements M-1 … M-4
 
-Each needs the reproducibility standard from 05 §Measurements owed *checked in*:
-workload and harness, named engines and versions, warm-up and GC policy, counts
-under test, sampling and statistics.
+Each needs the reproducibility standard from 05 §Measurements owed _checked in_: workload and harness, named engines and versions, warm-up and GC policy, counts under test, sampling and statistics.
 
 | # | Work | Decides |
 | --- | --- | --- |
@@ -904,29 +382,13 @@ under test, sampling and statistics.
 | M-3 | Four fixtures (minimal; +`layoutAnimation()`; +`landing()`; complete) minified + Brotli, with module-graph assertions naming each module that must be **absent**, plus a feature-matched non-composed baseline **and** shipped `sortable.js` as a separate migration baseline | the tree-shaking claim; the first size budgets |
 | M-4 | Already executed as the Phase 8b Q-7 gate; written up here | the displacement element set and the shared layout read |
 
-**Carried into M-3: the `DEV` strip mechanism.** Phase 2 landed the dev-only
-frame assertions behind a module constant resolved from `process.env.NODE_ENV`,
-which gives in-repo tests the checks but does **not** remove them from a
-production build — the contract asks that they compile out. Stripping needs a
-build-time `define` replacing a bare identifier, a new mechanism for this
-repository. M-3 is where the carried weight becomes visible, so the decision is
-made there rather than assumed now.
+**Carried into M-3: the `DEV` strip mechanism.** Phase 2 landed the dev-only frame assertions behind a module constant resolved from `process.env.NODE_ENV`, which gives in-repo tests the checks but does **not** remove them from a production build — the contract asks that they compile out. Stripping needs a build-time `define` replacing a bare identifier, a new mechanism for this repository. M-3 is where the carried weight becomes visible, so the decision is made there rather than assumed now.
 
-**Done when.** Each measurement replaces the corresponding intuition-based
-sentence in the contract documents, in place, with a dated result. Size budgets
-are added only now. Report M-3's two baselines separately and never substitute
-one for the other.
+**Done when.** Each measurement replaces the corresponding intuition-based sentence in the contract documents, in place, with a dated result. Size budgets are added only now. Report M-3's two baselines separately and never substitute one for the other.
 
-**Sign-off gate.** The contract's own definition: measurements landed, Q-7
-answered, matrix closed. Only then is `drag2` a candidate to replace
-`@ydinjs/drag`.
+**Sign-off gate.** The contract's own definition: measurements landed, Q-7 answered, matrix closed. Only then is `drag2` a candidate to replace `@ydinjs/drag`.
 
-**Landed 2026-08-02.** Write-ups in `.agents/docs/drag/measurements/`
-(`m1.md`, `m2.md`, `m3.md`, `q7.md`); harnesses in
-`packages/drag2/tests/perf/` and `packages/drag2/bench/size/`. Every sentence
-the table above names is replaced in place: F-24 in 00 and 06, F-4 in 00 and 05,
-I-26's row in 05, 03 §Tree-shaking, 05 §Measurements, and the frame-task comment
-in `src/sortable/runtime.ts`.
+**Landed 2026-08-02.** Write-ups in `.agents/docs/drag/measurements/` (`m1.md`, `m2.md`, `m3.md`, `q7.md`); harnesses in `packages/drag2/tests/perf/` and `packages/drag2/bench/size/`. Every sentence the table above names is replaced in place: F-24 in 00 and 06, F-4 in 00 and 05, I-26's row in 05, 03 §Tree-shaking, 05 §Measurements, and the frame-task comment in `src/sortable/runtime.ts`.
 
 | # | Result |
 | --- | --- |
@@ -937,62 +399,20 @@ in `src/sortable/runtime.ts`.
 
 **Deviations recorded while implementing.**
 
-- **`size-limit` is not used, and the reason is written up separately.**
-  Removed, briefly restored on its `import` option, then removed again. All
-  three states were measured and agree to the byte (9.33 kB minimal), so this is
-  about the shape of the measurement rather than the number: a composition is a
-  set of named imports *and* a set of modules that must be absent, and Size
-  Limit has no vocabulary for the second half. Splitting the halves across two
-  tools put a seam through one idea and made each composition a declaration in
-  two formats. `.agents/docs/measure/brief.md` records the whole finding —
-  including that Size Limit's `import` gate is a plugin **name** comparison
-  rather than a capability check, which is why
-  `size-limit-preset-rolldown`'s own `import` support has never been reachable,
-  and that the `{ "a.js": "{ a }" }` form takes **file paths**, not package
-  specifiers. It is the brief for a repository-wide replacement tool.
-- **The `DEV` strip needed a source change, not just a build flag.** The
-  measured finding: with the old `resolveDev()` form a consumer defining
-  `NODE_ENV=production` recovered **30 bytes**, because a minifier cannot fold a
-  call — every assertion still shipped *and still ran*. `src/kernel/dev.ts` now
-  reads a bare `__DEV__`, substituted `false` by `tsdown.config.ts` and `true`
-  by the repo's vite/vitest config; `kernel/dev.js` stops being emitted at all.
-  A consumer can no longer enable the assertions, which costs nothing while
-  behavior authoring is not public — recorded in the module and in m3.md.
-- **The browser projects gained two Chrome flags** (`--js-flags=--expose-gc`,
-  `--enable-precise-memory-info`), scoped to the drag projects. Without the
-  second, `usedJSHeapSize` is quantized to 100 kB and every M-2 figure would
-  have been a rounding artifact.
-- **The first heap harness measured zero and looked like good news.** Each run
-  overwrote the previous graph through a shared variable, so every reading freed
-  one generation while allocating the next. Fixed with a module-level sink
-  cleared *before* the baseline; the note is in the harness because the failure
-  mode is silent and reads as a result.
-- **M-1's cliff is a Chromium property, not a contract property**, and is
-  recorded as such: 12→16 part fields is where V8's `Object.assign` fast path
-  ends here, and another engine may put it elsewhere or nowhere.
-- **The measurement suites must be run one file at a time.** The browser project
-  runs test files in parallel and two measurement suites sharing a page inflate
-  every absolute figure by ~2×. Ratios and the cliff survive it; absolutes do
-  not. Noted in both harnesses and both write-ups.
-- **The four unreachable orphan declarations are gone**, which phase 9 deferred
-  here: `kernel/{frames,lifetimes,presentation,seams}.d.ts` were emitted by
-  `unbundle` and named by no public type — unreachable rather than exposed, but
-  6.5 kB of internal SPI in the tarball. `prune-declarations.ts` removes them in
-  a `build:done` hook and `tests/packaging.node.test.ts` asserts none come back.
-  Its first version deleted almost everything, because emitted declarations use
-  double-quoted specifiers and the walk matched single quotes only; it now
-  refuses to delete when the closure reaches nothing but its own entries.
+- **`size-limit` is not used, and the reason is written up separately.** Removed, briefly restored on its `import` option, then removed again. All three states were measured and agree to the byte (9.33 kB minimal), so this is about the shape of the measurement rather than the number: a composition is a set of named imports _and_ a set of modules that must be absent, and Size Limit has no vocabulary for the second half. Splitting the halves across two tools put a seam through one idea and made each composition a declaration in two formats. `.agents/docs/measure/brief.md` records the whole finding — including that Size Limit's `import` gate is a plugin **name** comparison rather than a capability check, which is why `size-limit-preset-rolldown`'s own `import` support has never been reachable, and that the `{ "a.js": "{ a }" }` form takes **file paths**, not package specifiers. It is the brief for a repository-wide replacement tool.
+- **The `DEV` strip needed a source change, not just a build flag.** The measured finding: with the old `resolveDev()` form a consumer defining `NODE_ENV=production` recovered **30 bytes**, because a minifier cannot fold a call — every assertion still shipped _and still ran_. `src/kernel/dev.ts` now reads a bare `__DEV__`, substituted `false` by `tsdown.config.ts` and `true` by the repo's vite/vitest config; `kernel/dev.js` stops being emitted at all. A consumer can no longer enable the assertions, which costs nothing while behavior authoring is not public — recorded in the module and in m3.md.
+- **The browser projects gained two Chrome flags** (`--js-flags=--expose-gc`, `--enable-precise-memory-info`), scoped to the drag projects. Without the second, `usedJSHeapSize` is quantized to 100 kB and every M-2 figure would have been a rounding artifact.
+- **The first heap harness measured zero and looked like good news.** Each run overwrote the previous graph through a shared variable, so every reading freed one generation while allocating the next. Fixed with a module-level sink cleared _before_ the baseline; the note is in the harness because the failure mode is silent and reads as a result.
+- **M-1's cliff is a Chromium property, not a contract property**, and is recorded as such: 12→16 part fields is where V8's `Object.assign` fast path ends here, and another engine may put it elsewhere or nowhere.
+- **The measurement suites must be run one file at a time.** The browser project runs test files in parallel and two measurement suites sharing a page inflate every absolute figure by ~2×. Ratios and the cliff survive it; absolutes do not. Noted in both harnesses and both write-ups.
+- **The sortable lift mode was wrong, and only a demo could show it.** The behavior asked for `LIFT_FLAT`; the shipped package uses `LIFT_FAITHFUL`, and so does this one now. The top layer escapes an ancestor `transform` but **not** an ancestor `zoom`, so a flat lift — which drives net zoom to 1 and sizes the visual from its untransformed border box — visibly shrank the dragged row inside a zoomed container while the placeholder it left behind kept the on-screen box: 360×43 against 450×54 at `zoom: 1.25`. Every test passed throughout, because no test asserts the lifted visual's on-screen size against the placeholder's. Fixing it exposed a second bug the flat mode had been masking: a faithful lift puts the visual at the viewport origin and encodes its whole position in the matrix, and the kernel activates *on* a pointer sample but renders only from the *next* one, so the row painted in the top-left corner until a second sample arrived. `acquireLift` now writes the base transform at acquisition, which makes promotion visually transparent on its own rather than by luck of pointer timing. Both are verified by driving the Storybook demo, not by a unit test — an open gap.
+- **The four unreachable orphan declarations are gone**, which phase 9 deferred here: `kernel/{frames,lifetimes,presentation,seams}.d.ts` were emitted by `unbundle` and named by no public type — unreachable rather than exposed, but 6.5 kB of internal SPI in the tarball. `prune-declarations.ts` removes them in a `build:done` hook and `tests/packaging.node.test.ts` asserts none come back. Its first version deleted almost everything, because emitted declarations use double-quoted specifiers and the walk matched single quotes only; it now refuses to delete when the closure reaches nothing but its own entries.
 
 ---
 
 ## Phase 12 — Cutover (separate decision)
 
-Not started until Phase 11 signs off. Migrate `@ydinjs/material-x` consumers and
-the drag stories onto the new entrypoints, port or retire
-`packages/drag/src/sortable/keyboard.ts` (which the contract expects to **revise
-the kernel contract** rather than be worked around — 02 §`ActionTransition`),
-then either rename `@ydinjs/drag2` → `@ydinjs/drag` or fold the tree in and
-delete the old one. Update `packages/material-x/files.json` and the root docs.
+Not started until Phase 11 signs off. Migrate `@ydinjs/material-x` consumers and the drag stories onto the new entrypoints, port or retire `packages/drag/src/sortable/keyboard.ts` (which the contract expects to **revise the kernel contract** rather than be worked around — 02 §`ActionTransition`), then either rename `@ydinjs/drag2` → `@ydinjs/drag` or fold the tree in and delete the old one. Update `packages/material-x/files.json` and the root docs.
 
 ---
 
@@ -1005,14 +425,9 @@ delete the old one. Update `packages/material-x/files.json` and the root docs.
                                                        + Q-7 / M-4 gate (in 8b)
 ```
 
-Phases 1 and 2 are independent of each other and can run in parallel. Everything
-from 3 onward is sequential: the driver is the substrate for the lifecycle, the
-lifecycle for the behavior, the behavior for the features.
+Phases 1 and 2 are independent of each other and can run in parallel. Everything from 3 onward is sequential: the driver is the substrate for the lifecycle, the lifecycle for the behavior, the behavior for the features.
 
-The two checkpoints sit at the points where the next phase multiplies the cost
-of a change. **A** reviews the kernel machine while only one behavior depends on
-it; **B** reviews the composition model while only two features depend on it,
-and before any WAAPI or FLIP code exists.
+The two checkpoints sit at the points where the next phase multiplies the cost of a change. **A** reviews the kernel machine while only one behavior depends on it; **B** reviews the composition model while only two features depend on it, and before any WAAPI or FLIP code exists.
 
 ## Risks carried into implementation
 

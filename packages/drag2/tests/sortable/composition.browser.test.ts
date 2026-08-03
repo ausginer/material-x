@@ -12,7 +12,7 @@
  * It is the first suite that can tell whether the *composed* thing works.
  *
  * Layout: three 40px items stacked from y=0, so the destination centres are 20,
- * 60 and 100. `LIFT_FLAT` takes the dragged item out of flow and the placeholder
+ * 60 and 100. The top-layer lift takes the dragged item out of flow and the placeholder
  * inherits its box, so the list stays three boxes tall for the whole drag.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
