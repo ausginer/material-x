@@ -90,8 +90,50 @@ export type SortableCallbacks = Readonly<{
   onFinish?(result: SortableFinishResult): void;
   onCancel?(result: SortableCancelResult): void;
   onError?(error: unknown, context: DragErrorContext): void;
+  /**
+   * How far the pointer must travel from the press before a drag activates, in
+   * **CSS pixels**, as a straight-line distance. Finite and `>= 0`; `0`
+   * activates on the first move that reports a different point. Default `8`.
+   */
   threshold?: number;
+  /**
+   * How long the authored-presentation gate may stay open after `onReorder`
+   * resolves with a `presentationReady` promise, in **milliseconds**. Finite
+   * and `>= 1`. Default `500`.
+   *
+   * It is a **failure bound, not a schedule**: the gate releases as soon as the
+   * promise settles, and exceeding it is `FAILURE_PRESENTATION_READY` — the
+   * settlement is replaced and reported through `onError`, never silently
+   * completed. Raise it when the consumer's re-render legitimately involves a
+   * round trip; the drop is held, and the placeholder with it, for as long as
+   * this allows.
+   */
+  readinessTimeout?: number;
 }>;
+
+/**
+ * The one numeric-domain check every public option goes through.
+ *
+ * Validated at **construction**, where the offending call is still on the
+ * stack — the same rule `copyUniqueItems` follows for a duplicate item. A
+ * `NaN` threshold silently activates on nothing and a `NaN` duration silently
+ * produces an animation that never finishes; both are far cheaper to diagnose
+ * here than three seams later. The type says `number`, but a JavaScript
+ * consumer is not bound by that, so the `typeof` test earns its place.
+ */
+export function requireFinite(
+  value: number,
+  label: string,
+  minimum: number,
+): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < minimum) {
+    throw new TypeError(
+      `sortable: ${label} must be a finite number >= ${minimum}`,
+    );
+  }
+
+  return value;
+}
 
 /**
  * One flat type, fixed key names, **no discriminator**. There is deliberately

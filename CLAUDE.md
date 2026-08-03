@@ -1,6 +1,16 @@
 ## LSP
 
-Prefer LSP over grep for code-symbol tasks (definitions, references, types, call hierarchy); grep is still right for plain-text/non-symbol searches. The LSP plugin is a deferred tool and can be unavailable — at the start of any code task, load it (via ToolSearch) and try it; if it errors, re-probe once, then fall back to grep. State its status each time as `LSP plugin - available/unavailable`.
+Prefer LSP over grep for code-symbol tasks (definitions, references, types, call hierarchy); grep is still right for plain-text/non-symbol searches.
+
+The LSP plugin is a deferred tool and can be unavailable. At the start of any code task, load it via ToolSearch and try it. If it errors, re-probe once, then fall back to grep.
+
+In every completion report, state both its availability and actual use with exactly one of:
+
+- `LSP plugin - unavailable.`
+- `LSP plugin - available; used: <operations and purpose>.`
+- `LSP plugin - available; not used: <brief reason>.`
+
+Do not report availability alone. For code-symbol work, an available-but-unused LSP requires an explicit reason.
 
 ## Code style
 

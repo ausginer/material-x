@@ -14,7 +14,11 @@
  */
 import type { LandingHandle, LandingStart } from '../kernel/spec.ts';
 import type { Point } from '../kernel/types.ts';
-import { brandFeature, type SortableFeature } from './feature.ts';
+import {
+  brandFeature,
+  requireFinite,
+  type SortableFeature,
+} from './feature.ts';
 
 export type { LandingHandle, LandingStart } from '../kernel/spec.ts';
 export type { LandingContext } from '../kernel/spec.ts';
@@ -41,7 +45,13 @@ export function landing(options: LandingOptions = {}): SortableFeature {
     return brandFeature(() => ({ startLanding: run }));
   }
 
-  const duration = options.duration ?? DEFAULT_DURATION;
+  const duration = requireFinite(
+    options.duration ?? DEFAULT_DURATION,
+    'landing({ duration })',
+    0,
+  );
+  // `easing` is not validated: it is a CSS easing function, the platform is the
+  // only correct parser for one, and `animate()` reports a bad value itself.
   const easing = options.easing ?? DEFAULT_EASING;
 
   const start: LandingStart = (context, done, fail): LandingHandle => {

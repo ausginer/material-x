@@ -251,6 +251,49 @@ describe('placeholder', () => {
     expect(composed.placeholder()).toBeNull();
     expect(composed.items[2]!.isConnected).toBe(true);
   });
+
+  it('should classify a factory that throws and leave nothing acquired', () => {
+    // The matrix's resource-cleanup row. A throwing factory is the earliest
+    // point at which the operation already owns something — the lift was
+    // acquired in `activation.prepare` before the placeholder existed — so the
+    // question is whether a discarded prepare releases it.
+    const failure = new Error('no placeholder for you');
+    const composed = compose(
+      placeholder({
+        create: (): HTMLElement => {
+          throw failure;
+        },
+      }),
+    );
+
+    activate(composed);
+
+    expect(composed.errors).toHaveLength(1);
+    expect(composed.placeholder()).toBeNull();
+    expect(composed.items[0]!.style.position).toBe('');
+    expect(composed.items[0]!.style.transform).toBe('');
+  });
+
+  it('should stay usable after a factory throw', () => {
+    let failing = true;
+    const composed = compose(
+      placeholder({
+        create: (): HTMLElement => {
+          if (failing) {
+            throw new Error('once');
+          }
+
+          return document.createElement('div');
+        },
+      }),
+    );
+
+    activate(composed);
+    failing = false;
+    activate(composed);
+
+    expect(composed.placeholder()).not.toBeNull();
+  });
 });
 
 describe('handle', () => {

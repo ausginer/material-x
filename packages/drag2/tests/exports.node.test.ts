@@ -22,6 +22,48 @@ const modules: Readonly<Record<string, object>> = {
   'sortable/layout-animation': layoutAnimation,
 };
 
+/** Code-unit order, so the expected lists below read the way they sort. */
+const byName = (a: string, b: string): number => {
+  if (a === b) {
+    return 0;
+  }
+
+  return a < b ? -1 : 1;
+};
+
+/**
+ * The frozen surface from contract 03 §The export topology this requires,
+ * asserted against `src` for fast feedback. `consumer.node.test.ts` asserts the
+ * same table against the *packed* declarations, which is the one that proves a
+ * consumer sees it.
+ */
+const SURFACE: Readonly<Record<string, readonly string[]>> = {
+  drag: [
+    'FAILURE_ACTIVATION',
+    'FAILURE_ADMISSION',
+    'FAILURE_INSERTION',
+    'FAILURE_INVALIDATION',
+    'FAILURE_LANDING_CREATE',
+    'FAILURE_LANDING_INTERRUPTED',
+    'FAILURE_LANDING_TARGET',
+    'FAILURE_PLACEHOLDER_MOVE',
+    'FAILURE_PRESENTATION_READY',
+    'FAILURE_RELEASE',
+    'FAILURE_RENDERER_WRITE',
+    'FAILURE_REORDER_RESOLUTION',
+    'FAILURE_SCHEDULED_FRAME',
+    'FAILURE_TERMINAL_CALLBACK',
+    'draggable',
+  ],
+  sortable: ['AT_CONSUMER', 'AT_PROPOSAL', 'ReorderResolution', 'sortable'],
+  'sortable/vertical': ['vertical'],
+  'sortable/callbacks': ['callbacks'],
+  'sortable/placeholder': ['placeholder'],
+  'sortable/handle': ['handle', 'visual'],
+  'sortable/landing': ['landing'],
+  'sortable/layout-animation': ['layoutAnimation'],
+};
+
 describe('package entrypoints', () => {
   it('should declare the export topology the contract requires', () => {
     // §03 §The export topology this requires. The topology is frozen from
@@ -34,5 +76,20 @@ describe('package entrypoints', () => {
     for (const entry of files.runtime) {
       expect(modules[entry]).toBeTypeOf('object');
     }
+  });
+
+  it('should export exactly the frozen runtime surface', () => {
+    // An **equality**, so a new export fails as loudly as a missing one. That
+    // is what freezing means: every addition is a deliberate decision against
+    // the contract's table, not a side effect of a module gaining a helper.
+    const actual: Record<string, readonly string[]> = {};
+
+    for (const [name, module] of Object.entries(modules)) {
+      const names: readonly string[] = Object.keys(module);
+
+      actual[name] = names.toSorted(byName);
+    }
+
+    expect(actual).toEqual(SURFACE);
   });
 });

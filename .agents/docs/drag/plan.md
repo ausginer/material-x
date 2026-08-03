@@ -50,6 +50,9 @@ build/test/typecheck loop.
   `sortable/landing`, `sortable/layout-animation`. Entry files start as stubs.
 - `.size-limit.json` gets the four M-3 compositions as *named, unbudgeted*
   entries. Budgets are added only after the first measurement (05 §Measurements).
+  (Superseded in phase 11: `size-limit` is not used, and each composition is one
+  declaration in `bench/size/measure.ts` — imports, budget and module-graph
+  expectations together. See `.agents/docs/measure/brief.md`.)
 - `tests/` skeleton mirroring the source tree, routed by the existing
   `createDragTestConfig` suffix convention (`.browser.test.ts` / `.node.test.ts`).
 
@@ -751,7 +754,75 @@ here the remaining four subpaths join it and the whole surface is closed.
   `SortableFeature` literal does **not** typecheck (D-30).
 
 **Done when.** `npx just build` emits every subpath with declarations; the
-fixture consumer compiles; no internal identifier appears in any emitted `.d.ts`.
+fixture consumer compiles; and the surface is closed in the three ways that are
+actually enforceable:
+
+1. **No internal identifier is reachable through a declared public entry.** Each
+   entry's exports are asserted as an *equality* against the contract's table —
+   in `tests/exports.node.test.ts` against `src`, and in
+   `tests/consumer.node.test.ts` against the packed tarball — so a new export
+   fails as loudly as a missing one.
+2. **Undeclared deep imports fail.** The `exports` map is the boundary, not the
+   set of names each entry happens to re-export, and the consumer fixture proves
+   it for the kernel, for `src/`, and for the two internal modules whose
+   declaration files must ship anyway (`sortable/feature.js`, which declares the
+   feature brand, and `sortable/slots.js`).
+3. **Public documentation does not expose the internal SPI.** `typedoc.json`
+   lists the eight public entries and nothing else, so the documented surface is
+   the exported surface by construction.
+
+**The original wording — "no internal identifier appears in any emitted
+`.d.ts`" — was not an achievable property, and is replaced above.** Two reasons,
+both structural rather than fixable by discipline:
+
+- A public type has to be *declared* somewhere, and that file also declares its
+  neighbours. `Behavior` lives in `kernel/spec.d.ts`; `SortableFeature` lives in
+  `sortable/feature.d.ts`. Those files must ship for the public declarations to
+  resolve at all.
+- The emitter writes one `.d.ts` per source module, so modules no entry reaches
+  — `kernel/seams.d.ts`, `kernel/presentation.d.ts`, `sortable/slots.d.ts` —
+  are emitted and packed as orphans. Nothing imports them and no subpath
+  declares them, so they are unreachable; they are dead weight in the tarball,
+  which is a Phase 11 size question and not a boundary question.
+
+Declaration tree-shaking does most of the work regardless: `BehaviorSpec`,
+`KernelHost`, `ActivationScope`, `SettlementScope`, `SettlementInput`,
+`SeamOutcome`, `ResolutionCommand`, `SortableSlots`, `SortableContribution`,
+`InsertionGeometry`, `FeatureContext` and the outcome/recovery constants appear
+in **no** emitted declaration at all.
+
+**Deviations recorded while implementing.**
+
+- **Three contract decisions the export table left open**, all recorded in 03
+  §The export topology this requires: the `FailureStage`/`CancelStage`
+  **constants** are runtime exports (the boundary section already called them
+  public while the table shipped only the types — a numeric union whose members
+  are unnameable is not a public type); `DragErrorContext` ships from
+  `sortable.js` rather than `drag.js`, because it carries a sortable result and
+  `drag.js` exists to be behavior-agnostic; and `PlaceholderContext` is listed,
+  since `PlaceholderOptions.create` was already structurally public.
+- **`readinessTimeout` became a public option**, on `callbacks()`. It was a
+  behavior-fixed 500ms bound on a *consumer-supplied* promise with no escape.
+  This is the one addition to the frozen surface rather than a correction to it.
+- **`drag.js` was exporting six internal SPI types** — `BehaviorSpec`,
+  `KernelHost`, `BehaviorInstall`, `ActivationScope`, `ResolutionCommand`,
+  `SeamRejection` — left over from phase 4. Removed, and their unreachability is
+  now asserted rather than assumed.
+- **The landing coordinate space was already consistent in code**; phase 9 made
+  it normative (02 §Runner obligation) and pinned it with exact values. The
+  strongest of those tests is not a literal: `compose(from.x, from.y)` must
+  reproduce the transform the drag itself last wrote, which cannot be off by an
+  origin. The fixture is pinned at a non-zero offset on both axes, because a
+  delta and a viewport point agree at the origin and nowhere else.
+- **Every option is validated at construction**, throwing a `TypeError`. Domains
+  in 03 §Public option domains. `easing` is deliberately unvalidated, and
+  `landing({ run })` short-circuits before `duration` is read, so a replacement
+  runner is not held to an option it never sees.
+- **The consumer fixture now asserts the surface as an equality**, per subpath,
+  against the packed tarball — a new export fails as loudly as a missing one —
+  plus 29 `@ts-expect-error` lines covering every internal SPI name and both
+  undeclared deep-import shapes. An `@ts-expect-error` that stops erroring is
+  itself a compile failure, so the rejection list cannot rot into a no-op.
 
 ---
 
@@ -773,6 +844,50 @@ fixture work.
 
 **Done when.** Every matrix row maps to a passing test or to a written,
 justified exclusion.
+
+**Landed.** The coverage map is `packages/drag2/tests/COVERAGE.md`: every matrix
+row, the test that closes it and the invariant it is about, with no exclusions —
+each row maps to a passing test. The React work is
+`tests/sortable/react.browser.test.ts` (11 tests, a real `createRoot` +
+`useLayoutEffect` fixture, no `act()`), and the F-6 witness is
+`tests/support/gates.ts`. Seven rows the audit found genuinely uncovered were
+closed: `onReorder` destroys, a callback that queues work then throws, a
+terminal callback that destroys, a late resolution after a newer operation,
+stale readiness after a newer operation, a throwing placeholder factory, and an
+authored CSS layout transition. 630 tests pass.
+
+**Deviations recorded while implementing.**
+
+- **The browser projects now dedupe React.** `.scripts/vitest-config.ts` adds
+  `resolve.dedupe` and `optimizeDeps.include` for `react`/`react-dom` to the
+  drag browser project. Without it the optimizer gives `react-dom` its own
+  inlined copy of `react`, the hook dispatcher is null in the second copy, and
+  every render throws — the fixture was unwritable. `react`, `react-dom` and
+  their types are `@ydinjs/drag2` **devDependencies**; nothing ships.
+- **Q-12 is answered: the degraded fallback is sufficient.** Written up in
+  `tests/COVERAGE.md` §Q-12 and in 05. Two things the fixtures made concrete:
+  a row React merely *drops* cannot exercise the guard at all (a parentless node
+  makes `before()` a no-op, so guarded and unguarded are indistinguishable), and
+  the re-anchor happens at the **join** rather than at arm time, so with
+  readiness pending the guard is unreachable. The shapes with teeth are a
+  disconnected node that still has a parent (a recycle pool) and a connected
+  node under a different parent (a row moved to a second list); both are now
+  fixtures, and the discriminating probe is a `MutationObserver` on the
+  container the consumer moved the row into, not the landing target.
+- **`onStart` throwing after it queued an update reports on the platform
+  channel, not `onError`.** Observed through the public surface for the first
+  time. It is the admitted I-31 gap 02 already records — the update invalidates
+  the gap, the cancellation latch outranks the failure checkpoint (I-22), and
+  the classified failure degrades to a best-effort report. The test asserts that
+  behaviour rather than the intuitive one.
+- **Two equivalent-mutant clusters recorded rather than removed**, in
+  `tests/COVERAGE.md` §Equivalent mutants: `item.isConnected` in the
+  destination re-anchor (strictly implied by the parentage conjunct beside it,
+  which *is* now falsifiable), and the `settlement !== attempt` identity checks
+  in `watchReadiness` and `handleReadinessSettled` (mutually redundant with
+  `readinessHeld` and the `SETTLING` phase test). Checkpoint B's precedent —
+  delete a conjunct no test can falsify — was not applied: one is a second line
+  of defence on a staleness rule, and both are free.
 
 ---
 
@@ -799,12 +914,74 @@ made there rather than assumed now.
 
 **Done when.** Each measurement replaces the corresponding intuition-based
 sentence in the contract documents, in place, with a dated result. Size budgets
-are added to `.size-limit.json` only now. Report M-3's two baselines separately
-and never substitute one for the other.
+are added only now. Report M-3's two baselines separately and never substitute
+one for the other.
 
 **Sign-off gate.** The contract's own definition: measurements landed, Q-7
 answered, matrix closed. Only then is `drag2` a candidate to replace
 `@ydinjs/drag`.
+
+**Landed 2026-08-02.** Write-ups in `.agents/docs/drag/measurements/`
+(`m1.md`, `m2.md`, `m3.md`, `q7.md`); harnesses in
+`packages/drag2/tests/perf/` and `packages/drag2/bench/size/`. Every sentence
+the table above names is replaced in place: F-24 in 00 and 06, F-4 in 00 and 05,
+I-26's row in 05, 03 §Tree-shaking, 05 §Measurements, and the frame-task comment
+in `src/sortable/runtime.ts`.
+
+| # | Result |
+| --- | --- |
+| M-1 | The copy is **0.098 µs of a 2.64 µs sample (3.7%)** and stays — with a bound nobody had: its cost jumps **10× between 12 and 16 behavior-part fields**, and this frame sits 4 below that cliff. One sample is flat in list size. 20,000 samples: no measurable net heap growth. |
+| M-2 | Closures cost **3.6× the heap** (506 B vs 141 B) and **call ≥2.9× faster** — the trade is speed for memory, not simplicity for speed. **Eager-retained frame tasks stay**; lazy-retained was measured as a peer and lost on active heap, latency and `schedule`, winning only 148 B on a never-dragged controller. |
+| M-3 | minimal **9.33 kB**, complete **10.09 kB**, each feature adding only itself with module-graph absence asserted. **Composition costs 0.26 kB (2.6%)**; **migration costs 2.44 kB**. |
+| M-4 | Accepted as written up in phase 8b, plus the collection-mutation case discharged structurally. |
+
+**Deviations recorded while implementing.**
+
+- **`size-limit` is not used, and the reason is written up separately.**
+  Removed, briefly restored on its `import` option, then removed again. All
+  three states were measured and agree to the byte (9.33 kB minimal), so this is
+  about the shape of the measurement rather than the number: a composition is a
+  set of named imports *and* a set of modules that must be absent, and Size
+  Limit has no vocabulary for the second half. Splitting the halves across two
+  tools put a seam through one idea and made each composition a declaration in
+  two formats. `.agents/docs/measure/brief.md` records the whole finding —
+  including that Size Limit's `import` gate is a plugin **name** comparison
+  rather than a capability check, which is why
+  `size-limit-preset-rolldown`'s own `import` support has never been reachable,
+  and that the `{ "a.js": "{ a }" }` form takes **file paths**, not package
+  specifiers. It is the brief for a repository-wide replacement tool.
+- **The `DEV` strip needed a source change, not just a build flag.** The
+  measured finding: with the old `resolveDev()` form a consumer defining
+  `NODE_ENV=production` recovered **30 bytes**, because a minifier cannot fold a
+  call — every assertion still shipped *and still ran*. `src/kernel/dev.ts` now
+  reads a bare `__DEV__`, substituted `false` by `tsdown.config.ts` and `true`
+  by the repo's vite/vitest config; `kernel/dev.js` stops being emitted at all.
+  A consumer can no longer enable the assertions, which costs nothing while
+  behavior authoring is not public — recorded in the module and in m3.md.
+- **The browser projects gained two Chrome flags** (`--js-flags=--expose-gc`,
+  `--enable-precise-memory-info`), scoped to the drag projects. Without the
+  second, `usedJSHeapSize` is quantized to 100 kB and every M-2 figure would
+  have been a rounding artifact.
+- **The first heap harness measured zero and looked like good news.** Each run
+  overwrote the previous graph through a shared variable, so every reading freed
+  one generation while allocating the next. Fixed with a module-level sink
+  cleared *before* the baseline; the note is in the harness because the failure
+  mode is silent and reads as a result.
+- **M-1's cliff is a Chromium property, not a contract property**, and is
+  recorded as such: 12→16 part fields is where V8's `Object.assign` fast path
+  ends here, and another engine may put it elsewhere or nowhere.
+- **The measurement suites must be run one file at a time.** The browser project
+  runs test files in parallel and two measurement suites sharing a page inflate
+  every absolute figure by ~2×. Ratios and the cliff survive it; absolutes do
+  not. Noted in both harnesses and both write-ups.
+- **The four unreachable orphan declarations are gone**, which phase 9 deferred
+  here: `kernel/{frames,lifetimes,presentation,seams}.d.ts` were emitted by
+  `unbundle` and named by no public type — unreachable rather than exposed, but
+  6.5 kB of internal SPI in the tarball. `prune-declarations.ts` removes them in
+  a `build:done` hook and `tests/packaging.node.test.ts` asserts none come back.
+  Its first version deleted almost everything, because emitted declarations use
+  double-quoted specifiers and the walk matched single quotes only; it now
+  refuses to delete when the closure reaches nothing but its own entries.
 
 ---
 
@@ -846,4 +1023,4 @@ and before any WAAPI or FLIP code exists.
 | Generic frame copy on the move path | F-24 / M-1 | Measured; a specialized path needs an equivalence check |
 | `resetFramePart` exhaustiveness | F-11, I-28 | `__DEV__` heuristic only; known and unsolved in both probes |
 | Keyboard sorting needs a lifecycle transition | Q-4, 02 §`ActionTransition` | Explicitly deferred to a kernel-contract revision, not a third tag |
-| Consumer breaks I-25 (unmounts the dragged item) | Q-12 | Guarded fallback is normative; Phase 10 fixture judges sufficiency |
+| Consumer breaks I-25 (unmounts the dragged item) | Q-12 | **Closed in Phase 10: the guarded fallback is sufficient.** Judged by `tests/sortable/react.browser.test.ts`; written up in `tests/COVERAGE.md` §Q-12 and 05's resolved table |

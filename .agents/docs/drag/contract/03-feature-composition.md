@@ -837,7 +837,23 @@ it.
 
 ## Tree-shaking
 
-Judged through consumer fixtures, not source intuition.
+Judged through consumer fixtures, not source intuition — and **measured**
+(M-3, 2026-08-02 — [measurements/m3.md](../measurements/m3.md)):
+
+| composition | brotli | modules | vs minimal |
+| --- | --- | --- | --- |
+| minimal | **9.33 kB** | 29 | — |
+| + `layoutAnimation()` | 9.74 kB | 30 | +0.41 kB |
+| + `landing()` | 9.60 kB | 30 | +0.27 kB |
+| complete | **10.09 kB** | 33 | +0.76 kB |
+
+Each optional feature adds only itself, and the absences below are **asserted
+against the bundled module graph**, not inferred from the deltas — a module can
+be pulled in and mostly shaken, which produces a small delta and reads like
+success. **Composition itself costs 0.26 kB (2.6%)** against a feature-matched
+build that fills the slot record by hand; **migrating from the shipped
+`sortable.js` costs 2.44 kB**, and the two baselines answer different questions
+and are never substituted for each other.
 
 1. No global registry, no barrel that eagerly references every feature, no
    default options object naming an optional feature.
@@ -882,14 +898,83 @@ eager barrel.
 
 | Subpath | Runtime exports | Type exports |
 | --- | --- | --- |
-| `drag.js` | `draggable` | `Point`, `DragErrorContext`, `FailureStage`, `DOMRealm`, `Behavior` (opaque) |
-| `sortable.js` | `sortable`, **`ReorderResolution`** | `ReorderRequest`, `ReorderProposal`, `ReorderResolution`, `SortableFinishResult`, `SortableCancelResult`, `CancelStage`, `SortableController`, **`SortableFeature`** (opaque) |
+| `drag.js` | `draggable`, the 14 **`FAILURE_*` constants** | `Point`, `FailureStage`, `DOMRealm`, `Behavior` (opaque) |
+| `sortable.js` | `sortable`, **`ReorderResolution`**, **`AT_PROPOSAL`**, **`AT_CONSUMER`** | `ReorderRequest`, `ReorderProposal`, `CollectionSnapshot`, `ReorderResolution`, `AcceptedReorderResolution`, `RejectedReorderResolution`, `AcceptedReorderResult`, `NoopReorderResult`, `RejectedReorderResult`, `CanceledReorderResult`, `ReorderTransactionResult`, `SortableFinishResult`, `SortableCancelResult`, `CancelStage`, **`DragErrorContext`**, `SortableController`, `PlaceholderFactory`, **`SortableFeature`** (opaque) |
 | `sortable/vertical.js` | `vertical` | — |
 | `sortable/callbacks.js` | `callbacks` | `SortableCallbacks`, `OnReorder` |
-| `sortable/placeholder.js` | `placeholder` | `PlaceholderOptions` |
+| `sortable/placeholder.js` | `placeholder` | `PlaceholderOptions`, `PlaceholderContext` |
 | `sortable/handle.js` | `handle`, `visual` | — |
 | `sortable/landing.js` | `landing` | `LandingOptions`, `LandingStart`, `LandingContext`, `LandingHandle` |
 | `sortable/layout-animation.js` | `layoutAnimation` | `LayoutAnimationOptions` |
+
+Three cells changed at the phase 9 freeze, each closing something the original
+table left contradictory:
+
+- **The stage constants are runtime exports.** §The public/internal boundary
+  already called them public — a consumer receiving `onError` or a canceled
+  result has to discriminate them — but the runtime column listed only
+  `draggable` and `sortable`, so the type shipped and the values did not. A
+  numeric union whose members are unnameable is not a public type.
+- **`DragErrorContext` ships from `sortable.js`, not `drag.js`.** It carries
+  `domain: ReorderTransactionResult`, a sortable result. `draggable` was given
+  its own entry precisely so a future free-drag consumer need not reach the
+  sortable behavior, and having that entry declare a behavior's result union
+  would undo it. The kernel half, `FailureStage`, stays on `drag.js`.
+- **`PlaceholderContext` is listed.** `PlaceholderOptions.create` is a function
+  of it, so it was already structurally public; naming it is what makes that
+  deliberate rather than incidental.
+
+A fourth correction followed from running TypeDoc over the frozen entries: four
+more aliases were **structurally public but unnameable** — reachable through a
+public type, resolvable by a consumer's compiler, and absent from the documented
+surface. `CollectionSnapshot` (via `ReorderProposal.snapshot`),
+`PlaceholderFactory` (via `PlaceholderOptions.create`), and
+`AcceptedReorderResolution`/`RejectedReorderResolution` (the two members of the
+`ReorderResolution` union) are now exported from `sortable.js`. This is the same
+rule that made `FailureStage`, `DOMRealm` and `Point` public: **export what a
+public type structurally depends on rather than pretending it is internal.**
+
+The fifth dangling reference was resolved the other way. `OnReorder` returned
+`MaybePromise<ReorderResolution>`, and exporting that alias would put a generic
+utility with no domain meaning on the frozen surface purely so a documentation
+tool could resolve a link. Its structure is written out in the signature
+instead — `ReorderResolution | PromiseLike<ReorderResolution>` — which is also
+the more honest statement, since the kernel reads `then` once and never assumes
+a native promise. **TypeDoc over the eight public entries now emits zero
+unresolved-reference warnings, and none are suppressed**: a warning there means
+a public type depends on something a consumer cannot name, which is a surface
+defect and not noise.
+
+### Public option domains
+
+Frozen with the surface, because a domain is as much a compatibility promise as
+a signature. Every one is validated **at construction** and throws a `TypeError`
+outside its domain — a `NaN` threshold otherwise activates on nothing and a
+`NaN` duration produces an animation that never finishes, both diagnosed three
+seams away from the call that caused them.
+
+| Option | Unit | Domain | Default |
+| --- | --- | --- | --- |
+| `callbacks({ threshold })` | CSS px, straight-line from the press | finite, `>= 0` | `8` |
+| `callbacks({ readinessTimeout })` | ms | finite, `>= 1` | `500` |
+| `landing({ duration })` | ms | finite, `>= 0` | `200` |
+| `layoutAnimation({ duration })` | ms | finite, `>= 0` | `160` |
+
+- `threshold` at `0` activates on the first move reporting a different point.
+- **`readinessTimeout` becomes a public option at this freeze.** It was a
+  behavior-fixed 500ms, which caps a *consumer-supplied* promise with no escape:
+  a re-render that legitimately involves a round trip failed with
+  `FAILURE_PRESENTATION_READY` and no way to say otherwise. It lives on
+  `callbacks()` because that is already the sole owner of the consumer-policy
+  defaults. It is a **failure bound, not a schedule** — the gate releases as
+  soon as the promise settles, and exceeding it replaces the settlement. It is
+  not permitted to be `Infinity`: an unbounded gate holds presentation forever,
+  which is the state the bound exists to prevent.
+- `easing` is deliberately unvalidated on both features. It is a CSS easing
+  function, the platform is the only correct parser for one, and `animate()`
+  reports a bad value itself.
+- `landing({ run })` replaces the default runner entirely, so `duration` and
+  `easing` are not read — and therefore not validated — when it is present.
 
 **`ReorderResolution` is a runtime export as well as a type** (review 6, §10).
 The documented consumer calls `ReorderResolution.accept(…)` and
@@ -903,10 +988,27 @@ Three decisions the earlier table left open (review 5, §12):
   putting it under `sortable.js` would make a future free-drag consumer import
   the sortable behavior to reach it. The shipped `draggable.js` entry is
   replaced, not kept alongside.
-- **`SortableFeature` is declared in `sortable.js`** and re-exported nowhere.
-  Every feature subpath imports it type-only from there, which gives the shared
-  type one resolvable identity across separate declaration files instead of a
-  structurally-equal duplicate per subpath.
+- **`SortableFeature` has exactly one identity, wherever it is declared.** The
+  rule is a property of the emitted declaration graph, not a physical file:
+
+  1. there is exactly **one** branded `SortableFeature` declaration in the whole
+     emitted graph — never a structurally-equal duplicate per subpath;
+  2. `sortable.js` and every public feature subpath resolve to **that**
+     declaration, so a feature built by one subpath is assignable to the
+     parameter another declares;
+  3. the module that declares it is **not** a declared package subpath, so the
+     brand — and the authoring types beside it — stay unconstructible from
+     outside.
+
+  An earlier draft of this rule named the file instead ("declared in
+  `sortable.js`, re-exported nowhere"), which is the wrong constraint and, taken
+  literally, the worse one: putting the brand in the entry module makes every
+  feature subpath's declaration import from `../sortable.js` and drag the whole
+  sortable entry graph into a subpath that otherwise needs one line. What the
+  rule exists to prevent is two identities, and identity is what it should say.
+  It is satisfied today by declaring the brand in the internal
+  `sortable/feature` module, which every subpath imports type-only and which no
+  `exports` entry names.
 - **Every runtime entry above becomes a `files.json` entry.** Shared contract
   *types* are imported type-only, so they contribute no runtime edge, but they
   still need the declaration files to resolve — which is why the identity

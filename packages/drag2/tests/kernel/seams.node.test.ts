@@ -1379,8 +1379,8 @@ describe('runActivationSeam', () => {
     const harness = createHarness();
 
     runActivationSeam(harness.driver, activation(), scope, FAILURE_ACTIVATION, {
-      retire: vi.fn(),
-      committed: vi.fn(),
+      retire: (): void => {},
+      committed: (): void => {},
     });
 
     // Activation's staged value is the placeholder, consumed by its own effect.
@@ -1393,7 +1393,7 @@ describe('runActivationSeam', () => {
     let observed: unknown = 'unset';
 
     runActivationSeam(harness.driver, activation(), scope, FAILURE_ACTIVATION, {
-      retire: vi.fn(),
+      retire: (): void => {},
       committed(): void {
         observed = harness.driver.consumeStaged();
       },
@@ -1568,7 +1568,9 @@ describe('runReleaseSeam', () => {
         },
       },
       FAILURE_RELEASE,
-      execute,
+      (prepared: unknown): void => {
+        execute(prepared);
+      },
     );
 
     expect(outcome).toBe(SEAM_COMMITTED);

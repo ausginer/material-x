@@ -243,7 +243,7 @@ export function createSortableSpec(
     config: {
       threshold: slots.threshold,
       liftMode: LIFT_FLAT,
-      readinessTimeout: 500,
+      readinessTimeout: slots.readinessTimeout,
       actionTags: SORTABLE_ACTION_TAGS,
     },
 

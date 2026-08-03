@@ -200,6 +200,7 @@ function createHarness(overrides: Overrides = {}): Harness {
     afterMove: overrides.afterMove ?? [],
     retireHooks: overrides.retireHooks ?? [],
     threshold: overrides.threshold ?? 8,
+    readinessTimeout: 500,
   };
 
   const controller = draggable(root, createSortableBehavior(items, slots));
@@ -342,6 +343,7 @@ const EMPTY_SLOTS: SortableSlots = {
   resolveInsertion: () => null,
   invalidateInsertion: (): void => {},
   measureInsertion: null,
+  readinessTimeout: 500,
   onReorder: () => ReorderResolution.accept(),
   onStart: (): void => {},
   createPlaceholder: null,

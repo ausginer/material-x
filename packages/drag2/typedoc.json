@@ -2,7 +2,16 @@
   "$schema": "https://typedoc.org/schema.json",
   "name": "@ydinjs/drag2",
   "tsconfig": "./tsconfig.json",
-  "entryPoints": ["./src/drag.ts", "./src/sortable.ts"],
+  "entryPoints": [
+    "./src/drag.ts",
+    "./src/sortable.ts",
+    "./src/sortable/vertical.ts",
+    "./src/sortable/callbacks.ts",
+    "./src/sortable/placeholder.ts",
+    "./src/sortable/handle.ts",
+    "./src/sortable/landing.ts",
+    "./src/sortable/layout-animation.ts"
+  ],
   "entryPointStrategy": "resolve",
   "readme": "none",
   "excludePrivate": true,

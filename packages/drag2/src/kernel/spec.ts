@@ -148,12 +148,39 @@ export type SettlementInput =
 /** The readiness promise travels through `Prepared`, not a private write. */
 export type PreparedSettlement = Readonly<{ ready: PromiseLike<void> | null }>;
 
+/**
+ * **One coordinate space, and this is it.**
+ *
+ * `from`, `target` and `LandingHandle.retarget()`'s argument are all
+ * *origin-relative viewport deltas*: CSS pixels to translate the visual by,
+ * measured from where its border box sat when the drag was admitted. That is
+ * exactly the space `compose()` and the kernel's own
+ * `lift.write()` consume, so a runner never converts anything —
+ * `compose(from.x, from.y)` reproduces the transform the drag last wrote, and
+ * `compose(target.x, target.y)` is where the visual has to end up.
+ *
+ * It is deliberately **not** a viewport point. `anchorTarget` produces one, and
+ * the kernel converts before the context is built, because a runner's only
+ * writer is `compose`, which cannot convert a point: the context carries no
+ * origin rect and is not given one. Handing over a point would make every
+ * runner re-derive the grab basis the kernel already holds.
+ *
+ * The space is unaffected by the lift mode. Both lifted modes translate the
+ * delta directly; the in-place mode projects it through the inverse of its
+ * inherited box space, inside `compose`. A runner sees the same numbers either
+ * way.
+ */
 export type LandingContext = Readonly<{
   visual: HTMLElement;
-  /** Full transform string for a viewport delta, including the lift's base. */
+  /** Full transform string for an origin-relative delta, including the base. */
   compose(x: number, y: number): string;
+  /** Where the visual is now, as a delta. Equal to the last drag translation. */
   from: Point;
-  /** Provisional. May be superseded; correctness does not depend on it. */
+  /**
+   * Where it should land, as a delta. Provisional: it may be superseded by
+   * `LandingHandle.retarget()`, and correctness does not depend on it — the
+   * kernel measures again at the join and performs the authoritative pin.
+   */
   target: Point;
   realm: DOMRealm;
 }>;
@@ -165,7 +192,13 @@ export type LandingHandle = Readonly<{
    * dispatches.
    */
   destroy(): void;
-  /** Optional trajectory-quality capability. Absent runners are fully correct. */
+  /**
+   * Optional trajectory-quality capability. Absent runners are fully correct.
+   *
+   * `target` is in the same space as `LandingContext.target` — an
+   * origin-relative viewport delta — so a runner can hand it straight to
+   * `compose`.
+   */
   retarget?(target: Point): void;
 }>;
 

@@ -1007,6 +1007,23 @@ restored. A terminal-callback throw still leads to retirement.
 else. After `destroy()` it must leave no committed animation that overrides
 inline style.
 
+**One coordinate space, frozen at phase 9.** `LandingContext.from`,
+`LandingContext.target` and `LandingHandle.retarget()`'s argument are all
+**origin-relative viewport deltas**: CSS pixels to translate the visual by,
+measured from where its border box sat at admission. That is exactly the space
+`compose(x, y)` and the kernel's own `lift.write(x, y)` consume, so a runner
+converts nothing — `compose(from.x, from.y)` reproduces the transform the drag
+last wrote.
+
+Earlier listings in this document show `anchorTarget`'s raw viewport point being
+handed to the runner. It is not: the kernel converts first. A runner's only
+writer is `compose`, which cannot convert a point, because the context carries
+no origin rect and is deliberately not given one — handing over a point would
+make every runner re-derive the grab basis the kernel already holds. The space
+is also unaffected by lift mode: both lifted modes translate the delta directly
+and the in-place mode projects it inside `compose`, so a runner sees the same
+numbers either way.
+
 **Acquisition is all-or-nothing.** A runner that starts something and then fails
 to return a handle must leave nothing running. Starting the animation is not the
 same as *acquiring* the runner: with WAAPI, `animate()` succeeding is followed by
