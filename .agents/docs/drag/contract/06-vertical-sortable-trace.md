@@ -240,17 +240,24 @@ messages, temporary arrays, plugin descriptors, normalized event wrappers,
 `Point` allocations on the lifted paths, feature iteration, feature filtering,
 view materialization, `Array.prototype` helpers over the collection.
 
-**The `Object.assign` frame copy is not judged here.** It is fixed-shape,
-15 fields, monomorphic within the controller and allocation-free, and it is what
-makes a preparation failure unable to corrupt `current`. That justification is
-strong for a fallible `prepare`; it is weaker for a pointer sample, which only
-publishes kernel-owned scalars before calling a post-commit renderer. The earlier
-text dismissed removing it as "performance theatre" **with no benchmark**, and
-that dismissal is withdrawn: it is M-1 in
-§[05](05-lifecycle-invariants.md) §Measurements owed, against a specialized
-kernel pointer-publication path and against the shipped runtime, across multiple
-behavior frame shapes. Keep the generic copy if it is irrelevant end to end — but
-that is a measurement, not a position.
+**The `Object.assign` frame copy: measured, and kept** (M-1, 2026-08-02 —
+[measurements/m1.md](../measurements/m1.md)). It is fixed-shape, 15 fields,
+monomorphic within the controller and allocation-free, and it is what makes a
+preparation failure unable to corrupt `current`. That justification is strong for
+a fallible `prepare` and weaker for a pointer sample, which only publishes
+kernel-owned scalars before calling a post-commit renderer — so it was benchmarked
+against a specialized pointer-publication path that writes the two fields in
+place, with an equivalence check first.
+
+**At the shipped frame the copy is 0.098 µs of a 2.64 µs sample: 3.7%, and the
+sample is 0.017% of a 16 ms frame.** The copy stays.
+
+**The number comes with a bound the earlier text could not have known.** The
+cost is flat to ~12 behavior-part fields and then jumps 10× between 12 and 16 —
+0.147 µs to 1.465 µs — an engine cliff this frame sits 4 fields below. A larger
+part, or two behaviors sharing the call site, crosses it and the copy becomes
+roughly 55% of a sample. The claim is therefore *the copy is free at this frame
+size*, with the size named.
 
 ## The coalesced spatial frame
 

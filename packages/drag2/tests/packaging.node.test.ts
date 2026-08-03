@@ -12,6 +12,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { findOrphanDeclarations } from '../prune-declarations.ts';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const SRC = join(ROOT, 'src');
@@ -119,5 +120,19 @@ describe('the published file list', () => {
     );
 
     expect(stale).toEqual([]);
+  });
+
+  it('should publish no declaration the entries cannot reach', async () => {
+    // `unbundle` emits one declaration per source module, and four kernel
+    // modules had no public type naming them — unreachable rather than exposed,
+    // but still 6.5 kB of internal SPI in the tarball. `tsdown.config.ts`
+    // prunes them after the emit; this is what stops the next such module from
+    // shipping unnoticed.
+    const entries = (await readJSON('files.json'))['runtime'] as string[];
+    const orphans = await findOrphanDeclarations(
+      entries.map((entry) => `${entry}.d.ts`),
+    );
+
+    expect(orphans).toEqual([]);
   });
 });

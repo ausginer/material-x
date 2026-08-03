@@ -20,6 +20,8 @@ type BrowserTestProjectOptions = Readonly<{
   setupFiles?: readonly string[];
   viteConfig?: UserConfig;
   commands?: Record<string, BrowserCommand<any[]>>;
+  /** Extra Chrome flags. Used by the drag measurement suites (M-1/M-2). */
+  launchArgs?: readonly string[];
 }>;
 
 type NodeTestProjectOptions = Readonly<{
@@ -62,6 +64,7 @@ function scopedName(base: string, scope?: string): string {
 
 function createBrowserTestConfig(
   commands?: Record<string, BrowserCommand<any[]>>,
+  options?: Readonly<{ launchArgs?: readonly string[] }>,
 ): UserConfig {
   return {
     test: {
@@ -84,13 +87,16 @@ function createBrowserTestConfig(
           contextOptions: { deviceScaleFactor: 1 },
           launchOptions: {
             executablePath: resolveChromeExecutable(),
-            args: isDebug
-              ? [
-                  '--remote-debugging-port=9222',
-                  '--remote-allow-origins=*',
-                  '--no-sandbox',
-                ]
-              : [],
+            args: [
+              ...(isDebug
+                ? [
+                    '--remote-debugging-port=9222',
+                    '--remote-allow-origins=*',
+                    '--no-sandbox',
+                  ]
+                : []),
+              ...(options?.launchArgs ?? []),
+            ],
           },
         }),
         // Pin the viewport and device scale so raster output is reproducible
@@ -111,6 +117,9 @@ function createBrowserTestConfig(
 function createTestBaseConfig(root: URL): UserConfig {
   return {
     root: fileURLToPath(root),
+    // See `createCoreViteConfig`. Declared here as well so the node and
+    // declaration projects, which do not take a vite config, still resolve it.
+    define: { __DEV__: 'true' },
     test: {
       coverage: {
         enabled: false,
@@ -133,7 +142,12 @@ function createBrowserTestProject(
   );
 
   return mergeConfig(
-    mergeConfig(baseConfig, createBrowserTestConfig(options.commands)),
+    mergeConfig(
+      baseConfig,
+      createBrowserTestConfig(options.commands, {
+        launchArgs: options.launchArgs,
+      }),
+    ),
     {
       test: {
         name: options.name,
@@ -240,7 +254,19 @@ function createDragTestProjects(root: URL, scope?: string): UserConfig[] {
       name: scopedName('browser', scope),
       root,
       include: ['tests/**/*.browser.test.ts'],
-      viteConfig: createCoreViteConfig(root),
+      // The phase 11 measurement suites need a deterministic heap: `gc()` to
+      // settle it before a sample, and precise `performance.memory` rather than
+      // the 100kB-quantized figure Chrome reports by default. Both are inert
+      // for every other test in the project.
+      launchArgs: ['--js-flags=--expose-gc', '--enable-precise-memory-info'],
+      viteConfig: mergeConfig(createCoreViteConfig(root), {
+        // The React fixtures (`tests/**/react*.browser.test.ts`) need exactly
+        // one copy of React: without deduping, the optimizer gives `react-dom`
+        // its own inlined `react`, the hook dispatcher is null in the second
+        // copy, and every render throws. Harmless for the packages themselves —
+        // neither ships a React dependency.
+        resolve: { dedupe: ['react', 'react-dom'] },
+      } satisfies UserConfig),
     }),
     createDeclarationTestProject({
       name: scopedName('declaration', scope),

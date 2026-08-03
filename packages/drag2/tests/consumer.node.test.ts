@@ -59,6 +59,15 @@ function run(
   });
 }
 
+/** Code-unit order, so the expected lists below read the way they sort. */
+const byName = (a: string, b: string): number => {
+  if (a === b) {
+    return 0;
+  }
+
+  return a < b ? -1 : 1;
+};
+
 const ROOT = resolve(import.meta.dirname, '..');
 const REPO = resolve(ROOT, '../..');
 const MINUTE = 60_000;
@@ -72,27 +81,173 @@ const MINUTE = 60_000;
  */
 const PENDING: readonly string[] = [];
 
-const CONSUMER = `import { draggable, type Behavior } from '@ydinjs/drag2/drag.js';
+const CONSUMER = `import {
+  draggable,
+  FAILURE_ACTIVATION,
+  FAILURE_TERMINAL_CALLBACK,
+  type Behavior,
+  type DOMRealm,
+  type FailureStage,
+  type Point,
+} from '@ydinjs/drag2/drag.js';
 import {
+  AT_CONSUMER,
+  AT_PROPOSAL,
   ReorderResolution,
+  sortable,
+  type AcceptedReorderResolution,
+  type CancelStage,
+  type CollectionSnapshot,
+  type DragErrorContext,
+  type PlaceholderFactory,
+  type RejectedReorderResolution,
+  type ReorderProposal,
+  type ReorderRequest,
+  type ReorderTransactionResult,
+  type SortableCancelResult,
+  type SortableController,
   type SortableFeature,
+  type SortableFinishResult,
 } from '@ydinjs/drag2/sortable.js';
+import { vertical } from '@ydinjs/drag2/sortable/vertical.js';
+import {
+  callbacks,
+  type OnReorder,
+  type SortableCallbacks,
+} from '@ydinjs/drag2/sortable/callbacks.js';
+import {
+  placeholder,
+  type PlaceholderContext,
+  type PlaceholderOptions,
+} from '@ydinjs/drag2/sortable/placeholder.js';
+import { handle, visual } from '@ydinjs/drag2/sortable/handle.js';
+import {
+  landing,
+  type LandingContext,
+  type LandingHandle,
+  type LandingOptions,
+  type LandingStart,
+} from '@ydinjs/drag2/sortable/landing.js';
+import {
+  layoutAnimation,
+  type LayoutAnimationOptions,
+} from '@ydinjs/drag2/sortable/layout-animation.js';
 
-type Controller = Readonly<{ destroy(): void }>;
+// ---------------------------------------------------------------------------
+// The intended surface, exercised rather than merely imported.
+// ---------------------------------------------------------------------------
 
-declare const behavior: Behavior<Controller>;
-declare const feature: SortableFeature;
 declare const root: HTMLElement;
+declare const items: readonly HTMLElement[];
+
+const list: SortableController = draggable(
+  root,
+  sortable(
+    items,
+    vertical(),
+    callbacks({
+      onReorder: (request: ReorderRequest) => {
+        void request.from;
+        void request.to;
+        void request.item;
+        return ReorderResolution.accept();
+      },
+      threshold: 4,
+      readinessTimeout: 30_000,
+      onFinish: (result: SortableFinishResult): void => {
+        // F-41: the public results narrow on their own discriminant. Nothing a
+        // consumer has to import is needed to tell one from another.
+        if (result.type === 'accepted') {
+          const proposal: ReorderProposal = result.proposal;
+          // The proposal exposes the snapshot it was built against, so the type
+          // of that field has to be nameable too.
+          const snapshot: CollectionSnapshot = proposal.snapshot;
+
+          void proposal.request.version;
+          void snapshot.items.length;
+          void snapshot.version;
+        }
+      },
+      onCancel: (result: SortableCancelResult): void => {
+        if (result.type === 'canceled') {
+          const stage: CancelStage = result.stage;
+
+          void (stage === AT_PROPOSAL || stage === AT_CONSUMER);
+        }
+      },
+      onError: (error: unknown, context: DragErrorContext): void => {
+        // The stages are values, not just a type: a consumer switching on
+        // \`context.stage\` needs them.
+        const stage: FailureStage = context.stage;
+        const domain: ReorderTransactionResult | null = context.domain;
+
+        void (stage === FAILURE_ACTIVATION);
+        void (stage === FAILURE_TERMINAL_CALLBACK);
+        void domain?.type;
+        void error;
+      },
+    }),
+    placeholder({
+      className: 'ghost',
+      // Nameable, so a consumer can hoist the factory out of the call.
+      create: ((context: PlaceholderContext) => {
+        void context.rect.height;
+        return document.createElement('div');
+      }) satisfies PlaceholderFactory,
+    }),
+    handle((item: HTMLElement) => item.firstElementChild as HTMLElement),
+    visual((item: HTMLElement) => item),
+    landing({ duration: 120, easing: 'ease-out' }),
+    layoutAnimation({ duration: 90 }),
+  ),
+);
+
+list.updateItems(items);
+list.cancel('reason');
+list.destroy();
+
+// A custom runner is authorable from the public surface alone.
+const run: LandingStart = (
+  context: LandingContext,
+  done: () => void,
+): LandingHandle => {
+  const realm: DOMRealm = context.realm;
+  const from: Point = context.from;
+
+  void realm.window;
+  void context.compose(from.x, from.y);
+  done();
+  return { destroy: (): void => {} };
+};
+
+// Both members of the \`ReorderResolution\` union are nameable, so a consumer can
+// give a helper a return type narrower than the union.
+declare const accepted: AcceptedReorderResolution;
+declare const rejected: RejectedReorderResolution;
+
+void [accepted.type, rejected.type];
+
+declare const behavior: Behavior<SortableController>;
+declare const feature: SortableFeature;
+declare const onReorder: OnReorder;
+declare const options: SortableCallbacks;
+declare const placeholderOptions: PlaceholderOptions;
+declare const landingOptions: LandingOptions;
+declare const layoutOptions: LayoutAnimationOptions;
+
+void [run, behavior, feature, onReorder, options, placeholderOptions, landingOptions, layoutOptions];
 
 // Inference through the *packed* declarations, with no explicit type argument.
-const controller = draggable(root, behavior);
+const inferred = draggable(root, behavior);
 
-controller.destroy();
-void ReorderResolution.accept();
-void feature;
+inferred.destroy();
+
+// ---------------------------------------------------------------------------
+// Opacity: neither branded value is constructible or callable.
+// ---------------------------------------------------------------------------
 
 // @ts-expect-error: the behavior value is opaque, so a bare install function is not one
-const forgedBehavior: Behavior<Controller> = () => ({});
+const forgedBehavior: Behavior<SortableController> = () => ({});
 // A behavior that were still the install function would *also* reject the
 // literal above, on its return type. Calling it is what separates the two.
 // @ts-expect-error: a behavior is not callable
@@ -102,12 +257,73 @@ const forgedFeature: SortableFeature = () => ({});
 // @ts-expect-error: a feature is not callable
 feature(null as never);
 // @ts-expect-error: the frame part is erased, so \`Behavior\` takes one type argument
-type Part = Behavior<Controller, object>;
-// @ts-expect-error: the install function type is internal and reaches no public entry
-type Factory = import('@ydinjs/drag2/drag.js').BehaviorFactory<Controller, object>;
+type Part = Behavior<SortableController, object>;
 
-void forgedBehavior;
-void forgedFeature;
+void [forgedBehavior, forgedFeature];
+
+// ---------------------------------------------------------------------------
+// Every internal SPI name is unreachable. Each line must error; an
+// \`@ts-expect-error\` that stops erroring is itself a compile failure, so this
+// list cannot rot into a no-op.
+// ---------------------------------------------------------------------------
+
+// @ts-expect-error: the install function type is internal
+type A1 = import('@ydinjs/drag2/drag.js').BehaviorFactory<SortableController, object>;
+// @ts-expect-error: the behavior SPI is internal
+type A2 = import('@ydinjs/drag2/drag.js').BehaviorSpec<object>;
+// @ts-expect-error: the install result is internal
+type A3 = import('@ydinjs/drag2/drag.js').BehaviorInstall<SortableController, object>;
+// @ts-expect-error: the host is internal
+type A4 = import('@ydinjs/drag2/drag.js').KernelHost;
+// @ts-expect-error: the seam transition is internal
+type A5 = import('@ydinjs/drag2/drag.js').Transition<object>;
+// @ts-expect-error: the activation scope is internal
+type A6 = import('@ydinjs/drag2/drag.js').ActivationScope;
+// @ts-expect-error: the settlement scope is internal
+type A7 = import('@ydinjs/drag2/drag.js').SettlementScope;
+// @ts-expect-error: the settlement input is internal
+type A8 = import('@ydinjs/drag2/drag.js').SettlementInput;
+// @ts-expect-error: the resolution command is internal
+type A9 = import('@ydinjs/drag2/drag.js').ResolutionCommand;
+// @ts-expect-error: the seam rejection is internal
+type A10 = import('@ydinjs/drag2/drag.js').SeamRejection;
+// @ts-expect-error: the lift mode constants are internal
+const A11 = import('@ydinjs/drag2/drag.js').then((m) => m.LIFT_FLAT);
+// @ts-expect-error: the slot record is internal
+type B1 = import('@ydinjs/drag2/sortable.js').SortableSlots;
+// @ts-expect-error: the contribution shape is internal
+type B2 = import('@ydinjs/drag2/sortable.js').SortableContribution;
+// @ts-expect-error: the geometry capability is internal
+type B3 = import('@ydinjs/drag2/sortable.js').InsertionGeometry;
+// @ts-expect-error: the feature context is internal
+type B4 = import('@ydinjs/drag2/sortable.js').FeatureContext;
+// @ts-expect-error: the displacement view is internal
+type B5 = import('@ydinjs/drag2/sortable.js').DisplacementView;
+// @ts-expect-error: the insertion is internal
+type B7 = import('@ydinjs/drag2/sortable.js').Insertion;
+// @ts-expect-error: the outcome constants are internal
+const B8 = import('@ydinjs/drag2/sortable.js').then((m) => m.OUTCOME_ACCEPTED);
+// @ts-expect-error: the recovery constants are internal
+const B9 = import('@ydinjs/drag2/sortable.js').then((m) => m.RECOVERY_HOME);
+
+// Deep imports are not declared in \`exports\`, so the module graph itself is
+// closed — not merely the names each entry chooses to re-export.
+// @ts-expect-error: the kernel is not a declared subpath
+type C1 = import('@ydinjs/drag2/kernel/spec.js').KernelHost;
+// @ts-expect-error: source is not a declared subpath
+type C2 = import('@ydinjs/drag2/src/drag.ts').Point;
+// The module that *declares* the feature brand, and the one that declares the
+// slot views. Both are packed — the public declarations resolve through the
+// first — and neither is a declared subpath, which is what keeps the authoring
+// types internal even though their declaration file ships.
+// @ts-expect-error: the feature authoring module is not a declared subpath
+type C3 = import('@ydinjs/drag2/sortable/feature.js').SortableFeature;
+// @ts-expect-error: the slot views are not a declared subpath
+type C4 = import('@ydinjs/drag2/sortable/slots.js').DisplacementView;
+
+void [A11, B8, B9];
+declare const unusedTypes: [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, B1, B2, B3, B4, B5, B7, C1, C2, C3, C4, Part];
+void unusedTypes;
 `;
 
 const TSCONFIG = JSON.stringify({
@@ -271,6 +487,61 @@ describe('the packed package', () => {
     }
 
     expect(missing).toEqual([]);
+  });
+
+  it('should expose exactly the intended runtime surface, per subpath', async () => {
+    // The frozen table from contract 03, asserted as an **equality**: a new
+    // export is as much a failure here as a missing one, which is the whole
+    // point of freezing a surface. Types are erased at runtime and are checked
+    // by the consumer compile instead.
+    const expected: Readonly<Record<string, readonly string[]>> = {
+      './drag.js': [
+        'FAILURE_ACTIVATION',
+        'FAILURE_ADMISSION',
+        'FAILURE_INSERTION',
+        'FAILURE_INVALIDATION',
+        'FAILURE_LANDING_CREATE',
+        'FAILURE_LANDING_INTERRUPTED',
+        'FAILURE_LANDING_TARGET',
+        'FAILURE_PLACEHOLDER_MOVE',
+        'FAILURE_PRESENTATION_READY',
+        'FAILURE_RELEASE',
+        'FAILURE_RENDERER_WRITE',
+        'FAILURE_REORDER_RESOLUTION',
+        'FAILURE_SCHEDULED_FRAME',
+        'FAILURE_TERMINAL_CALLBACK',
+        'draggable',
+      ],
+      './sortable.js': [
+        'AT_CONSUMER',
+        'AT_PROPOSAL',
+        'ReorderResolution',
+        'sortable',
+      ],
+      './sortable/vertical.js': ['vertical'],
+      './sortable/callbacks.js': ['callbacks'],
+      './sortable/placeholder.js': ['placeholder'],
+      './sortable/handle.js': ['handle', 'visual'],
+      './sortable/landing.js': ['landing'],
+      './sortable/layout-animation.js': ['layoutAnimation'],
+    };
+
+    expect([...packed.subpaths.keys()].toSorted(byName)).toEqual(
+      Object.keys(expected).toSorted(byName),
+    );
+
+    const actual: Record<string, readonly string[]> = {};
+
+    await Promise.all(
+      [...packed.subpaths].map(async ([key, value]) => {
+        const module: object = await import(join(packed.dir, value.default));
+        const names: readonly string[] = Object.keys(module);
+
+        actual[key] = names.toSorted(byName);
+      }),
+    );
+
+    expect(actual).toEqual(expected);
   });
 
   it('should pack every declaration its declarations reference', async () => {

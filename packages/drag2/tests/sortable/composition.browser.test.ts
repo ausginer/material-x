@@ -49,8 +49,10 @@ type Composed = Readonly<{
 type Options = Readonly<{
   itemCount?: number;
   threshold?: number;
+  readinessTimeout?: number;
   onReorder?: Parameters<typeof callbacks>[0]['onReorder'];
   onStart?(composed: Composed): void;
+  onFinish?(composed: Composed): void;
 }>;
 
 const cleanup: Array<() => void> = [];
@@ -121,6 +123,7 @@ function compose(options: Options = {}): Composed {
         },
         onFinish(result): void {
           finishes.push(result);
+          options.onFinish?.(composed);
         },
         onCancel(result): void {
           cancels.push(result);
@@ -131,6 +134,9 @@ function compose(options: Options = {}): Composed {
         ...(options.threshold === undefined
           ? null
           : { threshold: options.threshold }),
+        ...(options.readinessTimeout === undefined
+          ? null
+          : { readinessTimeout: options.readinessTimeout }),
       }),
     ),
   );
@@ -645,6 +651,186 @@ describe('the composed terminal protocol', () => {
 
     expect(composed.finishes).toHaveLength(1);
     expect(composed.cancels).toEqual([]);
+  });
+
+  it('should tear down without a terminal callback when onReorder destroys', async () => {
+    // Destroy is a teardown, not a settlement: the consumer asked for the
+    // controller to stop existing, so the operation it was resolving does not
+    // get to announce an outcome. The resolution it returned is dropped.
+    let self!: Composed;
+    const composed = compose({
+      onReorder: () => {
+        self.controller.destroy();
+
+        return ReorderResolution.accept();
+      },
+    });
+
+    self = composed;
+
+    activate(composed);
+    await drag(55);
+    release(55);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(composed.finishes).toEqual([]);
+    expect(composed.cancels).toEqual([]);
+    expect(composed.placeholder()).toBeNull();
+    expect(composed.items[0]!.style.position).toBe('');
+  });
+
+  it('should apply work a callback queued before it threw', () => {
+    // The queue is run-to-completion: the update was accepted the moment it was
+    // dispatched, and losing it because a later statement in the same callback
+    // threw would make queueing depend on the caller surviving.
+    //
+    // The throw itself lands on the **platform channel**, not `onError`. The
+    // update invalidates the gap and latches a cancellation, and I-22 puts a
+    // cancel above a failure checkpoint — so the classified failure is dropped
+    // and the error is reported best-effort instead. That is the admitted
+    // I-31 gap contract 02 records, reached here through the public surface.
+    let self!: Composed;
+    const composed = compose({
+      onStart: () => {
+        self.controller.updateItems([self.items[0]!, self.items[2]!]);
+
+        throw new Error('after queueing');
+      },
+    });
+
+    self = composed;
+
+    activate(composed);
+
+    expect(composed.cancels).toHaveLength(1);
+    expect(composed.errors).toEqual([]);
+    expect(reported.map(String)).toEqual(['Error: after queueing']);
+    expect(composed.placeholder()).toBeNull();
+  });
+
+  it('should tolerate a destroy from inside the terminal callback', async () => {
+    // I-6's barrier reached from the last place it can be: the callback the
+    // operation is retiring through.
+    const composed = compose({
+      onFinish: (self) => {
+        self.controller.destroy();
+      },
+    });
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    expect(composed.finishes).toHaveLength(1);
+    expect(composed.placeholder()).toBeNull();
+    expect(composed.items[0]!.style.position).toBe('');
+    expect(reported).toEqual([]);
+  });
+
+  it('should ignore a resolution that settles after a newer operation began', async () => {
+    // F-25's shape without the cancel: the first operation is gone, a second
+    // one is live, and the first consumer answers at last. The answer belongs
+    // to an operation that no longer exists and must not touch this one.
+    let resolve!: (value: ReorderResolution) => void;
+    let first = true;
+    const composed = compose({
+      onReorder: () => {
+        if (!first) {
+          return ReorderResolution.accept();
+        }
+
+        first = false;
+
+        return new Promise<ReorderResolution>((settle) => {
+          resolve = settle;
+        });
+      },
+    });
+
+    activate(composed);
+    await drag(55);
+    release(55);
+    composed.controller.cancel('abandoned');
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    resolve(ReorderResolution.reject('too late'));
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(composed.cancels).toHaveLength(1);
+    expect(composed.cancels[0]).toMatchObject({ reason: 'abandoned' });
+    expect(composed.finishes).toHaveLength(1);
+  });
+
+  it('should ignore readiness that settles after a newer operation began', async () => {
+    // The same staleness through the other gate, and it needs the timeout to
+    // get there: once the settlement is armed the cancellation lifetime is
+    // closed, so `cancel()` cannot end an operation waiting on readiness. The
+    // bound is what ends it, and the promise then settles into a settlement
+    // that no longer exists.
+    let ready!: () => void;
+    let first = true;
+    const composed = compose({
+      readinessTimeout: 20,
+      onReorder: () => {
+        if (!first) {
+          return ReorderResolution.accept();
+        }
+
+        first = false;
+
+        return ReorderResolution.accept(
+          new Promise<void>((resolve) => {
+            ready = resolve;
+          }),
+        );
+      },
+    });
+
+    activate(composed);
+    await drag(55);
+    release(55);
+    await new Promise((resolve) => {
+      setTimeout(resolve, 60);
+    });
+
+    const afterTimeout = [composed.finishes.length, composed.errors.length];
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    const beforeStale = composed.finishes.length;
+
+    ready();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(afterTimeout[1]).toBe(1);
+    expect(composed.finishes).toHaveLength(beforeStale);
+    expect(composed.errors).toHaveLength(1);
+  });
+
+  it('should propose the same gap when the rows carry a CSS transition', async () => {
+    // The matrix's "CSS layout transition" row. Authored transitions mean every
+    // measured box is somewhere between its old and new place for the length of
+    // the transition — the spatial resolver reads live geometry and must still
+    // land on the gap the pointer is actually nearest.
+    const composed = compose();
+
+    for (const item of composed.items) {
+      item.style.transition = 'translate 300ms linear, transform 300ms linear';
+    }
+
+    activate(composed);
+    await drag(55);
+    await drag(105);
+
+    expect(composed.order()).toBe('012_');
   });
 
   it('should report nothing through the platform channel on a clean drag', async () => {

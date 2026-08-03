@@ -47,7 +47,7 @@ Probe 1 had every one of these at tier C.
 | I-23 | Terminal callbacks run after presentation release, so the consumer observes its own authored DOM | B | `finalized()` is called after `presentation.dispose()` |
 | I-24 | **When the authoritative measurement succeeds, the pin succeeds, and runner control was successfully relinquished**, the pinned visual position and the authored DOM position agree at presentation release | B | The kernel re-measures and pins at the join, after `anchorTarget` (D-16). All three conditions are required: `anchorTarget` is behavior-supplied, the pin is a DOM write, and a `LandingHandle.destroy()` that throws may leave a WAAPI animation or rAF loop still writing the transform *after* the pin. The contract skips the pin on the first two and reports the third, while **still** releasing presentation. It also depends on I-25. |
 | I-25 | The semantic item remains a connected, consumer-owned keyed child until presentation release | C | **Sortable presentation strategy**, not a kernel guarantee. See below. |
-| I-26 | After operation setup, one pointer sample creates no wrapper, tuple, collection or protocol object | C | **Counted by inspection**, §[06](06-vertical-sortable-trace.md) — not measured; M-1 is still owed. It *does* create the CSS transform string. |
+| I-26 | After operation setup, one pointer sample creates no wrapper, tuple, collection or protocol object | C | **Counted by inspection**, §[06](06-vertical-sortable-trace.md); it *does* create the CSS transform string. M-1 (2026-08-02) bounds it from outside: one sample costs **2.64 µs at 50 rows, 2.73 µs at 200** — flat in list size, because the spatial search is coalesced to a frame — and **20,000 consecutive samples produced no measurable net heap growth**. That bounds retention at zero and transient allocation below a precise-memory reading's noise floor; "creates no object" is a stronger statement than a heap reading can make, so the tier stays C. |
 | I-27 | Part factories are deterministic and folded in a fixed order for both frames | C | `__DEV__` shape assertion |
 | I-28 | `resetFramePart` clears every reference-bearing field | C | `__DEV__` heuristic; not provable |
 | I-29 | No failure on the trajectory-quality path may change the settlement outcome, release or add a hold, or destroy the runner | B | Readiness-time `anchorTarget`/`retarget` failures are best-effort reports, not classified failures |
@@ -96,7 +96,7 @@ finding entirely: the behavior can no longer mis-initialise fields it cannot
 name. **Mitigation:** the kernel folds from one code path, called twice, plus the
 `__DEV__` key-set assertion.
 
-### F-4 — a closure graph per controller · accepted, measurement owed
+### F-4 — a closure graph per controller · accepted, measured
 
 D-4 keeps the behavior's runtime private by capturing it in closures, so each
 controller allocates its own `BehaviorSpec` plus ~16 function objects, and each
@@ -110,11 +110,23 @@ scrutiny**: holding an untyped reference does not make the kernel know, expose o
 structurally widen that value, and H-2's substance — that the kernel cannot reach
 into behavior state — is preserved exactly by a phantom `S`.
 
-The closure model ships because it is simpler to specify, not because it is
-faster. Since performance is this repository's first code-style priority, the
-measurement is owed before that choice is treated as settled: heap and move-call
-behaviour at realistic controller counts, both models. The swap is mechanical
-and touches no semantics.
+The closure model was said to ship "because it is simpler to specify, not
+because it is faster", with the measurement owed before that was treated as
+settled. **M-2 (2026-08-02 — [measurements/m2.md](../measurements/m2.md)) settles
+it, and inverts the second half of that sentence.**
+
+- **Heap: the closure model costs 3.6×** — 506 B per controller against 141 B,
+  stable from 100 to 1000 controllers. At 1000 controllers that is 356 kB.
+- **Move call: the closure model is at least 2.9× faster** — 0.0013 µs against
+  0.0038 µs, because a captured closure is a direct call while the opaque-`S`
+  form is a property load plus an indirect call with an extra argument.
+
+The "better for memory and inline caches" expectation above was half right: it is
+better for memory, and worse on the path that runs every frame. Since performance
+is this repository's first code-style priority and the heap difference is under
+20 kB at realistic controller counts, **the closure model is kept on the merits**,
+not on simplicity. The swap remains mechanical if a page ever holds enough
+controllers for 365 B each to matter.
 
 ### F-5 — `admit` runs inside native dispatch · resolved
 
@@ -568,27 +580,13 @@ measured before it is specified.
 | Q-9 | Is an injected placeholder safe inside a React-reconciled container? | **Yes, physically.** The probe disproved F-14. The residual problem was semantic (F-15) and is resolved by D-16. |
 | Q-10 | Does fail-before-commit justify keeping `setPointerCapture` in `prepare`? | **Moot.** D-17 makes capture kernel-owned on `root`, so it is not in `prepare` at all. No semantic reason was found requiring a behavior-chosen capture target. |
 | Q-11 | Should the reserved frame-part extension point ship unimplemented? | **The mechanism is documented; the prepare-phase seam it would need is not specified and not built.** D-10. |
+| Q-12 | What happens when a consumer breaks I-25? | **Answered in Phase 10: the degraded re-anchor is sufficient.** The operation finishes accepted, the placeholder is removed, nothing is classified or reported, and the controller admits the next press — there is nothing left to strand, because the element the pin would have moved is the element the consumer discarded. Cancelling the settlement outright, the alternative this question left open, would turn a consumer's own unmount into a reported failure and buy nothing. Two mechanics the fixtures made concrete: a row a framework merely *drops* is parentless, so `before()` is already a no-op and the guard is inert — the hazard needs a disconnected node that still has a parent (a recycle pool) or a connected node under a different parent (a row moved to a second list); and the re-anchor runs at the **join**, so with readiness pending it is skipped entirely. Fixtures: `packages/drag2/tests/sortable/react.browser.test.ts` › *that unmounts the dragged item (Q-12)*. |
 | Q-1 | Should `admit` throwing become a classified failure? | **No — it becomes a *controller-level* report.** Admission runs before operation identity is minted, so there is no operation for a failure checkpoint to settle and no `REPORTING` phase to enter; minting one purely to report would invent an operation that never existed. The kernel catches the throw, leaves the controller idle and usable, and reports through `onError` with `FAILURE_ADMISSION` and no operation. This keeps the shipped package's observable outcome (idle, usable controller) while adding the diagnostic, and it names the owner — "a queued classified failure while the controller stays idle" had no owner and was not implementable (review 6, §17). |
 
 ## Open before implementation
 
-Ordered by how much each could still move the design. **Q-1 is now answered**
-(see the resolved table above).
-
-**Q-12. What happens when a consumer breaks I-25?**
-**The mechanism is normative; only its sufficiency is open.** A consumer that
-unmounts or re-keys the dragged item as part of applying the reorder leaves
-`anchorTarget` with no anchor. The specified behavior is the connectivity- and
-parentage-guarded re-anchor (§[03](03-feature-composition.md) §`placeholder()`):
-if the guard fails, measure the still-connected placeholder where it stands, pin
-to that, release presentation — degraded but not stranded, and no crash. Without
-that guard, `item.before(placeholder)` on a detached item would move the
-placeholder into the detached tree and destroy the fallback target.
-
-What stays open is whether the fallback is *good enough*: the alternative is
-cancelling the settlement outright. The fallback is chosen because a consumer in
-this state has no meaningful landing target either way, but no fixture has
-exercised it.
+Ordered by how much each could still move the design. **Q-1 and Q-12 are now
+answered** (see the resolved table above).
 
 **Q-4. Does the two-behavior-tag count survive?**
 Inherited from probe 1's Q-6, and still a design assertion rather than a
@@ -620,36 +618,62 @@ counts. Measure the minimal affected set; if both features need the same pre-mov
 rects, introduce a behavior-owned read phase or a small shared geometry-read
 capability rather than duplicating measurement to preserve conceptual privacy.
 
-## Measurements owed before implementation sign-off
+## Measurements — landed 2026-08-02
 
-Not open design questions — open *numbers*. Each replaces a claim currently
-resting on intuition.
+Not open design questions — open *numbers*. Each replaced a claim that rested on
+intuition; each now has a checked-in harness, a dated write-up and a result the
+contract quotes in place.
 
-| # | Measure | Replaces |
+| # | Answer | Write-up |
+| --- | --- | --- |
+| M-1 | The generic copy is **0.098 µs of a 2.64 µs pointer sample (3.7%)** and stays — but its cost jumps 10× between 12 and 16 behavior-part fields, and this frame sits 4 fields below that cliff. 20,000 samples produced no measurable net heap growth (I-26). | [m1.md](../measurements/m1.md) |
+| M-2 | The closure model costs **3.6× the heap per controller (506 B vs 141 B)** and **calls at least 2.9× faster**; kept. **Eager-retained frame tasks stay**: lazy-retained saves 148 B on a never-dragged controller and loses on active heap, first-drag latency and `schedule`. No policy leaks. | [m2.md](../measurements/m2.md) |
+| M-3 | Minimal **9.33 kB** brotli, complete **10.09 kB**; each optional feature adds only itself, asserted by module-graph absence. **Composition costs 0.26 kB (2.6%)**; **migrating from the shipped entry costs 2.44 kB**. The `DEV` strip is a build-time `__DEV__` substitution — the old `process.env` form recovered 30 bytes and still *ran* every assertion. | [m3.md](../measurements/m3.md) |
+| M-4 | The displacement set is the **span between the two gaps**, not the destination view (2.3 ms vs 0.156 ms at 800 rows). **No shared read phase**: the invalidation is the cheap part, and after the span answer there is no duplicate full-list read left. | [q7.md](../measurements/q7.md) |
+
+The original statements of what each measurement had to cover, kept because they
+are the specification the harnesses are checked against:
+
+| # | Measure | Replaced |
 | --- | --- | --- |
 | M-1 | End-to-end browser trace of the move path: generic 15-field `Object.assign` vs a specialized kernel pointer-publication path vs the shipped runtime. Include multiple behavior frame shapes — JIT feedback may be shared across controller closures even when each controller sees one shape. | "Removing the copy would be performance theatre" (F-24) |
 | M-2 | Heap and move-call behaviour at realistic controller counts: closure model vs opaque-`S`-plus-static-spec. **And**, independently, **three** frame-task policies — eager-retained (current), **lazy-retained** (create on first activation, keep on the controller, cancel and reuse afterwards) and per-operation (shipped) — measured on heap for many cold controllers, heap for active controllers, first-drag latency, repeated-drag allocation and retention, and call-site shape. | F-4's "expected to be irrelevant", and the eager frame-task policy |
 | M-3 | Four consumer entrypoints built and weighed minified + Brotli, with module-graph inspection, plus a feature-matched non-composed baseline **and** the current shipped `sortable.js` as a separate migration-context baseline. | §[03](03-feature-composition.md) §Tree-shaking's import-graph reasoning |
 | M-4 | Minimal displacement element set, and whether the two features' layout reads can share one pass. | Q-7 |
 
-M-3 needs real fixtures: `packages/drag/.size-limit.json` currently weighs only
-the built `draggable`/`sortable` entries and their combination, which cannot
-distinguish a minimal composition from the complete one. Add budgets only after
-the first measurement.
+M-3 needed real fixtures: `.size-limit.json` weighed built entries and their
+combination, which cannot distinguish a minimal composition from the complete
+one. Each composition is now one declaration in
+`packages/drag2/bench/size/measure.ts` — the exact named imports a consumer
+writes, a budget, and the modules its graph must and must not contain. The last
+of those is the tree-shaking claim and is not a byte count, which is why the
+measurement is not a `size-limit` config; see `.agents/docs/measure/brief.md`.
 
-**Lazy-retained is a real candidate, not a formality.** It pays nothing for
-controllers that never activate — which eager-retained does — and it does not
-reallocate per drag, which per-operation does. Its only costs are a nullable
-field with an initialization branch and slightly different runtime typing. A
-binary eager-vs-per-operation benchmark could easily select a dominated policy.
+**Lazy-retained was a real candidate, not a formality**, and was measured as a
+peer for exactly the reason stated here: a binary eager-vs-per-operation
+benchmark could have selected a dominated policy. It lost on its own terms —
+its nullable field and initialization branch cost *more* on an active controller
+(309 B vs 281 B) than the task it defers, and its `schedule` is 2× the eager one.
+It wins only on a controller that never drags, by 148 B. M-2 §Answer 2.
 
-**M-1, M-2 and M-4 owe the same reproducibility standard as M-3.** Each needs a
-checked-in workload and harness; named browser engines and versions; a warm-up
-and GC policy; the controller and list counts under test; a sampling and
-statistical policy; and, for M-1 specifically, a correctness-equivalence check
-for any specialized pointer path against the generic one. M-4 additionally needs
-representative collection-mutation and layout cases, not a static list. Until
-those exist these are good questions, not sign-off gates.
+**M-1, M-2 and M-4 owe the same reproducibility standard as M-3** — a checked-in
+workload and harness; named browser engines and versions; a warm-up and GC
+policy; the counts under test; a sampling and statistical policy; and, for M-1,
+a correctness-equivalence check for any specialized pointer path against the
+generic one. **All four are discharged**: `tests/perf/m1.browser.test.ts`,
+`tests/perf/m2.browser.test.ts`, `bench/size/` with
+`tests/bench/size.node.test.ts`, and `tests/perf/q7.browser.test.ts`. Timings are
+opt-in (`VITE_DRAG_MEASURE=1`) and assert nothing; the structural assertions —
+M-1's equivalence check, M-3's module-graph absences, M-4's read counts — run on
+every suite run.
+
+M-4's *"representative collection-mutation cases, not a static list"* is
+discharged structurally rather than by a timing shape: the FLIP bracket runs
+inside one `action.effect` and the queue is run-to-completion, so a collection
+replacement cannot interleave between the hooks, and the behaviour under
+mutation is asserted in `tests/sortable/displacement.browser.test.ts`
+(*should stop displacing a row that left the collection*). See
+[q7.md](../measurements/q7.md) §Answer 1.
 
 **M-3 is not reproducible until these are checked in**, so they are part of the
 measurement, not of its write-up: the exact import statement of each fixture;
