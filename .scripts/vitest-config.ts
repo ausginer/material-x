@@ -117,7 +117,7 @@ function createBrowserTestConfig(
 function createTestBaseConfig(root: URL): UserConfig {
   return {
     root: fileURLToPath(root),
-    // See `createCoreViteConfig`. Declared here as well so the node and
+    // See `createViteConfig`. Declared here as well so the node and
     // declaration projects, which do not take a vite config, still resolve it.
     define: { __DEV__: 'true' },
     test: {

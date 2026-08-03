@@ -441,6 +441,17 @@ export function acquireLift(
       visual.style.top = '0';
       visual.style.left = '0';
       visual.style.transformOrigin = '0 0';
+      // **Written now, not left to the first `moved()`.** A faithful lift puts
+      // the visual at the viewport origin and encodes its entire position in
+      // the matrix, so until something writes a transform the row paints in
+      // the top-left corner at its untransformed size. The kernel activates
+      // *on* a pointer sample and renders only from the next one, so that
+      // window is a real frame whenever the pointer pauses or its samples
+      // coalesce. Promotion has to be visually transparent on its own — the
+      // same reason `neutralizeUA` re-asserts the authored UA properties.
+      // The flat branch below needs no equivalent: it positions from
+      // `originRect` and its base transform is empty.
+      visual.style.transform = base;
     } else {
       if (ancestorZoom !== 1) {
         visual.style.zoom = `${1 / ancestorZoom}`;

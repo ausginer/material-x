@@ -23,7 +23,7 @@ import {
   PENDING,
   RELEASING,
 } from '../kernel/phases.ts';
-import { LIFT_FLAT } from '../kernel/presentation.ts';
+import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
 import { guarded } from '../kernel/reporter.ts';
 import {
   type BehaviorSpec,
@@ -242,7 +242,16 @@ export function createSortableSpec(
 
     config: {
       threshold: slots.threshold,
-      liftMode: LIFT_FLAT,
+      // **Faithful, not flat.** A sortable row must look the same the instant
+      // it is lifted as it did the instant before: the top layer escapes an
+      // ancestor `transform` but *not* an ancestor `zoom`, so a flat lift —
+      // which drives net zoom to 1 and sizes the visual from its untransformed
+      // border box — visibly shrinks the row inside any zoomed or scaled
+      // container, while the placeholder it left behind keeps the on-screen
+      // box. The faithful matrix reproduces the composed ancestor space
+      // exactly, so lift and placeholder agree. `LIFT_FLAT` is for a free drag
+      // that deliberately straightens out; it was never right here.
+      liftMode: LIFT_FAITHFUL,
       readinessTimeout: slots.readinessTimeout,
       actionTags: SORTABLE_ACTION_TAGS,
     },

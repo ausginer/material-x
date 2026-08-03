@@ -17,6 +17,17 @@ Phases 0–9 complete. **Phases 3–5 are the frozen SPI** and **phase 9 froze t
 - **7–8 — composition and the features.** `assemble()`, the opaque feature brand, `vertical()`, `callbacks()`, `placeholder()`, `handle()`/`visual()`, `landing()`, `layoutAnimation()`.
 - **9 — the public surface.** The export table below, frozen and asserted as an equality in `tests/exports.node.test.ts` and against the packed tarball in `tests/consumer.node.test.ts`.
 
+## Demos
+
+`src/sortable.stories.tsx` re-implements the shipped package's sortable stories against this API, under the `Drag2/Sortable` title: **List**, **Custom Placeholder** and **Zoomed Context**. Each composes `vertical()`, `landing()`, `layoutAnimation()` and `callbacks()` explicitly, so what the shipped package inferred from an options object is visible as installed features. The React integration in there is the reference one: `onReorder` returns `ReorderResolution.accept(presentationReady)`, and a `useLayoutEffect` resolves that promise once React has committed the authored order.
+
+Two of the shipped package's stories have **no drag2 equivalent yet**, because only the vertical sortable slice is implemented:
+
+- the whole `Drag/Draggable` file — free drag with `axis`, `bounds` and `onDrop`. `draggable()` here is behavior-agnostic and requires a behavior; no free-drag behavior exists.
+- `Drag/Sortable` → **Grid**. `vertical()` is the only axis rule, and a consumer cannot author one: `SortableFeature` is opaque and `brandFeature` is unexported (contract 03 §Closed for real). A grid needs a first-party sibling feature.
+
+The List story's hint also drops the shipped package's arrow-key reordering, which this package does not implement; `Escape` still cancels a live drag.
+
 ## Migrating from `@ydinjs/drag`
 
 The two packages are not source-compatible; this is a rewrite against a frozen contract, and merging them is phase 12. The differences a consumer actually meets:
@@ -87,10 +98,10 @@ Measured 2026-08-02 (M-3 — `.agents/docs/drag/measurements/m3.md`). `just size
 
 | composition                                         | brotli       | modules |
 | --------------------------------------------------- | ------------ | ------- |
-| minimal                                             | **9.33 kB**  | 29      |
+| minimal                                             | **9.34 kB**  | 29      |
 | minimal + `layoutAnimation()`                       | 9.74 kB      | 30      |
 | minimal + `landing()`                               | 9.60 kB      | 30      |
-| complete                                            | **10.09 kB** | 33      |
+| complete                                            | **10.11 kB** | 33      |
 | _baseline A_ — feature-matched, non-composed        | 9.83 kB      | 28      |
 | _baseline B_ — shipped `@ydinjs/drag` `sortable.js` | 6.89 kB      | 26      |
 

@@ -1,0 +1,55 @@
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  font-family: system-ui, sans-serif;
+  color: #1c1b1f;
+}
+
+.hint {
+  margin: 0;
+  font-size: 13px;
+  color: #49454f;
+}
+
+.zoomed {
+  zoom: 1.25;
+}
+
+/* The sortable collection. */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(360px, 90vw);
+  padding: 8px;
+  border-radius: 12px;
+  background: #f7f2fa;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.handle {
+  color: #79747e;
+  cursor: grab;
+}
+
+/* The behavior's default placeholder, which `placeholder()` only customises. */
+.list [data-drag-placeholder] {
+  border: 2px dashed #6750a4;
+  border-radius: 8px;
+  background: rgb(103 80 164 / 8%);
+  box-sizing: border-box;
+}
