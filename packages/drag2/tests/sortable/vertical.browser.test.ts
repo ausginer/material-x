@@ -43,7 +43,7 @@ type Field = Readonly<{
 
 /**
  * Three 40px boxes from y=0. The dragged item is `items[0]`, out of flow the way
- * `LIFT_FLAT` leaves it, with the placeholder holding its box — so the centres
+ * the top-layer lift leaves it, with the placeholder holding its box — so the centres
  * are placeholder 20, `items[1]` 60, `items[2]` 100.
  */
 function createField(count = 3): Field {
