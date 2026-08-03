@@ -2,7 +2,7 @@
   "name": "material-x",
   "image": "ghcr.io/ausginer/devimages/node:latest",
   "workspaceFolder": "/workspaces/material-x",
-  "runArgs": ["--name=materialx_dev"],
+  "runArgs": ["--name=materialx_dev", "--memory=16g", "--memory-swap=24g"],
   "containerEnv": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CONFIG_DIR": "/agents/claude",
