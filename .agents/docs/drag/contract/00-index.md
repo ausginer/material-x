@@ -63,6 +63,21 @@ contract change requires a failing executable lifecycle case that the frozen SPI
 cannot express; a prose-only review finding is not sufficient. Performance and
 bundle choices explicitly listed as measurements remain open until measured.
 
+**Revised once and re-frozen — Phase 14, 2026-08-04.** The rule above worked as
+designed: three probes ([`probes/`](../probes/README.md)) produced failing
+executable cases, and the contract was revised **once** against all three
+together rather than patched three times. The revision is **D-32…D-35**, and the
+reasoning for treating it as one change — including two decisions that would have
+been made differently in isolation — is
+§[02](02-kernel-behavior-contract.md) §Where the four changes touch each other.
+Nothing in the revision retracts a Part I result; what it changes is four places
+the SPI could not express something, three of which were the sortable's shape
+written into the kernel.
+
+Re-freezing restores this rule unchanged. It does not close the contract: a later
+phase that produces a failing executable case reopens it, and that is the system
+working.
+
 ## The model
 
 | # | Claim |
@@ -107,9 +122,12 @@ metric:
 - Probe 1's pressure point **P-2** (a free drag must clamp before writing) is
   resolved at **no** hot-path cost — the move path spends the same three
   post-`MOVE` indirect calls probe 1 spent. That boundary is deliberate and
-  narrow; the end-to-end count is M-1's job.
+  narrow; the end-to-end count is M-1's job. **Tested by a second behavior at
+  last** (13c P-1): the shape survives; the number is Phase 21's.
 - Probe 1's **P-1** (no live policy seam) is resolved: policy updates are
-  behavior actions and the kernel supplies the transition envelope.
+  behavior actions and the kernel supplies the transition envelope. **Exercised**
+  by 13c P-6 for the policy half. The *controlled position* half was not
+  resolved by it and is D-35's.
 
 What this model does **not** improve: per-boundary revalidation inside a
 `prepare` (unchanged from probe 1 — one check, at the end), and the number of
@@ -196,6 +214,10 @@ Inputs, not re-derivations.
 | D-29 | **Teardown is total.** Each frame reset is individually wrapped and ingress abort runs from a `finally`. | `resetFramePart` is behavior code the API permits to throw; an unwrapped throw made `destroy()` non-terminal against I-6. | new |
 | D-30 | The **feature value is opaque** — an unexported `unique symbol` brand. `FailureStage` and `DOMRealm` become public because public types structurally depend on them. | "Public stable type whose full structure is internal and unstable" is not a coherent third state. Branding closes the world for real; exporting the genuinely-needed types stops the leak the other way. | replaces D-22 |
 | D-31 | The public proposal and results are **narrowed unions with string discriminants**, carrying version, identity neighbours, rejection reason and cancellation stage. | Probe 1's preserved product contract. Discrimination must not require an internal outcome constant. | new |
+| D-32 | Discrete input is a **second admission member**, `command: { types, admit(event, draft) }`, not an intent protocol. The kernel binds the declared types on `root` inside its own ingress abort; the member answers feasibility synchronously in the listener, writes its state into the open draft and returns the element to lift or `null`. A non-null return mints a **pointerless** operation — `pointerId === -1`, no pointer listeners, no capture — which the kernel activates and releases in one slot. `PENDING` is redefined as *activation not yet committed*. | The 13a gap was never "a behavior needs to request a transition"; it was "a behavior needs to be asked a question before anything is queued". A second admission is the whole requirement, and it keeps `KernelHost` at six members, adds no phase and adds no frame field. Carrying a staged `Prepared` from the listener — 13a's candidate — would have broken §The staged value never outlives its transaction and forced a second staged type parameter; the draft already carries it. | new |
+| D-33 | The authored-presentation gate is held with a **deliverer**, and the kernel mints the token: `holdForReadiness(deliver: (token: PresentationToken) => void)`, `token.ready()` / `token.abandon(reason?)`. `PreparedSettlement` carries `presentation` instead of `ready`. | Inverts *creation*, which is where three of the four consumer obligations came from; supersession becomes structurally impossible and an outstanding gate becomes nameable. Both gates are now held by handing the kernel a starter it invokes after sealing, so request → seal → arm is intact for readiness — which a gate method that *returned* a token could not do. `effect` still returns `void`, so the render/landing overlap survives structurally. | replaces the `presentationReady` promise |
+| D-34 | `BehaviorSpec<Part, Activation extends {} = true>` — the activation seam's staged type is the **behavior's** choice. Vertical sortable declares `HTMLElement`; a behavior that stages nothing returns `true`. | `Transition` already defaults `Prepared` to `true`; it was `BehaviorSpec` pinning it to `HTMLElement` that made a second behavior return an element it does not own, with `effect` obliged to ignore it. The kernel still treats the staged value as `{}` and drops it, so this is a one-parameter change with a wide re-verification surface and no runtime cost. | new |
+| D-35 | `LandingContext.from` is **the delta the lift session last rendered**, read from the session the kernel owns — not `pointerX - originX`. `write(x, y)` is the sole rendering entry point between acquisition and the join; `compose(x, y)` composes and records nothing. | The pointer form is true for exactly one behavior. Any behavior that constrains, clamps, snaps or externally drives its visual — and every pointerless operation under D-32 — starts its landing from a position the visual is not at. Recording inside a kernel-owned method beats the `renderedDelta(current)` seam it replaces: nothing is added to the hot path, writes that do not come from `moved` are still tracked, and no behavior has to implement anything. | new |
 
 ## Findings
 
@@ -204,14 +226,14 @@ kept with their original numbers so the review record stays readable.
 
 | ID | Finding | Status |
 | --- | --- | --- |
-| F-1 | The prepare/effect split raises the callback count | **Downgraded to a note.** Twelve top-level `BehaviorSpec` members, ~16 functions, against probe 1's fifteen. A wash, not a cost. |
+| F-1 | The prepare/effect split raises the callback count | **Downgraded to a note.** Thirteen top-level `BehaviorSpec` members plus one optional, ~18 functions, against probe 1's fifteen. A wash, not a cost — and the Phase 14 revision added one optional member, not a protocol. |
 | F-2 | Part factories must be deterministic and folded in a fixed order for both frames; TypeScript proves neither | **Open, tier C.** `__DEV__` shape assertion. Much narrower than before D-15, which removed the kernel-slice half. |
 | F-3 | "No aggregate type" is conditional on features abstaining | **Resolved, and restated.** No *participant* declares a concrete whole-frame type; the kernel's private generic is `KernelFrame & Part`. It holds because of how composition is expressed (D-15), not because features are forbidden. |
 | F-4 | ~16 closures per controller from D-4 | **Measured and accepted (M-2, 2026-08-02 — [measurements/m2.md](../measurements/m2.md)).** The closure model costs **3.6× the heap per controller — 506 B against 141 B, stable from 100 to 1000 controllers**. It also **calls at least 2.9× faster** (0.0013 µs against 0.0038 µs), because a captured closure is a direct call while the static-spec form is a property load plus an indirect call. So the trade is not "pay heap for simplicity" as this entry assumed — it is pay heap for speed on the one path that runs every frame. Kept. |
 | F-5 | `admit` runs inside native dispatch and can throw into the event loop | **Open.** Inherited from probe 1's Q-1. The wrap is three lines; whether to change the observable behavior is Q-1. |
-| F-6 | A forgotten gate hold silently finalizes early | **Partly resolved.** Sealing detects a *late* hold; it cannot detect a *missing* one, so the structural claim was too strong. What remains is a test obligation: any fixture installing `landing()` or supplying `presentationReady` fails loudly if the corresponding hold is never taken. |
+| F-6 | A forgotten gate hold silently finalizes early | **Partly resolved, and improved by D-33.** Sealing detects a *late* hold, never a *missing* one, so the structural claim was too strong. D-33 removes the consumer's half of it: a consumer no longer creates, supersedes or loses a readiness gate, and an outstanding token is a thing the kernel holds and can name. The behavior's half — declaring a presentation and then not holding the gate — is first-party code and remains a **test obligation**: any fixture installing `landing()` or declaring an authored presentation fails loudly if the corresponding hold is never taken. |
 | F-7 | Landing-target arithmetic duplicates across behaviors | **Accepted, minor.** Export it as a pure helper, never a seam. |
-| F-8 | D-8 adds an indirect call to the move path | **Withdrawn — it never did.** Probe 1 and this model spend the same three post-`MOVE` calls (`spec.moved`, `lift.composeXY`, `frame.schedule`); only which party makes the middle one changed. Kept as a number only so the review record reads continuously. |
+| F-8 | D-8 adds an indirect call to the move path | **Withdrawn — it never did.** Probe 1 and this model spend the same three post-`MOVE` calls (`spec.moved`, `lift.write`, `frame.schedule`); only which party makes the middle one changed. Kept as a number only so the review record reads continuously. |
 | F-9 | The kernel cannot type the consumer resolution; it threads an `unknown` | **Neutral.** Validation was always the behavior's. |
 | F-10 | Contribution objects are structurally polymorphic at the assembler | **Non-issue.** Construction-time, once per feature. Recorded so it is not rediscovered. |
 | F-11 | `resetFramePart` exhaustiveness is unprovable | **Open, tier C, inherited.** `__DEV__` heuristic catches retained objects, not stale scalars. Identical in probe 1. |
@@ -246,15 +268,29 @@ kept with their original numbers so the review record stays readable.
 | F-40 | `moved()` had no wrapper, so a render or schedule throw became a panic | **Resolved.** Kernel-wrapped; scheduling narrowed from inside via the latch. |
 | F-41 | The public proposal and result types regressed probe 1's preserved contract | **Resolved by D-31.** |
 | F-42 | "Public stable feature type, internal unstable shape" was not a coherent boundary | **Resolved by D-30's brand.** |
+| F-43 | The SPI had no route for discrete input: `admit` takes a `PointerEvent`, `KernelHost` owns no extensible ingress, `dispatch` returns `void`, and nothing mints an operation without a press | **Resolved by D-32.** Probe 13a, four compile-proved negatives. The load-bearing one is `dispatch` returning `void`: the information flowed the wrong way through the only behavior-initiated entry that existed. |
+| F-44 | `BehaviorSpec.activation` pinned its staged type to `HTMLElement`, so a behavior that stages nothing had to return an element it does not own and an `effect` that must ignore it | **Resolved by D-34.** Probe 13c N-1 — the sortable's shape written into the kernel rather than into the sortable. |
+| F-45 | `LandingContext.from` was derived from pointer displacement, so a constrained, snapped or externally driven visual lands from a position it is not at | **Resolved by D-35.** Probe 13c N-2. The signature is a landing that *opens with a jump and ends correctly*, because the target is behavior-supplied and the kernel re-pins at the join — the same shape Phase 11 found in the lift geometry, with every test passing throughout. |
+| F-46 | The authored-presentation protocol put four obligations on the consumer, whose only failure signals were a 500 ms silence and, for a hold never taken, nothing at all | **Resolved by D-33.** Probe 13b B-1. **Inherited from the shipped package, not introduced by the rewrite** — the identical `createCommitTracker` is in both packages' stories. Not a correctness defect: every shipped and ported story works. F-6's test obligation is promoted to a structural claim on the consumer side and stays a test obligation on the behavior side. |
 
 ## What would falsify this model
 
 - a feature needs a frame part *and* the prepare-phase pipeline it requires
   cannot be expressed without giving features a path that both mutates the draft
   and performs effects;
-- a behavior needs to request a kernel *lifecycle* transition rather than an
-  action — the expected case is keyboard sorting, which is recorded as revising
-  the kernel contract rather than being worked around;
+- ~~a behavior needs to request a kernel *lifecycle* transition rather than an
+  action — the expected case is keyboard sorting~~ — **discharged, and it did not
+  falsify the model.** Probe 13a produced the case; the answer (D-32) is a second
+  admission member, not a lifecycle-request protocol. A behavior still cannot ask
+  the kernel for a transition, and `KernelHost` still has six members;
+- **a discrete operation needs to stay `ACTIVE` across several discrete events.**
+  D-32 mints a one-slot command because that is the shipped keyboard's semantics
+  and the ledger's retained behavior. A *multi-press* keyboard drag — pick up,
+  move with several arrows, drop — is not expressible: there is no producer of a
+  release other than the kernel's own, and no route for a behavior to end an
+  operation with a proposal. Phase 16's accessibility review against
+  [`accessibility.md`](../../accessibility.md) is where that case would come
+  from, and it would reopen the contract;
 - the prepare/effect split cannot express a seam without a third phase;
 - `__DEV__` shape assertions catch a real monomorphism break in ordinary use,
   meaning the frame factory should have stayed kernel-owned (F-2);

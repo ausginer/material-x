@@ -1,5 +1,20 @@
 # `@ydinjs/drag2`: compositional vertical-sortable architectural probe
 
+> **Superseded for scope, 2026-08-04. Provenance from here on.**
+>
+> This brief commissioned one thing and got it: a compositional vertical-sortable
+> architectural probe, delivered by phases 0–11 of [`plan.md`](plan.md). Nothing
+> below is retracted, and its architectural constraints — no runtime dependency
+> on `packages/drag`, no adapter around it, the existing package as correctness
+> oracle — still hold.
+>
+> What no longer holds is the framing: "`drag2` is a pre-alpha architectural
+> laboratory" with "no need to prepare publishing, CI integration, migration,
+> compatibility aliases, or a permanent package name". That was correct for a
+> probe and is wrong for a successor package. The live scope is **`plan.md`
+> Part II**, which covers the behaviors, input modes and axes this brief
+> deliberately left out.
+
 ## Mission
 
 Create a new, independent `packages/drag2` package and implement one complete, production-shaped **vertical sortable** interaction.
