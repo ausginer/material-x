@@ -57,7 +57,7 @@ Eleven members of `SortableOptions`.
 | `getHandle(item)` | retain | `handle()` from `sortable/handle.js`. | shipped, phase 8b |
 | `createPlaceholder(context)` | retain | `placeholder({ create })`; `PlaceholderContext` keeps `item`, `visual`, `rect`. | shipped, phase 8b |
 | `threshold` (default 8) | retain | `callbacks({ threshold })`, same default, now validated at construction. | shipped, phase 8a |
-| `landingTiming(): AnimationTiming` — **read at settle time** | redesign, with a residual gap | `landing({ duration, easing })` fixes timing at construction. Per-drop dynamic timing is **not** currently expressible. A consumer that varied duration by drop distance loses that. | Phase 15; §L-6 |
+| `landingTiming(): AnimationTiming` — **read at settle time** | redesign | `landing({ duration, easing })` fixes timing at construction, but `landing({ run })` reaches the same moment. Per-drop dynamic timing is expressible today; only the ergonomics are short of parity. Corrected by probe 13b. | Phase 15 or 22; §L-6 |
 | `onReorder` (required) | retain | `callbacks({ onReorder })`, same `ReorderResolution` protocol. | shipped, phase 8a |
 | `onStart(item)` | retain | `callbacks({ onStart })`. | shipped, phase 8a |
 | `onFinish(result)` | retain | `callbacks({ onFinish })`. | shipped, phase 8a |
@@ -68,7 +68,7 @@ Eleven members of `SortableOptions`.
 
 | Export | Class | Note |
 | --- | --- | --- |
-| `ReorderResolution` (const + type) | retain | Same two members, same `presentationReady` contract. |
+| `ReorderResolution` (const + type) | **retain, argument redesigned** | Same two members and the same *never inferred* contract. The optional argument changes: `presentationReady?: PromiseLike<void>` becomes `presentation?: PresentationDeliverer`, and the kernel mints the token. The **one breaking public change** the Phase 14 revision makes — contract D-33, probe 13b. Phase 15 |
 | `SortableResult.isAccepted/isRejected/isCanceled/isNoOp` | **drop** | **What a consumer loses:** four named type guards. What replaces them: the `type` discriminant is a *public* exported constant, so `result.type === OUTCOME_*` narrows directly (F-41). The guards existed because the discriminants were not exported; exporting them makes the helpers redundant weight in every bundle that imports the entry. |
 | `PlaceholderContext` | retain | Plus `PlaceholderFactory`, which the shipped package left unnameable. |
 | `SortableOptions` | redesign | Dissolves into per-feature option types. |
@@ -92,7 +92,7 @@ Each is pinned by a shipped test; the destination is where drag2 pins it.
 | Removing the dragged item from the collection cancels | retain | shipped |
 | Collection invalidation during flight | retain | shipped |
 | Visual animates home **before** `onCancel` on rejection | retain | shipped |
-| Placeholder returns home **before** rejected landing timing is read | retain, subject to §L-6 | shipped |
+| Placeholder returns home **before** rejected landing timing is read | retain | shipped; ordering confirmed by probe 13b |
 | Partial-activation rollback when `createPlaceholder` throws or destroys | retain | shipped |
 | Rect measurement reused while the insertion and version are unchanged | retain | shipped (`vertical()`'s `dirty`/`measured` pair) |
 | A throwing `getHandle`/`getVisual` escapes to the browser, leaving the controller idle and usable | **redesign** | Admission failures are classified `FAILURE_ACTIVATION` and reported through `onError` (D-17). Recorded as a deliberate difference in `packages/drag2/README.md`. |
@@ -119,6 +119,22 @@ mechanism is what Phase 13a probes.
 **revise the kernel contract**, not to be worked around with a third action tag.
 This ledger row does not decide the revision; Phase 13a produces the failing
 executable case and Phase 14 revises.
+
+**Revised — D-32, 2026-08-04.** The pressure point is resolved by a **second
+admission member** on `BehaviorSpec` (`command: { types, admit(event, draft) }`),
+not by a third action tag and not by a behavior-to-kernel intent protocol.
+`command.admit` runs synchronously inside the declared listener with the draft
+open, so feasibility is decided and `preventDefault()` is called exactly where
+the shipped package calls it. A non-null return mints a **pointerless** operation
+(`pointerId === -1`, no pointer listeners, no capture) that the kernel activates
+and releases in one slot. Every row above is retained unchanged, including the
+shared handle gate, because the discrete member is admission and `getHandle` is
+what admission consults.
+
+**One parity boundary is now explicit.** A command is *one slot*, matching this
+package. A multi-press mode — pick up, arrows, drop — is not expressible under
+D-32 and would reopen the contract (05 §Q-13). Phase 16's accessibility review
+is where that case would come from.
 
 ---
 
@@ -172,8 +188,8 @@ subpaths is **deferred to Phase 18**; 13c probes it as a typed probe first.
 | `bounds` — `'viewport'` \| `HTMLElement` \| `() => DOMRectReadOnly \| null` | retain | Three-form source resolved per read (`draggable/bounds.ts`). The `'viewport'` sentinel is currently a *type-only* export — the value `BOUNDS_VIEWPORT` is not exported, so the string literal is the only way to write it. Fix in the successor. §L-2 |
 | `coordinateSpace: CoordinateMapper` | **open — retain, shape deferred** | drag2 has no coordinate module: all geometry is `@ydinjs/box-quad`. Whether a consumer-supplied mapper is still needed, or whether box-quad's traversal subsumes the cases it existed for (ancestor zoom, transformed stage — both are shipped stories), is the sharpest open geometry question. Phase 18; §L-7 |
 | `threshold` (default 8) | retain | Same default as sortable's. |
-| `landingTiming()` | redesign | Same settle-time-read gap as §2. |
-| `onDrop` (required) | retain | Mirrors `onReorder`, including `presentationReady`. |
+| `landingTiming()` | redesign | Same as §2; reachable through a replacement runner, see L-6. |
+| `onDrop` (required) | retain | Mirrors `onReorder`, including the authored-presentation declaration — which is now a `PresentationDeliverer` rather than a promise (D-33). |
 | `resolveHomeTarget` → `FreeHomeTarget` | retain | Synchronous rollback target. A throwing resolver is an **error, not a cancel**, and an invalid result is an error too — both pinned by shipped tests; keep. |
 | `onStart(geometry)` / `onMove(geometry)` | retain | `onMove` runs *after* the visual is written for that motion. Sortable has no per-move callback; do not unify. |
 | `onFinish` / `onCancel` / `onError` | retain | Same discipline as sortable's. |
@@ -271,12 +287,18 @@ Numbered so later phases can cite them.
   contribute a controller method. Free drag's live-policy update must therefore
   be a *behavior* affordance. This is independent of the SPI probes and does not
   by itself justify reopening the contract.
-- **L-6 — settle-time `landingTiming()` is the one capability drag2 currently
-  cannot express.** `landing()` fixes timing at construction. Two shipped
-  behaviors depend on the read happening at settle: rejected-drop timing is read
-  *after* the placeholder returns home, and free drag reads it after the home
-  target resolves. Phase 15 owns this. It is a candidate failing executable case
-  and should be written as one there rather than argued in prose.
+- **L-6 — settle-time `landingTiming()`. ~~The one capability drag2 cannot
+  express.~~ Corrected by probe 13b: it fits.** `landing({ duration })` fixes
+  timing at construction, but `landing({ run })` already accepts a full
+  replacement `LandingStart`, and the kernel invokes a runner during *arming* —
+  after `settlement.effect` returns and after `anchorTarget`
+  (`src/kernel/kernel.ts:1208`). That is exactly the moment the shipped package
+  read `landingTiming()`. The capability is reachable today; only the
+  **ergonomics** are short of parity, because a consumer wanting a
+  distance-scaled duration must reimplement the default runner and lose its
+  reduced-motion collapse, retarget replay and generation guard. That is a
+  public-option change for Phase 15 or 22 — **not** a Phase 14 contract
+  question. See [`probes/13b-settlement.md`](probes/13b-settlement.md) §B-2.
 - **L-7 — `coordinateSpace` is the geometry question box-quad has to answer.**
   Two shipped stories exist only to exercise it (Zoomed Context, Transformed
   Stage), and drag2's Zoomed Context port works without any mapper. Whether that
@@ -286,6 +308,17 @@ Numbered so later phases can cite them.
 - **L-8 — 2-D is the shipped default, not a shipped feature.** See §5. Every
   document that has described grid support as "the shipped package additionally
   covers grid sorting" is describing an absence of restriction as a feature.
+- **L-9 — the successor's authored-presentation protocol is not a port, and the
+  shipped burden was inherited rather than introduced.** Added 2026-08-04, after
+  probe 13b and the D-33 revision. `presentationReady` is identical in both
+  packages, and so is the `createCommitTracker` helper each package's stories
+  carry to satisfy it — create a promise before knowing a render will happen,
+  supersede without dropping, resolve from a layout effect, never lose one. The
+  successor replaces it with a kernel-minted `PresentationToken` (contract D-33),
+  which is a **redesign row, not a retain row**, and the one breaking public
+  change in the parity boundary. Recorded here because §2.1 reads as a retain
+  row at a glance and the difference is the point: the ledger's job is to say
+  what a consumer has to change, and this is it.
 
 ---
 

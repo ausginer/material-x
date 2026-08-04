@@ -24,7 +24,8 @@ deliberately pass as an argument.
                                  │ direct calls, per-seam arguments
                                  ▼
                  ┌─────────────────────────────────────────┐
-                 │ BehaviorSpec<SortableFramePart>         │
+                 │ BehaviorSpec<SortableFramePart,         │
+                 │              HTMLElement>               │
                  │   closures over a private SortableRuntime│
                  └───────────────┬─────────────────────────┘
                                  │ direct calls, consumer-declared views
@@ -49,10 +50,11 @@ Probe 1 solved it with a mutating `kernel.install(spec)` call plus the rule
 Probe 2 makes the rule unexpressible by returning both halves at once. (D-1)
 
 ```ts
-type BehaviorInstall<Controller, Part extends object> = Readonly<{
-  spec: BehaviorSpec<Part>;
-  controller: Controller;
-}>;
+type BehaviorInstall<Controller, Part extends object, Activation extends {}> =
+  Readonly<{
+    spec: BehaviorSpec<Part, Activation>;
+    controller: Controller;
+  }>;
 
 type Behavior<Controller, Part extends object> =
   (host: KernelHost) => BehaviorInstall<Controller, Part>;
@@ -136,6 +138,15 @@ have no counterpart because the behavior no longer transitions anything.
 `host` is created once and is stable for the controller's life, so a behavior
 that captures it captures one object.
 
+**Still six members after the Phase 14 revision**, and that is a result rather
+than an omission. Probe 13a's negatives are that the host owns no extensible
+ingress (N-2), no way to mint an operation (N-5) and no return channel from
+`dispatch` (N-3); probe 13c's is that there is no motion entry (N-4). D-32
+answers all four *without* adding a member, because a behavior that declares
+which events it wants to be asked about is not a behavior that drives the
+kernel. Each of those four assertions still fails to compile, which is the
+property the probes exist to keep.
+
 ## The behavior instance
 
 ```ts
@@ -213,9 +224,10 @@ answered by construction rather than by argument.
 | Cancellation latch, precedence, `destroyRequested` | kernel | nothing |
 | Five resource lifetimes | kernel | behavior, as **two** narrowed `LifetimeScope` arguments at activation |
 | **Pointer capture** (on `root`, acquired at activation) | kernel (D-17) | nothing |
-| Lift session + inline-style snapshot | kernel (acquires, disposes) | behavior, as an activation-scope field and a `moved` argument |
+| Ingress listeners — `pointerdown`, plus each `command.types` entry | kernel (D-32) | behavior, as the *declaration* of which types to bind; never as a registration |
+| Lift session + inline-style snapshot + **the last rendered delta** | kernel (acquires, disposes, records) | behavior, as an activation-scope field and a `moved` argument; the recorded delta is kernel-read only (D-35) |
 | `originRect` | kernel | behavior, as an activation-scope argument |
-| Resolution attempt; settlement attempt including **both gate holds** | kernel (D-7) | nothing |
+| Resolution attempt; settlement attempt including **both gate holds** and the readiness token | kernel (D-7, D-33) | the token reaches the consumer through the deliverer the behavior staged, and nothing else |
 | The authoritative final pin | kernel, via the lift it owns (D-16) | — |
 | `readinessTimeout` policy | kernel, configured by spec scalar | — |
 | Collection snapshot, insertion, proposal, outcome, recovery, domain result | behavior (runtime + frame part) | features, through declared views |
@@ -290,9 +302,19 @@ Inertness alone is not quite enough, so two unwinds are also normative:
   rule throws, the hooks collected so far run in reverse, each wrapped, before
   the error propagates. The loop already holds the array; this is four lines.
 - **`arm()` unwinds.** If either frame factory, the frame-part validation, the
-  shape assertion or the `pointerdown` attachment throws, `arm()` calls
-  `spec.retire()` best-effort, scrubs whichever frame exists, aborts ingress, and
-  rethrows. A controller is never returned half-armed.
+  shape assertion, the static-configuration validation or any ingress attachment
+  throws, `arm()` calls `spec.retire()` best-effort, scrubs whichever frame
+  exists, aborts ingress, and rethrows. A controller is never returned
+  half-armed.
+
+  **Ingress is `pointerdown` plus each type a `command` member declares** (D-32).
+  Every listener is bound on `root` against the one controller-lifetime ingress
+  signal, so the unwind and the teardown abort in step 7 below release all of
+  them together and a discrete listener can never outlive I-6's terminal
+  barrier. `arm()` validates `command.types` here, with the same
+  construction-time `TypeError` policy as every other static option: non-empty,
+  strings, no empty string, no duplicates, and no type the kernel binds for its
+  own pointer ingress.
 
 ## Teardown across two owners
 
@@ -321,8 +343,16 @@ a fixed order:
       substitutes for the initiating destroy/panic error. ──
 7. abort controller ingress                      (kernel)
    ── unconditional: step 7 runs from a `finally`, so no earlier step can
-      prevent ingress from being released. ──
+      prevent ingress from being released. **One abort releases every ingress
+      listener**, `pointerdown` and each declared command type alike (D-32),
+      because they share the controller-lifetime signal. ──
 ```
+
+**Step 3 covers the readiness token.** Dropping the settlement attempt makes an
+outstanding `PresentationToken` inert (D-33): a consumer that still holds one and
+calls `ready()` after `destroy()` finds no attempt, which is the same
+staleness handling a late landing `done()` gets, and is why the token needs no
+disposal step of its own.
 
 **Destroy never pins.** The authoritative pin (D-16) belongs to the normal
 settlement join; a destroyed controller has no authored DOM to agree with, and

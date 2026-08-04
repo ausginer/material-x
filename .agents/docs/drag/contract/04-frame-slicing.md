@@ -38,6 +38,7 @@ rest: `KernelFrame & Part` is assignable to `KernelFrame`, and satisfies
 type KernelFrame = {
   phase: number;
   operation: OperationIdentity | null;
+  /** `-1` means the operation is **pointerless** — see below. */
   pointerId: number;
   /** Grab point and latest committed pointer position, viewport space. */
   originX: number;
@@ -56,6 +57,25 @@ was thirteen. Six left, each for a reason the ownership model made obvious:
 | `visual` | kernel | behavior | `admit` returns the element to lift (D-5), so the kernel receives it as a value and holds the lift privately. |
 | `outcome`, `recovery` | kernel | behavior | Only read to choose a landing target and a terminal callback, both of which are behavior work under D-7 and D-16. The kernel no longer knows what a recovery is. |
 | `landingDone`, `readyDone` | kernel | *not on the frame at all* | Gate state is per-settlement, unobservable, and read only by `advanceSettlement`. It lives on the kernel-private settlement attempt (D-7). |
+
+### `pointerId === -1` means pointerless (D-32)
+
+`-1` began as the idle sentinel and is now normative for a live operation too: a
+committed operation whose `pointerId` is `-1` was admitted by a `command` member
+and has no pointer. The kernel arms no pointer sample listeners and acquires no
+capture for it, so `MOVE`, `UP` and `lostpointercapture` are unreachable rather
+than filtered, and `originX/Y` and `pointerX/Y` stay at their admission values
+and are read by nothing. (Before D-35, they were read: the landing origin was
+derived from them, which is why a pointerless operation could not have been
+added without that change — §[02](02-kernel-behavior-contract.md) §Where the four
+changes touch each other.)
+
+**The slice stayed at seven fields**, which is the result worth recording. A
+second *input mode* — a whole lifecycle the kernel had never driven — cost the
+frame nothing, because a command's state is behavior state and travels in the
+behavior's part exactly as a press's `item` and `snapshot` do (13a P-2). M-1's
+12→16-field cliff is untouched: it measures the *behavior* part, and this
+revision adds no field to either side.
 
 ## Composition (D-15)
 

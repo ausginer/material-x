@@ -565,6 +565,38 @@ accident.
 
 **Probes and write-ups only. No production code.**
 
+**Complete — [`probes/`](probes/README.md).** Three write-ups, three typed probes
+under `packages/drag2/docs/probes/`, wired into `npx just typecheck` through the
+package tsconfig. `tsc` errors on an unused `@ts-expect-error`, so a green
+typecheck is a standing assertion that every negative claim still fails to
+compile.
+
+**Phase 14 inherits four changes**, not the three the ordering principle
+assumed — 13c found two, and 13b gave back one:
+
+| From | Change |
+| --- | --- |
+| 13a | A lifecycle-intent vocabulary for discrete input: a synchronous decision that reaches the native listener, so `preventDefault()` can be conditioned on feasibility. |
+| 13b | A replacement authored-presentation protocol, or a recorded decision to keep it. Five candidates enumerated; none chosen. |
+| 13c N-1 | A parameterized staged type for activation. `BehaviorSpec` pins it to `HTMLElement` because the sortable stages a placeholder; a free drag stages nothing. |
+| 13c N-2 | A way for the kernel to learn the visual's **rendered** delta. `LandingContext.from` is `pointerX - originX`, which is true only for a behavior whose visual tracks the pointer — axis, bounds and controlled position each break it. |
+
+**Two things came back closed, and must not drift into Phase 14:**
+
+- **Settle-time landing timing fits.** `landing({ run })` already accepts a
+  replacement `LandingStart`, and the kernel invokes a runner *after*
+  `settlement.effect` returns — the moment the shipped package read
+  `landingTiming()`. Ledger L-6 is corrected. The residue is ergonomics, for
+  Phase 15 or 22.
+- **Public lift modes and coordinate-space ownership are surface decisions**, not
+  seam changes. Phase 18 (13c P-2, P-4).
+
+**And one result worth recording as a claim rather than a to-do.** A complete
+free-drag `BehaviorSpec` compiles against the frozen SPI. The two failures are
+not architectural — they are the two places the sortable's shape was written into
+the kernel instead of into the sortable. That is the first real evidence for the
+behavior-agnosticism claim, and it is the form Checkpoint E can evaluate.
+
 **Scope.** Produce the three failing executable cases that 00 §Normative
 precedence requires before the frozen SPI may change. Each probe either produces
 a concrete case the current SPI cannot express, or reports "it fits" — which is
@@ -670,6 +702,23 @@ finding remains insufficient (00), and that rule is not relaxed for the owner.
 
 ## Phase 14 — The single contract revision
 
+**Contract revision complete — D-32…D-35, dated 2026-08-04.** Documents 00–06
+revised in place, in one pass. Implementation is **not** part of this phase: the
+SPI-level code changes land with their consumers (Phase 15 for D-33, Phase 16
+for D-32) or with the second behavior (Phases 19–20 for D-34, D-35), and
+Checkpoint C reviews the revision before any of it is built on.
+
+| # | Change | Decision |
+| --- | --- | --- |
+| 13a | Lifecycle-intent vocabulary | **D-32 — a second admission member**, `command: { types, admit(event, draft) }`, not an intent protocol. `KernelHost` still has six members; no new phase; no new frame field. `PENDING` redefined as *activation not yet committed*; `pointerId === -1` made normative for a pointerless operation. |
+| 13b | Authored-presentation protocol | **D-33 — candidate C-2, in request-shaped form.** `holdForReadiness(deliver)`, the kernel mints a `PresentationToken` at arm time, `ready()` / `abandon(reason?)`. Three of four consumer obligations move to the kernel. |
+| 13c N-1 | Activation staged type | **D-34 — parameterized**: `BehaviorSpec<Part, Activation extends {} = true>`. |
+| 13c N-2 | The visual's rendered delta | **D-35 — no seam.** The lift session records what `write(x, y)` rendered and the kernel reads its own object. |
+
+**Two probe results were declined as Phase 14 scope, as the probes asked:**
+settle-time landing timing (13b B-2 — ergonomics, Phase 15 or 22) and public
+lift modes / coordinate-space ownership (13c P-2, P-4 — Phase 18).
+
 **Scope.** Revise contract documents 00–06 **once**, against all three probes
 together, and re-freeze.
 
@@ -677,10 +726,15 @@ together, and re-freeze.
 
 - The lifecycle-intent vocabulary from 13a, or a recorded decision not to add
   one.
-- The settlement / authored-presentation protocol from 13b.
-- Any seam-set, scope or contribution widening 13c proved necessary — and,
-  equally, a record of what it proved *sufficient*, since an unchanged seam
-  validated by a second behavior is a stronger claim than an unexamined one.
+- The settlement / authored-presentation protocol from 13b — one of the five
+  enumerated candidates, or a recorded decision to keep the current shape.
+- **13c N-1** — the activation seam's staged type, parameterized or deliberately
+  left pinned to `HTMLElement`.
+- **13c N-2** — how the kernel learns the visual's rendered delta, and what that
+  costs on the hot path if the sortable has to answer it too.
+- A record of what 13c proved *sufficient*, since an unchanged seam validated by
+  a second behavior is a stronger claim than an unexamined one: the six `P-*`
+  rows are that record and belong in the revised 02.
 - The 05 test matrix extended with the rows the revision creates.
 - **Re-verification**: the whole existing suite green against the revised SPI,
   with every deviation Part I recorded re-checked rather than assumed.
@@ -694,6 +748,72 @@ rule; it does not close the contract. A later phase that produces a failing
 executable case the SPI cannot express reopens it, and that is the system
 working. See §Ordering principle.
 
+**Deviations and decisions recorded while revising.**
+
+- **The four changes were not independent, and two of them were decided
+  differently because of it.** Written up in 02 §Where the four changes touch
+  each other, which is the single-revision rule earning its keep rather than a
+  formality. D-32 needed D-35 to be *correct*: a pointerless operation would
+  otherwise have computed its landing origin from a `-1` sentinel and two zeroes,
+  and would have shipped a landing that opens off-screen. D-32 shrank to one
+  member because the open draft already carries what 13a's candidate wanted to
+  stage — threading a `Prepared` from a native listener to a queued release seam
+  would have broken 02 §The staged value never outlives its transaction *and*
+  forced a second staged type parameter beside D-34's. D-33 is the only change
+  that touches nothing else, and that is stated rather than assumed.
+- **D-35 replaced 13c's own suggested fix.** The probe proposed a
+  `renderedDelta(current): Point` seam; the revision records the delta inside
+  `VisualLiftSession.write` instead. It costs nothing on the hot path, tracks
+  writes that do not come from `moved` (a controlled position writes from an
+  `action.effect`), and no behavior implements anything. 13c's N-2 assertion
+  therefore **still fails to compile after the revision**, deliberately: no seam
+  reports the rendered delta because none needs to. The probe's annotation should
+  say so — a Phase 15 hygiene item, not a contract one.
+- **The contract said `lift.composeXY` where the code has said `lift.write` since
+  phase 6.** D-35's sole-writer rule depends on which one is normative, so the
+  prose was corrected across 02, 05 and 06 rather than left as a harmless drift.
+  The hot-path accounting is unchanged: three post-`MOVE` indirect calls,
+  `spec.moved` · `lift.write` · `frame.schedule`.
+- **Two Part I deviations were ratified into the normative `BehaviorSpec`
+  listing**: `config.actionTags` and `reportFailure`. Both have existed since
+  phases 4–5 and were described in 02's prose while missing from its listing.
+  `reportFailure` is load-bearing for D-32 — a throwing `command.admit` has
+  exactly the Q-1 shape a throwing `admit` has — so the listing could not stay
+  silent about it.
+- **A capability was deliberately narrowed.** A `presentationReady` promise could
+  reject, and the rejection was classified. `PresentationToken` has no rejection
+  channel: `abandon(reason)` releases the gate, leaves `authoredReady` false and
+  reports, and the deadline stays the only classified readiness failure. A
+  consumer whose own render failed has not caused a library failure. Phase 15
+  confirms this against the React integration; a case where an orderly release is
+  wrong reopens it.
+- **One capability is admitted as not expressible**, rather than reserved for:
+  a multi-press keyboard drag — pick up, move, drop across several key events —
+  needs a producer of a release the kernel does not own. D-32 mints a one-slot
+  command, which is the shipped semantics and the ledger's retained behavior. New
+  question Q-13 in 05, and a row in 00 §What would falsify this model. Phase 16's
+  accessibility review is where the case would come from.
+- **The public surface takes one breaking change**, and only one:
+  `ReorderResolution.accept/reject` take a `PresentationDeliverer` instead of a
+  `presentationReady` promise, and `PresentationToken`/`PresentationDeliverer`
+  join `sortable/callbacks.js`. Recorded in 03 §The export topology this
+  requires and §The public/internal boundary. `CommandAdmission` stays
+  **internal** — a behavior declares which events the kernel binds; a consumer
+  does not.
+- **What the revision did not touch, checked rather than assumed:** the kernel
+  frame slice is still seven fields; `KernelHost` is still six members; the phase
+  vocabulary is still eight; the behavior tag count is still two; the seam set is
+  unchanged apart from D-34's type parameter. Every negative assertion in all
+  three typed probes still fails to compile, which is the property that makes
+  them worth keeping.
+
+**What Phase 14 did not do, and where it goes.** The plan's re-verification
+deliverable — "the whole existing suite green against the revised SPI, with every
+deviation Part I recorded re-checked rather than assumed" — belongs with the
+implementation, because there is nothing to re-run against a document. It is
+carried into Phase 15 as an explicit obligation and named in Checkpoint C's exit
+condition below.
+
 ---
 
 ## Checkpoint C — the contract re-freeze
@@ -703,32 +823,53 @@ working. See §Ordering principle.
 - Does each change trace to a Phase 13 case, or did scope leak in?
 - Is the lifecycle-intent vocabulary the *smallest* one that works, or has it
   become a generic behavior-to-kernel protocol — which 02 explicitly declined to
-  reserve?
+  reserve? **The revision claims it is a second admission rather than a
+  vocabulary at all** (D-32); the sharpest test of that claim is whether the
+  one-slot rule (§Q-13) is a kernel decision that should have been the
+  behavior's.
 - Does the new settlement protocol keep the gate independence and the
-  render/landing overlap 05 relies on?
+  render/landing overlap 05 relies on? **And is the narrowing deliberate**: the
+  token has no rejection channel, which is a capability `presentationReady` had.
 - Does anything in the revision only make sense for the sortable?
+- **Is D-35's sole-writer rule true rather than aspirational?** It makes
+  `lift.write` the only rendering entry point between acquisition and the join,
+  and everything downstream of `LandingContext.from` now depends on that.
 
 **Form.** Owner review plus an independent audit, then a closure assessment —
 the cadence Checkpoints A and B already ran (`reviews/drag2-review-*`).
 
 **Exit.** SPI re-frozen. From here the admissible-change rule from 00 applies
-again, unchanged.
+again, unchanged. Phase 14's re-verification obligation travels with the
+implementation: the existing suite green against the revised SPI, with every Part
+I deviation re-checked rather than assumed, is a Phase 15 done-when.
 
 ---
 
 ## Phase 15 — Settlement protocol implementation
 
-**Scope.** Implement 14's chosen authored-presentation protocol.
+**Scope.** Implement D-33 — the kernel-minted `PresentationToken` — plus the
+re-verification Phase 14 could not perform against a document.
 
-**Deliverables.** The kernel and behavior side; the public surface change; the
-React reference integration updated — and if a consumer-owned tracker survives in
-any form, its residual obligations are documented as a deliberate cost rather
-than left implicit in a story file. `tests/sortable/react.browser.test.ts` and
+**Deliverables.** The kernel and behavior side; the public surface change
+(`ReorderResolution.accept/reject` take a `PresentationDeliverer`;
+`PresentationToken` and `PresentationDeliverer` export from
+`sortable/callbacks.js`); the React reference integration updated —
+`createCommitTracker` should disappear entirely, and if any residual consumer
+obligation survives it is documented as a deliberate cost rather than left
+implicit in a story file. `tests/sortable/react.browser.test.ts` and
 `sortable.stories.tsx` both move with it.
 
-**Done when.** The matrix rows for readiness and async attempts pass against the
-new protocol, and the reference integration is expressible without the consumer
-re-implementing supersede-and-never-drop.
+**Also here, because they are cheap once the settlement is open**: 13b B-2's
+ergonomics — `landing({ timing })` or `duration: number | (() => number)`, read
+at settle time inside the default runner so a consumer keeps the reduced-motion
+collapse, the retarget replay and the generation guard — and 13c N-2's probe
+annotation, which still describes the gap as unsolved.
+
+**Done when.** The 05 §Readiness token matrix group passes; the readiness and
+async-attempt rows pass against the new protocol; the reference integration is
+expressible without the consumer re-implementing supersede-and-never-drop; and
+**the whole existing suite is green against the revised SPI, with every Part I
+deviation re-checked rather than assumed** — Phase 14's carried obligation.
 
 ---
 
@@ -736,12 +877,19 @@ re-implementing supersede-and-never-drop.
 
 **Scope.** The discrete-input path, at parity with the ledger's keyboard rows.
 
-**Deliverables.** Admission for a non-pointer operation; the one-slot command as
-a complete operation sharing the proposal protocol (the shipped package's
-constraint that request semantics cannot diverge between input modes is a
-requirement, not an implementation detail); the `List` story's arrow-key hint
-restored; accessibility behavior checked against
-[`.agents/docs/accessibility.md`](../accessibility.md).
+**Deliverables.** D-32's `command` admission member and the pointerless lifecycle
+behind it — `ACTIVATE`, `RELEASE`, no pointer listeners, no capture; the one-slot
+command as a complete operation sharing the proposal protocol (the shipped
+package's constraint that request semantics cannot diverge between input modes is
+a requirement, not an implementation detail); the 05 §Discrete input matrix
+group; the `List` story's arrow-key hint restored; accessibility behavior checked
+against [`.agents/docs/accessibility.md`](../accessibility.md).
+
+**One thing to decide here rather than assume (05 §Q-13).** D-32 makes a command
+one slot, because that is what the shipped package does. If the accessibility
+review finds that a *multi-press* mode — pick up, arrows, drop — is required for
+parity or for a real user need, that is a failing executable case and it reopens
+the contract; it must not be worked around by having the behavior fake a release.
 
 **Where it does not go (ledger L-4).** `ArrowLeft` and `ArrowUp` are the *same*
 command in the shipped package, and `ArrowRight` and `ArrowDown` are the same
