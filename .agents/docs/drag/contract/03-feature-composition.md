@@ -561,15 +561,61 @@ type OnReorder = (
   context: Readonly<{ signal: AbortSignal }>,
 ) => MaybePromise<ReorderResolution>;
 
+/**
+ * Declares that an authored presentation is coming, and receives the token that
+ * ends the wait. Called once, synchronously, while the settlement arms.
+ */
+type PresentationDeliverer = (token: PresentationToken) => void;
+
+type PresentationToken = Readonly<{
+  /** The authored presentation now exists. Idempotent; a late call is inert. */
+  ready(): void;
+  /** Nothing is coming after all. Releases the gate without failing the drop. */
+  abandon(reason?: unknown): void;
+}>;
+
 declare const ReorderResolution: Readonly<{
-  accept(presentationReady?: PromiseLike<void>): AcceptedReorderResolution;
-  reject(reason?: unknown, presentationReady?: PromiseLike<void>): RejectedReorderResolution;
+  accept(presentation?: PresentationDeliverer): AcceptedReorderResolution;
+  reject(reason?: unknown, presentation?: PresentationDeliverer): RejectedReorderResolution;
 }>;
 ```
 
-`presentationReady` is **returned, not awaited**. Awaiting it inside `onReorder`
-would serialize the consumer's render ahead of the landing animation instead of
-overlapping it — which is the whole point of two independent gates.
+**The consumer declares that a presentation is coming; the kernel creates the
+thing that ends it** (D-33). The previous shape took a `presentationReady`
+promise, which meant the consumer had to construct a promise before knowing a
+render would happen, supersede a previous one without dropping it, resolve it
+from a layout effect and never lose one — four obligations whose only failure
+signals were a 500 ms silence and, for a gate never held, nothing at all.
+Probe [13b](../probes/13b-settlement.md) is the case; 02 §Why the promise became
+a token is the reasoning. Three of the four obligations move to the kernel; the
+fourth — call it from a layout effect — is irreducible, because only the consumer
+knows when its own commit landed.
+
+Nothing is **awaited**, then or now. The deliverer is invoked in the same arm
+step that starts the landing runner and `settlement.effect` returns `void`, so
+the consumer's render still overlaps the landing animation instead of
+serializing ahead of it — which is the whole point of two independent gates, and
+is now a structural property rather than a promise-handling convention.
+
+The React reference integration collapses to a ref plus one call:
+
+```tsx
+const token = useRef<PresentationToken | null>(null);
+
+const onReorder = (request) => {
+  setOrder(reorder(request));
+  return ReorderResolution.accept((t) => { token.current = t; });
+};
+
+useLayoutEffect(() => {
+  token.current?.ready();
+  token.current = null;
+});
+```
+
+The `createCommitTracker` helper both packages' stories carry — create, supersede,
+never drop — has no counterpart here. Phase 15 implements this and moves
+`sortable.stories.tsx` and `tests/sortable/react.browser.test.ts` with it.
 
 ### `placeholder()`
 
@@ -636,9 +682,9 @@ type LandingOptions = Readonly<{
 
 Without this feature the behavior holds no landing gate and no landing module is
 imported. The visual is pinned at the placeholder **in the same drain only when
-the readiness gate is also open** — an accepted resolution carrying a
-`presentationReady` promise still holds settlement open, because the two gates
-are independent in both directions (I-8, I-9). With
+the readiness gate is also open** — an accepted resolution that declared a
+presentation still holds settlement open, because the two gates are independent
+in both directions (I-8, I-9). With
 `duration: 0` the gate is held and released through the runner — also immediate,
 but not the same code path, and the default path does not import the runner.
 
@@ -901,7 +947,7 @@ eager barrel.
 | `drag.js` | `draggable`, the 14 **`FAILURE_*` constants** | `Point`, `FailureStage`, `DOMRealm`, `Behavior` (opaque) |
 | `sortable.js` | `sortable`, **`ReorderResolution`**, **`AT_PROPOSAL`**, **`AT_CONSUMER`** | `ReorderRequest`, `ReorderProposal`, `CollectionSnapshot`, `ReorderResolution`, `AcceptedReorderResolution`, `RejectedReorderResolution`, `AcceptedReorderResult`, `NoopReorderResult`, `RejectedReorderResult`, `CanceledReorderResult`, `ReorderTransactionResult`, `SortableFinishResult`, `SortableCancelResult`, `CancelStage`, **`DragErrorContext`**, `SortableController`, `PlaceholderFactory`, **`SortableFeature`** (opaque) |
 | `sortable/vertical.js` | `vertical` | — |
-| `sortable/callbacks.js` | `callbacks` | `SortableCallbacks`, `OnReorder` |
+| `sortable/callbacks.js` | `callbacks` | `SortableCallbacks`, `OnReorder`, **`PresentationDeliverer`**, **`PresentationToken`** |
 | `sortable/placeholder.js` | `placeholder` | `PlaceholderOptions`, `PlaceholderContext` |
 | `sortable/handle.js` | `handle`, `visual` | — |
 | `sortable/landing.js` | `landing` | `LandingOptions`, `LandingStart`, `LandingContext`, `LandingHandle` |
@@ -933,6 +979,18 @@ surface. `CollectionSnapshot` (via `ReorderProposal.snapshot`),
 `ReorderResolution` union) are now exported from `sortable.js`. This is the same
 rule that made `FailureStage`, `DOMRealm` and `Point` public: **export what a
 public type structurally depends on rather than pretending it is internal.**
+
+**A sixth cell changed at the Phase 14 re-freeze.** `PresentationToken` and
+`PresentationDeliverer` join `sortable/callbacks.js`, because D-33 makes them the
+authored-presentation protocol and `ReorderResolution.accept` is a function of
+the deliverer — the same "export what a public type structurally depends on"
+rule as the four aliases above. They ship from `callbacks.js` rather than
+`sortable.js` because a composition that installs no `callbacks()` has no
+`onReorder`, and therefore no presentation to declare. `ReorderResolution`'s two
+member types are unchanged in name and in discrimination; only the optional
+argument changed, and it is a **breaking public change** — the one this revision
+makes. Phase 15 implements it, and the consumer fixture's per-subpath export
+equality is what will fail if it is implemented halfway.
 
 The fifth dangling reference was resolved the other way. `OnReorder` returned
 `MaybePromise<ReorderResolution>`, and exporting that alias would put a generic
@@ -1023,15 +1081,31 @@ The brief asks for this and the earlier draft did not state it.
 
 **Internal and unstable** — not exported, and free to change without notice:
 `BehaviorSpec`, `KernelHost`, `Transition`, `ReleaseTransition`,
-`SettlementTransition`, `ActionTransition`, `SettlementInput`, `SeamOutcome`,
-`SeamRejection`, `ArmOutcome`, `ActivationScope`, `SettlementScope`,
-`LifetimeScope`, `FeatureContext`, `SortableContribution`, `SortableSlots`,
-`InsertionGeometry`, and the phase/lift/outcome/recovery constants.
+`SettlementTransition`, `ActionTransition`, `CommandAdmission`,
+`SettlementInput`, `SeamOutcome`, `SeamRejection`, `ArmOutcome`,
+`ActivationScope`, `SettlementScope`, `LifetimeScope`, `FeatureContext`,
+`SortableContribution`, `SortableSlots`, `InsertionGeometry`, and the
+phase/lift/outcome/recovery constants.
 
 **Public and stable:** everything in the table above, plus the `FailureStage`
 and `CancelStage` constants — a consumer receiving `onError` or a canceled
 result has to be able to discriminate them, so keeping them internal while
 embedding them in public types was the same contradiction as the feature type.
+
+`CommandAdmission` (D-32) is on the internal side deliberately, and it is worth
+saying why, because it is the one revision member a consumer might expect to
+see. A behavior declares which event types the kernel binds; a *consumer* does
+not. Keyboard reordering reaches the public surface in Phase 16 as behavior
+capability and, where it needs configuring at all, as a `callbacks()`-style
+option — never as an event-type list a consumer hands the kernel. The same
+argument keeps the axis features out of the keyboard path (ledger L-4).
+
+`PresentationToken` and `PresentationDeliverer` (D-33) are on the **public** side
+and are the only additions the revision makes there. That is forced rather than
+chosen: `ReorderResolution.accept` is a function of the deliverer, so it is
+structurally public whether or not it is named — the rule that already made
+`FailureStage`, `DOMRealm`, `Point`, `PlaceholderFactory` and
+`CollectionSnapshot` public.
 
 `SortableFeature` and `Behavior` are public **as opaque value types**: nameable
 and passable, not constructible.

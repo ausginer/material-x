@@ -7,9 +7,10 @@ later decision and documents 00–04 win.
 
 ## Invariants, by enforcement tier
 
-I-1…I-28 are inherited from the shipped package and probe 1. **I-29 and I-30 are
-new**, introduced by this model's failure and post-commit ordering rules. The
-column that matters is the tier:
+I-1…I-28 are inherited from the shipped package and probe 1. **I-29 and I-30**
+were introduced by this model's failure and post-commit ordering rules, **I-31**
+by the Phase 8a amendment, and **I-32…I-35 by the Phase 14 revision** (D-32,
+D-33, D-35). The column that matters is the tier:
 
 - **A — frame publication safety.** The violation does not compile, or is
   unexpressible through the API.
@@ -22,7 +23,7 @@ Probe 1 had every one of these at tier C.
 
 | ID | Invariant | Tier | Mechanism |
 | --- | --- | --- | --- |
-| I-1 | FIFO run-to-completion; a nested `dispatch` appends and never interrupts; each entry keeps its own argument. **Native admission is a queue boundary**: a dispatch from a handle/visual resolver enqueues without draining until admission commits or abandons, because admission is a transaction with no drain on the stack to append to (§[02](02-kernel-behavior-contract.md) §Queue semantics) | B | Kernel-private queue and drain |
+| I-1 | FIFO run-to-completion; a nested `dispatch` appends and never interrupts; each entry keeps its own argument. **Every native admission is a queue boundary**: a dispatch from a handle/visual resolver enqueues without draining until admission commits or abandons, because admission is a transaction with no drain on the stack to append to. Applies to `admit` and `command.admit` alike, with **one shared re-entry latch** across both ingress listeners (§[02](02-kernel-behavior-contract.md) §Queue semantics, D-32) | B | Kernel-private queue and drain |
 | I-2 | Preparation may not assign a **top-level** committed frame slot | **A** | `prepare` never receives `current`. Referent immutability is separate — see below. |
 | I-3 | Nothing is published until the operation is revalidated after `prepare` | B | The kernel's driver checks unconditionally between prepare and commit |
 | I-4 | Async completions are validated twice: at the producer boundary and when the queued action is applied | B | Both checks are kernel code |
@@ -52,6 +53,11 @@ Probe 1 had every one of these at tier C.
 | I-28 | `resetFramePart` clears every reference-bearing field | C | `__DEV__` heuristic; not provable |
 | I-29 | No failure on the trajectory-quality path may change the settlement outcome, release or add a hold, or destroy the runner | B | Readiness-time `anchorTarget`/`retarget` failures are best-effort reports, not classified failures |
 | I-30 | Within a post-commit `effect`: register each release before making the resource visible; publish private references only once every resource is owned; invoke consumer callbacks last | C | §[02](02-kernel-behavior-contract.md) §Post-commit ordering |
+| I-31 | Once a start is notified, exactly one terminal callback follows. A cancellation raised from inside `onStart` settles as canceled at `AT_PROPOSAL` with a null proposal rather than retiring silently | B | §[02](02-kernel-behavior-contract.md) §I-31. One admitted two-fault gap, documented at both ends |
+| I-32 | **A declined command admission leaves everything untouched**: no operation, no phase change, no `preventDefault()`, and the controller is still idle for the next event | **A** + B | **A:** `command.admit` returns `HTMLElement \| null` and has no other channel — it cannot mint, cannot dispatch a lifecycle action and cannot reach the phase. **B:** the kernel commits nothing until the return value is non-null (D-32) |
+| I-33 | **A pointerless operation never receives a pointer sample and never holds capture.** `pointerId === -1` at commit means the kernel arms no pointer listeners and acquires no capture, so `MOVE`, `UP` and `lostpointercapture` are unreachable rather than filtered | B | Kernel-private, decided at admission. Escape-to-cancel is armed identically to a press |
+| I-34 | **The landing origin is the delta the lift session last rendered**, for every behavior and every input mode | B | `lift.write` is the sole rendering entry point between acquisition and the join, and the session records what it wrote (D-35). The behavior supplies nothing and cannot get it wrong |
+| I-35 | **A consumer can neither create, supersede nor lose an authored-presentation gate.** The kernel mints one token per settlement and hands it out once; a second operation gets a second token, and a call on a retired token is inert | **A** + B | **A:** `PresentationToken` is unconstructible by a consumer — it arrives as an argument. **B:** minting, the deadline and the once-only settle latch are kernel-private (D-33). What remains consumer-owned is calling `ready()` at the right moment, which is irreducible |
 
 **I-2 and I-18 are tier A for top-level frame slots only.** `Readonly<Frame<Part>>`
 is shallow, and `begin()` shallow-copies, so both frames reference the same
@@ -79,11 +85,16 @@ nothing to this invariant.
 
 ### F-1 — callback count · note, not a finding
 
-Twelve top-level `BehaviorSpec` members, ~16 functions once the transitions
-expand, against probe 1's fifteen. A wash. The split is what buys tier A and B
-for I-2, I-3, I-5, I-16 and I-18, and grouping into `Transition` objects keeps
-the surface legible. `moved` stays a top-level field, so the hot path takes no
-extra property hop.
+Thirteen top-level `BehaviorSpec` members plus one optional, ~18 functions once
+the transitions expand, against probe 1's fifteen. A wash. The split is what buys
+tier A and B for I-2, I-3, I-5, I-16 and I-18, and grouping into `Transition`
+objects keeps the surface legible. `moved` stays a top-level field, so the hot
+path takes no extra property hop.
+
+The Phase 14 revision moved this by one optional member (`command`, D-32) and
+ratified two that the implementation already had (`config.actionTags`,
+`reportFailure`). A whole second *input mode* costing one optional member is the
+number worth reading here.
 
 ### F-2 — part factory determinism · open, tier C
 
@@ -326,7 +337,7 @@ participant cannot forge a kernel-private stage.
 
 The trace claimed "zero allocations, two indirect calls" and then, two lines
 later, acknowledged the transform string. The shown path also makes three calls,
-not two (`spec.moved`, `lift.composeXY`, `rt.frame.schedule`), and the shipped
+not two (`spec.moved`, `lift.write`, `rt.frame.schedule`), and the shipped
 in-place lift mode allocates a `{ x, y }` projection
 (`packages/drag/src/kernel/presentation.ts:190-224`).
 
@@ -521,7 +532,7 @@ The final render is now part of normative `release.effect`, classified
 
 ### F-40 — `moved()` had no failure policy · resolved
 
-`moved` is not a transition and had no wrapper, so a `composeXY`, CSSOM or
+`moved` is not a transition and had no wrapper, so a compose, CSSOM or
 `schedule` throw escaped the handler and became a **panic** that destroyed the
 controller — contradicting the existence of `FAILURE_RENDERER_WRITE` and
 `FAILURE_SCHEDULED_FRAME`, and diverging from the shipped implementation.
@@ -569,6 +580,76 @@ brief actually asks for (`brief.md:615-637`). The subpath/export table and the
 exposes only `draggable`/`sortable` entries and a new topology cannot be
 measured before it is specified.
 
+### F-43 — the SPI had no route for discrete input · resolved by D-32
+
+Probe [13a](../probes/13a-discrete-input.md), four compile-proved negatives:
+`admit` takes a `PointerEvent` and `BehaviorSpec` has no second admission member;
+`KernelHost` owns no extensible ingress; `dispatch` returns `void`; nothing mints
+an operation without a press. The load-bearing one is the third — the others have
+workarounds that are merely ugly, and that one has none, because the information
+flows the wrong way through the only behavior-initiated entry that exists.
+
+Four runtime facts came with it, none of which typecheck can see: one ingress
+listener exists and it is `pointerdown`; `admit` has one call site, reached only
+from `onPointerDown`; `PENDING → ACTIVE` is a pointer-distance test, so a command
+admitted as a press would sit in `PENDING` forever; and the frame gates every
+sample on `pointerId`. Together they are why a command is **not** "a press with
+no moves".
+
+Resolved by D-32: a second admission member, a redefined `PENDING`, and
+`pointerId === -1` made normative for a pointerless operation. What it did *not*
+need is the thing 02 had been declining to reserve — a behavior-to-kernel
+lifecycle-intent protocol. The gap was that a behavior could not be **asked** a
+question synchronously, not that it could not **ask** for a transition.
+
+### F-44 — activation staged type pinned to `HTMLElement` · resolved by D-34
+
+Probe [13c](../probes/13c-free-drag.md) N-1. `BehaviorSpec.activation` was
+`Transition<Part, HTMLElement, ActivationScope>`, and the only other inhabitant
+of that return type — `null` — already means *discard the activation*. A behavior
+that stages nothing at activation had no honest value to return; the probe
+returns `scope.visual`, an element the kernel already holds, and its `effect`
+must then ignore what it is handed. That is the staged-resource contract
+inverted.
+
+The sortable's shape written into the kernel, and one type parameter wide.
+
+### F-45 — the landing origin was a pointer delta · resolved by D-35
+
+Probe 13c N-2. `LandingContext.from` was `pointerX - originX`, documented as
+"where the visual is now". True for exactly one behavior. Any behavior that
+constrains, clamps, snaps or externally drives its visual has written something
+else, and under D-32 a pointerless operation has no pointer at all.
+
+The failure signature is the one this project has already met once: **the landing
+opens with a jump and ends correctly**, because the target is behavior-supplied
+and the kernel re-pins at the join. Phase 11 found the same shape in the lift
+geometry, with every test green throughout, and only a demo exposed it.
+
+Resolved without a seam: the lift session records the delta it wrote, and the
+kernel reads its own object. 13c's compile assertion — that no `BehaviorSpec`
+member reports the rendered delta — deliberately **still fails to compile**.
+
+### F-46 — the authored-presentation protocol distributed its burden badly · resolved by D-33
+
+Probe [13b](../probes/13b-settlement.md) B-1. Four obligations on the consumer,
+whose failure modes are a 500 ms silence and, for a hold never taken, nothing at
+all. **Inherited from the shipped package** — the identical `createCommitTracker`
+is in both packages' story files — and **not a correctness defect**: every
+shipped and ported story works. It is a distribution-of-burden defect with two
+bad failure modes, which is a sufficient basis for a revision and is not the same
+claim.
+
+Resolved by inverting creation (D-33). The property that had to survive is
+stated by this document and did: the two gates are independent and nothing
+awaits, so the authored re-render still overlaps the landing animation. A design
+that lost the overlap would not have been a simplification.
+
+**F-6's status improves but is not fully promoted.** The consumer half becomes
+structural (I-35); the behavior half — declaring a presentation and then not
+holding the gate — stays a test obligation, because it is first-party code the
+kernel still cannot see.
+
 ## Resolved and retired questions
 
 | Q | Question | Answer |
@@ -588,14 +669,25 @@ measured before it is specified.
 Ordered by how much each could still move the design. **Q-1 and Q-12 are now
 answered** (see the resolved table above).
 
-**Q-4. Does the two-behavior-tag count survive?**
+**Q-4. Does the two-behavior-tag count survive? — one data point in, still
+open.**
 Inherited from probe 1's Q-6, and still a design assertion rather than a
 measurement. Two tags: coalesced spatial frame, collection replacement. A third
 or fourth is a **signal worth investigating**, not proof the boundary is
-misplaced — the earlier phrasing was too absolute. The concrete known pressure
-is keyboard sorting, which needs a kernel *lifecycle* transition rather than
-another action tag; the recorded position is that keyboard revises the kernel
-contract (§[02](02-kernel-behavior-contract.md) §`ActionTransition`).
+misplaced. The concrete known pressure was keyboard sorting, and **it did not
+become a tag**: D-32 makes it a second admission member, and the count is still
+two. The free-drag probe wants two of its own (policy update, controlled
+position) but is a different behavior with its own count, which is not what this
+question asks. It stays open until a *third* tag appears on one behavior.
+
+**Q-13. Does a discrete operation ever need to stay `ACTIVE`?** — new with D-32.
+A command is one slot: the kernel activates and releases it without further
+input, which is the shipped keyboard's semantics and the ledger's retained
+behavior (§4). A multi-press mode — pick up, move with several arrows, drop — is
+not expressible, and deliberately so: it needs a producer of a release that the
+kernel does not own, which is the lifecycle-request protocol 02 declined to
+reserve. Phase 16's accessibility review is where the case would come from, and
+it would reopen the contract rather than be worked around.
 
 **Q-6. Is `RECOVERY_HOME` right for a rejected reorder?**
 Inherited from probe 1's Q-3, now behavior-owned rather than kernel-owned, which
@@ -706,6 +798,28 @@ React before landing · both immediate · stale readiness from an older operatio
 readiness never settles and the timeout applies · readiness resolved from a real
 `useLayoutEffect()` fixture.
 
+**Readiness token — new (D-33)** · a resolution that declares no presentation
+holds no readiness gate and `authoredReady` is true from sealing · a declared
+presentation holds the gate and the deliverer receives exactly one token ·
+`token.ready()` from inside the deliverer — synchronously, before it returns —
+latches and **dispatches**, so a settlement holding only readiness does not
+finalize mid-arm and `authoredReady` is still false when the landing branch reads
+it (the reserve-before-call property, F-21's shape) ·
+a duplicate `ready()` is inert and does not double-release · `ready()` after
+`abandon()` and `abandon()` after `ready()` both resolve to the first call ·
+`token.abandon(reason)` releases the hold, leaves `authoredReady` **false**,
+reports the reason on the platform channel, and produces `onFinish` — not
+`onError`, not a replaced settlement · a token belonging to a **retired** attempt
+is inert at both validation points, including after `destroy()` · the deadline
+still classifies `FAILURE_PRESENTATION_READY` and replaces the settlement · a
+deliverer that **throws** rolls the hold back, classifies
+`FAILURE_PRESENTATION_READY` and returns `ARM_FAILED`, so the original settlement
+never finalizes · a deliverer that `destroy()`s the controller and returns
+normally leaves nothing published · two consecutive operations each get their own
+token, and the first cannot release the second's gate (I-35) · **the React
+fixture holds the token in a ref with no tracker helper**, and the reference
+integration compiles without `createCommitTracker`.
+
 **Reentrancy** · **`onStart` cancels → the operation settles as canceled at
 `AT_PROPOSAL` with a null proposal, and never reaches `ACTIVE` (I-31)** ·
 `onStart` destroys · **`onReorder` cancels
@@ -742,8 +856,8 @@ reach `SettlementScope` (I-10) · `arm()` validates the declared action-tag
 count, while `dispatch()` rejects an actual negative, fractional or out-of-range
 tag before enqueue.
 
-**Gates and drivers — new** · a behavior with **no** `landing()` but a pending
-readiness promise still holds one gate and does **not** finalize in the
+**Gates and drivers — new** · a behavior with **no** `landing()` but a declared
+authored presentation still holds one gate and does **not** finalize in the
 resolution drain (I-9) · a behavior with neither gate held finalizes in the
 resolution drain · a duplicate `holdForReadiness` is ignored and reported, and
 does not double-count · a hold requested after sealing is ignored and reported ·
@@ -803,6 +917,44 @@ and **no** `finalized` call · a no-op settlement calls `onFinish`, never
 reason · a rejected resolution *promise* is `FAILURE_REORDER_RESOLUTION`, not
 `onCancel` · public finish/cancel results narrow without importing an internal
 constant, and carry version, from/to and identity neighbours (F-41).
+
+**Discrete input — new (D-32)** · a declared command type with no `command`
+member installed binds **no** listener · a `command.admit` returning `null`
+leaves the phase `IDLE`, mints nothing and does not call `preventDefault()`
+(I-32) · a `command.admit` returning an element mints a pointerless operation,
+commits `PENDING` with `pointerId === -1`, and reaches `ACTIVE` on the next drain
+**without any pointer travel** · a pointerless operation is never advanced by a
+synthetic `pointermove`, `pointerup` or `lostpointercapture`, and holds no
+pointer capture (I-33) · a command reaches `RELEASING` without an `UP`, and its
+proposal, settlement mapping, landing and terminal callback are the pointer
+path's · **a keyboard and a pointer reorder to the same destination gap produce
+identical proposals**, asserted directly rather than inferred · a resolver
+dispatching `updateItems()` from inside `command.admit` enqueues without draining
+and is applied after admission commits (I-1) · a resolver dispatching a
+`pointerdown` from inside `command.admit`, and a `keydown` from inside `admit`,
+are both refused before any frame work (the shared re-entry latch) · a throwing
+`command.admit` reaches `reportFailure(FAILURE_ADMISSION)` with no operation and
+leaves the controller usable (Q-1) · `destroy()` during a pointerless operation
+releases every ingress listener, discrete ones included · `arm()` rejects an
+empty, non-string, duplicate or `pointerdown`-colliding `command.types` ·
+`Escape` cancels a command exactly as it cancels a press.
+
+**Landing origin — new (D-35)** · `compose(from.x, from.y)` reproduces the
+transform the drag last wrote, pinned at a **non-zero offset on both axes**,
+because a delta and a viewport point agree at the origin and nowhere else · a
+behavior whose `moved` writes something other than the pointer delta — an axis
+lock is the cheapest fixture — reports that delta as `from`, not the pointer's ·
+a write issued from an `action.effect` rather than from `moved` is still the
+recorded delta · an operation that never rendered reports `(0, 0)` · a pointerless
+operation's `from` is the delta its release render wrote, never `-originX` ·
+`compose()` alone records nothing.
+
+**Activation staged type — new (D-34)** · a `BehaviorSpec` that stages `true` at
+activation compiles, and its `effect` receives `true` · the sortable's
+`HTMLElement` staging is unchanged and its `effect` still receives the
+placeholder · `@ts-expect-error`: a spec declaring `Activation = true` cannot
+return an element from `activation.prepare`, and one declaring `HTMLElement`
+cannot return `true`.
 
 **Explicit failure latching — new** · each seam in turn calls `host.fail` and
 returns **normally** → no success continuation: activation queues no

@@ -12,9 +12,16 @@ Source of truth: [`contract/`](contract/) documents 00–06, read with the prece
 
 ## Placement
 
-A new workspace, **`packages/drag2`** (`@ydinjs/drag2`), built alongside the shipped `@ydinjs/drag`. The shipped package is untouched for the whole plan; the merge back into `@ydinjs/drag` is Phase 12 and is a separate decision.
+A new workspace, **`packages/drag2`** (`@ydinjs/drag2`), built alongside the shipped `@ydinjs/drag`. The shipped package is untouched for the whole plan; the merge back into `@ydinjs/drag` is **Phase 25** and is a separate decision, gated on the Part II roadmap rather than on the Part I sign-off.
 
 ---
+
+# Part I — the vertical-sortable slice
+
+**Complete.** Phases 0–11 delivered the probe [`brief.md`](brief.md)
+commissioned: one production-shaped, pointer-driven vertical sortable on a
+shared kernel. Everything here is a record of work done, kept as written. The
+scope claims that were built on top of it are corrected in Part II.
 
 ## Phase 0 — Workspace scaffolding
 
@@ -386,7 +393,9 @@ Each needs the reproducibility standard from 05 §Measurements owed _checked in_
 
 **Done when.** Each measurement replaces the corresponding intuition-based sentence in the contract documents, in place, with a dated result. Size budgets are added only now. Report M-3's two baselines separately and never substitute one for the other.
 
-**Sign-off gate.** The contract's own definition: measurements landed, Q-7 answered, matrix closed. Only then is `drag2` a candidate to replace `@ydinjs/drag`.
+**Sign-off gate.** The contract's own definition: measurements landed, Q-7 answered, matrix closed.
+
+**Corrected 2026-08-04.** This gate was originally written as "only then is `drag2` a candidate to replace `@ydinjs/drag`", and that was wrong. It is the sign-off for the **vertical-sortable slice** — the artifact [`brief.md`](brief.md) actually commissioned — not for a package. Phases 0–11 closed the slice; they did not demonstrate parity with the shipped package's behavior set or input modes, and every number they produced is a single-behavior number. What replaces `@ydinjs/drag` is decided by Phase 25, at the end of the roadmap below.
 
 **Landed 2026-08-02.** Write-ups in `.agents/docs/drag/measurements/` (`m1.md`, `m2.md`, `m3.md`, `q7.md`); harnesses in `packages/drag2/tests/perf/` and `packages/drag2/bench/size/`. Every sentence the table above names is replaced in place: F-24 in 00 and 06, F-4 in 00 and 05, I-26's row in 05, 03 §Tree-shaking, 05 §Measurements, and the frame-task comment in `src/sortable/runtime.ts`.
 
@@ -410,16 +419,793 @@ Each needs the reproducibility standard from 05 §Measurements owed _checked in_
 
 ---
 
-## Phase 12 — Cutover (separate decision)
+---
 
-Not started until Phase 11 signs off. Migrate `@ydinjs/material-x` consumers and the drag stories onto the new entrypoints, port or retire `packages/drag/src/sortable/keyboard.ts` (which the contract expects to **revise the kernel contract** rather than be worked around — 02 §`ActionTransition`), then either rename `@ydinjs/drag2` → `@ydinjs/drag` or fold the tree in and delete the old one. Update `packages/material-x/files.json` and the root docs.
+# Part II — from slice to package
+
+**Revised 2026-08-04, replacing the original Phase 12.** That phase read
+"Cutover (separate decision)" and treated the Phase 11 sign-off as making the
+package a candidate to replace `@ydinjs/drag`. It was a planning error, and this
+part exists to correct it.
+
+## What Phases 0–11 established, and what they did not
+
+Nothing below retracts Part I. Every phase result, deviation, measurement and
+review in it stands as recorded — the corrections are to the **scope claims**
+built on top of them, not to the evidence.
+
+**Established.** A shared kernel executor with a frozen seam set; a private
+behavior runtime; construction-time feature composition with an opaque brand and
+an asserted export topology; one complete, production-shaped pointer-driven
+vertical sortable, closed against the 05 test matrix with a checked-in coverage
+map; four measurements with reproducible harnesses; two checkpoint reviews, each
+with an independent closure assessment.
+
+**Not established, and not claimed by anything in Part I:**
+
+| Not established | Why it matters |
+| --- | --- |
+| That the kernel is **behavior-agnostic** | One behavior has ever been written against it. Agnosticism is currently a property of the type signatures, not an observed one. This is the single largest unvalidated architectural claim in the package. |
+| That the **axis-feature seam generalizes** | 03 describes a pluggable insertion rule; `vertical()` is its only implementation, and 8a recorded that it needed the frame view widened (`InsertionFrameView.item`) to be writable at all. |
+| That the **input model** covers what ships today | The kernel owns pointer ingress exclusively. Keyboard sorting exists in the shipped package and 02 §`ActionTransition` already records that supporting it means revising the kernel contract. |
+| That the **settlement protocol is final** | See Phase 13b. The reference React integration requires a consumer-owned commit tracker. |
+| That the **numbers hold for a package** | M-1's frame-copy cost was measured at one part shape and found a 12→16-field cliff; M-2's heap at one controller kind; M-3's compositions are all one behavior. Each is honest about its own workload and none of them is a package figure. |
+
+## Two premises from the original Phase 12 that do not hold
+
+**"Migrate `@ydinjs/material-x` consumers."** There are none. No file under
+`packages/material-x`, `packages/core` or `.storybook` imports `@ydinjs/drag`,
+and no package depends on it. Its only consumers are its own two story files and
+its own test suite. This cuts both ways: cutover carries almost no migration
+risk, and there is **no external corpus validating either package** — the
+stories and tests are the whole consumer surface, which is why Phases 17, 20 and
+24 treat the demo corpus as a deliverable rather than as decoration.
+
+**"The stories are a port target."** They are the parity oracle. Two of the
+shipped package's seven stories have no drag2 equivalent today (`Grid`, and the
+whole `Drag/Draggable` file), and the ported `List` story silently dropped the
+shipped package's arrow-key reordering. A story that cannot be written is the
+cheapest possible statement of a missing capability.
+
+## Ordering principle
+
+Three separate questions all reopen the frozen SPI: discrete input, the
+settlement protocol, and whether a second behavior fits the seam set. **Reopening
+the contract three times costs three rounds of re-verification across a 644-test
+suite.** So the roadmap collects all three as *failing executable cases* first
+(Phase 13 — which is the contract's own admission rule from 00 §Normative
+precedence, not a new procedure), revises once (Phase 14), and only then builds.
+
+The converse trap is just as real: freezing an SPI before the second behavior is
+written is exactly the mistake being corrected. Phase 13c therefore writes free
+drag as a **typed probe against the current SPI** — the same treatment
+`contract.ts` gave probe 2 — so its requirements are evidence *into* the revision
+rather than a discovery after it.
+
+**"One revision" is an ordering objective, not a cap.** It says: gather the
+pressure that is *already known* before reopening, so the contract does not
+reopen three times for three things that were all visible on day one. It does
+**not** license working around a new failure discovered later. If free-drag
+implementation (19), or any phase after the re-freeze, produces an executable
+case the SPI cannot express, the rule from 00 §Normative precedence applies
+exactly as written — that case is the admissible trigger, and the contract is
+revised again. A workaround adopted to preserve a phase count would be the
+failure mode this whole part was written to correct, and it is the more
+expensive error: an SPI bent around one behavior is what Checkpoint E exists to
+detect. Phase 13 buys the cheap revisions in bulk; it does not make the
+expensive one unavailable.
 
 ---
 
+## Phase 12 — Scope and the parity ledger
+
+**Planning only. No runtime change.**
+
+**Complete — [`ledger.md`](ledger.md).** 72 classified rows: retain 54, redesign
+14, drop 4, each drop naming what a consumer loses; six rows are
+retain-with-deferred-shape, each naming the phase that owns the decision. Eight
+findings (L-1…L-8) are cited by the phases below; three change what later phases
+have to do:
+
+- **L-8** — 2-D insertion is the *shipped default*, not a shipped feature. See
+  Phase 17.
+- **L-6** — settle-time `landingTiming()` is the one shipped capability drag2
+  currently cannot express. It is a candidate failing executable case for
+  Phase 13b, not a prose finding.
+- **L-4** — keyboard is not axis-specific (`ArrowLeft` ≡ `ArrowUp`), so Phase 16
+  must not attach it to an axis feature, and Phase 17 does not inherit a
+  keyboard question.
+
+**Scope.** Decide, in writing and per capability, what the successor package
+retains, redesigns and drops — before any of it is built.
+
+**Deliverables.**
+
+- **`ledger.md`** — one row per public capability of `packages/drag`'s two
+  entries, each classified **retain / redesign / drop**, with a destination
+  (phase, feature, subpath) and, for every *drop*, a written justification. The
+  form already has a precedent in this directory:
+  [`archive/phase-1/08-compatibility-ledger.md`](archive/phase-1/08-compatibility-ledger.md).
+  The rows must cover at minimum:
+  - **sortable**: `getVisual`, `getHandle`, `createPlaceholder`, `threshold`,
+    `landingTiming()` (**read at settle time** — drag2's `landing()` fixes
+    timing at construction, so this is a redesign row, not a port),
+    `onStart`/`onFinish`/`onCancel`/`onError`, `SortableResult.is*` predicates
+    (already deliberately dropped for string discriminants under F-41 — record
+    it as such), keyboard reordering, **two-dimensional (grid) insertion** —
+    whose row here is what Phase 17's public decomposition follows.
+  - **free drag**, every member: `handle`, `getVisual`, `lift` (three modes),
+    `axis`, `bounds` (viewport / element / thunk), `coordinateSpace`,
+    `threshold`, `landingTiming`, `onDrop`, `resolveHomeTarget`,
+    `onStart`/`onMove`/`onFinish`/`onCancel`/`onError`, `controller.update()`
+    and its controlled `position`, `DragGeometry`, `FreeDropResolution` /
+    `FreeDropResult`, `FreeHomeTarget`.
+  - **shared kernel types** the shipped package exposes: `CoordinateMapper`,
+    `AnimationTiming`, `DragAxis`, `DragSubject`, `Point`.
+- **A successor scope statement.** [`brief.md`](brief.md) commissioned "a
+  compositional vertical-sortable architectural probe" and states there is "no
+  need to prepare publishing, CI integration, migration, compatibility aliases,
+  or a permanent package name". That was correct for the probe and is wrong for
+  the successor. The brief is not rewritten — it is provenance — but it gains a
+  superseding note, and this plan carries the live scope.
+- **Claim corrections** across the docs, listed in §Claims corrected below.
+
+**Done when.** Every export, option and observable behavior of
+`packages/drag/src/{draggable,sortable}.ts` has a ledger row; no row is
+unassigned; every *drop* carries a justification that names what a consumer
+loses.
+
+**Why first.** Every phase after this one cites the ledger for what "parity"
+means. Deciding it per-phase, in flight, is how a slice becomes a package by
+accident.
+
+---
+
+## Phase 13 — SPI pressure probes
+
+**Probes and write-ups only. No production code.**
+
+**Complete — [`probes/`](probes/README.md).** Three write-ups, three typed probes
+under `packages/drag2/docs/probes/`, wired into `npx just typecheck` through the
+package tsconfig. `tsc` errors on an unused `@ts-expect-error`, so a green
+typecheck is a standing assertion that every negative claim still fails to
+compile.
+
+**Phase 14 inherits four changes**, not the three the ordering principle
+assumed — 13c found two, and 13b gave back one:
+
+| From | Change |
+| --- | --- |
+| 13a | A lifecycle-intent vocabulary for discrete input: a synchronous decision that reaches the native listener, so `preventDefault()` can be conditioned on feasibility. |
+| 13b | A replacement authored-presentation protocol, or a recorded decision to keep it. Five candidates enumerated; none chosen. |
+| 13c N-1 | A parameterized staged type for activation. `BehaviorSpec` pins it to `HTMLElement` because the sortable stages a placeholder; a free drag stages nothing. |
+| 13c N-2 | A way for the kernel to learn the visual's **rendered** delta. `LandingContext.from` is `pointerX - originX`, which is true only for a behavior whose visual tracks the pointer — axis, bounds and controlled position each break it. |
+
+**Two things came back closed, and must not drift into Phase 14:**
+
+- **Settle-time landing timing fits.** `landing({ run })` already accepts a
+  replacement `LandingStart`, and the kernel invokes a runner *after*
+  `settlement.effect` returns — the moment the shipped package read
+  `landingTiming()`. Ledger L-6 is corrected. The residue is ergonomics, for
+  Phase 15 or 22.
+- **Public lift modes and coordinate-space ownership are surface decisions**, not
+  seam changes. Phase 18 (13c P-2, P-4).
+
+**And one result worth recording as a claim rather than a to-do.** A complete
+free-drag `BehaviorSpec` compiles against the frozen SPI. The two failures are
+not architectural — they are the two places the sortable's shape was written into
+the kernel instead of into the sortable. That is the first real evidence for the
+behavior-agnosticism claim, and it is the form Checkpoint E can evaluate.
+
+**Scope.** Produce the three failing executable cases that 00 §Normative
+precedence requires before the frozen SPI may change. Each probe either produces
+a concrete case the current SPI cannot express, or reports "it fits" — which is
+also a result, and closes the question.
+
+### 13a — Discrete input (keyboard)
+
+02 §`ActionTransition` states the position already: **keyboard is expected to
+revise the kernel contract**, not to be worked around with a third action tag,
+and a third tag appearing is a signal worth investigating (Q-4), not proof the
+boundary is misplaced.
+
+The shipped implementation is the reference: `sortable/keyboard.ts` is pure and
+produces the same `Insertion` shape the pointer path feeds to the proposal
+builder, deliberately so that request semantics cannot diverge. What it needs
+from the kernel is what a behavior action **cannot** ask for today — admission,
+activation and release for a complete one-slot operation with no pointer.
+
+The ledger sharpened this into something narrower than "no pointer"
+([§4](ledger.md#4-sortable--keyboard-reordering)). `admitCommand` decides
+**feasibility synchronously, in the listener, before the action is queued**: an
+edge item yields `null` from `keyboardInsertion` and the command is inert, and
+`preventDefault()` is called only when the command is possible. drag2's
+admission is a two-phase handshake *through the kernel queue*, so there is no
+seam that lets a behavior answer "is this possible" and consume the event before
+queueing. That, not the absence of a pointer, is the expressibility failure —
+and it is the one to write as the executable case.
+
+**Deliverable.** A written case, plus a sketch of the smallest lifecycle-intent
+vocabulary that expresses it. 02 already names the alternative under
+consideration ("a small typed lifecycle-intent vocabulary"); this is where it
+stops being deferred.
+
+### 13b — The settlement / authored-presentation protocol
+
+**The evidence is already in hand and it is owner evidence, not a review
+finding**: both packages' reference React integration carries an identical
+consumer-owned `createCommitTracker`. Stated as obligations, `presentationReady`
+requires the consumer to
+
+1. create a promise *before* knowing a render will happen,
+2. supersede a previous expectation without dropping it,
+3. resolve it from a layout effect, and
+4. never lose one —
+
+with no failure signal except a 500 ms `FAILURE_PRESENTATION_READY` timeout.
+Four obligations, all consumer-owned, all silent when violated.
+
+**One correction worth recording, because it changes who owns the defect.** This
+is **not** a drag2 regression. `packages/drag/src/sortable.stories.tsx` carries
+the same helper; the burden was inherited from the shipped package and carried
+through the contract without being examined. The freeze was premature for this,
+but the rewrite did not introduce it.
+
+**No replacement API is assumed here.** This is a design problem, and the probe's
+job is to state it as a case and enumerate candidates — not to pick one. Any
+candidate has to be priced against what the current shape buys, which 05 is
+explicit about: the two gates are **independent**, and a resolution that returns
+a promise instead of awaiting one is what lets the authored re-render overlap the
+landing animation rather than serialize behind it. A design that loses that
+overlap is not a simplification.
+
+**A second case belongs here (ledger L-6).** Settle-time `landingTiming()` is
+the one shipped capability drag2 currently cannot express: `landing()` fixes
+timing at construction, and two shipped behaviors read the timing *after* a
+settlement step has run — rejected sortable timing is read after the placeholder
+returns home, and free drag's after the home target resolves. It is a settlement
+question, it is executable, and it is cheapest to carry into Phase 14 alongside
+the obligation set rather than to rediscover in Phase 15.
+
+**Deliverable.** Both cases stated executably; candidate designs for the
+authored-presentation protocol with the overlap property and the
+failure-visibility property evaluated against each.
+
+### 13c — A second behavior against the current SPI
+
+**Scope.** Free drag written as a **typed probe** — every seam implemented,
+every driver typed, `@ts-expect-error` on each claim that is expressible — with
+inert stubs where a lifecycle would be needed. Explicitly the `contract.ts`
+treatment, and explicitly *not* an implementation: at 2,300 lines that fixture
+could look executable, and 00 already warns that typecheck cannot catch a
+lifecycle error in one.
+
+**What it is probing.** The places where free drag is shaped differently from a
+sortable, each of which is a candidate SPI gap:
+
+| Free-drag requirement | The question it puts to the SPI |
+| --- | --- |
+| Clamp to `bounds` before writing | 00 claims P-2 is resolved at no hot-path cost. One behavior has tested that claim; this is the one it was written for. |
+| `coordinateSpace` mapping | Where does a consumer coordinate space live — behavior, feature, or kernel? The sortable never needed one. |
+| Three lift modes as a **public option** | drag2's `LIFT_FAITHFUL`/`LIFT_FLAT`/`LIFT_IN_PLACE` are kernel-internal constants and are **not** a renaming of the shipped `top-layer`/`flatten`/`none`. Phase 11 found the hard way that lift mode is behavioral, not cosmetic. Making it public is a surface decision, not a mapping. |
+| `controller.update()` with live policy and a controlled `position` | 00 says P-1 is resolved — "policy updates are behavior actions and the kernel supplies the transition envelope". Never exercised. A *controlled position* is stronger: it is externally driven motion, which the kernel's pointer-owned ingress has no route for. |
+| `resolveHomeTarget` / `FreeHomeTarget` | A synchronous rollback target, against the sortable's placeholder-anchored home. Does `anchorTarget` cover it? |
+| `onMove(geometry)` per sample | A per-sample consumer callback on the hot path M-1 measured without one. |
+
+**Deliverable.** A write-up naming each requirement the frozen SPI cannot
+express, and each one it can — the second list is as valuable as the first.
+
+**Gate.** Phase 14 does not start until all three probes exist. A prose-only
+finding remains insufficient (00), and that rule is not relaxed for the owner.
+
+---
+
+## Phase 14 — The single contract revision
+
+**Contract revision complete — D-32…D-35, dated 2026-08-04.** Documents 00–06
+revised in place, in one pass. Implementation is **not** part of this phase: the
+SPI-level code changes land with their consumers (Phase 15 for D-33, Phase 16
+for D-32) or with the second behavior (Phases 19–20 for D-34, D-35), and
+Checkpoint C reviews the revision before any of it is built on.
+
+| # | Change | Decision |
+| --- | --- | --- |
+| 13a | Lifecycle-intent vocabulary | **D-32 — a second admission member**, `command: { types, admit(event, draft) }`, not an intent protocol. `KernelHost` still has six members; no new phase; no new frame field. `PENDING` redefined as *activation not yet committed*; `pointerId === -1` made normative for a pointerless operation. |
+| 13b | Authored-presentation protocol | **D-33 — candidate C-2, in request-shaped form.** `holdForReadiness(deliver)`, the kernel mints a `PresentationToken` at arm time, `ready()` / `abandon(reason?)`. Three of four consumer obligations move to the kernel. |
+| 13c N-1 | Activation staged type | **D-34 — parameterized**: `BehaviorSpec<Part, Activation extends {} = true>`. |
+| 13c N-2 | The visual's rendered delta | **D-35 — no seam.** The lift session records what `write(x, y)` rendered and the kernel reads its own object. |
+
+**Two probe results were declined as Phase 14 scope, as the probes asked:**
+settle-time landing timing (13b B-2 — ergonomics, Phase 15 or 22) and public
+lift modes / coordinate-space ownership (13c P-2, P-4 — Phase 18).
+
+**Scope.** Revise contract documents 00–06 **once**, against all three probes
+together, and re-freeze.
+
+**Deliverables.**
+
+- The lifecycle-intent vocabulary from 13a, or a recorded decision not to add
+  one.
+- The settlement / authored-presentation protocol from 13b — one of the five
+  enumerated candidates, or a recorded decision to keep the current shape.
+- **13c N-1** — the activation seam's staged type, parameterized or deliberately
+  left pinned to `HTMLElement`.
+- **13c N-2** — how the kernel learns the visual's rendered delta, and what that
+  costs on the hot path if the sortable has to answer it too.
+- A record of what 13c proved *sufficient*, since an unchanged seam validated by
+  a second behavior is a stronger claim than an unexamined one: the six `P-*`
+  rows are that record and belong in the revised 02.
+- The 05 test matrix extended with the rows the revision creates.
+- **Re-verification**: the whole existing suite green against the revised SPI,
+  with every deviation Part I recorded re-checked rather than assumed.
+
+**Done when.** The contract set is internally consistent at the new SPI, and no
+probe case from Phase 13 is left unaddressed — addressed includes "declined,
+with a reason".
+
+**What re-freezing does and does not mean.** It restores 00's admissible-change
+rule; it does not close the contract. A later phase that produces a failing
+executable case the SPI cannot express reopens it, and that is the system
+working. See §Ordering principle.
+
+**Deviations and decisions recorded while revising.**
+
+- **The four changes were not independent, and two of them were decided
+  differently because of it.** Written up in 02 §Where the four changes touch
+  each other, which is the single-revision rule earning its keep rather than a
+  formality. D-32 needed D-35 to be *correct*: a pointerless operation would
+  otherwise have computed its landing origin from a `-1` sentinel and two zeroes,
+  and would have shipped a landing that opens off-screen. D-32 shrank to one
+  member because the open draft already carries what 13a's candidate wanted to
+  stage — threading a `Prepared` from a native listener to a queued release seam
+  would have broken 02 §The staged value never outlives its transaction *and*
+  forced a second staged type parameter beside D-34's. D-33 is the only change
+  that touches nothing else, and that is stated rather than assumed.
+- **D-35 replaced 13c's own suggested fix.** The probe proposed a
+  `renderedDelta(current): Point` seam; the revision records the delta inside
+  `VisualLiftSession.write` instead. It costs nothing on the hot path, tracks
+  writes that do not come from `moved` (a controlled position writes from an
+  `action.effect`), and no behavior implements anything. 13c's N-2 assertion
+  therefore **still fails to compile after the revision**, deliberately: no seam
+  reports the rendered delta because none needs to. The probe's annotation should
+  say so — a Phase 15 hygiene item, not a contract one.
+- **The contract said `lift.composeXY` where the code has said `lift.write` since
+  phase 6.** D-35's sole-writer rule depends on which one is normative, so the
+  prose was corrected across 02, 05 and 06 rather than left as a harmless drift.
+  The hot-path accounting is unchanged: three post-`MOVE` indirect calls,
+  `spec.moved` · `lift.write` · `frame.schedule`.
+- **Two Part I deviations were ratified into the normative `BehaviorSpec`
+  listing**: `config.actionTags` and `reportFailure`. Both have existed since
+  phases 4–5 and were described in 02's prose while missing from its listing.
+  `reportFailure` is load-bearing for D-32 — a throwing `command.admit` has
+  exactly the Q-1 shape a throwing `admit` has — so the listing could not stay
+  silent about it.
+- **A capability was deliberately narrowed.** A `presentationReady` promise could
+  reject, and the rejection was classified. `PresentationToken` has no rejection
+  channel: `abandon(reason)` releases the gate, leaves `authoredReady` false and
+  reports, and the deadline stays the only classified readiness failure. A
+  consumer whose own render failed has not caused a library failure. Phase 15
+  confirms this against the React integration; a case where an orderly release is
+  wrong reopens it.
+- **One capability is admitted as not expressible**, rather than reserved for:
+  a multi-press keyboard drag — pick up, move, drop across several key events —
+  needs a producer of a release the kernel does not own. D-32 mints a one-slot
+  command, which is the shipped semantics and the ledger's retained behavior. New
+  question Q-13 in 05, and a row in 00 §What would falsify this model. Phase 16's
+  accessibility review is where the case would come from.
+- **The public surface takes one breaking change**, and only one:
+  `ReorderResolution.accept/reject` take a `PresentationDeliverer` instead of a
+  `presentationReady` promise, and `PresentationToken`/`PresentationDeliverer`
+  join `sortable/callbacks.js`. Recorded in 03 §The export topology this
+  requires and §The public/internal boundary. `CommandAdmission` stays
+  **internal** — a behavior declares which events the kernel binds; a consumer
+  does not.
+- **What the revision did not touch, checked rather than assumed:** the kernel
+  frame slice is still seven fields; `KernelHost` is still six members; the phase
+  vocabulary is still eight; the behavior tag count is still two; the seam set is
+  unchanged apart from D-34's type parameter. Every negative assertion in all
+  three typed probes still fails to compile, which is the property that makes
+  them worth keeping.
+
+**What Phase 14 did not do, and where it goes.** The plan's re-verification
+deliverable — "the whole existing suite green against the revised SPI, with every
+deviation Part I recorded re-checked rather than assumed" — belongs with the
+implementation, because there is nothing to re-run against a document. It is
+carried into Phase 15 as an explicit obligation and named in Checkpoint C's exit
+condition below.
+
+---
+
+## Checkpoint C — the contract re-freeze
+
+**What to review.** The revision itself, before a line of it is built on.
+
+- Does each change trace to a Phase 13 case, or did scope leak in?
+- Is the lifecycle-intent vocabulary the *smallest* one that works, or has it
+  become a generic behavior-to-kernel protocol — which 02 explicitly declined to
+  reserve? **The revision claims it is a second admission rather than a
+  vocabulary at all** (D-32); the sharpest test of that claim is whether the
+  one-slot rule (§Q-13) is a kernel decision that should have been the
+  behavior's.
+- Does the new settlement protocol keep the gate independence and the
+  render/landing overlap 05 relies on? **And is the narrowing deliberate**: the
+  token has no rejection channel, which is a capability `presentationReady` had.
+- Does anything in the revision only make sense for the sortable?
+- **Is D-35's sole-writer rule true rather than aspirational?** It makes
+  `lift.write` the only rendering entry point between acquisition and the join,
+  and everything downstream of `LandingContext.from` now depends on that.
+
+**Form.** Owner review plus an independent audit, then a closure assessment —
+the cadence Checkpoints A and B already ran (`reviews/drag2-review-*`).
+
+**Exit.** SPI re-frozen. From here the admissible-change rule from 00 applies
+again, unchanged. Phase 14's re-verification obligation travels with the
+implementation: the existing suite green against the revised SPI, with every Part
+I deviation re-checked rather than assumed, is a Phase 15 done-when.
+
+---
+
+## Phase 15 — Settlement protocol implementation
+
+**Scope.** Implement D-33 — the kernel-minted `PresentationToken` — plus the
+re-verification Phase 14 could not perform against a document.
+
+**Deliverables.** The kernel and behavior side; the public surface change
+(`ReorderResolution.accept/reject` take a `PresentationDeliverer`;
+`PresentationToken` and `PresentationDeliverer` export from
+`sortable/callbacks.js`); the React reference integration updated —
+`createCommitTracker` should disappear entirely, and if any residual consumer
+obligation survives it is documented as a deliberate cost rather than left
+implicit in a story file. `tests/sortable/react.browser.test.ts` and
+`sortable.stories.tsx` both move with it.
+
+**Also here, because they are cheap once the settlement is open**: 13b B-2's
+ergonomics — `landing({ timing })` or `duration: number | (() => number)`, read
+at settle time inside the default runner so a consumer keeps the reduced-motion
+collapse, the retarget replay and the generation guard — and 13c N-2's probe
+annotation, which still describes the gap as unsolved.
+
+**Done when.** The 05 §Readiness token matrix group passes; the readiness and
+async-attempt rows pass against the new protocol; the reference integration is
+expressible without the consumer re-implementing supersede-and-never-drop; and
+**the whole existing suite is green against the revised SPI, with every Part I
+deviation re-checked rather than assumed** — Phase 14's carried obligation.
+
+---
+
+## Phase 16 — Keyboard sorting
+
+**Scope.** The discrete-input path, at parity with the ledger's keyboard rows.
+
+**Deliverables.** D-32's `command` admission member and the pointerless lifecycle
+behind it — `ACTIVATE`, `RELEASE`, no pointer listeners, no capture; the one-slot
+command as a complete operation sharing the proposal protocol (the shipped
+package's constraint that request semantics cannot diverge between input modes is
+a requirement, not an implementation detail); the 05 §Discrete input matrix
+group; the `List` story's arrow-key hint restored; accessibility behavior checked
+against [`.agents/docs/accessibility.md`](../accessibility.md).
+
+**One thing to decide here rather than assume (05 §Q-13).** D-32 makes a command
+one slot, because that is what the shipped package does. If the accessibility
+review finds that a *multi-press* mode — pick up, arrows, drop — is required for
+parity or for a real user need, that is a failing executable case and it reopens
+the contract; it must not be worked around by having the behavior fake a release.
+
+**Where it does not go (ledger L-4).** `ArrowLeft` and `ArrowUp` are the *same*
+command in the shipped package, and `ArrowRight` and `ArrowDown` are the same
+command. Keyboard reordering is therefore not axis-specific and must not live
+inside `vertical()` or any successor axis feature — which is also why Phase 17
+inherits no keyboard question from this one. The shipped ingress is a second
+delegated listener on the same container, sharing `resolveSortablePress`, so
+`handle()` gates the keyboard path too; that sharing is parity, not incidental.
+
+**Done when.** Keyboard and pointer reorders produce identical proposals for the
+same destination gap, asserted directly rather than inferred.
+
+---
+
+## Phase 17 — two-dimensional insertion, the second axis
+
+**Scope.** The retained 2-D insertion capability, as first-party geometry.
+
+**What the ledger found (L-8).** The shipped package has **no grid feature,
+because it has no axis concept at all**: `nearestSlot` is a squared-Euclidean
+search over both centre coordinates, `SortableOptions` has no `axis` member, and
+the shipped `Grid` story is the `List` story with different CSS. So 2-D is the
+shipped *default*, and drag2's `vertical()` is a **narrowing** of it. This phase
+removes a restriction drag2 introduced; it does not add one the shipped package
+had. That reframing does not reduce the work — the rule still has to be written
+against the frozen view types — but it does mean "grid support" is a parity row,
+and it is why the third shape below is the one with precedent.
+
+**Why it is a phase and not a feature ticket.** It is the only test of a claim
+03 makes structurally: that the insertion rule is pluggable. `vertical()`
+deliberately went one-dimensional, consuming a single frame field (`pointerY`),
+and dropped the shipped package's `compareDocumentPosition` call; a 2-D rule
+needs `pointerX` and that call back, and whether the
+consumer-declared view types (`InsertionFrameView` / `InsertionRuntimeView`,
+D-13/D-20) can express it without an import edge back to the behavior runtime is
+unknown. 8a already had to widen that view once.
+
+**Its public decomposition is not decided here.** Whether this ships as a
+`grid()` sibling feature, as a parameterization of one axis feature, or as an
+unrestricted default that `vertical()` constrains — and which subpath carries it
+— follows the Phase 12 ledger's [row for 2-D sorting](ledger.md#5-sortable--two-dimensional-insertion)
+and the Phase 14 contract revision. Whichever is chosen must not make the 1-D
+case pay for the 2-D one: the minimal composition's 9.34 kB is a measured
+budget. Naming a subpath now
+would be the same class of error this part exists to correct: fixing a public
+shape ahead of the decision that owns it.
+
+**Deliverables, which do not depend on that shape.**
+
+- The 2-D insertion rule itself, and the shipped `Grid` story restored.
+- The axis-exclusivity claim (duplicate axis feature rejected, the rejected
+  contribution's private state cleaned) re-run with **two real axes** rather
+  than one and a duplicate of itself.
+- Whether the consumer-declared views expressed the 2-D rule unchanged, or
+  needed a second widening — recorded either way, since 8a's widening is
+  currently a single data point.
+- Whatever export-topology change the decided shape implies, landed **in full
+  before the modules exist** — the Phase 0 measurement precondition, for the
+  same reason. If it adds a subpath, that reopens what "minimal" means, which
+  05 §What would reopen this already names as an M-3 trigger.
+
+---
+
+## Checkpoint D — the sortable behavior is complete
+
+**What exists.** Pointer **and** keyboard input; one-dimensional **and**
+two-dimensional insertion; the
+full optional feature set; the new settlement protocol. Every sortable row in the
+ledger closed or explicitly declined.
+
+**What to review.** The behavior against the ledger, and the feature model under
+a load it has not carried: two axes, two input modes.
+
+**Exit.** No open sortable parity item. This is the last checkpoint before the
+kernel acquires a second behavior, and therefore the last cheap moment to change
+anything sortable-shaped that leaked into the kernel.
+
+---
+
+## Phases 18–20 — free drag
+
+Treated as its own track, not a phase, because it is a complete second behavior
+with its own public contract, controller semantics, coordinate model, lift modes,
+constraints, settlement, stories, tests and measurements. Split so that the
+parity boundary, the API decisions, the implementation and the architectural
+evidence can each be reasoned about — and reviewed — separately.
+
+### Phase 18 — Free drag: public contract and decomposition
+
+**Design phase; no runtime.** Builds on 13c's probe, which by now has been
+through the contract revision.
+
+**Deliverables.**
+
+- The public surface, per the ledger's free-drag rows: entry subpath(s), option
+  domains and their validation (drag2 validates every option at construction and
+  throws a `TypeError` — free drag's numeric and enum options join that rule),
+  result and resolution types.
+- **The feature decomposition.** Which of `axis`, `bounds`, `coordinateSpace`,
+  lift mode, home target and the movement callbacks are behavior core and which
+  are composable features. This is where the composition model earns or fails to
+  earn its 0.26 kB: a consumer wanting an unconstrained drag should carry no
+  bounds code.
+- **The lift-mode surface decision**, made deliberately after Phase 11's finding
+  that lift mode is behavioral. Whether the three internal modes become public,
+  and under what names, is decided here rather than inherited.
+- **`controller.update()`**: the live-policy seam and the controlled `position`,
+  designed against whatever 14 settled for externally driven motion.
+- The export topology extension, decided in full before modules exist — the same
+  measurement precondition Phase 0 observed, for the same reason.
+
+### Phase 19 — Free drag: implementation
+
+**Deliverables.** The behavior, its frame part, its features, its controller.
+Geometry through `@ydinjs/box-quad` — there is still no coordinate module in this
+package, and `coordinateSpace` must not become one.
+
+**Watch item, carried from M-1.** The frame-copy cost jumps ~10× between 12 and
+16 behavior-part fields on Chromium, and the sortable part sits 4 fields below
+that cliff. A free-drag part is a *different* shape. If it lands above the cliff
+that is a measured cost, not a surprise — but it has to be measured, in Phase 21,
+and not assumed to inherit the sortable's number.
+
+### Phase 20 — Free drag: validation and demos
+
+**Deliverables.** Its own adversarial matrix rows; the three shipped stories
+restored (`Interactive`, `AsyncDropConfirmation`, `TransformedStage`); geometry
+tests for bounds clamping, coordinate mapping and each lift mode under transform
+and zoom.
+
+**Explicit requirement, from Phase 11's lesson.** Phase 11 found a lift-mode
+regression that all 644 tests passed through, because no test compared the lifted
+visual's on-screen box to the placeholder's — it was caught by driving a demo.
+Free drag has three lift modes and a transformed-stage story. **The
+lift-geometry assertions are a deliverable of this phase**, and closing that
+open gap for the sortable belongs here too.
+
+---
+
+## Checkpoint E — cross-behavior architectural evidence
+
+The checkpoint this roadmap exists to reach, and the one Part I could not have
+run.
+
+**The claim under review: the kernel is behavior-agnostic.** Until now that has
+been a property of type signatures. With two real behaviors it becomes checkable:
+
+- Does anything in `kernel/` know a collection, a placeholder or an insertion?
+  Asserted, not read for.
+- Do the two behaviors use the **same** seam set, or did one of them quietly get
+  a seam the other ignores?
+- Does the frame-part model hold at two part shapes — including where each sits
+  against M-1's cliff?
+- Is `draggable()` still genuinely behavior-agnostic at the type level with two
+  inhabitants of `Behavior<Controller>`?
+- Does the export topology hold, and can a consumer of one behavior still not
+  reach the other's modules?
+- Which Part I deviations were sortable-specific accommodations that a second
+  behavior now shows to be general — or shows to be wrong?
+
+**Form.** Owner review plus an independent audit, plus a closure assessment.
+
+**Exit.** The behavior-agnosticism claim is either evidenced or corrected. **No
+refinement or cutover work starts before this exit** — refining an architecture
+whose central claim is unverified optimizes the wrong thing.
+
+---
+
+## Phase 21 — Measurements over the complete package
+
+**Scope.** Every M-1…M-4 number in Part I is a single-behavior number, measured
+on a workload that no longer represents the package. Re-run under the same
+reproducibility standard (05 §Measurements owed): workload and harness, named
+engines and versions, warm-up and GC policy, counts under test, sampling and
+statistics.
+
+| # | What changes |
+| --- | --- |
+| M-1 | The move path at **two** part shapes, both placed against the 12→16-field cliff; free drag's clamp-before-write on the hot path; `onMove` as a per-sample consumer callback. |
+| M-2 | Heap and call behaviour at realistic **mixed** controller counts, not one kind. |
+| M-3 | Every composition again, plus the free-drag compositions and whatever the 2-D axis shipped as. Any new subpath changes what "minimal" means — 05 names this as a reopening trigger, and the whole graph-assertion half is re-declared. |
+| M-4 | Re-check the shared layout read with two axis features rather than one. |
+
+**Plus the open optimization backlog** the Checkpoint B closure assessment
+assigned to a later measurement phase
+(`reviews/drag2-review-B-codex-2.md`): the per-sample visual render (P-01), the
+six-scalar vertical cache (P-02), placeholder geometry per resolve (P-03),
+overlapping activation geometry reads (P-04) and collection-update allocation
+(P-05). Each was deferred on the reasonable grounds that a cost is not worth
+paying down before the workload is final. It is final here.
+
+**These are the only Checkpoint B findings still open.** Two others that
+assessment listed as open were closed during Part I and are **not** backlog:
+**B-05** (landing coordinate semantics) was resolved in Phase 9, which made the
+delta space normative in 02 §Runner obligation and pinned it with exact values,
+and **M-06** (`PresentationView.insertion` lifetime) was closed by clearing the
+field on both bracket exits. They may be *revalidated* under the expanded
+behavior set — a second behavior and a second axis both touch them — but they are
+revalidation, not unfinished work, and must not be re-presented as open findings.
+
+**Done when.** Every number carried in a contract document, a README or a size
+budget is either re-measured or explicitly re-affirmed with its workload named.
+
+---
+
+## Phase 22 — The refinement pass
+
+**Scope.** Performance, bundle structure, public API and maintainability — the
+pass Part I never had, because there was never a complete artifact to refine.
+
+**Deliverables.**
+
+- **Performance**: act on Phase 21. A measurement that changes nothing was
+  either already optimal or was not worth taking; say which.
+- **Bundle structure**: composition costs across the full topology, and whether
+  the subpath set is still the right shape with two behaviors and two axes.
+- **API**: the whole public surface read as one, by someone using it — naming
+  consistency across the two behaviors, option-domain consistency, error
+  vocabulary, and the migration table's honesty.
+- **Maintainability**: the standing findings — duplicated SPI types and global
+  control-flow shape (M-02) — plus whatever Checkpoint E surfaced.
+
+**Constraint.** This phase changes code against evidence. Anything without a
+measurement, a review finding or a ledger row behind it is not refinement.
+
+---
+
+## Phase 23 — Finalization review
+
+**Relocated from its original position.** `reviews/finalization-review/` exists
+as an empty directory and was implicitly scoped to the vertical-sortable slice.
+Run there it would have reviewed a package about to grow a second behavior, a
+second input mode, a second axis and a revised settlement protocol — the wrong
+artifact, reviewed at the moment its findings had the shortest shelf life.
+
+**It also does not belong before Phase 22.** Checkpoint E is the *architectural*
+review and it deliberately precedes refinement so its findings feed the pass.
+The finalization review's distinct job is **product-level and final**: the
+complete public surface, the documentation, the migration story, and the set of
+open questions — reviewed on the artifact that will actually ship.
+
+**Scope.** The complete package: both behaviors, both input modes, both axes, the
+full feature set, the measurements, the docs, the demo corpus. Owner review plus
+an independent audit, plus a closure assessment. Findings are closed, not
+carried — this is the last review before cutover, so "deferred" is not an
+available classification.
+
+---
+
+## Phase 24 — Self-containment
+
+**The bar, stated concretely.** As genuinely complete and self-contained as
+`@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions
+carried in the docs, tests that pin the declared API and not just its behavior, a
+size budget that fails CI, and nothing a reader has to consult a plan document to
+understand.
+
+**Deliverables.**
+
+- **`packages/drag2/DESIGN.md`** — the architecture that ships, in the package,
+  the way `packages/drag/DESIGN.md` does for the shipped one. The contract set
+  stays where it is: it is the normative source and the record of how the
+  decisions were reached, and it is not a substitute for a document a maintainer
+  can read start to finish.
+- README, typedoc entries and `files.json` final and accurate.
+- The demo corpus complete — every ledger-retained capability demonstrable — and,
+  given that the stories are the only consumer surface this package has, treated
+  as a tested artifact rather than as documentation.
+- The ledger closed: every row *retain*-and-done, *redesign*-and-done, or
+  *drop*-with-justification. No row in flight.
+- Open questions: none carried. Q-4 is closed by Phase 16; anything else still
+  open at this point is either answered or converted into a documented,
+  deliberate limitation.
+
+---
+
+## Phase 25 — Cutover
+
+**Not started until Phase 24 exits.**
+
+- Rename `@ydinjs/drag2` → `@ydinjs/drag`, or fold the tree in and delete the old
+  package. Drop `private: true`.
+- Move the story corpus; delete the shipped package's stories and tests, or
+  retain specific ones as an oracle by explicit decision.
+- Root docs, `.agents/docs/architecture.md`, and this directory's `README.md`.
+- **There is no consumer migration.** Nothing in the workspace imports
+  `@ydinjs/drag`. If that changes before cutover, the new consumer becomes part
+  of Phase 24's demo corpus.
+
+---
+
+## Claims corrected
+
+Recorded here so the correction is auditable rather than silent.
+
+| Where | Was | Now |
+| --- | --- | --- |
+| plan.md, Phase 11 sign-off | "Only then is `drag2` a candidate to replace `@ydinjs/drag`" | Sign-off for the **slice**; package readiness is Phase 25 |
+| plan.md, Phase 12 | Cutover, including "migrate `@ydinjs/material-x` consumers" | Replaced by Part II; **there are no such consumers** |
+| `packages/drag2/README.md` | "Phases 0–9 complete" | Phases 0–11; and the status framed as a slice, not a package |
+| `packages/drag2/README.md` | "merging the two is phase 12" | Phase 25, after the roadmap above |
+| `.agents/docs/drag/README.md` | `brief.md` listed as the active scope | Superseded for scope by Part II; still the record of the probe's commission |
+| `brief.md` | "a pre-alpha architectural laboratory"; publishing/migration explicitly out of scope | Correct as commissioned; superseded by Part II, noted in place |
+| plan.md Phase 17, `packages/drag2/README.md` | "the shipped package additionally covers **grid sorting**" | The shipped package has **no axis concept**; 2-D is its default and `vertical()` is a narrowing. Ledger L-8 |
+| `packages/drag/src/sortable.ts` `SortableOptions.items()` — read as live | A thunk implying re-reads | Called **exactly once**, at construction; `updateItems` is the only other path. Ledger L-1 |
+
+---
+
+# Reference
+
 ## Dependency graph
 
+**Part I — the vertical-sortable slice** (complete):
+
 ```text
-0 ─▶ 1 ─▶ 2 ─▶ 3 ─▶ 4 ─▶ 5 ─▶ 6 ─▶ ⓐ ─▶ 7 ─▶ 8a ─▶ ⓑ ─▶ 8b ─▶ 9 ─▶ 10 ─▶ 11 ─▶ 12
+0 ─▶ 1 ─▶ 2 ─▶ 3 ─▶ 4 ─▶ 5 ─▶ 6 ─▶ ⓐ ─▶ 7 ─▶ 8a ─▶ ⓑ ─▶ 8b ─▶ 9 ─▶ 10 ─▶ 11
                │                  │                 │
                └ frozen SPI gate  └ Checkpoint A     └ Checkpoint B
                                                        + Q-7 / M-4 gate (in 8b)
@@ -429,6 +1215,29 @@ Phases 1 and 2 are independent of each other and can run in parallel. Everything
 
 The two checkpoints sit at the points where the next phase multiplies the cost of a change. **A** reviews the kernel machine while only one behavior depends on it; **B** reviews the composition model while only two features depend on it, and before any WAAPI or FLIP code exists.
 
+**Part II — from slice to package**:
+
+```text
+                    ┌ 13a keyboard ┐
+11 ─▶ 12 ledger ─▶ ─┼ 13b gate     ┼─▶ 14 revise ─▶ ⓒ ─▶ 15 ─▶ 16 ─▶ 17 ─▶ ⓓ
+                    └ 13c 2nd beh. ┘
+
+ⓓ ─▶ 18 ─▶ 19 ─▶ 20 ─▶ ⓔ ─▶ 21 measure ─▶ 22 refine ─▶ 23 final review ─▶ 24 ─▶ 25 cutover
+
+ⓒ contract re-freeze   ⓓ sortable complete   ⓔ cross-behavior evidence
+```
+
+The three Phase 13 probes are independent and can run in parallel; **all three
+gate Phase 14**, which is the point — the contract reopens once, not three times.
+
+Everything from 14 onward is sequential, with three review points chosen for the
+same reason A and B were. **C** reviews the contract revision before anything is
+built on it. **D** closes the sortable while the kernel still has one behavior,
+so a sortable-shaped leak into the kernel is still cheap to remove. **E** is the
+first moment the behavior-agnosticism claim is checkable at all, and it precedes
+refinement so that refinement is not spent on an architecture that has not been
+verified.
+
 ## Risks carried into implementation
 
 | Risk | Contract ref | Handling |
@@ -437,5 +1246,17 @@ The two checkpoints sit at the points where the next phase multiplies the cost o
 | Closure-per-controller cost | F-4 / M-2 | Measured; the swap is mechanical and semantics-free |
 | Generic frame copy on the move path | F-24 / M-1 | Measured; a specialized path needs an equivalence check |
 | `resetFramePart` exhaustiveness | F-11, I-28 | `__DEV__` heuristic only; known and unsolved in both probes |
-| Keyboard sorting needs a lifecycle transition | Q-4, 02 §`ActionTransition` | Explicitly deferred to a kernel-contract revision, not a third tag |
+| Keyboard sorting needs a lifecycle transition | Q-4, 02 §`ActionTransition` | **Scheduled**: probed in 13a, revised in 14, implemented in 16 |
 | Consumer breaks I-25 (unmounts the dragged item) | Q-12 | **Closed in Phase 10: the guarded fallback is sufficient.** Judged by `tests/sortable/react.browser.test.ts`; written up in `tests/COVERAGE.md` §Q-12 and 05's resolved table |
+
+## Risks carried into Part II
+
+| Risk | Handling |
+| --- | --- |
+| The kernel is behavior-agnostic only on paper | 13c probes it as a type fixture; Phases 18–20 build the second behavior; **Checkpoint E** is where the claim is settled, and it gates refinement and cutover |
+| Reopening the frozen SPI more than once | All three pressure points are probed before any revision (13), revised together (14), re-frozen at **C** |
+| The settlement protocol redesign loses what the current shape buys | 13b prices any candidate against gate independence and the render/landing overlap before one is chosen |
+| A new subpath silently invalidates the size measurement | The 2-D axis (17) and free drag (18) each decide a topology change; whichever they land triggers the M-3 reopening rule 05 already states, and Phase 21 re-declares the whole graph half |
+| M-1's 12→16 field cliff, at a second part shape | Recorded as a watch item in 19 and measured in 21 rather than assumed to inherit the sortable's number |
+| No external consumer validates either package | Acknowledged rather than mitigated: the demo corpus is treated as a deliverable in 17, 20 and 24, and Phase 11's lift-mode regression is the standing evidence that a demo catches what the suite does not |
+| A capability is dropped by omission rather than by decision | The Phase 12 ledger is the authority, and Phase 24 does not exit with a row in flight |
