@@ -10,16 +10,17 @@ what comes next.
 
 | Document | Status |
 | --- | --- |
-| [`brief.md`](brief.md) | **Active.** The iteration brief for `@ydinjs/drag2`: a compositional vertical-sortable architectural probe in a new, independent package. |
-| [`contract/`](contract/) | **Probe 1 — reviewed, superseded as a construction model.** The first architecture contract derived from the brief. Still the reference for lifecycle invariants, edge cases and validated product requirements; its construction model (public `Kernel`, one shared runtime, behavior-driven `begin()`/`commit()`) is not carried forward. |
-| [`contract-probe-2/`](contract-probe-2/) | **Consolidated, corrected for implementation.** The construction model for `drag2`, revised after six reviews and the React placeholder probe: an internal kernel executor, a private per-controller behavior runtime, features as function factories returning contributions, frames composed from independently owned parts, and settlement gates requested, sealed, then armed on a kernel-private attempt. Carries the decision ledger (D-1…D-31) and findings (F-1…F-42). Its signatures are compiled in [`packages/drag/docs/contract-probe-2/contract.ts`](../../../packages/drag/docs/contract-probe-2/contract.ts). |
-| [`reviews/`](reviews/) | Reviews of the contracts. |
+| [`plan.md`](plan.md) | **Active — the live scope.** Part I is the completed vertical-sortable slice (phases 0–11). Part II is the roadmap from that slice to a package that can replace `@ydinjs/drag`. |
+| [`brief.md`](brief.md) | **Provenance.** The iteration brief that commissioned `@ydinjs/drag2` as a compositional vertical-sortable architectural probe. Delivered in full by phases 0–11; **superseded for scope** by `plan.md` Part II. |
+| [`contract/`](contract/) | **The normative contract**, documents 00–06, read with the precedence in `00-index.md`. An internal kernel executor, a private per-controller behavior runtime, features as function factories returning contributions, frames composed from independently owned parts, and settlement gates requested, sealed, then armed on a kernel-private attempt. Carries the decision ledger (D-1…D-31) and findings (F-1…F-42). Its signatures are compiled in [`packages/drag/docs/contract-probe-2/contract.ts`](../../../packages/drag/docs/contract-probe-2/contract.ts), a **type fixture only**. |
+| [`measurements/`](measurements/) | M-1…M-4 with their harnesses and workloads. Every figure was taken against a single behavior; `plan.md` phase 21 re-runs them over the complete package. |
+| [`reviews/`](reviews/) | Reviews of the contracts and of each checkpoint. |
 
-Read [`contract/00-index.md`](contract/00-index.md) for the invariants and the
-product requirements they came from, then
-[`contract-probe-2/00-index.md`](contract-probe-2/00-index.md) for the
-construction model itself. Probe 2 supersedes probe 1's *construction* model
-only; probe 1 remains the reference for lifecycle invariants and edge cases.
+Read [`contract/00-index.md`](contract/00-index.md) first — it carries the
+normative precedence and the freeze rule. The earlier probe-1 contract, whose
+construction model (a public `Kernel`, one shared runtime, behavior-driven
+`begin()`/`commit()`) is not carried forward, is in
+[`archive/contract-attempt-1/`](archive/contract-attempt-1/).
 
 ## Archive
 
@@ -29,6 +30,7 @@ were replaced, or alternatives that were explored and rejected:
 
 | Document | What it was |
 | --- | --- |
+| `contract-attempt-1/` | `drag2` probe 1 — the first architecture contract derived from the brief. Reviewed, then superseded as a *construction* model by `contract/`. |
 | `drag-re-redesign.md` | The runtime-reset proposal (revision 3) that Phases 1–6 delivered. Superseded by the shipped `DESIGN.md`. |
 | `phase-1/` | The behavioural contract, decision ledger and measurement log for the shipped runtime. Still the best record of *why* the current invariants exist. |
 | `drag-entities.md`, `drag-entities-suggestion.md` | The entity catalogue for the reducer/effect/owner architecture, replaced by the action-driven runtime. |

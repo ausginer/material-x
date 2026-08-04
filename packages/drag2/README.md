@@ -5,11 +5,13 @@ Implementation of the frozen `drag2` construction model: a private kernel execut
 - **Contract (source of truth):** [`.agents/docs/drag/contract/`](../../.agents/docs/drag/contract/), documents 00–06, read with the precedence stated in `00-index.md`.
 - **Implementation plan:** [`.agents/docs/drag/plan.md`](../../.agents/docs/drag/plan.md).
 
-The shipped `@ydinjs/drag` is untouched while this package is built. Merging the two is phase 12 and a separate decision, so this package is `private` until then.
+The shipped `@ydinjs/drag` is untouched while this package is built. Merging the two is the last phase of the plan and a separate decision, so this package is `private` until then.
 
 ## Status
 
-Phases 0–9 complete. **Phases 3–5 are the frozen SPI** and **phase 9 froze the public surface**: any change to a seam signature, or any addition to the export table below, requires the failing-executable-case justification from contract 00.
+**Phases 0–11 complete: one production-shaped, pointer-driven vertical sortable.** That is a validated slice, not a successor to `@ydinjs/drag`. The shipped package additionally covers free dragging, keyboard reordering and grid sorting, none of which exist here, and every measurement below was taken against a single behavior. The roadmap from slice to package is [`plan.md`](../../.agents/docs/drag/plan.md) Part II.
+
+**Phases 3–5 are the frozen SPI** and **phase 9 froze the public surface**: any change to a seam signature, or any addition to the export table below, requires the failing-executable-case justification from contract 00. Three known pressure points against that freeze — discrete (keyboard) input, the authored-presentation protocol, and whether a second behavior fits the seam set — are probed and resolved together in Part II rather than one at a time.
 
 - **0–2 — scaffolding, kernel primitives, frame slicing.** Every entrypoint in `files.json`, `realm`/`lifetimes`/`queue`/`reporter`/`failures`/`presentation`/`pointer`/`invalidation`, and the composed frame with its `DEV` assertions.
 - **3–5 — the seam driver, the lifecycle, settlement.** `Transition`/`SeamOutcome`/`runCore` with both failure latches; `draggable()`, the two-phase handshake, admission, activation, the hot path, release, the cancel latch and its precedence, the failure checkpoint and the seven-step `destroy()`; the resolution attempt, the five-case `SettlementInput`, request → seal → arm, the landing completion latch and the join.
@@ -24,13 +26,13 @@ Phases 0–9 complete. **Phases 3–5 are the frozen SPI** and **phase 9 froze t
 Two of the shipped package's stories have **no drag2 equivalent yet**, because only the vertical sortable slice is implemented:
 
 - the whole `Drag/Draggable` file — free drag with `axis`, `bounds` and `onDrop`. `draggable()` here is behavior-agnostic and requires a behavior; no free-drag behavior exists.
-- `Drag/Sortable` → **Grid**. `vertical()` is the only axis rule, and a consumer cannot author one: `SortableFeature` is opaque and `brandFeature` is unexported (contract 03 §Closed for real). A grid needs a first-party sibling feature.
+- `Drag/Sortable` → **Grid**. `vertical()` is the only axis rule, and a consumer cannot author one: `SortableFeature` is opaque and `brandFeature` is unexported (contract 03 §Closed for real). Two-dimensional insertion has to be first-party; what shape it takes is a plan decision, not a consumer one.
 
 The List story's hint also drops the shipped package's arrow-key reordering, which this package does not implement; `Escape` still cancels a live drag.
 
 ## Migrating from `@ydinjs/drag`
 
-The two packages are not source-compatible; this is a rewrite against a frozen contract, and merging them is phase 12. The differences a consumer actually meets:
+The two packages are not source-compatible; this is a rewrite against a frozen contract, and this table covers only the vertical sortable — free drag, keyboard reordering and grid sorting have no counterpart here yet. The differences a consumer actually meets:
 
 | `@ydinjs/drag` | `@ydinjs/drag2` |
 | --- | --- |
