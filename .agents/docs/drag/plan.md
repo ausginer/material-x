@@ -501,6 +501,21 @@ expensive one unavailable.
 
 **Planning only. No runtime change.**
 
+**Complete — [`ledger.md`](ledger.md).** 72 classified rows: retain 54, redesign
+14, drop 4, each drop naming what a consumer loses; six rows are
+retain-with-deferred-shape, each naming the phase that owns the decision. Eight
+findings (L-1…L-8) are cited by the phases below; three change what later phases
+have to do:
+
+- **L-8** — 2-D insertion is the *shipped default*, not a shipped feature. See
+  Phase 17.
+- **L-6** — settle-time `landingTiming()` is the one shipped capability drag2
+  currently cannot express. It is a candidate failing executable case for
+  Phase 13b, not a prose finding.
+- **L-4** — keyboard is not axis-specific (`ArrowLeft` ≡ `ArrowUp`), so Phase 16
+  must not attach it to an axis feature, and Phase 17 does not inherit a
+  keyboard question.
+
 **Scope.** Decide, in writing and per capability, what the successor package
 retains, redesigns and drops — before any of it is built.
 
@@ -568,6 +583,16 @@ builder, deliberately so that request semantics cannot diverge. What it needs
 from the kernel is what a behavior action **cannot** ask for today — admission,
 activation and release for a complete one-slot operation with no pointer.
 
+The ledger sharpened this into something narrower than "no pointer"
+([§4](ledger.md#4-sortable--keyboard-reordering)). `admitCommand` decides
+**feasibility synchronously, in the listener, before the action is queued**: an
+edge item yields `null` from `keyboardInsertion` and the command is inert, and
+`preventDefault()` is called only when the command is possible. drag2's
+admission is a two-phase handshake *through the kernel queue*, so there is no
+seam that lets a behavior answer "is this possible" and consume the event before
+queueing. That, not the absence of a pointer, is the expressibility failure —
+and it is the one to write as the executable case.
+
 **Deliverable.** A written case, plus a sketch of the smallest lifecycle-intent
 vocabulary that expresses it. 02 already names the alternative under
 consideration ("a small typed lifecycle-intent vocabulary"); this is where it
@@ -602,8 +627,17 @@ a promise instead of awaiting one is what lets the authored re-render overlap th
 landing animation rather than serialize behind it. A design that loses that
 overlap is not a simplification.
 
-**Deliverable.** The obligation set as an executable case; candidate designs with
-the overlap property and the failure-visibility property evaluated against each.
+**A second case belongs here (ledger L-6).** Settle-time `landingTiming()` is
+the one shipped capability drag2 currently cannot express: `landing()` fixes
+timing at construction, and two shipped behaviors read the timing *after* a
+settlement step has run — rejected sortable timing is read after the placeholder
+returns home, and free drag's after the home target resolves. It is a settlement
+question, it is executable, and it is cheapest to carry into Phase 14 alongside
+the obligation set rather than to rediscover in Phase 15.
+
+**Deliverable.** Both cases stated executably; candidate designs for the
+authored-presentation protocol with the overlap property and the
+failure-visibility property evaluated against each.
 
 ### 13c — A second behavior against the current SPI
 
@@ -709,6 +743,14 @@ requirement, not an implementation detail); the `List` story's arrow-key hint
 restored; accessibility behavior checked against
 [`.agents/docs/accessibility.md`](../accessibility.md).
 
+**Where it does not go (ledger L-4).** `ArrowLeft` and `ArrowUp` are the *same*
+command in the shipped package, and `ArrowRight` and `ArrowDown` are the same
+command. Keyboard reordering is therefore not axis-specific and must not live
+inside `vertical()` or any successor axis feature — which is also why Phase 17
+inherits no keyboard question from this one. The shipped ingress is a second
+delegated listener on the same container, sharing `resolveSortablePress`, so
+`handle()` gates the keyboard path too; that sharing is parity, not incidental.
+
 **Done when.** Keyboard and pointer reorders produce identical proposals for the
 same destination gap, asserted directly rather than inferred.
 
@@ -716,21 +758,34 @@ same destination gap, asserted directly rather than inferred.
 
 ## Phase 17 — two-dimensional insertion, the second axis
 
-**Scope.** The retained 2-D / grid insertion capability, as a first-party
-sibling to `vertical()`.
+**Scope.** The retained 2-D insertion capability, as first-party geometry.
+
+**What the ledger found (L-8).** The shipped package has **no grid feature,
+because it has no axis concept at all**: `nearestSlot` is a squared-Euclidean
+search over both centre coordinates, `SortableOptions` has no `axis` member, and
+the shipped `Grid` story is the `List` story with different CSS. So 2-D is the
+shipped *default*, and drag2's `vertical()` is a **narrowing** of it. This phase
+removes a restriction drag2 introduced; it does not add one the shipped package
+had. That reframing does not reduce the work — the rule still has to be written
+against the frozen view types — but it does mean "grid support" is a parity row,
+and it is why the third shape below is the one with precedent.
 
 **Why it is a phase and not a feature ticket.** It is the only test of a claim
 03 makes structurally: that the insertion rule is pluggable. `vertical()`
-deliberately went one-dimensional and dropped the shipped package's
-`compareDocumentPosition` call; a grid needs the 2-D rule back, and whether the
+deliberately went one-dimensional, consuming a single frame field (`pointerY`),
+and dropped the shipped package's `compareDocumentPosition` call; a 2-D rule
+needs `pointerX` and that call back, and whether the
 consumer-declared view types (`InsertionFrameView` / `InsertionRuntimeView`,
 D-13/D-20) can express it without an import edge back to the behavior runtime is
 unknown. 8a already had to widen that view once.
 
 **Its public decomposition is not decided here.** Whether this ships as a
-`grid()` sibling feature, as a parameterization of one axis feature, or in some
-other shape — and which subpath carries it — follows the Phase 12 ledger's
-row for 2-D sorting and the Phase 14 contract revision. Naming a subpath now
+`grid()` sibling feature, as a parameterization of one axis feature, or as an
+unrestricted default that `vertical()` constrains — and which subpath carries it
+— follows the Phase 12 ledger's [row for 2-D sorting](ledger.md#5-sortable--two-dimensional-insertion)
+and the Phase 14 contract revision. Whichever is chosen must not make the 1-D
+case pay for the 2-D one: the minimal composition's 9.34 kB is a measured
+budget. Naming a subpath now
 would be the same class of error this part exists to correct: fixing a public
 shape ahead of the decision that owns it.
 
@@ -990,6 +1045,8 @@ Recorded here so the correction is auditable rather than silent.
 | `packages/drag2/README.md` | "merging the two is phase 12" | Phase 25, after the roadmap above |
 | `.agents/docs/drag/README.md` | `brief.md` listed as the active scope | Superseded for scope by Part II; still the record of the probe's commission |
 | `brief.md` | "a pre-alpha architectural laboratory"; publishing/migration explicitly out of scope | Correct as commissioned; superseded by Part II, noted in place |
+| plan.md Phase 17, `packages/drag2/README.md` | "the shipped package additionally covers **grid sorting**" | The shipped package has **no axis concept**; 2-D is its default and `vertical()` is a narrowing. Ledger L-8 |
+| `packages/drag/src/sortable.ts` `SortableOptions.items()` — read as live | A thunk implying re-reads | Called **exactly once**, at construction; `updateItems` is the only other path. Ledger L-1 |
 
 ---
 

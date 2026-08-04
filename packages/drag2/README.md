@@ -9,7 +9,7 @@ The shipped `@ydinjs/drag` is untouched while this package is built. Merging the
 
 ## Status
 
-**Phases 0–11 complete: one production-shaped, pointer-driven vertical sortable.** That is a validated slice, not a successor to `@ydinjs/drag`. The shipped package additionally covers free dragging, keyboard reordering and grid sorting, none of which exist here, and every measurement below was taken against a single behavior. The roadmap from slice to package is [`plan.md`](../../.agents/docs/drag/plan.md) Part II.
+**Phases 0–11 complete: one production-shaped, pointer-driven vertical sortable.** That is a validated slice, not a successor to `@ydinjs/drag`. The shipped package additionally covers free dragging, keyboard reordering, and two-dimensional insertion — none of which exist here, and every measurement below was taken against a single behavior. (Two-dimensional insertion is not a *feature* of the shipped package: it has no axis concept at all, so 2-D is its default and `vertical()` here is a narrowing of it. See [`ledger.md`](../../.agents/docs/drag/ledger.md) §5.) The roadmap from slice to package is [`plan.md`](../../.agents/docs/drag/plan.md) Part II.
 
 **Phases 3–5 are the frozen SPI** and **phase 9 froze the public surface**: any change to a seam signature, or any addition to the export table below, requires the failing-executable-case justification from contract 00. Three known pressure points against that freeze — discrete (keyboard) input, the authored-presentation protocol, and whether a second behavior fits the seam set — are probed and resolved together in Part II rather than one at a time.
 
@@ -26,13 +26,13 @@ The shipped `@ydinjs/drag` is untouched while this package is built. Merging the
 Two of the shipped package's stories have **no drag2 equivalent yet**, because only the vertical sortable slice is implemented:
 
 - the whole `Drag/Draggable` file — free drag with `axis`, `bounds` and `onDrop`. `draggable()` here is behavior-agnostic and requires a behavior; no free-drag behavior exists.
-- `Drag/Sortable` → **Grid**. `vertical()` is the only axis rule, and a consumer cannot author one: `SortableFeature` is opaque and `brandFeature` is unexported (contract 03 §Closed for real). Two-dimensional insertion has to be first-party; what shape it takes is a plan decision, not a consumer one.
+- `Drag/Sortable` → **Grid**. `vertical()` is the only axis rule, and a consumer cannot author one: `SortableFeature` is opaque and `brandFeature` is unexported (contract 03 §Closed for real). Two-dimensional insertion has to be first-party; what shape it takes is a plan decision, not a consumer one. The shipped story needs no options at all — it is the `List` story with different CSS.
 
 The List story's hint also drops the shipped package's arrow-key reordering, which this package does not implement; `Escape` still cancels a live drag.
 
 ## Migrating from `@ydinjs/drag`
 
-The two packages are not source-compatible; this is a rewrite against a frozen contract, and this table covers only the vertical sortable — free drag, keyboard reordering and grid sorting have no counterpart here yet. The differences a consumer actually meets:
+The two packages are not source-compatible; this is a rewrite against a frozen contract, and this table covers only the vertical sortable — free drag, keyboard reordering and two-dimensional insertion have no counterpart here yet. The full boundary, per capability, is [`ledger.md`](../../.agents/docs/drag/ledger.md). The differences a consumer actually meets:
 
 | `@ydinjs/drag` | `@ydinjs/drag2` |
 | --- | --- |
