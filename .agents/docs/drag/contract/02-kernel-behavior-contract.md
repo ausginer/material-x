@@ -997,11 +997,15 @@ release.prepare
   commit()                                   ← draft.proposal becomes current.proposal
 
 release.effect(current, command)
+    …placeholder move, final lift render…    ← the committed presentation writes
+                                               come FIRST: a throwing write must
+                                               not leave a published request
+                                               behind for a round-trip that will
+                                               never run
     rt.pendingRequest = current.proposal.request
                                              ← the SAME object, reached through
                                                the committed frame rather than
                                                through the command
-    …placeholder move, final lift render…
 
 kernel
     executes the staged command → onReorder(request, { signal })
@@ -1028,10 +1032,19 @@ way.
 
 Two properties of this path are load-bearing:
 
-- **Publication precedes the round-trip.** `release.effect` runs before the
-  kernel executes the command, so `rt.pendingRequest` is set before `onReorder`
-  can be called — and therefore before any consumer code, synchronous or not, can
-  acknowledge.
+- **Publication precedes the round-trip, and follows the render.**
+  `release.effect` runs before the kernel executes the command, so
+  `rt.pendingRequest` is set before `onReorder` can be called — and therefore
+  before any consumer code, synchronous or not, can acknowledge. *Within* the
+  effect it is published **last**, after the placeholder move and the final
+  `lift.write`. Both orders satisfy the requirement above, and last is chosen so
+  that a throwing render leaves no published request: `release.effect` throwing
+  classifies `FAILURE_RELEASE` and the staged command is **not** executed, so a
+  request published first would name a round-trip that never happens, and an
+  acknowledgement for it would pass the identity check. Nothing breaks if it does
+  — there is no resolution attempt and no armed hold, so the kernel reports it
+  and releases nothing — but the invalid state is better not published at all
+  than caught downstream. **[C3-04, F-27]**
 - **Exactly one request is live per controller.** While an operation is
   pre-release it is `null`, from `release.effect` it is that operation's, and
   `retire()` clears it. Every stale window closes on that one field: operation A
@@ -1060,12 +1073,51 @@ the settlement exists, let alone before its hold is armed. It latches one:
 | --- | --- |
 | while a **resolution attempt is open** (`RELEASING`, `invoke` running or settled-but-unconsumed) | latch it on that attempt; the settlement copies the latch when it is created, and arming dispatches `READINESS_SETTLED` immediately |
 | while the **readiness hold is armed** (`SETTLING`) | the ordinary release |
+| at `SETTLING` with **no** readiness hold — the resolution declared no presentation | reported as **contradictory** and then dropped. It releases nothing, adds nothing, and the settlement outcome is unchanged |
 | anywhere else — `IDLE`, `PENDING`, `ACTIVE`, after retirement | ignored, and reported on the platform channel |
 
 The latch lives on the **resolution attempt** because that is the only
 kernel-private per-operation object that exists at the moment an early
-acknowledgement can arrive. It is consumed once and dies with its attempt, so a
-latch set for an operation that then declared no presentation is simply dropped.
+acknowledgement can arrive. It is consumed once and dies with its attempt.
+
+**A latch whose operation then declares no presentation is reported as
+contradictory and then discarded — never silently dropped.** The check happens at
+**seal**, which is the first moment the complete gate plan is known: `prepare`
+returning `{ presentation: true }` does not yet mean a hold exists, because
+taking it is `settlement.effect`'s to do.
+
+```text
+seal:
+  attempt.authoredReady = !attempt.readinessHeld
+  if (attempt.presentationLatched && !attempt.readinessHeld)
+      report a contradictory acknowledgement
+      attempt.presentationLatched = false
+arm:
+  attempt.presentationLatched ? dispatch(READINESS_SETTLED)
+                              : start the readiness deadline
+```
+
+Discarding at seal is what lets `arm` read the latch as an unconditional
+release: after seal, a set latch always has a hold to release.
+
+The rule is scoped to a **successful** seal. If `settlement.effect` threw, or the
+operation was invalidated, every unarmed request is dropped and the latch dies
+with them **silently** — that contradiction belongs to the seam, not to the
+consumer, and the queued failure checkpoint is already reporting it. **[F-27]**
+
+##### One channel, one gating rule, for all four invalid acknowledgements
+
+The three consumer-side rows above and the kernel-side discard are the same kind
+of event and take the same route: the **platform report channel**
+(`kernel/reporter.ts` `report`), gated on `DEV`. None of them classifies, fails,
+or otherwise touches the operation — this is the non-consequential half of the
+failure model, alongside a duplicate gate hold and a throwing disposer (I-29).
+
+`DEV` gating is not a weakening of C2-01's position. The report's audience is the
+person writing the integration and the F-6 test witness, and both run in `DEV`;
+in production the identity check has *already* made the acknowledgement harmless,
+so there is nothing left for a shipped bundle to do with the message but carry
+its string.
 
 ##### Absent means *already final*, and that is discipline, not a guarantee
 
@@ -1095,7 +1147,7 @@ protocol:
 | Consumer state | Detected? |
 | --- | --- |
 | declared, never acknowledged | **yes** — the deadline classifies `FAILURE_PRESENTATION_READY` |
-| **not** declared, acknowledged | **yes** — `controller.ready(request)` for an operation whose resolution declared nothing is ignored and **reported**, loudly in `DEV`. This is a *declared* contradiction, not an inference from DOM mutation, so it does not touch the rule that acceptance is never inferred |
+| **not** declared, acknowledged | **yes** — `controller.ready(request)` for an operation whose resolution declared nothing is **reported as contradictory and then dropped**, in `DEV`, whether it arrives late (no hold armed) or early (latched, discarded at seal). This is a *declared* contradiction, not an inference from DOM mutation, so it does not touch the rule that acceptance is never inferred |
 | not declared, not acknowledged, but rendered asynchronously anyway | **no.** The consumer entered neither half of the protocol, and this case is indistinguishable from one that genuinely renders synchronously |
 | declared and acknowledged | correct |
 

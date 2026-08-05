@@ -719,14 +719,15 @@ Checkpoint C reviews the revision before any of it is built on.
 settle-time landing timing (13b B-2 — ergonomics, Phase 15 or 22) and public
 lift modes / coordinate-space ownership (13c P-2, P-4 — Phase 18).
 
-**Checkpoint C took three passes, and the record of what each one found is the
+**Checkpoint C took four passes, and the record of what each one found is the
 point of the checkpoint.**
 
 | Pass | Review | Outcome |
 | --- | --- | --- |
 | 1 | [`checkpoint-c-phase-14-review.md`](reviews/checkpoint-c-phase-14-review.md) | Not closed. Two blockers against D-33 (C-01 synchronous-commit ordering, C-02 incoherent `abandon()`), five consistency findings. D-32, D-34, D-35 accepted on direction. **D-33 reopened and replaced** — the kernel-minted token became a controller acknowledgement keyed on request identity. |
 | 2 | [`checkpoint-c-follow-up-review.md`](reviews/checkpoint-c-follow-up-review.md) | Not closed. D-33's *direction* accepted; four items — an overclaim about the opt-in declaration (C2-01), the request-identity data path not shown normatively (C2-02), token-era residue in trace 06 (C2-03), and the fixture missing from the reviewed change set (C2-04). |
-| 3 | this pass | All four addressed. The declaration stays opt-in with the claims corrected to match; the identity path is normative in 01, 02, 06 and compiled in the fixture; 06 carries only the C-3 protocol; the fixture is staged. |
+| 3 | [`checkpoint-c-follow-up-review.md`](reviews/checkpoint-c-follow-up-review.md) | All four addressed. The declaration stays opt-in with the claims corrected to match; the identity path is normative in 01, 02, 06 and compiled in the fixture; 06 carries only the C-3 protocol; the fixture is staged. |
+| 4 | [`checkpoint-c-3.md`](reviews/checkpoint-c-3.md) — this pass | **No decision changed.** Two documents carried two normative readings of one event, and both are now single-valued: an acknowledgement contradicting its own resolution is *reported and discarded* (C3-01), and `rt.pendingRequest` publishes **after** the committed render (C3-04). Both report paths are visible — the behavior's as a call, the kernel's as the seal rule (C3-02) — and the fixture's stale line-count claim is gone (C3-03). |
 
 The revision is backed by a compiled fixture,
 `packages/drag2/docs/revision/phase-14.ts`, which is what pass 2 onward has that
@@ -903,6 +904,38 @@ working. See §Ordering principle.
   integration, and twelve `@ts-expect-error` assertions. It is not lifecycle
   validation and says so. The Phase 13 probes are untouched and still import the
   pre-revision SPI, which is what makes them evidence of what Phase 13 found.
+- **An invalid acknowledgement is reported, and the pass that asked for it fixed
+  the last place two readings survived** (C3-01, C3-02). 02 said a latch for an
+  operation that declared no presentation was "simply dropped"; 06 said the same
+  event was "ignored and reported". One event, two normative answers, so the
+  review is right that this had to be chosen rather than reconciled. **Reported
+  and discarded** is now normative everywhere, and three sub-decisions fell out of
+  making it so:
+
+  - **The discard happens at seal**, not at settlement creation. `prepare`
+    returning `{ presentation: true }` does not yet mean a hold exists — taking it
+    is `settlement.effect`'s to do — so seal is the first moment the gate plan is
+    complete. The payoff is that `arm` reads the latch unconditionally: after
+    seal, a set latch always has a hold behind it.
+  - **The report is scoped to a *successful* seal.** If `settlement.effect` threw,
+    the latch dies with every other unarmed request and nothing is reported to the
+    consumer, because that contradiction is the seam's and the queued failure
+    checkpoint already owns it.
+  - **The reporting surface was not open, and is not new.** All four invalid
+    acknowledgements — three consumer-side, one kernel-side — take
+    `kernel/reporter.ts` `report`, gated on `DEV`, and none classifies. Gating on
+    `DEV` does not weaken C2-01's position: the audience is the integrator and the
+    F-6 witness, both of which run in `DEV`, and in production the identity check
+    has already made the acknowledgement harmless.
+- **`rt.pendingRequest` publishes after the committed render** (C3-04). The
+  fixture published first and 06 published last; both satisfy D-33, which requires
+  only that publication precede `onReorder`, and both are inside the same effect.
+  Last is the better of two valid orders for the reason the review gives: a
+  throwing `release.effect` classifies `FAILURE_RELEASE` and the staged command is
+  never executed, so publishing first would name a round-trip that cannot happen.
+  Nothing breaks if it does — the kernel has no attempt and no armed hold, so it
+  reports and releases nothing — which is why this is ordering hygiene rather than
+  a defect, and why it was cheap to make uniform.
 - **What the revision did not touch, checked rather than assumed:** the kernel
   frame slice is still seven fields; the phase vocabulary is still eight; the seam
   set is unchanged apart from D-34's type parameter; and `KernelHost` grew by

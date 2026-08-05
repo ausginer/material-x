@@ -861,9 +861,17 @@ fabricated, or belonging to an operation that already retired — is **ignored a
 reported**, and releases nothing · **a structurally identical request object is
 rejected**: the check is `===` against the published object, not field equality,
 and this row is what pins it, because typecheck cannot · a `ready()` whose
-request *matches* but whose resolution declared **no** presentation is ignored
-and **reported** — the one consumer contradiction the library can see without
-inferring anything from DOM mutation (C2-01) · a resolution that declares nothing
+request *matches* but whose resolution declared **no** presentation is **reported
+as contradictory and then dropped** — no hold is added, none is released, and the
+settlement outcome is unchanged. This is the one consumer contradiction the
+library can see without inferring anything from DOM mutation (C2-01) · **the same
+contradiction reached early** — the acknowledgement latched on the resolution
+attempt, the resolution then declaring `presentation: false` — takes the same
+result: **seal** finds a latch with no readiness hold, reports it and discards
+it, so `arm` never sees a latch it cannot release (C3-01) · that discard is
+scoped to a *successful* seal: if `settlement.effect` threw, the latch dies with
+every other unarmed request and **nothing is reported to the consumer**, because
+the contradiction is the seam's · a resolution that declares nothing
 and renders asynchronously anyway is **not** detected, and the F-6 witness in
 `tests/support/gates.ts` is what covers it: any fixture rendering asynchronously
 declares as well as acknowledges · **the stale case end to end**: operation A's

@@ -162,6 +162,12 @@ type KernelHost = Readonly<{
    * arrives before the settlement exists is not lost; releases the readiness
    * hold once armed; ignored and reported outside both windows.
    *
+   * An acknowledgement for an operation that declared **no** presentation is
+   * reported as contradictory and then dropped — late, on arrival; early, at
+   * seal, where the latch is discarded once the gate plan shows no readiness
+   * hold to release. Every one of those reports takes the platform channel in
+   * `DEV`, and none classifies the operation.
+   *
    * **Not a transition.** A gate release is not a frame transition
    * (§[02](02-kernel-behavior-contract.md) §Settlement gates), so this belongs
    * to `cancel`'s family — an operation-scoped signal the kernel latches and

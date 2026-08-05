@@ -23,9 +23,10 @@
  * ## What it is not
  *
  * It is not an implementation and it is not lifecycle validation. Every value is
- * `declare`d or inert. Contract 00 is explicit that typecheck cannot catch a
- * lifecycle error, and this file is 400 lines of exactly the thing that can look
- * executable. The lifecycle cases belong to Phases 15, 16 and 19–20.
+ * `declare`d or inert, apart from the one report call the protocol requires to
+ * be visible. Contract 00 is explicit that typecheck cannot catch a lifecycle
+ * error, and this file is large enough to look executable while remaining a
+ * type-only fixture. The lifecycle cases belong to Phases 15, 16 and 19–20.
  *
  * ## The rule that makes it evidence
  *
@@ -33,6 +34,7 @@
  * `npx just typecheck` from `packages/drag2` asserts both halves: the positive
  * shapes compile, and each negative one still does not.
  */
+import { DEV } from '../../src/kernel/dev.ts';
 import type { CancelStage, FailureStage } from '../../src/kernel/failures.ts';
 import type {
   Draft,
@@ -42,6 +44,7 @@ import type {
 } from '../../src/kernel/frames.ts';
 import type { LifetimeScope } from '../../src/kernel/lifetimes.ts';
 import type { DOMRealm } from '../../src/kernel/realm.ts';
+import { report } from '../../src/kernel/reporter.ts';
 import type { Transition } from '../../src/kernel/seams.ts';
 import {
   type ResolutionCommand,
@@ -145,6 +148,25 @@ type RevisedKernelHost = Readonly<{
    *
    * Not a transition and not a classification: a gate release is not a frame
    * transition, so this is `cancel`'s family, not `commit`'s.
+   *
+   * **The kernel-side contradiction (C3-02).** An early acknowledgement is
+   * latched before the kernel can know whether a presentation will be declared,
+   * so the contradiction is resolved at seal — not dropped:
+   *
+   * ```text
+   * seal:
+   *   attempt.authoredReady = !attempt.readinessHeld
+   *   if (attempt.presentationLatched && !attempt.readinessHeld)
+   *       report(new Error('drag: ready() … declared no presentation'))
+   *       attempt.presentationLatched = false      ← discarded, not applied
+   * arm:
+   *   attempt.presentationLatched ? dispatch(READINESS_SETTLED)
+   *                               : start the readiness deadline
+   * ```
+   *
+   * It is kernel-private and therefore not expressible in this fixture — the
+   * behavior half of the same rule *is*, in `createSortableController` below.
+   * Both take {@link report}, both are `DEV`-gated, and neither classifies.
    */
   presentationCommitted(): void;
   cancel(reason?: unknown): void;
@@ -446,19 +468,25 @@ export const sortableSpec: RevisedBehaviorSpec<SortablePart, HTMLElement> = {
     },
 
     effect(current): void {
-      // Published before the kernel executes the command, so the request the
-      // consumer is about to receive is already the one `ready()` will be
-      // checked against — including under a synchronous commit (C-01).
+      // The committed presentation writes come FIRST (C3-04). `release.effect`
+      // throwing classifies `FAILURE_RELEASE` and the staged command is never
+      // executed, so publishing ahead of the render would name a round-trip
+      // that cannot happen.
+      rt.lift?.write(
+        current.pointerX - current.originX,
+        current.pointerY - current.originY,
+      );
+
+      // Still published before the kernel executes the command — both are
+      // inside this effect — so the request the consumer is about to receive is
+      // already the one `ready()` will be checked against, including under a
+      // synchronous commit (C-01).
       //
       // Reached through the **committed frame**, which is what makes this the
       // same object the staged `invoke` closure captured. `ResolutionCommand`
       // does not carry it and does not need to: putting a sortable domain value
       // on a kernel SPI type is the mistake D-34 and D-35 just corrected.
       rt.pendingRequest = current.proposal?.request ?? null;
-      rt.lift?.write(
-        current.pointerX - current.originX,
-        current.pointerY - current.originY,
-      );
     },
   },
 
@@ -513,7 +541,7 @@ export const sortableSpec: RevisedBehaviorSpec<SortablePart, HTMLElement> = {
 
 /**
  * **The identity check itself.** Written out rather than `declare`d, because it
- * is the mechanism C2-02 asks to see and it is four lines.
+ * is the mechanism C2-02 asks to see, and C3-02 asks to see its report path.
  *
  * Note what typecheck can and cannot say here: it cannot prove *object
  * identity*, because a structurally equal `ReorderRequest` literal is
@@ -534,9 +562,26 @@ function createSortableController(
         // Stale, forged, or a duplicate after retirement. Reported, never
         // applied — this is what stops operation A's late layout effect from
         // releasing operation B's gate (I-35).
+        //
+        // C3-02: *reported* is half the contract, so the call is here rather
+        // than in a comment. It takes the platform channel, gated on `DEV`,
+        // and it does not reach `host.fail` — a consumer-protocol error must
+        // never classify the operation the consumer got right.
+        if (DEV) {
+          report(
+            new Error(
+              'drag: controller.ready() received a request this operation never issued; ignored.',
+            ),
+          );
+        }
+
         return;
       }
 
+      // The matching-but-undeclared contradiction is NOT checked here. The
+      // behavior does not know what the resolution declared — `presentation`
+      // travels through `Prepared` to the kernel — so the kernel owns that
+      // report, at seal or on arrival. See `RevisedKernelHost` above.
       host.presentationCommitted();
     },
 

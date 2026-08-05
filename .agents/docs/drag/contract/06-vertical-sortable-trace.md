@@ -459,12 +459,23 @@ release stability wrong by sequencing its own seam badly. **[I-11, tier B]**
                       [K] attempt.authoredReady = !attempt.readinessHeld
                             → false here, because this resolution DID declare
                               an authored presentation
+                      [K] presentationLatched && !readinessHeld →
+                            report a contradictory acknowledgement
+                            attempt.presentationLatched = false
+                            ← inert here. It fires when the consumer acknowledged
+                              a presentation its resolution never declared, and
+                              seal is the first moment the gate plan is complete.
+                              Discarding here is what lets ARM read the latch as
+                              an unconditional release.        [D-33, C3-01]
 
                       ── ARM: the complete gate plan is now known ──
                       [K] presentationLatched? → dispatch(READINESS_SETTLED)
                             ← set if the consumer already acknowledged, which a
                               synchronous renderer does before onReorder even
                               returns. DISPATCHED, never released inline.
+                            ← unconditional by construction: seal has already
+                              discarded a latch with no hold behind it, so
+                              anything still set here has a gate to release.
                           else → start the readiness deadline (500 ms)
                             ← nothing consumer-reachable runs here, so there is
                               no revalidation to do and nothing to dispose
@@ -699,7 +710,9 @@ anywhere above.
 | The consumer commits **synchronously** — `flushSync`, or a non-React renderer | `controller.ready(request)` arrives while the resolution attempt is still open, before the settlement exists. The kernel latches it there, the settlement copies the latch, and arming dispatches `READINESS_SETTLED` instead of starting a deadline. The layout effect finds the request because the consumer stored it before mutating. **[D-33, C-01]** |
 | A late `ready()` from an operation that already timed out | Rejected: the behavior's published request is `null` (retired) or belongs to the newer operation, so no `host.presentationCommitted()` is issued and the newer gate stays held. Reported, never applied. **[I-35, C-01]** |
 | `ready()` at `IDLE`, `PENDING` or `ACTIVE` | No resolution attempt is open and no hold is armed, so it is ignored and reported. There is nothing an acknowledgement could mean before a proposal exists. |
-| `ready(request)` matches, but the resolution declared **no** presentation | Ignored and **reported**, loudly in `DEV`. A consumer that acknowledges what it never declared has contradicted itself, and that is a declared contradiction rather than an inference from DOM mutation — so reporting it does not weaken "acceptance is never inferred". **[C2-01]** |
+| `ready(request)` matches, but the resolution declared **no** presentation | **Reported as contradictory and then dropped**, in `DEV`. No hold is added, none is released, and the settlement outcome is unchanged. A consumer that acknowledges what it never declared has contradicted itself, and that is a declared contradiction rather than an inference from DOM mutation — so reporting it does not weaken "acceptance is never inferred". **[C2-01]** |
+| The same contradiction, reached **early** — `ready(request)` while the resolution attempt is open, and the resolution then declares `presentation: false` | Identical result, at a later moment. The latch is taken (the kernel cannot yet know the declaration), copied to the settlement, and **seal** finds a latch with no readiness hold: reported, discarded. `arm` therefore never has to ask whether a set latch has something to release. **[C3-01]** |
+| `settlement.effect` throws while an early latch is set | The latch dies with every other unarmed request and **nothing is reported to the consumer**. The contradiction is the seam's, not the consumer's, and the queued failure checkpoint is already reporting it. **[F-27, C3-01]** |
 | The consumer declares nothing and renders asynchronously anyway | **Not detected.** No hold, no deadline, and the drop may finalize before the authored commit. This is the residue of an opt-in declaration and it is tier C — indistinguishable from a consumer that legitimately renders synchronously. Covered by F-6's test obligation, not by a runtime guarantee. **[C2-01, F-46]** |
 | The consumer never acknowledges | The deadline is the only outcome, exactly as before — but the kernel knows *which operation* is outstanding, and the consumer had nothing to construct or supersede. This obligation does not disappear, and I-35 does not claim it does. **[F-6, F-46]** |
 | Recovery is home or immediate | No re-anchor regardless of `authoredReady`. Re-anchoring follows the **recovery**, not the readiness. |

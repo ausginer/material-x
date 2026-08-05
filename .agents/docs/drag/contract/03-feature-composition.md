@@ -657,8 +657,11 @@ removed and the visual pinned against DOM the consumer is about to replace.
 
 **The library cannot detect that**, and this document does not pretend
 otherwise. What it *can* detect is the adjacent mistake: calling
-`controller.ready(request)` for an operation that declared nothing is ignored and
-reported, loudly in `DEV`. So a consumer that writes one half of the protocol
+`controller.ready(request)` for an operation that declared nothing is **reported
+as contradictory and then dropped** — in `DEV`, on the platform channel, with no
+hold added, none released and the settlement outcome unchanged. It is a
+consumer-protocol report, in the same class as a stale or forged request: loud,
+and never applied. So a consumer that writes one half of the protocol
 gets told; a consumer that writes neither is indistinguishable from one that does
 not need it. The reasoning for keeping the default this way — flipping it turns
 the legitimate synchronous consumer into a 500 ms stall and a classified failure
