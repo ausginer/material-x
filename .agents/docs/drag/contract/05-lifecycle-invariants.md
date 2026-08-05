@@ -54,10 +54,10 @@ Probe 1 had every one of these at tier C.
 | I-29 | No failure on the trajectory-quality path may change the settlement outcome, release or add a hold, or destroy the runner | B | Readiness-time `anchorTarget`/`retarget` failures are best-effort reports, not classified failures |
 | I-30 | Within a post-commit `effect`: register each release before making the resource visible; publish private references only once every resource is owned; invoke consumer callbacks last | C | §[02](02-kernel-behavior-contract.md) §Post-commit ordering |
 | I-31 | Once a start is notified, exactly one terminal callback follows. A cancellation raised from inside `onStart` settles as canceled at `AT_PROPOSAL` with a null proposal rather than retiring silently | B | §[02](02-kernel-behavior-contract.md) §I-31. One admitted two-fault gap, documented at both ends |
-| I-32 | **A declined command admission leaves everything untouched**: no operation, no phase change, no `preventDefault()`, and the controller is still idle for the next event | **A** + B | **A:** `command.admit` returns `HTMLElement \| null` and has no other channel — it cannot mint, cannot dispatch a lifecycle action and cannot reach the phase. **B:** the kernel commits nothing until the return value is non-null (D-32) |
+| I-32 | **A declined admission leaves everything untouched**: no operation, no phase change, no `preventDefault()`, and the controller is still idle for the next event | B, with a stated tier-C residue | **B:** the kernel owns the call — it invokes `event.preventDefault()` exactly when an admission member returns non-null — and commits nothing otherwise. **C:** an admission member holds the real `Event` and the contract forbids rather than prevents it calling `preventDefault()` itself, the same shape as "a `prepare` performs no externally visible mutation". An earlier draft rated this **A** while leaving the call to the behavior, which was two errors compounding (Checkpoint C, C-03) |
 | I-33 | **A pointerless operation never receives a pointer sample and never holds capture.** `pointerId === -1` at commit means the kernel arms no pointer listeners and acquires no capture, so `MOVE`, `UP` and `lostpointercapture` are unreachable rather than filtered | B | Kernel-private, decided at admission. Escape-to-cancel is armed identically to a press |
 | I-34 | **The landing origin is the delta the lift session last rendered**, for every behavior and every input mode | B | `lift.write` is the sole rendering entry point between acquisition and the join, and the session records what it wrote (D-35). The behavior supplies nothing and cannot get it wrong |
-| I-35 | **A consumer can neither create, supersede nor lose an authored-presentation gate.** The kernel mints one token per settlement and hands it out once; a second operation gets a second token, and a call on a retired token is inert | **A** + B | **A:** `PresentationToken` is unconstructible by a consumer — it arrives as an argument. **B:** minting, the deadline and the once-only settle latch are kernel-private (D-33). What remains consumer-owned is calling `ready()` at the right moment, which is irreducible |
+| I-35 | **A consumer cannot create or supersede the kernel-owned readiness hold, and cannot use one operation's acknowledgement to release another.** *Declaring* the presentation, and then acknowledging it, remain consumer obligations | B, over a tier-C declaration | The hold is taken by the behavior from the resolution's declaration, never by the consumer; the deadline and the once-only settle latch are kernel-private; and `controller.ready(request)` is checked by identity against the request the behavior published for the current operation, so a late acknowledgement from a timed-out operation is **rejected and reported** rather than applied to a newer one (D-33). It deliberately does **not** claim the consumer cannot **omit** the hold: `{ presentation: true }` is opt-in, and a consumer that declares nothing and renders anyway is undetectable — the residue F-6 covers as a test obligation. Nor that it cannot fabricate a request (the identity check rejects it) or drop its acknowledgement (the deadline catches it, and nothing else does). Corrected twice at Checkpoint C, C-05 and C2-01 |
 
 **I-2 and I-18 are tier A for top-level frame slots only.** `Readonly<Frame<Part>>`
 is shallow, and `begin()` shallow-copies, so both frames reference the same
@@ -141,10 +141,15 @@ controllers for 365 B each to matter.
 
 ### F-5 — `admit` runs inside native dispatch · resolved
 
-`admit` is the one seam the kernel calls outside the queue, because
-`composedPath()`, handle resolution and `preventDefault()` are valid only during
-native dispatch. A behavior can therefore throw into the browser's event loop
-rather than into the failure model. The wrap is three lines:
+Admission is the one kind of seam the kernel calls outside the queue, because
+`composedPath()`, handle resolution and the `preventDefault()` decision are
+meaningful only during native dispatch. A behavior can therefore throw into the
+browser's event loop rather than into the failure model. The wrap is three lines:
+
+**Since D-32 this covers two members**, `admit` and `command.admit`, with
+identical treatment; and since C-03 the `preventDefault()` *call* is the
+kernel's, made after the member returns non-null, so a member that throws never
+consumed the event.
 
 ```ts
 let visual: HTMLElement | null;
@@ -640,15 +645,44 @@ shipped and ported story works. It is a distribution-of-burden defect with two
 bad failure modes, which is a sufficient basis for a revision and is not the same
 claim.
 
-Resolved by inverting creation (D-33). The property that had to survive is
-stated by this document and did: the two gates are independent and nothing
-awaits, so the authored re-render still overlaps the landing animation. A design
-that lost the overlap would not have been a simplification.
+Resolved by D-33: the resolution **declares** an authored presentation, the
+controller **acknowledges** it, and the request is the identity. The property
+that had to survive is stated by this document and did: the two gates are
+independent and nothing awaits, so the authored re-render still overlaps the
+landing animation. A design that lost the overlap would not have been a
+simplification.
 
-**F-6's status improves but is not fully promoted.** The consumer half becomes
-structural (I-35); the behavior half — declaring a presentation and then not
-holding the gate — stays a test obligation, because it is first-party code the
-kernel still cannot see.
+**The first attempt at this resolution was wrong, and the failure is the
+instructive part.** Phase 14 initially chose 13b's candidate C-2 — a kernel-minted
+token delivered while the settlement armed. Checkpoint C found two defects, both
+tracing to one root: a capability minted by the settlement is **younger than the
+render it acknowledges**. A synchronous commit therefore acknowledged nothing and
+timed out (C-01), and the `abandon()` state the design needed produced an
+accepted `onFinish` over an authored DOM still showing the old order (C-02). The
+request has the opposite age by construction — it is the argument to the callback
+that *asks* for the render — which is why C-3, rejected in 13b for lacking
+identity, is the design that works once you notice the identity was already
+there.
+
+**F-6's status improves and is not promoted, and the follow-up review made the
+line sharper.** Obligations 1 and 2 leave the consumer, and a stale
+acknowledgement becomes diagnosable rather than silent. Three of the four
+consumer error modes are now loud: declaring without acknowledging hits the
+deadline, and acknowledging without declaring is **reported** — a declared
+contradiction the kernel can see without inferring anything from DOM mutation.
+
+The fourth is not, and an earlier draft of this section implied otherwise.
+`{ presentation: true }` is **opt-in**: a consumer that declares nothing and then
+renders asynchronously has entered neither half of the protocol, and is
+indistinguishable from one that legitimately rendered synchronously. That is
+**probe 13b's R-2 shape surviving**, at tier C. Flipping the default was
+considered and rejected — it converts the legitimate imperative consumer into a
+500 ms stall and a classified failure (02 §Absent means *already final*).
+
+So F-6 keeps its test obligation and gains a second clause: any fixture that
+renders asynchronously must **declare** as well as acknowledge, and the witness
+in `tests/support/gates.ts` fails loudly if the corresponding hold is never
+taken. I-35 is worded against exactly this table and claims nothing beyond it.
 
 ## Resolved and retired questions
 
@@ -669,16 +703,29 @@ kernel still cannot see.
 Ordered by how much each could still move the design. **Q-1 and Q-12 are now
 answered** (see the resolved table above).
 
-**Q-4. Does the two-behavior-tag count survive? — one data point in, still
-open.**
-Inherited from probe 1's Q-6, and still a design assertion rather than a
-measurement. Two tags: coalesced spatial frame, collection replacement. A third
-or fourth is a **signal worth investigating**, not proof the boundary is
-misplaced. The concrete known pressure was keyboard sorting, and **it did not
-become a tag**: D-32 makes it a second admission member, and the count is still
-two. The free-drag probe wants two of its own (policy update, controlled
-position) but is a different behavior with its own count, which is not what this
-question asks. It stays open until a *third* tag appears on one behavior.
+**Q-4. Does the behavior-tag count survive? — the third tag arrived, was
+investigated, and the boundary held.**
+Inherited from probe 1's Q-6. The question was posed at two tags — coalesced
+spatial frame, collection replacement — with a third or fourth stated as a
+**signal worth investigating**, not proof the boundary is misplaced.
+
+**A third tag exists and has since Checkpoint B**: `TAG_INVALIDATION`, which
+carries a failure raised from a native scroll/resize listener back into a seam,
+because a seam is the only place a stage can be classified. Vertical sortable
+declares `config.actionTags: 3`. This document and 02 both said two until the
+Phase 14 pass, and the Phase 14 revision initially repeated the stale number as
+evidence that nothing had grown — corrected in both places.
+
+Investigated, per the question's own terms, the answer is favourable. The third
+tag is **not** a lifecycle request wearing an action's clothes, which is what
+Q-4 watches for: it does not ask for admission, activation or release, it asks
+for a seam it can throw inside. And the pressure that motivated the question —
+keyboard sorting — did **not** become a tag: D-32 made it a second admission
+member.
+
+Still open, narrowly: the free-drag probe wants two tags of its own (policy
+update, controlled position), and whether a *fourth* on one behavior indicates
+something is a question a second implemented behavior answers, not this one.
 
 **Q-13. Does a discrete operation ever need to stay `ACTIVE`?** — new with D-32.
 A command is one slot: the kernel activates and releases it without further
@@ -798,27 +845,42 @@ React before landing · both immediate · stale readiness from an older operatio
 readiness never settles and the timeout applies · readiness resolved from a real
 `useLayoutEffect()` fixture.
 
-**Readiness token — new (D-33)** · a resolution that declares no presentation
-holds no readiness gate and `authoredReady` is true from sealing · a declared
-presentation holds the gate and the deliverer receives exactly one token ·
-`token.ready()` from inside the deliverer — synchronously, before it returns —
-latches and **dispatches**, so a settlement holding only readiness does not
-finalize mid-arm and `authoredReady` is still false when the landing branch reads
-it (the reserve-before-call property, F-21's shape) ·
-a duplicate `ready()` is inert and does not double-release · `ready()` after
-`abandon()` and `abandon()` after `ready()` both resolve to the first call ·
-`token.abandon(reason)` releases the hold, leaves `authoredReady` **false**,
-reports the reason on the platform channel, and produces `onFinish` — not
-`onError`, not a replaced settlement · a token belonging to a **retired** attempt
-is inert at both validation points, including after `destroy()` · the deadline
-still classifies `FAILURE_PRESENTATION_READY` and replaces the settlement · a
-deliverer that **throws** rolls the hold back, classifies
-`FAILURE_PRESENTATION_READY` and returns `ARM_FAILED`, so the original settlement
-never finalizes · a deliverer that `destroy()`s the controller and returns
-normally leaves nothing published · two consecutive operations each get their own
-token, and the first cannot release the second's gate (I-35) · **the React
-fixture holds the token in a ref with no tracker helper**, and the reference
-integration compiles without `createCommitTracker`.
+**Authored-presentation acknowledgement — new (D-33)** · a resolution that
+declares no presentation holds no readiness gate and `authoredReady` is true from
+sealing · `accept({ presentation: true })` holds the gate and
+`controller.ready(request)` releases it with `authoredReady = true` · **a
+synchronous commit** — the layout effect running inside `setState` inside
+`onReorder`, before the resolution has even returned — acknowledges successfully:
+the latch is taken on the resolution attempt, copied to the settlement, and
+arming **dispatches** `READINESS_SETTLED` rather than releasing inline, so a
+settlement holding only readiness does not finalize in the middle of its own arm
+step and `authoredReady` is still false when the landing branch reads it (C-01,
+and F-21's shape) · a duplicate `ready(request)` is inert and does not
+double-release · a `ready()` for a request the operation never issued —
+fabricated, or belonging to an operation that already retired — is **ignored and
+reported**, and releases nothing · **a structurally identical request object is
+rejected**: the check is `===` against the published object, not field equality,
+and this row is what pins it, because typecheck cannot · a `ready()` whose
+request *matches* but whose resolution declared **no** presentation is ignored
+and **reported** — the one consumer contradiction the library can see without
+inferring anything from DOM mutation (C2-01) · a resolution that declares nothing
+and renders asynchronously anyway is **not** detected, and the F-6 witness in
+`tests/support/gates.ts` is what covers it: any fixture rendering asynchronously
+declares as well as acknowledges · **the stale case end to end**: operation A's
+readiness times out and A retires, B is admitted and reaches its own resolution,
+then A's late layout effect fires — B's gate stays held (I-35) · an
+acknowledgement at `IDLE`, `PENDING` or `ACTIVE` is ignored and reported, because
+no resolution attempt is open · an acknowledgement after `destroy()` is inert at
+both validation points · the deadline classifies `FAILURE_PRESENTATION_READY`,
+replaces the settlement, keeps presentation owned and calls `onError` only ·
+**the identity path**: the request `onReorder` receives is the same object
+`release.prepare` built and `release.effect` published, and `retire()` clears the
+publication — asserted by identity at each hop, not by field comparison ·
+**there is no third readiness outcome**: no state releases the gate while leaving
+an accepted settlement to report `onFinish` over an unrendered authored DOM
+(C-02) · **the React fixture stores the request, not a library object**, and the
+reference integration compiles with no `createCommitTracker` and no imported
+settlement type.
 
 **Reentrancy** · **`onStart` cancels → the operation settles as canceled at
 `AT_PROPOSAL` with a null proposal, and never reaches `ACTIVE` (I-31)** ·
@@ -920,8 +982,10 @@ constant, and carry version, from/to and identity neighbours (F-41).
 
 **Discrete input — new (D-32)** · a declared command type with no `command`
 member installed binds **no** listener · a `command.admit` returning `null`
-leaves the phase `IDLE`, mints nothing and does not call `preventDefault()`
-(I-32) · a `command.admit` returning an element mints a pointerless operation,
+leaves the phase `IDLE`, mints nothing, and the **kernel** does not prevent the
+default (I-32) · a **pointer** `admit` returning `null` likewise leaves the
+default unprevented, and one returning an element has the default prevented by
+the kernel rather than by the behavior (C-03) · a `command.admit` returning an element mints a pointerless operation,
 commits `PENDING` with `pointerId === -1`, and reaches `ACTIVE` on the next drain
 **without any pointer travel** · a pointerless operation is never advanced by a
 synthetic `pointermove`, `pointerup` or `lostpointercapture`, and holds no

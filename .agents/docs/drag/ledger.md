@@ -68,7 +68,7 @@ Eleven members of `SortableOptions`.
 
 | Export | Class | Note |
 | --- | --- | --- |
-| `ReorderResolution` (const + type) | **retain, argument redesigned** | Same two members and the same *never inferred* contract. The optional argument changes: `presentationReady?: PromiseLike<void>` becomes `presentation?: PresentationDeliverer`, and the kernel mints the token. The **one breaking public change** the Phase 14 revision makes — contract D-33, probe 13b. Phase 15 |
+| `ReorderResolution` (const + type) | **retain, argument redesigned** | Same two members and the same *never inferred* contract. The optional argument changes: `presentationReady?: PromiseLike<void>` becomes `options?: { presentation?: boolean }`, and the acknowledgement moves to `controller.ready(request)`. The **one breaking public change** the Phase 14 revision makes — contract D-33, probe 13b, revised at Checkpoint C. Phase 15 |
 | `SortableResult.isAccepted/isRejected/isCanceled/isNoOp` | **drop** | **What a consumer loses:** four named type guards. What replaces them: the `type` discriminant is a *public* exported constant, so `result.type === OUTCOME_*` narrows directly (F-41). The guards existed because the discriminants were not exported; exporting them makes the helpers redundant weight in every bundle that imports the entry. |
 | `PlaceholderContext` | retain | Plus `PlaceholderFactory`, which the shipped package left unnameable. |
 | `SortableOptions` | redesign | Dissolves into per-feature option types. |
@@ -189,7 +189,7 @@ subpaths is **deferred to Phase 18**; 13c probes it as a typed probe first.
 | `coordinateSpace: CoordinateMapper` | **open — retain, shape deferred** | drag2 has no coordinate module: all geometry is `@ydinjs/box-quad`. Whether a consumer-supplied mapper is still needed, or whether box-quad's traversal subsumes the cases it existed for (ancestor zoom, transformed stage — both are shipped stories), is the sharpest open geometry question. Phase 18; §L-7 |
 | `threshold` (default 8) | retain | Same default as sortable's. |
 | `landingTiming()` | redesign | Same as §2; reachable through a replacement runner, see L-6. |
-| `onDrop` (required) | retain | Mirrors `onReorder`, including the authored-presentation declaration — which is now a `PresentationDeliverer` rather than a promise (D-33). |
+| `onDrop` (required) | retain | Mirrors `onReorder`, including the authored-presentation declaration — which is now a boolean acknowledged through the controller rather than a promise (D-33). |
 | `resolveHomeTarget` → `FreeHomeTarget` | retain | Synchronous rollback target. A throwing resolver is an **error, not a cancel**, and an invalid result is an error too — both pinned by shipped tests; keep. |
 | `onStart(geometry)` / `onMove(geometry)` | retain | `onMove` runs *after* the visual is written for that motion. Sortable has no per-move callback; do not unify. |
 | `onFinish` / `onCancel` / `onError` | retain | Same discipline as sortable's. |
@@ -314,11 +314,19 @@ Numbered so later phases can cite them.
   packages, and so is the `createCommitTracker` helper each package's stories
   carry to satisfy it — create a promise before knowing a render will happen,
   supersede without dropping, resolve from a layout effect, never lose one. The
-  successor replaces it with a kernel-minted `PresentationToken` (contract D-33),
-  which is a **redesign row, not a retain row**, and the one breaking public
-  change in the parity boundary. Recorded here because §2.1 reads as a retain
-  row at a glance and the difference is the point: the ledger's job is to say
-  what a consumer has to change, and this is it.
+  successor replaces it with a **declaration plus a controller acknowledgement**
+  (contract D-33): `accept({ presentation: true })`, then
+  `controller.ready(request)`. That is a **redesign row, not a retain row**, and
+  the one breaking public change in the parity boundary. Recorded here because
+  §2.1 reads as a retain row at a glance and the difference is the point: the
+  ledger's job is to say what a consumer has to change, and this is it.
+
+  **What a consumer actually rewrites** is smaller than the promise version
+  suggests: it stores the `request` it is already given instead of constructing a
+  promise, and calls one method from the same layout effect it already had. What
+  it stops needing is the supersede-and-never-drop tracker. What it loses is the
+  ability to *reject* readiness — a failed render now reaches the deadline rather
+  than classifying immediately, which costs latency and nothing else.
 
 ---
 

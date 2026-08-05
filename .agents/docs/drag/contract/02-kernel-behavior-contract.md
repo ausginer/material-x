@@ -326,8 +326,9 @@ type BehaviorSpec<
    * with the draft open. Returns the element the kernel should lift, or `null`
    * to leave the controller idle. (D-5)
    *
-   * `composedPath()` and `preventDefault()` are valid **inside an admission
-   * member** — this one and `command.admit` — and nowhere else.
+   * `composedPath()` is valid here and nowhere else. **`preventDefault()` is
+   * the kernel's**, called exactly when an admission member returns non-null;
+   * an admission member must not call it itself (D-32, C-03).
    */
   admit(event: PointerEvent, draft: Draft<Part>): HTMLElement | null;
 
@@ -413,13 +414,13 @@ be incoherent.
 | `action.effect(SPATIAL)` | — | — | `beforeMove` pipeline → placeholder DOM move (sole writer) → `slots.invalidateInsertion()` → `afterMove` pipeline. |
 | `action.prepare(COLLECTION)` | any | — | **Stage only, and never discard.** Reconcile against the replacement, rebase the insertion into the draft where the phase allows it, and return a `PreparedCollection` — carrying `cancelReason` when the gap cannot survive. Nothing private is written here. |
 | `action.effect(COLLECTION)` | — | — | Publish `rt.snapshot` and `rt.view.snapshot` from the staged value; `slots.invalidateInsertion()`; **then**, last, `host.cancel(staged.cancelReason)` if one was staged. |
-| `release.prepare` | `RELEASING` | — | `slots.invalidateInsertion()`; re-resolve the insertion synchronously from the committed release point; fall back to incumbent, then home; build the immutable proposal; write both; **return the `ResolutionCommand`**. |
-| `release.effect` | — | — | Move the placeholder to the final gap **and render the lift at the committed pointerup sample**. The kernel executes the staged command afterwards. |
-| `settlement.prepare` | `RELEASING` | `SETTLING` | Map the discriminated `SettlementInput` exhaustively to `outcome`, `recovery`, `domain`, and stage the presentation deliverer. A non-resolution or a rejected thenable returns a `SeamRejection`. |
-| `settlement.effect` | — | — | *Request* holds: `scope.holdForReadiness(prepared.presentation)` when the resolution declared one; `scope.holdForLanding(start)` when a `landing()` slot exists and recovery is not immediate. Nothing is armed here. |
+| `release.prepare` | `RELEASING` | — | `slots.invalidateInsertion()`; re-resolve the insertion synchronously from the committed release point; fall back to incumbent, then home; build the immutable proposal — **whose `request` is the object the round-trip and the acknowledgement both identify** (D-33); write both; **return the `ResolutionCommand`** whose `invoke` closes over that exact request. |
+| `release.effect` | — | — | Move the placeholder to the final gap, render the lift at the committed pointerup sample, and **publish the request the round-trip is about to hand the consumer** — the identity `controller.ready(request)` is checked against (D-33). The kernel executes the staged command afterwards. |
+| `settlement.prepare` | `RELEASING` | `SETTLING` | Map the discriminated `SettlementInput` exhaustively to `outcome`, `recovery`, `domain`, and stage whether an authored presentation is expected. A non-resolution or a rejected thenable returns a `SeamRejection`. |
+| `settlement.effect` | — | — | *Request* holds: `scope.holdForReadiness()` when the resolution declared a presentation; `scope.holdForLanding(start)` when a `landing()` slot exists and recovery is not immediate. Nothing is armed here. |
 | `anchorTarget` | `SETTLING` / `FINALIZING` | — | Re-anchor when the recovery is destination and `authoredReady`; measure; return the point. See §Landing. |
 | `finalized` | `FINALIZING` | — | `onFinish` for accepted/no-op, `onCancel` for rejected/canceled, nothing for failed. |
-| `retire` | → `IDLE` | — | Cancel the frame task, clear `pendingSpatial`, drop `placeholder` and `lift`, run feature retire hooks. |
+| `retire` | → `IDLE` | — | Cancel the frame task, clear `pendingSpatial`, drop `placeholder`, `lift` and **`pendingRequest`**, run feature retire hooks. |
 
 ### Discrete admission — a second ingress, not a second protocol (D-32)
 
@@ -449,10 +450,10 @@ type CommandAdmission<Part extends object> = Readonly<{
   /**
    * Runs synchronously inside the native listener, after the kernel's own
    * guards, with the draft open — the position `admit` occupies, and the only
-   * position from which `preventDefault()` is meaningful.
+   * position from which feasibility can still reach the producer.
    *
    * Returns the element to lift, or `null` to decline. Declining is total: no
-   * operation, no phase change, and the event is left to the platform.
+   * operation, no phase change, and the kernel does not prevent the default.
    */
   admit(event: Event, draft: Draft<Part>): HTMLElement | null;
 }>;
@@ -478,9 +479,11 @@ native listener (a declared type)
     begin()
     spec.command.admit(event, draft)     → visual, or null
         ← the behavior writes its own part: item, snapshot, destination gap,
-          and calls preventDefault() on the feasible path only
-    null      → abandon; nothing committed; the event is untouched
-    non-null  → revalidate (D-26: a resolver may have destroyed the controller)
+          and answers feasibility with the return value alone
+    null      → abandon; nothing committed; the default is NOT prevented
+    non-null  → event.preventDefault()          ← the kernel's, not the
+                                                    behavior's      [C-03]
+                revalidate (D-26: a resolver may have destroyed the controller)
                 mint identity; arm the cancellation channel only
                 draft.phase = PENDING; draft.pointerId = -1
                 commit()
@@ -526,21 +529,37 @@ Five rules make the pointerless half well defined:
   further discrete events, and that is a new failing case, recorded in
   [00](00-index.md) §What would falsify this model rather than speculatively
   reserved here.
-- **`preventDefault()` stays behavior-called and stays confined to admission.**
-  The kernel does not consume the event on the behavior's behalf. It does not
-  have to: the requirement was that the *decision* reach the producer's frame,
-  and the behavior's own code runs in that frame. A behavior that wants to
-  swallow an event without minting an operation calls `preventDefault()` and
-  returns `null`; nothing new is needed for it.
+- **`preventDefault()` is the kernel's, and the behavior answers feasibility
+  only.** The behavior decides *whether the command is possible*; the ingress
+  owner performs the browser effect, calling `event.preventDefault()` exactly
+  when an admission member returns non-null. This is the ownership split that
+  makes I-32 enforceable instead of aspirational: an earlier draft of this
+  revision left the call to the behavior and then claimed as tier A that a
+  declined admission leaves the event untouched, which a member holding the real
+  `Event` can trivially violate (Checkpoint C, C-03).
+
+  **The rule applies to `admit` too**, not only to `command.admit`. The reference
+  behavior called `preventDefault()` itself, on the feasible path, immediately
+  before returning the visual; moving the call one frame outward produces the
+  same observable result for the same events, and makes one party responsible in
+  both input modes.
+
+  A behavior that wants to swallow an event *without* minting an operation has
+  no first-class way to say so, and does not need one: it holds the `Event`. That
+  is discipline the contract permits rather than a capability it grants, and it
+  is the residue I-32 is honest about.
 
 `arm()` rejects a `command.types` that is empty, contains a non-string or an
 empty string, contains duplicates, or contains a type the kernel binds for its
 own pointer ingress (`pointerdown`) — the construction-time `TypeError` policy of
 §[03](03-feature-composition.md) §Public option domains.
 
-**What this does not change.** `KernelHost` still has six members: no `activate`,
-no `move`, no ingress registration (13a N-2, N-5 stay unexpressible, and the
-probe's assertions still fail to compile). The behavior still never drives a
+**What this does not change.** D-32 adds **no** `KernelHost` member: no
+`activate`, no `move`, no ingress registration (13a N-2, N-5 stay unexpressible,
+and the probe's assertions still fail to compile). The host does grow by one in
+this revision — `presentationCommitted`, from D-33 — and the attribution matters,
+because "a second input mode cost the host nothing" is the result D-32 claims and
+a shared total would obscure it. The behavior still never drives a
 transition — `command.admit` returns a *value*, and the kernel mints, lifts,
 commits phases and owns the envelope exactly as it does for a press. H-3 is
 intact, and the queue's run-to-completion property is untouched because the
@@ -795,7 +814,7 @@ only legitimate skip is `proposal.from === proposal.to`.
 The kernel treats a thenable as asynchronous and anything else as immediately
 settled, then hands the result to `settlement.prepare` with a status code. It
 never names `ReorderResolution`, `accept`, `reject` or the presentation
-deliverer the resolution carries.
+declaration the resolution carries.
 
 Acceptance is still **never inferred**: `settlement.prepare` is where a fulfilled
 value that is not an explicit resolution becomes `FAILURE_REORDER_RESOLUTION`.
@@ -806,14 +825,11 @@ a value rather than announced through a side call:
 /**
  * The gate plan travels through `Prepared`, not a private write.
  *
- * `presentation` is the consumer's deliverer: non-null means *an authored
- * presentation is expected*, and the kernel calls it at arm time with the token
- * that releases the gate. `null` means the presentation is already final
- * (D-33).
+ * `presentation` says only *is an authored presentation expected*. It is a
+ * boolean because the acknowledgement does not travel through settlement at
+ * all — it arrives later, through the controller (D-33).
  */
-type PreparedSettlement = Readonly<{
-  presentation: ((token: PresentationToken) => void) | null;
-}>;
+type PreparedSettlement = Readonly<{ presentation: boolean }>;
 
 type SettlementTransition<Part extends object> = Readonly<{
   prepare(
@@ -887,11 +903,11 @@ per-operation.
 // kernel-private
 type SettlementAttempt = {
   holds: number;
-  /** Requested during `effect`; the kernel calls it at arm time with a token. */
-  presentation: ((token: PresentationToken) => void) | null;
   readinessHeld: boolean;
-  /** Once-only latch behind the token's two methods. */
+  /** Once-only latch: the first of acknowledgement or deadline wins. */
   readinessSettled: boolean;
+  /** Copied from the resolution attempt: the consumer acknowledged early. */
+  presentationLatched: boolean;
   /** Requested during `effect`, invoked after sealing. */
   start: LandingStart | null;
   /** Retained past its gate release, so the join can `destroy()` it. */
@@ -908,42 +924,18 @@ type SettlementAttempt = {
   sealed: boolean;
 };
 
-/**
- * What the consumer holds while it renders. Kernel-created, per settlement,
- * handed out exactly once (D-33).
- */
-type PresentationToken = Readonly<{
-  /** The authored presentation now exists. Idempotent; a late call is inert. */
-  ready(): void;
-  /**
-   * No presentation is coming after all. Releases the gate **without** failing
-   * the operation and leaves `authoredReady` false, so the join does not
-   * re-anchor to a destination that was never rendered. `reason` is a
-   * diagnostic, surfaced on the platform channel.
-   */
-  abandon(reason?: unknown): void;
-}>;
-
 type SettlementScope = Readonly<{
-  /** Hold the authored-presentation gate. The kernel mints the token at arm
-   *  time and hands it to `deliver`; the deadline is
-   *  `config.readinessTimeout`. At most once. */
-  holdForReadiness(deliver: (token: PresentationToken) => void): void;
+  /** Hold the authored-presentation gate, bounded by `config.readinessTimeout`.
+   *  Takes nothing: the acknowledgement does not arrive through settlement.
+   *  At most once. */
+  holdForReadiness(): void;
   /** Hold the landing gate. The kernel builds the context and owns the attempt.
    *  At most once. */
   holdForLanding(start: LandingStart): void;
 }>;
 ```
 
-**Both gates are now held the same way: by handing the kernel a starter it
-invokes after sealing.** `holdForLanding` receives a `LandingStart` and the
-kernel calls it with the objects it owns; `holdForReadiness` receives a deliverer
-and the kernel calls it with the token it owns. That symmetry is not cosmetic —
-it is what keeps request → seal → arm intact for readiness, which a gate method
-that *returned* a token could not do: the returned object would be live before
-sealing, and a `ready()` on it would have to be buffered until arming.
-
-#### Why the promise became a token (D-33)
+#### The authored-presentation protocol (D-33)
 
 Probe [13b](../probes/13b-settlement.md) states the case, and it is a
 distribution-of-burden defect rather than a correctness one: every shipped and
@@ -956,47 +948,215 @@ silence and, for a hold never taken, nothing at all (13b R-1, R-2). The burden i
 was premature for it.
 
 Of the five candidates 13b enumerated, C-4 is refused by an existing normative
-rule — acceptance is never inferred from DOM mutation or elapsed time — C-3
-re-creates obligation 2 one level up, C-5 relocates all four into first-party
-code without changing who is liable, and C-1 keeps the defect. C-2 is the only
-one that inverts *creation*, which is where obligations 1, 2 and 4 come from.
+rule — acceptance is never inferred from DOM mutation or elapsed time — C-5
+relocates all four obligations into first-party code without changing who is
+liable, and C-1 keeps the defect. That left C-2 (invert *creation*: the kernel
+mints an acknowledgement capability and hands it out) and C-3 (declare intent in
+the resolution, acknowledge through the controller). **C-3 is the answer**, and
+13b rejected it for a reason that turned out to be fixable.
 
-What the token changes, precisely:
+**The protocol is two halves, and neither is an object the consumer has to
+hold.**
+
+```text
+declare:      ReorderResolution.accept({ presentation: true })
+acknowledge:  controller.ready(request)
+```
+
+The resolution says *an authored presentation is coming*; the controller says
+*it is here, and it is the one you asked me for*. Nothing crosses the public
+boundary except a boolean and the request the consumer was already handed.
+
+**Why C-3 was rejected, and why that no longer holds.** 13b's objection was that
+a controller method has no per-operation identity, so a late acknowledgement from
+operation A could release operation B's gate. True of a bare `ready()`, and it is
+a real window: A's readiness can time out, A retires, B is admitted, B reaches
+its own resolution, and only then does A's layout effect fire. But the objection
+assumed the identity would have to be *invented*. It does not: **the request is
+already per-operation, already public, already in the consumer's hand, and
+already the thing it used to compute the update.** Keying the acknowledgement on
+it closes the window with no new type, no generation counter and no token.
+
+The check is the **behavior's**, not the kernel's — the kernel threads the
+resolution as `unknown` and never learns what a request is.
+
+##### The identity path, in full
+
+The claim is **same object**, not structurally equal request data, so the path
+that object takes is normative rather than illustrative:
+
+```text
+release.prepare
+    built = buildReorderProposal(snapshot, item, insertion)
+    draft.proposal = built.proposal          ← the request lives on the proposal,
+                                               which is committed frame state
+    request = built.proposal.request
+    return { invoke: (signal) => slots.onReorder(request, { signal }) }
+                                             ← the closure captures THAT object
+
+  commit()                                   ← draft.proposal becomes current.proposal
+
+release.effect(current, command)
+    rt.pendingRequest = current.proposal.request
+                                             ← the SAME object, reached through
+                                               the committed frame rather than
+                                               through the command
+    …placeholder move, final lift render…
+
+kernel
+    executes the staged command → onReorder(request, { signal })
+
+controller.ready(request)                    ← consumer, later or synchronously
+    request === rt.pendingRequest ?  host.presentationCommitted()
+                                  :  report and release nothing
+
+retire()
+    rt.pendingRequest = null
+```
+
+**`ResolutionCommand` does not change, and that is the point.** The reviewer's
+question — whether the exact request forces a new field on the staged command —
+is a real one, and the answer is that the committed frame already carries it.
+`release.prepare` writes `proposal` into the draft *before* returning the
+command, so `release.effect` reads the same object through `current.proposal`
+that the `invoke` closure captured. Adding a `request` field to
+`ResolutionCommand` would put a **sortable domain value into a kernel SPI type**
+for one behavior's identity need — the exact mistake D-34 and D-35 were opened to
+correct, one revision earlier. A free drag identifies its acknowledgement by
+whatever *its* round-trip hands the consumer, and the kernel is not told either
+way.
+
+Two properties of this path are load-bearing:
+
+- **Publication precedes the round-trip.** `release.effect` runs before the
+  kernel executes the command, so `rt.pendingRequest` is set before `onReorder`
+  can be called — and therefore before any consumer code, synchronous or not, can
+  acknowledge.
+- **Exactly one request is live per controller.** While an operation is
+  pre-release it is `null`, from `release.effect` it is that operation's, and
+  `retire()` clears it. Every stale window closes on that one field: operation A
+  timing out and retiring sets it to `null`, and B overwrites it only once B
+  reaches its own release.
+
+A stale, forged or duplicated request is ignored and reported.
+
+**The synchronous-commit ordering is what decided this against C-2.** A
+kernel-minted token cannot exist until the settlement arms, which is *after*
+`onReorder` returns. But the authored mutation begins *inside* `onReorder`, so
+under `flushSync`, a synchronous renderer, or any non-React consumer that commits
+immediately, the layout effect runs before the token exists, observes nothing to
+acknowledge, and the gate times out. The protocol established no happens-before
+relationship between the consumer receiving the acknowledgement capability and
+the consumer beginning the mutation that capability acknowledges.
+
+The request has that relationship **by construction**: it is the argument to the
+callback that asks for the mutation, so it exists before the mutation can start.
+That is not a repair, it is the reason this shape is correct.
+
+The kernel still has to accept an acknowledgement that arrives *early* — before
+the settlement exists, let alone before its hold is armed. It latches one:
+
+| When `presentationCommitted()` arrives | What the kernel does |
+| --- | --- |
+| while a **resolution attempt is open** (`RELEASING`, `invoke` running or settled-but-unconsumed) | latch it on that attempt; the settlement copies the latch when it is created, and arming dispatches `READINESS_SETTLED` immediately |
+| while the **readiness hold is armed** (`SETTLING`) | the ordinary release |
+| anywhere else — `IDLE`, `PENDING`, `ACTIVE`, after retirement | ignored, and reported on the platform channel |
+
+The latch lives on the **resolution attempt** because that is the only
+kernel-private per-operation object that exists at the moment an early
+acknowledgement can arrive. It is consumed once and dies with its attempt, so a
+latch set for an operation that then declared no presentation is simply dropped.
+
+##### Absent means *already final*, and that is discipline, not a guarantee
+
+An optional boolean whose default is "no hold" has an opt-in safe path, and
+forgetting it selects the unsafe one silently. Checkpoint C's follow-up (C2-01)
+is right that this is probe 13b's **R-2 shape surviving**, and that an earlier
+draft of this section claimed more than the mechanism delivers.
+
+**The default stays.** Flipping it — absent meaning *a presentation is expected*
+— was considered and rejected on two grounds, not on inertia:
+
+- It **breaks the imperative consumer**, which is legitimate and documented:
+  §`authoredReady` is explicit that a consumer may apply the reorder
+  synchronously before returning `accept()`, and the shipped package treats an
+  absent promise as ready. Under a flipped default that consumer holds a gate it
+  never releases, stalls 500 ms and then fails with
+  `FAILURE_PRESENTATION_READY` — trading one silent error for a loud *wrong*
+  one, on the simplest correct call site there is.
+- It makes the safe path unstateable without ceremony on the 100% path. A
+  required option cannot be forgotten, but `accept({ presentation: 'final' })` on
+  every synchronous drop is a worse surface than the failure it prevents.
+
+**What is honestly claimed instead.** Three of the four consumer error modes are
+loud, and the fourth is precisely the one where the consumer used none of the
+protocol:
+
+| Consumer state | Detected? |
+| --- | --- |
+| declared, never acknowledged | **yes** — the deadline classifies `FAILURE_PRESENTATION_READY` |
+| **not** declared, acknowledged | **yes** — `controller.ready(request)` for an operation whose resolution declared nothing is ignored and **reported**, loudly in `DEV`. This is a *declared* contradiction, not an inference from DOM mutation, so it does not touch the rule that acceptance is never inferred |
+| not declared, not acknowledged, but rendered asynchronously anyway | **no.** The consumer entered neither half of the protocol, and this case is indistinguishable from one that genuinely renders synchronously |
+| declared and acknowledged | correct |
+
+So the residue is exactly the third row, and it is **tier C** — the same class as
+"a `prepare` performs no externally visible mutation". A consumer that omits
+*both* halves has not made a mistake the library can see; a consumer that omits
+one has. I-35 and F-46 are worded against that table and claim nothing beyond it,
+and F-6's test obligation is what covers the residue: any fixture that renders
+asynchronously must declare, and the witness fails loudly if the corresponding
+hold is never taken.
+
+What the two halves change, against the four obligations:
 
 | Obligation | Before | After |
 | --- | --- | --- |
-| 1 — create a promise before knowing a render will happen | consumer | **kernel.** The consumer declares *that* a presentation is coming and is handed the thing that ends it. |
-| 2 — supersede without dropping | consumer | **structurally impossible.** One token per settlement, minted after the resolution is known. A newer operation gets a newer token; a call on a retired one is inert, not a silent cross-operation resolve. |
-| 3 — resolve from a layout effect | consumer | consumer. Unchanged, and irreducible: only the consumer knows when its own commit landed. |
-| 4 — never lose one | consumer, undetectable | **kernel.** An outstanding token is a thing the kernel holds and can name in its failure. |
+| 1 — create a promise before knowing a render will happen | consumer | **gone.** There is nothing to create. The declaration is a boolean on a value the consumer was returning anyway. |
+| 2 — supersede without dropping | consumer, **silently** wrong | **gone.** A stale request is *rejected and reported*, not silently applied to the current operation. The failure mode inverts from invisible to diagnosable. |
+| 3 — acknowledge from a layout effect | consumer | consumer. Unchanged, and irreducible: only the consumer knows when its own commit landed. |
+| 4 — never lose one | consumer, undetectable | **split.** *Having declared*, losing the acknowledgement is bounded and nameable — the kernel owns the hold and the deadline and knows which operation is outstanding. *Not declaring at all* is unchanged: tier C, undetectable, and the row above says so. This obligation does not disappear. |
 
-The third state 13b N-3 named — *expected, but not yet promised* — is **removed
-rather than represented**. It existed only because the consumer had to
-manufacture a promise at `onReorder` time for a render it had not started;
-with the kernel creating the token there is nothing to be unpromised about.
+**No settlement machinery reaches the consumer.** C-2 would have exported
+`PresentationToken` and `PresentationDeliverer` — two public types describing an
+internal gate — to solve a problem the request already solves. The decision
+criterion Checkpoint C set is explicit that a design must not expose more
+settlement machinery than the consumer needs, and this exposes none.
 
 **The overlap property survives structurally, not by discipline.**
 `settlement.effect` still returns `void`, the two gates are still separate
-members with separate holds, and the readiness deliverer is invoked in the same
-arm step that starts the landing runner. Nothing awaits anything, so the authored
+members with separate holds, and nothing awaits anything, so the authored
 re-render still overlaps the landing animation rather than serializing behind it
-(I-8, 13b P-1). The kernel is in fact better informed than before: it knows a
-presentation is expected *before* it starts the runner.
+(I-8, 13b P-1).
 
-**Cost.** One token object per settlement that declares a presentation — and
-none for a drop that does not. Against today's consumer-side promise plus
-resolver closure on the same path, that is a net reduction, which answers the
-open cost 13b recorded against this candidate.
+**Cost.** Zero allocations on the settlement path — no token, no promise, no
+resolver closure. One nullable field on the behavior's private runtime, written
+once per release and cleared at retirement.
 
-**What is deliberately given up.** A `presentationReady` promise could *reject*,
-and a rejection was classified `FAILURE_PRESENTATION_READY`, replacing the
-settlement. The token has no rejection channel: `abandon(reason)` releases the
-gate and reports, and the deadline remains the only classified readiness failure.
-This is a narrowing, and it is deliberate — a consumer whose own render failed
-has not caused a library failure, and destroying an otherwise good drop to say so
-was never the right response. Phase 15 confirms it against the React reference
-integration; if that integration produces a case where an orderly release is
-wrong, it is a failing executable case and reopens this.
+**There is no `abandon()`, and the state it named does not exist.** An earlier
+draft of this revision gave the consumer a way to say *no presentation is coming
+after all*, releasing the gate without failing the operation. Checkpoint C
+(C-02) found that incoherent, and it is: for an accepted destination settlement
+it produces a drop that reports `onFinish` with an accepted result while the
+authored DOM still shows the old order. Four repairs were available — convert to
+a rejection, make it a consequential failure, treat it as *already final*, or
+forbid it for accepted outcomes. The last is closest, and a state that is illegal
+in the only case anyone would reach for it should not exist at all.
+
+So readiness has exactly three outcomes, and they compose:
+
+| Outcome | Effect |
+| --- | --- |
+| `controller.ready(request)`, request matches | hold releases, `authoredReady = true`, the join re-anchors per the recovery |
+| the deadline expires | `FAILURE_PRESENTATION_READY`; the settlement is **replaced**, presentation stays owned, `authoredReady` stays false, `onError` is the only callback |
+| retirement or `destroy()` | the acknowledgement becomes inert at both validation points |
+
+A consumer whose own render failed has not caused a library failure — but it
+*has* left an accepted reorder unrendered, and the operation genuinely did not
+complete. The deadline is the honest terminal for it. The only thing lost against
+`presentationReady`'s rejection channel is latency, and `readinessTimeout` is a
+public option. If Phase 15's reference integration shows the latency matters, the
+smallest addition is a second argument to `ready()` carrying an error, which
+classifies immediately at the same stage — recorded, not built.
 
 ### Request, seal, then arm
 
@@ -1013,14 +1173,16 @@ known.
                                                       classified and nothing
                                                       below runs
     preparationValid(); draft.phase = SETTLING; commit()
-    attempt = { holds: 0, presentation: null, readinessHeld: false,
-                readinessSettled: false, start: null,
-                landing: null, landingHeld: false, authoredReady: false,
-                relinquished: true, sealed: false }
+    attempt = { holds: 0, readinessHeld: false, readinessSettled: false,
+                presentationLatched: resolution.presentationCommitted,
+                start: null, landing: null, landingHeld: false,
+                authoredReady: false, relinquished: true, sealed: false }
+                ↑ the early-acknowledgement latch is COPIED here, because the
+                  resolution attempt is cleared as it is consumed
     lifetimes.cancellation.dispose()
 
     spec.settlement.effect(current, prepared, scope)
-        scope.holdForReadiness(d)   → holds += 1; presentation = d; readinessHeld = true
+        scope.holdForReadiness()    → holds += 1; readinessHeld = true
         scope.holdForLanding(start) → holds += 1; attempt.start = start; landingHeld = true
         ── record only. A second call to either is ignored and reported. ──
 
@@ -1028,36 +1190,29 @@ known.
 
     ── if `settlement.effect` threw, or the operation was invalidated:
        drop every unarmed request, arm NOTHING, and let the queued failure
-       checkpoint decide. Arming a half-requested plan hands out a token or
-       starts a runner for an already-failed settlement.           [review 5 §1]
+       checkpoint decide. Arming a half-requested plan starts a deadline or a
+       runner for an already-failed settlement.                    [review 5 §1]
 
-    attempt.authoredReady = attempt.presentation === null  ← none expected ⇒ final now
+    attempt.authoredReady = !attempt.readinessHeld  ← none expected ⇒ final now
 
     arm → ARM_ARMED | ARM_STALE | ARM_FAILED
-          if (presentation)
-                          start the deadline (config.readinessTimeout)
-                          token = mint(attempt)     ← reserved BEFORE delivery,
-                                                      so a synchronous `ready()`
-                                                      finds a hold to release
-                          presentation(token)
-                          ↳ throws or latches → FAILURE_PRESENTATION_READY,
-                                                the settlement is replaced,
-                                                ARM_FAILED
-                          ── revalidate AFTER delivery: a deliverer is consumer
-                             -reachable code and may have destroyed the
-                             controller (D-26). A stale attempt's token is
-                             already inert, so nothing has to be destroyed —
-                             which is the one way this is cheaper than the
-                             landing handle it mirrors. ──
-                          ── a `ready()` from INSIDE the deliverer latches and
-                             DISPATCHES `READINESS_SETTLED`; it never releases
-                             the hold inline. Otherwise a settlement holding
-                             only readiness would reach zero holds and finalize
-                             in the middle of its own arm step — the same hazard
-                             a synchronous `done()` has, closed the same way.
-                             So `authoredReady` is still false when the landing
-                             branch below reads it, and the queued release does
-                             the re-anchor. ──
+          if (readinessHeld)
+                          if (presentationLatched)
+                                dispatch(READINESS_SETTLED, attempt)
+                                ── the consumer committed synchronously, before
+                                   the settlement existed. DISPATCHED, never
+                                   released inline: a settlement holding only
+                                   readiness would otherwise reach zero holds
+                                   and finalize in the middle of its own arm
+                                   step — the same hazard a synchronous `done()`
+                                   has, closed the same way. So `authoredReady`
+                                   is still false when the landing branch below
+                                   reads it, and the queued release does the
+                                   re-anchor. ──
+                          else  start the deadline (config.readinessTimeout)
+                          ── nothing consumer-reachable is called here, so there
+                             is no revalidation and no stale-return disposal:
+                             the readiness half of arming cannot re-enter. ──
           if (start)      target = spec.anchorTarget(current, authoredReady)
                           ↳ throws or latches → roll the hold back, ARM_FAILED
                           ── revalidate BEFORE `start`: `anchorTarget` is
@@ -1242,19 +1397,19 @@ arm (after sealing)
     handle  = start(context, done, fail)
     attempt.landing = handle
 
-token.ready()  — or the deadline expires, or token.abandon(reason)
-    ── one once-only latch, `attempt.readinessSettled`, behind all three, on the
-       same pattern as `completeLanding`: the first outcome wins, a duplicate is
-       inert, and a call belonging to a retired attempt finds no attempt (I-4).
-       `ready()` releases the hold with authoredReady = true.
-       `abandon()` releases the hold with authoredReady FALSE and reports the
-       reason on the platform channel — no classified failure, no replaced
-       settlement, no terminal shape of its own.
+controller.ready(request) — or the deadline expires
+    ── the behavior checks `request` against the one it published from
+       `release.effect` and calls `host.presentationCommitted()` only on a
+       match; a stale, forged or duplicated request is ignored and reported.
+       One once-only latch, `attempt.readinessSettled`, behind both outcomes, on
+       the same pattern as `completeLanding`: the first wins, a duplicate is
+       inert, and one belonging to a retired attempt finds no attempt (I-4).
+       The acknowledgement releases the hold with authoredReady = true.
        The deadline is the one classified outcome: FAILURE_PRESENTATION_READY,
        the settlement is replaced, presentation stays owned, authoredReady stays
        false, and onError is the only callback.
 
-readiness releases (ready(), no error)
+readiness releases (acknowledged, no error)
     attempt.authoredReady = true
     if (attempt.landingHeld && attempt.landing !== null) {
       target = spec.anchorTarget(current, true)  ← re-anchor, then measure
@@ -1406,8 +1561,8 @@ Those are two different questions, and an earlier draft conflated them
    no presentation means the consumer asserted its presentation is ready
    *synchronously* — a consumer may perfectly well apply the reorder
    imperatively before returning `accept()` — so `authoredReady` is `true` from
-   settlement entry. An outstanding token means `false` until `ready()`;
-   `abandon()` and the deadline both leave it `false`.
+   settlement entry. A declared presentation means `false` until the
+   acknowledgement arrives; the deadline leaves it `false`.
 2. **Should this outcome re-anchor at all?** That follows the **recovery**,
    which is committed behavior state. Only `RECOVERY_DESTINATION` re-anchors to
    the semantic item. `RECOVERY_HOME` deliberately returns the placeholder to
@@ -1439,7 +1594,6 @@ result, and the failure response follows the **dependency, not the function**:
 
 | Call site | The result is | On throw |
 | --- | --- | --- |
-| arm, `presentation(token)` | delivery of the readiness token | classified `FAILURE_PRESENTATION_READY`; the reserved readiness hold is rolled back, the settlement is replaced, `ARM_FAILED`. A deliverer that throws has not stored the token, so the gate can never be released and the deadline would only postpone the same outcome by 500 ms. |
 | arm, `anchorTarget(current, authoredReady)` | the runner's provisional target | classified `FAILURE_LANDING_CREATE`; the reserved landing hold is rolled back, so settlement proceeds with the landing gate open and the join still pins |
 | arm, `start(context, done, fail)` | the runner handle | classified `FAILURE_LANDING_CREATE`; hold rolled back |
 | readiness, `anchorTarget(current, true)` | advisory — it only feeds an optional `retarget()` | **best-effort report; not classified.** Skip the retarget, leave every hold untouched, let the runner continue toward its provisional target |
@@ -1545,8 +1699,22 @@ entirely inside the kernel either way, and **`host.cancel` latches
 synchronously** — see §[03](03-feature-composition.md) §`ACTIVATING` is handled,
 not deferred, for why that matters when the caller is `onStart`.
 
-Vertical sortable needs **two** tags: the coalesced spatial frame and the
-collection replacement, so it declares `config.actionTags: 2`.
+Vertical sortable needs **three** tags: the coalesced spatial frame, the
+collection replacement, and an invalidation tag that carries a failure raised
+from a native scroll/resize listener back into a seam — the only place a stage
+can be classified. It declares `config.actionTags: 3`.
+
+**This document said two until now, and the implementation has said three since
+Checkpoint B.** The third tag was reviewed and accepted there as the right
+mechanism — it uses the frozen behavior-action protocol rather than adding an SPI
+member, which is precisely what Q-4 asks a new tag to justify — but the contract
+was never corrected, and the Phase 14 revision initially repeated the stale
+number as evidence that nothing had grown. Corrected here, with Q-4 updated in
+[05](05-lifecycle-invariants.md): the third tag arrived, it was investigated, and
+it did not indicate a misplaced boundary. It is also the answer to a question the
+number alone cannot settle — a tag that exists to *re-enter a seam so a stage can
+be classified* is not a lifecycle request in disguise, which is what Q-4 is
+actually watching for.
 
 **The tag count is static spec data**, because otherwise there is nothing for
 `arm()` to validate: `BehaviorSpec` listed no tags and `dispatch(tag, argument)`
@@ -1567,11 +1735,10 @@ this boundary exactly where it was.** The keyboard gap was never about a
 behavior needing to *request* a transition; it was about a behavior needing to be
 *asked* a question synchronously, in a native listener, before anything is
 queued. The revision therefore adds a second admission member (D-32, §Discrete
-admission) and no behavior-to-kernel intent protocol. `KernelHost` still has six
-members, an action still enters `ActionTransition` and nothing else, and the tag
-count is still two. Q-4's "a third or fourth tag appearing is a signal worth
-investigating" survives with one data point in its favour: the concrete pressure
-that motivated it did not turn into a tag.
+admission) and no behavior-to-kernel intent protocol. D-32 adds no `KernelHost`
+member, an action still enters `ActionTransition` and nothing else, and **the
+concrete pressure that motivated Q-4 did not turn into a tag** — which is the
+data point Q-4 was waiting for, and it is a favourable one.
 
 ## Phases and legality
 
@@ -1819,9 +1986,9 @@ DESTROY  >  CANCEL  >  FAILURE_CHECKPOINT
 `onError` runs in `REPORTING`, exactly once per failure, and never replaces the
 initiating error. A readiness **deadline** replaces the settlement, keeps
 presentation owned, leaves `attempt.authoredReady` false, and reports through
-`onError` **only** — no `onFinish` and no `onCancel` follow. A `token.abandon()`
-is not a failure and does none of that: it releases the hold and reports its
-reason on the platform channel (D-33).
+`onError` **only** — no `onFinish` and no `onCancel` follow. It is the **one**
+classified readiness outcome: an acknowledgement releases the hold, and there is
+no third state (D-33).
 
 ## Where the four changes touch each other
 
@@ -1857,11 +2024,24 @@ nothing can *say so* instead of returning an element it does not own.
 
 **D-33 is the only change that does not touch the other three**, and that is
 worth stating rather than assuming. It is confined to the settlement scope, the
-prepared gate plan and the arm step; it adds no phase, no frame field, no host
-member and no hot-path work. The two properties 05 relies on — gate independence
+prepared gate plan, the arm step and one host member; it adds no phase, no frame
+field and no hot-path work. The two properties 05 relies on — gate independence
 (I-8) and the render/landing overlap — are preserved *structurally* rather than
-by discipline, because the readiness deliverer is invoked in the same arm step
-that starts the runner and `settlement.effect` still returns `void`.
+by discipline: `settlement.effect` still returns `void`, the two gates are
+separate members with separate holds, and nothing awaits anything.
+
+**D-33's first form was wrong, and the way it was wrong is worth keeping.** The
+revision originally answered 13b with a kernel-minted `PresentationToken`
+delivered at arm time — candidate C-2, chosen because it inverts *creation*.
+Checkpoint C found that it inverts creation to a point *after* the mutation it is
+meant to acknowledge has already begun, so a synchronous commit acknowledges
+nothing and the gate times out (C-01); and that the `abandon()` state it needed
+produced an accepted `onFinish` over an authored DOM showing the old order
+(C-02). Both defects trace to the same root: an acknowledgement capability minted
+by the settlement is younger than the render it acknowledges. The request is
+older than the render **by construction**, because it is what asked for it. That
+is a lesson about capability *age*, not about tokens, and it is the reason the
+final D-33 has no protocol object at all.
 
 **Two things stayed out, deliberately.** Settle-time landing timing already fits
 through `landing({ run })` and its residue is a public-option ergonomics question

@@ -80,6 +80,15 @@ questions Phase 13c was written to ask.
 | # | Question from plan.md | Result |
 | --- | --- | --- |
 | **P-1** | Clamp to `bounds` before writing — does 00's "P-2 resolved at no hot-path cost" survive? | **Fits as a shape.** The constraint is arithmetic over fields the frame already holds; the bounds rect caches in the frame part with a version, so a thunk source resolves on invalidation, not per sample. Whether it is *affordable* is Phase 21's number, not an SPI answer. |
+
+**Corrected at Checkpoint C (C-07).** The first version of the probe wrote
+`constrain()` as one function returning `{ x, y }` while its own comment claimed
+the path allocated nothing — a `Point` per pointer sample. The arithmetic is now
+two scalar functions feeding `lift.write` directly, and the comment says what is
+true. **The expressibility result is unchanged**; what was wrong was a cost claim
+smuggled into a type probe. Typecheck cannot check a number, so a probe that
+makes performance claims has to be read as prose, and this one was not read
+carefully enough.
 | **P-2** | Where does a consumer coordinate space live? | **Behavior-private.** `CoordinateMapper` is pure and lives in the behavior runtime. The kernel commits viewport coordinates and is never told. No seam changes. |
 | **P-4** | Three lift modes as a public option | **A surface decision, not a seam change.** `BehaviorConfig.liftMode` is static spec data chosen by the behavior at install (`src/sortable/spec.ts:254`), so a feature can supply it. Whether a kernel-internal enum should become public is Phase 18's, not Phase 14's. |
 | **P-5** | Does `anchorTarget` cover `resolveHomeTarget`? | **Yes.** It returns a viewport point and receives `authoredReady`, which is the shipped synchronous home-target contract. Accepted drops answer with the drop position; rejected and canceled ones with the home target. |

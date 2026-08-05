@@ -66,7 +66,7 @@ draggable(list, sortable(items, vertical(), placeholder({ className: 'ghost' }),
 
 What the kernel now holds of the behavior: **one `spec` reference.** No runtime,
 no slots, no rect index, no placeholder. What the behavior holds of the kernel:
-one `host` with six members, none of which drives a transition.
+one `host` with seven members, none of which drives a transition.
 
 ## Admission
 
@@ -81,8 +81,10 @@ pointerdown on item 2
       draft.item = item2
       draft.visual = item2                     (slots.getVisual absent → identity)
       draft.snapshot = rt.snapshot
-      event.preventDefault()
       return item2                             ← the element the kernel will lift
+[K] event.preventDefault()                     ← the KERNEL's, called exactly
+                                                 when an admission member
+                                                 returns non-null       [C-03]
 [K] recheck !closed && operation === null      ← POST-CALLBACK CHECK      [F-30]
       a consumer handle/visual resolver runs inside native dispatch and can
       close over this controller and synchronously destroy() it. Without this
@@ -100,7 +102,8 @@ could not have written it: it saw `Draft<Part>`, where the kernel slice is
 No pointer capture yet — capture is acquired at activation, so a below-threshold
 press never captures and never retargets later pointer events to `root`.
 **[D-17]** Whether a *click* still fires is a separate question the contract
-does not decide: admission already called `preventDefault()` here.
+does not decide: the kernel already called `preventDefault()` here, on the
+strength of the behavior's non-null answer.
 
 ## Below threshold
 
@@ -355,16 +358,27 @@ pointerup
                                                     inert when already correct
               lift.write(dx, dy)                  ← the FINAL sample, from the
                                                     committed release point
+              rt.pendingRequest = current.proposal.request
+                                                  ← the EXACT object the staged
+                                                    `invoke` closure captured,
+                                                    reached through the
+                                                    committed frame. Published
+                                                    BEFORE the round-trip, so it
+                                                    is already in place when any
+                                                    consumer code runs.  [D-33]
         [K] execute the command — `invoke` is non-null
                 [K] attempt = createResolutionAttempt()
                 [K] cancellation.useWhile(() => !attempt.completed, abort)
-                [B] onReorder(request, { signal })
-                      consumer: setPendingRequest(request)
+                [B] onReorder(request, { signal })   ← the same object again
+                      consumer: pendingRequest.current = request
+                                ← stored BEFORE mutating, which is what makes a
+                                  synchronous commit acknowledgeable
                       consumer: setItems((items) => applyReorder(items, request))
                       consumer: return ReorderResolution.accept(
-                                  (token) => { tokenRef.current = token; })
-                      ← the consumer DECLARES a presentation; it does not
-                        construct a promise for one                    [D-33]
+                                  { presentation: true })
+                      ← the consumer DECLARES a presentation and constructs
+                        nothing. The acknowledgement identity is the request it
+                        was handed.                                    [D-33]
                 [K] settleResolution(attempt, { ok: true, value })
                     ← `value` is `unknown` to the kernel                [F-9]
                     ← note the order: consumer code runs BEFORE anything can be
@@ -410,24 +424,29 @@ release stability wrong by sequencing its own seam badly. **[I-11, tier B]**
                             draft.recovery = RECOVERY_DESTINATION
                             draft.domain   = { ACCEPTED, proposal }
                             return { presentation: resolution.presentation }
-                                   ← the gate plan travels through `Prepared`,
-                                     not a private-runtime write
+                                   ← a BOOLEAN: is one expected? The gate plan
+                                     travels through `Prepared`, not a
+                                     private-runtime write
                       [K] preparationValid(); draft.phase = SETTLING; commit()
-                      [K] attempt = { holds: 0, presentation: null,
-                                      readinessHeld: false,
-                                      readinessSettled: false, start: null,
-                                      landing: null, landingHeld: false,
+                      [K] attempt = { holds: 0, readinessHeld: false,
+                                      readinessSettled: false,
+                                      presentationLatched:
+                                        resolution.presentationCommitted,
+                                      start: null, landing: null,
+                                      landingHeld: false,
                                       authoredReady: false, relinquished: true,
                                       completed: false, failed: false,
-                                      sealed: false }                    [D-7]
+                                      sealed: false }               [D-7, D-33]
+                            ↑ the early-acknowledgement latch is COPIED from the
+                              resolution attempt, which is cleared as it is
+                              consumed
                       [K] lifetimes.cancellation.dispose()
 
                       ── REQUEST: the scope records, it arms nothing ──
                       [B] spec.settlement.effect(current, prepared, scope)
-                            prepared.presentation !== null →
-                              scope.holdForReadiness(prepared.presentation)
-                                [K] holds = 1; presentation = d;
-                                    readinessHeld = true
+                            prepared.presentation →
+                              scope.holdForReadiness()
+                                [K] holds = 1; readinessHeld = true
                             slots.startLanding && recovery !== IMMEDIATE →
                               scope.holdForLanding(slots.startLanding)
                                 [K] holds = 2; start = fn; landingHeld = true
@@ -437,18 +456,18 @@ release stability wrong by sequencing its own seam badly. **[I-11, tier B]**
                       [K] if settlement.effect had THROWN, or the operation were
                           invalidated: drop every unarmed request, arm nothing,
                           and let the queued checkpoint decide.          [F-27]
-                      [K] attempt.authoredReady = (presentation === null)
+                      [K] attempt.authoredReady = !attempt.readinessHeld
                             → false here, because this resolution DID declare
                               an authored presentation
 
                       ── ARM: the complete gate plan is now known ──
-                      [K] start the readiness deadline, bounded by 500 ms
-                      [K] token = mint(attempt)   ← reserved BEFORE delivery, so
-                                                    a synchronous ready() finds
-                                                    a hold to release
-                      [K] presentation(token)
-                            consumer: tokenRef.current = token       [D-33]
-                      [K] revalidate after delivery                  [D-26]
+                      [K] presentationLatched? → dispatch(READINESS_SETTLED)
+                            ← set if the consumer already acknowledged, which a
+                              synchronous renderer does before onReorder even
+                              returns. DISPATCHED, never released inline.
+                          else → start the readiness deadline (500 ms)
+                            ← nothing consumer-reachable runs here, so there is
+                              no revalidation to do and nothing to dispose
                       [K] target = spec.anchorTarget(current, false)
                             [B] authoredReady === false → measure the
                                 placeholder as it stands. React has NOT
@@ -497,13 +516,22 @@ attempt, not the frame. The only remaining transition is `phase = FINALIZING`.
 ## Readiness — the authoritative re-anchor
 
 ```text
-React commits the accepted order; useLayoutEffect calls tokenRef.current.ready()
+React commits the accepted order; useLayoutEffect calls
+controller.ready(pendingRequest.current)
+
+  [B] request === rt.pendingRequest ?  host.presentationCommitted()
+                                    :  report; release nothing
+      ← object identity, not structural equality. It is the same object
+        `release.prepare` built, `release.effect` published and `onReorder`
+        received. A late effect from a timed-out earlier drag compares against
+        `null` (retired) or against a newer operation's request, and is
+        rejected either way.                                        [D-33, I-35]
 
 > READINESS_SETTLED  [K] attempt current ✔  phase SETTLING ✔  not yet settled ✔
                      [K] attempt.readinessSettled = true      ← once-only latch:
-                           a duplicate ready(), a ready() after abandon(), and a
-                           ready() belonging to a retired attempt are all inert
-                     [K] attempt.readinessHeld = false; presentation = null; holds = 1
+                           a duplicate ready(), and one belonging to a retired
+                           attempt, are both inert
+                     [K] attempt.readinessHeld = false; holds = 1
                      [K] attempt.authoredReady = true
                      [K] attempt.landingHeld && attempt.landing !== null →
                            ← the guard is on the HOLD, not the handle: the
@@ -630,6 +658,9 @@ through `onError` **only** — no `onFinish`, no `onCancel`. **[I-8]**
           [B] spec.retire()                        wrapped in try/catch  [F-12]
                 rt.frame.cancel(); rt.pendingSpatial = 0
                 rt.placeholder = null; rt.lift = null; rt.view = null
+                rt.pendingRequest = null   ← the acknowledgement identity dies
+                                             with the operation, so a later
+                                             ready() for it can match nothing
                 for slots.retireHooks:            ← reverse installation order,
                                                     each wrapped individually
                   [F] layoutAnimation: restore every touched element exactly once
@@ -648,6 +679,9 @@ schedule rather than discarding the task.
 
 The controller now retains **no DOM**: not in either frame, not on the private
 behavior runtime, not in the rect index, not in the displacement map. **[I-20]**
+`rt.pendingRequest` is cleared in the same step — it holds identity neighbours,
+so leaving it would retain elements past retirement and would also leave a
+matchable acknowledgement identity behind.
 
 ## Counterfactuals
 
@@ -662,9 +696,12 @@ anywhere above.
 | `destroy()` during the 200 ms landing | `LandingHandle.destroy()` — silent, never dispatches. Presentation disposes. A late `done()` finds no attempt and is inert at both validation points. |
 | No presentation declared | `attempt.authoredReady` is `true` **from sealing** — declaring nothing means the consumer asserts its presentation is ready synchronously, which is what an optional declaration means and what the shipped package does. So the arm-time `anchorTarget(current, true)` re-anchors immediately for a destination recovery, and the readiness gate is never held. An earlier version read absence as "the authored DOM never changed" and forbade the re-anchor; that was wrong. |
 | The readiness deadline expires | `authoredReady` stays `false`, the settlement is replaced with `FAILURE_PRESENTATION_READY`, recovery restarts as immediate, and no re-anchor happens. **[D-33]** |
-| `token.abandon(reason)` | The hold releases, `authoredReady` stays **false**, the reason is reported on the platform channel, and the drop finishes normally — no classified failure, no replaced settlement, no `onError`. The consumer said nothing is coming; the placeholder as it stands is the truth. **[D-33]** |
-| The consumer never calls `ready()` and never abandons | The deadline is the only outcome, exactly as before — but the kernel now knows *what* is outstanding, because it minted the token. **[F-6, F-46]** |
-| The presentation deliverer throws | `FAILURE_PRESENTATION_READY` at arm time, hold rolled back, `ARM_FAILED`. A deliverer that threw has not stored the token, so the gate can never be released and waiting 500 ms would reach the same place. |
+| The consumer commits **synchronously** — `flushSync`, or a non-React renderer | `controller.ready(request)` arrives while the resolution attempt is still open, before the settlement exists. The kernel latches it there, the settlement copies the latch, and arming dispatches `READINESS_SETTLED` instead of starting a deadline. The layout effect finds the request because the consumer stored it before mutating. **[D-33, C-01]** |
+| A late `ready()` from an operation that already timed out | Rejected: the behavior's published request is `null` (retired) or belongs to the newer operation, so no `host.presentationCommitted()` is issued and the newer gate stays held. Reported, never applied. **[I-35, C-01]** |
+| `ready()` at `IDLE`, `PENDING` or `ACTIVE` | No resolution attempt is open and no hold is armed, so it is ignored and reported. There is nothing an acknowledgement could mean before a proposal exists. |
+| `ready(request)` matches, but the resolution declared **no** presentation | Ignored and **reported**, loudly in `DEV`. A consumer that acknowledges what it never declared has contradicted itself, and that is a declared contradiction rather than an inference from DOM mutation — so reporting it does not weaken "acceptance is never inferred". **[C2-01]** |
+| The consumer declares nothing and renders asynchronously anyway | **Not detected.** No hold, no deadline, and the drop may finalize before the authored commit. This is the residue of an opt-in declaration and it is tier C — indistinguishable from a consumer that legitimately renders synchronously. Covered by F-6's test obligation, not by a runtime guarantee. **[C2-01, F-46]** |
+| The consumer never acknowledges | The deadline is the only outcome, exactly as before — but the kernel knows *which operation* is outstanding, and the consumer had nothing to construct or supersede. This obligation does not disappear, and I-35 does not claim it does. **[F-6, F-46]** |
 | Recovery is home or immediate | No re-anchor regardless of `authoredReady`. Re-anchoring follows the **recovery**, not the readiness. |
 | Landing completes before readiness | The join still measures authoritatively after the readiness re-anchor, so the pin is correct. The visible arrival is a step rather than a smooth stop. **[F-16 — quality, not correctness]** |
 | The authored commit inserts a new keyed item into the destination gap | `item.before(placeholder)` at readiness repairs the semantic gap; the repaired rect equals the item's actual landed rect. **[F-15]** |
@@ -680,8 +717,8 @@ anywhere above.
 | `spec.finalized()` throws | `FAILURE_TERMINAL_CALLBACK`; the operation still retires. **[F-22]** |
 | A landing runner calls `done()` synchronously inside `start` | The hold was reserved before `start` was called, so the completion is queued against a real hold; the handle is stored before the queued completion can be applied. **[F-21]** |
 | `startLanding` throws | The reserved hold is rolled back, `FAILURE_LANDING_CREATE` is classified, arm returns `ARM_FAILED`, and the original settlement neither advances nor calls its terminal callback. The failure checkpoint owns recovery while presentation remains held. **[D-28, F-35]** |
-| An arrow key on an edge item | `command.admit` computes the destination gap, finds `null`, returns `null` without calling `preventDefault()`. No operation, no phase change, and the key keeps its native meaning. Feasibility was answered inside the listener, which is the whole of what D-32 buys. **[D-32]** |
-| An arrow key on a movable item | `command.admit` writes item, snapshot and destination gap into the draft, calls `preventDefault()`, returns the visual. The kernel mints a pointerless operation (`pointerId === -1`), commits `PENDING`, queues `ACTIVATE`; `START_COMMITTED` queues `RELEASE`. From `release.prepare` on, this trace applies verbatim. **[D-32]** |
+| An arrow key on an edge item | `command.admit` computes the destination gap, finds `null`, returns `null`. The kernel does not prevent the default, so no operation is minted, no phase changes, and the key keeps its native meaning. Feasibility was answered inside the listener, which is the whole of what D-32 buys. **[D-32, I-32]** |
+| An arrow key on a movable item | `command.admit` writes item, snapshot and destination gap into the draft and returns the visual. The kernel prevents the default, mints a pointerless operation (`pointerId === -1`), commits `PENDING`, queues `ACTIVATE`; `START_COMMITTED` queues `RELEASE`. From `release.prepare` on, this trace applies verbatim. **[D-32]** |
 | A handle resolver dispatches `updateItems()` from inside `command.admit` | Enqueued without draining, exactly as from inside `admit`: the ingress boundary is one shared latch across both listeners, and the queue drains once admission has committed or abandoned. **[I-1, D-32]** |
 | A feature retire hook throws | Reported; the remaining hooks still run, in reverse installation order. **[F-22]** |
 | A feature factory throws mid-`assemble()` | The retire hooks collected so far run in reverse, each wrapped, and the error propagates. No controller is returned. **[F-19]** |

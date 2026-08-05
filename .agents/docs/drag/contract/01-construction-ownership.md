@@ -50,32 +50,60 @@ Probe 1 solved it with a mutating `kernel.install(spec)` call plus the rule
 Probe 2 makes the rule unexpressible by returning both halves at once. (D-1)
 
 ```ts
-type BehaviorInstall<Controller, Part extends object, Activation extends {}> =
-  Readonly<{
-    spec: BehaviorSpec<Part, Activation>;
-    controller: Controller;
-  }>;
+type BehaviorInstall<
+  Controller,
+  Part extends object,
+  Activation extends {},
+> = Readonly<{
+  spec: BehaviorSpec<Part, Activation>;
+  controller: Controller;
+}>;
 
-type Behavior<Controller, Part extends object> =
-  (host: KernelHost) => BehaviorInstall<Controller, Part>;
+/** The install function itself — internal, and the only place all three meet. */
+type BehaviorFactory<Controller, Part extends object, Activation extends {}> =
+  (host: KernelHost) => BehaviorInstall<Controller, Part, Activation>;
 
-function draggable<Controller, Part extends object>(
+function draggable<Controller, Part extends object, Activation extends {}>(
   root: HTMLElement,
-  behavior: Behavior<Controller, Part>,
+  behavior: BehaviorFactory<Controller, Part, Activation>,
 ): Controller {
   const kernel = createKernel<Part>(root); // queue, frames unarmed, no listener
   const { spec, controller } = behavior(kernel.host);
-  kernel.arm(spec);                        // composes both frames, attaches pointerdown
+  kernel.arm(spec);                        // composes both frames, attaches ingress
   return controller;
 }
 ```
 
-Both type parameters are inferred from the argument; the consumer names neither.
-`Part` is the behavior's **frame part**, not the composed frame — the composed
-type exists only inside the kernel, where `Object.assign`'s `T & U` typing
-produces it without a cast (D-9, D-15). (An earlier sketch wrote
+All three type parameters are inferred from the argument; the consumer names
+none. `Part` is the behavior's **frame part**, not the composed frame — the
+composed type exists only inside the kernel, where `Object.assign`'s `T & U`
+typing produces it without a cast (D-9, D-15). (An earlier sketch wrote
 `<F extends KernelFrame>` on the *return* side, which is unsatisfiable: it would
 require a behavior to produce a valid install for any frame the caller chose.)
+
+**`Activation` threads all the way through, and an earlier draft of the Phase 14
+revision did not thread it.** It added the parameter to `BehaviorInstall` and
+left `BehaviorFactory` and `draggable` at two, which does not compile and cannot
+infer `HTMLElement` for the sortable while defaulting to `true` for a behavior
+that stages nothing (Checkpoint C, C-04). The default lives on `BehaviorSpec`
+alone; every type above it *carries* the parameter and defaults nothing, because
+a default here would silently pin a behavior's staged type to `true` instead of
+inferring it. Both of these are now compiled, in
+`packages/drag2/docs/revision/phase-14.ts`:
+
+```ts
+BehaviorSpec<SortableFramePart, HTMLElement>   // stages a detached placeholder
+BehaviorSpec<FreeDragPart>                     // stages nothing; Activation = true
+```
+
+`kernel.arm(spec)` carries `Activation` as well, and the seam driver erases it to
+`{}` — the kernel threads the staged value and drops it, so nothing inside the
+executor is generic over what a behavior staged.
+
+**The public `Behavior<Controller>` erases both `Part` and `Activation`** at the
+opaque brand (D-30). That was already true of `Part` and is right for the same
+reason: no consumer names either, and carrying them would make a behavior's
+private frame shape part of the value's public type.
 
 `arm()` is not on `KernelHost`; only `draggable()` holds the kernel handle, and
 it calls `arm()` exactly once. A behavior cannot arm itself, re-arm, or observe
@@ -92,7 +120,7 @@ const controller = draggable(
 
 ## `KernelHost`
 
-The whole construction-time surface. Six members, none of which lets the
+The whole construction-time surface. Seven members, none of which lets the
 behavior drive a transition. (D-2)
 
 ```ts
@@ -124,6 +152,23 @@ type KernelHost = Readonly<{
    */
   fail(stage: FailureStage, error: unknown): void;
 
+  /**
+   * The authored presentation for the operation the kernel currently holds is
+   * final (D-33). The behavior calls this only after checking the consumer's
+   * acknowledgement against the request it published — the kernel threads the
+   * resolution as `unknown` and cannot do that check itself.
+   *
+   * Latched while a resolution attempt is open, so an acknowledgement that
+   * arrives before the settlement exists is not lost; releases the readiness
+   * hold once armed; ignored and reported outside both windows.
+   *
+   * **Not a transition.** A gate release is not a frame transition
+   * (§[02](02-kernel-behavior-contract.md) §Settlement gates), so this belongs
+   * to `cancel`'s family — an operation-scoped signal the kernel latches and
+   * interprets — and H-3 is untouched.
+   */
+  presentationCommitted(): void;
+
   /** Base controller methods, for the behavior to spread into its controller. */
   cancel(reason?: unknown): void;
   destroy(): void;
@@ -138,14 +183,19 @@ have no counterpart because the behavior no longer transitions anything.
 `host` is created once and is stable for the controller's life, so a behavior
 that captures it captures one object.
 
-**Still six members after the Phase 14 revision**, and that is a result rather
-than an omission. Probe 13a's negatives are that the host owns no extensible
-ingress (N-2), no way to mint an operation (N-5) and no return channel from
-`dispatch` (N-3); probe 13c's is that there is no motion entry (N-4). D-32
-answers all four *without* adding a member, because a behavior that declares
-which events it wants to be asked about is not a behavior that drives the
-kernel. Each of those four assertions still fails to compile, which is the
-property the probes exist to keep.
+**Six of those seven are unchanged by the Phase 14 revision, and the attribution
+matters.** Probe 13a's negatives are that the host owns no extensible ingress
+(N-2), no way to mint an operation (N-5) and no return channel from `dispatch`
+(N-3); probe 13c's is that there is no motion entry (N-4). **D-32 answers all
+four without adding a member**, because a behavior that declares which events it
+wants to be asked about is not a behavior that drives the kernel — a second input
+mode cost this surface nothing. Each of those four assertions still fails to
+compile, which is the property the probes exist to keep.
+
+The seventh member is **D-33's** `presentationCommitted`. It is the one addition
+this revision makes to the host, and it is the same kind of thing `cancel` is:
+an operation-scoped signal, latched by the kernel, that does not transition a
+frame. Reporting a single total would have hidden which decision paid for it.
 
 ## The behavior instance
 
@@ -153,7 +203,7 @@ property the probes exist to keep.
 function sortable(
   items: readonly HTMLElement[],
   ...features: readonly SortableFeature[]
-): Behavior<SortableController, SortableFramePart> {
+): BehaviorFactory<SortableController, SortableFramePart, HTMLElement> {
   return (host) => {
     const slots = assemble(features, host);          // §03; drops the contributions
     const rt = createSortableRuntime(host, items, slots);
@@ -179,6 +229,13 @@ type SortableRuntime = {
   view: PresentationView | null;
   placeholder: HTMLElement | null;
   lift: VisualLiftSession | null;   // handed in at activation, cleared at retire
+  /**
+   * The exact `ReorderRequest` object this operation handed `onReorder`.
+   * Published by `release.effect` before the kernel executes the round-trip,
+   * compared by **identity** in `controller.ready(request)`, cleared by
+   * `retire()`. It is the whole of D-33's per-operation identity.
+   */
+  pendingRequest: ReorderRequest | null;
   spatialSeq: number;
   pendingSpatial: number;
 };
@@ -201,8 +258,8 @@ cold controllers and paying again on every drag. The functional fix — the task
 must exist before the first move — is settled; the allocation policy is part of
 M-2.
 
-Seven mutable fields. Probe 1's shared runtime had those *plus* fourteen
-kernel fields (`actions`, `args`, `running`, `closed`, `current`, `draft`,
+Eight mutable fields — seven, plus `pendingRequest` from D-33. Probe 1's shared
+runtime had those *plus* fourteen kernel fields (`actions`, `args`, `running`, `closed`, `current`, `draft`,
 `ingress`, `spec`, `lifetimes`, `originRect`, three attempt slots,
 `cancelRequest`, `pendingContinuation`, `destroyRequested`). Those fourteen are
 now unreachable, unnameable and untestable-from-outside — which is correct:
@@ -225,15 +282,17 @@ answered by construction rather than by argument.
 | Five resource lifetimes | kernel | behavior, as **two** narrowed `LifetimeScope` arguments at activation |
 | **Pointer capture** (on `root`, acquired at activation) | kernel (D-17) | nothing |
 | Ingress listeners — `pointerdown`, plus each `command.types` entry | kernel (D-32) | behavior, as the *declaration* of which types to bind; never as a registration |
+| `preventDefault()` on an admitted ingress event | kernel (D-32, C-03) | nothing — the behavior answers feasibility with its return value |
 | Lift session + inline-style snapshot + **the last rendered delta** | kernel (acquires, disposes, records) | behavior, as an activation-scope field and a `moved` argument; the recorded delta is kernel-read only (D-35) |
 | `originRect` | kernel | behavior, as an activation-scope argument |
-| Resolution attempt; settlement attempt including **both gate holds** and the readiness token | kernel (D-7, D-33) | the token reaches the consumer through the deliverer the behavior staged, and nothing else |
+| Resolution attempt, including the **early-acknowledgement latch**; settlement attempt including **both gate holds** and the readiness deadline | kernel (D-7, D-33) | nothing. The consumer acknowledges through the controller and the behavior checks request identity; no settlement object crosses either boundary |
 | The authoritative final pin | kernel, via the lift it owns (D-16) | — |
 | `readinessTimeout` policy | kernel, configured by spec scalar | — |
 | Collection snapshot, insertion, proposal, outcome, recovery, domain result | behavior (runtime + frame part) | features, through declared views |
 | The landing target, and re-anchoring presentation to the semantic item | behavior, via `anchorTarget` (D-16) | — |
 | Placeholder element | behavior | features, through declared views |
 | Coalesced rAF task, `spatialSeq`, `pendingSpatial` | behavior | nothing |
+| The published `ReorderRequest` — the acknowledgement identity | behavior (D-33) | the consumer already **holds** it: it is `onReorder`'s argument. It is never handed out a second time, and the behavior compares by identity rather than trusting it |
 | Packed rect index and the axis rule | `vertical()` | nothing |
 | Per-element displacement records | `layoutAnimation()` | nothing |
 | Landing runner mechanics | `landing()` | nothing |
@@ -348,11 +407,12 @@ a fixed order:
       because they share the controller-lifetime signal. ──
 ```
 
-**Step 3 covers the readiness token.** Dropping the settlement attempt makes an
-outstanding `PresentationToken` inert (D-33): a consumer that still holds one and
-calls `ready()` after `destroy()` finds no attempt, which is the same
-staleness handling a late landing `done()` gets, and is why the token needs no
-disposal step of its own.
+**Step 3 covers the readiness acknowledgement.** Dropping both attempts makes a
+late `controller.ready(request)` inert twice over (D-33): the behavior's
+published request is cleared by step 4's `retire()`, and the kernel finds no
+attempt even if a behavior bug let the signal through. That is the same staleness
+handling a late landing `done()` gets, and is why the acknowledgement needs no
+disposal step of its own — there is no object to dispose.
 
 **Destroy never pins.** The authoritative pin (D-16) belongs to the normal
 settlement join; a destroyed controller has no authored DOM to agree with, and

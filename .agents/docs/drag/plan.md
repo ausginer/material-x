@@ -710,14 +710,27 @@ Checkpoint C reviews the revision before any of it is built on.
 
 | # | Change | Decision |
 | --- | --- | --- |
-| 13a | Lifecycle-intent vocabulary | **D-32 — a second admission member**, `command: { types, admit(event, draft) }`, not an intent protocol. `KernelHost` still has six members; no new phase; no new frame field. `PENDING` redefined as *activation not yet committed*; `pointerId === -1` made normative for a pointerless operation. |
-| 13b | Authored-presentation protocol | **D-33 — candidate C-2, in request-shaped form.** `holdForReadiness(deliver)`, the kernel mints a `PresentationToken` at arm time, `ready()` / `abandon(reason?)`. Three of four consumer obligations move to the kernel. |
+| 13a | Lifecycle-intent vocabulary | **D-32 — a second admission member**, `command: { types, admit(event, draft) }`, not an intent protocol. No `KernelHost` member; no new phase; no new frame field. `PENDING` redefined as *activation not yet committed*; `pointerId === -1` made normative for a pointerless operation. |
+| 13b | Authored-presentation protocol | **D-33 — candidate C-3.** The resolution declares (`accept({ presentation: true })`), the controller acknowledges (`controller.ready(request)`), and the **request** is the per-operation identity. No settlement primitive reaches the consumer. Revised at Checkpoint C after C-2 — a kernel-minted token — failed on synchronous commits. |
 | 13c N-1 | Activation staged type | **D-34 — parameterized**: `BehaviorSpec<Part, Activation extends {} = true>`. |
 | 13c N-2 | The visual's rendered delta | **D-35 — no seam.** The lift session records what `write(x, y)` rendered and the kernel reads its own object. |
 
 **Two probe results were declined as Phase 14 scope, as the probes asked:**
 settle-time landing timing (13b B-2 — ergonomics, Phase 15 or 22) and public
 lift modes / coordinate-space ownership (13c P-2, P-4 — Phase 18).
+
+**Checkpoint C took three passes, and the record of what each one found is the
+point of the checkpoint.**
+
+| Pass | Review | Outcome |
+| --- | --- | --- |
+| 1 | [`checkpoint-c-phase-14-review.md`](reviews/checkpoint-c-phase-14-review.md) | Not closed. Two blockers against D-33 (C-01 synchronous-commit ordering, C-02 incoherent `abandon()`), five consistency findings. D-32, D-34, D-35 accepted on direction. **D-33 reopened and replaced** — the kernel-minted token became a controller acknowledgement keyed on request identity. |
+| 2 | [`checkpoint-c-follow-up-review.md`](reviews/checkpoint-c-follow-up-review.md) | Not closed. D-33's *direction* accepted; four items — an overclaim about the opt-in declaration (C2-01), the request-identity data path not shown normatively (C2-02), token-era residue in trace 06 (C2-03), and the fixture missing from the reviewed change set (C2-04). |
+| 3 | this pass | All four addressed. The declaration stays opt-in with the claims corrected to match; the identity path is normative in 01, 02, 06 and compiled in the fixture; 06 carries only the C-3 protocol; the fixture is staged. |
+
+The revision is backed by a compiled fixture,
+`packages/drag2/docs/revision/phase-14.ts`, which is what pass 2 onward has that
+pass 1 did not.
 
 **Scope.** Revise contract documents 00–06 **once**, against all three probes
 together, and re-freeze.
@@ -780,13 +793,67 @@ working. See §Ordering principle.
   `reportFailure` is load-bearing for D-32 — a throwing `command.admit` has
   exactly the Q-1 shape a throwing `admit` has — so the listing could not stay
   silent about it.
-- **A capability was deliberately narrowed.** A `presentationReady` promise could
-  reject, and the rejection was classified. `PresentationToken` has no rejection
-  channel: `abandon(reason)` releases the gate, leaves `authoredReady` false and
-  reports, and the deadline stays the only classified readiness failure. A
-  consumer whose own render failed has not caused a library failure. Phase 15
-  confirms this against the React integration; a case where an orderly release is
-  wrong reopens it.
+- **D-33 was decided twice, and the first answer was wrong.** Phase 14 first chose
+  13b's candidate C-2 — a kernel-minted `PresentationToken` delivered while the
+  settlement armed — because it inverts *creation*, which is where three of the
+  four consumer obligations came from. Checkpoint C found two blockers, and both
+  trace to one root: **a capability minted by the settlement is younger than the
+  render it acknowledges.** Under `flushSync`, a synchronous renderer, or any
+  consumer that commits inside `onReorder`, the layout effect runs before the
+  token exists, acknowledges nothing, and the gate times out (C-01). And the
+  `abandon()` state that design needed — release the gate without failing — let an
+  accepted settlement report `onFinish` over an authored DOM still showing the old
+  order (C-02).
+
+  The replacement is candidate **C-3**, which 13b rejected for a reason that
+  turned out to be fixable: a controller method appears to have no per-operation
+  identity. It does not need to *invent* one. The **request** is public,
+  per-operation, and in the consumer's hand *before* the render, because it is the
+  argument to the callback that asked for the render. Keying
+  `controller.ready(request)` on it closes the stale window — A times out, A
+  retires, B reaches its own resolution, A's late effect fires and is rejected —
+  with no new type, no generation counter and no token. The behavior compares by
+  identity against the request it published from `release.effect`; the kernel
+  never learns what a request is.
+
+  Net effect on the public surface: **one added alias** (`ResolutionOptions`) and
+  one controller method, instead of two exported types describing a kernel-owned
+  gate. `abandon()` does not exist — see the next entry.
+- **The presentation declaration stays opt-in, and the claims moved instead**
+  (C2-01). The follow-up review is right that `presentation?: boolean` defaulting
+  to *no hold* keeps probe 13b's R-2 shape alive, and that an earlier draft
+  claimed the consumer "cannot omit the hold" when it plainly can. Of the two
+  directions offered, **B — keep the default, state the discipline honestly** — is
+  the correct one: flipping it converts the *legitimate* imperative consumer, the
+  one 02 §`authoredReady` and the shipped package both endorse, into a 500 ms
+  stall and a classified failure. That trades a silent error for a loud wrong one
+  on the simplest correct call site there is.
+
+  What the pass added instead of a default flip is the observation that **three of
+  the four consumer error modes are loud**, not two: declaring without
+  acknowledging hits the deadline, and *acknowledging without declaring* is a
+  **declared contradiction** the kernel can report without inferring anything from
+  DOM mutation — so it does not touch the rule that acceptance is never inferred.
+  The undetectable residue narrows to a consumer that used neither half of the
+  protocol, which is indistinguishable from one that renders synchronously and is
+  tier C. I-35, F-46, F-6 and 03's public documentation are all reworded against
+  that table.
+- **A state was deleted rather than repaired.** C-02 offered four coherent
+  meanings for `abandon()`; the closest is "not legal for an accepted destination
+  outcome", and a state that is illegal in the only case anyone would reach for it
+  should not exist. Readiness now has exactly three outcomes: acknowledged, the
+  deadline, or retirement. A consumer whose render failed has left an accepted
+  reorder unrendered — the operation genuinely did not complete, and the deadline
+  is the honest terminal. What is lost against `presentationReady`'s rejection
+  channel is **latency only**, and `readinessTimeout` is a public option. If Phase
+  15 shows it matters, the smallest addition is a second argument to `ready()`
+  carrying an error; recorded, not built.
+- **`preventDefault()` moved to the kernel** (C-03), for `admit` as well as
+  `command.admit`. The behavior answers feasibility with its return value; the
+  ingress owner performs the browser effect. An earlier draft left the call to the
+  behavior *and* rated I-32 tier A, which a member holding the real `Event` can
+  trivially violate — two errors compounding. I-32 is now tier **B with a stated
+  tier-C residue**, which is what the mechanism actually delivers.
 - **One capability is admitted as not expressible**, rather than reserved for:
   a multi-press keyboard drag — pick up, move, drop across several key events —
   needs a producer of a release the kernel does not own. D-32 mints a one-slot
@@ -794,18 +861,55 @@ working. See §Ordering principle.
   question Q-13 in 05, and a row in 00 §What would falsify this model. Phase 16's
   accessibility review is where the case would come from.
 - **The public surface takes one breaking change**, and only one:
-  `ReorderResolution.accept/reject` take a `PresentationDeliverer` instead of a
-  `presentationReady` promise, and `PresentationToken`/`PresentationDeliverer`
-  join `sortable/callbacks.js`. Recorded in 03 §The export topology this
-  requires and §The public/internal boundary. `CommandAdmission` stays
-  **internal** — a behavior declares which events the kernel binds; a consumer
-  does not.
+  `ReorderResolution.accept/reject` take `ResolutionOptions` instead of a
+  `presentationReady` promise, `SortableController` gains `ready(request)`, and
+  `ResolutionOptions` joins `sortable/callbacks.js`. That is **one** added alias;
+  the token design would have added two types describing a kernel-owned gate, and
+  Checkpoint C's "do not expose more settlement machinery than the consumer
+  needs" is why it does not. Recorded in 03 §The export topology this requires
+  and §The public/internal boundary. `CommandAdmission` stays **internal** — a
+  behavior declares which events the kernel binds; a consumer does not.
+- **A stale number was repeated as evidence, and is corrected.** The first pass
+  wrote "the behavior tag count is still two" as proof that nothing had grown.
+  The implementation has declared `config.actionTags: 3` since Checkpoint B —
+  `TAG_INVALIDATION` carries a failure raised from a native scroll/resize listener
+  back into a seam, because a seam is the only place a stage can be classified —
+  and a Checkpoint B review flagged that the contract never recorded it. Corrected
+  in 02 §`ActionTransition` and in 05 §Q-4, with the investigation Q-4 asks for:
+  the third tag is not a lifecycle request in disguise, and the pressure that
+  motivated Q-4 did not become a tag at all.
+- **The request-identity path is normative, and `ResolutionCommand` did not have
+  to change** (C2-02). The follow-up review asked whether the exact request forces
+  a field onto the staged command, and flagged it as a legitimate contract
+  correction if so. It does not: `release.prepare` writes `proposal` into the
+  draft *before* returning the command, so `release.effect` reaches the same
+  object through `current.proposal` that the `invoke` closure captured. Putting a
+  sortable domain value onto a kernel SPI type for one behavior's identity need
+  would be the exact mistake D-34 and D-35 were opened to correct.
+
+  What did change: `SortableRuntime` gains `pendingRequest` as an **eighth**
+  mutable field, published by `release.effect`, compared by `===` in
+  `controller.ready`, cleared by `retire()`. Written out in 02 §The identity path,
+  in full; threaded through 01's runtime listing and ownership table, 02's seam
+  table, 06's trace and retirement, and the fixture. **Typecheck cannot prove
+  object identity** — a structurally equal literal is assignable — so the fixture
+  shows the mechanism and 05's matrix carries the row that pins it.
+- **A compiled fixture now backs the revision** (C-06):
+  `packages/drag2/docs/revision/phase-14.ts`, type-only, picked up by the
+  package's existing `docs/**/*` include. It restates only what the revision
+  changed and imports the rest from `src/`, so the halves cannot drift; it carries
+  two complete `BehaviorSpec`s — sortable with `Activation = HTMLElement`, free
+  drag with the `true` default — the construction handshake, the reference
+  integration, and twelve `@ts-expect-error` assertions. It is not lifecycle
+  validation and says so. The Phase 13 probes are untouched and still import the
+  pre-revision SPI, which is what makes them evidence of what Phase 13 found.
 - **What the revision did not touch, checked rather than assumed:** the kernel
-  frame slice is still seven fields; `KernelHost` is still six members; the phase
-  vocabulary is still eight; the behavior tag count is still two; the seam set is
-  unchanged apart from D-34's type parameter. Every negative assertion in all
-  three typed probes still fails to compile, which is the property that makes
-  them worth keeping.
+  frame slice is still seven fields; the phase vocabulary is still eight; the seam
+  set is unchanged apart from D-34's type parameter; and `KernelHost` grew by
+  exactly one member, `presentationCommitted`, which is **D-33's and not D-32's** —
+  a whole second input mode cost the host nothing. Every negative assertion in all
+  three typed probes still fails to compile, which is the property that makes them
+  worth keeping.
 
 **What Phase 14 did not do, and where it goes.** The plan's re-verification
 deliverable — "the whole existing suite green against the revised SPI, with every
@@ -838,26 +942,70 @@ condition below.
 **Form.** Owner review plus an independent audit, then a closure assessment —
 the cadence Checkpoints A and B already ran (`reviews/drag2-review-*`).
 
-**Exit.** SPI re-frozen. From here the admissible-change rule from 00 applies
-again, unchanged. Phase 14's re-verification obligation travels with the
-implementation: the existing suite green against the revised SPI, with every Part
-I deviation re-checked rather than assumed, is a Phase 15 done-when.
+**Pass 1 — [`reviews/checkpoint-c-phase-14-review.md`](reviews/checkpoint-c-phase-14-review.md).**
+Not closed. D-32, D-34 and D-35 accepted on direction; **D-33 reopened** on two
+blockers (C-01 synchronous-commit ordering, C-02 incoherent `abandon()`
+semantics) plus five consistency findings: I-32's tier and `preventDefault()`
+ownership (C-03), D-34 not threaded through the construction generics (C-04),
+I-35 overclaiming (C-05), no compiled revision fixture (C-06), and a false
+allocation claim in probe 13c (C-07). All seven addressed; D-33 replaced with the
+controller-shaped design. The stale action-tag count was found in the same pass
+and corrected.
+
+**Exit — the criteria pass 1 set, and they are the ones to check.**
+
+1. The chosen readiness protocol has coherent synchronous, stale, timeout and
+   destroy semantics, and **no fourth state**.
+2. The revised contract compiles as a complete type surface —
+   `packages/drag2/docs/revision/phase-14.ts`, green under `npx just typecheck`,
+   with every `@ts-expect-error` still used, **and present in the reviewed change
+   set** rather than untracked (pass 2, C2-04).
+3. The normative examples obey the protocol's ordering: the identity is stored
+   before the mutation, in 03, in 06 and in the fixture alike.
+4. The invariants claim only what the API and kernel enforce — I-32 is B with a
+   stated residue, I-35 no longer claims the consumer cannot lose an
+   acknowledgement **or omit the declaration**.
+5. A forgotten declaration is explicitly retained as tier-C discipline, with no
+   stronger claim attached, and the residue named as F-6's test obligation
+   (pass 2, C2-01).
+6. `controller.ready(request)` is specified against **one exact published
+   object**, with retirement clearing it, in 01, 02, 06 and the fixture (pass 2,
+   C2-02).
+7. Trace 06 contains only the selected C-3 protocol — no token, deliverer or
+   `abandon()` vocabulary, and one consumer update rather than two (pass 2,
+   C2-03).
+
+SPI re-frozen on that basis; from here 00's admissible-change rule applies again,
+unchanged. Phase 14's re-verification obligation travels with the implementation:
+the existing suite green against the revised SPI, with every Part I deviation
+re-checked rather than assumed, is a Phase 15 done-when.
 
 ---
 
 ## Phase 15 — Settlement protocol implementation
 
-**Scope.** Implement D-33 — the kernel-minted `PresentationToken` — plus the
-re-verification Phase 14 could not perform against a document.
+**Scope.** Implement D-33 — declare in the resolution, acknowledge through the
+controller, identify by request — plus the re-verification Phase 14 could not
+perform against a document.
 
-**Deliverables.** The kernel and behavior side; the public surface change
-(`ReorderResolution.accept/reject` take a `PresentationDeliverer`;
-`PresentationToken` and `PresentationDeliverer` export from
+**Deliverables.** The kernel and behavior side — `holdForReadiness()`,
+`host.presentationCommitted()`, the early-acknowledgement latch on the resolution
+attempt, and `rt.pendingRequest` published by `release.effect` and cleared by
+`retire()`; the public surface change
+(`ReorderResolution.accept/reject` take `ResolutionOptions`,
+`SortableController` gains `ready(request)`, `ResolutionOptions` exports from
 `sortable/callbacks.js`); the React reference integration updated —
-`createCommitTracker` should disappear entirely, and if any residual consumer
-obligation survives it is documented as a deliberate cost rather than left
-implicit in a story file. `tests/sortable/react.browser.test.ts` and
-`sortable.stories.tsx` both move with it.
+`createCommitTracker` should disappear entirely, and the one residual consumer
+obligation that survives (acknowledge, or eat the deadline) is documented as a
+deliberate cost rather than left implicit in a story file.
+`tests/sortable/react.browser.test.ts` and `sortable.stories.tsx` both move with
+it.
+
+**The fixture is the specification for the type half.**
+`packages/drag2/docs/revision/phase-14.ts` already compiles the revised surface;
+Phase 15 makes `src/` agree with it and then the fixture's restated halves can
+be deleted in favour of imports, one decision at a time. A restatement that
+outlives its implementation is how a fixture starts lying.
 
 **Also here, because they are cheap once the settlement is open**: 13b B-2's
 ergonomics — `landing({ timing })` or `duration: number | (() => number)`, read
@@ -865,11 +1013,14 @@ at settle time inside the default runner so a consumer keeps the reduced-motion
 collapse, the retarget replay and the generation guard — and 13c N-2's probe
 annotation, which still describes the gap as unsolved.
 
-**Done when.** The 05 §Readiness token matrix group passes; the readiness and
-async-attempt rows pass against the new protocol; the reference integration is
-expressible without the consumer re-implementing supersede-and-never-drop; and
-**the whole existing suite is green against the revised SPI, with every Part I
-deviation re-checked rather than assumed** — Phase 14's carried obligation.
+**Done when.** The 05 §Authored-presentation acknowledgement matrix group
+passes — including the **synchronous-commit** row and the **stale
+acknowledgement across two operations** row, which are the two the Checkpoint C
+blockers turned into executable cases; the readiness and async-attempt rows pass
+against the new protocol; the reference integration is expressible without the
+consumer re-implementing supersede-and-never-drop; and **the whole existing suite
+is green against the revised SPI, with every Part I deviation re-checked rather
+than assumed** — Phase 14's carried obligation.
 
 ---
 

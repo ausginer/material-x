@@ -26,17 +26,52 @@ changes touch each other.
 
 | Inherited | Decision |
 | --- | --- |
-| 13a — a lifecycle-intent vocabulary | **D-32: a second admission member**, `command: { types, admit(event, draft) }`. Not a vocabulary and not an intent protocol — the gap was that a behavior could not be *asked* a question synchronously, not that it could not *ask* for a transition. `KernelHost` still has six members. |
-| 13b — a replacement protocol, or a recorded decision to keep it | **D-33: candidate C-2**, in request-shaped form. `holdForReadiness(deliver)`; the kernel mints a `PresentationToken` at arm time; `ready()` / `abandon(reason?)`. |
+| 13a — a lifecycle-intent vocabulary | **D-32: a second admission member**, `command: { types, admit(event, draft) }`. Not a vocabulary and not an intent protocol — the gap was that a behavior could not be *asked* a question synchronously, not that it could not *ask* for a transition. It adds **no** `KernelHost` member. |
+| 13b — a replacement protocol, or a recorded decision to keep it | **D-33: candidate C-3.** The resolution declares (`accept({ presentation: true })`), the controller acknowledges (`controller.ready(request)`), and the request is the per-operation identity. C-2 — a kernel-minted token — was chosen first and rejected at Checkpoint C; see below. |
 | 13c N-1 — a parameterized staged type | **D-34: `BehaviorSpec<Part, Activation extends {} = true>`.** |
 | 13c N-2 — the visual's rendered delta | **D-35: no seam.** The lift session records what `write(x, y)` rendered. |
 
 **Every negative assertion in all three typed probes still fails to compile**,
-and that is deliberate rather than incidental — the revision adds no host member,
-no `dispatch` return value and no rendered-delta seam. 13c N-2's *annotation* is
-now misleading (it says no seam reports the delta, which is true, and implies
-that is the defect, which is no longer the case); correcting it is a Phase 15
-hygiene item.
+and that is deliberate rather than incidental — the revision adds no ingress
+member to the host, no `dispatch` return value and no rendered-delta seam.
+(`KernelHost` does gain `presentationCommitted` from D-33; none of the probes
+asserts against it.) 13c N-2's *annotation* is now misleading — it says no seam
+reports the delta, which is true, and implies that is the defect, which is no
+longer the case; correcting it is a Phase 15 hygiene item.
+
+**13c's `constrain()` was corrected in place** (Checkpoint C, C-07): it returned
+a `Point` per pointer sample while its own comment claimed the path allocated
+nothing. The arithmetic is now two scalar functions feeding `lift.write`. The
+expressibility result is unchanged; the cost claim was wrong, and a type probe
+should not have been carrying one.
+
+## Why 13b's C-2 was chosen, then rejected
+
+Worth keeping, because the mistake is more instructive than the answer.
+
+C-2 inverts *creation*: the kernel mints the acknowledgement capability instead
+of the consumer manufacturing a promise. That is the right instinct and it
+removes three of the four obligations 13b names. But the kernel cannot mint until
+the settlement arms, which is **after** `onReorder` returns — while the authored
+mutation begins **inside** `onReorder`. Under `flushSync`, a synchronous
+renderer, or any non-React consumer that commits immediately, the layout effect
+runs before the capability exists, acknowledges nothing, and the gate times out.
+
+**A capability minted by the settlement is younger than the render it
+acknowledges.** The request is older by construction — it is the argument to the
+callback that asks for the render — which is why C-3, rejected in 13b for
+appearing to lack per-operation identity, is the design that works: the identity
+was already there, and already public.
+
+The lesson generalizes past this protocol: when a design hands a consumer a
+capability, ask whether it can exist before the thing it is a capability *for*.
+
+**The compiled evidence for the revision** is
+`packages/drag2/docs/revision/phase-14.ts`, added at Checkpoint C. It is a
+separate artefact from these probes and has the opposite job: the probes assert
+what the **pre-revision** SPI cannot express, the fixture asserts that the
+**post-revision** surface compiles as one system. Neither is lifecycle
+validation.
 
 ## What Phase 14 inherited
 
