@@ -2,7 +2,7 @@
 
 Date: 2026-08-01
 
-Scope: `packages/drag2`, reviewed against `.agents/docs/drag/contract/00-index.md` through `06-vertical-sortable-trace.md` and the Checkpoint A exit criteria in `.agents/docs/drag/plan.md`.
+Scope: `packages/drag2`, reviewed against `packages/drag2/.plan/contract/00-index.md` through `06-vertical-sortable-trace.md` and the Checkpoint A exit criteria in `packages/drag2/.plan/plan.md`.
 
 This was a read-only review. No package source, tests, configuration, or contract files were changed.
 

@@ -151,9 +151,9 @@ That is the same mixed field the closed finding describes, at the one moment it 
 **What is not closed.** `TAG_INVALIDATION` appears nowhere in the contract or the plan:
 
 ```
-$ grep -rn "TAG_INVALIDATION\|actionTags: 3" .agents/docs/drag/
+$ grep -rn "TAG_INVALIDATION\|actionTags: 3" packages/drag2/.plan/
 (no matches)
-$ grep -n "actionTags" .agents/docs/drag/contract/02-kernel-behavior-contract.md
+$ grep -n "actionTags" packages/drag2/.plan/contract/02-kernel-behavior-contract.md
 1171: collection replacement, so it declares `config.actionTags: 2`.
 ```
 
@@ -336,7 +336,7 @@ Reported separately, as instructed. None is a defect in a fix; N-1 and N-4 are d
 
 ### N-1 — `q7.md` now contradicts contract 03 and its own harness
 
-`.agents/docs/drag/measurements/q7.md` is **unchanged** since `bee2c15f`. Its §Answer 2 still concludes:
+`packages/drag2/.plan/measurements/q7.md` is **unchanged** since `bee2c15f`. Its §Answer 2 still concludes:
 
 > **They do not happen at the same moment anyway.** `vertical()` is invalidated by the committed move but rebuilds lazily, on the _next_ spatial frame … So: no behavior-owned read phase, no shared geometry-read capability.
 

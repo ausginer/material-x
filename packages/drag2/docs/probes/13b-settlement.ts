@@ -1,7 +1,7 @@
 /**
  * **Probe 13b — the settlement / authored-presentation protocol.**
  *
- * Write-up: `.agents/docs/drag/probes/13b-settlement.md`.
+ * Write-up: `.plan/probes/13b-settlement.md`.
  *
  * Two cases, and they do **not** get the same verdict:
  *

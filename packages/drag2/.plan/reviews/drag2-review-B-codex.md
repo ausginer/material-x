@@ -2,7 +2,7 @@
 
 Date: 2026-08-02
 
-Scope: the current Phase 8b implementation in `packages/drag2`, reviewed against `.agents/docs/drag/contract/00-index.md` through `06-vertical-sortable-trace.md`, the Checkpoint B / Phase 8b criteria in `plan.md`, and the four requested quality layers. `packages/drag` was used only as the shipped migration baseline.
+Scope: the current Phase 8b implementation in `packages/drag2`, reviewed against `packages/drag2/.plan/contract/00-index.md` through `06-vertical-sortable-trace.md`, the Checkpoint B / Phase 8b criteria in `plan.md`, and the four requested quality layers. `packages/drag` was used only as the shipped migration baseline.
 
 This is a review, not a fix set. No package source or permanent test file was changed. Two temporary browser probes were created, run, and removed; the only persisting change from this review is this document.
 

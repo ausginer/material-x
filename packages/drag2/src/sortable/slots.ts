@@ -79,7 +79,7 @@ export type DisplacementView = Readonly<{
    * The gap the placeholder is moving **to**. Meaningful only inside the
    * bracket — the hooks are the only readers, and they run nowhere else.
    *
-   * This is M-4's answer made expressible (`.agents/docs/drag/measurements/
+   * This is M-4's answer made expressible (`.plan/measurements/
    * q7.md`). Without it a displacement feature cannot know which elements the
    * move affects until after the write, so it has to measure the whole
    * destination view twice: 2.3ms per committed move at 800 rows, against

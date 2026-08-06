@@ -17,7 +17,7 @@
  * identity because it can affect nothing outside this feature's own element map.
  *
  * **The affected set is the crossed span, not the destination view** — M-4's
- * answer, measured in `.agents/docs/drag/measurements/q7.md`: 0.16ms against
+ * answer, measured in `.plan/measurements/q7.md`: 0.16ms against
  * 2.3ms per committed move at 800 rows, and the items outside the span do not
  * move at all, so a full-list pass animates zero deltas for them.
  */

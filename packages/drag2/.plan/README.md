@@ -16,11 +16,11 @@ This directory holds the record of how it got there, and the design work for wha
 | [`measurements/`](measurements/) | M-1…M-4 with their harnesses and workloads. Every figure was taken against a single behavior; `plan.md` phase 21 re-runs them over the complete package. |
 | [`reviews/`](reviews/) | Reviews of the contracts and of each checkpoint, including the five Checkpoint C passes, [`checkpoint-c-1.md`](reviews/checkpoint-c-1.md) … [`checkpoint-c-5.md`](reviews/checkpoint-c-5.md). Pass 1 reopened D-33; pass 4 found the pointerless sortable losing its command destination and D-35 claiming a tier it did not have; pass 5 found both of those corrections incomplete in the same direction — the prose fixed, the type and the ordering not — and the C6 follow-ups closed the checkpoint by applying that lesson to pass 5's own corrections. |
 
-Read [`contract/00-index.md`](contract/00-index.md) first — it carries the normative precedence and the freeze rule. The earlier probe-1 contract, whose construction model (a public `Kernel`, one shared runtime, behavior-driven `begin()`/`commit()`) is not carried forward, is in [`archive/contract-attempt-1/`](archive/contract-attempt-1/).
+Read [`contract/00-index.md`](contract/00-index.md) first — it carries the normative precedence and the freeze rule. The earlier probe-1 contract, whose construction model (a public `Kernel`, one shared runtime, behavior-driven `begin()`/`commit()`) is not carried forward, is in [`../../drag/.plan/contract-attempt-1/`](../../drag/.plan/contract-attempt-1/).
 
 ## Archive
 
-[`archive/`](archive/) contains superseded material, kept for provenance only. **None of it describes the current architecture.** It documents designs that were replaced, or alternatives that were explored and rejected:
+[`archive/`](../../drag/.plan/) contains superseded material, kept for provenance only. **None of it describes the current architecture.** It documents designs that were replaced, or alternatives that were explored and rejected:
 
 | Document | What it was |
 | --- | --- |

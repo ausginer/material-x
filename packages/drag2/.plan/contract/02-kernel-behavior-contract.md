@@ -797,7 +797,7 @@ A stale or forged request is ignored and reported **by the behavior**, on the id
 | while the **latch is already set** (early window) | inert; the latch is a boolean and setting it twice changes nothing. Reported as a duplicate |
 | while the **readiness hold is armed** and not yet settled | the ordinary release, once — see the claim-then-dispatch rule below |
 | **after** the hold has settled — by acknowledgement, deadline or teardown | inert; nothing is released, no hold count moves. Reported as a duplicate, **not** as a contradiction — see the row order above |
-| **across the early-to-armed boundary**: acknowledged early, then again re-entrantly during arm before the queued release drains | inert and reported as a **duplicate**. Arm claimed `readinessSettled` before dispatching, so the arrival rule's first test — *`readinessSettled` already claimed ⇒ duplicate* — decides it, ahead of both the armed-release test and the absent-hold contradiction test |
+| **across the early-to-armed boundary**: acknowledged early, then again re-entrantly during arm before the queued release drains | inert and reported as a **duplicate**. Arm claimed `readinessSettled` before dispatching, so the arrival rule's first test — _`readinessSettled` already claimed ⇒ duplicate_ — decides it, ahead of both the armed-release test and the absent-hold contradiction test |
 
 ##### The armed window has an interior, and the latch is claimed at its entrance
 
@@ -1188,11 +1188,11 @@ The consequence is the signature of this bug class: **the landing opens with a j
 
 #### The temporal rule on `write`
 
-`write` is the one granted capability whose correctness depends on **when** it is called, not only on who holds it. Structural projection cannot express that: the member has to exist, because rendering is what a behavior is for. A retained `BehaviorLiftSession` therefore stays callable and stays *effective* — `write` composes against the base transform and assigns, with no phase test and no operation check.
+`write` is the one granted capability whose correctness depends on **when** it is called, not only on who holds it. Structural projection cannot express that: the member has to exist, because rendering is what a behavior is for. A retained `BehaviorLiftSession` therefore stays callable and stays _effective_ — `write` composes against the base transform and assigns, with no phase test and no operation check.
 
 > **A behavior may call `lift.write` only before `LandingContext.from` is sampled.** After the landing context is built, the runner is the deliberate writer until its `destroy()`; after retirement, the session belongs to no live operation. A `write` in either window is **outside the contract**, and `from`, the landing trajectory and the join pin are not defined for it.
 
-This is **tier C**, and it is a *second* tier-C rule rather than a restatement of the first. The two are different mistakes: a direct `style.transform` write is *rendering by another route*; a late `write` is *rendering at the wrong time* through the sanctioned route. Both leave the visual and the kernel's model of it disagreeing, and neither is prevented.
+This is **tier C**, and it is a _second_ tier-C rule rather than a restatement of the first. The two are different mistakes: a direct `style.transform` write is _rendering by another route_; a late `write` is _rendering at the wrong time_ through the sanctioned route. Both leave the visual and the kernel's model of it disagreeing, and neither is prevented.
 
 **No guard is added, and that is a decision** (Checkpoint C, C6-01). A phase or operation test inside `write` would put a branch on the one path M-1 measures and F-8 accounts for, to defend against a bug no reference behavior has — and it would convert a contract violation into a **silent** no-op. Silent is the worse failure: a behavior that writes late and sees nothing happen has a harder defect to find than one whose visual visibly fights the landing. If a real behavior ever does this, the cheap instrument is a `DEV`-only report at the call site, not a production branch. Recorded, not built.
 

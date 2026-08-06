@@ -7,7 +7,7 @@
  * then let the consumer commit the accepted order — and asserts on what the DOM
  * looks like at the `useLayoutEffect` readiness point.
  *
- * Findings are written up in `.agents/docs/drag/react-placeholder-probe.md`.
+ * Findings are written up in `../../drag2/.plan/react-placeholder-probe.md`.
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import {

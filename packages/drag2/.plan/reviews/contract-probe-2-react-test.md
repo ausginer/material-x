@@ -112,7 +112,7 @@ The main deliverables could be:
 2. browser-level automated tests or an executable diagnostic;
 3. a concise findings note, perhaps:
 
-       .agents/docs/drag/react-placeholder-probe.md
+       packages/drag2/.plan/react-placeholder-probe.md
 
 The note should describe observed behavior rather than proposing a large architecture. Screenshots, DOM-order logs, or small diagrams are welcome when they make a surprising result easier to understand.
 
