@@ -1,7 +1,7 @@
 /**
  * **Probe 13c — free drag as a second behavior, against the frozen SPI.**
  *
- * Write-up: `.agents/docs/drag/probes/13c-free-drag.md`.
+ * Write-up: `.plan/probes/13c-free-drag.md`.
  *
  * ## What this file is
  *

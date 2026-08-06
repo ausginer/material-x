@@ -2,14 +2,14 @@
 
 Implementation of the frozen `drag2` construction model: a private kernel executor, a private behavior runtime, and construction-time feature composition.
 
-- **Contract (source of truth):** [`.agents/docs/drag/contract/`](../../.agents/docs/drag/contract/), documents 00–06, read with the precedence stated in `00-index.md`.
-- **Implementation plan:** [`.agents/docs/drag/plan.md`](../../.agents/docs/drag/plan.md).
+- **Contract (source of truth):** [`.plan/contract/`](.plan/contract/), documents 00–06, read with the precedence stated in `00-index.md`.
+- **Implementation plan:** [`.plan/plan.md`](.plan/plan.md).
 
 The shipped `@ydinjs/drag` is untouched while this package is built. Merging the two is the last phase of the plan and a separate decision, so this package is `private` until then.
 
 ## Status
 
-**Phases 0–11 complete: one production-shaped, pointer-driven vertical sortable.** That is a validated slice, not a successor to `@ydinjs/drag`. The shipped package additionally covers free dragging, keyboard reordering, and two-dimensional insertion — none of which exist here, and every measurement below was taken against a single behavior. (Two-dimensional insertion is not a _feature_ of the shipped package: it has no axis concept at all, so 2-D is its default and `vertical()` here is a narrowing of it. See [`ledger.md`](../../.agents/docs/drag/ledger.md) §5.) The roadmap from slice to package is [`plan.md`](../../.agents/docs/drag/plan.md) Part II.
+**Phases 0–11 complete: one production-shaped, pointer-driven vertical sortable.** That is a validated slice, not a successor to `@ydinjs/drag`. The shipped package additionally covers free dragging, keyboard reordering, and two-dimensional insertion — none of which exist here, and every measurement below was taken against a single behavior. (Two-dimensional insertion is not a _feature_ of the shipped package: it has no axis concept at all, so 2-D is its default and `vertical()` here is a narrowing of it. See [`ledger.md`](.plan/ledger.md) §5.) The roadmap from slice to package is [`plan.md`](.plan/plan.md) Part II.
 
 **Phases 3–5 are the frozen SPI** and **phase 9 froze the public surface**: any change to a seam signature, or any addition to the export table below, requires the failing-executable-case justification from contract 00. Three known pressure points against that freeze — discrete (keyboard) input, the authored-presentation protocol, and whether a second behavior fits the seam set — are probed and resolved together in Part II rather than one at a time.
 
@@ -32,7 +32,7 @@ The List story's hint also drops the shipped package's arrow-key reordering, whi
 
 ## Migrating from `@ydinjs/drag`
 
-The two packages are not source-compatible; this is a rewrite against a frozen contract, and this table covers only the vertical sortable — free drag, keyboard reordering and two-dimensional insertion have no counterpart here yet. The full boundary, per capability, is [`ledger.md`](../../.agents/docs/drag/ledger.md). The differences a consumer actually meets:
+The two packages are not source-compatible; this is a rewrite against a frozen contract, and this table covers only the vertical sortable — free drag, keyboard reordering and two-dimensional insertion have no counterpart here yet. The full boundary, per capability, is [`ledger.md`](.plan/ledger.md). The differences a consumer actually meets:
 
 | `@ydinjs/drag` | `@ydinjs/drag2` |
 | --- | --- |
@@ -96,7 +96,7 @@ All four are validated at construction and throw a `TypeError` on a value outsid
 
 ## Size budgets
 
-Measured 2026-08-02 (M-3 — `.agents/docs/drag/measurements/m3.md`). `just size` runs `bench/size/measure.ts`, where each composition is one declaration: the exact named imports a consumer writes, a budget, and the modules its graph must and must not contain. It exits non-zero on any of the three.
+Measured 2026-08-02 (M-3 — `.plan/measurements/m3.md`). `just size` runs `bench/size/measure.ts`, where each composition is one declaration: the exact named imports a consumer writes, a budget, and the modules its graph must and must not contain. It exits non-zero on any of the three.
 
 | composition                                         | brotli       | modules |
 | --------------------------------------------------- | ------------ | ------- |

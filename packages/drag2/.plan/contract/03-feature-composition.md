@@ -575,7 +575,7 @@ The library performs only the measurements and temporary offsets that make CSS a
 
 **Acquisition is all-or-nothing**, the same obligation `landing()` has: `finished` is an accessor and `then` is a call, and an animation that is started but never entered into the map would survive `retire()` and keep offsetting an element nothing owns.
 
-**Q-7 is answered** (`.agents/docs/drag/measurements/q7.md`, M-4). The displacement set is the crossed span, 0.16ms against 2.3ms per committed move at 800 rows. The two features never contend for a shared read: the axis rebuild is _re-timed_ into the bracket rather than duplicated, so a committed move performs one full pass — the one it was always going to perform on the next frame — plus `2 × |span ∪ in-flight|` element reads. The behavior-owned read phase the open question anticipated exists, but it costs nothing, and it is there for correctness rather than for cost.
+**Q-7 is answered** (`packages/drag2/.plan/measurements/q7.md`, M-4). The displacement set is the crossed span, 0.16ms against 2.3ms per committed move at 800 rows. The two features never contend for a shared read: the axis rebuild is _re-timed_ into the bracket rather than duplicated, so a committed move performs one full pass — the one it was always going to perform on the next frame — plus `2 × |span ∪ in-flight|` element reads. The behavior-owned read phase the open question anticipated exists, but it costs nothing, and it is there for correctness rather than for cost.
 
 ## The collection model
 

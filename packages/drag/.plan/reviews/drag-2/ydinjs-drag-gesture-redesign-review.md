@@ -1,6 +1,6 @@
 # Review of `05 — Explicit FSM Decisions and Effect Executors`
 
-Reviewed document: `.agents/docs/drag-gesture-redesign.md`.
+Reviewed document: `packages/drag/.plan/drag-gesture-redesign.md`.
 
 ## Verdict
 

@@ -4,7 +4,7 @@ Phase 12 deliverable. One row per public capability of the shipped package's two
 
 This is the definition of "parity" every later phase cites. Where a phase asks "does the successor have to do this?", the answer is a row here, not a judgement made in flight.
 
-**Precedent.** [`archive/phase-1/08-compatibility-ledger.md`](archive/phase-1/08-compatibility-ledger.md) is the same instrument, written for the shipped package's own redesign. It is the form this follows.
+**Precedent.** [`../../drag/.plan/phase-1/08-compatibility-ledger.md`](../../drag/.plan/phase-1/08-compatibility-ledger.md) is the same instrument, written for the shipped package's own redesign. It is the form this follows.
 
 ## How to read a row
 

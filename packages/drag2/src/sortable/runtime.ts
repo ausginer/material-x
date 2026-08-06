@@ -75,7 +75,7 @@ export type SortableRuntime = {
    * monotonic attempt number it schedules.
    *
    * **Measured against both alternatives** (M-2, 2026-08-02 —
-   * `.agents/docs/drag/measurements/m2.md`). Eager costs 148 B more on a
+   * `.plan/measurements/m2.md`). Eager costs 148 B more on a
    * controller that never drags, and wins everywhere else: an active controller
    * is *cheaper* than under lazy-retained or per-operation (281 B against
    * 309 B), because their nullable slot and initialization branch cost more than

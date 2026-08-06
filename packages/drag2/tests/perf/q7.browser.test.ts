@@ -10,7 +10,7 @@
  * loaded machine: it was doing no work the read count does not do, and could
  * only fail for reasons that have nothing to do with the library.
  *
- * The timings behind `.agents/docs/drag/measurements/q7.md` still live here,
+ * The timings behind `.plan/measurements/q7.md` still live here,
  * because a measurement whose harness is deleted cannot be re-run when the
  * question is reopened. They are opt-in — `VITE_DRAG_MEASURE=1` — and assert
  * nothing.

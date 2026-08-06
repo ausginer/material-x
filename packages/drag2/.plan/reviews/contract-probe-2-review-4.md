@@ -743,7 +743,7 @@ These do not move the architecture but should be corrected in the same pass.
 4. The documents alternate between five resource lifetimes and three operation `Lifetime` objects (`00-index.md:128`, `01-construction-ownership.md:186`, `06-vertical-sortable-trace.md:62-64`, `06-vertical-sortable-trace.md:419-420`). Preserve the useful taxonomy from the shipped design: five conceptual scopes, three named operation `Lifetime` objects, and only two narrowed registration scopes passed during activation.
 5. `root` is called necessarily connected and ancestral, but `admit` may return any `HTMLElement` and consumer resolvers can mutate DOM (`02-kernel-behavior-contract.md:124-132`, `02-kernel-behavior-contract.md:279-289`). Validate containment/connectivity before capture or weaken the claim and define capture-failure recovery.
 6. `05-lifecycle-invariants.md:5` says every invariant is inherited, although I-29 and I-30 are explicitly new.
-7. `.agents/docs/drag/README.md:15` still says two reviews and F-1…F-16, while the normative index incorporates three reviews and findings through F-18.
+7. `packages/drag2/.plan/README.md:15` still says two reviews and F-1…F-16, while the normative index incorporates three reviews and findings through F-18.
 
 ## Recommended correction order
 
