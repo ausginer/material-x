@@ -1,12 +1,8 @@
 # 1. Kernel contract
 
-The kernel is an **execution foundation**: it owns the parts of a drag that are
-hard to get right and identical for every behavior — ingress, ordering,
-reentrancy, identity, cancellation precedence, transactional publication,
-resource lifetimes and terminal teardown.
+The kernel is an **execution foundation**: it owns the parts of a drag that are hard to get right and identical for every behavior — ingress, ordering, reentrancy, identity, cancellation precedence, transactional publication, resource lifetimes and terminal teardown.
 
-It owns no sortable concept. It has never heard of vertical geometry,
-placeholders, item collections, reorder proposals or layout animation.
+It owns no sortable concept. It has never heard of vertical geometry, placeholders, item collections, reorder proposals or layout animation.
 
 ## `draggable()`
 
@@ -21,28 +17,27 @@ function draggable<Controller>(
 }
 ```
 
-`draggable()` does exactly two things: it creates one kernel bound to one
-ingress root, and it hands that kernel to the behavior, which returns the
-controller. It contains no policy and no branching. (C-1)
+`draggable()` does exactly two things: it creates one kernel bound to one ingress root, and it hands that kernel to the behavior, which returns the controller. It contains no policy and no branching. (C-1)
 
-`root` is the element the kernel attaches its `pointerdown` listener to. The
-kernel guards that listener (`closed`, one-operation-at-a-time, primary press)
-and then asks the behavior whether the press is admissible.
+`root` is the element the kernel attaches its `pointerdown` listener to. The kernel guards that listener (`closed`, one-operation-at-a-time, primary press) and then asks the behavior whether the press is admissible.
 
 Usage:
 
 ```ts
 const controller = draggable(
   list,
-  sortable(items, vertical(), placeholder({ className: 'ghost' }), callbacks({ onReorder })),
+  sortable(
+    items,
+    vertical(),
+    placeholder({ className: 'ghost' }),
+    callbacks({ onReorder }),
+  ),
 );
 ```
 
 ## `Kernel`
 
-The kernel handed to a behavior is a **construction-time** object. It exposes
-the shared runtime, the install seam, dispatch, and the base controller methods.
-Nothing on it is looked up per pointer move.
+The kernel handed to a behavior is a **construction-time** object. It exposes the shared runtime, the install seam, dispatch, and the base controller methods. Nothing on it is looked up per pointer move.
 
 ```ts
 type Kernel = Readonly<{
@@ -79,23 +74,22 @@ type Kernel = Readonly<{
   isCurrent(operation: OperationIdentity | null): boolean;
 
   /** Classified failure. Always queued, never thrown at the producer. */
-  fail(operation: OperationIdentity | null, cause: FailureCause, error: unknown): void;
+  fail(
+    operation: OperationIdentity | null,
+    cause: FailureCause,
+    error: unknown,
+  ): void;
 
   /** Opens consumer resolution for the committed proposal. */
   resolve(resolver: ResolutionInvoker): void;
 }>;
 ```
 
-`begin()` and `commit()` are typed against the kernel frame; the behavior
-re-declares them at its own frame type through the runtime projection described
-in [artifact 4](04-runtime-ownership.md). There is no runtime cost — they are the
-same two functions over the same two references.
+`begin()` and `commit()` are typed against the kernel frame; the behavior re-declares them at its own frame type through the runtime projection described in [artifact 4](04-runtime-ownership.md). There is no runtime cost — they are the same two functions over the same two references.
 
 ## `KernelSpec` — the behavior's direct operations
 
-This is the whole behavior→kernel surface. The kernel calls these directly. It
-never emits an event, never receives an effect description, and never routes a
-result message back.
+This is the whole behavior→kernel surface. The kernel calls these directly. It never emits an event, never receives an effect description, and never routes a result message back.
 
 ```ts
 type KernelSpec<Frame extends KernelStateFrame> = Readonly<{
@@ -191,32 +185,26 @@ type KernelSpec<Frame extends KernelStateFrame> = Readonly<{
 }>;
 ```
 
-Twelve operations and three configuration scalars. Each is justified by
-something vertical sortable actually needs; none was added for a behavior that
-does not exist. Artifact 9 records which of them a free-drag behavior would
-strain.
+Twelve operations and three configuration scalars. Each is justified by something vertical sortable actually needs; none was added for a behavior that does not exist. Artifact 9 records which of them a free-drag behavior would strain.
 
 ## Phases
 
 ```ts
-const IDLE = 0;       // No operation. The only phase that admits input.
-const PENDING = 1;    // Admitted; below the activation threshold.
+const IDLE = 0; // No operation. The only phase that admits input.
+const PENDING = 1; // Admitted; below the activation threshold.
 const ACTIVATING = 2; // Presentation acquired and committed; onStart in flight.
-const ACTIVE = 3;     // Live, tracking input.
-const RELEASING = 4;  // Input closed, geometry final, consumer resolving.
-const SETTLING = 5;   // Outcome committed; awaiting the landing and readiness gates.
-const REPORTING = 6;  // onError in flight.
+const ACTIVE = 3; // Live, tracking input.
+const RELEASING = 4; // Input closed, geometry final, consumer resolving.
+const SETTLING = 5; // Outcome committed; awaiting the landing and readiness gates.
+const REPORTING = 6; // onError in flight.
 const FINALIZING = 7; // Presentation released; terminal callback in flight.
 ```
 
-Kept verbatim from the shipped machine (C-15). Only kernel lifecycle handlers
-write `phase`. A behavior seam that wants a phase change asks for it by
-returning, not by assigning.
+Kept verbatim from the shipped machine (C-15). Only kernel lifecycle handlers write `phase`. A behavior seam that wants a phase change asks for it by returning, not by assigning.
 
 ## The action table
 
-The kernel owns the tags and the switch. Behavior tags begin at
-`BEHAVIOR_ACTION` and fall through to `spec.handleAction`. (C-2)
+The kernel owns the tags and the switch. Behavior tags begin at `BEHAVIOR_ACTION` and fall through to `spec.handleAction`. (C-2)
 
 | Tag | Owner | Argument | Raised by |
 | --- | --- | --- | --- |
@@ -234,31 +222,20 @@ The kernel owns the tags and the switch. Behavior tags begin at
 | `BEHAVIOR_ACTION + 0` | sortable | spatial attempt (`number`) | coalesced rAF task |
 | `BEHAVIOR_ACTION + 1` | sortable | `CollectionSnapshot` | `controller.updateItems()` |
 
-Vertical sortable needs **two** behavior tags. That number is the evidence the
-kernel/behavior boundary sits in the right place; a behavior that needed ten
-would mean the kernel had failed to own the skeleton.
+Vertical sortable needs **two** behavior tags. That number is the evidence the kernel/behavior boundary sits in the right place; a behavior that needed ten would mean the kernel had failed to own the skeleton.
 
 ### Queue semantics
 
-Ported unchanged from `packages/drag`, because they are the guarantees the brief
-requires and they are already proven:
+Ported unchanged from `packages/drag`, because they are the guarantees the brief requires and they are already proven:
 
-- **Two parallel arrays** (`actions: number[]`, `args: unknown[]`). An enqueue is
-  two pushes and no allocation.
+- **Two parallel arrays** (`actions: number[]`, `args: unknown[]`). An enqueue is two pushes and no allocation.
 - **FIFO.** Entries process in order; each retains its own argument.
-- **Run-to-completion.** A nested `dispatch` during a drain appends and returns.
-  The outermost frame owns the pass and reaches the appended entry in the same
-  drain. Nested calls never interrupt an action midway.
-- **Terminal latch.** `closed` is re-read every iteration, so a consumer calling
-  `destroy()` from inside a callback stops the drain immediately.
-- **Panic.** A throw escaping a handler is an invariant violation: clear the
-  queue, tear the controller down exactly once, then report the initiating error.
-- **No internal steps are queued.** One pointer move is one action that
-  validates, prepares, commits, renders and notifies — not six.
+- **Run-to-completion.** A nested `dispatch` during a drain appends and returns. The outermost frame owns the pass and reaches the appended entry in the same drain. Nested calls never interrupt an action midway.
+- **Terminal latch.** `closed` is re-read every iteration, so a consumer calling `destroy()` from inside a callback stops the drain immediately.
+- **Panic.** A throw escaping a handler is an invariant violation: clear the queue, tear the controller down exactly once, then report the initiating error.
+- **No internal steps are queued.** One pointer move is one action that validates, prepares, commits, renders and notifies — not six.
 
-Only two things coalesce: the behavior's rAF frame task and, inside it, the
-single latest spatial attempt. Pointer input and collection replacement never
-coalesce.
+Only two things coalesce: the behavior's rAF frame task and, inside it, the single latest spatial attempt. Pointer input and collection replacement never coalesce.
 
 ## Transaction primitives
 
@@ -280,22 +257,11 @@ type KernelStateFrame = {
 };
 ```
 
-`current` is committed truth. `draft` is a reusable candidate. A transition is
-`Object.assign(draft, current)` → mutate → swap references. No transition
-allocates a state object.
+`current` is committed truth. `draft` is a reusable candidate. A transition is `Object.assign(draft, current)` → mutate → swap references. No transition allocates a state object.
 
-**The shallow-copy contract holds.** Every frame field must be a scalar, an
-immutable value, or replace-on-write. Collections, caches, disposer stacks and
-attempt records live on the runtime container, outside the frames. Both frames
-are built by one factory so they share a key set and a hidden class; no
-phase-specific property is ever added dynamically.
+**The shallow-copy contract holds.** Every frame field must be a scalar, an immutable value, or replace-on-write. Collections, caches, disposer stacks and attempt records live on the runtime container, outside the frames. Both frames are built by one factory so they share a key set and a hidden class; no phase-specific property is ever added dynamically.
 
-**Every substantial action is three stages** — prepare (validation, pure
-calculation, DOM reads, *local* acquisition), commit (short, effectively
-non-throwing: publish leases then swap), post-commit effects (DOM writes,
-lifetime closes, continuations, callbacks). Preparation must not mutate
-`current`. Ownership transfers only at the commit point; a partial acquisition
-rolls back locally in reverse order and publishes nothing.
+**Every substantial action is three stages** — prepare (validation, pure calculation, DOM reads, _local_ acquisition), commit (short, effectively non-throwing: publish leases then swap), post-commit effects (DOM writes, lifetime closes, continuations, callbacks). Preparation must not mutate `current`. Ownership transfers only at the commit point; a partial acquisition rolls back locally in reverse order and publishes nothing.
 
 ## Resource lifetimes
 
@@ -309,41 +275,24 @@ Five, in release order. The kernel owns all five.
 | 3 | Temporary presentation | lift, style snapshot, behavior-registered presentation disposers (the placeholder) | finalization, after both gates |
 | 4 | Async attempts | resolution, readiness, landing, spatial | per-attempt retirement |
 
-**2a and 2b must stay separate.** Release closes motion so nothing can move the
-geometry the proposal was resolved from, while cancellation stays armed so a
-consumer can still abandon an unresolved drop. Sharing one signal would abort
-the resolver's signal the instant `onReorder` opened.
+**2a and 2b must stay separate.** Release closes motion so nothing can move the geometry the proposal was resolved from, while cancellation stays armed so a consumer can still abandon an unresolved drop. Sharing one signal would abort the resolver's signal the instant `onReorder` opened.
 
-A `Lifetime` is an `AbortSignal`, a disposer stack and a latched `dispose()`.
-`use(disposer)` registers unconditionally; `useWhile(guard, disposer)` registers
-a disposal that runs only if the guard still holds. Disposal aborts the signal,
-then unwinds LIFO and best-effort — one disposer throwing is reported and does
-not stop the rest. `dispose()` is latched, so teardown paths run unconditionally
-and in any order.
+A `Lifetime` is an `AbortSignal`, a disposer stack and a latched `dispose()`. `use(disposer)` registers unconditionally; `useWhile(guard, disposer)` registers a disposal that runs only if the guard still holds. Disposal aborts the signal, then unwinds LIFO and best-effort — one disposer throwing is reported and does not stop the rest. `dispose()` is latched, so teardown paths run unconditionally and in any order.
 
-There is one release shape in the package: `Disposer = () => void`. A pointer
-capture, a style snapshot, a top-layer entry and a readiness watch all hand back
-the same type.
+There is one release shape in the package: `Disposer = () => void`. A pointer capture, a style snapshot, a top-layer entry and a readiness watch all hand back the same type.
 
 ## Async attempt identity
 
-An attempt is a plain record on the runtime, compared by identity — object
-identity for resolution/readiness/landing, a monotonic `number` for the
-coalesced spatial attempt (C-8).
+An attempt is a plain record on the runtime, compared by identity — object identity for resolution/readiness/landing, a monotonic `number` for the coalesced spatial attempt (C-8).
 
-Identity is validated **twice**: once at the producer boundary before
-dispatching, and again when the queued action is applied. The two layers guard
-different windows — an attempt slot may be reset at a different moment than the
-frame phase changes — so both are required.
+Identity is validated **twice**: once at the producer boundary before dispatching, and again when the queued action is applied. The two layers guard different windows — an attempt slot may be reset at a different moment than the frame phase changes — so both are required.
 
 A resolution attempt distinguishes `completed` from `settlement`:
 
-- `settlement` is the discriminated payload, **cleared once consumed**, so a
-  fulfilled `undefined` and a rejected `undefined` stay distinguishable;
+- `settlement` is the discriminated payload, **cleared once consumed**, so a fulfilled `undefined` and a rejected `undefined` stay distinguishable;
 - `completed` records that the resolver produced a result at all.
 
-The abort guard keys off `completed`. Keying it off the payload would abort a
-finished resolver's own signal.
+The abort guard keys off `completed`. Keying it off the payload would abort a finished resolver's own signal.
 
 ## What the kernel guarantees
 

@@ -12,20 +12,20 @@ Scope: verification of A-09 through A-15, B-01, P-01, P-02, the behavior-local i
 
 ## Verdict summary
 
-| Item | Verdict |
-| --- | --- |
-| A-09 | **STILL OPEN** |
-| A-10 | **VERIFIED** |
-| A-11 | **VERIFIED** |
-| A-12 | **VERIFIED** |
-| A-13 | **VERIFIED** |
-| A-14 | **VERIFIED** |
-| A-15 | **VERIFIED** |
-| B-01 | **VERIFIED** |
-| P-01 | **VERIFIED** |
-| P-02 | **VERIFIED** |
-| Behavior-local invalidation tag / `actionTags` | **VERIFIED** |
-| Test-only `STAGED` public-surface containment | **VERIFIED** |
+| Item                                           | Verdict        |
+| ---------------------------------------------- | -------------- |
+| A-09                                           | **STILL OPEN** |
+| A-10                                           | **VERIFIED**   |
+| A-11                                           | **VERIFIED**   |
+| A-12                                           | **VERIFIED**   |
+| A-13                                           | **VERIFIED**   |
+| A-14                                           | **VERIFIED**   |
+| A-15                                           | **VERIFIED**   |
+| B-01                                           | **VERIFIED**   |
+| P-01                                           | **VERIFIED**   |
+| P-02                                           | **VERIFIED**   |
+| Behavior-local invalidation tag / `actionTags` | **VERIFIED**   |
+| Test-only `STAGED` public-surface containment  | **VERIFIED**   |
 
 ## Item verification
 

@@ -40,9 +40,7 @@ export type LiftMode =
  * {@link AcceptedFreeDropResolution}.
  */
 export const FreeDropResolution = {
-  accept: (
-    presentationReady?: PromiseLike<void>,
-  ): AcceptedFreeDropResolution =>
+  accept: (presentationReady?: PromiseLike<void>): AcceptedFreeDropResolution =>
     presentationReady
       ? { type: OUTCOME_ACCEPTED, presentationReady }
       : { type: OUTCOME_ACCEPTED },

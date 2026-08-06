@@ -136,31 +136,52 @@ declare function reportTerminal(outcome: number, domain: unknown): void;
 declare function reportToConsumer(stage: number, error: unknown): void;
 
 /**
- * Axis projection then bounds clamp, in that order, over the *origin-relative
- * delta* — the space `lift.write` consumes. Pure arithmetic over numbers the
- * frame already holds: no DOM read, no allocation.
+ * Axis projection then bounds clamp, over the *origin-relative delta* — the
+ * space `lift.write` consumes. Pure arithmetic over numbers the frame already
+ * holds: no DOM read.
+ *
+ * **Split into two scalar functions rather than one returning a `Point`.** The
+ * first version of this probe returned `{ x, y }` while its own comment claimed
+ * the path allocated nothing, which was simply false — one `Point` per pointer
+ * sample (Checkpoint C, C-07). Type expressibility and hot-path cost are
+ * separate claims and the probe must not blur them: P-1 is about whether the
+ * constraint *fits* the seam, and it fits in the shape that also happens to be
+ * allocation-free, which is the shape worth writing down.
  */
-function constrain(
+function constrainX(
   dx: number,
+  axis: DragAxis,
+  bounds: DOMRectReadOnly | null,
+  origin: DOMRectReadOnly,
+): number {
+  const x = axis === AXIS_Y ? 0 : dx;
+
+  if (bounds === null) {
+    return x;
+  }
+
+  const min = bounds.left - origin.left;
+  const max = bounds.right - origin.right;
+
+  return x < min ? min : x > max ? max : x;
+}
+
+function constrainY(
   dy: number,
   axis: DragAxis,
   bounds: DOMRectReadOnly | null,
   origin: DOMRectReadOnly,
-): Point {
-  let x = axis === AXIS_Y ? 0 : dx;
-  let y = axis === AXIS_X ? 0 : dy;
+): number {
+  const y = axis === AXIS_X ? 0 : dy;
 
-  if (bounds !== null) {
-    const minX = bounds.left - origin.left;
-    const maxX = bounds.right - origin.right;
-    const minY = bounds.top - origin.top;
-    const maxY = bounds.bottom - origin.bottom;
-
-    x = x < minX ? minX : x > maxX ? maxX : x;
-    y = y < minY ? minY : y > maxY ? maxY : y;
+  if (bounds === null) {
+    return y;
   }
 
-  return { x, y };
+  const min = bounds.top - origin.top;
+  const max = bounds.bottom - origin.bottom;
+
+  return y < min ? min : y > max ? max : y;
 }
 
 /* ============================================================ P — it fits = */
@@ -362,15 +383,21 @@ export const freeDragSpec: BehaviorSpec<FreeDragPart> = {
    */
   moved(current, lift): void {
     const origin = rt.originRect!;
-    const constrained = constrain(
-      current.pointerX - current.originX,
-      current.pointerY - current.originY,
-      current.axis,
-      current.bounds,
-      origin,
-    );
 
-    lift.write(constrained.x, constrained.y);
+    lift.write(
+      constrainX(
+        current.pointerX - current.originX,
+        current.axis,
+        current.bounds,
+        origin,
+      ),
+      constrainY(
+        current.pointerY - current.originY,
+        current.axis,
+        current.bounds,
+        origin,
+      ),
+    );
     rt.onMove?.(buildGeometry(current, rt));
   },
 

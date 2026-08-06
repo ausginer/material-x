@@ -1,10 +1,6 @@
 # 2. Behavior contract — `sortable()`
 
-The sortable behavior supplies domain semantics to the kernel. It defines its
-own runtime and frame data, its collection and insertion model, the reorder
-request and result values, its controller methods, and the seam calls its
-features plug into. It does **not** own a queue, a phase machine, a cancellation
-latch or a resource-lifetime model.
+The sortable behavior supplies domain semantics to the kernel. It defines its own runtime and frame data, its collection and insertion model, the reorder request and result values, its controller methods, and the seam calls its features plug into. It does **not** own a queue, a phase machine, a cancellation latch or a resource-lifetime model.
 
 ## Signature
 
@@ -15,28 +11,22 @@ function sortable(
 ): DraggableBehavior<SortableController>;
 ```
 
-`items` is behavior **state**, not a capability, so it is a positional argument
-rather than a feature: there is no build in which collection code is absent, and
-making it a feature would create a required feature that tree-shakes nothing.
-Everything that *is* a capability goes through the varargs. (C-6)
+`items` is behavior **state**, not a capability, so it is a positional argument rather than a feature: there is no build in which collection code is absent, and making it a feature would create a required feature that tree-shakes nothing. Everything that _is_ a capability goes through the varargs. (C-6)
 
 The behavior is a closure over construction:
 
 ```ts
 function sortable(items, ...features) {
   return (kernel) => {
-    const runtime = extendRuntime(kernel.runtime, items);   // C-3: in place
-    const slots = assemble(features);                       // C-5
+    const runtime = extendRuntime(kernel.runtime, items); // C-3: in place
+    const slots = assemble(features); // C-5
     kernel.install(createSortableSpec(runtime, slots));
     return createSortableController(kernel, runtime);
   };
 }
 ```
 
-Construction order is fixed: extend the runtime, assemble and validate features,
-install the spec, build the controller. No input can be admitted before
-`install()` returns, because the kernel arms its ingress listener from
-`install()`.
+Construction order is fixed: extend the runtime, assemble and validate features, install the spec, build the controller. No input can be admitted before `install()` returns, because the kernel arms its ingress listener from `install()`.
 
 ## The collection model
 
@@ -48,26 +38,18 @@ type CollectionSnapshot = Readonly<{
 }>;
 ```
 
-The published snapshot lives on the runtime container, not in a frame: it is
-replaced wholesale, never mutated, and `updateItems()` shallow-copies the
-caller's array so a queued snapshot can never be changed by a later caller
-mutation. The frame holds the snapshot the *current operation* is reasoning
-about, which may lag the published one by at most one queued action.
+The published snapshot lives on the runtime container, not in a frame: it is replaced wholesale, never mutated, and `updateItems()` shallow-copies the caller's array so a queued snapshot can never be changed by a later caller mutation. The frame holds the snapshot the _current operation_ is reasoning about, which may lag the published one by at most one queued action.
 
 ### Collection changes during an operation (C-14)
 
 `reconcileCollection` is pure and identity-based, ported unchanged:
 
-- an **internal** gap survives only when `before` and `after` remain present and
-  adjacent in the destination view;
+- an **internal** gap survives only when `before` and `after` remain present and adjacent in the destination view;
 - a **start** gap survives only when `after` remains the first destination item;
 - an **end** gap survives only when `before` remains the last destination item;
 - otherwise the operation cancels with `CANCEL_COLLECTION_INVALIDATED`.
 
-Intent is **never** recomputed from the latest pointer position. The exact
-identity gap survives or the operation ends. If the dragged item itself
-disappears from the replacement, the operation cancels with
-`CANCEL_ITEM_REMOVED`.
+Intent is **never** recomputed from the latest pointer position. The exact identity gap survives or the operation ends. If the dragged item itself disappears from the replacement, the operation cancels with `CANCEL_ITEM_REMOVED`.
 
 Replacements are ignored from `RELEASING` onward — the transaction is decided.
 
@@ -91,14 +73,9 @@ type Insertion = Readonly<{
 }>;
 ```
 
-The *destination view* is the snapshot minus the dragged item. Because it
-mirrors the DOM order of the non-dragged items, a gap index is directly a
-destination index and its neighbours are the adjacent elements — no placeholder
-move is needed to read them.
+The _destination view_ is the snapshot minus the dragged item. Because it mirrors the DOM order of the non-dragged items, a gap index is directly a destination index and its neighbours are the adjacent elements — no placeholder move is needed to read them.
 
-**The committed insertion is state.** It lives on the frame. Moving the
-placeholder is a *post-commit effect* and the sole writer of the placeholder's
-DOM position. Nothing else in the package repositions it.
+**The committed insertion is state.** It lives on the frame. Moving the placeholder is a _post-commit effect_ and the sole writer of the placeholder's DOM position. Nothing else in the package repositions it.
 
 ### The vertical rule (C-7)
 
@@ -111,19 +88,11 @@ if nearest is the placeholder  -> keep the current insertion (no change)
 else  gap := follows(placeholder, nearest) ? slot + 1 : slot
 ```
 
-The placeholder being a candidate *is* the hysteresis: a new gap is proposed
-only once another item's centre is genuinely closer than the placeholder's own
-slot. There is no separate dead band, no direction latch and no tunable — which
-is why the rule cannot be mistuned into oscillation.
+The placeholder being a candidate _is_ the hysteresis: a new gap is proposed only once another item's centre is genuinely closer than the placeholder's own slot. There is no separate dead band, no direction latch and no tunable — which is why the rule cannot be mistuned into oscillation.
 
-The current insertion stays authoritative until a genuinely better one is
-selected. A frame that resolves to `null` commits nothing.
+The current insertion stays authoritative until a genuinely better one is selected. A frame that resolves to `null` commits nothing.
 
-**Geometry cache.** Every non-dragged item's rect is packed into one
-`Float64Array` (stride 6) with a parallel element array indexed by destination
-slot, so a frame's search is one scalar scan. It is marked dirty by scroll,
-resize, a committed placeholder move, a collection version change, and release.
-A refresh rebuilds only when dirty or when the version moved.
+**Geometry cache.** Every non-dragged item's rect is packed into one `Float64Array` (stride 6) with a parallel element array indexed by destination slot, so a frame's search is one scalar scan. It is marked dirty by scroll, resize, a committed placeholder move, a collection version change, and release. A refresh rebuilds only when dirty or when the version moved.
 
 ## Seam implementations
 
@@ -159,13 +128,9 @@ type ReorderRequest = Readonly<{
 }>;
 ```
 
-`from`/`to` are indices in the snapshot; `before`/`after` are identities so a
-consumer that keys by object rather than index is not forced to trust indices.
-`version` lets a consumer detect that it is applying a reorder derived from an
-older collection than the one it holds.
+`from`/`to` are indices in the snapshot; `before`/`after` are identities so a consumer that keys by object rather than index is not forced to trust indices. `version` lets a consumer detect that it is applying a reorder derived from an older collection than the one it holds.
 
-Exactly one immutable proposal is constructed per operation, at release, after
-motion is closed. Nothing queued before release may alter it.
+Exactly one immutable proposal is constructed per operation, at release, after motion is closed. Nothing queued before release may alter it.
 
 ```ts
 type ReorderTransactionResult =
@@ -175,8 +140,7 @@ type ReorderTransactionResult =
   | { type: OUTCOME_CANCELED; reason: CancellationReason; at: AT_PROPOSAL | AT_CONSUMER; proposal | null };
 ```
 
-`at` distinguishes a gesture abandoned before a proposal was offered from one
-abandoned while the consumer was resolving it.
+`at` distinguishes a gesture abandoned before a proposal was offered from one abandoned while the consumer was resolving it.
 
 ## Explicit resolution
 
@@ -188,21 +152,18 @@ type OnReorder = (
 
 const ReorderResolution: {
   accept(presentationReady?: PromiseLike<void>): AcceptedReorderResolution;
-  reject(reason?: unknown, presentationReady?: PromiseLike<void>): RejectedReorderResolution;
+  reject(
+    reason?: unknown,
+    presentationReady?: PromiseLike<void>,
+  ): RejectedReorderResolution;
 };
 ```
 
-Acceptance is **never** inferred — not from callback silence, not from DOM
-mutation, not from collection order, not from elapsed time, not from React
-eventually rendering something. A fulfilled value that is not an explicit
-resolution is a classified failure, not a silent accept.
+Acceptance is **never** inferred — not from callback silence, not from DOM mutation, not from collection order, not from elapsed time, not from React eventually rendering something. A fulfilled value that is not an explicit resolution is a classified failure, not a silent accept.
 
-The `signal` is aborted when the operation is cancelled or destroyed while the
-resolver is still in flight, so an async consumer can abandon its own work. It
-is never aborted after the resolver has completed.
+The `signal` is aborted when the operation is cancelled or destroyed while the resolver is still in flight, so an async consumer can abandon its own work. It is never aborted after the resolver has completed.
 
-`presentationReady` is the consumer's authored-presentation barrier; see
-[artifact 6](06-readiness-landing.md).
+`presentationReady` is the consumer's authored-presentation barrier; see [artifact 6](06-readiness-landing.md).
 
 ## Controller
 
@@ -217,16 +178,12 @@ type SortableController = Readonly<{
 }>;
 ```
 
-`cancel()` and `destroy()` come from the kernel unchanged; `updateItems()` is
-the behavior's own. The controller is the extension point: a behavior adds
-methods by adding fields here, and a feature that needs a public method
-contributes it through the installer rather than by wrapping the controller.
+`cancel()` and `destroy()` come from the kernel unchanged; `updateItems()` is the behavior's own. The controller is the extension point: a behavior adds methods by adding fields here, and a feature that needs a public method contributes it through the installer rather than by wrapping the controller.
 
 ## What the behavior must not do
 
 - reimplement the state machine, the queue, or the cancellation latch;
-- own an independent queue or scheduler beyond the one coalesced frame task the
-  kernel closes with motion ingress;
+- own an independent queue or scheduler beyond the one coalesced frame task the kernel closes with motion ingress;
 - write `phase` — only kernel lifecycle handlers do;
 - publish anything before the kernel's commit point;
 - iterate features at runtime, or filter them by kind on any path.

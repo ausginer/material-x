@@ -11,11 +11,11 @@ Today's implementation has four. **Resolved D-1 requires the admitted-operation 
 Today the pointer listeners, the Escape listener and the resolver's abort registration all hang off one signal and one scope:
 
 - `armSession(resources.signal, …)` registers pointer move/up/cancel/lostpointercapture **and** the Escape `keydown` handler on a single `AbortSignal` (`kernel/pointer.ts:54-71`);
-- the resolver's abort is registered into the *interaction* scope via `operation.useInteraction(() => { if (!completed()) controller.abort(); })` (`draggable/effects/resolution.ts:72`).
+- the resolver's abort is registered into the _interaction_ scope via `operation.useInteraction(() => { if (!completed()) controller.abort(); })` (`draggable/effects/resolution.ts:72`).
 
-That is precisely why `STOP_INTERACTION` is emitted *after* consumer resolution today — the ordering keeps the resolver's signal un-aborted.
+That is precisely why `STOP_INTERACTION` is emitted _after_ consumer resolution today — the ordering keeps the resolver's signal un-aborted.
 
-If the target runtime closes "interaction" at release as one unit, two things break simultaneously: Escape dies at release (the hatch D-1 exists to preserve), and the resolver receives an already-aborted signal because its registration lands in a closed scope. Neither is caught by any existing test, because no test observes the resolver signal during a *successful* resolution.
+If the target runtime closes "interaction" at release as one unit, two things break simultaneously: Escape dies at release (the hatch D-1 exists to preserve), and the resolver receives an already-aborted signal because its registration lands in a closed scope. Neither is caught by any existing test, because no test observes the resolver signal during a _successful_ resolution.
 
 ### 1.2 Target lifetimes
 
@@ -31,7 +31,7 @@ Ordering invariant, generalised: **2a may close while 2b, 3 and 4 are still held
 
 ### 1.3 Resolver ownership
 
-The resolution attempt is an **independently identified async attempt** (lifetime 4) that owns its own `AbortController`. Lifetime 2b owns only the *guarded abort registration* for the currently identified attempt — the equivalent of today's `useWhile(!completed, abort)` — not the controller itself. No new autonomous owner object is introduced for this; the attempt is a plain record in the runtime container, and the guard is a closure over its identity.
+The resolution attempt is an **independently identified async attempt** (lifetime 4) that owns its own `AbortController`. Lifetime 2b owns only the _guarded abort registration_ for the currently identified attempt — the equivalent of today's `useWhile(!completed, abort)` — not the controller itself. No new autonomous owner object is introduced for this; the attempt is a plain record in the runtime container, and the guard is a closure over its identity.
 
 ### 1.4 Scope mechanics carried forward
 

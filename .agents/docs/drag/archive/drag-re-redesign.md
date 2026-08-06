@@ -4,19 +4,11 @@
 
 **Revision 3 — implemented and accepted. Historical.**
 
-All six phases shipped. `packages/drag/DESIGN.md` has been rewritten to document
-the architecture that actually ships and is now the normative reference; this
-document is kept as the statement of intent that produced it.
+All six phases shipped. `packages/drag/DESIGN.md` has been rewritten to document the architecture that actually ships and is now the normative reference; this document is kept as the statement of intent that produced it.
 
-**Where this proposal and the shipped code differ, the code and
-[`phase-1/`](phase-1/) win.** The phase-1 artifacts record every deviation that
-was accepted, with reasons — most importantly the three-lifetime split that D-1
-turned out to require, and the decision to leave the two feature action tables
-duplicated rather than pay for a generic action runtime.
+**Where this proposal and the shipped code differ, the code and [`phase-1/`](phase-1/) win.** The phase-1 artifacts record every deviation that was accepted, with reasons — most importantly the three-lifetime split that D-1 turned out to require, and the decision to leave the two feature action tables duplicated rather than pay for a generic action runtime.
 
-Delivered against the original goals: `draggable` 7.52 → 6.11 kB, `sortable`
-8.83 → 7.35 kB, `combined` 14.61 → 11.92 kB (−18.4 %); source files 90 → 38;
-observable behaviour preserved except for the documented ledger decisions.
+Delivered against the original goals: `draggable` 7.52 → 6.11 kB, `sortable` 8.83 → 7.35 kB, `combined` 14.61 → 11.92 kB (−18.4 %); source files 90 → 38; observable behaviour preserved except for the documented ledger decisions.
 
 The rest of this document is the proposal as approved, unedited.
 
