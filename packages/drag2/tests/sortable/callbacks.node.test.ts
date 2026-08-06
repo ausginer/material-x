@@ -15,7 +15,10 @@ import {
   unbrandFeature,
 } from '../../src/sortable/feature.ts';
 
-const onReorder: SortableCallbacks['onReorder'] = () => ({ type: 'accepted' });
+const onReorder: SortableCallbacks['onReorder'] = () => ({
+  type: 'accepted',
+  presentation: false,
+});
 
 /** The factory never touches it: the feature is externally inert. */
 const context = null as unknown as FeatureContext;

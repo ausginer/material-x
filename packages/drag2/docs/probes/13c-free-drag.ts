@@ -22,10 +22,19 @@
  *   an `HTMLElement`, and `null` means *discard the activation*. A free drag
  *   stages no resource at activation, so it has no honest value to return.
  * - **N-2 — the kernel derives the visual's position from the pointer.**
- *   `LandingContext.from` is `pointerX - originX` (`src/kernel/kernel.ts:1194`),
- *   which is true only for a behavior whose visual tracks the pointer exactly.
- *   Axis constraint, bounds clamping and a controlled position all break it, and
- *   nothing in `BehaviorSpec` can tell the kernel otherwise.
+ *   `LandingContext.from` is `pointerX - originX`, which is true only for a
+ *   behavior whose visual tracks the pointer exactly. Axis constraint, bounds
+ *   clamping and a controlled position all break it, and nothing in
+ *   `BehaviorSpec` can tell the kernel otherwise.
+ *
+ *   **Decided as D-35, and deliberately still failing to compile here.** The
+ *   probe proposed a `renderedDelta(current): Point` seam; the revision records
+ *   the delta inside `VisualLiftSession.write` instead, so **no behavior member
+ *   reports it and none needs to**. N-2's assertion below therefore stays a
+ *   compile error after the revision as well as before it — for the opposite
+ *   reason. It is implemented with the second behavior (Phases 19–20), not in
+ *   Phase 15, which is why this file still reads against the pointer-derived
+ *   `from`.
  *
  * Everything else on the Phase 13c question list **fits** — see the `P-*` rows,
  * which are as much the deliverable as the `N-*` rows.
@@ -130,7 +139,7 @@ declare function resolveFreeHandle(event: PointerEvent): HTMLElement | null;
 /* ---- inert stubs: everything a lifecycle would own lives outside the probe */
 
 declare function invokeOnDrop(signal: AbortSignal): unknown;
-declare function readinessOf(value: unknown): PromiseLike<void> | null;
+declare function declaresPresentation(value: unknown): boolean;
 declare const startFreeLanding: LandingStart;
 declare function reportTerminal(outcome: number, domain: unknown): void;
 declare function reportToConsumer(stage: number, error: unknown): void;
@@ -325,14 +334,15 @@ export const freeDragSpec: BehaviorSpec<FreeDragPart> = {
 
       // The five cases collapse to two here: only a fulfilled round-trip can
       // carry an authored presentation.
-      return input.type === SETTLED_FULFILLED
-        ? { ready: readinessOf(input.value) }
-        : { ready: null };
+      return {
+        presentation:
+          input.type === SETTLED_FULFILLED && declaresPresentation(input.value),
+      };
     },
 
     effect(_current, prepared, scope: SettlementScope): void {
-      if (prepared.ready !== null) {
-        scope.holdForReadiness(prepared.ready);
+      if (prepared.presentation) {
+        scope.holdForReadiness();
       }
 
       scope.holdForLanding(startFreeLanding);

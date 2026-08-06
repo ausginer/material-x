@@ -460,7 +460,12 @@ describe('the packed package', () => {
       ReorderResolution: Readonly<{ accept(): unknown }>;
     }> = await import(join(packed.dir, './sortable.js'));
 
-    expect(entry.ReorderResolution.accept()).toEqual({ type: 'accepted' });
+    // `presentation` is normalized to a boolean by the factory rather than left
+    // absent, so the settlement mapping reads one shape (D-33).
+    expect(entry.ReorderResolution.accept()).toEqual({
+      type: 'accepted',
+      presentation: false,
+    });
   });
 
   it('should leave exactly the unimplemented feature subpaths without runtime code', async () => {

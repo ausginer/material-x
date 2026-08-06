@@ -95,8 +95,8 @@ type SpecOverrides = Partial<
     /** Called with the host, so a test can cancel or destroy from a seam. */
     onStart?(host: KernelHost): void;
     capture?(): void;
-    /** Requested by the default `settlement.effect`, when present. */
-    readiness?: PromiseLike<void>;
+    /** Declared by the default `settlement.prepare`, when set. */
+    presentation?: boolean;
     /** Requested by the default `settlement.effect`, when present. */
     startLanding?: LandingStart;
   }>;
@@ -238,13 +238,13 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
               failures.push({ stage: input.stage, error: input.error });
             }
 
-            return { ready: overrides.readiness ?? null };
+            return { presentation: overrides.presentation ?? false };
           },
           effect(current, prepared, scope: SettlementScope): void {
             record('settlement.effect', current);
 
-            if (prepared.ready !== null) {
-              scope.holdForReadiness(prepared.ready);
+            if (prepared.presentation) {
+              scope.holdForReadiness();
             }
 
             if (overrides.startLanding) {
@@ -475,7 +475,7 @@ function createArmedWithPart(
         },
         release: { prepare: () => ({ invoke: null }), effect: (): void => {} },
         settlement: {
-          prepare: () => ({ ready: null }),
+          prepare: () => ({ presentation: false }),
           effect: (): void => {},
         },
         action: { prepare: () => null, effect: (): void => {} },
@@ -523,7 +523,7 @@ describe('arm', () => {
               effect: (): void => {},
             },
             settlement: {
-              prepare: () => ({ ready: null }),
+              prepare: () => ({ presentation: false }),
               effect: (): void => {},
             },
             action: { prepare: () => null, effect: (): void => {} },
@@ -1278,7 +1278,7 @@ describe('the settlement seam', () => {
           // failed input is what records the classification.
           if (input.type === SETTLED_FAILED) {
             harness.failures.push({ stage: input.stage, error: input.error });
-            return { ready: null };
+            return { presentation: false };
           }
 
           return {
@@ -1302,7 +1302,7 @@ describe('the settlement seam', () => {
   it('should close motion and cancellation before the behavior effect', () => {
     const harness = createHarness({
       settlement: {
-        prepare: () => ({ ready: null }),
+        prepare: () => ({ presentation: false }),
         effect(): void {
           harness.calls.push('settlement.effect');
         },
@@ -1324,7 +1324,7 @@ describe('the settlement seam', () => {
     const runner = createRunner();
     const harness = createHarness({
       settlement: {
-        prepare: () => ({ ready: null }),
+        prepare: () => ({ presentation: false }),
         effect(_current, _prepared, scope: SettlementScope): never {
           scope.holdForLanding(runner.start);
           throw new Error('effect');
@@ -1353,7 +1353,7 @@ describe('the settlement gates', () => {
   });
 
   it('should not finalize in the resolution drain while readiness is held', () => {
-    const harness = createHarness({ readiness: new Promise(() => {}) });
+    const harness = createHarness({ presentation: true });
 
     activate(harness);
     release(80, 10);
@@ -1376,13 +1376,12 @@ describe('the settlement gates', () => {
   });
 
   it('should ignore and report a duplicate hold', () => {
-    const ready = new Promise<void>(() => {});
     const harness = createHarness({
       settlement: {
-        prepare: () => ({ ready: null }),
+        prepare: () => ({ presentation: false }),
         effect(_current, _prepared, scope: SettlementScope): void {
-          scope.holdForReadiness(ready);
-          scope.holdForReadiness(ready);
+          scope.holdForReadiness();
+          scope.holdForReadiness();
         },
       },
     });
@@ -1400,7 +1399,7 @@ describe('the settlement gates', () => {
     let escaped!: SettlementScope;
     const harness = createHarness({
       settlement: {
-        prepare: () => ({ ready: null }),
+        prepare: () => ({ presentation: false }),
         effect(_current, _prepared, scope: SettlementScope): void {
           escaped = scope;
         },
@@ -1409,12 +1408,60 @@ describe('the settlement gates', () => {
 
     activate(harness);
     release(80, 10);
-    escaped.holdForReadiness(new Promise<void>(() => {}));
+    escaped.holdForReadiness();
 
     // A bookkeeping error must not destroy a live drop: it never overwrites a
     // watch, never double-increments and never panics.
     expect(reported).toHaveLength(1);
     expect(harness.calls).toContain('finalized');
+  });
+
+  it('should not report a contradictory early latch when the seam failed', () => {
+    // The contradiction check at seal is scoped to a **successful** seal. If
+    // `settlement.effect` threw, the early latch dies with every other unarmed
+    // request and **nothing is reported to the consumer**: that contradiction is
+    // the seam's, and the queued failure checkpoint already owns it (F-27).
+    //
+    // The acknowledgement is issued from inside `invoke`, which is the only
+    // place a resolution attempt is open and consumer code is running — the
+    // synchronous-commit shape, in kernel terms.
+    let settlementEffects = 0;
+    // Referenced from inside `invoke`, which only runs after `createHarness`
+    // has returned — the closure is what makes the forward reference sound.
+    const harness: Harness = createHarness({
+      release: {
+        prepare: (): ResolutionCommand => ({
+          invoke: (): unknown => {
+            harness.host.presentationCommitted();
+            return 'committed';
+          },
+        }),
+        effect: (): void => {},
+      },
+      settlement: {
+        // Declares nothing, so a *successful* seal would find a latch with no
+        // hold behind it and report the contradiction.
+        prepare: () => ({ presentation: false }),
+        effect(_current, _prepared, _scope: SettlementScope): void {
+          // Only the first pass throws: the queued failure checkpoint drives
+          // this same seam again, pre-sealed, to build the terminal state.
+          if (settlementEffects === 0) {
+            settlementEffects += 1;
+            throw new Error('effect');
+          }
+        },
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    // The seam failure is classified, and no acknowledgement message reaches
+    // the platform channel: the latch died silently with the rest of the
+    // unarmed plan.
+    expect(settlementEffects).toBe(1);
+    expect(harness.calls).not.toContain('finalized');
+    expect(reported).toEqual([]);
   });
 });
 
@@ -1435,7 +1482,7 @@ describe('landing', () => {
     const runner = createRunner();
     const harness = createHarness({
       startLanding: runner.start,
-      readiness: new Promise(() => {}),
+      presentation: true,
     });
 
     activate(harness);
@@ -1488,12 +1535,9 @@ describe('landing', () => {
         done();
       },
     });
-    let ready!: () => void;
     const harness = createHarness({
       startLanding: runner.start,
-      readiness: new Promise<void>((resolve) => {
-        ready = resolve;
-      }),
+      presentation: true,
     });
 
     activate(harness);
@@ -1504,7 +1548,7 @@ describe('landing', () => {
     // release so the join can relinquish the transform before the pin.
     expect(runner.calls).toEqual(['start']);
 
-    ready();
+    harness.host.presentationCommitted();
     await flush();
 
     expect(runner.calls).toEqual(['start', 'destroy']);
@@ -1517,17 +1561,14 @@ describe('landing', () => {
         done();
       },
     });
-    let ready!: () => void;
     const harness = createHarness({
       startLanding: runner.start,
-      readiness: new Promise<void>((resolve) => {
-        ready = resolve;
-      }),
+      presentation: true,
     });
 
     activate(harness);
     release(80, 10);
-    ready();
+    harness.host.presentationCommitted();
     await flush();
 
     // `landingHeld` is already false when readiness settles, so the completed
@@ -1697,17 +1738,14 @@ describe('landing', () => {
 describe('readiness', () => {
   it('should re-anchor and retarget when readiness settles first', async () => {
     const runner = createRunner();
-    let ready!: () => void;
     const harness = createHarness({
       startLanding: runner.start,
-      readiness: new Promise<void>((resolve) => {
-        ready = resolve;
-      }),
+      presentation: true,
     });
 
     activate(harness);
     release(80, 10);
-    ready();
+    harness.host.presentationCommitted();
     await flush();
 
     expect(harness.calls).toContain('anchorTarget:true');
@@ -1717,18 +1755,15 @@ describe('readiness', () => {
 
   it('should not retarget a runner that already completed', async () => {
     const runner = createRunner();
-    let ready!: () => void;
     const harness = createHarness({
       startLanding: runner.start,
-      readiness: new Promise<void>((resolve) => {
-        ready = resolve;
-      }),
+      presentation: true,
     });
 
     activate(harness);
     release(80, 10);
     runner.done();
-    ready();
+    harness.host.presentationCommitted();
     await flush();
 
     // The guard is on the hold, not the handle: the handle outlives its gate
@@ -1739,13 +1774,10 @@ describe('readiness', () => {
 
   it('should report a readiness-time measurement failure without classifying it', async () => {
     const runner = createRunner();
-    let ready!: () => void;
     let measurements = 0;
     const harness = createHarness({
       startLanding: runner.start,
-      readiness: new Promise<void>((resolve) => {
-        ready = resolve;
-      }),
+      presentation: true,
       anchorTarget(): { x: number; y: number } {
         measurements += 1;
 
@@ -1759,7 +1791,7 @@ describe('readiness', () => {
 
     activate(harness);
     release(80, 10);
-    ready();
+    harness.host.presentationCommitted();
     await flush();
     runner.done();
 
@@ -1770,26 +1802,9 @@ describe('readiness', () => {
     expect(harness.calls).toContain('finalized');
   });
 
-  it('should replace the settlement when readiness rejects', async () => {
-    const error = new Error('layout effect');
-    const harness = createHarness({ readiness: Promise.reject(error) });
-
-    activate(harness);
-    release(80, 10);
-    await flush();
-
-    // Presentation stays owned, no re-anchor happens, and it reports through
-    // `onError` only — no `onFinish`, no `onCancel`.
-    expect(harness.failures[0]).toEqual({
-      stage: FAILURE_PRESENTATION_READY,
-      error,
-    });
-    expect(harness.calls).not.toContain('finalized');
-  });
-
   it('should replace the settlement when readiness times out', async () => {
     const harness = createHarness({
-      readiness: new Promise(() => {}),
+      presentation: true,
       readinessTimeout: 1,
     });
 
@@ -1802,17 +1817,14 @@ describe('readiness', () => {
   });
 
   it('should not time out a readiness that already settled', async () => {
-    let ready!: () => void;
     const harness = createHarness({
-      readiness: new Promise<void>((resolve) => {
-        ready = resolve;
-      }),
+      presentation: true,
       readinessTimeout: 1,
     });
 
     activate(harness);
     release(80, 10);
-    ready();
+    harness.host.presentationCommitted();
     await flush();
 
     expect(harness.failures).toEqual([]);
@@ -1956,7 +1968,7 @@ describe('the failure checkpoint', () => {
         throw new Error('cssom');
       },
       settlement: {
-        prepare: () => ({ ready: null }),
+        prepare: () => ({ presentation: false }),
         effect(_current, _prepared, scope: SettlementScope): void {
           scope.holdForLanding(runner.start);
         },
@@ -2004,7 +2016,7 @@ describe('the failure checkpoint', () => {
             harness.host.fail(FAILURE_RENDERER_WRITE, new Error('again'));
           }
 
-          return { ready: null };
+          return { presentation: false };
         },
         effect: (): void => {},
       },
@@ -2029,7 +2041,7 @@ describe('the failure checkpoint', () => {
       settlement: {
         prepare(_draft, input): PreparedSettlement {
           harness.settlements.push(input);
-          return { ready: null };
+          return { presentation: false };
         },
         effect(): never {
           throw new Error('onError');
@@ -2098,7 +2110,7 @@ describe('the failure checkpoint', () => {
     const runner = createRunner();
     const harness = createHarness({
       startLanding: runner.start,
-      readiness: new Promise(() => {}),
+      presentation: true,
       readinessTimeout: 1,
     });
 
@@ -2626,7 +2638,7 @@ describe('arm unwind of a partial frame pair', () => {
             effect: (): void => {},
           },
           settlement: {
-            prepare: () => ({ ready: null }),
+            prepare: () => ({ presentation: false }),
             effect: (): void => {},
           },
           action: { prepare: () => null, effect: (): void => {} },
@@ -2878,57 +2890,5 @@ describe('arbitrary thenables', () => {
     expect(harness.settlements).toEqual([
       { type: SETTLED_FULFILLED, value: 'first' },
     ]);
-  });
-
-  it('should classify a hostile readiness gate as a presentation failure', () => {
-    const hostile = {
-      get then(): never {
-        throw new Error('hostile readiness');
-      },
-    };
-    const harness = createHarness({
-      readiness: hostile as unknown as PromiseLike<void>,
-    });
-
-    activate(harness);
-    release(40, 10);
-
-    expect(harness.failures.map((failure) => failure.stage)).toContain(
-      FAILURE_PRESENTATION_READY,
-    );
-  });
-
-  it('should classify a readiness gate that is not thenable at all', () => {
-    const harness = createHarness({
-      readiness: {} as unknown as PromiseLike<void>,
-    });
-
-    activate(harness);
-    release(40, 10);
-
-    expect(harness.failures.map((failure) => failure.stage)).toContain(
-      FAILURE_PRESENTATION_READY,
-    );
-  });
-
-  it('should not arm the landing when readiness failed synchronously', () => {
-    // The gate plan is armed in one pass, readiness first. A gate that failed
-    // *synchronously* has already replaced the settlement, so starting the
-    // runner would land a drop the queued checkpoint is about to abandon.
-    const hostile = {
-      get then(): never {
-        throw new Error('hostile readiness');
-      },
-    };
-    const runner = createRunner();
-    const harness = createHarness({
-      readiness: hostile as unknown as PromiseLike<void>,
-      startLanding: runner.start,
-    });
-
-    activate(harness);
-    release(40, 10);
-
-    expect(runner.calls).toEqual([]);
   });
 });

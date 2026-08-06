@@ -16,7 +16,11 @@ import type { VisualLiftSession } from '../kernel/presentation.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { KernelHost } from '../kernel/spec.ts';
 import { copyUniqueItems } from './collection.ts';
-import type { CollectionSnapshot, Insertion } from './domain.ts';
+import type {
+  CollectionSnapshot,
+  Insertion,
+  ReorderRequest,
+} from './domain.ts';
 import type { SortableSlots } from './slots.ts';
 
 /** Behavior action tags. Behavior-local: the kernel offsets them. */
@@ -90,6 +94,18 @@ export type SortableRuntime = {
   placeholder: HTMLElement | null;
   /** Handed in at activation, cleared at retire. */
   lift: VisualLiftSession | null;
+  /**
+   * The **exact** `ReorderRequest` object this operation handed `onReorder`
+   * (D-33) — published by `release.effect` before the kernel executes the
+   * round-trip, compared by `===` in `controller.ready`, cleared by `retire()`.
+   *
+   * It is the whole of the protocol's per-operation identity, and it is the
+   * behavior's rather than the kernel's: the kernel threads the resolution as
+   * `unknown` and never learns what a request is. Exactly one is live per
+   * controller, which is what closes every stale window — A timing out and
+   * retiring nulls it, and B overwrites it only once B reaches its own release.
+   */
+  pendingRequest: ReorderRequest | null;
   /** Monotonic; the identity of the latest coalesced spatial attempt (D-11). */
   spatialSeq: number;
   /** The attempt the frame task actually dispatched. Zero when none is live. */
@@ -129,6 +145,7 @@ export function createSortableRuntime(
     view: null,
     placeholder: null,
     lift: null,
+    pendingRequest: null,
     spatialSeq: 0,
     pendingSpatial: 0,
   };

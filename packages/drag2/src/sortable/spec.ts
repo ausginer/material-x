@@ -106,7 +106,7 @@ export function createSortableSpec(
 
   /**
    * The failure the open settlement seam is reporting, handed from `prepare` to
-   * `effect` because `PreparedSettlement` carries only the readiness promise.
+   * `effect` because `PreparedSettlement` carries only the gate declaration.
    *
    * **This is an accepted out-of-band channel, not an oversight** — reviewed
    * and deliberately kept rather than widening the frozen `PreparedSettlement`
@@ -721,6 +721,20 @@ export function createSortableSpec(
           current.pointerX - current.originX,
           current.pointerY - current.originY,
         );
+
+        // **Published last, and inside this effect** (D-33, C3-04). Last,
+        // because a throwing write above classifies `FAILURE_RELEASE` and the
+        // staged command is never executed — a request published first would
+        // name a round-trip that cannot happen. Inside, because the kernel runs
+        // the command *after* this returns, so the request the consumer is
+        // about to receive is already the one `ready()` will be checked
+        // against, including under a synchronous commit.
+        //
+        // Reached through the **committed frame**, which is what makes it the
+        // same object the staged `invoke` closure captured. `ResolutionCommand`
+        // does not carry it and must not: a sortable domain value on a kernel
+        // SPI type is the mistake D-34 and D-35 corrected.
+        rt.pendingRequest = current.proposal?.request ?? null;
       },
     },
 
@@ -746,7 +760,7 @@ export function createSortableSpec(
             draft.outcome = OUTCOME_NOOP;
             draft.recovery = RECOVERY_IMMEDIATE;
             draft.domain = { type: 'noop', proposal: proposal! };
-            return { ready: null };
+            return { presentation: false };
           }
 
           case SETTLED_FULFILLED: {
@@ -773,7 +787,10 @@ export function createSortableSpec(
               };
             }
 
-            return { ready: value.presentationReady ?? null };
+            // Only a fulfilled round-trip can declare an authored
+            // presentation: every other input is the kernel's own terminal, and
+            // the consumer returned no resolution to declare with.
+            return { presentation: value.presentation };
           }
 
           case SETTLED_REJECTED: {
@@ -795,7 +812,7 @@ export function createSortableSpec(
               stage: input.stage,
               proposal,
             };
-            return { ready: null };
+            return { presentation: false };
           }
 
           case SETTLED_FAILED: {
@@ -811,7 +828,7 @@ export function createSortableSpec(
               draft.domain = null;
             }
 
-            return { ready: null };
+            return { presentation: false };
           }
         }
       },
@@ -824,8 +841,8 @@ export function createSortableSpec(
         if (failure === null) {
           // Requests only — nothing is armed here, and a request is recorded at
           // most once.
-          if (prepared.ready !== null) {
-            scope.holdForReadiness(prepared.ready);
+          if (prepared.presentation) {
+            scope.holdForReadiness();
           }
 
           if (
@@ -932,6 +949,7 @@ export function createSortableSpec(
       rt.pendingSpatial = 0;
       rt.placeholder = null;
       rt.lift = null;
+      rt.pendingRequest = null;
       rt.view = null;
 
       // Already in reverse installation order. Each is wrapped individually, so

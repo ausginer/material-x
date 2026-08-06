@@ -21,7 +21,7 @@ The shipped `@ydinjs/drag` is untouched while this package is built. Merging the
 
 ## Demos
 
-`src/sortable.stories.tsx` re-implements the shipped package's sortable stories against this API, under the `Drag2/Sortable` title: **List**, **Custom Placeholder** and **Zoomed Context**. Each composes `vertical()`, `landing()`, `layoutAnimation()` and `callbacks()` explicitly, so what the shipped package inferred from an options object is visible as installed features. The React integration in there is the reference one: `onReorder` returns `ReorderResolution.accept(presentationReady)`, and a `useLayoutEffect` resolves that promise once React has committed the authored order.
+`src/sortable.stories.tsx` re-implements the shipped package's sortable stories against this API, under the `Drag2/Sortable` title: **List**, **Custom Placeholder** and **Zoomed Context**. Each composes `vertical()`, `landing()`, `layoutAnimation()` and `callbacks()` explicitly, so what the shipped package inferred from an options object is visible as installed features. The React integration in there is the reference one: `onReorder` returns `ReorderResolution.accept({ presentation: true })` and stores the request it was handed, and a `useLayoutEffect` calls `controller.ready(request)` once React has committed the authored order. There is no commit tracker — the protocol keys on the request object, which the consumer already has before the render starts (D-33).
 
 Two of the shipped package's stories have **no drag2 equivalent yet**, because only the vertical sortable slice is implemented:
 

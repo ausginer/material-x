@@ -48,6 +48,23 @@ export type KernelHost = Readonly<{
    */
   fail(stage: FailureStage, error: unknown): void;
 
+  /**
+   * The authored presentation for the operation the kernel currently holds is
+   * final (D-33).
+   *
+   * Latched while a resolution attempt is open — which is what makes a
+   * **synchronous** commit, one that lands inside `onReorder` before the
+   * settlement exists, acknowledge successfully. Releases the readiness hold
+   * once armed. Ignored and reported outside both windows.
+   *
+   * Not a transition and not a classification: a gate release is not a frame
+   * transition, so this belongs to `cancel`'s family rather than `commit`'s.
+   * The behavior calls it only after checking that the acknowledgement the
+   * consumer gave names *this* operation; the kernel never learns what the
+   * identity is.
+   */
+  presentationCommitted(): void;
+
   /** Base controller methods, for the behavior to spread into its controller. */
   cancel(reason?: unknown): void;
   destroy(): void;
@@ -145,8 +162,16 @@ export type SettlementInput =
       error: unknown;
     }>;
 
-/** The readiness promise travels through `Prepared`, not a private write. */
-export type PreparedSettlement = Readonly<{ ready: PromiseLike<void> | null }>;
+/**
+ * The gate plan travels through `Prepared`, not a private write.
+ *
+ * `presentation` is a **declaration**, not a capability: the behavior says an
+ * authored presentation is coming, and the acknowledgement arrives later
+ * through `KernelHost.presentationCommitted()` (D-33). It carried a
+ * `PromiseLike<void>` until Phase 15, which put four consumer-owned obligations
+ * behind one silent 500 ms timeout.
+ */
+export type PreparedSettlement = Readonly<{ presentation: boolean }>;
 
 /**
  * **One coordinate space, and this is it.**
@@ -215,10 +240,13 @@ export type LandingStart = (
  */
 export type SettlementScope = Readonly<{
   /**
-   * Hold the authored-presentation gate until `ready` settles, bounded by
-   * `config.readinessTimeout`. At most once.
+   * Hold the authored-presentation gate, bounded by `config.readinessTimeout`.
+   * At most once.
+   *
+   * **Takes nothing**: the acknowledgement does not arrive through settlement,
+   * it arrives through `KernelHost.presentationCommitted()` (D-33).
    */
-  holdForReadiness(ready: PromiseLike<void>): void;
+  holdForReadiness(): void;
   /**
    * Hold the landing gate. The kernel builds the context and owns the attempt.
    * At most once.

@@ -65,7 +65,7 @@ type Author = (
 type Options = Readonly<{
   ids?: readonly string[];
   author?: Author;
-  /** Omitted means the fixture supplies no `presentationReady` at all. */
+  /** Omitted means the fixture declares no authored presentation at all. */
   ready?: boolean;
   /** Apply the authored commit on a later task instead of inline. */
   defer?: boolean;
@@ -151,6 +151,8 @@ function mount(options: Options = {}): Fixture {
   }
   const commits: string[] = [];
   const commitWaiters: Array<() => void> = [];
+  /** The request this fixture still owes an acknowledgement for. */
+  let pending: ReorderRequest | null = null;
   const landingTargets: Point[] = [];
 
   const root = createRoot(host);
@@ -204,6 +206,17 @@ function mount(options: Options = {}): Fixture {
     // Undefined on the mount commit, which is the commit that produces the
     // elements the controller is about to be armed against.
     controller?.updateItems(live);
+
+    // The acknowledgement, from the same layout effect that used to resolve
+    // `presentationReady` — the one obligation D-33 does not remove, because
+    // only the consumer knows when its own commit landed.
+    if (pending !== null) {
+      const request = pending;
+
+      pending = null;
+      witness.readinessSettled();
+      controller?.ready(request);
+    }
 
     for (const waiter of commitWaiters.splice(0)) {
       waiter();
@@ -327,15 +340,14 @@ function mount(options: Options = {}): Fixture {
           }
 
           witness.readinessSupplied();
+          // **The whole integration.** Stored before the authored commit — which
+          // may land synchronously, inside the `apply()` above — so the layout
+          // effect that follows acknowledges this exact request. No promise is
+          // created, nothing is superseded, and nothing can be dropped: the
+          // identity is the object this callback was handed (D-33).
+          pending = request;
 
-          return ReorderResolution.accept(
-            new Promise<void>((resolve) => {
-              commitWaiters.push(() => {
-                witness.readinessSettled();
-                resolve();
-              });
-            }),
-          );
+          return ReorderResolution.accept({ presentation: true });
         },
         onFinish(result): void {
           witness.terminal();

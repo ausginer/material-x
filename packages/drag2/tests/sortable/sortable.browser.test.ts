@@ -1348,48 +1348,38 @@ describe('the landing target', () => {
     );
   });
 
-  it('should not re-anchor while readiness is pending', () => {
+  it('should not re-anchor while the acknowledgement is outstanding', () => {
     const runner = createRunner();
-    let ready!: () => void;
     const harness = createHarness({
       startLanding: runner.start,
-      onReorder: () =>
-        ReorderResolution.accept(
-          new Promise<void>((resolve) => {
-            ready = resolve;
-          }),
-        ),
+      onReorder: () => ReorderResolution.accept({ presentation: true }),
     });
 
     activate(harness);
     harness.next(harness.gap(2));
     release(60);
 
-    // `authoredReady` is false with a promise pending: the consumer has not
-    // committed, so re-anchoring now would drag the placeholder back beside the
-    // item's OLD slot. The provisional target is the gap as it stands.
+    // `authoredReady` is false with a declaration outstanding: the consumer has
+    // not committed, so re-anchoring now would drag the placeholder back beside
+    // the item's OLD slot. The provisional target is the gap as it stands.
     expect(order(harness)).toBe('012_');
-
-    ready();
   });
 
-  it('should re-anchor once readiness settles', async () => {
+  it('should re-anchor once the presentation is acknowledged', async () => {
     const runner = createRunner();
-    let ready!: () => void;
+    let pending!: ReorderRequest;
     const harness = createHarness({
       startLanding: runner.start,
-      onReorder: () =>
-        ReorderResolution.accept(
-          new Promise<void>((resolve) => {
-            ready = resolve;
-          }),
-        ),
+      onReorder: (request) => {
+        pending = request;
+        return ReorderResolution.accept({ presentation: true });
+      },
     });
 
     activate(harness);
     harness.next(harness.gap(2));
     release(60);
-    ready();
+    harness.controller.ready(pending);
     await nextFrame();
 
     // The consumer's DOM is committed now, so the authoritative anchor — the
@@ -2278,6 +2268,7 @@ describe('the spatial action legality guard', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
+        presentationCommitted: (): void => {},
         cancel: (): void => {},
         destroy: (): void => {},
       },
@@ -2543,6 +2534,7 @@ describe('the displacement view lifetime', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
+        presentationCommitted: (): void => {},
         cancel: (): void => {},
         destroy: (): void => {},
       },
@@ -2666,6 +2658,7 @@ describe('the displacement view lifetime', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
+        presentationCommitted: (): void => {},
         cancel: (): void => {},
         destroy: (): void => {},
       },

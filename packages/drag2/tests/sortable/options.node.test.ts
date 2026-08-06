@@ -116,6 +116,29 @@ describe('landing duration', () => {
     expect(() => landing({ easing: 'not-an-easing' })).not.toThrow();
   });
 
+  it('should not call a duration thunk at construction', () => {
+    // 13b B-2: a thunk is read at **settle time**, which is the moment the
+    // shipped package's `landingTiming()` was read. Calling it here would put it
+    // back at construction and lose the whole point.
+    let reads = 0;
+
+    landing({
+      duration: () => {
+        reads += 1;
+        return 200;
+      },
+    });
+
+    expect(reads).toBe(0);
+  });
+
+  it('should not range-check a duration thunk at construction', () => {
+    // The value does not exist yet, so there is nothing to check. A thunk that
+    // returns a bad value throws from inside `start`, where the kernel already
+    // classifies `FAILURE_LANDING_CREATE`.
+    expect(() => landing({ duration: () => -1 })).not.toThrow();
+  });
+
   it('should not validate the duration of a full replacement runner', () => {
     // `run` replaces the default runner entirely, so the option it would have
     // configured has no meaning left to check.

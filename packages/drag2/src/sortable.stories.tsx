@@ -13,6 +13,7 @@ import {
   ReorderResolution,
   sortable,
   type ReorderRequest,
+  type SortableController,
   type SortableFeature,
 } from './sortable.ts';
 import css from './stories.module.css';
@@ -22,38 +23,6 @@ const meta: Meta = {
 };
 
 export default meta;
-
-/**
- * The React adapter for the kernel's authored-presentation gate: hands out a
- * promise for the next committed render and resolves it from a layout effect.
- *
- * `useLayoutEffect` runs after React has written the DOM but before the browser
- * paints, which is exactly the guarantee `presentationReady` asks for — the
- * authored order is on screen the instant the kernel releases the lift.
- */
-function createCommitTracker(): Readonly<{
-  expect(): Promise<void>;
-  flush(): void;
-}> {
-  let pending: (() => void) | null = null;
-
-  return {
-    expect() {
-      // A superseded expectation is resolved rather than dropped, so a kernel
-      // waiting on it is never left hanging by a newer proposal.
-      pending?.();
-      return new Promise<void>((resolve) => {
-        pending = resolve;
-      });
-    },
-
-    flush() {
-      const resolve = pending;
-      pending = null;
-      resolve?.();
-    },
-  };
-}
 
 /** Moves `item` to sit before `to` (or to the end) in a copy of `order`. */
 function reordered<T>(order: readonly T[], item: T, to: T | null): T[] {
@@ -71,12 +40,12 @@ type SortableDemoProps = Readonly<{
 
 /**
  * A controlled sortable collection, and the reference React integration of the
- * authored-presentation gate.
+ * authored-presentation gate (D-33).
  *
  * The kernel proposes a reorder through the required, explicit `onReorder`
  * resolution. React owns the order state and commits it *from that resolution*,
- * handing back a `presentationReady` promise that a `useLayoutEffect` resolves
- * once the corresponding render has actually been committed to the DOM.
+ * **declaring** that a presentation follows and **acknowledging** it from a
+ * `useLayoutEffect` once the corresponding render has been committed to the DOM.
  *
  * That acknowledgement is what makes the drop correct rather than merely
  * lucky. `onFinish` is terminal — it runs after the kernel has already released
@@ -84,9 +53,18 @@ type SortableDemoProps = Readonly<{
  * list visibly snaps back to its pre-drag order first. Committing from
  * `onReorder` overlaps the re-render with the landing animation, but on its own
  * that only wins a race: reduced motion collapses the landing to zero, and a
- * busy main thread or a concurrent render can still lose it. `presentationReady`
+ * busy main thread or a concurrent render can still lose it. The declaration
  * removes the race — the two settlement gates are independent, and the kernel
  * holds the temporary presentation until React says the authored DOM exists.
+ *
+ * **The whole integration is the two lines below and one ref.** There is no
+ * commit tracker: the protocol supersedes nothing, creates nothing and drops
+ * nothing, because the identity it keys on is the `request` object `onReorder`
+ * was already handed. What survives is one irreducible obligation — only the
+ * consumer knows when its own commit landed, so only the consumer can call
+ * `ready()`. A declaration that is never acknowledged is a deliberate cost: it
+ * stalls for `readinessTimeout` and then reports `FAILURE_PRESENTATION_READY`,
+ * loudly, rather than completing over an unrendered DOM.
  *
  * The composition is the other half of the demo. Nothing is inferred from an
  * options object: the axis rule, the landing animation, the displacement
@@ -106,13 +84,22 @@ function SortableDemo({
   const elements = useRef(new Map<string, HTMLElement>());
   const orderRef = useRef(order);
   orderRef.current = order;
-  const commits = useRef(createCommitTracker());
+  // The request whose authored render this component still owes an
+  // acknowledgement for. Written inside `onReorder`, *before* the state update,
+  // so a synchronous commit — `flushSync`, or any renderer that does not defer —
+  // finds it already set.
+  const pending = useRef<ReorderRequest | null>(null);
+  const controllerRef = useRef<SortableController | null>(null);
 
-  // Resolves the acknowledgement handed to `onReorder` for this render. Runs
-  // after React has written the DOM and before paint, so the kernel releases
-  // the lift onto an authored order that is already on screen.
+  // Runs after React has written the DOM and before paint, so the kernel
+  // releases the lift onto an authored order that is already on screen.
   useLayoutEffect(() => {
-    commits.current.flush();
+    const request = pending.current;
+
+    if (request !== null) {
+      pending.current = null;
+      controllerRef.current?.ready(request);
+    }
   });
 
   useEffect(() => {
@@ -153,12 +140,13 @@ function SortableDemo({
               label,
               request.after?.dataset['label'] ?? null,
             );
-            // Registered *before* the state update, so the layout effect that
-            // follows this render is the one that resolves it.
-            const presentationReady = commits.current.expect();
+            // Stored *before* the state update, so the layout effect that
+            // follows this render acknowledges this exact request — and so does
+            // a commit that happens synchronously inside `setOrder`.
+            pending.current = request;
             orderRef.current = next;
             setOrder(next);
-            return ReorderResolution.accept(presentationReady);
+            return ReorderResolution.accept({ presentation: true });
           },
           // Terminal: the authored DOM is committed and the temporary
           // presentation released, so this is the right moment to resync.
@@ -169,7 +157,10 @@ function SortableDemo({
       ),
     );
 
+    controllerRef.current = controller;
+
     return () => {
+      controllerRef.current = null;
       controller.destroy();
     };
   }, [createPlaceholder]);

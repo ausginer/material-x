@@ -137,7 +137,9 @@ describe('the non-composed baseline', () => {
         visual((item) => item),
         landing(),
         layoutAnimation(),
-        callbacks({ onReorder: () => ({ type: 'accepted' }) }),
+        callbacks({
+          onReorder: () => ({ type: 'accepted', presentation: false }),
+        }),
       ],
       context,
     );
@@ -146,7 +148,7 @@ describe('the non-composed baseline', () => {
     const { buildSlots } = await import('../../bench/size/noncomposed.js');
     const byHand = buildSlots(
       context,
-      () => ({ type: 'accepted' }),
+      () => ({ type: 'accepted', presentation: false }),
       () => null,
       (item) => item,
     );
