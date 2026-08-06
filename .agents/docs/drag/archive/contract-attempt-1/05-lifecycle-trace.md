@@ -2,8 +2,7 @@
 
 ## Phase × action legality
 
-`—` means the action is ignored deterministically in that phase. Ignoring is
-never an error and never throws; a handler must be total.
+`—` means the action is ignored deterministically in that phase. Ignoring is never an error and never throws; a handler must be total.
 
 | Action | IDLE | PENDING | ACTIVATING | ACTIVE | RELEASING | SETTLING | REPORTING | FINALIZING |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -27,26 +26,22 @@ Only kernel lifecycle handlers write `phase`.
 
 Every substantial action is three stages.
 
-**1. Prepare.** Ingress and phase validation, pure calculation, DOM reads,
-building immutable public values, and *local* resource acquisition. Preparation
-must not mutate `current`.
+**1. Prepare.** Ingress and phase validation, pure calculation, DOM reads, building immutable public values, and _local_ resource acquisition. Preparation must not mutate `current`.
 
-**2. Commit.** Short and effectively non-throwing: publish prepared leases onto
-the runtime, then swap the frames.
+**2. Commit.** Short and effectively non-throwing: publish prepared leases onto the runtime, then swap the frames.
 
-**3. Post-commit effects.** DOM writes, rendering, closing lifetime stages,
-scheduling continuations, and notification callbacks for an already-committed
-transition. If a post-commit effect fails, the committed state stands and a new
-failure transition is entered from it.
+**3. Post-commit effects.** DOM writes, rendering, closing lifetime stages, scheduling continuations, and notification callbacks for an already-committed transition. If a post-commit effect fails, the committed state stands and a new failure transition is entered from it.
 
 ```ts
 try {
   lift = acquireLift(/* … */);
-  placeholder = slots.createPlaceholder ? slots.createPlaceholder(context) : realm.document.createElement('div');
+  placeholder = slots.createPlaceholder
+    ? slots.createPlaceholder(context)
+    : realm.document.createElement('div');
   item.after(placeholder);
   releaseCapture = acquirePointerCapture(item, pointerId);
 } catch (error) {
-  releaseCapture?.();          // reverse order
+  releaseCapture?.(); // reverse order
   placeholder?.remove();
   lift?.dispose();
   kernel.fail(operation, ACTIVATION, error);
@@ -67,21 +62,15 @@ if (!kernel.preparationValid(operation)) {
 
 ## Reentrancy
 
-- A nested public call during a drain appends and returns. It never interrupts
-  the action already running.
-- A consumer callback may call `cancel()` or `destroy()`; the drain observes the
-  terminal latch on its next iteration.
+- A nested public call during a drain appends and returns. It never interrupts the action already running.
+- A consumer callback may call `cancel()` or `destroy()`; the drain observes the terminal latch on its next iteration.
 - Every queued invocation retains its own argument.
-- Every post-callback continuation revalidates the operation that created it
-  (`START_COMMITTED`, `ERROR_REPORTED`, `RETIRE` all carry `OperationIdentity`).
-- Every factory and callback boundary inside a preparation is followed by a
-  `preparationValid()` re-check before anything is published.
+- Every post-callback continuation revalidates the operation that created it (`START_COMMITTED`, `ERROR_REPORTED`, `RETIRE` all carry `OperationIdentity`).
+- Every factory and callback boundary inside a preparation is followed by a `preparationValid()` re-check before anything is published.
 
 ## Complete lifecycle trace
 
-One successful downward reorder, in a controlled React application, with
-`layoutAnimation()` and `landing({ duration: 200 })` installed. `>` is a queue
-drain step; indentation is direct calls.
+One successful downward reorder, in a controlled React application, with `layoutAnimation()` and `landing({ duration: 200 })` installed. `>` is a queue drain step; indentation is direct calls.
 
 ```text
 pointerdown on item 2
@@ -198,8 +187,7 @@ The ACTIVE branch, and what the implementation must satisfy.
 **Exact call sequence**
 
 1. native `pointermove` listener (motion ingress, `{ signal }`)
-2. `receivePointer` — one `current.operation !== operation` identity check, one
-   `event.type` comparison
+2. `receivePointer` — one `current.operation !== operation` identity check, one `event.type` comparison
 3. `kernel.dispatch(MOVE, event)` — two array pushes, no allocation
 4. `drain` — `running` was `false`, so this frame owns the pass
 5. `handleAction(MOVE, event)` — kernel switch, no indirection
@@ -210,37 +198,21 @@ The ACTIVE branch, and what the implementation must satisfy.
 10. `lift.composeXY(dx, dy)` — template string, no `Point`
 11. `visual.style.transform = …` — the only DOM write
 12. `spec.moved()` — one indirect call
-13. `spatialSeq += 1`; `frame.schedule(spatialSeq)` — stores a number, may call
-    `requestAnimationFrame` once per frame
+13. `spatialSeq += 1`; `frame.schedule(spatialSeq)` — stores a number, may call `requestAnimationFrame` once per frame
 
-**Allocations: none.** The native event is queued by reference under a narrow
-`PointerCoordinates` (`pointerId`, `clientX`, `clientY`) contract and is not
-retained past the drain. The spatial attempt is a number, not an object (C-8) —
-this is the one place the contract deliberately diverges from `packages/drag`,
-which allocates `{}` per move. The transform string is unavoidable: it is the
-value the CSSOM requires.
+**Allocations: none.** The native event is queued by reference under a narrow `PointerCoordinates` (`pointerId`, `clientX`, `clientY`) contract and is not retained past the drain. The spatial attempt is a number, not an object (C-8) — this is the one place the contract deliberately diverges from `packages/drag`, which allocates `{}` per move. The transform string is unavoidable: it is the value the CSSOM requires.
 
-**DOM reads: none.** All geometry the move path needs is already committed as
-scalars. Measurement happens on the coalesced frame, not per move.
+**DOM reads: none.** All geometry the move path needs is already committed as scalars. Measurement happens on the coalesced frame, not per move.
 
 **DOM writes: one.** The transform on the lifted visual.
 
-**Indirect calls: two.** `spec.moved()` and `lift.composeXY()`. Both are stable
-fields on objects created once per controller/operation.
+**Indirect calls: two.** `spec.moved()` and `lift.composeXY()`. Both are stable fields on objects created once per controller/operation.
 
-**Scheduling: one rAF at most per animation frame**, coalesced by the frame task
-holding the latest value with a presence flag.
+**Scheduling: one rAF at most per animation frame**, coalesced by the frame task holding the latest value with a presence flag.
 
-**Explicitly forbidden per move:** context objects, candidate objects, tuples,
-result messages, temporary arrays, plugin descriptors, normalized event
-wrappers, `Point` allocations, feature iteration, feature filtering, runtime
-view materialization, `Array.prototype` helpers over the collection.
+**Explicitly forbidden per move:** context objects, candidate objects, tuples, result messages, temporary arrays, plugin descriptors, normalized event wrappers, `Point` allocations, feature iteration, feature filtering, runtime view materialization, `Array.prototype` helpers over the collection.
 
-**Not forbidden:** the `Object.assign` frame copy. It is a fixed-shape,
-17-field, monomorphic copy with no allocation, and it is what makes preparation
-failure unable to corrupt `current`. Removing it to save a branch would be
-performance theatre; the contract keeps it and requires the implementation to
-measure rather than assume.
+**Not forbidden:** the `Object.assign` frame copy. It is a fixed-shape, 17-field, monomorphic copy with no allocation, and it is what makes preparation failure unable to corrupt `current`. Removing it to save a branch would be performance theatre; the contract keeps it and requires the implementation to measure rather than assume.
 
 ## Release stability
 
@@ -256,9 +228,6 @@ The order in `spec.release()` is normative and must not be reordered:
 8. on settlement, begin readiness and landing;
 9. release temporary presentation only when both gates complete.
 
-Because step 2 precedes step 3, no pending frame, no later pointer sample and no
-invalidation can alter the proposal. This is why the design needs no separate
-proposal-stabilisation phase.
+Because step 2 precedes step 3, no pending frame, no later pointer sample and no invalidation can alter the proposal. This is why the design needs no separate proposal-stabilisation phase.
 
-The lifted visual lands at the **current** placeholder position, measured after
-step 6 — never at an earlier measured position.
+The lifted visual lands at the **current** placeholder position, measured after step 6 — never at an earlier measured position.

@@ -2,18 +2,11 @@
 
 ## Status
 
-**Draft — awaiting review.** Derived from [`../brief.md`](../brief.md) and from the
-shipped architecture of `@ydinjs/drag` ([`packages/drag/DESIGN.md`](../../../../packages/drag/DESIGN.md)).
+**Draft — awaiting review.** Derived from [`../brief.md`](../brief.md) and from the shipped architecture of `@ydinjs/drag` ([`packages/drag/DESIGN.md`](../../../../packages/drag/DESIGN.md)).
 
-This is an **architecture contract**, not an implementation plan. It fixes the
-interfaces, the ownership boundaries and the semantics that the first
-`packages/drag2` implementation must satisfy. It deliberately contains no phase
-breakdown, no test enumeration and no package scaffolding; those follow once the
-contract is accepted.
+This is an **architecture contract**, not an implementation plan. It fixes the interfaces, the ownership boundaries and the semantics that the first `packages/drag2` implementation must satisfy. It deliberately contains no phase breakdown, no test enumeration and no package scaffolding; those follow once the contract is accepted.
 
-The contract is written from one behavior — **vertical sortable** — exactly as
-the brief requires. Where a boundary was chosen because one behavior needed it,
-that is recorded rather than generalised.
+The contract is written from one behavior — **vertical sortable** — exactly as the brief requires. Where a boundary was chosen because one behavior needed it, that is recorded rather than generalised.
 
 ## Scope
 
@@ -25,8 +18,7 @@ that is recorded rather than generalised.
 | One authoritative runtime object per controller | `box-quad` transform-aware geometry |
 | Consumer-owned persistent state + explicit readiness | Publishing, CI, migration, compatibility aliases |
 
-`packages/drag` is a correctness oracle and a source of edge cases. It is not
-modified, and `drag2` does not depend on it at runtime.
+`packages/drag` is a correctness oracle and a source of edge cases. It is not modified, and `drag2` does not depend on it at runtime.
 
 ## Artifacts
 
@@ -46,17 +38,16 @@ Read 1 → 4 → 5 for the execution model; 2 → 3 for the composition model.
 
 ## Decision ledger
 
-Every entry is a decision this contract makes that a reviewer can reject
-independently. Implementation may not silently deviate from one.
+Every entry is a decision this contract makes that a reviewer can reject independently. Implementation may not silently deviate from one.
 
 | ID | Decision | Why |
 | --- | --- | --- |
-| C-1 | `draggable(root, behavior)` takes the ingress root element. The kernel owns the native `pointerdown` listener and the admission guards. | The brief assigns "native input admission into a controlled boundary" to the kernel; a boundary is an element. The behavior still decides *which* press is valid. |
+| C-1 | `draggable(root, behavior)` takes the ingress root element. The kernel owns the native `pointerdown` listener and the admission guards. | The brief assigns "native input admission into a controlled boundary" to the kernel; a boundary is an element. The behavior still decides _which_ press is valid. |
 | C-2 | The kernel owns the action table and the drain. Behavior tags start at `BEHAVIOR_ACTION` and are handled by one `spec.handleAction` fallthrough. | Kernel actions dispatch through the kernel's own switch with no indirection; vertical sortable needs exactly two behavior tags, which is the evidence that the split is correctly placed. |
 | C-3 | There is one physical runtime object. The behavior extends the kernel runtime in place at construction. Feature seams receive that same object under narrower `Pick<>` types. | No view materialization, no capability wrappers, no per-move allocation. Type-level restriction only; this is not a security boundary. |
 | C-4 | The kernel owns `phase`, `operation`, the drag subject, pointer scalars and the two settlement gate flags on the state frame. The behavior adds domain fields. Both frames come from one factory. | The gates and the subject are what the kernel's own lifecycle reads; everything sortable-specific stays behavior-owned. |
 | C-5 | Features install into named behavior seams through a construction-time installer. After assembly the hot path holds plain fields, not descriptor lists. | The brief forbids runtime plugin iteration and hot-path filtering. An installer permits a feature to occupy several seams without one generic callback type. |
-| C-6 | `vertical()` and `callbacks()` are required features; assembly throws `TypeError` when a required seam is unfilled. `placeholder()`, `handle()`, `visual()`, `layoutAnimation()` and `landing()` are optional. Default placeholder *mechanics* live in the behavior, not in a feature. | A basic vertical sortable must work without installing an animation feature, and the placeholder is mandatory mechanics — but its appearance is not. |
+| C-6 | `vertical()` and `callbacks()` are required features; assembly throws `TypeError` when a required seam is unfilled. `placeholder()`, `handle()`, `visual()`, `layoutAnimation()` and `landing()` are optional. Default placeholder _mechanics_ live in the behavior, not in a feature. | A basic vertical sortable must work without installing an animation feature, and the placeholder is mandatory mechanics — but its appearance is not. |
 | C-7 | The vertical insertion rule is **nearest centre with the placeholder as an incumbent candidate**. | Ported from the shipped implementation, where it is already validated against oscillation. Hysteresis is a consequence of the geometry rather than a tunable dead band. |
 | C-8 | Spatial attempt identity is a monotonic `number` on the runtime, not an object. | Removes the only per-move allocation in the shipped implementation. Coalesced, controller-local work does not need cross-controller-safe identity. |
 | C-9 | Landing is **absent** by default. Without a `landing()` feature no runner is created and the landing gate opens complete. `landing()` supplies timing or a whole custom runner. | "Absence of animation must not create fake asynchronous work." A spring runner stays expressible without the default paying for WAAPI. |
@@ -69,6 +60,4 @@ independently. Implementation may not silently deviate from one.
 
 ## Naming
 
-The package is `@ydinjs/drag2` at `packages/drag2`. The name is provisional and
-carries no migration commitment; it exists so both packages can be built and
-measured side by side.
+The package is `@ydinjs/drag2` at `packages/drag2`. The name is provisional and carries no migration commitment; it exists so both packages can be built and measured side by side.

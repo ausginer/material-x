@@ -33,6 +33,20 @@
  * `tsc` errors on an unused `@ts-expect-error`, so a green
  * `npx just typecheck` from `packages/drag2` asserts both halves: the positive
  * shapes compile, and each negative one still does not.
+ *
+ * **Eleven negative assertions and one positive shape check** (`n12`, the
+ * seven-field kernel frame). The plan said twelve directives; there are eleven,
+ * and counting a positive assignment among them overstated the negative evidence
+ * by one (Checkpoint C, C4-06).
+ *
+ * ## What pass 4 added, and why it matters
+ *
+ * C4-03 and C4-06 both asked the same thing in different places: **instantiate
+ * the ownership paths instead of describing them.** So this file now compiles
+ * `unbrand → factory → arm`, creates one runtime inside one install factory,
+ * builds a `LandingContext` whose `from` *is* `lift.rendered`, and branches both
+ * sortable seams on `pointerId`. Every one of those replaced a `declare` that
+ * proved two aliases were compatible and nothing more.
  */
 import { DEV } from '../../src/kernel/dev.ts';
 import type { CancelStage, FailureStage } from '../../src/kernel/failures.ts';
@@ -59,12 +73,12 @@ import type { Point } from '../../src/kernel/types.ts';
 /**
  * **The lift session records what it rendered.**
  *
- * `write` is the sole rendering entry point between acquisition and the join;
- * `compose` builds a string for a runner and records nothing. `rendered` is
- * kernel-read only — no behavior member reports it, which is why 13c N-2's
- * assertion still fails to compile after the revision.
+ * Conforming behavior rendering goes through `write` from acquisition until
+ * `LandingContext.from` is sampled; after that the landing runner is the
+ * deliberate writer, until `destroy()` (C4-02). `compose` builds a string for a
+ * runner and records nothing.
  */
-type RevisedVisualLiftSession = Readonly<{
+type KernelVisualLiftSession = Readonly<{
   visual: HTMLElement;
   baseTransform: string;
   compose(x: number, y: number): string;
@@ -73,6 +87,24 @@ type RevisedVisualLiftSession = Readonly<{
   readonly rendered: Point;
   dispose(): void;
 }>;
+
+/**
+ * **What a behavior is handed — `rendered` projected away** (C4-02).
+ *
+ * The previous fixture exposed `rendered` to the behavior as a `readonly` field
+ * and called it "kernel-read only". `readonly` prevents assignment, not access,
+ * so the comment claimed a property the type did not have. The projection makes
+ * it true: no behavior member can read the recorded delta, which is the same
+ * instrument `LifetimeScope` uses to project `dispose` away from
+ * `ActivationScope`.
+ *
+ * It does **not** make direct `visual.style.transform` writes unavailable — the
+ * behavior holds the element through `visual` here and through
+ * `ActivationScope.visual`. That prohibition stays tier-C discipline, and I-34
+ * is rated for what this projection actually buys, not for what it looks like it
+ * buys.
+ */
+type BehaviorLiftSession = Omit<KernelVisualLiftSession, 'rendered'>;
 
 type RevisedLandingContext = Readonly<{
   visual: HTMLElement;
@@ -93,6 +125,27 @@ type RevisedLandingStart = (
   done: () => void,
   fail: (error: unknown) => void,
 ) => RevisedLandingHandle;
+
+/**
+ * **The source path D-35 depends on, compiled** (C4-06). Declaring both
+ * `lift.rendered` and `LandingContext.from` proves two aliases have the same
+ * shape; it does not prove the kernel builds one from the other. This does, and
+ * it is also where the sampling boundary in C4-02's narrowed rule sits: `from`
+ * is read **once**, here, before any runner exists.
+ */
+export function buildLandingContext(
+  lift: KernelVisualLiftSession,
+  target: Point,
+  realm: DOMRealm,
+): RevisedLandingContext {
+  return {
+    visual: lift.visual,
+    compose: lift.compose,
+    from: lift.rendered,
+    target,
+    realm,
+  };
+}
 
 /* ========================================================== D-33 ========== */
 
@@ -176,7 +229,7 @@ type RevisedKernelHost = Readonly<{
 type RevisedActivationScope = Readonly<{
   visual: HTMLElement;
   originRect: DOMRectReadOnly;
-  lift: RevisedVisualLiftSession;
+  lift: BehaviorLiftSession;
   motion: LifetimeScope;
   presentation: LifetimeScope;
 }>;
@@ -220,7 +273,7 @@ type RevisedBehaviorSpec<
   settlement: RevisedSettlementTransition<Part>;
   action: RevisedActionTransition<Part>;
 
-  moved(current: Readonly<Frame<Part>>, lift: RevisedVisualLiftSession): void;
+  moved(current: Readonly<Frame<Part>>, lift: BehaviorLiftSession): void;
   anchorTarget(current: Readonly<Frame<Part>>, authoredReady: boolean): Point;
   finalized(current: Readonly<Frame<Part>>): void;
   reportFailure(stage: FailureStage, error: unknown): void;
@@ -268,10 +321,49 @@ declare function brandBehavior<
   factory: RevisedBehaviorFactory<Controller, Part, Activation>,
 ): RevisedBehavior<Controller>;
 
-declare function draggable<Controller>(
+/**
+ * The other half of the brand, and the **only** place the erasure is undone.
+ * `object` / `{}` are the widest bounds the parameters permit, which is sound
+ * because nothing inside the executor is generic over either: the kernel threads
+ * the staged value and drops it.
+ */
+declare function unbrandBehavior<Controller>(
+  behavior: RevisedBehavior<Controller>,
+): RevisedBehaviorFactory<Controller, object, {}>;
+
+declare function createKernel<Part extends object>(
+  root: HTMLElement,
+): Readonly<{
+  host: RevisedKernelHost;
+  arm(spec: RevisedBehaviorSpec<Part, {}>): void;
+}>;
+
+/**
+ * **The construction bridge, compiled** (C4-03).
+ *
+ * The previous fixture `declare`d this signature after the brand, which proved
+ * the two aliases were assignable and nothing else. Written out, it proves the
+ * step D-34 actually needs: `Activation` is erased at the brand, survives
+ * `unbrand` as `{}`, and reaches `arm` without the driver ever being generic
+ * over it.
+ *
+ * `arm` takes `{}` for `Activation`, which is the same erasure 01 describes: the
+ * kernel calls `activation.prepare`, hands whatever it returns straight back to
+ * `activation.effect`, and never inspects or constructs one. Both behaviors'
+ * specs are assignable to it without a cast, which is the property being
+ * checked — if the driver had to name `HTMLElement`, D-34 would not have worked.
+ */
+function draggable<Controller>(
   root: HTMLElement,
   behavior: RevisedBehavior<Controller>,
-): Controller;
+): Controller {
+  const factory = unbrandBehavior(behavior);
+  const kernel = createKernel<object>(root);
+  const { spec, controller } = factory(kernel.host);
+
+  kernel.arm(spec);
+  return controller;
+}
 
 /* ============================================= the public resolution ====== */
 
@@ -331,20 +423,36 @@ type SortablePart = {
 /**
  * **C2-02: the request-identity data path, compiled.**
  *
- * `pendingRequest` is the eighth mutable field of the behavior's private
- * runtime. It holds the *exact* `ReorderRequest` object this operation handed
+ * `pendingRequest` is one of the **seven** mutable fields of the behavior's
+ * private runtime — six before D-33 added it, beside three readonly ones
+ * (`host`, `slots`, `frame`). An earlier count said "the eighth mutable field",
+ * which counted the readonly three as mutable (C4-08).
+ *
+ * It holds the *exact* `ReorderRequest` object this operation handed
  * `onReorder` — published by `release.effect` before the kernel executes the
  * round-trip, compared by identity in `controller.ready`, cleared by `retire()`.
  */
 type SortableRuntime = {
   readonly host: RevisedKernelHost;
   placeholder: HTMLElement | null;
-  lift: RevisedVisualLiftSession | null;
+  lift: BehaviorLiftSession | null;
   pendingRequest: ReorderRequest | null;
 };
 
-declare const rt: SortableRuntime;
+/**
+ * **One runtime, created inside the install factory** (C4-06). The previous
+ * fixture used an ambient `rt` that the spec closed over while the controller
+ * was handed a separately declared one, so TypeScript never checked the
+ * normative coupling: `createSortableSpec(rt)` and `createSortableController(host,
+ * rt)` must receive the **same** object, and neither can exist before a `host`.
+ */
+declare function createSortableRuntime(
+  host: RevisedKernelHost,
+): SortableRuntime;
 declare function createPlaceholder(item: HTMLElement): HTMLElement;
+declare function homeInsertion(item: HTMLElement): number;
+declare function invalidateInsertion(): void;
+declare function resolveInsertion(draft: Draft<SortablePart>): number | null;
 declare function movePlaceholder(placeholder: HTMLElement, gap: number): void;
 declare function resolveItem(event: Event): HTMLElement | null;
 declare function commandInsertion(
@@ -368,176 +476,222 @@ declare const rejection: SeamRejection;
  * The sortable stages a detached placeholder, so it names `HTMLElement`
  * explicitly — the one declaration site D-34 costs.
  */
-export const sortableSpec: RevisedBehaviorSpec<SortablePart, HTMLElement> = {
-  createFramePart: (): FramePartOf<SortablePart> => ({
-    item: null,
-    visual: null,
-    insertion: null,
-    proposal: null,
-    outcome: 0,
-    recovery: 0,
-    domain: null,
-    cancelStage: null,
-  }),
+export function createSortableSpec(
+  rt: SortableRuntime,
+): RevisedBehaviorSpec<SortablePart, HTMLElement> {
+  return {
+    createFramePart: (): FramePartOf<SortablePart> => ({
+      item: null,
+      visual: null,
+      insertion: null,
+      proposal: null,
+      outcome: 0,
+      recovery: 0,
+      domain: null,
+      cancelStage: null,
+    }),
 
-  resetFramePart(frame): void {
-    frame.item = null;
-    frame.visual = null;
-    frame.insertion = null;
-    frame.proposal = null;
-    frame.domain = null;
-    frame.cancelStage = null;
-  },
+    resetFramePart(frame): void {
+      frame.item = null;
+      frame.visual = null;
+      frame.insertion = null;
+      frame.proposal = null;
+      frame.domain = null;
+      frame.cancelStage = null;
+    },
 
-  config: {
-    threshold: 8,
-    liftMode: 0,
-    readinessTimeout: 500,
-    // Three, not two: spatial, collection, and the behavior-local invalidation
-    // tag the implementation has carried since Checkpoint B.
-    actionTags: 3,
-  },
-
-  admit(event, draft): HTMLElement | null {
-    const item = resolveItem(event);
-
-    if (item === null) {
-      return null;
-    }
-
-    // No `preventDefault()` here: C-03 moved it to the kernel, which calls it
-    // exactly when an admission member returns non-null.
-    draft.item = item;
-    draft.visual = item;
-    return item;
-  },
-
-  command: {
-    types: ['keydown'],
+    config: {
+      threshold: 8,
+      liftMode: 0,
+      readinessTimeout: 500,
+      // Three, not two: spatial, collection, and the behavior-local invalidation
+      // tag the implementation has carried since Checkpoint B.
+      actionTags: 3,
+    },
 
     admit(event, draft): HTMLElement | null {
-      const direction = directionOf(event as KeyboardEvent);
       const item = resolveItem(event);
 
-      if (direction === null || item === null) {
+      if (item === null) {
         return null;
       }
 
-      const gap = commandInsertion(item, direction);
-
-      // The edge case, and the whole reason the decision is synchronous: an
-      // item already at the edge yields `null`, the kernel does not prevent the
-      // default, and the arrow key keeps its native meaning.
-      if (gap === null) {
-        return null;
-      }
-
-      // The destination travels in the draft, exactly as `item` does for a
-      // press. No staged value crosses the ingress boundary.
+      // No `preventDefault()` here: C-03 moved it to the kernel, which calls it
+      // exactly when an admission member returns non-null.
       draft.item = item;
       draft.visual = item;
-      draft.insertion = gap;
       return item;
     },
-  },
 
-  activation: {
-    prepare(draft, scope): HTMLElement | null {
-      draft.visual = scope.visual;
-      return createPlaceholder(scope.visual);
+    command: {
+      types: ['keydown'],
+
+      admit(event, draft): HTMLElement | null {
+        const direction = directionOf(event as KeyboardEvent);
+        const item = resolveItem(event);
+
+        if (direction === null || item === null) {
+          return null;
+        }
+
+        const gap = commandInsertion(item, direction);
+
+        // The edge case, and the whole reason the decision is synchronous: an
+        // item already at the edge yields `null`, the kernel does not prevent the
+        // default, and the arrow key keeps its native meaning.
+        if (gap === null) {
+          return null;
+        }
+
+        // The destination travels in the draft, exactly as `item` does for a
+        // press. No staged value crosses the ingress boundary.
+        draft.item = item;
+        draft.visual = item;
+        draft.insertion = gap;
+        return item;
+      },
     },
 
-    effect(current, placeholder, scope): void {
-      scope.presentation.use(() => {
-        placeholder.remove();
-      });
-      movePlaceholder(placeholder, current.insertion ?? 0);
+    activation: {
+      /**
+       * **Branched on `pointerId`** (C4-01). The previous fixture seeded nothing
+       * and so compiled a command path that was not the one the contract
+       * specified for the real sortable: 02's seam table seeded home
+       * *unconditionally*, which destroys the gap `command.admit` just wrote.
+       */
+      prepare(draft, scope): HTMLElement | null {
+        draft.visual = scope.visual;
+
+        if (draft.pointerId !== -1) {
+          draft.insertion = homeInsertion(draft.item!);
+        }
+        // Pointerless: `draft.insertion` already holds the command's destination.
+        // Nothing revalidates it here — a queued `updateItems()` is rebased or
+        // cancelled by `action.prepare(COLLECTION)` before release runs.
+
+        return createPlaceholder(scope.visual);
+      },
+
+      effect(current, placeholder, scope): void {
+        scope.presentation.use(() => {
+          placeholder.remove();
+        });
+        movePlaceholder(placeholder, current.insertion ?? 0);
+      },
     },
-  },
 
-  release: {
-    prepare(draft): ResolutionCommand | SeamRejection {
-      if (draft.item === null) {
-        return rejection;
-      }
+    release: {
+      /**
+       * **Branched on `pointerId`** (C4-01), and the branch is only *where the
+       * insertion comes from*. Both paths build the proposal from the same
+       * `draft.insertion` through the same `buildRequest`, which is what makes
+       * "a keyboard and a pointer reorder to the same gap produce identical
+       * proposals" a statement about one code path.
+       */
+      prepare(draft): ResolutionCommand | SeamRejection {
+        if (draft.item === null) {
+          return rejection;
+        }
 
-      const request = buildRequest(draft);
+        if (draft.pointerId !== -1) {
+          invalidateInsertion();
+          draft.insertion = resolveInsertion(draft) ?? draft.insertion;
+        } else if (draft.insertion === null) {
+          // A command that reached RELEASING with no destination has lost state
+          // the kernel guaranteed to carry. Reporting it as a home-gap reorder
+          // would tell the consumer a drop completed normally — so it is a
+          // rejection, never a fallback.
+          return rejection;
+        }
 
-      draft.proposal = { request };
-      return { invoke: (signal): unknown => onReorder(request, { signal }) };
+        const request = buildRequest(draft);
+
+        draft.proposal = { request };
+        return { invoke: (signal): unknown => onReorder(request, { signal }) };
+      },
+
+      effect(current): void {
+        // The committed presentation writes come FIRST (C3-04). `release.effect`
+        // throwing classifies `FAILURE_RELEASE` and the staged command is never
+        // executed, so publishing ahead of the render would name a round-trip
+        // that cannot happen.
+        //
+        // The placeholder move is UNCONDITIONAL — a command reorders too — and
+        // only the lift write is branched on the pointerless discriminant.
+        movePlaceholder(rt.placeholder!, current.insertion ?? 0);
+
+        if (current.pointerId !== -1) {
+          rt.lift?.write(
+            current.pointerX - current.originX,
+            current.pointerY - current.originY,
+          );
+        }
+        // Pointerless: there is no release sample and the visual has not moved
+        // since acquisition, so the session's recorded delta stays `(0, 0)` —
+        // the correct landing origin, not a missing one (D-35).
+
+        // Still published before the kernel executes the command — both are
+        // inside this effect — so the request the consumer is about to receive is
+        // already the one `ready()` will be checked against, including under a
+        // synchronous commit (C-01).
+        //
+        // Reached through the **committed frame**, which is what makes this the
+        // same object the staged `invoke` closure captured. `ResolutionCommand`
+        // does not carry it and does not need to: putting a sortable domain value
+        // on a kernel SPI type is the mistake D-34 and D-35 just corrected.
+        rt.pendingRequest = current.proposal?.request ?? null;
+      },
     },
 
-    effect(current): void {
-      // The committed presentation writes come FIRST (C3-04). `release.effect`
-      // throwing classifies `FAILURE_RELEASE` and the staged command is never
-      // executed, so publishing ahead of the render would name a round-trip
-      // that cannot happen.
-      rt.lift?.write(
+    settlement: {
+      prepare(draft, input): RevisedPreparedSettlement | SeamRejection {
+        classify(draft, input);
+
+        // Only a fulfilled round-trip can declare an authored presentation.
+        return {
+          presentation:
+            input.type === SETTLED_FULFILLED &&
+            (input.value as ReorderResolutionValue).presentation,
+        };
+      },
+
+      effect(_current, prepared, scope): void {
+        if (prepared.presentation) {
+          scope.holdForReadiness();
+        }
+
+        if (startLanding !== null) {
+          scope.holdForLanding(startLanding);
+        }
+      },
+    },
+
+    action: {
+      prepare(_tag, _argument, _draft): {} | null {
+        return true;
+      },
+      effect(): void {},
+    },
+
+    moved(current, lift): void {
+      lift.write(
         current.pointerX - current.originX,
         current.pointerY - current.originY,
       );
-
-      // Still published before the kernel executes the command — both are
-      // inside this effect — so the request the consumer is about to receive is
-      // already the one `ready()` will be checked against, including under a
-      // synchronous commit (C-01).
-      //
-      // Reached through the **committed frame**, which is what makes this the
-      // same object the staged `invoke` closure captured. `ResolutionCommand`
-      // does not carry it and does not need to: putting a sortable domain value
-      // on a kernel SPI type is the mistake D-34 and D-35 just corrected.
-      rt.pendingRequest = current.proposal?.request ?? null;
-    },
-  },
-
-  settlement: {
-    prepare(draft, input): RevisedPreparedSettlement | SeamRejection {
-      classify(draft, input);
-
-      // Only a fulfilled round-trip can declare an authored presentation.
-      return {
-        presentation:
-          input.type === SETTLED_FULFILLED &&
-          (input.value as ReorderResolutionValue).presentation,
-      };
     },
 
-    effect(_current, prepared, scope): void {
-      if (prepared.presentation) {
-        scope.holdForReadiness();
-      }
-
-      if (startLanding !== null) {
-        scope.holdForLanding(startLanding);
-      }
+    anchorTarget(_current, _authoredReady): Point {
+      return { x: 0, y: 0 };
     },
-  },
 
-  action: {
-    prepare(_tag, _argument, _draft): {} | null {
-      return true;
+    finalized(): void {},
+    reportFailure(): void {},
+
+    retire(): void {
+      rt.pendingRequest = null;
     },
-    effect(): void {},
-  },
-
-  moved(current, lift): void {
-    lift.write(
-      current.pointerX - current.originX,
-      current.pointerY - current.originY,
-    );
-  },
-
-  anchorTarget(_current, _authoredReady): Point {
-    return { x: 0, y: 0 };
-  },
-
-  finalized(): void {},
-  reportFailure(): void {},
-
-  retire(): void {
-    rt.pendingRequest = null;
-  },
-};
+  };
+}
 
 /**
  * **The identity check itself.** Written out rather than `declare`d, because it
@@ -598,10 +752,16 @@ export const sortableBehavior: RevisedBehavior<SortableController> =
       SortableController,
       SortablePart,
       HTMLElement
-    > => ({
-      spec: sortableSpec,
-      controller: createSortableController(host, rt),
-    }),
+    > => {
+      // One `rt`, here, shared by both halves — the coupling 01 §The behavior
+      // instance states and the previous fixture's ambient declaration hid.
+      const rt = createSortableRuntime(host);
+
+      return {
+        spec: createSortableSpec(rt),
+        controller: createSortableController(host, rt),
+      };
+    },
   );
 
 /* ================================================ behavior 2: free drag === */

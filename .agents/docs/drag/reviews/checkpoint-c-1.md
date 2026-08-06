@@ -225,14 +225,15 @@ Document 01 currently sketches:
 type BehaviorInstall<
   Controller,
   Part extends object,
-  Activation extends {}
+  Activation extends {},
 > = Readonly<{
   spec: BehaviorSpec<Part, Activation>;
   controller: Controller;
 }>;
 
-type Behavior<Controller, Part extends object> =
-  (host: KernelHost) => BehaviorInstall<Controller, Part>;
+type Behavior<Controller, Part extends object> = (
+  host: KernelHost,
+) => BehaviorInstall<Controller, Part>;
 ```
 
 `BehaviorInstall` requires three type arguments, while `Behavior` supplies two. `draggable()` also carries only `Controller` and `Part`.
@@ -249,8 +250,8 @@ Please thread the activation type coherently through:
 The precise implementation shape may differ, but both of these must compile without casts or lies:
 
 ```ts
-BehaviorSpec<SortablePart, HTMLElement>
-BehaviorSpec<FreeDragPart> // Activation defaults to true
+BehaviorSpec<SortablePart, HTMLElement>;
+BehaviorSpec<FreeDragPart>; // Activation defaults to true
 ```
 
 ---

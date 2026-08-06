@@ -1,21 +1,12 @@
 # 6. One complete vertical-sortable lifecycle
 
-This trace is illustrative. Document 02 is the normative lifecycle protocol; if
-a trace sentence drifts from it, document 02 wins and this trace must be fixed.
+This trace is illustrative. Document 02 is the normative lifecycle protocol; if a trace sentence drifts from it, document 02 wins and this trace must be fixed.
 
-A successful downward reorder in a controlled React application, with
-`layoutAnimation()` and `landing({ duration: 200 })` installed.
+A successful downward reorder in a controlled React application, with `layoutAnimation()` and `landing({ duration: 200 })` installed.
 
-**This is the pointer path.** D-32 added a second, pointerless admission, and
-everything from `ACTIVATE` onward is the same code this trace walks — which is
-the claim the revision rests on and the reason there is no second trace here. A
-discrete trace lands with Phase 16, where there is an implementation to trace;
-writing one now would be prose asserting what only a lifecycle can show, which
-is precisely what contract 00 says a type fixture cannot do.
+**This is the pointer path.** D-32 added a second, pointerless admission, and everything from `ACTIVATE` onward is the same code this trace walks — which is the claim the revision rests on and the reason there is no second trace here. A discrete trace lands with Phase 16, where there is an implementation to trace; writing one now would be prose asserting what only a lifecycle can show, which is precisely what contract 00 says a type fixture cannot do.
 
-`>` is a queue drain step. Indentation is direct calls. `[K]` is kernel-private
-work, `[B]` behavior, `[F]` feature. Bracketed markers on the right name the
-invariant or decision being satisfied.
+`>` is a queue drain step. Indentation is direct calls. `[K]` is kernel-private work, `[B]` behavior, `[F]` feature. Bracketed markers on the right name the invariant or decision being satisfied.
 
 ## Construction
 
@@ -43,7 +34,11 @@ draggable(list, sortable(items, vertical(), placeholder({ className: 'ghost' }),
             → SortableSlots; every contribution object now unreachable
       [B] rt = { host, slots, frame: createFrameTask(realm, …),
                  snapshot, view: null, placeholder: null, lift: null,
+                 pendingRequest: null,
                  spatialSeq: 0, pendingSpatial: 0 }                  [H-2]
+                 ← `pendingRequest` is constructed here, published at
+                   release.effect and cleared at retire. It was missing from
+                   this literal while later steps wrote and cleared it. [C4-08]
                  ← the coalesced frame task is created ONCE, here. It is not
                    nullable and not per-operation; retire and destroy cancel it.
       [B] spec = createSortableSpec(rt)      ← ~16 closures over `rt`  [F-4]
@@ -64,9 +59,7 @@ draggable(list, sortable(items, vertical(), placeholder({ className: 'ghost' }),
 → controller
 ```
 
-What the kernel now holds of the behavior: **one `spec` reference.** No runtime,
-no slots, no rect index, no placeholder. What the behavior holds of the kernel:
-one `host` with seven members, none of which drives a transition.
+What the kernel now holds of the behavior: **one `spec` reference.** No runtime, no slots, no rect index, no placeholder. What the behavior holds of the kernel: one `host` with seven members, none of which drives a transition.
 
 ## Admission
 
@@ -95,15 +88,9 @@ pointerdown on item 2
 [K] commit()                                   swap two references
 ```
 
-`draft.phase` is written by the kernel, after `admit` returned. The behavior
-could not have written it: it saw `Draft<Part>`, where the kernel slice is
-`Readonly`. **[I-5, tier A]**
+`draft.phase` is written by the kernel, after `admit` returned. The behavior could not have written it: it saw `Draft<Part>`, where the kernel slice is `Readonly`. **[I-5, tier A]**
 
-No pointer capture yet — capture is acquired at activation, so a below-threshold
-press never captures and never retargets later pointer events to `root`.
-**[D-17]** Whether a *click* still fires is a separate question the contract
-does not decide: the kernel already called `preventDefault()` here, on the
-strength of the behavior's non-null answer.
+No pointer capture yet — capture is acquired at activation, so a below-threshold press never captures and never retargets later pointer events to `root`. **[D-17]** Whether a _click_ still fires is a separate question the contract does not decide: the kernel already called `preventDefault()` here, on the strength of the behavior's non-null answer.
 
 ## Below threshold
 
@@ -132,7 +119,12 @@ pointermove (+11 px)
               placeholder = slots.createPlaceholder({ item, visual, rect })
               size it from visual.offsetWidth / offsetHeight
                             (offset box, not the transformed rect)
-              draft.insertion = home insertion
+              draft.pointerId !== -1 → draft.insertion = home insertion
+                                     ← the POINTER branch. A pointerless
+                                       operation leaves `insertion` alone: it
+                                       already holds the gap `command.admit`
+                                       wrote, and seeding home here destroys
+                                       the only state carrying it.  [D-32, C4-01]
               return placeholder            ← DETACHED. no DOM insertion,
                                               no acquisition, no rt write
         [K] preparationValid() ✔        ← nothing reentrant happened  [I-3, tier B]
@@ -167,25 +159,11 @@ pointermove (+11 px)
                    [K] begin(); draft.phase = ACTIVE; commit()
 ```
 
-`activation.prepare` performs **no externally visible mutation**: it creates a
-detached element and measures. Capture is the kernel's; insertion, disposer
-registration and the private-runtime writes are all post-commit. **[I-17, vacuous
-for this behavior]**
+`activation.prepare` performs **no externally visible mutation**: it creates a detached element and measures. Capture is the kernel's; insertion, disposer registration and the private-runtime writes are all post-commit. **[I-17, vacuous for this behavior]**
 
-Consequently `activation.rollback` is unnecessary — a discarded prepare leaves
-only a detached element for the collector. Had `createPlaceholder` thrown, the
-kernel would have released capture and disposed the lift, queued
-`FAILURE_ACTIVATION`, and published nothing. Had it reentrantly called
-`destroy()`, `prepare` would still have returned the element,
-`preparationValid()` would have returned `false`, and nothing would have been
-published. The behavior has no branch for either case. **[I-16, tier B]**
+Consequently `activation.rollback` is unnecessary — a discarded prepare leaves only a detached element for the collector. Had `createPlaceholder` thrown, the kernel would have released capture and disposed the lift, queued `FAILURE_ACTIVATION`, and published nothing. Had it reentrantly called `destroy()`, `prepare` would still have returned the element, `preparationValid()` would have returned `false`, and nothing would have been published. The behavior has no branch for either case. **[I-16, tier B]**
 
-**An activation discard retires the operation.** Unlike an action discard, it is
-not "nothing happened and we carry on": there is no such thing as a committed
-operation with no presentation. The activation driver releases capture, disposes
-the lift and returns the controller to `IDLE`. The post-effect
-`preparationValid()` above is likewise activation-specific — the shared core does
-not have it, which is why each seam has its own wrapper.
+**An activation discard retires the operation.** Unlike an action discard, it is not "nothing happened and we carry on": there is no such thing as a committed operation with no presentation. The activation driver releases capture, disposes the lift and returns the controller to `IDLE`. The post-effect `preparationValid()` above is likewise activation-specific — the shared core does not have it, which is why each seam has its own wrapper.
 
 ## The hot path
 
@@ -205,70 +183,29 @@ pointermove × N
               rt.frame.schedule(rt.spatialSeq)
 ```
 
-The earlier version of this section claimed **"zero allocations, two indirect
-calls"** and then, two lines later, acknowledged the transform string. Both
-numbers were wrong, and the headline is withdrawn rather than repaired (F-24).
-Counted honestly, with "indirect call" defined to include calls through stable
-closure methods:
+The earlier version of this section claimed **"zero allocations, two indirect calls"** and then, two lines later, acknowledged the transform string. Both numbers were wrong, and the headline is withdrawn rather than repaired (F-24). Counted honestly, with "indirect call" defined to include calls through stable closure methods:
 
-**Allocations: one string, plus one object in the in-place lift mode.** The
-transform string is unavoidable — it is the value the CSSOM requires. The
-shipped in-place strategy additionally allocates a `{ x, y }` projection because
-its mapping goes through the consumer's coordinate mapper
-(`packages/drag/src/kernel/presentation.ts:190-224`); the two lifted modes
-project identically and take `compose`'s scalar path. **Every supported lift
-mode must retain a scalar projection path**; making the in-place mode allocation-
-free is an implementation obligation, not a claim already met.
+**Allocations: one string, plus one object in the in-place lift mode.** The transform string is unavoidable — it is the value the CSSOM requires. The shipped in-place strategy additionally allocates a `{ x, y }` projection because its mapping goes through the consumer's coordinate mapper (`packages/drag/src/kernel/presentation.ts:190-224`); the two lifted modes project identically and take `compose`'s scalar path. **Every supported lift mode must retain a scalar projection path**; making the in-place mode allocation- free is an implementation obligation, not a claim already met.
 
-Nothing else allocates a wrapper: the native event is queued by reference under
-a narrow `PointerCoordinates` contract (`pointerId`, `clientX`, `clientY`) and
-is not retained past the drain, and the spatial attempt is a `number`, not an
-object (D-11). The enqueue itself is two array pushes — **no per-entry object,
-and capacity growth is amortized**, which is the phrasing every document uses.
+Nothing else allocates a wrapper: the native event is queued by reference under a narrow `PointerCoordinates` contract (`pointerId`, `clientX`, `clientY`) and is not retained past the drain, and the spatial attempt is a `number`, not an object (D-11). The enqueue itself is two array pushes — **no per-entry object, and capacity growth is amortized**, which is the phrasing every document uses.
 
-**DOM reads: none.** Everything the move path needs is already committed as
-scalars; measurement happens on the coalesced frame.
+**DOM reads: none.** Everything the move path needs is already committed as scalars; measurement happens on the coalesced frame.
 
 **DOM writes: one.** The transform on the lifted visual.
 
-**Indirect calls: three, and the boundary is stated.** The metric is *calls
-after `MOVE` dispatch, for the scalar lift modes*: `spec.moved()`,
-`lift.write()`, `rt.frame.schedule()`. It deliberately excludes the listener
-→ `dispatch` → drain-handler path the queue requires, and it excludes the
-in-place mode's coordinate mapper; `requestAnimationFrame` scheduling is
-conditional on the frame task not already being armed.
+**Indirect calls: three, and the boundary is stated.** The metric is _calls after `MOVE` dispatch, for the scalar lift modes_: `spec.moved()`, `lift.write()`, `rt.frame.schedule()`. It deliberately excludes the listener → `dispatch` → drain-handler path the queue requires, and it excludes the in-place mode's coordinate mapper; `requestAnimationFrame` scheduling is conditional on the frame task not already being armed.
 
-Probe 1 spent the same three on the same work within the same boundary, which is
-why D-8 — the behavior owning the write, so a future free drag can clamp before
-writing — still costs nothing. **Comparing equal scoped work is the point; the
-end-to-end number is M-1's job, not this section's.**
+Probe 1 spent the same three on the same work within the same boundary, which is why D-8 — the behavior owning the write, so a future free drag can clamp before writing — still costs nothing. **Comparing equal scoped work is the point; the end-to-end number is M-1's job, not this section's.**
 
-**Scheduling:** at most one `requestAnimationFrame` per animation frame,
-coalesced by the frame task holding the latest value with a presence flag.
+**Scheduling:** at most one `requestAnimationFrame` per animation frame, coalesced by the frame task holding the latest value with a presence flag.
 
-**Forbidden per move:** context objects, candidate objects, tuples, result
-messages, temporary arrays, plugin descriptors, normalized event wrappers,
-`Point` allocations on the lifted paths, feature iteration, feature filtering,
-view materialization, `Array.prototype` helpers over the collection.
+**Forbidden per move:** context objects, candidate objects, tuples, result messages, temporary arrays, plugin descriptors, normalized event wrappers, `Point` allocations on the lifted paths, feature iteration, feature filtering, view materialization, `Array.prototype` helpers over the collection.
 
-**The `Object.assign` frame copy: measured, and kept** (M-1, 2026-08-02 —
-[measurements/m1.md](../measurements/m1.md)). It is fixed-shape, 15 fields,
-monomorphic within the controller and allocation-free, and it is what makes a
-preparation failure unable to corrupt `current`. That justification is strong for
-a fallible `prepare` and weaker for a pointer sample, which only publishes
-kernel-owned scalars before calling a post-commit renderer — so it was benchmarked
-against a specialized pointer-publication path that writes the two fields in
-place, with an equivalence check first.
+**The `Object.assign` frame copy: measured, and kept** (M-1, 2026-08-02 — [measurements/m1.md](../measurements/m1.md)). It is fixed-shape, 15 fields, monomorphic within the controller and allocation-free, and it is what makes a preparation failure unable to corrupt `current`. That justification is strong for a fallible `prepare` and weaker for a pointer sample, which only publishes kernel-owned scalars before calling a post-commit renderer — so it was benchmarked against a specialized pointer-publication path that writes the two fields in place, with an equivalence check first.
 
-**At the shipped frame the copy is 0.098 µs of a 2.64 µs sample: 3.7%, and the
-sample is 0.017% of a 16 ms frame.** The copy stays.
+**At the shipped frame the copy is 0.098 µs of a 2.64 µs sample: 3.7%, and the sample is 0.017% of a 16 ms frame.** The copy stays.
 
-**The number comes with a bound the earlier text could not have known.** The
-cost is flat to ~12 behavior-part fields and then jumps 10× between 12 and 16 —
-0.147 µs to 1.465 µs — an engine cliff this frame sits 4 fields below. A larger
-part, or two behaviors sharing the call site, crosses it and the copy becomes
-roughly 55% of a sample. The claim is therefore *the copy is free at this frame
-size*, with the size named.
+**The number comes with a bound the earlier text could not have known.** The cost is flat to ~12 behavior-part fields and then jumps 10× between 12 and 16 — 0.147 µs to 1.465 µs — an engine cliff this frame sits 4 fields below. A larger part, or two behaviors sharing the call site, crosses it and the copy becomes roughly 55% of a sample. The claim is therefore _the copy is free at this frame size_, with the size named.
 
 ## The coalesced spatial frame
 
@@ -306,20 +243,11 @@ rAF fires → dispatch(behavior tag 0, attempt)
                                                  transforms, play
 ```
 
-`draft` satisfies `vertical.ts`'s own `InsertionFrameView` structurally, and
-`rt.view` satisfies its `InsertionRuntimeView`; `vertical.ts` imports no runtime
-type from the behavior. **[D-13]** The displacement hooks receive a
-`DisplacementView` — the same `rt.view` object — and have no access to
-`SettlementScope`, so displacement structurally cannot become a lifecycle gate.
-**[I-10, tier A]**
+`draft` satisfies `vertical.ts`'s own `InsertionFrameView` structurally, and `rt.view` satisfies its `InsertionRuntimeView`; `vertical.ts` imports no runtime type from the behavior. **[D-13]** The displacement hooks receive a `DisplacementView` — the same `rt.view` object — and have no access to `SettlementScope`, so displacement structurally cannot become a lifecycle gate. **[I-10, tier A]**
 
-The two features measure the same list around this one move. That duplicate
-layout read is the open cost in Q-7/M-4, and it is expected to dominate
-everything counted in §The hot path for a large list.
+The two features measure the same list around this one move. That duplicate layout read is the open cost in Q-7/M-4, and it is expected to dominate everything counted in §The hot path for a large list.
 
-Had `resolveInsertion` returned `null` — the pointer is still nearest the
-placeholder's own slot — `prepare` returns `null`, the draft is abandoned, the
-current insertion stays authoritative and no placeholder move happens. **[I-15]**
+Had `resolveInsertion` returned `null` — the pointer is still nearest the placeholder's own slot — `prepare` returns `null`, the draft is abandoned, the current insertion stays authoritative and no placeholder move happens. **[I-15]**
 
 ## Release — two commits
 
@@ -339,12 +267,19 @@ pointerup
             ── nothing queued or scheduled can move the result from here ──
         [K] begin()
         [B] spec.release.prepare(draft) → ResolutionCommand     [prepare]
-              slots.invalidateInsertion()
-              slots.resolveInsertion(draft, rt.view)           synchronous,
+              draft.pointerId !== -1 →                      ← the POINTER branch
+                slots.invalidateInsertion()
+                slots.resolveInsertion(draft, rt.view)         synchronous,
                                                                from the committed
                                                                release point
-              fall back: resolved → incumbent → home
-              draft.insertion = final gap
+                fall back: resolved → incumbent → home
+                draft.insertion = final gap
+              draft.pointerId === -1 →                  ← the POINTERLESS branch
+                draft.insertion stands as committed. NO invalidation and NO
+                spatial resolve: there is no release sample, the pointer
+                scalars are still zero, and resolving would pick a gap from
+                pointerY === 0. A null insertion here is a broken invariant →
+                SeamRejection, never a home fallback.          [D-32, C4-01]
               draft.proposal  = buildReorderProposal(snapshot, item2, insertion)
                                                                immutable, frozen
               return { invoke: (signal) =>
@@ -355,9 +290,19 @@ pointerup
         [K] preparationValid() ✔; commit()             ← commit 2
         [B] spec.release.effect(current, command)      [post-commit]
               movePlaceholder(view, insertion)    ← the same single writer,
-                                                    inert when already correct
-              lift.write(dx, dy)                  ← the FINAL sample, from the
+                                                    inert when already correct.
+                                                    UNCONDITIONAL: a command
+                                                    reorders too.       [C4-01]
+              draft.pointerId !== -1 →            ← the POINTER branch
+                lift.write(dx, dy)                ← the FINAL sample, from the
                                                     committed release point
+              draft.pointerId === -1 →       ← the POINTERLESS branch: NO lift
+                                               write at all. No release sample
+                                               exists and the visual has not
+                                               moved since acquisition, so
+                                               `lift.rendered` stays (0, 0) and
+                                               that is the correct landing
+                                               origin.           [D-35, C4-01]
               rt.pendingRequest = current.proposal.request
                                                   ← the EXACT object the staged
                                                     `invoke` closure captured,
@@ -387,25 +332,13 @@ pointerup
                       RESOLUTION_SETTLED in FIFO.                       [F-25]
 ```
 
-Commit 1 exists so that no irreversible physical action — here, closing motion
-ingress — happens while the committed frame still says `ACTIVE`. If
-`release.prepare` throws, returns a `SeamRejection`, or reentrantly destroys,
-the committed state is `RELEASING`, which is true, rather than `ACTIVE` with no
-ingress and no path forward. **[I-13]** It cannot return `null`; that is not
-expressible.
+Commit 1 exists so that no irreversible physical action — here, closing motion ingress — happens while the committed frame still says `ACTIVE`. If `release.prepare` throws, returns a `SeamRejection`, or reentrantly destroys, the committed state is `RELEASING`, which is true, rather than `ACTIVE` with no ingress and no path forward. **[I-13]** It cannot return `null`; that is not expressible.
 
-The final `lift.write` render above is **normative**, not decoration: the
-`UP` action committed the release point, and `pointerup` need not carry the same
-coordinates as the last processed `pointermove`. Rendering only the placeholder
-would leave the visual — and the entire landing trajectory — starting from a
-stale point while the proposal describes a newer one. **[review 6, §7]**
+The final `lift.write` render above is **normative**, not decoration: the `UP` action committed the release point, and `pointerup` need not carry the same coordinates as the last processed `pointermove`. Rendering only the placeholder would leave the visual — and the entire landing trajectory — starting from a stale point while the proposal describes a newer one. **[review 6, §7]**
 
-Had `release.effect` thrown while moving the placeholder, the staged command
-would **not** be executed: the consumer never sees `onReorder` for a release
-whose committed presentation effect failed. **[F-27]**
+Had `release.effect` thrown while moving the placeholder, the staged command would **not** be executed: the consumer never sees `onReorder` for a release whose committed presentation effect failed. **[F-27]**
 
-The kernel closes motion between the two commits, so the behavior cannot get
-release stability wrong by sequencing its own seam badly. **[I-11, tier B]**
+The kernel closes motion between the two commits, so the behavior cannot get release stability wrong by sequencing its own seam badly. **[I-11, tier B]**
 
 ## Settlement
 
@@ -501,28 +434,11 @@ release stability wrong by sequencing its own seam badly. **[I-11, tier B]**
                             settlement would not finalize.
 ```
 
-The hold is reserved **before** `start` is called and the handle is stored
-**after** it returns. A `landing({ duration: 0 })` or custom runner that calls
-`done()` from inside `start` therefore always finds its hold, and its queued
-completion can never be applied before the handle exists. Had `start` or the
-provisional `anchorTarget` thrown, or had the runner called `fail()`
-synchronously, the reserved hold would be rolled back and the failure classified
-`FAILURE_LANDING_CREATE`. Arm would return `ARM_FAILED`: the original settlement
-would not advance or call its terminal callback; the queued failure checkpoint
-would take over while presentation remains owned. **[D-28, F-35]**
+The hold is reserved **before** `start` is called and the handle is stored **after** it returns. A `landing({ duration: 0 })` or custom runner that calls `done()` from inside `start` therefore always finds its hold, and its queued completion can never be applied before the handle exists. Had `start` or the provisional `anchorTarget` thrown, or had the runner called `fail()` synchronously, the reserved hold would be rolled back and the failure classified `FAILURE_LANDING_CREATE`. Arm would return `ARM_FAILED`: the original settlement would not advance or call its terminal callback; the queued failure checkpoint would take over while presentation remains owned. **[D-28, F-35]**
 
-**With no `landing()` feature installed**, `slots.startLanding` is `null`, so
-**no landing hold is taken and no animation module is in the bundle** — but the
-readiness hold above is unaffected, `holds` is 1, and settlement does **not**
-finalize in this drain. Same-drain finalization happens only when *neither* gate
-is held — which, in **this** composition, an accepted resolution with no
-readiness would still not achieve, because `landing({ duration: 200 })` is
-installed and holds the landing gate. It needs both: no landing feature (or an
-immediate recovery) *and* no declared presentation. The two gates are independent in
-both directions. **[I-9, I-8]**
+**With no `landing()` feature installed**, `slots.startLanding` is `null`, so **no landing hold is taken and no animation module is in the bundle** — but the readiness hold above is unaffected, `holds` is 1, and settlement does **not** finalize in this drain. Same-drain finalization happens only when _neither_ gate is held — which, in **this** composition, an accepted resolution with no readiness would still not achieve, because `landing({ duration: 200 })` is installed and holds the landing gate. It needs both: no landing feature (or an immediate recovery) _and_ no declared presentation. The two gates are independent in both directions. **[I-9, I-8]**
 
-Note that no gate release will be a frame transition: gate state is on the
-attempt, not the frame. The only remaining transition is `phase = FINALIZING`.
+Note that no gate release will be a frame transition: gate state is on the attempt, not the frame. The only remaining transition is `phase = FINALIZING`.
 
 ## Readiness — the authoritative re-anchor
 
@@ -532,16 +448,27 @@ controller.ready(pendingRequest.current)
 
   [B] request === rt.pendingRequest ?  host.presentationCommitted()
                                     :  report; release nothing
+
+      [K] inside presentationCommitted(), hold armed:
+            attempt.readinessSettled ?  report a duplicate; return
+                                     :  attempt.readinessSettled = true
+                                        dispatch(READINESS_SETTLED, attempt)
+            ← claimed BEFORE the dispatch, so a second synchronous ready() in
+              this same turn — two committed renders in one layout effect, a
+              nested flushSync — never enqueues a second action. One dispatch,
+              one release, and the second call is reported.          [C4-04]
       ← object identity, not structural equality. It is the same object
         `release.prepare` built, `release.effect` published and `onReorder`
         received. A late effect from a timed-out earlier drag compares against
         `null` (retired) or against a newer operation's request, and is
         rejected either way.                                        [D-33, I-35]
 
-> READINESS_SETTLED  [K] attempt current ✔  phase SETTLING ✔  not yet settled ✔
-                     [K] attempt.readinessSettled = true      ← once-only latch:
-                           a duplicate ready(), and one belonging to a retired
-                           attempt, are both inert
+> READINESS_SETTLED  [K] attempt current ✔  phase SETTLING ✔
+                     ← currency and phase only. The once-only latch was already
+                       claimed at the dispatch site above, so this handler does
+                       not re-check it: an acknowledgement belonging to a
+                       retired or superseded attempt fails the currency check
+                       instead, and a duplicate never got here.       [C4-04]
                      [K] attempt.readinessHeld = false; holds = 1
                      [K] attempt.authoredReady = true
                      [K] attempt.landingHeld && attempt.landing !== null →
@@ -565,19 +492,9 @@ controller.ready(pendingRequest.current)
                      [K] advanceSettlement: holds === 1 → return
 ```
 
-The repair is guarded three ways, and each guard earns its place. The
-`nextElementSibling` test makes it inert when the placeholder is already
-adjacent — the common case — because `before()` on an already-correct position
-is a remove-and-reinsert that resets CSS transitions and forces a reflow. The
-connectivity and parentage tests stop a consumer that unmounted or re-keyed the
-item from having the placeholder dragged into a detached tree, which would
-destroy the fallback target the degraded path measures **[Q-12]**. It acts only
-when the authored commit inserted a new keyed item into the destination gap,
-leaving the placeholder on the wrong side of it.
+The repair is guarded three ways, and each guard earns its place. The `nextElementSibling` test makes it inert when the placeholder is already adjacent — the common case — because `before()` on an already-correct position is a remove-and-reinsert that resets CSS transitions and forces a reflow. The connectivity and parentage tests stop a consumer that unmounted or re-keyed the item from having the placeholder dragged into a detached tree, which would destroy the fallback target the degraded path measures **[Q-12]**. It acts only when the authored commit inserted a new keyed item into the destination gap, leaving the placeholder on the wrong side of it.
 
-The item is the anchor because after the commit it is a connected,
-consumer-owned keyed child that React has placed at its authored final slot.
-**[I-25]** The visual may be a different element; the anchor is always the item.
+The item is the anchor because after the commit it is a connected, consumer-owned keyed child that React has placed at its authored final slot. **[I-25]** The visual may be a different element; the anchor is always the item.
 
 ## The join
 
@@ -626,40 +543,17 @@ landing animation finishes (200 ms)
                            [K] dispatch(RETIRE, operation)
 ```
 
-Ordering is normative: `anchorTarget` → `destroy()` → pin → release. The runner
-must relinquish the transform before the pin, or a running WAAPI animation
-overrides the inline style.
+Ordering is normative: `anchorTarget` → `destroy()` → pin → release. The runner must relinquish the transform before the pin, or a running WAAPI animation overrides the inline style.
 
-**Every call before the release is fallible, and the release is in a `finally`.**
-Three of the four steps here run code the kernel does not own — a behavior
-measurement, a possibly-custom runner handle, and a DOM write — and none of them
-may strand temporary presentation. That is why I-24 is stated *conditionally* on
-**three** things: the measurement succeeding, the pin succeeding, **and runner
-control being successfully relinquished**. A `destroy()` that throws is only
-reported, so the runner may still be writing the transform after the pin — the
-pin is performed but is no longer known to be authoritative. When any of the
-three fails, the placeholder is still removed and the inline styles are still
-restored. **[F-22]**
+**Every call before the release is fallible, and the release is in a `finally`.** Three of the four steps here run code the kernel does not own — a behavior measurement, a possibly-custom runner handle, and a DOM write — and none of them may strand temporary presentation. That is why I-24 is stated _conditionally_ on **three** things: the measurement succeeding, the pin succeeding, **and runner control being successfully relinquished**. A `destroy()` that throws is only reported, so the runner may still be writing the transform after the pin — the pin is performed but is no longer known to be authoritative. When any of the three fails, the placeholder is still removed and the inline styles are still restored. **[F-22]**
 
-The gates never awaited each other; React rendering and the 200 ms animation
-overlapped. **Both completion orders produce the same pinned target**, because
-the target that matters is measured at the join, not when landing started.
+The gates never awaited each other; React rendering and the 200 ms animation overlapped. **Both completion orders produce the same pinned target**, because the target that matters is measured at the join, not when landing started.
 
-Had `anchorTarget` thrown **here**, the kernel would report
-`FAILURE_LANDING_TARGET`, skip the pin, and **still** release presentation. A
-measurement failure must not strand the controller.
+Had `anchorTarget` thrown **here**, the kernel would report `FAILURE_LANDING_TARGET`, skip the pin, and **still** release presentation. A measurement failure must not strand the controller.
 
-Had it thrown at *readiness* instead, nothing above would change: that call is
-advisory — it only feeds an optional `retarget()` — so the failure is a
-best-effort report, the runner keeps running toward its provisional target,
-no hold moves, and this join still measures and pins authoritatively.
-**[I-29, F-17]**
+Had it thrown at _readiness_ instead, nothing above would change: that call is advisory — it only feeds an optional `retarget()` — so the failure is a best-effort report, the runner keeps running toward its provisional target, no hold moves, and this join still measures and pins authoritatively. **[I-29, F-17]**
 
-Had readiness never settled, the 500 ms timeout would have replaced the
-settlement: presentation stays owned, outcome becomes `OUTCOME_FAILED` with the
-domain result preserved, recovery restarts as immediate,
-`attempt.authoredReady` stays `false` so no re-anchor happens, and it reports
-through `onError` **only** — no `onFinish`, no `onCancel`. **[I-8]**
+Had readiness never settled, the 500 ms timeout would have replaced the settlement: presentation stays owned, outcome becomes `OUTCOME_FAILED` with the domain result preserved, recovery restarts as immediate, `attempt.authoredReady` stays `false` so no re-anchor happens, and it reports through `onError` **only** — no `onFinish`, no `onCancel`. **[I-8]**
 
 ## Retirement
 
@@ -685,19 +579,13 @@ through `onError` **only** — no `onFinish`, no `onCancel`. **[I-8]**
           [K] phase = IDLE
 ```
 
-`rt.frame` survives: it is per-controller, so retirement cancels a pending
-schedule rather than discarding the task.
+`rt.frame` survives: it is per-controller, so retirement cancels a pending schedule rather than discarding the task.
 
-The controller now retains **no DOM**: not in either frame, not on the private
-behavior runtime, not in the rect index, not in the displacement map. **[I-20]**
-`rt.pendingRequest` is cleared in the same step — it holds identity neighbours,
-so leaving it would retain elements past retirement and would also leave a
-matchable acknowledgement identity behind.
+The controller now retains **no DOM**: not in either frame, not on the private behavior runtime, not in the rect index, not in the displacement map. **[I-20]** `rt.pendingRequest` is cleared in the same step — it holds identity neighbours, so leaving it would retain elements past retirement and would also leave a matchable acknowledgement identity behind.
 
 ## Counterfactuals
 
-What the same trace does under each difficult case, without adding a branch
-anywhere above.
+What the same trace does under each difficult case, without adding a branch anywhere above.
 
 | Event | Where it lands |
 | --- | --- |
@@ -714,14 +602,14 @@ anywhere above.
 | The same contradiction, reached **early** — `ready(request)` while the resolution attempt is open, and the resolution then declares `presentation: false` | Identical result, at a later moment. The latch is taken (the kernel cannot yet know the declaration), copied to the settlement, and **seal** finds a latch with no readiness hold: reported, discarded. `arm` therefore never has to ask whether a set latch has something to release. **[C3-01]** |
 | `settlement.effect` throws while an early latch is set | The latch dies with every other unarmed request and **nothing is reported to the consumer**. The contradiction is the seam's, not the consumer's, and the queued failure checkpoint is already reporting it. **[F-27, C3-01]** |
 | The consumer declares nothing and renders asynchronously anyway | **Not detected.** No hold, no deadline, and the drop may finalize before the authored commit. This is the residue of an opt-in declaration and it is tier C — indistinguishable from a consumer that legitimately renders synchronously. Covered by F-6's test obligation, not by a runtime guarantee. **[C2-01, F-46]** |
-| The consumer never acknowledges | The deadline is the only outcome, exactly as before — but the kernel knows *which operation* is outstanding, and the consumer had nothing to construct or supersede. This obligation does not disappear, and I-35 does not claim it does. **[F-6, F-46]** |
+| The consumer never acknowledges | The deadline is the only outcome, exactly as before — but the kernel knows _which operation_ is outstanding, and the consumer had nothing to construct or supersede. This obligation does not disappear, and I-35 does not claim it does. **[F-6, F-46]** |
 | Recovery is home or immediate | No re-anchor regardless of `authoredReady`. Re-anchoring follows the **recovery**, not the readiness. |
 | Landing completes before readiness | The join still measures authoritatively after the readiness re-anchor, so the pin is correct. The visible arrival is a step rather than a smooth stop. **[F-16 — quality, not correctness]** |
 | The authored commit inserts a new keyed item into the destination gap | `item.before(placeholder)` at readiness repairs the semantic gap; the repaired rect equals the item's actual landed rect. **[F-15]** |
 | `updateItems()` at `ACTIVE`, neighbours still adjacent | `action.prepare(1)` rebases the insertion into the draft and stages the snapshot; `effect` publishes it and invalidates geometry. |
 | `updateItems()` at `ACTIVE`, gap broken | `prepare` stages the snapshot **and** `cancelReason`. `effect` publishes the new collection, invalidates geometry, then dispatches the cancel last. FIFO runs the cancel transition next. **The consumer's update is not lost.** **[F-28]** |
 | `updateItems()` from inside `onStart` | Applied at `ACTIVATING`, exactly like `ACTIVE` — FIFO puts it ahead of `START_COMMITTED`, and I-30 has already published `rt.view`. There is no deferral. **[F-32]** |
-| `updateItems()` at `SETTLING` | `prepare` stages the snapshot with `bindsFrame: false`; `effect` publishes it. The operation's frame snapshot is **not** rewritten — it freezes the *semantic transaction*, not the geometry. Geometry correctness comes from the join measurement. |
+| `updateItems()` at `SETTLING` | `prepare` stages the snapshot with `bindsFrame: false`; `effect` publishes it. The operation's frame snapshot is **not** rewritten — it freezes the _semantic transaction_, not the geometry. Geometry correctness comes from the join measurement. |
 | `updateItems()` at `IDLE` | Published in `effect`; `draft.snapshot` is left alone, so an idle frame retains no item elements. **[I-20]** |
 | The consumer unmounts the dragged item as part of the reorder | `anchorTarget` finds no connected anchor and falls back to the placeholder's rect. Degraded, not stranded. **[Q-12 — the one open mechanism]** |
 | `anchorTarget` throws at readiness | Best-effort report. Landing continues, holds untouched, `authoredReady` still `true`; the join measures again and pins. **[I-29]** |
@@ -731,15 +619,15 @@ anywhere above.
 | A landing runner calls `done()` synchronously inside `start` | The hold was reserved before `start` was called, so the completion is queued against a real hold; the handle is stored before the queued completion can be applied. **[F-21]** |
 | `startLanding` throws | The reserved hold is rolled back, `FAILURE_LANDING_CREATE` is classified, arm returns `ARM_FAILED`, and the original settlement neither advances nor calls its terminal callback. The failure checkpoint owns recovery while presentation remains held. **[D-28, F-35]** |
 | An arrow key on an edge item | `command.admit` computes the destination gap, finds `null`, returns `null`. The kernel does not prevent the default, so no operation is minted, no phase changes, and the key keeps its native meaning. Feasibility was answered inside the listener, which is the whole of what D-32 buys. **[D-32, I-32]** |
-| An arrow key on a movable item | `command.admit` writes item, snapshot and destination gap into the draft and returns the visual. The kernel prevents the default, mints a pointerless operation (`pointerId === -1`), commits `PENDING`, queues `ACTIVATE`; `START_COMMITTED` queues `RELEASE`. From `release.prepare` on, this trace applies verbatim. **[D-32]** |
+| An arrow key on a movable item | `command.admit` writes item, snapshot and destination gap into the draft and returns the visual. The kernel prevents the default, mints a pointerless operation (`pointerId === -1`), commits `PENDING`, queues `ACTIVATE`; `START_COMMITTED` queues `RELEASE`. **Two seams branch on `pointerId` and the rest of this trace applies verbatim:** `activation.prepare` preserves the command's gap instead of seeding home, and `release.prepare` takes it as committed instead of re-resolving spatially. An earlier version of this row said the trace applied verbatim _from `release.prepare` on_, which was wrong at both ends — the seed had already overwritten the gap and the re-resolve would have replaced it from `pointerY === 0`. **[D-32, C4-01]** |
 | A handle resolver dispatches `updateItems()` from inside `command.admit` | Enqueued without draining, exactly as from inside `admit`: the ingress boundary is one shared latch across both listeners, and the queue drains once admission has committed or abandoned. **[I-1, D-32]** |
 | A feature retire hook throws | Reported; the remaining hooks still run, in reverse installation order. **[F-22]** |
 | A feature factory throws mid-`assemble()` | The retire hooks collected so far run in reverse, each wrapped, and the error propagates. No controller is returned. **[F-19]** |
 | A behavior part declares `phase` | Rejected at `arm()` in production, and unconstructible at the authoring boundary via `FramePartOf`. **[I-5]** |
-| `retarget()` throws | Best-effort report. The runner is *not* destroyed — the join destroys it anyway and the pin is computed fresh, so a misbehaving runner cannot affect the final position. **[I-29]** |
-| Landing completes, *then* readiness settles | `landingHeld` is already `false`, so `retarget()` is not called. The join re-anchors and pins. **[F-16]** |
+| `retarget()` throws | Best-effort report. The runner is _not_ destroyed — the join destroys it anyway and the pin is computed fresh, so a misbehaving runner cannot affect the final position. **[I-29]** |
+| Landing completes, _then_ readiness settles | `landingHeld` is already `false`, so `retarget()` is not called. The join re-anchors and pins. **[F-16]** |
 | `activation.effect` throws after the placeholder is inserted | The removal disposer was registered first, so the presentation lifetime still owns it. **[I-30, F-18]** |
-| A `beforeMove` hook throws | `FAILURE_PLACEHOLDER_MOVE` from the *committed* state — the insertion stands, the transition is not reverted, recovery is home. **[I-18]** |
+| A `beforeMove` hook throws | `FAILURE_PLACEHOLDER_MOVE` from the _committed_ state — the insertion stands, the transition is not reverted, recovery is home. **[I-18]** |
 | `spec.retire()` throws | Reported; the remaining teardown steps still run. **[F-12]** |
 | `LandingHandle.destroy()` throws during `controller.destroy()` | Reported; lifetimes, the frame task, ingress and queue state are still released. Per-attempt cleanup is individually wrapped, same policy as the join. |
 | `release.effect` throws | `FAILURE_RELEASE` from the committed state, and the staged command is **not** executed — `onReorder` never runs. **[F-27]** |

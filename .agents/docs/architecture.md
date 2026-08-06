@@ -109,19 +109,19 @@ landing finished or skipped   AND   authored presentation ready
 
 The two run **concurrently**. A consumer that commits quickly overlaps the landing animation; whichever finishes first waits for the other.
 
-**Why this is not just `await` inside the callback.** `onReorder`/`onDrop` already return `MaybePromise`, so a consumer could await its own commit before returning `accepted`. That is not equivalent and must not be "simplified" into one: landing is only prepared *after* the resolution settles, so awaiting inside the callback serializes the consumer's render ahead of the animation and makes every drop feel laggy. The separate field is what buys concurrency.
+**Why this is not just `await` inside the callback.** `onReorder`/`onDrop` already return `MaybePromise`, so a consumer could await its own commit before returning `accepted`. That is not equivalent and must not be "simplified" into one: landing is only prepared _after_ the resolution settles, so awaiting inside the callback serializes the consumer's render ahead of the animation and makes every drop feel laggy. The separate field is what buys concurrency.
 
 **Why the barrier is required, not merely an optimization.** Committing at intent time and relying on the landing animation to cover the render is a race, and there are cases where the race is already lost:
 
 - Under `prefers-reduced-motion`, recovery is `RECOVERY_IMMEDIATE` → `LANDING_SKIPPED`, and settlement completes synchronously — a zero-width window.
-- An accepted *free* drop always takes `RECOVERY_IMMEDIATE`, so it never had a landing to hide behind.
+- An accepted _free_ drop always takes `RECOVERY_IMMEDIATE`, so it never had a landing to hide behind.
 - A busy main thread or a concurrent render can lose the race even when a landing does run.
 
 Without the barrier the consumer's DOM is revealed before it exists and the collection visibly snaps back to its pre-drag order for a frame.
 
 **Ownership.** The kernel never observes slots, mutations, collections, or framework state; readiness is an explicit consumer acknowledgement. `kernel/presentation-ready.ts` owns only the waiting: `ResolutionCurrency` tagging (so a promise from an abandoned gesture cannot resolve into the next one) and a bounded `PRESENTATION_READY_TIMEOUT` (500 ms). A rejected or timed-out acknowledgement is a `presentation-ready` failure reported through `onError`; recovery switches to home, because the destination authored presentation cannot be assumed to exist. Cleanup always runs — a late render is a glitch, a stranded gesture is a broken component.
 
-Adapters supply the promise however suits them: React resolves it from `useLayoutEffect` (see `sortable.stories.tsx`), a slot-based web component after the relevant `slotchange`, an imperative consumer immediately after mutating the DOM. `onFinish` stays genuinely terminal — after landing *and* presentation cleanup.
+Adapters supply the promise however suits them: React resolves it from `useLayoutEffect` (see `sortable.stories.tsx`), a slot-based web component after the relevant `slotchange`, an imperative consumer immediately after mutating the DOM. `onFinish` stays genuinely terminal — after landing _and_ presentation cleanup.
 
 ## Extension points
 

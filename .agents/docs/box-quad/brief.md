@@ -46,11 +46,7 @@ Do not implement a runtime `display` whitelist. The contract is “one unfragmen
 One entrypoint:
 
 ```ts
-import {
-  readBoxQuad,
-  type BoxQuadCache,
-  type Quad,
-} from '@ydinjs/box-quad';
+import { readBoxQuad, type BoxQuadCache, type Quad } from '@ydinjs/box-quad';
 ```
 
 ### Output
@@ -156,8 +152,7 @@ Consumers create the cache identity directly:
 const cache: BoxQuadCache = new WeakMap();
 ```
 
-The package owns the opaque values stored in the map. Consumers own the map's
-identity and lifetime but must not inspect or mutate entries.
+The package owns the opaque values stored in the map. Consumers own the map's identity and lifetime but must not inspect or mutate entries.
 
 Example:
 
@@ -169,9 +164,7 @@ readBoxQuad(second, secondOut, canvas, cache);
 readBoxQuad(third, thirdOut, canvas, cache);
 ```
 
-One map identity defines one potentially stale measurement epoch. Consumers
-start a fresh epoch by passing a new `WeakMap`; omitting the cache always
-performs a fresh uncached read.
+One map identity defines one potentially stale measurement epoch. Consumers start a fresh epoch by passing a new `WeakMap`; omitting the cache always performs a fresh uncached read.
 
 Cache completed local-to-viewport coordinate spaces, not merely `DOMRect`. Compute inverse lazily when an element is used as `relativeTo`. Reuse common ancestors where practical. Do not keep a global immortal cache.
 

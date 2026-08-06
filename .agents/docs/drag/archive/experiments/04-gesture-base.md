@@ -498,18 +498,13 @@ Preserve the complete existing suite and add/retain focused regressions for:
 
 Record exact Brotli bytes for:
 
-Measured on the Rolldown size-limit preset. Two prerequisite snapshots were
-taken (each a separate, isolated step) before the inheritance delta, per the
-agreed sequence:
+Measured on the Rolldown size-limit preset. Two prerequisite snapshots were taken (each a separate, isolated step) before the inheritance delta, per the agreed sequence:
 
 - **A** — current `main` plus the pending presentation-watch `destroy()` fix.
-- **B** — A plus promoting the six settlement-lifecycle tags (`LANDING_STARTED`,
-  `LANDING_FINISHED`, `LANDING_PINNED`, `SETTLEMENT_FAILED`,
-  `SETTLEMENT_COMPLETED`, `PRESENTATION_SETTLED`) to `kernel/protocol.ts`.
-  `LANDING_PLAN_READY` stayed feature-local. **No `GestureBase` yet.**
+- **B** — A plus promoting the six settlement-lifecycle tags (`LANDING_STARTED`, `LANDING_FINISHED`, `LANDING_PINNED`, `SETTLEMENT_FAILED`, `SETTLEMENT_COMPLETED`, `PRESENTATION_SETTLED`) to `kernel/protocol.ts`. `LANDING_PLAN_READY` stayed feature-local. **No `GestureBase` yet.**
 - **04c** — B plus the inherited `Gesture` base (both features migrated).
 
-| bundle    | pure `main` | A (destroy fix) | B (tags promoted) | 04c   |
+| bundle    | pure `main` | A (destroy fix) | B (tags promoted) |   04c |
 | --------- | ----------: | --------------: | ----------------: | ----: |
 | draggable |        6.55 |            6.55 |              6.57 |  6.93 |
 | sortable  |        7.70 |            7.71 |              7.71 |  8.11 |
@@ -519,9 +514,9 @@ Deltas (kB brotlied):
 
 | bundle    | tag promotion (B − A) | inheritance (04c − B) | total (04c − A) |
 | --------- | --------------------: | --------------------: | --------------: |
-| draggable |                 +0.02 |            **+0.36**   |          +0.38  |
-| sortable  |                 +0.00 |            **+0.40**   |          +0.40  |
-| combined  |                 +0.05 |            **+0.32**   |          +0.37  |
+| draggable |                 +0.02 |             **+0.36** |           +0.38 |
+| sortable  |                 +0.00 |             **+0.40** |           +0.40 |
+| combined  |                 +0.05 |             **+0.32** |           +0.37 |
 
 Accept 04c only when all of the following hold:
 
@@ -551,62 +546,31 @@ It does not ask whether inheritance is aesthetically preferable, whether the red
 
 **Status:** implemented in full, measured, rejected on bytes.
 
-The architecture was built exactly as specified: one stateful `Gesture` base
-owning the shared settlement/landing/presentation tail; two concrete children
-keeping their own native `#private` state; Parent → Child behaviour resolved
-once through `createProtectedMethod` singletons cached in `#private` fields;
-Child → Parent lift/renderer access through mutable-export friends assigned in
-the base static block. The narrow `SettlementLifecycleEvent` dispatch made every
-base-emitted event a structural subset of each feature union, so **no runtime
-cast appears at any dispatch site**. `isolatedDeclarations` passes, `tsc` passes,
-and the full 292-test suite passes with both features on the base.
+The architecture was built exactly as specified: one stateful `Gesture` base owning the shared settlement/landing/presentation tail; two concrete children keeping their own native `#private` state; Parent → Child behaviour resolved once through `createProtectedMethod` singletons cached in `#private` fields; Child → Parent lift/renderer access through mutable-export friends assigned in the base static block. The narrow `SettlementLifecycleEvent` dispatch made every base-emitted event a structural subset of each feature union, so **no runtime cast appears at any dispatch site**. `isolatedDeclarations` passes, `tsc` passes, and the full 292-test suite passes with both features on the base.
 
 It still lost on every bundle. Against the acceptance gate:
 
-1. tests / typecheck / `isolatedDeclarations` pass; one non-auto-fixable lint
-   remains (`no-invalid-void-type` on the `void` generic argument of the channel
-   `Call`/`Register` aliases — type-only, zero bundle impact);
-2. **combined has no reduction — it *grew* +0.32 kB** → **fails**;
+1. tests / typecheck / `isolatedDeclarations` pass; one non-auto-fixable lint remains (`no-invalid-void-type` on the `void` generic argument of the channel `Call`/`Register` aliases — type-only, zero bundle impact);
+2. **combined has no reduction — it _grew_ +0.32 kB** → **fails**;
 3. **both standalone bundles regress ~+0.36–0.40 kB (~5%)** → **fails**.
 
 Gates 2 and 3 are decisive, so 04c is rejected.
 
 ### Why the bytes lost
 
-The same mechanism that sank 04a (composition) and 04b (stateless behaviours):
-on this toolchain (oxc/Rolldown minifier + Brotli) the two-copy settlement tail
-is **already deduplicated by Brotli** — the second near-identical copy costs a
-fraction of the first. Removing it via a shared base saves that fraction but adds
-apparatus that is not deduplicable away:
+The same mechanism that sank 04a (composition) and 04b (stateless behaviours): on this toolchain (oxc/Rolldown minifier + Brotli) the two-copy settlement tail is **already deduplicated by Brotli** — the second near-identical copy costs a fraction of the first. Removing it via a shared base saves that fraction but adds apparatus that is not deduplicable away:
 
-- six `createProtectedMethod` channels, each a `WeakMap` plus a prototype-walk
-  resolver;
+- six `createProtectedMethod` channels, each a `WeakMap` plus a prototype-walk resolver;
 - six resolved-call `#private` fields written in every constructor;
 - twelve registration thunks (six per child) plus the generic base scaffolding;
 - the friend accessors and the narrow-dispatch plumbing.
 
-Notably 04c is **worse than 04a** (composition was +0.16 kB combined from an
-un-promoted baseline; the inheritance apparatus here is heavier than 04a's
-per-instance hook objects). The protected-channel machinery — chosen for its
-single-prototype-lookup hot path — costs more static bytes than it saves.
+Notably 04c is **worse than 04a** (composition was +0.16 kB combined from an un-promoted baseline; the inheritance apparatus here is heavier than 04a's per-instance hook objects). The protected-channel machinery — chosen for its single-prototype-lookup hot path — costs more static bytes than it saves.
 
-The type-erasure friction the design anticipated was real but *not* the cause of
-the loss: it was contained to one `this → BaseGesture` narrowing per calling
-method and one `as`-narrow per registration thunk, with all feature logic keeping
-concrete types. Even a hypothetically cast-free version would carry the same
-channel/thunk apparatus and lose by a similar margin.
+The type-erasure friction the design anticipated was real but _not_ the cause of the loss: it was contained to one `this → BaseGesture` narrowing per calling method and one `as`-narrow per registration thunk, with all feature logic keeping concrete types. Even a hypothetically cast-free version would carry the same channel/thunk apparatus and lose by a similar margin.
 
 ### Disposition
 
-Consistent with 04a/04b: **revert.** The two prerequisite snapshots are also net
-negative in isolation — the tag promotion (B) costs +0.05 kB combined with no
-inheritance to amortise it, so it should be reverted together with the base. The
-only piece worth keeping independently is the `destroy()` presentation-watch
-disposal (snapshot A): it is a genuine correctness fix (a pending presentation
-watch was not disposed on controller destroy) at ~+0.01 kB, unrelated to the
-inheritance question.
+Consistent with 04a/04b: **revert.** The two prerequisite snapshots are also net negative in isolation — the tag promotion (B) costs +0.05 kB combined with no inheritance to amortise it, so it should be reverted together with the base. The only piece worth keeping independently is the `destroy()` presentation-watch disposal (snapshot A): it is a genuine correctness fix (a pending presentation watch was not disposed on controller destroy) at ~+0.01 kB, unrelated to the inheritance question.
 
-Track B is now exhausted: representation-compression levers (01 tuples, 02
-module-functions, 03 packed protocol) and mechanics-sharing levers (04a
-composition, 04b behaviours, 04c inheritance) all regress on this toolchain,
-because Brotli already captures the redundancy each was trying to remove.
+Track B is now exhausted: representation-compression levers (01 tuples, 02 module-functions, 03 packed protocol) and mechanics-sharing levers (04a composition, 04b behaviours, 04c inheritance) all regress on this toolchain, because Brotli already captures the redundancy each was trying to remove.
