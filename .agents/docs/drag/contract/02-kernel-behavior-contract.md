@@ -302,7 +302,7 @@ type BehaviorSpec<
    * committed pointer and the visual are still truthful and the checkpoint
    * chooses recovery from there.
    */
-  moved(current: Readonly<Frame<Part>>, lift: VisualLiftSession): void;
+  moved(current: Readonly<Frame<Part>>, lift: BehaviorLiftSession): void;
 
   /**
    * Produce the viewport point the lifted visual should end at. (D-16)
@@ -423,7 +423,7 @@ Five rules make the pointerless half well defined:
 
 D-32 says the destination gap travels in the draft, as ordinary behavior frame state, and that from `ACTIVATE` on the command reuses the pointer path. Both are true of the _kernel_. Neither was true of the **sortable seams** as this document specified them, and Checkpoint C pass 4 (C4-01) found the gap: the same normative activation seeded home unconditionally, and the same normative release re-resolved spatially from a pointer sample a command does not have. A command's destination was written into the draft and then destroyed twice.
 
-Nothing about the SPI changes here. `pointerId` is already on the frame, already kernel-written, already normative as the pointerless discriminant (I-33), and already visible to the behavior through `Draft`'s readonly kernel slice. **The branch is the behavior's, and it is two seams:**
+Nothing about the SPI changes here. `pointerId` is already on the frame, already kernel-written, already normative as the pointerless discriminant (I-33), and already visible to the behavior through `Draft`'s readonly kernel slice. **The branch is the behavior's, and it is three seams** — `activation.prepare`, `release.prepare` and `release.effect`:
 
 ```text
 activation.prepare
@@ -435,6 +435,12 @@ release.prepare
                 fall back: resolved → incumbent → home
     pointerless draft.insertion stands; no invalidation, no spatial resolve
                 null here is a SeamRejection, never a home fallback
+
+release.effect
+    both        movePlaceholder(view, insertion)     ← home becomes destination
+    pointer     lift.write(pointerX - originX, pointerY - originY)
+    pointerless — no lift write —
+    both        publish the request
 ```
 
 Three consequences worth stating, because each is a place the naive reading goes wrong:
@@ -520,7 +526,11 @@ An earlier draft abandoned `ACTIVATING` cancels with no callbacks, on the ground
 
 ## Capabilities passed at call time
 
-The kernel grants exactly what a seam needs, as arguments. Behavior code _can_ stash one — nothing stops it retaining an `ActivationScope` — so the guarantee is not "it cannot be kept" but that **every capability becomes closed and late-use-safe** once its operation ends: a `LifetimeScope` whose lifetime has disposed invokes a late `use()` disposer immediately, and a `SettlementScope` past sealing ignores and reports a late hold.
+The kernel grants exactly what a seam needs, as arguments. Behavior code _can_ stash one — nothing stops it retaining an `ActivationScope` — so the guarantee is not "it cannot be kept" but that a retained capability is **inert or self-reporting** once its operation ends. That holds for the two lifetime-shaped ones: a `LifetimeScope` whose lifetime has disposed invokes a late `use()` disposer immediately, and a `SettlementScope` past sealing ignores and reports a late hold.
+
+**It does not hold for `BehaviorLiftSession.write`, and this document previously implied it did** (Checkpoint C, C6-01). A retained `write` stays callable and stays effective: it composes against the session's base transform and assigns, with no phase test and no operation check. Calling it after `LandingContext.from` has been sampled fights the landing runner for the same property; calling it after retirement writes a transform onto an element the kernel no longer manages. Neither is refused, and **the kernel will not refuse them** — see §The temporal rule on `write` under §The landing origin for why a guard is the wrong instrument here.
+
+So the honest statement is: **two of the three retained capabilities are late-use-safe; the lift capability is governed by a temporal rule instead.**
 
 ### `ActivationScope`
 
@@ -528,19 +538,37 @@ The kernel grants exactly what a seam needs, as arguments. Behavior code _can_ s
 /** The same physical `Lifetime`, with `dispose` projected away. */
 type LifetimeScope = Readonly<Pick<Lifetime, 'signal' | 'use' | 'useWhile'>>;
 
+/**
+ * The same physical `VisualLiftSession`, **positively projected** to the four
+ * members a behavior may use. `rendered` and `dispose` are kernel-only.
+ */
+type BehaviorLiftSession = Readonly<
+  Pick<VisualLiftSession, 'visual' | 'baseTransform' | 'compose' | 'write'>
+>;
+
 type ActivationScope = Readonly<{
   /** The element the kernel is lifting — what `admit` returned. */
   visual: HTMLElement;
   /** Its viewport rect at grab. Basis for every landing measurement. */
   originRect: DOMRectReadOnly;
-  /** The lift session. The behavior keeps it for `moved`. */
-  lift: VisualLiftSession;
+  /** The lift capability. The behavior keeps it for `moved`. */
+  lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */
   motion: LifetimeScope;
   /** Closed at finalization, after both gates. */
   presentation: LifetimeScope;
 }>;
 ```
+
+**The lift is projected for the same reason the lifetime is** (Checkpoint C, C5-01). An earlier version of this revision handed the behavior the whole `VisualLiftSession` and asserted in prose that `rendered` was "kernel-read only" and that the kernel owned disposal. Neither was true of the type. `dispose()` in particular is not a reading hazard but a **sequencing** one: a behavior that calls it from `activation.effect` or `moved` restores the inline-style lease — and, in a lifted mode, the top-layer lease — while the session's recorded delta still describes its last `write`. The landing then samples `from` for a visual that is no longer lifted. That is I-34 broken **through a first-class SPI method**, not through a documented residue, and the difference matters: a residue is a rule the contract states and a participant may break, while this was the API handing out the thing it claims to own.
+
+The projection removes `rendered` and `dispose`. It does **not** remove the two residues that remain, and this section no longer claims a count: writing `visual.style.transform` directly, and calling `write` outside its window (§The temporal rule on `write`).
+
+The projection is a type-level `Pick`; the kernel passes the _same physical object_ under the narrower type, so it costs no allocation — the identical argument §`dispose()` is projected away already makes for `Lifetime`.
+
+**Positively selected, not `Omit`-ed.** The list says what a behavior may do rather than what it may not, so a member added to `VisualLiftSession` later is kernel-only by default instead of leaking until someone remembers to exclude it.
+
+The direct `style.transform` write stays the honest tier-C residue (I-34). The disposer does not.
 
 One object per operation. `prepare` reads `visual` and `originRect`; `effect` uses the rest. `Lifetime` is unchanged from the shipped package: an `AbortSignal`, a disposer stack, a latched best-effort LIFO `dispose()`, `use(disposer)` and `useWhile(guard, disposer)`.
 
@@ -768,7 +796,8 @@ A stale or forged request is ignored and reported **by the behavior**, on the id
 | --- | --- |
 | while the **latch is already set** (early window) | inert; the latch is a boolean and setting it twice changes nothing. Reported as a duplicate |
 | while the **readiness hold is armed** and not yet settled | the ordinary release, once — see the claim-then-dispatch rule below |
-| **after** the hold has settled — by acknowledgement, deadline or teardown | inert; nothing is released, no hold count moves. Reported as a duplicate |
+| **after** the hold has settled — by acknowledgement, deadline or teardown | inert; nothing is released, no hold count moves. Reported as a duplicate, **not** as a contradiction — see the row order above |
+| **across the early-to-armed boundary**: acknowledged early, then again re-entrantly during arm before the queued release drains | inert and reported as a **duplicate**. Arm claimed `readinessSettled` before dispatching, so the arrival rule's first test — *`readinessSettled` already claimed ⇒ duplicate* — decides it, ahead of both the armed-release test and the absent-hold contradiction test |
 
 ##### The armed window has an interior, and the latch is claimed at its entrance
 
@@ -802,10 +831,12 @@ The kernel still has to accept an acknowledgement that arrives _early_ — befor
 | When `presentationCommitted()` arrives | What the kernel does |
 | --- | --- |
 | while a **resolution attempt is open** (`RELEASING`, `invoke` running or settled-but-unconsumed) | latch it on that attempt; the settlement copies the latch when it is created, and arming dispatches `READINESS_SETTLED` immediately |
+| **`readinessSettled` is already claimed** — by an earlier `ready()`, by arm's copy of the early latch, or by the deadline | inert. No dispatch, no release. Reported as a **duplicate** |
 | while the **readiness hold is armed** (`SETTLING`) and `readinessSettled` is not yet claimed | claim `readinessSettled`, **then** dispatch `READINESS_SETTLED` — in that order, synchronously, at the call |
-| while the hold is armed and `readinessSettled` **is** claimed — including by a first `ready()` in this same drain, whose action has not run yet | inert. No second dispatch, no second release. Reported as a duplicate |
-| at `SETTLING` with **no** readiness hold — the resolution declared no presentation | reported as **contradictory** and then dropped. It releases nothing, adds nothing, and the settlement outcome is unchanged |
+| at `SETTLING`, latch unclaimed, with **no** readiness hold — the resolution declared no presentation | reported as **contradictory** and then dropped. It releases nothing, adds nothing, and the settlement outcome is unchanged |
 | anywhere else — `IDLE`, `PENDING`, `ACTIVE`, after retirement | ignored, and reported on the platform channel |
+
+**The order of those rows is normative** (Checkpoint C, C5-02). `readinessSettled` is tested **first**, before "no hold ⇒ contradictory", because after a valid release the two states are indistinguishable by hold alone: the phase is still `SETTLING` while landing is outstanding, `readinessHeld` is now `false`, and a presentation _was_ declared. Classifying by the absent hold would report a plain duplicate as a consumer contradiction — telling a consumer that acknowledged correctly, twice, that it acknowledged something it never declared. Only an **unclaimed** acknowledgement with no declared gate is contradictory.
 
 The latch lives on the **resolution attempt** because that is the only kernel-private per-operation object that exists at the moment an early acknowledgement can arrive. It is consumed once and dies with its attempt.
 
@@ -818,11 +849,18 @@ seal:
       report a contradictory acknowledgement
       attempt.presentationLatched = false
 arm:
-  attempt.presentationLatched ? dispatch(READINESS_SETTLED)
-                              : start the readiness deadline
+  if (attempt.presentationLatched)
+      attempt.readinessSettled = true      ← CLAIMED before the dispatch
+      dispatch(READINESS_SETTLED)
+  else
+      start the readiness deadline
 ```
 
 Discarding at seal is what lets `arm` read the latch as an unconditional release: after seal, a set latch always has a hold to release.
+
+**And arm claims the once-only latch, exactly as the live armed path does** (Checkpoint C, C5-02). This is the same rule in the other window, and it was missing here: arm dispatched the copied early latch while leaving `readinessSettled` false, so a re-entrant `ready(request)` during the remainder of arm — behavior or runner code reached through `anchorTarget` or `start` — found an unclaimed latch, claimed it, and queued a **second** `READINESS_SETTLED`. With a landing hold still outstanding the attempt is still `SETTLING` after the first action releases readiness, so the second releases and decrements it again.
+
+The rule is therefore stated once and holds on **every** dispatch path: _nothing dispatches `READINESS_SETTLED` without first claiming `attempt.readinessSettled`, and a call that finds it already claimed is a reported duplicate._ The handler checks currency and phase only; the latch is never its guard.
 
 The rule is scoped to a **successful** seal. If `settlement.effect` threw, or the operation was invalidated, every unarmed request is dropped and the latch dies with them **silently** — that contradiction belongs to the seam, not to the consumer, and the queued failure checkpoint is already reporting it. **[F-27]**
 
@@ -932,6 +970,15 @@ The gate methods **record a request; they arm nothing** (review 4, §6, §10). A
     arm → ARM_ARMED | ARM_STALE | ARM_FAILED
           if (readinessHeld)
                           if (presentationLatched)
+                                attempt.readinessSettled = true
+                                ── CLAIMED FIRST, then dispatched — the same
+                                   order `presentationCommitted()` uses in the
+                                   live armed window. Without it, a re-entrant
+                                   `ready()` during the rest of arm (reached
+                                   through `anchorTarget` or `start`) finds an
+                                   unclaimed latch and queues a SECOND release
+                                   against an attempt that is still SETTLING
+                                   because landing is outstanding.     [C5-02]
                                 dispatch(READINESS_SETTLED, attempt)
                                 ── the consumer committed synchronously, before
                                    the settlement existed. DISPATCHED, never
@@ -1136,6 +1183,20 @@ Probe [13c](../probes/13c-free-drag.md) N-2 found `LandingContext.from` computed
 The consequence is the signature of this bug class: **the landing opens with a jump and still ends correctly**, because the _target_ is behavior-supplied through `anchorTarget` and the kernel re-pins at the join. Phase 11 found the same shape in the lift geometry, where every test passed throughout.
 
 **The fix adds no seam.** `VisualLiftSession` is the kernel's own object and `write(x, y)` — compose, then assign — is the library's only rendering entry point during an operation, so the session records the delta it last wrote and the kernel reads it. `compose(x, y)` remains a pure string builder for a runner and records nothing: composing is not rendering.
+
+**And the behavior never holds the whole session.** It is handed a `BehaviorLiftSession` — `visual`, `baseTransform`, `compose`, `write` — so it can neither read `rendered` nor call `dispose()`. Both would falsify the recorded delta rather than merely observe it, and the second would do so through a first-class method. See §`ActivationScope`.
+
+#### The temporal rule on `write`
+
+`write` is the one granted capability whose correctness depends on **when** it is called, not only on who holds it. Structural projection cannot express that: the member has to exist, because rendering is what a behavior is for. A retained `BehaviorLiftSession` therefore stays callable and stays *effective* — `write` composes against the base transform and assigns, with no phase test and no operation check.
+
+> **A behavior may call `lift.write` only before `LandingContext.from` is sampled.** After the landing context is built, the runner is the deliberate writer until its `destroy()`; after retirement, the session belongs to no live operation. A `write` in either window is **outside the contract**, and `from`, the landing trajectory and the join pin are not defined for it.
+
+This is **tier C**, and it is a *second* tier-C rule rather than a restatement of the first. The two are different mistakes: a direct `style.transform` write is *rendering by another route*; a late `write` is *rendering at the wrong time* through the sanctioned route. Both leave the visual and the kernel's model of it disagreeing, and neither is prevented.
+
+**No guard is added, and that is a decision** (Checkpoint C, C6-01). A phase or operation test inside `write` would put a branch on the one path M-1 measures and F-8 accounts for, to defend against a bug no reference behavior has — and it would convert a contract violation into a **silent** no-op. Silent is the worse failure: a behavior that writes late and sees nothing happen has a harder defect to find than one whose visual visibly fights the landing. If a real behavior ever does this, the cheap instrument is a `DEV`-only report at the call site, not a production branch. Recorded, not built.
+
+The reference behavior obeys the rule by construction: every `lift.write` it issues is inside `moved` or `release.effect`, and the kernel calls both before the settlement arms — therefore before `from` exists.
 
 Earlier drafts of this document and of [06](06-vertical-sortable-trace.md) showed the behavior composing and assigning in two steps (`lift.visual.style.transform = lift.composeXY(dx, dy)`). The implementation has had one `write(x, y)` since phase 6 and the prose had not caught up; the correction is recorded here because D-35 depends on it. The hot-path accounting is unchanged — three post-`MOVE` indirect calls, now `spec.moved`, `lift.write`, `frame.schedule` — and F-8's number stands.
 

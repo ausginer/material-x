@@ -216,7 +216,12 @@ type SortableRuntime = {
   /** The per-operation object both feature views bind to. Null when idle. */
   view: PresentationView | null;
   placeholder: HTMLElement | null;
-  lift: VisualLiftSession | null; // handed in at activation, cleared at retire
+  /**
+   * The **projected** capability (`visual`, `baseTransform`, `compose`,
+   * `write`), handed in at activation and cleared at retire. Never the whole
+   * session: `rendered` and `dispose` are kernel-only (D-35, C5-01).
+   */
+  lift: BehaviorLiftSession | null;
   /**
    * The exact `ReorderRequest` object this operation handed `onReorder`.
    * Published by `release.effect` before the kernel executes the round-trip,
@@ -250,7 +255,7 @@ Note what is _not_ here: `rects`. The geometry cache lives inside `vertical()` (
 | **Pointer capture** (on `root`, acquired at activation) | kernel (D-17) | nothing |
 | Ingress listeners — `pointerdown`, plus each `command.types` entry | kernel (D-32) | behavior, as the _declaration_ of which types to bind; never as a registration |
 | `preventDefault()` on an admitted ingress event | kernel (D-32, C-03) | nothing — the behavior answers feasibility with its return value |
-| Lift session + inline-style snapshot + **the last rendered delta** | kernel (acquires, disposes, records) | behavior, as an activation-scope field and a `moved` argument; the recorded delta is kernel-read only (D-35) |
+| Lift session + inline-style snapshot + **the last rendered delta** | kernel (acquires, disposes, records) | behavior, as a **`BehaviorLiftSession`** — `visual`, `baseTransform`, `compose`, `write` and nothing else. `rendered` is kernel-read; `dispose` is kernel-sequenced. The behavior can neither sample the delta nor unwind the lift (D-35; Checkpoint C, C5-01) |
 | `originRect` | kernel | behavior, as an activation-scope argument |
 | Resolution attempt, including the **early-acknowledgement latch**; settlement attempt including **both gate holds** and the readiness deadline | kernel (D-7, D-33) | nothing. The consumer acknowledges through the controller and the behavior checks request identity; no settlement object crosses either boundary |
 | The authoritative final pin | kernel, via the lift it owns (D-16) | — |

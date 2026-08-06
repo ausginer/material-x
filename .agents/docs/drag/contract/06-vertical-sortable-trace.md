@@ -402,10 +402,18 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                               an unconditional release.        [D-33, C3-01]
 
                       ── ARM: the complete gate plan is now known ──
-                      [K] presentationLatched? → dispatch(READINESS_SETTLED)
+                      [K] presentationLatched? → attempt.readinessSettled = true
+                                                 dispatch(READINESS_SETTLED)
                             ← set if the consumer already acknowledged, which a
                               synchronous renderer does before onReorder even
                               returns. DISPATCHED, never released inline.
+                            ← CLAIMED BEFORE THE DISPATCH, on the same rule the
+                              live armed path uses. anchorTarget and start run
+                              below, both are foreign code, and a re-entrant
+                              ready() from either would otherwise find an
+                              unclaimed latch and queue a second release
+                              against an attempt still SETTLING for landing.
+                                                                       [C5-02]
                             ← unconditional by construction: seal has already
                               discarded a latch with no hold behind it, so
                               anything still set here has a gate to release.
@@ -619,7 +627,7 @@ What the same trace does under each difficult case, without adding a branch anyw
 | A landing runner calls `done()` synchronously inside `start` | The hold was reserved before `start` was called, so the completion is queued against a real hold; the handle is stored before the queued completion can be applied. **[F-21]** |
 | `startLanding` throws | The reserved hold is rolled back, `FAILURE_LANDING_CREATE` is classified, arm returns `ARM_FAILED`, and the original settlement neither advances nor calls its terminal callback. The failure checkpoint owns recovery while presentation remains held. **[D-28, F-35]** |
 | An arrow key on an edge item | `command.admit` computes the destination gap, finds `null`, returns `null`. The kernel does not prevent the default, so no operation is minted, no phase changes, and the key keeps its native meaning. Feasibility was answered inside the listener, which is the whole of what D-32 buys. **[D-32, I-32]** |
-| An arrow key on a movable item | `command.admit` writes item, snapshot and destination gap into the draft and returns the visual. The kernel prevents the default, mints a pointerless operation (`pointerId === -1`), commits `PENDING`, queues `ACTIVATE`; `START_COMMITTED` queues `RELEASE`. **Two seams branch on `pointerId` and the rest of this trace applies verbatim:** `activation.prepare` preserves the command's gap instead of seeding home, and `release.prepare` takes it as committed instead of re-resolving spatially. An earlier version of this row said the trace applied verbatim _from `release.prepare` on_, which was wrong at both ends — the seed had already overwritten the gap and the re-resolve would have replaced it from `pointerY === 0`. **[D-32, C4-01]** |
+| An arrow key on a movable item | `command.admit` writes item, snapshot and destination gap into the draft and returns the visual. The kernel prevents the default, mints a pointerless operation (`pointerId === -1`), commits `PENDING`, queues `ACTIVATE`; `START_COMMITTED` queues `RELEASE`. **Three seams branch on `pointerId` and the rest of this trace applies verbatim:** `activation.prepare` preserves the command's gap instead of seeding home, `release.prepare` takes it as committed instead of re-resolving spatially, and `release.effect` moves the placeholder but performs no lift write. An earlier version of this row said the trace applied verbatim _from `release.prepare` on_, which was wrong at both ends — the seed had already overwritten the gap and the re-resolve would have replaced it from `pointerY === 0` — and then said "two seams" while the branch was already three. **[D-32, C4-01, C5-05]** |
 | A handle resolver dispatches `updateItems()` from inside `command.admit` | Enqueued without draining, exactly as from inside `admit`: the ingress boundary is one shared latch across both listeners, and the queue drains once admission has committed or abandoned. **[I-1, D-32]** |
 | A feature retire hook throws | Reported; the remaining hooks still run, in reverse installation order. **[F-22]** |
 | A feature factory throws mid-`assemble()` | The retire hooks collected so far run in reverse, each wrapped, and the error propagates. No controller is returned. **[F-19]** |

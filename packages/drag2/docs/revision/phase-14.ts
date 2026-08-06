@@ -34,10 +34,10 @@
  * `npx just typecheck` from `packages/drag2` asserts both halves: the positive
  * shapes compile, and each negative one still does not.
  *
- * **Eleven negative assertions and one positive shape check** (`n12`, the
- * seven-field kernel frame). The plan said twelve directives; there are eleven,
- * and counting a positive assignment among them overstated the negative evidence
- * by one (Checkpoint C, C4-06).
+ * **Thirteen negative assertions and one positive shape check** (`n12`, the
+ * seven-field kernel frame). The plan said twelve directives before pass 4;
+ * there were eleven, and counting a positive assignment among them overstated
+ * the negative evidence by one (C4-06). Pass 5 added `n13` and `n14`.
  *
  * ## What pass 4 added, and why it matters
  *
@@ -47,6 +47,25 @@
  * builds a `LandingContext` whose `from` *is* `lift.rendered`, and branches both
  * sortable seams on `pointerId`. Every one of those replaced a `declare` that
  * proved two aliases were compatible and nothing more.
+ *
+ * ## What pass 5 added
+ *
+ * The same lesson one level down. `BehaviorLiftSession` is now a **positive**
+ * `Pick`, so `rendered` and `dispose` are both unreachable from a behavior and
+ * `n13`/`n14` prove it; activation publishes `rt.placeholder` and `rt.lift` and
+ * inserts the placeholder **at home**, so release is what moves it to the
+ * destination and the release body reads fields this file assigns rather than
+ * asserting around fields it never did.
+ *
+ * ## What pass 6 added
+ *
+ * Ownership hygiene that the pass-5 publication created: `retire()` now clears
+ * `placeholder` and `lift` as well as `pendingRequest`, and the impossible
+ * missing-resource branch in `release.effect` **throws** instead of returning —
+ * a normal return would leave the staged `ResolutionCommand` eligible for
+ * execution, so `onReorder` would run for an operation whose presentation was
+ * never assembled. Publishing state is not free: it adds a clearing obligation
+ * and a failure path, and pass 5 added the publication without either.
  */
 import { DEV } from '../../src/kernel/dev.ts';
 import type { CancelStage, FailureStage } from '../../src/kernel/failures.ts';
@@ -89,22 +108,42 @@ type KernelVisualLiftSession = Readonly<{
 }>;
 
 /**
- * **What a behavior is handed — `rendered` projected away** (C4-02).
+ * **What a behavior is handed** (C4-02, corrected at C5-01).
  *
- * The previous fixture exposed `rendered` to the behavior as a `readonly` field
- * and called it "kernel-read only". `readonly` prevents assignment, not access,
- * so the comment claimed a property the type did not have. The projection makes
- * it true: no behavior member can read the recorded delta, which is the same
- * instrument `LifetimeScope` uses to project `dispose` away from
- * `ActivationScope`.
+ * Two members are kernel-only, for two different reasons:
  *
- * It does **not** make direct `visual.style.transform` writes unavailable — the
- * behavior holds the element through `visual` here and through
- * `ActivationScope.visual`. That prohibition stays tier-C discipline, and I-34
- * is rated for what this projection actually buys, not for what it looks like it
- * buys.
+ * - **`rendered`** — reading it is how a behavior would start mirroring the
+ *   delta into its own state, which is the duplication D-35 exists to delete.
+ * - **`dispose`** — a *sequencing* hazard, and the worse of the two. A behavior
+ *   that disposes from `activation.effect` or `moved` restores the inline-style
+ *   lease (and, in a lifted mode, the top-layer lease) while the session's
+ *   recorded delta still describes its last `write`. The landing then samples
+ *   `from` for a visual that is no longer lifted — I-34 broken through a
+ *   first-class SPI method rather than through the tier-C escape hatch.
+ *
+ * The first version of this fixture wrote `Omit<…, 'rendered'>`, which left
+ * `dispose` visible, and contract 02 handed over the whole session. **Positive
+ * selection, not `Omit`**: the list says what a behavior may do, so a member
+ * added to the session later is kernel-only by default.
+ *
+ * **Two things this projection does not do**, both tier-C residues (I-34):
+ *
+ * - direct `visual.style.transform` writes stay available — the behavior holds
+ *   the element through `visual` here and through `ActivationScope.visual`;
+ * - **`write` is retained and stays effective.** A behavior may call it only
+ *   before `LandingContext.from` is sampled; calling it after that fights the
+ *   landing runner, and calling it after `retire()` writes onto an element no
+ *   live operation owns. Neither is refused, deliberately — a phase guard would
+ *   put a branch on the hot path and turn a violation into a silent no-op
+ *   (C6-01). Structural projection cannot express a *temporal* rule, because
+ *   the member has to exist for rendering to happen at all.
  */
-type BehaviorLiftSession = Omit<KernelVisualLiftSession, 'rendered'>;
+type BehaviorLiftSession = Readonly<
+  Pick<
+    KernelVisualLiftSession,
+    'visual' | 'baseTransform' | 'compose' | 'write'
+  >
+>;
 
 type RevisedLandingContext = Readonly<{
   visual: HTMLElement;
@@ -450,6 +489,11 @@ declare function createSortableRuntime(
   host: RevisedKernelHost,
 ): SortableRuntime;
 declare function createPlaceholder(item: HTMLElement): HTMLElement;
+/** `item.after(placeholder)` — the home slot, at activation, on both paths. */
+declare function insertAtHome(
+  item: HTMLElement,
+  placeholder: HTMLElement,
+): void;
 declare function homeInsertion(item: HTMLElement): number;
 declare function invalidateInsertion(): void;
 declare function resolveInsertion(draft: Draft<SortablePart>): number | null;
@@ -572,11 +616,29 @@ export function createSortableSpec(
         return createPlaceholder(scope.visual);
       },
 
+      /**
+       * **The normative I-30 order, and the home-then-destination sequence**
+       * (C5-04). The previous fixture moved the placeholder straight to
+       * `current.insertion` here, which for a pointerless operation is already
+       * the command's destination — so the placeholder arrived before release,
+       * and the file told a different lifecycle story from 02 while being cited
+       * as the complete one.
+       *
+       * Activation inserts **at home** on both paths. Release is what moves it
+       * to the final gap. And both `rt.placeholder` and `rt.lift` are published
+       * here, so the release body below reads fields this file actually
+       * assigns rather than relying on `!` and `?.` to typecheck around them.
+       */
       effect(current, placeholder, scope): void {
+        // 1 → 2: register the release before the resource can be observed.
         scope.presentation.use(() => {
           placeholder.remove();
         });
-        movePlaceholder(placeholder, current.insertion ?? 0);
+        insertAtHome(current.item!, placeholder);
+
+        // 3: publish private-runtime references, once every resource is owned.
+        rt.placeholder = placeholder;
+        rt.lift = scope.lift;
       },
     },
 
@@ -618,10 +680,29 @@ export function createSortableSpec(
         //
         // The placeholder move is UNCONDITIONAL — a command reorders too — and
         // only the lift write is branched on the pointerless discriminant.
-        movePlaceholder(rt.placeholder!, current.insertion ?? 0);
+        // This is where home becomes the destination, on both paths;
+        // `activation.effect` published the placeholder at home (C5-04).
+        const { placeholder, lift } = rt;
+
+        if (placeholder === null || lift === null) {
+          // Activation published both, so reaching here without them is a
+          // broken invariant — stated rather than asserted away with `!`.
+          //
+          // It **throws** rather than returning (C6-02). A normal return would
+          // leave the staged `ResolutionCommand` eligible for execution, so the
+          // consumer's `onReorder` would run for an operation whose
+          // presentation was never assembled. Throwing here is
+          // `FAILURE_RELEASE` from the committed state, and the contract's rule
+          // for that is exact: the staged command is **not** executed.
+          throw new Error(
+            'drag: release.effect reached without a presentation',
+          );
+        }
+
+        movePlaceholder(placeholder, current.insertion ?? 0);
 
         if (current.pointerId !== -1) {
-          rt.lift?.write(
+          lift.write(
             current.pointerX - current.originX,
             current.pointerY - current.originY,
           );
@@ -687,7 +768,17 @@ export function createSortableSpec(
     finalized(): void {},
     reportFailure(): void {},
 
+    /**
+     * Drops **every** per-operation reference the spec published, not only the
+     * acknowledgement identity (C6-02). `activation.effect` publishes
+     * `placeholder` and `lift`; retiring without clearing them would retain a
+     * detached element and a dead lift capability for the controller's life,
+     * and would let the next operation's `release.effect` read the previous
+     * one's resources instead of failing the check above.
+     */
     retire(): void {
+      rt.placeholder = null;
+      rt.lift = null;
       rt.pendingRequest = null;
     },
   };
@@ -1006,6 +1097,25 @@ export const n11 = (): void => {
   // @ts-expect-error — `ready` requires the request it acknowledges.
   sortableController.ready();
 };
+
+/**
+ * **The behavior cannot sample the recorded delta** (C5-01). If it could, D-35's
+ * "the behavior supplies nothing" would be a convention rather than a type.
+ */
+declare const activationScope: RevisedActivationScope;
+
+// @ts-expect-error — `rendered` is kernel-only on the projected session.
+export const n13: unknown = activationScope.lift.rendered;
+
+/**
+ * **Nor unwind the lift it was handed.** This is the one C5-01 called a blocker:
+ * `dispose()` is a sequencing capability, not a reading one, and a behavior
+ * holding it can restore the visual while the recorded delta still describes its
+ * last `write` — breaking I-34 through a first-class method rather than through
+ * the documented tier-C escape hatch.
+ */
+// @ts-expect-error — `dispose` is kernel-sequenced, exactly as `Lifetime`'s is.
+export const n14: unknown = activationScope.lift.dispose;
 
 /** The kernel slice is untouched by the revision: still seven fields. */
 export const n12: KernelFrame = {
