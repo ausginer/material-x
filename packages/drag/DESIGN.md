@@ -1,6 +1,6 @@
 # `@ydinjs/drag` architecture
 
-This documents the architecture that ships. It replaces the entity catalogue that described the previous reducer/effect design; that design and its migration are archived under `.agents/docs/drag/`.
+This documents the architecture that ships. It replaces the entity catalogue that described the previous reducer/effect design; that design and its migration are archived under `.plan/`.
 
 The package is an **imperative, action-driven state machine over one runtime container with two transactional state frames**. Input and async completions enqueue actions; each action validates itself against the committed frame, mutates a reusable draft, commits by swapping the two frames, then runs its effects inline.
 
@@ -261,4 +261,4 @@ What _is_ shared is what was proven shared: the lifecycle vocabulary, the frame 
 | How native input gets in | `<feature>/runtime/controller.ts` |
 | The public surface | `<feature>/options.ts` |
 
-The behavioural contract, decision ledger and measurement log live in `.agents/docs/drag/phase-1/`.
+The behavioural contract, decision ledger and measurement log live in `.plan/phase-1/`.

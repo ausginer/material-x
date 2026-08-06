@@ -2,7 +2,7 @@
 
 ## Status
 
-**Draft — awaiting review.** Derived from [`../brief.md`](../brief.md) and from the shipped architecture of `@ydinjs/drag` ([`packages/drag/DESIGN.md`](../../../../packages/drag/DESIGN.md)).
+**Draft — awaiting review.** Derived from [`../../../drag2/.plan/brief.md`](../../../drag2/.plan/brief.md) and from the shipped architecture of `@ydinjs/drag` ([`packages/drag/DESIGN.md`](../../../../packages/drag/DESIGN.md)).
 
 This is an **architecture contract**, not an implementation plan. It fixes the interfaces, the ownership boundaries and the semantics that the first `packages/drag2` implementation must satisfy. It deliberately contains no phase breakdown, no test enumeration and no package scaffolding; those follow once the contract is accepted.
 

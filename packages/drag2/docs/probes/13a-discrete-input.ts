@@ -1,7 +1,7 @@
 /**
  * **Probe 13a — discrete (keyboard) input against the frozen SPI.**
  *
- * Write-up: `.agents/docs/drag/probes/13a-discrete-input.md`.
+ * Write-up: `.plan/probes/13a-discrete-input.md`.
  *
  * ## What this file is
  *

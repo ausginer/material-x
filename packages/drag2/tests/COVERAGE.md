@@ -1,6 +1,6 @@
 # Test matrix coverage
 
-Every row of [05 §Test matrix](../../../.agents/docs/drag/contract/05-lifecycle-invariants.md) against the file that closes it and the invariant it is about. Phase 10's _done when_ is this table: **every row maps to a passing test or to a written, justified exclusion.**
+Every row of [05 §Test matrix](../.plan/contract/05-lifecycle-invariants.md) against the file that closes it and the invariant it is about. Phase 10's _done when_ is this table: **every row maps to a passing test or to a written, justified exclusion.**
 
 Paths are relative to `packages/drag2`. Where a row is closed by several tests the entry names the one that would fail first.
 
