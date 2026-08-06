@@ -239,17 +239,38 @@ type CommonEffect =
   | Readonly<{ type: 'disarm'; operationId: number }>
   | Readonly<{ type: 'stop-interaction'; operationId: number }>
   | Readonly<{ type: 'invoke-start'; operationId: number }>
-  | Readonly<{ type: 'start-landing'; currency: LandingCurrency; plan: LandingPlan }>
+  | Readonly<{
+      type: 'start-landing';
+      currency: LandingCurrency;
+      plan: LandingPlan;
+    }>
   | Readonly<{ type: 'pin-landing'; currency: LandingCurrency }>
-  | Readonly<{ type: 'watch-presentation'; currency: ResolutionCurrency; ready: PromiseLike<void> }>
-  | Readonly<{ type: 'report-failure'; operationId: number; cause: FailureCause; error: unknown }>
-  | Readonly<{ type: 'finalize-operation'; operationId: number; result: unknown }>;
+  | Readonly<{
+      type: 'watch-presentation';
+      currency: ResolutionCurrency;
+      ready: PromiseLike<void>;
+    }>
+  | Readonly<{
+      type: 'report-failure';
+      operationId: number;
+      cause: FailureCause;
+      error: unknown;
+    }>
+  | Readonly<{
+      type: 'finalize-operation';
+      operationId: number;
+      result: unknown;
+    }>;
 
 type DraggableEffect =
   | CommonEffect
   | Readonly<{ type: 'acquire-free-activation'; operationId: number }>
   | Readonly<{ type: 'publish-free-motion'; operationId: number }>
-  | Readonly<{ type: 'open-drop-resolution'; operationId: number; proposal: FreeDropProposal }>
+  | Readonly<{
+      type: 'open-drop-resolution';
+      operationId: number;
+      proposal: FreeDropProposal;
+    }>
   | Readonly<{ type: 'resolve-free-home'; currency: LandingCurrency }>;
 
 type SortableEffect =
@@ -257,10 +278,22 @@ type SortableEffect =
   | Readonly<{ type: 'acquire-sortable-activation'; operationId: number }>
   | Readonly<{ type: 'publish-sortable-motion'; operationId: number }>
   | Readonly<{ type: 'resolve-active-insertion'; currency: SpatialCurrency }>
-  | Readonly<{ type: 'place-committed-insertion'; operationId: number; insertion: Insertion }>
+  | Readonly<{
+      type: 'place-committed-insertion';
+      operationId: number;
+      insertion: Insertion;
+    }>
   | Readonly<{ type: 'resolve-proposal-insertion'; currency: SpatialCurrency }>
-  | Readonly<{ type: 'open-reorder-resolution'; operationId: number; proposal: ReorderProposal }>
-  | Readonly<{ type: 'prepare-sortable-landing'; currency: LandingCurrency; recovery: SettlementRecovery }>;
+  | Readonly<{
+      type: 'open-reorder-resolution';
+      operationId: number;
+      proposal: ReorderProposal;
+    }>
+  | Readonly<{
+      type: 'prepare-sortable-landing';
+      currency: LandingCurrency;
+      recovery: SettlementRecovery;
+    }>;
 ```
 
 The exact names are less important than these rules:
@@ -325,7 +358,7 @@ Externally visible ordering must remain explicit:
 ## Architecture variants
 
 | Variant | Responsibility separation | Migration risk | Runtime/size risk | Recommendation |
-| --- | ---: | ---: | ---: | --- |
+| --- | --: | --: | --: | --- |
 | A. Small transition reactors | Medium | Low | Low/medium | Useful short-lived extraction |
 | B. Pure planner after the reducer | High | Low/medium | Low/medium | Best immediate architecture |
 | C. Decision returns state + commands | Highest | Medium | Medium until measured | Recommended target contract |

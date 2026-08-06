@@ -2,26 +2,20 @@
 
 ## 1. Scenario rules
 
-These scenarios are the behavioral source for iteration B. Each row has one
-primary observable expectation. Iteration B may parameterize rows, but it must
-retain the scenario IDs in test names or adjacent comments so failures remain
-traceable.
+These scenarios are the behavioral source for iteration B. Each row has one primary observable expectation. Iteration B may parameterize rows, but it must retain the scenario IDs in test names or adjacent comments so failures remain traceable.
 
 Unless a row says otherwise:
 
 - source and target are connected `HTMLElement`s in one document;
 - each element generates one unfragmented principal border box;
-- `transform-origin` is `0 0` with an effective border-box reference where that
-  makes arithmetic easier to review;
-- viewport and local origins are chosen to make the stated values independent
-  of user-agent default margins;
+- `transform-origin` is `0 0` with an effective border-box reference where that makes arithmetic easier to review;
+- viewport and local origins are chosen to make the stated values independent of user-agent default margins;
 - assertions compare all eight values in p1, p2, p3, p4 order;
 - tests use real browser layout, not a DOM-only emulation.
 
 ## 2. Expected-value policy
 
-Simple fixtures use hand-derived values. For example, a `20 × 10` source at
-viewport `(100, 50)` has:
+Simple fixtures use hand-derived values. For example, a `20 × 10` source at viewport `(100, 50)` has:
 
 ```text
 100, 50,
@@ -32,19 +26,16 @@ viewport `(100, 50)` has:
 
 With `transform-origin: 0 0` and an effective border-box reference:
 
-| Operation | Expected quad for a `20 × 10` source at local origin |
-| --- | --- |
-| `translate(5px, 7px)` | `(5,7) (25,7) (25,17) (5,17)` |
-| `scale(2)` | `(0,0) (40,0) (40,20) (0,20)` |
-| `rotate(90deg)` | `(0,0) (0,20) (-10,20) (-10,0)` |
-| `rotate(180deg)` | `(0,0) (-20,0) (-20,-10) (0,-10)` |
-| `scale(-1, 1)` | `(0,0) (-20,0) (-20,10) (0,10)` |
-| `skewX(45deg)` | `(0,0) (20,0) (30,10) (10,10)` |
+| Operation             | Expected quad for a `20 × 10` source at local origin |
+| --------------------- | ---------------------------------------------------- |
+| `translate(5px, 7px)` | `(5,7) (25,7) (25,17) (5,17)`                        |
+| `scale(2)`            | `(0,0) (40,0) (40,20) (0,20)`                        |
+| `rotate(90deg)`       | `(0,0) (0,20) (-10,20) (-10,0)`                      |
+| `rotate(180deg)`      | `(0,0) (-20,0) (-20,-10) (0,-10)`                    |
+| `scale(-1, 1)`        | `(0,0) (-20,0) (-20,10) (0,10)`                      |
+| `skewX(45deg)`        | `(0,0) (20,0) (30,10) (10,10)`                       |
 
-Iteration B must derive complex nested expectations independently of production
-code and document the derivation next to the fixture. Browser assertions may
-use one explicit absolute tolerance selected in iteration B for floating-point
-rounding; tolerance must not excuse layout-pixel or composition-order errors.
+Iteration B must derive complex nested expectations independently of production code and document the derivation next to the fixture. Browser assertions may use one explicit absolute tolerance selected in iteration B for floating-point rounding; tolerance must not excuse layout-pixel or composition-order errors.
 
 ## 3. API and output
 
@@ -87,8 +78,7 @@ rounding; tolerance must not excuse layout-pixel or composition-order errors.
 | `LAYOUT-11` | The source has `display:contents` | The request fails atomically because it has no principal border box. |
 | `LAYOUT-12` | A target is disconnected or has no principal box | Target-relative conversion fails atomically. |
 
-No scenario authorizes a runtime `display` whitelist. The failure cases are
-about the absence of a usable principal box.
+No scenario authorizes a runtime `display` whitelist. The failure cases are about the absence of a usable principal box.
 
 ## 6. Positioning
 
@@ -100,9 +90,7 @@ about the absence of a usable principal box.
 | `POSITION-04` | Scrolling moves the sticky source into its stuck position | A fresh uncached read reports the current stuck viewport quad. |
 | `POSITION-05` | A fixed or sticky source is read relative to an unrelated target | Both current rendered spaces are composed into the target's local space. |
 
-Fixed and sticky support is limited to geometry already inside the 2D,
-single-box contract. These rows do not promise general layout-engine
-compatibility.
+Fixed and sticky support is limited to geometry already inside the 2D, single-box contract. These rows do not promise general layout-engine compatibility.
 
 ## 7. Classic and individual transforms
 
@@ -180,8 +168,7 @@ compatibility.
 | `SHADOW-04` | Source and target lie on opposite sides of a same-document shadow boundary | Relative conversion succeeds when both spaces are representable. |
 | `SHADOW-05` | Nested shadow hosts and slots contribute 2D transforms/zoom | Each rendered ancestry contribution is applied exactly once. |
 
-These scenarios require rendered flat-tree correctness; they do not expose or
-standardize a traversal API.
+These scenarios require rendered flat-tree correctness; they do not expose or standardize a traversal API.
 
 ## 12. Writing modes
 
@@ -204,8 +191,7 @@ standardize a traversal API.
 | `UNSUPPORTED-05` | Fragmented layout produces more than one source box | The request fails atomically. |
 | `UNSUPPORTED-06` | The requested node is not an `HTMLElement`, despite bypassing TypeScript | Behavior is outside the boolean contract; no runtime validation is required. |
 
-SVG, MathML, text nodes and pseudo-elements cannot be validly supplied by the
-typed API and receive no runtime compatibility layer.
+SVG, MathML, text nodes and pseudo-elements cannot be validly supplied by the typed API and receive no runtime compatibility layer.
 
 ## 14. Cache behavior
 
@@ -218,11 +204,4 @@ typed API and receive no runtime compatibility layer.
 | `CACHE-10` | Two caller-created caches are used | Their epochs and stale observations are independent. |
 | `CACHE-11` | An element is measured with a cache, adopted into another document, then measured again with the same cache | The prior entry is not reused; the second read uses the new owner document's realm and geometry. |
 
-Every observation in an epoch may remain stale for the lifetime of that cache
-identity while the observed element retains the same `ownerDocument`, including
-one made by a call that returned `false`. Owner-document adoption is the
-mandatory invalidation exception. Calls that omit the cache are always fresh.
-The cache permits completed-space and inverse reuse, but shared-ancestor reuse,
-eager versus lazy inverse construction, internal hit counts, failure
-memoization strategy and allocation counts belong to iteration D. Iteration B
-must test only observable epoch behavior.
+Every observation in an epoch may remain stale for the lifetime of that cache identity while the observed element retains the same `ownerDocument`, including one made by a call that returned `false`. Owner-document adoption is the mandatory invalidation exception. Calls that omit the cache are always fresh. The cache permits completed-space and inverse reuse, but shared-ancestor reuse, eager versus lazy inverse construction, internal hit counts, failure memoization strategy and allocation counts belong to iteration D. Iteration B must test only observable epoch behavior.

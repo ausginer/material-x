@@ -1,9 +1,6 @@
 # 4. Runtime ownership
 
-There is **one authoritative runtime object per controller**. The kernel creates
-it; the behavior extends it in place; features write into it through the slot
-object it carries. No view, projection or capability wrapper is ever
-materialized. (C-3)
+There is **one authoritative runtime object per controller**. The kernel creates it; the behavior extends it in place; features write into it through the slot object it carries. No view, projection or capability wrapper is ever materialized. (C-3)
 
 ## Composition
 
@@ -25,12 +22,9 @@ Object.assign(kernel.runtime, {
 });
 ```
 
-Separate sources, one ordered assignment — the kernel fields already exist
-independently and are not pre-merged into a combined literal.
+Separate sources, one ordered assignment — the kernel fields already exist independently and are not pre-merged into a combined literal.
 
-The extension happens once, at construction, before any operation can start, so
-the object's hidden class is stable for the controller's whole life. Nothing
-adds a property later.
+The extension happens once, at construction, before any operation can start, so the object's hidden class is stable for the controller's whole life. Nothing adds a property later.
 
 ## Kernel-owned fields
 
@@ -56,9 +50,7 @@ Everything supporting execution guarantees.
 | `pendingContinuation` | `FailureContinuation \| null` | What to do after `onError` returns |
 | `destroyRequested` | `boolean` | Set before teardown so preparation invalidates |
 
-`lift` and `originRect` are kernel-owned because the kernel acquires the lift,
-owns the presentation lifetime and computes landing plans. The **placeholder**
-is not: it is a sortable concept.
+`lift` and `originRect` are kernel-owned because the kernel acquires the lift, owns the presentation lifetime and computes landing plans. The **placeholder** is not: it is a sortable concept.
 
 ## Behavior-owned fields
 
@@ -72,8 +64,7 @@ is not: it is a sortable concept.
 | `spatialSeq` | `number` | Monotonic spatial attempt counter (C-8) |
 | `pendingSpatial` | `number` | The latest scheduled attempt; `0` when none |
 
-Caches, arrays, attempts and disposer stacks live **here**, on the container —
-never in a frame — because the frame copy is shallow.
+Caches, arrays, attempts and disposer stacks live **here**, on the container — never in a frame — because the frame copy is shallow.
 
 ## Frames
 
@@ -86,15 +77,9 @@ type SortableStateFrame = KernelStateFrame & {
 };
 ```
 
-Kernel-owned frame fields (C-4): `phase`, `operation`, `item`, `visual`,
-`pointerId`, `originX`, `originY`, `pointerX`, `pointerY`, `outcome`,
-`recovery`, `landingDone`, `readyDone`.
+Kernel-owned frame fields (C-4): `phase`, `operation`, `item`, `visual`, `pointerId`, `originX`, `originY`, `pointerX`, `pointerY`, `outcome`, `recovery`, `landingDone`, `readyDone`.
 
-`item` and `visual` are kernel-owned because the kernel lifts the visual and
-composes its transform. `outcome`, `recovery` and the two gate flags are
-kernel-owned because the kernel's settlement logic reads them. `domain` is
-behavior-typed, so it is behavior-owned and the kernel never inspects it — it
-passes control to `spec.notifyTerminal()` and the behavior reads its own field.
+`item` and `visual` are kernel-owned because the kernel lifts the visual and composes its transform. `outcome`, `recovery` and the two gate flags are kernel-owned because the kernel's settlement logic reads them. `domain` is behavior-typed, so it is behavior-owned and the kernel never inspects it — it passes control to `spec.notifyTerminal()` and the behavior reads its own field.
 
 ### The shallow-copy contract
 
@@ -104,34 +89,21 @@ passes control to `spec.notifyTerminal()` and the behavior reads its own field.
 2. immutable from the library's point of view; or
 3. replace-on-write.
 
-`CollectionSnapshot`, `Insertion`, `ReorderProposal` and
-`ReorderTransactionResult` all qualify — each is published as a fresh frozen-by-
-convention object rather than mutated. Never copy and then mutate a value both
-frames now reference.
+`CollectionSnapshot`, `Insertion`, `ReorderProposal` and `ReorderTransactionResult` all qualify — each is published as a fresh frozen-by- convention object rather than mutated. Never copy and then mutate a value both frames now reference.
 
 ### Fixed shape
 
-Both frames come from one factory, so they share one key set and one hidden
-class. `Object.assign` only overwrites keys present on the source, so a fixed
-shape is what prevents a stale key surviving into a later candidate. Nothing may
-add a phase-specific property dynamically.
+Both frames come from one factory, so they share one key set and one hidden class. `Object.assign` only overwrites keys present on the source, so a fixed shape is what prevents a stale key surviving into a later candidate. Nothing may add a phase-specific property dynamically.
 
 ### Scrubbing
 
-After commit, the inactive frame holds the previous committed state. It is a
-reusable transaction buffer, not a history snapshot. `resetFrame()` clears every
-reference-bearing field while preserving the shape, and runs on operation
-retirement — **including when the controller stays alive and idle afterwards**.
-An idle controller must not pin the DOM of the drag it just finished.
+After commit, the inactive frame holds the previous committed state. It is a reusable transaction buffer, not a history snapshot. `resetFrame()` clears every reference-bearing field while preserving the shape, and runs on operation retirement — **including when the controller stays alive and idle afterwards**. An idle controller must not pin the DOM of the drag it just finished.
 
-Destroy and panic additionally clear both frames, the queue and its arguments,
-the cancel latch, staged attempt settlements, and the element array inside the
-geometry cache.
+Destroy and panic additionally clear both frames, the queue and its arguments, the cancel latch, staged attempt settlements, and the element array inside the geometry cache.
 
 ## Type projections
 
-A feature operation receives the same physical object under a narrower type.
-Type-level restriction is sufficient — this is not a security boundary.
+A feature operation receives the same physical object under a narrower type. Type-level restriction is sufficient — this is not a security boundary.
 
 ```ts
 type InsertionRuntime = Pick<
@@ -144,40 +116,31 @@ type DisplacementRuntime = Pick<
   'current' | 'realm' | 'placeholder' | 'snapshot'
 >;
 
-type PlaceholderRuntime = Pick<SortableRuntime, 'current' | 'draft' | 'placeholder'>;
+type PlaceholderRuntime = Pick<
+  SortableRuntime,
+  'current' | 'draft' | 'placeholder'
+>;
 ```
 
 Rules:
 
 - projections are **type aliases only** — no object is built to satisfy one;
 - a seam takes the narrowest projection that compiles;
-- a projection never appears in the pointer-move path's signatures, because that
-  path calls concrete internal functions, not seams.
+- a projection never appears in the pointer-move path's signatures, because that path calls concrete internal functions, not seams.
 
 ## Retirement and teardown
 
 Three levels, each idempotent.
 
-**`retireAttempts`** — makes every in-flight async attempt inert and drops its
-staged payload: cancel the frame task and clear `pendingSpatial`; abort an
-uncompleted resolution and clear its settlement; dispose and clear the readiness
-watch; destroy and clear the landing runner.
+**`retireAttempts`** — makes every in-flight async attempt inert and drops its staged payload: cancel the frame task and clear `pendingSpatial`; abort an uncompleted resolution and clear its settlement; dispose and clear the readiness watch; destroy and clear the landing runner.
 
-**`retireOperation`** — `retireAttempts`, then dispose all three lifetimes, drop
-`lift`, `originRect`, `placeholder`, `cancelRequest` and `pendingContinuation`,
-empty the geometry cache's element array and mark it dirty, run
-`slots.retireHooks`, and scrub both frames.
+**`retireOperation`** — `retireAttempts`, then dispose all three lifetimes, drop `lift`, `originRect`, `placeholder`, `cancelRequest` and `pendingContinuation`, empty the geometry cache's element array and mark it dirty, run `slots.retireHooks`, and scrub both frames.
 
-**`destroyRuntime`** — set `closed` and `destroyRequested`, clear the queue,
-`retireOperation`, abort controller ingress. Terminal, silent and idempotent;
-physical release completes before it returns. **Panic** is `destroyRuntime`
-followed by reporting the initiating error.
+**`destroyRuntime`** — set `closed` and `destroyRequested`, clear the queue, `retireOperation`, abort controller ingress. Terminal, silent and idempotent; physical release completes before it returns. **Panic** is `destroyRuntime` followed by reporting the initiating error.
 
 ## Retention invariants
 
 - No DOM element is reachable from a controller that is idle.
-- No queued argument outlives the drain that abandoned it — `clearQueue` drops
-  both arrays' contents.
-- No native event is retained past the synchronous drain; anything needed later
-  is committed as scalars first.
+- No queued argument outlives the drain that abandoned it — `clearQueue` drops both arrays' contents.
+- No native event is retained past the synchronous drain; anything needed later is committed as scalars first.
 - A destroyed controller retains nothing but its own inert fields.

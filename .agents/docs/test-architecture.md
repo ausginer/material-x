@@ -131,7 +131,7 @@ The architecture is being adopted incrementally. Status is tracked in the tests 
 
 1. Finish moving `@ydinjs/material-x` tests from `src` into their mirrored `test` directories without behavior changes, then remove the old `src/**` includes.
 2. Grow the Node-side visual-contract registry and normalization adapters as components adopt the spec layer.
-4. Pilot findings from `button/spec-consistency.md` into executable tproc-backed assertions.
-5. Extend the curated visual matrix and CI gating.
-6. Apply the shared convention to checkbox and radio, then migrate other components by family.
-7. Retire exploratory consistency documents once their evidence is captured by executable tests or retained as historical design context.
+3. Pilot findings from `button/spec-consistency.md` into executable tproc-backed assertions.
+4. Extend the curated visual matrix and CI gating.
+5. Apply the shared convention to checkbox and radio, then migrate other components by family.
+6. Retire exploratory consistency documents once their evidence is captured by executable tests or retained as historical design context.

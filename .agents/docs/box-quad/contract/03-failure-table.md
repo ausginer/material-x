@@ -2,17 +2,11 @@
 
 ## 1. Failure boundary
 
-`readBoxQuad` returns `false` only for an explicitly recognized unsupported or
-unrepresentable geometry condition in this document.
+`readBoxQuad` returns `false` only for an explicitly recognized unsupported or unrepresentable geometry condition in this document.
 
-Before returning `false`, the implementation must leave all eight caller-owned
-output values unchanged. The contract does not promise that repairing geometry
-will become observable in the same cache epoch. An uncached call or a newly
-constructed cache is the freshness boundary.
+Before returning `false`, the implementation must leave all eight caller-owned output values unchanged. The contract does not promise that repairing geometry will become observable in the same cache epoch. An uncached call or a newly constructed cache is the freshness boundary.
 
-The table does not authorize blanket exception handling. Contract violations,
-unexpected platform exceptions and implementation defects escape normally and
-are not rewritten as geometry failures.
+The table does not authorize blanket exception handling. Contract violations, unexpected platform exceptions and implementation defects escape normally and are not rewritten as geometry failures.
 
 ## 2. Recognized failures
 
@@ -29,10 +23,7 @@ are not rewritten as geometry failures.
 | `FAIL-TARGET-NONINVERTIBLE` | Target local-to-viewport matrix cannot be inverted to finite 2D values | Before applying the target inverse | `false`, unchanged output |
 | `FAIL-NONFINITE` | An otherwise recognized geometry calculation produces a non-finite corner coordinate | Before output commit | `false`, unchanged output |
 
-“Relevant rendered ancestry” means the geometry path needed to construct the
-requested source and target spaces. It includes flat-tree host/slot
-relationships, fixed containing blocks and applicable scrolling ancestors. It
-does not mean scanning unrelated document elements.
+“Relevant rendered ancestry” means the geometry path needed to construct the requested source and target spaces. It includes flat-tree host/slot relationships, fixed containing blocks and applicable scrolling ancestors. It does not mean scanning unrelated document elements.
 
 ## 3. Boundary cases that succeed
 
@@ -48,8 +39,7 @@ These cases must not be confused with recognized failures:
 | Fixed, sticky, vertical-writing or slotted source within the supported model | Succeeds |
 | Source and target wholly inside the same iframe document | Succeeds in that document's realm and layout viewport |
 
-If the singular source in the second row is also used as `relativeTo`, it
-becomes `FAIL-TARGET-NONINVERTIBLE`. This includes the self-relative request:
+If the singular source in the second row is also used as `relativeTo`, it becomes `FAIL-TARGET-NONINVERTIBLE`. This includes the self-relative request:
 
 ```ts
 readBoxQuad(element, out, element);
@@ -69,12 +59,9 @@ The following are outside the boolean failure contract:
 | The owner document lacks a usable `defaultView` or required matrix primitive | An environment error escapes; it is not `false` geometry |
 | Internal implementation code throws | The exception escapes |
 
-The implementation may naturally throw while using malformed values. It must
-not add validation only to manufacture an exception, and it must not catch an
-unexpected exception merely to return `false`.
+The implementation may naturally throw while using malformed values. It must not add validation only to manufacture an exception, and it must not catch an unexpected exception merely to return `false`.
 
-The unchanged-output guarantee is binding for rows in §2. It is not promised
-for an escaping exception.
+The unchanged-output guarantee is binding for rows in §2. It is not promised for an escaping exception.
 
 ## 5. Detection and commit rule
 
@@ -86,18 +73,12 @@ recognize + calculate into private state
           commit all eight values
 ```
 
-Any §2 failure ends before the commit stage. The contract does not prescribe
-whether private state is eight scalars, a temporary array or another
-representation; later performance work decides that shape.
+Any §2 failure ends before the commit stage. The contract does not prescribe whether private state is eight scalars, a temporary array or another representation; later performance work decides that shape.
 
 ## 6. Cache interaction
 
-- Any observation associated with a recognized failure may remain stale for the
-  rest of the epoch; the contract does not constrain failure memoization.
-- Successfully completed spaces observed before another part of the same call
-  fails may remain eligible for reuse in that epoch.
-- An escaping exception has no cache-state guarantee beyond cache ownership and
-  the absence of a global cache.
+- Any observation associated with a recognized failure may remain stale for the rest of the epoch; the contract does not constrain failure memoization.
+- Successfully completed spaces observed before another part of the same call fails may remain eligible for reuse in that epoch.
+- An escaping exception has no cache-state guarantee beyond cache ownership and the absence of a global cache.
 
-A consumer that repairs geometry and requires the repair to be observed must
-perform an uncached read or start a new epoch with a new `WeakMap`.
+A consumer that repairs geometry and requires the repair to be observed must perform an uncached read or start a new epoch with a new `WeakMap`.

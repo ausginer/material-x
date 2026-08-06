@@ -9,10 +9,7 @@
 | **Unguaranteed** | Not contracted. Do not add specialized implementation code or tests without approval. Incidental success is not an API promise. |
 | **Outside typed API** | Cannot be supplied through the declared TypeScript API; no runtime compatibility layer is required. |
 
-Support is based on the one-unfragmented-principal-2D-border-box model. It is
-not based on a runtime `display` whitelist. Having one such box is necessary,
-but is not by itself sufficient to promote an otherwise unnamed layout mode to
-supported v1 behavior.
+Support is based on the one-unfragmented-principal-2D-border-box model. It is not based on a runtime `display` whitelist. Having one such box is necessary, but is not by itself sufficient to promote an otherwise unnamed layout mode to supported v1 behavior.
 
 ## 2. Supported v1 matrix
 
@@ -75,9 +72,7 @@ supported v1 behavior.
 | Realm-owned DOM geometry | **Supported** | Any constructed DOM geometry uses the current source owner document |
 | Reads wholly within one iframe document | **Supported** | That document's realm and layout viewport |
 
-The cache permits completed coordinate-space and inverse reuse. Shared-ancestor
-reuse, eager versus lazy inverse construction and the exact reuse strategy are
-Iteration D concerns, not Iteration B behavioral obligations.
+The cache permits completed coordinate-space and inverse reuse. Shared-ancestor reuse, eager versus lazy inverse construction and the exact reuse strategy are Iteration D concerns, not Iteration B behavioral obligations.
 
 ## 3. Explicitly unsupported v1 matrix
 
@@ -110,30 +105,20 @@ Iteration D concerns, not Iteration B behavioral obligations.
 
 ## 5. Unguaranteed cases
 
-Cases not named by the brief or this accepted matrix are **unguaranteed**. In
-particular, iteration A does not infer a promise for every HTML layout mode
-merely because a browser happens to expose one rectangle.
+Cases not named by the brief or this accepted matrix are **unguaranteed**. In particular, iteration A does not infer a promise for every HTML layout mode merely because a browser happens to expose one rectangle.
 
-Examples include specialized table-internal layout, multicolumn edge cases,
-regions/custom fragmentation, printing/paged media, single-fragment inline
-layout, effective transform reference spaces other than HTML border-box or
-content-box, CSS motion-path/`offset-*` geometry and browser-specific
-nonstandard layout. This list is illustrative, not a second unsupported
-whitelist.
+Examples include specialized table-internal layout, multicolumn edge cases, regions/custom fragmentation, printing/paged media, single-fragment inline layout, effective transform reference spaces other than HTML border-box or content-box, CSS motion-path/`offset-*` geometry and browser-specific nonstandard layout. This list is illustrative, not a second unsupported whitelist.
 
 Rules for unguaranteed cases:
 
 1. Do not add specialized branches, fixtures or public claims without approval.
 2. Generic code may incidentally produce correct results.
 3. Incidental success does not become a compatibility promise.
-4. A case that exposes knowingly wrong geometry during development must be
-   brought back to contract review for explicit support or explicit failure; it
-   must not be silently blessed by changing an expected value.
+4. A case that exposes knowingly wrong geometry during development must be brought back to contract review for explicit support or explicit failure; it must not be silently blessed by changing an expected value.
 
 ## 6. Scope guard
 
-Fixed/sticky positioning, shadow/slotted ancestry and non-horizontal writing
-modes are explicit v1 obligations only within the existing model:
+Fixed/sticky positioning, shadow/slotted ancestry and non-horizontal writing modes are explicit v1 obligations only within the existing model:
 
 ```text
 HTMLElement
@@ -142,5 +127,4 @@ HTMLElement
 + same document
 ```
 
-Their inclusion does not authorize a general layout compatibility framework,
-fragment engine, composed-tree public API or custom matrix library.
+Their inclusion does not authorize a general layout compatibility framework, fragment engine, composed-tree public API or custom matrix library.

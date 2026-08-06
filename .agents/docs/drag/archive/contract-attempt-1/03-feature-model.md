@@ -1,8 +1,6 @@
 # 3. Feature model
 
-Features are **construction-time contributors to one behavior**. They are not
-runtime plugins, they have no generic event interface, and after assembly they
-do not exist as objects at all — only the fields they wrote.
+Features are **construction-time contributors to one behavior**. They are not runtime plugins, they have no generic event interface, and after assembly they do not exist as objects at all — only the fields they wrote.
 
 ## The installer (C-5)
 
@@ -10,8 +8,7 @@ do not exist as objects at all — only the fields they wrote.
 type SortableFeature = (install: SortableInstall) => void;
 ```
 
-A feature is a function that writes into named seams. It runs once, during
-`sortable()` construction, in declaration order.
+A feature is a function that writes into named seams. It runs once, during `sortable()` construction, in declaration order.
 
 ```ts
 type SortableInstall = Readonly<{
@@ -31,12 +28,7 @@ type SortableInstall = Readonly<{
 }>;
 ```
 
-Why an installer rather than a slot record: a feature routinely occupies more
-than one seam. An animated placeholder participates in pre-mutation measurement,
-placeholder relocation, post-mutation measurement, animation cleanup and
-operation retirement. A record of assignable fields forces that feature to be
-five features or to smuggle a generic callback type; an installer expresses it
-directly.
+Why an installer rather than a slot record: a feature routinely occupies more than one seam. An animated placeholder participates in pre-mutation measurement, placeholder relocation, post-mutation measurement, animation cleanup and operation retirement. A record of assignable fields forces that feature to be five features or to smuggle a generic callback type; an installer expresses it directly.
 
 ```ts
 function layoutAnimation(options?: LayoutAnimationOptions): SortableFeature {
@@ -86,8 +78,7 @@ Validation runs once, at construction, and throws `TypeError`:
 | A single-writer slot is written twice | `sortable: insertion rule installed twice` |
 | `onReorder` is not a function | `sortable: onReorder must be a function` |
 
-Assembly is the **only** place features are iterated. After it returns, the
-feature functions are unreachable and the hot path reads plain fields.
+Assembly is the **only** place features are iterated. After it returns, the feature functions are unreachable and the hot path reads plain fields.
 
 ## Hot-path shape
 
@@ -96,18 +87,18 @@ feature functions are unreachable and the hot path reads plain fields.
 const resolved = slots.resolveInsertion(runtime, pointerY);
 
 // permitted — a prebuilt, usually empty, fixed array
-for (let i = 0; i < slots.beforeMove.length; i += 1) { slots.beforeMove[i]!(runtime); }
+for (let i = 0; i < slots.beforeMove.length; i += 1) {
+  slots.beforeMove[i]!(runtime);
+}
 
 // forbidden
-for (const feature of features) { feature.onEvent(event); }
+for (const feature of features) {
+  feature.onEvent(event);
+}
 features.filter((f) => f.type === 'geometry');
 ```
 
-The multi-writer pipelines are arrays because more than one feature may
-legitimately occupy them; they are `readonly` and fixed-length after assembly,
-and they are empty in the minimal composition, so the loop is one length read.
-They are never touched on the pointer-move path — only around a committed
-placeholder move.
+The multi-writer pipelines are arrays because more than one feature may legitimately occupy them; they are `readonly` and fixed-length after assembly, and they are empty in the minimal composition, so the loop is one length read. They are never touched on the pointer-move path — only around a committed placeholder move.
 
 ## Seam catalogue
 
@@ -141,15 +132,13 @@ landing(options?: LandingOptions): SortableFeature;
 
 ### `vertical()`
 
-Owns the packed rect index, the nearest-centre search and the dirty policy. It
-is the only module containing axis geometry; a future `horizontal()` would be a
-sibling, never a branch inside this one.
+Owns the packed rect index, the nearest-centre search and the dirty policy. It is the only module containing axis geometry; a future `horizontal()` would be a sibling, never a branch inside this one.
 
 ### `callbacks()`
 
 ```ts
 type SortableCallbacks = Readonly<{
-  onReorder: OnReorder;              // required
+  onReorder: OnReorder; // required
   onStart?(item: HTMLElement): void;
   onFinish?(result: SortableFinishResult): void;
   onCancel?(result: SortableCancelResult): void;
@@ -158,9 +147,7 @@ type SortableCallbacks = Readonly<{
 }>;
 ```
 
-One feature, because these are one coherent consumer surface and splitting them
-would buy no tree-shaking — a `null` check on an uninstalled callback costs
-nothing.
+One feature, because these are one coherent consumer surface and splitting them would buy no tree-shaking — a `null` check on an uninstalled callback costs nothing.
 
 ### `placeholder()`
 
@@ -176,17 +163,9 @@ type PlaceholderOptions = Readonly<{
 }>;
 ```
 
-Default mechanics, always present and not configurable away: the element
-occupies exactly one insertion position, carries `data-drag-placeholder` and
-`aria-hidden="true"`, inherits the item's `slot`, and is sized from the visual's
-**offset** box (unaffected by the item's transform or ancestor zoom). Beyond
-that the library writes no visual styling — colour, border, background and
-transition are the consumer's, through `className`, attributes or CSS variables.
+Default mechanics, always present and not configurable away: the element occupies exactly one insertion position, carries `data-drag-placeholder` and `aria-hidden="true"`, inherits the item's `slot`, and is sized from the visual's **offset** box (unaffected by the item's transform or ancestor zoom). Beyond that the library writes no visual styling — colour, border, background and transition are the consumer's, through `className`, attributes or CSS variables.
 
-The placeholder is the dragged item's authoritative layout footprint for the
-whole operation: it is created before publication, it never duplicates or
-disappears, it remains valid while the lifted visual is landing, and it is
-released only when both settlement gates are complete.
+The placeholder is the dragged item's authoritative layout footprint for the whole operation: it is created before publication, it never duplicates or disappears, it remains valid while the lifted visual is landing, and it is released only when both settlement gates are complete.
 
 ### `landing()` (C-9)
 
@@ -199,43 +178,23 @@ type LandingOptions = Readonly<{
 }>;
 ```
 
-Without this feature no runner is created, `landingDone` starts `true`, and the
-visual is pinned at the placeholder immediately. Installing it with
-`duration: 0` is *also* immediate but goes through the runner; the default path
-does not import the runner at all.
+Without this feature no runner is created, `landingDone` starts `true`, and the visual is pinned at the placeholder immediately. Installing it with `duration: 0` is _also_ immediate but goes through the runner; the default path does not import the runner at all.
 
 ### `layoutAnimation()` (C-10)
 
-Measures affected neighbours before the placeholder moves, re-measures after,
-writes inverted transforms and plays them out — a FLIP-shaped implementation,
-but the contract requires only the measurement/write seams, not the technique.
-Consumers configure duration and easing through CSS; the feature performs only
-the measurements and temporary transform writes that make CSS animation
-possible.
+Measures affected neighbours before the placeholder moves, re-measures after, writes inverted transforms and plays them out — a FLIP-shaped implementation, but the contract requires only the measurement/write seams, not the technique. Consumers configure duration and easing through CSS; the feature performs only the measurements and temporary transform writes that make CSS animation possible.
 
-It is **not** a lifecycle gate: an in-flight displacement never delays release,
-settlement or presentation teardown. Interruption is retargeting — a placeholder
-move while a previous displacement is running cancels and replays from the
-current computed transform — and `retire` restores every touched element exactly
-once.
+It is **not** a lifecycle gate: an in-flight displacement never delays release, settlement or presentation teardown. Interruption is retargeting — a placeholder move while a previous displacement is running cancels and replays from the current computed transform — and `retire` restores every touched element exactly once.
 
 ## Tree-shaking rules
 
 Judged through consumer fixtures, not source intuition.
 
-1. No global registry, no barrel that eagerly references every feature, no
-   default options object naming an optional feature.
+1. No global registry, no barrel that eagerly references every feature, no default options object naming an optional feature.
 2. Each feature is its own module with no import edge to a sibling feature.
-3. The behavior references optional slots only through `slots.x` fields that are
-   `null` when unfilled — never through a default implementation imported at the
-   top level.
-4. Axis geometry, landing animation and layout displacement must be absent from
-   a minimal build. The four compositions to measure are: minimal; minimal +
-   `layoutAnimation()`; minimal + `landing()`; the complete set.
+3. The behavior references optional slots only through `slots.x` fields that are `null` when unfilled — never through a default implementation imported at the top level.
+4. Axis geometry, landing animation and layout displacement must be absent from a minimal build. The four compositions to measure are: minimal; minimal + `layoutAnimation()`; minimal + `landing()`; the complete set.
 
 ## Policy updates
 
-The set of installed features is immutable after controller creation. A feature
-may accept live policy updates only if it deliberately exposes them — by
-contributing a controller method through the installer, never by being replaced.
-No first-iteration feature does this.
+The set of installed features is immutable after controller creation. A feature may accept live policy updates only if it deliberately exposes them — by contributing a controller method through the installer, never by being replaced. No first-iteration feature does this.
