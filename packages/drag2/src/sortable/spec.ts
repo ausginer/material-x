@@ -140,6 +140,30 @@ export function createSortableSpec(
   };
 
   /**
+   * The second half of admission: resolve the visual and seed the draft with an
+   * item **already resolved**. Returns the visual.
+   *
+   * Split from {@link admitFrom} for the command path, which needs the item
+   * before it can decide feasibility. Resolving twice would call the consumer's
+   * `handle()` resolver twice for one keydown (D1, Checkpoint D) — observable,
+   * because a resolver is stateful in general and is explicitly allowed to
+   * queue `updateItems()`, so the side effect would be queued twice and the
+   * operation could reconcile through two snapshots for one native command.
+   */
+  const seedDraft = (
+    item: HTMLElement,
+    snapshot: CollectionSnapshot,
+    draft: Draft<SortableFramePart>,
+  ): HTMLElement => {
+    const visual = slots.getVisual === null ? item : slots.getVisual(item);
+
+    draft.item = item;
+    draft.visual = visual;
+    draft.snapshot = snapshot;
+    return visual;
+  };
+
+  /**
    * The half of admission both ingresses share: resolve the item, resolve the
    * visual, seed the draft. Returns the visual, or `null` to decline.
    *
@@ -153,16 +177,7 @@ export function createSortableSpec(
     const { snapshot } = rt;
     const item = resolveItem(event, snapshot);
 
-    if (item === null) {
-      return null;
-    }
-
-    const visual = slots.getVisual === null ? item : slots.getVisual(item);
-
-    draft.item = item;
-    draft.visual = visual;
-    draft.snapshot = snapshot;
-    return visual;
+    return item === null ? null : seedDraft(item, snapshot, draft);
   };
 
   /**
@@ -347,6 +362,10 @@ export function createSortableSpec(
         }
 
         const { snapshot } = rt;
+        // **Resolved exactly once per keydown** (D1). `resolveItem` invokes the
+        // consumer's `handle()` resolver, so the destination and the draft seed
+        // are both derived from this one item rather than from two independent
+        // resolutions of the same event.
         const item = resolveItem(event, snapshot);
 
         if (item === null) {
@@ -356,15 +375,14 @@ export function createSortableSpec(
         const insertion = keyboardInsertion(snapshot, item, direction);
 
         // The edge case, and the whole reason the decision is synchronous.
+        // Checked before the draft is seeded, so an infeasible command resolves
+        // no visual either — the press path resolves one only for an admission
+        // it is going to make, and the command path matches it.
         if (insertion === null) {
           return null;
         }
 
-        const visual = admitFrom(event, draft);
-
-        if (visual === null) {
-          return null;
-        }
+        const visual = seedDraft(item, snapshot, draft);
 
         // The destination travels in the draft, exactly as `item` does for a
         // press. No staged value crosses the ingress boundary, which is what

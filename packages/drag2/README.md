@@ -99,19 +99,22 @@ All four are validated at construction and throw a `TypeError` on a value outsid
 
 ## Size budgets
 
-Measured 2026-08-02 (M-3 — `.plan/measurements/m3.md`). `just size` runs `bench/size/measure.ts`, where each composition is one declaration: the exact named imports a consumer writes, a budget, and the modules its graph must and must not contain. It exits non-zero on any of the three.
+Baselined 2026-08-02 (M-3 — `.plan/measurements/m3.md`), re-measured 2026-08-07 at Checkpoint D. `just size` runs `bench/size/measure.ts`, where each composition is one declaration: the exact named imports a consumer writes, a budget, and the modules its graph must and must not contain. It exits non-zero on any of the three.
 
 | composition                                         | brotli       | modules |
 | --------------------------------------------------- | ------------ | ------- |
-| minimal                                             | **9.34 kB**  | 29      |
-| minimal + `layoutAnimation()`                       | 9.74 kB      | 30      |
-| minimal + `landing()`                               | 9.60 kB      | 30      |
-| complete                                            | **10.11 kB** | 33      |
-| _baseline A_ — feature-matched, non-composed        | 9.83 kB      | 28      |
+| minimal (`y()`)                                     | **10.01 kB** | 31      |
+| minimal (`xy()`)                                    | 10.05 kB     | 31      |
+| minimal + `layoutAnimation()`                       | 10.42 kB     | 32      |
+| minimal + `landing()`                               | 10.29 kB     | 32      |
+| complete                                            | **10.82 kB** | 35      |
+| _baseline A_ — feature-matched, non-composed        | 10.54 kB     | 30      |
 | _baseline B_ — shipped `@ydinjs/drag` `sortable.js` | 6.89 kB      | 26      |
+
+Five compositions, not four: Phase 17's second axis is a peer rather than an assumed equal, so `minimal (xy)` is measured. The growth over the M-3 baseline is accounted for — D-33's settlement protocol (+70 B), Phase 16's keyboard ingress (~300 B, deliberately not tree-shakeable), Phase 17's shared rect index (+60 B), and Checkpoint D's fixes (+40 B). Every composition is still inside its budget.
 
 The import maps _are_ the measurement, and the graph half is why this is not a `size-limit` config: a byte delta cannot tell "absent" from "present and mostly shaken" (`.agents/docs/measure/brief.md`). The two baselines are checked-in modules under `bench/size/`, because neither is expressible as a set of imports.
 
-**The two baselines answer different questions and are never substituted for each other.** A costs 0.26 kB less than `complete` with the same features: that is what composition costs. B is 2.44 kB smaller than `minimal` and is not feature-equivalent to anything here: that is what migrating costs.
+**The two baselines answer different questions and are never substituted for each other.** A costs 0.28 kB less than `complete` with the same features: that is what composition costs. B is 3.12 kB smaller than `minimal` and is not feature-equivalent to anything here: that is what migrating costs.
 
 `tests/bench/size.node.test.ts` runs the same declarations in CI, plus a determinism check and a fidelity check that the hand-written non-composed baseline still fills exactly the slots `assemble()` fills.

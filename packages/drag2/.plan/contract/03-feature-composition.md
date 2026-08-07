@@ -187,7 +187,7 @@ function assemble(
     }
 
     if (insertion === null) {
-      throw new TypeError('sortable: vertical() is required');
+      throw new TypeError('sortable: an axis feature — y() or xy() — is required');
     }
     if (callbacks === null) {
       throw new TypeError('sortable: callbacks({ onReorder }) is required');
@@ -275,7 +275,7 @@ Validation runs once and throws `TypeError`:
 
 | Rule | Message shape |
 | --- | --- |
-| A required slot is unfilled | `sortable: vertical() is required` / `sortable: callbacks({ onReorder }) is required` |
+| A required slot is unfilled | `sortable: an axis feature — y() or xy() — is required` / `sortable: callbacks({ onReorder }) is required` |
 | A single-writer slot is written twice | `sortable: insertion geometry contributed by two features` |
 | `onReorder` is not a function | `sortable: onReorder must be a function` |
 
@@ -352,11 +352,11 @@ No view materialization on any path, no `Pick<>` anywhere, and no import edge fr
 
 Probe 1's open question **Q-5** asked whether the packed geometry cache belongs on the shared runtime — where retirement can empty it uniformly, at the cost of leaking an axis-specific concept into a shared container — or inside `vertical()`, which would require a feature-owned retirement hook.
 
-Under H-4 the question does not arise. `vertical()` owns `rects`; the `retire` contribution is how it gets emptied; and no shared container exists to leak into. The cost is exactly one entry in `slots.retireHooks`.
+Under H-4 the question does not arise. The axis feature owns `rects`; the `retire` contribution is how it gets emptied; and no shared container exists to leak into. The cost is exactly one entry in `slots.retireHooks`.
 
 | Feature | Private runtime | Escapes via |
 | --- | --- | --- |
-| `vertical()` | packed `Float64Array` rect index (stride 6) + parallel element array + dirty flag + last-seen collection version | `invalidate` marks it dirty; `retire` empties the element array and marks dirty |
+| `y()`, `xy()` | packed `Float64Array` rect index (stride 6) + parallel element array + dirty flag + last-seen collection version. The index _module_ is shared; each axis feature instance holds its own | `invalidate` marks it dirty; `retire` empties the element array and marks dirty |
 | `layoutAnimation()` | `Map<HTMLElement, DisplacementRecord>` | `retire` restores every touched element exactly once |
 | `landing()` | timing options, the WAAPI animation or the custom runner's handle | the `LandingHandle.destroy()` the kernel already holds |
 | `placeholder()` | the factory and the class/attribute policy | nothing to release |
@@ -373,8 +373,11 @@ That is a narrowing, not a prohibition on principle. D-10 originally forbade fea
 
 ## First-iteration features
 
+**Advanced to Phase 17 (D7, Checkpoint D).** This section had been left at the pre-Phase-17 vocabulary while §The export topology this requires was amended, so the document gave two executable readings of the same surface. It now names what ships. Part I's prose and the review files deliberately keep `vertical()` as provenance — this is the current authority, and only current authorities have to agree.
+
 ```ts
-vertical(): SortableFeature;                                  // required
+y(): SortableFeature;                                         // axis — required
+xy(): SortableFeature;                                        // axis — required
 callbacks(options: SortableCallbacks): SortableFeature;       // required
 placeholder(options?: PlaceholderOptions): SortableFeature;
 handle(resolve: (item: HTMLElement) => HTMLElement | null): SortableFeature;
@@ -383,9 +386,11 @@ layoutAnimation(options?: LayoutAnimationOptions): SortableFeature;
 landing(options?: LandingOptions): SortableFeature;
 ```
 
-### `vertical()`
+**Exactly one axis feature is required, and either satisfies the requirement.** `y()` and `xy()` fill the same slot and are mutually exclusive; composing both is the single-writer collision `assemble()` reports.
 
-The only module containing axis geometry. A future `horizontal()` is a sibling, never a branch inside this one.
+### `y()` — the one-dimensional axis rule
+
+One of two modules containing axis geometry, the other being `xy()`. A future `x()` is a sibling, never a branch inside either.
 
 ```text
 candidates := centres of every non-dragged item's visual, plus the placeholder's own centre
@@ -401,6 +406,23 @@ The placeholder being a candidate _is_ the hysteresis: a new gap is proposed onl
 The rect index is marked dirty through `invalidate()` — called by the behavior at activation, on scroll and resize, after a committed placeholder move, on collection publication, and at release — and independently when the snapshot's version moves. A refresh rebuilds only when one of those holds, so a frame's search is one scalar scan.
 
 **`invalidate()` is the whole reason geometry is a paired capability.** The behavior owns the events that make geometry stale; the feature owns the cache. Neither can do the other's half.
+
+### `xy()` — the two-dimensional axis rule
+
+Added at Phase 17, on its own subpath, as a **sibling** of `y()` rather than as a parameter of it. Same shape, same paired-capability contract, same `visual()`-measured candidate set, same placeholder-as-incumbent hysteresis; the metric is the difference:
+
+```text
+candidates := centres of every non-dragged item's visual, plus the placeholder's own centre
+nearest    := the candidate whose centre is closest to the pointer by squared Euclidean distance
+if nearest is the placeholder  -> keep the current insertion (no change)
+else  gap := follows(placeholder, nearest) ? slot + 1 : slot
+```
+
+`xy()` consumes `pointerX` as well as `pointerY` — the **second** additive widening of the consumer-declared frame view (D-13/D-20), after Phase 8a added `item`. Two data points, so the honest reading is that the view is a growing structural contract rather than a fixed one.
+
+**`y()` is not `xy()` with an axis switched off**, which is why the sibling shape is the one that ships. In a single-column list, carrying the pointer horizontally outside the column grows every candidate's X term by the same amount, and the squared sum lets that shared term swamp the Y ordering near a boundary. The two rules disagree on real input, so the split is a capability difference. Packaging follows: an unrestricted 2-D default would live in the behavior core and could not be tree-shaken, so every list consumer would carry the 2-D metric plus a narrowing feature on top of it; a single parameterized axis feature fails the same rule ~120 B more cheaply and in the same direction. Two subpaths keep each composition paying for its own rule, and the packaging test asserts the absence in both directions.
+
+The rect index is shared (`rect-index.ts`, dimension-neutral — it already packed both centres) and each rule holds one privately. That costs the list composition 60 B and is recorded rather than absorbed: two copies of a cache that must stay in step is a class of divergence that is a silent correctness bug rather than a style one.
 
 ### `callbacks()`
 
@@ -631,16 +653,19 @@ The alternative — activate, then cancel immediately afterwards — would be de
 
 ## Tree-shaking
 
-Judged through consumer fixtures, not source intuition — and **measured** (M-3, 2026-08-02 — [measurements/m3.md](../measurements/m3.md)):
+Judged through consumer fixtures, not source intuition — and **measured** (M-3, baselined 2026-08-02 — [measurements/m3.md](../measurements/m3.md); table re-measured 2026-08-07 at Checkpoint D, superseding the pre-Phase-15 figures this section used to publish):
 
 | composition           | brotli       | modules | vs minimal |
 | --------------------- | ------------ | ------- | ---------- |
-| minimal               | **9.33 kB**  | 29      | —          |
-| + `layoutAnimation()` | 9.74 kB      | 30      | +0.41 kB   |
-| + `landing()`         | 9.60 kB      | 30      | +0.27 kB   |
-| complete              | **10.09 kB** | 33      | +0.76 kB   |
+| minimal (`y()`)       | **10.01 kB** | 31      | —          |
+| minimal (`xy()`)      | 10.05 kB     | 31      | +0.04 kB   |
+| + `layoutAnimation()` | 10.42 kB     | 32      | +0.41 kB   |
+| + `landing()`         | 10.29 kB     | 32      | +0.28 kB   |
+| complete              | **10.82 kB** | 35      | +0.81 kB   |
 
-Each optional feature adds only itself, and the absences below are **asserted against the bundled module graph**, not inferred from the deltas — a module can be pulled in and mostly shaken, which produces a small delta and reads like success. **Composition itself costs 0.26 kB (2.6%)** against a feature-matched build that fills the slot record by hand; **migrating from the shipped `sortable.js` costs 2.44 kB**, and the two baselines answer different questions and are never substituted for each other.
+The **deltas** are what this section asserts, and they are unchanged since M-3: each optional feature still adds only itself. The absolute figures moved with D-33's settlement protocol (+70 B), Phase 16's non-tree-shakeable keyboard ingress (~300 B), Phase 17's shared rect index (+60 B) and Checkpoint D's fixes (+40 B); the budgets were re-based with them, keeping the stated headroom.
+
+The absences below are **asserted against the bundled module graph**, not inferred from the deltas — a module can be pulled in and mostly shaken, which produces a small delta and reads like success. **Composition itself costs 0.28 kB (2.6%)** against a feature-matched build that fills the slot record by hand; **migrating from the shipped `sortable.js` costs 3.12 kB**, and the two baselines answer different questions and are never substituted for each other.
 
 1. No global registry, no barrel that eagerly references every feature, no default options object naming an optional feature.
 2. Each feature is its own module with no import edge to a sibling feature, and no import edge to the behavior's runtime type (D-13 removes the last one).
@@ -649,20 +674,21 @@ Each optional feature adds only itself, and the absences below are **asserted ag
 ### The minimal fixture, exactly
 
 ```ts
-sortable(items, vertical(), callbacks({ onReorder }));
+sortable(items, y(), callbacks({ onReorder }));
 ```
 
-**A minimal vertical sortable necessarily contains vertical axis geometry.** An earlier draft required "axis geometry" to be absent from the minimal build while also making `vertical()` required — an impossible target (review 4, §24). What the brief actually requires absent is _unselected_ geometry and unselected optional work (`brief.md:615-637`):
+**A minimal one-dimensional sortable necessarily contains one-dimensional axis geometry.** An earlier draft required "axis geometry" to be absent from the minimal build while also making the axis feature required — an impossible target (review 4, §24). What the brief actually requires absent is _unselected_ geometry and unselected optional work (`brief.md:615-637`):
 
-| Must be absent from the minimal build               |
-| --------------------------------------------------- |
-| horizontal and grid axis implementations            |
-| free drag                                           |
-| layout displacement (`layoutAnimation`)             |
-| landing animation (`landing`, and the WAAPI runner) |
-| any input mode other than pointer                   |
+| Must be absent from the minimal build                     |
+| --------------------------------------------------------- |
+| the axis rule the fixture did not import (`xy()` from a `y()` build, and `y()` from an `xy()` build), and a future `x()` |
+| free drag                                                 |
+| layout displacement (`layoutAnimation`)                   |
+| landing animation (`landing`, and the WAAPI runner)       |
 
-The four compositions to measure: minimal; minimal + `layoutAnimation()`; minimal + `landing()`; the complete set.
+**The "any input mode other than pointer" row is withdrawn (D7, Checkpoint D).** It was written before D-32 and is contradicted by the artifact: keyboard sorting is a `BehaviorSpec` member, not an optional feature, so every composition carries it and no consumer can shake it away. That is a **deliberate accessibility position**, recorded as such in Phase 16 — the alternative, a `keyboard()` feature, would have made an accessibility floor opt-in. Its ~300 B is inside the re-based budgets. Leaving the row standing would have made the minimal build's own packaging test unpassable in principle.
+
+The **five** compositions to measure: minimal (`y()`); minimal (`xy()`), measured as a peer rather than assumed equal to `y()`; minimal + `layoutAnimation()`; minimal + `landing()`; the complete set.
 
 ### The export topology this requires
 

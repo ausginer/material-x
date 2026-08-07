@@ -24,7 +24,7 @@ Paths are relative to `packages/drag2`. Where a row is closed by several tests t
 
 | Row | Test | ID |
 | --- | --- | --- |
-| no oscillation at an insertion threshold | `tests/sortable/vertical.browser.test.ts` — _should keep the incumbent gap on a tie_; `tests/sortable/displacement.browser.test.ts` — _should not propose a reversal while a displacement is running_ | D-7 |
+| no oscillation at an insertion threshold | `tests/sortable/y.browser.test.ts` — _should keep the incumbent gap on a tie_; `tests/sortable/displacement.browser.test.ts` — _should not propose a reversal while a displacement is running_ | D-7 |
 | rapid alternating samples preserve FIFO | `tests/sortable/sortable.browser.test.ts` — _should render the committed sample and coalesce the spatial search_ (three samples, one frame) | 02 §Queue |
 | release uses the final synchronous geometry | `tests/sortable/sortable.browser.test.ts` — _should render the final sample, not the last processed move_ | I-12 |
 | pending frame work cannot alter the released proposal | `tests/sortable/sortable.browser.test.ts` — _should discard a spatial action at RELEASING_ | I-4, I-12 |
@@ -109,6 +109,8 @@ Implemented in Phase 16. The consumer-facing rows are `tests/sortable/keyboard.b
 | `Escape` cancels a command exactly as it cancels a press | `tests/sortable/keyboard.browser.test.ts` — _should be cancelled by Escape exactly as a press is_ | D-32 |
 | `ArrowLeft` ≡ `ArrowUp` and `ArrowRight` ≡ `ArrowDown` — keyboard is not axis-specific | `tests/sortable/keyboard.browser.test.ts` — _should treat ArrowLeft as ArrowUp and ArrowRight as ArrowDown_ | L-4 |
 | `handle()` gates the keyboard path too | `tests/sortable/keyboard.browser.test.ts` — _should gate the keyboard path through handle()_ | L-4 |
+| the keyboard path resolves the item — and therefore the consumer's `handle()` — **exactly once** per keydown, admitted or declined | `tests/sortable/keyboard.browser.test.ts` — _should resolve the handle exactly once per admitted keydown_, _…for a declined keydown_, _…the same number of times as a press does_ | D1 |
+| an admission resolver that queues `updateItems()` queues it **once** per keydown | `tests/sortable/keyboard.browser.test.ts` — _should queue an admission-resolver updateItems() exactly once per keydown_ | D1, D-25 |
 
 ### One row is driven at the seam, and why
 
@@ -188,6 +190,9 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | neighbour identity changes | `tests/sortable/sortable.browser.test.ts` — _should cancel when an internal gap loses its adjacency_ | F-31 |
 | update during release | `tests/sortable/sortable.browser.test.ts` — _should not rewrite the frozen snapshot after release_ | I-12 |
 | update during settlement | `tests/sortable/react.browser.test.ts` — the fixture dispatches `updateItems` from every layout effect, including the commit that resolves readiness | I-12, D-25 |
+| `updateItems()` after `destroy()` is a no-op for a **valid** replacement | `tests/sortable/sortable.browser.test.ts` — _should stay inert for a valid replacement_ | D3 |
+| `updateItems()` after `destroy()` is a no-op for an **invalid** one, and does not throw | `tests/sortable/sortable.browser.test.ts` — _should not throw for an invalid replacement_ | D3 |
+| a post-`destroy()` replacement queued from a callback is not classified as an activation failure | `tests/sortable/sortable.browser.test.ts` — _should not classify a post-destroy replacement as an activation failure_ | D3, I-6 |
 
 ## Styling and animation
 
@@ -197,6 +202,8 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | CSS layout transition | `tests/sortable/composition.browser.test.ts` — _should propose the same gap when the rows carry a CSS transition_ | D-7 |
 | long landing duration | `tests/sortable/features.browser.test.ts` — _should hold settlement open until the animation finishes_ | I-9 |
 | custom animation runner | `tests/sortable/features.browser.test.ts` — _should let a custom runner replace the default entirely_ | I-24 |
+| the default landing timing is the retained shipped `{ duration: 200, easing: 'ease' }` | `tests/sortable/features.browser.test.ts` — _should default the easing to the retained shipped value_, _…the duration…_ | D6, ledger §7 |
+| a `duration` thunk is resolved and validated **once per landing, before** the reduced-motion collapse | `tests/sortable/features.browser.test.ts` — _should read a duration thunk under a reduced-motion preference too_; _should classify an invalid thunk result under a reduced-motion preference_ | D4, L-6 |
 | interrupted and retargeted displacement | `tests/sortable/displacement.browser.test.ts` — _should replay a still-running row from where it visually is_ | D-7 |
 
 ## Construction model — new

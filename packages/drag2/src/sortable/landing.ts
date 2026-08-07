@@ -48,7 +48,12 @@ export type LandingOptions = Readonly<{
 }>;
 
 const DEFAULT_DURATION = 200;
-const DEFAULT_EASING = 'ease-out';
+// **Parity, not taste** (D6, Checkpoint D). The shipped package's default
+// landing timing is `{ duration: 200, easing: 'ease' }` and the parity ledger
+// retains it, so a consumer that installs `landing()` with no easing gets the
+// motion it already had. `'ease-out'` shipped here by accident and was
+// observably different for every such consumer.
+const DEFAULT_EASING = 'ease';
 
 export function landing(options: LandingOptions = {}): SortableFeature {
   const { run } = options;
@@ -76,21 +81,29 @@ export function landing(options: LandingOptions = {}): SortableFeature {
 
   const start: LandingStart = (context, done, fail): LandingHandle => {
     const { visual, compose, realm } = context;
+    // Resolved and validated **once per landing**, not per `play`: a retarget
+    // replays the same trajectory budget rather than re-reading a thunk that
+    // may have moved on.
+    //
+    // **Before the reduced-motion test, never inside it** (D4, Checkpoint D).
+    // The thunk's documented call timing is "once per landing, immediately
+    // before the runner builds its animation" — it is not conditional on a
+    // media query, and the shipped `landingTiming()` was likewise invoked and
+    // its result adjusted afterwards. Resolving inside the collapse would make
+    // a consumer's settle-time side effect, and a thrown or invalid result,
+    // observable only for users who have not asked for reduced motion.
+    const resolved =
+      timing === null
+        ? fixed
+        : requireFinite(timing(), 'landing({ duration })', 0);
     // Collapsed to zero rather than skipped: the gate is still held and still
     // released through the runner, so the lifecycle is one path whatever the
     // user's motion preference is.
     const reduced =
       realm.window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ??
       false;
-    // Resolved **once per landing**, not per `play`: a retarget replays the
-    // same trajectory budget rather than re-reading a thunk that may have
-    // moved on.
     const animationTiming = {
-      duration: reduced
-        ? 0
-        : timing === null
-          ? fixed
-          : requireFinite(timing(), 'landing({ duration })', 0),
+      duration: reduced ? 0 : resolved,
       easing,
       // The kernel destroys the runner *before* it pins, so a forwards fill is
       // released exactly when the authoritative write lands. Without it the

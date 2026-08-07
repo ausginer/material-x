@@ -110,7 +110,12 @@ export function assemble(
     }
 
     if (insertion === null) {
-      throw new TypeError('sortable: y() is required');
+      // Axis-neutral since Phase 17 (D8, Checkpoint D): the slot is filled by
+      // `y()` **or** `xy()`, so naming one of them described a valid `xy()`
+      // composition as missing the feature it had.
+      throw new TypeError(
+        'sortable: an axis feature — y() or xy() — is required',
+      );
     }
 
     if (callbacks === null) {

@@ -1969,6 +1969,58 @@ describe('collection identity', () => {
   });
 });
 
+describe('updateItems after destroy', () => {
+  it('should stay inert for a valid replacement', () => {
+    // The parity ledger promises `updateItems()` is a no-op after `destroy()`.
+    // The kernel's own latch drops the dispatch, but the controller reached it
+    // only after copying the array and advancing the private version, so the
+    // "no-op" was true of the kernel and not of the method (D3).
+    const harness = createHarness();
+
+    harness.controller.destroy();
+    harness.controller.updateItems([harness.items[1]!, harness.items[0]!]);
+    press(harness.items[1]!);
+    move(40);
+
+    // Ingress is closed, so nothing can observe a snapshot either way — the
+    // assertion is that the whole controller stayed silent.
+    expect(harness.calls).toEqual([]);
+    expect(reported).toEqual([]);
+  });
+
+  it('should not throw for an invalid replacement', () => {
+    // The observable half, and the one an "no action reached the kernel"
+    // assertion misses entirely: validation ran *before* the closed latch, so a
+    // duplicate threw at a controller that is supposed to be inert.
+    const harness = createHarness();
+
+    harness.controller.destroy();
+
+    expect(() =>
+      harness.controller.updateItems([harness.items[0]!, harness.items[0]!]),
+    ).not.toThrow();
+  });
+
+  it('should not classify a post-destroy replacement as an activation failure', () => {
+    // The realistic arrival, and where the throw is not merely returned to the
+    // caller: a consumer tears the list down from a callback and its own store
+    // notification lands in the same drain. `onStart` runs inside
+    // `activation.effect`, so the `TypeError` would be classified
+    // `FAILURE_ACTIVATION` against an operation the consumer already destroyed.
+    const harness = createHarness({
+      onStart(h): void {
+        h.controller.destroy();
+        h.controller.updateItems([h.items[0]!, h.items[0]!]);
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.errors).toEqual([]);
+    expect(reported).toEqual([]);
+  });
+});
+
 describe('invalidation failure classification', () => {
   it('should classify a scroll-time invalidation failure', () => {
     // A native listener is not a seam, so this error used to reach neither

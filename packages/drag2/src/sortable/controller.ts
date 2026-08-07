@@ -48,9 +48,27 @@ export function createSortableController(
   // only job: being the identity of a snapshot. The counter is seeded from the
   // initial snapshot so the sequence stays continuous with it.
   let { version } = rt.snapshot;
+  // **The terminal latch, and it is the controller's own** (D3, Checkpoint D).
+  // The kernel has one, but it is not readable through `KernelHost` and it
+  // guards the *dispatch* — which is one step too late for `updateItems`, whose
+  // validation throws before anything reaches the kernel. "No-op after
+  // `destroy()`" has to mean the whole method, invalid input included, or the
+  // promise is only true for calls that would have been silent anyway.
+  //
+  // Only `updateItems` needs it. `cancel` and `destroy` *are* the kernel's own
+  // members, spread through unchanged, and the kernel's latch already makes
+  // both inert and idempotent before they do any work. `ready()` deliberately
+  // keeps reporting: a post-`destroy()` acknowledgement is a stale one by
+  // definition, and telling an integrator that its layout effect outlived the
+  // controller is the whole reason that DEV report exists.
+  let closed = false;
 
   return {
     updateItems(items): void {
+      if (closed) {
+        return;
+      }
+
       // Copied and validated **here**, at call time, so a caller that keeps
       // mutating its own array cannot change a snapshot already queued, and a
       // duplicate is refused at the call that introduced it.
@@ -106,6 +124,10 @@ export function createSortableController(
     },
 
     cancel: host.cancel,
-    destroy: host.destroy,
+
+    destroy(): void {
+      closed = true;
+      host.destroy();
+    },
   };
 }

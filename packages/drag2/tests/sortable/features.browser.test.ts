@@ -184,6 +184,31 @@ const drag = async (y: number): Promise<void> => {
   await nextFrame();
 };
 
+/**
+ * Run `body` with `(prefers-reduced-motion: reduce)` matching.
+ *
+ * Only `matches` is read, and only through `realm.window`, so a stub is the
+ * whole of the dependency.
+ */
+const withReducedMotion = async <T>(body: () => Promise<T>): Promise<T> => {
+  const native = window.matchMedia;
+
+  window.matchMedia = (query: string): MediaQueryList => {
+    const stub: Partial<MediaQueryList> = {
+      matches: query.includes('reduce'),
+      media: query,
+    };
+
+    return stub as MediaQueryList;
+  };
+
+  try {
+    return await body();
+  } finally {
+    window.matchMedia = native;
+  }
+};
+
 describe('placeholder', () => {
   it('should add the configured classes to the default element', () => {
     const composed = compose(placeholder({ className: 'ghost dim' }));
@@ -603,27 +628,16 @@ describe('landing', () => {
     // Collapsed, not skipped: the gate is still held and still released through
     // the runner, so there is one lifecycle whatever the preference is.
     const composed = compose(landing({ duration: 400 }));
-    const native = window.matchMedia;
 
-    window.matchMedia = (query: string): MediaQueryList => {
-      const stub: Partial<MediaQueryList> = {
-        matches: query.includes('reduce'),
-        media: query,
-      };
-
-      // Only `matches` is read, and only through `realm.window`.
-      return stub as MediaQueryList;
-    };
-
-    try {
+    // Read inside the block: a zero duration finishes within the microtasks an
+    // `await` on the wrapper would itself introduce, and the kernel then
+    // destroys the runner.
+    const animation = await withReducedMotion(async () => {
       activate(composed);
       await drag(55);
       release(55);
-    } finally {
-      window.matchMedia = native;
-    }
-
-    const [animation] = composed.items[0]!.getAnimations();
+      return composed.items[0]!.getAnimations()[0];
+    });
 
     expect(animation!.effect!.getComputedTiming().duration).toBe(0);
   });
@@ -681,6 +695,91 @@ describe('landing', () => {
     await Promise.resolve();
 
     expect(reads).toEqual(['read']);
+  });
+
+  it('should read a duration thunk under a reduced-motion preference too', async () => {
+    // D4. The collapse used to *replace* the thunk rather than adjust its
+    // result, so the documented call timing — "once per landing, immediately
+    // before the runner builds its animation" — silently did not hold for
+    // reduced-motion users, and a consumer's settle-time side effect went with
+    // it. Resolve first, then collapse.
+    const reads: string[] = [];
+    const composed = composeWith({
+      features: [
+        landing({
+          duration: () => {
+            reads.push('read');
+            return 400;
+          },
+        }),
+      ],
+    });
+
+    const animation = await withReducedMotion(async () => {
+      activate(composed);
+      await drag(55);
+      release(55);
+      return composed.items[0]!.getAnimations()[0];
+    });
+
+    expect(reads).toEqual(['read']);
+    // Still collapsed: the preference adjusts the resolved value, it does not
+    // bypass the resolution.
+    expect(animation!.effect!.getComputedTiming().duration).toBe(0);
+  });
+
+  it('should classify an invalid thunk result under a reduced-motion preference', async () => {
+    // The failure half of the same defect. Validation lived inside the branch
+    // the collapse skipped, so a thunk returning a bad value threw for everyone
+    // except the users least able to notice that it had not.
+    const composed = composeWith({
+      features: [landing({ duration: () => Number.NaN })],
+    });
+
+    await withReducedMotion(async () => {
+      activate(composed);
+      await drag(55);
+      release(55);
+    });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(composed.errors).toHaveLength(1);
+  });
+
+  it('should default the easing to the retained shipped value', async () => {
+    // D6. The parity ledger retains the shipped default landing timing
+    // `{ duration: 200, easing: 'ease' }`; this shipped as `'ease-out'`, so
+    // every consumer that installed `landing()` without an easing got
+    // observably different motion.
+    const composed = compose(landing({ duration: 400 }));
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    const [animation] = composed.items[0]!.getAnimations();
+
+    expect((animation!.effect as KeyframeEffect).getTiming()).toMatchObject({
+      duration: 400,
+      easing: 'ease',
+    });
+  });
+
+  it('should default the duration to the retained shipped value', async () => {
+    const composed = compose(landing());
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    const [animation] = composed.items[0]!.getAnimations();
+
+    expect((animation!.effect as KeyframeEffect).getTiming()).toMatchObject({
+      duration: 200,
+      easing: 'ease',
+    });
   });
 
   it('should not report a cancelled animation as a failure', async () => {
