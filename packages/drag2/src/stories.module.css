@@ -46,8 +46,36 @@
   cursor: grab;
 }
 
+/* A wrapping field of rectangles — the shape `xy()` exists for. */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: min(440px, 90vw);
+  padding: 8px;
+  border-radius: 12px;
+  background: #f7f2fa;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  font-size: 18px;
+  font-weight: 500;
+}
+
 /* The behavior's default placeholder, which `placeholder()` only customises. */
-.list [data-drag-placeholder] {
+.list [data-drag-placeholder],
+.grid [data-drag-placeholder] {
   border: 2px dashed #6750a4;
   border-radius: 8px;
   background: rgb(103 80 164 / 8%);

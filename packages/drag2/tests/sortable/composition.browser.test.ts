@@ -2,7 +2,7 @@
  * The minimal composition, driven through the **public entrypoint**:
  *
  * ```ts
- * draggable(root, sortable(items, vertical(), callbacks({ onReorder })))
+ * draggable(root, sortable(items, y(), callbacks({ onReorder })))
  * ```
  *
  * Everything else in `tests/sortable` drives the behavior against hand-written
@@ -19,7 +19,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { draggable } from '../../src/drag.ts';
 import { AT_PROPOSAL } from '../../src/kernel/failures.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
@@ -109,7 +109,7 @@ function compose(options: Options = {}): Composed {
     root,
     sortable(
       items,
-      vertical(),
+      y(),
       callbacks({
         onReorder:
           options.onReorder ??
@@ -407,18 +407,16 @@ describe('the composed reorder round trip', () => {
     expect(composed.errors).toEqual([failure]);
   });
 
-  it('should hold settlement open for a pending readiness promise', async () => {
+  it('should hold settlement open for a declared authored presentation', async () => {
     // I-9: with no `landing()` installed the behavior still holds *one* gate, so
-    // an accepted resolution carrying `presentationReady` does not finalize in
-    // the resolution drain.
-    let ready!: () => void;
+    // an accepted resolution declaring a presentation does not finalize in the
+    // resolution drain.
+    let pending!: ReorderRequest;
     const composed = compose({
-      onReorder: () =>
-        ReorderResolution.accept(
-          new Promise<void>((resolve) => {
-            ready = resolve;
-          }),
-        ),
+      onReorder: (request) => {
+        pending = request;
+        return ReorderResolution.accept({ presentation: true });
+      },
     });
 
     activate(composed);
@@ -430,7 +428,7 @@ describe('the composed reorder round trip', () => {
     expect(composed.placeholder()).not.toBeNull();
     expect(composed.finishes).toEqual([]);
 
-    ready();
+    composed.controller.ready(pending);
     await Promise.resolve();
     await Promise.resolve();
     await Promise.resolve();
@@ -766,28 +764,27 @@ describe('the composed terminal protocol', () => {
     expect(composed.finishes).toHaveLength(1);
   });
 
-  it('should ignore readiness that settles after a newer operation began', async () => {
-    // The same staleness through the other gate, and it needs the timeout to
-    // get there: once the settlement is armed the cancellation lifetime is
-    // closed, so `cancel()` cannot end an operation waiting on readiness. The
-    // bound is what ends it, and the promise then settles into a settlement
-    // that no longer exists.
-    let ready!: () => void;
+  it('should ignore an acknowledgement that arrives after a newer operation began', async () => {
+    // The stale case end to end (I-35), and it needs the timeout to get there:
+    // once the settlement is armed the cancellation lifetime is closed, so
+    // `cancel()` cannot end an operation waiting on readiness. The bound is what
+    // ends it — and the acknowledgement then arrives for an operation that no
+    // longer exists, while a *newer* one is live.
+    let stale!: ReorderRequest;
     let first = true;
     const composed = compose({
       readinessTimeout: 20,
-      onReorder: () => {
+      onReorder: (request) => {
         if (!first) {
           return ReorderResolution.accept();
         }
 
         first = false;
+        stale = request;
 
-        return ReorderResolution.accept(
-          new Promise<void>((resolve) => {
-            ready = resolve;
-          }),
-        );
+        // Declared and then never acknowledged in time: the deadline is the
+        // only terminal a lost acknowledgement has.
+        return ReorderResolution.accept({ presentation: true });
       },
     });
 
@@ -806,7 +803,10 @@ describe('the composed terminal protocol', () => {
 
     const beforeStale = composed.finishes.length;
 
-    ready();
+    // Operation A's late layout effect. It names A's request, `rt.pendingRequest`
+    // now names B's — or nothing — so the behavior rejects it on identity and
+    // nothing is released. Reported, never classified.
+    composed.controller.ready(stale);
     await Promise.resolve();
     await Promise.resolve();
 

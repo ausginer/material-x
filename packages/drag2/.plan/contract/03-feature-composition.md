@@ -670,7 +670,8 @@ A separate subpath entry per optional feature is what makes the measurement hone
 | --- | --- | --- |
 | `drag.js` | `draggable`, the 14 **`FAILURE_*` constants** | `Point`, `FailureStage`, `DOMRealm`, `Behavior` (opaque) |
 | `sortable.js` | `sortable`, **`ReorderResolution`**, **`AT_PROPOSAL`**, **`AT_CONSUMER`** | `ReorderRequest`, `ReorderProposal`, `CollectionSnapshot`, `ReorderResolution`, `AcceptedReorderResolution`, `RejectedReorderResolution`, `AcceptedReorderResult`, `NoopReorderResult`, `RejectedReorderResult`, `CanceledReorderResult`, `ReorderTransactionResult`, `SortableFinishResult`, `SortableCancelResult`, `CancelStage`, **`DragErrorContext`**, `SortableController`, `PlaceholderFactory`, **`SortableFeature`** (opaque) |
-| `sortable/vertical.js` | `vertical` | — |
+| `sortable/y.js` | `y` | — |
+| `sortable/xy.js` | `xy` | — |
 | `sortable/callbacks.js` | `callbacks` | `SortableCallbacks`, `OnReorder`, **`ResolutionOptions`** |
 | `sortable/placeholder.js` | `placeholder` | `PlaceholderOptions`, `PlaceholderContext` |
 | `sortable/handle.js` | `handle`, `visual` | — |
@@ -688,6 +689,14 @@ A fourth correction followed from running TypeDoc over the frozen entries: four 
 **A sixth cell changed at the Phase 14 re-freeze, and it is one alias rather than two.** `ResolutionOptions` joins `sortable/callbacks.js` because `ReorderResolution.accept` is a function of it — the same "export what a public type structurally depends on" rule as the four aliases above. It ships from `callbacks.js` rather than `sortable.js` because a composition that installs no `callbacks()` has no `onReorder`, and therefore no presentation to declare.
 
 An earlier draft of the revision exported **two** types here, `PresentationToken` and `PresentationDeliverer`, describing a kernel-owned gate object the consumer had to hold. Checkpoint C's criterion — do not expose more settlement machinery than the consumer needs — plus the synchronous-commit defect that design carried, removed both. What ships instead is a boolean and a method on the controller, and `SortableController` was already public.
+
+**A seventh change at Phase 17, and it is two cells rather than one.** The two-dimensional insertion rule ships as a **sibling axis feature** on its own subpath, `sortable/xy.js`, and the axis features are renamed to the axes they measure: `vertical()` → **`y()`** on `sortable/y.js`, with a future horizontal rule reserved as `x()`.
+
+The shape was chosen against the constraint the ledger states (L-8, §5): whichever form 2-D took, it must not make the 1-D case pay for it. That eliminated the option with shipped precedent — an unrestricted 2-D default that an axis feature narrows — because a default lives in the behavior core and cannot be tree-shaken away, so every list consumer would carry both rules. It also eliminated one parameterized axis feature, which puts the 2-D metric and its `compareDocumentPosition` call in the list consumer's graph. Two subpaths keep each composition paying for its own rule, and `tests/packaging.node.test.ts` asserts the absence in **both** directions.
+
+What the two features share is `rect-index.ts`, a dimension-neutral packed geometry cache, held privately per feature instance. That sharing costs the list composition a measured **60 B** — recorded rather than absorbed, because the alternative is two copies of a cache that must stay in step, where a divergence is a silent correctness bug. The 2-D _rule_ itself costs a list consumer nothing.
+
+The rename is a **breaking public change** and the second one this part has made, after D-33's `ResolutionOptions`. It is recorded here rather than treated as cosmetic: `vertical` was a layout word for a rule that is about a coordinate, and the vocabulary only becomes ambiguous once a second axis exists.
 
 `ReorderResolution`'s two member types are unchanged in name and in discrimination; the optional argument changed and `SortableController` gained `ready`, which together are a **breaking public change** — the one this revision makes. Phase 15 implements it, and the consumer fixture's per-subpath export equality is what will fail if it is implemented halfway.
 

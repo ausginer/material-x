@@ -6,7 +6,8 @@ import * as handle from '../src/sortable/handle.ts';
 import * as landing from '../src/sortable/landing.ts';
 import * as layoutAnimation from '../src/sortable/layout-animation.ts';
 import * as placeholder from '../src/sortable/placeholder.ts';
-import * as vertical from '../src/sortable/vertical.ts';
+import * as xy from '../src/sortable/xy.ts';
+import * as y from '../src/sortable/y.ts';
 import * as sortable from '../src/sortable.ts';
 
 // Statically imported on purpose: this is the scratch consumer fixture for the
@@ -14,7 +15,8 @@ import * as sortable from '../src/sortable.ts';
 const modules: Readonly<Record<string, object>> = {
   drag,
   sortable,
-  'sortable/vertical': vertical,
+  'sortable/y': y,
+  'sortable/xy': xy,
   'sortable/callbacks': callbacks,
   'sortable/placeholder': placeholder,
   'sortable/handle': handle,
@@ -56,7 +58,8 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'draggable',
   ],
   sortable: ['AT_CONSUMER', 'AT_PROPOSAL', 'ReorderResolution', 'sortable'],
-  'sortable/vertical': ['vertical'],
+  'sortable/y': ['y'],
+  'sortable/xy': ['xy'],
   'sortable/callbacks': ['callbacks'],
   'sortable/placeholder': ['placeholder'],
   'sortable/handle': ['handle', 'visual'],

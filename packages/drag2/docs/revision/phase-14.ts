@@ -13,7 +13,7 @@
  * The `contract.ts` treatment applied to the **revised** surface: the parts of
  * the SPI the revision changed are **restated here**, and everything it did not
  * change is imported from `../../src/` so the two halves cannot silently drift
- * apart. Two complete `BehaviorSpec`s are written against it — vertical sortable
+ * apart. Two complete `BehaviorSpec`s are written against it — y sortable
  * with `Activation = HTMLElement`, free drag with the `true` default — plus the
  * construction handshake, so inference is exercised rather than asserted, and
  * D-33's **request-identity path** end to end: built in `release.prepare`,
@@ -80,12 +80,25 @@ import type { DOMRealm } from '../../src/kernel/realm.ts';
 import { report } from '../../src/kernel/reporter.ts';
 import type { Transition } from '../../src/kernel/seams.ts';
 import {
+  type KernelHost,
+  type LandingContext,
+  type LandingStart,
+  type PreparedSettlement,
   type ResolutionCommand,
   type SeamRejection,
   SETTLED_FULFILLED,
   type SettlementInput,
+  type SettlementScope,
+  type SettlementTransition,
 } from '../../src/kernel/spec.ts';
 import type { Point } from '../../src/kernel/types.ts';
+import type { SortableController } from '../../src/sortable/controller.ts';
+import {
+  type AcceptedReorderResolution,
+  type ReorderRequest,
+  ReorderResolution,
+  type ReorderResolution as ReorderResolutionValue,
+} from '../../src/sortable/domain.ts';
 
 /* ========================================================== D-35 ========== */
 
@@ -145,25 +158,13 @@ type BehaviorLiftSession = Readonly<
   >
 >;
 
-type RevisedLandingContext = Readonly<{
-  visual: HTMLElement;
-  compose(x: number, y: number): string;
-  /** Sourced from `lift.rendered`, never from `pointerX - originX` (D-35). */
-  from: Point;
-  target: Point;
-  realm: DOMRealm;
-}>;
-
-type RevisedLandingHandle = Readonly<{
-  destroy(): void;
-  retarget?(target: Point): void;
-}>;
-
-type RevisedLandingStart = (
-  context: RevisedLandingContext,
-  done: () => void,
-  fail: (error: unknown) => void,
-) => RevisedLandingHandle;
+/**
+ * **`LandingContext` itself is imported.** D-35 changed where `from` is
+ * *sourced* — the lift session's record rather than the pointer delta — and not
+ * the shape a runner sees, so restating the type here would assert nothing.
+ * What is still restated is `KernelVisualLiftSession.rendered`, which is the
+ * part `src/` does not have yet.
+ */
 
 /**
  * **The source path D-35 depends on, compiled** (C4-06). Declaring both
@@ -176,7 +177,7 @@ export function buildLandingContext(
   lift: KernelVisualLiftSession,
   target: Point,
   realm: DOMRealm,
-): RevisedLandingContext {
+): LandingContext {
   return {
     visual: lift.visual,
     compose: lift.compose,
@@ -189,30 +190,21 @@ export function buildLandingContext(
 /* ========================================================== D-33 ========== */
 
 /**
- * **The gate plan is a boolean, and the acknowledgement is a host signal.**
+ * **Implemented in Phase 15, so the restatement is gone.**
  *
- * No public protocol object: the consumer declares *that* a presentation is
- * coming through its resolution, and acknowledges it through the controller,
- * keyed on the request it was handed. `holdForReadiness()` takes nothing.
+ * `SettlementScope`, `PreparedSettlement` and `SettlementTransition` are now
+ * imported from `src/` rather than restated here: `holdForReadiness()` takes
+ * nothing, the gate plan is `{ presentation: boolean }`, and the
+ * acknowledgement arrives through `KernelHost.presentationCommitted()`. A
+ * restatement that outlives its implementation is how a fixture starts lying,
+ * which is why each half is deleted the moment `src/` agrees with it rather
+ * than at the end of the roadmap.
+ *
+ * The same is true of the public half below — `ResolutionOptions`,
+ * `ReorderResolution` and `SortableController.ready(request)` are the shipped
+ * ones. What is still restated in this file is D-32, D-34 and D-35, which land
+ * with Phases 16 and 19–20.
  */
-type RevisedSettlementScope = Readonly<{
-  holdForReadiness(): void;
-  holdForLanding(start: RevisedLandingStart): void;
-}>;
-
-type RevisedPreparedSettlement = Readonly<{ presentation: boolean }>;
-
-type RevisedSettlementTransition<Part extends object> = Readonly<{
-  prepare(
-    draft: Draft<Part>,
-    input: SettlementInput,
-  ): RevisedPreparedSettlement | SeamRejection;
-  effect(
-    current: Readonly<Frame<Part>>,
-    prepared: RevisedPreparedSettlement,
-    scope: RevisedSettlementScope,
-  ): void;
-}>;
 
 /* ========================================================== D-32 ========== */
 
@@ -225,45 +217,12 @@ type CommandAdmission<Part extends object> = Readonly<{
 /* ===================================================== host and spec ====== */
 
 /**
- * Seven members. Six of them are unchanged — D-32 added none, which is the
- * result it claims — and `presentationCommitted` is D-33's.
+ * **`KernelHost` is imported.** Seven members: six unchanged — D-32 added none,
+ * which is the result it claims — and `presentationCommitted`, which is D-33's
+ * and shipped with Phase 15. The kernel-side contradiction rule it carries is
+ * kernel-private and therefore not expressible in this fixture; the behavior
+ * half of the same rule *is*, in `createSortableController` below.
  */
-type RevisedKernelHost = Readonly<{
-  realm: DOMRealm;
-  root: HTMLElement;
-  dispatch(tag: number, argument: unknown): void;
-  fail(stage: FailureStage, error: unknown): void;
-  /**
-   * The authored presentation for the operation the kernel currently holds is
-   * final. Latched while a resolution attempt is open, releases the readiness
-   * hold once armed, ignored and reported outside both windows.
-   *
-   * Not a transition and not a classification: a gate release is not a frame
-   * transition, so this is `cancel`'s family, not `commit`'s.
-   *
-   * **The kernel-side contradiction (C3-02).** An early acknowledgement is
-   * latched before the kernel can know whether a presentation will be declared,
-   * so the contradiction is resolved at seal — not dropped:
-   *
-   * ```text
-   * seal:
-   *   attempt.authoredReady = !attempt.readinessHeld
-   *   if (attempt.presentationLatched && !attempt.readinessHeld)
-   *       report(new Error('drag: ready() … declared no presentation'))
-   *       attempt.presentationLatched = false      ← discarded, not applied
-   * arm:
-   *   attempt.presentationLatched ? dispatch(READINESS_SETTLED)
-   *                               : start the readiness deadline
-   * ```
-   *
-   * It is kernel-private and therefore not expressible in this fixture — the
-   * behavior half of the same rule *is*, in `createSortableController` below.
-   * Both take {@link report}, both are `DEV`-gated, and neither classifies.
-   */
-  presentationCommitted(): void;
-  cancel(reason?: unknown): void;
-  destroy(): void;
-}>;
 
 type RevisedActivationScope = Readonly<{
   visual: HTMLElement;
@@ -309,7 +268,7 @@ type RevisedBehaviorSpec<
 
   activation: Transition<Part, Activation, RevisedActivationScope>;
   release: RevisedReleaseTransition<Part>;
-  settlement: RevisedSettlementTransition<Part>;
+  settlement: SettlementTransition<Part>;
   action: RevisedActionTransition<Part>;
 
   moved(current: Readonly<Frame<Part>>, lift: BehaviorLiftSession): void;
@@ -341,9 +300,7 @@ type RevisedBehaviorFactory<
   Controller,
   Part extends object,
   Activation extends {},
-> = (
-  host: RevisedKernelHost,
-) => RevisedBehaviorInstall<Controller, Part, Activation>;
+> = (host: KernelHost) => RevisedBehaviorInstall<Controller, Part, Activation>;
 
 declare const BEHAVIOR_BRAND: unique symbol;
 
@@ -373,7 +330,7 @@ declare function unbrandBehavior<Controller>(
 declare function createKernel<Part extends object>(
   root: HTMLElement,
 ): Readonly<{
-  host: RevisedKernelHost;
+  host: KernelHost;
   arm(spec: RevisedBehaviorSpec<Part, {}>): void;
 }>;
 
@@ -406,45 +363,16 @@ function draggable<Controller>(
 
 /* ============================================= the public resolution ====== */
 
-type ReorderRequest = Readonly<{ from: number; to: number; version: number }>;
-
-type ResolutionOptions = Readonly<{
-  /** An authored presentation will follow, and will be acknowledged. */
-  presentation?: boolean;
-}>;
-
-type AcceptedResolution = Readonly<{
-  type: 'accepted';
-  presentation: boolean;
-}>;
-type RejectedResolution = Readonly<{
-  type: 'rejected';
-  reason: unknown;
-  presentation: boolean;
-}>;
-type ReorderResolutionValue = AcceptedResolution | RejectedResolution;
-
-declare const ReorderResolution: Readonly<{
-  accept(options?: ResolutionOptions): AcceptedResolution;
-  reject(reason?: unknown, options?: ResolutionOptions): RejectedResolution;
-}>;
-
 /**
- * The consumer surface D-33 produces. **No settlement machinery crosses it**:
- * `presentation: true` is a declaration, and `ready(request)` is an
+ * **Also imported now.** `ResolutionOptions`, `ReorderResolution` and
+ * `SortableController` shipped with Phase 15, so what this file once restated as
+ * "the consumer surface D-33 produces" is the surface itself. The property the
+ * restatement existed to check is unchanged and now checked against the real
+ * thing: **no settlement machinery crosses the public boundary** —
+ * `presentation: true` is a declaration and `ready(request)` is an
  * acknowledgement keyed on the object the callback was handed.
  */
-type SortableController = Readonly<{
-  updateItems(items: readonly HTMLElement[]): void;
-  /**
-   * The authored presentation for `request` is committed. A request that is not
-   * the operation's own is ignored and reported — which is what makes a late
-   * acknowledgement from a timed-out operation unable to release a newer one.
-   */
-  ready(request: ReorderRequest): void;
-  cancel(reason?: unknown): void;
-  destroy(): void;
-}>;
+type AcceptedResolution = AcceptedReorderResolution;
 
 /* ================================================= behavior 1: sortable === */
 
@@ -472,7 +400,7 @@ type SortablePart = {
  * round-trip, compared by identity in `controller.ready`, cleared by `retire()`.
  */
 type SortableRuntime = {
-  readonly host: RevisedKernelHost;
+  readonly host: KernelHost;
   placeholder: HTMLElement | null;
   lift: BehaviorLiftSession | null;
   pendingRequest: ReorderRequest | null;
@@ -485,9 +413,7 @@ type SortableRuntime = {
  * normative coupling: `createSortableSpec(rt)` and `createSortableController(host,
  * rt)` must receive the **same** object, and neither can exist before a `host`.
  */
-declare function createSortableRuntime(
-  host: RevisedKernelHost,
-): SortableRuntime;
+declare function createSortableRuntime(host: KernelHost): SortableRuntime;
 declare function createPlaceholder(item: HTMLElement): HTMLElement;
 /** `item.after(placeholder)` — the home slot, at activation, on both paths. */
 declare function insertAtHome(
@@ -513,7 +439,7 @@ declare function classify(
   draft: Draft<SortablePart>,
   input: SettlementInput,
 ): void;
-declare const startLanding: RevisedLandingStart | null;
+declare const startLanding: LandingStart | null;
 declare const rejection: SeamRejection;
 
 /**
@@ -725,7 +651,7 @@ export function createSortableSpec(
     },
 
     settlement: {
-      prepare(draft, input): RevisedPreparedSettlement | SeamRejection {
+      prepare(draft, input): PreparedSettlement | SeamRejection {
         classify(draft, input);
 
         // Only a fulfilled round-trip can declare an authored presentation.
@@ -796,7 +722,7 @@ export function createSortableSpec(
  * show that the path exists and composes, not to prove the comparison.
  */
 function createSortableController(
-  host: RevisedKernelHost,
+  host: KernelHost,
   runtime: SortableRuntime,
 ): SortableController {
   return {
@@ -826,7 +752,7 @@ function createSortableController(
       // The matching-but-undeclared contradiction is NOT checked here. The
       // behavior does not know what the resolution declared — `presentation`
       // travels through `Prepared` to the kernel — so the kernel owns that
-      // report, at seal or on arrival. See `RevisedKernelHost` above.
+      // report, at seal or on arrival. See `KernelHost` above.
       host.presentationCommitted();
     },
 
@@ -921,7 +847,7 @@ export const freeDragSpec: RevisedBehaviorSpec<FreeDragPart> = {
   },
 
   settlement: {
-    prepare(): RevisedPreparedSettlement | SeamRejection {
+    prepare(): PreparedSettlement | SeamRejection {
       return { presentation: false };
     },
     effect(_current, _prepared, scope): void {
@@ -960,7 +886,7 @@ export const freeDragSpec: RevisedBehaviorSpec<FreeDragPart> = {
   retire(): void {},
 };
 
-declare function createFreeController(host: RevisedKernelHost): FreeController;
+declare function createFreeController(host: KernelHost): FreeController;
 
 export const freeBehavior: RevisedBehavior<FreeController> = brandBehavior(
   (host): RevisedBehaviorInstall<FreeController, FreeDragPart, true> => ({
@@ -1018,7 +944,7 @@ export function referenceIntegration(
 
 /* ================================================= negative assertions ==== */
 
-declare const host: RevisedKernelHost;
+declare const host: KernelHost;
 declare const spec: RevisedBehaviorSpec<SortablePart, HTMLElement>;
 
 /** The behavior still cannot mint an operation (13a N-5 survives D-32). */
@@ -1084,10 +1010,10 @@ export const n8: RevisedBehaviorSpec<FreeDragPart>['activation'] =
 declare const promised: Readonly<{ ready: PromiseLike<void> }>;
 
 // @ts-expect-error — `PreparedSettlement` carries a boolean, not a thenable.
-export const n9: RevisedPreparedSettlement = promised;
+export const n9: PreparedSettlement = promised;
 
 /** And no settlement primitive crosses the public surface. */
-declare const scope: RevisedSettlementScope;
+declare const scope: SettlementScope;
 
 // @ts-expect-error — `holdForReadiness` yields no token to hand out.
 export const n10: object = scope.holdForReadiness();

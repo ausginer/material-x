@@ -23,9 +23,13 @@
       "types": "./sortable.d.ts",
       "default": "./sortable.js"
     },
-    "./sortable/vertical.js": {
-      "types": "./sortable/vertical.d.ts",
-      "default": "./sortable/vertical.js"
+    "./sortable/y.js": {
+      "types": "./sortable/y.d.ts",
+      "default": "./sortable/y.js"
+    },
+    "./sortable/xy.js": {
+      "types": "./sortable/xy.d.ts",
+      "default": "./sortable/xy.js"
     },
     "./sortable/callbacks.js": {
       "types": "./sortable/callbacks.d.ts",

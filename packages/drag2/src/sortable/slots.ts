@@ -26,14 +26,28 @@ import type {
 import type { PlaceholderFactory } from './placement.ts';
 
 /**
- * The two fields the axis rule reads off the frame. **The behavior passes
+ * The fields an axis rule may read off the frame. **The behavior passes
  * whichever frame its seam was handed** — `Draft<Part>` inside a `prepare`,
  * `Readonly<Frame<Part>>` inside an `effect` — and structural typing does the
- * rest, so no view is ever materialized and `vertical.ts` imports neither the
- * kernel slice nor the behavior's part to say what it needs.
+ * rest, so no view is ever materialized and neither `y.ts` nor `xy.ts` imports
+ * the kernel slice or the behavior's part to say what it needs.
+ *
+ * **This is the widest view, not the required one.** A feature declares its own
+ * narrower view in its own module and the behavior's frame satisfies both:
+ * `y()` names `pointerY` and `item`, `xy()` names `pointerX` as well. The type
+ * here is the ceiling the behavior guarantees to supply.
  */
 export type InsertionFrameView = Readonly<{
   insertion: Insertion | null;
+  /**
+   * **Added in Phase 17**, for the two-dimensional rule (L-8). It is the second
+   * widening of this view — 8a added `item` — and it was additive both times,
+   * with the behavior's existing frame satisfying it structurally and no import
+   * edge appearing back to the runtime. D-13's mechanism generalized; what the
+   * two data points show is that the view is a *growing* structural contract
+   * rather than a fixed one.
+   */
+  pointerX: number;
   pointerY: number;
   /**
    * The dragged item. **A deviation from the contract's two-field sketch**, and

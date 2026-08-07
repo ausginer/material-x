@@ -3,8 +3,8 @@
  *
  * Sealing detects a gate hold taken *late*; it cannot detect one never taken at
  * all, so the structural claim in 00 §F-6 was weakened to a test obligation:
- * **any fixture installing `landing()` or supplying `presentationReady` fails
- * loudly if the corresponding hold is never taken.** A silently-missing hold
+ * **any fixture installing `landing()` or declaring an authored presentation
+ * fails loudly if the corresponding hold is never taken.** A silently-missing hold
  * does not throw — it finalizes early, which every ordinary assertion in a
  * composed fixture happily accepts because the final DOM is the same.
  *
@@ -12,22 +12,28 @@
  *
  * - **Landing.** A fixture installing `landing()` must see its runner started
  *   at least once per terminal operation. No runner start means no hold.
- * - **Readiness.** A terminal callback delivered while a supplied
- *   `presentationReady` is still pending means the settlement did not wait for
+ * - **Readiness.** A terminal callback delivered while a declared authored
+ *   presentation is still unacknowledged means the settlement did not wait for
  *   it, which is exactly the early finalization F-6 names.
  *
- * The readiness witness deliberately counts *pending* promises rather than
- * "settled before finish": a destroy or a cancel legitimately terminates an
- * operation with readiness outstanding, and those paths are not F-6 violations.
- * Fixtures that exercise them must not arm this witness.
+ * The readiness witness deliberately counts *outstanding declarations* rather
+ * than "acknowledged before finish": a destroy or a cancel legitimately
+ * terminates an operation with a declaration outstanding, and those paths are
+ * not F-6 violations. Fixtures that exercise them must not arm this witness.
+ *
+ * **This witness is what covers D-33's tier-C residue** (C2-01). A consumer that
+ * declares nothing and renders asynchronously anyway is undetectable by the
+ * library — the library cannot tell it apart from one that renders
+ * synchronously — so the obligation moves here: any fixture that renders
+ * asynchronously must declare as well as acknowledge.
  */
 
 export type GateWitness = Readonly<{
   /** Call from the landing runner. */
   landingStarted(): void;
-  /** Call when a resolution carrying `presentationReady` is handed back. */
+  /** Call when a resolution declaring `presentation: true` is handed back. */
   readinessSupplied(): void;
-  /** Call when that promise settles. */
+  /** Call when `controller.ready(request)` acknowledges it. */
   readinessSettled(): void;
   /** Call from `onFinish` and `onCancel`. */
   terminal(): void;
@@ -72,7 +78,7 @@ export function createGateWitness(options: GateWitnessOptions): GateWitness {
 
       if (terminalsWhilePending > 0) {
         throw new Error(
-          `F-6: ${terminalsWhilePending} terminal callback(s) were delivered while presentationReady was still pending — the readiness gate was never held`,
+          `F-6: ${terminalsWhilePending} terminal callback(s) were delivered while a declared authored presentation was still unacknowledged — the readiness gate was never held`,
         );
       }
     },

@@ -14,8 +14,9 @@ import { handle, visual } from '../../src/sortable/handle.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { placeholder } from '../../src/sortable/placeholder.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
+  type ReorderRequest,
   ReorderResolution,
   type SortableController,
   type SortableFeature,
@@ -91,7 +92,7 @@ function composeWith(options: ComposeOptions = {}): Composed {
     root,
     sortable(
       items,
-      vertical(),
+      y(),
       callbacks({
         onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
         onFinish: (result): void => {
@@ -355,7 +356,7 @@ describe('handle', () => {
       root,
       sortable(
         items,
-        vertical(),
+        y(),
         handle(() => grip),
         callbacks({
           onReorder: (request) => {
@@ -606,18 +607,16 @@ describe('landing', () => {
   });
 
   it('should not report a retargeted animation as a failure', async () => {
-    // A late readiness correction makes the kernel retarget the runner, and a
+    // A late acknowledgement makes the kernel retarget the runner, and a
     // retarget cancels — which WAAPI surfaces as a rejected `finished`. Without
     // a generation guard that would be reported as a landing failure for an
     // operation that is landing perfectly well.
-    let ready!: () => void;
+    let pending!: ReorderRequest;
     const composed = composeWith({
-      onReorder: () =>
-        ReorderResolution.accept(
-          new Promise<void>((resolve) => {
-            ready = resolve;
-          }),
-        ),
+      onReorder: (request) => {
+        pending = request;
+        return ReorderResolution.accept({ presentation: true });
+      },
       features: [landing({ duration: 400 })],
     });
 
@@ -626,11 +625,40 @@ describe('landing', () => {
     release(55);
     await Promise.resolve();
 
-    ready();
+    composed.controller.ready(pending);
     await Promise.resolve();
     await Promise.resolve();
 
     expect(composed.errors).toEqual([]);
+  });
+
+  it('should read a duration thunk at settle time, once per landing', async () => {
+    // 13b B-2, the ergonomics half of Phase 15. The shipped package read
+    // `landingTiming()` after the settlement step that decides where the visual
+    // is going; a thunk restores that timing without giving up anything the
+    // default runner provides — the reduced-motion collapse, the retarget
+    // replay and the generation guard all still apply.
+    const reads: string[] = [];
+    const composed = composeWith({
+      features: [
+        landing({
+          duration: () => {
+            reads.push('read');
+            return 40;
+          },
+        }),
+      ],
+    });
+
+    // Nothing is read until a drop actually settles.
+    expect(reads).toEqual([]);
+
+    activate(composed);
+    await drag(55);
+    release(55);
+    await Promise.resolve();
+
+    expect(reads).toEqual(['read']);
   });
 
   it('should not report a cancelled animation as a failure', async () => {

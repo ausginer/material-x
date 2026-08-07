@@ -48,9 +48,60 @@ export type KernelHost = Readonly<{
    */
   fail(stage: FailureStage, error: unknown): void;
 
+  /**
+   * The authored presentation for the operation the kernel currently holds is
+   * final (D-33).
+   *
+   * Latched while a resolution attempt is open — which is what makes a
+   * **synchronous** commit, one that lands inside `onReorder` before the
+   * settlement exists, acknowledge successfully. Releases the readiness hold
+   * once armed. Ignored and reported outside both windows.
+   *
+   * Not a transition and not a classification: a gate release is not a frame
+   * transition, so this belongs to `cancel`'s family rather than `commit`'s.
+   * The behavior calls it only after checking that the acknowledgement the
+   * consumer gave names *this* operation; the kernel never learns what the
+   * identity is.
+   */
+  presentationCommitted(): void;
+
   /** Base controller methods, for the behavior to spread into its controller. */
   cancel(reason?: unknown): void;
   destroy(): void;
+}>;
+
+/**
+ * **Discrete, pointerless admission — a second ingress, not a second protocol**
+ * (D-32).
+ *
+ * The load-bearing half of probe 13a's case is not the absence of a pointer: it
+ * is that a command's **feasibility must be answered synchronously, inside the
+ * native listener**, so `preventDefault()` is called only when the command is
+ * possible. An arrow key on an edge item has to keep its native meaning. Every
+ * behavior-initiated entry in the frozen SPI is fire-and-forget — `dispatch`
+ * returns `void` and the decision would land on the drain, after the listener
+ * returned.
+ *
+ * It is **internal**: a behavior declares which events the kernel binds; a
+ * consumer does not.
+ */
+export type CommandAdmission<Part extends object> = Readonly<{
+  /**
+   * The event types the kernel binds on `root`, for the controller's life,
+   * inside the same ingress abort that owns `pointerdown`. Static spec data:
+   * `arm()` validates it once, exactly as it validates `config.actionTags`.
+   */
+  types: readonly string[];
+
+  /**
+   * Runs synchronously inside the native listener, after the kernel's own
+   * guards, with the draft open — the position `admit` occupies, and the only
+   * position from which feasibility can still reach the producer.
+   *
+   * Returns the element to lift, or `null` to decline. Declining is total: no
+   * operation, no phase change, and the kernel does not prevent the default.
+   */
+  admit(event: Event, draft: Draft<Part>): HTMLElement | null;
 }>;
 
 /**
@@ -145,8 +196,16 @@ export type SettlementInput =
       error: unknown;
     }>;
 
-/** The readiness promise travels through `Prepared`, not a private write. */
-export type PreparedSettlement = Readonly<{ ready: PromiseLike<void> | null }>;
+/**
+ * The gate plan travels through `Prepared`, not a private write.
+ *
+ * `presentation` is a **declaration**, not a capability: the behavior says an
+ * authored presentation is coming, and the acknowledgement arrives later
+ * through `KernelHost.presentationCommitted()` (D-33). It carried a
+ * `PromiseLike<void>` until Phase 15, which put four consumer-owned obligations
+ * behind one silent 500 ms timeout.
+ */
+export type PreparedSettlement = Readonly<{ presentation: boolean }>;
 
 /**
  * **One coordinate space, and this is it.**
@@ -215,10 +274,13 @@ export type LandingStart = (
  */
 export type SettlementScope = Readonly<{
   /**
-   * Hold the authored-presentation gate until `ready` settles, bounded by
-   * `config.readinessTimeout`. At most once.
+   * Hold the authored-presentation gate, bounded by `config.readinessTimeout`.
+   * At most once.
+   *
+   * **Takes nothing**: the acknowledgement does not arrive through settlement,
+   * it arrives through `KernelHost.presentationCommitted()` (D-33).
    */
-  holdForReadiness(ready: PromiseLike<void>): void;
+  holdForReadiness(): void;
   /**
    * Hold the landing gate. The kernel builds the context and owns the attempt.
    * At most once.
@@ -287,9 +349,18 @@ export type BehaviorSpec<Part extends object> = Readonly<{
    * with the draft open. Returns the element the kernel should lift, or `null`
    * to leave the controller idle (D-5).
    *
-   * `composedPath()` and `preventDefault()` are valid only here.
+   * `composedPath()` is valid only here. **`preventDefault()` is not the
+   * behavior's** — the ingress owner performs it, exactly when an admission
+   * member returns non-null, in both input modes. The behavior answers
+   * feasibility with its return value and nothing else (C-03).
    */
   admit(event: PointerEvent, draft: Draft<Part>): HTMLElement | null;
+
+  /**
+   * The optional second ingress (D-32). A behavior that omits it binds no
+   * discrete listener at all, and `arm()` binds `pointerdown` and nothing else.
+   */
+  command?: CommandAdmission<Part>;
 
   /* ---- transactional seams ---- */
   activation: Transition<Part, HTMLElement, ActivationScope>;

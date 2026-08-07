@@ -66,20 +66,43 @@ export type ReorderProposal = Readonly<{
 // The consumer resolution
 // ---------------------------------------------------------------------------
 
+/**
+ * What a resolution declares about the consumer's own rendering (D-33).
+ *
+ * A **declaration**, not a capability: nothing is created, nothing is held, and
+ * nothing has to be superseded. The acknowledgement that answers it is
+ * `SortableController.ready(request)`, keyed on the request `onReorder` was
+ * handed.
+ *
+ * **Absent means already final**, and that is discipline rather than a
+ * guarantee. Flipping the default would break the legitimate imperative
+ * consumer — the one that applies the reorder synchronously before returning
+ * `accept()` — by stalling it for `readinessTimeout` and then failing it. Three
+ * of the four consumer error modes are still loud: declaring without
+ * acknowledging hits the deadline, and acknowledging without declaring is a
+ * *declared* contradiction the library reports. The fourth — using neither half
+ * while rendering asynchronously anyway — is indistinguishable from a consumer
+ * that genuinely renders synchronously, and is tier C (C2-01).
+ */
+export type ResolutionOptions = Readonly<{
+  /** An authored presentation will follow, and will be acknowledged. */
+  presentation?: boolean;
+}>;
+
 export type AcceptedReorderResolution = Readonly<{
   type: 'accepted';
   /**
-   * Returned, **not awaited**. Awaiting it inside `onReorder` would serialize
-   * the consumer's render ahead of the landing animation instead of overlapping
-   * it, which is the whole point of two independent gates.
+   * Declared, **not awaited**. Awaiting the consumer's render inside
+   * `onReorder` would serialize it ahead of the landing animation instead of
+   * overlapping it, which is the whole point of two independent gates.
    */
-  presentationReady?: PromiseLike<void>;
+  presentation: boolean;
 }>;
 
 export type RejectedReorderResolution = Readonly<{
   type: 'rejected';
   reason?: unknown;
-  presentationReady?: PromiseLike<void>;
+  presentation: boolean;
 }>;
 
 /**
@@ -92,17 +115,20 @@ export type ReorderResolution =
   | RejectedReorderResolution;
 
 export const ReorderResolution = {
-  accept: (presentationReady?: PromiseLike<void>): AcceptedReorderResolution =>
-    presentationReady
-      ? { type: 'accepted', presentationReady }
-      : { type: 'accepted' },
+  accept: (options?: ResolutionOptions): AcceptedReorderResolution => ({
+    type: 'accepted',
+    // Normalized to a boolean here, so the settlement mapping reads one shape
+    // and a hand-written literal cannot smuggle `undefined` past it.
+    presentation: options?.presentation === true,
+  }),
   reject: (
     reason?: unknown,
-    presentationReady?: PromiseLike<void>,
-  ): RejectedReorderResolution =>
-    presentationReady
-      ? { type: 'rejected', reason, presentationReady }
-      : { type: 'rejected', reason },
+    options?: ResolutionOptions,
+  ): RejectedReorderResolution => ({
+    type: 'rejected',
+    reason,
+    presentation: options?.presentation === true,
+  }),
 } as const;
 
 /**

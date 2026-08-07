@@ -18,6 +18,17 @@
  * Same rules as 13a: `@ts-expect-error` is the executable half — `tsc` errors on
  * an unused directive — and `R-*` are runtime facts with citations, because
  * typecheck cannot catch a lifecycle error (contract 00).
+ *
+ * ## Retimed in Phase 15, not rewritten
+ *
+ * This probe imports the live SPI, and Phase 15 implemented D-33 underneath it.
+ * The **finding is unchanged** — it is what produced D-33 — so nothing here is
+ * softened; what moved is the shape each assertion is written against, and every
+ * such site says which side of the revision it is describing. B-1's four
+ * obligations are the pre-revision `presentationReady` protocol and are recorded
+ * as history; the assertions that survive the revision (N-1, N-2) survive it
+ * because they were about the *absence of a return channel*, which D-33 also
+ * declines to add.
  */
 import type {
   LandingHandle,
@@ -27,7 +38,6 @@ import type {
 } from '../../src/kernel/spec.ts';
 
 declare const scope: SettlementScope;
-declare const authored: PromiseLike<void>;
 
 /* ================================================================= B-1 ==== */
 
@@ -39,10 +49,17 @@ declare const authored: PromiseLike<void>;
  * 3. resolve it from a layout effect, and
  * 4. never lose one.
  *
- * All four are visible in the reference integration's `createCommitTracker`
- * (`src/sortable.stories.tsx:34-56`), and the identical helper is in the
- * shipped package's stories — the burden is **inherited, not a drag2
- * regression**.
+ * All four were visible in the reference integration's `createCommitTracker`,
+ * and the identical helper was in the shipped package's stories — the burden was
+ * **inherited, not a drag2 regression**.
+ *
+ * **Closed by D-33, implemented in Phase 15.** Obligations 1, 2 and 4 are gone:
+ * there is nothing to create, a stale acknowledgement is rejected and reported
+ * rather than silently applied, and a *declared* presentation that is never
+ * acknowledged is bounded and nameable. Obligation 3 survives and is
+ * irreducible — only the consumer knows when its own commit landed. The helper
+ * this row cited no longer exists in either the story or the React fixture,
+ * which is the observable form of the finding being closed.
  */
 
 /**
@@ -53,18 +70,28 @@ declare const authored: PromiseLike<void>;
  * it (contract 05 §two independent gates).
  */
 export function holdBothGates(start: LandingStart): void {
-  scope.holdForReadiness(authored);
+  // Post-revision this takes no argument, and the property P-1 names is
+  // untouched by that: `effect` still returns `void` and the two holds are still
+  // separate members, so the overlap is still structural.
+  scope.holdForReadiness();
   scope.holdForLanding(start);
 }
 
 /**
  * **N-1. Holding a gate yields nothing back.** `holdForReadiness` returns
- * `void`, so the kernel cannot hand the consumer a token it could resolve. The
- * promise has to be manufactured on the far side and passed *in* — which is
- * obligation 1, and the root of the other three.
+ * `void`, so the kernel cannot hand the consumer a token it could resolve. Under
+ * the pre-revision protocol that was the defect's root: the promise had to be
+ * manufactured on the far side and passed *in*, which is obligation 1.
+ *
+ * The assertion **still holds after D-33, and now deliberately**. C-2 would have
+ * made this line compile by minting a token here; Checkpoint C found that a
+ * capability minted by the settlement is younger than the render it
+ * acknowledges. C-3 keeps the gate yielding nothing and keys the
+ * acknowledgement on the request instead, so no settlement machinery crosses the
+ * public boundary at all.
  */
 // @ts-expect-error — `holdForReadiness` returns void; there is no token.
-export const n1: object = scope.holdForReadiness(authored);
+export const n1: object = scope.holdForReadiness();
 
 /**
  * **N-2. There is no request channel.** `SettlementScope` has exactly two
@@ -76,15 +103,20 @@ export const n1: object = scope.holdForReadiness(authored);
 export const n2: unknown = scope.requestReadiness;
 
 /**
- * **N-3. `PreparedSettlement.ready` has two states where the protocol has
- * three.** `PromiseLike<void> | null` says *wait on this* or *do not wait*. It
- * cannot say *a presentation is expected and has not been promised yet*, which
- * is the state the consumer is actually in when `onReorder` returns — and the
- * state it papers over by constructing a promise it may never resolve.
+ * **N-3. `PreparedSettlement.ready` had two states where the protocol has
+ * three.** `PromiseLike<void> | null` said *wait on this* or *do not wait*. It
+ * could not say *a presentation is expected and has not been promised yet*,
+ * which is the state the consumer is actually in when `onReorder` returns — and
+ * the state it papered over by constructing a promise it might never resolve.
+ *
+ * **This is the row D-33 answered most directly**: the third state is now the
+ * *only* state the type carries. `presentation: boolean` says exactly "a
+ * presentation is expected", and the promise it replaced is not expressible —
+ * which is what the assertion below now pins, from the other side.
  */
 declare const expectedButUnpromised: Readonly<{ ready: 'expected' }>;
 
-// @ts-expect-error — the third state is not in the type.
+// @ts-expect-error — the gate plan is a declaration, not a wait.
 export const n3: PreparedSettlement = expectedButUnpromised;
 
 /**

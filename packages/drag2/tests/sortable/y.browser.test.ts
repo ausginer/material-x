@@ -17,7 +17,7 @@ import {
   type InsertionGeometry,
   unbrandFeature,
 } from '../../src/sortable/feature.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 
 const ITEM_HEIGHT = 40;
 
@@ -73,7 +73,7 @@ function createField(count = 3): Field {
     items.push(item);
   }
 
-  const geometry = unbrandFeature(vertical())(
+  const geometry = unbrandFeature(y())(
     null as unknown as FeatureContext,
   ).insertion!;
 
@@ -84,7 +84,7 @@ function createField(count = 3): Field {
     snapshot: (version = 0, list = items) => ({ items: list, version }),
     resolve: (pointerY, snapshot = field.snapshot()) =>
       geometry.resolve(
-        { pointerY, insertion: null, item: items[0]! },
+        { pointerX: 0, pointerY, insertion: null, item: items[0]! },
         { snapshot, placeholder },
       ),
   };
@@ -92,7 +92,7 @@ function createField(count = 3): Field {
   return field;
 }
 
-describe('vertical', () => {
+describe('y', () => {
   it('should resolve nothing while no item is being dragged', () => {
     // The destination view is the collection minus the dragged item, so without
     // one there is no index space to resolve into.
@@ -100,7 +100,7 @@ describe('vertical', () => {
 
     expect(
       field.geometry.resolve(
-        { pointerY: 60, insertion: null, item: null },
+        { pointerX: 0, pointerY: 60, insertion: null, item: null },
         { snapshot: field.snapshot(), placeholder: field.placeholder },
       ),
     ).toBeNull();
@@ -129,7 +129,7 @@ describe('vertical', () => {
 
   it('should take the gap before an item that sits above the placeholder', () => {
     // Same rule from the other side: the gap is on the side the placeholder is
-    // travelling from, which on a vertical axis is a comparison of centres.
+    // travelling from, which on a y axis is a comparison of centres.
     const field = createField();
 
     field.placeholder.remove();

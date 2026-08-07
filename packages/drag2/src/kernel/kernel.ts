@@ -10,6 +10,7 @@
  * drives a transition.
  */
 import {
+  ACTIVATE,
   BEHAVIOR_BASE,
   CANCEL,
   ERROR_REPORTED,
@@ -17,11 +18,13 @@ import {
   LANDING_SETTLED,
   MOVE,
   READINESS_SETTLED,
+  RELEASE,
   RESOLUTION_SETTLED,
   RETIRE,
   START_COMMITTED,
   UP,
 } from './actions.ts';
+import { DEV } from './dev.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -66,7 +69,8 @@ import {
 } from './phases.ts';
 import {
   acquirePointerCapture,
-  armOperationInput,
+  armCancelInput,
+  armPointerInput,
   isPrimaryPress,
 } from './pointer.ts';
 import { acquireLift, type VisualLiftSession } from './presentation.ts';
@@ -139,6 +143,14 @@ export type PointerCoordinates = Readonly<{
 type ResolutionAttempt = {
   completed: boolean;
   settlement: SettlementInput | null;
+  /**
+   * The **early-acknowledgement latch** (D-33). A consumer that commits
+   * synchronously — inside `onReorder`, under `flushSync`, or in any renderer
+   * that does not defer — acknowledges before a settlement exists. This is the
+   * only kernel-private per-operation object alive at that moment, so the
+   * acknowledgement latches here and the settlement copies it as it is created.
+   */
+  presentationCommitted: boolean;
 };
 
 /**
@@ -151,9 +163,17 @@ type ResolutionAttempt = {
  */
 type SettlementAttempt = {
   holds: number;
-  /** Requested during `effect`, armed after sealing, cleared on release. */
-  readiness: PromiseLike<void> | null;
   readinessHeld: boolean;
+  /**
+   * Once-only latch: the first of acknowledgement, deadline or arm's copy of
+   * the early latch wins. **Claimed at the dispatch site**, never by the queued
+   * action, so two synchronous `ready()` calls in one turn produce exactly one
+   * dispatch and one release — and the second is *reported* rather than
+   * silently swallowed at drain (C4-04, C5-02).
+   */
+  readinessSettled: boolean;
+  /** Copied from the resolution attempt: the consumer acknowledged early. */
+  presentationLatched: boolean;
   /** Requested during `effect`, invoked after sealing. */
   start: LandingStart | null;
   /** Retained past its gate release, so the join can `destroy()` it. */
@@ -169,6 +189,21 @@ type SettlementAttempt = {
   failed: boolean;
   sealed: boolean;
 };
+
+/**
+ * One of the four invalid acknowledgements (D-33). Hoisted and shared, because
+ * three of the arrival rows report the same thing and the message is a string
+ * constant either way.
+ */
+function reportDuplicateAcknowledgement(): void {
+  if (DEV) {
+    report(
+      new Error(
+        'drag: the authored presentation was acknowledged more than once for this operation; ignored',
+      ),
+    );
+  }
+}
 
 /** The gate plan is live. */
 const ARM_ARMED = 0;
@@ -639,12 +674,31 @@ export function createKernel<Part extends object>(
     cancel(CANCEL_ESCAPE);
   };
 
-  const admitPress = (event: PointerEvent): void => {
+  /**
+   * Runs one admission member and returns the element it admitted, or `null`.
+   *
+   * Shared by both ingresses, because a second input mode is a second
+   * *ingress*, not a second protocol (D-32): the throw policy, the
+   * `preventDefault()` ownership and the post-callback revalidation are one
+   * rule each, in one place.
+   *
+   * **`preventDefault()` is the kernel's** (C-03). The behavior answers
+   * feasibility with its return value; the ingress owner performs the browser
+   * effect, exactly when a member returns non-null. An earlier draft left the
+   * call to the behavior and then rated I-32 tier A, which a member holding the
+   * real `Event` can trivially violate — two errors compounding. What remains
+   * is the stated tier-C residue: a behavior *can* prevent the default itself,
+   * because it holds the event.
+   */
+  const runAdmission = (
+    event: Event,
+    admit: (event: never, draft: Frame<Part>) => HTMLElement | null,
+  ): HTMLElement | null => {
     const active = spec!;
     let admitted: HTMLElement | null;
 
     try {
-      admitted = active.admit(event, draft);
+      admitted = admit(event as never, draft);
     } catch (error) {
       // Q-1: identity was never minted, so there is no operation for a
       // checkpoint to settle and no `REPORTING` phase to enter. The controller
@@ -652,78 +706,124 @@ export function createKernel<Part extends object>(
       guarded(() => {
         active.reportFailure(FAILURE_ADMISSION, error);
       });
-      return;
+      return null;
     }
 
     if (admitted === null) {
-      return;
+      // Declining is total: no operation, no phase change, and the default is
+      // **not** prevented — which is what lets an arrow key on an edge item
+      // keep its native meaning (I-32).
+      return null;
     }
 
-    // Post-callback revalidation (D-26, F-30). `admit` runs consumer-supplied
-    // handle and visual resolvers during native dispatch, and a resolver can
-    // close over the already-returned controller and synchronously destroy it.
-    // Without this recheck a terminal controller publishes a new operation.
-    if (queue.closed || current.operation !== null) {
-      return;
-    }
+    event.preventDefault();
 
+    // Post-callback revalidation (D-26, F-30). An admission member runs
+    // consumer-supplied handle and visual resolvers during native dispatch, and
+    // a resolver can close over the already-returned controller and
+    // synchronously destroy it. Without this recheck a terminal controller
+    // publishes a new operation.
+    return queue.closed || current.operation !== null ? null : admitted;
+  };
+
+  /**
+   * Mints identity, arms this operation's input, and commits `PENDING`.
+   *
+   * `pointerId === -1` is the **pointerless** discriminant (I-33), not a
+   * sentinel: it selects which listeners are armed, and the kernel's own
+   * geometry never reads the pointer fields, which stay at their admission
+   * values on that path.
+   */
+  const mintOperation = (
+    admitted: HTMLElement,
+    pointerId: number,
+    x: number,
+    y: number,
+  ): boolean => {
     const operation: OperationIdentity = { id: (nextOperationId += 1) };
 
     try {
       visual = admitted;
       lifetimes = createOperationLifetimes();
-      armOperationInput(
-        realm,
-        lifetimes.motion.signal,
-        lifetimes.cancellation.signal,
-        onPointer,
-        onEscape,
-      );
+
+      if (pointerId !== -1) {
+        armPointerInput(realm, lifetimes.motion.signal, onPointer);
+      }
+
+      armCancelInput(realm, lifetimes.cancellation.signal, onEscape);
     } catch (error) {
       // Nothing is committed yet, so this retires an operation the frames never
       // saw: it disposes whatever was armed and drops the references.
       retireOperation(null);
       report(error);
-      return;
+      return false;
     }
 
     draft.phase = PENDING;
     draft.operation = operation;
-    draft.pointerId = event.pointerId;
-    draft.originX = event.clientX;
-    draft.originY = event.clientY;
-    draft.pointerX = event.clientX;
-    draft.pointerY = event.clientY;
+    draft.pointerId = pointerId;
+    draft.originX = x;
+    draft.originY = y;
+    draft.pointerX = x;
+    draft.pointerY = y;
     commit();
+    return true;
   };
 
-  const onPointerDown = (event: PointerEvent): void => {
-    // `admitting` is checked **first and here**, not one line later, because
-    // everything below this guard is already too late. A handle or visual
-    // resolver runs inside `admit`, and a resolver that dispatches a second
-    // `pointerdown` re-enters this function synchronously with the outer
-    // transaction half-written — and `current.operation` is still `null`,
-    // because the outer admission has not committed, so the ordinary guard
-    // waves it straight through.
-    //
-    // The nested pass would then `begin()` (rebuilding the draft the outer
-    // `admit` was handed by reference), run `spec.admit` a second time, mint an
-    // identity, arm ingress, and commit its own pointer origin. Control returns
-    // to the outer `admit`, which finishes writing *its* item and visual into
-    // the object that is now `current` — publishing an operation with one
-    // press's coordinates and the other's behavior state.
-    //
-    // Refusing before any of that keeps the boundary's ownership intact too:
-    // the nested call never reaches the `finally` that clears `admitting`.
-    // Behavior actions are unaffected — they are still deferred and drained by
-    // the boundary — and `destroy()` is not queued at all, so it remains the
-    // synchronous terminal barrier I-6 requires.
-    if (
-      queue.closed ||
-      admitting ||
-      current.operation !== null ||
-      !isPrimaryPress(event)
-    ) {
+  const admitPress = (event: PointerEvent): void => {
+    const admitted = runAdmission(event, spec!.admit);
+
+    if (admitted !== null) {
+      mintOperation(admitted, event.pointerId, event.clientX, event.clientY);
+    }
+  };
+
+  /**
+   * The discrete admission (D-32). Identical up to the two differences the
+   * contract names: the operation is pointerless, and `ACTIVATE` is **queued**
+   * rather than reached inline from a threshold crossing.
+   *
+   * The pointer scalars stay at zero and nothing reads them: `originRect` is
+   * measured from the visual and is pointer-independent already.
+   */
+  const admitCommand = (event: Event): void => {
+    const admitted = runAdmission(event, spec!.command!.admit);
+
+    if (admitted !== null && mintOperation(admitted, -1, 0, 0)) {
+      dispatchKernel(ACTIVATE, current.operation);
+    }
+  };
+
+  /**
+   * The ingress queue boundary, shared by **both** listeners (D-32).
+   *
+   * `admitting` is checked **first and here**, not one line later, because
+   * everything below this guard is already too late. A handle or visual
+   * resolver runs inside an admission member, and a resolver that dispatches a
+   * second ingress event re-enters this function synchronously with the outer
+   * transaction half-written — and `current.operation` is still `null`, because
+   * the outer admission has not committed, so the ordinary guard waves it
+   * straight through.
+   *
+   * The nested pass would then `begin()` (rebuilding the draft the outer member
+   * was handed by reference), run the member a second time, mint an identity,
+   * arm ingress, and commit its own origin. Control returns to the outer
+   * member, which finishes writing *its* item and visual into the object that is
+   * now `current` — publishing an operation with one press's coordinates and
+   * the other's behavior state.
+   *
+   * The latch is **one across both listeners**, which is what makes a
+   * `pointerdown` dispatched from inside `command.admit`, and a `keydown`
+   * dispatched from inside `admit`, refused by the same rule.
+   *
+   * Refusing before any of that keeps the boundary's ownership intact too: the
+   * nested call never reaches the `finally` that clears `admitting`. Behavior
+   * actions are unaffected — they are still deferred and drained by the
+   * boundary — and `destroy()` is not queued at all, so it remains the
+   * synchronous terminal barrier I-6 requires.
+   */
+  const openIngress = (admit: () => void): void => {
+    if (queue.closed || admitting || current.operation !== null) {
       return;
     }
 
@@ -731,7 +831,7 @@ export function createKernel<Part extends object>(
     admitting = true;
 
     try {
-      admitPress(event);
+      admit();
     } finally {
       // Cleared in a `finally` so a throw escaping admission — a panicking
       // resolver, a re-entry refusal — cannot leave every later dispatch
@@ -745,6 +845,22 @@ export function createKernel<Part extends object>(
     if (!queue.closed) {
       drain(queue, handle, panic);
     }
+  };
+
+  const onPointerDown = (event: PointerEvent): void => {
+    // The primary-press test is the pointer ingress's own and stays outside the
+    // shared boundary: a secondary button must not open a transaction at all.
+    if (isPrimaryPress(event)) {
+      openIngress(() => {
+        admitPress(event);
+      });
+    }
+  };
+
+  const onCommand = (event: Event): void => {
+    openIngress(() => {
+      admitCommand(event);
+    });
   };
 
   // -------------------------------------------------------------------------
@@ -787,13 +903,19 @@ export function createKernel<Part extends object>(
       lift = session;
       owned.presentation.use(session.dispose);
 
-      if (!root.isConnected) {
-        throw new Error(
-          'drag: the ingress root left the document before activation; pointer capture cannot be acquired',
-        );
-      }
+      // Neither step runs for a pointerless operation (D-32): there is no
+      // pointer to capture, so the connectivity precondition capture needs has
+      // nothing to guard either. `originRect` above is measured from the
+      // *visual* and was already pointer-independent.
+      if (current.pointerId !== -1) {
+        if (!root.isConnected) {
+          throw new Error(
+            'drag: the ingress root left the document before activation; pointer capture cannot be acquired',
+          );
+        }
 
-      owned.motion.use(acquirePointerCapture(root, current.pointerId));
+        owned.motion.use(acquirePointerCapture(root, current.pointerId));
+      }
 
       return {
         visual: target,
@@ -906,10 +1028,13 @@ export function createKernel<Part extends object>(
     },
   };
 
-  const createSettlementAttempt = (): SettlementAttempt => ({
+  const createSettlementAttempt = (
+    presentationLatched: boolean,
+  ): SettlementAttempt => ({
     holds: 0,
-    readiness: null,
     readinessHeld: false,
+    readinessSettled: false,
+    presentationLatched,
     start: null,
     landing: null,
     landingHeld: false,
@@ -933,7 +1058,7 @@ export function createKernel<Part extends object>(
   const createSettlementScope = (
     attempt: SettlementAttempt,
   ): SettlementScope => ({
-    holdForReadiness(ready): void {
+    holdForReadiness(): void {
       if (attempt.sealed || attempt.readinessHeld) {
         report(
           new Error(
@@ -944,7 +1069,6 @@ export function createKernel<Part extends object>(
       }
 
       attempt.holds += 1;
-      attempt.readiness = ready;
       attempt.readinessHeld = true;
     },
     holdForLanding(start): void {
@@ -966,12 +1090,17 @@ export function createKernel<Part extends object>(
   /**
    * Reads `then` **exactly once** and hands back the callable, or `null`.
    *
-   * The SPI accepts any `PromiseLike`, not only a native `Promise`, so `then`
-   * may be an accessor — one that throws, or one that answers differently on a
-   * second read. Reading it twice (once to classify, once to subscribe) let a
-   * value be classified as thenable and then subscribed to as something else.
-   * A throw is the *caller's* to classify as a semantic failure; it is not a
-   * kernel invariant violation and must never reach the panic path (A-08).
+   * The resolution round-trip may answer with any `PromiseLike`, not only a
+   * native `Promise`, so `then` may be an accessor — one that throws, or one
+   * that answers differently on a second read. Reading it twice (once to
+   * classify, once to subscribe) let a value be classified as thenable and then
+   * subscribed to as something else. A throw is the *caller's* to classify as a
+   * semantic failure; it is not a kernel invariant violation and must never
+   * reach the panic path (A-08).
+   *
+   * **One caller since Phase 15.** The readiness gate used to be a second
+   * consumer thenable with the same hazards; D-33 replaced it with a
+   * declaration and a host signal, so nothing on that path reads `then` at all.
    */
   const thenOf = (value: unknown): PromiseLike<unknown>['then'] | null => {
     const then = (value as PromiseLike<unknown> | null | undefined)?.then;
@@ -1057,47 +1186,40 @@ export function createKernel<Part extends object>(
   };
 
   /**
-   * Watches the authored-presentation gate, bounded by `config.readinessTimeout`.
+   * Starts the authored-presentation deadline, bounded by
+   * `config.readinessTimeout`.
    *
-   * A rejection or a timeout **replaces the settlement**: the hold is never
-   * released, so the original outcome cannot finalize; presentation stays owned
-   * until the checkpoint's retirement; `authoredReady` stays false, so no
-   * re-anchor happens; and it reports through `onError` only.
+   * Readiness has exactly **three** outcomes (D-33): the acknowledgement, this
+   * deadline, or retirement. There is no `abandon()` — a state that releases
+   * the gate without failing is illegal in the only case anyone would reach for
+   * it, so it does not exist.
+   *
+   * A timeout **replaces the settlement**: the hold is never released, so the
+   * original outcome cannot finalize; presentation stays owned until the
+   * checkpoint's retirement; `authoredReady` stays false, so no re-anchor
+   * happens; and it reports through `onError` only.
    */
-  const watchReadiness = (
-    attempt: SettlementAttempt,
-    ready: PromiseLike<void>,
-  ): void => {
+  const startReadinessDeadline = (attempt: SettlementAttempt): void => {
     const { window } = realm;
-    let timer = 0;
-    let done = false;
-
-    const finish = (failure: boolean, error: unknown): void => {
-      if (done) {
-        return;
+    const timer = window.setTimeout(() => {
+      // The deadline is one of the three claimants of the once-only latch, and
+      // it claims by the same rule as every other: before it acts. An
+      // acknowledgement racing it in the same turn finds the latch taken.
+      if (
+        settlement !== attempt ||
+        attempt.readinessSettled ||
+        !attempt.readinessHeld ||
+        queue.closed
+      ) {
+        return; // a stale deadline, from an operation that is already gone
       }
 
-      done = true;
-      window.clearTimeout(timer);
-
-      if (settlement !== attempt || !attempt.readinessHeld || queue.closed) {
-        return; // a stale readiness, from an operation that is already gone
-      }
-
-      if (failure) {
-        attempt.failed = true;
-        failOperation(FAILURE_PRESENTATION_READY, error);
-        return;
-      }
-
-      dispatchKernel(READINESS_SETTLED, attempt);
-    };
-
-    timer = window.setTimeout(() => {
-      finish(
-        true,
+      attempt.readinessSettled = true;
+      attempt.failed = true;
+      failOperation(
+        FAILURE_PRESENTATION_READY,
         new Error(
-          `drag: the authored-presentation gate did not settle within ${spec!.config.readinessTimeout}ms`,
+          `drag: the authored presentation was not acknowledged within ${spec!.config.readinessTimeout}ms`,
         ),
       );
     }, spec!.config.readinessTimeout);
@@ -1107,32 +1229,6 @@ export function createKernel<Part extends object>(
     lifetimes!.presentation.use(() => {
       window.clearTimeout(timer);
     });
-
-    // Same treatment as the resolution round-trip: the gate is an arbitrary
-    // `PromiseLike` handed over by `holdForReadiness`, so a throwing `then`
-    // accessor, a throwing `then()` or a value that is not thenable at all is
-    // an ordinary `FAILURE_PRESENTATION_READY` — not a panic (A-08).
-    try {
-      const then = thenOf(ready);
-
-      if (then === null) {
-        throw new TypeError(
-          'drag: holdForReadiness() was given a value that is not thenable',
-        );
-      }
-
-      then.call(
-        ready,
-        () => {
-          finish(false, null);
-        },
-        (error: unknown) => {
-          finish(true, error);
-        },
-      );
-    } catch (error) {
-      finish(true, error);
-    }
   };
 
   /**
@@ -1147,16 +1243,29 @@ export function createKernel<Part extends object>(
    * synchronous `done()` safe, the second makes a synchronous `destroy()` safe.
    */
   const armSettlement = (attempt: SettlementAttempt): ArmOutcome => {
-    if (attempt.readiness !== null) {
-      watchReadiness(attempt, attempt.readiness);
-
-      // A gate that failed *synchronously* — a broken thenable — has already
-      // replaced this settlement. Arming a runner for it would start a landing
-      // the queued checkpoint is about to abandon (F-27).
-      if (attempt.failed) {
-        rollbackLandingHold(attempt);
-        return ARM_FAILED;
+    if (attempt.readinessHeld) {
+      if (attempt.presentationLatched) {
+        // **Claimed first, then dispatched** — the same order
+        // `presentationCommitted()` uses in the live armed window. Without it a
+        // re-entrant `ready()` during the rest of arm, reached through
+        // `anchorTarget` or the runner's `start`, finds an unclaimed latch and
+        // queues a *second* release against an attempt that is still `SETTLING`
+        // because landing is outstanding (C5-02).
+        attempt.readinessSettled = true;
+        // Dispatched, never released inline: the consumer committed
+        // synchronously, before the settlement existed, and a settlement
+        // holding only readiness would otherwise reach zero holds and finalize
+        // in the middle of its own arm step — the same hazard a synchronous
+        // `done()` has, closed the same way. So `authoredReady` is still false
+        // when the landing branch below reads it, and the queued release does
+        // the re-anchor.
+        dispatchKernel(READINESS_SETTLED, attempt);
+      } else {
+        startReadinessDeadline(attempt);
       }
+      // Nothing consumer-reachable is called on either branch, so there is no
+      // revalidation and no stale-return disposal: the readiness half of arming
+      // cannot re-enter.
     }
 
     const { start } = attempt;
@@ -1367,12 +1476,18 @@ export function createKernel<Part extends object>(
    * seal → arm.
    */
   const openSettlement = (input: SettlementInput): void => {
+    // The early-acknowledgement latch is **copied** out of the resolution
+    // attempt, because that attempt is cleared as it is consumed. A cancel or a
+    // failure reaches settlement with no resolution at all, which is `false`:
+    // nothing was ever acknowledged (D-33).
+    const latched = resolution?.presentationCommitted ?? false;
+
     // However the round-trip ended, it is over; a later completion for it is
     // inert at both validation points.
     resolution = null;
     settlementInput = input;
 
-    const attempt = createSettlementAttempt();
+    const attempt = createSettlementAttempt(latched);
     let outcome: SeamOutcome | undefined;
 
     settlement = attempt;
@@ -1391,19 +1506,45 @@ export function createKernel<Part extends object>(
 
     if (outcome !== SEAM_COMMITTED) {
       // Drop every unarmed request and arm **nothing**. Arming a half-requested
-      // plan would start a watch or a runner for a settlement that has already
-      // failed or been abandoned; the queued checkpoint decides instead (F-27).
-      attempt.readiness = null;
+      // plan would start a deadline or a runner for a settlement that has
+      // already failed or been abandoned; the queued checkpoint decides
+      // instead (F-27).
+      //
+      // The early latch dies here with every other unarmed request, and
+      // **silently**: the contradiction below is scoped to a *successful* seal,
+      // because an acknowledgement for a settlement whose own `effect` threw is
+      // the seam's problem, not the consumer's, and the queued failure
+      // checkpoint is already reporting it.
       attempt.readinessHeld = false;
+      attempt.presentationLatched = false;
       rollbackLandingHold(attempt);
       attempt.holds = 0;
       return;
     }
 
-    // No promise ⇒ the consumer asserted its presentation is final *now*, which
-    // is what an optional promise means. It is not "the authored DOM never
-    // changed, so never re-anchor" (contract §`authoredReady`).
-    attempt.authoredReady = attempt.readiness === null;
+    // No declaration ⇒ the consumer asserted its presentation is final *now*,
+    // which is what an absent declaration means. It is not "the authored DOM
+    // never changed, so never re-anchor" (contract §`authoredReady`).
+    attempt.authoredReady = !attempt.readinessHeld;
+
+    if (attempt.presentationLatched && !attempt.readinessHeld) {
+      // The consumer acknowledged a presentation its own resolution never
+      // declared. **Reported and discarded, here, before arm** — not carried
+      // into it: seal is the first moment the complete gate plan is known,
+      // because `prepare` returning `{ presentation: true }` does not yet mean
+      // a hold exists (taking it is `settlement.effect`'s to do). Discarding
+      // here is also what lets `arm` read the latch as an unconditional
+      // release (C3-01, C4-04).
+      if (DEV) {
+        report(
+          new Error(
+            'drag: the authored presentation was acknowledged for an operation whose resolution declared none; ignored',
+          ),
+        );
+      }
+
+      attempt.presentationLatched = false;
+    }
 
     if (armSettlement(attempt) === ARM_FAILED) {
       return; // replaced: no advance, and no terminal callback of this outcome
@@ -1439,7 +1580,11 @@ export function createKernel<Part extends object>(
    * value to `settlement.prepare` with a status and lets the behavior classify.
    */
   const openResolution = (command: ResolutionCommand): void => {
-    const attempt: ResolutionAttempt = { completed: false, settlement: null };
+    const attempt: ResolutionAttempt = {
+      completed: false,
+      settlement: null,
+      presentationCommitted: false,
+    };
     const { invoke } = command;
 
     resolution = attempt;
@@ -1549,6 +1694,33 @@ export function createKernel<Part extends object>(
     }
   };
 
+  /**
+   * The release, from `ACTIVE`, in the fixed two-commit order the kernel owns
+   * (D-6). `sample` is `null` for a pointerless release: there is nothing to
+   * commit, and the pointer fields stay as admission left them.
+   */
+  const closeOperation = (sample: PointerCoordinates | null): void => {
+    // Commit 1: the committed frame matches what is about to be true, so a
+    // `release.prepare` that throws or reentrantly destroys never leaves a
+    // committed `ACTIVE` operation with no ingress and no path forward (D-6).
+    begin();
+    draft.phase = RELEASING;
+
+    if (sample !== null) {
+      draft.pointerX = sample.clientX;
+      draft.pointerY = sample.clientY;
+    }
+
+    commit();
+
+    // Motion closes *between* the two commits: capture released, listeners and
+    // invalidation removed, the behavior's frame task cancelled. Nothing
+    // pending can alter the proposal from here (I-11).
+    lifetimes!.motion.dispose();
+
+    runReleaseSeam(driver, releaseTransition, FAILURE_RELEASE, openResolution);
+  };
+
   const handleUp = (sample: PointerCoordinates): void => {
     const { phase } = current;
 
@@ -1565,21 +1737,32 @@ export function createKernel<Part extends object>(
       return;
     }
 
-    // Commit 1: the committed frame matches what is about to be true, so a
-    // `release.prepare` that throws or reentrantly destroys never leaves a
-    // committed `ACTIVE` operation with no ingress and no path forward (D-6).
-    begin();
-    draft.phase = RELEASING;
-    draft.pointerX = sample.clientX;
-    draft.pointerY = sample.clientY;
-    commit();
+    closeOperation(sample);
+  };
 
-    // Motion closes *between* the two commits: capture released, listeners and
-    // invalidation removed, the behavior's frame task cancelled. Nothing
-    // pending can alter the proposal from here (I-11).
-    lifetimes!.motion.dispose();
+  /**
+   * The pointerless release (D-32), which enters the **same** transition `UP`
+   * enters at `ACTIVE`. Unreachable for a pointer operation and unreachable
+   * from a behavior: `KernelHost` still has no lifecycle entry.
+   */
+  const handleRelease = (operation: OperationIdentity): void => {
+    if (current.operation !== operation || current.phase !== ACTIVE) {
+      return;
+    }
 
-    runReleaseSeam(driver, releaseTransition, FAILURE_RELEASE, openResolution);
+    closeOperation(null);
+  };
+
+  /**
+   * The pointerless activation (D-32), which enters the **same** seam the
+   * threshold crossing enters inline from `MOVE`.
+   */
+  const handleActivate = (operation: OperationIdentity): void => {
+    if (current.operation !== operation || current.phase !== PENDING) {
+      return;
+    }
+
+    activate();
   };
 
   /**
@@ -1622,7 +1805,6 @@ export function createKernel<Part extends object>(
     }
 
     attempt.readinessHeld = false;
-    attempt.readiness = null;
     attempt.holds -= 1;
     // Records that the **consumer's** DOM is committed, which is independent of
     // whether the library's own measurement below works. The join needs it.
@@ -1736,6 +1918,15 @@ export function createKernel<Part extends object>(
     begin();
     draft.phase = ACTIVE;
     commit();
+
+    // **A command is one slot** (D-32). A pointerless operation has no other
+    // producer of a release — no `pointerup` will ever arrive — so the kernel
+    // is the producer, once, here. Queued rather than run inline so the
+    // consumer's `onStart` and anything it dispatched drain first, exactly as
+    // they would before a press's own release.
+    if (current.pointerId === -1) {
+      dispatchKernel(RELEASE, current.operation);
+    }
   };
 
   const handleFailed = (checkpoint: FailureCheckpoint): void => {
@@ -1772,7 +1963,9 @@ export function createKernel<Part extends object>(
       error: checkpoint.error,
     };
 
-    const attempt = createSettlementAttempt();
+    // A failed settlement declares nothing, so no early latch can survive into
+    // it: the checkpoint's own seam runs pre-sealed and holds no gate.
+    const attempt = createSettlementAttempt(false);
 
     // Sealed from the start: a failed settlement holds no gate and lands
     // nothing. A request is ignored and reported, exactly like a post-seal one.
@@ -1861,6 +2054,12 @@ export function createKernel<Part extends object>(
       case UP:
         handleUp(argument as PointerCoordinates);
         break;
+      case ACTIVATE:
+        handleActivate(argument as OperationIdentity);
+        break;
+      case RELEASE:
+        handleRelease(argument as OperationIdentity);
+        break;
       case CANCEL:
         handleCancel(argument as OperationIdentity);
         break;
@@ -1923,6 +2122,82 @@ export function createKernel<Part extends object>(
       dispatchKernel(BEHAVIOR_BASE + tag, argument);
     },
     fail: driver.requestFailure,
+
+    /**
+     * The arrival table from contract 02 §The authored-presentation protocol,
+     * in row order — and **the order is normative** (C5-02).
+     *
+     * `readinessSettled` is tested before "no hold ⇒ contradictory", because
+     * after a valid release the two states are indistinguishable by hold alone:
+     * the phase is still `SETTLING` while landing is outstanding,
+     * `readinessHeld` is now false, and a presentation *was* declared.
+     * Classifying by the absent hold would tell a consumer that acknowledged
+     * correctly, twice, that it acknowledged something it never declared.
+     *
+     * Every invalid arrival takes the platform channel, gated on `DEV`, and
+     * none of them classifies: a consumer-protocol error must never fail the
+     * operation the consumer got right.
+     */
+    presentationCommitted(): void {
+      if (queue.closed) {
+        return;
+      }
+
+      const open = resolution;
+
+      if (open !== null) {
+        // The early window. The settlement does not exist yet — this is a
+        // synchronous commit, or one that landed while the round-trip was still
+        // outstanding — so the acknowledgement latches on the only kernel
+        // -private per-operation object that does.
+        if (open.presentationCommitted) {
+          reportDuplicateAcknowledgement();
+          return;
+        }
+
+        open.presentationCommitted = true;
+        return;
+      }
+
+      const attempt = settlement;
+
+      if (attempt !== null && current.phase === SETTLING) {
+        if (attempt.readinessSettled) {
+          reportDuplicateAcknowledgement();
+          return;
+        }
+
+        if (!attempt.readinessHeld) {
+          if (DEV) {
+            report(
+              new Error(
+                'drag: the authored presentation was acknowledged for an operation whose resolution declared none; ignored',
+              ),
+            );
+          }
+
+          return;
+        }
+
+        // Claimed **before** the dispatch, so any further acknowledgement in
+        // the dispatch-to-drain interior is a reported duplicate rather than a
+        // second release (C4-04). Dispatched rather than released inline: a
+        // settlement holding only readiness would otherwise reach zero holds
+        // and finalize inside the call that released it.
+        attempt.readinessSettled = true;
+        dispatchKernel(READINESS_SETTLED, attempt);
+        return;
+      }
+
+      if (DEV) {
+        report(
+          new Error(
+            'drag: the authored presentation was acknowledged outside a release or settlement; ignored',
+          ),
+        );
+      }
+    },
+
     cancel,
     destroy,
   };
@@ -1954,6 +2229,39 @@ export function createKernel<Part extends object>(
           );
         }
 
+        // Static spec data, validated once, exactly as `actionTags` is (D-32).
+        // The `pointerdown` collision is refused rather than tolerated: two
+        // listeners for one type would run two admission members for one event,
+        // and the second would find the first's operation already committed —
+        // silently, and only sometimes.
+        if (next.command !== undefined) {
+          const { types } = next.command;
+
+          if (types.length === 0) {
+            throw new TypeError('drag: command.types must not be empty');
+          }
+
+          for (const [index, type] of types.entries()) {
+            if (typeof type !== 'string' || type === '') {
+              throw new TypeError(
+                'drag: command.types must contain non-empty strings',
+              );
+            }
+
+            if (type === POINTER_DOWN) {
+              throw new TypeError(
+                `drag: command.types must not contain "${POINTER_DOWN}", which the kernel binds for its own pointer ingress`,
+              );
+            }
+
+            if (types.indexOf(type) !== index) {
+              throw new TypeError(
+                `drag: command.types contains a duplicate entry "${type}"`,
+              );
+            }
+          }
+        }
+
         // The same code path twice, so both frames get one hidden class, and
         // *both* factory results are validated — the factory is not proven
         // deterministic, so checking only the first would let the second
@@ -1970,6 +2278,15 @@ export function createKernel<Part extends object>(
         root.addEventListener(POINTER_DOWN, onPointerDown, {
           signal: ingress.signal,
         });
+
+        // Inside the **same** ingress abort that owns `pointerdown`, so
+        // `destroy()` releases every listener including the discrete ones, and
+        // a behavior with no `command` member binds nothing at all.
+        if (next.command !== undefined) {
+          for (const type of next.command.types) {
+            root.addEventListener(type, onCommand, { signal: ingress.signal });
+          }
+        }
       } catch (error) {
         guarded(next.retire);
 

@@ -23,8 +23,13 @@ import {
   type LandingContext,
   type LandingHandle,
 } from '../../src/sortable/landing.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
-import { ReorderResolution, sortable } from '../../src/sortable.ts';
+import { y } from '../../src/sortable/y.ts';
+import {
+  type ReorderRequest,
+  ReorderResolution,
+  type SortableController,
+  sortable,
+} from '../../src/sortable.ts';
 
 const POINTER_ID = 21;
 const ITEM_HEIGHT = 40;
@@ -44,6 +49,9 @@ type Fixture = Readonly<{
   contexts: LandingContext[];
   retargets: Point[];
   errors: Array<Readonly<{ stage: number }>>;
+  controller: SortableController;
+  /** The request the last `onReorder` was handed, for `controller.ready`. */
+  request(): ReorderRequest;
 }>;
 
 const cleanup: Array<() => void> = [];
@@ -67,7 +75,7 @@ afterEach(() => {
   }
 });
 
-function build(ready?: PromiseLike<void>, readinessTimeout?: number): Fixture {
+function build(presentation = false, readinessTimeout?: number): Fixture {
   const root = document.createElement('div');
 
   Object.assign(root.style, {
@@ -93,6 +101,7 @@ function build(ready?: PromiseLike<void>, readinessTimeout?: number): Fixture {
   }
 
   const contexts: LandingContext[] = [];
+  let pending: ReorderRequest | null = null;
   const retargets: Point[] = [];
   const errors: Array<Readonly<{ stage: number }>> = [];
 
@@ -100,9 +109,12 @@ function build(ready?: PromiseLike<void>, readinessTimeout?: number): Fixture {
     root,
     sortable(
       items,
-      vertical(),
+      y(),
       callbacks({
-        onReorder: () => ReorderResolution.accept(ready),
+        onReorder: (request) => {
+          pending = request;
+          return ReorderResolution.accept({ presentation });
+        },
         ...(readinessTimeout === undefined ? {} : { readinessTimeout }),
         onError: (_error, context): void => {
           errors.push({ stage: context.stage });
@@ -141,6 +153,8 @@ function build(ready?: PromiseLike<void>, readinessTimeout?: number): Fixture {
     contexts,
     retargets,
     errors,
+    controller,
+    request: () => pending!,
   };
 }
 
@@ -255,12 +269,7 @@ describe('the landing coordinate space', () => {
   it('should give retarget the same space as target', async () => {
     // The readiness gate is what makes the kernel re-measure and retarget, and
     // it is the one place the value is produced by a different call path.
-    let settle!: () => void;
-    const fixture = build(
-      new Promise<void>((resolve) => {
-        settle = resolve;
-      }),
-    );
+    const fixture = build(true);
 
     press(fixture);
     pointerEvent('pointermove', ROOT_LEFT + GRAB_X, ROOT_TOP + GRAB_Y + 30);
@@ -269,7 +278,7 @@ describe('the landing coordinate space', () => {
 
     expect(fixture.retargets).toEqual([]);
 
-    settle();
+    fixture.controller.ready(fixture.request());
     await Promise.resolve();
     await Promise.resolve();
 
@@ -285,9 +294,6 @@ describe('the landing coordinate space', () => {
 });
 
 describe('the readiness timeout', () => {
-  /** A promise that never settles, so only the bound can end the gate. */
-  const never = (): PromiseLike<void> => new Promise<void>(() => {});
-
   const sleep = (ms: number): Promise<void> =>
     new Promise((resolve) => {
       setTimeout(resolve, ms);
@@ -303,7 +309,7 @@ describe('the readiness timeout', () => {
   it('should apply the configured bound rather than the default', async () => {
     // The option has to reach `config.readinessTimeout`, and the only way to
     // see that it did is to out-wait a bound the default would not have hit.
-    const fixture = build(never(), 20);
+    const fixture = build(true, 20);
 
     await drop(fixture);
     await sleep(120);
@@ -316,7 +322,7 @@ describe('the readiness timeout', () => {
   it('should still be holding the gate at the same moment under the default', async () => {
     // The control: the identical script with the default 500ms bound has not
     // failed yet, which is what makes the assertion above about the *option*.
-    const fixture = build(never());
+    const fixture = build(true);
 
     await drop(fixture);
     await sleep(120);
