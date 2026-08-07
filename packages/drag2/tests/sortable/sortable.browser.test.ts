@@ -2288,6 +2288,7 @@ describe('the spatial action legality guard', () => {
       realm: rt.host.realm,
       placeholder: item,
       item,
+      getVisual: null,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2366,6 +2367,7 @@ describe('a pointerless release with no destination', () => {
       realm: rt.host.realm,
       placeholder: item,
       item,
+      getVisual: null,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2611,6 +2613,7 @@ describe('the displacement view lifetime', () => {
       realm: rt.host.realm,
       placeholder,
       item: items[0]!,
+      getVisual: null,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2735,6 +2738,7 @@ describe('the displacement view lifetime', () => {
       realm: rt.host.realm,
       placeholder,
       item: items[0]!,
+      getVisual: null,
       snapshot: rt.snapshot,
       insertion: null,
     };

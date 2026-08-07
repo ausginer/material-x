@@ -43,8 +43,16 @@ export type RectIndex = {
    * Re-measures only when something dirtied the cache or the collection version
    * moved. On a frame where the pointer merely travels inside the same slot this
    * reads no geometry at all and the previous scan stands.
+   *
+   * `getVisual` is the installed `visual()` resolver, or `null` when no
+   * `visual()` is composed — in which case every candidate *is* its own visual
+   * and the resolver would be an identity call per item per rebuild.
    */
-  refresh(snapshot: CollectionSnapshot, dragged: HTMLElement): void;
+  refresh(
+    snapshot: CollectionSnapshot,
+    dragged: HTMLElement,
+    getVisual: ((item: HTMLElement) => HTMLElement) | null,
+  ): void;
   invalidate(): void;
   retire(): void;
 };
@@ -71,7 +79,7 @@ export function createRectIndex(): RectIndex {
     items: [],
     count: 0,
 
-    refresh(snapshot, dragged): void {
+    refresh(snapshot, dragged, getVisual): void {
       if (!dirty && measured === snapshot.version) {
         return;
       }
@@ -91,7 +99,15 @@ export function createRectIndex(): RectIndex {
           continue;
         }
 
-        const rect = item.getBoundingClientRect();
+        // The **visual's** box, not the item's, because the incumbent this
+        // geometry is compared against is the placeholder — which is sized from
+        // the visual's offset box (`placement.ts`). Measuring items here and
+        // the placeholder there would compare centres of differently-derived
+        // boxes, and for an inset or offset visual that biases the hysteresis.
+        // Parity: the shipped index resolved the visual per candidate too.
+        const rect = (
+          getVisual === null ? item : getVisual(item)
+        ).getBoundingClientRect();
         const offset = n * STRIDE;
 
         values[offset + LEFT] = rect.left;

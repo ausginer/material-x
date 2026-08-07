@@ -491,6 +491,7 @@ export function createSortableSpec(
           realm,
           placeholder,
           item,
+          getVisual: slots.getVisual,
           snapshot: current.snapshot!,
           insertion: null,
         };

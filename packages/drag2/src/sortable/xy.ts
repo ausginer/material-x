@@ -60,6 +60,8 @@ type InsertionFrameView = Readonly<{
 type InsertionRuntimeView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
+  /** The installed `visual()` resolver, or `null`; see `y.ts` for why. */
+  getVisual: ((item: HTMLElement) => HTMLElement) | null;
 }>;
 
 export function xy(): SortableFeature {
@@ -80,7 +82,7 @@ export function xy(): SortableFeature {
 
           const { snapshot, placeholder } = runtime;
 
-          index.refresh(snapshot, dragged);
+          index.refresh(snapshot, dragged, runtime.getVisual);
 
           const { values, count } = index;
           const { pointerX, pointerY } = frame;
@@ -143,7 +145,7 @@ export function xy(): SortableFeature {
           const dragged = frame.item;
 
           if (dragged !== null) {
-            index.refresh(runtime.snapshot, dragged);
+            index.refresh(runtime.snapshot, dragged, runtime.getVisual);
           }
         },
 

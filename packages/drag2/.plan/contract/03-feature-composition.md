@@ -388,11 +388,13 @@ landing(options?: LandingOptions): SortableFeature;
 The only module containing axis geometry. A future `horizontal()` is a sibling, never a branch inside this one.
 
 ```text
-candidates := centres of every non-dragged item, plus the placeholder's own centre
+candidates := centres of every non-dragged item's visual, plus the placeholder's own centre
 nearest    := the candidate whose centre is closest to the pointer on the Y axis
 if nearest is the placeholder  -> keep the current insertion (no change)
 else  gap := follows(placeholder, nearest) ? slot + 1 : slot
 ```
+
+**Amended at Checkpoint D (parity D2).** An earlier reading of this rule said "centres of every non-dragged item", and the implementation measured items. The candidate is the **visual** — `visual()`'s resolver applied to the item, or the item itself when no `visual()` is composed. The reason is internal coherence rather than only parity with the shipped index: the incumbent every candidate is compared against is the placeholder, and `placement.ts` sizes the placeholder from the _visual's_ offset box. Measuring items on one side of that comparison and a visual-derived box on the other biases the hysteresis for any visual that is an inset or offset descendant. The resolver reaches the axis rule as a nullable field on the per-operation runtime view — the same consumer-declared-view mechanism (D-13) that carries `placeholder`, which is itself a product of an optional feature's slot — so no axis module imports `handle.ts` and no sibling-feature dependency appears.
 
 The placeholder being a candidate _is_ the hysteresis: a new gap is proposed only once another item's centre is genuinely closer than the placeholder's own slot. No dead band, no direction latch, no tunable — which is why the rule cannot be mistuned into oscillation. The current insertion stays authoritative until a genuinely better one is selected; a frame resolving to `null` commits nothing.
 

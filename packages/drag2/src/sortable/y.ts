@@ -45,6 +45,17 @@ type InsertionFrameView = Readonly<{
 type InsertionRuntimeView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
+  /**
+   * The installed `visual()` resolver, or `null` when none is composed.
+   *
+   * **Third widening of a consumer-declared view, and not a sibling-feature
+   * dependency.** This module names a field the *behavior* guarantees to supply,
+   * exactly as it already names `placeholder` — which is itself a product of the
+   * optional `placeholder()` slot. The axis feature imports nothing from
+   * `handle.ts` and cannot tell whether a `visual()` was composed; it reads one
+   * nullable field off the per-operation object.
+   */
+  getVisual: ((item: HTMLElement) => HTMLElement) | null;
 }>;
 
 const centreOf = (element: Element): number => {
@@ -74,7 +85,7 @@ export function y(): SortableFeature {
 
           const { snapshot, placeholder } = runtime;
 
-          index.refresh(snapshot, dragged);
+          index.refresh(snapshot, dragged, runtime.getVisual);
 
           const { values, count } = index;
           const anchor = centreOf(placeholder);
@@ -137,7 +148,7 @@ export function y(): SortableFeature {
           const dragged = frame.item;
 
           if (dragged !== null) {
-            index.refresh(runtime.snapshot, dragged);
+            index.refresh(runtime.snapshot, dragged, runtime.getVisual);
           }
         },
 

@@ -72,6 +72,21 @@ export type InsertionFrameView = Readonly<{
 export type InsertionRuntimeView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
+  /**
+   * The installed `visual()` resolver, or `null` when no `visual()` is composed.
+   *
+   * **The axis rule measures candidate visuals, not candidate items** (parity
+   * D2). The reason is internal coherence rather than only parity: the incumbent
+   * every candidate is compared against is the placeholder, which `placement.ts`
+   * sizes from the visual's offset box. Measuring items on one side of that
+   * comparison and a visual-derived box on the other biases the hysteresis for
+   * any visual that is an inset or offset descendant.
+   *
+   * Nullable rather than normalized to identity, because the minimal
+   * composition installs no `visual()` and would otherwise pay an identity call
+   * per candidate per rebuild.
+   */
+  getVisual: ((item: HTMLElement) => HTMLElement) | null;
 }>;
 
 export type DisplacementView = Readonly<{

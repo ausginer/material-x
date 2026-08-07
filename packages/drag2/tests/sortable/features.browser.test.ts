@@ -411,6 +411,28 @@ describe('visual', () => {
     expect(composed.placeholder()!.getBoundingClientRect().height).toBe(20);
   });
 
+  it('should resolve the visual of every candidate, not only the dragged item', async () => {
+    // Parity D2, through real pointer input. The exact centres the two
+    // measurements produce are pinned against known geometry in
+    // `y.browser.test.ts`; what this adds is that a composed drag routes the
+    // installed resolver into the candidate search at all — which is the whole
+    // of the defect, and is invisible from any assertion about the dragged item.
+    const asked: HTMLElement[] = [];
+    const composed = composeWith({
+      features: [
+        visual((item) => {
+          asked.push(item);
+          return item;
+        }),
+      ],
+    });
+
+    activate(composed);
+    await drag(70);
+
+    expect(new Set(asked)).toEqual(new Set(composed.items));
+  });
+
   it('should restore the resolved visual at teardown', () => {
     const inner = document.createElement('div');
     const composed = compose(visual(() => inner));

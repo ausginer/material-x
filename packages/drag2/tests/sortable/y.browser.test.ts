@@ -38,7 +38,11 @@ type Field = Readonly<{
     version?: number,
     items?: readonly HTMLElement[],
   ): CollectionSnapshot;
-  resolve(pointerY: number, snapshot?: CollectionSnapshot): Insertion | null;
+  resolve(
+    pointerY: number,
+    snapshot?: CollectionSnapshot,
+    getVisual?: ((item: HTMLElement) => HTMLElement) | null,
+  ): Insertion | null;
 }>;
 
 /**
@@ -82,10 +86,10 @@ function createField(count = 3): Field {
     items,
     placeholder,
     snapshot: (version = 0, list = items) => ({ items: list, version }),
-    resolve: (pointerY, snapshot = field.snapshot()) =>
+    resolve: (pointerY, snapshot = field.snapshot(), getVisual = null) =>
       geometry.resolve(
         { pointerX: 0, pointerY, insertion: null, item: items[0]! },
-        { snapshot, placeholder },
+        { snapshot, placeholder, getVisual },
       ),
   };
 
@@ -101,9 +105,78 @@ describe('y', () => {
     expect(
       field.geometry.resolve(
         { pointerX: 0, pointerY: 60, insertion: null, item: null },
-        { snapshot: field.snapshot(), placeholder: field.placeholder },
+        {
+          snapshot: field.snapshot(),
+          placeholder: field.placeholder,
+          getVisual: null,
+        },
       ),
     ).toBeNull();
+  });
+
+  /**
+   * Inset visuals: a 20px absolute child at `top: 20px` inside each attached
+   * item, so an item's centre and its visual's centre differ by 10px. The item
+   * boxes are untouched, which is what makes the two measurements comparable.
+   */
+  const insetVisuals = (
+    items: readonly HTMLElement[],
+  ): ((item: HTMLElement) => HTMLElement) => {
+    const visuals = new Map<HTMLElement, HTMLElement>();
+
+    for (const item of items.slice(1)) {
+      const inner = document.createElement('div');
+
+      item.style.position = 'relative';
+      Object.assign(inner.style, {
+        position: 'absolute',
+        left: '0',
+        right: '0',
+        top: '20px',
+        height: '20px',
+      });
+      item.append(inner);
+      visuals.set(item, inner);
+    }
+
+    return (item) => visuals.get(item) ?? item;
+  };
+
+  it('should measure candidate visuals rather than candidate items', () => {
+    // Parity D2. Item centres are placeholder 20, items[1] 60, items[2] 100;
+    // the inset *visual* centres are 70 and 110. At pointer 42 the two
+    // measurements disagree about whether a gap was even crossed: items[1]'s
+    // item centre is 18 away and beats the placeholder's 22, while its visual
+    // centre is 28 away and loses to it.
+    const field = createField();
+    const getVisual = insetVisuals(field.items);
+
+    expect(field.resolve(42)?.index).toBe(1);
+    expect(field.resolve(42, field.snapshot(1), getVisual)).toBeNull();
+  });
+
+  it('should resolve each candidate visual once per rebuild', () => {
+    // The resolver is on the geometry hot path now, so "once per candidate per
+    // rebuild, and not at all on a warm cache" is a contract and not an
+    // implementation detail.
+    const field = createField();
+    const resolve = insetVisuals(field.items);
+    const seen: HTMLElement[] = [];
+    const getVisual = (item: HTMLElement): HTMLElement => {
+      seen.push(item);
+      return resolve(item);
+    };
+
+    field.resolve(42, field.snapshot(), getVisual);
+
+    // Two destination candidates, the dragged item excluded.
+    expect(seen).toEqual([field.items[1], field.items[2]]);
+
+    // Same version, nothing dirtied: the previous scan stands and the resolver
+    // is not consulted again.
+    field.resolve(44, field.snapshot(), getVisual);
+
+    expect(seen).toHaveLength(2);
   });
 
   it('should keep the incumbent gap when its own centre is nearest', () => {

@@ -71,6 +71,7 @@ type Field = Readonly<{
     x: number,
     y: number,
     snapshot?: CollectionSnapshot,
+    getVisual?: ((item: HTMLElement) => HTMLElement) | null,
   ): Insertion | null;
 }>;
 
@@ -144,10 +145,10 @@ function createField(slot = 0): Field {
     dragged,
     placeholder,
     snapshot: (version = 0, list = collection) => ({ items: list, version }),
-    resolve: (x, y, snapshot = field.snapshot()) =>
+    resolve: (x, y, snapshot = field.snapshot(), getVisual = null) =>
       geometry.resolve(
         { pointerX: x, pointerY: y, insertion: null, item: dragged },
-        { snapshot, placeholder },
+        { snapshot, placeholder, getVisual },
       ),
   };
 
@@ -161,7 +162,11 @@ describe('xy', () => {
     expect(
       field.geometry.resolve(
         { pointerX: 50, pointerY: 20, insertion: null, item: null },
-        { snapshot: field.snapshot(), placeholder: field.placeholder },
+        {
+          snapshot: field.snapshot(),
+          placeholder: field.placeholder,
+          getVisual: null,
+        },
       ),
     ).toBeNull();
   });
@@ -172,6 +177,38 @@ describe('xy', () => {
     const field = createField();
 
     expect(field.resolve(50, 20)).toBeNull();
+  });
+
+  it('should measure candidate visuals rather than candidate items', () => {
+    // Parity D2, the two-dimensional mirror of `y()`'s case. A 60x40 visual
+    // pinned to each cell's left edge puts its centre 20px left of the cell's,
+    // so cell 1's centre moves from (170, 20) to (150, 20).
+    const field = createField();
+    const visuals = new Map<HTMLElement, HTMLElement>();
+
+    for (const item of field.items) {
+      const inner = document.createElement('div');
+
+      Object.assign(inner.style, {
+        position: 'absolute',
+        left: '0',
+        top: '0',
+        width: '60px',
+        height: `${CELL_H}px`,
+      });
+      item.append(inner);
+      visuals.set(item, inner);
+    }
+
+    const getVisual = (item: HTMLElement): HTMLElement =>
+      visuals.get(item) ?? item;
+
+    // At (105, 20) the pointer has not yet passed the midpoint between the
+    // placeholder's centre and cell 1's *item* centre, so an item-measured scan
+    // holds the incumbent. Cell 1's *visual* centre is already the nearest, so
+    // a visual-measured scan proposes the gap on its far side.
+    expect(field.resolve(105, 20)).toBeNull();
+    expect(field.resolve(105, 20, field.snapshot(1), getVisual)?.index).toBe(1);
   });
 
   it('should choose the nearest cell across both axes', () => {

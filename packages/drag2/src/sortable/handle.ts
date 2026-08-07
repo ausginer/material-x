@@ -26,6 +26,16 @@ export function handle(
  * The lifted element. It is what gets promoted, measured for the placeholder's
  * size, transformed on every move and landed — so it must be the item or live
  * inside it.
+ *
+ * **Called for every candidate, not only the dragged item** (parity D2). The
+ * axis rule searches candidate *visuals*, because the incumbent it compares them
+ * against is the placeholder and the placeholder is sized from the visual's
+ * offset box. So a resolver must map each item to *its own* visual — a
+ * `() => oneFixedElement` resolver is wrong here, and was wrong in the shipped
+ * package for the same reason.
+ *
+ * It sits on the geometry path: once per candidate per rebuild, and not at all
+ * on a warm cache. Keep it a lookup, not a query.
  */
 export function visual(
   resolve: (item: HTMLElement) => HTMLElement,

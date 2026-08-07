@@ -51,6 +51,13 @@ export type PresentationView = {
    * at activation rather than rewritten per move.
    */
   readonly item: HTMLElement;
+  /**
+   * The installed `visual()` resolver, for the axis rule's candidate
+   * measurement (parity D2). Copied off the slots once per operation rather than
+   * read through `slots` per rebuild, so the axis feature keeps naming only
+   * fields of this object and never reaches the slot record.
+   */
+  readonly getVisual: ((item: HTMLElement) => HTMLElement) | null;
   snapshot: CollectionSnapshot;
   /**
    * The destination gap of the placeholder move currently being bracketed.
