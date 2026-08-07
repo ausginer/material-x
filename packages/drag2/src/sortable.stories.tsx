@@ -168,10 +168,21 @@ function SortableDemo({
   return (
     <div className={css['stage']}>
       <p className={css['hint']}>{hint}</p>
-      <div ref={containerRef} className={css['list']}>
+      {/*
+        `role="list"` plus focusable rows, because **the library provides
+        neither**. `sortable()` binds `keydown` on this container and the event
+        has to originate inside a row, so a row that cannot take focus cannot be
+        reordered from the keyboard at all — the hint below would be a lie. Roles,
+        focus order and any live-region announcement are the consumer's, which is
+        the correct boundary for a headless library and a documented limitation
+        rather than an omission.
+      */}
+      <div ref={containerRef} className={css['list']} role="list">
         {order.map((label) => (
           <div
             key={label}
+            role="listitem"
+            tabIndex={0}
             data-label={label}
             className={css['row']}
             ref={(el) => {
@@ -197,7 +208,7 @@ export const List: StoryObj = {
   render: () => (
     <SortableDemo
       labels={LIST}
-      hint="Drag a row to reorder the list, or press Escape mid-drag to cancel."
+      hint="Drag a row to reorder the list, or focus one and use the arrow keys. Escape cancels a drag mid-flight."
     />
   ),
 };

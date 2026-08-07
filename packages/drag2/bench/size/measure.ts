@@ -46,6 +46,13 @@ export type Composition = Readonly<{
    * ~0.3 kB of headroom — deliberately tight, because the point of a budget
    * here is to notice a module appearing in a graph, and 0.3 kB is roughly one
    * such module.
+   *
+   * **Re-based 2026-08-07, Phase 16.** D-33 cost 70 B and D-32 cost ~300 B
+   * across *every* composition, including minimal: keyboard sorting is a
+   * `BehaviorSpec` member, not an optional feature, so a consumer cannot
+   * tree-shake away the second input mode. That is a deliberate accessibility
+   * position rather than an oversight — see `.plan/plan.md` Phase 16 — and the
+   * budgets say so by moving together.
    */
   budget: number;
   /**
@@ -78,7 +85,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/vertical.js': '{ vertical }',
       'sortable/callbacks.js': '{ callbacks }',
     },
-    budget: 9600,
+    budget: 10_200,
     absent: without(),
   },
   {
@@ -90,7 +97,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/callbacks.js': '{ callbacks }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_000,
+    budget: 10_600,
     absent: without('sortable/layout-animation.js'),
     present: ['sortable/layout-animation.js'],
   },
@@ -103,7 +110,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/callbacks.js': '{ callbacks }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 9850,
+    budget: 10_500,
     absent: without('sortable/landing.js'),
     present: ['sortable/landing.js'],
   },
@@ -119,14 +126,14 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_400,
+    budget: 11_000,
     present: OPTIONAL,
   },
   {
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 10_100,
+    budget: 10_730,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted

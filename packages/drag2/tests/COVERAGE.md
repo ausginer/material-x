@@ -81,6 +81,45 @@ The rejection channel itself is a **deliberate narrowing**, not an oversight: wh
 
 ---
 
+## Discrete input — new (D-32)
+
+Implemented in Phase 16. The consumer-facing rows are `tests/sortable/keyboard.browser.test.ts`, driven through the public entrypoint; the ingress and construction rows need a spec the test controls, so they are in `tests/kernel/kernel.browser.test.ts`.
+
+**How the destination rows are made falsifiable.** A pointerless operation's pointer scalars are zero, so a spatial resolve would run from `pointerY === 0` — the first gap. Every destination row therefore commands an item **downward**, where the two answers visibly disagree; an assertion that the gap survived is an assertion that nothing re-resolved it.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| no `command` member ⇒ no discrete listener is bound at all | `tests/kernel/kernel.browser.test.ts` — _should bind no discrete listener when the spec declares no command_ | D-32 |
+| a `command.admit` returning `null` mints nothing and the kernel does **not** prevent the default | `tests/kernel/kernel.browser.test.ts` — _should not prevent the default when the command declines_; `tests/sortable/keyboard.browser.test.ts` — _should leave an edge item inert and keep the key native_ | I-32 |
+| a pointer `admit` returning `null` likewise, and one returning an element has the default prevented **by the kernel** | `tests/kernel/kernel.browser.test.ts` — _should prevent the default for a press only when it is admitted_ | C-03 |
+| a `command.admit` returning an element mints a pointerless operation and reaches `ACTIVE` with no pointer travel | `tests/kernel/kernel.browser.test.ts` — _should mint a pointerless operation and queue ACTIVATE_ | D-32 |
+| a pointerless operation is never advanced by a synthetic pointer event and holds no capture | `tests/sortable/keyboard.browser.test.ts` — _should never be advanced by a synthetic pointer event_, _should acquire no pointer capture_ | I-33 |
+| a command reaches `RELEASING` without an `UP`, and its settlement and terminal callback are the pointer path's | `tests/sortable/keyboard.browser.test.ts` — _should run a complete one-slot operation from a single arrow key_, _should reach the terminal callback through the pointer path_ | D-32 |
+| **a keyboard and a pointer reorder to the same gap produce identical proposals** | `tests/sortable/keyboard.browser.test.ts` — _should produce identical proposals for the same destination gap_ | D-32 |
+| the command destination **survives activation** instead of being reseeded to home | `tests/sortable/keyboard.browser.test.ts` — _should survive activation instead of being reseeded to home_ | C4-01 |
+| **and survives release** instead of being re-resolved spatially | `tests/sortable/keyboard.browser.test.ts` — _should survive release instead of being re-resolved spatially_ | C4-01 |
+| `release.effect` moves the placeholder but performs **no lift write**, so the landing origin is `(0, 0)` | `tests/sortable/keyboard.browser.test.ts` — _should build the landing origin from a visual that never moved_ | D-35, C5-03 |
+| a pointerless `release.prepare` reaching a `null` insertion returns a `SeamRejection` and does **not** fall back to home | `tests/sortable/sortable.browser.test.ts` — _should reject rather than fall back to home_ (driven directly; see below) | D-32 |
+| a command gap invalidated by an `updateItems()` queued from inside the listener is rebased or cancels — **no command-specific revalidation** | `tests/sortable/keyboard.browser.test.ts` — _should enqueue an updateItems() rather than drain it_ | I-1, D-32 |
+| command admission is refused whenever an operation is already live, at `PENDING`, `ACTIVE` and `SETTLING` | `tests/sortable/keyboard.browser.test.ts` — the _a command against a live operation_ group | C4-07 |
+| a `pointerdown` from inside `command.admit`, and a `keydown` from inside `admit`, are both refused by the shared latch | `tests/sortable/keyboard.browser.test.ts` — _should refuse a press dispatched from inside the command listener_, _…from inside the press listener_ | D-32 |
+| a throwing `command.admit` reaches `reportFailure(FAILURE_ADMISSION)` with no operation and leaves the controller usable | `tests/kernel/kernel.browser.test.ts` — _should report a throwing command.admit with no operation_ | Q-1 |
+| `destroy()` releases every ingress listener, discrete ones included | `tests/kernel/kernel.browser.test.ts` — _should release the discrete listeners on destroy_; `tests/sortable/keyboard.browser.test.ts` — _should release every ingress listener on destroy_ | D-29 |
+| `arm()` rejects an empty, non-string, duplicate or `pointerdown`-colliding `command.types` | `tests/kernel/kernel.browser.test.ts` — _should reject an invalid command.types at arm_ | D-32 |
+| `Escape` cancels a command exactly as it cancels a press | `tests/sortable/keyboard.browser.test.ts` — _should be cancelled by Escape exactly as a press is_ | D-32 |
+| `ArrowLeft` ≡ `ArrowUp` and `ArrowRight` ≡ `ArrowDown` — keyboard is not axis-specific | `tests/sortable/keyboard.browser.test.ts` — _should treat ArrowLeft as ArrowUp and ArrowRight as ArrowDown_ | L-4 |
+| `handle()` gates the keyboard path too | `tests/sortable/keyboard.browser.test.ts` — _should gate the keyboard path through handle()_ | L-4 |
+
+### One row is driven at the seam, and why
+
+**A pointerless release with a `null` insertion has no producer.** `command.admit` always writes a gap before returning non-null, and a replacement that invalidates one cancels the operation rather than nulling it — so the guard is unreachable through the public surface. It is asserted by calling `release.prepare` directly, because the reason it is a rejection and not a home fallback is a _correctness_ reason the contract states, and a guard nothing can reach still should not read as tested when it is not.
+
+### A row that documents an abandon rather than a terminal
+
+A command whose gap is invalidated between admission and `ACTIVATE` is **abandoned silently** — no `onStart`, no `onCancel`, no `onError`. That is the phase table's `CANCEL at PENDING → retire` row, which D-32 kept deliberately: no start was notified, so none is owed (I-31), and the observable is the same one an edge-item command already produces. The row asserts the _absence_ of a classified failure, because that is what the defect it caught produced.
+
+---
+
 ## Reentrancy
 
 | Row | Test | ID |

@@ -14,16 +14,11 @@ import {
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
 } from '../kernel/failures.ts';
-import type { Frame } from '../kernel/frames.ts';
+import type { Draft, Frame } from '../kernel/frames.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
-import {
-  ACTIVATING,
-  ACTIVE,
-  IDLE,
-  PENDING,
-  RELEASING,
-} from '../kernel/phases.ts';
+import { ACTIVATING, ACTIVE, IDLE, RELEASING } from '../kernel/phases.ts';
 import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
+import { KEY_DOWN } from '../kernel/protocol.ts';
 import { guarded } from '../kernel/reporter.ts';
 import {
   type BehaviorSpec,
@@ -47,6 +42,7 @@ import {
   CANCEL_COLLECTION_INVALIDATED,
   CANCEL_ITEM_REMOVED,
   type CollectionSnapshot,
+  type Insertion,
   isReorderResolution,
   OUTCOME_ACCEPTED,
   OUTCOME_CANCELED,
@@ -62,6 +58,7 @@ import {
   resetSortableFramePart,
   type SortableFramePart,
 } from './frames.ts';
+import { directionOf, keyboardInsertion } from './keyboard.ts';
 import {
   createPlaceholder,
   movePlaceholder,
@@ -103,6 +100,70 @@ export function createSortableSpec(
   const { realm } = host;
   // One per controller. Arming is per operation, on the motion signal.
   const invalidate = createInvalidator(realm);
+
+  /**
+   * The admitted item, from the event's **composed path** rather than
+   * `event.target`: the press may land inside a shadow root, and the item is
+   * whichever ancestor the snapshot knows.
+   *
+   * Shared by both ingresses (D-32) so that "a handle gates the keyboard path
+   * too" is one rule in one place rather than two implementations that agree.
+   */
+  const resolveItem = (
+    event: Event,
+    snapshot: CollectionSnapshot,
+  ): HTMLElement | null => {
+    const path = event.composedPath();
+    let item: HTMLElement | null = null;
+
+    for (const node of path) {
+      if (snapshot.items.includes(node as HTMLElement)) {
+        item = node as HTMLElement;
+        break;
+      }
+    }
+
+    if (item === null) {
+      return null;
+    }
+
+    if (slots.getHandle !== null) {
+      const handle = slots.getHandle(item);
+
+      // A handle *narrows* admission; it never replaces the item.
+      if (handle === null || !path.includes(handle)) {
+        return null;
+      }
+    }
+
+    return item;
+  };
+
+  /**
+   * The half of admission both ingresses share: resolve the item, resolve the
+   * visual, seed the draft. Returns the visual, or `null` to decline.
+   *
+   * No `preventDefault()` — the kernel owns that call in both modes, and makes
+   * it exactly when this returns non-null (C-03).
+   */
+  const admitFrom = (
+    event: Event,
+    draft: Draft<SortableFramePart>,
+  ): HTMLElement | null => {
+    const { snapshot } = rt;
+    const item = resolveItem(event, snapshot);
+
+    if (item === null) {
+      return null;
+    }
+
+    const visual = slots.getVisual === null ? item : slots.getVisual(item);
+
+    draft.item = item;
+    draft.visual = visual;
+    draft.snapshot = snapshot;
+    return visual;
+  };
 
   /**
    * The failure the open settlement seam is reporting, handed from `prepare` to
@@ -261,39 +322,56 @@ export function createSortableSpec(
     // -----------------------------------------------------------------------
 
     admit(event, draft) {
-      const { snapshot } = rt;
-      // The composed path, not `event.target`: the press may land inside a
-      // shadow root, and the item is whichever ancestor the snapshot knows.
-      const path = event.composedPath();
-      let item: HTMLElement | null = null;
+      return admitFrom(event, draft);
+    },
 
-      for (const node of path) {
-        if (snapshot.items.includes(node as HTMLElement)) {
-          item = node as HTMLElement;
-          break;
-        }
-      }
+    /**
+     * The **second ingress** (D-32), sharing every admission rule with the
+     * press: the same composed-path search, the same handle narrowing, the same
+     * visual resolver. `handle()` therefore gates the keyboard path too, which
+     * is parity with the shipped package rather than incidental.
+     *
+     * What it adds is the one thing a press does not need — a **destination**,
+     * decided here, synchronously, so that feasibility reaches the native
+     * listener. An edge item yields `null` and the kernel leaves the arrow key
+     * alone.
+     */
+    command: {
+      types: [KEY_DOWN],
 
-      if (item === null) {
-        return null;
-      }
+      admit(event, draft): HTMLElement | null {
+        const direction = directionOf((event as KeyboardEvent).key);
 
-      if (slots.getHandle !== null) {
-        const handle = slots.getHandle(item);
-
-        // A handle *narrows* admission; it never replaces the item.
-        if (handle === null || !path.includes(handle)) {
+        if (direction === null) {
           return null;
         }
-      }
 
-      const visual = slots.getVisual === null ? item : slots.getVisual(item);
+        const { snapshot } = rt;
+        const item = resolveItem(event, snapshot);
 
-      event.preventDefault();
-      draft.item = item;
-      draft.visual = visual;
-      draft.snapshot = snapshot;
-      return visual;
+        if (item === null) {
+          return null;
+        }
+
+        const insertion = keyboardInsertion(snapshot, item, direction);
+
+        // The edge case, and the whole reason the decision is synchronous.
+        if (insertion === null) {
+          return null;
+        }
+
+        const visual = admitFrom(event, draft);
+
+        if (visual === null) {
+          return null;
+        }
+
+        // The destination travels in the draft, exactly as `item` does for a
+        // press. No staged value crosses the ingress boundary, which is what
+        // keeps D-32 to one SPI member.
+        draft.insertion = insertion;
+        return visual;
+      },
     },
 
     // -----------------------------------------------------------------------
@@ -309,13 +387,21 @@ export function createSortableSpec(
        */
       prepare(draft, scope) {
         const item = draft.item!;
-        const home = homeInsertion(draft.snapshot!, item);
 
-        if (home === null) {
-          return null; // the item left the collection between press and move
+        // **The pointer branch** (D-32, C4-01). A press has no destination yet,
+        // so the grab slot is the origin the spatial path resolves away from. A
+        // *command* already wrote its destination in `command.admit`, and
+        // seeding home here would destroy the only state carrying it.
+        if (draft.pointerId !== -1) {
+          const home = homeInsertion(draft.snapshot!, item);
+
+          if (home === null) {
+            return null; // the item left the collection between press and move
+          }
+
+          draft.insertion = home;
         }
 
-        draft.insertion = home;
         return createPlaceholder(
           realm,
           item,
@@ -525,11 +611,23 @@ export function createSortableSpec(
           } satisfies PreparedCollection;
         }
 
-        // `PENDING` has no insertion to rebase: the item surviving is the whole
-        // question. `ACTIVATING` reconciles exactly like `ACTIVE`, because I-30
-        // has already published the runtime and committed the home insertion
-        // before `onStart` could queue this action (F-32).
-        if (phase === PENDING) {
+        // **The test is the insertion, not the phase** (D-32). A *press* at
+        // `PENDING` has none to rebase — home is seeded at activation — so the
+        // item surviving is the whole question, and this reads exactly as the
+        // phase test it replaced. A **command** commits `PENDING` with its
+        // destination already written by `command.admit`, and short-circuiting
+        // on the phase would carry that gap, unrebased, into a release that
+        // then fails to build a proposal against the new snapshot.
+        //
+        // This is the mechanism contract 02 §The command destination relies on
+        // when it says a command gap is "either rebased or the operation is
+        // cancelled before release ever runs" — no command-specific revalidator
+        // exists, and none is needed, precisely because this one generalized.
+        //
+        // `ACTIVATING` reconciles exactly like `ACTIVE`, because I-30 has
+        // already published the runtime and committed the home insertion before
+        // `onStart` could queue this action (F-32).
+        if (draft.insertion === null) {
           return {
             snapshot: next,
             cancelReason: null,
@@ -665,24 +763,60 @@ export function createSortableSpec(
           );
         }
 
-        // Settled first, then measured: motion is already closed, so this
-        // search runs against final geometry — and "final" has to mean settled
-        // presentation geometry, not wherever the last displacement happens to
-        // have reached.
-        settleDisplacement(view, draft.insertion);
+        // **The branch is where the insertion comes from, never how the
+        // proposal is built.** Both paths hand the same `insertion` to the same
+        // `buildReorderProposal` against the same snapshot, which is what makes
+        // "a keyboard and a pointer reorder to the same gap produce identical
+        // proposals" a statement about one code path rather than a coincidence
+        // between two (D-32, C4-01).
+        let insertion: Insertion;
 
-        if (!invalidateInSeam()) {
-          return { invoke: null };
+        if (draft.pointerId === -1) {
+          const { insertion: commanded } = draft;
+
+          // **The pointerless branch** (D-32, C4-01). The committed insertion
+          // *is* the command's destination: there is no release sample, so a
+          // spatial resolve would select a gap from `pointerY === 0` — the top
+          // of the viewport — and silently replace it.
+          //
+          // A `null` here is a broken invariant, never a home fallback: the
+          // pointer path's fallback exists because a spatial resolve can
+          // legitimately find nothing, while a command that reached `RELEASING`
+          // with no destination has lost state the kernel guaranteed to carry.
+          // Reporting that as a home-gap reorder would tell the consumer a drop
+          // completed normally.
+          if (commanded === null) {
+            return rejection(
+              FAILURE_RELEASE,
+              'drag: a command reached release with no destination',
+            );
+          }
+
+          insertion = commanded;
+        } else {
+          // Settled first, then measured: motion is already closed, so this
+          // search runs against final geometry — and "final" has to mean settled
+          // presentation geometry, not wherever the last displacement happens to
+          // have reached.
+          settleDisplacement(view, draft.insertion);
+
+          if (!invalidateInSeam()) {
+            return { invoke: null };
+          }
+
+          const resolved =
+            slots.resolveInsertion(draft, view) ?? draft.insertion;
+
+          if (resolved === null) {
+            return rejection(
+              FAILURE_RELEASE,
+              'drag: released with no insertion',
+            );
+          }
+
+          draft.insertion = resolved;
+          insertion = resolved;
         }
-
-        const insertion =
-          slots.resolveInsertion(draft, view) ?? draft.insertion;
-
-        if (insertion === null) {
-          return rejection(FAILURE_RELEASE, 'drag: released with no insertion');
-        }
-
-        draft.insertion = insertion;
 
         const built = buildReorderProposal(snapshot, item, insertion);
 
@@ -711,16 +845,28 @@ export function createSortableSpec(
       },
 
       effect(current) {
+        // **Unconditional**: a command reorders too, and its placeholder
+        // reaches the same final gap by the same single writer (C4-01).
         movePlaceholder(rt.placeholder!, current.insertion!);
-        // Normative, not decoration: `pointerup` need not carry the last
-        // processed `pointermove`'s coordinates, and the proposal was computed
-        // from the committed release point. Rendering the placeholder alone
-        // would leave the visual — and the whole landing trajectory — starting
-        // from a stale point (F-39).
-        rt.lift!.write(
-          current.pointerX - current.originX,
-          current.pointerY - current.originY,
-        );
+
+        if (current.pointerId !== -1) {
+          // Normative, not decoration: `pointerup` need not carry the last
+          // processed `pointermove`'s coordinates, and the proposal was computed
+          // from the committed release point. Rendering the placeholder alone
+          // would leave the visual — and the whole landing trajectory — starting
+          // from a stale point (F-39).
+          rt.lift!.write(
+            current.pointerX - current.originX,
+            current.pointerY - current.originY,
+          );
+        }
+        // **The pointerless branch writes nothing**, and that is not a shortcut:
+        // there is no release sample to write. The pointer scalars are still at
+        // their admission values, so writing `pointerX - originX` here would
+        // render `(0, 0)` — where the visual already is, so it would look
+        // harmless while making this branch depend on the very fields it is
+        // defined not to read. The landing then opens from `(0, 0)`, which is
+        // correct because the visual has not moved since acquisition.
 
         // **Published last, and inside this effect** (D-33, C3-04). Last,
         // because a throwing write above classifies `FAILURE_RELEASE` and the

@@ -71,6 +71,40 @@ export type KernelHost = Readonly<{
 }>;
 
 /**
+ * **Discrete, pointerless admission — a second ingress, not a second protocol**
+ * (D-32).
+ *
+ * The load-bearing half of probe 13a's case is not the absence of a pointer: it
+ * is that a command's **feasibility must be answered synchronously, inside the
+ * native listener**, so `preventDefault()` is called only when the command is
+ * possible. An arrow key on an edge item has to keep its native meaning. Every
+ * behavior-initiated entry in the frozen SPI is fire-and-forget — `dispatch`
+ * returns `void` and the decision would land on the drain, after the listener
+ * returned.
+ *
+ * It is **internal**: a behavior declares which events the kernel binds; a
+ * consumer does not.
+ */
+export type CommandAdmission<Part extends object> = Readonly<{
+  /**
+   * The event types the kernel binds on `root`, for the controller's life,
+   * inside the same ingress abort that owns `pointerdown`. Static spec data:
+   * `arm()` validates it once, exactly as it validates `config.actionTags`.
+   */
+  types: readonly string[];
+
+  /**
+   * Runs synchronously inside the native listener, after the kernel's own
+   * guards, with the draft open — the position `admit` occupies, and the only
+   * position from which feasibility can still reach the producer.
+   *
+   * Returns the element to lift, or `null` to decline. Declining is total: no
+   * operation, no phase change, and the kernel does not prevent the default.
+   */
+  admit(event: Event, draft: Draft<Part>): HTMLElement | null;
+}>;
+
+/**
  * What the kernel grants `activation.prepare` and `activation.effect`. One
  * object per operation.
  *
@@ -315,9 +349,18 @@ export type BehaviorSpec<Part extends object> = Readonly<{
    * with the draft open. Returns the element the kernel should lift, or `null`
    * to leave the controller idle (D-5).
    *
-   * `composedPath()` and `preventDefault()` are valid only here.
+   * `composedPath()` is valid only here. **`preventDefault()` is not the
+   * behavior's** — the ingress owner performs it, exactly when an admission
+   * member returns non-null, in both input modes. The behavior answers
+   * feasibility with its return value and nothing else (C-03).
    */
   admit(event: PointerEvent, draft: Draft<Part>): HTMLElement | null;
+
+  /**
+   * The optional second ingress (D-32). A behavior that omits it binds no
+   * discrete listener at all, and `arm()` binds `pointerdown` and nothing else.
+   */
+  command?: CommandAdmission<Part>;
 
   /* ---- transactional seams ---- */
   activation: Transition<Part, HTMLElement, ActivationScope>;

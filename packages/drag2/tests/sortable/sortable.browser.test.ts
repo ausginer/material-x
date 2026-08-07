@@ -2325,6 +2325,70 @@ describe('the spatial action legality guard', () => {
   });
 });
 
+describe('a pointerless release with no destination', () => {
+  it('should reject rather than fall back to home', () => {
+    // Driven directly, because **no producer can reach it**: `command.admit`
+    // always writes a gap before returning non-null, and a replacement that
+    // invalidates one cancels the operation instead of nulling it. The guard is
+    // still the contract's (02 §The command destination) and the reason it is
+    // not a home fallback is a correctness one, so it is asserted here rather
+    // than left to read as tested.
+    //
+    // The pointer path's home fallback exists because a spatial resolve can
+    // legitimately find nothing. A command that reached `RELEASING` with no
+    // destination has lost state the kernel guaranteed to carry, and reporting
+    // that as a home-gap reorder would tell the consumer a drop completed
+    // normally.
+    const root = document.createElement('div');
+    const item = document.createElement('div');
+
+    root.append(item);
+    document.body.append(root);
+    cleanup.push(() => {
+      root.remove();
+    });
+
+    const rt = createSortableRuntime(
+      {
+        realm: createRealm(root),
+        root,
+        dispatch: (): void => {},
+        fail: (): void => {},
+        presentationCommitted: (): void => {},
+        cancel: (): void => {},
+        destroy: (): void => {},
+      },
+      [item],
+      { ...EMPTY_SLOTS },
+    );
+
+    rt.view = {
+      realm: rt.host.realm,
+      placeholder: item,
+      item,
+      snapshot: rt.snapshot,
+      insertion: null,
+    };
+
+    const spec = createSortableSpec(rt);
+    const draft = {
+      ...createSortableFramePart(),
+      phase: RELEASING,
+      pointerId: -1,
+      snapshot: rt.snapshot,
+      item,
+      insertion: null,
+    } as unknown as Parameters<typeof spec.release.prepare>[0];
+
+    const result = spec.release.prepare(draft);
+
+    expect(result).toMatchObject({ stage: FAILURE_RELEASE });
+    // And specifically **not** a command: a rejection is classified, so the
+    // staged round-trip is never executed.
+    expect(result).not.toHaveProperty('invoke');
+  });
+});
+
 describe('the hoisted move leaf', () => {
   it('should read the live frame and lift on a second operation', () => {
     // The active-movement leaf is one controller-stable closure now. It stays
