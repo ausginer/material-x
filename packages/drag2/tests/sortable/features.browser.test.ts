@@ -10,6 +10,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { draggable } from '../../src/drag.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
+import { brandFeature, unbrandFeature } from '../../src/sortable/feature.ts';
 import { handle, visual } from '../../src/sortable/handle.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
@@ -61,6 +62,8 @@ type ComposeOptions = Readonly<{
   itemCount?: number;
   onReorder?: Parameters<typeof callbacks>[0]['onReorder'];
   features?: readonly SortableFeature[];
+  /** The axis rule, when a test needs one that is not stock `y()`. */
+  axis?: SortableFeature;
 }>;
 
 /** 40px items, plus whichever optional features the test installs. */
@@ -92,7 +95,7 @@ function composeWith(options: ComposeOptions = {}): Composed {
     root,
     sortable(
       items,
-      y(),
+      options.axis ?? y(),
       callbacks({
         onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
         onFinish: (result): void => {
@@ -986,5 +989,268 @@ describe('layoutAnimation', () => {
     await Promise.resolve();
 
     expect(composed.finishes).toHaveLength(1);
+  });
+});
+
+/**
+ * I-36 — foreign code invoked in a sequence is terminal-aware.
+ *
+ * The behavior is the only participant that calls consumer code more than once
+ * inside one kernel-driven seam or one native admission, so every barrier the
+ * kernel owns is complete at the kernel's granularity and none of them is
+ * inside these sequences. A consumer resolver is allowed to call
+ * `controller.destroy()`, which runs teardown to completion synchronously and
+ * returns into the middle of the sequence.
+ *
+ * **Every assertion here is about the call list**, not about the resulting
+ * insertion or the final DOM: the frame is discarded upstream regardless, so a
+ * state assertion passes against unfixed source.
+ */
+describe('the terminal barrier in a resolver sequence', () => {
+  const pressReturning = (target: HTMLElement): PointerEvent => {
+    const event = new PointerEvent('pointerdown', {
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+      pointerId: POINTER_ID,
+      isPrimary: true,
+      button: 0,
+      buttons: 1,
+      clientX: 10,
+      clientY: 10,
+    });
+
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  const arrow = (target: HTMLElement, key: string): KeyboardEvent => {
+    const event = new KeyboardEvent('keydown', {
+      key,
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+    });
+
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  /** `handle()` destroys; `visual()` records whether it was consulted after. */
+  const closingHandle = (
+    asked: HTMLElement[],
+  ): Readonly<{
+    features: SortableFeature[];
+    arm(c: SortableController): void;
+  }> => {
+    let controller: SortableController | null = null;
+
+    return {
+      features: [
+        handle((item) => {
+          controller?.destroy();
+          return item;
+        }),
+        visual((item) => {
+          asked.push(item);
+          return item;
+        }),
+      ],
+      arm(c): void {
+        controller = c;
+      },
+    };
+  };
+
+  it('should not resolve a visual after the handle resolver destroyed', () => {
+    // Site B: `resolveItem` calls `getHandle`, and `seedDraft` calls
+    // `getVisual` immediately after. The kernel's post-`admit` recheck stops the
+    // operation from being minted, but it runs after the whole callback returns
+    // and cannot make the second consumer call un-happen.
+    const asked: HTMLElement[] = [];
+    const armed = closingHandle(asked);
+    const composed = composeWith({ features: armed.features });
+
+    armed.arm(composed.controller);
+
+    const event = pressReturning(composed.items[0]!);
+
+    expect(asked).toEqual([]);
+    // Admission **declines**; it does not throw. So nothing is minted, the
+    // press keeps its native meaning, and no failure is reported (a consumer
+    // destroying its own controller is not a library failure).
+    expect(event.defaultPrevented).toBe(false);
+    expect(composed.placeholder()).toBeNull();
+    expect(composed.errors).toEqual([]);
+  });
+
+  it('should not resolve a visual after a keydown handle resolver destroyed', () => {
+    // The same sequence on the second ingress (D-32). A command admits, decides
+    // feasibility and seeds the draft inside the native listener, so the whole
+    // of it runs after the destroy that a handle resolver raised.
+    const asked: HTMLElement[] = [];
+    const armed = closingHandle(asked);
+    const composed = composeWith({ features: armed.features });
+
+    armed.arm(composed.controller);
+
+    const event = arrow(composed.items[0]!, 'ArrowDown');
+
+    expect(asked).toEqual([]);
+    expect(event.defaultPrevented).toBe(false);
+    expect(composed.placeholder()).toBeNull();
+    expect(composed.errors).toEqual([]);
+  });
+
+  it('should stop the candidate traversal at the destroying candidate', async () => {
+    // Site A, through real pointer input on the `y()` rule — the reviewer's
+    // temporary regression, made permanent. `items[0]` is the dragged item and
+    // was resolved at admission; `items[1]` is the first candidate and destroys,
+    // so `items[2]` must never be asked.
+    const asked: HTMLElement[] = [];
+    let controller: SortableController | null = null;
+    const composed = composeWith({
+      features: [
+        visual((item) => {
+          asked.push(item);
+
+          if (item === composed.items[1]) {
+            controller!.destroy();
+          }
+
+          return item;
+        }),
+      ],
+    });
+
+    ({ controller } = composed);
+
+    activate(composed);
+    await drag(70);
+
+    expect(asked).toEqual([composed.items[0], composed.items[1]]);
+  });
+
+  /**
+   * A displacement feature that records nothing but whether each half of the
+   * bracket pipeline ran. `layoutAnimation()` cannot stand in for it: its own
+   * `retire()` empties the span map, so its `afterMove` is *already* inert on a
+   * destroyed controller and would report "no animation" whether the barrier
+   * exists or not.
+   */
+  const bracketRecorder = (
+    befores: number[],
+    afters: number[],
+  ): SortableFeature =>
+    brandFeature(() => ({
+      beforeInsertionMove: (): void => {
+        befores.push(befores.length);
+      },
+      afterInsertionMove: (): void => {
+        afters.push(afters.length);
+      },
+    }));
+
+  it('should not run the eager rebuild past a destroying candidate', async () => {
+    // Site C, first door: the eager rebuild inside the committed-move bracket.
+    // `measureInSeam` walks the candidate list through the same consumer
+    // resolver, so a destroy raised from there must take the exit a classified
+    // measure failure already has — nothing after it in the bracket runs.
+    const asked: HTMLElement[] = [];
+    const befores: number[] = [];
+    const afters: number[] = [];
+    let controller: SortableController | null = null;
+    const composed = composeWith({
+      features: [
+        visual((item) => {
+          asked.push(item);
+
+          // Armed by the DOM rather than by a call count: the placeholder only
+          // follows `items[1]` once `movePlaceholder` has run, so this is
+          // exactly "inside the bracket, past the write".
+          if (
+            composed.placeholder()?.previousElementSibling === composed.items[1]
+          ) {
+            controller!.destroy();
+          }
+
+          return item;
+        }),
+        bracketRecorder(befores, afters),
+      ],
+    });
+
+    ({ controller } = composed);
+
+    activate(composed);
+    await drag(55);
+
+    expect(befores).toHaveLength(1);
+    expect(afters).toEqual([]);
+  });
+
+  /**
+   * `y()`'s rule with its **eager** half withheld — a lazy axis feature, which
+   * the contract explicitly supports ("a feature that omits it stays lazy").
+   *
+   * It is what makes the bracket's own barrier observable. With an eager
+   * `measure` installed, `measureInSeam`'s `!rt.closed` already stops the same
+   * continuation, so the two guards are redundant for both first-party axes and
+   * neither can be seen alone. Defence in depth is the intent; this is the
+   * composition in which the outer guard is the only one there is.
+   */
+  const lazyY = (): SortableFeature =>
+    brandFeature((context) => {
+      const { insertion } = unbrandFeature(y())(context);
+
+      return {
+        insertion: {
+          resolve: insertion!.resolve,
+          invalidate: insertion!.invalidate,
+          retire: insertion!.retire,
+        },
+      };
+    });
+
+  it('should not run the bracket past a placeholder reaction that destroyed', async () => {
+    // Site C, and the one no other test reaches. `movePlaceholder` moves a
+    // node, so a custom-element placeholder's `disconnectedCallback` runs
+    // synchronously inside that call — consumer code from the `placeholder()`
+    // factory, reached from a plain DOM write, with no seam around it.
+    // `activation.effect` already guards the identical hazard one line after
+    // `item.after(placeholder)`; this is the same species through the other
+    // door, and the `finally` must still clear `view.insertion`.
+    const befores: number[] = [];
+    const afters: number[] = [];
+    let controller: SortableController | null = null;
+
+    class ClosingPlaceholder extends HTMLElement {
+      // oxlint-disable-next-line class-methods-use-this -- a lifecycle reaction
+      disconnectedCallback(): void {
+        controller?.destroy();
+      }
+    }
+
+    const name = `closing-placeholder-${crypto.randomUUID()}`;
+
+    customElements.define(name, ClosingPlaceholder);
+
+    const composed = composeWith({
+      axis: lazyY(),
+      features: [
+        placeholder({ create: () => document.createElement(name) }),
+        bracketRecorder(befores, afters),
+      ],
+    });
+
+    ({ controller } = composed);
+
+    activate(composed);
+    await drag(55);
+
+    // The write happened and the pipeline opened; nothing after the reaction
+    // ran — no invalidation, no measurement, and no `afterMove` hook.
+    expect(befores).toHaveLength(1);
+    expect(afters).toEqual([]);
   });
 });

@@ -47,11 +47,16 @@ export type RectIndex = {
    * `getVisual` is the installed `visual()` resolver, or `null` when no
    * `visual()` is composed — in which case every candidate *is* its own visual
    * and the resolver would be an identity call per item per rebuild.
+   *
+   * `live` reports whether the controller is still alive (I-36). It is read
+   * **only** between consumer-resolver calls, so a composition with no
+   * `visual()` never calls it and pays nothing per candidate.
    */
   refresh(
     snapshot: CollectionSnapshot,
     dragged: HTMLElement,
     getVisual: ((item: HTMLElement) => HTMLElement) | null,
+    live: () => boolean,
   ): void;
   invalidate(): void;
   retire(): void;
@@ -79,7 +84,7 @@ export function createRectIndex(): RectIndex {
     items: [],
     count: 0,
 
-    refresh(snapshot, dragged, getVisual): void {
+    refresh(snapshot, dragged, getVisual, live): void {
       if (!dirty && measured === snapshot.version) {
         return;
       }
@@ -105,9 +110,36 @@ export function createRectIndex(): RectIndex {
         // the placeholder there would compare centres of differently-derived
         // boxes, and for an inset or offset visual that biases the hysteresis.
         // Parity: the shipped index resolved the visual per candidate too.
-        const rect = (
-          getVisual === null ? item : getVisual(item)
-        ).getBoundingClientRect();
+        let visual = item;
+
+        if (getVisual !== null) {
+          visual = getVisual(item);
+        }
+
+        // **The terminal barrier** (I-36), and it lives *inside* this branch
+        // rather than around it: with no resolver composed there is no
+        // consumer callback in the loop, so there is nothing for a barrier to
+        // stand between — and the minimal composition pays nothing.
+        //
+        // Not a `break`. `destroy()` has already run `retire()` on this very
+        // cache, and falling through to the trailing bookkeeping would write
+        // `count = n`, `items.length = n`, `measured = version`,
+        // `dirty = false` — resurrecting a retired cache, marking it clean,
+        // and pinning every row of the list in a destroyed controller against
+        // I-20. So the retired state is restored instead.
+        //
+        // No new return channel is needed: `count === 0` makes the candidate
+        // scan find nothing, so `nearest === -1` and `resolve()` returns
+        // `null` down the pre-existing "the placeholder's own slot still
+        // wins" path (I-15).
+        if (!live()) {
+          items.length = 0;
+          index.count = 0;
+          dirty = true;
+          measured = -1;
+          return;
+        }
+        const rect = visual.getBoundingClientRect();
         const offset = n * STRIDE;
 
         values[offset + LEFT] = rect.left;

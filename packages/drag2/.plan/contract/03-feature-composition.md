@@ -108,7 +108,7 @@ The insertion rule resolves against where items **settle**, and settled presenta
 - it **includes** authored element and ancestor transforms, and any visual offset the consumer's own code applies — those are real, and an item the page has moved really is somewhere else;
 - it **excludes** every displacement offset the library itself owns.
 
-The distinction is not academic. `vertical()` reads with `getBoundingClientRect()`, which includes a running FLIP offset, and it refreshes lazily — so with `layoutAnimation()` installed it measured items where they no longer were while measuring the placeholder where it now is. That mixed field proposes moving back: the crossed row's animating centre is nearer the pointer than the placeholder's settled one, which re-commits, which re-animates. **A feature that only animates was changing what the drag decided**, and the hysteresis this document credits with having "nothing to mistune into oscillation" was defeated by composition rather than by tuning.
+The distinction is not academic. The axis rule reads with `getBoundingClientRect()`, which includes a running FLIP offset, and it refreshes lazily — so with `layoutAnimation()` installed it measured items where they no longer were while measuring the placeholder where it now is. That mixed field proposes moving back: the crossed row's animating centre is nearer the pointer than the placeholder's settled one, which re-commits, which re-animates. **A feature that only animates was changing what the drag decided**, and the hysteresis this document credits with having "nothing to mistune into oscillation" was defeated by composition rather than by tuning.
 
 The rule is enforced by _when_ the read happens, not by asking the axis to compensate for something it must not know about:
 
@@ -308,7 +308,7 @@ Probe 2 inverts it. **A feature declares a minimal structural type in its own mo
 **Frame state and runtime state are separate arguments**, because they have separate owners and separate lifetimes:
 
 ```ts
-// vertical.ts — imports no runtime type from the behavior
+// y.ts — imports no runtime type from the behavior
 type InsertionFrameView = Readonly<{
   insertion: Insertion | null;
   pointerY: number;
@@ -345,6 +345,10 @@ Passing the two separately costs nothing and is honest about both:
 | --- | --- | --- |
 | `InsertionFrameView` | `item: HTMLElement \| null` | The destination view is the collection _minus_ the dragged item, and an axis rule that cannot exclude it measures a lifted element whose centre tracks the pointer — so it wins every search and pins the gap to its own slot. Read off the frame, where the item already is committed state, rather than copied onto the runtime view where it could drift. |
 | `DisplacementView` | `insertion: Insertion`, `item: HTMLElement` | `insertion` is M-4's answer made expressible: without the destination gap a displacement feature cannot know which elements a move affects until after the write, so it must measure the whole destination view twice. `item` is ownership: membership in `snapshot` cannot exclude the dragged item, because the dragged item _is_ a member, and nothing else identifies it. |
+| `InsertionRuntimeView` | `getVisual: ((item: HTMLElement) => HTMLElement) \| null` | Parity D2, and coherence: the axis rule measures candidate **visuals**, because the incumbent it compares them against is the placeholder and `placement.ts` sizes the placeholder from the visual's offset box. Nullable rather than normalized to identity, so the minimal composition pays no identity call per candidate per rebuild. |
+| `InsertionRuntimeView` | `live: () => boolean` | I-36. The candidate loop calls a consumer resolver once per candidate, and a resolver may destroy the controller; the loop is feature-private (D-19, H-4) and cannot reach the behavior's runtime, so the reading has to arrive as data. |
+
+**The per-operation view is the designated channel for per-operation behavior guarantees, and four widenings is enough to say so as a rule.** `InsertionFrameView` and `InsertionRuntimeView` have between them been widened additively four times — Phase 8a `item`, Phase 17 `pointerX`, Checkpoint D `getVisual`, C2-01 `live` — and in **every** case the behavior's existing per-operation object satisfied the new field structurally, with no wrapper, no per-operation or per-call allocation, and **no import edge appearing from a feature module back to the behavior's runtime**. D-13's mechanism is therefore not merely reusable, it is the default answer: a fifth widening is a routine act rather than a re-litigation of D-13. What the four data points do *not* license is treating the views as fixed — they are a growing structural contract, and a widening still has to justify its own field.
 
 No view materialization on any path, no `Pick<>` anywhere, and no import edge from a feature to the behavior's runtime type. This is what makes H-6 work at the _runtime_ level, the same way §[04](04-frame-slicing.md) makes it work at the frame level.
 
@@ -373,7 +377,9 @@ That is a narrowing, not a prohibition on principle. D-10 originally forbade fea
 
 ## First-iteration features
 
-**Advanced to Phase 17 (D7, Checkpoint D).** This section had been left at the pre-Phase-17 vocabulary while §The export topology this requires was amended, so the document gave two executable readings of the same surface. It now names what ships. Part I's prose and the review files deliberately keep `vertical()` as provenance — this is the current authority, and only current authorities have to agree.
+**Advanced to Phase 17 (D7, Checkpoint D).** This section had been left at the pre-Phase-17 vocabulary while §The export topology this requires was amended, so the document gave two executable readings of the same surface. It now names what ships.
+
+**Completed at Checkpoint D review 2 (C2-04).** D7's close said the remaining Part I `vertical()` prose was provenance, which does not hold for documents 00 ranks **normative in precedence order** (00–04): a current declaration, a consumer-facing example and a feature-state table are not provenance, whatever the resolution document calls them. Every *current* statement in 00–04 now names `y()`/`xy()`. What remains spelled `vertical()` in this document is exclusively narrative about an **earlier draft or an earlier probe**, and each such use carries its own frame in the sentence containing it — "an earlier draft" (§Geometry is a paired contribution), "review 5, §10" (§Retirement order), "probe 1 typed feature seams" and "probe 1's open question Q-5" (§Consumer-declared views, §Where the cache lives), and the rename record below. Nothing outside those frames uses the old name. The review files and `plan.md` remain provenance and are untouched.
 
 ```ts
 y(): SortableFeature;                                         // axis — required
@@ -400,6 +406,8 @@ else  gap := follows(placeholder, nearest) ? slot + 1 : slot
 ```
 
 **Amended at Checkpoint D (parity D2).** An earlier reading of this rule said "centres of every non-dragged item", and the implementation measured items. The candidate is the **visual** — `visual()`'s resolver applied to the item, or the item itself when no `visual()` is composed. The reason is internal coherence rather than only parity with the shipped index: the incumbent every candidate is compared against is the placeholder, and `placement.ts` sizes the placeholder from the _visual's_ offset box. Measuring items on one side of that comparison and a visual-derived box on the other biases the hysteresis for any visual that is an inset or offset descendant. The resolver reaches the axis rule as a nullable field on the per-operation runtime view — the same consumer-declared-view mechanism (D-13) that carries `placeholder`, which is itself a product of an optional feature's slot — so no axis module imports `handle.ts` and no sibling-feature dependency appears.
+
+**A `visual()` resolver may destroy the controller, and that stops the traversal** (I-36, C2-01). Because the resolver runs once per candidate, the loop is a behavior-driven sequence over consumer code, and the kernel's own barriers sit outside it. On the first reading of a closed controller between resolver calls the rebuild calls nothing further, reads no further geometry, and leaves the cache in the **retired** state teardown already put it in — empty, dirty, unmeasured — rather than marking a half-filled index clean, which would pin every row of a destroyed controller against I-20. The frame then resolves to `null` down the ordinary I-15 path, so no new return channel exists and `resolve`'s control flow is unchanged. The same applies to `handle()` during admission, where the sequence declines instead: see §[05](05-lifecycle-invariants.md) I-36.
 
 The placeholder being a candidate _is_ the hysteresis: a new gap is proposed only once another item's centre is genuinely closer than the placeholder's own slot. No dead band, no direction latch, no tunable — which is why the rule cannot be mistuned into oscillation. The current insertion stays authoritative until a genuinely better one is selected; a frame resolving to `null` commits nothing.
 
@@ -434,6 +442,7 @@ type SortableCallbacks = Readonly<{
   onCancel?(result: SortableCancelResult): void;
   onError?(error: unknown, context: DragErrorContext): void;
   threshold?: number;
+  readinessTimeout?: number;
 }>;
 ```
 
@@ -555,7 +564,13 @@ When the guard fails, the behavior measures the still-connected placeholder wher
 
 ```ts
 type LandingOptions = Readonly<{
-  duration?: number;
+  /**
+   * A number fixes the timing at construction. A thunk is invoked **once per
+   * landing**, at settlement, which is the moment the shipped
+   * `landingTiming()` was read — so a distance-scaled or
+   * per-drop duration keeps the default runner instead of replacing it.
+   */
+  duration?: number | (() => number);
   easing?: string;
   /** Full replacement for the default WAAPI runner — a spring, for example. */
   run?: LandingStart;
@@ -657,15 +672,19 @@ Judged through consumer fixtures, not source intuition — and **measured** (M-3
 
 | composition           | brotli       | modules | vs minimal |
 | --------------------- | ------------ | ------- | ---------- |
-| minimal (`y()`)       | **10.01 kB** | 31      | —          |
-| minimal (`xy()`)      | 10.05 kB     | 31      | +0.04 kB   |
-| + `layoutAnimation()` | 10.42 kB     | 32      | +0.41 kB   |
-| + `landing()`         | 10.29 kB     | 32      | +0.28 kB   |
-| complete              | **10.82 kB** | 35      | +0.81 kB   |
+| minimal (`y()`)       | **10.07 kB** | 31      | —          |
+| minimal (`xy()`)      | 10.12 kB     | 31      | +0.05 kB   |
+| + `layoutAnimation()` | 10.51 kB     | 32      | +0.44 kB   |
+| + `landing()`         | 10.36 kB     | 32      | +0.29 kB   |
+| complete              | **10.85 kB** | 35      | +0.78 kB   |
 
-The **deltas** are what this section asserts, and they are unchanged since M-3: each optional feature still adds only itself. The absolute figures moved with D-33's settlement protocol (+70 B), Phase 16's non-tree-shakeable keyboard ingress (~300 B), Phase 17's shared rect index (+60 B) and Checkpoint D's fixes (+40 B); the budgets were re-based with them, keeping the stated headroom.
+The **property** this section asserts is that each optional feature adds only itself, and it holds: the module graph shows no optional module in a composition that did not ask for it, in either direction.
 
-The absences below are **asserted against the bundled module graph**, not inferred from the deltas — a module can be pulled in and mostly shaken, which produces a small delta and reads like success. **Composition itself costs 0.28 kB (2.6%)** against a feature-matched build that fills the slot record by hand; **migrating from the shipped `sortable.js` costs 3.12 kB**, and the two baselines answer different questions and are never substituted for each other.
+**The numbers are not "unchanged since M-3", and saying so was wrong** (C2-05, Checkpoint D review 2). M-3 recorded `landing()` at +0.27 kB and `complete` at +0.81 kB against a 9.90 kB minimal; the deltas have moved with every absolute figure since, and the table above is re-measured after C2-01 rather than carried forward. Read the deltas as measurements with a date, not as invariants.
+
+The absolute figures moved with D-33's settlement protocol (+70 B), Phase 16's non-tree-shakeable keyboard ingress (~300 B), Phase 17's shared rect index (+60 B), Checkpoint D's fixes (+40 B) and C2-01's terminal barrier (+30 B to +90 B, composition-dependent); the budgets were re-based with them. **Headroom is now 0.16–0.21 kB against budgets set at ~0.3 kB**, which is a Phase 21 re-base rather than something to absorb again (see [`../plan.md`](../plan.md) §Phase 21).
+
+The absences below are **asserted against the bundled module graph**, not inferred from the deltas — a module can be pulled in and mostly shaken, which produces a small delta and reads like success. **Composition itself costs 0.25 kB (2.4%)** against a feature-matched build that fills the slot record by hand; **migrating from the shipped `sortable.js` costs 3.18 kB**, and the two baselines answer different questions and are never substituted for each other.
 
 1. No global registry, no barrel that eagerly references every feature, no default options object naming an optional feature.
 2. Each feature is its own module with no import edge to a sibling feature, and no import edge to the behavior's runtime type (D-13 removes the last one).
@@ -728,23 +747,28 @@ The rename is a **breaking public change** and the second one this part has made
 
 `ReorderResolution`'s two member types are unchanged in name and in discrimination; the optional argument changed and `SortableController` gained `ready`, which together are a **breaking public change** — the one this revision makes. Phase 15 implements it, and the consumer fixture's per-subpath export equality is what will fail if it is implemented halfway.
 
-The fifth dangling reference was resolved the other way. `OnReorder` returned `MaybePromise<ReorderResolution>`, and exporting that alias would put a generic utility with no domain meaning on the frozen surface purely so a documentation tool could resolve a link. Its structure is written out in the signature instead — `ReorderResolution | PromiseLike<ReorderResolution>` — which is also the more honest statement, since the kernel reads `then` once and never assumes a native promise. **TypeDoc over the eight public entries now emits zero unresolved-reference warnings, and none are suppressed**: a warning there means a public type depends on something a consumer cannot name, which is a surface defect and not noise.
+The fifth dangling reference was resolved the other way. `OnReorder` returned `MaybePromise<ReorderResolution>`, and exporting that alias would put a generic utility with no domain meaning on the frozen surface purely so a documentation tool could resolve a link. Its structure is written out in the signature instead — `ReorderResolution | PromiseLike<ReorderResolution>` — which is also the more honest statement, since the kernel reads `then` once and never assumes a native promise. **TypeDoc over the nine public entries — eight until Phase 17 added `sortable/xy.js` — now emits zero unresolved-reference warnings, and none are suppressed**: a warning there means a public type depends on something a consumer cannot name, which is a surface defect and not noise.
 
 ### Public option domains
 
-Frozen with the surface, because a domain is as much a compatibility promise as a signature. Every one is validated **at construction** and throws a `TypeError` outside its domain — a `NaN` threshold otherwise activates on nothing and a `NaN` duration produces an animation that never finishes, both diagnosed three seams away from the call that caused them.
+Frozen with the surface, because a domain is as much a compatibility promise as a signature. Every one throws a `TypeError` outside its domain — a `NaN` threshold otherwise activates on nothing and a `NaN` duration produces an animation that never finishes, both diagnosed three seams away from the call that caused them.
+
+**Where the check runs depends on when the value exists, and that is the whole of the distinction** (D4, Checkpoint D). A *fixed* option — every row below except one — is a value the consumer already holds at construction, so it is validated **at construction**, exactly once, before any drag. `landing({ duration })` additionally accepts a **thunk**, whose result does not exist until the landing opens: it is therefore invoked and validated **once per landing**, at settlement, and an invalid or thrown result classifies there rather than at construction. A thunk itself is validated at construction only for being a function.
+
+The reduced-motion collapse does not change this. Resolution and validation precede it, so a consumer whose thunk throws or returns `NaN` is told so under `prefers-reduced-motion: reduce` exactly as it is without — which is what the shipped `landingTiming()` did, and what Checkpoint D repaired.
 
 | Option | Unit | Domain | Default |
 | --- | --- | --- | --- |
 | `callbacks({ threshold })` | CSS px, straight-line from the press | finite, `>= 0` | `8` |
 | `callbacks({ readinessTimeout })` | ms | finite, `>= 1` | `500` |
-| `landing({ duration })` | ms | finite, `>= 0` | `200` |
+| `landing({ duration })` | ms | finite, `>= 0`; or `() => number` returning one | `200` |
 | `layoutAnimation({ duration })` | ms | finite, `>= 0` | `160` |
 
 - `threshold` at `0` activates on the first move reporting a different point.
 - **`readinessTimeout` becomes a public option at this freeze.** It was a behavior-fixed 500ms, which caps a _consumer-supplied_ promise with no escape: a re-render that legitimately involves a round trip failed with `FAILURE_PRESENTATION_READY` and no way to say otherwise. It lives on `callbacks()` because that is already the sole owner of the consumer-policy defaults. It is a **failure bound, not a schedule** — the gate releases as soon as the promise settles, and exceeding it replaces the settlement. It is not permitted to be `Infinity`: an unbounded gate holds presentation forever, which is the state the bound exists to prevent.
 - `easing` is deliberately unvalidated on both features. It is a CSS easing function, the platform is the only correct parser for one, and `animate()` reports a bad value itself.
 - `landing({ run })` replaces the default runner entirely, so `duration` and `easing` are not read — and therefore not validated — when it is present.
+- `landing({ duration })` as a **thunk** is the one settle-time domain. It is called once per landing, its result is validated against the same domain as the fixed form, and a throw or an out-of-domain result is classified as a landing failure at that moment. This is the parity shape for the shipped `landingTiming()` (ledger §2, L-6).
 
 **`ReorderResolution` is a runtime export as well as a type** (review 6, §10). The documented consumer calls `ReorderResolution.accept(…)` and `ReorderResolution.reject(…)`, the shipped package exports the same factory, and listing it under types only would have made every example in these documents fail to run. The name is deliberately both a value and a type, as it is today.
 

@@ -325,6 +325,33 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 
 ---
 
+## Terminal barrier in a resolver sequence — new (C2-01)
+
+> A participant that invokes consumer code more than once inside one seam, or inside one native admission, reads the terminal latch **between** invocations and stops on the first closed reading (I-36, F-47).
+
+**Every row asserts the resolver's call list, never the resulting insertion or the final DOM.** The frame is discarded upstream regardless — `action.prepare` returns `null` on a `null` resolve, and `preparationValid()` would invalidate the transition anyway — so a state assertion passes against unfixed source. This is C4-04's lesson applied to a different mechanism.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a `handle()` resolver destroys → `visual()` is never called, nothing is minted, `defaultPrevented` is false, nothing is reported | `tests/sortable/features.browser.test.ts` — _should not resolve a visual after the handle resolver destroyed_ | I-36 |
+| the same on the **command** ingress, which runs the whole of admission inside the native listener (D-32) | `tests/sortable/features.browser.test.ts` — _should not resolve a visual after a keydown handle resolver destroyed_ | I-36 |
+| a candidate `visual()` destroys during a composed drag → the call list stops at that candidate, `y()` axis | `tests/sortable/features.browser.test.ts` — _should stop the candidate traversal at the destroying candidate_ | I-36 |
+| the same through real input on the `xy()` axis — the check is shared but the **threading** is per-axis | `tests/sortable/xy.browser.test.ts` — _should stop the traversal of a composed drag at the destroying candidate_ | I-36 |
+| direct drive: `live` flips false during the second candidate → `resolve` returns `null` and no later candidate is asked | `tests/sortable/{y,xy}.browser.test.ts` — _should stop resolving candidates once the controller closes_ | I-36 |
+| **the retired-state half a `break` gets wrong**: a second `resolve` at the **same** snapshot version rebuilds from scratch, which is only possible if the aborted traversal left the cache empty, dirty and at `measured === -1` | `tests/sortable/{y,xy}.browser.test.ts` — _should leave the cache retired rather than clean and partial_ | I-36, I-20 |
+| the **eager** rebuild inside the committed-move bracket destroys → no `afterMove` hook runs | `tests/sortable/features.browser.test.ts` — _should not run the eager rebuild past a destroying candidate_ | I-36 |
+| a custom-element placeholder's `disconnectedCallback` destroys during a committed `movePlaceholder` → nothing after the reaction runs, and the `finally` still clears `view.insertion` | `tests/sortable/features.browser.test.ts` — _should not run the bracket past a placeholder reaction that destroyed_ | I-36 |
+
+Three things the fixtures made concrete that the decision stated abstractly:
+
+1. **`layoutAnimation()` cannot witness "no `afterMove` hook ran".** Its own `retire()` empties the span map, so its `afterMove` is *already* inert on a destroyed controller and reports no animation whether the barrier exists or not. The rows above use a test-authored displacement feature that records each half of the bracket pipeline instead.
+2. **The bracket guard needs an axis feature with no eager `measure`** to be observable at all. With one installed — and both first-party axes install one — `measureInSeam`'s own `!rt.closed` covers the same continuation, so the two guards are redundant and neither can be seen alone. A lazy axis rule is explicitly supported by the contract, and composing one is what isolates the outer guard.
+3. **One specified guard is genuinely unfalsifiable** and is recorded below rather than removed.
+
+**Non-regression, unchanged and still passing:** D2's call-exactness rows (_should resolve each candidate visual once per rebuild_, and the warm-cache silence beside it) and D3's `updateItems()`-after-destroy rows. The latch moved from the controller's closure to `SortableRuntime.closed`; its behavior did not.
+
+---
+
 ## The F-6 obligation
 
 > Any fixture installing `landing()` or declaring an authored presentation fails loudly if the corresponding hold is never taken.
@@ -356,6 +383,7 @@ Recorded rather than removed, so a later reader does not mistake them for covera
 | Guard | Why it cannot be falsified |
 | --- | --- |
 | `item.isConnected` in `anchorTarget`'s destination re-anchor (`src/sortable/spec.ts`) | Strictly implied by the parentage conjunct beside it. A disconnected item either has no parent (blocked, and `before()` would be a no-op anyway) or a different parent (blocked). The only case it alone would catch — item and placeholder in the _same_ detached tree — measures the origin either way. The parentage conjunct **is** falsifiable: _should not re-anchor into a container the consumer moved the row to_. |
+| `rt.closed` in `action.prepare(TAG_SPATIAL)` after `resolveInsertion` (`src/sortable/spec.ts`) | Unreachable through any first-party composition. The candidate-loop barrier already makes a destroyed traversal produce `count === 0`, so `nearest === -1` and the axis rule returns `null` — the `resolved === null` disjunct beside it always fires first. It is defence in depth against an axis rule that reaches consumer code by some other route, and is kept deliberately rather than left to be rediscovered as dead code. |
 | `settlement !== attempt` in `watchReadiness` **and** in `handleReadinessSettled` (`src/kernel/kernel.ts`) | Two nested identity checks plus the `readinessHeld` flag and the `SETTLING` phase test. Every route that makes an attempt stale also clears `readinessHeld` or leaves the phase, so removing either identity check individually changes nothing. Defense in depth, deliberately kept. |
 
 The precedent for _removing_ an unfalsifiable conjunct rather than recording it (Checkpoint B's placeholder parentage/adjacency pair) applies when the conjunct is dead weight in the only shape that reaches it. These two are cheap, and one of them is a second line of defence on a staleness rule — so they stay, named.

@@ -2341,6 +2341,7 @@ describe('the spatial action legality guard', () => {
       placeholder: item,
       item,
       getVisual: null,
+      live: () => !rt.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2420,6 +2421,7 @@ describe('a pointerless release with no destination', () => {
       placeholder: item,
       item,
       getVisual: null,
+      live: () => !rt.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2666,6 +2668,7 @@ describe('the displacement view lifetime', () => {
       placeholder,
       item: items[0]!,
       getVisual: null,
+      live: () => !rt.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2791,6 +2794,7 @@ describe('the displacement view lifetime', () => {
       placeholder,
       item: items[0]!,
       getVisual: null,
+      live: () => !rt.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };

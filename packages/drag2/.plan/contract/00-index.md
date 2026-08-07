@@ -72,7 +72,7 @@ Concrete consequences of the model, none of which is offered as a headline metri
 
 - The kernel's frame slice is **seven fields it exclusively owns**. Settlement gates left the frame entirely for a kernel-private attempt.
 - The behavior authors only its own frame part; it cannot mis-initialise kernel state because it cannot name it.
-- Probe 1's open question **Q-5** (where the geometry cache lives) is answered by construction: inside `vertical()`.
+- Probe 1's open question **Q-5** (where the geometry cache lives) is answered by construction: inside the axis feature — `y()` or `xy()`, each holding its own instance of the shared `rect-index` cache. (Written as `vertical()` until Phase 17 renamed the axis features; see [03](03-feature-composition.md) §The export topology this requires.)
 - Probe 1's pressure point **P-2** (a free drag must clamp before writing) is resolved at **no** hot-path cost — the move path spends the same three post-`MOVE` indirect calls probe 1 spent. That boundary is deliberate and narrow; the end-to-end count is M-1's job. **Tested by a second behavior at last** (13c P-1): the shape survives; the number is Phase 21's.
 - Probe 1's **P-1** (no live policy seam) is resolved: policy updates are behavior actions and the kernel supplies the transition envelope. **Exercised** by 13c P-6 for the policy half. The _controlled position_ half was not resolved by it and is D-35's.
 
@@ -110,7 +110,7 @@ Inputs, not re-derivations.
 | Layout displacement is not a lifecycle gate | [03](03-feature-composition.md) — a displacement hook cannot reach `SettlementScope` |
 | Release stabilizes motion before producing exactly one proposal | [02](02-kernel-behavior-contract.md) §Release — tier B, D-6 |
 | Identity-based collection reconciliation | [03](03-feature-composition.md) §Collection |
-| Nearest-centre insertion with the placeholder as incumbent | [03](03-feature-composition.md) §`vertical()` |
+| Nearest-centre insertion with the placeholder as incumbent | [03](03-feature-composition.md) §`y()` and §`xy()` |
 | Numeric spatial attempt identity where sufficient | [02](02-kernel-behavior-contract.md) §Attempts — behavior-private, D-11 |
 | Correct cleanup during long-running landing | [05](05-lifecycle-invariants.md) I-7 |
 | Optional feature code remains tree-shakeable | [03](03-feature-composition.md) §Tree-shaking |
@@ -189,7 +189,7 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 | F-23 | `host.fail` targets the current operation, so a late continuation could fail the wrong one | **Resolved by contract.** Driver classification, the kernel's `inSeam` latch, `FeatureContext.report` instead of `fail`, and a closed `FailureStage` union. |
 | F-24 | The hot-path accounting contradicted itself: "zero allocations, two indirect calls" versus a transform string and three calls | **Withdrawn, restated, then measured (M-1, 2026-08-02 — [measurements/m1.md](../measurements/m1.md)).** Three indirect calls, one string, plus a `{ x, y }` in the in-place lift mode. The generic frame copy this entry queried is **0.098 µs of a 2.64 µs sample (3.7%)** and is kept — with the bound M-1 found: its cost jumps 10× between 12 and 16 behavior-part fields, and this frame sits 4 below that cliff. |
 | F-25 | The reentrant-cancel counterfactual reversed FIFO | **Corrected.** `cancel()` from inside `onReorder` enqueues first and wins; the completion is stale. Now a test, not a counterfactual. |
-| F-26 | The tree-shaking criterion named an impossible minimal build | **Corrected.** A minimal _vertical_ sortable contains vertical geometry; what must be absent is _unselected_ geometry, free drag, landing and layout animation. The subpath/export table is now written down. |
+| F-26 | The tree-shaking criterion named an impossible minimal build | **Corrected.** A minimal one-dimensional sortable contains one-dimensional axis geometry; what must be absent is _unselected_ geometry, free drag, landing and layout animation. The subpath/export table is now written down. |
 | F-27 | Classification did not stop incompatible continuation: activation retired past its own failure, release invoked `onReorder` after a failed effect, settlement armed a half-requested plan, the join emitted `onFinish` for a failed drop | **Resolved by D-23.** F-19 was not actually resolved before this. |
 | F-28 | An invalidating collection replacement was discarded along with the consumer's update | **Resolved by D-25.** |
 | F-29 | The five settlement statuses had no total mapping, and the reference turned a skipped/no-op resolution into a rejected, home-recovering drop | **Resolved by D-24.** |

@@ -87,6 +87,19 @@ export type InsertionRuntimeView = Readonly<{
    * per candidate per rebuild.
    */
   getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  /**
+   * Whether the controller is still alive (I-36).
+   *
+   * **The fourth additive widening of a consumer-declared view** — 8a `item`,
+   * 17 `pointerX`, D2 `getVisual`, now this — and the per-operation view is the
+   * designated channel for exactly this kind of per-operation behavior
+   * guarantee. An axis rule that calls `getVisual` per candidate is calling
+   * consumer code in a loop, and a resolver may destroy the controller; the
+   * loop is feature-private, so the reading has to arrive as data.
+   *
+   * Read only between resolver calls, never on a warm cache.
+   */
+  live(): boolean;
 }>;
 
 export type DisplacementView = Readonly<{

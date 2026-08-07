@@ -103,7 +103,7 @@ const controller = draggable(
   list,
   sortable(
     items,
-    vertical(),
+    y(),
     placeholder({ className: 'ghost' }),
     callbacks({ onReorder }),
   ),
@@ -238,9 +238,9 @@ type SortableRuntime = {
 
 **This moves an allocation rather than removing one, and which policy is cheaper is not decided** (review 5, §19). Eager-per-controller gives every controller an object, method and closure graph even if it never activates; the shipped package creates the task during activation instead, paying nothing for cold controllers and paying again on every drag. The functional fix — the task must exist before the first move — is settled; the allocation policy is part of M-2.
 
-**Seven mutable fields** — six, plus `pendingRequest` from D-33 — beside three readonly ones (`host`, `slots`, `frame`). This said _eight mutable_ until Checkpoint C, C4-08, by counting the readonly three among them. Probe 1's shared runtime had those _plus_ fourteen kernel fields (`actions`, `args`, `running`, `closed`, `current`, `draft`, `ingress`, `spec`, `lifetimes`, `originRect`, three attempt slots, `cancelRequest`, `pendingContinuation`, `destroyRequested`). Those fourteen are now unreachable, unnameable and untestable-from-outside — which is correct: none of them is a behavior concern, and probe 1 exported them only because the container was shared.
+**Eight mutable fields** — six, plus `pendingRequest` from D-33 and `closed` from C2-01 — beside three readonly ones (`host`, `slots`, `frame`). This said _seven_ until Checkpoint D review 2 moved the controller's terminal latch onto the runtime, so that D3's one reader and I-36's four read **one** latch rather than two that can disagree; and _eight_ before Checkpoint C, C4-08, which was the different error of counting the readonly three among them. Probe 1's shared runtime had those _plus_ fourteen kernel fields (`actions`, `args`, `running`, `closed`, `current`, `draft`, `ingress`, `spec`, `lifetimes`, `originRect`, three attempt slots, `cancelRequest`, `pendingContinuation`, `destroyRequested`). Those fourteen are now unreachable, unnameable and untestable-from-outside — which is correct: none of them is a behavior concern, and probe 1 exported them only because the container was shared.
 
-Note what is _not_ here: `rects`. The geometry cache lives inside `vertical()` (§[03](03-feature-composition.md)), which is probe 1's open question Q-5 answered by construction rather than by argument.
+Note what is _not_ here: `rects`. The geometry cache lives inside the axis feature — `y()` or `xy()` (§[03](03-feature-composition.md)) — which is probe 1's open question Q-5 answered by construction rather than by argument.
 
 ## Ownership table
 
@@ -265,7 +265,7 @@ Note what is _not_ here: `rects`. The geometry cache lives inside `vertical()` (
 | Placeholder element | behavior | features, through declared views |
 | Coalesced rAF task, `spatialSeq`, `pendingSpatial` | behavior | nothing |
 | The published `ReorderRequest` — the acknowledgement identity | behavior (D-33) | the consumer already **holds** it: it is `onReorder`'s argument. It is never handed out a second time, and the behavior compares by identity rather than trusting it |
-| Packed rect index and the axis rule | `vertical()` | nothing |
+| Packed rect index and the axis rule | the axis feature — `y()` or `xy()` | nothing |
 | Per-element displacement records | `layoutAnimation()` | nothing |
 | Landing runner mechanics | `landing()` | nothing |
 | Persistent ordered state | consumer | — |
@@ -345,6 +345,8 @@ Two invariants this ordering creates, both of which are new obligations that pro
 - **No behavior callback in the sequence can stop a later step.** The kernel wraps `spec.retire()`, each attempt's cleanup (including a throwing `LandingHandle.destroy()`), and each frame reset, reporting through the platform reporter and continuing. A behavior cannot strand the kernel's DOM cleanup, and ingress abort is in a `finally`.
 
   **The same totality applies to the `arm()` unwind**: a reset that throws while unwinding a failed `arm()` must not replace the original arm failure or skip ingress cleanup.
+
+  **The converse obligation is the participant's, and it is not covered by any of the above** (I-36, added by C2-01). Totality says the sequence above finishes; it says nothing about code that is *already running* when `destroy()` is entered reentrantly. A `destroy()` raised from inside consumer code — a `handle()` or `visual()` resolver, a placeholder custom element's connected/disconnected reaction — runs all seven steps to completion and then **returns into the middle of whatever was calling it**. Every barrier the kernel owns is complete at the kernel's granularity of one callback, so a participant that invokes consumer code **more than once** inside one seam or one native admission owns the barrier between those invocations: it reads the terminal latch and stops on the first closed reading, calling nothing further, publishing nothing, and leaving any cache it was rebuilding in the retired state step 4 just put it in. Restoring that state matters as much as stopping the calls — a sequence that resumes and marks its cache clean re-pins DOM `retire()` had released, against I-20. The mechanism is behavior-owned and not promotable; see §[05](05-lifecycle-invariants.md) I-36 and F-47.
 
 - **`spec.retire()` runs before the presentation lifetime disposes, but after attempts are inert.** It must therefore tolerate DOM that is still attached, and must not assume it will be the thing that removes it — the placeholder is removed by the disposer the behavior registered on the _presentation lifetime_ at activation, not by `retire()`. `retire()` drops references; the lifetime releases DOM.
 

@@ -42,8 +42,12 @@ type Field = Readonly<{
     pointerY: number,
     snapshot?: CollectionSnapshot,
     getVisual?: ((item: HTMLElement) => HTMLElement) | null,
+    live?: () => boolean,
   ): Insertion | null;
 }>;
+
+/** The default liveness: a controller nobody destroyed. */
+const ALIVE = (): boolean => true;
 
 /**
  * Three 40px boxes from y=0. The dragged item is `items[0]`, out of flow the way
@@ -86,10 +90,15 @@ function createField(count = 3): Field {
     items,
     placeholder,
     snapshot: (version = 0, list = items) => ({ items: list, version }),
-    resolve: (pointerY, snapshot = field.snapshot(), getVisual = null) =>
+    resolve: (
+      pointerY,
+      snapshot = field.snapshot(),
+      getVisual = null,
+      live = ALIVE,
+    ) =>
       geometry.resolve(
         { pointerX: 0, pointerY, insertion: null, item: items[0]! },
-        { snapshot, placeholder, getVisual },
+        { snapshot, placeholder, getVisual, live },
       ),
   };
 
@@ -109,6 +118,7 @@ describe('y', () => {
           snapshot: field.snapshot(),
           placeholder: field.placeholder,
           getVisual: null,
+          live: ALIVE,
         },
       ),
     ).toBeNull();
@@ -291,5 +301,81 @@ describe('y', () => {
       before: field.items[1],
       after: null,
     });
+  });
+});
+
+describe('the terminal barrier in the candidate loop', () => {
+  /**
+   * I-36, at the level only a direct drive can reach. `RectIndex.refresh` calls
+   * the consumer's `visual()` resolver once per candidate, and a resolver is
+   * allowed to call `controller.destroy()` — which runs teardown to completion
+   * synchronously and returns into the middle of the loop.
+   *
+   * The check lives in `rect-index.ts`, but the **threading** is per axis, so
+   * both sibling suites pin it: a future axis can forget to pass `live`.
+   */
+  const closingAt =
+    (
+      target: HTMLElement,
+      asked: HTMLElement[],
+      close: () => void,
+    ): ((item: HTMLElement) => HTMLElement) =>
+    (item) => {
+      asked.push(item);
+
+      if (item === target) {
+        close();
+      }
+
+      return item;
+    };
+
+  it('should stop resolving candidates once the controller closes', () => {
+    const field = createField(4);
+    const asked: HTMLElement[] = [];
+    let alive = true;
+    const getVisual = closingAt(field.items[2]!, asked, () => {
+      alive = false;
+    });
+
+    // Three destination candidates; the second one destroys.
+    expect(
+      field.resolve(55, field.snapshot(), getVisual, () => alive),
+    ).toBeNull();
+
+    // `items[3]` is never resolved: no consumer callback crosses the terminal
+    // barrier, and no geometry is read after it either.
+    expect(asked).toEqual([field.items[1], field.items[2]]);
+  });
+
+  it('should leave the cache retired rather than clean and partial', () => {
+    // The half a `break` gets wrong. `destroy()` has already run `retire()` on
+    // this cache; falling through to the trailing bookkeeping would mark a
+    // half-filled index clean at the snapshot's own version, so the **same**
+    // version below would find it warm, skip the rebuild and keep pinning the
+    // rows of a destroyed controller (I-20).
+    const field = createField(4);
+    const asked: HTMLElement[] = [];
+    let alive = true;
+
+    field.resolve(
+      55,
+      field.snapshot(),
+      closingAt(field.items[2]!, asked, () => {
+        alive = false;
+      }),
+      () => alive,
+    );
+
+    asked.length = 0;
+
+    // Same version, nothing invalidated: only a cache left dirty at
+    // `measured === -1` rebuilds, and only an emptied one asks for all three.
+    field.resolve(55, field.snapshot(), (item) => {
+      asked.push(item);
+      return item;
+    });
+
+    expect(asked).toEqual([field.items[1], field.items[2], field.items[3]]);
   });
 });

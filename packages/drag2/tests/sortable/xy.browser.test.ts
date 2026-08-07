@@ -35,11 +35,13 @@ import {
   type InsertionGeometry,
   unbrandFeature,
 } from '../../src/sortable/feature.ts';
+import { visual } from '../../src/sortable/handle.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
   ReorderResolution,
+  type SortableController,
   sortable,
 } from '../../src/sortable.ts';
 
@@ -72,8 +74,12 @@ type Field = Readonly<{
     y: number,
     snapshot?: CollectionSnapshot,
     getVisual?: ((item: HTMLElement) => HTMLElement) | null,
+    live?: () => boolean,
   ): Insertion | null;
 }>;
+
+/** The default liveness: a controller nobody destroyed. */
+const ALIVE = (): boolean => true;
 
 /**
  * The placeholder occupies cell `slot`; the other three cells are the
@@ -145,10 +151,16 @@ function createField(slot = 0): Field {
     dragged,
     placeholder,
     snapshot: (version = 0, list = collection) => ({ items: list, version }),
-    resolve: (x, y, snapshot = field.snapshot(), getVisual = null) =>
+    resolve: (
+      x,
+      y,
+      snapshot = field.snapshot(),
+      getVisual = null,
+      live = ALIVE,
+    ) =>
       geometry.resolve(
         { pointerX: x, pointerY: y, insertion: null, item: dragged },
-        { snapshot, placeholder, getVisual },
+        { snapshot, placeholder, getVisual, live },
       ),
   };
 
@@ -166,6 +178,7 @@ describe('xy', () => {
           snapshot: field.snapshot(),
           placeholder: field.placeholder,
           getVisual: null,
+          live: ALIVE,
         },
       ),
     ).toBeNull();
@@ -498,5 +511,163 @@ describe('the composed two-dimensional collection', () => {
 
     // A proven no-op: `from === to`, so no round-trip runs at all.
     expect(requests).toEqual([]);
+  });
+});
+
+describe('the terminal barrier in the candidate loop', () => {
+  /**
+   * I-36. The check lives in `rect-index.ts`, shared by both axes, but the
+   * **threading** is per axis — `xy()` has to hand `live` to `refresh` exactly
+   * as `y()` does, and a future axis can forget to. So this group mirrors
+   * `y.browser.test.ts`'s, deliberately, rather than trusting the shared cache.
+   */
+  const closingAt =
+    (
+      target: HTMLElement,
+      asked: HTMLElement[],
+      close: () => void,
+    ): ((item: HTMLElement) => HTMLElement) =>
+    (item) => {
+      asked.push(item);
+
+      if (item === target) {
+        close();
+      }
+
+      return item;
+    };
+
+  it('should stop resolving candidates once the controller closes', () => {
+    const field = createField();
+    const asked: HTMLElement[] = [];
+    let alive = true;
+    const getVisual = closingAt(field.items[1]!, asked, () => {
+      alive = false;
+    });
+
+    expect(
+      field.resolve(170, 20, field.snapshot(), getVisual, () => alive),
+    ).toBeNull();
+
+    // The third cell is never resolved: no consumer callback crosses the
+    // terminal barrier, and no geometry is read after it either.
+    expect(asked).toEqual([field.items[0], field.items[1]]);
+  });
+
+  it('should leave the cache retired rather than clean and partial', () => {
+    // The half a `break` gets wrong; see `y.browser.test.ts` for the reasoning.
+    const field = createField();
+    const asked: HTMLElement[] = [];
+    let alive = true;
+
+    field.resolve(
+      170,
+      20,
+      field.snapshot(),
+      closingAt(field.items[1]!, asked, () => {
+        alive = false;
+      }),
+      () => alive,
+    );
+
+    asked.length = 0;
+
+    field.resolve(170, 20, field.snapshot(), (item) => {
+      asked.push(item);
+      return item;
+    });
+
+    expect(asked).toEqual([field.items[0], field.items[1], field.items[2]]);
+  });
+
+  it('should stop the traversal of a composed drag at the destroying candidate', async () => {
+    // The same rule through real pointer input, on the two-dimensional rule's
+    // own field. **The assertion is the resolver's call list, not the resulting
+    // insertion**: the frame is discarded upstream either way, so a state
+    // assertion would pass against unfixed source.
+    const root = document.createElement('div');
+
+    Object.assign(root.style, {
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      display: 'flex',
+      flexWrap: 'wrap',
+      width: `${CELL_W * 2 + GAP_X}px`,
+      gap: `${GAP_Y}px ${GAP_X}px`,
+    });
+    document.body.append(root);
+    cleanup.push(root);
+
+    const items: HTMLElement[] = [];
+
+    for (let i = 0; i < 4; i += 1) {
+      const item = document.createElement('div');
+
+      Object.assign(item.style, {
+        width: `${CELL_W}px`,
+        height: `${CELL_H}px`,
+      });
+      root.append(item);
+      items.push(item);
+    }
+
+    const asked: HTMLElement[] = [];
+    let controller: SortableController | null = null;
+
+    controller = draggable(
+      root,
+      sortable(
+        items,
+        xy(),
+        visual((item) => {
+          asked.push(item);
+
+          // The **first** candidate destroys. `items[0]` is the dragged one and
+          // was resolved at admission, before any candidate.
+          if (item === items[1]) {
+            controller!.destroy();
+          }
+
+          return item;
+        }),
+        callbacks({
+          onReorder: () => ReorderResolution.accept(),
+        }),
+      ),
+    );
+
+    root.setPointerCapture = (): void => {};
+    root.releasePointerCapture = (): void => {};
+    cleanup.push({ remove: () => controller.destroy() } as HTMLElement);
+
+    const pointer = (type: string, x: number, y2: number): void => {
+      const target = type === 'pointerdown' ? items[0]! : document;
+
+      target.dispatchEvent(
+        new PointerEvent(type, {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+          pointerId: 79,
+          isPrimary: true,
+          button: 0,
+          buttons: 1,
+          clientX: x,
+          clientY: y2,
+        }),
+      );
+    };
+
+    pointer('pointerdown', 50, 20);
+    pointer('pointermove', 70, 20);
+    pointer('pointermove', 170, 20);
+    await new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        resolve(null);
+      });
+    });
+
+    expect(asked).toEqual([items[0], items[1]]);
   });
 });

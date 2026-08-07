@@ -2,7 +2,8 @@
  * The two-dimensional axis rule — a field of rectangles rather than a column.
  *
  * ```text
- * candidates := centres of every non-dragged item, plus the placeholder's own
+ * candidates := centres of every non-dragged item's **visual**, plus the
+ *               placeholder's own
  * nearest    := the candidate whose centre is closest to the pointer, squared
  *               Euclidean over BOTH coordinates
  * if nearest is the placeholder -> keep the current insertion (no change)
@@ -62,6 +63,12 @@ type InsertionRuntimeView = Readonly<{
   placeholder: HTMLElement;
   /** The installed `visual()` resolver, or `null`; see `y.ts` for why. */
   getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  /**
+   * Whether the controller is still alive (I-36); see `y.ts`. The check itself
+   * lives in `RectIndex.refresh`, but the **threading** is per-axis — which is
+   * why both sibling modules name it and a future axis has to as well.
+   */
+  live(): boolean;
 }>;
 
 export function xy(): SortableFeature {
@@ -82,7 +89,7 @@ export function xy(): SortableFeature {
 
           const { snapshot, placeholder } = runtime;
 
-          index.refresh(snapshot, dragged, runtime.getVisual);
+          index.refresh(snapshot, dragged, runtime.getVisual, runtime.live);
 
           const { values, count } = index;
           const { pointerX, pointerY } = frame;
@@ -145,7 +152,12 @@ export function xy(): SortableFeature {
           const dragged = frame.item;
 
           if (dragged !== null) {
-            index.refresh(runtime.snapshot, dragged, runtime.getVisual);
+            index.refresh(
+              runtime.snapshot,
+              dragged,
+              runtime.getVisual,
+              runtime.live,
+            );
           }
         },
 

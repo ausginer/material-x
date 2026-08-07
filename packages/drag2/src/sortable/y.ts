@@ -4,7 +4,8 @@
  * inside this one.
  *
  * ```text
- * candidates := centres of every non-dragged item, plus the placeholder's own
+ * candidates := centres of every non-dragged item's **visual**, plus the
+ *               placeholder's own
  * nearest    := the candidate whose centre is closest to the pointer on Y
  * if nearest is the placeholder -> keep the current insertion (no change)
  * else  gap := nearest sits below the placeholder ? slot + 1 : slot
@@ -56,6 +57,18 @@ type InsertionRuntimeView = Readonly<{
    * nullable field off the per-operation object.
    */
   getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  /**
+   * Whether the controller is still alive (I-36), threaded into the candidate
+   * loop so a `visual()` resolver that destroys the controller stops the
+   * traversal at that call instead of resolving the rest of the list after
+   * teardown returned.
+   *
+   * **The fourth widening of a consumer-declared view**, and additive like the
+   * three before it: the behavior's per-operation object satisfies it
+   * structurally, with no wrapper, no allocation and no import edge back to the
+   * runtime.
+   */
+  live(): boolean;
 }>;
 
 const centreOf = (element: Element): number => {
@@ -85,7 +98,7 @@ export function y(): SortableFeature {
 
           const { snapshot, placeholder } = runtime;
 
-          index.refresh(snapshot, dragged, runtime.getVisual);
+          index.refresh(snapshot, dragged, runtime.getVisual, runtime.live);
 
           const { values, count } = index;
           const anchor = centreOf(placeholder);
@@ -148,7 +161,12 @@ export function y(): SortableFeature {
           const dragged = frame.item;
 
           if (dragged !== null) {
-            index.refresh(runtime.snapshot, dragged, runtime.getVisual);
+            index.refresh(
+              runtime.snapshot,
+              dragged,
+              runtime.getVisual,
+              runtime.live,
+            );
           }
         },
 

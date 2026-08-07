@@ -100,6 +100,14 @@ export function createSortableSpec(
   const { realm } = host;
   // One per controller. Arming is per operation, on the motion signal.
   const invalidate = createInvalidator(realm);
+  /**
+   * The terminal latch as a predicate, for the one barrier that cannot reach
+   * `rt` — the candidate loop inside the feature's private `RectIndex` (I-36).
+   * Every barrier below reads `rt.closed` directly instead; this closure is
+   * created once per controller and copied by reference onto each
+   * per-operation view.
+   */
+  const live = (): boolean => !rt.closed;
 
   /**
    * The admitted item, from the event's **composed path** rather than
@@ -130,8 +138,23 @@ export function createSortableSpec(
     if (slots.getHandle !== null) {
       const handle = slots.getHandle(item);
 
+      // **The terminal barrier on the admission sequence** (I-36). `getHandle`
+      // is consumer code, and `seedDraft` calls a *second* consumer resolver
+      // right after this returns — so a handle resolver that destroyed the
+      // controller would otherwise have `visual()` called after `destroy()`
+      // returned. The kernel's own post-`admit` recheck stops the operation
+      // from being minted, but it runs after the whole callback and cannot make
+      // that second call un-happen.
+      //
+      // It **declines**, it does not throw: a throw reaches
+      // `reportFailure(FAILURE_ADMISSION)` and would tell the consumer that its
+      // own `destroy()` was a library failure. Declining leaves the controller
+      // idle (I-32), mints nothing, and — on the command path — leaves the
+      // arrow key its native meaning, which is right for a controller that no
+      // longer exists.
+      //
       // A handle *narrows* admission; it never replaces the item.
-      if (handle === null || !path.includes(handle)) {
+      if (rt.closed || handle === null || !path.includes(handle)) {
         return null;
       }
     }
@@ -253,7 +276,14 @@ export function createSortableSpec(
 
     try {
       measure(frame, view);
-      return true;
+
+      // **The terminal barrier on the eager rebuild** (I-36). `measure` walks
+      // the candidate list through the consumer's `visual()` resolver, so a
+      // destroy raised from inside it takes the same exit `action.effect`
+      // already has for a classified measure failure — nothing after it in the
+      // bracket runs, and no `afterMove` hook starts an animation on a
+      // torn-down controller.
+      return !rt.closed;
     } catch (error) {
       host.fail(FAILURE_INVALIDATION, error);
       return false;
@@ -452,6 +482,12 @@ export function createSortableSpec(
         // republish this operation's DOM into the runtime for the *next* drag
         // to find, and call `onStart` after `destroy()` returned — the
         // synchronous terminal barrier I-6 forbids crossing (D-26).
+        //
+        // **I-36's rule, read through the liveness this site has.** The other
+        // three barriers read `rt.closed`; here the seam was handed its
+        // presentation scope, and the signal is strictly stronger — it is also
+        // aborted by a kernel-internal `panic()` destroy, which never reaches
+        // the controller's latch. One rule, whichever reading the site has.
         if (scope.presentation.signal.aborted) {
           return;
         }
@@ -510,6 +546,7 @@ export function createSortableSpec(
           placeholder,
           item,
           getVisual: slots.getVisual,
+          live,
           snapshot: current.snapshot!,
           insertion: null,
         };
@@ -599,8 +636,14 @@ export function createSortableSpec(
 
           const resolved = slots.resolveInsertion(draft, rt.view);
 
-          if (resolved === null) {
-            return null; // the incumbent slot still wins — commit nothing
+          // `resolved === null`: the incumbent slot still wins — commit
+          // nothing. `rt.closed`: a candidate `visual()` resolver destroyed the
+          // controller during the rebuild (I-36). The kernel would discard the
+          // transition anyway — `preparationValid()` no longer holds — but
+          // stopping one branch earlier means the behavior never writes
+          // `draft.insertion` for an operation that no longer exists.
+          if (resolved === null || rt.closed) {
+            return null;
           }
 
           draft.insertion = resolved;
@@ -718,6 +761,24 @@ export function createSortableSpec(
 
             movePlaceholder(placeholder, insertion);
 
+            // **The terminal barrier on the placeholder-reaction window**
+            // (I-36) — the same hazard `activation.effect` already guards one
+            // line after `item.after(placeholder)`, reached through the other
+            // door. `movePlaceholder` moves a node, so a custom-element
+            // placeholder's `disconnectedCallback`/`connectedCallback` runs
+            // synchronously inside that call; it is consumer code the
+            // `placeholder()` factory supplied, and no seam wraps it. If it
+            // destroyed the controller, everything below would run on a
+            // torn-down one: the eager rebuild resolving candidate visuals, and
+            // every `afterMove` hook — which with `layoutAnimation()` composed
+            // starts WAAPI animations against a retired feature.
+            //
+            // Returned from **inside** the `try`, so the `finally` still clears
+            // `view.insertion` and no stale destination gap outlives the move.
+            if (rt.closed) {
+              return;
+            }
+
             if (!invalidateInSeam()) {
               return; // classified; the geometry the hooks would read is stale
             }
@@ -823,6 +884,14 @@ export function createSortableSpec(
             return { invoke: null };
           }
 
+          // **No I-36 barrier here, deliberately.** This resolve reaches the
+          // candidate loop too, and on an aborted traversal it falls back to
+          // `draft.insertion`, builds a proposal and stages an `invoke`
+          // closure — which is never executed: `runCore` stages nothing when
+          // `preparationValid()` is false, and `runReleaseSeam` runs only a
+          // non-null command, so `onReorder` cannot fire for an operation
+          // `destroy()` retired. A guard here would be a second copy of a
+          // decision the kernel already owns, and two copies can disagree.
           const resolved =
             slots.resolveInsertion(draft, view) ?? draft.insertion;
 
