@@ -91,7 +91,7 @@ describe('the published file list', () => {
     const reachable = await reachableFrom([
       'drag',
       'sortable',
-      'sortable/vertical',
+      'sortable/y',
       'sortable/callbacks',
     ]);
     const forbidden = [
@@ -99,10 +99,31 @@ describe('the published file list', () => {
       'sortable/landing.ts',
       'sortable/layout-animation.ts',
       'sortable/placeholder.ts',
+      // The sibling axis. `y()` and `xy()` share `rect-index.ts` and nothing
+      // else, so selecting one must not reach the other's rule — which is the
+      // whole reason the 2-D capability is a second subpath and not a
+      // parameter on one.
+      'sortable/xy.ts',
     ];
     const reached = [...reachable].map((file) => relative(SRC, file));
 
     expect(reached.filter((file) => forbidden.includes(file))).toEqual([]);
+  });
+
+  it('should keep the two-dimensional composition out of the y axis', async () => {
+    // The mirror of the row above, and the one that makes the pair an
+    // *exclusivity* claim rather than a one-way absence: a grid consumer must
+    // not carry the list rule either.
+    const reachable = await reachableFrom([
+      'drag',
+      'sortable',
+      'sortable/xy',
+      'sortable/callbacks',
+    ]);
+    const reached = [...reachable].map((file) => relative(SRC, file));
+
+    expect(reached).toContain('sortable/rect-index.ts');
+    expect(reached).not.toContain('sortable/y.ts');
   });
 
   it('should not ship a directory nothing emits into', async () => {

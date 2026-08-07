@@ -1,6 +1,7 @@
 /**
- * The vertical axis rule — **the only module containing axis geometry**. A
- * future `horizontal()` is a sibling, never a branch inside this one.
+ * The y axis rule — **one of two modules containing axis geometry**, and
+ * the only one containing *this* axis. `xy()` is a sibling, never a branch
+ * inside this one.
  *
  * ```text
  * candidates := centres of every non-dragged item, plus the placeholder's own
@@ -13,9 +14,18 @@
  * proposed only once another item's centre is genuinely closer than the
  * placeholder's own slot: no dead band, no direction latch, no tunable, and
  * therefore nothing to mistune into oscillation.
+ *
+ * **Why this is not `xy()` with one axis switched off.** A single-column list
+ * is the case where a 2-D rule is *nearly* right and not quite: with the pointer
+ * carried horizontally outside the column — a wide row, a drag toward a
+ * scrollbar, a stylus at an angle — every candidate's X distance grows by the
+ * same amount, but the *squared* sum lets that shared term swamp the Y ordering
+ * near a boundary. Ignoring X is not an optimisation of the 2-D rule; it is a
+ * different and better answer for a list.
  */
 import type { CollectionSnapshot, Insertion } from './domain.ts';
 import { brandFeature, type SortableFeature } from './feature.ts';
+import { CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
 
 /**
  * Consumer-declared views (D-13). Declared **here**, in the feature's own
@@ -37,96 +47,18 @@ type InsertionRuntimeView = Readonly<{
   placeholder: HTMLElement;
 }>;
 
-/** Packed `[left, top, right, bottom, centreX, centreY]` per destination slot. */
-const STRIDE = 6;
-const LEFT = 0;
-const TOP = 1;
-const RIGHT = 2;
-const BOTTOM = 3;
-const CENTRE_X = 4;
-const CENTRE_Y = 5;
-
-const capacityFor = (needed: number): number => {
-  let capacity = 1;
-
-  while (capacity < needed) {
-    capacity *= 2;
-  }
-
-  return capacity;
-};
-
 const centreOf = (element: Element): number => {
   const rect = element.getBoundingClientRect();
 
   return (rect.top + rect.bottom) * 0.5;
 };
 
-export function vertical(): SortableFeature {
+export function y(): SortableFeature {
   return brandFeature(() => {
-    // Private runtime. Nobody else can name it, reach it, or type it — which is
-    // what makes probe 1's "where does the geometry cache live" question
-    // disappear by construction rather than by argument (H-4).
-    //
-    // One packed buffer plus one parallel element array, indexed by
-    // **destination** position, so a slot *is* the index the resulting
-    // `Insertion` needs and its neighbours are the adjacent elements.
-    let values = new Float64Array(0);
-    let capacity = 0;
-    let count = 0;
-    // Starts stale, and at a version no real collection can hold, so the first
-    // resolution of every operation measures.
-    let dirty = true;
-    let measured = -1;
-    const items: HTMLElement[] = [];
-
-    /**
-     * Re-measures only when something dirtied the cache or the collection
-     * version moved. On a frame where the pointer merely travels inside the
-     * same slot this reads no geometry at all and the previous scan stands.
-     */
-    const refresh = (
-      snapshot: CollectionSnapshot,
-      dragged: HTMLElement,
-    ): void => {
-      if (!dirty && measured === snapshot.version) {
-        return;
-      }
-
-      const list = snapshot.items;
-
-      if (list.length > capacity) {
-        capacity = capacityFor(list.length);
-        values = new Float64Array(capacity * STRIDE);
-      }
-
-      let n = 0;
-
-      for (const item of list) {
-        if (item === dragged) {
-          continue;
-        }
-
-        const rect = item.getBoundingClientRect();
-        const offset = n * STRIDE;
-
-        values[offset + LEFT] = rect.left;
-        values[offset + TOP] = rect.top;
-        values[offset + RIGHT] = rect.right;
-        values[offset + BOTTOM] = rect.bottom;
-        values[offset + CENTRE_X] = (rect.left + rect.right) * 0.5;
-        values[offset + CENTRE_Y] = (rect.top + rect.bottom) * 0.5;
-        items[n] = item;
-        n += 1;
-      }
-
-      count = n;
-      // Truncated, so a shrinking collection neither pins the elements a larger
-      // previous rebuild saw nor leaks one into a neighbour lookup.
-      items.length = n;
-      measured = snapshot.version;
-      dirty = false;
-    };
+    // Private per-feature state. Nobody else can name it, reach it, or type it
+    // — which is what makes probe 1's "where does the geometry cache live"
+    // question disappear by construction rather than by argument (H-4).
+    const index = createRectIndex();
 
     return {
       insertion: {
@@ -142,8 +74,9 @@ export function vertical(): SortableFeature {
 
           const { snapshot, placeholder } = runtime;
 
-          refresh(snapshot, dragged);
+          index.refresh(snapshot, dragged);
 
+          const { values, count } = index;
           const anchor = centreOf(placeholder);
           const { pointerY } = frame;
           // The incumbent to beat is the placeholder's own centre.
@@ -168,12 +101,13 @@ export function vertical(): SortableFeature {
           }
 
           // The gap sits on the side of `nearest` the placeholder is travelling
-          // from. On a vertical axis that is a comparison of the two centres,
+          // from. On a y axis that is a comparison of the two centres,
           // which the scan has already measured — no DOM-order query needed.
           const gap =
             values[nearest * STRIDE + CENTRE_Y]! > anchor
               ? nearest + 1
               : nearest;
+          const { items } = index;
 
           return {
             version: snapshot.version,
@@ -183,15 +117,7 @@ export function vertical(): SortableFeature {
           };
         },
 
-        /**
-         * The behavior owns the events that make geometry stale — activation,
-         * scroll, resize, a committed placeholder move, collection publication,
-         * release — and this feature owns the cache. One flag, because any
-         * single reason forces the same full rebuild.
-         */
-        invalidate(): void {
-          dirty = true;
-        },
+        invalidate: index.invalidate,
 
         /**
          * The eager half. The behavior calls it inside the committed-move
@@ -211,18 +137,11 @@ export function vertical(): SortableFeature {
           const dragged = frame.item;
 
           if (dragged !== null) {
-            refresh(runtime.snapshot, dragged);
+            index.refresh(runtime.snapshot, dragged);
           }
         },
 
-        retire(): void {
-          // The element array is what pins DOM between operations, so it is
-          // emptied; the numeric buffer is kept and reused.
-          items.length = 0;
-          count = 0;
-          dirty = true;
-          measured = -1;
-        },
+        retire: index.retire,
       },
     };
   });

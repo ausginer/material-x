@@ -34,6 +34,22 @@ export const FAILED = 8;
 export const ERROR_REPORTED = 9;
 /** Return the controller to `IDLE`. */
 export const RETIRE = 10;
+/**
+ * Enter the activation seam for a **pointerless** operation (D-32).
+ *
+ * Queued by the command ingress boundary. The pointer path reaches the same
+ * seam inline from `MOVE`, because queuing it there would add an entry to every
+ * activation and change the drain shape for no gain.
+ */
+export const ACTIVATE = 11;
+/**
+ * Close a **pointerless** operation (D-32), entering the same release
+ * transition `UP` enters at `ACTIVE`.
+ *
+ * Queued once `START_COMMITTED` has run: a command with no pointer has no other
+ * producer of a release, which is what makes it one slot.
+ */
+export const RELEASE = 12;
 
 /** Behavior tag `n` is queued as `BEHAVIOR_BASE + n`. */
 export const BEHAVIOR_BASE = 32;

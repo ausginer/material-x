@@ -33,13 +33,118 @@ Paths are relative to `packages/drag2`. Where a row is closed by several tests t
 
 | Row | Test | ID |
 | --- | --- | --- |
-| consumer accepts but readiness is delayed | `tests/sortable/composition.browser.test.ts` — _should hold settlement open for a pending readiness promise_ | I-9 |
+| consumer accepts but the acknowledgement is delayed | `tests/sortable/composition.browser.test.ts` — _should hold settlement open for a declared authored presentation_ | I-9 |
 | landing before React | `tests/kernel/kernel.browser.test.ts` — _should not finalize in the resolution drain while readiness is held_ | I-9 |
 | React before landing | `tests/kernel/kernel.browser.test.ts` — _should re-anchor and retarget when readiness settles first_ | F-16 |
 | both immediate | `tests/kernel/kernel.browser.test.ts` — _should finalize in the resolution drain when neither gate is held_ | I-9 |
-| stale readiness from an older operation | `tests/sortable/composition.browser.test.ts` — _should ignore readiness that settles after a newer operation began_ | F-25 |
-| readiness never settles and the timeout applies | `tests/kernel/kernel.browser.test.ts` — _should replace the settlement when readiness times out_; `tests/sortable/landing-space.browser.test.ts` — _should apply the configured bound rather than the default_ | I-9 |
-| **readiness resolved from a real `useLayoutEffect()` fixture** | `tests/sortable/react.browser.test.ts` — _should resolve readiness from a real layout effect_, _should not finalize before React has committed_ | I-9, I-25 |
+| stale acknowledgement from an older operation | `tests/sortable/composition.browser.test.ts` — _should ignore an acknowledgement that arrives after a newer operation began_ | F-25, I-35 |
+| the acknowledgement never arrives and the timeout applies | `tests/kernel/kernel.browser.test.ts` — _should replace the settlement when readiness times out_; `tests/sortable/landing-space.browser.test.ts` — _should apply the configured bound rather than the default_ | I-9 |
+| **acknowledged from a real `useLayoutEffect()` fixture** | `tests/sortable/react.browser.test.ts` — _should resolve readiness from a real layout effect_, _should not finalize before React has committed_ | I-9, I-25 |
+
+## Authored-presentation acknowledgement — new (D-33)
+
+Implemented in Phase 15. Everything consumer-facing is driven through the public entrypoint in `tests/sortable/acknowledgement.browser.test.ts`, because both halves of the protocol are public; only the row that needs a seam to throw on demand lives in `tests/kernel`.
+
+**What most of these rows actually pin.** A gate released twice is invisible in the final DOM — the drop still completes and the order is still right. What it destroys is the hold count, so the fixtures keep a **second** gate outstanding (a landing runner that never completes) and assert that nothing finalized. The platform report is asserted alongside, never instead: a kernel that swallowed duplicates silently would pass every state assertion on its own.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a resolution declaring no presentation holds no gate and is final from sealing | `tests/sortable/acknowledgement.browser.test.ts` — _should hold no readiness gate and finalize in the resolution drain_ | I-35 |
+| `accept({ presentation: true })` holds the gate and `ready(request)` releases it | `tests/sortable/acknowledgement.browser.test.ts` — _should hold the settlement open until it is acknowledged_ | I-9, D-33 |
+| the release sets `authoredReady`, so the join re-anchors per the recovery | `tests/sortable/acknowledgement.browser.test.ts` — _should re-anchor to the authored destination once acknowledged_ | F-16 |
+| **a synchronous commit** — acknowledged from inside `onReorder`, before the settlement exists | `tests/sortable/acknowledgement.browser.test.ts` — _should acknowledge from inside onReorder, before the settlement exists_ | C-01 |
+| the early latch is **dispatched**, so a readiness-only settlement does not finalize inside its own arm step | `tests/sortable/acknowledgement.browser.test.ts` — _should not finalize inside its own arm step_ | F-21 |
+| a duplicate in the **early** window is inert and reported | `tests/sortable/acknowledgement.browser.test.ts` — _should be inert and reported in the early window_ | C4-04 |
+| a duplicate **after the hold settled** releases nothing, moves no count, and reports | `tests/sortable/acknowledgement.browser.test.ts` — _should be inert and reported after the hold has settled_ | C4-04 |
+| that duplicate is classified a **duplicate, never a contradiction** — the row order is normative | `tests/sortable/acknowledgement.browser.test.ts` — _should be reported as a duplicate rather than as a contradiction_ | C5-02 |
+| **the cross-window case**: latched early, then re-entrantly during arm from the runner's `start` — one dispatch, one release, one duplicate report | `tests/sortable/acknowledgement.browser.test.ts` — _should be inert and reported across the early-to-armed boundary_ | C5-02 |
+| a `ready()` for a request the operation never issued is ignored and reported | `tests/sortable/acknowledgement.browser.test.ts` — _should be ignored and reported for a fabricated request_ | I-35 |
+| **a structurally identical copy is rejected** — the check is `===`, which typecheck cannot pin | `tests/sortable/acknowledgement.browser.test.ts` — _should reject a structurally identical copy of the live request_ | I-35 |
+| `retire()` clears the publication, so the same request is rejected afterwards | `tests/sortable/acknowledgement.browser.test.ts` — _should reject the same request again once the operation retired_ | I-35 |
+| a matching request whose resolution declared **no** presentation is reported as contradictory and dropped | `tests/sortable/acknowledgement.browser.test.ts` — _should be reported as contradictory when it arrives at SETTLING_ | C2-01 |
+| the same contradiction reached **early** is reported and discarded at seal | `tests/sortable/acknowledgement.browser.test.ts` — _should be reported and discarded at seal when it arrives early_ | C3-01 |
+| that discard is scoped to a **successful** seal: a throwing `settlement.effect` kills the latch silently | `tests/kernel/kernel.browser.test.ts` — _should not report a contradictory early latch when the seam failed_ | F-27 |
+| **the stale case end to end**: A times out and retires, B is admitted, A's late effect fires | `tests/sortable/composition.browser.test.ts` — _should ignore an acknowledgement that arrives after a newer operation began_ | I-35 |
+| an acknowledgement at `IDLE` is ignored and reported | `tests/sortable/acknowledgement.browser.test.ts` — _should be ignored and reported at IDLE_ | I-35 |
+| an acknowledgement at `PENDING` and at `ACTIVE` is ignored and reported | `tests/sortable/acknowledgement.browser.test.ts` — _should be ignored and reported at PENDING and at ACTIVE_ | I-35 |
+| an acknowledgement after `destroy()` is inert at both validation points | `tests/sortable/acknowledgement.browser.test.ts` — _should be inert after destroy()_ | I-6 |
+| the deadline classifies `FAILURE_PRESENTATION_READY`, keeps presentation owned, calls `onError` only | `tests/sortable/acknowledgement.browser.test.ts` — _should classify the deadline when it is never acknowledged_ | I-9 |
+| **there is no third readiness outcome** — no `abandon()` on the public surface | `tests/sortable/acknowledgement.browser.test.ts` — _should expose exactly four controller members_ | C-02 |
+| a resolution that declares nothing and renders asynchronously anyway is **not** detected | tier C; discharged by the F-6 witness obligation below | C2-01 |
+| **the React fixture stores the request, not a library object** | `tests/sortable/react.browser.test.ts` — the whole suite; `createCommitTracker` is gone from both the fixture and `src/sortable.stories.tsx` | 13b B-1 |
+
+### Removed with the pre-revision protocol
+
+Four rows in `tests/kernel/kernel.browser.test.ts` tested `presentationReady`'s **value** channel — a rejecting promise, a hostile `then` accessor, a non-thenable value, and the arm-time skip a synchronously-failing gate caused. `holdForReadiness()` takes no value under D-33, so there is nothing left to be hostile: the channel does not exist rather than being untested. Recorded here because a shrinking test count with no note reads like coverage loss.
+
+The rejection channel itself is a **deliberate narrowing**, not an oversight: what is lost against `presentationReady` is latency only, and `readinessTimeout` is a public option (contract 02 §three outcomes). The smallest addition, if it turns out to matter, is a second argument to `ready()` carrying an error.
+
+---
+
+## Discrete input — new (D-32)
+
+Implemented in Phase 16. The consumer-facing rows are `tests/sortable/keyboard.browser.test.ts`, driven through the public entrypoint; the ingress and construction rows need a spec the test controls, so they are in `tests/kernel/kernel.browser.test.ts`.
+
+**How the destination rows are made falsifiable.** A pointerless operation's pointer scalars are zero, so a spatial resolve would run from `pointerY === 0` — the first gap. Every destination row therefore commands an item **downward**, where the two answers visibly disagree; an assertion that the gap survived is an assertion that nothing re-resolved it.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| no `command` member ⇒ no discrete listener is bound at all | `tests/kernel/kernel.browser.test.ts` — _should bind no discrete listener when the spec declares no command_ | D-32 |
+| a `command.admit` returning `null` mints nothing and the kernel does **not** prevent the default | `tests/kernel/kernel.browser.test.ts` — _should not prevent the default when the command declines_; `tests/sortable/keyboard.browser.test.ts` — _should leave an edge item inert and keep the key native_ | I-32 |
+| a pointer `admit` returning `null` likewise, and one returning an element has the default prevented **by the kernel** | `tests/kernel/kernel.browser.test.ts` — _should prevent the default for a press only when it is admitted_ | C-03 |
+| a `command.admit` returning an element mints a pointerless operation and reaches `ACTIVE` with no pointer travel | `tests/kernel/kernel.browser.test.ts` — _should mint a pointerless operation and queue ACTIVATE_ | D-32 |
+| a pointerless operation is never advanced by a synthetic pointer event and holds no capture | `tests/sortable/keyboard.browser.test.ts` — _should never be advanced by a synthetic pointer event_, _should acquire no pointer capture_ | I-33 |
+| a command reaches `RELEASING` without an `UP`, and its settlement and terminal callback are the pointer path's | `tests/sortable/keyboard.browser.test.ts` — _should run a complete one-slot operation from a single arrow key_, _should reach the terminal callback through the pointer path_ | D-32 |
+| **a keyboard and a pointer reorder to the same gap produce identical proposals** | `tests/sortable/keyboard.browser.test.ts` — _should produce identical proposals for the same destination gap_ | D-32 |
+| the command destination **survives activation** instead of being reseeded to home | `tests/sortable/keyboard.browser.test.ts` — _should survive activation instead of being reseeded to home_ | C4-01 |
+| **and survives release** instead of being re-resolved spatially | `tests/sortable/keyboard.browser.test.ts` — _should survive release instead of being re-resolved spatially_ | C4-01 |
+| `release.effect` moves the placeholder but performs **no lift write**, so the landing origin is `(0, 0)` | `tests/sortable/keyboard.browser.test.ts` — _should build the landing origin from a visual that never moved_ | D-35, C5-03 |
+| a pointerless `release.prepare` reaching a `null` insertion returns a `SeamRejection` and does **not** fall back to home | `tests/sortable/sortable.browser.test.ts` — _should reject rather than fall back to home_ (driven directly; see below) | D-32 |
+| a command gap invalidated by an `updateItems()` queued from inside the listener is rebased or cancels — **no command-specific revalidation** | `tests/sortable/keyboard.browser.test.ts` — _should enqueue an updateItems() rather than drain it_ | I-1, D-32 |
+| command admission is refused whenever an operation is already live, at `PENDING`, `ACTIVE` and `SETTLING` | `tests/sortable/keyboard.browser.test.ts` — the _a command against a live operation_ group | C4-07 |
+| a `pointerdown` from inside `command.admit`, and a `keydown` from inside `admit`, are both refused by the shared latch | `tests/sortable/keyboard.browser.test.ts` — _should refuse a press dispatched from inside the command listener_, _…from inside the press listener_ | D-32 |
+| a throwing `command.admit` reaches `reportFailure(FAILURE_ADMISSION)` with no operation and leaves the controller usable | `tests/kernel/kernel.browser.test.ts` — _should report a throwing command.admit with no operation_ | Q-1 |
+| `destroy()` releases every ingress listener, discrete ones included | `tests/kernel/kernel.browser.test.ts` — _should release the discrete listeners on destroy_; `tests/sortable/keyboard.browser.test.ts` — _should release every ingress listener on destroy_ | D-29 |
+| `arm()` rejects an empty, non-string, duplicate or `pointerdown`-colliding `command.types` | `tests/kernel/kernel.browser.test.ts` — _should reject an invalid command.types at arm_ | D-32 |
+| `Escape` cancels a command exactly as it cancels a press | `tests/sortable/keyboard.browser.test.ts` — _should be cancelled by Escape exactly as a press is_ | D-32 |
+| `ArrowLeft` ≡ `ArrowUp` and `ArrowRight` ≡ `ArrowDown` — keyboard is not axis-specific | `tests/sortable/keyboard.browser.test.ts` — _should treat ArrowLeft as ArrowUp and ArrowRight as ArrowDown_ | L-4 |
+| `handle()` gates the keyboard path too | `tests/sortable/keyboard.browser.test.ts` — _should gate the keyboard path through handle()_ | L-4 |
+
+### One row is driven at the seam, and why
+
+**A pointerless release with a `null` insertion has no producer.** `command.admit` always writes a gap before returning non-null, and a replacement that invalidates one cancels the operation rather than nulling it — so the guard is unreachable through the public surface. It is asserted by calling `release.prepare` directly, because the reason it is a rejection and not a home fallback is a _correctness_ reason the contract states, and a guard nothing can reach still should not read as tested when it is not.
+
+### A row that documents an abandon rather than a terminal
+
+A command whose gap is invalidated between admission and `ACTIVATE` is **abandoned silently** — no `onStart`, no `onCancel`, no `onError`. That is the phase table's `CANCEL at PENDING → retire` row, which D-32 kept deliberately: no start was notified, so none is owed (I-31), and the observable is the same one an edge-item command already produces. The row asserts the _absence_ of a classified failure, because that is what the defect it caught produced.
+
+---
+
+## Two-dimensional insertion — new (Phase 17)
+
+The 2-D rule is a **sibling axis feature**, `xy()` on `sortable/xy.js`, beside the renamed `y()` on `sortable/y.js`. The rule itself is pinned directly in `tests/sortable/xy.browser.test.ts` — the metric and the gap-side derivation are the only things that differ from `y()`, because everything else is the shared `rect-index.ts` and is asserted next door.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| the metric spans both axes — a candidate at the same Y wins on X alone | `tests/sortable/xy.browser.test.ts` — _should choose the nearest cell across both axes_, _should let the X term decide between two cells at the same Y_ | L-8 |
+| …and on Y alone at the same X | `tests/sortable/xy.browser.test.ts` — _should let the Y term decide between two cells at the same X_ | L-8 |
+| the placeholder is the incumbent candidate, so the hysteresis is the same one `y()` has | `tests/sortable/xy.browser.test.ts` — _should keep the incumbent gap when its own centre is nearest_ | I-15 |
+| **the gap side is DOM order**, not a coordinate comparison | `tests/sortable/xy.browser.test.ts` — _should derive the gap from DOM order, not from a coordinate_ | L-8 |
+| the shared cache's contract holds through this rule too — re-measure on a version change, and **not** while nothing invalidated it | `tests/sortable/xy.browser.test.ts` — _should re-measure when the collection version moves_, _should not re-measure while nothing invalidated it_ | D-19 |
+| retire drops the element references | `tests/sortable/xy.browser.test.ts` — _should drop its element references at retire_ | D-19 |
+| **the composed rule reorders sideways from real pointer events** | `tests/sortable/xy.browser.test.ts` — _should reorder across a row from real pointer events_ | L-8 |
+| **and the identical drag under `y()` proposes nothing** — the control that makes the split a capability rather than a preference | `tests/sortable/xy.browser.test.ts` — _should propose nothing for the same drag under the y rule_ | L-8 |
+| **axis exclusivity with two real axes**, in either order | `tests/sortable/assemble.browser.test.ts` — _should refuse two real axis features, not only a feature and its copy_ | D-19 |
+| the rejected axis feature's private state is cleaned, in either order | `tests/sortable/assemble.browser.test.ts` — _should retire the rejected real axis feature, in either order_ | F-19 |
+| a `y()` composition physically cannot reach `xy()`… | `tests/packaging.node.test.ts` — _should keep the minimal composition out of every optional feature_ | 03 §Tree-shaking |
+| …**and an `xy()` composition cannot reach `y()`**, which is what makes it an exclusivity claim rather than a one-way absence | `tests/packaging.node.test.ts` — _should keep the two-dimensional composition out of the y axis_ | 03 §Tree-shaking |
+| the export topology carries both subpaths, per-subpath surface asserted as an equality | `tests/exports.node.test.ts`, `tests/consumer.node.test.ts` | 03 §Export topology |
+
+### The composed fixture needs a flow layout, and that is a finding
+
+The direct-drive fixtures position cells absolutely so the geometry is exact — right for a single `resolve` call, and **wrong for a drag**. An absolutely-positioned placeholder is inert: moving it in the document moves nothing on screen, so the incumbent's centre never catches up with the pointer and the rule oscillates between two gaps on successive resolutions. The composed rows therefore use a real wrapping flex field, and the comment says why. This is not a defect in the rule; it is what the placeholder-as-incumbent hysteresis _is_, and it only becomes visible when the placeholder can reflow.
+
+---
 
 ## Reentrancy
 
@@ -115,7 +220,7 @@ Paths are relative to `packages/drag2`. Where a row is closed by several tests t
 
 | Row | Test | ID |
 | --- | --- | --- |
-| no `landing()` but a pending readiness still holds one gate | `tests/sortable/composition.browser.test.ts` — _should hold settlement open for a pending readiness promise_ | I-9 |
+| no `landing()` but a declared authored presentation still holds one gate | `tests/sortable/composition.browser.test.ts` — _should hold settlement open for a declared authored presentation_ | I-9 |
 | neither gate held finalizes in the resolution drain | `tests/kernel/kernel.browser.test.ts` — _should finalize in the resolution drain when neither gate is held_ | I-9 |
 | a duplicate `holdForReadiness` is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a duplicate hold_ | F-6 |
 | a hold requested after sealing is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a hold requested after sealing_ | F-6 |
@@ -215,11 +320,11 @@ Paths are relative to `packages/drag2`. Where a row is closed by several tests t
 
 ## The F-6 obligation
 
-> Any fixture installing `landing()` or supplying `presentationReady` fails loudly if the corresponding hold is never taken.
+> Any fixture installing `landing()` or declaring an authored presentation fails loudly if the corresponding hold is never taken.
 
 Sealing catches a hold taken _late_; nothing structural catches one never taken, because the observable end state is identical — the operation just finalizes sooner. Two mechanisms discharge it:
 
-- `tests/support/gates.ts` — armed by `tests/sortable/react.browser.test.ts`. Fails the `afterEach` if a terminal callback was delivered with a supplied `presentationReady` still pending, or if `landing()` is installed and no runner ever started. Both arms are mutation-verified: suppressing `scope.holdForLanding` fails 10 of 11 tests with the F-6 message.
+- `tests/support/gates.ts` — armed by `tests/sortable/react.browser.test.ts`. Fails the `afterEach` if a terminal callback was delivered with a declared authored presentation still unacknowledged, or if `landing()` is installed and no runner ever started. Both arms are mutation-verified: suppressing `scope.holdForLanding` fails 10 of 11 tests with the F-6 message.
 - The recording runners in `tests/sortable/landing-space.browser.test.ts` and `tests/sortable/features.browser.test.ts` assert on what the runner captured, so a runner that never started fails those suites on the recorded value.
 
 ## Q-12 — the degraded re-anchor, judged

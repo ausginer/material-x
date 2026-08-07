@@ -16,7 +16,7 @@
  * the drag opened, and (I-25 notwithstanding) sometimes unmounts the dragged
  * item outright. Those are the three remaining rows, and the last is **Q-12**.
  *
- * Composition: `sortable(rows, vertical(), landing({ run }), callbacks(…))`.
+ * Composition: `sortable(rows, y(), landing({ run }), callbacks(…))`.
  * The runner is supplied rather than defaulted so the landing gate is directly
  * observable to the F-6 witness — the default runner is covered by
  * `landing-space.browser.test.ts` and `features.browser.test.ts`.
@@ -37,7 +37,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { draggable, type Point } from '../../src/drag.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import { landing, type LandingStart } from '../../src/sortable/landing.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
@@ -65,7 +65,7 @@ type Author = (
 type Options = Readonly<{
   ids?: readonly string[];
   author?: Author;
-  /** Omitted means the fixture supplies no `presentationReady` at all. */
+  /** Omitted means the fixture declares no authored presentation at all. */
   ready?: boolean;
   /** Apply the authored commit on a later task instead of inline. */
   defer?: boolean;
@@ -151,6 +151,8 @@ function mount(options: Options = {}): Fixture {
   }
   const commits: string[] = [];
   const commitWaiters: Array<() => void> = [];
+  /** The request this fixture still owes an acknowledgement for. */
+  let pending: ReorderRequest | null = null;
   const landingTargets: Point[] = [];
 
   const root = createRoot(host);
@@ -204,6 +206,17 @@ function mount(options: Options = {}): Fixture {
     // Undefined on the mount commit, which is the commit that produces the
     // elements the controller is about to be armed against.
     controller?.updateItems(live);
+
+    // The acknowledgement, from the same layout effect that used to resolve
+    // `presentationReady` — the one obligation D-33 does not remove, because
+    // only the consumer knows when its own commit landed.
+    if (pending !== null) {
+      const request = pending;
+
+      pending = null;
+      witness.readinessSettled();
+      controller?.ready(request);
+    }
 
     for (const waiter of commitWaiters.splice(0)) {
       waiter();
@@ -298,7 +311,7 @@ function mount(options: Options = {}): Fixture {
     list,
     sortable(
       ids.map((id) => elements.get(id)!),
-      vertical(),
+      y(),
       landing({ run }),
       callbacks({
         onReorder: (request): ReorderResolution => {
@@ -327,15 +340,14 @@ function mount(options: Options = {}): Fixture {
           }
 
           witness.readinessSupplied();
+          // **The whole integration.** Stored before the authored commit — which
+          // may land synchronously, inside the `apply()` above — so the layout
+          // effect that follows acknowledges this exact request. No promise is
+          // created, nothing is superseded, and nothing can be dropped: the
+          // identity is the object this callback was handed (D-33).
+          pending = request;
 
-          return ReorderResolution.accept(
-            new Promise<void>((resolve) => {
-              commitWaiters.push(() => {
-                witness.readinessSettled();
-                resolve();
-              });
-            }),
-          );
+          return ReorderResolution.accept({ presentation: true });
         },
         onFinish(result): void {
           witness.terminal();

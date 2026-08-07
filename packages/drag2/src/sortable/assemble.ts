@@ -72,7 +72,7 @@ export function assemble(
       // throws, and the unwind would only see the earlier contributions.
       // Recording it after the loop would put the axis feature's hook last in
       // installation order and therefore *first* after the reverse, which is
-      // the opposite of the documented order for `[vertical(), …]`.
+      // the opposite of the documented order for `[y(), …]`.
       if (contribution.insertion) {
         retireHooks.push(contribution.insertion.retire);
       }
@@ -110,7 +110,7 @@ export function assemble(
     }
 
     if (insertion === null) {
-      throw new TypeError('sortable: vertical() is required');
+      throw new TypeError('sortable: y() is required');
     }
 
     if (callbacks === null) {

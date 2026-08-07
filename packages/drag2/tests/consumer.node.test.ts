@@ -109,7 +109,7 @@ import {
   type SortableFeature,
   type SortableFinishResult,
 } from '@ydinjs/drag2/sortable.js';
-import { vertical } from '@ydinjs/drag2/sortable/vertical.js';
+import { y } from '@ydinjs/drag2/sortable/y.js';
 import {
   callbacks,
   type OnReorder,
@@ -144,7 +144,7 @@ const list: SortableController = draggable(
   root,
   sortable(
     items,
-    vertical(),
+    y(),
     callbacks({
       onReorder: (request: ReorderRequest) => {
         void request.from;
@@ -460,7 +460,12 @@ describe('the packed package', () => {
       ReorderResolution: Readonly<{ accept(): unknown }>;
     }> = await import(join(packed.dir, './sortable.js'));
 
-    expect(entry.ReorderResolution.accept()).toEqual({ type: 'accepted' });
+    // `presentation` is normalized to a boolean by the factory rather than left
+    // absent, so the settlement mapping reads one shape (D-33).
+    expect(entry.ReorderResolution.accept()).toEqual({
+      type: 'accepted',
+      presentation: false,
+    });
   });
 
   it('should leave exactly the unimplemented feature subpaths without runtime code', async () => {
@@ -518,7 +523,8 @@ describe('the packed package', () => {
         'ReorderResolution',
         'sortable',
       ],
-      './sortable/vertical.js': ['vertical'],
+      './sortable/y.js': ['y'],
+      './sortable/xy.js': ['xy'],
       './sortable/callbacks.js': ['callbacks'],
       './sortable/placeholder.js': ['placeholder'],
       './sortable/handle.js': ['handle', 'visual'],

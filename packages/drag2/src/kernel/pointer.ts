@@ -27,24 +27,38 @@ const SESSION_POINTER_EVENTS = [
 ] as const;
 
 /**
- * Arms one operation's document-level input across two independent lifetimes.
+ * Arms one operation's document-level pointer samples, on the motion lifetime,
+ * which is closed at release.
  *
- * Motion rides `motionSignal` and is closed at release. Escape rides
- * `cancelSignal` and outlives it, so a consumer can still abandon a gesture
- * whose resolver has not settled. Sharing one signal would make that
- * impossible.
+ * **Not called for a pointerless operation** (D-32). `MOVE`, `UP` and
+ * `lostpointercapture` are then structurally unreachable rather than defended
+ * by a `pointerId` comparison, which is what makes I-33 a property of the
+ * wiring instead of a guard someone has to remember (13a R-4).
  */
-export function armOperationInput(
+export function armPointerInput(
   realm: DOMRealm,
   motionSignal: AbortSignal,
-  cancelSignal: AbortSignal,
   onPointer: (event: PointerEvent) => void,
-  onEscape: () => void,
 ): void {
   for (const type of SESSION_POINTER_EVENTS) {
     realm.document.addEventListener(type, onPointer, { signal: motionSignal });
   }
+}
 
+/**
+ * Arms Escape-to-cancel, on the cancellation lifetime — which **outlives**
+ * motion, so a consumer can still abandon a gesture whose resolver has not
+ * settled. Sharing one signal with the samples would make that impossible.
+ *
+ * Armed identically for a press and for a command: a command is a live
+ * operation with a placeholder and a lift, and Escape cancels it exactly as it
+ * cancels a press.
+ */
+export function armCancelInput(
+  realm: DOMRealm,
+  cancelSignal: AbortSignal,
+  onEscape: () => void,
+): void {
   realm.document.addEventListener(
     KEY_DOWN,
     (event: KeyboardEvent) => {

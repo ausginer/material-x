@@ -24,7 +24,19 @@ export type { LandingHandle, LandingStart } from '../kernel/spec.ts';
 export type { LandingContext } from '../kernel/spec.ts';
 
 export type LandingOptions = Readonly<{
-  duration?: number;
+  /**
+   * Fixed at construction, or **read at settle time** through a thunk (13b
+   * B-2). The thunk is called once per landing, immediately before the runner
+   * builds its animation — which is the moment the shipped package's
+   * `landingTiming()` was read, and after the settlement step that decides
+   * where the visual is going.
+   *
+   * A thunk keeps everything the default runner provides: the reduced-motion
+   * collapse, the retarget replay and the generation guard. What it costs is
+   * one call per landing and a `TypeError` that arrives at settle time rather
+   * than at construction — the value cannot be range-checked before it exists.
+   */
+  duration?: number | (() => number);
   easing?: string;
   /**
    * Full replacement for the default Web Animations runner. A spring driving
@@ -45,11 +57,19 @@ export function landing(options: LandingOptions = {}): SortableFeature {
     return brandFeature(() => ({ startLanding: run }));
   }
 
-  const duration = requireFinite(
-    options.duration ?? DEFAULT_DURATION,
-    'landing({ duration })',
-    0,
-  );
+  const declared = options.duration ?? DEFAULT_DURATION;
+  // Validated at construction when it is a number, and per landing when it is a
+  // thunk — the earliest moment each form can be checked at all. A thunk that
+  // returns a bad value throws from inside `start`, which the kernel already
+  // classifies as `FAILURE_LANDING_CREATE`.
+  let timing: (() => number) | null = null;
+  let fixed = 0;
+
+  if (typeof declared === 'function') {
+    timing = declared;
+  } else {
+    fixed = requireFinite(declared, 'landing({ duration })', 0);
+  }
   // `easing` is not validated: it is a CSS easing function, the platform is the
   // only correct parser for one, and `animate()` reports a bad value itself.
   const easing = options.easing ?? DEFAULT_EASING;
@@ -62,8 +82,15 @@ export function landing(options: LandingOptions = {}): SortableFeature {
     const reduced =
       realm.window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ??
       false;
-    const timing = {
-      duration: reduced ? 0 : duration,
+    // Resolved **once per landing**, not per `play`: a retarget replays the
+    // same trajectory budget rather than re-reading a thunk that may have
+    // moved on.
+    const animationTiming = {
+      duration: reduced
+        ? 0
+        : timing === null
+          ? fixed
+          : requireFinite(timing(), 'landing({ duration })', 0),
       easing,
       // The kernel destroys the runner *before* it pins, so a forwards fill is
       // released exactly when the authoritative write lands. Without it the
@@ -91,7 +118,7 @@ export function landing(options: LandingOptions = {}): SortableFeature {
       // throw travel, where `FAILURE_LANDING_CREATE` classifies it.
       const started = visual.animate(
         [{ transform: from }, { transform: compose(to.x, to.y) }],
-        timing,
+        animationTiming,
       );
 
       try {

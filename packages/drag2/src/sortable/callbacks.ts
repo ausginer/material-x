@@ -18,7 +18,7 @@ import {
   type SortableFeature,
 } from './feature.ts';
 
-export type { OnReorder } from './domain.ts';
+export type { OnReorder, ResolutionOptions } from './domain.ts';
 export type { SortableCallbacks };
 
 export function callbacks(options: SortableCallbacks): SortableFeature {

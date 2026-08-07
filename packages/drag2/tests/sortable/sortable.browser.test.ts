@@ -1348,48 +1348,38 @@ describe('the landing target', () => {
     );
   });
 
-  it('should not re-anchor while readiness is pending', () => {
+  it('should not re-anchor while the acknowledgement is outstanding', () => {
     const runner = createRunner();
-    let ready!: () => void;
     const harness = createHarness({
       startLanding: runner.start,
-      onReorder: () =>
-        ReorderResolution.accept(
-          new Promise<void>((resolve) => {
-            ready = resolve;
-          }),
-        ),
+      onReorder: () => ReorderResolution.accept({ presentation: true }),
     });
 
     activate(harness);
     harness.next(harness.gap(2));
     release(60);
 
-    // `authoredReady` is false with a promise pending: the consumer has not
-    // committed, so re-anchoring now would drag the placeholder back beside the
-    // item's OLD slot. The provisional target is the gap as it stands.
+    // `authoredReady` is false with a declaration outstanding: the consumer has
+    // not committed, so re-anchoring now would drag the placeholder back beside
+    // the item's OLD slot. The provisional target is the gap as it stands.
     expect(order(harness)).toBe('012_');
-
-    ready();
   });
 
-  it('should re-anchor once readiness settles', async () => {
+  it('should re-anchor once the presentation is acknowledged', async () => {
     const runner = createRunner();
-    let ready!: () => void;
+    let pending!: ReorderRequest;
     const harness = createHarness({
       startLanding: runner.start,
-      onReorder: () =>
-        ReorderResolution.accept(
-          new Promise<void>((resolve) => {
-            ready = resolve;
-          }),
-        ),
+      onReorder: (request) => {
+        pending = request;
+        return ReorderResolution.accept({ presentation: true });
+      },
     });
 
     activate(harness);
     harness.next(harness.gap(2));
     release(60);
-    ready();
+    harness.controller.ready(pending);
     await nextFrame();
 
     // The consumer's DOM is committed now, so the authoritative anchor — the
@@ -2278,6 +2268,7 @@ describe('the spatial action legality guard', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
+        presentationCommitted: (): void => {},
         cancel: (): void => {},
         destroy: (): void => {},
       },
@@ -2331,6 +2322,70 @@ describe('the spatial action legality guard', () => {
 
   it('should discard a spatial action at ACTIVATING', () => {
     expect(prepareSpatialAt(ACTIVATING)).toEqual({ staged: null, resolved: 0 });
+  });
+});
+
+describe('a pointerless release with no destination', () => {
+  it('should reject rather than fall back to home', () => {
+    // Driven directly, because **no producer can reach it**: `command.admit`
+    // always writes a gap before returning non-null, and a replacement that
+    // invalidates one cancels the operation instead of nulling it. The guard is
+    // still the contract's (02 §The command destination) and the reason it is
+    // not a home fallback is a correctness one, so it is asserted here rather
+    // than left to read as tested.
+    //
+    // The pointer path's home fallback exists because a spatial resolve can
+    // legitimately find nothing. A command that reached `RELEASING` with no
+    // destination has lost state the kernel guaranteed to carry, and reporting
+    // that as a home-gap reorder would tell the consumer a drop completed
+    // normally.
+    const root = document.createElement('div');
+    const item = document.createElement('div');
+
+    root.append(item);
+    document.body.append(root);
+    cleanup.push(() => {
+      root.remove();
+    });
+
+    const rt = createSortableRuntime(
+      {
+        realm: createRealm(root),
+        root,
+        dispatch: (): void => {},
+        fail: (): void => {},
+        presentationCommitted: (): void => {},
+        cancel: (): void => {},
+        destroy: (): void => {},
+      },
+      [item],
+      { ...EMPTY_SLOTS },
+    );
+
+    rt.view = {
+      realm: rt.host.realm,
+      placeholder: item,
+      item,
+      snapshot: rt.snapshot,
+      insertion: null,
+    };
+
+    const spec = createSortableSpec(rt);
+    const draft = {
+      ...createSortableFramePart(),
+      phase: RELEASING,
+      pointerId: -1,
+      snapshot: rt.snapshot,
+      item,
+      insertion: null,
+    } as unknown as Parameters<typeof spec.release.prepare>[0];
+
+    const result = spec.release.prepare(draft);
+
+    expect(result).toMatchObject({ stage: FAILURE_RELEASE });
+    // And specifically **not** a command: a rejection is classified, so the
+    // staged round-trip is never executed.
+    expect(result).not.toHaveProperty('invoke');
   });
 });
 
@@ -2543,6 +2598,7 @@ describe('the displacement view lifetime', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
+        presentationCommitted: (): void => {},
         cancel: (): void => {},
         destroy: (): void => {},
       },
@@ -2666,6 +2722,7 @@ describe('the displacement view lifetime', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
+        presentationCommitted: (): void => {},
         cancel: (): void => {},
         destroy: (): void => {},
       },

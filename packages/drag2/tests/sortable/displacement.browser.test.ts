@@ -1,9 +1,9 @@
 /**
- * `vertical()` and `layoutAnimation()` **together**, through the public
+ * `y()` and `layoutAnimation()` **together**, through the public
  * composition.
  *
  * Every other suite drives these two alone, and alone they were both correct.
- * The bug they had was in the composition: `vertical()` measures with
+ * The bug they had was in the composition: `y()` measures with
  * `getBoundingClientRect()`, which includes a running FLIP offset, so it read
  * items where they no longer were while reading the placeholder where it now
  * is — a mixed field that proposes moving back and oscillates for the length of
@@ -15,7 +15,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { draggable } from '../../src/drag.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
@@ -105,7 +105,7 @@ function build(options: Options = {}): Composed {
     root,
     sortable(
       items,
-      vertical(),
+      y(),
       callbacks({
         onReorder(request) {
           requests.push(request);

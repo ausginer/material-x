@@ -22,6 +22,8 @@ import {
   type DisplacementView,
   NOOP_START,
 } from '../../src/sortable/slots.ts';
+import { xy } from '../../src/sortable/xy.ts';
+import { y } from '../../src/sortable/y.ts';
 
 type Fixture = Readonly<{
   context: FeatureContext;
@@ -244,7 +246,7 @@ describe('assemble', () => {
 describe('assemble validation', () => {
   it('should refuse a composition with no insertion geometry', () => {
     expect(() => assemble([required()[1]!], createFixture().context)).toThrow(
-      new TypeError('sortable: vertical() is required'),
+      new TypeError('sortable: y() is required'),
     );
   });
 
@@ -353,6 +355,48 @@ describe('assemble unwind', () => {
     ).toThrow(/contributed by two features/u);
 
     expect(seen).toEqual(['second', 'first']);
+  });
+
+  it('should refuse two real axis features, not only a feature and its copy', () => {
+    // Phase 17's deliverable: the exclusivity claim was previously exercised
+    // with **one** feature against a duplicate of itself, which cannot tell an
+    // exclusivity rule apart from an idempotence bug. `y()` and `xy()` are two
+    // genuinely different modules claiming one slot, in either order.
+    const fixture = createFixture();
+
+    expect(() => assemble([y(), xy(), ...required()], fixture.context)).toThrow(
+      new TypeError('sortable: insertion geometry contributed by two features'),
+    );
+
+    expect(() =>
+      assemble([xy(), y(), ...required()], createFixture().context),
+    ).toThrow(
+      new TypeError('sortable: insertion geometry contributed by two features'),
+    );
+  });
+
+  it('should retire the rejected real axis feature, in either order', () => {
+    // The same cleanup rule as the duplicate row above, but with the state that
+    // actually exists: each axis feature allocates its own rect index inside its
+    // factory, so the *second* one is live and unreachable by the time `claim`
+    // throws. Nothing observable is left to assert except that the assembler
+    // does not leak — so this asserts the composition is refused and that a
+    // subsequent, valid one still assembles, which a leaked index would not
+    // affect but a broken unwind would.
+    expect(() =>
+      assemble(
+        [y(), xy(), feature({ callbacks: { onReorder } })],
+        createFixture().context,
+      ),
+    ).toThrow(/contributed by two features/u);
+
+    const slots = assemble(
+      [xy(), feature({ callbacks: { onReorder } })],
+      createFixture().context,
+    );
+
+    expect(slots.resolveInsertion).toBeTypeOf('function');
+    expect(slots.invalidateInsertion).toBeTypeOf('function');
   });
 
   it('should unwind when validation rejects the composition', () => {
