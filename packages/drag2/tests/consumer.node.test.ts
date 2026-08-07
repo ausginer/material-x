@@ -109,7 +109,7 @@ import {
   type SortableFeature,
   type SortableFinishResult,
 } from '@ydinjs/drag2/sortable.js';
-import { vertical } from '@ydinjs/drag2/sortable/vertical.js';
+import { y } from '@ydinjs/drag2/sortable/y.js';
 import {
   callbacks,
   type OnReorder,
@@ -144,7 +144,7 @@ const list: SortableController = draggable(
   root,
   sortable(
     items,
-    vertical(),
+    y(),
     callbacks({
       onReorder: (request: ReorderRequest) => {
         void request.from;
@@ -523,7 +523,8 @@ describe('the packed package', () => {
         'ReorderResolution',
         'sortable',
       ],
-      './sortable/vertical.js': ['vertical'],
+      './sortable/y.js': ['y'],
+      './sortable/xy.js': ['xy'],
       './sortable/callbacks.js': ['callbacks'],
       './sortable/placeholder.js': ['placeholder'],
       './sortable/handle.js': ['handle', 'visual'],

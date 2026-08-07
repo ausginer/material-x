@@ -53,6 +53,15 @@ export type Composition = Readonly<{
    * tree-shake away the second input mode. That is a deliberate accessibility
    * position rather than an oversight — see `.plan/plan.md` Phase 16 — and the
    * budgets say so by moving together.
+   *
+   * **Re-based again 2026-08-07, Phase 17.** Extracting the packed rect index
+   * into a module both axis features share costs the list composition **60 B**
+   * — a module boundary under `unbundle`, and one record read where a closure
+   * variable used to be. It is recorded rather than absorbed: the alternative
+   * was two copies of a geometry cache that must stay in step, where a
+   * divergence is a silent correctness bug and not a style one. The 2-D *rule*
+   * itself costs the list consumer nothing, which is the constraint the shape
+   * decision was made under.
    */
   budget: number;
   /**
@@ -73,6 +82,16 @@ const OPTIONAL = [
   'sortable/handle.js',
 ] as const;
 
+/**
+ * The **unselected axis**, which is not optional in the same sense: exactly one
+ * axis feature is installed, so the other is always absent. It is listed
+ * separately because "the composition did not reach the sibling rule" is the
+ * claim that decided the 2-D shape (Phase 17) — a parameterized single feature
+ * would have made every list consumer carry the grid metric.
+ */
+const withoutAxis = (kept: 'sortable/y.js' | 'sortable/xy.js'): string =>
+  kept === 'sortable/y.js' ? 'sortable/xy.js' : 'sortable/y.js';
+
 const without = (...kept: readonly string[]): readonly string[] =>
   OPTIONAL.filter((module) => !kept.includes(module));
 
@@ -82,23 +101,41 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
-      'sortable/vertical.js': '{ vertical }',
+      'sortable/y.js': '{ y }',
       'sortable/callbacks.js': '{ callbacks }',
     },
-    budget: 10_200,
-    absent: without(),
+    budget: 10_260,
+    absent: [...without(), withoutAxis('sortable/y.js')],
+  },
+  {
+    // The same composition on the other axis. It reopens what "minimal" means,
+    // which 05 §What would reopen this names as an M-3 trigger, so it is
+    // measured as a peer rather than assumed to equal the y one.
+    name: 'minimal (xy)',
+    imports: {
+      'drag.js': '{ draggable }',
+      'sortable.js': '{ sortable }',
+      'sortable/xy.js': '{ xy }',
+      'sortable/callbacks.js': '{ callbacks }',
+    },
+    budget: 10_310,
+    absent: [...without(), withoutAxis('sortable/xy.js')],
+    present: ['sortable/rect-index.js'],
   },
   {
     name: 'minimal + layoutAnimation',
     imports: {
       'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
-      'sortable/vertical.js': '{ vertical }',
+      'sortable/y.js': '{ y }',
       'sortable/callbacks.js': '{ callbacks }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_600,
-    absent: without('sortable/layout-animation.js'),
+    budget: 10_670,
+    absent: [
+      ...without('sortable/layout-animation.js'),
+      withoutAxis('sortable/y.js'),
+    ],
     present: ['sortable/layout-animation.js'],
   },
   {
@@ -106,12 +143,12 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
-      'sortable/vertical.js': '{ vertical }',
+      'sortable/y.js': '{ y }',
       'sortable/callbacks.js': '{ callbacks }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 10_500,
-    absent: without('sortable/landing.js'),
+    budget: 10_560,
+    absent: [...without('sortable/landing.js'), withoutAxis('sortable/y.js')],
     present: ['sortable/landing.js'],
   },
   {
@@ -119,21 +156,22 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
-      'sortable/vertical.js': '{ vertical }',
+      'sortable/y.js': '{ y }',
       'sortable/callbacks.js': '{ callbacks }',
       'sortable/placeholder.js': '{ placeholder }',
       'sortable/handle.js': '{ handle, visual }',
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 11_000,
+    budget: 11_040,
+    absent: [withoutAxis('sortable/y.js')],
     present: OPTIONAL,
   },
   {
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 10_730,
+    budget: 10_810,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted

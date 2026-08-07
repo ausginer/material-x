@@ -2,7 +2,7 @@
  * The minimal composition, driven through the **public entrypoint**:
  *
  * ```ts
- * draggable(root, sortable(items, vertical(), callbacks({ onReorder })))
+ * draggable(root, sortable(items, y(), callbacks({ onReorder })))
  * ```
  *
  * Everything else in `tests/sortable` drives the behavior against hand-written
@@ -19,7 +19,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { draggable } from '../../src/drag.ts';
 import { AT_PROPOSAL } from '../../src/kernel/failures.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
@@ -109,7 +109,7 @@ function compose(options: Options = {}): Composed {
     root,
     sortable(
       items,
-      vertical(),
+      y(),
       callbacks({
         onReorder:
           options.onReorder ??

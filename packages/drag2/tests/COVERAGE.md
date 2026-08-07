@@ -120,6 +120,32 @@ A command whose gap is invalidated between admission and `ACTIVATE` is **abandon
 
 ---
 
+## Two-dimensional insertion — new (Phase 17)
+
+The 2-D rule is a **sibling axis feature**, `xy()` on `sortable/xy.js`, beside the renamed `y()` on `sortable/y.js`. The rule itself is pinned directly in `tests/sortable/xy.browser.test.ts` — the metric and the gap-side derivation are the only things that differ from `y()`, because everything else is the shared `rect-index.ts` and is asserted next door.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| the metric spans both axes — a candidate at the same Y wins on X alone | `tests/sortable/xy.browser.test.ts` — _should choose the nearest cell across both axes_, _should let the X term decide between two cells at the same Y_ | L-8 |
+| …and on Y alone at the same X | `tests/sortable/xy.browser.test.ts` — _should let the Y term decide between two cells at the same X_ | L-8 |
+| the placeholder is the incumbent candidate, so the hysteresis is the same one `y()` has | `tests/sortable/xy.browser.test.ts` — _should keep the incumbent gap when its own centre is nearest_ | I-15 |
+| **the gap side is DOM order**, not a coordinate comparison | `tests/sortable/xy.browser.test.ts` — _should derive the gap from DOM order, not from a coordinate_ | L-8 |
+| the shared cache's contract holds through this rule too — re-measure on a version change, and **not** while nothing invalidated it | `tests/sortable/xy.browser.test.ts` — _should re-measure when the collection version moves_, _should not re-measure while nothing invalidated it_ | D-19 |
+| retire drops the element references | `tests/sortable/xy.browser.test.ts` — _should drop its element references at retire_ | D-19 |
+| **the composed rule reorders sideways from real pointer events** | `tests/sortable/xy.browser.test.ts` — _should reorder across a row from real pointer events_ | L-8 |
+| **and the identical drag under `y()` proposes nothing** — the control that makes the split a capability rather than a preference | `tests/sortable/xy.browser.test.ts` — _should propose nothing for the same drag under the y rule_ | L-8 |
+| **axis exclusivity with two real axes**, in either order | `tests/sortable/assemble.browser.test.ts` — _should refuse two real axis features, not only a feature and its copy_ | D-19 |
+| the rejected axis feature's private state is cleaned, in either order | `tests/sortable/assemble.browser.test.ts` — _should retire the rejected real axis feature, in either order_ | F-19 |
+| a `y()` composition physically cannot reach `xy()`… | `tests/packaging.node.test.ts` — _should keep the minimal composition out of every optional feature_ | 03 §Tree-shaking |
+| …**and an `xy()` composition cannot reach `y()`**, which is what makes it an exclusivity claim rather than a one-way absence | `tests/packaging.node.test.ts` — _should keep the two-dimensional composition out of the y axis_ | 03 §Tree-shaking |
+| the export topology carries both subpaths, per-subpath surface asserted as an equality | `tests/exports.node.test.ts`, `tests/consumer.node.test.ts` | 03 §Export topology |
+
+### The composed fixture needs a flow layout, and that is a finding
+
+The direct-drive fixtures position cells absolutely so the geometry is exact — right for a single `resolve` call, and **wrong for a drag**. An absolutely-positioned placeholder is inert: moving it in the document moves nothing on screen, so the incumbent's centre never catches up with the pointer and the rule oscillates between two gaps on successive resolutions. The composed rows therefore use a real wrapping flex field, and the comment says why. This is not a defect in the rule; it is what the placeholder-as-incumbent hysteresis _is_, and it only becomes visible when the placeholder can reflow.
+
+---
+
 ## Reentrancy
 
 | Row | Test | ID |

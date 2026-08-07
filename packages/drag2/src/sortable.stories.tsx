@@ -8,7 +8,8 @@ import {
   placeholder,
   type PlaceholderContext,
 } from './sortable/placeholder.ts';
-import { vertical } from './sortable/vertical.ts';
+import { xy } from './sortable/xy.ts';
+import { y } from './sortable/y.ts';
 import {
   ReorderResolution,
   sortable,
@@ -36,6 +37,14 @@ type SortableDemoProps = Readonly<{
   labels: readonly string[];
   hint: string;
   createPlaceholder?(context: PlaceholderContext): HTMLElement;
+  /**
+   * The axis rule. **Exactly one is installed** — they claim the same slot, and
+   * `assemble()` refuses a composition that names both. `y()` is the list rule;
+   * `xy()` is the wrapping-field rule.
+   */
+  axis?: SortableFeature;
+  className?: string;
+  itemClassName?: string;
 }>;
 
 /**
@@ -77,6 +86,9 @@ function SortableDemo({
   labels,
   hint,
   createPlaceholder,
+  axis,
+  className,
+  itemClassName,
 }: SortableDemoProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const [order, setOrder] = useState<readonly string[]>(labels);
@@ -121,7 +133,7 @@ function SortableDemo({
       container,
       sortable(
         items(),
-        vertical(),
+        axis ?? y(),
         landing(),
         layoutAnimation(),
         ...(createPlaceholder
@@ -163,7 +175,7 @@ function SortableDemo({
       controllerRef.current = null;
       controller.destroy();
     };
-  }, [createPlaceholder]);
+  }, [createPlaceholder, axis]);
 
   return (
     <div className={css['stage']}>
@@ -177,14 +189,14 @@ function SortableDemo({
         the correct boundary for a headless library and a documented limitation
         rather than an omission.
       */}
-      <div ref={containerRef} className={css['list']} role="list">
+      <div ref={containerRef} className={className ?? css['list']} role="list">
         {order.map((label) => (
           <div
             key={label}
             role="listitem"
             tabIndex={0}
             data-label={label}
-            className={css['row']}
+            className={itemClassName ?? css['row']}
             ref={(el) => {
               if (el) {
                 elements.current.set(label, el);
@@ -193,7 +205,9 @@ function SortableDemo({
               }
             }}
           >
-            <span className={css['handle']}>⠿</span>
+            {itemClassName === undefined && (
+              <span className={css['handle']}>⠿</span>
+            )}
             {label}
           </div>
         ))}
@@ -209,6 +223,27 @@ export const List: StoryObj = {
     <SortableDemo
       labels={LIST}
       hint="Drag a row to reorder the list, or focus one and use the arrow keys. Escape cancels a drag mid-flight."
+    />
+  ),
+};
+
+const TILES = ['1', '2', '3', '4', '5', '6', '7', '8'];
+
+/**
+ * The 2-D rule, and the parity row L-8 corrected: the shipped package has no
+ * axis concept at all, so its Grid story is its List story with different CSS.
+ * drag2's `y()` was a *narrowing* of that, and `xy()` restores the shipped
+ * default as an explicitly selected rule — which is what makes the two
+ * behaviours visible side by side rather than implied by the layout.
+ */
+export const Grid: StoryObj = {
+  render: () => (
+    <SortableDemo
+      labels={TILES}
+      axis={xy()}
+      className={css['grid']}
+      itemClassName={css['tile']}
+      hint="Drag a tile in any direction — a wrapping grid is one field of rectangles, and xy() measures both axes. The same drag under y() would propose nothing, because every tile in a row shares its Y."
     />
   ),
 };

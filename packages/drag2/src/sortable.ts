@@ -52,7 +52,7 @@ export { ReorderResolution } from './sortable/domain.ts';
  * Composes one sortable behavior.
  *
  * ```ts
- * const list = draggable(root, sortable(items, vertical(), callbacks({ onReorder })));
+ * const list = draggable(root, sortable(items, y(), callbacks({ onReorder })));
  * ```
  *
  * The features are **assembled once**, when `draggable()` installs the behavior

@@ -34,7 +34,7 @@ import { handle, visual } from '../../src/sortable/handle.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { placeholder } from '../../src/sortable/placeholder.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 
 const ROOT = resolve(import.meta.dirname, '../..');
 const MINUTE = 60_000;
@@ -131,7 +131,7 @@ describe('the non-composed baseline', () => {
     const context: FeatureContext = { realm, root, report: (): void => {} };
     const composed = assemble(
       [
-        vertical(),
+        y(),
         placeholder({ className: 'ghost' }),
         handle(() => null),
         visual((item) => item),

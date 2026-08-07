@@ -16,7 +16,7 @@
  * the drag opened, and (I-25 notwithstanding) sometimes unmounts the dragged
  * item outright. Those are the three remaining rows, and the last is **Q-12**.
  *
- * Composition: `sortable(rows, vertical(), landing({ run }), callbacks(…))`.
+ * Composition: `sortable(rows, y(), landing({ run }), callbacks(…))`.
  * The runner is supplied rather than defaulted so the landing gate is directly
  * observable to the F-6 witness — the default runner is covered by
  * `landing-space.browser.test.ts` and `features.browser.test.ts`.
@@ -37,7 +37,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { draggable, type Point } from '../../src/drag.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import { landing, type LandingStart } from '../../src/sortable/landing.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
@@ -311,7 +311,7 @@ function mount(options: Options = {}): Fixture {
     list,
     sortable(
       ids.map((id) => elements.get(id)!),
-      vertical(),
+      y(),
       landing({ run }),
       callbacks({
         onReorder: (request): ReorderResolution => {

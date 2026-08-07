@@ -1,5 +1,5 @@
 /**
- * M-4 / Q-7 — the displacement element set, and whether `vertical()`'s index
+ * M-4 / Q-7 — the displacement element set, and whether `y()`'s index
  * rebuild and `layoutAnimation()`'s before/after measurements can share one
  * layout read around the committed placeholder move.
  *
@@ -123,7 +123,7 @@ function median(iteration: (round: number) => void): number {
   return timings.toSorted((a, b) => a - b)[Math.floor(SAMPLES / 2)]!;
 }
 
-/** One full-list read pass into a packed buffer, the way `vertical()` does. */
+/** One full-list read pass into a packed buffer, the way `y()` does. */
 const readAll = (items: readonly HTMLElement[], out: Float64Array): void => {
   for (let i = 0; i < items.length; i += 1) {
     const rect = items[i]!.getBoundingClientRect();

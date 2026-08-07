@@ -2,7 +2,8 @@
   "runtime": [
     "drag",
     "sortable",
-    "sortable/vertical",
+    "sortable/y",
+    "sortable/xy",
     "sortable/callbacks",
     "sortable/placeholder",
     "sortable/handle",

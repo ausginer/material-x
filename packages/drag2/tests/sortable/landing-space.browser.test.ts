@@ -23,7 +23,7 @@ import {
   type LandingContext,
   type LandingHandle,
 } from '../../src/sortable/landing.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
   ReorderResolution,
@@ -109,7 +109,7 @@ function build(presentation = false, readinessTimeout?: number): Fixture {
     root,
     sortable(
       items,
-      vertical(),
+      y(),
       callbacks({
         onReorder: (request) => {
           pending = request;

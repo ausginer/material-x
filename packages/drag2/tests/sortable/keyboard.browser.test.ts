@@ -26,7 +26,7 @@ import type { LandingContext } from '../../src/kernel/spec.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import { handle, visual } from '../../src/sortable/handle.ts';
 import { landing } from '../../src/sortable/landing.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
   ReorderResolution,
@@ -158,7 +158,7 @@ function build(options: Options = {}): Fixture {
     root,
     sortable(
       items,
-      vertical(),
+      y(),
       ...features,
       callbacks({
         onReorder(request) {
@@ -340,7 +340,7 @@ describe('command ingress', () => {
   it('should treat ArrowLeft as ArrowUp and ArrowRight as ArrowDown', () => {
     // Ledger L-4: a keyboard reorder moves an item one slot through the
     // *collection*, which is one-dimensional whatever the layout is. This is
-    // why the adapter lives in the behavior and not in `vertical()`, and why
+    // why the adapter lives in the behavior and not in `y()`, and why
     // Phase 17 inherits no keyboard question from this one.
     const horizontal = build();
 

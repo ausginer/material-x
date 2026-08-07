@@ -13,7 +13,7 @@
  * The `contract.ts` treatment applied to the **revised** surface: the parts of
  * the SPI the revision changed are **restated here**, and everything it did not
  * change is imported from `../../src/` so the two halves cannot silently drift
- * apart. Two complete `BehaviorSpec`s are written against it — vertical sortable
+ * apart. Two complete `BehaviorSpec`s are written against it — y sortable
  * with `Activation = HTMLElement`, free drag with the `true` default — plus the
  * construction handshake, so inference is exercised rather than asserted, and
  * D-33's **request-identity path** end to end: built in `release.prepare`,

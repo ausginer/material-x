@@ -37,7 +37,7 @@ import {
   type LandingHandle,
   type LandingStart,
 } from '../../src/sortable/landing.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
   ReorderResolution,
@@ -145,7 +145,7 @@ function build(options: Options = {}): Fixture {
     root,
     sortable(
       items,
-      vertical(),
+      y(),
       ...(options.holdLanding === true
         ? [landing({ run })]
         : ([] as readonly SortableFeature[])),

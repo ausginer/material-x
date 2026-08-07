@@ -12,7 +12,7 @@
  * `ArrowLeft` and `ArrowUp` are one command; `ArrowRight` and `ArrowDown` are
  * the other. A keyboard reorder moves an item one slot through the
  * *collection*, which is one-dimensional whatever the layout does — so this
- * lives in the behavior, beside `homeInsertion`, and not inside `vertical()` or
+ * lives in the behavior, beside `homeInsertion`, and not inside `y()` or
  * any successor axis feature. Phase 17 therefore inherits no keyboard question.
  */
 import type { CollectionSnapshot, Insertion } from './domain.ts';

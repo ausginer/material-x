@@ -14,7 +14,7 @@ import { handle, visual } from '../../src/sortable/handle.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { placeholder } from '../../src/sortable/placeholder.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
   ReorderResolution,
@@ -92,7 +92,7 @@ function composeWith(options: ComposeOptions = {}): Composed {
     root,
     sortable(
       items,
-      vertical(),
+      y(),
       callbacks({
         onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
         onFinish: (result): void => {
@@ -356,7 +356,7 @@ describe('handle', () => {
       root,
       sortable(
         items,
-        vertical(),
+        y(),
         handle(() => grip),
         callbacks({
           onReorder: (request) => {

@@ -245,7 +245,7 @@ export function layoutAnimation(
 
         running.clear();
         // Retention, not behaviour: the set is what pins collection DOM between
-        // operations, exactly like `vertical()`'s element array.
+        // operations, exactly like `y()`'s element array.
         members.clear();
         membersVersion = -1;
         affected.length = 0;

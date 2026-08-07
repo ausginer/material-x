@@ -5,7 +5,8 @@
   "entryPoints": [
     "./src/drag.ts",
     "./src/sortable.ts",
-    "./src/sortable/vertical.ts",
+    "./src/sortable/y.ts",
+    "./src/sortable/xy.ts",
     "./src/sortable/callbacks.ts",
     "./src/sortable/placeholder.ts",
     "./src/sortable/handle.ts",

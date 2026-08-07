@@ -18,7 +18,7 @@ import type {
 } from '../../src/sortable/feature.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 
 const context: FeatureContext = {
   realm: null as never,
@@ -30,7 +30,7 @@ const context: FeatureContext = {
 const assembleWith = (options: Record<string, unknown>): unknown =>
   assemble(
     [
-      vertical(),
+      y(),
       callbacks({
         onReorder: () => ReorderResolution.accept(),
         ...options,

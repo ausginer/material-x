@@ -38,7 +38,7 @@ import {
   type KernelFrame,
 } from '../../src/kernel/frames.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
-import { vertical } from '../../src/sortable/vertical.ts';
+import { y } from '../../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../../src/sortable.ts';
 
 const WARMUP = 5;
@@ -171,7 +171,7 @@ function liveDrag(count: number): Live {
     root,
     sortable(
       items,
-      vertical(),
+      y(),
       callbacks({ onReorder: () => ReorderResolution.accept() }),
     ),
   );
