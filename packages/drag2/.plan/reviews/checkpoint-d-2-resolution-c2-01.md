@@ -11,7 +11,7 @@ Scope: **C2-01** only, the reproduced terminal-barrier defect in [`checkpoint-d-
 3. The one site that cannot reach `rt` — the per-candidate loop inside `RectIndex.refresh`, which is feature-private by D-19 and H-4 — receives it through the per-operation view as `live: () => boolean`. That is the **fourth additive widening** of the D-13 consumer-declared view (8a `item`, 17 `pointerX`, D2 `getVisual`, now `live`), with no import edge and no allocation per operation.
 4. A new invariant, **I-36**, states the rule at **tier C**, and states why it is not promotable.
 
-Measured cost: **+30 B to +70 B** brotli depending on composition, zero added per-frame work in the minimal composition, one boolean-returning call per candidate **per rebuild** when a `visual()` is composed. Every composition stays inside its M-3 budget.
+Forecast cost — from a prototype measured in place and reverted, not from the landed change; see the note on §7 — **+30 B to +70 B** brotli depending on composition, zero added per-frame work in the minimal composition, one boolean-returning call per candidate **per rebuild** when a `visual()` is composed. Every composition stays inside its M-3 budget.
 
 **Checkpoint D cannot close without this landing.** The reasoning is in §Timing, and it is not the reviewer's — it is that this is the last checkpoint before a second behavior, and the thing being decided is *how a behavior discharges a kernel invariant*.
 
@@ -175,6 +175,8 @@ Every case must be verified to **fail against the pre-fix source**, per Checkpoi
 
 ## 7 — Cost
 
+> **This table is a prototype forecast, not the landed result** (annotated at Checkpoint D review 3, C3-04; the figures below are left exactly as they were forecast, because this is a historical resolution record). The implementation that landed measured **+30 B to +90 B**, with `layoutAnimation` at **10.51 kB** rather than the 10.49 kB below — see [`checkpoint-d-2-resolution-implementation.md`](checkpoint-d-2-resolution-implementation.md) §Cost for the landed numbers, and `just size` for the live ones. The forecast's shape held; two of its absolute figures did not.
+
 Measured by prototyping the shape in place and reverting it (`npx just size`, five compositions plus both baselines; source restored and `git status` clean).
 
 | Composition | Before | After | Δ |
@@ -242,7 +244,7 @@ Everything the **kernel** invokes has a barrier and is complete. Every gap is a 
 
 - Checkpoint D is stated as *"the last cheap moment to change anything sortable-shaped that leaked into the kernel"*. The decision here is the mirror image of that — how a behavior discharges a kernel invariant the kernel cannot enforce — and it is exactly as expensive to defer for the same reason. Closing D with the rule unwritten means either two behaviors written against no rule, or free drag re-deriving it and the two copies drifting.
 - It is a reproduced violation of a **tier-B invariant in a normative document** (00 ranks 00–04 normative, in precedence order). An artifact that contradicts I-6 cannot be recorded as a complete behavior, whatever the parity ledger says.
-- The code is in `src/sortable/`, the shape compiles today, and it costs 40–70 B. There is nothing in it that becomes cheaper by waiting.
+- The code is in `src/sortable/`, the shape compiles today, and it costs a forecast 40–70 B (landed at 30–90 B; §7). There is nothing in it that becomes cheaper by waiting.
 
 **What is *not* Checkpoint D's** is the free-drag half. There is no free-drag code to guard, so the Phase 18 deliverable is a deliverable and not deferred work — the rule lands now, the second application lands when the second behavior does.
 

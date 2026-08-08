@@ -51,13 +51,22 @@ export type RectIndex = {
    * `live` reports whether the controller is still alive (I-36). It is read
    * **only** between consumer-resolver calls, so a composition with no
    * `visual()` never calls it and pays nothing per candidate.
+   *
+   * Returns `false` — and **only** then — when the rebuild aborted on the
+   * terminal barrier. The caller owes the rest of I-36 for its own reads: it
+   * must invoke no further consumer code, which includes measuring the
+   * consumer-owned placeholder, whose `getBoundingClientRect()` a consumer may
+   * have overridden. One shared channel rather than a per-axis `live()`
+   * recheck: the recheck would cost a call per resolution in *every*
+   * composition, including the minimal one that composes no `visual()` and
+   * can therefore never abort.
    */
   refresh(
     snapshot: CollectionSnapshot,
     dragged: HTMLElement,
     getVisual: ((item: HTMLElement) => HTMLElement) | null,
     live: () => boolean,
-  ): void;
+  ): boolean;
   invalidate(): void;
   retire(): void;
 };
@@ -84,9 +93,9 @@ export function createRectIndex(): RectIndex {
     items: [],
     count: 0,
 
-    refresh(snapshot, dragged, getVisual, live): void {
+    refresh(snapshot, dragged, getVisual, live): boolean {
       if (!dirty && measured === snapshot.version) {
-        return;
+        return true;
       }
 
       const list = snapshot.items;
@@ -128,16 +137,20 @@ export function createRectIndex(): RectIndex {
         // and pinning every row of the list in a destroyed controller against
         // I-20. So the retired state is restored instead.
         //
-        // No new return channel is needed: `count === 0` makes the candidate
-        // scan find nothing, so `nearest === -1` and `resolve()` returns
-        // `null` down the pre-existing "the placeholder's own slot still
-        // wins" path (I-15).
+        // **And the abort is reported**, because emptying the cache is not
+        // enough on its own. `count === 0` does make the candidate scan find
+        // nothing, but both axes measure the *placeholder* — the incumbent
+        // candidate — before that scan, and the placeholder is consumer-owned:
+        // an overridden `getBoundingClientRect()` is a consumer call, not a
+        // layout read (I-36, contract 03 §`y()`). So the caller is told to
+        // stop, rather than left to fall through to a read it must not make.
         if (!live()) {
           items.length = 0;
           index.count = 0;
           dirty = true;
           measured = -1;
-          return;
+
+          return false;
         }
         const rect = visual.getBoundingClientRect();
         const offset = n * STRIDE;
@@ -158,6 +171,8 @@ export function createRectIndex(): RectIndex {
       items.length = n;
       measured = snapshot.version;
       dirty = false;
+
+      return true;
     },
 
     /**

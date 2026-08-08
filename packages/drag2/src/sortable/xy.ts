@@ -89,7 +89,14 @@ export function xy(): SortableFeature {
 
           const { snapshot, placeholder } = runtime;
 
-          index.refresh(snapshot, dragged, runtime.getVisual, runtime.live);
+          if (
+            !index.refresh(snapshot, dragged, runtime.getVisual, runtime.live)
+          ) {
+            // The rebuild crossed the terminal barrier (I-36); see `y.ts`. The
+            // placeholder measured below is consumer-owned, so reading it after
+            // the close would be an indirect consumer call.
+            return null;
+          }
 
           const { values, count } = index;
           const { pointerX, pointerY } = frame;

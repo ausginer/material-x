@@ -343,9 +343,43 @@ describe('the terminal barrier in the candidate loop', () => {
       field.resolve(55, field.snapshot(), getVisual, () => alive),
     ).toBeNull();
 
-    // `items[3]` is never resolved: no consumer callback crosses the terminal
-    // barrier, and no geometry is read after it either.
+    // `items[3]` is never resolved: no `visual()` call crosses the terminal
+    // barrier. The other half of the barrier — that no geometry is read after
+    // it either — is a separate concern and is asserted below.
     expect(asked).toEqual([field.items[1], field.items[2]]);
+  });
+
+  it('should read no placeholder geometry once the controller closes', () => {
+    // The half a stopped resolver list does not prove. The placeholder is the
+    // **consumer's** element and may override `getBoundingClientRect()`, so
+    // measuring the incumbent after the close is an indirect consumer call
+    // (I-36), not merely wasted layout work. `refresh` reports the abort and
+    // the axis returns before it measures.
+    const field = createField(4);
+    const asked: HTMLElement[] = [];
+    let alive = true;
+    let measured = 0;
+    const { placeholder } = field;
+    const native = placeholder.getBoundingClientRect.bind(placeholder);
+
+    placeholder.getBoundingClientRect = (): DOMRect => {
+      measured += 1;
+
+      return native();
+    };
+
+    expect(
+      field.resolve(
+        55,
+        field.snapshot(),
+        closingAt(field.items[2]!, asked, () => {
+          alive = false;
+        }),
+        () => alive,
+      ),
+    ).toBeNull();
+
+    expect(measured).toBe(0);
   });
 
   it('should leave the cache retired rather than clean and partial', () => {

@@ -549,9 +549,43 @@ describe('the terminal barrier in the candidate loop', () => {
       field.resolve(170, 20, field.snapshot(), getVisual, () => alive),
     ).toBeNull();
 
-    // The third cell is never resolved: no consumer callback crosses the
-    // terminal barrier, and no geometry is read after it either.
+    // The third cell is never resolved: no `visual()` call crosses the terminal
+    // barrier. The other half — that no geometry is read after it either — is a
+    // separate concern and is asserted below.
     expect(asked).toEqual([field.items[0], field.items[1]]);
+  });
+
+  it('should read no placeholder geometry once the controller closes', () => {
+    // Mirrors `y.browser.test.ts`, and for the same reason the resolver-list
+    // assertion is mirrored: the barrier is shared but the threading is per
+    // axis. The placeholder is consumer-owned, so measuring it after the close
+    // is an indirect consumer call (I-36).
+    const field = createField();
+    const asked: HTMLElement[] = [];
+    let alive = true;
+    let measured = 0;
+    const { placeholder } = field;
+    const native = placeholder.getBoundingClientRect.bind(placeholder);
+
+    placeholder.getBoundingClientRect = (): DOMRect => {
+      measured += 1;
+
+      return native();
+    };
+
+    expect(
+      field.resolve(
+        170,
+        20,
+        field.snapshot(),
+        closingAt(field.items[1]!, asked, () => {
+          alive = false;
+        }),
+        () => alive,
+      ),
+    ).toBeNull();
+
+    expect(measured).toBe(0);
   });
 
   it('should leave the cache retired rather than clean and partial', () => {

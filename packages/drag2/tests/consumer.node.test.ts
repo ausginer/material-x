@@ -318,6 +318,16 @@ type D2 = import('@ydinjs/drag2/sortable.js').DragSubject;
 type D3 = import('@ydinjs/drag2/sortable.js').ResolutionContext;
 // @ts-expect-error: dissolved into \`CanceledReorderResult\`'s \`reason\`/\`stage\` (D5)
 type D4 = import('@ydinjs/drag2/sortable.js').CancellationReason;
+// \`AnimationTiming\` is the one of the four whose plausible re-entry point is
+// **not** \`sortable.js\`: it dissolved into two option types that live on their
+// own entries, so a re-add would land there. Guarded on both, which is what
+// makes the ledger's claim about it executable rather than aspirational
+// (C3-04). The other three have no such second home — each is a name only
+// \`sortable.js\` ever exported.
+// @ts-expect-error: dissolved into \`LandingOptions\` (D5)
+type D5a = import('@ydinjs/drag2/sortable/landing.js').AnimationTiming;
+// @ts-expect-error: dissolved into \`LayoutAnimationOptions\` (D5)
+type D5b = import('@ydinjs/drag2/sortable/layout-animation.js').AnimationTiming;
 
 // Deep imports are not declared in \`exports\`, so the module graph itself is
 // closed — not merely the names each entry chooses to re-export.
@@ -335,7 +345,7 @@ type C3 = import('@ydinjs/drag2/sortable/feature.js').SortableFeature;
 type C4 = import('@ydinjs/drag2/sortable/slots.js').DisplacementView;
 
 void [A11, B8, B9];
-declare const unusedTypes: [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, B1, B2, B3, B4, B5, B7, C1, C2, C3, C4, D1, D2, D3, D4, Part];
+declare const unusedTypes: [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, B1, B2, B3, B4, B5, B7, C1, C2, C3, C4, D1, D2, D3, D4, D5a, D5b, Part];
 void unusedTypes;
 `;
 

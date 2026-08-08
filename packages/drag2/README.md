@@ -96,7 +96,7 @@ Everything the kernel and a behavior say to each other — `BehaviorSpec`, `Kern
 | `landing({ duration })`           | ms     | finite, `>= 0`; or `() => number` returning one | `200`   |
 | `layoutAnimation({ duration })`   | ms     | finite, `>= 0` | `160`   |
 
-All four throw a `TypeError` on a value outside the domain, so a `NaN` threshold fails at the call that introduced it rather than as a drag that never activates.
+Each throws a `TypeError` on a value outside the domain, so a `NaN` threshold fails at the call that introduced it rather than as a drag that never activates. **One documented exception:** `landing({ run })` replaces the built-in runner outright, so `duration` and `easing` have nothing left to configure and are neither read nor checked — `landing({ duration: -1, run })` does not throw.
 
 **Where the check runs follows when the value exists.** A fixed option is validated **at construction**, once, before any drag. `landing({ duration })` additionally accepts a **thunk**, whose result does not exist until the landing opens: it is invoked and validated **once per landing**, at settlement — the moment the shipped package read `landingTiming()` — so a distance-scaled or per-drop duration keeps the default runner instead of replacing it. A thunk is checked for being a function at construction; its *result* is checked at settlement, ahead of the reduced-motion collapse, so an invalid or thrown result is reported under `prefers-reduced-motion: reduce` exactly as it is without.
 
@@ -104,19 +104,19 @@ All four throw a `TypeError` on a value outside the domain, so a `NaN` threshold
 
 ## Size budgets
 
-Baselined 2026-08-02 (M-3 — `.plan/measurements/m3.md`), re-measured 2026-08-07 at Checkpoint D and again after its second review. `just size` runs `bench/size/measure.ts`, where each composition is one declaration: the exact named imports a consumer writes, a budget, and the modules its graph must and must not contain. It exits non-zero on any of the three.
+Baselined 2026-08-02 (M-3 — `.plan/measurements/m3.md`), re-measured 2026-08-07 at Checkpoint D and again after its second and third reviews. `just size` runs `bench/size/measure.ts`, where each composition is one declaration: the exact named imports a consumer writes, a budget, and the modules its graph must and must not contain. It exits non-zero on any of the three.
 
 | composition                                         | brotli       | modules |
 | --------------------------------------------------- | ------------ | ------- |
-| minimal (`y()`)                                     | **10.07 kB** | 31      |
-| minimal (`xy()`)                                    | 10.12 kB     | 31      |
-| minimal + `layoutAnimation()`                       | 10.51 kB     | 32      |
-| minimal + `landing()`                               | 10.36 kB     | 32      |
-| complete                                            | **10.85 kB** | 35      |
-| _baseline A_ — feature-matched, non-composed        | 10.60 kB     | 30      |
+| minimal (`y()`)                                     | **10.08 kB** | 31      |
+| minimal (`xy()`)                                    | 10.13 kB     | 31      |
+| minimal + `layoutAnimation()`                       | 10.49 kB     | 32      |
+| minimal + `landing()`                               | 10.39 kB     | 32      |
+| complete                                            | **10.86 kB** | 35      |
+| _baseline A_ — feature-matched, non-composed        | 10.58 kB     | 30      |
 | _baseline B_ — shipped `@ydinjs/drag` `sortable.js` | 6.89 kB      | 26      |
 
-Five compositions, not four: Phase 17's second axis is a peer rather than an assumed equal, so `minimal (xy)` is measured. The growth over the M-3 baseline is accounted for — D-33's settlement protocol (+70 B), Phase 16's keyboard ingress (~300 B, deliberately not tree-shakeable), Phase 17's shared rect index (+60 B), Checkpoint D's fixes (+40 B) and its second review's terminal barrier (+30 B to +90 B, composition-dependent). Every composition is still inside its budget, with **0.16–0.21 kB of headroom against budgets originally set with ~0.3 kB** — which Phase 21 re-bases rather than absorbing again.
+Five compositions, not four: Phase 17's second axis is a peer rather than an assumed equal, so `minimal (xy)` is measured. The growth over the M-3 baseline is accounted for — D-33's settlement protocol (+70 B), Phase 16's keyboard ingress (~300 B, deliberately not tree-shakeable), Phase 17's shared rect index (+60 B), Checkpoint D's fixes (+40 B) and its second review's terminal barrier (+30 B to +90 B, composition-dependent) and its third review's abort return channel (±20 B, inside brotli's noise band). Every composition is still inside its budget, with **0.17–0.23 kB of headroom against budgets originally set with ~0.3 kB** — which Phase 21 re-bases rather than absorbing again.
 
 The import maps _are_ the measurement, and the graph half is why this is not a `size-limit` config: a byte delta cannot tell "absent" from "present and mostly shaken" (`.agents/docs/measure/brief.md`). The two baselines are checked-in modules under `bench/size/`, because neither is expressible as a set of imports.
 

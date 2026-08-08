@@ -98,7 +98,15 @@ export function y(): SortableFeature {
 
           const { snapshot, placeholder } = runtime;
 
-          index.refresh(snapshot, dragged, runtime.getVisual, runtime.live);
+          if (
+            !index.refresh(snapshot, dragged, runtime.getVisual, runtime.live)
+          ) {
+            // The rebuild crossed the terminal barrier (I-36). Measuring the
+            // placeholder below would be a consumer call — it is the
+            // consumer's element and may override `getBoundingClientRect()` —
+            // so the resolution stops here rather than at the empty scan.
+            return null;
+          }
 
           const { values, count } = index;
           const anchor = centreOf(placeholder);

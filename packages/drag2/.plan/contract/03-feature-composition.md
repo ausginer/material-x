@@ -379,7 +379,7 @@ That is a narrowing, not a prohibition on principle. D-10 originally forbade fea
 
 **Advanced to Phase 17 (D7, Checkpoint D).** This section had been left at the pre-Phase-17 vocabulary while §The export topology this requires was amended, so the document gave two executable readings of the same surface. It now names what ships.
 
-**Completed at Checkpoint D review 2 (C2-04).** D7's close said the remaining Part I `vertical()` prose was provenance, which does not hold for documents 00 ranks **normative in precedence order** (00–04): a current declaration, a consumer-facing example and a feature-state table are not provenance, whatever the resolution document calls them. Every *current* statement in 00–04 now names `y()`/`xy()`. What remains spelled `vertical()` in this document is exclusively narrative about an **earlier draft or an earlier probe**, and each such use carries its own frame in the sentence containing it — "an earlier draft" (§Geometry is a paired contribution), "review 5, §10" (§Retirement order), "probe 1 typed feature seams" and "probe 1's open question Q-5" (§Consumer-declared views, §Where the cache lives), and the rename record below. Nothing outside those frames uses the old name. The review files and `plan.md` remain provenance and are untouched.
+**Begun at Checkpoint D review 2 (C2-04), completed at Checkpoint D review 3 (C3-02).** C2-04's rule is the one below and is unchanged; it was simply not applied to every site, and the third review found the remainder — D-34 in 00, eight sites in 02 (`rollback`, tier-C vacuity, the `Activation` default, the seam table heading, hit testing, the landing origin, the action-tag count, the failure-stage list), the M-3 baseline sentence in this document, and four the review itself missed in 05 (I-17 and its note, the Q-4 tag count, Q-7's duplicate-read problem). D7's close said the remaining Part I `vertical()` prose was provenance, which does not hold for documents 00 ranks **normative in precedence order** (00–04): a current declaration, a consumer-facing example and a feature-state table are not provenance, whatever the resolution document calls them. Every *current* statement in 00–04 now names `y()`/`xy()`. What remains spelled `vertical()` in this document is exclusively narrative about an **earlier draft or an earlier probe**, and each such use carries its own frame in the sentence containing it — "an earlier draft" (§Geometry is a paired contribution), "review 5, §10" (§Retirement order), "probe 1 typed feature seams" and "probe 1's open question Q-5" (§Consumer-declared views, §Where the cache lives), and the rename record below. Nothing outside those frames uses the old name. The review files and `plan.md` remain provenance and are untouched.
 
 ```ts
 y(): SortableFeature;                                         // axis — required
@@ -668,21 +668,21 @@ The alternative — activate, then cancel immediately afterwards — would be de
 
 ## Tree-shaking
 
-Judged through consumer fixtures, not source intuition — and **measured** (M-3, baselined 2026-08-02 — [measurements/m3.md](../measurements/m3.md); table re-measured 2026-08-07 at Checkpoint D, superseding the pre-Phase-15 figures this section used to publish):
+Judged through consumer fixtures, not source intuition — and **measured** (M-3, baselined 2026-08-02 — [measurements/m3.md](../measurements/m3.md); table re-measured 2026-08-07 at Checkpoint D and after each of its three reviews, superseding the pre-Phase-15 figures this section used to publish):
 
 | composition           | brotli       | modules | vs minimal |
 | --------------------- | ------------ | ------- | ---------- |
-| minimal (`y()`)       | **10.07 kB** | 31      | —          |
-| minimal (`xy()`)      | 10.12 kB     | 31      | +0.05 kB   |
-| + `layoutAnimation()` | 10.51 kB     | 32      | +0.44 kB   |
-| + `landing()`         | 10.36 kB     | 32      | +0.29 kB   |
-| complete              | **10.85 kB** | 35      | +0.78 kB   |
+| minimal (`y()`)       | **10.08 kB** | 31      | —          |
+| minimal (`xy()`)      | 10.13 kB     | 31      | +0.05 kB   |
+| + `layoutAnimation()` | 10.49 kB     | 32      | +0.41 kB   |
+| + `landing()`         | 10.39 kB     | 32      | +0.31 kB   |
+| complete              | **10.86 kB** | 35      | +0.78 kB   |
 
 The **property** this section asserts is that each optional feature adds only itself, and it holds: the module graph shows no optional module in a composition that did not ask for it, in either direction.
 
-**The numbers are not "unchanged since M-3", and saying so was wrong** (C2-05, Checkpoint D review 2). M-3 recorded `landing()` at +0.27 kB and `complete` at +0.81 kB against a 9.90 kB minimal; the deltas have moved with every absolute figure since, and the table above is re-measured after C2-01 rather than carried forward. Read the deltas as measurements with a date, not as invariants.
+**The numbers are not "unchanged since M-3", and saying so was wrong** (C2-05, Checkpoint D review 2). M-3 recorded `landing()` at +0.27 kB and `complete` at **+0.76 kB** against a **9.33 kB** minimal — `+0.77` against `9.34` after that document's own re-measure note, and never `+0.81`, which this sentence carried until Checkpoint D review 3 (C3-04) checked it against [`../measurements/m3.md`](../measurements/m3.md); the deltas have moved with every absolute figure since, and the table above is re-measured after C2-01 rather than carried forward. Read the deltas as measurements with a date, not as invariants.
 
-The absolute figures moved with D-33's settlement protocol (+70 B), Phase 16's non-tree-shakeable keyboard ingress (~300 B), Phase 17's shared rect index (+60 B), Checkpoint D's fixes (+40 B) and C2-01's terminal barrier (+30 B to +90 B, composition-dependent); the budgets were re-based with them. **Headroom is now 0.16–0.21 kB against budgets set at ~0.3 kB**, which is a Phase 21 re-base rather than something to absorb again (see [`../plan.md`](../plan.md) §Phase 21).
+The absolute figures moved with D-33's settlement protocol (+70 B), Phase 16's non-tree-shakeable keyboard ingress (~300 B), Phase 17's shared rect index (+60 B), Checkpoint D's fixes (+40 B), C2-01's terminal barrier (+30 B to +90 B, composition-dependent) and C3-01's abort return channel (±20 B, inside brotli's noise band); the budgets were re-based with them. **Headroom is now 0.17–0.23 kB against budgets set at ~0.3 kB**, which is a Phase 21 re-base rather than something to absorb again (see [`../plan.md`](../plan.md) §Phase 21).
 
 The absences below are **asserted against the bundled module graph**, not inferred from the deltas — a module can be pulled in and mostly shaken, which produces a small delta and reads like success. **Composition itself costs 0.25 kB (2.4%)** against a feature-matched build that fills the slot record by hand; **migrating from the shipped `sortable.js` costs 3.18 kB**, and the two baselines answer different questions and are never substituted for each other.
 
@@ -824,7 +824,7 @@ If feature authoring is ever supported, that is a deliberate decision to export 
 
 ### What isolation cannot shake
 
-Measure the fixed cost too, and compare it against a hand-written, non-composed vertical sortable so the bundle claim is evidence rather than import-graph intuition:
+Measure the fixed cost too, and compare it against a hand-written, non-composed sortable — feature-matched against the composed one, whichever axis it composes — so the bundle claim is evidence rather than import-graph intuition:
 
 - every optional key in `SortableContribution`;
 - every assembler property read and `claim` branch;

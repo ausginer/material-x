@@ -329,7 +329,9 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 
 > A participant that invokes consumer code more than once inside one seam, or inside one native admission, reads the terminal latch **between** invocations and stops on the first closed reading (I-36, F-47).
 
-**Every row asserts the resolver's call list, never the resulting insertion or the final DOM.** The frame is discarded upstream regardless — `action.prepare` returns `null` on a `null` resolve, and `preparationValid()` would invalidate the transition anyway — so a state assertion passes against unfixed source. This is C4-04's lesson applied to a different mechanism.
+**Every row asserts the resolver's call list or an instrumented element, never the resulting insertion or the final DOM.** The frame is discarded upstream regardless — `action.prepare` returns `null` on a `null` resolve, and `preparationValid()` would invalidate the transition anyway — so a state assertion passes against unfixed source. This is C4-04's lesson applied to a different mechanism.
+
+**The call list is not the whole condition, and Checkpoint D review 3 (C3-01) found the gap.** I-36 requires the barrier to invoke no further consumer code **including indirectly through a consumer-owned object**, and the placeholder is the consumer's element: an overridden `getBoundingClientRect()` is a consumer call. A resolver-list assertion cannot see that, so the two rows that read *"no geometry is read after it"* were passing without checking it. The geometry half is now its own row per axis, instrumented **on the element**, and both were verified to fail against pre-fix source.
 
 | Row | Test | ID |
 | --- | --- | --- |
@@ -338,6 +340,7 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | a candidate `visual()` destroys during a composed drag → the call list stops at that candidate, `y()` axis | `tests/sortable/features.browser.test.ts` — _should stop the candidate traversal at the destroying candidate_ | I-36 |
 | the same through real input on the `xy()` axis — the check is shared but the **threading** is per-axis | `tests/sortable/xy.browser.test.ts` — _should stop the traversal of a composed drag at the destroying candidate_ | I-36 |
 | direct drive: `live` flips false during the second candidate → `resolve` returns `null` and no later candidate is asked | `tests/sortable/{y,xy}.browser.test.ts` — _should stop resolving candidates once the controller closes_ | I-36 |
+| **the geometry half**: the same abort reads **zero** `getBoundingClientRect()` calls on the consumer-supplied placeholder, counted on the element — mirrored per axis because `refresh`'s abort signal is threaded per axis | `tests/sortable/{y,xy}.browser.test.ts` — _should read no placeholder geometry once the controller closes_ | I-36, I-6 |
 | **the retired-state half a `break` gets wrong**: a second `resolve` at the **same** snapshot version rebuilds from scratch, which is only possible if the aborted traversal left the cache empty, dirty and at `measured === -1` | `tests/sortable/{y,xy}.browser.test.ts` — _should leave the cache retired rather than clean and partial_ | I-36, I-20 |
 | the **eager** rebuild inside the committed-move bracket destroys → no `afterMove` hook runs | `tests/sortable/features.browser.test.ts` — _should not run the eager rebuild past a destroying candidate_ | I-36 |
 | a custom-element placeholder's `disconnectedCallback` destroys during a committed `movePlaceholder` → nothing after the reaction runs, and the `finally` still clears `view.insertion` | `tests/sortable/features.browser.test.ts` — _should not run the bracket past a placeholder reaction that destroyed_ | I-36 |
