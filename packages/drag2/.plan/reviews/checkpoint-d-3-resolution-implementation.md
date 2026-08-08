@@ -184,3 +184,5 @@ Nothing from this review. Carried forward unchanged from earlier passes:
 - **Phase 21's budget re-base.** Headroom is 0.17–0.23 kB against budgets set with ~0.3 kB. This pass did not consume any of it, but it did not create any either.
 - **I-7's precondition dependency on I-30**, recorded by C3-03 §4 as a watch item rather than a change. Not touched.
 - **Q-7**, still blocking before implementation sign-off, now naming `y()`/`xy()` instead of `vertical()`.
+
+  > **Wrong, and corrected at review 4 (C4-03).** Q-7 was answered at Phase 11 by M-4 and accepted at that phase's sign-off; this pass edited the wording of a stale entry without noticing that the entry itself should no longer be under *Open before implementation*. Nothing was ever waiting on it. Contract 05 now carries it in the resolved table with its blocking label explicitly discharged. The entry above is left as written, because implementation records are historical.

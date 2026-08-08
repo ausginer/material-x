@@ -19,7 +19,7 @@ import type {
   SortableCancelResult,
   SortableFinishResult,
 } from './domain.ts';
-import type { PlaceholderFactory } from './placement.ts';
+import type { PlaceholderSlot } from './placement.ts';
 import type {
   DisplacementHook,
   InsertionFrameView,
@@ -154,7 +154,7 @@ export function requireFinite(
 export type SortableContribution = Readonly<{
   /* single-writer slots */
   insertion?: InsertionGeometry;
-  createPlaceholder?: PlaceholderFactory;
+  createPlaceholder?: PlaceholderSlot;
   getHandle?(item: HTMLElement): HTMLElement | null;
   getVisual?(item: HTMLElement): HTMLElement;
   startLanding?: LandingStart;

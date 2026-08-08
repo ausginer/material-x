@@ -705,3 +705,162 @@ describe('the terminal barrier in the candidate loop', () => {
     expect(asked).toEqual([items[0], items[1]]);
   });
 });
+
+/**
+ * I-36's **indirect-invocation clause**, mirrored from `y.browser.test.ts` and
+ * extended by the one call `y()` does not make (C4-01).
+ *
+ * The discriminating candidate is the **last** one, for the reason written up
+ * next door: an earlier candidate's destroy was already caught by the next
+ * iteration's reading, while the last one fell through to the trailing
+ * bookkeeping and to the placeholder read.
+ *
+ * `xy()` also touches the consumer-owned placeholder **twice** per resolution —
+ * the anchor rect, then `compareDocumentPosition` to decide which side the gap
+ * sits on — where `y()` derives the side from two centres it has already
+ * measured. So this axis owns a barrier its sibling does not need.
+ */
+describe('the terminal barrier on candidate geometry', () => {
+  const measuringAt = (
+    elements: readonly HTMLElement[],
+    target: HTMLElement,
+    measured: HTMLElement[],
+    close: () => void,
+  ): void => {
+    for (const element of elements) {
+      const native = element.getBoundingClientRect.bind(element);
+
+      element.getBoundingClientRect = (): DOMRect => {
+        measured.push(element);
+
+        if (element === target) {
+          close();
+        }
+
+        return native();
+      };
+    }
+  };
+
+  it('should read no placeholder geometry once the last candidate closed the controller', () => {
+    // No `visual()` composed: the cell is its own visual, so the geometry read
+    // is the only consumer call in the loop — and it is still one.
+    const field = createField();
+    const measured: HTMLElement[] = [];
+    let alive = true;
+    let anchorReads = 0;
+    const { placeholder } = field;
+    const native = placeholder.getBoundingClientRect.bind(placeholder);
+
+    placeholder.getBoundingClientRect = (): DOMRect => {
+      anchorReads += 1;
+
+      return native();
+    };
+    measuringAt(field.items, field.items[2]!, measured, () => {
+      alive = false;
+    });
+
+    expect(
+      field.resolve(170, 20, field.snapshot(), null, () => alive),
+    ).toBeNull();
+
+    expect(anchorReads).toBe(0);
+  });
+
+  it('should leave the cache retired after the last candidate closed the controller', () => {
+    const field = createField();
+    const measured: HTMLElement[] = [];
+    let alive = true;
+
+    measuringAt(field.items, field.items[2]!, measured, () => {
+      alive = false;
+    });
+    field.resolve(170, 20, field.snapshot(), null, () => alive);
+
+    const asked: HTMLElement[] = [];
+
+    field.resolve(170, 20, field.snapshot(), (item) => {
+      asked.push(item);
+      return item;
+    });
+
+    expect(asked).toEqual([field.items[0], field.items[1], field.items[2]]);
+  });
+
+  it('should resolve no further visual once a candidate closed the controller', () => {
+    const field = createField();
+    const measured: HTMLElement[] = [];
+    const asked: HTMLElement[] = [];
+    let alive = true;
+
+    measuringAt(field.items, field.items[0]!, measured, () => {
+      alive = false;
+    });
+
+    field.resolve(
+      170,
+      20,
+      field.snapshot(),
+      (item) => {
+        asked.push(item);
+        return item;
+      },
+      () => alive,
+    );
+
+    expect(asked).toEqual([field.items[0]]);
+  });
+
+  it('should call no resolver at all when the controller is already closed', () => {
+    // The entry barrier: a dirty cache can be entered on a controller a
+    // `beforeMove` hook already destroyed.
+    const field = createField();
+    const asked: HTMLElement[] = [];
+
+    expect(
+      field.resolve(
+        170,
+        20,
+        field.snapshot(),
+        (item) => {
+          asked.push(item);
+          return item;
+        },
+        () => false,
+      ),
+    ).toBeNull();
+
+    expect(asked).toEqual([]);
+  });
+
+  it('should not compare document position once the anchor read closed the controller', () => {
+    // The barrier `y()` has no counterpart for. The anchor rect above is a
+    // consumer call on a consumer-owned element; `compareDocumentPosition`
+    // below is a second one on the same element, and it runs only on a frame
+    // that proposes a gap change — which this one does.
+    const field = createField();
+    let alive = true;
+    let compares = 0;
+    const { placeholder } = field;
+    const nativeRect = placeholder.getBoundingClientRect.bind(placeholder);
+    const nativeCompare = placeholder.compareDocumentPosition.bind(placeholder);
+
+    placeholder.getBoundingClientRect = (): DOMRect => {
+      alive = false;
+
+      return nativeRect();
+    };
+    placeholder.compareDocumentPosition = (node: Node): number => {
+      compares += 1;
+
+      return nativeCompare(node);
+    };
+
+    expect(
+      field.resolve(170, 20, field.snapshot(), null, () => alive),
+    ).toBeNull();
+
+    expect(compares).toBe(0);
+  });
+});

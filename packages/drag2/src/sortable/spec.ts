@@ -52,6 +52,7 @@ import {
   RECOVERY_DESTINATION,
   RECOVERY_HOME,
   RECOVERY_IMMEDIATE,
+  type ReorderTransactionResult,
 } from './domain.ts';
 import {
   createSortableFramePart,
@@ -101,11 +102,12 @@ export function createSortableSpec(
   // One per controller. Arming is per operation, on the motion signal.
   const invalidate = createInvalidator(realm);
   /**
-   * The terminal latch as a predicate, for the one barrier that cannot reach
-   * `rt` — the candidate loop inside the feature's private `RectIndex` (I-36).
-   * Every barrier below reads `rt.closed` directly instead; this closure is
-   * created once per controller and copied by reference onto each
-   * per-operation view.
+   * The terminal latch as a predicate, for the barriers that cannot reach `rt`
+   * (I-36): the candidate loop inside the feature's private `RectIndex`, the
+   * displacement hooks' own measurement loops, and `createPlaceholder`'s
+   * post-factory mechanics. Every barrier written *in this file* reads
+   * `rt.closed` directly instead; this closure is created once per controller
+   * and copied by reference onto each per-operation view.
    */
   const live = (): boolean => !rt.closed;
 
@@ -177,8 +179,26 @@ export function createSortableSpec(
     item: HTMLElement,
     snapshot: CollectionSnapshot,
     draft: Draft<SortableFramePart>,
-  ): HTMLElement => {
-    const visual = slots.getVisual === null ? item : slots.getVisual(item);
+  ): HTMLElement | null => {
+    let visual = item;
+
+    if (slots.getVisual !== null) {
+      visual = slots.getVisual(item);
+
+      // **The terminal barrier on the visual resolver** (I-36 (2) acts 1 and 2,
+      // C5-03's stretch sweep), inside the branch because with no resolver
+      // composed there is no call here for it to stand behind. `runAdmission`
+      // revalidates after this whole callback and declines the operation — but
+      // it does not scrub the draft it declined, and teardown scrubbed both
+      // frames *before* returning into this line, so the three writes below
+      // would pin the item, its visual and the whole snapshot in an inactive
+      // frame nothing will clear again (I-20). It **declines** for the same
+      // reason `resolveItem` does: destroying your own controller is not a
+      // library failure.
+      if (rt.closed) {
+        return null;
+      }
+    }
 
     draft.item = item;
     draft.visual = visual;
@@ -414,6 +434,10 @@ export function createSortableSpec(
 
         const visual = seedDraft(item, snapshot, draft);
 
+        if (visual === null) {
+          return null; // the visual resolver destroyed the controller
+        }
+
         // The destination travels in the draft, exactly as `item` does for a
         // press. No staged value crosses the ingress boundary, which is what
         // keeps D-32 to one SPI member.
@@ -456,6 +480,7 @@ export function createSortableSpec(
           scope.visual,
           scope.originRect,
           slots.createPlaceholder,
+          live,
         );
       },
 
@@ -518,6 +543,19 @@ export function createSortableSpec(
           throw new Error(
             'drag: the placeholder did not survive insertion — it was removed or reparented before activation completed',
           );
+        }
+
+        // **The terminal barrier on the survival conjuncts** (I-36 (2) act 1,
+        // C5-03's stretch sweep). `isConnected` and `nextElementSibling` are
+        // accessors on elements the consumer owns — a custom-element
+        // placeholder may define either — so the reading above does not cover
+        // them. Everything below publishes this operation's DOM into the
+        // behavior runtime, which `retire()` has already nulled: without this
+        // a destroy from one of those two reads leaves the next drag to find
+        // the placeholder, the lift and the per-operation view of the one that
+        // no longer exists (I-20).
+        if (scope.presentation.signal.aborted) {
+          return;
         }
 
         // Listeners bound to the signal are self-releasing, so the signal *is*
@@ -759,6 +797,18 @@ export function createSortableSpec(
               hook(view as DisplacementView);
             }
 
+            // **The terminal barrier on the `beforeMove` pipeline** (I-36,
+            // C4-01). A displacement hook measures consumer-owned rows, and an
+            // overridden `getBoundingClientRect()` is a consumer call — so a
+            // hook can return into this line on a destroyed controller. The
+            // hook takes its own reading for its own interior; this one stops
+            // the **behavior's** next act, which is a DOM mutation on the
+            // consumer's tree that would run a placeholder custom element's
+            // callbacks after `destroy()` returned.
+            if (rt.closed) {
+              return;
+            }
+
             movePlaceholder(placeholder, insertion);
 
             // **The terminal barrier on the placeholder-reaction window**
@@ -895,6 +945,21 @@ export function createSortableSpec(
           const resolved =
             slots.resolveInsertion(draft, view) ?? draft.insertion;
 
+          // **The terminal barrier on the frame writes** (I-36 (2) acts 1 and
+          // 2, C5-03's stretch sweep), and it is a *different* guard from the
+          // one declined above: that one was about `onReorder` firing, which
+          // the kernel owns. This one is about what the **draft** holds. Two
+          // consumer-reaching stretches end here — a `beforeMove` hook
+          // measuring consumer-owned rows in `settleDisplacement`, and the
+          // axis's own read of the consumer-owned placeholder after its
+          // candidate loop — and every statement below writes a frame teardown
+          // has already scrubbed and will not scrub again: `draft.insertion`,
+          // then `draft.proposal`, whose request pins the item and the whole
+          // released snapshot in an inactive frame (I-20).
+          if (rt.closed) {
+            return { invoke: null };
+          }
+
           if (resolved === null) {
             return rejection(
               FAILURE_RELEASE,
@@ -937,6 +1002,17 @@ export function createSortableSpec(
         // reaches the same final gap by the same single writer (C4-01).
         movePlaceholder(rt.placeholder!, current.insertion!);
 
+        // **The terminal barrier on the release write** (I-36, C4-01). The
+        // move above runs a custom-element placeholder's callbacks, and
+        // `retire()` has then already nulled `rt.lift` — so without this the
+        // very next line is `null.write(...)`, a `TypeError` classified as
+        // `FAILURE_RELEASE` against a controller that no longer exists. The
+        // publication below is the other half: a request written after
+        // `retire()` cleared it outlives the operation and pins its DOM (I-20).
+        if (rt.closed) {
+          return;
+        }
+
         if (current.pointerId !== -1) {
           // Normative, not decoration: `pointerup` need not carry the last
           // processed `pointermove`'s coordinates, and the proposal was computed
@@ -968,6 +1044,17 @@ export function createSortableSpec(
         // same object the staged `invoke` closure captured. `ResolutionCommand`
         // does not carry it and must not: a sortable domain value on a kernel
         // SPI type is the mistake D-34 and D-35 corrected.
+        //
+        // **And the render is itself a consumer-reachable call** (I-36 (2) acts
+        // 1 and 2, C5-03's stretch sweep): `write` composes a transform onto
+        // `visual.style`, and `style` is an accessor a custom element may
+        // define. The reading above covers the placeholder move, not this — and
+        // a request published after `retire()` cleared it outlives the operation
+        // and pins its DOM (I-20).
+        if (rt.closed) {
+          return;
+        }
+
         rt.pendingRequest = current.proposal?.request ?? null;
       },
     },
@@ -1007,24 +1094,38 @@ export function createSortableSpec(
               );
             }
 
-            if (value.type === 'accepted') {
-              draft.outcome = OUTCOME_ACCEPTED;
-              draft.recovery = RECOVERY_DESTINATION;
-              draft.domain = { type: 'accepted', proposal: proposal! };
-            } else {
-              draft.outcome = OUTCOME_REJECTED;
-              draft.recovery = RECOVERY_HOME;
-              draft.domain = {
-                type: 'rejected',
-                reason: value.reason,
-                proposal: proposal!,
-              };
+            // **Every read of the consumer's resolution before any write**
+            // (I-36 (2) acts 1 and 2, C5-03's stretch sweep).
+            // `isReorderResolution` is a duck-type test on `.type`, so `type`,
+            // `reason` and `presentation` are accessors on an object the
+            // consumer built and any of them may destroy the controller. The
+            // domain value is a local until the barrier passes; publishing it
+            // into a frame teardown has already scrubbed would pin the whole
+            // proposal in an inactive frame nothing clears again (I-20).
+            const domain: ReorderTransactionResult =
+              value.type === 'accepted'
+                ? { type: 'accepted', proposal: proposal! }
+                : {
+                    type: 'rejected',
+                    reason: value.reason,
+                    proposal: proposal!,
+                  };
+            const { presentation } = value;
+
+            if (rt.closed) {
+              return { presentation: false };
             }
+
+            const accepted = domain.type === 'accepted';
+
+            draft.outcome = accepted ? OUTCOME_ACCEPTED : OUTCOME_REJECTED;
+            draft.recovery = accepted ? RECOVERY_DESTINATION : RECOVERY_HOME;
+            draft.domain = domain;
 
             // Only a fulfilled round-trip can declare an authored
             // presentation: every other input is the kernel's own terminal, and
             // the consumer returned no resolution to declare with.
-            return { presentation: value.presentation };
+            return { presentation };
           }
 
           case SETTLED_REJECTED: {
@@ -1125,7 +1226,15 @@ export function createSortableSpec(
           if (
             item.isConnected &&
             item.parentElement === placeholder.parentElement &&
-            placeholder.nextElementSibling !== item
+            placeholder.nextElementSibling !== item &&
+            // **The terminal barrier on the re-anchor's own conjuncts** (I-36
+            // (2) act 3, C5-03's stretch sweep). All three above are accessors
+            // on consumer-owned elements. Teardown has already *removed* this
+            // placeholder, so `before()` after a destroy would re-insert a
+            // footprint the operation has finished with — back into the
+            // consumer's list, where nothing will remove it again. Last
+            // conjunct, so it is read only on the frame that would mutate.
+            !rt.closed
           ) {
             item.before(placeholder);
           }
@@ -1135,6 +1244,19 @@ export function createSortableSpec(
         // grab slot before measuring. The home gap is recomputed from the
         // committed snapshot, so it needs no per-operation slot.
         homeGap(current);
+      }
+
+      // **The terminal barrier on the re-anchor** (I-36, C4-01). Both branches
+      // above move a node — `item.before(placeholder)` here, `movePlaceholder`
+      // inside `homeGap` — so a custom-element placeholder's
+      // `disconnectedCallback`/`connectedCallback` runs synchronously inside
+      // them, and it is consumer code. The measurement below is a *second*
+      // consumer call on the same element. The kernel revalidates around
+      // `anchorTarget` (F-38) and never starts a landing for a destroyed
+      // controller, so the point is discarded either way; what this stops is
+      // the read itself.
+      if (rt.closed) {
+        return { x: 0, y: 0 };
       }
 
       const rect = placeholder.getBoundingClientRect();

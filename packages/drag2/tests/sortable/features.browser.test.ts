@@ -9,6 +9,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { draggable } from '../../src/drag.ts';
+import type { LandingHandle } from '../../src/kernel/spec.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import { brandFeature, unbrandFeature } from '../../src/sortable/feature.ts';
 import { handle, visual } from '../../src/sortable/handle.ts';
@@ -251,6 +252,32 @@ describe('placeholder', () => {
       'authored',
       'ghost',
     ]);
+  });
+
+  it('should add no class once the factory destroys the controller', () => {
+    // C5-03's stretch sweep. `create` is consumer code and the element it
+    // returns is the **consumer's own**, adopted by nothing until activation
+    // commits — teardown removes only the placeholder it inserted. So a class
+    // written between the factory returning and the library's next liveness
+    // reading is a mutation nothing undoes (I-36 (2) act 3).
+    const created: HTMLElement[] = [];
+    const composed: Composed = compose(
+      placeholder({
+        className: 'ghost',
+        create: () => {
+          const element = document.createElement('div');
+
+          created.push(element);
+          composed.controller.destroy();
+          return element;
+        },
+      }),
+    );
+
+    activate(composed);
+
+    expect(created).toHaveLength(1);
+    expect([...created[0]!.classList]).toEqual([]);
   });
 
   it('should still apply the default mechanics to a custom element', () => {
@@ -801,6 +828,145 @@ describe('landing', () => {
     expect(composed.errors).toEqual([]);
     expect(reported).toEqual([]);
   });
+
+  it('should leave nothing behind when the duration thunk destroys the controller', async () => {
+    // **A conformance pin, not a regression pin — the bracket-discharge
+    // witness** (Checkpoint D review 4, the landing residue; reclassified by
+    // review 5, C5-03). It passes against current source, and the barrier it
+    // witnesses is the **kernel's**, not `landing.ts`'s: the thunk is consumer
+    // code and the next statements inside `start` reach the consumer's own
+    // visual (`realm.window.matchMedia`, then `visual.animate()`) with no
+    // reading between them, so the module holds none. Under I-36 (1) it does
+    // not need one — the whole stretch sits inside the F-30 revalidation, whose
+    // `runner.destroy()` cancels the unpublished handle in the same synchronous
+    // stretch with no paint in between, and `retireSettlement` disposes a
+    // published one the same way. `getAnimations() === []` and
+    // `style.transform === ''` are what witness that the bracket's **undo** is
+    // complete, which is condition (ii) of bracket discharge.
+    //
+    // What this pins is the blast radius, executably, so the next reviewer
+    // reads a measured size rather than a prose claim. It **fails** if the
+    // residue ever acquires a consequence the operation outlives: a second
+    // `animate()` call, an animation that survives teardown, a transform left
+    // on the visual, a reported failure, or a missing/duplicated `onCancel`.
+    // Late-bound on purpose: the thunk runs once the drop settles, long after
+    // the controller exists.
+    let controller: SortableController | null = null;
+    const composed = composeWith({
+      features: [
+        landing({
+          duration: (): number => {
+            controller!.destroy();
+            return 200;
+          },
+        }),
+      ],
+    });
+
+    ({ controller } = composed);
+
+    const item = composed.items[0]!;
+    const calls: string[] = [];
+    const native = item.animate.bind(item);
+
+    item.animate = (...args: Parameters<Element['animate']>): Animation => {
+      calls.push('animate');
+      return native(...args);
+    };
+
+    activate(composed);
+    await drag(55);
+    release(55);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    // The instrumented call list, not the resulting state: exactly one
+    // `animate()`, which is the residue's whole size.
+    expect(calls).toEqual(['animate']);
+    // And nothing of it survives — the handle was destroyed before it was ever
+    // published, so the landing never started.
+    expect(item.getAnimations()).toEqual([]);
+    expect(item.style.transform).toBe('');
+    expect(composed.placeholder()).toBeNull();
+    // A consumer destroying its own controller is not a library failure.
+    expect(composed.errors).toEqual([]);
+    expect(reported).toEqual([]);
+    // **Neither** terminal callback fires, which is stronger than the decision's
+    // §6 predicted (it expected one `onCancel`) and is the landed rule, not a
+    // gap: destroy is a teardown, not a settlement, so the operation it was
+    // resolving does not get to announce an outcome — see
+    // `composition.browser.test.ts` — _should tear down without a terminal
+    // callback when onReorder destroys_. `ARM_STALE` suppresses the settlement
+    // as well, so there is nothing left to announce it with.
+    expect(composed.cancels).toEqual([]);
+    expect(composed.finishes).toEqual([]);
+  });
+
+  it('should destroy a consumer runner’s handle exactly once when the runner destroyed the controller', async () => {
+    // **A conformance pin, not a regression pin** (Checkpoint D review 5,
+    // C5-03 §5). It passes against current source and adds no barrier: what it
+    // pins is the **admitted** form of I-6 clause 3's kernel half. With
+    // `landing({ run })` composed, `start` *is* the consumer's runner and the
+    // handle it returns *is* a consumer-authored object — so F-30's
+    // `!settlementLive(attempt)` branch invokes a declared consumer slot member
+    // after `controller.destroy()` returned. The kernel must: not calling it
+    // leaks a runner nothing owns (I-20). That is why the invariant reads
+    // *afterwards no callback fires **that leaves anything behind*** rather
+    // than *no callback fires*.
+    //
+    // It fails if the qualified headline ever acquires a consequence: `destroy`
+    // called twice or not at all (a leaked runner), `retarget` called after the
+    // terminal barrier (a call that is not a relinquishment), or an animation,
+    // transform or placeholder surviving.
+    let controller: SortableController | null = null;
+    const calls: string[] = [];
+    let destroyedFirst = false;
+
+    const composed = composeWith({
+      features: [
+        landing({
+          run: (): LandingHandle => {
+            controller!.destroy();
+            destroyedFirst = true;
+
+            return {
+              destroy(): void {
+                calls.push('destroy');
+              },
+              retarget(): void {
+                calls.push('retarget');
+              },
+            };
+          },
+        }),
+      ],
+    });
+
+    ({ controller } = composed);
+
+    const item = composed.items[0]!;
+
+    activate(composed);
+    await drag(55);
+    release(55);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    // The instrumented call list on the consumer-authored object, not the
+    // resulting state: exactly one relinquishment and no trajectory call.
+    expect(calls).toEqual(['destroy']);
+    // And it ran after `controller.destroy()` returned, which is the whole
+    // claim — a flag rather than a timer, so nothing here is schedule-coupled.
+    expect(destroyedFirst).toBe(true);
+    // Nothing survives.
+    expect(item.getAnimations()).toEqual([]);
+    expect(item.style.transform).toBe('');
+    expect(composed.placeholder()).toBeNull();
+    expect(composed.errors).toEqual([]);
+    expect(reported).toEqual([]);
+    expect(composed.cancels).toEqual([]);
+    expect(composed.finishes).toEqual([]);
+  });
 });
 
 describe('layoutAnimation', () => {
@@ -1252,5 +1418,99 @@ describe('the terminal barrier in a resolver sequence', () => {
     // ran — no invalidation, no measurement, and no `afterMove` hook.
     expect(befores).toHaveLength(1);
     expect(afters).toEqual([]);
+  });
+  /** A `beforeMove` hook that destroys the controller from inside the bracket. */
+  const closingBefore = (): Readonly<{
+    feature: SortableFeature;
+    arm(c: SortableController): void;
+  }> => {
+    let controller: SortableController | null = null;
+
+    return {
+      feature: brandFeature(() => ({
+        beforeInsertionMove: (): void => {
+          controller?.destroy();
+        },
+      })),
+      arm(c): void {
+        controller = c;
+      },
+    };
+  };
+
+  it('should not write the placeholder after a beforeMove hook destroyed', async () => {
+    // C4-01. A displacement hook measures consumer-owned rows, so an overridden
+    // `getBoundingClientRect()` can return into this pipeline on a destroyed
+    // controller — and the behavior's very next act is `movePlaceholder`, a DOM
+    // mutation that runs a custom-element placeholder's callbacks. The existing
+    // guard sits one line *after* that write and cannot reach it.
+    //
+    // The observable is the **report**, not the resulting DOM: teardown has
+    // already detached the placeholder, so the write does not silently move a
+    // node — it throws "the insertion anchor is not in the placeholder's
+    // container" and classifies a `FAILURE_PLACEHOLDER_MOVE` against a
+    // controller the consumer destroyed on purpose.
+    const befores: number[] = [];
+    const afters: number[] = [];
+    const armed = closingBefore();
+    const composed = composeWith({
+      features: [bracketRecorder(befores, afters), armed.feature],
+    });
+
+    armed.arm(composed.controller);
+
+    activate(composed);
+    await drag(55);
+
+    expect(befores).toHaveLength(1);
+    expect(afters).toEqual([]);
+    expect(composed.errors).toEqual([]);
+    expect(reported).toEqual([]);
+  });
+
+  it('should start no displacement after an afterMove measurement destroyed', async () => {
+    // The reviewer's reproduction against the real `layoutAnimation()`
+    // composition. `lazyY()` withholds the eager rebuild, so the only rows read
+    // after `movePlaceholder` are the `afterMove` pass's own — which is what
+    // makes "post-move" a sound arming condition for the destroy.
+    const played: HTMLElement[] = [];
+    let controller: SortableController | null = null;
+    const composed = composeWith({
+      axis: lazyY(),
+      features: [layoutAnimation({ duration: 500 })],
+    });
+
+    ({ controller } = composed);
+
+    const row = composed.items[1]!;
+    const nativeRect = row.getBoundingClientRect.bind(row);
+    const nativeAnimate = row.animate.bind(row);
+
+    row.getBoundingClientRect = (): DOMRect => {
+      const rect = nativeRect();
+
+      if (composed.placeholder()?.previousElementSibling !== row) {
+        return rect;
+      }
+
+      controller.destroy();
+
+      // **Shifted deliberately.** Teardown removes the placeholder and drops
+      // the lift, which puts the row back exactly where this pass measured it —
+      // so an honest rect makes `delta === 0`, `animate()` is skipped for a
+      // reason that has nothing to do with the barrier, and the assertion stops
+      // discriminating. The reviewer's own reproduction shifted it too.
+      return new DOMRect(rect.x, rect.y + 20, rect.width, rect.height);
+    };
+    row.animate = (frames, options): Animation => {
+      played.push(row);
+
+      return nativeAnimate(frames, options);
+    };
+
+    activate(composed);
+    await drag(55);
+
+    expect(played).toEqual([]);
   });
 });

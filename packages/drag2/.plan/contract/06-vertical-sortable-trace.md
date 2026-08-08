@@ -245,7 +245,7 @@ rAF fires → dispatch(behavior tag 0, attempt)
 
 `draft` satisfies `vertical.ts`'s own `InsertionFrameView` structurally, and `rt.view` satisfies its `InsertionRuntimeView`; `vertical.ts` imports no runtime type from the behavior. **[D-13]** The displacement hooks receive a `DisplacementView` — the same `rt.view` object — and have no access to `SettlementScope`, so displacement structurally cannot become a lifecycle gate. **[I-10, tier A]**
 
-The two features measure the same list around this one move. That duplicate layout read is the open cost in Q-7/M-4, and it is expected to dominate everything counted in §The hot path for a large list.
+The two features read **different** things around this one move, and that is Q-7/M-4's landed answer rather than an open cost (Phase 11; this paragraph still described the pre-answer expectation until Checkpoint D review 5, C5-04). The axis rebuild reads every candidate's visual; the displacement bracket reads only the **crossed span**. Measured at 800 rows: 0.156 ms for the span against 2.3 ms for a destination-view bracket, so there is no duplicate *full-list* read left to eliminate and **no shared read phase is needed** — `DisplacementView.insertion` is what makes the span expressible without either feature learning about the other.
 
 Had `resolveInsertion` returned `null` — the pointer is still nearest the placeholder's own slot — `prepare` returns `null`, the draft is abandoned, the current insertion stays authoritative and no placeholder move happens. **[I-15]**
 
@@ -619,7 +619,7 @@ What the same trace does under each difficult case, without adding a branch anyw
 | `updateItems()` from inside `onStart` | Applied at `ACTIVATING`, exactly like `ACTIVE` — FIFO puts it ahead of `START_COMMITTED`, and I-30 has already published `rt.view`. There is no deferral. **[F-32]** |
 | `updateItems()` at `SETTLING` | `prepare` stages the snapshot with `bindsFrame: false`; `effect` publishes it. The operation's frame snapshot is **not** rewritten — it freezes the _semantic transaction_, not the geometry. Geometry correctness comes from the join measurement. |
 | `updateItems()` at `IDLE` | Published in `effect`; `draft.snapshot` is left alone, so an idle frame retains no item elements. **[I-20]** |
-| The consumer unmounts the dragged item as part of the reorder | `anchorTarget` finds no connected anchor and falls back to the placeholder's rect. Degraded, not stranded. **[Q-12 — the one open mechanism]** |
+| The consumer unmounts the dragged item as part of the reorder | `anchorTarget` finds no connected anchor and falls back to the placeholder's rect. Degraded, not stranded. **[Q-12 — answered in Phase 10: the degraded re-anchor is sufficient, and the operation finishes accepted with nothing classified or reported]** |
 | `anchorTarget` throws at readiness | Best-effort report. Landing continues, holds untouched, `authoredReady` still `true`; the join measures again and pins. **[I-29]** |
 | `LandingHandle.destroy()` throws at the join | Best-effort report. The pin still happens and presentation is still released — a custom runner cannot strand the controller. **[F-22]** |
 | `lift.write()` throws at the join | `FAILURE_RENDERER_WRITE`; the visual stays where landing left it; presentation is **still** released. **[F-22]** |

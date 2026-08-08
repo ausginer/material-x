@@ -130,6 +130,17 @@ export function xy(): SortableFeature {
             return null;
           }
 
+          if (!runtime.live()) {
+            // **The second placeholder barrier** (I-36, C4-01), and `y()` has
+            // no counterpart because it needs no second call: it derives the
+            // side from two centres it has already measured. Here the anchor
+            // read above is a consumer call on a consumer-owned element, and
+            // `compareDocumentPosition` below is a second one on the same
+            // element. Paid only on a frame that proposes a gap change, not on
+            // every spatial frame.
+            return null;
+          }
+
           const { items } = index;
           // `nearest` comes after the placeholder in document order, so the gap
           // is on its far side. The mask test is what `compareDocumentPosition`

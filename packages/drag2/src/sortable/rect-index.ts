@@ -49,8 +49,13 @@ export type RectIndex = {
    * and the resolver would be an identity call per item per rebuild.
    *
    * `live` reports whether the controller is still alive (I-36). It is read
-   * **only** between consumer-resolver calls, so a composition with no
-   * `visual()` never calls it and pays nothing per candidate.
+   * **between every consumer-reachable call in the traversal**, which since
+   * C4-01 includes the candidate's own `getBoundingClientRect()`: the candidate
+   * is a consumer-owned element and an overridden `getBoundingClientRect()` is
+   * a consumer call, not a layout read (contract 05 I-36, indirect-invocation
+   * clause). So a composition with **no** `visual()` reads it too — there the
+   * item is its own visual and the geometry read is the only consumer call in
+   * the loop, but it is still one.
    *
    * Returns `false` — and **only** then — when the rebuild aborted on the
    * terminal barrier. The caller owes the rest of I-36 for its own reads: it
@@ -58,8 +63,7 @@ export type RectIndex = {
    * consumer-owned placeholder, whose `getBoundingClientRect()` a consumer may
    * have overridden. One shared channel rather than a per-axis `live()`
    * recheck: the recheck would cost a call per resolution in *every*
-   * composition, including the minimal one that composes no `visual()` and
-   * can therefore never abort.
+   * composition, where this costs one per candidate per **rebuild** only.
    */
   refresh(
     snapshot: CollectionSnapshot,
@@ -88,14 +92,49 @@ export function createRectIndex(): RectIndex {
   let dirty = true;
   let measured = -1;
 
-  const index: RectIndex = {
+  // Declared before the record so the shared I-36 exit below can name it: the
+  // exit restores the retired state and reports the abort, and one definition
+  // of "stop" is what keeps the four barriers in `refresh` from drifting.
+  let index: RectIndex;
+  /**
+   * **Not a `break`.** `destroy()` has already run `retire()` on this very cache
+   * through the assembler's retire hooks, and falling through to `refresh`'s
+   * trailing bookkeeping would write `count = n`, `items.length = n`,
+   * `measured = version`, `dirty = false` — resurrecting a retired cache,
+   * marking it clean, and pinning every row of the list in a destroyed
+   * controller against I-20.
+   *
+   * **And the abort is reported**, because emptying the cache is not enough on
+   * its own: `count === 0` makes the candidate scan find nothing, but both axes
+   * measure the consumer-owned *placeholder* before that scan.
+   */
+  const abort = (): boolean => {
+    index.retire();
+
+    return false;
+  };
+
+  index = {
     values: new Float64Array(0),
     items: [],
     count: 0,
 
     refresh(snapshot, dragged, getVisual, live): boolean {
+      // A warm cache reads no geometry and calls no resolver, so it needs no
+      // barrier — and it cannot be reached on a destroyed controller anyway:
+      // `retire()` sets `dirty`, and teardown always runs it.
       if (!dirty && measured === snapshot.version) {
         return true;
+      }
+
+      // **The entry barrier** (I-36). A caller can reach a *dirty* cache with
+      // the controller already closed: `settleDisplacement` runs the
+      // `beforeMove` hooks — which measure consumer-owned rows — and
+      // `release.prepare` resolves straight afterwards. Without this the first
+      // `getVisual` of that rebuild would be a consumer call after `destroy()`
+      // returned.
+      if (!live()) {
+        return abort();
       }
 
       const list = snapshot.items;
@@ -123,36 +162,31 @@ export function createRectIndex(): RectIndex {
 
         if (getVisual !== null) {
           visual = getVisual(item);
+
+          // **The resolver barrier** (I-36), inside the branch because with no
+          // resolver composed there is no call here for it to stand behind.
+          if (!live()) {
+            return abort();
+          }
         }
 
-        // **The terminal barrier** (I-36), and it lives *inside* this branch
-        // rather than around it: with no resolver composed there is no
-        // consumer callback in the loop, so there is nothing for a barrier to
-        // stand between — and the minimal composition pays nothing.
+        // **The geometry barrier** (I-36, indirect-invocation clause), and it
+        // is *outside* the branch: `visual` is a consumer-owned element in
+        // every composition — with no `visual()` composed the candidate item is
+        // its own visual — so an overridden `getBoundingClientRect()` is
+        // consumer code the loop just ran. Everything after this line is a
+        // publication into the cache, and the next iteration is another
+        // consumer call, so the reading is taken before either.
         //
-        // Not a `break`. `destroy()` has already run `retire()` on this very
-        // cache, and falling through to the trailing bookkeeping would write
-        // `count = n`, `items.length = n`, `measured = version`,
-        // `dirty = false` — resurrecting a retired cache, marking it clean,
-        // and pinning every row of the list in a destroyed controller against
-        // I-20. So the retired state is restored instead.
-        //
-        // **And the abort is reported**, because emptying the cache is not
-        // enough on its own. `count === 0` does make the candidate scan find
-        // nothing, but both axes measure the *placeholder* — the incumbent
-        // candidate — before that scan, and the placeholder is consumer-owned:
-        // an overridden `getBoundingClientRect()` is a consumer call, not a
-        // layout read (I-36, contract 03 §`y()`). So the caller is told to
-        // stop, rather than left to fall through to a read it must not make.
-        if (!live()) {
-          items.length = 0;
-          index.count = 0;
-          dirty = true;
-          measured = -1;
-
-          return false;
-        }
+        // This is the barrier C2-01 and C3-01 placed one call too early
+        // (C4-01): they stood between the resolver and the geometry read and
+        // then let the geometry read itself cross.
         const rect = visual.getBoundingClientRect();
+
+        if (!live()) {
+          return abort();
+        }
+
         const offset = n * STRIDE;
 
         values[offset + LEFT] = rect.left;
@@ -185,9 +219,11 @@ export function createRectIndex(): RectIndex {
       dirty = true;
     },
 
+    /**
+     * The element array is what pins DOM between operations, so it is emptied;
+     * the numeric buffer is kept and reused. Also what `abort()` above calls.
+     */
     retire(): void {
-      // The element array is what pins DOM between operations, so it is
-      // emptied; the numeric buffer is kept and reused.
       index.items.length = 0;
       index.count = 0;
       dirty = true;

@@ -413,3 +413,145 @@ describe('the terminal barrier in the candidate loop', () => {
     expect(asked).toEqual([field.items[1], field.items[2], field.items[3]]);
   });
 });
+
+/**
+ * I-36's **indirect-invocation clause** (contract 05 I-36, C3-03 §3.2), on the
+ * call the first two barrier passes stopped one step short of (C4-01).
+ *
+ * The pre-C4-01 barrier stood between the `visual()` resolver and the
+ * candidate's `getBoundingClientRect()`. That read is itself a consumer call —
+ * the candidate is the consumer's element, and with no `visual()` composed it
+ * is also its own visual — so a destroy raised from it fell through to the
+ * write, to the next candidate's resolver, and, on the **last** candidate, to
+ * the trailing bookkeeping that marks a retired cache clean and measured.
+ *
+ * The last candidate is therefore the discriminating one, and the cases below
+ * use it: an earlier candidate's destroy was already caught by the next
+ * iteration's reading. Every assertion is a call list on the instrumented
+ * element; the frame is discarded upstream regardless.
+ */
+describe('the terminal barrier on candidate geometry', () => {
+  /**
+   * Instruments `getBoundingClientRect()` on each element, recording who was
+   * measured and closing the controller from `target`'s own read.
+   */
+  const measuringAt = (
+    elements: readonly HTMLElement[],
+    target: HTMLElement,
+    measured: HTMLElement[],
+    close: () => void,
+  ): void => {
+    for (const element of elements) {
+      const native = element.getBoundingClientRect.bind(element);
+
+      element.getBoundingClientRect = (): DOMRect => {
+        measured.push(element);
+
+        if (element === target) {
+          close();
+        }
+
+        return native();
+      };
+    }
+  };
+
+  it('should read no placeholder geometry once the last candidate closed the controller', () => {
+    // No `visual()` composed — the composition the review named, and the one
+    // that could not abort at all before C4-01. The placeholder is
+    // consumer-owned, so measuring the incumbent after the close is a second
+    // indirect consumer call.
+    const field = createField(4);
+    const measured: HTMLElement[] = [];
+    let alive = true;
+    let anchorReads = 0;
+    const { placeholder } = field;
+    const native = placeholder.getBoundingClientRect.bind(placeholder);
+
+    placeholder.getBoundingClientRect = (): DOMRect => {
+      anchorReads += 1;
+
+      return native();
+    };
+    measuringAt(field.items, field.items[3]!, measured, () => {
+      alive = false;
+    });
+
+    expect(field.resolve(55, field.snapshot(), null, () => alive)).toBeNull();
+
+    expect(anchorReads).toBe(0);
+  });
+
+  it('should leave the cache retired after the last candidate closed the controller', () => {
+    // The trailing-bookkeeping half. Falling through would set
+    // `measured = version` and `dirty = false` on a cache `retire()` had just
+    // emptied, so the **same** version below would find it warm, ask for
+    // nothing, and keep pinning a destroyed controller's rows (I-20).
+    const field = createField(4);
+    const measured: HTMLElement[] = [];
+    let alive = true;
+
+    measuringAt(field.items, field.items[3]!, measured, () => {
+      alive = false;
+    });
+    field.resolve(55, field.snapshot(), null, () => alive);
+
+    const asked: HTMLElement[] = [];
+
+    field.resolve(55, field.snapshot(), (item) => {
+      asked.push(item);
+      return item;
+    });
+
+    expect(asked).toEqual([field.items[1], field.items[2], field.items[3]]);
+  });
+
+  it('should resolve no further visual once a candidate closed the controller', () => {
+    // The other half of the same ordering defect: the barrier sat *before* the
+    // geometry read, so the next iteration reached `getVisual` before the next
+    // reading was taken.
+    const field = createField(4);
+    const measured: HTMLElement[] = [];
+    const asked: HTMLElement[] = [];
+    let alive = true;
+
+    measuringAt(field.items, field.items[1]!, measured, () => {
+      alive = false;
+    });
+
+    field.resolve(
+      55,
+      field.snapshot(),
+      (item) => {
+        asked.push(item);
+        return item;
+      },
+      () => alive,
+    );
+
+    expect(asked).toEqual([field.items[1]]);
+  });
+
+  it('should call no resolver at all when the controller is already closed', () => {
+    // The entry barrier. `settleDisplacement` runs the `beforeMove` hooks and
+    // `release.prepare` resolves immediately afterwards, so a rebuild can be
+    // entered on a controller that a hook already destroyed — and the first
+    // `getVisual` of that rebuild would be a consumer call after `destroy()`.
+    const field = createField(4);
+    const asked: HTMLElement[] = [];
+
+    expect(
+      field.resolve(
+        55,
+        field.snapshot(),
+        (item) => {
+          asked.push(item);
+          return item;
+        },
+        () => false,
+      ),
+    ).toBeNull();
+
+    expect(asked).toEqual([]);
+  });
+});

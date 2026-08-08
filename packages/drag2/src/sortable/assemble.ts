@@ -18,7 +18,7 @@ import {
   type SortableFeature,
   unbrandFeature,
 } from './feature.ts';
-import type { PlaceholderFactory } from './placement.ts';
+import type { PlaceholderSlot } from './placement.ts';
 import {
   DEFAULT_READINESS_TIMEOUT,
   DEFAULT_THRESHOLD,
@@ -53,7 +53,7 @@ export function assemble(
 ): SortableSlots {
   let insertion: InsertionGeometry | null = null;
   let callbacks: SortableCallbacks | null = null;
-  let createPlaceholder: PlaceholderFactory | null = null;
+  let createPlaceholder: PlaceholderSlot | null = null;
   let getHandle: ((item: HTMLElement) => HTMLElement | null) | null = null;
   let getVisual: ((item: HTMLElement) => HTMLElement) | null = null;
   let startLanding: LandingStart | null = null;
