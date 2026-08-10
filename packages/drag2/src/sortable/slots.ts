@@ -23,7 +23,7 @@ import type {
   SortableCancelResult,
   SortableFinishResult,
 } from './domain.ts';
-import type { PlaceholderFactory } from './placement.ts';
+import type { PlaceholderSlot } from './placement.ts';
 
 /**
  * The fields an axis rule may read off the frame. **The behavior passes
@@ -72,6 +72,34 @@ export type InsertionFrameView = Readonly<{
 export type InsertionRuntimeView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
+  /**
+   * The installed `visual()` resolver, or `null` when no `visual()` is composed.
+   *
+   * **The axis rule measures candidate visuals, not candidate items** (parity
+   * D2). The reason is internal coherence rather than only parity: the incumbent
+   * every candidate is compared against is the placeholder, which `placement.ts`
+   * sizes from the visual's offset box. Measuring items on one side of that
+   * comparison and a visual-derived box on the other biases the hysteresis for
+   * any visual that is an inset or offset descendant.
+   *
+   * Nullable rather than normalized to identity, because the minimal
+   * composition installs no `visual()` and would otherwise pay an identity call
+   * per candidate per rebuild.
+   */
+  getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  /**
+   * Whether the controller is still alive (I-36).
+   *
+   * **The fourth additive widening of a consumer-declared view** — 8a `item`,
+   * 17 `pointerX`, D2 `getVisual`, now this — and the per-operation view is the
+   * designated channel for exactly this kind of per-operation behavior
+   * guarantee. An axis rule that calls `getVisual` per candidate is calling
+   * consumer code in a loop, and a resolver may destroy the controller; the
+   * loop is feature-private, so the reading has to arrive as data.
+   *
+   * Read only between resolver calls, never on a warm cache.
+   */
+  live(): boolean;
 }>;
 
 export type DisplacementView = Readonly<{
@@ -101,6 +129,23 @@ export type DisplacementView = Readonly<{
    * an O(list) bracket into an O(distance) one.
    */
   insertion: Insertion;
+  /**
+   * Whether the controller is still alive (I-36).
+   *
+   * **The fifth additive widening of a consumer-declared view**, and the first
+   * on the displacement side — 8a `item`, 17 `pointerX`, D2 `getVisual`, C2-01
+   * `live` on `InsertionRuntimeView`, now this. C2-01 §9.5 recorded that the
+   * per-operation view is the designated channel for exactly this kind of
+   * per-operation behavior guarantee, so the fifth is a routine act.
+   *
+   * It is needed because a displacement hook measures **consumer-owned rows**
+   * in a loop and then animates them: `getBoundingClientRect()` and `animate()`
+   * on a consumer's element are consumer calls under I-36's indirect-invocation
+   * clause, and the behavior cannot guard the interior of a hook it only calls
+   * (C4-01). The same object already carries `live` for the axis rule, so this
+   * costs one property in a type and nothing at runtime.
+   */
+  live(): boolean;
 }>;
 
 export type DisplacementHook = (view: DisplacementView) => void;
@@ -143,7 +188,7 @@ export type SortableSlots = Readonly<{
   onStart(item: HTMLElement): void;
 
   /* optional; `null` when no feature filled them */
-  createPlaceholder: PlaceholderFactory | null;
+  createPlaceholder: PlaceholderSlot | null;
   getHandle: ((item: HTMLElement) => HTMLElement | null) | null;
   getVisual: ((item: HTMLElement) => HTMLElement) | null;
   startLanding: LandingStart | null;

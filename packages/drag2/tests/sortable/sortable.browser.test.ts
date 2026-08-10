@@ -21,7 +21,11 @@ import {
   SETTLING,
 } from '../../src/kernel/phases.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
-import type { LandingHandle, LandingStart } from '../../src/kernel/spec.ts';
+import {
+  type LandingHandle,
+  type LandingStart,
+  SETTLED_FULFILLED,
+} from '../../src/kernel/spec.ts';
 import { createSortableBehavior } from '../../src/sortable/behavior.ts';
 import type { SortableController } from '../../src/sortable/controller.ts';
 import {
@@ -29,6 +33,7 @@ import {
   CANCEL_ITEM_REMOVED,
   type CollectionSnapshot,
   type Insertion,
+  RECOVERY_DESTINATION,
   ReorderResolution,
   type ReorderRequest,
   type SortableCancelResult,
@@ -1969,6 +1974,58 @@ describe('collection identity', () => {
   });
 });
 
+describe('updateItems after destroy', () => {
+  it('should stay inert for a valid replacement', () => {
+    // The parity ledger promises `updateItems()` is a no-op after `destroy()`.
+    // The kernel's own latch drops the dispatch, but the controller reached it
+    // only after copying the array and advancing the private version, so the
+    // "no-op" was true of the kernel and not of the method (D3).
+    const harness = createHarness();
+
+    harness.controller.destroy();
+    harness.controller.updateItems([harness.items[1]!, harness.items[0]!]);
+    press(harness.items[1]!);
+    move(40);
+
+    // Ingress is closed, so nothing can observe a snapshot either way — the
+    // assertion is that the whole controller stayed silent.
+    expect(harness.calls).toEqual([]);
+    expect(reported).toEqual([]);
+  });
+
+  it('should not throw for an invalid replacement', () => {
+    // The observable half, and the one an "no action reached the kernel"
+    // assertion misses entirely: validation ran *before* the closed latch, so a
+    // duplicate threw at a controller that is supposed to be inert.
+    const harness = createHarness();
+
+    harness.controller.destroy();
+
+    expect(() =>
+      harness.controller.updateItems([harness.items[0]!, harness.items[0]!]),
+    ).not.toThrow();
+  });
+
+  it('should not classify a post-destroy replacement as an activation failure', () => {
+    // The realistic arrival, and where the throw is not merely returned to the
+    // caller: a consumer tears the list down from a callback and its own store
+    // notification lands in the same drain. `onStart` runs inside
+    // `activation.effect`, so the `TypeError` would be classified
+    // `FAILURE_ACTIVATION` against an operation the consumer already destroyed.
+    const harness = createHarness({
+      onStart(h): void {
+        h.controller.destroy();
+        h.controller.updateItems([h.items[0]!, h.items[0]!]);
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.errors).toEqual([]);
+    expect(reported).toEqual([]);
+  });
+});
+
 describe('invalidation failure classification', () => {
   it('should classify a scroll-time invalidation failure', () => {
     // A native listener is not a seam, so this error used to reach neither
@@ -2288,6 +2345,8 @@ describe('the spatial action legality guard', () => {
       realm: rt.host.realm,
       placeholder: item,
       item,
+      getVisual: null,
+      live: () => !rt.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2366,6 +2425,8 @@ describe('a pointerless release with no destination', () => {
       realm: rt.host.realm,
       placeholder: item,
       item,
+      getVisual: null,
+      live: () => !rt.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2611,6 +2672,8 @@ describe('the displacement view lifetime', () => {
       realm: rt.host.realm,
       placeholder,
       item: items[0]!,
+      getVisual: null,
+      live: () => !rt.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2735,6 +2798,8 @@ describe('the displacement view lifetime', () => {
       realm: rt.host.realm,
       placeholder,
       item: items[0]!,
+      getVisual: null,
+      live: () => !rt.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2773,5 +2838,322 @@ describe('the displacement view lifetime', () => {
     expect(seen).toHaveLength(2);
     expect(seen[0]).not.toBeNull();
     expect(seen[1]).toBe(seen[0]);
+  });
+});
+
+/**
+ * The stretch sweep's own findings (Checkpoint D review 5, C5-03 §7).
+ *
+ * Each of these is a **frame write after the terminal barrier**: teardown
+ * scrubs both frames and returns into the middle of a behavior callback, and
+ * nothing scrubs them again — so a seed, a proposal or a domain value written
+ * afterwards pins the item and its snapshot in an inactive frame of a
+ * destroyed controller (I-36 (2) acts 1 and 2, I-20).
+ *
+ * Driven directly, because the consequence is kernel-private frame state that a
+ * public drag cannot observe: the operation is declined either way, and what
+ * these pin is what the *draft* holds when it is.
+ */
+describe('the terminal barrier on the behavior’s frame writes', () => {
+  const bench = (
+    overrides: Partial<SortableSlots>,
+  ): Readonly<{
+    rt: ReturnType<typeof createSortableRuntime>;
+    spec: ReturnType<typeof createSortableSpec>;
+    item: HTMLElement;
+    root: HTMLElement;
+  }> => {
+    const root = document.createElement('div');
+    const item = document.createElement('div');
+    // Two, so a downward command is *feasible*: a single-item collection makes
+    // `keyboardInsertion` return null and the command declines before it ever
+    // reaches the seed, which would make the command case vacuous.
+    const sibling = document.createElement('div');
+
+    root.append(item, sibling);
+    document.body.append(root);
+    cleanup.push(() => {
+      root.remove();
+    });
+
+    const rt = createSortableRuntime(
+      {
+        realm: createRealm(root),
+        root,
+        dispatch: (): void => {},
+        fail: (): void => {},
+        presentationCommitted: (): void => {},
+        cancel: (): void => {},
+        destroy: (): void => {},
+      },
+      [item, sibling],
+      { ...EMPTY_SLOTS, ...overrides },
+    );
+
+    return { rt, spec: createSortableSpec(rt), item, root };
+  };
+
+  /** An event whose composed path is exactly the item, as a press would be. */
+  const pathEvent = (item: HTMLElement, key = 'ArrowDown'): Event =>
+    ({
+      key,
+      composedPath: (): readonly EventTarget[] => [item],
+      preventDefault: (): void => {},
+    }) as unknown as Event;
+
+  it('should seed no draft when the visual resolver destroys the controller', () => {
+    const held = bench({
+      getVisual: (element): HTMLElement => {
+        held.rt.closed = true;
+        return element;
+      },
+    });
+    const draft = {
+      ...createSortableFramePart(),
+    } as unknown as Parameters<typeof held.spec.admit>[1];
+
+    const admitted = held.spec.admit(pathEvent(held.item) as never, draft);
+
+    expect(admitted).toBeNull();
+    expect([draft.item, draft.visual, draft.snapshot]).toEqual([
+      null,
+      null,
+      null,
+    ]);
+  });
+
+  it('should seed no command draft when the visual resolver destroys the controller', () => {
+    // The command path writes a *fourth* field — the destination — so it needs
+    // its own decline rather than only the shared seed's.
+    const held = bench({
+      getVisual: (element): HTMLElement => {
+        held.rt.closed = true;
+        return element;
+      },
+    });
+    const draft = {
+      ...createSortableFramePart(),
+    } as unknown as Parameters<typeof held.spec.admit>[1];
+
+    const admitted = held.spec.command!.admit(pathEvent(held.item), draft);
+
+    expect(admitted).toBeNull();
+    expect([draft.item, draft.snapshot, draft.insertion]).toEqual([
+      null,
+      null,
+      null,
+    ]);
+  });
+
+  it('should build no proposal when a displacement hook destroys the controller', () => {
+    const held = bench({
+      beforeMove: [
+        (): void => {
+          held.rt.closed = true;
+        },
+      ],
+    });
+
+    held.rt.view = {
+      realm: held.rt.host.realm,
+      placeholder: held.item,
+      item: held.item,
+      getVisual: null,
+      live: () => !held.rt.closed,
+      snapshot: held.rt.snapshot,
+      insertion: null,
+    };
+
+    const insertion: Insertion = {
+      version: 0,
+      index: 0,
+      before: null,
+      after: null,
+    };
+    const draft = {
+      ...createSortableFramePart(),
+      phase: RELEASING,
+      pointerId: POINTER_ID,
+      snapshot: held.rt.snapshot,
+      item: held.item,
+      insertion,
+    } as unknown as Parameters<typeof held.spec.release.prepare>[0];
+
+    expect(held.spec.release.prepare(draft)).toEqual({ invoke: null });
+    expect(draft.proposal).toBeNull();
+  });
+
+  it('should start nothing when a survival conjunct destroys the controller', () => {
+    // `isConnected` and `nextElementSibling` are accessors on elements the
+    // consumer owns, so the reading taken right after `after()` does not cover
+    // them. Everything below them publishes this operation's DOM into a runtime
+    // `retire()` has already nulled, and then calls `onStart` — a declared
+    // consumer callback after the terminal barrier (I-36 (2) acts 1 and 4).
+    //
+    // Both accessors have to be *instrumented* to reach it, and that is the
+    // finding rather than a caveat: teardown removes the placeholder, so honest
+    // accessors make the survival test throw instead. A custom element that
+    // proxies either one turns that second line of defence off, and the library
+    // must not depend on the consumer's accessors telling the truth.
+    const built: HTMLElement[] = [];
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      createPlaceholder: (): HTMLElement => {
+        const element = document.createElement('div');
+        let reads = 0;
+
+        Object.defineProperty(element, 'isConnected', {
+          get: (): boolean => {
+            reads += 1;
+
+            // The adoption check inside `createPlaceholder` reads it first and
+            // requires a detached element; the survival test is the second.
+            if (reads === 1) {
+              return false;
+            }
+
+            harness!.controller.destroy();
+            return true;
+          },
+        });
+        built.push(element);
+        return element;
+      },
+    });
+
+    Object.defineProperty(harness.items[0]!, 'nextElementSibling', {
+      get: (): Element | null => built[0] ?? null,
+    });
+
+    activate(harness);
+
+    expect(built).toHaveLength(1);
+    expect(harness.started).toEqual([]);
+  });
+
+  it('should build no proposal when the axis destroys the controller while resolving the release', () => {
+    // The second stretch that ends at the same reading: the axis measures the
+    // consumer-owned placeholder *after* its candidate loop, so a resolution
+    // can return a fresh insertion on a controller that no longer exists.
+    const held = bench({
+      resolveInsertion: (): Insertion => {
+        held.rt.closed = true;
+        return { version: 0, index: 0, before: null, after: null };
+      },
+    });
+
+    held.rt.view = {
+      realm: held.rt.host.realm,
+      placeholder: held.item,
+      item: held.item,
+      getVisual: null,
+      live: () => !held.rt.closed,
+      snapshot: held.rt.snapshot,
+      insertion: null,
+    };
+
+    const draft = {
+      ...createSortableFramePart(),
+      phase: RELEASING,
+      pointerId: POINTER_ID,
+      snapshot: held.rt.snapshot,
+      item: held.item,
+      insertion: { version: 0, index: 0, before: null, after: null },
+    } as unknown as Parameters<typeof held.spec.release.prepare>[0];
+
+    expect(held.spec.release.prepare(draft)).toEqual({ invoke: null });
+    expect(draft.proposal).toBeNull();
+  });
+
+  it('should re-anchor nothing when a re-anchor conjunct destroys the controller', () => {
+    // Teardown has already removed the placeholder, so `item.before()` after a
+    // destroy re-inserts a footprint the operation has finished with — into the
+    // consumer's list, where nothing removes it again (I-36 (2) act 3).
+    const held = bench({});
+    const placeholder = document.createElement('div');
+
+    // In the list, after both items: the conjuncts compare the item's parent
+    // with the placeholder's, so a detached placeholder would short-circuit and
+    // make the case vacuous. In a real teardown it *is* detached — but a
+    // consumer element that proxies `parentElement` turns that off, which is
+    // why the barrier is a reading rather than a DOM coincidence.
+    held.root.append(placeholder);
+    held.rt.placeholder = placeholder;
+
+    Object.defineProperty(held.item, 'isConnected', {
+      get: (): boolean => {
+        held.rt.closed = true;
+        return true;
+      },
+    });
+
+    const current = {
+      ...createSortableFramePart(),
+      item: held.item,
+      recovery: RECOVERY_DESTINATION,
+    } as unknown as Parameters<typeof held.spec.anchorTarget>[0];
+
+    expect(held.spec.anchorTarget(current, true)).toEqual({ x: 0, y: 0 });
+    // Unmoved: the placeholder is still last, not dragged up beside the item.
+    expect(held.root.lastElementChild).toBe(placeholder);
+  });
+
+  it('should publish no request when the release render destroys the controller', () => {
+    // `lift.write` composes a transform onto `visual.style`, and `style` is an
+    // accessor a custom element may define — so the render is the last
+    // consumer-reachable call before the request is published, and a request
+    // written after `retire()` cleared it outlives the operation (I-20).
+    const held = bench({});
+
+    held.rt.placeholder = held.item;
+    held.rt.lift = {
+      write: (): void => {
+        held.rt.closed = true;
+      },
+    } as unknown as NonNullable<typeof held.rt.lift>;
+
+    const request: ReorderRequest = {} as unknown as ReorderRequest;
+    const current = {
+      ...createSortableFramePart(),
+      pointerId: POINTER_ID,
+      pointerX: 0,
+      pointerY: 0,
+      originX: 0,
+      originY: 0,
+      item: held.item,
+      insertion: { version: 0, index: 0, before: null, after: null },
+      proposal: { request },
+    } as unknown as Parameters<typeof held.spec.release.effect>[0];
+
+    held.spec.release.effect(current, true as never);
+
+    expect(held.rt.pendingRequest).toBeNull();
+  });
+
+  it('should publish no domain when the resolution’s own accessor destroys the controller', () => {
+    // `isReorderResolution` is a duck-type test on `.type`, so every field of
+    // the resolution is an accessor on an object the consumer built.
+    const held = bench({});
+    const draft = {
+      ...createSortableFramePart(),
+      proposal: { request: {}, from: 0, to: 0 },
+    } as unknown as Parameters<typeof held.spec.settlement.prepare>[0];
+
+    const value = {
+      get type(): string {
+        held.rt.closed = true;
+        return 'accepted';
+      },
+      presentation: true,
+    };
+
+    expect(
+      held.spec.settlement.prepare(draft, {
+        type: SETTLED_FULFILLED,
+        value,
+      } as never),
+    ).toEqual({ presentation: false });
+    expect(draft.domain).toBeNull();
   });
 });

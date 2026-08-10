@@ -62,6 +62,26 @@ export type Composition = Readonly<{
    * divergence is a silent correctness bug and not a style one. The 2-D *rule*
    * itself costs the list consumer nothing, which is the constraint the shape
    * decision was made under.
+   *
+   * **Re-based again 2026-08-08, Checkpoint D review 5 (Phase 21, pulled
+   * forward).** The rule this re-base establishes is in `.plan/plan.md` §Phase
+   * 21: *a size budget is never a reason to defer a fix for a floor breach; if
+   * the fix does not fit, the budget re-bases and the fix lands. What a budget
+   * may defer is defence in depth.* The C5 closure pass landed **nine** I-36
+   * floor fixes — C5-01's animation-subscription barrier, C5-02's placeholder
+   * mechanics, and seven more the stretch sweep found in `placeholder.ts` and
+   * `spec.ts`. Mid-pass they took `complete` **1 B over** its 11,040 budget,
+   * and the budget re-based rather than the fix shrinking; brotli then gave
+   * some of it back as the repeated `rt.closed` guards started sharing a
+   * dictionary, so the landed cost is **+91 B** on `complete` against 106 B of
+   * headroom. The re-base stays: 15 B is not a margin the next correctness fix
+   * should be planning against, and taking the byte count out of the terminal
+   * safety argument is the point of pulling it forward. Landed per-composition
+   * cost: minimal **+83 B**, minimal (xy) **+77 B**, + layoutAnimation
+   * **+90 B**, + landing **+82 B**, complete **+91 B**, baseline A **+97 B**;
+   * baseline B is the shipped package and did not move. Every budget is now
+   * its measurement plus ~150 B, the headroom the Phase 17 re-base left, and
+   * still under one module's worth.
    */
   budget: number;
   /**
@@ -104,7 +124,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/callbacks.js': '{ callbacks }',
     },
-    budget: 10_260,
+    budget: 10_340,
     absent: [...without(), withoutAxis('sortable/y.js')],
   },
   {
@@ -118,7 +138,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/xy.js': '{ xy }',
       'sortable/callbacks.js': '{ callbacks }',
     },
-    budget: 10_310,
+    budget: 10_380,
     absent: [...without(), withoutAxis('sortable/xy.js')],
     present: ['sortable/rect-index.js'],
   },
@@ -131,7 +151,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/callbacks.js': '{ callbacks }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_670,
+    budget: 10_790,
     absent: [
       ...without('sortable/layout-animation.js'),
       withoutAxis('sortable/y.js'),
@@ -147,7 +167,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/callbacks.js': '{ callbacks }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 10_560,
+    budget: 10_620,
     absent: [...without('sortable/landing.js'), withoutAxis('sortable/y.js')],
     present: ['sortable/landing.js'],
   },
@@ -163,7 +183,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 11_040,
+    budget: 11_200,
     absent: [withoutAxis('sortable/y.js')],
     present: OPTIONAL,
   },
@@ -171,7 +191,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 10_810,
+    budget: 10_900,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted

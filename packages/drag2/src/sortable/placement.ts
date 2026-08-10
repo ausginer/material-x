@@ -20,6 +20,22 @@ export type PlaceholderContext = Readonly<{
 export type PlaceholderFactory = (context: PlaceholderContext) => HTMLElement;
 
 /**
+ * The **internal** slot shape: the public {@link PlaceholderFactory} a consumer
+ * writes, plus the liveness reading the library hands its own `placeholder()`
+ * feature (I-36 (1)).
+ *
+ * Widening the contribution rather than `PlaceholderFactory` is what keeps the
+ * shape a consumer implements unchanged — a consumer factory simply ignores the
+ * second argument — while giving the one first-party module that mutates a
+ * consumer-owned element between two of its own statements a reading to stand
+ * behind (C5-03's stretch sweep).
+ */
+export type PlaceholderSlot = (
+  context: PlaceholderContext,
+  live: () => boolean,
+) => HTMLElement;
+
+/**
  * Applies the mechanics that are **always present and not configurable away**,
  * whether the element came from a feature factory or from the default below:
  * it occupies exactly one insertion position, is hidden from assistive
@@ -33,11 +49,36 @@ function applyMechanics(
   placeholder: HTMLElement,
   item: HTMLElement,
   visual: HTMLElement,
+  live: () => boolean,
 ): void {
+  // **Every read first, then every write** (I-36 (2) act 3, C5-02). Each call
+  // below is consumer-reachable — `getAttribute` on the item, the offset
+  // getters on the visual, `setAttribute`/`style` on a placeholder a
+  // `placeholder()` feature may own — and the element is not adopted until
+  // `activation.prepare` returns, so a mutation left on it after `destroy()` is
+  // a residue teardown never undoes. Ordering the reads ahead of the writes
+  // makes the whole read run one stretch that leaves nothing behind whichever
+  // of them closes the controller; each write then carries its own reading, so
+  // the sequence stops before the next surviving mutation rather than after it.
+  const slot = item.getAttribute('slot');
+  const width = visual.offsetWidth;
+  const height = visual.offsetHeight;
+
+  if (!live()) {
+    return;
+  }
+
   placeholder.setAttribute('data-drag-placeholder', '');
+
+  if (!live()) {
+    return;
+  }
+
   placeholder.setAttribute('aria-hidden', 'true');
 
-  const slot = item.getAttribute('slot');
+  if (!live()) {
+    return;
+  }
 
   // Mirrored, not merely copied. A custom placeholder may arrive carrying a
   // `slot` of its own; leaving that in place when the item has none puts the
@@ -49,9 +90,27 @@ function applyMechanics(
     placeholder.setAttribute('slot', slot);
   }
 
-  placeholder.style.boxSizing = 'border-box';
-  placeholder.style.width = `${visual.offsetWidth}px`;
-  placeholder.style.height = `${visual.offsetHeight}px`;
+  if (!live()) {
+    return;
+  }
+
+  // Read once: `style` is an overridable accessor on a custom element, and a
+  // consumer declaration's property setters are consumer code like any other.
+  const { style } = placeholder;
+
+  style.boxSizing = 'border-box';
+
+  if (!live()) {
+    return;
+  }
+
+  style.width = `${width}px`;
+
+  if (!live()) {
+    return;
+  }
+
+  style.height = `${height}px`;
 }
 
 /**
@@ -63,16 +122,34 @@ export function createPlaceholder(
   item: HTMLElement,
   visual: HTMLElement,
   rect: DOMRectReadOnly,
-  factory: PlaceholderFactory | null,
+  factory: PlaceholderSlot | null,
+  live: () => boolean,
 ): HTMLElement {
   if (factory === null) {
     const placeholder = realm.document.createElement('div');
 
-    applyMechanics(placeholder, item, visual);
+    applyMechanics(placeholder, item, visual, live);
     return placeholder;
   }
 
-  const placeholder = factory({ item, visual, rect });
+  const placeholder = factory({ item, visual, rect }, live);
+
+  // **The terminal barrier on the factory** (I-36, C4-01). The factory is
+  // consumer code, and everything below it touches consumer-owned elements:
+  // the adoption check reads `isConnected`, and `applyMechanics` reads
+  // `visual.offsetWidth`/`offsetHeight` and writes attributes and inline styles
+  // onto the returned element, all overridable on a consumer's custom element.
+  // The mechanics carry their own readings from C5-02; this one covers the
+  // factory itself and the adoption check between them.
+  //
+  // Returned unmechanized rather than thrown, and the adoption check is skipped
+  // with it: a consumer destroying its own controller is not a library failure
+  // (C2-01 §What this does not close), and nothing here has been adopted —
+  // `activation.prepare` has published nothing and `preparationValid()` discards
+  // the whole preparation, so the element is dropped rather than inserted.
+  if (!live()) {
+    return placeholder;
+  }
 
   // The factory is consumer code and its result is **adopted**: activation
   // inserts it, every move relocates it, and teardown removes it. So returning
@@ -93,7 +170,7 @@ export function createPlaceholder(
     );
   }
 
-  applyMechanics(placeholder, item, visual);
+  applyMechanics(placeholder, item, visual, live);
   return placeholder;
 }
 

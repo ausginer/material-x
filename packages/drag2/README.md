@@ -54,6 +54,7 @@ Deliberate behavioural differences from the shipped `@ydinjs/drag`:
 - `LandingContext.from` and `.target` are **origin-relative deltas**, not viewport points, and the readiness-time `retarget(target)` receives a delta too. `anchorTarget` produces a viewport point and the kernel converts. Contract 02 shows the raw point being handed to the runner, but the runner's only writer is `compose(x, y)`, which consumes a delta from the grab rect — a point it cannot convert, because the context carries no `originRect`. The shipped package's landing plans were already in delta space.
 - `acquireLift` throws when the visual's box space cannot be read — a disconnected, fragmented, or 3D-transformed visual. The shipped package flattened 3D to its 2D projection, producing a wrong lift rather than a refused one.
 - **The authored-presentation protocol is a declaration plus an acknowledgement**, not a promise: `ReorderResolution.accept({ presentation: true })` and `controller.ready(request)`, keyed on the request the callback was handed. The shipped `presentationReady` promise put four obligations on the consumer whose only failure signal was a 500 ms silence (contract D-33).
+- **A resolver that destroys the controller stops the sequence at that call** (contract I-36). `handle()` and `visual()` are consumer code the behavior invokes in a sequence — `handle()` then `visual()` at admission, and `visual()` once per candidate during a geometry rebuild — and `destroy()` is synchronous, so a resolver calling it returns into the middle of that sequence. Nothing after it runs: from `handle()`, admission **declines** (no operation, no `preventDefault()`, no `onError` — destroying your own controller is not a library failure); from `visual()` at admission, admission **also** declines — the draft is not seeded and the default is not prevented either, so on the keyboard ingress the arrow key keeps its native meaning; from `visual()` during a rebuild, no later candidate is resolved, no geometry is read, and the cache stays in the retired state teardown left it in. **The same holds for a composition that installs no `visual()` at all**: the library also calls `getBoundingClientRect()` on your rows and on your placeholder, and an override of it on a custom element is your code too, so destroying from one of those stops the traversal at exactly the same point. The shipped package's candidate rebuild has no such check and carries on.
 - **The axis rule is a named, installed feature**, and there are two: `y()` for a column and `xy()` for a wrapping field. The shipped package has no axis concept at all — its `nearestSlot` is a 2-D search — so `y()` is a _narrowing_ of shipped behavior and `xy()` restores the shipped default explicitly (ledger L-8).
 
 ## Geometry
@@ -82,36 +83,43 @@ The subpaths in `files.json` are declared before the modules they name exist rat
 | `sortable/landing.js` | `landing` | `LandingOptions`, `LandingStart`, `LandingContext`, `LandingHandle` |
 | `sortable/layout-animation.js` | `layoutAnimation` | `LayoutAnimationOptions` |
 
-Every type a public type structurally depends on is exported, rather than left reachable-but-unnameable: that is why `FailureStage`, `DOMRealm`, `Point`, `CollectionSnapshot` and `PlaceholderFactory` are on the list. TypeDoc over these eight entries emits **zero** unresolved-reference warnings, and none are suppressed — a warning there means a public type depends on something a consumer cannot name.
+Every type a public type structurally depends on is exported, rather than left reachable-but-unnameable: that is why `FailureStage`, `DOMRealm`, `Point`, `CollectionSnapshot` and `PlaceholderFactory` are on the list. TypeDoc over these nine entries emits **zero** unresolved-reference warnings, and none are suppressed — a warning there means a public type depends on something a consumer cannot name.
 
 Everything the kernel and a behavior say to each other — `BehaviorSpec`, `KernelHost`, every seam, scope, contribution and slot type, and the phase/lift/outcome/recovery constants — is internal, unstable, and reaches no entry module. The consumer fixture asserts each one is unreachable, and a `@ts-expect-error` that stops erroring fails the build, so the list cannot rot into a no-op.
 
 ### Option domains
 
-| Option                            | Unit   | Domain         | Default |
-| --------------------------------- | ------ | -------------- | ------- |
-| `callbacks({ threshold })`        | CSS px | finite, `>= 0` | `8`     |
-| `callbacks({ readinessTimeout })` | ms     | finite, `>= 1` | `500`   |
-| `landing({ duration })`           | ms     | finite, `>= 0` | `200`   |
-| `layoutAnimation({ duration })`   | ms     | finite, `>= 0` | `160`   |
+| Option | Unit | Domain | Default |
+| --- | --- | --- | --- |
+| `callbacks({ threshold })` | CSS px | finite, `>= 0` | `8` |
+| `callbacks({ readinessTimeout })` | ms | finite, `>= 1` | `500` |
+| `landing({ duration })` | ms | finite, `>= 0`; or `() => number` returning one | `200` |
+| `layoutAnimation({ duration })` | ms | finite, `>= 0` | `160` |
 
-All four are validated at construction and throw a `TypeError` on a value outside the domain, so a `NaN` threshold fails at the call that introduced it rather than as a drag that never activates. `easing` is not validated: it is a CSS easing function and the platform is the only correct parser for one. `readinessTimeout` is a **failure bound, not a schedule** — exceeding it is `FAILURE_PRESENTATION_READY` and replaces the settlement.
+Each throws a `TypeError` on a value outside the domain, so a `NaN` threshold fails at the call that introduced it rather than as a drag that never activates. **One documented exception:** `landing({ run })` replaces the built-in runner outright, so `duration` and `easing` have nothing left to configure and are neither read nor checked — `landing({ duration: -1, run })` does not throw.
+
+**Where the check runs follows when the value exists.** A fixed option is validated **at construction**, once, before any drag. `landing({ duration })` additionally accepts a **thunk**, whose result does not exist until the landing opens: it is invoked and validated **once per landing**, at settlement — the moment the shipped package read `landingTiming()` — so a distance-scaled or per-drop duration keeps the default runner instead of replacing it. A thunk is checked for being a function at construction; its _result_ is checked at settlement, ahead of the reduced-motion collapse, so an invalid or thrown result is reported under `prefers-reduced-motion: reduce` exactly as it is without.
+
+`easing` is not validated: it is a CSS easing function and the platform is the only correct parser for one. `readinessTimeout` is a **failure bound, not a schedule** — exceeding it is `FAILURE_PRESENTATION_READY` and replaces the settlement.
 
 ## Size budgets
 
-Measured 2026-08-02 (M-3 — `.plan/measurements/m3.md`). `just size` runs `bench/size/measure.ts`, where each composition is one declaration: the exact named imports a consumer writes, a budget, and the modules its graph must and must not contain. It exits non-zero on any of the three.
+Baselined 2026-08-02 (M-3 — `.plan/measurements/m3.md`), re-measured **2026-08-08** at Checkpoint D and again after each of its four reviews. `just size` runs `bench/size/measure.ts`, where each composition is one declaration: the exact named imports a consumer writes, a budget, and the modules its graph must and must not contain. It exits non-zero on any of the three.
 
 | composition                                         | brotli       | modules |
 | --------------------------------------------------- | ------------ | ------- |
-| minimal                                             | **9.34 kB**  | 29      |
-| minimal + `layoutAnimation()`                       | 9.74 kB      | 30      |
-| minimal + `landing()`                               | 9.60 kB      | 30      |
-| complete                                            | **10.11 kB** | 33      |
-| _baseline A_ — feature-matched, non-composed        | 9.83 kB      | 28      |
+| minimal (`y()`)                                     | **10.12 kB** | 31      |
+| minimal (`xy()`)                                    | 10.17 kB     | 31      |
+| minimal + `layoutAnimation()`                       | 10.56 kB     | 32      |
+| minimal + `landing()`                               | 10.40 kB     | 32      |
+| complete                                            | **10.93 kB** | 35      |
+| _baseline A_ — feature-matched, non-composed        | 10.67 kB     | 30      |
 | _baseline B_ — shipped `@ydinjs/drag` `sortable.js` | 6.89 kB      | 26      |
+
+Five compositions, not four: Phase 17's second axis is a peer rather than an assumed equal, so `minimal (xy)` is measured. The growth over the M-3 baseline is accounted for — D-33's settlement protocol (+70 B), Phase 16's keyboard ingress (~300 B, deliberately not tree-shakeable), Phase 17's shared rect index (+60 B), Checkpoint D's fixes (+40 B) and its second review's terminal barrier (+30 B to +90 B, composition-dependent), its third review's abort return channel (±20 B, inside brotli's noise band) and its fourth review's completion of that barrier (+37 B minimal, +70 B with `layoutAnimation()`, +70 B complete). Every composition is still inside the budget it already had — no budget was re-based for the fourth review — with **0.11–0.16 kB of headroom against budgets originally set with ~0.3 kB**, tightest on `+ layoutAnimation` and `complete`. Phase 21 re-bases rather than absorbing again.
 
 The import maps _are_ the measurement, and the graph half is why this is not a `size-limit` config: a byte delta cannot tell "absent" from "present and mostly shaken" (`.agents/docs/measure/brief.md`). The two baselines are checked-in modules under `bench/size/`, because neither is expressible as a set of imports.
 
-**The two baselines answer different questions and are never substituted for each other.** A costs 0.26 kB less than `complete` with the same features: that is what composition costs. B is 2.44 kB smaller than `minimal` and is not feature-equivalent to anything here: that is what migrating costs.
+**The two baselines answer different questions and are never substituted for each other.** A costs 0.27 kB less than `complete` with the same features — 266 B exactly, 2.5% — and that is what composition costs. B is 3.23 kB smaller than `minimal` — 3,227 B exactly — and is not feature-equivalent to anything here: that is what migrating costs. Both come from the same `just size` run as the table above; the exact bytes are quoted because every earlier revision of this paragraph published a rounded figure that was stale on arrival.
 
 `tests/bench/size.node.test.ts` runs the same declarations in CI, plus a determinism check and a fidelity check that the hand-written non-composed baseline still fills exactly the slots `assemble()` fills.

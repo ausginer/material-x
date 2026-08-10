@@ -13,8 +13,14 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { draggable } from '../../src/drag.ts';
+import { createRealm } from '../../src/kernel/realm.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
+import {
+  type FeatureContext,
+  unbrandFeature,
+} from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
+import type { DisplacementView } from '../../src/sortable/slots.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
@@ -847,5 +853,314 @@ describe('teardown', () => {
     expect(composed.items[2]!.style.translate).toBe('');
     expect(reported).toEqual([]);
     expect(composed.errors).toEqual([]);
+  });
+});
+
+/**
+ * I-36 inside `layoutAnimation()` itself (C4-01).
+ *
+ * Both halves of the bracket invoke `getBoundingClientRect()` on
+ * **consumer-owned rows** in a loop, and the after half then calls `animate()`
+ * on them. Under I-36's indirect-invocation clause every one of those is a
+ * consumer call, so a row that destroys the controller from its own overridden
+ * method returns into the middle of a loop the behavior cannot guard from
+ * outside — `retire()` has already emptied this feature's state by then, and
+ * everything the loop does afterwards writes into it again.
+ *
+ * Driven directly rather than through the composition, because the two
+ * measurement passes are otherwise indistinguishable: the axis rebuild reads
+ * the same rows between them. **Every assertion is a call list on the
+ * instrumented row.**
+ */
+describe('the terminal barrier in the displacement bracket', () => {
+  type Bracket = Readonly<{
+    rows: HTMLElement[];
+    placeholder: HTMLElement;
+    view: DisplacementView;
+    before(): void;
+    after(): void;
+    /** Commits the move the bracket is wrapped around. */
+    move(): void;
+  }>;
+
+  const bracketFixture = (live: () => boolean): Bracket => {
+    const root = document.createElement('div');
+
+    Object.assign(root.style, {
+      position: 'absolute',
+      top: '0px',
+      left: '0px',
+      width: '200px',
+    });
+    document.body.append(root);
+    cleanup.push(() => {
+      root.remove();
+    });
+
+    const box = (): HTMLElement => {
+      const element = document.createElement('div');
+
+      Object.assign(element.style, {
+        display: 'block',
+        width: '100px',
+        height: `${ITEM_HEIGHT}px`,
+      });
+      root.append(element);
+      return element;
+    };
+
+    const item = box();
+    const placeholder = box();
+    const rows = [box(), box()];
+    const contribution = unbrandFeature(
+      layoutAnimation({ duration: DURATION }),
+    )(null as unknown as FeatureContext);
+    const view: DisplacementView = {
+      realm: createRealm(root),
+      snapshot: { items: [item, ...rows], version: 1 },
+      placeholder,
+      item,
+      // The anchor is the far row, so the crossed span is both rows.
+      insertion: { version: 1, index: 2, before: rows[0]!, after: rows[1]! },
+      live,
+    };
+
+    return {
+      rows,
+      placeholder,
+      view,
+      before: () => contribution.beforeInsertionMove!(view),
+      after: () => contribution.afterInsertionMove!(view),
+      move: () => {
+        rows[1]!.after(placeholder);
+      },
+    };
+  };
+
+  /** Records every row measured, and closes the controller from `target`'s. */
+  const measuringAt = (
+    rows: readonly HTMLElement[],
+    target: HTMLElement,
+    measured: HTMLElement[],
+    close: () => void,
+  ): void => {
+    for (const row of rows) {
+      const native = row.getBoundingClientRect.bind(row);
+
+      row.getBoundingClientRect = (): DOMRect => {
+        measured.push(row);
+
+        if (row === target) {
+          close();
+        }
+
+        return native();
+      };
+    }
+  };
+
+  /** Records every row asked to animate, and hands back the real animation. */
+  const animatingRows = (
+    rows: readonly HTMLElement[],
+    played: HTMLElement[],
+    onPlay: (row: HTMLElement) => void = (): void => {},
+  ): void => {
+    for (const row of rows) {
+      const native = row.animate.bind(row);
+
+      row.animate = (frames, options): Animation => {
+        played.push(row);
+        onPlay(row);
+
+        return native(frames, options);
+      };
+    }
+  };
+
+  /**
+   * Hands back a real animation whose **`finished` accessor** is the consumer's
+   * — the shape a consumer gets for free by overriding `animate()` and
+   * returning an instrumented animation.
+   */
+  const finishedAccessorAt = (
+    rows: readonly HTMLElement[],
+    onRead: () => void,
+  ): void => {
+    for (const row of rows) {
+      const native = row.animate.bind(row);
+
+      row.animate = (frames, options): Animation => {
+        const animation = native(frames, options);
+        const { finished } = animation;
+
+        Object.defineProperty(animation, 'finished', {
+          get: (): Promise<Animation> => {
+            onRead();
+            return finished;
+          },
+        });
+
+        return animation;
+      };
+    }
+  };
+
+  /** The other half of the acquisition: an overridable `then` on the thenable. */
+  const thenableAt = (
+    rows: readonly HTMLElement[],
+    onSubscribe: () => void,
+  ): void => {
+    for (const row of rows) {
+      const native = row.animate.bind(row);
+
+      row.animate = (frames, options): Animation => {
+        const animation = native(frames, options);
+        const { finished } = animation;
+
+        Object.defineProperty(animation, 'finished', {
+          get: (): Promise<Animation> =>
+            ({
+              then: (
+                onDone: (value: Animation) => void,
+                onFail: (reason: unknown) => void,
+              ): unknown => {
+                onSubscribe();
+                return finished.then(onDone, onFail);
+              },
+            }) as unknown as Promise<Animation>,
+        });
+
+        return animation;
+      };
+    }
+  };
+
+  it('should cancel an animation whose `finished` accessor closed the controller', () => {
+    // C5-01. The accessor returns **normally**, so the acquisition `catch`
+    // never sees it: `retire()` ran while `running` was still empty, and
+    // without a reading before `running.set()` the row keeps a live
+    // displacement nothing will ever cancel.
+    let alive = true;
+    const bracket = bracketFixture(() => alive);
+    const played: HTMLElement[] = [];
+
+    bracket.before();
+    bracket.move();
+    animatingRows(bracket.rows, played);
+    finishedAccessorAt(bracket.rows, () => {
+      alive = false;
+    });
+    bracket.after();
+
+    expect(played).toEqual([bracket.rows[0]]);
+    expect(displacements(bracket.rows[0]!)).toEqual([]);
+  });
+
+  it('should cancel an animation whose `finished` thenable closed the controller', () => {
+    // The second half of the same acquisition: `then` is a call on an object
+    // the consumer chose, and it too can destroy and return normally.
+    let alive = true;
+    const bracket = bracketFixture(() => alive);
+    const played: HTMLElement[] = [];
+
+    thenableAt(bracket.rows, () => {
+      alive = false;
+    });
+
+    bracket.before();
+    bracket.move();
+    animatingRows(bracket.rows, played);
+    bracket.after();
+
+    expect(played).toEqual([bracket.rows[0]]);
+    expect(displacements(bracket.rows[0]!)).toEqual([]);
+  });
+
+  it('should measure no further row once a before-pass measurement closes the controller', () => {
+    let alive = true;
+    const bracket = bracketFixture(() => alive);
+    const measured: HTMLElement[] = [];
+
+    measuringAt(bracket.rows, bracket.rows[0]!, measured, () => {
+      alive = false;
+    });
+    bracket.before();
+
+    expect(measured).toEqual([bracket.rows[0]]);
+  });
+
+  it('should start no animation once a before-pass measurement closes the controller', () => {
+    // The behavior takes its own reading before `movePlaceholder`, so in a real
+    // bracket `afterMove` never runs at all — this pins the feature's own half,
+    // which has to hold for any other producer of the same pipeline.
+    let alive = true;
+    const bracket = bracketFixture(() => alive);
+    const measured: HTMLElement[] = [];
+    const played: HTMLElement[] = [];
+
+    measuringAt(bracket.rows, bracket.rows[0]!, measured, () => {
+      alive = false;
+    });
+    animatingRows(bracket.rows, played);
+    bracket.before();
+    bracket.move();
+    bracket.after();
+
+    expect(played).toEqual([]);
+  });
+
+  it('should start no animation once an after-pass measurement closes the controller', () => {
+    // The reviewer's reproduction: the after-pass geometry read destroys, and
+    // `animate()` still runs on a feature whose `retire()` has already finished
+    // cancelling everything it knew about — so nothing would ever release it.
+    let alive = true;
+    const bracket = bracketFixture(() => alive);
+    const measured: HTMLElement[] = [];
+    const played: HTMLElement[] = [];
+
+    bracket.before();
+    bracket.move();
+    measuringAt(bracket.rows, bracket.rows[0]!, measured, () => {
+      alive = false;
+    });
+    animatingRows(bracket.rows, played);
+    bracket.after();
+
+    expect(played).toEqual([]);
+  });
+
+  it('should measure no further row once an after-pass measurement closes the controller', () => {
+    let alive = true;
+    const bracket = bracketFixture(() => alive);
+    const measured: HTMLElement[] = [];
+
+    bracket.before();
+    bracket.move();
+    measuringAt(bracket.rows, bracket.rows[0]!, measured, () => {
+      alive = false;
+    });
+    bracket.after();
+
+    expect(measured).toEqual([bracket.rows[0]]);
+  });
+
+  it('should cancel an animation whose own start closed the controller', () => {
+    // `animate()` is overridable on a consumer's row too, so it is the third
+    // consumer call in the iteration. The animation is not in the feature's map
+    // yet, so `retire()` cannot have seen it: cancelling it here is the only
+    // thing that stops it writing `translate` forever.
+    let alive = true;
+    const bracket = bracketFixture(() => alive);
+    const played: HTMLElement[] = [];
+
+    bracket.before();
+    bracket.move();
+    animatingRows(bracket.rows, played, () => {
+      alive = false;
+    });
+    bracket.after();
+
+    expect(played).toEqual([bracket.rows[0]]);
+    expect(displacements(bracket.rows[0]!)).toEqual([]);
   });
 });

@@ -1,8 +1,12 @@
 /**
  * The numeric domains of every public option, checked where they are declared.
  *
- * All four are validated at **construction**, with the offending call still on
- * the stack — the same rule `copyUniqueItems` follows for a duplicate item. The
+ * Each is validated as early as its value exists, which for a fixed option is
+ * **construction**, with the offending call still on the stack — the same rule
+ * `copyUniqueItems` follows for a duplicate item. Two cases deliberately are
+ * not: a `landing({ duration })` thunk is range-checked per landing (pinned
+ * below), and `landing({ run })` suppresses the duration domain outright,
+ * because a replacement runner leaves nothing for it to configure. The
  * types say `number`, but a JavaScript consumer is not bound by that, and the
  * silent failures are nasty: a `NaN` threshold activates on nothing, a `NaN`
  * duration produces an animation that never finishes, and a `0` readiness

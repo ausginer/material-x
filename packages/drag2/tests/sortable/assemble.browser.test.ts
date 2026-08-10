@@ -245,8 +245,10 @@ describe('assemble', () => {
 
 describe('assemble validation', () => {
   it('should refuse a composition with no insertion geometry', () => {
+    // Axis-neutral wording (D8): `xy()` fills the same slot, so naming `y()`
+    // alone described a valid 2-D composition as missing the feature it had.
     expect(() => assemble([required()[1]!], createFixture().context)).toThrow(
-      new TypeError('sortable: y() is required'),
+      new TypeError('sortable: an axis feature — y() or xy() — is required'),
     );
   });
 

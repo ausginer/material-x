@@ -2,7 +2,11 @@
  * The behavior's private runtime: an ordinary object, declared and created in
  * one place, **never handed to the kernel and never widened** (H-2, D-4).
  *
- * Seven mutable fields. Probe 1's shared runtime had those plus fourteen kernel
+ * Eight mutable fields — the eighth is the terminal latch C2-01 moved here off
+ * the controller's closure, so the behavior's four barriers and `updateItems`
+ * read one latch rather than two that can disagree.
+ *
+ * Probe 1's shared runtime had those plus fourteen kernel
  * fields — the queue, the frame references, the attempt slots, the cancel latch
  * — all of which are now unreachable, unnameable and untestable from outside,
  * which is correct: none of them is a behavior concern.
@@ -51,6 +55,26 @@ export type PresentationView = {
    * at activation rather than rewritten per move.
    */
   readonly item: HTMLElement;
+  /**
+   * The installed `visual()` resolver, for the axis rule's candidate
+   * measurement (parity D2). Copied off the slots once per operation rather than
+   * read through `slots` per rebuild, so the axis feature keeps naming only
+   * fields of this object and never reaches the slot record.
+   */
+  readonly getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  /**
+   * The controller's terminal latch, read as a predicate (I-36).
+   *
+   * The candidate loop inside `RectIndex.refresh` calls the consumer's
+   * `visual()` resolver once per candidate, and a resolver may destroy the
+   * controller. The loop is feature-private (D-19, H-4) and cannot reach `rt`,
+   * so the reading travels through the per-operation view — the **fourth
+   * additive widening** of the D-13 consumer-declared view (8a `item`, 17
+   * `pointerX`, D2 `getVisual`, C2-01 `live`), with no import edge and one
+   * closure per controller copied by reference per operation.
+   */
+  // eslint-disable-next-line @typescript-eslint/method-signature-style -- `readonly` is not expressible on a method signature
+  readonly live: () => boolean;
   snapshot: CollectionSnapshot;
   /**
    * The destination gap of the placeholder move currently being bracketed.
@@ -89,6 +113,23 @@ export type SortableRuntime = {
   readonly frame: FrameTask<number>;
   /** The published collection. Replaced wholesale, never mutated. */
   snapshot: CollectionSnapshot;
+  /**
+   * **The terminal latch** (D3, then C2-01). Set by `controller.destroy()`
+   * before it delegates to `host.destroy()`, so every barrier inside the
+   * behavior — `updateItems`'s validation, the admission sequence, the
+   * committed-move bracket, and the candidate loop through `view.live` — reads
+   * one field rather than keeping a second copy that can disagree.
+   *
+   * Behavior-private bookkeeping, deliberately: `KernelHost` does not expose
+   * `closed`, and widening a frozen SPI type for this is the change contract 00
+   * forbids without a case the SPI cannot express (I-36, L-12).
+   *
+   * Its one blind spot is a kernel-internal `panic()` destroy, which does not
+   * route through the controller. Unreachable from a behavior-interior sequence,
+   * and the one site that *does* have a stronger reading — `activation.effect`,
+   * handed the presentation scope — keeps using `signal.aborted` instead.
+   */
+  closed: boolean;
   /** Null when idle. */
   view: PresentationView | null;
   placeholder: HTMLElement | null;
@@ -142,6 +183,7 @@ export function createSortableRuntime(
     // precondition holds from construction rather than only from the first
     // `updateItems`.
     snapshot: { items: copyUniqueItems(items), version: 0 },
+    closed: false,
     view: null,
     placeholder: null,
     lift: null,

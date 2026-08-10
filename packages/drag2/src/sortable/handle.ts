@@ -15,6 +15,13 @@ import { brandFeature, type SortableFeature } from './feature.ts';
 /**
  * Admission narrows to the resolved handle. The item stays the item the
  * collection knows; `null` means this press is not a drag.
+ *
+ * **Destroying the controller from inside this resolver stops the sequence at
+ * this call** (I-36). Admission then *declines* — no operation is minted, no
+ * `visual()` resolver runs, `preventDefault()` is not called, and on the
+ * keyboard ingress the arrow key keeps its native meaning. Declining rather
+ * than failing is deliberate: destroying your own controller is not a library
+ * error and is never reported through `onError`.
  */
 export function handle(
   resolve: (item: HTMLElement) => HTMLElement | null,
@@ -26,6 +33,22 @@ export function handle(
  * The lifted element. It is what gets promoted, measured for the placeholder's
  * size, transformed on every move and landed — so it must be the item or live
  * inside it.
+ *
+ * **Called for every candidate, not only the dragged item** (parity D2). The
+ * axis rule searches candidate *visuals*, because the incumbent it compares them
+ * against is the placeholder and the placeholder is sized from the visual's
+ * offset box. So a resolver must map each item to *its own* visual — a
+ * `() => oneFixedElement` resolver is wrong here, and was wrong in the shipped
+ * package for the same reason.
+ *
+ * It sits on the geometry path: once per candidate per rebuild, and not at all
+ * on a warm cache. Keep it a lookup, not a query.
+ *
+ * **Destroying the controller from inside this resolver stops the sequence at
+ * this call** (I-36). No later candidate is resolved, no geometry is read, the
+ * rebuild leaves its cache in the retired state teardown put it in, and the
+ * frame that asked for the rebuild commits nothing. Nothing is reported: a
+ * consumer destroying its own controller is not a library failure.
  */
 export function visual(
   resolve: (item: HTMLElement) => HTMLElement,
