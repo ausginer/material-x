@@ -12,7 +12,7 @@ The review is right, and one detail of it is worth correcting because it changes
 
 Pre-fix, the check was **not** inside the `getVisual !== null` branch, whatever the comment above it claimed. The order per candidate was `getVisual(item)` → `live()` → `visual.getBoundingClientRect()` → write. So:
 
-- a destroy raised from candidate *k*'s **geometry** was already caught before candidate *k+1*'s geometry — but **not** before candidate *k+1*'s `getVisual`, which ran first;
+- a destroy raised from candidate _k_'s **geometry** was already caught before candidate _k+1_'s geometry — but **not** before candidate _k+1_'s `getVisual`, which ran first;
 - a destroy raised from the **last** candidate's geometry fell through to the write **and** to the trailing bookkeeping, marking a retired cache clean and measured at the snapshot's own version;
 - with **no `visual()` composed** the reading was still taken, so that composition aborted one candidate late rather than not at all.
 
@@ -22,15 +22,15 @@ The consequence for testing is direct and cost two drafts: **a case that destroy
 
 **A general mechanism, and the argument is that the site list does not terminate.**
 
-C2-01 derived F-47's enumeration by asking *which consumer callbacks does the library invoke* — `getHandle`, `getVisual`, `createPlaceholder`, the hooks, `onStart`, `onReorder`, the landing runner. That question has a finite answer, and each of the three passes closed exactly the site the previous reviewer reproduced. But C3-03 §3.2 changed the question without changing the enumeration: under the indirect-invocation clause the governing set is **every DOM method the library calls on a consumer-owned node**, because any of them can be overridden on a consumer's custom element. Enumerated as a list of method names that set includes `getBoundingClientRect`, `animate`, `offsetWidth`/`offsetHeight`, `before`/`after`/`remove`, `compareDocumentPosition`, `nextElementSibling`, `isConnected`, `getAttribute`/`setAttribute` — and a fourth reviewer would find the one the third did not name. **That is the pattern, and it is worth saying explicitly: a site-by-site barrier against an open-ended set converges only by exhaustion of reviewers.**
+C2-01 derived F-47's enumeration by asking _which consumer callbacks does the library invoke_ — `getHandle`, `getVisual`, `createPlaceholder`, the hooks, `onStart`, `onReorder`, the landing runner. That question has a finite answer, and each of the three passes closed exactly the site the previous reviewer reproduced. But C3-03 §3.2 changed the question without changing the enumeration: under the indirect-invocation clause the governing set is **every DOM method the library calls on a consumer-owned node**, because any of them can be overridden on a consumer's custom element. Enumerated as a list of method names that set includes `getBoundingClientRect`, `animate`, `offsetWidth`/`offsetHeight`, `before`/`after`/`remove`, `compareDocumentPosition`, `nextElementSibling`, `isConnected`, `getAttribute`/`setAttribute` — and a fourth reviewer would find the one the third did not name. **That is the pattern, and it is worth saying explicitly: a site-by-site barrier against an open-ended set converges only by exhaustion of reviewers.**
 
 Three general mechanisms were considered:
 
 - **Wrapping consumer-owned elements** (a proxy, or a per-call bracket helper). Rejected on cost and on the same ownership ground C2-01 rejected a kernel-owned mechanism: it is an allocation per element per operation on a per-frame geometry path, and it would put library machinery between a consumer and their own DOM.
-- **One revalidation per traversal.** Rejected: it permits every call *within* the traversal, which is exactly what C4-01 reports.
+- **One revalidation per traversal.** Rejected: it permits every call _within_ the traversal, which is exactly what C4-01 reports.
 - **The rule made structural, which is what landed.** A liveness reading at the **head of every loop that touches consumer-owned nodes**, after each consumer-reachable call inside it, and before the next foreign call, DOM mutation or state publication — and, crucially, **every participant that touches consumer DOM is handed a liveness reading** rather than having its caller patched. That is what makes it checkable by inspection: "does this module touch a consumer-owned node, and does it have `live`?" is a question with a mechanical answer, where "is `getBoundingClientRect` on the list?" is not.
 
-The one non-obvious consequence, accepted deliberately: **the minimal composition now pays for the barrier.** C2-01's cost story was "with no `visual()` composed there is no consumer callback in the loop, so the minimal build pays nothing". That was true of the *resolver* and false of the loop — with no resolver, the candidate item is its own visual and its `getBoundingClientRect()` is the consumer call. The reading is one boolean-returning closure call per candidate per **rebuild**, on the same line as a `getBoundingClientRect()` that forces layout.
+The one non-obvious consequence, accepted deliberately: **the minimal composition now pays for the barrier.** C2-01's cost story was "with no `visual()` composed there is no consumer callback in the loop, so the minimal build pays nothing". That was true of the _resolver_ and false of the loop — with no resolver, the candidate item is its own visual and its `getBoundingClientRect()` is the consumer call. The reading is one boolean-returning closure call per candidate per **rebuild**, on the same line as a `getBoundingClientRect()` that forces layout.
 
 ### The re-derived enumeration
 
@@ -65,15 +65,15 @@ Nine readings landed, across five modules. `DisplacementView` gained `live()` �
 
 ### Cost
 
-| composition | before | after | Δ |
-| --- | ---: | ---: | ---: |
-| minimal | 10,079 B | **10,116 B** | +37 |
-| minimal (xy) | 10,125 B | **10,168 B** | +43 |
+| composition         |   before |        after |   Δ |
+| ------------------- | -------: | -----------: | --: |
+| minimal             | 10,079 B | **10,116 B** | +37 |
+| minimal (xy)        | 10,125 B | **10,168 B** | +43 |
 | + `layoutAnimation` | 10,493 B | **10,563 B** | +70 |
-| + `landing` | 10,391 B | **10,405 B** | +14 |
-| complete | 10,864 B | **10,934 B** | +70 |
-| baseline A | 10,581 B | **10,668 B** | +87 |
-| baseline B | 6,889 B | 6,889 B | 0 |
+| + `landing`         | 10,391 B | **10,405 B** | +14 |
+| complete            | 10,864 B | **10,934 B** | +70 |
+| baseline A          | 10,581 B | **10,668 B** | +87 |
+| baseline B          |  6,889 B |      6,889 B |   0 |
 
 **Every composition stayed inside the budget it already had; no budget was raised.** Headroom 106–155 B (**0.11–0.16 kB**), tightest on `+ layoutAnimation` and `complete` at 106 B each. Module counts unchanged.
 
@@ -89,12 +89,12 @@ Per-frame:
 
 ### Tests — 16 new, every one verified to fail against pre-fix source
 
-`tests/sortable/y.browser.test.ts` and `xy.browser.test.ts`, new group *the terminal barrier on candidate geometry* (4 + 5 cases); `tests/sortable/displacement.browser.test.ts`, new group *the terminal barrier in the displacement bracket* (5 cases, driven directly through `unbrandFeature(layoutAnimation())` with a hand-built `DisplacementView`); `tests/sortable/features.browser.test.ts`, two composed cases added to the existing I-36 group.
+`tests/sortable/y.browser.test.ts` and `xy.browser.test.ts`, new group _the terminal barrier on candidate geometry_ (4 + 5 cases); `tests/sortable/displacement.browser.test.ts`, new group _the terminal barrier in the displacement bracket_ (5 cases, driven directly through `unbrandFeature(layoutAnimation())` with a hand-built `DisplacementView`); `tests/sortable/features.browser.test.ts`, two composed cases added to the existing I-36 group.
 
 Two traps found while writing them, both recorded in `tests/COVERAGE.md`:
 
 1. **The last candidate is the discriminating one** (above).
-2. **The composed after-pass case needs the instrumented rect returned *shifted*.** Teardown removes the placeholder and drops the lift, which puts the row back exactly where the pass measured it — so an honest rect makes `delta === 0`, `animate()` is skipped for a reason with nothing to do with the barrier, and the assertion stops discriminating. The reviewer's own reproduction shifted the rect too; the finding did not say why it mattered.
+2. **The composed after-pass case needs the instrumented rect returned _shifted_.** Teardown removes the placeholder and drops the lift, which puts the row back exactly where the pass measured it — so an honest rect makes `delta === 0`, `animate()` is skipped for a reason with nothing to do with the barrier, and the assertion stops discriminating. The reviewer's own reproduction shifted the rect too; the finding did not say why it mattered.
 
 Test count 736 → **752**. Nothing was weakened or removed. Two existing comments that overclaimed were not found in this pass — C3-01 had already corrected them — and the `placement.browser.test.ts` fixture gained the new `live` parameter with a defaulted helper argument, which changes no assertion.
 
@@ -108,14 +108,14 @@ Test count 736 → **752**. Nothing was weakened or removed. Two existing commen
 
 ## C4-03 — Q-7 and Q-12 carried mutually exclusive statuses
 
-- **Q-7** now has a row in contract 05's **resolved** table stating M-4's answer in full, including the half that resolved the other way from the question's expectation (no shared read phase, no shared geometry capability). Its *Open before implementation* entry is retained and rewritten to say it is answered and that its "blocking before implementation sign-off" label is **discharged** — retained rather than deleted because two records carried the blocking status forward after the answer landed, and deleting the entry would make those look like references to something that never existed. The section preamble names Q-7 alongside Q-1 and Q-12. `plan.md`'s Phase 11 gate note says it cleared. `reviews/checkpoint-d-3-resolution-implementation.md`'s carry-forward is annotated as wrong in place, since implementation records are historical.
+- **Q-7** now has a row in contract 05's **resolved** table stating M-4's answer in full, including the half that resolved the other way from the question's expectation (no shared read phase, no shared geometry capability). Its _Open before implementation_ entry is retained and rewritten to say it is answered and that its "blocking before implementation sign-off" label is **discharged** — retained rather than deleted because two records carried the blocking status forward after the answer landed, and deleting the entry would make those look like references to something that never existed. The section preamble names Q-7 alongside Q-1 and Q-12. `plan.md`'s Phase 11 gate note says it cleared. `reviews/checkpoint-d-3-resolution-implementation.md`'s carry-forward is annotated as wrong in place, since implementation records are historical.
 - **Q-12**: contract 03's "remains open pending a fixture" is replaced with the Phase 10 answer and a pointer to the checked-in fixture, matching contract 05.
-- **`measurements/q7.md`** gains a dated correction note at the top and a second inside answer 2. It was written when the axis rule was one feature called `vertical()` that rebuilt **lazily on the next spatial frame**; both are stale. The lazy-timing argument is the one the implementation overtook — the rebuild is now eager, inside the committed-move bracket — and it is recorded as *strengthening* the conclusion: the two features' reads now sit in the same bracket and still share nothing, because they read different things (every candidate's visual, against the span's rows). The measurements were not re-run and are not restated.
+- **`measurements/q7.md`** gains a dated correction note at the top and a second inside answer 2. It was written when the axis rule was one feature called `vertical()` that rebuilt **lazily on the next spatial frame**; both are stale. The lazy-timing argument is the one the implementation overtook — the rebuild is now eager, inside the committed-move bracket — and it is recorded as _strengthening_ the conclusion: the two features' reads now sit in the same bracket and still share nothing, because they read different things (every candidate's visual, against the span's rows). The measurements were not re-run and are not restated.
 
 **The sweep found two more the review did not name:**
 
-- **`contract/00-index.md` F-5** — *`admit` runs inside native dispatch and can throw into the event loop* — was still marked **Open**, deferring to Q-1, although Q-1 is in contract 05's resolved table and the mechanism (`BehaviorSpec.reportFailure`) has existed since Phase 4. Corrected to resolved, with the answer stated.
-- **`contract/05` M-3's row** published the 2026-08-02 absolute figures (9.33 kB / 10.09 kB / 0.26 kB / 2.44 kB) with nothing marking them as a baseline rather than the live numbers, in a document a reader consults for current status. Annotated: the *property* M-3 asserts survives, the bytes live in contract 03 and are re-measured.
+- **`contract/00-index.md` F-5** — _`admit` runs inside native dispatch and can throw into the event loop_ — was still marked **Open**, deferring to Q-1, although Q-1 is in contract 05's resolved table and the mechanism (`BehaviorSpec.reportFailure`) has existed since Phase 4. Corrected to resolved, with the answer stated.
+- **`contract/05` M-3's row** published the 2026-08-02 absolute figures (9.33 kB / 10.09 kB / 0.26 kB / 2.44 kB) with nothing marking them as a baseline rather than the live numbers, in a document a reader consults for current status. Annotated: the _property_ M-3 asserts survives, the bytes live in contract 03 and are re-measured.
 
 Every other `Q-*` and `M-*` reference across contracts 00–05, `measurements/`, `plan.md`, `ledger.md` and `README.md` was checked and agrees.
 
@@ -138,7 +138,7 @@ Updated in `contract/03` §Tree-shaking (table, deltas, remeasurement label → 
 ## Residues — open, and deliberately not decided here
 
 1. **`landing()`'s `duration` thunk → `visual.animate()`** (enumeration #15). The thunk is consumer code invoked inside `LandingStart`, and the next statement animates the consumer's own visual — an indirect consumer call under I-36. `LandingContext` carries `visual`, `compose`, `from`, `target` and `realm` and **no liveness reading**, and the kernel invokes the runner, so no behavior-side shape reaches the interior of `start`. Closing it means widening a frozen SPI type, which contract 00 permits only on a failing executable lifecycle case the frozen SPI cannot express. **Not decided, not patched, stated in F-47** as an open residue with its blast radius (one `animate()` on an element the kernel is about to stop rendering; the landing itself never starts, F-30).
-2. **Three readings are defence in depth with no discriminating fixture**: `anchorTarget`, `release.effect` and `createPlaceholder`. Each was attempted; the recovery and release paths tear the placeholder down along the same edge as the write, and the preparation is discarded whole. Kept for C2-01 §7's reason — they sit inside brotli's noise band (removing the `createPlaceholder` one measured 5–9 B in most compositions and *added* 25 B in one, which is noise) — and recorded in `tests/COVERAGE.md` rather than left to be re-found.
+2. **Three readings are defence in depth with no discriminating fixture**: `anchorTarget`, `release.effect` and `createPlaceholder`. Each was attempted; the recovery and release paths tear the placeholder down along the same edge as the write, and the preparation is discarded whole. Kept for C2-01 §7's reason — they sit inside brotli's noise band (removing the `createPlaceholder` one measured 5–9 B in most compositions and _added_ 25 B in one, which is noise) — and recorded in `tests/COVERAGE.md` rather than left to be re-found.
 3. **Headroom is now 0.11–0.16 kB against budgets set with ~0.3 kB.** Nothing is over budget and no budget was raised. Phase 21's re-base is the next size-affecting change's precondition rather than a nice-to-have.
 4. **L-11** — unchanged, Phase 23, not reopened.
 5. **I-7's precondition dependency on I-30** — unchanged watch item from C3-03 §4.

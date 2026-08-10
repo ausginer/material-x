@@ -29,7 +29,7 @@ The review's framing understates the consequence slightly. The stateful-resolver
 `updateItems` checks a `closed` flag before validating; `destroy` sets it before delegating to `host.destroy()`.
 
 - **`updateItems` needs it** because validation runs in front of the dispatch, so the kernel's own latch — which guards the dispatch — is one step too late. "No-op after `destroy()`" has to mean the whole method, invalid input included, or the promise is only true for calls that would have been silent anyway.
-- **`cancel` and `destroy` do not.** They *are* `host.cancel` and `host.destroy`, spread through unchanged, and the kernel's `queue.closed` already makes both inert and idempotent before they do any work. A second latch in front of them would be duplicated state that can disagree with the first.
+- **`cancel` and `destroy` do not.** They _are_ `host.cancel` and `host.destroy`, spread through unchanged, and the kernel's `queue.closed` already makes both inert and idempotent before they do any work. A second latch in front of them would be duplicated state that can disagree with the first.
 - **`ready()` deliberately keeps reporting.** A post-`destroy()` acknowledgement is stale by definition — `rt.pendingRequest` is cleared at retirement — and naming that for an integrator whose layout effect outlived its controller is the entire reason that `DEV` report exists. Silencing it would remove the diagnostic for exactly the case it was written for.
 
 The latch lives on the controller rather than being read from the kernel because `KernelHost` does not expose `closed`, and widening a frozen SPI type for a controller's private bookkeeping is the change contract 00 forbids without a failing executable case. The latch is faithful because `controller.destroy()` is the only externally reachable path to `queue.closed = true`.
@@ -42,13 +42,13 @@ The latch lives on the controller rather than being read from the kernel because
 
 **Decision: fix.** In `landing.ts`, the authored duration is resolved into a local `resolved` — the fixed value, or `requireFinite(timing(), …)` — and only then does `duration: reduced ? 0 : resolved` apply the reduced-motion collapse.
 
-The option's own doc comment says the thunk is called "once per landing, immediately before the runner builds its animation". It does not say "unless the user prefers reduced motion", and the shipped `landingTiming()` was likewise invoked with its result adjusted afterwards. Resolving inside the collapse made a consumer's settle-time side effect, and a thrown or invalid result, observable only for users who had *not* asked for reduced motion — the least likely population to notice a suppressed diagnostic.
+The option's own doc comment says the thunk is called "once per landing, immediately before the runner builds its animation". It does not say "unless the user prefers reduced motion", and the shipped `landingTiming()` was likewise invoked with its result adjusted afterwards. Resolving inside the collapse made a consumer's settle-time side effect, and a thrown or invalid result, observable only for users who had _not_ asked for reduced motion — the least likely population to notice a suppressed diagnostic.
 
 The collapse itself is unchanged: still zero, still through the runner, still one lifecycle.
 
-**Evidence.** `tests/sortable/features.browser.test.ts` §`landing` — the thunk is read under a matching media query *and* the duration still collapses to 0; and a thunk returning `NaN` under the same query is classified as a landing failure. The pre-existing reduced-motion and once-per-landing tests are kept; the `matchMedia` stub is hoisted into a `withReducedMotion` helper they now share.
+**Evidence.** `tests/sortable/features.browser.test.ts` §`landing` — the thunk is read under a matching media query _and_ the duration still collapses to 0; and a thunk returning `NaN` under the same query is classified as a landing failure. The pre-existing reduced-motion and once-per-landing tests are kept; the `matchMedia` stub is hoisted into a `withReducedMotion` helper they now share.
 
-One incidental trap, recorded because the next person will hit it: a zero-duration landing finishes inside the microtasks an `await` on that helper itself introduces, and the kernel then destroys the runner — so the animation must be read *inside* the reduced-motion block, not after it.
+One incidental trap, recorded because the next person will hit it: a zero-duration landing finishes inside the microtasks an `await` on that helper itself introduces, and the kernel then destroys the runner — so the animation must be read _inside_ the reduced-motion block, not after it.
 
 ## D6 — `'ease'`, as retained; the absence of a decision is the finding
 
@@ -92,9 +92,9 @@ The review offered two outs: change it, or classify it as a deliberate redesign.
 
 ## L-11 — deferred to Phase 23, by the owner's decision
 
-Not implemented. The five library-produced cancel *reason* sentinels stay unexported for now.
+Not implemented. The five library-produced cancel _reason_ sentinels stay unexported for now.
 
-`ledger.md` §L-11 no longer reads "flagged for the owner, not taken": it records the decision as **deferred to Phase 23, and taken there**, with the reason — it is the only change in the Checkpoint D pass that would *add* to the frozen public surface, and Checkpoint D's exit condition is about closing parity items, not about growing the surface. `plan.md` §Phase 23 gains the work as a deliverable: the three kernel sentinels from `drag.js` beside the `FAILURE_*` constants, the two sortable ones from `sortable.js`, `reason` left `unknown`, plus the M-3 re-measurement and the contract 03 export-topology amendment that five new runtime cells on two frozen entries require. Phase 23 is where it lands because that is the phase that reviews the complete public surface, and the phase at which "deferred" is explicitly not an available classification — so it is the last phase at which this can still be open.
+`ledger.md` §L-11 no longer reads "flagged for the owner, not taken": it records the decision as **deferred to Phase 23, and taken there**, with the reason — it is the only change in the Checkpoint D pass that would _add_ to the frozen public surface, and Checkpoint D's exit condition is about closing parity items, not about growing the surface. `plan.md` §Phase 23 gains the work as a deliverable: the three kernel sentinels from `drag.js` beside the `FAILURE_*` constants, the two sortable ones from `sortable.js`, `reason` left `unknown`, plus the M-3 re-measurement and the contract 03 export-topology amendment that five new runtime cells on two frozen entries require. Phase 23 is where it lands because that is the phase that reviews the complete public surface, and the phase at which "deferred" is explicitly not an available classification — so it is the last phase at which this can still be open.
 
 ## What changed
 

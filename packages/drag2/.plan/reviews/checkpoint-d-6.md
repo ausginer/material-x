@@ -76,15 +76,15 @@ The table claims twenty modules are completely accounted for: fourteen with stre
 
 The size harness is green and its re-based budgets are current, but README and normative contract 03 still publish the pre-review-5 figures and say they were measured after four reviews (`README.md:107-123`; `.plan/contract/03-feature-composition.md:679-695`). The live exact measurements are:
 
-| composition | current Brotli |
-| --- | ---: |
-| minimal | 10,199 B |
-| minimal (`xy`) | 10,245 B |
-| + `layoutAnimation()` | 10,653 B |
-| + `landing()` | 10,487 B |
-| complete | 11,025 B |
-| baseline A | 10,765 B |
-| baseline B | 6,889 B |
+| composition           | current Brotli |
+| --------------------- | -------------: |
+| minimal               |       10,199 B |
+| minimal (`xy`)        |       10,245 B |
+| + `layoutAnimation()` |       10,653 B |
+| + `landing()`         |       10,487 B |
+| complete              |       11,025 B |
+| baseline A            |       10,765 B |
+| baseline B            |        6,889 B |
 
 Therefore composition costs **260 B / 0.26 kB / about 2.4%**, migration costs **3,310 B / 3.31 kB**, and live-composition headroom against the rebased budgets is **133–175 B**, not the published 266 B, 3,227 B, and 0.11–0.16 kB. Phase 21's own done condition says every number in a contract, README, or budget is re-measured or explicitly reaffirmed (`plan.md:907`), so that phase's pulled-forward discharge is not complete as documented.
 

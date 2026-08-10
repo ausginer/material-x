@@ -18,12 +18,12 @@ Applies [`checkpoint-d-4-resolution-landing-residue.md`](checkpoint-d-4-resoluti
 | 4.7 (sweep 8) | `contract/01` §Teardown | Converse-obligation clause replaced with the floor form plus the pointer to I-36 (2)/(3) |
 | 4.8 (sweep 9) | `contract/03` §`y()`/`xy()` | The `03:410` paragraph is marked a register ceiling |
 | sweep 10 | `ledger.md` L-12 | Residue sentence replaced with the classified form |
-| sweep 11 | `plan.md` | Checkpoint D's residue bullet replaced. The sentence *"closing it means widening a frozen SPI type"* is gone |
+| sweep 11 | `plan.md` | Checkpoint D's residue bullet replaced. The sentence _"closing it means widening a frozen SPI type"_ is gone |
 | sweep 12 | `plan.md` | New Checkpoint D bullet for **Checkpoint D review 4 (the landing residue)**, disambiguated at first use |
 | sweep 13 | `plan.md` §Phase 18 | The I-36 deliverable is now per **module**, with the floor/ceiling classification step and the explicit "do not enumerate DOM method names" |
 | sweep 14 | `plan.md` §Phase 21 | The re-base paragraph names `FeatureContext.live` at +6 B to +53 B as the first change queued behind it, `complete` 106 B → 53 B |
-| sweep 15 | `tests/COVERAGE.md` | *Terminal barrier* blockquote: floor rows and **ceiling** rows |
-| sweep 16 | `tests/COVERAGE.md` | *The indirect half* blockquote: the universal replaced with the bounded form; rows untouched |
+| sweep 15 | `tests/COVERAGE.md` | _Terminal barrier_ blockquote: floor rows and **ceiling** rows |
+| sweep 16 | `tests/COVERAGE.md` | _The indirect half_ blockquote: the universal replaced with the bounded form; rows untouched |
 | sweep 17 | `tests/COVERAGE.md` | The §6 case added, labelled **conformance pin, passes against current source** |
 | 6 | `tests/sortable/features.browser.test.ts` | One case, in `describe('landing')` |
 
@@ -44,9 +44,9 @@ Every line citation in §1, §2 and §4.6 matched the artifact: `landing.ts:82-1
 
 **One place, in §6, and it is an assertion in the test rather than anything normative.**
 
-§6 specifies asserting that *"`onCancel` fired exactly once, from the `destroy()`"*. It does not, and that is a landed rule rather than a gap: **destroy is a teardown, not a settlement**, so the operation it retires announces no outcome. `composition.browser.test.ts` — _should tear down without a terminal callback when onReorder destroys_ pins exactly that, and `ARM_STALE` suppresses the replaced settlement independently. The case therefore asserts that **neither** terminal callback fires, which is strictly stronger than what §6 predicted and points the same way. The deviation is stated in the test's own comment beside the assertion. Nothing in the decision's argument depends on it: the five-act floor's act 4 concerns callbacks the *participant* invokes after a closed reading, not the kernel's terminal announcement.
+§6 specifies asserting that _"`onCancel` fired exactly once, from the `destroy()`"_. It does not, and that is a landed rule rather than a gap: **destroy is a teardown, not a settlement**, so the operation it retires announces no outcome. `composition.browser.test.ts` — _should tear down without a terminal callback when onReorder destroys_ pins exactly that, and `ARM_STALE` suppresses the replaced settlement independently. The case therefore asserts that **neither** terminal callback fires, which is strictly stronger than what §6 predicted and points the same way. The deviation is stated in the test's own comment beside the assertion. Nothing in the decision's argument depends on it: the five-act floor's act 4 concerns callbacks the _participant_ invokes after a closed reading, not the kernel's terminal announcement.
 
-One item outside §8's list also had to move: **Review 4's introductory sentence in `plan.md`** — *"No architect decision was needed… the one thing that would have needed one is left open and stated rather than decided"* — is falsified by this decision existing. It now says the four findings needed none and the residue was decided afterwards, with the link. Recorded in `plan.md`'s deviations bullet.
+One item outside §8's list also had to move: **Review 4's introductory sentence in `plan.md`** — _"No architect decision was needed… the one thing that would have needed one is left open and stated rather than decided"_ — is falsified by this decision existing. It now says the four findings needed none and the residue was decided afterwards, with the link. Recorded in `plan.md`'s deviations bullet.
 
 ## The test, and what falsifies it
 

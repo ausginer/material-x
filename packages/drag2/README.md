@@ -89,16 +89,16 @@ Everything the kernel and a behavior say to each other — `BehaviorSpec`, `Kern
 
 ### Option domains
 
-| Option                            | Unit   | Domain         | Default |
-| --------------------------------- | ------ | -------------- | ------- |
-| `callbacks({ threshold })`        | CSS px | finite, `>= 0` | `8`     |
-| `callbacks({ readinessTimeout })` | ms     | finite, `>= 1` | `500`   |
-| `landing({ duration })`           | ms     | finite, `>= 0`; or `() => number` returning one | `200`   |
-| `layoutAnimation({ duration })`   | ms     | finite, `>= 0` | `160`   |
+| Option | Unit | Domain | Default |
+| --- | --- | --- | --- |
+| `callbacks({ threshold })` | CSS px | finite, `>= 0` | `8` |
+| `callbacks({ readinessTimeout })` | ms | finite, `>= 1` | `500` |
+| `landing({ duration })` | ms | finite, `>= 0`; or `() => number` returning one | `200` |
+| `layoutAnimation({ duration })` | ms | finite, `>= 0` | `160` |
 
 Each throws a `TypeError` on a value outside the domain, so a `NaN` threshold fails at the call that introduced it rather than as a drag that never activates. **One documented exception:** `landing({ run })` replaces the built-in runner outright, so `duration` and `easing` have nothing left to configure and are neither read nor checked — `landing({ duration: -1, run })` does not throw.
 
-**Where the check runs follows when the value exists.** A fixed option is validated **at construction**, once, before any drag. `landing({ duration })` additionally accepts a **thunk**, whose result does not exist until the landing opens: it is invoked and validated **once per landing**, at settlement — the moment the shipped package read `landingTiming()` — so a distance-scaled or per-drop duration keeps the default runner instead of replacing it. A thunk is checked for being a function at construction; its *result* is checked at settlement, ahead of the reduced-motion collapse, so an invalid or thrown result is reported under `prefers-reduced-motion: reduce` exactly as it is without.
+**Where the check runs follows when the value exists.** A fixed option is validated **at construction**, once, before any drag. `landing({ duration })` additionally accepts a **thunk**, whose result does not exist until the landing opens: it is invoked and validated **once per landing**, at settlement — the moment the shipped package read `landingTiming()` — so a distance-scaled or per-drop duration keeps the default runner instead of replacing it. A thunk is checked for being a function at construction; its _result_ is checked at settlement, ahead of the reduced-motion collapse, so an invalid or thrown result is reported under `prefers-reduced-motion: reduce` exactly as it is without.
 
 `easing` is not validated: it is a CSS easing function and the platform is the only correct parser for one. `readinessTimeout` is a **failure bound, not a schedule** — exceeding it is `FAILURE_PRESENTATION_READY` and replaces the settlement.
 

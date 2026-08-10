@@ -56,12 +56,12 @@ These are current normative declarations, not historical decision prose. Move Q-
 
 `npx just size` passes and the rounded composition table is correct. The exact current measurements are:
 
-| artifact | Brotli bytes |
-| --- | ---: |
-| minimal | 10,079 |
-| complete | 10,864 |
-| baseline A | 10,581 |
-| baseline B | 6,889 |
+| artifact   | Brotli bytes |
+| ---------- | -----------: |
+| minimal    |       10,079 |
+| complete   |       10,864 |
+| baseline A |       10,581 |
+| baseline B |        6,889 |
 
 Those values make composition cost `283 B`, or approximately **0.28 kB / 2.7%**, and migration cost `3,190 B`, or **3.19 kB**. Contract 03 and README still report `0.25 kB / 2.4% / 3.18 kB` (`contract/03-feature-composition.md:687`; `README.md:123`). Their remeasurement labels also stop at 2026-08-07 even though this audited landing is dated 2026-08-08 (`contract/03-feature-composition.md:671`; `README.md:107`). The current Phase 21 instruction says headroom is `0.16–0.21 kB`, while the harness and the surrounding current records show `0.17–0.23 kB` (`plan.md:878`).
 

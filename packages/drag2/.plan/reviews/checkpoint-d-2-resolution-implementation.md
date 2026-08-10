@@ -14,7 +14,7 @@ All five findings in [`checkpoint-d-2.md`](checkpoint-d-2.md) are closed. **C2-0
 
 Neither is a correction to the decision; both are things the tests forced into the open.
 
-1. **`layoutAnimation()` cannot witness §6 case 6 or 7.** The decision says "no `afterMove` hook runs and no animation is created". The second half is not a discriminator: `layoutAnimation()`'s own `retire()` empties its span map, so its `afterMove` is *already* inert on a destroyed controller and creates no animation whether the barrier exists or not — case 6 passed against pre-fix source when asserted that way. Both cases now assert against a test-authored displacement feature that records each half of the bracket pipeline.
+1. **`layoutAnimation()` cannot witness §6 case 6 or 7.** The decision says "no `afterMove` hook runs and no animation is created". The second half is not a discriminator: `layoutAnimation()`'s own `retire()` empties its span map, so its `afterMove` is _already_ inert on a destroyed controller and creates no animation whether the barrier exists or not — case 6 passed against pre-fix source when asserted that way. Both cases now assert against a test-authored displacement feature that records each half of the bracket pipeline.
 2. **The `action.effect` bracket guard is not observable with an eager `measure` installed.** `measureInSeam`'s `!rt.closed` covers the same continuation, and both first-party axes install a `measure`, so with one composed neither guard can be seen alone. Case 7 therefore composes an axis feature with **no eager `measure`** — a lazy rule the contract explicitly supports — which isolates the outer guard. Reverting it alone then fails the case, as required.
 
 A third, smaller point: the eager rebuild after a site-C destroy is inert for a different reason than the guard — kernel teardown scrubs both frames, so `frame.item` is `null` and the axis `measure` returns before touching the cache. The guard is still the right instrument, because it stops `invalidateInSeam` and the hook pipeline as well, and because a behavior must not depend on the kernel's scrub order for its own barrier.
@@ -43,14 +43,14 @@ Reverting the loop guard fails six cases at once (both axes' direct-drive pairs 
 
 ### Measured cost
 
-| composition | before | after | Δ |
-| --- | --- | --- | --- |
-| minimal | 10.01 kB | **10.07 kB** | +60 B |
-| minimal (xy) | 10.05 kB | **10.12 kB** | +70 B |
+| composition                 | before   | after        | Δ     |
+| --------------------------- | -------- | ------------ | ----- |
+| minimal                     | 10.01 kB | **10.07 kB** | +60 B |
+| minimal (xy)                | 10.05 kB | **10.12 kB** | +70 B |
 | minimal + `layoutAnimation` | 10.42 kB | **10.51 kB** | +90 B |
-| minimal + `landing` | 10.29 kB | **10.36 kB** | +70 B |
-| complete | 10.82 kB | **10.85 kB** | +30 B |
-| baseline A | 10.54 kB | **10.60 kB** | +60 B |
+| minimal + `landing`         | 10.29 kB | **10.36 kB** | +70 B |
+| complete                    | 10.82 kB | **10.85 kB** | +30 B |
+| baseline A                  | 10.54 kB | **10.60 kB** | +60 B |
 
 Module counts unchanged; every composition inside its budget. Five of the six land inside the architect's predicted band; `+ layoutAnimation` came in 20 B above it, which is inside brotli's noise for a single-composition delta and changed no decision. **Headroom is now 0.16–0.21 kB** against budgets set with ~0.3 kB, which is the Phase 21 note.
 
@@ -71,7 +71,7 @@ D5 is not reopened; only the ledger's accounting changed.
 
 ## C2-04 — the normative documents
 
-**Chosen approach: advance every *current* statement in 00–04 to `y()`/`xy()`.** The alternative — relabelling parts of 00–04 as intentionally historical — was rejected because contract 00's precedence ranking is itself normative and is load-bearing for every other document in the set: a contract that has to tell the reader which of its paragraphs are true is worse than one that is true. Weakening the ranking to accommodate stale prose would also have cost more than fixing the prose.
+**Chosen approach: advance every _current_ statement in 00–04 to `y()`/`xy()`.** The alternative — relabelling parts of 00–04 as intentionally historical — was rejected because contract 00's precedence ranking is itself normative and is load-bearing for every other document in the set: a contract that has to tell the reader which of its paragraphs are true is worse than one that is true. Weakening the ranking to accommodate stale prose would also have cost more than fixing the prose.
 
 Advanced: `00:75` (the cache's home, with a parenthetical pointing at the rename), `00:113` (the dead `§vertical()` link → `§y()` and `§xy()`), `00:192` (F-26's "minimal _vertical_ sortable" → "one-dimensional"), `01:99-111` (the consumer-facing construction example), `01:243`, `01:268`, `04:23`, `04:169`, `04:292`, `04:302` — the last four are 04's own current code sketches and feature-state table, which the review did not name but which fail the same test. In 03, `:111` and `:311` were current statements and are advanced.
 
@@ -81,7 +81,7 @@ Contract 03's remaining `vertical()` uses are **all** narrative about an earlier
 
 - `readinessTimeout?: number` added to contract 03's `SortableCallbacks` listing.
 - Eight TypeDoc entrypoints → **nine**, in contract 03 and the README, with the reason (`sortable/xy.js`, Phase 17).
-- The **"deltas unchanged since M-3" claim is withdrawn**, not restated: M-3 recorded `landing()` at +0.27 kB and complete at +0.76–0.81 kB, and the deltas have moved with every absolute figure since. The module-graph *property* is what that section now asserts, and the numbers are re-measured **after** C2-01: `xy` +0.05, `layoutAnimation` +0.44, `landing` +0.29, complete +0.78. Composition cost 0.28 → 0.25 kB; migration cost 3.12 → 3.18 kB.
+- The **"deltas unchanged since M-3" claim is withdrawn**, not restated: M-3 recorded `landing()` at +0.27 kB and complete at +0.76–0.81 kB, and the deltas have moved with every absolute figure since. The module-graph _property_ is what that section now asserts, and the numbers are re-measured **after** C2-01: `xy` +0.05, `layoutAnimation` +0.44, `landing` +0.29, complete +0.78. Composition cost 0.28 → 0.25 kB; migration cost 3.12 → 3.18 kB.
 - Both axis module headers now say candidate **visual** — rebased onto C2-01's edit to the `InsertionRuntimeView` block a few lines below, as the sequencing note asked.
 - `plan.md`'s eleven-test attribution corrected to **4 D1 / 3 D3 / 4 D4-D6**.
 
@@ -110,7 +110,7 @@ Test count **724 → 734**, with nothing removed or weakened: ten new cases (two
 
 ## What remains open
 
-- **L-11** — the cancel reason sentinels. Deferred to Phase 23 by owner decision, untouched here. C2-03 sharpened the `CancellationReason` loss accounting that is *related* to it; nothing was folded in.
+- **L-11** — the cancel reason sentinels. Deferred to Phase 23 by owner decision, untouched here. C2-03 sharpened the `CancellationReason` loss accounting that is _related_ to it; nothing was folded in.
 - **Q-12** — unchanged.
 - **The size headroom** is now 0.16–0.21 kB against budgets set with ~0.3 kB. Flagged as a Phase 21 deliverable to re-base rather than absorb again. Nothing is over budget.
 - **Phase 18's terminal-barrier enumeration** is a deliverable, not deferred work: there is no free-drag code to guard, so the rule lands now and its second application lands with the second behavior. The stated falsifier for keeping the latch behavior-owned rather than kernel-supplied is a **third** copy of it.
