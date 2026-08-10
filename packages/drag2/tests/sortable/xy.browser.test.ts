@@ -35,11 +35,13 @@ import {
   type InsertionGeometry,
   unbrandFeature,
 } from '../../src/sortable/feature.ts';
+import { visual } from '../../src/sortable/handle.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
   ReorderResolution,
+  type SortableController,
   sortable,
 } from '../../src/sortable.ts';
 
@@ -71,8 +73,13 @@ type Field = Readonly<{
     x: number,
     y: number,
     snapshot?: CollectionSnapshot,
+    getVisual?: ((item: HTMLElement) => HTMLElement) | null,
+    live?: () => boolean,
   ): Insertion | null;
 }>;
+
+/** The default liveness: a controller nobody destroyed. */
+const ALIVE = (): boolean => true;
 
 /**
  * The placeholder occupies cell `slot`; the other three cells are the
@@ -144,10 +151,16 @@ function createField(slot = 0): Field {
     dragged,
     placeholder,
     snapshot: (version = 0, list = collection) => ({ items: list, version }),
-    resolve: (x, y, snapshot = field.snapshot()) =>
+    resolve: (
+      x,
+      y,
+      snapshot = field.snapshot(),
+      getVisual = null,
+      live = ALIVE,
+    ) =>
       geometry.resolve(
         { pointerX: x, pointerY: y, insertion: null, item: dragged },
-        { snapshot, placeholder },
+        { snapshot, placeholder, getVisual, live },
       ),
   };
 
@@ -161,7 +174,12 @@ describe('xy', () => {
     expect(
       field.geometry.resolve(
         { pointerX: 50, pointerY: 20, insertion: null, item: null },
-        { snapshot: field.snapshot(), placeholder: field.placeholder },
+        {
+          snapshot: field.snapshot(),
+          placeholder: field.placeholder,
+          getVisual: null,
+          live: ALIVE,
+        },
       ),
     ).toBeNull();
   });
@@ -172,6 +190,38 @@ describe('xy', () => {
     const field = createField();
 
     expect(field.resolve(50, 20)).toBeNull();
+  });
+
+  it('should measure candidate visuals rather than candidate items', () => {
+    // Parity D2, the two-dimensional mirror of `y()`'s case. A 60x40 visual
+    // pinned to each cell's left edge puts its centre 20px left of the cell's,
+    // so cell 1's centre moves from (170, 20) to (150, 20).
+    const field = createField();
+    const visuals = new Map<HTMLElement, HTMLElement>();
+
+    for (const item of field.items) {
+      const inner = document.createElement('div');
+
+      Object.assign(inner.style, {
+        position: 'absolute',
+        left: '0',
+        top: '0',
+        width: '60px',
+        height: `${CELL_H}px`,
+      });
+      item.append(inner);
+      visuals.set(item, inner);
+    }
+
+    const getVisual = (item: HTMLElement): HTMLElement =>
+      visuals.get(item) ?? item;
+
+    // At (105, 20) the pointer has not yet passed the midpoint between the
+    // placeholder's centre and cell 1's *item* centre, so an item-measured scan
+    // holds the incumbent. Cell 1's *visual* centre is already the nearest, so
+    // a visual-measured scan proposes the gap on its far side.
+    expect(field.resolve(105, 20)).toBeNull();
+    expect(field.resolve(105, 20, field.snapshot(1), getVisual)?.index).toBe(1);
   });
 
   it('should choose the nearest cell across both axes', () => {
@@ -461,5 +511,356 @@ describe('the composed two-dimensional collection', () => {
 
     // A proven no-op: `from === to`, so no round-trip runs at all.
     expect(requests).toEqual([]);
+  });
+});
+
+describe('the terminal barrier in the candidate loop', () => {
+  /**
+   * I-36. The check lives in `rect-index.ts`, shared by both axes, but the
+   * **threading** is per axis — `xy()` has to hand `live` to `refresh` exactly
+   * as `y()` does, and a future axis can forget to. So this group mirrors
+   * `y.browser.test.ts`'s, deliberately, rather than trusting the shared cache.
+   */
+  const closingAt =
+    (
+      target: HTMLElement,
+      asked: HTMLElement[],
+      close: () => void,
+    ): ((item: HTMLElement) => HTMLElement) =>
+    (item) => {
+      asked.push(item);
+
+      if (item === target) {
+        close();
+      }
+
+      return item;
+    };
+
+  it('should stop resolving candidates once the controller closes', () => {
+    const field = createField();
+    const asked: HTMLElement[] = [];
+    let alive = true;
+    const getVisual = closingAt(field.items[1]!, asked, () => {
+      alive = false;
+    });
+
+    expect(
+      field.resolve(170, 20, field.snapshot(), getVisual, () => alive),
+    ).toBeNull();
+
+    // The third cell is never resolved: no `visual()` call crosses the terminal
+    // barrier. The other half — that no geometry is read after it either — is a
+    // separate concern and is asserted below.
+    expect(asked).toEqual([field.items[0], field.items[1]]);
+  });
+
+  it('should read no placeholder geometry once the controller closes', () => {
+    // Mirrors `y.browser.test.ts`, and for the same reason the resolver-list
+    // assertion is mirrored: the barrier is shared but the threading is per
+    // axis. The placeholder is consumer-owned, so measuring it after the close
+    // is an indirect consumer call (I-36).
+    const field = createField();
+    const asked: HTMLElement[] = [];
+    let alive = true;
+    let measured = 0;
+    const { placeholder } = field;
+    const native = placeholder.getBoundingClientRect.bind(placeholder);
+
+    placeholder.getBoundingClientRect = (): DOMRect => {
+      measured += 1;
+
+      return native();
+    };
+
+    expect(
+      field.resolve(
+        170,
+        20,
+        field.snapshot(),
+        closingAt(field.items[1]!, asked, () => {
+          alive = false;
+        }),
+        () => alive,
+      ),
+    ).toBeNull();
+
+    expect(measured).toBe(0);
+  });
+
+  it('should leave the cache retired rather than clean and partial', () => {
+    // The half a `break` gets wrong; see `y.browser.test.ts` for the reasoning.
+    const field = createField();
+    const asked: HTMLElement[] = [];
+    let alive = true;
+
+    field.resolve(
+      170,
+      20,
+      field.snapshot(),
+      closingAt(field.items[1]!, asked, () => {
+        alive = false;
+      }),
+      () => alive,
+    );
+
+    asked.length = 0;
+
+    field.resolve(170, 20, field.snapshot(), (item) => {
+      asked.push(item);
+      return item;
+    });
+
+    expect(asked).toEqual([field.items[0], field.items[1], field.items[2]]);
+  });
+
+  it('should stop the traversal of a composed drag at the destroying candidate', async () => {
+    // The same rule through real pointer input, on the two-dimensional rule's
+    // own field. **The assertion is the resolver's call list, not the resulting
+    // insertion**: the frame is discarded upstream either way, so a state
+    // assertion would pass against unfixed source.
+    const root = document.createElement('div');
+
+    Object.assign(root.style, {
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      display: 'flex',
+      flexWrap: 'wrap',
+      width: `${CELL_W * 2 + GAP_X}px`,
+      gap: `${GAP_Y}px ${GAP_X}px`,
+    });
+    document.body.append(root);
+    cleanup.push(root);
+
+    const items: HTMLElement[] = [];
+
+    for (let i = 0; i < 4; i += 1) {
+      const item = document.createElement('div');
+
+      Object.assign(item.style, {
+        width: `${CELL_W}px`,
+        height: `${CELL_H}px`,
+      });
+      root.append(item);
+      items.push(item);
+    }
+
+    const asked: HTMLElement[] = [];
+    let controller: SortableController | null = null;
+
+    controller = draggable(
+      root,
+      sortable(
+        items,
+        xy(),
+        visual((item) => {
+          asked.push(item);
+
+          // The **first** candidate destroys. `items[0]` is the dragged one and
+          // was resolved at admission, before any candidate.
+          if (item === items[1]) {
+            controller!.destroy();
+          }
+
+          return item;
+        }),
+        callbacks({
+          onReorder: () => ReorderResolution.accept(),
+        }),
+      ),
+    );
+
+    root.setPointerCapture = (): void => {};
+    root.releasePointerCapture = (): void => {};
+    cleanup.push({ remove: () => controller.destroy() } as HTMLElement);
+
+    const pointer = (type: string, x: number, y2: number): void => {
+      const target = type === 'pointerdown' ? items[0]! : document;
+
+      target.dispatchEvent(
+        new PointerEvent(type, {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+          pointerId: 79,
+          isPrimary: true,
+          button: 0,
+          buttons: 1,
+          clientX: x,
+          clientY: y2,
+        }),
+      );
+    };
+
+    pointer('pointerdown', 50, 20);
+    pointer('pointermove', 70, 20);
+    pointer('pointermove', 170, 20);
+    await new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        resolve(null);
+      });
+    });
+
+    expect(asked).toEqual([items[0], items[1]]);
+  });
+});
+
+/**
+ * I-36's **indirect-invocation clause**, mirrored from `y.browser.test.ts` and
+ * extended by the one call `y()` does not make (C4-01).
+ *
+ * The discriminating candidate is the **last** one, for the reason written up
+ * next door: an earlier candidate's destroy was already caught by the next
+ * iteration's reading, while the last one fell through to the trailing
+ * bookkeeping and to the placeholder read.
+ *
+ * `xy()` also touches the consumer-owned placeholder **twice** per resolution —
+ * the anchor rect, then `compareDocumentPosition` to decide which side the gap
+ * sits on — where `y()` derives the side from two centres it has already
+ * measured. So this axis owns a barrier its sibling does not need.
+ */
+describe('the terminal barrier on candidate geometry', () => {
+  const measuringAt = (
+    elements: readonly HTMLElement[],
+    target: HTMLElement,
+    measured: HTMLElement[],
+    close: () => void,
+  ): void => {
+    for (const element of elements) {
+      const native = element.getBoundingClientRect.bind(element);
+
+      element.getBoundingClientRect = (): DOMRect => {
+        measured.push(element);
+
+        if (element === target) {
+          close();
+        }
+
+        return native();
+      };
+    }
+  };
+
+  it('should read no placeholder geometry once the last candidate closed the controller', () => {
+    // No `visual()` composed: the cell is its own visual, so the geometry read
+    // is the only consumer call in the loop — and it is still one.
+    const field = createField();
+    const measured: HTMLElement[] = [];
+    let alive = true;
+    let anchorReads = 0;
+    const { placeholder } = field;
+    const native = placeholder.getBoundingClientRect.bind(placeholder);
+
+    placeholder.getBoundingClientRect = (): DOMRect => {
+      anchorReads += 1;
+
+      return native();
+    };
+    measuringAt(field.items, field.items[2]!, measured, () => {
+      alive = false;
+    });
+
+    expect(
+      field.resolve(170, 20, field.snapshot(), null, () => alive),
+    ).toBeNull();
+
+    expect(anchorReads).toBe(0);
+  });
+
+  it('should leave the cache retired after the last candidate closed the controller', () => {
+    const field = createField();
+    const measured: HTMLElement[] = [];
+    let alive = true;
+
+    measuringAt(field.items, field.items[2]!, measured, () => {
+      alive = false;
+    });
+    field.resolve(170, 20, field.snapshot(), null, () => alive);
+
+    const asked: HTMLElement[] = [];
+
+    field.resolve(170, 20, field.snapshot(), (item) => {
+      asked.push(item);
+      return item;
+    });
+
+    expect(asked).toEqual([field.items[0], field.items[1], field.items[2]]);
+  });
+
+  it('should resolve no further visual once a candidate closed the controller', () => {
+    const field = createField();
+    const measured: HTMLElement[] = [];
+    const asked: HTMLElement[] = [];
+    let alive = true;
+
+    measuringAt(field.items, field.items[0]!, measured, () => {
+      alive = false;
+    });
+
+    field.resolve(
+      170,
+      20,
+      field.snapshot(),
+      (item) => {
+        asked.push(item);
+        return item;
+      },
+      () => alive,
+    );
+
+    expect(asked).toEqual([field.items[0]]);
+  });
+
+  it('should call no resolver at all when the controller is already closed', () => {
+    // The entry barrier: a dirty cache can be entered on a controller a
+    // `beforeMove` hook already destroyed.
+    const field = createField();
+    const asked: HTMLElement[] = [];
+
+    expect(
+      field.resolve(
+        170,
+        20,
+        field.snapshot(),
+        (item) => {
+          asked.push(item);
+          return item;
+        },
+        () => false,
+      ),
+    ).toBeNull();
+
+    expect(asked).toEqual([]);
+  });
+
+  it('should not compare document position once the anchor read closed the controller', () => {
+    // The barrier `y()` has no counterpart for. The anchor rect above is a
+    // consumer call on a consumer-owned element; `compareDocumentPosition`
+    // below is a second one on the same element, and it runs only on a frame
+    // that proposes a gap change — which this one does.
+    const field = createField();
+    let alive = true;
+    let compares = 0;
+    const { placeholder } = field;
+    const nativeRect = placeholder.getBoundingClientRect.bind(placeholder);
+    const nativeCompare = placeholder.compareDocumentPosition.bind(placeholder);
+
+    placeholder.getBoundingClientRect = (): DOMRect => {
+      alive = false;
+
+      return nativeRect();
+    };
+    placeholder.compareDocumentPosition = (node: Node): number => {
+      compares += 1;
+
+      return nativeCompare(node);
+    };
+
+    expect(
+      field.resolve(170, 20, field.snapshot(), null, () => alive),
+    ).toBeNull();
+
+    expect(compares).toBe(0);
   });
 });

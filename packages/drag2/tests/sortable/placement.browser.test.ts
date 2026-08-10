@@ -31,6 +31,7 @@ const build = (
   factory: (() => HTMLElement) | null,
   item: HTMLElement,
   visual: HTMLElement = detached(),
+  live: () => boolean = () => true,
 ) =>
   createPlaceholder(
     createRealm(document.body),
@@ -38,6 +39,7 @@ const build = (
     visual,
     rect,
     factory === null ? null : () => factory(),
+    live,
   );
 
 describe('createPlaceholder', () => {
@@ -75,6 +77,85 @@ describe('createPlaceholder', () => {
     const placeholder = build(detached, item);
 
     expect(placeholder.hasAttribute('data-drag-placeholder')).toBe(true);
+  });
+
+  /** A placeholder that records every attribute write it is handed. */
+  const recording = (
+    writes: string[],
+    onWrite: () => void = (): void => {},
+  ): HTMLElement => {
+    const element = detached();
+    const native = element.setAttribute.bind(element);
+
+    element.setAttribute = (name: string, value: string): void => {
+      writes.push(name);
+      onWrite();
+      native(name, value);
+    };
+
+    return element;
+  };
+
+  it('should write no further attribute once a mechanics write closes the controller', () => {
+    // C5-02. The mechanics run over a **consumer-owned** element the library
+    // has not adopted, so every write after the destroying one is a residue
+    // teardown never undoes — it removes only what it inserted.
+    const writes: string[] = [];
+    let alive = true;
+    const placeholder = recording(writes, () => {
+      alive = false;
+    });
+
+    build(
+      () => placeholder,
+      detached(),
+      detached(),
+      () => alive,
+    );
+
+    expect(writes).toEqual(['data-drag-placeholder']);
+  });
+
+  it('should write no attribute at all once a visual offset read closes the controller', () => {
+    // The offset getters are consumer code on the consumer's own visual, and
+    // they run before any write precisely so that this case leaves nothing.
+    const writes: string[] = [];
+    const visual = detached();
+    let alive = true;
+
+    Object.defineProperty(visual, 'offsetWidth', {
+      get: (): number => {
+        alive = false;
+        return 10;
+      },
+    });
+
+    build(
+      () => recording(writes),
+      detached(),
+      visual,
+      () => alive,
+    );
+
+    expect(writes).toEqual([]);
+  });
+
+  it('should apply no mechanics to the default placeholder once a visual offset read closes the controller', () => {
+    // Same reading, the composition with no `placeholder()` feature: the
+    // library's own element is never mechanized either, so the two paths agree.
+    const visual = detached();
+    let alive = true;
+
+    Object.defineProperty(visual, 'offsetHeight', {
+      get: (): number => {
+        alive = false;
+        return 10;
+      },
+    });
+
+    const placeholder = build(null, detached(), visual, () => alive);
+
+    expect(placeholder.getAttributeNames()).toEqual([]);
   });
 });
 

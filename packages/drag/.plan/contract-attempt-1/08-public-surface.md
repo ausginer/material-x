@@ -143,9 +143,9 @@ Public but marked experimental — the boundary was derived from one behavior an
 ```ts
 type DraggableBehavior<Controller> = (kernel: Kernel) => Controller;
 type Kernel = Readonly<{ /* artifact 1 */ }>;
-type KernelSpec<Frame extends KernelStateFrame> = Readonly<{
-  /* artifact 1 */
-}>;
+type KernelSpec<Frame extends KernelStateFrame> = Readonly<
+  { /* artifact 1 */ }
+>;
 type KernelStateFrame = { /* artifact 1 */ };
 type KernelRuntime = { /* artifact 4 */ };
 type OperationIdentity = object;

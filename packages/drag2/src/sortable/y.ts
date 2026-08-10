@@ -4,7 +4,8 @@
  * inside this one.
  *
  * ```text
- * candidates := centres of every non-dragged item, plus the placeholder's own
+ * candidates := centres of every non-dragged item's **visual**, plus the
+ *               placeholder's own
  * nearest    := the candidate whose centre is closest to the pointer on Y
  * if nearest is the placeholder -> keep the current insertion (no change)
  * else  gap := nearest sits below the placeholder ? slot + 1 : slot
@@ -45,6 +46,29 @@ type InsertionFrameView = Readonly<{
 type InsertionRuntimeView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
+  /**
+   * The installed `visual()` resolver, or `null` when none is composed.
+   *
+   * **Third widening of a consumer-declared view, and not a sibling-feature
+   * dependency.** This module names a field the *behavior* guarantees to supply,
+   * exactly as it already names `placeholder` — which is itself a product of the
+   * optional `placeholder()` slot. The axis feature imports nothing from
+   * `handle.ts` and cannot tell whether a `visual()` was composed; it reads one
+   * nullable field off the per-operation object.
+   */
+  getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  /**
+   * Whether the controller is still alive (I-36), threaded into the candidate
+   * loop so a `visual()` resolver that destroys the controller stops the
+   * traversal at that call instead of resolving the rest of the list after
+   * teardown returned.
+   *
+   * **The fourth widening of a consumer-declared view**, and additive like the
+   * three before it: the behavior's per-operation object satisfies it
+   * structurally, with no wrapper, no allocation and no import edge back to the
+   * runtime.
+   */
+  live(): boolean;
 }>;
 
 const centreOf = (element: Element): number => {
@@ -74,7 +98,15 @@ export function y(): SortableFeature {
 
           const { snapshot, placeholder } = runtime;
 
-          index.refresh(snapshot, dragged);
+          if (
+            !index.refresh(snapshot, dragged, runtime.getVisual, runtime.live)
+          ) {
+            // The rebuild crossed the terminal barrier (I-36). Measuring the
+            // placeholder below would be a consumer call — it is the
+            // consumer's element and may override `getBoundingClientRect()` —
+            // so the resolution stops here rather than at the empty scan.
+            return null;
+          }
 
           const { values, count } = index;
           const anchor = centreOf(placeholder);
@@ -137,7 +169,12 @@ export function y(): SortableFeature {
           const dragged = frame.item;
 
           if (dragged !== null) {
-            index.refresh(runtime.snapshot, dragged);
+            index.refresh(
+              runtime.snapshot,
+              dragged,
+              runtime.getVisual,
+              runtime.live,
+            );
           }
         },
 

@@ -56,7 +56,7 @@ type Transition<
    * because a reentrant `cancel()` or `destroy()` invalidated it. Releases
    * whatever `prepare` staged. Publishes nothing, reports nothing.
    *
-   * Unused by vertical sortable, because after D-17 nothing it stages holds an
+   * Unused by the sortable behavior, because after D-17 nothing it stages holds an
    * external resource. It exists because the contract must define what happens
    * to a `Prepared` value that does.
    */
@@ -226,7 +226,7 @@ The same shape applies to any future seam that returns a resource from a callbac
 
 The third and fourth rows of tier C matter. **The kernel revalidates once, after `prepare` returns — not after every callback boundary inside it.** Probe 1's prose claimed per-boundary revalidation; its own trace shows the same single check. This model makes that check unforgettable, which is a real but smaller gain.
 
-What makes tier C _vacuous for vertical sortable_ is D-17 plus the placement of the placeholder insertion: after both, `activation.prepare` creates a detached element, measures, and returns it. It performs no externally visible mutation at all. That is a property of the reference behavior, not of the API.
+What makes tier C _vacuous for the sortable behavior_ is D-17 plus the placement of the placeholder insertion: after both, `activation.prepare` creates a detached element, measures, and returns it. It performs no externally visible mutation at all. That is a property of the reference behavior, not of the API.
 
 ## `BehaviorSpec`
 
@@ -235,8 +235,9 @@ type BehaviorSpec<
   Part extends object,
   /**
    * What `activation.prepare` stages. Defaults to the `true` sentinel, so a
-   * behavior that acquires nothing at activation says so; vertical sortable
-   * declares `HTMLElement` because it stages a detached placeholder. (D-34)
+   * behavior that acquires nothing at activation says so; the sortable
+   * behavior declares `HTMLElement` because it stages a detached placeholder.
+   * (D-34)
    */
   Activation extends {} = true,
 > = Readonly<{
@@ -332,7 +333,7 @@ Thirteen top-level members plus one optional, ~18 functions once the transitions
 
 **Two of those members ratify Part I deviations rather than deciding anything new.** `config.actionTags` and `reportFailure` have existed in the implementation since phases 4 and 5 and are described in this document's prose; the listing above simply stops disagreeing with it. `reportFailure` is load-bearing for D-32 — a throwing `command.admit` has exactly the Q-1 shape a throwing `admit` has — so leaving it out of the normative listing while the revision depends on it would be incoherent.
 
-### Seam-by-seam, for vertical sortable
+### Seam-by-seam, for the sortable behavior
 
 | Seam | Phase in | Phase out | What sortable does |
 | --- | --- | --- | --- |
@@ -587,7 +588,7 @@ Why `root` rather than the pressed item:
 - Capturing the **item** loses capture (and fires `lostpointercapture`) if the item leaves the DOM — which `updateItems()` can cause mid-drag. Capturing `root` makes that path a clean `CANCEL_ITEM_REMOVED` rather than a capture loss racing a cancellation.
 - Capture is acquired at **activation**, never at admission, so a below-threshold press never captures and never retargets subsequent pointer events to `root`. It does **not** follow that a click always survives: admission already calls `preventDefault()` on `pointerdown`, and what that suppresses is a platform question this contract does not decide. The guarantee is about capture, not about clicks.
 
-No semantic reason was found that requires a behavior-chosen capture target. Vertical sortable performs no hit testing during a drag — its geometry is a packed rect scan — so the fact that capture retargets `event.target` to `root` costs nothing. A behavior that needed `document.elementFromPoint()` would be unaffected, since capture does not change hit testing.
+No semantic reason was found that requires a behavior-chosen capture target. The sortable behavior performs no hit testing during a drag — its geometry is a packed rect scan — so the fact that capture retargets `event.target` to `root` costs nothing. A behavior that needed `document.elementFromPoint()` would be unaffected, since capture does not change hit testing.
 
 The residual: releasing capture for a pointer that no longer exists throws `NotFoundError`, so the disposer is guarded. That is a kernel detail.
 
@@ -1178,7 +1179,7 @@ Ordering is normative. `destroy()` precedes the pin so a running WAAPI animation
 
 ### The landing origin is what was rendered, not what was pointed at (D-35)
 
-Probe [13c](../probes/13c-free-drag.md) N-2 found `LandingContext.from` computed as `pointerX - originX` and documented as _"where the visual is now"_. Those are the same number for **one** behavior: vertical sortable's `moved` writes the raw pointer delta. They are different numbers for any behavior that constrains its visual — an axis lock, a bounds clamp, a snap, an externally controlled position — and a command operation has no pointer at all, so the pointer form would compute a landing origin from a `-1` sentinel and two zeroes.
+Probe [13c](../probes/13c-free-drag.md) N-2 found `LandingContext.from` computed as `pointerX - originX` and documented as _"where the visual is now"_. Those are the same number for **one** behavior: the sortable behavior's `moved` writes the raw pointer delta, on either axis. They are different numbers for any behavior that constrains its visual — an axis lock, a bounds clamp, a snap, an externally controlled position — and a command operation has no pointer at all, so the pointer form would compute a landing origin from a `-1` sentinel and two zeroes.
 
 The consequence is the signature of this bug class: **the landing opens with a jump and still ends correctly**, because the _target_ is behavior-supplied through `anchorTarget` and the kernel re-pins at the join. Phase 11 found the same shape in the lift geometry, where every test passed throughout.
 
@@ -1308,7 +1309,7 @@ An invalid collection ends the **current drag**. It does not un-happen the consu
 
 An action that needs to end the operation _and_ has nothing to publish may still call `host.cancel(reason)` and return `null`. Cancellation precedence stays entirely inside the kernel either way, and **`host.cancel` latches synchronously** — see §[03](03-feature-composition.md) §`ACTIVATING` is handled, not deferred, for why that matters when the caller is `onStart`.
 
-Vertical sortable needs **three** tags: the coalesced spatial frame, the collection replacement, and an invalidation tag that carries a failure raised from a native scroll/resize listener back into a seam — the only place a stage can be classified. It declares `config.actionTags: 3`.
+The sortable behavior needs **three** tags: the coalesced spatial frame, the collection replacement, and an invalidation tag that carries a failure raised from a native scroll/resize listener back into a seam — the only place a stage can be classified. It declares `config.actionTags: 3`.
 
 **This document said two until now, and the implementation has said three since Checkpoint B.** The third tag was reviewed and accepted there as the right mechanism — it uses the frozen behavior-action protocol rather than adding an SPI member, which is precisely what Q-4 asks a new tag to justify — but the contract was never corrected, and the Phase 14 revision initially repeated the stale number as evidence that nothing had grown. Corrected here, with Q-4 updated in [05](05-lifecycle-invariants.md): the third tag arrived, it was investigated, and it did not indicate a misplaced boundary. It is also the answer to a question the number alone cannot settle — a tag that exists to _re-enter a seam so a stage can be classified_ is not a lifecycle request in disguise, which is what Q-4 is actually watching for.
 
@@ -1430,7 +1431,7 @@ A resolution attempt still distinguishes `completed` from `settlement`: `settlem
 
 ## Failure classification
 
-The behavior calls `host.fail(stage, error)` without an operation identity — the kernel holds it. Stages reachable from vertical sortable, with recovery:
+The behavior calls `host.fail(stage, error)` without an operation identity — the kernel holds it. Stages reachable from the sortable behavior, with recovery:
 
 `ADMISSION` (none) · `ACTIVATION` (immediate) · `RENDERER_WRITE` (home) · `INSERTION` (home) · `PLACEHOLDER_MOVE` (home) · `INVALIDATION` (home) · `SCHEDULED_FRAME` (home) · `REORDER_RESOLUTION` (home) · `RELEASE` (home) · `LANDING_CREATE`, `LANDING_INTERRUPTED` (immediate) · `LANDING_TARGET` (immediate; the pin is skipped but presentation is still released) · `PRESENTATION_READY` (immediate, settlement replaced) · `TERMINAL_CALLBACK` (none, retire).
 

@@ -24,7 +24,7 @@ Paths are relative to `packages/drag2`. Where a row is closed by several tests t
 
 | Row | Test | ID |
 | --- | --- | --- |
-| no oscillation at an insertion threshold | `tests/sortable/vertical.browser.test.ts` — _should keep the incumbent gap on a tie_; `tests/sortable/displacement.browser.test.ts` — _should not propose a reversal while a displacement is running_ | D-7 |
+| no oscillation at an insertion threshold | `tests/sortable/y.browser.test.ts` — _should keep the incumbent gap on a tie_; `tests/sortable/displacement.browser.test.ts` — _should not propose a reversal while a displacement is running_ | D-7 |
 | rapid alternating samples preserve FIFO | `tests/sortable/sortable.browser.test.ts` — _should render the committed sample and coalesce the spatial search_ (three samples, one frame) | 02 §Queue |
 | release uses the final synchronous geometry | `tests/sortable/sortable.browser.test.ts` — _should render the final sample, not the last processed move_ | I-12 |
 | pending frame work cannot alter the released proposal | `tests/sortable/sortable.browser.test.ts` — _should discard a spatial action at RELEASING_ | I-4, I-12 |
@@ -109,6 +109,8 @@ Implemented in Phase 16. The consumer-facing rows are `tests/sortable/keyboard.b
 | `Escape` cancels a command exactly as it cancels a press | `tests/sortable/keyboard.browser.test.ts` — _should be cancelled by Escape exactly as a press is_ | D-32 |
 | `ArrowLeft` ≡ `ArrowUp` and `ArrowRight` ≡ `ArrowDown` — keyboard is not axis-specific | `tests/sortable/keyboard.browser.test.ts` — _should treat ArrowLeft as ArrowUp and ArrowRight as ArrowDown_ | L-4 |
 | `handle()` gates the keyboard path too | `tests/sortable/keyboard.browser.test.ts` — _should gate the keyboard path through handle()_ | L-4 |
+| the keyboard path resolves the item — and therefore the consumer's `handle()` — **exactly once** per keydown, admitted or declined | `tests/sortable/keyboard.browser.test.ts` — _should resolve the handle exactly once per admitted keydown_, _…for a declined keydown_, _…the same number of times as a press does_ | D1 |
+| an admission resolver that queues `updateItems()` queues it **once** per keydown | `tests/sortable/keyboard.browser.test.ts` — _should queue an admission-resolver updateItems() exactly once per keydown_ | D1, D-25 |
 
 ### One row is driven at the seam, and why
 
@@ -188,6 +190,9 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | neighbour identity changes | `tests/sortable/sortable.browser.test.ts` — _should cancel when an internal gap loses its adjacency_ | F-31 |
 | update during release | `tests/sortable/sortable.browser.test.ts` — _should not rewrite the frozen snapshot after release_ | I-12 |
 | update during settlement | `tests/sortable/react.browser.test.ts` — the fixture dispatches `updateItems` from every layout effect, including the commit that resolves readiness | I-12, D-25 |
+| `updateItems()` after `destroy()` is a no-op for a **valid** replacement | `tests/sortable/sortable.browser.test.ts` — _should stay inert for a valid replacement_ | D3 |
+| `updateItems()` after `destroy()` is a no-op for an **invalid** one, and does not throw | `tests/sortable/sortable.browser.test.ts` — _should not throw for an invalid replacement_ | D3 |
+| a post-`destroy()` replacement queued from a callback is not classified as an activation failure | `tests/sortable/sortable.browser.test.ts` — _should not classify a post-destroy replacement as an activation failure_ | D3, I-6 |
 
 ## Styling and animation
 
@@ -197,6 +202,8 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | CSS layout transition | `tests/sortable/composition.browser.test.ts` — _should propose the same gap when the rows carry a CSS transition_ | D-7 |
 | long landing duration | `tests/sortable/features.browser.test.ts` — _should hold settlement open until the animation finishes_ | I-9 |
 | custom animation runner | `tests/sortable/features.browser.test.ts` — _should let a custom runner replace the default entirely_ | I-24 |
+| the default landing timing is the retained shipped `{ duration: 200, easing: 'ease' }` | `tests/sortable/features.browser.test.ts` — _should default the easing to the retained shipped value_, _…the duration…_ | D6, ledger §7 |
+| a `duration` thunk is resolved and validated **once per landing, before** the reduced-motion collapse | `tests/sortable/features.browser.test.ts` — _should read a duration thunk under a reduced-motion preference too_; _should classify an invalid thunk result under a reduced-motion preference_ | D4, L-6 |
 | interrupted and retargeted displacement | `tests/sortable/displacement.browser.test.ts` — _should replay a still-running row from where it visually is_ | D-7 |
 
 ## Construction model — new
@@ -318,6 +325,74 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 
 ---
 
+## Terminal barrier in a resolver sequence — new (C2-01)
+
+> A participant that invokes consumer code more than once inside one seam, or inside one native admission, reads the terminal latch **between** invocations and stops on the first closed reading (I-36, F-47). The obligation is provisioning in two forms — a reading, or a named kernel bracket that revalidates and undoes (I-36 (1)) — over a five-act floor everywhere, plus stronger promises at named sites (I-36 (2), (3)). Holding a reading is not discharging: C5-01 and C5-02 were both at provisioned modules. The rows below split accordingly: floor rows and **ceiling** rows.
+
+**Every row asserts the resolver's call list or an instrumented element, never the resulting insertion or the final DOM.** The frame is discarded upstream regardless — `action.prepare` returns `null` on a `null` resolve, and `preparationValid()` would invalidate the transition anyway — so a state assertion passes against unfixed source. This is C4-04's lesson applied to a different mechanism.
+
+**The call list is not the whole condition, and Checkpoint D review 3 (C3-01) found the gap.** I-36 requires the barrier to invoke no further consumer code **including indirectly through a consumer-owned object**, and the placeholder is the consumer's element: an overridden `getBoundingClientRect()` is a consumer call. A resolver-list assertion cannot see that, so the two rows that read _"no geometry is read after it"_ were passing without checking it. The geometry half is now its own row per axis, instrumented **on the element**, and both were verified to fail against pre-fix source.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a `handle()` resolver destroys → `visual()` is never called, nothing is minted, `defaultPrevented` is false, nothing is reported | `tests/sortable/features.browser.test.ts` — _should not resolve a visual after the handle resolver destroyed_ | I-36 |
+| the same on the **command** ingress, which runs the whole of admission inside the native listener (D-32) | `tests/sortable/features.browser.test.ts` — _should not resolve a visual after a keydown handle resolver destroyed_ | I-36 |
+| a candidate `visual()` destroys during a composed drag → the call list stops at that candidate, `y()` axis | `tests/sortable/features.browser.test.ts` — _should stop the candidate traversal at the destroying candidate_ | I-36 |
+| the same through real input on the `xy()` axis — the check is shared but the **threading** is per-axis | `tests/sortable/xy.browser.test.ts` — _should stop the traversal of a composed drag at the destroying candidate_ | I-36 |
+| direct drive: `live` flips false during the second candidate → `resolve` returns `null` and no later candidate is asked | `tests/sortable/{y,xy}.browser.test.ts` — _should stop resolving candidates once the controller closes_ | I-36 |
+| **the geometry half**: the same abort reads **zero** `getBoundingClientRect()` calls on the consumer-supplied placeholder, counted on the element — mirrored per axis because `refresh`'s abort signal is threaded per axis | `tests/sortable/{y,xy}.browser.test.ts` — _should read no placeholder geometry once the controller closes_ | I-36, I-6 |
+| **the retired-state half a `break` gets wrong**: a second `resolve` at the **same** snapshot version rebuilds from scratch, which is only possible if the aborted traversal left the cache empty, dirty and at `measured === -1` | `tests/sortable/{y,xy}.browser.test.ts` — _should leave the cache retired rather than clean and partial_ | I-36, I-20 |
+| the **eager** rebuild inside the committed-move bracket destroys → no `afterMove` hook runs | `tests/sortable/features.browser.test.ts` — _should not run the eager rebuild past a destroying candidate_ | I-36 |
+| a custom-element placeholder's `disconnectedCallback` destroys during a committed `movePlaceholder` → nothing after the reaction runs, and the `finally` still clears `view.insertion` | `tests/sortable/features.browser.test.ts` — _should not run the bracket past a placeholder reaction that destroyed_ | I-36 |
+
+### The indirect half — new (Checkpoint D review 4, C4-01)
+
+> I-36's indirect-invocation clause reaches DOM methods the library calls on consumer-owned nodes and not only the named resolver slots — bounded, since review 4, by I-36's floor and register: these rows are **ceiling** rows for the candidate loop, whose no-geometry promise is stated at `contract/03` and in the README. The barrier had been sitting between `getVisual` and the candidate's own `getBoundingClientRect()`; that read is a consumer call too.
+
+**The discriminating candidate is the last one.** A destroy raised from an _earlier_ candidate's geometry was already caught by the next iteration's reading, so a case built on one is not a regression at all — it passes against pre-fix source. Only the last candidate falls through to the trailing bookkeeping and to the placeholder read. Every row below was verified to fail against pre-C4-01 source — **except the last**, which is a conformance pin added at review 4 and is labelled as one: it passes against current source, guards no barrier, and pins the size of a residue I-36 (2) classifies as conforming. It was verified to be **sensitive** rather than vacuous by removing the kernel's F-30 handle disposal, against which it fails.
+
+| Property | Where | Invariant |
+| --- | --- | --- |
+| a candidate's own `getBoundingClientRect()` destroys with **no `visual()` composed** → **zero** placeholder reads. The composition that could not abort at all before, because the item is its own visual | `tests/sortable/{y,xy}.browser.test.ts` — _should read no placeholder geometry once the last candidate closed the controller_ | I-36 |
+| the same → the cache is left dirty and empty, so the **same** snapshot version rebuilds from scratch | `tests/sortable/{y,xy}.browser.test.ts` — _should leave the cache retired after the last candidate closed the controller_ | I-36, I-20 |
+| a candidate's geometry destroys **with** a resolver composed → the resolver list stops at that candidate, which the pre-C4-01 ordering could not do | `tests/sortable/{y,xy}.browser.test.ts` — _should resolve no further visual once a candidate closed the controller_ | I-36 |
+| **the entry barrier**: a `refresh` entered already closed calls the resolver **zero** times — the release path, where `settleDisplacement`'s hooks run immediately before `resolveInsertion` | `tests/sortable/{y,xy}.browser.test.ts` — _should call no resolver at all when the controller is already closed_ | I-36 |
+| **`xy()` only**: a destroy from the placeholder's anchor rect is followed by **zero** `compareDocumentPosition` calls on the same element. `y()` has no counterpart because it makes no second call | `tests/sortable/xy.browser.test.ts` — _should not compare document position once the anchor read closed the controller_ | I-36 |
+| `layoutAnimation()`'s **before** pass: a row's geometry destroys → no further row is measured | `tests/sortable/displacement.browser.test.ts` — _should measure no further row once a before-pass measurement closes the controller_ | I-36 |
+| the same → no animation is started for that bracket | `tests/sortable/displacement.browser.test.ts` — _should start no animation once a before-pass measurement closes the controller_ | I-36 |
+| `layoutAnimation()`'s **after** pass: a row's geometry destroys → **zero** `animate()` calls, and no further row measured | `tests/sortable/displacement.browser.test.ts` — _should start no animation once an after-pass measurement closes the controller_, _should measure no further row…_ | I-36 |
+| a destroy raised from `animate()` **itself** leaves that animation cancelled — it is not in the feature's map, so `retire()` cannot have seen it | `tests/sortable/displacement.browser.test.ts` — _should cancel an animation whose own start closed the controller_ | I-36, I-20 |
+| the after pass **through the real composition**, `lazyY()` + `layoutAnimation()`, destroy armed on the post-move DOM state | `tests/sortable/features.browser.test.ts` — _should start no displacement after an afterMove measurement destroyed_ | I-36 |
+| the behavior's own reading between the `beforeMove` pipeline and `movePlaceholder` → the write never happens and nothing is reported | `tests/sortable/features.browser.test.ts` — _should not write the placeholder after a beforeMove hook destroyed_ | I-36 |
+| **conformance pin, passes against current source — the bracket-discharge witness** — the `landing()` residue's blast radius, not a barrier: a `landing({ duration })` thunk destroys the controller, and `visual.animate()` is called **exactly once**, counted on the element, with no animation, no transform and no placeholder surviving, nothing reported, and **no** terminal callback. `getAnimations() === []` and `style.transform === ''` are what witness the bracket's **undo**, condition (ii) of I-36 (1) | `tests/sortable/features.browser.test.ts` — _should leave nothing behind when the duration thunk destroys the controller_ | I-36 (1), I-6, F-30 |
+| **conformance pin, passes against current source** — the kernel's admitted post-terminal relinquishment: a `landing({ run })` runner destroys the controller and still returns a handle, and F-30 calls that consumer-authored handle's `destroy` **exactly once**, after `destroy()` returned, with `retarget` never called and nothing surviving. This is what I-6 clause 3's qualified headline admits | `tests/sortable/features.browser.test.ts` — _should destroy a consumer runner's handle exactly once when the runner destroyed the controller_ | I-6, I-20, F-30 |
+| **C5-01** — subscription is part of the acquisition: an `animation.finished` **accessor** that destroys and returns normally leaves no live displacement, and neither does an overridden **thenable** `then`. Both are consumer-reachable through an overridden `animate()`, and neither throws, so the acquisition `catch` never saw them | `tests/sortable/displacement.browser.test.ts` — _should cancel an animation whose `finished` accessor closed the controller_, _…whose `finished` thenable closed the controller_ | I-36 (2), I-20 |
+| **C5-02** — the placeholder mechanics stop at the destroying write: a consumer placeholder whose first `setAttribute` destroys receives **exactly** `['data-drag-placeholder']`, and a `visual.offsetWidth`/`offsetHeight` getter that destroys leaves **no** write at all — on a custom element and on the default composition alike, because every read is taken before any write | `tests/sortable/placement.browser.test.ts` — _should write no further attribute once a mechanics write closes the controller_, _…no attribute at all once a visual offset read closes the controller_, _…no mechanics to the default placeholder…_ | I-36 (2) |
+| **the stretch sweep** (C5-03 §7) — `placeholder()`'s own class write: a `create` factory that destroys leaves **no** class on the element it returned, which is the consumer's and is adopted by nothing | `tests/sortable/features.browser.test.ts` — _should add no class once the factory destroys the controller_ | I-36 (2) |
+| **the stretch sweep** — the draft seed: a `visual()` resolver that destroys leaves `item`, `visual` and `snapshot` unwritten on the draft, on the press ingress and on the command ingress, whose destination is the fourth field | `tests/sortable/sortable.browser.test.ts` — _should seed no draft…_, _should seed no command draft…_ | I-36 (2), I-20 |
+| **the stretch sweep** — the activation survival conjuncts: `isConnected`/`nextElementSibling` are consumer accessors, and a destroy from either publishes nothing and calls no `onStart` | `tests/sortable/sortable.browser.test.ts` — _should start nothing when a survival conjunct destroys the controller_ | I-36 (2), I-20 |
+| **the stretch sweep** — the release frame writes: a `beforeMove` hook that destroys, and an axis that destroys while resolving the release, both leave `draft.proposal` null | `tests/sortable/sortable.browser.test.ts` — _should build no proposal when a displacement hook destroys…_, _…when the axis destroys…_ | I-36 (2), I-20 |
+| **the stretch sweep** — the release request publication: `lift.write` composes onto `visual.style`, an accessor a custom element may define, so a destroy from the render leaves `rt.pendingRequest` null | `tests/sortable/sortable.browser.test.ts` — _should publish no request when the release render destroys the controller_ | I-36 (2), I-20 |
+| **the stretch sweep** — the settlement domain: `isReorderResolution` is a duck-type test, so a resolution whose own `type` accessor destroys publishes no `draft.domain` | `tests/sortable/sortable.browser.test.ts` — _should publish no domain when the resolution's own accessor destroys the controller_ | I-36 (2), I-20 |
+| **the stretch sweep** — the destination re-anchor: a conjunct accessor that destroys leaves the placeholder where it is, rather than re-inserting a footprint the operation has finished with | `tests/sortable/sortable.browser.test.ts` — _should re-anchor nothing when a re-anchor conjunct destroys the controller_ | I-36 (2) |
+
+Four things these fixtures made concrete:
+
+1. **`layoutAnimation()`'s two passes are indistinguishable through the composition**, because the axis rebuild reads the same rows between them. The pass-specific rows are therefore driven **directly**, with a hand-built `DisplacementView`; the composed row uses `lazyY()` to withhold the eager rebuild so that "post-`movePlaceholder`" is a sound arming condition.
+2. **The instrumented rect must be returned _shifted_ in the composed after-pass row.** Teardown removes the placeholder and drops the lift, which puts the row back exactly where the pass measured it — so an honest rect makes `delta === 0`, `animate()` is skipped for a reason unrelated to the barrier, and the assertion stops discriminating. This is the same trap as the call-list rule, one level down.
+3. **The `beforeMove` row's observable is the DOM write, not the resulting order.** Teardown detaches the placeholder, so its final position proves nothing; pre-fix the write reached `movePlaceholder` with a detached placeholder and threw `FAILURE_PLACEHOLDER_MOVE`, so the discriminating assertion is that **nothing is reported**.
+4. **Review 4 recorded three of its readings as uncovered defence in depth. Two of the three now have discriminating fixtures, and finding them is what made C5-02 and four of the sweep's findings visible** (C5-03 §7). The `createPlaceholder` reading was recorded as uncovered because the preparation is discarded whole — but the first consumer-reachable call _inside_ `applyMechanics` discriminates, and once a fixture existed the mechanics turned out to breach the floor six statements deep. The `anchorTarget` and `release.effect` readings were recorded as uncovered because the placeholder is torn down along the same edge — but the discriminating fixture is a **direct drive** with a consumer accessor that destroys, and both turned out to have a second, unguarded stretch behind the landed reading. The lesson is recorded rather than the excuse: _"no discriminating fixture was found"_ is a statement about the fixtures tried, and at a floor-level barrier it should be read as a reason to try a different level rather than as coverage.
+
+Three things the fixtures made concrete that the decision stated abstractly:
+
+1. **`layoutAnimation()` cannot witness "no `afterMove` hook ran".** Its own `retire()` empties the span map, so its `afterMove` is _already_ inert on a destroyed controller and reports no animation whether the barrier exists or not. The rows above use a test-authored displacement feature that records each half of the bracket pipeline instead.
+2. **The bracket guard needs an axis feature with no eager `measure`** to be observable at all. With one installed — and both first-party axes install one — `measureInSeam`'s own `!rt.closed` covers the same continuation, so the two guards are redundant and neither can be seen alone. A lazy axis rule is explicitly supported by the contract, and composing one is what isolates the outer guard.
+3. **One specified guard is genuinely unfalsifiable** and is recorded below rather than removed.
+
+**Non-regression, unchanged and still passing:** D2's call-exactness rows (_should resolve each candidate visual once per rebuild_, and the warm-cache silence beside it) and D3's `updateItems()`-after-destroy rows. The latch moved from the controller's closure to `SortableRuntime.closed`; its behavior did not.
+
+---
+
 ## The F-6 obligation
 
 > Any fixture installing `landing()` or declaring an authored presentation fails loudly if the corresponding hold is never taken.
@@ -329,7 +404,7 @@ Sealing catches a hold taken _late_; nothing structural catches one never taken,
 
 ## Q-12 — the degraded re-anchor, judged
 
-> A consumer that unmounts or re-keys the dragged item leaves `anchorTarget` with no anchor. The fallback measures the still-connected placeholder where it stands. **What stays open is whether the fallback is good enough.**
+> A consumer that unmounts or re-keys the dragged item leaves `anchorTarget` with no anchor. The fallback measures the still-connected placeholder where it stands. **The fallback is sufficient and Q-12 is closed in its favour** (Phase 10; status corrected at Checkpoint D review 5, C5-04 — this section previously still read as open and closed with a recommendation).
 
 Fixtures: `tests/sortable/react.browser.test.ts` › _that unmounts the dragged item (Q-12)_.
 
@@ -340,7 +415,7 @@ Two things the fixtures made concrete that the contract stated abstractly:
 1. **A row React merely drops cannot exercise the guard at all.** A removed node is parentless, and `ChildNode.before()` on a parentless node is already a no-op, so guarded and unguarded re-anchoring are indistinguishable. The hazard needs a _disconnected node that still has a parent_ — a recycle pool, a keep-alive cache, a virtualizer's spare list — or a _connected_ node under a different parent, which is a row moved to a second list. Both shapes are now fixtures.
 2. **The re-anchor happens at the join, not at arm time.** With readiness pending, `authoredReady` is false and the re-anchor is skipped entirely, so the guard is unreachable until the gate settles. Any test hoping to discriminate it through the provisional landing target measures the wrong moment; the discriminating probe is a `MutationObserver` on the container the consumer moved the row into.
 
-Cancelling the settlement outright — the alternative Q-12 left open — would buy nothing here and would turn a consumer's own unmount into a reported failure. **Recommendation: close Q-12 in favour of the fallback as specified.**
+Cancelling the settlement outright — the alternative Q-12 left open — would buy nothing here and would turn a consumer's own unmount into a reported failure. **Q-12 is closed in favour of the fallback as specified**; §[05](../.plan/contract/05-lifecycle-invariants.md) records the landed answer and this section is its evidence, not a pending recommendation.
 
 ## Equivalent mutants — guards no test can falsify
 
@@ -349,6 +424,7 @@ Recorded rather than removed, so a later reader does not mistake them for covera
 | Guard | Why it cannot be falsified |
 | --- | --- |
 | `item.isConnected` in `anchorTarget`'s destination re-anchor (`src/sortable/spec.ts`) | Strictly implied by the parentage conjunct beside it. A disconnected item either has no parent (blocked, and `before()` would be a no-op anyway) or a different parent (blocked). The only case it alone would catch — item and placeholder in the _same_ detached tree — measures the origin either way. The parentage conjunct **is** falsifiable: _should not re-anchor into a container the consumer moved the row to_. |
+| `rt.closed` in `action.prepare(TAG_SPATIAL)` after `resolveInsertion` (`src/sortable/spec.ts`) | Unreachable through any first-party composition. The candidate-loop barrier already makes a destroyed traversal produce `count === 0`, so `nearest === -1` and the axis rule returns `null` — the `resolved === null` disjunct beside it always fires first. It is defence in depth against an axis rule that reaches consumer code by some other route, and is kept deliberately rather than left to be rediscovered as dead code. |
 | `settlement !== attempt` in `watchReadiness` **and** in `handleReadinessSettled` (`src/kernel/kernel.ts`) | Two nested identity checks plus the `readinessHeld` flag and the `SETTLING` phase test. Every route that makes an attempt stale also clears `readinessHeld` or leaves the phase, so removing either identity check individually changes nothing. Defense in depth, deliberately kept. |
 
 The precedent for _removing_ an unfalsifiable conjunct rather than recording it (Checkpoint B's placeholder parentage/adjacency pair) applies when the conjunct is dead weight in the only shape that reaches it. These two are cheap, and one of them is a second line of defence on a staleness rule — so they stay, named.

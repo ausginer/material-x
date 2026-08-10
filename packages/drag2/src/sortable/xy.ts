@@ -2,7 +2,8 @@
  * The two-dimensional axis rule — a field of rectangles rather than a column.
  *
  * ```text
- * candidates := centres of every non-dragged item, plus the placeholder's own
+ * candidates := centres of every non-dragged item's **visual**, plus the
+ *               placeholder's own
  * nearest    := the candidate whose centre is closest to the pointer, squared
  *               Euclidean over BOTH coordinates
  * if nearest is the placeholder -> keep the current insertion (no change)
@@ -60,6 +61,14 @@ type InsertionFrameView = Readonly<{
 type InsertionRuntimeView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
+  /** The installed `visual()` resolver, or `null`; see `y.ts` for why. */
+  getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  /**
+   * Whether the controller is still alive (I-36); see `y.ts`. The check itself
+   * lives in `RectIndex.refresh`, but the **threading** is per-axis — which is
+   * why both sibling modules name it and a future axis has to as well.
+   */
+  live(): boolean;
 }>;
 
 export function xy(): SortableFeature {
@@ -80,7 +89,14 @@ export function xy(): SortableFeature {
 
           const { snapshot, placeholder } = runtime;
 
-          index.refresh(snapshot, dragged);
+          if (
+            !index.refresh(snapshot, dragged, runtime.getVisual, runtime.live)
+          ) {
+            // The rebuild crossed the terminal barrier (I-36); see `y.ts`. The
+            // placeholder measured below is consumer-owned, so reading it after
+            // the close would be an indirect consumer call.
+            return null;
+          }
 
           const { values, count } = index;
           const { pointerX, pointerY } = frame;
@@ -114,6 +130,17 @@ export function xy(): SortableFeature {
             return null;
           }
 
+          if (!runtime.live()) {
+            // **The second placeholder barrier** (I-36, C4-01), and `y()` has
+            // no counterpart because it needs no second call: it derives the
+            // side from two centres it has already measured. Here the anchor
+            // read above is a consumer call on a consumer-owned element, and
+            // `compareDocumentPosition` below is a second one on the same
+            // element. Paid only on a frame that proposes a gap change, not on
+            // every spatial frame.
+            return null;
+          }
+
           const { items } = index;
           // `nearest` comes after the placeholder in document order, so the gap
           // is on its far side. The mask test is what `compareDocumentPosition`
@@ -143,7 +170,12 @@ export function xy(): SortableFeature {
           const dragged = frame.item;
 
           if (dragged !== null) {
-            index.refresh(runtime.snapshot, dragged);
+            index.refresh(
+              runtime.snapshot,
+              dragged,
+              runtime.getVisual,
+              runtime.live,
+            );
           }
         },
 

@@ -38,7 +38,7 @@ export function placeholder(options: PlaceholderOptions = {}): SortableFeature {
     className === undefined ? null : className.split(/\s+/u).filter(Boolean);
 
   return brandFeature((context) => ({
-    createPlaceholder(placeholderContext): HTMLElement {
+    createPlaceholder(placeholderContext, live): HTMLElement {
       // `realm.document`, not the global one: the root may live in an iframe,
       // and an element minted from the wrong document cannot be inserted.
       const element =
@@ -46,7 +46,14 @@ export function placeholder(options: PlaceholderOptions = {}): SortableFeature {
           ? context.realm.document.createElement('div')
           : create(placeholderContext);
 
-      if (classes !== null && classes.length > 0) {
+      // **The terminal barrier on the consumer's factory** (I-36 (2) act 3,
+      // C5-03's stretch sweep). `create` is consumer code and the element it
+      // returns is the consumer's own, not yet adopted by anything: teardown
+      // removes only the placeholder it inserted, so a class written here after
+      // `destroy()` returned stays on that element forever. The default `<div>`
+      // above is the library's and would leave nothing, but one reading covers
+      // both and costs the branch nothing.
+      if (classes !== null && classes.length > 0 && live()) {
         // Added, never assigned: a custom element from `create` may arrive with
         // classes of its own, and this feature customises rather than replaces.
         element.classList.add(...classes);

@@ -51,6 +51,8 @@ type Fixture = Readonly<{
   started: HTMLElement[];
   /** Landing contexts, when a recording runner is installed. */
   contexts: LandingContext[];
+  /** Every item the installed `handle()` resolver was asked about, in order. */
+  handleCalls: HTMLElement[];
   placeholder(): HTMLElement | null;
   /** DOM order, with the placeholder as `_`. */
   order(): string;
@@ -62,6 +64,11 @@ type Options = Readonly<{
   onStart?(fixture: Fixture): void;
   /** Install `handle()` narrowing admission to the row's first child. */
   useHandle?: boolean;
+  /**
+   * Runs inside the `handle()` resolver, which is consumer code the library
+   * invokes during admission. Implies `useHandle`.
+   */
+  onResolveHandle?(fixture: Fixture): void;
   /**
    * Called from **inside** the admission member, through the `visual()` slot.
    *
@@ -125,13 +132,20 @@ function build(options: Options = {}): Fixture {
   const errors: unknown[] = [];
   const started: HTMLElement[] = [];
   const contexts: LandingContext[] = [];
+  const handleCalls: HTMLElement[] = [];
 
   let fixture!: Fixture;
 
   const features: SortableFeature[] = [];
 
-  if (options.useHandle === true) {
-    features.push(handle((item) => item.querySelector('.grip')));
+  if (options.useHandle === true || options.onResolveHandle !== undefined) {
+    features.push(
+      handle((item) => {
+        handleCalls.push(item);
+        options.onResolveHandle?.(fixture);
+        return item.querySelector('.grip');
+      }),
+    );
   }
 
   if (options.onAdmit !== undefined) {
@@ -198,6 +212,7 @@ function build(options: Options = {}): Fixture {
     errors,
     started,
     contexts,
+    handleCalls,
     placeholder: () => root.querySelector('[data-drag-placeholder]'),
     order: () =>
       [...root.children]
@@ -381,6 +396,73 @@ describe('command ingress', () => {
       arrow(fixture.items[0]!.firstElementChild as HTMLElement, 'ArrowDown'),
     ).toBe(false);
     expect(fixture.started).toEqual([fixture.items[0]]);
+  });
+
+  it('should resolve the handle exactly once per admitted keydown', () => {
+    // D1. `command.admit` resolved the item once to compute the destination and
+    // a second time to seed the draft, so one keydown invoked the consumer's
+    // resolver twice while the press path invoked it once. A stateful resolver
+    // can decline or throw on the second call, so this is observable and not
+    // merely duplicate work.
+    const fixture = build({ useHandle: true });
+
+    arrow(fixture.items[0]!.firstElementChild as HTMLElement, 'ArrowDown');
+
+    expect(fixture.handleCalls).toEqual([fixture.items[0]]);
+    expect(fixture.started).toEqual([fixture.items[0]]);
+  });
+
+  it('should resolve the handle exactly once for a declined keydown', () => {
+    // The edge item: feasibility is decided before the draft is seeded, so an
+    // infeasible command resolves the item once and then stops. Pinned
+    // separately because the fix moved the seeding *after* the edge test.
+    const fixture = build({ useHandle: true });
+
+    expect(
+      arrow(fixture.items[0]!.firstElementChild as HTMLElement, 'ArrowUp'),
+    ).toBe(true);
+    expect(fixture.handleCalls).toEqual([fixture.items[0]]);
+    expect(fixture.started).toEqual([]);
+  });
+
+  it('should resolve the handle the same number of times as a press does', () => {
+    // The parity statement the two rows above only imply separately: both
+    // ingresses share one admission rule, so they must consult the consumer's
+    // resolver the same number of times for the same item.
+    const pressed = build({ useHandle: true });
+    const commanded = build({ useHandle: true });
+
+    press(
+      pressed.items[0]!.firstElementChild as HTMLElement,
+      grab(pressed, 0) + 10,
+    );
+    arrow(commanded.items[0]!.firstElementChild as HTMLElement, 'ArrowDown');
+
+    expect(commanded.handleCalls).toEqual(pressed.handleCalls);
+  });
+
+  it('should queue an admission-resolver updateItems() exactly once per keydown', () => {
+    // The sharp end of D1. An admission resolver is explicitly allowed to queue
+    // `updateItems()`, so resolving twice queued that side effect twice and the
+    // operation reconciled through two snapshots for one native command — two
+    // versions consumed and two collection actions drained for one arrow key.
+    const versions: number[] = [];
+    const fixture = build({
+      onResolveHandle(f): void {
+        f.controller.updateItems([...f.items]);
+      },
+      onReorder(request): ReorderResolution {
+        versions.push(request.version);
+        return ReorderResolution.accept();
+      },
+    });
+
+    arrow(fixture.items[0]!.firstElementChild as HTMLElement, 'ArrowDown');
+
+    // One resolution, therefore one queued update, therefore version 1 — not 2.
+    expect(fixture.handleCalls).toEqual([fixture.items[0]]);
+    expect(versions).toEqual([1]);
+    expect(fixture.errors).toEqual([]);
   });
 });
 

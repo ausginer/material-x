@@ -48,9 +48,30 @@ export function createSortableController(
   // only job: being the identity of a snapshot. The counter is seeded from the
   // initial snapshot so the sequence stays continuous with it.
   let { version } = rt.snapshot;
+  // **The terminal latch, and it is the behavior's own** (D3, then C2-01).
+  // The kernel has one, but it is not readable through `KernelHost` and it
+  // guards the *dispatch* — which is one step too late for `updateItems`, whose
+  // validation throws before anything reaches the kernel. "No-op after
+  // `destroy()`" has to mean the whole method, invalid input included, or the
+  // promise is only true for calls that would have been silent anyway.
+  //
+  // It lives on `rt` rather than in this closure because D3's one reader became
+  // five: the behavior's own resolver sequences read it too (I-36). One latch,
+  // several readers — a second copy is state that can disagree.
+  //
+  // `cancel` and `destroy` *are* the kernel's own members, spread through
+  // unchanged, and the kernel's latch already makes both inert and idempotent
+  // before they do any work. `ready()` deliberately keeps reporting: a
+  // post-`destroy()` acknowledgement is a stale one by definition, and telling
+  // an integrator that its layout effect outlived the controller is the whole
+  // reason that DEV report exists.
 
   return {
     updateItems(items): void {
+      if (rt.closed) {
+        return;
+      }
+
       // Copied and validated **here**, at call time, so a caller that keeps
       // mutating its own array cannot change a snapshot already queued, and a
       // duplicate is refused at the call that introduced it.
@@ -106,6 +127,10 @@ export function createSortableController(
     },
 
     cancel: host.cancel,
-    destroy: host.destroy,
+
+    destroy(): void {
+      rt.closed = true;
+      host.destroy();
+    },
   };
 }

@@ -20,7 +20,7 @@ The kernel's own private generic _is_ an intersection, `KernelFrame & Part`; the
    └──────────────────────────────────────────────────────────────┘
         ▲                    ▲                        ▲
    KernelFrame        SortableFramePart        InsertionFrameView
-   (kernel module)    (behavior module)        (vertical.ts, read-only,
+   (kernel module)    (behavior module)        (y.ts, read-only,
     7 fields           8 fields                 two fields)
 ```
 
@@ -166,7 +166,7 @@ Verified feature by feature — none needs committed transactional state:
 
 | Feature | Committed transactional state? |
 | --- | --- |
-| `vertical()` | No. `insertion` is behavior-owned; the rect index is a non-transactional private cache. |
+| `y()`, `xy()` | No. `insertion` is behavior-owned; the rect index is a non-transactional private cache, one instance per axis-feature instance. |
 | `layoutAnimation()` | No. Its element map is private, non-transactional, and explicitly not a gate. |
 | `landing()` | No. Gate state is on the settlement attempt; the runner handle is kernel-held. |
 | `placeholder()` | No. The element lives on the behavior's private runtime; the _insertion_ is the committed state. |
@@ -289,7 +289,7 @@ The shape check and the completeness heuristic are separate on purpose: the firs
 Nothing, unless the behavior hands it something. A feature declares a read-only view of the fields it consumes, in its own module (D-13):
 
 ```ts
-// vertical.ts
+// y.ts
 type InsertionFrameView = Readonly<{
   insertion: Insertion | null;
   pointerY: number;
@@ -299,7 +299,7 @@ type InsertionFrameView = Readonly<{
 resolve(frame: InsertionFrameView, runtime: InsertionRuntimeView): Insertion | null;
 ```
 
-Two fields — one from the kernel slice, one from the behavior part — and `vertical.ts` imports neither `KernelFrame` nor `SortableFramePart` to say so.
+Two fields — one from the kernel slice, one from the behavior part — and `y.ts` imports neither `KernelFrame` nor `SortableFramePart` to say so.
 
 **The behavior passes whichever frame its seam was handed**, and structural typing does the rest: `Draft<Part>` satisfies `InsertionFrameView` inside a `prepare`, `Readonly<Frame<Part>>` satisfies it inside an `effect`. Nothing reaches for `current`, and nothing needs a stable object carrying a frame reference — which is exactly what §[03](03-feature-composition.md) §Consumer-declared views could not have built. Non-frame state travels as a second argument.
 

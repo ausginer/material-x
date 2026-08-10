@@ -19,7 +19,7 @@ import type {
   SortableCancelResult,
   SortableFinishResult,
 } from './domain.ts';
-import type { PlaceholderFactory } from './placement.ts';
+import type { PlaceholderSlot } from './placement.ts';
 import type {
   DisplacementHook,
   InsertionFrameView,
@@ -115,8 +115,13 @@ export type SortableCallbacks = Readonly<{
 /**
  * The one numeric-domain check every public option goes through.
  *
- * Validated at **construction**, where the offending call is still on the
- * stack — the same rule `copyUniqueItems` follows for a duplicate item. A
+ * Called at **construction** wherever the value exists by then, so the
+ * offending call is still on the stack — the same rule `copyUniqueItems`
+ * follows for a duplicate item. Two options do not reach it there: a
+ * `landing({ duration })` **thunk** is range-checked per landing, because its
+ * result does not exist until then, and `landing({ run })` suppresses the
+ * duration domain entirely, because a replacement runner leaves nothing for it
+ * to configure. A
  * `NaN` threshold silently activates on nothing and a `NaN` duration silently
  * produces an animation that never finishes; both are far cheaper to diagnose
  * here than three seams later. The type says `number`, but a JavaScript
@@ -149,7 +154,7 @@ export function requireFinite(
 export type SortableContribution = Readonly<{
   /* single-writer slots */
   insertion?: InsertionGeometry;
-  createPlaceholder?: PlaceholderFactory;
+  createPlaceholder?: PlaceholderSlot;
   getHandle?(item: HTMLElement): HTMLElement | null;
   getVisual?(item: HTMLElement): HTMLElement;
   startLanding?: LandingStart;

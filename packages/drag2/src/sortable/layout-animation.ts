@@ -150,18 +150,49 @@ export function layoutAnimation(
       }
     };
 
+    /**
+     * The bracket's own retired state (I-36). `retire()` has already emptied
+     * these two arrays by the time a barrier fires — it runs inside the
+     * reentrant `destroy()` — so this is a restore, not a clear: it undoes
+     * whatever the aborted pass wrote back into them and stops a destroyed
+     * controller pinning the rows it was mid-measurement on (I-20).
+     */
+    const discard = (): void => {
+      affected.length = 0;
+      tops.length = 0;
+    };
+
     return {
       beforeInsertionMove(view): void {
         collect(view);
         tops.length = 0;
 
         for (const element of affected) {
+          // **The measurement barrier** (I-36, indirect-invocation clause).
+          // The rows are consumer-owned, so the previous iteration's
+          // `getBoundingClientRect()` — and `collect`'s own sibling walk — is
+          // consumer code that may have destroyed the controller. Read at the
+          // head so one reading covers the entry and every predecessor.
+          if (!view.live()) {
+            discard();
+            return;
+          }
+
           // Deliberately measured **with** this feature's offsets still
           // applied: the rect already includes the current displacement, which
           // is what makes retargeting fall out for free. A displacement
           // interrupted halfway replays from where the element visually is,
           // not from where it was authored.
           tops.push(element.getBoundingClientRect().top);
+        }
+
+        if (!view.live()) {
+          // The last row's own measurement. Without this the partial `tops`
+          // survives on a retired feature, and `movePlaceholder` — the
+          // behavior's next statement — is a DOM write on a destroyed
+          // controller; the behavior takes its own reading for that one.
+          discard();
+          return;
         }
 
         // Released here, not lazily per element in `afterMove`, and *all* of
@@ -178,13 +209,31 @@ export function layoutAnimation(
         running.clear();
       },
 
-      afterInsertionMove(): void {
+      afterInsertionMove(view): void {
         for (let i = 0; i < affected.length; i += 1) {
+          // **The measurement barrier** (I-36). Covers the entry — the
+          // behavior's eager axis rebuild ran between the two passes — and the
+          // previous iteration's `getBoundingClientRect()` and `animate()`,
+          // both consumer calls on a consumer-owned row.
+          if (!view.live()) {
+            discard();
+            return;
+          }
+
           const element = affected[i]!;
           const delta = tops[i]! - element.getBoundingClientRect().top;
 
           if (delta === 0) {
             continue;
+          }
+
+          // **The barrier the reviewer reproduced** (C4-01): the measurement
+          // one line above destroyed the controller and `animate()` still ran,
+          // starting a WAAPI animation on a retired feature that `retire()` had
+          // already finished cancelling — so nothing would ever release it.
+          if (!view.live()) {
+            discard();
+            return;
           }
 
           // The individual `translate` property, added rather than assigned.
@@ -205,6 +254,16 @@ export function layoutAnimation(
             [{ translate: `0 ${delta}px` }, { translate: '0 0' }],
             { duration, easing, composite: 'add' },
           );
+
+          if (!view.live()) {
+            // `animate()` is itself overridable on a consumer's row, so it is
+            // the third consumer call in this iteration. Cancelled rather than
+            // abandoned: it is not in `running` yet, so `retire()` cannot have
+            // seen it and nothing else would ever stop it.
+            animation.cancel();
+            discard();
+            return;
+          }
 
           try {
             // The library performs only the measurements and temporary offsets
@@ -229,6 +288,19 @@ export function layoutAnimation(
             throw error;
           }
 
+          if (!view.live()) {
+            // **Subscription is part of the acquisition** (C5-01). `finished`
+            // is an overridable accessor and `then` an overridable call, so a
+            // consumer-instrumented animation can destroy the controller and
+            // return normally — no throw, so the `catch` above never sees it.
+            // `retire()` then ran while `running` was still empty, and
+            // publishing below would retain the row and leave a live
+            // displacement on it forever.
+            animation.cancel();
+            discard();
+            return;
+          }
+
           // Published only once it is tracked, and only ever one per element:
           // the map was emptied in `beforeMove`, so nothing can stack here.
           running.set(element, animation);
@@ -248,8 +320,7 @@ export function layoutAnimation(
         // operations, exactly like `y()`'s element array.
         members.clear();
         membersVersion = -1;
-        affected.length = 0;
-        tops.length = 0;
+        discard();
       },
     };
   });
