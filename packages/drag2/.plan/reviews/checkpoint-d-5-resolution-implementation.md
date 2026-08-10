@@ -232,3 +232,17 @@ baseline B - shipped @ydinjs/drag sortable.js  6.89 kB brotli  (26 modules)
 ```
 
 Every one of the ten new regressions was run against a **targeted** revert of just its own fix and observed to fail; the working tree carried uncommitted review-4 changes, so a whole-file `git stash` is not a valid pre-fix baseline and was not used as one. Both conformance pins were mutation-checked. Two regression drafts passed pre-fix and were rewritten (§5).
+
+---
+
+## 11 — Two arithmetic corrections found by re-verifying this record against the artifact
+
+Both were found by re-deriving the record's own numbers from the table and the harness rather than reading them, and both are the C5-04 species — a document retaining a figure the artifact contradicts. **No source, test or verdict-bearing judgement changed**; the gates were re-run after each (typecheck PASS, 33 files / **768 passed** / 18 skipped, all seven compositions inside budget).
+
+**1 — the stretch table's rows did not tally to its own headline.** The headline says **38 (a), 6 (b), 18 (c)**; the rows summed to **39 / 6 / 17**. The total, 62, was right, so the error was a single row classified into the wrong column — a compensating mistake the total could not catch.
+
+The row is `placement.ts` › `createPlaceholder`: `isElement` / `isConnected` → `applyMechanics`'s reads. It was verdicted **(a)** while its own survival column gave a **(c)** justification — "this stretch leaves nothing whichever read closes" is the conforming-residue answer, not the reading-headed one. The artifact settles it: the stretch runs from the adoption check through `getAttribute('slot')`, `visual.offsetWidth` and `visual.offsetHeight` to the reading that heads the first write (`src/sortable/placement.ts:63-67`), and **performs no consequential act at all**. (a) is defined as a reading preceding the next consequential act; there is no consequential act here, so the verdict is **(c)**, and (c) owes an executable pin. Two already exist and are now cited on the row: _should write no attribute at all once a visual offset read closes the controller_ and the same reading through the default composition (`tests/sortable/placement.browser.test.ts:119`, `:143`).
+
+Re-tallied: **62 stretches — 38 (a), 6 (b), 18 (c), 0 (d)**, matching the headline exactly. §8's closure condition is unaffected in substance — the row was never (d), and reclassifying it moves a stretch between two conforming verdicts — but a normative enumeration whose rows contradict its own summary cannot be cited as complete, which is what §8 asks it to be.
+
+**2 — Phase 21's re-base paragraph carried two wrong figures** (`plan.md:905`), while §6 of this record and every other citation carried the right ones. It said the landed cost was **+89 B** on `complete` (it is **+91**: 10,934 → 11,025) and that **17 B** is not a margin to plan against (the margin is **15 B**: the old budget was 11,040). The 17 came from the harness line `0.17 kB under budget`, which is headroom against the **re-based** 11,200 budget — a different quantity from the old budget's leftover, and the one number in that sentence that must *not* be used, since the whole point of the sentence is what the old budget would have allowed. Corrected to +91 B and 15 B, with the old budget named so the two quantities cannot be conflated again.

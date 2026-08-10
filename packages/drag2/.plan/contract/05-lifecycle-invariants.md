@@ -433,7 +433,7 @@ Each row is exactly one of three verdicts, and **no row is (d)**:
 | `spec.ts` | `reportFailure`: `onError` | (c) | none — terminal |
 | `spec.ts` | `retire`: the retire-hook loop | (c) | none — individually `guarded`, nothing follows |
 | `placement.ts` | `createPlaceholder`: the consumer factory → reading | (a) | no |
-| `placement.ts` | `createPlaceholder`: `isElement` / `isConnected` → `applyMechanics`'s reads | (a) | no — the mechanics take every read before any write, so this stretch leaves nothing whichever read closes |
+| `placement.ts` | `createPlaceholder`: `isElement` / `isConnected` → `applyMechanics`'s reads | (c) | none — the stretch runs from the adoption check through `getAttribute('slot')`, `offsetWidth` and `offsetHeight` to the reading that heads the first write, and performs no consequential act at all: the mechanics take every read before any write, so it leaves nothing whichever read closes. Pins: _should write no attribute at all once a visual offset read closes the controller_, and the same reading through the default composition |
 | `placement.ts` | `applyMechanics`: six write stretches, each reading-headed | (a) ×6 | no — **was (d)** (C5-02). Each write lands on an element a `placeholder()` feature may own and teardown never adopted, so every one of them needed its own reading |
 | `placement.ts` | `placeholderAt`: the sibling reads → a boolean | (c) | none — it reads and returns |
 | `placement.ts` | `movePlaceholder`: the sibling and `parentNode` reads → throw or move | (c) | none — teardown removed the placeholder, so its container test refuses. Pin: _should refuse to move a placeholder that is no longer in the tree_ |
