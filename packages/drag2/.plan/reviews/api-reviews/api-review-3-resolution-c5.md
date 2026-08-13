@@ -1,5 +1,17 @@
 # Resolution C-5 — the fragment shape
 
+> **SUPERSEDED — 2026-08-13, by [`api-review-final-summary.md`](api-review-final-summary.md) §9, recorded as D-45.** Provenance only. Do not implement anything below.
+>
+> **What was superseded.** The three-kind taxonomy in §3 — config object, _strategy fragment_ (a branded function carrying a module-private slot tag), _plugin fragment_ (a branded function without one). All of it. A fragment is now a **plain declarative partial config object**: `y()` returns `{ axis: installYAxis }`. There is no brand, no tag, and no fragment-kind discrimination at all.
+>
+> **What survived, and why the document is still worth reading.** Every _property_ this resolution was reaching for is in D-45; what it got wrong was believing they needed a discriminated fragment identity to hold. Selection before invocation survives — installers run after the merge, so a losing capability is never constructed and there is nothing to retire (§4's argument, verbatim, without the mechanism). Last-wins per slot survives. Externally-inert construction survives and gets _stronger_, since an object literal cannot install anything. The plugin append order survives.
+>
+> **Where it went wrong.** §5 argued the tag "does not need to be public" and derived a narrow rule from it: _first-party fragments claim capability slots, third-party fragments are plugins._ That rule is what fell. D-45 makes the **config schema public and stable** with **opaque installer values**, so a third party writes `{ axis: myInstaller }` in ordinary object syntax and needs the published kernel (D-47) only to build the installer. The boundary moved from the fragment to the value inside it — which is also the coherent third state F-42 said did not exist, and which §5 was one step away from.
+>
+> **§6 is the open question that outlived the document.** It claimed the tag buys compile-time completeness checking, and noted the constraint degrades under a spread. Under D-45's variadic merge the question is unchanged and still unanswered: whether a tuple-merge type can make a missing axis a compile error for the common literal call. `00-index.md` §What would falsify this model carries it. The runtime throw stays regardless.
+>
+> Original text follows, unedited.
+
 Blocks probe B, whose fixture has to construct fragments. Decided here so B is not designed against a placeholder.
 
 Input: `api-review-3-summary.md` §2, `api-review-3-probe-plan.md` S-1 and C-5.

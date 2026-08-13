@@ -1,5 +1,19 @@
 # API redesign v3 — pre-implementation probe plan
 
+> **CLOSED — 2026-08-13.** Superseded for decisions by [`api-review-final-summary.md`](api-review-final-summary.md), recorded in the contract as **D-36…D-47**. Provenance only; the contract is the source of truth. Kept because the probe design and the disposition reasoning are what produced the evidence, and because three of its own conclusions were falsified — which is the useful part of the record.
+>
+> **Probes run: A, C1, E** (plus api-1, run inline). **Never run: B, C2, D.** Their questions were answered by owner decision instead — C-5's fragment shape by §9/D-45, the abandoned-resolver terminal by §4/D-40, the kernel authoring surface by §11/D-47. Their scenarios may become implementation acceptance tests.
+>
+> **Three things in this document are wrong, and are corrected in the contract, not here:**
+>
+> - **S-3 is half wrong.** It claims the destroy instance of the placeholder residue "mostly dissolves under A" once teardown defers. It does not. `prepare` completes but is never **adopted** — `preparationValid()` returns false and the seam reports `SEAM_INVALIDATED` — so the disposer registered in `effect` never runs and never becomes responsible. Deferral changes _when_ teardown happens, not _whether_ adoption occurred. `rollback` closes it, and **D-39 makes it required**. Probe A found this.
+> - **C-2's correction to terminate post-release abandonment as `aborted` is reversed.** §4 keeps one `canceled` terminal (**D-40**). The reasoning: a second name would encode provenance, not a different consumer obligation — in both cases the consumer must not assume its own started work was undone, because the library never had a way to undo it. Probe A verified the abandonment path already reaches one terminal and consumes the late rejection safely.
+> - **C-5 is superseded in full** by §9/D-45; see the supersession header on [`api-review-3-resolution-c5.md`](api-review-3-resolution-c5.md).
+>
+> **Two of its stop conditions fired, and the model survived both.** A2 (panic cannot be deferred) did **not** fire. A1 broke — statement-level liveness does not retire completely, four call sites are irreducible residue — and the answer was to change I-36's _domain_ rather than patch around it: **D-37**. Two published ceilings were withdrawn as the price.
+>
+> Original text follows, unedited.
+
 Input: `api-review-3-summary.md`, treated as the current working hypothesis.
 
 Task: reduce its twelve "remaining probe targets" to the **minimum set of executable falsifiers that must run before implementation starts**, settle whatever can be settled without a probe, and flag contradictions.

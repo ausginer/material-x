@@ -108,32 +108,6 @@ You can find `@ydinjs` architecture insights in `.agents/docs/architecture.md`. 
 
 When adding, moving, or reviewing an `@ydinjs/material-x` component's tests, use skill `test-component` (placement under `packages/material-x/tests`, file suffixes and Vitest project routing, rendering/interaction rules, definition of done). When writing or debugging an `@ydinjs/tproc`-backed visual contract — a `*.spec.browser.test.ts`, a token binding, the resolve-token bridge, or a normalization adapter — use skill `test-visual-contract`. Both skills apply even if the request doesn't name them. The reasoning behind the layers lives in `.agents/docs/test-architecture.md`.
 
-## Sub-agents and teams
-
-Delegating is the default here, not the exception. Do not wait to be told to use a sub-agent, and do not ask which type to use — pick one and go. Announce the delegation in one line, then get on with it.
-
-Reach for a sub-agent whenever any of these is true:
-
-- The answer requires sweeping many files, directories, or naming conventions.
-- Two or more parts of the work are independent and could run at the same time.
-- The task is exploratory — "where is X", "how does Y work", "what would it take to Z".
-- The work would otherwise flood this conversation with file dumps you only need a conclusion from.
-
-Choosing the type (your call, no need to confirm):
-
-- `Explore` — read-only fan-out search; you want the conclusion, not the excerpts. State the breadth ("medium" or "very thorough") in the prompt.
-- `Plan` — design an implementation strategy, weigh architectural trade-offs, identify the critical files, before any code is written.
-- `general-purpose` — multi-step research or execution that may also need to edit, run commands, or iterate.
-- `claude-code-guide` — questions about Claude Code, the Agent SDK, or the Claude API.
-
-Fan out in parallel by default: when several sub-questions are independent, launch them in a single message rather than one after another. Before spawning, check whether a running or recently finished agent can be continued via `SendMessage` instead — a continued agent keeps its context, a new one starts cold.
-
-Give every sub-agent the context it needs up front (paths, package, constraints, relevant CLAUDE.md rules) — it does not see this conversation. Its final report is not shown to the user, so relay what matters yourself.
-
-Handle inline, without delegating: single-file edits you already know how to make, follow-up questions about work you just did, code review of a diff, anything with tight sequential dependencies, and anything where spawning costs more than doing.
-
-Use an agent team (`TeamCreate`, when available) only for clearly independent parallel work — for example, migrating several components at the same time. Not for review, small changes, or sequential tasks.
-
 ## Tokens DB
 
 If you need to access any file in `.data/tokens`, use skill `use-tokens-db`.
