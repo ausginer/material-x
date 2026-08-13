@@ -125,7 +125,6 @@ type Observations = {
   /** The provisional target, measured before readiness settled. */
   landingStart?: Sighting;
   /** The corrected target, measured after `ready()` released the gate. */
-  landingRetarget?: Sighting;
 };
 
 type Options = Readonly<{
@@ -248,12 +247,6 @@ function mount(options: Options): Fixture {
       destroy(): void {
         cancelAnimationFrame(frame);
       },
-      retarget(target: Point): void {
-        observations.landingRetarget = {
-          target,
-          placeholder: placementOf(capture()),
-        };
-      },
     };
   };
 
@@ -306,12 +299,13 @@ function mount(options: Options): Fixture {
             },
           };
 
+          // The imperative shape: the commit is synchronous, so returning is
+          // the acknowledgement. **This is what D-41's serial order makes the
+          // only shape** — the resolution does not return until the authored
+          // DOM is final, so there is nothing left to acknowledge separately.
           controller.updateItems(items);
-          // The imperative shape: the commit is synchronous, so the
-          // acknowledgement is the next statement.
-          controller.ready(request);
 
-          return ReorderResolution.accept({ presentation: true });
+          return ReorderResolution.accept();
         },
         onFinish(): void {
           finishes += 1;
@@ -463,14 +457,13 @@ describe('probe C1 — an imperative commit', () => {
 
     record('1-replaceChildren', fixture, origin);
 
-    const { afterCommit, landingStart, landingRetarget } = fixture.observations;
+    const { afterCommit, landingStart } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // Detached, so `item.parentElement === placeholder.parentElement` fails and
     // the re-anchor never runs — on either measurement.
     expect(afterCommit!.placeholder.connected).toBe(false);
     expect(landingStart!.target).toEqual({ x: -50, y: -100 });
-    expect(landingRetarget!.target).toEqual({ x: -50, y: -100 });
     // `origin + target` is the viewport origin; the row's real slot is (50,140).
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
     // Nothing is classified, and the drop is reported as a clean success.
@@ -515,14 +508,13 @@ describe('probe C1 — an imperative commit', () => {
 
     record('2-innerHTML-rebuild', fixture, origin);
 
-    const { afterCommit, landingStart, landingRetarget } = fixture.observations;
+    const { afterCommit, landingStart } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // Both the placeholder and the node the library is dragging are detached.
     expect(afterCommit!.placeholder.connected).toBe(false);
     expect(afterCommit!.libraryItem.connected).toBe(false);
     expect(landingStart!.target).toEqual({ x: -50, y: -100 });
-    expect(landingRetarget!.target).toEqual({ x: -50, y: -100 });
     // The lifted visual is landed onto a node that is no longer in the page.
     expect(boxOf(fixture.item())).toEqual({ x: 0, y: 0, w: 0, h: 0 });
     // The frozen neighbours were destroyed with everything else, so no repair
@@ -554,19 +546,18 @@ describe('probe C1 — an imperative commit', () => {
 
     record('3-append-loop', fixture, origin);
 
-    const { afterCommit, landingStart, landingRetarget } = fixture.observations;
+    const { afterCommit, landingStart } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // The commit left it at the head of the list.
     expect(afterCommit!.placeholder.index).toBe(0);
     expect(afterCommit!.dom).toEqual(['_', 'b', 'a', 'c']);
-    // Provisional: measured before readiness settled, so still at the head.
-    expect(landingStart!.target).toEqual({ x: 0, y: 0 });
-    // Re-established: index 1, immediately before the item.
-    expect(landingRetarget!.placeholder.index).toBe(1);
-    expect(landingRetarget!.target).toEqual({ x: 0, y: ROW_HEIGHT });
-    // `origin + target` === the row's final rect. The promise holds.
-    expect(origin.y + landingRetarget!.target.y).toBe(boxOf(fixture.item()).y);
+    // **D-41's win, and it is visible right here.** This used to be
+    // provisional — measured before readiness settled, so still at the head at
+    // `{ x: 0, y: 0 }` — and only the readiness-time retarget corrected it. The
+    // single authoritative measurement lands on the row's final rect the first
+    // time: `origin + target` is where the item actually ends up.
+    expect(origin.y + landingStart!.target.y).toBe(boxOf(fixture.item()).y);
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
     expect(fixture.errors).toEqual([]);
     expect(fixture.finishes).toBe(1);
@@ -596,16 +587,18 @@ describe('probe C1 — an imperative commit', () => {
 
     record('4-morphdom-patch', fixture, origin);
 
-    const { afterCommit, landingStart, landingRetarget } = fixture.observations;
+    const { afterCommit, landingStart } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // The patch stranded it at the tail — two slots below where it belongs.
     expect(afterCommit!.dom).toEqual(['b', 'a', 'c', '_']);
-    expect(landingStart!.target).toEqual({ x: 0, y: 2 * ROW_HEIGHT });
-    // Re-established from the frozen proposal, exactly as §9 promises.
-    expect(landingRetarget!.placeholder.index).toBe(1);
-    expect(landingRetarget!.target).toEqual({ x: 0, y: ROW_HEIGHT });
-    expect(origin.y + landingRetarget!.target.y).toBe(boxOf(fixture.item()).y);
+    // **D-41.** The single authoritative measurement is taken after the
+    // patch has run — the re-anchor from the frozen proposal has already put
+    // the placeholder back beside the item — so the first and only target is
+    // the row's final rect. This used to read `2 * ROW_HEIGHT`, the stranded
+    // tail slot, and be corrected by a readiness-time retarget.
+    expect(landingStart!.target).toEqual({ x: 0, y: ROW_HEIGHT });
+    expect(origin.y + landingStart!.target.y).toBe(boxOf(fixture.item()).y);
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
     expect(fixture.errors).toEqual([]);
     expect(fixture.finishes).toBe(1);
@@ -687,7 +680,7 @@ describe('probe C1 — an imperative commit', () => {
 
     record('5-container-removed', fixture, origin);
 
-    const { afterCommit, landingStart, landingRetarget } = fixture.observations;
+    const { afterCommit, landingStart } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // Still parented — by the container that left the document.
@@ -695,7 +688,6 @@ describe('probe C1 — an imperative commit', () => {
     expect(afterCommit!.placeholder.connected).toBe(false);
     expect(afterCommit!.libraryItem.parent).toBe('group2');
     expect(landingStart!.target).toEqual({ x: -50, y: -100 });
-    expect(landingRetarget!.target).toEqual({ x: -50, y: -100 });
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
     expect(fixture.errors).toEqual([]);
     expect(fixture.finishes).toBe(1);

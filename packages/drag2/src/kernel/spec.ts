@@ -49,23 +49,6 @@ export type KernelHost = Readonly<{
   fail(stage: FailureStage, error: unknown): void;
 
   /**
-   * The authored presentation for the operation the kernel currently holds is
-   * final (D-33).
-   *
-   * Latched while a resolution attempt is open — which is what makes a
-   * **synchronous** commit, one that lands inside `onReorder` before the
-   * settlement exists, acknowledge successfully. Releases the readiness hold
-   * once armed. Ignored and reported outside both windows.
-   *
-   * Not a transition and not a classification: a gate release is not a frame
-   * transition, so this belongs to `cancel`'s family rather than `commit`'s.
-   * The behavior calls it only after checking that the acknowledgement the
-   * consumer gave names *this* operation; the kernel never learns what the
-   * identity is.
-   */
-  presentationCommitted(): void;
-
-  /**
    * **Is this controller logically closed?** The sanctioned liveness reading,
    * and the only one (D-53, I-37).
    *
@@ -258,20 +241,22 @@ export type SettlementInput =
     }>;
 
 /**
- * The gate plan travels through `Prepared`, not a private write.
+ * The settlement seam's `Prepared` sentinel.
  *
- * `presentation` is a **declaration**, not a capability: the behavior says an
- * authored presentation is coming, and the acknowledgement arrives later
- * through `KernelHost.presentationCommitted()` (D-33). It carried a
- * `PromiseLike<void>` until Phase 15, which put four consumer-owned obligations
- * behind one silent 500 ms timeout.
+ * It carried one field, `presentation` — a *declaration* that an authored
+ * presentation was coming, whose acknowledgement arrived later through
+ * `KernelHost.presentationCommitted()`. **D-41 deletes the declaration with the
+ * protocol**: the gate it planned had no producer, because under the serial
+ * authored commit a consumer that must render first `await`s its own commit
+ * inside `onReorder`. Nothing travels through `Prepared` now, so it is the bare
+ * `true` sentinel every other seam with nothing to stage already uses.
  */
-export type PreparedSettlement = Readonly<{ presentation: boolean }>;
+export type PreparedSettlement = true;
 
 /**
  * **One coordinate space, and this is it.**
  *
- * `from`, `target` and `LandingHandle.retarget()`'s argument are all
+ * `from` and `target` are both
  * *origin-relative viewport deltas*: CSS pixels to translate the visual by,
  * measured from where its border box sat when the drag was admitted. That is
  * exactly the space `compose()` and the kernel's own
@@ -297,9 +282,11 @@ export type LandingContext = Readonly<{
   /** Where the visual is now, as a delta. Equal to the last drag translation. */
   from: Point;
   /**
-   * Where it should land, as a delta. Provisional: it may be superseded by
-   * `LandingHandle.retarget()`, and correctness does not depend on it — the
-   * kernel measures again at the join and performs the authoritative pin.
+   * Where it should land, as a delta. **Authoritative, and measured once**
+   * (D-41): the serial authored commit guarantees the authored DOM is final
+   * before `anchorTarget` runs at arm, so there is no interval in which this is
+   * provisional and no second measurement to supersede it. The kernel's pin at
+   * the join uses this same value.
    */
   target: Point;
   realm: DOMRealm;
@@ -313,13 +300,12 @@ export type LandingHandle = Readonly<{
    */
   destroy(): void;
   /**
-   * Optional trajectory-quality capability. Absent runners are fully correct.
-   *
-   * `target` is in the same space as `LandingContext.target` — an
-   * origin-relative viewport delta — so a runner can hand it straight to
-   * `compose`.
+   * ~~Optional trajectory-quality capability.~~ **Deleted with the readiness
+   * protocol (D-41).** Its only producer was the readiness-time re-anchor, and
+   * with one authoritative measurement there is nothing left to retarget
+   * *from*: a completed trajectory cannot be improved, and an in-flight one is
+   * already heading at the final answer.
    */
-  retarget?(target: Point): void;
 }>;
 
 export type LandingStart = (
@@ -329,19 +315,18 @@ export type LandingStart = (
 ) => LandingHandle;
 
 /**
- * Both gate methods **record a request and arm nothing**. Arming happens once,
+ * The gate method **records a request and arms nothing**. Arming happens once,
  * after the scope seals, when the complete gate plan is known (contract
  * §Request, seal, then arm).
+ *
+ * **One gate since D-41.** The three-step request-seal-arm survives the
+ * narrowing, and not by inertia: it exists for `landing({ duration: 0 })` and
+ * any custom runner that calls `done()` from inside `start`. Reserving the hold
+ * before calling `start` is what stops that completion finding no hold — which
+ * has nothing to do with readiness, and holds for one gate exactly as it held
+ * for two.
  */
 export type SettlementScope = Readonly<{
-  /**
-   * Hold the authored-presentation gate, bounded by `config.readinessTimeout`.
-   * At most once.
-   *
-   * **Takes nothing**: the acknowledgement does not arrive through settlement,
-   * it arrives through `KernelHost.presentationCommitted()` (D-33).
-   */
-  holdForReadiness(): void;
   /**
    * Hold the landing gate. The kernel builds the context and owns the attempt.
    * At most once.
@@ -388,8 +373,6 @@ export type BehaviorConfig = Readonly<{
   threshold: number;
   /** Which lift strategy the kernel acquires at activation. */
   liftMode: LiftMode;
-  /** Bound on the authored-presentation gate, in ms. */
-  readinessTimeout: number;
   /**
    * How many behavior action tags exist. Static spec data, because otherwise
    * there is nothing for `arm()` to validate and `dispatch` has no bound to
@@ -445,7 +428,7 @@ export type BehaviorSpec<Part extends object> = Readonly<{
   moved(current: Readonly<Frame<Part>>, lift: VisualLiftSession): void;
 
   /** Produce the viewport point the lifted visual should end at (D-16). */
-  anchorTarget(current: Readonly<Frame<Part>>, authoredReady: boolean): Point;
+  anchorTarget(current: Readonly<Frame<Part>>): Point;
 
   /** Presentation is released and both gates are complete. Terminal callback. */
   finalized(current: Readonly<Frame<Part>>): void;

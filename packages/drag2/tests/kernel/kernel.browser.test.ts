@@ -5,10 +5,7 @@ import {
   AT_PROPOSAL,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
-  FAILURE_LANDING_CREATE,
-  FAILURE_LANDING_INTERRUPTED,
   FAILURE_LANDING_TARGET,
-  FAILURE_PRESENTATION_READY,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
   FAILURE_REORDER_RESOLUTION,
@@ -19,7 +16,6 @@ import type { Frame } from '../../src/kernel/frames.ts';
 import {
   ACTIVATING,
   ACTIVE,
-  FINALIZING,
   RELEASING,
   SETTLING,
 } from '../../src/kernel/phases.ts';
@@ -93,7 +89,6 @@ type SpecOverrides = Partial<
 > &
   Readonly<{
     threshold?: number;
-    readinessTimeout?: number;
     /** Called with the host, so a test can cancel or destroy from a seam. */
     onStart?(host: KernelHost): void;
     capture?(): void;
@@ -193,7 +188,6 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
         config: {
           threshold: overrides.threshold ?? 8,
           liftMode: LIFT_FLAT,
-          readinessTimeout: overrides.readinessTimeout ?? 500,
           actionTags: 2,
         },
         ...(overrides.command === undefined
@@ -243,14 +237,10 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
               failures.push({ stage: input.stage, error: input.error });
             }
 
-            return { presentation: overrides.presentation ?? false };
+            return true;
           },
-          effect(current, prepared, scope: SettlementScope): void {
+          effect(current, _prepared, scope: SettlementScope): void {
             record('settlement.effect', current);
-
-            if (prepared.presentation) {
-              scope.holdForReadiness();
-            }
 
             if (overrides.startLanding) {
               scope.holdForLanding(overrides.startLanding);
@@ -273,8 +263,8 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
           }),
         anchorTarget:
           overrides.anchorTarget ??
-          ((_current, authoredReady) => {
-            calls.push(`anchorTarget:${String(authoredReady)}`);
+          (() => {
+            calls.push('anchorTarget');
             return { x: 0, y: 0 };
           }),
         finalized:
@@ -401,13 +391,6 @@ function createRunner(
       calls.push('destroy');
       options.onDestroy?.();
     },
-    retarget:
-      options.retarget === false
-        ? undefined
-        : (target): void => {
-            calls.push('retarget');
-            targets.push(target);
-          },
   };
 
   return {
@@ -470,7 +453,6 @@ function createArmedWithPart(
         config: {
           threshold: 8,
           liftMode: LIFT_FLAT,
-          readinessTimeout: 500,
           actionTags: 0,
         },
         admit: () => null,
@@ -480,7 +462,7 @@ function createArmedWithPart(
         },
         release: { prepare: () => ({ invoke: null }), effect: (): void => {} },
         settlement: {
-          prepare: () => ({ presentation: false }),
+          prepare: () => true,
           effect: (): void => {},
         },
         action: { prepare: () => null, effect: (): void => {} },
@@ -509,7 +491,6 @@ function createArmedWithCommand(
         config: {
           threshold: 8,
           liftMode: LIFT_FLAT,
-          readinessTimeout: 500,
           actionTags: 0,
         },
         admit: () => null,
@@ -520,7 +501,7 @@ function createArmedWithCommand(
         },
         release: { prepare: () => ({ invoke: null }), effect: (): void => {} },
         settlement: {
-          prepare: () => ({ presentation: false }),
+          prepare: () => true,
           effect: (): void => {},
         },
         action: { prepare: () => null, effect: (): void => {} },
@@ -743,7 +724,6 @@ describe('arm', () => {
             config: {
               threshold: 8,
               liftMode: LIFT_FLAT,
-              readinessTimeout: 500,
               actionTags: 0,
             },
             admit: () => null,
@@ -756,7 +736,7 @@ describe('arm', () => {
               effect: (): void => {},
             },
             settlement: {
-              prepare: () => ({ presentation: false }),
+              prepare: () => true,
               effect: (): void => {},
             },
             action: { prepare: () => null, effect: (): void => {} },
@@ -1511,7 +1491,7 @@ describe('the settlement seam', () => {
           // failed input is what records the classification.
           if (input.type === SETTLED_FAILED) {
             harness.failures.push({ stage: input.stage, error: input.error });
-            return { presentation: false };
+            return true;
           }
 
           return {
@@ -1535,7 +1515,7 @@ describe('the settlement seam', () => {
   it('should close motion and cancellation before the behavior effect', () => {
     const harness = createHarness({
       settlement: {
-        prepare: () => ({ presentation: false }),
+        prepare: () => true,
         effect(): void {
           harness.calls.push('settlement.effect');
         },
@@ -1557,7 +1537,7 @@ describe('the settlement seam', () => {
     const runner = createRunner();
     const harness = createHarness({
       settlement: {
-        prepare: () => ({ presentation: false }),
+        prepare: () => true,
         effect(_current, _prepared, scope: SettlementScope): never {
           scope.holdForLanding(runner.start);
           throw new Error('effect');
@@ -1585,18 +1565,6 @@ describe('the settlement gates', () => {
     expect(harness.calls).toContain('finalized');
   });
 
-  it('should not finalize in the resolution drain while readiness is held', () => {
-    const harness = createHarness({ presentation: true });
-
-    activate(harness);
-    release(80, 10);
-
-    // With no `landing()` feature installed the behavior holds no landing gate
-    // — but readiness is independent, and one held gate is enough (I-9).
-    expect(harness.calls).not.toContain('finalized');
-    expect(harness.calls).not.toContain('presentation.released');
-  });
-
   it('should not finalize while the landing gate is held', () => {
     const runner = createRunner();
     const harness = createHarness({ startLanding: runner.start });
@@ -1609,12 +1577,16 @@ describe('the settlement gates', () => {
   });
 
   it('should ignore and report a duplicate hold', () => {
+    // Re-pointed at the surviving gate by D-41. The bookkeeping rule was never
+    // readiness's: a duplicate or post-seal request is ignored and reported,
+    // and it holds for one gate exactly as it held for two.
+    const runner = createRunner();
     const harness = createHarness({
       settlement: {
-        prepare: () => ({ presentation: false }),
+        prepare: () => true,
         effect(_current, _prepared, scope: SettlementScope): void {
-          scope.holdForReadiness();
-          scope.holdForReadiness();
+          scope.holdForLanding(runner.start);
+          scope.holdForLanding(runner.start);
         },
       },
     });
@@ -1632,7 +1604,7 @@ describe('the settlement gates', () => {
     let escaped!: SettlementScope;
     const harness = createHarness({
       settlement: {
-        prepare: () => ({ presentation: false }),
+        prepare: () => true,
         effect(_current, _prepared, scope: SettlementScope): void {
           escaped = scope;
         },
@@ -1641,426 +1613,11 @@ describe('the settlement gates', () => {
 
     activate(harness);
     release(80, 10);
-    escaped.holdForReadiness();
+    escaped.holdForLanding(createRunner().start);
 
     // A bookkeeping error must not destroy a live drop: it never overwrites a
     // watch, never double-increments and never panics.
     expect(reported).toHaveLength(1);
-    expect(harness.calls).toContain('finalized');
-  });
-
-  it('should not report a contradictory early latch when the seam failed', () => {
-    // The contradiction check at seal is scoped to a **successful** seal. If
-    // `settlement.effect` threw, the early latch dies with every other unarmed
-    // request and **nothing is reported to the consumer**: that contradiction is
-    // the seam's, and the queued failure checkpoint already owns it (F-27).
-    //
-    // The acknowledgement is issued from inside `invoke`, which is the only
-    // place a resolution attempt is open and consumer code is running — the
-    // synchronous-commit shape, in kernel terms.
-    let settlementEffects = 0;
-    // Referenced from inside `invoke`, which only runs after `createHarness`
-    // has returned — the closure is what makes the forward reference sound.
-    const harness: Harness = createHarness({
-      release: {
-        prepare: (): ResolutionCommand => ({
-          invoke: (): unknown => {
-            harness.host.presentationCommitted();
-            return 'committed';
-          },
-        }),
-        effect: (): void => {},
-      },
-      settlement: {
-        // Declares nothing, so a *successful* seal would find a latch with no
-        // hold behind it and report the contradiction.
-        prepare: () => ({ presentation: false }),
-        effect(_current, _prepared, _scope: SettlementScope): void {
-          // Only the first pass throws: the queued failure checkpoint drives
-          // this same seam again, pre-sealed, to build the terminal state.
-          if (settlementEffects === 0) {
-            settlementEffects += 1;
-            throw new Error('effect');
-          }
-        },
-      },
-    });
-
-    activate(harness);
-    release(80, 10);
-
-    // The seam failure is classified, and no acknowledgement message reaches
-    // the platform channel: the latch died silently with the rest of the
-    // unarmed plan.
-    expect(settlementEffects).toBe(1);
-    expect(harness.calls).not.toContain('finalized');
-    expect(reported).toEqual([]);
-  });
-});
-
-describe('landing', () => {
-  it('should measure with authoredReady true when no readiness was supplied', () => {
-    const runner = createRunner();
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-
-    // An absent promise means the consumer asserted its presentation is ready
-    // synchronously, so the arm-time measurement does re-anchor.
-    expect(harness.calls).toContain('anchorTarget:true');
-  });
-
-  it('should measure with authoredReady false while readiness is pending', () => {
-    const runner = createRunner();
-    const harness = createHarness({
-      startLanding: runner.start,
-      presentation: true,
-    });
-
-    activate(harness);
-    release(80, 10);
-
-    // React has not committed yet, so re-anchoring now would drag the
-    // placeholder back beside the item's old slot (D-16).
-    expect(harness.calls).toContain('anchorTarget:false');
-  });
-
-  it('should honour a done() called synchronously inside start', () => {
-    const runner = createRunner({
-      onStart(done): void {
-        done();
-      },
-    });
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-
-    // The hold was reserved before `start` was called, so the completion finds
-    // a real hold, and the handle is stored before the queued completion can be
-    // applied (F-21).
-    expect(harness.calls).toContain('finalized');
-    expect(runner.calls).toEqual(['start', 'destroy']);
-  });
-
-  it('should destroy the handle and refuse to finalize after a synchronous fail()', () => {
-    const runner = createRunner({
-      onStart(_done, fail): void {
-        fail(new Error('runner'));
-      },
-    });
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-
-    // `attempt.failed` is set before `start` returns, so the post-`start`
-    // revalidation destroys the returned handle instead of publishing it.
-    expect(runner.calls).toEqual(['start', 'destroy']);
-    expect(harness.failures[0]!.stage).toBe(FAILURE_LANDING_INTERRUPTED);
-    expect(harness.calls).not.toContain('finalized');
-  });
-
-  it('should retain a synchronously completed handle for the join', async () => {
-    const runner = createRunner({
-      onStart(done): void {
-        done();
-      },
-    });
-    const harness = createHarness({
-      startLanding: runner.start,
-      presentation: true,
-    });
-
-    activate(harness);
-    release(80, 10);
-
-    // The completion released the landing hold, but readiness still holds one,
-    // so the handle must survive: it is deliberately retained past its gate
-    // release so the join can relinquish the transform before the pin.
-    expect(runner.calls).toEqual(['start']);
-
-    harness.host.presentationCommitted();
-    await flush();
-
-    expect(runner.calls).toEqual(['start', 'destroy']);
-    expect(harness.calls).toContain('finalized');
-  });
-
-  it('should not retarget a synchronously completed runner', async () => {
-    const runner = createRunner({
-      onStart(done): void {
-        done();
-      },
-    });
-    const harness = createHarness({
-      startLanding: runner.start,
-      presentation: true,
-    });
-
-    activate(harness);
-    release(80, 10);
-    harness.host.presentationCommitted();
-    await flush();
-
-    // `landingHeld` is already false when readiness settles, so the completed
-    // runner is never asked to improve a trajectory it has finished.
-    expect(runner.targets).toEqual([]);
-  });
-
-  it('should destroy a handle whose start completed and then destroyed', () => {
-    const calls: string[] = [];
-    const harness = createHarness({
-      startLanding(_context, done): LandingHandle {
-        calls.push('start');
-        done();
-        void harness.host.destroy();
-        return {
-          destroy(): void {
-            calls.push('destroy');
-          },
-        };
-      },
-    });
-
-    activate(harness);
-    release(80, 10);
-
-    // The completion was queued against a live attempt and the destroy retired
-    // that attempt before the drain reached it, so the handle arrives with
-    // nothing left to own it. It is closed exactly once and never published.
-    expect(calls).toEqual(['start', 'destroy']);
-    expect(harness.calls).not.toContain('finalized');
-  });
-
-  it('should let the first completion win', () => {
-    const runner = createRunner({
-      onStart(done, fail): void {
-        done();
-        fail(new Error('too late'));
-      },
-    });
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-
-    expect(harness.failures).toEqual([]);
-    expect(harness.calls).toContain('finalized');
-  });
-
-  it('should ignore a duplicate completion', () => {
-    const runner = createRunner();
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-    runner.done();
-    runner.done();
-
-    expect(harness.calls.filter((name) => name === 'finalized')).toHaveLength(
-      1,
-    );
-  });
-
-  it('should roll the hold back and classify when start throws', () => {
-    const harness = createHarness({
-      startLanding(): never {
-        throw new Error('animation');
-      },
-    });
-
-    activate(harness);
-    release(80, 10);
-
-    // ARM_FAILED: the original settlement neither advances nor calls its
-    // terminal callback, and the queued checkpoint owns recovery (F-35).
-    expect(harness.failures[0]!.stage).toBe(FAILURE_LANDING_CREATE);
-    expect(harness.calls).not.toContain('finalized');
-  });
-
-  it('should classify an arm-time anchorTarget failure and never start', () => {
-    const runner = createRunner();
-    const harness = createHarness({
-      startLanding: runner.start,
-      anchorTarget(): never {
-        throw new Error('measure');
-      },
-    });
-
-    activate(harness);
-    release(80, 10);
-
-    expect(runner.calls).toEqual([]);
-    expect(harness.failures[0]!.stage).toBe(FAILURE_LANDING_CREATE);
-    expect(harness.calls).not.toContain('finalized');
-  });
-
-  it('should never call start after anchorTarget destroyed the controller', () => {
-    const runner = createRunner();
-    const harness = createHarness({
-      startLanding: runner.start,
-      anchorTarget(): { x: number; y: number } {
-        void harness.host.destroy();
-        return { x: 0, y: 0 };
-      },
-    });
-
-    activate(harness);
-    release(80, 10);
-
-    // Revalidation *before* `start`: calling the consumer's runner after a
-    // synchronous destroy would violate I-6 (F-38).
-    expect(runner.calls).toEqual([]);
-    // And it must be the revalidation that stops it, not a crash: without the
-    // check the arm path reads the lift session `destroy()` has already
-    // cleared, which panics — also reaching zero `start` calls, but by
-    // terminalizing the controller on a TypeError.
-    expect(reported).toEqual([]);
-  });
-
-  it('should destroy a handle returned by a start that destroyed the controller', () => {
-    const calls: string[] = [];
-    const harness = createHarness({
-      startLanding(): LandingHandle {
-        calls.push('start');
-        void harness.host.destroy();
-        return {
-          destroy(): void {
-            calls.push('destroy');
-          },
-        };
-      },
-    });
-
-    activate(harness);
-    release(80, 10);
-
-    // Reserve-before-call protects resources that already exist; it does
-    // nothing for one the callback *returns*. Revalidating after the return is
-    // what stops this runner being stored on a stale attempt (F-30).
-    expect(calls).toEqual(['start', 'destroy']);
-  });
-
-  it('should destroy a live runner when the controller is destroyed', () => {
-    const runner = createRunner();
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-    void harness.controller.destroy();
-
-    expect(runner.calls).toEqual(['start', 'destroy']);
-    expect(harness.calls).toContain('presentation.released');
-  });
-
-  it('should make a completion for a retired attempt inert', () => {
-    const runner = createRunner();
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-    void harness.controller.destroy();
-    runner.done();
-
-    expect(harness.calls).not.toContain('finalized');
-  });
-});
-
-describe('readiness', () => {
-  it('should re-anchor and retarget when readiness settles first', async () => {
-    const runner = createRunner();
-    const harness = createHarness({
-      startLanding: runner.start,
-      presentation: true,
-    });
-
-    activate(harness);
-    release(80, 10);
-    harness.host.presentationCommitted();
-    await flush();
-
-    expect(harness.calls).toContain('anchorTarget:true');
-    expect(runner.calls).toEqual(['start', 'retarget']);
-    expect(harness.calls).not.toContain('finalized');
-  });
-
-  it('should not retarget a runner that already completed', async () => {
-    const runner = createRunner();
-    const harness = createHarness({
-      startLanding: runner.start,
-      presentation: true,
-    });
-
-    activate(harness);
-    release(80, 10);
-    runner.done();
-    harness.host.presentationCommitted();
-    await flush();
-
-    // The guard is on the hold, not the handle: the handle outlives its gate
-    // release so the join can destroy it, and a completed trajectory cannot be
-    // improved (F-16).
-    expect(runner.calls).toEqual(['start', 'destroy']);
-  });
-
-  it('should report a readiness-time measurement failure without classifying it', async () => {
-    const runner = createRunner();
-    let measurements = 0;
-    const harness = createHarness({
-      startLanding: runner.start,
-      presentation: true,
-      anchorTarget(): { x: number; y: number } {
-        measurements += 1;
-
-        if (measurements === 2) {
-          throw new Error('advisory');
-        }
-
-        return { x: 0, y: 0 };
-      },
-    });
-
-    activate(harness);
-    release(80, 10);
-    harness.host.presentationCommitted();
-    await flush();
-    runner.done();
-
-    // I-29: nothing on the trajectory-quality path may change the outcome, move
-    // a hold or destroy the runner. The join measures again and still pins.
-    expect(harness.failures).toEqual([]);
-    expect(reported).toHaveLength(1);
-    expect(harness.calls).toContain('finalized');
-  });
-
-  it('should replace the settlement when readiness times out', async () => {
-    const harness = createHarness({
-      presentation: true,
-      readinessTimeout: 1,
-    });
-
-    activate(harness);
-    release(80, 10);
-    await flush();
-
-    expect(harness.failures[0]!.stage).toBe(FAILURE_PRESENTATION_READY);
-    expect(harness.calls).not.toContain('finalized');
-  });
-
-  it('should not time out a readiness that already settled', async () => {
-    const harness = createHarness({
-      presentation: true,
-      readinessTimeout: 1,
-    });
-
-    activate(harness);
-    release(80, 10);
-    harness.host.presentationCommitted();
-    await flush();
-
-    expect(harness.failures).toEqual([]);
     expect(harness.calls).toContain('finalized');
   });
 });
@@ -2083,11 +1640,16 @@ describe('the join', () => {
     expect(runner.calls).toEqual(['start', 'destroy']);
   });
 
-  it('should commit FINALIZING before measuring', () => {
-    let seen = -1;
+  it('should measure once, at arm, under SETTLING', () => {
+    // **Rewritten by D-41, and the change of phase is the point.** The join
+    // used to measure a second time, authoritatively, after committing
+    // `FINALIZING` — with a provisional measurement at arm before it. There is
+    // one measurement now and it is arm's, so it runs under `SETTLING`; the
+    // join pins to the value it recorded rather than taking its own.
+    const phases: number[] = [];
     const harness = createHarness({
       anchorTarget(current): { x: number; y: number } {
-        seen = current.phase;
+        phases.push(current.phase);
         return { x: 0, y: 0 };
       },
     });
@@ -2095,7 +1657,7 @@ describe('the join', () => {
     activate(harness);
     release(80, 10);
 
-    expect(seen).toBe(FINALIZING);
+    expect(phases).toEqual([SETTLING]);
   });
 
   it('should release presentation and skip the pin when the measurement throws', () => {
@@ -2201,7 +1763,7 @@ describe('the failure checkpoint', () => {
         throw new Error('cssom');
       },
       settlement: {
-        prepare: () => ({ presentation: false }),
+        prepare: () => true,
         effect(_current, _prepared, scope: SettlementScope): void {
           scope.holdForLanding(runner.start);
         },
@@ -2249,7 +1811,7 @@ describe('the failure checkpoint', () => {
             harness.host.fail(FAILURE_RENDERER_WRITE, new Error('again'));
           }
 
-          return { presentation: false };
+          return true;
         },
         effect: (): void => {},
       },
@@ -2274,7 +1836,7 @@ describe('the failure checkpoint', () => {
       settlement: {
         prepare(_draft, input): PreparedSettlement {
           harness.settlements.push(input);
-          return { presentation: false };
+          return true;
         },
         effect(): never {
           throw new Error('onError');
@@ -2341,22 +1903,21 @@ describe('the failure checkpoint', () => {
 
   it('should replace an open settlement and stop its runner', async () => {
     const runner = createRunner();
-    const harness = createHarness({
-      startLanding: runner.start,
-      presentation: true,
-      readinessTimeout: 1,
-    });
+    const harness = createHarness({ startLanding: runner.start });
 
     activate(harness);
     release(80, 10);
     expect(runner.calls).toEqual(['start']);
 
+    // The gate the readiness deadline used to hold open is gone (D-41), so the
+    // failure arrives through the runner instead — what this pins is the
+    // replacement rule, not which stage reached it.
+    runner.fail(new Error('boom'));
     await flush();
 
     // A checkpoint replaces whatever settlement was open, and the runner that
     // settlement started is the kernel's to stop — otherwise it keeps writing
     // the transform through REPORTING and beyond.
-    expect(harness.failures[0]!.stage).toBe(FAILURE_PRESENTATION_READY);
     expect(runner.calls).toEqual(['start', 'destroy']);
   });
 });
@@ -2858,7 +2419,6 @@ describe('arm unwind of a partial frame pair', () => {
           config: {
             threshold: 8,
             liftMode: LIFT_FLAT,
-            readinessTimeout: 500,
             actionTags: 0,
           },
           admit: () => null,
@@ -2871,7 +2431,7 @@ describe('arm unwind of a partial frame pair', () => {
             effect: (): void => {},
           },
           settlement: {
-            prepare: () => ({ presentation: false }),
+            prepare: () => true,
             effect: (): void => {},
           },
           action: { prepare: () => null, effect: (): void => {} },

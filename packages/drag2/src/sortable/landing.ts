@@ -171,19 +171,6 @@ export function landing(options: LandingOptions = {}): SortableFeature {
         // thing writing.
         animation.cancel();
       },
-
-      /**
-       * Trajectory quality only — a runner that omits it is fully correct. The
-       * replay starts from the *computed* transform rather than the authored
-       * origin, so a late correction is a smooth adjustment instead of a step.
-       */
-      retarget(target): void {
-        const { transform } = realm.window.getComputedStyle(visual);
-
-        generation += 1;
-        animation.cancel();
-        play(transform === 'none' ? '' : transform, target);
-      },
     };
   };
 

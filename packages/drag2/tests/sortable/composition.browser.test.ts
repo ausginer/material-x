@@ -49,7 +49,6 @@ type Composed = Readonly<{
 type Options = Readonly<{
   itemCount?: number;
   threshold?: number;
-  readinessTimeout?: number;
   onReorder?: Parameters<typeof callbacks>[0]['onReorder'];
   onStart?(composed: Composed): void;
   onFinish?(composed: Composed): void;
@@ -134,9 +133,6 @@ function compose(options: Options = {}): Composed {
         ...(options.threshold === undefined
           ? null
           : { threshold: options.threshold }),
-        ...(options.readinessTimeout === undefined
-          ? null
-          : { readinessTimeout: options.readinessTimeout }),
       }),
     ),
   );
@@ -407,38 +403,6 @@ describe('the composed reorder round trip', () => {
     expect(composed.errors).toEqual([failure]);
   });
 
-  it('should hold settlement open for a declared authored presentation', async () => {
-    // I-9: with no `landing()` installed the behavior still holds *one* gate, so
-    // an accepted resolution declaring a presentation does not finalize in the
-    // resolution drain.
-    let pending!: ReorderRequest;
-    const composed = compose({
-      onReorder: (request) => {
-        pending = request;
-        return ReorderResolution.accept({ presentation: true });
-      },
-    });
-
-    activate(composed);
-    await drag(55);
-    release(55);
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(composed.placeholder()).not.toBeNull();
-    expect(composed.finishes).toEqual([]);
-
-    composed.controller.ready(pending);
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(composed.finishes).toHaveLength(1);
-    expect(composed.placeholder()).toBeNull();
-  });
-});
-
-describe('the composed collection', () => {
   it('should rebase a surviving gap onto a replacement', async () => {
     const composed = compose();
 
@@ -762,57 +726,6 @@ describe('the composed terminal protocol', () => {
     expect(composed.cancels).toHaveLength(1);
     expect(composed.cancels[0]).toMatchObject({ reason: 'abandoned' });
     expect(composed.finishes).toHaveLength(1);
-  });
-
-  it('should ignore an acknowledgement that arrives after a newer operation began', async () => {
-    // The stale case end to end (I-35), and it needs the timeout to get there:
-    // once the settlement is armed the cancellation lifetime is closed, so
-    // `cancel()` cannot end an operation waiting on readiness. The bound is what
-    // ends it — and the acknowledgement then arrives for an operation that no
-    // longer exists, while a *newer* one is live.
-    let stale!: ReorderRequest;
-    let first = true;
-    const composed = compose({
-      readinessTimeout: 20,
-      onReorder: (request) => {
-        if (!first) {
-          return ReorderResolution.accept();
-        }
-
-        first = false;
-        stale = request;
-
-        // Declared and then never acknowledged in time: the deadline is the
-        // only terminal a lost acknowledgement has.
-        return ReorderResolution.accept({ presentation: true });
-      },
-    });
-
-    activate(composed);
-    await drag(55);
-    release(55);
-    await new Promise((resolve) => {
-      setTimeout(resolve, 60);
-    });
-
-    const afterTimeout = [composed.finishes.length, composed.errors.length];
-
-    activate(composed);
-    await drag(55);
-    release(55);
-
-    const beforeStale = composed.finishes.length;
-
-    // Operation A's late layout effect. It names A's request, `rt.pendingRequest`
-    // now names B's — or nothing — so the behavior rejects it on identity and
-    // nothing is released. Reported, never classified.
-    composed.controller.ready(stale);
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(afterTimeout[1]).toBe(1);
-    expect(composed.finishes).toHaveLength(beforeStale);
-    expect(composed.errors).toHaveLength(1);
   });
 
   it('should propose the same gap when the rows carry a CSS transition', async () => {

@@ -20,7 +20,6 @@ import {
 } from './feature.ts';
 import type { PlaceholderSlot } from './placement.ts';
 import {
-  DEFAULT_READINESS_TIMEOUT,
   DEFAULT_THRESHOLD,
   type DisplacementHook,
   NOOP_START,
@@ -169,11 +168,6 @@ export function assemble(
       callbacks.threshold ?? DEFAULT_THRESHOLD,
       'threshold',
       0,
-    ),
-    readinessTimeout: requireFinite(
-      callbacks.readinessTimeout ?? DEFAULT_READINESS_TIMEOUT,
-      'readinessTimeout',
-      1,
     ),
 
     createPlaceholder,

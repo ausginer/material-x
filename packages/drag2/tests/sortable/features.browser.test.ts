@@ -18,7 +18,6 @@ import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { placeholder } from '../../src/sortable/placeholder.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
-  type ReorderRequest,
   ReorderResolution,
   type SortableController,
   type SortableFeature,
@@ -672,32 +671,6 @@ describe('landing', () => {
     expect(animation!.effect!.getComputedTiming().duration).toBe(0);
   });
 
-  it('should not report a retargeted animation as a failure', async () => {
-    // A late acknowledgement makes the kernel retarget the runner, and a
-    // retarget cancels — which WAAPI surfaces as a rejected `finished`. Without
-    // a generation guard that would be reported as a landing failure for an
-    // operation that is landing perfectly well.
-    let pending!: ReorderRequest;
-    const composed = composeWith({
-      onReorder: (request) => {
-        pending = request;
-        return ReorderResolution.accept({ presentation: true });
-      },
-      features: [landing({ duration: 400 })],
-    });
-
-    activate(composed);
-    await drag(55);
-    release(55);
-    await Promise.resolve();
-
-    composed.controller.ready(pending);
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(composed.errors).toEqual([]);
-  });
-
   it('should read a duration thunk at settle time, once per landing', async () => {
     // 13b B-2, the ergonomics half of Phase 15. The shipped package read
     // `landingTiming()` after the settlement step that decides where the visual
@@ -932,9 +905,6 @@ describe('landing', () => {
             return {
               destroy(): void {
                 calls.push('destroy');
-              },
-              retarget(): void {
-                calls.push('retarget');
               },
             };
           },

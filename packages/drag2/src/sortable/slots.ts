@@ -211,11 +211,9 @@ export type SortableSlots = Readonly<{
   retireHooks: readonly Disposer[];
 
   threshold: number;
-  readinessTimeout: number;
 }>;
 
 /** The shared normalization target for an uninstalled `onStart`. */
 export const NOOP_START = (): void => {};
 
 export const DEFAULT_THRESHOLD = 8;
-export const DEFAULT_READINESS_TIMEOUT = 500;

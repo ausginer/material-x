@@ -153,7 +153,6 @@ const list: SortableController = draggable(
         return ReorderResolution.accept();
       },
       threshold: 4,
-      readinessTimeout: 30_000,
       onFinish: (result: SortableFinishResult): void => {
         // F-41: the public results narrow on their own discriminant. Nothing a
         // consumer has to import is needed to tell one from another.
@@ -483,12 +482,9 @@ describe('the packed package', () => {
       ReorderResolution: Readonly<{ accept(): unknown }>;
     }> = await import(join(packed.dir, './sortable.js'));
 
-    // `presentation` is normalized to a boolean by the factory rather than left
-    // absent, so the settlement mapping reads one shape (D-33).
-    expect(entry.ReorderResolution.accept()).toEqual({
-      type: 'accepted',
-      presentation: false,
-    });
+    // Acceptance declares nothing (D-41): the readiness protocol the
+    // `presentation` flag belonged to is deleted, so the arm is the tag alone.
+    expect(entry.ReorderResolution.accept()).toEqual({ type: 'accepted' });
   });
 
   it('should leave exactly the unimplemented feature subpaths without runtime code', async () => {

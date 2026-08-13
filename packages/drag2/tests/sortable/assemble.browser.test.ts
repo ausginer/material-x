@@ -234,7 +234,6 @@ describe('assemble', () => {
       'onFinish',
       'onReorder',
       'onStart',
-      'readinessTimeout',
       'resolveInsertion',
       'retireHooks',
       'startLanding',

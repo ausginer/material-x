@@ -29,57 +29,18 @@ Paths are relative to `packages/drag2`. Where a row is closed by several tests t
 | release uses the final synchronous geometry | `tests/sortable/sortable.browser.test.ts` — _should render the final sample, not the last processed move_ | I-12 |
 | pending frame work cannot alter the released proposal | `tests/sortable/sortable.browser.test.ts` — _should discard a spatial action at RELEASING_ | I-4, I-12 |
 
-## Readiness
+## Readiness — deleted (D-41)
 
-| Row | Test | ID |
-| --- | --- | --- |
-| consumer accepts but the acknowledgement is delayed | `tests/sortable/composition.browser.test.ts` — _should hold settlement open for a declared authored presentation_ | I-9 |
-| landing before React | `tests/kernel/kernel.browser.test.ts` — _should not finalize in the resolution drain while readiness is held_ | I-9 |
-| React before landing | `tests/kernel/kernel.browser.test.ts` — _should re-anchor and retarget when readiness settles first_ | F-16 |
-| both immediate | `tests/kernel/kernel.browser.test.ts` — _should finalize in the resolution drain when neither gate is held_ | I-9 |
-| stale acknowledgement from an older operation | `tests/sortable/composition.browser.test.ts` — _should ignore an acknowledgement that arrives after a newer operation began_ | F-25, I-35 |
-| the acknowledgement never arrives and the timeout applies | `tests/kernel/kernel.browser.test.ts` — _should replace the settlement when readiness times out_; `tests/sortable/landing-space.browser.test.ts` — _should apply the configured bound rather than the default_ | I-9 |
-| **acknowledged from a real `useLayoutEffect()` fixture** | `tests/sortable/react.browser.test.ts` — _should resolve readiness from a real layout effect_, _should not finalize before React has committed_ | I-9, I-25 |
+**The entire readiness protocol is gone, and with it both sections that used to stand here.** `accept({ presentation: true })`, `controller.ready(request)`, `KernelHost.presentationCommitted()`, the acknowledgement deadline, `readinessTimeout`, `FAILURE_PRESENTATION_READY` and the readiness-time re-anchor with `LandingHandle.retarget()` no longer exist, so `tests/sortable/acknowledgement.browser.test.ts` was deleted rather than migrated: every row in it named a member of a protocol with no producer.
 
-## Authored-presentation acknowledgement — new (D-33)
+What replaced the rows is not another suite. Under the serial authored commit a consumer that must render before the drop lands `await`s its own commit barrier inside `onReorder`, so the obligations these rows checked stopped existing rather than moving owner. The one row that survived in substance is the React integration's, re-pointed at the barrier: `tests/sortable/react.browser.test.ts` now returns a promise from `onReorder` that resolves on the next commit, which is the whole of the migration.
 
-Implemented in Phase 15. Everything consumer-facing is driven through the public entrypoint in `tests/sortable/acknowledgement.browser.test.ts`, because both halves of the protocol are public; only the row that needs a seam to throw on demand lives in `tests/kernel`.
+Two rows moved rather than went:
 
-**What most of these rows actually pin.** A gate released twice is invisible in the final DOM — the drop still completes and the order is still right. What it destroys is the hold count, so the fixtures keep a **second** gate outstanding (a landing runner that never completes) and assert that nothing finalized. The platform report is asserted alongside, never instead: a kernel that swallowed duplicates silently would pass every state assertion on its own.
-
-| Row | Test | ID |
-| --- | --- | --- |
-| a resolution declaring no presentation holds no gate and is final from sealing | `tests/sortable/acknowledgement.browser.test.ts` — _should hold no readiness gate and finalize in the resolution drain_ | I-35 |
-| `accept({ presentation: true })` holds the gate and `ready(request)` releases it | `tests/sortable/acknowledgement.browser.test.ts` — _should hold the settlement open until it is acknowledged_ | I-9, D-33 |
-| the release sets `authoredReady`, so the join re-anchors per the recovery | `tests/sortable/acknowledgement.browser.test.ts` — _should re-anchor to the authored destination once acknowledged_ | F-16 |
-| **a synchronous commit** — acknowledged from inside `onReorder`, before the settlement exists | `tests/sortable/acknowledgement.browser.test.ts` — _should acknowledge from inside onReorder, before the settlement exists_ | C-01 |
-| the early latch is **dispatched**, so a readiness-only settlement does not finalize inside its own arm step | `tests/sortable/acknowledgement.browser.test.ts` — _should not finalize inside its own arm step_ | F-21 |
-| a duplicate in the **early** window is inert and reported | `tests/sortable/acknowledgement.browser.test.ts` — _should be inert and reported in the early window_ | C4-04 |
-| a duplicate **after the hold settled** releases nothing, moves no count, and reports | `tests/sortable/acknowledgement.browser.test.ts` — _should be inert and reported after the hold has settled_ | C4-04 |
-| that duplicate is classified a **duplicate, never a contradiction** — the row order is normative | `tests/sortable/acknowledgement.browser.test.ts` — _should be reported as a duplicate rather than as a contradiction_ | C5-02 |
-| **the cross-window case**: latched early, then re-entrantly during arm from the runner's `start` — one dispatch, one release, one duplicate report | `tests/sortable/acknowledgement.browser.test.ts` — _should be inert and reported across the early-to-armed boundary_ | C5-02 |
-| a `ready()` for a request the operation never issued is ignored and reported | `tests/sortable/acknowledgement.browser.test.ts` — _should be ignored and reported for a fabricated request_ | I-35 |
-| **a structurally identical copy is rejected** — the check is `===`, which typecheck cannot pin | `tests/sortable/acknowledgement.browser.test.ts` — _should reject a structurally identical copy of the live request_ | I-35 |
-| `retire()` clears the publication, so the same request is rejected afterwards | `tests/sortable/acknowledgement.browser.test.ts` — _should reject the same request again once the operation retired_ | I-35 |
-| a matching request whose resolution declared **no** presentation is reported as contradictory and dropped | `tests/sortable/acknowledgement.browser.test.ts` — _should be reported as contradictory when it arrives at SETTLING_ | C2-01 |
-| the same contradiction reached **early** is reported and discarded at seal | `tests/sortable/acknowledgement.browser.test.ts` — _should be reported and discarded at seal when it arrives early_ | C3-01 |
-| that discard is scoped to a **successful** seal: a throwing `settlement.effect` kills the latch silently | `tests/kernel/kernel.browser.test.ts` — _should not report a contradictory early latch when the seam failed_ | F-27 |
-| **the stale case end to end**: A times out and retires, B is admitted, A's late effect fires | `tests/sortable/composition.browser.test.ts` — _should ignore an acknowledgement that arrives after a newer operation began_ | I-35 |
-| an acknowledgement at `IDLE` is ignored and reported | `tests/sortable/acknowledgement.browser.test.ts` — _should be ignored and reported at IDLE_ | I-35 |
-| an acknowledgement at `PENDING` and at `ACTIVE` is ignored and reported | `tests/sortable/acknowledgement.browser.test.ts` — _should be ignored and reported at PENDING and at ACTIVE_ | I-35 |
-| an acknowledgement after `destroy()` is inert at both validation points | `tests/sortable/acknowledgement.browser.test.ts` — _should be inert after destroy()_ | I-6 |
-| the deadline classifies `FAILURE_PRESENTATION_READY`, keeps presentation owned, calls `onError` only | `tests/sortable/acknowledgement.browser.test.ts` — _should classify the deadline when it is never acknowledged_ | I-9 |
-| **there is no third readiness outcome** — no `abandon()` on the public surface | `tests/sortable/acknowledgement.browser.test.ts` — _should expose exactly four controller members_ | C-02 |
-| a resolution that declares nothing and renders asynchronously anyway is **not** detected | tier C; discharged by the F-6 witness obligation below | C2-01 |
-| **the React fixture stores the request, not a library object** | `tests/sortable/react.browser.test.ts` — the whole suite; `createCommitTracker` is gone from both the fixture and `src/sortable.stories.tsx` | 13b B-1 |
-
-### Removed with the pre-revision protocol
-
-Four rows in `tests/kernel/kernel.browser.test.ts` tested `presentationReady`'s **value** channel — a rejecting promise, a hostile `then` accessor, a non-thenable value, and the arm-time skip a synchronously-failing gate caused. `holdForReadiness()` takes no value under D-33, so there is nothing left to be hostile: the channel does not exist rather than being untested. Recorded here because a shrinking test count with no note reads like coverage loss.
-
-The rejection channel itself is a **deliberate narrowing**, not an oversight: what is lost against `presentationReady` is latency only, and `readinessTimeout` is a public option (contract 02 §three outcomes). The smallest addition, if it turns out to matter, is a second argument to `ready()` carrying an error.
-
----
+| Case | Where it is now |
+| --- | --- |
+| the gate's request/seal/arm bookkeeping — a duplicate or post-seal hold is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a duplicate hold_, _should ignore and report a hold requested after sealing_, re-pointed at the surviving landing gate |
+| the landing target is measured once, authoritatively | `tests/kernel/kernel.browser.test.ts` — _should measure once, at arm, under SETTLING_; `tests/probe-c1-commit-window.browser.test.ts` cases 3 and 4, which now assert the first target **is** the row's final rect |
 
 ## Discrete input — new (D-32)
 

@@ -207,15 +207,14 @@ function mount(options: Options = {}): Fixture {
     // elements the controller is about to be armed against.
     controller?.updateItems(live);
 
-    // The acknowledgement, from the same layout effect that used to resolve
-    // `presentationReady` — the one obligation D-33 does not remove, because
-    // only the consumer knows when its own commit landed.
+    // **No acknowledgement** (D-41). The layout effect that used to answer the
+    // readiness gate has nothing to answer: under the serial authored commit a
+    // consumer that must render first awaits its own commit barrier inside
+    // `onReorder`, so by the time the resolution returns this effect has
+    // already run.
     if (pending !== null) {
-      const request = pending;
-
       pending = null;
       witness.readinessSettled();
-      controller?.ready(request);
     }
 
     for (const waiter of commitWaiters.splice(0)) {
@@ -314,7 +313,9 @@ function mount(options: Options = {}): Fixture {
       y(),
       landing({ run }),
       callbacks({
-        onReorder: (request): ReorderResolution => {
+        onReorder: (
+          request,
+        ): ReorderResolution | PromiseLike<ReorderResolution> => {
           requests.push(request);
 
           if (author !== undefined) {
@@ -340,14 +341,17 @@ function mount(options: Options = {}): Fixture {
           }
 
           witness.readinessSupplied();
-          // **The whole integration.** Stored before the authored commit — which
-          // may land synchronously, inside the `apply()` above — so the layout
-          // effect that follows acknowledges this exact request. No promise is
-          // created, nothing is superseded, and nothing can be dropped: the
-          // identity is the object this callback was handed (D-33).
+          // **The whole integration, and D-41 is what makes it this short.**
+          // React's commit lands after this event handler returns, so a
+          // consumer whose render must be on screen before the drop lands
+          // `await`s its own commit barrier here. The resolution does not
+          // return until the authored DOM is final — which is why the library
+          // needs no acknowledgement, no declaration and no deadline.
           pending = request;
 
-          return ReorderResolution.accept({ presentation: true });
+          return new Promise<void>((resolve) => {
+            commitWaiters.push(resolve);
+          }).then(() => ReorderResolution.accept());
         },
         onFinish(result): void {
           witness.terminal();

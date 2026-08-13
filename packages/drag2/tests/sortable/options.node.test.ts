@@ -70,33 +70,6 @@ describe('threshold', () => {
   });
 });
 
-describe('readinessTimeout', () => {
-  it('should default to 500 milliseconds', () => {
-    expect(assembleWith({})).toMatchObject({ readinessTimeout: 500 });
-  });
-
-  it('should accept a longer bound for a round-tripping consumer', () => {
-    expect(assembleWith({ readinessTimeout: 30_000 })).toMatchObject({
-      readinessTimeout: 30_000,
-    });
-  });
-
-  it('should refuse zero, which would fail every gate it bounds', () => {
-    expect(() => assembleWith({ readinessTimeout: 0 })).toThrow(
-      /readinessTimeout must be a finite number >= 1/u,
-    );
-  });
-
-  it('should refuse a non-finite bound', () => {
-    // Not even `Infinity` as "never time out": the bound exists so a gate
-    // cannot hold presentation forever, and an unbounded one is the state it
-    // was introduced to prevent.
-    expect(() =>
-      assembleWith({ readinessTimeout: Number.POSITIVE_INFINITY }),
-    ).toThrow(/readinessTimeout/u);
-  });
-});
-
 describe('landing duration', () => {
   it('should default to 200 milliseconds', () => {
     expect(() => landing()).not.toThrow();

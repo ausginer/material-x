@@ -96,20 +96,6 @@ export type SortableCallbacks = Readonly<{
    * activates on the first move that reports a different point. Default `8`.
    */
   threshold?: number;
-  /**
-   * How long the authored-presentation gate may stay open after `onReorder`
-   * resolves with `accept({ presentation: true })`, in **milliseconds**. Finite
-   * and `>= 1`. Default `500`.
-   *
-   * It is a **failure bound, not a schedule**: the gate releases as soon as
-   * `controller.ready(request)` acknowledges, and exceeding it is
-   * `FAILURE_PRESENTATION_READY` — the
-   * settlement is replaced and reported through `onError`, never silently
-   * completed. Raise it when the consumer's re-render legitimately involves a
-   * round trip; the drop is held, and the placeholder with it, for as long as
-   * this allows.
-   */
-  readinessTimeout?: number;
 }>;
 
 /**

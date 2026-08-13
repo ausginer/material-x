@@ -3,11 +3,9 @@
  * own — the behavior adds the two things the kernel cannot know about: what a
  * collection is, and what a request is.
  */
-import { DEV } from '../kernel/dev.ts';
-import { report } from '../kernel/reporter.ts';
 import type { KernelHost } from '../kernel/spec.ts';
 import { copyUniqueItems } from './collection.ts';
-import type { CollectionSnapshot, ReorderRequest } from './domain.ts';
+import type { CollectionSnapshot } from './domain.ts';
 import { type SortableRuntime, TAG_COLLECTION } from './runtime.ts';
 
 export type SortableController = Readonly<{
@@ -18,21 +16,6 @@ export type SortableController = Readonly<{
    * first and cancels afterwards (D-25).
    */
   updateItems(items: readonly HTMLElement[]): void;
-  /**
-   * The authored presentation for `request` is committed (D-33).
-   *
-   * Call it from wherever the consumer's own commit lands — a `useLayoutEffect`
-   * in React, the line after a synchronous DOM write anywhere else — passing
-   * the **same request object** `onReorder` was handed. That identity is the
-   * whole of the protocol: a request that is not the live operation's is
-   * ignored and reported, which is what stops a timed-out operation's late
-   * layout effect from releasing a newer operation's gate (I-35).
-   *
-   * It answers `ReorderResolution.accept({ presentation: true })`. Acknowledging
-   * an operation that declared nothing is a contradiction the library reports;
-   * declaring and then never acknowledging hits `readinessTimeout`.
-   */
-  ready(request: ReorderRequest): void;
   cancel(reason?: unknown): void;
   /**
    * Closes the controller **logically**, immediately, on this statement — every
@@ -99,42 +82,6 @@ export function createSortableController(
         version,
       } satisfies CollectionSnapshot);
     },
-    /**
-     * The identity check, and it is the **behavior's** — the kernel threads the
-     * resolution as `unknown` and never learns what a request is (D-33).
-     *
-     * What it cannot catch is a *duplicate* of a still-live request: that
-     * matches by definition, because `pendingRequest` is cleared at retirement
-     * rather than at the first acknowledgement. Making a second one inert is
-     * the kernel's, in whichever of its three windows it lands.
-     */
-    ready(request): void {
-      if (request !== rt.pendingRequest) {
-        // Stale, forged, or an acknowledgement that outlived its operation.
-        // Reported, never applied — this is what stops operation A's late
-        // layout effect from releasing operation B's gate (I-35).
-        //
-        // It takes the platform channel and does **not** reach `host.fail`: a
-        // consumer-protocol error must never classify the operation the
-        // consumer got right.
-        if (DEV) {
-          report(
-            new Error(
-              'drag: ready() received a request this operation never issued; ignored',
-            ),
-          );
-        }
-
-        return;
-      }
-
-      // The matching-but-undeclared contradiction is deliberately *not* checked
-      // here. The behavior does not know what its own resolution declared —
-      // `presentation` travels through `Prepared` to the kernel and never comes
-      // back — so the kernel owns that report, at seal or on arrival.
-      host.presentationCommitted();
-    },
-
     cancel: host.cancel,
 
     // D-36: logical closure is immediate and the promise settles after physical

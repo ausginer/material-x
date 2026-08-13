@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useEffect, useLayoutEffect, useRef, useState, type JSX } from 'react';
+import { useEffect, useRef, useState, type JSX } from 'react';
+import { flushSync } from 'react-dom';
 import { draggable } from './drag.ts';
 import { callbacks } from './sortable/callbacks.ts';
 import { landing } from './sortable/landing.ts';
@@ -14,7 +15,6 @@ import {
   ReorderResolution,
   sortable,
   type ReorderRequest,
-  type SortableController,
   type SortableFeature,
 } from './sortable.ts';
 import css from './stories.module.css';
@@ -96,23 +96,6 @@ function SortableDemo({
   const elements = useRef(new Map<string, HTMLElement>());
   const orderRef = useRef(order);
   orderRef.current = order;
-  // The request whose authored render this component still owes an
-  // acknowledgement for. Written inside `onReorder`, *before* the state update,
-  // so a synchronous commit — `flushSync`, or any renderer that does not defer —
-  // finds it already set.
-  const pending = useRef<ReorderRequest | null>(null);
-  const controllerRef = useRef<SortableController | null>(null);
-
-  // Runs after React has written the DOM and before paint, so the kernel
-  // releases the lift onto an authored order that is already on screen.
-  useLayoutEffect(() => {
-    const request = pending.current;
-
-    if (request !== null) {
-      pending.current = null;
-      controllerRef.current?.ready(request);
-    }
-  });
 
   useEffect(() => {
     const { current: container } = containerRef;
@@ -152,13 +135,18 @@ function SortableDemo({
               label,
               request.after?.dataset['label'] ?? null,
             );
-            // Stored *before* the state update, so the layout effect that
-            // follows this render acknowledges this exact request — and so does
-            // a commit that happens synchronously inside `setOrder`.
-            pending.current = request;
+            // **The serial authored commit** (D-41). `flushSync` is React's
+            // commit barrier, and awaiting it here is the whole of the
+            // migration from the readiness protocol: the resolution does not
+            // return until the authored DOM is on screen, so the library never
+            // has a render to wait for and the landing measures a final list.
+            // A framework-specific barrier is integration code, not a drag
+            // protocol.
             orderRef.current = next;
-            setOrder(next);
-            return ReorderResolution.accept({ presentation: true });
+            flushSync(() => {
+              setOrder(next);
+            });
+            return ReorderResolution.accept();
           },
           // Terminal: the authored DOM is committed and the temporary
           // presentation released, so this is the right moment to resync.
@@ -169,10 +157,7 @@ function SortableDemo({
       ),
     );
 
-    controllerRef.current = controller;
-
     return () => {
-      controllerRef.current = null;
       void controller.destroy();
     };
   }, [createPlaceholder, axis]);

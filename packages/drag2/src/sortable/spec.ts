@@ -383,7 +383,6 @@ export function createSortableSpec(
       // exactly, so lift and placeholder agree. `LIFT_FLAT` is for a free drag
       // that deliberately straightens out; it was never right here.
       liftMode: LIFT_FAITHFUL,
-      readinessTimeout: slots.readinessTimeout,
       actionTags: SORTABLE_ACTION_TAGS,
     },
 
@@ -1048,16 +1047,6 @@ export function createSortableSpec(
         // SPI type is the mistake D-34 and D-35 corrected.
         //
         // **And the render is itself a consumer-reachable call** (I-36 (2) acts
-        // 1 and 2, C5-03's stretch sweep): `write` composes a transform onto
-        // `visual.style`, and `style` is an accessor a custom element may
-        // define. The reading above covers the placeholder move, not this — and
-        // a request published after `retire()` cleared it outlives the operation
-        // and pins its DOM (I-20).
-        if (host.closed) {
-          return;
-        }
-
-        rt.pendingRequest = current.proposal?.request ?? null;
       },
     },
 
@@ -1083,7 +1072,7 @@ export function createSortableSpec(
             draft.outcome = OUTCOME_NOOP;
             draft.recovery = RECOVERY_IMMEDIATE;
             draft.domain = { type: 'noop', proposal: proposal! };
-            return { presentation: false };
+            return true;
           }
 
           case SETTLED_FULFILLED: {
@@ -1098,9 +1087,9 @@ export function createSortableSpec(
 
             // **Every read of the consumer's resolution before any write**
             // (I-36 (2) acts 1 and 2, C5-03's stretch sweep).
-            // `isReorderResolution` is a duck-type test on `.type`, so `type`,
-            // `reason` and `presentation` are accessors on an object the
-            // consumer built and any of them may destroy the controller. The
+            // `isReorderResolution` is a duck-type test on `.type`, so `type`
+            // and `reason` are accessors on an object the consumer built and
+            // either may destroy the controller. The
             // domain value is a local until the barrier passes; publishing it
             // into a frame teardown has already scrubbed would pin the whole
             // proposal in an inactive frame nothing clears again (I-20).
@@ -1112,10 +1101,8 @@ export function createSortableSpec(
                     reason: value.reason,
                     proposal: proposal!,
                   };
-            const { presentation } = value;
-
             if (host.closed) {
-              return { presentation: false };
+              return true;
             }
 
             const accepted = domain.type === 'accepted';
@@ -1124,10 +1111,7 @@ export function createSortableSpec(
             draft.recovery = accepted ? RECOVERY_DESTINATION : RECOVERY_HOME;
             draft.domain = domain;
 
-            // Only a fulfilled round-trip can declare an authored
-            // presentation: every other input is the kernel's own terminal, and
-            // the consumer returned no resolution to declare with.
-            return { presentation };
+            return true;
           }
 
           case SETTLED_REJECTED: {
@@ -1149,7 +1133,7 @@ export function createSortableSpec(
               stage: input.stage,
               proposal,
             };
-            return { presentation: false };
+            return true;
           }
 
           case SETTLED_FAILED: {
@@ -1165,23 +1149,20 @@ export function createSortableSpec(
               draft.domain = null;
             }
 
-            return { presentation: false };
+            return true;
           }
         }
       },
 
-      effect(current, prepared, scope: SettlementScope) {
+      effect(current, _prepared, scope: SettlementScope) {
         const failure = pendingFailure;
 
         pendingFailure = null;
 
         if (failure === null) {
           // Requests only — nothing is armed here, and a request is recorded at
-          // most once.
-          if (prepared.presentation) {
-            scope.holdForReadiness();
-          }
-
+          // most once. **One gate since D-41**: the authored-presentation hold
+          // had no producer under the serial commit.
           if (
             slots.startLanding !== null &&
             current.recovery !== RECOVERY_IMMEDIATE
@@ -1206,40 +1187,39 @@ export function createSortableSpec(
     // Landing target and the terminal callback
     // -----------------------------------------------------------------------
 
-    anchorTarget(current, authoredReady): Point {
+    anchorTarget(current): Point {
       const placeholder = rt.placeholder!;
       const { recovery } = current;
 
       if (recovery === RECOVERY_DESTINATION) {
-        // Re-anchoring follows the **recovery**, and is gated on the authored
-        // presentation being final: with a readiness promise still pending the
-        // consumer has not committed, so re-anchoring now would drag the
-        // placeholder back beside the item's old slot.
-        if (authoredReady) {
-          const item = current.item!;
+        // Re-anchoring follows the **recovery**, which is committed behavior
+        // state — one of the two clauses of D-16 that survive D-41. The
+        // `authoredReady` gate this used to sit behind is gone with the
+        // protocol: under the serial commit the authored DOM is already final
+        // when this runs, so there is no pending render to wait for.
+        const item = current.item!;
 
-          // Each conjunct earns its place. `nextElementSibling` makes the
-          // repair inert when the placeholder is already adjacent — `before()`
-          // on an already-correct position is a remove-and-reinsert that resets
-          // CSS transitions and forces a reflow. `isConnected` and the parent
-          // test stop a consumer that unmounted or re-keyed the item from
-          // having the placeholder dragged into a detached tree, which would
-          // destroy the very element the fallback measures (F-15, Q-12).
-          if (
-            item.isConnected &&
-            item.parentElement === placeholder.parentElement &&
-            placeholder.nextElementSibling !== item &&
-            // **The terminal barrier on the re-anchor's own conjuncts** (I-36
-            // (2) act 3, C5-03's stretch sweep). All three above are accessors
-            // on consumer-owned elements. Teardown has already *removed* this
-            // placeholder, so `before()` after a destroy would re-insert a
-            // footprint the operation has finished with — back into the
-            // consumer's list, where nothing will remove it again. Last
-            // conjunct, so it is read only on the frame that would mutate.
-            !host.closed
-          ) {
-            item.before(placeholder);
-          }
+        // Each conjunct earns its place. `nextElementSibling` makes the
+        // repair inert when the placeholder is already adjacent — `before()`
+        // on an already-correct position is a remove-and-reinsert that resets
+        // CSS transitions and forces a reflow. `isConnected` and the parent
+        // test stop a consumer that unmounted or re-keyed the item from
+        // having the placeholder dragged into a detached tree, which would
+        // destroy the very element the fallback measures (F-15, Q-12).
+        if (
+          item.isConnected &&
+          item.parentElement === placeholder.parentElement &&
+          placeholder.nextElementSibling !== item &&
+          // **The terminal barrier on the re-anchor's own conjuncts** (I-36
+          // (2) act 3, C5-03's stretch sweep). All three above are accessors
+          // on consumer-owned elements. Teardown has already *removed* this
+          // placeholder, so `before()` after a destroy would re-insert a
+          // footprint the operation has finished with — back into the
+          // consumer's list, where nothing will remove it again. Last
+          // conjunct, so it is read only on the frame that would mutate.
+          !host.closed
+        ) {
+          item.before(placeholder);
         }
       } else if (recovery === RECOVERY_HOME) {
         // Rejected, cancelled and most failures return the placeholder to the
@@ -1307,7 +1287,6 @@ export function createSortableSpec(
       rt.pendingSpatial = 0;
       rt.placeholder = null;
       rt.lift = null;
-      rt.pendingRequest = null;
       rt.view = null;
 
       // Already in reverse installation order. Each is wrapped individually, so

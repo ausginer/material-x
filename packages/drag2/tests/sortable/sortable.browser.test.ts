@@ -205,7 +205,6 @@ function createHarness(overrides: Overrides = {}): Harness {
     afterMove: overrides.afterMove ?? [],
     retireHooks: overrides.retireHooks ?? [],
     threshold: overrides.threshold ?? 8,
-    readinessTimeout: 500,
   };
 
   const controller = draggable(root, createSortableBehavior(items, slots));
@@ -348,7 +347,6 @@ const EMPTY_SLOTS: SortableSlots = {
   resolveInsertion: () => null,
   invalidateInsertion: (): void => {},
   measureInsertion: null,
-  readinessTimeout: 500,
   onReorder: () => ReorderResolution.accept(),
   onStart: (): void => {},
   createPlaceholder: null,
@@ -1353,45 +1351,6 @@ describe('the landing target', () => {
     );
   });
 
-  it('should not re-anchor while the acknowledgement is outstanding', () => {
-    const runner = createRunner();
-    const harness = createHarness({
-      startLanding: runner.start,
-      onReorder: () => ReorderResolution.accept({ presentation: true }),
-    });
-
-    activate(harness);
-    harness.next(harness.gap(2));
-    release(60);
-
-    // `authoredReady` is false with a declaration outstanding: the consumer has
-    // not committed, so re-anchoring now would drag the placeholder back beside
-    // the item's OLD slot. The provisional target is the gap as it stands.
-    expect(order(harness)).toBe('012_');
-  });
-
-  it('should re-anchor once the presentation is acknowledged', async () => {
-    const runner = createRunner();
-    let pending!: ReorderRequest;
-    const harness = createHarness({
-      startLanding: runner.start,
-      onReorder: (request) => {
-        pending = request;
-        return ReorderResolution.accept({ presentation: true });
-      },
-    });
-
-    activate(harness);
-    harness.next(harness.gap(2));
-    release(60);
-    harness.controller.ready(pending);
-    await nextFrame();
-
-    // The consumer's DOM is committed now, so the authoritative anchor — the
-    // item — is where the placeholder belongs.
-    expect(order(harness)).toBe('_012');
-  });
-
   it('should not reinsert the placeholder when it is already anchored', async () => {
     const runner = createRunner();
     let applied: (() => void) | null = null;
@@ -2325,7 +2284,6 @@ describe('the spatial action legality guard', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
-        presentationCommitted: (): void => {},
         cancel: (): void => {},
         closed: false,
 
@@ -2415,7 +2373,6 @@ describe('a pointerless release with no destination', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
-        presentationCommitted: (): void => {},
         cancel: (): void => {},
         closed: false,
 
@@ -2663,7 +2620,6 @@ describe('the displacement view lifetime', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
-        presentationCommitted: (): void => {},
         cancel: (): void => {},
         closed: false,
 
@@ -2791,7 +2747,6 @@ describe('the displacement view lifetime', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
-        presentationCommitted: (): void => {},
         cancel: (): void => {},
         closed: false,
 
@@ -2894,7 +2849,6 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       root,
       dispatch: (): void => {},
       fail: (): void => {},
-      presentationCommitted: (): void => {},
       cancel: (): void => {},
       closed: false,
       destroy: (): Promise<void> => Promise.resolve(),
@@ -3108,41 +3062,9 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       recovery: RECOVERY_DESTINATION,
     } as unknown as Parameters<typeof held.spec.anchorTarget>[0];
 
-    expect(held.spec.anchorTarget(current, true)).toEqual({ x: 0, y: 0 });
+    expect(held.spec.anchorTarget(current)).toEqual({ x: 0, y: 0 });
     // Unmoved: the placeholder is still last, not dragged up beside the item.
     expect(held.root.lastElementChild).toBe(placeholder);
-  });
-
-  it('should publish no request when the release render destroys the controller', () => {
-    // `lift.write` composes a transform onto `visual.style`, and `style` is an
-    // accessor a custom element may define — so the render is the last
-    // consumer-reachable call before the request is published, and a request
-    // written after `retire()` cleared it outlives the operation (I-20).
-    const held = bench({});
-
-    held.rt.placeholder = held.item;
-    held.rt.lift = {
-      write: (): void => {
-        held.host.closed = true;
-      },
-    } as unknown as NonNullable<typeof held.rt.lift>;
-
-    const request: ReorderRequest = {} as unknown as ReorderRequest;
-    const current = {
-      ...createSortableFramePart(),
-      pointerId: POINTER_ID,
-      pointerX: 0,
-      pointerY: 0,
-      originX: 0,
-      originY: 0,
-      item: held.item,
-      insertion: { version: 0, index: 0, before: null, after: null },
-      proposal: { request },
-    } as unknown as Parameters<typeof held.spec.release.effect>[0];
-
-    held.spec.release.effect(current, true as never);
-
-    expect(held.rt.pendingRequest).toBeNull();
   });
 
   it('should publish no domain when the resolution’s own accessor destroys the controller', () => {
@@ -3159,7 +3081,6 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
         held.host.closed = true;
         return 'accepted';
       },
-      presentation: true,
     };
 
     expect(
@@ -3167,7 +3088,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
         type: SETTLED_FULFILLED,
         value,
       } as never),
-    ).toEqual({ presentation: false });
+    ).toBe(true);
     expect(draft.domain).toBeNull();
   });
 });

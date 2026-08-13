@@ -17,14 +17,12 @@ import {
   FAILED,
   LANDING_SETTLED,
   MOVE,
-  READINESS_SETTLED,
   RELEASE,
   RESOLUTION_SETTLED,
   RETIRE,
   START_COMMITTED,
   UP,
 } from './actions.ts';
-import { DEV } from './dev.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -36,7 +34,6 @@ import {
   FAILURE_LANDING_INTERRUPTED,
   FAILURE_LANDING_TARGET,
   FAILURE_PLACEHOLDER_MOVE,
-  FAILURE_PRESENTATION_READY,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
   FAILURE_REORDER_RESOLUTION,
@@ -112,6 +109,7 @@ import {
   type SettlementInput,
   type SettlementScope,
 } from './spec.ts';
+import type { Point } from './types.ts';
 
 /** Why an operation was cancelled, when the kernel is the one deciding. */
 export const CANCEL_ESCAPE = 'drag:escape';
@@ -144,14 +142,6 @@ export type PointerCoordinates = Readonly<{
 type ResolutionAttempt = {
   completed: boolean;
   settlement: SettlementInput | null;
-  /**
-   * The **early-acknowledgement latch** (D-33). A consumer that commits
-   * synchronously — inside `onReorder`, under `flushSync`, or in any renderer
-   * that does not defer — acknowledges before a settlement exists. This is the
-   * only kernel-private per-operation object alive at that moment, so the
-   * acknowledgement latches here and the settlement copies it as it is created.
-   */
-  presentationCommitted: boolean;
 };
 
 /**
@@ -164,24 +154,21 @@ type ResolutionAttempt = {
  */
 type SettlementAttempt = {
   holds: number;
-  readinessHeld: boolean;
-  /**
-   * Once-only latch: the first of acknowledgement, deadline or arm's copy of
-   * the early latch wins. **Claimed at the dispatch site**, never by the queued
-   * action, so two synchronous `ready()` calls in one turn produce exactly one
-   * dispatch and one release — and the second is *reported* rather than
-   * silently swallowed at drain (C4-04, C5-02).
-   */
-  readinessSettled: boolean;
-  /** Copied from the resolution attempt: the consumer acknowledged early. */
-  presentationLatched: boolean;
   /** Requested during `effect`, invoked after sealing. */
   start: LandingStart | null;
   /** Retained past its gate release, so the join can `destroy()` it. */
   landing: LandingHandle | null;
   landingHeld: boolean;
-  /** Whether the authored presentation is final. Not "readiness was supplied". */
-  authoredReady: boolean;
+  /**
+   * **The one authoritative landing target, measured once at arm** (D-41
+   * consequence 3). The serial authored commit guarantees the authored DOM is
+   * final before this is taken, so there is no interval in which a target is
+   * provisional — which is what deletes the second, advisory `anchorTarget`
+   * call, the `retarget()` producer and the readiness-time re-anchor together.
+   * The runner receives it as `LandingContext.target` and the join pins to the
+   * same value.
+   */
+  target: Point | null;
   /** False once a `destroy()` throw leaves runner control unrelinquished (I-24). */
   relinquished: boolean;
   /** Once-only completion latch: the first `done()`/`fail()` wins. */
@@ -190,21 +177,6 @@ type SettlementAttempt = {
   failed: boolean;
   sealed: boolean;
 };
-
-/**
- * One of the four invalid acknowledgements (D-33). Hoisted and shared, because
- * three of the arrival rows report the same thing and the message is a string
- * constant either way.
- */
-function reportDuplicateAcknowledgement(): void {
-  if (DEV) {
-    report(
-      new Error(
-        'drag: the authored presentation was acknowledged more than once for this operation; ignored',
-      ),
-    );
-  }
-}
 
 /** The gate plan is live. */
 const ARM_ARMED = 0;
@@ -1078,8 +1050,10 @@ export function createKernel<Part extends object>(
   // Seam adapters, built once per controller
   // -------------------------------------------------------------------------
 
-  const isRejection = (result: object): result is SeamRejection =>
-    'stage' in result;
+  // `{}` rather than `object`: since D-41 emptied `PreparedSettlement` it is the
+  // bare `true` sentinel, which satisfies `{}` and is not an `object`.
+  const isRejection = (result: {}): result is SeamRejection =>
+    result !== true && 'stage' in result;
 
   /**
    * Release cannot discard: `prepare` returns a command or a rejection, and
@@ -1152,17 +1126,12 @@ export function createKernel<Part extends object>(
     },
   };
 
-  const createSettlementAttempt = (
-    presentationLatched: boolean,
-  ): SettlementAttempt => ({
+  const createSettlementAttempt = (): SettlementAttempt => ({
     holds: 0,
-    readinessHeld: false,
-    readinessSettled: false,
-    presentationLatched,
     start: null,
     landing: null,
     landingHeld: false,
-    authoredReady: false,
+    target: null,
     relinquished: true,
     completed: false,
     failed: false,
@@ -1182,19 +1151,6 @@ export function createKernel<Part extends object>(
   const createSettlementScope = (
     attempt: SettlementAttempt,
   ): SettlementScope => ({
-    holdForReadiness(): void {
-      if (attempt.sealed || attempt.readinessHeld) {
-        report(
-          new Error(
-            'drag: holdForReadiness() was called twice or after the settlement scope sealed; ignored',
-          ),
-        );
-        return;
-      }
-
-      attempt.holds += 1;
-      attempt.readinessHeld = true;
-    },
     holdForLanding(start): void {
       if (attempt.sealed || attempt.landingHeld) {
         report(
@@ -1310,52 +1266,6 @@ export function createKernel<Part extends object>(
   };
 
   /**
-   * Starts the authored-presentation deadline, bounded by
-   * `config.readinessTimeout`.
-   *
-   * Readiness has exactly **three** outcomes (D-33): the acknowledgement, this
-   * deadline, or retirement. There is no `abandon()` — a state that releases
-   * the gate without failing is illegal in the only case anyone would reach for
-   * it, so it does not exist.
-   *
-   * A timeout **replaces the settlement**: the hold is never released, so the
-   * original outcome cannot finalize; presentation stays owned until the
-   * checkpoint's retirement; `authoredReady` stays false, so no re-anchor
-   * happens; and it reports through `onError` only.
-   */
-  const startReadinessDeadline = (attempt: SettlementAttempt): void => {
-    const { window } = realm;
-    const timer = window.setTimeout(() => {
-      // The deadline is one of the three claimants of the once-only latch, and
-      // it claims by the same rule as every other: before it acts. An
-      // acknowledgement racing it in the same turn finds the latch taken.
-      if (
-        settlement !== attempt ||
-        attempt.readinessSettled ||
-        !attempt.readinessHeld ||
-        queue.closed
-      ) {
-        return; // a stale deadline, from an operation that is already gone
-      }
-
-      attempt.readinessSettled = true;
-      attempt.failed = true;
-      failOperation(
-        FAILURE_PRESENTATION_READY,
-        new Error(
-          `drag: the authored presentation was not acknowledged within ${spec!.config.readinessTimeout}ms`,
-        ),
-      );
-    }, spec!.config.readinessTimeout);
-
-    // Presentation outlives both gates, so this is the lifetime that covers the
-    // whole window the timer can fire in.
-    lifetimes!.presentation.use(() => {
-      window.clearTimeout(timer);
-    });
-  };
-
-  /**
    * Arms the complete gate plan, once, after the scope sealed.
    *
    * The landing hold is **reserved before `start` is called** and the handle is
@@ -1367,40 +1277,22 @@ export function createKernel<Part extends object>(
    * synchronous `done()` safe, the second makes a synchronous `destroy()` safe.
    */
   const armSettlement = (attempt: SettlementAttempt): ArmOutcome => {
-    if (attempt.readinessHeld) {
-      if (attempt.presentationLatched) {
-        // **Claimed first, then dispatched** — the same order
-        // `presentationCommitted()` uses in the live armed window. Without it a
-        // re-entrant `ready()` during the rest of arm, reached through
-        // `anchorTarget` or the runner's `start`, finds an unclaimed latch and
-        // queues a *second* release against an attempt that is still `SETTLING`
-        // because landing is outstanding (C5-02).
-        attempt.readinessSettled = true;
-        // Dispatched, never released inline: the consumer committed
-        // synchronously, before the settlement existed, and a settlement
-        // holding only readiness would otherwise reach zero holds and finalize
-        // in the middle of its own arm step — the same hazard a synchronous
-        // `done()` has, closed the same way. So `authoredReady` is still false
-        // when the landing branch below reads it, and the queued release does
-        // the re-anchor.
-        dispatchKernel(READINESS_SETTLED, attempt);
-      } else {
-        startReadinessDeadline(attempt);
-      }
-      // Nothing consumer-reachable is called on either branch, so there is no
-      // revalidation and no stale-return disposal: the readiness half of arming
-      // cannot re-enter.
-    }
-
-    const { start } = attempt;
-
-    if (start === null) {
-      return ARM_ARMED;
-    }
-
+    // **Called once per settlement, and this is the authoritative measurement**
+    // (D-41 consequence 3). The serial authored commit guarantees the authored
+    // DOM is final here, so there is no interval in which a target is
+    // provisional. The second, advisory call this used to make ran with
+    // `authoredReady: false` **by construction** — arm is synchronous at the end
+    // of the settlement drain, so no acknowledgement could have arrived — and
+    // probe C1 found the result stale in all five commit strategies it probed,
+    // including the two that otherwise worked. They worked because the join's
+    // pin corrected it, which is this bug class's signature: the landing opens
+    // with a jump and still ends correctly.
+    //
+    // Measured unconditionally, before the landing branch, because the join
+    // pins to this value whether or not a runner was installed.
     const anchor = driver.runLeafValue(
-      () => spec!.anchorTarget(current, attempt.authoredReady),
-      FAILURE_LANDING_CREATE,
+      () => spec!.anchorTarget(current),
+      FAILURE_LANDING_TARGET,
     );
 
     if (anchor === undefined) {
@@ -1416,19 +1308,29 @@ export function createKernel<Part extends object>(
     }
 
     const origin = originRect!;
+    // Stored as an **origin-relative delta**, the space `compose` and
+    // `lift.write` consume. `anchorTarget` produces a viewport point and the
+    // kernel converts once, here, because the runner has no other way to reach
+    // the grab basis — see README, deliberate differences.
+    const target: Point = { x: anchor.x - origin.x, y: anchor.y - origin.y };
+
+    attempt.target = target;
+
+    const { start } = attempt;
+
+    if (start === null) {
+      return ARM_ARMED;
+    }
+
     const session = lift!;
     const context: LandingContext = {
       visual: visual!,
       compose: session.compose,
-      // Both points are **origin-relative deltas**, the space `compose` and
-      // `lift.write` consume. `anchorTarget` produces a viewport point and the
-      // kernel converts, because the runner has no other way to reach the grab
-      // basis — see README, deliberate differences.
       from: {
         x: current.pointerX - current.originX,
         y: current.pointerY - current.originY,
       },
-      target: { x: anchor.x - origin.x, y: anchor.y - origin.y },
+      target,
       realm,
     };
 
@@ -1485,20 +1387,18 @@ export function createKernel<Part extends object>(
   };
 
   /**
-   * Both gates are complete: measure authoritatively, relinquish the runner,
-   * pin, release presentation, then call the terminal callback.
+   * The gate is complete: relinquish the runner, pin, release presentation,
+   * then call the terminal callback.
    *
    * **Ordering is normative.** `destroy()` precedes the pin so a running WAAPI
-   * animation cannot override the inline transform, and `anchorTarget` runs
-   * while presentation is still owned. Every step before the release is
-   * individually fallible and the release is in a `finally`: the join calls into
-   * three pieces of code the kernel does not own, and none of them may strand
-   * the placeholder or the inline styles (F-22).
+   * animation cannot override the inline transform. Every step before the
+   * release is individually fallible and the release is in a `finally`: the
+   * join calls into code the kernel does not own, and none of it may strand the
+   * placeholder or the inline styles (F-22).
    */
   const joinSettlement = (attempt: SettlementAttempt): void => {
     const owned = lifetimes!;
     const session = lift!;
-    const origin = originRect!;
 
     begin();
     draft.phase = FINALIZING;
@@ -1507,24 +1407,23 @@ export function createKernel<Part extends object>(
     let failed = false;
 
     try {
-      const anchor = driver.runLeafValue(
-        () => spec!.anchorTarget(current, attempt.authoredReady),
-        FAILURE_LANDING_TARGET,
-      );
-
-      if (anchor === undefined) {
-        failed = true;
-      }
-
-      // `anchorTarget` is behavior code and may have destroyed the controller
-      // synchronously. Teardown restored the inline styles and cleared
-      // ownership, but `session` is a *local* the join captured before the
-      // phase commit, so it still writes: pinning here would stamp a transform
-      // back onto an element the kernel no longer owns (I-6, F-38).
+      // **The entry revalidation, and D-41 is why it is written out here.**
+      // The join used to open with `anchorTarget` and revalidate immediately
+      // after it, which happened to cover everything below. With the
+      // measurement moved to arm (D-41 consequence 3) that reading went with
+      // it — and the code between arm and here is consumer-reachable, because
+      // `anchorTarget` and the runner's `start` both run on the way. Without
+      // this check a destroy raised from either would still reach the pin and
+      // the terminal callback (I-6, F-38).
       if (!joinLive()) {
         return;
       }
 
+      // **No second measurement.** `anchorTarget` ran once, at arm, and the
+      // join pins to the same value the runner was handed — so the animation
+      // and the pin cannot disagree about where the drop ends, which is what
+      // made the old provisional target survivable and wrong.
+      const target = attempt.target;
       const handle = attempt.landing;
 
       if (handle !== null) {
@@ -1549,9 +1448,9 @@ export function createKernel<Part extends object>(
       }
 
       if (
-        anchor !== undefined &&
+        target !== null &&
         !driver.runLeaf(() => {
-          session.write(anchor.x - origin.x, anchor.y - origin.y);
+          session.write(target.x, target.y);
         }, FAILURE_RENDERER_WRITE)
       ) {
         failed = true;
@@ -1600,18 +1499,12 @@ export function createKernel<Part extends object>(
    * seal → arm.
    */
   const openSettlement = (input: SettlementInput): void => {
-    // The early-acknowledgement latch is **copied** out of the resolution
-    // attempt, because that attempt is cleared as it is consumed. A cancel or a
-    // failure reaches settlement with no resolution at all, which is `false`:
-    // nothing was ever acknowledged (D-33).
-    const latched = resolution?.presentationCommitted ?? false;
-
     // However the round-trip ended, it is over; a later completion for it is
     // inert at both validation points.
     resolution = null;
     settlementInput = input;
 
-    const attempt = createSettlementAttempt(latched);
+    const attempt = createSettlementAttempt();
     let outcome: SeamOutcome | undefined;
 
     settlement = attempt;
@@ -1630,44 +1523,11 @@ export function createKernel<Part extends object>(
 
     if (outcome !== SEAM_COMMITTED) {
       // Drop every unarmed request and arm **nothing**. Arming a half-requested
-      // plan would start a deadline or a runner for a settlement that has
-      // already failed or been abandoned; the queued checkpoint decides
-      // instead (F-27).
-      //
-      // The early latch dies here with every other unarmed request, and
-      // **silently**: the contradiction below is scoped to a *successful* seal,
-      // because an acknowledgement for a settlement whose own `effect` threw is
-      // the seam's problem, not the consumer's, and the queued failure
-      // checkpoint is already reporting it.
-      attempt.readinessHeld = false;
-      attempt.presentationLatched = false;
+      // plan would start a runner for a settlement that has already failed or
+      // been abandoned; the queued checkpoint decides instead (F-27).
       rollbackLandingHold(attempt);
       attempt.holds = 0;
       return;
-    }
-
-    // No declaration ⇒ the consumer asserted its presentation is final *now*,
-    // which is what an absent declaration means. It is not "the authored DOM
-    // never changed, so never re-anchor" (contract §`authoredReady`).
-    attempt.authoredReady = !attempt.readinessHeld;
-
-    if (attempt.presentationLatched && !attempt.readinessHeld) {
-      // The consumer acknowledged a presentation its own resolution never
-      // declared. **Reported and discarded, here, before arm** — not carried
-      // into it: seal is the first moment the complete gate plan is known,
-      // because `prepare` returning `{ presentation: true }` does not yet mean
-      // a hold exists (taking it is `settlement.effect`'s to do). Discarding
-      // here is also what lets `arm` read the latch as an unconditional
-      // release (C3-01, C4-04).
-      if (DEV) {
-        report(
-          new Error(
-            'drag: the authored presentation was acknowledged for an operation whose resolution declared none; ignored',
-          ),
-        );
-      }
-
-      attempt.presentationLatched = false;
     }
 
     if (armSettlement(attempt) === ARM_FAILED) {
@@ -1707,7 +1567,6 @@ export function createKernel<Part extends object>(
     const attempt: ResolutionAttempt = {
       completed: false,
       settlement: null,
-      presentationCommitted: false,
     };
     const { invoke } = command;
 
@@ -1919,48 +1778,6 @@ export function createKernel<Part extends object>(
     openSettlement(input);
   };
 
-  const handleReadinessSettled = (attempt: SettlementAttempt): void => {
-    if (
-      settlement !== attempt ||
-      current.phase !== SETTLING ||
-      !attempt.readinessHeld
-    ) {
-      return;
-    }
-
-    attempt.readinessHeld = false;
-    attempt.holds -= 1;
-    // Records that the **consumer's** DOM is committed, which is independent of
-    // whether the library's own measurement below works. The join needs it.
-    attempt.authoredReady = true;
-
-    const handle = attempt.landing;
-
-    if (attempt.landingHeld && handle !== null) {
-      // The guard is on the **hold**, not the handle: the handle is retained
-      // past its gate release so the join can `destroy()` it, and a runner that
-      // has already reported `done()` must never be retargeted — a completed
-      // trajectory cannot be improved (F-16).
-      //
-      // Both calls are best-effort reports, not classified failures: nothing on
-      // the trajectory-quality path may change the outcome, move a hold or
-      // destroy the runner (I-29). A throwing `anchorTarget` skips the retarget
-      // and the runner continues toward its provisional target; the join
-      // measures again authoritatively either way.
-      guarded(() => {
-        const anchor = spec!.anchorTarget(current, true);
-        const origin = originRect!;
-
-        handle.retarget?.({
-          x: anchor.x - origin.x,
-          y: anchor.y - origin.y,
-        });
-      });
-    }
-
-    advanceSettlement(attempt);
-  };
-
   const handleLandingSettled = (attempt: SettlementAttempt): void => {
     if (
       settlement !== attempt ||
@@ -2087,9 +1904,7 @@ export function createKernel<Part extends object>(
       error: checkpoint.error,
     };
 
-    // A failed settlement declares nothing, so no early latch can survive into
-    // it: the checkpoint's own seam runs pre-sealed and holds no gate.
-    const attempt = createSettlementAttempt(false);
+    const attempt = createSettlementAttempt();
 
     // Sealed from the start: a failed settlement holds no gate and lands
     // nothing. A request is ignored and reported, exactly like a post-seal one.
@@ -2193,9 +2008,6 @@ export function createKernel<Part extends object>(
       case RESOLUTION_SETTLED:
         handleResolutionSettled(argument as ResolutionAttempt);
         break;
-      case READINESS_SETTLED:
-        handleReadinessSettled(argument as SettlementAttempt);
-        break;
       case LANDING_SETTLED:
         handleLandingSettled(argument as SettlementAttempt);
         break;
@@ -2254,81 +2066,6 @@ export function createKernel<Part extends object>(
       dispatchKernel(BEHAVIOR_BASE + tag, argument);
     },
     fail: driver.requestFailure,
-
-    /**
-     * The arrival table from contract 02 §The authored-presentation protocol,
-     * in row order — and **the order is normative** (C5-02).
-     *
-     * `readinessSettled` is tested before "no hold ⇒ contradictory", because
-     * after a valid release the two states are indistinguishable by hold alone:
-     * the phase is still `SETTLING` while landing is outstanding,
-     * `readinessHeld` is now false, and a presentation *was* declared.
-     * Classifying by the absent hold would tell a consumer that acknowledged
-     * correctly, twice, that it acknowledged something it never declared.
-     *
-     * Every invalid arrival takes the platform channel, gated on `DEV`, and
-     * none of them classifies: a consumer-protocol error must never fail the
-     * operation the consumer got right.
-     */
-    presentationCommitted(): void {
-      if (queue.closed) {
-        return;
-      }
-
-      const open = resolution;
-
-      if (open !== null) {
-        // The early window. The settlement does not exist yet — this is a
-        // synchronous commit, or one that landed while the round-trip was still
-        // outstanding — so the acknowledgement latches on the only kernel
-        // -private per-operation object that does.
-        if (open.presentationCommitted) {
-          reportDuplicateAcknowledgement();
-          return;
-        }
-
-        open.presentationCommitted = true;
-        return;
-      }
-
-      const attempt = settlement;
-
-      if (attempt !== null && current.phase === SETTLING) {
-        if (attempt.readinessSettled) {
-          reportDuplicateAcknowledgement();
-          return;
-        }
-
-        if (!attempt.readinessHeld) {
-          if (DEV) {
-            report(
-              new Error(
-                'drag: the authored presentation was acknowledged for an operation whose resolution declared none; ignored',
-              ),
-            );
-          }
-
-          return;
-        }
-
-        // Claimed **before** the dispatch, so any further acknowledgement in
-        // the dispatch-to-drain interior is a reported duplicate rather than a
-        // second release (C4-04). Dispatched rather than released inline: a
-        // settlement holding only readiness would otherwise reach zero holds
-        // and finalize inside the call that released it.
-        attempt.readinessSettled = true;
-        dispatchKernel(READINESS_SETTLED, attempt);
-        return;
-      }
-
-      if (DEV) {
-        report(
-          new Error(
-            'drag: the authored presentation was acknowledged outside a release or settlement; ignored',
-          ),
-        );
-      }
-    },
 
     cancel,
     destroy,

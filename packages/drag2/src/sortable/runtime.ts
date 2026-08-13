@@ -2,7 +2,10 @@
  * The behavior's private runtime: an ordinary object, declared and created in
  * one place, **never handed to the kernel and never widened** (H-2, D-4).
  *
- * Seven mutable fields. ~~The eighth is the terminal latch C2-01 moved here off
+ * Six mutable fields. ~~The seventh is `pendingRequest`~~ — **deleted with the
+ * readiness protocol (D-41)**: it existed to key `controller.ready(request)` to
+ * one operation, and there is no acknowledgement to key.
+ * ~~The eighth is the terminal latch C2-01 moved here off
  * the controller's closure.~~ **D-53 deletes it**: the host publishes the latch
  * itself now, and the reason the private mirror existed — that the SPI could
  * not express the reading D-38 requires — is precisely the failing case the
@@ -24,11 +27,7 @@ import type { VisualLiftSession } from '../kernel/presentation.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { KernelHost } from '../kernel/spec.ts';
 import { copyUniqueItems } from './collection.ts';
-import type {
-  CollectionSnapshot,
-  Insertion,
-  ReorderRequest,
-} from './domain.ts';
+import type { CollectionSnapshot, Insertion } from './domain.ts';
 import type { SortableSlots } from './slots.ts';
 
 /** Behavior action tags. Behavior-local: the kernel offsets them. */
@@ -122,18 +121,6 @@ export type SortableRuntime = {
   placeholder: HTMLElement | null;
   /** Handed in at activation, cleared at retire. */
   lift: VisualLiftSession | null;
-  /**
-   * The **exact** `ReorderRequest` object this operation handed `onReorder`
-   * (D-33) — published by `release.effect` before the kernel executes the
-   * round-trip, compared by `===` in `controller.ready`, cleared by `retire()`.
-   *
-   * It is the whole of the protocol's per-operation identity, and it is the
-   * behavior's rather than the kernel's: the kernel threads the resolution as
-   * `unknown` and never learns what a request is. Exactly one is live per
-   * controller, which is what closes every stale window — A timing out and
-   * retiring nulls it, and B overwrites it only once B reaches its own release.
-   */
-  pendingRequest: ReorderRequest | null;
   /** Monotonic; the identity of the latest coalesced spatial attempt (D-11). */
   spatialSeq: number;
   /** The attempt the frame task actually dispatched. Zero when none is live. */
@@ -173,7 +160,6 @@ export function createSortableRuntime(
     view: null,
     placeholder: null,
     lift: null,
-    pendingRequest: null,
     spatialSeq: 0,
     pendingSpatial: 0,
   };
