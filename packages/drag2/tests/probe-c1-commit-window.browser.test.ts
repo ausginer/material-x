@@ -15,7 +15,7 @@
  * an imperative renderer does.
  */
 import { afterAll, afterEach, describe, expect, it } from 'vitest';
-import { draggable, type Point } from '../src/drag.ts';
+import type { Point } from '../src/drag.ts';
 import { callbacks } from '../src/sortable/callbacks.ts';
 import { visual } from '../src/sortable/handle.ts';
 import { landing, type LandingStart } from '../src/sortable/landing.ts';
@@ -251,73 +251,71 @@ function mount(options: Options): Fixture {
   };
 
   // Referenced from `onReorder`, which cannot run before the assignment lands.
-  const controller = draggable(
+  const controller = sortable(
     root,
-    sortable(
-      ids.map((id) => rows.get(id)!),
-      y(),
-      options.realLanding === undefined
-        ? landing({ run })
-        : landing({ duration: options.realLanding, easing: 'linear' }),
-      callbacks({
-        onReorder: (request): ReorderResolution => {
-          requests.push(request);
-          capture();
+    ids.map((id) => rows.get(id)!),
+    y(),
+    options.realLanding === undefined
+      ? landing({ run })
+      : landing({ duration: options.realLanding, easing: 'linear' }),
+    callbacks({
+      onReorder: (request): ReorderResolution => {
+        requests.push(request);
+        capture();
 
-          // The element the library is dragging, taken from the request rather
-          // than from the fixture's map: a commit that destroys item identity
-          // replaces the map, and this is the node the library still holds.
-          const { item } = request;
+        // The element the library is dragging, taken from the request rather
+        // than from the fixture's map: a commit that destroys item identity
+        // replaces the map, and this is the node the library still holds.
+        const { item } = request;
 
-          draggedItem = item;
+        draggedItem = item;
 
-          const order = ids.slice();
-          const [moved] = order.splice(request.from, 1);
+        const order = ids.slice();
+        const [moved] = order.splice(request.from, 1);
 
-          order.splice(request.to, 0, moved!);
+        order.splice(request.to, 0, moved!);
 
-          const items = options.author({
-            container,
-            root,
-            rows,
-            next: order,
-            setContainer: (element): void => {
-              container = element;
-            },
-          });
+        const items = options.author({
+          container,
+          root,
+          rows,
+          next: order,
+          setContainer: (element): void => {
+            container = element;
+          },
+        });
 
-          observations.afterCommit = {
-            placeholder: placementOf(capture()),
-            libraryItem: placementOf(item),
-            dom: [...container.children].map(
-              (child) => (child as HTMLElement).dataset['id'] ?? '_',
-            ),
-            proposalAnchors: {
-              before:
-                request.before === null ? null : placementOf(request.before),
-              after: request.after === null ? null : placementOf(request.after),
-            },
-          };
+        observations.afterCommit = {
+          placeholder: placementOf(capture()),
+          libraryItem: placementOf(item),
+          dom: [...container.children].map(
+            (child) => (child as HTMLElement).dataset['id'] ?? '_',
+          ),
+          proposalAnchors: {
+            before:
+              request.before === null ? null : placementOf(request.before),
+            after: request.after === null ? null : placementOf(request.after),
+          },
+        };
 
-          // The imperative shape: the commit is synchronous, so returning is
-          // the acknowledgement. **This is what D-41's serial order makes the
-          // only shape** — the resolution does not return until the authored
-          // DOM is final, so there is nothing left to acknowledge separately.
-          controller.updateItems(items);
+        // The imperative shape: the commit is synchronous, so returning is
+        // the acknowledgement. **This is what D-41's serial order makes the
+        // only shape** — the resolution does not return until the authored
+        // DOM is final, so there is nothing left to acknowledge separately.
+        controller.updateItems(items);
 
-          return ReorderResolution.accept();
-        },
-        onFinish(): void {
-          finishes += 1;
-        },
-        onCancel(): void {
-          cancels += 1;
-        },
-        onError(error): void {
-          errors.push(error);
-        },
-      }),
-    ),
+        return ReorderResolution.accept();
+      },
+      onFinish(): void {
+        finishes += 1;
+      },
+      onCancel(): void {
+        cancels += 1;
+      },
+      onError(error): void {
+        errors.push(error);
+      },
+    }),
   );
 
   root.setPointerCapture = (): void => {};
@@ -779,23 +777,21 @@ describe('probe C1 — the api-1 footprint rule under a live drag', () => {
       };
     };
 
-    const controller = draggable(
+    const controller = sortable(
       root,
-      sortable(
-        rows,
-        y(),
-        visual((item) => item.querySelector<HTMLElement>('.c6-card')!),
-        // Long enough that every displacement is still in flight when the
-        // measurements below are taken.
-        layoutAnimation({ duration: 4000, easing: 'linear' }),
-        landing({ run }),
-        callbacks({
-          onReorder: (): ReorderResolution => ReorderResolution.accept(),
-          onError(error): void {
-            errors.push(error);
-          },
-        }),
-      ),
+      rows,
+      y(),
+      visual((item) => item.querySelector<HTMLElement>('.c6-card')!),
+      // Long enough that every displacement is still in flight when the
+      // measurements below are taken.
+      layoutAnimation({ duration: 4000, easing: 'linear' }),
+      landing({ run }),
+      callbacks({
+        onReorder: (): ReorderResolution => ReorderResolution.accept(),
+        onError(error): void {
+          errors.push(error);
+        },
+      }),
     );
 
     root.setPointerCapture = (): void => {};

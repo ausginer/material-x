@@ -1,17 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
+import { DraggableError, type DraggableErrorCode } from '../../src/drag.ts';
+import { draggable } from '../../src/kernel.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
-  FAILURE_ACTIVATION,
-  FAILURE_INVALIDATION,
-  FAILURE_LANDING_TARGET,
-  FAILURE_PLACEHOLDER_MOVE,
   FAILURE_RELEASE,
-  FAILURE_REORDER_RESOLUTION,
-  FAILURE_RENDERER_WRITE,
-  FAILURE_SCHEDULED_FRAME,
-  type FailureStage,
 } from '../../src/kernel/failures.ts';
 import {
   ACTIVATING,
@@ -63,7 +56,7 @@ type Harness = Readonly<{
   calls: string[];
   finishes: SortableFinishResult[];
   cancels: SortableCancelResult[];
-  errors: Array<Readonly<{ stage: FailureStage; error: unknown }>>;
+  errors: Array<Readonly<{ code: DraggableErrorCode; error: unknown }>>;
   requests: ReorderRequest[];
   /** The item each `onStart` received. */
   started: HTMLElement[];
@@ -142,7 +135,8 @@ function createHarness(overrides: Overrides = {}): Harness {
   const calls: string[] = [];
   const finishes: SortableFinishResult[] = [];
   const cancels: SortableCancelResult[] = [];
-  const errors: Array<Readonly<{ stage: FailureStage; error: unknown }>> = [];
+  const errors: Array<Readonly<{ code: DraggableErrorCode; error: unknown }>> =
+    [];
   const requests: ReorderRequest[] = [];
   const started: HTMLElement[] = [];
 
@@ -197,9 +191,10 @@ function createHarness(overrides: Overrides = {}): Harness {
       calls.push('onCancel');
       cancels.push(result);
     },
-    onError(error, context): void {
+    onError(error): void {
       calls.push('onError');
-      errors.push({ stage: context.stage, error });
+      // D-64: the consumer sees a coarse fault class, never a pipeline stage.
+      errors.push({ code: error.code, error });
     },
     beforeMove: overrides.beforeMove ?? [],
     afterMove: overrides.afterMove ?? [],
@@ -830,7 +825,7 @@ describe('activation', () => {
 
     expect(harness.calls).not.toContain('onStart');
     expect(harness.errors).toHaveLength(1);
-    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    expect(harness.errors[0]!.code).toBe('interaction');
     expect(harness.placeholder()).toBeNull();
   });
 
@@ -854,7 +849,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    expect(harness.errors[0]!.code).toBe('interaction');
     // Still connected, but not in the list — and teardown owns it either way.
     expect(foreign.children).toHaveLength(0);
   });
@@ -875,7 +870,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    expect(harness.errors[0]!.code).toBe('interaction');
   });
 
   it('should fail activation when the placeholder moves within the container', () => {
@@ -894,7 +889,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    expect(harness.errors[0]!.code).toBe('interaction');
   });
 
   it('should fail activation when the item is reparented away from the placeholder', () => {
@@ -919,7 +914,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    expect(harness.errors[0]!.code).toBe('interaction');
   });
 
   it('should start normally when the placeholder survives connection', () => {
@@ -1162,7 +1157,7 @@ describe('release', () => {
 
     // Reporting a broken invariant as a successful no-op drop would tell the
     // consumer the drag completed normally.
-    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
+    expect(harness.errors[0]!.code).toBe('interaction');
     expect(harness.finishes).toEqual([]);
   });
 
@@ -1224,7 +1219,7 @@ describe('settlement mapping', () => {
 
     // Acceptance is never inferred — not from callback silence, not from a
     // truthy return.
-    expect(harness.errors[0]!.stage).toBe(FAILURE_REORDER_RESOLUTION);
+    expect(harness.errors[0]!.code).toBe('consumer');
     expect(harness.finishes).toEqual([]);
     expect(harness.cancels).toEqual([]);
   });
@@ -1240,11 +1235,12 @@ describe('settlement mapping', () => {
     release(60);
     await nextFrame();
 
-    // A resolver malfunction is never reported as `onCancel`.
-    expect(harness.errors[0]).toEqual({
-      stage: FAILURE_REORDER_RESOLUTION,
-      error,
-    });
+    // A resolver malfunction is never reported as `onCancel`. D-64: the
+    // consumer sees the fault class, and the classifying error survives as
+    // `cause` rather than being flattened away.
+    expect(harness.errors[0]!.code).toBe('consumer');
+    expect(harness.errors[0]!.error).toBeInstanceOf(DraggableError);
+    expect((harness.errors[0]!.error as DraggableError).cause).toBe(error);
     expect(harness.cancels).toEqual([]);
   });
 
@@ -1293,7 +1289,7 @@ describe('settlement mapping', () => {
     });
     move(60);
 
-    expect(harness.errors[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
+    expect(harness.errors[0]!.code).toBe('presentation');
     expect(harness.finishes).toEqual([]);
     expect(harness.cancels).toEqual([]);
   });
@@ -1719,7 +1715,7 @@ describe('the collection', () => {
     });
     release(60);
 
-    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
+    expect(harness.errors[0]!.code).toBe('interaction');
     expect(harness.finishes).toEqual([]);
   });
 
@@ -2002,9 +1998,7 @@ describe('invalidation failure classification', () => {
     armed = true;
     window.dispatchEvent(new Event('scroll'));
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_INVALIDATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
   });
 
   it('should classify a failing settled-geometry measurement as an invalidation failure', async () => {
@@ -2028,9 +2022,7 @@ describe('invalidation failure classification', () => {
     move(90);
     await nextFrame();
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_INVALIDATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
     // Classified means stopped: the displacement hooks never run against an
     // index that is neither the old geometry nor the new.
     expect(after).toEqual([]);
@@ -2047,9 +2039,7 @@ describe('invalidation failure classification', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_INVALIDATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
   });
 
   it('should not start an operation whose activation invalidation failed', () => {
@@ -2082,9 +2072,7 @@ describe('invalidation failure classification', () => {
       window.requestAnimationFrame = native;
     }
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_SCHEDULED_FRAME,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
   });
 });
 
@@ -2096,9 +2084,7 @@ describe('placeholder factory results', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_ACTIVATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['interaction']);
   });
 
   it('should leave the dragged item in the document when it was refused', () => {
@@ -2121,9 +2107,7 @@ describe('placeholder factory results', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_ACTIVATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['interaction']);
   });
 
   it('should refuse a node that is already in the document', () => {
@@ -2148,9 +2132,7 @@ describe('placeholder factory results', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_ACTIVATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['interaction']);
   });
 
   it('should clear a stale slot when the item has none', () => {
@@ -2464,7 +2446,7 @@ describe('the placeholder container guard', () => {
 
     return nextFrame().then(() => {
       expect(harness.errors).toHaveLength(1);
-      expect(harness.errors[0]!.stage).toBe(FAILURE_PLACEHOLDER_MOVE);
+      expect(harness.errors[0]!.code).toBe('presentation');
       // The checkpoint has already retired the operation and removed the
       // placeholder; what matters is that it never reached the other container.
       expect(foreign.children).toHaveLength(1);
@@ -2486,7 +2468,7 @@ describe('the placeholder container guard', () => {
     // never executed: the consumer is not asked to apply a reorder the library
     // could not render.
     expect(harness.calls).not.toContain('onReorder');
-    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
+    expect(harness.errors[0]!.code).toBe('interaction');
     expect(foreign.children).toHaveLength(1);
   });
 
@@ -2503,7 +2485,7 @@ describe('the placeholder container guard', () => {
     // Home recovery runs inside `anchorTarget`, so it classifies at the landing
     // target stage and the terminal callback is skipped for the outcome the
     // checkpoint is about to replace.
-    expect(harness.errors[0]!.stage).toBe(FAILURE_LANDING_TARGET);
+    expect(harness.errors[0]!.code).toBe('presentation');
     expect(harness.calls).not.toContain('onCancel');
   });
 
@@ -2567,7 +2549,7 @@ describe('seam staging across whole operations', () => {
     harness.next(harness.gap(1));
     release(90);
 
-    expect(harness.errors[0]!.stage).toBe(FAILURE_REORDER_RESOLUTION);
+    expect(harness.errors[0]!.code).toBe('consumer');
 
     press(harness.items[1]!);
     move(40);

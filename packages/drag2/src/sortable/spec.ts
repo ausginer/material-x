@@ -17,6 +17,7 @@ import {
 import type { Draft, Frame } from '../kernel/frames.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE, IDLE, RELEASING } from '../kernel/phases.ts';
+import { toDraggableError } from '../kernel/errors.ts';
 import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
 import { KEY_DOWN } from '../kernel/protocol.ts';
 import { guarded } from '../kernel/reporter.ts';
@@ -1175,8 +1176,8 @@ export function createSortableSpec(
         // `onError` **only**: no `onFinish`, no `onCancel`, and `finalized` is
         // never reached for it.
         if (failure !== null) {
-          slots.onError?.(failure.error, {
-            stage: failure.stage,
+          // D-64: the consumer branches on a fault class, never on a stage.
+          slots.onError?.(toDraggableError(failure.stage, failure.error), {
             domain: current.domain,
           });
         }
@@ -1279,7 +1280,7 @@ export function createSortableSpec(
      * stays idle and usable.
      */
     reportFailure(stage, error) {
-      slots.onError?.(error, { stage, domain: null });
+      slots.onError?.(toDraggableError(stage, error), { domain: null });
     },
 
     retire() {

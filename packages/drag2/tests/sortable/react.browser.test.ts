@@ -34,7 +34,7 @@ import {
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable, type Point } from '../../src/drag.ts';
+import type { Point } from '../../src/drag.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import { landing, type LandingStart } from '../../src/sortable/landing.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -306,66 +306,64 @@ function mount(options: Options = {}): Fixture {
     root.render(createElement(App));
   });
 
-  controller = draggable(
+  controller = sortable(
     list,
-    sortable(
-      ids.map((id) => elements.get(id)!),
-      y(),
-      landing({ run }),
-      callbacks({
-        onReorder: (
-          request,
-        ): ReorderResolution | PromiseLike<ReorderResolution> => {
-          requests.push(request);
+    ids.map((id) => elements.get(id)!),
+    y(),
+    landing({ run }),
+    callbacks({
+      onReorder: (
+        request,
+      ): ReorderResolution | PromiseLike<ReorderResolution> => {
+        requests.push(request);
 
-          if (author !== undefined) {
-            const apply = (): void => {
-              state = author(state, request, ids);
-              publish(state);
-            };
+        if (author !== undefined) {
+          const apply = (): void => {
+            state = author(state, request, ids);
+            publish(state);
+          };
 
-            // `onReorder` is answered inside the `pointerup` handler, so a
-            // state update made here lands on React's discrete lane and
-            // commits before the event returns. `defer` is the other real
-            // shape — a consumer that persists the order first — and it is
-            // the one that actually proves the settlement waits.
-            if (options.defer === true) {
-              setTimeout(apply, 0);
-            } else {
-              apply();
-            }
+          // `onReorder` is answered inside the `pointerup` handler, so a
+          // state update made here lands on React's discrete lane and
+          // commits before the event returns. `defer` is the other real
+          // shape — a consumer that persists the order first — and it is
+          // the one that actually proves the settlement waits.
+          if (options.defer === true) {
+            setTimeout(apply, 0);
+          } else {
+            apply();
           }
+        }
 
-          if (options.ready !== true) {
-            return ReorderResolution.accept();
-          }
+        if (options.ready !== true) {
+          return ReorderResolution.accept();
+        }
 
-          witness.readinessSupplied();
-          // **The whole integration, and D-41 is what makes it this short.**
-          // React's commit lands after this event handler returns, so a
-          // consumer whose render must be on screen before the drop lands
-          // `await`s its own commit barrier here. The resolution does not
-          // return until the authored DOM is final — which is why the library
-          // needs no acknowledgement, no declaration and no deadline.
-          pending = request;
+        witness.readinessSupplied();
+        // **The whole integration, and D-41 is what makes it this short.**
+        // React's commit lands after this event handler returns, so a
+        // consumer whose render must be on screen before the drop lands
+        // `await`s its own commit barrier here. The resolution does not
+        // return until the authored DOM is final — which is why the library
+        // needs no acknowledgement, no declaration and no deadline.
+        pending = request;
 
-          return new Promise<void>((resolve) => {
-            commitWaiters.push(resolve);
-          }).then(() => ReorderResolution.accept());
-        },
-        onFinish(result): void {
-          witness.terminal();
-          finishes.push(result);
-        },
-        onCancel(result): void {
-          witness.terminal();
-          cancels.push(result);
-        },
-        onError(error): void {
-          errors.push(error);
-        },
-      }),
-    ),
+        return new Promise<void>((resolve) => {
+          commitWaiters.push(resolve);
+        }).then(() => ReorderResolution.accept());
+      },
+      onFinish(result): void {
+        witness.terminal();
+        finishes.push(result);
+      },
+      onCancel(result): void {
+        witness.terminal();
+        cancels.push(result);
+      },
+      onError(error): void {
+        errors.push(error);
+      },
+    }),
   );
 
   // Synthetic pointer events have no active pointer, so the real

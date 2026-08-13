@@ -7,10 +7,9 @@
  * would have bought opacity by making the entry point unusable.
  */
 import { describe, expectTypeOf, it } from 'vitest';
-import { draggable } from '../src/drag.ts';
+import { draggable } from '../src/kernel.ts';
 import { createSortableBehavior } from '../src/sortable/behavior.ts';
 import type { SortableController } from '../src/sortable/controller.ts';
-import type { SortableFramePart } from '../src/sortable/frames.ts';
 import type { SortableSlots } from '../src/sortable/slots.ts';
 
 const root = null as unknown as HTMLElement;
@@ -24,13 +23,14 @@ describe('draggable', () => {
     expectTypeOf(controller).toEqualTypeOf<SortableController>();
   });
 
-  it('should not require the behavior frame part to be named', () => {
-    // The part is the behavior's private type. A second type argument would put
-    // it back on the consumer's surface, which is what the brand removes.
-    // @ts-expect-error: `draggable` takes one type argument
-    draggable<SortableController, SortableFramePart>(
-      root,
-      createSortableBehavior(items, slots),
-    );
+  it('should infer the behavior frame part rather than being told it', () => {
+    // **D-48/D-55 invert this row rather than deleting it.** The part used to
+    // be erased at the brand, so naming it was a compile error. There is no
+    // brand: `BehaviorFactory` carries the part and `draggable` infers it from
+    // the factory's return position — which is the claim the handoff flagged as
+    // the one only the compiler can settle.
+    const controller = draggable(root, createSortableBehavior(items, slots));
+
+    expectTypeOf(controller).toEqualTypeOf<SortableController>();
   });
 });

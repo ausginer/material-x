@@ -1,6 +1,7 @@
 {
   "runtime": [
     "drag",
+    "kernel",
     "sortable",
     "sortable/y",
     "sortable/xy",
@@ -11,6 +12,8 @@
     "sortable/layout-animation"
   ],
   "clean": {
-    "extras": ["_virtual"]
+    "extras": [
+      "_virtual"
+    ]
   }
 }

@@ -2,7 +2,7 @@
  * The minimal composition, driven through the **public entrypoint**:
  *
  * ```ts
- * draggable(root, sortable(items, y(), callbacks({ onReorder })))
+ * sortable(root, items, y(), callbacks({ onReorder }))
  * ```
  *
  * Everything else in `tests/sortable` drives the behavior against hand-written
@@ -16,7 +16,7 @@
  * inherits its box, so the list stays three boxes tall for the whole drag.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
+import type { DraggableError } from '../../src/drag.ts';
 import { AT_PROPOSAL } from '../../src/kernel/failures.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -104,37 +104,35 @@ function compose(options: Options = {}): Composed {
 
   let composed!: Composed;
 
-  const controller = draggable(
+  const controller = sortable(
     root,
-    sortable(
-      items,
-      y(),
-      callbacks({
-        onReorder:
-          options.onReorder ??
-          ((request) => {
-            requests.push(request);
-            return ReorderResolution.accept();
-          }),
-        onStart(item): void {
-          started.push(item);
-          options.onStart?.(composed);
-        },
-        onFinish(result): void {
-          finishes.push(result);
-          options.onFinish?.(composed);
-        },
-        onCancel(result): void {
-          cancels.push(result);
-        },
-        onError(error): void {
-          errors.push(error);
-        },
-        ...(options.threshold === undefined
-          ? null
-          : { threshold: options.threshold }),
-      }),
-    ),
+    items,
+    y(),
+    callbacks({
+      onReorder:
+        options.onReorder ??
+        ((request) => {
+          requests.push(request);
+          return ReorderResolution.accept();
+        }),
+      onStart(item): void {
+        started.push(item);
+        options.onStart?.(composed);
+      },
+      onFinish(result): void {
+        finishes.push(result);
+        options.onFinish?.(composed);
+      },
+      onCancel(result): void {
+        cancels.push(result);
+      },
+      onError(error): void {
+        errors.push(error);
+      },
+      ...(options.threshold === undefined
+        ? null
+        : { threshold: options.threshold }),
+    }),
   );
 
   // Synthetic pointer events have no active pointer, so the real
@@ -400,7 +398,11 @@ describe('the composed reorder round trip', () => {
     await drag(55);
     release(55);
 
-    expect(composed.errors).toEqual([failure]);
+    // D-64: the consumer receives a coarse `DraggableError`, and the
+    // classifying error survives as `cause` rather than being flattened.
+    expect(composed.errors).toHaveLength(1);
+    expect((composed.errors[0] as DraggableError).code).toBe('consumer');
+    expect((composed.errors[0] as DraggableError).cause).toBe(failure);
   });
 
   it('should rebase a surviving gap onto a replacement', async () => {

@@ -7,6 +7,9 @@
     "drag.js",
     "drag.js.map",
     "drag.d.ts",
+    "kernel.js",
+    "kernel.js.map",
+    "kernel.d.ts",
     "sortable.js",
     "sortable.js.map",
     "sortable.d.ts",
@@ -18,6 +21,10 @@
     "./drag.js": {
       "types": "./drag.d.ts",
       "default": "./drag.js"
+    },
+    "./kernel.js": {
+      "types": "./kernel.d.ts",
+      "default": "./kernel.js"
     },
     "./sortable.js": {
       "types": "./sortable.d.ts",

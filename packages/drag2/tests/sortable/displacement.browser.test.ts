@@ -12,7 +12,6 @@
  * ancestor transforms, and never a displacement offset the library applied.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import {
@@ -107,22 +106,20 @@ function build(options: Options = {}): Composed {
   const requests: ReorderRequest[] = [];
   const errors: unknown[] = [];
 
-  const controller = draggable(
+  const controller = sortable(
     root,
-    sortable(
-      items,
-      y(),
-      callbacks({
-        onReorder(request) {
-          requests.push(request);
-          return ReorderResolution.accept();
-        },
-        onError: (error): void => {
-          errors.push(error);
-        },
-      }),
-      ...(options.features ?? []),
-    ),
+    items,
+    y(),
+    callbacks({
+      onReorder(request) {
+        requests.push(request);
+        return ReorderResolution.accept();
+      },
+      onError: (error): void => {
+        errors.push(error);
+      },
+    }),
+    ...(options.features ?? []),
   );
 
   root.setPointerCapture = (): void => {};

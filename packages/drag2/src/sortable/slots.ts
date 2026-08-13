@@ -12,6 +12,7 @@
  * flattened into two fields by the assembler, so the pairing is a construction
  * -time claim rather than a hot-path indirection.
  */
+import type { DraggableError } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
@@ -198,7 +199,7 @@ export type SortableSlots = Readonly<{
    */
   onFinish: ((result: SortableFinishResult) => void) | null;
   onCancel: ((result: SortableCancelResult) => void) | null;
-  onError: ((error: unknown, context: DragErrorContext) => void) | null;
+  onError: ((error: DraggableError, context: DragErrorContext) => void) | null;
 
   /**
    * Prebuilt and fixed-length after assembly, empty in the minimal composition,

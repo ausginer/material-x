@@ -6,7 +6,7 @@
  * rather than a structurally-equal duplicate per subpath. The remaining public
  * type surface is phase 9.
  */
-import type { Behavior } from './kernel/spec.ts';
+import { draggable } from './kernel.ts';
 import { createComposedSortableBehavior } from './sortable/behavior.ts';
 import type { SortableController } from './sortable/controller.ts';
 import type { SortableFeature } from './sortable/feature.ts';
@@ -49,11 +49,17 @@ export type {
 export { ReorderResolution } from './sortable/domain.ts';
 
 /**
- * Composes one sortable behavior.
+ * Composes one sortable behavior **and returns its controller** (D-48).
  *
  * ```ts
- * const list = draggable(root, sortable(items, y(), callbacks({ onReorder })));
+ * const list = sortable(root, y(), callbacks({ onReorder }));
  * ```
+ *
+ * ~~`draggable(root, sortable(items, …))`~~ — the two-call form is withdrawn.
+ * `sortable()` takes the ingress root itself and forwards it, so the ordinary
+ * consumer never names `draggable`, never holds an opaque `Behavior`, and never
+ * has to know a kernel tier exists. Authoring a *new* behavior is what
+ * `@ydinjs/drag/kernel` is for.
  *
  * The features are **assembled once**, when `draggable()` installs the behavior
  * and a realm exists — and then dropped. Nothing retains the feature array or
@@ -66,8 +72,9 @@ export { ReorderResolution } from './sortable/domain.ts';
  * the *behavior*; it cannot contribute one.
  */
 export function sortable(
+  root: HTMLElement,
   items: readonly HTMLElement[],
   ...features: readonly SortableFeature[]
-): Behavior<SortableController> {
-  return createComposedSortableBehavior(items, features);
+): SortableController {
+  return draggable(root, createComposedSortableBehavior(items, features));
 }

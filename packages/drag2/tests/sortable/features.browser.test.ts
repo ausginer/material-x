@@ -8,7 +8,6 @@
  * `composition.browser.test.ts`; these add the first.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
 import type { LandingHandle } from '../../src/kernel/spec.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import { brandFeature, unbrandFeature } from '../../src/sortable/feature.ts';
@@ -91,25 +90,23 @@ function composeWith(options: ComposeOptions = {}): Composed {
   const cancels: unknown[] = [];
   const errors: unknown[] = [];
 
-  const controller = draggable(
+  const controller = sortable(
     root,
-    sortable(
-      items,
-      options.axis ?? y(),
-      callbacks({
-        onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
-        onFinish: (result): void => {
-          finishes.push(result);
-        },
-        onCancel: (result): void => {
-          cancels.push(result);
-        },
-        onError: (error): void => {
-          errors.push(error);
-        },
-      }),
-      ...(options.features ?? []),
-    ),
+    items,
+    options.axis ?? y(),
+    callbacks({
+      onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
+      onFinish: (result): void => {
+        finishes.push(result);
+      },
+      onCancel: (result): void => {
+        cancels.push(result);
+      },
+      onError: (error): void => {
+        errors.push(error);
+      },
+    }),
+    ...(options.features ?? []),
   );
 
   root.setPointerCapture = (): void => {};
@@ -406,19 +403,17 @@ describe('handle', () => {
 
     items[0]!.append(grip);
 
-    const controller = draggable(
+    const controller = sortable(
       root,
-      sortable(
-        items,
-        y(),
-        handle(() => grip),
-        callbacks({
-          onReorder: (request) => {
-            requests.push(request);
-            return ReorderResolution.accept();
-          },
-        }),
-      ),
+      items,
+      y(),
+      handle(() => grip),
+      callbacks({
+        onReorder: (request) => {
+          requests.push(request);
+          return ReorderResolution.accept();
+        },
+      }),
     );
 
     root.setPointerCapture = (): void => {};

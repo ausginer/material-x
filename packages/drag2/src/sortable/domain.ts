@@ -11,7 +11,7 @@
  * The numeric `outcome`/`recovery` constants below are the opposite: they are
  * behavior-private frame state, never handed to a consumer.
  */
-import type { CancelStage, FailureStage } from '../kernel/failures.ts';
+import type { CancelStage } from '../kernel/failures.ts';
 
 // ---------------------------------------------------------------------------
 // The collection
@@ -165,15 +165,18 @@ export type SortableCancelResult =
 /**
  * What `onError` receives alongside the error.
  *
- * **Ships from `sortable.js`, not `drag.js`** — the phase 9 decision the
- * contract's export table left open. `stage` is kernel vocabulary, but `domain`
- * is a sortable result, and `draggable()` has its own entry precisely so a
- * future free-drag consumer never reaches the sortable behavior. Splitting it
- * would mean two error-context types; putting it on `drag.js` would mean the
- * behavior-agnostic entry declaring a behavior's result union.
+ * **One field since D-64.** ~~`stage` is kernel vocabulary~~ — and that is
+ * exactly why it left: the consumer receives a `DraggableError` carrying
+ * a coarse `code`, and never an internal pipeline seam. What remains is purely
+ * the sortable half, which is what keeps this type on `sortable.js`: `domain`
+ * is a sortable result, and the kernel tier has its own entry precisely so a
+ * future free-drag consumer never reaches the sortable behavior.
+ *
+ * **`domain` may be non-null here** (D-60). The channels are orthogonal: one
+ * operation may produce `onError` *and* a terminal, so a handler must not read
+ * an error as proof that the drop had no result.
  */
 export type DragErrorContext = Readonly<{
-  stage: FailureStage;
   domain: ReorderTransactionResult | null;
 }>;
 

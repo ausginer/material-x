@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import files from '../files.json' with { type: 'json' };
 import * as drag from '../src/drag.ts';
+import * as kernel from '../src/kernel.ts';
 import * as callbacks from '../src/sortable/callbacks.ts';
 import * as handle from '../src/sortable/handle.ts';
 import * as landing from '../src/sortable/landing.ts';
@@ -14,6 +15,7 @@ import * as sortable from '../src/sortable.ts';
 // export topology, so each entry has to be named rather than computed.
 const modules: Readonly<Record<string, object>> = {
   drag,
+  kernel,
   sortable,
   'sortable/y': y,
   'sortable/xy': xy,
@@ -40,7 +42,13 @@ const byName = (a: string, b: string): number => {
  * consumer sees it.
  */
 const SURFACE: Readonly<Record<string, readonly string[]>> = {
-  drag: [
+  // **Shared vocabulary, and one runtime value** (D-64). `DraggableError` is a
+  // class, which is what keeps this root alive after D-48 moved `draggable`
+  // off it and D-64 moved the stages off with them.
+  drag: ['DraggableError'],
+  // The kernel tier (D-48). Thirteen stages, not fourteen: D-41 deleted
+  // `FAILURE_PRESENTATION_READY` with the readiness protocol.
+  kernel: [
     'FAILURE_ACTIVATION',
     'FAILURE_ADMISSION',
     'FAILURE_INSERTION',
@@ -49,7 +57,6 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'FAILURE_LANDING_INTERRUPTED',
     'FAILURE_LANDING_TARGET',
     'FAILURE_PLACEHOLDER_MOVE',
-    'FAILURE_PRESENTATION_READY',
     'FAILURE_RELEASE',
     'FAILURE_RENDERER_WRITE',
     'FAILURE_REORDER_RESOLUTION',

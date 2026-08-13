@@ -24,7 +24,6 @@
  * `[1, 2, 3]`, so slot indices are 0, 1, 2.
  */
 import { afterEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import type {
   CollectionSnapshot,
@@ -376,18 +375,16 @@ describe('the composed two-dimensional collection', () => {
     }
 
     const requests: ReorderRequest[] = [];
-    const controller = draggable(
+    const controller = sortable(
       root,
-      sortable(
-        items,
-        xy(),
-        callbacks({
-          onReorder(request) {
-            requests.push(request);
-            return ReorderResolution.accept();
-          },
-        }),
-      ),
+      items,
+      xy(),
+      callbacks({
+        onReorder(request) {
+          requests.push(request);
+          return ReorderResolution.accept();
+        },
+      }),
     );
 
     root.setPointerCapture = (): void => {};
@@ -463,18 +460,16 @@ describe('the composed two-dimensional collection', () => {
     }
 
     const requests: ReorderRequest[] = [];
-    const controller = draggable(
+    const controller = sortable(
       root,
-      sortable(
-        items,
-        y(),
-        callbacks({
-          onReorder(request) {
-            requests.push(request);
-            return ReorderResolution.accept();
-          },
-        }),
-      ),
+      items,
+      y(),
+      callbacks({
+        onReorder(request) {
+          requests.push(request);
+          return ReorderResolution.accept();
+        },
+      }),
     );
 
     root.setPointerCapture = (): void => {};
@@ -649,26 +644,24 @@ describe('the terminal barrier in the candidate loop', () => {
     const asked: HTMLElement[] = [];
     let controller: SortableController | null = null;
 
-    controller = draggable(
+    controller = sortable(
       root,
-      sortable(
-        items,
-        xy(),
-        visual((item) => {
-          asked.push(item);
+      items,
+      xy(),
+      visual((item) => {
+        asked.push(item);
 
-          // The **first** candidate destroys. `items[0]` is the dragged one and
-          // was resolved at admission, before any candidate.
-          if (item === items[1]) {
-            void controller!.destroy();
-          }
+        // The **first** candidate destroys. `items[0]` is the dragged one and
+        // was resolved at admission, before any candidate.
+        if (item === items[1]) {
+          void controller!.destroy();
+        }
 
-          return item;
-        }),
-        callbacks({
-          onReorder: () => ReorderResolution.accept(),
-        }),
-      ),
+        return item;
+      }),
+      callbacks({
+        onReorder: () => ReorderResolution.accept(),
+      }),
     );
 
     root.setPointerCapture = (): void => {};

@@ -30,7 +30,6 @@
  * two measurement suites sharing a page inflate every absolute figure by ~2×.
  */
 import { afterEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
 import {
   beginFrame,
   composeFrame,
@@ -167,13 +166,11 @@ function liveDrag(count: number): Live {
     items.push(item);
   }
 
-  const controller = draggable(
+  const controller = sortable(
     root,
-    sortable(
-      items,
-      y(),
-      callbacks({ onReorder: () => ReorderResolution.accept() }),
-    ),
+    items,
+    y(),
+    callbacks({ onReorder: () => ReorderResolution.accept() }),
   );
 
   root.setPointerCapture = (): void => {};

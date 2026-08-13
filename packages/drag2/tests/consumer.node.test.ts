@@ -82,14 +82,18 @@ const MINUTE = 60_000;
 const PENDING: readonly string[] = [];
 
 const CONSUMER = `import {
+  DraggableError,
+  type DOMRealm,
+  type DraggableErrorCode,
+  type Point,
+} from '@ydinjs/drag2/drag.js';
+import {
   draggable,
   FAILURE_ACTIVATION,
   FAILURE_TERMINAL_CALLBACK,
-  type Behavior,
-  type DOMRealm,
+  type BehaviorFactory,
   type FailureStage,
-  type Point,
-} from '@ydinjs/drag2/drag.js';
+} from '@ydinjs/drag2/kernel.js';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -140,65 +144,62 @@ import {
 declare const root: HTMLElement;
 declare const items: readonly HTMLElement[];
 
-const list: SortableController = draggable(
+const list: SortableController = sortable(
   root,
-  sortable(
-    items,
-    y(),
-    callbacks({
-      onReorder: (request: ReorderRequest) => {
-        void request.from;
-        void request.to;
-        void request.item;
-        return ReorderResolution.accept();
-      },
-      threshold: 4,
-      onFinish: (result: SortableFinishResult): void => {
-        // F-41: the public results narrow on their own discriminant. Nothing a
-        // consumer has to import is needed to tell one from another.
-        if (result.type === 'accepted') {
-          const proposal: ReorderProposal = result.proposal;
-          // The proposal exposes the snapshot it was built against, so the type
-          // of that field has to be nameable too.
-          const snapshot: CollectionSnapshot = proposal.snapshot;
+  items,
+  y(),
+  callbacks({
+    onReorder: (request: ReorderRequest) => {
+      void request.from;
+      void request.to;
+      void request.item;
+      return ReorderResolution.accept();
+    },
+    threshold: 4,
+    onFinish: (result: SortableFinishResult): void => {
+      // F-41: the public results narrow on their own discriminant. Nothing a
+      // consumer has to import is needed to tell one from another.
+      if (result.type === 'accepted') {
+        const proposal: ReorderProposal = result.proposal;
+        // The proposal exposes the snapshot it was built against, so the type
+        // of that field has to be nameable too.
+        const snapshot: CollectionSnapshot = proposal.snapshot;
 
-          void proposal.request.version;
-          void snapshot.items.length;
-          void snapshot.version;
-        }
-      },
-      onCancel: (result: SortableCancelResult): void => {
-        if (result.type === 'canceled') {
-          const stage: CancelStage = result.stage;
+        void proposal.request.version;
+        void snapshot.items.length;
+        void snapshot.version;
+      }
+    },
+    onCancel: (result: SortableCancelResult): void => {
+      if (result.type === 'canceled') {
+        const stage: CancelStage = result.stage;
 
-          void (stage === AT_PROPOSAL || stage === AT_CONSUMER);
-        }
-      },
-      onError: (error: unknown, context: DragErrorContext): void => {
-        // The stages are values, not just a type: a consumer switching on
-        // \`context.stage\` needs them.
-        const stage: FailureStage = context.stage;
-        const domain: ReorderTransactionResult | null = context.domain;
+        void (stage === AT_PROPOSAL || stage === AT_CONSUMER);
+      }
+    },
+    onError: (error: DraggableError, context: DragErrorContext): void => {
+      // **D-64.** The ordinary consumer branches on a coarse fault class and
+      // never sees a pipeline stage: \`context\` is the sortable half alone.
+      const code: DraggableErrorCode = error.code;
+      const domain: ReorderTransactionResult | null = context.domain;
 
-        void (stage === FAILURE_ACTIVATION);
-        void (stage === FAILURE_TERMINAL_CALLBACK);
-        void domain?.type;
-        void error;
-      },
-    }),
-    placeholder({
-      className: 'ghost',
-      // Nameable, so a consumer can hoist the factory out of the call.
-      create: ((context: PlaceholderContext) => {
-        void context.rect.height;
-        return document.createElement('div');
-      }) satisfies PlaceholderFactory,
-    }),
-    handle((item: HTMLElement) => item.firstElementChild as HTMLElement),
-    visual((item: HTMLElement) => item),
-    landing({ duration: 120, easing: 'ease-out' }),
-    layoutAnimation({ duration: 90 }),
-  ),
+      void (code === 'consumer');
+      void (error instanceof DraggableError);
+      void domain?.type;
+    },
+  }),
+  placeholder({
+    className: 'ghost',
+    // Nameable, so a consumer can hoist the factory out of the call.
+    create: ((context: PlaceholderContext) => {
+      void context.rect.height;
+      return document.createElement('div');
+    }) satisfies PlaceholderFactory,
+  }),
+  handle((item: HTMLElement) => item.firstElementChild as HTMLElement),
+  visual((item: HTMLElement) => item),
+  landing({ duration: 120, easing: 'ease-out' }),
+  layoutAnimation({ duration: 90 }),
 );
 
 list.updateItems(items);
@@ -226,7 +227,7 @@ declare const rejected: RejectedReorderResolution;
 
 void [accepted.type, rejected.type];
 
-declare const behavior: Behavior<SortableController>;
+declare const behavior: BehaviorFactory<SortableController, object>;
 declare const feature: SortableFeature;
 declare const onReorder: OnReorder;
 declare const options: SortableCallbacks;
@@ -245,18 +246,20 @@ inferred.destroy();
 // Opacity: neither branded value is constructible or callable.
 // ---------------------------------------------------------------------------
 
-// @ts-expect-error: the behavior value is opaque, so a bare install function is not one
-const forgedBehavior: Behavior<SortableController> = () => ({});
-// A behavior that were still the install function would *also* reject the
-// literal above, on its return type. Calling it is what separates the two.
-// @ts-expect-error: a behavior is not callable
-behavior(null as never);
+// D-55: a behavior *is* the install function now, so the two opacity rows that
+// stood here have no subject. What is still checked is that a bare literal does
+// not satisfy the factory's return type.
+// @ts-expect-error: a factory must return both halves of the handshake
+const forgedBehavior: BehaviorFactory<SortableController, object> = () => ({});
 // @ts-expect-error: the feature value is opaque
 const forgedFeature: SortableFeature = () => ({});
 // @ts-expect-error: a feature is not callable
 feature(null as never);
-// @ts-expect-error: the frame part is erased, so \`Behavior\` takes one type argument
-type Part = Behavior<SortableController, object>;
+// D-55: there is no branded behavior type at all now, so the opacity check has
+// no subject. What replaces it is the reachability check below — the SPI is
+// published at \`kernel.js\` and still unreachable from \`drag.js\`.
+// @ts-expect-error: \`Behavior\` is withdrawn (D-55)
+type Part = import('@ydinjs/drag2/kernel.js').Behavior<SortableController>;
 
 void [forgedBehavior, forgedFeature];
 
@@ -519,7 +522,8 @@ describe('the packed package', () => {
     // point of freezing a surface. Types are erased at runtime and are checked
     // by the consumer compile instead.
     const expected: Readonly<Record<string, readonly string[]>> = {
-      './drag.js': [
+      './drag.js': ['DraggableError'],
+      './kernel.js': [
         'FAILURE_ACTIVATION',
         'FAILURE_ADMISSION',
         'FAILURE_INSERTION',
@@ -528,7 +532,6 @@ describe('the packed package', () => {
         'FAILURE_LANDING_INTERRUPTED',
         'FAILURE_LANDING_TARGET',
         'FAILURE_PLACEHOLDER_MOVE',
-        'FAILURE_PRESENTATION_READY',
         'FAILURE_RELEASE',
         'FAILURE_RENDERER_WRITE',
         'FAILURE_REORDER_RESOLUTION',
@@ -621,12 +624,15 @@ describe('the packed package', () => {
     expect(dangling).toEqual([]);
   });
 
-  it('should declare no subpath into the kernel', () => {
-    // The kernel directory is *shipped*, because the entrypoints import it at
-    // runtime, but nothing in it is addressable: the SPI stays internal because
-    // no export key reaches it.
+  it('should declare no subpath into the kernel directory', () => {
+    // **Narrowed by D-48, not withdrawn.** `./kernel.js` is now a declared
+    // entry — the kernel tier is published, because a behavior author needs
+    // `draggable()` and the classification vocabulary. What stays unaddressable
+    // is the `kernel/` *directory*: it is shipped, because the entrypoints
+    // import it at runtime, but no export key reaches inside it, so the seam
+    // modules are still not importable by path.
     expect(
-      [...packed.subpaths.keys()].filter((key) => key.includes('kernel')),
+      [...packed.subpaths.keys()].filter((key) => key.startsWith('./kernel/')),
     ).toEqual([]);
   });
 

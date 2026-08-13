@@ -4,7 +4,7 @@
  * rather than runtime checks (contract 03 §Closed for real, D-30, I-10).
  */
 import { describe, expectTypeOf, it } from 'vitest';
-import type { Behavior, SettlementScope } from '../../src/kernel/spec.ts';
+import type { SettlementScope } from '../../src/kernel/spec.ts';
 import type { SortableFeature } from '../../src/sortable/feature.ts';
 import type { DisplacementView } from '../../src/sortable/slots.ts';
 
@@ -28,25 +28,16 @@ describe('SortableFeature', () => {
   });
 });
 
-const held = null as unknown as Behavior<{ destroy(): void }>;
-
-describe('Behavior', () => {
-  it('should not accept a bare install function', () => {
-    // Same mechanism, same reason: `Behavior` is a function between two
-    // internal, unstable SPI types, so it cannot be structurally public.
-    // @ts-expect-error: the behavior value is opaque
-    const behavior: Behavior<{ destroy(): void }> = () => ({});
-
-    void behavior;
-  });
-
-  it('should not be a function type at all', () => {
-    // The assignment above is not enough on its own: `Behavior` reverted to the
-    // install function type would reject that literal too, on its return type.
-    // Not being callable is what actually says "this is not the factory".
-    expectTypeOf(held).not.toBeFunction();
-  });
-});
+/**
+ * **`Behavior` is withdrawn** (D-55). The two rows that stood here asserted the
+ * brand's opacity — that a bare install function is not assignable, and that a
+ * branded value stays nameable and passable. Neither is expressible now, and
+ * neither should be: with `sortable()` returning its controller and
+ * `draggable()` taking a plain `BehaviorFactory`, the opaque type had no
+ * producer, and an exported opaque type nothing constructs is a boundary marker
+ * with no boundary to mark. The rows are deleted rather than migrated, because
+ * migrating them would mean re-asserting a property the decision removed.
+ */
 
 describe('DisplacementView', () => {
   it('should not reach the settlement scope', () => {

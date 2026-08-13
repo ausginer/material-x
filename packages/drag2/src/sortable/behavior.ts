@@ -15,11 +15,10 @@
  * and is the only caller that assembles.
  */
 import { report } from '../kernel/reporter.ts';
-import {
-  type Behavior,
-  type BehaviorInstall,
-  brandBehavior,
-  type KernelHost,
+import type {
+  BehaviorFactory,
+  BehaviorInstall,
+  KernelHost,
 } from '../kernel/spec.ts';
 import { assemble } from './assemble.ts';
 import {
@@ -45,22 +44,26 @@ function install(
   };
 }
 
-/** Takes an already-assembled slot record. The seam the tests drive directly. */
+/**
+ * Takes an already-assembled slot record. The seam the tests drive directly.
+ *
+ * **A plain factory, unbranded** (D-55). `brandBehavior` is withdrawn: with
+ * `sortable()` returning its controller directly there is no branded value for
+ * a consumer to hold, so the brand had no producer.
+ */
 export function createSortableBehavior(
   items: readonly HTMLElement[],
   slots: SortableSlots,
-): Behavior<SortableController> {
-  return brandBehavior<SortableController, SortableFramePart>((host) =>
-    install(host, items, slots),
-  );
+): BehaviorFactory<SortableController, SortableFramePart> {
+  return (host) => install(host, items, slots);
 }
 
 /** Assembles the features first, against the host's realm and root. */
 export function createComposedSortableBehavior(
   items: readonly HTMLElement[],
   features: readonly SortableFeature[],
-): Behavior<SortableController> {
-  return brandBehavior<SortableController, SortableFramePart>((host) =>
+): BehaviorFactory<SortableController, SortableFramePart> {
+  return (host) =>
     install(
       host,
       items,
@@ -68,6 +71,5 @@ export function createComposedSortableBehavior(
       // operation is live, so classifying a failure from one would let a late
       // continuation settle another.
       assemble(features, { realm: host.realm, root: host.root, report }),
-    ),
-  );
+    );
 }

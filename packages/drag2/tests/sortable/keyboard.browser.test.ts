@@ -21,7 +21,6 @@
  * an assertion that the gap survived is an assertion that nothing re-resolved.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
 import type { LandingContext } from '../../src/kernel/spec.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import { handle, visual } from '../../src/sortable/handle.ts';
@@ -168,35 +167,33 @@ function build(options: Options = {}): Fixture {
     );
   }
 
-  const controller = draggable(
+  const controller = sortable(
     root,
-    sortable(
-      items,
-      y(),
-      ...features,
-      callbacks({
-        onReorder(request) {
-          requests.push(request);
+    items,
+    y(),
+    ...features,
+    callbacks({
+      onReorder(request) {
+        requests.push(request);
 
-          return (
-            options.onReorder?.(request, fixture) ?? ReorderResolution.accept()
-          );
-        },
-        onStart(item): void {
-          started.push(item);
-          options.onStart?.(fixture);
-        },
-        onFinish(result): void {
-          finishes.push(result);
-        },
-        onCancel(result): void {
-          cancels.push(result);
-        },
-        onError(error): void {
-          errors.push(error);
-        },
-      }),
-    ),
+        return (
+          options.onReorder?.(request, fixture) ?? ReorderResolution.accept()
+        );
+      },
+      onStart(item): void {
+        started.push(item);
+        options.onStart?.(fixture);
+      },
+      onFinish(result): void {
+        finishes.push(result);
+      },
+      onCancel(result): void {
+        cancels.push(result);
+      },
+      onError(error): void {
+        errors.push(error);
+      },
+    }),
   );
 
   root.setPointerCapture = (): void => {};

@@ -119,7 +119,6 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'minimal',
     imports: {
-      'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
       'sortable/callbacks.js': '{ callbacks }',
@@ -133,7 +132,6 @@ export const COMPOSITIONS: readonly Composition[] = [
     // measured as a peer rather than assumed to equal the y one.
     name: 'minimal (xy)',
     imports: {
-      'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
       'sortable/xy.js': '{ xy }',
       'sortable/callbacks.js': '{ callbacks }',
@@ -145,7 +143,6 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'minimal + layoutAnimation',
     imports: {
-      'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
       'sortable/callbacks.js': '{ callbacks }',
@@ -161,7 +158,6 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'minimal + landing',
     imports: {
-      'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
       'sortable/callbacks.js': '{ callbacks }',
@@ -174,7 +170,6 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'complete',
     imports: {
-      'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
       'sortable/callbacks.js': '{ callbacks }',

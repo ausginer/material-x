@@ -24,7 +24,13 @@ export const FAILURE_RELEASE = 9;
 export const FAILURE_LANDING_CREATE = 10;
 export const FAILURE_LANDING_INTERRUPTED = 11;
 export const FAILURE_LANDING_TARGET = 12;
-export const FAILURE_PRESENTATION_READY = 13;
+/**
+ * ~~`FAILURE_PRESENTATION_READY = 13`~~ — **deleted with the readiness protocol
+ * (D-41)**. Thirteen stages, not fourteen. The number is not reused: a stage
+ * constant is a wire value in a consumer's compiled code, and silently
+ * repointing 13 at a different meaning is the one change this list must never
+ * make.
+ */
 export const FAILURE_TERMINAL_CALLBACK = 14;
 
 /** Where a classified failure occurred. */
@@ -41,7 +47,6 @@ export type FailureStage =
   | typeof FAILURE_LANDING_CREATE
   | typeof FAILURE_LANDING_INTERRUPTED
   | typeof FAILURE_LANDING_TARGET
-  | typeof FAILURE_PRESENTATION_READY
   | typeof FAILURE_TERMINAL_CALLBACK;
 
 /**

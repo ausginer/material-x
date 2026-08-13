@@ -462,38 +462,22 @@ export type BehaviorInstall<Controller, Part extends object> = Readonly<{
 }>;
 
 /**
- * The install function itself — **internal and unstable**. It is a function
- * between `KernelHost` and `BehaviorSpec`, both of which are internal, so
- * exporting it under a stability promise would make the whole SPI a semver
- * surface by reference (D-30).
+ * The install function itself — **public at the kernel tier since D-48**.
+ *
+ * ~~Internal and unstable, because it is a function between `KernelHost` and
+ * `BehaviorSpec`, both of which are internal.~~ D-47 publishes the kernel, so
+ * both of those are kernel-tier public now and this is what an author writes.
+ *
+ * **There is no brand.** `Behavior<Controller>`, `brandBehavior` and
+ * `unbrandBehavior` are withdrawn (D-55): with `sortable()` returning its
+ * controller directly and `draggable()` taking a plain factory, the opaque type
+ * had no producer left, and an exported opaque type nothing constructs is a
+ * boundary marker with no boundary to mark.
+ *
+ * `Part` is inferred from the factory's return position rather than supplied.
+ * It defaults to `object` so a behavior that never names its own part — the
+ * kernel's own view of one — still satisfies the constraint.
  */
-export type BehaviorFactory<Controller, Part extends object> = (
+export type BehaviorFactory<Controller, Part extends object = object> = (
   host: KernelHost,
 ) => BehaviorInstall<Controller, Part>;
-
-declare const BEHAVIOR_BRAND: unique symbol;
-
-/**
- * What a consumer holds and passes to `draggable()`: **opaque** (D-30). It can
- * be named and passed, and cannot be constructed — the brand is declaration-only
- * and unexported, so a structurally matching function literal is not assignable.
- *
- * `Controller` is carried so `draggable()` can infer its return type; the frame
- * part is erased, because no consumer names it.
- */
-export type Behavior<Controller> = Readonly<{
-  [BEHAVIOR_BRAND]: Controller;
-}>;
-
-/** Declaration-only cast. Behaviors are built inside this package only. */
-export function brandBehavior<Controller, Part extends object>(
-  factory: BehaviorFactory<Controller, Part>,
-): Behavior<Controller> {
-  return factory as unknown as Behavior<Controller>;
-}
-
-export function unbrandBehavior<Controller>(
-  behavior: Behavior<Controller>,
-): BehaviorFactory<Controller, object> {
-  return behavior as unknown as BehaviorFactory<Controller, object>;
-}

@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import { flushSync } from 'react-dom';
-import { draggable } from './drag.ts';
 import { callbacks } from './sortable/callbacks.ts';
 import { landing } from './sortable/landing.ts';
 import { layoutAnimation } from './sortable/layout-animation.ts';
@@ -112,49 +111,47 @@ function SortableDemo({
     // `sortable()` takes a *snapshot*, not a getter: the collection is replaced
     // through `controller.updateItems`, which lands as a queued action in FIFO
     // order with everything else the drag is doing.
-    const controller = draggable(
+    const controller = sortable(
       container,
-      sortable(
-        items(),
-        axis ?? y(),
-        landing(),
-        layoutAnimation(),
-        ...(createPlaceholder
-          ? [placeholder({ create: createPlaceholder })]
-          : ([] as readonly SortableFeature[])),
-        callbacks({
-          onReorder: (request: ReorderRequest) => {
-            const { label } = request.item.dataset;
+      items(),
+      axis ?? y(),
+      landing(),
+      layoutAnimation(),
+      ...(createPlaceholder
+        ? [placeholder({ create: createPlaceholder })]
+        : ([] as readonly SortableFeature[])),
+      callbacks({
+        onReorder: (request: ReorderRequest) => {
+          const { label } = request.item.dataset;
 
-            if (label == null) {
-              return ReorderResolution.reject('unlabelled item');
-            }
+          if (label == null) {
+            return ReorderResolution.reject('unlabelled item');
+          }
 
-            const next = reordered(
-              orderRef.current,
-              label,
-              request.after?.dataset['label'] ?? null,
-            );
-            // **The serial authored commit** (D-41). `flushSync` is React's
-            // commit barrier, and awaiting it here is the whole of the
-            // migration from the readiness protocol: the resolution does not
-            // return until the authored DOM is on screen, so the library never
-            // has a render to wait for and the landing measures a final list.
-            // A framework-specific barrier is integration code, not a drag
-            // protocol.
-            orderRef.current = next;
-            flushSync(() => {
-              setOrder(next);
-            });
-            return ReorderResolution.accept();
-          },
-          // Terminal: the authored DOM is committed and the temporary
-          // presentation released, so this is the right moment to resync.
-          onFinish: () => {
-            controller.updateItems(items());
-          },
-        }),
-      ),
+          const next = reordered(
+            orderRef.current,
+            label,
+            request.after?.dataset['label'] ?? null,
+          );
+          // **The serial authored commit** (D-41). `flushSync` is React's
+          // commit barrier, and awaiting it here is the whole of the
+          // migration from the readiness protocol: the resolution does not
+          // return until the authored DOM is on screen, so the library never
+          // has a render to wait for and the landing measures a final list.
+          // A framework-specific barrier is integration code, not a drag
+          // protocol.
+          orderRef.current = next;
+          flushSync(() => {
+            setOrder(next);
+          });
+          return ReorderResolution.accept();
+        },
+        // Terminal: the authored DOM is committed and the temporary
+        // presentation released, so this is the right moment to resync.
+        onFinish: () => {
+          controller.updateItems(items());
+        },
+      }),
     );
 
     return () => {

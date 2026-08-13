@@ -12,6 +12,7 @@
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
+import type { DraggableError } from '../kernel/errors.ts';
 import type {
   DragErrorContext,
   Insertion,
@@ -89,7 +90,7 @@ export type SortableCallbacks = Readonly<{
   onStart?(item: HTMLElement): void;
   onFinish?(result: SortableFinishResult): void;
   onCancel?(result: SortableCancelResult): void;
-  onError?(error: unknown, context: DragErrorContext): void;
+  onError?(error: DraggableError, context: DragErrorContext): void;
   /**
    * How far the pointer must travel from the press before a drag activates, in
    * **CSS pixels**, as a straight-line distance. Finite and `>= 0`; `0`

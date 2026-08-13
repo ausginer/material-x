@@ -28,7 +28,6 @@
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import { cdp, userEvent } from 'vitest/browser';
-import { draggable } from '../src/drag.ts';
 import { callbacks } from '../src/sortable/callbacks.ts';
 import { handle } from '../src/sortable/handle.ts';
 import { y } from '../src/sortable/y.ts';
@@ -350,7 +349,7 @@ function build(options: BuildOptions = {}): Fixture {
     features.push(handle((item) => item.querySelector('.grip')));
   }
 
-  const controller = draggable(root, sortable(rows, ...features));
+  const controller = sortable(root, rows, ...features);
 
   cleanup.push(() => {
     listeners.abort();

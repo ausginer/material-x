@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
+import { draggable } from '../../src/kernel.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -24,7 +24,6 @@ import {
   type ActivationScope,
   type BehaviorSpec,
   type CommandAdmission,
-  brandBehavior,
   type KernelHost,
   type LandingHandle,
   type LandingStart,
@@ -167,127 +166,124 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
 
   let host!: KernelHost;
 
-  const controller = draggable(
-    root,
-    brandBehavior<
-      { cancel(reason?: unknown): void; destroy(): Promise<void> },
-      ExamplePart
-    >((kernelHost) => {
-      host = kernelHost;
+  const controller = draggable<
+    { cancel(reason?: unknown): void; destroy(): Promise<void> },
+    ExamplePart
+  >(root, (kernelHost) => {
+    host = kernelHost;
 
-      const spec: BehaviorSpec<ExamplePart> = {
-        createFramePart:
-          overrides.createFramePart ??
-          ((): ExamplePart => ({ item: null, note: '' })),
-        resetFramePart:
-          overrides.resetFramePart ??
-          ((part): void => {
-            part.item = null;
-            part.note = '';
-          }),
-        config: {
-          threshold: overrides.threshold ?? 8,
-          liftMode: LIFT_FLAT,
-          actionTags: 2,
+    const spec: BehaviorSpec<ExamplePart> = {
+      createFramePart:
+        overrides.createFramePart ??
+        ((): ExamplePart => ({ item: null, note: '' })),
+      resetFramePart:
+        overrides.resetFramePart ??
+        ((part): void => {
+          part.item = null;
+          part.note = '';
+        }),
+      config: {
+        threshold: overrides.threshold ?? 8,
+        liftMode: LIFT_FLAT,
+        actionTags: 2,
+      },
+      ...(overrides.command === undefined
+        ? null
+        : { command: overrides.command }),
+      admit:
+        overrides.admit ??
+        ((_event, draft): HTMLElement => {
+          record('admit');
+          draft.item = item;
+          return item;
+        }),
+      activation: overrides.activation ?? {
+        prepare(draft): HTMLElement {
+          record('activation.prepare');
+          draft.note = 'prepared';
+          return document.createElement('div');
         },
-        ...(overrides.command === undefined
-          ? null
-          : { command: overrides.command }),
-        admit:
-          overrides.admit ??
-          ((_event, draft): HTMLElement => {
-            record('admit');
-            draft.item = item;
-            return item;
-          }),
-        activation: overrides.activation ?? {
-          prepare(draft): HTMLElement {
-            record('activation.prepare');
-            draft.note = 'prepared';
-            return document.createElement('div');
-          },
-          effect(current, _prepared, scope: ActivationScope): void {
-            record('activation.effect', current);
-            scope.presentation.use(() => {
-              calls.push('presentation.released');
-            });
-            scope.motion.use(() => {
-              calls.push('motion.released');
-            });
-            overrides.onStart?.(host);
-          },
+        effect(current, _prepared, scope: ActivationScope): void {
+          record('activation.effect', current);
+          scope.presentation.use(() => {
+            calls.push('presentation.released');
+          });
+          scope.motion.use(() => {
+            calls.push('motion.released');
+          });
+          overrides.onStart?.(host);
         },
-        release: overrides.release ?? {
-          prepare(): ResolutionCommand {
-            record('release.prepare');
-            return { invoke: null };
-          },
-          effect(current): void {
-            record('release.effect', current);
-          },
+      },
+      release: overrides.release ?? {
+        prepare(): ResolutionCommand {
+          record('release.prepare');
+          return { invoke: null };
         },
-        settlement: overrides.settlement ?? {
-          prepare(_draft, input): PreparedSettlement {
-            record('settlement.prepare');
-            settlements.push(input);
+        effect(current): void {
+          record('release.effect', current);
+        },
+      },
+      settlement: overrides.settlement ?? {
+        prepare(_draft, input): PreparedSettlement {
+          record('settlement.prepare');
+          settlements.push(input);
 
-            // The behavior owns terminal classification: a `SETTLED_FAILED`
-            // input is how a classified failure reaches the consumer.
-            if (input.type === SETTLED_FAILED) {
-              failures.push({ stage: input.stage, error: input.error });
-            }
+          // The behavior owns terminal classification: a `SETTLED_FAILED`
+          // input is how a classified failure reaches the consumer.
+          if (input.type === SETTLED_FAILED) {
+            failures.push({ stage: input.stage, error: input.error });
+          }
 
-            return true;
-          },
-          effect(current, _prepared, scope: SettlementScope): void {
-            record('settlement.effect', current);
+          return true;
+        },
+        effect(current, _prepared, scope: SettlementScope): void {
+          record('settlement.effect', current);
 
-            if (overrides.startLanding) {
-              scope.holdForLanding(overrides.startLanding);
-            }
-          },
+          if (overrides.startLanding) {
+            scope.holdForLanding(overrides.startLanding);
+          }
         },
-        action: overrides.action ?? {
-          prepare(tag): {} | null {
-            record(`action.prepare:${tag}`);
-            return true;
-          },
-          effect(tag, _argument, current): void {
-            record(`action.effect:${tag}`, current);
-          },
+      },
+      action: overrides.action ?? {
+        prepare(tag): {} | null {
+          record(`action.prepare:${tag}`);
+          return true;
         },
-        moved:
-          overrides.moved ??
-          ((current): void => {
-            record('moved', current);
-          }),
-        anchorTarget:
-          overrides.anchorTarget ??
-          (() => {
-            calls.push('anchorTarget');
-            return { x: 0, y: 0 };
-          }),
-        finalized:
-          overrides.finalized ??
-          ((): void => {
-            calls.push('finalized');
-          }),
-        reportFailure(stage, error): void {
-          failures.push({ stage, error });
+        effect(tag, _argument, current): void {
+          record(`action.effect:${tag}`, current);
         },
-        retire:
-          overrides.retire ??
-          ((): void => {
-            calls.push('retire');
-          }),
-      };
+      },
+      moved:
+        overrides.moved ??
+        ((current): void => {
+          record('moved', current);
+        }),
+      anchorTarget:
+        overrides.anchorTarget ??
+        (() => {
+          calls.push('anchorTarget');
+          return { x: 0, y: 0 };
+        }),
+      finalized:
+        overrides.finalized ??
+        ((): void => {
+          calls.push('finalized');
+        }),
+      reportFailure(stage, error): void {
+        failures.push({ stage, error });
+      },
+      retire:
+        overrides.retire ??
+        ((): void => {
+          calls.push('retire');
+        }),
+    };
 
-      return {
-        spec,
-        controller: { cancel: host.cancel, destroy: host.destroy },
-      };
-    }),
-  );
+    return {
+      spec,
+      controller: { cancel: host.cancel, destroy: host.destroy },
+    };
+  });
 
   cleanup.push(() => {
     void controller.destroy();
@@ -443,37 +439,34 @@ function createArmedWithPart(
   const harness = { root };
 
   void harness;
-  draggable(
-    root,
-    brandBehavior<Record<string, never>, ExamplePart>(() => ({
-      controller: {},
-      spec: {
-        createFramePart,
-        resetFramePart: (): void => {},
-        config: {
-          threshold: 8,
-          liftMode: LIFT_FLAT,
-          actionTags: 0,
-        },
-        admit: () => null,
-        activation: {
-          prepare: () => document.createElement('div'),
-          effect: (): void => {},
-        },
-        release: { prepare: () => ({ invoke: null }), effect: (): void => {} },
-        settlement: {
-          prepare: () => true,
-          effect: (): void => {},
-        },
-        action: { prepare: () => null, effect: (): void => {} },
-        moved: (): void => {},
-        anchorTarget: () => ({ x: 0, y: 0 }),
-        finalized: (): void => {},
-        reportFailure: (): void => {},
-        retire: (): void => {},
+  draggable(root, () => ({
+    controller: {},
+    spec: {
+      createFramePart,
+      resetFramePart: (): void => {},
+      config: {
+        threshold: 8,
+        liftMode: LIFT_FLAT,
+        actionTags: 0,
       },
-    })),
-  );
+      admit: () => null,
+      activation: {
+        prepare: () => document.createElement('div'),
+        effect: (): void => {},
+      },
+      release: { prepare: () => ({ invoke: null }), effect: (): void => {} },
+      settlement: {
+        prepare: () => true,
+        effect: (): void => {},
+      },
+      action: { prepare: () => null, effect: (): void => {} },
+      moved: (): void => {},
+      anchorTarget: () => ({ x: 0, y: 0 }),
+      finalized: (): void => {},
+      reportFailure: (): void => {},
+      retire: (): void => {},
+    },
+  }));
 }
 
 /** A minimal armed controller, for the cases where `arm()` itself must throw. */
@@ -481,38 +474,35 @@ function createArmedWithCommand(
   root: HTMLElement,
   command: CommandAdmission<ExamplePart>,
 ): void {
-  draggable(
-    root,
-    brandBehavior<Record<string, never>, ExamplePart>(() => ({
-      controller: {},
-      spec: {
-        createFramePart: (): ExamplePart => ({ item: null, note: '' }),
-        resetFramePart: (): void => {},
-        config: {
-          threshold: 8,
-          liftMode: LIFT_FLAT,
-          actionTags: 0,
-        },
-        admit: () => null,
-        command,
-        activation: {
-          prepare: () => document.createElement('div'),
-          effect: (): void => {},
-        },
-        release: { prepare: () => ({ invoke: null }), effect: (): void => {} },
-        settlement: {
-          prepare: () => true,
-          effect: (): void => {},
-        },
-        action: { prepare: () => null, effect: (): void => {} },
-        moved: (): void => {},
-        anchorTarget: () => ({ x: 0, y: 0 }),
-        finalized: (): void => {},
-        reportFailure: (): void => {},
-        retire: (): void => {},
+  draggable(root, () => ({
+    controller: {},
+    spec: {
+      createFramePart: (): ExamplePart => ({ item: null, note: '' }),
+      resetFramePart: (): void => {},
+      config: {
+        threshold: 8,
+        liftMode: LIFT_FLAT,
+        actionTags: 0,
       },
-    })),
-  );
+      admit: () => null,
+      command,
+      activation: {
+        prepare: () => document.createElement('div'),
+        effect: (): void => {},
+      },
+      release: { prepare: () => ({ invoke: null }), effect: (): void => {} },
+      settlement: {
+        prepare: () => true,
+        effect: (): void => {},
+      },
+      action: { prepare: () => null, effect: (): void => {} },
+      moved: (): void => {},
+      anchorTarget: () => ({ x: 0, y: 0 }),
+      finalized: (): void => {},
+      reportFailure: (): void => {},
+      retire: (): void => {},
+    },
+  }));
 }
 
 describe('discrete admission', () => {
@@ -712,44 +702,41 @@ describe('arm', () => {
     const calls: string[] = [];
 
     expect(() =>
-      draggable(
-        root,
-        brandBehavior(() => ({
-          controller: {},
-          spec: {
-            createFramePart(): never {
-              throw new Error('factory');
-            },
-            resetFramePart: (): void => {},
-            config: {
-              threshold: 8,
-              liftMode: LIFT_FLAT,
-              actionTags: 0,
-            },
-            admit: () => null,
-            activation: {
-              prepare: () => document.createElement('div'),
-              effect: (): void => {},
-            },
-            release: {
-              prepare: () => ({ invoke: null }),
-              effect: (): void => {},
-            },
-            settlement: {
-              prepare: () => true,
-              effect: (): void => {},
-            },
-            action: { prepare: () => null, effect: (): void => {} },
-            moved: (): void => {},
-            anchorTarget: () => ({ x: 0, y: 0 }),
-            finalized: (): void => {},
-            reportFailure: (): void => {},
-            retire(): void {
-              calls.push('retire');
-            },
+      draggable(root, () => ({
+        controller: {},
+        spec: {
+          createFramePart(): never {
+            throw new Error('factory');
           },
-        })),
-      ),
+          resetFramePart: (): void => {},
+          config: {
+            threshold: 8,
+            liftMode: LIFT_FLAT,
+            actionTags: 0,
+          },
+          admit: () => null,
+          activation: {
+            prepare: () => document.createElement('div'),
+            effect: (): void => {},
+          },
+          release: {
+            prepare: () => ({ invoke: null }),
+            effect: (): void => {},
+          },
+          settlement: {
+            prepare: () => true,
+            effect: (): void => {},
+          },
+          action: { prepare: () => null, effect: (): void => {} },
+          moved: (): void => {},
+          anchorTarget: () => ({ x: 0, y: 0 }),
+          finalized: (): void => {},
+          reportFailure: (): void => {},
+          retire(): void {
+            calls.push('retire');
+          },
+        },
+      })),
     ).toThrow(/factory/u);
 
     expect(calls).toEqual(['retire']);
@@ -2409,40 +2396,37 @@ describe('arm unwind of a partial frame pair', () => {
     createFramePart: () => ExamplePart,
     resetFramePart: (part: ExamplePart) => void,
   ): void => {
-    draggable(
-      root,
-      brandBehavior<Record<string, never>, ExamplePart>(() => ({
-        controller: {},
-        spec: {
-          createFramePart,
-          resetFramePart,
-          config: {
-            threshold: 8,
-            liftMode: LIFT_FLAT,
-            actionTags: 0,
-          },
-          admit: () => null,
-          activation: {
-            prepare: () => document.createElement('div'),
-            effect: (): void => {},
-          },
-          release: {
-            prepare: () => ({ invoke: null }),
-            effect: (): void => {},
-          },
-          settlement: {
-            prepare: () => true,
-            effect: (): void => {},
-          },
-          action: { prepare: () => null, effect: (): void => {} },
-          moved: (): void => {},
-          anchorTarget: () => ({ x: 0, y: 0 }),
-          finalized: (): void => {},
-          reportFailure: (): void => {},
-          retire: (): void => {},
+    draggable(root, () => ({
+      controller: {},
+      spec: {
+        createFramePart,
+        resetFramePart,
+        config: {
+          threshold: 8,
+          liftMode: LIFT_FLAT,
+          actionTags: 0,
         },
-      })),
-    );
+        admit: () => null,
+        activation: {
+          prepare: () => document.createElement('div'),
+          effect: (): void => {},
+        },
+        release: {
+          prepare: () => ({ invoke: null }),
+          effect: (): void => {},
+        },
+        settlement: {
+          prepare: () => true,
+          effect: (): void => {},
+        },
+        action: { prepare: () => null, effect: (): void => {} },
+        moved: (): void => {},
+        anchorTarget: () => ({ x: 0, y: 0 }),
+        finalized: (): void => {},
+        reportFailure: (): void => {},
+        retire: (): void => {},
+      },
+    }));
   };
 
   it('should scrub the first frame when the second factory throws', () => {

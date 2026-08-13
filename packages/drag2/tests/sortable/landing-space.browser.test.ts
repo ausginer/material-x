@@ -12,7 +12,7 @@
  * grab rect agree at the origin and nowhere else.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable, type Point } from '../../src/drag.ts';
+import type { Point } from '../../src/drag.ts';
 import { callbacks } from '../../src/sortable/callbacks.ts';
 import {
   landing,
@@ -44,7 +44,7 @@ type Fixture = Readonly<{
   origin: DOMRect;
   contexts: LandingContext[];
   retargets: Point[];
-  errors: Array<Readonly<{ stage: number }>>;
+  errors: Array<Readonly<{ code: string }>>;
   controller: SortableController;
   /** The request the last `onReorder` was handed, for `controller.ready`. */
   request(): ReorderRequest;
@@ -99,33 +99,31 @@ function build(): Fixture {
   const contexts: LandingContext[] = [];
   let pending: ReorderRequest | null = null;
   const retargets: Point[] = [];
-  const errors: Array<Readonly<{ stage: number }>> = [];
+  const errors: Array<Readonly<{ code: string }>> = [];
 
-  const controller = draggable(
+  const controller = sortable(
     root,
-    sortable(
-      items,
-      y(),
-      callbacks({
-        onReorder: (request) => {
-          pending = request;
-          return ReorderResolution.accept();
-        },
-        onError: (_error, context): void => {
-          errors.push({ stage: context.stage });
-        },
-      }),
-      landing({
-        // A runner that records and never completes, so the gate stays open and
-        // the numbers can be read while presentation is still owned.
-        run(context): LandingHandle {
-          contexts.push(context);
-          return {
-            destroy: (): void => {},
-          };
-        },
-      }),
-    ),
+    items,
+    y(),
+    callbacks({
+      onReorder: (request) => {
+        pending = request;
+        return ReorderResolution.accept();
+      },
+      onError: (error): void => {
+        errors.push({ code: error.code });
+      },
+    }),
+    landing({
+      // A runner that records and never completes, so the gate stays open and
+      // the numbers can be read while presentation is still owned.
+      run(context): LandingHandle {
+        contexts.push(context);
+        return {
+          destroy: (): void => {},
+        };
+      },
+    }),
   );
 
   root.setPointerCapture = (): void => {};
