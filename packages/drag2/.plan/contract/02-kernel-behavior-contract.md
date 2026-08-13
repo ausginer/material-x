@@ -430,7 +430,7 @@ Three reasons, in order of weight:
 | `settlement.prepare` | `RELEASING` | `SETTLING` | Map the discriminated `SettlementInput` exhaustively to `outcome`, `recovery`, `domain`. A non-resolution or a rejected thenable returns a `SeamRejection`. There is no gate plan to stage: the one remaining gate is requested in `effect`. |
 | `settlement.effect` | — | — | _Request_ the one hold: `scope.holdForLanding(start)` when a `landing()` slot exists and recovery is not immediate. Nothing is armed here. |
 | `anchorTarget` | `SETTLING` | — | Re-anchor when the recovery is destination; measure; return the point. **Once**, at arm. See §Landing. |
-| `finalized` | `FINALIZING` | — | **`onEnd`, exactly once, for every started operation on a live controller** (D-62 for the name, D-66 for the totality) — the frame's domain result if it holds one, `canceled` if it does not. It read "`onFinish` for accepted/no-op, `onCancel` for rejected/canceled" until Revision 2.1; the split is gone and the predicate that produced F-37 with it. The `failed` case **is** changed: it published nothing until D-66, which is what Q-14 resolved. |
+| `finalized` | `FINALIZING` | — | **`onEnd`, exactly once, for every operation whose `onStart` ran, on a live controller** (D-62 for the name, D-66 for the totality) — it publishes `current.domain` and nothing else. The failure path supplies a `canceled` result through `settlement.prepare`; an operation that failed **before** `onStart` supplies none and this publishes nothing (§No start, no terminal). It read "`onFinish` for accepted/no-op, `onCancel` for rejected/canceled" until Revision 2.1; the split is gone and the predicate that produced F-37 with it. The `failed` case **is** changed: it published nothing until D-66, which is what Q-14 resolved. |
 | `retire` | → `IDLE` | — | Cancel the frame task, clear `pendingSpatial`, drop `placeholder` and `lift`, run feature retire hooks. (`pendingRequest` was here until D-41; nothing holds a request past the resolution now.) |
 
 ### Discrete admission — a second ingress, not a second protocol (D-32)
@@ -1355,15 +1355,54 @@ Nothing else is consulted. That is what makes the rule total: every consequentia
 
 The failure checkpoint opens a settlement with that input and runs **the same settlement seam** as any other input, stamped `REPORTING` rather than `SETTLING`. That is what makes D-66 total rather than post-release only: the checkpoint applies to whatever classified failure a live operation raised, wherever it was raised, so an `activation.prepare` throw and a landing failure arrive by the same route with the same shape. **D-24 built this and F-33 is the reason** — _all five settlement cases return to the behavior_, precisely because `outcome`, `recovery` and `domain` are fields of the behavior's part that the kernel cannot name or write.
 
-**Where the fallback lives: an existing field.** The behavior stages the `canceled` result in `settlement.prepare` and publishes it in `effect`, into the `domain` slot its frame part has carried since D-24. `finalized` then publishes `current.domain` and consults nothing else — which is what makes _existing result wins, otherwise `canceled`_ a **lookup** and not a branch per stage: by the time the terminal runs, the fallback has already been written into the same field a successful drop writes.
+**Where the fallback lives, and which seam writes it.** `SettlementTransition` is:
 
-**Therefore [04](04-frame-slicing.md) is untouched by D-66, and that is a finding rather than an omission.** No part field is added, no `createFramePart` initialiser changes, no `resetFramePart` obligation is created, and F-11's exhaustiveness surface does not grow. Had the fallback needed the raw error stored for later, it would have needed a new field and 04 would have had to change; constructing the result **at the failure site** instead is what avoids it.
+```ts
+prepare(draft: Draft<Part>, input: SettlementInput):
+  PreparedSettlement | SeamRejection;
+effect(current: Readonly<Frame<Part>>, prepared, scope): void;
+```
 
-**The `CancelStage` for the fallback is derived by the behavior, not supplied by the kernel.** `SETTLED_FAILED` carries a `FailureStage`; `CanceledReorderResult.stage` is a `CancelStage`, and the kernel supplies one only for `SETTLED_CANCELED`, where it computes it itself. The rule:
+So the write is **`prepare`'s, and only `prepare`'s**: it writes the fallback into `draft.domain` and returns the **existing `PreparedSettlement` sentinel** unchanged — this row adds nothing to that type and returns no new value. `effect` receives `Readonly<Frame<Part>>` and **cannot write frame state at all**; an earlier wording of this section said the behavior "publishes it in `effect`", which is unimplementable against the seam. The kernel commits between the two, and `finalized` then reads `current.domain`.
 
-> **`AT_CONSUMER` when the behavior has published a `ReorderRequest` that has not yet resolved; `AT_PROPOSAL` otherwise.**
+That is what makes _existing result wins, otherwise `canceled`_ a **lookup**: by the time the terminal runs, the fallback has been committed into the same field a successful drop writes, so `finalized` publishes `current.domain` and consults nothing else.
 
-That is the same distinction the kernel draws for a cancel — _abandoned before the consumer round-trip opened, or while it was in flight_ — evaluated by the party that already knows, since the behavior is what published the request from `release.effect`. It is **total over the fallback's actual domain**: the fallback fires only when `domain` is null, which means no resolution completed, so "before or during the round trip" exhausts the cases. Deriving it from `FailureStage` instead was rejected — a landing failure is neither, and it never reaches the fallback anyway because by then a domain result exists.
+**Therefore [04](04-frame-slicing.md)'s frame model is unchanged by D-66, and that is a finding rather than an omission.** No part field is added, no `createFramePart` initialiser changes, no `resetFramePart` obligation is created, and F-11's exhaustiveness surface does not grow. Had the fallback needed the raw error stored for later, it would have needed a new field and 04 would have had to change; constructing the result **at the failure site** instead is what avoids it.
+
+**The fallback needs two facts the kernel does not hand it, and one behavior-private marker carries both.**
+
+`SETTLED_FAILED` carries a `FailureStage`. The fallback needs (1) whether a terminal may be published at all, and (2) a `CancelStage`, which the kernel computes only for `SETTLED_CANCELED`. Both are answered by a **monotone per-operation marker in the behavior's private runtime**, advanced at two sites the behavior already writes and cleared in `retire()`:
+
+| State | Advanced when | The fallback |
+| --- | --- | --- |
+| `MINTED` | the operation exists | **publishes nothing** — see §No start, no terminal |
+| `STARTED` | **immediately before invoking `onStart`** | `canceled` at **`AT_PROPOSAL`** |
+| `RESOLVING` | as the **first statement of the `ResolutionCommand.invoke` closure** | `canceled` at **`AT_CONSUMER`** |
+
+**Why `STARTED` advances _before_ the call and not after.** If `onStart` itself throws, the consumer **has** been told the drag began, so it is owed an end — and advancing afterwards would skip it, reintroducing the exact silence D-66 retracts one paragraph up. Advancing before also makes the marker mean what its name says: _the consumer knows_. There is no window in which the call has been made and the marker disagrees, because the assignment and the call are adjacent statements with nothing fallible between them.
+
+**Why the `invoke` closure and not a frame field.** `ResolutionCommand.invoke` is executed by the kernel _"after `release.effect` returns and only if it returned normally"_, and `invoke: null` means no round-trip at all. So the closure's first statement runs **exactly when the consumer round-trip opens, and never otherwise** — it is truthful by construction rather than by inference, and the behavior authors that closure already.
+
+**An earlier wording derived it from `proposal !== null`, and that is false.** The proposal is committed in `release.prepare`, well before the round-trip; a throw in `release.effect` therefore leaves a committed proposal with `onReorder` never called — §Release's own edge table says the staged command is **not** executed — so the rule would have reported `AT_CONSUMER` for a drop the consumer never saw. The two events are one seam apart and it is the wrong seam.
+
+**Why a marker rather than widening the input.** Adding a `CancelStage` to `SETTLED_FAILED` would be an SPI change for information the behavior already holds, and it would ask the kernel to compute a **domain** concept — which is the thing F-33 exists to keep on the behavior's side.
+
+**The marker is private runtime, not frame state.** It is per-operation, non-transactional, read in `prepare` (a read is externally inert) and written from `activation.effect` and the `invoke` closure — both post-commit. It is strictly smaller than the `rt.pendingRequest` D-41 deleted: a state, not an identity, with nothing to compare.
+
+### No start, no terminal (D-66)
+
+The owner's guarantee is an implication and **must not be read as a biconditional**:
+
+> If `onStart` fires **and the controller remains alive**, the operation eventually produces one terminal `onEnd`.
+
+It says nothing about an operation that never started, and D-66 does not extend it to one. **Pinned explicitly: a failure classified before the behavior's `onStart` call publishes `onError` and no `onEnd`.** The marker is at `MINTED`, `settlement.prepare` writes no fallback, `domain` stays null, and `finalized` publishes nothing.
+
+Two paths reach that state and they are different in kind:
+
+- **`FAILURE_ADMISSION`** — no operation was ever minted, so there is nothing to settle and no checkpoint to queue. It takes `reportFailure` and is outside this rule entirely (Q-1);
+- **`FAILURE_ACTIVATION`, or any classification inside `activation.effect` before the `onStart` call** — an operation exists and the checkpoint does run, so the fallback path is reached and must decline. This is the case the marker exists to catch.
+
+A failure in `activation.effect` **at or after** the `onStart` call publishes a terminal — **including a throw from `onStart` itself**, which is classified `FAILURE_TERMINAL_CALLBACK`'s sibling at the start boundary and still owes an end. The split is exact because the marker advances immediately **before** the call rather than after it or at the seam boundary. **Silently publishing for an operation the consumer never heard start would be worse than the skip D-66 retracts**: the consumer would receive an end for a drag it has no record of beginning.
 
 **Ordering, where both channels fire.** `onError` reports a fault when it is **classified**; the terminal is published at the operation's **disposition**. Classification precedes disposition for every stage except one, so `onError` precedes `onEnd` in every case a consumer will meet — and the exception is unavoidable rather than chosen: a fault raised **by the terminal callback itself** (`FAILURE_TERMINAL_CALLBACK`) is necessarily reported after it. Stating it this way avoids a rule that would have to be broken; stating it as _"`onError` always comes first"_ would not survive its own first counterexample.
 

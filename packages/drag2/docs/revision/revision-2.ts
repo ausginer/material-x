@@ -28,7 +28,7 @@
  * `npx just typecheck` from `packages/drag2` asserts both halves: the positive
  * shapes compile, and each negative one still does not.
  *
- * **Fifteen live negative assertions across sixteen directives, and two withdrawn.** The three that fell — `n6`, `n12`, `n15` — are the file's most useful output: each was a contract claim that TypeScript does not actually enforce.
+ * **Seventeen live negative assertions across eighteen directives, and two withdrawn.** The three that fell — `n6`, `n12`, `n15` — are the file's most useful output: each was a contract claim that TypeScript does not actually enforce.
  *
  * `n12` was **repaired**, and the repair is a contract detail nobody would have
  * guessed: the callback slots must be **named type aliases**, because
@@ -50,14 +50,17 @@
  * defect silently on the channel a consumer actually reads. Here, adding a
  * stage without a code is a compile error.
  *
- * `n17` pins **D-66's carrier**. The decision's first draft named
+ * `n17` and `n18` pin **D-66's carrier and its writing seam**. The decision's first draft named
  * `reportFailure`, which is admission-only by contract and cannot carry an
  * in-operation failure at all; the real carrier is `SettlementInput` with
  * `SETTLED_FAILED`, which already holds `{ stage, error }`. The assertion
  * proves what that input does *not* hold — a `CancelStage` — which is why the
- * fallback's cancellation stage is derived by the behavior. The kernel-side
- * `settlement.prepare` below builds the fallback at the failure site, which is
- * also why no frame field is added and document 04 is untouched.
+ * fallback's cancellation stage is derived by the behavior — from a private
+ * monotone marker advanced inside the `invoke` closure, never from
+ * `proposal !== null`, which commits a seam too early. `n18` pins the other
+ * half: `effect` receives a `Readonly` frame, so the fallback is `prepare`'s
+ * write into the draft. Building it at the failure site is also why no frame
+ * field is added and document 04's frame model is unchanged.
  *
  * `disposition` switches over `ReorderTransactionResult` with **no `default`**
  * and assigns the fall-through to `never`. That is F-37's defect made
@@ -212,6 +215,29 @@ type SortableFramePart = {
   domain: ReorderTransactionResult | null;
 };
 
+/** The kernel's sentinel. D-66 adds nothing to it. */
+type PreparedSettlement = Readonly<{ presentation: boolean }>;
+type SeamRejection = Readonly<{ stage: FailureStage; error: unknown }>;
+
+/**
+ * **D-66's two facts, in one behavior-private monotone marker.**
+ *
+ * `STARTED` is advanced **immediately before invoking `onStart`** — before,
+ * not after, so a throw from `onStart` itself still owes a terminal. The
+ * consumer has been told the drag began.
+ *
+ * `RESOLVING` is advanced as the first statement of the
+ * `ResolutionCommand.invoke` closure, which the kernel runs *only* after
+ * `release.effect` returns normally — so it marks the round-trip opening
+ * exactly. Deriving it from `proposal !== null` instead is **false**: the
+ * proposal commits one seam earlier, in `release.prepare`.
+ */
+const MINTED = 0;
+const STARTED = 1;
+const RESOLVING = 2;
+
+type OperationProgress = typeof MINTED | typeof STARTED | typeof RESOLVING;
+
 /** Only the members this fixture exercises; the full SPI lives in `src/`. */
 type BehaviorSpecShape = Readonly<{
   admit(event: PointerEvent, draft: object): AdmissionSubject;
@@ -223,11 +249,21 @@ type BehaviorSpecShape = Readonly<{
    * construction. `SettlementInput` is the carrier.
    */
   reportFailure(stage: FailureStage, error: unknown): void;
+  /**
+   * The real shape: `prepare` **writes the draft** and returns the sentinel;
+   * `effect` receives a `Readonly` frame and cannot write frame state at all.
+   * An earlier draft of this fixture had `prepare` return a part, which is not
+   * a shape the seam admits.
+   */
   settlement: Readonly<{
     prepare(
       draft: SortableFramePart,
       input: SettlementInput,
-    ): SortableFramePart;
+    ): PreparedSettlement | SeamRejection;
+    effect(
+      current: Readonly<SortableFramePart>,
+      prepared: PreparedSettlement,
+    ): void;
   }>;
   finalized(current: Readonly<SortableFramePart>): void;
 }>;
@@ -412,6 +448,8 @@ declare function layoutAnimation(): Pick<SortableConfig, 'plugins'>;
 
 declare const root: HTMLElement;
 declare const rows: readonly HTMLElement[];
+/** Behavior-private, per-operation, cleared in `retire()`. Not frame state. */
+declare let progress: OperationProgress;
 
 /**
  * **D-62 / D-66 — the terminal is one exhaustive switch with no `default`.**
@@ -518,31 +556,37 @@ const kernelSide: SortableController = draggable(root, (host) => ({
     reportFailure: (stage, error) =>
       globalThis.console.warn(stageToCode[stage], error),
 
-    // **D-66's actual mechanism.** The fallback is built here, at the failure
-    // site, and written into the `domain` field the part already has — which
-    // is why no frame field is added and document 04 is untouched. Storing the
-    // raw error for `finalized` to read later is what would have needed one.
+    // **D-66's actual mechanism.** `prepare` writes the draft and returns the
+    // sentinel; there is no other seam that may write frame state. The
+    // fallback is built here, at the failure site, into the `domain` field the
+    // part already has — which is why no frame field is added and 04's frame
+    // model is unchanged.
     settlement: {
       prepare: (draft, input) => {
-        if (input.type === 'failed' && draft.domain === null) {
-          return {
-            ...draft,
-            domain: {
-              type: 'canceled',
-              reason: input.error,
-              // Derived, never supplied: `SETTLED_FAILED` carries a
-              // `FailureStage`, and the kernel hands out a `CancelStage` only
-              // for `SETTLED_CANCELED`. `AT_CONSUMER` when a published request
-              // is unresolved, `AT_PROPOSAL` otherwise — total over the
-              // fallback's domain, because the fallback fires only when no
-              // resolution completed.
-              stage: draft.proposal === null ? AT_PROPOSAL : AT_CONSUMER,
-              proposal: draft.proposal,
-            },
-          };
+        if (input.type !== 'failed') {
+          return { presentation: false }; // existing result wins
         }
-        // "Existing result wins" — every other input leaves `domain` alone.
-        return draft;
+        // Q-15 — no start, no terminal. The owner's guarantee is an
+        // implication over *started* operations; declining here is what keeps
+        // D-66 from silently making it a biconditional.
+        if (progress === MINTED) {
+          return { presentation: false };
+        }
+        // Existing result wins; `??=` is the whole of that rule.
+        draft.domain ??= {
+          type: 'canceled',
+          reason: input.error,
+          // Derived, never supplied: the input carries a `FailureStage`, and
+          // the kernel hands out a `CancelStage` only for `SETTLED_CANCELED`.
+          stage: progress === RESOLVING ? AT_CONSUMER : AT_PROPOSAL,
+          proposal: draft.proposal,
+        };
+        return { presentation: false };
+      },
+      // `current` is `Readonly` — this seam cannot write frame state, which is
+      // exactly why the write above is `prepare`'s.
+      effect: (current) => {
+        void current.domain;
       },
     },
 
@@ -676,6 +720,14 @@ void destroyIsSilentlyVoidable;
 declare const failedInput: Extract<SettlementInput, { type: 'failed' }>;
 // @ts-expect-error SETTLED_FAILED carries no CancelStage (D-66)
 void failedInput.stage satisfies CancelStage;
+
+// n18 — D-66: `settlement.effect` cannot write frame state, which is why the
+// fallback is `prepare`'s write and not `effect`'s. An earlier draft of this
+// decision said the behavior "publishes it in `effect`"; this is why that was
+// unimplementable rather than merely imprecise.
+declare const settledFrame: Readonly<SortableFramePart>;
+// @ts-expect-error the committed frame is readonly in `effect` (D-3, D-66)
+settledFrame.domain = null;
 
 // n16 — D-53: the liveness reader is readonly. A behavior may consult the
 // latch; it may not set it, which is what keeps closure the kernel's to decide.
