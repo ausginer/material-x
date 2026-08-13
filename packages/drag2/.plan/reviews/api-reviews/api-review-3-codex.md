@@ -80,8 +80,8 @@ Scanning on every animation frame is continuous polling. Adding a collection-cha
 The source must describe committed DOM, not merely authoritative application data. The React sketch therefore maintains a second `committedOrder` mirror (`api-review-2-summary.md:858–883`). Any batched imperative, Web Component, or external renderer needs the same discipline:
 
 ```ts
-items = remoteNext;             // pull source now reports the new order
-renderer.schedule(items);       // DOM commit happens next frame
+items = remoteNext; // pull source now reports the new order
+renderer.schedule(items); // DOM commit happens next frame
 root.dispatchEvent(new Event('scroll'));
 ```
 
@@ -203,7 +203,8 @@ Current `InsertionGeometry` packages `resolve`, `invalidate`, `measure`, and `re
 There are smaller atomicity failures in the plain slots:
 
 ```ts
-sortable(root,
+sortable(
+  root,
   { itemCount: () => A.length, itemAt: (i) => A[i]! },
   { itemAt: (i) => B[i]! },
 );
@@ -326,7 +327,7 @@ placeholder: () => {
   controller.cancel();
   retained = document.createElement('x-placeholder');
   return retained;
-}
+};
 ```
 
 Cancellation does not logically destroy the controller. Current placeholder mechanics therefore proceed to write `data-drag-placeholder`, `aria-hidden`, `slot`, `boxSizing`, width, and height (`src/sortable/placement.ts:48–114`). The activation preparation is later invalidated, so its effect never adopts/inserts the node. The consumer-retained detached element keeps partial library state.

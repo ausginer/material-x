@@ -104,7 +104,7 @@ class P extends HTMLElement {
 
 onStart: () => {
   app.dragging = true; // must not run after logical closure
-}
+};
 ```
 
 The same underlying rule applies to cancellation and classified failure, not only destruction. `onStart` can call `controller.cancel()`; the existing executable case is `tests/sortable/composition.browser.test.ts:561–588`. Physical retirement must wait for the activation seam to unwind, while a synchronous invalidation/checkpoint prevents the outer activation from committing ACTIVE state. Failure checkpoints have the same requirement.
@@ -166,8 +166,10 @@ The single-box guarantee fails for composite logical rows. Consider:
 
 ```html
 <x-row style="display: contents">
-  <div class="row-box">       <!-- 200 × 120 layout/candidate box -->
-    <article class="card">…</article> <!-- 160 × 40 desired preview -->
+  <div class="row-box">
+    <!-- 200 × 120 layout/candidate box -->
+    <article class="card">…</article>
+    <!-- 160 × 40 desired preview -->
     <aside>expanded controls that must remain in the list</aside>
   </div>
 </x-row>

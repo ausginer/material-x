@@ -195,10 +195,12 @@ This is a direction, not a replacement specification:
 type SortableOptions = Readonly<{
   items: readonly HTMLElement[] | (() => readonly HTMLElement[]);
   axis: 'y' | 'xy';
-  keyboard?: false | Readonly<{
-    previous: readonly string[];
-    next: readonly string[];
-  }>;
+  keyboard?:
+    | false
+    | Readonly<{
+        previous: readonly string[];
+        next: readonly string[];
+      }>;
   threshold?: number;
   placeholderClass?: string;
   landing?: false | Readonly<{ duration?: number; easing?: string }>;
@@ -261,14 +263,14 @@ I reviewed the public entrypoints, emitted-surface tests, README, normative cont
 
 Current measurements:
 
-| Composition | Brotli | Modules |
-| --- | ---: | ---: |
-| minimal `y` | 10.20 kB | 31 |
-| minimal `xy` | 10.24 kB | 31 |
-| minimal + layout animation | 10.65 kB | 32 |
-| minimal + landing | 10.49 kB | 32 |
-| complete | 11.03 kB | 35 |
-| feature-matched non-composed baseline | 10.77 kB | 30 |
-| shipped `@ydinjs/drag` sortable baseline | 6.89 kB | 26 |
+| Composition                              |   Brotli | Modules |
+| ---------------------------------------- | -------: | ------: |
+| minimal `y`                              | 10.20 kB |      31 |
+| minimal `xy`                             | 10.24 kB |      31 |
+| minimal + layout animation               | 10.65 kB |      32 |
+| minimal + landing                        | 10.49 kB |      32 |
+| complete                                 | 11.03 kB |      35 |
+| feature-matched non-composed baseline    | 10.77 kB |      30 |
+| shipped `@ydinjs/drag` sortable baseline |  6.89 kB |      26 |
 
 The test scale is not itself a defect, but it is useful evidence of contract cost: drag2 has roughly 20,000 lines of TypeScript tests, including a 3,127-line kernel suite, a 3,159-line sortable suite, a 1,516-line feature suite, a 1,166-line displacement suite, a 781-line keyboard suite, and a 661-line acknowledgement suite. Much of that coverage is excellent. The adversarial conclusion is that several tests protect guarantees the API should delete rather than celebrate.
