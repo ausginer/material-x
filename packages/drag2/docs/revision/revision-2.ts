@@ -28,7 +28,7 @@
  * `npx just typecheck` from `packages/drag2` asserts both halves: the positive
  * shapes compile, and each negative one still does not.
  *
- * **Fourteen live negative assertions across fifteen directives, and two withdrawn.** The three that fell — `n6`, `n12`, `n15` — are the file's most useful output: each was a contract claim that TypeScript does not actually enforce.
+ * **Fifteen live negative assertions across sixteen directives, and two withdrawn.** The three that fell — `n6`, `n12`, `n15` — are the file's most useful output: each was a contract claim that TypeScript does not actually enforce.
  *
  * `n12` was **repaired**, and the repair is a contract detail nobody would have
  * guessed: the callback slots must be **named type aliases**, because
@@ -50,6 +50,15 @@
  * defect silently on the channel a consumer actually reads. Here, adding a
  * stage without a code is a compile error.
  *
+ * `n17` pins **D-66's carrier**. The decision's first draft named
+ * `reportFailure`, which is admission-only by contract and cannot carry an
+ * in-operation failure at all; the real carrier is `SettlementInput` with
+ * `SETTLED_FAILED`, which already holds `{ stage, error }`. The assertion
+ * proves what that input does *not* hold — a `CancelStage` — which is why the
+ * fallback's cancellation stage is derived by the behavior. The kernel-side
+ * `settlement.prepare` below builds the fallback at the failure site, which is
+ * also why no frame field is added and document 04 is untouched.
+ *
  * `disposition` switches over `ReorderTransactionResult` with **no `default`**
  * and assigns the fall-through to `never`. That is F-37's defect made
  * unexpressible: the library used to route four arms into two callbacks with a
@@ -69,6 +78,7 @@ import type {
   CanceledReorderResult,
   NoopReorderResult,
   RejectedReorderResult,
+  ReorderProposal,
   ReorderRequest,
   ReorderTransactionResult,
 } from '../../src/sortable/domain.ts';
@@ -178,11 +188,48 @@ type BehaviorFactory<Controller> = (host: KernelHost) => Readonly<{
   controller: Controller;
 }>;
 
+/**
+ * D-24 / F-33 — the five settlement cases, all of which return to the behavior
+ * because `outcome`, `recovery` and `domain` are fields of the behavior's part
+ * that the kernel cannot name or write.
+ *
+ * **`SETTLED_FAILED` is D-66's carrier**, and the reason is visible in the
+ * shape: it is the only in-operation input that carries the classifying
+ * `error`, and the failure checkpoint routes every classified failure of a
+ * live operation through this seam to deliver it. Note what it does **not**
+ * carry — a `CancelStage`. That is `n17`.
+ */
+type SettlementInput =
+  | Readonly<{ type: 'fulfilled'; value: unknown }>
+  | Readonly<{ type: 'rejected'; error: unknown }>
+  | Readonly<{ type: 'skipped' }>
+  | Readonly<{ type: 'canceled'; reason: unknown; stage: CancelStage }>
+  | Readonly<{ type: 'failed'; stage: FailureStage; error: unknown }>;
+
+/** The behavior's own frame part. `domain` has held the result since D-24. */
+type SortableFramePart = {
+  proposal: ReorderProposal | null;
+  domain: ReorderTransactionResult | null;
+};
+
 /** Only the members this fixture exercises; the full SPI lives in `src/`. */
 type BehaviorSpecShape = Readonly<{
   admit(event: PointerEvent, draft: object): AdmissionSubject;
+  /**
+   * **Admission-only, and D-66 does not use it.** Its contract is _a failure
+   * with no operation to settle_ — `admit` threw, identity was never minted,
+   * there is no checkpoint to queue. An early draft of D-66 named this member
+   * as the carrier for in-operation failures, which it cannot be by
+   * construction. `SettlementInput` is the carrier.
+   */
   reportFailure(stage: FailureStage, error: unknown): void;
-  finalized(current: object): void;
+  settlement: Readonly<{
+    prepare(
+      draft: SortableFramePart,
+      input: SettlementInput,
+    ): SortableFramePart;
+  }>;
+  finalized(current: Readonly<SortableFramePart>): void;
 }>;
 
 declare function draggable<Controller>(
@@ -466,15 +513,46 @@ const kernelSide: SortableController = draggable(root, (host) => ({
       event.target instanceof HTMLElement
         ? { visual: event.target, box: event.target.parentElement ?? root }
         : null,
-    // D-66 — the behavior receives the classifying error here and stashes it,
-    // which is how `finalized` builds a `canceled` result without the kernel
-    // learning what a domain result is. No SPI change.
+    // Admission-only (see the member's doc). Present so the fixture models the
+    // real spec, not because D-66 uses it.
     reportFailure: (stage, error) =>
       globalThis.console.warn(stageToCode[stage], error),
+
+    // **D-66's actual mechanism.** The fallback is built here, at the failure
+    // site, and written into the `domain` field the part already has — which
+    // is why no frame field is added and document 04 is untouched. Storing the
+    // raw error for `finalized` to read later is what would have needed one.
+    settlement: {
+      prepare: (draft, input) => {
+        if (input.type === 'failed' && draft.domain === null) {
+          return {
+            ...draft,
+            domain: {
+              type: 'canceled',
+              reason: input.error,
+              // Derived, never supplied: `SETTLED_FAILED` carries a
+              // `FailureStage`, and the kernel hands out a `CancelStage` only
+              // for `SETTLED_CANCELED`. `AT_CONSUMER` when a published request
+              // is unresolved, `AT_PROPOSAL` otherwise — total over the
+              // fallback's domain, because the fallback fires only when no
+              // resolution completed.
+              stage: draft.proposal === null ? AT_PROPOSAL : AT_CONSUMER,
+              proposal: draft.proposal,
+            },
+          };
+        }
+        // "Existing result wins" — every other input leaves `domain` alone.
+        return draft;
+      },
+    },
+
     // D-53 — liveness is read from the latch, never from a disposed resource.
-    finalized: () => {
-      if (!host.closed) {
-        globalThis.console.log('published');
+    // D-66 — one lookup, no branch per stage: by the time this runs, the
+    // fallback has already been written into the same field a successful drop
+    // writes.
+    finalized: (current) => {
+      if (!host.closed && current.domain !== null) {
+        globalThis.console.log(disposition(current.domain));
       }
     },
   },
@@ -488,7 +566,7 @@ const kernelSide: SortableController = draggable(root, (host) => ({
 void kernelSide;
 
 // ---------------------------------------------------------------------------
-// Negative assertions — sixteen. Each pins one decision.
+// Negative assertions. Each pins one decision.
 // ---------------------------------------------------------------------------
 
 declare const cfg: SortableConfig;
@@ -589,6 +667,15 @@ type PromiseFlowsIntoVoid = (() => Promise<void>) extends () => void
   : false;
 const destroyIsSilentlyVoidable: PromiseFlowsIntoVoid = true;
 void destroyIsSilentlyVoidable;
+
+// n17 — D-66: `SETTLED_FAILED` carries a `FailureStage` and **no**
+// `CancelStage`. That is what makes the fallback's cancellation stage the
+// behavior's to derive rather than the kernel's to supply — widening this
+// input would have been an SPI change for information the behavior already
+// holds, since it is what published the request.
+declare const failedInput: Extract<SettlementInput, { type: 'failed' }>;
+// @ts-expect-error SETTLED_FAILED carries no CancelStage (D-66)
+void failedInput.stage satisfies CancelStage;
 
 // n16 — D-53: the liveness reader is readonly. A behavior may consult the
 // latch; it may not set it, which is what keeps closure the kernel's to decide.

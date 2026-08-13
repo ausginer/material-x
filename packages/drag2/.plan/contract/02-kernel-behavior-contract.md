@@ -98,7 +98,7 @@ const seamFailed = (o: SeamOutcome): boolean =>
 | settlement | A `effect` that requested a hold and then threw still got sealed and armed, starting a runner for an already-failed settlement | On `SEAM_EFFECT_FAILED`, seal, then **discard every unarmed request** and arm nothing. |
 | join | `spec.finalized(current)` ran after a classified target or renderer failure, and the committed frame still said `OUTCOME_ACCEPTED` — so `onFinish` fired for a drop about to be reported through `onError` | Always release presentation; **skip the terminal callback** after a consequential failure. |
 
-That last row is a direct contradiction of the rule that a failed operation reports through `onError` only, and it is the reason **F-19 was not actually resolved** by catching throws.
+That last row is a direct contradiction of the rule that a failed operation reports through `onError` only, and it is the reason **F-19 was not actually resolved** by catching throws. **The rule it contradicts is itself retracted by D-66**, and the row is a defect anyway for the reason that outlives it: the frame said `OUTCOME_ACCEPTED` for a drop the checkpoint was about to report as failed. Under D-66 that state is still wrong — what changed is that the answer is to make the frame tell the truth, not to publish nothing.
 
 #### Every classification entrypoint latches
 
@@ -954,9 +954,11 @@ The complete mapping, which the behavior must cover exhaustively:
 | `fulfilled`, not a resolution at all | — | — | — | `SeamRejection(FAILURE_REORDER_RESOLUTION)` |
 | `rejected` (the thenable rejected or `invoke` threw) | — | — | — | `SeamRejection(FAILURE_REORDER_RESOLUTION)` |
 | `canceled` | `OUTCOME_CANCELED` | home | `{ type: 'canceled', reason, stage, proposal }` | `onEnd` |
-| `failed` | `OUTCOME_FAILED` | immediate | **none in the frame** → `finalized` publishes `{ type: 'canceled', reason: <the classifying error>, stage, proposal }` (D-66) | `onError` **and** `onEnd`. It read _"`onError` only; `finalized` is never called"_ until Revision 2.1 |
+| `failed` | `OUTCOME_FAILED` | immediate | **the seam builds one**: `settlement.prepare` stages `{ type: 'canceled', reason: <`input.error`>, stage: <derived, §The join>, proposal }` and `effect` writes it to `domain`, so `finalized` finds a result where it used to find `null` (D-66) | `onError` **and** `onEnd`. It read _"`onError` only; `finalized` is never called"_ until Revision 2.1 |
 
 A rejected thenable is a **resolver malfunction, not a considered consumer verdict**, so it is a named classified failure rather than an inferred `{ type: 'rejected' }`. Acceptance is still never inferred, and now neither is rejection.
+
+**The `failed` row is the one whose _domain_ column changed, and it changed because the row was already wired for it.** `SETTLED_FAILED` reaches this table through the failure checkpoint, which opens a settlement and runs this same seam stamped `REPORTING`; the input has always carried `{ stage, error }`. Before D-66 the behavior used that only to pick a recovery and left `domain` null. Now it also builds the result. **No input, no seam and no frame field changes** — one branch of the behavior's settlement `prepare` stops returning early.
 
 **The callback column collapsed to one name at Revision 2.1 (D-62) and the mapping did not change.** That is the point of the row: the five settlement inputs map to four domain arms and one failure, exactly as D-24 established, and what disappears is the library's job of routing four arms into two callbacks. The consumer's `switch (result.type)` is the same exhaustive switch, checked by their compiler instead of by F-37's test.
 
@@ -1156,7 +1158,7 @@ The gate method **records a request; it arms nothing** (review 4, §6, §10). Ar
 
 An earlier draft classified an arm-time `anchorTarget` or `start` throw as `FAILURE_LANDING_CREATE`, rolled the landing hold back, "opened the gate" and **continued the original settlement** (review 6, §3). With a second gate also open the hold count then reached zero and the accepted settlement finalized — calling `onFinish` — before the queued failure checkpoint ran.
 
-That is the exact continuation D-23 prohibits. A consequential landing-create failure cannot both become `OUTCOME_FAILED` reporting through `onError` only _and_ carry the original accepted outcome through to `finalized`.
+That is the exact continuation D-23 prohibits. A consequential landing-create failure cannot both become `OUTCOME_FAILED` _and_ carry the original accepted outcome through to `finalized`. **Unchanged by D-66**, which is worth saying because D-66 makes `finalized` run on this path: it runs on the **failed** frame and publishes what that frame holds, which is precisely not the stale accepted outcome this paragraph is about.
 
 **With one gate the arithmetic that produced it is gone, and the rule is not.** A single rolled-back hold takes the count to zero on its own, so `ARM_FAILED` still has to suppress `advanceSettlement` explicitly. Deleting the second gate removed a way to reach the bug, not the need for the guard.
 
@@ -1339,7 +1341,29 @@ frame holds none             →  publish canceled      reason = the classifying
 
 Nothing else is consulted. That is what makes the rule total: every consequential failure reaches one of the two lines, and no stage needs its own terminal policy.
 
-**It needs no SPI change, and that is worth stating because both of Revision 2's SPI crossings were found late.** `reportFailure(stage, error)` is already a `BehaviorSpec` member: the behavior receives the classifying error, stashes it in **its own** frame part, and `finalized` reads it from there. The kernel neither carries the error to the terminal nor learns what a domain result is — H-2 and D-15 are untouched.
+**It needs no SPI change, and the carrier is one this contract already specifies.** An earlier wording of D-66 named `reportFailure(stage, error)`, and that was wrong: §Failure classification and the member's own contract confine it to _a failure with **no operation to settle**_ — `admit` threw, identity was never minted, there is no checkpoint to queue. It cannot carry an in-operation failure because by construction it only fires when there is no operation.
+
+**The in-operation carrier is `SettlementInput` with `SETTLED_FAILED`**, and it needs nothing added to it:
+
+```ts
+{
+  type: SETTLED_FAILED;
+  stage: FailureStage;
+  error: unknown;
+}
+```
+
+The failure checkpoint opens a settlement with that input and runs **the same settlement seam** as any other input, stamped `REPORTING` rather than `SETTLING`. That is what makes D-66 total rather than post-release only: the checkpoint applies to whatever classified failure a live operation raised, wherever it was raised, so an `activation.prepare` throw and a landing failure arrive by the same route with the same shape. **D-24 built this and F-33 is the reason** — _all five settlement cases return to the behavior_, precisely because `outcome`, `recovery` and `domain` are fields of the behavior's part that the kernel cannot name or write.
+
+**Where the fallback lives: an existing field.** The behavior stages the `canceled` result in `settlement.prepare` and publishes it in `effect`, into the `domain` slot its frame part has carried since D-24. `finalized` then publishes `current.domain` and consults nothing else — which is what makes _existing result wins, otherwise `canceled`_ a **lookup** and not a branch per stage: by the time the terminal runs, the fallback has already been written into the same field a successful drop writes.
+
+**Therefore [04](04-frame-slicing.md) is untouched by D-66, and that is a finding rather than an omission.** No part field is added, no `createFramePart` initialiser changes, no `resetFramePart` obligation is created, and F-11's exhaustiveness surface does not grow. Had the fallback needed the raw error stored for later, it would have needed a new field and 04 would have had to change; constructing the result **at the failure site** instead is what avoids it.
+
+**The `CancelStage` for the fallback is derived by the behavior, not supplied by the kernel.** `SETTLED_FAILED` carries a `FailureStage`; `CanceledReorderResult.stage` is a `CancelStage`, and the kernel supplies one only for `SETTLED_CANCELED`, where it computes it itself. The rule:
+
+> **`AT_CONSUMER` when the behavior has published a `ReorderRequest` that has not yet resolved; `AT_PROPOSAL` otherwise.**
+
+That is the same distinction the kernel draws for a cancel — _abandoned before the consumer round-trip opened, or while it was in flight_ — evaluated by the party that already knows, since the behavior is what published the request from `release.effect`. It is **total over the fallback's actual domain**: the fallback fires only when `domain` is null, which means no resolution completed, so "before or during the round trip" exhausts the cases. Deriving it from `FailureStage` instead was rejected — a landing failure is neither, and it never reaches the fallback anyway because by then a domain result exists.
 
 **Ordering, where both channels fire.** `onError` reports a fault when it is **classified**; the terminal is published at the operation's **disposition**. Classification precedes disposition for every stage except one, so `onError` precedes `onEnd` in every case a consumer will meet — and the exception is unavoidable rather than chosen: a fault raised **by the terminal callback itself** (`FAILURE_TERMINAL_CALLBACK`) is necessarily reported after it. Stating it this way avoids a rule that would have to be broken; stating it as _"`onError` always comes first"_ would not survive its own first counterexample.
 
@@ -1370,7 +1394,7 @@ The domain result stands because it is **true**: the DOM commit already happened
 
 > **`onError` is orthogonal to the terminal.** One operation may produce `onError` **and** `onEnd` (D-62). `FAILURE_LANDING_TARGET` is the first stage that is _classified, non-consequential, and has no recovery_.
 
-§Failure classification's "a failed operation reports through `onError` only" was always a one-way implication and is unchanged; what is new is that the converse — which this document nowhere stated but everywhere **assumed** — is false. `onError` means _something the consumer should know about_; `OUTCOME_FAILED` remains the only thing that means _the drop did not complete_.
+§Failure classification's "a failed operation reports through `onError` only" was always a one-way implication, and **D-66 retracts even that**: a failed operation now reports through `onError` **and** publishes one `onEnd`, whose argument is the frame's own result or a derived `canceled`. What D-60 found first is that the converse — which this document nowhere stated but everywhere **assumed** — is false. `onError` means _something the consumer should know about_; `OUTCOME_FAILED` remains the only thing that means _the drop did not complete_.
 
 The owner had already decided this in the API review's §4 — _diagnostics remain orthogonal; do not create a second terminal taxonomy merely to encode diagnostic provenance_ — and it is the same sentence that keeps D-40 to one `canceled`. It is written down here because nothing in the model had ever needed to test it, and an assumption a reader re-derives from six consistent examples is indistinguishable from a rule until the seventh arrives.
 

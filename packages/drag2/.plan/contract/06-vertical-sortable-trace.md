@@ -619,10 +619,14 @@ landing animation finishes (200 ms)
                                                            latched: exactly once)
                            [K] }
                            [K] if a consequential failure was classified above:
-                                 STOP. The queued checkpoint drives REPORTING
-                                 and then retirement — calling `finalized` here
-                                 would fire onEnd for a failed drop, because
-                                 the committed frame still says ACCEPTED. [F-27]
+                                 STOP *here*. The queued checkpoint drives
+                                 REPORTING, and its own settlement seam
+                                 (SETTLED_FAILED) builds the canceled result
+                                 before `finalized` runs from there. Calling
+                                 `finalized` at this point would publish the
+                                 stale ACCEPTED frame. [F-27, D-66]
+                                 ── the terminal is deferred, not skipped:
+                                    it was skipped until D-66.
                            [B] spec.finalized(current)
                                  slots.onEnd({ ACCEPTED, proposal })   ← one terminal (D-62)
                                  ← the consumer observes its own authored DOM,
