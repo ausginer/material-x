@@ -71,7 +71,7 @@ Residual, folded into probe C: whether the L-1 difference rule still holds durin
 
 What §2 actually costs is different, and it is a real API change. `src/sortable/assemble.ts:66` **invokes** the factory and detects the collision at `:44` from the returned contribution. Last-wins requires selecting the winner _before_ invoking anyone — which requires a fragment to declare its slot identity **without being invoked**. A branded opaque function cannot.
 
-> **Decision required:** configuration/strategy fragments become a tagged pair — an identity plus an uninvoked installer — while plugin fragments stay opaque. This is exactly §2's own two-category split, made load-bearing at the type level. The tag becomes public surface for third-party strategy authors.
+> **Decided — see `api-review-3-resolution-c5.md`.** Three fragment kinds (config object / strategy fragment / plugin fragment), discriminated at zero runtime cost, merged by three different rules, with the winner selected before any installer runs. The slot tag stays **module-private**: first-party fragments claim atomic capability slots, third-party fragments are plugins, so D-30's opacity guarantee is untouched.
 
 This also disposes of my round-3 R3-10 (orphaned `retire` on the losing fragment): with selection before invocation the loser is never constructed, so there is nothing to retire. `tests/sortable/assemble.browser.test.ts:329`, which today asserts the rejected contribution _is_ retired, becomes obsolete rather than violated.
 
@@ -95,9 +95,11 @@ Reentrant `destroy()` and destroy-from-consumer-callback have ~25 existing call 
 
 ---
 
-## Part 3 — contradictions to resolve before any probe runs
+## Part 3 — contradictions: resolved
 
-Each of these is decidable now. Running probes against a model with an internal contradiction wastes the spike.
+**Status: all six resolved by the owner. C-1, C-3, C-4 and C-5 adopted as recommended; C-2 and C-6 adopted with corrections, recorded inline below.** Probes may now run against a model with no known internal contradiction.
+
+Each was decidable without an experiment. Running probes against a self-contradictory model would have wasted the spike.
 
 ### C-1 (§3 vs §11) — `destroy()` and `onEnd` are already decided, in opposite directions.
 
@@ -105,7 +107,7 @@ Each of these is decidable now. Running probes against a model with an internal 
 
 An `onEnd` is a lifecycle publication. §3 already forbids it, current behavior already matches (`composition.browser.test.ts:654`: destroy inside `onReorder` produces no terminal callback), and no experiment can decide it — it is a contract choice about what the consumer asked for when they said "stop".
 
-> **Recommendation:** `destroy()` emits no `onEnd`. Say so in §11 and delete the probe. The `onStart → exactly one onEnd` invariant is stated with the controller-alive qualifier §11 already writes ("_and the controller itself remains alive_"); make that qualifier normative rather than parenthetical.
+> **Decided.** `destroy()` emits no `onEnd`. Say so in §11 and delete the probe. The `onStart → exactly one onEnd` invariant is stated with the controller-alive qualifier §11 already writes ("_and the controller itself remains alive_"); make that qualifier normative rather than parenthetical.
 
 ### C-2 (§8 vs §9) — the draft creates an operation with no escape.
 
@@ -117,13 +119,25 @@ This is worse than the status quo, and deliberately so — `src/kernel/pointer.t
 
 §8's argument is sound but proves something narrower than its conclusion. It shows the library cannot **undo consumer side effects** already initiated. It does not show the library cannot **stop waiting on the consumer**.
 
-> **Recommendation:** split the two. Post-release `cancel()` remains available and means _library-side abandonment_: stop waiting for the resolution, restore the presentation, terminate as `canceled`, and explicitly promise nothing about consumer state — the consumer's own `setOrder` may well have landed. That keeps the escape hatch, keeps the existing tested reachability, and concedes §8's actual point in the contract wording. Then §8's probe target disappears too.
+> **Decided (owner correction — terminate as `aborted`, not `canceled`).** Post-release `cancel()` remains available and means _library-side abandonment_: stop waiting for the resolution, restore the presentation, and terminate the operation as **`aborted`**. A later settlement of the resolver is consumed safely and otherwise ignored. The library makes no promise about consumer side effects already begun.
+>
+> The `canceled` arm would have been a false claim. `canceled` says the reorder did not happen; after `onReorder` has begun the library cannot know that — the consumer's `setOrder` may well have committed. `aborted` is §11's existing "no domain result exists" arm, and that is exactly the epistemic state: the operation terminated without the library learning an outcome.
+
+Two consequences follow from routing abandonment into `aborted`, and both belong in §11 rather than in a probe.
+
+**The `aborted` arm now has two producers** — a consequential internal failure after `onStart`, and post-release user abandonment — which a consumer branching on `onEnd` cannot distinguish. The pairing with `onError` is a fragile proxy (a fault emits `onError` first; an abandonment does not), because it requires the consumer to correlate two callbacks to read one outcome.
+
+> **Consequence to record in §11:** the aborted arm carries a discriminator, e.g. `{ type: 'aborted', reason: 'abandoned' | 'failed' }`. This is one field, it is the only thing distinguishing "the user gave up" from "the library broke", and an application that reconciles optimistic state needs the distinction.
+
+**The escape hatch must not depend on the resolver.** Abandonment has to restore presentation and terminate without awaiting the pending resolution, which is precisely the case probe C2 covers — a resolution settling into a kernel that has already moved on. C2 therefore gains an obligation: show that the abandoned resolver's settlement, including a rejection, is consumed without an unhandled rejection and without producing a second terminal.
+
+§8's own probe target disappears. What remains is C2, which already existed.
 
 ### C-3 (§5 internal) — the prescribed capture sequence cannot compute the footprint it prescribes.
 
 §5's sequence is `capture pre-lift {...} → then acquire faithful lift`, and separately requires the placeholder footprint to be "the pre-lift footprint removed by the visual". L-1 shows that quantity is `boxPre − boxPost` and is not derivable from pre-lift readings alone when `box ≠ visual`.
 
-> **Recommendation:** amend §5 to two captures — pre-lift beside the existing `getBoundingClientRect()` at `src/kernel/kernel.ts:899`, post-lift inside `activation.prepare` where `src/sortable/placement.ts:64-65` already measures. Cost: one extra forced layout per activation, once. Record it.
+> **Decided.** Amend §5 to two captures — pre-lift beside the existing `getBoundingClientRect()` at `src/kernel/kernel.ts:899`, post-lift inside `activation.prepare` where `src/sortable/placement.ts:64-65` already measures. Cost: one extra forced layout per activation, once. Record it.
 
 ### C-4 (§6 vs §7) — "retained by reference" would weaken a currently guaranteed property.
 
@@ -133,17 +147,25 @@ Today the caller's array is copied at call time, pinned at `sortable.browser.tes
 
 Note also that §6's identity test is what makes the copy cheap: a copy is taken only when `next !== current`, i.e. only on real structural change — never on the geometry-only path, which is the frequent one.
 
-> **Recommendation:** keep the copy, on the structural branch only. This is not defensive nannying of the kind §4 rightly rejects; it is the library owning the data its own frozen proposal is derived from.
+> **Decided.** Keep the copy, on the structural branch only. This is not defensive nannying of the kind §4 rightly rejects; it is the library owning the data its own frozen proposal is derived from.
 
 ### C-5 (§2 vs implementation) — last-wins needs a pre-invocation identity.
 
-See S-1. Resolve the fragment shape before probe B, because B's fixture has to construct fragments.
+See S-1.
 
-### C-6 (§1 vs packaging) — publishing the kernel is a compatibility decision, not a layering one.
+> **Decided.** Configuration/strategy fragments carry a slot identity that can be read without invoking the installer; plugin fragments stay opaque. The winner is selected before any installer runs, so a losing fragment is never constructed and has nothing to retire. `assemble.browser.test.ts:329` becomes obsolete rather than violated. **The fragment shape must be fixed before probe B**, whose fixture has to construct fragments.
 
-`tests/consumer.node.test.ts:628` asserts the package declares **no subpath into the kernel**. §1 proposes `@ydinjs/drag/kernel`. That is a deliberate reversal and its real cost is that the kernel SPI — currently free to churn, and the substrate the whole redesign is about to churn — becomes public compatibility surface at the same moment.
+### C-6 (§1 vs packaging) — the kernel surface is a product requirement; its shape is the open question.
 
-> **Recommendation:** do not publish `kernel/*` in the first stable release. Keep probe D (it decides how much vocabulary _would_ need to be public, and validates §1's factory shape either way), but treat the subpath export as a separate, later decision. §1's layering claim survives intact; only the publication date moves.
+`tests/consumer.node.test.ts:628` asserts the package declares **no subpath into the kernel**. §1 proposes `@ydinjs/drag/kernel`.
+
+> **Decided (owner correction — publication is not in question).** Custom behavior authoring through a supported low-level kernel surface is a **product requirement**, not a cost to be deferred. The `consumer.node.test.ts:628` assertion is an obsolete pin to be updated by the redesign, not a constraint on it.
+>
+> Probe D's job is therefore narrower and sharper than "should we publish": determine the **minimum public vocabulary** a real third-party behavior needs, and **falsify the proposed factory boundary** — `draggable(root, (host) => ({ spec, controller }))`. Publication is reopened only if D demonstrates that the required surface is untenable to support.
+
+That reframing changes what a D failure means, and it is worth stating precisely, because "untenable" must not become a synonym for "large". D falsifies the boundary if a real behavior cannot be written without reaching for something the factory does not hand it, or if the minimum surface is only expressible by exporting internals whose shape the kernel must stay free to change — the frame/seam machinery in particular. A merely _wide_ surface is a documentation cost, not a falsification.
+
+This also raises D's status. It is no longer only an acceptance gate on A; it is the sole falsifier for a stated product requirement, and the vocabulary it settles becomes public compatibility surface. Its output should be an explicit export list, not a verdict.
 
 ---
 
@@ -228,9 +250,11 @@ Include the L-1 residue: does `boxPre − boxPost` still hold with `layoutAnimat
 
 Existing evidence is strong but has a specific hole: `kernel.browser.test.ts` authors non-sortable behaviors, but synthetically, from inside the package; `docs/probes/13c-free-drag.ts` writes a complete second behavior at **type** level and its own write-up says it is not lifecycle validation. It found two structural gaps (activation typed for an `HTMLElement`; landing origin derived from the pointer) that a runtime probe would have exercised.
 
-**Falsifiers:** implement free drag as a **runtime** behavior through the §1 factory. Does the factory receive everything it needs before it must return `{ spec, controller }`? Do 13c's two gaps reproduce? What is the minimum export set — and is it small enough to be worth publishing at all (C-6)?
+**Falsifiers:** implement free drag as a **runtime** behavior through the §1 factory. Does the factory receive everything it needs before it must return `{ spec, controller }`? Do 13c's two gaps reproduce? Is any part of the minimum surface expressible only by exporting internals the kernel must stay free to change?
 
-Runs last: it is the acceptance gate for A, and its answer feeds the kernel vocabulary decision rather than the lifecycle model.
+**Deliverable:** an explicit export list, not a verdict. Per C-6, publication is a product requirement; D settles the vocabulary and the boundary, and reopens publication only if the required surface proves untenable to support — where _untenable_ means "cannot be held stable", never "turned out to be large".
+
+Runs last: it is the acceptance gate for A, and the sole falsifier for §1's authoring requirement.
 
 ---
 
@@ -258,10 +282,10 @@ These belong in the implementation's test suite, written against the real thing:
 
 ## Part 6 — sequence and stop conditions
 
-1. **Resolve C-1 … C-6 on paper.** None needs an experiment; two of them (C-2, C-5) change what the spike must implement.
+1. ~~**Resolve C-1 … C-6 on paper.**~~ **Done** — see Part 3. C-2 and C-5 changed what the spike must implement; C-6 changed what probe D is for.
 2. **Start C1 and E now**, in parallel, against current `src/`. Neither needs the spike. C1 can already falsify §9's commit-window promise.
-3. **Cut one spike branch.** A → then B, C2, D. Discard the branch afterwards; its output is findings, not code.
-4. **Stop conditions.** A failure in A2 (panic) or B3 (React array identity) should halt and return to design — both would invalidate a load-bearing claim rather than adjust a detail. A failure in C1, C2 or D is a scope or contract adjustment, not a redesign.
+3. **Cut one spike branch.** A → then B and C2 → then D. Discard the branch afterwards; its output is findings, not code.
+4. **Stop conditions.** A failure in A2 (panic) or B3 (React array identity) halts and returns to design — both invalidate a load-bearing claim rather than adjust a detail. A failure in C1, C2 or D is a scope or contract adjustment, not a redesign. **Do not patch around a failed model.** A stop condition that is met is a design result, not an obstacle: the spike exists to produce that finding cheaply, and a workaround discovered inside a throwaway branch is evidence about the workaround, not about the model.
 5. **After the five probes, implementation starts.** Everything in Part 5 is written as the implementation lands, not before it.
 
 Note that steps 1 and 2 together already produce a decision-grade result without touching `src/` — which is the cheapest possible way to discover that the model needs another round.
