@@ -36,6 +36,7 @@ Do not report availability alone. For code-symbol work, an available-but-unused 
 - All top-level functions should be declared via `function` unless they are a product of another function. All internal functions (e.g., created inside another function) should be declared via arrow functions. Note: this rule doesn't apply to object methods, they should remain shorthand as much as possible.
 - Never use `sync` versions of `node:fs` unless there is truly no async alternative (e.g. `registerHooks` from `node:module` requires synchronous hooks — that is the only known exception).
 - Treat `Object.assign` as an ordered multi-source assignment primitive. When sources already exist independently, pass them as separate arguments instead of pre-merging them with object spread. Pre-merging needlessly materializes a combined source and copies later-source properties twice; it may also change observable assignment behavior for setters, proxies, accessors, or other non-plain targets.
+- Run `fmt` script also for any created/updated Markdown files.
 
 ### Unit-tests
 
@@ -106,32 +107,6 @@ You can find `@ydinjs` architecture insights in `.agents/docs/architecture.md`. 
 ## Testing
 
 When adding, moving, or reviewing an `@ydinjs/material-x` component's tests, use skill `test-component` (placement under `packages/material-x/tests`, file suffixes and Vitest project routing, rendering/interaction rules, definition of done). When writing or debugging an `@ydinjs/tproc`-backed visual contract — a `*.spec.browser.test.ts`, a token binding, the resolve-token bridge, or a normalization adapter — use skill `test-visual-contract`. Both skills apply even if the request doesn't name them. The reasoning behind the layers lives in `.agents/docs/test-architecture.md`.
-
-## Sub-agents and teams
-
-Delegating is the default here, not the exception. Do not wait to be told to use a sub-agent, and do not ask which type to use — pick one and go. Announce the delegation in one line, then get on with it.
-
-Reach for a sub-agent whenever any of these is true:
-
-- The answer requires sweeping many files, directories, or naming conventions.
-- Two or more parts of the work are independent and could run at the same time.
-- The task is exploratory — "where is X", "how does Y work", "what would it take to Z".
-- The work would otherwise flood this conversation with file dumps you only need a conclusion from.
-
-Choosing the type (your call, no need to confirm):
-
-- `Explore` — read-only fan-out search; you want the conclusion, not the excerpts. State the breadth ("medium" or "very thorough") in the prompt.
-- `Plan` — design an implementation strategy, weigh architectural trade-offs, identify the critical files, before any code is written.
-- `general-purpose` — multi-step research or execution that may also need to edit, run commands, or iterate.
-- `claude-code-guide` — questions about Claude Code, the Agent SDK, or the Claude API.
-
-Fan out in parallel by default: when several sub-questions are independent, launch them in a single message rather than one after another. Before spawning, check whether a running or recently finished agent can be continued via `SendMessage` instead — a continued agent keeps its context, a new one starts cold.
-
-Give every sub-agent the context it needs up front (paths, package, constraints, relevant CLAUDE.md rules) — it does not see this conversation. Its final report is not shown to the user, so relay what matters yourself.
-
-Handle inline, without delegating: single-file edits you already know how to make, follow-up questions about work you just did, code review of a diff, anything with tight sequential dependencies, and anything where spawning costs more than doing.
-
-Use an agent team (`TeamCreate`, when available) only for clearly independent parallel work — for example, migrating several components at the same time. Not for review, small changes, or sequential tasks.
 
 ## Tokens DB
 
