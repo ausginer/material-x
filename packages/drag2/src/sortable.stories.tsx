@@ -173,7 +173,7 @@ function SortableDemo({
 
     return () => {
       controllerRef.current = null;
-      controller.destroy();
+      void controller.destroy();
     };
   }, [createPlaceholder, axis]);
 

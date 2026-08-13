@@ -167,7 +167,7 @@ function compose(options: Options = {}): Composed {
   };
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -543,7 +543,7 @@ describe('the composed terminal protocol', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.destroy();
+    void composed.controller.destroy();
 
     expect(composed.placeholder()).toBeNull();
     expect(composed.items[0]!.style.position).toBe('');
@@ -552,7 +552,7 @@ describe('the composed terminal protocol', () => {
   it('should ignore a press after destroy', () => {
     const composed = compose();
 
-    composed.controller.destroy();
+    void composed.controller.destroy();
     activate(composed);
 
     expect(composed.started).toEqual([]);
@@ -614,7 +614,7 @@ describe('the composed terminal protocol', () => {
   it('should destroy from inside onStart without leaving presentation behind', () => {
     const composed = compose({
       onStart: (self) => {
-        self.controller.destroy();
+        void self.controller.destroy();
       },
     });
 
@@ -630,10 +630,10 @@ describe('the composed terminal protocol', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.destroy();
+    void composed.controller.destroy();
 
     expect(() => {
-      composed.controller.destroy();
+      void composed.controller.destroy();
     }).not.toThrow();
     expect(composed.cancels).toEqual([]);
     expect(composed.finishes).toEqual([]);
@@ -658,7 +658,7 @@ describe('the composed terminal protocol', () => {
     let self!: Composed;
     const composed = compose({
       onReorder: () => {
-        self.controller.destroy();
+        void self.controller.destroy();
 
         return ReorderResolution.accept();
       },
@@ -712,7 +712,7 @@ describe('the composed terminal protocol', () => {
     // operation is retiring through.
     const composed = compose({
       onFinish: (self) => {
-        self.controller.destroy();
+        void self.controller.destroy();
       },
     });
 

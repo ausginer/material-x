@@ -196,7 +196,7 @@ function build(options: Options = {}): Fixture {
   };
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -630,7 +630,7 @@ describe('an acknowledgement outside any window', () => {
 
     const request = fixture.requests[0]!;
 
-    fixture.controller.destroy();
+    void fixture.controller.destroy();
     fixture.controller.ready(request);
 
     // Inert at both validation points: the behavior's publication is cleared by

@@ -2,9 +2,13 @@
  * The behavior's private runtime: an ordinary object, declared and created in
  * one place, **never handed to the kernel and never widened** (H-2, D-4).
  *
- * Eight mutable fields — the eighth is the terminal latch C2-01 moved here off
- * the controller's closure, so the behavior's four barriers and `updateItems`
- * read one latch rather than two that can disagree.
+ * Seven mutable fields. ~~The eighth is the terminal latch C2-01 moved here off
+ * the controller's closure.~~ **D-53 deletes it**: the host publishes the latch
+ * itself now, and the reason the private mirror existed — that the SPI could
+ * not express the reading D-38 requires — is precisely the failing case the
+ * freeze rule asks for. A hand-kept copy is state that can disagree, it was
+ * blind to a kernel-internal `panic()`, and after D-47 published the kernel a
+ * third-party behavior author could not be expected to know to maintain one.
  *
  * Probe 1's shared runtime had those plus fourteen kernel
  * fields — the queue, the frame references, the attempt slots, the cancel latch
@@ -113,23 +117,6 @@ export type SortableRuntime = {
   readonly frame: FrameTask<number>;
   /** The published collection. Replaced wholesale, never mutated. */
   snapshot: CollectionSnapshot;
-  /**
-   * **The terminal latch** (D3, then C2-01). Set by `controller.destroy()`
-   * before it delegates to `host.destroy()`, so every barrier inside the
-   * behavior — `updateItems`'s validation, the admission sequence, the
-   * committed-move bracket, and the candidate loop through `view.live` — reads
-   * one field rather than keeping a second copy that can disagree.
-   *
-   * Behavior-private bookkeeping, deliberately: `KernelHost` does not expose
-   * `closed`, and widening a frozen SPI type for this is the change contract 00
-   * forbids without a case the SPI cannot express (I-36, L-12).
-   *
-   * Its one blind spot is a kernel-internal `panic()` destroy, which does not
-   * route through the controller. Unreachable from a behavior-interior sequence,
-   * and the one site that *does* have a stronger reading — `activation.effect`,
-   * handed the presentation scope — keeps using `signal.aborted` instead.
-   */
-  closed: boolean;
   /** Null when idle. */
   view: PresentationView | null;
   placeholder: HTMLElement | null;
@@ -183,7 +170,6 @@ export function createSortableRuntime(
     // precondition holds from construction rather than only from the first
     // `updateItems`.
     snapshot: { items: copyUniqueItems(items), version: 0 },
-    closed: false,
     view: null,
     placeholder: null,
     lift: null,

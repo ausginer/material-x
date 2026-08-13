@@ -347,16 +347,14 @@ function build(options: BuildOptions = {}): Fixture {
   ];
 
   if (options.useHandle) {
-    features.push(
-      handle((item) => item.querySelector('.grip')),
-    );
+    features.push(handle((item) => item.querySelector('.grip')));
   }
 
   const controller = draggable(root, sortable(rows, ...features));
 
   cleanup.push(() => {
     listeners.abort();
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 

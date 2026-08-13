@@ -180,7 +180,7 @@ function liveDrag(count: number): Live {
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 

@@ -117,7 +117,7 @@ function composeWith(options: ComposeOptions = {}): Composed {
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -268,7 +268,7 @@ describe('placeholder', () => {
           const element = document.createElement('div');
 
           created.push(element);
-          composed.controller.destroy();
+          void composed.controller.destroy();
           return element;
         },
       }),
@@ -425,7 +425,7 @@ describe('handle', () => {
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
     cleanup.push(() => {
-      controller.destroy();
+      void controller.destroy();
       root.remove();
     });
 
@@ -821,7 +821,7 @@ describe('landing', () => {
     activate(composed);
     await drag(55);
     release(55);
-    composed.controller.destroy();
+    void composed.controller.destroy();
     await Promise.resolve();
     await Promise.resolve();
 
@@ -856,7 +856,7 @@ describe('landing', () => {
       features: [
         landing({
           duration: (): number => {
-            controller!.destroy();
+            void controller!.destroy();
             return 200;
           },
         }),
@@ -926,7 +926,7 @@ describe('landing', () => {
       features: [
         landing({
           run: (): LandingHandle => {
-            controller!.destroy();
+            void controller!.destroy();
             destroyedFirst = true;
 
             return {
@@ -1090,7 +1090,7 @@ describe('layoutAnimation', () => {
         Element.prototype.getBoundingClientRect = native;
       }
 
-      composed.controller.destroy();
+      void composed.controller.destroy();
       composed.root.remove();
       return reads;
     };
@@ -1214,7 +1214,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     return {
       features: [
         handle((item) => {
-          controller?.destroy();
+          void controller?.destroy();
           return item;
         }),
         visual((item) => {
@@ -1281,7 +1281,7 @@ describe('the terminal barrier in a resolver sequence', () => {
           asked.push(item);
 
           if (item === composed.items[1]) {
-            controller!.destroy();
+            void controller!.destroy();
           }
 
           return item;
@@ -1337,7 +1337,7 @@ describe('the terminal barrier in a resolver sequence', () => {
           if (
             composed.placeholder()?.previousElementSibling === composed.items[1]
           ) {
-            controller!.destroy();
+            void controller!.destroy();
           }
 
           return item;
@@ -1393,7 +1393,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     class ClosingPlaceholder extends HTMLElement {
       // oxlint-disable-next-line class-methods-use-this -- a lifecycle reaction
       disconnectedCallback(): void {
-        controller?.destroy();
+        void controller?.destroy();
       }
     }
 
@@ -1429,7 +1429,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     return {
       feature: brandFeature(() => ({
         beforeInsertionMove: (): void => {
-          controller?.destroy();
+          void controller?.destroy();
         },
       })),
       arm(c): void {
@@ -1493,7 +1493,7 @@ describe('the terminal barrier in a resolver sequence', () => {
         return rect;
       }
 
-      controller.destroy();
+      void controller.destroy();
 
       // **Shifted deliberately.** Teardown removes the placeholder and drops
       // the lift, which puts the row back exactly where this pass measured it —

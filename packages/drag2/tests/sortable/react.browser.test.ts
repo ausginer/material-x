@@ -372,7 +372,7 @@ function mount(options: Options = {}): Fixture {
   cleanup.push(() => {
     poolObserver.disconnect();
     recycler.remove();
-    controller.destroy();
+    void controller.destroy();
     root.unmount();
     host.remove();
     style.remove();

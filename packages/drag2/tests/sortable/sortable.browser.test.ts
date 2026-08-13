@@ -243,7 +243,7 @@ function createHarness(overrides: Overrides = {}): Harness {
   };
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -672,7 +672,7 @@ describe('the admission queue boundary', () => {
   it('should treat destroy from the handle resolver as an immediate terminal barrier', () => {
     let harness!: Harness;
     const terminate = once(() => {
-      harness.controller.destroy();
+      void harness.controller.destroy();
       // Queued behind a closed queue: it must never be drained.
       harness.controller.updateItems([...harness.items].reverse());
     });
@@ -698,7 +698,7 @@ describe('the admission queue boundary', () => {
   it('should treat destroy from the visual resolver as an immediate terminal barrier', () => {
     let harness!: Harness;
     const terminate = once(() => {
-      harness.controller.destroy();
+      void harness.controller.destroy();
       harness.controller.updateItems([...harness.items].reverse());
     });
 
@@ -803,7 +803,7 @@ describe('activation', () => {
     });
 
     reentrantPlaceholderConnected = (): void => {
-      harness.controller.destroy();
+      void harness.controller.destroy();
     };
 
     activate(harness);
@@ -957,7 +957,7 @@ describe('activation', () => {
     });
 
     reentrantPlaceholderConnected = (): void => {
-      harness.controller.destroy();
+      void harness.controller.destroy();
     };
 
     activate(harness);
@@ -1982,7 +1982,7 @@ describe('updateItems after destroy', () => {
     // "no-op" was true of the kernel and not of the method (D3).
     const harness = createHarness();
 
-    harness.controller.destroy();
+    void harness.controller.destroy();
     harness.controller.updateItems([harness.items[1]!, harness.items[0]!]);
     press(harness.items[1]!);
     move(40);
@@ -1999,7 +1999,7 @@ describe('updateItems after destroy', () => {
     // duplicate threw at a controller that is supposed to be inert.
     const harness = createHarness();
 
-    harness.controller.destroy();
+    void harness.controller.destroy();
 
     expect(() =>
       harness.controller.updateItems([harness.items[0]!, harness.items[0]!]),
@@ -2014,7 +2014,7 @@ describe('updateItems after destroy', () => {
     // `FAILURE_ACTIVATION` against an operation the consumer already destroyed.
     const harness = createHarness({
       onStart(h): void {
-        h.controller.destroy();
+        void h.controller.destroy();
         h.controller.updateItems([h.items[0]!, h.items[0]!]);
       },
     });
@@ -2327,7 +2327,9 @@ describe('the spatial action legality guard', () => {
         fail: (): void => {},
         presentationCommitted: (): void => {},
         cancel: (): void => {},
-        destroy: (): void => {},
+        closed: false,
+
+        destroy: (): Promise<void> => Promise.resolve(),
       },
       [item],
       {
@@ -2346,7 +2348,7 @@ describe('the spatial action legality guard', () => {
       placeholder: item,
       item,
       getVisual: null,
-      live: () => !rt.closed,
+      live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2415,7 +2417,9 @@ describe('a pointerless release with no destination', () => {
         fail: (): void => {},
         presentationCommitted: (): void => {},
         cancel: (): void => {},
-        destroy: (): void => {},
+        closed: false,
+
+        destroy: (): Promise<void> => Promise.resolve(),
       },
       [item],
       { ...EMPTY_SLOTS },
@@ -2426,7 +2430,7 @@ describe('a pointerless release with no destination', () => {
       placeholder: item,
       item,
       getVisual: null,
-      live: () => !rt.closed,
+      live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2661,7 +2665,9 @@ describe('the displacement view lifetime', () => {
         fail: (): void => {},
         presentationCommitted: (): void => {},
         cancel: (): void => {},
-        destroy: (): void => {},
+        closed: false,
+
+        destroy: (): Promise<void> => Promise.resolve(),
       },
       items,
       { ...EMPTY_SLOTS, ...overrides },
@@ -2673,7 +2679,7 @@ describe('the displacement view lifetime', () => {
       placeholder,
       item: items[0]!,
       getVisual: null,
-      live: () => !rt.closed,
+      live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2787,7 +2793,9 @@ describe('the displacement view lifetime', () => {
         fail: (): void => {},
         presentationCommitted: (): void => {},
         cancel: (): void => {},
-        destroy: (): void => {},
+        closed: false,
+
+        destroy: (): Promise<void> => Promise.resolve(),
       },
       items,
       { ...EMPTY_SLOTS, beforeMove: [(): void => {}] },
@@ -2799,7 +2807,7 @@ describe('the displacement view lifetime', () => {
       placeholder,
       item: items[0]!,
       getVisual: null,
-      live: () => !rt.closed,
+      live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2859,6 +2867,8 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     overrides: Partial<SortableSlots>,
   ): Readonly<{
     rt: ReturnType<typeof createSortableRuntime>;
+    /** The kernel stand-in, so a test can drive the latch D-53 made readonly. */
+    host: { closed: boolean };
     spec: ReturnType<typeof createSortableSpec>;
     item: HTMLElement;
     root: HTMLElement;
@@ -2876,21 +2886,25 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       root.remove();
     });
 
-    const rt = createSortableRuntime(
-      {
-        realm: createRealm(root),
-        root,
-        dispatch: (): void => {},
-        fail: (): void => {},
-        presentationCommitted: (): void => {},
-        cancel: (): void => {},
-        destroy: (): void => {},
-      },
-      [item, sibling],
-      { ...EMPTY_SLOTS, ...overrides },
-    );
+    // `closed` is readonly on the real `KernelHost` (D-53) — a behavior may
+    // consult the latch, never set it. These tests stand in for the kernel, so
+    // the stub keeps it writable and hands it back for the test to drive.
+    const host = {
+      realm: createRealm(root),
+      root,
+      dispatch: (): void => {},
+      fail: (): void => {},
+      presentationCommitted: (): void => {},
+      cancel: (): void => {},
+      closed: false,
+      destroy: (): Promise<void> => Promise.resolve(),
+    };
+    const rt = createSortableRuntime(host, [item, sibling], {
+      ...EMPTY_SLOTS,
+      ...overrides,
+    });
 
-    return { rt, spec: createSortableSpec(rt), item, root };
+    return { rt, host, spec: createSortableSpec(rt), item, root };
   };
 
   /** An event whose composed path is exactly the item, as a press would be. */
@@ -2904,7 +2918,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
   it('should seed no draft when the visual resolver destroys the controller', () => {
     const held = bench({
       getVisual: (element): HTMLElement => {
-        held.rt.closed = true;
+        held.host.closed = true;
         return element;
       },
     });
@@ -2927,7 +2941,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     // its own decline rather than only the shared seed's.
     const held = bench({
       getVisual: (element): HTMLElement => {
-        held.rt.closed = true;
+        held.host.closed = true;
         return element;
       },
     });
@@ -2949,7 +2963,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     const held = bench({
       beforeMove: [
         (): void => {
-          held.rt.closed = true;
+          held.host.closed = true;
         },
       ],
     });
@@ -2959,7 +2973,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       placeholder: held.item,
       item: held.item,
       getVisual: null,
-      live: () => !held.rt.closed,
+      live: () => !held.host.closed,
       snapshot: held.rt.snapshot,
       insertion: null,
     };
@@ -3013,7 +3027,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
               return false;
             }
 
-            harness!.controller.destroy();
+            void harness!.controller.destroy();
             return true;
           },
         });
@@ -3038,7 +3052,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     // can return a fresh insertion on a controller that no longer exists.
     const held = bench({
       resolveInsertion: (): Insertion => {
-        held.rt.closed = true;
+        held.host.closed = true;
         return { version: 0, index: 0, before: null, after: null };
       },
     });
@@ -3048,7 +3062,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       placeholder: held.item,
       item: held.item,
       getVisual: null,
-      live: () => !held.rt.closed,
+      live: () => !held.host.closed,
       snapshot: held.rt.snapshot,
       insertion: null,
     };
@@ -3083,7 +3097,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
 
     Object.defineProperty(held.item, 'isConnected', {
       get: (): boolean => {
-        held.rt.closed = true;
+        held.host.closed = true;
         return true;
       },
     });
@@ -3109,7 +3123,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     held.rt.placeholder = held.item;
     held.rt.lift = {
       write: (): void => {
-        held.rt.closed = true;
+        held.host.closed = true;
       },
     } as unknown as NonNullable<typeof held.rt.lift>;
 
@@ -3142,7 +3156,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
 
     const value = {
       get type(): string {
-        held.rt.closed = true;
+        held.host.closed = true;
         return 'accepted';
       },
       presentation: true,

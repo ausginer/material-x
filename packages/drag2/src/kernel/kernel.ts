@@ -95,6 +95,7 @@ import {
 } from './seams.ts';
 import {
   type ActivationScope,
+  type AdmissionSubject,
   type BehaviorSpec,
   type KernelHost,
   type LandingContext,
@@ -256,6 +257,13 @@ export function createKernel<Part extends object>(
   let lift: VisualLiftSession | null = null;
   let originRect: DOMRectReadOnly | null = null;
   let visual: HTMLElement | null = null;
+  /**
+   * The geometry source (D-59). Written once at admission, read before
+   * `acquireLift`, never transactional — the same argument that keeps gate
+   * state on the settlement attempt rather than on the frame, so the kernel's
+   * published slice stays seven fields.
+   */
+  let box: HTMLElement | null = null;
   let cancelRequest: { reason: unknown } | null = null;
 
   /* ---- the two kernel attempts, at most one of each per operation ---- */
@@ -272,6 +280,29 @@ export function createKernel<Part extends object>(
    */
   let pinned: OperationIdentity | null = null;
   let destroyRequested = false;
+
+  /* ---- the transaction bracket (D-36) ---- */
+
+  /**
+   * How many library transactions are open on the stack.
+   *
+   * A *library transaction* is one synchronous entry into kernel code from
+   * outside it: a native ingress pass, a drain, an async continuation that
+   * dispatches. Nesting is real — a consumer callback inside a drain can
+   * dispatch again, and an admission resolver can open a second ingress — so
+   * the boundary that owns deferred teardown is the **outermost** one, which is
+   * what a depth counter names and a boolean cannot.
+   */
+  let transactionDepth = 0;
+  /** A logical close is done and its physical teardown is owed to the boundary. */
+  let teardownPending = false;
+  /**
+   * The promise `destroy()` hands back, allocated on the first call and
+   * returned by every later one, so repeated destruction is idempotent and
+   * every returned promise still settles exactly once (D-36).
+   */
+  let destroyed: Promise<void> | null = null;
+  let settleDestroyed: (() => void) | null = null;
 
   /**
    * True while a checkpoint's report transition is running — including its
@@ -422,6 +453,7 @@ export function createKernel<Part extends object>(
     lift = null;
     originRect = null;
     visual = null;
+    box = null;
     cancelRequest = null;
     pinned = null;
   };
@@ -489,15 +521,17 @@ export function createKernel<Part extends object>(
     clearOperationState();
   };
 
-  const destroy = (): void => {
-    if (queue.closed) {
-      return; // terminal, and terminal exactly once
-    }
-
-    // 1. every guard now fails.
-    queue.closed = true;
-    destroyRequested = true;
-
+  /**
+   * Steps 2–7 of teardown (contract 01 §Teardown across two owners).
+   *
+   * **The sequence and its order survive D-36 intact; only its start time
+   * moves.** D-29's totality is a property of the sequence *wherever it runs*,
+   * not of the stack that called `destroy()`: each attempt cleanup is
+   * individually wrapped in step 3, each frame reset in step 6, and ingress
+   * abort is in a `finally` at step 7, so no behavior callback can stop a later
+   * step at the boundary any more than it could on the closing stack.
+   */
+  const runPhysicalTeardown = (): void => {
     try {
       // 2. drop every retained argument, so a queued element cannot outlive the
       //    drain that abandoned it.
@@ -521,15 +555,79 @@ export function createKernel<Part extends object>(
       // 7. unconditional: no earlier step can prevent ingress from being
       //    released.
       ingress.abort();
+
+      const settle = settleDestroyed;
+
+      if (settle !== null) {
+        settleDestroyed = null;
+        settle();
+      }
     }
   };
 
   /**
-   * A throw escaping a handler is an invariant violation: tear down exactly
-   * once, **then** report the initiating error (contract 01 §Teardown).
+   * Logical closure is **immediate**; physical teardown is **deferrable**
+   * (D-36).
+   *
+   * The latch is set on this statement, not at the end of a seven-step
+   * sequence, so from here on every guard fails, nothing is admitted, and no
+   * declared consumer slot is invoked. What was `destroy()`'s guarantee —
+   * *physical release completes before it returns* — is withdrawn; what
+   * replaces it is stronger where it matters, because the latch is now set
+   * earlier than it ever was and only the resource release is late.
+   *
+   * Outside a reentrant transaction the two events still coincide, which is why
+   * the shipped behavior is the common case rather than the definition.
+   */
+  const destroy = (): Promise<void> => {
+    destroyed ??= new Promise<void>((resolve) => {
+      settleDestroyed = resolve;
+    });
+
+    if (!queue.closed) {
+      // 1. every guard now fails, on the closing statement itself.
+      queue.closed = true;
+      destroyRequested = true;
+
+      if (transactionDepth === 0) {
+        runPhysicalTeardown();
+      } else {
+        teardownPending = true;
+      }
+    }
+
+    return destroyed;
+  };
+
+  /**
+   * Runs deferred teardown when the **outermost** transaction closes.
+   *
+   * Read at the boundary rather than latched at entry: a `destroy()` raised
+   * from anywhere inside the transaction — including one nested many frames
+   * deep — is owed teardown by this frame and no other.
+   */
+  const leaveTransaction = (): void => {
+    transactionDepth -= 1;
+
+    if (transactionDepth === 0 && teardownPending) {
+      teardownPending = false;
+      runPhysicalTeardown();
+    }
+  };
+
+  /**
+   * A throw escaping a handler is an invariant violation: close, **then**
+   * report the initiating error, **then** tear down (D-36; contract 01
+   * §Teardown reverses Part I's teardown-before-report ordering).
+   *
+   * The reversal is safe rather than merely permitted, and the reason is the
+   * shape of the window: `panic()` is reached from `drain`'s `catch`, after the
+   * loop has exited, so the deferral window is one stack frame wide and the
+   * only statement inside it is `report` — which touches no library state, and
+   * meets an already-closed controller if the reporter calls back in.
    */
   const panic = (error: unknown): void => {
-    destroy();
+    void destroy();
     report(error);
   };
 
@@ -544,9 +642,15 @@ export function createKernel<Part extends object>(
       return; // the admission boundary owns the drain
     }
 
-    // Re-entrant calls return immediately: the outermost frame owns the drain
-    // and reaches the newly appended work in the same pass.
-    drain(queue, handle, panic);
+    transactionDepth += 1;
+
+    try {
+      // Re-entrant calls return immediately: the outermost frame owns the drain
+      // and reaches the newly appended work in the same pass.
+      drain(queue, handle, panic);
+    } finally {
+      leaveTransaction();
+    }
   };
 
   /**
@@ -675,7 +779,7 @@ export function createKernel<Part extends object>(
   };
 
   /**
-   * Runs one admission member and returns the element it admitted, or `null`.
+   * Runs one admission member and returns the subject it admitted, or `null`.
    *
    * Shared by both ingresses, because a second input mode is a second
    * *ingress*, not a second protocol (D-32): the throw policy, the
@@ -692,10 +796,10 @@ export function createKernel<Part extends object>(
    */
   const runAdmission = (
     event: Event,
-    admit: (event: never, draft: Frame<Part>) => HTMLElement | null,
-  ): HTMLElement | null => {
+    admit: (event: never, draft: Frame<Part>) => AdmissionSubject | null,
+  ): AdmissionSubject | null => {
     const active = spec!;
-    let admitted: HTMLElement | null;
+    let admitted: AdmissionSubject | null;
 
     try {
       admitted = admit(event as never, draft);
@@ -735,7 +839,7 @@ export function createKernel<Part extends object>(
    * values on that path.
    */
   const mintOperation = (
-    admitted: HTMLElement,
+    subject: AdmissionSubject,
     pointerId: number,
     x: number,
     y: number,
@@ -743,7 +847,15 @@ export function createKernel<Part extends object>(
     const operation: OperationIdentity = { id: (nextOperationId += 1) };
 
     try {
-      visual = admitted;
+      // D-59, discriminated by `'visual' in subject` rather than `instanceof`:
+      // `instanceof` is realm-sensitive, and `DOMRealm` exists precisely
+      // because an element may come from another document.
+      if ('visual' in subject) {
+        ({ visual, box } = subject);
+      } else {
+        visual = subject;
+        box = subject;
+      }
       lifetimes = createOperationLifetimes();
 
       if (pointerId !== -1) {
@@ -827,23 +939,32 @@ export function createKernel<Part extends object>(
       return;
     }
 
+    // A native ingress pass is a library transaction in its own right, and it
+    // is one the queue cannot see: this function runs *outside* the drain, so a
+    // `destroy()` raised by an admission resolver would otherwise tear down
+    // physically with the outer admission still half-written (D-36).
+    transactionDepth += 1;
     begin();
     admitting = true;
 
     try {
-      admit();
-    } finally {
-      // Cleared in a `finally` so a throw escaping admission — a panicking
-      // resolver, a re-entry refusal — cannot leave every later dispatch
-      // silently queued with nothing to drain it.
-      admitting = false;
-    }
+      try {
+        admit();
+      } finally {
+        // Cleared in a `finally` so a throw escaping admission — a panicking
+        // resolver, a re-entry refusal — cannot leave every later dispatch
+        // silently queued with nothing to drain it.
+        admitting = false;
+      }
 
-    // Whatever a resolver dispatched now runs against the committed outcome of
-    // admission: `PENDING` when it was admitted, `IDLE` when it was refused,
-    // nothing at all when the resolver destroyed the controller.
-    if (!queue.closed) {
-      drain(queue, handle, panic);
+      // Whatever a resolver dispatched now runs against the committed outcome
+      // of admission: `PENDING` when it was admitted, `IDLE` when it was
+      // refused, nothing at all when the resolver destroyed the controller.
+      if (!queue.closed) {
+        drain(queue, handle, panic);
+      }
+    } finally {
+      leaveTransaction();
     }
   };
 
@@ -922,6 +1043,9 @@ export function createKernel<Part extends object>(
         // Read back from the field the join will read it from in phase 5, so
         // the scope and the pin can never disagree about the grab basis.
         originRect,
+        // D-59. The kernel's own admission-time state, not a behavior-authored
+        // draft field read back.
+        box: box!,
         lift: session,
         motion: owned.motion,
         presentation: owned.presentation,
@@ -2097,6 +2221,14 @@ export function createKernel<Part extends object>(
   const host: KernelHost = {
     realm,
     root,
+    /**
+     * D-53. The latch itself, read live — a captured boolean would be a copy of
+     * a liveness answer, which is the failure mode the whole invariant is
+     * about.
+     */
+    get closed(): boolean {
+      return queue.closed;
+    },
     dispatch(tag, argument) {
       if (queue.closed) {
         return;

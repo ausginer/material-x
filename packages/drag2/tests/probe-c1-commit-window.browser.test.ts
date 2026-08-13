@@ -330,7 +330,7 @@ function mount(options: Options): Fixture {
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -810,7 +810,7 @@ describe('probe C1 — the api-1 footprint rule under a live drag', () => {
     root.releasePointerCapture = (): void => {};
 
     cleanup.push(() => {
-      controller.destroy();
+      void controller.destroy();
       root.remove();
     });
 

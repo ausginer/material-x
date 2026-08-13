@@ -392,7 +392,7 @@ describe('the composed two-dimensional collection', () => {
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
-    cleanup.push({ remove: () => controller.destroy() } as HTMLElement);
+    cleanup.push({ remove: () => void controller.destroy() } as HTMLElement);
 
     const pointer = (type: string, x: number, y: number): void => {
       const target = type === 'pointerdown' ? items[0]! : document;
@@ -479,7 +479,7 @@ describe('the composed two-dimensional collection', () => {
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
-    cleanup.push({ remove: () => controller.destroy() } as HTMLElement);
+    cleanup.push({ remove: () => void controller.destroy() } as HTMLElement);
 
     const pointer = (type: string, x: number, y2: number): void => {
       const target = type === 'pointerdown' ? items[0]! : document;
@@ -660,7 +660,7 @@ describe('the terminal barrier in the candidate loop', () => {
           // The **first** candidate destroys. `items[0]` is the dragged one and
           // was resolved at admission, before any candidate.
           if (item === items[1]) {
-            controller!.destroy();
+            void controller!.destroy();
           }
 
           return item;
@@ -673,7 +673,7 @@ describe('the terminal barrier in the candidate loop', () => {
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
-    cleanup.push({ remove: () => controller.destroy() } as HTMLElement);
+    cleanup.push({ remove: () => void controller.destroy() } as HTMLElement);
 
     const pointer = (type: string, x: number, y2: number): void => {
       const target = type === 'pointerdown' ? items[0]! : document;

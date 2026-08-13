@@ -147,7 +147,7 @@ function build(options: Options = {}): Composed {
         })
         .join(''),
     dispose(): void {
-      controller.destroy();
+      void controller.destroy();
       root.remove();
     },
   };

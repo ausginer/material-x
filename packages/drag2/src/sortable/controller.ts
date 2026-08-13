@@ -34,7 +34,17 @@ export type SortableController = Readonly<{
    */
   ready(request: ReorderRequest): void;
   cancel(reason?: unknown): void;
-  destroy(): void;
+  /**
+   * Closes the controller **logically**, immediately, on this statement — every
+   * guard fails from here, nothing is admitted, and no declared consumer slot
+   * is invoked again. The returned promise settles **once**, after physical
+   * teardown: this call when no library transaction is active, the boundary of
+   * the outermost one when there is (D-36).
+   *
+   * Most callers do not want the completion signal and should write
+   * `void controller.destroy();`.
+   */
+  destroy(): Promise<void>;
 }>;
 
 export function createSortableController(
@@ -48,16 +58,15 @@ export function createSortableController(
   // only job: being the identity of a snapshot. The counter is seeded from the
   // initial snapshot so the sequence stays continuous with it.
   let { version } = rt.snapshot;
-  // **The terminal latch, and it is the behavior's own** (D3, then C2-01).
-  // The kernel has one, but it is not readable through `KernelHost` and it
-  // guards the *dispatch* — which is one step too late for `updateItems`, whose
-  // validation throws before anything reaches the kernel. "No-op after
-  // `destroy()`" has to mean the whole method, invalid input included, or the
-  // promise is only true for calls that would have been silent anyway.
-  //
-  // It lives on `rt` rather than in this closure because D3's one reader became
-  // five: the behavior's own resolver sequences read it too (I-36). One latch,
-  // several readers — a second copy is state that can disagree.
+  // **The terminal latch is the kernel's, and it is readable** (D-53). It was
+  // the behavior's own between D3 and Revision 2, because `KernelHost` exposed
+  // none — and the kernel's own latch guards the *dispatch*, which is one step
+  // too late for `updateItems`, whose validation throws before anything reaches
+  // the kernel. "No-op after `destroy()`" has to mean the whole method, invalid
+  // input included, or the promise is only true for calls that would have been
+  // silent anyway. `host.closed` answers that at the same point the mirror did,
+  // and answers it for a kernel-internal `panic()` too, which the mirror never
+  // saw.
   //
   // `cancel` and `destroy` *are* the kernel's own members, spread through
   // unchanged, and the kernel's latch already makes both inert and idempotent
@@ -68,7 +77,7 @@ export function createSortableController(
 
   return {
     updateItems(items): void {
-      if (rt.closed) {
+      if (host.closed) {
         return;
       }
 
@@ -128,9 +137,10 @@ export function createSortableController(
 
     cancel: host.cancel,
 
-    destroy(): void {
-      rt.closed = true;
-      host.destroy();
-    },
+    // D-36: logical closure is immediate and the promise settles after physical
+    // teardown. D-53 deletes the behavior's private latch mirror, so this is
+    // now the kernel's member spread through unchanged — as `cancel` already
+    // was — rather than a wrapper that had to set a second copy first.
+    destroy: host.destroy,
   };
 }

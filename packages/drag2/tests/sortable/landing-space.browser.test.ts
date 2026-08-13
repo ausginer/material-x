@@ -140,7 +140,7 @@ function build(presentation = false, readinessTimeout?: number): Fixture {
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 

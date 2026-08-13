@@ -55,7 +55,7 @@ type Harness = Readonly<{
   root: HTMLElement;
   item: HTMLElement;
   host: KernelHost;
-  controller: { cancel(reason?: unknown): void; destroy(): void };
+  controller: { cancel(reason?: unknown): void; destroy(): Promise<void> };
   /** Every seam the kernel drove, in order. */
   calls: string[];
   /** The committed phase each seam observed. */
@@ -175,7 +175,7 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
   const controller = draggable(
     root,
     brandBehavior<
-      { cancel(reason?: unknown): void; destroy(): void },
+      { cancel(reason?: unknown): void; destroy(): Promise<void> },
       ExamplePart
     >((kernelHost) => {
       host = kernelHost;
@@ -300,7 +300,7 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
   );
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -711,7 +711,7 @@ describe('discrete admission', () => {
 
     expect(admitted).toBe(1);
 
-    harness.controller.destroy();
+    void harness.controller.destroy();
     harness.root.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
     );
@@ -916,7 +916,7 @@ describe('admission', () => {
     const harness = createHarness({
       admit(_event, draft): HTMLElement {
         draft.item = null;
-        harness.host.destroy();
+        void harness.host.destroy();
         return harness.item;
       },
     });
@@ -1091,7 +1091,7 @@ describe('activation', () => {
   it('should not dispatch START_COMMITTED when onStart destroyed', () => {
     const harness = createHarness({
       onStart(host): void {
-        host.destroy();
+        void host.destroy();
       },
     });
 
@@ -1486,7 +1486,7 @@ describe('the resolution round-trip', () => {
 
     activate(harness);
     release(80, 10);
-    harness.controller.destroy();
+    void harness.controller.destroy();
     await flush();
 
     expect(harness.settlements).toEqual([]);
@@ -1815,7 +1815,7 @@ describe('landing', () => {
       startLanding(_context, done): LandingHandle {
         calls.push('start');
         done();
-        harness.host.destroy();
+        void harness.host.destroy();
         return {
           destroy(): void {
             calls.push('destroy');
@@ -1902,7 +1902,7 @@ describe('landing', () => {
     const harness = createHarness({
       startLanding: runner.start,
       anchorTarget(): { x: number; y: number } {
-        harness.host.destroy();
+        void harness.host.destroy();
         return { x: 0, y: 0 };
       },
     });
@@ -1925,7 +1925,7 @@ describe('landing', () => {
     const harness = createHarness({
       startLanding(): LandingHandle {
         calls.push('start');
-        harness.host.destroy();
+        void harness.host.destroy();
         return {
           destroy(): void {
             calls.push('destroy');
@@ -1949,7 +1949,7 @@ describe('landing', () => {
 
     activate(harness);
     release(80, 10);
-    harness.controller.destroy();
+    void harness.controller.destroy();
 
     expect(runner.calls).toEqual(['start', 'destroy']);
     expect(harness.calls).toContain('presentation.released');
@@ -1961,7 +1961,7 @@ describe('landing', () => {
 
     activate(harness);
     release(80, 10);
-    harness.controller.destroy();
+    void harness.controller.destroy();
     runner.done();
 
     expect(harness.calls).not.toContain('finalized');
@@ -2637,7 +2637,7 @@ describe('destroy', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.destroy();
+    void harness.controller.destroy();
 
     expect(harness.calls).toContain('presentation.released');
     expect(harness.calls).toContain('motion.released');
@@ -2647,7 +2647,7 @@ describe('destroy', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.destroy();
+    void harness.controller.destroy();
 
     expect(harness.captures).toEqual(['acquire', 'release']);
   });
@@ -2655,7 +2655,7 @@ describe('destroy', () => {
   it('should abort ingress so a later press is inert', () => {
     const harness = createHarness();
 
-    harness.controller.destroy();
+    void harness.controller.destroy();
     press(harness.item);
 
     expect(harness.calls).not.toContain('admit');
@@ -2665,8 +2665,8 @@ describe('destroy', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.destroy();
-    harness.controller.destroy();
+    void harness.controller.destroy();
+    void harness.controller.destroy();
 
     expect(harness.calls.filter((name) => name === 'retire')).toHaveLength(1);
   });
@@ -2685,7 +2685,7 @@ describe('destroy', () => {
 
     activate(harness);
     // A behavior callback cannot strand the kernel's DOM cleanup (F-12).
-    harness.host.destroy();
+    void harness.host.destroy();
 
     expect(harness.calls).toContain('presentation.released');
   });
@@ -2694,7 +2694,7 @@ describe('destroy', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.destroy();
+    void harness.controller.destroy();
     harness.host.dispatch(0, null);
     move(200, 10);
 
@@ -2712,7 +2712,7 @@ describe('terminal destruction during the join', () => {
 
     harness = createHarness({
       anchorTarget: () => {
-        harness!.controller.destroy();
+        void harness!.controller.destroy();
         return { x: 300, y: 300 };
       },
     });
@@ -2728,7 +2728,7 @@ describe('terminal destruction during the join', () => {
 
     harness = createHarness({
       anchorTarget: () => {
-        harness!.controller.destroy();
+        void harness!.controller.destroy();
         return { x: 300, y: 300 };
       },
     });
@@ -2743,7 +2743,7 @@ describe('terminal destruction during the join', () => {
     let harness: Harness | null = null;
     const runner = createRunner({
       onDestroy: () => {
-        harness!.controller.destroy();
+        void harness!.controller.destroy();
       },
     });
 
@@ -2761,7 +2761,7 @@ describe('terminal destruction during the join', () => {
     let harness: Harness | null = null;
     const runner = createRunner({
       onDestroy: () => {
-        harness!.controller.destroy();
+        void harness!.controller.destroy();
       },
     });
 
@@ -2788,7 +2788,7 @@ describe('teardown totality', () => {
     const harness = createHarness({ resetFramePart: throwingReset(counter) });
 
     activate(harness);
-    harness.controller.destroy();
+    void harness.controller.destroy();
 
     expect(counter.calls).toBe(2);
   });
@@ -2798,7 +2798,7 @@ describe('teardown totality', () => {
     const harness = createHarness({ resetFramePart: throwingReset(counter) });
 
     activate(harness);
-    harness.controller.destroy();
+    void harness.controller.destroy();
     harness.calls.length = 0;
     press(harness.item);
 
@@ -2820,7 +2820,7 @@ describe('teardown totality', () => {
 
     activate(harness);
     reported = [];
-    harness.controller.destroy();
+    void harness.controller.destroy();
 
     // Two resets, each reporting the thrown error and the scrub assertion it
     // leaves behind.
@@ -3123,5 +3123,162 @@ describe('arbitrary thenables', () => {
     expect(harness.settlements).toEqual([
       { type: SETTLED_FULFILLED, value: 'first' },
     ]);
+  });
+});
+
+/**
+ * **The transaction bracket** (D-36, D-38, D-53; probe A).
+ *
+ * Logical closure and physical teardown were one event until Revision 2, and
+ * separating them is the change every other liveness rule in the contract now
+ * depends on. What these pin is the separation itself: that the latch moves on
+ * the closing statement, that the resources do not move until the outermost
+ * library transaction ends, and that the two are observably different from
+ * inside a reentrant destroy — which is the only place the difference exists.
+ */
+describe('the transaction bracket', () => {
+  it('should run physical teardown immediately outside a transaction', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    harness.calls.length = 0;
+    void harness.controller.destroy();
+
+    // Nothing is on the stack, so the two events still coincide. This is the
+    // shipped behavior as the common case rather than as the definition.
+    expect(harness.calls).toContain('retire');
+  });
+
+  it('should settle the returned promise after physical teardown', async () => {
+    const harness = createHarness();
+
+    activate(harness);
+    harness.calls.length = 0;
+
+    await harness.controller.destroy();
+
+    expect(harness.calls).toContain('retire');
+  });
+
+  it('should return one promise from every destroy call', async () => {
+    const harness = createHarness();
+    const first = harness.controller.destroy();
+
+    expect(harness.controller.destroy()).toBe(first);
+
+    // Idempotent: repeated destruction closes nothing further, and every
+    // returned promise still settles exactly once.
+    await expect(first).resolves.toBeUndefined();
+    await expect(harness.controller.destroy()).resolves.toBeUndefined();
+  });
+
+  it('should close logically on the calling statement', () => {
+    let closedInside: boolean | null = null;
+    const harness = createHarness({
+      onStart(host): void {
+        void host.destroy();
+        // The latch is set by the closing statement itself, not at the end of a
+        // seven-step sequence.
+        closedInside = host.closed;
+      },
+    });
+
+    activate(harness);
+
+    expect(closedInside).toBe(true);
+  });
+
+  it('should defer physical teardown to the outermost transaction boundary', () => {
+    let calledInside: readonly string[] = [];
+    const harness = createHarness({
+      onStart(host): void {
+        void host.destroy();
+        calledInside = [...harness.calls];
+      },
+    });
+
+    activate(harness);
+
+    // `activation.effect` runs inside a drain, so the destroy is reentrant and
+    // its physical steps are owed to the boundary below it.
+    expect(calledInside).not.toContain('retire');
+    expect(harness.calls).toContain('retire');
+  });
+
+  it('should settle the deferred promise only after the boundary runs teardown', async () => {
+    let pending!: Promise<void>;
+    let settled = false;
+    const harness = createHarness({
+      onStart(host): void {
+        pending = host.destroy();
+        void pending.then(() => {
+          settled = true;
+        });
+      },
+    });
+
+    activate(harness);
+
+    expect(settled).toBe(false);
+    await pending;
+    expect(harness.calls).toContain('retire');
+  });
+
+  it('should tear down once when destroy is called twice inside one transaction', () => {
+    const harness = createHarness({
+      onStart(host): void {
+        void host.destroy();
+        void host.destroy();
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.calls.filter((call) => call === 'retire')).toHaveLength(1);
+  });
+
+  /**
+   * **The disagreement I-37 exists to adjudicate, made real.**
+   *
+   * Both readings agreed before D-36, and `signal.aborted` was preferred
+   * because it is strictly *stronger* — it also fires for a kernel-internal
+   * `panic()`. Deferral inverts that: the signal now lags the close, so the
+   * fixture below is one where the two genuinely disagree, and the rule is that
+   * the latch wins.
+   */
+  it('should resolve a liveness disagreement by the latch', () => {
+    let latch: boolean | null = null;
+    let aborted: boolean | null = null;
+    const harness = createHarness({
+      activation: {
+        prepare: (): HTMLElement => document.createElement('div'),
+        effect(_current, _prepared, scope: ActivationScope): void {
+          void harness.host.destroy();
+          latch = harness.host.closed;
+          aborted = scope.presentation.signal.aborted;
+        },
+      },
+    });
+
+    activate(harness);
+
+    expect(latch).toBe(true);
+    // The physical observation has not happened yet, which is exactly why it
+    // may not answer a liveness question (D-38).
+    expect(aborted).toBe(false);
+  });
+
+  it('should keep the ingress released once the boundary runs', () => {
+    const harness = createHarness({
+      onStart(host): void {
+        void host.destroy();
+      },
+    });
+
+    activate(harness);
+    harness.calls.length = 0;
+    press(harness.item);
+
+    expect(harness.calls).toEqual([]);
   });
 });

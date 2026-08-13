@@ -102,14 +102,19 @@ export function createSortableSpec(
   // One per controller. Arming is per operation, on the motion signal.
   const invalidate = createInvalidator(realm);
   /**
-   * The terminal latch as a predicate, for the barriers that cannot reach `rt`
-   * (I-36): the candidate loop inside the feature's private `RectIndex`, the
+   * The terminal latch as a predicate, for the barriers that cannot reach
+   * `host`: the candidate loop inside the feature's private `RectIndex`, the
    * displacement hooks' own measurement loops, and `createPlaceholder`'s
    * post-factory mechanics. Every barrier written *in this file* reads
-   * `rt.closed` directly instead; this closure is created once per controller
+   * `host.closed` directly instead; this closure is created once per controller
    * and copied by reference onto each per-operation view.
+   *
+   * **D-53 supplies the reading; D-38 rules out the alternatives.** Physical
+   * teardown is deferred to the transaction boundary (D-36), so a disposed
+   * lifetime, an aborted signal, a nulled slot and a detached node all lag the
+   * logical close and none of them may answer a liveness question (I-37).
    */
-  const live = (): boolean => !rt.closed;
+  const live = (): boolean => !host.closed;
 
   /**
    * The admitted item, from the event's **composed path** rather than
@@ -156,7 +161,7 @@ export function createSortableSpec(
       // longer exists.
       //
       // A handle *narrows* admission; it never replaces the item.
-      if (rt.closed || handle === null || !path.includes(handle)) {
+      if (host.closed || handle === null || !path.includes(handle)) {
         return null;
       }
     }
@@ -195,7 +200,7 @@ export function createSortableSpec(
       // frame nothing will clear again (I-20). It **declines** for the same
       // reason `resolveItem` does: destroying your own controller is not a
       // library failure.
-      if (rt.closed) {
+      if (host.closed) {
         return null;
       }
     }
@@ -303,7 +308,7 @@ export function createSortableSpec(
       // already has for a classified measure failure — nothing after it in the
       // bracket runs, and no `afterMove` hook starts an animation on a
       // torn-down controller.
-      return !rt.closed;
+      return !host.closed;
     } catch (error) {
       host.fail(FAILURE_INVALIDATION, error);
       return false;
@@ -500,23 +505,12 @@ export function createSortableSpec(
         // consumer code — the placeholder may come from a `placeholder()`
         // factory — reached from a plain DOM write, so no seam wraps it and no
         // reentrancy guard above sees it. If it destroyed the controller,
-        // teardown has already run to completion: the disposer registered on
-        // the line above removed this node, motion and presentation are closed,
-        // and the operation is retired. Everything below would then register
-        // against closed lifetimes (releasing immediately and reporting),
-        // republish this operation's DOM into the runtime for the *next* drag
-        // to find, and call `onStart` after `destroy()` returned — the
-        // synchronous terminal barrier I-6 forbids crossing (D-26).
+        // the controller is logically closed. Everything below would then
+        // register against lifetimes that are closing, republish this
+        // operation's DOM into the runtime for the *next* drag to find, and
+        // call `onStart` after `destroy()` — the terminal barrier I-6 forbids
+        // crossing (D-26).
         //
-        // **I-36's rule, read through the liveness this site has.** The other
-        // three barriers read `rt.closed`; here the seam was handed its
-        // presentation scope, and the signal is strictly stronger — it is also
-        // aborted by a kernel-internal `panic()` destroy, which never reaches
-        // the controller's latch. One rule, whichever reading the site has.
-        if (scope.presentation.signal.aborted) {
-          return;
-        }
-
         // Everything below assumes the insertion actually took, and a
         // `connectedCallback` gets to run between `after()` and this line. It
         // can remove itself, move itself, or reparent the *item* — and a
@@ -545,16 +539,24 @@ export function createSortableSpec(
           );
         }
 
-        // **The terminal barrier on the survival conjuncts** (I-36 (2) act 1,
-        // C5-03's stretch sweep). `isConnected` and `nextElementSibling` are
-        // accessors on elements the consumer owns — a custom-element
-        // placeholder may define either — so the reading above does not cover
-        // them. Everything below publishes this operation's DOM into the
-        // behavior runtime, which `retire()` has already nulled: without this
-        // a destroy from one of those two reads leaves the next drag to find
-        // the placeholder, the lift and the per-operation view of the one that
-        // no longer exists (I-20).
-        if (scope.presentation.signal.aborted) {
+        // **The pre-publication revalidation, and the one reading that covers
+        // this whole stretch** (D-38, I-37). Two readings stood here before
+        // Revision 2 — one after `after()`, one after the survival conjuncts —
+        // and both read `scope.presentation.signal.aborted`, chosen because it
+        // is strictly *stronger* than the controller's latch: it also fires for
+        // a kernel-internal `panic()` destroy.
+        //
+        // D-36 inverts that property. Physical teardown now runs at the
+        // transaction boundary, so the signal **lags** the close it stood in
+        // for — a reading that was right for a stated reason became wrong for
+        // that same reason. `host.closed` is the latch itself (D-53), and since
+        // a panic closes logically first it sees that too, so nothing is lost
+        // by collapsing the pair into one reading placed immediately before the
+        // publication block. Every consumer-reachable accessor in the stretch —
+        // `connectedCallback`, `isConnected`, `nextElementSibling` on a
+        // consumer-owned placeholder — is covered by it, because everything
+        // below is the publication and nothing above it is consequential.
+        if (host.closed) {
           return;
         }
 
@@ -675,12 +677,12 @@ export function createSortableSpec(
           const resolved = slots.resolveInsertion(draft, rt.view);
 
           // `resolved === null`: the incumbent slot still wins — commit
-          // nothing. `rt.closed`: a candidate `visual()` resolver destroyed the
+          // nothing. `host.closed`: a candidate `visual()` resolver destroyed the
           // controller during the rebuild (I-36). The kernel would discard the
           // transition anyway — `preparationValid()` no longer holds — but
           // stopping one branch earlier means the behavior never writes
           // `draft.insertion` for an operation that no longer exists.
-          if (resolved === null || rt.closed) {
+          if (resolved === null || host.closed) {
             return null;
           }
 
@@ -805,7 +807,7 @@ export function createSortableSpec(
             // the **behavior's** next act, which is a DOM mutation on the
             // consumer's tree that would run a placeholder custom element's
             // callbacks after `destroy()` returned.
-            if (rt.closed) {
+            if (host.closed) {
               return;
             }
 
@@ -825,7 +827,7 @@ export function createSortableSpec(
             //
             // Returned from **inside** the `try`, so the `finally` still clears
             // `view.insertion` and no stale destination gap outlives the move.
-            if (rt.closed) {
+            if (host.closed) {
               return;
             }
 
@@ -956,7 +958,7 @@ export function createSortableSpec(
           // has already scrubbed and will not scrub again: `draft.insertion`,
           // then `draft.proposal`, whose request pins the item and the whole
           // released snapshot in an inactive frame (I-20).
-          if (rt.closed) {
+          if (host.closed) {
             return { invoke: null };
           }
 
@@ -1009,7 +1011,7 @@ export function createSortableSpec(
         // `FAILURE_RELEASE` against a controller that no longer exists. The
         // publication below is the other half: a request written after
         // `retire()` cleared it outlives the operation and pins its DOM (I-20).
-        if (rt.closed) {
+        if (host.closed) {
           return;
         }
 
@@ -1051,7 +1053,7 @@ export function createSortableSpec(
         // define. The reading above covers the placeholder move, not this — and
         // a request published after `retire()` cleared it outlives the operation
         // and pins its DOM (I-20).
-        if (rt.closed) {
+        if (host.closed) {
           return;
         }
 
@@ -1112,7 +1114,7 @@ export function createSortableSpec(
                   };
             const { presentation } = value;
 
-            if (rt.closed) {
+            if (host.closed) {
               return { presentation: false };
             }
 
@@ -1234,7 +1236,7 @@ export function createSortableSpec(
             // footprint the operation has finished with — back into the
             // consumer's list, where nothing will remove it again. Last
             // conjunct, so it is read only on the frame that would mutate.
-            !rt.closed
+            !host.closed
           ) {
             item.before(placeholder);
           }
@@ -1255,7 +1257,7 @@ export function createSortableSpec(
       // `anchorTarget` (F-38) and never starts a landing for a destroyed
       // controller, so the point is discarded either way; what this stops is
       // the read itself.
-      if (rt.closed) {
+      if (host.closed) {
         return { x: 0, y: 0 };
       }
 

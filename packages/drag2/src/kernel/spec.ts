@@ -65,9 +65,36 @@ export type KernelHost = Readonly<{
    */
   presentationCommitted(): void;
 
+  /**
+   * **Is this controller logically closed?** The sanctioned liveness reading,
+   * and the only one (D-53, I-37).
+   *
+   * This is the latch itself, not a proxy for it. No physical-teardown
+   * observation may answer a liveness question: under D-36 physical teardown is
+   * deferred to the transaction boundary, so `presentation.signal.aborted`, a
+   * disposed session and a detached node all **lag** the logical close. They
+   * were chosen because they are strictly *stronger* than the latch — they also
+   * fire for a kernel-internal `panic()` — and deferral turns that same
+   * property into strictly weaker.
+   *
+   * Readonly by construction: a behavior may consult the latch, never set it,
+   * which is what keeps closure the kernel's to decide.
+   */
+  readonly closed: boolean;
+
   /** Base controller methods, for the behavior to spread into its controller. */
   cancel(reason?: unknown): void;
-  destroy(): void;
+
+  /**
+   * Closes the controller **logically**, immediately, on this statement. The
+   * returned promise settles **once**, after physical teardown — which is this
+   * call when no library transaction is active, and the boundary of the
+   * outermost one when there is (D-36).
+   *
+   * Idempotent: repeated destruction closes nothing further and every returned
+   * promise still settles exactly once.
+   */
+  destroy(): Promise<void>;
 }>;
 
 /**
@@ -85,6 +112,28 @@ export type KernelHost = Readonly<{
  * It is **internal**: a behavior declares which events the kernel binds; a
  * consumer does not.
  */
+/**
+ * What an admission member returns when it admits (D-59).
+ *
+ * A bare `HTMLElement` is the common form and means `box === visual`, which is
+ * `box(item) = visual(item)`'s default (D-43) written as the absence of a
+ * choice rather than as a repeated one. The pair form names a separate geometry
+ * source, because what leaves flow is the **visual** while what the layout
+ * loses is the **box**, and api-1 measured that no single-window rule
+ * reproduces the removed footprint in both nested cases.
+ *
+ * Discriminated by `'visual' in subject`, never `instanceof HTMLElement`:
+ * `instanceof` is realm-sensitive, and {@link DOMRealm} exists precisely
+ * because an element may come from another document.
+ *
+ * `box` is **required** inside the pair. An optional `box` would give
+ * *the box is the visual* two encodings, which this contract refuses
+ * everywhere else.
+ */
+export type AdmissionSubject =
+  | HTMLElement
+  | Readonly<{ visual: HTMLElement; box: HTMLElement }>;
+
 export type CommandAdmission<Part extends object> = Readonly<{
   /**
    * The event types the kernel binds on `root`, for the controller's life,
@@ -98,10 +147,15 @@ export type CommandAdmission<Part extends object> = Readonly<{
    * guards, with the draft open — the position `admit` occupies, and the only
    * position from which feasibility can still reach the producer.
    *
-   * Returns the element to lift, or `null` to decline. Declining is total: no
+   * Returns the subject to lift, or `null` to decline. Declining is total: no
    * operation, no phase change, and the kernel does not prevent the default.
+   *
+   * The D-59 widening applies here identically, and `null` remains the single
+   * decline value: a command lifts a visual and the footprint it removes is
+   * measured from a box, so both admission members answer the same question
+   * with the same type.
    */
-  admit(event: Event, draft: Draft<Part>): HTMLElement | null;
+  admit(event: Event, draft: Draft<Part>): AdmissionSubject | null;
 }>;
 
 /**
@@ -113,10 +167,17 @@ export type CommandAdmission<Part extends object> = Readonly<{
  * than an aspiration (contract D-21).
  */
 export type ActivationScope = Readonly<{
-  /** The element the kernel is lifting — what `admit` returned. */
+  /** The element the kernel is lifting — the visual half of what `admit` returned. */
   visual: HTMLElement;
   /** Its viewport rect at grab. Basis for every landing measurement. */
   originRect: DOMRectReadOnly;
+  /**
+   * The geometry source — what `admit` returned as the box half of its subject,
+   * or `visual` when it returned a bare element (D-59). Held by the kernel from
+   * admission, never read out of the behavior's frame part: a kernel that named
+   * one behavior-authored field would contradict H-2 and D-15.
+   */
+  box: HTMLElement;
   /** The lift session. The behavior keeps it for `moved`. */
   lift: VisualLiftSession;
   /** Closed at release, cancel, destroy, panic. */
@@ -353,8 +414,12 @@ export type BehaviorSpec<Part extends object> = Readonly<{
    * behavior's** — the ingress owner performs it, exactly when an admission
    * member returns non-null, in both input modes. The behavior answers
    * feasibility with its return value and nothing else (C-03).
+   *
+   * Returns the element the kernel should lift — optionally paired with the
+   * element the kernel should measure (D-59) — or `null` to leave the
+   * controller idle.
    */
-  admit(event: PointerEvent, draft: Draft<Part>): HTMLElement | null;
+  admit(event: PointerEvent, draft: Draft<Part>): AdmissionSubject | null;
 
   /**
    * The optional second ingress (D-32). A behavior that omits it binds no
