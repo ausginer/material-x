@@ -430,7 +430,7 @@ Three reasons, in order of weight:
 | `settlement.prepare` | `RELEASING` | `SETTLING` | Map the discriminated `SettlementInput` exhaustively to `outcome`, `recovery`, `domain`. A non-resolution or a rejected thenable returns a `SeamRejection`. There is no gate plan to stage: the one remaining gate is requested in `effect`. |
 | `settlement.effect` | — | — | _Request_ the one hold: `scope.holdForLanding(start)` when a `landing()` slot exists and recovery is not immediate. Nothing is armed here. |
 | `anchorTarget` | `SETTLING` | — | Re-anchor when the recovery is destination; measure; return the point. **Once**, at arm. See §Landing. |
-| `finalized` | `FINALIZING` | — | `onFinish` for accepted/no-op, `onCancel` for rejected/canceled, nothing for failed. |
+| `finalized` | `FINALIZING` | — | **`onEnd`, exactly once, for every started operation on a live controller** (D-62 for the name, D-66 for the totality) — the frame's domain result if it holds one, `canceled` if it does not. It read "`onFinish` for accepted/no-op, `onCancel` for rejected/canceled" until Revision 2.1; the split is gone and the predicate that produced F-37 with it. The `failed` case **is** changed: it published nothing until D-66, which is what Q-14 resolved. |
 | `retire` | → `IDLE` | — | Cancel the frame task, clear `pendingSpatial`, drop `placeholder` and `lift`, run feature retire hooks. (`pendingRequest` was here until D-41; nothing holds a request past the resolution now.) |
 
 ### Discrete admission — a second ingress, not a second protocol (D-32)
@@ -948,15 +948,17 @@ The complete mapping, which the behavior must cover exhaustively:
 
 | Input | Outcome | Recovery | Domain result | Callback |
 | --- | --- | --- | --- | --- |
-| `skipped` | `OUTCOME_NOOP` | **immediate** — the placeholder is already where the item belongs | `{ type: 'noop', proposal }` | `onFinish` |
-| `fulfilled`, an accepted `ReorderResolution` | `OUTCOME_ACCEPTED` | destination | `{ type: 'accepted', proposal }` | `onFinish` |
-| `fulfilled`, a rejected `ReorderResolution` | `OUTCOME_REJECTED` | home | `{ type: 'rejected', reason, proposal }` | `onCancel` |
+| `skipped` | `OUTCOME_NOOP` | **immediate** — the placeholder is already where the item belongs | `{ type: 'noop', proposal }` | `onEnd` |
+| `fulfilled`, an accepted `ReorderResolution` | `OUTCOME_ACCEPTED` | destination | `{ type: 'accepted', proposal }` | `onEnd` |
+| `fulfilled`, a rejected `ReorderResolution` | `OUTCOME_REJECTED` | home | `{ type: 'rejected', reason, proposal }` | `onEnd` |
 | `fulfilled`, not a resolution at all | — | — | — | `SeamRejection(FAILURE_REORDER_RESOLUTION)` |
 | `rejected` (the thenable rejected or `invoke` threw) | — | — | — | `SeamRejection(FAILURE_REORDER_RESOLUTION)` |
-| `canceled` | `OUTCOME_CANCELED` | home | `{ type: 'canceled', reason, stage, proposal }` | `onCancel` |
-| `failed` | `OUTCOME_FAILED` | immediate | **none** | `onError` only; `finalized` is never called |
+| `canceled` | `OUTCOME_CANCELED` | home | `{ type: 'canceled', reason, stage, proposal }` | `onEnd` |
+| `failed` | `OUTCOME_FAILED` | immediate | **none in the frame** → `finalized` publishes `{ type: 'canceled', reason: <the classifying error>, stage, proposal }` (D-66) | `onError` **and** `onEnd`. It read _"`onError` only; `finalized` is never called"_ until Revision 2.1 |
 
-A rejected thenable is a **resolver malfunction, not a considered consumer verdict**, so it is a named classified failure rather than an inferred `onCancel`. Acceptance is still never inferred, and now neither is rejection.
+A rejected thenable is a **resolver malfunction, not a considered consumer verdict**, so it is a named classified failure rather than an inferred `{ type: 'rejected' }`. Acceptance is still never inferred, and now neither is rejection.
+
+**The callback column collapsed to one name at Revision 2.1 (D-62) and the mapping did not change.** That is the point of the row: the five settlement inputs map to four domain arms and one failure, exactly as D-24 established, and what disappears is the library's job of routing four arms into two callbacks. The consumer's `switch (result.type)` is the same exhaustive switch, checked by their compiler instead of by F-37's test.
 
 **The union is unchanged by D-40. No `aborted` case is added, and none is contemplated.** A sixth case would encode _provenance_ — where the abandonment came from — and provenance is not a different consumer obligation: in both the pre-release and the post-release cancellation the consumer must not assume its own started work was undone, because the library never had a way to undo it. Splitting the name would oblige every consumer to write two handlers that do the same thing. What changes is only what the `canceled` row **means**, and one rule about what happens after it.
 
@@ -1205,6 +1207,8 @@ Consequences:
 
 The kernel computes nothing about geometry beyond the delta arithmetic; it owns the _attempt_, the _timing of measurement_, and the _final pin_.
 
+**The types below are unchanged by D-63 and their audience has narrowed.** `LandingStart`, `LandingContext` and `LandingHandle` are **not** ordinary-tier consumer vocabulary any more: the sortable's `landing()` takes `{ duration, easing }` and installs the library's own WAAPI runner. They are published to the **middle** tier (`sortable/feature.js`, D-61) and to the **kernel** tier, where a behavior author supplies a runner — which review 3 §10 leaves open in as many words. **Nothing in this section changes shape.** That is the substance of the claim that D-63 is a tier move: the reserve-seal-arm protocol, the once-only completion latch, the relinquishment obligation on `destroy()` and the kernel's final pin are all what make the _library's own_ runner correct, and would all still be here if no third party ever wrote one.
+
 ```ts
 type Point = Readonly<{ x: number; y: number }>;
 
@@ -1318,7 +1322,26 @@ join — the landing hold released, or never taken
     dispatch(RETIRE, operation)
 ```
 
-**The terminal callback is skipped after a consequential failure.** Presentation release is unconditional; `finalized` is not. The committed frame still says `OUTCOME_ACCEPTED` at this point, so calling it would fire `onFinish` for a drop that the queued checkpoint is about to report through `onError` — violating the rule that a failed operation reports through `onError` **only**.
+~~**The terminal callback is skipped after a consequential failure.**~~ **Retracted by D-66 (Revision 2.1). The terminal is published, exactly once, on this path too.**
+
+> **`onEnd` is exactly-once domain disposition.** A started operation on a still-live controller publishes one terminal whatever happened to it. The argument is **the domain result the frame already holds; `canceled` when it holds none**, carrying the classifying error as its `reason`. `onError` is orthogonal and neither implies nor suppresses it (D-60).
+
+The struck sentence's reasoning was: the committed frame still says `OUTCOME_ACCEPTED`, so calling `finalized` would announce a successful drop that the queued checkpoint is about to report as failed. **That reason inverts into the new rule rather than surviving it.** When the failure arrives after the authored commit, the drop _is_ accepted — the consumer's data is reordered and the DOM is committed — so announcing it is not a lie, it is the one fact the consumer must have. What was wrong was treating `onEnd` as a verdict on the **operation** when it is a report on the **domain**. `onError` is the verdict on the operation.
+
+**Continuation versus disposition, because D-23 turns on it.** A classified failure still stops every kind of continuation D-23 lists: no retirement past the failure, no gate arming, no seam success path, no consumer invocation that constitutes further operation work. What it no longer stops is the **disposition** — the single statement of how the operation ended. D-23's list loses that one clause and keeps the others; F-27's defect was that success _work_ ran after a classified throw, and that stays fixed.
+
+**The mapping is a lookup, not a branch per stage.** `finalized` reads the committed frame:
+
+```text
+frame holds a domain result   →  publish it            (accepted / noop / rejected / canceled)
+frame holds none             →  publish canceled      reason = the classifying error
+```
+
+Nothing else is consulted. That is what makes the rule total: every consequential failure reaches one of the two lines, and no stage needs its own terminal policy.
+
+**It needs no SPI change, and that is worth stating because both of Revision 2's SPI crossings were found late.** `reportFailure(stage, error)` is already a `BehaviorSpec` member: the behavior receives the classifying error, stashes it in **its own** frame part, and `finalized` reads it from there. The kernel neither carries the error to the terminal nor learns what a domain result is — H-2 and D-15 are untouched.
+
+**Ordering, where both channels fire.** `onError` reports a fault when it is **classified**; the terminal is published at the operation's **disposition**. Classification precedes disposition for every stage except one, so `onError` precedes `onEnd` in every case a consumer will meet — and the exception is unavoidable rather than chosen: a fault raised **by the terminal callback itself** (`FAILURE_TERMINAL_CALLBACK`) is necessarily reported after it. Stating it this way avoids a rule that would have to be broken; stating it as _"`onError` always comes first"_ would not survive its own first counterexample.
 
 Ordering is normative, and D-41 shortens the join without weakening it. `destroy()` precedes the pin so a running WAAPI animation cannot override the inline transform — unchanged, and now the **first** fallible step rather than the second. The measurement no longer happens here: it happened at arm, while presentation was owned and the authored DOM was final, and the join reads the value it recorded. **This is what "the kernel performs the authoritative pin at the join" always meant** — the pin is the join's, the measurement never had to be, and separating them is what lets the runner and the pin agree on one target instead of two.
 
@@ -1345,7 +1368,7 @@ The domain result stands because it is **true**: the DOM commit already happened
 
 **So `onError` no longer implies a failed operation, and D-60 makes that normative.**
 
-> **`onError` is orthogonal to the terminal.** One operation may produce `onError` **and** `onFinish`. `FAILURE_LANDING_TARGET` is the first stage that is _classified, non-consequential, and has no recovery_.
+> **`onError` is orthogonal to the terminal.** One operation may produce `onError` **and** `onEnd` (D-62). `FAILURE_LANDING_TARGET` is the first stage that is _classified, non-consequential, and has no recovery_.
 
 §Failure classification's "a failed operation reports through `onError` only" was always a one-way implication and is unchanged; what is new is that the converse — which this document nowhere stated but everywhere **assumed** — is false. `onError` means _something the consumer should know about_; `OUTCOME_FAILED` remains the only thing that means _the drop did not complete_.
 
@@ -1618,6 +1641,16 @@ Two entries moved in Revision 2. `PRESENTATION_READY` was in this list until D-4
 
 `stage` is typed as the closed `FailureStage` union of those constants, not a bare `number`, so a participant cannot forge an invalid or kernel-private stage.
 
+### The stage is internal; the consumer gets a code (D-64)
+
+Everything above is **kernel-tier and middle-tier vocabulary**. It was ordinary-tier public until Revision 2.1, and it is not any more: `onError` hands the consumer a `DraggableError` carrying a coarse `code` — `'consumer' | 'interaction' | 'presentation' | 'platform'`, names not frozen — and never a stage. The classification machinery is unchanged; only its audience narrowed.
+
+**The library therefore owns a stage → code mapping, and it must be total in the type.** This is the second total mapping this section carries, and the first one — stage → recovery — is the reason to insist: D-60 exists because a gap in that mapping was read as an unfinished row rather than as a decision. A `default:` arm that assigns `'platform'` to whatever is left would reproduce exactly that defect, silently, on the channel a consumer actually reads. Every stage names a code deliberately, and adding a stage without naming one is a compile error.
+
+**The axis is fault attribution, not pipeline position** (review 3 §12). The current list already encodes it, badly: `ADMISSION`, `REORDER_RESOLUTION` and the terminal-callback stages are consumer-caused; `SCHEDULED_FRAME`, `RENDERER_WRITE` and `INVALIDATION` are not. The mapping's job is to state that split rather than to compress the pipeline names.
+
+**`FailureStage` remains public at the kernel tier**, because a behavior author calls `host.fail(stage, error)` and cannot do so without naming one. That is the same rule this contract has run on since phase 9 — export what the tier's public surface structurally depends on — applied at the tier that now depends on it.
+
 **`fail` is valid only inside a kernel-driven seam of the current operation.** Because it targets "whichever operation the kernel currently holds", a late asynchronous callback belonging to operation A could otherwise classify a failure against operation B — which contradicts the double-validation rule the rest of the model depends on. The kernel keeps a private `inSeam` latch that the driver sets around every `prepare`/`effect` call; a `fail` outside one is downgraded to a platform report and never classified. That makes the rule tier **B** rather than discipline.
 
 Two consequences for who gets what:
@@ -1631,7 +1664,7 @@ Precedence, for one operation, highest first:
 DESTROY  >  CANCEL  >  FAILURE_CHECKPOINT
 ```
 
-`onError` runs in `REPORTING`, exactly once per failure, and never replaces the initiating error. **It does not imply a terminal, and does not suppress one** (D-60): a D-49 measurement failure reports through this channel and the operation still reaches `onFinish` with its true domain result.
+`onError` runs in `REPORTING`, exactly once per failure, and never replaces the initiating error. **It does not imply a terminal, and does not suppress one** (D-60; and after D-66 the second half is unconditional — no failure of any tier suppresses the terminal): a D-49 measurement failure reports through this channel and the operation still reaches `onEnd` with its true domain result (D-62).
 
 This paragraph carried a second sentence about the readiness **deadline** — that it replaced the settlement, kept presentation owned and reported through `onError` only, and was the one classified readiness outcome (D-33). It is deleted with the deadline. The shape it described survives at a different site: an `ARM_FAILED` measurement replaces the settlement, keeps presentation owned until the failure path's immediate recovery releases it, and reports through `onError` with no `onFinish` and no `onCancel` following.
 
@@ -1651,7 +1684,7 @@ Phase 14 revises the contract **once**, against three probes together, and the r
 
 D-41's serial order is the third answer to that question and the only one that does not need a capability at all: if the render happens _inside_ the call that asked for it, nothing has to be older than anything. Two forms of this protocol were built and both were retracted; **the residue is a lesson about capability age**, and it is recorded here rather than in the deleted section because D-47's published kernel surface will meet the same question the next time something has to be acknowledged per operation.
 
-**Two things stayed out, deliberately.** Settle-time landing timing already fits through `landing({ run })` and its residue is a public-option ergonomics question (13b B-2); public lift modes and coordinate-space ownership are surface decisions the seams already express (13c P-2, P-4). Carrying either into a contract revision is how a revision grows.
+**Two things stayed out, deliberately.** Settle-time landing timing already fits through `landing({ run })` and its residue is a public-option ergonomics question (13b B-2) — **and D-63 removes `run`, so what it fits through now is the `duration` thunk alone, which is why L-6 is under pressure (03 §Public option domains)**; public lift modes and coordinate-space ownership are surface decisions the seams already express (13c P-2, P-4). Carrying either into a contract revision is how a revision grows.
 
 ### What the second behavior validated without changing
 

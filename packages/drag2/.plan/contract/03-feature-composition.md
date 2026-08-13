@@ -6,7 +6,7 @@
 
 That closed world is the _point_ — it is what buys direct slot calls, prebuilt pipelines, no runtime descriptor interpretation, and honest tree-shaking.
 
-**The sentence that used to close this section is half retracted by D-45 (Revision 2).** It read: ~~"It is not a supported third-party authoring or versioning contract, and nothing here should be read as promising one."~~ The **config schema is** exactly that — public, stable, and versioned like any other public type. A consumer may author the config literal, spread a preset over it, override one slot, or filter the plugin array. What stays closed is the set of **installer values** the capability slots carry: authoring a new one still means dropping to `@ydinjs/drag/kernel` and writing a behavior (D-47). The closed world is the set of installers, not the set of objects that may name one — see §Fragments are public, installers are opaque.
+**The sentence that used to close this section is half retracted by D-45 (Revision 2).** It read: ~~"It is not a supported third-party authoring or versioning contract, and nothing here should be read as promising one."~~ The **config schema is** exactly that — public, stable, and versioned like any other public type. A consumer may author the config literal, spread a preset over it, override one slot, or filter the plugin array. ~~What stays closed is the set of **installer values** the capability slots carry: authoring a new one still means dropping to `@ydinjs/drag/kernel` and writing a behavior (D-47). The closed world is the set of installers, not the set of objects that may name one~~ — **and that is retracted in turn by D-61 (Revision 2.1).** Authoring an installer is a **supported act at the middle tier**, `sortable/feature.js`; it does not mean writing a behavior, and sending someone there was the drift the owner caught. What stays closed is the set of **semantic seams** — the first paragraph's list — because adding one still requires coordinated edits to the schema, `SortableContribution`, `SortableSlots`, `assemble`, validation and the behavior's call sites. **A third party may fill an existing seam; only the package may add one.** That is the boundary, and it is narrower and more honest than either sentence it replaces — see §Fragments are public, installers are opaque.
 
 ## A fragment is a plain declarative partial config (D-45)
 
@@ -34,7 +34,7 @@ function layoutAnimation(
 }
 ```
 
-The value a capability slot carries is an **installer** — the type this document used to export as `SortableFeature`, and which is now internal and unnameable:
+The value a capability slot carries is an **installer** — the type this document used to export as `SortableFeature`, and which is **published at the middle tier** (D-61; it read _"now internal and unnameable"_ until Revision 2.1, which is the same drift one section up). An ordinary consumer importing only `sortable.js` still cannot name it; that is now a property of which entry they imported, not of the declaration:
 
 ```ts
 type SortableInstaller = (context: FeatureContext) => SortableContribution;
@@ -89,15 +89,13 @@ type SortableConfig = Readonly<{
   axis: AxisInstaller; // y() or xy()
 
   /* optional consumer functions */
-  onStart?(item: HTMLElement): void;
-  onFinish?(result: SortableFinishResult): void;
-  onCancel?(result: SortableCancelResult): void;
-  onError?(error: unknown, context: DragErrorContext): void;
-  handle?(item: HTMLElement): HTMLElement | null;
-  visual?(item: HTMLElement): HTMLElement;
-  box?(item: HTMLElement): HTMLElement; // D-43; defaults to visual
-  createPlaceholder?: PlaceholderFactory; // D-56, flat
-  placeholderClassName?: string; // D-56, flat
+  onStart?: OnStart;
+  onEnd?: OnEnd; // D-62, one terminal, four arms
+  onError?: OnDragError; // D-64
+  handle?: ResolveHandle;
+  visual?: ResolveElement;
+  box?: ResolveElement; // D-43; defaults to visual
+  placeholder?: PlaceholderFactory; // D-65, the callback itself
 
   /* optional capabilities */
   landing?: LandingInstaller;
@@ -109,7 +107,16 @@ type SortableConfig = Readonly<{
 }>;
 ```
 
-The installer aliases are **names without structure**: a consumer can write `axis: y().axis`, cannot write `axis: (ctx) => ({ … })`, and never sees what one is.
+The installer aliases are **names without structure** at the _ordinary_ tier: a consumer writing only `sortable.js` can write `axis: y().axis`, cannot write `axis: (ctx) => ({ … })`, and never sees what one is. **At the middle tier they have structure and are authorable** — that is the whole of D-61, and §Fragments are public, installers are opaque states where the line now runs. Opacity is a property of _which entry you imported_, not of the value.
+
+**Every callback slot is a named type alias, and that is normative rather than stylistic (F-51).** `onEnd?: OnEnd`, never `onEnd?(result): void` and never an inline `onEnd?: (result) => void`. Two facts force it, and the compiled fixture found both:
+
+- **method shorthand is checked bivariantly**, even under `strict`, so `onEnd?(result: ReorderTransactionResult): void` silently accepts a handler narrowed to two of the four arms. D-62's whole claim is that the **compiler** checks the consumer's exhaustiveness; under shorthand it does not check it at all;
+- **the inline property form does not survive this repo.** `@typescript-eslint/method-signature-style` is configured to `method`, so `npx just lint-fix` rewrites `onEnd?: (result) => void` back into the shorthand — silently undoing the variance the contract depends on. A named alias is immune, because the rule normalises inline function-type literals and leaves type references alone.
+
+A rule that the next `lint-fix` reverses is not a rule. The aliases are the only form that holds without a per-slot lint suppression.
+
+**Four slots changed at Revision 2.1** and each restores an owner decision Revision 2 dropped: `onFinish`/`onCancel` collapse into one `onEnd` (D-62), `onError` receives a coarse-coded `DraggableError` instead of a `FailureStage`-bearing context (D-64), `createPlaceholder` and `placeholderClassName` collapse into `placeholder` (D-65), and `landing`'s installer no longer accepts a consumer runner (D-63). `ReorderTransactionResult` is not a new type: it is the four-arm union these documents already carry, and `SortableFinishResult`/`SortableCancelResult` were partitions of it that existed only to type two callbacks.
 
 ### The two stages, and why installers run second
 
@@ -126,7 +133,7 @@ collect fragments        left to right, the config literal first
 | Slot kind | Members | Merge |
 | --- | --- | --- |
 | scalar | `threshold` | last wins |
-| plain consumer function | `items`, `onReorder`, `onStart`, `onFinish`, `onCancel`, `onError`, `handle`, `visual`, `box` | last wins |
+| plain consumer function | `items`, `onReorder`, `onStart`, `onEnd`, `onError`, `handle`, `visual`, `box`, `placeholder` | last wins |
 | atomic capability installer | `axis`, `landing` | last wins, **as one whole slot** |
 | plugin array | `plugins` | **appends**, in fragment order |
 
@@ -179,14 +186,14 @@ The alternative was **first-appearance order across the merged fragments**, and 
 
 ## The contribution
 
-**This is what an installer returns, and it is internal.** One flat type, fixed key names, **no discriminator**. There is deliberately no `type`, `kind` or `phase` field: a discriminator invites a runtime `switch`, and the brief forbids exactly that.
+**This is what an installer returns, and it is published at the middle tier** (D-61 — it read "and it is internal" until Revision 2.1). One flat type, fixed key names, **no discriminator**. There is deliberately no `type`, `kind` or `phase` field: a discriminator invites a runtime `switch`, and the brief forbids exactly that.
 
 ```ts
 type SortableContribution = Readonly<{
   /* single-writer slots */
   insertion?: InsertionGeometry;
-  createPlaceholder?: PlaceholderFactory;
-  startLanding?: LandingStart;
+  placeholder?: PlaceholderFactory; // D-65 — named as the config slot is
+  startLanding?: LandingStart; // middle-tier public (D-61, D-63)
 
   /* multi-writer pipelines */
   beforeInsertionMove?: DisplacementHook;
@@ -196,9 +203,9 @@ type SortableContribution = Readonly<{
 }>;
 ```
 
-**Three members left this type at D-45, and the rule that removed them is worth stating**: `getHandle`, `getVisual` and `callbacks` were slots whose value was already the consumer's own function, wrapped in a factory that did nothing but hand it back. A slot with nothing to install is a **config slot**, read straight off the merged record into `SortableSlots`; only a slot that must _construct_ private runtime carries an installer and therefore a contribution. `box` (D-43) joins the first group by the same rule, and is why it needs no factory of its own; `createPlaceholder` and `placeholderClassName` join it at D-56.
+**Three members left this type at D-45, and the rule that removed them is worth stating**: `getHandle`, `getVisual` and `callbacks` were slots whose value was already the consumer's own function, wrapped in a factory that did nothing but hand it back. A slot with nothing to install is a **config slot**, read straight off the merged record into `SortableSlots`; only a slot that must _construct_ private runtime carries an installer and therefore a contribution. `box` (D-43) joins the first group by the same rule, and is why it needs no factory of its own; the placeholder factory joins it at D-56, as `placeholder` since D-65.
 
-**`createPlaceholder` is the one member on both sides**, because a plugin may legitimately supply a placeholder factory. The assembler seeds the single-writer local from `config.createPlaceholder` **before** installing anything, so a plugin that contributes one collides with the config key through the same `claim` that catches plugin-versus-plugin — one rule, one diagnostic, and no precedence question to answer.
+**`placeholder` is the one member on both sides**, because a plugin may legitimately supply a placeholder factory. **It is spelled the same on both sides deliberately** (D-65): the config slot and the contribution slot are now read by the same audience — a middle-tier author writes the second and reads the first — and two names for one factory would be a puzzle rather than a distinction. The assembler seeds the single-writer local from `config.placeholder` **before** installing anything, so a plugin that contributes one collides with the config key through the same `claim` that catches plugin-versus-plugin — one rule, one diagnostic, and no precedence question to answer.
 
 There is no `threshold` metadata field, for the same reason there is now no `callbacks` contribution: it is a public config slot the consumer writes directly, and its default is derived after the merge (review 4, §30; D-45). Carrying it in two places invited the question of which one wins.
 
@@ -367,8 +374,7 @@ function assemble(config: SortableConfig, ctx: FeatureContext): SortableSlots {
     items: config.items, // the pull source (D-44)
     onReorder: config.onReorder,
     onStart: config.onStart ?? NOOP_START, // ← normalized; see below
-    onFinish: config.onFinish ?? null,
-    onCancel: config.onCancel ?? null,
+    onEnd: config.onEnd ?? null, // D-62
     onError: config.onError ?? null,
     getVisual: config.visual ?? null,
     getBox: config.box ?? config.visual ?? null, // default: box = visual (D-43)
@@ -386,7 +392,7 @@ function assemble(config: SortableConfig, ctx: FeatureContext): SortableSlots {
 **Two normalization rules, because "optional callback" is not one thing:**
 
 - `onStart` is normalized to a **shared module-level no-op**, so the call site is `slots.onStart(item)` with no null check. It takes an argument the behavior already has.
-- `onFinish`, `onCancel` and `onError` stay **nullable and null-checked**, because their arguments are result objects that would otherwise be constructed only to be discarded.
+- `onEnd` and `onError` stay **nullable and null-checked**, because their arguments are result objects that would otherwise be constructed only to be discarded.
 
 **Retire hooks run in reverse installation order**, and each is wrapped individually so one throwing hook cannot stop later hooks from restoring their DOM (review 4, §12). Reverse is the natural ownership order when hooks release resources acquired in installation order — schema order, then `plugins` in array order (D-57). The kernel's outer try/catch around `spec.retire()` is a backstop, not a substitute.
 
@@ -411,15 +417,13 @@ type SortableSlots = Readonly<{
   onStart: (item: HTMLElement) => void; // normalized, never null
 
   /* optional; `null` when nothing filled them */
-  createPlaceholder: PlaceholderFactory | null;
-  placeholderClassName: string | null; // D-56
+  createPlaceholder: PlaceholderFactory | null; // from `config.placeholder` (D-65)
   getHandle: ((item: HTMLElement) => HTMLElement | null) | null;
   getVisual: ((item: HTMLElement) => HTMLElement) | null;
   getBox: ((item: HTMLElement) => HTMLElement) | null; // D-43
   startLanding: LandingStart | null;
-  onFinish: ((result: SortableFinishResult) => void) | null;
-  onCancel: ((result: SortableCancelResult) => void) | null;
-  onError: ((error: unknown, context: DragErrorContext) => void) | null;
+  onEnd: ((result: ReorderTransactionResult) => void) | null; // D-62
+  onError: ((error: DraggableError, context: DragErrorContext) => void) | null; // D-64
 
   /* prebuilt pipelines, empty arrays when nothing installed */
   beforeMove: readonly DisplacementHook[];
@@ -526,9 +530,9 @@ Under H-4 the question does not arise. The axis feature owns `rects`; the `retir
 | --- | --- | --- |
 | `y()`, `xy()` | packed `Float64Array` rect index (stride 6) + parallel element array + dirty flag + last-seen collection version. The index _module_ is shared; each axis feature instance holds its own | `invalidate` marks it dirty; `retire` empties the element array and marks dirty |
 | `layoutAnimation()` | `Map<HTMLElement, DisplacementRecord>` | `retire` restores every touched element exactly once |
-| `landing()` | timing options, the WAAPI animation or the custom runner's handle | the `LandingHandle.destroy()` the kernel already holds |
+| `landing()` | timing options and the WAAPI animation. ~~or the custom runner's handle~~ — **the consumer runner is removed (D-63)**; at the ordinary tier the handle is always the library's own | the `LandingHandle.destroy()` the kernel already holds |
 | ~~`placeholder()`~~ | ~~the factory and the class/attribute policy~~ — **deleted (D-56)**; both are config keys, and the class list is split once at construction by the behavior rather than held by a feature | — |
-| `handle`, `visual`, `box`, `createPlaceholder`, `placeholderClassName`, the callbacks | **no installer at all** — the consumer's own values, carried as config keys (D-45, D-56) | — |
+| `handle`, `visual`, `box`, `placeholder`, the callbacks | **no installer at all** — the consumer's own values, carried as config keys (D-45, D-56, D-65) | — |
 
 Nothing here is reachable from the behavior, the kernel, or another feature.
 
@@ -559,17 +563,17 @@ The four that go become plain config keys, written directly in the config object
 
 | Deleted factory | Written instead |
 | --- | --- |
-| `callbacks({ onReorder, threshold, … })` | `{ onReorder, threshold, onStart, onFinish, onCancel, onError }` |
+| `callbacks({ onReorder, threshold, … })` | `{ onReorder, threshold, onStart, onEnd, onError }` (D-62) |
 | `handle(fn)` | `{ handle: fn }` |
 | `visual(fn)` | `{ visual: fn }` (and `{ box: fn }`, which never had a factory) |
-| `placeholder({ create, className })` | `{ createPlaceholder: fn }` **and** `{ placeholderClassName: 'x' }` — two flat keys, not one nested slot |
+| `placeholder({ create, className })` | `{ placeholder: fn }` — **one callback slot** (D-65) |
 
 **Validation is not lost — it moves and widens.** `callbacks()`'s construction-time obligations were the only reason it was more than ceremony: `onReorder` must exist and be a function, `threshold` must be in domain. Both move to the merge, beside D-45's missing-axis check, and they now fire for a config supplied **any way at all** — spread from a preset, assembled by a helper, or written inline — rather than only for one that happened to go through the factory. A check on the merged result is strictly stronger than a check on one argument to it.
 
-**`placeholder()` carried two options and both survive, as two flat keys.** `PlaceholderOptions` was `{ create, className }`, and the deletion keeps each as its own config slot — `createPlaceholder` and `placeholderClassName` — rather than folding them into one nested `placeholder: { … }`.
+~~**`placeholder()` carried two options and both survive, as two flat keys.**~~ **One option survives: the factory, under the name `placeholder` (D-65).** `PlaceholderOptions` was `{ create, className }`; `create` becomes the `placeholder` slot and `className` is deleted.
 
-- **`className` is not dead weight.** It is the only way to keep the default element and still brand it; the source says so where it is implemented — _"a custom element from `create` may arrive with classes of its own, and this feature customises rather than replaces"_. Dropping it would push a consumer who wants one class onto writing a whole factory, which is the ceremony D-56 exists to remove, reintroduced one step down.
-- **Flat, not nested**, because §The contribution's rule is _one flat type, fixed key names, no discriminator_, and `SortableConfig` inherits it. A single nested slot would be the schema's only exception, and buying one exception for two keys is a bad trade — it would also make the pair merge as one unit, so a fragment setting only a class would silently drop a factory the config had already set. Flat keys last-win independently, which is what a consumer overriding a preset expects.
+- ~~**`className` is not dead weight.** It is the only way to keep the default element and still brand it; the source says so where it is implemented — _"a custom element from `create` may arrive with classes of its own, and this feature customises rather than replaces"_. Dropping it would push a consumer who wants one class onto writing a whole factory, which is the ceremony D-56 exists to remove, reintroduced one step down.~~ **Overruled by the owner (D-65), and the objection was correct about the cost.** That consumer does now write a factory. What the argument understated is the alternative it was competing with: the default element carries `data-drag-placeholder`, so a stylesheet can brand it with no config key at all, and `className` served only the consumer who needs a _dynamically chosen_ class on the _default_ element. That is a narrower population than "wants one class".
+- **Flat, not nested**, because §The contribution's rule is _one flat type, fixed key names, no discriminator_, and `SortableConfig` inherits it. **D-65 satisfies that rule more directly than the two-key form did**: one slot, one value, merged by the same last-wins rule as `handle`, `visual` and `box`, with no pair that could be torn in half and no nested exception to the schema.
 
 Neither key installs anything, which is why neither is a capability slot: the class list is split once at construction — `classList.add` rejects an empty token and a token containing whitespace — and applied by the behavior to whatever element it ends up with.
 
@@ -648,7 +652,7 @@ The rect index is shared (`rect-index.ts`, dimension-neutral — it already pack
 
 ### The consumer callbacks — config keys, not a fragment
 
-**`callbacks()` is deleted (D-56).** These six slots are written in the config object:
+**`callbacks()` is deleted (D-56).** These five slots are written in the config object:
 
 ```ts
 sortable(
@@ -657,16 +661,44 @@ sortable(
     items,
     onReorder, // required
     onStart, // (item: HTMLElement) => void
-    onFinish, // (result: SortableFinishResult) => void
-    onCancel, // (result: SortableCancelResult) => void
-    onError, // (error: unknown, context: DragErrorContext) => void
+    onEnd, // (result: ReorderTransactionResult) => void   — D-62
+    onError, // (error: DraggableError, context: DragErrorContext) => void — D-64
     threshold, // number
   },
   y(),
 );
 ```
 
-**`SortableCallbacks` goes with the factory.** It existed to type one function's argument; there is no such function, and the slots are declared once in `SortableConfig`. Re-exporting a `Pick<>` alias beside it would put a second name for the same six slots under the versioning promise — the same reason §The export topology declines to name the fragment return types. `OnReorder` survives, because `SortableConfig.onReorder` is a function of it.
+**One terminal callback, not two (D-62).** `onFinish` and `onCancel` are deleted and `onEnd` takes the whole `ReorderTransactionResult` union — the same four arms `accepted`, `noop`, `rejected`, `canceled` that D-24 made exhaustive and discriminated. `SortableFinishResult` and `SortableCancelResult` go with the callbacks: they are `Accepted | Noop` and `Rejected | Canceled`, partitions that existed for no reason except that there were two signatures to type.
+
+**That deletes F-37 rather than renaming it.** F-37 is _"`finalized` used a binary accepted-vs-everything predicate, sending the no-op result to `onCancel`"_ — and a predicate is only needed because a four-arm result has to be routed to two callbacks. With one callback there is no predicate, no routing, and nothing for a future refactor to get wrong in the same way; the exhaustive switch D-24 built moves from the library to the consumer, where it is `switch (result.type)` and the compiler checks it.
+
+**The terminal is one channel; `onError` is the other, and they are orthogonal** (D-60). One operation may publish both. **The case where it publishes `onError` and _no_ terminal is unresolved** — 00 §The unresolved arm, Q-14.
+
+**`SortableCallbacks` goes with the factory.** It existed to type one function's argument; there is no such function, and the slots are declared once in `SortableConfig`. Re-exporting a `Pick<>` alias beside it would put a second name for the same slots under the versioning promise — the same reason §The export topology declines to name the fragment return types. `OnReorder` survives, because `SortableConfig.onReorder` is a function of it.
+
+**The error the consumer receives is coarse (D-64).**
+
+```ts
+class DraggableError extends Error {
+  readonly code: DraggableErrorCode;
+  // `cause` is the native ES2022 property; no re-declaration.
+}
+
+type DraggableErrorCode =
+  | 'consumer' // the consumer's own code threw or misbehaved
+  | 'interaction' // the interaction could not proceed
+  | 'presentation' // a library presentation act failed
+  | 'platform'; // the platform refused something
+
+type DragErrorContext = Readonly<{
+  domain: ReorderTransactionResult | null;
+}>;
+```
+
+The names are **not frozen** — review 3 §12 says so — but the axis is: a code names an **actionable fault class**, never an internal pipeline seam. The 14 `FAILURE_*` constants and `FailureStage` are not deleted; they leave the ordinary tier (§The public/internal boundary) and a **total** stage → code mapping becomes a library obligation. It must be total in the type, not by convention: a stage with no mapping is a stage whose consumer-visible code is decided by whichever `default:` arm the implementation happens to have.
+
+`DragErrorContext` keeps `domain` and loses `stage`. **The two-argument shape survives on the reasoning that first placed it** (§The export topology, `DragErrorContext` ships from `sortable.js`): `domain` is a _sortable_ result, and `DraggableError` is behavior-agnostic vocabulary on `drag.js`. Putting `domain` on the error class would make the shared entry declare a behavior's result union — the exact inversion that entry exists to prevent. The owner's sketch shows `onError(error)` with one argument; that form is available and costs the consumer the domain result, which is why it is not taken.
 
 **`readinessTimeout` is deleted (D-41).** It bounded the acknowledgement window of a readiness gate that no longer exists; with the commit serial there is nothing to time out, because `onReorder` does not return until the consumer's own commit has. A consumer that needs its own bound writes it around its own await, where it can also say what to do when it expires. Its entry in §Public option domains goes with it.
 
@@ -735,9 +767,19 @@ Acceptance is still never inferred from the render: it is the returned resolutio
 
 ### `placeholder()`
 
-**The feature is gone; the customisation is not** (D-56). The behavior always creates a placeholder, and what `placeholder()` did was customise it — a fact its name always under-communicated, an inherited wart from probe 1 that used to be defended on the grounds that `placeholderStyle()` read worse at the call site. Two flat config keys settle the naming problem by dissolving it: `createPlaceholder` replaces the element, `placeholderClassName` brands whichever element is used. Nothing else about this section changes, because none of it was ever the feature's.
+**The feature is gone; the customisation is not** (D-56). The behavior always creates a placeholder, and what `placeholder()` did was customise it — a fact its name always under-communicated, an inherited wart from probe 1 that used to be defended on the grounds that `placeholderStyle()` read worse at the call site. ~~Two flat config keys settle the naming problem by dissolving it: `createPlaceholder` replaces the element, `placeholderClassName` brands whichever element is used.~~ **One config key does (D-65):**
 
-**A concrete instance of D-37's narrowing sits on the `createPlaceholder` slot.** `placeholder.ts` guards its `classList.add` after the consumer's factory returns with a `live()` reading, and that reading is **one of the 27 statement-level liveness checks D-37 retires**: the write is inside the transaction bracket, the presentation lifetime undoes it, and a class on an element the library is about to remove has no consequence left to stop. Worth naming here rather than leaving abstract — and worth distinguishing from its neighbour, because the two look alike and are not:
+```ts
+placeholder(context): HTMLElement;
+```
+
+> The callback returns a **fresh detached element**. Once adopted, the library owns it for the operation.
+
+`createPlaceholder` and `placeholderClassName` are both deleted. The slot is the callback, not a record with a `create` member and not a pair of keys — which is the shape `handle`, `visual` and `box` already have, and the shape review 3 §4 spells out negatively as well as positively.
+
+**The cost is a real one and it lands on the case that was expected to be common.** `placeholderClassName` was the only way to keep the library's default element and still brand it; without it, a consumer who wants the default plus one class of their own supplies a whole factory. Three lines instead of one. D-56 argued for keeping the key on exactly that ground, the owner overruled it, and the trade is two slots for one concern against one extra call site for the branding case. The default element is unchanged and still carries `data-drag-placeholder`, which is a stable hook a stylesheet can already target without any config at all — that, not the factory, is the answer for most branding.
+
+**A concrete instance of D-37's narrowing sits on the `placeholder` slot.** `placeholder.ts` guards its `classList.add` after the consumer's factory returns with a `live()` reading, and that reading is **one of the 27 statement-level liveness checks D-37 retires**: the write is inside the transaction bracket, the presentation lifetime undoes it, and a class on an element the library is about to remove has no consequence left to stop. Worth naming here rather than leaving abstract — and worth distinguishing from its neighbour, because the two look alike and are not:
 
 |  | Covers | Survives D-37? |
 | --- | --- | --- |
@@ -828,23 +870,48 @@ When the guard fails, the behavior measures the still-connected placeholder wher
 ```ts
 type LandingOptions = Readonly<{
   /**
-   * A number fixes the timing at construction. A thunk is invoked **once per
-   * landing**, at settlement, which is the moment the shipped
-   * `landingTiming()` was read — so a distance-scaled or
-   * per-drop duration keeps the default runner instead of replacing it.
+   * A number fixes the timing at construction. The **contextual form** is
+   * invoked once per landing, at settlement — the moment the shipped
+   * `landingTiming()` was read — and receives the landing it is timing, so a
+   * distance-scaled duration is expressible without replacing the runner.
    */
-  duration?: number | (() => number);
+  duration?: number | ((context: LandingTimingContext) => number);
   easing?: string;
-  /** Full replacement for the default WAAPI runner — a spring, for example. */
-  run?: LandingStart;
+}>;
+
+type LandingTimingContext = Readonly<{
+  /** Origin-relative deltas, the same space `LandingContext` uses. */
+  from: Point;
+  to: Point;
+  /** `Math.hypot(to.x - from.x, to.y - from.y)`. */
+  distance: number;
 }>;
 ```
 
+**The zero-argument thunk is deleted (D-67).** `duration: () => number` was rejected by review 3 §10 on its own terms — _"it cannot even observe the distance that motivated dynamic timing"_ — and the contextual form was deferred to a proven need. **D-63 supplied the need by removing the alternative**: with `landing({ run })` gone, the thunk became the sole surviving carrier of parity **L-6** (settle-time `landingTiming()`), so deleting it outright would have dropped a shipped capability with nothing in its place. Three options, one of which discharges both obligations, and this is it.
+
+**The deletion is not enforceable, and the contract claimed it was (F-52).** `duration: () => 200` **still compiles** against `(context: LandingTimingContext) => number`, because TypeScript assigns a zero-parameter function to any signature. The compiled fixture's `n6` was written to assert the deletion and had to be withdrawn.
+
+Two consequences, both of which improve on what was claimed:
+
+- **the migration is source-compatible.** A consumer's shipped `() => 200` keeps working and keeps returning the right number; it simply ignores an argument it does not read. Nobody had claimed that benefit, because nobody had checked;
+- **requiring the context would need a runtime arity check**, and that is not worth its cost for an option whose zero-argument form still behaves correctly. There is no defect to catch — only an expressiveness a consumer has not taken up.
+
+So `duration: () => number` is **removed from the documented surface** and remains accidentally accepted by the type. That is a weaker statement than "deleted", and it is the true one.
+
+**It costs nothing the thunk did not already cost.** The invocation site, the once-per-landing rule, the validation domain and the ordering against the reduced-motion collapse are all unchanged; **only the argument list grows**, from zero to one object. `from` and `to` are already computed for `LandingContext` at that moment, and `distance` is one `Math.hypot` — so the contextual form is strictly more expressive than the thunk at a cost that does not appear in any measurement.
+
+**`run` is removed (D-63).** The slot read `/** Full replacement for the default WAAPI runner — a spring, for example. */ run?: LandingStart` and it is deleted, together with the public `LandingStart`, `LandingHandle` and `LandingContext` exports from `sortable/landing.js`. The library owns the landing animation.
+
+**This is a tier move, not a lost capability.** Everything that made a custom runner _work_ is untouched: the kernel still never names a runner type, the reserve-seal-arm protocol is unchanged, completion is still latched once, and a **kernel-tier** behavior author still supplies a runner — review 3 §10 says so in as many words. What leaves the ordinary tier is the **public lifecycle protocol** a consumer-supplied runner requires: four exported types, a handle contract, a completion latch the consumer can call into, and a relinquishment obligation on `destroy()` that the consumer must honour or the join's pin is overridden. The owner's judgement is that a spring is not worth that surface at the rung where the audience is _"I have a list and I want it sortable"_, and the removed protocol is a fair statement of the price.
+
+**What the consumer keeps** is `duration` and `easing`, including the settle-time thunk — see §Public option domains, and the note there about what review 3 §10 additionally proposed and this contract does not do.
+
 Without this feature the behavior holds no landing gate and no landing module is imported, and the visual is pinned at the placeholder **in the same drain** — settlement holds one gate now (D-41), so nothing else can be holding it open. With `duration: 0` the gate is held and released through the runner — also immediate, but not the same code path, and the default path does not import the runner.
 
-`landing({ duration, easing })` installs a Web Animations runner honouring `prefers-reduced-motion` by collapsing duration to zero. `landing({ run })` replaces it entirely; a spring driving `requestAnimationFrame` and calling `done()` when it settles is a first-class citizen, because nothing in the contract assumes a CSS timing function or a finite known duration.
+`landing({ duration, easing })` installs a Web Animations runner honouring `prefers-reduced-motion` by collapsing duration to zero. ~~`landing({ run })` replaces it entirely; a spring driving `requestAnimationFrame` and calling `done()` when it settles is a first-class citizen, because nothing in the contract assumes a CSS timing function or a finite known duration.~~ **Removed at the ordinary tier (D-63).** The clause that follows it is still true and still load-bearing: **nothing in the contract assumes a CSS timing function or a finite known duration**, which is what keeps a kernel-tier spring authorable and what makes `duration: 0` safe.
 
-**Synchronous completion is explicitly supported.** A `duration: 0` runner, or a custom runner that decides it has nothing to do, may call `done()` or `fail()` from inside `start` before returning a handle. The kernel makes that safe by reserving the hold _before_ calling `start` and publishing the returned handle before any queued completion can be applied (§[02](02-kernel-behavior-contract.md) §Request, seal, then arm). A completion is latched once: a second `done()`, or a `done()` after a `fail()`, is inert.
+**Synchronous completion is explicitly supported.** A `duration: 0` runner, or a runner that decides it has nothing to do, may call `done()` or `fail()` from inside `start` before returning a handle. The kernel makes that safe by reserving the hold _before_ calling `start` and publishing the returned handle before any queued completion can be applied (§[02](02-kernel-behavior-contract.md) §Request, seal, then arm). A completion is latched once: a second `done()`, or a `done()` after a `fail()`, is inert.
 
 **A runner is never responsible for correctness.** The `target` in its context is the authoritative measurement — taken once, after the authored commit, against DOM that is already final (D-41 narrowing D-16) — and the kernel still performs the final pin through the lift session at the join. A runner's only obligations are to call `done()`/`fail()`, and to relinquish the visual's transform on `destroy()` so the pin is not overridden — for a WAAPI runner, `animation.cancel()`.
 
@@ -1017,31 +1084,46 @@ The **five** compositions to measure: minimal (`y()`); minimal (`xy()`), measure
 
 A separate subpath entry per optional **capability** is what makes the measurement honest: the minimal fixture's import graph physically cannot reach geometry it did not import, independent of bundler heuristics. The shipped package exposes only `draggable.js` and `sortable.js` (`packages/drag/files.json`, `packages/drag/package.json:15-24`), so this is a new topology and has to be written down before it is measured, or ergonomics will quietly reintroduce an eager barrel.
 
-**Seven entries** — nine, less the three D-56 deletes, plus the `kernel.js` D-48 adds — across **two tiers and three roots**:
+**Eight entries** — nine, less the three D-56 deletes, plus the `kernel.js` D-48 adds and the `sortable/feature.js` D-61 adds — across **three tiers and three roots**:
 
 | Subpath | Runtime exports | Type exports |
 | --- | --- | --- |
-| `drag.js` — **shared vocabulary**, reachable from either tier | the 14 **`FAILURE_*` constants** | `Point`, `FailureStage`, `DOMRealm` |
-| `kernel.js` — `@ydinjs/drag/kernel`, **the kernel tier** (D-48) | **`draggable`** | **`BehaviorFactory`**, **`KernelHost`**, **`BehaviorSpec`**, and the seam types `BehaviorSpec` structurally names |
-| `sortable.js` — returns a `SortableController`, takes `root` (D-48) | `sortable`, **`ReorderResolution`**, **`AT_PROPOSAL`**, **`AT_CONSUMER`** | **`SortableConfig`**, `ReorderRequest`, `ReorderProposal`, `CollectionSnapshot`, `ReorderResolution`, `AcceptedReorderResolution`, `RejectedReorderResolution`, `AcceptedReorderResult`, `NoopReorderResult`, `RejectedReorderResult`, `CanceledReorderResult`, `ReorderTransactionResult`, `SortableFinishResult`, `SortableCancelResult`, `CancelStage`, **`DragErrorContext`**, `SortableController`, `PlaceholderFactory`, **`PlaceholderContext`**, **`OnReorder`** |
+| `drag.js` — **shared vocabulary**, reachable from any tier | **`DraggableError`** (a class — the one runtime value here) | `Point`, `DOMRealm`, **`DraggableErrorCode`** |
+| `kernel.js` — `@ydinjs/drag/kernel`, **the kernel tier** (D-48) | **`draggable`**, the 14 **`FAILURE_*` constants** (D-64) | **`BehaviorFactory`**, **`KernelHost`**, **`BehaviorSpec`**, **`FailureStage`**, and the seam types `BehaviorSpec` structurally names |
+| `sortable.js` — returns a `SortableController`, takes `root` (D-48) | `sortable`, **`ReorderResolution`**, **`AT_PROPOSAL`**, **`AT_CONSUMER`** | **`SortableConfig`**, `ReorderRequest`, `ReorderProposal`, `CollectionSnapshot`, `ReorderResolution`, `AcceptedReorderResolution`, `RejectedReorderResolution`, `AcceptedReorderResult`, `NoopReorderResult`, `RejectedReorderResult`, `CanceledReorderResult`, **`ReorderTransactionResult`**, `CancelStage`, **`DragErrorContext`**, `SortableController`, `PlaceholderFactory`, **`PlaceholderContext`**, **`OnReorder`** |
+| `sortable/feature.js` — **the middle tier** (D-61) | — | **`SortableInstaller`**, **`FeatureContext`**, **`SortableContribution`**, **`InsertionGeometry`**, **`DisplacementHook`**, **`LandingStart`**, **`LandingContext`**, **`LandingHandle`**, and the consumer-declared view types an installer reads |
 | `sortable/y.js` | `y` | — |
 | `sortable/xy.js` | `xy` | — |
-| `sortable/landing.js` | `landing` | `LandingOptions`, `LandingStart`, `LandingContext`, `LandingHandle` |
+| `sortable/landing.js` | `landing` | `LandingOptions` |
 | `sortable/layout-animation.js` | `layoutAnimation` | `LayoutAnimationOptions` |
+
+**Four cells changed at Revision 2.1**, and three of them are one decision each:
+
+- **`sortable/feature.js` is new** (D-61). It is the ladder's second rung and it has **no runtime exports at all** — every name on it is erased. That is the honest measurement statement for this entry: it cannot demonstrate absence because it contains nothing present, and unlike the three subpaths D-56 deleted for exactly that reason, it is not pretending to. It exists to give the authoring types an address, not to isolate a cost.
+- **`FailureStage` and the 14 `FAILURE_*` constants move from `drag.js` to `kernel.js`** (D-64). They are how a **behavior** classifies, which is kernel-tier work; the ordinary consumer now receives a coarse code on a `DraggableError`.
+- **`DraggableError` and `DraggableErrorCode` are new on `drag.js`** (D-64), and `DraggableError` is why that entry still exists — see below.
+- **`LandingStart`, `LandingContext` and `LandingHandle` leave `sortable/landing.js` for `sortable/feature.js`** (D-63, D-61). They stop being consumer vocabulary and stay authoring vocabulary. `sortable/landing.js` keeps `LandingOptions`, which is now `{ duration?, easing? }`.
+- **`SortableFinishResult` and `SortableCancelResult` leave the table** (D-62), and `ReorderTransactionResult` — already listed — becomes the type `onEnd` receives.
 
 **`sortable/callbacks.js`, `sortable/placeholder.js` and `sortable/handle.js` are deleted** with the four factories they carried (D-56). Their surviving types are re-homed on the entry whose public signatures depend on them: `OnReorder` and `PlaceholderContext` join `sortable.js`, because `SortableConfig.onReorder` and `PlaceholderFactory` are functions of them. `SortableCallbacks` and `PlaceholderOptions` are not re-homed — they typed the deleted factories' arguments, and their slots are declared in `SortableConfig` (§The consumer callbacks).
 
-**Shared vocabulary belongs to neither tier, so it gets its own home rather than lodging in whichever tier also happens to need it.** That is why `drag.js` is not the kernel entry, and the correction matters in exactly the direction D-47 exists to guard: `sortable.js`'s `onError` hands the consumer a `FailureStage`, so those names are structurally public **at the ordinary tier**. Putting them behind `@ydinjs/drag/kernel` would have made an ordinary consumer import from the kernel to `switch` on an error its own handler was given — a progressive-disclosure inversion, produced by an entry-file convenience rather than by any decision.
+**Shared vocabulary belongs to neither tier, so it gets its own home rather than lodging in whichever tier also happens to need it.** That is why `drag.js` is not the kernel entry. ~~and the correction matters in exactly the direction D-47 exists to guard: `sortable.js`'s `onError` hands the consumer a `FailureStage`, so those names are structurally public **at the ordinary tier**. Putting them behind `@ydinjs/drag/kernel` would have made an ordinary consumer import from the kernel to `switch` on an error its own handler was given — a progressive-disclosure inversion, produced by an entry-file convenience rather than by any decision.~~
+
+**That argument is void and this entry survives on a different one (D-64).** `onError` no longer hands the consumer a `FailureStage`; it hands a `DraggableError` carrying a coarse `code`. The stage names move to `kernel.js` and the inversion the struck text warns about cannot occur, because there is nothing at the ordinary tier that needs them.
+
+What keeps `drag.js` is **`DraggableError` itself**. It is a **class**, so it is a runtime value and not an erased type: a consumer writes `err instanceof DraggableError`, and so does a kernel-tier behavior author. Putting it on `sortable.js` would make a kernel author import the sortable behavior to recognise an error the kernel raised; putting it on `kernel.js` would make an ordinary consumer import the kernel to recognise an error its own handler was given — which is the same inversion, arrived at from the other side. A symbol both tiers must name and neither owns is exactly what a shared root is for.
+
+**Two independent arguments have now produced the same three-root topology, and that deserves suspicion rather than confidence.** The first was structural type dependency and it lasted one revision; the second is runtime-value sharing. Both were derived from the same table, by the same author, in the same week. The topology has never been checked against a consumer who did not already believe it — `tests/packaging.node.test.ts` asserts what the table says, not that the table is right.
 
 The split also makes flag 7 tractable rather than merely visible. With the shared names out of the way, `kernel.js`'s type column **is** the kernel vocabulary, so minimizing it is a question about `BehaviorSpec`'s own declaration and nothing else (§Public and stable).
 
 Three cells changed at the phase 9 freeze, each closing something the original table left contradictory:
 
-- **The stage constants are runtime exports.** §The public/internal boundary already called them public — a consumer receiving `onError` or a canceled result has to discriminate them — but the runtime column listed only `draggable` and `sortable`, so the type shipped and the values did not. A numeric union whose members are unnameable is not a public type.
-- **`DragErrorContext` ships from `sortable.js`, not `drag.js`.** It carries `domain: ReorderTransactionResult`, a sortable result. `draggable` was given its own entry precisely so a future free-drag consumer need not reach the sortable behavior, and having that entry declare a behavior's result union would undo it. The kernel half, `FailureStage`, stays on `drag.js`.
-- **`PlaceholderContext` is listed.** `PlaceholderOptions.create` was a function of it, so it was already structurally public; naming it is what makes that deliberate rather than incidental. **The dependency survives D-56 with a shorter path** — `SortableConfig.createPlaceholder` is a `PlaceholderFactory`, which is a function of `PlaceholderContext` — so the alias moves to `sortable.js` and stays public for the same reason it was ever public.
+- **The stage constants are runtime exports.** §The public/internal boundary already called them public — a consumer receiving `onError` or a canceled result has to discriminate them — but the runtime column listed only `draggable` and `sortable`, so the type shipped and the values did not. A numeric union whose members are unnameable is not a public type. **The rule survives D-64 and its subject changes tier**: the constants are still runtime exports, now from `kernel.js`, and `DraggableErrorCode` needs none because its members are string literals a consumer writes directly.
+- **`DragErrorContext` ships from `sortable.js`, not `drag.js`.** It carries `domain: ReorderTransactionResult`, a sortable result. `draggable` was given its own entry precisely so a future free-drag consumer need not reach the sortable behavior, and having that entry declare a behavior's result union would undo it. ~~The kernel half, `FailureStage`, stays on `drag.js`.~~ **D-64 removes the kernel half rather than relocating the type**: `stage` leaves `DragErrorContext` entirely, so the context is now purely the sortable half — one field, `domain` — and this cell's reasoning is what decides that the two-argument `onError` survives instead of collapsing into the owner's one-argument sketch. `FailureStage` moves to `kernel.js`.
+- **`PlaceholderContext` is listed.** `PlaceholderOptions.create` was a function of it, so it was already structurally public; naming it is what makes that deliberate rather than incidental. **The dependency survives D-56 and D-65 with a shorter path each time** — `SortableConfig.placeholder` is a `PlaceholderFactory`, which is a function of `PlaceholderContext` — so the alias moves to `sortable.js` and stays public for the same reason it was ever public.
 
-A fourth correction followed from running TypeDoc over the frozen entries: four more aliases were **structurally public but unnameable** — reachable through a public type, resolvable by a consumer's compiler, and absent from the documented surface. `CollectionSnapshot` (via `ReorderProposal.snapshot`), `PlaceholderFactory` (via `PlaceholderOptions.create`, now via `SortableConfig.createPlaceholder`), and `AcceptedReorderResolution`/`RejectedReorderResolution` (the two members of the `ReorderResolution` union) are now exported from `sortable.js`. This is the same rule that made `FailureStage`, `DOMRealm` and `Point` public: **export what a public type structurally depends on rather than pretending it is internal.**
+A fourth correction followed from running TypeDoc over the frozen entries: four more aliases were **structurally public but unnameable** — reachable through a public type, resolvable by a consumer's compiler, and absent from the documented surface. `CollectionSnapshot` (via `ReorderProposal.snapshot`), `PlaceholderFactory` (via `PlaceholderOptions.create`, now via `SortableConfig.placeholder`), and `AcceptedReorderResolution`/`RejectedReorderResolution` (the two members of the `ReorderResolution` union) are now exported from `sortable.js`. This is the same rule that made `DOMRealm` and `Point` public — and `FailureStage`, until D-64 moved it to the kernel tier, where the identical rule now makes it public _there_: **export what a public type structurally depends on rather than pretending it is internal.**
 
 ~~**A sixth cell changed at the Phase 14 re-freeze, and it is one alias rather than two.** `ResolutionOptions` joins `sortable/callbacks.js` because `ReorderResolution.accept` is a function of it — the same "export what a public type structurally depends on" rule as the four aliases above. It ships from `callbacks.js` rather than `sortable.js` because a composition that installs no `callbacks()` has no `onReorder`, and therefore no presentation to declare.~~
 
@@ -1060,6 +1142,8 @@ An earlier draft of that revision exported **two** types here, `PresentationToke
 
 The fragment factories' return types need no entries of their own: `Pick<SortableConfig, …>` is nameable from the one alias, and naming four one-slot aliases beside it would put four more names under the versioning promise for no expressive gain.
 
+**A ninth change, at Revision 2.1, and it is the first that _adds_ a tier.** Enumerated above the table; in decision order: `sortable/feature.js` appears (D-61), the failure stages move to `kernel.js` (D-64), `DraggableError` appears on `drag.js` (D-64), the three landing seam types move from `sortable/landing.js` to `sortable/feature.js` (D-63 + D-61), and the two result partitions leave with their callbacks (D-62). **Net: one entry added, one type added, three moved, two deleted** — against Revision 2's one added, three deleted and two moved. The table has now changed in five of the last six passes over it, which is the strongest available argument for the compiled export fixture the handoff still lists as owed: every one of these changes is mechanically checkable and none of them is mechanically checked.
+
 **A seventh change at Phase 17, and it is two cells rather than one.** The two-dimensional insertion rule ships as a **sibling axis feature** on its own subpath, `sortable/xy.js`, and the axis features are renamed to the axes they measure: `vertical()` → **`y()`** on `sortable/y.js`, with a future horizontal rule reserved as `x()`.
 
 The shape was chosen against the constraint the ledger states (L-8, §5): whichever form 2-D took, it must not make the 1-D case pay for it. That eliminated the option with shipped precedent — an unrestricted 2-D default that an axis feature narrows — because a default lives in the behavior core and cannot be tree-shaken away, so every list consumer would carry both rules. It also eliminated one parameterized axis feature, which puts the 2-D metric and its `compareDocumentPosition` call in the list consumer's graph. Two subpaths keep each composition paying for its own rule, and `tests/packaging.node.test.ts` asserts the absence in **both** directions.
@@ -1070,13 +1154,13 @@ The rename is a **breaking public change** and the second one this part has made
 
 `ReorderResolution`'s two member types are unchanged in name and in discrimination. ~~The optional argument changed and `SortableController` gained `ready`, which together are a **breaking public change** — the one this revision makes.~~ **Revision 2 supersedes that count.** The Phase 14 change is not shipped and is not a migration anyone performs; what ships is the Revision 2 surface, where `ReorderResolution`'s factories take no argument at all and `SortableController` has `invalidate`, `cancel` and a promise-returning `destroy` — no `ready`, no `updateItems`. Phase 15 implements it, and the consumer fixture's per-subpath export equality is what will fail if it is implemented halfway.
 
-The fifth dangling reference was resolved the other way. `OnReorder` returned `MaybePromise<ReorderResolution>`, and exporting that alias would put a generic utility with no domain meaning on the frozen surface purely so a documentation tool could resolve a link. Its structure is written out in the signature instead — `ReorderResolution | PromiseLike<ReorderResolution>` — which is also the more honest statement, since the kernel reads `then` once and never assumes a native promise. **TypeDoc over the nine public entries — eight until Phase 17 added `sortable/xy.js` — now emits zero unresolved-reference warnings, and none are suppressed**: a warning there means a public type depends on something a consumer cannot name, which is a surface defect and not noise.
+The fifth dangling reference was resolved the other way. `OnReorder` returned `MaybePromise<ReorderResolution>`, and exporting that alias would put a generic utility with no domain meaning on the frozen surface purely so a documentation tool could resolve a link. Its structure is written out in the signature instead — `ReorderResolution | PromiseLike<ReorderResolution>` — which is also the more honest statement, since the kernel reads `then` once and never assumes a native promise. **TypeDoc over the nine public entries — eight until Phase 17 added `sortable/xy.js` — now emits zero unresolved-reference warnings, and none are suppressed** — **a measurement of the Phase 17 entry set, re-owed twice since** (Revision 2's seven entries, Revision 2.1's eight); the check is the standing rule, the zero is not a current reading: a warning there means a public type depends on something a consumer cannot name, which is a surface defect and not noise.
 
 ### Public option domains
 
 Frozen with the surface, because a domain is as much a compatibility promise as a signature. Every one throws a `TypeError` outside its domain — a `NaN` threshold otherwise activates on nothing and a `NaN` duration produces an animation that never finishes, both diagnosed three seams away from the call that caused them.
 
-**Where the check runs depends on when the value exists, and that is the whole of the distinction** (D4, Checkpoint D). A _fixed_ option — every row below except one — is a value the consumer already holds at construction, so it is validated **at construction**, exactly once, before any drag. `landing({ duration })` additionally accepts a **thunk**, whose result does not exist until the landing opens: it is therefore invoked and validated **once per landing**, at settlement, and an invalid or thrown result classifies there rather than at construction. A thunk itself is validated at construction only for being a function.
+**Where the check runs depends on when the value exists, and that is the whole of the distinction** (D4, Checkpoint D). A _fixed_ option — every row below except one — is a value the consumer already holds at construction, so it is validated **at construction**, exactly once, before any drag. `landing({ duration })` additionally accepts a **contextual function** (D-67), whose result does not exist until the landing opens: it is therefore invoked and validated **once per landing**, at settlement, and an invalid or thrown result classifies there rather than at construction. The function itself is validated at construction only for being a function.
 
 The reduced-motion collapse does not change this. Resolution and validation precede it, so a consumer whose thunk throws or returns `NaN` is told so under `prefers-reduced-motion: reduce` exactly as it is without — which is what the shipped `landingTiming()` did, and what Checkpoint D repaired.
 
@@ -1084,14 +1168,16 @@ The reduced-motion collapse does not change this. Resolution and validation prec
 | --- | --- | --- | --- |
 | `threshold` (config key) | CSS px, straight-line from the press | finite, `>= 0` | `8` |
 | ~~`readinessTimeout`~~ | ~~ms~~ | ~~finite, `>= 1`~~ | **deleted (D-41)** |
-| `landing({ duration })` | ms | finite, `>= 0`; or `() => number` returning one | `200` |
+| `landing({ duration })` | ms | finite, `>= 0`; or `({ distance, from, to }) => number` returning one (D-67) | `200` |
 | `layoutAnimation({ duration })` | ms | finite, `>= 0` | `160` |
 
 - `threshold` at `0` activates on the first move reporting a different point.
 - ~~**`readinessTimeout` becomes a public option at this freeze.** It was a behavior-fixed 500 ms, which caps a _consumer-supplied_ promise with no escape: a re-render that legitimately involves a round trip failed with `FAILURE_PRESENTATION_READY` and no way to say otherwise. It is a **failure bound, not a schedule** — the gate releases as soon as the promise settles, and exceeding it replaces the settlement. It is not permitted to be `Infinity`: an unbounded gate holds presentation forever, which is the state the bound exists to prevent.~~ **Deleted with the readiness gate (D-41).** The reasoning was about a bound the _library_ imposed on a wait the _consumer_ owned; under the serial commit the consumer owns the wait outright, so the bound is the consumer's to write and to interpret. Note what does **not** transfer: the library no longer has an opinion about how long `onReorder` may take, and the "unbounded gate holds presentation forever" hazard is now an unresolved consumer promise holding its own drag open — visible in the consumer's own code rather than diagnosed by a `FAILURE_PRESENTATION_READY` the library can no longer raise. That is a real loss of a diagnostic, accepted with the protocol that produced it.
 - `easing` is deliberately unvalidated on both features. It is a CSS easing function, the platform is the only correct parser for one, and `animate()` reports a bad value itself.
-- `landing({ run })` replaces the default runner entirely, so `duration` and `easing` are not read — and therefore not validated — when it is present.
-- `landing({ duration })` as a **thunk** is the one settle-time domain. It is called once per landing, its result is validated against the same domain as the fixed form, and a throw or an out-of-domain result is classified as a landing failure at that moment. This is the parity shape for the shipped `landingTiming()` (ledger §2, L-6).
+- ~~`landing({ run })` replaces the default runner entirely, so `duration` and `easing` are not read — and therefore not validated — when it is present.~~ **Deleted with `run` (D-63).** Both options are now always read and always validated, which removes a conditional from the validation rule rather than adding one.
+- `landing({ duration })` as a **contextual function** is the one settle-time domain. It is called once per landing, its result is validated against the same domain as the fixed form, and a throw or an out-of-domain result is classified as a landing failure at that moment. This is the parity shape for the shipped `landingTiming()` (ledger §2, L-6), and D-67 is what keeps that parity after D-63 removed the runner it used to be reachable through.
+
+**Resolved by D-67 — the thunk and L-6.** Review 3 §10 removed `run` and, in the same breath, judged the zero-argument thunk unjustified: _"it cannot even observe the distance that motivated dynamic timing."_ It deferred a contextual `duration({ distance, from, to })` to a proven need. D-63 took the first half, which made the thunk the **sole** surviving carrier of shipped parity L-6 — ledger L-6 and its §2 row both record it as such, and the §5 row had additionally called the capability _"reachable through a replacement runner"_, which it no longer is. Of the three ways to close that — keep a thunk the owner had already rejected, delete it and lose L-6, or ship the contextual form — **the owner took the third**, which is the only one that discharges §10's second clause and keeps the parity row. The deferral was conditioned on a proven need, and removing the alternative is what proved it.
 
 **`ReorderResolution` is a runtime export as well as a type** (review 6, §10). The documented consumer calls `ReorderResolution.accept(…)` and `ReorderResolution.reject(…)`, the shipped package exports the same factory, and listing it under types only would have made every example in these documents fail to run. The name is deliberately both a value and a type, as it is today.
 
@@ -1102,9 +1188,11 @@ Three decisions the earlier table left open (review 5, §12):
 
   1. there is exactly **one** `SortableConfig` declaration in the whole emitted graph, and one declaration per installer slot type — never a structurally-equal duplicate per subpath;
   2. `sortable.js` and every public fragment subpath resolve to **that** declaration, so a fragment built by one subpath is assignable to the parameter another declares, and `Pick<SortableConfig, 'axis'>` from `sortable/y.js` means the same type as `SortableConfig['axis']` in `sortable.js`;
-  3. the module that declares the **installer slot types** is **not** a declared package subpath, so `SortableInstaller`, `FeatureContext` and `SortableContribution` stay unnameable and the slot values stay unconstructible from outside.
+  3. ~~the module that declares the **installer slot types** is **not** a declared package subpath, so `SortableInstaller`, `FeatureContext` and `SortableContribution` stay unnameable and the slot values stay unconstructible from outside.~~ **Retracted by D-61.** That module **is** a declared subpath — `sortable/feature.js` — and the three types are nameable, because authoring an installer is a supported act at the middle tier. What survives of the clause is clauses 1 and 2's requirement applied to it: there is exactly **one** declaration of each installer slot type in the emitted graph, so an installer written against `sortable/feature.js` is assignable to the slot `sortable.js` declares.
 
-  Clause 3 is where the opacity now lives. Under D-30 the brand sat on the record; under D-45 the record is a plain public interface and the unreachable declaration is the **function type its capability slots are typed with**. The mechanism is unchanged — an internal `sortable/feature` module every subpath imports type-only and no `exports` entry names — and so is the failure it prevents.
+  ~~Clause 3 is where the opacity now lives. Under D-30 the brand sat on the record; under D-45 the record is a plain public interface and the unreachable declaration is the **function type its capability slots are typed with**. The mechanism is unchanged — an internal `sortable/feature` module every subpath imports type-only and no `exports` entry names — and so is the failure it prevents.~~
+
+  **Opacity is now a property of the entry, not of the declaration graph** (D-61). The module is the same module; what changed is that `exports` names it. An ordinary consumer who imports only `sortable.js` can still hold an installer, move it, drop it and not construct one — the opacity D-45 describes is exactly as real for them as it was. A middle-tier author imports one more subpath and can construct one, which is the point. **The mechanism that used to enforce the boundary is gone and nothing replaces it**, because there is nothing left to enforce: the boundary is now a documentation and versioning boundary, and the honest statement is that a consumer who wants past it types one more import rather than defeating anything.
 
   An earlier draft of this rule named the file instead ("declared in `sortable.js`, re-exported nowhere"), which is the wrong constraint and, taken literally, the worse one: putting the declaration in the entry module makes every subpath's declaration import from `../sortable.js` and drag the whole sortable entry graph into a subpath that otherwise needs one line. What the rule exists to prevent is two identities, and identity is what it should say.
 
@@ -1112,11 +1200,11 @@ Three decisions the earlier table left open (review 5, §12):
 
 - **Every runtime entry above becomes a `files.json` entry.** Shared contract _types_ are imported type-only, so they contribute no runtime edge, but they still need the declaration files to resolve — which is why the identity question above is not cosmetic.
 
-**D-48's three roots make the tree-shaking claim easier to state, not harder.** A consumer importing only `sortable.js` must pull no `draggable()` **entry**, and that is now a file-level fact rather than an argument about what a bundler kept: `draggable` lives in `kernel.js` and nothing on the ordinary path names it. What such a consumer does pull is the kernel's _implementation_, which it always pulled — `sortable()` calls `draggable()` internally instead of being handed to it, so D-48 moves the **call**, not the graph. `drag.js` contributes the `FAILURE_*` constants and three erased types; `kernel.js`'s type column is erased entirely. `tests/packaging.node.test.ts` asserts the entry-level absence the same way it asserts the axis absences, in both directions.
+**D-48's three roots make the tree-shaking claim easier to state, not harder** — and Revision 2.1 leaves the claim untouched while changing what two of the roots contain. A consumer importing only `sortable.js` must pull no `draggable()` **entry**, and that is now a file-level fact rather than an argument about what a bundler kept: `draggable` lives in `kernel.js` and nothing on the ordinary path names it. What such a consumer does pull is the kernel's _implementation_, which it always pulled — `sortable()` calls `draggable()` internally instead of being handed to it, so D-48 moves the **call**, not the graph. `drag.js` contributes **one class and two erased types** (D-64 — it contributed the `FAILURE_*` constants until the stages moved to the kernel tier); `kernel.js` now carries those constants beside `draggable`, and its type column is erased entirely. **`sortable/feature.js` contributes nothing at runtime by construction** (D-61), so it cannot move the number in either direction. `tests/packaging.node.test.ts` asserts the entry-level absence the same way it asserts the axis absences, in both directions.
 
-**D-56 strengthens the F-26 argument rather than weakening it.** Deleting three subpaths looks like it should cost the isolation claim something, and it does the opposite: every subpath that remains carries runtime machinery a composition either imports or does not. The three that went carried none — a subpath whose entire content is an object literal cannot demonstrate absence, because there was nothing present to be absent. Seven entries where every one is load-bearing is a better fixture than nine where three measure zero.
+**D-56 strengthens the F-26 argument rather than weakening it.** Deleting three subpaths looks like it should cost the isolation claim something, and it does the opposite: every subpath that remains carries runtime machinery a composition either imports or does not. The three that went carried none — a subpath whose entire content is an object literal cannot demonstrate absence, because there was nothing present to be absent. Seven entries where every one is load-bearing is a better fixture than nine where three measure zero. **D-61 adds an eighth that measures zero, and it is not the same case.** `sortable/feature.js` has no runtime content at all — it is a types-only address for the middle tier, and it makes no isolation claim to be checked. The three D-56 deleted were _runtime_ entries whose runtime content was an object literal; they claimed a measurement and delivered none. An entry that measures nothing and says so costs the fixture nothing.
 
-**What D-48 also changes is the ladder's second rung.** `sortable/y.js` and its siblings are no longer "feature subpaths a `draggable()` composition reaches for"; they are config utilities for a call that already returns a controller. Nothing about their contents or their measurement changes — but the sentence at the top of this section, that a separate subpath per optional capability is what makes the measurement honest, is now the _only_ reason they are separate, since ergonomics no longer needs them to be.
+**What D-48 also changes is the ladder's second rung.** `sortable/y.js` and its siblings are no longer "feature subpaths a `draggable()` composition reaches for"; they are config utilities for a call that already returns a controller. **D-61 then adds the other half of that rung**: the built-in fragments are what a consumer _uses_, `sortable/feature.js` is what an extension author _writes against_, and the rung is both — which is what the owner's ladder says and what Revision 2 read as one thing. Nothing about their contents or their measurement changes — but the sentence at the top of this section, that a separate subpath per optional capability is what makes the measurement honest, is now the _only_ reason they are separate, since ergonomics no longer needs them to be.
 
 The exact import statements for each measurement fixture are part of M-3, not of this table.
 
@@ -1124,15 +1212,19 @@ The exact import statements for each measurement fixture are part of M-3, not of
 
 The brief asks for this and the earlier draft did not state it.
 
-**The boundary is now two tiers over three entry roots** (D-48). The ladder has three rungs — `sortable()`/`freeDrag()`, the config utilities, `@ydinjs/drag/kernel` — so "internal" has to say _to which tier_, or the kernel entry publishes types this section calls unexported. The three roots do not line up one-per-tier: `kernel.js` is the kernel tier, `sortable.js` and `sortable/*` are the ordinary tier, and **`drag.js` spans both** — it is the vocabulary each tier hands the consumer and neither owns.
+**The boundary is now three tiers over three entry roots** (D-48, D-61 — it read "two tiers" until Revision 2.1 restored the middle rung as a published surface). The ladder has three rungs — `sortable()`/`freeDrag()`, the **config and feature utilities**, `@ydinjs/drag/kernel` — so "internal" has to say _to which tier_, or two entries publish types this section calls unexported. The roots do not line up one-per-tier: `kernel.js` is the kernel tier, `sortable.js` and most of `sortable/*` are the ordinary tier, **`sortable/feature.js` is the middle tier**, and **`drag.js` spans all three** — it is the vocabulary every tier hands out and none owns.
 
-**Internal and unstable at every tier** — not exported, and free to change without notice: `SortableInstaller`, `FeatureContext`, `SortableContribution`, `SortableSlots`, `InsertionGeometry`, **`Behavior` and its brander** (D-55), and the phase/lift/outcome/recovery constants.
+**Internal and unstable at every tier** — not exported, and free to change without notice: `SortableSlots`, **`Behavior` and its brander** (D-55), and the phase/lift/outcome/recovery constants.
+
+**Published at the middle tier** (D-61): `SortableInstaller`, `FeatureContext`, `SortableContribution`, `InsertionGeometry`, `DisplacementHook`, and the landing seam types D-63 moved here. All five were on the list above until Revision 2.1, and moving them is the whole of D-61's cost: **they acquire a versioning promise.** By this table's closure rule, publishing them publishes what they structurally name, so the minimum middle-tier surface is whatever `SortableContribution` and `FeatureContext` reach — narrowing it means narrowing those declarations, exactly as D-48 records for `BehaviorSpec`. `SortableSlots` stays internal and is the reason the closure stops where it does: an installer _returns_ a contribution and never sees the flattened record the behavior builds from it.
 
 **Internal to the ordinary tier, published at the kernel tier** (D-48): `BehaviorSpec`, `KernelHost`, `BehaviorFactory`, `Transition`, `ReleaseTransition`, `SettlementTransition`, `ActionTransition`, `CommandAdmission`, `SettlementInput`, `SeamOutcome`, `SeamRejection`, `ArmOutcome`, `ActivationScope`, `SettlementScope`, `LifetimeScope`. A `sortable.js` consumer can name none of them; a `@ydinjs/drag/kernel` consumer must be able to name enough of them to return `{ spec, controller }` from D-47's factory.
 
 **That list is a transitive closure, and it is the tension D-48 leaves behind.** §11 asks for the kernel vocabulary to be _minimized_, and the rule this table has run on since phase 9 is _export what a public type structurally depends on_. Publishing `BehaviorSpec` therefore publishes the seam types it names, and those name theirs. The minimum is not a matter of taste — it is whatever `BehaviorSpec`'s declaration reaches — so minimizing the kernel surface means **narrowing `BehaviorSpec` itself**, not choosing fewer names to export. 01 and 02 own that enumeration; this document only records that the two goals meet here and that the closure, not the wish, decides.
 
-**Public and stable at the ordinary tier:** everything in the `sortable.js` and `sortable/*` rows above — including `SortableConfig`, which Revision 2 adds — plus `drag.js` in full: `FailureStage`, `CancelStage`, `Point`, `DOMRealm` and the `FAILURE_*` constants. A consumer receiving `onError` or a canceled result has to be able to discriminate them, and it must not have to reach the kernel tier to do it (D-48). Keeping those internal while embedding them in public types was the same contradiction the feature type used to carry, and lodging them behind the kernel subpath would have been the same contradiction with a different address.
+**Public and stable at the ordinary tier:** everything in the `sortable.js` and the built-in `sortable/*` rows above — including `SortableConfig`, which Revision 2 adds — plus `drag.js` in full: `DraggableError`, `DraggableErrorCode`, `Point`, `DOMRealm`. `CancelStage` stays on `sortable.js`, where it always was.
+
+**`FailureStage` and the `FAILURE_*` constants are no longer on that list (D-64).** The struck reasoning was that a consumer receiving `onError` has to discriminate them; it now receives a coarse `code` instead, so it discriminates that. **The rule is unchanged and its input changed**: export what a public type structurally depends on — and the ordinary tier's public types no longer depend on a stage. Note what this costs, since the earlier text argued the other way with the same rule: a consumer loses the ability to distinguish a placeholder-move failure from a renderer-write failure, which was real telemetry. The owner's judgement is that it was granular on the pipeline axis and silent on the fault-attribution axis, and that only the second is actionable. **A consumer who genuinely needs the finer signal has no supported route to it** — that is the cost, stated rather than absorbed, and its falsifier is in 00 §What would falsify this model.
 
 `CommandAdmission` (D-32) is on the internal side deliberately, and it is worth saying why, because it is the one revision member a consumer might expect to see. A behavior declares which event types the kernel binds; a _consumer_ does not. Keyboard reordering reaches the public surface in Phase 16 as behavior capability and, where it needs configuring at all, as an ordinary config key — never as an event-type list a consumer hands the kernel. The same argument keeps the axis features out of the keyboard path (ledger L-4).
 
@@ -1166,13 +1258,13 @@ type SortableFeature = Readonly<{ [FEATURE_BRAND]: true }>;
 | **Why it can be** | a record of named slots has a stable part: the names | it is still a function between `FeatureContext` and `SortableContribution`, both internal |
 | **What a consumer may do** | author a literal, spread a preset, override a slot, filter `plugins`, lift `weirdThing().axis` out of a helper | hold one, move one, drop one — never construct one |
 
-**Third-party authoring is now _partitioned_ rather than prevented**, and the sentence this document used to carry — "third-party authoring is _prevented_ rather than discouraged" — is retracted with the brand. Authoring a **config** is ordinary object-literal syntax and is supported. Authoring an **installer** still requires naming `SortableInstaller`, `FeatureContext` and `SortableContribution`, none of which any subpath exports; a consumer who needs that drops to `@ydinjs/drag/kernel` and writes a behavior (D-47, D-48). What the brand actually bought, in retrospect, was preventing a consumer from writing `{}` where a feature was expected — a diagnostic, not a boundary.
+**Third-party authoring is now _partitioned_ rather than prevented**, and the sentence this document used to carry — "third-party authoring is _prevented_ rather than discouraged" — is retracted with the brand. Authoring a **config** is ordinary object-literal syntax and is supported from `sortable.js`. ~~Authoring an **installer** still requires naming `SortableInstaller`, `FeatureContext` and `SortableContribution`, none of which any subpath exports; a consumer who needs that drops to `@ydinjs/drag/kernel` and writes a behavior (D-47, D-48).~~ **Authoring an **installer** is supported too, from `sortable/feature.js` (D-61)** — the struck sentence is the drift the owner caught, and it is wrong in the direction that matters most: it sends someone who wants a different axis rule to the tier where they must reimplement the collection model, the placeholder, the release proposal and the landing protocol to get one. **The partition is now between _tiers_, not between supported and unsupported acts.** What the brand actually bought, in retrospect, was preventing a consumer from writing `{}` where a feature was expected — a diagnostic, not a boundary.
 
-**The cost is stated rather than absorbed: the config schema is now a semver surface.** Adding a required slot, renaming one, or changing a slot's merge kind is a breaking change to a type consumers author by hand. That is a real obligation D-30 did not have, and it is accepted because the alternative was the incoherent state — and because the slot names were already the vocabulary every example in these documents used.
+**The cost is stated rather than absorbed: the config schema is now a semver surface — and D-61 adds the installer types to it.** Adding a required slot, renaming one, or changing a slot's merge kind is a breaking change to a type consumers author by hand; adding a member to `SortableContribution`, or changing what `FeatureContext` offers, is now a breaking change to a type _extension authors_ implement against. The second obligation is the heavier one, because a contribution is implemented rather than merely written, and it is the price of the rung. That is a real obligation D-30 did not have, and it is accepted because the alternative was the incoherent state — and because the slot names were already the vocabulary every example in these documents used.
 
-The same leakage was fixed in three other places by **exporting what the public type structurally depends on** rather than pretending it is internal: `FailureStage` (public — `onError` receives it and a consumer must switch on it), `DOMRealm` (public — `LandingContext` carries it, and a custom runner needs it), and `Point` (already public). All three stay public under Revision 2.
+The same leakage was fixed in three other places by **exporting what the public type structurally depends on** rather than pretending it is internal: `FailureStage` (public — `onError` receives it and a consumer must switch on it), `DOMRealm` (public — `LandingContext` carries it, and a custom runner needs it), and `Point` (already public). ~~All three stay public under Revision 2.~~ **Revision 2.1 moves two of the three without touching the rule.** `FailureStage` is no longer received by `onError`, so its reason to be ordinary-tier public is gone and it is published at the kernel tier instead (D-64). `DOMRealm`'s reason named a _custom runner_, which no longer exists at the ordinary tier (D-63) — it stays public on `drag.js` because `LandingContext` still carries it and `sortable/feature.js` still names it. `Point` is untouched. **The rule survived; two of its three worked examples did not**, which is a fair measure of how much of this surface was justified by a runner nobody had built.
 
-If **installer** authoring is ever supported, that is a deliberate decision to export `SortableInstaller`, `FeatureContext` and `SortableContribution` under a versioning promise — not a side effect of a type becoming reachable. D-45 moves the line; it does not erase it.
+~~If **installer** authoring is ever supported, that is a deliberate decision to export `SortableInstaller`, `FeatureContext` and `SortableContribution` under a versioning promise — not a side effect of a type becoming reachable.~~ **It is supported, and D-61 is that deliberate decision** — taken by the owner in review 3 §1, not newly made here. The conditional's substance holds exactly as written: the three types are exported **under a versioning promise**, from a named subpath, because someone decided to publish them and not because a type became reachable. D-45 moves the line; D-61 moves it again, deliberately, one rung further out.
 
 ### What isolation cannot shake
 

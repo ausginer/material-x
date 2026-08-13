@@ -15,8 +15,8 @@ const controller = sortable(
   list,
   {
     items: () => items,
-    createPlaceholder,                     ← plain config KEYS, written
-    onReorder, onStart, onFinish,            directly. No callbacks() and
+    placeholder,                           ← plain config KEYS, written
+    onReorder, onStart, onEnd,               directly. No callbacks() and
   },                                         no placeholder() wrapper. [D-56]
   y(), layoutAnimation(), landing({ duration: 200 }),
 )                              ← ONE consumer call, returning a
@@ -37,7 +37,7 @@ const controller = sortable(
       [B] merge the config fragments, THEN materialize             [D-45]
             each argument is a PLAIN partial config object. A fragment
             installs nothing when it is constructed; it names a slot.
-              { items, createPlaceholder, onReorder, … }
+              { items, placeholder, onReorder, … }
                                      → those slots verbatim   [D-44, D-56]
               y()                    → { axis:     installYAxis }
               layoutAnimation()      → { plugins: [installLayoutAnimation()] }
@@ -218,7 +218,7 @@ pointermove (+11 px)
                         same element and in the same units as boxPre. [D-43]
               footprint = boxPre − boxPost   ← what the visual actually
                                                removed from the layout
-              placeholder = slots.createPlaceholder({ item, visual, box, rect })
+              placeholder = slots.createPlaceholder({ item, visual, box, rect })   ← from config.placeholder (D-65)
               size it from the FOOTPRINT, not from the visual's offset box
               copy `item`'s `slot` attribute onto the placeholder
                         ← from the ITEM, not the box: the placeholder stands in
@@ -475,7 +475,7 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                                        returns a SeamRejection at
                                        FAILURE_REORDER_RESOLUTION — never a
                                        silent accept and never an inferred
-                                       onCancel)
+                                       onEnd)
                             draft.outcome  = OUTCOME_ACCEPTED
                             draft.recovery = RECOVERY_DESTINATION
                             draft.domain   = { ACCEPTED, proposal }
@@ -573,7 +573,7 @@ The hold is reserved **before** `start` is called and the handle is stored **aft
 
 **The measurement is taken once, and the ordering above is the whole of why it can be.** The re-anchor is the library restoring _its own_ presentation invariant after the consumer moved DOM around it; the measurement then reads a placeholder that is where the authored order says it should be. C1 measured what happens without that ordering: `authoredReady` is false at arm **by construction**, so the pre-redesign reading was taken before the re-anchor even when the consumer had committed synchronously inside `onReorder` — 40 px stale in case 3, 40 px stale the other way in case 4, and at the viewport origin in the three that detach the placeholder. A conforming custom runner that omits `retarget()` — which `landing()`'s own contract calls trajectory quality only — animated toward that stale target for the entire landing. **[D-41, D-16, F-13]**
 
-**The precondition check is not renderer detection.** It is two reads validating something the measurement already depends on, and it exists because probe C1's three destructive strategies — `replaceChildren`, an `innerHTML` rebuild, and replacing the container — each detach the placeholder, which then measures `0×0` at `(0, 0)`; the row travels `(46,133) → (0,0)` over twelve frames and teleports back into its slot when the join pins. **All five strategies reported `onFinish` once, `onError` zero times and left zero residue**, so the worst integration bug in the package was also its most silent. D-42 declines to recover: destructive rerenders during an active operation are **out of contract**, supported commits move existing item nodes, and buying recovery would mean relaxing D-27's cross-container refusal for a case that is now outside the contract anyway. **[D-42, F-49]**
+**The precondition check is not renderer detection.** It is two reads validating something the measurement already depends on, and it exists because probe C1's three destructive strategies — `replaceChildren`, an `innerHTML` rebuild, and replacing the container — each detach the placeholder, which then measures `0×0` at `(0, 0)`; the row travels `(46,133) → (0,0)` over twelve frames and teleports back into its slot when the join pins. **All five strategies reported `onEnd` once, `onError` zero times and left zero residue**, so the worst integration bug in the package was also its most silent. D-42 declines to recover: destructive rerenders during an active operation are **out of contract**, supported commits move existing item nodes, and buying recovery would mean relaxing D-27's cross-container refusal for a case that is now outside the contract anyway. **[D-42, F-49]**
 
 The repair is guarded three ways, and each guard earns its place. The `nextElementSibling` test makes it inert when the placeholder is already adjacent — the common case — because `before()` on an already-correct position is a remove-and-reinsert that resets CSS transitions and forces a reflow. The connectivity and parentage tests stop a consumer that unmounted or re-keyed the item from having the placeholder dragged into a detached tree. It acts when the authored commit inserted a new keyed item into the destination gap, and C1 showed it also repairs both supported commit strategies: an append loop leaves the placeholder at index 0, a morphdom-style patch strands it at the tail, and the same repair closes the arithmetic in both.
 
@@ -621,10 +621,10 @@ landing animation finishes (200 ms)
                            [K] if a consequential failure was classified above:
                                  STOP. The queued checkpoint drives REPORTING
                                  and then retirement — calling `finalized` here
-                                 would fire onFinish for a failed drop, because
+                                 would fire onEnd for a failed drop, because
                                  the committed frame still says ACCEPTED. [F-27]
                            [B] spec.finalized(current)
-                                 slots.onFinish({ ACCEPTED, proposal })
+                                 slots.onEnd({ ACCEPTED, proposal })   ← one terminal (D-62)
                                  ← the consumer observes its own authored DOM,
                                    not the drag presentation            [I-23]
                                  ↳ throws → FAILURE_TERMINAL_CALLBACK; the
@@ -690,9 +690,9 @@ What the same trace does under each difficult case, without adding a branch anyw
 | The consumer's own commit **never settles** | The library waits, exactly as it waits for any pending resolution: the cancellation lifetime's `useWhile` still aborts the signal handed to `onReorder`, and a cancel or a `destroy()` ends the operation. There is no 500 ms readiness deadline any more, because there is no separate acknowledgement to time out — the bound the consumer has is the one it wrote. **[D-41, F-46]** |
 | The consumer's commit **throws or rejects** | `SETTLED_REJECTED` → `SeamRejection(FAILURE_REORDER_RESOLUTION)`, the same path as any rejected resolver. An `await` that throws is ordinary Promise failure behavior, which is the whole of what replaced four consumer obligations whose only failure signal used to be a 500 ms silence. **[F-46, F-29]** |
 | The user cancels while `onReorder` is outstanding | The operation stops waiting, restores and retires presentation, and reaches **one** terminal, `canceled`. The consumer's already-started work may still commit; the library never promised to undo it. The late settlement or rejection from the abandoned resolver is consumed safely — no unhandled rejection, no second terminal, no revival. **[D-40]** |
-| The authored commit **detaches or replaces** the placeholder | Out of contract: `replaceChildren`, an `innerHTML` rebuild and container replacement are unsupported during an active operation. The two-read precondition at the authoritative measurement fails, the library **reports through `onError`, skips the landing animation and joins immediately** — a jump cut, not a confident twelve-frame flight to `(0,0)`. The settlement does not fail and the drop terminates normally, because the DOM commit already happened and the reorder is real. **So this operation fires `onError` once _and_ `onFinish` once** (D-60). Nothing is recovered — C1 showed `request.before`/`after` survive in four of five strategies, so a repair is buildable, and buying it would mean relaxing D-27's cross-container refusal for a case that is now outside the contract. **[D-42, D-49, D-60, F-49]** |
-| The authoritative measurement **throws** | Identical treatment, and that is the point of D-49 unifying the two: report, skip the landing, join immediately, **`onError` once and `onFinish` once**. Quality only — the drop is unaffected. **[D-49, D-60]** |
-| Reading the two channels as mutually exclusive | **False, and worth stating because probe C1's finding is phrased the other way.** C1's defect was _`onFinish` once, `onError` **zero**_; the fixed behavior is _`onFinish` once, `onError` **once**_. `onError` is orthogonal to the terminal: it reports a **classified stage**, not an operation outcome. `FAILURE_LANDING_TARGET` under D-49 is the first stage that is classified, **non-consequential, and has no recovery** — the settlement is not failed and the domain result stands. The contract carried an unstated biconditional, `onError ⇒ consequential`, that nothing had ever tested; D-49 falsifies it, so any assertion of mutual exclusivity between the two channels is now wrong. **[D-60]** |
+| The authored commit **detaches or replaces** the placeholder | Out of contract: `replaceChildren`, an `innerHTML` rebuild and container replacement are unsupported during an active operation. The two-read precondition at the authoritative measurement fails, the library **reports through `onError`, skips the landing animation and joins immediately** — a jump cut, not a confident twelve-frame flight to `(0,0)`. The settlement does not fail and the drop terminates normally, because the DOM commit already happened and the reorder is real. **So this operation fires `onError` once _and_ `onEnd` once** (D-60). Nothing is recovered — C1 showed `request.before`/`after` survive in four of five strategies, so a repair is buildable, and buying it would mean relaxing D-27's cross-container refusal for a case that is now outside the contract. **[D-42, D-49, D-60, F-49]** |
+| The authoritative measurement **throws** | Identical treatment, and that is the point of D-49 unifying the two: report, skip the landing, join immediately, **`onError` once and `onEnd` once**. Quality only — the drop is unaffected. **[D-49, D-60]** |
+| Reading the two channels as mutually exclusive | **False, and worth stating because probe C1's finding is phrased the other way.** C1's defect was _`onEnd` once, `onError` **zero**_; the fixed behavior is _`onEnd` once, `onError` **once**_. `onError` is orthogonal to the terminal: it reports a **classified stage**, not an operation outcome. `FAILURE_LANDING_TARGET` under D-49 is the first stage that is classified, **non-consequential, and has no recovery** — the settlement is not failed and the domain result stands. The contract carried an unstated biconditional, `onError ⇒ consequential`, that nothing had ever tested; D-49 falsifies it, so any assertion of mutual exclusivity between the two channels is now wrong. **[D-60]** |
 | Recovery is home or immediate | No re-anchor. Re-anchoring follows the **recovery** — that clause of D-16 is one of the two that survive. |
 | The authored commit inserts a new keyed item into the destination gap | The guarded `item.before(placeholder)` repair, run once before the authoritative measurement, fixes the semantic gap; the repaired rect equals the item's actual landed rect. **[F-15]** |
 | `controller.invalidate()` at `ACTIVE`, `items()` returns the **same** array identity | Geometry and presentation invalidation only. No snapshot, no reconcile, no O(n) copy — which is what a resize, a zoom or a scroll produces, and it is the common case. **[D-44]** |
@@ -709,7 +709,7 @@ What the same trace does under each difficult case, without adding a branch anyw
 | A landing runner calls `done()` synchronously inside `start` | The hold was reserved before `start` was called, so the completion is queued against a real hold; the handle is stored before the queued completion can be applied. **[F-21]** |
 | `startLanding` throws | The reserved hold is rolled back, `FAILURE_LANDING_CREATE` is classified, arm returns `ARM_FAILED`, and the original settlement neither advances nor calls its terminal callback. The failure checkpoint owns recovery while presentation remains held. **[D-28, F-35]** |
 | An arrow key on an edge item | `command.admit` computes the destination gap, finds `null`, returns `null`. The kernel does not prevent the default, so no operation is minted, no phase changes, and the key keeps its native meaning. Feasibility was answered inside the listener, which is the whole of what D-32 buys. **[D-32, I-32]** |
-| An arrow key inside a **text input, `contenteditable` or native control** in a row | `command.admit` **declines**, because it now asks what the event landed on: text inputs keep caret arrows, `contenteditable` keeps editing navigation, native controls keep their keys. Declining is total, so the keystroke keeps its native meaning entirely. Probe E measured the alternative — a single `ArrowRight` at caret offset 5 in a nested input froze the caret, reported `defaultPrevented`, and produced `onStart` ×1, `{from:2,to:3}` and `onFinish` ×1: **a complete accepted reorder from one keystroke in a form field.** **[D-46, F-48]** |
+| An arrow key inside a **text input, `contenteditable` or native control** in a row | `command.admit` **declines**, because it now asks what the event landed on: text inputs keep caret arrows, `contenteditable` keeps editing navigation, native controls keep their keys. Declining is total, so the keystroke keeps its native meaning entirely. Probe E measured the alternative — a single `ArrowRight` at caret offset 5 in a nested input froze the caret, reported `defaultPrevented`, and produced `onStart` ×1, `{from:2,to:3}` and `onFinish` ×1 (probe E's own vocabulary; `onEnd` since D-62): **a complete accepted reorder from one keystroke in a form field.** **[D-46, F-48]** |
 | An arrow key during **IME composition** | `event.isComposing === true` never admits. In every CJK IME an arrow navigates the candidate list; probe E observed a real Chromium composition (`"にほ"`, `isComposing: true`) reordering the collection instead, mid-word, with the user not interacting with the list at all. **[D-46, F-48]** |
 | A press that never crosses the threshold | Nothing native is consumed: no `preventDefault()`, no selection cleared, and **no trailing-`click` suppressor armed**, so the click, the `href` and ctrl-click all behave exactly as they would with no library present. The suppressor is armed at activation, so it cannot fire for a press that stayed a press. **[D-54, D-46]** |
 | A drag that **activates** and ends on a link or button | The default was prevented at the threshold crossing, the selection the press began was cleared there, and exactly **one** subsequent `click` is suppressed in the capture phase — so the drop does not also navigate. One click, not a latch: the next genuine click on that element works. **[D-54]** |
@@ -728,6 +728,6 @@ What the same trace does under each difficult case, without adding a branch anyw
 | `activation.prepare` throws | `FAILURE_ACTIVATION` is queued and the operation stays live for its checkpoint. It is **not** retired here; retiring would make the queued entry stale and swallow the `onError`. **[F-27]** |
 | `settlement.effect` requests the landing hold, then throws | The scope seals, the request is dropped unarmed, and no runner starts. The rule is unchanged; there is one request to drop rather than two. **[F-27]** |
 | `startLanding` destroys the controller and returns a live handle | Revalidation after `start` finds the attempt stale, destroys the handle once, best-effort, and never publishes it. **[F-30]** |
-| The consumer resolution is a no-op proposal | `{ invoke: null }` → `SETTLED_SKIPPED` → `OUTCOME_NOOP` with **immediate** recovery and `onFinish`. Not a rejection, and not a home recovery. **[F-29]** |
-| The `onReorder` promise rejects | `SETTLED_REJECTED` → `SeamRejection(FAILURE_REORDER_RESOLUTION)`. A resolver malfunction is never reported as `onCancel`. **[F-29]** |
+| The consumer resolution is a no-op proposal | `{ invoke: null }` → `SETTLED_SKIPPED` → `OUTCOME_NOOP` with **immediate** recovery and `onEnd({ type: 'noop' })`. It read `onFinish`. Not a rejection, and not a home recovery. **[F-29]** |
+| The `onReorder` promise rejects | `SETTLED_REJECTED` → `SeamRejection(FAILURE_REORDER_RESOLUTION)`. A resolver malfunction is never reported as `onEnd({ type: 'canceled' })`. It read `onCancel`. **[F-29]** |
 | The insertion is a **start** gap | `movePlaceholder` anchors on `insertion.after`, so the placeholder reaches the head of the list. The old `before?.after(…)` writer was a silent no-op here. **[F-31]** |

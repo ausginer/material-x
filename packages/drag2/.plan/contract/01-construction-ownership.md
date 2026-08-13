@@ -164,7 +164,7 @@ type KernelHost = Readonly<{
    * operation A could classify a failure against operation B
    * (§[02](02-kernel-behavior-contract.md) §Failure classification).
    */
-  fail(stage: FailureStage, error: unknown): void;
+  fail(stage: FailureStage, error: unknown): void; // `FailureStage` is kernel-tier vocabulary (D-64)
 
   /** Base controller methods, for the behavior to spread into its controller. */
   cancel(reason?: unknown): void;
@@ -313,7 +313,7 @@ Note what is _not_ here: `rects`. The geometry cache lives inside the axis featu
 | Collection pull source and the array-identity test | behavior, from `config.items` (D-44) | the consumer owns the source; the behavior owns the snapshot it derives |
 | Packed rect index and the axis rule | the axis feature — `y()` or `xy()` | nothing |
 | Per-element displacement records | `layoutAnimation()` | nothing |
-| Landing runner mechanics | `landing()` | nothing |
+| Landing runner mechanics | `landing()` | nothing. **D-63: the consumer supplies timing, never a runner** — the library owns the animation, and a runner is authored at the middle or kernel tier |
 | Persistent ordered state | consumer | — |
 
 **The `preventDefault()` row changes meaning without changing owner.** The kernel still makes the call, and the behavior still answers only feasibility with its return value — no participant gains or loses reach. What D-46 withdraws is the call being **unconditional at admission**: a press that never crosses the activation threshold must leave native focus, caret, selection and form-control behavior intact, and command ingress must ask what the event landed on. The policy itself — the interactive/editable decline rule, the keyboard-command rule, `event.isComposing`, and the modifier for plain-text selection — belongs to §[02](02-kernel-behavior-contract.md), which states it. This table records only that the act stayed kernel-owned while its trigger condition moved.
