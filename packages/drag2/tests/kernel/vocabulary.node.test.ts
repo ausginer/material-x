@@ -29,6 +29,12 @@ const SRC = resolve(import.meta.dirname, '../../src');
  * Every name `src/kernel.ts` and `src/drag.ts` publish — values by reflection,
  * types by declaration. The type half is written out because types erase and
  * this file runs in Node: there is nothing to reflect over.
+ *
+ * **The value half self-maintains and the type half does not** (review 2, B-6).
+ * A type removed from `kernel.ts` but left here would silently keep permitting
+ * a `../kernel/*` import of it from `src/sortable/` — the boundary this file
+ * exists to hold — so the list is checked *against the entries* by the last
+ * test below, and is authoritative in neither direction on its own.
  */
 const PUBLISHED_TYPES: readonly string[] = [
   // kernel.js — the closure of `BehaviorFactory` (D-68, class A)
@@ -175,6 +181,13 @@ async function sortableImports(): Promise<readonly Import[]> {
   );
 }
 
+/** One module's source with its block comments removed, so prose cannot match. */
+async function exportedSource(file: string): Promise<string> {
+  const source = await readFile(join(SRC, file), 'utf8');
+
+  return source.replaceAll(/\/\*[\s\S]*?\*\//gu, '');
+}
+
 describe('the kernel tier boundary', () => {
   it('should reach nothing from the behavior that is neither published nor a named internal', async () => {
     const stray: string[] = [];
@@ -257,5 +270,20 @@ describe('the kernel tier boundary', () => {
 
     expect(source).toContain("from '../kernel/spec.ts'");
     expect(source).toContain("from '../kernel/lifetimes.ts'");
+  });
+
+  it('should list only types the entries still export', async () => {
+    // **B-6, closed rather than annotated.** The exposure is one-directional: a
+    // stale name here widens the allow-list, and nothing else in the suite
+    // notices, because `exports.node.test.ts` reflects over *values* and the
+    // per-entry TypeDoc run only sees names that are still reachable.
+    //
+    // Matched against the export statements with comments stripped, since every
+    // one of these names also appears in the prose above its export.
+    const entries =
+      (await exportedSource('kernel.ts')) + (await exportedSource('drag.ts'));
+    const stale = PUBLISHED_TYPES.filter((name) => !entries.includes(name));
+
+    expect(stale).toEqual([]);
   });
 });

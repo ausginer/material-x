@@ -1338,9 +1338,12 @@ export function createSortableSpec(
         // move above runs a custom-element placeholder's callbacks, and
         // `retire()` has then already nulled `rt.lift` — so without this the
         // very next line is `null.write(...)`, a `TypeError` classified as
-        // `FAILURE_RELEASE` against a controller that no longer exists. The
-        // publication below is the other half: a request written after
-        // `retire()` cleared it outlives the operation and pins its DOM (I-20).
+        // `FAILURE_RELEASE` against a controller that no longer exists.
+        //
+        // It used to name a second half — a request published after `retire()`
+        // cleared it. There is no publication below any more: `rt.pendingRequest`
+        // went with the readiness protocol (D-41), and the barrier stands on the
+        // `rt.lift!.write` alone (review 2, B-5).
         if (host.closed) {
           return;
         }

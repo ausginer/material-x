@@ -1790,6 +1790,278 @@ describe('the settlement gates', () => {
   });
 });
 
+/**
+ * The landing completion protocol: reserve-before-call (F-21), the once-only
+ * latch (D-28, I-24) and revalidate-after-return (F-30).
+ *
+ * **These rows are new, and their absence is the finding that produced them.**
+ * `tests/COVERAGE.md` §Landing completion cited six tests here — the
+ * synchronous `done()`, the synchronous `fail()`, the duplicate completion,
+ * `done()` followed by a throw, `start` throwing, and `start` destroying while
+ * returning a live handle — and none of them existed under any name (review 2,
+ * B-2). The ledger was read as coverage for the whole of `completeLanding` and
+ * `armSettlement`, which is the reason a dangling citation is worse than a
+ * missing one: it answers the question a reviewer came to ask.
+ *
+ * The one that is not a restoration is *`done()` then a throw*: the row
+ * predicted the completion survives for the join, and the landed kernel
+ * classifies the throw instead. The test below asserts what the kernel does and
+ * says why that is the coherent answer, rather than restoring a row that
+ * described a system that never shipped.
+ */
+describe('landing completion', () => {
+  it('should honour a done() called synchronously inside start', () => {
+    // **F-21, reserve-before-call.** The hold is taken before `start` runs, so
+    // a runner that completes inside `start` — `landing({ duration: 0 })`, or
+    // any synchronous one — always finds its hold to release. Were the hold
+    // reserved after `start` returned, this completion would apply to a gate
+    // that did not yet exist and the operation would hang open.
+    const runner = createRunner({
+      onStart: (done) => {
+        done();
+      },
+    });
+    const harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls).toContain('finalized');
+    expect(runner.calls).toEqual(['start', 'destroy']);
+  });
+
+  it('should destroy the handle and refuse to finalize after a synchronous fail()', () => {
+    // **F-30.** A runner may fail *and still return a handle*. The failure
+    // latches on the open phase, so the arm returns `ARM_FAILED` and the handle
+    // it is holding is destroyed rather than published — publishing it would
+    // leave a runner owned by a settlement that has already been replaced.
+    const failure = new Error('runner');
+    const runner = createRunner({
+      onStart: (_done, fail) => {
+        fail(failure);
+      },
+    });
+    const harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(runner.calls).toEqual(['start', 'destroy']);
+    expect(harness.failures.map(({ error }) => error)).toEqual([failure]);
+  });
+
+  it('should ignore a duplicate completion', () => {
+    // **I-24.** The second `done()` is not merely harmless — it must not open a
+    // second join, which would pin and call the terminal callback twice.
+    //
+    // **Both calls are inside `start`, and that is what makes this about the
+    // latch.** Two asynchronous `done()`s are stopped by the *staleness* check
+    // instead — the first one finalizes and retires the attempt, so the second
+    // finds `settlement !== attempt` — and a test written that way passes with
+    // the latch deleted. Inside `start` the attempt is still the live one for
+    // both calls, so `attempt.completed` is the only thing standing between
+    // them.
+    const runner = createRunner({
+      onStart: (done) => {
+        done();
+        done();
+      },
+    });
+    const harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls.filter((call) => call === 'finalized')).toHaveLength(
+      1,
+    );
+  });
+
+  it('should classify a start that throws after completing rather than joining', () => {
+    // **The row the ledger got wrong, kept as the correction.** COVERAGE cited
+    // a test called _should retain a synchronously completed handle for the
+    // join_ — the completion standing and the throw being tolerated. The landed
+    // kernel does the opposite, and it is right to: `start` threw, so the
+    // runner is in an unknown state and never returned a handle to destroy. The
+    // completion it queued is applied to an attempt the classification then
+    // retires, which is exactly what the once-only latch's staleness check is
+    // for (I-4).
+    const failure = new Error('start');
+    const runner = createRunner({
+      onStart: (done) => {
+        done();
+        throw failure;
+      },
+    });
+    const harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.failures.map(({ error }) => error)).toEqual([failure]);
+    // One terminal, from the failure path (D-66) — not one from each.
+    expect(harness.calls.filter((call) => call === 'finalized')).toHaveLength(
+      1,
+    );
+  });
+
+  it('should roll the hold back and classify when start throws', () => {
+    // **F-27.** The hold was reserved before the call; a throw has to give it
+    // back, or the settlement waits on a gate no runner will ever release.
+    const failure = new Error('start');
+    const runner = createRunner({
+      onStart: () => {
+        throw failure;
+      },
+    });
+    const harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(80, 10);
+
+    // Never published, so there is nothing to destroy — `start` did not return.
+    expect(runner.calls).toEqual(['start']);
+    expect(harness.failures.map(({ error }) => error)).toEqual([failure]);
+  });
+
+  it('should destroy a handle returned by a start that destroyed the controller', () => {
+    // **F-30's other half, revalidate-after-return.** Teardown ran inside
+    // `start`, saw no published handle and retired the attempt; publishing the
+    // handle now would leave a runner nothing owns and nothing will ever
+    // destroy. The kernel destroys it on the spot instead.
+    //
+    // **What this row pins is the outcome, not that mechanism.** Neutralising
+    // the post-return revalidation leaves this row — and the whole browser
+    // suite — green, because the destroy raised inside `start` is inside a
+    // transaction and D-36's bracket defers physical teardown to the boundary
+    // *after* arm published the handle; teardown then destroys it anyway. The
+    // revalidation is defence in depth against a teardown that is not deferred,
+    // which is the same hedge `armSettlement`'s own comment makes about
+    // `started` and `attempt.failed`. Recorded rather than dressed up: a
+    // falsification that does not falsify is worth stating.
+    let harness: Harness | null = null;
+    const runner = createRunner({
+      onStart: () => {
+        void harness!.controller.destroy();
+      },
+    });
+
+    harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(runner.calls).toEqual(['start', 'destroy']);
+  });
+
+  it('should let a done() win over a later fail()', () => {
+    // Inside `start` for the same reason as the duplicate above: this is the
+    // window in which both calls reach a live attempt, so the *order* is what
+    // decides rather than the retirement the first one caused.
+    const runner = createRunner({
+      onStart: (done, fail) => {
+        done();
+        fail(new Error('late'));
+      },
+    });
+    const harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls).toContain('finalized');
+    expect(harness.failures).toEqual([]);
+  });
+
+  it('should let a fail() win over a later done()', () => {
+    // The mirror, and the one that would pass vacuously if the latch were
+    // written as "a failure wins": the order decides, not the kind.
+    const failure = new Error('runner');
+    const runner = createRunner({
+      onStart: (done, fail) => {
+        fail(failure);
+        done();
+      },
+    });
+    const harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(80, 10);
+
+    // One terminal, and it is the failure's: D-66 makes the terminal total over
+    // started operations, so `finalized` is not evidence the *landing* joined.
+    expect(harness.failures.map(({ error }) => error)).toEqual([failure]);
+    expect(harness.calls.filter((call) => call === 'finalized')).toHaveLength(
+      1,
+    );
+  });
+
+  it('should make a completion for a retired attempt inert', () => {
+    // **I-24, and the staleness check rather than the latch.** `destroy()`
+    // retires the attempt with the animation still running and the runner's
+    // `done()` uncompleted, so nothing has latched: only
+    // `settlement !== attempt || queue.closed` stops this completion opening a
+    // join on a controller that no longer exists.
+    //
+    // Not driven by a cancel, which is the obvious reading and the wrong one: a
+    // cancel arriving at `SETTLING` is late by definition and `handleCancel`
+    // ignores it, so the settlement it was meant to retire is still live and
+    // `done()` would legitimately finalize it.
+    const runner = createRunner();
+    const harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(80, 10);
+    void harness.controller.destroy();
+
+    const before = harness.calls.length;
+
+    runner.done();
+
+    expect(harness.calls.slice(before)).toEqual([]);
+  });
+
+  it('should destroy a live runner when the controller is destroyed', () => {
+    // **I-6.** `destroy()` is a synchronous terminal barrier, and a landing
+    // animation is exactly the kind of work that would otherwise keep running
+    // against a controller that no longer exists.
+    const runner = createRunner();
+    const harness = createHarness({ startLanding: runner.start });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(runner.calls).toEqual(['start']);
+
+    void harness.controller.destroy();
+
+    expect(runner.calls).toEqual(['start', 'destroy']);
+  });
+
+  it('should never call start after anchorTarget destroyed the controller', () => {
+    // **F-38.** `anchorTarget` is behavior code and runs before `start`; the
+    // measurement it returns is unusable once it has torn the controller down,
+    // and calling a consumer's runner afterwards violates I-6. Distinct from
+    // the join's own revalidation, which is a later checkpoint on the same
+    // path — this one is why there is nothing for that checkpoint to undo.
+    let harness: Harness | null = null;
+    const runner = createRunner();
+
+    harness = createHarness({
+      startLanding: runner.start,
+      anchorTarget: () => {
+        void harness!.controller.destroy();
+        return { x: 300, y: 300 };
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(runner.calls).toEqual([]);
+  });
+});
+
 describe('the join', () => {
   it('should destroy the runner before pinning and release presentation last', () => {
     const runner = createRunner();

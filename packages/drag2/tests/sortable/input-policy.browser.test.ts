@@ -1129,7 +1129,7 @@ describe('input policy / modifiers', () => {
 // ---------------------------------------------------------------------------
 
 describe('input policy / { handle:  } scoping', () => {
-  it('should admit only from the grip for the pointer cases with { handle:  } composed', async () => {
+  it('should admit only from the grip for the pointer cases with { handle: … } composed', async () => {
     const fixture = build({ useHandle: true });
     const button = fixture.control('button');
 
