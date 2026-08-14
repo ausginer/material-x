@@ -9,7 +9,7 @@
  * produces with no cast.
  */
 import { DEV } from './dev.ts';
-import { IDLE } from './phases.ts';
+import { IDLE, type Phase } from './phases.ts';
 
 /**
  * Per-operation identity. Object identity is what every kernel-side attempt
@@ -23,7 +23,16 @@ export type OperationIdentity = Readonly<{ id: number }>;
  * slice).
  */
 export type KernelFrame = {
-  phase: number;
+  /**
+   * **A closed union, not a bare `number`** (D-68). The behavior *reads* this —
+   * the reference behavior tests it in three seams the kernel calls at times
+   * the behavior cannot predict — so it is a value the kernel hands over, and
+   * the same rule that made `FailureStage` closed applies: a participant must
+   * not be able to forge an invalid or kernel-private phase, and a numeric
+   * union whose members are unnameable is not a public type. The eight
+   * constants publish with it.
+   */
+  phase: Phase;
   operation: OperationIdentity | null;
   pointerId: number;
   /** Grab point and latest committed pointer position, viewport space. */
@@ -82,22 +91,31 @@ export type Frame<Part extends object> = KernelFrame & Part;
 export type Draft<Part extends object> = Omit<Part, keyof KernelFrame> &
   Readonly<KernelFrame>;
 
-type FrameKeyCollision<K> = Readonly<{ __kernelFrameKeyCollision: K }>;
-
 /**
  * `Part` when it declares no kernel frame key, and an uninhabitable
  * intersection naming the offending key when it does.
  *
  * This catches **explicitly declared literal collisions only**: a broad index
  * signature declares no colliding key even though a runtime `phase` property is
- * entirely possible. {@link validateFramePart} is the authoritative check; this
- * layer makes the common mistake unwriteable, not every mistake (review 6 §19).
+ * entirely possible. `validateFramePart` is the authoritative check; this layer
+ * makes the common mistake unwriteable, not every mistake (review 6 §19) — and
+ * it is named in prose rather than linked because it is deliberately *not*
+ * published (D-68) and a published type must not point at a name a reader
+ * cannot reach.
+ *
+ * **The collision brand is inlined** (D-68). It was a private
+ * `FrameKeyCollision<K>` alias, which put an unpublishable name in this
+ * published type's closure for no gain: it has one use site, and the brand is
+ * as readable written out.
  */
 export type FramePartOf<Part> = [
   Extract<keyof Part, keyof KernelFrame>,
 ] extends [never]
   ? Part
-  : Part & FrameKeyCollision<Extract<keyof Part, keyof KernelFrame>>;
+  : Part &
+      Readonly<{
+        __kernelFrameKeyCollision: Extract<keyof Part, keyof KernelFrame>;
+      }>;
 
 /**
  * Rejects a frame part before the first `Object.assign`.

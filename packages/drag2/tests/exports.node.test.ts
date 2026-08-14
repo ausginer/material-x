@@ -44,9 +44,19 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
   // class, which is what keeps this root alive after D-48 moved `draggable`
   // off it and D-64 moved the stages off with them.
   drag: ['DraggableError'],
-  // The kernel tier (D-48). Thirteen stages, not fourteen: D-41 deleted
-  // `FAILURE_PRESENTATION_READY` with the readiness protocol.
+  // **The kernel tier, and the whole of D-68's value half — 33 names.** Thirteen
+  // stages, not fourteen: D-41 deleted `FAILURE_PRESENTATION_READY` with the
+  // readiness protocol. The other nineteen constants are what F-59 found
+  // missing: `config.liftMode` needs a `LIFT_*`, `settlement.prepare` needs the
+  // `SETTLED_*` arms to discriminate its input, D-66's fallback needs the two
+  // `AT_*`, and a behavior reads `frame.phase`. Erased types cannot fill a
+  // value position, which is why a type-only assertion could not have seen the
+  // hole.
   kernel: [
+    'ACTIVATING',
+    'ACTIVE',
+    'AT_CONSUMER',
+    'AT_PROPOSAL',
     'FAILURE_ACTIVATION',
     'FAILURE_ADMISSION',
     'FAILURE_INSERTION',
@@ -60,7 +70,22 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'FAILURE_REORDER_RESOLUTION',
     'FAILURE_SCHEDULED_FRAME',
     'FAILURE_TERMINAL_CALLBACK',
+    'FINALIZING',
+    'IDLE',
+    'LIFT_FAITHFUL',
+    'LIFT_FLAT',
+    'LIFT_IN_PLACE',
+    'PENDING',
+    'RELEASING',
+    'REPORTING',
+    'SETTLED_CANCELED',
+    'SETTLED_FAILED',
+    'SETTLED_FULFILLED',
+    'SETTLED_REJECTED',
+    'SETTLED_SKIPPED',
+    'SETTLING',
     'draggable',
+    'toDraggableError',
   ],
   sortable: ['AT_CONSUMER', 'AT_PROPOSAL', 'ReorderResolution', 'sortable'],
   // **The middle tier has no runtime exports at all** (D-61). Every name on it

@@ -383,6 +383,29 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 
 ---
 
+## Kernel vocabulary — new (D-68)
+
+The tier published no value at all, so it could **describe** a behavior and not **construct** one (F-59). The first row is the only one that tests self-containment as a _property_; the rest pin the list and the boundary.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a behavior compiles from `kernel.js` + `drag.js` alone, every seam **out of line** | `tests/consumer.node.test.ts` — the `BEHAVIOR` fixture, compiled against the packed declarations | D-68, F-59 |
+| the 33 values, asserted **by value** | `tests/exports.node.test.ts` — _should export exactly the frozen runtime surface_; `tests/consumer.node.test.ts` — _should expose exactly the intended runtime surface, per subpath_ | D-68 |
+| `kernel.js`'s closure resolves within `kernel.js ∪ drag.js` | `tests/docs.node.test.ts` — _should close the kernel tier over the kernel tier_ | F-60 |
+| `intentionallyNotExported` is empty | `typedoc.json`, enforced by the same run — TypeDoc fails a listed name that becomes exported | D-68 |
+| the behavior reaches nothing unpublished and unenumerated | `tests/kernel/vocabulary.node.test.ts` — _should reach nothing from the behavior that is neither published nor a named internal_ | D-68 |
+| `ActionTransition` and `SeamRejection` resolve to one declaration each | `tests/kernel/vocabulary.node.test.ts` — _should declare the doubly-declared seam types exactly once_ | F-61 |
+| `KernelFrame.phase` is `Phase` | `tests/kernel/frames.declaration.test.ts` — _should expose the kernel slice for reading_ | D-68 |
+| the re-homed names keep their old specifiers, by identity | `tests/kernel/vocabulary.node.test.ts` — _should keep the re-homed cancel stages as one declaration on two entries_, _…should re-export the middle tier's landing seam types from the kernel's own modules_ | D-68 |
+
+**Out of line is the whole assertion in the first row.** An inline factory is contextually typed throughout, so it names three to eight things and would have compiled against the pre-D-68 surface — `docs/revision/revision-2.ts` is exactly that shape and is why it could not be the acceptance case. Hoisting each seam into its own `const` forces the closure to be nameable, and filling `config.liftMode` forces a value that no type can supply. Falsified by removing one value (`LIFT_IN_PLACE`) and one type (`BehaviorInstall`) from the entry: the packed compile fails on both, at the fixture.
+
+**The per-entry docs run is F-60's row, and the whole-run form cannot make it.** TypeDoc resolves across every entry at once, so `LandingStart`, `LandingHandle`, `LandingContext`, `Disposer` and `CancelStage` resolved through `sortable/feature.js` and `sortable.js` — a clean report while the kernel entry's closure ran through the **behavior** tier. Restricting the run to the kernel's own tier asks the question the boundary needs.
+
+**Three residues the empty exemption list forced out**, each a declaration change rather than an export: `FrameKeyCollision` inlined into `FramePartOf`, `LifetimeScope` declared as the base with `Lifetime` extending it (it was `Pick<Lifetime, …>`, so publishing the projection dragged the member the projection exists to remove into the closure), and one `{@link}` in `FramePartOf`'s comment turned into prose because it pointed at a deliberately unpublished name.
+
+---
+
 ## The footprint's cross axis — new (F-58, resolution A-3)
 
 The two-window rule subtracted on **both** axes, so `footprint.width` was `0` for every composition where `box !== visual` — and the fixture written to prove the rule had `footprint.width === 0` inside it while asserting only the height. The correction is one expression: the width is `boxPre.width` always, and only the height subtracts.

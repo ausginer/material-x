@@ -11,7 +11,19 @@ import type { Draft, Frame, FramePartOf } from './frames.ts';
 import type { LifetimeScope } from './lifetimes.ts';
 import type { LiftMode, VisualLiftSession } from './presentation.ts';
 import type { DOMRealm } from './realm.ts';
-import type { Transition } from './seams.ts';
+/**
+ * **One declaration each, re-exported** (F-61). `ActionTransition` and
+ * `SeamRejection` were declared here *and* in `seams.ts`, structurally
+ * identical and independently maintained. Harmless while both were internal;
+ * publishing one of each at the kernel tier (D-68) makes it exactly the hazard
+ * 03 §The export topology's identity clauses exist to prevent — a consumer's
+ * compiler resolves the published declaration while the driver consumes the
+ * other, and the two drift apart with nothing to notice.
+ *
+ * They live in `seams.ts` beside `Transition`, which is the sibling envelope
+ * and already the direction this module's imports run.
+ */
+import type { ActionTransition, SeamRejection, Transition } from './seams.ts';
 import type { OffsetBox, Point } from './types.ts';
 
 /**
@@ -204,14 +216,7 @@ export type ResolutionCommand = Readonly<{
   invoke: ((signal: AbortSignal) => unknown) | null;
 }>;
 
-/**
- * Shared by the two non-discardable seams, which still need to say *this is a
- * failure, at this stage* (F-20). The kernel classifies it itself.
- */
-export type SeamRejection = Readonly<{
-  stage: FailureStage;
-  error: unknown;
-}>;
+export type { ActionTransition, SeamRejection } from './seams.ts';
 
 export type ReleaseTransition<Part extends object> = Readonly<{
   prepare(draft: Draft<Part>): ResolutionCommand | SeamRejection;
@@ -365,24 +370,6 @@ export type SettlementTransition<Part extends object> = Readonly<{
 // ---------------------------------------------------------------------------
 // BehaviorSpec
 // ---------------------------------------------------------------------------
-
-/**
- * Behavior action tags get the same envelope, which is what makes "the behavior
- * never calls `begin()`/`commit()`" hold for behavior-initiated work too.
- *
- * `Prepared` is opaque to the kernel, which threads it; the behavior narrows it
- * by tag.
- */
-export type ActionTransition<Part extends object> = Readonly<{
-  prepare(tag: number, argument: unknown, draft: Draft<Part>): {} | null;
-  effect(
-    tag: number,
-    argument: unknown,
-    current: Readonly<Frame<Part>>,
-    prepared: {},
-  ): void;
-  rollback?(tag: number, prepared: {}): void;
-}>;
 
 export type BehaviorConfig = Readonly<{
   /** Activation travel in viewport pixels. The kernel owns the distance test. */

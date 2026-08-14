@@ -360,6 +360,261 @@ declare const unusedTypes: [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, B1, B2, B3,
 void unusedTypes;
 `;
 
+/**
+ * **The kernel-tier fixture behavior** (D-68, 05 §Kernel vocabulary).
+ *
+ * This is the acceptance row that tests self-containment as a *property*
+ * rather than as a list: it imports `@ydinjs/drag2/kernel.js` and
+ * `@ydinjs/drag2/drag.js` and **nothing else** — no deep path, no
+ * `sortable.js`, no `sortable/feature.js` — and it compiles against the
+ * **packed** declarations, so an unpublished name fails here the way it would
+ * for a real behavior author.
+ *
+ * **Every seam is declared out of line**, and that is load-bearing rather than
+ * stylistic: an inline factory is contextually typed throughout, so it would
+ * have compiled against the pre-D-68 surface and proved nothing. Hoisting each
+ * seam into its own `const` is what forces the closure to be nameable —
+ * `Draft`, `Frame`, `Transition`, `SettlementTransition`, `ActivationScope`,
+ * `LifetimeScope`, `VisualLiftSession`, `OffsetBox`, `FramePartOf`,
+ * `BehaviorInstall`.
+ *
+ * It also fills `config.liftMode`, discriminates all five `SETTLED_*` arms and
+ * derives D-66's fallback stage from `AT_PROPOSAL`/`AT_CONSUMER` — the three
+ * value holes F-59 named, none of which any type could have filled.
+ */
+const BEHAVIOR = `import { DraggableError, type Point } from '@ydinjs/drag2/drag.js';
+import {
+  ACTIVE,
+  AT_CONSUMER,
+  AT_PROPOSAL,
+  draggable,
+  FAILURE_ACTIVATION,
+  FAILURE_RELEASE,
+  IDLE,
+  LIFT_IN_PLACE,
+  RELEASING,
+  SETTLED_CANCELED,
+  SETTLED_FAILED,
+  SETTLED_FULFILLED,
+  SETTLED_REJECTED,
+  SETTLED_SKIPPED,
+  toDraggableError,
+  type ActionTransition,
+  type ActivationScope,
+  type AdmissionSubject,
+  type BehaviorConfig,
+  type BehaviorInstall,
+  type BehaviorSpec,
+  type CancelStage,
+  type CommandAdmission,
+  type Disposer,
+  type Draft,
+  type Frame,
+  type FramePartOf,
+  type KernelFrame,
+  type KernelHost,
+  type LandingContext,
+  type LandingHandle,
+  type LandingStart,
+  type LifetimeScope,
+  type OffsetBox,
+  type OperationIdentity,
+  type Phase,
+  type PreparedSettlement,
+  type ReleaseTransition,
+  type ResolutionCommand,
+  type SeamRejection,
+  type SettlementInput,
+  type SettlementScope,
+  type SettlementTransition,
+  type Transition,
+  type VisualLiftSession,
+} from '@ydinjs/drag2/kernel.js';
+
+/** The behavior's own frame part. The kernel never names it (D-15). */
+type Part = {
+  grabbed: HTMLElement | null;
+  verdict: string | null;
+};
+
+type Controller = Readonly<{ cancel(reason?: unknown): void; destroy(): Promise<void> }>;
+
+/** Behavior-private, per-operation. D-66's marker, out of line. */
+const MINTED = 0;
+const STARTED = 1;
+const RESOLVING = 2;
+
+let progress: 0 | 1 | 2 = MINTED;
+
+const config: BehaviorConfig = {
+  threshold: 8,
+  // **The value F-59 is about.** No default, no erased substitute.
+  liftMode: LIFT_IN_PLACE,
+  actionTags: 1,
+};
+
+const admit = (event: PointerEvent, draft: Draft<Part>): AdmissionSubject | null => {
+  const target = event.target;
+
+  if (!(target instanceof HTMLElement)) {
+    return null;
+  }
+
+  draft.grabbed = target;
+  // A behavior reads the phase, and its domain is published (D-68).
+  const phase: Phase = draft.phase;
+
+  return phase === IDLE ? { visual: target, box: target } : null;
+};
+
+const command: CommandAdmission<Part> = {
+  types: ['keydown'],
+  admit: (event, draft) => (draft.phase === IDLE && event.type === 'keydown' ? draft.grabbed : null),
+};
+
+const activation: Transition<Part, HTMLElement, ActivationScope> = {
+  prepare: (draft, scope) => {
+    const box: OffsetBox = scope.boxPre;
+    const lift: VisualLiftSession = scope.lift;
+    const motion: LifetimeScope = scope.motion;
+    const release: Disposer = () => {};
+
+    motion.use(release);
+    void lift.write;
+    void box.height;
+    void draft.grabbed;
+    return scope.visual;
+  },
+  effect: (current, prepared, scope) => {
+    progress = STARTED;
+    void current.pointerX;
+    void prepared.isConnected;
+    scope.presentation.use(() => {});
+  },
+};
+
+const release: ReleaseTransition<Part> = {
+  prepare: (draft): ResolutionCommand | SeamRejection => {
+    if (draft.grabbed === null) {
+      return { stage: FAILURE_RELEASE, error: new Error('no subject') };
+    }
+
+    return {
+      invoke: (signal) => {
+        progress = RESOLVING;
+        return signal.aborted ? null : 'verdict';
+      },
+    };
+  },
+  effect: (current, prepared) => {
+    void current.operation;
+    void prepared.invoke;
+  },
+};
+
+const settlement: SettlementTransition<Part> = {
+  // All five arms, exhaustively — D-24 requires it and the discriminants are
+  // values, so an erased surface could not express this switch at all.
+  prepare: (draft, input: SettlementInput): PreparedSettlement | SeamRejection => {
+    switch (input.type) {
+      case SETTLED_FULFILLED:
+        draft.verdict = String(input.value);
+        return true;
+      case SETTLED_REJECTED:
+        return { stage: FAILURE_ACTIVATION, error: input.error };
+      case SETTLED_SKIPPED:
+        draft.verdict = 'noop';
+        return true;
+      case SETTLED_CANCELED: {
+        const stage: CancelStage = input.stage;
+
+        draft.verdict = stage === AT_CONSUMER ? 'late' : 'early';
+        return true;
+      }
+      case SETTLED_FAILED: {
+        // D-66's fallback, derived rather than supplied — the input carries a
+        // \`FailureStage\`, never a \`CancelStage\`.
+        const stage: CancelStage = progress === RESOLVING ? AT_CONSUMER : AT_PROPOSAL;
+        const error: DraggableError = toDraggableError(input.stage, input.error);
+
+        draft.verdict = stage === AT_CONSUMER ? error.code : 'aborted';
+        return true;
+      }
+    }
+  },
+  effect: (current, _prepared, scope: SettlementScope) => {
+    const start: LandingStart = (context: LandingContext, done): LandingHandle => {
+      const from: Point = context.from;
+
+      void context.compose(from.x, from.y);
+      done();
+      return { destroy: () => {} };
+    };
+
+    if (current.phase >= RELEASING) {
+      scope.holdForLanding(start);
+    }
+  },
+};
+
+const action: ActionTransition<Part> = {
+  prepare: (tag, argument, draft) => (tag === 0 && draft.phase === ACTIVE ? { argument } : null),
+  effect: (_tag, _argument, current: Readonly<Frame<Part>>, prepared) => {
+    void current.verdict;
+    void prepared;
+  },
+};
+
+const createFramePart = (): FramePartOf<Part> => ({ grabbed: null, verdict: null });
+
+const resetFramePart = (part: Part): void => {
+  part.grabbed = null;
+  part.verdict = null;
+};
+
+const install = (host: KernelHost): BehaviorInstall<Controller, Part> => {
+  const spec: BehaviorSpec<Part> = {
+    config,
+    admit,
+    command,
+    activation,
+    release,
+    settlement,
+    action,
+    moved: (current, lift) => {
+      const frame: KernelFrame = current;
+      const operation: OperationIdentity | null = frame.operation;
+
+      void operation;
+      lift.write(current.pointerX - current.originX, current.pointerY - current.originY);
+    },
+    anchorTarget: (current): Point => ({ x: current.pointerX, y: current.pointerY }),
+    finalized: (current) => {
+      void current.verdict;
+    },
+    reportFailure: (stage, error) => {
+      void toDraggableError(stage, error).code;
+    },
+    retire: () => {
+      progress = MINTED;
+    },
+    createFramePart,
+    resetFramePart,
+  };
+
+  return {
+    spec,
+    controller: { cancel: host.cancel, destroy: host.destroy },
+  };
+};
+
+declare const root: HTMLElement;
+
+const behaviorController: Controller = draggable(root, install);
+
+void behaviorController;
+`;
+
 const TSCONFIG = JSON.stringify({
   compilerOptions: {
     strict: true,
@@ -373,7 +628,7 @@ const TSCONFIG = JSON.stringify({
     // not to trust that it resolves.
     skipLibCheck: false,
   },
-  include: ['consumer.ts'],
+  include: ['consumer.ts', 'behavior.ts'],
 });
 
 type Packed = Readonly<{
@@ -442,6 +697,7 @@ beforeAll(async () => {
   await symlink(extracted, join(scope, 'drag2'));
   await symlink(join(REPO, 'packages', 'box-quad'), join(scope, 'box-quad'));
   await writeFile(join(consumer, 'consumer.ts'), CONSUMER);
+  await writeFile(join(consumer, 'behavior.ts'), BEHAVIOR);
   await writeFile(join(consumer, 'tsconfig.json'), TSCONFIG);
 
   const manifest = JSON.parse(
@@ -540,7 +796,14 @@ describe('the packed package', () => {
     // by the consumer compile instead.
     const expected: Readonly<Record<string, readonly string[]>> = {
       './drag.js': ['DraggableError'],
+      // **33 values, asserted by value** (D-68). A type-only assertion cannot
+      // see the hole F-59 names: every missing name was a *constant*, and
+      // erased types cannot fill a value position.
       './kernel.js': [
+        'ACTIVATING',
+        'ACTIVE',
+        'AT_CONSUMER',
+        'AT_PROPOSAL',
         'FAILURE_ACTIVATION',
         'FAILURE_ADMISSION',
         'FAILURE_INSERTION',
@@ -554,7 +817,22 @@ describe('the packed package', () => {
         'FAILURE_REORDER_RESOLUTION',
         'FAILURE_SCHEDULED_FRAME',
         'FAILURE_TERMINAL_CALLBACK',
+        'FINALIZING',
+        'IDLE',
+        'LIFT_FAITHFUL',
+        'LIFT_FLAT',
+        'LIFT_IN_PLACE',
+        'PENDING',
+        'RELEASING',
+        'REPORTING',
+        'SETTLED_CANCELED',
+        'SETTLED_FAILED',
+        'SETTLED_FULFILLED',
+        'SETTLED_REJECTED',
+        'SETTLED_SKIPPED',
+        'SETTLING',
         'draggable',
+        'toDraggableError',
       ],
       './sortable.js': [
         'AT_CONSUMER',

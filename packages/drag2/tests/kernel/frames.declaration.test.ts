@@ -6,6 +6,7 @@ import type {
   FramePartOf,
   KernelFrame,
 } from '../../src/kernel/frames.ts';
+import type { Phase } from '../../src/kernel/phases.ts';
 
 type ExamplePart = {
   item: HTMLElement | null;
@@ -22,7 +23,11 @@ describe('Draft', () => {
   });
 
   it('should expose the kernel slice for reading', () => {
-    expectTypeOf(draft.phase).toEqualTypeOf<number>();
+    // **`Phase`, not `number`** (D-68). The behavior reads this field, so its
+    // domain is published and closed — a participant cannot forge a phase, and
+    // an assertion of `number` here would pass against exactly the surface the
+    // narrowing removes.
+    expectTypeOf(draft.phase).toEqualTypeOf<Phase>();
     expectTypeOf(draft.pointerY).toEqualTypeOf<number>();
   });
 
@@ -56,7 +61,7 @@ describe('Frame', () => {
   });
 
   it('should still allow reading both slices', () => {
-    expectTypeOf(current.phase).toEqualTypeOf<number>();
+    expectTypeOf(current.phase).toEqualTypeOf<Phase>();
     expectTypeOf(current.item).toEqualTypeOf<HTMLElement | null>();
   });
 });

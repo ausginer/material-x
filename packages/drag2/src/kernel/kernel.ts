@@ -63,6 +63,7 @@ import {
   RELEASING,
   REPORTING,
   SETTLING,
+  type Phase,
 } from './phases.ts';
 import {
   acquirePointerCapture,
@@ -220,6 +221,14 @@ export type Kernel<Part extends object> = Readonly<{
 /** No phase stamp is pending. Phases are non-negative. */
 const NO_STAMP = -1;
 
+/**
+ * The armed-stamp slot's type, since `KernelFrame.phase` narrowed to `Phase`
+ * (D-68). The sentinel is outside the union deliberately — it is the *absence*
+ * of a phase, not a ninth one — and the `!== NO_STAMP` test already at the one
+ * write site is what narrows it away.
+ */
+type ArmedStamp = Phase | typeof NO_STAMP;
+
 export function createKernel<Part extends object>(
   root: HTMLElement,
 ): Kernel<Part> {
@@ -311,8 +320,8 @@ export function createKernel<Part extends object>(
    * transaction starts with exactly the stamp armed for it and no other, and
    * {@link commit} consumes it.
    */
-  let armedStamp = NO_STAMP;
-  let stamp = NO_STAMP;
+  let armedStamp: ArmedStamp = NO_STAMP;
+  let stamp: ArmedStamp = NO_STAMP;
 
   /**
    * True for the whole of native admission — `admit`, its consumer-supplied
@@ -367,7 +376,7 @@ export function createKernel<Part extends object>(
    * only the driver's re-entry refusal — would otherwise leave the stamp armed
    * for whatever begins next.
    */
-  const runStamped = (phase: number, run: () => void): void => {
+  const runStamped = (phase: Phase, run: () => void): void => {
     armedStamp = phase;
 
     try {
@@ -2004,8 +2013,20 @@ export function createKernel<Part extends object>(
           current.phase === RELEASING ? AT_CONSUMER : AT_PROPOSAL,
         );
         break;
-      default:
+      // **Written out since `phase` narrowed to `Phase`** (D-68). The handler
+      // was already total — a phase it does not recognise is ignored, never
+      // thrown on — but with a closed union the compiler can say *which* phases
+      // that covers, so the four are named rather than left to a bare
+      // `default`. `IDLE` has no operation; the three terminal phases have a
+      // settlement already deciding the outcome, and a cancel arriving there is
+      // late by definition.
+      case IDLE:
+      case SETTLING:
+      case REPORTING:
+      case FINALIZING:
         break;
+
+      // no default
     }
   };
 

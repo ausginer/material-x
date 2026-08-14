@@ -23,25 +23,33 @@ import { report } from './reporter.ts';
  */
 export type Disposer = () => void;
 
-export type Lifetime = Readonly<{
-  signal: AbortSignal;
-  finalized: boolean;
-  use(disposer: Disposer): void;
-  useWhile(guard: () => boolean, disposer: Disposer): void;
-  dispose(): void;
-}>;
-
 /**
- * What the behavior receives at activation: the same physical `Lifetime` with
- * `dispose` projected away (contract D-21).
+ * What the behavior receives at activation: the physical `Lifetime` with
+ * `dispose` and `finalized` absent (contract D-21).
  *
  * A type-level projection costs nothing — the kernel passes the identical
  * object under the narrower type — and it turns I-11 from "the behavior should
  * not close motion" into "it cannot".
+ *
+ * **Declared as the base, with `Lifetime` extending it** (D-68). It read
+ * `Pick<Lifetime, …>`, which was the same type and the wrong direction once
+ * this became public: the projection's closure then named the full `Lifetime`,
+ * so publishing the scope dragged the member the projection exists to remove
+ * into the kernel entry's documented closure. Deriving the other way publishes
+ * exactly what D-21 says a behavior gets, and keeps one declaration of every
+ * member.
  */
-export type LifetimeScope = Readonly<
-  Pick<Lifetime, 'signal' | 'use' | 'useWhile'>
->;
+export type LifetimeScope = Readonly<{
+  signal: AbortSignal;
+  use(disposer: Disposer): void;
+  useWhile(guard: () => boolean, disposer: Disposer): void;
+}>;
+
+export type Lifetime = LifetimeScope &
+  Readonly<{
+    finalized: boolean;
+    dispose(): void;
+  }>;
 
 export function createLifetime(): Lifetime {
   const disposers: Disposer[] = [];

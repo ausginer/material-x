@@ -18,23 +18,5 @@
   "excludeProtected": true,
   "excludeInternal": true,
   "sort": ["source-order"],
-  "intentionallyNotExported": [
-    "src/kernel/frames.ts:Frame",
-    "src/kernel/frames.ts:Draft",
-    "src/kernel/frames.ts:FramePartOf",
-    "src/kernel/lifetimes.ts:LifetimeScope",
-    "src/kernel/presentation.ts:VisualLiftSession",
-    "src/kernel/presentation.ts:LiftMode",
-    "src/kernel/seams.ts:Transition",
-    "src/kernel/spec.ts:ReleaseTransition",
-    "src/kernel/spec.ts:SettlementTransition",
-    "src/kernel/spec.ts:ActionTransition",
-    "src/kernel/spec.ts:BehaviorInstall",
-    "src/kernel/spec.ts:SETTLED_FULFILLED",
-    "src/kernel/spec.ts:SETTLED_REJECTED",
-    "src/kernel/spec.ts:SETTLED_SKIPPED",
-    "src/kernel/spec.ts:SETTLED_CANCELED",
-    "src/kernel/spec.ts:SETTLED_FAILED",
-    "src/kernel/types.ts:OffsetBox"
-  ]
+  "intentionallyNotExported": []
 }

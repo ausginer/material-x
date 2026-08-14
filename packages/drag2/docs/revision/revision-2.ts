@@ -30,20 +30,20 @@
  * shipped one is numeric constants, so a fixture whose central type was a
  * different *kind* of type could not have detected drift in anything naming it.
  *
- * **Three names are imported from inside the package rather than from an
- * entry, and that is a finding, not a shortcut** (F-59, ledger §L-14).
- * `LIFT_FLAT` is required to *construct* a `BehaviorSpec`, `SETTLED_FAILED` to
- * *discriminate* a `SettlementInput`, and `AT_PROPOSAL`/`AT_CONSUMER` to derive
- * D-66's fallback stage; `kernel.js` publishes none of them — so the kernel
- * tier is, today, not authorable from its own entry **in any style**, since a
- * contextually typed inline factory still cannot fill `liftMode`. The fixture
- * reaches into `src/kernel/` and says so here rather than papering over it with
- * numeric literals.
+ * **Three names were imported from inside the package rather than from an
+ * entry, and that was the finding** (F-59, ledger §L-14). `LIFT_FLAT` is
+ * required to *construct* a `BehaviorSpec`, `SETTLED_FAILED` to *discriminate*
+ * a `SettlementInput`, and `AT_PROPOSAL`/`AT_CONSUMER` to derive D-66's
+ * fallback stage; `kernel.js` published none of them — so the kernel tier was
+ * not authorable from its own entry **in any style**, since a contextually
+ * typed inline factory still cannot fill `liftMode`.
  *
- * **Decided by D-68** (00 §Revision 2.2, 02 §The kernel tier's public
- * vocabulary): all three ship from `kernel.js`. The deep imports below are the
- * standing marker for that work — **when D-68 lands, this file must import
- * nothing from `src/kernel/`**, and this paragraph goes with them.
+ * **Closed by D-68** (00 §Revision 2.2, 02 §The kernel tier's public
+ * vocabulary): all three ship from `kernel.js`, and this file imports **nothing
+ * from `src/kernel/`** — which was the standing marker for that work and is now
+ * the assertion. What it cannot assert is the *other* half of authorability:
+ * an inline factory names almost none of the closure, so the out-of-line
+ * fixture in `tests/consumer.node.test.ts` is what proves the type half.
  *
  * ## The rule that makes it evidence
  *
@@ -103,25 +103,22 @@
  * checks. D-66 then made the switch total over the failure path too.
  */
 
+// **The shared root.** A class, therefore a runtime value both tiers name and
+// neither owns.
 import type { DraggableError, DraggableErrorCode } from '../../src/drag.ts';
+// **The kernel tier, from its own entry** — all of it, since D-68. Three
+// imports used to reach *inside* the package from here: `LIFT_FLAT` fills
+// `BehaviorConfig.liftMode`, `SETTLED_FAILED` discriminates the input D-66
+// travels on, and `AT_PROPOSAL`/`AT_CONSUMER` derive its fallback stage. None
+// was on `kernel.js`, and every one is a **value** — which is F-59, and why a
+// type-closure instrument could not see the hole.
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
-  type CancelStage,
-} from '../../src/kernel/failures.ts';
-// **The shared root.** A class, therefore a runtime value both tiers name and
-// neither owns.
-// **The kernel tier, from its own entry.** Every name here is one a behavior
-// author must be able to write.
-import { LIFT_FLAT } from '../../src/kernel/presentation.ts';
-// **Three names the kernel entry does not publish** — see the header, and F-59.
-// `LIFT_FLAT` fills `BehaviorConfig.liftMode`, `SETTLED_FAILED` discriminates
-// the input D-66 travels on, and `AT_PROPOSAL`/`AT_CONSUMER` derive its
-// fallback stage, so a behavior cannot be authored from `kernel.js` alone
-// today. D-68 moves all three to the entry; these imports retire with it.
-import { SETTLED_FAILED } from '../../src/kernel/spec.ts';
-import {
+  LIFT_FLAT,
+  SETTLED_FAILED,
   draggable,
+  type CancelStage,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
   FAILURE_INSERTION,
@@ -405,14 +402,15 @@ controller.invalidate();
  * seam below is contextually typed from the SPI, and a signature drifting in
  * `src/kernel/spec.ts` breaks this file.
  *
- * **Two names had to come from inside the package** (header, §L-14):
- * `LIFT_FLAT` fills `BehaviorConfig.liftMode` and `SETTLED_FAILED`
- * discriminates the settlement input. Neither is on `kernel.js`. Note what the
- * seams below did *not* need — `Frame`, `Draft` and `Transition` are never
- * named here, because contextual typing supplies them. That is the exact shape
- * of the gap: the tier is writable **inline** and not **by annotation**, so an
- * author who hoists a seam into its own `const` is stuck where this file is
- * not.
+ * **Everything it needs is on `kernel.js`** since D-68, including the three
+ * values that reached inside the package from here until the vocabulary pass.
+ * Note what the seams below still do *not* name — `Frame`, `Draft` and
+ * `Transition` never appear, because an inline factory is contextually typed
+ * throughout. That is why this file cannot be the acceptance case for the
+ * vocabulary: it would have compiled against the pre-D-68 *type* surface too.
+ * The row that discharges it is `tests/consumer.node.test.ts`'s kernel-tier
+ * fixture, which declares every seam **out of line**, against the packed
+ * declarations, importing `kernel.js` and `drag.js` and nothing else.
  */
 const kernelSide: SortableController = draggable<
   SortableController,
