@@ -3,23 +3,24 @@
  *
  * Each is validated as early as its value exists, which for a fixed option is
  * **construction**, with the offending call still on the stack — the same rule
- * `copyUniqueItems` follows for a duplicate item. Two cases deliberately are
- * not: a `landing({ duration })` thunk is range-checked per landing (pinned
- * below), and `landing({ run })` suppresses the duration domain outright,
- * because a replacement runner leaves nothing for it to configure. The
- * types say `number`, but a JavaScript consumer is not bound by that, and the
- * silent failures are nasty: a `NaN` threshold activates on nothing, a `NaN`
- * duration produces an animation that never finishes, and a `0` readiness
- * timeout fails every gate before the promise can settle.
+ * `copyUniqueItems` follows for a duplicate item. **One case deliberately is
+ * not**: a contextual `landing({ duration })` is range-checked per landing,
+ * because its result does not exist until then (D-67). ~~and `landing({ run })`
+ * suppresses the duration domain outright~~ — the second exception went with
+ * `run` (D-63), which is a rule losing a conditional rather than gaining one.
+ * The types say `number`, but a JavaScript consumer is not bound by that, and
+ * the silent failures are nasty: a `NaN` threshold activates on nothing and a
+ * `NaN` duration produces an animation that never finishes.
+ *
+ * `threshold` moved with D-56: it used to be validated by `callbacks()`, which
+ * only saw a config routed through that factory. It is now validated by the
+ * assembler, over the **merged** config, so it fires however the value arrived.
  */
 import { describe, expect, it } from 'vitest';
 import { assemble } from '../../src/sortable/assemble.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
+import { mergeFragments } from '../../src/sortable/config.ts';
 import { ReorderResolution } from '../../src/sortable/domain.ts';
-import type {
-  FeatureContext,
-  SortableFeature,
-} from '../../src/sortable/feature.ts';
+import type { FeatureContext } from '../../src/sortable/feature.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -33,13 +34,14 @@ const context: FeatureContext = {
 /** Assembling is what applies the defaults, so it is what validates them. */
 const assembleWith = (options: Record<string, unknown>): unknown =>
   assemble(
-    [
+    mergeFragments([
       y(),
-      callbacks({
+      {
+        items: (): readonly HTMLElement[] => [],
         onReorder: () => ReorderResolution.accept(),
         ...options,
-      }),
-    ] satisfies readonly SortableFeature[],
+      },
+    ]),
     context,
   );
 
@@ -67,33 +69,6 @@ describe('threshold', () => {
 
   it('should refuse a value that is not a number at all', () => {
     expect(() => assembleWith({ threshold: '8' })).toThrow(/threshold/u);
-  });
-});
-
-describe('readinessTimeout', () => {
-  it('should default to 500 milliseconds', () => {
-    expect(assembleWith({})).toMatchObject({ readinessTimeout: 500 });
-  });
-
-  it('should accept a longer bound for a round-tripping consumer', () => {
-    expect(assembleWith({ readinessTimeout: 30_000 })).toMatchObject({
-      readinessTimeout: 30_000,
-    });
-  });
-
-  it('should refuse zero, which would fail every gate it bounds', () => {
-    expect(() => assembleWith({ readinessTimeout: 0 })).toThrow(
-      /readinessTimeout must be a finite number >= 1/u,
-    );
-  });
-
-  it('should refuse a non-finite bound', () => {
-    // Not even `Infinity` as "never time out": the bound exists so a gate
-    // cannot hold presentation forever, and an unbounded one is the state it
-    // was introduced to prevent.
-    expect(() =>
-      assembleWith({ readinessTimeout: Number.POSITIVE_INFINITY }),
-    ).toThrow(/readinessTimeout/u);
   });
 });
 
@@ -143,12 +118,13 @@ describe('landing duration', () => {
     expect(() => landing({ duration: () => -1 })).not.toThrow();
   });
 
-  it('should not validate the duration of a full replacement runner', () => {
-    // `run` replaces the default runner entirely, so the option it would have
-    // configured has no meaning left to check.
-    expect(() =>
-      landing({ duration: -1, run: () => ({ destroy: (): void => {} }) }),
-    ).not.toThrow();
+  it('should validate the duration unconditionally', () => {
+    // **The case that used to be the exception** (D-63). `landing({ run })`
+    // replaced the default runner entirely, so `duration` had nothing left to
+    // configure and was deliberately *not* checked when it was present.
+    // Removing `run` removes the conditional from the validation rule rather
+    // than adding one: there is one path, and it always checks.
+    expect(() => landing({ duration: -1 })).toThrow(TypeError);
   });
 });
 

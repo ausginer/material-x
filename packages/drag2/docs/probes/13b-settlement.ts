@@ -70,10 +70,12 @@ declare const scope: SettlementScope;
  * it (contract 05 §two independent gates).
  */
 export function holdBothGates(start: LandingStart): void {
-  // Post-revision this takes no argument, and the property P-1 names is
-  // untouched by that: `effect` still returns `void` and the two holds are still
-  // separate members, so the overlap is still structural.
-  scope.holdForReadiness();
+  // **Stale as of D-41, and kept rather than rewritten.** There is one gate:
+  // the readiness hold had no producer under the serial authored commit, so
+  // P-1's overlap property is *vacated* rather than falsified — the authored
+  // render now happens before the landing starts, so there is nothing left for
+  // it to overlap with. `effect` still returns `void` and still awaits nothing,
+  // which is the half of P-1 that survives.
   scope.holdForLanding(start);
 }
 
@@ -90,8 +92,11 @@ export function holdBothGates(start: LandingStart): void {
  * acknowledgement on the request instead, so no settlement machinery crosses the
  * public boundary at all.
  */
-// @ts-expect-error — `holdForReadiness` returns void; there is no token.
-export const n1: object = scope.holdForReadiness();
+// **Stronger than it was.** The assertion used to be that `holdForReadiness`
+// yields no token; D-41 deletes the member outright, so the gate it planned
+// cannot be requested at all.
+// @ts-expect-error — there is no readiness gate to hold (D-41).
+export const n1: object = scope.holdForReadiness;
 
 /**
  * **N-2. There is no request channel.** `SettlementScope` has exactly two
@@ -121,7 +126,7 @@ export const n3: PreparedSettlement = expectedButUnpromised;
 
 /**
  * **R-1. The only failure signal is a timeout.** A violated obligation is
- * indistinguishable from a slow render until `config.readinessTimeout`
+ * indistinguishable from a slow render until the readiness deadline (both deleted by D-41)
  * elapses, at which point the operation fails with
  * `FAILURE_PRESENTATION_READY`. Pinned executably by the existing suite at
  * `tests/kernel/kernel.browser.test.ts:1793-1800` and `:2102-2114`.

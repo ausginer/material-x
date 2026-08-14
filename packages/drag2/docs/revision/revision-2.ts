@@ -2,9 +2,10 @@
  * **Revision 2 fixture — does the redesigned consumer surface compile as one
  * system?**
  *
- * The `phase-14.ts` treatment applied to **D-36…D-67**. Everything Revision 2
- * and Revision 2.1 changed is **restated here**; everything they left alone is
- * imported from `../../src/` so the two halves cannot silently drift apart.
+ * The `phase-14.ts` treatment applied to **D-36…D-67**, **wired to `src/` at
+ * Revision 2 closure** (A-4). Every public type and value it exercises is now
+ * imported from the entry that publishes it, so the file checks the
+ * implementation rather than checking itself.
  *
  * ## Why this file exists
  *
@@ -17,10 +18,32 @@
  *
  * ## What it is not
  *
- * It is not an implementation and it is not lifecycle validation. `src/` still
- * implements the **pre-revision** surface; nothing here is wired to it, and the
- * imports below are deliberately confined to types the revision does not
- * touch. Contract 00 is explicit that typecheck cannot catch a lifecycle error.
+ * It is not an implementation and it is not lifecycle validation: contract 00
+ * is explicit that typecheck cannot catch a lifecycle error, and A-1 is the
+ * worked example — a *value* defect in the one branch this file's `n17`/`n18`
+ * pin the shape of, which no type could have caught.
+ *
+ * **It restated the whole surface until Revision 2 closure**, because `src/`
+ * was pre-revision while it was written, and the handoff booked the rewiring as
+ * owed *"at Phase R"*. The drift that had already accumulated is the argument:
+ * the fixture's own `FailureStage` was a union of **string literals** while the
+ * shipped one is numeric constants, so a fixture whose central type was a
+ * different *kind* of type could not have detected drift in anything naming it.
+ *
+ * **Three names were imported from inside the package rather than from an
+ * entry, and that was the finding** (F-59, ledger §L-14). `LIFT_FLAT` is
+ * required to *construct* a `BehaviorSpec`, `SETTLED_FAILED` to *discriminate*
+ * a `SettlementInput`, and `AT_PROPOSAL`/`AT_CONSUMER` to derive D-66's
+ * fallback stage; `kernel.js` published none of them — so the kernel tier was
+ * not authorable from its own entry **in any style**, since a contextually
+ * typed inline factory still cannot fill `liftMode`.
+ *
+ * **Closed by D-68** (00 §Revision 2.2, 02 §The kernel tier's public
+ * vocabulary): all three ship from `kernel.js`, and this file imports **nothing
+ * from `src/kernel/`** — which was the standing marker for that work and is now
+ * the assertion. What it cannot assert is the *other* half of authorability:
+ * an inline factory names almost none of the closure, so the out-of-line
+ * fixture in `tests/consumer.node.test.ts` is what proves the type half.
  *
  * ## The rule that makes it evidence
  *
@@ -28,7 +51,7 @@
  * `npx just typecheck` from `packages/drag2` asserts both halves: the positive
  * shapes compile, and each negative one still does not.
  *
- * **Seventeen live negative assertions across eighteen directives, and two withdrawn.** The three that fell — `n6`, `n12`, `n15` — are the file's most useful output: each was a contract claim that TypeScript does not actually enforce.
+ * **Seventeen live `@ts-expect-error` directives across fifteen numbered assertions, and two withdrawn.** The three that fell — `n6`, `n12`, `n15` — are the file's most useful output: each was a contract claim that TypeScript does not actually enforce.
  *
  * `n12` was **repaired**, and the repair is a contract detail nobody would have
  * guessed: the callback slots must be **named type aliases**, because
@@ -40,6 +63,17 @@
  * signature, and any return type is assignable to a `void` position. Each is annotated with the decision it
  * pins. A directive that stops failing is a contract regression, not a lint
  * complaint.
+ *
+ * **What the rewiring itself caught, stated because it is the return on A-4.**
+ * Three restatements were wrong about the package they described, and none of
+ * them could have been noticed while the fixture only checked itself:
+ * `PreparedSettlement` was written as `Readonly<{ presentation: boolean }>` and
+ * is the bare `true` sentinel D-41 left behind; `InsertionGeometry.resolve` was
+ * written as `(view) => HTMLElement | null` and is
+ * `(frame, runtime) => Insertion | null`; and `FailureStage` was a union of
+ * string literals against a shipped union of numeric constants. An installer
+ * written against the first two would not have compiled against the package it
+ * claims to extend.
  *
  * ## The two assertions worth reading first
  *
@@ -69,74 +103,88 @@
  * checks. D-66 then made the switch total over the failure path too.
  */
 
+// **The shared root.** A class, therefore a runtime value both tiers name and
+// neither owns.
+import type { DraggableError, DraggableErrorCode } from '../../src/drag.ts';
+// **The kernel tier, from its own entry** — all of it, since D-68. Three
+// imports used to reach *inside* the package from here: `LIFT_FLAT` fills
+// `BehaviorConfig.liftMode`, `SETTLED_FAILED` discriminates the input D-66
+// travels on, and `AT_PROPOSAL`/`AT_CONSUMER` derive its fallback stage. None
+// was on `kernel.js`, and every one is a **value** — which is F-59, and why a
+// type-closure instrument could not see the hole.
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  LIFT_FLAT,
+  SETTLED_FAILED,
+  draggable,
   type CancelStage,
-} from '../../src/kernel/failures.ts';
-import type { DOMRealm } from '../../src/kernel/realm.ts';
-import type { Point } from '../../src/kernel/types.ts';
+  FAILURE_ACTIVATION,
+  FAILURE_ADMISSION,
+  FAILURE_INSERTION,
+  FAILURE_INVALIDATION,
+  FAILURE_LANDING_CREATE,
+  FAILURE_LANDING_INTERRUPTED,
+  FAILURE_LANDING_TARGET,
+  FAILURE_PLACEHOLDER_MOVE,
+  FAILURE_RELEASE,
+  FAILURE_RENDERER_WRITE,
+  FAILURE_REORDER_RESOLUTION,
+  FAILURE_SCHEDULED_FRAME,
+  FAILURE_TERMINAL_CALLBACK,
+  type AdmissionSubject,
+  type BehaviorSpec,
+  type FailureStage,
+  type KernelHost,
+  type SettlementInput,
+} from '../../src/kernel.ts';
+// The middle tier (D-61).
+import type { ReorderProposal } from '../../src/sortable/domain.ts';
 import type {
-  AcceptedReorderResult,
-  CanceledReorderResult,
-  NoopReorderResult,
-  RejectedReorderResult,
-  ReorderProposal,
-  ReorderRequest,
-  ReorderTransactionResult,
-} from '../../src/sortable/domain.ts';
+  LandingStart,
+  SortableContribution,
+  SortableInstaller,
+} from '../../src/sortable/feature.ts';
+// The ordinary tier.
+import { landing, type LandingOptions } from '../../src/sortable/landing.ts';
+import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
+import { y } from '../../src/sortable/y.ts';
+import {
+  ReorderResolution,
+  sortable,
+  type AcceptedReorderResult,
+  type CanceledReorderResult,
+  type DragErrorContext,
+  type NoopReorderResult,
+  type RejectedReorderResult,
+  type ReorderTransactionResult,
+  type SortableConfig,
+  type SortableController,
+} from '../../src/sortable.ts';
 
 // ---------------------------------------------------------------------------
 // drag.js — shared vocabulary (D-64)
 // ---------------------------------------------------------------------------
 
 /**
- * The coarse consumer-facing fault classes. Names are **not frozen** (review 3
- * §12); the axis is — a code names an actionable fault class, never an
- * internal pipeline seam.
+ * `DraggableError` and `DraggableErrorCode` are **imported** now. They were
+ * restated here — the class as a `declare class`, the code as its four string
+ * literals — which proved only that four literals can be written down twice.
  */
-type DraggableErrorCode =
-  | 'consumer'
-  | 'interaction'
-  | 'presentation'
-  | 'platform';
-
-/**
- * A class, therefore a runtime value. `cause` is the native ES2022 property and
- * is deliberately not redeclared.
- *
- * Whether this needs its own entry root is **measured, not argued**:
- * `.plan/measurements/error-identity.md` shows a module reachable from two
- * entries is emitted once in both build modes, so cross-entry `instanceof`
- * holds however many entries re-export it.
- */
-declare class DraggableError extends Error {
-  readonly code: DraggableErrorCode;
-}
 
 // ---------------------------------------------------------------------------
 // kernel.js — the kernel tier (D-48, D-64)
 // ---------------------------------------------------------------------------
 
 /**
- * Thirteen stages, not fourteen: `FAILURE_PRESENTATION_READY` goes with the
- * readiness protocol (D-41). Restated rather than imported precisely because
- * the count changed — importing it would have hidden the deletion.
+ * **Thirteen stages, not fourteen** — `FAILURE_PRESENTATION_READY` went with
+ * the readiness protocol (D-41), and its number was deliberately not reused.
+ * The union was restated here on the reasoning that *importing it would have
+ * hidden the deletion*; the opposite turned out to be true. A restated union of
+ * **string literals** could not see that the shipped one is numeric, so it
+ * hid a far larger difference than the one it was guarding. Imported now, and
+ * the count is asserted below rather than asserted about.
  */
-type FailureStage =
-  | 'admission'
-  | 'activation'
-  | 'renderer-write'
-  | 'insertion'
-  | 'placeholder-move'
-  | 'invalidation'
-  | 'scheduled-frame'
-  | 'reorder-resolution'
-  | 'release'
-  | 'landing-create'
-  | 'landing-interrupted'
-  | 'landing-target'
-  | 'terminal-callback';
 
 /**
  * **D-64's totality requirement, as a type.** Every stage names a code; adding
@@ -149,75 +197,34 @@ type FailureStage =
  * `renderer-write` are not.
  */
 const stageToCode: Readonly<Record<FailureStage, DraggableErrorCode>> = {
-  admission: 'consumer',
-  activation: 'interaction',
-  'renderer-write': 'presentation',
-  insertion: 'presentation',
-  'placeholder-move': 'presentation',
-  invalidation: 'platform',
-  'scheduled-frame': 'platform',
-  'reorder-resolution': 'consumer',
-  release: 'interaction',
-  'landing-create': 'presentation',
-  'landing-interrupted': 'presentation',
-  'landing-target': 'presentation',
-  'terminal-callback': 'consumer',
+  [FAILURE_ADMISSION]: 'consumer',
+  [FAILURE_ACTIVATION]: 'interaction',
+  [FAILURE_RENDERER_WRITE]: 'presentation',
+  [FAILURE_INSERTION]: 'presentation',
+  [FAILURE_PLACEHOLDER_MOVE]: 'presentation',
+  [FAILURE_INVALIDATION]: 'platform',
+  [FAILURE_SCHEDULED_FRAME]: 'platform',
+  [FAILURE_REORDER_RESOLUTION]: 'consumer',
+  [FAILURE_RELEASE]: 'interaction',
+  [FAILURE_LANDING_CREATE]: 'presentation',
+  [FAILURE_LANDING_INTERRUPTED]: 'presentation',
+  [FAILURE_LANDING_TARGET]: 'presentation',
+  [FAILURE_TERMINAL_CALLBACK]: 'consumer',
 };
 
-/** D-53 — the sanctioned logical-liveness reading, and the only one. */
-type KernelHost = Readonly<{
-  readonly closed: boolean;
-  realm: DOMRealm;
-  root: HTMLElement;
-  fail(stage: FailureStage, error: unknown): void;
-}>;
-
 /**
- * D-59 — `admit` returns the element to lift, optionally paired with a box
- * element. Discriminated by `'visual' in subject`, never `instanceof`, because
- * `DOMRealm` exists precisely because an element may come from another
- * document.
+ * `KernelHost`, `AdmissionSubject`, `BehaviorFactory`, `SettlementInput`,
+ * `PreparedSettlement`, `SeamRejection` and `BehaviorSpec` were all restated
+ * here and are all **imported from `kernel.js`** now. The spec below is typed
+ * as the shipped `BehaviorSpec`, so every seam signature it fills is checked
+ * against the SPI rather than against a local sketch of it.
  */
-type AdmissionSubject =
-  | HTMLElement
-  | Readonly<{
-      visual: HTMLElement;
-      box: HTMLElement;
-    }>
-  | null;
-
-type BehaviorFactory<Controller> = (host: KernelHost) => Readonly<{
-  spec: BehaviorSpecShape;
-  controller: Controller;
-}>;
-
-/**
- * D-24 / F-33 — the five settlement cases, all of which return to the behavior
- * because `outcome`, `recovery` and `domain` are fields of the behavior's part
- * that the kernel cannot name or write.
- *
- * **`SETTLED_FAILED` is D-66's carrier**, and the reason is visible in the
- * shape: it is the only in-operation input that carries the classifying
- * `error`, and the failure checkpoint routes every classified failure of a
- * live operation through this seam to deliver it. Note what it does **not**
- * carry — a `CancelStage`. That is `n17`.
- */
-type SettlementInput =
-  | Readonly<{ type: 'fulfilled'; value: unknown }>
-  | Readonly<{ type: 'rejected'; error: unknown }>
-  | Readonly<{ type: 'skipped' }>
-  | Readonly<{ type: 'canceled'; reason: unknown; stage: CancelStage }>
-  | Readonly<{ type: 'failed'; stage: FailureStage; error: unknown }>;
 
 /** The behavior's own frame part. `domain` has held the result since D-24. */
 type SortableFramePart = {
   proposal: ReorderProposal | null;
   domain: ReorderTransactionResult | null;
 };
-
-/** The kernel's sentinel. D-66 adds nothing to it. */
-type PreparedSettlement = Readonly<{ presentation: boolean }>;
-type SeamRejection = Readonly<{ stage: FailureStage; error: unknown }>;
 
 /**
  * **D-66's two facts, in one behavior-private monotone marker.**
@@ -238,209 +245,45 @@ const RESOLVING = 2;
 
 type OperationProgress = typeof MINTED | typeof STARTED | typeof RESOLVING;
 
-/** Only the members this fixture exercises; the full SPI lives in `src/`. */
-type BehaviorSpecShape = Readonly<{
-  admit(event: PointerEvent, draft: object): AdmissionSubject;
-  /**
-   * **Admission-only, and D-66 does not use it.** Its contract is _a failure
-   * with no operation to settle_ — `admit` threw, identity was never minted,
-   * there is no checkpoint to queue. An early draft of D-66 named this member
-   * as the carrier for in-operation failures, which it cannot be by
-   * construction. `SettlementInput` is the carrier.
-   */
-  reportFailure(stage: FailureStage, error: unknown): void;
-  /**
-   * The real shape: `prepare` **writes the draft** and returns the sentinel;
-   * `effect` receives a `Readonly` frame and cannot write frame state at all.
-   * An earlier draft of this fixture had `prepare` return a part, which is not
-   * a shape the seam admits.
-   */
-  settlement: Readonly<{
-    prepare(
-      draft: SortableFramePart,
-      input: SettlementInput,
-    ): PreparedSettlement | SeamRejection;
-    effect(
-      current: Readonly<SortableFramePart>,
-      prepared: PreparedSettlement,
-    ): void;
-  }>;
-  finalized(current: Readonly<SortableFramePart>): void;
-}>;
-
-declare function draggable<Controller>(
-  root: HTMLElement,
-  behavior: BehaviorFactory<Controller>,
-): Controller;
-
 // ---------------------------------------------------------------------------
 // sortable/feature.js — the middle tier (D-61)
 // ---------------------------------------------------------------------------
 
-type FeatureContext = Readonly<{
-  realm: DOMRealm;
-  root: HTMLElement;
-  report(error: unknown): void;
-}>;
-
-type PlaceholderContext = Readonly<{
-  item: HTMLElement;
-  visual: HTMLElement;
-  /** D-43 — the geometry source, which is not always the visual. */
-  box: HTMLElement;
-  rect: DOMRectReadOnly;
-}>;
-
-type PlaceholderFactory = (context: PlaceholderContext) => HTMLElement;
-
-type InsertionView = Readonly<{ pointer: Point; item: HTMLElement }>;
-
-type InsertionGeometry = Readonly<{
-  resolve(view: InsertionView): HTMLElement | null;
-  invalidate(): void;
-  retire(): void;
-}>;
-
-type DisplacementHook = (view: InsertionView) => void;
-
-type LandingContext = Readonly<{
-  realm: DOMRealm;
-  from: Point;
-  target: Point;
-}>;
-
-type LandingHandle = Readonly<{ destroy(): void }>;
-
-type LandingStart = (
-  context: LandingContext,
-  done: () => void,
-  fail: (error: unknown) => void,
-) => LandingHandle;
-
 /**
- * D-65 — the contribution slot is spelled `placeholder`, as the config slot is.
- * Two names for one factory would be a puzzle rather than a distinction now
- * that a middle-tier author reads both.
+ * **The middle tier is imported whole** (D-61). `FeatureContext`,
+ * `PlaceholderContext`, `PlaceholderFactory`, `InsertionGeometry`,
+ * `DisplacementHook`, `SortableContribution`, `SortableInstaller` and the three
+ * landing seam types D-63 re-homed all live on `sortable/feature.js`, and
+ * `n14`'s stray-slot assertion now runs against the shipped contribution rather
+ * than a local copy of it.
  */
-type SortableContribution = Readonly<{
-  insertion?: InsertionGeometry;
-  placeholder?: PlaceholderFactory;
-  startLanding?: LandingStart;
-  beforeInsertionMove?: DisplacementHook;
-  afterInsertionMove?: DisplacementHook;
-  retire?(): void;
-}>;
-
-type SortableInstaller = (context: FeatureContext) => SortableContribution;
 
 // ---------------------------------------------------------------------------
 // sortable.js — the ordinary tier
 // ---------------------------------------------------------------------------
 
-type OnReorder = (
-  request: ReorderRequest,
-  context: Readonly<{ signal: AbortSignal }>,
-) => ReorderResolution | PromiseLike<ReorderResolution>;
-
-type AcceptedReorderResolution = Readonly<{ type: 'accepted' }>;
-type RejectedReorderResolution = Readonly<{
-  type: 'rejected';
-  reason: unknown;
-}>;
-type ReorderResolution = AcceptedReorderResolution | RejectedReorderResolution;
-
-/** D-41 — both factories lose their options argument with the protocol. */
-declare const ReorderResolution: Readonly<{
-  accept(): AcceptedReorderResolution;
-  reject(reason?: unknown): RejectedReorderResolution;
-}>;
-
-/** D-64 — `stage` is gone; `domain` is the sortable half and stays. */
-type DragErrorContext = Readonly<{
-  domain: ReorderTransactionResult | null;
-}>;
-
 /**
- * **The callback slots are named aliases, and `n12` is why.**
+ * **Also imported whole.** `SortableConfig` and every alias it names —
+ * `ItemSource`, `OnReorder`, `OnStart`, `OnEnd`, `OnDragError`,
+ * `ResolveHandle`, `ResolveElement` — ship from `sortable.js` for exactly the
+ * reason `n12` exists (F-51), so the fixture asserts the *shipped* alias is
+ * still an alias.
  *
- * D-62's claim is that the compiler checks the consumer's exhaustiveness over
- * the four arms. That claim survives only if the slot is **contravariant** in
- * its parameter — and a method-shorthand declaration, `onEnd?(r: R): void`, is
- * checked **bivariantly** even under `strict`, so it silently accepts a handler
- * narrowed to two arms.
- *
- * Writing the property form inline does not survive contact with this repo:
- * `@typescript-eslint/method-signature-style` is configured to `method`, and
- * `just lint-fix` rewrites `onEnd?: (r: R) => void` back into the shorthand.
- * The variance property would therefore be destroyed by the next person to
- * format the file — which is not a rule anyone can be asked to remember.
- *
- * A **named alias** is immune: the rule normalises inline function-type
- * literals and leaves type references alone. So the aliases below are not
- * stylistic. They are what makes D-62 checkable, and `n12` is the test that
- * they still are.
+ * `n12` is the row this rewiring most changes. It checked the fixture's local
+ * `SortableConfig['onEnd']`, so a `lint-fix` that rewrote the shipped alias
+ * back into method shorthand would have left it passing. It now reads
+ * `src/sortable/config.ts` and would fail.
  */
-type OnStart = (item: HTMLElement) => void;
-type OnEnd = (result: ReorderTransactionResult) => void;
-type OnDragError = (error: DraggableError, context: DragErrorContext) => void;
-type ResolveHandle = (item: HTMLElement) => HTMLElement | null;
-type ResolveElement = (item: HTMLElement) => HTMLElement;
-type ItemSource = () => readonly HTMLElement[];
-
-type SortableConfig = Readonly<{
-  items: ItemSource;
-  onReorder: OnReorder;
-  axis: SortableInstaller;
-
-  onStart?: OnStart;
-  /** D-62 — one terminal, four arms, and the arms are the existing union. */
-  onEnd?: OnEnd;
-  onError?: OnDragError;
-  handle?: ResolveHandle;
-  visual?: ResolveElement;
-  box?: ResolveElement;
-  /** D-65 — the callback itself, not `createPlaceholder` + a class name. */
-  placeholder?: PlaceholderFactory;
-
-  landing?: SortableInstaller;
-  plugins?: readonly SortableInstaller[];
-  threshold?: number;
-}>;
-
-type SortableController = Readonly<{
-  invalidate(): void;
-  cancel(reason?: unknown): void;
-  /** D-36 — logical close is immediate; the promise settles after teardown. */
-  destroy(): Promise<void>;
-}>;
-
-declare function sortable(
-  root: HTMLElement,
-  ...fragments: ReadonlyArray<Partial<SortableConfig>>
-): SortableController;
 
 // ---------------------------------------------------------------------------
 // sortable/landing.js (D-63, D-67)
 // ---------------------------------------------------------------------------
 
-/** D-67 — the contextual form. The zero-argument thunk is `n6`. */
-type LandingTimingContext = Readonly<{
-  from: Point;
-  to: Point;
-  distance: number;
-}>;
-
-/** D-63 — no `run`. The library owns the animation at this tier. */
-type LandingOptions = Readonly<{
-  duration?: number | ((context: LandingTimingContext) => number);
-  easing?: string;
-}>;
-
-declare function y(): Pick<SortableConfig, 'axis'>;
-declare function landing(
-  options?: LandingOptions,
-): Pick<SortableConfig, 'landing'>;
-declare function layoutAnimation(): Pick<SortableConfig, 'plugins'>;
+/**
+ * `landing`, `LandingOptions`, `LandingTimingContext` and `LandingDuration` are
+ * the shipped ones. D-63's `run` is absent from the shipped type, which is what
+ * makes `n5` an assertion about the implementation rather than about this file.
+ */
 
 // ---------------------------------------------------------------------------
 // Positive shapes
@@ -498,13 +341,21 @@ function report(error: DraggableError, context: DragErrorContext): string {
   return `${mine ? 'mine' : 'theirs'}:${context.domain?.type ?? 'none'}`;
 }
 
-/** D-61 — a middle-tier installer, authored outside the package. */
+/**
+ * D-61 — a middle-tier installer, authored outside the package **against the
+ * shipped `SortableInstaller`**.
+ *
+ * The restated version of this fixture had `resolve(view) => HTMLElement`. The
+ * real seam is `resolve(frame, runtime) => Insertion | null`, and the rewiring
+ * is what surfaced that: an installer written against the old sketch does not
+ * compile against the package it claims to extend.
+ */
 const installMyAxis: SortableInstaller = (ctx) => {
   const cache = new Map<HTMLElement, DOMRectReadOnly>();
 
   return {
     insertion: {
-      resolve: (view) => view.item,
+      resolve: (frame) => frame.insertion,
       invalidate: () => cache.clear(),
       retire: () => cache.clear(),
     },
@@ -512,7 +363,7 @@ const installMyAxis: SortableInstaller = (ctx) => {
       cache.clear();
       ctx.report(undefined);
     },
-  };
+  } satisfies SortableContribution;
 };
 
 /** D-45 — a helper may return several slots and a consumer may take one. */
@@ -543,18 +394,59 @@ const controller: SortableController = sortable(
 void controller.destroy();
 controller.invalidate();
 
-/** D-48 / D-47 — the kernel tier keeps the two-phase handshake. */
-const kernelSide: SortableController = draggable(root, (host) => ({
-  spec: {
+/**
+ * **D-48 / D-47 — the kernel tier, authored from its own entry.**
+ *
+ * Typed as the shipped `BehaviorSpec<SortableFramePart>`, so this is the first
+ * executable evidence that a third party can write a behavior at all: every
+ * seam below is contextually typed from the SPI, and a signature drifting in
+ * `src/kernel/spec.ts` breaks this file.
+ *
+ * **Everything it needs is on `kernel.js`** since D-68, including the three
+ * values that reached inside the package from here until the vocabulary pass.
+ * Note what the seams below still do *not* name — `Frame`, `Draft` and
+ * `Transition` never appear, because an inline factory is contextually typed
+ * throughout. That is why this file cannot be the acceptance case for the
+ * vocabulary: it would have compiled against the pre-D-68 *type* surface too.
+ * The row that discharges it is `tests/consumer.node.test.ts`'s kernel-tier
+ * fixture, which declares every seam **out of line**, against the packed
+ * declarations, importing `kernel.js` and `drag.js` and nothing else.
+ */
+const kernelSide: SortableController = draggable<
+  SortableController,
+  SortableFramePart
+>(root, (host) => {
+  const spec: BehaviorSpec<SortableFramePart> = {
     // D-59 — either form is admissible.
     admit: (event, _draft) =>
       event.target instanceof HTMLElement
         ? { visual: event.target, box: event.target.parentElement ?? root }
         : null,
-    // Admission-only (see the member's doc). Present so the fixture models the
-    // real spec, not because D-66 uses it.
-    reportFailure: (stage, error) =>
-      globalThis.console.warn(stageToCode[stage], error),
+    // Admission-only (see the member's doc), **and D-49 gave it a second
+    // caller**: a landing measurement that fails on a reorder that already
+    // committed reports here too, without replacing a settlement.
+    reportFailure: (stage, error) => {
+      globalThis.console.warn(stageToCode[stage], error);
+    },
+
+    activation: {
+      prepare: (draft) => {
+        // `draft` is `Draft<SortableFramePart>` — this behavior's own part plus
+        // a readonly kernel slice. It cannot see the *sortable's* fields, which
+        // is D-15 holding in the one place an author would notice.
+        void draft.phase;
+        return root;
+      },
+      effect: () => {},
+    },
+
+    release: {
+      prepare: (draft) => {
+        draft.proposal = null;
+        return { invoke: null };
+      },
+      effect: () => {},
+    },
 
     // **D-66's actual mechanism.** `prepare` writes the draft and returns the
     // sentinel; there is no other seam that may write frame state. The
@@ -563,16 +455,19 @@ const kernelSide: SortableController = draggable(root, (host) => ({
     // model is unchanged.
     settlement: {
       prepare: (draft, input) => {
-        if (input.type !== 'failed') {
-          return { presentation: false }; // existing result wins
+        if (input.type !== SETTLED_FAILED) {
+          return true;
         }
         // Q-15 — no start, no terminal. The owner's guarantee is an
         // implication over *started* operations; declining here is what keeps
         // D-66 from silently making it a biconditional.
         if (progress === MINTED) {
-          return { presentation: false };
+          return true;
         }
-        // Existing result wins; `??=` is the whole of that rule.
+        // **Existing result wins; `??=` is the whole of that rule** — and A-1
+        // is what it cost to write this line as `=` in `src/`. A stage test
+        // cannot stand in for it: `FAILURE_LANDING_INTERRUPTED` can only fire
+        // after a runner was armed, which is after the settlement committed.
         draft.domain ??= {
           type: 'canceled',
           reason: input.error,
@@ -581,7 +476,7 @@ const kernelSide: SortableController = draggable(root, (host) => ({
           stage: progress === RESOLVING ? AT_CONSUMER : AT_PROPOSAL,
           proposal: draft.proposal,
         };
-        return { presentation: false };
+        return true;
       },
       // `current` is `Readonly` — this seam cannot write frame state, which is
       // exactly why the write above is `prepare`'s.
@@ -589,6 +484,14 @@ const kernelSide: SortableController = draggable(root, (host) => ({
         void current.domain;
       },
     },
+
+    action: {
+      prepare: () => null,
+      effect: () => {},
+    },
+
+    moved: () => {},
+    anchorTarget: () => ({ x: 0, y: 0 }),
 
     // D-53 — liveness is read from the latch, never from a disposed resource.
     // D-66 — one lookup, no branch per stage: by the time this runs, the
@@ -599,13 +502,25 @@ const kernelSide: SortableController = draggable(root, (host) => ({
         globalThis.console.log(disposition(current.domain));
       }
     },
-  },
-  controller: {
-    invalidate: () => {},
-    cancel: () => {},
-    destroy: () => Promise.resolve(),
-  },
-}));
+
+    retire: () => {},
+    createFramePart: () => ({ proposal: null, domain: null }),
+    resetFramePart: (part) => {
+      part.proposal = null;
+      part.domain = null;
+    },
+    config: { threshold: 8, liftMode: LIFT_FLAT, actionTags: 0 },
+  };
+
+  return {
+    spec,
+    controller: {
+      invalidate: () => {},
+      cancel: () => {},
+      destroy: () => Promise.resolve(),
+    },
+  };
+});
 
 void kernelSide;
 
@@ -717,7 +632,10 @@ void destroyIsSilentlyVoidable;
 // behavior's to derive rather than the kernel's to supply — widening this
 // input would have been an SPI change for information the behavior already
 // holds, since it is what published the request.
-declare const failedInput: Extract<SettlementInput, { type: 'failed' }>;
+declare const failedInput: Extract<
+  SettlementInput,
+  { type: typeof SETTLED_FAILED }
+>;
 // @ts-expect-error SETTLED_FAILED carries no CancelStage (D-66)
 void failedInput.stage satisfies CancelStage;
 
@@ -725,7 +643,12 @@ void failedInput.stage satisfies CancelStage;
 // fallback is `prepare`'s write and not `effect`'s. An earlier draft of this
 // decision said the behavior "publishes it in `effect`"; this is why that was
 // unimplementable rather than merely imprecise.
-declare const settledFrame: Readonly<SortableFramePart>;
+// The frame the **shipped** seam hands `effect`, extracted rather than
+// restated: `Frame` is not exported (§L-14), and `Parameters` reaches it
+// without naming it — which is also how the seams above avoid naming it.
+declare const settledFrame: Parameters<
+  BehaviorSpec<SortableFramePart>['settlement']['effect']
+>[0];
 // @ts-expect-error the committed frame is readonly in `effect` (D-3, D-66)
 settledFrame.domain = null;
 

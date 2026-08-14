@@ -1,17 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
+import { DraggableError, type DraggableErrorCode } from '../../src/drag.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
-  FAILURE_ACTIVATION,
-  FAILURE_INVALIDATION,
-  FAILURE_LANDING_TARGET,
-  FAILURE_PLACEHOLDER_MOVE,
   FAILURE_RELEASE,
-  FAILURE_REORDER_RESOLUTION,
-  FAILURE_RENDERER_WRITE,
-  FAILURE_SCHEDULED_FRAME,
-  type FailureStage,
 } from '../../src/kernel/failures.ts';
 import {
   ACTIVATING,
@@ -26,6 +18,7 @@ import {
   type LandingStart,
   SETTLED_FULFILLED,
 } from '../../src/kernel/spec.ts';
+import { draggable } from '../../src/kernel.ts';
 import { createSortableBehavior } from '../../src/sortable/behavior.ts';
 import type { SortableController } from '../../src/sortable/controller.ts';
 import {
@@ -36,8 +29,7 @@ import {
   RECOVERY_DESTINATION,
   ReorderResolution,
   type ReorderRequest,
-  type SortableCancelResult,
-  type SortableFinishResult,
+  type ReorderTransactionResult,
 } from '../../src/sortable/domain.ts';
 import { createSortableFramePart } from '../../src/sortable/frames.ts';
 import {
@@ -61,9 +53,9 @@ type Harness = Readonly<{
   controller: SortableController;
   /** Seams, hooks and callbacks, in order. */
   calls: string[];
-  finishes: SortableFinishResult[];
-  cancels: SortableCancelResult[];
-  errors: Array<Readonly<{ stage: FailureStage; error: unknown }>>;
+  finishes: ReorderTransactionResult[];
+  cancels: ReorderTransactionResult[];
+  errors: Array<Readonly<{ code: DraggableErrorCode; error: unknown }>>;
   requests: ReorderRequest[];
   /** The item each `onStart` received. */
   started: HTMLElement[];
@@ -73,6 +65,8 @@ type Harness = Readonly<{
   gap(index: number, dragged?: HTMLElement): Insertion;
   placeholder(): HTMLElement | null;
   snapshot(): CollectionSnapshot;
+  /** Swap the collection identity and signal it (D-44). */
+  replace(next: readonly HTMLElement[]): void;
 }>;
 
 type Overrides = Partial<
@@ -81,6 +75,7 @@ type Overrides = Partial<
     | 'onReorder'
     | 'getHandle'
     | 'getVisual'
+    | 'getBox'
     | 'createPlaceholder'
     | 'invalidateInsertion'
     | 'measureInsertion'
@@ -94,6 +89,12 @@ type Overrides = Partial<
   Readonly<{
     /** Runs inside `onStart`, so a test can cancel, destroy or update. */
     onStart?(harness: Harness): void;
+    /**
+     * Runs inside `onFinish`, for the one case that needs a **throwing**
+     * terminal callback: D-66's exclusion of `FAILURE_TERMINAL_CALLBACK` from
+     * the failure path's publish.
+     */
+    onFinish?(): void;
     itemCount?: number;
   }>;
 
@@ -140,18 +141,28 @@ function createHarness(overrides: Overrides = {}): Harness {
   }
 
   const calls: string[] = [];
-  const finishes: SortableFinishResult[] = [];
-  const cancels: SortableCancelResult[] = [];
-  const errors: Array<Readonly<{ stage: FailureStage; error: unknown }>> = [];
+  // **One callback, two arrays** (D-62). The `calls` log keeps the old names
+  // because they are what every assertion in this suite reads, and because
+  // `onFinish`/`onCancel` remain the honest labels for *which arm* was
+  // published — they are simply no longer the names of two library callbacks.
+  const finishes: ReorderTransactionResult[] = [];
+  const cancels: ReorderTransactionResult[] = [];
+  const errors: Array<Readonly<{ code: DraggableErrorCode; error: unknown }>> =
+    [];
   const requests: ReorderRequest[] = [];
   const started: HTMLElement[] = [];
 
   let queued: Insertion | null = null;
   let published: CollectionSnapshot = { items: [...items], version: 0 };
+  // **The pull source** (D-44). Swapped wholesale by `replace()`; a bare
+  // `controller.invalidate()` returns the same identity and takes the
+  // geometry-only branch.
+  let current: readonly HTMLElement[] = items;
 
   let harness!: Harness;
 
   const slots: SortableSlots = {
+    items: () => current,
     measureInsertion: overrides.measureInsertion ?? null,
     resolveInsertion(
       _frame: InsertionFrameView,
@@ -188,24 +199,30 @@ function createHarness(overrides: Overrides = {}): Harness {
     createPlaceholder: overrides.createPlaceholder ?? null,
     getHandle: overrides.getHandle ?? null,
     getVisual: overrides.getVisual ?? null,
+    // D-43's default applied the way the assembler applies it: `box` falls back
+    // to `visual`, so a fixture that overrides only `visual` still measures its
+    // candidates on the same element the placeholder is sized from.
+    getBox: overrides.getBox ?? overrides.getVisual ?? null,
     startLanding: overrides.startLanding ?? null,
-    onFinish(result): void {
-      calls.push('onFinish');
-      finishes.push(result);
+    onEnd(result): void {
+      if (result.type === 'accepted' || result.type === 'noop') {
+        calls.push('onFinish');
+        finishes.push(result);
+        overrides.onFinish?.();
+      } else {
+        calls.push('onCancel');
+        cancels.push(result);
+      }
     },
-    onCancel(result): void {
-      calls.push('onCancel');
-      cancels.push(result);
-    },
-    onError(error, context): void {
+    onError(error): void {
       calls.push('onError');
-      errors.push({ stage: context.stage, error });
+      // D-64: the consumer sees a coarse fault class, never a pipeline stage.
+      errors.push({ code: error.code, error });
     },
     beforeMove: overrides.beforeMove ?? [],
     afterMove: overrides.afterMove ?? [],
     retireHooks: overrides.retireHooks ?? [],
     threshold: overrides.threshold ?? 8,
-    readinessTimeout: 500,
   };
 
   const controller = draggable(root, createSortableBehavior(items, slots));
@@ -240,10 +257,15 @@ function createHarness(overrides: Overrides = {}): Harness {
     },
     placeholder: () => root.querySelector('[data-drag-placeholder]'),
     snapshot: () => published,
+    /** New array identity, then the signal — D-44's structural branch. */
+    replace: (next: readonly HTMLElement[]): void => {
+      current = next;
+      controller.invalidate();
+    },
   };
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -267,25 +289,26 @@ const press = (target: HTMLElement, x = 10, y = 10): PointerEvent => {
   return event;
 };
 
-const pointerEvent = (type: string, x: number, y: number): void => {
-  document.dispatchEvent(
-    new PointerEvent(type, {
-      bubbles: true,
-      pointerId: POINTER_ID,
-      isPrimary: true,
-      clientX: x,
-      clientY: y,
-    }),
-  );
+const pointerEvent = (type: string, x: number, y: number): PointerEvent => {
+  const event = new PointerEvent(type, {
+    bubbles: true,
+    // Real `pointermove` and `pointerup` are cancelable, and since D-54 the
+    // library's own `preventDefault()` lands on a *move* — so the flag has to
+    // be here or the assertion would read a value the browser never produces.
+    cancelable: true,
+    pointerId: POINTER_ID,
+    isPrimary: true,
+    clientX: x,
+    clientY: y,
+  });
+
+  document.dispatchEvent(event);
+  return event;
 };
 
-const move = (y: number): void => {
-  pointerEvent('pointermove', 10, y);
-};
+const move = (y: number): PointerEvent => pointerEvent('pointermove', 10, y);
 
-const release = (y: number): void => {
-  pointerEvent('pointerup', 10, y);
-};
+const release = (y: number): PointerEvent => pointerEvent('pointerup', 10, y);
 
 /** Press the first item, then cross the activation threshold. */
 const activate = (harness: Harness): void => {
@@ -348,15 +371,15 @@ const EMPTY_SLOTS: SortableSlots = {
   resolveInsertion: () => null,
   invalidateInsertion: (): void => {},
   measureInsertion: null,
-  readinessTimeout: 500,
+  items: (): readonly HTMLElement[] => [],
   onReorder: () => ReorderResolution.accept(),
   onStart: (): void => {},
   createPlaceholder: null,
   getHandle: null,
   getVisual: null,
+  getBox: null,
   startLanding: null,
-  onFinish: (): void => {},
-  onCancel: (): void => {},
+  onEnd: (): void => {},
   onError: (): void => {},
   beforeMove: [],
   afterMove: [],
@@ -395,17 +418,56 @@ describe('admission', () => {
     expect(harness.calls).toEqual([]);
   });
 
-  it('should preventDefault only when it admits', () => {
+  it('should not preventDefault on an admitted press', () => {
+    // **D-54.** Admission fires on `pointerdown`, which is before the
+    // activation threshold, so the set of events the kernel prevents is not the
+    // set of events that become drags. Preventing here spends the press — the
+    // focus, the caret, the form-control operation — on a drag that has not
+    // happened and may never happen.
     const harness = createHarness();
     const admitted = press(harness.items[0]!);
 
-    expect(admitted.defaultPrevented).toBe(true);
+    expect(admitted.defaultPrevented).toBe(false);
 
     harness.controller.cancel('reset');
 
     const ignored = press(harness.root);
 
     expect(ignored.defaultPrevented).toBe(false);
+  });
+
+  it('should preventDefault on the move that crosses the threshold', () => {
+    const harness = createHarness();
+
+    press(harness.items[0]!);
+
+    const crossing = move(40);
+
+    expect(crossing.defaultPrevented).toBe(true);
+  });
+
+  it('should not preventDefault on a move that stays below the threshold', () => {
+    const harness = createHarness();
+
+    press(harness.items[0]!);
+
+    // Below `DEFAULT_THRESHOLD`, so the press is still a press: nothing is
+    // prevented and the native gesture is intact.
+    const short = move(13);
+
+    expect(short.defaultPrevented).toBe(false);
+    expect(harness.started).toEqual([]);
+  });
+
+  it('should not preventDefault on moves after the crossing', () => {
+    // The call is the *crossing's*, not every sample's: once `ACTIVE`, the
+    // pointer is captured and the hot path does nothing but render.
+    const harness = createHarness();
+
+    press(harness.items[0]!);
+    move(40);
+
+    expect(move(60).defaultPrevented).toBe(false);
   });
 
   it('should narrow admission through the handle slot', () => {
@@ -470,7 +532,7 @@ describe('the admission queue boundary', () => {
   it('should apply a replacement dispatched from the handle resolver after admission commits', () => {
     let harness!: Harness;
     const replace = once(() => {
-      harness.controller.updateItems([...harness.items]);
+      harness.replace([...harness.items]);
     });
 
     harness = createHarness({
@@ -494,7 +556,7 @@ describe('the admission queue boundary', () => {
   it('should apply a replacement dispatched from the visual resolver', () => {
     let harness!: Harness;
     const replace = once(() => {
-      harness.controller.updateItems([...harness.items]);
+      harness.replace([...harness.items]);
     });
 
     harness = createHarness({
@@ -514,7 +576,7 @@ describe('the admission queue boundary', () => {
   it('should rebase the drag onto a collection replaced during admission', () => {
     let harness!: Harness;
     const replace = once(() => {
-      harness.controller.updateItems([...harness.items].reverse());
+      harness.replace([...harness.items].reverse());
     });
 
     harness = createHarness({
@@ -541,7 +603,7 @@ describe('the admission queue boundary', () => {
   it('should retire the operation when the replacement removes the pressed item', () => {
     let harness!: Harness;
     const replace = once(() => {
-      harness.controller.updateItems(harness.items.slice(1));
+      harness.replace(harness.items.slice(1));
     });
 
     harness = createHarness({
@@ -569,8 +631,8 @@ describe('the admission queue boundary', () => {
   it('should apply several queued replacements in dispatch order', () => {
     let harness!: Harness;
     const replace = once(() => {
-      harness.controller.updateItems(harness.items.slice(0, 2));
-      harness.controller.updateItems([...harness.items]);
+      harness.replace(harness.items.slice(0, 2));
+      harness.replace([...harness.items]);
     });
 
     harness = createHarness({
@@ -583,9 +645,19 @@ describe('the admission queue boundary', () => {
     activate(harness);
     release(40);
 
-    // Both landed, in order: the second is the published collection, and it is
-    // version 2 rather than a single collapsed update.
-    expect(harness.snapshot().version).toBe(2);
+    // **Two signals, one structural application — and that is the pull source,
+    // not a collapse the library chose** (D-44). Both actions queue and both
+    // drain; the first pulls and sees the identity the *second* `replace`
+    // already installed, so it publishes the final collection. The second pulls
+    // the same array again, matches `rt.source`, and takes the geometry-only
+    // branch.
+    //
+    // Under `updateItems(payload)` this was version 2, because each call
+    // carried its own snapshot and the library applied both. A pull source
+    // reads current state at apply time rather than at signal time, so an
+    // intermediate collection the consumer has already moved past is never
+    // published — which is the property, not a lost update.
+    expect(harness.snapshot().version).toBe(1);
     expect(harness.snapshot().items).toEqual(harness.items);
   });
 
@@ -672,9 +744,9 @@ describe('the admission queue boundary', () => {
   it('should treat destroy from the handle resolver as an immediate terminal barrier', () => {
     let harness!: Harness;
     const terminate = once(() => {
-      harness.controller.destroy();
+      void harness.controller.destroy();
       // Queued behind a closed queue: it must never be drained.
-      harness.controller.updateItems([...harness.items].reverse());
+      harness.replace([...harness.items].reverse());
     });
 
     harness = createHarness({
@@ -698,8 +770,8 @@ describe('the admission queue boundary', () => {
   it('should treat destroy from the visual resolver as an immediate terminal barrier', () => {
     let harness!: Harness;
     const terminate = once(() => {
-      harness.controller.destroy();
-      harness.controller.updateItems([...harness.items].reverse());
+      void harness.controller.destroy();
+      harness.replace([...harness.items].reverse());
     });
 
     harness = createHarness({
@@ -782,7 +854,7 @@ describe('activation', () => {
     const harness = createHarness();
 
     press(harness.items[0]!);
-    harness.controller.updateItems([harness.items[1]!, harness.items[2]!]);
+    harness.replace([harness.items[1]!, harness.items[2]!]);
     move(40);
 
     // The press is already cancelled by the item-removed reason, so activation
@@ -803,7 +875,7 @@ describe('activation', () => {
     });
 
     reentrantPlaceholderConnected = (): void => {
-      harness.controller.destroy();
+      void harness.controller.destroy();
     };
 
     activate(harness);
@@ -832,7 +904,7 @@ describe('activation', () => {
 
     expect(harness.calls).not.toContain('onStart');
     expect(harness.errors).toHaveLength(1);
-    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    expect(harness.errors[0]!.code).toBe('interaction');
     expect(harness.placeholder()).toBeNull();
   });
 
@@ -856,7 +928,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    expect(harness.errors[0]!.code).toBe('interaction');
     // Still connected, but not in the list — and teardown owns it either way.
     expect(foreign.children).toHaveLength(0);
   });
@@ -877,7 +949,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    expect(harness.errors[0]!.code).toBe('interaction');
   });
 
   it('should fail activation when the placeholder moves within the container', () => {
@@ -896,7 +968,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    expect(harness.errors[0]!.code).toBe('interaction');
   });
 
   it('should fail activation when the item is reparented away from the placeholder', () => {
@@ -921,7 +993,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
+    expect(harness.errors[0]!.code).toBe('interaction');
   });
 
   it('should start normally when the placeholder survives connection', () => {
@@ -957,7 +1029,7 @@ describe('activation', () => {
     });
 
     reentrantPlaceholderConnected = (): void => {
-      harness.controller.destroy();
+      void harness.controller.destroy();
     };
 
     activate(harness);
@@ -1164,7 +1236,7 @@ describe('release', () => {
 
     // Reporting a broken invariant as a successful no-op drop would tell the
     // consumer the drag completed normally.
-    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
+    expect(harness.errors[0]!.code).toBe('interaction');
     expect(harness.finishes).toEqual([]);
   });
 
@@ -1183,6 +1255,118 @@ describe('release', () => {
     release(60);
 
     expect(harness.finishes).toHaveLength(1);
+  });
+});
+
+describe('the terminal boundary (D-66)', () => {
+  /**
+   * **These rows exist to stop the guarantee being widened by accident.**
+   *
+   * D-66 makes the terminal total over *started* operations and says nothing
+   * about operations that never started — the owner's guarantee is an
+   * implication, not a biconditional (Q-15). The boundary is the progress
+   * marker, and each case below is chosen so that a marker in the wrong place
+   * fails it.
+   */
+  it('should publish no terminal when activation.prepare throws', () => {
+    // `onStart` never ran, so the consumer has no record of this drag
+    // beginning. An end for a beginning it never heard is worse than silence.
+    const harness = createHarness({
+      createPlaceholder: (): never => {
+        throw new Error('prepare');
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.errors).toHaveLength(1);
+    expect(harness.finishes).toEqual([]);
+    expect(harness.cancels).toEqual([]);
+  });
+
+  it('should publish a terminal when onStart itself throws', () => {
+    // **The row that fails if the marker advances after the call.** The
+    // consumer has been told the drag began; it is owed an end. The pair is the
+    // assertion — either half alone passes under a wrong marker placement.
+    const harness = createHarness({
+      onStart(): void {
+        throw new Error('onStart');
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.errors).toHaveLength(1);
+    expect(harness.cancels).toHaveLength(1);
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'canceled',
+      stage: AT_PROPOSAL,
+    });
+  });
+
+  it('should carry AT_PROPOSAL for a failure before the round-trip opens', () => {
+    // The marker is at `STARTED`: the drag was announced, and the consumer's
+    // resolver has not been reached.
+    const harness = createHarness();
+
+    activate(harness);
+    Object.defineProperty(harness.items[0]!.style, 'transform', {
+      configurable: true,
+      get: (): string => '',
+      set(): never {
+        throw new Error('cssom');
+      },
+    });
+    move(60);
+
+    expect(harness.cancels[0]).toMatchObject({ stage: AT_PROPOSAL });
+  });
+
+  it('should carry AT_PROPOSAL for a release.effect throw', () => {
+    // **The regression test for the rejected `proposal !== null` derivation.**
+    // The proposal commits in `release.prepare`, one seam earlier, so deriving
+    // the stage from it would report `AT_CONSUMER` here — for a drop whose
+    // resolver was never invoked, because the staged command is executed only
+    // after this effect returns normally.
+    const harness = createHarness();
+
+    activate(harness);
+    harness.next(harness.gap(2));
+
+    // Poisoned *after* activation, so the failing write is `release.effect`'s
+    // own — the one that renders the release point before the round-trip opens.
+    Object.defineProperty(harness.items[0]!.style, 'transform', {
+      configurable: true,
+      get: (): string => '',
+      set(): never {
+        throw new Error('release effect');
+      },
+    });
+    release(60);
+
+    expect(harness.calls).not.toContain('onReorder');
+    expect(harness.cancels[0]).toMatchObject({ stage: AT_PROPOSAL });
+  });
+
+  it('should publish exactly one terminal when the terminal callback throws', () => {
+    // `FAILURE_TERMINAL_CALLBACK` is the one stage the failure path excludes,
+    // and it has to be: `finalized` already ran, so publishing again would
+    // deliver a second end for one operation — and, since it would throw again,
+    // do so forever.
+    let calls = 0;
+    const harness = createHarness({
+      onFinish(): void {
+        calls += 1;
+        throw new Error('onFinish');
+      },
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    expect(calls).toBe(1);
+    expect(harness.errors).toHaveLength(1);
   });
 });
 
@@ -1226,9 +1410,13 @@ describe('settlement mapping', () => {
 
     // Acceptance is never inferred — not from callback silence, not from a
     // truthy return.
-    expect(harness.errors[0]!.stage).toBe(FAILURE_REORDER_RESOLUTION);
+    expect(harness.errors[0]!.code).toBe('consumer');
+    // **And the drop is still disposed of** (D-66). The resolver malfunctioned
+    // after the consumer's round-trip had begun, so the operation publishes
+    // `canceled` at `AT_CONSUMER` with the classifying error as its reason —
+    // both assertions read `toEqual([])` until D-66.
     expect(harness.finishes).toEqual([]);
-    expect(harness.cancels).toEqual([]);
+    expect(harness.cancels).toHaveLength(1);
   });
 
   it('should classify a rejected round-trip promise', async () => {
@@ -1242,12 +1430,23 @@ describe('settlement mapping', () => {
     release(60);
     await nextFrame();
 
-    // A resolver malfunction is never reported as `onCancel`.
-    expect(harness.errors[0]).toEqual({
-      stage: FAILURE_REORDER_RESOLUTION,
-      error,
+    // **A resolver malfunction is never reported *as* a consumer verdict**, and
+    // that is what this pins — not the absence of a terminal. D-64: the
+    // consumer sees the fault class, and the classifying error survives as
+    // `cause` rather than being flattened away.
+    expect(harness.errors[0]!.code).toBe('consumer');
+    expect(harness.errors[0]!.error).toBeInstanceOf(DraggableError);
+    expect((harness.errors[0]!.error as DraggableError).cause).toBe(error);
+
+    // The distinction survives D-66 because the two channels answer different
+    // questions: the drag ended `canceled` — at `AT_CONSUMER`, since the
+    // resolver *was* invoked — while the fault is a `consumer`-class error and
+    // not a rejection the consumer chose. Read as `toEqual([])` until D-66.
+    expect(harness.cancels).toHaveLength(1);
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'canceled',
+      stage: AT_CONSUMER,
     });
-    expect(harness.cancels).toEqual([]);
   });
 
   it('should map a cancel at ACTIVE to the proposal stage', () => {
@@ -1281,8 +1480,16 @@ describe('settlement mapping', () => {
     expect(result.proposal).not.toBeNull();
   });
 
-  it('should report a classified failure through onError only', () => {
+  it('should publish both channels for a consequential failure', () => {
+    // **The third name this case has had, and the last.** It was *reports
+    // through `onError` only* until the D-60 audit, then *publishes no
+    // terminal*; D-66 retracts that too. A renderer write on the hot path
+    // settles the operation `OUTCOME_FAILED`, and a failed operation holds no
+    // domain result — so the fallback applies: the consumer heard this drag
+    // start and is owed an end, which is `canceled` at `AT_PROPOSAL` because
+    // the failure arrived before any round-trip.
     const harness = createHarness();
+    const failure = new Error('cssom');
 
     activate(harness);
     // A renderer write failure on the hot path.
@@ -1290,14 +1497,140 @@ describe('settlement mapping', () => {
       configurable: true,
       get: (): string => '',
       set(): never {
-        throw new Error('cssom');
+        throw failure;
       },
     });
     move(60);
 
-    expect(harness.errors[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
+    expect(harness.errors[0]!.code).toBe('presentation');
     expect(harness.finishes).toEqual([]);
+    expect(harness.cancels).toHaveLength(1);
+
+    const result = harness.cancels[0] as { stage: number; reason: unknown };
+
+    // The classifying error travels as the cancellation's reason, **by
+    // identity** — which is what makes the fallback honest rather than a
+    // placeholder value, and is the half of the acceptance row that a
+    // `String(…).toContain` could not tell apart from a re-wrapped copy.
+    expect(result.stage).toBe(AT_PROPOSAL);
+    expect(result.reason).toBe(failure);
+  });
+});
+
+/**
+ * **The other line of D-66's lookup** (A-1, A-2).
+ *
+ * 02 §The join states the mapping as a lookup on the frame — *holds a result →
+ * publish it; holds none → publish `canceled`* — and every row above exercises
+ * the second line only. These exercise the first, which is the line that says
+ * what a consumer is told when its data really was reordered and something
+ * afterwards went wrong.
+ *
+ * **Each stage here can only fire after the settlement committed a result**, so
+ * they are the whole post-commit failure set rather than a sample of it:
+ * `LANDING_CREATE` and `LANDING_INTERRUPTED` both require an armed gate, which
+ * arming does after `prepare` returns, and the pin runs at the join. The
+ * missing assertion is what let A-1 ship: the nearest kernel row asserts *that*
+ * a terminal fired, never *which*, and the sortable rows above all sit before
+ * any round-trip.
+ */
+describe('a failure after the authored commit (D-66)', () => {
+  /** Accepts a reorder into gap 2, so the frame holds `accepted` at the join. */
+  const commit = (harness: Harness): void => {
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+  };
+
+  it('should keep the accepted result when the landing runner fails', () => {
+    // `FAILURE_LANDING_INTERRUPTED` has exactly one producer, and it cannot
+    // fire before a runner is armed — so this stage overwrote a committed
+    // result *every* time it fired, until the `??`.
+    const failure = new Error('interrupted');
+    let fail!: (error: unknown) => void;
+    const harness = createHarness({
+      startLanding: (_context, _done, reject): LandingHandle => {
+        fail = reject;
+        return { destroy: (): void => {} };
+      },
+    });
+
+    commit(harness);
+    fail(failure);
+
     expect(harness.cancels).toEqual([]);
+    expect(harness.finishes).toHaveLength(1);
+    expect(harness.finishes[0]).toMatchObject({ type: 'accepted' });
+    // Orthogonal, not exclusive (D-60): the drop is accepted **and** the fault
+    // is reported.
+    expect(harness.errors).toHaveLength(1);
+    expect(harness.errors[0]!.error).toMatchObject({ cause: failure });
+  });
+
+  it('should keep the accepted result when the runner cannot be created', () => {
+    const harness = createHarness({
+      startLanding: (): never => {
+        throw new Error('start');
+      },
+    });
+
+    commit(harness);
+
+    expect(harness.cancels).toEqual([]);
+    expect(harness.finishes[0]).toMatchObject({ type: 'accepted' });
+    expect(harness.errors).toHaveLength(1);
+  });
+
+  it('should keep the accepted result when the pin throws at the join', () => {
+    let poison!: () => void;
+    const harness = createHarness({
+      // Armed from inside `start`, which runs *after* the settlement committed:
+      // poisoning any earlier would fail the release render instead, which is a
+      // pre-commit stage and a different row.
+      startLanding: (_context, done): LandingHandle => {
+        poison();
+        done();
+        return { destroy: (): void => {} };
+      },
+    });
+
+    poison = (): void => {
+      Object.defineProperty(harness.items[0]!.style, 'transform', {
+        configurable: true,
+        get: (): string => '',
+        set(): never {
+          throw new Error('pin');
+        },
+      });
+    };
+
+    commit(harness);
+
+    expect(harness.cancels).toEqual([]);
+    expect(harness.finishes[0]).toMatchObject({ type: 'accepted' });
+    expect(harness.errors).toHaveLength(1);
+  });
+
+  it('should keep a rejected result too, not just an accepted one', () => {
+    // The tie-break is *existing result wins*, not *accepted wins*. A consumer
+    // that rejected the reorder and then hit a landing fault is still owed the
+    // verdict it gave, with its own reason.
+    const harness = createHarness({
+      onReorder: () => ReorderResolution.reject('nope'),
+      startLanding: (_context, _done, reject): LandingHandle => {
+        reject(new Error('interrupted'));
+        return { destroy: (): void => {} };
+      },
+    });
+
+    commit(harness);
+
+    expect(harness.finishes).toEqual([]);
+    expect(harness.cancels).toHaveLength(1);
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'rejected',
+      reason: 'nope',
+    });
   });
 });
 
@@ -1351,45 +1684,6 @@ describe('the landing target', () => {
     expect(harness.items[0]!.previousElementSibling).toBe(
       harness.placeholder(),
     );
-  });
-
-  it('should not re-anchor while the acknowledgement is outstanding', () => {
-    const runner = createRunner();
-    const harness = createHarness({
-      startLanding: runner.start,
-      onReorder: () => ReorderResolution.accept({ presentation: true }),
-    });
-
-    activate(harness);
-    harness.next(harness.gap(2));
-    release(60);
-
-    // `authoredReady` is false with a declaration outstanding: the consumer has
-    // not committed, so re-anchoring now would drag the placeholder back beside
-    // the item's OLD slot. The provisional target is the gap as it stands.
-    expect(order(harness)).toBe('012_');
-  });
-
-  it('should re-anchor once the presentation is acknowledged', async () => {
-    const runner = createRunner();
-    let pending!: ReorderRequest;
-    const harness = createHarness({
-      startLanding: runner.start,
-      onReorder: (request) => {
-        pending = request;
-        return ReorderResolution.accept({ presentation: true });
-      },
-    });
-
-    activate(harness);
-    harness.next(harness.gap(2));
-    release(60);
-    harness.controller.ready(pending);
-    await nextFrame();
-
-    // The consumer's DOM is committed now, so the authoritative anchor — the
-    // item — is where the placeholder belongs.
-    expect(order(harness)).toBe('_012');
   });
 
   it('should not reinsert the placeholder when it is already anchored', async () => {
@@ -1453,7 +1747,7 @@ describe('the landing target', () => {
     // home gap moves with it — item 0 now belongs after item 3, not at the
     // head — and the start gap the drag is holding still survives, so the
     // operation continues.
-    harness.controller.updateItems([
+    harness.replace([
       harness.items[1]!,
       harness.items[2]!,
       harness.items[3]!,
@@ -1485,7 +1779,7 @@ describe('the landing target', () => {
       onReorder(): ReorderResolution {
         // Arrives while the operation is resolving. It publishes — the update
         // is never lost — but the transaction's own snapshot is decided.
-        harness.controller.updateItems([
+        harness.replace([
           harness.items[1]!,
           harness.items[2]!,
           harness.items[3]!,
@@ -1525,11 +1819,7 @@ describe('the landing target', () => {
 
     // The item vanishes mid-drag, so the cancellation's home recovery has no
     // gap to derive.
-    harness.controller.updateItems([
-      harness.items[1]!,
-      harness.items[2]!,
-      harness.items[3]!,
-    ]);
+    harness.replace([harness.items[1]!, harness.items[2]!, harness.items[3]!]);
 
     // `indexOf` is -1 there, and -1 is not a gap: without the guard the
     // arithmetic yields a plausible *start* gap — `before` undefined, `after`
@@ -1544,11 +1834,7 @@ describe('the landing target', () => {
     expect(order(harness)).toBe('0_123');
 
     // The grabbed item itself vanishes.
-    harness.controller.updateItems([
-      harness.items[1]!,
-      harness.items[2]!,
-      harness.items[3]!,
-    ]);
+    harness.replace([harness.items[1]!, harness.items[2]!, harness.items[3]!]);
 
     // It cancels for the *item*, not for the gap, and the home measurement has
     // no gap to derive: `indexOf` is -1, and the placeholder is measured where
@@ -1569,11 +1855,7 @@ describe('the landing target', () => {
     const harness = createHarness({ itemCount: 4 });
 
     activate(harness);
-    harness.controller.updateItems([
-      harness.items[1]!,
-      harness.items[2]!,
-      harness.items[3]!,
-    ]);
+    harness.replace([harness.items[1]!, harness.items[2]!, harness.items[3]!]);
 
     // The removed item is no longer admissible; the survivors still are.
     press(harness.items[0]!);
@@ -1624,7 +1906,7 @@ describe('the collection', () => {
     const harness = createHarness();
     const replacement = [harness.items[2]!, harness.items[1]!];
 
-    harness.controller.updateItems(replacement);
+    harness.replace(replacement);
     // Pressing the item that is now first proves the new snapshot is live.
     press(harness.items[2]!);
     move(40);
@@ -1636,7 +1918,7 @@ describe('the collection', () => {
     const harness = createHarness();
     const mutable = [harness.items[1]!, harness.items[0]!];
 
-    harness.controller.updateItems(mutable);
+    harness.replace(mutable);
     mutable.length = 0;
     press(harness.items[1]!);
     move(40);
@@ -1656,7 +1938,7 @@ describe('the collection', () => {
     expect(order(harness)).toBe('01_23');
 
     // The gap between items 1 and 2 survives: both remain adjacent.
-    harness.controller.updateItems([
+    harness.replace([
       harness.items[3]!,
       harness.items[0]!,
       harness.items[1]!,
@@ -1673,11 +1955,7 @@ describe('the collection', () => {
     activate(harness);
     // Break the gap — the incumbent neighbours are no longer adjacent — and
     // drop an item in the same replacement.
-    harness.controller.updateItems([
-      harness.items[0]!,
-      harness.items[2]!,
-      harness.items[1]!,
-    ]);
+    harness.replace([harness.items[0]!, harness.items[2]!, harness.items[1]!]);
 
     expect(harness.cancels[0]).toMatchObject({
       type: 'canceled',
@@ -1701,7 +1979,7 @@ describe('the collection', () => {
 
     // Item 0 moves to the end. Items 1 and 3 stay adjacent, so the gap between
     // them survives.
-    harness.controller.updateItems([
+    harness.replace([
       harness.items[1]!,
       harness.items[2]!,
       harness.items[3]!,
@@ -1724,7 +2002,7 @@ describe('the collection', () => {
     // Item 0 is inserted *between* the incumbent neighbours. The gap the
     // consumer was shown no longer exists, and intent is never recomputed from
     // the latest pointer position (I-14).
-    harness.controller.updateItems([
+    harness.replace([
       harness.items[1]!,
       harness.items[0]!,
       harness.items[3]!,
@@ -1742,7 +2020,7 @@ describe('the collection', () => {
 
     activate(harness);
     // A replacement the home gap survives, so the drag continues — at version 1.
-    harness.controller.updateItems([
+    harness.replace([
       harness.items[0]!,
       harness.items[1]!,
       harness.items[3]!,
@@ -1760,7 +2038,7 @@ describe('the collection', () => {
     });
     release(60);
 
-    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
+    expect(harness.errors[0]!.code).toBe('interaction');
     expect(harness.finishes).toEqual([]);
   });
 
@@ -1768,7 +2046,7 @@ describe('the collection', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.updateItems([harness.items[1]!, harness.items[2]!]);
+    harness.replace([harness.items[1]!, harness.items[2]!]);
 
     expect(harness.cancels[0]).toMatchObject({
       type: 'canceled',
@@ -1780,7 +2058,7 @@ describe('the collection', () => {
     const harness = createHarness({
       itemCount: 4,
       onStart(each): void {
-        each.controller.updateItems([
+        each.replace([
           each.items[0]!,
           each.items[1]!,
           each.items[3]!,
@@ -1806,7 +2084,7 @@ describe('the collection', () => {
       onReorder(): ReorderResolution {
         // Arrives while the operation is resolving: it publishes, but the
         // transaction's own snapshot is decided.
-        harness.controller.updateItems([harness.items[2]!, harness.items[1]!]);
+        harness.replace([harness.items[2]!, harness.items[1]!]);
         return ReorderResolution.accept();
       },
     });
@@ -1815,8 +2093,14 @@ describe('the collection', () => {
     harness.next(harness.gap(2));
     release(60);
 
-    expect(harness.finishes[0]!.proposal.snapshot.items).toHaveLength(3);
-    expect(harness.finishes[0]!.proposal.request.version).toBe(0);
+    // Narrowed on the discriminant rather than on which callback delivered it
+    // — which is D-62's point, and what the four-arm union makes the consumer's
+    // job (F-41).
+    const result = harness.finishes[0]!;
+
+    expect(result.type).toBe('accepted');
+    expect(result.proposal!.snapshot.items).toHaveLength(3);
+    expect(result.proposal!.request.version).toBe(0);
   });
 });
 
@@ -1871,15 +2155,20 @@ describe('retirement', () => {
 });
 
 describe('collection identity', () => {
-  it('should give two updates queued in one drain distinct versions', () => {
-    // Both replacements preserve the incumbent gap, so neither cancels; the
-    // only thing under test is the version each is stamped with. Queued from
-    // `onStart`, they append to a drain already running, so neither has
-    // published when the other is minted.
+  it('should apply two signals queued in one drain exactly once', () => {
+    // **The pull source collapses signals within a drain** (D-44). Both
+    // replacements preserve the incumbent gap, so neither cancels; what is
+    // under test is that the second action finds the identity unchanged and
+    // consumes no version.
+    //
+    // Read together with the test below, this pins the whole of the rule: a
+    // signal is a request to re-read, so two signals against one final
+    // collection produce one application, while two collections applied in
+    // separate drains produce two.
     const harness = createHarness({
       onStart(h): void {
-        h.controller.updateItems([h.items[0]!, h.items[1]!, h.items[2]!]);
-        h.controller.updateItems([h.items[0]!, h.items[1]!, h.items[2]!]);
+        h.replace([h.items[0]!, h.items[1]!, h.items[2]!]);
+        h.replace([h.items[0]!, h.items[1]!, h.items[2]!]);
       },
     });
 
@@ -1889,15 +2178,53 @@ describe('collection identity', () => {
 
     return nextFrame().then(() => {
       expect(harness.calls).not.toContain('onCancel');
-      expect(harness.snapshot().version).toBe(2);
+      expect(harness.snapshot().version).toBe(1);
     });
+  });
+
+  it('should invalidate geometry only when the identity did not move', () => {
+    // **The branch that makes the pull source cheaper than the push method it
+    // replaces** (D-44), and the one a resize, a zoom or a scroll produces.
+    // `items()` returns the array it returned last time, so there is no
+    // structural change: no snapshot, no reconcile, no O(n) copy, no version.
+    const harness = createHarness();
+
+    activate(harness);
+    harness.next(null);
+    move(80);
+
+    return nextFrame()
+      .then(() => {
+        const before = harness.calls.filter(
+          (call) => call === 'invalidateInsertion',
+        ).length;
+
+        // The bare signal — no `replace()`, so `current` is untouched.
+        harness.controller.invalidate();
+
+        expect(
+          harness.calls.filter((call) => call === 'invalidateInsertion'),
+        ).toHaveLength(before + 1);
+
+        // Resolve again, so `snapshot()` reads what the runtime actually
+        // holds. Asserting the version straight after the signal would pass
+        // whether or not the branch exists — the harness only refreshes its
+        // copy when the axis rule resolves.
+        harness.next(null);
+        move(90);
+        return nextFrame();
+      })
+      .then(() => {
+        expect(harness.snapshot().version).toBe(0);
+        expect(harness.calls).not.toContain('onCancel');
+      });
   });
 
   it('should keep versions increasing across separate drains', () => {
     const harness = createHarness();
 
-    harness.controller.updateItems([harness.items[0]!, harness.items[1]!]);
-    harness.controller.updateItems([harness.items[0]!, harness.items[2]!]);
+    harness.replace([harness.items[0]!, harness.items[1]!]);
+    harness.replace([harness.items[0]!, harness.items[2]!]);
     activate(harness);
     harness.next(null);
     move(80);
@@ -1920,12 +2247,23 @@ describe('collection identity', () => {
     ).toThrow(/same element twice/u);
   });
 
-  it('should refuse a duplicated element in updateItems', () => {
+  it('should refuse a duplicated element the pull source returned', () => {
+    // **The refusal moved channels with the collection** (D-44). It used to be
+    // a synchronous `TypeError` at the consumer's own `updateItems` call; a
+    // pull source has no such call site, so the throw happens inside
+    // `action.prepare` and the kernel classifies it. The rejection itself is
+    // unchanged — a collection cannot contain the same element twice.
     const harness = createHarness();
 
     expect(() =>
-      harness.controller.updateItems([harness.items[0]!, harness.items[0]!]),
-    ).toThrow(/same element twice/u);
+      harness.replace([harness.items[0]!, harness.items[0]!]),
+    ).not.toThrow();
+
+    // Idle: there is no operation to settle, so the classified failure reaches
+    // the platform report rather than a terminal callback.
+    expect(reported).toHaveLength(1);
+    expect(String(reported[0])).toMatch(/same element twice/u);
+    expect(harness.snapshot().version).toBe(0);
   });
 
   it('should not queue an update it refused', () => {
@@ -1934,7 +2272,7 @@ describe('collection identity', () => {
     activate(harness);
 
     try {
-      harness.controller.updateItems([harness.items[1]!, harness.items[1]!]);
+      harness.replace([harness.items[1]!, harness.items[1]!]);
     } catch {
       // expected
     }
@@ -1944,27 +2282,31 @@ describe('collection identity', () => {
 
     return nextFrame().then(() => {
       expect(harness.snapshot().version).toBe(0);
-      expect(harness.calls).not.toContain('onCancel');
+      // The duplicate threw inside `action.prepare`, which classifies — and a
+      // classified failure of a live operation now ends it (D-66). What this
+      // case pins is that the *refused update* published nothing, which the
+      // version assertion above carries on its own.
+      expect(harness.calls).toContain('onCancel');
     });
   });
 
   it('should not consume a version for an update it refused', () => {
-    // The refused call produced no snapshot, so it must not leave a gap in the
+    // The refused pull produced no snapshot, so it must not leave a gap in the
     // sequence: the next *valid* update is the first collection that exists
     // after the initial one, and it has to be numbered as such.
+    //
+    // This is what forces `copyUniqueItems` to run **before** the counter
+    // advances rather than after — the ordering is not incidental, and an
+    // implementation that numbered first would pass every other test here.
+    // Refused while **idle**, deliberately. A classified failure on a live
+    // operation ends that operation — which is a real consequence of moving the
+    // refusal into the transaction (D-44), and not what this test is about.
     const harness = createHarness();
 
+    harness.replace([harness.items[1]!, harness.items[1]!]);
+    harness.replace([harness.items[0]!, harness.items[1]!, harness.items[2]!]);
+
     activate(harness);
-
-    expect(() =>
-      harness.controller.updateItems([harness.items[1]!, harness.items[1]!]),
-    ).toThrow(/same element twice/u);
-
-    harness.controller.updateItems([
-      harness.items[0]!,
-      harness.items[1]!,
-      harness.items[2]!,
-    ]);
     harness.next(null);
     move(80);
 
@@ -1974,16 +2316,17 @@ describe('collection identity', () => {
   });
 });
 
-describe('updateItems after destroy', () => {
+describe('invalidate() after destroy', () => {
   it('should stay inert for a valid replacement', () => {
-    // The parity ledger promises `updateItems()` is a no-op after `destroy()`.
+    // The parity ledger promises the collection channel is a no-op after
+    // `destroy()`; D-44 changed the member, not the promise.
     // The kernel's own latch drops the dispatch, but the controller reached it
     // only after copying the array and advancing the private version, so the
     // "no-op" was true of the kernel and not of the method (D3).
     const harness = createHarness();
 
-    harness.controller.destroy();
-    harness.controller.updateItems([harness.items[1]!, harness.items[0]!]);
+    void harness.controller.destroy();
+    harness.replace([harness.items[1]!, harness.items[0]!]);
     press(harness.items[1]!);
     move(40);
 
@@ -1999,10 +2342,10 @@ describe('updateItems after destroy', () => {
     // duplicate threw at a controller that is supposed to be inert.
     const harness = createHarness();
 
-    harness.controller.destroy();
+    void harness.controller.destroy();
 
     expect(() =>
-      harness.controller.updateItems([harness.items[0]!, harness.items[0]!]),
+      harness.replace([harness.items[0]!, harness.items[0]!]),
     ).not.toThrow();
   });
 
@@ -2014,8 +2357,8 @@ describe('updateItems after destroy', () => {
     // `FAILURE_ACTIVATION` against an operation the consumer already destroyed.
     const harness = createHarness({
       onStart(h): void {
-        h.controller.destroy();
-        h.controller.updateItems([h.items[0]!, h.items[0]!]);
+        void h.controller.destroy();
+        h.replace([h.items[0]!, h.items[0]!]);
       },
     });
 
@@ -2043,9 +2386,7 @@ describe('invalidation failure classification', () => {
     armed = true;
     window.dispatchEvent(new Event('scroll'));
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_INVALIDATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
   });
 
   it('should classify a failing settled-geometry measurement as an invalidation failure', async () => {
@@ -2069,9 +2410,7 @@ describe('invalidation failure classification', () => {
     move(90);
     await nextFrame();
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_INVALIDATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
     // Classified means stopped: the displacement hooks never run against an
     // index that is neither the old geometry nor the new.
     expect(after).toEqual([]);
@@ -2088,9 +2427,7 @@ describe('invalidation failure classification', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_INVALIDATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
   });
 
   it('should not start an operation whose activation invalidation failed', () => {
@@ -2123,9 +2460,7 @@ describe('invalidation failure classification', () => {
       window.requestAnimationFrame = native;
     }
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_SCHEDULED_FRAME,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
   });
 });
 
@@ -2137,9 +2472,7 @@ describe('placeholder factory results', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_ACTIVATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['interaction']);
   });
 
   it('should leave the dragged item in the document when it was refused', () => {
@@ -2162,9 +2495,7 @@ describe('placeholder factory results', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_ACTIVATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['interaction']);
   });
 
   it('should refuse a node that is already in the document', () => {
@@ -2189,9 +2520,7 @@ describe('placeholder factory results', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_ACTIVATION,
-    ]);
+    expect(harness.errors.map((error) => error.code)).toEqual(['interaction']);
   });
 
   it('should clear a stale slot when the item has none', () => {
@@ -2325,9 +2654,10 @@ describe('the spatial action legality guard', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
-        presentationCommitted: (): void => {},
         cancel: (): void => {},
-        destroy: (): void => {},
+        closed: false,
+
+        destroy: (): Promise<void> => Promise.resolve(),
       },
       [item],
       {
@@ -2345,8 +2675,8 @@ describe('the spatial action legality guard', () => {
       realm: rt.host.realm,
       placeholder: item,
       item,
-      getVisual: null,
-      live: () => !rt.closed,
+      getBox: null,
+      live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2413,9 +2743,10 @@ describe('a pointerless release with no destination', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
-        presentationCommitted: (): void => {},
         cancel: (): void => {},
-        destroy: (): void => {},
+        closed: false,
+
+        destroy: (): Promise<void> => Promise.resolve(),
       },
       [item],
       { ...EMPTY_SLOTS },
@@ -2425,8 +2756,8 @@ describe('a pointerless release with no destination', () => {
       realm: rt.host.realm,
       placeholder: item,
       item,
-      getVisual: null,
-      live: () => !rt.closed,
+      getBox: null,
+      live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2503,7 +2834,7 @@ describe('the placeholder container guard', () => {
 
     return nextFrame().then(() => {
       expect(harness.errors).toHaveLength(1);
-      expect(harness.errors[0]!.stage).toBe(FAILURE_PLACEHOLDER_MOVE);
+      expect(harness.errors[0]!.code).toBe('presentation');
       // The checkpoint has already retired the operation and removed the
       // placeholder; what matters is that it never reached the other container.
       expect(foreign.children).toHaveLength(1);
@@ -2525,11 +2856,11 @@ describe('the placeholder container guard', () => {
     // never executed: the consumer is not asked to apply a reorder the library
     // could not render.
     expect(harness.calls).not.toContain('onReorder');
-    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
+    expect(harness.errors[0]!.code).toBe('interaction');
     expect(foreign.children).toHaveLength(1);
   });
 
-  it('should refuse a home recovery whose anchor left the container', () => {
+  it('should refuse a home recovery whose anchor left the container and still cancel', () => {
     const harness = createHarness();
 
     activate(harness);
@@ -2539,11 +2870,14 @@ describe('the placeholder container guard', () => {
     foreign.append(harness.items[1]!);
     harness.controller.cancel('gone');
 
-    // Home recovery runs inside `anchorTarget`, so it classifies at the landing
-    // target stage and the terminal callback is skipped for the outcome the
-    // checkpoint is about to replace.
-    expect(harness.errors[0]!.stage).toBe(FAILURE_LANDING_TARGET);
-    expect(harness.calls).not.toContain('onCancel');
+    // **The orthogonality case, and the assertion that used to read the other
+    // way** (D-49, D-60). Home recovery runs inside `anchorTarget`, so it used
+    // to classify at the landing-target stage and suppress the terminal for an
+    // outcome the checkpoint was about to replace. The measurement is on the
+    // quality track now: the consumer is told about the fault **and** told what
+    // happened to the drag, because those are two different questions.
+    expect(harness.errors[0]!.code).toBe('presentation');
+    expect(harness.calls).toContain('onCancel');
   });
 
   it('should skip a destination recovery whose item left the container', () => {
@@ -2606,7 +2940,7 @@ describe('seam staging across whole operations', () => {
     harness.next(harness.gap(1));
     release(90);
 
-    expect(harness.errors[0]!.stage).toBe(FAILURE_REORDER_RESOLUTION);
+    expect(harness.errors[0]!.code).toBe('consumer');
 
     press(harness.items[1]!);
     move(40);
@@ -2659,9 +2993,10 @@ describe('the displacement view lifetime', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
-        presentationCommitted: (): void => {},
         cancel: (): void => {},
-        destroy: (): void => {},
+        closed: false,
+
+        destroy: (): Promise<void> => Promise.resolve(),
       },
       items,
       { ...EMPTY_SLOTS, ...overrides },
@@ -2672,8 +3007,8 @@ describe('the displacement view lifetime', () => {
       realm: rt.host.realm,
       placeholder,
       item: items[0]!,
-      getVisual: null,
-      live: () => !rt.closed,
+      getBox: null,
+      live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2785,9 +3120,10 @@ describe('the displacement view lifetime', () => {
         root,
         dispatch: (): void => {},
         fail: (): void => {},
-        presentationCommitted: (): void => {},
         cancel: (): void => {},
-        destroy: (): void => {},
+        closed: false,
+
+        destroy: (): Promise<void> => Promise.resolve(),
       },
       items,
       { ...EMPTY_SLOTS, beforeMove: [(): void => {}] },
@@ -2798,8 +3134,8 @@ describe('the displacement view lifetime', () => {
       realm: rt.host.realm,
       placeholder,
       item: items[0]!,
-      getVisual: null,
-      live: () => !rt.closed,
+      getBox: null,
+      live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
     };
@@ -2859,6 +3195,8 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     overrides: Partial<SortableSlots>,
   ): Readonly<{
     rt: ReturnType<typeof createSortableRuntime>;
+    /** The kernel stand-in, so a test can drive the latch D-53 made readonly. */
+    host: { closed: boolean };
     spec: ReturnType<typeof createSortableSpec>;
     item: HTMLElement;
     root: HTMLElement;
@@ -2876,21 +3214,24 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       root.remove();
     });
 
-    const rt = createSortableRuntime(
-      {
-        realm: createRealm(root),
-        root,
-        dispatch: (): void => {},
-        fail: (): void => {},
-        presentationCommitted: (): void => {},
-        cancel: (): void => {},
-        destroy: (): void => {},
-      },
-      [item, sibling],
-      { ...EMPTY_SLOTS, ...overrides },
-    );
+    // `closed` is readonly on the real `KernelHost` (D-53) — a behavior may
+    // consult the latch, never set it. These tests stand in for the kernel, so
+    // the stub keeps it writable and hands it back for the test to drive.
+    const host = {
+      realm: createRealm(root),
+      root,
+      dispatch: (): void => {},
+      fail: (): void => {},
+      cancel: (): void => {},
+      closed: false,
+      destroy: (): Promise<void> => Promise.resolve(),
+    };
+    const rt = createSortableRuntime(host, [item, sibling], {
+      ...EMPTY_SLOTS,
+      ...overrides,
+    });
 
-    return { rt, spec: createSortableSpec(rt), item, root };
+    return { rt, host, spec: createSortableSpec(rt), item, root };
   };
 
   /** An event whose composed path is exactly the item, as a press would be. */
@@ -2904,7 +3245,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
   it('should seed no draft when the visual resolver destroys the controller', () => {
     const held = bench({
       getVisual: (element): HTMLElement => {
-        held.rt.closed = true;
+        held.host.closed = true;
         return element;
       },
     });
@@ -2927,7 +3268,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     // its own decline rather than only the shared seed's.
     const held = bench({
       getVisual: (element): HTMLElement => {
-        held.rt.closed = true;
+        held.host.closed = true;
         return element;
       },
     });
@@ -2949,7 +3290,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     const held = bench({
       beforeMove: [
         (): void => {
-          held.rt.closed = true;
+          held.host.closed = true;
         },
       ],
     });
@@ -2958,8 +3299,8 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       realm: held.rt.host.realm,
       placeholder: held.item,
       item: held.item,
-      getVisual: null,
-      live: () => !held.rt.closed,
+      getBox: null,
+      live: () => !held.host.closed,
       snapshot: held.rt.snapshot,
       insertion: null,
     };
@@ -3013,7 +3354,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
               return false;
             }
 
-            harness!.controller.destroy();
+            void harness!.controller.destroy();
             return true;
           },
         });
@@ -3038,7 +3379,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     // can return a fresh insertion on a controller that no longer exists.
     const held = bench({
       resolveInsertion: (): Insertion => {
-        held.rt.closed = true;
+        held.host.closed = true;
         return { version: 0, index: 0, before: null, after: null };
       },
     });
@@ -3047,8 +3388,8 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       realm: held.rt.host.realm,
       placeholder: held.item,
       item: held.item,
-      getVisual: null,
-      live: () => !held.rt.closed,
+      getBox: null,
+      live: () => !held.host.closed,
       snapshot: held.rt.snapshot,
       insertion: null,
     };
@@ -3083,7 +3424,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
 
     Object.defineProperty(held.item, 'isConnected', {
       get: (): boolean => {
-        held.rt.closed = true;
+        held.host.closed = true;
         return true;
       },
     });
@@ -3094,41 +3435,9 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       recovery: RECOVERY_DESTINATION,
     } as unknown as Parameters<typeof held.spec.anchorTarget>[0];
 
-    expect(held.spec.anchorTarget(current, true)).toEqual({ x: 0, y: 0 });
+    expect(held.spec.anchorTarget(current)).toEqual({ x: 0, y: 0 });
     // Unmoved: the placeholder is still last, not dragged up beside the item.
     expect(held.root.lastElementChild).toBe(placeholder);
-  });
-
-  it('should publish no request when the release render destroys the controller', () => {
-    // `lift.write` composes a transform onto `visual.style`, and `style` is an
-    // accessor a custom element may define — so the render is the last
-    // consumer-reachable call before the request is published, and a request
-    // written after `retire()` cleared it outlives the operation (I-20).
-    const held = bench({});
-
-    held.rt.placeholder = held.item;
-    held.rt.lift = {
-      write: (): void => {
-        held.rt.closed = true;
-      },
-    } as unknown as NonNullable<typeof held.rt.lift>;
-
-    const request: ReorderRequest = {} as unknown as ReorderRequest;
-    const current = {
-      ...createSortableFramePart(),
-      pointerId: POINTER_ID,
-      pointerX: 0,
-      pointerY: 0,
-      originX: 0,
-      originY: 0,
-      item: held.item,
-      insertion: { version: 0, index: 0, before: null, after: null },
-      proposal: { request },
-    } as unknown as Parameters<typeof held.spec.release.effect>[0];
-
-    held.spec.release.effect(current, true as never);
-
-    expect(held.rt.pendingRequest).toBeNull();
   });
 
   it('should publish no domain when the resolution’s own accessor destroys the controller', () => {
@@ -3142,10 +3451,9 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
 
     const value = {
       get type(): string {
-        held.rt.closed = true;
+        held.host.closed = true;
         return 'accepted';
       },
-      presentation: true,
     };
 
     expect(
@@ -3153,7 +3461,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
         type: SETTLED_FULFILLED,
         value,
       } as never),
-    ).toEqual({ presentation: false });
+    ).toBe(true);
     expect(draft.domain).toBeNull();
   });
 });

@@ -2,7 +2,7 @@
  * The minimal composition, driven through the **public entrypoint**:
  *
  * ```ts
- * draggable(root, sortable(items, y(), callbacks({ onReorder })))
+ * sortable(root, { items: () => items }, y(), { onReorder })
  * ```
  *
  * Everything else in `tests/sortable` drives the behavior against hand-written
@@ -16,16 +16,15 @@
  * inherits its box, so the list stays three boxes tall for the whole drag.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
+import type { DraggableError } from '../../src/drag.ts';
 import { AT_PROPOSAL } from '../../src/kernel/failures.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
+import type { SortableConfig } from '../../src/sortable/config.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
-  type SortableCancelResult,
   type SortableController,
-  type SortableFinishResult,
+  type ReorderTransactionResult,
   sortable,
 } from '../../src/sortable.ts';
 
@@ -37,11 +36,13 @@ type Composed = Readonly<{
   items: HTMLElement[];
   controller: SortableController;
   requests: ReorderRequest[];
-  finishes: SortableFinishResult[];
-  cancels: SortableCancelResult[];
+  finishes: ReorderTransactionResult[];
+  cancels: ReorderTransactionResult[];
   errors: unknown[];
   started: HTMLElement[];
   placeholder(): HTMLElement | null;
+  /** Swap the collection identity and signal it (D-44). */
+  replace(next: readonly HTMLElement[]): void;
   /** DOM order, with the placeholder as `_` and the lifted item in place. */
   order(): string;
 }>;
@@ -49,8 +50,7 @@ type Composed = Readonly<{
 type Options = Readonly<{
   itemCount?: number;
   threshold?: number;
-  readinessTimeout?: number;
-  onReorder?: Parameters<typeof callbacks>[0]['onReorder'];
+  onReorder?: SortableConfig['onReorder'];
   onStart?(composed: Composed): void;
   onFinish?(composed: Composed): void;
 }>;
@@ -98,48 +98,47 @@ function compose(options: Options = {}): Composed {
   }
 
   const requests: ReorderRequest[] = [];
-  const finishes: SortableFinishResult[] = [];
-  const cancels: SortableCancelResult[] = [];
+  // **Two arrays for one callback** (D-62). The library no longer partitions
+  // the four arms, so the fixture does — which keeps every assertion in this
+  // suite reading the way it did and makes the split visible where it now
+  // lives, in consumer code.
+  const finishes: ReorderTransactionResult[] = [];
+  const cancels: ReorderTransactionResult[] = [];
   const errors: unknown[] = [];
   const started: HTMLElement[] = [];
 
   let composed!: Composed;
 
-  const controller = draggable(
-    root,
-    sortable(
-      items,
-      y(),
-      callbacks({
-        onReorder:
-          options.onReorder ??
-          ((request) => {
-            requests.push(request);
-            return ReorderResolution.accept();
-          }),
-        onStart(item): void {
-          started.push(item);
-          options.onStart?.(composed);
-        },
-        onFinish(result): void {
-          finishes.push(result);
-          options.onFinish?.(composed);
-        },
-        onCancel(result): void {
-          cancels.push(result);
-        },
-        onError(error): void {
-          errors.push(error);
-        },
-        ...(options.threshold === undefined
-          ? null
-          : { threshold: options.threshold }),
-        ...(options.readinessTimeout === undefined
-          ? null
-          : { readinessTimeout: options.readinessTimeout }),
+  // **The pull source, and the array identity is the signal** (D-44). `current`
+  // starts as `items` and is swapped wholesale by `replace()`; returning the
+  // same array from a plain `invalidate()` is the geometry-only branch.
+  let current: readonly HTMLElement[] = items;
+  const controller = sortable(root, { items: () => current }, y(), {
+    onReorder:
+      options.onReorder ??
+      ((request) => {
+        requests.push(request);
+        return ReorderResolution.accept();
       }),
-    ),
-  );
+    onStart(item): void {
+      started.push(item);
+      options.onStart?.(composed);
+    },
+    onEnd(result): void {
+      if (result.type === 'accepted' || result.type === 'noop') {
+        finishes.push(result);
+        options.onFinish?.(composed);
+      } else {
+        cancels.push(result);
+      }
+    },
+    onError(error): void {
+      errors.push(error);
+    },
+    ...(options.threshold === undefined
+      ? null
+      : { threshold: options.threshold }),
+  });
 
   // Synthetic pointer events have no active pointer, so the real
   // `setPointerCapture` would throw `NotFoundError` for every activation.
@@ -156,6 +155,15 @@ function compose(options: Options = {}): Composed {
     errors,
     started,
     placeholder: () => root.querySelector('[data-drag-placeholder]'),
+    /**
+     * A structural update: new array identity, then the signal. This is what
+     * `updateItems(next)` used to be, split into the two halves D-44 separates
+     * — the consumer owns the collection, the library is only told to re-read.
+     */
+    replace: (next: readonly HTMLElement[]): void => {
+      current = next;
+      controller.invalidate();
+    },
     order: () =>
       [...root.children]
         .map((child) => {
@@ -167,7 +175,7 @@ function compose(options: Options = {}): Composed {
   };
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -241,7 +249,8 @@ describe('the minimal composition', () => {
   });
 
   it('should not activate before the threshold is crossed', () => {
-    // `callbacks()` owns the default; nothing else may carry a second copy.
+    // The config owns the `threshold` default (D-56); nothing else may carry a
+    // second copy.
     const composed = compose();
 
     press(composed.items[0]!);
@@ -404,41 +413,13 @@ describe('the composed reorder round trip', () => {
     await drag(55);
     release(55);
 
-    expect(composed.errors).toEqual([failure]);
+    // D-64: the consumer receives a coarse `DraggableError`, and the
+    // classifying error survives as `cause` rather than being flattened.
+    expect(composed.errors).toHaveLength(1);
+    expect((composed.errors[0] as DraggableError).code).toBe('consumer');
+    expect((composed.errors[0] as DraggableError).cause).toBe(failure);
   });
 
-  it('should hold settlement open for a declared authored presentation', async () => {
-    // I-9: with no `landing()` installed the behavior still holds *one* gate, so
-    // an accepted resolution declaring a presentation does not finalize in the
-    // resolution drain.
-    let pending!: ReorderRequest;
-    const composed = compose({
-      onReorder: (request) => {
-        pending = request;
-        return ReorderResolution.accept({ presentation: true });
-      },
-    });
-
-    activate(composed);
-    await drag(55);
-    release(55);
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(composed.placeholder()).not.toBeNull();
-    expect(composed.finishes).toEqual([]);
-
-    composed.controller.ready(pending);
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(composed.finishes).toHaveLength(1);
-    expect(composed.placeholder()).toBeNull();
-  });
-});
-
-describe('the composed collection', () => {
   it('should rebase a surviving gap onto a replacement', async () => {
     const composed = compose();
 
@@ -449,7 +430,7 @@ describe('the composed collection', () => {
 
     extra.style.height = `${ITEM_HEIGHT}px`;
     composed.root.append(extra);
-    composed.controller.updateItems([...composed.items, extra]);
+    composed.replace([...composed.items, extra]);
     release(55);
 
     expect(composed.requests[0]).toMatchObject({ from: 0, to: 1, version: 1 });
@@ -461,7 +442,7 @@ describe('the composed collection', () => {
     activate(composed);
     await drag(55);
     // The gap is between items 1 and 2; removing item 2 destroys it.
-    composed.controller.updateItems([composed.items[0]!, composed.items[1]!]);
+    composed.replace([composed.items[0]!, composed.items[1]!]);
 
     expect(composed.cancels[0]).toMatchObject({
       type: 'canceled',
@@ -474,7 +455,7 @@ describe('the composed collection', () => {
 
     activate(composed);
     await drag(55);
-    composed.controller.updateItems([composed.items[1]!, composed.items[2]!]);
+    composed.replace([composed.items[1]!, composed.items[2]!]);
 
     expect(composed.cancels[0]).toMatchObject({
       reason: 'sortable:item-removed',
@@ -488,7 +469,7 @@ describe('the composed collection', () => {
     const composed = compose({
       onStart: (self) => {
         self.root.append(extra);
-        self.controller.updateItems([...self.items, extra]);
+        self.replace([...self.items, extra]);
       },
     });
 
@@ -543,7 +524,7 @@ describe('the composed terminal protocol', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.destroy();
+    void composed.controller.destroy();
 
     expect(composed.placeholder()).toBeNull();
     expect(composed.items[0]!.style.position).toBe('');
@@ -552,7 +533,7 @@ describe('the composed terminal protocol', () => {
   it('should ignore a press after destroy', () => {
     const composed = compose();
 
-    composed.controller.destroy();
+    void composed.controller.destroy();
     activate(composed);
 
     expect(composed.started).toEqual([]);
@@ -593,7 +574,7 @@ describe('the composed terminal protocol', () => {
     // effect*, so it is queued behind `START_COMMITTED` rather than ahead of it.
     const composed = compose({
       onStart: (self) => {
-        self.controller.updateItems([self.items[1]!, self.items[2]!]);
+        self.replace([self.items[1]!, self.items[2]!]);
       },
     });
 
@@ -614,7 +595,7 @@ describe('the composed terminal protocol', () => {
   it('should destroy from inside onStart without leaving presentation behind', () => {
     const composed = compose({
       onStart: (self) => {
-        self.controller.destroy();
+        void self.controller.destroy();
       },
     });
 
@@ -630,10 +611,10 @@ describe('the composed terminal protocol', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.destroy();
+    void composed.controller.destroy();
 
     expect(() => {
-      composed.controller.destroy();
+      void composed.controller.destroy();
     }).not.toThrow();
     expect(composed.cancels).toEqual([]);
     expect(composed.finishes).toEqual([]);
@@ -658,7 +639,7 @@ describe('the composed terminal protocol', () => {
     let self!: Composed;
     const composed = compose({
       onReorder: () => {
-        self.controller.destroy();
+        void self.controller.destroy();
 
         return ReorderResolution.accept();
       },
@@ -691,7 +672,7 @@ describe('the composed terminal protocol', () => {
     let self!: Composed;
     const composed = compose({
       onStart: () => {
-        self.controller.updateItems([self.items[0]!, self.items[2]!]);
+        self.replace([self.items[0]!, self.items[2]!]);
 
         throw new Error('after queueing');
       },
@@ -712,7 +693,7 @@ describe('the composed terminal protocol', () => {
     // operation is retiring through.
     const composed = compose({
       onFinish: (self) => {
-        self.controller.destroy();
+        void self.controller.destroy();
       },
     });
 
@@ -762,57 +743,6 @@ describe('the composed terminal protocol', () => {
     expect(composed.cancels).toHaveLength(1);
     expect(composed.cancels[0]).toMatchObject({ reason: 'abandoned' });
     expect(composed.finishes).toHaveLength(1);
-  });
-
-  it('should ignore an acknowledgement that arrives after a newer operation began', async () => {
-    // The stale case end to end (I-35), and it needs the timeout to get there:
-    // once the settlement is armed the cancellation lifetime is closed, so
-    // `cancel()` cannot end an operation waiting on readiness. The bound is what
-    // ends it — and the acknowledgement then arrives for an operation that no
-    // longer exists, while a *newer* one is live.
-    let stale!: ReorderRequest;
-    let first = true;
-    const composed = compose({
-      readinessTimeout: 20,
-      onReorder: (request) => {
-        if (!first) {
-          return ReorderResolution.accept();
-        }
-
-        first = false;
-        stale = request;
-
-        // Declared and then never acknowledged in time: the deadline is the
-        // only terminal a lost acknowledgement has.
-        return ReorderResolution.accept({ presentation: true });
-      },
-    });
-
-    activate(composed);
-    await drag(55);
-    release(55);
-    await new Promise((resolve) => {
-      setTimeout(resolve, 60);
-    });
-
-    const afterTimeout = [composed.finishes.length, composed.errors.length];
-
-    activate(composed);
-    await drag(55);
-    release(55);
-
-    const beforeStale = composed.finishes.length;
-
-    // Operation A's late layout effect. It names A's request, `rt.pendingRequest`
-    // now names B's — or nothing — so the behavior rejects it on identity and
-    // nothing is released. Reported, never classified.
-    composed.controller.ready(stale);
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(afterTimeout[1]).toBe(1);
-    expect(composed.finishes).toHaveLength(beforeStale);
-    expect(composed.errors).toHaveLength(1);
   });
 
   it('should propose the same gap when the rows carry a CSS transition', async () => {

@@ -16,9 +16,10 @@
  * the drag opened, and (I-25 notwithstanding) sometimes unmounts the dragged
  * item outright. Those are the three remaining rows, and the last is **Q-12**.
  *
- * Composition: `sortable(rows, y(), landing({ run }), callbacks(…))`.
- * The runner is supplied rather than defaulted so the landing gate is directly
- * observable to the F-6 witness — the default runner is covered by
+ * Composition: `sortable(root, { items, onReorder, … }, y(), { landing: … })`.
+ * The runner is supplied — through a **middle-tier installer**, since D-63
+ * withdrew `landing({ run })` — rather than defaulted, so the landing gate is
+ * directly observable to the F-6 witness — the default runner is covered by
  * `landing-space.browser.test.ts` and `features.browser.test.ts`.
  *
  * Layout: the list is absolutely positioned at the viewport origin with 40px
@@ -34,16 +35,14 @@ import {
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable, type Point } from '../../src/drag.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
-import { landing, type LandingStart } from '../../src/sortable/landing.ts';
+import type { DraggableError, Point } from '../../src/drag.ts';
+import type { LandingStart } from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
-  type SortableCancelResult,
   type SortableController,
-  type SortableFinishResult,
+  type ReorderTransactionResult,
   sortable,
 } from '../../src/sortable.ts';
 import { createGateWitness, type GateWitness } from '../support/gates.ts';
@@ -88,9 +87,9 @@ type Fixture = Readonly<{
   list: HTMLElement;
   controller: SortableController;
   requests: ReorderRequest[];
-  finishes: SortableFinishResult[];
-  cancels: SortableCancelResult[];
-  errors: unknown[];
+  finishes: ReorderTransactionResult[];
+  cancels: ReorderTransactionResult[];
+  errors: DraggableError[];
   /** One entry per React commit, each the DOM order at that commit. */
   commits: string[];
   /** The provisional landing target handed to each runner start. */
@@ -186,11 +185,11 @@ function mount(options: Options = {}): Fixture {
   const committed = (): void => {
     commits.push(orderOf());
 
-    // Only the rows still mounted. A row the author unmounted is gone from the
-    // collection too — that is what makes the Q-12 case reachable at all.
-    const live = state.rows
-      .map(({ id }) => elements.get(id))
-      .filter((element): element is HTMLElement => element !== undefined);
+    // The live collection is no longer assembled here: D-44 makes it a pull
+    // source, so `items()` maps `ids` through `elements` at the moment the
+    // library asks. A row the author unmounted is gone from `elements` and
+    // therefore from the collection — which is what makes the Q-12 case
+    // reachable at all, unchanged.
 
     if (options.recycle === true) {
       // Done here rather than in the ref cleanup: React detaches refs *before*
@@ -205,17 +204,19 @@ function mount(options: Options = {}): Fixture {
 
     // Undefined on the mount commit, which is the commit that produces the
     // elements the controller is about to be armed against.
-    controller?.updateItems(live);
+    // D-44: the mount commit publishes nothing; it signals. `items()` maps
+    // `ids` through `elements`, so the library pulls the live collection
+    // itself and sees a new array identity.
+    controller?.invalidate();
 
-    // The acknowledgement, from the same layout effect that used to resolve
-    // `presentationReady` — the one obligation D-33 does not remove, because
-    // only the consumer knows when its own commit landed.
+    // **No acknowledgement** (D-41). The layout effect that used to answer the
+    // readiness gate has nothing to answer: under the serial authored commit a
+    // consumer that must render first awaits its own commit barrier inside
+    // `onReorder`, so by the time the resolution returns this effect has
+    // already run.
     if (pending !== null) {
-      const request = pending;
-
       pending = null;
-      witness.readinessSettled();
-      controller?.ready(request);
+      witness.commitClosed();
     }
 
     for (const waiter of commitWaiters.splice(0)) {
@@ -276,9 +277,9 @@ function mount(options: Options = {}): Fixture {
   document.head.append(style);
 
   const requests: ReorderRequest[] = [];
-  const finishes: SortableFinishResult[] = [];
-  const cancels: SortableCancelResult[] = [];
-  const errors: unknown[] = [];
+  const finishes: ReorderTransactionResult[] = [];
+  const cancels: ReorderTransactionResult[] = [];
+  const errors: DraggableError[] = [];
 
   const run: LandingStart = (context, done): { destroy(): void } => {
     witness.landingStarted();
@@ -307,61 +308,72 @@ function mount(options: Options = {}): Fixture {
     root.render(createElement(App));
   });
 
-  controller = draggable(
+  controller = sortable(
     list,
-    sortable(
-      ids.map((id) => elements.get(id)!),
-      y(),
-      landing({ run }),
-      callbacks({
-        onReorder: (request): ReorderResolution => {
-          requests.push(request);
+    { items: () => ids.map((id) => elements.get(id)!) },
+    y(),
+    // D-63: authored at the middle tier, which is where a runner lives now.
+    { landing: () => ({ startLanding: run }) },
+    {
+      onReorder: (
+        request,
+      ): ReorderResolution | PromiseLike<ReorderResolution> => {
+        requests.push(request);
 
-          if (author !== undefined) {
-            const apply = (): void => {
-              state = author(state, request, ids);
-              publish(state);
-            };
+        if (author !== undefined) {
+          const apply = (): void => {
+            state = author(state, request, ids);
+            publish(state);
+          };
 
-            // `onReorder` is answered inside the `pointerup` handler, so a
-            // state update made here lands on React's discrete lane and
-            // commits before the event returns. `defer` is the other real
-            // shape — a consumer that persists the order first — and it is
-            // the one that actually proves the settlement waits.
-            if (options.defer === true) {
-              setTimeout(apply, 0);
-            } else {
-              apply();
-            }
+          // `onReorder` is answered inside the `pointerup` handler, so a
+          // state update made here lands on React's discrete lane and
+          // commits before the event returns. `defer` is the other real
+          // shape — a consumer that persists the order first — and it is
+          // the one that actually proves the settlement waits.
+          if (options.defer === true) {
+            setTimeout(apply, 0);
+          } else {
+            apply();
           }
+        }
 
-          if (options.ready !== true) {
-            return ReorderResolution.accept();
-          }
+        if (options.ready !== true) {
+          return ReorderResolution.accept();
+        }
 
-          witness.readinessSupplied();
-          // **The whole integration.** Stored before the authored commit — which
-          // may land synchronously, inside the `apply()` above — so the layout
-          // effect that follows acknowledges this exact request. No promise is
-          // created, nothing is superseded, and nothing can be dropped: the
-          // identity is the object this callback was handed (D-33).
-          pending = request;
+        witness.commitOpened();
+        // **The whole integration, and D-41 is what makes it this short.**
+        // React's commit lands after this event handler returns, so a
+        // consumer whose render must be on screen before the drop lands
+        // `await`s its own commit barrier here. The resolution does not
+        // return until the authored DOM is final — which is why the library
+        // needs no acknowledgement, no declaration and no deadline.
+        pending = request;
 
-          return ReorderResolution.accept({ presentation: true });
-        },
-        onFinish(result): void {
-          witness.terminal();
+        return new Promise<void>((resolve) => {
+          commitWaiters.push(resolve);
+        }).then(() => ReorderResolution.accept());
+      },
+      onEnd(result): void {
+        witness.terminal();
+
+        // D-62: one terminal, and the witness counts it once whichever arm it
+        // carries — which is what makes the F-6 gate check independent of the
+        // outcome.
+        if (result.type === 'accepted' || result.type === 'noop') {
           finishes.push(result);
-        },
-        onCancel(result): void {
-          witness.terminal();
+        } else {
           cancels.push(result);
-        },
-        onError(error): void {
-          errors.push(error);
-        },
-      }),
-    ),
+        }
+      },
+      onError(error): void {
+        // D-49: a reported fault is what exempts the operation from the landing
+        // witness, because a skipped landing starts no runner.
+        witness.faultReported();
+        errors.push(error);
+      },
+    },
   );
 
   // Synthetic pointer events have no active pointer, so the real
@@ -372,7 +384,7 @@ function mount(options: Options = {}): Fixture {
   cleanup.push(() => {
     poolObserver.disconnect();
     recycler.remove();
-    controller.destroy();
+    void controller.destroy();
     root.unmount();
     host.remove();
     style.remove();
@@ -591,7 +603,23 @@ describe('a React consumer', () => {
     expect(fixture.order()).toBe('bnewac');
   });
 
-  describe('that unmounts the dragged item (Q-12)', () => {
+  describe('that unmounts the dragged item (D-42, ex-Q-12)', () => {
+    /**
+     * **This suite changed verdict at Phase R, and the verdict is the point.**
+     *
+     * Q-12 judged this case "degraded, not stranded": the item is gone, so the
+     * re-anchor is skipped and the still-connected placeholder is measured
+     * where it stands. D-42 supersedes that. The precondition asks whether the
+     * measurement is *meaningful* — placeholder connected, and still in the
+     * item's container — and an unmounted item fails the second conjunct, so
+     * the landing is skipped instead of measured.
+     *
+     * What did not change is the half that mattered: the drop still completes,
+     * the placeholder still leaves, and the controller is still usable. What
+     * changed is that the consumer is now **told**, which is the whole of
+     * probe C1's finding — the worst integration bug in the package and also
+     * its most silent.
+     */
     const unmounting: Options = {
       ready: true,
       author: (commit, request, ids) => ({
@@ -600,10 +628,10 @@ describe('a React consumer', () => {
       }),
     };
 
-    it('should finish without a classified failure', async () => {
-      // I-25 is broken by the consumer, and the contract's answer is the
-      // guarded re-anchor: no connected anchor, so the still-connected
-      // placeholder is measured where it stands. Degraded, not stranded.
+    it('should finish and report, both', async () => {
+      // **The orthogonality case with a real consumer** (D-60). The reorder was
+      // accepted and is real; the landing target is not measurable. Those are
+      // two answers to two questions and the operation gives both.
       const fixture = mount(unmounting);
 
       activate(fixture, 0);
@@ -611,8 +639,9 @@ describe('a React consumer', () => {
       release(55);
       await settle();
 
-      expect(fixture.errors).toEqual([]);
       expect(fixture.finishes).toHaveLength(1);
+      expect(fixture.errors).toHaveLength(1);
+      expect(fixture.errors[0]!.code).toBe('presentation');
     });
 
     it('should leave no placeholder behind', async () => {
@@ -626,14 +655,14 @@ describe('a React consumer', () => {
       expect(fixture.order()).toBe('bc');
     });
 
-    it('should measure the placeholder where it stands when the row is recycled', async () => {
-      // The discriminating shape. A row React merely *drops* is parentless, and
-      // `before()` on a parentless node is already a no-op — the guard is inert
-      // there, so that case cannot tell a guarded re-anchor from an unguarded
-      // one. A row parked in a recycle pool is disconnected **with** a parent,
-      // and an unguarded `item.before(placeholder)` drags the placeholder into
-      // the pool, where its rect is the origin and the landing target collapses
-      // to `-origin`.
+    it('should skip the landing rather than measure a stale target', async () => {
+      // The discriminating shape, and it now discriminates the other way. A row
+      // parked in a recycle pool is disconnected **with** a parent, which is
+      // what an unguarded `item.before(placeholder)` would follow. The re-anchor
+      // guard still refuses that; the precondition then refuses the measurement
+      // itself, so no target is produced and no runner is started — a jump cut
+      // rather than a confident animation toward a rect the library does not
+      // trust.
       const fixture = mount({ ...unmounting, recycle: true });
 
       activate(fixture, 0);
@@ -641,20 +670,14 @@ describe('a React consumer', () => {
       release(55);
       await settle();
 
-      expect(fixture.errors).toEqual([]);
-      // Row 'a' lifted from y=0 and the gap it left is the second slot, so the
-      // placeholder stands at y=40 and the origin-relative target is 40 — the
-      // fallback measured the placeholder, not the origin.
-      expect(fixture.landingTargets).toEqual([{ x: 0, y: ROW_HEIGHT }]);
+      expect(fixture.landingTargets).toEqual([]);
+      expect(fixture.finishes).toHaveLength(1);
     });
 
     it('should never move the placeholder into the recycle pool', async () => {
-      // The guard's actual job, and the only assertion that can see it. The
-      // re-anchor happens at the **join**, once readiness has settled: by then
-      // the row is pooled, and `item.before(placeholder)` would pull the
-      // placeholder into a detached tree — where the fallback then measures the
-      // origin instead of the real gap, and where finalization removes it again
-      // so the pool's final contents betray nothing.
+      // The re-anchor guard's own job, unchanged by D-42 and asserted ahead of
+      // it: the guard runs first, and only a placeholder the guard left alone
+      // reaches the precondition at all.
       const fixture = mount({ ...unmounting, recycle: true });
 
       activate(fixture, 0);
@@ -683,12 +706,12 @@ describe('a React consumer', () => {
       release(55);
       await settle();
 
-      expect(fixture.errors).toEqual([]);
       expect(fixture.poolAdditions()).toEqual([fixture.pool.firstElementChild]);
     });
 
     it('should leave the controller usable for the next drag', async () => {
-      // "Degraded, not stranded" is only true if the *controller* survives.
+      // "Reported, not stranded" is only true if the *controller* survives, and
+      // that is the half of Q-12's answer D-42 keeps.
       const fixture = mount(unmounting);
 
       activate(fixture, 0);

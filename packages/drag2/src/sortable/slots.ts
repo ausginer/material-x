@@ -12,16 +12,16 @@
  * flattened into two fields by the assembler, so the pairing is a construction
  * -time claim rather than a hot-path indirection.
  */
+import type { DraggableError } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
+import type { ItemSource, OnEnd } from './config.ts';
 import type {
   CollectionSnapshot,
   DragErrorContext,
   Insertion,
   OnReorder,
-  SortableCancelResult,
-  SortableFinishResult,
 } from './domain.ts';
 import type { PlaceholderSlot } from './placement.ts';
 
@@ -73,20 +73,28 @@ export type InsertionRuntimeView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
   /**
-   * The installed `visual()` resolver, or `null` when no `visual()` is composed.
+   * The installed `box` resolver, or `null` when the config names neither `box`
+   * nor `visual`.
    *
-   * **The axis rule measures candidate visuals, not candidate items** (parity
-   * D2). The reason is internal coherence rather than only parity: the incumbent
-   * every candidate is compared against is the placeholder, which `placement.ts`
-   * sizes from the visual's offset box. Measuring items on one side of that
-   * comparison and a visual-derived box on the other biases the hysteresis for
-   * any visual that is an inset or offset descendant.
+   * **The axis rule measures candidate boxes, not candidate visuals** (D-58,
+   * superseding parity D2's choice of node while keeping its reasoning). D2's
+   * argument was coherence — the incumbent every candidate is compared against
+   * is the placeholder, so both sides of the comparison must be the same kind
+   * of rect — and it chose `visual` only because no `box` concept existed. It
+   * does now, the placeholder occupies the **box's** removed footprint (D-43),
+   * and so `box` is what the comparison has to be on. Leaving candidates on
+   * `visual` would measure the incumbent one way and its challengers another:
+   * a hysteresis defect, not a rounding one, and api-1 measured the two 30 px
+   * apart.
+   *
+   * Under the default `box === visual` nothing changes, so the common case is
+   * untouched.
    *
    * Nullable rather than normalized to identity, because the minimal
-   * composition installs no `visual()` and would otherwise pay an identity call
-   * per candidate per rebuild.
+   * composition names neither slot and would otherwise pay an identity call per
+   * candidate per rebuild.
    */
-  getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  getBox: ((item: HTMLElement) => HTMLElement) | null;
   /**
    * Whether the controller is still alive (I-36).
    *
@@ -179,7 +187,18 @@ export type SortableSlots = Readonly<{
     | ((frame: InsertionFrameView, runtime: InsertionRuntimeView) => void)
     | null;
 
-  /* required, filled by callbacks() */
+  /* required */
+  /**
+   * **The collection as a pull source** (D-44). Called by
+   * `action.prepare(COLLECTION)` on every `controller.invalidate()`, and once
+   * at construction for the initial snapshot — never memoized, because the
+   * whole point is that the library re-reads it.
+   *
+   * ~~`updateItems(payload)`~~ is gone with the second channel it belonged to;
+   * ledger L-1's "the thunk is called exactly once, at construction" is
+   * retracted with it.
+   */
+  items: ItemSource;
   onReorder: OnReorder;
   /**
    * Normalized to a shared no-op, so the call site needs no null check. It takes
@@ -190,15 +209,22 @@ export type SortableSlots = Readonly<{
   /* optional; `null` when no feature filled them */
   createPlaceholder: PlaceholderSlot | null;
   getHandle: ((item: HTMLElement) => HTMLElement | null) | null;
+  /** The node faithfully lifted (D-43). Resolved once, at admission. */
   getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  /**
+   * The geometry source (D-43). **Already defaulted to `getVisual` by the
+   * assembler**, so this is `null` only when neither slot was written — which
+   * is what lets both the admission path and the candidate loop skip the call
+   * entirely rather than pay an identity per item.
+   */
+  getBox: ((item: HTMLElement) => HTMLElement) | null;
   startLanding: LandingStart | null;
   /**
    * These stay nullable rather than normalized: their arguments are result
    * objects that would otherwise be constructed only to be discarded.
    */
-  onFinish: ((result: SortableFinishResult) => void) | null;
-  onCancel: ((result: SortableCancelResult) => void) | null;
-  onError: ((error: unknown, context: DragErrorContext) => void) | null;
+  onEnd: OnEnd | null;
+  onError: ((error: DraggableError, context: DragErrorContext) => void) | null;
 
   /**
    * Prebuilt and fixed-length after assembly, empty in the minimal composition,
@@ -211,11 +237,38 @@ export type SortableSlots = Readonly<{
   retireHooks: readonly Disposer[];
 
   threshold: number;
-  readinessTimeout: number;
 }>;
 
 /** The shared normalization target for an uninstalled `onStart`. */
 export const NOOP_START = (): void => {};
 
 export const DEFAULT_THRESHOLD = 8;
-export const DEFAULT_READINESS_TIMEOUT = 500;
+
+/**
+ * The one numeric-domain check every public option goes through.
+ *
+ * Called at **construction** wherever the value exists by then, so the
+ * offending call is still on the stack — the same rule `copyUniqueItems`
+ * follows for a duplicate item. **One option does not reach it there**: a
+ * contextual `landing({ duration })` is range-checked per landing, because its
+ * result does not exist until then (D-67). ~~and `landing({ run })` suppresses
+ * the duration domain entirely~~ — that second exception went with `run`
+ * (D-63). A `NaN` threshold silently activates on nothing and a `NaN` duration
+ * silently produces an animation that never finishes; both are far cheaper to
+ * diagnose here than three seams later. The type says `number`, but a
+ * JavaScript consumer is not bound by that, so the `typeof` test earns its
+ * place.
+ */
+export function requireFinite(
+  value: number,
+  label: string,
+  minimum: number,
+): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < minimum) {
+    throw new TypeError(
+      `sortable: ${label} must be a finite number >= ${minimum}`,
+    );
+  }
+
+  return value;
+}

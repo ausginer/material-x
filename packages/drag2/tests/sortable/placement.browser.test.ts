@@ -32,14 +32,19 @@ const build = (
   item: HTMLElement,
   visual: HTMLElement = detached(),
   live: () => boolean = () => true,
+  /** D-39's ledger. Most cases are not about rollback and pass none. */
+  undo: Array<() => void> | null = null,
 ) =>
   createPlaceholder(
     createRealm(document.body),
-    item,
-    visual,
-    rect,
+    // `box` defaults to the visual here, as it does in the default composition
+    // (D-43). These cases are about the factory's identity refusals, not about
+    // the footprint, so the two windows collapse.
+    { item, visual, box: visual, rect },
+    { width: rect.width, height: rect.height },
     factory === null ? null : () => factory(),
     live,
+    undo,
   );
 
 describe('createPlaceholder', () => {
@@ -116,44 +121,45 @@ describe('createPlaceholder', () => {
     expect(writes).toEqual(['data-drag-placeholder']);
   });
 
-  it('should write no attribute at all once a visual offset read closes the controller', () => {
-    // The offset getters are consumer code on the consumer's own visual, and
-    // they run before any write precisely so that this case leaves nothing.
+  it('should write no attribute at all once the slot read closes the controller', () => {
+    // **The same property, on the read that is still here** (D-43). This case
+    // used to hook `visual.offsetWidth`, because `applyMechanics` measured the
+    // visual itself; the footprint is computed across the lift now and handed
+    // in, so the only consumer-reachable read left in the pre-write stretch is
+    // the item's `slot`. The rule it pins is unchanged and is the reason the
+    // reads are ordered ahead of the writes: whichever of them closes the
+    // controller, the stretch leaves nothing behind.
     const writes: string[] = [];
-    const visual = detached();
+    const item = detached();
     let alive = true;
 
-    Object.defineProperty(visual, 'offsetWidth', {
-      get: (): number => {
-        alive = false;
-        return 10;
-      },
-    });
+    item.getAttribute = (): string | null => {
+      alive = false;
+      return null;
+    };
 
     build(
       () => recording(writes),
+      item,
       detached(),
-      visual,
       () => alive,
     );
 
     expect(writes).toEqual([]);
   });
 
-  it('should apply no mechanics to the default placeholder once a visual offset read closes the controller', () => {
-    // Same reading, the composition with no `placeholder()` feature: the
+  it('should apply no mechanics to the default placeholder once the slot read closes the controller', () => {
+    // Same reading, the composition with no `placeholder` slot written: the
     // library's own element is never mechanized either, so the two paths agree.
-    const visual = detached();
+    const item = detached();
     let alive = true;
 
-    Object.defineProperty(visual, 'offsetHeight', {
-      get: (): number => {
-        alive = false;
-        return 10;
-      },
-    });
+    item.getAttribute = (): string | null => {
+      alive = false;
+      return null;
+    };
 
-    const placeholder = build(null, detached(), visual, () => alive);
+    const placeholder = build(null, item, detached(), () => alive);
 
     expect(placeholder.getAttributeNames()).toEqual([]);
   });

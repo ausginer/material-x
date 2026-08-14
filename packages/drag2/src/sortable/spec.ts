@@ -6,7 +6,10 @@
  * here reads `current` from a `prepare`, and nothing here can close a lifetime
  * the kernel owns — those are properties of the arguments, not of discipline.
  */
+import { toDraggableError } from '../kernel/errors.ts';
 import {
+  AT_CONSUMER,
+  AT_PROPOSAL,
   FAILURE_INVALIDATION,
   FAILURE_RELEASE,
   FAILURE_REORDER_RESOLUTION,
@@ -15,12 +18,18 @@ import {
   type FailureStage,
 } from '../kernel/failures.ts';
 import type { Draft, Frame } from '../kernel/frames.ts';
+import {
+  COMMAND_OWNERS,
+  pathOwnsInteraction,
+  POINTER_OWNERS,
+} from '../kernel/input-policy.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE, IDLE, RELEASING } from '../kernel/phases.ts';
 import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
 import { KEY_DOWN } from '../kernel/protocol.ts';
 import { guarded } from '../kernel/reporter.ts';
 import {
+  type AdmissionSubject,
   type BehaviorSpec,
   type PreparedSettlement,
   type SeamRejection,
@@ -35,6 +44,7 @@ import type { Point } from '../kernel/types.ts';
 import {
   buildReorderProposal,
   CHANGE_CANCEL,
+  copyUniqueItems,
   homeInsertion,
   reconcileCollection,
 } from './collection.ts';
@@ -64,6 +74,7 @@ import {
   createPlaceholder,
   movePlaceholder,
   placeholderAt,
+  type PlaceholderUndo,
 } from './placement.ts';
 import {
   type PresentationView,
@@ -76,7 +87,18 @@ import type { DisplacementView } from './slots.ts';
 
 /** What `action.prepare(COLLECTION)` stages. It never discards (D-25). */
 type PreparedCollection = Readonly<{
-  snapshot: CollectionSnapshot;
+  /**
+   * `null` on the **geometry-only** branch (D-44): `items()` returned the same
+   * array identity, so there is no structural change, nothing to publish and no
+   * O(n) copy to pay. The effect invalidates geometry and ends.
+   */
+  snapshot: CollectionSnapshot | null;
+  /**
+   * The consumer's own array, carried through so the effect can advance the
+   * structural baseline. `snapshot.items` is the library's copy and can never
+   * match what `items()` returns next.
+   */
+  source: readonly HTMLElement[];
   /** Non-null when the gap could not survive the replacement. */
   cancelReason: unknown;
 }>;
@@ -88,6 +110,15 @@ type PreparedCollection = Readonly<{
  * guard is otherwise unobservable.
  */
 export const STAGED = true;
+
+/**
+ * The three states of D-66's progress marker, module-private because they are
+ * behavior-internal: nothing outside this file may read how far an operation
+ * got, and nothing in the kernel could interpret it if it did.
+ */
+const MINTED = 0;
+const STARTED = 1;
+const RESOLVING = 2;
 
 const rejection = (stage: FailureStage, message: string): SeamRejection => ({
   stage,
@@ -102,14 +133,64 @@ export function createSortableSpec(
   // One per controller. Arming is per operation, on the motion signal.
   const invalidate = createInvalidator(realm);
   /**
-   * The terminal latch as a predicate, for the barriers that cannot reach `rt`
-   * (I-36): the candidate loop inside the feature's private `RectIndex`, the
+   * The terminal latch as a predicate, for the barriers that cannot reach
+   * `host`: the candidate loop inside the feature's private `RectIndex`, the
    * displacement hooks' own measurement loops, and `createPlaceholder`'s
    * post-factory mechanics. Every barrier written *in this file* reads
-   * `rt.closed` directly instead; this closure is created once per controller
+   * `host.closed` directly instead; this closure is created once per controller
    * and copied by reference onto each per-operation view.
+   *
+   * **D-53 supplies the reading; D-38 rules out the alternatives.** Physical
+   * teardown is deferred to the transaction boundary (D-36), so a disposed
+   * lifetime, an aborted signal, a nulled slot and a detached node all lag the
+   * logical close and none of them may answer a liveness question (I-37).
    */
-  const live = (): boolean => !rt.closed;
+  const live = (): boolean => !host.closed;
+  /**
+   * **Minted here and monotonic per controller** (D-44 moved it off the
+   * controller with the payload), and deliberately **not** derived from
+   * `rt.snapshot.version`. Two structural invalidations applied inside one
+   * drain would both read the same *published* version and stamp two distinct
+   * collections identically, which destroys version's only job: being the
+   * identity of a snapshot. Seeded from the initial snapshot so the sequence
+   * stays continuous with it.
+   *
+   * It advances on the structural branch only — a geometry-only invalidation
+   * produces no collection, so it must not consume an identity.
+   */
+  let { version } = rt.snapshot;
+
+  /**
+   * The rollback ledger for a **prepared but unadopted** placeholder (D-39).
+   *
+   * Per-operation, and it lives here rather than on the runtime because it is
+   * not runtime state: it exists only between `activation.prepare` returning
+   * and the seam committing, which is the one window in which the element is
+   * mutated and not yet owned. `rt.placeholder` is written by `effect`, on the
+   * far side of that window.
+   *
+   * `null` whenever there is nothing staged — including for the library's own
+   * `<div>`, whose undo is being dropped.
+   */
+  let placeholderUndo: PlaceholderUndo = null;
+
+  /**
+   * **How far the operation got, as one monotone marker** (D-66 §The progress
+   * marker). Per operation, cleared in `retire()`.
+   *
+   * It exists because the failure path owes a terminal and the kernel cannot
+   * supply the two facts that decide which one: *did the consumer hear this
+   * drag start*, and *was the consumer's resolver actually invoked*. Both are
+   * behavior knowledge, and both are already written at sites the behavior
+   * owns — so this is a marker rather than an SPI member.
+   *
+   * `RESOLVING` is truthful **by construction**: the kernel runs the `invoke`
+   * closure only after `release.effect` returns normally, and `invoke: null`
+   * means there was no round-trip at all. Deriving it from `proposal !== null`
+   * would be false — the proposal commits one seam earlier, in
+   * `release.prepare`.
+   */
+  let progress = MINTED;
 
   /**
    * The admitted item, from the event's **composed path** rather than
@@ -122,13 +203,18 @@ export function createSortableSpec(
   const resolveItem = (
     event: Event,
     snapshot: CollectionSnapshot,
+    owners: string,
   ): HTMLElement | null => {
     const path = event.composedPath();
     let item: HTMLElement | null = null;
+    // **The index, not just the element** (D-46). The decline test runs over
+    // the hops between the event target and the resolved subject, so the walk
+    // that finds the item has to report where it stopped.
+    let subject = 0;
 
-    for (const node of path) {
-      if (snapshot.items.includes(node as HTMLElement)) {
-        item = node as HTMLElement;
+    for (; subject < path.length; subject += 1) {
+      if (snapshot.items.includes(path[subject] as HTMLElement)) {
+        item = path[subject] as HTMLElement;
         break;
       }
     }
@@ -156,30 +242,48 @@ export function createSortableSpec(
       // longer exists.
       //
       // A handle *narrows* admission; it never replaces the item.
-      if (rt.closed || handle === null || !path.includes(handle)) {
+      if (host.closed || handle === null) {
+        return null;
+      }
+
+      // `indexOf` where this used to read `includes`: the same containment
+      // test, and the position is what D-50 needs. **The resolved subject
+      // governs** — a handle inside the item sits *earlier* in the composed
+      // path, so scoping to it shortens the segment the decline test walks,
+      // and a handle that is itself an interactive element admits, because
+      // the consumer scoped dragging there on purpose.
+      subject = path.indexOf(handle);
+
+      if (subject === -1) {
         return null;
       }
     }
 
-    return item;
+    // **What did the event land on** (D-46), asked after the subject is known
+    // and before anything is seeded. The press that reaches an interactive or
+    // editable descendant declines by the ordinary total-decline path (I-32):
+    // no operation, no phase change, and — since the kernel prevents nothing
+    // for a `null` — focus lands, the caret places, the slider tracks and the
+    // arrow key keeps its native meaning.
+    return pathOwnsInteraction(path, subject, owners) ? null : item;
   };
 
   /**
-   * The second half of admission: resolve the visual and seed the draft with an
-   * item **already resolved**. Returns the visual.
+   * The second half of admission: resolve the visual and the box, and seed the
+   * draft with an item **already resolved**. Returns the admission subject.
    *
    * Split from {@link admitFrom} for the command path, which needs the item
    * before it can decide feasibility. Resolving twice would call the consumer's
    * `handle()` resolver twice for one keydown (D1, Checkpoint D) — observable,
    * because a resolver is stateful in general and is explicitly allowed to
-   * queue `updateItems()`, so the side effect would be queued twice and the
+   * queue `invalidate()`, so the side effect would be queued twice and the
    * operation could reconcile through two snapshots for one native command.
    */
   const seedDraft = (
     item: HTMLElement,
     snapshot: CollectionSnapshot,
     draft: Draft<SortableFramePart>,
-  ): HTMLElement | null => {
+  ): AdmissionSubject | null => {
     let visual = item;
 
     if (slots.getVisual !== null) {
@@ -195,7 +299,7 @@ export function createSortableSpec(
       // frame nothing will clear again (I-20). It **declines** for the same
       // reason `resolveItem` does: destroying your own controller is not a
       // library failure.
-      if (rt.closed) {
+      if (host.closed) {
         return null;
       }
     }
@@ -203,22 +307,69 @@ export function createSortableSpec(
     draft.item = item;
     draft.visual = visual;
     draft.snapshot = snapshot;
-    return visual;
+
+    // **The box is resolved here and returned, never written to the draft**
+    // (D-43, D-59). The kernel needs it before `acquireLift` to take window 1,
+    // and the only two carriers are this return value and a behavior-authored
+    // draft field the kernel reads back — which would contradict H-2 and D-15.
+    // So it travels as the second half of the admission subject.
+    //
+    // Two ways the box is already known, and neither may call anything.
+    // `null` means the config named neither slot, so the item is its own box.
+    // **Reference equality means the assembler defaulted `box` to `visual`**
+    // (D-43) — and calling it again here would invoke one consumer resolver
+    // twice for a single admission, which a stateful resolver can observe and
+    // which the candidate-traversal tests caught immediately.
+    if (slots.getBox === null || slots.getBox === slots.getVisual) {
+      return visual;
+    }
+
+    const box = slots.getBox(item);
+
+    // The terminal barrier on the box resolver, for the same reason the visual
+    // resolver carries one two statements up: it is consumer code, and a
+    // resolver that destroys its own controller must not have its result
+    // minted into an operation.
+    if (host.closed) {
+      return null;
+    }
+
+    // Returned as a bare element when the two coincide, so the kernel's `box`
+    // and `visual` are the *same reference* and `activation.prepare`'s identity
+    // branch can recognise the default case. Two encodings of "the box is the
+    // visual" is exactly what D-59 refused for the optional-`box` spelling.
+    return box === visual ? visual : { visual, box };
   };
 
   /**
-   * The half of admission both ingresses share: resolve the item, resolve the
-   * visual, seed the draft. Returns the visual, or `null` to decline.
+   * The half of admission both ingresses share: resolve the item, the visual
+   * and the box, and seed the draft. Returns the admission subject — a bare
+   * visual, or the `{ visual, box }` pair when the two differ (D-59) — or
+   * `null` to decline.
    *
-   * No `preventDefault()` — the kernel owns that call in both modes, and makes
-   * it exactly when this returns non-null (C-03).
+   * No `preventDefault()` — the kernel owns that call in both modes. Since
+   * D-54 it makes it at the **threshold crossing** on the pointer path and
+   * still inside the listener on the command path, but never here and never by
+   * the behavior (C-03).
    */
   const admitFrom = (
-    event: Event,
+    event: PointerEvent,
     draft: Draft<SortableFramePart>,
-  ): HTMLElement | null => {
+  ): AdmissionSubject | null => {
+    // **A modifier requests native text selection; its absence means drag**
+    // (D-46). A gesture across prose inside a draggable region is longer than
+    // the threshold by construction, so both readings — "select this text" and
+    // "drag this row" — fit the same input and no evidence distinguishes them
+    // (probe E R-3). The contract does not try: `Alt` held at `pointerdown`
+    // declines, and the press keeps its full native meaning by the ordinary
+    // decline path. One branch, no state, no disambiguation window, no
+    // deferred `preventDefault()`.
+    if (event.altKey) {
+      return null;
+    }
+
     const { snapshot } = rt;
-    const item = resolveItem(event, snapshot);
+    const item = resolveItem(event, snapshot, POINTER_OWNERS);
 
     return item === null ? null : seedDraft(item, snapshot, draft);
   };
@@ -303,7 +454,7 @@ export function createSortableSpec(
       // already has for a classified measure failure — nothing after it in the
       // bracket runs, and no `afterMove` hook starts an animation on a
       // torn-down controller.
-      return !rt.closed;
+      return !host.closed;
     } catch (error) {
       host.fail(FAILURE_INVALIDATION, error);
       return false;
@@ -378,7 +529,6 @@ export function createSortableSpec(
       // exactly, so lift and placeholder agree. `LIFT_FLAT` is for a free drag
       // that deliberately straightens out; it was never right here.
       liftMode: LIFT_FAITHFUL,
-      readinessTimeout: slots.readinessTimeout,
       actionTags: SORTABLE_ACTION_TAGS,
     },
 
@@ -404,8 +554,21 @@ export function createSortableSpec(
     command: {
       types: [KEY_DOWN],
 
-      admit(event, draft): HTMLElement | null {
-        const direction = directionOf((event as KeyboardEvent).key);
+      admit(event, draft): AdmissionSubject | null {
+        const keys = event as KeyboardEvent;
+
+        // **Checked first, on every declared command type, whatever the
+        // target** (D-46). It is not a special case of the target rules below:
+        // probe E R-7 synthesized a real Chromium composition and the drag
+        // admitted anyway, reordering the collection while the user was
+        // mid-word and not interacting with the list at all. The test is a
+        // property of the keyboard event, so it needs no target inspection and
+        // costs nothing.
+        if (keys.isComposing) {
+          return null;
+        }
+
+        const direction = directionOf(keys.key);
 
         if (direction === null) {
           return null;
@@ -416,7 +579,16 @@ export function createSortableSpec(
         // consumer's `handle()` resolver, so the destination and the draft seed
         // are both derived from this one item rather than from two independent
         // resolutions of the same event.
-        const item = resolveItem(event, snapshot);
+        //
+        // **The target question is asked here, and it is asked first** (D-46).
+        // Order is normative — *what did the event land on*, then *is the move
+        // feasible* — and asking feasibility first is what produced probe E's
+        // unstateable R-5 table, where a `contenteditable` in the last row kept
+        // ArrowRight only because the edge decline happened to fire.
+        //
+        // The table is `COMMAND_OWNERS` rather than the pointer one, because
+        // the question is whether the target owns *this key*.
+        const item = resolveItem(event, snapshot, COMMAND_OWNERS);
 
         if (item === null) {
           return null;
@@ -432,17 +604,17 @@ export function createSortableSpec(
           return null;
         }
 
-        const visual = seedDraft(item, snapshot, draft);
+        const subject = seedDraft(item, snapshot, draft);
 
-        if (visual === null) {
-          return null; // the visual resolver destroyed the controller
+        if (subject === null) {
+          return null; // a consumer resolver destroyed the controller
         }
 
         // The destination travels in the draft, exactly as `item` does for a
         // press. No staged value crosses the ingress boundary, which is what
         // keeps D-32 to one SPI member.
         draft.insertion = insertion;
-        return visual;
+        return subject;
       },
     },
 
@@ -459,6 +631,47 @@ export function createSortableSpec(
        */
       prepare(draft, scope) {
         const item = draft.item!;
+        const { box, visual, boxPre } = scope;
+        // **Window 2 of 2, and the first thing this seam does** (D-43, D-52).
+        // The kernel took window 1 immediately before `acquireLift`; this one
+        // reads the same element in the same units on the far side of it, and
+        // the difference is the space the visual's removal actually freed.
+        //
+        // **One extent, not two** (F-58). `boxPre − boxPost` measures a
+        // *collapse*, which is a scalar on the list's flow axis; the footprint
+        // it feeds is a *box*, which is two extents. Subtracting on both
+        // conflated them, and on the cross axis the box surrenders nothing — a
+        // block-level box in a vertical list takes its width from its
+        // containing block on both sides of the lift — so the difference there
+        // is `0`: arithmetically correct and the wrong quantity. Nothing was
+        // lost on that axis, so there is nothing to restore, and what the
+        // placeholder still owes is to stand where the row stood. That is
+        // `boxPre.width`, always.
+        //
+        // Spelled `height` rather than "the block axis" deliberately: `y()` is
+        // written on `pointerY`, `CENTRE_Y` and `rect.top/bottom`, so a
+        // logical-axis footprint would give this rule a writing-mode
+        // dependency the axis module it serves does not have. `box !== visual`
+        // is declared supported with `y()` alone (03 §Scope limits).
+        //
+        // **The identity branch is now the degenerate case rather than a
+        // second rule.** `boxPre − boxPost` is only the footprint when the box
+        // *stays in flow* while the visual leaves it, which is what api-1
+        // measured with a nested pair (`box = .row-box` wrapping
+        // `visual = .card`: 62 → 32, so 30). Under the default
+        // `box === visual` there is no such pair — the one element is the thing
+        // being lifted, and `LIFT_FAITHFUL` promotes it with `position: fixed`
+        // and an explicit width and height, so its offset box is *unchanged* by
+        // the lift and the collapse is zero. `footprint = boxPre` falls out;
+        // F-55's correction is preserved as a consequence of the rule instead
+        // of an exception to it.
+        const footprint =
+          box === visual
+            ? boxPre
+            : {
+                width: boxPre.width,
+                height: boxPre.height - box.offsetHeight,
+              };
 
         // **The pointer branch** (D-32, C4-01). A press has no destination yet,
         // so the grab slot is the origin the spatial path resolves away from. A
@@ -474,18 +687,60 @@ export function createSortableSpec(
           draft.insertion = home;
         }
 
+        // **The ledger is opened only for a consumer-owned element** (D-39).
+        // With no `placeholder` slot composed the element is the library's own
+        // `<div>`, which `prepare` created, nothing outside has seen, and a
+        // discarded preparation drops — so an undo for it would be work with no
+        // observer. With a slot composed every write below lands on someone
+        // else's node.
+        placeholderUndo = slots.createPlaceholder === null ? null : [];
+
         return createPlaceholder(
           realm,
-          item,
-          scope.visual,
-          scope.originRect,
+          { item, visual, box, rect: scope.originRect },
+          footprint,
           slots.createPlaceholder,
           live,
+          placeholderUndo,
         );
+      },
+
+      /**
+       * **Required, and non-vacuous** (D-39). ~~A discarded prepare leaves only
+       * a detached element for the collector~~ — true of the default `<div>`,
+       * and false the moment a `placeholder` slot exists: `prepare` writes
+       * `data-drag-placeholder`, `aria-hidden`, the copied `slot` and three
+       * inline style properties onto an element the **consumer** created, and
+       * `preparationValid()` does not reverse a `setAttribute`. It discards the
+       * *preparation*; the element is not the library's to discard.
+       *
+       * Reverse order, and each undo guarded on its own: one throwing revert —
+       * a custom element with an overridden `setAttribute` — must not strand
+       * the writes recorded before it.
+       */
+      rollback() {
+        const ledger = placeholderUndo;
+
+        placeholderUndo = null;
+
+        if (ledger === null) {
+          return;
+        }
+
+        for (let i = ledger.length - 1; i >= 0; i -= 1) {
+          guarded(ledger[i]!);
+        }
       },
 
       /** Strict I-30 order: register, make visible, publish, then notify. */
       effect(current, placeholder, scope) {
+        // **Adoption is what closes the rollback window** (D-39). From the line
+        // below the element is the library's: the disposer removes it, moves
+        // relocate it, teardown takes the attributes off with it. A ledger left
+        // here would be a set of reverts for an element nobody may revert, and
+        // the *next* operation's discarded preparation would run them.
+        placeholderUndo = null;
+
         // 1 → 2, per resource. Registering first is free — removing a detached
         // node is a no-op, so an over-eager disposer cannot over-release — and
         // it means a throw below can never leave a visible orphan that the
@@ -500,23 +755,12 @@ export function createSortableSpec(
         // consumer code — the placeholder may come from a `placeholder()`
         // factory — reached from a plain DOM write, so no seam wraps it and no
         // reentrancy guard above sees it. If it destroyed the controller,
-        // teardown has already run to completion: the disposer registered on
-        // the line above removed this node, motion and presentation are closed,
-        // and the operation is retired. Everything below would then register
-        // against closed lifetimes (releasing immediately and reporting),
-        // republish this operation's DOM into the runtime for the *next* drag
-        // to find, and call `onStart` after `destroy()` returned — the
-        // synchronous terminal barrier I-6 forbids crossing (D-26).
+        // the controller is logically closed. Everything below would then
+        // register against lifetimes that are closing, republish this
+        // operation's DOM into the runtime for the *next* drag to find, and
+        // call `onStart` after `destroy()` — the terminal barrier I-6 forbids
+        // crossing (D-26).
         //
-        // **I-36's rule, read through the liveness this site has.** The other
-        // three barriers read `rt.closed`; here the seam was handed its
-        // presentation scope, and the signal is strictly stronger — it is also
-        // aborted by a kernel-internal `panic()` destroy, which never reaches
-        // the controller's latch. One rule, whichever reading the site has.
-        if (scope.presentation.signal.aborted) {
-          return;
-        }
-
         // Everything below assumes the insertion actually took, and a
         // `connectedCallback` gets to run between `after()` and this line. It
         // can remove itself, move itself, or reparent the *item* — and a
@@ -545,16 +789,24 @@ export function createSortableSpec(
           );
         }
 
-        // **The terminal barrier on the survival conjuncts** (I-36 (2) act 1,
-        // C5-03's stretch sweep). `isConnected` and `nextElementSibling` are
-        // accessors on elements the consumer owns — a custom-element
-        // placeholder may define either — so the reading above does not cover
-        // them. Everything below publishes this operation's DOM into the
-        // behavior runtime, which `retire()` has already nulled: without this
-        // a destroy from one of those two reads leaves the next drag to find
-        // the placeholder, the lift and the per-operation view of the one that
-        // no longer exists (I-20).
-        if (scope.presentation.signal.aborted) {
+        // **The pre-publication revalidation, and the one reading that covers
+        // this whole stretch** (D-38, I-37). Two readings stood here before
+        // Revision 2 — one after `after()`, one after the survival conjuncts —
+        // and both read `scope.presentation.signal.aborted`, chosen because it
+        // is strictly *stronger* than the controller's latch: it also fires for
+        // a kernel-internal `panic()` destroy.
+        //
+        // D-36 inverts that property. Physical teardown now runs at the
+        // transaction boundary, so the signal **lags** the close it stood in
+        // for — a reading that was right for a stated reason became wrong for
+        // that same reason. `host.closed` is the latch itself (D-53), and since
+        // a panic closes logically first it sees that too, so nothing is lost
+        // by collapsing the pair into one reading placed immediately before the
+        // publication block. Every consumer-reachable accessor in the stretch —
+        // `connectedCallback`, `isConnected`, `nextElementSibling` on a
+        // consumer-owned placeholder — is covered by it, because everything
+        // below is the publication and nothing above it is consequential.
+        if (host.closed) {
           return;
         }
 
@@ -583,7 +835,7 @@ export function createSortableSpec(
           realm,
           placeholder,
           item,
-          getVisual: slots.getVisual,
+          getBox: slots.getBox,
           live,
           snapshot: current.snapshot!,
           insertion: null,
@@ -603,6 +855,13 @@ export function createSortableSpec(
           // per-operation "started" flag.
           return;
         }
+
+        // **The marker advances before the call, not after** (D-66). A throw
+        // from `onStart` itself is classified, and the consumer has by then
+        // been told the drag began — so it is owed an end. Advancing after the
+        // call would publish nothing for exactly the operation the consumer
+        // most recently heard about.
+        progress = STARTED;
 
         // 4 — last, because it may reentrantly cancel or destroy.
         slots.onStart(item);
@@ -675,12 +934,12 @@ export function createSortableSpec(
           const resolved = slots.resolveInsertion(draft, rt.view);
 
           // `resolved === null`: the incumbent slot still wins — commit
-          // nothing. `rt.closed`: a candidate `visual()` resolver destroyed the
+          // nothing. `host.closed`: a candidate `visual()` resolver destroyed the
           // controller during the rebuild (I-36). The kernel would discard the
           // transition anyway — `preparationValid()` no longer holds — but
           // stopping one branch earlier means the behavior never writes
           // `draft.insertion` for an operation that no longer exists.
-          if (resolved === null || rt.closed) {
+          if (resolved === null || host.closed) {
             return null;
           }
 
@@ -688,7 +947,52 @@ export function createSortableSpec(
           return STAGED;
         }
 
-        const next = argument as CollectionSnapshot;
+        // **The pull happens here, not at the controller** (D-44). `items()` is
+        // consumer code, and this is the one place that has a transaction open,
+        // a phase to branch on, and a stage to classify a throw against — the
+        // controller member is reachable from inside a seam and could only have
+        // called it at an arbitrary reentrant point.
+        const source = slots.items();
+
+        // The terminal barrier on the pull (I-36). `items()` may destroy the
+        // controller; discarding here means the behavior neither copies nor
+        // publishes for an operation that no longer exists.
+        if (host.closed) {
+          return null;
+        }
+
+        // **Array identity is the whole structural test** (D-44). An unchanged
+        // identity is a resize, a zoom or a scroll — the warm, common case —
+        // and it stages no snapshot, so it never reaches the phase branch
+        // below and never pays the copy.
+        if (source === rt.source) {
+          return {
+            snapshot: null,
+            source,
+            cancelReason: null,
+          } satisfies PreparedCollection;
+        }
+
+        // Copied on the structural branch **only**, which is the point of the
+        // split: the copy is what keeps a queued snapshot safe from a later
+        // caller mutation, and it is now paid when membership changes rather
+        // than on every invalidation.
+        //
+        // **Copied first, numbered second.** A duplicate item throws from
+        // `copyUniqueItems`, and a refused pull produced no collection — so it
+        // must not consume a version either, or the counter stops being a dense
+        // identity for the collections that actually exist and a consumer that
+        // fixes its data sees the next successful update numbered as though an
+        // invisible one had happened in between.
+        //
+        // The throw is classified by the kernel rather than raised at a call
+        // site: under `updateItems` this was a `TypeError` thrown back at the
+        // consumer, and a pull source has no such site to throw at.
+        const items = copyUniqueItems(source);
+
+        version += 1;
+
+        const next: CollectionSnapshot = { items, version };
         const { phase } = draft;
 
         // `IDLE`: publish, but bind nothing — an idle frame must retain no DOM
@@ -698,6 +1002,7 @@ export function createSortableSpec(
         if (phase === IDLE || phase >= RELEASING) {
           return {
             snapshot: next,
+            source,
             cancelReason: null,
           } satisfies PreparedCollection;
         }
@@ -707,6 +1012,7 @@ export function createSortableSpec(
         if (!next.items.includes(draft.item!)) {
           return {
             snapshot: next,
+            source,
             cancelReason: CANCEL_ITEM_REMOVED,
           } satisfies PreparedCollection;
         }
@@ -730,6 +1036,7 @@ export function createSortableSpec(
         if (draft.insertion === null) {
           return {
             snapshot: next,
+            source,
             cancelReason: null,
           } satisfies PreparedCollection;
         }
@@ -739,6 +1046,7 @@ export function createSortableSpec(
         if (change.type === CHANGE_CANCEL) {
           return {
             snapshot: next,
+            source,
             cancelReason: CANCEL_COLLECTION_INVALIDATED,
           } satisfies PreparedCollection;
         }
@@ -746,6 +1054,7 @@ export function createSortableSpec(
         draft.insertion = change.insertion;
         return {
           snapshot: next,
+          source,
           cancelReason: null,
         } satisfies PreparedCollection;
       },
@@ -805,7 +1114,7 @@ export function createSortableSpec(
             // the **behavior's** next act, which is a DOM mutation on the
             // consumer's tree that would run a placeholder custom element's
             // callbacks after `destroy()` returned.
-            if (rt.closed) {
+            if (host.closed) {
               return;
             }
 
@@ -825,7 +1134,7 @@ export function createSortableSpec(
             //
             // Returned from **inside** the `try`, so the `finally` still clears
             // `view.insertion` and no stale destination gap outlives the move.
-            if (rt.closed) {
+            if (host.closed) {
               return;
             }
 
@@ -849,14 +1158,30 @@ export function createSortableSpec(
 
         const staged = prepared as PreparedCollection;
         const { phase } = current;
+        const next = staged.snapshot;
+
+        // **The geometry-only branch ends here** (D-44): nothing to publish,
+        // no reconcile, no cancel — the rect index is stale and that is all.
+        // Reached by a resize, a zoom or a scroll, which is why keeping it off
+        // the publication path is what makes the pull source cheaper than the
+        // push method it replaces rather than merely tidier.
+        if (next === null) {
+          invalidateInSeam();
+          return;
+        }
 
         // Publication is an effect, not a preparation: a reentrant cancel or
         // destroy must not be able to invalidate a preparation whose private
         // runtime has already been replaced.
-        rt.snapshot = staged.snapshot;
+        rt.snapshot = next;
+        // The identity the structural test compares against, advanced with the
+        // snapshot it produced and never before it — a preparation that was
+        // discarded must not move the baseline, or the next invalidation would
+        // read the change as already applied.
+        rt.source = staged.source;
 
         if (rt.view !== null) {
-          rt.view.snapshot = staged.snapshot;
+          rt.view.snapshot = next;
         }
 
         if (phase === ACTIVATING || phase === ACTIVE) {
@@ -956,7 +1281,7 @@ export function createSortableSpec(
           // has already scrubbed and will not scrub again: `draft.insertion`,
           // then `draft.proposal`, whose request pins the item and the whole
           // released snapshot in an inactive frame (I-20).
-          if (rt.closed) {
+          if (host.closed) {
             return { invoke: null };
           }
 
@@ -993,7 +1318,14 @@ export function createSortableSpec(
         const { request } = built.proposal;
 
         return {
-          invoke: (signal) => slots.onReorder(request, { signal }),
+          invoke: (signal) => {
+            // **First statement of the closure** (D-66). The kernel runs this
+            // only after `release.effect` returns normally, so reaching it is
+            // proof the consumer's resolver is being invoked — which is what
+            // makes a later failure `AT_CONSUMER` rather than `AT_PROPOSAL`.
+            progress = RESOLVING;
+            return slots.onReorder(request, { signal });
+          },
         };
       },
 
@@ -1006,10 +1338,13 @@ export function createSortableSpec(
         // move above runs a custom-element placeholder's callbacks, and
         // `retire()` has then already nulled `rt.lift` — so without this the
         // very next line is `null.write(...)`, a `TypeError` classified as
-        // `FAILURE_RELEASE` against a controller that no longer exists. The
-        // publication below is the other half: a request written after
-        // `retire()` cleared it outlives the operation and pins its DOM (I-20).
-        if (rt.closed) {
+        // `FAILURE_RELEASE` against a controller that no longer exists.
+        //
+        // It used to name a second half — a request published after `retire()`
+        // cleared it. There is no publication below any more: `rt.pendingRequest`
+        // went with the readiness protocol (D-41), and the barrier stands on the
+        // `rt.lift!.write` alone (review 2, B-5).
+        if (host.closed) {
           return;
         }
 
@@ -1032,30 +1367,21 @@ export function createSortableSpec(
         // defined not to read. The landing then opens from `(0, 0)`, which is
         // correct because the visual has not moved since acquisition.
 
-        // **Published last, and inside this effect** (D-33, C3-04). Last,
-        // because a throwing write above classifies `FAILURE_RELEASE` and the
-        // staged command is never executed — a request published first would
-        // name a round-trip that cannot happen. Inside, because the kernel runs
-        // the command *after* this returns, so the request the consumer is
-        // about to receive is already the one `ready()` will be checked
-        // against, including under a synchronous commit.
+        // **Nothing is published here any more** (D-41). This block described
+        // `rt.pendingRequest`, whose only reader was the acknowledgement
+        // protocol — publish the request last, and inside this effect, so that
+        // the object `ready()` would be checked against was the one the
+        // consumer had already been handed. `ready()` is gone, the field is
+        // gone, and what survives of the argument is the ordering the kernel
+        // owns: the staged command runs *after* this returns, so a throw from
+        // the write above classifies `FAILURE_RELEASE` and the round-trip never
+        // opens.
         //
-        // Reached through the **committed frame**, which is what makes it the
-        // same object the staged `invoke` closure captured. `ResolutionCommand`
-        // does not carry it and must not: a sortable domain value on a kernel
-        // SPI type is the mistake D-34 and D-35 corrected.
-        //
-        // **And the render is itself a consumer-reachable call** (I-36 (2) acts
-        // 1 and 2, C5-03's stretch sweep): `write` composes a transform onto
-        // `visual.style`, and `style` is an accessor a custom element may
-        // define. The reading above covers the placeholder move, not this — and
-        // a request published after `retire()` cleared it outlives the operation
-        // and pins its DOM (I-20).
-        if (rt.closed) {
-          return;
-        }
-
-        rt.pendingRequest = current.proposal?.request ?? null;
+        // **The render is a consumer-reachable call** (I-36 (2)), which is what
+        // makes that ordering matter here rather than only in the kernel: this
+        // is the seam D-66's `AT_PROPOSAL`/`AT_CONSUMER` split turns on, and a
+        // throw from this effect is `AT_PROPOSAL` because the marker only
+        // reaches `RESOLVING` inside the `invoke` closure.
       },
     },
 
@@ -1081,7 +1407,7 @@ export function createSortableSpec(
             draft.outcome = OUTCOME_NOOP;
             draft.recovery = RECOVERY_IMMEDIATE;
             draft.domain = { type: 'noop', proposal: proposal! };
-            return { presentation: false };
+            return true;
           }
 
           case SETTLED_FULFILLED: {
@@ -1096,9 +1422,9 @@ export function createSortableSpec(
 
             // **Every read of the consumer's resolution before any write**
             // (I-36 (2) acts 1 and 2, C5-03's stretch sweep).
-            // `isReorderResolution` is a duck-type test on `.type`, so `type`,
-            // `reason` and `presentation` are accessors on an object the
-            // consumer built and any of them may destroy the controller. The
+            // `isReorderResolution` is a duck-type test on `.type`, so `type`
+            // and `reason` are accessors on an object the consumer built and
+            // either may destroy the controller. The
             // domain value is a local until the barrier passes; publishing it
             // into a frame teardown has already scrubbed would pin the whole
             // proposal in an inactive frame nothing clears again (I-20).
@@ -1110,10 +1436,8 @@ export function createSortableSpec(
                     reason: value.reason,
                     proposal: proposal!,
                   };
-            const { presentation } = value;
-
-            if (rt.closed) {
-              return { presentation: false };
+            if (host.closed) {
+              return true;
             }
 
             const accepted = domain.type === 'accepted';
@@ -1122,16 +1446,15 @@ export function createSortableSpec(
             draft.recovery = accepted ? RECOVERY_DESTINATION : RECOVERY_HOME;
             draft.domain = domain;
 
-            // Only a fulfilled round-trip can declare an authored
-            // presentation: every other input is the kernel's own terminal, and
-            // the consumer returned no resolution to declare with.
-            return { presentation };
+            return true;
           }
 
           case SETTLED_REJECTED: {
             // A rejected thenable is a resolver malfunction, not a considered
             // consumer verdict, so it is a named classified failure rather than
-            // an inferred `onCancel`.
+            // an inferred rejection. It still *ends* the operation — D-66 —
+            // but as a fault reported through `onError`, with the terminal
+            // saying `canceled` rather than `rejected`.
             return {
               stage: FAILURE_REORDER_RESOLUTION,
               error: input.error,
@@ -1147,7 +1470,7 @@ export function createSortableSpec(
               stage: input.stage,
               proposal,
             };
-            return { presentation: false };
+            return true;
           }
 
           case SETTLED_FAILED: {
@@ -1156,30 +1479,63 @@ export function createSortableSpec(
             // A terminal-callback failure has recovery "none": the operation
             // already finalized, and rewriting the outcome now would relabel a
             // drop that has been reported as accepted. Every other stage
-            // replaces the transaction.
+            // replaces the transaction — the *presentation* transaction, which
+            // is a different question from what the consumer is told.
             if (input.stage !== FAILURE_TERMINAL_CALLBACK) {
               draft.outcome = OUTCOME_FAILED;
               draft.recovery = RECOVERY_IMMEDIATE;
-              draft.domain = null;
+              // **The fallback, and the whole of D-66's carrier** (D-66).
+              // `draft.domain = null` stood here, and it is what made the
+              // library's most serious failures its quietest: `finalized`
+              // publishes `current.domain` and nothing else, so a null meant
+              // no terminal at all.
+              //
+              // **Existing result wins, otherwise `canceled`** — a lookup on
+              // the frame, not a branch per stage (02 §The join). `beginFrame`
+              // is `Object.assign(draft, current)`, so a settlement that
+              // already committed a result arrives here still carrying it, and
+              // `??` is the whole tie-break.
+              //
+              // **This read `draft.domain = …` unconditionally** (A-1), on the
+              // reasoning that a terminal-callback throw is the only failure
+              // arriving after a result exists. That is false, and unavoidably
+              // so: `FAILURE_LANDING_INTERRUPTED` has one producer and it can
+              // only fire *after* a runner was armed, which is after the
+              // settlement committed — so the stage test overwrote a committed
+              // result 100 % of the time it fired, and told a consumer whose
+              // data really was reordered that the drop was `canceled`. The
+              // stage exclusion above is kept for its own reason (recovery, not
+              // the result) and is no longer load-bearing for the tie-break.
+              //
+              // **The marker decides the stage, and it also decides whether to
+              // publish at all.** At `MINTED` the consumer never heard this
+              // drag start, and an end for a beginning it has no record of is
+              // worse than the skip D-66 retracts (§No start, no terminal).
+              draft.domain ??=
+                progress === MINTED
+                  ? null
+                  : {
+                      type: 'canceled',
+                      reason: input.error,
+                      stage: progress === RESOLVING ? AT_CONSUMER : AT_PROPOSAL,
+                      proposal: draft.proposal,
+                    };
             }
 
-            return { presentation: false };
+            return true;
           }
         }
       },
 
-      effect(current, prepared, scope: SettlementScope) {
+      effect(current, _prepared, scope: SettlementScope) {
         const failure = pendingFailure;
 
         pendingFailure = null;
 
         if (failure === null) {
           // Requests only — nothing is armed here, and a request is recorded at
-          // most once.
-          if (prepared.presentation) {
-            scope.holdForReadiness();
-          }
-
+          // most once. **One gate since D-41**: the authored-presentation hold
+          // had no producer under the serial commit.
           if (
             slots.startLanding !== null &&
             current.recovery !== RECOVERY_IMMEDIATE
@@ -1189,11 +1545,12 @@ export function createSortableSpec(
         }
 
         // 4 — consumer callbacks last. A failed settlement reports through
-        // `onError` **only**: no `onFinish`, no `onCancel`, and `finalized` is
-        // never reached for it.
+        // `onError` here **and** publishes its terminal from the failure path's
+        // own `ERROR_REPORTED` step (D-66) — the two channels are orthogonal
+        // and neither suppresses the other.
         if (failure !== null) {
-          slots.onError?.(failure.error, {
-            stage: failure.stage,
+          // D-64: the consumer branches on a fault class, never on a stage.
+          slots.onError?.(toDraggableError(failure.stage, failure.error), {
             domain: current.domain,
           });
         }
@@ -1204,40 +1561,39 @@ export function createSortableSpec(
     // Landing target and the terminal callback
     // -----------------------------------------------------------------------
 
-    anchorTarget(current, authoredReady): Point {
+    anchorTarget(current): Point {
       const placeholder = rt.placeholder!;
+      const item = current.item!;
       const { recovery } = current;
 
       if (recovery === RECOVERY_DESTINATION) {
-        // Re-anchoring follows the **recovery**, and is gated on the authored
-        // presentation being final: with a readiness promise still pending the
-        // consumer has not committed, so re-anchoring now would drag the
-        // placeholder back beside the item's old slot.
-        if (authoredReady) {
-          const item = current.item!;
+        // Re-anchoring follows the **recovery**, which is committed behavior
+        // state — one of the two clauses of D-16 that survive D-41. The
+        // `authoredReady` gate this used to sit behind is gone with the
+        // protocol: under the serial commit the authored DOM is already final
+        // when this runs, so there is no pending render to wait for.
 
-          // Each conjunct earns its place. `nextElementSibling` makes the
-          // repair inert when the placeholder is already adjacent — `before()`
-          // on an already-correct position is a remove-and-reinsert that resets
-          // CSS transitions and forces a reflow. `isConnected` and the parent
-          // test stop a consumer that unmounted or re-keyed the item from
-          // having the placeholder dragged into a detached tree, which would
-          // destroy the very element the fallback measures (F-15, Q-12).
-          if (
-            item.isConnected &&
-            item.parentElement === placeholder.parentElement &&
-            placeholder.nextElementSibling !== item &&
-            // **The terminal barrier on the re-anchor's own conjuncts** (I-36
-            // (2) act 3, C5-03's stretch sweep). All three above are accessors
-            // on consumer-owned elements. Teardown has already *removed* this
-            // placeholder, so `before()` after a destroy would re-insert a
-            // footprint the operation has finished with — back into the
-            // consumer's list, where nothing will remove it again. Last
-            // conjunct, so it is read only on the frame that would mutate.
-            !rt.closed
-          ) {
-            item.before(placeholder);
-          }
+        // Each conjunct earns its place. `nextElementSibling` makes the
+        // repair inert when the placeholder is already adjacent — `before()`
+        // on an already-correct position is a remove-and-reinsert that resets
+        // CSS transitions and forces a reflow. `isConnected` and the parent
+        // test stop a consumer that unmounted or re-keyed the item from
+        // having the placeholder dragged into a detached tree, which would
+        // destroy the very element the fallback measures (F-15, Q-12).
+        if (
+          item.isConnected &&
+          item.parentElement === placeholder.parentElement &&
+          placeholder.nextElementSibling !== item &&
+          // **The terminal barrier on the re-anchor's own conjuncts** (I-36
+          // (2) act 3, C5-03's stretch sweep). All three above are accessors
+          // on consumer-owned elements. Teardown has already *removed* this
+          // placeholder, so `before()` after a destroy would re-insert a
+          // footprint the operation has finished with — back into the
+          // consumer's list, where nothing will remove it again. Last
+          // conjunct, so it is read only on the frame that would mutate.
+          !host.closed
+        ) {
+          item.before(placeholder);
         }
       } else if (recovery === RECOVERY_HOME) {
         // Rejected, cancelled and most failures return the placeholder to the
@@ -1255,8 +1611,36 @@ export function createSortableSpec(
       // `anchorTarget` (F-38) and never starts a landing for a destroyed
       // controller, so the point is discarded either way; what this stops is
       // the read itself.
-      if (rt.closed) {
+      if (host.closed) {
         return { x: 0, y: 0 };
+      }
+
+      // **The precondition, two O(1) reads, immediately before the
+      // measurement** (D-42). It runs *after* the re-anchor above, because the
+      // repair is what the authored commit is allowed to have made necessary;
+      // checking before it would report a fault the library was about to fix.
+      //
+      // Each conjunct names a real strategy probe C1 ran. `isConnected` catches
+      // `replaceChildren` and an `innerHTML` rebuild, which detach the
+      // placeholder outright — C1 measured the consequence: a detached
+      // placeholder reads `0×0` at the viewport origin, and the row visibly
+      // travels to `(0,0)` over twelve frames before teleporting back. The
+      // parent test catches container replacement, where the placeholder
+      // survives in a tree the list no longer contains.
+      //
+      // **It throws rather than returning a sentinel**, and the kernel treats
+      // the throw and a failed check identically (D-49): a target that cannot
+      // be produced and one that cannot be trusted are the same fault. The
+      // diagnostic is authored here because this is the tier that knows what a
+      // placeholder and an item are — the kernel would have to say "something
+      // was wrong" instead.
+      if (
+        !placeholder.isConnected ||
+        placeholder.parentElement !== item.parentElement
+      ) {
+        throw new Error(
+          'drag: the placeholder was detached or moved out of the list during the reorder commit, so the landing target cannot be measured; the reorder itself is unaffected',
+        );
       }
 
       const rect = placeholder.getBoundingClientRect();
@@ -1265,47 +1649,54 @@ export function createSortableSpec(
     },
 
     /**
-     * An **exhaustive switch on the domain discriminant**, not a binary
-     * accepted-vs-everything predicate: the earlier shape sent the no-op result
-     * to `onCancel` (F-37).
+     * **It publishes `current.domain` and nothing else** (D-62, D-66).
+     *
+     * ~~An exhaustive switch on the domain discriminant~~ stood here, routing
+     * two arms to `onFinish` and two to `onCancel` — and the switch existed
+     * only because there were two callbacks to route between. With one
+     * `onEnd` the arms are the consumer's to discriminate, and F-37's defect,
+     * a binary accepted-vs-everything predicate that sent the no-op result to
+     * `onCancel`, becomes unexpressible rather than merely fixed.
+     *
+     * `null` still publishes nothing, and since D-66 it means one thing only:
+     * the operation failed **before** `onStart` ran, so the consumer has no
+     * record of it beginning (§No start, no terminal). Every started operation
+     * reaches here with a result — its own, or the `canceled` fallback
+     * `settlement.prepare` wrote.
      */
     finalized(current) {
       const { domain } = current;
 
-      if (domain === null) {
-        return; // a failed settlement: `onError` only
-      }
-
-      // The same reason as the settlement switch: F-37 exists because a binary
-      // accepted-vs-everything predicate sent the no-op result to `onCancel`.
-      // oxlint-disable-next-line default-case
-      switch (domain.type) {
-        case 'accepted':
-        case 'noop':
-          slots.onFinish?.(domain);
-          break;
-        case 'rejected':
-        case 'canceled':
-          slots.onCancel?.(domain);
-          break;
+      if (domain !== null) {
+        slots.onEnd?.(domain);
       }
     },
 
     /**
-     * A failure with no operation to settle: `admit` threw, so identity was
-     * never minted and there is no checkpoint to queue (Q-1). The controller
-     * stays idle and usable.
+     * The un-classified report channel, for **both** of its callers.
+     *
+     * `admit` threw, so identity was never minted and there is no checkpoint to
+     * queue (Q-1) — the controller stays idle and usable; **or** the landing
+     * measurement failed on a reorder that already committed (D-49), in which
+     * case an operation is very much live, its result stands, and its terminal
+     * publishes after this returns (D-60, D-66).
+     *
+     * `domain: null` for both. The hook is handed no frame, so this callback
+     * cannot see the result the second caller's operation carries; a consumer
+     * that needs it reads the `onEnd` that follows. The non-null case comes
+     * from the settlement failure path, which reports from `settlement.effect`
+     * with the frame in hand.
      */
     reportFailure(stage, error) {
-      slots.onError?.(error, { stage, domain: null });
+      slots.onError?.(toDraggableError(stage, error), { domain: null });
     },
 
     retire() {
+      progress = MINTED;
       rt.frame.cancel();
       rt.pendingSpatial = 0;
       rt.placeholder = null;
       rt.lift = null;
-      rt.pendingRequest = null;
       rt.view = null;
 
       // Already in reverse installation order. Each is wrapped individually, so

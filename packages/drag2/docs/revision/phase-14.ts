@@ -67,7 +67,6 @@
  * never assembled. Publishing state is not free: it adds a clearing obligation
  * and a failure path, and pass 5 added the publication without either.
  */
-import { DEV } from '../../src/kernel/dev.ts';
 import type { CancelStage, FailureStage } from '../../src/kernel/failures.ts';
 import type {
   Draft,
@@ -77,19 +76,17 @@ import type {
 } from '../../src/kernel/frames.ts';
 import type { LifetimeScope } from '../../src/kernel/lifetimes.ts';
 import type { DOMRealm } from '../../src/kernel/realm.ts';
-import { report } from '../../src/kernel/reporter.ts';
 import type { Transition } from '../../src/kernel/seams.ts';
-import {
-  type KernelHost,
-  type LandingContext,
-  type LandingStart,
-  type PreparedSettlement,
-  type ResolutionCommand,
-  type SeamRejection,
-  SETTLED_FULFILLED,
-  type SettlementInput,
-  type SettlementScope,
-  type SettlementTransition,
+import type {
+  KernelHost,
+  LandingContext,
+  LandingStart,
+  PreparedSettlement,
+  ResolutionCommand,
+  SeamRejection,
+  SettlementInput,
+  SettlementScope,
+  SettlementTransition,
 } from '../../src/kernel/spec.ts';
 import type { Point } from '../../src/kernel/types.ts';
 import type { SortableController } from '../../src/sortable/controller.ts';
@@ -654,19 +651,13 @@ export function createSortableSpec(
       prepare(draft, input): PreparedSettlement | SeamRejection {
         classify(draft, input);
 
-        // Only a fulfilled round-trip can declare an authored presentation.
-        return {
-          presentation:
-            input.type === SETTLED_FULFILLED &&
-            (input.value as ReorderResolutionValue).presentation,
-        };
+        // **Stale as of D-41, and left in place rather than rewritten.** The
+        // authored-presentation declaration is deleted with the protocol, so
+        // `Prepared` is the bare sentinel and there is one gate.
+        return true;
       },
 
-      effect(_current, prepared, scope): void {
-        if (prepared.presentation) {
-          scope.holdForReadiness();
-        }
-
+      effect(_current, _prepared, scope): void {
         if (startLanding !== null) {
           scope.holdForLanding(startLanding);
         }
@@ -723,38 +714,10 @@ export function createSortableSpec(
  */
 function createSortableController(
   host: KernelHost,
-  runtime: SortableRuntime,
+  _runtime: SortableRuntime,
 ): SortableController {
   return {
-    updateItems(): void {},
-
-    ready(request): void {
-      if (request !== runtime.pendingRequest) {
-        // Stale, forged, or a duplicate after retirement. Reported, never
-        // applied — this is what stops operation A's late layout effect from
-        // releasing operation B's gate (I-35).
-        //
-        // C3-02: *reported* is half the contract, so the call is here rather
-        // than in a comment. It takes the platform channel, gated on `DEV`,
-        // and it does not reach `host.fail` — a consumer-protocol error must
-        // never classify the operation the consumer got right.
-        if (DEV) {
-          report(
-            new Error(
-              'drag: controller.ready() received a request this operation never issued; ignored.',
-            ),
-          );
-        }
-
-        return;
-      }
-
-      // The matching-but-undeclared contradiction is NOT checked here. The
-      // behavior does not know what the resolution declared — `presentation`
-      // travels through `Prepared` to the kernel — so the kernel owns that
-      // report, at seal or on arrival. See `KernelHost` above.
-      host.presentationCommitted();
-    },
+    invalidate(): void {},
 
     cancel: host.cancel,
     destroy: host.destroy,
@@ -848,7 +811,7 @@ export const freeDragSpec: RevisedBehaviorSpec<FreeDragPart> = {
 
   settlement: {
     prepare(): PreparedSettlement | SeamRejection {
-      return { presentation: false };
+      return true;
     },
     effect(_current, _prepared, scope): void {
       if (startLanding !== null) {
@@ -915,29 +878,27 @@ export const freeController: FreeController = draggable(root, freeBehavior);
  * non-React consumer — finds `pending` already written.
  */
 export function referenceIntegration(
-  controller: SortableController,
+  _controller: SortableController,
   setOrder: (request: ReorderRequest) => void,
 ): Readonly<{
   onReorder(request: ReorderRequest): AcceptedResolution;
   layoutEffect(): void;
 }> {
-  let pending: ReorderRequest | null = null;
+  let _pending: ReorderRequest | null = null;
 
   return {
     onReorder(request): AcceptedResolution {
-      // Written **before** the mutation, which is the ordering the token
-      // protocol could not establish: the kernel minted its token after
-      // `onReorder` returned.
-      pending = request;
+      // **Superseded by D-41's serial authored commit.** The acknowledgement
+      // this modelled is deleted: a consumer that must render first awaits its
+      // own commit barrier inside `onReorder`, and the layout effect below has
+      // nothing to acknowledge.
+      _pending = request;
       setOrder(request);
-      return ReorderResolution.accept({ presentation: true });
+      return ReorderResolution.accept();
     },
 
     layoutEffect(): void {
-      if (pending !== null) {
-        controller.ready(pending);
-        pending = null;
-      }
+      _pending = null;
     },
   };
 }
@@ -1015,13 +976,14 @@ export const n9: PreparedSettlement = promised;
 /** And no settlement primitive crosses the public surface. */
 declare const scope: SettlementScope;
 
-// @ts-expect-error — `holdForReadiness` yields no token to hand out.
-export const n10: object = scope.holdForReadiness();
+// @ts-expect-error — deleted with the readiness protocol (D-41).
+export const n10: object = scope.holdForReadiness;
 
 /** An acknowledgement without an identity is not expressible. */
 export const n11 = (): void => {
-  // @ts-expect-error — `ready` requires the request it acknowledges.
-  sortableController.ready();
+  // @ts-expect-error — deleted with the readiness protocol (D-41); it required
+  // the request it acknowledged, and there is no acknowledgement.
+  void sortableController.ready;
 };
 
 /**

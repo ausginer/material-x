@@ -21,19 +21,14 @@
  * an assertion that the gap survived is an assertion that nothing re-resolved.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
 import type { LandingContext } from '../../src/kernel/spec.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
-import { handle, visual } from '../../src/sortable/handle.ts';
-import { landing } from '../../src/sortable/landing.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
   ReorderResolution,
-  type SortableCancelResult,
+  type SortableConfig,
   type SortableController,
-  type SortableFeature,
-  type SortableFinishResult,
+  type ReorderTransactionResult,
   sortable,
 } from '../../src/sortable.ts';
 
@@ -45,14 +40,16 @@ type Fixture = Readonly<{
   items: HTMLElement[];
   controller: SortableController;
   requests: ReorderRequest[];
-  finishes: SortableFinishResult[];
-  cancels: SortableCancelResult[];
+  finishes: ReorderTransactionResult[];
+  cancels: ReorderTransactionResult[];
   errors: unknown[];
   started: HTMLElement[];
   /** Landing contexts, when a recording runner is installed. */
   contexts: LandingContext[];
-  /** Every item the installed `handle()` resolver was asked about, in order. */
+  /** Every item the installed `handle` resolver was asked about, in order. */
   handleCalls: HTMLElement[];
+  /** Swap the collection identity and signal it (D-44). */
+  replace(next: readonly HTMLElement[]): void;
   placeholder(): HTMLElement | null;
   /** DOM order, with the placeholder as `_`. */
   order(): string;
@@ -62,15 +59,15 @@ type Options = Readonly<{
   itemCount?: number;
   onReorder?(request: ReorderRequest, fixture: Fixture): ReorderResolution;
   onStart?(fixture: Fixture): void;
-  /** Install `handle()` narrowing admission to the row's first child. */
+  /** Fill the `handle` slot, narrowing admission to the row's first child. */
   useHandle?: boolean;
   /**
-   * Runs inside the `handle()` resolver, which is consumer code the library
+   * Runs inside the `handle` resolver, which is consumer code the library
    * invokes during admission. Implies `useHandle`.
    */
   onResolveHandle?(fixture: Fixture): void;
   /**
-   * Called from **inside** the admission member, through the `visual()` slot.
+   * Called from **inside** the admission member, through the `visual` slot.
    *
    * This is the only honest way to reach that window from a test: a capture
    * -phase listener on the root runs *before* the kernel's own listener, so it
@@ -127,8 +124,8 @@ function build(options: Options = {}): Fixture {
   }
 
   const requests: ReorderRequest[] = [];
-  const finishes: SortableFinishResult[] = [];
-  const cancels: SortableCancelResult[] = [];
+  const finishes: ReorderTransactionResult[] = [];
+  const cancels: ReorderTransactionResult[] = [];
   const errors: unknown[] = [];
   const started: HTMLElement[] = [];
   const contexts: LandingContext[] = [];
@@ -136,68 +133,70 @@ function build(options: Options = {}): Fixture {
 
   let fixture!: Fixture;
 
-  const features: SortableFeature[] = [];
+  // Fragments, not features (D-45): each is a plain partial config, and the
+  // library merges them. `handle` and `visual` are ordinary config slots now,
+  // so the conditional pushes build object literals rather than call factories.
+  const fragments: Array<Partial<SortableConfig>> = [];
 
   if (options.useHandle === true || options.onResolveHandle !== undefined) {
-    features.push(
-      handle((item) => {
+    fragments.push({
+      handle: (item) => {
         handleCalls.push(item);
         options.onResolveHandle?.(fixture);
         return item.querySelector('.grip');
-      }),
-    );
+      },
+    });
   }
 
   if (options.onAdmit !== undefined) {
-    features.push(
-      visual((item) => {
+    fragments.push({
+      visual: (item) => {
         options.onAdmit?.(fixture);
         return item;
-      }),
-    );
+      },
+    });
   }
 
   if (options.recordLanding === true) {
-    features.push(
-      landing({
-        run(context) {
+    // D-63: a recording runner is authored at the middle tier now.
+    fragments.push({
+      landing: () => ({
+        startLanding(context) {
           contexts.push(context);
           return { destroy: (): void => {} };
         },
       }),
-    );
+    });
   }
 
-  const controller = draggable(
-    root,
-    sortable(
-      items,
-      y(),
-      ...features,
-      callbacks({
-        onReorder(request) {
-          requests.push(request);
+  // D-44's pull source; `replace()` swaps the identity and signals.
+  let current: readonly HTMLElement[] = items;
+  const controller = sortable(root, y(), ...fragments, {
+    items: () => current,
+    onReorder(request) {
+      requests.push(request);
 
-          return (
-            options.onReorder?.(request, fixture) ?? ReorderResolution.accept()
-          );
-        },
-        onStart(item): void {
-          started.push(item);
-          options.onStart?.(fixture);
-        },
-        onFinish(result): void {
-          finishes.push(result);
-        },
-        onCancel(result): void {
-          cancels.push(result);
-        },
-        onError(error): void {
-          errors.push(error);
-        },
-      }),
-    ),
-  );
+      return (
+        options.onReorder?.(request, fixture) ?? ReorderResolution.accept()
+      );
+    },
+    onStart(item): void {
+      started.push(item);
+      options.onStart?.(fixture);
+    },
+    onEnd(result): void {
+      // D-62: one callback, and the fixture keeps the two arrays this suite's
+      // assertions are written against.
+      if (result.type === 'accepted' || result.type === 'noop') {
+        finishes.push(result);
+      } else {
+        cancels.push(result);
+      }
+    },
+    onError(error): void {
+      errors.push(error);
+    },
+  });
 
   root.setPointerCapture = (): void => {};
   root.releasePointerCapture = (): void => {};
@@ -213,6 +212,11 @@ function build(options: Options = {}): Fixture {
     started,
     contexts,
     handleCalls,
+    /** New array identity, then the signal — D-44's structural branch. */
+    replace: (next: readonly HTMLElement[]): void => {
+      current = next;
+      controller.invalidate();
+    },
     placeholder: () => root.querySelector('[data-drag-placeholder]'),
     order: () =>
       [...root.children]
@@ -225,7 +229,7 @@ function build(options: Options = {}): Fixture {
   };
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -370,17 +374,21 @@ describe('command ingress', () => {
     expect(back.requests[0]).toMatchObject({ from: 2, to: 1 });
   });
 
-  it('should prevent the default only when the press is admitted', () => {
+  it('should leave a press untouched whether or not it admits', () => {
     const fixture = build({ useHandle: true });
 
-    // The kernel owns the call in both modes (C-03), and makes it exactly when
-    // an admission member returns non-null. A press outside the handle declines,
-    // so the event is untouched.
+    // **The two ingresses part company here** (D-54). The kernel still owns the
+    // call in both modes (C-03), but a press is no longer where the pointer
+    // path makes it: `pointerdown` is before the threshold, so a press on the
+    // grip that never travels must keep its focus and its click exactly as a
+    // press outside the grip does. The keyboard half is asserted next door,
+    // where the call *stays* in the listener because a `keydown` default cannot
+    // be prevented after it returns.
     const y = grab(fixture, 0) + 10;
 
     expect(press(fixture.items[0]!, y)).toBe(true);
     expect(press(fixture.items[0]!.firstElementChild as HTMLElement, y)).toBe(
-      false,
+      true,
     );
   });
 
@@ -441,15 +449,15 @@ describe('command ingress', () => {
     expect(commanded.handleCalls).toEqual(pressed.handleCalls);
   });
 
-  it('should queue an admission-resolver updateItems() exactly once per keydown', () => {
+  it('should queue an admission-resolver invalidate() exactly once per keydown', () => {
     // The sharp end of D1. An admission resolver is explicitly allowed to queue
-    // `updateItems()`, so resolving twice queued that side effect twice and the
+    // `invalidate()`, so resolving twice queued that side effect twice and the
     // operation reconciled through two snapshots for one native command — two
     // versions consumed and two collection actions drained for one arrow key.
     const versions: number[] = [];
     const fixture = build({
       onResolveHandle(f): void {
-        f.controller.updateItems([...f.items]);
+        f.replace([...f.items]);
       },
       onReorder(request): ReorderResolution {
         versions.push(request.version);
@@ -525,7 +533,7 @@ describe('the pointerless lifecycle', () => {
   it('should release every ingress listener on destroy', () => {
     const fixture = build();
 
-    fixture.controller.destroy();
+    void fixture.controller.destroy();
 
     expect(arrow(fixture.items[0]!, 'ArrowDown')).toBe(true);
     expect(fixture.started).toEqual([]);
@@ -678,7 +686,7 @@ describe('a command against a live operation', () => {
 });
 
 describe('re-entry from inside command.admit', () => {
-  it('should enqueue an updateItems() rather than drain it', () => {
+  it('should enqueue an invalidate() rather than drain it', () => {
     // I-1: the ingress boundary enqueues without draining, and drains once
     // admission has committed. The replacement therefore lands as a queued
     // action against a committed operation — where `action.prepare(COLLECTION)`
@@ -691,7 +699,7 @@ describe('re-entry from inside command.admit', () => {
           dispatched = true;
           // Reversed, so the commanded item is now last and its downward gap
           // cannot survive: the operation is cancelled rather than rebased.
-          self.controller.updateItems([...self.items].reverse());
+          self.replace([...self.items].reverse());
         }
       },
     });

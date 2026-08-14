@@ -1,35 +1,55 @@
 /**
- * **Probe C1 — the consumer commit window, for imperative renderers.**
+ * **The consumer commit window, for imperative renderers** (D-42, D-49, D-60).
  *
- * Throwaway. Delete it, or promote the cases that survive into the redesign's
- * own suite, when the API redesign lands. It is a *fixture*, not a feature test:
- * it exists to produce numbers for `.plan/probes/api-2-commit-window.md`.
+ * This file began as probe C1 — a throwaway fixture whose job was to produce
+ * numbers for `.plan/probes/api-2-commit-window.md`. Phase R promoted it, and
+ * it is the suite that decided two of the decisions it now guards, so what it
+ * asserts is worth stating plainly:
  *
- * Synthesis v3 §9 promises that the consumer commit may reorder authored DOM
+ * Synthesis v3 §9 promised that a consumer commit may reorder authored DOM
  * around library-owned presentation nodes and that "the library re-establishes
- * the placeholder from the frozen semantic proposal". The only evidence in the
- * repo is React-shaped (`tests/sortable/react.browser.test.ts:480-702`).
- * `replaceChildren`, `innerHTML` and `createPortal` appear nowhere in `tests/`
- * or `src/`. This file opens the same window with the **current** API —
- * `onReorder` → `controller.ready(request)` — and mutates the container the way
- * an imperative renderer does.
+ * the placeholder from the frozen semantic proposal". It does not, and the
+ * cases below are why. `replaceChildren`, an `innerHTML` rebuild and container
+ * replacement each **detach the placeholder**, and a detached placeholder
+ * measures `0×0` at the viewport origin — so the landing used to animate the
+ * row confidently to `(0,0)` over twelve frames and teleport it back, while
+ * reporting `onFinish` once and `onError` **zero** times. The worst integration
+ * bug in the package, and also its most silent.
+ *
+ * What the repair looks like here: **case 1b's trajectory no longer travels**,
+ * `landingStart` is undefined in three of the five strategies because the
+ * runner is never started, and every one of those three now reports exactly one
+ * error **alongside** its one terminal. Cases 3 and 4 — an append loop and a
+ * morphdom-style patch — leave the placeholder connected and in place, so they
+ * land normally and are the control.
  */
 import { afterAll, afterEach, describe, expect, it } from 'vitest';
-import { draggable, type Point } from '../src/drag.ts';
-import { callbacks } from '../src/sortable/callbacks.ts';
-import { visual } from '../src/sortable/handle.ts';
-import { landing, type LandingStart } from '../src/sortable/landing.ts';
-import { layoutAnimation } from '../src/sortable/layout-animation.ts';
-import { y } from '../src/sortable/y.ts';
+import type { Point } from '../../src/drag.ts';
+import type {
+  LandingStart,
+  SortableInstaller,
+} from '../../src/sortable/feature.ts';
+import { landing } from '../../src/sortable/landing.ts';
+import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
   type SortableController,
   sortable,
-} from '../src/sortable.ts';
+} from '../../src/sortable.ts';
 
 const POINTER_ID = 31;
 const ROW_HEIGHT = 40;
+
+/**
+ * The middle-tier equivalent of the deleted `landing({ run })` (D-63): an
+ * installer contributing the `startLanding` seam directly. Three lines, and
+ * they are the three `landing()` itself writes.
+ */
+const probeLanding = (start: LandingStart): { landing: SortableInstaller } => ({
+  landing: () => ({ startLanding: start }),
+});
 /** The list is offset so that a detached measurement (0,0) is not the origin. */
 const LIST_LEFT = 50;
 const LIST_TOP = 100;
@@ -125,7 +145,6 @@ type Observations = {
   /** The provisional target, measured before readiness settled. */
   landingStart?: Sighting;
   /** The corrected target, measured after `ready()` released the gate. */
-  landingRetarget?: Sighting;
 };
 
 type Options = Readonly<{
@@ -234,6 +253,10 @@ function mount(options: Options): Fixture {
     return placeholder;
   };
 
+  // **A runner is authoring vocabulary now** (D-63). `landing({ run })` is gone
+  // from the consumer surface, so a fixture that needs to observe the target
+  // the runner is handed writes an installer — the tier the capability moved
+  // to, and the only tier that ever needed it.
   const run: LandingStart = (context, done) => {
     observations.landingStart = {
       target: context.target,
@@ -248,89 +271,89 @@ function mount(options: Options): Fixture {
       destroy(): void {
         cancelAnimationFrame(frame);
       },
-      retarget(target: Point): void {
-        observations.landingRetarget = {
-          target,
-          placeholder: placementOf(capture()),
-        };
-      },
     };
   };
 
   // Referenced from `onReorder`, which cannot run before the assignment lands.
-  const controller = draggable(
+  const controller = sortable(
     root,
-    sortable(
-      ids.map((id) => rows.get(id)!),
-      y(),
-      options.realLanding === undefined
-        ? landing({ run })
-        : landing({ duration: options.realLanding, easing: 'linear' }),
-      callbacks({
-        onReorder: (request): ReorderResolution => {
-          requests.push(request);
-          capture();
+    { items: () => ids.map((id) => rows.get(id)!) },
+    y(),
+    options.realLanding === undefined
+      ? probeLanding(run)
+      : landing({ duration: options.realLanding, easing: 'linear' }),
+    {
+      onReorder: (request): ReorderResolution => {
+        requests.push(request);
+        capture();
 
-          // The element the library is dragging, taken from the request rather
-          // than from the fixture's map: a commit that destroys item identity
-          // replaces the map, and this is the node the library still holds.
-          const { item } = request;
+        // The element the library is dragging, taken from the request rather
+        // than from the fixture's map: a commit that destroys item identity
+        // replaces the map, and this is the node the library still holds.
+        const { item } = request;
 
-          draggedItem = item;
+        draggedItem = item;
 
-          const order = ids.slice();
-          const [moved] = order.splice(request.from, 1);
+        const order = ids.slice();
+        const [moved] = order.splice(request.from, 1);
 
-          order.splice(request.to, 0, moved!);
+        order.splice(request.to, 0, moved!);
 
-          const items = options.author({
-            container,
-            root,
-            rows,
-            next: order,
-            setContainer: (element): void => {
-              container = element;
-            },
-          });
+        options.author({
+          container,
+          root,
+          rows,
+          next: order,
+          setContainer: (element): void => {
+            container = element;
+          },
+        });
 
-          observations.afterCommit = {
-            placeholder: placementOf(capture()),
-            libraryItem: placementOf(item),
-            dom: [...container.children].map(
-              (child) => (child as HTMLElement).dataset['id'] ?? '_',
-            ),
-            proposalAnchors: {
-              before:
-                request.before === null ? null : placementOf(request.before),
-              after: request.after === null ? null : placementOf(request.after),
-            },
-          };
+        observations.afterCommit = {
+          placeholder: placementOf(capture()),
+          libraryItem: placementOf(item),
+          dom: [...container.children].map(
+            (child) => (child as HTMLElement).dataset['id'] ?? '_',
+          ),
+          proposalAnchors: {
+            before:
+              request.before === null ? null : placementOf(request.before),
+            after: request.after === null ? null : placementOf(request.after),
+          },
+        };
 
-          controller.updateItems(items);
-          // The imperative shape: the commit is synchronous, so the
-          // acknowledgement is the next statement.
-          controller.ready(request);
+        // The imperative shape: the commit is synchronous, so returning is
+        // the acknowledgement. **This is what D-41's serial order makes the
+        // only shape** — the resolution does not return until the authored
+        // DOM is final, so there is nothing left to acknowledge separately.
+        // D-44: the collection is a pull source, so the commit is announced
+        // rather than handed over. `items()` here maps `ids`, producing a new
+        // array identity on every call, which is the structural branch.
+        controller.invalidate();
 
-          return ReorderResolution.accept({ presentation: true });
-        },
-        onFinish(): void {
+        return ReorderResolution.accept();
+      },
+      onEnd(result): void {
+        // The fixture partitions what the library used to partition for it
+        // (D-62): one callback, four arms, and the two counters this suite's
+        // assertions are written against.
+        if (result.type === 'accepted' || result.type === 'noop') {
           finishes += 1;
-        },
-        onCancel(): void {
+        } else {
           cancels += 1;
-        },
-        onError(error): void {
-          errors.push(error);
-        },
-      }),
-    ),
+        }
+      },
+      onError(error): void {
+        errors.push(error);
+      },
+    },
   );
 
   root.setPointerCapture = (): void => {};
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -447,8 +470,8 @@ const dragFirstIntoSecond = async (fixture: Fixture): Promise<Box> => {
   return origin;
 };
 
-describe('probe C1 — an imperative commit', () => {
-  it('case 1: replaceChildren detaches the placeholder', async () => {
+describe('an imperative commit', () => {
+  it('should skip the landing when replaceChildren detaches the placeholder', async () => {
     const fixture = mount({
       author: ({ container, rows, next }) => {
         const items = next.map((id) => rows.get(id)!);
@@ -463,18 +486,25 @@ describe('probe C1 — an imperative commit', () => {
 
     record('1-replaceChildren', fixture, origin);
 
-    const { afterCommit, landingStart, landingRetarget } = fixture.observations;
+    const { afterCommit, landingStart } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // Detached, so `item.parentElement === placeholder.parentElement` fails and
     // the re-anchor never runs — on either measurement.
     expect(afterCommit!.placeholder.connected).toBe(false);
-    expect(landingStart!.target).toEqual({ x: -50, y: -100 });
-    expect(landingRetarget!.target).toEqual({ x: -50, y: -100 });
-    // `origin + target` is the viewport origin; the row's real slot is (50,140).
+    // **The repair, and it is a subtraction** (D-42, D-49). The precondition's
+    // first conjunct catches exactly this: no connected placeholder, so no
+    // measurement, so **no runner is started at all** and `landingStart` stays
+    // undefined. The old target was `{ x: -50, y: -100 }` — origin-relative for
+    // the viewport origin, because a detached element measures `0×0` at `(0,0)`.
+    expect(landingStart).toBeUndefined();
+    // The row still ends where it belongs; what is gone is the journey.
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
-    // Nothing is classified, and the drop is reported as a clean success.
-    expect(fixture.errors).toEqual([]);
+    // **And the silence is over** (D-60). The drop is still a success and still
+    // publishes one terminal — the reorder is real, the DOM commit happened —
+    // *and* the consumer is told that its commit broke the landing. All five
+    // strategies used to report `onFinish` once and `onError` zero times.
+    expect(fixture.errors).toHaveLength(1);
     expect(fixture.finishes).toBe(1);
     expect(fixture.cancels).toBe(0);
     expect(document.querySelectorAll('[data-drag-placeholder]')).toHaveLength(
@@ -490,7 +520,7 @@ describe('probe C1 — an imperative commit', () => {
     expect(afterCommit!.proposalAnchors.before!.connected).toBe(true);
   });
 
-  it('case 2: innerHTML plus a rebuild destroys item identity', async () => {
+  it('should skip the landing when an innerHTML rebuild destroys item identity', async () => {
     const fixture = mount({
       author: ({ container, rows, next }) => {
         container.innerHTML = '';
@@ -515,26 +545,28 @@ describe('probe C1 — an imperative commit', () => {
 
     record('2-innerHTML-rebuild', fixture, origin);
 
-    const { afterCommit, landingStart, landingRetarget } = fixture.observations;
+    const { afterCommit, landingStart } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // Both the placeholder and the node the library is dragging are detached.
     expect(afterCommit!.placeholder.connected).toBe(false);
     expect(afterCommit!.libraryItem.connected).toBe(false);
-    expect(landingStart!.target).toEqual({ x: -50, y: -100 });
-    expect(landingRetarget!.target).toEqual({ x: -50, y: -100 });
-    // The lifted visual is landed onto a node that is no longer in the page.
+    expect(landingStart).toBeUndefined();
+    // The lifted visual is still landed onto a node that is no longer in the
+    // page — D-49 does not rescue a rebuild that destroyed item identity, and
+    // never claimed to. What it removes is the *confident animation* toward a
+    // target measured from that node.
     expect(boxOf(fixture.item())).toEqual({ x: 0, y: 0, w: 0, h: 0 });
     // The frozen neighbours were destroyed with everything else, so no repair
     // anchored on the proposal could have helped here either.
     expect(afterCommit!.proposalAnchors.after!.connected).toBe(false);
     expect(afterCommit!.proposalAnchors.before!.connected).toBe(false);
-    expect(fixture.errors).toEqual([]);
+    expect(fixture.errors).toHaveLength(1);
     expect(fixture.finishes).toBe(1);
     expect(fixture.cancels).toBe(0);
   });
 
-  it('case 3: an append loop pushes the placeholder to index 0', async () => {
+  it('should still land when an append loop pushes the placeholder to index 0', async () => {
     const fixture = mount({
       author: ({ container, rows, next }) => {
         const items = next.map((id) => rows.get(id)!);
@@ -554,25 +586,24 @@ describe('probe C1 — an imperative commit', () => {
 
     record('3-append-loop', fixture, origin);
 
-    const { afterCommit, landingStart, landingRetarget } = fixture.observations;
+    const { afterCommit, landingStart } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // The commit left it at the head of the list.
     expect(afterCommit!.placeholder.index).toBe(0);
     expect(afterCommit!.dom).toEqual(['_', 'b', 'a', 'c']);
-    // Provisional: measured before readiness settled, so still at the head.
-    expect(landingStart!.target).toEqual({ x: 0, y: 0 });
-    // Re-established: index 1, immediately before the item.
-    expect(landingRetarget!.placeholder.index).toBe(1);
-    expect(landingRetarget!.target).toEqual({ x: 0, y: ROW_HEIGHT });
-    // `origin + target` === the row's final rect. The promise holds.
-    expect(origin.y + landingRetarget!.target.y).toBe(boxOf(fixture.item()).y);
+    // **D-41's win, and it is visible right here.** This used to be
+    // provisional — measured before readiness settled, so still at the head at
+    // `{ x: 0, y: 0 }` — and only the readiness-time retarget corrected it. The
+    // single authoritative measurement lands on the row's final rect the first
+    // time: `origin + target` is where the item actually ends up.
+    expect(origin.y + landingStart!.target.y).toBe(boxOf(fixture.item()).y);
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
     expect(fixture.errors).toEqual([]);
     expect(fixture.finishes).toBe(1);
   });
 
-  it('case 4: a morphdom-style patch around the placeholder', async () => {
+  it('should still land through a morphdom-style patch around the placeholder', async () => {
     const fixture = mount({
       author: ({ rows, next }) => {
         const item = rows.get('a')!;
@@ -596,22 +627,24 @@ describe('probe C1 — an imperative commit', () => {
 
     record('4-morphdom-patch', fixture, origin);
 
-    const { afterCommit, landingStart, landingRetarget } = fixture.observations;
+    const { afterCommit, landingStart } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // The patch stranded it at the tail — two slots below where it belongs.
     expect(afterCommit!.dom).toEqual(['b', 'a', 'c', '_']);
-    expect(landingStart!.target).toEqual({ x: 0, y: 2 * ROW_HEIGHT });
-    // Re-established from the frozen proposal, exactly as §9 promises.
-    expect(landingRetarget!.placeholder.index).toBe(1);
-    expect(landingRetarget!.target).toEqual({ x: 0, y: ROW_HEIGHT });
-    expect(origin.y + landingRetarget!.target.y).toBe(boxOf(fixture.item()).y);
+    // **D-41.** The single authoritative measurement is taken after the
+    // patch has run — the re-anchor from the frozen proposal has already put
+    // the placeholder back beside the item — so the first and only target is
+    // the row's final rect. This used to read `2 * ROW_HEIGHT`, the stranded
+    // tail slot, and be corrected by a readiness-time retarget.
+    expect(landingStart!.target).toEqual({ x: 0, y: ROW_HEIGHT });
+    expect(origin.y + landingStart!.target.y).toBe(boxOf(fixture.item()).y);
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
     expect(fixture.errors).toEqual([]);
     expect(fixture.finishes).toBe(1);
   });
 
-  it('case 1b: what the user sees while the landing runs', async () => {
+  it('should not travel to the viewport origin while the landing runs', async () => {
     // Case 1 again, with the shipped runner, sampling the lifted row every
     // frame between release and the join. This is the visible form of the
     // number case 1 reports as a target.
@@ -654,17 +687,23 @@ describe('probe C1 — an imperative commit', () => {
       finishes: fixture.finishes,
     });
 
-    // The row travels the whole way to the viewport origin and then teleports
-    // into its slot when the join pins and presentation is released. Bounds
-    // rather than exact samples: which frame the landing ends on is scheduling.
-    expect(Math.min(...trajectory.map(({ y }) => y))).toBeLessThanOrEqual(12);
-    expect(Math.min(...trajectory.map(({ x }) => x))).toBeLessThanOrEqual(4);
+    // **The case that decided D-49, inverted.** The row used to travel the
+    // whole way to the viewport origin over twelve frames and then teleport
+    // into its slot when the join pinned — `min y` under 12, `min x` under 4.
+    // With the landing skipped there is no travel at all: the drop is a jump
+    // cut, and every sample is at or below the row's own slot. A jump cut is
+    // honest; a confident animation to `(0,0)` is not.
+    //
+    // Bounds rather than exact samples, in the same spirit as before: which
+    // frame presentation is released on is scheduling.
+    expect(Math.min(...trajectory.map(({ y }) => y))).toBeGreaterThan(100);
+    expect(Math.min(...trajectory.map(({ x }) => x))).toBeGreaterThan(40);
     expect(boxOf(item)).toEqual({ x: 50, y: 140, w: 100, h: 40 });
-    expect(fixture.errors).toEqual([]);
+    expect(fixture.errors).toHaveLength(1);
     expect(fixture.finishes).toBe(1);
   });
 
-  it('case 5: the commit removes the container the placeholder was in', async () => {
+  it('should skip the landing when the commit removes the placeholder container', async () => {
     const fixture = mount({
       nested: true,
       author: ({ root, rows, next, setContainer }) => {
@@ -687,17 +726,19 @@ describe('probe C1 — an imperative commit', () => {
 
     record('5-container-removed', fixture, origin);
 
-    const { afterCommit, landingStart, landingRetarget } = fixture.observations;
+    const { afterCommit, landingStart } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // Still parented — by the container that left the document.
     expect(afterCommit!.placeholder.parent).toBe('group');
     expect(afterCommit!.placeholder.connected).toBe(false);
     expect(afterCommit!.libraryItem.parent).toBe('group2');
-    expect(landingStart!.target).toEqual({ x: -50, y: -100 });
-    expect(landingRetarget!.target).toEqual({ x: -50, y: -100 });
+    // The placeholder is *parented* here, by a container that left the
+    // document — which is why the connectivity conjunct and the parentage
+    // conjunct are two reads and not one.
+    expect(landingStart).toBeUndefined();
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
-    expect(fixture.errors).toEqual([]);
+    expect(fixture.errors).toHaveLength(1);
     expect(fixture.finishes).toBe(1);
     // Teardown still reaches into the discarded subtree: no residue.
     expect(fixture.placeholder().parentElement).toBeNull();
@@ -714,11 +755,11 @@ describe('probe C1 — an imperative commit', () => {
  * api-1 established the footprint rule `boxPre.height − boxPost.height` on a
  * static fixture with no library code. This checks it during a live drag with
  * `layoutAnimation()` installed and transforming the same elements. `box()` does
- * not exist in the current API, so it is modelled: `visual()` resolves to a
+ * not exist in the current API, so it is modelled: `{ visual:  }` resolves to a
  * descendant `.c6-card` of the item, and the item element itself is the wrapper
  * this test measures by hand. This is layout arithmetic, not a library feature.
  */
-describe('probe C1 — the api-1 footprint rule under a live drag', () => {
+describe('the api-1 footprint rule under a live drag', () => {
   const ROW_H = 60;
   const CARD_H = 60;
   const ASIDE_H = 30;
@@ -787,30 +828,28 @@ describe('probe C1 — the api-1 footprint rule under a live drag', () => {
       };
     };
 
-    const controller = draggable(
+    const controller = sortable(
       root,
-      sortable(
-        rows,
-        y(),
-        visual((item) => item.querySelector<HTMLElement>('.c6-card')!),
-        // Long enough that every displacement is still in flight when the
-        // measurements below are taken.
-        layoutAnimation({ duration: 4000, easing: 'linear' }),
-        landing({ run }),
-        callbacks({
-          onReorder: (): ReorderResolution => ReorderResolution.accept(),
-          onError(error): void {
-            errors.push(error);
-          },
-        }),
-      ),
+      { items: () => rows },
+      y(),
+      { visual: (item) => item.querySelector<HTMLElement>('.c6-card')! },
+      // Long enough that every displacement is still in flight when the
+      // measurements below are taken.
+      layoutAnimation({ duration: 4000, easing: 'linear' }),
+      probeLanding(run),
+      {
+        onReorder: (): ReorderResolution => ReorderResolution.accept(),
+        onError(error): void {
+          errors.push(error);
+        },
+      },
     );
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
 
     cleanup.push(() => {
-      controller.destroy();
+      void controller.destroy();
       root.remove();
     });
 

@@ -15,18 +15,17 @@
  * and is the only caller that assembles.
  */
 import { report } from '../kernel/reporter.ts';
-import {
-  type Behavior,
-  type BehaviorInstall,
-  brandBehavior,
-  type KernelHost,
+import type {
+  BehaviorFactory,
+  BehaviorInstall,
+  KernelHost,
 } from '../kernel/spec.ts';
 import { assemble } from './assemble.ts';
+import { mergeFragments, type SortableConfig } from './config.ts';
 import {
   createSortableController,
   type SortableController,
 } from './controller.ts';
-import type { SortableFeature } from './feature.ts';
 import type { SortableFramePart } from './frames.ts';
 import { createSortableRuntime } from './runtime.ts';
 import type { SortableSlots } from './slots.ts';
@@ -41,33 +40,55 @@ function install(
 
   return {
     spec: createSortableSpec(rt),
-    controller: createSortableController(host, rt),
+    controller: createSortableController(host),
   };
 }
 
-/** Takes an already-assembled slot record. The seam the tests drive directly. */
+/**
+ * Takes an already-assembled slot record. The seam the tests drive directly.
+ *
+ * **A plain factory, unbranded** (D-55). `brandBehavior` is withdrawn: with
+ * `sortable()` returning its controller directly there is no branded value for
+ * a consumer to hold, so the brand had no producer.
+ */
 export function createSortableBehavior(
   items: readonly HTMLElement[],
   slots: SortableSlots,
-): Behavior<SortableController> {
-  return brandBehavior<SortableController, SortableFramePart>((host) =>
-    install(host, items, slots),
-  );
+): BehaviorFactory<SortableController, SortableFramePart> {
+  return (host) => install(host, items, slots);
 }
 
-/** Assembles the features first, against the host's realm and root. */
+/**
+ * Merges the fragments, then assembles against the host's realm and root.
+ *
+ * **Two stages, and the split is the decision** (D-45): the merge resolves
+ * every named slot before a single installer runs, which is what makes
+ * last-wins a merge rule rather than a lifecycle problem — a capability that
+ * loses its slot is never constructed, so there is nothing to retire.
+ *
+ * The merge happens here rather than at the `sortable()` call site because
+ * nothing before this point is per-controller: merging eagerly would compute a
+ * config for a behavior that may never be installed.
+ */
 export function createComposedSortableBehavior(
-  items: readonly HTMLElement[],
-  features: readonly SortableFeature[],
-): Behavior<SortableController> {
-  return brandBehavior<SortableController, SortableFramePart>((host) =>
+  fragments: ReadonlyArray<Partial<SortableConfig>>,
+): BehaviorFactory<SortableController, SortableFramePart> {
+  const config = mergeFragments(fragments);
+
+  return (host) =>
     install(
       host,
-      items,
+      // **D-44: the first pull.** Every later one goes through
+      // `action.prepare(COLLECTION)`; this is the initial snapshot and the
+      // initial structural baseline, and it is the only `items()` call that
+      // happens outside a transaction. Validated as a function by `assemble`,
+      // which runs on the next line — hence the guard, which is what keeps a
+      // non-function config producing the assembler's diagnostic rather than a
+      // `TypeError` from this call site.
+      typeof config.items === 'function' ? config.items() : [],
       // `report`, not `fail`: a feature closure created here cannot know which
       // operation is live, so classifying a failure from one would let a late
       // continuation settle another.
-      assemble(features, { realm: host.realm, root: host.root, report }),
-    ),
-  );
+      assemble(config, { realm: host.realm, root: host.root, report }),
+    );
 }

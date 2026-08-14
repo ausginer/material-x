@@ -4,12 +4,11 @@
   "tsconfig": "./tsconfig.json",
   "entryPoints": [
     "./src/drag.ts",
+    "./src/kernel.ts",
     "./src/sortable.ts",
+    "./src/sortable/feature.ts",
     "./src/sortable/y.ts",
     "./src/sortable/xy.ts",
-    "./src/sortable/callbacks.ts",
-    "./src/sortable/placeholder.ts",
-    "./src/sortable/handle.ts",
     "./src/sortable/landing.ts",
     "./src/sortable/layout-animation.ts"
   ],
@@ -18,5 +17,6 @@
   "excludePrivate": true,
   "excludeProtected": true,
   "excludeInternal": true,
-  "sort": ["source-order"]
+  "sort": ["source-order"],
+  "intentionallyNotExported": []
 }
