@@ -27,10 +27,10 @@ import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
   ReorderResolution,
-  type SortableCancelResult,
+
   type SortableConfig,
   type SortableController,
-  type SortableFinishResult,
+  type ReorderTransactionResult,
   sortable,
 } from '../../src/sortable.ts';
 
@@ -42,8 +42,8 @@ type Fixture = Readonly<{
   items: HTMLElement[];
   controller: SortableController;
   requests: ReorderRequest[];
-  finishes: SortableFinishResult[];
-  cancels: SortableCancelResult[];
+  finishes: ReorderTransactionResult[];
+  cancels: ReorderTransactionResult[];
   errors: unknown[];
   started: HTMLElement[];
   /** Landing contexts, when a recording runner is installed. */
@@ -126,8 +126,8 @@ function build(options: Options = {}): Fixture {
   }
 
   const requests: ReorderRequest[] = [];
-  const finishes: SortableFinishResult[] = [];
-  const cancels: SortableCancelResult[] = [];
+  const finishes: ReorderTransactionResult[] = [];
+  const cancels: ReorderTransactionResult[] = [];
   const errors: unknown[] = [];
   const started: HTMLElement[] = [];
   const contexts: LandingContext[] = [];
@@ -160,14 +160,15 @@ function build(options: Options = {}): Fixture {
   }
 
   if (options.recordLanding === true) {
-    fragments.push(
-      landing({
-        run(context) {
+    // D-63: a recording runner is authored at the middle tier now.
+    fragments.push({
+      landing: () => ({
+        startLanding(context) {
           contexts.push(context);
           return { destroy: (): void => {} };
         },
       }),
-    );
+    });
   }
 
   // D-44's pull source; `replace()` swaps the identity and signals.
@@ -185,11 +186,14 @@ function build(options: Options = {}): Fixture {
       started.push(item);
       options.onStart?.(fixture);
     },
-    onFinish(result): void {
-      finishes.push(result);
-    },
-    onCancel(result): void {
-      cancels.push(result);
+    onEnd(result): void {
+      // D-62: one callback, and the fixture keeps the two arrays this suite's
+      // assertions are written against.
+      if (result.type === 'accepted' || result.type === 'noop') {
+        finishes.push(result);
+      } else {
+        cancels.push(result);
+      }
     },
     onError(error): void {
       errors.push(error);

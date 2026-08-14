@@ -56,7 +56,7 @@ type SortableDemoProps = Readonly<{
  * `useLayoutEffect` once the corresponding render has been committed to the DOM.
  *
  * That acknowledgement is what makes the drop correct rather than merely
- * lucky. `onFinish` is terminal — it runs after the kernel has already released
+ * lucky. `onEnd` is terminal (D-62) — it runs after the kernel has already released
  * the lift and placeholder — so committing there always renders too late and the
  * list visibly snaps back to its pre-drag order first. Committing from
  * `onReorder` overlaps the re-render with the landing animation, but on its own

@@ -25,7 +25,11 @@
  */
 import { afterAll, afterEach, describe, expect, it } from 'vitest';
 import type { Point } from '../../src/drag.ts';
-import { landing, type LandingStart } from '../../src/sortable/landing.ts';
+import { landing } from '../../src/sortable/landing.ts';
+import type {
+  LandingStart,
+  SortableInstaller,
+} from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -37,6 +41,15 @@ import {
 
 const POINTER_ID = 31;
 const ROW_HEIGHT = 40;
+
+/**
+ * The middle-tier equivalent of the deleted `landing({ run })` (D-63): an
+ * installer contributing the `startLanding` seam directly. Three lines, and
+ * they are the three `landing()` itself writes.
+ */
+const probeLanding = (start: LandingStart): { landing: SortableInstaller } => ({
+  landing: () => ({ startLanding: start }),
+});
 /** The list is offset so that a detached measurement (0,0) is not the origin. */
 const LIST_LEFT = 50;
 const LIST_TOP = 100;
@@ -240,6 +253,10 @@ function mount(options: Options): Fixture {
     return placeholder;
   };
 
+  // **A runner is authoring vocabulary now** (D-63). `landing({ run })` is gone
+  // from the consumer surface, so a fixture that needs to observe the target
+  // the runner is handed writes an installer — the tier the capability moved
+  // to, and the only tier that ever needed it.
   const run: LandingStart = (context, done) => {
     observations.landingStart = {
       target: context.target,
@@ -263,7 +280,7 @@ function mount(options: Options): Fixture {
     { items: () => ids.map((id) => rows.get(id)!) },
     y(),
     options.realLanding === undefined
-      ? landing({ run })
+      ? probeLanding(run)
       : landing({ duration: options.realLanding, easing: 'linear' }),
     {
       onReorder: (request): ReorderResolution => {
@@ -316,11 +333,15 @@ function mount(options: Options): Fixture {
 
         return ReorderResolution.accept();
       },
-      onFinish(): void {
-        finishes += 1;
-      },
-      onCancel(): void {
-        cancels += 1;
+      onEnd(result): void {
+        // The fixture partitions what the library used to partition for it
+        // (D-62): one callback, four arms, and the two counters this suite's
+        // assertions are written against.
+        if (result.type === 'accepted' || result.type === 'noop') {
+          finishes += 1;
+        } else {
+          cancels += 1;
+        }
       },
       onError(error): void {
         errors.push(error);
@@ -815,7 +836,7 @@ describe('the api-1 footprint rule under a live drag', () => {
       // Long enough that every displacement is still in flight when the
       // measurements below are taken.
       layoutAnimation({ duration: 4000, easing: 'linear' }),
-      landing({ run }),
+      probeLanding(run),
       {
         onReorder: (): ReorderResolution => ReorderResolution.accept(),
         onError(error): void {

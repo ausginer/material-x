@@ -8,6 +8,8 @@
  */
 import { toDraggableError } from '../kernel/errors.ts';
 import {
+  AT_CONSUMER,
+  AT_PROPOSAL,
   FAILURE_INVALIDATION,
   FAILURE_RELEASE,
   FAILURE_REORDER_RESOLUTION,
@@ -109,6 +111,15 @@ type PreparedCollection = Readonly<{
  */
 export const STAGED = true;
 
+/**
+ * The three states of D-66's progress marker, module-private because they are
+ * behavior-internal: nothing outside this file may read how far an operation
+ * got, and nothing in the kernel could interpret it if it did.
+ */
+const MINTED = 0;
+const STARTED = 1;
+const RESOLVING = 2;
+
 const rejection = (stage: FailureStage, message: string): SeamRejection => ({
   stage,
   error: new Error(message),
@@ -162,6 +173,24 @@ export function createSortableSpec(
    * `<div>`, whose undo is being dropped.
    */
   let placeholderUndo: PlaceholderUndo = null;
+
+  /**
+   * **How far the operation got, as one monotone marker** (D-66 §The progress
+   * marker). Per operation, cleared in `retire()`.
+   *
+   * It exists because the failure path owes a terminal and the kernel cannot
+   * supply the two facts that decide which one: *did the consumer hear this
+   * drag start*, and *was the consumer's resolver actually invoked*. Both are
+   * behavior knowledge, and both are already written at sites the behavior
+   * owns — so this is a marker rather than an SPI member.
+   *
+   * `RESOLVING` is truthful **by construction**: the kernel runs the `invoke`
+   * closure only after `release.effect` returns normally, and `invoke: null`
+   * means there was no round-trip at all. Deriving it from `proposal !== null`
+   * would be false — the proposal commits one seam earlier, in
+   * `release.prepare`.
+   */
+  let progress = MINTED;
 
   /**
    * The admitted item, from the event's **composed path** rather than
@@ -809,6 +838,13 @@ export function createSortableSpec(
           return;
         }
 
+        // **The marker advances before the call, not after** (D-66). A throw
+        // from `onStart` itself is classified, and the consumer has by then
+        // been told the drag began — so it is owed an end. Advancing after the
+        // call would publish nothing for exactly the operation the consumer
+        // most recently heard about.
+        progress = STARTED;
+
         // 4 — last, because it may reentrantly cancel or destroy.
         slots.onStart(item);
       },
@@ -1264,7 +1300,14 @@ export function createSortableSpec(
         const { request } = built.proposal;
 
         return {
-          invoke: (signal) => slots.onReorder(request, { signal }),
+          invoke: (signal) => {
+            // **First statement of the closure** (D-66). The kernel runs this
+            // only after `release.effect` returns normally, so reaching it is
+            // proof the consumer's resolver is being invoked — which is what
+            // makes a later failure `AT_CONSUMER` rather than `AT_PROPOSAL`.
+            progress = RESOLVING;
+            return slots.onReorder(request, { signal });
+          },
         };
       },
 
@@ -1387,7 +1430,9 @@ export function createSortableSpec(
           case SETTLED_REJECTED: {
             // A rejected thenable is a resolver malfunction, not a considered
             // consumer verdict, so it is a named classified failure rather than
-            // an inferred `onCancel`.
+            // an inferred rejection. It still *ends* the operation — D-66 —
+            // but as a fault reported through `onError`, with the terminal
+            // saying `canceled` rather than `rejected`.
             return {
               stage: FAILURE_REORDER_RESOLUTION,
               error: input.error,
@@ -1416,7 +1461,33 @@ export function createSortableSpec(
             if (input.stage !== FAILURE_TERMINAL_CALLBACK) {
               draft.outcome = OUTCOME_FAILED;
               draft.recovery = RECOVERY_IMMEDIATE;
-              draft.domain = null;
+              // **The fallback, and the whole of D-66's carrier** (D-66).
+              // `draft.domain = null` stood here, and it is what made the
+              // library's most serious failures its quietest: `finalized`
+              // publishes `current.domain` and nothing else, so a null meant
+              // no terminal at all.
+              //
+              // **Existing result wins, otherwise `canceled`.** The tie-break
+              // is what makes the rule one lookup rather than two cases: a
+              // failure that arrives *after* a domain result exists — a
+              // terminal-callback throw is the only one, and it is excluded
+              // above — must not relabel it, and a failure that arrives before
+              // one honestly reports an abandoned drag with the classifying
+              // error as its reason.
+              //
+              // **The marker decides the stage, and it also decides whether to
+              // publish at all.** At `MINTED` the consumer never heard this
+              // drag start, and an end for a beginning it has no record of is
+              // worse than the skip D-66 retracts (§No start, no terminal).
+              draft.domain =
+                progress === MINTED
+                  ? null
+                  : {
+                      type: 'canceled',
+                      reason: input.error,
+                      stage: progress === RESOLVING ? AT_CONSUMER : AT_PROPOSAL,
+                      proposal: draft.proposal,
+                    };
             }
 
             return true;
@@ -1442,8 +1513,9 @@ export function createSortableSpec(
         }
 
         // 4 — consumer callbacks last. A failed settlement reports through
-        // `onError` **only**: no `onFinish`, no `onCancel`, and `finalized` is
-        // never reached for it.
+        // `onError` here **and** publishes its terminal from the failure path's
+        // own `ERROR_REPORTED` step (D-66) — the two channels are orthogonal
+        // and neither suppresses the other.
         if (failure !== null) {
           // D-64: the consumer branches on a fault class, never on a stage.
           slots.onError?.(toDraggableError(failure.stage, failure.error), {
@@ -1545,29 +1617,26 @@ export function createSortableSpec(
     },
 
     /**
-     * An **exhaustive switch on the domain discriminant**, not a binary
-     * accepted-vs-everything predicate: the earlier shape sent the no-op result
-     * to `onCancel` (F-37).
+     * **It publishes `current.domain` and nothing else** (D-62, D-66).
+     *
+     * ~~An exhaustive switch on the domain discriminant~~ stood here, routing
+     * two arms to `onFinish` and two to `onCancel` — and the switch existed
+     * only because there were two callbacks to route between. With one
+     * `onEnd` the arms are the consumer's to discriminate, and F-37's defect,
+     * a binary accepted-vs-everything predicate that sent the no-op result to
+     * `onCancel`, becomes unexpressible rather than merely fixed.
+     *
+     * `null` still publishes nothing, and since D-66 it means one thing only:
+     * the operation failed **before** `onStart` ran, so the consumer has no
+     * record of it beginning (§No start, no terminal). Every started operation
+     * reaches here with a result — its own, or the `canceled` fallback
+     * `settlement.prepare` wrote.
      */
     finalized(current) {
       const { domain } = current;
 
-      if (domain === null) {
-        return; // a failed settlement: `onError` only
-      }
-
-      // The same reason as the settlement switch: F-37 exists because a binary
-      // accepted-vs-everything predicate sent the no-op result to `onCancel`.
-      // oxlint-disable-next-line default-case
-      switch (domain.type) {
-        case 'accepted':
-        case 'noop':
-          slots.onFinish?.(domain);
-          break;
-        case 'rejected':
-        case 'canceled':
-          slots.onCancel?.(domain);
-          break;
+      if (domain !== null) {
+        slots.onEnd?.(domain);
       }
     },
 
@@ -1581,6 +1650,7 @@ export function createSortableSpec(
     },
 
     retire() {
+      progress = MINTED;
       rt.frame.cancel();
       rt.pendingSpatial = 0;
       rt.placeholder = null;

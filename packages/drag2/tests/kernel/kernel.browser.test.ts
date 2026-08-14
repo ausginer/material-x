@@ -1612,7 +1612,12 @@ describe('the settlement seam', () => {
     // Acceptance is never inferred: a fulfilled value that is not an explicit
     // resolution is classified, and nothing below the rejection runs.
     expect(harness.failures[0]!.stage).toBe(FAILURE_REORDER_RESOLUTION);
-    expect(harness.calls).not.toContain('finalized');
+    // **And the operation is still disposed of** (D-66). "Nothing below the
+    // rejection runs" is about *continuation* — no gate arming, no consumer
+    // invocation, no retirement past the failure. The terminal is disposition,
+    // not continuation, and this assertion read `not.toContain` until D-66
+    // retracted exactly that clause of D-23.
+    expect(harness.calls).toContain('finalized');
   });
 
   it('should close motion and cancellation before the behavior effect', () => {
@@ -1652,9 +1657,11 @@ describe('the settlement seam', () => {
     release(80, 10);
 
     // Arming a half-requested plan would start a runner for a settlement that
-    // has already failed; the queued checkpoint decides instead (F-27).
+    // has already failed; the queued checkpoint decides instead (F-27). What
+    // the checkpoint decides now includes the terminal (D-66) — the runner is
+    // still never started, which is the half F-27 is about.
     expect(runner.calls).toEqual([]);
-    expect(harness.calls).not.toContain('finalized');
+    expect(harness.calls).toContain('finalized');
   });
 });
 
@@ -1828,7 +1835,7 @@ describe('the join', () => {
     expect(harness.calls).toContain('finalized');
   });
 
-  it('should release presentation and skip the callback when the pin throws', () => {
+  it('should release presentation and still publish a terminal when the pin throws', () => {
     const harness = createHarness();
 
     activate(harness);
@@ -1845,10 +1852,20 @@ describe('the join', () => {
 
     expect(harness.failures[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
     expect(harness.calls).toContain('presentation.released');
-    // The committed frame still carries the accepted outcome, so calling the
-    // terminal callback would fire `onFinish` for a drop the queued checkpoint
-    // is about to report through `onError` (F-27).
-    expect(harness.calls).not.toContain('finalized');
+    // **The join still skips it, and the checkpoint still pays it** (D-66). The
+    // old assertion was `not.toContain`, reasoning that the committed frame
+    // still carried the accepted outcome so publishing would announce a
+    // successful drop. It would — and that is now the *point*: the pin failed,
+    // but the reorder is real and the consumer's data is committed, so what the
+    // consumer needs is one `onError` **and** the domain result. The publish
+    // moved one action later, from the join to `ERROR_REPORTED`, rather than
+    // being reinstated in the join.
+    expect(harness.calls).toContain('finalized');
+    // Ordering is not incidental: the terminal sees presentation released, as
+    // it does on the success path.
+    expect(harness.calls.indexOf('presentation.released')).toBeLessThan(
+      harness.calls.indexOf('finalized'),
+    );
   });
 
   it('should retire after a throwing terminal callback', () => {

@@ -8,7 +8,12 @@
  * `composition.browser.test.ts`; these add the first.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { LandingHandle } from '../../src/kernel/spec.ts';
+import type { DraggableError, Point } from '../../src/drag.ts';
+import type {
+  LandingHandle,
+  LandingStart,
+  SortableInstaller,
+} from '../../src/sortable/feature.ts';
 import type { OnReorder } from '../../src/sortable/domain.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
@@ -29,7 +34,7 @@ type Composed = Readonly<{
   controller: SortableController;
   finishes: unknown[];
   cancels: unknown[];
-  errors: unknown[];
+  errors: DraggableError[];
   placeholder(): HTMLElement | null;
 }>;
 
@@ -90,7 +95,7 @@ function composeWith(options: ComposeOptions = {}): Composed {
 
   const finishes: unknown[] = [];
   const cancels: unknown[] = [];
-  const errors: unknown[] = [];
+  const errors: DraggableError[] = [];
 
   const controller = sortable(
     root,
@@ -98,11 +103,14 @@ function composeWith(options: ComposeOptions = {}): Composed {
     {
       items: () => items,
       onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
-      onFinish: (result): void => {
-        finishes.push(result);
-      },
-      onCancel: (result): void => {
-        cancels.push(result);
+      onEnd: (result): void => {
+        // D-62: one callback, and the fixture makes the split its own
+        // assertions still read against.
+        if (result.type === 'accepted' || result.type === 'noop') {
+          finishes.push(result);
+        } else {
+          cancels.push(result);
+        }
       },
       onError: (error): void => {
         errors.push(error);
@@ -211,6 +219,16 @@ const withReducedMotion = async <T>(body: () => Promise<T>): Promise<T> => {
     window.matchMedia = native;
   }
 };
+
+/**
+ * A landing runner authored at the **middle tier** (D-63): the three lines
+ * `landing()` itself writes, which is what a consumer's `run` used to reach.
+ */
+const authoredLanding = (
+  start: LandingStart,
+): { landing: SortableInstaller } => ({
+  landing: () => ({ startLanding: start }),
+});
 
 describe('placeholder', () => {
   it('should use the element the factory returned', () => {
@@ -615,6 +633,101 @@ describe('visual', () => {
   });
 });
 
+describe('the contextual landing duration (D-67)', () => {
+  it('should invoke duration once per landing, with the trajectory', async () => {
+    // **The quantity review 3 §10 said a zero-argument thunk cannot observe.**
+    // `from` and `to` are the landing's origin-relative deltas, `distance` the
+    // straight line between them — and the whole of D-67 is that the function
+    // can now see them.
+    const contexts: Array<{ from: Point; to: Point; distance: number }> = [];
+    const composed = compose(
+      landing({
+        duration: (context) => {
+          contexts.push(context);
+          return 20;
+        },
+      }),
+    );
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    expect(contexts).toHaveLength(1);
+
+    const [only] = contexts;
+
+    expect(only!.distance).toBeCloseTo(
+      Math.hypot(only!.to.x - only!.from.x, only!.to.y - only!.from.y),
+      6,
+    );
+    // A downward drop into the next slot: the trajectory is vertical and real.
+    expect(only!.distance).toBeGreaterThan(0);
+  });
+
+  it('should keep a zero-argument thunk working', async () => {
+    // **F-52, asserted as behavior because it cannot be asserted as a type.** A
+    // zero-parameter function is assignable to any signature, so a shipped
+    // `() => 200` keeps compiling, keeps being invoked once per landing, and
+    // keeps returning the right number — it simply ignores the argument. The
+    // migration is source-compatible, which is the honest claim.
+    let reads = 0;
+    const composed = compose(
+      landing({
+        duration: () => {
+          reads += 1;
+          return 20;
+        },
+      }),
+    );
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    expect(reads).toBe(1);
+  });
+
+  it('should classify an out-of-domain contextual result at settlement', async () => {
+    // The same domain as the fixed form, checked at the only moment the value
+    // exists. It throws from inside `start`, which the kernel classifies as a
+    // landing-create failure.
+    const composed = compose(landing({ duration: () => -1 }));
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    expect(composed.errors).toHaveLength(1);
+    expect(composed.errors[0]!.code).toBe('presentation');
+  });
+
+  it('should resolve the duration before the reduced-motion collapse', async () => {
+    // D4: the call timing is *once per landing, immediately before the runner
+    // builds its animation* and is not conditional on a media query. Resolving
+    // inside the collapse would make a consumer's settle-time side effect — and
+    // a thrown or invalid result — observable only for users who have **not**
+    // asked for reduced motion.
+    await withReducedMotion(async () => {
+      let reads = 0;
+      const composed = compose(
+        landing({
+          duration: () => {
+            reads += 1;
+            return 20;
+          },
+        }),
+      );
+
+      activate(composed);
+      await drag(55);
+      release(55);
+
+      expect(reads).toBe(1);
+    });
+  });
+});
+
 describe('landing', () => {
   it('should hold settlement open until the animation finishes', async () => {
     const composed = compose(landing({ duration: 50 }));
@@ -680,14 +793,17 @@ describe('landing', () => {
     expect(composed.items[0]!.style.transform).toBe('');
   });
 
-  it('should let a custom runner replace the default entirely', async () => {
+  it('should let a middle-tier runner replace the default entirely', async () => {
+    // **The capability moved tiers, it was not deleted** (D-63). `landing({ run })`
+    // is gone from the consumer surface — the library owns the animation there
+    // — and an installer contributing `startLanding` is what a spring or an
+    // rAF loop is written as now. The seam is unchanged, which is why this case
+    // reads the same as it did.
     let complete: (() => void) | null = null;
     const composed = compose(
-      landing({
-        run: (_context, done) => {
-          complete = done;
-          return { destroy: (): void => {} };
-        },
+      authoredLanding((_context, done) => {
+        complete = done;
+        return { destroy: (): void => {} };
       }),
     );
 
@@ -708,11 +824,9 @@ describe('landing', () => {
 
   it('should classify a runner that fails as a landing failure', async () => {
     const composed = compose(
-      landing({
-        run: (_context, _done, fail) => {
-          fail(new Error('spring exploded'));
-          return { destroy: (): void => {} };
-        },
+      authoredLanding((_context, _done, fail) => {
+        fail(new Error('spring exploded'));
+        return { destroy: (): void => {} };
       }),
     );
 
@@ -1011,17 +1125,15 @@ describe('landing', () => {
 
     const composed = composeWith({
       fragments: [
-        landing({
-          run: (): LandingHandle => {
-            void controller!.destroy();
-            destroyedFirst = true;
+        authoredLanding((): LandingHandle => {
+          void controller!.destroy();
+          destroyedFirst = true;
 
-            return {
-              destroy(): void {
-                calls.push('destroy');
-              },
-            };
-          },
+          return {
+            destroy(): void {
+              calls.push('destroy');
+            },
+          };
         }),
       ],
     });

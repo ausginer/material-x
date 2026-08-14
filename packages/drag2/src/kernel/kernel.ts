@@ -2100,7 +2100,10 @@ export function createKernel<Part extends object>(
     }
 
     if (current.phase === REPORTING) {
-      dispatchKernel(ERROR_REPORTED, checkpoint.operation);
+      // The **whole checkpoint**, not just its operation (D-66): the terminal
+      // this path now owes is skipped for exactly one stage, and the reader of
+      // that rule needs the stage to apply it.
+      dispatchKernel(ERROR_REPORTED, checkpoint);
       return;
     }
 
@@ -2110,9 +2113,52 @@ export function createKernel<Part extends object>(
     retireOperation(checkpoint.operation);
   };
 
-  const handleErrorReported = (operation: OperationIdentity): void => {
+  /**
+   * `onError` is done. **The operation still owes a terminal** (D-66), and this
+   * is where the failure path pays it.
+   *
+   * ~~The terminal callback is skipped after a consequential failure.~~ Its
+   * reasoning was that the committed frame still said `OUTCOME_ACCEPTED`, so
+   * publishing would announce a successful drop the checkpoint was about to
+   * report as failed. That reason **inverts**: when the failure arrives after
+   * the authored commit the drop *is* accepted, and announcing it is the one
+   * fact the consumer must have. `onEnd` reports what happened to the **data**;
+   * `onError` is the verdict on the operation.
+   *
+   * The behavior decides what to publish and whether to publish at all — the
+   * frame's own result, `canceled` where it holds none, and nothing for an
+   * operation whose `onStart` never ran (§No start, no terminal). The kernel
+   * only calls.
+   *
+   * **Presentation is released first**, so the callback sees the same world it
+   * sees on the success path: the join releases in its `finally` and then calls
+   * `finalized`, and a consumer must not have to know which route its drag took
+   * to know whether the placeholder is still in the list.
+   *
+   * **One stage is excluded, and it is the one that cannot be double-published.**
+   * `FAILURE_TERMINAL_CALLBACK` means `finalized` already ran and threw; calling
+   * it again would deliver a second `onEnd` for one operation and, since it
+   * would throw again, do so forever. The behavior's settlement `prepare` makes
+   * the same exclusion from the other side, where it declines to rewrite an
+   * outcome that has already been reported.
+   */
+  const handleErrorReported = (checkpoint: FailureCheckpoint): void => {
+    const { operation, stage } = checkpoint;
+
     if (current.phase !== REPORTING || current.operation !== operation) {
       return;
+    }
+
+    if (stage !== FAILURE_TERMINAL_CALLBACK && lifetimes !== null) {
+      guarded(lifetimes.presentation.dispose);
+
+      // A throw here reaches `failOperation`, which sees `REPORTING` and takes
+      // the non-consequential channel — so a terminal that fails on the failure
+      // path is reported without queueing a second checkpoint for an operation
+      // that is one statement from retirement.
+      driver.runLeaf(() => {
+        spec!.finalized(current);
+      }, FAILURE_TERMINAL_CALLBACK);
     }
 
     retireOperation(operation);
@@ -2175,7 +2221,7 @@ export function createKernel<Part extends object>(
         handleFailed(argument as FailureCheckpoint);
         break;
       case ERROR_REPORTED:
-        handleErrorReported(argument as OperationIdentity);
+        handleErrorReported(argument as FailureCheckpoint);
         break;
       case RETIRE:
         retireOperation(argument as OperationIdentity);

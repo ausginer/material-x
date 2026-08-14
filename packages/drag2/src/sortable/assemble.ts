@@ -181,8 +181,7 @@ export function assemble(
     // because their arguments are result objects that would otherwise be
     // constructed only to be discarded.
     onStart: config.onStart ?? NOOP_START,
-    onFinish: config.onFinish ?? null,
-    onCancel: config.onCancel ?? null,
+    onEnd: config.onEnd ?? null,
     onError: config.onError ?? null,
     // **Validation moved into the merge and got stronger** (D-56). It used to
     // live in `callbacks()`, where it fired only for a config supplied through

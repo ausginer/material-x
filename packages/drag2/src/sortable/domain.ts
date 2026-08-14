@@ -156,11 +156,14 @@ export type ReorderTransactionResult =
   | RejectedReorderResult
   | CanceledReorderResult;
 
-/** A no-op drop finishes; it is never a rejection and never a home recovery. */
-export type SortableFinishResult = AcceptedReorderResult | NoopReorderResult;
-export type SortableCancelResult =
-  | RejectedReorderResult
-  | CanceledReorderResult;
+/**
+ * ~~`SortableFinishResult`~~ and ~~`SortableCancelResult`~~ are **deleted**
+ * (D-62). They were `Accepted | Noop` and `Rejected | Canceled` — partitions of
+ * the union above that existed for one reason, that there were two callback
+ * signatures to type. With one `onEnd` there is one type, and the arm a
+ * consumer must handle is the discriminant rather than the callback it arrived
+ * through.
+ */
 
 /**
  * What `onError` receives alongside the error.

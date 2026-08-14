@@ -3,13 +3,14 @@
  *
  * Each is validated as early as its value exists, which for a fixed option is
  * **construction**, with the offending call still on the stack — the same rule
- * `copyUniqueItems` follows for a duplicate item. Two cases deliberately are
- * not: a `landing({ duration })` thunk is range-checked per landing (pinned
- * below), and `landing({ run })` suppresses the duration domain outright,
- * because a replacement runner leaves nothing for it to configure. The
- * types say `number`, but a JavaScript consumer is not bound by that, and the
- * silent failures are nasty: a `NaN` threshold activates on nothing and a `NaN`
- * duration produces an animation that never finishes.
+ * `copyUniqueItems` follows for a duplicate item. **One case deliberately is
+ * not**: a contextual `landing({ duration })` is range-checked per landing,
+ * because its result does not exist until then (D-67). ~~and `landing({ run })`
+ * suppresses the duration domain outright~~ — the second exception went with
+ * `run` (D-63), which is a rule losing a conditional rather than gaining one.
+ * The types say `number`, but a JavaScript consumer is not bound by that, and
+ * the silent failures are nasty: a `NaN` threshold activates on nothing and a
+ * `NaN` duration produces an animation that never finishes.
  *
  * `threshold` moved with D-56: it used to be validated by `callbacks()`, which
  * only saw a config routed through that factory. It is now validated by the
@@ -117,12 +118,13 @@ describe('landing duration', () => {
     expect(() => landing({ duration: () => -1 })).not.toThrow();
   });
 
-  it('should not validate the duration of a full replacement runner', () => {
-    // `run` replaces the default runner entirely, so the option it would have
-    // configured has no meaning left to check.
-    expect(() =>
-      landing({ duration: -1, run: () => ({ destroy: (): void => {} }) }),
-    ).not.toThrow();
+  it('should validate the duration unconditionally', () => {
+    // **The case that used to be the exception** (D-63). `landing({ run })`
+    // replaced the default runner entirely, so `duration` had nothing left to
+    // configure and was deliberately *not* checked when it was present.
+    // Removing `run` removes the conditional from the validation rule rather
+    // than adding one: there is one path, and it always checks.
+    expect(() => landing({ duration: -1 })).toThrow(TypeError);
   });
 });
 

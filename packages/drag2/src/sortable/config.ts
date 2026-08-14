@@ -12,8 +12,7 @@ import type { DraggableError } from '../kernel/errors.ts';
 import type {
   DragErrorContext,
   OnReorder,
-  SortableCancelResult,
-  SortableFinishResult,
+  ReorderTransactionResult,
 } from './domain.ts';
 import type { SortableInstaller } from './feature.ts';
 
@@ -37,8 +36,16 @@ export type OnDragError = (
   error: DraggableError,
   context: DragErrorContext,
 ) => void;
-export type OnFinish = (result: SortableFinishResult) => void;
-export type OnCancel = (result: SortableCancelResult) => void;
+/**
+ * **One terminal callback, four arms** (D-62). ~~`onFinish` and `onCancel`~~
+ * were two signatures over one union, and the partitions that typed them —
+ * `SortableFinishResult`, `SortableCancelResult` — existed for no other reason.
+ *
+ * The alias is what makes the exhaustiveness D-62 promises real: under method
+ * shorthand a handler narrowed to two of the four arms is accepted silently
+ * (F-51).
+ */
+export type OnEnd = (result: ReorderTransactionResult) => void;
 export type ResolveHandle = (item: HTMLElement) => HTMLElement | null;
 export type ResolveElement = (item: HTMLElement) => HTMLElement;
 export type ItemSource = () => readonly HTMLElement[];
@@ -56,8 +63,8 @@ export type SortableConfig = Readonly<{
 
   /* optional consumer functions */
   onStart?: OnStart;
-  onFinish?: OnFinish;
-  onCancel?: OnCancel;
+  /** Exactly once per started operation, whatever happened to it (D-62, D-66). */
+  onEnd?: OnEnd;
   onError?: OnDragError;
   handle?: ResolveHandle;
   /**
@@ -116,8 +123,7 @@ const LAST_WINS_KEYS = [
   'onReorder',
   'axis',
   'onStart',
-  'onFinish',
-  'onCancel',
+  'onEnd',
   'onError',
   'handle',
   'visual',

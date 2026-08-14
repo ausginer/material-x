@@ -23,9 +23,9 @@ import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
-  type SortableCancelResult,
+
   type SortableController,
-  type SortableFinishResult,
+  type ReorderTransactionResult,
   sortable,
 } from '../../src/sortable.ts';
 
@@ -37,8 +37,8 @@ type Composed = Readonly<{
   items: HTMLElement[];
   controller: SortableController;
   requests: ReorderRequest[];
-  finishes: SortableFinishResult[];
-  cancels: SortableCancelResult[];
+  finishes: ReorderTransactionResult[];
+  cancels: ReorderTransactionResult[];
   errors: unknown[];
   started: HTMLElement[];
   placeholder(): HTMLElement | null;
@@ -99,8 +99,12 @@ function compose(options: Options = {}): Composed {
   }
 
   const requests: ReorderRequest[] = [];
-  const finishes: SortableFinishResult[] = [];
-  const cancels: SortableCancelResult[] = [];
+  // **Two arrays for one callback** (D-62). The library no longer partitions
+  // the four arms, so the fixture does — which keeps every assertion in this
+  // suite reading the way it did and makes the split visible where it now
+  // lives, in consumer code.
+  const finishes: ReorderTransactionResult[] = [];
+  const cancels: ReorderTransactionResult[] = [];
   const errors: unknown[] = [];
   const started: HTMLElement[] = [];
 
@@ -121,12 +125,13 @@ function compose(options: Options = {}): Composed {
       started.push(item);
       options.onStart?.(composed);
     },
-    onFinish(result): void {
-      finishes.push(result);
-      options.onFinish?.(composed);
-    },
-    onCancel(result): void {
-      cancels.push(result);
+    onEnd(result): void {
+      if (result.type === 'accepted' || result.type === 'noop') {
+        finishes.push(result);
+        options.onFinish?.(composed);
+      } else {
+        cancels.push(result);
+      }
     },
     onError(error): void {
       errors.push(error);

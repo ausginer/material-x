@@ -348,11 +348,14 @@ function build(options: BuildOptions = {}): Fixture {
       onStart: (item) => {
         starts.push(item);
       },
-      onFinish: (result) => {
-        finishes.push(result);
-      },
-      onCancel: (result) => {
-        cancels.push(result);
+      onEnd: (result) => {
+        // D-62: the fixture partitions the four arms the library no longer
+        // partitions for it.
+        if (result.type === 'accepted' || result.type === 'noop') {
+          finishes.push(result);
+        } else {
+          cancels.push(result);
+        }
       },
       onError: (error) => {
         errors.push(error);

@@ -21,9 +21,8 @@ export type { SortableController } from './sortable/controller.ts';
  */
 export type {
   ItemSource,
-  OnCancel,
   OnDragError,
-  OnFinish,
+  OnEnd,
   OnStart,
   ResolveElement,
   ResolveHandle,
@@ -52,8 +51,6 @@ export type {
   ReorderProposal,
   ReorderRequest,
   ReorderTransactionResult,
-  SortableCancelResult,
-  SortableFinishResult,
 } from './sortable/domain.ts';
 export type {
   PlaceholderContext,

@@ -16,14 +16,12 @@ import type { DraggableError } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
-import type { ItemSource } from './config.ts';
+import type { ItemSource, OnEnd } from './config.ts';
 import type {
   CollectionSnapshot,
   DragErrorContext,
   Insertion,
   OnReorder,
-  SortableCancelResult,
-  SortableFinishResult,
 } from './domain.ts';
 import type { PlaceholderSlot } from './placement.ts';
 
@@ -225,8 +223,7 @@ export type SortableSlots = Readonly<{
    * These stay nullable rather than normalized: their arguments are result
    * objects that would otherwise be constructed only to be discarded.
    */
-  onFinish: ((result: SortableFinishResult) => void) | null;
-  onCancel: ((result: SortableCancelResult) => void) | null;
+  onEnd: OnEnd | null;
   onError: ((error: DraggableError, context: DragErrorContext) => void) | null;
 
   /**
@@ -252,15 +249,15 @@ export const DEFAULT_THRESHOLD = 8;
  *
  * Called at **construction** wherever the value exists by then, so the
  * offending call is still on the stack — the same rule `copyUniqueItems`
- * follows for a duplicate item. Two options do not reach it there: a
- * `landing({ duration })` **thunk** is range-checked per landing, because its
- * result does not exist until then, and `landing({ run })` suppresses the
- * duration domain entirely, because a replacement runner leaves nothing for it
- * to configure. A
- * `NaN` threshold silently activates on nothing and a `NaN` duration silently
- * produces an animation that never finishes; both are far cheaper to diagnose
- * here than three seams later. The type says `number`, but a JavaScript
- * consumer is not bound by that, so the `typeof` test earns its place.
+ * follows for a duplicate item. **One option does not reach it there**: a
+ * contextual `landing({ duration })` is range-checked per landing, because its
+ * result does not exist until then (D-67). ~~and `landing({ run })` suppresses
+ * the duration domain entirely~~ — that second exception went with `run`
+ * (D-63). A `NaN` threshold silently activates on nothing and a `NaN` duration
+ * silently produces an animation that never finishes; both are far cheaper to
+ * diagnose here than three seams later. The type says `number`, but a
+ * JavaScript consumer is not bound by that, so the `typeof` test earns its
+ * place.
  */
 export function requireFinite(
   value: number,

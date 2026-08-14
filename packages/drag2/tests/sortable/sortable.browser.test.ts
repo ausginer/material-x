@@ -29,8 +29,7 @@ import {
   RECOVERY_DESTINATION,
   ReorderResolution,
   type ReorderRequest,
-  type SortableCancelResult,
-  type SortableFinishResult,
+  type ReorderTransactionResult,
 } from '../../src/sortable/domain.ts';
 import { createSortableFramePart } from '../../src/sortable/frames.ts';
 import {
@@ -54,8 +53,8 @@ type Harness = Readonly<{
   controller: SortableController;
   /** Seams, hooks and callbacks, in order. */
   calls: string[];
-  finishes: SortableFinishResult[];
-  cancels: SortableCancelResult[];
+  finishes: ReorderTransactionResult[];
+  cancels: ReorderTransactionResult[];
   errors: Array<Readonly<{ code: DraggableErrorCode; error: unknown }>>;
   requests: ReorderRequest[];
   /** The item each `onStart` received. */
@@ -90,6 +89,12 @@ type Overrides = Partial<
   Readonly<{
     /** Runs inside `onStart`, so a test can cancel, destroy or update. */
     onStart?(harness: Harness): void;
+    /**
+     * Runs inside `onFinish`, for the one case that needs a **throwing**
+     * terminal callback: D-66's exclusion of `FAILURE_TERMINAL_CALLBACK` from
+     * the failure path's publish.
+     */
+    onFinish?(): void;
     itemCount?: number;
   }>;
 
@@ -136,8 +141,12 @@ function createHarness(overrides: Overrides = {}): Harness {
   }
 
   const calls: string[] = [];
-  const finishes: SortableFinishResult[] = [];
-  const cancels: SortableCancelResult[] = [];
+  // **One callback, two arrays** (D-62). The `calls` log keeps the old names
+  // because they are what every assertion in this suite reads, and because
+  // `onFinish`/`onCancel` remain the honest labels for *which arm* was
+  // published — they are simply no longer the names of two library callbacks.
+  const finishes: ReorderTransactionResult[] = [];
+  const cancels: ReorderTransactionResult[] = [];
   const errors: Array<Readonly<{ code: DraggableErrorCode; error: unknown }>> =
     [];
   const requests: ReorderRequest[] = [];
@@ -195,13 +204,15 @@ function createHarness(overrides: Overrides = {}): Harness {
     // candidates on the same element the placeholder is sized from.
     getBox: overrides.getBox ?? overrides.getVisual ?? null,
     startLanding: overrides.startLanding ?? null,
-    onFinish(result): void {
-      calls.push('onFinish');
-      finishes.push(result);
-    },
-    onCancel(result): void {
-      calls.push('onCancel');
-      cancels.push(result);
+    onEnd(result): void {
+      if (result.type === 'accepted' || result.type === 'noop') {
+        calls.push('onFinish');
+        finishes.push(result);
+        overrides.onFinish?.();
+      } else {
+        calls.push('onCancel');
+        cancels.push(result);
+      }
     },
     onError(error): void {
       calls.push('onError');
@@ -368,8 +379,7 @@ const EMPTY_SLOTS: SortableSlots = {
   getVisual: null,
   getBox: null,
   startLanding: null,
-  onFinish: (): void => {},
-  onCancel: (): void => {},
+  onEnd: (): void => {},
   onError: (): void => {},
   beforeMove: [],
   afterMove: [],
@@ -1248,6 +1258,119 @@ describe('release', () => {
   });
 });
 
+describe('the terminal boundary (D-66)', () => {
+  /**
+   * **These rows exist to stop the guarantee being widened by accident.**
+   *
+   * D-66 makes the terminal total over *started* operations and says nothing
+   * about operations that never started — the owner's guarantee is an
+   * implication, not a biconditional (Q-15). The boundary is the progress
+   * marker, and each case below is chosen so that a marker in the wrong place
+   * fails it.
+   */
+  it('should publish no terminal when activation.prepare throws', () => {
+    // `onStart` never ran, so the consumer has no record of this drag
+    // beginning. An end for a beginning it never heard is worse than silence.
+    const harness = createHarness({
+      createPlaceholder: (): never => {
+        throw new Error('prepare');
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.errors).toHaveLength(1);
+    expect(harness.finishes).toEqual([]);
+    expect(harness.cancels).toEqual([]);
+  });
+
+  it('should publish a terminal when onStart itself throws', () => {
+    // **The row that fails if the marker advances after the call.** The
+    // consumer has been told the drag began; it is owed an end. The pair is the
+    // assertion — either half alone passes under a wrong marker placement.
+    const harness = createHarness({
+      onStart(): void {
+        throw new Error('onStart');
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.errors).toHaveLength(1);
+    expect(harness.cancels).toHaveLength(1);
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'canceled',
+      stage: AT_PROPOSAL,
+    });
+  });
+
+  it('should carry AT_PROPOSAL for a failure before the round-trip opens', () => {
+    // The marker is at `STARTED`: the drag was announced, and the consumer's
+    // resolver has not been reached.
+    const harness = createHarness();
+
+    activate(harness);
+    Object.defineProperty(harness.items[0]!.style, 'transform', {
+      configurable: true,
+      get: (): string => '',
+      set(): never {
+        throw new Error('cssom');
+      },
+    });
+    move(60);
+
+    expect(harness.cancels[0]).toMatchObject({ stage: AT_PROPOSAL });
+  });
+
+  it('should carry AT_PROPOSAL for a release.effect throw', () => {
+    // **The regression test for the rejected `proposal !== null` derivation.**
+    // The proposal commits in `release.prepare`, one seam earlier, so deriving
+    // the stage from it would report `AT_CONSUMER` here — for a drop whose
+    // resolver was never invoked, because the staged command is executed only
+    // after this effect returns normally.
+    const harness = createHarness();
+
+    activate(harness);
+    harness.next(harness.gap(2));
+
+    // Poisoned *after* activation, so the failing write is `release.effect`'s
+    // own — the one that renders the release point before the round-trip opens.
+    Object.defineProperty(harness.items[0]!.style, 'transform', {
+      configurable: true,
+      get: (): string => '',
+      set(): never {
+        throw new Error('release effect');
+      },
+    });
+    release(60);
+
+    expect(harness.calls).not.toContain('onReorder');
+    expect(harness.cancels[0]).toMatchObject({ stage: AT_PROPOSAL });
+  });
+
+  it('should publish exactly one terminal when the terminal callback throws', () => {
+    // `FAILURE_TERMINAL_CALLBACK` is the one stage the failure path excludes,
+    // and it has to be: `finalized` already ran, so publishing again would
+    // deliver a second end for one operation — and, since it would throw again,
+    // do so forever.
+    let calls = 0;
+    const harness = createHarness({
+      onFinish(): void {
+        calls += 1;
+        throw new Error('onFinish');
+      },
+    });
+
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+
+    expect(calls).toBe(1);
+    expect(harness.errors).toHaveLength(1);
+  });
+});
+
 describe('settlement mapping', () => {
   it('should map an accepted resolution to a destination recovery', () => {
     const harness = createHarness();
@@ -1289,8 +1412,12 @@ describe('settlement mapping', () => {
     // Acceptance is never inferred — not from callback silence, not from a
     // truthy return.
     expect(harness.errors[0]!.code).toBe('consumer');
+    // **And the drop is still disposed of** (D-66). The resolver malfunctioned
+    // after the consumer's round-trip had begun, so the operation publishes
+    // `canceled` at `AT_CONSUMER` with the classifying error as its reason —
+    // both assertions read `toEqual([])` until D-66.
     expect(harness.finishes).toEqual([]);
-    expect(harness.cancels).toEqual([]);
+    expect(harness.cancels).toHaveLength(1);
   });
 
   it('should classify a rejected round-trip promise', async () => {
@@ -1304,13 +1431,23 @@ describe('settlement mapping', () => {
     release(60);
     await nextFrame();
 
-    // A resolver malfunction is never reported as `onCancel`. D-64: the
+    // **A resolver malfunction is never reported *as* a consumer verdict**, and
+    // that is what this pins — not the absence of a terminal. D-64: the
     // consumer sees the fault class, and the classifying error survives as
     // `cause` rather than being flattened away.
     expect(harness.errors[0]!.code).toBe('consumer');
     expect(harness.errors[0]!.error).toBeInstanceOf(DraggableError);
     expect((harness.errors[0]!.error as DraggableError).cause).toBe(error);
-    expect(harness.cancels).toEqual([]);
+
+    // The distinction survives D-66 because the two channels answer different
+    // questions: the drag ended `canceled` — at `AT_CONSUMER`, since the
+    // resolver *was* invoked — while the fault is a `consumer`-class error and
+    // not a rejection the consumer chose. Read as `toEqual([])` until D-66.
+    expect(harness.cancels).toHaveLength(1);
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'canceled',
+      stage: AT_CONSUMER,
+    });
   });
 
   it('should map a cancel at ACTIVE to the proposal stage', () => {
@@ -1344,17 +1481,14 @@ describe('settlement mapping', () => {
     expect(result.proposal).not.toBeNull();
   });
 
-  it('should publish no terminal for a consequential failure', () => {
-    // **Named for what it actually pins, after the D-60 audit.** It used to be
-    // called *should report a classified failure through `onError` only*, which
-    // states a rule the contract has retracted: `onError` is orthogonal to the
-    // terminal and one operation may produce both. What survives is the
-    // narrower fact this case exercises — a **consequential** failure, here a
-    // renderer write, settles the operation `OUTCOME_FAILED`, and a failed
-    // operation has no domain result to publish.
-    //
-    // D-66 changes even that, and deliberately not here: it is a later step,
-    // and folding it forward would make this test assert two decisions at once.
+  it('should publish both channels for a consequential failure', () => {
+    // **The third name this case has had, and the last.** It was *reports
+    // through `onError` only* until the D-60 audit, then *publishes no
+    // terminal*; D-66 retracts that too. A renderer write on the hot path
+    // settles the operation `OUTCOME_FAILED`, and a failed operation holds no
+    // domain result — so the fallback applies: the consumer heard this drag
+    // start and is owed an end, which is `canceled` at `AT_PROPOSAL` because
+    // the failure arrived before any round-trip.
     const harness = createHarness();
 
     activate(harness);
@@ -1370,7 +1504,14 @@ describe('settlement mapping', () => {
 
     expect(harness.errors[0]!.code).toBe('presentation');
     expect(harness.finishes).toEqual([]);
-    expect(harness.cancels).toEqual([]);
+    expect(harness.cancels).toHaveLength(1);
+
+    const result = harness.cancels[0] as { stage: number; reason: unknown };
+
+    // The classifying error travels as the cancellation's reason, which is what
+    // makes the fallback honest rather than a placeholder value.
+    expect(result.stage).toBe(AT_PROPOSAL);
+    expect(String(result.reason)).toContain('cssom');
   });
 });
 
@@ -1833,8 +1974,14 @@ describe('the collection', () => {
     harness.next(harness.gap(2));
     release(60);
 
-    expect(harness.finishes[0]!.proposal.snapshot.items).toHaveLength(3);
-    expect(harness.finishes[0]!.proposal.request.version).toBe(0);
+    // Narrowed on the discriminant rather than on which callback delivered it
+    // — which is D-62's point, and what the four-arm union makes the consumer's
+    // job (F-41).
+    const result = harness.finishes[0]!;
+
+    expect(result.type).toBe('accepted');
+    expect(result.proposal!.snapshot.items).toHaveLength(3);
+    expect(result.proposal!.request.version).toBe(0);
   });
 });
 
@@ -2016,7 +2163,11 @@ describe('collection identity', () => {
 
     return nextFrame().then(() => {
       expect(harness.snapshot().version).toBe(0);
-      expect(harness.calls).not.toContain('onCancel');
+      // The duplicate threw inside `action.prepare`, which classifies — and a
+      // classified failure of a live operation now ends it (D-66). What this
+      // case pins is that the *refused update* published nothing, which the
+      // version assertion above carries on its own.
+      expect(harness.calls).toContain('onCancel');
     });
   });
 

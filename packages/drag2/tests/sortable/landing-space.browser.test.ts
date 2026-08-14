@@ -13,11 +13,10 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { Point } from '../../src/drag.ts';
-import {
-  landing,
-  type LandingContext,
-  type LandingHandle,
-} from '../../src/sortable/landing.ts';
+import type {
+  LandingContext,
+  LandingHandle,
+} from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
@@ -113,16 +112,20 @@ function build(): Fixture {
         errors.push({ code: error.code });
       },
     },
-    landing({
+    {
       // A runner that records and never completes, so the gate stays open and
-      // the numbers can be read while presentation is still owned.
-      run(context): LandingHandle {
-        contexts.push(context);
-        return {
-          destroy: (): void => {},
-        };
-      },
-    }),
+      // the numbers can be read while presentation is still owned. **Authored
+      // at the middle tier** (D-63): the consumer surface no longer takes one,
+      // and this suite is about the landing *space*, which is unchanged.
+      landing: () => ({
+        startLanding(context): LandingHandle {
+          contexts.push(context);
+          return {
+            destroy: (): void => {},
+          };
+        },
+      }),
+    },
   );
 
   root.setPointerCapture = (): void => {};

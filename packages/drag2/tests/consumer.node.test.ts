@@ -111,18 +111,20 @@ import {
   type ReorderProposal,
   type ReorderRequest,
   type ReorderTransactionResult,
-  type SortableCancelResult,
   type SortableController,
-  type SortableFinishResult,
 } from '@ydinjs/drag2/sortable.js';
 import { y } from '@ydinjs/drag2/sortable/y.js';
 import {
   landing,
-  type LandingContext,
-  type LandingHandle,
   type LandingOptions,
-  type LandingStart,
 } from '@ydinjs/drag2/sortable/landing.js';
+// **The three seam types re-homed** (D-63, D-61): they stopped being consumer
+// vocabulary when \`landing({ run })\` went, and stayed authoring vocabulary.
+import type {
+  LandingContext,
+  LandingHandle,
+  LandingStart,
+} from '@ydinjs/drag2/sortable/feature.js';
 import {
   layoutAnimation,
   type LayoutAnimationOptions,
@@ -146,9 +148,12 @@ const list: SortableController = sortable(
       void request.item;
       return ReorderResolution.accept();
     },
-    onFinish: (result: SortableFinishResult): void => {
-      // F-41: the public results narrow on their own discriminant. Nothing a
-      // consumer has to import is needed to tell one from another.
+    // **One terminal, four arms** (D-62). \`onFinish\`/\`onCancel\` and the two
+    // partition types that existed to type them — \`SortableFinishResult\`,
+    // \`SortableCancelResult\` — are gone, so this is also the case that proves
+    // a consumer can tell the arms apart with nothing but the discriminant
+    // (F-41).
+    onEnd: (result: ReorderTransactionResult): void => {
       if (result.type === 'accepted') {
         const proposal: ReorderProposal = result.proposal;
         // The proposal exposes the snapshot it was built against, so the type
@@ -159,8 +164,7 @@ const list: SortableController = sortable(
         void snapshot.items.length;
         void snapshot.version;
       }
-    },
-    onCancel: (result: SortableCancelResult): void => {
+
       if (result.type === 'canceled') {
         const stage: CancelStage = result.stage;
 
@@ -197,7 +201,9 @@ list.invalidate();
 list.cancel('reason');
 list.destroy();
 
-// A custom runner is authorable from the public surface alone.
+// A custom runner is authorable from the **middle tier** alone (D-63): the
+// consumer surface no longer takes one, and the seam a third-party installer
+// fills is reachable without importing anything else.
 const run: LandingStart = (
   context: LandingContext,
   done: () => void,

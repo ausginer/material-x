@@ -35,14 +35,14 @@ import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { DraggableError, Point } from '../../src/drag.ts';
-import { landing, type LandingStart } from '../../src/sortable/landing.ts';
+import type { LandingStart } from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
-  type SortableCancelResult,
+
   type SortableController,
-  type SortableFinishResult,
+  type ReorderTransactionResult,
   sortable,
 } from '../../src/sortable.ts';
 import { createGateWitness, type GateWitness } from '../support/gates.ts';
@@ -87,8 +87,8 @@ type Fixture = Readonly<{
   list: HTMLElement;
   controller: SortableController;
   requests: ReorderRequest[];
-  finishes: SortableFinishResult[];
-  cancels: SortableCancelResult[];
+  finishes: ReorderTransactionResult[];
+  cancels: ReorderTransactionResult[];
   errors: DraggableError[];
   /** One entry per React commit, each the DOM order at that commit. */
   commits: string[];
@@ -277,8 +277,8 @@ function mount(options: Options = {}): Fixture {
   document.head.append(style);
 
   const requests: ReorderRequest[] = [];
-  const finishes: SortableFinishResult[] = [];
-  const cancels: SortableCancelResult[] = [];
+  const finishes: ReorderTransactionResult[] = [];
+  const cancels: ReorderTransactionResult[] = [];
   const errors: DraggableError[] = [];
 
   const run: LandingStart = (context, done): { destroy(): void } => {
@@ -312,7 +312,8 @@ function mount(options: Options = {}): Fixture {
     list,
     { items: () => ids.map((id) => elements.get(id)!) },
     y(),
-    landing({ run }),
+    // D-63: authored at the middle tier, which is where a runner lives now.
+    { landing: () => ({ startLanding: run }) },
     {
       onReorder: (
         request,
@@ -354,13 +355,17 @@ function mount(options: Options = {}): Fixture {
           commitWaiters.push(resolve);
         }).then(() => ReorderResolution.accept());
       },
-      onFinish(result): void {
+      onEnd(result): void {
         witness.terminal();
-        finishes.push(result);
-      },
-      onCancel(result): void {
-        witness.terminal();
-        cancels.push(result);
+
+        // D-62: one terminal, and the witness counts it once whichever arm it
+        // carries — which is what makes the F-6 gate check independent of the
+        // outcome.
+        if (result.type === 'accepted' || result.type === 'noop') {
+          finishes.push(result);
+        } else {
+          cancels.push(result);
+        }
       },
       onError(error): void {
         // D-49: a reported fault is what exempts the operation from the landing

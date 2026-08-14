@@ -121,11 +121,11 @@ describe('assemble', () => {
 
   it('should leave the terminal callbacks null when uninstalled', () => {
     // Deliberately *not* normalized: their arguments are result objects that
-    // would otherwise be constructed only to be discarded.
+    // would otherwise be constructed only to be discarded. Two slots until
+    // D-62 collapsed `onFinish`/`onCancel` into one `onEnd`.
     const slots = assemble(required(), createFixture().context);
 
-    expect(slots.onFinish).toBeNull();
-    expect(slots.onCancel).toBeNull();
+    expect(slots.onEnd).toBeNull();
     expect(slots.onError).toBeNull();
   });
 
@@ -256,9 +256,8 @@ describe('assemble', () => {
       'invalidateInsertion',
       'items',
       'measureInsertion',
-      'onCancel',
+      'onEnd',
       'onError',
-      'onFinish',
       'onReorder',
       'onStart',
       'resolveInsertion',
