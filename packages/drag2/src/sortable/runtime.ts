@@ -117,6 +117,21 @@ export type SortableRuntime = {
   readonly frame: FrameTask<number>;
   /** The published collection. Replaced wholesale, never mutated. */
   snapshot: CollectionSnapshot;
+  /**
+   * **The last array identity `items()` returned** (D-44), and the whole of the
+   * structural-change test.
+   *
+   * This is the consumer's *own* array, held by reference and never read from —
+   * only compared. `snapshot.items` cannot stand in for it: that is the
+   * library's shallow copy, so its identity moves on every structural update
+   * and never matches what the consumer hands back.
+   *
+   * Comparing identities is what keeps the O(n) copy on structural change
+   * instead of on every invalidation, and a resize, a zoom or a scroll produces
+   * the latter. React, Vue and Svelte all return a new array when order
+   * changes, so the signal costs the consumer nothing to produce.
+   */
+  source: readonly HTMLElement[];
   /** Null when idle. */
   view: PresentationView | null;
   placeholder: HTMLElement | null;
@@ -156,8 +171,9 @@ export function createSortableRuntime(
     // Copied *and* validated, so a caller mutating its own array cannot change
     // a snapshot the behavior has already published, and the identity
     // precondition holds from construction rather than only from the first
-    // `updateItems`.
+    // the first `invalidate()`.
     snapshot: { items: copyUniqueItems(items), version: 0 },
+    source: items,
     view: null,
     placeholder: null,
     lift: null,

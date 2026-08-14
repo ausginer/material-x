@@ -91,7 +91,8 @@ function SortableDemo({
 }: SortableDemoProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const [order, setOrder] = useState<readonly string[]>(labels);
-  // The live element list, kept for `updateItems` after each commit.
+  // The live element list. D-44: the config's `items()` reads it and each
+  // commit signals `controller.invalidate()`.
   const elements = useRef(new Map<string, HTMLElement>());
   const orderRef = useRef(order);
   orderRef.current = order;

@@ -185,11 +185,11 @@ function mount(options: Options = {}): Fixture {
   const committed = (): void => {
     commits.push(orderOf());
 
-    // Only the rows still mounted. A row the author unmounted is gone from the
-    // collection too — that is what makes the Q-12 case reachable at all.
-    const live = state.rows
-      .map(({ id }) => elements.get(id))
-      .filter((element): element is HTMLElement => element !== undefined);
+    // The live collection is no longer assembled here: D-44 makes it a pull
+    // source, so `items()` maps `ids` through `elements` at the moment the
+    // library asks. A row the author unmounted is gone from `elements` and
+    // therefore from the collection — which is what makes the Q-12 case
+    // reachable at all, unchanged.
 
     if (options.recycle === true) {
       // Done here rather than in the ref cleanup: React detaches refs *before*
@@ -204,7 +204,10 @@ function mount(options: Options = {}): Fixture {
 
     // Undefined on the mount commit, which is the commit that produces the
     // elements the controller is about to be armed against.
-    controller?.updateItems(live);
+    // D-44: the mount commit publishes nothing; it signals. `items()` maps
+    // `ids` through `elements`, so the library pulls the live collection
+    // itself and sees a new array identity.
+    controller?.invalidate();
 
     // **No acknowledgement** (D-41). The layout effect that used to answer the
     // readiness gate has nothing to answer: under the serial authored commit a

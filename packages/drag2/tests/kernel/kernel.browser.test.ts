@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/kernel.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -38,6 +37,7 @@ import {
   type SettlementInput,
   type SettlementScope,
 } from '../../src/kernel/spec.ts';
+import { draggable } from '../../src/kernel.ts';
 
 type ExamplePart = {
   item: HTMLElement | null;
@@ -318,24 +318,37 @@ const press = (target: HTMLElement, x = 10, y = 10): void => {
   );
 };
 
-const pointerEvent = (type: string, x: number, y: number): void => {
-  document.dispatchEvent(
-    new PointerEvent(type, {
-      bubbles: true,
-      pointerId: POINTER_ID,
-      isPrimary: true,
-      clientX: x,
-      clientY: y,
-    }),
-  );
+const pointerEvent = (type: string, x: number, y: number): PointerEvent => {
+  const event = new PointerEvent(type, {
+    bubbles: true,
+    // Real `pointermove` is cancelable, and since D-54 it is the event the
+    // kernel prevents.
+    cancelable: true,
+    pointerId: POINTER_ID,
+    isPrimary: true,
+    clientX: x,
+    clientY: y,
+  });
+
+  document.dispatchEvent(event);
+  return event;
 };
 
-const move = (x: number, y: number): void => {
+const move = (x: number, y: number): PointerEvent =>
   pointerEvent('pointermove', x, y);
-};
 
-const release = (x: number, y: number): void => {
+const release = (x: number, y: number): PointerEvent =>
   pointerEvent('pointerup', x, y);
+
+/**
+ * The trailing activation (D-54), dispatched on `document.body` so it passes
+ * through the capture-phase suppressor exactly as a real one would.
+ */
+const click = (): MouseEvent => {
+  const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+
+  document.body.dispatchEvent(event);
+  return event;
 };
 
 /** Press, then cross the activation threshold. */
@@ -569,11 +582,12 @@ describe('discrete admission', () => {
     expect(harness.calls).toEqual([]);
   });
 
-  it('should prevent the default for a press only when it is admitted', () => {
-    // The rule is the kernel's in **both** modes (C-03). The reference behavior
-    // used to call `preventDefault()` itself on the feasible path; moving it one
-    // frame outward makes one party responsible, and makes I-32 enforceable
-    // rather than aspirational.
+  it('should leave an admitted press unprevented', () => {
+    // The rule is the kernel's in **both** modes (C-03) — the ownership half of
+    // that sentence is what makes I-32 enforceable rather than aspirational.
+    // What D-54 moves is the *timing* on the pointer path: `pointerdown` cannot
+    // know whether the press will become a drag, and probe E measured six of
+    // ten cases where it did not and the interaction was consumed anyway.
     const declining = createHarness({ admit: () => null });
     const refused = new PointerEvent('pointerdown', {
       bubbles: true,
@@ -600,7 +614,98 @@ describe('discrete admission', () => {
 
     harness.root.dispatchEvent(admitted);
 
-    expect(admitted.defaultPrevented).toBe(true);
+    expect(admitted.defaultPrevented).toBe(false);
+  });
+
+  it('should prevent the move that crosses the activation threshold', () => {
+    const harness = createHarness();
+
+    press(harness.item);
+
+    const crossing = move(40, 10);
+
+    expect(crossing.defaultPrevented).toBe(true);
+    expect(harness.calls).toContain('activation.prepare');
+  });
+
+  it('should not prevent a move for an operation that never activates', () => {
+    // A press that stays put keeps every native meaning it had, which is the
+    // whole of what the relocation buys. The command path is unaffected and
+    // still prevents inside its own listener — asserted by *should mint a
+    // pointerless operation and queue ACTIVATE* above, because a `keydown`
+    // default cannot be prevented after its listener has returned.
+    const harness = createHarness();
+
+    press(harness.item);
+
+    expect(move(12, 10).defaultPrevented).toBe(false);
+    expect(harness.calls).not.toContain('activation.prepare');
+  });
+
+  it('should suppress exactly one trailing click after an activated drag', () => {
+    // **The third consequence of moving the call** (D-54). `click` is generated
+    // from an un-prevented `pointerup`, which is why link activation survived
+    // the old policy — and why a drop that lands on an `<a href>` would now
+    // navigate. One click, capture-phase, one-shot.
+    const harness = createHarness();
+
+    activate(harness);
+    release(40, 10);
+
+    expect(click().defaultPrevented).toBe(true);
+    expect(click().defaultPrevented).toBe(false);
+  });
+
+  it('should not arm the suppressor for a press that never activated', () => {
+    // The case probe E R-2 shows the library was already getting right by
+    // accident: a press that never became a drag must keep its click.
+    const harness = createHarness();
+
+    press(harness.item);
+    release(12, 10);
+
+    expect(click().defaultPrevented).toBe(false);
+  });
+
+  it('should suppress the trailing click after a cancelled drag too', () => {
+    // The row a reader will want to argue with. The browser synthesizes the
+    // `click` regardless, and a cancellation is a library verdict, not evidence
+    // the user meant to click — suppressing only on the happy path would make
+    // an Escape-cancelled drag over a link navigate.
+    const harness = createHarness();
+
+    activate(harness);
+    harness.controller.cancel('test');
+    release(40, 10);
+
+    expect(click().defaultPrevented).toBe(true);
+  });
+
+  it('should disarm the suppressor on the next pointerdown', () => {
+    // A one-shot that never fires must not survive to eat an unrelated click:
+    // a press that begins a *new* interaction is as good a signal that the old
+    // one is over as the click itself.
+    const harness = createHarness();
+
+    activate(harness);
+    release(40, 10);
+    press(harness.item);
+
+    expect(click().defaultPrevented).toBe(false);
+  });
+
+  it('should disarm the suppressor at teardown', () => {
+    // Ingress-scoped, not operation-scoped: the click arrives *after* the
+    // operation ends, so an operation lifetime would dispose the listener
+    // before the event it exists to catch. What must still hold is that it dies
+    // with the controller.
+    const harness = createHarness();
+
+    activate(harness);
+    release(40, 10);
+    void harness.controller.destroy();
+
+    expect(click().defaultPrevented).toBe(false);
   });
 
   it('should report a throwing command.admit with no operation', () => {

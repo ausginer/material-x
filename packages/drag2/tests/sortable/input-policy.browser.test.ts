@@ -1,10 +1,19 @@
 /**
- * **Probe E — input policy. THROWAWAY.**
+ * **The input policy, against real input** (D-46, D-50, D-54).
  *
- * Not a regression suite. This file exists to *observe* what the current
- * `src/` does to interactive descendants of a draggable row; its output is
- * `.plan/probes/api-3-input-policy.md`. Delete it once that write-up is
- * accepted — nothing here is a contract.
+ * This file began as probe E — a throwaway that *observed* what `src/` did to
+ * interactive descendants of a draggable row, and whose output is
+ * `.plan/probes/api-3-input-policy.md`. Phase R promoted it: its ten cases are
+ * each a case the shipped package passes silently and wrongly, so every
+ * snapshot below now records the **repaired** behavior and fails if it
+ * regresses. The observation-era snapshots are in the write-up.
+ *
+ * The two decisions divide the cases and neither covers them alone. **D-54**
+ * moves *when* the pointer path prevents — to the activation threshold
+ * crossing — which fixes every case where the press never becomes a drag.
+ * **D-46** narrows *what* may be admitted, which fixes the cases that do cross
+ * the threshold: a drag-select inside a text input, a slider thumb, arrow keys
+ * in a descendant, an IME composition.
  *
  * Real Chromium input only: presses, moves and releases go through CDP
  * `Input.dispatchMouseEvent` and keystrokes through Playwright's keyboard, so
@@ -28,12 +37,12 @@
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import { cdp, userEvent } from 'vitest/browser';
-import { y } from '../src/sortable/y.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type SortableConfig,
   sortable,
-} from '../src/sortable.ts';
+} from '../../src/sortable.ts';
 
 const ROW_WIDTH = 340;
 
@@ -218,7 +227,15 @@ const CONTROLS: readonly ControlSpec[] = [
   },
 ];
 
-type BuildOptions = Readonly<{ useHandle?: boolean }>;
+type BuildOptions = Readonly<{
+  useHandle?: boolean;
+  /**
+   * Which descendant the handle resolves to, `.grip` by default. D-50's case
+   * needs a handle that is *itself* one of the declined members, which is the
+   * whole point: the list is a default, not a prohibition.
+   */
+  handleSelector?: string;
+}>;
 
 function build(options: BuildOptions = {}): Fixture {
   const root = document.createElement('div');
@@ -344,7 +361,9 @@ function build(options: BuildOptions = {}): Fixture {
   ];
 
   if (options.useHandle) {
-    fragments.push({ handle: (item) => item.querySelector('.grip') });
+    const selector = options.handleSelector ?? '.grip';
+
+    fragments.push({ handle: (item) => item.querySelector(selector) });
   }
 
   const controller = sortable(root, { items: () => rows }, ...fragments);
@@ -386,7 +405,7 @@ const saw = (log: readonly EventLogEntry[], type: string): boolean =>
 // 0 — harness calibration
 // ---------------------------------------------------------------------------
 
-describe('probe E / calibration', () => {
+describe('input policy / calibration', () => {
   it('should land CDP input on the intended element', async () => {
     const fixture = build();
     const target = fixture.control('button');
@@ -444,8 +463,8 @@ describe('probe E / calibration', () => {
 // 1..6 — nested controls
 // ---------------------------------------------------------------------------
 
-describe('probe E / nested controls', () => {
-  it('should observe a sub-threshold tap on a nested <button>', async () => {
+describe('input policy / nested controls', () => {
+  it('should leave a sub-threshold tap on a nested <button> alone', async () => {
     const fixture = build();
     const button = fixture.control('button');
 
@@ -462,21 +481,23 @@ describe('probe E / nested controls', () => {
       dragStarted: fixture.starts.length,
     }).toMatchInlineSnapshot(`
       {
-        "activeIsButton": false,
+        "activeIsButton": true,
         "clicks": [
           "button/button[control]:live",
         ],
         "dragStarted": 0,
-        "focusinTargets": [],
-        "mousedownFired": false,
+        "focusinTargets": [
+          "button/button[control]",
+        ],
+        "mousedownFired": true,
         "pointerdownPrevented": [
-          true,
+          false,
         ],
       }
     `);
   });
 
-  it('should observe a sub-threshold tap on a nested <a href>', async () => {
+  it('should leave a sub-threshold tap on a nested <a href> alone', async () => {
     const fixture = build();
     const link = fixture.control('link');
 
@@ -492,20 +513,20 @@ describe('probe E / nested controls', () => {
       dragStarted: fixture.starts.length,
     }).toMatchInlineSnapshot(`
       {
-        "activeIsLink": false,
+        "activeIsLink": true,
         "clicks": [
           "link/a[control]:live",
         ],
         "dragStarted": 0,
-        "mousedownFired": false,
+        "mousedownFired": true,
         "pointerdownPrevented": [
-          true,
+          false,
         ],
       }
     `);
   });
 
-  it('should observe focus and caret placement in a nested text input', async () => {
+  it('should place focus and a caret in a nested text input', async () => {
     const fixture = build();
     const input = fixture.control('text') as HTMLInputElement;
 
@@ -519,18 +540,18 @@ describe('probe E / nested controls', () => {
       dragStarted: fixture.starts.length,
     }).toMatchInlineSnapshot(`
       {
-        "caret": 0,
+        "caret": 16,
         "dragStarted": 0,
-        "focused": false,
-        "mousedownFired": false,
+        "focused": true,
+        "mousedownFired": true,
         "pointerdownPrevented": [
-          true,
+          false,
         ],
       }
     `);
   });
 
-  it('should observe drag-selecting text inside a nested input', async () => {
+  it('should decline a drag-select inside a nested text input', async () => {
     const fixture = build();
     const input = fixture.control('text') as HTMLInputElement;
     const rect = input.getBoundingClientRect();
@@ -549,8 +570,8 @@ describe('probe E / nested controls', () => {
       order: fixture.order(),
     }).toMatchInlineSnapshot(`
       {
-        "dragStarted": 1,
-        "focused": false,
+        "dragStarted": 0,
+        "focused": true,
         "order": [
           "button",
           "link",
@@ -562,13 +583,13 @@ describe('probe E / nested controls', () => {
           "editable",
         ],
         "reorderRequests": 0,
-        "selected": "",
+        "selected": "alpha bravo charlie",
         "selectstartFired": false,
       }
     `);
   });
 
-  it('should observe a tap on a nested <input type="range">', async () => {
+  it('should let a tap operate a nested <input type="range">', async () => {
     const fixture = build();
     const range = fixture.control('range') as HTMLInputElement;
 
@@ -583,17 +604,17 @@ describe('probe E / nested controls', () => {
     }).toMatchInlineSnapshot(`
       {
         "dragStarted": 0,
-        "mousedownFired": false,
-        "moved": false,
+        "mousedownFired": true,
+        "moved": true,
         "pointerdownPrevented": [
-          true,
+          false,
         ],
-        "value": "0",
+        "value": "78",
       }
     `);
   });
 
-  it('should observe dragging the thumb of a nested <input type="range">', async () => {
+  it('should decline a drag on the thumb of a nested <input type="range">', async () => {
     const fixture = build();
     const range = fixture.control('range') as HTMLInputElement;
 
@@ -606,15 +627,15 @@ describe('probe E / nested controls', () => {
       reorderRequests: fixture.requests.length,
     }).toMatchInlineSnapshot(`
       {
-        "dragStarted": 1,
-        "moved": false,
+        "dragStarted": 0,
+        "moved": true,
         "reorderRequests": 0,
-        "value": "0",
+        "value": "52",
       }
     `);
   });
 
-  it('should observe a tap on a nested <select size="3"> option', async () => {
+  it('should let a tap select an option of a nested <select size="3">', async () => {
     const fixture = build();
     const listbox = fixture.control('listbox') as HTMLSelectElement;
     const option = listbox.options[1]!;
@@ -634,20 +655,20 @@ describe('probe E / nested controls', () => {
       dragStarted: fixture.starts.length,
     }).toMatchInlineSnapshot(`
       {
-        "after": "",
+        "after": "b",
         "before": "",
         "dragStarted": 0,
-        "focused": false,
-        "mousedownFired": false,
+        "focused": true,
+        "mousedownFired": true,
         "pointerdownPrevented": [
-          true,
+          false,
         ],
-        "selectionChanged": false,
+        "selectionChanged": true,
       }
     `);
   });
 
-  it('should observe keyboard operation of a nested popup <select>', async () => {
+  it('should leave the arrow keys to a nested popup <select>', async () => {
     const fixture = build();
     const combobox = fixture.control('combobox') as HTMLSelectElement;
 
@@ -664,11 +685,11 @@ describe('probe E / nested controls', () => {
       order: fixture.order(),
     }).toMatchInlineSnapshot(`
       {
-        "dragStarted": 1,
+        "dragStarted": 0,
         "keydownPrevented": [
-          true,
+          false,
         ],
-        "optionAdvanced": false,
+        "optionAdvanced": true,
         "order": [
           "button",
           "link",
@@ -679,13 +700,13 @@ describe('probe E / nested controls', () => {
           "prose",
           "editable",
         ],
-        "reorderRequests": 1,
-        "value": "a",
+        "reorderRequests": 0,
+        "value": "b",
       }
     `);
   });
 
-  it('should observe selecting prose inside a row', async () => {
+  it('should drag the row when an unmodified gesture crosses prose', async () => {
     const fixture = build();
     const prose = fixture.control('prose');
     const rect = prose.getBoundingClientRect();
@@ -706,12 +727,12 @@ describe('probe E / nested controls', () => {
         "dragStarted": 1,
         "reorderRequests": 0,
         "selection": "",
-        "selectstartFired": false,
+        "selectstartFired": true,
       }
     `);
   });
 
-  it('should observe focus, caret and typing in a nested contenteditable', async () => {
+  it('should let a nested contenteditable take focus, a caret and text', async () => {
     const fixture = build();
     const editable = fixture.control('editable');
 
@@ -733,15 +754,15 @@ describe('probe E / nested controls', () => {
       dragStarted: fixture.starts.length,
     }).toMatchInlineSnapshot(`
       {
-        "beforeinputFired": false,
-        "caretAfterPointer": 0,
+        "beforeinputFired": true,
+        "caretAfterPointer": 10,
         "dragStarted": 0,
-        "focusedByPointer": false,
+        "focusedByPointer": true,
         "pointerdownPrevented": [
-          true,
+          false,
         ],
-        "text": "quick brown fox",
-        "typed": false,
+        "text": "quick broXYn fox",
+        "typed": true,
       }
     `);
   });
@@ -751,8 +772,8 @@ describe('probe E / nested controls', () => {
 // 7 — arrow keys inside an interactive descendant
 // ---------------------------------------------------------------------------
 
-describe('probe E / arrow keys inside a descendant', () => {
-  it('should observe ArrowRight in a nested text input', async () => {
+describe('input policy / arrow keys inside a descendant', () => {
+  it('should leave ArrowRight to a nested text input', async () => {
     const fixture = build();
     const input = fixture.control('text') as HTMLInputElement;
 
@@ -776,25 +797,20 @@ describe('probe E / arrow keys inside a descendant', () => {
       finishes: fixture.finishes.length,
     }).toMatchInlineSnapshot(`
       {
-        "caret": 5,
-        "caretMoved": false,
-        "dragStarted": 1,
-        "finishes": 1,
+        "caret": 6,
+        "caretMoved": true,
+        "dragStarted": 0,
+        "finishes": 0,
         "keydownPrevented": [
-          true,
+          false,
         ],
-        "reorderRequests": 1,
-        "requested": [
-          {
-            "from": 2,
-            "to": 3,
-          },
-        ],
+        "reorderRequests": 0,
+        "requested": [],
       }
     `);
   });
 
-  it('should observe ArrowUp at the collection edge vs away from it', async () => {
+  it('should ask what the event landed on before asking whether the move is feasible', async () => {
     // The edge case is the one place the command declines, so the *same*
     // keystroke has two meanings depending on which row holds focus.
     const fixture = build();
@@ -839,11 +855,11 @@ describe('probe E / arrow keys inside a descendant', () => {
           "reorderRequests": 0,
         },
         "awayFromEdge": {
-          "dragStarted": 1,
+          "dragStarted": 0,
           "keydownPrevented": [
-            true,
+            false,
           ],
-          "reorderRequests": 1,
+          "reorderRequests": 0,
         },
         "order": [
           "button",
@@ -859,7 +875,7 @@ describe('probe E / arrow keys inside a descendant', () => {
     `);
   });
 
-  it('should observe arrow keys in a nested contenteditable', async () => {
+  it('should leave the arrow keys to a nested contenteditable', async () => {
     // The editable is the **last** row, so ArrowRight maps to the infeasible
     // direction and ArrowLeft to the feasible one. Both are recorded, because
     // the difference between them is entirely positional.
@@ -906,13 +922,13 @@ describe('probe E / arrow keys inside a descendant', () => {
     }).toMatchInlineSnapshot(`
       {
         "awayFromTheEdge": {
-          "caretMoved": false,
-          "caretOffset": 5,
-          "dragStarted": 1,
+          "caretMoved": true,
+          "caretOffset": 4,
+          "dragStarted": 0,
           "keydownPrevented": [
-            true,
+            false,
           ],
-          "reorderRequests": 1,
+          "reorderRequests": 0,
         },
         "towardTheEdge": {
           "caretMoved": true,
@@ -927,7 +943,7 @@ describe('probe E / arrow keys inside a descendant', () => {
     `);
   });
 
-  it('should observe Shift+ArrowRight (extend selection) in a nested input', async () => {
+  it('should leave Shift+ArrowRight to a nested text input', async () => {
     const fixture = build();
     const input = fixture.control('text') as HTMLInputElement;
 
@@ -948,13 +964,13 @@ describe('probe E / arrow keys inside a descendant', () => {
       reorderRequests: fixture.requests.length,
     }).toMatchInlineSnapshot(`
       {
-        "dragStarted": 1,
+        "dragStarted": 0,
         "keydownPrevented": [
           false,
-          true,
+          false,
         ],
-        "reorderRequests": 1,
-        "selected": "",
+        "reorderRequests": 0,
+        "selected": " ",
       }
     `);
   });
@@ -964,8 +980,8 @@ describe('probe E / arrow keys inside a descendant', () => {
 // 8 — modifier keys at admission
 // ---------------------------------------------------------------------------
 
-describe('probe E / modifiers', () => {
-  it('should observe whether a modified press admits and activates', async () => {
+describe('input policy / modifiers', () => {
+  it('should decline an Alt-held press and admit under every other modifier', async () => {
     const outcomes: Record<string, unknown> = {};
 
     for (const [name, mask] of [
@@ -980,7 +996,12 @@ describe('probe E / modifiers', () => {
       await dragFrom(centre(fixture.grip('prose')), 0, -60, mask);
 
       outcomes[name] = {
-        admitted: prevented(fixture.log, 'pointerdown'),
+        // **Renamed from `admitted` when the probe became a suite.** Under the
+        // old policy `pointerdown` was prevented exactly when admission
+        // succeeded, so the flag doubled as the admission signal; since D-54 it
+        // is false for every press, and `dragStarted` is the only honest
+        // reading of whether the gesture became a drag.
+        pressPrevented: prevented(fixture.log, 'pointerdown'),
         dragStarted: fixture.starts.length,
         reorderRequests: fixture.requests.length,
       };
@@ -993,45 +1014,45 @@ describe('probe E / modifiers', () => {
     expect(outcomes).toMatchInlineSnapshot(`
       {
         "alt": {
-          "admitted": [
-            true,
+          "dragStarted": 0,
+          "pressPrevented": [
+            false,
           ],
-          "dragStarted": 1,
-          "reorderRequests": 1,
+          "reorderRequests": 0,
         },
         "ctrl": {
-          "admitted": [
-            true,
-          ],
           "dragStarted": 1,
+          "pressPrevented": [
+            false,
+          ],
           "reorderRequests": 1,
         },
         "meta": {
-          "admitted": [
-            true,
-          ],
           "dragStarted": 1,
+          "pressPrevented": [
+            false,
+          ],
           "reorderRequests": 1,
         },
         "none": {
-          "admitted": [
-            true,
-          ],
           "dragStarted": 1,
+          "pressPrevented": [
+            false,
+          ],
           "reorderRequests": 1,
         },
         "shift": {
-          "admitted": [
-            true,
-          ],
           "dragStarted": 1,
+          "pressPrevented": [
+            false,
+          ],
           "reorderRequests": 1,
         },
       }
     `);
   });
 
-  it('should observe a modified sub-threshold tap on a nested link', async () => {
+  it('should leave a modified sub-threshold tap on a nested link alone', async () => {
     const outcomes: Record<string, unknown> = {};
 
     for (const [name, mask] of [
@@ -1062,7 +1083,7 @@ describe('probe E / modifiers', () => {
           ],
           "dragStarted": 0,
           "pointerdownPrevented": [
-            true,
+            false,
           ],
         },
         "meta": {
@@ -1071,7 +1092,7 @@ describe('probe E / modifiers', () => {
           ],
           "dragStarted": 0,
           "pointerdownPrevented": [
-            true,
+            false,
           ],
         },
         "shift": {
@@ -1080,7 +1101,7 @@ describe('probe E / modifiers', () => {
           ],
           "dragStarted": 0,
           "pointerdownPrevented": [
-            true,
+            false,
           ],
         },
       }
@@ -1092,8 +1113,8 @@ describe('probe E / modifiers', () => {
 // 10 — { handle:  } as the mitigation
 // ---------------------------------------------------------------------------
 
-describe('probe E / { handle:  } scoping', () => {
-  it('should observe the pointer cases again with { handle:  } composed', async () => {
+describe('input policy / { handle:  } scoping', () => {
+  it('should admit only from the grip for the pointer cases with { handle:  } composed', async () => {
     const fixture = build({ useHandle: true });
     const button = fixture.control('button');
 
@@ -1223,7 +1244,7 @@ describe('probe E / { handle:  } scoping', () => {
     `);
   });
 
-  it('should observe the keyboard cases again with { handle:  } composed', async () => {
+  it('should admit only from the grip for the keyboard cases with { handle:  } composed', async () => {
     const fixture = build({ useHandle: true });
     const input = fixture.control('text') as HTMLInputElement;
 
@@ -1295,7 +1316,7 @@ describe('probe E / { handle:  } scoping', () => {
     `);
   });
 
-  it('should observe that the grip still drags with { handle:  } composed', async () => {
+  it('should still drag from the grip with { handle:  } composed', async () => {
     const fixture = build({ useHandle: true });
 
     await dragFrom(centre(fixture.grip('prose')), 0, -60);
@@ -1318,8 +1339,8 @@ describe('probe E / { handle:  } scoping', () => {
 // 9 — IME composition (attempted last: it may not be synthesizable)
 // ---------------------------------------------------------------------------
 
-describe('probe E / IME composition', () => {
-  it('should observe whether a composition can be synthesized at all', async () => {
+describe('input policy / IME composition', () => {
+  it('should never admit while an IME composition is in progress', async () => {
     const fixture = build();
     const input = fixture.control('text') as HTMLInputElement;
     const composition: string[] = [];
@@ -1377,14 +1398,104 @@ describe('probe E / IME composition', () => {
           "compositionstart",
           "compositionupdate",
         ],
-        "dragStarted": 1,
+        "dragStarted": 0,
         "established": true,
         "imeError": null,
         "keydownIsComposing": [
           true,
         ],
-        "reorderRequests": 1,
+        "reorderRequests": 0,
         "value": "にほ",
+      }
+    `);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 10 — the cases the probe had no reason to run
+// ---------------------------------------------------------------------------
+
+describe('input policy / explicit opt-out', () => {
+  it('should decline a press inside a [data-drag-ignore] region', async () => {
+    // The one row of the decline table that is not a platform element. It
+    // exists because the list is a default and a consumer needs a way to name a
+    // region the list does not describe — a chart, a canvas, a custom element
+    // that owns its own gestures.
+    const fixture = build();
+    const prose = fixture.control('prose');
+
+    prose.setAttribute('data-drag-ignore', '');
+
+    await dragFrom(centre(prose), 0, -60);
+
+    const marked = fixture.starts.length;
+
+    // The control: the *same* gesture on the *same* element with the attribute
+    // gone drags. A `<span>` is in no other row of the table, so the attribute
+    // is the only thing that differs between the two halves.
+    prose.removeAttribute('data-drag-ignore');
+
+    await dragFrom(centre(prose), 0, -60);
+
+    expect({
+      marked,
+      unmarked: fixture.starts.length - marked,
+    }).toMatchInlineSnapshot(`
+      {
+        "marked": 0,
+        "unmarked": 1,
+      }
+    `);
+  });
+});
+
+describe('input policy / D-50, explicit scoping wins', () => {
+  it('should admit from a handle that is itself an interactive element', async () => {
+    // **The override.** A consumer who resolves the handle *to* the button has
+    // scoped dragging to that interaction on purpose, and the default decline
+    // must not re-veto it. The test walks the path between the event target and
+    // the resolved subject, and a handle shortens that path to nothing.
+    const fixture = build({ useHandle: true, handleSelector: '[data-c]' });
+
+    await dragFrom(centre(fixture.control('button')), 0, 100);
+
+    expect({
+      dragStarted: fixture.starts.length,
+      reorderRequests: fixture.requests.length,
+      errors: fixture.errors.length,
+    }).toMatchInlineSnapshot(`
+      {
+        "dragStarted": 1,
+        "errors": 0,
+        "reorderRequests": 1,
+      }
+    `);
+  });
+});
+
+describe('input policy / the trailing click', () => {
+  it('should suppress the drop click and keep the next one', async () => {
+    // Real input, because the quantity that matters is what reaches a
+    // document-level handler: the suppressor runs in the **capture** phase, so
+    // a suppressed click is not a logged-and-prevented click — it is one the
+    // fixture's own bubble-phase listener never sees at all.
+    const fixture = build();
+
+    await dragFrom(centre(fixture.grip('button')), 0, 100);
+
+    const afterTheDrop = [...fixture.clicks];
+
+    await tapAt(centre(fixture.control('button')));
+
+    expect({
+      afterTheDrop,
+      afterTheNextTap: fixture.clicks,
+    }).toMatchInlineSnapshot(`
+      {
+        "afterTheDrop": [],
+        "afterTheNextTap": [
+          "button/button[control]:live",
+        ],
       }
     `);
   });

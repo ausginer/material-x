@@ -254,6 +254,7 @@ describe('assemble', () => {
       'getHandle',
       'getVisual',
       'invalidateInsertion',
+      'items',
       'measureInsertion',
       'onCancel',
       'onError',

@@ -16,6 +16,7 @@ import type { DraggableError } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
+import type { ItemSource } from './config.ts';
 import type {
   CollectionSnapshot,
   DragErrorContext,
@@ -188,7 +189,18 @@ export type SortableSlots = Readonly<{
     | ((frame: InsertionFrameView, runtime: InsertionRuntimeView) => void)
     | null;
 
-  /* required, filled by callbacks() */
+  /* required */
+  /**
+   * **The collection as a pull source** (D-44). Called by
+   * `action.prepare(COLLECTION)` on every `controller.invalidate()`, and once
+   * at construction for the initial snapshot — never memoized, because the
+   * whole point is that the library re-reads it.
+   *
+   * ~~`updateItems(payload)`~~ is gone with the second channel it belonged to;
+   * ledger L-1's "the thunk is called exactly once, at construction" is
+   * retracted with it.
+   */
+  items: ItemSource;
   onReorder: OnReorder;
   /**
    * Normalized to a shared no-op, so the call site needs no null check. It takes

@@ -50,6 +50,8 @@ type Fixture = Readonly<{
   contexts: LandingContext[];
   /** Every item the installed `handle` resolver was asked about, in order. */
   handleCalls: HTMLElement[];
+  /** Swap the collection identity and signal it (D-44). */
+  replace(next: readonly HTMLElement[]): void;
   placeholder(): HTMLElement | null;
   /** DOM order, with the placeholder as `_`. */
   order(): string;
@@ -168,8 +170,10 @@ function build(options: Options = {}): Fixture {
     );
   }
 
+  // D-44's pull source; `replace()` swaps the identity and signals.
+  let current: readonly HTMLElement[] = items;
   const controller = sortable(root, y(), ...fragments, {
-    items: () => items,
+    items: () => current,
     onReorder(request) {
       requests.push(request);
 
@@ -206,6 +210,11 @@ function build(options: Options = {}): Fixture {
     started,
     contexts,
     handleCalls,
+    /** New array identity, then the signal — D-44's structural branch. */
+    replace: (next: readonly HTMLElement[]): void => {
+      current = next;
+      controller.invalidate();
+    },
     placeholder: () => root.querySelector('[data-drag-placeholder]'),
     order: () =>
       [...root.children]
@@ -363,17 +372,21 @@ describe('command ingress', () => {
     expect(back.requests[0]).toMatchObject({ from: 2, to: 1 });
   });
 
-  it('should prevent the default only when the press is admitted', () => {
+  it('should leave a press untouched whether or not it admits', () => {
     const fixture = build({ useHandle: true });
 
-    // The kernel owns the call in both modes (C-03), and makes it exactly when
-    // an admission member returns non-null. A press outside the handle declines,
-    // so the event is untouched.
+    // **The two ingresses part company here** (D-54). The kernel still owns the
+    // call in both modes (C-03), but a press is no longer where the pointer
+    // path makes it: `pointerdown` is before the threshold, so a press on the
+    // grip that never travels must keep its focus and its click exactly as a
+    // press outside the grip does. The keyboard half is asserted next door,
+    // where the call *stays* in the listener because a `keydown` default cannot
+    // be prevented after it returns.
     const y = grab(fixture, 0) + 10;
 
     expect(press(fixture.items[0]!, y)).toBe(true);
     expect(press(fixture.items[0]!.firstElementChild as HTMLElement, y)).toBe(
-      false,
+      true,
     );
   });
 
@@ -434,15 +447,15 @@ describe('command ingress', () => {
     expect(commanded.handleCalls).toEqual(pressed.handleCalls);
   });
 
-  it('should queue an admission-resolver updateItems() exactly once per keydown', () => {
+  it('should queue an admission-resolver invalidate() exactly once per keydown', () => {
     // The sharp end of D1. An admission resolver is explicitly allowed to queue
-    // `updateItems()`, so resolving twice queued that side effect twice and the
+    // `invalidate()`, so resolving twice queued that side effect twice and the
     // operation reconciled through two snapshots for one native command — two
     // versions consumed and two collection actions drained for one arrow key.
     const versions: number[] = [];
     const fixture = build({
       onResolveHandle(f): void {
-        f.controller.updateItems([...f.items]);
+        f.replace([...f.items]);
       },
       onReorder(request): ReorderResolution {
         versions.push(request.version);
@@ -671,7 +684,7 @@ describe('a command against a live operation', () => {
 });
 
 describe('re-entry from inside command.admit', () => {
-  it('should enqueue an updateItems() rather than drain it', () => {
+  it('should enqueue an invalidate() rather than drain it', () => {
     // I-1: the ingress boundary enqueues without draining, and drains once
     // admission has committed. The replacement therefore lands as a queued
     // action against a committed operation — where `action.prepare(COLLECTION)`
@@ -684,7 +697,7 @@ describe('re-entry from inside command.admit', () => {
           dispatched = true;
           // Reversed, so the commanded item is now last and its downward gap
           // cannot survive: the operation is cancelled rather than rebased.
-          self.controller.updateItems([...self.items].reverse());
+          self.replace([...self.items].reverse());
         }
       },
     });

@@ -717,7 +717,7 @@ function createSortableController(
   _runtime: SortableRuntime,
 ): SortableController {
   return {
-    updateItems(): void {},
+    invalidate(): void {},
 
     cancel: host.cancel,
     destroy: host.destroy,

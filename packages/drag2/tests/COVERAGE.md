@@ -61,7 +61,7 @@ Implemented in Phase 16. The consumer-facing rows are `tests/sortable/keyboard.b
 | **and survives release** instead of being re-resolved spatially | `tests/sortable/keyboard.browser.test.ts` — _should survive release instead of being re-resolved spatially_ | C4-01 |
 | `release.effect` moves the placeholder but performs **no lift write**, so the landing origin is `(0, 0)` | `tests/sortable/keyboard.browser.test.ts` — _should build the landing origin from a visual that never moved_ | D-35, C5-03 |
 | a pointerless `release.prepare` reaching a `null` insertion returns a `SeamRejection` and does **not** fall back to home | `tests/sortable/sortable.browser.test.ts` — _should reject rather than fall back to home_ (driven directly; see below) | D-32 |
-| a command gap invalidated by an `updateItems()` queued from inside the listener is rebased or cancels — **no command-specific revalidation** | `tests/sortable/keyboard.browser.test.ts` — _should enqueue an updateItems() rather than drain it_ | I-1, D-32 |
+| a command gap invalidated by an `invalidate()` queued from inside the listener is rebased or cancels — **no command-specific revalidation** | `tests/sortable/keyboard.browser.test.ts` — _should enqueue an invalidate() rather than drain it_ | I-1, D-32 |
 | command admission is refused whenever an operation is already live, at `PENDING`, `ACTIVE` and `SETTLING` | `tests/sortable/keyboard.browser.test.ts` — the _a command against a live operation_ group | C4-07 |
 | a `pointerdown` from inside `command.admit`, and a `keydown` from inside `admit`, are both refused by the shared latch | `tests/sortable/keyboard.browser.test.ts` — _should refuse a press dispatched from inside the command listener_, _…from inside the press listener_ | D-32 |
 | a throwing `command.admit` reaches `reportFailure(FAILURE_ADMISSION)` with no operation and leaves the controller usable | `tests/kernel/kernel.browser.test.ts` — _should report a throwing command.admit with no operation_ | Q-1 |
@@ -71,7 +71,7 @@ Implemented in Phase 16. The consumer-facing rows are `tests/sortable/keyboard.b
 | `ArrowLeft` ≡ `ArrowUp` and `ArrowRight` ≡ `ArrowDown` — keyboard is not axis-specific | `tests/sortable/keyboard.browser.test.ts` — _should treat ArrowLeft as ArrowUp and ArrowRight as ArrowDown_ | L-4 |
 | `handle()` gates the keyboard path too | `tests/sortable/keyboard.browser.test.ts` — _should gate the keyboard path through handle()_ | L-4 |
 | the keyboard path resolves the item — and therefore the consumer's `handle()` — **exactly once** per keydown, admitted or declined | `tests/sortable/keyboard.browser.test.ts` — _should resolve the handle exactly once per admitted keydown_, _…for a declined keydown_, _…the same number of times as a press does_ | D1 |
-| an admission resolver that queues `updateItems()` queues it **once** per keydown | `tests/sortable/keyboard.browser.test.ts` — _should queue an admission-resolver updateItems() exactly once per keydown_ | D1, D-25 |
+| an admission resolver that queues `invalidate()` queues it **once** per keydown | `tests/sortable/keyboard.browser.test.ts` — _should queue an admission-resolver invalidate() exactly once per keydown_ | D1, D-25 |
 
 ### One row is driven at the seam, and why
 
@@ -150,9 +150,9 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | dragged item disappears | `tests/sortable/sortable.browser.test.ts` — _should cancel with item-removed when the dragged item vanishes_ | D-25, F-28 |
 | neighbour identity changes | `tests/sortable/sortable.browser.test.ts` — _should cancel when an internal gap loses its adjacency_ | F-31 |
 | update during release | `tests/sortable/sortable.browser.test.ts` — _should not rewrite the frozen snapshot after release_ | I-12 |
-| update during settlement | `tests/sortable/react.browser.test.ts` — the fixture dispatches `updateItems` from every layout effect, including the commit that resolves readiness | I-12, D-25 |
-| `updateItems()` after `destroy()` is a no-op for a **valid** replacement | `tests/sortable/sortable.browser.test.ts` — _should stay inert for a valid replacement_ | D3 |
-| `updateItems()` after `destroy()` is a no-op for an **invalid** one, and does not throw | `tests/sortable/sortable.browser.test.ts` — _should not throw for an invalid replacement_ | D3 |
+| update during settlement | `tests/sortable/react.browser.test.ts` — the fixture signals `invalidate()` from every layout effect, including the commit that resolves readiness | I-12, D-25 |
+| `invalidate()` after `destroy()` is a no-op for a **valid** replacement | `tests/sortable/sortable.browser.test.ts` — _should stay inert for a valid replacement_ | D3 |
+| `invalidate()` after `destroy()` is a no-op for an **invalid** one, and does not throw | `tests/sortable/sortable.browser.test.ts` — _should not throw for an invalid replacement_ | D3 |
 | a post-`destroy()` replacement queued from a callback is not classified as an activation failure | `tests/sortable/sortable.browser.test.ts` — _should not classify a post-destroy replacement as an activation failure_ | D3, I-6 |
 
 ## Styling and animation
@@ -222,7 +222,7 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | an invalidating replacement publishes **and then** cancels | `tests/sortable/composition.browser.test.ts` — _should cancel when the replacement invalidates the gap_ | F-28 |
 | a replacement at `IDLE` publishes but leaves no item elements in either frame | `tests/sortable/sortable.browser.test.ts` — _should publish an idle replacement without binding it to a frame_ | I-20 |
 | a replacement at `RELEASING`/`SETTLING` does not rewrite the frozen snapshot | `tests/sortable/sortable.browser.test.ts` — _should refuse to build a proposal across versions_ | I-12 |
-| `onStart` calls `updateItems()` → applied at `ACTIVATING` | `tests/sortable/sortable.browser.test.ts` — _should apply an update from inside onStart at ACTIVATING_ | F-32 |
+| `onStart` calls `invalidate()` → applied at `ACTIVATING` | `tests/sortable/sortable.browser.test.ts` — _should apply an update from inside onStart at ACTIVATING_ | F-32 |
 
 ## Failure continuation — new
 
@@ -283,6 +283,33 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | `resetFramePart(draft)` throws → ingress is still aborted | `tests/kernel/kernel.browser.test.ts` — _should release ingress after a reset throws_ | F-36 |
 | a reset throw during a failed `arm()` unwind does not replace the arm error | `tests/kernel/kernel.browser.test.ts` — _should scrub both frames when the shape assertion throws_ | F-36 |
 | the reset error is reported, never substituted for the destroy error | `tests/kernel/kernel.browser.test.ts` — _should report a reset failure rather than swallow it_ | F-36 |
+
+---
+
+## Input policy — new (D-46, D-50, D-54)
+
+The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **is probe E promoted**: the same ten cases, the same real Chromium input, with every snapshot re-recorded against the repaired behavior. The rows below name the case that would fail first; the kernel-level mechanics — where the prevention lands and what the click suppressor's lifetime is — are pinned separately, because they are the kernel's and not the sortable's.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a press that never activates keeps focus, caret and click | `tests/sortable/input-policy.browser.test.ts` — _should place focus and a caret in a nested text input_ | D-54 |
+| an admitted press is not prevented | `tests/kernel/kernel.browser.test.ts` — _should leave an admitted press unprevented_ | D-54, C-03 |
+| the crossing move is prevented | `tests/kernel/kernel.browser.test.ts` — _should prevent the move that crosses the activation threshold_ | D-54 |
+| admission declines on interactive and editable descendants | `tests/sortable/input-policy.browser.test.ts` — _should decline a drag-select inside a nested text input_ | D-46, I-32 |
+| a slider thumb is not a drag handle | `tests/sortable/input-policy.browser.test.ts` — _should decline a drag on the thumb of a nested `<input type="range">`_ | D-46 |
+| arrow keys in a text input do not reorder | `tests/sortable/input-policy.browser.test.ts` — _should leave ArrowRight to a nested text input_ | D-46 |
+| target first, feasibility second | `tests/sortable/input-policy.browser.test.ts` — _should ask what the event landed on before asking whether the move is feasible_ | D-46 |
+| `isComposing` never admits | `tests/sortable/input-policy.browser.test.ts` — _should never admit while an IME composition is in progress_ | D-46 |
+| the explicit opt-out attribute | `tests/sortable/input-policy.browser.test.ts` — _should decline a press inside a `[data-drag-ignore]` region_ | D-46 |
+| plain-text selection is requested, not inferred | `tests/sortable/input-policy.browser.test.ts` — _should decline an Alt-held press and admit under every other modifier_ | D-46 |
+| explicit scoping wins over the decline | `tests/sortable/input-policy.browser.test.ts` — _should admit from a handle that is itself an interactive element_ | D-50 |
+| `handle()` still narrows both ingresses | `tests/sortable/input-policy.browser.test.ts` — _should admit only from the grip for the pointer cases with `{ handle: … }` composed_ | D-50 |
+| one trailing `click` is suppressed after activation | `tests/kernel/kernel.browser.test.ts` — _should suppress exactly one trailing click after an activated drag_ | D-54 |
+| a press that never activated keeps its click | `tests/kernel/kernel.browser.test.ts` — _should not arm the suppressor for a press that never activated_ | D-54 |
+| a cancelled drag still suppresses | `tests/kernel/kernel.browser.test.ts` — _should suppress the trailing click after a cancelled drag too_ | D-54 |
+| the suppressor is ingress-scoped, not operation-scoped | `tests/kernel/kernel.browser.test.ts` — _should disarm the suppressor at teardown_; _…on the next pointerdown_ | D-54 |
+
+**Two rows are owed rather than closed.** Probe E is Chromium and mouse only, so touch long-press and tap-highlight behavior under the relocated `preventDefault()` is an **owed measurement** (02 §Input policy), not a passing row. And the focusable-grip obligation a `handle` carries is a documented consumer obligation with no library-side assertion available — a fixture can only observe that an unfocusable grip receives no keydown, which pins the platform rather than the library.
 
 ---
 
@@ -350,7 +377,7 @@ Three things the fixtures made concrete that the decision stated abstractly:
 2. **The bracket guard needs an axis feature with no eager `measure`** to be observable at all. With one installed — and both first-party axes install one — `measureInSeam`'s own `!rt.closed` covers the same continuation, so the two guards are redundant and neither can be seen alone. A lazy axis rule is explicitly supported by the contract, and composing one is what isolates the outer guard.
 3. **One specified guard is genuinely unfalsifiable** and is recorded below rather than removed.
 
-**Non-regression, unchanged and still passing:** D2's call-exactness rows (_should resolve each candidate visual once per rebuild_, and the warm-cache silence beside it) and D3's `updateItems()`-after-destroy rows. The latch moved from the controller's closure to `SortableRuntime.closed`; its behavior did not.
+**Non-regression, unchanged and still passing:** D2's call-exactness rows (_should resolve each candidate visual once per rebuild_, and the warm-cache silence beside it) and D3's collection-channel-after-destroy rows. The latch moved from the controller's closure to `SortableRuntime.closed`; its behavior did not.
 
 ---
 

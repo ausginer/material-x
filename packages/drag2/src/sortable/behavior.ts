@@ -40,7 +40,7 @@ function install(
 
   return {
     spec: createSortableSpec(rt),
-    controller: createSortableController(host, rt),
+    controller: createSortableController(host),
   };
 }
 
@@ -78,8 +78,13 @@ export function createComposedSortableBehavior(
   return (host) =>
     install(
       host,
-      // D-44: `items` is a pull source, read once here for the initial
-      // snapshot. Validated by `assemble` before this runs.
+      // **D-44: the first pull.** Every later one goes through
+      // `action.prepare(COLLECTION)`; this is the initial snapshot and the
+      // initial structural baseline, and it is the only `items()` call that
+      // happens outside a transaction. Validated as a function by `assemble`,
+      // which runs on the next line — hence the guard, which is what keeps a
+      // non-function config producing the assembler's diagnostic rather than a
+      // `TypeError` from this call site.
       typeof config.items === 'function' ? config.items() : [],
       // `report`, not `fail`: a feature closure created here cannot know which
       // operation is live, so classifying a failure from one would let a late

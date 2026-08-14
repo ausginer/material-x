@@ -42,6 +42,8 @@ type Composed = Readonly<{
   errors: unknown[];
   started: HTMLElement[];
   placeholder(): HTMLElement | null;
+  /** Swap the collection identity and signal it (D-44). */
+  replace(next: readonly HTMLElement[]): void;
   /** DOM order, with the placeholder as `_` and the lifted item in place. */
   order(): string;
 }>;
@@ -104,7 +106,11 @@ function compose(options: Options = {}): Composed {
 
   let composed!: Composed;
 
-  const controller = sortable(root, { items: () => items }, y(), {
+  // **The pull source, and the array identity is the signal** (D-44). `current`
+  // starts as `items` and is swapped wholesale by `replace()`; returning the
+  // same array from a plain `invalidate()` is the geometry-only branch.
+  let current: readonly HTMLElement[] = items;
+  const controller = sortable(root, { items: () => current }, y(), {
     onReorder:
       options.onReorder ??
       ((request) => {
@@ -145,6 +151,15 @@ function compose(options: Options = {}): Composed {
     errors,
     started,
     placeholder: () => root.querySelector('[data-drag-placeholder]'),
+    /**
+     * A structural update: new array identity, then the signal. This is what
+     * `updateItems(next)` used to be, split into the two halves D-44 separates
+     * — the consumer owns the collection, the library is only told to re-read.
+     */
+    replace: (next: readonly HTMLElement[]): void => {
+      current = next;
+      controller.invalidate();
+    },
     order: () =>
       [...root.children]
         .map((child) => {
@@ -411,7 +426,7 @@ describe('the composed reorder round trip', () => {
 
     extra.style.height = `${ITEM_HEIGHT}px`;
     composed.root.append(extra);
-    composed.controller.updateItems([...composed.items, extra]);
+    composed.replace([...composed.items, extra]);
     release(55);
 
     expect(composed.requests[0]).toMatchObject({ from: 0, to: 1, version: 1 });
@@ -423,7 +438,7 @@ describe('the composed reorder round trip', () => {
     activate(composed);
     await drag(55);
     // The gap is between items 1 and 2; removing item 2 destroys it.
-    composed.controller.updateItems([composed.items[0]!, composed.items[1]!]);
+    composed.replace([composed.items[0]!, composed.items[1]!]);
 
     expect(composed.cancels[0]).toMatchObject({
       type: 'canceled',
@@ -436,7 +451,7 @@ describe('the composed reorder round trip', () => {
 
     activate(composed);
     await drag(55);
-    composed.controller.updateItems([composed.items[1]!, composed.items[2]!]);
+    composed.replace([composed.items[1]!, composed.items[2]!]);
 
     expect(composed.cancels[0]).toMatchObject({
       reason: 'sortable:item-removed',
@@ -450,7 +465,7 @@ describe('the composed reorder round trip', () => {
     const composed = compose({
       onStart: (self) => {
         self.root.append(extra);
-        self.controller.updateItems([...self.items, extra]);
+        self.replace([...self.items, extra]);
       },
     });
 
@@ -555,7 +570,7 @@ describe('the composed terminal protocol', () => {
     // effect*, so it is queued behind `START_COMMITTED` rather than ahead of it.
     const composed = compose({
       onStart: (self) => {
-        self.controller.updateItems([self.items[1]!, self.items[2]!]);
+        self.replace([self.items[1]!, self.items[2]!]);
       },
     });
 
@@ -653,7 +668,7 @@ describe('the composed terminal protocol', () => {
     let self!: Composed;
     const composed = compose({
       onStart: () => {
-        self.controller.updateItems([self.items[0]!, self.items[2]!]);
+        self.replace([self.items[0]!, self.items[2]!]);
 
         throw new Error('after queueing');
       },

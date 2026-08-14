@@ -191,7 +191,9 @@ const list: SortableController = sortable(
   layoutAnimation({ duration: 90 }),
 );
 
-list.updateItems(items);
+// **D-44**: payload-free. The collection is a pull source, so this says
+// \`re-read what you already have\` rather than handing over a new array.
+list.invalidate();
 list.cancel('reason');
 list.destroy();
 

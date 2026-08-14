@@ -172,6 +172,8 @@ export function assemble(
     // reader that the eager read is optional.
     measureInsertion: insertion.measure ?? null,
 
+    // Validated as a function above, before any installer ran.
+    items: config.items,
     onReorder: config.onReorder,
     // Two normalization rules, because "optional callback" is not one thing.
     // `onStart` becomes a shared module-level no-op, so its call site needs no

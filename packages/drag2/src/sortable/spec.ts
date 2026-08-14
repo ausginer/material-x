@@ -16,6 +16,11 @@ import {
   type FailureStage,
 } from '../kernel/failures.ts';
 import type { Draft, Frame } from '../kernel/frames.ts';
+import {
+  COMMAND_OWNERS,
+  pathOwnsInteraction,
+  POINTER_OWNERS,
+} from '../kernel/input-policy.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE, IDLE, RELEASING } from '../kernel/phases.ts';
 import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
@@ -37,6 +42,7 @@ import type { Point } from '../kernel/types.ts';
 import {
   buildReorderProposal,
   CHANGE_CANCEL,
+  copyUniqueItems,
   homeInsertion,
   reconcileCollection,
 } from './collection.ts';
@@ -78,7 +84,18 @@ import type { DisplacementView } from './slots.ts';
 
 /** What `action.prepare(COLLECTION)` stages. It never discards (D-25). */
 type PreparedCollection = Readonly<{
-  snapshot: CollectionSnapshot;
+  /**
+   * `null` on the **geometry-only** branch (D-44): `items()` returned the same
+   * array identity, so there is no structural change, nothing to publish and no
+   * O(n) copy to pay. The effect invalidates geometry and ends.
+   */
+  snapshot: CollectionSnapshot | null;
+  /**
+   * The consumer's own array, carried through so the effect can advance the
+   * structural baseline. `snapshot.items` is the library's copy and can never
+   * match what `items()` returns next.
+   */
+  source: readonly HTMLElement[];
   /** Non-null when the gap could not survive the replacement. */
   cancelReason: unknown;
 }>;
@@ -117,6 +134,19 @@ export function createSortableSpec(
    * logical close and none of them may answer a liveness question (I-37).
    */
   const live = (): boolean => !host.closed;
+  /**
+   * **Minted here and monotonic per controller** (D-44 moved it off the
+   * controller with the payload), and deliberately **not** derived from
+   * `rt.snapshot.version`. Two structural invalidations applied inside one
+   * drain would both read the same *published* version and stamp two distinct
+   * collections identically, which destroys version's only job: being the
+   * identity of a snapshot. Seeded from the initial snapshot so the sequence
+   * stays continuous with it.
+   *
+   * It advances on the structural branch only — a geometry-only invalidation
+   * produces no collection, so it must not consume an identity.
+   */
+  let { version } = rt.snapshot;
 
   /**
    * The admitted item, from the event's **composed path** rather than
@@ -129,13 +159,18 @@ export function createSortableSpec(
   const resolveItem = (
     event: Event,
     snapshot: CollectionSnapshot,
+    owners: string,
   ): HTMLElement | null => {
     const path = event.composedPath();
     let item: HTMLElement | null = null;
+    // **The index, not just the element** (D-46). The decline test runs over
+    // the hops between the event target and the resolved subject, so the walk
+    // that finds the item has to report where it stopped.
+    let subject = 0;
 
-    for (const node of path) {
-      if (snapshot.items.includes(node as HTMLElement)) {
-        item = node as HTMLElement;
+    for (; subject < path.length; subject += 1) {
+      if (snapshot.items.includes(path[subject] as HTMLElement)) {
+        item = path[subject] as HTMLElement;
         break;
       }
     }
@@ -163,12 +198,30 @@ export function createSortableSpec(
       // longer exists.
       //
       // A handle *narrows* admission; it never replaces the item.
-      if (host.closed || handle === null || !path.includes(handle)) {
+      if (host.closed || handle === null) {
+        return null;
+      }
+
+      // `indexOf` where this used to read `includes`: the same containment
+      // test, and the position is what D-50 needs. **The resolved subject
+      // governs** — a handle inside the item sits *earlier* in the composed
+      // path, so scoping to it shortens the segment the decline test walks,
+      // and a handle that is itself an interactive element admits, because
+      // the consumer scoped dragging there on purpose.
+      subject = path.indexOf(handle);
+
+      if (subject === -1) {
         return null;
       }
     }
 
-    return item;
+    // **What did the event land on** (D-46), asked after the subject is known
+    // and before anything is seeded. The press that reaches an interactive or
+    // editable descendant declines by the ordinary total-decline path (I-32):
+    // no operation, no phase change, and — since the kernel prevents nothing
+    // for a `null` — focus lands, the caret places, the slider tracks and the
+    // arrow key keeps its native meaning.
+    return pathOwnsInteraction(path, subject, owners) ? null : item;
   };
 
   /**
@@ -179,7 +232,7 @@ export function createSortableSpec(
    * before it can decide feasibility. Resolving twice would call the consumer's
    * `handle()` resolver twice for one keydown (D1, Checkpoint D) — observable,
    * because a resolver is stateful in general and is explicitly allowed to
-   * queue `updateItems()`, so the side effect would be queued twice and the
+   * queue `invalidate()`, so the side effect would be queued twice and the
    * operation could reconcile through two snapshots for one native command.
    */
   const seedDraft = (
@@ -250,15 +303,29 @@ export function createSortableSpec(
    * visual, or the `{ visual, box }` pair when the two differ (D-59) — or
    * `null` to decline.
    *
-   * No `preventDefault()` — the kernel owns that call in both modes, and makes
-   * it exactly when this returns non-null (C-03).
+   * No `preventDefault()` — the kernel owns that call in both modes. Since
+   * D-54 it makes it at the **threshold crossing** on the pointer path and
+   * still inside the listener on the command path, but never here and never by
+   * the behavior (C-03).
    */
   const admitFrom = (
-    event: Event,
+    event: PointerEvent,
     draft: Draft<SortableFramePart>,
   ): AdmissionSubject | null => {
+    // **A modifier requests native text selection; its absence means drag**
+    // (D-46). A gesture across prose inside a draggable region is longer than
+    // the threshold by construction, so both readings — "select this text" and
+    // "drag this row" — fit the same input and no evidence distinguishes them
+    // (probe E R-3). The contract does not try: `Alt` held at `pointerdown`
+    // declines, and the press keeps its full native meaning by the ordinary
+    // decline path. One branch, no state, no disambiguation window, no
+    // deferred `preventDefault()`.
+    if (event.altKey) {
+      return null;
+    }
+
     const { snapshot } = rt;
-    const item = resolveItem(event, snapshot);
+    const item = resolveItem(event, snapshot, POINTER_OWNERS);
 
     return item === null ? null : seedDraft(item, snapshot, draft);
   };
@@ -444,7 +511,20 @@ export function createSortableSpec(
       types: [KEY_DOWN],
 
       admit(event, draft): AdmissionSubject | null {
-        const direction = directionOf((event as KeyboardEvent).key);
+        const keys = event as KeyboardEvent;
+
+        // **Checked first, on every declared command type, whatever the
+        // target** (D-46). It is not a special case of the target rules below:
+        // probe E R-7 synthesized a real Chromium composition and the drag
+        // admitted anyway, reordering the collection while the user was
+        // mid-word and not interacting with the list at all. The test is a
+        // property of the keyboard event, so it needs no target inspection and
+        // costs nothing.
+        if (keys.isComposing) {
+          return null;
+        }
+
+        const direction = directionOf(keys.key);
 
         if (direction === null) {
           return null;
@@ -455,7 +535,16 @@ export function createSortableSpec(
         // consumer's `handle()` resolver, so the destination and the draft seed
         // are both derived from this one item rather than from two independent
         // resolutions of the same event.
-        const item = resolveItem(event, snapshot);
+        //
+        // **The target question is asked here, and it is asked first** (D-46).
+        // Order is normative — *what did the event land on*, then *is the move
+        // feasible* — and asking feasibility first is what produced probe E's
+        // unstateable R-5 table, where a `contenteditable` in the last row kept
+        // ArrowRight only because the edge decline happened to fire.
+        //
+        // The table is `COMMAND_OWNERS` rather than the pointer one, because
+        // the question is whether the target owns *this key*.
+        const item = resolveItem(event, snapshot, COMMAND_OWNERS);
 
         if (item === null) {
           return null;
@@ -746,7 +835,52 @@ export function createSortableSpec(
           return STAGED;
         }
 
-        const next = argument as CollectionSnapshot;
+        // **The pull happens here, not at the controller** (D-44). `items()` is
+        // consumer code, and this is the one place that has a transaction open,
+        // a phase to branch on, and a stage to classify a throw against — the
+        // controller member is reachable from inside a seam and could only have
+        // called it at an arbitrary reentrant point.
+        const source = slots.items();
+
+        // The terminal barrier on the pull (I-36). `items()` may destroy the
+        // controller; discarding here means the behavior neither copies nor
+        // publishes for an operation that no longer exists.
+        if (host.closed) {
+          return null;
+        }
+
+        // **Array identity is the whole structural test** (D-44). An unchanged
+        // identity is a resize, a zoom or a scroll — the warm, common case —
+        // and it stages no snapshot, so it never reaches the phase branch
+        // below and never pays the copy.
+        if (source === rt.source) {
+          return {
+            snapshot: null,
+            source,
+            cancelReason: null,
+          } satisfies PreparedCollection;
+        }
+
+        // Copied on the structural branch **only**, which is the point of the
+        // split: the copy is what keeps a queued snapshot safe from a later
+        // caller mutation, and it is now paid when membership changes rather
+        // than on every invalidation.
+        //
+        // **Copied first, numbered second.** A duplicate item throws from
+        // `copyUniqueItems`, and a refused pull produced no collection — so it
+        // must not consume a version either, or the counter stops being a dense
+        // identity for the collections that actually exist and a consumer that
+        // fixes its data sees the next successful update numbered as though an
+        // invisible one had happened in between.
+        //
+        // The throw is classified by the kernel rather than raised at a call
+        // site: under `updateItems` this was a `TypeError` thrown back at the
+        // consumer, and a pull source has no such site to throw at.
+        const items = copyUniqueItems(source);
+
+        version += 1;
+
+        const next: CollectionSnapshot = { items, version };
         const { phase } = draft;
 
         // `IDLE`: publish, but bind nothing — an idle frame must retain no DOM
@@ -756,6 +890,7 @@ export function createSortableSpec(
         if (phase === IDLE || phase >= RELEASING) {
           return {
             snapshot: next,
+            source,
             cancelReason: null,
           } satisfies PreparedCollection;
         }
@@ -765,6 +900,7 @@ export function createSortableSpec(
         if (!next.items.includes(draft.item!)) {
           return {
             snapshot: next,
+            source,
             cancelReason: CANCEL_ITEM_REMOVED,
           } satisfies PreparedCollection;
         }
@@ -788,6 +924,7 @@ export function createSortableSpec(
         if (draft.insertion === null) {
           return {
             snapshot: next,
+            source,
             cancelReason: null,
           } satisfies PreparedCollection;
         }
@@ -797,6 +934,7 @@ export function createSortableSpec(
         if (change.type === CHANGE_CANCEL) {
           return {
             snapshot: next,
+            source,
             cancelReason: CANCEL_COLLECTION_INVALIDATED,
           } satisfies PreparedCollection;
         }
@@ -804,6 +942,7 @@ export function createSortableSpec(
         draft.insertion = change.insertion;
         return {
           snapshot: next,
+          source,
           cancelReason: null,
         } satisfies PreparedCollection;
       },
@@ -907,14 +1046,30 @@ export function createSortableSpec(
 
         const staged = prepared as PreparedCollection;
         const { phase } = current;
+        const next = staged.snapshot;
+
+        // **The geometry-only branch ends here** (D-44): nothing to publish,
+        // no reconcile, no cancel — the rect index is stale and that is all.
+        // Reached by a resize, a zoom or a scroll, which is why keeping it off
+        // the publication path is what makes the pull source cheaper than the
+        // push method it replaces rather than merely tidier.
+        if (next === null) {
+          invalidateInSeam();
+          return;
+        }
 
         // Publication is an effect, not a preparation: a reentrant cancel or
         // destroy must not be able to invalidate a preparation whose private
         // runtime has already been replaced.
-        rt.snapshot = staged.snapshot;
+        rt.snapshot = next;
+        // The identity the structural test compares against, advanced with the
+        // snapshot it produced and never before it — a preparation that was
+        // discarded must not move the baseline, or the next invalidation would
+        // read the change as already applied.
+        rt.source = staged.source;
 
         if (rt.view !== null) {
-          rt.view.snapshot = staged.snapshot;
+          rt.view.snapshot = next;
         }
 
         if (phase === ACTIVATING || phase === ACTIVE) {

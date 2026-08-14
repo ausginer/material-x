@@ -145,12 +145,12 @@ describe('the non-composed baseline', () => {
     // Imported here rather than at the top: it reaches built output, which
     // does not exist until `beforeAll` has run.
     const { buildSlots } = await import('../../bench/size/noncomposed.js');
-    const byHand = buildSlots(
-      context,
-      () => ({ type: 'accepted', presentation: false }),
-      () => null,
-      (item) => item,
-    );
+    const byHand = buildSlots(context, {
+      items: (): readonly HTMLElement[] => [],
+      onReorder: () => ({ type: 'accepted', presentation: false }),
+      grip: () => null,
+      box: (item) => item,
+    });
 
     expect([...Object.keys(byHand)].sort()).toEqual(
       [...Object.keys(composed)].sort(),

@@ -273,7 +273,7 @@ function mount(options: Options): Fixture {
 
         order.splice(request.to, 0, moved!);
 
-        const items = options.author({
+        options.author({
           container,
           root,
           rows,
@@ -300,7 +300,10 @@ function mount(options: Options): Fixture {
         // the acknowledgement. **This is what D-41's serial order makes the
         // only shape** — the resolution does not return until the authored
         // DOM is final, so there is nothing left to acknowledge separately.
-        controller.updateItems(items);
+        // D-44: the collection is a pull source, so the commit is announced
+        // rather than handed over. `items()` here maps `ids`, producing a new
+        // array identity on every call, which is the structural branch.
+        controller.invalidate();
 
         return ReorderResolution.accept();
       },

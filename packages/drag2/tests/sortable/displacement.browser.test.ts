@@ -35,6 +35,8 @@ type Composed = Readonly<{
   controller: SortableController;
   requests: ReorderRequest[];
   errors: unknown[];
+  /** Swap the collection identity and signal it (D-44). */
+  replace(next: readonly HTMLElement[]): void;
   /** The flow order, placeholder written as `_`; non-item children are skipped. */
   order(): string;
   dispose(): void;
@@ -101,10 +103,12 @@ function build(options: Options = {}): Composed {
 
   const requests: ReorderRequest[] = [];
   const errors: unknown[] = [];
+  let current: readonly HTMLElement[] = items;
 
   const controller = sortable(
     root,
-    { items: () => items },
+    // D-44's pull source; `replace()` swaps the identity and signals.
+    { items: () => current },
     y(),
     {
       onReorder(request) {
@@ -127,6 +131,11 @@ function build(options: Options = {}): Composed {
     controller,
     requests,
     errors,
+    /** New array identity, then the signal — D-44's structural branch. */
+    replace: (next: readonly HTMLElement[]): void => {
+      current = next;
+      controller.invalidate();
+    },
     order: () =>
       [...root.children]
         .map((child) => {
@@ -242,7 +251,7 @@ const displaced = (composed: Composed): number[] =>
     .map((item, index) => (displacements(item).length > 0 ? index : -1))
     .filter((index) => index !== -1);
 
-const withLayout = (): readonly Partial<SortableConfig>[] => [
+const withLayout = (): ReadonlyArray<Partial<SortableConfig>> => [
   layoutAnimation({ duration: DURATION }),
 ];
 
@@ -386,7 +395,7 @@ describe('settled presentation geometry', () => {
     // at all, so the expected value above is pinned by construction rather than
     // by arithmetic in a comment.
     const script = async (
-      fragments: readonly Partial<SortableConfig>[],
+      fragments: ReadonlyArray<Partial<SortableConfig>>,
     ): Promise<ReorderRequest | undefined> => {
       const composed = build({ fragments, itemCount: 4 });
 
@@ -412,7 +421,7 @@ describe('settled presentation geometry', () => {
     // must not change what the drag *decides*. Same pointer script, both
     // compositions, every intermediate order compared — not just the result.
     const script = async (
-      fragments: readonly Partial<SortableConfig>[],
+      fragments: ReadonlyArray<Partial<SortableConfig>>,
     ): Promise<readonly [string[], ReorderRequest | undefined]> => {
       const composed = build({ fragments });
       const orders: string[] = [];
@@ -543,7 +552,7 @@ describe('displacement ownership', () => {
 
     expect(displaced(composed)).toEqual([1, 2, 3]);
 
-    composed.controller.updateItems([
+    composed.replace([
       composed.items[0]!,
       composed.items[2]!,
       composed.items[3]!,
@@ -784,7 +793,7 @@ describe('the composed bracket cost', () => {
     const native = Element.prototype.getBoundingClientRect;
 
     const measure = async (
-      fragments: readonly Partial<SortableConfig>[],
+      fragments: ReadonlyArray<Partial<SortableConfig>>,
     ): Promise<number> => {
       const composed = build({ itemCount: rows, fragments });
       let reads = 0;

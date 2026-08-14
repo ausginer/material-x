@@ -605,7 +605,9 @@ Default `admit` returns `null` when the event's composed path, between the targe
 | activation | `a[href]`, `area[href]`, `summary` |
 | editing | any element whose `isContentEditable` is true |
 | media with controls | `audio[controls]`, `video[controls]` |
-| explicit opt-out | any ancestor carrying the library's decline attribute |
+| explicit opt-out | any ancestor carrying `data-drag-ignore` |
+
+The opt-out attribute's name was left unstated when this section was written and is settled at Phase R: **`data-drag-ignore`**, which pairs with the `data-drag-placeholder` the default placeholder already carries. It is the one row of the table that is not a platform element, and it exists because the list is a default: a consumer needs a way to name a region the list does not describe — a chart, a canvas, a custom element that owns its own gestures.
 
 It is a **list, not a heuristic**, and that is deliberate: a consumer has to be able to document which presses drag and which do not, and the R-5 table above is what an unstateable rule looks like from the outside. `disabled` members are not excluded — a disabled control still owns its press for focus and selection purposes, and treating "disabled" as "draggable" would put the most surprising case on the least examined path.
 
@@ -657,6 +659,17 @@ Order is normative, and §Feasibility is not the whole question is the evidence 
 - **`contenteditable` keeps editing navigation.** Any element whose `isContentEditable` is true owns the arrow keys for the same reason, and R-4 observed the same failure there.
 - **Native controls keep their keys.** A focused `select`, a radio group, a range input and a media element with controls all navigate by arrow. R-4 observed a focused popup `<select>` lose `ArrowDown` to the reorder command.
 - **`event.isComposing === true` never admits.** This is unconditional and is not a special case of the rules above: it is checked first, on every declared command type, whatever the target. Probe E R-7 established that composition is faithfully synthesizable — a real Chromium composition, `compositionstart` and `compositionupdate` observed, `input.value` `"にほ"`, `keydown.isComposing` `true` — and that the drag admitted anyway, reordering the collection while the user was mid-word and not interacting with the list at all. `isComposing` is a property of the keyboard event, so the test is free and needs no target inspection.
+
+**The command table is narrower than the pointer one, and Phase R states it rather than deriving it.** The rules above name their members positively but never enumerate them, and the pointer table is the wrong list to reuse: the question a command asks is whether the target owns _this key_, and the arrow keys are owned by a caret, a listbox, a radio group, a range thumb and a media scrubber — not by a `button`, an `a[href]`, a `summary`, a `label` or a `progress`, none of which navigate by arrow. Declining on those would silently remove keyboard reordering from a focused control inside a row, which is a false decline on exactly the accessibility path D-46 exists to protect. So:
+
+| Category | Members |
+| --- | --- |
+| editing and text | `input`, `textarea`, any element whose `isContentEditable` is true |
+| arrow-navigated controls | `select` — and `input` again, which covers radio and range without naming them |
+| media with controls | `audio[controls]`, `video[controls]` |
+| explicit opt-out | any ancestor carrying `data-drag-ignore` |
+
+The opt-out row appears in both tables because it is a consumer statement about a **region**, not about a key.
 
 `Shift` is read as part of the first question, not as a modifier policy: `Shift+Arrow` inside a text input extends a selection, and the target rule already declines there. D-46 adds no other modifier reading; probe E R-6 recorded that `src/` reads none today, and the owner's direction does not reopen modifiers beyond selection.
 

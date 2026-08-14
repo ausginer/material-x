@@ -410,9 +410,18 @@ export type BehaviorSpec<Part extends object> = Readonly<{
    * to leave the controller idle (D-5).
    *
    * `composedPath()` is valid only here. **`preventDefault()` is not the
-   * behavior's** — the ingress owner performs it, exactly when an admission
-   * member returns non-null, in both input modes. The behavior answers
-   * feasibility with its return value and nothing else (C-03).
+   * behavior's** — the ingress owner performs it, and the behavior answers
+   * feasibility with its return value and nothing else (C-03). Since D-54 the
+   * pointer path's call is made at the **activation threshold crossing**, not
+   * here: admission runs on `pointerdown`, which is before the threshold, so
+   * preventing here spends a press on a drag that may never happen — six of
+   * probe E's ten cases consumed a native interaction with no drag ever
+   * activating.
+   *
+   * **What a `null` may mean is therefore wider than feasibility** (D-46).
+   * Admission also answers *what did the event land on*: a press whose composed
+   * path reaches an interactive or editable descendant declines, unless a
+   * `handle` scoped dragging there (D-50). See contract 02 §Input policy.
    *
    * Returns the element the kernel should lift — optionally paired with the
    * element the kernel should measure (D-59) — or `null` to leave the

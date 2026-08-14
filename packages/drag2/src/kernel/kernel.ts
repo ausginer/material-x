@@ -72,6 +72,7 @@ import {
 } from './pointer.ts';
 import { acquireLift, type VisualLiftSession } from './presentation.ts';
 import {
+  CLICK,
   LOST_POINTER_CAPTURE,
   POINTER_CANCEL,
   POINTER_DOWN,
@@ -117,16 +118,24 @@ export const CANCEL_POINTER_CANCELED = 'drag:pointercancel';
 export const CANCEL_CAPTURE_LOST = 'drag:lostpointercapture';
 
 /**
- * What the kernel reads off a queued pointer event.
+ * What the kernel reads off a queued pointer event — **and, since D-54, the one
+ * thing it calls on it.**
  *
  * The native event is queued **by reference** under this narrow contract and is
  * not retained past the drain, so one pointer sample allocates no wrapper
  * (contract 06 §The hot path).
+ *
+ * `preventDefault` joined the three scalars because the pointer path's
+ * prevention moved from admission to the activation threshold crossing, and the
+ * crossing is decided here, from the sample. The drain is synchronous inside
+ * the native listener, so the call is still in time; a sample that never
+ * crosses never uses it.
  */
 export type PointerCoordinates = Readonly<{
   pointerId: number;
   clientX: number;
   clientY: number;
+  preventDefault(): void;
 }>;
 
 /**
@@ -312,7 +321,7 @@ export function createKernel<Part extends object>(
    * **Admission is a queue boundary.** It is the one transaction the kernel
    * drives outside the seam driver: it mutates the draft directly and commits at
    * the end, so the driver's re-entry refusal cannot see it. A resolver that
-   * calls `updateItems()` reaches `dispatchKernel`, and draining there would run
+   * calls `invalidate()` reaches `dispatchKernel`, and draining there would run
    * a behavior action — `begin()`, `commit()`, a frame swap — *underneath* a
    * half-written admission, publishing the action's frame and then having
    * admission commit the stale one over it.
@@ -760,15 +769,24 @@ export function createKernel<Part extends object>(
    *
    * **`preventDefault()` is the kernel's** (C-03). The behavior answers
    * feasibility with its return value; the ingress owner performs the browser
-   * effect, exactly when a member returns non-null. An earlier draft left the
-   * call to the behavior and then rated I-32 tier A, which a member holding the
-   * real `Event` can trivially violate — two errors compounding. What remains
-   * is the stated tier-C residue: a behavior *can* prevent the default itself,
-   * because it holds the event.
+   * effect. An earlier draft left the call to the behavior and then rated I-32
+   * tier A, which a member holding the real `Event` can trivially violate — two
+   * errors compounding. What remains is the stated tier-C residue: a behavior
+   * *can* prevent the default itself, because it holds the event.
+   *
+   * **`prevents` is where the two ingresses stop being the same** (D-54). The
+   * ownership is unchanged and the *timing* is not: the pointer path prevents
+   * at the threshold crossing instead, because `pointerdown` cannot know
+   * intent. The command path keeps preventing here, and that is sound rather
+   * than an exception — a `keydown` default cannot be prevented after its
+   * listener has returned, there is no threshold on that path to relocate to,
+   * and under D-46 a command's admission *is* the intent question, so a
+   * non-null return already means the key was meant for the drag.
    */
   const runAdmission = (
     event: Event,
     admit: (event: never, draft: Frame<Part>) => AdmissionSubject | null,
+    prevents: boolean,
   ): AdmissionSubject | null => {
     const active = spec!;
     let admitted: AdmissionSubject | null;
@@ -792,7 +810,9 @@ export function createKernel<Part extends object>(
       return null;
     }
 
-    event.preventDefault();
+    if (prevents) {
+      event.preventDefault();
+    }
 
     // Post-callback revalidation (D-26, F-30). An admission member runs
     // consumer-supplied handle and visual resolvers during native dispatch, and
@@ -855,7 +875,8 @@ export function createKernel<Part extends object>(
   };
 
   const admitPress = (event: PointerEvent): void => {
-    const admitted = runAdmission(event, spec!.admit);
+    // `false`: the pointer path prevents at the threshold crossing (D-54).
+    const admitted = runAdmission(event, spec!.admit, false);
 
     if (admitted !== null) {
       mintOperation(admitted, event.pointerId, event.clientX, event.clientY);
@@ -871,7 +892,7 @@ export function createKernel<Part extends object>(
    * measured from the visual and is pointer-independent already.
    */
   const admitCommand = (event: Event): void => {
-    const admitted = runAdmission(event, spec!.command!.admit);
+    const admitted = runAdmission(event, spec!.command!.admit, true);
 
     if (admitted !== null && mintOperation(admitted, -1, 0, 0)) {
       dispatchKernel(ACTIVATE, current.operation);
@@ -940,7 +961,69 @@ export function createKernel<Part extends object>(
     }
   };
 
+  /**
+   * Disarms the one-shot `click` suppressor, or `null` when none is armed.
+   *
+   * **Controller-scoped, not operation-scoped, and that is the load-bearing
+   * part** (D-54). The `click` arrives *after* the operation ends — that is
+   * what makes it trailing — so a listener on the motion or presentation
+   * lifetime would be disposed before the event it exists to catch. Binding it
+   * to ingress is the only lifetime that outlives the operation and still dies
+   * with the controller.
+   */
+  let disarmClick: (() => void) | null = null;
+
+  /**
+   * Arms it, at the threshold crossing, for the reason `click` survives at all:
+   * only `pointerdown` was ever prevented, `click` is generated from the
+   * un-prevented `pointerup` (probe E R-1), and so a drop that lands on an
+   * `<a href>` navigates.
+   *
+   * **Only after activation.** A press that never became a drag must keep its
+   * click — the case R-2 shows the library was already getting right by
+   * accident — and a pointerless operation is never armed at all, because a
+   * command produces no `click`.
+   */
+  const armClickSuppressor = (): void => {
+    disarmClick?.();
+
+    const aborter = new AbortController();
+    const disarm = (): void => {
+      if (disarmClick === disarm) {
+        disarmClick = null;
+      }
+
+      aborter.abort();
+    };
+
+    disarmClick = disarm;
+
+    realm.document.addEventListener(
+      CLICK,
+      (event) => {
+        disarm();
+        event.preventDefault();
+        event.stopPropagation();
+      },
+      {
+        capture: true,
+        once: true,
+        // Composed with the ingress signal rather than aborted by hand in
+        // teardown: "disarmed by teardown" then holds structurally, and the
+        // step-7 abort needs no clause about a listener it does not know.
+        signal: AbortSignal.any([aborter.signal, ingress.signal]),
+      },
+    );
+  };
+
   const onPointerDown = (event: PointerEvent): void => {
+    // **The second of the three disarm conditions** (D-54), and it runs before
+    // the primary-press test rather than inside it: a one-shot that never fired
+    // must not survive to eat an unrelated click, and a press that begins a
+    // *new* interaction is as good a signal that the old one is over as the
+    // click itself — whichever button it used.
+    disarmClick?.();
+
     // The primary-press test is the pointer ingress's own and stays outside the
     // shared boundary: a secondary button must not open a transaction at all.
     if (isPrimaryPress(event)) {
@@ -1689,6 +1772,25 @@ export function createKernel<Part extends object>(
     const dy = current.pointerY - current.originY;
 
     if (dx * dx + dy * dy >= threshold * threshold) {
+      // **The pointer path's `preventDefault()`, in the place D-54 moved it
+      // to.** What it prevents is *this* `pointermove` — selection extension,
+      // and the native drag-and-drop start where a browser fires one — not the
+      // `pointerdown`, which has already been dispatched un-prevented and whose
+      // focus and caret are real and are supposed to be. Preventing at
+      // admission spent a press on a drag that had not happened yet, and in six
+      // of probe E's ten cases never happened at all.
+      //
+      // It is **not** a scroll policy. `preventDefault()` on `pointerdown` was
+      // never a reliable scroll suppressor; scroll suppression is `touch-action`
+      // and is the consumer's, set on the draggable region.
+      sample.preventDefault();
+
+      // A selection may already have started, and prevention cannot undo it —
+      // the event that began it has returned. Clearing is the only instrument
+      // left, and what is cleared is the half-made selection the press made on
+      // its way to becoming a drag.
+      realm.window.getSelection()?.removeAllRanges();
+      armClickSuppressor();
       activate();
     }
   };
