@@ -1527,6 +1527,64 @@ describe('the resolution round-trip', () => {
     expect(signal.aborted).toBe(true);
   });
 
+  it('should not surface an abandoned resolver’s late rejection to the page', async () => {
+    // **The observable, not the mechanism** (probe A). Every other row here
+    // asserts the slot comparison `resolution !== attempt`, which is how the
+    // library ignores a stale settlement. What a consumer actually *sees* if
+    // that ignoring is done by dropping the subscription is an
+    // `unhandledrejection` in their console, from a promise they handed the
+    // library and the library abandoned.
+    //
+    // The guarantee holds because the kernel subscribes with two handlers and
+    // ignores the *result* — it never declines to subscribe. This is the row
+    // that would fail if a future change made the ignoring earlier.
+    let reject!: (error: unknown) => void;
+    const harness = createHarness({
+      release: releaseWith(
+        () =>
+          new Promise((_resolve, fail) => {
+            reject = fail;
+          }),
+      ),
+    });
+
+    const escaped: unknown[] = [];
+    const aborter = new AbortController();
+
+    globalThis.addEventListener(
+      'unhandledrejection',
+      (event: PromiseRejectionEvent) => {
+        escaped.push(event.reason);
+        // Otherwise the browser logs it and Vitest fails the run on the noise
+        // rather than on this assertion.
+        event.preventDefault();
+      },
+      { signal: aborter.signal },
+    );
+
+    activate(harness);
+    release(80, 10);
+
+    // Abandon it, then let a **newer** operation own the controller — the
+    // exact shape probe A named, because a stale settlement arriving with no
+    // successor is the easy case.
+    harness.controller.cancel('abandoned');
+    activate(harness);
+
+    reject(new Error('late'));
+    await flush();
+
+    expect(escaped).toEqual([]);
+    // And it stayed ignored. The cancel that abandoned it settled the
+    // operation; the late rejection added nothing after it, which is the other
+    // half of "consumed, not dropped".
+    expect(harness.settlements).toEqual([
+      { type: SETTLED_CANCELED, reason: 'abandoned', stage: AT_CONSUMER },
+    ]);
+
+    aborter.abort();
+  });
+
   it('should not abort the signal of a resolver that already completed', () => {
     let signal!: AbortSignal;
     const harness = createHarness({
@@ -2852,6 +2910,54 @@ describe('the transaction bracket', () => {
     // Nothing is on the stack, so the two events still coincide. This is the
     // shipped behavior as the common case rather than as the definition.
     expect(harness.calls).toContain('retire');
+  });
+
+  it('should close, report and only then tear down on a panic', () => {
+    // **The ordering D-36 reversed** (probe A: `['retire','report']` became
+    // `['report','retire']`), and the only test that reaches the kernel's
+    // `panic()` rather than the seam driver's in isolation.
+    //
+    // It is worth pinning because the ordering is **non-local**: `panic` is
+    // `void destroy(); report(error);`, and that produces this order only
+    // because the drain sits inside a transaction, so the physical steps defer
+    // to `leaveTransaction`. A drain that lost its bracket would still pass
+    // every other test in this file and silently tear down before reporting.
+    //
+    // The route in is the threshold crossing's selection clear: it is one of
+    // the few statements the handler runs **unguarded**, on purpose — a
+    // platform method that throws is an invariant break, not a drag failure —
+    // and `MOVE` is a queued action, so the throw escapes `handle` into
+    // `drain`'s catch, which is the one path to `panic`.
+    const order: string[] = [];
+    const broken = new Error('platform');
+    const harness = createHarness({
+      retire: (): void => {
+        order.push('retire');
+      },
+    });
+
+    (globalThis as Reporting).reportError = (error): void => {
+      order.push(`report:${(error as Error).message}`);
+      // Read from *inside* the report, which is the assertion the ordering
+      // exists for: a reporter that calls back into the controller must find
+      // it already closed.
+      order.push(`closed:${String(harness.host.closed)}`);
+    };
+
+    const selection = window.getSelection;
+
+    window.getSelection = (): never => {
+      throw broken;
+    };
+
+    try {
+      press(harness.item);
+      move(40, 10);
+    } finally {
+      window.getSelection = selection;
+    }
+
+    expect(order).toEqual(['report:platform', 'closed:true', 'retire']);
   });
 
   it('should settle the returned promise after physical teardown', async () => {

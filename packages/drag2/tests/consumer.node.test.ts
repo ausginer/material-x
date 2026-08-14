@@ -217,6 +217,15 @@ const run: LandingStart = (
   return { destroy: (): void => {} };
 };
 
+// **D-63's negative half** (A-7). The positive half is above — a runner is
+// authorable from the middle tier — and this is the assertion that the
+// *ordinary* tier no longer takes one. \`LandingOptions\` is
+// \`Readonly<{ duration?, easing? }>\`, so the excess-property check rejects the
+// object literal; if \`run\` were ever re-added, this directive stops erroring
+// and the build fails.
+// @ts-expect-error: \`run\` is not a landing option (D-63)
+landing({ run });
+
 // Both members of the \`ReorderResolution\` union are nameable, so a consumer can
 // give a helper a return type narrower than the union.
 declare const accepted: AcceptedReorderResolution;

@@ -1,7 +1,10 @@
 /**
- * The consumer-facing controller. Four members, two of which are the kernel's
- * own — the behavior adds the two things the kernel cannot know about: what a
- * collection is, and what a request is.
+ * The consumer-facing controller. **Three** members, two of which are the
+ * kernel's own — the behavior adds the one thing the kernel cannot know about:
+ * what a collection is.
+ *
+ * It read _four_ until Revision 2 closure. The fourth was `ready(request)`,
+ * deleted with the readiness protocol (D-41), and the count outlived it.
  */
 import type { KernelHost } from '../kernel/spec.ts';
 import { TAG_COLLECTION } from './runtime.ts';
@@ -63,10 +66,10 @@ export function createSortableController(host: KernelHost): SortableController {
   //
   // `cancel` and `destroy` *are* the kernel's own members, spread through
   // unchanged, and the kernel's latch already makes both inert and idempotent
-  // before they do any work. `ready()` deliberately keeps reporting: a
-  // post-`destroy()` acknowledgement is a stale one by definition, and telling
-  // an integrator that its layout effect outlived the controller is the whole
-  // reason that DEV report exists.
+  // before they do any work. ~~`ready()` deliberately keeps reporting~~ — the
+  // asymmetry this paragraph contrasted against lost its subject with D-41, and
+  // what survives is the split above: `invalidate` carries the controller's own
+  // reading, `cancel` and `destroy` carry the kernel's.
 
   return {
     invalidate(): void {

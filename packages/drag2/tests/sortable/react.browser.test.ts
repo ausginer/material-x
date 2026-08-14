@@ -16,9 +16,10 @@
  * the drag opened, and (I-25 notwithstanding) sometimes unmounts the dragged
  * item outright. Those are the three remaining rows, and the last is **Q-12**.
  *
- * Composition: `sortable(rows, { items: () => y() }, landing({ run }), …)`.
- * The runner is supplied rather than defaulted so the landing gate is directly
- * observable to the F-6 witness — the default runner is covered by
+ * Composition: `sortable(root, { items, onReorder, … }, y(), { landing: … })`.
+ * The runner is supplied — through a **middle-tier installer**, since D-63
+ * withdrew `landing({ run })` — rather than defaulted, so the landing gate is
+ * directly observable to the F-6 witness — the default runner is covered by
  * `landing-space.browser.test.ts` and `features.browser.test.ts`.
  *
  * Layout: the list is absolutely positioned at the viewport origin with 40px

@@ -1346,20 +1346,21 @@ export function createSortableSpec(
         // defined not to read. The landing then opens from `(0, 0)`, which is
         // correct because the visual has not moved since acquisition.
 
-        // **Published last, and inside this effect** (D-33, C3-04). Last,
-        // because a throwing write above classifies `FAILURE_RELEASE` and the
-        // staged command is never executed — a request published first would
-        // name a round-trip that cannot happen. Inside, because the kernel runs
-        // the command *after* this returns, so the request the consumer is
-        // about to receive is already the one `ready()` will be checked
-        // against, including under a synchronous commit.
+        // **Nothing is published here any more** (D-41). This block described
+        // `rt.pendingRequest`, whose only reader was the acknowledgement
+        // protocol — publish the request last, and inside this effect, so that
+        // the object `ready()` would be checked against was the one the
+        // consumer had already been handed. `ready()` is gone, the field is
+        // gone, and what survives of the argument is the ordering the kernel
+        // owns: the staged command runs *after* this returns, so a throw from
+        // the write above classifies `FAILURE_RELEASE` and the round-trip never
+        // opens.
         //
-        // Reached through the **committed frame**, which is what makes it the
-        // same object the staged `invoke` closure captured. `ResolutionCommand`
-        // does not carry it and must not: a sortable domain value on a kernel
-        // SPI type is the mistake D-34 and D-35 corrected.
-        //
-        // **And the render is itself a consumer-reachable call** (I-36 (2) acts
+        // **The render is a consumer-reachable call** (I-36 (2)), which is what
+        // makes that ordering matter here rather than only in the kernel: this
+        // is the seam D-66's `AT_PROPOSAL`/`AT_CONSUMER` split turns on, and a
+        // throw from this effect is `AT_PROPOSAL` because the marker only
+        // reaches `RESOLVING` inside the `invoke` closure.
       },
     },
 
@@ -1457,7 +1458,8 @@ export function createSortableSpec(
             // A terminal-callback failure has recovery "none": the operation
             // already finalized, and rewriting the outcome now would relabel a
             // drop that has been reported as accepted. Every other stage
-            // replaces the transaction.
+            // replaces the transaction — the *presentation* transaction, which
+            // is a different question from what the consumer is told.
             if (input.stage !== FAILURE_TERMINAL_CALLBACK) {
               draft.outcome = OUTCOME_FAILED;
               draft.recovery = RECOVERY_IMMEDIATE;
@@ -1467,19 +1469,28 @@ export function createSortableSpec(
               // publishes `current.domain` and nothing else, so a null meant
               // no terminal at all.
               //
-              // **Existing result wins, otherwise `canceled`.** The tie-break
-              // is what makes the rule one lookup rather than two cases: a
-              // failure that arrives *after* a domain result exists — a
-              // terminal-callback throw is the only one, and it is excluded
-              // above — must not relabel it, and a failure that arrives before
-              // one honestly reports an abandoned drag with the classifying
-              // error as its reason.
+              // **Existing result wins, otherwise `canceled`** — a lookup on
+              // the frame, not a branch per stage (02 §The join). `beginFrame`
+              // is `Object.assign(draft, current)`, so a settlement that
+              // already committed a result arrives here still carrying it, and
+              // `??` is the whole tie-break.
+              //
+              // **This read `draft.domain = …` unconditionally** (A-1), on the
+              // reasoning that a terminal-callback throw is the only failure
+              // arriving after a result exists. That is false, and unavoidably
+              // so: `FAILURE_LANDING_INTERRUPTED` has one producer and it can
+              // only fire *after* a runner was armed, which is after the
+              // settlement committed — so the stage test overwrote a committed
+              // result 100 % of the time it fired, and told a consumer whose
+              // data really was reordered that the drop was `canceled`. The
+              // stage exclusion above is kept for its own reason (recovery, not
+              // the result) and is no longer load-bearing for the tie-break.
               //
               // **The marker decides the stage, and it also decides whether to
               // publish at all.** At `MINTED` the consumer never heard this
               // drag start, and an end for a beginning it has no record of is
               // worse than the skip D-66 retracts (§No start, no terminal).
-              draft.domain =
+              draft.domain ??=
                 progress === MINTED
                   ? null
                   : {

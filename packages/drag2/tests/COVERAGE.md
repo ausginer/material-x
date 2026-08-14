@@ -359,6 +359,20 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 | a shipped zero-argument thunk still works | `tests/sortable/features.browser.test.ts` — _should keep a zero-argument thunk working_ | D-67, F-52, L-6 |
 | an out-of-domain contextual result classifies at settlement | `tests/sortable/features.browser.test.ts` — _should classify an out-of-domain contextual result at settlement_ | D-67 |
 
+**The other line of the lookup, added at application review 1 (A-1, A-2).** Every row above exercises _frame holds none_; these exercise _frame holds a result_, which is the line a defect had been shipping against — `settlement.prepare` overwrote a committed result with the `canceled` fallback, so a drop whose data really was reordered reported `{ type: 'canceled' }` on both channels.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a landing runner failing after the commit keeps `accepted` | `tests/sortable/sortable.browser.test.ts` — _should keep the accepted result when the landing runner fails_ | D-66, A-1 |
+| …and so does a runner that cannot be created | `tests/sortable/sortable.browser.test.ts` — _should keep the accepted result when the runner cannot be created_ | D-66 |
+| …and the pin throwing at the join | `tests/sortable/sortable.browser.test.ts` — _should keep the accepted result when the pin throws at the join_ | D-66 |
+| the tie-break is _existing result wins_, not _accepted wins_ | `tests/sortable/sortable.browser.test.ts` — _should keep a rejected result too, not just an accepted one_ | D-66 |
+| the fallback's `reason` **is** the classifying error, by identity | `tests/sortable/sortable.browser.test.ts` — _should publish both channels for a consequential failure_ | D-66 |
+
+**Three post-commit stages, which is the whole set rather than a sample.** `LANDING_CREATE` and `LANDING_INTERRUPTED` both require an armed gate and arming happens after `prepare` returns; the pin runs at the join. Handoff §3 asked for the failure-stage set to be covered rather than sampled, and this is the half that was missing: the stages the sortable suite already drove — `RENDERER_WRITE` on the hot path, `REORDER_RESOLUTION`, `TERMINAL_CALLBACK` — are all pre-commit, so every one of them was a _frame holds none_ case.
+
+**Why the gap was invisible.** The nearest existing row, `tests/kernel/kernel.browser.test.ts` — _should release presentation and still publish a terminal when the pin throws_ — is driven by the kernel harness's stub behavior, so it never reaches `settlement.prepare` and asserts only _that_ a terminal fired, never _which_. A row that asserts a callback happened is not a row that asserts what it was handed.
+
 **Three things these rows made concrete.**
 
 1. **D-66 needed a kernel site the contract did not name.** The contract assigns the fallback to `settlement.prepare` and the publication to `finalized`, but the failure path never reaches `finalized` — it runs REPORTING → `ERROR_REPORTED` → retire. The terminal is published from `ERROR_REPORTED`, **after presentation is released**, so a consumer's terminal sees the same world on both routes; a consumer must not have to know which route its drag took to know whether the placeholder is still in the list.
@@ -366,6 +380,26 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 3. **D-67's compatibility row cannot be a type assertion.** A zero-parameter function is assignable to any signature (F-52), so `duration: () => 200` is not a compile error and no `@ts-expect-error` can pin it. It is asserted as behavior instead: the shipped form is still invoked, once, per landing.
 
 **Seven rows changed verdict rather than moving**, and each names the retracted assertion in its own comment: five in `tests/sortable/sortable.browser.test.ts` and two in `tests/kernel/kernel.browser.test.ts` read `toEqual([])` or `not.toContain('finalized')` until D-66. They were not wrong when written — nothing had decided the question — which is why the retraction is recorded at each site instead of the diff being left to explain itself.
+
+---
+
+## Probe A's two unpinned rows, and two totality belts — new (A-5…A-8)
+
+Named in handoff §3 and absent from the suite until application review 1 found them. Each is an **observable** whose mechanism was already covered — which is exactly how they stayed missing.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| an abandoned resolver's late rejection never reaches the page | `tests/kernel/kernel.browser.test.ts` — _should not surface an abandoned resolver's late rejection to the page_, with a real `unhandledrejection` listener and a **newer** operation owning the controller | D-40, probe A |
+| a panic closes, then reports, then tears down | `tests/kernel/kernel.browser.test.ts` — _should close, report and only then tear down on a panic_ | D-36, probe A |
+| every published stage maps to a fault class | `tests/kernel/errors.node.test.ts` — _should assign a code to every published stage_ | D-64 |
+| the fault-class set is closed at four | `tests/kernel/errors.node.test.ts` — _should assign no code outside the four fault classes_ | D-64 |
+| `landing({ run })` does not compile at the ordinary tier | `tests/consumer.node.test.ts` — the `@ts-expect-error` on `landing({ run })`, against the **packed** declarations | D-63 |
+
+**The rejection row asserts the consequence, not the guard.** Every other row about an abandoned resolver asserts the slot comparison `resolution !== attempt`, which is how the library _ignores_ a stale settlement. What a consumer sees if that ignoring is ever done by declining to subscribe is an `unhandledrejection` in their console. Falsified by dropping the rejection handler from the kernel's `then.call`: two rows fail, this one among them.
+
+**The panic row is the only one that reaches the kernel's `panic()`** rather than the seam driver's in isolation, and it is worth having because the ordering is **non-local** — `void destroy(); report(error)` produces _report before teardown_ only because the drain sits inside a transaction that defers the physical steps. Falsified twice: reversing the two statements breaks the `closed:true` reading taken from inside the report, and removing the drain's transaction bracket breaks this row plus the two bracket rows.
+
+**The stage → code rows are a belt, and say so.** The `Record<FailureStage, DraggableErrorCode>` in `errors.ts` already makes the mapping total in the type. What the enumeration adds is that its stage list comes from the exported constants rather than from the mapping's own keys, so a stage that ships without reaching the mapping fails a test instead of going unnoticed. The count is **thirteen** — `FAILURE_PRESENTATION_READY = 13` went with D-41 and its number was not reused — and D-64's row said fourteen until this pass corrected it.
 
 ---
 
@@ -409,7 +443,7 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 | the after pass **through the real composition**, `lazyY()` + `layoutAnimation()`, destroy armed on the post-move DOM state | `tests/sortable/features.browser.test.ts` — _should start no displacement after an afterMove measurement destroyed_ | I-36 |
 | the behavior's own reading between the `beforeMove` pipeline and `movePlaceholder` → the write never happens and nothing is reported | `tests/sortable/features.browser.test.ts` — _should not write the placeholder after a beforeMove hook destroyed_ | I-36 |
 | **conformance pin, passes against current source — the bracket-discharge witness** — the `landing()` residue's blast radius, not a barrier: a `landing({ duration })` thunk destroys the controller, and `visual.animate()` is called **exactly once**, counted on the element, with no animation, no transform and no placeholder surviving, nothing reported, and **no** terminal callback. `getAnimations() === []` and `style.transform === ''` are what witness the bracket's **undo**, condition (ii) of I-36 (1) | `tests/sortable/features.browser.test.ts` — _should leave nothing behind when the duration thunk destroys the controller_ | I-36 (1), I-6, F-30 |
-| **conformance pin, passes against current source** — the kernel's admitted post-terminal relinquishment: a `landing({ run })` runner destroys the controller and still returns a handle, and F-30 calls that consumer-authored handle's `destroy` **exactly once**, after `destroy()` returned, with `retarget` never called and nothing surviving. This is what I-6 clause 3's qualified headline admits | `tests/sortable/features.browser.test.ts` — _should destroy a consumer runner's handle exactly once when the runner destroyed the controller_ | I-6, I-20, F-30 |
+| **conformance pin, passes against current source** — the kernel's admitted post-terminal relinquishment: a **middle-tier installer's** runner (D-63 withdrew `landing({ run })`; the fixture supplies `startLanding` through a `SortableInstaller`, which is where a consumer-authored runner lives now) destroys the controller and still returns a handle, and F-30 calls that consumer-authored handle's `destroy` **exactly once**, after `destroy()` returned, with `retarget` never called and nothing surviving. This is what I-6 clause 3's qualified headline admits | `tests/sortable/features.browser.test.ts` — _should destroy a consumer runner's handle exactly once when the runner destroyed the controller_ | I-6, I-20, F-30 |
 | **C5-01** — subscription is part of the acquisition: an `animation.finished` **accessor** that destroys and returns normally leaves no live displacement, and neither does an overridden **thenable** `then`. Both are consumer-reachable through an overridden `animate()`, and neither throws, so the acquisition `catch` never saw them | `tests/sortable/displacement.browser.test.ts` — _should cancel an animation whose `finished` accessor closed the controller_, _…whose `finished` thenable closed the controller_ | I-36 (2), I-20 |
 | **C5-02** — the placeholder mechanics stop at the destroying write: a consumer placeholder whose first `setAttribute` destroys receives **exactly** `['data-drag-placeholder']`, and a `visual.offsetWidth`/`offsetHeight` getter that destroys leaves **no** write at all — on a custom element and on the default composition alike, because every read is taken before any write | `tests/sortable/placement.browser.test.ts` — _should write no further attribute once a mechanics write closes the controller_, _…no attribute at all once a visual offset read closes the controller_, _…no mechanics to the default placeholder…_ | I-36 (2) |
 | **the stretch sweep** (C5-03 §7) — `placeholder()`'s own class write: a `create` factory that destroys leaves **no** class on the element it returned, which is the consumer's and is adopted by nothing | `tests/sortable/features.browser.test.ts` — _should add no class once the factory destroys the controller_ | I-36 (2) |

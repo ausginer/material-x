@@ -696,7 +696,7 @@ type DragErrorContext = Readonly<{
 }>;
 ```
 
-The names are **not frozen** — review 3 §12 says so — but the axis is: a code names an **actionable fault class**, never an internal pipeline seam. The 14 `FAILURE_*` constants and `FailureStage` are not deleted; they leave the ordinary tier (§The public/internal boundary) and a **total** stage → code mapping becomes a library obligation. It must be total in the type, not by convention: a stage with no mapping is a stage whose consumer-visible code is decided by whichever `default:` arm the implementation happens to have.
+The names are **not frozen** — review 3 §12 says so — but the axis is: a code names an **actionable fault class**, never an internal pipeline seam. The 13 `FAILURE_*` constants and `FailureStage` are not deleted; they leave the ordinary tier (§The public/internal boundary) and a **total** stage → code mapping becomes a library obligation. It must be total in the type, not by convention: a stage with no mapping is a stage whose consumer-visible code is decided by whichever `default:` arm the implementation happens to have.
 
 `DragErrorContext` keeps `domain` and loses `stage`. **The two-argument shape survives on the reasoning that first placed it** (§The export topology, `DragErrorContext` ships from `sortable.js`): `domain` is a _sortable_ result, and `DraggableError` is behavior-agnostic vocabulary on `drag.js`. Putting `domain` on the error class would make the shared entry declare a behavior's result union — the exact inversion that entry exists to prevent. The owner's sketch shows `onError(error)` with one argument; that form is available and costs the consumer the domain result, which is why it is not taken.
 
@@ -1100,7 +1100,7 @@ A separate subpath entry per optional **capability** is what makes the measureme
 **Four cells changed at Revision 2.1**, and three of them are one decision each:
 
 - **`sortable/feature.js` is new** (D-61). It is the ladder's second rung and it has **no runtime exports at all** — every name on it is erased. That is the honest measurement statement for this entry: it cannot demonstrate absence because it contains nothing present, and unlike the three subpaths D-56 deleted for exactly that reason, it is not pretending to. It exists to give the authoring types an address, not to isolate a cost.
-- **`FailureStage` and the 14 `FAILURE_*` constants move from `drag.js` to `kernel.js`** (D-64). They are how a **behavior** classifies, which is kernel-tier work; the ordinary consumer now receives a coarse code on a `DraggableError`.
+- **`FailureStage` and the 13 `FAILURE_*` constants move from `drag.js` to `kernel.js`** (D-64). They are how a **behavior** classifies, which is kernel-tier work; the ordinary consumer now receives a coarse code on a `DraggableError`.
 - **`DraggableError` and `DraggableErrorCode` are new on `drag.js`** (D-64), and `DraggableError` is why that entry still exists — see below.
 - **`LandingStart`, `LandingContext` and `LandingHandle` leave `sortable/landing.js` for `sortable/feature.js`** (D-63, D-61). They stop being consumer vocabulary and stay authoring vocabulary. `sortable/landing.js` keeps `LandingOptions`, which is now `{ duration?, easing? }`.
 - **`SortableFinishResult` and `SortableCancelResult` leave the table** (D-62), and `ReorderTransactionResult` — already listed — becomes the type `onEnd` receives.

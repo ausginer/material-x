@@ -75,8 +75,13 @@ export { ReorderResolution } from './sortable/domain.ts';
  * Composes one sortable behavior **and returns its controller** (D-48).
  *
  * ```ts
- * const list = sortable(root, y(), callbacks({ onReorder }));
+ * const list = sortable(root, { items, onReorder }, y());
  * ```
+ *
+ * ~~`sortable(root, y(), callbacks({ onReorder }))`~~ — the example said that
+ * until Revision 2 closure, and `callbacks()` was deleted by D-56. What a
+ * consumer writes now is one config object for its own slots and a fragment per
+ * capability that installs something.
  *
  * ~~`draggable(root, sortable(items, …))`~~ — the two-call form is withdrawn.
  * `sortable()` takes the ingress root itself and forwards it, so the ordinary

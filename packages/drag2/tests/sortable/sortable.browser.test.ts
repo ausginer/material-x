@@ -1489,6 +1489,7 @@ describe('settlement mapping', () => {
     // start and is owed an end, which is `canceled` at `AT_PROPOSAL` because
     // the failure arrived before any round-trip.
     const harness = createHarness();
+    const failure = new Error('cssom');
 
     activate(harness);
     // A renderer write failure on the hot path.
@@ -1496,7 +1497,7 @@ describe('settlement mapping', () => {
       configurable: true,
       get: (): string => '',
       set(): never {
-        throw new Error('cssom');
+        throw failure;
       },
     });
     move(60);
@@ -1507,10 +1508,129 @@ describe('settlement mapping', () => {
 
     const result = harness.cancels[0] as { stage: number; reason: unknown };
 
-    // The classifying error travels as the cancellation's reason, which is what
-    // makes the fallback honest rather than a placeholder value.
+    // The classifying error travels as the cancellation's reason, **by
+    // identity** — which is what makes the fallback honest rather than a
+    // placeholder value, and is the half of the acceptance row that a
+    // `String(…).toContain` could not tell apart from a re-wrapped copy.
     expect(result.stage).toBe(AT_PROPOSAL);
-    expect(String(result.reason)).toContain('cssom');
+    expect(result.reason).toBe(failure);
+  });
+});
+
+/**
+ * **The other line of D-66's lookup** (A-1, A-2).
+ *
+ * 02 §The join states the mapping as a lookup on the frame — *holds a result →
+ * publish it; holds none → publish `canceled`* — and every row above exercises
+ * the second line only. These exercise the first, which is the line that says
+ * what a consumer is told when its data really was reordered and something
+ * afterwards went wrong.
+ *
+ * **Each stage here can only fire after the settlement committed a result**, so
+ * they are the whole post-commit failure set rather than a sample of it:
+ * `LANDING_CREATE` and `LANDING_INTERRUPTED` both require an armed gate, which
+ * arming does after `prepare` returns, and the pin runs at the join. The
+ * missing assertion is what let A-1 ship: the nearest kernel row asserts *that*
+ * a terminal fired, never *which*, and the sortable rows above all sit before
+ * any round-trip.
+ */
+describe('a failure after the authored commit (D-66)', () => {
+  /** Accepts a reorder into gap 2, so the frame holds `accepted` at the join. */
+  const commit = (harness: Harness): void => {
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+  };
+
+  it('should keep the accepted result when the landing runner fails', () => {
+    // `FAILURE_LANDING_INTERRUPTED` has exactly one producer, and it cannot
+    // fire before a runner is armed — so this stage overwrote a committed
+    // result *every* time it fired, until the `??`.
+    const failure = new Error('interrupted');
+    let fail!: (error: unknown) => void;
+    const harness = createHarness({
+      startLanding: (_context, _done, reject): LandingHandle => {
+        fail = reject;
+        return { destroy: (): void => {} };
+      },
+    });
+
+    commit(harness);
+    fail(failure);
+
+    expect(harness.cancels).toEqual([]);
+    expect(harness.finishes).toHaveLength(1);
+    expect(harness.finishes[0]).toMatchObject({ type: 'accepted' });
+    // Orthogonal, not exclusive (D-60): the drop is accepted **and** the fault
+    // is reported.
+    expect(harness.errors).toHaveLength(1);
+    expect(harness.errors[0]!.error).toMatchObject({ cause: failure });
+  });
+
+  it('should keep the accepted result when the runner cannot be created', () => {
+    const harness = createHarness({
+      startLanding: (): never => {
+        throw new Error('start');
+      },
+    });
+
+    commit(harness);
+
+    expect(harness.cancels).toEqual([]);
+    expect(harness.finishes[0]).toMatchObject({ type: 'accepted' });
+    expect(harness.errors).toHaveLength(1);
+  });
+
+  it('should keep the accepted result when the pin throws at the join', () => {
+    let poison!: () => void;
+    const harness = createHarness({
+      // Armed from inside `start`, which runs *after* the settlement committed:
+      // poisoning any earlier would fail the release render instead, which is a
+      // pre-commit stage and a different row.
+      startLanding: (_context, done): LandingHandle => {
+        poison();
+        done();
+        return { destroy: (): void => {} };
+      },
+    });
+
+    poison = (): void => {
+      Object.defineProperty(harness.items[0]!.style, 'transform', {
+        configurable: true,
+        get: (): string => '',
+        set(): never {
+          throw new Error('pin');
+        },
+      });
+    };
+
+    commit(harness);
+
+    expect(harness.cancels).toEqual([]);
+    expect(harness.finishes[0]).toMatchObject({ type: 'accepted' });
+    expect(harness.errors).toHaveLength(1);
+  });
+
+  it('should keep a rejected result too, not just an accepted one', () => {
+    // The tie-break is *existing result wins*, not *accepted wins*. A consumer
+    // that rejected the reorder and then hit a landing fault is still owed the
+    // verdict it gave, with its own reason.
+    const harness = createHarness({
+      onReorder: () => ReorderResolution.reject('nope'),
+      startLanding: (_context, _done, reject): LandingHandle => {
+        reject(new Error('interrupted'));
+        return { destroy: (): void => {} };
+      },
+    });
+
+    commit(harness);
+
+    expect(harness.finishes).toEqual([]);
+    expect(harness.cancels).toHaveLength(1);
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'rejected',
+      reason: 'nope',
+    });
   });
 });
 

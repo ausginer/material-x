@@ -1606,10 +1606,20 @@ export function createKernel<Part extends object>(
     }
 
     if (failed) {
-      // The terminal callback is skipped after a consequential failure: the
-      // committed frame still carries the accepted outcome, so calling it would
-      // fire `onFinish` for a drop the queued checkpoint is about to report
-      // through `onError`. The checkpoint drives `REPORTING`, then retirement.
+      // **The terminal is not skipped — it moves one action later** (D-66).
+      // This `return` hands the operation to the queued checkpoint, which
+      // drives `REPORTING` and then publishes the terminal from
+      // `ERROR_REPORTED`, after presentation is released.
+      //
+      // ~~It would fire `onFinish` for a drop the checkpoint is about to
+      // report through `onError`~~ — the rule this comment stated until D-66,
+      // on the reasoning that a failure and a terminal are alternatives. They
+      // are orthogonal (D-60): a consequential failure of a started operation
+      // still owes the consumer exactly one end, and the frame's committed
+      // result is what it publishes. Skipping it here and publishing there is
+      // what keeps the two routes' *ordering* identical — presentation
+      // released first, terminal second — so a consumer never has to know
+      // which route its drag took.
       return;
     }
 

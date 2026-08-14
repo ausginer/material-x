@@ -1106,9 +1106,12 @@ describe('landing', () => {
   it('should destroy a consumer runner’s handle exactly once when the runner destroyed the controller', async () => {
     // **A conformance pin, not a regression pin** (Checkpoint D review 5,
     // C5-03 §5). It passes against current source and adds no barrier: what it
-    // pins is the **admitted** form of I-6 clause 3's kernel half. With
-    // `landing({ run })` composed, `start` *is* the consumer's runner and the
-    // handle it returns *is* a consumer-authored object — so F-30's
+    // pins is the **admitted** form of I-6 clause 3's kernel half. With a
+    // **middle-tier installer** supplying `startLanding` — which is where a
+    // consumer-authored runner lives since D-63 withdrew `landing({ run })`,
+    // and which is why this pin did not become vacuous when that option went —
+    // `start` *is* code the library does not own and the handle it returns
+    // *is* a consumer-authored object — so F-30's
     // `!settlementLive(attempt)` branch invokes a declared consumer slot member
     // after `controller.destroy()` returned. The kernel must: not calling it
     // leaks a runner nothing owns (I-20). That is why the invariant reads
