@@ -40,7 +40,7 @@ type Field = Readonly<{
   resolve(
     pointerY: number,
     snapshot?: CollectionSnapshot,
-    getVisual?: ((item: HTMLElement) => HTMLElement) | null,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
     live?: () => boolean,
   ): Insertion | null;
 }>;
@@ -93,12 +93,12 @@ function createField(count = 3): Field {
     resolve: (
       pointerY,
       snapshot = field.snapshot(),
-      getVisual = null,
+      getBox = null,
       live = ALIVE,
     ) =>
       geometry.resolve(
         { pointerX: 0, pointerY, insertion: null, item: items[0]! },
-        { snapshot, placeholder, getVisual, live },
+        { snapshot, placeholder, getBox, live },
       ),
   };
 
@@ -117,7 +117,7 @@ describe('y', () => {
         {
           snapshot: field.snapshot(),
           placeholder: field.placeholder,
-          getVisual: null,
+          getBox: null,
           live: ALIVE,
         },
       ),
@@ -159,10 +159,10 @@ describe('y', () => {
     // item centre is 18 away and beats the placeholder's 22, while its visual
     // centre is 28 away and loses to it.
     const field = createField();
-    const getVisual = insetVisuals(field.items);
+    const getBox = insetVisuals(field.items);
 
     expect(field.resolve(42)?.index).toBe(1);
-    expect(field.resolve(42, field.snapshot(1), getVisual)).toBeNull();
+    expect(field.resolve(42, field.snapshot(1), getBox)).toBeNull();
   });
 
   it('should resolve each candidate visual once per rebuild', () => {
@@ -172,19 +172,19 @@ describe('y', () => {
     const field = createField();
     const resolve = insetVisuals(field.items);
     const seen: HTMLElement[] = [];
-    const getVisual = (item: HTMLElement): HTMLElement => {
+    const getBox = (item: HTMLElement): HTMLElement => {
       seen.push(item);
       return resolve(item);
     };
 
-    field.resolve(42, field.snapshot(), getVisual);
+    field.resolve(42, field.snapshot(), getBox);
 
     // Two destination candidates, the dragged item excluded.
     expect(seen).toEqual([field.items[1], field.items[2]]);
 
     // Same version, nothing dirtied: the previous scan stands and the resolver
     // is not consulted again.
-    field.resolve(44, field.snapshot(), getVisual);
+    field.resolve(44, field.snapshot(), getBox);
 
     expect(seen).toHaveLength(2);
   });
@@ -334,14 +334,12 @@ describe('the terminal barrier in the candidate loop', () => {
     const field = createField(4);
     const asked: HTMLElement[] = [];
     let alive = true;
-    const getVisual = closingAt(field.items[2]!, asked, () => {
+    const getBox = closingAt(field.items[2]!, asked, () => {
       alive = false;
     });
 
     // Three destination candidates; the second one destroys.
-    expect(
-      field.resolve(55, field.snapshot(), getVisual, () => alive),
-    ).toBeNull();
+    expect(field.resolve(55, field.snapshot(), getBox, () => alive)).toBeNull();
 
     // `items[3]` is never resolved: no `visual()` call crosses the terminal
     // barrier. The other half of the barrier — that no geometry is read after
@@ -508,7 +506,7 @@ describe('the terminal barrier on candidate geometry', () => {
 
   it('should resolve no further visual once a candidate closed the controller', () => {
     // The other half of the same ordering defect: the barrier sat *before* the
-    // geometry read, so the next iteration reached `getVisual` before the next
+    // geometry read, so the next iteration reached `getBox` before the next
     // reading was taken.
     const field = createField(4);
     const measured: HTMLElement[] = [];
@@ -536,7 +534,7 @@ describe('the terminal barrier on candidate geometry', () => {
     // The entry barrier. `settleDisplacement` runs the `beforeMove` hooks and
     // `release.prepare` resolves immediately afterwards, so a rebuild can be
     // entered on a controller that a hook already destroyed — and the first
-    // `getVisual` of that rebuild would be a consumer call after `destroy()`.
+    // `getBox` of that rebuild would be a consumer call after `destroy()`.
     const field = createField(4);
     const asked: HTMLElement[] = [];
 

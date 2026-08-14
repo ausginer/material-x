@@ -2,7 +2,7 @@
  * The two-dimensional axis rule — a field of rectangles rather than a column.
  *
  * ```text
- * candidates := centres of every non-dragged item's **visual**, plus the
+ * candidates := centres of every non-dragged item's **box**, plus the
  *               placeholder's own
  * nearest    := the candidate whose centre is closest to the pointer, squared
  *               Euclidean over BOTH coordinates
@@ -35,8 +35,8 @@
  * this module's metric and its `compareDocumentPosition` call, which the M-3
  * budget is explicit about not paying for.
  */
-import type { CollectionSnapshot, Insertion } from './domain.ts';
 import type { SortableConfig } from './config.ts';
+import type { CollectionSnapshot, Insertion } from './domain.ts';
 import { CENTRE_X, CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
 
 /**
@@ -61,8 +61,8 @@ type InsertionFrameView = Readonly<{
 type InsertionRuntimeView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
-  /** The installed `visual()` resolver, or `null`; see `y.ts` for why. */
-  getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  /** The installed `box` resolver, or `null`; see `y.ts` for why. */
+  getBox: ((item: HTMLElement) => HTMLElement) | null;
   /**
    * Whether the controller is still alive (I-36); see `y.ts`. The check itself
    * lives in `RectIndex.refresh`, but the **threading** is per-axis — which is
@@ -91,7 +91,7 @@ export function xy(): Pick<SortableConfig, 'axis'> {
             const { snapshot, placeholder } = runtime;
 
             if (
-              !index.refresh(snapshot, dragged, runtime.getVisual, runtime.live)
+              !index.refresh(snapshot, dragged, runtime.getBox, runtime.live)
             ) {
               // The rebuild crossed the terminal barrier (I-36); see `y.ts`. The
               // placeholder measured below is consumer-owned, so reading it after
@@ -176,7 +176,7 @@ export function xy(): Pick<SortableConfig, 'axis'> {
               index.refresh(
                 runtime.snapshot,
                 dragged,
-                runtime.getVisual,
+                runtime.getBox,
                 runtime.live,
               );
             }

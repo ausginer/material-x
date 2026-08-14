@@ -8,12 +8,16 @@
  * landing, released only when both gates are complete.
  */
 import type { DOMRealm } from '../kernel/realm.ts';
+import type { OffsetBox } from '../kernel/types.ts';
 import type { Insertion } from './domain.ts';
 
-/** What a `placeholder()` factory is handed. Geometry, and both elements. */
+/** What a `placeholder` factory is handed. Geometry, and all three elements. */
 export type PlaceholderContext = Readonly<{
   item: HTMLElement;
+  /** The node faithfully lifted (D-43). */
   visual: HTMLElement;
+  /** The geometry source, or `visual` when the config named no `box` (D-43). */
+  box: HTMLElement;
   rect: DOMRectReadOnly;
 }>;
 
@@ -39,16 +43,24 @@ export type PlaceholderSlot = (
  * Applies the mechanics that are **always present and not configurable away**,
  * whether the element came from a feature factory or from the default below:
  * it occupies exactly one insertion position, is hidden from assistive
- * technology, inherits the item's slot, and is sized from the visual's
- * **offset** box — which, unlike a bounding rect, is unaffected by the item's
- * transform or by ancestor zoom.
+ * technology, inherits the item's slot, and is sized from the **footprint the
+ * visual removed** — computed by the caller across the lift (D-43), never
+ * measured here.
+ *
+ * **The sizing input changed and the measurement moved out** (D-43, D-52). It
+ * used to read `visual.offsetWidth`/`offsetHeight` right here, which is the
+ * visual's own box rather than the space its removal freed; where the box keeps
+ * a sibling in flow those differ, and api-1 measured them 30 px apart. The
+ * windows now straddle `acquireLift` — one owned by the kernel, one by
+ * `activation.prepare` — and neither is reachable from this function, so it
+ * takes the answer instead of computing it.
  *
  * Beyond this the library writes no visual styling.
  */
 function applyMechanics(
   placeholder: HTMLElement,
   item: HTMLElement,
-  visual: HTMLElement,
+  footprint: OffsetBox,
   live: () => boolean,
 ): void {
   // **Every read first, then every write** (I-36 (2) act 3, C5-02). Each call
@@ -61,8 +73,7 @@ function applyMechanics(
   // of them closes the controller; each write then carries its own reading, so
   // the sequence stops before the next surviving mutation rather than after it.
   const slot = item.getAttribute('slot');
-  const width = visual.offsetWidth;
-  const height = visual.offsetHeight;
+  const { width, height } = footprint;
 
   if (!live()) {
     return;
@@ -115,32 +126,36 @@ function applyMechanics(
 
 /**
  * Creates the operation's placeholder, **detached**. The behavior always
- * creates one; a `placeholder()` feature only customises the element.
+ * creates one; the `placeholder` config slot only customises the element.
+ *
+ * `footprint` is what the visual removed from the layout, already computed
+ * across the lift by the caller — see `activation.prepare`.
  */
 export function createPlaceholder(
   realm: DOMRealm,
-  item: HTMLElement,
-  visual: HTMLElement,
-  rect: DOMRectReadOnly,
+  context: PlaceholderContext,
+  footprint: OffsetBox,
   factory: PlaceholderSlot | null,
   live: () => boolean,
 ): HTMLElement {
+  const { item, visual } = context;
+
   if (factory === null) {
     const placeholder = realm.document.createElement('div');
 
-    applyMechanics(placeholder, item, visual, live);
+    applyMechanics(placeholder, item, footprint, live);
     return placeholder;
   }
 
-  const placeholder = factory({ item, visual, rect }, live);
+  const placeholder = factory(context, live);
 
   // **The terminal barrier on the factory** (I-36, C4-01). The factory is
   // consumer code, and everything below it touches consumer-owned elements:
-  // the adoption check reads `isConnected`, and `applyMechanics` reads
-  // `visual.offsetWidth`/`offsetHeight` and writes attributes and inline styles
-  // onto the returned element, all overridable on a consumer's custom element.
-  // The mechanics carry their own readings from C5-02; this one covers the
-  // factory itself and the adoption check between them.
+  // the adoption check reads `isConnected`, and `applyMechanics` writes
+  // attributes and inline styles onto the returned element, all overridable on
+  // a consumer's custom element. The mechanics carry their own readings from
+  // C5-02; this one covers the factory itself and the adoption check between
+  // them.
   //
   // Returned unmechanized rather than thrown, and the adoption check is skipped
   // with it: a consumer destroying its own controller is not a library failure
@@ -170,7 +185,7 @@ export function createPlaceholder(
     );
   }
 
-  applyMechanics(placeholder, item, visual, live);
+  applyMechanics(placeholder, item, footprint, live);
   return placeholder;
 }
 

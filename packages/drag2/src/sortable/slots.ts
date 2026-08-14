@@ -74,20 +74,28 @@ export type InsertionRuntimeView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
   /**
-   * The installed `visual()` resolver, or `null` when no `visual()` is composed.
+   * The installed `box` resolver, or `null` when the config names neither `box`
+   * nor `visual`.
    *
-   * **The axis rule measures candidate visuals, not candidate items** (parity
-   * D2). The reason is internal coherence rather than only parity: the incumbent
-   * every candidate is compared against is the placeholder, which `placement.ts`
-   * sizes from the visual's offset box. Measuring items on one side of that
-   * comparison and a visual-derived box on the other biases the hysteresis for
-   * any visual that is an inset or offset descendant.
+   * **The axis rule measures candidate boxes, not candidate visuals** (D-58,
+   * superseding parity D2's choice of node while keeping its reasoning). D2's
+   * argument was coherence — the incumbent every candidate is compared against
+   * is the placeholder, so both sides of the comparison must be the same kind
+   * of rect — and it chose `visual` only because no `box` concept existed. It
+   * does now, the placeholder occupies the **box's** removed footprint (D-43),
+   * and so `box` is what the comparison has to be on. Leaving candidates on
+   * `visual` would measure the incumbent one way and its challengers another:
+   * a hysteresis defect, not a rounding one, and api-1 measured the two 30 px
+   * apart.
+   *
+   * Under the default `box === visual` nothing changes, so the common case is
+   * untouched.
    *
    * Nullable rather than normalized to identity, because the minimal
-   * composition installs no `visual()` and would otherwise pay an identity call
-   * per candidate per rebuild.
+   * composition names neither slot and would otherwise pay an identity call per
+   * candidate per rebuild.
    */
-  getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  getBox: ((item: HTMLElement) => HTMLElement) | null;
   /**
    * Whether the controller is still alive (I-36).
    *
@@ -191,7 +199,15 @@ export type SortableSlots = Readonly<{
   /* optional; `null` when no feature filled them */
   createPlaceholder: PlaceholderSlot | null;
   getHandle: ((item: HTMLElement) => HTMLElement | null) | null;
+  /** The node faithfully lifted (D-43). Resolved once, at admission. */
   getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  /**
+   * The geometry source (D-43). **Already defaulted to `getVisual` by the
+   * assembler**, so this is `null` only when neither slot was written — which
+   * is what lets both the admission path and the candidate loop skip the call
+   * entirely rather than pay an identity per item.
+   */
+  getBox: ((item: HTMLElement) => HTMLElement) | null;
   startLanding: LandingStart | null;
   /**
    * These stay nullable rather than normalized: their arguments are result

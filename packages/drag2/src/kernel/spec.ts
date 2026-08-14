@@ -12,7 +12,7 @@ import type { LifetimeScope } from './lifetimes.ts';
 import type { LiftMode, VisualLiftSession } from './presentation.ts';
 import type { DOMRealm } from './realm.ts';
 import type { Transition } from './seams.ts';
-import type { Point } from './types.ts';
+import type { OffsetBox, Point } from './types.ts';
 
 /**
  * The whole construction-time surface. Six members, none of which lets the
@@ -161,6 +161,22 @@ export type ActivationScope = Readonly<{
    * one behavior-authored field would contradict H-2 and D-15.
    */
   box: HTMLElement;
+  /**
+   * **Window 1 of 2** — the box's offset box, read by the *kernel*, immediately
+   * before `acquireLift` (D-43, D-52).
+   *
+   * The behavior reads window 2 itself, at the top of `activation.prepare`, and
+   * the footprint is the difference. The split of owners is not arbitrary: the
+   * two reads have to straddle `acquireLift`, and only the kernel is on the
+   * near side of it. Handing this down rather than letting the behavior take
+   * its own pre-read keeps the behavior out of a window it cannot reach.
+   *
+   * **`originRect` is derived from neither window** and stays the *visual's*
+   * grab rect. It is the basis of the origin-relative landing space, so
+   * deriving it from a box the consumer chose for layout reasons would make the
+   * landing coordinate space a function of that choice.
+   */
+  boxPre: OffsetBox;
   /** The lift session. The behavior keeps it for `moved`. */
   lift: VisualLiftSession;
   /** Closed at release, cancel, destroy, panic. */

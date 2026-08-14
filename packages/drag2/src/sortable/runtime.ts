@@ -59,17 +59,18 @@ export type PresentationView = {
    */
   readonly item: HTMLElement;
   /**
-   * The installed `visual()` resolver, for the axis rule's candidate
-   * measurement (parity D2). Copied off the slots once per operation rather than
-   * read through `slots` per rebuild, so the axis feature keeps naming only
-   * fields of this object and never reaches the slot record.
+   * The installed `box` resolver, for the axis rule's candidate measurement
+   * (D-58, superseding parity D2's choice of node). Copied off the slots once
+   * per operation rather than read through `slots` per rebuild, so the axis
+   * feature keeps naming only fields of this object and never reaches the slot
+   * record.
    */
-  readonly getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  readonly getBox: ((item: HTMLElement) => HTMLElement) | null;
   /**
    * The controller's terminal latch, read as a predicate (I-36).
    *
-   * The candidate loop inside `RectIndex.refresh` calls the consumer's
-   * `visual()` resolver once per candidate, and a resolver may destroy the
+   * The candidate loop inside `RectIndex.refresh` calls the consumer's `box`
+   * resolver once per candidate, and a resolver may destroy the
    * controller. The loop is feature-private (D-19, H-4) and cannot reach `rt`,
    * so the reading travels through the per-operation view — the **fourth
    * additive widening** of the D-13 consumer-declared view (8a `item`, 17

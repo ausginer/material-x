@@ -6,6 +6,7 @@
  * here reads `current` from a `prepare`, and nothing here can close a lifetime
  * the kernel owns — those are properties of the arguments, not of discipline.
  */
+import { toDraggableError } from '../kernel/errors.ts';
 import {
   FAILURE_INVALIDATION,
   FAILURE_RELEASE,
@@ -17,11 +18,11 @@ import {
 import type { Draft, Frame } from '../kernel/frames.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE, IDLE, RELEASING } from '../kernel/phases.ts';
-import { toDraggableError } from '../kernel/errors.ts';
 import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
 import { KEY_DOWN } from '../kernel/protocol.ts';
 import { guarded } from '../kernel/reporter.ts';
 import {
+  type AdmissionSubject,
   type BehaviorSpec,
   type PreparedSettlement,
   type SeamRejection,
@@ -171,8 +172,8 @@ export function createSortableSpec(
   };
 
   /**
-   * The second half of admission: resolve the visual and seed the draft with an
-   * item **already resolved**. Returns the visual.
+   * The second half of admission: resolve the visual and the box, and seed the
+   * draft with an item **already resolved**. Returns the admission subject.
    *
    * Split from {@link admitFrom} for the command path, which needs the item
    * before it can decide feasibility. Resolving twice would call the consumer's
@@ -185,7 +186,7 @@ export function createSortableSpec(
     item: HTMLElement,
     snapshot: CollectionSnapshot,
     draft: Draft<SortableFramePart>,
-  ): HTMLElement | null => {
+  ): AdmissionSubject | null => {
     let visual = item;
 
     if (slots.getVisual !== null) {
@@ -209,12 +210,45 @@ export function createSortableSpec(
     draft.item = item;
     draft.visual = visual;
     draft.snapshot = snapshot;
-    return visual;
+
+    // **The box is resolved here and returned, never written to the draft**
+    // (D-43, D-59). The kernel needs it before `acquireLift` to take window 1,
+    // and the only two carriers are this return value and a behavior-authored
+    // draft field the kernel reads back — which would contradict H-2 and D-15.
+    // So it travels as the second half of the admission subject.
+    //
+    // Two ways the box is already known, and neither may call anything.
+    // `null` means the config named neither slot, so the item is its own box.
+    // **Reference equality means the assembler defaulted `box` to `visual`**
+    // (D-43) — and calling it again here would invoke one consumer resolver
+    // twice for a single admission, which a stateful resolver can observe and
+    // which the candidate-traversal tests caught immediately.
+    if (slots.getBox === null || slots.getBox === slots.getVisual) {
+      return visual;
+    }
+
+    const box = slots.getBox(item);
+
+    // The terminal barrier on the box resolver, for the same reason the visual
+    // resolver carries one two statements up: it is consumer code, and a
+    // resolver that destroys its own controller must not have its result
+    // minted into an operation.
+    if (host.closed) {
+      return null;
+    }
+
+    // Returned as a bare element when the two coincide, so the kernel's `box`
+    // and `visual` are the *same reference* and `activation.prepare`'s identity
+    // branch can recognise the default case. Two encodings of "the box is the
+    // visual" is exactly what D-59 refused for the optional-`box` spelling.
+    return box === visual ? visual : { visual, box };
   };
 
   /**
-   * The half of admission both ingresses share: resolve the item, resolve the
-   * visual, seed the draft. Returns the visual, or `null` to decline.
+   * The half of admission both ingresses share: resolve the item, the visual
+   * and the box, and seed the draft. Returns the admission subject — a bare
+   * visual, or the `{ visual, box }` pair when the two differ (D-59) — or
+   * `null` to decline.
    *
    * No `preventDefault()` — the kernel owns that call in both modes, and makes
    * it exactly when this returns non-null (C-03).
@@ -222,7 +256,7 @@ export function createSortableSpec(
   const admitFrom = (
     event: Event,
     draft: Draft<SortableFramePart>,
-  ): HTMLElement | null => {
+  ): AdmissionSubject | null => {
     const { snapshot } = rt;
     const item = resolveItem(event, snapshot);
 
@@ -409,7 +443,7 @@ export function createSortableSpec(
     command: {
       types: [KEY_DOWN],
 
-      admit(event, draft): HTMLElement | null {
+      admit(event, draft): AdmissionSubject | null {
         const direction = directionOf((event as KeyboardEvent).key);
 
         if (direction === null) {
@@ -437,17 +471,17 @@ export function createSortableSpec(
           return null;
         }
 
-        const visual = seedDraft(item, snapshot, draft);
+        const subject = seedDraft(item, snapshot, draft);
 
-        if (visual === null) {
-          return null; // the visual resolver destroyed the controller
+        if (subject === null) {
+          return null; // a consumer resolver destroyed the controller
         }
 
         // The destination travels in the draft, exactly as `item` does for a
         // press. No staged value crosses the ingress boundary, which is what
         // keeps D-32 to one SPI member.
         draft.insertion = insertion;
-        return visual;
+        return subject;
       },
     },
 
@@ -464,6 +498,29 @@ export function createSortableSpec(
        */
       prepare(draft, scope) {
         const item = draft.item!;
+        const { box, visual, boxPre } = scope;
+        // **Window 2 of 2, and the first thing this seam does** (D-43, D-52).
+        // The kernel took window 1 immediately before `acquireLift`; this one
+        // reads the same element in the same units on the far side of it, and
+        // the difference is the space the visual's removal actually freed.
+        //
+        // **The identity branch is not an optimisation.** `boxPre − boxPost` is
+        // only the footprint when the box *stays in flow* while the visual
+        // leaves it, which is what api-1 measured with a nested pair
+        // (`box = .row-box` wrapping `visual = .card`: 62 → 32, so 30). Under
+        // the default `box === visual` there is no such pair — the one element
+        // is the thing being lifted, and `LIFT_FAITHFUL` promotes it with
+        // `position: fixed` and an explicit width and height, so its offset box
+        // is *unchanged* by the lift and the difference would be zero rather
+        // than its height. The pre-lift capture is the whole answer there, and
+        // taking it is what the library did before two windows existed.
+        const footprint =
+          box === visual
+            ? boxPre
+            : {
+                width: boxPre.width - box.offsetWidth,
+                height: boxPre.height - box.offsetHeight,
+              };
 
         // **The pointer branch** (D-32, C4-01). A press has no destination yet,
         // so the grab slot is the origin the spatial path resolves away from. A
@@ -481,9 +538,8 @@ export function createSortableSpec(
 
         return createPlaceholder(
           realm,
-          item,
-          scope.visual,
-          scope.originRect,
+          { item, visual, box, rect: scope.originRect },
+          footprint,
           slots.createPlaceholder,
           live,
         );
@@ -585,7 +641,7 @@ export function createSortableSpec(
           realm,
           placeholder,
           item,
-          getVisual: slots.getVisual,
+          getBox: slots.getBox,
           live,
           snapshot: current.snapshot!,
           insertion: null,

@@ -443,6 +443,65 @@ describe('visual', () => {
     expect(composed.placeholder()!.getBoundingClientRect().height).toBe(20);
   });
 
+  it('should size the placeholder from the footprint, not the visual, when a box is composed', () => {
+    // **api-1's case, and the whole reason D-43 takes two windows.** The box is
+    // a flex row holding the lifted card (60) beside an aside (32), so the box
+    // stands 60 tall while the card is in flow and 32 once it leaves. The space
+    // the drag actually freed is 28 — which is neither the visual's height (60,
+    // the rule this replaces) nor the box's pre-lift height (60, which
+    // double-counts the residue).
+    //
+    // Both windows are offset-box reads on the **same element**, taken on
+    // opposite sides of `acquireLift`.
+    const box = document.createElement('div');
+    const card = document.createElement('div');
+    const aside = document.createElement('div');
+
+    Object.assign(box.style, { display: 'flex' });
+    Object.assign(card.style, {
+      display: 'block',
+      width: '50px',
+      height: '60px',
+    });
+    Object.assign(aside.style, {
+      display: 'block',
+      width: '20px',
+      height: '32px',
+    });
+    box.append(card, aside);
+
+    const composed = compose({ visual: () => card, box: () => box });
+
+    composed.items[0]!.append(box);
+    activate(composed);
+
+    expect(composed.placeholder()!.getBoundingClientRect().height).toBe(28);
+  });
+
+  it('should measure candidates as the box once one is composed', async () => {
+    // D-58. The placeholder occupies the box's removed footprint, so the
+    // challengers it is compared against have to be boxes too — measuring the
+    // incumbent one way and its candidates another is a hysteresis defect, not
+    // a rounding one. What this pins is that a composed drag routes the `box`
+    // resolver into the candidate search at all.
+    const asked: HTMLElement[] = [];
+    const composed = composeWith({
+      fragments: [
+        {
+          box: (item) => {
+            asked.push(item);
+            return item;
+          },
+        },
+      ],
+    });
+
+    activate(composed);
+    await drag(70);
+
+    expect(new Set(asked)).toEqual(new Set(composed.items));
+  });
+
   it('should resolve the visual of every candidate, not only the dragged item', async () => {
     // Parity D2, through real pointer input. The exact centres the two
     // measurements produce are pinned against known geometry in

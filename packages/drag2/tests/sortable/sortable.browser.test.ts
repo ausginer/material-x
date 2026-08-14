@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DraggableError, type DraggableErrorCode } from '../../src/drag.ts';
-import { draggable } from '../../src/kernel.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -19,6 +18,7 @@ import {
   type LandingStart,
   SETTLED_FULFILLED,
 } from '../../src/kernel/spec.ts';
+import { draggable } from '../../src/kernel.ts';
 import { createSortableBehavior } from '../../src/sortable/behavior.ts';
 import type { SortableController } from '../../src/sortable/controller.ts';
 import {
@@ -74,6 +74,7 @@ type Overrides = Partial<
     | 'onReorder'
     | 'getHandle'
     | 'getVisual'
+    | 'getBox'
     | 'createPlaceholder'
     | 'invalidateInsertion'
     | 'measureInsertion'
@@ -182,6 +183,10 @@ function createHarness(overrides: Overrides = {}): Harness {
     createPlaceholder: overrides.createPlaceholder ?? null,
     getHandle: overrides.getHandle ?? null,
     getVisual: overrides.getVisual ?? null,
+    // D-43's default applied the way the assembler applies it: `box` falls back
+    // to `visual`, so a fixture that overrides only `visual` still measures its
+    // candidates on the same element the placeholder is sized from.
+    getBox: overrides.getBox ?? overrides.getVisual ?? null,
     startLanding: overrides.startLanding ?? null,
     onFinish(result): void {
       calls.push('onFinish');
@@ -347,6 +352,7 @@ const EMPTY_SLOTS: SortableSlots = {
   createPlaceholder: null,
   getHandle: null,
   getVisual: null,
+  getBox: null,
   startLanding: null,
   onFinish: (): void => {},
   onCancel: (): void => {},
@@ -2287,7 +2293,7 @@ describe('the spatial action legality guard', () => {
       realm: rt.host.realm,
       placeholder: item,
       item,
-      getVisual: null,
+      getBox: null,
       live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
@@ -2368,7 +2374,7 @@ describe('a pointerless release with no destination', () => {
       realm: rt.host.realm,
       placeholder: item,
       item,
-      getVisual: null,
+      getBox: null,
       live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
@@ -2616,7 +2622,7 @@ describe('the displacement view lifetime', () => {
       realm: rt.host.realm,
       placeholder,
       item: items[0]!,
-      getVisual: null,
+      getBox: null,
       live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
@@ -2743,7 +2749,7 @@ describe('the displacement view lifetime', () => {
       realm: rt.host.realm,
       placeholder,
       item: items[0]!,
-      getVisual: null,
+      getBox: null,
       live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
@@ -2908,7 +2914,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       realm: held.rt.host.realm,
       placeholder: held.item,
       item: held.item,
-      getVisual: null,
+      getBox: null,
       live: () => !held.host.closed,
       snapshot: held.rt.snapshot,
       insertion: null,
@@ -2997,7 +3003,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       realm: held.rt.host.realm,
       placeholder: held.item,
       item: held.item,
-      getVisual: null,
+      getBox: null,
       live: () => !held.host.closed,
       snapshot: held.rt.snapshot,
       insertion: null,

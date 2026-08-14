@@ -21,11 +21,11 @@ import type {
   KernelHost,
 } from '../kernel/spec.ts';
 import { assemble } from './assemble.ts';
+import { mergeFragments, type SortableConfig } from './config.ts';
 import {
   createSortableController,
   type SortableController,
 } from './controller.ts';
-import { mergeFragments, type SortableConfig } from './config.ts';
 import type { SortableFramePart } from './frames.ts';
 import { createSortableRuntime } from './runtime.ts';
 import type { SortableSlots } from './slots.ts';
@@ -71,7 +71,7 @@ export function createSortableBehavior(
  * config for a behavior that may never be installed.
  */
 export function createComposedSortableBehavior(
-  fragments: readonly Partial<SortableConfig>[],
+  fragments: ReadonlyArray<Partial<SortableConfig>>,
 ): BehaviorFactory<SortableController, SortableFramePart> {
   const config = mergeFragments(fragments);
 

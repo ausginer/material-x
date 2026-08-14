@@ -44,18 +44,19 @@ export type RectIndex = {
    * moved. On a frame where the pointer merely travels inside the same slot this
    * reads no geometry at all and the previous scan stands.
    *
-   * `getVisual` is the installed `visual()` resolver, or `null` when no
-   * `visual()` is composed — in which case every candidate *is* its own visual
-   * and the resolver would be an identity call per item per rebuild.
+   * `getBox` is the installed `box` resolver — already defaulted to `visual`
+   * by the assembler (D-43) — or `null` when the config named neither, in which
+   * case every candidate *is* its own box and the resolver would be an identity
+   * call per item per rebuild.
    *
    * `live` reports whether the controller is still alive (I-36). It is read
    * **between every consumer-reachable call in the traversal**, which since
    * C4-01 includes the candidate's own `getBoundingClientRect()`: the candidate
    * is a consumer-owned element and an overridden `getBoundingClientRect()` is
    * a consumer call, not a layout read (contract 05 I-36, indirect-invocation
-   * clause). So a composition with **no** `visual()` reads it too — there the
-   * item is its own visual and the geometry read is the only consumer call in
-   * the loop, but it is still one.
+   * clause). So a composition with **no** resolver reads it too — there the
+   * item is its own box and the geometry read is the only consumer call in the
+   * loop, but it is still one.
    *
    * Returns `false` — and **only** then — when the rebuild aborted on the
    * terminal barrier. The caller owes the rest of I-36 for its own reads: it
@@ -68,7 +69,7 @@ export type RectIndex = {
   refresh(
     snapshot: CollectionSnapshot,
     dragged: HTMLElement,
-    getVisual: ((item: HTMLElement) => HTMLElement) | null,
+    getBox: ((item: HTMLElement) => HTMLElement) | null,
     live: () => boolean,
   ): boolean;
   invalidate(): void;
@@ -119,7 +120,7 @@ export function createRectIndex(): RectIndex {
     items: [],
     count: 0,
 
-    refresh(snapshot, dragged, getVisual, live): boolean {
+    refresh(snapshot, dragged, getBox, live): boolean {
       // A warm cache reads no geometry and calls no resolver, so it needs no
       // barrier — and it cannot be reached on a destroyed controller anyway:
       // `retire()` sets `dirty`, and teardown always runs it.
@@ -131,7 +132,7 @@ export function createRectIndex(): RectIndex {
       // the controller already closed: `settleDisplacement` runs the
       // `beforeMove` hooks — which measure consumer-owned rows — and
       // `release.prepare` resolves straight afterwards. Without this the first
-      // `getVisual` of that rebuild would be a consumer call after `destroy()`
+      // `getBox` of that rebuild would be a consumer call after `destroy()`
       // returned.
       if (!live()) {
         return abort();
@@ -152,16 +153,18 @@ export function createRectIndex(): RectIndex {
           continue;
         }
 
-        // The **visual's** box, not the item's, because the incumbent this
-        // geometry is compared against is the placeholder — which is sized from
-        // the visual's offset box (`placement.ts`). Measuring items here and
-        // the placeholder there would compare centres of differently-derived
-        // boxes, and for an inset or offset visual that biases the hysteresis.
-        // Parity: the shipped index resolved the visual per candidate too.
-        let visual = item;
+        // The **box**, not the item and not the visual (D-58). The incumbent
+        // this geometry is compared against is the placeholder, which is sized
+        // from the box's removed footprint (`placement.ts`, D-43) — so the box
+        // is what puts both sides of the comparison on one kind of rect.
+        // Measuring items here, or visuals, would bias the hysteresis for any
+        // box that is not also the lifted node; api-1 measured the two 30 px
+        // apart. Under the default `box === visual` this is D2's behavior
+        // unchanged.
+        let box = item;
 
-        if (getVisual !== null) {
-          visual = getVisual(item);
+        if (getBox !== null) {
+          box = getBox(item);
 
           // **The resolver barrier** (I-36), inside the branch because with no
           // resolver composed there is no call here for it to stand behind.
@@ -171,9 +174,9 @@ export function createRectIndex(): RectIndex {
         }
 
         // **The geometry barrier** (I-36, indirect-invocation clause), and it
-        // is *outside* the branch: `visual` is a consumer-owned element in
-        // every composition — with no `visual()` composed the candidate item is
-        // its own visual — so an overridden `getBoundingClientRect()` is
+        // is *outside* the branch: `box` is a consumer-owned element in every
+        // composition — with no resolver composed the candidate item is its own
+        // box — so an overridden `getBoundingClientRect()` is
         // consumer code the loop just ran. Everything after this line is a
         // publication into the cache, and the next iteration is another
         // consumer call, so the reading is taken before either.
@@ -181,7 +184,7 @@ export function createRectIndex(): RectIndex {
         // This is the barrier C2-01 and C3-01 placed one call too early
         // (C4-01): they stood between the resolver and the geometry read and
         // then let the geometry read itself cross.
-        const rect = visual.getBoundingClientRect();
+        const rect = box.getBoundingClientRect();
 
         if (!live()) {
           return abort();

@@ -69,7 +69,7 @@ type Field = Readonly<{
     x: number,
     y: number,
     snapshot?: CollectionSnapshot,
-    getVisual?: ((item: HTMLElement) => HTMLElement) | null,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
     live?: () => boolean,
   ): Insertion | null;
 }>;
@@ -145,16 +145,10 @@ function createField(slot = 0): Field {
     dragged,
     placeholder,
     snapshot: (version = 0, list = collection) => ({ items: list, version }),
-    resolve: (
-      x,
-      y,
-      snapshot = field.snapshot(),
-      getVisual = null,
-      live = ALIVE,
-    ) =>
+    resolve: (x, y, snapshot = field.snapshot(), getBox = null, live = ALIVE) =>
       geometry.resolve(
         { pointerX: x, pointerY: y, insertion: null, item: dragged },
-        { snapshot, placeholder, getVisual, live },
+        { snapshot, placeholder, getBox, live },
       ),
   };
 
@@ -171,7 +165,7 @@ describe('xy', () => {
         {
           snapshot: field.snapshot(),
           placeholder: field.placeholder,
-          getVisual: null,
+          getBox: null,
           live: ALIVE,
         },
       ),
@@ -207,7 +201,7 @@ describe('xy', () => {
       visuals.set(item, inner);
     }
 
-    const getVisual = (item: HTMLElement): HTMLElement =>
+    const getBox = (item: HTMLElement): HTMLElement =>
       visuals.get(item) ?? item;
 
     // At (105, 20) the pointer has not yet passed the midpoint between the
@@ -215,7 +209,7 @@ describe('xy', () => {
     // holds the incumbent. Cell 1's *visual* centre is already the nearest, so
     // a visual-measured scan proposes the gap on its far side.
     expect(field.resolve(105, 20)).toBeNull();
-    expect(field.resolve(105, 20, field.snapshot(1), getVisual)?.index).toBe(1);
+    expect(field.resolve(105, 20, field.snapshot(1), getBox)?.index).toBe(1);
   });
 
   it('should choose the nearest cell across both axes', () => {
@@ -523,12 +517,12 @@ describe('the terminal barrier in the candidate loop', () => {
     const field = createField();
     const asked: HTMLElement[] = [];
     let alive = true;
-    const getVisual = closingAt(field.items[1]!, asked, () => {
+    const getBox = closingAt(field.items[1]!, asked, () => {
       alive = false;
     });
 
     expect(
-      field.resolve(170, 20, field.snapshot(), getVisual, () => alive),
+      field.resolve(170, 20, field.snapshot(), getBox, () => alive),
     ).toBeNull();
 
     // The third cell is never resolved: no `visual()` call crosses the terminal

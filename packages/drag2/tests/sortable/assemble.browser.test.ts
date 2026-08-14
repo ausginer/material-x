@@ -250,6 +250,7 @@ describe('assemble', () => {
       'afterMove',
       'beforeMove',
       'createPlaceholder',
+      'getBox',
       'getHandle',
       'getVisual',
       'invalidateInsertion',

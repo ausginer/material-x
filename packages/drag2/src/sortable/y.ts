@@ -4,7 +4,7 @@
  * inside this one.
  *
  * ```text
- * candidates := centres of every non-dragged item's **visual**, plus the
+ * candidates := centres of every non-dragged item's **box**, plus the
  *               placeholder's own
  * nearest    := the candidate whose centre is closest to the pointer on Y
  * if nearest is the placeholder -> keep the current insertion (no change)
@@ -24,8 +24,8 @@
  * near a boundary. Ignoring X is not an optimisation of the 2-D rule; it is a
  * different and better answer for a list.
  */
-import type { CollectionSnapshot, Insertion } from './domain.ts';
 import type { SortableConfig } from './config.ts';
+import type { CollectionSnapshot, Insertion } from './domain.ts';
 import { CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
 
 /**
@@ -47,16 +47,17 @@ type InsertionRuntimeView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
   /**
-   * The installed `visual()` resolver, or `null` when none is composed.
+   * The installed `box` resolver, or `null` when the config named neither `box`
+   * nor `visual` (D-43, D-58). The default `box = visual` is applied by the
+   * assembler, so this module never has to know the rule.
    *
    * **Third widening of a consumer-declared view, and not a sibling-feature
-   * dependency.** This module names a field the *behavior* guarantees to supply,
-   * exactly as it already names `placeholder` — which is itself a product of the
-   * optional `placeholder()` slot. The axis feature imports nothing from
-   * `handle.ts` and cannot tell whether a `visual()` was composed; it reads one
-   * nullable field off the per-operation object.
+   * dependency.** This module names a field the *behavior* guarantees to
+   * supply, exactly as it already names `placeholder`. The axis rule cannot
+   * tell which config slot filled it; it reads one nullable field off the
+   * per-operation object.
    */
-  getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  getBox: ((item: HTMLElement) => HTMLElement) | null;
   /**
    * Whether the controller is still alive (I-36), threaded into the candidate
    * loop so a `visual()` resolver that destroys the controller stops the
@@ -100,7 +101,7 @@ export function y(): Pick<SortableConfig, 'axis'> {
             const { snapshot, placeholder } = runtime;
 
             if (
-              !index.refresh(snapshot, dragged, runtime.getVisual, runtime.live)
+              !index.refresh(snapshot, dragged, runtime.getBox, runtime.live)
             ) {
               // The rebuild crossed the terminal barrier (I-36). Measuring the
               // placeholder below would be a consumer call — it is the
@@ -173,7 +174,7 @@ export function y(): Pick<SortableConfig, 'axis'> {
               index.refresh(
                 runtime.snapshot,
                 dragged,
-                runtime.getVisual,
+                runtime.getBox,
                 runtime.live,
               );
             }

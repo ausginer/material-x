@@ -109,7 +109,7 @@ import {
   type SettlementInput,
   type SettlementScope,
 } from './spec.ts';
-import type { Point } from './types.ts';
+import type { OffsetBox, Point } from './types.ts';
 
 /** Why an operation was cancelled, when the kernel is the one deciding. */
 export const CANCEL_ESCAPE = 'drag:escape';
@@ -990,6 +990,21 @@ export function createKernel<Part extends object>(
 
     try {
       const rect = target.getBoundingClientRect();
+      const source = box!;
+      // **Window 1 of 2, and its position in this function is the whole point**
+      // (D-43, D-52). It has to be read *before* `acquireLift`, because that is
+      // the line the visual leaves flow on — everything the footprint rule
+      // needs sits on opposite sides of it. One statement later and both
+      // windows would see the collapsed layout and the difference would be
+      // zero.
+      //
+      // Offset box, not a bounding rect: by window 2 the visual carries a
+      // transform, which moves a rect's top by the full travel and leaves its
+      // height alone. See `OffsetBox`.
+      const boxPre: OffsetBox = {
+        width: source.offsetWidth,
+        height: source.offsetHeight,
+      };
       const session = acquireLift(target, spec!.config.liftMode, rect, realm);
 
       originRect = rect;
@@ -1017,7 +1032,8 @@ export function createKernel<Part extends object>(
         originRect,
         // D-59. The kernel's own admission-time state, not a behavior-authored
         // draft field read back.
-        box: box!,
+        box: source,
+        boxPre,
         lift: session,
         motion: owned.motion,
         presentation: owned.presentation,
@@ -1423,7 +1439,7 @@ export function createKernel<Part extends object>(
       // join pins to the same value the runner was handed — so the animation
       // and the pin cannot disagree about where the drop ends, which is what
       // made the old provisional target survivable and wrong.
-      const target = attempt.target;
+      const { target } = attempt;
       const handle = attempt.landing;
 
       if (handle !== null) {

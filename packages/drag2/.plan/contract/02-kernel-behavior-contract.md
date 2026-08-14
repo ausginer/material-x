@@ -417,7 +417,7 @@ Three reasons, in order of weight:
 | Seam | Phase in | Phase out | What sortable does |
 | --- | --- | --- | --- |
 | `admit` | `IDLE` | `PENDING` | Resolve the pressed item against the published snapshot; **decline** if the composed path reaches an interactive or editable descendant (§Input policy, D-46), unless the consumer scoped dragging there (D-50); apply the `handle` slot; write `item`, `visual` and `snapshot` into its part; **return the subject** — the visual (via the `visual` slot or identity), paired with the box (via the `box` slot) when the two differ (D-59). |
-| `activation.prepare` | `PENDING` | `ACTIVATING` | **Read `boxPost` first**, off `scope.box`, before anything else in the seam (D-52). Create the placeholder **detached** (default mechanics or the `placeholder` slot), size it from the **removed footprint** — `scope.boxPre − boxPost`, not the visual's offset box (D-43) — and return the element. No DOM insertion, no acquisition. The sizing writes land on an element the consumer may own, so they are **on D-39's rollback ledger**. **Insertion is branched on `draft.pointerId`**: a pointer operation seeds the home insertion; a pointerless one _preserves_ what `command.admit` wrote. See §The command destination. |
+| `activation.prepare` | `PENDING` | `ACTIVATING` | **Read `boxPost` first**, off `scope.box`, before anything else in the seam (D-52) — **unless `box === visual`, where the read is skipped** (F-55). Create the placeholder **detached** (default mechanics or the `placeholder` slot), size it from the **removed footprint** — `box === visual ? scope.boxPre : scope.boxPre − boxPost`, not the visual's offset box (D-43) — and return the element. No DOM insertion, no acquisition. The sizing writes land on an element the consumer may own, so they are **on D-39's rollback ledger**. **Insertion is branched on `draft.pointerId`**: a pointer operation seeds the home insertion; a pointerless one _preserves_ what `command.admit` wrote. See §The command destination. |
 | `activation.effect` | `ACTIVATING` | — | Register removal on `scope.presentation`, **then** `item.after(placeholder)` — retained by D-43 on measurement, not by default; arm scroll/resize invalidation and the frame-task cancel on `scope.motion`; publish `rt.placeholder`, `rt.lift` and the per-operation `rt.view`; `slots.invalidateInsertion()`; `slots.onStart(item)` last. See §Post-commit ordering. |
 | `activation.rollback` | — | — | Undo everything `prepare` wrote onto the staged placeholder — attributes, styles, sizing, state — and drop it. **Required, not vacuous** (D-39): the element may be consumer-owned and adoption never happened, so nothing else becomes responsible for it. |
 | `moved` | `ACTIVE` | — | `lift.write(dx, dy)`; `spatialSeq += 1`; `frame.schedule(spatialSeq)`. **Kernel-wrapped** — see below. |
@@ -787,14 +787,24 @@ type ActivationScope = Readonly<{
   box: HTMLElement;
   /**
    * `box`'s offset box, read by the kernel beside `originRect` and before
-   * `acquireLift`. Under the default `box === visual` this is the same read as
-   * `originRect` and costs nothing extra. (D-43, D-52)
+   * `acquireLift`. (D-43, D-52)
+   *
+   * **An offset box, not a `DOMRectReadOnly`** — corrected during
+   * implementation (F-55), because D-43's own rationale demands it: a running
+   * translate corrupts a bounding rect's top by the full travel and leaves its
+   * height alone, so the two windows are only comparable as
+   * `offsetWidth`/`offsetHeight`. It is therefore **not** the same read as
+   * `originRect`, which is and stays the visual's bounding rect at grab; the
+   * earlier claim that the two coincide under `box === visual` conflated a
+   * bounding rect with an offset box.
+   *
+   * No position, deliberately: the windows are only ever subtracted.
    *
    * The **second** window is not here: `boxPost` is the behavior's own read of
-   * `box`, at the top of `activation.prepare`. See §The footprint needs two
-   * windows.
+   * `box`, at the top of `activation.prepare`, **skipped when
+   * `box === visual`**. See §The footprint needs two windows.
    */
-  boxPre: DOMRectReadOnly;
+  boxPre: OffsetBox;
   /** The lift capability. The behavior keeps it for `moved`. */
   lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */
@@ -824,7 +834,9 @@ One object per operation. `prepare` reads `visual`, `originRect`, `box` and `box
 
 `originRect` was the only rect on this scope until Revision 2, and the placeholder was sized from the visual's offset box. **api-1 measured that wrong in both directions.** With a sibling remaining in the box, `boxPre` was 62, `boxPost` 32, and the list collapsed by exactly 30 — while `box` (62) and `visual` (60) were each wrong, in different directions in different cases. Probe C1 then reproduced it live against the shipped `visual()` sizing and found the list running **30 px too tall for an entire drag**. There is no single-window rule that reproduces the removed footprint in both nested cases; that is the measured result, not a preference.
 
-So the footprint is `boxPre − boxPost`, and it needs a second window because what leaves flow is the **visual**, while what the layout loses is the **box** — the two are the same element only under the default `box(item) = visual(item)`.
+So the footprint is `boxPre − boxPost` **when the two are different elements**, and it needs a second window because what leaves flow is the **visual**, while what the layout loses is the **box**.
+
+**Under the default `box(item) = visual(item)` the footprint is `boxPre` alone, and the second window is skipped.** F-55 corrects the earlier claim that the subtraction "would have agreed" there: it would not, it would yield `0`. The subtraction measures a _collapse_, and the box only collapses because it stays in flow while its descendant leaves. When the box **is** the lifted element there is no collapse to measure — `LIFT_FAITHFUL` promotes it with `position: fixed` and an explicit width and height, so its offset box is identical on both sides of `acquireLift`. api-1 measured only nested pairs, which is why this did not surface until implementation.
 
 **The two windows have different owners, and D-52 assigns them rather than leaving the seam to guess:**
 
@@ -838,7 +850,9 @@ admit                    behavior RETURNS { visual, box }      ← D-59; the
 kernel, pre-lift         holds `box`; reads originRect and boxPre
 acquireLift
 activation.prepare       behavior reads boxPost off scope.box, first thing
-                         sizes the placeholder from boxPre − boxPost
+                         (skipped when box === visual)
+                         sizes the placeholder from
+                           box === visual ? boxPre : boxPre − boxPost
 ```
 
 D-39 and D-43 legislate the same code and neither said which seam owns which write, so they could not both be implemented as written. The ordering makes the assignment free rather than arbitrary — `acquireLift` already precedes the activation seam, so `boxPost` is available exactly where `prepare` measures today.
@@ -849,7 +863,7 @@ Three things then fix the shape of the windows:
 
 - **Both must be offset-box reads.** A running translate corrupts a border-box read by the drag delta — api-1 measured the top off by 60 px with the height correct — so a `getBoundingClientRect()` pair would produce a footprint whose position is a function of where the pointer happened to be.
 - **The sizing writes stay in `prepare`, on D-39's ledger.** Keeping them there is what puts them under `activation.rollback`: they may land on a consumer-owned placeholder, and a discarded preparation must not leave library sizing on it. Moving them to `effect` to "simplify" would silently take them off the ledger.
-- **The cost is one extra forced layout per activation, and it is stated rather than absorbed.** `boxPost` is read immediately after the lift's style writes, so it cannot batch with anything. It is once per drag, not per frame, and it does not touch M-1's move budget — but it is a real read and this document does not claim otherwise. Under the default `box === visual` the three rects collapse to one read of one element at one instant plus the post-lift read, so the pair adds exactly one layout, not two.
+- **The cost is one extra forced layout per activation, and it is stated rather than absorbed.** `boxPost` is read immediately after the lift's style writes, so it cannot batch with anything. It is once per drag, not per frame, and it does not touch M-1's move budget — but it is a real read and this document does not claim otherwise. Under the default `box === visual` the post-lift read is skipped entirely (F-55), so the common composition adds **no** extra layout — the cost is paid only by a composition that names a distinct `box`.
 
 `originRect` is **not** derived from either window. It stays the visual's grab rect: it is the basis of the origin-relative landing space frozen at phase 9 (§One coordinate space), which is about **where the visual was**, not about what the layout lost. Deriving it from a `box()` the consumer picked for layout reasons would make the frozen coordinate space a function of that choice.
 

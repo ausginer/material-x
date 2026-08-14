@@ -8,8 +8,8 @@
  */
 import { draggable } from './kernel.ts';
 import { createComposedSortableBehavior } from './sortable/behavior.ts';
-import type { SortableController } from './sortable/controller.ts';
 import type { SortableConfig } from './sortable/config.ts';
+import type { SortableController } from './sortable/controller.ts';
 
 export type { SortableController } from './sortable/controller.ts';
 /**
@@ -40,10 +40,6 @@ export {
   type CancelStage,
 } from './kernel/failures.ts';
 export type {
-  PlaceholderContext,
-  PlaceholderFactory,
-} from './sortable/placement.ts';
-export type {
   AcceptedReorderResolution,
   AcceptedReorderResult,
   CanceledReorderResult,
@@ -59,6 +55,10 @@ export type {
   SortableCancelResult,
   SortableFinishResult,
 } from './sortable/domain.ts';
+export type {
+  PlaceholderContext,
+  PlaceholderFactory,
+} from './sortable/placement.ts';
 
 /**
  * A **runtime** export as well as a type (contract 03 §The export topology this

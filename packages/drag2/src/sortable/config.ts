@@ -7,6 +7,7 @@
  * object spread has no way to express that. Keeping the merge inside the
  * library is the whole of what the variadic form buys.
  */
+import type { Writable } from 'type-fest';
 import type { DraggableError } from '../kernel/errors.ts';
 import type {
   DragErrorContext,
@@ -59,7 +60,31 @@ export type SortableConfig = Readonly<{
   onCancel?: OnCancel;
   onError?: OnDragError;
   handle?: ResolveHandle;
+  /**
+   * The node **faithfully lifted** — what the user sees travel (D-43).
+   *
+   * Defaults to the item.
+   */
   visual?: ResolveElement;
+  /**
+   * The **geometry source**: the element whose footprint the placeholder
+   * stands in for, and the element every insertion candidate is measured on
+   * (D-43, D-58). `box(item) = visual(item)` by default, which is the common
+   * case and costs it nothing.
+   *
+   * **Separate from `visual` because they answer different questions.** They
+   * diverge when the lifted node is nested inside the element that actually
+   * holds the space — a row that lifts its inner card, say. api-1 measured the
+   * case: sizing the placeholder from the visual ran the list 30 px too tall
+   * for an entire drag, because the visual's own height is not the height its
+   * removal freed.
+   *
+   * **Scope limits, stated positively** (D-43): visual order must follow DOM
+   * order, rule-placed layouts are unsupported, and in grid `box` must equal
+   * `visual`. Nothing detects a violation — the shipped package fails these
+   * layouts too, silently — so this is a documented boundary, not a guard.
+   */
+  box?: ResolveElement;
   /**
    * D-65 — the callback itself, not `createPlaceholder` plus a class name. The
    * behavior always creates a placeholder; this only changes which element it
@@ -76,10 +101,6 @@ export type SortableConfig = Readonly<{
 
   threshold?: number;
 }>;
-
-type MutableConfig = {
-  -readonly [K in keyof SortableConfig]: SortableConfig[K];
-};
 
 /**
  * **The merge iterates the schema, not the fragment's own keys.** Copying
@@ -100,6 +121,7 @@ const LAST_WINS_KEYS = [
   'onError',
   'handle',
   'visual',
+  'box',
   'placeholder',
   'landing',
   'threshold',
@@ -124,7 +146,7 @@ export function mergeFragments(
   // Partial while it is being built, because a *fragment* owes nothing: whether
   // the required slots were ever supplied is a property of the finished merge,
   // and `assemble()` is the only place that can ask.
-  const merged: Partial<MutableConfig> = {};
+  const merged: Partial<Writable<SortableConfig>> = {};
   const plugins: SortableInstaller[] = [];
 
   for (const fragment of fragments) {

@@ -200,6 +200,11 @@ export function assemble(
       : contributedPlaceholder,
     getHandle: config.handle ?? null,
     getVisual: config.visual ?? null,
+    // **`box(item) = visual(item)` by default** (D-43), applied here so no
+    // downstream reader has to know the rule. Falling through to `null` when
+    // neither is written keeps the minimal composition free of an identity call
+    // per candidate per rebuild.
+    getBox: config.box ?? config.visual ?? null,
     startLanding,
 
     beforeMove,
