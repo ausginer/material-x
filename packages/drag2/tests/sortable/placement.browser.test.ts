@@ -32,6 +32,8 @@ const build = (
   item: HTMLElement,
   visual: HTMLElement = detached(),
   live: () => boolean = () => true,
+  /** D-39's ledger. Most cases are not about rollback and pass none. */
+  undo: Array<() => void> | null = null,
 ) =>
   createPlaceholder(
     createRealm(document.body),
@@ -42,6 +44,7 @@ const build = (
     { width: rect.width, height: rect.height },
     factory === null ? null : () => factory(),
     live,
+    undo,
   );
 
 describe('createPlaceholder', () => {

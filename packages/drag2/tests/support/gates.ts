@@ -11,7 +11,12 @@
  * Two witnesses, one per gate:
  *
  * - **Landing.** A fixture installing `landing()` must see its runner started
- *   at least once per terminal operation. No runner start means no hold.
+ *   at least once per terminal operation. No runner start means no hold —
+ *   **unless the library reported a fault**, which since D-49 is the one
+ *   sanctioned way a landing does not run: a target that cannot be measured is
+ *   skipped, not faked, and the skip always reports through `onError`. That is
+ *   why the exemption keys off a reported fault rather than off a flag a test
+ *   can set: it is the same signal the consumer gets.
  * - **Readiness.** A terminal callback delivered while a declared authored
  *   presentation is still unacknowledged means the settlement did not wait for
  *   it, which is exactly the early finalization F-6 names.
@@ -31,6 +36,12 @@
 export type GateWitness = Readonly<{
   /** Call from the landing runner. */
   landingStarted(): void;
+  /**
+   * Call from `onError`. Exempts the operation from the landing witness,
+   * because a reported fault is the only sanctioned reason a runner never
+   * started (D-49).
+   */
+  faultReported(): void;
   /** Call when a resolution declaring `presentation: true` is handed back. */
   readinessSupplied(): void;
   /** Call when `controller.ready(request)` acknowledges it. */
@@ -48,6 +59,7 @@ export type GateWitnessOptions = Readonly<{
 
 export function createGateWitness(options: GateWitnessOptions): GateWitness {
   let landingStarts = 0;
+  let faults = 0;
   let pending = 0;
   let terminals = 0;
   let terminalsWhilePending = 0;
@@ -55,6 +67,9 @@ export function createGateWitness(options: GateWitnessOptions): GateWitness {
   return {
     landingStarted(): void {
       landingStarts += 1;
+    },
+    faultReported(): void {
+      faults += 1;
     },
     readinessSupplied(): void {
       pending += 1;
@@ -70,7 +85,12 @@ export function createGateWitness(options: GateWitnessOptions): GateWitness {
       }
     },
     verify(): void {
-      if (options.landing && terminals > 0 && landingStarts === 0) {
+      if (
+        options.landing &&
+        terminals > 0 &&
+        landingStarts === 0 &&
+        faults === 0
+      ) {
         throw new Error(
           'F-6: landing() is installed but no runner ever started — the landing gate was never held',
         );

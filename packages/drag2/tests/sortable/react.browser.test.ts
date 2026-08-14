@@ -34,7 +34,7 @@ import {
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { Point } from '../../src/drag.ts';
+import type { DraggableError, Point } from '../../src/drag.ts';
 import { landing, type LandingStart } from '../../src/sortable/landing.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -89,7 +89,7 @@ type Fixture = Readonly<{
   requests: ReorderRequest[];
   finishes: SortableFinishResult[];
   cancels: SortableCancelResult[];
-  errors: unknown[];
+  errors: DraggableError[];
   /** One entry per React commit, each the DOM order at that commit. */
   commits: string[];
   /** The provisional landing target handed to each runner start. */
@@ -279,7 +279,7 @@ function mount(options: Options = {}): Fixture {
   const requests: ReorderRequest[] = [];
   const finishes: SortableFinishResult[] = [];
   const cancels: SortableCancelResult[] = [];
-  const errors: unknown[] = [];
+  const errors: DraggableError[] = [];
 
   const run: LandingStart = (context, done): { destroy(): void } => {
     witness.landingStarted();
@@ -363,6 +363,9 @@ function mount(options: Options = {}): Fixture {
         cancels.push(result);
       },
       onError(error): void {
+        // D-49: a reported fault is what exempts the operation from the landing
+        // witness, because a skipped landing starts no runner.
+        witness.faultReported();
         errors.push(error);
       },
     },
@@ -595,7 +598,23 @@ describe('a React consumer', () => {
     expect(fixture.order()).toBe('bnewac');
   });
 
-  describe('that unmounts the dragged item (Q-12)', () => {
+  describe('that unmounts the dragged item (D-42, ex-Q-12)', () => {
+    /**
+     * **This suite changed verdict at Phase R, and the verdict is the point.**
+     *
+     * Q-12 judged this case "degraded, not stranded": the item is gone, so the
+     * re-anchor is skipped and the still-connected placeholder is measured
+     * where it stands. D-42 supersedes that. The precondition asks whether the
+     * measurement is *meaningful* — placeholder connected, and still in the
+     * item's container — and an unmounted item fails the second conjunct, so
+     * the landing is skipped instead of measured.
+     *
+     * What did not change is the half that mattered: the drop still completes,
+     * the placeholder still leaves, and the controller is still usable. What
+     * changed is that the consumer is now **told**, which is the whole of
+     * probe C1's finding — the worst integration bug in the package and also
+     * its most silent.
+     */
     const unmounting: Options = {
       ready: true,
       author: (commit, request, ids) => ({
@@ -604,10 +623,10 @@ describe('a React consumer', () => {
       }),
     };
 
-    it('should finish without a classified failure', async () => {
-      // I-25 is broken by the consumer, and the contract's answer is the
-      // guarded re-anchor: no connected anchor, so the still-connected
-      // placeholder is measured where it stands. Degraded, not stranded.
+    it('should finish and report, both', async () => {
+      // **The orthogonality case with a real consumer** (D-60). The reorder was
+      // accepted and is real; the landing target is not measurable. Those are
+      // two answers to two questions and the operation gives both.
       const fixture = mount(unmounting);
 
       activate(fixture, 0);
@@ -615,8 +634,9 @@ describe('a React consumer', () => {
       release(55);
       await settle();
 
-      expect(fixture.errors).toEqual([]);
       expect(fixture.finishes).toHaveLength(1);
+      expect(fixture.errors).toHaveLength(1);
+      expect(fixture.errors[0]!.code).toBe('presentation');
     });
 
     it('should leave no placeholder behind', async () => {
@@ -630,14 +650,14 @@ describe('a React consumer', () => {
       expect(fixture.order()).toBe('bc');
     });
 
-    it('should measure the placeholder where it stands when the row is recycled', async () => {
-      // The discriminating shape. A row React merely *drops* is parentless, and
-      // `before()` on a parentless node is already a no-op — the guard is inert
-      // there, so that case cannot tell a guarded re-anchor from an unguarded
-      // one. A row parked in a recycle pool is disconnected **with** a parent,
-      // and an unguarded `item.before(placeholder)` drags the placeholder into
-      // the pool, where its rect is the origin and the landing target collapses
-      // to `-origin`.
+    it('should skip the landing rather than measure a stale target', async () => {
+      // The discriminating shape, and it now discriminates the other way. A row
+      // parked in a recycle pool is disconnected **with** a parent, which is
+      // what an unguarded `item.before(placeholder)` would follow. The re-anchor
+      // guard still refuses that; the precondition then refuses the measurement
+      // itself, so no target is produced and no runner is started — a jump cut
+      // rather than a confident animation toward a rect the library does not
+      // trust.
       const fixture = mount({ ...unmounting, recycle: true });
 
       activate(fixture, 0);
@@ -645,20 +665,14 @@ describe('a React consumer', () => {
       release(55);
       await settle();
 
-      expect(fixture.errors).toEqual([]);
-      // Row 'a' lifted from y=0 and the gap it left is the second slot, so the
-      // placeholder stands at y=40 and the origin-relative target is 40 — the
-      // fallback measured the placeholder, not the origin.
-      expect(fixture.landingTargets).toEqual([{ x: 0, y: ROW_HEIGHT }]);
+      expect(fixture.landingTargets).toEqual([]);
+      expect(fixture.finishes).toHaveLength(1);
     });
 
     it('should never move the placeholder into the recycle pool', async () => {
-      // The guard's actual job, and the only assertion that can see it. The
-      // re-anchor happens at the **join**, once readiness has settled: by then
-      // the row is pooled, and `item.before(placeholder)` would pull the
-      // placeholder into a detached tree — where the fallback then measures the
-      // origin instead of the real gap, and where finalization removes it again
-      // so the pool's final contents betray nothing.
+      // The re-anchor guard's own job, unchanged by D-42 and asserted ahead of
+      // it: the guard runs first, and only a placeholder the guard left alone
+      // reaches the precondition at all.
       const fixture = mount({ ...unmounting, recycle: true });
 
       activate(fixture, 0);
@@ -687,12 +701,12 @@ describe('a React consumer', () => {
       release(55);
       await settle();
 
-      expect(fixture.errors).toEqual([]);
       expect(fixture.poolAdditions()).toEqual([fixture.pool.firstElementChild]);
     });
 
     it('should leave the controller usable for the next drag', async () => {
-      // "Degraded, not stranded" is only true if the *controller* survives.
+      // "Reported, not stranded" is only true if the *controller* survives, and
+      // that is the half of Q-12's answer D-42 keeps.
       const fixture = mount(unmounting);
 
       activate(fixture, 0);

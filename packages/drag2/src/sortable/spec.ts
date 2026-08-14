@@ -72,6 +72,7 @@ import {
   createPlaceholder,
   movePlaceholder,
   placeholderAt,
+  type PlaceholderUndo,
 } from './placement.ts';
 import {
   type PresentationView,
@@ -147,6 +148,20 @@ export function createSortableSpec(
    * produces no collection, so it must not consume an identity.
    */
   let { version } = rt.snapshot;
+
+  /**
+   * The rollback ledger for a **prepared but unadopted** placeholder (D-39).
+   *
+   * Per-operation, and it lives here rather than on the runtime because it is
+   * not runtime state: it exists only between `activation.prepare` returning
+   * and the seam committing, which is the one window in which the element is
+   * mutated and not yet owned. `rt.placeholder` is written by `effect`, on the
+   * far side of that window.
+   *
+   * `null` whenever there is nothing staged — including for the library's own
+   * `<div>`, whose undo is being dropped.
+   */
+  let placeholderUndo: PlaceholderUndo = null;
 
   /**
    * The admitted item, from the event's **composed path** rather than
@@ -625,17 +640,60 @@ export function createSortableSpec(
           draft.insertion = home;
         }
 
+        // **The ledger is opened only for a consumer-owned element** (D-39).
+        // With no `placeholder` slot composed the element is the library's own
+        // `<div>`, which `prepare` created, nothing outside has seen, and a
+        // discarded preparation drops — so an undo for it would be work with no
+        // observer. With a slot composed every write below lands on someone
+        // else's node.
+        placeholderUndo = slots.createPlaceholder === null ? null : [];
+
         return createPlaceholder(
           realm,
           { item, visual, box, rect: scope.originRect },
           footprint,
           slots.createPlaceholder,
           live,
+          placeholderUndo,
         );
+      },
+
+      /**
+       * **Required, and non-vacuous** (D-39). ~~A discarded prepare leaves only
+       * a detached element for the collector~~ — true of the default `<div>`,
+       * and false the moment a `placeholder` slot exists: `prepare` writes
+       * `data-drag-placeholder`, `aria-hidden`, the copied `slot` and three
+       * inline style properties onto an element the **consumer** created, and
+       * `preparationValid()` does not reverse a `setAttribute`. It discards the
+       * *preparation*; the element is not the library's to discard.
+       *
+       * Reverse order, and each undo guarded on its own: one throwing revert —
+       * a custom element with an overridden `setAttribute` — must not strand
+       * the writes recorded before it.
+       */
+      rollback() {
+        const ledger = placeholderUndo;
+
+        placeholderUndo = null;
+
+        if (ledger === null) {
+          return;
+        }
+
+        for (let i = ledger.length - 1; i >= 0; i -= 1) {
+          guarded(ledger[i]!);
+        }
       },
 
       /** Strict I-30 order: register, make visible, publish, then notify. */
       effect(current, placeholder, scope) {
+        // **Adoption is what closes the rollback window** (D-39). From the line
+        // below the element is the library's: the disposer removes it, moves
+        // relocate it, teardown takes the attributes off with it. A ledger left
+        // here would be a set of reverts for an element nobody may revert, and
+        // the *next* operation's discarded preparation would run them.
+        placeholderUndo = null;
+
         // 1 → 2, per resource. Registering first is free — removing a detached
         // node is a no-op, so an over-eager disposer cannot over-release — and
         // it means a throw below can never leave a visible orphan that the
@@ -1401,6 +1459,7 @@ export function createSortableSpec(
 
     anchorTarget(current): Point {
       const placeholder = rt.placeholder!;
+      const item = current.item!;
       const { recovery } = current;
 
       if (recovery === RECOVERY_DESTINATION) {
@@ -1409,7 +1468,6 @@ export function createSortableSpec(
         // `authoredReady` gate this used to sit behind is gone with the
         // protocol: under the serial commit the authored DOM is already final
         // when this runs, so there is no pending render to wait for.
-        const item = current.item!;
 
         // Each conjunct earns its place. `nextElementSibling` makes the
         // repair inert when the placeholder is already adjacent — `before()`
@@ -1451,6 +1509,34 @@ export function createSortableSpec(
       // the read itself.
       if (host.closed) {
         return { x: 0, y: 0 };
+      }
+
+      // **The precondition, two O(1) reads, immediately before the
+      // measurement** (D-42). It runs *after* the re-anchor above, because the
+      // repair is what the authored commit is allowed to have made necessary;
+      // checking before it would report a fault the library was about to fix.
+      //
+      // Each conjunct names a real strategy probe C1 ran. `isConnected` catches
+      // `replaceChildren` and an `innerHTML` rebuild, which detach the
+      // placeholder outright — C1 measured the consequence: a detached
+      // placeholder reads `0×0` at the viewport origin, and the row visibly
+      // travels to `(0,0)` over twelve frames before teleporting back. The
+      // parent test catches container replacement, where the placeholder
+      // survives in a tree the list no longer contains.
+      //
+      // **It throws rather than returning a sentinel**, and the kernel treats
+      // the throw and a failed check identically (D-49): a target that cannot
+      // be produced and one that cannot be trusted are the same fault. The
+      // diagnostic is authored here because this is the tier that knows what a
+      // placeholder and an item are — the kernel would have to say "something
+      // was wrong" instead.
+      if (
+        !placeholder.isConnected ||
+        placeholder.parentElement !== item.parentElement
+      ) {
+        throw new Error(
+          'drag: the placeholder was detached or moved out of the list during the reorder commit, so the landing target cannot be measured; the reorder itself is unaffected',
+        );
       }
 
       const rect = placeholder.getBoundingClientRect();

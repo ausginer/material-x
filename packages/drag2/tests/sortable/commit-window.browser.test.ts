@@ -1,30 +1,39 @@
 /**
- * **Probe C1 — the consumer commit window, for imperative renderers.**
+ * **The consumer commit window, for imperative renderers** (D-42, D-49, D-60).
  *
- * Throwaway. Delete it, or promote the cases that survive into the redesign's
- * own suite, when the API redesign lands. It is a *fixture*, not a feature test:
- * it exists to produce numbers for `.plan/probes/api-2-commit-window.md`.
+ * This file began as probe C1 — a throwaway fixture whose job was to produce
+ * numbers for `.plan/probes/api-2-commit-window.md`. Phase R promoted it, and
+ * it is the suite that decided two of the decisions it now guards, so what it
+ * asserts is worth stating plainly:
  *
- * Synthesis v3 §9 promises that the consumer commit may reorder authored DOM
+ * Synthesis v3 §9 promised that a consumer commit may reorder authored DOM
  * around library-owned presentation nodes and that "the library re-establishes
- * the placeholder from the frozen semantic proposal". The only evidence in the
- * repo is React-shaped (`tests/sortable/react.browser.test.ts:480-702`).
- * `replaceChildren`, `innerHTML` and `createPortal` appear nowhere in `tests/`
- * or `src/`. This file opens the same window with the **current** API —
- * `onReorder` → `controller.ready(request)` — and mutates the container the way
- * an imperative renderer does.
+ * the placeholder from the frozen semantic proposal". It does not, and the
+ * cases below are why. `replaceChildren`, an `innerHTML` rebuild and container
+ * replacement each **detach the placeholder**, and a detached placeholder
+ * measures `0×0` at the viewport origin — so the landing used to animate the
+ * row confidently to `(0,0)` over twelve frames and teleport it back, while
+ * reporting `onFinish` once and `onError` **zero** times. The worst integration
+ * bug in the package, and also its most silent.
+ *
+ * What the repair looks like here: **case 1b's trajectory no longer travels**,
+ * `landingStart` is undefined in three of the five strategies because the
+ * runner is never started, and every one of those three now reports exactly one
+ * error **alongside** its one terminal. Cases 3 and 4 — an append loop and a
+ * morphdom-style patch — leave the placeholder connected and in place, so they
+ * land normally and are the control.
  */
 import { afterAll, afterEach, describe, expect, it } from 'vitest';
-import type { Point } from '../src/drag.ts';
-import { landing, type LandingStart } from '../src/sortable/landing.ts';
-import { layoutAnimation } from '../src/sortable/layout-animation.ts';
-import { y } from '../src/sortable/y.ts';
+import type { Point } from '../../src/drag.ts';
+import { landing, type LandingStart } from '../../src/sortable/landing.ts';
+import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
+import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
   type SortableController,
   sortable,
-} from '../src/sortable.ts';
+} from '../../src/sortable.ts';
 
 const POINTER_ID = 31;
 const ROW_HEIGHT = 40;
@@ -440,8 +449,8 @@ const dragFirstIntoSecond = async (fixture: Fixture): Promise<Box> => {
   return origin;
 };
 
-describe('probe C1 — an imperative commit', () => {
-  it('case 1: replaceChildren detaches the placeholder', async () => {
+describe('an imperative commit', () => {
+  it('should skip the landing when replaceChildren detaches the placeholder', async () => {
     const fixture = mount({
       author: ({ container, rows, next }) => {
         const items = next.map((id) => rows.get(id)!);
@@ -462,11 +471,19 @@ describe('probe C1 — an imperative commit', () => {
     // Detached, so `item.parentElement === placeholder.parentElement` fails and
     // the re-anchor never runs — on either measurement.
     expect(afterCommit!.placeholder.connected).toBe(false);
-    expect(landingStart!.target).toEqual({ x: -50, y: -100 });
-    // `origin + target` is the viewport origin; the row's real slot is (50,140).
+    // **The repair, and it is a subtraction** (D-42, D-49). The precondition's
+    // first conjunct catches exactly this: no connected placeholder, so no
+    // measurement, so **no runner is started at all** and `landingStart` stays
+    // undefined. The old target was `{ x: -50, y: -100 }` — origin-relative for
+    // the viewport origin, because a detached element measures `0×0` at `(0,0)`.
+    expect(landingStart).toBeUndefined();
+    // The row still ends where it belongs; what is gone is the journey.
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
-    // Nothing is classified, and the drop is reported as a clean success.
-    expect(fixture.errors).toEqual([]);
+    // **And the silence is over** (D-60). The drop is still a success and still
+    // publishes one terminal — the reorder is real, the DOM commit happened —
+    // *and* the consumer is told that its commit broke the landing. All five
+    // strategies used to report `onFinish` once and `onError` zero times.
+    expect(fixture.errors).toHaveLength(1);
     expect(fixture.finishes).toBe(1);
     expect(fixture.cancels).toBe(0);
     expect(document.querySelectorAll('[data-drag-placeholder]')).toHaveLength(
@@ -482,7 +499,7 @@ describe('probe C1 — an imperative commit', () => {
     expect(afterCommit!.proposalAnchors.before!.connected).toBe(true);
   });
 
-  it('case 2: innerHTML plus a rebuild destroys item identity', async () => {
+  it('should skip the landing when an innerHTML rebuild destroys item identity', async () => {
     const fixture = mount({
       author: ({ container, rows, next }) => {
         container.innerHTML = '';
@@ -513,19 +530,22 @@ describe('probe C1 — an imperative commit', () => {
     // Both the placeholder and the node the library is dragging are detached.
     expect(afterCommit!.placeholder.connected).toBe(false);
     expect(afterCommit!.libraryItem.connected).toBe(false);
-    expect(landingStart!.target).toEqual({ x: -50, y: -100 });
-    // The lifted visual is landed onto a node that is no longer in the page.
+    expect(landingStart).toBeUndefined();
+    // The lifted visual is still landed onto a node that is no longer in the
+    // page — D-49 does not rescue a rebuild that destroyed item identity, and
+    // never claimed to. What it removes is the *confident animation* toward a
+    // target measured from that node.
     expect(boxOf(fixture.item())).toEqual({ x: 0, y: 0, w: 0, h: 0 });
     // The frozen neighbours were destroyed with everything else, so no repair
     // anchored on the proposal could have helped here either.
     expect(afterCommit!.proposalAnchors.after!.connected).toBe(false);
     expect(afterCommit!.proposalAnchors.before!.connected).toBe(false);
-    expect(fixture.errors).toEqual([]);
+    expect(fixture.errors).toHaveLength(1);
     expect(fixture.finishes).toBe(1);
     expect(fixture.cancels).toBe(0);
   });
 
-  it('case 3: an append loop pushes the placeholder to index 0', async () => {
+  it('should still land when an append loop pushes the placeholder to index 0', async () => {
     const fixture = mount({
       author: ({ container, rows, next }) => {
         const items = next.map((id) => rows.get(id)!);
@@ -562,7 +582,7 @@ describe('probe C1 — an imperative commit', () => {
     expect(fixture.finishes).toBe(1);
   });
 
-  it('case 4: a morphdom-style patch around the placeholder', async () => {
+  it('should still land through a morphdom-style patch around the placeholder', async () => {
     const fixture = mount({
       author: ({ rows, next }) => {
         const item = rows.get('a')!;
@@ -603,7 +623,7 @@ describe('probe C1 — an imperative commit', () => {
     expect(fixture.finishes).toBe(1);
   });
 
-  it('case 1b: what the user sees while the landing runs', async () => {
+  it('should not travel to the viewport origin while the landing runs', async () => {
     // Case 1 again, with the shipped runner, sampling the lifted row every
     // frame between release and the join. This is the visible form of the
     // number case 1 reports as a target.
@@ -646,17 +666,23 @@ describe('probe C1 — an imperative commit', () => {
       finishes: fixture.finishes,
     });
 
-    // The row travels the whole way to the viewport origin and then teleports
-    // into its slot when the join pins and presentation is released. Bounds
-    // rather than exact samples: which frame the landing ends on is scheduling.
-    expect(Math.min(...trajectory.map(({ y }) => y))).toBeLessThanOrEqual(12);
-    expect(Math.min(...trajectory.map(({ x }) => x))).toBeLessThanOrEqual(4);
+    // **The case that decided D-49, inverted.** The row used to travel the
+    // whole way to the viewport origin over twelve frames and then teleport
+    // into its slot when the join pinned — `min y` under 12, `min x` under 4.
+    // With the landing skipped there is no travel at all: the drop is a jump
+    // cut, and every sample is at or below the row's own slot. A jump cut is
+    // honest; a confident animation to `(0,0)` is not.
+    //
+    // Bounds rather than exact samples, in the same spirit as before: which
+    // frame presentation is released on is scheduling.
+    expect(Math.min(...trajectory.map(({ y }) => y))).toBeGreaterThan(100);
+    expect(Math.min(...trajectory.map(({ x }) => x))).toBeGreaterThan(40);
     expect(boxOf(item)).toEqual({ x: 50, y: 140, w: 100, h: 40 });
-    expect(fixture.errors).toEqual([]);
+    expect(fixture.errors).toHaveLength(1);
     expect(fixture.finishes).toBe(1);
   });
 
-  it('case 5: the commit removes the container the placeholder was in', async () => {
+  it('should skip the landing when the commit removes the placeholder container', async () => {
     const fixture = mount({
       nested: true,
       author: ({ root, rows, next, setContainer }) => {
@@ -686,9 +712,12 @@ describe('probe C1 — an imperative commit', () => {
     expect(afterCommit!.placeholder.parent).toBe('group');
     expect(afterCommit!.placeholder.connected).toBe(false);
     expect(afterCommit!.libraryItem.parent).toBe('group2');
-    expect(landingStart!.target).toEqual({ x: -50, y: -100 });
+    // The placeholder is *parented* here, by a container that left the
+    // document — which is why the connectivity conjunct and the parentage
+    // conjunct are two reads and not one.
+    expect(landingStart).toBeUndefined();
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
-    expect(fixture.errors).toEqual([]);
+    expect(fixture.errors).toHaveLength(1);
     expect(fixture.finishes).toBe(1);
     // Teardown still reaches into the discarded subtree: no residue.
     expect(fixture.placeholder().parentElement).toBeNull();
@@ -709,7 +738,7 @@ describe('probe C1 — an imperative commit', () => {
  * descendant `.c6-card` of the item, and the item element itself is the wrapper
  * this test measures by hand. This is layout arithmetic, not a library feature.
  */
-describe('probe C1 — the api-1 footprint rule under a live drag', () => {
+describe('the api-1 footprint rule under a live drag', () => {
   const ROW_H = 60;
   const CARD_H = 60;
   const ASIDE_H = 30;

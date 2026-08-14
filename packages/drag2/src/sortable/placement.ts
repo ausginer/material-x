@@ -40,6 +40,56 @@ export type PlaceholderSlot = (
 ) => HTMLElement;
 
 /**
+ * The undo ledger a **consumer-owned** placeholder accumulates while it is
+ * being prepared (D-39).
+ *
+ * `null` for the library's own `<div>`: dropping the element *is* the undo, and
+ * recording anything for it would be ceremony over a node nobody else can see.
+ * An array is the whole mechanism — `activation.rollback` runs it in reverse.
+ */
+export type PlaceholderUndo = Array<() => void> | null;
+
+/**
+ * Records one undo, **before** the write it reverses.
+ *
+ * Before rather than after, so a mechanics run that stops mid-way — the
+ * liveness readings below can return at six different points — leaves a ledger
+ * that exactly covers what was written and nothing more. An undo for a write
+ * that never happened is not harmless: restoring an attribute the library did
+ * not touch is itself a mutation of a consumer's element.
+ */
+const willWrite = (undo: PlaceholderUndo, revert: () => void): void => {
+  undo?.push(revert);
+};
+
+/**
+ * Restores an attribute to the value it had, or removes it if it had none.
+ *
+ * **The removal is `removeNamedItem`, not `removeAttribute`, and that is a
+ * measured platform difference rather than a style preference.** After an
+ * inline style property has been written through the CSSOM,
+ * `removeAttribute('style')` leaves `style=""` behind in Chromium — the name
+ * survives in `getAttributeNames()` and in `outerHTML`, on connected and
+ * detached elements alike — while `attributes.removeNamedItem('style')` removes
+ * it cleanly. D-39's guarantee is stated as an attribute-map comparison, so an
+ * empty leftover attribute is a real difference and not a cosmetic one.
+ * `removeNamedItem` throws when the attribute is absent, hence the guard.
+ */
+const restoreAttribute = (element: HTMLElement, name: string): (() => void) => {
+  const previous = element.getAttribute(name);
+
+  return previous === null
+    ? () => {
+        if (element.hasAttribute(name)) {
+          element.attributes.removeNamedItem(name);
+        }
+      }
+    : () => {
+        element.setAttribute(name, previous);
+      };
+};
+
+/**
  * Applies the mechanics that are **always present and not configurable away**,
  * whether the element came from a feature factory or from the default below:
  * it occupies exactly one insertion position, is hidden from assistive
@@ -62,6 +112,7 @@ function applyMechanics(
   item: HTMLElement,
   footprint: OffsetBox,
   live: () => boolean,
+  undo: PlaceholderUndo,
 ): void {
   // **Every read first, then every write** (I-36 (2) act 3, C5-02). Each call
   // below is consumer-reachable — `getAttribute` on the item, the offset
@@ -79,12 +130,14 @@ function applyMechanics(
     return;
   }
 
+  willWrite(undo, restoreAttribute(placeholder, 'data-drag-placeholder'));
   placeholder.setAttribute('data-drag-placeholder', '');
 
   if (!live()) {
     return;
   }
 
+  willWrite(undo, restoreAttribute(placeholder, 'aria-hidden'));
   placeholder.setAttribute('aria-hidden', 'true');
 
   if (!live()) {
@@ -95,6 +148,13 @@ function applyMechanics(
   // `slot` of its own; leaving that in place when the item has none puts the
   // footprint in a different slot from the item it stands for, which is the
   // opposite of "inherits the item's slot".
+  //
+  // **Which is exactly why the undo is `restoreAttribute` and not
+  // `removeAttribute`** (D-39): the branch below *removes* a consumer's own
+  // `slot="mine"`, so an undo that only knew how to delete would leave the
+  // element permanently missing an attribute the library never granted it.
+  willWrite(undo, restoreAttribute(placeholder, 'slot'));
+
   if (slot === null) {
     placeholder.removeAttribute('slot');
   } else {
@@ -104,6 +164,21 @@ function applyMechanics(
   if (!live()) {
     return;
   }
+
+  // **One undo for all three property writes, and it is stronger than three**
+  // (D-39). 05 asks for a normalizing undo registered first so LIFO runs it
+  // last, because removing three *properties* leaves `style=""` behind — a
+  // residue on a consumer-owned element and a real difference in an
+  // attribute-map comparison. Restoring the whole attribute answers that and
+  // the three property values at once, so there is nothing left for an ordering
+  // rule to arrange: an element that arrived with `style="color:red"` gets that
+  // string back, and one that arrived with no `style` attribute ends with none.
+  //
+  // Registered here rather than at the top so a mechanics run that stops before
+  // the style block records no style undo at all. An undo for a write that
+  // never happened is not free — it is a `removeAttribute` on someone else's
+  // element.
+  willWrite(undo, restoreAttribute(placeholder, 'style'));
 
   // Read once: `style` is an overridable accessor on a custom element, and a
   // consumer declaration's property setters are consumer code like any other.
@@ -130,6 +205,10 @@ function applyMechanics(
  *
  * `footprint` is what the visual removed from the layout, already computed
  * across the lift by the caller — see `activation.prepare`.
+ *
+ * `undo` is the rollback ledger (D-39), filled only for a `placeholder` slot's
+ * element: the default `<div>` is dropped whole, so recording an undo for it
+ * would be work no one can observe.
  */
 export function createPlaceholder(
   realm: DOMRealm,
@@ -137,13 +216,17 @@ export function createPlaceholder(
   footprint: OffsetBox,
   factory: PlaceholderSlot | null,
   live: () => boolean,
+  undo: PlaceholderUndo,
 ): HTMLElement {
   const { item, visual } = context;
 
   if (factory === null) {
     const placeholder = realm.document.createElement('div');
 
-    applyMechanics(placeholder, item, footprint, live);
+    // `null`, not `undo`, and this is the whole of D-39's "the library's own
+    // `<div>` records no rollback": nothing outside this function has ever seen
+    // it, so discarding the reference undoes every write at once.
+    applyMechanics(placeholder, item, footprint, live, null);
     return placeholder;
   }
 
@@ -185,7 +268,7 @@ export function createPlaceholder(
     );
   }
 
-  applyMechanics(placeholder, item, footprint, live);
+  applyMechanics(placeholder, item, footprint, live, undo);
   return placeholder;
 }
 

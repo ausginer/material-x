@@ -528,10 +528,18 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                               item2.before(placeholder);          ← the repair
                             }                                          [F-15]
                       ── the AUTHORITATIVE landing measurement ──
-                      [K] precondition, TWO READS, O(1):         [D-42, D-49]
+                      [B] precondition, TWO READS, O(1):         [D-42, D-49]
                             placeholder.isConnected
                               && placeholder.parentElement
                                  === item2.parentElement
+                            ← **[B], not [K]** — corrected in implementation
+                              (F-56). The kernel cannot perform these reads: a
+                              placeholder is behavior state and `item2` is a
+                              frame field the kernel may not name (H-2, D-15).
+                              The check therefore opens `anchorTarget`, and the
+                              kernel treats a failed check and a throw
+                              identically, which is what D-49 already required
+                              of them.
                             ✗ → report through onError, SKIP the landing
                                 animation entirely, and join immediately.
                                 The settlement does NOT fail; the drop
@@ -709,7 +717,7 @@ What the same trace does under each difficult case, without adding a branch anyw
 | `controller.invalidate()` at `SETTLING` | `prepare` stages the snapshot with `bindsFrame: false`; `effect` publishes it. The operation's frame snapshot is **not** rewritten — it freezes the _semantic transaction_, not the geometry, and after release the proposal is frozen and structural invalidation does not reinterpret it. **[D-44]** |
 | `controller.invalidate()` at `IDLE` | Published in `effect`; `draft.snapshot` is left alone, so an idle frame retains no item elements. **[I-20]** |
 | The consumer mutates the **same** array in place and calls `invalidate()` | Outside the contract. Array identity is the structural signal, so the library reads no structural change and invalidates geometry only. React, Vue and Svelte all return a new array when order changes, which is why the signal is free. **[D-44]** |
-| The consumer unmounts the dragged item as part of the reorder | `anchorTarget` finds no connected anchor and falls back to the placeholder's rect. Degraded, not stranded. **[Q-12 — answered in Phase 10: the degraded re-anchor is sufficient, and the operation finishes accepted with nothing classified or reported]** |
+| The consumer unmounts the dragged item as part of the reorder | ~~`anchorTarget` finds no connected anchor and falls back to the placeholder's rect. Degraded, not stranded.~~ **Superseded by D-42/D-49 at Phase R, and the row was a stale residue: it predates the precondition.** The re-anchor is still skipped, and then the precondition's second conjunct fails — the placeholder is no longer in the item's container, because the item has no container — so the **landing is skipped rather than measured**: one `onError`, no animation, and the drop still terminates with its accepted result. Q-12's answer survives in the half that mattered, "not stranded"; what it got wrong is "with nothing classified or reported", which is the silence D-49 exists to end. **[Q-12, D-42, D-49, D-60]** |
 | `LandingHandle.destroy()` throws at the join | Best-effort report. The pin still happens and presentation is still released — a custom runner cannot strand the controller. **[F-22]** |
 | `lift.write()` throws at the join | `FAILURE_RENDERER_WRITE`; the visual stays where landing left it; presentation is **still** released. **[F-22]** |
 | `spec.finalized()` throws | `FAILURE_TERMINAL_CALLBACK`; the operation still retires. **[F-22]** |

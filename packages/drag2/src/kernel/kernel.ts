@@ -709,6 +709,21 @@ export function createKernel<Part extends object>(
     readCurrent: () => current,
     readDraft: () => draft,
     fail: failOperation,
+    /**
+     * **The third state** (D-49). Not `failOperation`, which would settle a
+     * drop whose reorder already happened; not `report`, which would send a
+     * consumer's own destructive rerender to the platform reporter — the
+     * silence probe C1 measured, in exactly the builds where it did the damage.
+     *
+     * It reuses the behavior hook Q-1 added for a failure with **no operation
+     * to settle**. The two callers have opposite reasons and the same
+     * requirement: reach `onError` without queueing a checkpoint.
+     */
+    reportQuality: (stage, error) => {
+      guarded(() => {
+        spec!.reportFailure(stage, error);
+      });
+    },
   };
 
   const driver = createSeamDriver<Part>(context);
@@ -1389,21 +1404,43 @@ export function createKernel<Part extends object>(
     //
     // Measured unconditionally, before the landing branch, because the join
     // pins to this value whether or not a runner was installed.
-    const anchor = driver.runLeafValue(
+    // **The quality track, not the classified one** (D-49). `runLeafValue` here
+    // returned `ARM_FAILED` for a measurement throw, which told a consumer
+    // whose reorder had already been committed and accepted that it had failed
+    // — over a fault that is entirely presentational. The measurement includes
+    // D-42's precondition, which the behavior checks from the inside and
+    // reports through the same throw: a target that cannot be produced and one
+    // that cannot be trusted are the same fault.
+    const anchor = driver.runQualityValue(
       () => spec!.anchorTarget(current),
       FAILURE_LANDING_TARGET,
     );
 
-    if (anchor === undefined) {
-      rollbackLandingHold(attempt);
-      return ARM_FAILED;
-    }
-
     // `anchorTarget` is behavior code and may have destroyed the controller.
-    // Calling the consumer's runner after that violates I-6 (F-38).
+    // Calling the consumer's runner after that violates I-6 (F-38). Checked
+    // before the skip branch as well as before `start`, because a destroyed
+    // controller must not go on to advance a settlement either.
     if (!settlementLive(attempt)) {
       rollbackLandingHold(attempt);
       return ARM_STALE;
+    }
+
+    if (anchor === undefined) {
+      // **Skipped, not faked** (D-49). `onError` has already been delivered by
+      // the driver. The hold is rolled back and `start` is skipped entirely, so
+      // there is no runner and no animation; `target` stays `null`, which is
+      // what tells the join to release without pinning. The settlement is
+      // **not** failed and the domain result stands — the DOM commit already
+      // happened and the reorder is real — so this returns `ARM_ARMED` and the
+      // operation joins immediately and terminates normally.
+      //
+      // A jump cut is honest. C1 measured the alternative: a detached
+      // placeholder reads `0×0` at the viewport origin, so "landing from the
+      // unrepaired position" is a confident twelve-frame animation to `(0,0)`
+      // followed by a teleport back.
+      rollbackLandingHold(attempt);
+      attempt.target = null;
+      return ARM_ARMED;
     }
 
     const origin = originRect!;
@@ -1546,6 +1583,11 @@ export function createKernel<Part extends object>(
         }
       }
 
+      // **A null target means the measurement was skipped** (D-49): no pin, no
+      // animation, and presentation is released from where the visual stands —
+      // the jump cut. Everything after this point still runs, because the
+      // settlement was never failed: the release below is unconditional and
+      // `finalized` publishes the domain result the frame already holds.
       if (
         target !== null &&
         !driver.runLeaf(() => {

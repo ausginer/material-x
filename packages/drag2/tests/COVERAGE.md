@@ -40,7 +40,7 @@ Two rows moved rather than went:
 | Case | Where it is now |
 | --- | --- |
 | the gate's request/seal/arm bookkeeping — a duplicate or post-seal hold is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a duplicate hold_, _should ignore and report a hold requested after sealing_, re-pointed at the surviving landing gate |
-| the landing target is measured once, authoritatively | `tests/kernel/kernel.browser.test.ts` — _should measure once, at arm, under SETTLING_; `tests/probe-c1-commit-window.browser.test.ts` cases 3 and 4, which now assert the first target **is** the row's final rect |
+| the landing target is measured once, authoritatively | `tests/kernel/kernel.browser.test.ts` — _should measure once, at arm, under SETTLING_; `tests/sortable/commit-window.browser.test.ts` — the two strategies that leave the placeholder in place, which now assert the first target **is** the row's final rect |
 
 ## Discrete input — new (D-32)
 
@@ -230,7 +230,8 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | --- | --- | --- |
 | `activation.prepare` throws → one `onError`, retirement after failure handling | `tests/kernel/kernel.browser.test.ts` — _should not retire a failed activation_ | F-27 |
 | `release.effect` throws → `onReorder` never invoked | `tests/kernel/seams.node.test.ts` — _should never invoke the consumer after a failed release effect_ | F-34 |
-| join target or write failure → presentation releases, no `onFinish`, one `onError` | `tests/kernel/kernel.browser.test.ts` — _should release presentation and skip the pin when the measurement throws_ | F-22 |
+| join **write** failure → presentation releases, no terminal, one `onError` | `tests/kernel/kernel.browser.test.ts` — _should release presentation and skip the callback when the pin throws_ | F-22 |
+| join **measurement** failure → presentation releases, **one `onError` and one terminal** | `tests/kernel/kernel.browser.test.ts` — _should skip the landing and still terminate when the measurement throws_ | D-49, D-60 |
 | `finalized` throws → `FAILURE_TERMINAL_CALLBACK`, still retires | `tests/kernel/kernel.browser.test.ts` — _should retire after a throwing terminal callback_ | F-22 |
 | an admission resolver calls `destroy()` → no operation is minted | `tests/kernel/kernel.browser.test.ts` — _should not mint an operation when admit destroyed the controller_ | F-30 |
 
@@ -283,6 +284,28 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | `resetFramePart(draft)` throws → ingress is still aborted | `tests/kernel/kernel.browser.test.ts` — _should release ingress after a reset throws_ | F-36 |
 | a reset throw during a failed `arm()` unwind does not replace the arm error | `tests/kernel/kernel.browser.test.ts` — _should scrub both frames when the shape assertion throws_ | F-36 |
 | the reset error is reported, never substituted for the destroy error | `tests/kernel/kernel.browser.test.ts` — _should report a reset failure rather than swallow it_ | F-36 |
+
+---
+
+## The skipped landing and the orthogonal channels — new (D-39, D-42, D-49, D-60)
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a detached placeholder skips the landing rather than measuring `0×0` | `tests/sortable/commit-window.browser.test.ts` — _should skip the landing when replaceChildren detaches the placeholder_ | D-42, D-49 |
+| the row does not travel to the viewport origin | `tests/sortable/commit-window.browser.test.ts` — _should not travel to the viewport origin while the landing runs_ | D-49 |
+| a replaced container skips the landing | `tests/sortable/commit-window.browser.test.ts` — _should skip the landing when the commit removes the placeholder container_ | D-42 |
+| a commit that leaves the placeholder in place still lands | `tests/sortable/commit-window.browser.test.ts` — _should still land when an append loop pushes the placeholder to index 0_ | D-42 |
+| the runner is never started for a skipped landing | `tests/kernel/kernel.browser.test.ts` — _should skip the runner entirely when the measurement throws_ | D-49 |
+| one operation produces `onError` **and** a terminal | `tests/sortable/react.browser.test.ts` — _should finish and report, both_ | D-60 |
+| the same, on the cancel arm | `tests/sortable/sortable.browser.test.ts` — _should refuse a home recovery whose anchor left the container and still cancel_ | D-60 |
+| a consequential failure still publishes no terminal | `tests/sortable/sortable.browser.test.ts` — _should publish no terminal for a consequential failure_ | D-23 |
+| a discarded preparation returns a consumer placeholder clean | `tests/sortable/features.browser.test.ts` — _should roll back every library write when a cancelling factory discards the preparation_ | D-39 |
+| …with no `style=""` residue | `tests/sortable/features.browser.test.ts` — _should leave no style attribute behind on a rolled-back element that had none_ | D-39, F-57 |
+| a destroying factory writes nothing to roll back | `tests/sortable/features.browser.test.ts` — _should write no mechanics once the factory destroys the controller_ | I-36 |
+
+**One row is deliberately absent.** The library's own `<div>` records no rollback, and there is no test for it because there is nothing observable to assert: with no `placeholder` slot composed there is no consumer hook from which to invalidate the preparation, and the element the assertion would examine is unreachable. The ledger is `null` on that path by construction.
+
+**And one changed verdict rather than moving**: `tests/sortable/react.browser.test.ts` §_that unmounts the dragged item_ used to assert Q-12's degraded re-anchor — measure the placeholder where it stands, report nothing. D-42's precondition supersedes it, and the suite now asserts the skip plus the report.
 
 ---
 

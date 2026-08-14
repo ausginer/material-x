@@ -1344,7 +1344,17 @@ describe('settlement mapping', () => {
     expect(result.proposal).not.toBeNull();
   });
 
-  it('should report a classified failure through onError only', () => {
+  it('should publish no terminal for a consequential failure', () => {
+    // **Named for what it actually pins, after the D-60 audit.** It used to be
+    // called *should report a classified failure through `onError` only*, which
+    // states a rule the contract has retracted: `onError` is orthogonal to the
+    // terminal and one operation may produce both. What survives is the
+    // narrower fact this case exercises — a **consequential** failure, here a
+    // renderer write, settles the operation `OUTCOME_FAILED`, and a failed
+    // operation has no domain result to publish.
+    //
+    // D-66 changes even that, and deliberately not here: it is a later step,
+    // and folding it forward would make this test assert two decisions at once.
     const harness = createHarness();
 
     activate(harness);
@@ -2580,7 +2590,7 @@ describe('the placeholder container guard', () => {
     expect(foreign.children).toHaveLength(1);
   });
 
-  it('should refuse a home recovery whose anchor left the container', () => {
+  it('should refuse a home recovery whose anchor left the container and still cancel', () => {
     const harness = createHarness();
 
     activate(harness);
@@ -2590,11 +2600,14 @@ describe('the placeholder container guard', () => {
     foreign.append(harness.items[1]!);
     harness.controller.cancel('gone');
 
-    // Home recovery runs inside `anchorTarget`, so it classifies at the landing
-    // target stage and the terminal callback is skipped for the outcome the
-    // checkpoint is about to replace.
+    // **The orthogonality case, and the assertion that used to read the other
+    // way** (D-49, D-60). Home recovery runs inside `anchorTarget`, so it used
+    // to classify at the landing-target stage and suppress the terminal for an
+    // outcome the checkpoint was about to replace. The measurement is on the
+    // quality track now: the consumer is told about the fault **and** told what
+    // happened to the drag, because those are two different questions.
     expect(harness.errors[0]!.code).toBe('presentation');
-    expect(harness.calls).not.toContain('onCancel');
+    expect(harness.calls).toContain('onCancel');
   });
 
   it('should skip a destination recovery whose item left the container', () => {

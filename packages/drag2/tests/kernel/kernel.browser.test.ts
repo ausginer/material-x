@@ -56,11 +56,15 @@ type Harness = Readonly<{
   /** The committed phase each seam observed. */
   phases: Record<string, number>;
   /**
-   * Every classified failure the behavior saw — through the `SETTLED_FAILED`
-   * settlement input for an operation, and through `spec.reportFailure` for the
-   * admission case, which has no operation to settle.
+   * Every **classified** failure the behavior saw, through the
+   * `SETTLED_FAILED` settlement input.
    */
   failures: Array<Readonly<{ stage: FailureStage; error: unknown }>>;
+  /**
+   * Everything that reached `spec.reportFailure` — the channel that carries no
+   * consequence. A stage here settles nothing (D-49, D-60).
+   */
+  reports: Array<Readonly<{ stage: FailureStage; error: unknown }>>;
   /** Every settlement input, in order. */
   settlements: SettlementInput[];
   captures: string[];
@@ -139,6 +143,7 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
   const calls: string[] = [];
   const phases: Record<string, number> = {};
   const failures: Array<Readonly<{ stage: FailureStage; error: unknown }>> = [];
+  const reports: Array<Readonly<{ stage: FailureStage; error: unknown }>> = [];
   const settlements: SettlementInput[] = [];
   const captures: string[] = [];
 
@@ -269,8 +274,12 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
         ((): void => {
           calls.push('finalized');
         }),
+      // **Its own array since D-60**, because the two channels are orthogonal
+      // and a harness that merges them cannot express the difference. This one
+      // is the un-classified channel: an admission throw with no operation to
+      // settle (Q-1), and a quality failure on the landing measurement (D-49).
       reportFailure(stage, error): void {
-        failures.push({ stage, error });
+        reports.push({ stage, error });
       },
       retire:
         overrides.retire ??
@@ -298,6 +307,7 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
     calls,
     phases,
     failures,
+    reports,
     settlements,
     captures,
   };
@@ -725,7 +735,7 @@ describe('discrete admission', () => {
       new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
     );
 
-    expect(harness.failures).toEqual([
+    expect(harness.reports).toEqual([
       { stage: FAILURE_ADMISSION, error: new Error('command') },
     ]);
     expect(harness.calls).toEqual([]);
@@ -976,8 +986,9 @@ describe('admission', () => {
 
     // Q-1: identity was never minted, so there is no operation to settle and
     // no `REPORTING` phase to enter.
-    expect(harness.failures).toHaveLength(1);
-    expect(harness.failures[0]!.stage).toBe(FAILURE_ADMISSION);
+    expect(harness.failures).toEqual([]);
+    expect(harness.reports).toHaveLength(1);
+    expect(harness.reports[0]!.stage).toBe(FAILURE_ADMISSION);
 
     fail = false;
     activate(harness);
@@ -1752,7 +1763,12 @@ describe('the join', () => {
     expect(phases).toEqual([SETTLING]);
   });
 
-  it('should release presentation and skip the pin when the measurement throws', () => {
+  it('should skip the landing and still terminate when the measurement throws', () => {
+    // **D-49, and the assertion that used to read the other way.** This case
+    // classified `FAILURE_LANDING_TARGET`, replaced the settlement and skipped
+    // the terminal callback. That told a consumer whose reorder was already
+    // committed and accepted that the drop had failed, over a fault that is
+    // entirely presentational — so the measurement moved to the quality track.
     const harness = createHarness({
       anchorTarget(): never {
         throw new Error('measure');
@@ -1762,11 +1778,34 @@ describe('the join', () => {
     activate(harness);
     release(80, 10);
 
-    // A measurement failure must not strand the controller: the placeholder is
-    // still removed and the inline styles are still restored (F-22).
-    expect(harness.failures[0]!.stage).toBe(FAILURE_LANDING_TARGET);
+    // Reported, never classified: no checkpoint, no `OUTCOME_FAILED`.
+    expect(harness.failures).toEqual([]);
+    expect(harness.reports[0]!.stage).toBe(FAILURE_LANDING_TARGET);
+    // And it must not strand the controller: the placeholder is still removed
+    // and the inline styles are still restored (F-22).
     expect(harness.calls).toContain('presentation.released');
-    expect(harness.calls).not.toContain('finalized');
+    // **The terminal now runs** (D-60): the settlement was not failed, so the
+    // operation joins immediately and terminates normally.
+    expect(harness.calls).toContain('finalized');
+  });
+
+  it('should skip the runner entirely when the measurement throws', () => {
+    // Not merely "no target to pin to". A measurement that failed is not a
+    // target to animate toward, so `start` is never called — there is no
+    // animation to `(0,0)` and no runner to relinquish.
+    const runner = createRunner();
+    const harness = createHarness({
+      startLanding: runner.start,
+      anchorTarget(): never {
+        throw new Error('measure');
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(runner.calls).toEqual([]);
+    expect(harness.calls).toContain('finalized');
   });
 
   it('should report a throwing runner destroy and still pin', () => {
