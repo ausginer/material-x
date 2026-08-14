@@ -278,17 +278,41 @@ export async function measureAll(): Promise<Measurement[]> {
   return measured;
 }
 
-/** Every way a measurement violates what its composition declared. */
-export function violations(measurement: Measurement): readonly string[] {
-  const { composition, brotli, modules } = measurement;
-  const found: string[] = [];
+/**
+ * The **byte** half of what a composition declares.
+ *
+ * Separate from {@link graphViolations} because the two halves have different
+ * lifetimes. A budget is a moving number while the runtime is still being
+ * written — every correctness fix moves it, and the standing rule is that a
+ * budget re-bases rather than a fix shrinking (see `budget` above) — so an
+ * enforced budget mid-revision reports the same thing every time and stops
+ * being read. The graph half is an **invariant**: `landing` is either absent
+ * from a composition that does not install it or the tree-shaking claim is
+ * false, and that is as true at revision 2 as at 1.0.
+ *
+ * Fusing them meant muting one muted the other, which is the only reason this
+ * is two functions.
+ */
+export function budgetViolations(measurement: Measurement): readonly string[] {
+  const { composition, brotli } = measurement;
 
-  if (brotli > composition.budget) {
-    found.push(
-      `over budget by ${brotli - composition.budget} B ` +
-        `(${brotli} > ${composition.budget})`,
-    );
-  }
+  return brotli > composition.budget
+    ? [
+        `over budget by ${brotli - composition.budget} B ` +
+          `(${brotli} > ${composition.budget})`,
+      ]
+    : [];
+}
+
+/**
+ * The **module graph** half: what a composition must and must not pull.
+ *
+ * This is the half a byte count cannot express (03 §Tree-shaking) and the half
+ * that stays enforced while budgets are muted.
+ */
+export function graphViolations(measurement: Measurement): readonly string[] {
+  const { composition, modules } = measurement;
+  const found: string[] = [];
 
   for (const module of composition.absent ?? []) {
     if (modules.includes(module)) {
@@ -303,6 +327,15 @@ export function violations(measurement: Measurement): readonly string[] {
   }
 
   return found;
+}
+
+/**
+ * Both halves, for the CLI. `just size` reports and enforces everything — it is
+ * run deliberately, by someone who wants the numbers — which is where the
+ * budgets keep living while the suite has them muted.
+ */
+export function violations(measurement: Measurement): readonly string[] {
+  return [...budgetViolations(measurement), ...graphViolations(measurement)];
 }
 
 if (import.meta.main) {
