@@ -5,26 +5,27 @@
  */
 import { describe, expectTypeOf, it } from 'vitest';
 import type { SettlementScope } from '../../src/kernel/spec.ts';
-import type { SortableFeature } from '../../src/sortable/feature.ts';
+import type { SortableInstaller } from '../../src/sortable/feature.ts';
 import type { DisplacementView } from '../../src/sortable/slots.ts';
 
-describe('SortableFeature', () => {
-  it('should not accept a structurally matching function literal', () => {
-    // The brand is declaration-only and unexported, so third-party authoring is
-    // *prevented* rather than discouraged — which is what makes the closed
-    // world the rest of the composition model depends on real.
-    // @ts-expect-error: the feature value is opaque
-    const feature: SortableFeature = () => ({});
+describe('SortableInstaller', () => {
+  it('should accept a function literal authored outside the package', () => {
+    // **Inverted by D-45 and D-61, and the inversion is the decision.** The
+    // brand made third-party authoring *impossible*; the middle tier makes it
+    // supported. Opacity is now a property of which entry you imported — an
+    // ordinary consumer on `sortable.js` still cannot write this, because the
+    // alias has no structure there.
+    const installer: SortableInstaller = () => ({});
 
-    void feature;
+    void installer;
   });
 
   it('should stay nameable and passable', () => {
     // A consumer can hold one and hand it to `sortable()`; it just cannot make
     // one. Losing that would make the type useless rather than opaque.
-    const hold = (feature: SortableFeature): SortableFeature => feature;
+    const hold = (feature: SortableInstaller): SortableInstaller => feature;
 
-    expectTypeOf(hold).parameter(0).toEqualTypeOf<SortableFeature>();
+    expectTypeOf(hold).parameter(0).toEqualTypeOf<SortableInstaller>();
   });
 });
 

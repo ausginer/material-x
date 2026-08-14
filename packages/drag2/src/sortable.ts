@@ -9,10 +9,26 @@
 import { draggable } from './kernel.ts';
 import { createComposedSortableBehavior } from './sortable/behavior.ts';
 import type { SortableController } from './sortable/controller.ts';
-import type { SortableFeature } from './sortable/feature.ts';
+import type { SortableConfig } from './sortable/config.ts';
 
 export type { SortableController } from './sortable/controller.ts';
-export type { SortableFeature } from './sortable/feature.ts';
+/**
+ * The config schema **and every alias it names** (D-45, F-51). A public type
+ * that references an unexported one is a surface a consumer cannot fully write
+ * down — they could fill the slot but never hoist the handler out of the object
+ * literal — so the aliases ship with it. `tests/docs.node.test.ts` enforces the
+ * closure rather than leaving it to review.
+ */
+export type {
+  ItemSource,
+  OnCancel,
+  OnDragError,
+  OnFinish,
+  OnStart,
+  ResolveElement,
+  ResolveHandle,
+  SortableConfig,
+} from './sortable/config.ts';
 /**
  * The cancellation stages, as **values as well as a type**, for the same reason
  * as `FailureStage` on `drag.js`: a `CanceledReorderResult` carries one and a
@@ -23,7 +39,10 @@ export {
   AT_PROPOSAL,
   type CancelStage,
 } from './kernel/failures.ts';
-export type { PlaceholderFactory } from './sortable/placement.ts';
+export type {
+  PlaceholderContext,
+  PlaceholderFactory,
+} from './sortable/placement.ts';
 export type {
   AcceptedReorderResolution,
   AcceptedReorderResult,
@@ -31,6 +50,7 @@ export type {
   CollectionSnapshot,
   DragErrorContext,
   NoopReorderResult,
+  OnReorder,
   RejectedReorderResolution,
   RejectedReorderResult,
   ReorderProposal,
@@ -73,8 +93,7 @@ export { ReorderResolution } from './sortable/domain.ts';
  */
 export function sortable(
   root: HTMLElement,
-  items: readonly HTMLElement[],
-  ...features: readonly SortableFeature[]
+  ...fragments: ReadonlyArray<Partial<SortableConfig>>
 ): SortableController {
-  return draggable(root, createComposedSortableBehavior(items, features));
+  return draggable(root, createComposedSortableBehavior(fragments));
 }

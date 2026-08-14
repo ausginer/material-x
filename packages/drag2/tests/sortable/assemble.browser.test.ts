@@ -11,11 +11,14 @@ import { createRealm } from '../../src/kernel/realm.ts';
 import type { LandingHandle } from '../../src/kernel/spec.ts';
 import { assemble } from '../../src/sortable/assemble.ts';
 import {
-  brandFeature,
-  type FeatureContext,
-  type InsertionGeometry,
-  type SortableContribution,
-  type SortableFeature,
+  mergeFragments,
+  type SortableConfig,
+} from '../../src/sortable/config.ts';
+import type {
+  FeatureContext,
+  InsertionGeometry,
+  SortableContribution,
+  SortableInstaller,
 } from '../../src/sortable/feature.ts';
 import {
   DEFAULT_THRESHOLD,
@@ -48,8 +51,10 @@ const createFixture = (): Fixture => {
 };
 
 /** A feature contributing exactly what it is handed. */
-const feature = (contribution: SortableContribution): SortableFeature =>
-  brandFeature(() => contribution);
+const feature =
+  (contribution: SortableContribution): SortableInstaller =>
+  () =>
+    contribution;
 
 const geometry = (
   overrides: Partial<InsertionGeometry> = {},
@@ -64,11 +69,28 @@ const onReorder = (): never => {
   throw new Error('unreachable: assembly never calls onReorder');
 };
 
-/** The required pair, which every valid composition has to contain. */
-const required = (): SortableFeature[] => [
-  feature({ insertion: geometry() }),
-  feature({ callbacks: { onReorder } }),
-];
+/**
+ * A merged config, which is what `assemble` takes since D-45. The axis slot is
+ * the one required installer; everything a fragment used to contribute through
+ * a `callbacks()` feature is now an ordinary config key, and every other
+ * installer is a plugin.
+ */
+const config = (
+  extra: Partial<SortableConfig> = {},
+  ...plugins: readonly SortableInstaller[]
+): SortableConfig =>
+  mergeFragments([
+    {
+      items: (): readonly HTMLElement[] => [],
+      onReorder,
+      axis: feature({ insertion: geometry() }),
+    },
+    extra,
+    { plugins },
+  ]);
+
+/** The bare valid composition. */
+const required = (): SortableConfig => config();
 
 const view = null as unknown as DisplacementView;
 
@@ -79,10 +101,9 @@ describe('assemble', () => {
     const resolve = (): null => null;
     const invalidate = (): void => {};
     const slots = assemble(
-      [
-        feature({ insertion: geometry({ resolve, invalidate }) }),
-        required()[1]!,
-      ],
+      config({
+        axis: feature({ insertion: geometry({ resolve, invalidate }) }),
+      }),
       createFixture().context,
     );
 
@@ -108,18 +129,16 @@ describe('assemble', () => {
     expect(slots.onError).toBeNull();
   });
 
-  it('should take the threshold from callbacks', () => {
-    const slots = assemble(
-      [required()[0]!, feature({ callbacks: { onReorder, threshold: 3 } })],
-      createFixture().context,
-    );
+  it('should take the threshold from the merged config', () => {
+    const slots = assemble(config({ threshold: 3 }), createFixture().context);
 
     expect(slots.threshold).toBe(3);
   });
 
-  it('should default the threshold when callbacks omits it', () => {
-    // `callbacks()` is the sole owner of this default: carrying `threshold` as
-    // contribution metadata as well would raise the question of which wins.
+  it('should default the threshold when the config omits it', () => {
+    // The **config** is the sole owner of this default (D-56, moved off
+    // `callbacks()`): carrying `threshold` as contribution metadata as well
+    // would raise the question of which wins.
     const slots = assemble(required(), createFixture().context);
 
     expect(slots.threshold).toBe(DEFAULT_THRESHOLD);
@@ -130,18 +149,23 @@ describe('assemble', () => {
     const getHandle = (): null => null;
     const getVisual = (item: HTMLElement): HTMLElement => item;
     const startLanding = (): LandingHandle => ({ destroy: (): void => {} });
+    // **Three of these four moved from a contribution to a config key**
+    // (D-56, D-65): `handle`, `visual` and `placeholder` are things a consumer
+    // writes, not things an installer contributes. `startLanding` stays a
+    // contribution, because only an installer can build a runner.
     const slots = assemble(
-      [
-        ...required(),
-        feature({ createPlaceholder }),
-        feature({ getHandle }),
-        feature({ getVisual }),
+      config(
+        {
+          placeholder: createPlaceholder,
+          handle: getHandle,
+          visual: getVisual,
+        },
         feature({ startLanding }),
-      ],
+      ),
       createFixture().context,
     );
 
-    expect(slots.createPlaceholder).toBe(createPlaceholder);
+    expect(slots.createPlaceholder).not.toBeNull();
     expect(slots.getHandle).toBe(getHandle);
     expect(slots.getVisual).toBe(getVisual);
     expect(slots.startLanding).toBe(startLanding);
@@ -162,8 +186,8 @@ describe('assemble', () => {
       seen.push(name);
     };
     const slots = assemble(
-      [
-        ...required(),
+      config(
+        {},
         feature({
           beforeInsertionMove: hook('before-1'),
           afterInsertionMove: hook('after-1'),
@@ -172,7 +196,7 @@ describe('assemble', () => {
           beforeInsertionMove: hook('before-2'),
           afterInsertionMove: hook('after-2'),
         }),
-      ],
+      ),
       createFixture().context,
     );
 
@@ -191,12 +215,13 @@ describe('assemble', () => {
       seen.push(name);
     };
     const slots = assemble(
-      [
-        feature({ insertion: geometry({ retire: push('geometry') }) }),
-        required()[1]!,
+      config(
+        {
+          axis: feature({ insertion: geometry({ retire: push('geometry') }) }),
+        },
         feature({ retire: push('second') }),
         feature({ retire: push('third') }),
-      ],
+      ),
       createFixture().context,
     );
 
@@ -211,13 +236,13 @@ describe('assemble', () => {
     // The contribution objects are dropped: no contribution key — `insertion`,
     // `retire`, `beforeInsertionMove` — survives onto the slots.
     const slots = assemble(
-      [
-        ...required(),
+      config(
+        {},
         feature({
           retire: (): void => {},
           beforeInsertionMove: (): void => {},
         }),
-      ],
+      ),
       createFixture().context,
     );
 
@@ -243,58 +268,73 @@ describe('assemble', () => {
 });
 
 describe('assemble validation', () => {
-  it('should refuse a composition with no insertion geometry', () => {
-    // Axis-neutral wording (D8): `xy()` fills the same slot, so naming `y()`
-    // alone described a valid 2-D composition as missing the feature it had.
-    expect(() => assemble([required()[1]!], createFixture().context)).toThrow(
-      new TypeError('sortable: an axis feature — y() or xy() — is required'),
-    );
-  });
-
-  it('should refuse a composition with no callbacks', () => {
-    expect(() => assemble([required()[0]!], createFixture().context)).toThrow(
-      new TypeError('sortable: callbacks({ onReorder }) is required'),
-    );
-  });
-
-  it('should refuse a non-function onReorder', () => {
+  it('should refuse a composition with no axis', () => {
+    // **Diagnosed before anything is constructed** (D-45). The merge has
+    // already resolved every named slot, so a missing axis is knowable without
+    // running a single installer — which is what the two-stage split buys.
     expect(() =>
       assemble(
-        [
-          required()[0]!,
-          feature({
-            callbacks: { onReorder: null as unknown as typeof onReorder },
-          }),
-        ],
+        mergeFragments([
+          { items: (): readonly HTMLElement[] => [], onReorder },
+        ]),
+        createFixture().context,
+      ),
+    ).toThrow(new TypeError('sortable: an axis — y() or xy() — is required'));
+  });
+
+  it('should refuse a composition with no onReorder', () => {
+    expect(() =>
+      assemble(
+        mergeFragments([
+          {
+            items: (): readonly HTMLElement[] => [],
+            axis: feature({ insertion: geometry() }),
+          },
+        ]),
         createFixture().context,
       ),
     ).toThrow(new TypeError('sortable: onReorder must be a function'));
   });
 
+  it('should refuse a non-function items source', () => {
+    // D-44 — `items` is a pull source, and the merge cannot know that a
+    // fragment handed it an array until the config is whole.
+    expect(() =>
+      assemble(
+        mergeFragments([
+          {
+            items: [] as unknown as SortableConfig['items'],
+            onReorder,
+            axis: feature({ insertion: geometry() }),
+          },
+        ]),
+        createFixture().context,
+      ),
+    ).toThrow(new TypeError('sortable: items must be a function'));
+  });
+
   it('should refuse a single-writer slot claimed twice', () => {
     expect(() =>
       assemble(
-        [feature({ insertion: geometry() }), ...required()],
+        config({}, feature({ insertion: geometry() })),
         createFixture().context,
       ),
-    ).toThrow(
-      new TypeError('sortable: insertion geometry contributed by two features'),
-    );
+    ).toThrow(new TypeError('sortable: insertion geometry contributed twice'));
   });
 
   it('should name the slot that was claimed twice', () => {
-    // One diagnostic per slot, so a composition error says which capability
-    // collided rather than only that something did.
+    // **Narrowed by the merge** (D-45): named capability slots can no longer
+    // collide, because the merge resolved them before anything ran. What is
+    // left is two *plugins* contributing the same single-writer member, and the
+    // diagnostic still names the slot rather than only the second writer.
+    const startLanding = (): LandingHandle => ({ destroy: (): void => {} });
+
     expect(() =>
       assemble(
-        [
-          ...required(),
-          feature({ getVisual: (item) => item }),
-          feature({ getVisual: (item) => item }),
-        ],
+        config({}, feature({ startLanding }), feature({ startLanding })),
         createFixture().context,
       ),
-    ).toThrow(new TypeError('sortable: visual() contributed by two features'));
+    ).toThrow(new TypeError('sortable: landing contributed twice'));
   });
 });
 
@@ -308,119 +348,143 @@ describe('assemble unwind', () => {
 
     expect(() =>
       assemble(
-        [
-          feature({ insertion: geometry({ retire: push('geometry') }) }),
+        config(
+          {},
+          feature({ retire: push('first') }),
           feature({ retire: push('second') }),
-          brandFeature(() => {
+          () => {
             throw new Error('factory');
-          }),
+          },
           feature({ retire: push('never installed') }),
-        ],
+        ),
         fixture.context,
       ),
     ).toThrow(/factory/u);
 
     // Reverse, and total: a later factory failing must not leak an earlier
     // feature's private state.
-    expect(seen).toEqual(['second', 'geometry']);
-  });
-
-  it('should retire the rejected contribution of a duplicate axis feature', () => {
-    // The second axis feature has already allocated its rect index by the time
-    // `claim` throws. Recording cleanup after the claim would leak exactly the
-    // contribution whose claim collided.
-    const seen: string[] = [];
-    const fixture = createFixture();
-
-    expect(() =>
-      assemble(
-        [
-          feature({
-            insertion: geometry({
-              retire: (): void => {
-                seen.push('first');
-              },
-            }),
-          }),
-          feature({
-            insertion: geometry({
-              retire: (): void => {
-                seen.push('second');
-              },
-            }),
-          }),
-          ...required(),
-        ],
-        fixture.context,
-      ),
-    ).toThrow(/contributed by two features/u);
-
     expect(seen).toEqual(['second', 'first']);
   });
 
-  it('should refuse two real axis features, not only a feature and its copy', () => {
-    // Phase 17's deliverable: the exclusivity claim was previously exercised
-    // with **one** feature against a duplicate of itself, which cannot tell an
-    // exclusivity rule apart from an idempotence bug. `y()` and `xy()` are two
-    // genuinely different modules claiming one slot, in either order.
+  it('should retire the rejected contribution of a colliding installer', () => {
+    // The plugin has already allocated its rect index by the time `claim`
+    // throws. Recording cleanup after the claim would leak exactly the
+    // contribution whose claim collided.
+    //
+    // **The pair is axis-versus-plugin now, not axis-versus-axis** (D-45): two
+    // `axis` fragments last-win at the merge and the loser is never
+    // constructed, so the only way to reach `claim` on this slot is an
+    // installer that contributes geometry without owning the slot.
+    const seen: string[] = [];
     const fixture = createFixture();
 
-    expect(() => assemble([y(), xy(), ...required()], fixture.context)).toThrow(
-      new TypeError('sortable: insertion geometry contributed by two features'),
-    );
-
-    expect(() =>
-      assemble([xy(), y(), ...required()], createFixture().context),
-    ).toThrow(
-      new TypeError('sortable: insertion geometry contributed by two features'),
-    );
-  });
-
-  it('should retire the rejected real axis feature, in either order', () => {
-    // The same cleanup rule as the duplicate row above, but with the state that
-    // actually exists: each axis feature allocates its own rect index inside its
-    // factory, so the *second* one is live and unreachable by the time `claim`
-    // throws. Nothing observable is left to assert except that the assembler
-    // does not leak — so this asserts the composition is refused and that a
-    // subsequent, valid one still assembles, which a leaked index would not
-    // affect but a broken unwind would.
     expect(() =>
       assemble(
-        [y(), xy(), feature({ callbacks: { onReorder } })],
-        createFixture().context,
+        config(
+          {
+            axis: feature({
+              insertion: geometry({
+                retire: (): void => {
+                  seen.push('axis');
+                },
+              }),
+            }),
+          },
+          feature({
+            insertion: geometry({
+              retire: (): void => {
+                seen.push('plugin');
+              },
+            }),
+          }),
+        ),
+        fixture.context,
       ),
-    ).toThrow(/contributed by two features/u);
+    ).toThrow(/insertion geometry contributed twice/u);
 
-    const slots = assemble(
-      [xy(), feature({ callbacks: { onReorder } })],
+    expect(seen).toEqual(['plugin', 'axis']);
+  });
+
+  it('should let the last axis fragment win, in either order', () => {
+    // **Inverted by D-45, and the inversion is the decision.** Two axis
+    // features used to be a `claim` collision; `axis` is an atomic capability
+    // slot now, so the second fragment simply last-wins — and the loser is
+    // **never constructed**, which is what makes last-wins a merge rule rather
+    // than a lifecycle problem. Phase 17's point survives: `y()` and `xy()` are
+    // two genuinely different modules, exercised in both orders.
+    const yThenXy = assemble(
+      mergeFragments([
+        { items: (): readonly HTMLElement[] => [], onReorder },
+        y(),
+        xy(),
+      ]),
+      createFixture().context,
+    );
+    const xyThenY = assemble(
+      mergeFragments([
+        { items: (): readonly HTMLElement[] => [], onReorder },
+        xy(),
+        y(),
+      ]),
       createFixture().context,
     );
 
-    expect(slots.resolveInsertion).toBeTypeOf('function');
-    expect(slots.invalidateInsertion).toBeTypeOf('function');
+    expect(yThenXy.resolveInsertion).toBeTypeOf('function');
+    expect(xyThenY.resolveInsertion).toBeTypeOf('function');
+    // Different modules, so different closures: the winner is not the loser.
+    expect(yThenXy.resolveInsertion).not.toBe(xyThenY.resolveInsertion);
   });
 
-  it('should unwind when validation rejects the composition', () => {
-    // The unwind covers the validation throws too, not only factory throws:
-    // a composition missing `callbacks()` still allocated a rect index.
+  it('should construct nothing for a losing axis fragment', () => {
+    // The half of last-wins that matters. A capability that loses its slot
+    // allocates no rect index and appears in no `retireHooks` entry — so the
+    // hook count is the same as a composition that never named it.
+    const loser = assemble(
+      mergeFragments([
+        { items: (): readonly HTMLElement[] => [], onReorder },
+        y(),
+        xy(),
+      ]),
+      createFixture().context,
+    );
+    const alone = assemble(
+      mergeFragments([
+        { items: (): readonly HTMLElement[] => [], onReorder },
+        xy(),
+      ]),
+      createFixture().context,
+    );
+
+    expect(loser.retireHooks).toHaveLength(alone.retireHooks.length);
+  });
+
+  it('should unwind when post-install validation rejects the composition', () => {
+    // The unwind covers validation throws too, not only factory throws.
+    //
+    // **Which validation, though, is what D-45 changed.** The missing-slot
+    // checks moved *ahead* of every installer — they read the merged config, so
+    // they can run before anything is constructed, and there is nothing to
+    // unwind when they fire. What is left behind the installers is the one
+    // check that needs their results: an `axis` slot whose installer returned
+    // no geometry. A plugin that allocated before it fires still has to be
+    // retired.
     const seen: string[] = [];
 
     expect(() =>
       assemble(
-        [
+        config(
+          { axis: feature({}) },
           feature({
-            insertion: geometry({
-              retire: (): void => {
-                seen.push('geometry');
-              },
-            }),
+            retire: (): void => {
+              seen.push('plugin');
+            },
           }),
-        ],
+        ),
         createFixture().context,
       ),
-    ).toThrow(/callbacks/u);
+    ).toThrow(/contributed no insertion geometry/u);
 
-    expect(seen).toEqual(['geometry']);
+    expect(seen).toEqual(['plugin']);
   });
 
   it('should report a throwing unwind hook and continue', () => {
@@ -430,7 +494,8 @@ describe('assemble unwind', () => {
 
     expect(() =>
       assemble(
-        [
+        config(
+          {},
           feature({
             retire: (): void => {
               seen.push('outer');
@@ -441,10 +506,10 @@ describe('assemble unwind', () => {
               throw nested;
             },
           }),
-          brandFeature(() => {
+          () => {
             throw new Error('factory');
-          }),
-        ],
+          },
+        ),
         fixture.context,
       ),
     ).toThrow(/factory/u);
@@ -459,14 +524,14 @@ describe('assemble unwind', () => {
     const seen: string[] = [];
 
     assemble(
-      [
-        ...required(),
+      config(
+        {},
         feature({
           retire: (): void => {
             seen.push('retire');
           },
         }),
-      ],
+      ),
       createFixture().context,
     );
 

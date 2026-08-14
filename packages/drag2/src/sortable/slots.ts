@@ -218,3 +218,32 @@ export type SortableSlots = Readonly<{
 export const NOOP_START = (): void => {};
 
 export const DEFAULT_THRESHOLD = 8;
+
+/**
+ * The one numeric-domain check every public option goes through.
+ *
+ * Called at **construction** wherever the value exists by then, so the
+ * offending call is still on the stack — the same rule `copyUniqueItems`
+ * follows for a duplicate item. Two options do not reach it there: a
+ * `landing({ duration })` **thunk** is range-checked per landing, because its
+ * result does not exist until then, and `landing({ run })` suppresses the
+ * duration domain entirely, because a replacement runner leaves nothing for it
+ * to configure. A
+ * `NaN` threshold silently activates on nothing and a `NaN` duration silently
+ * produces an animation that never finishes; both are far cheaper to diagnose
+ * here than three seams later. The type says `number`, but a JavaScript
+ * consumer is not bound by that, so the `typeof` test earns its place.
+ */
+export function requireFinite(
+  value: number,
+  label: string,
+  minimum: number,
+): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < minimum) {
+    throw new TypeError(
+      `sortable: ${label} must be a finite number >= ${minimum}`,
+    );
+  }
+
+  return value;
+}

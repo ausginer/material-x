@@ -13,11 +13,8 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createRealm } from '../../src/kernel/realm.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
-import {
-  type FeatureContext,
-  unbrandFeature,
-} from '../../src/sortable/feature.ts';
+import type { SortableConfig } from '../../src/sortable/config.ts';
+import type { FeatureContext } from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import type { DisplacementView } from '../../src/sortable/slots.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -25,7 +22,6 @@ import {
   ReorderResolution,
   type ReorderRequest,
   type SortableController,
-  type SortableFeature,
   sortable,
 } from '../../src/sortable.ts';
 
@@ -67,7 +63,7 @@ afterEach(() => {
 
 type Options = Readonly<{
   itemCount?: number;
-  features?: readonly SortableFeature[];
+  fragments?: ReadonlyArray<Partial<SortableConfig>>;
   /** Runs on each row before the controller is armed. */
   decorate?(item: HTMLElement, index: number): void;
   /** Extra non-item children appended to the root. */
@@ -108,9 +104,9 @@ function build(options: Options = {}): Composed {
 
   const controller = sortable(
     root,
-    items,
+    { items: () => items },
     y(),
-    callbacks({
+    {
       onReorder(request) {
         requests.push(request);
         return ReorderResolution.accept();
@@ -118,8 +114,8 @@ function build(options: Options = {}): Composed {
       onError: (error): void => {
         errors.push(error);
       },
-    }),
-    ...(options.features ?? []),
+    },
+    ...(options.fragments ?? []),
   );
 
   root.setPointerCapture = (): void => {};
@@ -246,7 +242,7 @@ const displaced = (composed: Composed): number[] =>
     .map((item, index) => (displacements(item).length > 0 ? index : -1))
     .filter((index) => index !== -1);
 
-const withLayout = (): readonly SortableFeature[] => [
+const withLayout = (): readonly Partial<SortableConfig>[] => [
   layoutAnimation({ duration: DURATION }),
 ];
 
@@ -290,7 +286,7 @@ describe('settled presentation geometry', () => {
     // the *settled* field keeps the placeholder as the nearest candidate — but
     // where row 1's animating position is closer. Reading mid-flight proposes
     // moving straight back, which re-animates, which proposes again.
-    const composed = build({ features: withLayout() });
+    const composed = build({ fragments: withLayout() });
 
     activate(composed);
     await drag(55);
@@ -310,7 +306,7 @@ describe('settled presentation geometry', () => {
     // The definition, stated directly: what the axis resolves must not depend
     // on whether an offset happens to be applied at that instant.
     const script = async (cancelBefore: boolean): Promise<string> => {
-      const composed = build({ features: withLayout() });
+      const composed = build({ fragments: withLayout() });
 
       activate(composed);
       await drag(55);
@@ -346,7 +342,7 @@ describe('settled presentation geometry', () => {
     // Asserted on the **request**, not the intermediate order: a wrong gap
     // here is a wrong reorder reported to the consumer, which is the only
     // consequence that leaves the library.
-    const composed = build({ features: withLayout(), itemCount: 4 });
+    const composed = build({ fragments: withLayout(), itemCount: 4 });
 
     activate(composed);
     await drag(55);
@@ -390,9 +386,9 @@ describe('settled presentation geometry', () => {
     // at all, so the expected value above is pinned by construction rather than
     // by arithmetic in a comment.
     const script = async (
-      features: readonly SortableFeature[],
+      fragments: readonly Partial<SortableConfig>[],
     ): Promise<ReorderRequest | undefined> => {
-      const composed = build({ features, itemCount: 4 });
+      const composed = build({ fragments, itemCount: 4 });
 
       activate(composed);
       await drag(55);
@@ -416,9 +412,9 @@ describe('settled presentation geometry', () => {
     // must not change what the drag *decides*. Same pointer script, both
     // compositions, every intermediate order compared — not just the result.
     const script = async (
-      features: readonly SortableFeature[],
+      fragments: readonly Partial<SortableConfig>[],
     ): Promise<readonly [string[], ReorderRequest | undefined]> => {
-      const composed = build({ features });
+      const composed = build({ fragments });
       const orders: string[] = [];
 
       activate(composed);
@@ -457,7 +453,7 @@ describe('displacement ownership', () => {
     // Not hypothetical: the placeholder is inserted immediately after the item,
     // so the dragged row is the first sibling of every backward span. The
     // kernel's lift owns that element's presentation.
-    const composed = build({ features: withLayout(), itemCount: 4 });
+    const composed = build({ fragments: withLayout(), itemCount: 4 });
 
     activateRow(composed, 2);
     await drag(10);
@@ -474,7 +470,7 @@ describe('displacement ownership', () => {
     // animates nothing. The ownership violation is invisible in the output and
     // visible only in the reads. The axis excludes it too, so the correct
     // count across a committed move is zero.
-    const composed = build({ features: withLayout(), itemCount: 4 });
+    const composed = build({ fragments: withLayout(), itemCount: 4 });
     const dragged = composed.items[2]!;
     const native = Element.prototype.getBoundingClientRect;
     let reads = 0;
@@ -507,7 +503,7 @@ describe('displacement ownership', () => {
   it('should never displace a non-item sibling', async () => {
     const decoration = document.createElement('div');
     const composed = build({
-      features: withLayout(),
+      fragments: withLayout(),
       extras(root): void {
         decoration.style.height = `${ITEM_HEIGHT}px`;
         // Between the rows, so any sibling walk passes straight through it.
@@ -523,7 +519,7 @@ describe('displacement ownership', () => {
   });
 
   it('should never displace the placeholder itself', async () => {
-    const composed = build({ features: withLayout() });
+    const composed = build({ fragments: withLayout() });
 
     activate(composed);
     await drag(55);
@@ -540,7 +536,7 @@ describe('displacement ownership', () => {
     // in flight, and the *next* move crosses back over it — so its layout
     // really does change and a bracket that still owned it would animate it.
     // It stays in the DOM, so only membership can exclude it.
-    const composed = build({ features: withLayout(), itemCount: 4 });
+    const composed = build({ fragments: withLayout(), itemCount: 4 });
 
     activate(composed);
     await drag(130);
@@ -564,7 +560,7 @@ describe('displacement ownership', () => {
     // an accessor and `then` is a call. An animation started but never entered
     // into the map would survive `retire()` and keep offsetting a row nothing
     // owns.
-    const composed = build({ features: withLayout() });
+    const composed = build({ fragments: withLayout() });
     const native = Element.prototype.animate;
     let created: Animation | null = null;
 
@@ -602,7 +598,7 @@ describe('displacement ownership', () => {
 describe('authored presentation survives displacement', () => {
   it('should leave an authored transform untouched', async () => {
     const composed = build({
-      features: withLayout(),
+      fragments: withLayout(),
       decorate(item, index): void {
         if (index === 1) {
           item.style.transform = 'rotate(4deg)';
@@ -625,7 +621,7 @@ describe('authored presentation survives displacement', () => {
 
   it('should compose with an authored translate value', async () => {
     const composed = build({
-      features: withLayout(),
+      fragments: withLayout(),
       decorate(item, index): void {
         if (index === 1) {
           item.style.translate = '0 7px';
@@ -652,7 +648,7 @@ describe('authored presentation survives displacement', () => {
   });
 
   it('should leave a concurrent consumer animation on transform running', async () => {
-    const composed = build({ features: withLayout() });
+    const composed = build({ fragments: withLayout() });
     const row = composed.items[1]!;
     const consumer = row.animate(
       [{ transform: 'translateX(0px)' }, { transform: 'translateX(50px)' }],
@@ -672,7 +668,7 @@ describe('authored presentation survives displacement', () => {
   });
 
   it('should compose with a concurrent consumer animation on translate', async () => {
-    const composed = build({ features: withLayout() });
+    const composed = build({ fragments: withLayout() });
     const row = composed.items[1]!;
     // Held on X. A consumer offset on **Y** is not ours, so by the definition
     // of settled presentation geometry the axis legitimately sees it — a row
@@ -706,7 +702,7 @@ describe('authored presentation survives displacement', () => {
 
 describe('retargeting a running displacement', () => {
   it('should hold at most one displacement per row', async () => {
-    const composed = build({ features: withLayout(), itemCount: 5 });
+    const composed = build({ fragments: withLayout(), itemCount: 5 });
 
     activate(composed);
 
@@ -732,7 +728,7 @@ describe('retargeting a running displacement', () => {
     // Continuity: the second move measures the row where the first animation
     // has it *now*, so the replacement starts from the interrupted position
     // rather than from a fresh full delta.
-    const composed = build({ features: withLayout(), itemCount: 5 });
+    const composed = build({ fragments: withLayout(), itemCount: 5 });
 
     activate(composed);
     await drag(55);
@@ -764,7 +760,7 @@ describe('retargeting a running displacement', () => {
     // The set a bracket owns is the span **∪** whatever is still in flight: an
     // element left carrying an offset is exactly what corrupts the axis read
     // the bracket exists to protect.
-    const composed = build({ features: withLayout(), itemCount: 5 });
+    const composed = build({ fragments: withLayout(), itemCount: 5 });
 
     activate(composed);
     await drag(55);
@@ -788,9 +784,9 @@ describe('the composed bracket cost', () => {
     const native = Element.prototype.getBoundingClientRect;
 
     const measure = async (
-      features: readonly SortableFeature[],
+      fragments: readonly Partial<SortableConfig>[],
     ): Promise<number> => {
-      const composed = build({ itemCount: rows, features });
+      const composed = build({ itemCount: rows, fragments });
       let reads = 0;
 
       activate(composed);
@@ -832,7 +828,7 @@ describe('the composed bracket cost', () => {
 describe('teardown', () => {
   it('should leave no displacement and no authored value behind', async () => {
     const composed = build({
-      features: withLayout(),
+      fragments: withLayout(),
       itemCount: 5,
       decorate(item, index): void {
         if (index === 1) {
@@ -909,9 +905,9 @@ describe('the terminal barrier in the displacement bracket', () => {
     const item = box();
     const placeholder = box();
     const rows = [box(), box()];
-    const contribution = unbrandFeature(
-      layoutAnimation({ duration: DURATION }),
-    )(null as unknown as FeatureContext);
+    const contribution = layoutAnimation({ duration: DURATION }).plugins![0]!(
+      null as unknown as FeatureContext,
+    );
     const view: DisplacementView = {
       realm: createRealm(root),
       snapshot: { items: [item, ...rows], version: 1 },

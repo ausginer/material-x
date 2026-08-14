@@ -13,7 +13,6 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { Point } from '../../src/drag.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
 import {
   landing,
   type LandingContext,
@@ -103,9 +102,9 @@ function build(): Fixture {
 
   const controller = sortable(
     root,
-    items,
+    { items: () => items },
     y(),
-    callbacks({
+    {
       onReorder: (request) => {
         pending = request;
         return ReorderResolution.accept();
@@ -113,7 +112,7 @@ function build(): Fixture {
       onError: (error): void => {
         errors.push({ code: error.code });
       },
-    }),
+    },
     landing({
       // A runner that records and never completes, so the gate stays open and
       // the numbers can be read while presentation is still owned.

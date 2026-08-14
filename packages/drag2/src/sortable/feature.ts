@@ -12,17 +12,43 @@
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
-import type { DraggableError } from '../kernel/errors.ts';
-import type {
-  DragErrorContext,
-  Insertion,
-  OnReorder,
-  SortableCancelResult,
-  SortableFinishResult,
-} from './domain.ts';
+import type { Insertion } from './domain.ts';
 import type { PlaceholderSlot } from './placement.ts';
 import type {
   DisplacementHook,
+  InsertionFrameView,
+  InsertionRuntimeView,
+} from './slots.ts';
+
+/**
+ * **The structural closure of the middle tier, re-exported deliberately**
+ * (D-61, 03 §Published at the middle tier). Publishing `SortableContribution`
+ * and `FeatureContext` publishes everything they structurally name, so those
+ * types acquire the same versioning promise whether or not this file names
+ * them — the only choice is whether an installer author can *write them down*.
+ *
+ * They are listed here rather than left implicit because that is the whole of
+ * the cost D-61 accepts: narrowing the middle tier means narrowing this list,
+ * and a list is reviewable in a way that a reachability closure is not.
+ * `tests/docs.node.test.ts` fails on any public type that reaches an
+ * unexported one, which is what keeps the two in step.
+ *
+ * `SortableSlots` is **not** here, and that is where the closure stops: an
+ * installer returns a contribution and never sees the flattened record the
+ * behavior builds from it.
+ */
+export type { Disposer } from '../kernel/lifetimes.ts';
+export type { DOMRealm } from '../kernel/realm.ts';
+export type {
+  LandingContext,
+  LandingHandle,
+  LandingStart,
+} from '../kernel/spec.ts';
+export type { Insertion } from './domain.ts';
+export type { PlaceholderSlot } from './placement.ts';
+export type {
+  DisplacementHook,
+  DisplacementView,
   InsertionFrameView,
   InsertionRuntimeView,
 } from './slots.ts';
@@ -81,52 +107,14 @@ export type InsertionGeometry = Readonly<{
 }>;
 
 /**
- * The one consumer-facing surface for callbacks, and the **sole owner of the
- * `threshold` default**. Carrying `threshold` as contribution metadata as well
- * would immediately raise the question of which one wins.
+ * ~~`SortableCallbacks`~~ is deleted. It was the consumer-facing callback
+ * surface and the sole owner of the `threshold` default; **`SortableConfig` in
+ * `config.ts` is both now** (D-45), which is the point — the callbacks were
+ * never a *feature* concern, and keeping them here made the middle tier part of
+ * the ordinary consumer's vocabulary. F-51 also applies to the replacement: its
+ * slots are named aliases, not the method shorthand this used, so they are
+ * checked contravariantly.
  */
-export type SortableCallbacks = Readonly<{
-  onReorder: OnReorder;
-  onStart?(item: HTMLElement): void;
-  onFinish?(result: SortableFinishResult): void;
-  onCancel?(result: SortableCancelResult): void;
-  onError?(error: DraggableError, context: DragErrorContext): void;
-  /**
-   * How far the pointer must travel from the press before a drag activates, in
-   * **CSS pixels**, as a straight-line distance. Finite and `>= 0`; `0`
-   * activates on the first move that reports a different point. Default `8`.
-   */
-  threshold?: number;
-}>;
-
-/**
- * The one numeric-domain check every public option goes through.
- *
- * Called at **construction** wherever the value exists by then, so the
- * offending call is still on the stack — the same rule `copyUniqueItems`
- * follows for a duplicate item. Two options do not reach it there: a
- * `landing({ duration })` **thunk** is range-checked per landing, because its
- * result does not exist until then, and `landing({ run })` suppresses the
- * duration domain entirely, because a replacement runner leaves nothing for it
- * to configure. A
- * `NaN` threshold silently activates on nothing and a `NaN` duration silently
- * produces an animation that never finishes; both are far cheaper to diagnose
- * here than three seams later. The type says `number`, but a JavaScript
- * consumer is not bound by that, so the `typeof` test earns its place.
- */
-export function requireFinite(
-  value: number,
-  label: string,
-  minimum: number,
-): number {
-  if (typeof value !== 'number' || !Number.isFinite(value) || value < minimum) {
-    throw new TypeError(
-      `sortable: ${label} must be a finite number >= ${minimum}`,
-    );
-  }
-
-  return value;
-}
 
 /**
  * One flat type, fixed key names, **no discriminator**. There is deliberately
@@ -141,11 +129,12 @@ export function requireFinite(
 export type SortableContribution = Readonly<{
   /* single-writer slots */
   insertion?: InsertionGeometry;
-  createPlaceholder?: PlaceholderSlot;
-  getHandle?(item: HTMLElement): HTMLElement | null;
-  getVisual?(item: HTMLElement): HTMLElement;
+  /**
+   * D-65 — named as the config slot is. Two names for one factory would be a
+   * puzzle rather than a distinction now that a middle-tier author reads both.
+   */
+  placeholder?: PlaceholderSlot;
   startLanding?: LandingStart;
-  callbacks?: SortableCallbacks;
 
   /* multi-writer pipelines */
   beforeInsertionMove?: DisplacementHook;
@@ -161,28 +150,24 @@ export type SortableContribution = Readonly<{
  * needing release. Every acquisition happens inside a kernel-owned operation
  * lifetime.
  */
-export type FeatureFactory = (context: FeatureContext) => SortableContribution;
-
-declare const FEATURE_BRAND: unique symbol;
-
 /**
- * What a consumer holds: **opaque** (D-30). A feature can be named and passed
- * to `sortable()`, and cannot be constructed outside this package, because the
- * brand is declaration-only and unexported.
+ * **The middle tier** (D-61). An installer runs **once**, while a concrete
+ * behavior instance is being constructed. It may create whatever private
+ * runtime it likes, capture that runtime in the callbacks it returns, and hand
+ * back a plain object of named contributions.
  *
- * The two earlier attempts at this boundary were both incoherent. Naming the
- * authoring types "internal and unstable" while exporting `SortableFeature` as
- * "public and stable" is not a third state: the public type was *defined* as a
- * function between the two unstable ones, so any change to either changed its
- * assignability. Branding closes the world for real, at zero runtime cost.
+ * ~~`SortableFeature`, an opaque brand nothing outside this package could
+ * construct.~~ **D-45 withdraws the brand and D-61 publishes the type.** There
+ * is no branded feature value to hold — a fragment is a plain object literal —
+ * and opacity is now a property of *which entry you imported*: an ordinary
+ * consumer writing only `sortable.js` can write `axis: y().axis` and still
+ * cannot write `axis: (ctx) => ({ … })`, because the alias has no structure
+ * there. At the middle tier it has structure and is authorable.
+ *
+ * **An installer is externally inert.** It may allocate, but it may not attach
+ * a listener, write the DOM, or acquire anything needing release: every
+ * acquisition happens inside a kernel-owned operation lifetime.
  */
-export type SortableFeature = Readonly<{ [FEATURE_BRAND]: true }>;
-
-/** Declaration-only cast. Every first-party feature module ends in this call. */
-export function brandFeature(factory: FeatureFactory): SortableFeature {
-  return factory as unknown as SortableFeature;
-}
-
-export function unbrandFeature(feature: SortableFeature): FeatureFactory {
-  return feature as unknown as FeatureFactory;
-}
+export type SortableInstaller = (
+  context: FeatureContext,
+) => SortableContribution;

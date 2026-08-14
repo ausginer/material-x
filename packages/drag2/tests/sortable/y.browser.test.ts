@@ -12,10 +12,9 @@ import type {
   CollectionSnapshot,
   Insertion,
 } from '../../src/sortable/domain.ts';
-import {
-  type FeatureContext,
-  type InsertionGeometry,
-  unbrandFeature,
+import type {
+  FeatureContext,
+  InsertionGeometry,
 } from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
 
@@ -81,9 +80,10 @@ function createField(count = 3): Field {
     items.push(item);
   }
 
-  const geometry = unbrandFeature(y())(
-    null as unknown as FeatureContext,
-  ).insertion!;
+  // The axis slot **is** the installer now (D-45): `y()` returns a partial
+  // config, and the installer is called with a context the geometry never
+  // dereferences at construction.
+  const geometry = y().axis(null as unknown as FeatureContext).insertion!;
 
   const field: Field = {
     geometry,

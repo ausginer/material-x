@@ -25,7 +25,7 @@ import {
   createSortableController,
   type SortableController,
 } from './controller.ts';
-import type { SortableFeature } from './feature.ts';
+import { mergeFragments, type SortableConfig } from './config.ts';
 import type { SortableFramePart } from './frames.ts';
 import { createSortableRuntime } from './runtime.ts';
 import type { SortableSlots } from './slots.ts';
@@ -58,18 +58,32 @@ export function createSortableBehavior(
   return (host) => install(host, items, slots);
 }
 
-/** Assembles the features first, against the host's realm and root. */
+/**
+ * Merges the fragments, then assembles against the host's realm and root.
+ *
+ * **Two stages, and the split is the decision** (D-45): the merge resolves
+ * every named slot before a single installer runs, which is what makes
+ * last-wins a merge rule rather than a lifecycle problem — a capability that
+ * loses its slot is never constructed, so there is nothing to retire.
+ *
+ * The merge happens here rather than at the `sortable()` call site because
+ * nothing before this point is per-controller: merging eagerly would compute a
+ * config for a behavior that may never be installed.
+ */
 export function createComposedSortableBehavior(
-  items: readonly HTMLElement[],
-  features: readonly SortableFeature[],
+  fragments: readonly Partial<SortableConfig>[],
 ): BehaviorFactory<SortableController, SortableFramePart> {
+  const config = mergeFragments(fragments);
+
   return (host) =>
     install(
       host,
-      items,
+      // D-44: `items` is a pull source, read once here for the initial
+      // snapshot. Validated by `assemble` before this runs.
+      typeof config.items === 'function' ? config.items() : [],
       // `report`, not `fail`: a feature closure created here cannot know which
       // operation is live, so classifying a failure from one would let a late
       // continuation settle another.
-      assemble(features, { realm: host.realm, root: host.root, report }),
+      assemble(config, { realm: host.realm, root: host.root, report }),
     );
 }

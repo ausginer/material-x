@@ -8,18 +8,18 @@
  * below), and `landing({ run })` suppresses the duration domain outright,
  * because a replacement runner leaves nothing for it to configure. The
  * types say `number`, but a JavaScript consumer is not bound by that, and the
- * silent failures are nasty: a `NaN` threshold activates on nothing, a `NaN`
- * duration produces an animation that never finishes, and a `0` readiness
- * timeout fails every gate before the promise can settle.
+ * silent failures are nasty: a `NaN` threshold activates on nothing and a `NaN`
+ * duration produces an animation that never finishes.
+ *
+ * `threshold` moved with D-56: it used to be validated by `callbacks()`, which
+ * only saw a config routed through that factory. It is now validated by the
+ * assembler, over the **merged** config, so it fires however the value arrived.
  */
 import { describe, expect, it } from 'vitest';
 import { assemble } from '../../src/sortable/assemble.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
+import { mergeFragments } from '../../src/sortable/config.ts';
 import { ReorderResolution } from '../../src/sortable/domain.ts';
-import type {
-  FeatureContext,
-  SortableFeature,
-} from '../../src/sortable/feature.ts';
+import type { FeatureContext } from '../../src/sortable/feature.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -33,13 +33,14 @@ const context: FeatureContext = {
 /** Assembling is what applies the defaults, so it is what validates them. */
 const assembleWith = (options: Record<string, unknown>): unknown =>
   assemble(
-    [
+    mergeFragments([
       y(),
-      callbacks({
+      {
+        items: (): readonly HTMLElement[] => [],
         onReorder: () => ReorderResolution.accept(),
         ...options,
-      }),
-    ] satisfies readonly SortableFeature[],
+      },
+    ]),
     context,
   );
 

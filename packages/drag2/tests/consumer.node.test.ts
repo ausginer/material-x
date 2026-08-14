@@ -103,28 +103,19 @@ import {
   type CancelStage,
   type CollectionSnapshot,
   type DragErrorContext,
+  type OnReorder,
+  type PlaceholderContext,
   type PlaceholderFactory,
+  type SortableConfig,
   type RejectedReorderResolution,
   type ReorderProposal,
   type ReorderRequest,
   type ReorderTransactionResult,
   type SortableCancelResult,
   type SortableController,
-  type SortableFeature,
   type SortableFinishResult,
 } from '@ydinjs/drag2/sortable.js';
 import { y } from '@ydinjs/drag2/sortable/y.js';
-import {
-  callbacks,
-  type OnReorder,
-  type SortableCallbacks,
-} from '@ydinjs/drag2/sortable/callbacks.js';
-import {
-  placeholder,
-  type PlaceholderContext,
-  type PlaceholderOptions,
-} from '@ydinjs/drag2/sortable/placeholder.js';
-import { handle, visual } from '@ydinjs/drag2/sortable/handle.js';
 import {
   landing,
   type LandingContext,
@@ -146,16 +137,15 @@ declare const items: readonly HTMLElement[];
 
 const list: SortableController = sortable(
   root,
-  items,
   y(),
-  callbacks({
+  {
+    items: () => items,
     onReorder: (request: ReorderRequest) => {
       void request.from;
       void request.to;
       void request.item;
       return ReorderResolution.accept();
     },
-    threshold: 4,
     onFinish: (result: SortableFinishResult): void => {
       // F-41: the public results narrow on their own discriminant. Nothing a
       // consumer has to import is needed to tell one from another.
@@ -187,17 +177,16 @@ const list: SortableController = sortable(
       void (error instanceof DraggableError);
       void domain?.type;
     },
-  }),
-  placeholder({
-    className: 'ghost',
-    // Nameable, so a consumer can hoist the factory out of the call.
-    create: ((context: PlaceholderContext) => {
+    // **D-65**: the callback itself, not \`create\` plus a class name. Nameable,
+    // so a consumer can hoist the factory out of the object literal.
+    placeholder: ((context: PlaceholderContext) => {
       void context.rect.height;
       return document.createElement('div');
     }) satisfies PlaceholderFactory,
-  }),
-  handle((item: HTMLElement) => item.firstElementChild as HTMLElement),
-  visual((item: HTMLElement) => item),
+    handle: (item: HTMLElement) => item.firstElementChild as HTMLElement,
+    visual: (item: HTMLElement) => item,
+    threshold: 4,
+  },
   landing({ duration: 120, easing: 'ease-out' }),
   layoutAnimation({ duration: 90 }),
 );
@@ -228,14 +217,15 @@ declare const rejected: RejectedReorderResolution;
 void [accepted.type, rejected.type];
 
 declare const behavior: BehaviorFactory<SortableController, object>;
-declare const feature: SortableFeature;
 declare const onReorder: OnReorder;
-declare const options: SortableCallbacks;
-declare const placeholderOptions: PlaceholderOptions;
+// **D-45**: the config schema replaces \`SortableCallbacks\` and
+// \`PlaceholderOptions\`, and a \`Partial\` of it is exactly what a fragment is —
+// so a consumer can give a preset helper a return type.
+declare const preset: Partial<SortableConfig>;
 declare const landingOptions: LandingOptions;
 declare const layoutOptions: LayoutAnimationOptions;
 
-void [run, behavior, feature, onReorder, options, placeholderOptions, landingOptions, layoutOptions];
+void [run, behavior, onReorder, preset, landingOptions, layoutOptions];
 
 // Inference through the *packed* declarations, with no explicit type argument.
 const inferred = draggable(root, behavior);
@@ -251,17 +241,20 @@ inferred.destroy();
 // not satisfy the factory's return type.
 // @ts-expect-error: a factory must return both halves of the handshake
 const forgedBehavior: BehaviorFactory<SortableController, object> = () => ({});
-// @ts-expect-error: the feature value is opaque
-const forgedFeature: SortableFeature = () => ({});
-// @ts-expect-error: a feature is not callable
-feature(null as never);
+// D-45: an installer is no longer opaque — it is a plain function published at
+// the middle tier — so the two brand rows that stood here have no subject
+// either. What survives is that an unknown slot is not a config: the merge
+// walks the schema, so a misspelled key has to be a *compile* error to be
+// diagnosable at all.
+// @ts-expect-error: \`onReorded\` is not a slot
+const forgedFragment: Partial<SortableConfig> = { onReorded: () => {} };
 // D-55: there is no branded behavior type at all now, so the opacity check has
 // no subject. What replaces it is the reachability check below — the SPI is
 // published at \`kernel.js\` and still unreachable from \`drag.js\`.
 // @ts-expect-error: \`Behavior\` is withdrawn (D-55)
 type Part = import('@ydinjs/drag2/kernel.js').Behavior<SortableController>;
 
-void [forgedBehavior, forgedFeature];
+void [forgedBehavior, forgedFragment];
 
 // ---------------------------------------------------------------------------
 // Every internal SPI name is unreachable. Each line must error; an
@@ -337,12 +330,11 @@ type D5b = import('@ydinjs/drag2/sortable/layout-animation.js').AnimationTiming;
 type C1 = import('@ydinjs/drag2/kernel/spec.js').KernelHost;
 // @ts-expect-error: source is not a declared subpath
 type C2 = import('@ydinjs/drag2/src/drag.ts').Point;
-// The module that *declares* the feature brand, and the one that declares the
-// slot views. Both are packed — the public declarations resolve through the
-// first — and neither is a declared subpath, which is what keeps the authoring
-// types internal even though their declaration file ships.
-// @ts-expect-error: the feature authoring module is not a declared subpath
-type C3 = import('@ydinjs/drag2/sortable/feature.js').SortableFeature;
+// The slot views are still internal. The **feature authoring module is not**
+// (D-61): \`sortable/feature.js\` is a declared subpath now — the middle tier
+// where an installer's types live — so this line must *resolve*, which is the
+// opposite of what it asserted before.
+type C3 = import('@ydinjs/drag2/sortable/feature.js').SortableInstaller;
 // @ts-expect-error: the slot views are not a declared subpath
 type C4 = import('@ydinjs/drag2/sortable/slots.js').DisplacementView;
 
@@ -373,7 +365,7 @@ type Packed = Readonly<{
   /** The consumer project, outside the workspace, resolving the extracted copy. */
   consumer: string;
   /** `exports` as published, minus `./package.json`. */
-  subpaths: ReadonlyMap<string, Readonly<{ types: string; default: string }>>;
+  subpaths: ReadonlyMap<string, Readonly<{ types: string; default?: string }>>;
 }>;
 
 let packed: Packed;
@@ -440,12 +432,12 @@ beforeAll(async () => {
   ) as {
     exports: Record<
       string,
-      string | Readonly<{ types: string; default: string }>
+      string | Readonly<{ types: string; default?: string }>
     >;
   };
   const subpaths = new Map<
     string,
-    Readonly<{ types: string; default: string }>
+    Readonly<{ types: string; default?: string }>
   >();
 
   for (const [key, value] of Object.entries(manifest.exports)) {
@@ -462,13 +454,13 @@ describe('the packed package', () => {
     // Runtime-imported, not merely stat-ed: a module that exists but cannot
     // resolve its own imports is exactly the B-01 failure this suite exists for.
     const landed = [...packed.subpaths].filter(
-      ([key]) => !PENDING.includes(key),
+      ([key, value]) => !PENDING.includes(key) && value.default !== undefined,
     );
 
     expect(landed.length).toBeGreaterThan(0);
 
     const imported = await Promise.all(
-      landed.map(([, value]) => import(join(packed.dir, value.default))),
+      landed.map(([, value]) => import(join(packed.dir, value.default!))),
     );
 
     for (const each of imported) {
@@ -494,6 +486,14 @@ describe('the packed package', () => {
     const missing: string[] = [];
 
     for (const [key, value] of packed.subpaths) {
+      if (value.default === undefined) {
+        // A **type-only** subpath (D-61), not a pending one: it declares no
+        // `default` condition at all, so there is no file it is promising and
+        // failing to ship. `PENDING` is for the opposite case — a `default`
+        // that points at a module the build has not written yet.
+        continue;
+      }
+
       // oxlint-disable-next-line no-await-in-loop
       if (!(await exists(join(packed.dir, value.default)))) {
         missing.push(key);
@@ -547,22 +547,36 @@ describe('the packed package', () => {
       ],
       './sortable/y.js': ['y'],
       './sortable/xy.js': ['xy'],
-      './sortable/callbacks.js': ['callbacks'],
-      './sortable/placeholder.js': ['placeholder'],
-      './sortable/handle.js': ['handle', 'visual'],
       './sortable/landing.js': ['landing'],
       './sortable/layout-animation.js': ['layoutAnimation'],
     };
 
-    expect([...packed.subpaths.keys()].toSorted(byName)).toEqual(
+    /**
+     * **`./sortable/feature.js` is deliberately absent from this table** and
+     * from the map it is compared against (D-61). The middle tier has zero
+     * runtime exports, so the build emits no `.js` for it and its export entry
+     * carries `types` with **no `default` condition** — there is nothing to
+     * import and nothing whose names could be listed. That is the honest
+     * measurement statement for the entry: unlike the three subpaths D-56
+     * deleted for measuring nothing, this one is not pretending to measure
+     * anything. Its declarations are covered by the packed-declaration row
+     * above and by the consumer compile, which is where an erased surface can
+     * be checked at all.
+     */
+    const runtimeSubpaths = [...packed.subpaths].filter(
+      ([, value]) => value.default !== undefined,
+    );
+
+    expect(runtimeSubpaths.map(([key]) => key).toSorted(byName)).toEqual(
       Object.keys(expected).toSorted(byName),
     );
+    expect([...packed.subpaths.keys()]).toContain('./sortable/feature.js');
 
     const actual: Record<string, readonly string[]> = {};
 
     await Promise.all(
-      [...packed.subpaths].map(async ([key, value]) => {
-        const module: object = await import(join(packed.dir, value.default));
+      runtimeSubpaths.map(async ([key, value]) => {
+        const module: object = await import(join(packed.dir, value.default!));
         const names: readonly string[] = Object.keys(module);
 
         actual[key] = names.toSorted(byName);

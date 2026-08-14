@@ -25,7 +25,7 @@
  * different and better answer for a list.
  */
 import type { CollectionSnapshot, Insertion } from './domain.ts';
-import { brandFeature, type SortableFeature } from './feature.ts';
+import type { SortableConfig } from './config.ts';
 import { CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
 
 /**
@@ -77,109 +77,111 @@ const centreOf = (element: Element): number => {
   return (rect.top + rect.bottom) * 0.5;
 };
 
-export function y(): SortableFeature {
-  return brandFeature(() => {
-    // Private per-feature state. Nobody else can name it, reach it, or type it
-    // — which is what makes probe 1's "where does the geometry cache live"
-    // question disappear by construction rather than by argument (H-4).
-    const index = createRectIndex();
+export function y(): Pick<SortableConfig, 'axis'> {
+  return {
+    axis: () => {
+      // Private per-feature state. Nobody else can name it, reach it, or type it
+      // — which is what makes probe 1's "where does the geometry cache live"
+      // question disappear by construction rather than by argument (H-4).
+      const index = createRectIndex();
 
-    return {
-      insertion: {
-        resolve(
-          frame: InsertionFrameView,
-          runtime: InsertionRuntimeView,
-        ): Insertion | null {
-          const dragged = frame.item;
+      return {
+        insertion: {
+          resolve(
+            frame: InsertionFrameView,
+            runtime: InsertionRuntimeView,
+          ): Insertion | null {
+            const dragged = frame.item;
 
-          if (dragged === null) {
-            return null;
-          }
-
-          const { snapshot, placeholder } = runtime;
-
-          if (
-            !index.refresh(snapshot, dragged, runtime.getVisual, runtime.live)
-          ) {
-            // The rebuild crossed the terminal barrier (I-36). Measuring the
-            // placeholder below would be a consumer call — it is the
-            // consumer's element and may override `getBoundingClientRect()` —
-            // so the resolution stops here rather than at the empty scan.
-            return null;
-          }
-
-          const { values, count } = index;
-          const anchor = centreOf(placeholder);
-          const { pointerY } = frame;
-          // The incumbent to beat is the placeholder's own centre.
-          let best = Math.abs(pointerY - anchor);
-          let nearest = -1;
-
-          for (let i = 0; i < count; i += 1) {
-            const distance = Math.abs(
-              pointerY - values[i * STRIDE + CENTRE_Y]!,
-            );
-
-            if (distance < best) {
-              best = distance;
-              nearest = i;
+            if (dragged === null) {
+              return null;
             }
-          }
 
-          if (nearest === -1) {
-            // The placeholder's own slot still wins. The committed insertion
-            // stays authoritative and the frame commits nothing (I-15).
-            return null;
-          }
+            const { snapshot, placeholder } = runtime;
 
-          // The gap sits on the side of `nearest` the placeholder is travelling
-          // from. On a y axis that is a comparison of the two centres,
-          // which the scan has already measured — no DOM-order query needed.
-          const gap =
-            values[nearest * STRIDE + CENTRE_Y]! > anchor
-              ? nearest + 1
-              : nearest;
-          const { items } = index;
+            if (
+              !index.refresh(snapshot, dragged, runtime.getVisual, runtime.live)
+            ) {
+              // The rebuild crossed the terminal barrier (I-36). Measuring the
+              // placeholder below would be a consumer call — it is the
+              // consumer's element and may override `getBoundingClientRect()` —
+              // so the resolution stops here rather than at the empty scan.
+              return null;
+            }
 
-          return {
-            version: snapshot.version,
-            index: gap,
-            before: items[gap - 1] ?? null,
-            after: items[gap] ?? null,
-          };
+            const { values, count } = index;
+            const anchor = centreOf(placeholder);
+            const { pointerY } = frame;
+            // The incumbent to beat is the placeholder's own centre.
+            let best = Math.abs(pointerY - anchor);
+            let nearest = -1;
+
+            for (let i = 0; i < count; i += 1) {
+              const distance = Math.abs(
+                pointerY - values[i * STRIDE + CENTRE_Y]!,
+              );
+
+              if (distance < best) {
+                best = distance;
+                nearest = i;
+              }
+            }
+
+            if (nearest === -1) {
+              // The placeholder's own slot still wins. The committed insertion
+              // stays authoritative and the frame commits nothing (I-15).
+              return null;
+            }
+
+            // The gap sits on the side of `nearest` the placeholder is travelling
+            // from. On a y axis that is a comparison of the two centres,
+            // which the scan has already measured — no DOM-order query needed.
+            const gap =
+              values[nearest * STRIDE + CENTRE_Y]! > anchor
+                ? nearest + 1
+                : nearest;
+            const { items } = index;
+
+            return {
+              version: snapshot.version,
+              index: gap,
+              before: items[gap - 1] ?? null,
+              after: items[gap] ?? null,
+            };
+          },
+
+          invalidate: index.invalidate,
+
+          /**
+           * The eager half. The behavior calls it inside the committed-move
+           * bracket, in the one window where no displacement offset is applied,
+           * so the rebuild reads **settled presentation geometry**.
+           *
+           * This is a re-timing, not an extra read: a committed move always
+           * dirties the cache and `resolve` always rebuilds it on the next
+           * spatial frame, which by then is mid-animation. The only case that
+           * pays for a pass it would not otherwise have is the last move before
+           * release — and release invalidates and re-resolves anyway.
+           */
+          measure(
+            frame: InsertionFrameView,
+            runtime: InsertionRuntimeView,
+          ): void {
+            const dragged = frame.item;
+
+            if (dragged !== null) {
+              index.refresh(
+                runtime.snapshot,
+                dragged,
+                runtime.getVisual,
+                runtime.live,
+              );
+            }
+          },
+
+          retire: index.retire,
         },
-
-        invalidate: index.invalidate,
-
-        /**
-         * The eager half. The behavior calls it inside the committed-move
-         * bracket, in the one window where no displacement offset is applied,
-         * so the rebuild reads **settled presentation geometry**.
-         *
-         * This is a re-timing, not an extra read: a committed move always
-         * dirties the cache and `resolve` always rebuilds it on the next
-         * spatial frame, which by then is mid-animation. The only case that
-         * pays for a pass it would not otherwise have is the last move before
-         * release — and release invalidates and re-resolves anyway.
-         */
-        measure(
-          frame: InsertionFrameView,
-          runtime: InsertionRuntimeView,
-        ): void {
-          const dragged = frame.item;
-
-          if (dragged !== null) {
-            index.refresh(
-              runtime.snapshot,
-              dragged,
-              runtime.getVisual,
-              runtime.live,
-            );
-          }
-        },
-
-        retire: index.retire,
-      },
-    };
-  });
+      };
+    },
+  };
 }

@@ -2,7 +2,7 @@
  * The minimal composition, driven through the **public entrypoint**:
  *
  * ```ts
- * sortable(root, items, y(), callbacks({ onReorder }))
+ * sortable(root, { items: () => items }, y(), { onReorder })
  * ```
  *
  * Everything else in `tests/sortable` drives the behavior against hand-written
@@ -18,7 +18,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { DraggableError } from '../../src/drag.ts';
 import { AT_PROPOSAL } from '../../src/kernel/failures.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
+import type { SortableConfig } from '../../src/sortable/config.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
@@ -49,7 +49,7 @@ type Composed = Readonly<{
 type Options = Readonly<{
   itemCount?: number;
   threshold?: number;
-  onReorder?: Parameters<typeof callbacks>[0]['onReorder'];
+  onReorder?: SortableConfig['onReorder'];
   onStart?(composed: Composed): void;
   onFinish?(composed: Composed): void;
 }>;
@@ -104,36 +104,31 @@ function compose(options: Options = {}): Composed {
 
   let composed!: Composed;
 
-  const controller = sortable(
-    root,
-    items,
-    y(),
-    callbacks({
-      onReorder:
-        options.onReorder ??
-        ((request) => {
-          requests.push(request);
-          return ReorderResolution.accept();
-        }),
-      onStart(item): void {
-        started.push(item);
-        options.onStart?.(composed);
-      },
-      onFinish(result): void {
-        finishes.push(result);
-        options.onFinish?.(composed);
-      },
-      onCancel(result): void {
-        cancels.push(result);
-      },
-      onError(error): void {
-        errors.push(error);
-      },
-      ...(options.threshold === undefined
-        ? null
-        : { threshold: options.threshold }),
-    }),
-  );
+  const controller = sortable(root, { items: () => items }, y(), {
+    onReorder:
+      options.onReorder ??
+      ((request) => {
+        requests.push(request);
+        return ReorderResolution.accept();
+      }),
+    onStart(item): void {
+      started.push(item);
+      options.onStart?.(composed);
+    },
+    onFinish(result): void {
+      finishes.push(result);
+      options.onFinish?.(composed);
+    },
+    onCancel(result): void {
+      cancels.push(result);
+    },
+    onError(error): void {
+      errors.push(error);
+    },
+    ...(options.threshold === undefined
+      ? null
+      : { threshold: options.threshold }),
+  });
 
   // Synthetic pointer events have no active pointer, so the real
   // `setPointerCapture` would throw `NotFoundError` for every activation.
@@ -235,7 +230,8 @@ describe('the minimal composition', () => {
   });
 
   it('should not activate before the threshold is crossed', () => {
-    // `callbacks()` owns the default; nothing else may carry a second copy.
+    // The config owns the `threshold` default (D-56); nothing else may carry a
+    // second copy.
     const composed = compose();
 
     press(composed.items[0]!);

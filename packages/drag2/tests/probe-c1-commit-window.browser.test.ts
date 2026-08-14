@@ -16,8 +16,6 @@
  */
 import { afterAll, afterEach, describe, expect, it } from 'vitest';
 import type { Point } from '../src/drag.ts';
-import { callbacks } from '../src/sortable/callbacks.ts';
-import { visual } from '../src/sortable/handle.ts';
 import { landing, type LandingStart } from '../src/sortable/landing.ts';
 import { layoutAnimation } from '../src/sortable/layout-animation.ts';
 import { y } from '../src/sortable/y.ts';
@@ -253,12 +251,12 @@ function mount(options: Options): Fixture {
   // Referenced from `onReorder`, which cannot run before the assignment lands.
   const controller = sortable(
     root,
-    ids.map((id) => rows.get(id)!),
+    { items: () => ids.map((id) => rows.get(id)!) },
     y(),
     options.realLanding === undefined
       ? landing({ run })
       : landing({ duration: options.realLanding, easing: 'linear' }),
-    callbacks({
+    {
       onReorder: (request): ReorderResolution => {
         requests.push(request);
         capture();
@@ -315,7 +313,7 @@ function mount(options: Options): Fixture {
       onError(error): void {
         errors.push(error);
       },
-    }),
+    },
   );
 
   root.setPointerCapture = (): void => {};
@@ -704,7 +702,7 @@ describe('probe C1 — an imperative commit', () => {
  * api-1 established the footprint rule `boxPre.height − boxPost.height` on a
  * static fixture with no library code. This checks it during a live drag with
  * `layoutAnimation()` installed and transforming the same elements. `box()` does
- * not exist in the current API, so it is modelled: `visual()` resolves to a
+ * not exist in the current API, so it is modelled: `{ visual:  }` resolves to a
  * descendant `.c6-card` of the item, and the item element itself is the wrapper
  * this test measures by hand. This is layout arithmetic, not a library feature.
  */
@@ -779,19 +777,19 @@ describe('probe C1 — the api-1 footprint rule under a live drag', () => {
 
     const controller = sortable(
       root,
-      rows,
+      { items: () => rows },
       y(),
-      visual((item) => item.querySelector<HTMLElement>('.c6-card')!),
+      { visual: (item) => item.querySelector<HTMLElement>('.c6-card')! },
       // Long enough that every displacement is still in flight when the
       // measurements below are taken.
       layoutAnimation({ duration: 4000, easing: 'linear' }),
       landing({ run }),
-      callbacks({
+      {
         onReorder: (): ReorderResolution => ReorderResolution.accept(),
         onError(error): void {
           errors.push(error);
         },
-      }),
+      },
     );
 
     root.setPointerCapture = (): void => {};

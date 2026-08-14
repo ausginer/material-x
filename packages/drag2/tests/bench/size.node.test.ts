@@ -27,13 +27,11 @@ import {
   violations,
 } from '../../bench/size/measure.ts';
 import type { DOMRealm } from '../../src/kernel/realm.ts';
+import { mergeFragments } from '../../src/sortable/config.ts';
 import { assemble } from '../../src/sortable/assemble.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
 import type { FeatureContext } from '../../src/sortable/feature.ts';
-import { handle, visual } from '../../src/sortable/handle.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
-import { placeholder } from '../../src/sortable/placeholder.ts';
 import { y } from '../../src/sortable/y.ts';
 
 const ROOT = resolve(import.meta.dirname, '../..');
@@ -130,17 +128,18 @@ describe('the non-composed baseline', () => {
     const root: HTMLElement = Object.create(null) as HTMLElement;
     const context: FeatureContext = { realm, root, report: (): void => {} };
     const composed = assemble(
-      [
+      mergeFragments([
+        {
+          items: (): readonly HTMLElement[] => [],
+          onReorder: () => ({ type: 'accepted' }),
+          handle: () => null,
+          visual: (item: HTMLElement) => item,
+          placeholder: () => Object.create(null) as HTMLElement,
+        },
         y(),
-        placeholder({ className: 'ghost' }),
-        handle(() => null),
-        visual((item) => item),
         landing(),
         layoutAnimation(),
-        callbacks({
-          onReorder: () => ({ type: 'accepted', presentation: false }),
-        }),
-      ],
+      ]),
       context,
     );
     // Imported here rather than at the top: it reaches built output, which

@@ -36,7 +36,6 @@ import {
   type Frame,
   type KernelFrame,
 } from '../../src/kernel/frames.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
 import { y } from '../../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../../src/sortable.ts';
 
@@ -166,12 +165,9 @@ function liveDrag(count: number): Live {
     items.push(item);
   }
 
-  const controller = sortable(
-    root,
-    items,
-    y(),
-    callbacks({ onReorder: () => ReorderResolution.accept() }),
-  );
+  const controller = sortable(root, { items: () => items }, y(), {
+    onReorder: () => ReorderResolution.accept(),
+  });
 
   root.setPointerCapture = (): void => {};
   root.releasePointerCapture = (): void => {};

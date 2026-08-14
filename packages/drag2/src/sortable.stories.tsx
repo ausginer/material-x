@@ -1,20 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import { flushSync } from 'react-dom';
-import { callbacks } from './sortable/callbacks.ts';
 import { landing } from './sortable/landing.ts';
 import { layoutAnimation } from './sortable/layout-animation.ts';
-import {
-  placeholder,
-  type PlaceholderContext,
-} from './sortable/placeholder.ts';
 import { xy } from './sortable/xy.ts';
 import { y } from './sortable/y.ts';
+import type {
+  PlaceholderContext,
+  PlaceholderFactory,
+} from './sortable/placement.ts';
 import {
   ReorderResolution,
   sortable,
   type ReorderRequest,
-  type SortableFeature,
+  type SortableConfig,
 } from './sortable.ts';
 import css from './stories.module.css';
 
@@ -35,13 +34,14 @@ function reordered<T>(order: readonly T[], item: T, to: T | null): T[] {
 type SortableDemoProps = Readonly<{
   labels: readonly string[];
   hint: string;
-  createPlaceholder?(context: PlaceholderContext): HTMLElement;
+  createPlaceholder?: PlaceholderFactory;
   /**
-   * The axis rule. **Exactly one is installed** — they claim the same slot, and
-   * `assemble()` refuses a composition that names both. `y()` is the list rule;
-   * `xy()` is the wrapping-field rule.
+   * The axis rule. **Exactly one survives the merge** — `axis` is an atomic
+   * capability slot, so a second fragment naming it simply last-wins, and the
+   * loser is never constructed. `y()` is the list rule; `xy()` is the
+   * wrapping-field rule.
    */
-  axis?: SortableFeature;
+  axis?: Pick<SortableConfig, 'axis'>;
   className?: string;
   itemClassName?: string;
 }>;
@@ -108,19 +108,16 @@ function SortableDemo({
         .map((label) => elements.current.get(label))
         .filter((el): el is HTMLElement => el != null);
 
-    // `sortable()` takes a *snapshot*, not a getter: the collection is replaced
-    // through `controller.updateItems`, which lands as a queued action in FIFO
-    // order with everything else the drag is doing.
+    // **Fragments, merged by the library** (D-45). Every argument after the
+    // root is a partial config: an ordinary object literal for the consumer's
+    // own slots, and a one-slot helper for each capability. Nothing is branded
+    // and nothing is installed until the merge has resolved every named slot.
     const controller = sortable(
       container,
-      items(),
-      axis ?? y(),
-      landing(),
-      layoutAnimation(),
-      ...(createPlaceholder
-        ? [placeholder({ create: createPlaceholder })]
-        : ([] as readonly SortableFeature[])),
-      callbacks({
+      {
+        // D-44: a pull source rather than a snapshot.
+        items,
+        ...(createPlaceholder ? { placeholder: createPlaceholder } : null),
         onReorder: (request: ReorderRequest) => {
           const { label } = request.item.dataset;
 
@@ -146,12 +143,10 @@ function SortableDemo({
           });
           return ReorderResolution.accept();
         },
-        // Terminal: the authored DOM is committed and the temporary
-        // presentation released, so this is the right moment to resync.
-        onFinish: () => {
-          controller.updateItems(items());
-        },
-      }),
+      },
+      axis ?? y(),
+      landing(),
+      layoutAnimation(),
     );
 
     return () => {

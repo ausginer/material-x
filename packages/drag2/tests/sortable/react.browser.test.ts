@@ -16,7 +16,7 @@
  * the drag opened, and (I-25 notwithstanding) sometimes unmounts the dragged
  * item outright. Those are the three remaining rows, and the last is **Q-12**.
  *
- * Composition: `sortable(rows, y(), landing({ run }), callbacks(…))`.
+ * Composition: `sortable(rows, { items: () => y() }, landing({ run }), …)`.
  * The runner is supplied rather than defaulted so the landing gate is directly
  * observable to the F-6 witness — the default runner is covered by
  * `landing-space.browser.test.ts` and `features.browser.test.ts`.
@@ -35,7 +35,6 @@ import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { Point } from '../../src/drag.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
 import { landing, type LandingStart } from '../../src/sortable/landing.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -308,10 +307,10 @@ function mount(options: Options = {}): Fixture {
 
   controller = sortable(
     list,
-    ids.map((id) => elements.get(id)!),
+    { items: () => ids.map((id) => elements.get(id)!) },
     y(),
     landing({ run }),
-    callbacks({
+    {
       onReorder: (
         request,
       ): ReorderResolution | PromiseLike<ReorderResolution> => {
@@ -363,7 +362,7 @@ function mount(options: Options = {}): Fixture {
       onError(error): void {
         errors.push(error);
       },
-    }),
+    },
   );
 
   // Synthetic pointer events have no active pointer, so the real

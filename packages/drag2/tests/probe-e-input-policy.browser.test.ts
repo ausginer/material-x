@@ -28,12 +28,10 @@
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import { cdp, userEvent } from 'vitest/browser';
-import { callbacks } from '../src/sortable/callbacks.ts';
-import { handle } from '../src/sortable/handle.ts';
 import { y } from '../src/sortable/y.ts';
 import {
   ReorderResolution,
-  type SortableFeature,
+  type SortableConfig,
   sortable,
 } from '../src/sortable.ts';
 
@@ -323,9 +321,9 @@ function build(options: BuildOptions = {}): Fixture {
     );
   }
 
-  const features: SortableFeature[] = [
+  const fragments: Array<Partial<SortableConfig>> = [
     y(),
-    callbacks({
+    {
       onReorder: (request) => {
         requests.push(request);
         return ReorderResolution.accept();
@@ -342,14 +340,14 @@ function build(options: BuildOptions = {}): Fixture {
       onError: (error) => {
         errors.push(error);
       },
-    }),
+    },
   ];
 
   if (options.useHandle) {
-    features.push(handle((item) => item.querySelector('.grip')));
+    fragments.push({ handle: (item) => item.querySelector('.grip') });
   }
 
-  const controller = sortable(root, rows, ...features);
+  const controller = sortable(root, { items: () => rows }, ...fragments);
 
   cleanup.push(() => {
     listeners.abort();
@@ -1091,11 +1089,11 @@ describe('probe E / modifiers', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 10 — handle() as the mitigation
+// 10 — { handle:  } as the mitigation
 // ---------------------------------------------------------------------------
 
-describe('probe E / handle() scoping', () => {
-  it('should observe the pointer cases again with handle() composed', async () => {
+describe('probe E / { handle:  } scoping', () => {
+  it('should observe the pointer cases again with { handle:  } composed', async () => {
     const fixture = build({ useHandle: true });
     const button = fixture.control('button');
 
@@ -1225,7 +1223,7 @@ describe('probe E / handle() scoping', () => {
     `);
   });
 
-  it('should observe the keyboard cases again with handle() composed', async () => {
+  it('should observe the keyboard cases again with { handle:  } composed', async () => {
     const fixture = build({ useHandle: true });
     const input = fixture.control('text') as HTMLInputElement;
 
@@ -1297,7 +1295,7 @@ describe('probe E / handle() scoping', () => {
     `);
   });
 
-  it('should observe that the grip still drags with handle() composed', async () => {
+  it('should observe that the grip still drags with { handle:  } composed', async () => {
     const fixture = build({ useHandle: true });
 
     await dragFrom(centre(fixture.grip('prose')), 0, -60);

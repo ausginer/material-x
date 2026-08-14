@@ -9,17 +9,14 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { LandingHandle } from '../../src/kernel/spec.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
-import { brandFeature, unbrandFeature } from '../../src/sortable/feature.ts';
-import { handle, visual } from '../../src/sortable/handle.ts';
+import type { OnReorder } from '../../src/sortable/domain.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
-import { placeholder } from '../../src/sortable/placeholder.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
+  type SortableConfig,
   type SortableController,
-  type SortableFeature,
   sortable,
 } from '../../src/sortable.ts';
 
@@ -59,13 +56,18 @@ afterEach(() => {
 
 type ComposeOptions = Readonly<{
   itemCount?: number;
-  onReorder?: Parameters<typeof callbacks>[0]['onReorder'];
-  features?: readonly SortableFeature[];
+  onReorder?: OnReorder;
+  /**
+   * Whatever the test wants merged on top of the base config. A fragment is a
+   * plain partial config now (D-45), so a test that used to install a feature
+   * writes the slot directly.
+   */
+  fragments?: ReadonlyArray<Partial<SortableConfig>>;
   /** The axis rule, when a test needs one that is not stock `y()`. */
-  axis?: SortableFeature;
+  axis?: Pick<SortableConfig, 'axis'>;
 }>;
 
-/** 40px items, plus whichever optional features the test installs. */
+/** 40px items, plus whichever optional slots the test fills. */
 function composeWith(options: ComposeOptions = {}): Composed {
   const root = document.createElement('div');
 
@@ -92,9 +94,9 @@ function composeWith(options: ComposeOptions = {}): Composed {
 
   const controller = sortable(
     root,
-    items,
     options.axis ?? y(),
-    callbacks({
+    {
+      items: () => items,
       onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
       onFinish: (result): void => {
         finishes.push(result);
@@ -105,8 +107,8 @@ function composeWith(options: ComposeOptions = {}): Composed {
       onError: (error): void => {
         errors.push(error);
       },
-    }),
-    ...(options.features ?? []),
+    },
+    ...(options.fragments ?? []),
   );
 
   root.setPointerCapture = (): void => {};
@@ -128,8 +130,9 @@ function composeWith(options: ComposeOptions = {}): Composed {
   };
 }
 
-const compose = (...features: readonly SortableFeature[]): Composed =>
-  composeWith({ features });
+const compose = (
+  ...fragments: ReadonlyArray<Partial<SortableConfig>>
+): Composed => composeWith({ fragments });
 
 const press = (target: HTMLElement, y = 10): void => {
   target.dispatchEvent(
@@ -210,78 +213,66 @@ const withReducedMotion = async <T>(body: () => Promise<T>): Promise<T> => {
 };
 
 describe('placeholder', () => {
-  it('should add the configured classes to the default element', () => {
-    const composed = compose(placeholder({ className: 'ghost dim' }));
-
-    activate(composed);
-
-    expect([...composed.placeholder()!.classList]).toEqual(['ghost', 'dim']);
-  });
-
   it('should use the element the factory returned', () => {
-    const composed = compose(
-      placeholder({ create: () => document.createElement('section') }),
-    );
+    const composed = compose({
+      placeholder: () => document.createElement('section'),
+    });
 
     activate(composed);
 
     expect(composed.placeholder()!.localName).toBe('section');
   });
 
-  it('should keep the classes the factory already set', () => {
-    // Customisation, not replacement: `classList.add`, never an assignment.
-    const composed = compose(
-      placeholder({
-        className: 'ghost',
-        create: () => {
-          const element = document.createElement('div');
+  it('should leave the classes the factory set untouched', () => {
+    // **D-65 removed the only class the library ever wrote.** With
+    // `placeholderClassName` gone the guarantee is stronger and simpler than
+    // the `classList.add`-not-assignment rule it replaces: beyond the mechanics
+    // in `applyMechanics`, the library writes no visual styling at all, so
+    // whatever the factory set is exactly what survives.
+    const composed = compose({
+      placeholder: () => {
+        const element = document.createElement('div');
 
-          element.className = 'authored';
-          return element;
-        },
-      }),
-    );
+        element.className = 'authored';
+        return element;
+      },
+    });
 
     activate(composed);
 
-    expect([...composed.placeholder()!.classList]).toEqual([
-      'authored',
-      'ghost',
-    ]);
+    expect([...composed.placeholder()!.classList]).toEqual(['authored']);
   });
 
-  it('should add no class once the factory destroys the controller', () => {
-    // C5-03's stretch sweep. `create` is consumer code and the element it
+  it('should write no mechanics once the factory destroys the controller', () => {
+    // C5-03's stretch sweep. The factory is consumer code and the element it
     // returns is the **consumer's own**, adopted by nothing until activation
-    // commits — teardown removes only the placeholder it inserted. So a class
-    // written between the factory returning and the library's next liveness
-    // reading is a mutation nothing undoes (I-36 (2) act 3).
+    // commits — teardown removes only the placeholder it inserted. So an
+    // attribute written between the factory returning and the library's next
+    // liveness reading is a mutation nothing undoes (I-36 (2) act 3).
     const created: HTMLElement[] = [];
-    const composed: Composed = compose(
-      placeholder({
-        className: 'ghost',
-        create: () => {
-          const element = document.createElement('div');
+    const composed: Composed = compose({
+      placeholder: () => {
+        const element = document.createElement('div');
 
-          created.push(element);
-          void composed.controller.destroy();
-          return element;
-        },
-      }),
-    );
+        created.push(element);
+        void composed.controller.destroy();
+        return element;
+      },
+    });
 
     activate(composed);
 
     expect(created).toHaveLength(1);
-    expect([...created[0]!.classList]).toEqual([]);
+    expect(created[0]!.hasAttribute('data-drag-placeholder')).toBe(false);
+    expect(created[0]!.hasAttribute('aria-hidden')).toBe(false);
   });
 
   it('should still apply the default mechanics to a custom element', () => {
     // The mechanics are not configurable away, and they belong to the behavior
-    // rather than to this feature — so they have to survive a factory.
-    const composed = compose(
-      placeholder({ create: () => document.createElement('section') }),
-    );
+    // rather than to this slot — so they have to survive a factory.
+    const composed = compose({
+      placeholder: () => document.createElement('section'),
+    });
 
     activate(composed);
 
@@ -295,7 +286,7 @@ describe('placeholder', () => {
     // Refused inside `activation.prepare`, before anything is inserted: the
     // behavior *adopts* the result, so teardown would remove a node the page
     // owns.
-    const composed = compose(placeholder({ create: () => composed.items[2]! }));
+    const composed = compose({ placeholder: () => composed.items[2]! });
 
     activate(composed);
 
@@ -310,13 +301,11 @@ describe('placeholder', () => {
     // acquired in `activation.prepare` before the placeholder existed — so the
     // question is whether a discarded prepare releases it.
     const failure = new Error('no placeholder for you');
-    const composed = compose(
-      placeholder({
-        create: (): HTMLElement => {
-          throw failure;
-        },
-      }),
-    );
+    const composed = compose({
+      placeholder: (): HTMLElement => {
+        throw failure;
+      },
+    });
 
     activate(composed);
 
@@ -328,17 +317,15 @@ describe('placeholder', () => {
 
   it('should stay usable after a factory throw', () => {
     let failing = true;
-    const composed = compose(
-      placeholder({
-        create: (): HTMLElement => {
-          if (failing) {
-            throw new Error('once');
-          }
+    const composed = compose({
+      placeholder: (): HTMLElement => {
+        if (failing) {
+          throw new Error('once');
+        }
 
-          return document.createElement('div');
-        },
-      }),
-    );
+        return document.createElement('div');
+      },
+    });
 
     activate(composed);
     failing = false;
@@ -351,7 +338,7 @@ describe('placeholder', () => {
 describe('handle', () => {
   it('should admit a press inside the resolved handle', () => {
     const grip = document.createElement('span');
-    const composed = compose(handle(() => grip));
+    const composed = compose({ handle: () => grip });
 
     composed.items[0]!.append(grip);
     press(grip);
@@ -362,7 +349,7 @@ describe('handle', () => {
 
   it('should refuse a press outside the resolved handle', () => {
     const grip = document.createElement('span');
-    const composed = compose(handle(() => grip));
+    const composed = compose({ handle: () => grip });
 
     composed.items[0]!.append(grip);
     activate(composed);
@@ -371,7 +358,7 @@ describe('handle', () => {
   });
 
   it('should refuse every press when the resolver returns null', () => {
-    const composed = compose(handle(() => null));
+    const composed = compose({ handle: () => null });
 
     activate(composed);
 
@@ -403,18 +390,14 @@ describe('handle', () => {
 
     items[0]!.append(grip);
 
-    const controller = sortable(
-      root,
-      items,
-      y(),
-      handle(() => grip),
-      callbacks({
-        onReorder: (request) => {
-          requests.push(request);
-          return ReorderResolution.accept();
-        },
-      }),
-    );
+    const controller = sortable(root, y(), {
+      items: () => items,
+      handle: () => grip,
+      onReorder: (request) => {
+        requests.push(request);
+        return ReorderResolution.accept();
+      },
+    });
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
@@ -435,7 +418,7 @@ describe('handle', () => {
 describe('visual', () => {
   it('should lift the resolved element instead of the item', () => {
     const inner = document.createElement('div');
-    const composed = compose(visual(() => inner));
+    const composed = compose({ visual: () => inner });
 
     Object.assign(inner.style, { display: 'block', height: '20px' });
     composed.items[0]!.append(inner);
@@ -451,7 +434,7 @@ describe('visual', () => {
     // The placeholder is the *footprint*, and the footprint of a drag is
     // whatever was lifted out of the flow.
     const inner = document.createElement('div');
-    const composed = compose(visual(() => inner));
+    const composed = compose({ visual: () => inner });
 
     Object.assign(inner.style, { display: 'block', height: '20px' });
     composed.items[0]!.append(inner);
@@ -468,11 +451,13 @@ describe('visual', () => {
     // of the defect, and is invisible from any assertion about the dragged item.
     const asked: HTMLElement[] = [];
     const composed = composeWith({
-      features: [
-        visual((item) => {
-          asked.push(item);
-          return item;
-        }),
+      fragments: [
+        {
+          visual: (item) => {
+            asked.push(item);
+            return item;
+          },
+        },
       ],
     });
 
@@ -484,7 +469,7 @@ describe('visual', () => {
 
   it('should restore the resolved visual at teardown', () => {
     const inner = document.createElement('div');
-    const composed = compose(visual(() => inner));
+    const composed = compose({ visual: () => inner });
 
     Object.assign(inner.style, { display: 'block', height: '20px' });
     composed.items[0]!.append(inner);
@@ -674,7 +659,7 @@ describe('landing', () => {
     // replay and the generation guard all still apply.
     const reads: string[] = [];
     const composed = composeWith({
-      features: [
+      fragments: [
         landing({
           duration: () => {
             reads.push('read');
@@ -703,7 +688,7 @@ describe('landing', () => {
     // it. Resolve first, then collapse.
     const reads: string[] = [];
     const composed = composeWith({
-      features: [
+      fragments: [
         landing({
           duration: () => {
             reads.push('read');
@@ -731,7 +716,7 @@ describe('landing', () => {
     // the collapse skipped, so a thunk returning a bad value threw for everyone
     // except the users least able to notice that it had not.
     const composed = composeWith({
-      features: [landing({ duration: () => Number.NaN })],
+      fragments: [landing({ duration: () => Number.NaN })],
     });
 
     await withReducedMotion(async () => {
@@ -821,7 +806,7 @@ describe('landing', () => {
     // the controller exists.
     let controller: SortableController | null = null;
     const composed = composeWith({
-      features: [
+      fragments: [
         landing({
           duration: (): number => {
             void controller!.destroy();
@@ -891,7 +876,7 @@ describe('landing', () => {
     let destroyedFirst = false;
 
     const composed = composeWith({
-      features: [
+      fragments: [
         landing({
           run: (): LandingHandle => {
             void controller!.destroy();
@@ -1032,9 +1017,9 @@ describe('layoutAnimation', () => {
     // controllers would both see the document-level pointer stream, and the
     // second list would sit below the first, out of reach of the coordinates.
     const measure = async (
-      features: readonly SortableFeature[],
+      fragments: ReadonlyArray<Partial<SortableConfig>>,
     ): Promise<number> => {
-      const composed = composeWith({ itemCount: rows, features });
+      const composed = composeWith({ itemCount: rows, fragments });
       let reads = 0;
 
       activate(composed);
@@ -1167,25 +1152,30 @@ describe('the terminal barrier in a resolver sequence', () => {
     return event;
   };
 
-  /** `handle()` destroys; `visual()` records whether it was consulted after. */
+  /**
+   * The `handle` resolver destroys; the `visual` resolver records whether it was
+   * consulted after.
+   */
   const closingHandle = (
     asked: HTMLElement[],
   ): Readonly<{
-    features: SortableFeature[];
+    fragments: Array<Partial<SortableConfig>>;
     arm(c: SortableController): void;
   }> => {
     let controller: SortableController | null = null;
 
     return {
-      features: [
-        handle((item) => {
-          void controller?.destroy();
-          return item;
-        }),
-        visual((item) => {
-          asked.push(item);
-          return item;
-        }),
+      fragments: [
+        {
+          handle: (item) => {
+            void controller?.destroy();
+            return item;
+          },
+          visual: (item) => {
+            asked.push(item);
+            return item;
+          },
+        },
       ],
       arm(c): void {
         controller = c;
@@ -1200,7 +1190,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     // and cannot make the second consumer call un-happen.
     const asked: HTMLElement[] = [];
     const armed = closingHandle(asked);
-    const composed = composeWith({ features: armed.features });
+    const composed = composeWith({ fragments: armed.fragments });
 
     armed.arm(composed.controller);
 
@@ -1221,7 +1211,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     // of it runs after the destroy that a handle resolver raised.
     const asked: HTMLElement[] = [];
     const armed = closingHandle(asked);
-    const composed = composeWith({ features: armed.features });
+    const composed = composeWith({ fragments: armed.fragments });
 
     armed.arm(composed.controller);
 
@@ -1241,16 +1231,18 @@ describe('the terminal barrier in a resolver sequence', () => {
     const asked: HTMLElement[] = [];
     let controller: SortableController | null = null;
     const composed = composeWith({
-      features: [
-        visual((item) => {
-          asked.push(item);
+      fragments: [
+        {
+          visual: (item) => {
+            asked.push(item);
 
-          if (item === composed.items[1]) {
-            void controller!.destroy();
-          }
+            if (item === composed.items[1]) {
+              void controller!.destroy();
+            }
 
-          return item;
-        }),
+            return item;
+          },
+        },
       ],
     });
 
@@ -1272,15 +1264,20 @@ describe('the terminal barrier in a resolver sequence', () => {
   const bracketRecorder = (
     befores: number[],
     afters: number[],
-  ): SortableFeature =>
-    brandFeature(() => ({
-      beforeInsertionMove: (): void => {
-        befores.push(befores.length);
-      },
-      afterInsertionMove: (): void => {
-        afters.push(afters.length);
-      },
-    }));
+  ): Pick<SortableConfig, 'plugins'> => ({
+    // A plugin, because it names no capability slot of its own: the schema's
+    // `plugins` array is the only slot that appends rather than last-wins.
+    plugins: [
+      () => ({
+        beforeInsertionMove: (): void => {
+          befores.push(befores.length);
+        },
+        afterInsertionMove: (): void => {
+          afters.push(afters.length);
+        },
+      }),
+    ],
+  });
 
   it('should not run the eager rebuild past a destroying candidate', async () => {
     // Site C, first door: the eager rebuild inside the committed-move bracket.
@@ -1292,21 +1289,24 @@ describe('the terminal barrier in a resolver sequence', () => {
     const afters: number[] = [];
     let controller: SortableController | null = null;
     const composed = composeWith({
-      features: [
-        visual((item) => {
-          asked.push(item);
+      fragments: [
+        {
+          visual: (item) => {
+            asked.push(item);
 
-          // Armed by the DOM rather than by a call count: the placeholder only
-          // follows `items[1]` once `movePlaceholder` has run, so this is
-          // exactly "inside the bracket, past the write".
-          if (
-            composed.placeholder()?.previousElementSibling === composed.items[1]
-          ) {
-            void controller!.destroy();
-          }
+            // Armed by the DOM rather than by a call count: the placeholder
+            // only follows `items[1]` once `movePlaceholder` has run, so this
+            // is exactly "inside the bracket, past the write".
+            if (
+              composed.placeholder()?.previousElementSibling ===
+              composed.items[1]
+            ) {
+              void controller!.destroy();
+            }
 
-          return item;
-        }),
+            return item;
+          },
+        },
         bracketRecorder(befores, afters),
       ],
     });
@@ -1330,9 +1330,9 @@ describe('the terminal barrier in a resolver sequence', () => {
    * neither can be seen alone. Defence in depth is the intent; this is the
    * composition in which the outer guard is the only one there is.
    */
-  const lazyY = (): SortableFeature =>
-    brandFeature((context) => {
-      const { insertion } = unbrandFeature(y())(context);
+  const lazyY = (): Pick<SortableConfig, 'axis'> => ({
+    axis: (context) => {
+      const { insertion } = y().axis(context);
 
       return {
         insertion: {
@@ -1341,7 +1341,8 @@ describe('the terminal barrier in a resolver sequence', () => {
           retire: insertion!.retire,
         },
       };
-    });
+    },
+  });
 
   it('should not run the bracket past a placeholder reaction that destroyed', async () => {
     // Site C, and the one no other test reaches. `movePlaceholder` moves a
@@ -1368,8 +1369,8 @@ describe('the terminal barrier in a resolver sequence', () => {
 
     const composed = composeWith({
       axis: lazyY(),
-      features: [
-        placeholder({ create: () => document.createElement(name) }),
+      fragments: [
+        { placeholder: () => document.createElement(name) },
         bracketRecorder(befores, afters),
       ],
     });
@@ -1386,17 +1387,21 @@ describe('the terminal barrier in a resolver sequence', () => {
   });
   /** A `beforeMove` hook that destroys the controller from inside the bracket. */
   const closingBefore = (): Readonly<{
-    feature: SortableFeature;
+    fragment: Pick<SortableConfig, 'plugins'>;
     arm(c: SortableController): void;
   }> => {
     let controller: SortableController | null = null;
 
     return {
-      feature: brandFeature(() => ({
-        beforeInsertionMove: (): void => {
-          void controller?.destroy();
-        },
-      })),
+      fragment: {
+        plugins: [
+          () => ({
+            beforeInsertionMove: (): void => {
+              void controller?.destroy();
+            },
+          }),
+        ],
+      },
       arm(c): void {
         controller = c;
       },
@@ -1419,7 +1424,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     const afters: number[] = [];
     const armed = closingBefore();
     const composed = composeWith({
-      features: [bracketRecorder(befores, afters), armed.feature],
+      fragments: [bracketRecorder(befores, afters), armed.fragment],
     });
 
     armed.arm(composed.controller);
@@ -1442,7 +1447,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     let controller: SortableController | null = null;
     const composed = composeWith({
       axis: lazyY(),
-      features: [layoutAnimation({ duration: 500 })],
+      fragments: [layoutAnimation({ duration: 500 })],
     });
 
     ({ controller } = composed);

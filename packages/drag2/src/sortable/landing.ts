@@ -14,11 +14,8 @@
  */
 import type { LandingHandle, LandingStart } from '../kernel/spec.ts';
 import type { Point } from '../kernel/types.ts';
-import {
-  brandFeature,
-  requireFinite,
-  type SortableFeature,
-} from './feature.ts';
+import type { SortableConfig } from './config.ts';
+import { requireFinite } from './slots.ts';
 
 export type { LandingHandle, LandingStart } from '../kernel/spec.ts';
 export type { LandingContext } from '../kernel/spec.ts';
@@ -55,11 +52,17 @@ const DEFAULT_DURATION = 200;
 // observably different for every such consumer.
 const DEFAULT_EASING = 'ease';
 
-export function landing(options: LandingOptions = {}): SortableFeature {
+export function landing(
+  options: LandingOptions = {},
+): Pick<SortableConfig, 'landing'> {
   const { run } = options;
 
   if (run !== undefined) {
-    return brandFeature(() => ({ startLanding: run }));
+    // A replacement runner leaves nothing for the timing options to configure,
+    // so they are not range-checked — there is no default runner left to
+    // configure. (D-63 removes this slot from the ordinary tier; until that step
+    // lands, the config rework leaves its behavior exactly as it was.)
+    return { landing: () => ({ startLanding: run }) };
   }
 
   const declared = options.duration ?? DEFAULT_DURATION;
@@ -174,5 +177,5 @@ export function landing(options: LandingOptions = {}): SortableFeature {
     };
   };
 
-  return brandFeature(() => ({ startLanding: start }));
+  return { landing: () => ({ startLanding: start }) };
 }

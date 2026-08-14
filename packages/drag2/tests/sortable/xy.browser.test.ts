@@ -24,17 +24,14 @@
  * `[1, 2, 3]`, so slot indices are 0, 1, 2.
  */
 import { afterEach, describe, expect, it } from 'vitest';
-import { callbacks } from '../../src/sortable/callbacks.ts';
 import type {
   CollectionSnapshot,
   Insertion,
 } from '../../src/sortable/domain.ts';
-import {
-  type FeatureContext,
-  type InsertionGeometry,
-  unbrandFeature,
+import type {
+  FeatureContext,
+  InsertionGeometry,
 } from '../../src/sortable/feature.ts';
-import { visual } from '../../src/sortable/handle.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -134,9 +131,7 @@ function createField(slot = 0): Field {
     }
   }
 
-  const geometry = unbrandFeature(xy())(
-    null as unknown as FeatureContext,
-  ).insertion!;
+  const geometry = xy().axis(null as unknown as FeatureContext).insertion!;
 
   // The snapshot is the whole collection, dragged member included, in grid
   // order. The index skips the dragged one, so destination slots are `items`.
@@ -375,17 +370,13 @@ describe('the composed two-dimensional collection', () => {
     }
 
     const requests: ReorderRequest[] = [];
-    const controller = sortable(
-      root,
-      items,
-      xy(),
-      callbacks({
-        onReorder(request) {
-          requests.push(request);
-          return ReorderResolution.accept();
-        },
-      }),
-    );
+    const controller = sortable(root, xy(), {
+      items: () => items,
+      onReorder(request) {
+        requests.push(request);
+        return ReorderResolution.accept();
+      },
+    });
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
@@ -460,17 +451,13 @@ describe('the composed two-dimensional collection', () => {
     }
 
     const requests: ReorderRequest[] = [];
-    const controller = sortable(
-      root,
-      items,
-      y(),
-      callbacks({
-        onReorder(request) {
-          requests.push(request);
-          return ReorderResolution.accept();
-        },
-      }),
-    );
+    const controller = sortable(root, y(), {
+      items: () => items,
+      onReorder(request) {
+        requests.push(request);
+        return ReorderResolution.accept();
+      },
+    });
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
@@ -644,11 +631,9 @@ describe('the terminal barrier in the candidate loop', () => {
     const asked: HTMLElement[] = [];
     let controller: SortableController | null = null;
 
-    controller = sortable(
-      root,
-      items,
-      xy(),
-      visual((item) => {
+    controller = sortable(root, xy(), {
+      items: () => items,
+      visual: (item) => {
         asked.push(item);
 
         // The **first** candidate destroys. `items[0]` is the dragged one and
@@ -658,11 +643,9 @@ describe('the terminal barrier in the candidate loop', () => {
         }
 
         return item;
-      }),
-      callbacks({
-        onReorder: () => ReorderResolution.accept(),
-      }),
-    );
+      },
+      onReorder: () => ReorderResolution.accept(),
+    });
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};

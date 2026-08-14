@@ -95,11 +95,19 @@ export type Composition = Readonly<{
   present?: readonly string[];
 }>;
 
+/**
+ * **Two, not four** (D-56). `sortable/placeholder.js` and `sortable/handle.js`
+ * are gone, along with `sortable/callbacks.js`, because a fragment factory that
+ * installs nothing measures nothing: under D-45 all three had become identity
+ * wrappers around a config slot the consumer can write directly.
+ *
+ * That is the falsifiable half of D-56 — the deletions should move **zero
+ * bytes**, since the modules never carried runtime machinery to begin with —
+ * and the budgets below are what would catch it if they did.
+ */
 const OPTIONAL = [
   'sortable/landing.js',
   'sortable/layout-animation.js',
-  'sortable/placeholder.js',
-  'sortable/handle.js',
 ] as const;
 
 /**
@@ -121,7 +129,6 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
-      'sortable/callbacks.js': '{ callbacks }',
     },
     budget: 10_340,
     absent: [...without(), withoutAxis('sortable/y.js')],
@@ -134,7 +141,6 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'sortable.js': '{ sortable }',
       'sortable/xy.js': '{ xy }',
-      'sortable/callbacks.js': '{ callbacks }',
     },
     budget: 10_380,
     absent: [...without(), withoutAxis('sortable/xy.js')],
@@ -145,7 +151,6 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
-      'sortable/callbacks.js': '{ callbacks }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
     budget: 10_790,
@@ -160,7 +165,6 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
-      'sortable/callbacks.js': '{ callbacks }',
       'sortable/landing.js': '{ landing }',
     },
     budget: 10_620,
@@ -172,9 +176,6 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
-      'sortable/callbacks.js': '{ callbacks }',
-      'sortable/placeholder.js': '{ placeholder }',
-      'sortable/handle.js': '{ handle, visual }',
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },

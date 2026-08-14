@@ -10,19 +10,18 @@
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { LandingStart } from '../kernel/spec.ts';
-import {
-  type FeatureContext,
-  type InsertionGeometry,
-  requireFinite,
-  type SortableCallbacks,
-  type SortableFeature,
-  unbrandFeature,
+import type { SortableConfig } from './config.ts';
+import type {
+  FeatureContext,
+  InsertionGeometry,
+  SortableInstaller,
 } from './feature.ts';
 import type { PlaceholderSlot } from './placement.ts';
 import {
   DEFAULT_THRESHOLD,
   type DisplacementHook,
   NOOP_START,
+  requireFinite,
   type SortableSlots,
 } from './slots.ts';
 
@@ -40,29 +39,64 @@ const claim = <T>(
   }
 
   if (current !== null) {
-    throw new TypeError(`sortable: ${label} contributed by two features`);
+    // **Narrowed by the merge, not gone** (D-45). Two fragments can no longer
+    // collide on a named capability *slot* — the merge resolved those before
+    // anything ran — but two *installers* can still contribute the same
+    // single-writer member, either plugin-to-plugin or plugin-to-axis. The
+    // message says "twice" rather than naming a tier, because the pair is not
+    // always two plugins and a diagnostic that guesses wrong is worse than one
+    // that does not guess.
+    throw new TypeError(`sortable: ${label} contributed twice`);
   }
 
   return next;
 };
 
 export function assemble(
-  features: readonly SortableFeature[],
+  config: SortableConfig,
   context: FeatureContext,
 ): SortableSlots {
   let insertion: InsertionGeometry | null = null;
-  let callbacks: SortableCallbacks | null = null;
-  let createPlaceholder: PlaceholderSlot | null = null;
-  let getHandle: ((item: HTMLElement) => HTMLElement | null) | null = null;
-  let getVisual: ((item: HTMLElement) => HTMLElement) | null = null;
+  let contributedPlaceholder: PlaceholderSlot | null = null;
   let startLanding: LandingStart | null = null;
   const beforeMove: DisplacementHook[] = [];
   const afterMove: DisplacementHook[] = [];
   const retireHooks: Disposer[] = [];
 
+  // **Config errors are diagnosed before anything is constructed**, which is
+  // only possible because the merge already ran (D-45). Under D-12 a missing
+  // slot could not be known until every factory had already allocated.
+  if (config.axis === undefined) {
+    throw new TypeError('sortable: an axis — y() or xy() — is required');
+  }
+
+  if (typeof config.items !== 'function') {
+    throw new TypeError('sortable: items must be a function');
+  }
+
+  if (typeof config.onReorder !== 'function') {
+    throw new TypeError('sortable: onReorder must be a function');
+  }
+
+  // **Installation order is schema order** (D-57). Named capability slots
+  // first, in the order the schema declares them, then plugins in array order;
+  // `retireHooks` reverses the whole sequence. Fragment order survives only
+  // inside `plugins`, and recovering a first-appearance order would mean
+  // recording which fragment each slot arrived from — exactly the provenance
+  // D-45 deleted.
+  const installers: ReadonlyArray<SortableInstaller | undefined> = [
+    config.axis,
+    config.landing,
+    ...(config.plugins ?? []),
+  ];
+
   try {
-    for (const feature of features) {
-      const contribution = unbrandFeature(feature)(context);
+    for (const install of installers) {
+      if (install === undefined) {
+        continue;
+      }
+
+      const contribution = install(context);
 
       // Cleanup is recorded **first**, before any claim can throw, and in
       // installation order. Recording it after the claim would leak the private
@@ -85,19 +119,12 @@ export function assemble(
         contribution.insertion,
         'insertion geometry',
       );
-      callbacks = claim(callbacks, contribution.callbacks, 'callbacks');
-      createPlaceholder = claim(
-        createPlaceholder,
-        contribution.createPlaceholder,
-        'placeholder()',
+      contributedPlaceholder = claim(
+        contributedPlaceholder,
+        contribution.placeholder,
+        'placeholder',
       );
-      getHandle = claim(getHandle, contribution.getHandle, 'handle()');
-      getVisual = claim(getVisual, contribution.getVisual, 'visual()');
-      startLanding = claim(
-        startLanding,
-        contribution.startLanding,
-        'landing()',
-      );
+      startLanding = claim(startLanding, contribution.startLanding, 'landing');
 
       if (contribution.beforeInsertionMove) {
         beforeMove.push(contribution.beforeInsertionMove);
@@ -109,20 +136,13 @@ export function assemble(
     }
 
     if (insertion === null) {
-      // Axis-neutral since Phase 17 (D8, Checkpoint D): the slot is filled by
-      // `y()` **or** `xy()`, so naming one of them described a valid `xy()`
-      // composition as missing the feature it had.
+      // The axis slot was filled, so its installer contributed no geometry —
+      // a different failure from the missing-slot one diagnosed above, and
+      // reachable only from a middle-tier installer that names the slot
+      // without filling it.
       throw new TypeError(
-        'sortable: an axis feature — y() or xy() — is required',
+        'sortable: the axis installer contributed no insertion geometry',
       );
-    }
-
-    if (callbacks === null) {
-      throw new TypeError('sortable: callbacks({ onReorder }) is required');
-    }
-
-    if (typeof callbacks.onReorder !== 'function') {
-      throw new TypeError('sortable: onReorder must be a function');
     }
   } catch (error) {
     // A later factory or a validation failing must not leak an earlier
@@ -152,27 +172,34 @@ export function assemble(
     // reader that the eager read is optional.
     measureInsertion: insertion.measure ?? null,
 
-    onReorder: callbacks.onReorder,
+    onReorder: config.onReorder,
     // Two normalization rules, because "optional callback" is not one thing.
     // `onStart` becomes a shared module-level no-op, so its call site needs no
     // null check and allocates nothing; the terminal callbacks stay nullable,
     // because their arguments are result objects that would otherwise be
     // constructed only to be discarded.
-    onStart: callbacks.onStart ?? NOOP_START,
-    onFinish: callbacks.onFinish ?? null,
-    onCancel: callbacks.onCancel ?? null,
-    onError: callbacks.onError ?? null,
-    // Defaulted and range-checked in one place, because `callbacks()` is the
-    // sole owner of both defaults and the only surface that can carry them.
+    onStart: config.onStart ?? NOOP_START,
+    onFinish: config.onFinish ?? null,
+    onCancel: config.onCancel ?? null,
+    onError: config.onError ?? null,
+    // **Validation moved into the merge and got stronger** (D-56). It used to
+    // live in `callbacks()`, where it fired only for a config supplied through
+    // that factory; here it fires for a config supplied any way at all.
     threshold: requireFinite(
-      callbacks.threshold ?? DEFAULT_THRESHOLD,
+      config.threshold ?? DEFAULT_THRESHOLD,
       'threshold',
       0,
     ),
 
-    createPlaceholder,
-    getHandle,
-    getVisual,
+    // **The config slot wins over a contributed one** (D-65). A consumer
+    // writing `placeholder` is being explicit about the element; an installer
+    // that also names the slot is providing a default for compositions that do
+    // not.
+    createPlaceholder: config.placeholder
+      ? (placeholderContext) => config.placeholder!(placeholderContext)
+      : contributedPlaceholder,
+    getHandle: config.handle ?? null,
+    getVisual: config.visual ?? null,
     startLanding,
 
     beforeMove,

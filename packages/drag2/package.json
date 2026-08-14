@@ -38,18 +38,6 @@
       "types": "./sortable/xy.d.ts",
       "default": "./sortable/xy.js"
     },
-    "./sortable/callbacks.js": {
-      "types": "./sortable/callbacks.d.ts",
-      "default": "./sortable/callbacks.js"
-    },
-    "./sortable/placeholder.js": {
-      "types": "./sortable/placeholder.d.ts",
-      "default": "./sortable/placeholder.js"
-    },
-    "./sortable/handle.js": {
-      "types": "./sortable/handle.d.ts",
-      "default": "./sortable/handle.js"
-    },
     "./sortable/landing.js": {
       "types": "./sortable/landing.d.ts",
       "default": "./sortable/landing.js"
@@ -57,6 +45,9 @@
     "./sortable/layout-animation.js": {
       "types": "./sortable/layout-animation.d.ts",
       "default": "./sortable/layout-animation.js"
+    },
+    "./sortable/feature.js": {
+      "types": "./sortable/feature.d.ts"
     },
     "./package.json": "./package.json"
   },

@@ -22,16 +22,14 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { LandingContext } from '../../src/kernel/spec.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
-import { handle, visual } from '../../src/sortable/handle.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
   ReorderResolution,
   type SortableCancelResult,
+  type SortableConfig,
   type SortableController,
-  type SortableFeature,
   type SortableFinishResult,
   sortable,
 } from '../../src/sortable.ts';
@@ -50,7 +48,7 @@ type Fixture = Readonly<{
   started: HTMLElement[];
   /** Landing contexts, when a recording runner is installed. */
   contexts: LandingContext[];
-  /** Every item the installed `handle()` resolver was asked about, in order. */
+  /** Every item the installed `handle` resolver was asked about, in order. */
   handleCalls: HTMLElement[];
   placeholder(): HTMLElement | null;
   /** DOM order, with the placeholder as `_`. */
@@ -61,15 +59,15 @@ type Options = Readonly<{
   itemCount?: number;
   onReorder?(request: ReorderRequest, fixture: Fixture): ReorderResolution;
   onStart?(fixture: Fixture): void;
-  /** Install `handle()` narrowing admission to the row's first child. */
+  /** Fill the `handle` slot, narrowing admission to the row's first child. */
   useHandle?: boolean;
   /**
-   * Runs inside the `handle()` resolver, which is consumer code the library
+   * Runs inside the `handle` resolver, which is consumer code the library
    * invokes during admission. Implies `useHandle`.
    */
   onResolveHandle?(fixture: Fixture): void;
   /**
-   * Called from **inside** the admission member, through the `visual()` slot.
+   * Called from **inside** the admission member, through the `visual` slot.
    *
    * This is the only honest way to reach that window from a test: a capture
    * -phase listener on the root runs *before* the kernel's own listener, so it
@@ -135,29 +133,32 @@ function build(options: Options = {}): Fixture {
 
   let fixture!: Fixture;
 
-  const features: SortableFeature[] = [];
+  // Fragments, not features (D-45): each is a plain partial config, and the
+  // library merges them. `handle` and `visual` are ordinary config slots now,
+  // so the conditional pushes build object literals rather than call factories.
+  const fragments: Array<Partial<SortableConfig>> = [];
 
   if (options.useHandle === true || options.onResolveHandle !== undefined) {
-    features.push(
-      handle((item) => {
+    fragments.push({
+      handle: (item) => {
         handleCalls.push(item);
         options.onResolveHandle?.(fixture);
         return item.querySelector('.grip');
-      }),
-    );
+      },
+    });
   }
 
   if (options.onAdmit !== undefined) {
-    features.push(
-      visual((item) => {
+    fragments.push({
+      visual: (item) => {
         options.onAdmit?.(fixture);
         return item;
-      }),
-    );
+      },
+    });
   }
 
   if (options.recordLanding === true) {
-    features.push(
+    fragments.push(
       landing({
         run(context) {
           contexts.push(context);
@@ -167,34 +168,29 @@ function build(options: Options = {}): Fixture {
     );
   }
 
-  const controller = sortable(
-    root,
-    items,
-    y(),
-    ...features,
-    callbacks({
-      onReorder(request) {
-        requests.push(request);
+  const controller = sortable(root, y(), ...fragments, {
+    items: () => items,
+    onReorder(request) {
+      requests.push(request);
 
-        return (
-          options.onReorder?.(request, fixture) ?? ReorderResolution.accept()
-        );
-      },
-      onStart(item): void {
-        started.push(item);
-        options.onStart?.(fixture);
-      },
-      onFinish(result): void {
-        finishes.push(result);
-      },
-      onCancel(result): void {
-        cancels.push(result);
-      },
-      onError(error): void {
-        errors.push(error);
-      },
-    }),
-  );
+      return (
+        options.onReorder?.(request, fixture) ?? ReorderResolution.accept()
+      );
+    },
+    onStart(item): void {
+      started.push(item);
+      options.onStart?.(fixture);
+    },
+    onFinish(result): void {
+      finishes.push(result);
+    },
+    onCancel(result): void {
+      cancels.push(result);
+    },
+    onError(error): void {
+      errors.push(error);
+    },
+  });
 
   root.setPointerCapture = (): void => {};
   root.releasePointerCapture = (): void => {};
