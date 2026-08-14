@@ -383,6 +383,23 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 
 ---
 
+## The footprint's cross axis — new (F-58, resolution A-3)
+
+The two-window rule subtracted on **both** axes, so `footprint.width` was `0` for every composition where `box !== visual` — and the fixture written to prove the rule had `footprint.width === 0` inside it while asserting only the height. The correction is one expression: the width is `boxPre.width` always, and only the height subtracts.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| the footprint's height is the collapse | `tests/sortable/features.browser.test.ts` — _should size the placeholder from the footprint, not the visual, when a box is composed_ | D-43 |
+| …and **both extents** are asserted, in that same fixture | the same row's `rect.width` assertion | F-58 |
+| a composed box under a non-stretch cross alignment stands where the row stood | `tests/sortable/features.browser.test.ts` — _should stand on the box's own width under a centred cross alignment_ | F-58 |
+| the identity branch is unchanged, and pins the degeneracy | `tests/sortable/features.browser.test.ts` — the default-composition placeholder rows | F-55 |
+
+**The centred row is the one that reaches `anchorTarget`.** A zero-width placeholder has the same `left` as a full-width one in a start- or stretch-aligned list, so a width assertion alone cannot show what the defect costs; under `align-items: center` the placeholder centres on its own width, so `0` puts it on the container's centre line — 60 px from where the row's box stood — and that element is what the landing target's `x` is read from. Both rows fail against the two-axis subtraction and nothing else does.
+
+**Scope, asserted as a limit rather than repaired.** A composed `box !== visual` is supported with `y()` only. `xy()` over a wrapping flex row is outside the declared scope: the rule fixes the flow axis to `height`, so that composition gets the full pre-lift width and a spurious height delta. The failure is bounded and in the same direction as the pre-D-43 behavior — a placeholder too large — rather than the unbounded `width: 0` collapse, and it is declared instead of detected, which is the treatment rule-placed layouts already get.
+
+---
+
 ## Probe A's two unpinned rows, and two totality belts — new (A-5…A-8)
 
 Named in handoff §3 and absent from the suite until application review 1 found them. Each is an **observable** whose mechanism was already covered — which is exactly how they stayed missing.

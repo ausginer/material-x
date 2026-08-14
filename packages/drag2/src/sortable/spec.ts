@@ -637,21 +637,39 @@ export function createSortableSpec(
         // reads the same element in the same units on the far side of it, and
         // the difference is the space the visual's removal actually freed.
         //
-        // **The identity branch is not an optimisation.** `boxPre − boxPost` is
-        // only the footprint when the box *stays in flow* while the visual
-        // leaves it, which is what api-1 measured with a nested pair
-        // (`box = .row-box` wrapping `visual = .card`: 62 → 32, so 30). Under
-        // the default `box === visual` there is no such pair — the one element
-        // is the thing being lifted, and `LIFT_FAITHFUL` promotes it with
-        // `position: fixed` and an explicit width and height, so its offset box
-        // is *unchanged* by the lift and the difference would be zero rather
-        // than its height. The pre-lift capture is the whole answer there, and
-        // taking it is what the library did before two windows existed.
+        // **One extent, not two** (F-58). `boxPre − boxPost` measures a
+        // *collapse*, which is a scalar on the list's flow axis; the footprint
+        // it feeds is a *box*, which is two extents. Subtracting on both
+        // conflated them, and on the cross axis the box surrenders nothing — a
+        // block-level box in a vertical list takes its width from its
+        // containing block on both sides of the lift — so the difference there
+        // is `0`: arithmetically correct and the wrong quantity. Nothing was
+        // lost on that axis, so there is nothing to restore, and what the
+        // placeholder still owes is to stand where the row stood. That is
+        // `boxPre.width`, always.
+        //
+        // Spelled `height` rather than "the block axis" deliberately: `y()` is
+        // written on `pointerY`, `CENTRE_Y` and `rect.top/bottom`, so a
+        // logical-axis footprint would give this rule a writing-mode
+        // dependency the axis module it serves does not have. `box !== visual`
+        // is declared supported with `y()` alone (03 §Scope limits).
+        //
+        // **The identity branch is now the degenerate case rather than a
+        // second rule.** `boxPre − boxPost` is only the footprint when the box
+        // *stays in flow* while the visual leaves it, which is what api-1
+        // measured with a nested pair (`box = .row-box` wrapping
+        // `visual = .card`: 62 → 32, so 30). Under the default
+        // `box === visual` there is no such pair — the one element is the thing
+        // being lifted, and `LIFT_FAITHFUL` promotes it with `position: fixed`
+        // and an explicit width and height, so its offset box is *unchanged* by
+        // the lift and the collapse is zero. `footprint = boxPre` falls out;
+        // F-55's correction is preserved as a consequence of the rule instead
+        // of an exception to it.
         const footprint =
           box === visual
             ? boxPre
             : {
-                width: boxPre.width - box.offsetWidth,
+                width: boxPre.width,
                 height: boxPre.height - box.offsetHeight,
               };
 

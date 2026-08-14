@@ -30,14 +30,20 @@
  * shipped one is numeric constants, so a fixture whose central type was a
  * different *kind* of type could not have detected drift in anything naming it.
  *
- * **Two values are imported from inside the package rather than from an entry,
- * and that is a finding, not a shortcut** (ledger §L-14). `LIFT_FLAT` and
- * `SETTLED_FAILED` are required to *construct* a `BehaviorSpec` and to
- * *discriminate* a `SettlementInput`, and `kernel.js` publishes neither — so
- * the kernel tier is, today, not authorable from its own entry. The fixture
- * reaches into `src/kernel/` for them and says so here rather than papering
- * over it with a numeric literal. Closing it is an addition to a frozen
- * surface, which is D-47 §11's queued vocabulary pass, not this file's.
+ * **Three names are imported from inside the package rather than from an
+ * entry, and that is a finding, not a shortcut** (F-59, ledger §L-14).
+ * `LIFT_FLAT` is required to *construct* a `BehaviorSpec`, `SETTLED_FAILED` to
+ * *discriminate* a `SettlementInput`, and `AT_PROPOSAL`/`AT_CONSUMER` to derive
+ * D-66's fallback stage; `kernel.js` publishes none of them — so the kernel
+ * tier is, today, not authorable from its own entry **in any style**, since a
+ * contextually typed inline factory still cannot fill `liftMode`. The fixture
+ * reaches into `src/kernel/` and says so here rather than papering over it with
+ * numeric literals.
+ *
+ * **Decided by D-68** (00 §Revision 2.2, 02 §The kernel tier's public
+ * vocabulary): all three ship from `kernel.js`. The deep imports below are the
+ * standing marker for that work — **when D-68 lands, this file must import
+ * nothing from `src/kernel/`**, and this paragraph goes with them.
  *
  * ## The rule that makes it evidence
  *
@@ -108,10 +114,11 @@ import {
 // **The kernel tier, from its own entry.** Every name here is one a behavior
 // author must be able to write.
 import { LIFT_FLAT } from '../../src/kernel/presentation.ts';
-// **Two names the kernel entry does not publish** — see the header. `LIFT_FLAT`
-// is required to fill `BehaviorConfig.liftMode` and `SETTLED_FAILED` to
-// discriminate the input D-66 travels on, so a behavior cannot be authored from
-// `kernel.js` alone today.
+// **Three names the kernel entry does not publish** — see the header, and F-59.
+// `LIFT_FLAT` fills `BehaviorConfig.liftMode`, `SETTLED_FAILED` discriminates
+// the input D-66 travels on, and `AT_PROPOSAL`/`AT_CONSUMER` derive its
+// fallback stage, so a behavior cannot be authored from `kernel.js` alone
+// today. D-68 moves all three to the entry; these imports retire with it.
 import { SETTLED_FAILED } from '../../src/kernel/spec.ts';
 import {
   draggable,

@@ -568,7 +568,65 @@ describe('visual', () => {
     composed.items[0]!.append(box);
     activate(composed);
 
-    expect(composed.placeholder()!.getBoundingClientRect().height).toBe(28);
+    const rect = composed.placeholder()!.getBoundingClientRect();
+
+    expect(rect.height).toBe(28);
+    // **Both extents, and the width is why F-58 exists.** This assertion is one
+    // line and this fixture is the one written to prove the rule — and its
+    // `footprint.width` was `0` under the two-axis subtraction, because the box
+    // is a block-level flex container in a 100 px item and takes its width from
+    // its containing block on both sides of the lift. Asserting only the height
+    // is what let `width: 0px` ship on every composed `box`.
+    expect(rect.width).toBe(100);
+  });
+
+  it('should stand on the box’s own width under a centred cross alignment', () => {
+    // **The row that makes the cross-axis error reach `anchorTarget`** (F-58
+    // §7.2). A zero-width placeholder has the same `left` as a full-width one
+    // in a start-aligned or stretch-aligned list, so a width assertion alone
+    // cannot show what the defect costs. Under `align-items: center` it can:
+    // the placeholder is a **sibling of the item**, centred on its own width,
+    // so a `0` width puts it on the container's centre line instead of where
+    // the row stood — and that element is what `anchorTarget` measures for the
+    // landing target's `x`.
+    const box = document.createElement('div');
+    const card = document.createElement('div');
+    const aside = document.createElement('div');
+
+    Object.assign(box.style, { display: 'flex', width: '80px' });
+    Object.assign(card.style, {
+      display: 'block',
+      width: '50px',
+      height: '60px',
+    });
+    Object.assign(aside.style, {
+      display: 'block',
+      width: '20px',
+      height: '32px',
+    });
+    box.append(card, aside);
+
+    const composed = compose({ visual: () => card, box: () => box });
+
+    // The list itself is the centred column, because the placeholder is
+    // inserted **after the item**, in the list — not inside the row.
+    Object.assign(composed.root.style, {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+    });
+    composed.items[0]!.append(box);
+
+    const { left } = composed.root.getBoundingClientRect();
+
+    activate(composed);
+
+    // 200 px list, an 80 px footprint width, centred: `(200 − 80) / 2`. Under
+    // the two-axis subtraction the width was `0` and this read `left + 100` —
+    // the centre line, 60 px from where the row's box stood.
+    expect(composed.placeholder()!.getBoundingClientRect().left).toBe(
+      left + 60,
+    );
   });
 
   it('should measure candidates as the box once one is composed', async () => {
