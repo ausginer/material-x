@@ -8,20 +8,20 @@
  * `composition.browser.test.ts`; these add the first.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { draggable } from '../../src/drag.ts';
-import type { LandingHandle } from '../../src/kernel/spec.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
-import { brandFeature, unbrandFeature } from '../../src/sortable/feature.ts';
-import { handle, visual } from '../../src/sortable/handle.ts';
+import type { DraggableError, Point } from '../../src/drag.ts';
+import type { OnReorder } from '../../src/sortable/domain.ts';
+import type {
+  LandingHandle,
+  LandingStart,
+  SortableInstaller,
+} from '../../src/sortable/feature.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
-import { placeholder } from '../../src/sortable/placeholder.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
-  type ReorderRequest,
   ReorderResolution,
+  type SortableConfig,
   type SortableController,
-  type SortableFeature,
   sortable,
 } from '../../src/sortable.ts';
 
@@ -34,7 +34,7 @@ type Composed = Readonly<{
   controller: SortableController;
   finishes: unknown[];
   cancels: unknown[];
-  errors: unknown[];
+  errors: DraggableError[];
   placeholder(): HTMLElement | null;
 }>;
 
@@ -61,13 +61,18 @@ afterEach(() => {
 
 type ComposeOptions = Readonly<{
   itemCount?: number;
-  onReorder?: Parameters<typeof callbacks>[0]['onReorder'];
-  features?: readonly SortableFeature[];
+  onReorder?: OnReorder;
+  /**
+   * Whatever the test wants merged on top of the base config. A fragment is a
+   * plain partial config now (D-45), so a test that used to install a feature
+   * writes the slot directly.
+   */
+  fragments?: ReadonlyArray<Partial<SortableConfig>>;
   /** The axis rule, when a test needs one that is not stock `y()`. */
-  axis?: SortableFeature;
+  axis?: Pick<SortableConfig, 'axis'>;
 }>;
 
-/** 40px items, plus whichever optional features the test installs. */
+/** 40px items, plus whichever optional slots the test fills. */
 function composeWith(options: ComposeOptions = {}): Composed {
   const root = document.createElement('div');
 
@@ -90,34 +95,35 @@ function composeWith(options: ComposeOptions = {}): Composed {
 
   const finishes: unknown[] = [];
   const cancels: unknown[] = [];
-  const errors: unknown[] = [];
+  const errors: DraggableError[] = [];
 
-  const controller = draggable(
+  const controller = sortable(
     root,
-    sortable(
-      items,
-      options.axis ?? y(),
-      callbacks({
-        onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
-        onFinish: (result): void => {
+    options.axis ?? y(),
+    {
+      items: () => items,
+      onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
+      onEnd: (result): void => {
+        // D-62: one callback, and the fixture makes the split its own
+        // assertions still read against.
+        if (result.type === 'accepted' || result.type === 'noop') {
           finishes.push(result);
-        },
-        onCancel: (result): void => {
+        } else {
           cancels.push(result);
-        },
-        onError: (error): void => {
-          errors.push(error);
-        },
-      }),
-      ...(options.features ?? []),
-    ),
+        }
+      },
+      onError: (error): void => {
+        errors.push(error);
+      },
+    },
+    ...(options.fragments ?? []),
   );
 
   root.setPointerCapture = (): void => {};
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -132,8 +138,9 @@ function composeWith(options: ComposeOptions = {}): Composed {
   };
 }
 
-const compose = (...features: readonly SortableFeature[]): Composed =>
-  composeWith({ features });
+const compose = (
+  ...fragments: ReadonlyArray<Partial<SortableConfig>>
+): Composed => composeWith({ fragments });
 
 const press = (target: HTMLElement, y = 10): void => {
   target.dispatchEvent(
@@ -213,79 +220,77 @@ const withReducedMotion = async <T>(body: () => Promise<T>): Promise<T> => {
   }
 };
 
+/**
+ * A landing runner authored at the **middle tier** (D-63): the three lines
+ * `landing()` itself writes, which is what a consumer's `run` used to reach.
+ */
+const authoredLanding = (
+  start: LandingStart,
+): { landing: SortableInstaller } => ({
+  landing: () => ({ startLanding: start }),
+});
+
 describe('placeholder', () => {
-  it('should add the configured classes to the default element', () => {
-    const composed = compose(placeholder({ className: 'ghost dim' }));
-
-    activate(composed);
-
-    expect([...composed.placeholder()!.classList]).toEqual(['ghost', 'dim']);
-  });
-
   it('should use the element the factory returned', () => {
-    const composed = compose(
-      placeholder({ create: () => document.createElement('section') }),
-    );
+    const composed = compose({
+      placeholder: () => document.createElement('section'),
+    });
 
     activate(composed);
 
     expect(composed.placeholder()!.localName).toBe('section');
   });
 
-  it('should keep the classes the factory already set', () => {
-    // Customisation, not replacement: `classList.add`, never an assignment.
-    const composed = compose(
-      placeholder({
-        className: 'ghost',
-        create: () => {
-          const element = document.createElement('div');
+  it('should leave the classes the factory set untouched', () => {
+    // **D-65 removed the only class the library ever wrote.** With
+    // `placeholderClassName` gone the guarantee is stronger and simpler than
+    // the `classList.add`-not-assignment rule it replaces: beyond the mechanics
+    // in `applyMechanics`, the library writes no visual styling at all, so
+    // whatever the factory set is exactly what survives.
+    const composed = compose({
+      placeholder: () => {
+        const element = document.createElement('div');
 
-          element.className = 'authored';
-          return element;
-        },
-      }),
-    );
+        element.className = 'authored';
+        return element;
+      },
+    });
 
     activate(composed);
 
-    expect([...composed.placeholder()!.classList]).toEqual([
-      'authored',
-      'ghost',
-    ]);
+    expect([...composed.placeholder()!.classList]).toEqual(['authored']);
   });
 
-  it('should add no class once the factory destroys the controller', () => {
-    // C5-03's stretch sweep. `create` is consumer code and the element it
+  it('should write no mechanics once the factory destroys the controller', () => {
+    // C5-03's stretch sweep. The factory is consumer code and the element it
     // returns is the **consumer's own**, adopted by nothing until activation
-    // commits — teardown removes only the placeholder it inserted. So a class
-    // written between the factory returning and the library's next liveness
-    // reading is a mutation nothing undoes (I-36 (2) act 3).
+    // commits — teardown removes only the placeholder it inserted. So an
+    // attribute written between the factory returning and the library's next
+    // liveness reading is a mutation nothing undoes (I-36 (2) act 3).
     const created: HTMLElement[] = [];
-    const composed: Composed = compose(
-      placeholder({
-        className: 'ghost',
-        create: () => {
-          const element = document.createElement('div');
+    const composed: Composed = compose({
+      placeholder: () => {
+        const element = document.createElement('div');
 
-          created.push(element);
-          composed.controller.destroy();
-          return element;
-        },
-      }),
-    );
+        created.push(element);
+        void composed.controller.destroy();
+        return element;
+      },
+    });
 
     activate(composed);
 
     expect(created).toHaveLength(1);
-    expect([...created[0]!.classList]).toEqual([]);
+    expect(created[0]!.hasAttribute('data-drag-placeholder')).toBe(false);
+    expect(created[0]!.hasAttribute('aria-hidden')).toBe(false);
   });
 
   it('should still apply the default mechanics to a custom element', () => {
     // The mechanics are not configurable away, and they belong to the behavior
-    // rather than to this feature — so they have to survive a factory.
-    const composed = compose(
-      placeholder({ create: () => document.createElement('section') }),
-    );
+    // rather than to this slot — so they have to survive a factory.
+    const composed = compose({
+      placeholder: () => document.createElement('section'),
+    });
 
     activate(composed);
 
@@ -299,7 +304,7 @@ describe('placeholder', () => {
     // Refused inside `activation.prepare`, before anything is inserted: the
     // behavior *adopts* the result, so teardown would remove a node the page
     // owns.
-    const composed = compose(placeholder({ create: () => composed.items[2]! }));
+    const composed = compose({ placeholder: () => composed.items[2]! });
 
     activate(composed);
 
@@ -314,13 +319,11 @@ describe('placeholder', () => {
     // acquired in `activation.prepare` before the placeholder existed — so the
     // question is whether a discarded prepare releases it.
     const failure = new Error('no placeholder for you');
-    const composed = compose(
-      placeholder({
-        create: (): HTMLElement => {
-          throw failure;
-        },
-      }),
-    );
+    const composed = compose({
+      placeholder: (): HTMLElement => {
+        throw failure;
+      },
+    });
 
     activate(composed);
 
@@ -330,19 +333,92 @@ describe('placeholder', () => {
     expect(composed.items[0]!.style.transform).toBe('');
   });
 
+  it('should roll back every library write when a cancelling factory discards the preparation', () => {
+    // **D-39, and the case that makes `activation.rollback` non-vacuous.**
+    // ~~A discarded prepare leaves only a detached element for the collector~~
+    // is true of the library's own `<div>` and false the moment a factory
+    // exists: `prepare` writes onto an element the **consumer** created, and
+    // `preparationValid()` discards the *preparation*, not the element.
+    //
+    // A `cancel()` rather than a `destroy()` is the discriminating shape.
+    // Destroying closes the controller, so the post-factory liveness reading
+    // returns the element unmechanized and there is nothing to undo — the case
+    // above already pins that. Cancelling leaves the controller open, so every
+    // write lands and only the seam is invalidated.
+    const created: HTMLElement[] = [];
+    const composed: Composed = compose({
+      placeholder: () => {
+        const element = document.createElement('div');
+
+        element.setAttribute('slot', 'mine');
+        element.setAttribute('data-mine', 'kept');
+        element.style.color = 'red';
+        created.push(element);
+        composed.controller.cancel('discard the preparation');
+        return element;
+      },
+    });
+
+    activate(composed);
+
+    const element = created[0]!;
+    const attributes = Object.fromEntries(
+      element
+        .getAttributeNames()
+        .map((name) => [name, element.getAttribute(name)]),
+    );
+
+    // **An attribute map, not `outerHTML`.** A removed-then-restored attribute
+    // is re-appended, so the honest guarantee is the same names with the same
+    // values, never the same bytes.
+    expect(attributes).toEqual({
+      slot: 'mine',
+      'data-mine': 'kept',
+      style: 'color: red;',
+    });
+    // The item's own `slot` is absent, so the mechanics *removed* `slot="mine"`
+    // on the way in — which is why the undo restores rather than deletes.
+    expect(composed.items[0]!.hasAttribute('slot')).toBe(false);
+    // And no residue: `style=""` and `class=""` are absent rather than empty.
+    expect(element.style.width).toBe('');
+    expect(element.style.height).toBe('');
+    expect(element.hasAttribute('class')).toBe(false);
+  });
+
+  it('should leave no style attribute behind on a rolled-back element that had none', () => {
+    // The normalization half of the row, and the case that found a platform
+    // difference: after an inline property has been written through the CSSOM,
+    // `removeAttribute('style')` leaves `style=""` behind in Chromium, so the
+    // undo removes the attribute node itself. Asserted as the whole attribute
+    // list rather than as `hasAttribute`, because the empty leftover is exactly
+    // what `hasAttribute` would have missed by reading `true` either way.
+    const created: HTMLElement[] = [];
+    const composed: Composed = compose({
+      placeholder: () => {
+        const element = document.createElement('div');
+
+        created.push(element);
+        composed.controller.cancel('discard the preparation');
+        return element;
+      },
+    });
+
+    activate(composed);
+
+    expect(created[0]!.getAttributeNames()).toEqual([]);
+  });
+
   it('should stay usable after a factory throw', () => {
     let failing = true;
-    const composed = compose(
-      placeholder({
-        create: (): HTMLElement => {
-          if (failing) {
-            throw new Error('once');
-          }
+    const composed = compose({
+      placeholder: (): HTMLElement => {
+        if (failing) {
+          throw new Error('once');
+        }
 
-          return document.createElement('div');
-        },
-      }),
-    );
+        return document.createElement('div');
+      },
+    });
 
     activate(composed);
     failing = false;
@@ -355,7 +431,7 @@ describe('placeholder', () => {
 describe('handle', () => {
   it('should admit a press inside the resolved handle', () => {
     const grip = document.createElement('span');
-    const composed = compose(handle(() => grip));
+    const composed = compose({ handle: () => grip });
 
     composed.items[0]!.append(grip);
     press(grip);
@@ -366,7 +442,7 @@ describe('handle', () => {
 
   it('should refuse a press outside the resolved handle', () => {
     const grip = document.createElement('span');
-    const composed = compose(handle(() => grip));
+    const composed = compose({ handle: () => grip });
 
     composed.items[0]!.append(grip);
     activate(composed);
@@ -375,7 +451,7 @@ describe('handle', () => {
   });
 
   it('should refuse every press when the resolver returns null', () => {
-    const composed = compose(handle(() => null));
+    const composed = compose({ handle: () => null });
 
     activate(composed);
 
@@ -407,25 +483,19 @@ describe('handle', () => {
 
     items[0]!.append(grip);
 
-    const controller = draggable(
-      root,
-      sortable(
-        items,
-        y(),
-        handle(() => grip),
-        callbacks({
-          onReorder: (request) => {
-            requests.push(request);
-            return ReorderResolution.accept();
-          },
-        }),
-      ),
-    );
+    const controller = sortable(root, y(), {
+      items: () => items,
+      handle: () => grip,
+      onReorder: (request) => {
+        requests.push(request);
+        return ReorderResolution.accept();
+      },
+    });
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
     cleanup.push(() => {
-      controller.destroy();
+      void controller.destroy();
       root.remove();
     });
 
@@ -441,7 +511,7 @@ describe('handle', () => {
 describe('visual', () => {
   it('should lift the resolved element instead of the item', () => {
     const inner = document.createElement('div');
-    const composed = compose(visual(() => inner));
+    const composed = compose({ visual: () => inner });
 
     Object.assign(inner.style, { display: 'block', height: '20px' });
     composed.items[0]!.append(inner);
@@ -457,13 +527,130 @@ describe('visual', () => {
     // The placeholder is the *footprint*, and the footprint of a drag is
     // whatever was lifted out of the flow.
     const inner = document.createElement('div');
-    const composed = compose(visual(() => inner));
+    const composed = compose({ visual: () => inner });
 
     Object.assign(inner.style, { display: 'block', height: '20px' });
     composed.items[0]!.append(inner);
     activate(composed);
 
     expect(composed.placeholder()!.getBoundingClientRect().height).toBe(20);
+  });
+
+  it('should size the placeholder from the footprint, not the visual, when a box is composed', () => {
+    // **api-1's case, and the whole reason D-43 takes two windows.** The box is
+    // a flex row holding the lifted card (60) beside an aside (32), so the box
+    // stands 60 tall while the card is in flow and 32 once it leaves. The space
+    // the drag actually freed is 28 — which is neither the visual's height (60,
+    // the rule this replaces) nor the box's pre-lift height (60, which
+    // double-counts the residue).
+    //
+    // Both windows are offset-box reads on the **same element**, taken on
+    // opposite sides of `acquireLift`.
+    const box = document.createElement('div');
+    const card = document.createElement('div');
+    const aside = document.createElement('div');
+
+    Object.assign(box.style, { display: 'flex' });
+    Object.assign(card.style, {
+      display: 'block',
+      width: '50px',
+      height: '60px',
+    });
+    Object.assign(aside.style, {
+      display: 'block',
+      width: '20px',
+      height: '32px',
+    });
+    box.append(card, aside);
+
+    const composed = compose({ visual: () => card, box: () => box });
+
+    composed.items[0]!.append(box);
+    activate(composed);
+
+    const rect = composed.placeholder()!.getBoundingClientRect();
+
+    expect(rect.height).toBe(28);
+    // **Both extents, and the width is why F-58 exists.** This assertion is one
+    // line and this fixture is the one written to prove the rule — and its
+    // `footprint.width` was `0` under the two-axis subtraction, because the box
+    // is a block-level flex container in a 100 px item and takes its width from
+    // its containing block on both sides of the lift. Asserting only the height
+    // is what let `width: 0px` ship on every composed `box`.
+    expect(rect.width).toBe(100);
+  });
+
+  it('should stand on the box’s own width under a centred cross alignment', () => {
+    // **The row that makes the cross-axis error reach `anchorTarget`** (F-58
+    // §7.2). A zero-width placeholder has the same `left` as a full-width one
+    // in a start-aligned or stretch-aligned list, so a width assertion alone
+    // cannot show what the defect costs. Under `align-items: center` it can:
+    // the placeholder is a **sibling of the item**, centred on its own width,
+    // so a `0` width puts it on the container's centre line instead of where
+    // the row stood — and that element is what `anchorTarget` measures for the
+    // landing target's `x`.
+    const box = document.createElement('div');
+    const card = document.createElement('div');
+    const aside = document.createElement('div');
+
+    Object.assign(box.style, { display: 'flex', width: '80px' });
+    Object.assign(card.style, {
+      display: 'block',
+      width: '50px',
+      height: '60px',
+    });
+    Object.assign(aside.style, {
+      display: 'block',
+      width: '20px',
+      height: '32px',
+    });
+    box.append(card, aside);
+
+    const composed = compose({ visual: () => card, box: () => box });
+
+    // The list itself is the centred column, because the placeholder is
+    // inserted **after the item**, in the list — not inside the row.
+    Object.assign(composed.root.style, {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+    });
+    composed.items[0]!.append(box);
+
+    const { left } = composed.root.getBoundingClientRect();
+
+    activate(composed);
+
+    // 200 px list, an 80 px footprint width, centred: `(200 − 80) / 2`. Under
+    // the two-axis subtraction the width was `0` and this read `left + 100` —
+    // the centre line, 60 px from where the row's box stood.
+    expect(composed.placeholder()!.getBoundingClientRect().left).toBe(
+      left + 60,
+    );
+  });
+
+  it('should measure candidates as the box once one is composed', async () => {
+    // D-58. The placeholder occupies the box's removed footprint, so the
+    // challengers it is compared against have to be boxes too — measuring the
+    // incumbent one way and its candidates another is a hysteresis defect, not
+    // a rounding one. What this pins is that a composed drag routes the `box`
+    // resolver into the candidate search at all.
+    const asked: HTMLElement[] = [];
+    const composed = composeWith({
+      fragments: [
+        {
+          box: (item) => {
+            asked.push(item);
+            return item;
+          },
+        },
+      ],
+    });
+
+    activate(composed);
+    await drag(70);
+
+    expect(new Set(asked)).toEqual(new Set(composed.items));
   });
 
   it('should resolve the visual of every candidate, not only the dragged item', async () => {
@@ -474,11 +661,13 @@ describe('visual', () => {
     // of the defect, and is invisible from any assertion about the dragged item.
     const asked: HTMLElement[] = [];
     const composed = composeWith({
-      features: [
-        visual((item) => {
-          asked.push(item);
-          return item;
-        }),
+      fragments: [
+        {
+          visual: (item) => {
+            asked.push(item);
+            return item;
+          },
+        },
       ],
     });
 
@@ -490,7 +679,7 @@ describe('visual', () => {
 
   it('should restore the resolved visual at teardown', () => {
     const inner = document.createElement('div');
-    const composed = compose(visual(() => inner));
+    const composed = compose({ visual: () => inner });
 
     Object.assign(inner.style, { display: 'block', height: '20px' });
     composed.items[0]!.append(inner);
@@ -499,6 +688,101 @@ describe('visual', () => {
 
     expect(inner.style.position).toBe('');
     expect(inner.style.transform).toBe('');
+  });
+});
+
+describe('the contextual landing duration (D-67)', () => {
+  it('should invoke duration once per landing, with the trajectory', async () => {
+    // **The quantity review 3 §10 said a zero-argument thunk cannot observe.**
+    // `from` and `to` are the landing's origin-relative deltas, `distance` the
+    // straight line between them — and the whole of D-67 is that the function
+    // can now see them.
+    const contexts: Array<{ from: Point; to: Point; distance: number }> = [];
+    const composed = compose(
+      landing({
+        duration: (context) => {
+          contexts.push(context);
+          return 20;
+        },
+      }),
+    );
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    expect(contexts).toHaveLength(1);
+
+    const [only] = contexts;
+
+    expect(only!.distance).toBeCloseTo(
+      Math.hypot(only!.to.x - only!.from.x, only!.to.y - only!.from.y),
+      6,
+    );
+    // A downward drop into the next slot: the trajectory is vertical and real.
+    expect(only!.distance).toBeGreaterThan(0);
+  });
+
+  it('should keep a zero-argument thunk working', async () => {
+    // **F-52, asserted as behavior because it cannot be asserted as a type.** A
+    // zero-parameter function is assignable to any signature, so a shipped
+    // `() => 200` keeps compiling, keeps being invoked once per landing, and
+    // keeps returning the right number — it simply ignores the argument. The
+    // migration is source-compatible, which is the honest claim.
+    let reads = 0;
+    const composed = compose(
+      landing({
+        duration: () => {
+          reads += 1;
+          return 20;
+        },
+      }),
+    );
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    expect(reads).toBe(1);
+  });
+
+  it('should classify an out-of-domain contextual result at settlement', async () => {
+    // The same domain as the fixed form, checked at the only moment the value
+    // exists. It throws from inside `start`, which the kernel classifies as a
+    // landing-create failure.
+    const composed = compose(landing({ duration: () => -1 }));
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    expect(composed.errors).toHaveLength(1);
+    expect(composed.errors[0]!.code).toBe('presentation');
+  });
+
+  it('should resolve the duration before the reduced-motion collapse', async () => {
+    // D4: the call timing is *once per landing, immediately before the runner
+    // builds its animation* and is not conditional on a media query. Resolving
+    // inside the collapse would make a consumer's settle-time side effect — and
+    // a thrown or invalid result — observable only for users who have **not**
+    // asked for reduced motion.
+    await withReducedMotion(async () => {
+      let reads = 0;
+      const composed = compose(
+        landing({
+          duration: () => {
+            reads += 1;
+            return 20;
+          },
+        }),
+      );
+
+      activate(composed);
+      await drag(55);
+      release(55);
+
+      expect(reads).toBe(1);
+    });
   });
 });
 
@@ -567,14 +851,17 @@ describe('landing', () => {
     expect(composed.items[0]!.style.transform).toBe('');
   });
 
-  it('should let a custom runner replace the default entirely', async () => {
+  it('should let a middle-tier runner replace the default entirely', async () => {
+    // **The capability moved tiers, it was not deleted** (D-63). `landing({ run })`
+    // is gone from the consumer surface — the library owns the animation there
+    // — and an installer contributing `startLanding` is what a spring or an
+    // rAF loop is written as now. The seam is unchanged, which is why this case
+    // reads the same as it did.
     let complete: (() => void) | null = null;
     const composed = compose(
-      landing({
-        run: (_context, done) => {
-          complete = done;
-          return { destroy: (): void => {} };
-        },
+      authoredLanding((_context, done) => {
+        complete = done;
+        return { destroy: (): void => {} };
       }),
     );
 
@@ -595,11 +882,9 @@ describe('landing', () => {
 
   it('should classify a runner that fails as a landing failure', async () => {
     const composed = compose(
-      landing({
-        run: (_context, _done, fail) => {
-          fail(new Error('spring exploded'));
-          return { destroy: (): void => {} };
-        },
+      authoredLanding((_context, _done, fail) => {
+        fail(new Error('spring exploded'));
+        return { destroy: (): void => {} };
       }),
     );
 
@@ -672,32 +957,6 @@ describe('landing', () => {
     expect(animation!.effect!.getComputedTiming().duration).toBe(0);
   });
 
-  it('should not report a retargeted animation as a failure', async () => {
-    // A late acknowledgement makes the kernel retarget the runner, and a
-    // retarget cancels — which WAAPI surfaces as a rejected `finished`. Without
-    // a generation guard that would be reported as a landing failure for an
-    // operation that is landing perfectly well.
-    let pending!: ReorderRequest;
-    const composed = composeWith({
-      onReorder: (request) => {
-        pending = request;
-        return ReorderResolution.accept({ presentation: true });
-      },
-      features: [landing({ duration: 400 })],
-    });
-
-    activate(composed);
-    await drag(55);
-    release(55);
-    await Promise.resolve();
-
-    composed.controller.ready(pending);
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(composed.errors).toEqual([]);
-  });
-
   it('should read a duration thunk at settle time, once per landing', async () => {
     // 13b B-2, the ergonomics half of Phase 15. The shipped package read
     // `landingTiming()` after the settlement step that decides where the visual
@@ -706,7 +965,7 @@ describe('landing', () => {
     // replay and the generation guard all still apply.
     const reads: string[] = [];
     const composed = composeWith({
-      features: [
+      fragments: [
         landing({
           duration: () => {
             reads.push('read');
@@ -735,7 +994,7 @@ describe('landing', () => {
     // it. Resolve first, then collapse.
     const reads: string[] = [];
     const composed = composeWith({
-      features: [
+      fragments: [
         landing({
           duration: () => {
             reads.push('read');
@@ -763,7 +1022,7 @@ describe('landing', () => {
     // the collapse skipped, so a thunk returning a bad value threw for everyone
     // except the users least able to notice that it had not.
     const composed = composeWith({
-      features: [landing({ duration: () => Number.NaN })],
+      fragments: [landing({ duration: () => Number.NaN })],
     });
 
     await withReducedMotion(async () => {
@@ -821,7 +1080,7 @@ describe('landing', () => {
     activate(composed);
     await drag(55);
     release(55);
-    composed.controller.destroy();
+    void composed.controller.destroy();
     await Promise.resolve();
     await Promise.resolve();
 
@@ -853,10 +1112,10 @@ describe('landing', () => {
     // the controller exists.
     let controller: SortableController | null = null;
     const composed = composeWith({
-      features: [
+      fragments: [
         landing({
           duration: (): number => {
-            controller!.destroy();
+            void controller!.destroy();
             return 200;
           },
         }),
@@ -905,9 +1164,12 @@ describe('landing', () => {
   it('should destroy a consumer runner’s handle exactly once when the runner destroyed the controller', async () => {
     // **A conformance pin, not a regression pin** (Checkpoint D review 5,
     // C5-03 §5). It passes against current source and adds no barrier: what it
-    // pins is the **admitted** form of I-6 clause 3's kernel half. With
-    // `landing({ run })` composed, `start` *is* the consumer's runner and the
-    // handle it returns *is* a consumer-authored object — so F-30's
+    // pins is the **admitted** form of I-6 clause 3's kernel half. With a
+    // **middle-tier installer** supplying `startLanding` — which is where a
+    // consumer-authored runner lives since D-63 withdrew `landing({ run })`,
+    // and which is why this pin did not become vacuous when that option went —
+    // `start` *is* code the library does not own and the handle it returns
+    // *is* a consumer-authored object — so F-30's
     // `!settlementLive(attempt)` branch invokes a declared consumer slot member
     // after `controller.destroy()` returned. The kernel must: not calling it
     // leaks a runner nothing owns (I-20). That is why the invariant reads
@@ -923,21 +1185,16 @@ describe('landing', () => {
     let destroyedFirst = false;
 
     const composed = composeWith({
-      features: [
-        landing({
-          run: (): LandingHandle => {
-            controller!.destroy();
-            destroyedFirst = true;
+      fragments: [
+        authoredLanding((): LandingHandle => {
+          void controller!.destroy();
+          destroyedFirst = true;
 
-            return {
-              destroy(): void {
-                calls.push('destroy');
-              },
-              retarget(): void {
-                calls.push('retarget');
-              },
-            };
-          },
+          return {
+            destroy(): void {
+              calls.push('destroy');
+            },
+          };
         }),
       ],
     });
@@ -1067,9 +1324,9 @@ describe('layoutAnimation', () => {
     // controllers would both see the document-level pointer stream, and the
     // second list would sit below the first, out of reach of the coordinates.
     const measure = async (
-      features: readonly SortableFeature[],
+      fragments: ReadonlyArray<Partial<SortableConfig>>,
     ): Promise<number> => {
-      const composed = composeWith({ itemCount: rows, features });
+      const composed = composeWith({ itemCount: rows, fragments });
       let reads = 0;
 
       activate(composed);
@@ -1090,7 +1347,7 @@ describe('layoutAnimation', () => {
         Element.prototype.getBoundingClientRect = native;
       }
 
-      composed.controller.destroy();
+      void composed.controller.destroy();
       composed.root.remove();
       return reads;
     };
@@ -1202,25 +1459,30 @@ describe('the terminal barrier in a resolver sequence', () => {
     return event;
   };
 
-  /** `handle()` destroys; `visual()` records whether it was consulted after. */
+  /**
+   * The `handle` resolver destroys; the `visual` resolver records whether it was
+   * consulted after.
+   */
   const closingHandle = (
     asked: HTMLElement[],
   ): Readonly<{
-    features: SortableFeature[];
+    fragments: Array<Partial<SortableConfig>>;
     arm(c: SortableController): void;
   }> => {
     let controller: SortableController | null = null;
 
     return {
-      features: [
-        handle((item) => {
-          controller?.destroy();
-          return item;
-        }),
-        visual((item) => {
-          asked.push(item);
-          return item;
-        }),
+      fragments: [
+        {
+          handle: (item) => {
+            void controller?.destroy();
+            return item;
+          },
+          visual: (item) => {
+            asked.push(item);
+            return item;
+          },
+        },
       ],
       arm(c): void {
         controller = c;
@@ -1235,7 +1497,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     // and cannot make the second consumer call un-happen.
     const asked: HTMLElement[] = [];
     const armed = closingHandle(asked);
-    const composed = composeWith({ features: armed.features });
+    const composed = composeWith({ fragments: armed.fragments });
 
     armed.arm(composed.controller);
 
@@ -1256,7 +1518,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     // of it runs after the destroy that a handle resolver raised.
     const asked: HTMLElement[] = [];
     const armed = closingHandle(asked);
-    const composed = composeWith({ features: armed.features });
+    const composed = composeWith({ fragments: armed.fragments });
 
     armed.arm(composed.controller);
 
@@ -1276,16 +1538,18 @@ describe('the terminal barrier in a resolver sequence', () => {
     const asked: HTMLElement[] = [];
     let controller: SortableController | null = null;
     const composed = composeWith({
-      features: [
-        visual((item) => {
-          asked.push(item);
+      fragments: [
+        {
+          visual: (item) => {
+            asked.push(item);
 
-          if (item === composed.items[1]) {
-            controller!.destroy();
-          }
+            if (item === composed.items[1]) {
+              void controller!.destroy();
+            }
 
-          return item;
-        }),
+            return item;
+          },
+        },
       ],
     });
 
@@ -1307,15 +1571,20 @@ describe('the terminal barrier in a resolver sequence', () => {
   const bracketRecorder = (
     befores: number[],
     afters: number[],
-  ): SortableFeature =>
-    brandFeature(() => ({
-      beforeInsertionMove: (): void => {
-        befores.push(befores.length);
-      },
-      afterInsertionMove: (): void => {
-        afters.push(afters.length);
-      },
-    }));
+  ): Pick<SortableConfig, 'plugins'> => ({
+    // A plugin, because it names no capability slot of its own: the schema's
+    // `plugins` array is the only slot that appends rather than last-wins.
+    plugins: [
+      () => ({
+        beforeInsertionMove: (): void => {
+          befores.push(befores.length);
+        },
+        afterInsertionMove: (): void => {
+          afters.push(afters.length);
+        },
+      }),
+    ],
+  });
 
   it('should not run the eager rebuild past a destroying candidate', async () => {
     // Site C, first door: the eager rebuild inside the committed-move bracket.
@@ -1327,21 +1596,24 @@ describe('the terminal barrier in a resolver sequence', () => {
     const afters: number[] = [];
     let controller: SortableController | null = null;
     const composed = composeWith({
-      features: [
-        visual((item) => {
-          asked.push(item);
+      fragments: [
+        {
+          visual: (item) => {
+            asked.push(item);
 
-          // Armed by the DOM rather than by a call count: the placeholder only
-          // follows `items[1]` once `movePlaceholder` has run, so this is
-          // exactly "inside the bracket, past the write".
-          if (
-            composed.placeholder()?.previousElementSibling === composed.items[1]
-          ) {
-            controller!.destroy();
-          }
+            // Armed by the DOM rather than by a call count: the placeholder
+            // only follows `items[1]` once `movePlaceholder` has run, so this
+            // is exactly "inside the bracket, past the write".
+            if (
+              composed.placeholder()?.previousElementSibling ===
+              composed.items[1]
+            ) {
+              void controller!.destroy();
+            }
 
-          return item;
-        }),
+            return item;
+          },
+        },
         bracketRecorder(befores, afters),
       ],
     });
@@ -1365,9 +1637,9 @@ describe('the terminal barrier in a resolver sequence', () => {
    * neither can be seen alone. Defence in depth is the intent; this is the
    * composition in which the outer guard is the only one there is.
    */
-  const lazyY = (): SortableFeature =>
-    brandFeature((context) => {
-      const { insertion } = unbrandFeature(y())(context);
+  const lazyY = (): Pick<SortableConfig, 'axis'> => ({
+    axis: (context) => {
+      const { insertion } = y().axis(context);
 
       return {
         insertion: {
@@ -1376,7 +1648,8 @@ describe('the terminal barrier in a resolver sequence', () => {
           retire: insertion!.retire,
         },
       };
-    });
+    },
+  });
 
   it('should not run the bracket past a placeholder reaction that destroyed', async () => {
     // Site C, and the one no other test reaches. `movePlaceholder` moves a
@@ -1393,7 +1666,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     class ClosingPlaceholder extends HTMLElement {
       // oxlint-disable-next-line class-methods-use-this -- a lifecycle reaction
       disconnectedCallback(): void {
-        controller?.destroy();
+        void controller?.destroy();
       }
     }
 
@@ -1403,8 +1676,8 @@ describe('the terminal barrier in a resolver sequence', () => {
 
     const composed = composeWith({
       axis: lazyY(),
-      features: [
-        placeholder({ create: () => document.createElement(name) }),
+      fragments: [
+        { placeholder: () => document.createElement(name) },
         bracketRecorder(befores, afters),
       ],
     });
@@ -1421,17 +1694,21 @@ describe('the terminal barrier in a resolver sequence', () => {
   });
   /** A `beforeMove` hook that destroys the controller from inside the bracket. */
   const closingBefore = (): Readonly<{
-    feature: SortableFeature;
+    fragment: Pick<SortableConfig, 'plugins'>;
     arm(c: SortableController): void;
   }> => {
     let controller: SortableController | null = null;
 
     return {
-      feature: brandFeature(() => ({
-        beforeInsertionMove: (): void => {
-          controller?.destroy();
-        },
-      })),
+      fragment: {
+        plugins: [
+          () => ({
+            beforeInsertionMove: (): void => {
+              void controller?.destroy();
+            },
+          }),
+        ],
+      },
       arm(c): void {
         controller = c;
       },
@@ -1454,7 +1731,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     const afters: number[] = [];
     const armed = closingBefore();
     const composed = composeWith({
-      features: [bracketRecorder(befores, afters), armed.feature],
+      fragments: [bracketRecorder(befores, afters), armed.fragment],
     });
 
     armed.arm(composed.controller);
@@ -1477,7 +1754,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     let controller: SortableController | null = null;
     const composed = composeWith({
       axis: lazyY(),
-      features: [layoutAnimation({ duration: 500 })],
+      fragments: [layoutAnimation({ duration: 500 })],
     });
 
     ({ controller } = composed);
@@ -1493,7 +1770,7 @@ describe('the terminal barrier in a resolver sequence', () => {
         return rect;
       }
 
-      controller.destroy();
+      void controller.destroy();
 
       // **Shifted deliberately.** Teardown removes the placeholder and drops
       // the lift, which puts the row back exactly where this pass measured it —

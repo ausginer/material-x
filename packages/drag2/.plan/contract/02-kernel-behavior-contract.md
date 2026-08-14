@@ -417,7 +417,7 @@ Three reasons, in order of weight:
 | Seam | Phase in | Phase out | What sortable does |
 | --- | --- | --- | --- |
 | `admit` | `IDLE` | `PENDING` | Resolve the pressed item against the published snapshot; **decline** if the composed path reaches an interactive or editable descendant (§Input policy, D-46), unless the consumer scoped dragging there (D-50); apply the `handle` slot; write `item`, `visual` and `snapshot` into its part; **return the subject** — the visual (via the `visual` slot or identity), paired with the box (via the `box` slot) when the two differ (D-59). |
-| `activation.prepare` | `PENDING` | `ACTIVATING` | **Read `boxPost` first**, off `scope.box`, before anything else in the seam (D-52). Create the placeholder **detached** (default mechanics or the `placeholder` slot), size it from the **removed footprint** — `scope.boxPre − boxPost`, not the visual's offset box (D-43) — and return the element. No DOM insertion, no acquisition. The sizing writes land on an element the consumer may own, so they are **on D-39's rollback ledger**. **Insertion is branched on `draft.pointerId`**: a pointer operation seeds the home insertion; a pointerless one _preserves_ what `command.admit` wrote. See §The command destination. |
+| `activation.prepare` | `PENDING` | `ACTIVATING` | **Read `boxPost` first**, off `scope.box`, before anything else in the seam (D-52) — **one extent, `box.offsetHeight`** (F-58), and **skipped entirely when `box === visual`** (F-55). Create the placeholder **detached** (default mechanics or the `placeholder` slot), size it from the **removed footprint** — `width` is `scope.boxPre.width` always, `height` is `box === visual ? scope.boxPre.height : scope.boxPre.height − boxPost` — not the visual's offset box (D-43) — and return the element. No DOM insertion, no acquisition. The sizing writes land on an element the consumer may own, so they are **on D-39's rollback ledger**. **Insertion is branched on `draft.pointerId`**: a pointer operation seeds the home insertion; a pointerless one _preserves_ what `command.admit` wrote. See §The command destination. |
 | `activation.effect` | `ACTIVATING` | — | Register removal on `scope.presentation`, **then** `item.after(placeholder)` — retained by D-43 on measurement, not by default; arm scroll/resize invalidation and the frame-task cancel on `scope.motion`; publish `rt.placeholder`, `rt.lift` and the per-operation `rt.view`; `slots.invalidateInsertion()`; `slots.onStart(item)` last. See §Post-commit ordering. |
 | `activation.rollback` | — | — | Undo everything `prepare` wrote onto the staged placeholder — attributes, styles, sizing, state — and drop it. **Required, not vacuous** (D-39): the element may be consumer-owned and adoption never happened, so nothing else becomes responsible for it. |
 | `moved` | `ACTIVE` | — | `lift.write(dx, dy)`; `spatialSeq += 1`; `frame.schedule(spatialSeq)`. **Kernel-wrapped** — see below. |
@@ -605,7 +605,9 @@ Default `admit` returns `null` when the event's composed path, between the targe
 | activation | `a[href]`, `area[href]`, `summary` |
 | editing | any element whose `isContentEditable` is true |
 | media with controls | `audio[controls]`, `video[controls]` |
-| explicit opt-out | any ancestor carrying the library's decline attribute |
+| explicit opt-out | any ancestor carrying `data-drag-ignore` |
+
+The opt-out attribute's name was left unstated when this section was written and is settled at Phase R: **`data-drag-ignore`**, which pairs with the `data-drag-placeholder` the default placeholder already carries. It is the one row of the table that is not a platform element, and it exists because the list is a default: a consumer needs a way to name a region the list does not describe — a chart, a canvas, a custom element that owns its own gestures.
 
 It is a **list, not a heuristic**, and that is deliberate: a consumer has to be able to document which presses drag and which do not, and the R-5 table above is what an unstateable rule looks like from the outside. `disabled` members are not excluded — a disabled control still owns its press for focus and selection purposes, and treating "disabled" as "draggable" would put the most surprising case on the least examined path.
 
@@ -658,6 +660,17 @@ Order is normative, and §Feasibility is not the whole question is the evidence 
 - **Native controls keep their keys.** A focused `select`, a radio group, a range input and a media element with controls all navigate by arrow. R-4 observed a focused popup `<select>` lose `ArrowDown` to the reorder command.
 - **`event.isComposing === true` never admits.** This is unconditional and is not a special case of the rules above: it is checked first, on every declared command type, whatever the target. Probe E R-7 established that composition is faithfully synthesizable — a real Chromium composition, `compositionstart` and `compositionupdate` observed, `input.value` `"にほ"`, `keydown.isComposing` `true` — and that the drag admitted anyway, reordering the collection while the user was mid-word and not interacting with the list at all. `isComposing` is a property of the keyboard event, so the test is free and needs no target inspection.
 
+**The command table is narrower than the pointer one, and Phase R states it rather than deriving it.** The rules above name their members positively but never enumerate them, and the pointer table is the wrong list to reuse: the question a command asks is whether the target owns _this key_, and the arrow keys are owned by a caret, a listbox, a radio group, a range thumb and a media scrubber — not by a `button`, an `a[href]`, a `summary`, a `label` or a `progress`, none of which navigate by arrow. Declining on those would silently remove keyboard reordering from a focused control inside a row, which is a false decline on exactly the accessibility path D-46 exists to protect. So:
+
+| Category | Members |
+| --- | --- |
+| editing and text | `input`, `textarea`, any element whose `isContentEditable` is true |
+| arrow-navigated controls | `select` — and `input` again, which covers radio and range without naming them |
+| media with controls | `audio[controls]`, `video[controls]` |
+| explicit opt-out | any ancestor carrying `data-drag-ignore` |
+
+The opt-out row appears in both tables because it is a consumer statement about a **region**, not about a key.
+
 `Shift` is read as part of the first question, not as a modifier policy: `Shift+Arrow` inside a text input extends a selection, and the target rule already declines there. D-46 adds no other modifier reading; probe E R-6 recorded that `src/` reads none today, and the owner's direction does not reopen modifiers beyond selection.
 
 #### Plain-text selection is requested, not inferred
@@ -675,6 +688,90 @@ Probe E R-8 measured `handle()` against the same ten cases and it resolves **sev
 **It is not the answer on its own, and the reason is a regression it introduces.** `resolveItem` requires the handle to be in the event's composed path, so once a handle is composed the keyboard command becomes reachable **only when focus is inside the handle** — and nothing in the library makes a handle focusable. Probe E had to set `grip.tabIndex = 0` by hand before `ArrowUp` from the grip admitted at all. So composing `handle()` **silently removes keyboard reordering** unless the consumer independently makes the grip focusable.
 
 That is a stated consumer obligation, not a footnote: **a consumer composing `handle()` must make the grip focusable and labelled, or it has traded a correctness defect for an accessibility one.** The default policy above exists precisely so that the correctness defect has a fix that does not require the trade.
+
+## The kernel tier's public vocabulary (D-68)
+
+**The tier was not authorable from its own entry, and not marginally.** `BehaviorConfig.liftMode` requires a `LIFT_*` **value**; `settlement.prepare` requires the `SETTLED_*` values to discriminate the input D-66 travels on; D-66's own fallback requires `AT_PROPOSAL`/`AT_CONSUMER`. `kernel.js` published none of them, and no path under `kernel/` is a declared package export, so there was no supported specifier that reached them. The entry could **describe** a behavior and not **construct** one (F-59).
+
+### The rule
+
+> **A name is published at the kernel tier if and only if it is in the structural closure of `BehaviorFactory`, or the SPI hands a behavior a value whose domain it could not otherwise name.**
+
+Three justification classes, and each one answers a different question. They are named because the list below is long enough that a reader will otherwise assume it was assembled by reachability alone.
+
+| Class | Test | What it admits |
+| --- | --- | --- |
+| **P — produce** | the SPI demands a value the author must originate, and a closed constant union has no other spelling | `LIFT_*`, `SETTLED_*`, `AT_*` |
+| **A — annotate** | the name types a position the author implements, stores or returns, and no already-public name expresses it | the type closure of `BehaviorFactory` |
+| **I — interpret** | the kernel hands over a value whose legal domain has no public name | the eight phases; `toDraggableError` |
+
+**Minimality is a property of the declarations, not of the export list.** That is D-61's rule at the other rung, and `sortable/feature.js` already states it in the file: publishing a type publishes everything it structurally names, so the only ways to make this surface smaller are to make `BehaviorSpec` smaller or to accept its closure. D-68 accepts it and eliminates nothing, because every candidate for elimination is a name a behavior of the sortable's size writes out of line — `Disposer` at every `scope.use`, `FramePartOf` on `createFramePart`, `BehaviorInstall` on a hoisted `install()`, `KernelFrame` on any helper that reads the kernel slice.
+
+**Published is not must-name.** A behavior whose seams sit inline in one object literal is contextually typed throughout and names **three to eight**: `draggable`, one `LIFT_*`, and the `SETTLED_*` arms it handles. A behavior whose seams live in their own modules names about **thirty**. Neither number is the size of the published list, and that gap is the reason the closure is published at all — so the second style is _possible_, not so anyone types it.
+
+### The vocabulary
+
+**Values — 33.** Erased types cannot carry these, which is the whole of F-59.
+
+| Group | Names | Class |
+| --- | --- | --- |
+| Construction | `draggable` | — (shipped) |
+| Failure stages — 13 | `FAILURE_ADMISSION` … `FAILURE_TERMINAL_CALLBACK` | shipped at D-64 |
+| Lift modes — 3 | `LIFT_FAITHFUL`, `LIFT_FLAT`, `LIFT_IN_PLACE` | **P** — `config.liftMode` is mandatory and has no default |
+| Settlement inputs — 5 | `SETTLED_FULFILLED`, `SETTLED_REJECTED`, `SETTLED_SKIPPED`, `SETTLED_CANCELED`, `SETTLED_FAILED` | **P** — the behavior discriminates its own input, and D-24 requires the switch to be exhaustive |
+| Cancel stages — 2 | `AT_PROPOSAL`, `AT_CONSUMER` | **P** — read from a `canceled` input, and **written** into D-66's fallback |
+| Phases — 8 | `IDLE`, `PENDING`, `ACTIVATING`, `ACTIVE`, `RELEASING`, `SETTLING`, `REPORTING`, `FINALIZING` | **I** — see §The phase is handed over, below |
+| Classification | `toDraggableError` | **I** — see §The mapping is library-owned, below |
+
+**Types — 33.** All erased. Thirteen are shipped (`ActivationScope`, `AdmissionSubject`, `BehaviorConfig`, `BehaviorFactory`, `BehaviorSpec`, `CommandAdmission`, `FailureStage`, `KernelHost`, `PreparedSettlement`, `ResolutionCommand`, `SeamRejection`, `SettlementInput`, `SettlementScope`); twenty are added.
+
+| Group | Names | Reached through |
+| --- | --- | --- |
+| Frame | `Draft`, `Frame`, `KernelFrame`, `OperationIdentity`, `FramePartOf` | every seam signature; `createFramePart` |
+| Seam envelopes | `Transition`, `ReleaseTransition`, `SettlementTransition`, `ActionTransition` | `BehaviorSpec`'s four transactional members |
+| Construction | `BehaviorInstall` | `BehaviorFactory`'s return |
+| Activation capability | `LifetimeScope`, `Disposer`, `VisualLiftSession`, `OffsetBox` | `ActivationScope`; `moved` |
+| Config | `LiftMode`, `Phase` | `BehaviorConfig.liftMode`; `KernelFrame.phase` |
+| Settlement | `CancelStage`, `LandingStart`, `LandingContext`, `LandingHandle` | `SettlementInput`'s canceled arm; `SettlementScope.holdForLanding` |
+
+**Four of these are re-homed, not added.** `Disposer`, `LandingStart`, `LandingContext` and `LandingHandle` are published at `sortable/feature.js` today, and `CancelStage`/`AT_*` at `sortable.js`. Every one is declared in `src/kernel/`, so the tier that owns them is the kernel; each keeps its existing publication as a **re-export**, so no ordinary or middle-tier consumer loses a specifier. The direction matters and is the point of the correction: `SettlementScope.holdForLanding` is kernel SPI, so a kernel-tier author reaching `sortable/feature.js` for `LandingStart` is importing the sortable behavior in order to author a **non**-sortable behavior — the inversion D-48 and D-64 both exist to prevent, arrived at a third time and by a third route.
+
+### What stays internal, and what an author does instead
+
+The other half of the decision, and the half that keeps it from being a mechanical dump of `src/kernel/`. **The discriminating rule: the kernel never hands one of these to a behavior and never accepts one from it.**
+
+| Not published | Substitute |
+| --- | --- |
+| `SeamOutcome`, `SEAM_*`, `SeamContext`, `SeamDriver`, `ArmOutcome` | none needed — the driver's own vocabulary. A behavior returns `Prepared \| null` or a `SeamRejection` and never sees an outcome. **03 §Internal to the ordinary tier lists `SeamOutcome` and `ArmOutcome` as kernel-tier published; that is wrong and D-68 corrects it** — neither is in the closure |
+| `Lifetime` (the full type), `createLifetime` | `LifetimeScope`, which is D-21's projection and exists precisely so `dispose` is unreachable |
+| `composeFrame`, `beginFrame`, `scrubFrame`, `validateFramePart`, `KERNEL_FRAME_KEYS` | none — the kernel composes the frame (D-15). A behavior authors its part and nothing else |
+| `acquireLift`, `captureInlineStyles`, `acquireTopLayer` | the kernel acquires the lift; the behavior receives `VisualLiftSession` |
+| `report`, `guarded` | `host.fail(stage, error)` inside a seam. Outside one it downgrades to a platform report, which is the same destination |
+| `createInvalidator`, `createFrameTask`, `FrameTask`, `Invalidator` | `realm.window` — scheduling is the behavior's own, and `FAILURE_SCHEDULED_FRAME` exists so it can classify its own coalescing |
+| `POINTER_DOWN`, `KEY_DOWN` and the rest of `protocol.ts` | string literals. `CommandAdmission.types` is `readonly string[]` |
+| `POINTER_OWNERS`, `COMMAND_OWNERS`, `pathOwnsInteraction` | **none, and this is a stated cost** — see below |
+
+**The input-policy helpers are the one honest gap.** D-46's policy is behavior-owned by construction — the kernel binds ingress and the behavior answers — and a canvas or a free-drag behavior may legitimately want a different one. But a third-party behavior that wants _the library's_ policy must reimplement the interactive/editable descendant walk, and D-46 §`handle()` is a mitigation is explicit that getting this wrong is an accessibility defect rather than a cosmetic one. **Publishing them is not decided here**: they are a policy helper rather than SPI vocabulary, nothing in the closure names them, and shipping a runtime helper at the kernel tier is an addition with a bundle consequence that this decision otherwise does not have. Recorded as a candidate for a later `kernel/policy.js`, owner's call, and flagged in the handoff rather than absorbed.
+
+### The phase is handed over, so its domain is published
+
+`Draft` and `Frame` carry `phase`, and a behavior reads it: the reference behavior tests it in three places, all of them in seams the kernel calls at times the behavior cannot predict — `command.admit` on any bound event, and `action.prepare` on a collection replacement that may arrive in any phase. `KernelHost.closed` answers liveness (D-53) and does not answer _where in the operation this is_.
+
+So the constants ship, all eight. A partial export would reintroduce the defect 03 §The export topology names in as many words — **a numeric union whose members are unnameable is not a public type** — and ordering tests like `phase >= RELEASING` are only meaningful over the whole vocabulary.
+
+**And `KernelFrame.phase` narrows from `number` to `Phase`.** Same argument that made `FailureStage` a closed union rather than a bare `number`: a participant should not be able to forge an invalid or kernel-private value, and the behavior only ever reads this one. The kernel's internal `stamp` becomes `Phase | typeof NO_STAMP`, which narrows correctly at the one write site through the sentinel test already there. **Cost:** the eight-phase vocabulary acquires a versioning promise. D-14 has carried it verbatim since probe 1 and through two revisions, which is as much evidence of stability as anything in this contract has.
+
+### The mapping is library-owned, so the library publishes it
+
+D-64 requires the stage → code mapping to be **total and library-owned**. Publishing thirteen stages and a four-member `DraggableErrorCode` without the mapping between them makes the second half false: each behavior would re-own the mapping, and `code` — the thing an ordinary consumer switches on — would mean something different depending on which behavior raised it, with nothing in the type system to notice.
+
+`toDraggableError(stage, error)` is therefore published at the kernel tier. It is the one entry on this list justified by an **obligation** rather than by expressibility — a behavior _could_ call `new DraggableError(code, cause)` and pick codes itself — and it is called out as such so the owner can reject it independently of the rest. It also **reduces** what an author must name: with it, a behavior classifies without ever naming `DraggableErrorCode` or reciting the stage list.
+
+### Self-contained, defined
+
+**`kernel.js` and `drag.js`, with no deep path and no import from another tier.** `drag.js` is not a tier — §The public/internal boundary in [03](03-feature-composition.md) has it spanning all three — so an author reaching it reaches sideways. Reaching `sortable.js` or `sortable/feature.js` is the inversion above.
+
+This says nothing about whether `drag.js` survives as a root; see 00 §D-68 §What self-contained means, and what it does not settle.
 
 ## Post-commit ordering
 
@@ -787,14 +884,26 @@ type ActivationScope = Readonly<{
   box: HTMLElement;
   /**
    * `box`'s offset box, read by the kernel beside `originRect` and before
-   * `acquireLift`. Under the default `box === visual` this is the same read as
-   * `originRect` and costs nothing extra. (D-43, D-52)
+   * `acquireLift`. (D-43, D-52)
+   *
+   * **An offset box, not a `DOMRectReadOnly`** — corrected during
+   * implementation (F-55), because D-43's own rationale demands it: a running
+   * translate corrupts a bounding rect's top by the full travel and leaves its
+   * height alone, so the two windows are only comparable as
+   * `offsetWidth`/`offsetHeight`. It is therefore **not** the same read as
+   * `originRect`, which is and stays the visual's bounding rect at grab; the
+   * earlier claim that the two coincide under `box === visual` conflated a
+   * bounding rect with an offset box.
+   *
+   * No position, deliberately: the windows are only ever subtracted.
    *
    * The **second** window is not here: `boxPost` is the behavior's own read of
-   * `box`, at the top of `activation.prepare`. See §The footprint needs two
-   * windows.
+   * `box.offsetHeight` — **one extent** (F-58) — at the top of
+   * `activation.prepare`, **skipped when `box === visual`**. The width is never
+   * subtracted, so this pair is still an `OffsetBox`: the `width` is consumed
+   * whole. See §The footprint needs two windows.
    */
-  boxPre: DOMRectReadOnly;
+  boxPre: OffsetBox;
   /** The lift capability. The behavior keeps it for `moved`. */
   lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */
@@ -824,7 +933,9 @@ One object per operation. `prepare` reads `visual`, `originRect`, `box` and `box
 
 `originRect` was the only rect on this scope until Revision 2, and the placeholder was sized from the visual's offset box. **api-1 measured that wrong in both directions.** With a sibling remaining in the box, `boxPre` was 62, `boxPost` 32, and the list collapsed by exactly 30 — while `box` (62) and `visual` (60) were each wrong, in different directions in different cases. Probe C1 then reproduced it live against the shipped `visual()` sizing and found the list running **30 px too tall for an entire drag**. There is no single-window rule that reproduces the removed footprint in both nested cases; that is the measured result, not a preference.
 
-So the footprint is `boxPre − boxPost`, and it needs a second window because what leaves flow is the **visual**, while what the layout loses is the **box** — the two are the same element only under the default `box(item) = visual(item)`.
+So the footprint's **height** is `boxPre.height − boxPost` **when the two are different elements**, and it needs a second window because what leaves flow is the **visual**, while what the layout loses is the **box**. Its **width is `boxPre.width` on every composition** (F-58): the subtraction measures a _collapse_, which is a scalar on the list's flow axis, and the box surrenders no cross extent — a block-level box in a vertical list takes its width from its containing block on both sides of the lift. Subtracting there is arithmetically correct and the wrong quantity, and it shipped `width: 0px` on every composed `box`. `box !== visual` is declared supported with `y()` alone (03 §Scope limits), which is what makes `height` the right spelling for the flow axis.
+
+**Under the default `box(item) = visual(item)` the footprint is `boxPre` alone, and the second window is skipped.** F-55 corrects the earlier claim that the subtraction "would have agreed" there: it would not, it would yield `0`. The subtraction measures a _collapse_, and the box only collapses because it stays in flow while its descendant leaves. When the box **is** the lifted element there is no collapse to measure — `LIFT_FAITHFUL` promotes it with `position: fixed` and an explicit width and height, so its offset box is identical on both sides of `acquireLift`. api-1 measured only nested pairs, which is why this did not surface until implementation.
 
 **The two windows have different owners, and D-52 assigns them rather than leaving the seam to guess:**
 
@@ -837,8 +948,13 @@ admit                    behavior RETURNS { visual, box }      ← D-59; the
                                                                  back
 kernel, pre-lift         holds `box`; reads originRect and boxPre
 acquireLift
-activation.prepare       behavior reads boxPost off scope.box, first thing
-                         sizes the placeholder from boxPre − boxPost
+activation.prepare       behavior reads box.offsetHeight off scope.box, first
+                         thing (skipped when box === visual)
+                         sizes the placeholder from
+                           width  = boxPre.width
+                           height = box === visual
+                                      ? boxPre.height
+                                      : boxPre.height − boxPost
 ```
 
 D-39 and D-43 legislate the same code and neither said which seam owns which write, so they could not both be implemented as written. The ordering makes the assignment free rather than arbitrary — `acquireLift` already precedes the activation seam, so `boxPost` is available exactly where `prepare` measures today.
@@ -849,7 +965,7 @@ Three things then fix the shape of the windows:
 
 - **Both must be offset-box reads.** A running translate corrupts a border-box read by the drag delta — api-1 measured the top off by 60 px with the height correct — so a `getBoundingClientRect()` pair would produce a footprint whose position is a function of where the pointer happened to be.
 - **The sizing writes stay in `prepare`, on D-39's ledger.** Keeping them there is what puts them under `activation.rollback`: they may land on a consumer-owned placeholder, and a discarded preparation must not leave library sizing on it. Moving them to `effect` to "simplify" would silently take them off the ledger.
-- **The cost is one extra forced layout per activation, and it is stated rather than absorbed.** `boxPost` is read immediately after the lift's style writes, so it cannot batch with anything. It is once per drag, not per frame, and it does not touch M-1's move budget — but it is a real read and this document does not claim otherwise. Under the default `box === visual` the three rects collapse to one read of one element at one instant plus the post-lift read, so the pair adds exactly one layout, not two.
+- **The cost is one extra forced layout per activation, and it is stated rather than absorbed.** `boxPost` is read immediately after the lift's style writes, so it cannot batch with anything. F-58 narrows the read to `offsetHeight` alone — the same forced layout, one fewer value taken, none discarded — which is a reduction and not a saving worth claiming. It is once per drag, not per frame, and it does not touch M-1's move budget — but it is a real read and this document does not claim otherwise. Under the default `box === visual` the post-lift read is skipped entirely (F-55), so the common composition adds **no** extra layout — the cost is paid only by a composition that names a distinct `box`.
 
 `originRect` is **not** derived from either window. It stays the visual's grab rect: it is the basis of the origin-relative landing space frozen at phase 9 (§One coordinate space), which is about **where the visual was**, not about what the layout lost. Deriving it from a `box()` the consumer picked for layout reasons would make the frozen coordinate space a function of that choice.
 

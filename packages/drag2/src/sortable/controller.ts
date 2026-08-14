@@ -1,136 +1,96 @@
 /**
- * The consumer-facing controller. Four members, two of which are the kernel's
- * own — the behavior adds the two things the kernel cannot know about: what a
- * collection is, and what a request is.
+ * The consumer-facing controller. **Three** members, two of which are the
+ * kernel's own — the behavior adds the one thing the kernel cannot know about:
+ * what a collection is.
+ *
+ * It read _four_ until Revision 2 closure. The fourth was `ready(request)`,
+ * deleted with the readiness protocol (D-41), and the count outlived it.
  */
-import { DEV } from '../kernel/dev.ts';
-import { report } from '../kernel/reporter.ts';
 import type { KernelHost } from '../kernel/spec.ts';
-import { copyUniqueItems } from './collection.ts';
-import type { CollectionSnapshot, ReorderRequest } from './domain.ts';
-import { type SortableRuntime, TAG_COLLECTION } from './runtime.ts';
+import { TAG_COLLECTION } from './runtime.ts';
 
 export type SortableController = Readonly<{
   /**
-   * Replace the collection. Applied as a queued action, so it lands in FIFO
-   * order with everything else the drag is doing — and it is **never
-   * discarded**: even a replacement that invalidates the current gap publishes
-   * first and cancels afterwards (D-25).
-   */
-  updateItems(items: readonly HTMLElement[]): void;
-  /**
-   * The authored presentation for `request` is committed (D-33).
+   * **The committed presentation or data may have changed** (D-44). Carries no
+   * payload: the collection is a *pull* source, so the library asks `items()`
+   * for it rather than being handed one.
    *
-   * Call it from wherever the consumer's own commit lands — a `useLayoutEffect`
-   * in React, the line after a synchronous DOM write anywhere else — passing
-   * the **same request object** `onReorder` was handed. That identity is the
-   * whole of the protocol: a request that is not the live operation's is
-   * ignored and reported, which is what stops a timed-out operation's late
-   * layout effect from releasing a newer operation's gate (I-35).
+   * ~~`updateItems(payload)`~~ is removed. The package carried two collection
+   * channels — a thunk called once at construction and a push method for every
+   * later change — and re-read neither; one source plus one signal collapses
+   * them.
    *
-   * It answers `ReorderResolution.accept({ presentation: true })`. Acknowledging
-   * an operation that declared nothing is a contradiction the library reports;
-   * declaring and then never acknowledging hits `readinessTimeout`.
+   * What this costs depends on what actually changed, and the split is the
+   * point: when `items()` returns the **same array identity** the library
+   * invalidates geometry and stops, which is what a resize, a zoom or a scroll
+   * produces; a **new identity** takes the structural branch — shallow copy,
+   * reconcile, geometry invalidation. In-place mutation of the same array is
+   * outside the contract.
+   *
+   * Applied as a queued action, so it lands in FIFO order with everything else
+   * the drag is doing — and it is **never discarded**: even a replacement that
+   * invalidates the current gap publishes first and cancels afterwards (D-25).
    */
-  ready(request: ReorderRequest): void;
+  invalidate(): void;
   cancel(reason?: unknown): void;
-  destroy(): void;
+  /**
+   * Closes the controller **logically**, immediately, on this statement — every
+   * guard fails from here, nothing is admitted, and no declared consumer slot
+   * is invoked again. The returned promise settles **once**, after physical
+   * teardown: this call when no library transaction is active, the boundary of
+   * the outermost one when there is (D-36).
+   *
+   * Most callers do not want the completion signal and should write
+   * `void controller.destroy();`.
+   */
+  destroy(): Promise<void>;
 }>;
 
-export function createSortableController(
-  host: KernelHost,
-  rt: SortableRuntime,
-): SortableController {
-  // Minted here and monotonic per controller, **not** derived from
-  // `rt.snapshot.version`. Two updates queued inside one drain — two calls from
-  // `onStart`, or from any hook — both read the same *published* version and
-  // would stamp two distinct collections identically, which destroys version's
-  // only job: being the identity of a snapshot. The counter is seeded from the
-  // initial snapshot so the sequence stays continuous with it.
-  let { version } = rt.snapshot;
-  // **The terminal latch, and it is the behavior's own** (D3, then C2-01).
-  // The kernel has one, but it is not readable through `KernelHost` and it
-  // guards the *dispatch* — which is one step too late for `updateItems`, whose
-  // validation throws before anything reaches the kernel. "No-op after
-  // `destroy()`" has to mean the whole method, invalid input included, or the
-  // promise is only true for calls that would have been silent anyway.
+/**
+ * **The runtime argument is gone** (D-44). It existed only to seed the version
+ * counter, which moved to the spec with the payload — the controller now holds
+ * no collection state at all, which is the shape a pull source implies.
+ */
+export function createSortableController(host: KernelHost): SortableController {
+  // **The terminal latch is the kernel's, and it is readable** (D-53). It was
+  // the behavior's own between D3 and Revision 2, because `KernelHost` exposed
+  // none.
   //
-  // It lives on `rt` rather than in this closure because D3's one reader became
-  // five: the behavior's own resolver sequences read it too (I-36). One latch,
-  // several readers — a second copy is state that can disagree.
+  // **The guard is now belt-and-braces rather than load-bearing** (D-44). It
+  // existed because `updateItems` validated its payload *before* anything
+  // reached the kernel, so the kernel's own dispatch latch was one step too
+  // late to make "no-op after `destroy()`" true for invalid input. There is no
+  // payload and no pre-dispatch work left; the kernel's latch would answer this
+  // on its own. It is kept because the reading is free and the alternative is
+  // a member whose inertness depends on a guard in another module.
   //
   // `cancel` and `destroy` *are* the kernel's own members, spread through
   // unchanged, and the kernel's latch already makes both inert and idempotent
-  // before they do any work. `ready()` deliberately keeps reporting: a
-  // post-`destroy()` acknowledgement is a stale one by definition, and telling
-  // an integrator that its layout effect outlived the controller is the whole
-  // reason that DEV report exists.
+  // before they do any work. ~~`ready()` deliberately keeps reporting~~ — the
+  // asymmetry this paragraph contrasted against lost its subject with D-41, and
+  // what survives is the split above: `invalidate` carries the controller's own
+  // reading, `cancel` and `destroy` carry the kernel's.
 
   return {
-    updateItems(items): void {
-      if (rt.closed) {
+    invalidate(): void {
+      if (host.closed) {
         return;
       }
 
-      // Copied and validated **here**, at call time, so a caller that keeps
-      // mutating its own array cannot change a snapshot already queued, and a
-      // duplicate is refused at the call that introduced it.
-      //
-      // **Before** the counter advances, deliberately. A refused call produced
-      // no snapshot, so it must not consume a version either: leaving a gap in
-      // the sequence would make the counter stop being a dense identity for
-      // the collections that actually exist, and a consumer that recovers from
-      // the `TypeError` and retries would see its successful update numbered
-      // as though an invisible one had happened in between.
-      const next = copyUniqueItems(items);
-
-      version += 1;
-      host.dispatch(TAG_COLLECTION, {
-        items: next,
-        version,
-      } satisfies CollectionSnapshot);
+      // **Payload-free, and it reads nothing here** (D-44). `items()` is
+      // consumer code and this member is reachable from inside a seam — a
+      // handle resolver may call it during admission — so calling it on this
+      // statement would run consumer code at an arbitrary reentrant point.
+      // `action.prepare` calls it instead, where the kernel has a transaction
+      // open, a phase to branch on and a stage to classify a throw against.
+      host.dispatch(TAG_COLLECTION, null);
     },
-    /**
-     * The identity check, and it is the **behavior's** — the kernel threads the
-     * resolution as `unknown` and never learns what a request is (D-33).
-     *
-     * What it cannot catch is a *duplicate* of a still-live request: that
-     * matches by definition, because `pendingRequest` is cleared at retirement
-     * rather than at the first acknowledgement. Making a second one inert is
-     * the kernel's, in whichever of its three windows it lands.
-     */
-    ready(request): void {
-      if (request !== rt.pendingRequest) {
-        // Stale, forged, or an acknowledgement that outlived its operation.
-        // Reported, never applied — this is what stops operation A's late
-        // layout effect from releasing operation B's gate (I-35).
-        //
-        // It takes the platform channel and does **not** reach `host.fail`: a
-        // consumer-protocol error must never classify the operation the
-        // consumer got right.
-        if (DEV) {
-          report(
-            new Error(
-              'drag: ready() received a request this operation never issued; ignored',
-            ),
-          );
-        }
-
-        return;
-      }
-
-      // The matching-but-undeclared contradiction is deliberately *not* checked
-      // here. The behavior does not know what its own resolution declared —
-      // `presentation` travels through `Prepared` to the kernel and never comes
-      // back — so the kernel owns that report, at seal or on arrival.
-      host.presentationCommitted();
-    },
-
     cancel: host.cancel,
 
-    destroy(): void {
-      rt.closed = true;
-      host.destroy();
-    },
+    // D-36: logical closure is immediate and the promise settles after physical
+    // teardown. D-53 deletes the behavior's private latch mirror, so this is
+    // now the kernel's member spread through unchanged — as `cancel` already
+    // was — rather than a wrapper that had to set a second copy first.
+    destroy: host.destroy,
   };
 }

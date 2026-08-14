@@ -21,12 +21,9 @@
  * 2.3ms per committed move at 800 rows, and the items outside the span do not
  * move at all, so a full-list pass animates zero deltas for them.
  */
-import {
-  brandFeature,
-  requireFinite,
-  type SortableFeature,
-} from './feature.ts';
-import type { DisplacementView } from './slots.ts';
+import type { SortableConfig } from './config.ts';
+import type { SortableInstaller } from './feature.ts';
+import { requireFinite, type DisplacementView } from './slots.ts';
 
 export type LayoutAnimationOptions = Readonly<{
   duration?: number;
@@ -38,7 +35,7 @@ const DEFAULT_EASING = 'ease-out';
 
 export function layoutAnimation(
   options: LayoutAnimationOptions = {},
-): SortableFeature {
+): Pick<SortableConfig, 'plugins'> {
   const duration = requireFinite(
     options.duration ?? DEFAULT_DURATION,
     'layoutAnimation({ duration })',
@@ -46,7 +43,7 @@ export function layoutAnimation(
   );
   const easing = options.easing ?? DEFAULT_EASING;
 
-  return brandFeature(() => {
+  const install: SortableInstaller = () => {
     // Private runtime: the animation this feature is currently running per
     // element, the set of elements it may touch, and the bracketed move's
     // measurements. Nobody else can name it, and `retire` is the only way
@@ -323,5 +320,7 @@ export function layoutAnimation(
         discard();
       },
     };
-  });
+  };
+
+  return { plugins: [install] };
 }

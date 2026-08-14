@@ -45,16 +45,15 @@ import type {
   LiftMode,
   VisualLiftSession,
 } from '../../src/kernel/presentation.ts';
-import {
-  type ActivationScope,
-  type BehaviorSpec,
-  type KernelHost,
-  type LandingStart,
-  type PreparedSettlement,
-  type ResolutionCommand,
-  type SeamRejection,
-  SETTLED_FULFILLED,
-  type SettlementScope,
+import type {
+  ActivationScope,
+  BehaviorSpec,
+  KernelHost,
+  LandingStart,
+  PreparedSettlement,
+  ResolutionCommand,
+  SeamRejection,
+  SettlementScope,
 } from '../../src/kernel/spec.ts';
 import type { Point } from '../../src/kernel/types.ts';
 
@@ -266,7 +265,6 @@ export const freeDragSpec: BehaviorSpec<FreeDragPart> = {
   config: {
     threshold: 8,
     liftMode: rt.liftMode,
-    readinessTimeout: 500,
     actionTags: FREE_ACTION_TAGS,
   },
 
@@ -332,19 +330,13 @@ export const freeDragSpec: BehaviorSpec<FreeDragPart> = {
     prepare(draft, input): PreparedSettlement | SeamRejection {
       draft.outcome = input.type;
 
-      // The five cases collapse to two here: only a fulfilled round-trip can
-      // carry an authored presentation.
-      return {
-        presentation:
-          input.type === SETTLED_FULFILLED && declaresPresentation(input.value),
-      };
+      // **Stale as of D-41**: the authored-presentation declaration this used
+      // to compute is deleted with the protocol, so `Prepared` is the bare
+      // sentinel.
+      return true;
     },
 
-    effect(_current, prepared, scope: SettlementScope): void {
-      if (prepared.presentation) {
-        scope.holdForReadiness();
-      }
-
+    effect(_current, _prepared, scope: SettlementScope): void {
       scope.holdForLanding(startFreeLanding);
     },
   },
@@ -412,8 +404,10 @@ export const freeDragSpec: BehaviorSpec<FreeDragPart> = {
   },
 
   /** P-5: the shipped synchronous home target, unchanged. */
-  anchorTarget(current, authoredReady): Point {
-    if (authoredReady || rt.resolveHome === null) {
+  anchorTarget(current): Point {
+    // D-41: measured once, authoritatively — there is no provisional pass, so
+    // the `authoredReady` arm this used to branch on is gone.
+    if (rt.resolveHome === null) {
       const origin = rt.originRect!;
 
       return {

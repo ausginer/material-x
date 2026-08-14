@@ -12,17 +12,11 @@
  * grab rect agree at the origin and nowhere else.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  draggable,
-  FAILURE_PRESENTATION_READY,
-  type Point,
-} from '../../src/drag.ts';
-import { callbacks } from '../../src/sortable/callbacks.ts';
-import {
-  landing,
-  type LandingContext,
-  type LandingHandle,
-} from '../../src/sortable/landing.ts';
+import type { Point } from '../../src/drag.ts';
+import type {
+  LandingContext,
+  LandingHandle,
+} from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
@@ -48,7 +42,7 @@ type Fixture = Readonly<{
   origin: DOMRect;
   contexts: LandingContext[];
   retargets: Point[];
-  errors: Array<Readonly<{ stage: number }>>;
+  errors: Array<Readonly<{ code: string }>>;
   controller: SortableController;
   /** The request the last `onReorder` was handed, for `controller.ready`. */
   request(): ReorderRequest;
@@ -75,7 +69,7 @@ afterEach(() => {
   }
 });
 
-function build(presentation = false, readinessTimeout?: number): Fixture {
+function build(): Fixture {
   const root = document.createElement('div');
 
   Object.assign(root.style, {
@@ -103,44 +97,42 @@ function build(presentation = false, readinessTimeout?: number): Fixture {
   const contexts: LandingContext[] = [];
   let pending: ReorderRequest | null = null;
   const retargets: Point[] = [];
-  const errors: Array<Readonly<{ stage: number }>> = [];
+  const errors: Array<Readonly<{ code: string }>> = [];
 
-  const controller = draggable(
+  const controller = sortable(
     root,
-    sortable(
-      items,
-      y(),
-      callbacks({
-        onReorder: (request) => {
-          pending = request;
-          return ReorderResolution.accept({ presentation });
-        },
-        ...(readinessTimeout === undefined ? {} : { readinessTimeout }),
-        onError: (_error, context): void => {
-          errors.push({ stage: context.stage });
-        },
-      }),
-      landing({
-        // A runner that records and never completes, so the gate stays open and
-        // the numbers can be read while presentation is still owned.
-        run(context): LandingHandle {
+    { items: () => items },
+    y(),
+    {
+      onReorder: (request) => {
+        pending = request;
+        return ReorderResolution.accept();
+      },
+      onError: (error): void => {
+        errors.push({ code: error.code });
+      },
+    },
+    {
+      // A runner that records and never completes, so the gate stays open and
+      // the numbers can be read while presentation is still owned. **Authored
+      // at the middle tier** (D-63): the consumer surface no longer takes one,
+      // and this suite is about the landing *space*, which is unchanged.
+      landing: () => ({
+        startLanding(context): LandingHandle {
           contexts.push(context);
           return {
             destroy: (): void => {},
-            retarget(target): void {
-              retargets.push(target);
-            },
           };
         },
       }),
-    ),
+    },
   );
 
   root.setPointerCapture = (): void => {};
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    controller.destroy();
+    void controller.destroy();
     root.remove();
   });
 
@@ -264,69 +256,5 @@ describe('the landing coordinate space', () => {
     expect(context.target.y).not.toBe(anchor.top);
     expect(fixture.origin.top).toBe(ROOT_TOP);
     expect(fixture.origin.left).toBe(ROOT_LEFT);
-  });
-
-  it('should give retarget the same space as target', async () => {
-    // The readiness gate is what makes the kernel re-measure and retarget, and
-    // it is the one place the value is produced by a different call path.
-    const fixture = build(true);
-
-    press(fixture);
-    pointerEvent('pointermove', ROOT_LEFT + GRAB_X, ROOT_TOP + GRAB_Y + 30);
-    await nextFrame();
-    pointerEvent('pointerup', ROOT_LEFT + GRAB_X, ROOT_TOP + GRAB_Y + 45);
-
-    expect(fixture.retargets).toEqual([]);
-
-    fixture.controller.ready(fixture.request());
-    await Promise.resolve();
-    await Promise.resolve();
-
-    const anchor = fixture.placeholder().getBoundingClientRect();
-
-    expect(fixture.retargets).toHaveLength(1);
-    expect(fixture.retargets[0]).toEqual({
-      x: anchor.left - fixture.origin.left,
-      y: anchor.top - fixture.origin.top,
-    });
-    expect(reported).toEqual([]);
-  });
-});
-
-describe('the readiness timeout', () => {
-  const sleep = (ms: number): Promise<void> =>
-    new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
-
-  const drop = async (fixture: Fixture): Promise<void> => {
-    press(fixture);
-    pointerEvent('pointermove', ROOT_LEFT + GRAB_X, ROOT_TOP + GRAB_Y + 30);
-    await nextFrame();
-    pointerEvent('pointerup', ROOT_LEFT + GRAB_X, ROOT_TOP + GRAB_Y + 45);
-  };
-
-  it('should apply the configured bound rather than the default', async () => {
-    // The option has to reach `config.readinessTimeout`, and the only way to
-    // see that it did is to out-wait a bound the default would not have hit.
-    const fixture = build(true, 20);
-
-    await drop(fixture);
-    await sleep(120);
-
-    expect(fixture.errors.map((each) => each.stage)).toEqual([
-      FAILURE_PRESENTATION_READY,
-    ]);
-  });
-
-  it('should still be holding the gate at the same moment under the default', async () => {
-    // The control: the identical script with the default 500ms bound has not
-    // failed yet, which is what makes the assertion above about the *option*.
-    const fixture = build(true);
-
-    await drop(fixture);
-    await sleep(120);
-
-    expect(fixture.errors).toEqual([]);
   });
 });

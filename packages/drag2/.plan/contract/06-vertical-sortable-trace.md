@@ -213,10 +213,18 @@ pointermove (+11 px)
                       ← the kernel HANDS these down, which is the whole of how
                         the behavior sees them. It does not read them back out
                         of the draft, and the behavior never wrote them. [D-59]
-              boxPost = the BOX's offset box   ← WINDOW 2 of 2, and the FIRST
+              boxPost = the BOX's offsetHeight ← WINDOW 2 of 2, and the FIRST
                         thing this seam does. Read after acquireLift, from the
-                        same element and in the same units as boxPre. [D-43]
-              footprint = boxPre − boxPost   ← what the visual actually
+                        same element and in the same units as boxPre.
+                        ONE EXTENT: the cross axis never subtracts, because the
+                        box surrenders nothing there. [F-58]
+                        SKIPPED when box === visual: the lifted element's own
+                        offset box does not change across the lift. [D-43, F-55]
+              footprint.width  = boxPre.width          ← always; nothing
+                                                         collapsed on this axis
+              footprint.height = box === visual ? boxPre.height
+                                                : boxPre.height − boxPost
+                                             ← what the visual actually
                                                removed from the layout
               placeholder = slots.createPlaceholder({ item, visual, box, rect })   ← from config.placeholder (D-65)
               size it from the FOOTPRINT, not from the visual's offset box
@@ -270,7 +278,7 @@ pointermove (+11 px)
                    [K] begin(); draft.phase = ACTIVE; commit()
 ```
 
-**Two windows, because one is wrong in a case that looks like the common one.** Here `box === visual`, so `boxPre − boxPost` is just the visual's own height and a single pre-lift capture would have agreed. It stops agreeing the moment the box keeps a sibling in flow: api-1 measured `boxPre 62 − boxPost 32 = 30`, and the list collapsed by exactly 30 — while the box's own height (62) over-sizes by double-counting the residue and the visual's height (60) over-sizes by 30. Probe C1 then reproduced it inside a live drag with `layoutAnimation()` running: sizing from `visual.offsetHeight` runs the list `180 → 210`, **30 px too tall for the entire drag**, not just at landing. No single-window rule is correct in both nested cases, which is why the rule takes two. The timing costs nothing structurally — `acquireLift` and this seam are forty lines apart — and buys one additional forced layout per activation. **[D-43, F-50]**
+**Two windows, because one is wrong in a case that looks like the common one — and the common case takes the first window alone.** ~~Here `box === visual`, so `boxPre − boxPost` is just the visual's own height and a single pre-lift capture would have agreed.~~ **Corrected during implementation (F-55): that subtraction is `0`, not the visual's height.** `boxPre − boxPost` measures the footprint only when the box _stays in flow_ while the visual leaves it, which is what api-1 measured with a nested pair. Under `box === visual` there is no such pair: the one element **is** the thing being lifted, and `LIFT_FAITHFUL` promotes it with `position: fixed` and an explicit width and height, so its offset box is **unchanged** across `acquireLift` and the difference is zero. The rule is therefore stated on the identity: **`box === visual` ⇒ the footprint is `boxPre`; otherwise its height is `boxPre.height − boxPost` and its width is `boxPre.width`** — one-dimensional, because F-58 found the second axis subtracting a collapse that never happened. The identity branch is not an optimisation — it is the second half of the rule, and the pre-lift capture is the whole answer there, which is what the library did before two windows existed. The subtraction earns its place the moment the box keeps a sibling in flow: api-1 measured `boxPre 62 − boxPost 32 = 30`, and the list collapsed by exactly 30 — while the box's own height (62) over-sizes by double-counting the residue and the visual's height (60) over-sizes by 30. Probe C1 then reproduced it inside a live drag with `layoutAnimation()` running: sizing from `visual.offsetHeight` runs the list `180 → 210`, **30 px too tall for the entire drag**, not just at landing. No single-window rule is correct in both nested cases, which is why the rule takes two. The timing costs nothing structurally — `acquireLift` and this seam are forty lines apart — and buys one additional forced layout per activation. **[D-43, F-50]**
 
 `activation.prepare` performs no mutation the _layout_ can see: it never inserts, it measures, and capture is the kernel's. Insertion, disposer registration and the private-runtime writes are all post-commit. But it does mutate — `createPlaceholder` is a **consumer** slot, the element it returns is **consumer-owned**, and `applyMechanics` writes library-authored attributes, styles and state onto it before `prepare` returns. **[I-17 — not vacuous for this behavior, corrected by D-39]**
 
@@ -525,10 +533,18 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                               item2.before(placeholder);          ← the repair
                             }                                          [F-15]
                       ── the AUTHORITATIVE landing measurement ──
-                      [K] precondition, TWO READS, O(1):         [D-42, D-49]
+                      [B] precondition, TWO READS, O(1):         [D-42, D-49]
                             placeholder.isConnected
                               && placeholder.parentElement
                                  === item2.parentElement
+                            ← **[B], not [K]** — corrected in implementation
+                              (F-56). The kernel cannot perform these reads: a
+                              placeholder is behavior state and `item2` is a
+                              frame field the kernel may not name (H-2, D-15).
+                              The check therefore opens `anchorTarget`, and the
+                              kernel treats a failed check and a throw
+                              identically, which is what D-49 already required
+                              of them.
                             ✗ → report through onError, SKIP the landing
                                 animation entirely, and join immediately.
                                 The settlement does NOT fail; the drop
@@ -706,7 +722,7 @@ What the same trace does under each difficult case, without adding a branch anyw
 | `controller.invalidate()` at `SETTLING` | `prepare` stages the snapshot with `bindsFrame: false`; `effect` publishes it. The operation's frame snapshot is **not** rewritten — it freezes the _semantic transaction_, not the geometry, and after release the proposal is frozen and structural invalidation does not reinterpret it. **[D-44]** |
 | `controller.invalidate()` at `IDLE` | Published in `effect`; `draft.snapshot` is left alone, so an idle frame retains no item elements. **[I-20]** |
 | The consumer mutates the **same** array in place and calls `invalidate()` | Outside the contract. Array identity is the structural signal, so the library reads no structural change and invalidates geometry only. React, Vue and Svelte all return a new array when order changes, which is why the signal is free. **[D-44]** |
-| The consumer unmounts the dragged item as part of the reorder | `anchorTarget` finds no connected anchor and falls back to the placeholder's rect. Degraded, not stranded. **[Q-12 — answered in Phase 10: the degraded re-anchor is sufficient, and the operation finishes accepted with nothing classified or reported]** |
+| The consumer unmounts the dragged item as part of the reorder | ~~`anchorTarget` finds no connected anchor and falls back to the placeholder's rect. Degraded, not stranded.~~ **Superseded by D-42/D-49 at Phase R, and the row was a stale residue: it predates the precondition.** The re-anchor is still skipped, and then the precondition's second conjunct fails — the placeholder is no longer in the item's container, because the item has no container — so the **landing is skipped rather than measured**: one `onError`, no animation, and the drop still terminates with its accepted result. Q-12's answer survives in the half that mattered, "not stranded"; what it got wrong is "with nothing classified or reported", which is the silence D-49 exists to end. **[Q-12, D-42, D-49, D-60]** |
 | `LandingHandle.destroy()` throws at the join | Best-effort report. The pin still happens and presentation is still released — a custom runner cannot strand the controller. **[F-22]** |
 | `lift.write()` throws at the join | `FAILURE_RENDERER_WRITE`; the visual stays where landing left it; presentation is **still** released. **[F-22]** |
 | `spec.finalized()` throws | `FAILURE_TERMINAL_CALLBACK`; the operation still retires. **[F-22]** |

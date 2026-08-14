@@ -2,9 +2,16 @@
  * The behavior's private runtime: an ordinary object, declared and created in
  * one place, **never handed to the kernel and never widened** (H-2, D-4).
  *
- * Eight mutable fields — the eighth is the terminal latch C2-01 moved here off
- * the controller's closure, so the behavior's four barriers and `updateItems`
- * read one latch rather than two that can disagree.
+ * Six mutable fields. ~~The seventh is `pendingRequest`~~ — **deleted with the
+ * readiness protocol (D-41)**: it existed to key `controller.ready(request)` to
+ * one operation, and there is no acknowledgement to key.
+ * ~~The eighth is the terminal latch C2-01 moved here off
+ * the controller's closure.~~ **D-53 deletes it**: the host publishes the latch
+ * itself now, and the reason the private mirror existed — that the SPI could
+ * not express the reading D-38 requires — is precisely the failing case the
+ * freeze rule asks for. A hand-kept copy is state that can disagree, it was
+ * blind to a kernel-internal `panic()`, and after D-47 published the kernel a
+ * third-party behavior author could not be expected to know to maintain one.
  *
  * Probe 1's shared runtime had those plus fourteen kernel
  * fields — the queue, the frame references, the attempt slots, the cancel latch
@@ -20,11 +27,7 @@ import type { VisualLiftSession } from '../kernel/presentation.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { KernelHost } from '../kernel/spec.ts';
 import { copyUniqueItems } from './collection.ts';
-import type {
-  CollectionSnapshot,
-  Insertion,
-  ReorderRequest,
-} from './domain.ts';
+import type { CollectionSnapshot, Insertion } from './domain.ts';
 import type { SortableSlots } from './slots.ts';
 
 /** Behavior action tags. Behavior-local: the kernel offsets them. */
@@ -56,17 +59,18 @@ export type PresentationView = {
    */
   readonly item: HTMLElement;
   /**
-   * The installed `visual()` resolver, for the axis rule's candidate
-   * measurement (parity D2). Copied off the slots once per operation rather than
-   * read through `slots` per rebuild, so the axis feature keeps naming only
-   * fields of this object and never reaches the slot record.
+   * The installed `box` resolver, for the axis rule's candidate measurement
+   * (D-58, superseding parity D2's choice of node). Copied off the slots once
+   * per operation rather than read through `slots` per rebuild, so the axis
+   * feature keeps naming only fields of this object and never reaches the slot
+   * record.
    */
-  readonly getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  readonly getBox: ((item: HTMLElement) => HTMLElement) | null;
   /**
    * The controller's terminal latch, read as a predicate (I-36).
    *
-   * The candidate loop inside `RectIndex.refresh` calls the consumer's
-   * `visual()` resolver once per candidate, and a resolver may destroy the
+   * The candidate loop inside `RectIndex.refresh` calls the consumer's `box`
+   * resolver once per candidate, and a resolver may destroy the
    * controller. The loop is feature-private (D-19, H-4) and cannot reach `rt`,
    * so the reading travels through the per-operation view — the **fourth
    * additive widening** of the D-13 consumer-declared view (8a `item`, 17
@@ -114,39 +118,25 @@ export type SortableRuntime = {
   /** The published collection. Replaced wholesale, never mutated. */
   snapshot: CollectionSnapshot;
   /**
-   * **The terminal latch** (D3, then C2-01). Set by `controller.destroy()`
-   * before it delegates to `host.destroy()`, so every barrier inside the
-   * behavior — `updateItems`'s validation, the admission sequence, the
-   * committed-move bracket, and the candidate loop through `view.live` — reads
-   * one field rather than keeping a second copy that can disagree.
+   * **The last array identity `items()` returned** (D-44), and the whole of the
+   * structural-change test.
    *
-   * Behavior-private bookkeeping, deliberately: `KernelHost` does not expose
-   * `closed`, and widening a frozen SPI type for this is the change contract 00
-   * forbids without a case the SPI cannot express (I-36, L-12).
+   * This is the consumer's *own* array, held by reference and never read from —
+   * only compared. `snapshot.items` cannot stand in for it: that is the
+   * library's shallow copy, so its identity moves on every structural update
+   * and never matches what the consumer hands back.
    *
-   * Its one blind spot is a kernel-internal `panic()` destroy, which does not
-   * route through the controller. Unreachable from a behavior-interior sequence,
-   * and the one site that *does* have a stronger reading — `activation.effect`,
-   * handed the presentation scope — keeps using `signal.aborted` instead.
+   * Comparing identities is what keeps the O(n) copy on structural change
+   * instead of on every invalidation, and a resize, a zoom or a scroll produces
+   * the latter. React, Vue and Svelte all return a new array when order
+   * changes, so the signal costs the consumer nothing to produce.
    */
-  closed: boolean;
+  source: readonly HTMLElement[];
   /** Null when idle. */
   view: PresentationView | null;
   placeholder: HTMLElement | null;
   /** Handed in at activation, cleared at retire. */
   lift: VisualLiftSession | null;
-  /**
-   * The **exact** `ReorderRequest` object this operation handed `onReorder`
-   * (D-33) — published by `release.effect` before the kernel executes the
-   * round-trip, compared by `===` in `controller.ready`, cleared by `retire()`.
-   *
-   * It is the whole of the protocol's per-operation identity, and it is the
-   * behavior's rather than the kernel's: the kernel threads the resolution as
-   * `unknown` and never learns what a request is. Exactly one is live per
-   * controller, which is what closes every stale window — A timing out and
-   * retiring nulls it, and B overwrites it only once B reaches its own release.
-   */
-  pendingRequest: ReorderRequest | null;
   /** Monotonic; the identity of the latest coalesced spatial attempt (D-11). */
   spatialSeq: number;
   /** The attempt the frame task actually dispatched. Zero when none is live. */
@@ -181,13 +171,12 @@ export function createSortableRuntime(
     // Copied *and* validated, so a caller mutating its own array cannot change
     // a snapshot the behavior has already published, and the identity
     // precondition holds from construction rather than only from the first
-    // `updateItems`.
+    // the first `invalidate()`.
     snapshot: { items: copyUniqueItems(items), version: 0 },
-    closed: false,
+    source: items,
     view: null,
     placeholder: null,
     lift: null,
-    pendingRequest: null,
     spatialSeq: 0,
     pendingSpatial: 0,
   };

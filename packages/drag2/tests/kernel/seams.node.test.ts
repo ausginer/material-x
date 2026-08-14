@@ -41,6 +41,8 @@ type Harness = Readonly<{
   context: SeamContext<ExamplePart>;
   /** Classified failures, in the order the kernel queued them. */
   failures: ReadonlyArray<Readonly<{ stage: FailureStage; error: unknown }>>;
+  /** Quality failures, reported through `onError` and never classified (D-49). */
+  quality: ReadonlyArray<Readonly<{ stage: FailureStage; error: unknown }>>;
   /** Errors sent to the platform reporter. */
   reported: readonly unknown[];
   current(): Readonly<Frame<ExamplePart>>;
@@ -78,6 +80,8 @@ function createHarness(): Harness {
   let commits = 0;
   let begins = 0;
   const failures: Array<{ stage: FailureStage; error: unknown }> = [];
+  /** D-49's third state: reported through `onError`, never classified. */
+  const quality: Array<{ stage: FailureStage; error: unknown }> = [];
 
   const context: SeamContext<ExamplePart> = {
     begin(): void {
@@ -96,12 +100,16 @@ function createHarness(): Harness {
     fail(stage, error): void {
       failures.push({ stage, error });
     },
+    reportQuality(stage, error): void {
+      quality.push({ stage, error });
+    },
   };
 
   return {
     driver: createSeamDriver(context),
     context,
     failures,
+    quality,
     get reported(): readonly unknown[] {
       return reported;
     },

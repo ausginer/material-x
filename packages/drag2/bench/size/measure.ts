@@ -95,11 +95,19 @@ export type Composition = Readonly<{
   present?: readonly string[];
 }>;
 
+/**
+ * **Two, not four** (D-56). `sortable/placeholder.js` and `sortable/handle.js`
+ * are gone, along with `sortable/callbacks.js`, because a fragment factory that
+ * installs nothing measures nothing: under D-45 all three had become identity
+ * wrappers around a config slot the consumer can write directly.
+ *
+ * That is the falsifiable half of D-56 — the deletions should move **zero
+ * bytes**, since the modules never carried runtime machinery to begin with —
+ * and the budgets below are what would catch it if they did.
+ */
 const OPTIONAL = [
   'sortable/landing.js',
   'sortable/layout-animation.js',
-  'sortable/placeholder.js',
-  'sortable/handle.js',
 ] as const;
 
 /**
@@ -119,10 +127,8 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'minimal',
     imports: {
-      'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
-      'sortable/callbacks.js': '{ callbacks }',
     },
     budget: 10_340,
     absent: [...without(), withoutAxis('sortable/y.js')],
@@ -133,10 +139,8 @@ export const COMPOSITIONS: readonly Composition[] = [
     // measured as a peer rather than assumed to equal the y one.
     name: 'minimal (xy)',
     imports: {
-      'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
       'sortable/xy.js': '{ xy }',
-      'sortable/callbacks.js': '{ callbacks }',
     },
     budget: 10_380,
     absent: [...without(), withoutAxis('sortable/xy.js')],
@@ -145,10 +149,8 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'minimal + layoutAnimation',
     imports: {
-      'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
-      'sortable/callbacks.js': '{ callbacks }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
     budget: 10_790,
@@ -161,10 +163,8 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'minimal + landing',
     imports: {
-      'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
-      'sortable/callbacks.js': '{ callbacks }',
       'sortable/landing.js': '{ landing }',
     },
     budget: 10_620,
@@ -174,12 +174,8 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'complete',
     imports: {
-      'drag.js': '{ draggable }',
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
-      'sortable/callbacks.js': '{ callbacks }',
-      'sortable/placeholder.js': '{ placeholder }',
-      'sortable/handle.js': '{ handle, visual }',
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
@@ -282,17 +278,41 @@ export async function measureAll(): Promise<Measurement[]> {
   return measured;
 }
 
-/** Every way a measurement violates what its composition declared. */
-export function violations(measurement: Measurement): readonly string[] {
-  const { composition, brotli, modules } = measurement;
-  const found: string[] = [];
+/**
+ * The **byte** half of what a composition declares.
+ *
+ * Separate from {@link graphViolations} because the two halves have different
+ * lifetimes. A budget is a moving number while the runtime is still being
+ * written — every correctness fix moves it, and the standing rule is that a
+ * budget re-bases rather than a fix shrinking (see `budget` above) — so an
+ * enforced budget mid-revision reports the same thing every time and stops
+ * being read. The graph half is an **invariant**: `landing` is either absent
+ * from a composition that does not install it or the tree-shaking claim is
+ * false, and that is as true at revision 2 as at 1.0.
+ *
+ * Fusing them meant muting one muted the other, which is the only reason this
+ * is two functions.
+ */
+export function budgetViolations(measurement: Measurement): readonly string[] {
+  const { composition, brotli } = measurement;
 
-  if (brotli > composition.budget) {
-    found.push(
-      `over budget by ${brotli - composition.budget} B ` +
-        `(${brotli} > ${composition.budget})`,
-    );
-  }
+  return brotli > composition.budget
+    ? [
+        `over budget by ${brotli - composition.budget} B ` +
+          `(${brotli} > ${composition.budget})`,
+      ]
+    : [];
+}
+
+/**
+ * The **module graph** half: what a composition must and must not pull.
+ *
+ * This is the half a byte count cannot express (03 §Tree-shaking) and the half
+ * that stays enforced while budgets are muted.
+ */
+export function graphViolations(measurement: Measurement): readonly string[] {
+  const { composition, modules } = measurement;
+  const found: string[] = [];
 
   for (const module of composition.absent ?? []) {
     if (modules.includes(module)) {
@@ -307,6 +327,15 @@ export function violations(measurement: Measurement): readonly string[] {
   }
 
   return found;
+}
+
+/**
+ * Both halves, for the CLI. `just size` reports and enforces everything — it is
+ * run deliberately, by someone who wants the numbers — which is where the
+ * budgets keep living while the suite has them muted.
+ */
+export function violations(measurement: Measurement): readonly string[] {
+  return [...budgetViolations(measurement), ...graphViolations(measurement)];
 }
 
 if (import.meta.main) {

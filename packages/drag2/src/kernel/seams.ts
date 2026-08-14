@@ -14,7 +14,7 @@
  * four real gaps (F-19, F-27).
  */
 import { DEV } from './dev.ts';
-import type { FailureStage } from './failures.ts';
+import { FAILURE_LANDING_TARGET, type FailureStage } from './failures.ts';
 import type { Draft, Frame } from './frames.ts';
 import { report } from './reporter.ts';
 
@@ -134,6 +134,12 @@ export type SeamContext<Part extends object> = Readonly<{
   readDraft(): Draft<Part>;
   /** Queue a classified failure against the operation the kernel holds. */
   fail(stage: FailureStage, error: unknown): void;
+  /**
+   * Report a **quality** failure through `onError` without classifying it
+   * (D-49). No checkpoint is queued, no recovery is selected, and the
+   * operation's own outcome is untouched.
+   */
+  reportQuality(stage: FailureStage, error: unknown): void;
 }>;
 
 export type SeamDriver<Part extends object> = Readonly<{
@@ -202,6 +208,21 @@ export type SeamDriver<Part extends object> = Readonly<{
   ): Value | undefined;
 
   /**
+   * {@link SeamDriver.runLeafValue} on the **quality track** (D-49): the seam
+   * still runs inside a phase — re-entry refused, `host.fail` latched, one
+   * classification per phase — but a failure is reported through `onError`
+   * instead of settling the operation.
+   *
+   * One caller: the arm-time landing measurement. A target that cannot be
+   * produced and one that cannot be trusted are the same fault, and neither is
+   * a reason to tell a consumer whose reorder succeeded that it did not.
+   */
+  runQualityValue<Value extends {}>(
+    run: () => Value,
+    stage: FailureStage,
+  ): Value | undefined;
+
+  /**
    * `host.fail`. Valid **only inside a kernel-driven seam of the current
    * operation**: a call outside one is downgraded to a platform report, because
    * a late continuation from operation A could otherwise classify a failure
@@ -228,8 +249,23 @@ const NO_STAGE = 0;
  */
 const BEST_EFFORT = -1;
 
+/**
+ * The stage of a phase whose failures are **reported through `onError` and
+ * never classified** — the third state D-49 introduces, and today only the
+ * arm-time landing measurement.
+ *
+ * It is neither of the two that existed. A classified failure settles the
+ * operation `OUTCOME_FAILED` or retires it, which is the wrong answer for a
+ * drop whose reorder is real and already committed; a `BEST_EFFORT` report goes
+ * to the platform reporter, which is the wrong *audience*, because the fault is
+ * almost always a destructive rerender the **consumer** performed. So the
+ * channel and the tier are chosen independently here: `onError`, no `REPORTING`
+ * phase, no `OUTCOME_FAILED`, terminal callback intact.
+ */
+const QUALITY = -2;
+
 /** What an open phase classifies against. */
-type PhaseStage = FailureStage | typeof BEST_EFFORT;
+type PhaseStage = FailureStage | typeof BEST_EFFORT | typeof QUALITY;
 
 /**
  * A phase that threw or latched a failure, as a value.
@@ -258,6 +294,13 @@ export function createSeamDriver<Part extends object>(
    * latch closes (D-28, F-34).
    */
   let failureRequested = false;
+  /**
+   * The stage a `QUALITY` phase reports under. Set by `runQualityValue` and
+   * read only while that phase is open, which is the same lifetime
+   * `failureRequested` has and for the same reason: the driver runs exactly one
+   * phase at a time (`refuseReentry`).
+   */
+  let qualityStage: FailureStage = FAILURE_LANDING_TARGET;
   /**
    * The staged value of the last committed transition. Owned by the driver
    * rather than passed in, so no call path can skip the reset: a `runCore` that
@@ -351,7 +394,12 @@ export function createSeamDriver<Part extends object>(
       // second one for a single phase and let the later error decide the
       // operation's outcome. The throw still travels, on the channel that
       // carries no consequence, so nothing is lost.
-      if (stage === BEST_EFFORT || failureRequested) {
+      if (stage === QUALITY) {
+        // D-49. `qualityStage` rather than `stage`, because `QUALITY` says how
+        // the failure travels and never what it was — the stage the consumer
+        // receives is the one the caller named.
+        context.reportQuality(qualityStage, raised);
+      } else if (stage === BEST_EFFORT || failureRequested) {
         report(raised);
       } else {
         context.fail(stage, raised);
@@ -439,6 +487,14 @@ export function createSeamDriver<Part extends object>(
       return value === FAILED ? undefined : value;
     },
 
+    runQualityValue(run, stage) {
+      qualityStage = stage;
+
+      const value = runPhase(QUALITY, run);
+
+      return value === FAILED ? undefined : value;
+    },
+
     consumeStaged() {
       const value = staged;
 
@@ -447,6 +503,16 @@ export function createSeamDriver<Part extends object>(
     },
 
     requestFailure(stage, error) {
+      // **A latched failure and a throw are the same event on this path too**
+      // (D-49: "or `anchorTarget` throws or latches"). The flag is what makes
+      // `runPhase` return `FAILED` for a phase that latched without throwing,
+      // so the caller sees no target either way.
+      if (openStage === QUALITY) {
+        failureRequested = true;
+        context.reportQuality(stage, error);
+        return;
+      }
+
       if (openStage === NO_STAGE || openStage === BEST_EFFORT) {
         report(error);
 

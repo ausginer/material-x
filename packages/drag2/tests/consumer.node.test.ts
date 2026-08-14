@@ -82,14 +82,18 @@ const MINUTE = 60_000;
 const PENDING: readonly string[] = [];
 
 const CONSUMER = `import {
+  DraggableError,
+  type DOMRealm,
+  type DraggableErrorCode,
+  type Point,
+} from '@ydinjs/drag2/drag.js';
+import {
   draggable,
   FAILURE_ACTIVATION,
   FAILURE_TERMINAL_CALLBACK,
-  type Behavior,
-  type DOMRealm,
+  type BehaviorFactory,
   type FailureStage,
-  type Point,
-} from '@ydinjs/drag2/drag.js';
+} from '@ydinjs/drag2/kernel.js';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -99,35 +103,28 @@ import {
   type CancelStage,
   type CollectionSnapshot,
   type DragErrorContext,
+  type OnReorder,
+  type PlaceholderContext,
   type PlaceholderFactory,
+  type SortableConfig,
   type RejectedReorderResolution,
   type ReorderProposal,
   type ReorderRequest,
   type ReorderTransactionResult,
-  type SortableCancelResult,
   type SortableController,
-  type SortableFeature,
-  type SortableFinishResult,
 } from '@ydinjs/drag2/sortable.js';
 import { y } from '@ydinjs/drag2/sortable/y.js';
 import {
-  callbacks,
-  type OnReorder,
-  type SortableCallbacks,
-} from '@ydinjs/drag2/sortable/callbacks.js';
-import {
-  placeholder,
-  type PlaceholderContext,
-  type PlaceholderOptions,
-} from '@ydinjs/drag2/sortable/placeholder.js';
-import { handle, visual } from '@ydinjs/drag2/sortable/handle.js';
-import {
   landing,
-  type LandingContext,
-  type LandingHandle,
   type LandingOptions,
-  type LandingStart,
 } from '@ydinjs/drag2/sortable/landing.js';
+// **The three seam types re-homed** (D-63, D-61): they stopped being consumer
+// vocabulary when \`landing({ run })\` went, and stayed authoring vocabulary.
+import type {
+  LandingContext,
+  LandingHandle,
+  LandingStart,
+} from '@ydinjs/drag2/sortable/feature.js';
 import {
   layoutAnimation,
   type LayoutAnimationOptions,
@@ -140,73 +137,73 @@ import {
 declare const root: HTMLElement;
 declare const items: readonly HTMLElement[];
 
-const list: SortableController = draggable(
+const list: SortableController = sortable(
   root,
-  sortable(
-    items,
-    y(),
-    callbacks({
-      onReorder: (request: ReorderRequest) => {
-        void request.from;
-        void request.to;
-        void request.item;
-        return ReorderResolution.accept();
-      },
-      threshold: 4,
-      readinessTimeout: 30_000,
-      onFinish: (result: SortableFinishResult): void => {
-        // F-41: the public results narrow on their own discriminant. Nothing a
-        // consumer has to import is needed to tell one from another.
-        if (result.type === 'accepted') {
-          const proposal: ReorderProposal = result.proposal;
-          // The proposal exposes the snapshot it was built against, so the type
-          // of that field has to be nameable too.
-          const snapshot: CollectionSnapshot = proposal.snapshot;
+  y(),
+  {
+    items: () => items,
+    onReorder: (request: ReorderRequest) => {
+      void request.from;
+      void request.to;
+      void request.item;
+      return ReorderResolution.accept();
+    },
+    // **One terminal, four arms** (D-62). \`onFinish\`/\`onCancel\` and the two
+    // partition types that existed to type them — \`SortableFinishResult\`,
+    // \`SortableCancelResult\` — are gone, so this is also the case that proves
+    // a consumer can tell the arms apart with nothing but the discriminant
+    // (F-41).
+    onEnd: (result: ReorderTransactionResult): void => {
+      if (result.type === 'accepted') {
+        const proposal: ReorderProposal = result.proposal;
+        // The proposal exposes the snapshot it was built against, so the type
+        // of that field has to be nameable too.
+        const snapshot: CollectionSnapshot = proposal.snapshot;
 
-          void proposal.request.version;
-          void snapshot.items.length;
-          void snapshot.version;
-        }
-      },
-      onCancel: (result: SortableCancelResult): void => {
-        if (result.type === 'canceled') {
-          const stage: CancelStage = result.stage;
+        void proposal.request.version;
+        void snapshot.items.length;
+        void snapshot.version;
+      }
 
-          void (stage === AT_PROPOSAL || stage === AT_CONSUMER);
-        }
-      },
-      onError: (error: unknown, context: DragErrorContext): void => {
-        // The stages are values, not just a type: a consumer switching on
-        // \`context.stage\` needs them.
-        const stage: FailureStage = context.stage;
-        const domain: ReorderTransactionResult | null = context.domain;
+      if (result.type === 'canceled') {
+        const stage: CancelStage = result.stage;
 
-        void (stage === FAILURE_ACTIVATION);
-        void (stage === FAILURE_TERMINAL_CALLBACK);
-        void domain?.type;
-        void error;
-      },
-    }),
-    placeholder({
-      className: 'ghost',
-      // Nameable, so a consumer can hoist the factory out of the call.
-      create: ((context: PlaceholderContext) => {
-        void context.rect.height;
-        return document.createElement('div');
-      }) satisfies PlaceholderFactory,
-    }),
-    handle((item: HTMLElement) => item.firstElementChild as HTMLElement),
-    visual((item: HTMLElement) => item),
-    landing({ duration: 120, easing: 'ease-out' }),
-    layoutAnimation({ duration: 90 }),
-  ),
+        void (stage === AT_PROPOSAL || stage === AT_CONSUMER);
+      }
+    },
+    onError: (error: DraggableError, context: DragErrorContext): void => {
+      // **D-64.** The ordinary consumer branches on a coarse fault class and
+      // never sees a pipeline stage: \`context\` is the sortable half alone.
+      const code: DraggableErrorCode = error.code;
+      const domain: ReorderTransactionResult | null = context.domain;
+
+      void (code === 'consumer');
+      void (error instanceof DraggableError);
+      void domain?.type;
+    },
+    // **D-65**: the callback itself, not \`create\` plus a class name. Nameable,
+    // so a consumer can hoist the factory out of the object literal.
+    placeholder: ((context: PlaceholderContext) => {
+      void context.rect.height;
+      return document.createElement('div');
+    }) satisfies PlaceholderFactory,
+    handle: (item: HTMLElement) => item.firstElementChild as HTMLElement,
+    visual: (item: HTMLElement) => item,
+    threshold: 4,
+  },
+  landing({ duration: 120, easing: 'ease-out' }),
+  layoutAnimation({ duration: 90 }),
 );
 
-list.updateItems(items);
+// **D-44**: payload-free. The collection is a pull source, so this says
+// \`re-read what you already have\` rather than handing over a new array.
+list.invalidate();
 list.cancel('reason');
 list.destroy();
 
-// A custom runner is authorable from the public surface alone.
+// A custom runner is authorable from the **middle tier** alone (D-63): the
+// consumer surface no longer takes one, and the seam a third-party installer
+// fills is reachable without importing anything else.
 const run: LandingStart = (
   context: LandingContext,
   done: () => void,
@@ -220,6 +217,15 @@ const run: LandingStart = (
   return { destroy: (): void => {} };
 };
 
+// **D-63's negative half** (A-7). The positive half is above — a runner is
+// authorable from the middle tier — and this is the assertion that the
+// *ordinary* tier no longer takes one. \`LandingOptions\` is
+// \`Readonly<{ duration?, easing? }>\`, so the excess-property check rejects the
+// object literal; if \`run\` were ever re-added, this directive stops erroring
+// and the build fails.
+// @ts-expect-error: \`run\` is not a landing option (D-63)
+landing({ run });
+
 // Both members of the \`ReorderResolution\` union are nameable, so a consumer can
 // give a helper a return type narrower than the union.
 declare const accepted: AcceptedReorderResolution;
@@ -227,15 +233,16 @@ declare const rejected: RejectedReorderResolution;
 
 void [accepted.type, rejected.type];
 
-declare const behavior: Behavior<SortableController>;
-declare const feature: SortableFeature;
+declare const behavior: BehaviorFactory<SortableController, object>;
 declare const onReorder: OnReorder;
-declare const options: SortableCallbacks;
-declare const placeholderOptions: PlaceholderOptions;
+// **D-45**: the config schema replaces \`SortableCallbacks\` and
+// \`PlaceholderOptions\`, and a \`Partial\` of it is exactly what a fragment is —
+// so a consumer can give a preset helper a return type.
+declare const preset: Partial<SortableConfig>;
 declare const landingOptions: LandingOptions;
 declare const layoutOptions: LayoutAnimationOptions;
 
-void [run, behavior, feature, onReorder, options, placeholderOptions, landingOptions, layoutOptions];
+void [run, behavior, onReorder, preset, landingOptions, layoutOptions];
 
 // Inference through the *packed* declarations, with no explicit type argument.
 const inferred = draggable(root, behavior);
@@ -246,20 +253,25 @@ inferred.destroy();
 // Opacity: neither branded value is constructible or callable.
 // ---------------------------------------------------------------------------
 
-// @ts-expect-error: the behavior value is opaque, so a bare install function is not one
-const forgedBehavior: Behavior<SortableController> = () => ({});
-// A behavior that were still the install function would *also* reject the
-// literal above, on its return type. Calling it is what separates the two.
-// @ts-expect-error: a behavior is not callable
-behavior(null as never);
-// @ts-expect-error: the feature value is opaque
-const forgedFeature: SortableFeature = () => ({});
-// @ts-expect-error: a feature is not callable
-feature(null as never);
-// @ts-expect-error: the frame part is erased, so \`Behavior\` takes one type argument
-type Part = Behavior<SortableController, object>;
+// D-55: a behavior *is* the install function now, so the two opacity rows that
+// stood here have no subject. What is still checked is that a bare literal does
+// not satisfy the factory's return type.
+// @ts-expect-error: a factory must return both halves of the handshake
+const forgedBehavior: BehaviorFactory<SortableController, object> = () => ({});
+// D-45: an installer is no longer opaque — it is a plain function published at
+// the middle tier — so the two brand rows that stood here have no subject
+// either. What survives is that an unknown slot is not a config: the merge
+// walks the schema, so a misspelled key has to be a *compile* error to be
+// diagnosable at all.
+// @ts-expect-error: \`onReorded\` is not a slot
+const forgedFragment: Partial<SortableConfig> = { onReorded: () => {} };
+// D-55: there is no branded behavior type at all now, so the opacity check has
+// no subject. What replaces it is the reachability check below — the SPI is
+// published at \`kernel.js\` and still unreachable from \`drag.js\`.
+// @ts-expect-error: \`Behavior\` is withdrawn (D-55)
+type Part = import('@ydinjs/drag2/kernel.js').Behavior<SortableController>;
 
-void [forgedBehavior, forgedFeature];
+void [forgedBehavior, forgedFragment];
 
 // ---------------------------------------------------------------------------
 // Every internal SPI name is unreachable. Each line must error; an
@@ -335,18 +347,272 @@ type D5b = import('@ydinjs/drag2/sortable/layout-animation.js').AnimationTiming;
 type C1 = import('@ydinjs/drag2/kernel/spec.js').KernelHost;
 // @ts-expect-error: source is not a declared subpath
 type C2 = import('@ydinjs/drag2/src/drag.ts').Point;
-// The module that *declares* the feature brand, and the one that declares the
-// slot views. Both are packed — the public declarations resolve through the
-// first — and neither is a declared subpath, which is what keeps the authoring
-// types internal even though their declaration file ships.
-// @ts-expect-error: the feature authoring module is not a declared subpath
-type C3 = import('@ydinjs/drag2/sortable/feature.js').SortableFeature;
+// The slot views are still internal. The **feature authoring module is not**
+// (D-61): \`sortable/feature.js\` is a declared subpath now — the middle tier
+// where an installer's types live — so this line must *resolve*, which is the
+// opposite of what it asserted before.
+type C3 = import('@ydinjs/drag2/sortable/feature.js').SortableInstaller;
 // @ts-expect-error: the slot views are not a declared subpath
 type C4 = import('@ydinjs/drag2/sortable/slots.js').DisplacementView;
 
 void [A11, B8, B9];
 declare const unusedTypes: [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, B1, B2, B3, B4, B5, B7, C1, C2, C3, C4, D1, D2, D3, D4, D5a, D5b, Part];
 void unusedTypes;
+`;
+
+/**
+ * **The kernel-tier fixture behavior** (D-68, 05 §Kernel vocabulary).
+ *
+ * This is the acceptance row that tests self-containment as a *property*
+ * rather than as a list: it imports `@ydinjs/drag2/kernel.js` and
+ * `@ydinjs/drag2/drag.js` and **nothing else** — no deep path, no
+ * `sortable.js`, no `sortable/feature.js` — and it compiles against the
+ * **packed** declarations, so an unpublished name fails here the way it would
+ * for a real behavior author.
+ *
+ * **Every seam is declared out of line**, and that is load-bearing rather than
+ * stylistic: an inline factory is contextually typed throughout, so it would
+ * have compiled against the pre-D-68 surface and proved nothing. Hoisting each
+ * seam into its own `const` is what forces the closure to be nameable —
+ * `Draft`, `Frame`, `Transition`, `SettlementTransition`, `ActivationScope`,
+ * `LifetimeScope`, `VisualLiftSession`, `OffsetBox`, `FramePartOf`,
+ * `BehaviorInstall`.
+ *
+ * It also fills `config.liftMode`, discriminates all five `SETTLED_*` arms and
+ * derives D-66's fallback stage from `AT_PROPOSAL`/`AT_CONSUMER` — the three
+ * value holes F-59 named, none of which any type could have filled.
+ */
+const BEHAVIOR = `import { DraggableError, type Point } from '@ydinjs/drag2/drag.js';
+import {
+  ACTIVE,
+  AT_CONSUMER,
+  AT_PROPOSAL,
+  draggable,
+  FAILURE_ACTIVATION,
+  FAILURE_RELEASE,
+  IDLE,
+  LIFT_IN_PLACE,
+  RELEASING,
+  SETTLED_CANCELED,
+  SETTLED_FAILED,
+  SETTLED_FULFILLED,
+  SETTLED_REJECTED,
+  SETTLED_SKIPPED,
+  toDraggableError,
+  type ActionTransition,
+  type ActivationScope,
+  type AdmissionSubject,
+  type BehaviorConfig,
+  type BehaviorInstall,
+  type BehaviorSpec,
+  type CancelStage,
+  type CommandAdmission,
+  type Disposer,
+  type Draft,
+  type Frame,
+  type FramePartOf,
+  type KernelFrame,
+  type KernelHost,
+  type LandingContext,
+  type LandingHandle,
+  type LandingStart,
+  type LifetimeScope,
+  type OffsetBox,
+  type OperationIdentity,
+  type Phase,
+  type PreparedSettlement,
+  type ReleaseTransition,
+  type ResolutionCommand,
+  type SeamRejection,
+  type SettlementInput,
+  type SettlementScope,
+  type SettlementTransition,
+  type Transition,
+  type VisualLiftSession,
+} from '@ydinjs/drag2/kernel.js';
+
+/** The behavior's own frame part. The kernel never names it (D-15). */
+type Part = {
+  grabbed: HTMLElement | null;
+  verdict: string | null;
+};
+
+type Controller = Readonly<{ cancel(reason?: unknown): void; destroy(): Promise<void> }>;
+
+/** Behavior-private, per-operation. D-66's marker, out of line. */
+const MINTED = 0;
+const STARTED = 1;
+const RESOLVING = 2;
+
+let progress: 0 | 1 | 2 = MINTED;
+
+const config: BehaviorConfig = {
+  threshold: 8,
+  // **The value F-59 is about.** No default, no erased substitute.
+  liftMode: LIFT_IN_PLACE,
+  actionTags: 1,
+};
+
+const admit = (event: PointerEvent, draft: Draft<Part>): AdmissionSubject | null => {
+  const target = event.target;
+
+  if (!(target instanceof HTMLElement)) {
+    return null;
+  }
+
+  draft.grabbed = target;
+  // A behavior reads the phase, and its domain is published (D-68).
+  const phase: Phase = draft.phase;
+
+  return phase === IDLE ? { visual: target, box: target } : null;
+};
+
+const command: CommandAdmission<Part> = {
+  types: ['keydown'],
+  admit: (event, draft) => (draft.phase === IDLE && event.type === 'keydown' ? draft.grabbed : null),
+};
+
+const activation: Transition<Part, HTMLElement, ActivationScope> = {
+  prepare: (draft, scope) => {
+    const box: OffsetBox = scope.boxPre;
+    const lift: VisualLiftSession = scope.lift;
+    const motion: LifetimeScope = scope.motion;
+    const release: Disposer = () => {};
+
+    motion.use(release);
+    void lift.write;
+    void box.height;
+    void draft.grabbed;
+    return scope.visual;
+  },
+  effect: (current, prepared, scope) => {
+    progress = STARTED;
+    void current.pointerX;
+    void prepared.isConnected;
+    scope.presentation.use(() => {});
+  },
+};
+
+const release: ReleaseTransition<Part> = {
+  prepare: (draft): ResolutionCommand | SeamRejection => {
+    if (draft.grabbed === null) {
+      return { stage: FAILURE_RELEASE, error: new Error('no subject') };
+    }
+
+    return {
+      invoke: (signal) => {
+        progress = RESOLVING;
+        return signal.aborted ? null : 'verdict';
+      },
+    };
+  },
+  effect: (current, prepared) => {
+    void current.operation;
+    void prepared.invoke;
+  },
+};
+
+const settlement: SettlementTransition<Part> = {
+  // All five arms, exhaustively — D-24 requires it and the discriminants are
+  // values, so an erased surface could not express this switch at all.
+  prepare: (draft, input: SettlementInput): PreparedSettlement | SeamRejection => {
+    switch (input.type) {
+      case SETTLED_FULFILLED:
+        draft.verdict = String(input.value);
+        return true;
+      case SETTLED_REJECTED:
+        return { stage: FAILURE_ACTIVATION, error: input.error };
+      case SETTLED_SKIPPED:
+        draft.verdict = 'noop';
+        return true;
+      case SETTLED_CANCELED: {
+        const stage: CancelStage = input.stage;
+
+        draft.verdict = stage === AT_CONSUMER ? 'late' : 'early';
+        return true;
+      }
+      case SETTLED_FAILED: {
+        // D-66's fallback, derived rather than supplied — the input carries a
+        // \`FailureStage\`, never a \`CancelStage\`.
+        const stage: CancelStage = progress === RESOLVING ? AT_CONSUMER : AT_PROPOSAL;
+        const error: DraggableError = toDraggableError(input.stage, input.error);
+
+        draft.verdict = stage === AT_CONSUMER ? error.code : 'aborted';
+        return true;
+      }
+    }
+  },
+  effect: (current, _prepared, scope: SettlementScope) => {
+    const start: LandingStart = (context: LandingContext, done): LandingHandle => {
+      const from: Point = context.from;
+
+      void context.compose(from.x, from.y);
+      done();
+      return { destroy: () => {} };
+    };
+
+    if (current.phase >= RELEASING) {
+      scope.holdForLanding(start);
+    }
+  },
+};
+
+const action: ActionTransition<Part> = {
+  prepare: (tag, argument, draft) => (tag === 0 && draft.phase === ACTIVE ? { argument } : null),
+  effect: (_tag, _argument, current: Readonly<Frame<Part>>, prepared) => {
+    void current.verdict;
+    void prepared;
+  },
+};
+
+const createFramePart = (): FramePartOf<Part> => ({ grabbed: null, verdict: null });
+
+const resetFramePart = (part: Part): void => {
+  part.grabbed = null;
+  part.verdict = null;
+};
+
+const install = (host: KernelHost): BehaviorInstall<Controller, Part> => {
+  const spec: BehaviorSpec<Part> = {
+    config,
+    admit,
+    command,
+    activation,
+    release,
+    settlement,
+    action,
+    moved: (current, lift) => {
+      const frame: KernelFrame = current;
+      const operation: OperationIdentity | null = frame.operation;
+
+      void operation;
+      lift.write(current.pointerX - current.originX, current.pointerY - current.originY);
+    },
+    anchorTarget: (current): Point => ({ x: current.pointerX, y: current.pointerY }),
+    finalized: (current) => {
+      void current.verdict;
+    },
+    reportFailure: (stage, error) => {
+      void toDraggableError(stage, error).code;
+    },
+    retire: () => {
+      progress = MINTED;
+    },
+    createFramePart,
+    resetFramePart,
+  };
+
+  return {
+    spec,
+    controller: { cancel: host.cancel, destroy: host.destroy },
+  };
+};
+
+declare const root: HTMLElement;
+
+const behaviorController: Controller = draggable(root, install);
+
+void behaviorController;
 `;
 
 const TSCONFIG = JSON.stringify({
@@ -362,7 +628,7 @@ const TSCONFIG = JSON.stringify({
     // not to trust that it resolves.
     skipLibCheck: false,
   },
-  include: ['consumer.ts'],
+  include: ['consumer.ts', 'behavior.ts'],
 });
 
 type Packed = Readonly<{
@@ -371,7 +637,7 @@ type Packed = Readonly<{
   /** The consumer project, outside the workspace, resolving the extracted copy. */
   consumer: string;
   /** `exports` as published, minus `./package.json`. */
-  subpaths: ReadonlyMap<string, Readonly<{ types: string; default: string }>>;
+  subpaths: ReadonlyMap<string, Readonly<{ types: string; default?: string }>>;
 }>;
 
 let packed: Packed;
@@ -431,6 +697,7 @@ beforeAll(async () => {
   await symlink(extracted, join(scope, 'drag2'));
   await symlink(join(REPO, 'packages', 'box-quad'), join(scope, 'box-quad'));
   await writeFile(join(consumer, 'consumer.ts'), CONSUMER);
+  await writeFile(join(consumer, 'behavior.ts'), BEHAVIOR);
   await writeFile(join(consumer, 'tsconfig.json'), TSCONFIG);
 
   const manifest = JSON.parse(
@@ -438,12 +705,12 @@ beforeAll(async () => {
   ) as {
     exports: Record<
       string,
-      string | Readonly<{ types: string; default: string }>
+      string | Readonly<{ types: string; default?: string }>
     >;
   };
   const subpaths = new Map<
     string,
-    Readonly<{ types: string; default: string }>
+    Readonly<{ types: string; default?: string }>
   >();
 
   for (const [key, value] of Object.entries(manifest.exports)) {
@@ -460,13 +727,13 @@ describe('the packed package', () => {
     // Runtime-imported, not merely stat-ed: a module that exists but cannot
     // resolve its own imports is exactly the B-01 failure this suite exists for.
     const landed = [...packed.subpaths].filter(
-      ([key]) => !PENDING.includes(key),
+      ([key, value]) => !PENDING.includes(key) && value.default !== undefined,
     );
 
     expect(landed.length).toBeGreaterThan(0);
 
     const imported = await Promise.all(
-      landed.map(([, value]) => import(join(packed.dir, value.default))),
+      landed.map(([, value]) => import(join(packed.dir, value.default!))),
     );
 
     for (const each of imported) {
@@ -483,18 +750,23 @@ describe('the packed package', () => {
       ReorderResolution: Readonly<{ accept(): unknown }>;
     }> = await import(join(packed.dir, './sortable.js'));
 
-    // `presentation` is normalized to a boolean by the factory rather than left
-    // absent, so the settlement mapping reads one shape (D-33).
-    expect(entry.ReorderResolution.accept()).toEqual({
-      type: 'accepted',
-      presentation: false,
-    });
+    // Acceptance declares nothing (D-41): the readiness protocol the
+    // `presentation` flag belonged to is deleted, so the arm is the tag alone.
+    expect(entry.ReorderResolution.accept()).toEqual({ type: 'accepted' });
   });
 
   it('should leave exactly the unimplemented feature subpaths without runtime code', async () => {
     const missing: string[] = [];
 
     for (const [key, value] of packed.subpaths) {
+      if (value.default === undefined) {
+        // A **type-only** subpath (D-61), not a pending one: it declares no
+        // `default` condition at all, so there is no file it is promising and
+        // failing to ship. `PENDING` is for the opposite case — a `default`
+        // that points at a module the build has not written yet.
+        continue;
+      }
+
       // oxlint-disable-next-line no-await-in-loop
       if (!(await exists(join(packed.dir, value.default)))) {
         missing.push(key);
@@ -523,7 +795,15 @@ describe('the packed package', () => {
     // point of freezing a surface. Types are erased at runtime and are checked
     // by the consumer compile instead.
     const expected: Readonly<Record<string, readonly string[]>> = {
-      './drag.js': [
+      './drag.js': ['DraggableError'],
+      // **33 values, asserted by value** (D-68). A type-only assertion cannot
+      // see the hole F-59 names: every missing name was a *constant*, and
+      // erased types cannot fill a value position.
+      './kernel.js': [
+        'ACTIVATING',
+        'ACTIVE',
+        'AT_CONSUMER',
+        'AT_PROPOSAL',
         'FAILURE_ACTIVATION',
         'FAILURE_ADMISSION',
         'FAILURE_INSERTION',
@@ -532,13 +812,27 @@ describe('the packed package', () => {
         'FAILURE_LANDING_INTERRUPTED',
         'FAILURE_LANDING_TARGET',
         'FAILURE_PLACEHOLDER_MOVE',
-        'FAILURE_PRESENTATION_READY',
         'FAILURE_RELEASE',
         'FAILURE_RENDERER_WRITE',
         'FAILURE_REORDER_RESOLUTION',
         'FAILURE_SCHEDULED_FRAME',
         'FAILURE_TERMINAL_CALLBACK',
+        'FINALIZING',
+        'IDLE',
+        'LIFT_FAITHFUL',
+        'LIFT_FLAT',
+        'LIFT_IN_PLACE',
+        'PENDING',
+        'RELEASING',
+        'REPORTING',
+        'SETTLED_CANCELED',
+        'SETTLED_FAILED',
+        'SETTLED_FULFILLED',
+        'SETTLED_REJECTED',
+        'SETTLED_SKIPPED',
+        'SETTLING',
         'draggable',
+        'toDraggableError',
       ],
       './sortable.js': [
         'AT_CONSUMER',
@@ -548,22 +842,36 @@ describe('the packed package', () => {
       ],
       './sortable/y.js': ['y'],
       './sortable/xy.js': ['xy'],
-      './sortable/callbacks.js': ['callbacks'],
-      './sortable/placeholder.js': ['placeholder'],
-      './sortable/handle.js': ['handle', 'visual'],
       './sortable/landing.js': ['landing'],
       './sortable/layout-animation.js': ['layoutAnimation'],
     };
 
-    expect([...packed.subpaths.keys()].toSorted(byName)).toEqual(
+    /**
+     * **`./sortable/feature.js` is deliberately absent from this table** and
+     * from the map it is compared against (D-61). The middle tier has zero
+     * runtime exports, so the build emits no `.js` for it and its export entry
+     * carries `types` with **no `default` condition** — there is nothing to
+     * import and nothing whose names could be listed. That is the honest
+     * measurement statement for the entry: unlike the three subpaths D-56
+     * deleted for measuring nothing, this one is not pretending to measure
+     * anything. Its declarations are covered by the packed-declaration row
+     * above and by the consumer compile, which is where an erased surface can
+     * be checked at all.
+     */
+    const runtimeSubpaths = [...packed.subpaths].filter(
+      ([, value]) => value.default !== undefined,
+    );
+
+    expect(runtimeSubpaths.map(([key]) => key).toSorted(byName)).toEqual(
       Object.keys(expected).toSorted(byName),
     );
+    expect([...packed.subpaths.keys()]).toContain('./sortable/feature.js');
 
     const actual: Record<string, readonly string[]> = {};
 
     await Promise.all(
-      [...packed.subpaths].map(async ([key, value]) => {
-        const module: object = await import(join(packed.dir, value.default));
+      runtimeSubpaths.map(async ([key, value]) => {
+        const module: object = await import(join(packed.dir, value.default!));
         const names: readonly string[] = Object.keys(module);
 
         actual[key] = names.toSorted(byName);
@@ -625,12 +933,15 @@ describe('the packed package', () => {
     expect(dangling).toEqual([]);
   });
 
-  it('should declare no subpath into the kernel', () => {
-    // The kernel directory is *shipped*, because the entrypoints import it at
-    // runtime, but nothing in it is addressable: the SPI stays internal because
-    // no export key reaches it.
+  it('should declare no subpath into the kernel directory', () => {
+    // **Narrowed by D-48, not withdrawn.** `./kernel.js` is now a declared
+    // entry — the kernel tier is published, because a behavior author needs
+    // `draggable()` and the classification vocabulary. What stays unaddressable
+    // is the `kernel/` *directory*: it is shipped, because the entrypoints
+    // import it at runtime, but no export key reaches inside it, so the seam
+    // modules are still not importable by path.
     expect(
-      [...packed.subpaths.keys()].filter((key) => key.includes('kernel')),
+      [...packed.subpaths.keys()].filter((key) => key.startsWith('./kernel/')),
     ).toEqual([]);
   });
 

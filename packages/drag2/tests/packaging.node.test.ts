@@ -88,17 +88,10 @@ describe('the published file list', () => {
     // The measurement claim the export topology exists for: the minimal
     // fixture's import graph *physically* cannot reach unselected geometry or
     // optional work, independent of any bundler's tree-shaking heuristics.
-    const reachable = await reachableFrom([
-      'drag',
-      'sortable',
-      'sortable/y',
-      'sortable/callbacks',
-    ]);
+    const reachable = await reachableFrom(['drag', 'sortable', 'sortable/y']);
     const forbidden = [
-      'sortable/handle.ts',
       'sortable/landing.ts',
       'sortable/layout-animation.ts',
-      'sortable/placeholder.ts',
       // The sibling axis. `y()` and `xy()` share `rect-index.ts` and nothing
       // else, so selecting one must not reach the other's rule — which is the
       // whole reason the 2-D capability is a second subpath and not a
@@ -114,12 +107,7 @@ describe('the published file list', () => {
     // The mirror of the row above, and the one that makes the pair an
     // *exclusivity* claim rather than a one-way absence: a grid consumer must
     // not carry the list rule either.
-    const reachable = await reachableFrom([
-      'drag',
-      'sortable',
-      'sortable/xy',
-      'sortable/callbacks',
-    ]);
+    const reachable = await reachableFrom(['drag', 'sortable', 'sortable/xy']);
     const reached = [...reachable].map((file) => relative(SRC, file));
 
     expect(reached).toContain('sortable/rect-index.ts');

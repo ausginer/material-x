@@ -7,6 +7,9 @@
     "drag.js",
     "drag.js.map",
     "drag.d.ts",
+    "kernel.js",
+    "kernel.js.map",
+    "kernel.d.ts",
     "sortable.js",
     "sortable.js.map",
     "sortable.d.ts",
@@ -18,6 +21,10 @@
     "./drag.js": {
       "types": "./drag.d.ts",
       "default": "./drag.js"
+    },
+    "./kernel.js": {
+      "types": "./kernel.d.ts",
+      "default": "./kernel.js"
     },
     "./sortable.js": {
       "types": "./sortable.d.ts",
@@ -31,18 +38,6 @@
       "types": "./sortable/xy.d.ts",
       "default": "./sortable/xy.js"
     },
-    "./sortable/callbacks.js": {
-      "types": "./sortable/callbacks.d.ts",
-      "default": "./sortable/callbacks.js"
-    },
-    "./sortable/placeholder.js": {
-      "types": "./sortable/placeholder.d.ts",
-      "default": "./sortable/placeholder.js"
-    },
-    "./sortable/handle.js": {
-      "types": "./sortable/handle.d.ts",
-      "default": "./sortable/handle.js"
-    },
     "./sortable/landing.js": {
       "types": "./sortable/landing.d.ts",
       "default": "./sortable/landing.js"
@@ -50,6 +45,9 @@
     "./sortable/layout-animation.js": {
       "types": "./sortable/layout-animation.d.ts",
       "default": "./sortable/layout-animation.js"
+    },
+    "./sortable/feature.js": {
+      "types": "./sortable/feature.d.ts"
     },
     "./package.json": "./package.json"
   },
@@ -67,7 +65,8 @@
     "size": "just size"
   },
   "dependencies": {
-    "@ydinjs/box-quad": "0.1.0"
+    "@ydinjs/box-quad": "0.1.0",
+    "type-fest": "5.8.0"
   },
   "devDependencies": {
     "@types/react": "19.2.17",

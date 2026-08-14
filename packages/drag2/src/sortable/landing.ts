@@ -6,45 +6,72 @@
  * module is imported. Installing it holds the gate through a runner — even with
  * `duration: 0`, which is immediate but not the same code path.
  *
- * **A runner is never responsible for correctness.** The `target` it is handed
- * is provisional and may be superseded; the kernel measures again at the join
- * and performs the authoritative pin. A runner's only obligations are to call
- * `done()` or `fail()` exactly once, and to relinquish the visual's transform on
- * `destroy()` so that pin is not overridden.
+ * **The library owns the animation at this tier** (D-63). ~~`landing({ run })`~~
+ * replaced the runner entirely, and it is gone with the three seam types it
+ * needed — `LandingStart`, `LandingHandle` and `LandingContext` are authoring
+ * vocabulary now and live on `sortable/feature.js`. What survives is the clause
+ * that made the slot look necessary and is true without it: **nothing in the
+ * contract assumes a CSS timing function or a finite known duration**, which is
+ * what keeps a kernel-tier spring authorable and what makes `duration: 0` safe.
+ *
+ * The runner the library installs is still never responsible for correctness:
+ * the kernel performs the authoritative pin at the join, and the runner's only
+ * obligations are to call `done()` or `fail()` exactly once and to relinquish
+ * the transform on `destroy()`.
  */
 import type { LandingHandle, LandingStart } from '../kernel/spec.ts';
 import type { Point } from '../kernel/types.ts';
-import {
-  brandFeature,
-  requireFinite,
-  type SortableFeature,
-} from './feature.ts';
+import type { SortableConfig } from './config.ts';
+import { requireFinite } from './slots.ts';
 
-export type { LandingHandle, LandingStart } from '../kernel/spec.ts';
-export type { LandingContext } from '../kernel/spec.ts';
+/**
+ * What a contextual `duration` is handed (D-67).
+ *
+ * `from` and `to` are the landing's origin-relative deltas — the same two
+ * points the runner animates between — and `distance` is the straight-line
+ * magnitude between them, which is the quantity review 3 §10 said a zero-
+ * argument thunk *"cannot even observe"*. All three are values the landing
+ * already holds at that moment; the object is the only new allocation.
+ */
+export type LandingTimingContext = Readonly<{
+  from: Point;
+  to: Point;
+  distance: number;
+}>;
+
+/**
+ * **The contextual duration function** (D-67), as a named alias for the reason
+ * every callback slot is one (F-51).
+ */
+export type LandingDuration = (context: LandingTimingContext) => number;
 
 export type LandingOptions = Readonly<{
   /**
-   * Fixed at construction, or **read at settle time** through a thunk (13b
-   * B-2). The thunk is called once per landing, immediately before the runner
-   * builds its animation — which is the moment the shipped package's
-   * `landingTiming()` was read, and after the settlement step that decides
-   * where the visual is going.
+   * Fixed at construction, or **read at settle time** through a function
+   * (13b B-2, D-67). The function is called once per landing, immediately
+   * before the runner builds its animation — which is the moment the shipped
+   * package's `landingTiming()` was read, and after the settlement step that
+   * decides where the visual is going.
    *
-   * A thunk keeps everything the default runner provides: the reduced-motion
-   * collapse, the retarget replay and the generation guard. What it costs is
-   * one call per landing and a `TypeError` that arrives at settle time rather
-   * than at construction — the value cannot be range-checked before it exists.
+   * **It takes a context now, and that is what kept the capability alive.**
+   * Review 3 §10 rejected the zero-argument thunk on its own terms; D-63 then
+   * removed `run`, which had been the other way to reach settle-time timing,
+   * leaving the thunk as the sole carrier of parity L-6. The contextual form
+   * discharges the objection instead of deleting the parity, and costs one
+   * object and one `Math.hypot` more than the thunk did.
+   *
+   * **A shipped `() => 200` keeps working** and is not a compile error: a
+   * zero-parameter function is assignable to any signature (F-52). The
+   * migration is source-compatible, and the only way to *require* the context
+   * would be a runtime arity check, which is not worth its cost for a form that
+   * still behaves correctly.
+   *
+   * What it costs, either way, is one call per landing and a `TypeError` that
+   * arrives at settle time rather than at construction — the value cannot be
+   * range-checked before it exists.
    */
-  duration?: number | (() => number);
+  duration?: number | LandingDuration;
   easing?: string;
-  /**
-   * Full replacement for the default Web Animations runner. A spring driving
-   * `requestAnimationFrame` and calling `done()` when it settles is a
-   * first-class citizen: nothing in the contract assumes a CSS timing function
-   * or a finite known duration.
-   */
-  run?: LandingStart;
 }>;
 
 const DEFAULT_DURATION = 200;
@@ -55,19 +82,19 @@ const DEFAULT_DURATION = 200;
 // observably different for every such consumer.
 const DEFAULT_EASING = 'ease';
 
-export function landing(options: LandingOptions = {}): SortableFeature {
-  const { run } = options;
-
-  if (run !== undefined) {
-    return brandFeature(() => ({ startLanding: run }));
-  }
-
+export function landing(
+  options: LandingOptions = {},
+): Pick<SortableConfig, 'landing'> {
+  // **Both options are always read and always validated** (D-63). `run` used to
+  // short-circuit this whole function, which meant the timing options were
+  // conditionally validated; removing it removes a conditional from the
+  // validation rule rather than adding one.
   const declared = options.duration ?? DEFAULT_DURATION;
   // Validated at construction when it is a number, and per landing when it is a
   // thunk — the earliest moment each form can be checked at all. A thunk that
   // returns a bad value throws from inside `start`, which the kernel already
   // classifies as `FAILURE_LANDING_CREATE`.
-  let timing: (() => number) | null = null;
+  let timing: LandingDuration | null = null;
   let fixed = 0;
 
   if (typeof declared === 'function') {
@@ -92,10 +119,22 @@ export function landing(options: LandingOptions = {}): SortableFeature {
     // its result adjusted afterwards. Resolving inside the collapse would make
     // a consumer's settle-time side effect, and a thrown or invalid result,
     // observable only for users who have not asked for reduced motion.
+    const { from, target } = context;
     const resolved =
       timing === null
         ? fixed
-        : requireFinite(timing(), 'landing({ duration })', 0);
+        : requireFinite(
+            timing({
+              from,
+              to: target,
+              // The one arithmetic D-67 adds. `from` and `to` were already
+              // computed for `LandingContext`; this is what makes the distance
+              // that motivated dynamic timing observable at all.
+              distance: Math.hypot(target.x - from.x, target.y - from.y),
+            }),
+            'landing({ duration })',
+            0,
+          );
     // Collapsed to zero rather than skipped: the gate is still held and still
     // released through the runner, so the lifecycle is one path whatever the
     // user's motion preference is.
@@ -161,7 +200,7 @@ export function landing(options: LandingOptions = {}): SortableFeature {
       animation = started;
     };
 
-    play(compose(context.from.x, context.from.y), context.target);
+    play(compose(from.x, from.y), target);
 
     return {
       destroy(): void {
@@ -171,21 +210,8 @@ export function landing(options: LandingOptions = {}): SortableFeature {
         // thing writing.
         animation.cancel();
       },
-
-      /**
-       * Trajectory quality only — a runner that omits it is fully correct. The
-       * replay starts from the *computed* transform rather than the authored
-       * origin, so a late correction is a smooth adjustment instead of a step.
-       */
-      retarget(target): void {
-        const { transform } = realm.window.getComputedStyle(visual);
-
-        generation += 1;
-        animation.cancel();
-        play(transform === 'none' ? '' : transform, target);
-      },
     };
   };
 
-  return brandFeature(() => ({ startLanding: start }));
+  return { landing: () => ({ startLanding: start }) };
 }
