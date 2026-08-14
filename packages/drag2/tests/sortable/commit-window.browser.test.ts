@@ -25,11 +25,11 @@
  */
 import { afterAll, afterEach, describe, expect, it } from 'vitest';
 import type { Point } from '../../src/drag.ts';
-import { landing } from '../../src/sortable/landing.ts';
 import type {
   LandingStart,
   SortableInstaller,
 } from '../../src/sortable/feature.ts';
+import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { y } from '../../src/sortable/y.ts';
 import {

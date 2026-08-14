@@ -22,12 +22,10 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { LandingContext } from '../../src/kernel/spec.ts';
-import { landing } from '../../src/sortable/landing.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
   ReorderResolution,
-
   type SortableConfig,
   type SortableController,
   type ReorderTransactionResult,

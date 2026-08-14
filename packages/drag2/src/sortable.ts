@@ -1,10 +1,16 @@
 /**
- * Public entrypoint for the sortable behavior.
+ * Public entrypoint for the sortable behavior — the **ordinary tier**.
  *
- * `SortableFeature` is declared **here and re-exported nowhere else**, so the
- * shared type has one resolvable identity across the separate declaration files
- * rather than a structurally-equal duplicate per subpath. The remaining public
- * type surface is phase 9.
+ * A consumer that composes a list reaches for this entry and `drag.js` and
+ * nothing else: `sortable()` takes the root, calls `draggable()` internally and
+ * returns its controller (D-48), so neither the kernel tier nor the installer
+ * tier is on the ordinary path.
+ *
+ * `SortableConfig` and **every alias it names** are exported from here (F-51),
+ * because a config slot a consumer can fill but cannot hoist out of the object
+ * literal is not a writable surface. ~~`SortableFeature` is declared here~~ —
+ * D-45 withdrew the feature brand, so a fragment is a plain partial config and
+ * there is no branded type left to give a single identity to.
  */
 import { draggable } from './kernel.ts';
 import { createComposedSortableBehavior } from './sortable/behavior.ts';

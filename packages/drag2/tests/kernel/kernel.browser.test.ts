@@ -2959,8 +2959,15 @@ describe('the transaction bracket', () => {
         prepare: (): HTMLElement => document.createElement('div'),
         effect(_current, _prepared, scope: ActivationScope): void {
           void harness.host.destroy();
-          latch = harness.host.closed;
-          aborted = scope.presentation.signal.aborted;
+
+          // Both read at this instant, on purpose: the point of the row is
+          // that the logical latch is already set here while the physical
+          // signal is not (D-36, D-38).
+          const { closed } = harness.host;
+          const { aborted: signalAborted } = scope.presentation.signal;
+
+          latch = closed;
+          aborted = signalAborted;
         },
       },
     });

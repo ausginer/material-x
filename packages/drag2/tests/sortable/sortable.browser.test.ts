@@ -1361,7 +1361,6 @@ describe('the terminal boundary (D-66)', () => {
       },
     });
 
-
     activate(harness);
     harness.next(harness.gap(2));
     release(60);

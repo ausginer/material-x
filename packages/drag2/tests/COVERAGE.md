@@ -150,7 +150,7 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | dragged item disappears | `tests/sortable/sortable.browser.test.ts` — _should cancel with item-removed when the dragged item vanishes_ | D-25, F-28 |
 | neighbour identity changes | `tests/sortable/sortable.browser.test.ts` — _should cancel when an internal gap loses its adjacency_ | F-31 |
 | update during release | `tests/sortable/sortable.browser.test.ts` — _should not rewrite the frozen snapshot after release_ | I-12 |
-| update during settlement | `tests/sortable/react.browser.test.ts` — the fixture signals `invalidate()` from every layout effect, including the commit that resolves readiness | I-12, D-25 |
+| update during settlement | `tests/sortable/react.browser.test.ts` — the fixture signals `invalidate()` from every layout effect, including the commit the resolver is awaiting | I-12, D-25 |
 | `invalidate()` after `destroy()` is a no-op for a **valid** replacement | `tests/sortable/sortable.browser.test.ts` — _should stay inert for a valid replacement_ | D3 |
 | `invalidate()` after `destroy()` is a no-op for an **invalid** one, and does not throw | `tests/sortable/sortable.browser.test.ts` — _should not throw for an invalid replacement_ | D3 |
 | a post-`destroy()` replacement queued from a callback is not classified as an activation failure | `tests/sortable/sortable.browser.test.ts` — _should not classify a post-destroy replacement as an activation failure_ | D3, I-6 |
@@ -188,9 +188,8 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 
 | Row | Test | ID |
 | --- | --- | --- |
-| no `landing()` but a declared authored presentation still holds one gate | `tests/sortable/composition.browser.test.ts` — _should hold settlement open for a declared authored presentation_ | I-9 |
 | neither gate held finalizes in the resolution drain | `tests/kernel/kernel.browser.test.ts` — _should finalize in the resolution drain when neither gate is held_ | I-9 |
-| a duplicate `holdForReadiness` is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a duplicate hold_ | F-6 |
+| a duplicate hold is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a duplicate hold_ | F-6 |
 | a hold requested after sealing is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a hold requested after sealing_ | F-6 |
 | `settlement.prepare` returning a `SeamRejection` classifies at the named stage | `tests/kernel/kernel.browser.test.ts` — _should classify a prepare rejection at the stage it names_ | F-20 |
 | an `effect` that throws is classified, not a panic | `tests/kernel/seams.node.test.ts` — _should classify a throwing effect from the committed state_ | F-19 |
@@ -259,10 +258,10 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | Row | Test | ID |
 | --- | --- | --- |
 | a kernel `CANCEL` produces a complete canceled result | `tests/sortable/composition.browser.test.ts` — _should cancel an active drag on demand_ | F-33 |
-| a failure checkpoint produces immediate recovery and no `finalized` call | `tests/sortable/sortable.browser.test.ts` — _should hold no landing gate for an immediate recovery_ | F-27 |
-| a no-op settlement calls `onFinish`, never `onCancel` | `tests/sortable/composition.browser.test.ts` — _should finish a drop that never left its own gap as a no-op_ | F-37 |
-| a rejected `ReorderResolution` value calls `onCancel` with a reason | `tests/sortable/composition.browser.test.ts` — _should cancel a rejected reorder_ | F-33 |
-| a rejected resolution _promise_ is `FAILURE_REORDER_RESOLUTION`, not `onCancel` | `tests/sortable/sortable.browser.test.ts` — _should classify a rejected round-trip promise_ | F-20 |
+| a failure checkpoint produces immediate recovery and **holds no landing gate** — it no longer implies no `finalized` call, which D-66 retracts | `tests/sortable/sortable.browser.test.ts` — _should hold no landing gate for an immediate recovery_ | F-27, D-66 |
+| a no-op settlement reaches `onEnd` with the `noop` arm, never the `canceled` one | `tests/sortable/composition.browser.test.ts` — _should finish a drop that never left its own gap as a no-op_ | F-37, D-62 |
+| a rejected `ReorderResolution` value reaches `onEnd` with the `rejected` arm and its reason | `tests/sortable/composition.browser.test.ts` — _should cancel a rejected reorder_ | F-33, D-62 |
+| a rejected resolution _promise_ is `FAILURE_REORDER_RESOLUTION` — a fault, not a consumer's chosen rejection; **it now also publishes a `canceled` terminal** (D-66) | `tests/sortable/sortable.browser.test.ts` — _should classify a rejected round-trip promise_ | F-20, D-66 |
 | public results narrow without an internal constant, carrying version/from/to/neighbours | `tests/consumer.node.test.ts` — the packed-consumer fixture narrows on `type` alone | F-41, D-31 |
 
 ## Explicit failure latching — new
@@ -333,6 +332,40 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 | the suppressor is ingress-scoped, not operation-scoped | `tests/kernel/kernel.browser.test.ts` — _should disarm the suppressor at teardown_; _…on the next pointerdown_ | D-54 |
 
 **Two rows are owed rather than closed.** Probe E is Chromium and mouse only, so touch long-press and tap-highlight behavior under the relocated `preventDefault()` is an **owed measurement** (02 §Input policy), not a passing row. And the focusable-grip obligation a `handle` carries is a documented consumer obligation with no library-side assertion available — a fixture can only observe that an unfocusable grip receives no keydown, which pins the platform rather than the library.
+
+---
+
+## The terminal, whole — new (D-66, D-62, D-63, D-67)
+
+**D-66 is the load-bearing one and it is a retraction**, so the rows below are mostly rows that _changed verdict_ rather than rows that arrived. The package had an unstated rule — a classified failure publishes no terminal — which nothing had ever decided and seven tests asserted as `not.toContain(…)`. D-66 replaces it with an implication: **every operation that _started_ on a live controller publishes exactly one terminal, the failure path included.** Operations that never started still publish nothing, and that half is a separate row because a guarantee widened by accident is indistinguishable from one that was designed.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a failure before `onStart` publishes no terminal | `tests/sortable/sortable.browser.test.ts` — _should publish no terminal when activation.prepare throws_ | D-66, Q-15 |
+| `onStart` itself throwing **does** publish one | `tests/sortable/sortable.browser.test.ts` — _should publish a terminal when onStart itself throws_ | D-66 |
+| a failure before the round-trip carries `AT_PROPOSAL` | `tests/sortable/sortable.browser.test.ts` — _should carry AT_PROPOSAL for a failure before the round-trip opens_ | D-66 |
+| …and so does a `release.effect` throw, which a `proposal !== null` derivation would have got wrong | `tests/sortable/sortable.browser.test.ts` — _should carry AT_PROPOSAL for a release.effect throw_ | D-66 |
+| a failure during the round-trip carries `AT_CONSUMER` | `tests/sortable/sortable.browser.test.ts` — _should map a cancel during the round-trip to the consumer stage_ | D-66 |
+| a consequential failure publishes the terminal **and** reports | `tests/sortable/sortable.browser.test.ts` — _should publish both channels for a consequential failure_ | D-66, D-60 |
+| a throwing terminal callback publishes exactly once, not forever | `tests/sortable/sortable.browser.test.ts` — _should publish exactly one terminal when the terminal callback throws_ | D-66 |
+| the kernel side: presentation is released before the terminal on the failure path too | `tests/kernel/kernel.browser.test.ts` — _should release presentation and still publish a terminal when the pin throws_ | D-66, I-14 |
+| …and the operation still retires afterwards | `tests/kernel/kernel.browser.test.ts` — _should retire after a throwing terminal callback_ | D-66 |
+| a skipped landing still terminates normally | `tests/kernel/kernel.browser.test.ts` — _should skip the landing and still terminate when the measurement throws_ | D-49, D-66 |
+| **one** `onEnd`, four arms, told apart by the discriminant alone | `tests/consumer.node.test.ts` — the packed-consumer fixture switches on `result.type` | D-62, F-41 |
+| the terminal slot is one slot and defaults to null | `tests/sortable/assemble.browser.test.ts` — _should leave the terminal callbacks null when uninstalled_ | D-62 |
+| a custom runner is authorable from the middle tier, without `landing()` | `tests/sortable/features.browser.test.ts` — _should let a middle-tier runner replace the default entirely_ | D-63, D-61 |
+| the timing options are validated **unconditionally** now | `tests/sortable/options.node.test.ts` — _should validate the duration unconditionally_ | D-63 |
+| `duration` is called once per landing, with the trajectory | `tests/sortable/features.browser.test.ts` — _should invoke duration once per landing, with the trajectory_ | D-67 |
+| a shipped zero-argument thunk still works | `tests/sortable/features.browser.test.ts` — _should keep a zero-argument thunk working_ | D-67, F-52, L-6 |
+| an out-of-domain contextual result classifies at settlement | `tests/sortable/features.browser.test.ts` — _should classify an out-of-domain contextual result at settlement_ | D-67 |
+
+**Three things these rows made concrete.**
+
+1. **D-66 needed a kernel site the contract did not name.** The contract assigns the fallback to `settlement.prepare` and the publication to `finalized`, but the failure path never reaches `finalized` — it runs REPORTING → `ERROR_REPORTED` → retire. The terminal is published from `ERROR_REPORTED`, **after presentation is released**, so a consumer's terminal sees the same world on both routes; a consumer must not have to know which route its drag took to know whether the placeholder is still in the list.
+2. **`FAILURE_TERMINAL_CALLBACK` is excluded, and the exclusion is the difference between one terminal and an infinite loop.** `finalized` has already run at that stage, so re-publishing would deliver a second end and — throwing again — do so forever. The behavior's own `settlement.prepare` makes the same exclusion from the other side, which is why the pair is asserted rather than either half.
+3. **D-67's compatibility row cannot be a type assertion.** A zero-parameter function is assignable to any signature (F-52), so `duration: () => 200` is not a compile error and no `@ts-expect-error` can pin it. It is asserted as behavior instead: the shipped form is still invoked, once, per landing.
+
+**Seven rows changed verdict rather than moving**, and each names the retracted assertion in its own comment: five in `tests/sortable/sortable.browser.test.ts` and two in `tests/kernel/kernel.browser.test.ts` read `toEqual([])` or `not.toContain('finalized')` until D-66. They were not wrong when written — nothing had decided the question — which is why the retraction is recorded at each site instead of the diff being left to explain itself.
 
 ---
 
@@ -410,7 +443,7 @@ Three things the fixtures made concrete that the decision stated abstractly:
 
 Sealing catches a hold taken _late_; nothing structural catches one never taken, because the observable end state is identical — the operation just finalizes sooner. Two mechanisms discharge it:
 
-- `tests/support/gates.ts` — armed by `tests/sortable/react.browser.test.ts`. Fails the `afterEach` if a terminal callback was delivered with a declared authored presentation still unacknowledged, or if `landing()` is installed and no runner ever started. Both arms are mutation-verified: suppressing `scope.holdForLanding` fails 10 of 11 tests with the F-6 message.
+- `tests/support/gates.ts` — armed by `tests/sortable/react.browser.test.ts`. Fails the `afterEach` if `landing()` is installed and no runner ever started, or if a terminal was delivered while the fixture's own authored commit was still outstanding. Both arms are mutation-verified: suppressing `scope.holdForLanding` fails 10 of 11 tests with the F-6 message. **Two changes since it was written.** D-41 deleted the readiness gate, so the second arm brackets the _consumer's_ commit barrier rather than a library declaration — the failure it catches is unchanged, its owner moved. And D-49 added `faultReported()`, which exempts an operation from the landing arm: a skipped landing starts no runner, and the report is the same signal the consumer gets.
 - The recording runners in `tests/sortable/landing-space.browser.test.ts` and `tests/sortable/features.browser.test.ts` assert on what the runner captured, so a runner that never started fails those suites on the recorded value.
 
 ## Q-12 — the degraded re-anchor, judged
@@ -424,7 +457,7 @@ Fixtures: `tests/sortable/react.browser.test.ts` › _that unmounts the dragged 
 Two things the fixtures made concrete that the contract stated abstractly:
 
 1. **A row React merely drops cannot exercise the guard at all.** A removed node is parentless, and `ChildNode.before()` on a parentless node is already a no-op, so guarded and unguarded re-anchoring are indistinguishable. The hazard needs a _disconnected node that still has a parent_ — a recycle pool, a keep-alive cache, a virtualizer's spare list — or a _connected_ node under a different parent, which is a row moved to a second list. Both shapes are now fixtures.
-2. **The re-anchor happens at the join, not at arm time.** With readiness pending, `authoredReady` is false and the re-anchor is skipped entirely, so the guard is unreachable until the gate settles. Any test hoping to discriminate it through the provisional landing target measures the wrong moment; the discriminating probe is a `MutationObserver` on the container the consumer moved the row into.
+2. **The re-anchor happens at the join, not at arm time.** ~~With readiness pending, `authoredReady` is false and the re-anchor is skipped entirely~~ — D-41 removed the pending state, and under the serial commit the re-anchor runs once, at the join, with the authored DOM already final. The observation that survives is the one that matters to a fixture: a test hoping to discriminate the guard through the provisional landing target measures the wrong moment; the discriminating probe is a `MutationObserver` on the container the consumer moved the row into.
 
 Cancelling the settlement outright — the alternative Q-12 left open — would buy nothing here and would turn a consumer's own unmount into a reported failure. **Q-12 is closed in favour of the fallback as specified**; §[05](../.plan/contract/05-lifecycle-invariants.md) records the landed answer and this section is its evidence, not a pending recommendation.
 
@@ -436,6 +469,6 @@ Recorded rather than removed, so a later reader does not mistake them for covera
 | --- | --- |
 | `item.isConnected` in `anchorTarget`'s destination re-anchor (`src/sortable/spec.ts`) | Strictly implied by the parentage conjunct beside it. A disconnected item either has no parent (blocked, and `before()` would be a no-op anyway) or a different parent (blocked). The only case it alone would catch — item and placeholder in the _same_ detached tree — measures the origin either way. The parentage conjunct **is** falsifiable: _should not re-anchor into a container the consumer moved the row to_. |
 | `rt.closed` in `action.prepare(TAG_SPATIAL)` after `resolveInsertion` (`src/sortable/spec.ts`) | Unreachable through any first-party composition. The candidate-loop barrier already makes a destroyed traversal produce `count === 0`, so `nearest === -1` and the axis rule returns `null` — the `resolved === null` disjunct beside it always fires first. It is defence in depth against an axis rule that reaches consumer code by some other route, and is kept deliberately rather than left to be rediscovered as dead code. |
-| `settlement !== attempt` in `watchReadiness` **and** in `handleReadinessSettled` (`src/kernel/kernel.ts`) | Two nested identity checks plus the `readinessHeld` flag and the `SETTLING` phase test. Every route that makes an attempt stale also clears `readinessHeld` or leaves the phase, so removing either identity check individually changes nothing. Defense in depth, deliberately kept. |
+| ~~`settlement !== attempt` in `watchReadiness` **and** in `handleReadinessSettled`~~ | **Retired, not reclassified.** D-41 deleted both functions with the readiness protocol, so the mutant has no subject. Recorded rather than dropped because this table is the register a later reader checks against the source: an entry that silently vanished would look like a guard that was never examined. |
 
 The precedent for _removing_ an unfalsifiable conjunct rather than recording it (Checkpoint B's placeholder parentage/adjacency pair) applies when the conjunct is dead weight in the only shape that reaches it. These two are cheap, and one of them is a second line of defence on a staleness rule — so they stay, named.

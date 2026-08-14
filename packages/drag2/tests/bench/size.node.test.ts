@@ -27,8 +27,8 @@ import {
   violations,
 } from '../../bench/size/measure.ts';
 import type { DOMRealm } from '../../src/kernel/realm.ts';
-import { mergeFragments } from '../../src/sortable/config.ts';
 import { assemble } from '../../src/sortable/assemble.ts';
+import { mergeFragments } from '../../src/sortable/config.ts';
 import type { FeatureContext } from '../../src/sortable/feature.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';

@@ -40,7 +40,6 @@ import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
-
   type SortableController,
   type ReorderTransactionResult,
   sortable,
@@ -216,7 +215,7 @@ function mount(options: Options = {}): Fixture {
     // already run.
     if (pending !== null) {
       pending = null;
-      witness.readinessSettled();
+      witness.commitClosed();
     }
 
     for (const waiter of commitWaiters.splice(0)) {
@@ -342,7 +341,7 @@ function mount(options: Options = {}): Fixture {
           return ReorderResolution.accept();
         }
 
-        witness.readinessSupplied();
+        witness.commitOpened();
         // **The whole integration, and D-41 is what makes it this short.**
         // React's commit lands after this event handler returns, so a
         // consumer whose render must be on screen before the drop lands

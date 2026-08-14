@@ -9,12 +9,12 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { DraggableError, Point } from '../../src/drag.ts';
+import type { OnReorder } from '../../src/sortable/domain.ts';
 import type {
   LandingHandle,
   LandingStart,
   SortableInstaller,
 } from '../../src/sortable/feature.ts';
-import type { OnReorder } from '../../src/sortable/domain.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { y } from '../../src/sortable/y.ts';

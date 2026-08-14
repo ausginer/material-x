@@ -21,12 +21,9 @@
  * 2.3ms per committed move at 800 rows, and the items outside the span do not
  * move at all, so a full-list pass animates zero deltas for them.
  */
-import {
-  type SortableInstaller,
-} from './feature.ts';
 import type { SortableConfig } from './config.ts';
-import { requireFinite } from './slots.ts';
-import type { DisplacementView } from './slots.ts';
+import type { SortableInstaller } from './feature.ts';
+import { requireFinite, type DisplacementView } from './slots.ts';
 
 export type LayoutAnimationOptions = Readonly<{
   duration?: number;

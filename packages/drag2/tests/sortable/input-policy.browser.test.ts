@@ -90,8 +90,8 @@ type Point = Readonly<{ x: number; y: number }>;
  * coordinates. Walk the (same-origin) frame chain to convert.
  */
 function toPage(local: Point): Point {
-  let x = local.x;
-  let y = local.y;
+  let { x } = local;
+  let { y } = local;
   let view: Window = window;
 
   while (view.frameElement !== null) {
@@ -166,12 +166,18 @@ async function dragFrom(
   await mouse('mousePressed', from, 1, modifiers);
 
   for (let step = 1; step <= 4; step += 1) {
+    // Sequential by necessity: this is real input against a real browser, and
+    // a threshold crossing is a *sequence* of samples. `Promise.all` would
+    // dispatch four moves with no frame between them, which is a different
+    // gesture from the one the policy is being measured against.
+    // oxlint-disable-next-line no-await-in-loop
     await mouse(
       'mouseMoved',
       { x: from.x + (dx * step) / 4, y: from.y + (dy * step) / 4 },
       1,
       modifiers,
     );
+    // oxlint-disable-next-line no-await-in-loop
     await nextFrame();
   }
 
@@ -277,8 +283,8 @@ function build(options: BuildOptions = {}): Fixture {
     root.append(row);
     rows.push(row);
     rowByName.set(spec.name, row);
-    controls.set(spec.name, row.querySelector('[data-c]') as HTMLElement);
-    grips.set(spec.name, row.querySelector('.grip') as HTMLElement);
+    controls.set(spec.name, row.querySelector('[data-c]')!);
+    grips.set(spec.name, row.querySelector('.grip')!);
   }
 
   const log: EventLogEntry[] = [];
@@ -996,6 +1002,10 @@ describe('input policy / modifiers', () => {
     ] as const) {
       const fixture = build();
 
+      // One fixture at a time, deliberately: each iteration drives the real
+      // pointer, and overlapping two drags would let one modifier's gesture
+      // observe another's DOM.
+      // oxlint-disable-next-line no-await-in-loop
       await dragFrom(centre(fixture.grip('prose')), 0, -60, mask);
 
       outcomes[name] = {
@@ -1065,6 +1075,8 @@ describe('input policy / modifiers', () => {
     ] as const) {
       const fixture = build();
 
+      // Sequential for the same reason as the modifier sweep above.
+      // oxlint-disable-next-line no-await-in-loop
       await tapAt(centre(fixture.control('link')), mask);
 
       outcomes[name] = {

@@ -3,12 +3,12 @@ import { useEffect, useRef, useState, type JSX } from 'react';
 import { flushSync } from 'react-dom';
 import { landing } from './sortable/landing.ts';
 import { layoutAnimation } from './sortable/layout-animation.ts';
-import { xy } from './sortable/xy.ts';
-import { y } from './sortable/y.ts';
 import type {
   PlaceholderContext,
   PlaceholderFactory,
 } from './sortable/placement.ts';
+import { xy } from './sortable/xy.ts';
+import { y } from './sortable/y.ts';
 import {
   ReorderResolution,
   sortable,
@@ -48,38 +48,40 @@ type SortableDemoProps = Readonly<{
 
 /**
  * A controlled sortable collection, and the reference React integration of the
- * authored-presentation gate (D-33).
+ * **serial authored commit** (D-41).
  *
  * The kernel proposes a reorder through the required, explicit `onReorder`
- * resolution. React owns the order state and commits it *from that resolution*,
- * **declaring** that a presentation follows and **acknowledging** it from a
- * `useLayoutEffect` once the corresponding render has been committed to the DOM.
+ * resolution. React owns the order state and commits it *inside that
+ * resolution*, through `flushSync`, and only then returns `accept()`. There is
+ * no declaration, no acknowledgement and no `useLayoutEffect`: the resolution
+ * returning **is** the signal the deleted protocol used to carry, because the
+ * commit is serial — release → freeze proposal → `onReorder` → your commit →
+ * your resolution → the library restores its presentation invariants → the
+ * authoritative landing measurement → landing → terminal.
  *
- * That acknowledgement is what makes the drop correct rather than merely
- * lucky. `onEnd` is terminal (D-62) — it runs after the kernel has already released
- * the lift and placeholder — so committing there always renders too late and the
- * list visibly snaps back to its pre-drag order first. Committing from
- * `onReorder` overlaps the re-render with the landing animation, but on its own
- * that only wins a race: reduced motion collapses the landing to zero, and a
- * busy main thread or a concurrent render can still lose it. The declaration
- * removes the race — the two settlement gates are independent, and the kernel
- * holds the temporary presentation until React says the authored DOM exists.
+ * That ordering is what makes the drop correct rather than merely lucky.
+ * `onEnd` is terminal (D-62) — it runs after the kernel has already released
+ * the lift and placeholder — so committing there always renders too late and
+ * the list visibly snaps back to its pre-drag order first. Committing from
+ * `onReorder` *without* a barrier only wins a race: reduced motion collapses
+ * the landing to zero, and a busy main thread or a concurrent render can still
+ * lose it. `flushSync` removes the race, and it is integration code rather than
+ * a drag protocol — a consumer whose commit is asynchronous writes `await`
+ * instead, and the library never has a render to wait for either way.
  *
- * **The whole integration is the two lines below and one ref.** There is no
- * commit tracker: the protocol supersedes nothing, creates nothing and drops
- * nothing, because the identity it keys on is the `request` object `onReorder`
- * was already handed. What survives is one irreducible obligation — only the
- * consumer knows when its own commit landed, so only the consumer can call
- * `ready()`. A declaration that is never acknowledged is a deliberate cost: it
- * stalls for `readinessTimeout` and then reports `FAILURE_PRESENTATION_READY`,
- * loudly, rather than completing over an unrendered DOM.
+ * **This doc comment described the D-33 readiness protocol until Revision 2**,
+ * where the story stored the `request` it was handed and a layout effect called
+ * `controller.ready(request)`. D-41 deletes `ready()`, `ResolutionOptions`, the
+ * acknowledgement deadline and `readinessTimeout` outright; what a consumer
+ * writes instead is the two statements below.
  *
- * The composition is the other half of the demo. Nothing is inferred from an
- * options object: the axis rule, the landing animation, the displacement
- * animation and the callbacks are each an installed feature, assembled once at
- * construction and immutable for the controller's life. A story that installs
- * no `placeholder()` still gets a placeholder — the mechanics are the
- * behavior's, and the feature only customises the element.
+ * The composition is the other half of the demo, and D-56 shrank it: only the
+ * capabilities that **install** something are composed — the axis rule, the
+ * landing animation and the displacement animation — while the consumer's own
+ * slots are plain keys in one config object. Everything is assembled once at
+ * construction and immutable for the controller's life. A story that supplies
+ * no `placeholder` still gets a placeholder — the mechanics are the behavior's,
+ * and the slot only customises the element (D-65).
  */
 function SortableDemo({
   labels,

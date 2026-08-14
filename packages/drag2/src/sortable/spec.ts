@@ -1641,9 +1641,19 @@ export function createSortableSpec(
     },
 
     /**
-     * A failure with no operation to settle: `admit` threw, so identity was
-     * never minted and there is no checkpoint to queue (Q-1). The controller
-     * stays idle and usable.
+     * The un-classified report channel, for **both** of its callers.
+     *
+     * `admit` threw, so identity was never minted and there is no checkpoint to
+     * queue (Q-1) — the controller stays idle and usable; **or** the landing
+     * measurement failed on a reorder that already committed (D-49), in which
+     * case an operation is very much live, its result stands, and its terminal
+     * publishes after this returns (D-60, D-66).
+     *
+     * `domain: null` for both. The hook is handed no frame, so this callback
+     * cannot see the result the second caller's operation carries; a consumer
+     * that needs it reads the `onEnd` that follows. The non-null case comes
+     * from the settlement failure path, which reports from `settlement.effect`
+     * with the frame in hand.
      */
     reportFailure(stage, error) {
       slots.onError?.(toDraggableError(stage, error), { domain: null });

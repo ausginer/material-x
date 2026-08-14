@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import files from '../files.json' with { type: 'json' };
 import * as drag from '../src/drag.ts';
 import * as kernel from '../src/kernel.ts';
+import * as feature from '../src/sortable/feature.ts';
 import * as landing from '../src/sortable/landing.ts';
 import * as layoutAnimation from '../src/sortable/layout-animation.ts';
 import * as xy from '../src/sortable/xy.ts';
 import * as y from '../src/sortable/y.ts';
-import * as feature from '../src/sortable/feature.ts';
 import * as sortable from '../src/sortable.ts';
 
 // Statically imported on purpose: this is the scratch consumer fixture for the

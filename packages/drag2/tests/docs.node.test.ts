@@ -12,6 +12,38 @@
  * the next public type to reference an internal alias breaks it with no other
  * failing test. The fix is always to export what the public type depends on, or
  * to inline the structure — never to suppress the warning.
+ *
+ * ## The kernel tier, and the one relaxation (Revision 2 closure)
+ *
+ * `kernel.js` has shipped since D-48 and was **missing from this run** — the
+ * header above said "the eight public entries" while `typedoc.json` listed
+ * seven, so the tier a behavior author writes against was the one tier no
+ * warning could reach. Adding it produced **17** of them, all of the same
+ * shape: `BehaviorSpec`, `KernelHost` and `BehaviorFactory` structurally name
+ * `Frame`, `Draft`, `Transition`, the five `SETTLED_*` codes and nine more,
+ * and none of those is exported.
+ *
+ * **They are not exported deliberately, and closure is not the place to change
+ * that.** Exporting them is an addition to a frozen surface and it pre-empts
+ * D-47 §11's queued work — *minimize the kernel vocabulary* — which is a
+ * decision about what a behavior author should have to name, not a
+ * documentation question. So the 17 are declared in `typedoc.json` under
+ * `intentionallyNotExported`, which states the exemption rather than hiding
+ * it, and the rule above is unchanged everywhere else.
+ *
+ * **The relaxation keeps its teeth, for three reasons.** Each entry is
+ * **file-qualified** (`src/kernel/frames.ts:Frame`), so the exemption covers
+ * exactly the kernel-internal declaration and a same-named leak from the
+ * sortable tier still warns. Any *new* unresolved reference — the case this
+ * test exists for — is not on the list and still fails. And TypeDoc warns when
+ * a listed name stops being referenced or becomes exported, so the list cannot
+ * outlive its reason: when D-47's vocabulary pass lands, the entries it
+ * resolves fail this test until they are deleted from the config.
+ *
+ * The honest summary is that the ordinary and middle tiers are documented
+ * under the strict rule, the kernel tier is documented with a fixed, decaying
+ * list of 17 known gaps, and the gaps are now visible in a config file instead
+ * of invisible in a missing entry point.
  */
 import { spawn } from 'node:child_process';
 import { mkdtemp } from 'node:fs/promises';

@@ -8,12 +8,8 @@
     "sortable/landing",
     "sortable/layout-animation"
   ],
-  "typeOnly": [
-    "sortable/feature"
-  ],
+  "typeOnly": ["sortable/feature"],
   "clean": {
-    "extras": [
-      "_virtual"
-    ]
+    "extras": ["_virtual"]
   }
 }

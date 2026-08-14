@@ -459,16 +459,43 @@ export type BehaviorSpec<Part extends object> = Readonly<{
   finalized(current: Readonly<Frame<Part>>): void;
 
   /**
-   * A failure with **no operation to settle**: `admit` threw, so identity was
-   * never minted, there is no failure checkpoint to queue and no `REPORTING`
-   * phase to enter (Q-1). The controller stays idle and usable; the behavior
-   * surfaces this to the consumer as a controller-level report.
+   * A failure the kernel must surface **without queueing a checkpoint**.
    *
    * This member is a deviation from the frozen `BehaviorSpec` listing, which
    * answers Q-1 with "the kernel reports through `onError`" while giving the
    * kernel no way to reach `onError` — the consumer callbacks belong to the
-   * behavior's `callbacks()` slot. One hook is the smallest way to make the
+   * behavior's callbacks slot. One hook is the smallest way to make the
    * answer implementable; see plan.md, phase 4.
+   *
+   * **There are two legitimate callers, and Revision 2 added the second.** The
+   * hook was documented as "a failure with *no operation to settle*", which was
+   * a true description of its only caller and was mistaken for its contract.
+   * The invariant that actually holds is the one both callers need: *reach
+   * `onError` without replacing a settlement.*
+   *
+   * 1. **Admission (Q-1, the original).** `admit` threw, so identity was never
+   *    minted, there is no checkpoint to queue and no `REPORTING` phase to
+   *    enter. The controller stays idle and usable. Stage:
+   *    `FAILURE_ADMISSION`.
+   * 2. **The landing measurement (D-49, added at Revision 2).** An operation
+   *    exists and its reorder has already been committed, so failing it would
+   *    settle a drop that really happened. The landing is **skipped rather
+   *    than faked**, the domain result stands, and the fault is reported here.
+   *    Stage: `FAILURE_LANDING_TARGET`, the first stage that is classified,
+   *    non-consequential and has no recovery.
+   *
+   * The two have opposite reasons — no operation at all versus an operation
+   * that must not be disturbed — and the same requirement, which is why one
+   * hook serves both. The kernel reaches caller 2 through
+   * `SeamContext.reportQuality`, never through `fail` or `report`.
+   *
+   * **Consequence for a behavior implementing this member:** a report from
+   * caller 2 is *not* proof that the operation is over, and the terminal for
+   * that operation still publishes afterwards (D-60, D-66). The hook is handed
+   * no frame, so a behavior that wants to attach its domain result to the
+   * report cannot; the sortable's `onError` context therefore carries
+   * `domain: null` for both callers, and the non-null case comes from the
+   * settlement failure path instead.
    */
   reportFailure(stage: FailureStage, error: unknown): void;
 

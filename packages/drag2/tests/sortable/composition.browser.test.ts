@@ -23,7 +23,6 @@ import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
   type ReorderRequest,
-
   type SortableController,
   type ReorderTransactionResult,
   sortable,
