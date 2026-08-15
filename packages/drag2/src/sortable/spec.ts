@@ -12,7 +12,7 @@ import {
   AT_PROPOSAL,
   FAILURE_INVALIDATION,
   FAILURE_RELEASE,
-  FAILURE_REORDER_RESOLUTION,
+  FAILURE_RESOLUTION,
   FAILURE_SCHEDULED_FRAME,
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
@@ -127,7 +127,7 @@ const rejection = (stage: FailureStage, message: string): SeamRejection => ({
 
 export function createSortableSpec(
   rt: SortableRuntime,
-): BehaviorSpec<SortableFramePart> {
+): BehaviorSpec<SortableFramePart, HTMLElement> {
   const { host, slots } = rt;
   const { realm } = host;
   // One per controller. Arming is per operation, on the motion signal.
@@ -1415,7 +1415,7 @@ export function createSortableSpec(
 
             if (!isReorderResolution(value)) {
               return rejection(
-                FAILURE_REORDER_RESOLUTION,
+                FAILURE_RESOLUTION,
                 'drag: onReorder resolved with a value that is not a ReorderResolution',
               );
             }
@@ -1456,7 +1456,7 @@ export function createSortableSpec(
             // but as a fault reported through `onError`, with the terminal
             // saying `canceled` rather than `rejected`.
             return {
-              stage: FAILURE_REORDER_RESOLUTION,
+              stage: FAILURE_RESOLUTION,
               error: input.error,
             };
           }

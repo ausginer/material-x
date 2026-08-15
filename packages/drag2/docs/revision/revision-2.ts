@@ -119,17 +119,17 @@ import {
   SETTLED_FAILED,
   draggable,
   type CancelStage,
+  FAILURE_ACTION_EFFECT,
+  FAILURE_ACTION_PREPARE,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
-  FAILURE_INSERTION,
   FAILURE_INVALIDATION,
   FAILURE_LANDING_CREATE,
   FAILURE_LANDING_INTERRUPTED,
   FAILURE_LANDING_TARGET,
-  FAILURE_PLACEHOLDER_MOVE,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
-  FAILURE_REORDER_RESOLUTION,
+  FAILURE_RESOLUTION,
   FAILURE_SCHEDULED_FRAME,
   FAILURE_TERMINAL_CALLBACK,
   type AdmissionSubject,
@@ -200,11 +200,11 @@ const stageToCode: Readonly<Record<FailureStage, DraggableErrorCode>> = {
   [FAILURE_ADMISSION]: 'consumer',
   [FAILURE_ACTIVATION]: 'interaction',
   [FAILURE_RENDERER_WRITE]: 'presentation',
-  [FAILURE_INSERTION]: 'presentation',
-  [FAILURE_PLACEHOLDER_MOVE]: 'presentation',
+  [FAILURE_ACTION_PREPARE]: 'presentation',
+  [FAILURE_ACTION_EFFECT]: 'presentation',
   [FAILURE_INVALIDATION]: 'platform',
   [FAILURE_SCHEDULED_FRAME]: 'platform',
-  [FAILURE_REORDER_RESOLUTION]: 'consumer',
+  [FAILURE_RESOLUTION]: 'consumer',
   [FAILURE_RELEASE]: 'interaction',
   [FAILURE_LANDING_CREATE]: 'presentation',
   [FAILURE_LANDING_INTERRUPTED]: 'presentation',
@@ -414,9 +414,15 @@ controller.invalidate();
  */
 const kernelSide: SortableController = draggable<
   SortableController,
-  SortableFramePart
+  SortableFramePart,
+  HTMLElement
 >(root, (host) => {
-  const spec: BehaviorSpec<SortableFramePart> = {
+  // **`HTMLElement` is written out, and D-34 is why it can be** (K-1). The
+  // staged activation type is the behavior's choice now; this one stages an
+  // element, so it says so. Omitting the argument here would not be shorter by
+  // accident — it would declare a behavior that stages nothing, and the
+  // `return root` below would stop compiling.
+  const spec: BehaviorSpec<SortableFramePart, HTMLElement> = {
     // D-59 — either form is admissible.
     admit: (event, _draft) =>
       event.target instanceof HTMLElement

@@ -7,7 +7,7 @@ import {
   FAILURE_LANDING_TARGET,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
-  FAILURE_REORDER_RESOLUTION,
+  FAILURE_RESOLUTION,
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
 } from '../../src/kernel/failures.ts';
@@ -18,12 +18,16 @@ import {
   RELEASING,
   SETTLING,
 } from '../../src/kernel/phases.ts';
-import { LIFT_FLAT } from '../../src/kernel/presentation.ts';
+import {
+  LIFT_FLAT,
+  type BehaviorLiftSession,
+} from '../../src/kernel/presentation.ts';
 import {
   type ActivationScope,
   type BehaviorSpec,
   type CommandAdmission,
   type KernelHost,
+  type LandingContext,
   type LandingHandle,
   type LandingStart,
   type PreparedSettlement,
@@ -72,7 +76,7 @@ type Harness = Readonly<{
 
 type SpecOverrides = Partial<
   Pick<
-    BehaviorSpec<ExamplePart>,
+    BehaviorSpec<ExamplePart, HTMLElement>,
     | 'admit'
     | 'activation'
     | 'release'
@@ -173,11 +177,15 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
 
   const controller = draggable<
     { cancel(reason?: unknown): void; destroy(): Promise<void> },
-    ExamplePart
+    ExamplePart,
+    HTMLElement
   >(root, (kernelHost) => {
     host = kernelHost;
 
-    const spec: BehaviorSpec<ExamplePart> = {
+    // **The harness stages an `HTMLElement`, and now says so** (D-34, K-1).
+    // The parameter defaults to `true`; a behavior that stages a real resource
+    // declares it, exactly as the sortable does.
+    const spec: BehaviorSpec<ExamplePart, HTMLElement> = {
       createFramePart:
         overrides.createFramePart ??
         ((): ExamplePart => ({ item: null, note: '' })),
@@ -375,7 +383,7 @@ const flush = (): Promise<void> =>
 
 const releaseWith = (
   invoke: ResolutionCommand['invoke'],
-): BehaviorSpec<ExamplePart>['release'] => ({
+): BehaviorSpec<ExamplePart, HTMLElement>['release'] => ({
   prepare: () => ({ invoke }),
   effect: (): void => {},
 });
@@ -1656,7 +1664,7 @@ describe('the settlement seam', () => {
           }
 
           return {
-            stage: FAILURE_REORDER_RESOLUTION,
+            stage: FAILURE_RESOLUTION,
             error: new Error('not a resolution'),
           };
         },
@@ -1669,7 +1677,7 @@ describe('the settlement seam', () => {
 
     // Acceptance is never inferred: a fulfilled value that is not an explicit
     // resolution is classified, and nothing below the rejection runs.
-    expect(harness.failures[0]!.stage).toBe(FAILURE_REORDER_RESOLUTION);
+    expect(harness.failures[0]!.stage).toBe(FAILURE_RESOLUTION);
     // **And the operation is still disposed of** (D-66). "Nothing below the
     // rejection runs" is about *continuation* — no gate arming, no consumer
     // invocation, no retirement past the failure. The terminal is disposition,
@@ -2060,6 +2068,288 @@ describe('landing completion', () => {
 
     expect(runner.calls).toEqual([]);
   });
+});
+
+/**
+ * **The landing origin (D-35, K-3).**
+ *
+ * `LandingContext.from` was `pointerX - originX`, documented as *where the
+ * visual is now*. Those are the same number for exactly one behavior — one
+ * whose `moved` writes the raw pointer delta on both axes, which is what the
+ * sortable does and what this harness's default `moved` deliberately does not.
+ * For a behavior that constrains, clamps, snaps or externally drives its visual
+ * they differ, and a pointerless operation has no pointer to subtract at all.
+ *
+ * **Why the whole suite could stay green through it** is the part worth
+ * repeating: the landing opens with a jump and still *ends* correctly, because
+ * the target is behavior-supplied and the kernel re-pins at the join. Phase 11
+ * met the same shape in the lift geometry and only a demo exposed it. So every
+ * row here reads `from` at the one instant it exists — inside `start` — rather
+ * than inferring it from where the drop ended, which is the assertion that
+ * cannot tell the defect from the fix.
+ */
+describe('the landing origin', () => {
+  /**
+   * Presses, moves through `path`, releases, and returns what the runner was
+   * handed. The release coordinate is the last point of `path` unless
+   * `releaseAt` names another — the two differ where the point is to show that
+   * `from` follows the *write*, not the pointer.
+   */
+  const sample = (
+    overrides: SpecOverrides,
+    path: ReadonlyArray<readonly [x: number, y: number]>,
+  ): Readonly<{
+    harness: Harness;
+    context: LandingContext | null;
+    /**
+     * The visual's inline transform **at the instant `from` was sampled**.
+     * Read here rather than after the drop, because teardown restores the
+     * inline-style lease: an assertion against the element afterwards compares
+     * the composition to an empty string and passes for the wrong reason.
+     */
+    transform: string;
+  }> => {
+    let context: LandingContext | null = null;
+    let transform = '';
+    const harness = createHarness({
+      ...overrides,
+      startLanding: (received, done): LandingHandle => {
+        const {
+          visual: {
+            style: { transform: written },
+          },
+        } = received;
+
+        context = received;
+        transform = written;
+        done();
+        return { destroy(): void {} };
+      },
+    });
+
+    press(harness.item);
+
+    for (const [x, y] of path) {
+      move(x, y);
+    }
+
+    const last = path.at(-1) ?? [10, 10];
+
+    release(last[0], last[1]);
+
+    return { harness, context, transform };
+  };
+
+  /** A `moved` that renders the raw pointer delta — the sortable's shape. */
+  const followsPointer = (
+    current: Readonly<Frame<ExamplePart>>,
+    lift: BehaviorLiftSession,
+  ): void => {
+    lift.write(
+      current.pointerX - current.originX,
+      current.pointerY - current.originY,
+    );
+  };
+
+  it('should reproduce the transform the drag last wrote', () => {
+    const { context, transform } = sample({ moved: followsPointer }, [
+      // **Two moves, and the first one is not decoration.** The
+      // threshold-crossing move is the activation; `moved` runs from the next
+      // committed sample onwards. A one-move fixture here renders nothing and
+      // would pass every row below with `(0, 0)` for the wrong reason.
+      [40, 60],
+      [70, 90],
+    ]);
+
+    // **The agreement case, by construction**: this `moved` writes the raw
+    // pointer delta, which is the one shape for which the old computation was
+    // right, so the row below is not the falsifier — the five that follow are.
+    // What it does add is the composition identity a runner depends on.
+    //
+    // **Non-zero on both axes, and that is the whole design of the fixture.** A
+    // delta and a viewport point agree at the origin and nowhere else, so a
+    // fixture that drags along one axis from a grab at `(0, 0)` cannot tell the
+    // recorded delta from the pointer position or from either mistake in
+    // between. Grab is `(10, 10)`, so this is `(60, 80)`.
+    expect(context).not.toBeNull();
+    expect(context!.from).toEqual({ x: 60, y: 80 });
+    // The end-to-end form of the same claim, and the one a runner depends on:
+    // `from` and `compose` are the same coordinate space, so composing the
+    // origin the runner is handed reproduces the transform already on the
+    // element. A runner that starts by writing `compose(from.x, from.y)`
+    // therefore writes exactly what is already there — no first-frame jump.
+    expect(context!.compose(context!.from.x, context!.from.y)).toBe(transform);
+  });
+
+  it('should report the constrained delta rather than the pointer delta', () => {
+    // The cheapest constraining behavior there is: an axis lock. It is also the
+    // one free drag ships, which is why this row is K-3's and L-4's shared
+    // half — the difference is that free drag reaches it on three paths.
+    const { context } = sample(
+      {
+        moved(current, lift): void {
+          lift.write(current.pointerX - current.originX, 0);
+        },
+      },
+      [
+        [40, 10],
+        [40, 60],
+      ],
+    );
+
+    // The pointer travelled 50px down. The visual did not, so neither does the
+    // landing origin. Under the pointer form this read `{ x: 30, y: 50 }` and
+    // the drop opened 50px below the visual.
+    expect(context!.from).toEqual({ x: 30, y: 0 });
+  });
+
+  it('should track a write issued from an action effect', () => {
+    // 13c N-4's case: a controlled position, written from a seam that is not
+    // `moved` at all. This is what the rejected `renderedDelta(current)` seam
+    // would have got wrong without the behavior mirroring every write into its
+    // own frame part — the duplication that produced the defect in the first
+    // place. The kernel records its own writes, so the route does not matter.
+    let retained: BehaviorLiftSession | null = null;
+    let context: LandingContext | null = null;
+    const harness = createHarness({
+      activation: {
+        prepare: (): HTMLElement => document.createElement('div'),
+        effect(_current, _prepared, scope: ActivationScope): void {
+          retained = scope.lift;
+        },
+      },
+      moved: followsPointer,
+      action: {
+        prepare: (): {} => true,
+        effect(): void {
+          retained!.write(-5, 7);
+        },
+      },
+      startLanding: (received, done): LandingHandle => {
+        context = received;
+        done();
+        return { destroy(): void {} };
+      },
+    });
+
+    press(harness.item);
+    move(40, 60);
+    harness.host.dispatch(0, null);
+    release(40, 60);
+
+    expect(context!.from).toEqual({ x: -5, y: 7 });
+  });
+
+  it('should report the origin for an operation that never rendered', () => {
+    // The harness default `moved` records the call and writes nothing, so the
+    // visual is still where acquisition left it. `(0, 0)` is not a fallback
+    // here — it is the true answer, and it is the initial value of the record
+    // rather than a special case anyone had to write.
+    const { context } = sample({}, [[40, 60]]);
+
+    expect(context!.from).toEqual({ x: 0, y: 0 });
+  });
+
+  it('should report the origin for a pointerless operation', () => {
+    let context: LandingContext | null = null;
+    const harness = createHarness({
+      command: {
+        types: ['keydown'],
+        admit: (_event, draft): HTMLElement => {
+          draft.item = harness.item;
+          return harness.item;
+        },
+      },
+      startLanding: (received, done): LandingHandle => {
+        context = received;
+        done();
+        return { destroy(): void {} };
+      },
+    });
+
+    harness.root.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+    );
+
+    // **`(0, 0)`, and never `-originX`.**
+    //
+    // **This row does not discriminate today, and saying so is the point.** A
+    // command mints at `(0, 0)` with `pointerId === -1`, so `originX` is zero
+    // and the subtracted form arrives at the same answer by coincidence — this
+    // test passes against the pre-D-35 kernel. It is kept because the
+    // coincidence is one line wide: any pointerless mint seeded from a real
+    // coordinate — the item's rect, a caret, a focus point — makes the
+    // subtracted form return the *negated* origin and teleport the visual
+    // across the viewport at the start of its landing. The recorded delta has
+    // no such failure mode: nothing wrote, so nothing moved.
+    expect(context).not.toBeNull();
+    expect(context!.from).toEqual({ x: 0, y: 0 });
+  });
+
+  it('should record nothing for a compose without a write', () => {
+    // Composing is not rendering — a landing runner composes on every frame and
+    // must not move the origin under itself.
+    const { context } = sample(
+      {
+        moved(current, lift): void {
+          void lift.compose(
+            current.pointerX - current.originX,
+            current.pointerY - current.originY,
+          );
+        },
+      },
+      [
+        [40, 10],
+        [40, 60],
+      ],
+    );
+
+    expect(context!.from).toEqual({ x: 0, y: 0 });
+  });
+
+  it('should leave the recorded delta stale when a behavior writes behind it', () => {
+    // **The adversarial case, and it documents a limit rather than a
+    // guarantee** (C4-02, C4-07). A behavior holds the real element through
+    // `ActivationScope.visual` and through the session, so it can always write
+    // the transform itself. Doing so leaves the record describing the last
+    // `write` — here, no write at all — and the landing opens from there.
+    //
+    // **This is unsupported tier-C discipline, not a defect**, and the row
+    // exists so that the limit of I-34 is executable instead of only asserted.
+    // The enforced half is narrower and is the half that matters: the behavior
+    // supplies no origin, so it cannot make `from` and the record disagree — it
+    // can only render behind the session's back.
+    const { context, transform } = sample(
+      {
+        moved(current, lift): void {
+          lift.visual.style.transform = `translate(${
+            current.pointerX - current.originX
+          }px, 0px)`;
+        },
+      },
+      [
+        [40, 10],
+        [40, 60],
+      ],
+    );
+
+    expect(transform).toBe('translate(30px, 0px)');
+    expect(context!.from).toEqual({ x: 0, y: 0 });
+  });
+
+  /**
+   * **The temporal limit is documented, not asserted** (C6-01, and this comment
+   * is the row).
+   *
+   * A retained `lift.write` called after `from` is sampled still renders, and
+   * fights the landing runner for the same property; called after `retire()` it
+   * writes onto an element no live operation owns. Both are outside the
+   * contract and **neither is refused**. No test pins the current behavior,
+   * because a test here would read as a promise: the kernel deliberately adds
+   * no phase guard — a branch on the one path M-1 measures, defending against a
+   * bug no reference behavior has, converting a contract violation into a
+   * *silent* no-op, which is the harder of the two defects to find.
+   */
 });
 
 describe('the join', () => {

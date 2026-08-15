@@ -20,30 +20,32 @@ It sits below 00 and above 06 in the precedence order of [00 §Normative precede
 
 ## Conflicts with the existing kernel, raised rather than worked around
 
-### F-63 — two Phase 14 decisions are normative and unimplemented
+### F-63 — two Phase 14 decisions were normative and unimplemented · **resolved 2026-08-15**
 
-`plan.md` §Phase 14 books both for "Phases 19–20", so this is a scheduling fact rather than a drift. What makes it a **finding** is that free drag is not merely their first consumer — it is incorrect without them, and nothing in the toolchain says so.
+`plan.md` §Phase 14 booked both for "Phases 19–20", so this was a scheduling fact rather than a drift. What made it a **finding** is that free drag is not merely their first consumer — it is incorrect without them, and nothing in the toolchain said so.
 
-| Decision | What the contract says | What `src/` does |
+**Both landed as D-76's discrete kernel step, against the sortable alone and with no free-drag module in the tree.** The table records what was found; the third column is what the step changed.
+
+| Decision | What the contract says | What `src/` did, and does now |
 | --- | --- | --- |
-| **D-34** | `BehaviorSpec<Part, Activation extends {} = true>` — the activation seam's staged type is the behavior's choice | `activation: Transition<Part, HTMLElement, ActivationScope>` (`src/kernel/spec.ts:426`). Pinned |
-| **D-35** | `LandingContext.from` is the delta the lift session last rendered | `from: { x: current.pointerX - current.originX, … }` (`src/kernel/kernel.ts:1474`). The session records nothing; `VisualLiftSession.write` composes and writes (`src/kernel/presentation.ts:316`) |
+| **D-34** | `BehaviorSpec<Part, Activation extends {} = true>` — the activation seam's staged type is the behavior's choice | Was `activation: Transition<Part, HTMLElement, ActivationScope>`, pinned. **Now the parameter, threaded through `BehaviorInstall`, `BehaviorFactory`, `Kernel` and `draggable()`**; the sortable, the kernel harness and both compiled fixtures declare `HTMLElement` explicitly |
+| **D-35** | `LandingContext.from` is the delta the lift session last rendered | Was `from: { x: current.pointerX - current.originX, … }`, with the session recording nothing. **Now `VisualLiftSession.rendered`, written by `write` and sampled once at arm**; the behavior holds a `BehaviorLiftSession` carrying neither `rendered` nor `dispose` |
 
-Free drag stages **nothing** at activation — no placeholder, no detached node, no acquired resource — so under the shipped signature its `prepare` must return `scope.visual`, an element the kernel already holds, and its `effect` must ignore what it is handed. That is the staged-resource contract inverted, which is F-44 exactly.
+Free drag stages **nothing** at activation — no placeholder, no detached node, no acquired resource — so under the pinned signature its `prepare` would have had to return `scope.visual`, an element the kernel already holds, with its `effect` ignoring what it was handed. That is the staged-resource contract inverted, which is F-44 exactly. Under D-34 it returns `true`, and `docs/probes/13c-free-drag.ts` — the probe that found this — now compiles that answer as a **positive** rather than as a `@ts-expect-error`.
 
-Free drag **constrains** its visual — an axis lock, a bounds clamp and a re-based position each mean the rendered delta is not the pointer delta — so under the shipped computation every constrained drop opens its landing from a position the visual is not at, and ends correctly because the target is behavior-supplied. A wrong start and a right end is F-45's signature, and Phase 11 already found one of that shape the hard way.
+Free drag **constrains** its visual — an axis lock, a bounds clamp and a re-based position each mean the rendered delta is not the pointer delta — so under the pointer computation every constrained drop would open its landing from a position the visual is not at, and end correctly because the target is behavior-supplied. A wrong start and a right end is F-45's signature, and Phase 11 already found one of that shape the hard way. Under D-35 the origin is the delta the session last wrote, and the sortable's own axis-locked fixture is what pins it (K-3).
 
-**The instrument gap is the reusable part.** `tests/docs.node.test.ts` closes the documented surface over types, `tests/packaging.node.test.ts` asserts the entry table, the compiled fixtures assert the shapes that exist — and **nothing checks a decision booked to a later phase against the code that does not yet implement it**. Two contract-normative decisions sat unimplemented across a checkpoint and a whole revision with every suite green, because a green suite is evidence about the implemented contract only. See §Acceptance criteria, row K-5.
+**The instrument gap is the reusable part, and it is the half that outlives the fix.** `tests/docs.node.test.ts` closes the documented surface over types, `tests/packaging.node.test.ts` asserts the entry table, the compiled fixtures assert the shapes that exist — and **nothing checked a decision booked to a later phase against the code that did not yet implement it**. Two contract-normative decisions sat unimplemented across a checkpoint and a whole revision with every suite green, because a green suite is evidence about the implemented contract only. See §Acceptance criteria, row K-5. **Closed by [00](00-index.md) §Decisions not yet implemented and `tests/decisions.node.test.ts`**: the ledger now marks a deferred decision in its own row, the table accounts for every marked row in both directions, and each entry carries a witness that stops holding when the decision lands — so a listed decision cannot be forgotten either.
 
-### F-62 — the kernel classifies two behavior-generic seams with sortable vocabulary
+### F-62 — the kernel classified two behavior-generic seams with sortable vocabulary · **resolved 2026-08-15 (D-74)**
 
-Three of the thirteen published failure stages name sortable concepts, and two of them are not behavior-chosen at all:
+Three of the thirteen published failure stages named sortable concepts, and two of them were not behavior-chosen at all. As found:
 
-- **the settlement seam** runs under `FAILURE_REORDER_RESOLUTION` for every behavior (`src/kernel/kernel.ts:1676`);
-- **the action seam** runs under `FAILURE_INSERTION` (prepare) and `FAILURE_PLACEHOLDER_MOVE` (effect) for every behavior (`src/kernel/kernel.ts:2209`);
-- `FAILURE_INSERTION` and `FAILURE_PLACEHOLDER_MOVE` additionally map to `'presentation'` in D-64's total mapping, so a free-drag `moveTo()` whose prepare throws reports a **presentation** fault for library arithmetic.
+- **the settlement seam** ran under `FAILURE_REORDER_RESOLUTION` for every behavior (`src/kernel/kernel.ts:1676`);
+- **the action seam** ran under `FAILURE_INSERTION` (prepare) and `FAILURE_PLACEHOLDER_MOVE` (effect) for every behavior (`src/kernel/kernel.ts:2209`);
+- `FAILURE_INSERTION` and `FAILURE_PLACEHOLDER_MOVE` additionally map to `'presentation'` in D-64's total mapping, so a free-drag `moveTo()` whose prepare threw would report a **presentation** fault for library arithmetic.
 
-Checkpoint E asks whether anything in `kernel/` knows a collection, a placeholder or an insertion. It does: three published constants, two of them as the kernel's own defaults. D-68 published all thirteen one revision ago, so the window in which a rename is free is the window before the kernel tier has a consumer — **now**. D-74 renames three identifiers and changes no numeric value.
+Checkpoint E asks whether anything in `kernel/` knows a collection, a placeholder or an insertion. It did: three published constants, two of them as the kernel's own defaults. D-68 published all thirteen one revision ago, so the window in which a rename was free was the window before the kernel tier has a consumer — and the rename was taken inside it. **The three are now `FAILURE_ACTION_PREPARE` (4), `FAILURE_ACTION_EFFECT` (5) and `FAILURE_RESOLUTION` (8)**; the old names survive in this section because it is the record of what was found, and in `src/kernel/failures.ts`, which says what each constant used to be called. No numeric value moved, and `tests/kernel/errors.node.test.ts` asserts 4, 5 and 8 as literals.
 
 ### F-65 — the kernel performs a sortable-shaped measurement for every behavior
 
@@ -213,7 +215,7 @@ freeDrag(item, config: FreeDragConfig, ...fragments: ReadonlyArray<Partial<FreeD
 
 — and a missing `onDrop` stops compiling, which is strictly better than a throw. It is **not** taken here because it changes D-69's **public signature**, and the same question is open for the sortable's three required slots ([00](00-index.md) §What would falsify this model already carries it as _the variadic merge's required-slot completeness as a type error_). **Recommended, and owed as one decision across both behaviors rather than two.**
 
-**It does not settle the package.** 03 §Public option domains states the throw-at-construction rule as frozen and package-wide, and the sortable implements it — so free drag now diverges. **F-67, and it is bounded: it must be decided before Phase 19 begins**, because the required-first-fragment fix would change `freeDrag`'s signature and Phase 19 is where that signature is first written down in code. It does **not** gate D-76: the kernel step touches the activation staged type, the recorded lift delta and three stage renames, none of which the required-slot question can reach. D-76 proceeds independently, and F-67 is decided alongside it rather than behind it.
+**It does not settle the package.** 03 §Public option domains states the throw-at-construction rule as frozen and package-wide, and the sortable implements it — so free drag now diverges. **F-67, and it is bounded: it must be decided before Phase 19 begins**, because the required-first-fragment fix would change `freeDrag`'s signature and Phase 19 is where that signature is first written down in code. It did **not** gate D-76: the kernel step touched the activation staged type, the recorded lift delta and three stage renames, none of which the required-slot question can reach. **D-76 landed 2026-08-15 without it**, which is the independence being claimed here, tested — so F-67 is now the sole remaining gate on Phase 19, and it is decided on its own rather than alongside anything.
 
 ---
 
@@ -345,7 +347,7 @@ The ledger's open question 2 asked whether a behavior may expose a kernel-intern
 
 ## The seam mapping
 
-Every signature below is the shipped `BehaviorSpec`, with D-34's parameter as its one precondition.
+Every signature below is the shipped `BehaviorSpec`. D-34's parameter was its one precondition, and **it is in the tree since 2026-08-15**, so the table below now describes types that exist rather than types Phase 19 has to wait for.
 
 | Member | Free drag |
 | --- | --- |
@@ -353,7 +355,7 @@ Every signature below is the shipped `BehaviorSpec`, with D-34's parameter as it
 | `config` | `{ threshold, liftMode: map(config.lift), actionTags: 2 }` |
 | `admit(event, draft)` | Applies D-46's input policy and D-50's handle scoping, resolves `visual`, and returns **a bare element** — D-59's common form, because free drag has no separate geometry source. `null` declines |
 | `command` | **Absent.** No discrete ingress; `arm()` binds `pointerdown` and nothing else. Keyboard free drag has no shipped counterpart and no parity row, so it is not invented here |
-| `activation.prepare` | Stages **nothing**: returns `true`. Requires D-34 |
+| `activation.prepare` | Stages **nothing**: returns `true` — expressible since D-34 landed |
 | `activation.effect` | Reads `scope.visual` into the part, primes the constraint, invokes `onStart(geometry)` behind the barrier |
 | `moved(current, lift)` | Raw delta from the committed sample, plus the frame's offset; axis (core); `constrain.apply` when installed; `lift.write(dx, dy)`; then `onMove(geometry)` — **after** the write, which is the shipped observable and is retained |
 | `action` | Two tags. `TAG_POLICY` re-reads the `axis` source and calls `constrain.invalidate()`; `TAG_POSITION` writes the re-base offset in `prepare` and renders it through `lift.write` in `effect` |
@@ -432,6 +434,8 @@ Implementation-ready in the sense the handoff uses: each row is a check that fai
 
 Landed against the **sortable alone**, with zero free-drag code in the tree, so that any regression is attributable to the kernel change rather than to the second behavior.
 
+**Done, 2026-08-15**, on those terms. The criteria below are unchanged; what discharged each one is the table after them.
+
 | # | Criterion |
 | --- | --- |
 | **K-1** | `BehaviorSpec<Part, Activation extends {} = true>`, threaded through `BehaviorInstall` and `BehaviorFactory` (D-34, and C-04's correction that the generics must reach the construction types). The sortable declares `HTMLElement` explicitly. `kernel.js`'s published surface gains a **defaulted** parameter, so D-68's list is unchanged in count and source-compatible |
@@ -440,6 +444,17 @@ Landed against the **sortable alone**, with zero free-drag code in the tree, so 
 | **K-4** | The three renamed stages (D-74), values unchanged: `stageToCode`'s keys, the kernel's two hard-coded defaults, `sortable/spec.ts`'s uses, and the fixture. A test asserts the **numeric values** are 4, 5 and 8, because a rename that moves a wire value is the one change this list must never make |
 | **K-5** | The instrument F-63 exposes: a check that every decision row in 00 marked as landing in a later phase is either implemented or **listed**, so a normative-and-unimplemented decision is a visible state rather than a discovery. The list is the artifact; the check is that it is complete |
 | **K-6** | M-1 and M-3 re-measured for K-2's two scalar writes per sample, under 05 §Measurements owed's reproducibility standard. The sortable suite green throughout |
+
+**What discharged them.**
+
+| # | Discharged by |
+| --- | --- |
+| **K-1** | `src/kernel/spec.ts` (`BehaviorSpec`, `BehaviorInstall`, `BehaviorFactory`), `src/kernel/kernel.ts` (`Kernel`, `createKernel`), `src/kernel.ts` (`draggable`), `src/kernel/seams.ts` (`runActivationSeam`, now generic in `Prepared`); the sortable writes `HTMLElement` at all three of its own annotations. Assertions: `tests/kernel/spec.declaration.test.ts` §the activation staged type — five rows, both `@ts-expect-error` directions — and the out-of-line fixture in `tests/consumer.node.test.ts`. **`kernel.js`'s value surface is unchanged in count**; the type surface gains exactly `BehaviorLiftSession`, which K-2 requires and 02 §What stays internal's own test demands be published |
+| **K-2** | `VisualLiftSession.rendered`, written by `write` _after_ the assignment so a `FAILURE_RENDERER_WRITE` cannot leave the record claiming a delta the element never took; `BehaviorLiftSession` as a positive `Pick`; `ActivationScope.lift` and `moved`'s second argument both projected. Assertions: `tests/kernel/spec.declaration.test.ts` §the lift capability, including the converse row that both members survive on the kernel's own session — a `Pick` that picked nothing would satisfy every `@ts-expect-error` and prove nothing |
+| **K-3** | `tests/kernel/kernel.browser.test.ts` §the landing origin — seven rows. **Five fail against the pre-D-35 computation** (verified by reverting it); the other two are recorded in the tests as non-discriminating rather than counted, since a pointer-following behavior and a `(0, 0)` pointerless mint agree with the old form by construction |
+| **K-4** | `src/kernel/failures.ts`, `src/kernel/errors.ts`'s `STAGE_TO_CODE`, the kernel's two hard-coded action-seam defaults, `src/sortable/spec.ts`'s three uses, both compiled fixtures, and the four contract documents that named the old stages in normative prose. `tests/kernel/errors.node.test.ts` — _should keep the three renamed stages on their original numbers_ — asserts **4, 5 and 8 as literals**, because comparing a constant to itself is exactly what would let a wire value move |
+| **K-5** | [00](00-index.md) §Decisions not yet implemented and `tests/decisions.node.test.ts`. Falsified three ways: a marked decision with no row, a listed decision with no marker, and a listed decision whose witness stopped holding |
+| **K-6** | [`measurements/m1.md`](../measurements/m1.md) and [`measurements/m3.md`](../measurements/m3.md), each with a re-measurement section. **M-1: a null result** — no resolvable regression at ~0.1 µs per sample, which is this harness's one-tick floor, recorded as _unresolvable_ rather than as an upper bound the three runs cannot support. Allocation stays at 0 B per sample, which is the half that could have gone wrong and did not. **M-3: ~30 B brotli on every composition and no module-graph movement.** Budgets are **not** re-based: they stay muted telemetry (B-1's overrun is unchanged in kind and still owed a deliberate re-base with an attribution) while the graph rows stay enforced and hold |
 
 ### The behavior
 

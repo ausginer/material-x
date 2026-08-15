@@ -402,6 +402,7 @@ import {
   type ActionTransition,
   type ActivationScope,
   type AdmissionSubject,
+  type BehaviorLiftSession,
   type BehaviorConfig,
   type BehaviorInstall,
   type BehaviorSpec,
@@ -472,15 +473,31 @@ const command: CommandAdmission<Part> = {
   admit: (event, draft) => (draft.phase === IDLE && event.type === 'keydown' ? draft.grabbed : null),
 };
 
+/**
+ * **The projection, out of line** (D-35, C5-01). The behavior may name what it
+ * is handed, and the source it is a projection *of* — a \`Pick\` whose source a
+ * consumer cannot name is not a type a consumer can name — but the two members
+ * the kernel keeps are not on the value it receives.
+ */
+const project: (session: VisualLiftSession) => BehaviorLiftSession = (session) => session;
+
 const activation: Transition<Part, HTMLElement, ActivationScope> = {
   prepare: (draft, scope) => {
     const box: OffsetBox = scope.boxPre;
-    const lift: VisualLiftSession = scope.lift;
+    const lift: BehaviorLiftSession = scope.lift;
     const motion: LifetimeScope = scope.motion;
     const release: Disposer = () => {};
 
     motion.use(release);
+    void project;
     void lift.write;
+    void lift.compose;
+    void lift.visual;
+    void lift.baseTransform;
+    // @ts-expect-error — \`rendered\` is the kernel's own reading (D-35).
+    void lift.rendered;
+    // @ts-expect-error — \`dispose\` is the kernel's own sequencing (C5-01).
+    void lift.dispose;
     void box.height;
     void draft.grabbed;
     return scope.visual;
@@ -572,8 +589,12 @@ const resetFramePart = (part: Part): void => {
   part.verdict = null;
 };
 
-const install = (host: KernelHost): BehaviorInstall<Controller, Part> => {
-  const spec: BehaviorSpec<Part> = {
+// **\`HTMLElement\` written out at both construction types** (D-34, and C-04's
+// correction that the parameter has to reach them). This behavior stages the
+// element its \`activation.prepare\` returns; one that stages nothing writes
+// neither argument and gets \`true\`.
+const install = (host: KernelHost): BehaviorInstall<Controller, Part, HTMLElement> => {
+  const spec: BehaviorSpec<Part, HTMLElement> = {
     config,
     admit,
     command,
@@ -581,7 +602,7 @@ const install = (host: KernelHost): BehaviorInstall<Controller, Part> => {
     release,
     settlement,
     action,
-    moved: (current, lift) => {
+    moved: (current, lift: BehaviorLiftSession) => {
       const frame: KernelFrame = current;
       const operation: OperationIdentity | null = frame.operation;
 
@@ -804,17 +825,17 @@ describe('the packed package', () => {
         'ACTIVE',
         'AT_CONSUMER',
         'AT_PROPOSAL',
+        'FAILURE_ACTION_EFFECT',
+        'FAILURE_ACTION_PREPARE',
         'FAILURE_ACTIVATION',
         'FAILURE_ADMISSION',
-        'FAILURE_INSERTION',
         'FAILURE_INVALIDATION',
         'FAILURE_LANDING_CREATE',
         'FAILURE_LANDING_INTERRUPTED',
         'FAILURE_LANDING_TARGET',
-        'FAILURE_PLACEHOLDER_MOVE',
         'FAILURE_RELEASE',
         'FAILURE_RENDERER_WRITE',
-        'FAILURE_REORDER_RESOLUTION',
+        'FAILURE_RESOLUTION',
         'FAILURE_SCHEDULED_FRAME',
         'FAILURE_TERMINAL_CALLBACK',
         'FINALIZING',

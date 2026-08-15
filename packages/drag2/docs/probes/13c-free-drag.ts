@@ -282,18 +282,23 @@ export const freeDragSpec: BehaviorSpec<FreeDragPart> = {
 
   activation: {
     /**
-     * **N-1, in situ.** There is nothing to stage. The honest return value is
-     * "proceed", and the frozen `Prepared` type is `HTMLElement`, whose only
-     * other inhabitant — `null` — means *discard the activation*.
+     * **N-1, in situ — and resolved by D-34, which has now landed.**
      *
-     * So the probe returns `scope.visual`: an element the kernel already holds,
-     * chosen because it is the least misleading lie available. It is still a
-     * lie. `effect` receives it and must ignore it, which is precisely the
-     * "staged resource" contract inverted.
+     * There is nothing to stage, and the honest return value is "proceed". At
+     * probe time the frozen `Prepared` type was `HTMLElement`, whose only other
+     * inhabitant — `null` — means *discard the activation*, so this returned
+     * `scope.visual`: an element the kernel already holds, chosen as the least
+     * misleading lie available. It was still a lie, and `effect` had to ignore
+     * what it was handed — the "staged resource" contract inverted.
+     *
+     * `BehaviorSpec<Part, Activation extends {} = true>` makes the honest
+     * answer expressible, and this probe now takes it by writing nothing: the
+     * spec above names no `Activation`, so the default applies and `prepare`
+     * returns `true`. The line below is the probe's finding, discharged.
      */
-    prepare(draft, scope): HTMLElement | null {
+    prepare(draft): true | null {
       draft.bounds = resolveBounds(rt.boundsSource);
-      return scope.visual;
+      return true;
     },
 
     effect(current, _prepared, scope): void {
@@ -435,14 +440,22 @@ export const freeDragSpec: BehaviorSpec<FreeDragPart> = {
 /* ============================================ N — what does not fit ======= */
 
 /**
- * **N-1. Activation is typed for a placeholder.** The honest free-drag
- * activation stages nothing, so its `prepare` returns "proceed". The frozen
- * `Prepared` is `HTMLElement`, and `null` is already spoken for: it means
- * *discard the activation*.
+ * **N-1. Activation is typed for a placeholder — closed by D-34.**
  *
- * This is the sortable's shape in the SPI rather than in the sortable. The
- * generic already exists — `Transition<Part, Prepared extends {} = true, …>`
- * defaults `Prepared` to `true` — and `BehaviorSpec` pins it.
+ * The honest free-drag activation stages nothing, so its `prepare` returns
+ * "proceed". The frozen `Prepared` was `HTMLElement`, and `null` is already
+ * spoken for: it means *discard the activation*. That was the sortable's shape
+ * in the SPI rather than in the sortable. The generic already existed —
+ * `Transition<Part, Prepared extends {} = true, …>` defaults `Prepared` to
+ * `true` — and `BehaviorSpec` pinned it.
+ *
+ * **The assertion is inverted rather than deleted**, and deliberately: a
+ * finding that becomes a compiling positive is evidence the decision landed,
+ * while a deleted finding is evidence of nothing. `honestActivation` is the
+ * same declaration it always was, and it is now assignable. The counterpart —
+ * that a behavior *declaring* `HTMLElement` still cannot return `true`, so the
+ * parameter narrows in both directions — is asserted in
+ * `tests/kernel/vocabulary.node.test.ts` against the shipping sortable.
  */
 declare const honestActivation: Readonly<{
   prepare(draft: Draft<FreeDragPart>, scope: ActivationScope): true | null;
@@ -453,7 +466,6 @@ declare const honestActivation: Readonly<{
   ): void;
 }>;
 
-// @ts-expect-error — `Prepared` is pinned to `HTMLElement` by `BehaviorSpec`.
 export const n1: BehaviorSpec<FreeDragPart>['activation'] = honestActivation;
 
 /**

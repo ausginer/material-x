@@ -30,17 +30,17 @@ import {
 } from '../../src/kernel/errors.ts';
 import * as stageModule from '../../src/kernel/failures.ts';
 import {
+  FAILURE_ACTION_EFFECT,
+  FAILURE_ACTION_PREPARE,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
-  FAILURE_INSERTION,
   FAILURE_INVALIDATION,
   FAILURE_LANDING_CREATE,
   FAILURE_LANDING_INTERRUPTED,
   FAILURE_LANDING_TARGET,
-  FAILURE_PLACEHOLDER_MOVE,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
-  FAILURE_REORDER_RESOLUTION,
+  FAILURE_RESOLUTION,
   FAILURE_SCHEDULED_FRAME,
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
@@ -56,15 +56,15 @@ const STAGES: ReadonlyArray<
 > = [
   // Consumer code failing: a resolver, a round-trip, a terminal callback.
   ['admission', FAILURE_ADMISSION, 'consumer'],
-  ['reorder-resolution', FAILURE_REORDER_RESOLUTION, 'consumer'],
+  ['resolution', FAILURE_RESOLUTION, 'consumer'],
   ['terminal-callback', FAILURE_TERMINAL_CALLBACK, 'consumer'],
   // The interaction itself could not be taken over or given back.
   ['activation', FAILURE_ACTIVATION, 'interaction'],
   ['release', FAILURE_RELEASE, 'interaction'],
   // Presentation: the library's own writing and measuring.
   ['renderer-write', FAILURE_RENDERER_WRITE, 'presentation'],
-  ['insertion', FAILURE_INSERTION, 'presentation'],
-  ['placeholder-move', FAILURE_PLACEHOLDER_MOVE, 'presentation'],
+  ['action-prepare', FAILURE_ACTION_PREPARE, 'presentation'],
+  ['action-effect', FAILURE_ACTION_EFFECT, 'presentation'],
   ['landing-create', FAILURE_LANDING_CREATE, 'presentation'],
   ['landing-interrupted', FAILURE_LANDING_INTERRUPTED, 'presentation'],
   ['landing-target', FAILURE_LANDING_TARGET, 'presentation'],
@@ -127,6 +127,21 @@ describe('toDraggableError', () => {
       'platform',
       'presentation',
     ]);
+  });
+
+  it('should keep the three renamed stages on their original numbers', () => {
+    // **K-4.** D-74 renamed three stages and moved no value. The rename is the
+    // safe half — nothing but kernel-tier authors reads a stage *name*, and
+    // there are none yet — while the number is inlined into every consumer's
+    // compiled code, so a repointed value is a silent wire break that no
+    // type, no export-equality assertion and no mapping test can see. Asserted
+    // as literals rather than against the constants, because comparing a
+    // constant to itself is what would have let the move through.
+    expect([
+      FAILURE_ACTION_PREPARE,
+      FAILURE_ACTION_EFFECT,
+      FAILURE_RESOLUTION,
+    ]).toEqual([4, 5, 8]);
   });
 
   it('should carry the classifying error as the native cause', () => {

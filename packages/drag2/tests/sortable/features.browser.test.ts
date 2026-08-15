@@ -1725,7 +1725,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     // The observable is the **report**, not the resulting DOM: teardown has
     // already detached the placeholder, so the write does not silently move a
     // node — it throws "the insertion anchor is not in the placeholder's
-    // container" and classifies a `FAILURE_PLACEHOLDER_MOVE` against a
+    // container" and classifies a `FAILURE_ACTION_EFFECT` against a
     // controller the consumer destroyed on purpose.
     const befores: number[] = [];
     const afters: number[] = [];
