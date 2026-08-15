@@ -78,7 +78,7 @@ const drag = freeDrag(
 
 ### The config schema
 
-Required after the merge: **`onDrop`**. Everything else is optional, and every slot below is a named type alias for F-51's reason — method shorthand is bivariant and this repo's `method-signature-style` rewrites the property form back into shorthand on every `lint-fix`.
+Required after the merge: **`onDrop`** — a **type** requirement, not a runtime one. The variadic merge is what hides it from the compiler, and §Validation says what happens instead of a throw. Everything else is optional, and every slot below is a named type alias for F-51's reason — method shorthand is bivariant and this repo's `method-signature-style` rewrites the property form back into shorthand on every `lint-fix`.
 
 | Slot | Type | Kind | Note |
 | --- | --- | --- | --- |
@@ -140,21 +140,80 @@ Three arms, and **the arm set was re-derived rather than inherited** — the led
 
 **Two names are qualified because their unqualified form is already claimed by a different structure** (D-75): `FreeDragLift`, because `kernel.js` publishes a numeric `LiftMode` and this is a string union; and `FreeDragErrorContext`, because `onError`'s context carries a behavior's own result. `DragAxis` and `DragGeometry` stay unqualified — one structure, one claimant, no collision — and the rule is exactly that narrow: qualify a name when two entries need **different structures under one word**, not because a word could conceivably be reused.
 
-### Validation domains
+### Validation, under `CODE_OF_SIZE.md`
 
-Every option is validated **at construction**, once, before any drag, and throws a `TypeError` naming the slot — the D4 rule, and the same reasoning: a `NaN` threshold activates on nothing and is diagnosed three seams away from the call that caused it.
+> **What library-owned invariant requires this code to exist at runtime?**
 
-| Slot | Domain | Diagnostic |
+That litmus, not the D4 rule, decides this section. ~~Every option is validated **at construction**, once, before any drag, and throws a `TypeError` naming the slot.~~ Applied honestly it deletes almost all of it: an option domain the compiler already states is not a library invariant, and a value that breaks only the consumer's own drag is not the library's to police.
+
+**Free drag ships zero construction-time throws and one runtime predicate.**
+
+#### What each deleted check is replaced by
+
+Deletion is only safe if something else answers, and there are **two** answers, not one. Most deleted checks surface inside a kernel-driven seam, which means they are already classified, already carry a coarse `DraggableError` code, and already terminate the operation exactly once (D-66). Three surface **nowhere at all**, deliberately — and those three are the ones an acceptance criterion must not promise to classify.
+
+**Deleted, and classified when the value is used.** Codes are read from `STAGE_TO_CODE` in [`src/kernel/errors.ts:79-93`](../../src/kernel/errors.ts), not inferred; kernel line numbers are the site that names the stage.
+
+| Former check | Why it goes | Where a bad value surfaces | Stage → code |
+| --- | --- | --- | --- |
+| `onDrop` present | The type declares it required; only the variadic merge hides it from the compiler, and the merge is the library's choice rather than the consumer's fault. A release with nothing to ask returns a `SeamRejection` — a designed path this contract already uses for a missing visual | first release | `FAILURE_RESOLUTION` (8) → `consumer` |
+| `handle` is a function | Seven checks and seven strings to restate what the type says. Calling a non-function throws where it is called, which is inside a seam | `admit` (`kernel.ts:825`) | `FAILURE_ADMISSION` (1) → `consumer` |
+| `visual`, `onStart` are functions | ″ | activation (`:1149`, `:1166`) | `FAILURE_ACTIVATION` (2) → `interaction` |
+| `onMove` is a function | ″ | the move leaf (`:1827`) | `FAILURE_RENDERER_WRITE` (3) → `presentation` |
+| `home` is a function | ″ | `anchorTarget` (`:1423`) | `FAILURE_LANDING_TARGET` (12) → `presentation`, and on the **quality track**: the landing is skipped, the drop stands (D-49) |
+| `onEnd` is a function | ″ | the terminal (`:1637`, `:2192`) | `FAILURE_TERMINAL_CALLBACK` (14) → `consumer` |
+| `onError` is a function | ″ | the report path | **none, by design** — a throw there goes to the un-classified channel (`kernel/reporter.ts`), because a failure report may not itself fail |
+| `bounds(source)` shape | `resolveBounds` calls it or measures it; garbage throws there, inside the constraint's re-resolve | `action.prepare` (`:2209`) | `FAILURE_ACTION_PREPARE` (4) → `presentation` |
+| `landing({ duration })` is a function / `>= 0` / is a number | **Measured redundant** — see below | inside `LandingStart` (`:1497`) | `FAILURE_LANDING_CREATE` (10) → `presentation` |
+
+**D-74 is a rename, not a remapping.** `FAILURE_ACTION_PREPARE` carries `FAILURE_INSERTION`'s number (4) **and** its code, `presentation` — which is F-62's complaint restated, not repaired: the finding is that the kernel names a generic seam with the sortable's word, and D-74 answers exactly that and nothing else. Whether `presentation` is the right attribution for library arithmetic is a separate question, unopened here. Reading a renamed stage as a re-attributed one was this section's own first error, and the correction is why the codes above are quoted from the mapping rather than reasoned about.
+
+**Deleted, and deliberately silent.** No throw, no classified failure, no `onError`, no terminal — because there is no library invariant to protect and, for two of the three, nothing ever fails.
+
+| Former check | Why it goes | What happens instead |
 | --- | --- | --- |
-| `onDrop` | present and a function | `freeDrag: onDrop is required.` — the shipped message, retained verbatim |
-| `threshold` | finite, `>= 0` | `freeDrag: threshold must be a finite number` |
-| `axis` | `'both' \| 'x' \| 'y'`, or a function | `freeDrag: axis must be 'both', 'x' or 'y'` |
-| `lift` | `'faithful' \| 'flat' \| 'in-place'` | `freeDrag: lift must be 'faithful', 'flat' or 'in-place'` |
-| `handle`, `visual`, `home`, `onStart`, `onMove`, `onEnd`, `onError` | a function when present | per-slot |
-| `bounds(source)` | element or function when present | `bounds: source must be an element or a function` |
-| `landing({ duration })` | D-67's domain, unchanged | a **contextual** value: the function is checked for being a function at construction and its result is validated once per landing, at settlement |
+| `threshold` finite | A `NaN` threshold makes `dx*dx + dy*dy >= t*t` permanently false. Visible immediately, consumer-owned, and it breaks no library guarantee | The press arms and never activates. **No operation starts, so none terminates** — Q-15, and the reason B-4 must not ask for a terminal here |
+| `axis` in domain | An unknown value falls through to unconstrained motion. The compiler states the union; a JS consumer who ignores it gets their own drag | The drag runs normally, unconstrained, and reports success |
+| `lift` in domain | **Replaced by a type, not by a check** (§1.2): the map to `LIFT_*` is a total `Record<FreeDragLift, LiftMode>`, so adding a mode without a mapping does not compile. That is D-64's `STAGE_TO_CODE` precedent, which this package already treats as the way to make a mapping total | A TS consumer cannot express it. A JS consumer reaches `undefined` in the map and gets whichever branch `presentation.ts` falls through to — consumer-owned, and nothing fails |
 
-**The one deferred check is D-67's, and it is deferred for D-67's reason** — the value does not exist at construction. An `axis` source is validated at construction only for being a function; its _result_ is checked where it is read, and an out-of-domain result classifies there rather than silently falling back.
+#### The one check that survives, and the measurement that narrowed it to one predicate
+
+`landing({ duration })`'s resolved value is checked **once per landing**, on the classified path — it already was, since `requireFinite` throws from inside `start` and the kernel classifies it. What changes is that the check narrows from a domain test to a single value comparison, because the platform performs the rest and performs it better.
+
+Probed directly against `Element.animate()`, **Chrome 150** (`HeadlessChrome/150.0.0.0`), one element, reading `getComputedTiming()` on every accepted value:
+
+| `duration` | `animate()` | Consequence |
+| --- | --- | --- |
+| `NaN`, `-1`, `-Infinity`, `'fast'`, `{}` | **throws** `TypeError: Failed to execute 'animate' on 'Element': duration must be non-negative or auto` | Already classified `FAILURE_LANDING_CREATE`. The library's own `typeof`, `< 0` and `NaN` tests are **redundant** |
+| `Infinity` | **accepted** — `activeDuration: Infinity`, `playState: 'running'`, `finished` never settles | **The landing gate is never released.** No terminal, no `onEnd`, visual pinned, controller stuck |
+| `'auto'`, `undefined` | **accepted** — computed duration `0`, `playState: 'finished'` | **Valid.** Both are legal WAAPI durations and the platform's own error text names `auto` |
+| `0`, `200` | accepted, completes | Correct |
+
+**The predicate is `duration === Infinity`, not `Number.isFinite(duration)`** — and the last row is why. A finiteness test is not merely redundant on the throwing values, it is **wrong on two accepted ones**: `Number.isFinite('auto')` and `Number.isFinite(undefined)` are both `false`, so the total predicate would refuse two durations the platform accepts and completes. A guard written as a domain check re-derives the platform's domain and gets it wrong; a guard written against the **one** pathological value does not.
+
+That value earns its bytes by the litmus. `+Infinity` is the single duration the platform accepts and never completes, and completion is what D-66's exactly-once terminal and the settlement gate's release are built on. A hang is the one failure mode this architecture cannot classify, because classification needs something to happen. Everything else stays platform-owned.
+
+**Where the refusal lands: `FAILURE_LANDING_CREATE` (10) → `presentation`.** The check runs inside the library's `LandingStart`, which the kernel wraps at exactly that stage (`kernel.ts:1487-1497`) — the same slot `animate()`'s own throw for `NaN` already produces. One predicate, no second path.
+
+**The quality track is a separate axis, and D-49 decides it per site rather than per stage.** The kernel runs `anchorTarget` on the quality track (`runQualityValue`, `:1423`): an unusable target returns `undefined`, the landing is **skipped rather than faked**, `ARM_ARMED` is returned and the domain result stands. It runs `start` on the classified track (`runLeaf`, `:1487`): a throw yields `ARM_FAILED` and the settlement fails. So refusing `Infinity` fails the settlement — exactly as `NaN` already does today through the platform, inherited rather than chosen.
+
+**What that costs the drop is free drag's own mapping to make, and no kernel change is needed to make it right.** A behavior maps a `SETTLED_FAILED` input to its own recovery (D-24, F-33), so free drag's frame part decides whether a drop the consumer already accepted survives a landing that could not be built. It must: a presentational fault after a committed drop may not un-drop it — D-49's principle, applied at the layer that owns the verdict, rather than a request to move `start` onto the quality track.
+
+> An earlier draft of this section reported the refusal as `FAILURE_LANDING_TARGET` and carried the skip-not-fake wording along with the wrong stage. That stage belongs to `anchorTarget`, and the two sites differ in track as well as in name — which is precisely why the stage constant cannot be used to infer the track.
+
+#### What this costs, and what it does not
+
+**It does not cost a lifecycle guarantee.** Each check in the first table is replaced by a classified failure that reaches `onError` with a coarse code and terminates the operation once. The three in the second table are replaced by **nothing**, on purpose: two of them never fail, and the third never starts an operation, so there is no terminal to owe (Q-15). Silence is the correct outcome there, not a gap — but it is a claim an acceptance criterion has to state in that form, which is why B-4 asserts the two tables separately and asserts the silent rows as _silence_.
+
+**It costs one shipped diagnostic.** `draggable: onDrop is required.` was a parity **retain** row and is now a **drop** — the consumer learns about a missing `onDrop` on their first drag rather than at construction. **The type-level fix removes the trade-off entirely and costs zero runtime bytes**: make the first fragment complete —
+
+```ts
+freeDrag(item, config: FreeDragConfig, ...fragments: ReadonlyArray<Partial<FreeDragConfig>>);
+```
+
+— and a missing `onDrop` stops compiling, which is strictly better than a throw. It is **not** taken here because it changes D-69's **public signature**, and the same question is open for the sortable's three required slots ([00](00-index.md) §What would falsify this model already carries it as _the variadic merge's required-slot completeness as a type error_). **Recommended, and owed as one decision across both behaviors rather than two.**
+
+**It does not settle the package.** 03 §Public option domains states the throw-at-construction rule as frozen and package-wide, and the sortable implements it — so free drag now diverges. **F-67, and it is bounded: it must be decided before Phase 19 begins**, because the required-first-fragment fix would change `freeDrag`'s signature and Phase 19 is where that signature is first written down in code. It does **not** gate D-76: the kernel step touches the activation staged type, the recorded lift delta and three stage renames, none of which the required-slot question can reach. D-76 proceeds independently, and F-67 is decided alongside it rather than behind it.
 
 ---
 
@@ -389,7 +448,7 @@ Landed against the **sortable alone**, with zero free-drag code in the tree, so 
 | **B-1** | A free-drag composition's import graph reaches **no** `src/sortable/` module, and the sortable's reaches no `src/free-drag/` module. Asserted over the graph, not over bundle bytes |
 | **B-2** | A composition with no `bounds()` contains **no** clamp arithmetic and no rect resolver — `tests/packaging.node.test.ts`, the same instrument and the same both-directions form the two axis features already use |
 | **B-3** | `tests/exports.node.test.ts` asserts the four new entries' exports **by value** for the runtime names and by presence for the types, and `tests/docs.node.test.ts` runs **per entry** so a type reaching an unexported one fails at the tier it escapes from |
-| **B-4** | Every validation domain in §Validation domains throws a `TypeError` naming its slot, at construction, before any drag |
+| **B-4** | **Both directions, and the negative one is load-bearing. Each clause asserts only what §Validation's tables promise — the two tables are asserted differently and the split is the criterion.** (a) `freeDrag()` throws **nothing** for any config: a fixture passes garbage into every slot, missing `onDrop` included, and asserts construction returns a controller. (b) For each row of the **classified** table only: the bad value surfaces at the named seam, reaches `onError` with **that row's code** — `consumer` for `onDrop`, `handle` and `onEnd`; `interaction` for `visual` and `onStart`; `presentation` for `onMove`, `home` and `bounds` — and the operation publishes **exactly one** terminal. Codes are asserted against `STAGE_TO_CODE`, not retyped, so a remap cannot pass. (c) For each row of the **silent** table: **nothing is reported at all**. A `NaN` threshold produces no `onError`, no terminal and **no started operation** (Q-15) — asserting a terminal here would be asserting a defect. An unknown `axis` string completes a **normal, successful, unconstrained** drag. An unknown `lift` string is a type error for a TS consumer and fails nothing for a JS one. (d) A `landing({ duration })` resolving to `Infinity` is refused at `FAILURE_LANDING_CREATE` → `presentation`, and the accepted drop **survives** it through free drag's `SETTLED_FAILED` recovery mapping (D-24) — the assertion is on the drop's survival, not on which track the kernel used. (e) `NaN`, `-1`, `-Infinity` and `'fast'` are **not** checked by the library and reach the same stage through `animate()`'s own throw; `'auto'` and `undefined` **land normally**, which is what pins the guard to `=== Infinity` rather than a finiteness test. Without (a), (c) and (e) a later pass re-adds the checks and nothing notices |
 | **B-5** | The compiled fixture: a free-drag consumer written against `free-drag.js` and `drag.js` only, with the terminal switch exhaustive over three arms and `never` on the fall-through, plus negative assertions for each retired shipped name — `coordinateSpace`, `update`, `lift: 'top-layer'`, `FreeDropResolution.accept({ … })` |
 | **B-6** | A middle-tier fixture: a `constrain` installer authored **out of line** against `free-drag/feature.js`, proving the slot is fillable by a third party without the first-party `bounds()` |
 | **B-7** | Type identity, not structural coincidence: `FeatureContext` imported from `sortable/feature.js` and from `free-drag/feature.js` is the **same declaration**, and so is `LandingOptions` from the two landing entries |
@@ -437,7 +496,7 @@ Every ledger §6, §6.1 and §7 row that named Phase 18.
 | `DragAxis` | **Retained** |
 | `DragSubject` | Stays dropped; free drag publishes its own `FreeDragSubject` — F-66 |
 | `CoordinateMapper` | **Dropped**, following `coordinateSpace` |
-| `draggable` throws `TypeError('draggable: onDrop is required.')` | **Retained**, message re-prefixed `freeDrag:` |
+| `draggable` throws `TypeError('draggable: onDrop is required.')` | **Dropped** under `CODE_OF_SIZE.md` §1.1 — the one row this reconciliation reclassifies. **What a consumer loses:** a construction-time diagnostic; a missing `onDrop` now surfaces as a `consumer`-coded `DraggableError` on the first release, with the drag canceled and the visual restored. **The type-level replacement is strictly better and free**, and is recommended in §Validation |
 | `FreeDragController.update` | **Dropped and replaced** — D-71. L-5 is closed |
 | `FreeDragController.cancel` / `.destroy()` | **Retained**, `destroy()` now returning a promise (D-36) |
 
