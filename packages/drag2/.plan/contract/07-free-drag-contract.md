@@ -1,0 +1,513 @@
+# Free drag — public contract and decomposition (Phase 18)
+
+## What this is
+
+The normative contract for the package's **second behavior**: its public surface, its decomposition into config slots and capabilities, its mapping onto the kernel SPI, and the acceptance criteria Phase 19 is built against. It carries decisions **D-69…D-76** and findings **F-62…F-66**; the rows themselves live in [00](00-index.md), which stays the decision ledger.
+
+It sits below 00 and above 06 in the precedence order of [00 §Normative precedence](00-index.md#normative-precedence-and-freeze): where this document and 02 disagree about a **seam**, 02 wins; where it and 03 disagree about **composition**, 03 wins; what is free-drag-specific is decided here and nowhere else.
+
+**Design phase, no runtime.** Nothing below is implemented. Two of its preconditions are not implemented either, and that is the first section rather than a footnote.
+
+## Three fixed constraints, and what each one settled
+
+| Constraint | What it fixed |
+| --- | --- |
+| **The kernel as it exists in `src/`**, not as 13c described it | Every seam signature below is the shipped one. 13c's typed probe predates two SPI crossings and is stale in both directions (revision handoff §134) — it was re-read, not trusted, and F-63 is what re-reading produced |
+| **The Revision 2 surface** (D-36…D-68) | `freeDrag(item, …fragments)` returning a controller (D-48), fragments as plain partial configs (D-45), one `onEnd` (D-62), coarse `onError` (D-64), exactly-once terminal (D-66), `destroy(): Promise<void>` (D-36), the kernel vocabulary (D-68). None of it was reopened |
+| **The parity ledger** ([`ledger.md`](../ledger.md) §6) | Every row is discharged in §Parity discharge below — retained, redesigned with its migration stated, or dropped with the loss named |
+
+---
+
+## Conflicts with the existing kernel, raised rather than worked around
+
+### F-63 — two Phase 14 decisions are normative and unimplemented
+
+`plan.md` §Phase 14 books both for "Phases 19–20", so this is a scheduling fact rather than a drift. What makes it a **finding** is that free drag is not merely their first consumer — it is incorrect without them, and nothing in the toolchain says so.
+
+| Decision | What the contract says | What `src/` does |
+| --- | --- | --- |
+| **D-34** | `BehaviorSpec<Part, Activation extends {} = true>` — the activation seam's staged type is the behavior's choice | `activation: Transition<Part, HTMLElement, ActivationScope>` (`src/kernel/spec.ts:426`). Pinned |
+| **D-35** | `LandingContext.from` is the delta the lift session last rendered | `from: { x: current.pointerX - current.originX, … }` (`src/kernel/kernel.ts:1474`). The session records nothing; `VisualLiftSession.write` composes and writes (`src/kernel/presentation.ts:316`) |
+
+Free drag stages **nothing** at activation — no placeholder, no detached node, no acquired resource — so under the shipped signature its `prepare` must return `scope.visual`, an element the kernel already holds, and its `effect` must ignore what it is handed. That is the staged-resource contract inverted, which is F-44 exactly.
+
+Free drag **constrains** its visual — an axis lock, a bounds clamp and a re-based position each mean the rendered delta is not the pointer delta — so under the shipped computation every constrained drop opens its landing from a position the visual is not at, and ends correctly because the target is behavior-supplied. A wrong start and a right end is F-45's signature, and Phase 11 already found one of that shape the hard way.
+
+**The instrument gap is the reusable part.** `tests/docs.node.test.ts` closes the documented surface over types, `tests/packaging.node.test.ts` asserts the entry table, the compiled fixtures assert the shapes that exist — and **nothing checks a decision booked to a later phase against the code that does not yet implement it**. Two contract-normative decisions sat unimplemented across a checkpoint and a whole revision with every suite green, because a green suite is evidence about the implemented contract only. See §Acceptance criteria, row K-5.
+
+### F-62 — the kernel classifies two behavior-generic seams with sortable vocabulary
+
+Three of the thirteen published failure stages name sortable concepts, and two of them are not behavior-chosen at all:
+
+- **the settlement seam** runs under `FAILURE_REORDER_RESOLUTION` for every behavior (`src/kernel/kernel.ts:1676`);
+- **the action seam** runs under `FAILURE_INSERTION` (prepare) and `FAILURE_PLACEHOLDER_MOVE` (effect) for every behavior (`src/kernel/kernel.ts:2209`);
+- `FAILURE_INSERTION` and `FAILURE_PLACEHOLDER_MOVE` additionally map to `'presentation'` in D-64's total mapping, so a free-drag `moveTo()` whose prepare throws reports a **presentation** fault for library arithmetic.
+
+Checkpoint E asks whether anything in `kernel/` knows a collection, a placeholder or an insertion. It does: three published constants, two of them as the kernel's own defaults. D-68 published all thirteen one revision ago, so the window in which a rename is free is the window before the kernel tier has a consumer — **now**. D-74 renames three identifiers and changes no numeric value.
+
+### F-65 — the kernel performs a sortable-shaped measurement for every behavior
+
+D-52's **window 1** — the box's offset box, read by the kernel immediately before `acquireLift` and handed down as `ActivationScope.boxPre` — exists so a behavior can compute a placeholder footprint from the difference between two reads straddling acquisition. Free drag has no footprint, takes no second read, and never names `boxPre`; the read happens anyway, once per activation, because it is unconditional kernel work.
+
+**Not a defect and not free.** It is one `getBoundingClientRect`-class read on a path that is already doing layout work, at a moment that is not the hot path. It is recorded because Checkpoint E's question is whether the kernel does work only one behavior needs, and this is the clearest instance — sharper than the failure-stage names, because renaming cannot fix it: removing it means making window 1 conditional on something the behavior declares, which is an SPI change with no evidence behind it yet. **Phase 21 measures it; Checkpoint E decides.** Free drag pays it and says so.
+
+### F-64 — three composition types are structurally identical across two middle tiers
+
+`FeatureContext` (`{ realm, root, report }`), the installer shape (`(context) => contribution`) and two contribution slots (`startLanding`, `retire`) are behavior-neutral, and both middle tiers need all of them.
+
+**Phase 18 declines to unify them, deliberately.** Inventing a cross-behavior composition vocabulary — a generic `Installer<C>`, a shared contribution base — before two behaviors exist is exactly the generalization Checkpoint E is convened to evidence, and building it here would consume the evidence it is supposed to produce. What Phase 18 does instead is the narrower thing that costs nothing: **one declaration, two publications**, the D-68 re-home pattern. `FeatureContext` and `LandingOptions` are declared once in internal modules and re-exported from both middle-tier entries under the same name, so the two tiers share a **type identity** rather than a structural coincidence. The installer and contribution aliases stay per-behavior, because their bodies genuinely differ.
+
+**The falsifier, stated:** a third behavior, or a first-party capability that must be installable into both compositions without a per-behavior wrapper. Either one is the evidence that the shared vocabulary should be declared rather than duplicated, and Checkpoint E is where it is read.
+
+---
+
+## The public form (D-69)
+
+```ts
+const drag = freeDrag(
+  item,
+  { onDrop },
+  bounds(stage),
+  landing({ duration: 200 }),
+);
+```
+
+`freeDrag(item, ...fragments): FreeDragController`, from `@ydinjs/drag/free-drag`. Member for member the shape `sortable()` has: the first argument is the ingress root — which for a free drag **is** the item — every later argument is a plain partial config merged by slot, and the return is the controller itself. The consumer never names `draggable`, never holds a behavior value, and never learns that a kernel tier exists.
+
+**One vocabulary — `drag`, not `drop`.** The shipped package mixes `FreeDrop*` types with `FreeDrag*` export-site renames and the ledger left the successor to pick one. The drop is an event inside the drag; the drag is the thing being configured, controlled and named, so it names the entry, the function, the controller and the type family. `onDrop` keeps its name because it is the one slot that really is about the drop.
+
+### The config schema
+
+Required after the merge: **`onDrop`** — a **type** requirement, not a runtime one. The variadic merge is what hides it from the compiler, and §Validation says what happens instead of a throw. Everything else is optional, and every slot below is a named type alias for F-51's reason — method shorthand is bivariant and this repo's `method-signature-style` rewrites the property form back into shorthand on every `lint-fix`.
+
+| Slot | Type | Kind | Note |
+| --- | --- | --- | --- |
+| `onDrop` | `OnDrop` | consumer function, **required** | `(request, context) => FreeDragResolution \| PromiseLike<FreeDragResolution>`. The round-trip. `context` carries the `AbortSignal` the kernel owns |
+| `handle` | `ResolveHandle` | consumer function | `(item) => HTMLElement \| null`. **Resolver only** — the shipped element form is withdrawn, see §Parity discharge |
+| `visual` | `ResolveElement` | consumer function | The node lifted. Defaults to the item |
+| `axis` | `DragAxis \| AxisSource` | scalar **or source** | `'both' \| 'x' \| 'y'`, default `'both'`. A function is re-read on `invalidate()` and at activation, never per sample — D-71 |
+| `lift` | `FreeDragLift` | scalar | `'faithful' \| 'flat' \| 'in-place'`, default `'faithful'` — D-73 |
+| `threshold` | `number` | scalar | Activation travel in viewport pixels, default 8. Same default and same domain as the sortable's |
+| `home` | `ResolveHome` | consumer function | `(subject) => Point`, viewport space. Where a rejected or canceled drag returns to. Absent means the grab position |
+| `onStart` | `OnStart` | consumer function | `(geometry) => void`, once, after the lift is acquired |
+| `onMove` | `OnMove` | consumer function | `(geometry) => void`, once per committed sample, **after** the visual is written |
+| `onEnd` | `OnEnd` | consumer function | `(result) => void`, exactly once per started operation (D-62, D-66) |
+| `onError` | `OnDragError` | consumer function | `(error, context) => void` (D-64) |
+| `bounds` | `FreeDragInstaller` | **atomic capability** | From `free-drag/bounds.js`. Absent means unconstrained and **no bounds code in the graph** |
+| `landing` | `FreeDragInstaller` | **atomic capability** | From `free-drag/landing.js`. Absent means the visual is released without animating |
+| `plugins` | `readonly FreeDragInstaller[]` | **appending** | The one slot that concatenates rather than last-wins |
+
+Merge semantics are D-45's unchanged: the merge iterates the schema rather than the fragment's keys, scalars and consumer functions last-win, an atomic capability last-wins as one whole slot, `plugins` appends in fragment order, and installers run **after** the merge completes so a capability that loses its slot is never constructed. Installation order is schema order (D-57): `bounds`, `landing`, then plugins; `retire` hooks run in reverse.
+
+### The controller
+
+**Four members** — the kernel's two, plus one signal and one command.
+
+```ts
+type FreeDragController = Readonly<{
+  invalidate(): void;
+  moveTo(point: Point): void;
+  cancel(reason?: unknown): void;
+  destroy(): Promise<void>;
+}>;
+```
+
+`cancel` and `destroy` are `KernelHost`'s own members spread through unchanged, exactly as the sortable's are. `destroy()` closes the controller logically on the statement and returns a promise that settles after physical teardown (D-36). The other two are D-71.
+
+### The results
+
+Three arms, and **the arm set was re-derived rather than inherited** — the ledger says so explicitly, and the sortable's fourth arm is the reason. `noop` exists there because a reorder can be structurally identity-preserving: a proposal whose `from` equals its `to` is a real, resolved, successful transaction that changed nothing. A free drag has no such state — the consumer's `accept()` means _keep it where it landed_ whether or not it travelled, and a zero-distance drop is an ordinary acceptance. Inventing a `noop` arm for it would put an arm in the union that nothing can produce.
+
+| Arm | Produced by | Carries |
+| --- | --- | --- |
+| `accepted` | `onDrop` resolving `FreeDragResolution.accept()` | `request` |
+| `rejected` | `onDrop` resolving `FreeDragResolution.reject(reason?)` | `request`, `reason` |
+| `canceled` | `cancel()`, `Escape`, `pointercancel`, a destroyed controller, or **any classified failure of a started operation** (D-66) | `request \| null`, `reason`, `stage: CancelStage` |
+
+`FreeDragTransactionResult` is the union; `onEnd` receives it and switches with no `default`, which is what makes exhaustiveness checkable (D-62). `request` is `null` on the canceled arm exactly when the operation was abandoned before release built one — the same shape the sortable's `proposal: null` has, and the reason `AT_PROPOSAL`/`AT_CONSUMER` is carried.
+
+### The published names
+
+`free-drag.js` publishes the closure of `FreeDragConfig`, by F-51's rule: a slot a consumer can fill but cannot hoist out of the object literal is not a writable surface.
+
+| Kind | Names |
+| --- | --- |
+| Runtime | `freeDrag`, `FreeDragResolution` |
+| Config and its aliases | `FreeDragConfig`, `OnDrop`, `OnStart`, `OnMove`, `OnEnd`, `OnDragError`, `ResolveHandle`, `ResolveElement`, `ResolveHome`, `AxisSource`, `DragAxis`, `FreeDragLift` |
+| Controller | `FreeDragController` |
+| Domain | `FreeDragSubject`, `FreeDragRequest`, `DragGeometry`, `FreeDragResolution`, `AcceptedFreeDragResolution`, `RejectedFreeDragResolution`, `FreeDragTransactionResult`, `AcceptedFreeDragResult`, `RejectedFreeDragResult`, `CanceledFreeDragResult`, `FreeDragErrorContext` |
+| Re-exported from the kernel tier | `CancelStage`, `AT_PROPOSAL`, `AT_CONSUMER` — a `CanceledFreeDragResult` carries one and an ordinary consumer must discriminate it, which is the same rule and the same re-export `sortable.js` already runs on (D-68) |
+
+**Two names are qualified because their unqualified form is already claimed by a different structure** (D-75): `FreeDragLift`, because `kernel.js` publishes a numeric `LiftMode` and this is a string union; and `FreeDragErrorContext`, because `onError`'s context carries a behavior's own result. `DragAxis` and `DragGeometry` stay unqualified — one structure, one claimant, no collision — and the rule is exactly that narrow: qualify a name when two entries need **different structures under one word**, not because a word could conceivably be reused.
+
+### Validation, under `CODE_OF_SIZE.md`
+
+> **What library-owned invariant requires this code to exist at runtime?**
+
+That litmus, not the D4 rule, decides this section. ~~Every option is validated **at construction**, once, before any drag, and throws a `TypeError` naming the slot.~~ Applied honestly it deletes almost all of it: an option domain the compiler already states is not a library invariant, and a value that breaks only the consumer's own drag is not the library's to police.
+
+**Free drag ships zero construction-time throws and one runtime predicate.**
+
+#### What each deleted check is replaced by
+
+Deletion is only safe if something else answers, and there are **two** answers, not one. Most deleted checks surface inside a kernel-driven seam, which means they are already classified, already carry a coarse `DraggableError` code, and already terminate the operation exactly once (D-66). Three surface **nowhere at all**, deliberately — and those three are the ones an acceptance criterion must not promise to classify.
+
+**Deleted, and classified when the value is used.** Codes are read from `STAGE_TO_CODE` in [`src/kernel/errors.ts:79-93`](../../src/kernel/errors.ts), not inferred; kernel line numbers are the site that names the stage.
+
+| Former check | Why it goes | Where a bad value surfaces | Stage → code |
+| --- | --- | --- | --- |
+| `onDrop` present | The type declares it required; only the variadic merge hides it from the compiler, and the merge is the library's choice rather than the consumer's fault. A release with nothing to ask returns a `SeamRejection` — a designed path this contract already uses for a missing visual | first release | `FAILURE_RESOLUTION` (8) → `consumer` |
+| `handle` is a function | Seven checks and seven strings to restate what the type says. Calling a non-function throws where it is called, which is inside a seam | `admit` (`kernel.ts:825`) | `FAILURE_ADMISSION` (1) → `consumer` |
+| `visual`, `onStart` are functions | ″ | activation (`:1149`, `:1166`) | `FAILURE_ACTIVATION` (2) → `interaction` |
+| `onMove` is a function | ″ | the move leaf (`:1827`) | `FAILURE_RENDERER_WRITE` (3) → `presentation` |
+| `home` is a function | ″ | `anchorTarget` (`:1423`) | `FAILURE_LANDING_TARGET` (12) → `presentation`, and on the **quality track**: the landing is skipped, the drop stands (D-49) |
+| `onEnd` is a function | ″ | the terminal (`:1637`, `:2192`) | `FAILURE_TERMINAL_CALLBACK` (14) → `consumer` |
+| `onError` is a function | ″ | the report path | **none, by design** — a throw there goes to the un-classified channel (`kernel/reporter.ts`), because a failure report may not itself fail |
+| `bounds(source)` shape | `resolveBounds` calls it or measures it; garbage throws there, inside the constraint's re-resolve | `action.prepare` (`:2209`) | `FAILURE_ACTION_PREPARE` (4) → `presentation` |
+| `landing({ duration })` is a function / `>= 0` / is a number | **Measured redundant** — see below | inside `LandingStart` (`:1497`) | `FAILURE_LANDING_CREATE` (10) → `presentation` |
+
+**D-74 is a rename, not a remapping.** `FAILURE_ACTION_PREPARE` carries `FAILURE_INSERTION`'s number (4) **and** its code, `presentation` — which is F-62's complaint restated, not repaired: the finding is that the kernel names a generic seam with the sortable's word, and D-74 answers exactly that and nothing else. Whether `presentation` is the right attribution for library arithmetic is a separate question, unopened here. Reading a renamed stage as a re-attributed one was this section's own first error, and the correction is why the codes above are quoted from the mapping rather than reasoned about.
+
+**Deleted, and deliberately silent.** No throw, no classified failure, no `onError`, no terminal — because there is no library invariant to protect and, for two of the three, nothing ever fails.
+
+| Former check | Why it goes | What happens instead |
+| --- | --- | --- |
+| `threshold` finite | A `NaN` threshold makes `dx*dx + dy*dy >= t*t` permanently false. Visible immediately, consumer-owned, and it breaks no library guarantee | The press arms and never activates. **No operation starts, so none terminates** — Q-15, and the reason B-4 must not ask for a terminal here |
+| `axis` in domain | An unknown value falls through to unconstrained motion. The compiler states the union; a JS consumer who ignores it gets their own drag | The drag runs normally, unconstrained, and reports success |
+| `lift` in domain | **Replaced by a type, not by a check** (§1.2): the map to `LIFT_*` is a total `Record<FreeDragLift, LiftMode>`, so adding a mode without a mapping does not compile. That is D-64's `STAGE_TO_CODE` precedent, which this package already treats as the way to make a mapping total | A TS consumer cannot express it. A JS consumer reaches `undefined` in the map and gets whichever branch `presentation.ts` falls through to — consumer-owned, and nothing fails |
+
+#### The one check that survives, and the measurement that narrowed it to one predicate
+
+`landing({ duration })`'s resolved value is checked **once per landing**, on the classified path — it already was, since `requireFinite` throws from inside `start` and the kernel classifies it. What changes is that the check narrows from a domain test to a single value comparison, because the platform performs the rest and performs it better.
+
+Probed directly against `Element.animate()`, **Chrome 150** (`HeadlessChrome/150.0.0.0`), one element, reading `getComputedTiming()` on every accepted value:
+
+| `duration` | `animate()` | Consequence |
+| --- | --- | --- |
+| `NaN`, `-1`, `-Infinity`, `'fast'`, `{}` | **throws** `TypeError: Failed to execute 'animate' on 'Element': duration must be non-negative or auto` | Already classified `FAILURE_LANDING_CREATE`. The library's own `typeof`, `< 0` and `NaN` tests are **redundant** |
+| `Infinity` | **accepted** — `activeDuration: Infinity`, `playState: 'running'`, `finished` never settles | **The landing gate is never released.** No terminal, no `onEnd`, visual pinned, controller stuck |
+| `'auto'`, `undefined` | **accepted** — computed duration `0`, `playState: 'finished'` | **Valid.** Both are legal WAAPI durations and the platform's own error text names `auto` |
+| `0`, `200` | accepted, completes | Correct |
+
+**The predicate is `duration === Infinity`, not `Number.isFinite(duration)`** — and the last row is why. A finiteness test is not merely redundant on the throwing values, it is **wrong on two accepted ones**: `Number.isFinite('auto')` and `Number.isFinite(undefined)` are both `false`, so the total predicate would refuse two durations the platform accepts and completes. A guard written as a domain check re-derives the platform's domain and gets it wrong; a guard written against the **one** pathological value does not.
+
+That value earns its bytes by the litmus. `+Infinity` is the single duration the platform accepts and never completes, and completion is what D-66's exactly-once terminal and the settlement gate's release are built on. A hang is the one failure mode this architecture cannot classify, because classification needs something to happen. Everything else stays platform-owned.
+
+**Where the refusal lands: `FAILURE_LANDING_CREATE` (10) → `presentation`.** The check runs inside the library's `LandingStart`, which the kernel wraps at exactly that stage (`kernel.ts:1487-1497`) — the same slot `animate()`'s own throw for `NaN` already produces. One predicate, no second path.
+
+**The quality track is a separate axis, and D-49 decides it per site rather than per stage.** The kernel runs `anchorTarget` on the quality track (`runQualityValue`, `:1423`): an unusable target returns `undefined`, the landing is **skipped rather than faked**, `ARM_ARMED` is returned and the domain result stands. It runs `start` on the classified track (`runLeaf`, `:1487`): a throw yields `ARM_FAILED` and the settlement fails. So refusing `Infinity` fails the settlement — exactly as `NaN` already does today through the platform, inherited rather than chosen.
+
+**What that costs the drop is free drag's own mapping to make, and no kernel change is needed to make it right.** A behavior maps a `SETTLED_FAILED` input to its own recovery (D-24, F-33), so free drag's frame part decides whether a drop the consumer already accepted survives a landing that could not be built. It must: a presentational fault after a committed drop may not un-drop it — D-49's principle, applied at the layer that owns the verdict, rather than a request to move `start` onto the quality track.
+
+> An earlier draft of this section reported the refusal as `FAILURE_LANDING_TARGET` and carried the skip-not-fake wording along with the wrong stage. That stage belongs to `anchorTarget`, and the two sites differ in track as well as in name — which is precisely why the stage constant cannot be used to infer the track.
+
+#### What this costs, and what it does not
+
+**It does not cost a lifecycle guarantee.** Each check in the first table is replaced by a classified failure that reaches `onError` with a coarse code and terminates the operation once. The three in the second table are replaced by **nothing**, on purpose: two of them never fail, and the third never starts an operation, so there is no terminal to owe (Q-15). Silence is the correct outcome there, not a gap — but it is a claim an acceptance criterion has to state in that form, which is why B-4 asserts the two tables separately and asserts the silent rows as _silence_.
+
+**It costs one shipped diagnostic.** `draggable: onDrop is required.` was a parity **retain** row and is now a **drop** — the consumer learns about a missing `onDrop` on their first drag rather than at construction. **The type-level fix removes the trade-off entirely and costs zero runtime bytes**: make the first fragment complete —
+
+```ts
+freeDrag(item, config: FreeDragConfig, ...fragments: ReadonlyArray<Partial<FreeDragConfig>>);
+```
+
+— and a missing `onDrop` stops compiling, which is strictly better than a throw. It is **not** taken here because it changes D-69's **public signature**, and the same question is open for the sortable's three required slots ([00](00-index.md) §What would falsify this model already carries it as _the variadic merge's required-slot completeness as a type error_). **Recommended, and owed as one decision across both behaviors rather than two.**
+
+**It does not settle the package.** 03 §Public option domains states the throw-at-construction rule as frozen and package-wide, and the sortable implements it — so free drag now diverges. **F-67, and it is bounded: it must be decided before Phase 19 begins**, because the required-first-fragment fix would change `freeDrag`'s signature and Phase 19 is where that signature is first written down in code. It does **not** gate D-76: the kernel step touches the activation staged type, the recorded lift delta and three stage renames, none of which the required-slot question can reach. D-76 proceeds independently, and F-67 is decided alongside it rather than behind it.
+
+---
+
+## The decomposition (D-70)
+
+The plan states the test this section has to pass: _a consumer wanting an unconstrained drag should carry no bounds code._ The rule that decides each slot is D-56's — **a capability that installs nothing is a config key, not a factory** — applied to the question _does this slot own state or code that a composition without it should not carry?_
+
+| Slot | Verdict | Why |
+| --- | --- | --- |
+| `axis` | **core, plain config key** | Two comparisons and no state. A factory for it would ship a module, a closure and an entry to save two branches, which is what D-56 deleted four factories for |
+| `lift` | **core, plain config key** | `BehaviorConfig.liftMode` is static spec data. All three modes are implemented in `kernel/presentation.ts` whatever the behavior chooses, so there is nothing to isolate |
+| `threshold` | **core, plain config key** | A number the kernel owns the test for |
+| `home`, and every callback | **core, plain config keys** | Consumer functions install nothing. This is D-56's rule and the reason `callbacks()` was deleted |
+| `bounds` | **capability installer**, `free-drag/bounds.js` | Owns a resolved rect, a staleness rule and a source it re-reads. A composition without it must not carry the resolver or the clamp |
+| `landing` | **capability installer**, `free-drag/landing.js` | Owns a runner, a timing domain and a reduced-motion collapse |
+| `plugins` | **appending installers** | The extension point |
+
+### The contribution
+
+```ts
+type FreeDragContribution = Readonly<{
+  constrain?: MotionConstraint;
+  startLanding?: LandingStart;
+  retire?: Disposer;
+}>;
+```
+
+Three slots against the sortable's six, no discriminator, and the same closed-world rule: a new semantic seam is a coordinated edit to this type, the slot record, the assembler and the behavior's call sites, and that closed world is what buys direct slot calls with no runtime descriptor interpretation.
+
+**`constrain` is a paired capability, for 03's reason and not by analogy.** The behavior owns the events that make a bounds rect stale — activation, scroll, resize, `invalidate()`, release — and the feature owns the rect. Neither can do the other's half, so installing a resolver without its invalidator has to be impossible rather than discouraged:
+
+```ts
+type MotionConstraint = Readonly<{
+  apply(motion: MotionDraft, view: ConstraintView): void;
+  invalidate(): void;
+  retire(): void;
+}>;
+```
+
+`apply` is **one indirect call per committed sample and allocates nothing**: it writes the clamped scalars back into a mutable `MotionDraft` the behavior owns and passes by reference, rather than returning a point. That is 13c P-1 as corrected at C-07 — the first version of the probe wrote `constrain()` as one function returning `{ x, y }` while claiming the path allocated nothing, and a `Point` per pointer sample is what it actually cost.
+
+**The hot-path cost is stated rather than absorbed.** 02's accounting is three post-`MOVE` indirect calls — `spec.moved`, `lift.write`, `frame.schedule`. A composition with `bounds()` makes it **four**; a composition without it pays one property read and one predictable branch. That is the shape of every optional slot in this package and it is Phase 21's number, not this document's claim.
+
+**`constrain` is single-writer, and that is the extensibility story.** A consumer wanting grid snapping, magnetic guides or a custom containment rule writes a middle-tier installer that fills the same slot instead of `bounds()`, and the library ships none of it. That is the first capability in this package that a third party can supply _instead of_ a first-party one rather than beside it.
+
+### The middle tier
+
+`free-drag/feature.js`, mirroring `sortable/feature.js` (D-61): `FreeDragInstaller`, `FreeDragContribution`, `MotionConstraint`, `ConstraintView`, `MotionDraft`, plus `FeatureContext` and the three landing seam types and `Disposer` as re-exports. No runtime exports — every name on it is erased, which is the honest measurement statement for the entry, as it is for the sortable's.
+
+An installer is **externally inert**: it may allocate and capture, but it may not attach a listener, write the DOM, or acquire anything needing release. Every acquisition happens inside a kernel-owned operation lifetime.
+
+### The export topology extension
+
+Four entries, taking the package from eight to twelve. Decided in full before modules exist — the same precondition Phase 0 observed, for the same reason.
+
+| Subpath | Runtime | Types |
+| --- | --- | --- |
+| `free-drag.js` — the ordinary tier | `freeDrag`, `FreeDragResolution` | the closure of `FreeDragConfig` — §The published names |
+| `free-drag/feature.js` — the middle tier | — | `FreeDragInstaller`, `FreeDragContribution`, `MotionConstraint`, `ConstraintView`, `MotionDraft`, `FeatureContext`, `LandingStart`, `LandingContext`, `LandingHandle`, `Disposer` |
+| `free-drag/bounds.js` | `bounds` | `BoundsSource` |
+| `free-drag/landing.js` | `landing` | `LandingOptions` |
+
+**`free-drag/landing.js` duplicates an entry, not an implementation.** The landing runner is behavior-neutral — `LandingStart`, `LandingContext` and `LandingHandle` are kernel SPI — so the runner, its timing domain and its reduced-motion collapse are one internal module that both entries wrap. What the two entries do not share is the _installer type_, because the contribution types differ, and unifying those is F-64's deferred question. The cost is a thin factory per entry; the precedent is `rect-index.ts` shared between `y()` and `xy()` at a measured 60 B, recorded rather than absorbed. **Phase 21 measures this one the same way.**
+
+Neither `drag.js` nor `kernel.js` changes. A free-drag consumer imports `free-drag.js` and — for `instanceof DraggableError` — `drag.js`, and reaches no other tier. `tests/packaging.node.test.ts` asserts the absence in both directions: a free-drag composition's import graph must not reach `sortable/`, and the sortable's must not reach `free-drag/`.
+
+---
+
+## Live policy is a pull, and there is no `update()` (D-71)
+
+D-44 replaced `updateItems(payload)` with `items()` + `invalidate()` on the finding that the package carried **two channels for one thing and re-read neither**. Free drag's `update(DragUpdate)` is the same shape at a different slot, and it gets the same answer generalized into a rule:
+
+> **Every mutable policy slot is a source the library re-reads, and `invalidate()` is the only signal. No slot has a setter.**
+
+| Policy | Source | Read at |
+| --- | --- | --- |
+| `axis` | the value, or `AxisSource` | activation, and on `invalidate()` |
+| bounds | `bounds(source)`'s element or thunk, held by the feature | the feature's own rule: on `invalidate()`, and lazily after a scroll or resize |
+| landing timing | `landing({ duration })`, contextual since D-67 | once per landing, at settlement |
+| `onMove` and the other callbacks | the config slot | fixed for the controller's life |
+
+`invalidate()` carries no payload for D-44's reason — the library asks rather than being told — and it is **applied as a queued action**, so it lands in FIFO order with everything else the drag is doing and reads consumer sources inside `action.prepare`, where the kernel has a transaction open, a phase to branch on and a stage to classify a throw against. Calling a source on the `invalidate()` statement itself would run consumer code at an arbitrary reentrant point; that is the same defect D-44's own note records.
+
+**`moveTo(point)` is a command, not policy, and that is why it is a separate member.** A controlled position is not a rule the library re-reads; it is an instruction to move the visual now. Folding it into a policy setter is what made the shipped `update({ position })` carry a motion command inside an options bag.
+
+**Its semantics are a re-base, and the parity delta is stated.** `moveTo(p)` writes an offset into the frame such that the visual is at `p` on the next committed frame, and subsequent pointer motion continues **relative to that**. The shipped `update({ position })` set an absolute controlled position that later pointer samples did not disturb. The observable the shipped test pins — _retargets a controlled drag mid-flight_ — holds under both; the two differ only when the pointer keeps moving afterwards, and the re-base is the one that composes with a live pointer rather than fighting it.
+
+`moveTo` writes through `lift.write` from an `action.effect`, which is 13c N-4's route, and it is **the sharpest reason D-35 is a precondition rather than a nicety**: a re-based visual that lands from the pointer delta lands from somewhere it has never been.
+
+### What the controller lost, and what it costs
+
+`update()` could replace `onMove` and `landingTiming` live. Neither survives as a live slot: a consumer that wants a swappable movement callback closes over a mutable reference of its own, which is the two lines it already has open. Recorded as a real, small loss rather than an equivalent spelling.
+
+---
+
+## Coordinate space narrows to deltas (D-72)
+
+`coordinateSpace: CoordinateMapper` **is not carried forward**, and `localDelta` is.
+
+The shipped default mapper is built by walking `offsetParent`, accumulating `clientLeft`/`scrollLeft`/`zoom`/`offsetLeft` and each ancestor's own transform (`packages/drag/src/kernel/coordinate.ts`). That walk **is** a coordinate module, drag2 has none, and Phase 19 forbids adding one. So the question was never _is a mapper useful_ — it was _what can this package derive without re-adding the module it deleted_.
+
+**box-quad already answers most of it.** The lift traversal reads the visual's inherited ancestor space and hands back its linear part — `a`, `b`, `c`, `d`, plus `ancestorZoom` — which `kernel/presentation.ts` already consumes for the in-place projection. A **delta** maps through the linear part alone; a **point** additionally needs the translation, and box-quad exposes none. That is the exact seam, and the decision follows it:
+
+- **`localDelta` stays and is correct by default.** Derived from the ancestor linear part at activation, no consumer option, no module, no per-sample matrix work — the coefficients are captured once and the warm calls are four multiplies.
+- **Points are viewport, everywhere.** `FreeDragRequest` loses `localPosition`; `home` returns a viewport `Point`; `moveTo` takes a viewport `Point`.
+- **There is no `coordinateSpace` option**, so no consumer-supplied mapper and no `CoordinateMapper` type on the surface.
+
+**What a consumer loses**, stated plainly: an arbitrary consumer-defined space. A consumer whose model is not an ancestor-transform space — a canvas with its own projection, say — receives viewport numbers and maps them itself, which it can, because the mapping is theirs and they hold both ends of it. **What no consumer loses** is the two shipped stories the option existed for: Zoomed Context and Transformed Stage are ancestor-transform cases, they are what box-quad's traversal already handles, and drag2's Zoomed Context port works today with no mapper at all.
+
+The `space: 'viewport'` discriminant on the home target goes with it. A one-member discriminant that never varies is a field that can only ever be one value, and this contract deletes those elsewhere — `FreeDragHome` collapses into `Point`, which is already public on `drag.js`.
+
+---
+
+## Lift modes are a consumer domain, mapped (D-73)
+
+The ledger's open question 2 asked whether a behavior may expose a kernel-internal enum. **It may not, and it does not have to.**
+
+`kernel.js` publishes `LIFT_FAITHFUL`/`LIFT_FLAT`/`LIFT_IN_PLACE` and `LiftMode` for a kernel-tier author who must fill `BehaviorConfig.liftMode` (D-68). The ordinary tier publishes a **string union of its own**, and the behavior maps one to the other in the one place that knows both. An ordinary consumer never sees a numeric constant, and the kernel enum stays a kernel enum — which is D-47's progressive disclosure working, rather than the tier inversion it exists to prevent.
+
+| Config value | Kernel mode | What it does |
+| --- | --- | --- |
+| `'faithful'` (default) | `LIFT_FAITHFUL` | Top layer, ancestor transform preserved through the base matrix — the visual keeps its authored appearance |
+| `'flat'` | `LIFT_FLAT` | Top layer, ancestor transform dropped |
+| `'in-place'` | `LIFT_IN_PLACE` | Stays in the container, rides the authored transform, translate projected through the inherited space |
+
+**The strings are renamed from the shipped ones and it is a breaking change.** `'top-layer'` → `'faithful'`, `'flatten'` → `'flat'`, `'none'` → `'in-place'`. The reason is not tidiness: **both** promoted modes use the top layer in this package, so `'top-layer'` names one of them after a mechanism it shares with its sibling, and `'none'` says _no lift_ for a mode that lifts, suppresses transitions and projects coordinates. The precedent is `vertical()` → `y()` — _a layout word for a rule that is about a coordinate_ — and the migration is a three-row table.
+
+---
+
+## The seam mapping
+
+Every signature below is the shipped `BehaviorSpec`, with D-34's parameter as its one precondition.
+
+| Member | Free drag |
+| --- | --- |
+| `createFramePart` / `resetFramePart` | §The frame part |
+| `config` | `{ threshold, liftMode: map(config.lift), actionTags: 2 }` |
+| `admit(event, draft)` | Applies D-46's input policy and D-50's handle scoping, resolves `visual`, and returns **a bare element** — D-59's common form, because free drag has no separate geometry source. `null` declines |
+| `command` | **Absent.** No discrete ingress; `arm()` binds `pointerdown` and nothing else. Keyboard free drag has no shipped counterpart and no parity row, so it is not invented here |
+| `activation.prepare` | Stages **nothing**: returns `true`. Requires D-34 |
+| `activation.effect` | Reads `scope.visual` into the part, primes the constraint, invokes `onStart(geometry)` behind the barrier |
+| `moved(current, lift)` | Raw delta from the committed sample, plus the frame's offset; axis (core); `constrain.apply` when installed; `lift.write(dx, dy)`; then `onMove(geometry)` — **after** the write, which is the shipped observable and is retained |
+| `action` | Two tags. `TAG_POLICY` re-reads the `axis` source and calls `constrain.invalidate()`; `TAG_POSITION` writes the re-base offset in `prepare` and renders it through `lift.write` in `effect` |
+| `release.prepare` | Builds `FreeDragRequest` into the draft, returns `{ invoke: (signal) => onDrop(request, { signal }) }`. **Never `null`** — free drag has no proven semantic no-op, so `SETTLED_SKIPPED` has no producer in this behavior, and a release that finds no visual or no request returns a `SeamRejection` rather than reporting a successful drop |
+| `release.effect` | Nothing. There is no placeholder to move |
+| `settlement.prepare(draft, input)` | Maps all five inputs to the domain result, including D-66's fallback: `draft.domain ??= { type: 'canceled', … }` with the stage derived from a behavior-private progress marker, never from `request !== null` |
+| `settlement.effect(current, _, scope)` | `scope.holdForLanding(startLanding)` when a landing is installed **and** the visual has to travel — the rejected and canceled arms with a home target, and an accepted arm never does |
+| `anchorTarget(current)` | Accepted → the visual's current viewport position. Rejected or canceled → `home(subject)`, or the grab position when no `home` is configured. A throwing or non-finite result is an **error, not a cancel** — the shipped semantics, classified `FAILURE_LANDING_TARGET` through `reportFailure` (D-49) so a drop that already committed is not re-settled |
+| `finalized(current)` | `onEnd(current.domain)` behind the barrier, once |
+| `reportFailure(stage, error)` | `onError(toDraggableError(stage, error), { domain: null })` — the hook is handed no frame, so both callers report a null domain and the non-null case comes from the settlement failure path (D-60, D-66) |
+| `retire` | Drops the per-operation references. Idempotent, best-effort |
+
+### The frame part
+
+Five fields against the sortable's eight, and a **different shape** — which is the point M-1 makes about the 12-to-16-field copy cliff, and the reason Phase 21 must measure this part rather than inherit the sortable's number.
+
+| Field | Why it is committed state |
+| --- | --- |
+| `visual: HTMLElement \| null` | Needed after activation, in seams that receive no scope |
+| `offsetX: number`, `offsetY: number` | `moveTo`'s re-base. An **input**, not a derivation, so only a `prepare` may write it |
+| `request: FreeDragRequest \| null` | Written by `release.prepare` before the command is returned, so `release.effect` and the `invoke` closure reach the same object — the sortable's `proposal` discipline exactly |
+| `domain: FreeDragTransactionResult \| null` | The result, and D-66's fallback carrier. One field for both, because the fallback rule is _existing result wins_ |
+
+**The rendered delta is deliberately not a field.** It is a pure function of the committed sample, the offset and the policy, so `moved`, the request builder and the geometry builder each derive it; `moved` receives a `Readonly` frame and could not write it anyway. That also keeps this behavior clear of the mirror-every-write duplication that D-35 was chosen over a `renderedDelta` seam to avoid — the behavior derives, the kernel records its own writes, and neither reads the other's copy.
+
+---
+
+## The terminal-barrier enumeration (I-36, in D-37's finite form)
+
+The deliverable, discharged. **Not** the stretch decomposition, the provisioning/floor/register apparatus or the survive-the-stretch sweep — D-37 withdrew the quantifier those existed to discharge, and copying them forward would import an undischargeable obligation into the second behavior.
+
+**Category 1 — every declared consumer slot the behavior invokes.**
+
+| Slot | Invoked from | Barrier |
+| --- | --- | --- |
+| `handle`, `visual` | `admit`, inside the native listener | Kernel-bracketed: admission is one seam and a throw is `FAILURE_ADMISSION`. Single call, no sequence |
+| `onStart` | `activation.effect` | Latch read immediately before. Single call |
+| `onMove` | `moved` | Latch read before. One consumer call per sample, after the write |
+| `axis` source | `action.prepare(TAG_POLICY)` | **The one site with two consumer calls in one seam** — see below |
+| `bounds` source | inside the constraint feature, on its own re-resolve | Latch read before; the feature holds a liveness reading, not a mirror of one |
+| `onDrop` | the `invoke` closure, kernel-driven | Kernel-owned: the kernel opens it, holds the signal, and revalidates after |
+| `home` | `anchorTarget` | Latch read before. Single call |
+| `onEnd` | `finalized` | Latch read before. Single call, and the last one |
+| `onError` | `reportFailure` | Latch read before |
+| `landing({ duration })` | inside `LandingStart`, at settlement | **The inherited conforming residue** (F-47): the thunk is followed by `matchMedia` and `animate()` with no reading between them. Free drag inherits the site with the shared runner, and it stays classified rather than closed — same blast radius, same `FAILURE_LANDING_INTERRUPTED` revalidation, same trigger |
+| plugin installers | construction, once | Not per-operation. Externally inert by contract |
+
+**Category 2 — where it admits.** One site: `admit` on `pointerdown`. No `command` member, so no discrete listener is bound at all.
+
+**Category 3 — where it publishes a lifecycle or domain event.** Nowhere. The package dispatches no DOM events and exposes no event target; every publication is a declared slot, which is why category 1 is the whole of the surface.
+
+**The one new barrier, and what it tells us.** `invalidate()` re-reads the `axis` source and then re-resolves bounds — two consumer-reachable calls inside one `action.prepare`, with the behavior driving the sequence. That is precisely the shape D-26 never covered and F-47 found: the latch is read **between** them, not only before the first. Every other site in the table is a single call inside a kernel-driven seam.
+
+**The falsifier did not fire.** The stated condition for making liveness kernel-supplied rather than behavior-owned was a **third** copy of the latch. Free drag needs one field and one line in `destroy()` — the second copy — and since D-53 the latch itself is `host.closed`, read rather than mirrored. The rule stays behavior-owned and Checkpoint E inherits the count, not the question.
+
+---
+
+## What free drag does not have
+
+Recorded because an absence a reader has to infer is an absence a later phase will re-add by accident.
+
+- **No placeholder, no collection, no insertion.** Nothing in `free-drag/` measures a sibling or names an index.
+- **No discrete ingress.** No `command` member, no keyboard drag. Parity has none and Phase 16's machinery is the sortable's.
+- **No `SETTLED_SKIPPED` producer.** `release.prepare` never returns `invoke: null`.
+- **No readiness gate.** Settlement holds one gate — landing — and a consumer that must render before the landing measurement `await`s its own commit inside `onDrop` (D-41).
+- **No `noop` terminal arm**, and §The results says why the sortable has one.
+- **No feature-owned frame state.** D-10 stays reserved and unimplemented; the constraint's rect lives in the feature's own closure.
+
+---
+
+## Acceptance criteria
+
+Implementation-ready in the sense the handoff uses: each row is a check that fails against today's tree and passes only when the thing it names exists.
+
+### Kernel preconditions — the discrete step before Phase 19 (D-76)
+
+Landed against the **sortable alone**, with zero free-drag code in the tree, so that any regression is attributable to the kernel change rather than to the second behavior.
+
+| # | Criterion |
+| --- | --- |
+| **K-1** | `BehaviorSpec<Part, Activation extends {} = true>`, threaded through `BehaviorInstall` and `BehaviorFactory` (D-34, and C-04's correction that the generics must reach the construction types). The sortable declares `HTMLElement` explicitly. `kernel.js`'s published surface gains a **defaulted** parameter, so D-68's list is unchanged in count and source-compatible |
+| **K-2** | `VisualLiftSession` records what `write(x, y)` composed; `LandingContext.from` reads it (D-35). The behavior is handed a projection carrying `visual`, `baseTransform`, `compose`, `write` and **not** `rendered` or `dispose` — I-34's structural half, typed and asserted with `@ts-expect-error` |
+| **K-3** | 05's **Landing origin — new (D-35)** matrix group executes: a non-zero pin on both axes, an axis-locked fixture reporting its own delta rather than the pointer's, a write from an `action.effect` tracked, `(0, 0)` for an operation that never rendered, and `(0, 0)` — never `-originX` — for a pointerless one |
+| **K-4** | The three renamed stages (D-74), values unchanged: `stageToCode`'s keys, the kernel's two hard-coded defaults, `sortable/spec.ts`'s uses, and the fixture. A test asserts the **numeric values** are 4, 5 and 8, because a rename that moves a wire value is the one change this list must never make |
+| **K-5** | The instrument F-63 exposes: a check that every decision row in 00 marked as landing in a later phase is either implemented or **listed**, so a normative-and-unimplemented decision is a visible state rather than a discovery. The list is the artifact; the check is that it is complete |
+| **K-6** | M-1 and M-3 re-measured for K-2's two scalar writes per sample, under 05 §Measurements owed's reproducibility standard. The sortable suite green throughout |
+
+### The behavior
+
+| # | Criterion |
+| --- | --- |
+| **B-1** | A free-drag composition's import graph reaches **no** `src/sortable/` module, and the sortable's reaches no `src/free-drag/` module. Asserted over the graph, not over bundle bytes |
+| **B-2** | A composition with no `bounds()` contains **no** clamp arithmetic and no rect resolver — `tests/packaging.node.test.ts`, the same instrument and the same both-directions form the two axis features already use |
+| **B-3** | `tests/exports.node.test.ts` asserts the four new entries' exports **by value** for the runtime names and by presence for the types, and `tests/docs.node.test.ts` runs **per entry** so a type reaching an unexported one fails at the tier it escapes from |
+| **B-4** | **Both directions, and the negative one is load-bearing. Each clause asserts only what §Validation's tables promise — the two tables are asserted differently and the split is the criterion.** (a) `freeDrag()` throws **nothing** for any config: a fixture passes garbage into every slot, missing `onDrop` included, and asserts construction returns a controller. (b) For each row of the **classified** table only: the bad value surfaces at the named seam, reaches `onError` with **that row's code** — `consumer` for `onDrop`, `handle` and `onEnd`; `interaction` for `visual` and `onStart`; `presentation` for `onMove`, `home` and `bounds` — and the operation publishes **exactly one** terminal. Codes are asserted against `STAGE_TO_CODE`, not retyped, so a remap cannot pass. (c) For each row of the **silent** table: **nothing is reported at all**. A `NaN` threshold produces no `onError`, no terminal and **no started operation** (Q-15) — asserting a terminal here would be asserting a defect. An unknown `axis` string completes a **normal, successful, unconstrained** drag. An unknown `lift` string is a type error for a TS consumer and fails nothing for a JS one. (d) A `landing({ duration })` resolving to `Infinity` is refused at `FAILURE_LANDING_CREATE` → `presentation`, and the accepted drop **survives** it through free drag's `SETTLED_FAILED` recovery mapping (D-24) — the assertion is on the drop's survival, not on which track the kernel used. (e) `NaN`, `-1`, `-Infinity` and `'fast'` are **not** checked by the library and reach the same stage through `animate()`'s own throw; `'auto'` and `undefined` **land normally**, which is what pins the guard to `=== Infinity` rather than a finiteness test. Without (a), (c) and (e) a later pass re-adds the checks and nothing notices |
+| **B-5** | The compiled fixture: a free-drag consumer written against `free-drag.js` and `drag.js` only, with the terminal switch exhaustive over three arms and `never` on the fall-through, plus negative assertions for each retired shipped name — `coordinateSpace`, `update`, `lift: 'top-layer'`, `FreeDropResolution.accept({ … })` |
+| **B-6** | A middle-tier fixture: a `constrain` installer authored **out of line** against `free-drag/feature.js`, proving the slot is fillable by a third party without the first-party `bounds()` |
+| **B-7** | Type identity, not structural coincidence: `FeatureContext` imported from `sortable/feature.js` and from `free-drag/feature.js` is the **same declaration**, and so is `LandingOptions` from the two landing entries |
+| **B-8** | The frame part is five fields and `FramePartOf` rejects a kernel key in it; `validateFramePart` rejects one at `arm()` |
+
+### The lifecycle
+
+| # | Criterion |
+| --- | --- |
+| **L-1** | Every shipped observable in ledger §6.2 has a row: threshold disarm, lift on activation, no jump on the first move, the accumulated grab delta in `onStart`, the visual released **before** the terminal, async acceptance awaited, an invalid resolution as an error, animate home on rejection, `pointercancel`/`Escape` disarming a pending press with no terminal, ingress closed after `destroy()`, no retained document listeners, a late acceptance after cancel or destroy ignored, and `moveTo()` retargeting mid-flight |
+| **L-2** | **Exactly one terminal per started operation** on a live controller, on the failure path as well (D-66) — and **none** for an operation that never started (Q-15) |
+| **L-3** | The two-consumer-call barrier: an `axis` source that calls `destroy()` from inside itself does not reach the bounds re-resolve, and no declared slot fires afterwards |
+| **L-4** | The landing opens from the **constrained** delta under an axis lock, under a bounds clamp, and after a `moveTo()` — the free-drag half of K-3, and the case the shipped kernel gets wrong |
+| **L-5** | A geometry fixture per lift mode under an ancestor transform and under zoom, comparing the lifted visual's on-screen box to its expected box. Phase 11's lesson: 644 tests passed through a lift-mode regression because none compared the boxes |
+
+---
+
+## Parity discharge
+
+Every ledger §6, §6.1 and §7 row that named Phase 18.
+
+| Row | Verdict |
+| --- | --- |
+| `handle` — element or resolver | **Redesigned to resolver only.** Unified with the sortable's; `handle: el` migrates to `handle: () => el` |
+| `getVisual(item)` | **Retained** as `visual`, named as the sortable's |
+| `lift` modes | **Retained as a consumer option, renamed** — D-73 |
+| `axis` | **Retained**, and now also accepts a source (D-71) |
+| `bounds` | **Retained, respelled**: `bounds: 'viewport'` becomes `bounds()` from a subpath. L-2's unexported `BOUNDS_VIEWPORT` sentinel is closed **by deletion** — the no-argument form is the viewport, so there is no sentinel to export |
+| `coordinateSpace` | **Dropped** — D-72. L-7 is closed |
+| `threshold` | **Retained**, same default |
+| `landingTiming()` | **Redesigned** to `landing({ duration })`, contextual (D-67) |
+| `onDrop` (required) | **Retained**, and simpler: no presentation declaration to carry |
+| `resolveHomeTarget` | **Retained as `home`**, returning a bare `Point`. `FreeHomeTarget` is dropped: `{ position, space: 'viewport' }` had one inhabitant for its discriminant |
+| `onStart` / `onMove` | **Retained**, `onMove` still after the write |
+| `onFinish` / `onCancel` / `onError` | **Retained as one `onEnd` plus an orthogonal `onError`** (D-62, D-66), with the arm set **re-derived**: three, not four |
+| `FreeDropResolution` | **Retained as `FreeDragResolution`**; the factories take no argument (D-41) |
+| `FreeDropResult.is*` | **Dropped**, as the sortable's predicates were — the union is discriminated |
+| `DraggableOptions`, `DragUpdate` | **Dissolved** into `FreeDragConfig`; `DragUpdate` has no successor — D-71 |
+| `DragBounds` | **Retained as `BoundsSource`**, minus the `'viewport'` member |
+| `LiftMode` | **Retained as `FreeDragLift`** — D-75 |
+| `FreeHomeRequest` | **Dropped, and the drop re-derived** — F-66 |
+| `FreeDragCancelResult` / `FreeDragFinishResult` | **Dropped with the two-callback surface** (D-62) |
+| `FreeDropRequest`, `DragGeometry` | **Retained**, minus `localPosition` on the request — D-72 |
+| `FreeDropProposal`, `OnDrop`, `ResolveFreeHomeTarget`, `DragErrorContext`, `CancellationReason` — the shipped names, reachable from the surface and not exported | **Exported now**, per F-51's closure rule, as `OnDrop`, `ResolveHome` and `FreeDragErrorContext` (D-75). **Two have no successor**: `FreeDropProposal` paired the request with the mapper that defined its values, and D-72 removes the mapper; `CancellationReason` typed a union the canceled arm no longer carries, since the arm holds `reason: unknown` beside a `CancelStage` |
+| `DragAxis` | **Retained** |
+| `DragSubject` | Stays dropped; free drag publishes its own `FreeDragSubject` — F-66 |
+| `CoordinateMapper` | **Dropped**, following `coordinateSpace` |
+| `draggable` throws `TypeError('draggable: onDrop is required.')` | **Dropped** under `CODE_OF_SIZE.md` §1.1 — the one row this reconciliation reclassifies. **What a consumer loses:** a construction-time diagnostic; a missing `onDrop` now surfaces as a `consumer`-coded `DraggableError` on the first release, with the drag canceled and the visual restored. **The type-level replacement is strictly better and free**, and is recommended in §Validation |
+| `FreeDragController.update` | **Dropped and replaced** — D-71. L-5 is closed |
+| `FreeDragController.cancel` / `.destroy()` | **Retained**, `destroy()` now returning a promise (D-36) |
+
+---
+
+## Carried to Checkpoint E
+
+Not open questions for Phase 19 — evidence items the cross-behavior checkpoint was convened to read, each with its source above.
+
+1. **Does the kernel do work only one behavior needs?** F-65 says yes, once per activation, and Phase 21 has the number.
+2. **Do the two behaviors use the same seam set?** Free drag uses every member except `command`, and produces no `SETTLED_SKIPPED`. An unused arm in a shared union is a weaker finding than an unused seam, and both are now checkable.
+3. **Should the composition vocabulary be declared rather than duplicated?** F-64, with its falsifier stated.
+4. **Does the frame-part model hold at two part shapes?** Five fields against eight, both under M-1's cliff — measured in Phase 21, not assumed.
+5. **Is the failure vocabulary behavior-agnostic after D-74?** Ten of thirteen stages were already; three are after the rename. Whether _thirteen_ is the right number for two behaviors is Checkpoint E's, not this document's.
