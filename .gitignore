@@ -17,6 +17,13 @@
 /packages/**/*.d.ts
 
 !/packages/*/src
+# **Hand-written measurement fixtures, not build output** (P18A-16). The M-3
+# size baselines are authored `.js`/`.d.ts` by necessity — baseline A assembles
+# a slot record by hand and baseline B is a different package — so the blanket
+# rules above made one of D-77's own measurements, and the test that keeps the
+# baseline honest against `assemble()`, unreproducible from a clean clone.
+!/packages/*/bench/**/*.js
+!/packages/*/bench/**/*.d.ts
 
 *storybook.log
 storybook-static
@@ -29,3 +36,5 @@ storybook-static
 !.storybook/preview-frame.css
 
 .agents/codex
+.claude/worktrees
+.claude/settings.local.json

@@ -14,7 +14,7 @@ import type {
   OnReorder,
   ReorderTransactionResult,
 } from './domain.ts';
-import type { SortableInstaller } from './feature.ts';
+import type { AxisInstaller, SortableInstaller } from './feature.ts';
 
 import type { PlaceholderFactory } from './placement.ts';
 
@@ -58,8 +58,14 @@ export type SortableConfig = Readonly<{
   /* required after the merge */
   items: ItemSource;
   onReorder: OnReorder;
-  /** `y()` or `xy()`. An **atomic** capability slot: one installer, one whole. */
-  axis: SortableInstaller;
+  /**
+   * `y()` or `xy()`. An **atomic** capability slot: one installer, one whole.
+   *
+   * Typed as an `AxisInstaller` rather than a `SortableInstaller` (D-77): the
+   * contribution it returns must carry `insertion`, so a plugin-shaped
+   * installer is not assignable and the assembler needs no check for one.
+   */
+  axis: AxisInstaller;
 
   /* optional consumer functions */
   onStart?: OnStart;
@@ -147,15 +153,17 @@ const LAST_WINS_KEYS = [
  * mid-assembly.
  */
 export function mergeFragments(
+  config: SortableConfig,
   fragments: ReadonlyArray<Partial<SortableConfig>>,
 ): SortableConfig {
-  // Partial while it is being built, because a *fragment* owes nothing: whether
-  // the required slots were ever supplied is a property of the finished merge,
-  // and `assemble()` is the only place that can ask.
+  // Partial while it is being built, even though the first source is complete:
+  // the walk is one loop over one schema, and starting from `{}` keeps the
+  // required first argument and the optional fragments on the same code path
+  // rather than buying a second one to save an assignment.
   const merged: Partial<Writable<SortableConfig>> = {};
   const plugins: SortableInstaller[] = [];
 
-  for (const fragment of fragments) {
+  for (const fragment of [config, ...fragments]) {
     if (fragment.plugins !== undefined) {
       plugins.push(...fragment.plugins);
     }
@@ -172,8 +180,16 @@ export function mergeFragments(
   }
 
   merged.plugins = plugins;
-  // The one narrowing the type cannot do: `assemble()` diagnoses a missing
-  // `items`, `onReorder` or `axis` before it constructs anything, so every
-  // consumer of the result already runs behind that check.
+  // **The cast is what the required first argument pays for** (D-77). Nothing
+  // checks the merged result any more, because nothing has to: `sortable()`
+  // takes a complete `SortableConfig` and only the *later* fragments are
+  // `Partial`, so `items`, `onReorder` and `axis` were supplied at the call
+  // that could not compile without them.
+  //
+  // **The `undefined` skip above is what closes the remaining hole, and it is
+  // load-bearing rather than a nicety** (B-9). A later fragment is a legal
+  // `Partial` value and may carry `axis: undefined`; skipping it means a
+  // required slot the first argument filled cannot be cleared by a fragment
+  // that names it and supplies nothing.
   return merged as SortableConfig;
 }

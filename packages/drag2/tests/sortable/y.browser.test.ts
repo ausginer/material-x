@@ -83,7 +83,7 @@ function createField(count = 3): Field {
   // The axis slot **is** the installer now (D-45): `y()` returns a partial
   // config, and the installer is called with a context the geometry never
   // dereferences at construction.
-  const geometry = y().axis(null as unknown as FeatureContext).insertion!;
+  const geometry = y()(null as unknown as FeatureContext).insertion;
 
   const field: Field = {
     geometry,

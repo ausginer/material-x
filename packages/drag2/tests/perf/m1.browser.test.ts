@@ -165,7 +165,9 @@ function liveDrag(count: number): Live {
     items.push(item);
   }
 
-  const controller = sortable(root, { items: () => items }, y(), {
+  const controller = sortable(root, {
+    items: () => items,
+    axis: y(),
     onReorder: () => ReorderResolution.accept(),
   });
 

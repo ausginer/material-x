@@ -277,12 +277,9 @@ function mount(options: Options): Fixture {
   // Referenced from `onReorder`, which cannot run before the assignment lands.
   const controller = sortable(
     root,
-    { items: () => ids.map((id) => rows.get(id)!) },
-    y(),
-    options.realLanding === undefined
-      ? probeLanding(run)
-      : landing({ duration: options.realLanding, easing: 'linear' }),
     {
+      items: () => ids.map((id) => rows.get(id)!),
+      axis: y(),
       onReorder: (request): ReorderResolution => {
         requests.push(request);
         capture();
@@ -347,6 +344,9 @@ function mount(options: Options): Fixture {
         errors.push(error);
       },
     },
+    options.realLanding === undefined
+      ? probeLanding(run)
+      : landing({ duration: options.realLanding, easing: 'linear' }),
   );
 
   root.setPointerCapture = (): void => {};
@@ -830,19 +830,19 @@ describe('the api-1 footprint rule under a live drag', () => {
 
     const controller = sortable(
       root,
-      { items: () => rows },
-      y(),
-      { visual: (item) => item.querySelector<HTMLElement>('.c6-card')! },
-      // Long enough that every displacement is still in flight when the
-      // measurements below are taken.
-      layoutAnimation({ duration: 4000, easing: 'linear' }),
-      probeLanding(run),
       {
+        items: () => rows,
+        axis: y(),
         onReorder: (): ReorderResolution => ReorderResolution.accept(),
         onError(error): void {
           errors.push(error);
         },
       },
+      { visual: (item) => item.querySelector<HTMLElement>('.c6-card')! },
+      // Long enough that every displacement is still in flight when the
+      // measurements below are taken.
+      layoutAnimation({ duration: 4000, easing: 'linear' }),
+      probeLanding(run),
     );
 
     root.setPointerCapture = (): void => {};

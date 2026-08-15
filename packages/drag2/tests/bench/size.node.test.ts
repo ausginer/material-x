@@ -166,18 +166,17 @@ describe('the non-composed baseline', () => {
     const root: HTMLElement = Object.create(null) as HTMLElement;
     const context: FeatureContext = { realm, root, report: (): void => {} };
     const composed = assemble(
-      mergeFragments([
+      mergeFragments(
         {
           items: (): readonly HTMLElement[] => [],
           onReorder: () => ({ type: 'accepted' }),
           handle: () => null,
           visual: (item: HTMLElement) => item,
           placeholder: () => Object.create(null) as HTMLElement,
+          axis: y(),
         },
-        y(),
-        landing(),
-        layoutAnimation(),
-      ]),
+        [landing(), layoutAnimation()],
+      ),
       context,
     );
     // Imported here rather than at the top: it reaches built output, which

@@ -310,11 +310,9 @@ function mount(options: Options = {}): Fixture {
 
   controller = sortable(
     list,
-    { items: () => ids.map((id) => elements.get(id)!) },
-    y(),
-    // D-63: authored at the middle tier, which is where a runner lives now.
-    { landing: () => ({ startLanding: run }) },
     {
+      items: () => ids.map((id) => elements.get(id)!),
+      axis: y(),
       onReorder: (
         request,
       ): ReorderResolution | PromiseLike<ReorderResolution> => {
@@ -374,6 +372,8 @@ function mount(options: Options = {}): Fixture {
         errors.push(error);
       },
     },
+    // D-63: authored at the middle tier, which is where a runner lives now.
+    { landing: () => ({ startLanding: run }) },
   );
 
   // Synthetic pointer events have no active pointer, so the real

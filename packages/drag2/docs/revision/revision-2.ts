@@ -141,6 +141,7 @@ import {
 // The middle tier (D-61).
 import type { ReorderProposal } from '../../src/sortable/domain.ts';
 import type {
+  AxisInstaller,
   LandingStart,
   SortableContribution,
   SortableInstaller,
@@ -148,6 +149,7 @@ import type {
 // The ordinary tier.
 import { landing, type LandingOptions } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
+import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
@@ -350,7 +352,7 @@ function report(error: DraggableError, context: DragErrorContext): string {
  * is what surfaced that: an installer written against the old sketch does not
  * compile against the package it claims to extend.
  */
-const installMyAxis: SortableInstaller = (ctx) => {
+const installMyAxis: AxisInstaller = (ctx) => {
   const cache = new Map<HTMLElement, DOMRectReadOnly>();
 
   return {
@@ -366,9 +368,18 @@ const installMyAxis: SortableInstaller = (ctx) => {
   } satisfies SortableContribution;
 };
 
+/**
+ * D-77 — a **plugin-shaped** installer, whose contribution declares no
+ * `insertion`. It fills `plugins` and `landing`, and the negative assertion
+ * below is that it cannot fill `axis`.
+ */
+const installMyPlugin: SortableInstaller = (ctx) => ({
+  retire: () => ctx.report(undefined),
+});
+
 /** D-45 — a helper may return several slots and a consumer may take one. */
 function weirdThing(): Pick<SortableConfig, 'axis' | 'landing'> {
-  return { axis: installMyAxis, landing: installMyAxis };
+  return { axis: installMyAxis, landing: installMyPlugin };
 }
 
 const controller: SortableController = sortable(
@@ -376,6 +387,9 @@ const controller: SortableController = sortable(
   {
     items: () => rows,
     onReorder: () => ReorderResolution.accept(),
+    // **D-77 — the axis is a slot in the required first argument**, and `y()`
+    // is the installer itself rather than a one-key fragment.
+    axis: y(),
     onStart: (item) => item.setAttribute('data-dragging', ''),
     onEnd: (result) => globalThis.console.log(disposition(result)),
     onError: (error, context) =>
@@ -384,11 +398,87 @@ const controller: SortableController = sortable(
     box: (item) => item,
     threshold: 8,
   },
-  y(),
   // D-67 — contextual duration, resolved once per landing at settlement.
   landing({ duration: ({ distance }) => Math.min(400, 80 + distance) }),
   layoutAnimation(),
   { axis: weirdThing().axis },
+);
+
+// ---------------------------------------------------------------------------
+// D-77 — the required first argument, asserted negatively (B-9 (a)).
+//
+// Without these the parameter could quietly become optional again and every
+// positive fixture above would keep compiling.
+// ---------------------------------------------------------------------------
+
+// @ts-expect-error — the config argument is required, not variadic.
+sortable(root);
+
+// @ts-expect-error — `items`, `onReorder` and `axis` are all missing.
+sortable(root, {});
+
+sortable(root, {
+  items: () => rows,
+  onReorder: () => ReorderResolution.accept(),
+  // @ts-expect-error — a plugin-shaped installer contributes no insertion
+  // geometry, which is what replaced the assembler's construction-time check.
+  axis: installMyPlugin,
+});
+
+// @ts-expect-error — a complete config minus the axis is still incomplete.
+sortable(root, {
+  items: () => rows,
+  onReorder: () => ReorderResolution.accept(),
+  threshold: 8,
+});
+
+// @ts-expect-error — a later fragment is `Partial` and cannot stand in for the
+// required first argument, which is the cost D-77 accepts by name: a preset
+// carrying a required slot must be spread into that first argument instead.
+sortable(root, { axis: y() }, { items: () => rows });
+
+/**
+ * **B-9 (b) — the two axis modules, both asserted here** (P18A-14). The clause
+ * says `y()`/`xy()` are asserted to return the **installer** rather than a
+ * one-key fragment; the fixture named only `y()`, and `xy()`'s pin lived in a
+ * browser test as an assignability side effect. Both are hoisted into a typed
+ * `const` — which is also what makes them evidence for D-78's published alias —
+ * and both are filled into the slot.
+ *
+ * The **fixed** landing form is here for the same reason: B-9 (b) names
+ * `landing({ duration: 200 })` and the composition above uses the contextual
+ * one, so the clause described a form the fixture did not carry.
+ */
+const yAxis: AxisInstaller = y();
+const xyAxis: AxisInstaller = xy();
+
+sortable(
+  root,
+  {
+    items: () => rows,
+    onReorder: () => ReorderResolution.accept(),
+    axis: yAxis,
+  },
+  landing({ duration: 200 }),
+);
+sortable(root, {
+  items: () => rows,
+  onReorder: () => ReorderResolution.accept(),
+  axis: xyAxis,
+});
+
+/**
+ * The **positive** half of the same rule (B-9 (c)), stated at the type level:
+ * a later fragment carrying `axis: undefined` is a legal `Partial` value, so
+ * nothing but the merge's `undefined` skip keeps it from clearing a required
+ * slot. The runtime assertion lives in `tests/sortable/options.node.test.ts`,
+ * and — since P18A-15 — through the public entry in
+ * `tests/sortable/composition.browser.test.ts`.
+ */
+sortable(
+  root,
+  { items: () => rows, onReorder: () => ReorderResolution.accept(), axis: y() },
+  { axis: undefined },
 );
 
 void controller.destroy();

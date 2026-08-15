@@ -131,7 +131,7 @@ function createField(slot = 0): Field {
     }
   }
 
-  const geometry = xy().axis(null as unknown as FeatureContext).insertion!;
+  const geometry = xy()(null as unknown as FeatureContext).insertion;
 
   // The snapshot is the whole collection, dragged member included, in grid
   // order. The index skips the dragged one, so destination slots are `items`.
@@ -364,8 +364,9 @@ describe('the composed two-dimensional collection', () => {
     }
 
     const requests: ReorderRequest[] = [];
-    const controller = sortable(root, xy(), {
+    const controller = sortable(root, {
       items: () => items,
+      axis: xy(),
       onReorder(request) {
         requests.push(request);
         return ReorderResolution.accept();
@@ -445,8 +446,9 @@ describe('the composed two-dimensional collection', () => {
     }
 
     const requests: ReorderRequest[] = [];
-    const controller = sortable(root, y(), {
+    const controller = sortable(root, {
       items: () => items,
+      axis: y(),
       onReorder(request) {
         requests.push(request);
         return ReorderResolution.accept();
@@ -625,8 +627,9 @@ describe('the terminal barrier in the candidate loop', () => {
     const asked: HTMLElement[] = [];
     let controller: SortableController | null = null;
 
-    controller = sortable(root, xy(), {
+    controller = sortable(root, {
       items: () => items,
+      axis: xy(),
       visual: (item) => {
         asked.push(item);
 

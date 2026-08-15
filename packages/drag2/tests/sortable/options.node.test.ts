@@ -1,24 +1,33 @@
 /**
- * The numeric domains of every public option, checked where they are declared.
+ * The numeric domains of every public option — and, since D-77, mostly the
+ * **absence** of a check where one used to stand.
  *
- * Each is validated as early as its value exists, which for a fixed option is
- * **construction**, with the offending call still on the stack — the same rule
- * `copyUniqueItems` follows for a duplicate item. **One case deliberately is
- * not**: a contextual `landing({ duration })` is range-checked per landing,
- * because its result does not exist until then (D-67). ~~and `landing({ run })`
- * suppresses the duration domain outright~~ — the second exception went with
- * `run` (D-63), which is a rule losing a conditional rather than gaining one.
- * The types say `number`, but a JavaScript consumer is not bound by that, and
- * the silent failures are nasty: a `NaN` threshold activates on nothing and a
- * `NaN` duration produces an animation that never finishes.
+ * ~~Each is validated as early as its value exists, which for a fixed option is
+ * construction, with the offending call still on the stack.~~ That rule was
+ * re-derived package-wide under `CODE_OF_SIZE.md` and replaced by a narrower
+ * one (03 §Public option domains):
  *
- * `threshold` moved with D-56: it used to be validated by `callbacks()`, which
- * only saw a config routed through that factory. It is now validated by the
- * assembler, over the **merged** config, so it fires however the value arrived.
+ * > A construction-time throw is permitted only for an invariant over what
+ * > installers **contribute**. Required configuration is a **type** obligation,
+ * > discharged by the required first argument. A consumer scalar's domain
+ * > belongs to the consumer, to the platform, or to the seam that consumes it.
+ *
+ * **The negative half is asserted in both forms, deliberately** (05 §The
+ * required first argument): a deleted check that nothing pins is a check a
+ * later pass re-adds, so every deletion below is asserted as a deletion *and*
+ * paired with whatever answers in its place.
+ *
+ * The one surviving domain test is `landing({ duration })` against `Infinity`,
+ * and it is here for a reason no other option has: the landing **holds the
+ * settlement gate**, so an animation that never completes is an operation with
+ * no terminal at all.
  */
 import { describe, expect, it } from 'vitest';
 import { assemble } from '../../src/sortable/assemble.ts';
-import { mergeFragments } from '../../src/sortable/config.ts';
+import {
+  mergeFragments,
+  type SortableConfig,
+} from '../../src/sortable/config.ts';
 import { ReorderResolution } from '../../src/sortable/domain.ts';
 import type { FeatureContext } from '../../src/sortable/feature.ts';
 import { landing } from '../../src/sortable/landing.ts';
@@ -31,19 +40,16 @@ const context: FeatureContext = {
   report: (): void => {},
 };
 
-/** Assembling is what applies the defaults, so it is what validates them. */
+/** The required slots, as the required first argument now supplies them. */
+const required = (): SortableConfig => ({
+  items: (): readonly HTMLElement[] => [],
+  onReorder: () => ReorderResolution.accept(),
+  axis: y(),
+});
+
+/** Assembling is what applies the defaults, so it is what reads them. */
 const assembleWith = (options: Record<string, unknown>): unknown =>
-  assemble(
-    mergeFragments([
-      y(),
-      {
-        items: (): readonly HTMLElement[] => [],
-        onReorder: () => ReorderResolution.accept(),
-        ...options,
-      },
-    ]),
-    context,
-  );
+  assemble(mergeFragments({ ...required(), ...options }, []), context);
 
 describe('threshold', () => {
   it('should default to 8 CSS pixels', () => {
@@ -54,21 +60,115 @@ describe('threshold', () => {
     expect(assembleWith({ threshold: 0 })).toMatchObject({ threshold: 0 });
   });
 
-  it('should refuse a negative distance', () => {
-    expect(() => assembleWith({ threshold: -1 })).toThrow(
-      /threshold must be a finite number >= 0/u,
-    );
+  it('should no longer refuse a negative distance', () => {
+    // **Deleted (D-77).** Nothing answers in its place, and that is the whole
+    // verdict: a threshold outside its domain makes the travel test
+    // permanently false, so the drag never activates and **no operation
+    // starts**. The consumer's own drag is broken; no library invariant moves.
+    expect(() => assembleWith({ threshold: -1 })).not.toThrow();
   });
 
-  it('should refuse a non-finite distance', () => {
-    expect(() => assembleWith({ threshold: Number.NaN })).toThrow(/threshold/u);
-    expect(() => assembleWith({ threshold: Number.POSITIVE_INFINITY })).toThrow(
-      /threshold/u,
-    );
+  it('should no longer refuse a non-finite distance', () => {
+    expect(() => assembleWith({ threshold: Number.NaN })).not.toThrow();
+    expect(() =>
+      assembleWith({ threshold: Number.POSITIVE_INFINITY }),
+    ).not.toThrow();
   });
 
-  it('should refuse a value that is not a number at all', () => {
-    expect(() => assembleWith({ threshold: '8' })).toThrow(/threshold/u);
+  it('should carry the out-of-domain value through to the slot unchanged', () => {
+    // The positive form of the same deletion: the value is not repaired,
+    // clamped or defaulted either. It reaches the travel test as written.
+    expect(assembleWith({ threshold: -1 })).toMatchObject({ threshold: -1 });
+  });
+});
+
+describe('the required slots', () => {
+  it('should not diagnose a missing axis with a library message', () => {
+    // **Three checks deleted (D-77)**, because the required first argument is
+    // a compile error when any of them is absent — asserted as such by the
+    // `@ts-expect-error` fixtures in `docs/revision/revision-2.ts`.
+    //
+    // **A missing axis still fails, and the distinction is the point rather
+    // than a leftover.** What the deleted check supplied was a *message*, not
+    // the failure: a JS consumer reaching here now meets the flat slot
+    // record's dereference of the resolver, which throws by itself. So the
+    // assertion is not "it stops throwing" — it is that the library no longer
+    // spends bytes restating what the type already refuses.
+    expect(() =>
+      assemble(mergeFragments({} as unknown as SortableConfig, []), context),
+    ).toThrow(/Cannot read propert/u);
+
+    expect(() =>
+      assemble(mergeFragments({} as unknown as SortableConfig, []), context),
+    ).not.toThrow(/an axis — y\(\) or xy\(\) — is required/u);
+  });
+
+  it('should not check the other two required slots at all', () => {
+    // `items` and `onReorder` are dereferenced by nobody at assembly time, so
+    // unlike the axis they produce no construction failure of any kind. They
+    // are answered where they are consumed — `onReorder` at the resolution
+    // seam, `items` at the construction-time pull in `behavior.ts`.
+    expect(() =>
+      assemble(
+        mergeFragments({ axis: y() } as unknown as SortableConfig, []),
+        context,
+      ),
+    ).not.toThrow();
+  });
+
+  it('should not be checked for being functions', () => {
+    expect(() =>
+      assembleWith({ items: 'not a function', onReorder: 42 }),
+    ).not.toThrow();
+  });
+
+  it('should keep a non-function slot intact for the seam that consumes it', () => {
+    // What answers instead: the value arrives at the seam and throws there,
+    // where the kernel classifies it — `onReorder` at `FAILURE_RESOLUTION` →
+    // `consumer`. The assembler's job is to not get in the way of that.
+    expect(assembleWith({ onReorder: 42 })).toMatchObject({ onReorder: 42 });
+  });
+});
+
+describe('the merge', () => {
+  it('should let a later fragment replace a required slot', () => {
+    const replacement = y();
+
+    expect(mergeFragments(required(), [{ axis: replacement }])).toMatchObject({
+      axis: replacement,
+    });
+  });
+
+  it('should not let a later fragment clear a required slot with undefined', () => {
+    // **B-9 (c) — the clause the type cannot cover.** A `Partial` carrying
+    // `axis: undefined` is a legal value, and the merge's `undefined` skip is
+    // now the only thing between it and a required slot that is `undefined` at
+    // the seam. It was a nicety while three construction throws stood behind
+    // it and is load-bearing without them.
+    const config = required();
+
+    expect(mergeFragments(config, [{ axis: undefined }])).toMatchObject({
+      axis: config.axis,
+    });
+  });
+
+  it('should not let a later fragment clear items or onReorder either', () => {
+    const config = required();
+
+    expect(
+      mergeFragments(config, [{ items: undefined, onReorder: undefined }]),
+    ).toMatchObject({ items: config.items, onReorder: config.onReorder });
+  });
+
+  it('should append plugins from the required argument and the fragments alike', () => {
+    const first = (): Record<string, never> => ({});
+    const second = (): Record<string, never> => ({});
+
+    expect(
+      mergeFragments({ ...required(), plugins: [first] }, [
+        { plugins: [second] },
+      ]).plugins,
+    ).toEqual([first, second]);
   });
 });
 
@@ -81,14 +181,24 @@ describe('landing duration', () => {
     expect(() => landing({ duration: 0 })).not.toThrow();
   });
 
-  it('should refuse a negative duration', () => {
-    expect(() => landing({ duration: -1 })).toThrow(
-      /landing\(\{ duration \}\) must be a finite number >= 0/u,
-    );
+  it('should no longer refuse a negative duration at construction', () => {
+    // **Narrowed, not deleted (D-77).** What answers instead is `animate()`,
+    // which rejects a negative duration itself — measured, Chrome 150 — and
+    // arrives at the same `FAILURE_LANDING_CREATE` stage the library check
+    // would have reached.
+    expect(() => landing({ duration: -1 })).not.toThrow();
   });
 
-  it('should refuse a non-finite duration', () => {
-    expect(() => landing({ duration: Number.NaN })).toThrow(/landing/u);
+  it('should no longer refuse a non-finite duration at construction', () => {
+    expect(() => landing({ duration: Number.NaN })).not.toThrow();
+    expect(() => landing({ duration: Number.NEGATIVE_INFINITY })).not.toThrow();
+  });
+
+  it('should not refuse Infinity at construction either', () => {
+    // The one surviving check moved **to the landing**, so both the fixed and
+    // the contextual form are tested at the same instant against the same
+    // value. Construction is no longer where any duration is judged.
+    expect(() => landing({ duration: Number.POSITIVE_INFINITY })).not.toThrow();
   });
 
   it('should not validate easing, which only the platform can parse', () => {
@@ -97,8 +207,8 @@ describe('landing duration', () => {
 
   it('should not call a duration thunk at construction', () => {
     // 13b B-2: a thunk is read at **settle time**, which is the moment the
-    // shipped package's `landingTiming()` was read. Calling it here would put it
-    // back at construction and lose the whole point.
+    // shipped package's `landingTiming()` was read. Calling it here would put
+    // it back at construction and lose the whole point.
     let reads = 0;
 
     landing({
@@ -112,19 +222,7 @@ describe('landing duration', () => {
   });
 
   it('should not range-check a duration thunk at construction', () => {
-    // The value does not exist yet, so there is nothing to check. A thunk that
-    // returns a bad value throws from inside `start`, where the kernel already
-    // classifies `FAILURE_LANDING_CREATE`.
     expect(() => landing({ duration: () => -1 })).not.toThrow();
-  });
-
-  it('should validate the duration unconditionally', () => {
-    // **The case that used to be the exception** (D-63). `landing({ run })`
-    // replaced the default runner entirely, so `duration` had nothing left to
-    // configure and was deliberately *not* checked when it was present.
-    // Removing `run` removes the conditional from the validation rule rather
-    // than adding one: there is one path, and it always checks.
-    expect(() => landing({ duration: -1 })).toThrow(TypeError);
   });
 });
 
@@ -137,15 +235,19 @@ describe('layoutAnimation duration', () => {
     expect(() => layoutAnimation({ duration: 0 })).not.toThrow();
   });
 
-  it('should refuse a negative duration', () => {
-    expect(() => layoutAnimation({ duration: -1 })).toThrow(
-      /layoutAnimation\(\{ duration \}\) must be a finite number >= 0/u,
-    );
+  it('should no longer refuse a negative duration', () => {
+    // **Deleted (D-77), and the difference from `landing({ duration })` is the
+    // rule working rather than an inconsistency.** This animation holds no
+    // gate and gates no terminal: it is registered in `running` and cancelled
+    // by `retire()`, so an unbounded one leaves displaced rows offset until
+    // the controller is destroyed and costs the library nothing.
+    expect(() => layoutAnimation({ duration: -1 })).not.toThrow();
   });
 
-  it('should refuse a non-finite duration', () => {
-    expect(() => layoutAnimation({ duration: Number.NaN })).toThrow(
-      /layoutAnimation/u,
-    );
+  it('should no longer refuse a non-finite duration', () => {
+    expect(() => layoutAnimation({ duration: Number.NaN })).not.toThrow();
+    expect(() =>
+      layoutAnimation({ duration: Number.POSITIVE_INFINITY }),
+    ).not.toThrow();
   });
 });

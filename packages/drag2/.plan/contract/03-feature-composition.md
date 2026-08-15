@@ -13,14 +13,16 @@ That closed world is the _point_ — it is what buys direct slot calls, prebuilt
 **Superseding D-12.** `sortable()` is variadic and **the library merges**:
 
 ```ts
-sortable(root, config, y(), landing());
+sortable(root, { items, onReorder, axis: y() }, landing());
 ```
 
-Every argument after `root` is a **fragment**: a partial `SortableConfig`, authored as an ordinary object literal, carrying no brand, no `kind` tag and no provenance.
+Every argument after the **required** `SortableConfig` is a **fragment**: a partial `SortableConfig`, authored as an ordinary object literal, carrying no brand, no `kind` tag and no provenance. ~~`sortable(root, config, y(), landing())`~~ — **amended by D-77**: `y()` is no longer a fragment at all, so it can only be written into the `axis` slot.
 
 ```ts
-function y(): Pick<SortableConfig, 'axis'> {
-  return { axis: installYAxis };
+// **D-77**: the installer itself, not a one-key fragment. `axis` is a required
+// slot of the required first argument, so a fragment position cannot fill it.
+function y(): AxisInstaller {
+  return installYAxis;
 }
 
 function landing(options?: LandingOptions): Pick<SortableConfig, 'landing'> {
@@ -79,7 +81,7 @@ function installLayoutAnimation(
 
 ### The schema
 
-Public and stable (§Fragments are public, installers are opaque). Every slot is optional in a _fragment_; the required ones are required of the **merged** result:
+Public and stable (§Fragments are public, installers are opaque). Every slot is optional in a _fragment_; ~~the required ones are required of the **merged** result~~ — **the required ones are required of the first argument** (D-77), which is the merge's first fragment and the only one whose type is `SortableConfig` rather than `Partial<SortableConfig>`. The schema below is unchanged; what changed is that its required properties are now enforced by the signature instead of by three throws in `assemble()`:
 
 ```ts
 type SortableConfig = Readonly<{
@@ -107,7 +109,11 @@ type SortableConfig = Readonly<{
 }>;
 ```
 
-The installer aliases are **names without structure** at the _ordinary_ tier: a consumer writing only `sortable.js` can write `axis: y().axis`, cannot write `axis: (ctx) => ({ … })`, and never sees what one is. **At the middle tier they have structure and are authorable** — that is the whole of D-61, and §Fragments are public, installers are opaque states where the line now runs. Opacity is a property of _which entry you imported_, not of the value.
+**A public type's closure resolves within its own tier plus the tiers below it** (D-78). The ordinary tier closes over `sortable.js ∪ drag.js ∪ sortable/feature.js`; the kernel tier over `kernel.js ∪ drag.js` (D-68). `AxisInstaller` is re-exported from `sortable.js`, because `SortableConfig` names it and a consumer must be able to hoist an installer into a typed `const`; its own closure — `FeatureContext`, `SortableContribution`, `InsertionGeometry` and what those name — stays declared here at the middle tier. **What a tier decides is where a name is _declared_ — never what the compiler will let a consumer write, and never, on its own, what they can hoist.** An ordinary-tier consumer may author an axis installer **inline** _and_ hoist it into a `const hoistedAxis: AxisInstaller`, because the slot's own alias is published at their tier. What importing `sortable/feature.js` buys is the **lower-level named authoring vocabulary** — `FeatureContext`, `SortableContribution`, `InsertionGeometry` — for writing an installer's parts down and reusing them across a library, not the ability to construct the shape.
+
+~~The installer aliases are **names without structure** at the _ordinary_ tier: a consumer writing only `sortable.js` can write `axis: y().axis`, cannot write `axis: (ctx) => ({ … })`, and never sees what one is.~~ **Retracted by D-78, and it was false when written.** TypeScript resolves a parameter's type structurally whether or not its alias is re-exported, so contextual typing hands a `sortable.js`-only consumer the full shape of `AxisInstaller`, `SortableContribution` and `InsertionGeometry`; the D-77 landing review reproduced it by compiling a file that imports nothing else. **The claim was a property of neither the type system nor the entry map**, and §The export topology already conceded the general form two thousand lines later — _a consumer who wants past it types one more import rather than defeating anything_ — while this section still asserted the strong one.
+
+**The repair is not to publish the closure.** `AxisInstaller`'s transitive closure is substantially the whole of this tier, so applying _every alias it names_ transitively would publish the middle tier at the ordinary one and dissolve D-61's rung altogether. Progressive disclosure governs **discoverability and reusable authoring vocabulary**, not prohibition: the ordinary tier names what an ordinary consumer fills, the middle tier names the parts an extension author reuses, and nothing anywhere forbids a consumer from writing a structural literal the compiler already accepts.
 
 **Every callback slot is a named type alias, and that is normative rather than stylistic (F-51).** `onEnd?: OnEnd`, never `onEnd?(result): void` and never an inline `onEnd?: (result) => void`. Two facts force it, and the compiled fixture found both:
 
@@ -268,13 +274,16 @@ The compiled version of the pre-Revision-2 shape is in [`packages/drag/docs/cont
 Assembly is now two functions, and the split is the decision:
 
 ```ts
-const merge = (
+// **The first source is not a `Partial`** (D-77): required configuration is a
+// required first argument, and only the later fragments are partial.
+const mergeFragments = (
+  config: SortableConfig,
   fragments: readonly Partial<SortableConfig>[],
 ): SortableConfig => {
   const merged: MutableSortableConfig = {};
   const plugins: SortableInstaller[] = [];
 
-  for (const fragment of fragments) {
+  for (const fragment of [config, ...fragments]) {
     if (fragment.plugins !== undefined) {
       plugins.push(...fragment.plugins); // the one appending slot
     }
@@ -282,9 +291,11 @@ const merge = (
   }
 
   merged.plugins = plugins;
-  return withDefaults(merged); // defaults derived AFTER the merge
+  return merged as SortableConfig; // **no defaults here** — see below
 };
 ```
+
+**The merge applies no defaults, and the sketch used to say it did** (P18A-02). `threshold`'s default is applied in the flat slot record — `config.threshold ?? DEFAULT_THRESHOLD` in `assemble()` — which is the only place that can apply it, since the merge's own output is still the schema type rather than the record. What the merge owns is **last-wins and `plugins` concatenation**; what the assembler owns is normalization, defaults included.
 
 **The merge iterates the schema, not the fragment's own keys.** Copying whatever a fragment happens to carry would put an unknown key into the config, where nothing reads it and nothing complains; walking a fixed key list makes a misspelled slot a diagnosable no-op rather than a silent one. The cost is a fixed-length loop, once per fragment, at construction.
 
@@ -403,6 +414,8 @@ function assemble(config: SortableConfig, ctx: FeatureContext): SortableSlots {
 
 Recording both hooks immediately after the installer returns fixes both. Installers are externally inert, so this is a retention and diagnostics concern rather than a DOM leak — but the stated unwind should be total, not nearly total.
 
+**Total across construction, not merely within `assemble` (D-80 (b), F-68).** The sentence above was true of the assembler and false of the call that drives it: `copyUniqueItems` threw from inside `createSortableRuntime`, **after `assemble` had returned**, so a consumer collection containing the same element twice left every recorded hook unrun and a kernel and realm already built by `draggable()` with nothing to destroy them, `arm()` never having been reached. **Normative:** the collection is pulled, validated and copied **before the first installer runs**, and the validated copy is passed onward — so no consumer-triggerable throw remains between the first `retire` hook being recorded and the bracket that unwinds them. **The ordering is deliberate and must stay stated**, because it was previously supplied by argument-evaluation order alone (F-69): `items()` and `assemble(…)` sat as sibling arguments in one call, and only left-to-right evaluation kept a throwing `items()` from stranding every hook.
+
 **D-45 narrows the second bullet's example without weakening the rule.** Two axis _fragments_ no longer collide — the merge picks the later one and the earlier installer is never invoked, so its rect index is never allocated. The collision that remains is inside `plugins`, where two appended installers each contribute the same single-writer member; the second has already built its private runtime when `claim` throws, and the unwind still has to reach it. A narrower trigger, the same obligation.
 
 ```ts
@@ -434,16 +447,26 @@ type SortableSlots = Readonly<{
 }>;
 ```
 
-Validation runs once and throws `TypeError`:
+~~Validation runs once and throws `TypeError`:~~ **One check runs, and it is not a config check** (D-77). The table is kept with its verdicts, because what each row is replaced by is the substance of the decision:
 
-| Rule | Message shape | When |
+| Rule | Verdict under D-77 | What answers instead |
 | --- | --- | --- |
-| A required config slot is unfilled | `sortable: an axis — y() or xy() — is required` | **after the merge, before any installer runs** |
-| `items` / `onReorder` is not a function | `sortable: items must be a function` | after the merge, before any installer runs |
-| `threshold` is out of domain | `sortable: threshold must be a finite number >= 0` | after the merge — inherited from the deleted `callbacks()` (D-56) |
-| A single-writer contribution member is written twice | `sortable: insertion geometry contributed by two plugins` | during installation |
+| A required config slot is unfilled | **Deleted** | The first argument is `SortableConfig`, so `axis`, `items` and `onReorder` are compile errors when absent. **What happens to a JS consumer who bypasses the type differs per slot, and this row does not promise classification for any of them.** `onReorder` is the only one reached inside a seam, so it is the only one classified — see the row below. `axis` fails at construction, where the flat slot record dereferences a resolver that is not there; `items` fails at construction too, at the pull `sortable()` performs before returning. Neither is a library classification, and neither reaches `onError`: they break the consumer's own `sortable()` call with a native `TypeError`, which is what a required-config type violation is |
+| `items` / `onReorder` is not a function | **Deleted** | The type says `ItemSource`/`OnReorder`, and the two slots are answered at **different** places, which the first draft of this row got wrong by naming one stage for both. `onReorder` is called inside the resolution seam, so a non-function throws there and classifies — `FAILURE_RESOLUTION` → `consumer`. **`items` is not classified at all**, and the corrected reading is deliberate rather than a concession: the _first_ pull is the construction-time one in `behavior.ts` (D-44, unchanged), it is called **unguarded**, and a non-callable source therefore breaks the consumer's own `sortable()` call with its own `TypeError` — a required-config type violation, not a library invariant. ~~`FAILURE_ADMISSION` → `consumer`~~ named a stage nothing reaches: admission reads the prebuilt `rt.snapshot` and pulls nothing, and the only in-seam pull is `action.prepare(COLLECTION)`, dispatched solely by `controller.invalidate()`. **Only a later throw from a _valid_ source** — one that is a function and raises during an `invalidate()` — is a library classification, and it lands at `FAILURE_ACTION_PREPARE` → `presentation` |
+| `threshold` is out of domain | **Deleted** | Nothing. A `NaN` threshold makes the travel test permanently false, so the drag never activates and **no operation starts** — consumer-owned, and no library invariant moves |
+| The axis installer contributed no insertion geometry | **Deleted, with one ordering requirement** | The `axis` slot's installer type declares a contribution whose `insertion` is **required**, so a plugin-shaped installer is not assignable. **The type is total for a TypeScript consumer; the runtime dereference exists for a JavaScript one, and it checks that the object exists rather than that it is well formed** (D-80 (a)) — an installer contributing `{ insertion: {} }` passes assembly, because `insertion` is truthy, and surfaces later at the seam that calls the resolver. That is acceptable under D-77's own rule, which is that a seam classifying a JS-authored violation is not a defect; what is not acceptable is describing the pairing as though the backstop matched the type's promise, which the deleted check never did either. The explicit check supplied only a better message (`CODE_OF_SIZE.md` §1.3). **Normative:** the flat slot record must be built **inside** the unwind bracket, so that throw still retires every installer that already ran. Moving the deref outside it would trade a diagnostic string for a leak |
+| A single-writer contribution member is written twice | **Kept — the package's one construction-time throw** | Nothing else can. Two installers claiming one slot is not expressible in a signature, and the silent alternative is a writer whose geometry is discarded while its private state stays live. This is an invariant over what installers _contribute_, which is the only category D-77 leaves at runtime |
 
-**Two of the three checks moved earlier**, which is the merge paying for itself: a missing axis is a property of the config and is now diagnosed before anything is constructed, so the failing case allocates nothing and unwinds nothing. Only the plugin collision still has to be found with an installer's runtime already alive.
+**Sortable construction-time _diagnostics_: six to one — and the count is of explicit checks, not of failures.** Five explicit checks are removed and the remaining behavior differs per slot, which is why "five throws removed" would be the wrong summary:
+
+| Slot | After the deletion |
+| --- | --- |
+| `axis` | **Still fails at construction.** Deleting the check deleted its message, not the dereference underneath it: the flat slot record reads the resolver off a null geometry |
+| `items` | **Still fails at construction**, but nowhere near the assembler — at the pull `sortable()` performs before returning (D-44). The assembler carries the value through untouched |
+| `onReorder` | **No construction failure at all.** Carried through, reached at the resolution seam, classified there |
+| `threshold` | **No failure ever.** Defaulted by the **assembler** — `config.threshold ?? DEFAULT_THRESHOLD` in the flat slot record, not by the merge (P18A-02) — and never judged |
+
+~~Two of the three checks moved earlier, which is the merge paying for itself.~~ The merge no longer pays for validation at all — it pays for `plugins` concatenation, which is the one thing consumer spread syntax cannot express. **Four runtime throws remain outside construction, and the enumeration was partial** (P18A-11). Two are consumer **scalar or collection** domains: `copyUniqueItems` — a collection containing one element twice breaks index arithmetic and identity reconciliation, library-owned and not type-expressible — and the landing duration, narrowed to `=== Infinity` ([07](07-free-drag-contract.md) §Validation, measured). Two are **placement preconditions** in `src/sortable/placement.ts`: a placeholder factory returning an element that is attached, or is the item or its visual, thrown inside `activation.prepare` and classified `FAILURE_ACTIVATION`; and an insertion anchor that is not in the placeholder's container, thrown inside the committed-move bracket. All four are classified rather than thrown at the consumer's call — **except `copyUniqueItems`'s construction-time position** (D-80 (b)): the initial pull is validated at the construction boundary, so _that_ call does throw at the consumer's `sortable()`, while its in-seam call during `invalidate()` classifies as before.
 
 ## Hot-path shape
 
@@ -553,11 +576,14 @@ That is a narrowing, not a prohibition on principle. D-10 originally forbade fea
 ```ts
 type Fragment<K extends keyof SortableConfig> = Pick<SortableConfig, K>;
 
-y(): Fragment<'axis'>; // axis — required
-xy(): Fragment<'axis'>; // axis — required
+// D-77: the two required-slot factories return the installer itself.
+y(): SortableInstaller; // written `axis: y()` in the first argument
+xy(): SortableInstaller; // written `axis: xy()`
 landing(options?: LandingOptions): Fragment<'landing'>;
 layoutAnimation(options?: LayoutAnimationOptions): Fragment<'plugins'>;
 ```
+
+**Two of the four stop being fragments, and the split is not arbitrary** (D-77). A fragment's whole purpose is to occupy an argument position and be merged by slot; `axis` is required, so it has no argument position left — it is named in the first argument or the call does not compile. Keeping the `Pick<'axis'>` wrapper would have made the natural spelling `axis: y()` a **type error** whose fix is a spread (`{ items, onReorder, ...y() }`), which is a worse call site defended only by uniformity, and it would keep packing a one-key object for `mergeFragments` to immediately unpack (`CODE_OF_SIZE.md` §9). `landing()` and `layoutAnimation()` fill optional slots, keep their argument position, and are unchanged. **The resulting rule is legible rather than incidental: a required capability is a value, an optional one is a fragment.**
 
 The four that go become plain config keys, written directly in the config object:
 
@@ -582,12 +608,12 @@ Neither key installs anything, which is why neither is a capability slot: the cl
 **An axis is required. `y()` and `xy()` are no longer an error together** (D-45). They fill the same slot, the merge is last-wins, and the later one simply wins:
 
 ```ts
-sortable(root, config, y(), xy()); // xy() — no error, and installYAxis never runs
+sortable(root, { items, onReorder, axis: y() }, { axis: xy() }); // xy() wins, installYAxis never runs
 ```
 
-The earlier installer is **never invoked**, so nothing was constructed and nothing has to be retired; this is the general last-wins property (§The two stages) rather than an axis-specific rule. What is retracted is only the single-writer collision the assembler used to report for this pair. **The runtime throw for a _missing_ axis stays**, and it is now cheaper — it is a config check that runs before any installer (§Assembly).
+The earlier installer is **never invoked**, so nothing was constructed and nothing has to be retired; this is the general last-wins property (§The two stages) rather than an axis-specific rule. What is retracted is only the single-writer collision the assembler used to report for this pair. **Last-wins is unchanged by D-77** — a later `Partial` fragment may still carry `axis` and still wins — but the two-factory call now has to say so explicitly, because the first argument names the slot once and an object literal cannot name it twice.
 
-**Open: can the missing case also be a compile error?** A variadic tuple-merge type could compute the merged slot set for the common literal call — `sortable(root, {…}, y())` — and reject the call that names no axis. Two things bound it: it degrades to the runtime check under a spread (`sortable(root, ...fragments)` has no tuple to fold), and a `Partial<SortableConfig>` variable erases the literal's key set. So the type-level form is an ergonomic improvement for the common shape, never a replacement: **the runtime check stays regardless**, and any such type must be judged on whether its error message beats the `TypeError`.
+~~**Open: can the missing case also be a compile error?** A variadic tuple-merge type could compute the merged slot set for the common literal call — `sortable(root, {…}, y())` — and reject the call that names no axis. Two things bound it: it degrades to the runtime check under a spread (`sortable(root, ...fragments)` has no tuple to fold), and a `Partial<SortableConfig>` variable erases the literal's key set. So the type-level form is an ergonomic improvement for the common shape, never a replacement: **the runtime check stays regardless**, and any such type must be judged on whether its error message beats the `TypeError`.~~ **Closed by D-77, and the reasoning above is why it took a second look.** Both bounds are correct **for the candidate this paragraph examined** — a type that folds the argument tuple — and the second is worse than stated: a `Partial<SortableConfig>` variable does not merely erase the key set, it makes the fold report _success_, so the check would pass in precisely the case it exists to catch. **A required first parameter has neither failure.** It folds nothing, so a spread of the remaining arguments changes nothing; and a `Partial<SortableConfig>` value is not assignable to it, so the erasure that defeated the fold is a compile error instead. The question was answered _no_ because one candidate failed, and a second candidate was never put beside it.
 
 ### `y()` — the one-dimensional axis rule
 
@@ -1176,24 +1202,32 @@ The fifth dangling reference was resolved the other way. `OnReorder` returned `M
 
 ### Public option domains
 
-Frozen with the surface, because a domain is as much a compatibility promise as a signature. Every one throws a `TypeError` outside its domain — a `NaN` threshold otherwise activates on nothing and a `NaN` duration produces an animation that never finishes, both diagnosed three seams away from the call that caused them.
+Frozen with the surface, because a domain is as much a compatibility promise as a signature. ~~Every one throws a `TypeError` outside its domain — a `NaN` threshold otherwise activates on nothing and a `NaN` duration produces an animation that never finishes, both diagnosed three seams away from the call that caused them.~~
 
-**Where the check runs depends on when the value exists, and that is the whole of the distinction** (D4, Checkpoint D). A _fixed_ option — every row below except one — is a value the consumer already holds at construction, so it is validated **at construction**, exactly once, before any drag. `landing({ duration })` additionally accepts a **contextual function** (D-67), whose result does not exist until the landing opens: it is therefore invoked and validated **once per landing**, at settlement, and an invalid or thrown result classifies there rather than at construction. The function itself is validated at construction only for being a function.
+**Re-derived package-wide under `CODE_OF_SIZE.md` (D-77, closing F-67). The domains below stay frozen; what the library _does_ about a value outside one does not.** The rule now reads:
 
-The reduced-motion collapse does not change this. Resolution and validation precede it, so a consumer whose thunk throws or returns `NaN` is told so under `prefers-reduced-motion: reduce` exactly as it is without — which is what the shipped `landingTiming()` did, and what Checkpoint D repaired.
+> **A construction-time throw is permitted only for an invariant over what installers _contribute_.** Required configuration is a **type** obligation, discharged by the required first argument. A consumer scalar's domain belongs to the consumer, to the platform, or to the seam that consumes the value — in that order of preference.
 
-| Option | Unit | Domain | Default |
-| --- | --- | --- | --- |
-| `threshold` (config key) | CSS px, straight-line from the press | finite, `>= 0` | `8` |
-| ~~`readinessTimeout`~~ | ~~ms~~ | ~~finite, `>= 1`~~ | **deleted (D-41)** |
-| `landing({ duration })` | ms | finite, `>= 0`; or `({ distance, from, to }) => number` returning one (D-67) | `200` |
-| `layoutAnimation({ duration })` | ms | finite, `>= 0` | `160` |
+Applied to this table: `threshold` is **no longer checked**, because a `NaN` threshold activates on nothing and that breaks the consumer's drag and no library invariant; **`landing({ duration })`** narrows to **one comparison against `Infinity`** and **`layoutAnimation({ duration })` keeps no check at all** — ~~both `duration` domains narrow to one comparison~~ was wrong as written (P18A-07), and the paragraph and the table two lines below always said so. `animate()` rejects every other out-of-domain value itself — measured, and the artifact is [`../measurements/animate-duration-domain.md`](../measurements/animate-duration-domain.md) (D-79) — while `Infinity` is the one value it accepts and never completes. ~~It also accepts `'auto'` and `undefined`, which the old finite-number test would have refused~~ — struck (D-79): `undefined` is coalesced to the default before the platform sees it, and `'auto'` is reachable from JavaScript only.
+
+**One row's reasoning survives intact and is why the rule is not "never throw":** an unbounded **landing** duration is the one value the platform accepts and never completes, and the landing holds the settlement gate — so the operation hangs with no terminal at all. A hang is the single failure this architecture cannot classify, because classification needs something to happen. The test is the **gate**, not the animation: `layoutAnimation` takes the same option, accepts the same bad value, holds nothing, and therefore keeps no check.
+
+**Where the check runs depends on when the value exists, and that is the whole of the distinction** (D4, Checkpoint D). The distinction outlives D-77 even though **no fixed option is checked any more**, because it is what places the one check that remains. ~~A _fixed_ option — every row below except one — is a value the consumer already holds at construction, so it is validated **at construction**, exactly once, before any drag.~~ `landing({ duration })` accepts a **contextual function** (D-67) whose result does not exist until the landing opens, so the value that could hang the gate does not exist at construction and could never have been tested there: it is resolved and tested **once per landing**, at settlement, and a refused or thrown result classifies at that moment. ~~The function itself is validated at construction only for being a function~~ — the type says it is one, and a non-function throws where it is called, which is inside the landing seam.
+
+The reduced-motion collapse does not change this, and the **ordering stays as Checkpoint D repaired it**: resolution and the `Infinity` test both precede the collapse, so a thunk returning `Infinity` is refused under `prefers-reduced-motion: reduce` exactly as it is without. That is deliberate even though the collapse would have made the value harmless — a consumer diagnosing a bug must not get a different answer because of the reader's OS setting. ~~a consumer whose thunk throws or returns `NaN`~~ — a throw still classifies at that moment; a `NaN` result is no longer the library's business and reaches `animate()`'s own throw when the collapse does not preempt it.
+
+| Option | Unit | Domain | Default | Enforced at runtime? (D-77) |
+| --- | --- | --- | --- | --- |
+| `threshold` (config key) | CSS px, straight-line from the press | finite, `>= 0` | `8` | **No.** Out of domain, the drag never activates and no operation starts |
+| ~~`readinessTimeout`~~ | ~~ms~~ | ~~finite, `>= 1`~~ | **deleted (D-41)** | — |
+| `landing({ duration })` | ms | finite, `>= 0`; or `({ distance, from, to }) => number` returning one (D-67) | `200` | **`=== Infinity` only**, per landing, classified `FAILURE_LANDING_CREATE` → `presentation`. Every other bad value is `animate()`'s own throw at the same stage |
+| `layoutAnimation({ duration })` | ms | finite, `>= 0` | `160` | **No — and the difference from the row above is the rule working rather than an inconsistency.** This animation holds no gate and gates no terminal: it is registered in `running` and cancelled by `retire()`, so an unbounded one leaves displaced rows offset until the controller is destroyed and costs the library nothing. The landing check exists because the landing **holds the settlement gate**; delete the gate and the check goes with it |
 
 - `threshold` at `0` activates on the first move reporting a different point.
 - ~~**`readinessTimeout` becomes a public option at this freeze.** It was a behavior-fixed 500 ms, which caps a _consumer-supplied_ promise with no escape: a re-render that legitimately involves a round trip failed with `FAILURE_PRESENTATION_READY` and no way to say otherwise. It is a **failure bound, not a schedule** — the gate releases as soon as the promise settles, and exceeding it replaces the settlement. It is not permitted to be `Infinity`: an unbounded gate holds presentation forever, which is the state the bound exists to prevent.~~ **Deleted with the readiness gate (D-41).** The reasoning was about a bound the _library_ imposed on a wait the _consumer_ owned; under the serial commit the consumer owns the wait outright, so the bound is the consumer's to write and to interpret. Note what does **not** transfer: the library no longer has an opinion about how long `onReorder` may take, and the "unbounded gate holds presentation forever" hazard is now an unresolved consumer promise holding its own drag open — visible in the consumer's own code rather than diagnosed by a `FAILURE_PRESENTATION_READY` the library can no longer raise. That is a real loss of a diagnostic, accepted with the protocol that produced it.
-- `easing` is deliberately unvalidated on both features. It is a CSS easing function, the platform is the only correct parser for one, and `animate()` reports a bad value itself.
-- ~~`landing({ run })` replaces the default runner entirely, so `duration` and `easing` are not read — and therefore not validated — when it is present.~~ **Deleted with `run` (D-63).** Both options are now always read and always validated, which removes a conditional from the validation rule rather than adding one.
-- `landing({ duration })` as a **contextual function** is the one settle-time domain. It is called once per landing, its result is validated against the same domain as the fixed form, and a throw or an out-of-domain result is classified as a landing failure at that moment. This is the parity shape for the shipped `landingTiming()` (ledger §2, L-6), and D-67 is what keeps that parity after D-63 removed the runner it used to be reachable through.
+- `easing` is deliberately unvalidated on both features. It is a CSS easing function, the platform is the only correct parser for one, and `animate()` reports a bad value itself. **This bullet is D-77's precedent, and it was already inside the package**: the same three clauses delete most of the `duration` check written three lines away from it, and nobody noticed for a revision because the two options were reasoned about separately.
+- ~~`landing({ run })` replaces the default runner entirely, so `duration` and `easing` are not read — and therefore not validated — when it is present.~~ **Deleted with `run` (D-63).** Both options are now always read, which removes a conditional from the rule rather than adding one.
+- `landing({ duration })` as a **contextual function** is the one settle-time domain. It is called once per landing, its result is tested for `Infinity` only, and a throw or a refused result is classified as a landing failure at that moment. This is the parity shape for the shipped `landingTiming()` (ledger §2, L-6), and D-67 is what keeps that parity after D-63 removed the runner it used to be reachable through.
 
 **Resolved by D-67 — the thunk and L-6.** Review 3 §10 removed `run` and, in the same breath, judged the zero-argument thunk unjustified: _"it cannot even observe the distance that motivated dynamic timing."_ It deferred a contextual `duration({ distance, from, to })` to a proven need. D-63 took the first half, which made the thunk the **sole** surviving carrier of shipped parity L-6 — ledger L-6 and its §2 row both record it as such, and the §5 row had additionally called the capability _"reachable through a replacement runner"_, which it no longer is. Of the three ways to close that — keep a thunk the owner had already rejected, delete it and lose L-6, or ship the contextual form — **the owner took the third**, which is the only one that discharges §10's second clause and keeps the parity row. The deferral was conditioned on a proven need, and removing the alternative is what proved it.
 
@@ -1205,7 +1239,7 @@ Three decisions the earlier table left open (review 5, §12):
 - **The config schema has exactly one identity, wherever it is declared.** The rule was written for the branded `SortableFeature` and **survives D-45 verbatim with its subject replaced** — it was always about the emitted declaration graph rather than about the brand:
 
   1. there is exactly **one** `SortableConfig` declaration in the whole emitted graph, and one declaration per installer slot type — never a structurally-equal duplicate per subpath;
-  2. `sortable.js` and every public fragment subpath resolve to **that** declaration, so a fragment built by one subpath is assignable to the parameter another declares, and `Pick<SortableConfig, 'axis'>` from `sortable/y.js` means the same type as `SortableConfig['axis']` in `sortable.js`;
+  2. `sortable.js` and every public fragment subpath resolve to **that** declaration, so a fragment built by one subpath is assignable to the parameter another declares, and `AxisInstaller` from `sortable/y.js` means the same type as `SortableConfig['axis']` in `sortable.js` — ~~`Pick<SortableConfig, 'axis'>`~~, which is what `y()` returned before D-77 made it the installer itself (P18A-06);
   3. ~~the module that declares the **installer slot types** is **not** a declared package subpath, so `SortableInstaller`, `FeatureContext` and `SortableContribution` stay unnameable and the slot values stay unconstructible from outside.~~ **Retracted by D-61.** That module **is** a declared subpath — `sortable/feature.js` — and the three types are nameable, because authoring an installer is a supported act at the middle tier. What survives of the clause is clauses 1 and 2's requirement applied to it: there is exactly **one** declaration of each installer slot type in the emitted graph, so an installer written against `sortable/feature.js` is assignable to the slot `sortable.js` declares.
 
   ~~Clause 3 is where the opacity now lives. Under D-30 the brand sat on the record; under D-45 the record is a plain public interface and the unreachable declaration is the **function type its capability slots are typed with**. The mechanism is unchanged — an internal `sortable/feature` module every subpath imports type-only and no `exports` entry names — and so is the failure it prevents.~~

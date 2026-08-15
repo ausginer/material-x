@@ -158,11 +158,17 @@ export type SortableContribution = Readonly<{
  *
  * ~~`SortableFeature`, an opaque brand nothing outside this package could
  * construct.~~ **D-45 withdraws the brand and D-61 publishes the type.** There
- * is no branded feature value to hold — a fragment is a plain object literal —
- * and opacity is now a property of *which entry you imported*: an ordinary
- * consumer writing only `sortable.js` can write `axis: y().axis` and still
- * cannot write `axis: (ctx) => ({ … })`, because the alias has no structure
- * there. At the middle tier it has structure and is authorable.
+ * is no branded feature value to hold — a fragment is a plain object literal.
+ *
+ * ~~Opacity is a property of *which entry you imported*: an ordinary consumer
+ * writing only `sortable.js` can write `axis: y().axis` and still cannot write
+ * `axis: (ctx) => ({ … })`.~~ **Retracted by D-78, and it was false when
+ * written** — twice over. `y()` **is** the installer since D-77, so the first
+ * half no longer compiles; and contextual typing resolves a parameter's type
+ * structurally whether or not its alias is re-exported, so the second half
+ * never held: a file importing only `sortable.js` compiles the inline literal
+ * today. **A tier decides where a name is declared and what you import to
+ * hoist a part — never what the compiler lets you write inline.**
  *
  * **An installer is externally inert.** It may allocate, but it may not attach
  * a listener, write the DOM, or acquire anything needing release: every
@@ -171,3 +177,34 @@ export type SortableContribution = Readonly<{
 export type SortableInstaller = (
   context: FeatureContext,
 ) => SortableContribution;
+
+/**
+ * The `axis` slot's own installer type (D-77).
+ *
+ * It differs from `SortableInstaller` in exactly one place — `insertion` is
+ * **required** rather than optional — and that difference is what replaced a
+ * construction-time check. The assembler used to throw
+ * `the axis installer contributed no insertion geometry` after every installer
+ * had run; the slot's type now refuses a plugin-shaped installer outright, so
+ * the check paid runtime bytes for a diagnostic the compiler gives for free
+ * (`CODE_OF_SIZE.md` §1.3).
+ *
+ * **Published from `sortable.js` as well** (D-78): `SortableConfig` names this
+ * slot, so an ordinary consumer must be able to hoist an installer into a typed
+ * `const`. The names *this* type reaches stay declared here.
+ *
+ * **The type is total for a TypeScript consumer; the runtime dereference exists
+ * for a JavaScript one, and it checks that the object exists** (D-80 (a)). A
+ * violator contributing no `insertion` at all reaches the flat slot record's
+ * dereference of the resolver, which throws by itself — inside `assemble`'s
+ * unwind bracket, so every installer that already ran is still retired (03
+ * §Validation). A violator contributing a **malformed** one — `{ insertion: {}
+ * }` — passes assembly, because the object is truthy, and surfaces at the seam
+ * that calls the resolver. That is acceptable under D-77's rule: a seam
+ * classifying a JS-authored violation is not a defect. The deleted check had
+ * the same blind spot; what would be wrong is describing the backstop as
+ * though it matched the type's whole promise.
+ */
+export type AxisInstaller = (
+  context: FeatureContext,
+) => SortableContribution & Readonly<{ insertion: InsertionGeometry }>;
