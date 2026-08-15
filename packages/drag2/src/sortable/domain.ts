@@ -112,7 +112,7 @@ export type OnReorder = (
 
 /**
  * Whether a fulfilled round-trip value is an explicit resolution. A value that
- * is not becomes `FAILURE_REORDER_RESOLUTION`, never a silent accept.
+ * is not becomes `FAILURE_RESOLUTION`, never a silent accept.
  */
 export function isReorderResolution(
   value: unknown,

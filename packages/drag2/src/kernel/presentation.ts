@@ -12,6 +12,7 @@ import { box, coordinates, type Box } from '@ydinjs/box-quad';
 import type { Disposer } from './lifetimes.ts';
 import type { DOMRealm } from './realm.ts';
 import { guarded } from './reporter.ts';
+import type { Point } from './types.ts';
 
 /** Which lift strategy a free/sortable operation uses. */
 export const LIFT_FAITHFUL = 61;
@@ -269,6 +270,40 @@ export type VisualLiftSession = Readonly<{
    */
   compose(x: number, y: number): string;
   /**
+   * **The delta `write` last composed and assigned** — where the visual *is*,
+   * in the origin-relative viewport space `compose` and `write` consume (D-35).
+   * `(0, 0)` until the first `write`, which is the truth for an operation that
+   * never rendered and for a pointerless one.
+   *
+   * `LandingContext.from` is read from here. It was `pointerX - originX`, which
+   * is the same number for exactly **one** behavior — one whose `moved` writes
+   * the raw pointer delta on both axes. Any behavior that constrains, clamps,
+   * snaps or externally drives its visual writes something else, and a
+   * pointerless operation (D-32) has no pointer at all, so the pointer form
+   * would open the landing from a position the visual has never been at. The
+   * failure signature is the expensive one: **the landing jumps at its start
+   * and still ends correctly**, because the target is behavior-supplied and the
+   * kernel re-pins at the join — Phase 11 met the same shape in the lift
+   * geometry with every test green.
+   *
+   * **Recorded here rather than asked for through a seam.** This object is the
+   * kernel's own and `write` is the library's only rendering entry point during
+   * an operation, so the recording costs two scalar field writes on the hot
+   * path and no call, no allocation and no member on any behavior. A
+   * `renderedDelta(current)` seam would have obliged every behavior to mirror
+   * every write into its frame part — which is the duplication that produced
+   * the defect in the first place.
+   *
+   * **Kernel-read.** The behavior is handed a {@link BehaviorLiftSession},
+   * which does not carry this member: a behavior that could sample the delta
+   * could disagree with the kernel about it, and there is nothing it could
+   * correctly do with the disagreement (C5-01).
+   *
+   * `compose` records nothing — composing is not rendering, and a landing
+   * runner composes on every frame.
+   */
+  rendered: Point;
+  /**
    * Composes a viewport delta and writes it to the visual's inline transform.
    *
    * This is how the kernel performs the **authoritative pin** at the join
@@ -282,6 +317,43 @@ export type VisualLiftSession = Readonly<{
   write(x: number, y: number): void;
   dispose: Disposer;
 }>;
+
+/**
+ * What a **behavior** is handed: the same physical session, positively
+ * projected to the four members it may use (D-35, C5-01).
+ *
+ * `rendered` and `dispose` are kernel-only, and the two are excluded for
+ * different reasons. `rendered` is a reading hazard only in the weak sense —
+ * but a behavior that samples it has no correct use for the answer, since the
+ * kernel is the one that acts on it. `dispose` is a **sequencing** hazard: a
+ * behavior calling it from `activation.effect` or `moved` restores the inline
+ * style lease — and, in a lifted mode, the top-layer lease — while `rendered`
+ * still describes its last `write`, so the landing then samples `from` for a
+ * visual that is no longer lifted. That is I-34 broken through a first-class
+ * SPI method rather than through a documented residue, and the difference
+ * matters: a residue is a rule a participant may break, this was the API
+ * handing out the thing it claims to own.
+ *
+ * **Positively selected, not `Omit`-ed**, so a member added to the session
+ * later is kernel-only by default rather than leaking until someone remembers
+ * to exclude it.
+ *
+ * The projection is type-level. The kernel passes the *same object* under the
+ * narrower type, so it costs no allocation — the identical argument
+ * `LifetimeScope` already makes for `Lifetime`.
+ *
+ * **What it does not project away is the timing** (C6-01). `write` stays
+ * callable and stays *effective* — no phase test, no operation check — so
+ * calling it after `LandingContext.from` is sampled fights the landing runner
+ * for the same property, and calling it after retirement writes onto an element
+ * no live operation owns. Both are outside the contract and neither is refused:
+ * a guard would put a branch on the one path M-1 measures, to defend against a
+ * bug no reference behavior has, and would turn a violation into a *silent*
+ * no-op — which is the harder defect to find of the two.
+ */
+export type BehaviorLiftSession = Readonly<
+  Pick<VisualLiftSession, 'visual' | 'baseTransform' | 'compose' | 'write'>
+>;
 
 /**
  * The inverse linear part of a box space, or `null` for the identity — which is
@@ -309,12 +381,26 @@ function makeSession(
         }px)${suffix}`
     : (x: number, y: number): string => `translate(${x}px, ${y}px)${suffix}`;
 
+  // The recorded delta, mutable here and `Point` everywhere else. One object
+  // per operation, written in place: D-35's cost is these two field writes per
+  // sample, and re-publishing a fresh `{ x, y }` would put an allocation on the
+  // one path F-24 spent a whole measurement keeping allocation-free.
+  const rendered = { x: 0, y: 0 };
+
   return {
     visual,
     baseTransform,
     compose,
+    rendered,
     write(x: number, y: number): void {
+      // Recorded **after** the assignment, deliberately. A composition or style
+      // write that throws is classified `FAILURE_RENDERER_WRITE` by the caller,
+      // and the visual is then wherever it already was — so recording first
+      // would leave the session claiming a delta the element never took, and
+      // the landing would open from a position that only the record believes.
       visual.style.transform = compose(x, y);
+      rendered.x = x;
+      rendered.y = y;
     },
     dispose,
   };

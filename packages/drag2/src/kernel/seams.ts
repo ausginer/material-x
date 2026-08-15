@@ -552,9 +552,13 @@ export function createSeamDriver<Part extends object>(
  * dispatching `START_COMMITTED`, since `activation.effect` invokes `onStart`
  * last and that callback may cancel or destroy.
  */
-export function runActivationSeam<Part extends object, Capability>(
+export function runActivationSeam<
+  Part extends object,
+  Prepared extends {},
+  Capability,
+>(
   driver: SeamDriver<Part>,
-  transition: Transition<Part, HTMLElement, Capability>,
+  transition: Transition<Part, Prepared, Capability>,
   capability: Capability,
   stage: FailureStage,
   policy: Readonly<{ retire(): void; committed(): void }>,
@@ -563,7 +567,9 @@ export function runActivationSeam<Part extends object, Capability>(
 
   // Dropped **before** the policy runs, so nothing this seam triggers can read
   // the placeholder it staged. Activation's staged value is consumed by its own
-  // `effect` and has no reader afterwards.
+  // `effect` and has no reader afterwards — whatever it is: since D-34 the
+  // behavior chooses the staged type, and the kernel's handling is unchanged
+  // because it never did anything but hand the value back and drop it.
   driver.consumeStaged();
 
   if (seamDiscarded(outcome)) {

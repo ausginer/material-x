@@ -23,7 +23,7 @@
  * construction rather than by argument.
  */
 import { createFrameTask, type FrameTask } from '../kernel/invalidation.ts';
-import type { VisualLiftSession } from '../kernel/presentation.ts';
+import type { BehaviorLiftSession } from '../kernel/presentation.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { KernelHost } from '../kernel/spec.ts';
 import { copyUniqueItems } from './collection.ts';
@@ -135,8 +135,14 @@ export type SortableRuntime = {
   /** Null when idle. */
   view: PresentationView | null;
   placeholder: HTMLElement | null;
-  /** Handed in at activation, cleared at retire. */
-  lift: VisualLiftSession | null;
+  /**
+   * Handed in at activation, cleared at retire.
+   *
+   * The **projection** (D-35, C5-01): `rendered` is the kernel's own reading
+   * and `dispose` is the kernel's own sequencing, so this behavior can do
+   * neither through the capability it was handed.
+   */
+  lift: BehaviorLiftSession | null;
   /** Monotonic; the identity of the latest coalesced spatial attempt (D-11). */
   spatialSeq: number;
   /** The attempt the frame task actually dispatched. Zero when none is live. */

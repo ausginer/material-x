@@ -215,6 +215,45 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | the final `lift.write` throws | `tests/kernel/kernel.browser.test.ts` — _should release presentation and still publish a terminal when the pin throws_ | F-22, D-66 |
 | `spec.finalized` throws | `tests/kernel/kernel.browser.test.ts` — _should retire after a throwing terminal callback_ | F-22 |
 
+## Landing origin — new (D-35)
+
+**The kernel step before Phase 19 (D-76), landed against the sortable alone.** `LandingContext.from` was `pointerX - originX` and documented as _where the visual is now_. Those are the same number for exactly one behavior — one whose `moved` writes the raw pointer delta on both axes, which is what this package's only shipping behavior does. That is why every suite was green through it: the defect's whole signature is that **the landing jumps at its start and still ends correctly**, because the target is behavior-supplied and the kernel re-pins at the join. Phase 11 met the same shape in the lift geometry and only a demo exposed it.
+
+Two rows below do **not** discriminate, and each says so in the test rather than being quietly counted: the pointer-following fixture is the agreement case by construction, and a pointerless operation mints at `(0, 0)`, so the subtracted form arrives at the right answer by coincidence. The other five fail against the pre-D-35 kernel; verified by reverting the computation and re-running.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| `compose(from.x, from.y)` reproduces the transform the drag last wrote, pinned at a **non-zero offset on both axes** | `tests/kernel/kernel.browser.test.ts` — _should reproduce the transform the drag last wrote_ | I-34, D-35 |
+| a behavior whose `moved` writes something other than the pointer delta — an axis lock — reports **that** delta | `tests/kernel/kernel.browser.test.ts` — _should report the constrained delta rather than the pointer delta_ | I-34, D-35 |
+| a write issued from an `action.effect` rather than from `moved` is still the recorded delta | `tests/kernel/kernel.browser.test.ts` — _should track a write issued from an action effect_ | D-35 |
+| an operation that never rendered reports `(0, 0)` | `tests/kernel/kernel.browser.test.ts` — _should report the origin for an operation that never rendered_ | D-35 |
+| a pointerless operation's `from` is `(0, 0)`, never `-originX` | `tests/kernel/kernel.browser.test.ts` — _should report the origin for a pointerless operation_ | D-32, D-35 |
+| `compose()` alone records nothing — composing is not rendering | `tests/kernel/kernel.browser.test.ts` — _should record nothing for a compose without a write_ | D-35 |
+| **the adversarial case, documenting discipline rather than a guarantee**: a direct `visual.style.transform` write leaves the record stale and the landing opens from the record | `tests/kernel/kernel.browser.test.ts` — _should leave the recorded delta stale when a behavior writes behind it_ | I-34 (tier C) |
+| the structural limits, typed: `ActivationScope.lift` and `moved`'s argument expose neither `rendered` nor `dispose`, and the kernel's own session keeps both | `tests/kernel/spec.declaration.test.ts` — _should not expose the recorded delta on the activation scope_, _should not expose the disposer on the activation scope_, _should hand `moved` the same projection and not the session_, _should keep both members on the kernel's own session_ | I-34, C5-01 |
+| the same projection, asserted **out of line** against the packed declarations | `tests/consumer.node.test.ts` — _should compile a consumer against the packed declarations_ | C5-01 |
+
+**The temporal limit is deliberately not a row.** A retained `lift.write` called after `from` is sampled still renders and fights the runner; called after `retire()` it writes onto an element no live operation owns. Both are outside the contract and **neither is refused**, so a test asserting today's behavior would read as a promise. The kernel adds no phase guard on purpose: a branch on the one path M-1 measures, defending against a bug no reference behavior has, converting a violation into a _silent_ no-op — which is the harder defect to find. The `describe` carries the reasoning where a row would have been (C6-01).
+
+## Activation staged type — new (D-34)
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a `BehaviorSpec` that stages `true` at activation compiles, and its `effect` receives `true` | `tests/kernel/spec.declaration.test.ts` — _should default to staging nothing_, _should hand a staging-nothing effect the sentinel_ | F-44, D-34 |
+| the sortable's `HTMLElement` staging is unchanged and its `effect` still receives the placeholder | `tests/kernel/spec.declaration.test.ts` — _should hand a staging-element effect the element_ | D-34 |
+| `@ts-expect-error`: a spec declaring `Activation = true` cannot return an element, and one declaring `HTMLElement` cannot return `true` | `tests/kernel/spec.declaration.test.ts` — _should reject an element from a spec that declared it stages nothing_, _should reject the sentinel from a spec that declared it stages an element_ | D-34 |
+| the parameter reaches the **construction** types, so it is not erased at the handshake (C-04) | `tests/consumer.node.test.ts` — _should compile a consumer against the packed declarations_ | D-34, C-04 |
+| the probe that found it now compiles as a positive | `docs/probes/13c-free-drag.ts` — `n1`, asserted by `npx just typecheck` | F-44 |
+
+## The renamed stages and the deferred-decision instrument — new (D-74, K-5)
+
+| Row | Test | ID |
+| --- | --- | --- |
+| the three renamed stages keep their **numeric** values 4, 5 and 8 | `tests/kernel/errors.node.test.ts` — _should keep the three renamed stages on their original numbers_ | D-74 |
+| the renamed constants are what `kernel.js` publishes, by value, and the old names are gone | `tests/exports.node.test.ts` — _should export exactly the frozen runtime surface_ | D-68, D-74 |
+| every decision the ledger marks unimplemented is listed, and every listed decision is marked | `tests/decisions.node.test.ts` — _should list every decision its own row marks as unimplemented_, _should mark every decision it lists_ | F-63, K-5 |
+| a listed decision that has quietly landed fails its own row | `tests/decisions.node.test.ts` — _should hold every witness it claims_ | F-63, K-5 |
+
 ## Collection staging — new
 
 | Row | Test | ID |
@@ -243,8 +282,8 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | Row | Test | ID |
 | --- | --- | --- |
 | a skipped resolution → `OUTCOME_NOOP`, immediate recovery, `onFinish` | `tests/sortable/sortable.browser.test.ts` — _should skip the round-trip for a proven no-op_ | F-29, F-37 |
-| a rejected resolution _promise_ → `FAILURE_REORDER_RESOLUTION` | `tests/sortable/sortable.browser.test.ts` — _should classify a rejected round-trip promise_ | F-20 |
-| a fulfilled non-resolution → `FAILURE_REORDER_RESOLUTION` | `tests/sortable/sortable.browser.test.ts` — _should classify a fulfilled non-resolution_ | F-20 |
+| a rejected resolution _promise_ → `FAILURE_RESOLUTION` | `tests/sortable/sortable.browser.test.ts` — _should classify a rejected round-trip promise_ | F-20 |
+| a fulfilled non-resolution → `FAILURE_RESOLUTION` | `tests/sortable/sortable.browser.test.ts` — _should classify a fulfilled non-resolution_ | F-20 |
 | an accepted resolution → destination recovery | `tests/sortable/sortable.browser.test.ts` — _should map an accepted resolution to a destination recovery_ | D-16 |
 | a rejected `ReorderResolution` value → home recovery and `onCancel` | `tests/sortable/sortable.browser.test.ts` — _should map a rejected resolution to onCancel with its reason_ | F-33 |
 
@@ -265,7 +304,7 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | a failure checkpoint produces immediate recovery and **holds no landing gate** — it no longer implies no `finalized` call, which D-66 retracts | `tests/sortable/sortable.browser.test.ts` — _should hold no landing gate for an immediate recovery_ | F-27, D-66 |
 | a no-op settlement reaches `onEnd` with the `noop` arm, never the `canceled` one | `tests/sortable/composition.browser.test.ts` — _should finish a drop that never left its own gap as a no-op_ | F-37, D-62 |
 | a rejected `ReorderResolution` value reaches `onEnd` with the `rejected` arm and its reason | `tests/sortable/composition.browser.test.ts` — _should cancel a rejected reorder_ | F-33, D-62 |
-| a rejected resolution _promise_ is `FAILURE_REORDER_RESOLUTION` — a fault, not a consumer's chosen rejection; **it now also publishes a `canceled` terminal** (D-66) | `tests/sortable/sortable.browser.test.ts` — _should classify a rejected round-trip promise_ | F-20, D-66 |
+| a rejected resolution _promise_ is `FAILURE_RESOLUTION` — a fault, not a consumer's chosen rejection; **it now also publishes a `canceled` terminal** (D-66) | `tests/sortable/sortable.browser.test.ts` — _should classify a rejected round-trip promise_ | F-20, D-66 |
 | public results narrow without an internal constant, carrying version/from/to/neighbours | `tests/consumer.node.test.ts` — the packed-consumer fixture narrows on `type` alone | F-41, D-31 |
 
 ## Explicit failure latching — new
@@ -503,7 +542,7 @@ Four things these fixtures made concrete:
 
 1. **`layoutAnimation()`'s two passes are indistinguishable through the composition**, because the axis rebuild reads the same rows between them. The pass-specific rows are therefore driven **directly**, with a hand-built `DisplacementView`; the composed row uses `lazyY()` to withhold the eager rebuild so that "post-`movePlaceholder`" is a sound arming condition.
 2. **The instrumented rect must be returned _shifted_ in the composed after-pass row.** Teardown removes the placeholder and drops the lift, which puts the row back exactly where the pass measured it — so an honest rect makes `delta === 0`, `animate()` is skipped for a reason unrelated to the barrier, and the assertion stops discriminating. This is the same trap as the call-list rule, one level down.
-3. **The `beforeMove` row's observable is the DOM write, not the resulting order.** Teardown detaches the placeholder, so its final position proves nothing; pre-fix the write reached `movePlaceholder` with a detached placeholder and threw `FAILURE_PLACEHOLDER_MOVE`, so the discriminating assertion is that **nothing is reported**.
+3. **The `beforeMove` row's observable is the DOM write, not the resulting order.** Teardown detaches the placeholder, so its final position proves nothing; pre-fix the write reached `movePlaceholder` with a detached placeholder and threw `FAILURE_ACTION_EFFECT`, so the discriminating assertion is that **nothing is reported**.
 4. **Review 4 recorded three of its readings as uncovered defence in depth. Two of the three now have discriminating fixtures, and finding them is what made C5-02 and four of the sweep's findings visible** (C5-03 §7). The `createPlaceholder` reading was recorded as uncovered because the preparation is discarded whole — but the first consumer-reachable call _inside_ `applyMechanics` discriminates, and once a fixture existed the mechanics turned out to breach the floor six statements deep. The `anchorTarget` and `release.effect` readings were recorded as uncovered because the placeholder is torn down along the same edge — but the discriminating fixture is a **direct drive** with a consumer accessor that destroys, and both turned out to have a second, unguarded stretch behind the landed reading. The lesson is recorded rather than the excuse: _"no discriminating fixture was found"_ is a statement about the fixtures tried, and at a floor-level barrier it should be read as a reason to try a different level rather than as coverage.
 
 Three things the fixtures made concrete that the decision stated abstractly:
