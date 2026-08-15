@@ -1103,6 +1103,17 @@ A separate subpath entry per optional **capability** is what makes the measureme
 | `sortable/xy.js` | `xy` | — |
 | `sortable/landing.js` | `landing` | `LandingOptions` |
 | `sortable/layout-animation.js` | `layoutAnimation` | `LayoutAnimationOptions` |
+| `free-drag.js` — **the second behavior's ordinary tier** (D-69) | `freeDrag`, **`FreeDragResolution`**, `AT_PROPOSAL`, `AT_CONSUMER` | **`FreeDragConfig`** and every alias it names, `FreeDragController`, `FreeDragSubject`, `FreeDragRequest`, `DragGeometry`, `DragAxis`, **`FreeDragLift`**, `FreeDragTransactionResult` and its three arms, the two resolution members, **`FreeDragErrorContext`**, `CancelStage` |
+| `free-drag/feature.js` — **its middle tier** (D-70) | — | **`FreeDragInstaller`**, **`FreeDragContribution`**, **`MotionConstraint`**, `ConstraintView`, `MotionDraft`, and — as re-exports — `FeatureContext`, `LandingStart`, `LandingContext`, `LandingHandle`, `Disposer` |
+| `free-drag/bounds.js` | `bounds` | `BoundsSource` |
+| `free-drag/landing.js` | `landing` | `LandingOptions` — the **same declaration** `sortable/landing.js` publishes |
+
+**A tenth change, at Phase 18, and it is the first that adds a whole behavior.** Four entries, taking the table from eight to twelve, decided in full before the modules exist — the same measurement precondition Phase 0 observed, for the same reason. Normative surface: [07](07-free-drag-contract.md).
+
+- **`free-drag/landing.js` duplicates an entry, not an implementation.** The landing runner is behavior-neutral — `LandingStart`, `LandingContext` and `LandingHandle` are kernel SPI (D-68) — so the runner, its timing domain and its reduced-motion collapse are one internal module both entries wrap. What is not shared is the _installer type_, because the contribution types differ, and unifying those is F-64's deferred question rather than Phase 18's. The precedent is `rect-index.ts` shared between `y()` and `xy()` at a measured **60 B**, recorded rather than absorbed; Phase 21 measures this one the same way.
+- **`FeatureContext` and `LandingOptions` are one declaration each, published from two entries.** Two structurally identical types under one name, maintained separately, is F-61 arriving from the outside; the D-68 re-home pattern gives the two tiers a shared type **identity** instead. Pinned by 07's acceptance criterion B-7.
+- **Neither `drag.js` nor `kernel.js` changes.** A free-drag consumer imports `free-drag.js` and — for `instanceof DraggableError` — `drag.js`, and reaches no other tier. `tests/packaging.node.test.ts` asserts the absence in **both** directions: a free-drag composition's import graph must not reach `sortable/`, and the sortable's must not reach `free-drag/`.
+- **Three cells outside the free-drag rows move with it.** `FAILURE_INSERTION`, `FAILURE_PLACEHOLDER_MOVE` and `FAILURE_REORDER_RESOLUTION` are renamed to `FAILURE_ACTION_PREPARE`, `FAILURE_ACTION_EFFECT` and `FAILURE_RESOLUTION` with their numeric values unchanged (D-74), and `sortable.js`'s `DragErrorContext` becomes `SortableErrorContext` (D-75). Both are identifier renames on entries with no released consumer; the second is the price of not giving the first behavior an unqualified word by arrival order.
 
 **Four cells changed at Revision 2.1**, and three of them are one decision each:
 
