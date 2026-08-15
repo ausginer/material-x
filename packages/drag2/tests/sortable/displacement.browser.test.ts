@@ -107,10 +107,10 @@ function build(options: Options = {}): Composed {
 
   const controller = sortable(
     root,
-    // D-44's pull source; `replace()` swaps the identity and signals.
-    { items: () => current },
-    y(),
     {
+      // D-44's pull source; `replace()` swaps the identity and signals.
+      items: () => current,
+      axis: y(),
       onReorder(request) {
         requests.push(request);
         return ReorderResolution.accept();

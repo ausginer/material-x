@@ -41,7 +41,7 @@ type SortableDemoProps = Readonly<{
    * loser is never constructed. `y()` is the list rule; `xy()` is the
    * wrapping-field rule.
    */
-  axis?: Pick<SortableConfig, 'axis'>;
+  axis?: SortableConfig['axis'];
   className?: string;
   itemClassName?: string;
 }>;
@@ -111,15 +111,19 @@ function SortableDemo({
         .map((label) => elements.current.get(label))
         .filter((el): el is HTMLElement => el != null);
 
-    // **Fragments, merged by the library** (D-45). Every argument after the
-    // root is a partial config: an ordinary object literal for the consumer's
-    // own slots, and a one-slot helper for each capability. Nothing is branded
-    // and nothing is installed until the merge has resolved every named slot.
+    // **One required config, then fragments merged by the library** (D-45,
+    // D-77). The second argument carries every slot the library requires —
+    // `items`, `onReorder` and `axis` — and each argument after it is a partial
+    // config for a capability that installs something. Nothing is branded and
+    // nothing is installed until the merge has resolved every named slot.
     const controller = sortable(
       container,
       {
         // D-44: a pull source rather than a snapshot.
         items,
+        // D-77: `y()` and `xy()` are the installer, written as the slot's
+        // value rather than passed as a one-key fragment.
+        axis: axis ?? y(),
         ...(createPlaceholder ? { placeholder: createPlaceholder } : null),
         onReorder: (request: ReorderRequest) => {
           const { label } = request.item.dataset;
@@ -147,7 +151,6 @@ function SortableDemo({
           return ReorderResolution.accept();
         },
       },
-      axis ?? y(),
       landing(),
       layoutAnimation(),
     );

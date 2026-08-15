@@ -140,4 +140,46 @@ describe('the documented surface', () => {
     },
     2 * MINUTE,
   );
+
+  it(
+    'should close the ordinary tier over the ordinary tier and the ones below it',
+    async () => {
+      // **The tier that never had a per-entry instrument** (D-78). The
+      // whole-run check above resolves across *every* entry at once, so a name
+      // in this tier's closure that only resolves through `kernel.js` — or
+      // through a declaration nothing exports — reads as clean, which is F-60's
+      // inversion pointing the other way.
+      //
+      // **The union is the decision, not a convenience** (D-78): a public
+      // type's closure resolves within its own tier plus the tiers below it, so
+      // the ordinary tier closes over `sortable.js ∪ drag.js ∪
+      // sortable/feature.js`. Demanding closure over `sortable.js` alone would
+      // fail against `AxisInstaller`'s own closure, and the only way to satisfy
+      // that would be to publish the middle tier at the ordinary one —
+      // dissolving D-61's rung to satisfy an instrument, which is the naive
+      // repair D-78 rejects.
+      //
+      // **What this run cannot see, stated rather than assumed** (P18A-05):
+      // because `sortable/feature.js` is *in* the union, it is satisfied
+      // whether or not `sortable.js` re-exports `AxisInstaller` — verified by
+      // deleting the re-export, which leaves this green. Publication is a
+      // **hoistability** property, not a closure one, and it is pinned where it
+      // can be: the packed consumer fixture in `tests/consumer.node.test.ts`
+      // hoists `const hoistedAxis: AxisInstaller` while importing only
+      // `sortable.js`, and fails to compile without the re-export.
+      const dir = await mkdtemp(join(tmpdir(), 'drag2-sortable-docs-'));
+      const { output, code } = await typedoc(join(dir, 'sortable.json'), [
+        './src/sortable.ts',
+        './src/drag.ts',
+        './src/sortable/feature.ts',
+      ]);
+
+      expect(code).toBe(0);
+      expect(output).toContain('json generated at');
+      expect(
+        output.split('\n').filter((line) => line.includes('warning')),
+      ).toEqual([]);
+    },
+    2 * MINUTE,
+  );
 });

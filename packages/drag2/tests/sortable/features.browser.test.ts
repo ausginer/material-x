@@ -9,8 +9,11 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { DraggableError, Point } from '../../src/drag.ts';
+import { toDraggableError } from '../../src/kernel/errors.ts';
+import { FAILURE_LANDING_CREATE } from '../../src/kernel/failures.ts';
 import type { OnReorder } from '../../src/sortable/domain.ts';
 import type {
+  AxisInstaller,
   LandingHandle,
   LandingStart,
   SortableInstaller,
@@ -37,6 +40,12 @@ type Composed = Readonly<{
   errors: DraggableError[];
   placeholder(): HTMLElement | null;
 }>;
+
+/**
+ * Read from the kernel's own stage → code mapping rather than retyped, so a
+ * remapped stage fails here instead of silently agreeing with a stale literal.
+ */
+const LANDING_CREATE_CODE = toDraggableError(FAILURE_LANDING_CREATE, null).code;
 
 const cleanup: Array<() => void> = [];
 
@@ -69,7 +78,7 @@ type ComposeOptions = Readonly<{
    */
   fragments?: ReadonlyArray<Partial<SortableConfig>>;
   /** The axis rule, when a test needs one that is not stock `y()`. */
-  axis?: Pick<SortableConfig, 'axis'>;
+  axis?: AxisInstaller;
 }>;
 
 /** 40px items, plus whichever optional slots the test fills. */
@@ -99,10 +108,10 @@ function composeWith(options: ComposeOptions = {}): Composed {
 
   const controller = sortable(
     root,
-    options.axis ?? y(),
     {
       items: () => items,
       onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
+      axis: options.axis ?? y(),
       onEnd: (result): void => {
         // D-62: one callback, and the fixture makes the split its own
         // assertions still read against.
@@ -483,8 +492,9 @@ describe('handle', () => {
 
     items[0]!.append(grip);
 
-    const controller = sortable(root, y(), {
+    const controller = sortable(root, {
       items: () => items,
+      axis: y(),
       handle: () => grip,
       onReorder: (request) => {
         requests.push(request);
@@ -747,9 +757,13 @@ describe('the contextual landing duration (D-67)', () => {
   });
 
   it('should classify an out-of-domain contextual result at settlement', async () => {
-    // The same domain as the fixed form, checked at the only moment the value
-    // exists. It throws from inside `start`, which the kernel classifies as a
-    // landing-create failure.
+    // **The thrower is `animate()`, not the library** (D-77, D-79). ~~It throws
+    // from inside `start`, which the kernel classifies as a landing-create
+    // failure.~~ The library stopped judging `-1` when `requireFinite` was
+    // deleted; what this row still pins is that the platform's own refusal
+    // arrives at the **same stage** the deleted check reached, which is the
+    // premise the deletion rests on. Measured in
+    // `.plan/measurements/animate-duration-domain.md`; asserted here.
     const composed = compose(landing({ duration: () => -1 }));
 
     activate(composed);
@@ -757,7 +771,76 @@ describe('the contextual landing duration (D-67)', () => {
     release(55);
 
     expect(composed.errors).toHaveLength(1);
-    expect(composed.errors[0]!.code).toBe('presentation');
+    expect(composed.errors[0]!.code).toBe(LANDING_CREATE_CODE);
+  });
+
+  /**
+   * **The one check D-77 retained, pinned on both input forms** (P18A-19).
+   *
+   * D-77's own rule is that a deleted check nothing pins is a check a later
+   * pass re-adds. The symmetric hazard is a **retained** check nothing pins on
+   * its primary input form: before these rows the guard's message was asserted
+   * by no test, the fixed form — the plain default-motion case a consumer is
+   * most likely to write — was exercised nowhere, and the only test reaching
+   * the guard did so through a thunk under a media query.
+   *
+   * `Infinity` is the one duration the platform **accepts** and never
+   * completes, so it is the one value that can hang the settlement gate with no
+   * terminal at all — which is why it is the only domain check left in the
+   * package, and why the terminal is asserted here rather than only the error.
+   */
+  const unbounded = { duration: Number.POSITIVE_INFINITY };
+
+  it('should refuse an unbounded fixed duration at settlement', async () => {
+    const composed = compose(landing(unbounded));
+
+    activate(composed);
+    await drag(55);
+    release(55);
+    await Promise.resolve();
+
+    expect(composed.errors).toHaveLength(1);
+    expect(composed.errors[0]!.code).toBe(LANDING_CREATE_CODE);
+    // The message, which nothing asserted while the guard was the package's
+    // only surviving domain check.
+    expect(String(composed.errors[0]!.cause)).toMatch(
+      /landing\(\{ duration \}\) must not be Infinity/u,
+    );
+  });
+
+  it('should refuse an unbounded contextual duration at settlement', async () => {
+    // The same instant and the same guard, reached through the other form —
+    // the pairing 03 §Public option domains states and the suite did not have.
+    const composed = compose(
+      landing({ duration: () => Number.POSITIVE_INFINITY }),
+    );
+
+    activate(composed);
+    await drag(55);
+    release(55);
+    await Promise.resolve();
+
+    expect(composed.errors).toHaveLength(1);
+    expect(composed.errors[0]!.code).toBe(LANDING_CREATE_CODE);
+    expect(String(composed.errors[0]!.cause)).toMatch(
+      /landing\(\{ duration \}\) must not be Infinity/u,
+    );
+  });
+
+  it('should still publish exactly one terminal for a refused duration', async () => {
+    // **The half the guard exists for.** An operation whose landing never
+    // completes has no terminal at all; refusing the duration is what keeps
+    // D-66's exactly-once promise reachable, so a test that asserted only the
+    // error would pass against a hang.
+    const composed = compose(landing(unbounded));
+
+    activate(composed);
+    await drag(55);
+    release(55);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(composed.finishes.length + composed.cancels.length).toBe(1);
   });
 
   it('should resolve the duration before the reduced-motion collapse', async () => {
@@ -1017,12 +1100,23 @@ describe('landing', () => {
     expect(animation!.effect!.getComputedTiming().duration).toBe(0);
   });
 
-  it('should classify an invalid thunk result under a reduced-motion preference', async () => {
+  it('should classify an unbounded thunk result under a reduced-motion preference', async () => {
     // The failure half of the same defect. Validation lived inside the branch
     // the collapse skipped, so a thunk returning a bad value threw for everyone
     // except the users least able to notice that it had not.
+    //
+    // **D-77 narrows the value without weakening the ordering.** ~~`NaN`~~ is
+    // no longer the library's business — `animate()` refuses it itself, at the
+    // same stage — so the case is restated over `Infinity`, the one duration
+    // the platform accepts and never completes and therefore the one that can
+    // hang the settlement gate. The property under test is unchanged and is
+    // the reason the value had to be swapped rather than the test deleted:
+    // resolution and the surviving check both precede the collapse, so a
+    // consumer diagnosing a bug does not get a different answer because of the
+    // reader's OS setting — even though the collapse to zero would have made
+    // this particular value harmless.
     const composed = composeWith({
-      fragments: [landing({ duration: () => Number.NaN })],
+      fragments: [landing({ duration: () => Number.POSITIVE_INFINITY })],
     });
 
     await withReducedMotion(async () => {
@@ -1637,19 +1731,19 @@ describe('the terminal barrier in a resolver sequence', () => {
    * neither can be seen alone. Defence in depth is the intent; this is the
    * composition in which the outer guard is the only one there is.
    */
-  const lazyY = (): Pick<SortableConfig, 'axis'> => ({
-    axis: (context) => {
-      const { insertion } = y().axis(context);
+  const lazyY =
+    (): AxisInstaller =>
+    (context): ReturnType<AxisInstaller> => {
+      const { insertion } = y()(context);
 
       return {
         insertion: {
-          resolve: insertion!.resolve,
-          invalidate: insertion!.invalidate,
-          retire: insertion!.retire,
+          resolve: insertion.resolve,
+          invalidate: insertion.invalidate,
+          retire: insertion.retire,
         },
       };
-    },
-  });
+    };
 
   it('should not run the bracket past a placeholder reaction that destroyed', async () => {
     // Site C, and the one no other test reaches. `movePlaceholder` moves a

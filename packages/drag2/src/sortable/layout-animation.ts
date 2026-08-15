@@ -23,7 +23,7 @@
  */
 import type { SortableConfig } from './config.ts';
 import type { SortableInstaller } from './feature.ts';
-import { requireFinite, type DisplacementView } from './slots.ts';
+import type { DisplacementView } from './slots.ts';
 
 export type LayoutAnimationOptions = Readonly<{
   duration?: number;
@@ -36,11 +36,14 @@ const DEFAULT_EASING = 'ease-out';
 export function layoutAnimation(
   options: LayoutAnimationOptions = {},
 ): Pick<SortableConfig, 'plugins'> {
-  const duration = requireFinite(
-    options.duration ?? DEFAULT_DURATION,
-    'layoutAnimation({ duration })',
-    0,
-  );
+  // **Unchecked** (D-77), and the difference from `landing({ duration })` is
+  // the rule working rather than an inconsistency. This animation holds no gate
+  // and gates no terminal: it is registered in `running` and cancelled by
+  // `retire()`, so an unbounded one leaves displaced rows offset until the
+  // controller is destroyed and costs the library nothing. The landing's check
+  // exists because the landing **holds the settlement gate**; delete the gate
+  // and the check goes with it.
+  const duration = options.duration ?? DEFAULT_DURATION;
   const easing = options.easing ?? DEFAULT_EASING;
 
   const install: SortableInstaller = () => {

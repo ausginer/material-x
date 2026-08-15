@@ -15,6 +15,7 @@ import {
   type SortableConfig,
 } from '../../src/sortable/config.ts';
 import type {
+  AxisInstaller,
   FeatureContext,
   InsertionGeometry,
   SortableContribution,
@@ -56,6 +57,20 @@ const feature =
   () =>
     contribution;
 
+/**
+ * The same, typed as the **axis** slot's installer (D-77). `AxisInstaller`
+ * differs from `SortableInstaller` in one place — `insertion` is required — and
+ * that difference is what replaced the assembler's construction-time check for
+ * an axis that contributed no geometry.
+ */
+const axisFeature =
+  (
+    contribution: SortableContribution &
+      Readonly<{ insertion: InsertionGeometry }>,
+  ): AxisInstaller =>
+  () =>
+    contribution;
+
 const geometry = (
   overrides: Partial<InsertionGeometry> = {},
 ): InsertionGeometry => ({
@@ -79,15 +94,14 @@ const config = (
   extra: Partial<SortableConfig> = {},
   ...plugins: readonly SortableInstaller[]
 ): SortableConfig =>
-  mergeFragments([
+  mergeFragments(
     {
       items: (): readonly HTMLElement[] => [],
       onReorder,
-      axis: feature({ insertion: geometry() }),
+      axis: axisFeature({ insertion: geometry() }),
     },
-    extra,
-    { plugins },
-  ]);
+    [extra, { plugins }],
+  );
 
 /** The bare valid composition. */
 const required = (): SortableConfig => config();
@@ -102,7 +116,7 @@ describe('assemble', () => {
     const invalidate = (): void => {};
     const slots = assemble(
       config({
-        axis: feature({ insertion: geometry({ resolve, invalidate }) }),
+        axis: axisFeature({ insertion: geometry({ resolve, invalidate }) }),
       }),
       createFixture().context,
     );
@@ -217,7 +231,9 @@ describe('assemble', () => {
     const slots = assemble(
       config(
         {
-          axis: feature({ insertion: geometry({ retire: push('geometry') }) }),
+          axis: axisFeature({
+            insertion: geometry({ retire: push('geometry') }),
+          }),
         },
         feature({ retire: push('second') }),
         feature({ retire: push('third') }),
@@ -269,49 +285,63 @@ describe('assemble', () => {
 });
 
 describe('assemble validation', () => {
-  it('should refuse a composition with no axis', () => {
-    // **Diagnosed before anything is constructed** (D-45). The merge has
-    // already resolved every named slot, so a missing axis is knowable without
-    // running a single installer — which is what the two-stage split buys.
-    expect(() =>
+  it('should no longer diagnose a missing axis with a library message', () => {
+    // **Three checks deleted (D-77)**, and the deletion is asserted here rather
+    // than assumed: `items`, `onReorder` and `axis` are required by the type of
+    // `sortable()`'s first argument, so a missing one is a compile error —
+    // pinned by the `@ts-expect-error` fixtures in `docs/revision/revision-2.ts`
+    // — and restating it at runtime is the byte `CODE_OF_SIZE.md` §1.3 refuses.
+    //
+    // **The failure survives the message.** A JS consumer with no axis reaches
+    // the resolver dereference, which throws by itself; what is gone is the
+    // library's own diagnostic, which is all the check ever added.
+    //
+    // ~~Diagnosed before anything is constructed (D-45).~~ The two-stage split
+    // still buys what it bought; what it no longer has to buy is this.
+    const missingAxis = (): unknown =>
       assemble(
-        mergeFragments([
-          { items: (): readonly HTMLElement[] => [], onReorder },
-        ]),
-        createFixture().context,
-      ),
-    ).toThrow(new TypeError('sortable: an axis — y() or xy() — is required'));
-  });
-
-  it('should refuse a composition with no onReorder', () => {
-    expect(() =>
-      assemble(
-        mergeFragments([
+        mergeFragments(
           {
             items: (): readonly HTMLElement[] => [],
-            axis: feature({ insertion: geometry() }),
-          },
-        ]),
+            onReorder,
+          } as unknown as SortableConfig,
+          [],
+        ),
         createFixture().context,
-      ),
-    ).toThrow(new TypeError('sortable: onReorder must be a function'));
+      );
+
+    expect(missingAxis).toThrow(TypeError);
+    expect(missingAxis).not.toThrow(/an axis — y\(\) or xy\(\) — is required/u);
   });
 
-  it('should refuse a non-function items source', () => {
-    // D-44 — `items` is a pull source, and the merge cannot know that a
-    // fragment handed it an array until the config is whole.
+  it('should no longer refuse a composition with no onReorder', () => {
     expect(() =>
       assemble(
-        mergeFragments([
+        mergeFragments(
           {
-            items: [] as unknown as SortableConfig['items'],
-            onReorder,
-            axis: feature({ insertion: geometry() }),
-          },
-        ]),
+            items: (): readonly HTMLElement[] => [],
+            axis: axisFeature({ insertion: geometry() }),
+          } as unknown as SortableConfig,
+          [],
+        ),
         createFixture().context,
       ),
-    ).toThrow(new TypeError('sortable: items must be a function'));
+    ).not.toThrow();
+  });
+
+  it('should no longer refuse a non-function items source', () => {
+    // What answers instead is the construction-time pull in `behavior.ts`,
+    // which calls `items()` unguarded: a non-callable source is a required-slot
+    // *type* violation and breaks the consumer's own call, rather than being
+    // re-diagnosed here. Only a later throw from a **valid** source — one that
+    // is a function and raises during an `invalidate()` — is a library
+    // classification, and that one lands at `FAILURE_ACTION_PREPARE`.
+    expect(() =>
+      assemble(
+        config({ items: [] as unknown as SortableConfig['items'] }),
+        createFixture().context,
+      ),
+    ).not.toThrow();
   });
 
   it('should refuse a single-writer slot claimed twice', () => {
@@ -383,7 +413,7 @@ describe('assemble unwind', () => {
       assemble(
         config(
           {
-            axis: feature({
+            axis: axisFeature({
               insertion: geometry({
                 retire: (): void => {
                   seen.push('axis');
@@ -414,19 +444,17 @@ describe('assemble unwind', () => {
     // than a lifecycle problem. Phase 17's point survives: `y()` and `xy()` are
     // two genuinely different modules, exercised in both orders.
     const yThenXy = assemble(
-      mergeFragments([
-        { items: (): readonly HTMLElement[] => [], onReorder },
-        y(),
-        xy(),
-      ]),
+      mergeFragments(
+        { items: (): readonly HTMLElement[] => [], onReorder, axis: y() },
+        [{ axis: xy() }],
+      ),
       createFixture().context,
     );
     const xyThenY = assemble(
-      mergeFragments([
-        { items: (): readonly HTMLElement[] => [], onReorder },
-        xy(),
-        y(),
-      ]),
+      mergeFragments(
+        { items: (): readonly HTMLElement[] => [], onReorder, axis: xy() },
+        [{ axis: y() }],
+      ),
       createFixture().context,
     );
 
@@ -441,40 +469,42 @@ describe('assemble unwind', () => {
     // allocates no rect index and appears in no `retireHooks` entry — so the
     // hook count is the same as a composition that never named it.
     const loser = assemble(
-      mergeFragments([
-        { items: (): readonly HTMLElement[] => [], onReorder },
-        y(),
-        xy(),
-      ]),
+      mergeFragments(
+        { items: (): readonly HTMLElement[] => [], onReorder, axis: y() },
+        [{ axis: xy() }],
+      ),
       createFixture().context,
     );
     const alone = assemble(
-      mergeFragments([
-        { items: (): readonly HTMLElement[] => [], onReorder },
-        xy(),
-      ]),
+      mergeFragments(
+        { items: (): readonly HTMLElement[] => [], onReorder, axis: xy() },
+        [],
+      ),
       createFixture().context,
     );
 
     expect(loser.retireHooks).toHaveLength(alone.retireHooks.length);
   });
 
-  it('should unwind when post-install validation rejects the composition', () => {
-    // The unwind covers validation throws too, not only factory throws.
+  it('should unwind when an axis installer contributes no insertion geometry', () => {
+    // **The one deletion that carries an ordering obligation** (D-77, 05 §The
+    // required first argument). The explicit
+    // `contributed no insertion geometry` check is gone — `AxisInstaller`
+    // declares `insertion` required, so this composition does not typecheck and
+    // is reachable only by a JS consumer, which the cast below stands in for.
     //
-    // **Which validation, though, is what D-45 changed.** The missing-slot
-    // checks moved *ahead* of every installer — they read the merged config, so
-    // they can run before anything is constructed, and there is nothing to
-    // unwind when they fire. What is left behind the installers is the one
-    // check that needs their results: an `axis` slot whose installer returned
-    // no geometry. A plugin that allocated before it fires still has to be
-    // retired.
+    // What replaced it is the flat slot record's dereference of the resolver,
+    // and **where that dereference happens is the whole test**: it is built
+    // inside the unwind bracket, so a plugin that allocated before it fires is
+    // still retired. Building the record after the bracket would still throw
+    // and would leak every installer that already ran — which is why asserting
+    // the throw alone is not enough, and why this assertion is paired.
     const seen: string[] = [];
 
     expect(() =>
       assemble(
         config(
-          { axis: feature({}) },
+          { axis: (() => ({})) as unknown as SortableConfig['axis'] },
           feature({
             retire: (): void => {
               seen.push('plugin');
@@ -483,7 +513,7 @@ describe('assemble unwind', () => {
         ),
         createFixture().context,
       ),
-    ).toThrow(/contributed no insertion geometry/u);
+    ).toThrow(TypeError);
 
     expect(seen).toEqual(['plugin']);
   });

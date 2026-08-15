@@ -101,9 +101,9 @@ function build(): Fixture {
 
   const controller = sortable(
     root,
-    { items: () => items },
-    y(),
     {
+      items: () => items,
+      axis: y(),
       onReorder: (request) => {
         pending = request;
         return ReorderResolution.accept();

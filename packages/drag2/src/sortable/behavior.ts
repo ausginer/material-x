@@ -21,6 +21,7 @@ import type {
   KernelHost,
 } from '../kernel/spec.ts';
 import { assemble } from './assemble.ts';
+import { copyUniqueItems } from './collection.ts';
 import { mergeFragments, type SortableConfig } from './config.ts';
 import {
   createSortableController,
@@ -31,12 +32,20 @@ import { createSortableRuntime } from './runtime.ts';
 import type { SortableSlots } from './slots.ts';
 import { createSortableSpec } from './spec.ts';
 
+/**
+ * `source` is the array the pull returned and `items` is the validated copy of
+ * it (D-80 (b)). They are separate parameters because they are separate facts:
+ * `source` is the **identity baseline** a later pull is compared against
+ * (D-44), so it must be the consumer's own array, while `items` is what the
+ * behavior publishes and must be a copy no consumer can mutate.
+ */
 function install(
   host: KernelHost,
+  source: readonly HTMLElement[],
   items: readonly HTMLElement[],
   slots: SortableSlots,
 ): BehaviorInstall<SortableController, SortableFramePart, HTMLElement> {
-  const rt = createSortableRuntime(host, items, slots);
+  const rt = createSortableRuntime(host, source, items, slots);
 
   return {
     spec: createSortableSpec(rt),
@@ -55,7 +64,12 @@ export function createSortableBehavior(
   items: readonly HTMLElement[],
   slots: SortableSlots,
 ): BehaviorFactory<SortableController, SortableFramePart, HTMLElement> {
-  return (host) => install(host, items, slots);
+  // Validated here for the same reason as the composed path below (D-80 (b)):
+  // the collection is copied and checked once, at the boundary that receives
+  // it, rather than deeper in where a throw has installers behind it. This seam
+  // is handed an already-assembled record, so nothing has run yet either way —
+  // what it must not do is let the two paths validate in different places.
+  return (host) => install(host, items, copyUniqueItems(items), slots);
 }
 
 /**
@@ -71,24 +85,49 @@ export function createSortableBehavior(
  * config for a behavior that may never be installed.
  */
 export function createComposedSortableBehavior(
+  config: SortableConfig,
   fragments: ReadonlyArray<Partial<SortableConfig>>,
 ): BehaviorFactory<SortableController, SortableFramePart, HTMLElement> {
-  const config = mergeFragments(fragments);
+  const merged = mergeFragments(config, fragments);
 
-  return (host) =>
-    install(
+  return (host) => {
+    // **D-44: the first pull.** Every later one goes through
+    // `action.prepare(COLLECTION)`; this is the initial snapshot and the
+    // initial structural baseline, and it is the only `items()` call that
+    // happens outside a transaction.
+    //
+    // **Called unguarded** (D-77). The `typeof` test that used to stand here
+    // existed to route a non-function `items` to the assembler's diagnostic,
+    // and that diagnostic is deleted: a non-callable `items` is a
+    // required-config *type* violation, not a library invariant, so the
+    // unavoidable construction call is left to fail naturally. Only a later
+    // throw from a *valid* source — one that is a function and raises during an
+    // `invalidate()` — belongs to `FAILURE_ACTION_PREPARE`.
+    const source = merged.items();
+
+    // **Pulled, validated and copied before the first installer runs, and the
+    // statement order is normative** (D-80 (b), F-68, F-69). `copyUniqueItems`
+    // used to run inside `createSortableRuntime`, i.e. *after* `assemble` had
+    // returned: a collection holding the same element twice left every
+    // recorded `retire` hook unrun, plus a kernel and a realm `draggable()`
+    // had already built, because `arm()` was never reached. Nothing here is
+    // bracketed — the point is that no consumer-triggerable throw remains
+    // between the first hook being recorded and the bracket that unwinds them.
+    //
+    // **These were sibling arguments to one call, and only left-to-right
+    // evaluation made that safe** (F-69). Swapping them is a change no reviewer
+    // would flag, and it would strand every hook on a throwing `items()`. They
+    // are statements now so the ordering is deliberate rather than positional.
+    const items = copyUniqueItems(source);
+
+    return install(
       host,
-      // **D-44: the first pull.** Every later one goes through
-      // `action.prepare(COLLECTION)`; this is the initial snapshot and the
-      // initial structural baseline, and it is the only `items()` call that
-      // happens outside a transaction. Validated as a function by `assemble`,
-      // which runs on the next line — hence the guard, which is what keeps a
-      // non-function config producing the assembler's diagnostic rather than a
-      // `TypeError` from this call site.
-      typeof config.items === 'function' ? config.items() : [],
+      source,
+      items,
       // `report`, not `fail`: a feature closure created here cannot know which
       // operation is live, so classifying a failure from one would let a late
       // continuation settle another.
-      assemble(config, { realm: host.realm, root: host.root, report }),
+      assemble(merged, { realm: host.realm, root: host.root, report }),
     );
+  };
 }
