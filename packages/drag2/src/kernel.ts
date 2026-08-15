@@ -94,7 +94,21 @@ export type {
   OperationIdentity,
 } from './kernel/frames.ts';
 export type { Disposer, LifetimeScope } from './kernel/lifetimes.ts';
-export type { VisualLiftSession } from './kernel/presentation.ts';
+/**
+ * **The lift capability and the session it projects** (D-35, C5-01).
+ *
+ * `BehaviorLiftSession` is what `ActivationScope.lift` and `moved`'s second
+ * argument are typed as, so it is published under the same rule as everything
+ * else on this list: 02 §What stays internal's discriminating test is whether
+ * *the kernel hands one to a behavior*, and the kernel hands this one to every
+ * behavior twice. Its own definition names `VisualLiftSession`, which therefore
+ * stays published as well — a `Pick` whose source a consumer cannot name is not
+ * a type a consumer can name.
+ */
+export type {
+  BehaviorLiftSession,
+  VisualLiftSession,
+} from './kernel/presentation.ts';
 export type { OffsetBox } from './kernel/types.ts';
 
 /**
@@ -168,17 +182,17 @@ export { toDraggableError } from './kernel/errors.ts';
  * it (D-64).
  */
 export {
+  FAILURE_ACTION_EFFECT,
+  FAILURE_ACTION_PREPARE,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
-  FAILURE_INSERTION,
   FAILURE_INVALIDATION,
   FAILURE_LANDING_CREATE,
   FAILURE_LANDING_INTERRUPTED,
   FAILURE_LANDING_TARGET,
-  FAILURE_PLACEHOLDER_MOVE,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
-  FAILURE_REORDER_RESOLUTION,
+  FAILURE_RESOLUTION,
   FAILURE_SCHEDULED_FRAME,
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
@@ -221,11 +235,15 @@ export {
  * inside the kernel, where `Object.assign`'s `T & U` typing produces it with no
  * cast.
  */
-export function draggable<Controller, Part extends object>(
+export function draggable<
+  Controller,
+  Part extends object,
+  Activation extends {} = true,
+>(
   root: HTMLElement,
-  behavior: BehaviorFactory<Controller, Part>,
+  behavior: BehaviorFactory<Controller, Part, Activation>,
 ): Controller {
-  const kernel = createKernel<Part>(root);
+  const kernel = createKernel<Part, Activation>(root);
   const { spec, controller } = behavior(kernel.host);
 
   kernel.arm(spec);

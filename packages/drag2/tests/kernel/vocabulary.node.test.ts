@@ -44,6 +44,12 @@ const PUBLISHED_TYPES: readonly string[] = [
   'BehaviorConfig',
   'BehaviorFactory',
   'BehaviorInstall',
+  // Published rather than internal, and the move is D-35's (C5-01). 02 §What
+  // stays internal's test is whether the kernel *hands one to a behavior*; the
+  // kernel hands this one to every behavior twice, as `ActivationScope.lift`
+  // and as `moved`'s second argument. `VisualLiftSession` stays published
+  // because this alias's definition names it.
+  'BehaviorLiftSession',
   'BehaviorSpec',
   'CancelStage',
   'CommandAdmission',
@@ -109,12 +115,7 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
     'assertFrameScrubbed',
     'KERNEL_FRAME_KEYS',
   ],
-  'lift acquisition': [
-    'acquireLift',
-    'captureInlineStyles',
-    'acquireTopLayer',
-    'BehaviorLiftSession',
-  ],
+  'lift acquisition': ['acquireLift', 'captureInlineStyles', 'acquireTopLayer'],
   'the reporter': ['report', 'guarded'],
   'scheduling and invalidation': [
     'createInvalidator',

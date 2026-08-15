@@ -9,7 +9,7 @@
 import type { CancelStage, FailureStage } from './failures.ts';
 import type { Draft, Frame, FramePartOf } from './frames.ts';
 import type { LifetimeScope } from './lifetimes.ts';
-import type { LiftMode, VisualLiftSession } from './presentation.ts';
+import type { BehaviorLiftSession, LiftMode } from './presentation.ts';
 import type { DOMRealm } from './realm.ts';
 /**
  * **One declaration each, re-exported** (F-61). `ActionTransition` and
@@ -189,8 +189,14 @@ export type ActivationScope = Readonly<{
    * landing coordinate space a function of that choice.
    */
   boxPre: OffsetBox;
-  /** The lift session. The behavior keeps it for `moved`. */
-  lift: VisualLiftSession;
+  /**
+   * The lift capability. The behavior keeps it for `moved`.
+   *
+   * **A projection, not the session** (D-35, C5-01): `rendered` and `dispose`
+   * are kernel-only, for the two different reasons `BehaviorLiftSession`
+   * records. The same physical object arrives under the narrower type.
+   */
+  lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */
   motion: LifetimeScope;
   /** Closed at finalization, after both gates. */
@@ -384,7 +390,25 @@ export type BehaviorConfig = Readonly<{
   actionTags: number;
 }>;
 
-export type BehaviorSpec<Part extends object> = Readonly<{
+/**
+ * The behavior's whole SPI.
+ *
+ * **`Activation` is the behavior's choice, and defaults to staging nothing**
+ * (D-34). It was pinned to `HTMLElement` because the sortable stages a
+ * placeholder there — the sortable's shape written into the kernel, and one
+ * type parameter wide (F-44). A behavior that stages nothing at activation had
+ * no honest value to return: `null` already means *discard the activation*, so
+ * the only remaining move was to return an element the kernel already holds and
+ * have `effect` ignore it, which is the staged-resource contract inverted.
+ *
+ * The kernel itself still treats the staged value as `{}` and drops it, so this
+ * costs nothing at runtime. `true` is the default because `Transition` already
+ * defaults `Prepared` to it — a behavior that stages nothing writes nothing.
+ */
+export type BehaviorSpec<
+  Part extends object,
+  Activation extends {} = true,
+> = Readonly<{
   /** `FramePartOf` rejects a part that declares a kernel frame key. */
   createFramePart(): FramePartOf<Part>;
   resetFramePart(frame: Part): void;
@@ -423,7 +447,7 @@ export type BehaviorSpec<Part extends object> = Readonly<{
   command?: CommandAdmission<Part>;
 
   /* ---- transactional seams ---- */
-  activation: Transition<Part, HTMLElement, ActivationScope>;
+  activation: Transition<Part, Activation, ActivationScope>;
   release: ReleaseTransition<Part>;
   settlement: SettlementTransition<Part>;
   action: ActionTransition<Part>;
@@ -437,7 +461,7 @@ export type BehaviorSpec<Part extends object> = Readonly<{
    * two stages, narrowed from the inside via
    * `host.fail(FAILURE_SCHEDULED_FRAME, …)`.
    */
-  moved(current: Readonly<Frame<Part>>, lift: VisualLiftSession): void;
+  moved(current: Readonly<Frame<Part>>, lift: BehaviorLiftSession): void;
 
   /** Produce the viewport point the lifted visual should end at (D-16). */
   anchorTarget(current: Readonly<Frame<Part>>): Point;
@@ -495,8 +519,12 @@ export type BehaviorSpec<Part extends object> = Readonly<{
  * admitted before `install()` returns" becomes unexpressible rather than a rule
  * (D-1).
  */
-export type BehaviorInstall<Controller, Part extends object> = Readonly<{
-  spec: BehaviorSpec<Part>;
+export type BehaviorInstall<
+  Controller,
+  Part extends object,
+  Activation extends {} = true,
+> = Readonly<{
+  spec: BehaviorSpec<Part, Activation>;
   controller: Controller;
 }>;
 
@@ -515,8 +543,17 @@ export type BehaviorInstall<Controller, Part extends object> = Readonly<{
  *
  * `Part` is inferred from the factory's return position rather than supplied.
  * It defaults to `object` so a behavior that never names its own part — the
- * kernel's own view of one — still satisfies the constraint.
+ * kernel's own view of one — still satisfies the constraint. `Activation` is
+ * inferred the same way and defaults the same way `BehaviorSpec` does.
+ *
+ * **Both parameters reach the construction types, and that is the correction**
+ * (Checkpoint C, C-04). D-34 on `BehaviorSpec` alone would have been erased at
+ * the handshake: `install()` returns the spec through `BehaviorInstall`, so a
+ * `BehaviorInstall` that fixed the staged type would have re-pinned it one
+ * level up from the decision.
  */
-export type BehaviorFactory<Controller, Part extends object = object> = (
-  host: KernelHost,
-) => BehaviorInstall<Controller, Part>;
+export type BehaviorFactory<
+  Controller,
+  Part extends object = object,
+  Activation extends {} = true,
+> = (host: KernelHost) => BehaviorInstall<Controller, Part, Activation>;

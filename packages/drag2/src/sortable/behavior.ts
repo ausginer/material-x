@@ -35,7 +35,7 @@ function install(
   host: KernelHost,
   items: readonly HTMLElement[],
   slots: SortableSlots,
-): BehaviorInstall<SortableController, SortableFramePart> {
+): BehaviorInstall<SortableController, SortableFramePart, HTMLElement> {
   const rt = createSortableRuntime(host, items, slots);
 
   return {
@@ -54,7 +54,7 @@ function install(
 export function createSortableBehavior(
   items: readonly HTMLElement[],
   slots: SortableSlots,
-): BehaviorFactory<SortableController, SortableFramePart> {
+): BehaviorFactory<SortableController, SortableFramePart, HTMLElement> {
   return (host) => install(host, items, slots);
 }
 
@@ -72,7 +72,7 @@ export function createSortableBehavior(
  */
 export function createComposedSortableBehavior(
   fragments: ReadonlyArray<Partial<SortableConfig>>,
-): BehaviorFactory<SortableController, SortableFramePart> {
+): BehaviorFactory<SortableController, SortableFramePart, HTMLElement> {
   const config = mergeFragments(fragments);
 
   return (host) =>

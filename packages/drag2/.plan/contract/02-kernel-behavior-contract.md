@@ -745,7 +745,7 @@ The other half of the decision, and the half that keeps it from being a mechanic
 | `SeamOutcome`, `SEAM_*`, `SeamContext`, `SeamDriver`, `ArmOutcome` | none needed — the driver's own vocabulary. A behavior returns `Prepared \| null` or a `SeamRejection` and never sees an outcome. **03 §Internal to the ordinary tier lists `SeamOutcome` and `ArmOutcome` as kernel-tier published; that is wrong and D-68 corrects it** — neither is in the closure |
 | `Lifetime` (the full type), `createLifetime` | `LifetimeScope`, which is D-21's projection and exists precisely so `dispose` is unreachable |
 | `composeFrame`, `beginFrame`, `scrubFrame`, `validateFramePart`, `KERNEL_FRAME_KEYS` | none — the kernel composes the frame (D-15). A behavior authors its part and nothing else |
-| `acquireLift`, `captureInlineStyles`, `acquireTopLayer` | the kernel acquires the lift; the behavior receives `VisualLiftSession` |
+| `acquireLift`, `captureInlineStyles`, `acquireTopLayer` | the kernel acquires the lift; the behavior receives a **`BehaviorLiftSession`**, which is published for the same reason everything else on this list is not — the kernel hands one to every behavior twice, as `ActivationScope.lift` and as `moved`'s second argument. `VisualLiftSession` stays published because that alias's definition names it. (This row read *the behavior receives `VisualLiftSession`* until D-35's projection landed; §`ActivationScope` had been the correct spelling since C5-01.) |
 | `report`, `guarded` | `host.fail(stage, error)` inside a seam. Outside one it downgrades to a platform report, which is the same destination |
 | `createInvalidator`, `createFrameTask`, `FrameTask`, `Invalidator` | `realm.window` — scheduling is the behavior's own, and `FAILURE_SCHEDULED_FRAME` exists so it can classify its own coalescing |
 | `POINTER_DOWN`, `KEY_DOWN` and the rest of `protocol.ts` | string literals. `CommandAdmission.types` is `readonly string[]` |
@@ -1015,7 +1015,7 @@ Exactly one choice, made exactly once, executed by the kernel after `release.eff
 
 The kernel treats a thenable as asynchronous and anything else as immediately settled, then hands the result to `settlement.prepare` with a status code. It never names `ReorderResolution`, `accept` or `reject`. It named one more thing until D-41 — the presentation declaration the resolution carried — and that is deleted with `ResolutionOptions`.
 
-Acceptance is still **never inferred**: `settlement.prepare` is where a fulfilled value that is not an explicit resolution becomes `FAILURE_REORDER_RESOLUTION`. That check lives with the party that can perform it — and it is returned as a value rather than announced through a side call:
+Acceptance is still **never inferred**: `settlement.prepare` is where a fulfilled value that is not an explicit resolution becomes `FAILURE_RESOLUTION`. That check lives with the party that can perform it — and it is returned as a value rather than announced through a side call:
 
 ```ts
 /**
@@ -1067,8 +1067,8 @@ The complete mapping, which the behavior must cover exhaustively:
 | `skipped` | `OUTCOME_NOOP` | **immediate** — the placeholder is already where the item belongs | `{ type: 'noop', proposal }` | `onEnd` |
 | `fulfilled`, an accepted `ReorderResolution` | `OUTCOME_ACCEPTED` | destination | `{ type: 'accepted', proposal }` | `onEnd` |
 | `fulfilled`, a rejected `ReorderResolution` | `OUTCOME_REJECTED` | home | `{ type: 'rejected', reason, proposal }` | `onEnd` |
-| `fulfilled`, not a resolution at all | — | — | — | `SeamRejection(FAILURE_REORDER_RESOLUTION)` |
-| `rejected` (the thenable rejected or `invoke` threw) | — | — | — | `SeamRejection(FAILURE_REORDER_RESOLUTION)` |
+| `fulfilled`, not a resolution at all | — | — | — | `SeamRejection(FAILURE_RESOLUTION)` |
+| `rejected` (the thenable rejected or `invoke` threw) | — | — | — | `SeamRejection(FAILURE_RESOLUTION)` |
 | `canceled` | `OUTCOME_CANCELED` | home | `{ type: 'canceled', reason, stage, proposal }` | `onEnd` |
 | `failed` | `OUTCOME_FAILED` | immediate | **the seam builds one**: `settlement.prepare` stages `{ type: 'canceled', reason: <`input.error`>, stage: <derived, §The join>, proposal }` and `effect` writes it to `domain`, so `finalized` finds a result where it used to find `null` (D-66) | `onError` **and** `onEnd`. It read _"`onError` only; `finalized` is never called"_ until Revision 2.1 |
 
@@ -1100,7 +1100,7 @@ The library stops waiting, restores or retires its own presentation, and termina
 | a second terminal | never. The terminal latch has already fired for the `canceled` settlement; the late arrival finds no live attempt and dispatches nothing |
 | revival | never. There is no path from a settled operation back to `SETTLING`; the arrival is discarded at the attempt-identity check, which is the same double validation §Attempts already requires |
 
-This **extends** §"a rejected thenable is a resolver malfunction" rather than contradicting it, and the two rules are about different windows. While the attempt is live, a rejection is a malfunction and classifies as `FAILURE_REORDER_RESOLUTION` — that is unchanged. Once the attempt has been abandoned there is no operation left to classify against, and classifying anyway would be `fail` outside a seam of the current operation, which §Failure classification already downgrades to a platform report. So the late rejection takes the non-consequential channel by the rule that is already there; what D-40 adds is the requirement that it be **caught at all**, which is a property of where the `catch` is installed rather than of the failure model.
+This **extends** §"a rejected thenable is a resolver malfunction" rather than contradicting it, and the two rules are about different windows. While the attempt is live, a rejection is a malfunction and classifies as `FAILURE_RESOLUTION` — that is unchanged. Once the attempt has been abandoned there is no operation left to classify against, and classifying anyway would be `fail` outside a seam of the current operation, which §Failure classification already downgrades to a platform report. So the late rejection takes the non-consequential channel by the rule that is already there; what D-40 adds is the requirement that it be **caught at all**, which is a property of where the `catch` is installed rather than of the failure model.
 
 `CancelStage` is `AT_PROPOSAL` or `AT_CONSUMER`, carried through to the public cancel result — probe 1's preserved product requirement, which the intermediate draft had no constructor for. It is a **diagnostic discriminant on one terminal**, and D-40 is why that is the right shape: the two stages differ in what the consumer may have already started, not in what the consumer must do next.
 

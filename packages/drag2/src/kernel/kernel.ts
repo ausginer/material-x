@@ -29,14 +29,14 @@ import {
   type CancelStage,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
-  FAILURE_INSERTION,
+  FAILURE_ACTION_PREPARE,
   FAILURE_LANDING_CREATE,
   FAILURE_LANDING_INTERRUPTED,
   FAILURE_LANDING_TARGET,
-  FAILURE_PLACEHOLDER_MOVE,
+  FAILURE_ACTION_EFFECT,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
-  FAILURE_REORDER_RESOLUTION,
+  FAILURE_RESOLUTION,
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
 } from './failures.ts';
@@ -213,9 +213,12 @@ type FailureCheckpoint = Readonly<{
  * The kernel handle. Only `draggable()` holds one, and it calls `arm()` exactly
  * once — a behavior cannot arm itself, re-arm, or observe the kernel object.
  */
-export type Kernel<Part extends object> = Readonly<{
+export type Kernel<
+  Part extends object,
+  Activation extends {} = true,
+> = Readonly<{
   host: KernelHost;
-  arm(spec: BehaviorSpec<Part>): void;
+  arm(spec: BehaviorSpec<Part, Activation>): void;
 }>;
 
 /** No phase stamp is pending. Phases are non-negative. */
@@ -229,14 +232,14 @@ const NO_STAMP = -1;
  */
 type ArmedStamp = Phase | typeof NO_STAMP;
 
-export function createKernel<Part extends object>(
+export function createKernel<Part extends object, Activation extends {} = true>(
   root: HTMLElement,
-): Kernel<Part> {
+): Kernel<Part, Activation> {
   const realm = createRealm(root);
   const queue = createActionQueue();
   const ingress = new AbortController();
 
-  let spec: BehaviorSpec<Part> | null = null;
+  let spec: BehaviorSpec<Part, Activation> | null = null;
   let current!: Frame<Part>;
   let draft!: Frame<Part>;
   let armedKeys: readonly string[] = [];
@@ -1218,7 +1221,7 @@ export function createKernel<Part extends object>(
    * phases take different arguments: `prepare` maps the input, `effect` receives
    * the gate scope. A `SeamRejection` from `prepare` is classified at the stage
    * the behavior named — a fulfilled value that is not an explicit resolution
-   * is `FAILURE_REORDER_RESOLUTION`, and acceptance is never inferred.
+   * is `FAILURE_RESOLUTION`, and acceptance is never inferred.
    */
   const settlementTransition: Transition<
     Part,
@@ -1468,13 +1471,28 @@ export function createKernel<Part extends object>(
     }
 
     const session = lift!;
+    // **THE sample of the recorded delta** (D-35). Read from the kernel's own
+    // session rather than recomputed from the pointer, because the two agree
+    // for exactly one behavior — one whose `moved` writes the raw pointer delta
+    // on both axes — and disagree for every behavior that constrains, clamps,
+    // snaps or externally drives its visual, and for every pointerless
+    // operation (D-32), which has no pointer to subtract.
+    //
+    // Copied, not aliased. `rendered` is one mutable object written in place on
+    // the hot path; handing it to a consumer's runner would let a late
+    // `lift.write` — outside the contract, but not refused — move a `from` the
+    // runner has already read, and would publish a kernel-mutable object into
+    // consumer code. One allocation per drop, on a path that is already
+    // allocating the context around it.
+    //
+    // **This read is the boundary of I-34's interval.** Behavior rendering goes
+    // through `write` up to here; from here the landing runner is the deliberate
+    // writer, until its `destroy()` relinquishes the transform for the join pin.
+    const { rendered } = session;
     const context: LandingContext = {
       visual: visual!,
       compose: session.compose,
-      from: {
-        x: current.pointerX - current.originX,
-        y: current.pointerY - current.originY,
-      },
+      from: { x: rendered.x, y: rendered.y },
       target,
       realm,
     };
@@ -1673,7 +1691,7 @@ export function createKernel<Part extends object>(
       outcome = driver.runCore(
         settlementTransition,
         createSettlementScope(attempt),
-        FAILURE_REORDER_RESOLUTION,
+        FAILURE_RESOLUTION,
       );
     });
 
@@ -2206,8 +2224,8 @@ export function createKernel<Part extends object>(
       driver.runCore(
         actionTransition,
         undefined,
-        FAILURE_INSERTION,
-        FAILURE_PLACEHOLDER_MOVE,
+        FAILURE_ACTION_PREPARE,
+        FAILURE_ACTION_EFFECT,
       );
     } finally {
       dropStaged();
