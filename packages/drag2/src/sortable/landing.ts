@@ -22,7 +22,6 @@
 import type { LandingHandle, LandingStart } from '../kernel/spec.ts';
 import type { Point } from '../kernel/types.ts';
 import type { SortableConfig } from './config.ts';
-import { requireFinite } from './slots.ts';
 
 /**
  * What a contextual `duration` is handed (D-67).
@@ -85,23 +84,35 @@ const DEFAULT_EASING = 'ease';
 export function landing(
   options: LandingOptions = {},
 ): Pick<SortableConfig, 'landing'> {
-  // **Both options are always read and always validated** (D-63). `run` used to
-  // short-circuit this whole function, which meant the timing options were
-  // conditionally validated; removing it removes a conditional from the
-  // validation rule rather than adding one.
+  // **Both options are always read** (D-63). `run` used to short-circuit this
+  // whole function, which meant the timing options were conditionally read;
+  // removing it removes a conditional from the rule rather than adding one.
   const declared = options.duration ?? DEFAULT_DURATION;
-  // Validated at construction when it is a number, and per landing when it is a
-  // thunk — the earliest moment each form can be checked at all. A thunk that
-  // returns a bad value throws from inside `start`, which the kernel already
-  // classifies as `FAILURE_LANDING_CREATE`.
-  let timing: LandingDuration | null = null;
-  let fixed = 0;
-
-  if (typeof declared === 'function') {
-    timing = declared;
-  } else {
-    fixed = requireFinite(declared, 'landing({ duration })', 0);
-  }
+  // **Narrowed to one comparison, and moved to the landing** (D-77). The check
+  // used to be `requireFinite` at construction for the number form and per
+  // landing for the thunk; both forms are now tested at the same instant and
+  // against the same single value, because `animate()` is a better validator
+  // than the library for every other case — **measured, and the artifact is
+  // `.plan/measurements/animate-duration-domain.md`** (D-79): under Chrome 150
+  // it rejects `NaN`, negatives, `-Infinity`, strings and objects itself, with
+  // one message naming its own domain.
+  //
+  // ~~It also accepts `'auto'` and `undefined`, which a finiteness test would
+  // have wrongly refused.~~ **Struck** (D-79): `undefined` never reaches
+  // `animate()` — the line above coalesces it to the default — and `'auto'` is
+  // reachable only from JavaScript, since `LandingDuration` returns `number`.
+  // The deletion rests on the byte argument and on the `Infinity` invariant,
+  // not on this.
+  //
+  // `Infinity` is the one value it accepts and never completes. That is the
+  // only reason a check survives here at all: **the landing holds the
+  // settlement gate**, so an animation that never finishes is an operation with
+  // no terminal — the single failure this architecture cannot classify, because
+  // classification needs something to happen. `layoutAnimation` takes the same
+  // option, holds nothing, and therefore keeps no check.
+  const timing: LandingDuration | null =
+    typeof declared === 'function' ? declared : null;
+  const fixed = typeof declared === 'function' ? 0 : declared;
   // `easing` is not validated: it is a CSS easing function, the platform is the
   // only correct parser for one, and `animate()` reports a bad value itself.
   const easing = options.easing ?? DEFAULT_EASING;
@@ -123,18 +134,25 @@ export function landing(
     const resolved =
       timing === null
         ? fixed
-        : requireFinite(
-            timing({
-              from,
-              to: target,
-              // The one arithmetic D-67 adds. `from` and `to` were already
-              // computed for `LandingContext`; this is what makes the distance
-              // that motivated dynamic timing observable at all.
-              distance: Math.hypot(target.x - from.x, target.y - from.y),
-            }),
-            'landing({ duration })',
-            0,
-          );
+        : timing({
+            from,
+            to: target,
+            // The one arithmetic D-67 adds. `from` and `to` were already
+            // computed for `LandingContext`; this is what makes the distance
+            // that motivated dynamic timing observable at all.
+            distance: Math.hypot(target.x - from.x, target.y - from.y),
+          });
+
+    // **The one surviving domain test** (D-77), applied to both forms at the
+    // same instant and **before** the reduced-motion collapse, which is where
+    // Checkpoint D (D4) put it and where it stays: a consumer diagnosing a bug
+    // must not get a different answer because of the reader's OS setting, even
+    // though the collapse would have made this particular value harmless.
+    if (resolved === Number.POSITIVE_INFINITY) {
+      throw new TypeError(
+        'sortable: landing({ duration }) must not be Infinity',
+      );
+    }
     // Collapsed to zero rather than skipped: the gate is still held and still
     // released through the runner, so the lifecycle is one path whatever the
     // user's motion preference is.

@@ -11,6 +11,16 @@
  * literal is not a writable surface. ~~`SortableFeature` is declared here~~ —
  * D-45 withdrew the feature brand, so a fragment is a plain partial config and
  * there is no branded type left to give a single identity to.
+ *
+ * **The closure is tier-scoped** (D-78). It resolves within this tier plus the
+ * tiers below it — `sortable.js ∪ drag.js ∪ sortable/feature.js` — the way the
+ * kernel tier's resolves within `kernel.js ∪ drag.js` (D-68). Taken literally,
+ * _every alias it names_ transitively would publish `AxisInstaller`'s whole
+ * closure here, which is substantially the whole middle tier, and D-61's rung
+ * would dissolve into the ordinary one. What the rule protects is the ability
+ * to **hoist**: `AxisInstaller` ships from here because `SortableConfig` names
+ * it; the names *it* reaches stay declared at `sortable/feature.js`, which is
+ * one import away for an author who wants them.
  */
 import { draggable } from './kernel.ts';
 import { createComposedSortableBehavior } from './sortable/behavior.ts';
@@ -19,11 +29,15 @@ import type { SortableController } from './sortable/controller.ts';
 
 export type { SortableController } from './sortable/controller.ts';
 /**
- * The config schema **and every alias it names** (D-45, F-51). A public type
- * that references an unexported one is a surface a consumer cannot fully write
- * down — they could fill the slot but never hoist the handler out of the object
+ * The config schema **and every alias it names** (D-45, F-51), resolved
+ * **within this tier and the tiers below it** (D-78). A public type that
+ * references an unexported one is a surface a consumer cannot fully write down
+ * — they could fill the slot but never hoist the handler out of the object
  * literal — so the aliases ship with it. `tests/docs.node.test.ts` enforces the
- * closure rather than leaving it to review.
+ * closure rather than leaving it to review, **per entry**: the whole-run form
+ * cannot see this class of hole in either direction (F-60), and `AxisInstaller`
+ * resolving through `sortable/feature.js` read as clean for exactly that reason
+ * (P18A-05).
  */
 export type {
   ItemSource,
@@ -34,6 +48,14 @@ export type {
   ResolveHandle,
   SortableConfig,
 } from './sortable/config.ts';
+/**
+ * **The `axis` slot's alias, published here since D-78.** `SortableConfig`
+ * names it, so a consumer who writes an axis installer must be able to hoist it
+ * into a typed `const` rather than only fill the slot inline. Its own closure —
+ * `FeatureContext`, `SortableContribution`, `InsertionGeometry` — stays
+ * declared at `sortable/feature.js`: this publishes the **name**, not the tier.
+ */
+export type { AxisInstaller } from './sortable/feature.ts';
 /**
  * The cancellation stages, as **values as well as a type**, for the same reason
  * as `FailureStage` on `drag.js`: a `CanceledReorderResult` carries one and a
@@ -75,8 +97,21 @@ export { ReorderResolution } from './sortable/domain.ts';
  * Composes one sortable behavior **and returns its controller** (D-48).
  *
  * ```ts
- * const list = sortable(root, { items, onReorder }, y());
+ * const list = sortable(root, { items, onReorder, axis: y() }, landing());
  * ```
+ *
+ * **The second argument is a complete `SortableConfig`, and every later one is
+ * `Partial`** (D-77). Required configuration is a **type** obligation: a
+ * missing `items`, `onReorder` or `axis` is a compile error rather than a
+ * construction-time `TypeError`, which is why the assembler no longer checks
+ * for one. `y()` and `xy()` return the installer itself, so an axis is written
+ * `axis: y()` in that first argument rather than passed as a fragment — the
+ * wrapper existed only to give a required slot a fragment position.
+ *
+ * **What a later fragment cannot do is clear a required slot**: the merge skips
+ * `undefined`, so `{ axis: undefined }` in a `Partial` leaves the merged slot
+ * as the first argument set it. That was a nicety while three construction
+ * throws stood behind it and is the only remaining guard now.
  *
  * ~~`sortable(root, y(), callbacks({ onReorder }))`~~ — the example said that
  * until Revision 2 closure, and `callbacks()` was deleted by D-56. What a
@@ -101,7 +136,8 @@ export { ReorderResolution } from './sortable/domain.ts';
  */
 export function sortable(
   root: HTMLElement,
+  config: SortableConfig,
   ...fragments: ReadonlyArray<Partial<SortableConfig>>
 ): SortableController {
-  return draggable(root, createComposedSortableBehavior(fragments));
+  return draggable(root, createComposedSortableBehavior(config, fragments));
 }

@@ -18,7 +18,18 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { DraggableError } from '../../src/drag.ts';
 import { AT_PROPOSAL } from '../../src/kernel/failures.ts';
-import type { SortableConfig } from '../../src/sortable/config.ts';
+import { createRealm } from '../../src/kernel/realm.ts';
+import { assemble } from '../../src/sortable/assemble.ts';
+import { copyUniqueItems } from '../../src/sortable/collection.ts';
+import {
+  mergeFragments,
+  type SortableConfig,
+} from '../../src/sortable/config.ts';
+import type {
+  AxisInstaller,
+  FeatureContext,
+  SortableInstaller,
+} from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
@@ -113,7 +124,9 @@ function compose(options: Options = {}): Composed {
   // starts as `items` and is swapped wholesale by `replace()`; returning the
   // same array from a plain `invalidate()` is the geometry-only branch.
   let current: readonly HTMLElement[] = items;
-  const controller = sortable(root, { items: () => current }, y(), {
+  const controller = sortable(root, {
+    items: () => current,
+    axis: y(),
     onReorder:
       options.onReorder ??
       ((request) => {
@@ -771,5 +784,257 @@ describe('the composed terminal protocol', () => {
     release(55);
 
     expect(reported).toEqual([]);
+  });
+});
+
+/**
+ * **Construction unwind, across construction** (D-80 (b), F-68, F-69; 05 §The
+ * test matrix). The `assemble` suite pins the unwind *within* the assembler;
+ * this group pins that nothing consumer-triggerable throws *outside* it.
+ *
+ * **Two of the four rows are negative controls, and they are the load-bearing
+ * ones.** The pre-D-80 arrangement throws the same `TypeError`, with the same
+ * message, at the same consumer call — only its position moved — so every
+ * assertion that checks the throw alone passes against the defect. What
+ * discriminates is *what the installers did before it*, which is why the
+ * positive rows assert **no installer ran** rather than **every installer was
+ * retired**, and why the two controls reconstruct the old orders and show them
+ * failing exactly that assertion.
+ */
+describe('construction across the whole boundary', () => {
+  type Probe = Readonly<{
+    axis: AxisInstaller;
+    /** Installers that ran, in installation order. */
+    ran: string[];
+    /** Installers whose `retire` ran. */
+    retired: string[];
+    plugin: SortableInstaller;
+  }>;
+
+  const probe = (): Probe => {
+    const ran: string[] = [];
+    const retired: string[] = [];
+
+    return {
+      ran,
+      retired,
+      axis: (context) => {
+        ran.push('axis');
+        return y()(context);
+      },
+      plugin: () => {
+        ran.push('plugin');
+        return {
+          retire: (): void => {
+            retired.push('plugin');
+          },
+        };
+      },
+    };
+  };
+
+  const host = (): HTMLElement => {
+    const root = document.createElement('div');
+
+    document.body.append(root);
+    cleanup.push(() => root.remove());
+
+    return root;
+  };
+
+  it('should refuse a duplicated element before any installer runs', () => {
+    const parts = probe();
+    const root = host();
+    const item = document.createElement('div');
+
+    root.append(item);
+
+    expect(() =>
+      sortable(root, {
+        items: () => [item, item],
+        onReorder: () => ReorderResolution.accept(),
+        axis: parts.axis,
+        plugins: [parts.plugin],
+      }),
+    ).toThrow(/same element twice/u);
+
+    // **Not `retired` — `ran`.** A wider bracket would also leave `retired`
+    // equal to `['plugin']`, and the two arrangements are indistinguishable by
+    // that assertion. Nothing ran, so there is nothing to unwind.
+    expect(parts.ran).toEqual([]);
+    expect(parts.retired).toEqual([]);
+  });
+
+  it('should refuse a throwing pull source before any installer runs', () => {
+    // F-69's case. The throw comes from the consumer's own `items()`, which
+    // used to be safe only because it sat left of `assemble(…)` in one
+    // argument list.
+    const parts = probe();
+    const root = host();
+
+    expect(() =>
+      sortable(root, {
+        items: () => {
+          throw new TypeError('consumer pull');
+        },
+        onReorder: () => ReorderResolution.accept(),
+        axis: parts.axis,
+        plugins: [parts.plugin],
+      }),
+    ).toThrow(/consumer pull/u);
+
+    expect(parts.ran).toEqual([]);
+  });
+
+  it('should retire every installer it ran when the controller is destroyed', () => {
+    // The other end of the same property: construction that survives to a
+    // controller still owns its hooks, so "nothing was stranded" is not
+    // achieved by never recording anything.
+    const parts = probe();
+    const root = host();
+    const item = document.createElement('div');
+
+    root.append(item);
+
+    const controller = sortable(root, {
+      items: () => [item],
+      onReorder: () => ReorderResolution.accept(),
+      axis: parts.axis,
+      plugins: [parts.plugin],
+    });
+
+    expect(parts.ran).toEqual(['axis', 'plugin']);
+    expect(parts.retired).toEqual([]);
+
+    return controller.destroy().then(() => {
+      expect(parts.retired).toEqual(['plugin']);
+    });
+  });
+
+  it('should be discriminated by the pre-D-80 validation position', () => {
+    // **Negative control.** Validating inside `install` — where
+    // `createSortableRuntime` did it — reconstructed here as: assemble first,
+    // validate second. The throw is identical; what differs is that the
+    // installers have already run and their hooks are held by a record nothing
+    // will unwind, because `arm()` is never reached.
+    const parts = probe();
+    const root = document.createElement('div');
+    const item = document.createElement('div');
+    const context: FeatureContext = {
+      realm: createRealm(root),
+      root,
+      report: (): void => {},
+    };
+    const config: SortableConfig = {
+      items: () => [item, item],
+      onReorder: () => ReorderResolution.accept(),
+      axis: parts.axis,
+      plugins: [parts.plugin],
+    };
+
+    expect(() => {
+      const slots = assemble(mergeFragments(config, []), context);
+
+      void slots;
+      copyUniqueItems(config.items());
+    }).toThrow(/same element twice/u);
+
+    // The assertion the shipped order satisfies is the one this fails.
+    expect(parts.ran).toEqual(['axis', 'plugin']);
+    expect(parts.retired).toEqual([]);
+  });
+
+  it('should be discriminated by the pre-D-80 argument order', () => {
+    // **Negative control for F-69.** The pull and the assembly as sibling
+    // arguments, evaluated right to left — the swap no reviewer would flag,
+    // because neither argument reads as ordered.
+    const parts = probe();
+    const root = document.createElement('div');
+    const context: FeatureContext = {
+      realm: createRealm(root),
+      root,
+      report: (): void => {},
+    };
+    const config: SortableConfig = {
+      items: () => {
+        throw new TypeError('consumer pull');
+      },
+      onReorder: () => ReorderResolution.accept(),
+      axis: parts.axis,
+      plugins: [parts.plugin],
+    };
+    const sibling = (
+      slots: unknown,
+      items: readonly HTMLElement[],
+    ): unknown => [slots, items];
+
+    expect(() =>
+      sibling(assemble(mergeFragments(config, []), context), config.items()),
+    ).toThrow(/consumer pull/u);
+
+    expect(parts.ran).toEqual(['axis', 'plugin']);
+    expect(parts.retired).toEqual([]);
+  });
+});
+
+/**
+ * **B-9 (c), through the public entry** (P18A-15). The clause's own framing is
+ * a statement about `sortable()` — a later `Partial` carrying `axis: undefined`
+ * is a legal value, and the merge's `undefined` skip is the only thing between
+ * it and a required slot that is `undefined` at the seam. Every assertion for
+ * it called `mergeFragments` directly, so a change that stopped routing
+ * `sortable()`'s fragments through the merge, or that reordered the required
+ * argument against the fragments, would have left them all green.
+ *
+ * The positive row is what stops the negative one passing vacuously: if the
+ * fragments never reached the merge at all, "the slot survived" would be true
+ * for the wrong reason.
+ */
+describe('the required first argument, through the public entry', () => {
+  const mount = (): Readonly<{ root: HTMLElement; item: HTMLElement }> => {
+    const root = document.createElement('div');
+    const item = document.createElement('div');
+
+    root.append(item);
+    document.body.append(root);
+    cleanup.push(() => root.remove());
+
+    return { root, item };
+  };
+
+  const base = (item: HTMLElement): SortableConfig => ({
+    items: () => [item],
+    onReorder: () => ReorderResolution.accept(),
+    axis: y(),
+  });
+
+  it('should let a later fragment through to the merge', () => {
+    const { root, item } = mount();
+    const ran: string[] = [];
+    const replacement: AxisInstaller = (context) => {
+      ran.push('replacement');
+      return y()(context);
+    };
+
+    const controller = sortable(root, base(item), { axis: replacement });
+
+    cleanup.push(() => void controller.destroy());
+    expect(ran).toEqual(['replacement']);
+  });
+
+  it('should not let a later fragment clear a required slot', () => {
+    // `axis: undefined` is a legal `Partial` value the compiler accepts. If the
+    // skip went, the assembler would dereference a resolver that is not there
+    // and this construction would throw.
+    const { root, item } = mount();
+
+    const controller = sortable(root, base(item), {
+      axis: undefined,
+      items: undefined,
+      onReorder: undefined,
+    });
+
+    cleanup.push(() => void controller.destroy());
+    expect(controller.invalidate).toBeTypeOf('function');
   });
 });

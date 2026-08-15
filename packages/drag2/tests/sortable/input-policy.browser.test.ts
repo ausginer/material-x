@@ -344,30 +344,30 @@ function build(options: BuildOptions = {}): Fixture {
     );
   }
 
-  const fragments: Array<Partial<SortableConfig>> = [
-    y(),
-    {
-      onReorder: (request) => {
-        requests.push(request);
-        return ReorderResolution.accept();
-      },
-      onStart: (item) => {
-        starts.push(item);
-      },
-      onEnd: (result) => {
-        // D-62: the fixture partitions the four arms the library no longer
-        // partitions for it.
-        if (result.type === 'accepted' || result.type === 'noop') {
-          finishes.push(result);
-        } else {
-          cancels.push(result);
-        }
-      },
-      onError: (error) => {
-        errors.push(error);
-      },
+  const config: SortableConfig = {
+    items: () => rows,
+    axis: y(),
+    onReorder: (request) => {
+      requests.push(request);
+      return ReorderResolution.accept();
     },
-  ];
+    onStart: (item) => {
+      starts.push(item);
+    },
+    onEnd: (result) => {
+      // D-62: the fixture partitions the four arms the library no longer
+      // partitions for it.
+      if (result.type === 'accepted' || result.type === 'noop') {
+        finishes.push(result);
+      } else {
+        cancels.push(result);
+      }
+    },
+    onError: (error) => {
+      errors.push(error);
+    },
+  };
+  const fragments: Array<Partial<SortableConfig>> = [];
 
   if (options.useHandle) {
     const selector = options.handleSelector ?? '.grip';
@@ -375,7 +375,7 @@ function build(options: BuildOptions = {}): Fixture {
     fragments.push({ handle: (item) => item.querySelector(selector) });
   }
 
-  const controller = sortable(root, { items: () => rows }, ...fragments);
+  const controller = sortable(root, config, ...fragments);
 
   cleanup.push(() => {
     listeners.abort();

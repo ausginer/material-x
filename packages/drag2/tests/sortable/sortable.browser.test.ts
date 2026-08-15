@@ -2660,6 +2660,7 @@ describe('the spatial action legality guard', () => {
         destroy: (): Promise<void> => Promise.resolve(),
       },
       [item],
+      [item],
       {
         ...EMPTY_SLOTS,
         resolveInsertion: () => {
@@ -2748,6 +2749,7 @@ describe('a pointerless release with no destination', () => {
 
         destroy: (): Promise<void> => Promise.resolve(),
       },
+      [item],
       [item],
       { ...EMPTY_SLOTS },
     );
@@ -2999,6 +3001,7 @@ describe('the displacement view lifetime', () => {
         destroy: (): Promise<void> => Promise.resolve(),
       },
       items,
+      [...items],
       { ...EMPTY_SLOTS, ...overrides },
     );
 
@@ -3126,6 +3129,7 @@ describe('the displacement view lifetime', () => {
         destroy: (): Promise<void> => Promise.resolve(),
       },
       items,
+      [...items],
       { ...EMPTY_SLOTS, beforeMove: [(): void => {}] },
     );
 
@@ -3226,7 +3230,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       closed: false,
       destroy: (): Promise<void> => Promise.resolve(),
     };
-    const rt = createSortableRuntime(host, [item, sibling], {
+    const rt = createSortableRuntime(host, [item, sibling], [item, sibling], {
       ...EMPTY_SLOTS,
       ...overrides,
     });

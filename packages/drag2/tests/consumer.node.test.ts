@@ -100,6 +100,7 @@ import {
   ReorderResolution,
   sortable,
   type AcceptedReorderResolution,
+  type AxisInstaller,
   type CancelStage,
   type CollectionSnapshot,
   type DragErrorContext,
@@ -137,10 +138,40 @@ import {
 declare const root: HTMLElement;
 declare const items: readonly HTMLElement[];
 
+// **The \`axis\` slot's alias is hoistable from the ordinary tier** (D-78,
+// P18A-05). The rule this pins is _a public type's closure resolves within its
+// own tier plus the tiers below it_, and the two halves are asserted together:
+// the **name** ships from \`sortable.js\`, so this \`const\` compiles with no
+// deeper import — while its closure does **not**, which is what the
+// \`@ts-expect-error\`s on \`SortableContribution\`, \`InsertionGeometry\` and
+// \`FeatureContext\` below still say. Without the re-export a consumer could
+// fill the slot and never hoist the installer out of the object literal, which
+// is the surface defect F-51 names.
+//
+// **\`context\` is not annotated on purpose.** Its type is \`FeatureContext\`,
+// which this file cannot import from here — contextual typing resolves it
+// structurally anyway, which is the fact D-78 retracts the old opacity claim
+// over.
+const hoistedAxis: AxisInstaller = (context) => {
+  void context.root;
+
+  return {
+    insertion: {
+      resolve: () => null,
+      invalidate: (): void => {},
+      retire: (): void => {},
+    },
+  };
+};
+
 const list: SortableController = sortable(
   root,
-  y(),
   {
+    // **D-77**: one required config argument, and \`y()\` is the installer
+    // itself rather than a one-key fragment. \`y()\` rather than
+    // \`hoistedAxis\` because the stock rule is what an ordinary consumer
+    // writes; the hoisted one is asserted assignable below.
+    axis: y(),
     items: () => items,
     onReorder: (request: ReorderRequest) => {
       void request.from;
@@ -243,6 +274,12 @@ declare const landingOptions: LandingOptions;
 declare const layoutOptions: LayoutAnimationOptions;
 
 void [run, behavior, onReorder, preset, landingOptions, layoutOptions];
+
+// Assignable to the slot as well as nameable: a hoisted installer is only a
+// writable surface if it can go back into the config it was hoisted out of.
+const hoistedFragment: Partial<SortableConfig> = { axis: hoistedAxis };
+
+void hoistedFragment;
 
 // Inference through the *packed* declarations, with no explicit type argument.
 const inferred = draggable(root, behavior);

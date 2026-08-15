@@ -168,7 +168,7 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | long landing duration | `tests/sortable/features.browser.test.ts` — _should hold settlement open until the animation finishes_ | I-9 |
 | custom animation runner | `tests/sortable/features.browser.test.ts` — _should let a middle-tier runner replace the default entirely_ | I-24, D-63 |
 | the default landing timing is the retained shipped `{ duration: 200, easing: 'ease' }` | `tests/sortable/features.browser.test.ts` — _should default the easing to the retained shipped value_, _…the duration…_ | D6, ledger §7 |
-| a `duration` thunk is resolved and validated **once per landing, before** the reduced-motion collapse | `tests/sortable/features.browser.test.ts` — _should read a duration thunk under a reduced-motion preference too_; _should classify an invalid thunk result under a reduced-motion preference_ | D4, L-6 |
+| a `duration` thunk is resolved and validated **once per landing, before** the reduced-motion collapse | `tests/sortable/features.browser.test.ts` — _should read a duration thunk under a reduced-motion preference too_; _should classify an unbounded thunk result under a reduced-motion preference_ | D4, L-6, D-77 |
 | interrupted and retargeted displacement | `tests/sortable/displacement.browser.test.ts` — _should replay a still-running row from where it visually is_ | D-7 |
 
 ## Construction model — new
@@ -253,6 +253,9 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 | the renamed constants are what `kernel.js` publishes, by value, and the old names are gone | `tests/exports.node.test.ts` — _should export exactly the frozen runtime surface_ | D-68, D-74 |
 | every decision the ledger marks unimplemented is listed, and every listed decision is marked | `tests/decisions.node.test.ts` — _should list every decision its own row marks as unimplemented_, _should mark every decision it lists_ | F-63, K-5 |
 | a listed decision that has quietly landed fails its own row | `tests/decisions.node.test.ts` — _should hold every witness it claims_ | F-63, K-5 |
+| the three destinations — `Phase <n>`, `Before Phase <n>`, `Remediation` — are read by **both** halves | `tests/decisions.node.test.ts` — _should read a numbered phase from both halves_, _should read a pre-phase destination from both halves_, _should read a remediation destination from both halves_ | F-70 |
+| a destination outside the closed vocabulary **fails** rather than being skipped by both halves at once | `tests/decisions.node.test.ts` — _should refuse a marker destination outside the vocabulary_, _should refuse a row destination outside the vocabulary_, _should spell every destination in the closed vocabulary_ | F-70 |
+| a marker or a deferred row that does not parse is a failure, and `\| D-nn \|` outside the section is not one | `tests/decisions.node.test.ts` — _should refuse a marker it cannot parse rather than skipping it_, _should refuse a table row it cannot parse rather than skipping it_, _should not read the decision tables as deferred rows_ | F-70 |
 
 ## Collection staging — new
 
@@ -397,7 +400,26 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 | **one** `onEnd`, four arms, told apart by the discriminant alone | `tests/consumer.node.test.ts` — the packed-consumer fixture switches on `result.type` | D-62, F-41 |
 | the terminal slot is one slot and defaults to null | `tests/sortable/assemble.browser.test.ts` — _should leave the terminal callbacks null when uninstalled_ | D-62 |
 | a custom runner is authorable from the middle tier, without `landing()` | `tests/sortable/features.browser.test.ts` — _should let a middle-tier runner replace the default entirely_ | D-63, D-61 |
-| the timing options are validated **unconditionally** now | `tests/sortable/options.node.test.ts` — _should validate the duration unconditionally_ | D-63 |
+| ~~both `duration` forms are judged at the **same instant**, against the one value that can hang the gate~~ · **the cited tests assert construction non-throwing, which is a deletion assertion, not this one** (P18A-19) — restated as the two rows below | `tests/sortable/options.node.test.ts` — _should not refuse Infinity at construction either_, _should no longer refuse a negative duration at construction_ | D-63, D-77 |
+| the retained `=== Infinity` guard refuses **both** input forms at settlement, by message and by code | `tests/sortable/features.browser.test.ts` — _should refuse an unbounded fixed duration at settlement_, _should refuse an unbounded contextual duration at settlement_ | D-77, P18A-19 |
+| refusing it is what keeps the terminal reachable — the operation still publishes exactly one | `tests/sortable/features.browser.test.ts` — _should still publish exactly one terminal for a refused duration_ | D-66, D-77, P18A-19 |
+| the deleted domain checks are asserted **as deleted**, each paired with what answers instead | `tests/sortable/options.node.test.ts` — _should no longer refuse a negative distance_, _should no longer refuse a non-finite distance_, _should not be checked for being functions_, _should no longer refuse a negative duration_ (layoutAnimation) | D-77 |
+| a missing axis loses its **message**, not its failure, and the dereference that replaces it retires every installer that already ran | `tests/sortable/assemble.browser.test.ts` — _should no longer diagnose a missing axis with a library message_, _should unwind when an axis installer contributes no insertion geometry_ | D-77 |
+| a later `Partial` fragment cannot clear a required slot with `undefined` | `tests/sortable/options.node.test.ts` — _should not let a later fragment clear a required slot with undefined_, _should not let a later fragment clear items or onReorder either_ | D-77, B-9 |
+| …and the same, **through the public entry**, paired with a positive so it cannot pass vacuously | `tests/sortable/composition.browser.test.ts` — _should not let a later fragment clear a required slot_, _should let a later fragment through to the merge_ | D-77, B-9 (c), P18A-15 |
+
+## The D-77 landing remediation — new (D-78, D-79, D-80)
+
+| Row | Test | ID |
+| --- | --- | --- |
+| `AxisInstaller` is **hoistable** from `sortable.js` by a consumer importing nothing deeper, while its closure stays at the middle tier | `tests/consumer.node.test.ts` — _should compile a consumer against the packed declarations_ (the `hoistedAxis` const and the surviving `@ts-expect-error`s on `SortableContribution`/`InsertionGeometry`/`FeatureContext`) | D-78 |
+| the ordinary tier's closure resolves within `sortable.js ∪ drag.js ∪ sortable/feature.js` | `tests/docs.node.test.ts` — _should close the ordinary tier over the ordinary tier and the ones below it_ | D-78 |
+| a duplicated element is refused **before any installer runs** — asserted as _nothing ran_, not as _everything was retired_ | `tests/sortable/composition.browser.test.ts` — _should refuse a duplicated element before any installer runs_ | D-80 (b), F-68 |
+| a throwing `items()` is refused before any installer runs, by statement order rather than by argument position | `tests/sortable/composition.browser.test.ts` — _should refuse a throwing pull source before any installer runs_ | D-80 (b), F-69 |
+| installers that **did** run are still retired on `destroy()`, so the guarantee is not met by recording nothing | `tests/sortable/composition.browser.test.ts` — _should retire every installer it ran when the controller is destroyed_ | D-80 (b) |
+| **negative controls:** both pre-D-80 arrangements are reconstructed and shown stranding every hook | `tests/sortable/composition.browser.test.ts` — _should be discriminated by the pre-D-80 validation position_, _should be discriminated by the pre-D-80 argument order_ | D-80 (b), F-68, F-69 |
+| the platform's refusal of `-1` arrives at the stage the deleted check reached — the premise of the deletion | `tests/sortable/features.browser.test.ts` — _should classify an out-of-domain contextual result at settlement_ | D-79 |
+| both axis modules return the **installer**, hoisted into a typed const, and the fixed landing form compiles | `docs/revision/revision-2.ts` (type fixture) | B-9 (b), P18A-14 |
 | `duration` is called once per landing, with the trajectory | `tests/sortable/features.browser.test.ts` — _should invoke duration once per landing, with the trajectory_ | D-67 |
 | a shipped zero-argument thunk still works | `tests/sortable/features.browser.test.ts` — _should keep a zero-argument thunk working_ | D-67, F-52, L-6 |
 | an out-of-domain contextual result classifies at settlement | `tests/sortable/features.browser.test.ts` — _should classify an out-of-domain contextual result at settlement_ | D-67 |

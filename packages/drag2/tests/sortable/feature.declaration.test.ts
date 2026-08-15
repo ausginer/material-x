@@ -12,9 +12,12 @@ describe('SortableInstaller', () => {
   it('should accept a function literal authored outside the package', () => {
     // **Inverted by D-45 and D-61, and the inversion is the decision.** The
     // brand made third-party authoring *impossible*; the middle tier makes it
-    // supported. Opacity is now a property of which entry you imported — an
-    // ordinary consumer on `sortable.js` still cannot write this, because the
-    // alias has no structure there.
+    // supported. ~~Opacity is now a property of which entry you imported — an
+    // ordinary consumer on `sortable.js` still cannot write this.~~ **Retracted
+    // by D-78**: contextual typing resolves a parameter's type structurally
+    // whether or not its alias is re-exported, so an ordinary consumer can
+    // write it inline. What the tier decides is where the name is declared and
+    // what you import to **hoist** one — which is what the row below tests.
     const installer: SortableInstaller = () => ({});
 
     void installer;

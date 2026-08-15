@@ -245,30 +245,19 @@ export const NOOP_START = (): void => {};
 export const DEFAULT_THRESHOLD = 8;
 
 /**
- * The one numeric-domain check every public option goes through.
+ * ~~`requireFinite` — the one numeric-domain check every public option went
+ * through.~~ **Deleted with the rule that required it** (D-77).
  *
- * Called at **construction** wherever the value exists by then, so the
- * offending call is still on the stack — the same rule `copyUniqueItems`
- * follows for a duplicate item. **One option does not reach it there**: a
- * contextual `landing({ duration })` is range-checked per landing, because its
- * result does not exist until then (D-67). ~~and `landing({ run })` suppresses
- * the duration domain entirely~~ — that second exception went with `run`
- * (D-63). A `NaN` threshold silently activates on nothing and a `NaN` duration
- * silently produces an animation that never finishes; both are far cheaper to
- * diagnose here than three seams later. The type says `number`, but a
- * JavaScript consumer is not bound by that, so the `typeof` test earns its
- * place.
+ * It had three callers and none of them survives the re-derivation: `threshold`
+ * is consumer-owned, because a value outside its domain starts no operation;
+ * `layoutAnimation({ duration })` holds no gate, so an unbounded one costs the
+ * library nothing; and `landing({ duration })` — the one option whose bad value
+ * can hang the settlement gate — narrows to a single `=== Infinity` comparison
+ * made at the landing, since `animate()` rejects every other out-of-domain
+ * value itself and *accepts* `Infinity`, which it then never completes
+ * (`.plan/measurements/animate-duration-domain.md`, D-79).
+ *
+ * Its own justification is what retired it: it argued a bad value would
+ * otherwise be diagnosed "three seams later", and being diagnosed at a seam is
+ * classification (D-64, D-66), not a defect.
  */
-export function requireFinite(
-  value: number,
-  label: string,
-  minimum: number,
-): number {
-  if (typeof value !== 'number' || !Number.isFinite(value) || value < minimum) {
-    throw new TypeError(
-      `sortable: ${label} must be a finite number >= ${minimum}`,
-    );
-  }
-
-  return value;
-}

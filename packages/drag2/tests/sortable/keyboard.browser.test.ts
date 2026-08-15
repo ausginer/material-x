@@ -171,32 +171,37 @@ function build(options: Options = {}): Fixture {
 
   // D-44's pull source; `replace()` swaps the identity and signals.
   let current: readonly HTMLElement[] = items;
-  const controller = sortable(root, y(), ...fragments, {
-    items: () => current,
-    onReorder(request) {
-      requests.push(request);
+  const controller = sortable(
+    root,
+    {
+      items: () => current,
+      axis: y(),
+      onReorder(request) {
+        requests.push(request);
 
-      return (
-        options.onReorder?.(request, fixture) ?? ReorderResolution.accept()
-      );
+        return (
+          options.onReorder?.(request, fixture) ?? ReorderResolution.accept()
+        );
+      },
+      onStart(item): void {
+        started.push(item);
+        options.onStart?.(fixture);
+      },
+      onEnd(result): void {
+        // D-62: one callback, and the fixture keeps the two arrays this suite's
+        // assertions are written against.
+        if (result.type === 'accepted' || result.type === 'noop') {
+          finishes.push(result);
+        } else {
+          cancels.push(result);
+        }
+      },
+      onError(error): void {
+        errors.push(error);
+      },
     },
-    onStart(item): void {
-      started.push(item);
-      options.onStart?.(fixture);
-    },
-    onEnd(result): void {
-      // D-62: one callback, and the fixture keeps the two arrays this suite's
-      // assertions are written against.
-      if (result.type === 'accepted' || result.type === 'noop') {
-        finishes.push(result);
-      } else {
-        cancels.push(result);
-      }
-    },
-    onError(error): void {
-      errors.push(error);
-    },
-  });
+    ...fragments,
+  );
 
   root.setPointerCapture = (): void => {};
   root.releasePointerCapture = (): void => {};

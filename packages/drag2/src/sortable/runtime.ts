@@ -26,7 +26,6 @@ import { createFrameTask, type FrameTask } from '../kernel/invalidation.ts';
 import type { BehaviorLiftSession } from '../kernel/presentation.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { KernelHost } from '../kernel/spec.ts';
-import { copyUniqueItems } from './collection.ts';
 import type { CollectionSnapshot, Insertion } from './domain.ts';
 import type { SortableSlots } from './slots.ts';
 
@@ -149,8 +148,16 @@ export type SortableRuntime = {
   pendingSpatial: number;
 };
 
+/**
+ * `source` is the consumer's own array and `items` is the validated copy of it.
+ * **Both are supplied rather than derived here** (D-80 (b)): the validation
+ * moved to the construction boundary, ahead of the first installer, because
+ * this function runs inside `install` — after `assemble` has returned — and a
+ * throw from here left every recorded `retire` hook unrun (F-68).
+ */
 export function createSortableRuntime(
   host: KernelHost,
+  source: readonly HTMLElement[],
   items: readonly HTMLElement[],
   slots: SortableSlots,
 ): SortableRuntime {
@@ -174,12 +181,16 @@ export function createSortableRuntime(
     host,
     slots,
     frame,
-    // Copied *and* validated, so a caller mutating its own array cannot change
-    // a snapshot the behavior has already published, and the identity
-    // precondition holds from construction rather than only from the first
-    // the first `invalidate()`.
-    snapshot: { items: copyUniqueItems(items), version: 0 },
-    source: items,
+    // Already copied *and* validated by the caller (D-80 (b)), so a consumer
+    // mutating its own array cannot change a snapshot the behavior has
+    // published, and the identity precondition holds from construction rather
+    // than only from the first `invalidate()`.
+    snapshot: { items, version: 0 },
+    // **The consumer's array, not the copy** (D-44). This is the identity a
+    // later pull is compared against; storing the copy would make the first
+    // `invalidate()` take the structural branch against an unchanged
+    // collection.
+    source,
     view: null,
     placeholder: null,
     lift: null,
