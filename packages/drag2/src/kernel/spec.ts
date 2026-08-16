@@ -9,7 +9,11 @@
 import type { CancelStage, FailureStage } from './failures.ts';
 import type { Draft, Frame, FramePartOf } from './frames.ts';
 import type { LifetimeScope } from './lifetimes.ts';
-import type { BehaviorLiftSession, LiftMode } from './presentation.ts';
+import type {
+  BehaviorLiftSession,
+  InheritedSpace,
+  LiftMode,
+} from './presentation.ts';
 import type { DOMRealm } from './realm.ts';
 /**
  * **One declaration each, re-exported** (F-61). `ActionTransition` and
@@ -189,6 +193,34 @@ export type ActivationScope = Readonly<{
    * landing coordinate space a function of that choice.
    */
   boxPre: OffsetBox;
+  /**
+   * The inverse of the linear part the visual **inherits** — everything
+   * strictly above it, its own transform and zoom excluded — or `null` for the
+   * identity, which is the common case (D-85).
+   *
+   * **Derived from the measurement `acquireLift` has already taken, before it
+   * mutates anything.** No second traversal, no DOM read and no `Box` crossing
+   * the seam: the kernel reads four coefficients out of the buffer it filled,
+   * and a behavior that needs a local delta multiplies rather than measures.
+   * That is what makes it one activation snapshot instead of two — the second
+   * walk a behavior would take runs *after* positioning, dimensions, top-layer
+   * state and transforms have changed, and under a lifted mode it reads the
+   * viewport rather than the ancestry the operation actually began in.
+   *
+   * **Not the same value as the lift session's own projection**, and the two
+   * must never be conflated: `compose`'s is the space an *in-place* translate
+   * acts in and is `null` for both lifted modes. This one is a fact about the
+   * **ancestry at grab** and is computed for every mode.
+   *
+   * **A delta, never a point.** The linear part alone maps a delta; a point
+   * would additionally need the translation, and box-quad exposes none (D-72).
+   *
+   * **One failure policy, because there is one read.** `acquireLift` throws
+   * `FAILURE_ACTIVATION` for an unreadable space and this derives from that
+   * same successful measurement, so *unreadable* cannot diverge; singular and
+   * non-finite spaces resolve to `null`, the identity.
+   */
+  inheritedSpace: InheritedSpace;
   /**
    * The lift capability. The behavior keeps it for `moved`.
    *

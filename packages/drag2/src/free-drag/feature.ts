@@ -108,6 +108,46 @@ export type FreeDragContribution = Readonly<{
 
   /** Run in **reverse** installation order — see `assemble`. */
   retire?: Disposer;
+
+  /**
+   * **Mutual exclusion, not slots** (D-88, superseding D-87's mechanism).
+   *
+   * The rule is **key-set totality**: both contribution records declare the
+   * same key set, and a key a behavior does not implement it declares
+   * `?: never`. Free drag implements three of the seven and excludes these
+   * four; the sortable implements six and excludes `constrain`. **The boundary
+   * is asymmetric because the slot sets are**, which is what D-87's _one
+   * exclusion per direction_ got wrong — it described a symmetry that does not
+   * exist, closed the two *defining* capabilities, and left `placeholder` and
+   * both displacement hooks open.
+   *
+   * **What appeared to close them was TypeScript's weak-type detection**, not
+   * the exclusions: an all-optional target refuses an object with no property
+   * in common. That is not a boundary. Add the one member the two records
+   * genuinely share — `retire` — and it is satisfied, after which a hoisted
+   * **unannotated** installer carrying `{ placeholder, retire }` compiles into
+   * free drag's public `plugins` and is silently discarded by an assembler
+   * that reads three slots. A supported middle-tier API taking a value and
+   * doing nothing with it is worse than one that refuses it.
+   *
+   * Each name is the **defining capability of the other behavior** rather than
+   * an arbitrary marker, so the type says the true thing: a free-drag
+   * contribution has no insertion, no placeholder and no displacement hooks,
+   * and an object carrying one is not one.
+   *
+   * **The obligation is a check rather than a promise.** D-87 wrote the twin
+   * rule as future work while it was already owed for three existing slots;
+   * `tests/composition.declaration.test.ts` now asserts `keyof` equality
+   * between the two records, so a slot added without its twin fails at the
+   * moment it is added.
+   *
+   * An installer returning `{}` stays assignable to both, correctly — an empty
+   * contribution genuinely is valid for either behavior.
+   */
+  insertion?: never;
+  placeholder?: never;
+  beforeInsertionMove?: never;
+  afterInsertionMove?: never;
 }>;
 
 export type FreeDragInstaller = (

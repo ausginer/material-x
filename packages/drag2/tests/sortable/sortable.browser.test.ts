@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DraggableError, type DraggableErrorCode } from '../../src/drag.ts';
+import { toDraggableError } from '../../src/kernel/errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  FAILURE_ADMISSION,
   FAILURE_RELEASE,
 } from '../../src/kernel/failures.ts';
 import {
@@ -765,6 +767,39 @@ describe('the admission queue boundary', () => {
     press(harness.items[1]!);
     move(40);
     expect(harness.calls).toEqual([]);
+  });
+
+  it('should classify a throwing visual resolver as a consumer fault', async () => {
+    // **D-84's sortable half, which was stated for both behaviors and pinned in
+    // only one** (CE1-07). The decision reads *a throwing `visual` resolver is
+    // `FAILURE_ADMISSION` (1) → `consumer`, in both behaviors* — free drag
+    // calls the resolver inside `admit`, the sortable inside `seedDraft`,
+    // admission's second half — and every sortable `visual` row asserted the
+    // *destroy* barrier instead, which is a different property. A claim whose
+    // only test lives in the other behavior is, for this behavior,
+    // indistinguishable from an unasserted one (F-74).
+    //
+    // The code was already right; what was missing was the instrument. The
+    // coarse code is read from the kernel's own mapping rather than retyped, so
+    // a remap fails here instead of agreeing with a stale literal.
+    const harness = createHarness({
+      getVisual(): HTMLElement {
+        throw new Error('visual: broken');
+      },
+    });
+
+    activate(harness);
+    await Promise.resolve();
+
+    expect(harness.errors.map((entry) => entry.code)).toEqual([
+      toDraggableError(FAILURE_ADMISSION, null).code,
+    ]);
+    // Admission runs before an operation identity exists, so there is nothing
+    // to settle and no terminal is owed (Q-1, D-83) — `onError` is the only
+    // call, which is what makes this the admission row rather than an
+    // activation one.
+    expect(harness.calls).toEqual(['onError']);
+    expect(reported).toEqual([]);
   });
 
   it('should treat destroy from the visual resolver as an immediate terminal barrier', () => {

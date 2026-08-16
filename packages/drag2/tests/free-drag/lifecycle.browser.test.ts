@@ -413,3 +413,84 @@ describe('the landing origin', () => {
     expect(seen).toEqual(['translate(80px, 50px) matrix(1, 0, 0, 1, 0, 0)']);
   });
 });
+
+describe('the final activation barrier', () => {
+  it('should publish no start when a bounds source destroys the controller', async () => {
+    // **E-02, and the row the contract already claimed.** 07's terminal table
+    // said the `onStart` latch is read immediately before the call; the
+    // implementation read it only after the optional `axis` source, then ran
+    // `deriveMotion` — whose `constrain.apply` reaches a third-party constraint
+    // and, with `bounds()` installed, the consumer's own rect source — and
+    // called `onStart` with no further reading. The review's probe expected
+    // zero starts after logical closure and got one.
+    const composed = compose({
+      fragments: [
+        bounds(() => {
+          void composed.controller.destroy();
+          return new DOMRectReadOnly(0, 0, 10_000, 10_000);
+        }),
+      ],
+    });
+
+    activate(composed);
+    await settled();
+
+    expect(composed.starts).toEqual([]);
+    expect(composed.ends).toEqual([]);
+    expect(composed.errors).toEqual([]);
+  });
+
+  it('should still publish a start when the same source leaves the controller alive', () => {
+    // The positive control. Without it the row above passes against an
+    // activation that never notifies at all.
+    const composed = compose({
+      fragments: [bounds(() => new DOMRectReadOnly(0, 0, 10_000, 10_000))],
+    });
+
+    activate(composed);
+
+    expect(composed.starts).toHaveLength(1);
+  });
+});
+
+describe('a resolver that destroys and then throws', () => {
+  it('should reach no onError from admission', async () => {
+    // **E-03.** `runAdmission` catches a throwing `admit` and reported the
+    // fault unconditionally — so a `handle` resolver that called `destroy()`
+    // and *then* threw had its own destruction handed back to it through a
+    // declared callback, after `destroy()` had returned. The floor forbids that
+    // outright, and the guard is kernel-side because the rule is controller
+    // lifetime rather than domain settlement.
+    const composed = compose({
+      config: {
+        handle: () => {
+          void composed.controller.destroy();
+          throw new Error('handle: gone');
+        },
+      },
+    });
+
+    press(composed.item);
+    await settled();
+
+    expect(composed.errors).toEqual([]);
+    expect(composed.ends).toEqual([]);
+  });
+
+  it('should still report when it throws without destroying', async () => {
+    // The positive control for the same guard: an ordinary throwing resolver is
+    // a consumer fault and is still surfaced.
+    const composed = compose({
+      config: {
+        handle: () => {
+          throw new Error('handle: broken');
+        },
+      },
+    });
+
+    press(composed.item);
+    await settled();
+
+    expect(composed.errors).toHaveLength(1);
+  });
+});

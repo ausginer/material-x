@@ -207,6 +207,41 @@ describe('the published file list', () => {
     }
   });
 
+  it('should keep the geometry package out of every behavior', async () => {
+    // **D-85's source-level half** (E-01). The kernel measures the box space
+    // once, in `acquireLift`, and hands the four coefficients down on
+    // `ActivationScope`. Free drag used to take its own `coordinates()`
+    // traversal — with four private copies of box-quad's index constants — and
+    // that read ran *after* acquisition had already moved the visual.
+    //
+    // Asserted on the source rather than through the import graph, because
+    // `@ydinjs/box-quad` is a bare specifier and `reachableFrom` follows only
+    // relative ones. The claim is narrow and exact: no behavior module reaches
+    // the traversal, and no behavior module carries a `Box` index of its own.
+    const files = ['free-drag', 'sortable'];
+    const offenders: string[] = [];
+
+    for (const directory of files) {
+      const dir = join(SRC, directory);
+      // The two directories are read in sequence; each directory's own files
+      // are read in parallel below.
+      // oxlint-disable-next-line no-await-in-loop
+      const names = await readdir(dir);
+      // oxlint-disable-next-line no-await-in-loop
+      const sources = await Promise.all(
+        names.map((name) => readFile(join(dir, name), 'utf8')),
+      );
+
+      for (const [index, source] of sources.entries()) {
+        if (/from '@ydinjs\/box-quad'|BOX_ANCESTOR_/u.test(source)) {
+          offenders.push(`${directory}/${names[index]!}`);
+        }
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
   it('should not ship a directory nothing emits into', async () => {
     // The reverse drift: an allowlist entry that no longer names anything.
     const { files } = (await readJSON('package.json')) as {

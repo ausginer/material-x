@@ -1,0 +1,355 @@
+/**
+ * **The accepted landing anchor, and what it must not call** — D-89, closing
+ * CE1-02; plus D-90's calling convention and D-91's `moveTo` domain, which are
+ * the two other places a third-party constraint or a consumer point reaches
+ * committed state.
+ *
+ * The accepted arm used to answer by calling `deriveMotion`, whose last
+ * statement is `constrain.apply`. Three documents said otherwise at once: the
+ * seam's own comment claimed *no consumer call and no DOM read*, I-36's
+ * Category-1 table omitted the slot entirely, and D-81's deliberately
+ * re-derived four-seam enumeration missed it — while `host.closed` was read
+ * immediately before `home` and nowhere before the derivation, so a third-party
+ * `apply` ran after logical closure with the resolver beside it guarded.
+ *
+ * **The assertions are on the constraint, not on the anchor's value.** The
+ * value is unchanged by the fix — the arm re-computed the same numbers from the
+ * same committed frame — so a fixture checking where the visual landed passes
+ * either way. What changed is the re-entry, and that is what these rows read.
+ *
+ * **Two things this file records rather than papers over.**
+ *
+ * The accepted anchor's value has **no public observable**: free drag never
+ * arms a landing for an accepted result, so no `LandingContext.target` is ever
+ * produced for it, and the kernel's authoritative pin is followed immediately
+ * by presentation disposal. 05's requested *the anchor still equals originRect
+ * plus the committed delta* therefore cannot be read through this surface at
+ * all; what stands in its place are the two `home` rows, on the arms that do
+ * reach a landing.
+ *
+ * And the obvious *destroy from the resolver* row is **absent deliberately**:
+ * after `destroy()` the kernel's own `settlementLive` check skips the arm, so
+ * `anchorTarget` is not called at all and the row passes with the defect
+ * restored. The barrier half of CE1-02 is real and is fixed by the same
+ * deletion; it simply has no fixture that can tell the two trees apart.
+ */
+import { describe, expect, it } from 'vitest';
+import { bounds } from '../../src/free-drag/bounds.ts';
+import type {
+  ConstraintView,
+  FreeDragInstaller,
+  MotionConstraint,
+  MotionDraft,
+} from '../../src/free-drag/feature.ts';
+import {
+  FreeDragResolution,
+  type FreeDragConfig,
+} from '../../src/free-drag.ts';
+import type { Point } from '../../src/kernel/types.ts';
+import {
+  activate,
+  frame,
+  freeDragHarness,
+  move,
+  release,
+  settled,
+} from '../support/free-drag.ts';
+
+const { compose, reported } = freeDragHarness();
+
+/**
+ * A constraint that records every `apply`, optionally clamping. The counter is
+ * read at two instants, so the row can say *no further call between them*
+ * rather than *never called*, which would be a claim about the hot path.
+ */
+function countingConstraint(
+  clamp?: (motion: MotionDraft) => void,
+): Readonly<{ fragment: Partial<FreeDragConfig>; applies: number }> {
+  const record = { applies: 0 };
+  const installer: FreeDragInstaller = () => ({
+    constrain: {
+      apply(motion: MotionDraft, _view: ConstraintView): void {
+        record.applies += 1;
+        clamp?.(motion);
+      },
+      invalidate(): void {},
+      retire(): void {},
+    },
+  });
+
+  return {
+    fragment: { plugins: [installer] },
+    get applies(): number {
+      return record.applies;
+    },
+  };
+}
+
+/** Reads where a landing opened and where it was asked to travel to. */
+function recordingLanding(): Readonly<{
+  fragment: Partial<FreeDragConfig>;
+  targets: Point[];
+}> {
+  const targets: Point[] = [];
+  const installer: FreeDragInstaller = () => ({
+    startLanding: (context, done) => {
+      targets.push({ x: context.target.x, y: context.target.y });
+      done();
+      return { destroy: (): void => {} };
+    },
+  });
+
+  return { fragment: { plugins: [installer] }, targets };
+}
+
+describe('the accepted anchor', () => {
+  it('should call no constraint between the release write and the join', async () => {
+    // **D-89's row.** The resolver is left **pending**, which is what isolates
+    // the join: with a synchronous resolver the whole settlement — including
+    // `anchorTarget` — runs inside `release()`, so a count taken after it
+    // already includes the seam under test and the row cannot discriminate.
+    // Holding the drop puts the capture between `release.prepare`'s derivation
+    // and the join, which is exactly the window a fifth `apply` site lives in.
+    let resolveDrop!: (value: FreeDragResolution) => void;
+    const constraint = countingConstraint();
+    const composed = compose({
+      fragments: [constraint.fragment],
+      onDrop: () =>
+        new Promise<FreeDragResolution>((resolve) => {
+          resolveDrop = resolve;
+        }),
+    });
+
+    activate(composed);
+    move(50, 40);
+    release(50, 40);
+    await settled();
+
+    const atRelease = constraint.applies;
+
+    resolveDrop(FreeDragResolution.accept());
+    await settled();
+    await frame();
+    await settled();
+
+    expect(constraint.applies).toBe(atRelease);
+    expect(composed.ends).toHaveLength(1);
+    expect(composed.ends[0]!.type).toBe('accepted');
+  });
+
+  it('should leave the home anchor at the clamped delta', async () => {
+    // **The value control, and it sits on the arm that has one.**
+    //
+    // The accepted anchor's value turns out to have **no public observable**:
+    // free drag never arms a landing for an accepted result — it is already at
+    // its destination (E-07) — so `LandingContext.target` is never produced for
+    // it, and the kernel's authoritative pin is immediately followed by
+    // presentation disposal, which restores the element. So the arm's value is
+    // used once, invisibly, and 05's requested *anchor still equals originRect
+    // plus the committed delta* cannot be read through the public surface at
+    // all. Raised rather than worked around: the rows above assert the claim
+    // D-89 actually makes — the constraint is not re-entered — and this one
+    // asserts that the seam's **other** arms, which do reach a landing, still
+    // answer from the committed geometry.
+    const recorder = recordingLanding();
+    const constraint = countingConstraint((motion) => {
+      motion.x = Math.min(motion.x, 25);
+      motion.y = Math.min(motion.y, 15);
+    });
+    const composed = compose({
+      fragments: [recorder.fragment, constraint.fragment],
+      onDrop: () => FreeDragResolution.reject('nope'),
+      config: { home: () => ({ x: 5, y: 7 }) },
+    });
+
+    activate(composed);
+    move(500, 500);
+    release(500, 500);
+    await settled();
+
+    expect(recorder.targets).toEqual([{ x: 5, y: 7 }]);
+  });
+
+  it('should leave the unconfigured home anchor at the grab position', async () => {
+    // The arm that shares the accepted arm's branch and never derived motion,
+    // so it is the closest observable neighbour: it answers from `originRect`
+    // alone, and it still does.
+    const recorder = recordingLanding();
+    const composed = compose({
+      fragments: [recorder.fragment],
+      onDrop: () => FreeDragResolution.reject('nope'),
+    });
+    const origin = composed.item.getBoundingClientRect();
+
+    activate(composed);
+    move(50, 40);
+    release(50, 40);
+    await settled();
+
+    expect(recorder.targets).toEqual([{ x: origin.left, y: origin.top }]);
+  });
+});
+
+describe('a detached constraint', () => {
+  it('should be called without this at every site', async () => {
+    // **D-90.** The convention is that contribution members are invoked
+    // detached, so this constraint's members are **lifted out of the record
+    // before installation** — which is what a `this`-reading author's code
+    // would meet. The tree was split three ways, so a bound site shows up here
+    // as an undefined-`this` throw on the platform channel rather than as a
+    // wrong value.
+    const seen: string[] = [];
+    const detached: MotionConstraint = {
+      apply(): void {
+        seen.push('apply');
+      },
+      invalidate(): void {
+        seen.push('invalidate');
+      },
+      retire(): void {
+        seen.push('retire');
+      },
+    };
+    const installer: FreeDragInstaller = () => ({
+      constrain: {
+        apply: detached.apply,
+        invalidate: detached.invalidate,
+        retire: detached.retire,
+      },
+    });
+    const composed = compose({ fragments: [{ plugins: [installer] }] });
+
+    activate(composed);
+    composed.controller.invalidate();
+    move(50, 40);
+    release(50, 40);
+    await settled();
+
+    expect(seen).toContain('apply');
+    expect(seen).toContain('invalidate');
+    expect(reported()).toEqual([]);
+    expect(composed.errors).toEqual([]);
+  });
+
+  it('should retire detached as well', async () => {
+    // Two calls, and both are the contract: `spec.retire()` runs the hooks at
+    // **operation** retirement, and controller teardown runs them again. The
+    // count is asserted rather than loosened to *at least one*, because a hook
+    // that stopped running at one of the two would otherwise pass.
+    let retired = 0;
+    const installer: FreeDragInstaller = () => ({
+      constrain: {
+        apply: (): void => {},
+        invalidate: (): void => {},
+        retire: (): void => {
+          retired += 1;
+        },
+      },
+    });
+    const composed = compose({ fragments: [{ plugins: [installer] }] });
+
+    activate(composed);
+    release(30, 10);
+    await settled();
+    await composed.controller.destroy();
+
+    expect(retired).toBe(2);
+    expect(reported()).toEqual([]);
+  });
+
+  it('should leave the first-party bounds() working through the same sites', () => {
+    // The non-discriminating control, recorded as one (F-74): `bounds()` closes
+    // over its state, so it passes whether the sites are bound or detached.
+    // Kept so a later reader does not mistake a `bounds()` fixture for evidence
+    // about the convention.
+    const composed = compose({
+      fragments: [bounds(() => new DOMRectReadOnly(0, 0, 60, 60))],
+    });
+
+    activate(composed);
+    move(500, 500);
+
+    expect(composed.errors).toEqual([]);
+    expect(reported()).toEqual([]);
+  });
+});
+
+describe('a non-finite moveTo()', () => {
+  it('should write nothing into the committed frame', () => {
+    // **D-91, and the poisoning it replaces.** `offsetX` is committed frame
+    // state that every later `deriveMotion` reads, so before this check a
+    // single `NaN` froze the visual on one axis and put `NaN` into every
+    // geometry object for the rest of the operation. The assertion is on the
+    // **next** sample, because that is where the poison would surface.
+    const composed = compose();
+
+    activate(composed);
+    composed.controller.moveTo({ x: Number.NaN, y: 10 });
+    move(50, 40);
+
+    const geometry = composed.moves.at(-1)!;
+
+    expect(Number.isFinite(geometry.viewportDelta.x)).toBe(true);
+    expect(Number.isFinite(geometry.currentRect.x)).toBe(true);
+    expect(composed.rendered()).toEqual([40, 30]);
+  });
+
+  it('should surface the misuse on the platform channel', () => {
+    // Discarded is not silent. The action produces no classified failure, but
+    // a consumer that passed `NaN` has made a mistake the library can see and
+    // says so — on the non-consequential channel, which is the one that cannot
+    // end an operation.
+    const composed = compose();
+
+    activate(composed);
+    composed.controller.moveTo({ x: Number.POSITIVE_INFINITY, y: 10 });
+
+    expect(reported()).toHaveLength(1);
+    expect(composed.errors).toEqual([]);
+  });
+
+  it('should let the operation complete normally', async () => {
+    // **The negative control, and it is half the decision** (D-91). Classifying
+    // the point would end a live drag over a consumer's arithmetic, which is a
+    // worse answer than the poisoning it replaces — so a spurious cancellation
+    // fails this row exactly as the poisoning fails the one above.
+    const composed = compose();
+
+    activate(composed);
+    composed.controller.moveTo({ x: Number.NaN, y: Number.NaN });
+    move(50, 40);
+    release(50, 40);
+    await settled();
+
+    expect(composed.ends).toHaveLength(1);
+    expect(composed.ends[0]!.type).toBe('accepted');
+    expect(composed.errors).toEqual([]);
+  });
+
+  it('should still retarget for a finite point', () => {
+    // The positive control: the check refuses two values and nothing else.
+    const composed = compose();
+    const origin = composed.item.getBoundingClientRect();
+
+    activate(composed);
+    composed.controller.moveTo({ x: origin.left + 60, y: origin.top + 25 });
+
+    expect(composed.rendered()).toEqual([60, 25]);
+  });
+
+  it('should classify a malformed point rather than discarding it', async () => {
+    // **The boundary of the check, asserted so it is not read as general
+    // argument validation** (D-91). A `null` point throws at the read, inside
+    // the seam, and reaches `FAILURE_ACTION_PREPARE` → `presentation` — the
+    // ordinary path for a seam throw, deliberately left alone.
+    const composed = compose();
+
+    activate(composed);
+    composed.controller.moveTo(null as unknown as Point);
+    await settled();
+
+    expect(
+      composed.errors.map((error) => (error as { code: string }).code),
+    ).toEqual(['presentation']);
+  });
+});

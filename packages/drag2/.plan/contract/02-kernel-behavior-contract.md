@@ -871,6 +871,19 @@ type BehaviorLiftSession = Readonly<
   Pick<VisualLiftSession, 'visual' | 'baseTransform' | 'compose' | 'write'>
 >;
 
+/**
+ * The inverse inherited linear part, or `null` for the identity, a singular
+ * space, or a non-finite one — `null` means *the local delta is the viewport
+ * delta*, which is the right answer for an untransformed ancestry and the
+ * honest one for a space that cannot be inverted. (D-85)
+ */
+type InheritedSpace = Readonly<{
+  a: number;
+  b: number;
+  c: number;
+  d: number;
+}> | null;
+
 type ActivationScope = Readonly<{
   /** The element the kernel is lifting — what `admit` returned. */
   visual: HTMLElement;
@@ -904,6 +917,26 @@ type ActivationScope = Readonly<{
    * whole. See §The footprint needs two windows.
    */
   boxPre: OffsetBox;
+  /**
+   * The inverse of the linear part the visual **inherits** — everything
+   * strictly above it, its own transform and zoom excluded — or `null` for the
+   * identity, which is the common case. (D-85)
+   *
+   * **Derived from the measurement `acquireLift` has already taken, before it
+   * mutates anything.** No second traversal, no DOM read, no `Box` crossing the
+   * seam: the kernel reads four coefficients out of the buffer it filled, and a
+   * behavior that needs a local delta multiplies rather than measures.
+   *
+   * **Not the same value as the lift session's own projection**, and the two
+   * must never be conflated: `compose`'s is the space an *in-place* translate
+   * acts in and is `null` for both lifted modes, because a lifted visual is
+   * repositioned into the viewport. This one is a fact about the **ancestry at
+   * grab** and is computed for every mode.
+   *
+   * **A delta, never a point.** The linear part alone maps a delta; a point
+   * would additionally need the translation, and box-quad exposes none (D-72).
+   */
+  inheritedSpace: InheritedSpace;
   /** The lift capability. The behavior keeps it for `moved`. */
   lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */
@@ -912,6 +945,18 @@ type ActivationScope = Readonly<{
   presentation: LifetimeScope;
 }>;
 ```
+
+#### Why `inheritedSpace` is on the scope and not on the session (D-85, E-01)
+
+The review proposed carrying it "most naturally through `BehaviorLiftSession`". **It is the wrong home, on three counts, and the third is a live trap.**
+
+- **The session is a `Pick`, positively selected**, so a member added to it must first be added to `VisualLiftSession` — putting a pre-lift ancestry fact inside the post-lift _write_ capability, whose whole documented purpose is what a behavior may do to the visual **after** acquisition.
+- **The lifetime is wrong.** Every other member of the session describes the lifted state; this describes the state acquisition destroyed. A behavior reading it off the session would reasonably expect it to track `write`.
+- **The session already holds a projection with the same four fields and the same arithmetic, and a different value** — `compose`'s, which is `null` for both lifted modes by design. Two projections in one object, one mode-dependent and one not, is a defect waiting to be written; and reusing the existing one would hand free drag the identity under `LIFT_FLAT`, which is silently wrong rather than loudly wrong.
+
+`ActivationScope` is where the other pre-lift facts already live — `originRect` and `boxPre` are both measured before acquisition and handed down for exactly this reason. The new member joins them, and the rule the scope already follows extends unchanged: **the kernel measures, the behavior derives.** The four coefficients are a fact about the visual's ancestry, not about any behavior's geometry, which is what keeps this an SPI addition rather than a behavior-specific one.
+
+**One failure policy, because there is now one read.** `acquireLift` already throws `FAILURE_ACTIVATION` for an unreadable space, and the projection derives from that same successful measurement — so _unreadable_ cannot diverge. Singular and non-finite spaces resolve to `null`, the identity, which the kernel already does for the in-place case. The split policy E-01 found — one read refusing what the other silently substituted — has no second read left to disagree with.
 
 **The lift is projected for the same reason the lifetime is** (Checkpoint C, C5-01). An earlier version of this revision handed the behavior the whole `VisualLiftSession` and asserted in prose that `rendered` was "kernel-read only" and that the kernel owned disposal. Neither was true of the type. `dispose()` in particular is not a reading hazard but a **sequencing** one: a behavior that calls it from `activation.effect` or `moved` restores the inline-style lease — and, in a lifted mode, the top-layer lease — while the session's recorded delta still describes its last `write`. The landing then samples `from` for a visual that is no longer lifted. That is I-34 broken **through a first-class SPI method**, not through a documented residue, and the difference matters: a residue is a rule the contract states and a participant may break, while this was the API handing out the thing it claims to own.
 
