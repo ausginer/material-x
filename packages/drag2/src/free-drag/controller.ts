@@ -38,7 +38,21 @@ export type FreeDragController = Readonly<{
    * pointer rather than fighting it.
    *
    * `point` is **viewport** space (D-72), like every other point on this
-   * surface.
+   * surface, and its coordinates must both be **finite** (D-91).
+   *
+   * **A non-finite coordinate discards the call.** Nothing is written, no
+   * failure is classified, no `onError` fires and no terminal is published; the
+   * misuse is surfaced on the platform reporter and the drag continues. The
+   * check exists because this value is not read once — it is folded into
+   * committed frame state, so a single `NaN` poisons every later derivation,
+   * every geometry object the consumer is handed, and the target the kernel
+   * pins with. Refusing it before it is written costs the operation nothing,
+   * which is why it is discarded here and *classified* at `home` (E-05): that
+   * one can only be refused by failing the seam that produced it.
+   *
+   * A **malformed** `point` — `null`, missing fields, a throwing accessor — is
+   * deliberately not checked and throws at the read, reaching
+   * `FAILURE_ACTION_PREPARE` → `presentation` like any other seam throw.
    */
   moveTo(point: Point): void;
   cancel(reason?: unknown): void;

@@ -46,7 +46,7 @@
  * of invisible in a missing entry point.
  */
 import { spawn } from 'node:child_process';
-import { mkdtemp } from 'node:fs/promises';
+import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -56,7 +56,11 @@ const MINUTE = 60_000;
 
 type Run = Readonly<{ output: string; code: number | null }>;
 
-function typedoc(out: string, entryPoints?: readonly string[]): Promise<Run> {
+function typedoc(
+  out: string,
+  entryPoints?: readonly string[],
+  extraArgs: readonly string[] = [],
+): Promise<Run> {
   return new Promise((done, fail) => {
     // A JSON target rather than `--emit none`: the run has to actually convert
     // every entry, and the generated-at line is the proof that it did. With
@@ -70,6 +74,7 @@ function typedoc(out: string, entryPoints?: readonly string[]): Promise<Run> {
         'typedoc.json',
         '--json',
         out,
+        ...extraArgs,
         ...(entryPoints ?? []),
       ],
       { cwd: ROOT },
@@ -179,6 +184,60 @@ describe('the documented surface', () => {
       expect(
         output.split('\n').filter((line) => line.includes('warning')),
       ).toEqual([]);
+    },
+    2 * MINUTE,
+  );
+
+  it(
+    'should close the free-drag tier over the ordinary tier and the ones below it',
+    async () => {
+      // **B-3 says the closure check runs per entry, and free drag had none**
+      // (E-08). It relied on the whole-run check above, which resolves across
+      // every entry at once — so a name in free drag's closure that only
+      // resolves through `sortable.js` or `sortable/feature.js` would read as
+      // clean. That is F-60's inversion, pointing at the behavior this package
+      // added second.
+      //
+      // The union is the same one D-78 fixes for the sortable, with free drag's
+      // names in it: the ordinary entry, the shared vocabulary, and the middle
+      // tier below it. It passes today, so this is **missing discrimination**
+      // rather than a current export leak — which is exactly the state an
+      // instrument should be added in, while it is still cheap to trust.
+      //
+      // **The gate is the exit code and the artifact, not the captured
+      // stream** (E-08). The three runs above read `output` twice — once for a
+      // banner and once for the word *warning* — and both readings are fragile
+      // in the same direction: a reworded summary line, a changed log format or
+      // a stream TypeDoc decides not to write make the assertion **weaker**
+      // without failing, which is the worst way for a gate to break. So this
+      // one passes `--treatWarningsAsErrors`, which turns the property under
+      // test into a **non-zero exit status**, and then proves the run actually
+      // converted by reading the JSON it emitted and naming the modules it must
+      // contain. A run that converted nothing produces no file and an empty
+      // module list, so neither half can pass vacuously.
+      //
+      // The three older runs are deliberately left alone: rewriting them is a
+      // change to instruments that are currently green and were not what
+      // Checkpoint E asked about.
+      const dir = await mkdtemp(join(tmpdir(), 'drag2-free-drag-docs-'));
+      const artifact = join(dir, 'free-drag.json');
+      const { output, code } = await typedoc(
+        artifact,
+        ['./src/free-drag.ts', './src/drag.ts', './src/free-drag/feature.ts'],
+        ['--treatWarningsAsErrors'],
+      );
+
+      // `output` is reported rather than asserted on: it is the diagnostic a
+      // failure needs, and nothing about the pass depends on its shape.
+      expect({ code, output }).toMatchObject({ code: 0 });
+
+      const emitted = JSON.parse(await readFile(artifact, 'utf8')) as Readonly<{
+        children?: ReadonlyArray<Readonly<{ name: string }>>;
+      }>;
+
+      expect(
+        (emitted.children ?? []).map((child) => child.name).toSorted(),
+      ).toEqual(['drag', 'free-drag', 'free-drag/feature']);
     },
     2 * MINUTE,
   );

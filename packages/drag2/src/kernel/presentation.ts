@@ -356,10 +356,22 @@ export type BehaviorLiftSession = Readonly<
 >;
 
 /**
- * The inverse linear part of a box space, or `null` for the identity — which is
- * what both lifted modes use, and what lets `compose` skip the projection.
+ * The inverse of an inherited linear part, or `null` for the identity, a
+ * singular space or a non-finite one (D-85).
+ *
+ * `null` means **the local delta is the viewport delta** — the correct answer
+ * for an untransformed ancestry and the honest one for a space that cannot be
+ * inverted. It is also what lets `compose` skip the projection entirely on the
+ * hot path.
+ *
+ * **The same shape serves two readers with two different values, deliberately.**
+ * `ActivationScope.inheritedSpace` is a fact about the ancestry at grab and is
+ * computed for every lift mode; the session's own projection is the space an
+ * *in-place* translate acts in and is `null` for both lifted modes, because a
+ * lifted visual is repositioned into the viewport. Conflating them would hand a
+ * behavior the identity under `LIFT_FLAT`, wrong and silent.
  */
-type Projection = Readonly<{
+export type InheritedSpace = Readonly<{
   a: number;
   b: number;
   c: number;
@@ -369,7 +381,7 @@ type Projection = Readonly<{
 function makeSession(
   visual: HTMLElement,
   baseTransform: string,
-  projection: Projection,
+  projection: InheritedSpace,
   dispose: Disposer,
 ): VisualLiftSession {
   const suffix = baseTransform ? ` ${baseTransform}` : '';
@@ -407,14 +419,19 @@ function makeSession(
 }
 
 /**
- * The inverse linear part of the space an in-place translate acts in, or `null`
- * when that space is the identity or is unusable.
+ * The inverse of the linear part the visual **inherits** — everything strictly
+ * above it, its own transform and zoom excluded — or `null` when that space is
+ * the identity or is unusable.
  *
- * The **inherited** space, not the visual's own: an in-place lift *prepends* its
- * translate to the visual's authored transform, so the translate sits outside
- * that transform and is scaled only by what the visual inherits. Inverting the
- * visual's own space would divide the visual's own scale out twice — a
- * `scale(2)` visual would move half as far as asked.
+ * **Two callers, one read** (D-85). It is the space an in-place translate acts
+ * in, because an in-place lift *prepends* its translate to the visual's
+ * authored transform, so the translate sits outside that transform and is
+ * scaled only by what the visual inherits — inverting the visual's own space
+ * would divide its scale out twice, and a `scale(2)` visual would move half as
+ * far as asked. It is **also** the projection a behavior needs to report a
+ * local delta, and that caller wants it under every lift mode rather than only
+ * in place. So it is computed once here and published twice: to `compose` for
+ * the in-place mode alone, and to `ActivationScope.inheritedSpace` always.
  *
  * The shipped package made the same distinction by building its mapper from
  * `item.offsetParent`, which stops at a shadow boundary and is `null` for a
@@ -422,7 +439,7 @@ function makeSession(
  * traversal it already performed, so every flat-tree, shadow-root and
  * `display: contents` rule stays in the package that owns them.
  */
-function inPlaceProjection(measured: Box): Projection {
+function inheritedSpaceOf(measured: Box): InheritedSpace {
   const a = measured[BOX_ANCESTOR_A]!;
   const b = measured[BOX_ANCESTOR_B]!;
   const c = measured[BOX_ANCESTOR_C]!;
@@ -449,14 +466,39 @@ function inPlaceProjection(measured: Box): Projection {
 }
 
 /**
+ * What one acquisition produces: the session, and the pre-lift ancestry fact
+ * derived from the same measurement (D-85).
+ *
+ * **Two products rather than one member on the session**, and the reason is
+ * lifetime: every member of `VisualLiftSession` describes the state acquisition
+ * *created*, while `inheritedSpace` describes the state it *destroyed*. Putting
+ * it on the session would put a pre-lift fact inside the post-lift write
+ * capability, next to a same-shaped projection holding a different value. The
+ * kernel copies it onto `ActivationScope`, where the other pre-lift facts —
+ * `originRect`, `boxPre` — already live.
+ */
+export type LiftAcquisition = Readonly<{
+  session: VisualLiftSession;
+  inheritedSpace: InheritedSpace;
+}>;
+
+/**
  * Acquires a lift.
  *
  * The visual's box space is read **once**, here: the composed
  * element→viewport matrix (the faithful mode's base transform), the
  * untransformed border-box size (both lifted modes' fixed box), the inherited
  * zoom (which the top layer does not escape, so a lifted visual divides it back
- * out), and the inverse used by the in-place projection all come from that one
- * traversal.
+ * out), the inverse used by the in-place projection, and the inherited space
+ * the activation scope publishes all come from that one traversal.
+ *
+ * **That "once" is now load-bearing rather than merely efficient** (D-85,
+ * E-01). Everything below this measurement mutates the visual — positioning,
+ * dimensions, top-layer state, transforms — so a second traversal taken
+ * afterwards reads a different ancestry, and box-quad's own contract says the
+ * two walks may legitimately disagree. A behavior that measured for itself
+ * could therefore lift on one coordinate snapshot and report consumer deltas
+ * from another.
  *
  * Throws when the space cannot be read — a disconnected or fragmented visual,
  * or a 3D transform this library does not model. The caller classifies it as
@@ -471,7 +513,7 @@ export function acquireLift(
   mode: LiftMode,
   originRect: DOMRectReadOnly,
   realm: DOMRealm,
-): VisualLiftSession {
+): LiftAcquisition {
   const measured = box();
 
   if (!coordinates(visual, measured)) {
@@ -480,6 +522,12 @@ export function acquireLift(
     );
   }
 
+  // **Read before anything mutates, published for every mode.** The in-place
+  // branch below hands the same value to `compose`; the lifted branches hand
+  // `compose` the identity, because a lifted visual is repositioned into the
+  // viewport, and still publish this one — which is the divergence D-85 exists
+  // to state.
+  const inheritedSpace = inheritedSpaceOf(measured);
   const width = measured[BOX_WIDTH]!;
   const height = measured[BOX_HEIGHT]!;
   const ancestorZoom = measured[BOX_ANCESTOR_ZOOM]!;
@@ -498,12 +546,15 @@ export function acquireLift(
       const own = style.transform;
       visual.style.transition = 'none';
 
-      return makeSession(
-        visual,
-        own === 'none' ? '' : own,
-        inPlaceProjection(measured),
-        styleLeaseDisposer,
-      );
+      return {
+        session: makeSession(
+          visual,
+          own === 'none' ? '' : own,
+          inheritedSpace,
+          styleLeaseDisposer,
+        ),
+        inheritedSpace,
+      };
     }
 
     neutralizeUA(visual, style);
@@ -549,7 +600,7 @@ export function acquireLift(
 
     const topLayerDisposer = acquireTopLayer(visual);
 
-    return makeSession(visual, base, null, () => {
+    const session = makeSession(visual, base, null, () => {
       // `finally`, not sequence: restoring the inline styles is the one
       // guarantee this module owns outright, and a `hidePopover()` that throws
       // — or a prior-popover restoration that does — must not cost the visual
@@ -560,6 +611,8 @@ export function acquireLift(
         styleLeaseDisposer();
       }
     });
+
+    return { session, inheritedSpace };
   } catch (error) {
     styleLeaseDisposer();
     throw error;

@@ -136,6 +136,21 @@ export type SortableContribution = Readonly<{
   afterInsertionMove?: DisplacementHook;
   /** Run in **reverse** installation order — see `assemble`. */
   retire?: Disposer;
+
+  /**
+   * **Mutual exclusion, not a slot** (D-88, E-06). The sortable's whole half of
+   * the boundary — it implements six of the seven keys and excludes one: a
+   * sortable contribution has no motion constraint, and an object carrying one
+   * is not one. Without the pair, a `FreeDragInstaller` was assignable here and
+   * its free-drag-only capability data would be erased by this assembler.
+   *
+   * **The rule is key-set totality** and it is checked rather than promised:
+   * `tests/composition.declaration.test.ts` asserts `keyof` equality between
+   * the two records, so a slot added here without its `?: never` twin on
+   * `FreeDragContribution` fails at the moment it is added. See that type for
+   * why the mechanism changed from D-87's _one exclusion per direction_.
+   */
+  constrain?: never;
 }>;
 
 /**

@@ -57,9 +57,42 @@ describe('FreeDragContribution', () => {
     // invites a runtime `switch`, which is what the composition model exists to
     // avoid. Asserting the absence keys off the union of its keys, so adding
     // one fails here rather than being noticed at review.
+    //
+    // Four of the seven are **not** slots and not discriminators either: they
+    // are D-88's exclusions, typed `never`, so none can hold a value to branch
+    // on. They appear here because `keyof` cannot tell the two apart — which is
+    // why the exclusion has its own row below, and why the key-set equality
+    // between the two records lives in `tests/composition.declaration.test.ts`
+    // where both are in scope.
     expectTypeOf<keyof FreeDragContribution>().toEqualTypeOf<
-      'constrain' | 'startLanding' | 'retire'
+      | 'constrain'
+      | 'startLanding'
+      | 'retire'
+      | 'insertion'
+      | 'placeholder'
+      | 'beforeInsertionMove'
+      | 'afterInsertionMove'
     >();
+  });
+
+  it('should type every cross-behavior exclusion as never', () => {
+    // **D-88's mechanism, asserted as types rather than as keys.** `never` is
+    // what makes the record refuse an object carrying one of these at all; an
+    // `unknown` or an optional-anything would leave the boundary open while
+    // still passing the `keyof` row above. All four, because D-87 asserted one
+    // and the other three were open for a decision.
+    expectTypeOf<
+      FreeDragContribution['insertion']
+    >().toEqualTypeOf<undefined>();
+    expectTypeOf<
+      FreeDragContribution['placeholder']
+    >().toEqualTypeOf<undefined>();
+    expectTypeOf<
+      FreeDragContribution['beforeInsertionMove']
+    >().toEqualTypeOf<undefined>();
+    expectTypeOf<
+      FreeDragContribution['afterInsertionMove']
+    >().toEqualTypeOf<undefined>();
   });
 
   it('should not reach the settlement scope', () => {
