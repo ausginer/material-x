@@ -355,6 +355,86 @@ Implemented against D-78, D-79 and D-80 (`.plan/contract/00-index.md` §The D-77
 | P18A-19 | Three new rows in `tests/sortable/features.browser.test.ts`: the **fixed** form, the **contextual** form — both asserting the guard's message and its code, read from `STAGE_TO_CODE` rather than retyped — and the terminal the guard exists to preserve. Falsified: deleting the guard fails all three, and the terminal row fails because no terminal arrives at all, which is the hang stated as a test |
 | P18A-20 | `07` B-4 (a) — the `Partial`-fragment technique is struck with its reasoning, replaced by the sortable's working one (spread a `Record<string, unknown>` into the first argument), and the misattributed rationale corrected |
 
-## Raised rather than designed around
+## Raised, and closed in the same pass
 
-- **`05` §Middle-tier authoring carries the retracted opacity claim too.** D-78 names three sites; this is a fourth, and it is a _test-matrix_ row rather than prose: _"a fixture that imports **only** `sortable.js` still cannot construct one, and the `@ts-expect-error` proving it is the boundary's only remaining enforcement."_ Under D-78 that fixture would compile, so the criterion asks for an assertion that cannot be written. **Not edited** — it is an acceptance criterion, and D-78's supersedes list does not reach it. The replacement it presumably wants is the one that landed: the ordinary tier can _write_ an installer inline and can now also _hoist_ one, and what a deeper import buys is the vocabulary, not the ability.
+- **`05` §Middle-tier authoring carried the retracted opacity claim too.** D-78 names three sites; this was a fourth, and a _test-matrix_ row rather than prose: _"a fixture that imports **only** `sortable.js` still cannot construct one, and the `@ts-expect-error` proving it is the boundary's only remaining enforcement."_ Under D-78 that fixture compiles, so the criterion asked for an assertion that cannot be written.
+
+  ~~**Not edited** — it is an acceptance criterion, and D-78's supersedes list does not reach it.~~ **Superseded: the row was remediated under D-78 in this same commit, and this note described the tree before that edit landed.** `05:598` now splits it into two rows — what a `sortable.js`-only fixture **can** do (author inline _and_ hoist a `const hoistedAxis: AxisInstaller`) and what it **cannot** (name `FeatureContext`, `SortableContribution` or `InsertionGeometry`) — strikes the old clause with its reason, and adds the caution that the per-tier TypeDoc run is **not** that row's evidence. That is the replacement this note anticipated: the line is **vocabulary, not construction**. Corrected 2026-08-16 by the closure pass below, which is the only thing it changed.
+
+---
+
+# Closure verification — 2026-08-16
+
+An independent pass over **P18A-01…P18A-20** against the tree as it stands after D-78, D-79, D-80 and the F-70 instrument widening. Scope was closure of the existing findings only: nothing was reopened, no contract, implementation or test was changed, and Phase 19 and Checkpoint E were left alone. The one edit this pass made to the record is the correction directly above.
+
+**Verdict: all twenty are closed, and no new contradiction was found.**
+
+Gates, re-run from `packages/drag2`: `npx just typecheck` clean; `npx just test` — **38 files, 852 passed, 25 skipped, no type errors**, against 832 at the time of the review. Every probe below was reverted and `npx just build` re-run, so the tree and its emitted declarations were left exactly as found.
+
+## Method
+
+The resolution table was **not** taken on trust. Prose closures were read at each site; the three load-bearing ones were **falsified** — the claimed instrument was broken on purpose and the suite watched to see whether it noticed. A closure that survives deletion of the thing it claims to pin is not a closure, and that is the failure mode this pass existed to catch.
+
+## Falsification evidence
+
+**D-78 — the publication/closure split (P18A-04, P18A-05).** The decision makes an unusually falsifiable claim: that the per-tier TypeDoc run does **not** pin the `AxisInstaller` re-export, and that the packed consumer fixture does. Both directions were tested by deleting `export type { AxisInstaller } from './sortable/feature.ts';` from `src/sortable.ts`:
+
+| Instrument | D-78 predicts | Observed |
+| --- | --- | --- |
+| `tests/docs.node.test.ts`, per-entry runs | stays green | **green — 3 passed** |
+| `tests/consumer.node.test.ts`, packed fixture | fails to compile | **`consumer.ts(20,8): error TS2305: Module '"@ydinjs/drag2/sortable.js"' has no exported member 'AxisInstaller'`** |
+
+Both hold. A document that names what its instrument cannot see, and points at the one that can, is the honest form P18A-05 asked for.
+
+The tier claim itself was compiled rather than read. A file importing **only** `src/sortable.ts` hoists `const hoisted: AxisInstaller = () => ({ insertion: { … } })` and typechecks clean; `import type { InsertionGeometry } from './sortable.ts'` fails with `TS2305`. So the boundary is **vocabulary, not capability** — the ordinary tier can author and hoist, and `sortable/feature.js` buys the names for an installer's parts. That is the shape D-78 states, verified in both directions.
+
+**D-79 — the retained guard (P18A-19).** Deleting the `=== Infinity` throw from `src/sortable/landing.ts`:
+
+- _should refuse an unbounded fixed duration at settlement_ — **fails**
+- _should refuse an unbounded contextual duration at settlement_ — **fails**
+- _should still publish exactly one terminal for a refused duration_ — **fails, `expected +0 to be 1`**
+- _should classify an unbounded thunk result under a reduced-motion preference_ — **fails** (the pre-existing row)
+
+The terminal row's failure mode is the finding's whole point: **zero** terminals arrive, so the assertion is a hang detector rather than an error-count check. Both new rows assert the guard's message and its code, and the code is `toDraggableError(FAILURE_LANDING_CREATE, null).code` — derived from the library's own mapping, so a remap cannot pass. The measurement artifact ([`../measurements/animate-duration-domain.md`](../measurements/animate-duration-domain.md)) carries a harness, a per-value table, the `Infinity` sampling that shows `progress` still `0` a second in with `finished` pending, a stated falsifier, and it strikes the `undefined` leg itself rather than defending it.
+
+**D-80 (b) — the unwind across construction (P18A-13).** `copyUniqueItems` is now a statement ahead of `install`, and `createSortableRuntime` is pure allocation with no consumer-reachable call, so nothing consumer-triggerable throws between the first `retire` hook being recorded and the bracket that unwinds them. It is pinned by `tests/sortable/composition.browser.test.ts` with a **discriminating** assertion — `ran === []` rather than `retired === []`, with the reasoning that a wider bracket would satisfy the latter — plus **two negative controls** that reconstruct the pre-D-80 argument order and demonstrate the leak it removed.
+
+## Where the review under-called its own findings
+
+Recorded because a review's errors are part of its record.
+
+- **P18A-13 was rated "scope note rather than defect", and that was wrong.** F-68 is the correct reading: `copyUniqueItems` threw from inside `createSortableRuntime`, after `assemble` had returned, so a consumer collection holding one element twice stranded every recorded hook plus a kernel and realm `draggable()` had already built. Consumer-triggerable, and the sharper shape is the one the review missed — D-77 retained exactly one construction-time throw and it sat in the one window the unwind did not cover.
+- **F-69 was noted only in passing.** That the pull's safety rested on argument-evaluation order alone, with nothing saying so, deserved a finding of its own.
+
+Both were closed by making the sentence true rather than by scoping it, which is the stronger of the two available answers and not the one the review proposed.
+
+## Closures verified at their sites
+
+| # | Verified |
+| --- | --- |
+| P18A-01 | `03` §Assembly's sketch is `mergeFragments(config, fragments)` over `[config, ...fragments]` |
+| P18A-02 | All three sites name the **assembler**; `withDefaults` is gone from the sketch |
+| P18A-03 | Struck at `03:114` and `src/sortable/feature.ts:163-171`; the D-45 call-shape sketch was corrected too — beyond the finding, same class |
+| P18A-04 | Retracted at all sites, and the retraction states the true rule: a tier decides where a name is declared, never what the compiler lets you write inline |
+| P18A-05 | `AxisInstaller` on `sortable.js` and in the emitted `sortable.d.ts`; falsified above |
+| P18A-06 | Clause 2's worked example is `AxisInstaller` |
+| P18A-07 | `03:1211` separates the two options and strikes the wrong sentence with its correction |
+| P18A-08 | The artifact exists, is dated, names its engine, and states its falsifier |
+| P18A-09 | `undefined` struck at all five sites; `'auto'` kept and marked JavaScript-only |
+| P18A-10 | `README` §Option domains enumerates the same five as `00-index` and `03` |
+| P18A-11 | `03:469` — four throws, the `placement.ts` pair named with their stages |
+| P18A-12 | Presence, not well-formedness, stated at both sites |
+| P18A-14 | `docs/revision/revision-2.ts` hoists `y()` **and** `xy()` into typed consts and carries `landing({ duration: 200 })` |
+| P18A-15 | Asserted through `sortable()`, with a positive row that records its installer ran so the negative cannot pass vacuously |
+| P18A-16 | `.gitignore` re-includes the bench fixtures; `noncomposed.js`, `noncomposed.d.ts` and `shipped.js` are tracked |
+| P18A-17 | The dangling paragraph is gone from `00-index` |
+| P18A-18 | The comment names `animate()` as the thrower and states what the row actually pins |
+| P18A-20 | `07` B-4 (a) strikes the `Partial`-fragment technique with its reasoning and carries the sortable's working one |
+
+## What this pass did not do
+
+It did not re-examine anything outside P18A-01…P18A-20. Phase 19's remaining criteria, Checkpoint E, and every contract question not raised by the original review were out of scope and were left untouched.
+
+---
+
+**LSP plugin - available; not used:** the pass was diff-driven and falsification-driven — `git show` supplied the exact change set, and the three load-bearing closures were settled by deleting code and running the suite, which is not a question a symbol query can answer. Grep located the prose sites.

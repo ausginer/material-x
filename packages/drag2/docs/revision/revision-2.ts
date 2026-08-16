@@ -156,7 +156,7 @@ import {
   sortable,
   type AcceptedReorderResult,
   type CanceledReorderResult,
-  type DragErrorContext,
+  type SortableErrorContext,
   type NoopReorderResult,
   type RejectedReorderResult,
   type ReorderTransactionResult,
@@ -336,7 +336,7 @@ function disposition(result: ReorderTransactionResult): string {
 }
 
 /** D-64 — the consumer branches on a fault class, never on a stage. */
-function report(error: DraggableError, context: DragErrorContext): string {
+function report(error: DraggableError, context: SortableErrorContext): string {
   const mine = error.code === 'consumer';
   // D-60 / D-66 — both channels can fire for one operation, so the domain
   // result is still present here and must not be read as absent.
@@ -659,8 +659,8 @@ const legacyThunk: LandingOptions['duration'] = () => 200;
 void legacyThunk;
 
 // n7 — D-64: the consumer never receives a pipeline stage.
-declare const errContext: DragErrorContext;
-// @ts-expect-error DragErrorContext carries no stage (D-64)
+declare const errContext: SortableErrorContext;
+// @ts-expect-error SortableErrorContext carries no stage (D-64)
 void errContext.stage;
 
 // n8 — D-64: the code is a fault class, not a stage.

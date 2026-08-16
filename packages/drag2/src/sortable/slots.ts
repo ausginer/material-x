@@ -19,7 +19,7 @@ import type { LandingStart } from '../kernel/spec.ts';
 import type { ItemSource, OnEnd } from './config.ts';
 import type {
   CollectionSnapshot,
-  DragErrorContext,
+  SortableErrorContext,
   Insertion,
   OnReorder,
 } from './domain.ts';
@@ -224,7 +224,9 @@ export type SortableSlots = Readonly<{
    * objects that would otherwise be constructed only to be discarded.
    */
   onEnd: OnEnd | null;
-  onError: ((error: DraggableError, context: DragErrorContext) => void) | null;
+  onError:
+    | ((error: DraggableError, context: SortableErrorContext) => void)
+    | null;
 
   /**
    * Prebuilt and fixed-length after assembly, empty in the minimal composition,

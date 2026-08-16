@@ -10,13 +10,19 @@
     "./src/sortable/y.ts",
     "./src/sortable/xy.ts",
     "./src/sortable/landing.ts",
-    "./src/sortable/layout-animation.ts"
+    "./src/sortable/layout-animation.ts",
+    "./src/free-drag.ts",
+    "./src/free-drag/feature.ts",
+    "./src/free-drag/bounds.ts",
+    "./src/free-drag/landing.ts"
   ],
   "entryPointStrategy": "resolve",
   "readme": "none",
   "excludePrivate": true,
   "excludeProtected": true,
   "excludeInternal": true,
-  "sort": ["source-order"],
+  "sort": [
+    "source-order"
+  ],
   "intentionallyNotExported": []
 }

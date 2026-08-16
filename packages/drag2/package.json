@@ -14,7 +14,12 @@
     "sortable.js.map",
     "sortable.d.ts",
     "sortable",
-    "kernel"
+    "kernel",
+    "shared",
+    "free-drag.js",
+    "free-drag.js.map",
+    "free-drag.d.ts",
+    "free-drag"
   ],
   "type": "module",
   "exports": {
@@ -46,8 +51,23 @@
       "types": "./sortable/layout-animation.d.ts",
       "default": "./sortable/layout-animation.js"
     },
+    "./free-drag.js": {
+      "types": "./free-drag.d.ts",
+      "default": "./free-drag.js"
+    },
+    "./free-drag/bounds.js": {
+      "types": "./free-drag/bounds.d.ts",
+      "default": "./free-drag/bounds.js"
+    },
+    "./free-drag/landing.js": {
+      "types": "./free-drag/landing.d.ts",
+      "default": "./free-drag/landing.js"
+    },
     "./sortable/feature.js": {
       "types": "./sortable/feature.d.ts"
+    },
+    "./free-drag/feature.js": {
+      "types": "./free-drag/feature.d.ts"
     },
     "./package.json": "./package.json"
   },
