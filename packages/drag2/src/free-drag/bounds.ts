@@ -48,12 +48,19 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
        * resolving eagerly would put both on the scroll path.
        *
        * **Where a garbage source surfaces is therefore the seam that next
-       * renders**, which is `FAILURE_RENDERER_WRITE` → `presentation` from
-       * `moved`, or `FAILURE_ACTION_EFFECT` → `presentation` from a `moveTo`.
-       * 07 §Validation names `action.prepare` → `presentation` for this row; the
-       * **coarse code the consumer receives is the same**, and the code is what
-       * that table is written in terms of, but the stage differs and the
-       * difference is recorded rather than hidden.
+       * renders, and that is four seams rather than one** (D-81, F-71, F-73).
+       * The rect starts stale, so the **first** resolve of every operation is at
+       * `activation.effect`, which places the visual at the accumulated grab
+       * delta — `FAILURE_ACTIVATION` → `interaction`, and the path a bad source
+       * almost always takes. After a staleness mark the next `apply` is
+       * whichever of `moved` (`FAILURE_RENDERER_WRITE`), a `TAG_POSITION`
+       * effect (`FAILURE_ACTION_EFFECT`) — both `presentation` — or
+       * `release.prepare` (`FAILURE_RELEASE` → `interaction`) runs first.
+       *
+       * **`FAILURE_ACTION_PREPARE` is not reachable from here at all.** 07
+       * §Validation named `action.prepare` for this row until D-81 corrected it;
+       * `invalidate()` is a staleness flag that calls nothing, so the seam that
+       * marks the rect stale is never the seam that resolves it.
        */
       const resolve = (): DOMRectReadOnly | null => {
         if (!stale) {

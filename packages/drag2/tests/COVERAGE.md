@@ -615,7 +615,7 @@ The precedent for _removing_ an unfalsifiable conjunct rather than recording it 
 
 ## Free drag — new (Phase 19, D-69…D-76)
 
-**The implementation's own verification, not Phase 20's matrix.** The adversarial rows, the restored stories and the per-lift-mode geometry fixtures under transform and zoom are Phase 20 deliverables and are deliberately absent.
+**The implementation's own verification.** ~~The adversarial rows, the restored stories and the per-lift-mode geometry fixtures under transform and zoom are Phase 20 deliverables and are deliberately absent.~~ **They landed 2026-08-16** and are the three sections below; this one is unchanged, because the distinction is still worth keeping — these rows say the seams are wired, and the Phase 20 rows say what happens when a consumer, a source or a platform misbehaves.
 
 | Row | Test | ID |
 | --- | --- | --- |
@@ -639,3 +639,63 @@ The precedent for _removing_ an unfalsifiable conjunct rather than recording it 
 | an unconstrained free drag carries no clamp and no rect resolver | `tests/packaging.node.test.ts` — _should keep an unconstrained free drag out of the clamp_ | B-2 |
 | both landing entries reach the **same** internal runner and neither reaches the other behavior | `tests/packaging.node.test.ts` — _should share the landing runner between the two behaviors_ | F-64, B-7 |
 | the four new entries' runtime surface, by value | `tests/exports.node.test.ts`, `tests/consumer.node.test.ts` | B-3 |
+
+## Free drag — validation (Phase 20, B-4)
+
+**Two tables, asserted differently, and the split is the criterion.** A value in 07 §Validation's _classified_ table surfaces at a named seam with that row's coarse code; a value in the _silent_ table produces **no `onError`, no terminal and no classification at all**. Asserting the second the way one asserts the first is how a deleted check gets quietly re-added.
+
+Every code is read from `STAGE_TO_CODE` through `toDraggableError(stage, null).code`, never retyped, so a remap fails these rows instead of passing them.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| construction throws **nothing** for any config the compiler accepts | `tests/free-drag/free-drag.browser.test.ts` — _should throw nothing for any config the compiler accepts_ | B-4 (a) |
+| a throwing `handle` is a **consumer** fault, and publishes no terminal because no operation was minted | `tests/free-drag/validation.browser.test.ts` — _should classify a throwing handle resolver as a consumer fault_, _should publish no terminal for a fault that lands before any operation is minted_ | B-4 (b), D-66, F-75 |
+| a throwing `visual` is classified at **admission**, not at activation as the table says | _should classify a throwing visual resolver at admission, not at activation_ | F-76 |
+| a throwing `onStart` is an **interaction** fault with exactly one terminal | _should classify a throwing onStart as an interaction fault with one terminal_ | B-4 (b) |
+| a throwing `onMove` is a **presentation** fault with exactly one terminal | _should classify a throwing onMove as a presentation fault with one terminal_ | B-4 (b) |
+| a throwing `home` runs on the **quality track**: reported, landing skipped, drop still standing | _should classify a throwing home on the quality track and leave the drop standing_ | B-4 (b), D-49 |
+| a throwing `onEnd` is a **consumer** fault | _should classify a throwing onEnd as a consumer fault_ | B-4 (b) |
+| a non-function `onDrop` reaches the designed `SeamRejection` rather than a construction throw | _should classify a non-function onDrop as a consumer fault with one terminal_ | B-4 (b), D-77 |
+| a throwing `onError` leaves through the **un-classified** channel and nothing recurses | _should send a throwing onError to the platform channel rather than classifying it_ | 07 §Validation |
+| a garbage `bounds` source surfaces at **all four** seams it can reach, with the two codes they map to | _should surface at activation as an interaction fault on its first resolve_, _should surface from a committed sample as a presentation fault_, _should surface from a moveTo effect as a presentation fault_, _should surface from the release as an interaction fault_ | D-81, F-71, F-73 |
+| and **never** from the action that marks the rect stale — `FAILURE_ACTION_PREPARE` is unreachable from the row | _should never surface from the action that marks it stale_ | D-81 |
+| each bounds path publishes one terminal, or **none** when it fails before `onStart` | _should publish exactly one terminal for each path that reaches one_ | D-66, F-75 |
+| a `NaN` `threshold` starts **no operation**: no report, no terminal, nothing on the platform channel | _should start no operation at all for a NaN threshold_ | B-4 (c), Q-15 |
+| an unknown `axis` string completes a normal **unconstrained** drag | `tests/free-drag/free-drag.browser.test.ts` — _should complete a normal unconstrained drag for an unknown axis string_ | B-4 (c) |
+| an unknown `lift` string completes a normal drag | `tests/free-drag/validation.browser.test.ts` — _should complete a normal drag for an unknown lift string_ | B-4 (c), D-73 |
+| a landing `duration` of `Infinity` is refused, and the drop **survives** the refusal | `tests/free-drag/validation.browser.test.ts` — _should refuse Infinity and let the accepted drop survive it_ | B-4 (d), D-24, D-79 |
+| `NaN`, `-1`, `-Infinity` and `'fast'` are left to `animate()` and arrive at the same stage | _should leave a NaN duration to the platform_, _should leave a negative duration to the platform_, _should leave a -Infinity duration to the platform_, _should leave a string duration to the platform_ | B-4 (e), D-79 |
+| `'auto'` lands normally, which is what pins the guard to `=== Infinity` rather than to a finiteness test | _should land normally for the auto duration_ | B-4 (e), D-79 |
+
+## Free drag — lifecycle (Phase 20, L-1…L-4)
+
+**Two of these rows need a middle-tier installer to be falsifiable at all** (D-81, F-74). With the first-party `bounds()` the L-3 barrier stands between one consumer call and a flag write, so a `bounds()`-based fixture passes whether or not the barrier exists; and `LandingContext.from` is the only place that answers _where the landing opened_. Both fixtures are authored out of line against `free-drag/feature.js`, which is B-6 exercised rather than merely typed.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| the visual is **restored before** the terminal, and an idle controller retains nothing | `tests/free-drag/lifecycle.browser.test.ts` — _should be restored before the terminal is published_, _should retain nothing from a completed drag_ | L-1, I-20 |
+| nothing reacts to document motion after the operation terminated, and the next press still drags | _should ignore document motion once the operation has terminated_, _should admit a second drag after the first completed_ | L-1 |
+| `pointercancel` disarms a pending press with **no** terminal, and does not disable the next one | _should be disarmed by pointercancel with no terminal_, _should be disarmed without disabling the next press_ | L-1, Q-15 |
+| a late acceptance is ignored after `cancel()` — which already published — and after `destroy()`, which publishes none | _should be ignored after cancel(), which already published its terminal_, _should be ignored after destroy(), which publishes none_ | L-1, L-2, D-36 |
+| the `TAG_POLICY` barrier: an `axis` source that destroys its own controller does **not** reach a third-party `invalidate()` | _should not reach a third-party invalidate() when the axis source destroys the controller_ | L-3, I-36, F-47 |
+| the positive control — a source that leaves the controller alive **does** reach it | _should reach it when the axis source leaves the controller alive_ | L-3 |
+| the recorded **non**-discriminating control, so a `bounds()`-based fixture is not mistaken for coverage | _should be non-discriminating with the first-party bounds()_ | F-74 |
+| the landing opens from the **constrained** delta: under an axis lock, under a clamp, and after a `moveTo()` | _should open from the axis-locked delta rather than the pointer_, _should open from the clamped delta under a bounds constraint_, _should open from the re-based delta after a moveTo()_ | L-4, D-35 |
+| and from the **release point** rather than the last processed move — reported and rendered | _should open from the release point rather than the last processed move_, _should render the release point, not only report it_ | L-4, F-39, D-81 |
+| the middle tier accepts a function literal authored outside the package, carries **no discriminator**, and does not reach the settlement scope | `tests/free-drag/feature.declaration.test.ts` — _should accept a function literal authored outside the package_, _should carry no discriminator_, _should not reach the settlement scope_ | B-6, D-61 |
+| a free-drag consumer compiles against the **packed** declarations, with the terminal switch exhaustive and `never` on the fall-through | `tests/consumer.node.test.ts` — _should compile a consumer against the packed declarations_ | B-5 |
+| the two shared declarations are published from **one module each**, which is identity rather than shape | `tests/packaging.node.test.ts` — _should publish the two shared declarations from one module each_ | B-7, F-64 |
+
+## Lift geometry — the box, not the transform (Phase 20, L-5)
+
+**Phase 11's lesson, made executable.** A lift-mode regression passed 644 tests because none of them compared the lifted visual's **on-screen box** to what it should be; it was caught by driving a demo. These rows are that comparison, and `src/free-drag.stories.tsx` is the demo restored beside them.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| `faithful` keeps the stage geometry and travels by the **viewport** delta, under a transform and under zoom | `tests/free-drag/geometry.browser.test.ts` — _should keep the stage geometry and travel by the viewport delta under a transform_, _should keep the stage geometry and travel by the viewport delta under zoom_ | L-5, D-73 |
+| `flat` drops the ancestor transform and the inherited zoom, keeping its natural size | _should drop the ancestor transform and keep its natural size_, _should drop the inherited zoom and keep its natural size_ | L-5 |
+| `in-place` keeps the authored transform and **still** travels by the viewport delta — the row a projection bug fails | _should keep the authored transform and still travel by the viewport delta_, _should keep the authored transform and still travel by the viewport delta under zoom_ | L-5, D-72 |
+| `localDelta` is the viewport delta in the stage's own space, and is the delta itself when the ancestry is untransformed | _should report the local delta in the stage space under a transform_, _should report the viewport delta itself when the ancestry is untransformed_ | D-72 |
+| the reported rect is derived from the origin rect even under a transform | _should derive the current rect from the origin rect under a transform_ | D-72 |
+| the **sortable's** lifted row occupies the placeholder's box at activation, under a transform and under zoom | `tests/sortable/lift-geometry.browser.test.ts` — _should occupy the placeholder box at activation under an ancestor transform_, _should occupy the placeholder box at activation under zoom_ | L-5, Phase 11 |
+| and travels by the viewport delta in both, reporting nothing on the platform channel | _should travel by the viewport delta under an ancestor transform_, _should travel by the viewport delta under zoom_, _should report nothing through the platform channel while doing it_ | L-5 |

@@ -15,190 +15,25 @@
  *
  * Layout: one 100×40 item at the viewport origin, inside a 200×200 stage.
  */
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { bounds } from '../../src/free-drag/bounds.ts';
 import { landing } from '../../src/free-drag/landing.ts';
 import {
   FreeDragResolution,
   freeDrag,
-  type DragGeometry,
-  type FreeDragConfig,
   type FreeDragController,
-  type FreeDragRequest,
-  type FreeDragTransactionResult,
 } from '../../src/free-drag.ts';
+import {
+  activate,
+  escape,
+  freeDragHarness,
+  move,
+  press,
+  release,
+  settled,
+} from '../support/free-drag.ts';
 
-const POINTER_ID = 12;
-
-type Composed = Readonly<{
-  item: HTMLElement;
-  stage: HTMLElement;
-  controller: FreeDragController;
-  requests: FreeDragRequest[];
-  ends: FreeDragTransactionResult[];
-  errors: unknown[];
-  starts: DragGeometry[];
-  moves: DragGeometry[];
-  /** The translate the visual currently carries, as `[x, y]`. */
-  rendered(): readonly [number, number];
-}>;
-
-type Options = Readonly<{
-  fragments?: ReadonlyArray<Partial<FreeDragConfig>>;
-  onDrop?: FreeDragConfig['onDrop'];
-  config?: Partial<FreeDragConfig>;
-}>;
-
-const cleanup: Array<() => void> = [];
-
-type Reporting = { reportError?(error: unknown): void };
-
-let reported: unknown[] = [];
-
-beforeEach(() => {
-  reported = [];
-  (globalThis as Reporting).reportError = (error): void => {
-    reported.push(error);
-  };
-});
-
-afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-
-  for (const dispose of cleanup.splice(0)) {
-    dispose();
-  }
-});
-
-function compose(options: Options = {}): Composed {
-  const stage = document.createElement('div');
-
-  Object.assign(stage.style, {
-    position: 'fixed',
-    top: '0px',
-    left: '0px',
-    width: '200px',
-    height: '200px',
-  });
-
-  const item = document.createElement('div');
-
-  Object.assign(item.style, {
-    display: 'block',
-    width: '100px',
-    height: '40px',
-  });
-  stage.append(item);
-  document.body.append(stage);
-
-  const requests: FreeDragRequest[] = [];
-  const ends: FreeDragTransactionResult[] = [];
-  const errors: unknown[] = [];
-  const starts: DragGeometry[] = [];
-  const moves: DragGeometry[] = [];
-
-  const controller = freeDrag(
-    item,
-    {
-      onDrop:
-        options.onDrop ??
-        ((request) => {
-          requests.push(request);
-          return FreeDragResolution.accept();
-        }),
-      onStart: (geometry): void => {
-        starts.push(geometry);
-      },
-      onMove: (geometry): void => {
-        moves.push(geometry);
-      },
-      onEnd: (result): void => {
-        ends.push(result);
-      },
-      onError: (error): void => {
-        errors.push(error);
-      },
-      ...options.config,
-    },
-    ...(options.fragments ?? []),
-  );
-
-  item.setPointerCapture = (): void => {};
-  item.releasePointerCapture = (): void => {};
-
-  cleanup.push(() => {
-    void controller.destroy();
-    stage.remove();
-  });
-
-  return {
-    item,
-    stage,
-    controller,
-    requests,
-    ends,
-    errors,
-    starts,
-    moves,
-    rendered: () => {
-      const match = /translate\((-?[\d.]+)px,\s*(-?[\d.]+)px\)/u.exec(
-        item.style.transform,
-      );
-
-      return match === null
-        ? ([0, 0] as const)
-        : ([Number(match[1]), Number(match[2])] as const);
-    },
-  };
-}
-
-const press = (target: HTMLElement, x = 10, y = 10): void => {
-  target.dispatchEvent(
-    new PointerEvent('pointerdown', {
-      bubbles: true,
-      composed: true,
-      cancelable: true,
-      pointerId: POINTER_ID,
-      isPrimary: true,
-      button: 0,
-      buttons: 1,
-      clientX: x,
-      clientY: y,
-    }),
-  );
-};
-
-const pointerEvent = (type: string, x: number, y: number): void => {
-  document.dispatchEvent(
-    new PointerEvent(type, {
-      bubbles: true,
-      pointerId: POINTER_ID,
-      isPrimary: true,
-      clientX: x,
-      clientY: y,
-    }),
-  );
-};
-
-const move = (x: number, y: number): void => {
-  pointerEvent('pointermove', x, y);
-};
-
-const release = (x: number, y: number): void => {
-  pointerEvent('pointerup', x, y);
-};
-
-/** Press at (10, 10) and cross the 8px activation threshold. */
-const activate = (composed: Composed): void => {
-  press(composed.item);
-  move(30, 10);
-};
-
-const settled = async (): Promise<void> => {
-  await Promise.resolve();
-  await Promise.resolve();
-  await Promise.resolve();
-};
+const { compose, own, reported } = freeDragHarness();
 
 describe('the minimal composition', () => {
   it('should start on a press that crosses the threshold', () => {
@@ -376,9 +211,7 @@ describe('the minimal composition', () => {
     const composed = compose();
 
     activate(composed);
-    document.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
-    );
+    escape();
     await settled();
 
     expect(composed.ends).toHaveLength(1);
@@ -391,9 +224,7 @@ describe('the minimal composition', () => {
     const composed = compose();
 
     press(composed.item);
-    document.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
-    );
+    escape();
     await settled();
 
     expect(composed.ends).toEqual([]);
@@ -408,7 +239,7 @@ describe('the minimal composition', () => {
     release(50, 40);
     await settled();
 
-    expect(reported).toEqual([]);
+    expect(reported()).toEqual([]);
   });
 });
 
@@ -476,7 +307,7 @@ describe('the axis policy', () => {
 
     expect(composed.ends[0]!.type).toBe('accepted');
     expect(composed.errors).toEqual([]);
-    expect(reported).toEqual([]);
+    expect(reported()).toEqual([]);
   });
 });
 
@@ -506,7 +337,7 @@ describe('bounds()', () => {
       height: '150px',
     });
     document.body.append(box);
-    cleanup.push(() => box.remove());
+    own(() => box.remove());
 
     const constrained = compose({ fragments: [bounds(box)] });
 
@@ -677,7 +508,7 @@ describe('construction', () => {
     const item = document.createElement('div');
 
     document.body.append(item);
-    cleanup.push(() => item.remove());
+    own(() => item.remove());
 
     const garbage: Record<string, unknown> = {
       handle: 42,
@@ -700,7 +531,7 @@ describe('construction', () => {
     }).not.toThrow();
 
     expect(controller.moveTo).toBeTypeOf('function');
-    cleanup.push(() => void controller.destroy());
+    own(() => void controller.destroy());
   });
 
   it('should not let a later fragment clear the required slot', () => {
@@ -710,7 +541,7 @@ describe('construction', () => {
     const item = document.createElement('div');
 
     document.body.append(item);
-    cleanup.push(() => item.remove());
+    own(() => item.remove());
 
     const controller = freeDrag(
       item,
@@ -718,7 +549,7 @@ describe('construction', () => {
       { onDrop: undefined },
     );
 
-    cleanup.push(() => void controller.destroy());
+    own(() => void controller.destroy());
     expect(controller.invalidate).toBeTypeOf('function');
   });
 
@@ -729,7 +560,7 @@ describe('construction', () => {
     const item = document.createElement('div');
 
     document.body.append(item);
-    cleanup.push(() => item.remove());
+    own(() => item.remove());
 
     expect(() =>
       freeDrag(item, { onDrop: () => FreeDragResolution.accept() }, bounds(), {

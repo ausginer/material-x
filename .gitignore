@@ -38,3 +38,4 @@ storybook-static
 .agents/codex
 .claude/worktrees
 .claude/settings.local.json
+*.patch
