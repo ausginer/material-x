@@ -673,6 +673,313 @@ const behaviorController: Controller = draggable(root, install);
 void behaviorController;
 `;
 
+/**
+ * **The free-drag consumer fixture** (B-5).
+ *
+ * The second behavior's half of what `CONSUMER` does for the sortable, and the
+ * criterion is the same: it compiles against the **packed** declarations from
+ * outside the workspace, so a name that never reached the tarball fails here
+ * rather than in a suite that imports `src/`.
+ *
+ * **Ordinary tier only.** `free-drag.js`, its two capability entries and
+ * `drag.js` — no `kernel.js`, no `free-drag/feature.js`, no deep path. The
+ * middle tier is exercised by `CONSTRAINT` below, separately, because *what an
+ * ordinary consumer cannot reach* is half of what this fixture asserts.
+ *
+ * The terminal switch is **exhaustive over three arms with `never` on the
+ * fall-through** (D-62, F-41): with one `onEnd` the arms are the consumer's to
+ * discriminate, so a fourth arm added later has to be a compile error here.
+ */
+const FREE_DRAG = `import {
+  DraggableError,
+  type DraggableErrorCode,
+  type Point,
+} from '@ydinjs/drag2/drag.js';
+import {
+  AT_CONSUMER,
+  AT_PROPOSAL,
+  FreeDragResolution,
+  freeDrag,
+  type AcceptedFreeDragResolution,
+  type AcceptedFreeDragResult,
+  type AxisSource,
+  type CancelStage,
+  type CanceledFreeDragResult,
+  type DragAxis,
+  type DragGeometry,
+  type FreeDragConfig,
+  type FreeDragController,
+  type FreeDragErrorContext,
+  type FreeDragInstaller,
+  type FreeDragLift,
+  type FreeDragRequest,
+  type FreeDragSubject,
+  type FreeDragTransactionResult,
+  type OnDragError,
+  type OnDrop,
+  type OnEnd,
+  type OnMove,
+  type OnStart,
+  type RejectedFreeDragResolution,
+  type RejectedFreeDragResult,
+  type ResolveElement,
+  type ResolveHandle,
+  type ResolveHome,
+} from '@ydinjs/drag2/free-drag.js';
+import { bounds, type BoundsSource } from '@ydinjs/drag2/free-drag/bounds.js';
+import {
+  landing,
+  type LandingDuration,
+  type LandingOptions,
+} from '@ydinjs/drag2/free-drag/landing.js';
+
+declare const item: HTMLElement;
+declare const stage: HTMLElement;
+
+// **The capability slot's alias is hoistable from the ordinary tier** (D-78).
+// \`FreeDragConfig\` names \`FreeDragInstaller\`, so a third-party constraint
+// must be writable as a typed \`const\` rather than only inline — while the
+// names *it* reaches stay at the middle tier, which is what the negative rows
+// at the bottom of this file still assert. \`context\` is deliberately not
+// annotated: its type is \`FeatureContext\`, which this file cannot import, and
+// contextual typing resolves it structurally anyway.
+const hoistedInstaller: FreeDragInstaller = (context) => {
+  void context.root;
+
+  return {
+    constrain: {
+      apply: (motion) => {
+        motion.x = Math.round(motion.x);
+        motion.y = Math.round(motion.y);
+      },
+      invalidate: (): void => {},
+      retire: (): void => {},
+    },
+  };
+};
+
+const controller: FreeDragController = freeDrag(
+  item,
+  {
+    // **D-77**: one required config argument. Only \`onDrop\` is required, and
+    // omitting it is a compile error rather than a runtime throw.
+    onDrop: (request: FreeDragRequest) => {
+      void request.viewportDelta.x;
+      void request.localDelta.y;
+      void request.visualRect.width;
+      void request.viewportPosition;
+      return FreeDragResolution.accept();
+    },
+    // **D-71**: a source the library re-reads, not a value it is handed.
+    axis: (() => 'x') satisfies AxisSource,
+    handle: ((element: HTMLElement) => element) satisfies ResolveHandle,
+    visual: ((element: HTMLElement) => element) satisfies ResolveElement,
+    home: ((subject: FreeDragSubject): Point => ({
+      x: subject.visual.clientLeft,
+      y: 0,
+    })) satisfies ResolveHome,
+    onStart: ((geometry: DragGeometry) => {
+      void geometry.originRect.width;
+    }) satisfies OnStart,
+    onMove: ((geometry: DragGeometry) => {
+      void geometry.currentRect.left;
+    }) satisfies OnMove,
+    lift: 'flat' satisfies FreeDragLift,
+    threshold: 4,
+    onEnd: ((result: FreeDragTransactionResult): void => {
+      // **Three arms, and \`never\` on the fall-through** (D-62, F-41). The
+      // shipped \`is*\` predicates are dropped: the union is discriminated, so a
+      // consumer needs nothing but the tag.
+      switch (result.type) {
+        case 'accepted': {
+          const accepted: AcceptedFreeDragResult = result;
+
+          void accepted.request.item;
+          break;
+        }
+
+        case 'rejected': {
+          const rejected: RejectedFreeDragResult = result;
+
+          void rejected.reason;
+          break;
+        }
+
+        case 'canceled': {
+          const canceled: CanceledFreeDragResult = result;
+          const stageTag: CancelStage = canceled.stage;
+
+          void (stageTag === AT_PROPOSAL || stageTag === AT_CONSUMER);
+          break;
+        }
+
+        default: {
+          const exhaustive: never = result;
+
+          void exhaustive;
+        }
+      }
+    }) satisfies OnEnd,
+    onError: ((
+      error: DraggableError,
+      context: FreeDragErrorContext,
+    ): void => {
+      // **D-64.** A coarse fault class, never a pipeline stage.
+      const code: DraggableErrorCode = error.code;
+      const domain: FreeDragTransactionResult | null = context.domain;
+
+      void (code === 'presentation');
+      void (error instanceof DraggableError);
+      void domain?.type;
+    }) satisfies OnDragError,
+  },
+  // **A capability installer, not a config key** (D-70), and the no-argument
+  // form *is* the viewport — the shipped \`bounds: 'viewport'\` sentinel is
+  // closed by deletion.
+  bounds(stage),
+  landing({ duration: ((): number => 120) satisfies LandingDuration }),
+  { plugins: [hoistedInstaller] },
+);
+
+// **D-71**: payload-free \`invalidate()\`, and \`moveTo\` is a command in
+// viewport space rather than a policy slot.
+controller.invalidate();
+controller.moveTo({ x: 10, y: 20 } satisfies Point);
+controller.cancel('reason');
+void controller.destroy();
+
+declare const source: BoundsSource;
+declare const options: LandingOptions;
+declare const preset: Partial<FreeDragConfig>;
+declare const drop: OnDrop;
+declare const axis: DragAxis;
+declare const accepted: AcceptedFreeDragResolution;
+declare const rejected: RejectedFreeDragResolution;
+
+void [source, options, preset, drop, axis, accepted.type, rejected.type];
+
+// A hoisted installer is only a writable surface if it can go back into the
+// config it was hoisted out of.
+const hoistedFragment: Partial<FreeDragConfig> = {
+  plugins: [hoistedInstaller],
+};
+
+void hoistedFragment;
+
+// ---------------------------------------------------------------------------
+// The retired shipped names. Each line must error; an \`@ts-expect-error\` that
+// stops erroring is itself a compile failure, so this list cannot rot.
+// ---------------------------------------------------------------------------
+
+// @ts-expect-error: \`coordinateSpace\` is dropped, not renamed (D-72)
+const retiredSpace: Partial<FreeDragConfig> = { coordinateSpace: 'local' };
+// @ts-expect-error: \`update(DragUpdate)\` has no successor (D-71)
+controller.update({ position: { x: 0, y: 0 } });
+// @ts-expect-error: the lift modes are renamed (D-73)
+const retiredLift: Partial<FreeDragConfig> = { lift: 'top-layer' };
+// @ts-expect-error: the resolution factories take no argument (D-41)
+const retiredResolution = FreeDragResolution.accept({ presentation: true });
+// @ts-expect-error: \`FreeDropResolution\` is renamed to one vocabulary (D-69)
+type R1 = import('@ydinjs/drag2/free-drag.js').FreeDropResolution;
+// @ts-expect-error: \`DragUpdate\` is dissolved (D-71)
+type R2 = import('@ydinjs/drag2/free-drag.js').DragUpdate;
+// @ts-expect-error: \`DraggableOptions\` is dissolved into \`FreeDragConfig\`
+type R3 = import('@ydinjs/drag2/free-drag.js').DraggableOptions;
+// @ts-expect-error: \`FreeHomeTarget\` had one inhabitant for its discriminant
+type R4 = import('@ydinjs/drag2/free-drag.js').FreeHomeTarget;
+// @ts-expect-error: \`DragBounds\` is \`BoundsSource\`, on the capability entry
+type R5 = import('@ydinjs/drag2/free-drag.js').DragBounds;
+// @ts-expect-error: the union is discriminated; the predicates are dropped
+const retiredPredicate = FreeDragResolution.isAccepted;
+
+void [retiredSpace, retiredLift, retiredResolution, retiredPredicate];
+
+// ---------------------------------------------------------------------------
+// **The tier-scoped closure, from the other side** (D-78). \`FreeDragInstaller\`
+// ships from \`free-drag.js\`; every name it reaches stays declared at the
+// middle tier, one import away for an author who wants them.
+// ---------------------------------------------------------------------------
+
+// @ts-expect-error: the contribution shape is middle tier
+type T1 = import('@ydinjs/drag2/free-drag.js').FreeDragContribution;
+// @ts-expect-error: the constraint capability is middle tier
+type T2 = import('@ydinjs/drag2/free-drag.js').MotionConstraint;
+// @ts-expect-error: the constraint's view is middle tier
+type T3 = import('@ydinjs/drag2/free-drag.js').ConstraintView;
+// @ts-expect-error: the feature context is middle tier
+type T4 = import('@ydinjs/drag2/free-drag.js').FeatureContext;
+// @ts-expect-error: the slot record is internal
+type T5 = import('@ydinjs/drag2/free-drag.js').FreeDragSlots;
+// @ts-expect-error: the seam module is not a declared subpath
+type T6 = import('@ydinjs/drag2/free-drag/spec.js').FreeDragFramePart;
+// The **middle tier is** a declared subpath, so this one must resolve — the
+// opposite assertion, and the reason the two are written together.
+type T7 = import('@ydinjs/drag2/free-drag/feature.js').FreeDragInstaller;
+
+declare const unreachable: [R1, R2, R3, R4, R5, T1, T2, T3, T4, T5, T6, T7];
+void unreachable;
+`;
+
+/**
+ * **The middle-tier fixture** (B-6): a `constrain` installer authored **out of
+ * line** against `free-drag/feature.js`, proving the slot is fillable by a
+ * third party *instead of* the first-party `bounds()` rather than beside it.
+ *
+ * It imports the middle tier and the ordinary entry and nothing else — no
+ * kernel, no deep path — which is the tier boundary D-61 draws, checked against
+ * the packed declarations rather than against `src/`.
+ */
+const CONSTRAINT = `import type {
+  ConstraintView,
+  Disposer,
+  FeatureContext,
+  FreeDragContribution,
+  FreeDragInstaller,
+  MotionConstraint,
+  MotionDraft,
+} from '@ydinjs/drag2/free-drag/feature.js';
+import { FreeDragResolution, freeDrag } from '@ydinjs/drag2/free-drag.js';
+
+/** Snaps the drag to a grid — the third-party capability D-70 exists for. */
+const snapToGrid =
+  (step: number): FreeDragInstaller =>
+  (context: FeatureContext): FreeDragContribution => {
+    void context.realm.window;
+    void context.root;
+
+    let cached: number = step;
+
+    const constrain: MotionConstraint = {
+      // By reference, and it allocates nothing: the clamped scalars are written
+      // back into the draft the behavior owns (D-70, 13c P-1 as corrected).
+      apply(motion: MotionDraft, view: ConstraintView): void {
+        void view.originRect.width;
+        motion.x = Math.round(motion.x / cached) * cached;
+        motion.y = Math.round(motion.y / cached) * cached;
+      },
+      // Staleness only — lazy by contract, so it reads no geometry.
+      invalidate(): void {
+        cached = step;
+      },
+      retire(): void {},
+    };
+
+    const retire: Disposer = () => {};
+
+    return { constrain, retire };
+  };
+
+declare const item: HTMLElement;
+
+const controller = freeDrag(
+  item,
+  { onDrop: () => FreeDragResolution.accept() },
+  { plugins: [snapToGrid(8)] },
+);
+
+void controller.destroy();
+`;
+
 const TSCONFIG = JSON.stringify({
   compilerOptions: {
     strict: true,
@@ -686,7 +993,7 @@ const TSCONFIG = JSON.stringify({
     // not to trust that it resolves.
     skipLibCheck: false,
   },
-  include: ['consumer.ts', 'behavior.ts'],
+  include: ['consumer.ts', 'behavior.ts', 'free-drag.ts', 'constraint.ts'],
 });
 
 type Packed = Readonly<{
@@ -756,6 +1063,8 @@ beforeAll(async () => {
   await symlink(join(REPO, 'packages', 'box-quad'), join(scope, 'box-quad'));
   await writeFile(join(consumer, 'consumer.ts'), CONSUMER);
   await writeFile(join(consumer, 'behavior.ts'), BEHAVIOR);
+  await writeFile(join(consumer, 'free-drag.ts'), FREE_DRAG);
+  await writeFile(join(consumer, 'constraint.ts'), CONSTRAINT);
   await writeFile(join(consumer, 'tsconfig.json'), TSCONFIG);
 
   const manifest = JSON.parse(
