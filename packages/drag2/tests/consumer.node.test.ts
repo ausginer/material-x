@@ -103,7 +103,7 @@ import {
   type AxisInstaller,
   type CancelStage,
   type CollectionSnapshot,
-  type DragErrorContext,
+  type SortableErrorContext,
   type OnReorder,
   type PlaceholderContext,
   type PlaceholderFactory,
@@ -202,7 +202,7 @@ const list: SortableController = sortable(
         void (stage === AT_PROPOSAL || stage === AT_CONSUMER);
       }
     },
-    onError: (error: DraggableError, context: DragErrorContext): void => {
+    onError: (error: DraggableError, context: SortableErrorContext): void => {
       // **D-64.** The ordinary consumer branches on a coarse fault class and
       // never sees a pipeline stage: \`context\` is the sortable half alone.
       const code: DraggableErrorCode = error.code;
@@ -898,6 +898,14 @@ describe('the packed package', () => {
         'ReorderResolution',
         'sortable',
       ],
+      './free-drag.js': [
+        'AT_CONSUMER',
+        'AT_PROPOSAL',
+        'FreeDragResolution',
+        'freeDrag',
+      ],
+      './free-drag/bounds.js': ['bounds'],
+      './free-drag/landing.js': ['landing'],
       './sortable/y.js': ['y'],
       './sortable/xy.js': ['xy'],
       './sortable/landing.js': ['landing'],

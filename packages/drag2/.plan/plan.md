@@ -992,6 +992,14 @@ Treated as its own track, not a phase, because it is a complete second behavior 
 
 **Deliverables.** The behavior, its frame part, its features, its controller. Geometry through `@ydinjs/box-quad` — there is still no coordinate module in this package, and `coordinateSpace` must not become one.
 
+**Complete, 2026-08-16.** Twelve entries where there were eight: `free-drag.js`, `free-drag/feature.js`, `free-drag/bounds.js`, `free-drag/landing.js`. D-69…D-73 and D-75 are implemented and their rows are retired from [`contract/00-index.md`](contract/00-index.md) §Decisions not yet implemented, which is now **empty** — every decision this contract states in the present tense is in the code, and `tests/decisions.node.test.ts` holds both directions over the empty table. D-76's kernel step and D-77/D-80's construction rules were consumed as landed rather than re-derived: `activation.prepare` returns `true`, `LandingContext.from` is the recorded delta, the required first argument is the signature, and there is no pull to validate ahead of the installers because there is no collection.
+
+**Two findings, raised rather than designed around** — F-71 (the bounds source surfaces at the rendering seam rather than at `action.prepare`; same coarse code on the hot paths) and F-72 (the behavior re-measures the box space the kernel already measured, because `ActivationScope` does not carry the inherited linear part — F-65's mirror). Both are Checkpoint E evidence and neither blocks Phase 20.
+
+**Geometry did go through box-quad, and `coordinateSpace` did not come back.** `localDelta` is the inverse of the inherited linear part, captured once at activation; every point on the surface is viewport, which is the seam D-72 followed.
+
+**Not in this phase, by the phase boundary rather than by omission:** the adversarial matrix rows, the three restored stories and the per-lift-mode geometry fixtures under transform and zoom. `tests/free-drag/free-drag.browser.test.ts` is the implementation's own verification — 35 rows through the public entry covering activation, the hot path, both policy members, the round-trip and the terminal — and is not a substitute for Phase 20's deliverables.
+
 **Watch item, carried from M-1.** The frame-copy cost jumps ~10× between 12 and 16 behavior-part fields on Chromium, and the sortable part sits 4 fields below that cliff. A free-drag part is a _different_ shape. If it lands above the cliff that is a measured cost, not a surprise — but it has to be measured, in Phase 21, and not assumed to inherit the sortable's number.
 
 ### Phase 20 — Free drag: validation and demos

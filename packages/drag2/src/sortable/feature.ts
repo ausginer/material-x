@@ -10,8 +10,8 @@
  * prebuilt pipelines, and no runtime descriptor interpretation.
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
-import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
+import type { FeatureContext } from '../shared/composition.ts';
 import type { Insertion } from './domain.ts';
 import type { PlaceholderSlot } from './placement.ts';
 import type {
@@ -53,19 +53,14 @@ export type {
   InsertionRuntimeView,
 } from './slots.ts';
 
-export type FeatureContext = Readonly<{
-  realm: DOMRealm;
-  root: HTMLElement;
-  /**
-   * Best-effort platform report. Deliberately **not** `fail(stage, error)`: a
-   * feature closure created at construction cannot know which operation is
-   * live, so letting it classify a failure would let a late continuation from
-   * one operation settle another. A synchronous throw inside a seam is caught
-   * and classified by the kernel's driver at that seam's stage; a landing
-   * runner that must fail an operation gets an attempt-scoped `fail` argument.
-   */
-  report(error: unknown): void;
-}>;
+/**
+ * **Declared in `src/composition.ts`, published here** (F-64, the D-68 re-home
+ * pattern). The free-drag middle tier needs the identical type, and Phase 18
+ * declined to invent a shared composition vocabulary before Checkpoint E can
+ * read the evidence for one — so the two tiers share a **declaration** rather
+ * than a structural coincidence, and B-7 asserts the identity.
+ */
+export type { FeatureContext } from '../shared/composition.ts';
 
 /**
  * Geometry is a **paired capability, not a lone read**. The behavior owns the

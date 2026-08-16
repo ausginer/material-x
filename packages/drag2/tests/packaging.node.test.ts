@@ -114,6 +114,68 @@ describe('the published file list', () => {
     expect(reached).not.toContain('sortable/y.ts');
   });
 
+  it('should keep the two behaviors out of each other', async () => {
+    // **B-1**, asserted over the graph rather than over bundle bytes, and in
+    // **both** directions — which is what makes it an exclusivity claim rather
+    // than a one-way absence. It is the executable form of the question
+    // Checkpoint E is convened to ask: a consumer of one behavior must not be
+    // able to reach the other's modules, however the bundler feels about it.
+    const free = [...(await reachableFrom(['drag', 'free-drag']))].map((file) =>
+      relative(SRC, file),
+    );
+    const sortable = [
+      ...(await reachableFrom(['drag', 'sortable', 'sortable/y'])),
+    ].map((file) => relative(SRC, file));
+
+    expect(free.filter((file) => file.startsWith('sortable/'))).toEqual([]);
+    expect(sortable.filter((file) => file.startsWith('free-drag/'))).toEqual(
+      [],
+    );
+    // Not vacuous: each really does reach its own tier.
+    expect(free).toContain('free-drag/spec.ts');
+    expect(sortable).toContain('sortable/spec.ts');
+  });
+
+  it('should keep an unconstrained free drag out of the clamp', async () => {
+    // **B-2**, the same instrument and the same both-directions form the two
+    // axis features already use. A consumer wanting an unconstrained drag
+    // carries **no bounds code** — no rect resolver, no clamp arithmetic —
+    // which is the test `plan.md` §Phase 18 set for the composition model and
+    // the whole reason `bounds` is a capability installer rather than a config
+    // key (D-70).
+    const minimal = [...(await reachableFrom(['drag', 'free-drag']))].map(
+      (file) => relative(SRC, file),
+    );
+
+    expect(minimal).not.toContain('free-drag/bounds.ts');
+    expect(minimal).not.toContain('shared/landing-runner.ts');
+
+    const bounded = [
+      ...(await reachableFrom(['drag', 'free-drag', 'free-drag/bounds'])),
+    ].map((file) => relative(SRC, file));
+
+    expect(bounded).toContain('free-drag/bounds.ts');
+  });
+
+  it('should share the landing runner between the two behaviors', async () => {
+    // The other half of F-64's "one declaration, two publications": the runner
+    // is behavior-neutral, so **both** landing entries reach the same internal
+    // module and neither reaches the other behavior to get there.
+    const free = [...(await reachableFrom(['free-drag/landing']))].map((file) =>
+      relative(SRC, file),
+    );
+    const sortable = [...(await reachableFrom(['sortable/landing']))].map(
+      (file) => relative(SRC, file),
+    );
+
+    expect(free).toContain('shared/landing-runner.ts');
+    expect(sortable).toContain('shared/landing-runner.ts');
+    expect(free.filter((file) => file.startsWith('sortable/'))).toEqual([]);
+    expect(sortable.filter((file) => file.startsWith('free-drag/'))).toEqual(
+      [],
+    );
+  });
+
   it('should not ship a directory nothing emits into', async () => {
     // The reverse drift: an allowlist entry that no longer names anything.
     const { files } = (await readJSON('package.json')) as {
