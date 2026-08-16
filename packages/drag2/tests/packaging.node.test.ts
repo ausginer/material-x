@@ -176,6 +176,37 @@ describe('the published file list', () => {
     );
   });
 
+  it('should publish the two shared declarations from one module each', async () => {
+    // **B-7, as identity rather than as shape.** `expectTypeOf` compares
+    // structures, and two independently declared types with the same members
+    // would satisfy it — which is exactly the coincidence F-64 says must not be
+    // mistaken for a shared vocabulary. What makes them the *same declaration*
+    // is that each middle tier re-exports it from one internal module, so that
+    // is what this reads. A future editor who re-declares either side to "avoid
+    // a shared file" fails here.
+    const [sortableFeature, freeDragFeature, sortableLanding, freeDragLanding] =
+      await Promise.all(
+        [
+          'sortable/feature.ts',
+          'free-drag/feature.ts',
+          'sortable/landing.ts',
+          'free-drag/landing.ts',
+        ].map((file) => readFile(join(SRC, file), 'utf8')),
+      );
+
+    for (const source of [sortableFeature, freeDragFeature]) {
+      expect(source).toMatch(
+        /export type \{[^}]*FeatureContext[^}]*\} from '\.\.\/shared\/composition\.ts'/su,
+      );
+    }
+
+    for (const source of [sortableLanding, freeDragLanding]) {
+      expect(source).toMatch(
+        /export type \{[^}]*LandingOptions[^}]*\} from '\.\.\/shared\/landing-runner\.ts'/su,
+      );
+    }
+  });
+
   it('should not ship a directory nothing emits into', async () => {
     // The reverse drift: an allowlist entry that no longer names anything.
     const { files } = (await readJSON('package.json')) as {

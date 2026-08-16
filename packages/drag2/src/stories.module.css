@@ -17,6 +17,53 @@
   zoom: 1.25;
 }
 
+/* A bounded free-drag area. Doubles as the `bounds()` source. */
+.area {
+  position: relative;
+  width: min(480px, 90vw);
+  height: 280px;
+  border: 1px dashed #79747e;
+  border-radius: 12px;
+  background: #f7f2fa;
+  overflow: hidden;
+}
+
+/* The free-drag subject. */
+.box {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  background: #6750a4;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
+}
+
+.box:active {
+  cursor: grabbing;
+}
+
+/* A visual carrying its own transform, so composition is visible. */
+.tilted {
+  transform: rotate(-8deg) scale(1.05);
+}
+
+/* A transformed stage — what the three lift modes differ about. */
+.warped {
+  transform: rotate(6deg) scale(1.15);
+  transform-origin: top left;
+}
+
 /* The sortable collection. */
 .list {
   display: flex;

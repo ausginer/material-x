@@ -1008,6 +1008,14 @@ Treated as its own track, not a phase, because it is a complete second behavior 
 
 **Explicit requirement, from Phase 11's lesson.** Phase 11 found a lift-mode regression that all 644 tests passed through, because no test compared the lifted visual's on-screen box to the placeholder's — it was caught by driving a demo. Free drag has three lift modes and a transformed-stage story. **The lift-geometry assertions are a deliverable of this phase**, and closing that open gap for the sortable belongs here too.
 
+**Complete, 2026-08-16.** Four new suites and one restored story file: `tests/free-drag/validation.browser.test.ts` (B-4, all five clauses), `tests/free-drag/lifecycle.browser.test.ts` (L-1…L-4), `tests/free-drag/geometry.browser.test.ts` and `tests/sortable/lift-geometry.browser.test.ts` (L-5, both behaviors), `tests/free-drag/feature.declaration.test.ts` (B-6's type half), plus two packed consumer fixtures — an ordinary-tier free-drag consumer (B-5) and an out-of-line `constrain` installer (B-6) — and `src/free-drag.stories.tsx` restoring `Interactive`, `AsyncDropConfirmation` and `TransformedStage`. The fixture harness moved to `tests/support/free-drag.ts` rather than being copied four times. **D-81's source half landed**: `src/free-drag/bounds.ts` names all four seams and states that `FAILURE_ACTION_PREPARE` is unreachable from the row, so §Decisions not yet implemented is empty again.
+
+**What the matrix found, and both are claim-side.** **F-75** — B-4 (b)'s _exactly one terminal_ cannot hold for the classified rows that surface before `onStart`, because D-66 refuses to publish an end for a beginning the consumer has no record of; the suite asserts the absence for those rows and exactly one for the rest, so the split is executable. **F-76** — 07 §Validation attributes a throwing `visual` resolver to activation, and **both** behaviors resolve it during admission, so the code is `consumer` rather than `interaction`. Neither changes any code: in each case the shipped behavior is the intended one and the sentence is what disagrees.
+
+**L-3 and L-4 needed a middle-tier installer to be falsifiable at all**, which is D-81/F-74 discharged rather than restated: the `bounds()`-based fixture is kept beside the discriminating one and asserts its own _non_-discrimination, so a later reader cannot mistake it for coverage.
+
+**Size stayed telemetry.** No production module was added; the only source edit is a comment in `src/free-drag/bounds.ts`, and the stories file is not in the package's `files` allowlist. **F-65 and F-72 did not move** — the SPI is untouched and the duplicate activation traversal is still Checkpoint E's, measured in Phase 21.
+
 ---
 
 ## Checkpoint E — cross-behavior architectural evidence
