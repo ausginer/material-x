@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import files from '../files.json' with { type: 'json' };
 import * as drag from '../src/drag.ts';
+import * as freeDragBounds from '../src/free-drag/bounds.ts';
+import * as freeDragFeature from '../src/free-drag/feature.ts';
+import * as freeDragLanding from '../src/free-drag/landing.ts';
+import * as freeDrag from '../src/free-drag.ts';
 import * as kernel from '../src/kernel.ts';
 import * as feature from '../src/sortable/feature.ts';
 import * as landing from '../src/sortable/landing.ts';
@@ -19,9 +23,13 @@ const modules: Readonly<Record<string, object>> = {
   'sortable/xy': xy,
   'sortable/landing': landing,
   'sortable/layout-animation': layoutAnimation,
+  'free-drag': freeDrag,
+  'free-drag/bounds': freeDragBounds,
+  'free-drag/landing': freeDragLanding,
   // Last, because the assertion below compares against `runtime` then
-  // `typeOnly` and this is the only member of the second list.
+  // `typeOnly`, and these two are the whole of the second list.
   'sortable/feature': feature,
+  'free-drag/feature': freeDragFeature,
 };
 
 /** Code-unit order, so the expected lists below read the way they sort. */
@@ -88,12 +96,22 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'toDraggableError',
   ],
   sortable: ['AT_CONSUMER', 'AT_PROPOSAL', 'ReorderResolution', 'sortable'],
+  // The second behavior's ordinary tier, and the symmetry is the assertion:
+  // one function, one resolution namespace, and the two cancel stages a
+  // `CanceledFreeDragResult` obliges the consumer to discriminate (D-68).
+  'free-drag': ['AT_CONSUMER', 'AT_PROPOSAL', 'FreeDragResolution', 'freeDrag'],
+  'free-drag/bounds': ['bounds'],
+  'free-drag/landing': ['landing'],
   // **The middle tier has no runtime exports at all** (D-61). Every name on it
   // is erased. That is the honest measurement statement for this entry: it
   // cannot demonstrate absence because it contains nothing present, and unlike
   // the three subpaths D-56 deleted for exactly that reason, it is not
   // pretending to. It exists to give the authoring types an address.
   'sortable/feature': [],
+  // Free drag's middle tier, for the identical reason: `FreeDragInstaller`,
+  // `FreeDragContribution`, `MotionConstraint`, `ConstraintView` and
+  // `MotionDraft` are all erased, so the entry emits no `.js` at all.
+  'free-drag/feature': [],
   'sortable/y': ['y'],
   'sortable/xy': ['xy'],
   'sortable/landing': ['landing'],
@@ -113,7 +131,7 @@ describe('package entrypoints', () => {
     // be stated — the surface table below cannot tell the two apart, because
     // both look like an empty export list from inside `src`.
     expect([...files.runtime, ...files.typeOnly]).toEqual(Object.keys(modules));
-    expect(files.typeOnly).toEqual(['sortable/feature']);
+    expect(files.typeOnly).toEqual(['sortable/feature', 'free-drag/feature']);
   });
 
   it('should resolve every declared entry to a source module', () => {

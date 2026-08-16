@@ -2418,7 +2418,7 @@ describe('invalidation failure classification', () => {
 
   it('should classify an activation-time invalidation failure as its own stage', () => {
     // Not `FAILURE_ACTIVATION`: the surrounding seam would otherwise name the
-    // wrong thing in `DragErrorContext.stage`.
+    // wrong thing in `SortableErrorContext.stage`.
     const harness = createHarness({
       invalidateInsertion: (): void => {
         throw new Error('invalidation failed');

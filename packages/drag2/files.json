@@ -6,10 +6,18 @@
     "sortable/y",
     "sortable/xy",
     "sortable/landing",
-    "sortable/layout-animation"
+    "sortable/layout-animation",
+    "free-drag",
+    "free-drag/bounds",
+    "free-drag/landing"
   ],
-  "typeOnly": ["sortable/feature"],
+  "typeOnly": [
+    "sortable/feature",
+    "free-drag/feature"
+  ],
   "clean": {
-    "extras": ["_virtual"]
+    "extras": [
+      "_virtual"
+    ]
   }
 }

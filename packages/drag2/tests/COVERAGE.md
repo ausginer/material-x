@@ -612,3 +612,30 @@ Recorded rather than removed, so a later reader does not mistake them for covera
 | ~~`settlement !== attempt` in `watchReadiness` **and** in `handleReadinessSettled`~~ | **Retired, not reclassified.** D-41 deleted both functions with the readiness protocol, so the mutant has no subject. Recorded rather than dropped because this table is the register a later reader checks against the source: an entry that silently vanished would look like a guard that was never examined. |
 
 The precedent for _removing_ an unfalsifiable conjunct rather than recording it (Checkpoint B's placeholder parentage/adjacency pair) applies when the conjunct is dead weight in the only shape that reaches it. These two are cheap, and one of them is a second line of defence on a staleness rule — so they stay, named.
+
+## Free drag — new (Phase 19, D-69…D-76)
+
+**The implementation's own verification, not Phase 20's matrix.** The adversarial rows, the restored stories and the per-lift-mode geometry fixtures under transform and zoom are Phase 20 deliverables and are deliberately absent.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a press that crosses the threshold starts the drag, and one that does not starts nothing | `tests/free-drag/free-drag.browser.test.ts` — _should start on a press that crosses the threshold_, _should not start for a press that never crosses the threshold_ | D-69 |
+| `onStart` reports the **accumulated grab delta**, and the visual is placed at it rather than at zero | _should report the accumulated grab delta to onStart_, _should place the visual at that delta rather than at zero_ | ledger §6.2 |
+| every committed sample writes the visual, and `onMove` fires **after** the write | _should write the visual on every committed sample_, _should notify onMove after the write_ | D-69 |
+| the reported rect is derived, never measured | _should derive the visual rect without measuring it_ | D-72 |
+| the round-trip opens on release and publishes **exactly one** terminal, for accept, reject, async accept and an invalid resolution | _should open the round-trip on release and publish one terminal_, _should publish a rejected terminal for a rejected drop_, _should await an async acceptance_, _should treat an invalid resolution as an error, never an acceptance_ | D-62, D-66 |
+| the request is built from the **committed release sample**, not the last move | _should build the request from the committed release sample_ | F-39 |
+| `Escape` cancels with one terminal; a press that never started publishes **none** | _should publish exactly one canceled terminal for an Escape_, _should publish no terminal for a press that never started_ | D-66, Q-15 |
+| an axis scalar locks the cross axis; a source is read at activation and on `invalidate()`, never per sample | _should lock the cross axis when a scalar names one_, _should read a source at activation rather than per sample_, _should re-read the source on invalidate()_ | D-71 |
+| an unknown `axis` string is **silent**: a normal, successful, unconstrained drag | _should complete a normal unconstrained drag for an unknown axis string_ | 07 §Validation |
+| `bounds()` clamps to the viewport, to an element and to a thunk, re-resolves after `invalidate()`, and leaves a `null` source unconstrained | _should clamp the delta to the source rect_, _should contain the visual inside an element source_, _should re-resolve a thunk source after invalidate()_, _should leave the drag unconstrained when the source returns null_ | D-70 |
+| `moveTo()` places the visual at a viewport point and **re-bases**, so later pointer motion continues relative to it and the release request opens from it | _should place the visual at the requested viewport point_, _should re-base, so later pointer motion continues relative to it_, _should open the release request from the re-based position_ | D-71, L-4 |
+| `destroy()` tears down with **no** terminal — D-66's _live controller_ qualifier — while `cancel()` publishes one | _should tear down an in-flight drag on destroy, with no terminal_, _should publish one canceled terminal for cancel() mid-drag_ | D-36, D-66 |
+| a landing still publishes exactly one terminal | _should still publish exactly one terminal with a landing installed_ | D-63 |
+| construction throws **nothing** for any config the compiler accepts, garbage spread into the first argument | _should throw nothing for any config the compiler accepts_ | B-4 (a), D-77 |
+| a later fragment cannot clear the required slot, through the public entry | _should not let a later fragment clear the required slot_ | B-9 (c) |
+| two installers claiming the motion constraint is the one construction-time throw | _should refuse two installers claiming the motion constraint_ | D-77 |
+| the two behaviors reach **no** module of each other, in both directions | `tests/packaging.node.test.ts` — _should keep the two behaviors out of each other_ | B-1 |
+| an unconstrained free drag carries no clamp and no rect resolver | `tests/packaging.node.test.ts` — _should keep an unconstrained free drag out of the clamp_ | B-2 |
+| both landing entries reach the **same** internal runner and neither reaches the other behavior | `tests/packaging.node.test.ts` — _should share the landing runner between the two behaviors_ | F-64, B-7 |
+| the four new entries' runtime surface, by value | `tests/exports.node.test.ts`, `tests/consumer.node.test.ts` | B-3 |

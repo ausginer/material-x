@@ -10,7 +10,7 @@
 import type { Writable } from 'type-fest';
 import type { DraggableError } from '../kernel/errors.ts';
 import type {
-  DragErrorContext,
+  SortableErrorContext,
   OnReorder,
   ReorderTransactionResult,
 } from './domain.ts';
@@ -34,7 +34,7 @@ import type { PlaceholderFactory } from './placement.ts';
 export type OnStart = (item: HTMLElement) => void;
 export type OnDragError = (
   error: DraggableError,
-  context: DragErrorContext,
+  context: SortableErrorContext,
 ) => void;
 /**
  * **One terminal callback, four arms** (D-62). ~~`onFinish` and `onCancel`~~

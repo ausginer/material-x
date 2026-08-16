@@ -338,12 +338,22 @@ describe('the deferred decisions', () => {
   });
 
   it('should hold every witness it claims', async () => {
-    const rows = listed(await index());
+    const lines = await index();
+    const rows = listed(lines);
     const landed: string[] = [];
 
-    // Parsed at least one row, or the two tests above pass vacuously against a
-    // renamed section and this one asserts nothing about nothing.
-    expect(rows.length).toBeGreaterThan(0);
+    // **The section exists, which is what this can check** — not that it has
+    // rows. It asserted `rows.length > 0` while there were always rows, on the
+    // reasoning that a renamed section would otherwise make this and the two
+    // tests above pass vacuously against nothing. Phase 19 emptied the table
+    // legitimately: every decision the contract states is implemented, and an
+    // empty table is a state rather than an omission.
+    //
+    // The vacuity it guarded is still covered, and by the stronger instrument:
+    // a **renamed** section makes `listed()` return nothing while `marked()`
+    // keeps finding markers, so *should list every decision its own row marks
+    // as unimplemented* fails. What no longer fails is the honest empty case.
+    expect(section(lines).length).toBeGreaterThan(0);
 
     for (const row of rows) {
       // oxlint-disable-next-line no-await-in-loop

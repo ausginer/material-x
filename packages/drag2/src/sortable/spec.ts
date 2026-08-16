@@ -409,7 +409,7 @@ export function createSortableSpec(
    *
    * Every call site below is inside a kernel-driven seam, so the surrounding
    * phase would otherwise classify a throw as *its* stage — an activation
-   * failure, a placeholder-move failure — and `DragErrorContext.stage` would
+   * failure, a placeholder-move failure — and `SortableErrorContext.stage` would
    * name the wrong thing. `host.fail` narrows from the inside, which is the
    * mechanism the contract specifies for exactly this (contract 02 §Failure
    * classification: `INVALIDATION` (home)).
