@@ -401,12 +401,19 @@ describe('the silent table', () => {
 describe('the landing duration domain', () => {
   const landingFailure = codeOf(FAILURE_LANDING_CREATE);
 
-  it('should refuse Infinity and let the accepted drop survive it', async () => {
-    // **B-4 (d).** `Infinity` is the one duration the platform accepts and
-    // never completes, so the library refuses it — and free drag's
-    // `SETTLED_FAILED` mapping keeps the verdict the consumer already gave
-    // (D-24, D-49). The assertion is on the drop's survival, not on which
-    // track the kernel used.
+  it('should refuse Infinity and let the committed rejected verdict survive it', async () => {
+    // **B-4 (d), restated at Checkpoint E** (E-07). The row used to be titled
+    // *let the accepted drop survive it*, and it never could be: free drag
+    // deliberately does **not** arm a landing for an accepted result — an
+    // accepted drop is already at its destination — so an accepted drop never
+    // evaluates a duration and cannot reach landing creation at all. The
+    // asymmetry is semantic and is retained; what was wrong was the title, and
+    // the executed path was always this one.
+    //
+    // `Infinity` is the one duration the platform accepts and never completes,
+    // so the library refuses it — and free drag's `SETTLED_FAILED` mapping
+    // keeps the verdict the consumer already gave (D-24, D-49). The assertion
+    // is on the verdict's survival, not on which track the kernel used.
     const composed = compose({
       fragments: [landing({ duration: Number.POSITIVE_INFINITY })],
       onDrop: () => FreeDragResolution.reject('nope'),
@@ -484,5 +491,115 @@ describe('the landing duration domain', () => {
     expect(composed.errors).toEqual([]);
     expect(composed.ends).toHaveLength(1);
     expect(composed.ends[0]!.type).toBe('rejected');
+  });
+});
+
+describe('an invalid home result', () => {
+  const landingTarget = codeOf(FAILURE_LANDING_TARGET);
+
+  /** Drives a rejected drop, which is the arm that asks `home` where to go. */
+  const dropHome = async (
+    home: FreeDragConfig['home'],
+  ): Promise<ReturnType<typeof compose>> => {
+    const composed = compose({
+      config: { home },
+      onDrop: () => FreeDragResolution.reject('nope'),
+    });
+
+    activate(composed);
+    release(30, 10);
+    await settled();
+    await frame();
+    await settled();
+
+    return composed;
+  };
+
+  it('should attribute a null result to the landing target seam', async () => {
+    // **E-05.** 07 §Validation already publishes this attribution; the shipped
+    // `anchorTarget` returned the consumer's object verbatim, and the kernel
+    // reads `.x`/`.y` *outside* the quality wrapper that covers the call. So a
+    // `null` panicked outside the seam its own contract names, and the review's
+    // probe expected one attributed `onError` and received none.
+    const composed = await dropHome((() => null) as never);
+
+    expect(codes(composed.errors)).toEqual([landingTarget]);
+    expect(reported()).toEqual([]);
+  });
+
+  it('should attribute a non-finite result to the same seam', async () => {
+    // Worse than a panic, because nothing throws: `NaN` composes into a target
+    // and reaches a renderer as a transform nobody can see.
+    const composed = await dropHome(() => ({
+      x: Number.NaN,
+      y: Number.POSITIVE_INFINITY,
+    }));
+
+    expect(codes(composed.errors)).toEqual([landingTarget]);
+  });
+
+  it('should attribute a result with a throwing accessor to the same seam', async () => {
+    // The point is read inside the seam, so a live accessor throws where the
+    // quality wrapper can classify it rather than into the join.
+    const composed = await dropHome(() => ({
+      get x(): number {
+        throw new Error('home: gone');
+      },
+      y: 0,
+    }));
+
+    expect(codes(composed.errors)).toEqual([landingTarget]);
+  });
+
+  it('should end the operation once despite the invalid target', async () => {
+    // **The quality track's whole point** (D-49): a drop that already committed
+    // is not re-settled. The landing is skipped rather than faked, and the
+    // consumer still hears the verdict it gave.
+    const composed = await dropHome((() => null) as never);
+
+    expect(composed.ends).toHaveLength(1);
+    expect(composed.ends[0]!.type).toBe('rejected');
+  });
+
+  it('should reach no onError when the resolver destroys and then throws', async () => {
+    // **E-03's quality route, and the half `runAdmission` does not cover.**
+    // `reportQuality` delegated to the behavior's hook unconditionally, and its
+    // producers are consumer-reaching too — this one is `home`, which is free
+    // drag's only consumer call on the landing-target path. A resolver that
+    // calls `destroy()` and *then* throws would otherwise have its own
+    // destruction reported back to it through a declared callback.
+    //
+    // `armSettlement`'s `settlementLive()` check runs **after** the report, so
+    // it never saw this ordering; the reading belongs where the report is made.
+    const composed = compose({
+      config: {
+        home: () => {
+          void composed.controller.destroy();
+          throw new Error('home: gone');
+        },
+      },
+      onDrop: () => FreeDragResolution.reject('nope'),
+    });
+
+    activate(composed);
+    release(30, 10);
+    await settled();
+    await frame();
+    await settled();
+
+    expect(composed.errors).toEqual([]);
+    // `destroy()` publishes no terminal at all, so the absence here is the
+    // floor holding rather than a terminal that merely arrived early.
+    expect(composed.ends).toEqual([]);
+    expect(reported()).toEqual([]);
+  });
+
+  it('should accept a finite result and travel to it', async () => {
+    // The positive control, without which the rows above are satisfied by an
+    // `anchorTarget` that refuses every consumer point.
+    const composed = await dropHome(() => ({ x: 5, y: 7 }));
+
+    expect(composed.errors).toEqual([]);
+    expect(composed.ends).toHaveLength(1);
   });
 });

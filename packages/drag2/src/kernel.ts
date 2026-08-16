@@ -104,9 +104,15 @@ export type { Disposer, LifetimeScope } from './kernel/lifetimes.ts';
  * behavior twice. Its own definition names `VisualLiftSession`, which therefore
  * stays published as well — a `Pick` whose source a consumer cannot name is not
  * a type a consumer can name.
+ *
+ * `InheritedSpace` joins them for the same reason and by the same test (D-85):
+ * `ActivationScope.inheritedSpace` is typed as it, so the scope's closure runs
+ * through it and D-68's rule — a tier publishes every name its own surface
+ * reaches — applies unchanged.
  */
 export type {
   BehaviorLiftSession,
+  InheritedSpace,
   VisualLiftSession,
 } from './kernel/presentation.ts';
 export type { OffsetBox } from './kernel/types.ts';

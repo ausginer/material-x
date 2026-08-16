@@ -856,6 +856,21 @@ export function createSortableSpec(
           return;
         }
 
+        // **The last barrier of the activation sequence** (I-36, E-02).
+        // `invalidateInSeam` calls a third-party `invalidateInsertion` — the
+        // axis installer's, which is middle-tier code — and it reports only
+        // whether that call *threw*, never whether it destroyed the controller
+        // on its way out. Without this reading an installer that closed its own
+        // controller still gets a start published for it.
+        //
+        // It is the same shape as free drag's and is deliberately not shared:
+        // the two barriers guard different calls in different sequences, and
+        // extracting them would build a common activation runtime out of a
+        // coincidence of shape (E-02's own disposition).
+        if (host.closed) {
+          return;
+        }
+
         // **The marker advances before the call, not after** (D-66). A throw
         // from `onStart` itself is classified, and the consumer has by then
         // been told the drag began — so it is owed an end. Advancing after the

@@ -732,6 +732,16 @@ export function createKernel<Part extends object, Activation extends {} = true>(
      * requirement: reach `onError` without queueing a checkpoint.
      */
     reportQuality: (stage, error) => {
+      // **The same lifetime guard, on the other kernel-owned route** (E-03).
+      // A quality fault's producer is consumer-reaching too — a `home`
+      // resolver, a landing factory — and is equally free to destroy before it
+      // throws. `armSettlement`'s own `settlementLive()` check runs *after*
+      // this report, so it never saw the ordering; the reading belongs where
+      // the report is made.
+      if (queue.closed) {
+        return;
+      }
+
       guarded(() => {
         spec!.reportFailure(stage, error);
       });
@@ -824,9 +834,21 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // Q-1: identity was never minted, so there is no operation for a
       // checkpoint to settle and no `REPORTING` phase to enter. The controller
       // stays idle and usable, and the behavior surfaces the diagnostic.
-      guarded(() => {
-        active.reportFailure(FAILURE_ADMISSION, error);
-      });
+      //
+      // **Unless the resolver closed the controller on its way out** (E-03,
+      // I-31, D-53). `admit` runs consumer resolvers, and one that calls
+      // `destroy()` and *then* throws would otherwise have its own destruction
+      // reported back to it through a declared `onError` — a callback after
+      // `destroy()` returned, which the floor forbids outright. The check is
+      // here rather than in each behavior because the rule is **controller
+      // lifetime**, not domain settlement, and both behaviors reach this one
+      // call site identically.
+      if (!queue.closed) {
+        guarded(() => {
+          active.reportFailure(FAILURE_ADMISSION, error);
+        });
+      }
+
       return null;
     }
 
@@ -1115,7 +1137,15 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         width: source.offsetWidth,
         height: source.offsetHeight,
       };
-      const session = acquireLift(target, spec!.config.liftMode, rect, realm);
+      // **One traversal, two products** (D-85). The inherited space comes out
+      // of the measurement this call already took, before it mutated anything;
+      // no behavior may take a second read for it.
+      const { session, inheritedSpace } = acquireLift(
+        target,
+        spec!.config.liftMode,
+        rect,
+        realm,
+      );
 
       originRect = rect;
       lift = session;
@@ -1144,6 +1174,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         // draft field read back.
         box: source,
         boxPre,
+        inheritedSpace,
         lift: session,
         motion: owned.motion,
         presentation: owned.presentation,

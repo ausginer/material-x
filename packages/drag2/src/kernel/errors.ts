@@ -72,9 +72,24 @@ export class DraggableError extends Error {
  * that defect silently, on the channel a consumer actually reads. Adding a
  * stage without naming a code does not compile.
  *
- * **The axis is fault attribution, not pipeline position.** `ADMISSION`,
- * `REORDER_RESOLUTION` and `TERMINAL_CALLBACK` are consumer code failing;
- * `SCHEDULED_FRAME`, `RENDERER_WRITE` and `INVALIDATION` are not.
+ * **The axis is fault attribution where the stage names a caller, and seam
+ * position where it names a seam** — narrowed at Checkpoint E (E-08), because
+ * the stronger claim this comment used to make is not what the call sites do.
+ * `ADMISSION`, `RESOLUTION` and `TERMINAL_CALLBACK` do name consumer code
+ * failing — `RESOLUTION` is `FAILURE_REORDER_RESOLUTION`'s D-74 name, and this
+ * comment still used the retired one — and `SCHEDULED_FRAME` and `INVALIDATION`
+ * name the library's own. But the generic seam stages are chosen by **where
+ * the throw happened**, not by whose code it was: one consumer-supplied
+ * `bounds` source produces `ACTIVATION`, `RENDERER_WRITE`, `ACTION_EFFECT` or
+ * `RELEASE` depending only on which seam resolved the rect first (D-81).
+ *
+ * **That is correct, and the vocabulary stays closed at thirteen**: a
+ * behavior-selected stage is the alternative and it is refused, because it
+ * would make the wire value a function of which behavior was installed. What
+ * changed here is only the claim, not the mapping — a reader deriving an
+ * attribution from a stage constant's neighbourhood rather than from the call
+ * site gets a plausible wrong answer, which is how two contract rows went wrong
+ * (D-83's `bounds`, D-84's `visual`).
  */
 const STAGE_TO_CODE: Readonly<Record<FailureStage, DraggableErrorCode>> = {
   [FAILURE_ADMISSION]: 'consumer',

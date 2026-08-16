@@ -61,7 +61,7 @@ function createBox(
 }
 
 function lift(visual: HTMLElement, mode: number): VisualLiftSession {
-  const session = acquireLift(
+  const { session } = acquireLift(
     visual,
     mode as Parameters<typeof acquireLift>[1],
     visual.getBoundingClientRect(),
@@ -319,7 +319,7 @@ describe('acquireLift cleanup', () => {
     // must not cost the visual its authored `position`, `width` and `transform`
     // permanently.
     const visual = createBox();
-    const session = acquireLift(
+    const { session } = acquireLift(
       visual,
       LIFT_FLAT,
       visual.getBoundingClientRect(),
