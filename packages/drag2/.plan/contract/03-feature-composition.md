@@ -43,6 +43,14 @@ type SortableInstaller = (context: FeatureContext) => SortableContribution;
 
 type FeatureContext = Readonly<{
   realm: DOMRealm;
+  /**
+   * **The element the behavior is composed on, and it denotes a different
+   * element per tier** (CE1-10): for the sortable it is the **collection
+   * root**, the container whose children are the sortable items; for free drag
+   * it is the **dragged item itself**, because a free drag composes on one
+   * element and has no collection. The name is shared because the *role* is —
+   * the composition's own element — not because the referent is.
+   */
   root: HTMLElement;
   /**
    * Best-effort platform report. Deliberately **not** `fail(stage, error)`: a
@@ -56,6 +64,8 @@ type FeatureContext = Readonly<{
   report(error: unknown): void;
 }>;
 ```
+
+**`root`'s per-tier meaning is stated rather than inferred** (CE1-10). Checkpoint E measured this vocabulary and found it thin: `realm` has one installer reader, `report` has none — it is read by the two **assemblers** — and `root` has **no reader anywhere** while denoting a different element in each tier. An unread member whose meaning silently changes across the two publications is the cheapest possible drift: nothing fails when a reader eventually assumes the wrong one. Stating it costs a sentence and is the one deliverable that disposition owed. It is **evidence against widening F-64**, not for it: two tiers agreeing on a member's _name_ and disagreeing on its _referent_ is exactly what a shared declaration must not be read as promising.
 
 An installer runs **once**, while a concrete behavior instance is being constructed. It may create whatever private runtime it likes, capture that runtime in the callbacks it returns, and hand back a plain object of named contributions.
 
