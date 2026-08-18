@@ -23,6 +23,23 @@ import type { DOMRealm } from '../kernel/realm.ts';
 
 export type FeatureContext = Readonly<{
   realm: DOMRealm;
+  /**
+   * **The element the behavior is composed on, and it denotes a different
+   * element per tier** (CE1-10, 03 §A fragment is a plain declarative partial
+   * config): for the sortable it is the **collection root**, the container
+   * whose children are the sortable items; for free drag it is the **dragged
+   * item itself**, because a free drag composes on one element and has no
+   * collection. The name is shared because the *role* is — the composition's
+   * own element — not because the referent is.
+   *
+   * It is spelled out on the one declaration both tiers publish precisely
+   * because **no code reads it**: an unread member whose meaning changes
+   * silently between the two publications is the cheapest possible drift,
+   * since nothing fails when a reader eventually assumes the wrong one. Read
+   * as evidence *against* widening F-64, not for it — two tiers sharing a
+   * member's name while disagreeing on its referent is what a shared
+   * declaration must not be taken to promise.
+   */
   root: HTMLElement;
   /**
    * Best-effort platform report. Deliberately **not** `fail(stage, error)`: a

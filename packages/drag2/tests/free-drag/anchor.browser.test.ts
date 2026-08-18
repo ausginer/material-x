@@ -102,6 +102,60 @@ function recordingLanding(): Readonly<{
   return { fragment: { plugins: [installer] }, targets };
 }
 
+/**
+ * A constraint that records the **receiver** every call site hands it.
+ *
+ * The members are `function` shorthand rather than arrows precisely so that
+ * they *have* a receiver to observe. An arrow would capture the module's `this`
+ * and report `undefined` from a bound site exactly as readily as from a
+ * detached one — which is the fixture defect D-90 was re-opened over, and the
+ * reason a row can look like a convention test while measuring nothing.
+ *
+ * The record is installed **as-is and never pre-lifted**: what the behavior
+ * does with it is the thing under test, so a fixture that lifts the members
+ * itself has already performed the operation it is meant to detect.
+ */
+function receiverRecordingConstraint(): Readonly<{
+  fragment: Partial<FreeDragConfig>;
+  receivers: ReadonlyArray<readonly [string, unknown]>;
+}> {
+  const receivers: Array<readonly [string, unknown]> = [];
+  const constrain: MotionConstraint = {
+    apply(this: unknown): void {
+      receivers.push(['apply', this]);
+    },
+    invalidate(this: unknown): void {
+      receivers.push(['invalidate', this]);
+    },
+    retire(this: unknown): void {
+      receivers.push(['retire', this]);
+    },
+  };
+  const installer: FreeDragInstaller = () => ({ constrain });
+
+  return { fragment: { plugins: [installer] }, receivers };
+}
+
+/** The receivers one named site was handed, in call order. */
+function receiversAt(
+  receivers: ReadonlyArray<readonly [string, unknown]>,
+  site: string,
+): readonly unknown[] {
+  return receivers
+    .filter(([name]) => name === site)
+    .map(([, receiver]) => receiver);
+}
+
+/**
+ * Every site is asserted **reached** before its receiver is asserted absent.
+ * Without the first half the row passes when a site is never driven at all,
+ * which is the other way a convention test measures nothing.
+ */
+function expectDetached(seen: readonly unknown[]): void {
+  expect(seen.length).toBeGreaterThan(0);
+  expect(seen.filter((receiver) => receiver !== undefined)).toEqual([]);
+}
+
 describe('the accepted anchor', () => {
   it('should call no constraint between the release write and the join', async () => {
     // **D-89's row.** The resolver is left **pending**, which is what isolates
@@ -191,44 +245,58 @@ describe('the accepted anchor', () => {
 });
 
 describe('a detached constraint', () => {
-  it('should be called without this at every site', async () => {
-    // **D-90.** The convention is that contribution members are invoked
-    // detached, so this constraint's members are **lifted out of the record
-    // before installation** — which is what a `this`-reading author's code
-    // would meet. The tree was split three ways, so a bound site shows up here
-    // as an undefined-`this` throw on the platform channel rather than as a
-    // wrong value.
-    const seen: string[] = [];
-    const detached: MotionConstraint = {
-      apply(): void {
-        seen.push('apply');
-      },
-      invalidate(): void {
-        seen.push('invalidate');
-      },
-      retire(): void {
-        seen.push('retire');
-      },
-    };
-    const installer: FreeDragInstaller = () => ({
-      constrain: {
-        apply: detached.apply,
-        invalidate: detached.invalidate,
-        retire: detached.retire,
-      },
-    });
-    const composed = compose({ fragments: [{ plugins: [installer] }] });
+  it('should hand the apply site no receiver', () => {
+    // **D-90's falsifier, one site per row** (CE1-03). The four rows below are
+    // driven so that each reaches exactly one of the constraint's call sites,
+    // which is what lets a single bound site fail a single row rather than
+    // hiding inside an aggregate. Returning **all** of them to bound — the
+    // maximally non-conforming tree the decision forbids — fails all four.
+    const constraint = receiverRecordingConstraint();
+    const composed = compose({ fragments: [constraint.fragment] });
+
+    activate(composed);
+    move(50, 40);
+
+    expectDetached(receiversAt(constraint.receivers, 'apply'));
+  });
+
+  it('should hand the scroll invalidator no receiver', () => {
+    // The site registered on the gesture's scroll/resize listener. `resize` is
+    // dispatched rather than `scroll` only because the two share one callback
+    // and `resize` needs no capture phase to arrive.
+    const constraint = receiverRecordingConstraint();
+    const composed = compose({ fragments: [constraint.fragment] });
+
+    activate(composed);
+    window.dispatchEvent(new Event('resize'));
+
+    expectDetached(receiversAt(constraint.receivers, 'invalidate'));
+  });
+
+  it('should hand the policy invalidator no receiver', () => {
+    // The `TAG_POLICY` site. Driven alone, so every `invalidate` receiver read
+    // here belongs to it and not to the listener above.
+    const constraint = receiverRecordingConstraint();
+    const composed = compose({ fragments: [constraint.fragment] });
 
     activate(composed);
     composed.controller.invalidate();
-    move(50, 40);
-    release(50, 40);
-    await settled();
 
-    expect(seen).toContain('apply');
-    expect(seen).toContain('invalidate');
-    expect(reported()).toEqual([]);
-    expect(composed.errors).toEqual([]);
+    expectDetached(receiversAt(constraint.receivers, 'invalidate'));
+  });
+
+  it('should hand the retire hook no receiver', async () => {
+    // Both retirements — the operation's and the controller's — go through the
+    // assembler's hook list, so this row reads two receivers, not one.
+    const constraint = receiverRecordingConstraint();
+    const composed = compose({ fragments: [constraint.fragment] });
+
+    activate(composed);
+    release(30, 10);
+    await settled();
+    await composed.controller.destroy();
+
+    expectDetached(receiversAt(constraint.receivers, 'retire'));
   });
 
   it('should retire detached as well', async () => {

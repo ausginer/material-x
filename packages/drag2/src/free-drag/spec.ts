@@ -126,6 +126,13 @@ export function createFreeDragSpec(
    * the sortable's identical flattening — one property read and one call at the
    * seam — and because the alternative leaves two conventions in one package
    * for the author who writes against both middle tiers.
+   *
+   * **The claim above was false when it was written** (C-1): the sentence it
+   * cites did not exist on `MotionConstraint` until the convention was landed
+   * there. It is true now, and `tests/free-drag/anchor.browser.test.ts` pins
+   * all four sites with a constraint whose members record the receiver they are
+   * handed — so binding any one of them fails a row, which the previous fixture
+   * could not do because its members ignored `this`.
    */
   const { constrain } = slots;
   const applyConstraint = constrain === null ? null : constrain.apply;

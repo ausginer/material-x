@@ -84,6 +84,20 @@ export type ConstraintView = Readonly<{
  * middle-tier installer that fills this slot *instead of* `bounds()`, and the
  * library ships none of it. It is the first capability in this package a third
  * party can supply in place of a first-party one rather than beside it.
+ *
+ * **These members are invoked detached, and an author may not depend on
+ * `this`** (D-90). The behavior lifts `apply`, `invalidate` and `retire` out of
+ * the record once and calls them as bare functions, so a constraint written as
+ * a class instance — or with any method that reads `this` — is **outside
+ * contract**. It must close over its state, as the first-party `bounds()` does.
+ *
+ * The convention is stated *here*, on the published type, because the reader it
+ * exists for is the third-party installer author, and that author reads this
+ * declaration rather than the behavior that calls it. It is detached rather
+ * than bound for the reason 03 §Assembly gives for the sortable's identical
+ * flattening — one property read and one call at the seam — and because binding
+ * only free drag's would leave **two conventions in one package** for the author
+ * who writes against both middle tiers.
  */
 export type MotionConstraint = Readonly<{
   /** One indirect call per committed sample, and it allocates nothing. */
