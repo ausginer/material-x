@@ -751,3 +751,15 @@ Every code is read from `STAGE_TO_CODE` through `toDraggableError(stage, null).c
 | the operation completes normally afterwards, and a finite point still retargets — the two controls that make the discard a decision rather than a refusal | _should let the operation complete normally_, _should still retarget for a finite point_ | D-91 |
 | a **malformed** point still reaches `FAILURE_ACTION_PREPARE`, which keeps the check from being read as general argument validation | _should classify a malformed point rather than discarding it_ | D-91 |
 | the **sortable's** throwing `visual` resolver is a `consumer` fault at admission, with no terminal owed | `tests/sortable/sortable.browser.test.ts` — _should classify a throwing visual resolver as a consumer fault_ | CE1-07, D-84 |
+
+## The calling convention's second tier (2026-08-18, D-92)
+
+The sortable's half of the convention D-90 stated for free drag. `tests/sortable/calling-convention.browser.test.ts` throughout.
+
+**The rows assert the receiver is never the record the installer returned, not that it is `undefined`.** Measured rather than assumed: the four lifted members disagree on what `this` _is_ — `resolve` and `invalidate` are called off the behavior's flat slot record and receive it, while `measure` is read into a local and `retire` is pushed into `retireHooks`, so both receive `undefined`. Free drag's rows can assert `undefined` because every one of its members is lifted into a local; porting that assertion here would fail the conforming tree at two sites and would pin the flattening's shape instead of the obligation.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| each of the four lifted members is driven **alone** and is never handed the installer's own record, so re-binding a single lift in `assemble` fails a single row | _should hand the resolve site a foreign receiver_, _should hand the invalidate site a foreign receiver_, _should hand the optional measure site a foreign receiver_, _should hand the retire site a foreign receiver_ | D-92 |
+| the aggregate the recorded falsifier is stated against — all four lifts re-bound must not leave the suite green | _should never hand any site the installer record_ | D-92 |
+| the first-party axis rules still work through the same lifted sites — **recorded as non-discriminating controls, not as evidence**, since both close over their state and pass under the reversion that fails every row above | _should leave y() working through the same lifted sites_, _should leave xy() working through the same lifted sites_ | D-92, F-74 |

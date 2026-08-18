@@ -112,27 +112,14 @@ export function createFreeDragSpec(
   /**
    * **The constraint's members, lifted once and called detached** (D-90).
    *
-   * The convention is stated on `MotionConstraint`: a contribution's members
-   * are invoked as bare functions and an author may not depend on `this`. It is
-   * stated because the tree was split three ways — `apply` and one `invalidate`
-   * site bound, the other `invalidate` site and `retire` detached — so a
-   * `this`-reading constraint worked from `controller.invalidate()` and threw
-   * on the first scroll and at every retirement. Nothing failed only because
-   * the one shipped constraint closes over its state, which is the
-   * non-discriminating control F-74 names; the first third-party author is who
-   * would have met it.
+   * Every site below must call these as bare functions: the convention on
+   * `MotionConstraint` is that an author may not depend on `this`, and it holds
+   * only while nothing re-attaches them to the record. Lifting once also keeps
+   * each site to one call rather than a record read plus a member read.
    *
-   * Detached rather than bound, for the reason 03 §Assembly already gives for
-   * the sortable's identical flattening — one property read and one call at the
-   * seam — and because the alternative leaves two conventions in one package
-   * for the author who writes against both middle tiers.
-   *
-   * **The claim above was false when it was written** (C-1): the sentence it
-   * cites did not exist on `MotionConstraint` until the convention was landed
-   * there. It is true now, and `tests/free-drag/anchor.browser.test.ts` pins
-   * all four sites with a constraint whose members record the receiver they are
-   * handed — so binding any one of them fails a row, which the previous fixture
-   * could not do because its members ignored `this`.
+   * `tests/free-drag/anchor.browser.test.ts` drives each site alone with a
+   * constraint that records the receiver it is handed, so binding any one of
+   * them fails a row.
    */
   const { constrain } = slots;
   const applyConstraint = constrain === null ? null : constrain.apply;

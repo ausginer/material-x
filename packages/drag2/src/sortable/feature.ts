@@ -69,8 +69,28 @@ export type { FeatureContext } from '../shared/composition.ts';
  * cache. Neither can do the other's half, so installing a resolver without its
  * invalidator has to be impossible rather than merely discouraged.
  *
- * The assembler flattens the pair into two direct slot fields, so the call
- * sites stay one property read and one call.
+ * The assembler flattens the members into direct slot fields, so the call sites
+ * stay one property read and one call.
+ *
+ * **That flattening is a calling convention, and it binds the author** (D-92).
+ * These members are invoked **detached from the record you return**: the
+ * assembler lifts `resolve`, `invalidate`, `measure` and `retire` off it and
+ * calls them from the behavior's own flat slot record, so `this` is **never**
+ * your contribution object. An insertion geometry written as a class instance —
+ * or with any method that reads `this` — is **outside contract**; it must close
+ * over its state, as the first-party `y()` and `xy()` already do.
+ *
+ * The promise is about what `this` is **not**, because the four sites do not
+ * agree on what it is: `resolve` and `invalidate` are called off the slot
+ * record and receive it, while `measure` is read into a local and `retire` is
+ * pushed into `retireHooks`, so both receive `undefined`. Depending on any of
+ * those values is depending on the flattening's current shape.
+ *
+ * `MotionConstraint` in `free-drag/feature.js` states the same obligation
+ * (D-90), and it is stated on both published declarations rather than in one
+ * place because the reader is the third-party installer author, who meets the
+ * type and not the assembler — and because one statement beside one silence
+ * would be positive evidence of a distinction this package does not make.
  */
 export type InsertionGeometry = Readonly<{
   resolve(
