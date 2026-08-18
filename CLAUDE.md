@@ -111,3 +111,17 @@ When adding, moving, or reviewing an `@ydinjs/material-x` component's tests, use
 ## Tokens DB
 
 If you need to access any file in `.data/tokens`, use skill `use-tokens-db`.
+
+## Git workflow
+
+Work must never be committed directly to `main`. All tracked changes belong on a non-`main` work branch.
+
+**Commit every finalized handoff state without waiting for the user to ask.** A state is finalized when your assigned unit of work is complete and ready to hand to the next role or to the user. For example, an architect commits the completed contract/plan before handing it to an implementer; an implementer commits the completed implementation before review; remediation is committed once that remediation pass is complete.
+
+- Commit only changes belonging to the completed unit. Never sweep unrelated user or agent changes into the commit; stage paths deliberately when the working tree contains unrelated work.
+- If there is no tracked diff, do not create an empty commit.
+- Use a **short, subject-only** commit message unless the user explicitly asks for a body. Never copy completion reports, test output, review summaries, or plan prose into the commit message.
+- Describe the semantic change, not the workflow step: prefer `drag2: validate free-drag actions` over `drag2: phase 21`, `address review`, `finalize implementation`, or similar process labels.
+- Do not amend, squash, rebase, rewrite, or delete existing commits unless explicitly asked.
+- Do not push, create/merge a PR, or move protected branches unless explicitly asked. A local commit is automatic; publication is not.
+- Include the resulting commit SHA in the completion report.
