@@ -52,3 +52,6 @@ lint-fix *FILES:
 # Measure bundle sizes, budgets and module graphs (builds first)
 size: build
     node bench/size/measure.ts
+
+diff:
+  git show HEAD --format= -- .plan > "/workspaces/material-x/docs-$(date +%Y%m%d-%H%M%S).patch"
