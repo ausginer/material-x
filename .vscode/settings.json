@@ -1,4 +1,5 @@
 {
   "just.justExecutable": "${workspaceFolder}/node_modules/.bin/just",
-  "vitest.workspaceConfig": "vitest.config.ts"
+  "vitest.workspaceConfig": "vitest.config.ts",
+  "npm.exclude": "**/.claude/worktrees/**"
 }
