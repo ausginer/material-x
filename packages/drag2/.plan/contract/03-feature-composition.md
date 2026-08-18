@@ -245,6 +245,8 @@ An earlier draft contributed only `resolveInsertion`, while the lifecycle called
 
 Pairing the three operations in one contribution means a single claim, a single diagnostic naming both offending features, and no way to install a resolver without its invalidator. The assembler **flattens** the pair into two direct slot fields, so the call sites stay one property read and one call: `slots.resolveInsertion(...)`, `slots.invalidateInsertion()`, `slots.measureInsertion` (nullable).
 
+**The flattening is not only a technique — it is a calling convention, and it binds the author** (D-92). Lifting a member off the record and calling it bare means the member is invoked **detached**, so an `InsertionGeometry` written as a class instance, or with any method that reads `this`, is **outside contract**; it must close over its state, exactly as `MotionConstraint` requires and as the first-party `y()`/`xy()` already do. **This document said the technique and stopped one step short of the obligation the technique creates**, which is the same shape as the free-drag defect CE1-03 found: a convention the code enforces and no published declaration states. **The sortable's exposure is the larger of the two** — the assembler lifts **four** members (`resolve`, `invalidate`, the optional `measure`, and `retire`, pushed into `retireHooks` as a bare reference) against free drag's three, and `AxisInstaller` is re-exported from `sortable.js`, so the author who meets it can be an ordinary-tier consumer rather than only a middle-tier one.
+
 ### Insertion geometry is _settled presentation geometry_
 
 The insertion rule resolves against where items **settle**, and settled presentation geometry is defined by what it includes and what it excludes:
