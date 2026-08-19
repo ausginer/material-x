@@ -58,9 +58,25 @@ Timings stay opt-in behind `VITE_DRAG_MEASURE=1` and assert nothing. Structural 
 
 **Arm C — one free-drag pointer sample, end to end.** Four compositions, which is the point: bare; `+ axis`; `+ bounds(element)`; `+ bounds(() => rect)`. The last is the only one that reaches consumer code per resolve. **Decision-driving:** the delta between bare and each constrained form — that is what `applyConstraint?.()` and the clamp actually cost, against a design that pays one property read and one predictable branch when no one filled the slot.
 
-**Arm D — the staleness storm, and the reason this arm exists.** `invalidate()` is a flag and the resolve is deferred to the next `apply`. Scroll and resize raise staleness many times a second by design, so under continuous scroll **every committed sample can resolve**, and with an element source each resolve is a `getBoundingClientRect`. Workload: samples dispatched while scroll events fire between them. **Decision-driving:** resolves per sample, and layout reads per sample. Coalesced or cheap, the lazy design is affirmed and stops being an open shape; one layout read per sample and D-70's staleness needs a frame gate — which is a real design change with a real trigger, and the sortable already has the pattern in its spatial coalescing.
+**Arm D — the staleness workload, in two shapes, because one of them cannot fail.** `invalidate()` is a flag and the resolve is deferred to the next `apply`. Scroll and resize raise staleness many times a second by design.
 
-**Arm E — allocation, with `onMove` installed.** Reframed from the standing obligation, which asked for `onMove` as a per-sample consumer callback: **timing a consumer callback measures the consumer.** What is ours is `buildGeometry`, allocated per sample inside the branch. Method as M-1's: 20 000 consecutive samples, `--enable-precise-memory-info`, no intervening `gc()`. **Decision-driving:** whether a composition with `onMove` allocates per sample, and therefore whether the geometry should become a reused draft the way `motion` already is. The sortable's 0 B is the control.
+**The adversarial shape entails its own read count and must not be scored on it.** One scroll event dispatched between every pair of samples makes _one resolve per sample_ arithmetic: the flag is set once, read once, and no design in the tree could produce another answer. Counting resolves there measures the workload. So the two shapes are scored differently, and the split is the point of this arm.
+
+- **Burst — the shape that can actually fail.** `k` scroll events between two samples, `k ∈ {1, 4, 16}`. **Decision-driving: resolves per sample.** Laziness claims to collapse `k` invalidations into **one** resolve; that claim is falsifiable, and a result above one at any `k` means the flag is being read somewhere it should not be. This is the only place a read _count_ is evidence.
+- **Continuous — the shape that entails one read per sample.** Realistic pointer-plus-scroll pacing, one invalidation per sample. **Decision-driving: the per-sample cost delta against a no-scroll control**, with an element source and with a function source. **Telemetry: the read count**, which is known before the run and is recorded only so the write-up is legible.
+
+**And the trigger this arm was originally given does not follow, which is the more important correction.** _One layout read per sample ⇒ a frame gate_ is wrong whenever the geometry genuinely changed between those samples: a frame gate serves the previous frame's rect to this frame's clamp, so under real scrolling it is a **correctness change that moves the visual**, not an optimization. A gate is justified only where both halves hold — **the resolve is a material fraction of the sample** (the continuous shape's cost delta), **and** the invalidations being collapsed fall **inside one frame**, where the rect they each describe is the same rect (the burst shape). Either half alone licenses nothing. If the burst shape shows laziness already collapses within-frame bursts to one resolve — which is what the design claims — then the frame gate has **no case left to make** regardless of the cost number, and D-70's staleness design is affirmed and closed rather than left open.
+
+**Arm E — allocation, and what a heap reading can and cannot say.** Reframed from the standing obligation, which asked for `onMove` as a per-sample consumer callback: **timing a consumer callback measures the consumer.** What is ours is `buildGeometry`, which returns a fresh object per sample inside the `onMove` branch.
+
+**That it allocates is not a measurable question and is not asked here.** The code constructs an object literal per sample; reading it settles the fact, and no workload can return _no_. **A `usedJSHeapSize` delta over 20 000 samples establishes net retention, not allocation** — a collector that keeps up makes churn invisible, which is exactly the bound M-1 wrote for I-26 and the reason I-26's tier stayed **C**. Scoring this arm as _0 B ⇒ no allocation_ would repeat, at the second behavior, the error M-1 was careful not to make at the first.
+
+So the decision-driving quantity is the one the harness can legitimately establish: **whether the per-sample churn is observable as cost.**
+
+- **Retention**, by M-1's method — 20 000 consecutive samples, `--enable-precise-memory-info`, no intervening `gc()`, with `onMove` installed and with the slot null. **Decision-driving:** any net growth at all, which would mean the geometry is being kept rather than churned and is a different and worse defect.
+- **GC pressure**, which is where churn becomes visible if it matters. Over the same run, the sample-time **distribution** rather than its median: p95 and max against the null-slot control. Allocation churn that a generational collector absorbs shows up as tail, not as mean, and a tail indistinguishable from the control is the honest form of _this costs nothing observable_.
+
+**What each outcome decides.** A tail separated from the control makes the reused-draft change — `buildGeometry` writing into a per-controller draft the way `motion` already does — a measured fix. A tail inside the control's spread closes it: the allocation is real, is stated as real, and is **not** presented as measured-free. **I-26's tier does not move on this arm**, and the write-up says so, because nothing here is capable of moving it.
 
 ---
 
@@ -92,7 +108,25 @@ Timings stay opt-in behind `VITE_DRAG_MEASURE=1` and assert nothing. Structural 
 
 **The variable that decides the answer** is ancestry depth, because a box-quad traversal is depth-sensitive: a shallow tree can make either arm unmeasurable and prove nothing about a real page. Workload: activation at a shallow tree and at a deep, transformed ancestry, both behaviors.
 
-**Decision-driving:** each arm's share of one activation, at both depths. **Telemetry:** absolute activation latency. **Framing that must survive into the write-up:** activation is once per drag. A cost that is large as a fraction and small as a number is not a reason to change an SPI, and the write-up says both figures or neither.
+**Decision-driving:** each arm's cost, **both as an absolute and as a share of the measured activation**, at the deepest ancestry tested and for the behavior that does not read the value. **Telemetry:** the shallow-tree figures, and absolute activation latency.
+
+### The decision rule, fixed before the run
+
+An SPI question that has been deferred twice cannot be settled by reading a number and then choosing which side of it to argue. The rule is therefore stated here, with its units, and the write-up applies it rather than re-deriving it.
+
+**The quantity under the rule** is the cost of the unneeded arm — window 1 for free drag, `inheritedSpace` for the sortable — as the **median over the sampling policy above**, measured at the **deep transformed ancestry** (the worst case, because a box-quad traversal is depth-sensitive and a shallow tree can make either arm unmeasurable and prove nothing). Both the absolute and the relative figure are computed; the rule reads both.
+
+| Outcome | Condition | What happens |
+| --- | --- | --- |
+| **F-65 closes** | **under 0.2 ms** absolute **and** **under 5%** of measured activation | Closed as an **accepted, named cost**, in F-65's own row with both figures. The `ActivationScope` SPI does not move again for this reason, and a later phase may not reopen it without a new workload showing a different number. |
+| **The SPI question opens** | **over 0.5 ms** absolute **or** **over 10%** of measured activation | D-82's deferred question opens with the evidence it was waiting for: making window 1 conditional on something the behavior declares. Phase 22 designs it; this phase does not. |
+| **Indeterminate** | anything between | **F-65 stays open, and neither side may be argued from this run.** The write-up states the figures, states that the rule did not resolve, and names the workload change that would — which is the outcome this band exists to make expensive rather than convenient. |
+
+**Where the numbers come from, so they are not arbitrary.** The absolutes are borrowed from q7's measured layout costs on this machine class rather than invented: **0.2 ms** is roughly one full read pass over a 200-row list (0.194 ms) — below that, the unneeded work is smaller than a single ordinary layout read the page does anyway, and an SPI change cannot be justified by it. **0.5 ms** is roughly a second full pass over an 800-row list (0.53 ms), and ~3% of a 16 ms frame spent on work a behavior never reads is a cost worth an SPI change to remove. The **5% / 10%** relative gates exist because the absolutes alone would let a slow machine reclassify the finding: a fraction that stays small as the absolute grows means the whole activation grew, not this arm.
+
+**The conjunction is deliberate and asymmetric.** Closing requires **both** conditions — a small number that is nonetheless most of the activation means the arm dominates and should not be dismissed. Opening requires **either** — a large absolute is worth removing whatever its share, and a large share is worth removing whatever the absolute.
+
+**Two framings that must survive into the write-up.** Activation is **once per drag**: a cost large as a fraction and small as a number is not on its own a reason to change an SPI, which is why the closing rule takes both figures and why the write-up quotes both or neither. And **arm B's result cannot move D-85** — that decision was taken for correctness, and this arm exists to check the ground it was accepted on rather than to reopen it; if `inheritedSpace` proves expensive, the finding is that the kernel derives it unconditionally, not that the derivation should stop.
 
 ---
 
