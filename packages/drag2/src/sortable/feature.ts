@@ -80,12 +80,15 @@ export type { FeatureContext } from '../shared/composition.ts';
  * is **outside contract**; it must close over its state, as the first-party
  * `y()` and `xy()` already do.
  *
- * The promise is about what `this` is **not**, because the five sites do not
- * agree on what it is: `resolve` and `invalidate` are called off the flat slot
- * record and receive it, `measure` and the normal `retire` receive `undefined`,
- * and the **construction-unwind** `retire` receives the assembler's internal
- * hook array. Depending on any of those values is depending on the flattening's
- * current shape (D-93).
+ * **What the receiver _is_ at any site is unspecified** (D-93), and that is the
+ * whole of the promise rather than a gap in it. The sites do not agree on the
+ * value, so any claim naming one would describe the flattening's current shape
+ * rather than the guarantee, and would have to be re-derived every time the
+ * calling code changed — while the single negative holds at all of them and is
+ * the only part an author can act on. Depending on `this === undefined` is as
+ * far outside contract as depending on the record. What each site happens to
+ * hand over today is measured in `.plan`, where it is evidence rather than
+ * promise.
  *
  * `MotionConstraint` in `free-drag/feature.js` states the same obligation
  * (D-90), and it is stated on both published declarations rather than in one

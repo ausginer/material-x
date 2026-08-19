@@ -264,11 +264,16 @@ describe('the accepted anchor', () => {
 
 describe('a detached constraint', () => {
   it('should hand the apply site a foreign receiver', () => {
-    // **D-90's falsifier, one site per row** (CE1-03). The four rows below are
-    // driven so that each reaches exactly one of the constraint's call sites,
-    // which is what lets a single bound site fail a single row rather than
-    // hiding inside an aggregate. Returning **all** of them to bound — the
-    // maximally non-conforming tree the decision forbids — fails all four.
+    // **D-90's falsifier, one site per row** (CE1-03, D-93). The five rows
+    // below are driven so that each reaches exactly one of the constraint's
+    // call sites, which is what makes a failure attributable rather than
+    // hiding it inside an aggregate.
+    //
+    // The revertible units are the **three lifts**, not the five sites, so
+    // re-attaching one fails every row its lift feeds and no other — measured
+    // as **1** for `apply`, **2** for `invalidate` (the scroll/resize listener
+    // and `TAG_POLICY` share one lift) and **2** for `retire` (the normal
+    // retirement and the construction unwind share the assembler's).
     const constraint = receiverRecordingConstraint();
     const composed = compose({ fragments: [constraint.fragment] });
 

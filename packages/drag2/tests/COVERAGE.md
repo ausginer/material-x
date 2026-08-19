@@ -759,7 +759,7 @@ Every code is read from `STAGE_TO_CODE` through `toDraggableError(stage, null).c
 
 The sortable's half of the convention D-90 stated for free drag. `tests/sortable/calling-convention.browser.test.ts` throughout.
 
-**The rows assert the receiver is never the record the installer returned, not that it is `undefined`.** Measured rather than assumed: the four lifted members disagree on what `this` _is_ — `resolve` and `invalidate` are called off the behavior's flat slot record and receive it, while `measure` is read into a local and `retire` is pushed into `retireHooks`, so both receive `undefined`. Free drag's rows can assert `undefined` because every one of its members is lifted into a local; porting that assertion here would fail the conforming tree at two sites and would pin the flattening's shape instead of the obligation.
+**Both tiers assert the same thing: the receiver is never the record the installer returned.** That single negative is the whole of the published obligation, and what the receiver _is_ at any site is unspecified — so no row in either instrument names a receiver value, and none can be broken by a refactor that leaves the convention intact. `tests/free-drag/anchor.browser.test.ts` pins free drag's half in the identical form.
 
 | Row | Test | ID |
 | --- | --- | --- |
