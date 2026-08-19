@@ -243,7 +243,9 @@ type InsertionGeometry = Readonly<{
 
 An earlier draft contributed only `resolveInsertion`, while the lifecycle called `rects.markDirty()` directly from behavior code at activation, at every placeholder move, on scroll/resize and at release (review 4, §1). `rects` is private to `vertical()` and reachable by nobody, so that could not compile — and omitting the calls instead would let scroll, resize, collection replacement, placeholder movement and release all search stale geometry.
 
-Pairing the three operations in one contribution means a single claim, a single diagnostic naming both offending features, and no way to install a resolver without its invalidator. The assembler **flattens** the pair into two direct slot fields, so the call sites stay one property read and one call: `slots.resolveInsertion(...)`, `slots.invalidateInsertion()`, `slots.measureInsertion` (nullable).
+Pairing the operations in one contribution means a single claim, a single diagnostic naming both offending features, and no way to install a resolver without its invalidator. The assembler **flattens the members** into direct slot fields, so the call sites stay one property read and one call: `slots.resolveInsertion(...)`, `slots.invalidateInsertion()`, `slots.measureInsertion` (nullable), and `retire` pushed into the unwind list.
+
+> ~~The assembler **flattens** the pair into two direct slot fields~~ named a **two**-member flattening, then listed three slots, in a sentence the D-92 paragraph directly below reasons from — so a reader taking _that flattening_ to mean this sentence concluded the obligation bound `resolve` and `invalidate` and not `measure` or `retire`, which is the exact scope question D-92 exists to settle (CE4-02). The identical sentence in `sortable/feature.ts` was corrected when D-92 landed and this copy was missed; the count was independently wrong before D-92, and _pairing_ survives because it names the **claim** rule — a resolver cannot be installed without its invalidator — not the number of members lifted.
 
 **The flattening is not only a technique — it is a calling convention, and it binds the author** (D-92). Lifting a member off the record and calling it bare means the member is invoked **detached**, so an `InsertionGeometry` written as a class instance, or with any method that reads `this`, is **outside contract**; it must close over its state, exactly as `MotionConstraint` requires and as the first-party `y()`/`xy()` already do. **This document said the technique and stopped one step short of the obligation the technique creates**, which is the same shape as the free-drag defect CE1-03 found: a convention the code enforces and no published declaration states. **The sortable's exposure is the larger of the two** — the assembler lifts **four** members (`resolve`, `invalidate`, the optional `measure`, and `retire`, pushed into `retireHooks` as a bare reference) against free drag's three, and `AxisInstaller` is re-exported from `sortable.js`, so the author who meets it can be an ordinary-tier consumer rather than only a middle-tier one.
 
@@ -394,7 +396,7 @@ function assemble(config: SortableConfig, ctx: FeatureContext): SortableSlots {
   retireHooks.reverse(); // release in reverse acquisition order
 
   return {
-    resolveInsertion: insertion.resolve, // ← the pair, flattened
+    resolveInsertion: insertion.resolve, // ← lifted off the record (D-92)
     invalidateInsertion: insertion.invalidate,
     items: config.items, // the pull source (D-44)
     onReorder: config.onReorder,
