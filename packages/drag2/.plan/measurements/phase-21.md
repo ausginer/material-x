@@ -1,6 +1,6 @@
 # Phase 21 — the measurement contract for the complete package
 
-**Status: planned, 2026-08-19. Not yet run. Corrected by a validity audit the same day (D-96)** — seven arms carried a defect that would have produced a number unable to support its decision, and each correction is marked where it lands. This document is the Phase 21 measurement contract: five measurements, what each can change, and the four standing obligations it withdraws. It supersedes the per-row _What changes_ table in [`plan.md`](../plan.md) §Phase 21, which stated the subject and not the question.
+**Status: M-3′ run 2026-08-19; M-1′, M-4′, M-5 and M-2′ not yet run. Corrected by a validity audit the same day (D-96)** — seven arms carried a defect that would have produced a number unable to support its decision, and each correction is marked where it lands. This document is the Phase 21 measurement contract: five measurements, what each can change, and the four standing obligations it withdraws. It supersedes the per-row _What changes_ table in [`plan.md`](../plan.md) §Phase 21, which stated the subject and not the question.
 
 **The rule this plan is written against.** A measurement is taken only if a **named decision** changes on at least one of its outcomes. Everything else is telemetry: recorded because a later reader will ask, never presented as a finding. Each measurement below therefore states its decision first and its workload second, and every output is labelled **decision-driving** or **telemetry**.
 
@@ -45,6 +45,10 @@ Timings stay opt-in behind `VITE_DRAG_MEASURE=1` and assert nothing. Structural 
 **What must change.** The composition list, which currently has no free-drag row at all. Add: free-drag minimal; `+ bounds()`; `+ landing()`; free-drag complete; and **both behaviors in one graph**. The absence assertions gain the cross-behavior form — no `sortable/*` module in any free-drag graph and no `free-drag/*` module in any sortable graph — which is the tree-shaking claim restated at two behaviors and is new, not a re-run.
 
 **Decision-driving:** the union identity and every other module-graph assertion; the re-based budgets. **Telemetry:** the per-composition absolute bytes, the both-behaviors delta against the sum, and baseline B.
+
+**Run 2026-08-19; the record is [`m3-prime.md`](m3-prime.md).** The union identity **holds exactly** — 46 package modules on both sides, nothing extra in either direction, no module emitted into more than one chunk — so the topology-reopen condition did not trigger and D-48's `kernel.js` split stands at two behaviors. The four free-drag rows and the combined row are declared; the cross-behavior absence claim is asserted as a subtree prefix and holds in all ten rows. All twelve budgets are re-based to their measurement plus 150 B, with what the headroom is _for_ written down. The combined composition is 12,995 B against a 20,611 B sum of its parts — recorded as telemetry, and not the evidence for the topology claim, which the graph identity settles by itself.
+
+**The identity was falsified before it was recorded**: scored against the wrong parts it reports five violations, so the passing result is a measurement rather than a tautology.
 
 ---
 
