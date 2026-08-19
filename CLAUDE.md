@@ -111,3 +111,25 @@ When adding, moving, or reviewing an `@ydinjs/material-x` component's tests, use
 ## Tokens DB
 
 If you need to access any file in `.data/tokens`, use skill `use-tokens-db`.
+
+## Git workflow
+
+Never make tracked changes or commits directly on `main`. All tracked changes belong on a non-`main` work branch.
+
+Before making tracked changes, verify that the current branch is not `main`. If it is `main`, stop and ask the user to switch to or provide a work branch. Do not create or switch branches implicitly unless explicitly asked.
+
+**Commit every finalized handoff state without waiting for the user to ask.** A state is finalized when your assigned unit of work is complete and ready to hand to the next role or to the user. For example:
+
+- an architect commits the completed contract or plan before handing it to an implementer;
+- an implementer commits the completed implementation before review;
+- a reviewer commits the completed review artifact before handing findings back;
+- remediation is committed once that remediation pass is complete.
+
+- Commit only changes belonging to the completed unit. Never sweep unrelated user or agent changes into the commit; stage paths deliberately when the working tree contains unrelated work.
+- If there is no tracked diff, do not create an empty commit.
+- Use a **short, subject-only** commit message unless the user explicitly asks for a body. Never copy completion reports, test output, review summaries, or plan prose into the commit message.
+- Describe the substance of the completed unit, not merely its workflow position: prefer `host: add explicit capability grants and diagnostics` over `host: phase 2`, `address review`, `finalize implementation`, or similar process labels. For review or planning artifacts, name what the artifact establishes or evaluates rather than using a bare phase/checkpoint label.
+- Do not amend, squash, rebase, rewrite, or delete existing commits unless explicitly asked.
+- Do not push, create or merge a PR, rename or delete shared branches, or otherwise move shared refs unless explicitly asked. A local commit is automatic; publication is not.
+- Never bypass branch protection, rulesets, or other repository policy. If a requested Git operation is rejected by GitHub or repository policy, stop and report the blocker rather than disabling protection, force-pushing, changing rules, or finding another way around it.
+- Include the resulting commit SHA in the completion report.

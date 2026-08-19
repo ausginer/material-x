@@ -43,6 +43,14 @@ type SortableInstaller = (context: FeatureContext) => SortableContribution;
 
 type FeatureContext = Readonly<{
   realm: DOMRealm;
+  /**
+   * **The element the behavior is composed on, and it denotes a different
+   * element per tier** (CE1-10): for the sortable it is the **collection
+   * root**, the container whose children are the sortable items; for free drag
+   * it is the **dragged item itself**, because a free drag composes on one
+   * element and has no collection. The name is shared because the *role* is —
+   * the composition's own element — not because the referent is.
+   */
   root: HTMLElement;
   /**
    * Best-effort platform report. Deliberately **not** `fail(stage, error)`: a
@@ -56,6 +64,8 @@ type FeatureContext = Readonly<{
   report(error: unknown): void;
 }>;
 ```
+
+**`root`'s per-tier meaning is stated rather than inferred** (CE1-10). Checkpoint E measured this vocabulary and found it thin: `realm` has one installer reader, `report` has none — it is read by the two **assemblers** — and `root` has **no reader anywhere** while denoting a different element in each tier. An unread member whose meaning silently changes across the two publications is the cheapest possible drift: nothing fails when a reader eventually assumes the wrong one. Stating it costs a sentence and is the one deliverable that disposition owed. It is **evidence against widening F-64**, not for it: two tiers agreeing on a member's _name_ and disagreeing on its _referent_ is exactly what a shared declaration must not be read as promising.
 
 An installer runs **once**, while a concrete behavior instance is being constructed. It may create whatever private runtime it likes, capture that runtime in the callbacks it returns, and hand back a plain object of named contributions.
 
@@ -233,7 +243,17 @@ type InsertionGeometry = Readonly<{
 
 An earlier draft contributed only `resolveInsertion`, while the lifecycle called `rects.markDirty()` directly from behavior code at activation, at every placeholder move, on scroll/resize and at release (review 4, §1). `rects` is private to `vertical()` and reachable by nobody, so that could not compile — and omitting the calls instead would let scroll, resize, collection replacement, placeholder movement and release all search stale geometry.
 
-Pairing the three operations in one contribution means a single claim, a single diagnostic naming both offending features, and no way to install a resolver without its invalidator. The assembler **flattens** the pair into two direct slot fields, so the call sites stay one property read and one call: `slots.resolveInsertion(...)`, `slots.invalidateInsertion()`, `slots.measureInsertion` (nullable).
+Pairing the operations in one contribution means a single claim, a single diagnostic naming both offending features, and no way to install a resolver without its invalidator. The assembler **flattens the members** into direct slot fields, so the call sites stay one property read and one call: `slots.resolveInsertion(...)`, `slots.invalidateInsertion()`, `slots.measureInsertion` (nullable), and `retire` pushed into the unwind list.
+
+> ~~The assembler **flattens** the pair into two direct slot fields~~ named a **two**-member flattening, then listed three slots, in a sentence the D-92 paragraph directly below reasons from — so a reader taking _that flattening_ to mean this sentence concluded the obligation bound `resolve` and `invalidate` and not `measure` or `retire`, which is the exact scope question D-92 exists to settle (CE4-02). The identical sentence in `sortable/feature.ts` was corrected when D-92 landed and this copy was missed; the count was independently wrong before D-92, and _pairing_ survives because it names the **claim** rule — a resolver cannot be installed without its invalidator — not the number of members lifted.
+
+**The flattening creates an author obligation, and the obligation rather than the flattening is what binds** (D-92, as corrected by D-94). **An `InsertionGeometry`'s members are never invoked with that `InsertionGeometry` as their receiver** — the capability record the member is declared on, the object an `AxisInstaller` nests under `insertion`, not the contribution object carrying it. So an `InsertionGeometry` written as a class instance, or with any method that reads `this`, is **outside contract**; it must close over its state, exactly as `MotionConstraint` requires and as the first-party `y()`/`xy()` already do.
+
+> ~~The flattening is not only a technique — it is a calling convention, and it binds the author~~ made the **mechanism** the promise, and ~~lifting a member off the record and calling it bare~~ contradicted the measured paragraph directly below, which records `resolve` and `invalidate` receiving the flat slot record — a member that receives the slot record is not called _bare_ (CE6-02, D-94). Both are struck for one reason: a promise about where a member is called from has to be re-derived at every refactor, and it makes Phase 21 unable to tell which transformations are permitted. **The flattening is the current mechanism and is recorded below as measured code**; the receiver negative is the guarantee. **This document said the technique and stopped one step short of the obligation the technique creates**, which is the same shape as the free-drag defect CE1-03 found: a convention the code enforces and no published declaration states. **The sortable's exposure is the larger of the two** — the assembler lifts **four** members (`resolve`, `invalidate`, the optional `measure`, and `retire`, pushed into `retireHooks` as a bare reference) against free drag's three, and `AxisInstaller` is re-exported from `sortable.js`, so the author who meets it can be an ordinary-tier consumer rather than only a middle-tier one.
+
+**Stated and pinned, 2026-08-18.** `InsertionGeometry` carries the obligation, and `tests/sortable/calling-convention.browser.test.ts` drives each lifted member alone with a geometry that records the receiver it is handed. **The rows assert the receiver is never the nested `InsertionGeometry` the installer contributed, not that it is `undefined`** — measured rather than assumed, the sites disagree on what `this` _is_: `resolve` and `invalidate` are called off the flat slot record and receive it, `measure` and the normal `retire` receive `undefined`, and the **construction-unwind** `retire` receives the assembler's internal hook array. The obligation is what `this` is **not**, and pinning `undefined` uniformly would fail the conforming tree at three sites while pinning the flattening's current shape instead of the contract.
+
+**Four members, five sites** (D-93, 2026-08-19). `retire` is reached from the normal retirement **and** from the unwind that runs when a later installer throws, so the enumeration counts call sites rather than members — the same correction free drag took, and for the same reason: a site the member is reached through is a site the convention has to hold at, whether or not it is the one retirement is normally driven from.
 
 ### Insertion geometry is _settled presentation geometry_
 
@@ -380,7 +400,7 @@ function assemble(config: SortableConfig, ctx: FeatureContext): SortableSlots {
   retireHooks.reverse(); // release in reverse acquisition order
 
   return {
-    resolveInsertion: insertion.resolve, // ← the pair, flattened
+    resolveInsertion: insertion.resolve, // ← lifted off the record (D-92)
     invalidateInsertion: insertion.invalidate,
     items: config.items, // the pull source (D-44)
     onReorder: config.onReorder,

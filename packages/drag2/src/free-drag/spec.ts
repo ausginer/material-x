@@ -110,22 +110,18 @@ export function createFreeDragSpec(
   let view: ConstraintView | null = null;
 
   /**
-   * **The constraint's members, lifted once and called detached** (D-90).
+   * **`apply` and `invalidate`, lifted once here** (D-90). `retire` is not one
+   * of them — the assembler lifts that one and owns both its call sites.
    *
-   * The convention is stated on `MotionConstraint`: a contribution's members
-   * are invoked as bare functions and an author may not depend on `this`. It is
-   * stated because the tree was split three ways — `apply` and one `invalidate`
-   * site bound, the other `invalidate` site and `retire` detached — so a
-   * `this`-reading constraint worked from `controller.invalidate()` and threw
-   * on the first scroll and at every retirement. Nothing failed only because
-   * the one shipped constraint closes over its state, which is the
-   * non-discriminating control F-74 names; the first third-party author is who
-   * would have met it.
+   * No site below may call these with `constrain` as the receiver: the
+   * convention on `MotionConstraint` is that an author may not depend on
+   * `this`, and it survives only while nothing re-attaches a member to the
+   * record it came from. Lifting also keeps each site to one call rather than a
+   * record read plus a member read.
    *
-   * Detached rather than bound, for the reason 03 §Assembly already gives for
-   * the sortable's identical flattening — one property read and one call at the
-   * seam — and because the alternative leaves two conventions in one package
-   * for the author who writes against both middle tiers.
+   * `tests/free-drag/anchor.browser.test.ts` drives each site alone with a
+   * constraint that records the receiver it is handed, so re-attaching any one
+   * of them fails a row.
    */
   const { constrain } = slots;
   const applyConstraint = constrain === null ? null : constrain.apply;

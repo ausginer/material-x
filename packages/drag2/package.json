@@ -82,7 +82,8 @@
     "lint": "just lint",
     "lint:fix": "just lint-fix",
     "test": "just test",
-    "size": "just size"
+    "size": "just size",
+    "diff": "just diff"
   },
   "dependencies": {
     "@ydinjs/box-quad": "0.1.0",

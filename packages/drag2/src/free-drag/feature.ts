@@ -84,6 +84,36 @@ export type ConstraintView = Readonly<{
  * middle-tier installer that fills this slot *instead of* `bounds()`, and the
  * library ships none of it. It is the first capability in this package a third
  * party can supply in place of a first-party one rather than beside it.
+ *
+ * **These members are never invoked with this `MotionConstraint` as their
+ * receiver, and an author may not depend on `this`** (D-90, narrowed by D-93,
+ * referent corrected by D-94). The forbidden receiver is **this record — the
+ * one the members are declared on**, the object an installer nests under
+ * `constrain`, and not the contribution object carrying it: a bound
+ * `contribution.constrain.apply(…)` never uses the contribution object either,
+ * so naming that one would forbid nothing. A constraint written as a class
+ * instance — or with any method that reads `this` — is **outside contract**; it
+ * must close over its state, as the first-party `bounds()` does.
+ *
+ * **What the receiver _is_ at any site is unspecified**, and that is the whole
+ * of the promise rather than a gap in it. The sites do not agree on the value,
+ * so any claim naming it would have to be re-derived each time the calling code
+ * changed shape — while the single negative holds at all of them and is the
+ * only part an author can act on. Depending on `this === undefined` is as far
+ * outside contract as depending on the record.
+ *
+ * The convention is stated *here*, on the published type, because the reader it
+ * exists for is the third-party installer author, and that author reads this
+ * declaration rather than the code that calls it. It is stated on
+ * `InsertionGeometry` too, rather than in one place, because leaving only one
+ * tier's author to find it would put **two conventions in one package** in
+ * front of the author who writes against both middle tiers.
+ *
+ * **Where each member is lifted is mechanism, not promise** (D-94). Today the
+ * spec lifts `apply` and `invalidate` into locals and the assembler lifts
+ * `retire`, which is also what calls it while unwinding a failed construction —
+ * measured code, recorded in `.plan` with the value each site hands over, and
+ * free to change while the receiver negative holds.
  */
 export type MotionConstraint = Readonly<{
   /** One indirect call per committed sample, and it allocates nothing. */
