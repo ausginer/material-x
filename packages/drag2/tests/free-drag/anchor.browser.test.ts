@@ -42,6 +42,7 @@ import type {
   MotionDraft,
 } from '../../src/free-drag/feature.ts';
 import {
+  freeDrag,
   FreeDragResolution,
   type FreeDragConfig,
 } from '../../src/free-drag.ts';
@@ -118,6 +119,8 @@ function recordingLanding(): Readonly<{
 function receiverRecordingConstraint(): Readonly<{
   fragment: Partial<FreeDragConfig>;
   receivers: ReadonlyArray<readonly [string, unknown]>;
+  /** The record the installer returned — the one receiver that is forbidden. */
+  own(): MotionConstraint;
 }> {
   const receivers: Array<readonly [string, unknown]> = [];
   const constrain: MotionConstraint = {
@@ -133,27 +136,42 @@ function receiverRecordingConstraint(): Readonly<{
   };
   const installer: FreeDragInstaller = () => ({ constrain });
 
-  return { fragment: { plugins: [installer] }, receivers };
-}
-
-/** The receivers one named site was handed, in call order. */
-function receiversAt(
-  receivers: ReadonlyArray<readonly [string, unknown]>,
-  site: string,
-): readonly unknown[] {
-  return receivers
-    .filter(([name]) => name === site)
-    .map(([, receiver]) => receiver);
+  return {
+    fragment: { plugins: [installer] },
+    receivers,
+    own: () => constrain,
+  };
 }
 
 /**
- * Every site is asserted **reached** before its receiver is asserted absent.
- * Without the first half the row passes when a site is never driven at all,
- * which is the other way a convention test measures nothing.
+ * **The assertion is `receiver !== own()`, not `receiver === undefined`**
+ * (D-93). The published guarantee is a single negative — a contributed member
+ * is never invoked with the contributed record as its receiver — and what the
+ * receiver *is* is unspecified, because the five sites disagree: four hand
+ * `undefined`, while the construction unwind's `retireHooks[i]!()` is an
+ * indexed call and hands the hook **the internal array**.
+ *
+ * The narrower `=== undefined` assertion these rows used first was a mechanism
+ * claim. It held at four sites, failed at the fifth, and would have failed all
+ * of them under a refactor to the sortable's flat-slot shape **without the
+ * convention being broken** — a row defending the flattening rather than the
+ * contract, which is F-74's non-discriminating control inverted.
+ *
+ * Every site is asserted **reached** before its receiver is asserted foreign.
+ * Without the first half a row passes when its site is never driven, which is
+ * the other way a convention test measures nothing.
  */
-function expectDetached(seen: readonly unknown[]): void {
+function expectDetached(
+  receivers: ReadonlyArray<readonly [string, unknown]>,
+  site: string,
+  own: unknown,
+): void {
+  const seen = receivers
+    .filter(([name]) => name === site)
+    .map(([, receiver]) => receiver);
+
   expect(seen.length).toBeGreaterThan(0);
-  expect(seen.filter((receiver) => receiver !== undefined)).toEqual([]);
+  expect(seen.filter((receiver) => receiver === own)).toEqual([]);
 }
 
 describe('the accepted anchor', () => {
@@ -245,7 +263,7 @@ describe('the accepted anchor', () => {
 });
 
 describe('a detached constraint', () => {
-  it('should hand the apply site no receiver', () => {
+  it('should hand the apply site a foreign receiver', () => {
     // **D-90's falsifier, one site per row** (CE1-03). The four rows below are
     // driven so that each reaches exactly one of the constraint's call sites,
     // which is what lets a single bound site fail a single row rather than
@@ -257,10 +275,10 @@ describe('a detached constraint', () => {
     activate(composed);
     move(50, 40);
 
-    expectDetached(receiversAt(constraint.receivers, 'apply'));
+    expectDetached(constraint.receivers, 'apply', constraint.own());
   });
 
-  it('should hand the scroll invalidator no receiver', () => {
+  it('should hand the scroll invalidator a foreign receiver', () => {
     // The site registered on the gesture's scroll/resize listener. `resize` is
     // dispatched rather than `scroll` only because the two share one callback
     // and `resize` needs no capture phase to arrive.
@@ -270,10 +288,10 @@ describe('a detached constraint', () => {
     activate(composed);
     window.dispatchEvent(new Event('resize'));
 
-    expectDetached(receiversAt(constraint.receivers, 'invalidate'));
+    expectDetached(constraint.receivers, 'invalidate', constraint.own());
   });
 
-  it('should hand the policy invalidator no receiver', () => {
+  it('should hand the policy invalidator a foreign receiver', () => {
     // The `TAG_POLICY` site. Driven alone, so every `invalidate` receiver read
     // here belongs to it and not to the listener above.
     const constraint = receiverRecordingConstraint();
@@ -282,10 +300,10 @@ describe('a detached constraint', () => {
     activate(composed);
     composed.controller.invalidate();
 
-    expectDetached(receiversAt(constraint.receivers, 'invalidate'));
+    expectDetached(constraint.receivers, 'invalidate', constraint.own());
   });
 
-  it('should hand the retire hook no receiver', async () => {
+  it('should hand the retire hook a foreign receiver', async () => {
     // Both retirements — the operation's and the controller's — go through the
     // assembler's hook list, so this row reads two receivers, not one.
     const constraint = receiverRecordingConstraint();
@@ -296,7 +314,37 @@ describe('a detached constraint', () => {
     await settled();
     await composed.controller.destroy();
 
-    expectDetached(receiversAt(constraint.receivers, 'retire'));
+    expectDetached(constraint.receivers, 'retire', constraint.own());
+  });
+
+  it('should hand the construction unwind a foreign receiver', () => {
+    // **The fifth site, and the one the four-row enumeration missed** (D-93).
+    // `retire` is reached from the normal retirement *and* from the assembler's
+    // unwind, which runs when a later installer throws — the path a
+    // third-party author hits most often while developing. It is also the site
+    // where `=== undefined` was false: `retireHooks[i]!()` is an indexed call,
+    // so the hook is handed the internal array. The obligation still holds,
+    // which is exactly why the obligation is what these rows assert.
+    const constraint = receiverRecordingConstraint();
+    const item = document.createElement('div');
+
+    document.body.append(item);
+
+    const boom: FreeDragInstaller = () => {
+      throw new Error('installer');
+    };
+
+    expect(() =>
+      freeDrag(
+        item,
+        { onDrop: () => FreeDragResolution.accept() },
+        constraint.fragment,
+        { plugins: [boom] },
+      ),
+    ).toThrow();
+    item.remove();
+
+    expectDetached(constraint.receivers, 'retire', constraint.own());
   });
 
   it('should retire detached as well', async () => {

@@ -2,7 +2,7 @@
  * **The sortable half of the detached calling convention** (D-92).
  *
  * D-90 stated the convention on `MotionConstraint` and pinned free drag's three
- * members at four sites. It chose detached over bound on the grounds that
+ * members at five sites. It chose detached over bound on the grounds that
  * binding one tier would leave *two conventions in one package* — an argument
  * that only pays off if **both** tiers state it, and one statement beside one
  * silence is worse than two silences, because a reader who meets
@@ -10,18 +10,20 @@
  * positive evidence of a distinction the package does not make.
  *
  * **What the sortable's lift actually does, measured rather than assumed.** The
- * assembler lifts four members off the returned record, and the two halves are
- * not called the same way: `resolve` and `invalidate` become fields on the
- * behavior's own flat slot record and are called as `slots.resolveInsertion(…)`
- * — so their receiver is that **slot record** — while `measure` is read into a
- * local and `retire` is pushed into `retireHooks`, so theirs is `undefined`.
+ * assembler lifts four members off the returned record and they are reached at
+ * **five** sites, which do not agree on the receiver: `resolve` and `invalidate`
+ * become fields on the behavior's flat slot record and are called as
+ * `slots.resolveInsertion(…)`, so their receiver is that **slot record**;
+ * `measure` is read into a local and the normal `retire` is iterated out of
+ * `retireHooks`, so theirs is `undefined`; and the **construction-unwind**
+ * `retire` is reached by `retireHooks[i]!()`, an indexed call that hands the
+ * hook the assembler's internal **array**.
  *
  * The rows below therefore assert **the receiver is never the record the
- * installer returned**, which is the invariant the convention actually promises
+ * installer returned** (D-93), which is the invariant the convention promises
  * and the one a `this`-reading author breaks against. Asserting `undefined`
- * uniformly — the shape free drag's rows use, where every member really is
- * lifted into a local — would fail on the conforming tree at two of the four
- * sites, and would be pinning the mechanism rather than the obligation.
+ * uniformly would fail the conforming tree at three of the five sites, and
+ * would pin the flattening's current shape rather than the obligation.
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import type { Insertion } from '../../src/sortable/domain.ts';
@@ -30,6 +32,7 @@ import type {
   InsertionFrameView,
   InsertionGeometry,
   InsertionRuntimeView,
+  SortableInstaller,
 } from '../../src/sortable/feature.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -220,7 +223,8 @@ describe('a lifted insertion geometry', () => {
   it('should hand the resolve site a foreign receiver', async () => {
     // Each row drives one site and reads only that member's receivers, so a
     // single re-bound lift in `assemble` fails a single row. Re-binding all
-    // four — the maximally non-conforming tree D-92 forbids — fails all four.
+    // four members — the maximally non-conforming tree D-92 forbids — fails
+    // every row below.
     const recording = recordingAxis(y());
     const composed = composeWith(recording.axis);
 
@@ -261,6 +265,41 @@ describe('a lifted insertion geometry', () => {
     pointer('pointerup', 110, document);
     await settled();
     await composed.controller.destroy();
+
+    expectDetached(recording, 'retire');
+  });
+
+  it('should hand the construction unwind a foreign receiver', () => {
+    // **The fifth site** (D-93). `retire` is reached from the normal
+    // retirement *and* from the assembler's unwind, which runs when a later
+    // installer throws — the path a third-party author hits most often while
+    // developing. The axis installs before `plugins`, so its hook is already
+    // registered when the throw arrives.
+    //
+    // It is also the site that decides the assertion's form: `retireHooks[i]!()`
+    // is an indexed call, so the hook is handed the assembler's internal array
+    // rather than `undefined`. The obligation holds; a claim naming the
+    // receiver would not.
+    const recording = recordingAxis(y());
+    const root = document.createElement('div');
+    const item = document.createElement('div');
+
+    root.append(item);
+    document.body.append(root);
+
+    const boom: SortableInstaller = () => {
+      throw new Error('installer');
+    };
+
+    expect(() =>
+      sortable(root, {
+        items: () => [item],
+        onReorder: () => ReorderResolution.accept(),
+        axis: recording.axis,
+        plugins: [boom],
+      }),
+    ).toThrow();
+    root.remove();
 
     expectDetached(recording, 'retire');
   });

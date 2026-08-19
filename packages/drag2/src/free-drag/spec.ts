@@ -110,16 +110,18 @@ export function createFreeDragSpec(
   let view: ConstraintView | null = null;
 
   /**
-   * **The constraint's members, lifted once and called detached** (D-90).
+   * **`apply` and `invalidate`, lifted once here** (D-90). `retire` is not one
+   * of them — the assembler lifts that one and owns both its call sites.
    *
-   * Every site below must call these as bare functions: the convention on
-   * `MotionConstraint` is that an author may not depend on `this`, and it holds
-   * only while nothing re-attaches them to the record. Lifting once also keeps
-   * each site to one call rather than a record read plus a member read.
+   * No site below may call these with `constrain` as the receiver: the
+   * convention on `MotionConstraint` is that an author may not depend on
+   * `this`, and it survives only while nothing re-attaches a member to the
+   * record it came from. Lifting also keeps each site to one call rather than a
+   * record read plus a member read.
    *
    * `tests/free-drag/anchor.browser.test.ts` drives each site alone with a
-   * constraint that records the receiver it is handed, so binding any one of
-   * them fails a row.
+   * constraint that records the receiver it is handed, so re-attaching any one
+   * of them fails a row.
    */
   const { constrain } = slots;
   const applyConstraint = constrain === null ? null : constrain.apply;

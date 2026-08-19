@@ -85,19 +85,28 @@ export type ConstraintView = Readonly<{
  * library ships none of it. It is the first capability in this package a third
  * party can supply in place of a first-party one rather than beside it.
  *
- * **These members are invoked detached, and an author may not depend on
- * `this`** (D-90). The behavior lifts `apply`, `invalidate` and `retire` out of
- * the record once and calls them as bare functions, so a constraint written as
- * a class instance — or with any method that reads `this` — is **outside
- * contract**. It must close over its state, as the first-party `bounds()` does.
+ * **These members are never invoked with the contributed record as their
+ * receiver, and an author may not depend on `this`** (D-90, narrowed to this
+ * form by D-93). A constraint written as a class instance — or with any method
+ * that reads `this` — is **outside contract**; it must close over its state, as
+ * the first-party `bounds()` does. `apply` and `invalidate` are lifted off the
+ * record by the behavior spec, and `retire` by the assembler, which also calls
+ * it while unwinding a failed construction.
+ *
+ * **What the receiver _is_ at any site is unspecified**, and that is the whole
+ * of the promise rather than a gap in it. The five sites do not agree on the
+ * value, so any claim naming it would have to be re-derived each time the
+ * calling code changed shape — while the single negative holds at all of them
+ * and is the only part an author can act on. Depending on `this === undefined`
+ * is as far outside contract as depending on the record.
  *
  * The convention is stated *here*, on the published type, because the reader it
  * exists for is the third-party installer author, and that author reads this
- * declaration rather than the behavior that calls it. It is detached rather
- * than bound for the reason 03 §Assembly gives for the sortable's identical
- * flattening — one property read and one call at the seam — and because binding
- * only free drag's would leave **two conventions in one package** for the author
- * who writes against both middle tiers.
+ * declaration rather than the code that calls it. Lifting is preferred to a
+ * bound call for the reason 03 §Assembly gives for the sortable's identical
+ * flattening — one property read and one call at the seam — and because leaving
+ * only free drag bound would put **two conventions in one package** in front of
+ * the author who writes against both middle tiers.
  */
 export type MotionConstraint = Readonly<{
   /** One indirect call per committed sample, and it allocates nothing. */

@@ -8,9 +8,10 @@
  * exist.
  *
  * The shape is deliberately flat — `slots.resolveInsertion(...)` is one property
- * read and one call. `InsertionGeometry`'s `resolve`/`invalidate` pair is
- * flattened into two fields by the assembler, so the pairing is a construction
- * -time claim rather than a hot-path indirection.
+ * read and one call. The assembler flattens all four of `InsertionGeometry`'s
+ * members — `resolve`, `invalidate`, the optional `measure`, and `retire` into
+ * the unwind list — so the pairing is a construction-time claim rather than a
+ * hot-path indirection.
  */
 import type { DraggableError } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';

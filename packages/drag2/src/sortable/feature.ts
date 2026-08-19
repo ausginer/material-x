@@ -73,18 +73,19 @@ export type { FeatureContext } from '../shared/composition.ts';
  * stay one property read and one call.
  *
  * **That flattening is a calling convention, and it binds the author** (D-92).
- * These members are invoked **detached from the record you return**: the
- * assembler lifts `resolve`, `invalidate`, `measure` and `retire` off it and
- * calls them from the behavior's own flat slot record, so `this` is **never**
- * your contribution object. An insertion geometry written as a class instance —
- * or with any method that reads `this` — is **outside contract**; it must close
- * over its state, as the first-party `y()` and `xy()` already do.
+ * These members are **never invoked with the record you return as their
+ * receiver**: the assembler lifts `resolve`, `invalidate`, `measure` and
+ * `retire` off it, so `this` is never your contribution object. An insertion
+ * geometry written as a class instance — or with any method that reads `this` —
+ * is **outside contract**; it must close over its state, as the first-party
+ * `y()` and `xy()` already do.
  *
- * The promise is about what `this` is **not**, because the four sites do not
- * agree on what it is: `resolve` and `invalidate` are called off the slot
- * record and receive it, while `measure` is read into a local and `retire` is
- * pushed into `retireHooks`, so both receive `undefined`. Depending on any of
- * those values is depending on the flattening's current shape.
+ * The promise is about what `this` is **not**, because the five sites do not
+ * agree on what it is: `resolve` and `invalidate` are called off the flat slot
+ * record and receive it, `measure` and the normal `retire` receive `undefined`,
+ * and the **construction-unwind** `retire` receives the assembler's internal
+ * hook array. Depending on any of those values is depending on the flattening's
+ * current shape (D-93).
  *
  * `MotionConstraint` in `free-drag/feature.js` states the same obligation
  * (D-90), and it is stated on both published declarations rather than in one

@@ -109,9 +109,11 @@ const required = (): SortableConfig => config();
 const view = null as unknown as DisplacementView;
 
 describe('assemble', () => {
-  it('should flatten the geometry pair into two slot fields', () => {
+  it('should flatten the geometry members into slot fields', () => {
     // The pairing is a construction-time claim, so the call sites stay one
     // property read and one call rather than `slots.insertion.resolve(…)`.
+    // All four members are flattened; the two required ones are asserted by
+    // identity here, and `retire` is covered where the unwind drives it.
     const resolve = (): null => null;
     const invalidate = (): void => {};
     const slots = assemble(
