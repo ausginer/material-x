@@ -69,26 +69,31 @@ export type { FeatureContext } from '../shared/composition.ts';
  * cache. Neither can do the other's half, so installing a resolver without its
  * invalidator has to be impossible rather than merely discouraged.
  *
- * The assembler flattens the members into direct slot fields, so the call sites
- * stay one property read and one call.
- *
- * **That flattening is a calling convention, and it binds the author** (D-92).
- * These members are **never invoked with the record you return as their
- * receiver**: the assembler lifts `resolve`, `invalidate`, `measure` and
- * `retire` off it, so `this` is never your contribution object. An insertion
- * geometry written as a class instance — or with any method that reads `this` —
- * is **outside contract**; it must close over its state, as the first-party
- * `y()` and `xy()` already do.
+ * **These members are never invoked with this `InsertionGeometry` as their
+ * receiver, and an author may not depend on `this`** (D-92, referent corrected
+ * by D-94). The forbidden receiver is **this record — the one the members are
+ * declared on**, the object an `AxisInstaller` nests under `insertion`, and not
+ * the contribution object carrying it: a bound `contribution.insertion.resolve(…)`
+ * never uses the contribution object either, so naming that one would forbid
+ * nothing. A geometry written as a class instance — or with any method that
+ * reads `this` — is **outside contract**; it must close over its state, as the
+ * first-party `y()` and `xy()` already do.
  *
  * **What the receiver _is_ at any site is unspecified** (D-93), and that is the
  * whole of the promise rather than a gap in it. The sites do not agree on the
- * value, so any claim naming one would describe the flattening's current shape
- * rather than the guarantee, and would have to be re-derived every time the
- * calling code changed — while the single negative holds at all of them and is
- * the only part an author can act on. Depending on `this === undefined` is as
- * far outside contract as depending on the record. What each site happens to
- * hand over today is measured in `.plan`, where it is evidence rather than
- * promise.
+ * value, so any claim naming one would describe the calling code's current
+ * shape rather than the guarantee, and would have to be re-derived at every
+ * refactor — while the single negative holds at all of them and is the only
+ * part an author can act on. Depending on `this === undefined` is as far
+ * outside contract as depending on the record.
+ *
+ * **The flattening is mechanism, not promise** (D-94). The assembler currently
+ * lifts these members into direct slot fields so each call site stays one
+ * property read and one call, and that is why the receiver negative is easy to
+ * hold — but it is measured code rather than a guarantee, and a later
+ * representation that stops lifting a member while still never using this
+ * record as its receiver is conforming. The lift locations and the value each
+ * site hands over today are recorded in `.plan`, as evidence.
  *
  * `MotionConstraint` in `free-drag/feature.js` states the same obligation
  * (D-90), and it is stated on both published declarations rather than in one

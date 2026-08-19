@@ -9,9 +9,10 @@
  * `MotionConstraint`'s sentence and then `InsertionGeometry`'s silence has
  * positive evidence of a distinction the package does not make.
  *
- * **What the sortable's lift actually does, measured rather than assumed.** The
- * assembler lifts four members off the returned record and they are reached at
- * **five** sites, which do not agree on the receiver: `resolve` and `invalidate`
+ * **What the sortable's lift actually does today — measured code, not the
+ * guarantee** (D-94). The assembler lifts four members off the contributed
+ * geometry and they are reached at **five** sites, which do not agree on the
+ * receiver: `resolve` and `invalidate`
  * become fields on the behavior's flat slot record and are called as
  * `slots.resolveInsertion(…)`, so their receiver is that **slot record**;
  * `measure` is read into a local and the normal `retire` is iterated out of
@@ -19,11 +20,15 @@
  * `retire` is reached by `retireHooks[i]!()`, an indexed call that hands the
  * hook the assembler's internal **array**.
  *
- * The rows below therefore assert **the receiver is never the record the
- * installer returned** (D-93), which is the invariant the convention promises
- * and the one a `this`-reading author breaks against. Asserting `undefined`
- * uniformly would fail the conforming tree at three of the five sites, and
- * would pin the flattening's current shape rather than the obligation.
+ * The rows below therefore assert **the receiver is never the nested
+ * `InsertionGeometry` the member is declared on** (D-93, referent corrected by
+ * D-94), which is the invariant the convention promises and the one a
+ * `this`-reading author breaks against. The referent is the nested record and
+ * not the outer contribution: a fully bound `contribution.insertion.resolve(…)`
+ * never uses the contribution object either, so rows written against it would
+ * pass on the tree the convention forbids. Asserting `undefined` uniformly
+ * would fail the conforming tree at three of the five sites, and would pin the
+ * flattening's current shape rather than the obligation.
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import type { Insertion } from '../../src/sortable/domain.ts';
@@ -56,7 +61,12 @@ afterEach(() => {
 type Recording = Readonly<{
   axis: AxisInstaller;
   receivers: ReadonlyArray<readonly [string, unknown]>;
-  /** The record the installer handed back — the receiver that must never appear. */
+  /**
+   * The **nested `InsertionGeometry`** — the capability record the members are
+   * declared on, and the receiver that must never appear (D-94). Deliberately
+   * not the outer contribution the installer returns, which a bound tree would
+   * not use either.
+   */
   own(): InsertionGeometry | null;
 }>;
 
@@ -304,7 +314,7 @@ describe('a lifted insertion geometry', () => {
     expectDetached(recording, 'retire');
   });
 
-  it('should never hand any site the installer record', async () => {
+  it('should never hand any site the geometry record', async () => {
     // The aggregate the falsifier is stated against: **all four** lifts
     // re-bound must not leave the suite green, and this row is the one that
     // fails on any one of them without naming which.

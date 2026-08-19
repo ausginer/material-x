@@ -119,7 +119,13 @@ function recordingLanding(): Readonly<{
 function receiverRecordingConstraint(): Readonly<{
   fragment: Partial<FreeDragConfig>;
   receivers: ReadonlyArray<readonly [string, unknown]>;
-  /** The record the installer returned — the one receiver that is forbidden. */
+  /**
+   * The **nested `MotionConstraint`** — the capability record the members are
+   * declared on, and the one forbidden receiver (D-94). Not the `{ constrain }`
+   * the installer returns: a fully bound tree never uses that object as a
+   * receiver either, so a row comparing against it would pass on exactly the
+   * implementation the convention forbids.
+   */
   own(): MotionConstraint;
 }> {
   const receivers: Array<readonly [string, unknown]> = [];
@@ -145,11 +151,13 @@ function receiverRecordingConstraint(): Readonly<{
 
 /**
  * **The assertion is `receiver !== own()`, not `receiver === undefined`**
- * (D-93). The published guarantee is a single negative — a contributed member
- * is never invoked with the contributed record as its receiver — and what the
- * receiver *is* is unspecified, because the five sites disagree: four hand
- * `undefined`, while the construction unwind's `retireHooks[i]!()` is an
- * indexed call and hands the hook **the internal array**.
+ * (D-93). The published guarantee is a single negative — a member is never
+ * invoked with **the `MotionConstraint` it is declared on** as its receiver
+ * (D-94) — and what the receiver *is* is unspecified, because the sites
+ * disagree: four hand `undefined`, while the construction unwind's
+ * `retireHooks[i]!()` is an indexed call and hands the hook **the internal
+ * array**. Those values are measured code, recorded here and in `.plan` as
+ * evidence; no row asserts one.
  *
  * The narrower `=== undefined` assertion these rows used first was a mechanism
  * claim. It held at four sites, failed at the fifth, and would have failed all
