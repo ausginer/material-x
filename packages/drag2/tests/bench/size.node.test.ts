@@ -26,10 +26,15 @@ import { resolve } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   budgetViolations,
+  COMBINED,
   COMPOSITIONS,
+  FREE_DRAG_PART,
   graphViolations,
   measure,
   type Measurement,
+  packageModules,
+  SORTABLE_PART,
+  unionViolations,
 } from '../../bench/size/measure.ts';
 import type { DOMRealm } from '../../src/kernel/realm.ts';
 import { assemble } from '../../src/sortable/assemble.ts';
@@ -96,6 +101,36 @@ describe('the declared module graphs', () => {
       ]).toEqual([composition.name]);
     });
   }
+
+  it('should pull the union of both single-behavior graphs and nothing else', () => {
+    // **M-3′'s topology test** (D-95 (b)): an identity over graphs rather than
+    // a byte threshold, because _near the sum_ and _near the difference_ are
+    // not conditions a byte count can be scored against. A module both
+    // behaviors need that resolved twice would show up here as an entry the
+    // combined graph has and neither single graph does.
+    expect([
+      COMBINED,
+      ...unionViolations(measured.get(COMBINED)!, [
+        measured.get(SORTABLE_PART)!,
+        measured.get(FREE_DRAG_PART)!,
+      ]),
+    ]).toEqual([COMBINED]);
+  });
+
+  it('should share the kernel between the behaviors rather than pairing two copies', () => {
+    // The identity above holds vacuously if the two behaviors share nothing,
+    // so the sharing itself is asserted: the combined graph must be strictly
+    // smaller than the two graphs laid end to end, and the difference is the
+    // modules both reach.
+    const sortable = packageModules(measured.get(SORTABLE_PART)!);
+    const freeDrag = packageModules(measured.get(FREE_DRAG_PART)!);
+    const shared = sortable.filter((module) => freeDrag.includes(module));
+
+    expect(shared.length).toBeGreaterThan(0);
+    expect(packageModules(measured.get(COMBINED)!)).toHaveLength(
+      sortable.length + freeDrag.length - shared.length,
+    );
+  });
 
   it('should ship no dev-assertion module at all', () => {
     // The M-3 carried decision, as a property rather than a byte count: with

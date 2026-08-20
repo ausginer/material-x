@@ -82,6 +82,30 @@ export type Composition = Readonly<{
    * baseline B is the shipped package and did not move. Every budget is now
    * its measurement plus ~150 B, the headroom the Phase 17 re-base left, and
    * still under one module's worth.
+   *
+   * **Re-based again 2026-08-19, Phase 21 (M-3′), and this is the re-base
+   * `plan.md` §Phase 21 promised.** Five sortable rows and baseline A had gone
+   * over — by 247–407 B — because the Checkpoint E floor fixes landed under the
+   * standing rule that a budget re-bases rather than a correctness fix
+   * shrinking. Nothing was absorbed silently: the overruns were carried as
+   * muted telemetry (K-6) until a measurement phase could re-base against the
+   * artifact that will ship, which is here. Baseline B moves for the first
+   * time — its measurement has not changed, only its headroom, so that one
+   * rule covers every row.
+   *
+   * **What the headroom is for, stated rather than left to be inferred.**
+   * ~150 B is about one module, and it is sized to notice **a module appearing
+   * in a graph** — the failure this file exists to catch. It is deliberately
+   * too small to absorb a feature: a change that fits inside it silently is a
+   * change that added no module, and anything larger comes back here and is
+   * re-based on purpose, with its reason written down. It is not a performance
+   * allowance, and it may never be spent to avoid landing a floor fix.
+   *
+   * Landed figures, every row: minimal **10,738**, minimal (xy) **10,787**,
+   * + layoutAnimation **11,162**, + landing **11,020**, complete **11,447**,
+   * free drag minimal **8,717**, free drag + bounds **8,863**, free drag +
+   * landing **9,016**, free drag complete **9,162**, both behaviors
+   * **12,995**, baseline A **11,158**, baseline B **6,889**.
    */
   budget: number;
   /**
@@ -91,6 +115,16 @@ export type Composition = Readonly<{
    * small delta that reads like success.
    */
   absent?: readonly string[];
+  /**
+   * Whole **subtrees** that must not appear, by package-relative prefix.
+   *
+   * Added for M-3′'s cross-behavior claim, which `absent` cannot express: the
+   * assertion is that a free-drag composition pulls **no** `sortable/` module
+   * and vice versa, and enumerating today's module list would pass vacuously
+   * the moment either behavior gains a file. A prefix keeps the claim total
+   * over a growing tree.
+   */
+  absentPrefixes?: readonly string[];
   /** Modules that must appear — so the absence checks cannot pass vacuously. */
   present?: readonly string[];
 }>;
@@ -109,6 +143,29 @@ const OPTIONAL = [
   'sortable/landing.js',
   'sortable/layout-animation.js',
 ] as const;
+
+/**
+ * Free drag's optional features, and the same rule: a composition that does not
+ * install one must not pull it.
+ *
+ * `free-drag/landing.js` shares `shared/landing-runner.js` with the sortable's,
+ * which is the one non-kernel module both behaviors reach — and therefore the
+ * most interesting single entry in M-3′'s union identity, since a shared module
+ * outside `kernel/` is exactly where a second resolution would be least
+ * expected.
+ */
+const FREE_DRAG_OPTIONAL = [
+  'free-drag/bounds.js',
+  'free-drag/landing.js',
+] as const;
+
+const withoutFreeDrag = (...kept: readonly string[]): readonly string[] =>
+  FREE_DRAG_OPTIONAL.filter((module) => !kept.includes(module));
+
+/** The names the union identity is asserted over — see {@link unionViolations}. */
+export const COMBINED = 'both behaviors';
+export const SORTABLE_PART = 'complete';
+export const FREE_DRAG_PART = 'free drag complete';
 
 /**
  * The **unselected axis**, which is not optional in the same sense: exactly one
@@ -130,8 +187,9 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
     },
-    budget: 10_340,
+    budget: 10_890,
     absent: [...without(), withoutAxis('sortable/y.js')],
+    absentPrefixes: ['free-drag/'],
   },
   {
     // The same composition on the other axis. It reopens what "minimal" means,
@@ -142,8 +200,9 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/xy.js': '{ xy }',
     },
-    budget: 10_380,
+    budget: 10_940,
     absent: [...without(), withoutAxis('sortable/xy.js')],
+    absentPrefixes: ['free-drag/'],
     present: ['sortable/rect-index.js'],
   },
   {
@@ -153,11 +212,12 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_790,
+    budget: 11_310,
     absent: [
       ...without('sortable/layout-animation.js'),
       withoutAxis('sortable/y.js'),
     ],
+    absentPrefixes: ['free-drag/'],
     present: ['sortable/layout-animation.js'],
   },
   {
@@ -167,34 +227,105 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 10_620,
+    budget: 11_170,
     absent: [...without('sortable/landing.js'), withoutAxis('sortable/y.js')],
+    absentPrefixes: ['free-drag/'],
     present: ['sortable/landing.js'],
   },
   {
-    name: 'complete',
+    name: SORTABLE_PART,
     imports: {
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 11_200,
+    budget: 11_600,
     absent: [withoutAxis('sortable/y.js')],
+    absentPrefixes: ['free-drag/'],
     present: OPTIONAL,
+  },
+  {
+    // **The free-drag half of the surface** (M-3′). Declared as peers of the
+    // sortable rows rather than as a variant of them: the two behaviors share
+    // the kernel and nothing else, which is a claim about both graphs.
+    name: 'free drag minimal',
+    imports: {
+      'free-drag.js': '{ freeDrag }',
+    },
+    budget: 8870,
+    absent: [...withoutFreeDrag()],
+    absentPrefixes: ['sortable/'],
+    present: ['free-drag.js', 'kernel/kernel.js'],
+  },
+  {
+    name: 'free drag + bounds',
+    imports: {
+      'free-drag.js': '{ freeDrag }',
+      'free-drag/bounds.js': '{ bounds }',
+    },
+    budget: 9010,
+    absent: [...withoutFreeDrag('free-drag/bounds.js')],
+    absentPrefixes: ['sortable/'],
+    present: ['free-drag/bounds.js'],
+  },
+  {
+    name: 'free drag + landing',
+    imports: {
+      'free-drag.js': '{ freeDrag }',
+      'free-drag/landing.js': '{ landing }',
+    },
+    budget: 9170,
+    absent: [...withoutFreeDrag('free-drag/landing.js')],
+    absentPrefixes: ['sortable/'],
+    present: ['free-drag/landing.js', 'shared/landing-runner.js'],
+  },
+  {
+    name: FREE_DRAG_PART,
+    imports: {
+      'free-drag.js': '{ freeDrag }',
+      'free-drag/bounds.js': '{ bounds }',
+      'free-drag/landing.js': '{ landing }',
+    },
+    budget: 9310,
+    absentPrefixes: ['sortable/'],
+    present: FREE_DRAG_OPTIONAL,
+  },
+  {
+    // **The row M-3′ was added for.** One page, both behaviors, every optional
+    // feature — the largest surface a consumer can compose, and the only
+    // configuration in which the kernel is reached by two behaviors at once.
+    //
+    // The two `landing` exports are aliased because their names collide, which
+    // is what a consumer importing both writes too. Aliasing costs a few bytes
+    // in the re-export and changes no module in the graph, which is the half
+    // this row is measured for.
+    name: COMBINED,
+    imports: {
+      'sortable.js': '{ sortable }',
+      'sortable/y.js': '{ y }',
+      'sortable/landing.js': '{ landing as sortableLanding }',
+      'sortable/layout-animation.js': '{ layoutAnimation }',
+      'free-drag.js': '{ freeDrag }',
+      'free-drag/bounds.js': '{ bounds }',
+      'free-drag/landing.js': '{ landing as freeDragLanding }',
+    },
+    budget: 13_150,
+    absent: [withoutAxis('sortable/y.js')],
+    present: [...OPTIONAL, ...FREE_DRAG_OPTIONAL, 'shared/landing-runner.js'],
   },
   {
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 10_900,
+    budget: 11_310,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted
     // for baseline A: it is not feature-equivalent to anything here.
     name: 'baseline B - shipped @ydinjs/drag sortable.js',
     entry: 'bench/size/shipped.js',
-    budget: 7100,
+    budget: 7040,
   },
 ];
 
@@ -206,6 +337,19 @@ export type Measurement = Readonly<{
   brotli: number;
   /** Every module id in the bundled graph, package-relative. */
   modules: readonly string[];
+  /**
+   * The synthetic entry an `imports` composition bundles, or `null` for an
+   * `entry` one. It is a temp path that differs on every run, so the graph
+   * identities below exclude it — it is the harness's own module and never a
+   * consumer's.
+   */
+  entryId: string | null;
+  /**
+   * Module ids emitted into **more than one** chunk. Empty is the expected
+   * state; a non-empty list is duplication in the literal sense, which is what
+   * M-3′'s union identity is watching for from the other side.
+   */
+  duplicated: readonly string[];
 }>;
 
 /**
@@ -241,11 +385,13 @@ export async function measure(composition: Composition): Promise<Measurement> {
       const { output } = await bundle.generate({ format: 'es', minify: true });
       const chunks = output.filter((chunk) => chunk.type === 'chunk');
       const code = chunks.map((chunk) => chunk.code).join('');
-      const modules = new Set<string>();
+      const counts = new Map<string, number>();
 
       for (const chunk of chunks) {
         for (const id of Object.keys(chunk.modules) as readonly string[]) {
-          modules.add(id.startsWith(ROOT) ? id.slice(ROOT.length + 1) : id);
+          const relative = id.startsWith(ROOT) ? id.slice(ROOT.length + 1) : id;
+
+          counts.set(relative, (counts.get(relative) ?? 0) + 1);
         }
       }
 
@@ -255,7 +401,12 @@ export async function measure(composition: Composition): Promise<Measurement> {
         composition,
         minified: bytes.byteLength,
         brotli: brotliCompressSync(bytes).byteLength,
-        modules: [...modules].sort(),
+        modules: [...counts.keys()].sort(),
+        entryId: composition.imports ? input : null,
+        duplicated: [...counts]
+          .filter(([, count]) => count > 1)
+          .map(([id]) => id)
+          .sort(),
       };
     } finally {
       await bundle.close();
@@ -320,9 +471,71 @@ export function graphViolations(measurement: Measurement): readonly string[] {
     }
   }
 
+  for (const prefix of composition.absentPrefixes ?? []) {
+    for (const module of modules) {
+      if (module.startsWith(prefix)) {
+        found.push(`pulls ${module}, from a subtree it must not reach`);
+      }
+    }
+  }
+
   for (const module of composition.present ?? []) {
     if (!modules.includes(module)) {
       found.push(`does not pull ${module}, which it installs`);
+    }
+  }
+
+  for (const module of measurement.duplicated) {
+    found.push(`emits ${module} into more than one chunk`);
+  }
+
+  return found;
+}
+
+/**
+ * A measurement's graph **as a consumer sees it**: the synthetic entry the
+ * harness writes for an `imports` composition is dropped, because its id is a
+ * temp path that differs on every run and it is not a module anyone ships.
+ */
+export function packageModules(measurement: Measurement): readonly string[] {
+  return measurement.modules.filter((id) => id !== measurement.entryId);
+}
+
+/**
+ * **M-3′'s topology test, and it is an identity rather than a threshold**
+ * (D-95 (b), D-96 (5)).
+ *
+ * The question is whether D-48's `kernel.js` split still holds when one page
+ * runs both behaviors. _Near the sum_ and _near the difference_ are not
+ * conditions a byte count can be scored against, and a tolerance invented after
+ * the run is exactly the post-hoc rule the phase refuses. The observable is the
+ * graph: **the combined composition must pull the union of the two
+ * single-behavior graphs and nothing else**, so every module both behaviors
+ * need resolves once.
+ *
+ * A module in the combined graph and in neither single graph is a module the
+ * pairing introduced; a module in a single graph and missing from the combined
+ * one means one behavior stopped reaching it. Both are topology changes, and
+ * either reopens the export topology under 05 §What would reopen this. The byte
+ * delta against the sum is then the **size** of a duplication rather than the
+ * evidence for one, which is why it is telemetry.
+ */
+export function unionViolations(
+  combined: Measurement,
+  parts: readonly Measurement[],
+): readonly string[] {
+  const union = new Set(parts.flatMap((part) => packageModules(part)));
+  const found: string[] = [];
+
+  for (const module of packageModules(combined)) {
+    if (!union.has(module)) {
+      found.push(`pulls ${module}, which neither behavior pulls alone`);
+    }
+  }
+
+  for (const module of union) {
+    if (!packageModules(combined).includes(module)) {
+      found.push(`does not pull ${module}, which a behavior pulls alone`);
     }
   }
 
@@ -342,8 +555,10 @@ if (import.meta.main) {
   const kb = (bytes: number): string => `${(bytes / 1000).toFixed(2)} kB`;
 
   let failed = false;
+  const all = await measureAll();
+  const byName = new Map(all.map((one) => [one.composition.name, one]));
 
-  for (const measurement of await measureAll()) {
+  for (const measurement of all) {
     const { composition, brotli, modules } = measurement;
     const found = violations(measurement);
     const slack = composition.budget - brotli;
@@ -359,6 +574,28 @@ if (import.meta.main) {
       failed = true;
       // oxlint-disable-next-line no-console
       console.error(`  ✗ ${composition.name} ${violation}`);
+    }
+  }
+
+  const combined = byName.get(COMBINED);
+  const parts = [byName.get(SORTABLE_PART), byName.get(FREE_DRAG_PART)];
+
+  if (combined && parts.every((part) => part !== undefined)) {
+    const found = unionViolations(combined, parts);
+    const sum = parts.reduce((total, part) => total + part.brotli, 0);
+
+    // oxlint-disable-next-line no-console
+    console.log(
+      `\n${COMBINED} graph: ${packageModules(combined).length} modules` +
+        ` against a ${SORTABLE_PART} + ${FREE_DRAG_PART} union of` +
+        ` ${new Set(parts.flatMap(packageModules)).size}` +
+        `  (telemetry: ${kb(combined.brotli)} against a ${kb(sum)} sum)`,
+    );
+
+    for (const violation of found) {
+      failed = true;
+      // oxlint-disable-next-line no-console
+      console.error(`  ✗ ${COMBINED} ${violation}`);
     }
   }
 
