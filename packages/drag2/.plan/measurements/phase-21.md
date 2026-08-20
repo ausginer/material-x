@@ -1,6 +1,6 @@
 # Phase 21 — the measurement contract for the complete package
 
-**Status: M-3′ and M-1′ run 2026-08-19; M-4′, M-5 and M-2′ not yet run. Corrected by a validity audit the same day (D-96)** — seven arms carried a defect that would have produced a number unable to support its decision, and each correction is marked where it lands. This document is the Phase 21 measurement contract: five measurements, what each can change, and the four standing obligations it withdraws. It supersedes the per-row _What changes_ table in [`plan.md`](../plan.md) §Phase 21, which stated the subject and not the question.
+**Status: M-3′ and M-1′ run 2026-08-19; M-4′, M-5 and M-2′ not yet run. Corrected by a validity audit the same day (D-96)** — seven arms carried a defect that would have produced a number unable to support its decision, and each correction is marked where it lands. This document is the Phase 21 measurement contract: what each measurement can change, and the four standing obligations it withdraws. **It was five; M-6 is a sixth, added by D-97 after M-1′ raised P-01 rather than answering it with a proxy** — and the same decision corrects one leg of D-96's frame-gate withdrawal, which had promoted a Chromium dispatch policy to structure. It supersedes the per-row _What changes_ table in [`plan.md`](../plan.md) §Phase 21, which stated the subject and not the question.
 
 **The rule this plan is written against.** A measurement is taken only if a **named decision** changes on at least one of its outcomes. Everything else is telemetry: recorded because a later reader will ask, never presented as a finding. Each measurement below therefore states its decision first and its workload second, and every output is labelled **decision-driving** or **telemetry**.
 
@@ -67,12 +67,14 @@ Timings stay opt-in behind `VITE_DRAG_MEASURE=1` and assert nothing. Structural 
 
 **Arm D — the staleness workload, and the frame gate the arithmetic closes before the run.** `invalidate()` is a flag and the resolve is deferred to the next `apply`. Scroll and resize raise staleness many times a second by design.
 
-**The gate's benefit is bounded without measuring anything, and the bound is zero.** A frame gate removes _resolves_, and resolves are bounded above by `apply` calls — one per committed sample, at most one per staleness mark. **Free drag installs no frame task**: `createFrameTask` has exactly one caller, `src/sortable/runtime.ts`, so `moved` runs on the dispatched `pointermove` and the deployment path commits about one sample per frame. A gate can only collapse resolves where **more than one `apply` runs inside one frame**, which is not the shape free drag has. **The harness's own regime is what would hide this**: a calibrated batch dispatches hundreds of samples inside a single frame, so resolves _per sample_ measured there carry nothing about resolves _per frame_ in deployment, and a cost figure taken there cannot be converted into a saving a gate would make. The two shapes are therefore scored as follows, and the gate is not among the outcomes of either.
+**The gate's benefit is bounded without measuring anything, and the bound is zero.** A frame gate removes _resolves_, and resolves are bounded above by `apply` calls — one per committed sample, at most one per staleness mark. **Free drag installs no frame task**: `createFrameTask` has exactly one caller, `src/sortable/runtime.ts`, so `moved` runs on the dispatched `pointermove` with no batching of our own between the event and the resolve. A gate can only collapse resolves where **more than one `apply` runs inside one frame** — and how often that happens is set by the dispatch rate, which is the platform's and not ours. **This clause originally read _the deployment path commits about one sample per frame_ and treated that as structure; it is typical Chromium behaviour, and D-97 corrects it.** What the correction changes is narrower than it reads: see §What this arm decides. **The harness's own regime is what would hide this**: a calibrated batch dispatches hundreds of samples inside a single frame, so resolves _per sample_ measured there carry nothing about resolves _per frame_ in deployment, and a cost figure taken there cannot be converted into a saving a gate would make. The two shapes are therefore scored as follows, and the gate is not among the outcomes of either.
 
 - **Burst — a structural assertion rather than a timing.** `k` scroll events between two samples, `k ∈ {1, 4, 16}`; the assertion is **one resolve per `apply` regardless of `k`**. This is the one place a read _count_ is evidence, and it is evidence of a **regression**: the flag is set once and read once, so a result above one means the rect is resolved somewhere the contract says it is not. It therefore runs on **every suite run and asserts**, with the other structural assertions, rather than behind `VITE_DRAG_MEASURE=1`.
 - **Continuous — telemetry, and labelled as such.** Realistic pointer-plus-scroll pacing, one invalidation per sample; the per-sample cost delta against a no-scroll control, with an element source and with a function source. It is recorded because a later reader will ask what an element source costs under active scrolling. **No decision in this phase turns on it**, and the plan says so rather than leaving the label to the run: with the gate closed by the arithmetic above, a large number licenses nothing this plan is willing to do — holding a rect across frames serves the previous frame's rect to this frame's clamp, which **moves the visual**, and that is a correctness change wearing an optimization's clothes.
 
-**What this arm decides.** With the structural assertion holding, **D-70's lazy resolve is affirmed and frame coalescing is withdrawn as an option** — withdrawn rather than deferred, so a later phase may not re-propose it without new evidence. What that evidence would be is named here: a path that runs `apply` **more than once per frame** — an input source dispatching faster than the frame, or a second consumer of the same constraint — and a re-proposal owes that workload before it owes a cost number.
+**What this arm decides, as corrected by D-97.** The structural assertion holds and is measured: one resolve per `apply` at every `k`, asserted continuously. **D-70's lazy resolve is affirmed**, and that half is untouched by the correction.
+
+The withdrawal of frame coalescing splits into two variants, and they do not stand on the same leg. **Holding a rect across frames stays withdrawn**, on the independent ground that it serves the previous frame's rect to this frame's clamp and moves the visual — a correctness change, and no run can license it. **Collapsing several resolves inside one frame is suspended rather than withdrawn**: it is not a correctness change, and the only reason given against it was that fewer than two `apply` calls occur per frame, which is engine behaviour rather than a bound this package owns. **M-6 settles it**, with the same census that decides P-01, because both are bounded by one quantity — triggers per rendering opportunity.
 
 **Arm E — allocation, and what a heap reading can and cannot say.** Reframed from the standing obligation, which asked for `onMove` as a per-sample consumer callback: **timing a consumer callback measures the consumer.** What is ours is `buildGeometry`, which returns a fresh object per sample inside the `onMove` branch.
 
@@ -159,6 +161,46 @@ An SPI question that has been deferred twice cannot be settled by reading a numb
 
 ---
 
+## M-6 — the write census (P-01, and the half of the frame gate that was not structural)
+
+**Added by D-97, after M-1′ raised P-01 rather than answering it with a proxy.** The implementer's question was whether D-96's arithmetic extends from lazy resolves to the visual write. It does not, and checking it found that the arithmetic was weaker than it read on its original subject too.
+
+**Three things were being run together, and they are separated here.**
+
+- **What our architecture guarantees.** `moved` writes through `lift.write` synchronously — `visual.style.transform = compose(x, y)` plus two scalar records — with no queue, no batching and no frame task between the event and the write. That guarantees writes per frame equals **triggers** per frame: the architecture _delegates_ the bound rather than setting one. And it **adds a trigger the platform does not control**: `moveTo()` dispatches `TAG_POSITION` synchronously, its effect renders through `lift.write` (07 §Action), and it is legal in `ACTIVATING` and `ACTIVE`, first-party, and unbounded per frame.
+- **What the platform guarantees.** Not one `pointermove` per presented frame. Coalescing is a permitted user-agent behaviour, `getCoalescedEvents()` exists precisely because a dispatch may carry several movements, and `pointerrawupdate` exists as the explicitly un-throttled stream — which is the clearest evidence that throttling `pointermove` is a **user-agent policy** rather than a contract a library may rely on.
+- **What is merely typical Chromium behaviour.** Frame-aligned dispatch, about one `pointermove` per frame. That is real, and it is what D-96 leaned on while presenting it as structure — the same class of fact as M-1's cliff location, which that write-up was careful to record as _Chromium's and not a portable constant_.
+
+**So the implication fails, and it fails for a reason that matters more than the verdict.** The bounds gate had a second, independent leg — across frames it serves a stale rect and **moves the visual**. A `lift.write` gate has no such leg: only the last transform written before a paint is ever presented, so collapsing writes **inside** one frame is work elimination with an identical visual result. The property that made the bounds gate illegitimate is **absent here**, which is exactly why P-01 cannot inherit the withdrawal. What a write gate would cost instead is a **flush obligation on every terminal path** — a deferred write that never runs leaves the visual behind the operation — and that is a contract cost for Phase 22 to weigh, not a correctness objection this phase can decide.
+
+**Decisions it can change.** (a) **P-01**, the per-sample visual render. (b) The **within-frame** half of D-96's frame-coalescing withdrawal, suspended by D-97. One census answers both, because both savings are bounded by the same quantity.
+
+**The observable.** Two counters — `lift.write` calls and `constrain.apply` calls — read at each `requestAnimationFrame` tick, chained so a tick occurs at every rendering opportunity. **rAF ticks are the denominator rather than a proxy for one**: a gate would itself be built on rAF, so the census counts exactly what a gate would collapse, and the figure is refresh-rate independent by construction.
+
+**Decision-driving:** the **distribution** of writes per tick — p95 and max. Not the mean: a gate's whole value is in the frames that carry several, and a mean over mostly-single frames hides them. **Telemetry:** the resolve count per tick, the absolute tick rate, and the cost of one `lift.write`, which is **not** measured unless the census opens the question — the count is what decides, and a cost taken first would be the convenient number again.
+
+**The workload, and the one way it gets got wrong.** Injection must enter the **browser's input pipeline** — Playwright's mouse API — and never `element.dispatchEvent`, which bypasses the pipeline entirely and reproduces the artificial many-samples-per-frame regime D-96 already ruled out as evidence. Pointer motion at the fastest rate the driver will emit, across a live drag.
+
+**The control that makes an inconclusive run visible, and it is the failure this arm is most likely to have.** Record `event.getCoalescedEvents().length` per dispatch alongside the counters. One dispatch per tick with a coalesced length **above one** means the pipeline is coalescing a stream that was genuinely faster than the frame — the regime under test. One dispatch per tick with a coalesced length of **one** means the injector never exceeded the frame rate, so the run is **too slow to discriminate and establishes nothing**. Without this control a slow injector returns _one write per frame_ and it reads exactly like a bound. That is the M-1 batch error inverted.
+
+**Second arm — the trigger the platform does not control.** The same census with a consumer calling `moveTo()` from its own rAF callback, and in a burst outside one.
+
+### The decision rule, fixed before the run
+
+| Outcome | Condition | What happens |
+| --- | --- | --- |
+| **P-01 closes** | pointer arm **p95 ≤ 1** write per tick, **with** the coalescing control confirming the injected stream outran the frame | Closed as _no work to remove on the pointer path_, **with the engine named** — the bound is the user agent's dispatch policy, not this package's structure, and the row says so. D-96's within-frame suspension closes with it. |
+| **P-01 opens** | pointer arm **p95 > 1** | The saving is real and is `(writes per tick − 1) × one write`. Phase 22 designs the gate **including the flush obligation on every terminal path**; this phase does not, and only then is one write's cost worth measuring. |
+| **Inconclusive** | the control shows the injection never outran the frame | **No bound may be quoted in either direction.** The write-up records the injector's achieved rate and what a faster one would take. |
+
+**The `moveTo()` arm decides classification, not the gate.** Writes above one there while the pointer arm sits at one makes the surplus **consumer-created** — recorded in the contract as a documented consequence of calling `moveTo()` faster than the display, not fixed with a library frame gate. A library does not gate away a rate its consumer deliberately chose.
+
+**Engine scope, stated rather than assumed.** One engine is enough to **open** the question — a single supported configuration exceeding one write per tick settles it. Closing on Chromium alone closes it **with the engine named**, the way M-1 recorded its cliff; a second engine, if the existing Playwright setup runs one cheaply, strengthens the closure and is not a precondition for taking the run.
+
+**What would reopen a close:** adopting `pointerrawupdate`, or any input source that dispatches faster than the frame.
+
+---
+
 ## Order, and what "done" means
 
 1. **M-3′** — deterministic, gates the budget re-base and the topology question.
@@ -166,5 +208,6 @@ An SPI question that has been deferred twice cannot be settled by reading a numb
 3. **M-4′** — the committed-move bracket, which carries P-02 and P-03.
 4. **M-5** — F-65's number, which closes or opens an SPI question standing since Phase 18.
 5. **M-2′** — the population figures, which change the least and inform Phase 22 rather than gating it.
+6. **M-6** — the write census, added by D-97. It gates nothing and may run at any point after M-1′; it is last because it is the only measurement whose subject is a platform behaviour rather than this package's code.
 
 **Done when** every number carried in a contract document, a README or a size budget is either re-measured or explicitly re-affirmed with its workload named — and every measurement above has a written answer of the form _this decision changed / this decision is now closed_, per Phase 22's standing instruction that a measurement changing nothing was either already optimal or not worth taking, **and must say which**.
