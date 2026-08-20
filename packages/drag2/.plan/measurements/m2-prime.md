@@ -1,6 +1,6 @@
 # M-2′ — controller cost at mixed populations
 
-**Status: run 2026-08-20. The last Phase 21 measurement.** **Decision (b) closes: per-controller cost is predominantly _common_ rather than behavior-specific.** A sortable controller retains **5618 B**, a free-drag controller **4505 B**, and the difference — **1112 B, 20%** — is the whole of what the sortable's behavior adds. **Retention after the declared 1000-controller / 1000-drag mixed workload does not grow with the number of drags**, at an instrument whose sensitivity is measured rather than assumed. **P-02's retention half opens as a Phase 22 candidate**, with an exact figure: **6.29 MB** retained at a 100 000-item high water, of which **5.12 MB** is scalars no axis rule reads. **Decision (a) is withdrawn and is not re-opened.** No Phase 22 work is started.
+**Status: run 2026-08-20. The last Phase 21 measurement.** **Decision (b) closes: per-controller cost is predominantly _common_ rather than behavior-specific.** A sortable controller retains **5618 B**, a free-drag controller **4505 B**, and the difference — **1112 B, 20%** — is the whole of what the sortable's behavior adds. **Retention after the declared 1000-controller / 1000-drag mixed workload does not grow with the number of drags**, at an instrument whose sensitivity is measured rather than assumed — which rejects a **material linear** per-drag leak and is **not** a claim of absence. **P-02's retention half opens as a Phase 22 candidate**, with an exact figure: **6.29 MB** retained at a 100 000-item high water, of which **5.12 MB** is scalars no axis rule reads. **Decision (a) is withdrawn and is not re-opened.** No Phase 22 work is started.
 
 ## What is measured, and what is deliberately not
 
@@ -106,7 +106,9 @@ The falsifier retains eight plain records per drag and reports its own sensitivi
 
 **The arm reports about a seventh of a known retention under this workload's churn**, and that is stated rather than hidden: a thousand real drags leave enough uncollected garbage in the baseline to absorb most of a deliberate leak. Dividing the tightest observed per-drag figure by it puts true per-drag retention at **≲ 46 B** at 4000 drags — and that division assumes the sensitivity at 4000 drags is no worse than at 1000, which this run did not check.
 
-**So the primary claim is the shape, not the bound**: retention is flat in the drag count across a 4× range, at an instrument that detects 800 B per drag. **The workload leaks nothing that accumulates.**
+**So the primary claim is the shape, not the bound**: retention is flat in the drag count across a 4× range — the _smallest_ workload gives the _largest_ reading, which no per-drag leak can do — at an instrument that reads back **0.14** of a known 800 B-per-drag injection.
+
+**What that rejects is a material linear per-drag retention, and the claim is narrowed to exactly that.** Nothing accumulating at or above ≈46 B per drag survives this series. **It is not absence**, and it must not be carried as absence: a per-drag retention **below** that bound is not excluded, and neither is one whose observability degrades as the drag count rises — the 0.14 figure was established against the 1000-drag injection and this run did not re-establish it at 4000, which the paragraph above says outright. **The form Phase 22 may rely on is _no material observable accumulation at this sensitivity_.** Anything stronger needs an instrument whose sensitivity does not sit at a seventh, and this phase does not owe one, because no Phase 22 candidate turns on the difference.
 
 **Two earlier falsifiers were too weak and are recorded because they nearly passed.** One retained `DOMRect` per drag reported ~100 B in total, and eight of them ~111 B — because `usedJSHeapSize` reflects a platform object's JS wrapper and not the object, the same way it does not reflect a typed array's backing store. Either would have "detected a leak" at a level indistinguishable from the arm's own noise, which is not a control.
 
@@ -138,7 +140,7 @@ A first pass over a **fresh** population retains **329 kB — 337 B per controll
 ## What this closes, and what it opens
 
 - **Decision (b) closes.** Per-controller cost is predominantly common: 80% shared, 1112 B behavior-specific for the sortable. Nothing is shared between controllers, so population cost is linear.
-- **Retention closes.** The declared workload leaks nothing that accumulates, at an instrument whose sensitivity is measured at 0.14 and stated.
+- **Retention closes — as _no material observable accumulation_, not as absence.** The declared workload shows no leak that accumulates at or above ≈46 B per drag, at an instrument that reads back 0.14 of a known injection and whose sensitivity was established at 1000 drags rather than at 4000. The narrowing is the claim, not a caveat on it.
 - **Decision (a) stays withdrawn.** No figure here bears on the frame-task policy, by D-96's argument rather than by omission.
 - **P-02's retention half opens**, as the second Phase 22 candidate this phase produced, beside P-01 and P-06. **No optimization work is started.**
 - **§Check D-56 stays Phase R's** and is not recorded as satisfied here.
