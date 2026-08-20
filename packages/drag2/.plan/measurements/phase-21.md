@@ -1,6 +1,6 @@
 # Phase 21 — the measurement contract for the complete package
 
-**Status: M-3′ and M-1′ run 2026-08-19; M-4′, M-5 and M-2′ not yet run. Corrected by a validity audit the same day (D-96)** — seven arms carried a defect that would have produced a number unable to support its decision, and each correction is marked where it lands. This document is the Phase 21 measurement contract: what each measurement can change, and the four standing obligations it withdraws. **It was five; M-6 is a sixth, added by D-97 after M-1′ raised P-01 rather than answering it with a proxy** — and the same decision corrects one leg of D-96's frame-gate withdrawal, which had promoted a Chromium dispatch policy to structure. It supersedes the per-row _What changes_ table in [`plan.md`](../plan.md) §Phase 21, which stated the subject and not the question.
+**Status: M-3′ and M-1′ run 2026-08-19, M-6 run 2026-08-20; M-4′, M-5 and M-2′ not yet run. Corrected by a validity audit the same day (D-96)** — seven arms carried a defect that would have produced a number unable to support its decision, and each correction is marked where it lands. This document is the Phase 21 measurement contract: what each measurement can change, and the four standing obligations it withdraws. **It was five; M-6 is a sixth, added by D-97 after M-1′ raised P-01 rather than answering it with a proxy** — and the same decision corrects one leg of D-96's frame-gate withdrawal, which had promoted a Chromium dispatch policy to structure. It supersedes the per-row _What changes_ table in [`plan.md`](../plan.md) §Phase 21, which stated the subject and not the question.
 
 **The rule this plan is written against.** A measurement is taken only if a **named decision** changes on at least one of its outcomes. Everything else is telemetry: recorded because a later reader will ask, never presented as a finding. Each measurement below therefore states its decision first and its workload second, and every output is labelled **decision-driving** or **telemetry**.
 
@@ -198,6 +198,20 @@ An SPI question that has been deferred twice cannot be settled by reading a numb
 **Engine scope, stated rather than assumed.** One engine is enough to **open** the question — a single supported configuration exceeding one write per tick settles it. Closing on Chromium alone closes it **with the engine named**, the way M-1 recorded its cliff; a second engine, if the existing Playwright setup runs one cheaply, strengthens the closure and is not a precondition for taking the run.
 
 **What would reopen a close:** adopting `pointerrawupdate`, or any input source that dispatches faster than the frame.
+
+**Run 2026-08-20; the record is [`m6.md`](m6.md). P-01 opens, and D-96's suspended within-frame half closes with it.**
+
+**The control did its work, and it did it by failing first.** Playwright's sequential mouse path emits ~59 movements per second on this machine — below the display rate — and returns `p95 = 1` with `getCoalescedEvents().length` never above one. That arm is recorded as **INCONCLUSIVE** and none of its counts are used, which is precisely the reading this plan wrote the control to prevent. Issuing the same `page.mouse` movements without awaiting each acknowledgement reaches ~129 /s and ~309 /s, where a quarter to a half of dispatches carry more than one coalesced movement: the regime under test, on the browser's own coalescing decision.
+
+**On the valid arms the pointer census reads `writes p95 = 3` (96 ticks) and `8` (24 ticks), with maxima of 7 and 10.** The opening condition is `p95 > 1`, so **P-01 opens**: Chromium coalesces a substantial fraction of a faster-than-frame stream **and still delivers several `pointermove` dispatches inside one rendering opportunity**. Coalescing is a mitigation, not a one-per-frame guarantee — which is the assumption D-97 refused and D-96 had promoted to structure. Phase 22 designs the gate including the flush obligation on every terminal path; **this handoff implements none**, and the cost of one write stays unmeasured until then.
+
+**`constrain.apply` reaches p95 3 and 8 on the same arms**, so the only ground given against collapsing several resolves inside one frame does not hold and **the within-frame suspension closes**. Holding a rect **across** frames stays withdrawn on its own independent ground — it moves the visual, and no count licenses that.
+
+**The `moveTo()` arm is classified, not gated.** One call per rendering opportunity yields exactly one write per tick; bursts of 2, 8 and 32 inside one frame yield exactly 2, 8 and 32. The surplus is created entirely by a rate the consumer chose, so it is recorded as a documented consequence of the `moveTo()` contract rather than a library gating requirement, and **contributes nothing to P-01's verdict**.
+
+**The census was falsified before it was recorded**: a same-frame `moveTo()` burst must exceed one write per tick by construction, and that row asserts on every suite run — so a counter stuck at one cannot pass as an instrument. Its complement is on the record too: the same counter returns 1 for rAF-paced traffic, so it is not merely biased high.
+
+**Scope: Chromium alone, which this plan's own clause makes sufficient to open.** The repo change the run carries is Playwright input commands for the drag2 browser project; without them there is no injection path that is not `dispatchEvent`.
 
 ---
 

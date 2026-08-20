@@ -43,6 +43,7 @@ type WorkspaceTestConfigOptions = Readonly<{
   boxQuadRoot: URL;
   materialXRoot: URL;
   materialXCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
+  drag2Commands: Readonly<Record<string, BrowserCommand<any[]>>>;
   coreRoot: URL;
   dragRoot: URL;
   drag2Root: URL;
@@ -248,12 +249,19 @@ function createCoreTestProjects(root: URL, scope?: string): UserConfig[] {
   ];
 }
 
-function createDragTestProjects(root: URL, scope?: string): UserConfig[] {
+function createDragTestProjects(
+  root: URL,
+  scope?: string,
+  commands?: Record<string, BrowserCommand<any[]>>,
+): UserConfig[] {
   return [
     createBrowserTestProject({
       name: scopedName('browser', scope),
       root,
       include: ['tests/**/*.browser.test.ts'],
+      // M-6's census drives Playwright's own input pipeline; a dispatched event
+      // never reaches the coalescing decision the measurement is about.
+      commands,
       // The phase 11 measurement suites need a deterministic heap: `gc()` to
       // settle it before a sample, and precise `performance.memory` rather than
       // the 100kB-quantized figure Chrome reports by default. Both are inert
@@ -352,10 +360,13 @@ export function createCoreTestConfig(root: URL): UserConfig {
   };
 }
 
-export function createDragTestConfig(root: URL): UserConfig {
+export function createDragTestConfig(
+  root: URL,
+  commands?: Record<string, BrowserCommand<any[]>>,
+): UserConfig {
   return {
     test: {
-      projects: createDragTestProjects(root),
+      projects: createDragTestProjects(root, undefined, commands),
     },
   };
 }
@@ -402,6 +413,7 @@ export function createWorkspaceTestConfig(
   const [drag2Browser, drag2Declaration, drag2Node] = createDragTestProjects(
     options.drag2Root,
     'drag2',
+    options.drag2Commands,
   );
   const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'tproc');
   const [viteTraitsPluginNode] = createViteTraitsPluginTestProjects(
