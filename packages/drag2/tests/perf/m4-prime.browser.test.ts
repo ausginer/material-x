@@ -56,11 +56,11 @@ import type {
   SortableInstaller,
 } from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
+import type { InsertionRuntimeView } from '../../src/sortable/slots.ts';
 import {
   RESYNC_INTERVAL,
   setRefreshVerification,
-} from '../../src/sortable/rect-index.ts';
-import type { InsertionRuntimeView } from '../../src/sortable/slots.ts';
+} from '../../src/sortable/verified-refresh.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../../src/sortable.ts';

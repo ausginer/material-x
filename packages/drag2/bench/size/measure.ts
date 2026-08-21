@@ -177,6 +177,22 @@ export const FREE_DRAG_PART = 'free drag complete';
 const withoutAxis = (kept: 'sortable/y.js' | 'sortable/xy.js'): string =>
   kept === 'sortable/y.js' ? 'sortable/xy.js' : 'sortable/y.js';
 
+/**
+ * **P-06's machinery, and it is `y()`'s alone** (D-102). The verified
+ * incremental refresh is `y()`-only *by contract* — D-100 condition 1 refuses
+ * it under `xy()`, whose wrapping flow makes `δ` neither scalar nor uniform —
+ * so an `xy()` composition reaching this module would be carrying an
+ * optimization it can never execute.
+ *
+ * It lived in `createRectIndex`'s shared closure when P-06 first landed and
+ * cost the minimal `xy()` composition **288 B**. Listed here as a peer of
+ * {@link withoutAxis} rather than folded into it because it is a different
+ * claim: the unselected axis is absent because exactly one installs, and this
+ * is absent because a feature's private optimization may not travel in the
+ * shared cache the two axes are deliberately built to share.
+ */
+const P06 = 'sortable/verified-refresh.js';
+
 const without = (...kept: readonly string[]): readonly string[] =>
   OPTIONAL.filter((module) => !kept.includes(module));
 
@@ -187,9 +203,10 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
     },
-    budget: 10_890,
+    budget: 11_260,
     absent: [...without(), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
+    present: [P06],
   },
   {
     // The same composition on the other axis. It reopens what "minimal" means,
@@ -201,8 +218,12 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/xy.js': '{ xy }',
     },
     budget: 10_940,
-    absent: [...without(), withoutAxis('sortable/xy.js')],
+    absent: [...without(), withoutAxis('sortable/xy.js'), P06],
     absentPrefixes: ['free-drag/'],
+    // **Both halves of D-102 in one row.** The dimension-neutral cache is
+    // reached — that is the shared-by-design part, and it is why `xy()` is
+    // measured as a peer rather than assumed to equal the `y()` one — and the
+    // `y()`-only optimization on top of it is not.
     present: ['sortable/rect-index.js'],
   },
   {
@@ -212,13 +233,13 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 11_310,
+    budget: 11_700,
     absent: [
       ...without('sortable/layout-animation.js'),
       withoutAxis('sortable/y.js'),
     ],
     absentPrefixes: ['free-drag/'],
-    present: ['sortable/layout-animation.js'],
+    present: ['sortable/layout-animation.js', P06],
   },
   {
     name: 'minimal + landing',
@@ -227,10 +248,10 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 11_170,
+    budget: 11_540,
     absent: [...without('sortable/landing.js'), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
-    present: ['sortable/landing.js'],
+    present: ['sortable/landing.js', P06],
   },
   {
     name: SORTABLE_PART,
@@ -240,10 +261,10 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 11_600,
+    budget: 11_970,
     absent: [withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
-    present: OPTIONAL,
+    present: [...OPTIONAL, P06],
   },
   {
     // **The free-drag half of the surface** (M-3′). Declared as peers of the
@@ -310,15 +331,20 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing as freeDragLanding }',
     },
-    budget: 13_150,
+    budget: 13_520,
     absent: [withoutAxis('sortable/y.js')],
-    present: [...OPTIONAL, ...FREE_DRAG_OPTIONAL, 'shared/landing-runner.js'],
+    present: [
+      ...OPTIONAL,
+      ...FREE_DRAG_OPTIONAL,
+      'shared/landing-runner.js',
+      P06,
+    ],
   },
   {
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 11_310,
+    budget: 11_680,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted

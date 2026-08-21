@@ -1,8 +1,8 @@
 # P-06 — the verified incremental refresh
 
-**Status: designed 2026-08-20 (D-100); implemented 2026-08-21.** This is the Phase 22 architecture handoff for P-06, the first and only candidate this phase opens. It works from D-98's boundary and from M-4′'s evidence, and it takes no measurement: Phase 21 has already given this candidate every number it will get.
+**Status: designed 2026-08-20 (D-100); implemented 2026-08-21; divergences settled the same day by D-101 and D-102 and the implementation finished against them.** This is the Phase 22 architecture handoff for P-06, the first and only candidate this phase opens. It works from D-98's boundary and from M-4′'s evidence, and it takes no measurement: Phase 21 has already given this candidate every number it will get.
 
-**The implementation record is [§What landed](#what-landed) at the foot of this file**, including the measured before/after, the two places the tree differs from the design, and the one contingency in §What would stop this that was measured and did not fire.
+**The implementation record is [§What landed](#what-landed) at the foot of this file**, including the measured before/after, the one contingency in §What would stop this that was measured and did not fire, and — in [§What D-101 and D-102 settled](#what-d-101-and-d-102-settled) — the two divergences, their resolution, and a **correction to the size figures the first record published**.
 
 **The optimization survives.** It survives in a different shape from D-98's sketch, and the difference is the whole architectural content: **the span is a hypothesis the feature verifies with a constant number of reads, not state it trusts.** That is what makes the fast path locally falsifiable, which is the condition the phase entry set for taking it at all.
 
@@ -170,7 +170,7 @@ The instrument is switched off for these arms and for the `m4-prime` structural 
 
 Three consequences, all recorded rather than acted on here:
 
-1. **`k` is not currently the binding constraint**, so raising it would buy little and spend drift tolerance for it. D-100's "raise it once the equivalence instrument has run against real fixtures" should be read against this: the instrument has now run, and the answer is that there is not much left for a larger `k` to win.
+1. **`k` is not the binding constraint** — the ceiling is `full / verified` ≈ 3.5×, not `k×`, and `k = 8` reaches 2.67×, or **76% of what is achievable**. `k = 16` would buy ~12% more and `k = 4` would cost ~24%. **D-100's invitation to raise `k` once the instrument had run is therefore withdrawn** (D-102's record): the instrument has run, and a larger `k` spends drift tolerance for very little. `k = 8` stays.
 2. **The forced flush is the next thing in this bracket worth a candidate**, and it is not P-06's and not in this slice.
 3. **At 50 rows with `layoutAnimation()` composed the bracket is unchanged** (1.112 → 1.111 ms) — the rebuild does shrink, but the displacement feature's own work dominates a list that small.
 
@@ -187,10 +187,81 @@ D-100 §What would stop this reserved the possibility that "the witness reads tu
 **Both are now decided — D-101 and D-102 — and neither changed P-06's correctness design, its boundary or its measurements.** (1) is **ratified**: the bare read is the correct form, because `__DEV__` is package vocabulary rather than kernel vocabulary. (2) is **refused**: the boundary moves so `xy()` carries no P-06 machinery, and the budgets stay red until it does.
 
 1. **`rect-index.ts` reads the bare `__DEV__` global instead of importing `DEV` from `kernel/dev.ts`.** The substitution and the folding are identical — this is the mechanism M-3 measured — but the import is not: `tests/kernel/vocabulary.node.test.ts` fails any name the behavior tier reaches into `kernel/` for unless contract 02 §What stays internal names it with a substitute, and adding `DEV` there is a decision about the tier boundary rather than about this cache. Reaching across and then legislating for it would have widened a second contract to land a design whose stated budget is one additive field. **This is the first dev assertion at the behavior tier**; if a second wants one, that is the moment to decide whether the tier gets a shared constant of its own.
-2. **`xy()`'s call site is byte-identical, but its bundle is not.** The fast path lives inside `createRectIndex`'s closure, which both axes share, so `xy()` links code it can never execute. The size bench measures **+135 B** on the minimal `xy()` composition and **+135 to +164 B** across every sortable composition (~1.3%); free-drag compositions are untouched. Splitting the fast path into a module only `y()` imports would recover it and is a change to how the shared cache is factored — **not taken here**, and the declared budgets are left red rather than re-based, so the number is visible rather than absorbed. **D-102 takes it**: the split is required, the required property is an `xy()`-composition graph absence rather than a prescribed factoring, and the residue left in `createRectIndex` is the falsifier — if it is not materially smaller than +135 B the split bought nothing and the cost is accepted with a re-base instead.
+2. **`xy()`'s call site is byte-identical, but its bundle is not.** The fast path lives inside `createRectIndex`'s closure, which both axes share, so `xy()` links code it can never execute. ~~The size bench measures **+135 B** on the minimal `xy()` composition and **+135 to +164 B** across every sortable composition (~1.3%)~~ — **those figures are wrong, and §What D-101 and D-102 settled corrects them**: they are _budget overruns_, not size deltas, and they were read off a stale build. The carried cost was **+288 B** on the minimal `xy()` composition. Free-drag compositions are untouched, which is right in both readings. Splitting the fast path into a module only `y()` imports would recover it and is a change to how the shared cache is factored — **not taken here**, and the declared budgets are left red rather than re-based, so the number is visible rather than absorbed. **D-102 takes it**: the split is required, the required property is an `xy()`-composition graph absence rather than a prescribed factoring, and the residue left in `createRectIndex` is the falsifier — if it is not materially smaller the split bought nothing and the cost is accepted with a re-base instead.
 
 ### What is still true
 
 `invalidateInsertion` keeps its signature. `SortableContribution` is unchanged. No new subpath, no new export on any entry. The eager window is where it was, between the placeholder write and `afterMove`, for the same correctness reason — nothing here made anything lazier, and D-95's exclusion of the eager position from cost-driven re-decision is preserved.
 
 **Not in this slice, as declared:** any change to `xy()`, any change to the stride (P-02's sub-candidate touches the same buffer and lands after this), any tuning of `k`, and any attempt to make case 3 detectable.
+---
+
+## What D-101 and D-102 settled
+
+**Finished 2026-08-21.** Neither decision touched P-06's correctness design, its eight-condition boundary, its `k`, or any measurement in §What landed — the timing table, the read counts and the mutation table above stand unchanged, and were re-run to confirm it.
+
+### First, a correction to the numbers the record above published
+
+**The `+135 to +164 B` figures were budget overruns read off a stale build, not size deltas.** `bench/size` bundles the package's **built** output, and `just test` — unlike `just size` — does not build first, so the comparison that produced them measured one state against a build of another. The overruns themselves were real; what was wrong is calling them the cost.
+
+**Measured properly, each state built before it was measured** (brotli bytes):
+
+| composition | before P-06 | P-06 folded into `RectIndex` | P-06 split out | net |
+| --- | --- | --- | --- | --- |
+| minimal (`y()`) | 10 738 | 11 039 | 11 105 | **+367** |
+| **minimal (`xy()`)** | **10 787** | 11 075 | **10 787** | **0** |
+| minimal + `layoutAnimation()` | 11 162 | 11 474 | 11 550 | +388 |
+| minimal + `landing()` | 11 020 | 11 326 | 11 388 | +368 |
+| complete | 11 447 | 11 741 | 11 808 | +361 |
+| both behaviors | 12 995 | 13 302 | 13 363 | +368 |
+| baseline A (non-composed) | 11 158 | 11 465 | 11 520 | +362 |
+| free drag (all four) | — | unchanged | unchanged | 0 |
+
+D-102 quotes `+135 B` from the record above; **the figure it should have had is 288 B**, and its conclusion is unaffected in the direction that matters — the cost was larger than stated, not smaller.
+
+### D-102 — the split, and its falsifier
+
+**`minimal (xy)` is 10 787 B: byte-identical to its pre-P-06 size.** The falsifier D-102 set was that the residue left in `createRectIndex` must be materially smaller than the cost it removed. **The residue is zero.** `src/sortable/rect-index.ts` is byte-for-byte its pre-P-06 self — no hook, no `settle()`, no optional parameter, no P-06 mention — which is a stronger result than the decision asked for and is the reason the budgets could go green rather than merely closer.
+
+**How it stays zero.** `src/sortable/verified-refresh.ts` **wraps** the cache rather than reaching into it. The two bits the fast path needs — is the buffer clean, and which collection version does it hold — are _mirrored_ from the calls the wrapper already intercepts, because `invalidate`, `retire` and every `refresh` arrive through it. The mirror cannot drift: all three clear or set both bits, and `y()` wires the wrapper into all three slots. `dirty` needs no variable at all — `pending === 0` **is** clean, since both are raised by `invalidate()` and cleared by a successful refresh.
+
+The one place the two states legitimately disagree is after a fast path, where the wrapper is clean and the cache still reads dirty. That is the intended shape: the buffer _is_ current, and the cache is only ever asked for a full scan when the wrapper decides to ask.
+
+**One barrier is duplicated and that is deliberate.** The first witness read is a consumer call under I-36, so the entry barrier has to be taken before `shift` — and `RectIndex.refresh` re-takes its own on the fallback path, because it is also reachable from `xy()` and must not depend on a caller having taken one. That is one extra predicate call on refusals, and the alternative was moving a barrier out of the cache that still needs it.
+
+**The graph absence is asserted, not argued.** `bench/size` lists `sortable/verified-refresh.js` in `minimal (xy)`'s `absent` and in every `y()` composition's `present`, as a peer of the unselected-axis assertion rather than folded into it: the unselected axis is absent because exactly one installs, and this is absent because a feature's private optimization may not travel in the shared cache the two axes are deliberately built to share.
+
+### The budgets are re-based, and only now
+
+The condition D-102 attached them to is met, and the remaining delta is the intended shipping surface: **+361 to +388 B in the module graph of the only feature that can execute it**, `xy()` and free drag at zero. Headroom is preserved at the ~150 B the previous budgets carried.
+
+| composition                   | old budget | new budget    |
+| ----------------------------- | ---------- | ------------- |
+| minimal                       | 10 890     | 11 260        |
+| minimal (xy)                  | 10 940     | **unchanged** |
+| minimal + `layoutAnimation()` | 11 310     | 11 700        |
+| minimal + `landing()`         | 11 170     | 11 540        |
+| complete                      | 11 600     | 11 970        |
+| both behaviors                | 13 150     | 13 520        |
+| baseline A                    | 11 310     | 11 680        |
+| free drag (all four)          | —          | **unchanged** |
+
+**The split is not free on the `y()` side**: it costs ~66 B more than the folded form (367 against 301 on `minimal`), which is the wrapper's own object, its three named slots and the module boundary. That is the price of the boundary and it is stated rather than netted off — the trade D-102 made is 288 B off `xy()` for 66 B onto `y()`, on top of the optimization's own ~300 B where it belongs.
+
+### D-101 — ratified, and now enforceable
+
+The bare `__DEV__` read is the correct form and moved with the rest of P-06 into `verified-refresh.ts`, which is the behavior tier's single binding. Nothing routes through `kernel/dev.ts`.
+
+**The gate D-101 asked for is in `tests/kernel/vocabulary.node.test.ts` §The `__DEV__` binding**, and it is three assertions because one is not enough:
+
+1. **at most one module per tier binds it** — the rule, and the trigger D-101 named: a second dev assertion in a second module of a tier fails here, and the fix is that tier's own `dev.ts`, still importing nothing from `kernel/`;
+2. **each binding module reads the ambient exactly once** — a module reading `__DEV__` twice is guarding branches with the ambient rather than with its binding, which makes (1) unenforceable: the binding stops being the tier's single definition of _dev_ and becomes one of several reads;
+3. **the tiers that bind it are exactly `kernel/dev.ts` and `sortable/verified-refresh.ts`** — the positive half, and the reason the two negatives are not enough on their own: both are satisfied by a tree in which nothing binds it, and by one in which a new tier quietly acquires an assertion.
+
+Comments are stripped before matching, so the prose stating the rule cannot satisfy or violate it. **Falsified before being trusted**: binding `__DEV__` in a second `sortable/` module fails (1) and (3) and leaves (2) passing, which is the discrimination between the two rules.
+
+### Both new gates were falsified, and one attempt was too weak to count
+
+Adding a `createVerifiedRefresh` call to `xy()` fails **both** `minimal (xy)`'s graph assertion and its budget. A first attempt that only referenced `RESYNC_INTERVAL` and discarded it did **not** fail — correctly, because a dead reference is eliminated and never enters the graph, and the assertion is about the graph rather than about the import statement. It is recorded because the weaker mutation passing is what shows the gate measures reachability and not text.
+
+The five mutations of the fast path itself were re-run against the whole sortable suite after the move, including a new one for the risk the split introduces — **a mirror that never clears on abort**, caught by 1 test. The other four are unchanged from §What landed: 8 tests in 3 files, 4, 2 and 1.

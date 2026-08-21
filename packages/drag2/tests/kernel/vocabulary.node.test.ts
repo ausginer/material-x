@@ -15,9 +15,19 @@
  * Source-level on purpose. The property is about **specifiers**, and a runtime
  * or type-level check cannot see one: an import that a bundler inlines and a
  * type that erases both leave nothing to assert against.
+ *
+ * **And a specifier is not the only way across** (D-101). `__DEV__` is an
+ * ambient this package's build defines, so a module can reach the dev-build
+ * concept with no import at all — invisible to everything above. D-101 decided
+ * that reaching it *directly* is correct, because the flag is package
+ * vocabulary rather than kernel vocabulary; what that decision then owes is a
+ * rule, and §The `__DEV__` binding is the rule made executable. Without it the
+ * next author re-litigates the boundary by reaching for `kernel/dev.ts`'s
+ * `DEV`, and this file cannot tell the difference between a tier that declined
+ * the import and a tier that never considered it.
  */
 import { readdir, readFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import * as drag from '../../src/drag.ts';
 import * as kernel from '../../src/kernel.ts';
@@ -286,5 +296,96 @@ describe('the kernel tier boundary', () => {
     const stale = PUBLISHED_TYPES.filter((name) => !entries.includes(name));
 
     expect(stale).toEqual([]);
+  });
+});
+
+/**
+ * `__DEV__` reads across `src/`, one entry per module that mentions it.
+ *
+ * The declaration in `globals.d.ts` is excluded: it is what makes the ambient
+ * nameable at package scope, and is the one file whose job is to mention it.
+ */
+async function devReaders(): Promise<ReadonlyArray<readonly [string, number]>> {
+  const found: Array<readonly [string, number]> = [];
+
+  const walk = async (directory: string): Promise<void> => {
+    const entries = await readdir(directory, { withFileTypes: true });
+
+    await Promise.all(
+      entries.map(async (entry) => {
+        const path = join(directory, entry.name);
+
+        if (entry.isDirectory()) {
+          return await walk(path);
+        }
+
+        if (!entry.name.endsWith('.ts') || entry.name === 'globals.d.ts') {
+          return;
+        }
+
+        const source = await readFile(path, 'utf8');
+        // Comments stripped, so the prose explaining the rule — including this
+        // module's own — cannot satisfy or violate it.
+        const code = source.replaceAll(/\/\*[\s\S]*?\*\//gu, '');
+        const reads = code.match(/__DEV__/gu)?.length ?? 0;
+
+        if (reads > 0) {
+          found.push([relative(SRC, path).replaceAll('\\', '/'), reads]);
+        }
+      }),
+    );
+  };
+
+  await walk(SRC);
+
+  return found.toSorted(([a], [b]) => a.localeCompare(b));
+}
+
+describe('the `__DEV__` binding', () => {
+  // **D-101, made executable.** The decision is that `__DEV__` is *package*
+  // vocabulary, so a behavior-tier module binds it directly rather than
+  // importing `kernel/dev.ts`'s `DEV` — which would be a behavior-tier reach
+  // into `kernel/` that 02 §What stays internal says must not exist. That is
+  // only a boundary if the shape it permits is bounded, and these three rows
+  // are the bound: one binding per tier, bound once, and read nowhere else.
+  //
+  // The trigger they encode is the one D-101 named: a second dev assertion in a
+  // second module of a tier fails the first row, and the fix is that tier's own
+  // `dev.ts` — still importing nothing from `kernel/`.
+
+  it('should bind the flag in at most one module per tier', async () => {
+    const perTier = new Map<string, string[]>();
+
+    for (const [file] of await devReaders()) {
+      const tier = dirname(file);
+
+      perTier.set(tier, [...(perTier.get(tier) ?? []), file]);
+    }
+
+    const doubled = [...perTier]
+      .filter(([, files]) => files.length > 1)
+      .map(([tier, files]) => `${tier}: ${files.join(', ')}`);
+
+    expect(doubled).toEqual([]);
+  });
+
+  it('should read the ambient exactly once in each module that binds it', async () => {
+    // A module that mentions `__DEV__` twice is guarding a branch with the
+    // ambient rather than with its binding, which is the shape that makes the
+    // rule above unenforceable — the binding stops being the tier's single
+    // definition of "dev" and becomes one of several reads.
+    const repeated = (await devReaders()).filter(([, reads]) => reads > 1);
+
+    expect(repeated).toEqual([]);
+  });
+
+  it('should keep the tiers that bind it to the declared set', async () => {
+    // The positive half, and the reason the two negatives are not enough: they
+    // are both satisfied by a tree in which nothing binds it at all, and by one
+    // in which a *new* tier quietly acquires an assertion. This row is the list
+    // the reviewer reads.
+    const tiers = (await devReaders()).map(([file]) => file);
+
+    expect(tiers).toEqual(['kernel/dev.ts', 'sortable/verified-refresh.ts']);
   });
 });

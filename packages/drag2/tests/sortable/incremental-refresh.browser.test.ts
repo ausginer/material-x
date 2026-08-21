@@ -33,7 +33,7 @@ import type {
 import {
   RESYNC_INTERVAL,
   setRefreshVerification,
-} from '../../src/sortable/rect-index.ts';
+} from '../../src/sortable/verified-refresh.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
 

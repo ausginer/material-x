@@ -27,6 +27,7 @@
 import type { CollectionSnapshot, Insertion } from './domain.ts';
 import type { AxisInstaller } from './feature.ts';
 import { CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
+import { createVerifiedRefresh } from './verified-refresh.ts';
 
 /**
  * Consumer-declared views (D-13). Declared **here**, in the feature's own
@@ -103,6 +104,13 @@ export function y(): AxisInstaller {
     // — which is what makes probe 1's "where does the geometry cache live"
     // question disappear by construction rather than by argument (H-4).
     const index = createRectIndex();
+    // **P-06's opt-in, and it is this import** (D-100, D-102). The verified
+    // fast path is `y()`-only by contract, so it is a module this rule reaches
+    // and `xy()` does not — rather than a branch inside the cache both share.
+    // The wrapper owns the span hypothesis and its counters; `index` stays the
+    // dimension-neutral full scan it was, and every refresh below goes through
+    // the wrapper so the two cannot disagree about what the buffer holds.
+    const verified = createVerifiedRefresh(index);
 
     return {
       insertion: {
@@ -118,7 +126,16 @@ export function y(): AxisInstaller {
 
           const { snapshot, placeholder } = runtime;
 
-          if (!index.refresh(snapshot, dragged, runtime.getBox, runtime.live)) {
+          if (
+            !verified.refresh(
+              snapshot,
+              dragged,
+              runtime.getBox,
+              runtime.live,
+              // A lazy rebuild has no committed move to attribute itself to.
+              -1,
+            )
+          ) {
             // The rebuild crossed the terminal barrier (I-36). Measuring the
             // placeholder below would be a consumer call — it is the
             // consumer's element and may override `getBoundingClientRect()` —
@@ -167,7 +184,7 @@ export function y(): AxisInstaller {
           };
         },
 
-        invalidate: index.invalidate,
+        invalidate: verified.invalidate,
 
         /**
          * The eager half. The behavior calls it inside the committed-move
@@ -194,13 +211,11 @@ export function y(): AxisInstaller {
           if (dragged !== null) {
             const { insertion } = runtime;
 
-            // **The one opt-in, and it is this argument** (P-06, D-100). The
-            // gap is both the reason signal and half the span hypothesis; the
-            // cache verifies the other half against four reads and falls back
-            // to the full rebuild it already ran, in the same window, on any
-            // refutation. `xy()` passes nothing and its call site is unchanged,
-            // so a regression here has one candidate cause.
-            index.refresh(
+            // **The reason signal** (P-06, D-100). The gap is both "a
+            // committed move just happened" and half the span hypothesis; four
+            // reads verify the other half, and any refutation falls back to
+            // the full rebuild, in the same window.
+            verified.refresh(
               runtime.snapshot,
               dragged,
               runtime.getBox,
@@ -210,7 +225,7 @@ export function y(): AxisInstaller {
           }
         },
 
-        retire: index.retire,
+        retire: verified.retire,
       },
     };
   };
