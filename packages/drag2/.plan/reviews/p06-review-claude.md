@@ -233,3 +233,150 @@ Both left as the review found them, deliberately. **Budget enforcement staying m
 ### Gates after remediation
 
 Twelve mutations of the fast path, each run against the whole sortable suite — the last two found the gap the two extra fixtures above close: shift-one-row-too-far (10 tests in 3 files), drop the suffix witness (7), accept any pending invalidation (2), never re-synchronise (1), mirror never clears on abort (1), remove the second in-span witness (5), read it without requiring `δ` agreement (2), put it at `lo + 1` (6), drop the liveness reading inside `verify` (2), report the mismatch on abort (2), drop the `bottom` test from `translation` (1), drop its `left`/`right` pair (1). Five `__DEV__`-gate mutations as above. Size gates green with the re-based budgets, `xy()` and free drag unchanged.
+---
+
+## Closure
+
+**Reviewed 2026-08-21 at `0eba6ecf`**, against D-103 and the seven dispositions above. Scope: the remediation only. Every verdict below was produced by mutating the tree and running the gates, not by reading the record.
+
+| Gate                 | Result                                |
+| -------------------- | ------------------------------------- |
+| `npx just typecheck` | clean                                 |
+| `npx just test`      | 56 files, **1104 passed, 99 skipped** |
+| `npx just size`      | green, all **12** rows within budget  |
+
+**All seven findings are closed. Nothing blocks merging.** Five follow-up polish items, none of which makes the shipped code wrong.
+
+| # | Item |
+| --- | --- |
+| C-01 | the span-2 half of D-103's acceptance criterion is unpinned |
+| C-02 | `left` and `right` are load-bearing only as a pair, and `δ ≠ 0` not at all |
+| C-03 | stale "four" counts survive the correction, one of them in source |
+| C-04 | the D-101 gate has a root-tier residue, and the design doc's §D-101 is stale |
+| C-05 | the re-base record was outdated by D-103 inside the same commit |
+
+### D-103 restores parity — measured, both ends and the interior
+
+Same 12-row field and 1 px `resolve` sweep against a control geometry that only ever full-scans, so the numbers are directly comparable with the ones that opened P06-01. Span `[2, 6)`, `translateY(7px)`:
+
+| perturbation | before D-103 | at `0eba6ecf` |
+| --- | --- | --- |
+| row 2 — the anchor | **fast**, 22 divergent | **full scan** (14 reads), 0 divergent |
+| row 5 — the second witness `hi − 1` | **fast**, not read at all | **full scan** (14 reads), 0 divergent |
+| row 3 — strictly interior | fast, 6 divergent | fast, **6 divergent** — unchanged |
+| rows 2 **and** 5, identical offset | — | fast, 15 divergent |
+
+The first two rows are P06-01 closed: the amplifying case now refuses and the buffer is left correct by the rebuild. The third is the parity claim — the residual is exactly what it was for a non-witness row before the change, which is the general path's exposure. The fourth is the escape D-103 names and accepts, and it is reachable exactly as documented, so the acceptance is honest rather than theoretical.
+
+**The span-2 claim holds.** `translateY` on `hi − 1` of a two-row span `[2, 4)` refuses on the shipped tree: 14 reads, 0 divergent.
+
+**The residual is confined to strictly interior rows, but it is not capped at one.** Two interior rows drifting together produced 13 divergent positions against one row's 6. The risk table's _"exactly one row — a strictly interior one"_ reads correctly as a **confinement** and loosely as a **count**; per drifting row the parity with the general path is what holds, and that is the operative claim. Worth a word, given D-100's original error was the same kind of imprecision in the other direction.
+
+### The read counts split exactly where they should
+
+| span | reads | which |
+| --- | --- | --- |
+| `[2, 3)` — one row | **4** | anchor, after, suffix, before — the original path |
+| `[2, 4)` — two rows | **5** | second witness read at `hi − 1 = 3` |
+| `[2, 6)` — four rows | **5** |  |
+| `[0, 5)` — from the first slot | **4** | five minus the before-witness |
+
+The one-row span keeps the original four-read path, and `tests/perf/m4-prime.browser.test.ts`'s structural `rebuild === 4` still passes untouched — M-4′ oscillates between adjacent slots, so every timed move has a one-row span. **That also means the five-read path is unmeasured**: D-103's ~0.3% cost is arithmetic from the record's ≈3 µs/row, not a timing. The plan states this openly, so it is an observation rather than a finding.
+
+### The instrument now obeys liveness completely
+
+Driving a teardown from inside row 7's own `getBoundingClientRect()` — not a witness, so it fires inside `verify`'s scan:
+
+| quantity | before | at `0eba6ecf` |
+| --- | --- | --- |
+| consumer reads after the controller died | **17** | **0** |
+| equivalence mismatch reported | yes, blaming the span hypothesis | **none** |
+| next `resolve` | rescanned | rescanned |
+
+The scan stops on the read that killed it, the cache is left retired rather than repopulated, and the false mismatch is gone. P06-02 closed.
+
+### D-103's own retirement falsifiers reproduce exactly
+
+The ledger states three, and all three land on the number claimed, run against the whole `tests/sortable` suite:
+
+| mutation                                      | claimed | measured |
+| --------------------------------------------- | ------- | -------- |
+| remove the second in-span witness             | 5       | **5**    |
+| read it but do not require it to agree on `δ` | 2       | **2**    |
+| move it to `lo + 1`                           | 6       | **6**    |
+
+The deferred-decision table is empty, `tests/decisions.node.test.ts` is green, and D-103's _Supersedes_ cell names _D-100 §The design's four-witness set and its case 3 risk statement; the single transformed-row fixture in D-100's slice_ — so the retirement is legitimate and the superseded material is identified.
+
+### The records are corrected
+
+**P06-05.** The stale-build explanation is withdrawn in as many words and replaced with the real one — the failing rows print `over budget by N B` and `N` was read as the cost, when it is the distance from a budget already carrying ~150 B of headroom. D-100's row carries the same correction.
+
+**P06-06.** `bench/size/measure.ts`'s `budget` docblock now has a dated P-06/D-102 entry, the reason the rule demands, the explanation of why the re-base waited for the split, the ~66 B the split costs the `y()` side stated rather than netted off, and a current landed-figures list.
+
+**P06-07.** D-101's row is marked **Implemented 2026-08-21** and now says the bare read _"was `rect-index.ts`'s when this was decided and D-102 moved it to `sortable/verified-refresh.ts` the same day … the ratification is of the form, not of the file."_
+
+**No stale P06-01 risk wording remains in a load-bearing position.** The `one row and nothing else` sentence survives at `p06-verified-refresh.md:27` under an explicit **Corrected by D-103** blockquote three lines below that supersedes _"every 'one row' in this file"_, which is this ledger's established retain-and-supersede form rather than a residue.
+
+### The D-101 gate now enforces what it claims
+
+A tier is the top-level directory under `src/`, and the three assertions are genuinely independent: a binding in `src/sortable/sub/a.ts` fails the per-tier row **alone**; a binding in a new tier fails the tier-set row **alone**; a module reading the ambient twice fails the read-count row **alone**. Line comments are stripped, so the prose no longer trips it. The test file states its own limits candidly — that a string literal carrying the token counts as a read, that a binding fenced by string literals holding comment delimiters is invisible, and that only `src/**/*.ts` is walked. P06-03 and P06-04 are closed on their substance: the rule is enforceable and the claim about it is now true.
+
+### C-01 — the span-2 half of the acceptance criterion is unpinned
+
+D-103's risk table asserts _spans of 1 or 2 → **none**_. Changing the skip condition from `hi - lo > 1` to `hi - lo > 2` — which surrenders exactly the "2" half — leaves the **whole `tests/sortable` suite green**. Under that mutation a `translateY` on `hi − 1` of a two-row span takes the fast path in 4 reads and produces **7 divergent pointer positions**, where the shipped tree refuses with 0.
+
+Only the "1" half is pinned, by the read-count row _should not read the second in-span witness for a one-row span_. The guarantee that makes spans of 2 safe rests on a boundary no fixture defends. This is the same shape as the fixture gap the remediation itself found in the four-quantity comparison, one level down.
+
+### C-02 — `left` and `right` are load-bearing only as a pair, and `δ ≠ 0` not at all
+
+The remediation added two fixtures _"because the mutation pass found the four-quantity comparison itself uncovered"_. Measured, one quantity at a time, against the whole `tests/sortable` suite:
+
+| quantity dropped from `translation` | failures |
+| --- | --- |
+| `values[BOTTOM] === rect.bottom - delta` | **1** — _should refuse when an in-span witness changed size_ |
+| `values[LEFT] === rect.left` alone | **0** |
+| `values[RIGHT] === rect.right` alone | **0** |
+| `delta !== 0` | **0** |
+
+The `translate(5px, 7px)` fixture moves both horizontal edges by the same amount, so either equality alone catches it and neither is individually load-bearing; a one-sided change — a width change, a `margin-left` — is seen by only one of them and nothing pins that. `delta !== 0` is stated as a refutation in three places and has no fixture at all; it is plausibly redundant given the second witness, but "plausibly redundant" and "pinned" are different states, and the difference is what the mutation pass exists to show.
+
+### C-03 — stale "four" counts survive, one of them in source
+
+D-103's _Supersedes_ cell names D-100's four-witness set, so these are residue rather than contradiction — but the correction blockquote at `p06-verified-refresh.md:30` supersedes _"every 'one row' in this file"_ and says nothing about the **count**, and the count did not travel with it.
+
+- **[verified-refresh.ts:9](../../src/sortable/verified-refresh.ts#L9)** — the module header still reads _"proposes a span, **four reads** check the proposal"_. This is production source, and 00-index's own rule is that **production comments state the current invariant**.
+- `p06-verified-refresh.md:86` — §The invariant boundary, condition 8: _"**all four witnesses** agree with the hypothesis"_.
+- `p06-verified-refresh.md:88` — _"a `live()` reading is owed after each — **four** rather than `n`"_.
+- `p06-verified-refresh.md:126` — §What landed's tree table still attributes `shift` _(the four witnesses and the δ application)_, `verify` and `RESYNC_INTERVAL` to **`src/sortable/rect-index.ts`**. Doubly stale, and the worse of the two: D-102 moved all of it, and the same document insists elsewhere that `rect-index.ts` is byte-for-byte its pre-P-06 self. This one predates D-103 and my first review did not catch it.
+- `tests/sortable/incremental-refresh.browser.test.ts:7` and `:236` — _"four reads"_, _"at most its four witnesses"_. The `:236` comment justifies the `reads < count` discriminator, which is still sound at five.
+
+### C-04 — a root-tier residue in the gate, and a stale §D-101 in the design doc
+
+**(a)** `tierOf` is `file.split('/')[0] ?? '.'`. `String.split` never returns an empty array, so the `?? '.'` fallback is unreachable and a root-level module becomes a tier **named by its own filename**. Two root-level bindings therefore reproduce the original P06-03 shape exactly — the per-tier row stays green and only the tier-set row catches them, verified with a pair of temporary `src/*.ts` modules. Narrow, since the root entries are barrels unlikely to bind the flag, but the documentation claims the root case is handled.
+
+**(b)** `p06-verified-refresh.md` §D-101 was not updated and now contradicts the shipped test twice: it says assertion 3 pins _`kernel/dev.ts` and `sortable/verified-refresh.ts`_ when it pins `['kernel', 'sortable']`, and its _"falsified before being trusted"_ record says a second `sortable/` binding fails (1) and (3) — measured, it fails **(1) only**. Both were true before the remediation and are false after it.
+
+**(c)** A deliberate, documented loosening worth recording as a coverage reduction rather than a defect: assertion 3 no longer pins _which_ `sortable/` module holds the binding, so moving it to any other module in that tier leaves all three rows green. `00-index`'s D-101 row states the line-comment stripping and the string-literal false positive but omits the fenced-string false negative and the `src/**/*.ts`-only scope, both of which the test file itself admits.
+
+### C-05 — the re-base record was outdated by D-103 inside the same commit
+
+P06-06 asked for the re-base reason and the landed figures to be written down; they were, and then the second in-span witness landed in the same commit and moved every `y()`-bearing row underneath them. Measured exactly:
+
+| composition | recorded in the docblock | measured at `0eba6ecf` | drift | headroom |
+| --- | --- | --- | --- | --- |
+| minimal | 11,105 | **11,125** | **+20** | 135 B |
+| minimal (xy) | 10,787 | **10,787** | 0 | 153 B |
+| + `layoutAnimation()` | 11,550 | **11,557** | **+7** | 143 B |
+| + `landing()` | 11,388 | **11,408** | **+20** | **132 B** |
+| complete | 11,808 | **11,830** | **+22** | 140 B |
+| both behaviors | 13,363 | **13,379** | **+16** | 141 B |
+| baseline A | 11,520 | **11,545** | **+25** | 135 B |
+| free drag ×4, baseline B | unchanged | **unchanged** | 0 | 147–155 B |
+
+Two things follow, one reassuring and one not. **D-102's boundary survives D-103 intact** — `minimal (xy)` is still 10,787 B, byte-identical to pre-P-06, and no free-drag row moves, so the second witness stayed inside the module only `y()` reaches. But the docblock's _"Landed figures, every row"_ understates every re-based row by 7–25 B, and _"Headroom stays at ~150 B on every re-based row"_ is now 132–143 B on the six that moved, with `minimal + landing` below the 147 B floor the pre-P-06 budgets carried. Every row is within budget and the re-base is justified by the artifacts; what does not match the artifacts is the record of them — which is the finding P06-06 was.
+
+### Merge
+
+**No blocker.** D-103 does what it claims at every boundary I could drive, the instrument's liveness defect is fully closed, and the corrected records say what the tree does. C-01 and C-02 are fixture gaps in guarantees the code already honours; C-03, C-04 and C-05 are records trailing the tree by one commit. All five are follow-up polish and none of them changes what ships.
+
+LSP plugin - available; not used: this pass turned on mutating the fast path and running the suite, observing buffer divergence at runtime, and extracting exact brotli byte counts — compile-and-run questions rather than symbol-graph ones.
