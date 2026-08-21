@@ -1,6 +1,6 @@
 # Checkpoint D second review — not ready to close
 
-I reviewed the current Phase 15–17 artifact against Checkpoint D in [`plan.md`](../plan.md), both first-review resolution documents, the parity ledger, the normative 00–05 contract, the shipped `@ydinjs/drag` sortable, and the refreshed tests and size evidence.
+I reviewed the current Phase 15–17 artifact against Checkpoint D in [`plan.md`](../../plan.md), both first-review resolution documents, the parity ledger, the normative 00–05 contract, the shipped `@ydinjs/drag` sortable, and the refreshed tests and size evidence.
 
 Most of the first review's runtime fixes are correct. D1, D3, D6 and D8 close; D2's candidate geometry is restored; and D4's reduced-motion ordering is fixed. The second pass nevertheless found one reproducible terminal-barrier defect and three places where the claimed documentary/parity closures still contradict the live artifact. Checkpoint D's exit condition — no open sortable parity item before a second behavior reaches the kernel — is therefore not met.
 

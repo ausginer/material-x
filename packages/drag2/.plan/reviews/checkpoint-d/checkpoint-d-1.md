@@ -1,6 +1,6 @@
 # Checkpoint D first review — not ready to close
 
-I reviewed the Phase 15–17 artifact against Checkpoint D in [`plan.md`](../plan.md), the parity ledger, the live 00–06 contract, the shipped `@ydinjs/drag` sortable, the public entrypoints, and the current test/measurement evidence.
+I reviewed the Phase 15–17 artifact against Checkpoint D in [`plan.md`](../../plan.md), the parity ledger, the live 00–06 contract, the shipped `@ydinjs/drag` sortable, the public entrypoints, and the current test/measurement evidence.
 
 The implementation is well covered and the full suite is green, but the checkpoint's exit condition is not met yet. There are four observable behavior/parity defects, an incomplete retained public surface, and source-of-truth documents that still describe the pre-keyboard, pre-`y()`/`xy()` artifact. The next free-drag phase should not start until the sortable findings below are fixed or explicitly reclassified in the ledger.
 

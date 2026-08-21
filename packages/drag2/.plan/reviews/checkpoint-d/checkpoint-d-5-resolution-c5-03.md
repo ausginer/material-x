@@ -2,7 +2,7 @@
 
 Scope: **C5-03** only — the internal inconsistency the fifth review found between I-36's provisioning obligation, I-6 clause 3's headline, the `landing()` residue and the public conformance test. C5-01, C5-02 and C5-04 belong to whoever takes them; they are named here only where this decision constrains one, and every editing collision is listed in §10.
 
-**The review file is `checkpoint-d-5.md` misspelled as [`checkpoitn-d-5.md`](checkpoitn-d-5.md).** This resolution uses the correct prefix. The typo is recorded here rather than fixed, because the review file is a historical record and renaming it would break the links C5-01/C5-02/C5-04's resolutions will make to it.
+**The review file was `checkpoint-d-5.md` misspelled as `checkpoitn-d-5.md`.** This resolution uses the correct prefix. The typo was recorded rather than fixed at the time, to avoid breaking the links C5-01/C5-02/C5-04's resolutions would make to it; the file was later corrected on disk without those references following, which C6-08 recorded and this pass closes. It is [`checkpoint-d-5.md`](checkpoint-d-5.md).
 
 Not reopened: C2-01's mechanism (behavior-owned latch on `SortableRuntime.closed`, `live` on the per-operation view), C3-01's boolean return channel, **C3-03's tier split** (I-6's Tier cell is not touched), D2, D5, **L-11**. §10 says where each is touched and where it is not. One thing C3-03 decided _is_ superseded — its retention of clause 3's headline verbatim — and §1.2 argues that C3-03's own §4 audit is what licenses the supersession.
 
