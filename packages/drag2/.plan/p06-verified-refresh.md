@@ -189,6 +189,34 @@ D-100 §What would stop this reserved the possibility that "the witness reads tu
 1. **`rect-index.ts` reads the bare `__DEV__` global instead of importing `DEV` from `kernel/dev.ts`.** The substitution and the folding are identical — this is the mechanism M-3 measured — but the import is not: `tests/kernel/vocabulary.node.test.ts` fails any name the behavior tier reaches into `kernel/` for unless contract 02 §What stays internal names it with a substitute, and adding `DEV` there is a decision about the tier boundary rather than about this cache. Reaching across and then legislating for it would have widened a second contract to land a design whose stated budget is one additive field. **This is the first dev assertion at the behavior tier**; if a second wants one, that is the moment to decide whether the tier gets a shared constant of its own.
 2. **`xy()`'s call site is byte-identical, but its bundle is not.** The fast path lives inside `createRectIndex`'s closure, which both axes share, so `xy()` links code it can never execute. ~~The size bench measures **+135 B** on the minimal `xy()` composition and **+135 to +164 B** across every sortable composition (~1.3%)~~ — **those figures are wrong, and §What D-101 and D-102 settled corrects them**: they are _budget overruns_, not size deltas, and they were read off a stale build. The carried cost was **+288 B** on the minimal `xy()` composition. Free-drag compositions are untouched, which is right in both readings. Splitting the fast path into a module only `y()` imports would recover it and is a change to how the shared cache is factored — **not taken here**, and the declared budgets are left red rather than re-based, so the number is visible rather than absorbed. **D-102 takes it**: the split is required, the required property is an `xy()`-composition graph absence rather than a prescribed factoring, and the residue left in `createRectIndex` is the falsifier — if it is not materially smaller the split bought nothing and the cost is accepted with a re-base instead.
 
+### The review dispositions (D-103)
+
+**P06-01 — the guard is refined, because P-06 does not create this failure mode, it _amplifies_ one.** The reviewer showed that when the row carrying an unexpected offset **is the in-span witness**, the `δ` it produces is wrong by that offset and is then applied to the rest of the span, while every other witness honestly agrees. Up to `hi − lo − 1` rows go wrong for up to `k` moves, where D-100 accepted **one**.
+
+**The escape is narrower than "a transform" and that sharpens rather than softens it.** The anchor is already compared on four quantities, so a **horizontal** movement of the witness is caught by the `left`/`right` equality and a **size** change is caught by `bottom − cached ≠ δ`. What survives is a **pure vertical translation** of the witness — which is precisely the shape a running FLIP offset has.
+
+**That is why this is not a hypothetical.** [03](contract/03-feature-composition.md) §The bracket already contemplates it in as many words — _the release must cover every element the feature is offsetting, not just this move's span … one element still carrying an offset is enough to corrupt the rebuild_ — and `beforeMove`/`afterMove` are a **published** displacement SPI, so a third-party feature that releases less than the first-party one puts a `translateY` on rows in exactly this window. **Under the general path that corrupts one row: the one carrying the offset. Under P-06 it corrupts the span.** P-06's claim is that it is a smaller rebuild in the same window — not a behaviourally different one — and an amplified blast radius under a condition the contract already names breaks that claim. **The guard is required to restore equivalence with the path P-06 replaces, not because the trigger is likely.**
+
+**The correction, and it is one read.** A **second in-span witness at `hi − 1`**, compared on the same four quantities as the anchor and required to agree on `δ`. It is skipped when `hi − lo === 1`, where the two witnesses would be the same row and the blast radius is zero anyway. Cost: one `getBoundingClientRect()` and one `live()` reading on a verified move measured at ≈1.0 ms and dominated by the post-write flush — the record's own ≈3 µs per row puts it at ~0.3%.
+
+**The corrected risk statement, which replaces D-100 case 3's "one row".**
+
+| span | exposure with the second witness |
+| --- | --- |
+| 1 or 2 | **none.** Both ends are witnesses; `δ` is refuted or correct |
+| ≥ 3 | **exactly one row** — a strictly interior one, `lo < j < hi − 1` — for at most `k` moves. **Equal to the general path's exposure**, which is the acceptance criterion |
+| any | span-wide **only** if both witnesses carry an _identical_ pure vertical offset in the same frame. Named, accepted, and not guarded against |
+
+**The fixture obligation replaces D-100's single "a row transformed mid-drag" with three**, and the third is the one that pins the envelope:
+
+1. a pure `translateY` on **either in-span witness** must **refuse** and take the full scan — this fixture must fail against the tree without the second witness, or it is not testing the guard;
+2. the same on an **after, suffix or before** witness must refuse, as it already does;
+3. the same on a **strictly interior** span row, over a multi-slot move so the span reaches 3 — asserted **twice**: with the equivalence instrument on, it must **report a mismatch**, proving the instrument sees what the witnesses cannot; with it off, **exactly one row** may differ, which pins the radius so it cannot silently grow.
+
+**P06-02 — an implementation defect, and it is handed back rather than decided.** The equivalence scan walks every candidate through `getBoundingClientRect()`, which C4-01 makes a consumer call, without threading `live()` between them — the obligation `refresh` already discharges through `abort()`. Nothing about it is open at the design level.
+
+**Two notes, because "it is `DEV`-only" is the wrong reason to waive it.** The repository's own build defines `__DEV__` as `true`, so **every in-repo fixture runs the instrumented path**: an instrument that skips I-36 makes the `DEV` build violate an invariant the shipped build holds, which inverts what a dev assertion is for and leaves the I-36 fixtures unable to exercise the shipped shape. And **on abort the instrument must stop and report nothing** — a partially completed scan legitimately differs from the fast-path buffer, so comparing one would turn a correct teardown into a spurious mismatch.
+
 ### What is still true
 
 `invalidateInsertion` keeps its signature. `SortableContribution` is unchanged. No new subpath, no new export on any entry. The eager window is where it was, between the placeholder write and `afterMove`, for the same correctness reason — nothing here made anything lazier, and D-95's exclusion of the eager position from cost-driven re-decision is preserved.
