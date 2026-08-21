@@ -33,16 +33,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import type { CollectionSnapshot } from '../../src/sortable/domain.ts';
 import type { SortableInstaller } from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
-import {
-  BOTTOM,
-  CENTRE_X,
-  CENTRE_Y,
-  createRectIndex,
-  LEFT,
-  RIGHT,
-  STRIDE,
-  TOP,
-} from '../../src/sortable/rect-index.ts';
+import { createRectIndex, STRIDE } from '../../src/sortable/rect-index.ts';
 import { y } from '../../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../../src/sortable.ts';
 
@@ -103,7 +94,11 @@ function pool(size: number): HTMLElement[] {
 /** The shipped cache, watched for buffer identity. */
 function shipped(rows: readonly HTMLElement[]): Cache {
   const index = createRectIndex();
-  let seen: Float64Array | null = null;
+  // Seeded with the empty buffer the cache is born holding, so the counter
+  // reports **allocations** rather than "the buffer is not null yet": a cache
+  // asked only for an empty collection allocates nothing, and a probe that
+  // started from `null` would report one.
+  let seen: Float64Array = index.values;
   let allocations = 0;
 
   return {
@@ -129,155 +124,91 @@ function shipped(rows: readonly HTMLElement[]): Cache {
 }
 
 /**
- * **The proposed policy, as an instrument.** A faithful copy of
- * `createRectIndex`'s sizing and scan with D-104's one `else if` beside the
- * growth branch — and nothing else. `STRIDE` is 6, the capacity arithmetic is
- * `capacityFor`, the scan writes the same six scalars in the same order, and
- * `retire()` keeps the buffer.
+ * **A cache that shrank, against a cache that never grew.**
  *
- * The I-36 barriers are omitted **and that is why this may not ship**: the
- * arms drive it with a liveness predicate that never goes false, so the
- * barriers would be unexercised code carrying a correctness obligation nothing
- * here tests. An instrument that omits them is honest; a production path that
- * did would not be. `equivalent()` below holds this to the shipped cache on the
- * workload where the two must agree.
+ * The shrink runs on the dirty path and the scan under it rewrites every slot,
+ * so a shrunk cache must be indistinguishable from one that was only ever asked
+ * for the small collection: same buffer size, same packed scalars, same count.
+ *
+ * This is the equivalence that matters now the policy ships. While it was an
+ * instrument the check was *the instrument against the shipped cache*; there is
+ * one cache now, and what has to be proved is that the shrink left it in the
+ * state an ordinary refresh would have produced.
  */
-function shrinking(rows: readonly HTMLElement[]): Cache {
-  let capacity = 0;
-  let values = new Float64Array(0);
-  const items: HTMLElement[] = [];
-  let count = 0;
-  let allocations = 0;
+function shrunkMatchesFresh(
+  rows: readonly HTMLElement[],
+  high: number,
+  low: number,
+): { bytes: boolean; slots: boolean; count: boolean } {
+  const shrunk = shipped(rows);
+  const fresh = shipped(rows);
+
+  shrunk.drag(high);
+  shrunk.drag(low);
+  fresh.drag(low);
 
   return {
-    bytes: () => values.byteLength,
-    allocations: () => allocations,
-    values: () => values,
-    count: () => count,
-
-    drag(n): void {
-      // `slice` only when the arm actually wants a prefix: the stable-large arm
-      // takes a thousand drags at a hundred thousand rows, and copying the
-      // array each time would put more work in the harness than in the cache.
-      const list = n === rows.length ? rows : rows.slice(0, n);
-      const dragged = list[0] ?? rows[0]!;
-
-      if (list.length > capacity) {
-        capacity = capacityFor(list.length);
-        values = new Float64Array(capacity * STRIDE);
-        allocations += 1;
-      } else if (capacity > 4 * list.length) {
-        // **D-104's branch, and the whole of it.** `capacityFor` makes
-        // `n ≤ capacity < 2n` for any fitted buffer, so this can never fire
-        // without a real collection shrink — the anti-churn property is a
-        // consequence of the doubling scheme rather than a tuning choice.
-        capacity = capacityFor(list.length);
-        values = new Float64Array(capacity * STRIDE);
-        allocations += 1;
-      }
-
-      let slot = 0;
-
-      for (const item of list) {
-        if (item === dragged) {
-          continue;
-        }
-
-        const rect = item.getBoundingClientRect();
-        const offset = slot * STRIDE;
-
-        values[offset + LEFT] = rect.left;
-        values[offset + TOP] = rect.top;
-        values[offset + RIGHT] = rect.right;
-        values[offset + BOTTOM] = rect.bottom;
-        values[offset + CENTRE_X] = (rect.left + rect.right) * 0.5;
-        values[offset + CENTRE_Y] = (rect.top + rect.bottom) * 0.5;
-        items[slot] = item;
-        slot += 1;
-      }
-
-      count = slot;
-      items.length = slot;
-
-      // `retire()`: the element array is emptied, the numeric buffer is kept.
-      items.length = 0;
-      count = 0;
-    },
+    bytes: shrunk.bytes() === fresh.bytes(),
+    slots: [...shrunk.values()].every(
+      (value, i) => value === fresh.values()[i],
+    ),
+    count: shrunk.count() === fresh.count(),
   };
 }
 
-/**
- * The two caches must agree wherever the gate cannot fire, which is every
- * workload whose collection never shrinks by more than a factor of four.
- *
- * Without this the instrument could be measuring a different cache and the
- * shrink figures would be about nothing.
- */
-function equivalent(
-  rows: readonly HTMLElement[],
-  sizes: readonly number[],
-): {
-  bytes: boolean;
-  slots: boolean;
-} {
-  const a = shipped(rows);
-  const b = shrinking(rows);
-  let bytes = true;
-  let slots = true;
-
-  for (const n of sizes) {
-    a.drag(n);
-    b.drag(n);
-
-    bytes &&= a.bytes() === b.bytes();
-    slots &&= a
-      .values()
-      .every((value, i) => value === b.values()[i] || i >= n * STRIDE);
-  }
-
-  return { bytes, slots };
-}
-
 // ---------------------------------------------------------------------------
-// Structural — the gate's arithmetic, and the instrument held to the cache
+// Structural — the shrink leaves the cache where an ordinary refresh would
 // ---------------------------------------------------------------------------
 
-describe('the shrink instrument', () => {
-  it('should size its buffer exactly as the shipped cache does while growing', () => {
-    // Monotonic growth: the gate cannot fire, so the two caches are the same
-    // cache and every figure below is about the shipped one.
+describe('the shrunk cache', () => {
+  it('should be indistinguishable from a cache that never grew', () => {
+    // **The contents obligation.** The shrink sits on the dirty path and the
+    // scan under it rewrites every slot, so nothing in the old buffer was live
+    // — and what the new one holds must be exactly what a refresh at the small
+    // size produces, not merely the right number of bytes.
     const rows = pool(4000);
 
-    expect(equivalent(rows, [10, 100, 1000, 4000])).toEqual({
+    expect(shrunkMatchesFresh(rows, 4000, 100)).toEqual({
       bytes: true,
       slots: true,
+      count: true,
     });
   });
 
-  it('should pack the same scalars as the shipped cache', () => {
-    // The scan is copied, so it is checked rather than assumed — a copy that
-    // wrote five scalars would still report the same `byteLength`.
-    const rows = pool(64);
-    const a = shipped(rows);
-    const b = shrinking(rows);
-
-    a.drag(64);
-    b.drag(64);
-
-    expect([...b.values()]).toEqual([...a.values()]);
-  });
-
-  it('should agree with the shipped cache on a shrink smaller than the gate', () => {
-    // 1000 → 300 is a real shrink the gate refuses: `capacityFor(1000)` is
-    // 1024 and `4 × 300` is 1200, so the buffer stays. This is the hysteresis
-    // D-104 buys with the extra doubling, and it is what stops a collection
-    // wobbling around a power-of-two boundary from resizing.
+  it('should be indistinguishable after a shrink the gate refused', () => {
+    // 1000 → 300 is a real collection shrink the gate declines: `capacityFor`
+    // makes the buffer 1024 and `4 × 300` is 1200, so it stays. The buffer is
+    // then larger than a fresh one would be — which is the hysteresis, and the
+    // contents still have to match slot for slot as far as the count goes.
     const rows = pool(1000);
+    const held = shipped(rows);
+    const fresh = shipped(rows);
 
-    expect(equivalent(rows, [1000, 300, 1000, 300])).toEqual({
-      bytes: true,
-      slots: true,
-    });
+    held.drag(1000);
+    held.drag(300);
+    fresh.drag(300);
+
+    expect(held.bytes()).toBe(capacityFor(1000) * SLOT_BYTES);
+    expect(held.bytes()).toBeGreaterThan(fresh.bytes());
+    expect(held.count()).toBe(fresh.count());
+    expect([...held.values().subarray(0, fresh.count() * STRIDE)]).toEqual([
+      ...fresh.values().subarray(0, fresh.count() * STRIDE),
+    ]);
+  });
+
+  it('should keep the six-scalar representation', () => {
+    // `STRIDE` is not this candidate's to touch: narrowing it is P-02's other
+    // sub-candidate, undesigned and unmeasured. A landing that quietly changed
+    // the packing would make every byte figure in the record about a different
+    // buffer.
+    expect(STRIDE).toBe(6);
+
+    const rows = pool(64);
+    const cache = shipped(rows);
+
+    cache.drag(64);
+
+    expect(cache.bytes()).toBe(capacityFor(64) * STRIDE * 8);
   });
 });
 
@@ -288,7 +219,7 @@ describe('the gate', () => {
     // and the gate makes it provably impossible, so this is a proof obligation
     // rather than an experiment. One allocation for the first drag, none after.
     const rows = pool(4000);
-    const cache = shrinking(rows);
+    const cache = shipped(rows);
     const sizes = new Set<number>();
 
     for (let i = 0; i < 1000; i += 1) {
@@ -305,7 +236,7 @@ describe('the gate', () => {
     // republished small, and one reallocation — never a second on the drags
     // after it.
     const rows = pool(4000);
-    const cache = shrinking(rows);
+    const cache = shipped(rows);
 
     cache.drag(4000);
     expect(cache.allocations()).toBe(1);
@@ -323,7 +254,7 @@ describe('the gate', () => {
     // follows from the gate: a buffer that satisfies `capacity > 4 × n` is at
     // least four times the fitted size, and `capacityFor(n) < 2n`.
     const rows = pool(4000);
-    const cache = shrinking(rows);
+    const cache = shipped(rows);
 
     cache.drag(4000);
 
@@ -346,7 +277,7 @@ describe('the gate', () => {
 
   it('should shrink an emptied collection to one slot', () => {
     const rows = pool(1000);
-    const cache = shrinking(rows);
+    const cache = shipped(rows);
 
     cache.drag(1000);
     cache.drag(0);
@@ -354,16 +285,14 @@ describe('the gate', () => {
     expect(cache.bytes()).toBe(SLOT_BYTES);
   });
 
-  it('should reallocate on every refresh of an emptied collection', () => {
-    // **An edge the design does not name, recorded rather than fixed.** With
-    // `n = 0` the gate reads `capacity > 0`, which is true of every buffer
-    // including the one-slot buffer a previous empty refresh just produced — so
-    // an empty collection reallocates 48 B on every scan instead of settling.
-    // It is a real churn case, it is 48 B, and it is only reachable through a
-    // collection with nothing in it, which cannot be dragged. Named here so
-    // that a landing pass fixes the gate rather than discovering it.
+  it('should settle on an emptied collection rather than reallocating', () => {
+    // **The `n = 0` correction, found by the measurement and landed with the
+    // policy.** The gate reads `capacity > 0`, which the one-slot buffer a
+    // previous empty refresh just produced also satisfies — so without the
+    // settle guard an empty collection reallocates 48 B on every scan forever.
+    // One shrink, then nothing.
     const rows = pool(16);
-    const cache = shrinking(rows);
+    const cache = shipped(rows);
 
     cache.drag(16);
 
@@ -373,7 +302,19 @@ describe('the gate', () => {
       cache.drag(0);
     }
 
-    expect(cache.allocations() - before).toBe(10);
+    expect(cache.allocations() - before).toBe(1);
+    expect(cache.bytes()).toBe(SLOT_BYTES);
+  });
+
+  it('should allocate nothing at all for a cache that never grew', () => {
+    // The other half of the same guard: a fresh cache asked only for an empty
+    // collection has `capacity === 0`, and neither half of the branch fires.
+    const cache = shipped(pool(1));
+
+    cache.drag(0);
+
+    expect(cache.allocations()).toBe(0);
+    expect(cache.bytes()).toBe(0);
   });
 });
 
@@ -502,7 +443,7 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
       // **D-104's declared falsifier, at its declared size.** Any reallocation
       // at all is churn and the candidate is declined.
       const rows = pool(100_000);
-      const cache = shrinking(rows);
+      const cache = shipped(rows);
       const sizes = new Set<number>();
 
       for (let i = 0; i < 1000; i += 1) {
@@ -528,7 +469,7 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
       const rows = pool(100_000);
 
       for (const high of [100, 800, 2000, 4000, 20_000, 100_000]) {
-        const cache = shrinking(rows);
+        const cache = shipped(rows);
 
         cache.drag(high);
 
@@ -552,7 +493,7 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
       // exactly as growth already is. Recorded so a later phase proposing
       // headroom has the number it would be arguing from.
       const rows = pool(1000);
-      const cache = shrinking(rows);
+      const cache = shipped(rows);
 
       for (let i = 0; i < 100; i += 1) {
         cache.drag(i % 2 === 0 ? 1000 : 100);
@@ -869,7 +810,7 @@ describe('the workload that earns it', () => {
     const smallest: number[] = [];
 
     for (const after of [1023, 512, 100, 10, 1]) {
-      const cache = shrinking(rows);
+      const cache = shipped(rows);
 
       cache.drag(2049);
 
@@ -893,7 +834,7 @@ describe('the workload that earns it', () => {
     const largest: number[] = [];
 
     for (const after of [511, 100, 1]) {
-      const cache = shrinking(rows);
+      const cache = shipped(rows);
 
       cache.drag(2048);
 
@@ -954,7 +895,7 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
       // new measurement: the bucket is what it is.
       for (const high of [2000, 2049, 2100, 3000, 4096]) {
         const rows = pool(high);
-        const cache = shrinking(rows);
+        const cache = shipped(rows);
 
         cache.drag(high);
 

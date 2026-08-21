@@ -140,9 +140,45 @@ export function createRectIndex(): RectIndex {
 
       const list = snapshot.items;
 
-      if (list.length > capacity) {
-        capacity = capacityFor(list.length);
-        index.values = new Float64Array(capacity * STRIDE);
+      // **One decision about one resource, driven by one number** (D-104).
+      // Growth and shrink are the same question — is this buffer the right size
+      // for the collection about to be scanned — so they are one branch rather
+      // than two. It sits here, after the warm return and the entry barrier,
+      // because `refresh` holds the real `list.length`: `retire()` would have
+      // to **predict** the next operation's need from the last one's, and a
+      // policy that needs no prediction needs no state that can go stale.
+      //
+      // **Nothing in the buffer is live at this instant.** The warm path
+      // returned above, so the cache is dirty, and the scan below rewrites
+      // every slot. A timer or an idle hook is refused by construction rather
+      // than by preference: releasing a *correctly sized* buffer on elapsed
+      // time makes a deterministic cache timing-dependent and needs a policy
+      // input this library has no basis to own.
+      //
+      // **`capacity > 4 * n` is a consequence, not a tuning choice.**
+      // `capacityFor` makes `n ≤ capacity < 2n` for any fitted buffer, so
+      // `capacity > 2 * n` is already unreachable without a real collection
+      // shrink; `4×` is one doubling looser, the cheapest hysteresis available,
+      // and it keeps a collection wobbling around a power-of-two boundary from
+      // resizing. A shrink therefore always allocates strictly less than it
+      // frees, which is what separates this from a memory-for-allocations
+      // trade — and exact-fit shrinking is refused for the same reason, since
+      // it would recover a fitted buffer's legitimate slack and pay with a
+      // reallocation on every single-item growth.
+      if (list.length > capacity || capacity > 4 * list.length) {
+        const fitted = capacityFor(list.length);
+
+        // **The settle guard, and it earns its line at exactly one size.** For
+        // any `n ≥ 1` a firing gate implies `fitted < capacity`, so this is
+        // true by construction. At `n === 0` it is not: the gate reads
+        // `capacity > 0`, which the one-slot buffer a previous empty refresh
+        // just produced also satisfies — so without this an empty collection
+        // reallocates 48 B on every scan instead of settling. Found by the
+        // measurement rather than by the derivation.
+        if (fitted !== capacity) {
+          capacity = fitted;
+          index.values = new Float64Array(capacity * STRIDE);
+        }
       }
 
       const { values, items } = index;

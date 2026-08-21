@@ -2,7 +2,7 @@
 
 **Run 2026-08-21**, against D-104's design ([`../p02-retention-shrink.md`](../p02-retention-shrink.md)) and D-99's stop condition. Harness: [`tests/perf/p02-shrink.browser.test.ts`](../../tests/perf/p02-shrink.browser.test.ts).
 
-**Outcome: the policy is exactly as sound as D-104 derives, and it is _earned_.**
+**Outcome: the policy is exactly as sound as D-104 derives, it is _earned_, and it **landed** on 2026-08-21.** Every arm below was re-run against the shipped implementation and reproduces; the harness that measured the candidate now drives the shipped cache, and its falsifiers are the landed policy's.
 
 **The first pass of this record declined it, and was wrong.** It bounded the drivable collection using a curve measured before P-06, on the very code path P-06 replaced, and never measured the interval where the arithmetic crosses D-99's threshold. §The interval that overturns the decline supersedes §The decision below, which is struck rather than deleted because the shape of the error is the part worth not repeating.
 
@@ -177,3 +177,28 @@ Its design is unchanged and unretracted — this run changed no part of it, and 
 **Still not implemented, and nothing was landed to measure it.** `src/` is untouched. The one edge this run found — an empty collection reallocating 48 B on every scan, because `n = 0` makes the gate `capacity > 0` — is the one thing a landing pass must fix rather than inherit.
 
 **P-02's stride half is still untouched and still not closed.** 5.12 MB of unread scalars is a different quantity with a different candidate behind it; the two may not be added or quoted for each other.
+---
+
+## Re-run on the landed implementation
+
+**2026-08-21.** The policy shipped in `RectIndex.refresh` — see [`../p02-retention-shrink.md`](../p02-retention-shrink.md) §What landed for the one divergence from the designed slice and for the `n = 0` correction. This harness no longer carries a copy of the policy: every arm drives `createRectIndex` directly, so the figures below are the shipped cache's rather than an instrument's.
+
+| arm | before landing | on the landed tree |
+| --- | --- | --- |
+| stable-large, 100 000 × 1000 drags | 1 allocation, 6 144 kB constant | **identical** |
+| qualifying shrink | exactly 2 allocations, then settled | **identical** |
+| reclaim at 2 049 | 186 KiB | **identical** |
+| smallest firing from the 4096 bucket | 144 KiB | **identical** |
+| 2 048 bucket, any destination | under the threshold | **identical** |
+| one committed move at 2 100 rows | 5.70 ms bare / 5.74 ms animated | **3.93 / 4.60 ms** |
+| one committed move at 3 000 rows | 6.21 / 8.35 ms | **5.19 / 4.51 ms** |
+
+**The committed-move figures came in faster on the re-run**, on a quieter machine and with the same 60-real-frame method. The conclusion they support is unchanged and was never close: a quarter to a third of a frame either way.
+
+**Two arms changed meaning rather than value, and both are improvements.** The `n = 0` arm asserted _reallocates on every scan_ and now asserts _settles after one_, which is the correction landing. And a new arm pins that a cache asked only for an empty collection allocates **nothing at all** — `capacity` is 0 and neither trigger fires — where the pre-landing shape would have taken a 48 B buffer it could not use.
+
+**The equivalence check changed with them.** While the policy was undecided it compared _the instrument against the shipped cache_; there is one cache now, so what is proved instead is that **a cache that shrank is indistinguishable from a cache that never grew** — same bytes, same packed scalars, same count — plus that a shrink the gate _refuses_ leaves contents matching a fresh scan slot for slot as far as the count goes.
+
+**Five mutations of the landed branch were run against the sortable suite and this file**, and each is caught: gating at `2 ×` (1), removing the gate (2), dropping the settle guard (1), shrinking by `subarray` instead of rescanning (**126**, across the whole sortable suite), and shrinking to an exact count rather than a power of two (5).
+
+**Cost: +34 B on the `y()` compositions, +14 B on `minimal (xy)`, brotli.** Inside the ~150 B headroom on every row, so no budget moves — which is what that headroom is for. `xy()` pays its 14 B correctly: the shrink is a property of the dimension-neutral cache both axes share, not one axis rule's private optimization.

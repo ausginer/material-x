@@ -1,6 +1,6 @@
 # P-02 retention — the high-water shrink
 
-**Status: designed 2026-08-21 (D-104). Measured 2026-08-21 and **earned** — see [§What the run answered](#what-the-run-answered) and [`measurements/p02-shrink.md`](measurements/p02-shrink.md). **Still unimplemented**, and deliberately so: `src/` is untouched. A first pass of the measurement declined it on a bound taken from the wrong curve; the correction is recorded rather than overwritten.** The second Phase 22 candidate from D-99, taken as its **shrink** sub-candidate only. The stride-narrowing sub-candidate is not designed here and is not reasoned about below except where the two must be told apart.
+**Status: designed, measured and **landed** 2026-08-21 (D-104). The evidence is [§What the run answered](#what-the-run-answered) and [`measurements/p02-shrink.md`](measurements/p02-shrink.md); what shipped, and the one place it differs from this design, is [§What landed](#what-landed). A first pass of the measurement declined it on a bound taken from the wrong curve; the correction is recorded rather than overwritten.** The second Phase 22 candidate from D-99, taken as its **shrink** sub-candidate only. The stride-narrowing sub-candidate is not designed here and is not reasoned about below except where the two must be told apart.
 
 **A local shrink policy survives, and it is one branch at a site that already exists.** No representation change, no new lifecycle hook, no captured state, no timer. `STRIDE` stays 6, `xy()` is untouched, P-06's wrapper is untouched.
 
@@ -108,3 +108,53 @@ So this candidate recovers **historical excess only** — capacity a collection 
 **§The workload that distinguishes a policy from churn stands as written, and its second stop condition did not fire.** Supported deployments can shrink a collection from a high water that matters — a filtered or searchable reorderable list of a few thousand rows, reordered before and after the filter — and the whole lifecycle was driven end to end on one live controller through the public surface.
 
 **The design is unchanged and unretracted.** The derivation, the lifecycle-point argument, the refusal of timers and of exact fit are all confirmed. The one thing a landing pass must fix rather than inherit is the `n = 0` gate edge above.
+---
+
+## What landed
+
+**2026-08-21**, the slice above and nothing else. `STRIDE` stays 6, `retire()` is unchanged, `xy()` and `verified-refresh.ts` are untouched, and no timer, idle hook or `retire()`-time prediction exists.
+
+### One divergence from §The smallest implementable slice, and it is the shape of the branch
+
+The slice says _one `else if` beside the existing growth branch_. What shipped is **one branch with two triggers and an inner settle guard**:
+
+```ts
+if (list.length > capacity || capacity > 4 * list.length) {
+  const fitted = capacityFor(list.length);
+
+  if (fitted !== capacity) {
+    capacity = fitted;
+    index.values = new Float64Array(capacity * STRIDE);
+  }
+}
+```
+
+**Three reasons, and the first is this document's own sentence.** §The lifecycle point argues that _growth and shrink are the same decision about the same resource, driven by the same number_, and an `else if` writes them as two decisions that happen to be adjacent. **Second, it keeps `capacityFor` off the path when neither trigger fires** — an `else if` shape either calls it in both arms or duplicates the assignment. **Third, the `n = 0` correction has exactly one natural home**, and it is that inner guard: for any `n ≥ 1` a firing gate implies `fitted < capacity`, so the guard is true by construction and costs a comparison; at `n = 0` the gate reads `capacity > 0`, which the one-slot buffer a previous empty refresh just produced also satisfies, and without the guard an empty collection reallocates 48 B on every scan forever.
+
+**The growth path is semantically identical.** When `list.length > capacity`, `fitted` is `capacityFor(list.length) > capacity`, so the guard passes and the same buffer is allocated as before.
+
+**A side effect worth naming:** a cache asked only for an empty collection now allocates **nothing at all** — `capacity` is 0, neither trigger fires. Before, it would have taken a 48 B buffer it could not use.
+
+### The falsifiers, re-pointed and still load-bearing
+
+They were written against a harness copy of the policy while it was undecided. They now drive the **shipped** `createRectIndex`, and the equivalence check changed with them: it was _instrument against shipped cache_, and there is one cache now, so what is proved instead is that **a cache that shrank is indistinguishable from a cache that never grew** — same bytes, same packed scalars, same count.
+
+Five mutations of the landed branch, each against the sortable suite plus this file:
+
+| mutation | caught by |
+| --- | --- |
+| gate at `2 ×` instead of `4 ×` | 1 — the fitted-buffer proof, which is what rejects legitimate slack |
+| no gate at all (resize on every size change) | 2 |
+| drop the settle guard | 1 — the `n = 0` arm |
+| shrink by `subarray` instead of rescanning | **126**, across the whole sortable suite |
+| shrink to the exact count rather than the next power of two | 5 |
+
+### Cost
+
+**+34 B** on the `y()` compositions and **+14 B** on `minimal (xy)`, brotli — inside the ~150 B headroom on every row, so **no budget moves**. That is the headroom behaving as `bench/size` describes it: sized to notice a module appearing, and deliberately too small to absorb a feature. This added no module.
+
+`xy()` pays the 14 B, and that is correct rather than a P-06 repeat: the shrink is a property of the **dimension-neutral cache both axes share**, driven by the collection size both of them scan, and it is not one axis rule's private optimization.
+
+### Re-measured on the landed implementation
+
+Every figure in [`measurements/p02-shrink.md`](measurements/p02-shrink.md) reproduces: 1000 drags at a stable 100 000 items → **one** allocation and a constant 6 144 kB; a qualifying shrink → **exactly two**, then settled; 2 049 → 186 KiB reclaimed; one committed move at 2 100 rows → **3.93 ms bare, 4.60 ms animated**, about a quarter of a frame.
