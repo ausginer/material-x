@@ -274,3 +274,176 @@ The six span all three `describe`s — the equivalence arm, four gate arms inclu
 **One thing this remediation did not do.** The `8 ×` mutation and the exhaustive growth-equivalence sweep are the review's evidence, not new arms — the suite pins the gate from both sides through the fitted-buffer proof and the reclaim floor, and adding a second constant to the file would pin the number rather than the property.
 
 **Gates:** `npx just typecheck` clean, `npx just test` 57 files / 1118 passed / 108 skipped, `npx just size` 12 rows green with no budget moved.
+---
+
+# Closure — the P02-01…P02-06 remediation
+
+- **Reviewer:** Claude
+- **Date:** 2026-08-21
+- **Tree:** `289a0013` on `drag2/phase22-p02-retention`, working tree clean
+- **Scope.** A narrow closure check of the six findings only. D-104's design, stride narrowing and P-01 were not reopened. Every figure below was re-measured by mutating the tree and running the gates, then restoring; `git status --short` is empty at the close.
+
+## Baseline
+
+| Gate                 | Result                                               |
+| -------------------- | ---------------------------------------------------- |
+| `npx just typecheck` | clean                                                |
+| `npx just test`      | 57 files, **1119 passed, 108 skipped** (+1 arm)      |
+| `npx just size`      | green, all **12** rows, byte-identical to `d34d2ee4` |
+
+## Verdict
+
+**All six findings are dispositioned and nothing blocks merging.** Production code is untouched — `git diff d34d2ee4 289a0013 -- src/ bench/` is **empty** — so D-104's shipped semantics, gates and size boundary are unchanged by construction, and the size run confirms it.
+
+**The two findings that mattered are genuinely closed.** P02-03's instrument correction works: the view mutation, which failed _nothing_, now fails **6** tests spread across three `describe`s. P02-04's count half is fixed at the root: the comparisons happen on a live cache with real counts.
+
+**Four residual items, all follow-up polish.** One of them — C-01 — is P02-04's other half surviving the fix, and it is the same shape as the finding it partially answers.
+
+| # | Item | Class | Blocks merge |
+| --- | --- | --- | --- |
+| C-01 | the packed-scalar comparison is now the right length and still compares only zeros | coverage, P02-04 residual | no |
+| C-02 | the reclaim **telemetry** still reads the view; only the falsifiers were converted | instrument, partial conversion | no |
+| C-03 | two mutation counts and the scope figure are stale in all three records | figure drift, P02-06 recurrence | no |
+| C-04 | the measurement record's Reproducibility table still describes the retired instrument | documentation | no |
+
+## What closed, with the measurement
+
+### The reclaim instrument observes the backing store, and `subarray()` reliably fails
+
+`retained()` reads `values.buffer.byteLength`, and the conversion reaches every structural arm that claims a reclaim. Re-running the mutation that previously passed everything — the shrink branch handing back `index.values.subarray(0, capacity * STRIDE)` — over `tests/sortable` plus the P-02 file:
+
+|                          | before remediation | at `289a0013` |
+| ------------------------ | ------------------ | ------------- |
+| shrink hands back a view | **0 failed**       | **6 failed**  |
+
+The six are not clustered in the new arm:
+
+- `should be indistinguishable from a cache that never grew` — via the new `retained` field
+- `should fire exactly once on a real shrink`
+- `should allocate strictly less than it frees`
+- `should release the old store rather than narrow a view onto it` — the arm named for the failure mode
+- `should shrink an emptied collection to one slot`
+- `should reclaim past the threshold on every firing from the 4096 bucket`
+
+So the property is pinned in the equivalence arm, four gate arms and the earning-workload arm. A reader who deletes the dedicated arm still gets five failures. **Reliable.**
+
+### The equivalence checks are live, with non-zero counts
+
+Revealed at the point of comparison, through a forced failure diff:
+
+| arm | before | at `289a0013` |
+| --- | --- | --- |
+| `shrunkMatchesFresh` counts | `0 === 0` | **`99 === 99`** |
+| refused-shrink counts | `0 === 0` | **`299 === 299`**, against a literal |
+| refused-shrink scalars compared | **0** | **1 794** |
+
+`scan()` performs the refresh without the trailing `retire()`, and it is only ever the last call on a cache — no arm scans and then drags, so the warm-cache short-circuit cannot silently no-op a comparison. The `count > 0` guard in `slots` prevents the length from going vacuous again. **The count half of P02-04 is closed at the root.** The scalar half is not — see C-01.
+
+### P02-01, P02-02, P02-05 and P02-06 across the three records
+
+| finding | design | measurement record | D-104 row |
+| --- | --- | --- | --- |
+| P02-01 upper bound | explicit correction paragraph; _the largest is 192 KiB less 48 B, not 186 KiB_ | already correct; the 186 KiB rows now read _to a hundred-item collection_ | smallest **144 KiB**; 186 KiB named as _the reclaim at the 65–128 destination … not a range endpoint_ |
+| P02-02 the 126 row | moved last, reattributed to the growth path, three readings separated | same, with the mechanism spelled out | _withdrawn (P02-02)_ with the reason |
+| P02-05 cost | measured table, _+34 B_ named as withdrawn, headroom retired at 114–139 B | identical table and wording | **+14 B / +14 B**, _no row moves the +34 B this row first published_, 114–139 B |
+| P02-06 table | rebuilt, scope stated, growth-only row added | identical table | enumerated inline |
+
+**Consistent across all three, and the reconciliation is substantive rather than cosmetic** — each record names what it previously got wrong instead of silently replacing it. The `+34 B` figure, the `~150 B` headroom convention and the 126-failure headline are all explicitly retired rather than overwritten. Both ends of the reclaim range are now asserted: `Math.min` at `196 608 − 49 152` and `Math.max` at `196 608 − 48`, in the arm that previously swept the counterexample and discarded it.
+
+### The mutation table, re-measured row by row
+
+Scope: `tests/sortable` plus [p02-shrink.browser.test.ts](../../tests/perf/p02-shrink.browser.test.ts).
+
+| mutation                               | recorded     | measured  |
+| -------------------------------------- | ------------ | --------- |
+| gate at `2 ×`                          | 1            | **1** ✓   |
+| gate at `8 ×`                          | 1            | **1** ✓   |
+| no gate at all                         | 2            | **2** ✓   |
+| drop the settle guard                  | 1            | **1** ✓   |
+| shrink to an exact count               | 6            | **7** ✗   |
+| revert to growth-only                  | 6            | **7** ✗   |
+| shrink hands back a view               | 6 (0 before) | **6** ✓   |
+| view **and** keeps the old contents    | 7 (1 before) | **7** ✓   |
+| replace the allocation unconditionally | 127          | **127** ✓ |
+| _scope_                                | _492 tests_  | **520** ✗ |
+
+**Seven of nine reproduce exactly, including every figure the remediation newly claims.** The table now attributes each mutation to what it falsifies — the growth-path reattribution of the unconditional row is correct and is the substantive half of P02-02 — though only the `2 ×` and settle-guard rows name the specific arm that catches them. The two misses are C-03.
+
+### No remediation change altered shipped semantics, the size boundary or the gates
+
+`git diff d34d2ee4 289a0013 -- src/ bench/` is empty, which settles it structurally. Confirmed downstream anyway: all 12 size rows report the same bytes and the same module counts as at `d34d2ee4` — `minimal` 11 139, `minimal (xy)` 10 801, `both behaviors` 13 396, free drag and baseline B unmoved — no budget moved, typecheck clean, and the suite is `1118 + 1` for the single arm the remediation added.
+
+---
+
+## Residual items
+
+### C-01 — the packed-scalar comparison is the right length and still compares only zeros
+
+**This is P02-04's other half, and the fix narrowed it rather than closing it.**
+
+**Observed.** All three records now claim the equivalence proves _same bytes, same packed scalars, same count_, and the remediation states the refused-shrink arm _now compares **1 794 scalars** where it previously compared none_.
+
+**Evidence.** Revealed at the comparison point, on both arms:
+
+| arm                  | scalars compared | of which non-zero |
+| -------------------- | ---------------- | ----------------- |
+| `shrunkMatchesFresh` | 768              | **0**             |
+| refused-shrink       | 1 794            | **0**             |
+
+`pool()` builds detached `div` elements, so `getBoundingClientRect()` returns zeros for every field, and the packed buffer both caches produce is entirely zero. The comparison is 1 794 zeros against 1 794 zeros.
+
+**Falsified directly.** I mutated the scan to publish _no geometry at all_ — deleting all six `values[offset + …] =` writes — and ran the P-02 file:
+
+```
+Tests  1 failed | 14 passed | 9 skipped (24)
+```
+
+The single failure is `should drag at a high water, shrink, and drag again on one live controller`, which uses a real composed controller on attached rows and fails for an unrelated reason. **Both equivalence arms pass with the scan publishing nothing.** So the scalar comparison cannot distinguish a correct scan from one that writes no geometry whatsoever.
+
+This is consistent with the Reproducibility table's own _detached for every buffer arm_ rule — which is right for a **sizing** claim, and is exactly what makes a **contents** claim impossible in the same arm. The length is now honest; the content still asserts nothing. Pre-existing, not introduced here.
+
+### C-02 — the reclaim telemetry still reads the view
+
+**Observed.** The conversion to `retained()` covers the structural arms and the bucket-boundary reporter, but not the two `VITE_DRAG_MEASURE` arms that produce the figures the measurement record publishes.
+
+**Evidence.** In `should not reallocate over a thousand drags at a stable hundred thousand` and `should report what a shrink reclaims, at every plausible high water`:
+
+- [p02-shrink.browser.test.ts:509](../../tests/perf/p02-shrink.browser.test.ts#L509) — `sizes.add(cache.bytes())`, where the non-measurement twin at line 260 uses `cache.retained()`
+- [p02-shrink.browser.test.ts:518](../../tests/perf/p02-shrink.browser.test.ts#L518) — prints `retained=${kb(cache.bytes())}`, a label naming the quantity it is not reading
+- [p02-shrink.browser.test.ts:534](../../tests/perf/p02-shrink.browser.test.ts#L534) and [:542](../../tests/perf/p02-shrink.browser.test.ts#L542) — `before = cache.bytes()` and `reclaimed=${kb(before - cache.bytes())}`
+
+These are the arms whose console output is the source of _frees 6 144 kB and allocates 6 kB_ and the per-high-water reclaim table. **The falsifier is fixed and the telemetry is not**: under the exact mutation P02-03 named, every published reclaim figure would still be produced by the blind reading. No assertion is weakened by this — the structural arms carry the proof — but the numbers the record quotes are still measured with the instrument the record says it retired.
+
+### C-03 — two mutation counts and the scope figure are stale in all three records
+
+**Observed.** _Shrink to an exact count_ and _revert to growth-only_ are recorded at **6** in the design's §What landed table, the measurement record's mutation table, and D-104's ledger row. Both measure **7**.
+
+**Evidence.** The seventh failure in each case is `should release the old store rather than narrow a view onto it` — **the arm the remediation itself added**. Both rows were measured before it existed and were not re-measured after it landed, which is the same class of error P02-06 named.
+
+The scope figure is wrong by a wider margin: all three records state **492 tests**, and the measured scope is **520** (511 runnable, 9 skipped). `tests/sortable` alone is 496 and the P-02 file is 24; no combination of the two yields 492. The remediation's own §Remediation footer also reports the gate as _1118 passed_, where the tree it describes runs **1119**.
+
+**Severity: low.** Every figure the remediation newly claims reproduces; what is stale is three numbers it carried forward without re-running.
+
+### C-04 — the Reproducibility table still describes the retired instrument and a policy copy that no longer exists
+
+**Observed.** [p02-shrink.md](../measurements/p02-shrink.md) §Reproducibility is the first table a reader meets, and three of its six rows contradict the corrections added below it:
+
+| row | current text | contradicted by |
+| --- | --- | --- |
+| `instrument` | _`Float64Array.byteLength` and buffer identity — M-2′'s structural probe, inherited rather than rebuilt_ | §The instrument, corrected — _`values.buffer.byteLength`, not `values.byteLength`, wherever a reclaim is claimed_ |
+| `policy` | _a faithful copy of `createRectIndex`'s sizing and scan plus D-104's one `else if`, **in the harness**_ | the harness carries no policy copy; the file's own docblock now says so |
+| `equivalence` | _the **instrument** and the shipped cache produce identical `byteLength`…_ | the retired _instrument against cache_ framing, replaced by _a cache that shrank against a cache that never grew_ |
+
+The surrounding prose corrects all three, so a reader who finishes the document is not misled — but the summary table states the pre-landing position as current fact, and P02-03 is precisely a defect that came from inheriting that `instrument` row without re-examining it.
+
+Line 9's _No production shrink code was landed to take this measurement. `src/` is untouched by this handoff_ is the same residue, and is contradicted by the header three lines above it.
+
+---
+
+## Disposition
+
+**Merge is not blocked.** Production code is untouched between the review point and the remediation, and the two substantive findings are closed with measured falsifiers rather than assertions: the view mutation went from 0 failures to 6 across three `describe`s, and the equivalence counts went from `0 === 0` to `99 === 99` and `299 === 299`.
+
+C-02, C-03 and C-04 are records and telemetry catching up with the fix. **C-01 is the one worth carrying forward**, because it is the second time this file's equivalence check has claimed a contents obligation it does not enforce, and detached rows mean it cannot be enforced in that arm at all without a different fixture.
+
+**LSP plugin - available; not used: this closure turned entirely on mutating the sizing branch and running the suite, revealing runtime values through forced failure diffs, and diffing built artifacts — compile-and-run questions rather than symbol-graph ones, and the one symbol question (`index.values` has a single writer) was settled in the review this closes.**
