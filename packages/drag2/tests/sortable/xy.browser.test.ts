@@ -148,7 +148,7 @@ function createField(slot = 0): Field {
     resolve: (x, y, snapshot = field.snapshot(), getBox = null, live = ALIVE) =>
       geometry.resolve(
         { pointerX: x, pointerY: y, insertion: null, item: dragged },
-        { snapshot, placeholder, getBox, live },
+        { snapshot, placeholder, getBox, live, insertion: null },
       ),
   };
 
@@ -167,6 +167,7 @@ describe('xy', () => {
           placeholder: field.placeholder,
           getBox: null,
           live: ALIVE,
+          insertion: null,
         },
       ),
     ).toBeNull();

@@ -1,0 +1,303 @@
+# P-06 — the verified incremental refresh
+
+**Status: designed 2026-08-20 (D-100); implemented 2026-08-21; divergences settled the same day by D-101 and D-102 and the implementation finished against them.** This is the Phase 22 architecture handoff for P-06, the first and only candidate this phase opens. It works from D-98's boundary and from M-4′'s evidence, and it takes no measurement: Phase 21 has already given this candidate every number it will get.
+
+**The implementation record is [§What landed](#what-landed) at the foot of this file**, including the measured before/after, the one contingency in §What would stop this that was measured and did not fire, and — in [§What D-101 and D-102 settled](#what-d-101-and-d-102-settled) — the two divergences, their resolution, and a **correction to the size figures the first record published**.
+
+**The optimization survives.** It survives in a different shape from D-98's sketch, and the difference is the whole architectural content: **the span is a hypothesis the feature verifies with a constant number of reads, not state it trusts.** That is what makes the fast path locally falsifiable, which is the condition the phase entry set for taking it at all.
+
+---
+
+## What was checked
+
+D-98 asserted that a committed placeholder move changes only the rows between the two gaps. That is q7 answer 1's finding, and the rebuild is the only thing standing on it, so it was checked rather than inherited.
+
+**The claim, stated exactly.** After the placeholder moves from destination gap `A` to gap `B`, with the candidate list `snapshot.items` minus the dragged item, and the placeholder sitting in flow at the gap:
+
+- **(S1)** the rows whose geometry changed are exactly `[min(A,B), max(A,B))`;
+- **(S2)** every such row shifted by the same scalar `δ` along the axis;
+- **(S3)** no row outside that range changed.
+
+**In a linear, non-wrapping flow with non-collapsing spacing, all three hold**, and for a structural reason rather than an empirical one: a row's flow position is the cumulative sum of the contributions above it, and removing the placeholder's contribution at one gap while adding the identical contribution at another leaves every prefix below `min(A,B)` and every suffix at or above `max(A,B)` with an unchanged cumulative sum. The rows between shift by exactly that contribution.
+
+**Four ways they fail, and all four are real.**
+
+1. **Collapsing margins.** Removing the placeholder at `A` releases one collapsed margin and inserting at `B` consumes a different one. The two contributions are then unequal, the suffix moves, and **(S3)** fails.
+2. **Wrapping containers.** A one-slot move is a reflow that changes lines; `δ` is not a scalar and not uniform. Already excluded by D-98 — this is why the fast path is `y()` only.
+3. **A `transform` on a single row.** It changes `getBoundingClientRect()` without changing flow, so it moves one row and nothing else. **(S3)** fails in a shape no flow argument predicts.
+4. **Scroll anchoring.** Chromium adjusts `scrollTop` when content above the viewport changes — which is precisely what moving a placeholder does — and the compensating `scroll` event is dispatched **after** the bracket has already run. So the geometry can shift under a move without the invalidation that would normally cover it. This is the sharpest of the four, because it is triggered by the library's own action on the exact DOM shape the fast path is for.
+
+> **Corrected by D-103.** The four-way failure list below is unchanged, but **case 3's blast radius is not "one row"** — it is one row only while the drifting row is not one of the two in-span witnesses, which is what the second witness makes true. The corrected statement, which supersedes every "one row" in this file: **no exposure at spans of 1 or 2; exactly one strictly interior row at spans ≥ 3, equal to the general path's exposure; span-wide only if both witnesses carry an identical pure vertical offset in the same frame.**
+
+**Repeated moves compose, and that is not the hazard.** Each move's `δ` applies to its own span, the packed values stay in the same units, and nothing accumulates that a second move interprets differently — the cache holds absolute viewport scalars, not deltas. **The hazard is drift, and drift does not compose with anything: it simply is not seen.**
+
+**One property makes drift cheaply detectable, and it is the design's load-bearing observation.** In a linear flow, any change to any row's contribution shifts **every subsequent row**. Flow drift is therefore _suffix-shaped_: it is visible at the **last candidate**. Scroll anchoring is visible there too, because it shifts everything. Only case 3 — a transform on one non-witness row — escapes a suffix witness, and case 1 does not escape it either.
+
+---
+
+## The design
+
+**1 — The reason costs nothing, because it is already in the call graph.** D-98 asked for reason-aware invalidation and expected to widen `invalidateInsertion`. That is not needed. `InsertionGeometry.measure` has **exactly one call site**, `src/sortable/spec.ts` inside the committed-move bracket, so _being called at all_ is the signal that a committed move just happened; `invalidate()` without a following `measure()` is everything else. The bracket calls `invalidate()` and then `measure()` as consecutive statements inside one `action.effect`, and the queue is run to completion, so **no scroll or resize can interleave between them** — the pairing rests on an invariant this package already holds rather than on a new one.
+
+**Distinguishing "only the bracket" from "the bracket plus something else" is a count.** The feature increments a counter in `invalidate()` and clears it on any full scan. At `measure()`, **exactly one** pending invalidation means the bracket's own and nothing else; more than one means an external invalidation is also outstanding and the fast path is refused. A scroll that arrived earlier and was already serviced by a `resolve()` has cleared the counter, so it does not poison later moves. This is state derived entirely from calls the feature receives, and a test can falsify it by dispatching a scroll before a move and asserting a full scan.
+
+**2 — The span is a hypothesis, not tracked state.** The destination gap `B` is `Insertion.index`, already computed by the behavior and already written to the per-operation view before the bracket. The previous gap `A` is the feature's own record of the last gap it serviced. **That record is exactly the kind of state D-98 worried about** — it can silently disagree with reality — so it is never trusted. It only proposes a span, and the span is then checked.
+
+**3 — Verification, in a constant number of reads.** With the hypothesised span `[lo, hi)`:
+
+- **the in-span witness**, row `lo`, yields `δ` by differencing its measured rect against its cached one. `δ` is **measured, never modelled** — which is what removes margins, `gap` and box-sizing from the design entirely, and is the part of D-98's one-row idea that survives as mechanism rather than as proof. A `δ` of zero refutes the hypothesis. **A second in-span witness at `hi − 1`, required to agree on the same `δ`, was added by D-103** — see §The review dispositions: a drift on the row `δ` is measured _from_ is absorbed into `δ` and applied to the whole span, which is the one condition under which the fast path is strictly worse than the rebuild it replaces;
+- **the after-witness**, row `hi`, must be unchanged;
+- **the suffix witness**, row `count − 1`, must be unchanged. This is the one that catches collapsing margins, scroll anchoring and any flow drift originating anywhere in the list;
+- **the before-witness**, row `lo − 1`, must be unchanged, when one exists.
+
+**Any refutation falls back to a full rebuild in the same window.** The fallback is not an error path and is not reported: it is the general path, taken for a frame, exactly where it runs today.
+
+**The span reaching the end of the list is a named degradation, not a special case.** When `hi === count` there is no after-witness and no suffix witness outside the span, so the hypothesis cannot be checked and the refresh is full. Dragging to the last slot therefore pays the old cost, and that is accepted rather than worked around.
+
+**4 — The re-sync policy, and the trade it makes explicit.** Verification cannot see case 3. A **full rebuild every `k` committed moves** bounds how long such a drift can persist, and **it also caps the payoff at `k×`**: with the incremental path near zero, average cost is `full / k`. That tension is the policy, and it is stated rather than buried — `k` is not a tuning constant, it is the exchange rate between the drift window and the saving. **`k = 8` is the recommended first landing**: at 800 rows it caps unverifiable staleness at eight moves, and it can be raised once the equivalence instrument below has run against real fixtures.
+
+> **Corrected after the run (D-102).** The paragraph above is right that `k` caps the payoff and wrong about where the cap binds. It assumed a verified move costs approximately nothing, so that `k = 8` would turn ~3.4 ms into ~0.42 ms. **A verified move costs ≈1.0 ms**, because the rebuild's dominant term in the deployed regime is the **forced layout after the placeholder write**, not the per-row reads — P-06 removes the reads and cannot touch the flush. **The binding ceiling is therefore `full / verified` ≈ 3.5×, not `k×`**, and `k` only decides how close the mean gets: `k = 8` measures **2.67×**, 76% of what is achievable, against `k = 16`'s ~12% more and `k = 4`'s ~24% less. **`k` is not the binding constraint, the invitation to raise it is withdrawn, and `k = 8` stays.** The exchange-rate framing survives; the arithmetic under it does not.
+
+---
+
+## The contract cost
+
+**One additive field on a published view type.** `InsertionRuntimeView` gains the committed `Insertion` — or its `index` — so `measure` can read the destination gap. The behavior's per-operation object **already carries it**: `runtime.ts` declares `insertion: Insertion | null` and the bracket sets it before `measure` is reached. This is the **fifth widening of a consumer-declared view** in the same additive form the previous four took, which `y.ts` already documents as costing no wrapper, no allocation and no import edge back to the runtime.
+
+**Nothing else in the public surface moves.** `invalidateInsertion` keeps its signature, `measure` keeps its signature apart from the widened view, `SortableContribution` is unchanged, and no new subpath or export appears.
+
+**One observable that is not in any contract but is worth naming.** A consumer who overrides `getBoundingClientRect()` on their rows will see **fewer calls per committed move**. Nothing promises a call count, but that population is precisely the one I-36's barriers exist for, and a design that changes how often their code runs should say so rather than let them discover it.
+
+---
+
+## The invariant boundary
+
+The fast path is refused, and the full rebuild runs, unless **all** of these hold:
+
+|  | condition | why |
+| --- | --- | --- |
+| 1 | the installed axis is **`y()`** | `xy()` wraps; `δ` is not a scalar (D-98) |
+| 2 | **`getBox === null`** | the candidate is its own box and is in the list's flow. Any resolver may return an element the flow does not govern — and this is the strict reading of D-98's `box === visual`, since a `visual()` resolver also fills `getBox` |
+| 3 | the snapshot **version is unchanged** | membership changed ⇒ the packed order changed. Already enforced by `refresh` |
+| 4 | **exactly one** pending invalidation at `measure()` | anything else means an external reason is outstanding |
+| 5 | `measure()` was reached with a **non-null insertion** | the reason signal |
+| 6 | the span has an **after-witness and a suffix witness** | otherwise the hypothesis is uncheckable |
+| 7 | fewer than **`k`** committed moves since the last full scan | the re-sync policy |
+| 8 | **all four witnesses agree** with the hypothesis | the verification |
+
+**I-36 is unchanged in kind and smaller in extent.** Each witness read is a consumer-owned element's `getBoundingClientRect()` and therefore a consumer call under C4-01's reading, so a `live()` reading is owed after each — four rather than `n`. The existing `abort()` exit is reused unchanged; the fast path adds no new terminal-barrier shape.
+
+**The eager position is untouched.** This is a smaller rebuild in the same window, between the placeholder write and `afterMove`, for the same correctness reason. Nothing here makes anything lazier, and D-95's exclusion of the eager position from cost-driven re-decision is preserved.
+
+---
+
+## The smallest implementable slice
+
+1. Widen `InsertionRuntimeView` with the committed insertion; the behavior already supplies it.
+2. In `RectIndex`: the pending-invalidation counter, the last-serviced gap, the moves-since-full-scan counter, and a `refresh` fast path guarded by the eight conditions above.
+3. `y()` opts in. **`xy()` does not, and its call site is left byte-identical**, so a regression has one candidate cause.
+4. **The equivalence instrument, and it is the deliverable that makes the rest admissible**: for every fast-path refresh, the packed buffer must equal what a full scan of the same tree would have produced — asserted structurally, on every suite run, not behind the measurement flag. The reproducibility standard already requires an equivalence check for a specialized path measured against a general one; here it is promoted from a measurement precondition to a permanent assertion, because it is the only thing that turns "the span hypothesis held" into something the suite can falsify.
+5. Each of the eight conditions gets a negative fixture that drives it individually and asserts a full scan — including a **scroll dispatched between two moves** and a **row transformed mid-drag**.
+6. Re-run M-4′'s harness unchanged for the paired before/after. **No new measurement is designed**; the existing one is the instrument.
+
+**Not in the slice, and deliberately:** any change to `xy()`, any change to the stride (P-02's sub-candidate touches the same buffer and must land after this, not beside it), any tuning of `k` beyond the recommended first value, and any attempt to make case 3 detectable.
+
+---
+
+## What would stop this
+
+- **The equivalence instrument fails on a realistic fixture** and the refutation is not one of the eight conditions. That means (S1)–(S3) are wrong in a way this analysis missed, and the candidate ends there rather than growing a ninth condition.
+- **`k` has to fall below ~4 to keep drift acceptable.** The saving is `k×`; below that the win no longer justifies the state, and the honest answer is to decline.
+- **The witness reads turn out not to be free.** The design assumes four `getBoundingClientRect()` calls cost approximately nothing against `n − 1`. At `n = 50` that ratio is 4:49 and the fast path may be within noise — in which case P-06 is a large-list optimization and should be gated on `count`, or declined for small lists rather than defended at every size.
+- **Any of this needs a second public widening.** One additive view field is the budget. A second — a reason argument, a new contribution member, a new slot — means the design has failed to fit the SPI it was supposed to fit, and the trade should be re-argued rather than paid incrementally.
+
+---
+
+## What landed
+
+**Implemented 2026-08-21**, against the design above and D-100's eight-condition boundary, with no re-decision of the eager window, no change to `xy()`'s call site and no tuning of `k`.
+
+### The tree
+
+| Where | What |
+| --- | --- |
+| `src/sortable/slots.ts` | `InsertionRuntimeView.insertion: Insertion \| null` — the one additive field, carrying a value `runtime.ts` already holds and the bracket already writes |
+| `src/sortable/y.ts` | the same field on the module's own consumer-declared view, and `measure` passing `insertion === null ? -1 : insertion.index` to `refresh`. **That argument is the entire opt-in** |
+| `src/sortable/rect-index.ts` | `refresh`'s optional `gap`, the pending-invalidation count, the last-serviced gap, the moves-since-full-scan count, `shift` (the four witnesses and the δ application), `verify` (the equivalence instrument) and `RESYNC_INTERVAL = 8` |
+| `src/sortable/xy.ts` | **unchanged** |
+
+`tests/sortable/incremental-refresh.browser.test.ts` is new: the instrument's falsifier and its control, the eight conditions each driven individually, the fallback, and retirement. `tests/perf/m4-prime.browser.test.ts` gained the paired general/verified arms in both regimes.
+
+### The equivalence instrument
+
+It is `__DEV__`-gated, on by default, and runs on **every** fast-path refresh in every suite run — which the mutation table below shows reaches three composed suites, not only its own file. It **heals before it throws**: the scan it performs to compare is the scan the full path would have run, so it writes the authoritative values back and only then reports. A mismatch therefore leaves the cache correct and the drag classified, rather than correct in the message and wrong in the buffer.
+
+**Its falsifier is D-100 case 3**, and that is the point: a `transform` on a single in-span row that is not a witness. Every witness still agrees, `δ` is genuine, the hypothesis is nonetheless false, and nothing but a full comparison can see it. The same fixture without the transform is the control, so the assertion cannot pass by always failing.
+
+**Four mutations of the shipped code, each run against the whole `tests/sortable` suite:**
+
+| Mutation | Caught by |
+| --- | --- |
+| apply `δ` to `[lo, hi]` instead of `[lo, hi)` | 8 tests in **3 files** — the instrument's own control, and two composed suites (`displacement`, `input-policy`) |
+| drop the suffix witness | 4 tests |
+| accept any pending invalidation instead of exactly one | 2 tests |
+| never re-synchronise | 1 test |
+
+The first row is the load-bearing one twice over: it proves the assertion discriminates, and it proves the fast path is genuinely reached through real composed drags — including one driven by real Playwright input — rather than only by the direct-drive fixture.
+
+### The measured before/after
+
+Both arms in one session, one arm live at a time, differing by **one argument**: the control withholds the committed gap from `measure`, so the _shipped_ `y()`, cache and resolve loop take the general path. Rule-level equivalence (the gaps proposed over a run twice `k`) is asserted before any ratio is quoted, on top of the buffer instrument.
+
+The instrument is switched off for these arms and for the `m4-prime` structural rows, and for nothing else. It performs the very full scan the measurement is trying to detect, it is `DEV`-only, and it exists in no build a consumer can install.
+
+**Deployed pacing — one committed move per real frame. This is the decision-relevant table.**
+
+| n | composition | rebuild, general | rebuild, verified | bracket, general | bracket, verified |
+| --- | --- | --- | --- | --- | --- |
+| 50 | bare | 0.437 ms | 0.270 ms | 0.501 ms | 0.326 ms |
+| 200 | bare | 1.174 ms | 0.460 ms | 1.227 ms | 0.511 ms |
+| 800 | bare | 3.504 ms | 1.312 ms | 3.566 ms | 1.374 ms |
+| 50 | `layoutAnimation()` | 0.468 ms | 0.384 ms | 1.112 ms | 1.111 ms |
+| 200 | `layoutAnimation()` | 1.087 ms | 0.505 ms | 1.831 ms | 1.251 ms |
+| 800 | `layoutAnimation()` | 3.318 ms | 1.151 ms | 4.333 ms | 2.293 ms |
+
+160 committed moves per arm after 20 warm-up frames; resolution 0.0006 ms. The general column reproduces M-4′'s recorded ~3.4 ms at 800 rows, which is the check that the control arm is the old path and not a new one.
+
+**Read counts, asserted structurally in CI rather than measured:** the rebuild reads `n − 1` on the first committed move of an operation and **4** on every verified one, at both 50 and 800 rows, with the span, write, after and resolve segments byte-for-byte identical between the arms. P-06 is a smaller rebuild in the same window — not a re-timing, not a removal.
+
+### What the numbers say that the design did not predict
+
+**The saving is ~2.6× at 800 rows, not the ~8× `k` allows, and `k` is not the reason.** If a verified move were free the average would be `full / 8` = 0.44 ms; it is 1.31 ms, so a verified move costs ≈1.0 ms of the general path's 3.5 ms while doing four reads instead of 799. **The dominant term of the rebuild in the deployed regime is the forced layout after the placeholder write, not the per-row reads** — one flush of ≈1 ms at 800 rows, then ≈3 µs per row. P-06 removes the second term and cannot touch the first.
+
+Three consequences, all recorded rather than acted on here:
+
+1. **`k` is not the binding constraint** — the ceiling is `full / verified` ≈ 3.5×, not `k×`, and `k = 8` reaches 2.67×, or **76% of what is achievable**. `k = 16` would buy ~12% more and `k = 4` would cost ~24%. **D-100's invitation to raise `k` once the instrument had run is therefore withdrawn** (D-102's record): the instrument has run, and a larger `k` spends drift tolerance for very little. `k = 8` stays.
+2. **The forced flush is the next thing in this bracket worth a candidate**, and it is not P-06's and not in this slice.
+3. **At 50 rows with `layoutAnimation()` composed the bracket is unchanged** (1.112 → 1.111 ms) — the rebuild does shrink, but the displacement feature's own work dominates a list that small.
+
+### The `count` contingency did not fire
+
+D-100 §What would stop this reserved the possibility that "the witness reads turn out not to be free… at `n = 50` that ratio is 4:49 and the fast path may be within noise — in which case P-06 is a large-list optimization and should be gated on `count`, or declined for small lists".
+
+**Measured, at `n = 50`: 0.437 → 0.270 ms bare (1.62×) and 0.468 → 0.384 ms animated (1.22×), against a 0.0006 ms resolution.** The fast path is faster at the smallest measured size, not within noise and not worse. **So no count gate exists and no threshold was invented** — the eight conditions in §The invariant boundary are the whole boundary, and a ninth would have needed evidence that the measurement does not provide.
+
+### Where the tree differs from the design
+
+**Two places, both flagged rather than absorbed.**
+
+**Both are now decided — D-101 and D-102 — and neither changed P-06's correctness design, its boundary or its measurements.** (1) is **ratified**: the bare read is the correct form, because `__DEV__` is package vocabulary rather than kernel vocabulary. (2) is **refused**: the boundary moves so `xy()` carries no P-06 machinery, and the budgets stay red until it does.
+
+1. **`rect-index.ts` reads the bare `__DEV__` global instead of importing `DEV` from `kernel/dev.ts`.** The substitution and the folding are identical — this is the mechanism M-3 measured — but the import is not: `tests/kernel/vocabulary.node.test.ts` fails any name the behavior tier reaches into `kernel/` for unless contract 02 §What stays internal names it with a substitute, and adding `DEV` there is a decision about the tier boundary rather than about this cache. Reaching across and then legislating for it would have widened a second contract to land a design whose stated budget is one additive field. **This is the first dev assertion at the behavior tier**; if a second wants one, that is the moment to decide whether the tier gets a shared constant of its own.
+2. **`xy()`'s call site is byte-identical, but its bundle is not.** The fast path lives inside `createRectIndex`'s closure, which both axes share, so `xy()` links code it can never execute. ~~The size bench measures **+135 B** on the minimal `xy()` composition and **+135 to +164 B** across every sortable composition (~1.3%)~~ — **those figures are wrong, and §What D-101 and D-102 settled corrects them**: they are _budget overruns_, not size deltas, and they were read off a stale build. The carried cost was **+288 B** on the minimal `xy()` composition. Free-drag compositions are untouched, which is right in both readings. Splitting the fast path into a module only `y()` imports would recover it and is a change to how the shared cache is factored — **not taken here**, and the declared budgets are left red rather than re-based, so the number is visible rather than absorbed. **D-102 takes it**: the split is required, the required property is an `xy()`-composition graph absence rather than a prescribed factoring, and the residue left in `createRectIndex` is the falsifier — if it is not materially smaller the split bought nothing and the cost is accepted with a re-base instead.
+
+### The review dispositions (D-103)
+
+**P06-01 — the guard is refined, because P-06 does not create this failure mode, it _amplifies_ one.** The reviewer showed that when the row carrying an unexpected offset **is the in-span witness**, the `δ` it produces is wrong by that offset and is then applied to the rest of the span, while every other witness honestly agrees. Up to `hi − lo − 1` rows go wrong for up to `k` moves, where D-100 accepted **one**.
+
+**The escape is narrower than "a transform" and that sharpens rather than softens it.** The anchor is already compared on four quantities, so a **horizontal** movement of the witness is caught by the `left`/`right` equality and a **size** change is caught by `bottom − cached ≠ δ`. What survives is a **pure vertical translation** of the witness — which is precisely the shape a running FLIP offset has.
+
+**That is why this is not a hypothetical.** [03](contract/03-feature-composition.md) §The bracket already contemplates it in as many words — _the release must cover every element the feature is offsetting, not just this move's span … one element still carrying an offset is enough to corrupt the rebuild_ — and `beforeMove`/`afterMove` are a **published** displacement SPI, so a third-party feature that releases less than the first-party one puts a `translateY` on rows in exactly this window. **Under the general path that corrupts one row: the one carrying the offset. Under P-06 it corrupts the span.** P-06's claim is that it is a smaller rebuild in the same window — not a behaviourally different one — and an amplified blast radius under a condition the contract already names breaks that claim. **The guard is required to restore equivalence with the path P-06 replaces, not because the trigger is likely.**
+
+**The correction, and it is one read.** A **second in-span witness at `hi − 1`**, compared on the same four quantities as the anchor and required to agree on `δ`. It is skipped when `hi − lo === 1`, where the two witnesses would be the same row and the blast radius is zero anyway. Cost: one `getBoundingClientRect()` and one `live()` reading on a verified move measured at ≈1.0 ms and dominated by the post-write flush — the record's own ≈3 µs per row puts it at ~0.3%.
+
+**The corrected risk statement, which replaces D-100 case 3's "one row".**
+
+| span | exposure with the second witness |
+| --- | --- |
+| 1 or 2 | **none.** Both ends are witnesses; `δ` is refuted or correct |
+| ≥ 3 | **exactly one row** — a strictly interior one, `lo < j < hi − 1` — for at most `k` moves. **Equal to the general path's exposure**, which is the acceptance criterion |
+| any | span-wide **only** if both witnesses carry an _identical_ pure vertical offset in the same frame. Named, accepted, and not guarded against |
+
+**The fixture obligation replaces D-100's single "a row transformed mid-drag" with three**, and the third is the one that pins the envelope:
+
+1. a pure `translateY` on **either in-span witness** must **refuse** and take the full scan — this fixture must fail against the tree without the second witness, or it is not testing the guard;
+2. the same on an **after, suffix or before** witness must refuse, as it already does;
+3. the same on a **strictly interior** span row, over a multi-slot move so the span reaches 3 — asserted **twice**: with the equivalence instrument on, it must **report a mismatch**, proving the instrument sees what the witnesses cannot; with it off, **exactly one row** may differ, which pins the radius so it cannot silently grow.
+
+**Both landed 2026-08-21, with the review's other five findings; the dispositions and the remediation record are in [`reviews/p06-review-claude.md`](reviews/p06-review-claude.md) §Remediation.** The guard costs one read, the skip behaves as specified — M-4′'s workload commits one-row spans, so it still takes four reads and **§What landed's timing table is unchanged**, re-run to confirm — and the two fixtures that matter were verified to **fail against the tree without the second witness**, which is what the obligation asked for.
+
+**P06-02 — an implementation defect, and it is handed back rather than decided.** The equivalence scan walks every candidate through `getBoundingClientRect()`, which C4-01 makes a consumer call, without threading `live()` between them — the obligation `refresh` already discharges through `abort()`. Nothing about it is open at the design level.
+
+**Two notes, because "it is `DEV`-only" is the wrong reason to waive it.** The repository's own build defines `__DEV__` as `true`, so **every in-repo fixture runs the instrumented path**: an instrument that skips I-36 makes the `DEV` build violate an invariant the shipped build holds, which inverts what a dev assertion is for and leaves the I-36 fixtures unable to exercise the shipped shape. And **on abort the instrument must stop and report nothing** — a partially completed scan legitimately differs from the fast-path buffer, so comparing one would turn a correct teardown into a spurious mismatch.
+
+### What is still true
+
+`invalidateInsertion` keeps its signature. `SortableContribution` is unchanged. No new subpath, no new export on any entry. The eager window is where it was, between the placeholder write and `afterMove`, for the same correctness reason — nothing here made anything lazier, and D-95's exclusion of the eager position from cost-driven re-decision is preserved.
+
+**Not in this slice, as declared:** any change to `xy()`, any change to the stride (P-02's sub-candidate touches the same buffer and lands after this), any tuning of `k`, and any attempt to make case 3 detectable.
+---
+
+## What D-101 and D-102 settled
+
+**Finished 2026-08-21.** Neither decision touched P-06's correctness design, its eight-condition boundary, its `k`, or any measurement in §What landed — the timing table, the read counts and the mutation table above stand unchanged, and were re-run to confirm it.
+
+### First, a correction to the numbers the record above published
+
+**The `+135 to +164 B` figures were budget overruns quoted as size deltas.** That is the whole of the error, and it is one error rather than two.
+
+**The stale-build explanation this section first gave for it is itself wrong, and the review falsified it** (P06-05). `tests/bench/size.node.test.ts` spawns `tsdown` and awaits a build in `beforeAll`, and that file is unchanged across this branch — the size suite builds first, so `just test` does not measure one state against a build of another. Building the folded state in an isolated worktree reproduces the overruns exactly: 135 on `minimal (xy)`, 164 on `+ layoutAnimation`, 149/156/141/152/155 on the rest. No stale build is needed to produce them, and none produced them.
+
+What did produce them is simpler and less flattering: the failing rows print `over budget by N B`, and `N` was read as though it were the cost of the change. It is the distance from a budget that already carried ~150 B of headroom. **The substantive correction stands unchanged** — the real carried `xy()` cost was 288 B, larger than reported, so every conclusion drawn from it is unaffected in the direction that matters. Only the reason the first numbers were wrong is corrected here.
+
+**Measured properly, each state built before it was measured** (brotli bytes):
+
+| composition | before P-06 | P-06 folded into `RectIndex` | P-06 split out | net |
+| --- | --- | --- | --- | --- |
+| minimal (`y()`) | 10 738 | 11 039 | 11 105 | **+367** |
+| **minimal (`xy()`)** | **10 787** | 11 075 | **10 787** | **0** |
+| minimal + `layoutAnimation()` | 11 162 | 11 474 | 11 550 | +388 |
+| minimal + `landing()` | 11 020 | 11 326 | 11 388 | +368 |
+| complete | 11 447 | 11 741 | 11 808 | +361 |
+| both behaviors | 12 995 | 13 302 | 13 363 | +368 |
+| baseline A (non-composed) | 11 158 | 11 465 | 11 520 | +362 |
+| free drag (all four) | — | unchanged | unchanged | 0 |
+
+D-102 quotes `+135 B` from the record above; **the figure it should have had is 288 B**, and its conclusion is unaffected in the direction that matters — the cost was larger than stated, not smaller.
+
+### D-102 — the split, and its falsifier
+
+**`minimal (xy)` is 10 787 B: byte-identical to its pre-P-06 size.** The falsifier D-102 set was that the residue left in `createRectIndex` must be materially smaller than the cost it removed. **The residue is zero.** `src/sortable/rect-index.ts` is byte-for-byte its pre-P-06 self — no hook, no `settle()`, no optional parameter, no P-06 mention — which is a stronger result than the decision asked for and is the reason the budgets could go green rather than merely closer.
+
+**How it stays zero.** `src/sortable/verified-refresh.ts` **wraps** the cache rather than reaching into it. The two bits the fast path needs — is the buffer clean, and which collection version does it hold — are _mirrored_ from the calls the wrapper already intercepts, because `invalidate`, `retire` and every `refresh` arrive through it. The mirror cannot drift: all three clear or set both bits, and `y()` wires the wrapper into all three slots. `dirty` needs no variable at all — `pending === 0` **is** clean, since both are raised by `invalidate()` and cleared by a successful refresh.
+
+The one place the two states legitimately disagree is after a fast path, where the wrapper is clean and the cache still reads dirty. That is the intended shape: the buffer _is_ current, and the cache is only ever asked for a full scan when the wrapper decides to ask.
+
+**One barrier is duplicated and that is deliberate.** The first witness read is a consumer call under I-36, so the entry barrier has to be taken before `shift` — and `RectIndex.refresh` re-takes its own on the fallback path, because it is also reachable from `xy()` and must not depend on a caller having taken one. That is one extra predicate call on refusals, and the alternative was moving a barrier out of the cache that still needs it.
+
+**The graph absence is asserted, not argued.** `bench/size` lists `sortable/verified-refresh.js` in `minimal (xy)`'s `absent` and in every `y()` composition's `present`, as a peer of the unselected-axis assertion rather than folded into it: the unselected axis is absent because exactly one installs, and this is absent because a feature's private optimization may not travel in the shared cache the two axes are deliberately built to share.
+
+### The budgets are re-based, and only now
+
+The condition D-102 attached them to is met, and the remaining delta is the intended shipping surface: **+361 to +388 B in the module graph of the only feature that can execute it**, `xy()` and free drag at zero. Headroom is preserved at the ~150 B the previous budgets carried.
+
+| composition                   | old budget | new budget    |
+| ----------------------------- | ---------- | ------------- |
+| minimal                       | 10 890     | 11 260        |
+| minimal (xy)                  | 10 940     | **unchanged** |
+| minimal + `layoutAnimation()` | 11 310     | 11 700        |
+| minimal + `landing()`         | 11 170     | 11 540        |
+| complete                      | 11 600     | 11 970        |
+| both behaviors                | 13 150     | 13 520        |
+| baseline A                    | 11 310     | 11 680        |
+| free drag (all four)          | —          | **unchanged** |
+
+**The split is not free on the `y()` side**: it costs ~66 B more than the folded form (367 against 301 on `minimal`), which is the wrapper's own object, its three named slots and the module boundary. That is the price of the boundary and it is stated rather than netted off — the trade D-102 made is 288 B off `xy()` for 66 B onto `y()`, on top of the optimization's own ~300 B where it belongs.
+
+### D-101 — ratified, and now enforceable
+
+The bare `__DEV__` read is the correct form and moved with the rest of P-06 into `verified-refresh.ts`, which is the behavior tier's single binding. Nothing routes through `kernel/dev.ts`.
+
+**The gate D-101 asked for is in `tests/kernel/vocabulary.node.test.ts` §The `__DEV__` binding**, and it is three assertions because one is not enough:
+
+1. **at most one module per tier binds it** — the rule, and the trigger D-101 named: a second dev assertion in a second module of a tier fails here, and the fix is that tier's own `dev.ts`, still importing nothing from `kernel/`;
+2. **each binding module reads the ambient exactly once** — a module reading `__DEV__` twice is guarding branches with the ambient rather than with its binding, which makes (1) unenforceable: the binding stops being the tier's single definition of _dev_ and becomes one of several reads;
+3. **the tiers that bind it are exactly `kernel/dev.ts` and `sortable/verified-refresh.ts`** — the positive half, and the reason the two negatives are not enough on their own: both are satisfied by a tree in which nothing binds it, and by one in which a new tier quietly acquires an assertion.
+
+Comments are stripped before matching, so the prose stating the rule cannot satisfy or violate it. **Falsified before being trusted**: binding `__DEV__` in a second `sortable/` module fails (1) and (3) and leaves (2) passing, which is the discrimination between the two rules.
+
+### Both new gates were falsified, and one attempt was too weak to count
+
+Adding a `createVerifiedRefresh` call to `xy()` fails **both** `minimal (xy)`'s graph assertion and its budget. A first attempt that only referenced `RESYNC_INTERVAL` and discarded it did **not** fail — correctly, because a dead reference is eliminated and never enters the graph, and the assertion is about the graph rather than about the import statement. It is recorded because the weaker mutation passing is what shows the gate measures reachability and not text.
+
+The five mutations of the fast path itself were re-run against the whole sortable suite after the move, including a new one for the risk the split introduces — **a mirror that never clears on abort**, caught by 1 test. The other four are unchanged from §What landed: 8 tests in 3 files, 4, 2 and 1.

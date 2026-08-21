@@ -109,6 +109,31 @@ export type InsertionRuntimeView = Readonly<{
    * Read only between resolver calls, never on a warm cache.
    */
   live(): boolean;
+  /**
+   * The destination gap of the placeholder move currently being bracketed, or
+   * `null` outside a bracket — the **same field, on the same per-operation
+   * object**, that `DisplacementView.insertion` already publishes to the
+   * displacement hooks.
+   *
+   * **The sixth additive widening of a consumer-declared view** — 8a `item`,
+   * 17 `pointerX`, D2 `getVisual`, C2-01 `live`, C4-01 `live` on the
+   * displacement side, now this — and the whole contract cost of P-06 (D-100
+   * §The contract cost). The behavior's per-operation object satisfies it
+   * already: `runtime.ts` declares `insertion: Insertion | null` and the
+   * committed-move bracket writes it before `measureInsertion` is reached, so
+   * there is no wrapper, no allocation and no import edge back to the runtime.
+   *
+   * **It is a reason signal, not a convenience.** `measureInsertion` has
+   * exactly one call site, so an axis rule that sees a non-null gap here knows
+   * a committed move just happened — which is what let P-06 stay inside one
+   * additive field instead of widening `invalidateInsertion` with a reason
+   * argument. `frame.insertion` could not do it: the frame's insertion outlives
+   * the bracket, and it is being *inside* the bracket that the fast path needs
+   * to establish.
+   *
+   * An axis rule that ignores it is unaffected, which is what `xy()` does.
+   */
+  insertion: Insertion | null;
 }>;
 
 export type DisplacementView = Readonly<{

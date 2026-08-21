@@ -32,6 +32,16 @@
  * instrument pins — run in CI on every suite run. The timings are opt-in with
  * `VITE_DRAG_MEASURE=1` and assert nothing.
  *
+ * **P-06 landed under this harness, and the harness is the instrument for it**
+ * (D-100 §6). Two things follow. The structural rows below now state the *new*
+ * read placement — four witnesses where there were `n − 1` candidates — with
+ * the general path pinned beside each one, so the before and the after are both
+ * in the file rather than one of them in a record. And the whole file runs with
+ * the equivalence instrument switched off: it performs the very full scan these
+ * counts exist to detect, it is `DEV`-only, and it exists in no build a consumer
+ * can install — measuring it would report a number that describes nothing that
+ * ships.
+ *
  * **Run this file alone.** The browser project runs files in parallel and a
  * neighbour inflates every absolute figure; and per the Phase 21 operational
  * rule, **every arm disposes before the next is built** — a live controller
@@ -39,7 +49,7 @@
  * bracket per sample and each arm measures the sum of itself and everything
  * before it.
  */
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { SortableConfig } from '../../src/sortable/config.ts';
 import type {
   AxisInstaller,
@@ -47,6 +57,10 @@ import type {
 } from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import type { InsertionRuntimeView } from '../../src/sortable/slots.ts';
+import {
+  RESYNC_INTERVAL,
+  setRefreshVerification,
+} from '../../src/sortable/verified-refresh.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../../src/sortable.ts';
@@ -199,9 +213,18 @@ function createProbe(): Probe {
  * resize and collection publication, so the mark is gated on being inside a
  * bracket — otherwise a scroll during a measured run would credit the write
  * segment with time that is not the write's.
+ *
+ * **`general` is P-06's control arm, and it is deliberately not a second copy
+ * of the rule** (D-100 §6). `y()`'s entire opt-in is the destination gap it
+ * reads off the per-operation view and hands to `refresh`; withholding it here
+ * puts the *shipped* `y()`, the shipped cache and the shipped resolve loop on
+ * the general path, so the two arms differ by one argument rather than by a
+ * transcription. The spread allocates one small object per committed move,
+ * which lands in the rebuild segment of the arm that is already the expensive
+ * one.
  */
 const instrument =
-  (inner: AxisInstaller, probe: Probe): AxisInstaller =>
+  (inner: AxisInstaller, probe: Probe, general = false): AxisInstaller =>
   (context) => {
     const contribution = inner(context);
     const geometry = contribution.insertion;
@@ -227,7 +250,10 @@ const instrument =
         },
 
         measure(frame, runtime): void {
-          geometry.measure?.(frame, runtime);
+          geometry.measure?.(
+            frame,
+            general ? { ...runtime, insertion: null } : runtime,
+          );
 
           if (probe.inBracket()) {
             probe.afterRebuild();
@@ -323,11 +349,26 @@ type ArmOptions = Readonly<{
    * up in exactly one segment; see the paced arm in the timing section.
    */
   paced?: boolean;
+  /**
+   * Withhold the committed gap from `measure`, so `y()` takes the full rebuild
+   * it took before P-06. The "before" arm of the paired comparison.
+   */
+  general?: boolean;
 }>;
 
 const cleanup: Array<() => void> = [];
 
+// See the file header: the P-06 equivalence instrument is a full scan, and a
+// full scan is exactly what these counts are trying to tell apart. Restored
+// after every row, so nothing this file does can leave it off for a suite that
+// depends on it.
+beforeEach(() => {
+  setRefreshVerification(false);
+});
+
 afterEach(() => {
+  setRefreshVerification(true);
+
   for (const dispose of cleanup.splice(0)) {
     dispose();
   }
@@ -408,7 +449,7 @@ function build(options: ArmOptions): Arm {
     root,
     {
       items: () => rows,
-      axis: instrument(axis, probe),
+      axis: instrument(axis, probe, options.general ?? false),
       onReorder: () => ReorderResolution.accept(),
     },
     ...fragments,
@@ -550,6 +591,21 @@ function withArm<T>(options: ArmOptions, body: (arm: Arm) => T): T {
     cleanup.splice(cleanup.indexOf(arm.dispose), 1);
   }
 }
+
+/**
+ * The read tally of the **first** committed move of an operation.
+ *
+ * P-06's fast path has no previous gap to propose a span from on the first
+ * move, so this is the general path — the rebuild exactly as M-4′ measured it,
+ * still reachable and still asserted, beside every row that now states the
+ * verified path's count.
+ */
+const readsOfFirstMove = (options: ArmOptions): Tally =>
+  withArm(options, (arm) => {
+    arm.probe.reset();
+    arm.step(0);
+    return { ...arm.probe.reads };
+  });
 
 /** The read tally of exactly one committed move. */
 const readsOfOneMove = (options: ArmOptions): Tally =>
@@ -771,21 +827,42 @@ const slotTrace = (options: ArmOptions, steps: number): readonly number[] =>
 const N = 200;
 
 describe('M-4′ — where the committed move reads, relative to the write', () => {
-  it('should read every remaining candidate after the placeholder write', () => {
+  it('should read every remaining candidate on the first move of an operation', () => {
     // The eager rebuild, as a count: the destination view is the collection
     // minus the dragged item, and every one of those is measured — on the far
     // side of the write, which is the placement the eager position exists for.
-    const reads = readsOfOneMove({ n: N, axis: y(), animate: true });
+    // **This is the number M-4′ measured**, and P-06 did not remove it: it is
+    // still what the first move of every operation pays.
+    const reads = readsOfFirstMove({ n: N, axis: y(), animate: true });
 
     expect(reads.rebuild).toBe(N - 1);
+  });
+
+  it('should read four witnesses after the placeholder write in the steady state', () => {
+    // P-06, as a count, in the same segment and the same window. The rebuild
+    // did not move, get deferred or get skipped — it got smaller, and the
+    // permanent equivalence instrument (switched off here, and only here) is
+    // what holds the smaller one to the larger one's answer.
+    const reads = readsOfOneMove({ n: N, axis: y(), animate: true });
+
+    expect(reads.rebuild).toBe(4);
   });
 
   it('should read only the span before the placeholder write', () => {
     // M-4's answer, still holding on the real bracket: `layoutAnimation()`
     // measures the rows the move crosses, not the destination view.
+    //
+    // **Held against the general rebuild, and that is now the only way to state
+    // it.** Before P-06 the span was under a tenth of the rebuild in the same
+    // bracket; after it, the rebuild in the steady state is four reads and the
+    // span is two, so the ratio the claim was written as would now be asserting
+    // the opposite of what it means. The quantity it is about — the span is a
+    // property of the *move* and not of the list — is unchanged, and the
+    // collection-sized rebuild is what it has to be compared against.
+    const first = readsOfFirstMove({ n: N, axis: y(), animate: true });
     const reads = readsOfOneMove({ n: N, axis: y(), animate: true });
 
-    expect(reads.span).toBeLessThan(reads.rebuild / 10);
+    expect(reads.span).toBeLessThan(first.rebuild / 10);
     expect(reads.span).toBeGreaterThan(0);
   });
 
@@ -807,11 +884,13 @@ describe('M-4′ — where the committed move reads, relative to the write', () 
     // The control the contract asks for: without `layoutAnimation()` the span
     // read and the offset release are gone, and what is left in the bracket is
     // the rebuild alone.
+    const first = readsOfFirstMove({ n: N, axis: y(), animate: false });
     const reads = readsOfOneMove({ n: N, axis: y(), animate: false });
 
     expect(reads.span).toBe(0);
     expect(reads.after).toBe(0);
-    expect(reads.rebuild).toBe(N - 1);
+    expect(first.rebuild).toBe(N - 1);
+    expect(reads.rebuild).toBe(4);
   });
 
   it('should rebuild the same candidate set under the two-dimensional rule', () => {
@@ -823,11 +902,11 @@ describe('M-4′ — where the committed move reads, relative to the write', () 
     expect(reads.rebuild).toBe(N - 1);
   });
 
-  it('should scale the rebuild with the collection rather than with the move', () => {
+  it('should scale the general rebuild with the collection rather than with the move', () => {
     // A constant would pass every row above; this one cannot be satisfied by a
     // counter that reports a fixed shape.
-    const small = readsOfOneMove({ n: 50, axis: y(), animate: true });
-    const large = readsOfOneMove({ n: N, axis: y(), animate: true });
+    const small = readsOfFirstMove({ n: 50, axis: y(), animate: true });
+    const large = readsOfFirstMove({ n: N, axis: y(), animate: true });
 
     expect(small.rebuild).toBe(49);
     expect(large.rebuild).toBe(N - 1);
@@ -836,6 +915,18 @@ describe('M-4′ — where the committed move reads, relative to the write', () 
     // times as long does not widen it.
     expect(large.span).toBe(small.span);
     expect(large.after).toBe(small.after);
+  });
+
+  it('should not scale the verified rebuild with the collection at all', () => {
+    // **The P-06 result, stated as the negation of the row above it.** The
+    // witness count is a property of the span's endpoints, so a list four times
+    // as long costs the same four reads — which is the claim the paired timing
+    // arms then put a number on.
+    const small = readsOfOneMove({ n: 50, axis: y(), animate: true });
+    const large = readsOfOneMove({ n: N, axis: y(), animate: true });
+
+    expect(small.rebuild).toBe(4);
+    expect(large.rebuild).toBe(small.rebuild);
   });
 
   it('should read the placeholder once per resolve on a clean index', () => {
@@ -873,11 +964,71 @@ describe('M-4′ — the stride-1 rebuild is the same rule', () => {
 
   it('should read exactly the candidates the six-scalar rebuild reads', () => {
     // The stride is the only difference: the same reads, in the same segment.
-    const packed = readsOfOneMove({ n: N, axis: y(), animate: true });
-    const single = readsOfOneMove({ n: N, axis: narrow(), animate: true });
+    //
+    // **Compared on the first move**, because P-06 opted `y()` into the
+    // verified path and `narrow()` — a measurement instrument, not a shipped
+    // rule — never passes a gap. On the steady-state move the two would differ
+    // by the optimization rather than by the stride, which is the one thing
+    // this row must not be measuring.
+    const packed = readsOfFirstMove({ n: N, axis: y(), animate: true });
+    const single = readsOfFirstMove({ n: N, axis: narrow(), animate: true });
 
     expect(single.rebuild).toBe(packed.rebuild);
     expect(single.resolve).toBe(packed.resolve);
+  });
+});
+
+describe('M-4′ — the verified refresh is the same rule', () => {
+  // **The same requirement, for the same reason** (D-100 §6). A cheaper
+  // rebuild is only a cheaper rebuild if it commits the same moves, and the
+  // run is twice the re-synchronisation interval so it crosses a forced full
+  // scan rather than measuring only verified moves.
+  const STEPS = 24;
+
+  it('should commit the slots the general rebuild commits', () => {
+    // **P-06's equivalence check at the rule level**, and the standard's
+    // requirement before any ratio is quoted. The buffer instrument in
+    // `rect-index.ts` holds the packed values to a full scan on every fast
+    // path; this holds the *gaps the rule proposes* to what the same rule
+    // proposes with the fast path withheld, over a run long enough to cross the
+    // re-synchronisation interval twice.
+    const verified = slotTrace({ n: N, axis: y(), animate: false }, STEPS);
+    const general = slotTrace(
+      { n: N, axis: y(), animate: false, general: true },
+      STEPS,
+    );
+
+    expect(verified).toEqual(general);
+    expect(new Set(general).size).toBe(2);
+  });
+
+  it('should commit the same slots with the displacement feature composed', () => {
+    const verified = slotTrace({ n: N, axis: y(), animate: true }, STEPS);
+    const general = slotTrace(
+      { n: N, axis: y(), animate: true, general: true },
+      STEPS,
+    );
+
+    expect(verified).toEqual(general);
+  });
+
+  it('should read four rows where the general rebuild reads the list', () => {
+    const verified = readsOfOneMove({ n: N, axis: y(), animate: true });
+    const general = readsOfOneMove({
+      n: N,
+      axis: y(),
+      animate: true,
+      general: true,
+    });
+
+    expect(general.rebuild).toBe(N - 1);
+    expect(verified.rebuild).toBe(4);
+    // Everything outside the rebuild is untouched: P-06 is a smaller rebuild in
+    // the same window, not a re-timing and not a removal.
+    expect(verified.span).toBe(general.span);
+    expect(verified.write).toBe(general.write);
+    expect(verified.after).toBe(general.after);
+    expect(verified.resolve).toBe(general.resolve);
   });
 });
 
@@ -1052,49 +1203,60 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
       console.info(`M-4′ clock grain ≈ ${grain.toFixed(4)} ms`);
     });
 
-    for (const animate of [true, false]) {
-      for (const n of [50, 200, 800]) {
-        it(`should measure one committed move per real frame, ${animate ? 'animated' : 'bare'}, at ${n} rows`, async () => {
-          // **The regime check, and it is decision-driving for P-03.** The
-          // batched driver above runs a whole calibrated batch inside one
-          // frame, so the browser never flushes style and layout between two
-          // committed moves and every read after the first is charged for
-          // everything the batch dirtied. Here one committed move costs one
-          // real frame, which is what a drag actually does — and the segment
-          // that moves between the two regimes is the one whose reading has to
-          // be qualified.
-          const FRAMES = 160;
-          const WARM = 20;
-          const arm = build({ n, axis: y(), animate, paced: true });
+    for (const general of [false, true]) {
+      for (const animate of [true, false]) {
+        for (const n of [50, 200, 800]) {
+          it(`should measure one committed move per real frame, ${general ? 'general' : 'verified'}, ${animate ? 'animated' : 'bare'}, at ${n} rows`, async () => {
+            // **The regime check, and it is decision-driving for P-03 and for
+            // P-06.** The verified/general pair is repeated here rather than
+            // taken only from the batched arms above, because the two regimes
+            // charge the rebuild for different things: batched, it pays for `n`
+            // reads against a layout nothing flushed; paced, the first read of
+            // the bracket is a forced layout after a real frame and the other
+            // `n − 1` are nearly free. A saving that is a read count in one
+            // regime is a flush count in the other, and only the paced pair says
+            // what a deployed drag actually gets.** The
+            // batched driver above runs a whole calibrated batch inside one
+            // frame, so the browser never flushes style and layout between two
+            // committed moves and every read after the first is charged for
+            // everything the batch dirtied. Here one committed move costs one
+            // real frame, which is what a drag actually does — and the segment
+            // that moves between the two regimes is the one whose reading has to
+            // be qualified.
+            const FRAMES = 160;
+            const WARM = 20;
+            const arm = build({ n, axis: y(), animate, paced: true, general });
 
-          try {
-            await sequence(WARM, (round) => arm.paced(round));
+            try {
+              await sequence(WARM, (round) => arm.paced(round));
 
-            arm.probe.reset();
+              arm.probe.reset();
 
-            await sequence(FRAMES, (round) => arm.paced(WARM + round));
+              await sequence(FRAMES, (round) => arm.paced(WARM + round));
 
-            const moves = arm.probe.brackets();
-            const { time } = arm.probe;
-            const report = (value: number): string =>
-              (value / moves).toFixed(4);
+              const moves = arm.probe.brackets();
+              const { time } = arm.probe;
+              const report = (value: number): string =>
+                (value / moves).toFixed(4);
 
-            // oxlint-disable-next-line no-console -- this suite exists to report
-            console.info(
-              `M-4′ paced ${animate ? 'animated' : 'bare'} n=${n} ` +
-                `moves=${moves}/${FRAMES} ` +
-                `bracket=${report(time.bracket)}ms ` +
-                `span=${report(time.span)}ms ` +
-                `rebuild=${report(time.rebuild)}ms ` +
-                `after=${report(time.after)}ms ` +
-                `resolve=${report(time.resolve)}ms | ` +
-                `resolution=${(0.1 / moves).toFixed(4)}ms`,
-            );
-          } finally {
-            arm.dispose();
-            cleanup.splice(cleanup.indexOf(arm.dispose), 1);
-          }
-        });
+              // oxlint-disable-next-line no-console -- this suite exists to report
+              console.info(
+                `M-4′ paced ${general ? 'general' : 'verified'} ` +
+                  `${animate ? 'animated' : 'bare'} n=${n} ` +
+                  `moves=${moves}/${FRAMES} ` +
+                  `bracket=${report(time.bracket)}ms ` +
+                  `span=${report(time.span)}ms ` +
+                  `rebuild=${report(time.rebuild)}ms ` +
+                  `after=${report(time.after)}ms ` +
+                  `resolve=${report(time.resolve)}ms | ` +
+                  `resolution=${(0.1 / moves).toFixed(4)}ms`,
+              );
+            } finally {
+              arm.dispose();
+              cleanup.splice(cleanup.indexOf(arm.dispose), 1);
+            }
+          });
+        }
       }
     }
 
@@ -1165,6 +1327,45 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
             `resolution=${(0.1 / packed.repeats).toFixed(4)}ms`,
         );
       });
+    }
+
+    for (const animate of [true, false]) {
+      for (const n of [50, 200, 800]) {
+        it(`should measure the verified refresh against the general one, ${animate ? 'animated' : 'bare'}, at ${n} rows`, () => {
+          // **P-06's paired before/after** (D-100 §6), in one session, one arm
+          // live at a time, and differing by exactly the one argument `y()`
+          // hands to `refresh`.
+          //
+          // The verified arm's figure is the *average over the sampled moves*
+          // and therefore already carries the re-synchronisation policy: one
+          // move in `k` is a full rebuild, so the ceiling on the saving is
+          // `k×`, and a ratio far above that would mean the sample never
+          // crossed a forced scan.
+          const verified = withArm({ n, axis: y(), animate }, (arm) =>
+            sample(arm),
+          );
+          const general = withArm(
+            { n, axis: y(), animate, general: true },
+            (arm) => sample(arm),
+          );
+          const fast = medians(verified.rows);
+          const full = medians(general.rows);
+          const report = (value: number): string => value.toFixed(3);
+
+          // oxlint-disable-next-line no-console -- this suite exists to report
+          console.info(
+            `M-4′/P-06 ${animate ? 'animated' : 'bare'} n=${n} ` +
+              `rebuild general=${report(full.rebuild)}ms verified=${report(fast.rebuild)}ms ` +
+              `ratio=${(full.rebuild / fast.rebuild).toFixed(2)}x | ` +
+              `bracket general=${report(full.bracket)}ms verified=${report(fast.bracket)}ms ` +
+              `ratio=${(full.bracket / fast.bracket).toFixed(2)}x | ` +
+              `move general=${report(full.bracket + full.resolve)}ms ` +
+              `verified=${report(fast.bracket + fast.resolve)}ms | ` +
+              `k=${RESYNC_INTERVAL} repeats=${verified.repeats}/${general.repeats} ` +
+              `resolution=${(0.1 / verified.repeats).toFixed(4)}ms`,
+          );
+        });
+      }
     }
 
     for (const axis of ['y', 'xy'] as const) {

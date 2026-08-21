@@ -27,6 +27,7 @@
 import type { CollectionSnapshot, Insertion } from './domain.ts';
 import type { AxisInstaller } from './feature.ts';
 import { CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
+import { createVerifiedRefresh } from './verified-refresh.ts';
 
 /**
  * Consumer-declared views (D-13). Declared **here**, in the feature's own
@@ -70,6 +71,19 @@ type InsertionRuntimeView = Readonly<{
    * runtime.
    */
   live(): boolean;
+  /**
+   * The destination gap of the committed move being bracketed, or `null`
+   * outside the bracket.
+   *
+   * **The fifth widening of this view, and the whole contract cost of P-06**
+   * (D-100). `measure` has exactly one call site — the committed-move bracket —
+   * so a non-null value here *is* the reason signal: it says a placeholder move
+   * just happened, and it says so without widening `invalidate`, without a
+   * reason argument, and without this module learning anything about the
+   * behavior's phases. `resolve` reads it too, and deliberately ignores it: a
+   * lazy rebuild has no committed move to attribute itself to.
+   */
+  insertion: Insertion | null;
 }>;
 
 const centreOf = (element: Element): number => {
@@ -90,6 +104,13 @@ export function y(): AxisInstaller {
     // — which is what makes probe 1's "where does the geometry cache live"
     // question disappear by construction rather than by argument (H-4).
     const index = createRectIndex();
+    // **P-06's opt-in, and it is this import** (D-100, D-102). The verified
+    // fast path is `y()`-only by contract, so it is a module this rule reaches
+    // and `xy()` does not — rather than a branch inside the cache both share.
+    // The wrapper owns the span hypothesis and its counters; `index` stays the
+    // dimension-neutral full scan it was, and every refresh below goes through
+    // the wrapper so the two cannot disagree about what the buffer holds.
+    const verified = createVerifiedRefresh(index);
 
     return {
       insertion: {
@@ -105,7 +126,16 @@ export function y(): AxisInstaller {
 
           const { snapshot, placeholder } = runtime;
 
-          if (!index.refresh(snapshot, dragged, runtime.getBox, runtime.live)) {
+          if (
+            !verified.refresh(
+              snapshot,
+              dragged,
+              runtime.getBox,
+              runtime.live,
+              // A lazy rebuild has no committed move to attribute itself to.
+              -1,
+            )
+          ) {
             // The rebuild crossed the terminal barrier (I-36). Measuring the
             // placeholder below would be a consumer call — it is the
             // consumer's element and may override `getBoundingClientRect()` —
@@ -154,7 +184,7 @@ export function y(): AxisInstaller {
           };
         },
 
-        invalidate: index.invalidate,
+        invalidate: verified.invalidate,
 
         /**
          * The eager half. The behavior calls it inside the committed-move
@@ -166,6 +196,11 @@ export function y(): AxisInstaller {
          * spatial frame, which by then is mid-animation. The only case that
          * pays for a pass it would not otherwise have is the last move before
          * release — and release invalidates and re-resolves anyway.
+         *
+         * **Still eager, and still the same window** (D-100). P-06 made the
+         * rebuild inside it smaller; it moved nothing, deferred nothing, and
+         * left D-95's exclusion of the eager position from cost-driven
+         * re-decision intact.
          */
         measure(
           frame: InsertionFrameView,
@@ -174,16 +209,23 @@ export function y(): AxisInstaller {
           const dragged = frame.item;
 
           if (dragged !== null) {
-            index.refresh(
+            const { insertion } = runtime;
+
+            // **The reason signal** (P-06, D-100). The gap is both "a
+            // committed move just happened" and half the span hypothesis; four
+            // reads verify the other half, and any refutation falls back to
+            // the full rebuild, in the same window.
+            verified.refresh(
               runtime.snapshot,
               dragged,
               runtime.getBox,
               runtime.live,
+              insertion === null ? -1 : insertion.index,
             );
           }
         },
 
-        retire: index.retire,
+        retire: verified.retire,
       },
     };
   };
