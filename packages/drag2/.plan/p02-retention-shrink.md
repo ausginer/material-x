@@ -1,6 +1,6 @@
 # P-02 retention — the high-water shrink
 
-**Status: designed 2026-08-21 (D-104). Not implemented.** The second Phase 22 candidate from D-99, taken as its **shrink** sub-candidate only. The stride-narrowing sub-candidate is not designed here and is not reasoned about below except where the two must be told apart.
+**Status: designed 2026-08-21 (D-104). Measured and _declined_ 2026-08-21 — see [§What the run answered](#what-the-run-answered) and [`measurements/p02-shrink.md`](measurements/p02-shrink.md). Not implemented, and deliberately so: `src/` is untouched.** The second Phase 22 candidate from D-99, taken as its **shrink** sub-candidate only. The stride-narrowing sub-candidate is not designed here and is not reasoned about below except where the two must be told apart.
 
 **A local shrink policy survives, and it is one branch at a site that already exists.** No representation change, no new lifecycle hook, no captured state, no timer. `STRIDE` stays 6, `xy()` is untouched, P-06's wrapper is untouched.
 
@@ -86,3 +86,23 @@ So this candidate recovers **historical excess only** — capacity a collection 
 - **The shrunk arm shows collections do not shrink in the deployments we support.** Then the policy is correct and worthless, and it should be declined on D-99's own stop condition rather than landed because it is cheap.
 - **The gate needs a knob.** If `4×` has to become configurable, or to differ per composition, the policy has stopped being local and the trade should be re-argued.
 - **Recovering anything material requires the exact-fit shrink**, which cannot be made sound against single-item growth without a different representation. That is the stop condition D-99 anticipated, and reaching it means the answer was the stride candidate all along.
+
+---
+
+## What the run answered
+
+**Measured 2026-08-21**, both questions separately, with no production code landed to take the measurement. Record: [`measurements/p02-shrink.md`](measurements/p02-shrink.md).
+
+**The mechanics are exactly as derived above, on every arm.** At a stable 100 000 items over **1000 drags** the gate never fires — one allocation for the initial growth, `byteLength` byte-for-byte constant, zero reallocations. A real shrink produces **exactly one** further reallocation and never a second. A shrink frees 6 144 kB and allocates 6 kB. `capacityFor(n) > 4 × n` is false for every `n` from 1 to 4096, so the anti-churn property holds by construction as claimed. **The arm that could have killed the candidate did not fire.**
+
+**One edge this design does not name**: with `n = 0` the gate reads `capacity > 0`, true of the one-slot buffer a previous empty refresh just produced, so an empty collection reallocates 48 B on every scan instead of settling. Recorded so a landing pass fixes the gate rather than discovering it.
+
+**And the candidate is declined anyway, on the second stop condition below.** Three reasons, each sufficient:
+
+1. **The policy cannot fire when the collection shrinks.** `refresh` runs only inside an operation, so a live controller whose collection shrinks between drags reads no geometry — asserted at zero on the shipped API. The state this candidate is pictured recovering (dragged large, filtered small, sitting idle) is exactly the state it does not touch; reclaim needs a **subsequent drag at the smaller size**.
+2. **The high water is bounded by the library's own per-move cost.** One rebuild scan on attached rows takes 15.8 ms at 20 000 rows — 0.95 of a frame, for the scan alone, on settled layout. On M-4′'s deployed curve, where the first read after the placeholder write is a forced flush, one committed move fills a frame at ≈3 800 rows. A virtualized list never reaches a high water at all.
+3. **At every reachable size, D-99's threshold is met from below.** At 800 rows the whole buffer is 48 kB and a shrink to 100 reclaims 42 kB; at 2 000, 96 kB and 90 kB. D-99 declines P-02 under ~100 kB per controller, and at the largest drivable collection the **entire** buffer is under it.
+
+**So §What this does not recover was right, and is stronger than it knew.** It said this candidate's payoff is not the 6.29 MB headline. The run says the payoff is 42–90 kB at the sizes a consumer can reach, available only after a second drag, against a threshold of 100 kB.
+
+**§The workload that distinguishes a policy from churn stands as written**, and its second stop condition is the one that fired: _if supported deployments do not shrink their collections, the policy is correct and worthless._ It is correct. Nothing above it is retracted — the derivation, the lifecycle-point argument, the refusal of timers and of exact fit are all confirmed by the run, and all of them would be the right design if the bytes were there.
