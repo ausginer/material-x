@@ -1182,7 +1182,15 @@ Eight further passes followed the second remediation — [2-claude](reviews/chec
 
 **The falsifiers stay load-bearing and now drive the shipped cache.** Five mutations of the landed branch are each caught, the loudest being a shrink that reuses the old buffer instead of rescanning — 126 tests across the sortable suite. **P-02's stride half is not closed by this** — 5.12 MB of unread scalars is a different quantity with a different candidate behind it.
 
-**Next: P-01**, which D-99 already expects to be declined; the point of taking it is to record the decline with a number rather than an assumption.
+**P-01 ran third and last, per D-99's order, and is declined — D-105, record [`measurements/p01-write-cost.md`](measurements/p01-write-cost.md).** The point of taking it was to record the decline with a number rather than an assumption, and the number turned out to disagree with the assumption while agreeing with the verdict.
+
+**D-99 predicted the decline from the marginal cost of a repeated same-frame assignment — _a CSSOM set and little else_ — and that is measured at 0.489, 0.485 and 0.487 µs over three runs.** It is the most reproducible figure in the file and it prices a regime a free drag never enters: several writes with nothing between them. **Deployment puts an input dispatch between two visual writes, and hit-testing a dispatch requires a clean style tree**, so every in-situ write is a clean-tree write. Three independent instruments bracket that at **4–23 µs**, and the end-to-end arm — a prototype gate installed against a real drag under real `page.mouse` input — reads **10–23 µs**, just under the low end of D-99's own 23–80 µs threshold.
+
+**The surplus is under the bar everywhere it was measured**: 18–24% of 160 µs in the typical frame at M-6's primary pace, at worst 63% in the tail of the corroborating pace, each pace scored against its own census. **The gate's runtime cost is not what declines it** — 0.023–0.042 µs per request, 0.087–0.092 µs per frame, break-even at 1.2–1.3 writes. **What declines it is the flush obligation on release, cancel, destroy and the landing hand-off**, which 0.2–0.4% of frame budget does not buy; three structural rows assert that obligation rather than describing it. **No production gate was written**, which is what D-99 required.
+
+**The error class is P-02's, met a second time in the same phase.** P-02 bounded a collection from a rebuild curve measured on the path its own optimization replaced; P-01 priced a write from a regime its own deployment never enters. Both read as arithmetic and are assumption, and Phase 22 has now produced one of each.
+
+**Phase 22's performance entry is closed: P-06 landed, P-02's shrink half landed, P-01 declined.** What remains open is what was open before and is untouched by these three — P-02's **stride** sub-candidate, the committed-move **forced flush** the P-06 run surfaced, and P-04/P-05. None has a workload, and none may be started on the strength of a figure taken for another.
 
 - **Bundle structure**: composition costs across the full topology, and whether the subpath set is still the right shape with two behaviors and two axes.
 - **API**: the whole public surface read as one, by someone using it — naming consistency across the two behaviors, option-domain consistency, error vocabulary, and the migration table's honesty.
