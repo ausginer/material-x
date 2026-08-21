@@ -6,7 +6,7 @@
 >
 > Two things here are now out of date and are corrected in place below: the cross-controller polymorphism argument in Challenge 1, and the `LandingHandle.pin(target)` sketch in Challenge 8 — the pin is kernel-owned through the lift session, so the handle has no `pin()`.
 
-Answers to [`../reviews/contract-probe-2-review-1.md`](../reviews/contract-probe-2-review-1.md). This file records what changes and why; the edits themselves landed in the consolidation pass after review 2.
+Answers to [`../reviews/contract-probe-2-review-1.md`](../reviews/contract-probe-2/contract-probe-2-review-1.md). This file records what changes and why; the edits themselves landed in the consolidation pass after review 2.
 
 ## Summary
 

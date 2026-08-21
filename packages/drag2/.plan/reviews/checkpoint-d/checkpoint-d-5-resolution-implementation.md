@@ -2,7 +2,7 @@
 
 Covers **C5-01**, **C5-02**, **C5-04**, the architect's decision for **C5-03** ([`checkpoint-d-5-resolution-c5-03.md`](checkpoint-d-5-resolution-c5-03.md)), and the **sortable stretch table** that decision's §7 defines and §8 makes Checkpoint D's remaining closure obligation.
 
-The review file is `checkpoint-d-5.md` misspelled as [`checkpoitn-d-5.md`](checkpoitn-d-5.md). Kept, as the decision directs: it is a historical record and renaming it would break the links.
+The review file was `checkpoint-d-5.md` misspelled as `checkpoitn-d-5.md`. The misspelling was kept at the time, then corrected on disk without the references following; C6-08 recorded the drift, and it is closed here — the file is [`checkpoint-d-5.md`](checkpoint-d-5.md) and every reference points at it.
 
 **Order of work, as directed**: C5-01 and C5-02 first, then the stretch table, then C5-03's wording, then C5-04. The table confirmed both fixes and extended them — it found **seven more defects of the same species**, all in this pass rather than in a sixth review.
 

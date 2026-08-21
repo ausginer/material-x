@@ -2,7 +2,7 @@
 
 Date: 2026-08-02
 
-Scope: `packages/drag2` at phase 8b, reviewed against [`packages/drag2/.plan/contract/`](../contract/) 00–06, the Checkpoint B exit criteria in [`plan.md`](../plan.md), and the M-4 write-up in [`measurements/q7.md`](../measurements/q7.md).
+Scope: `packages/drag2` at phase 8b, reviewed against [`packages/drag2/.plan/contract/`](../../contract/) 00–06, the Checkpoint B exit criteria in [`plan.md`](../../plan.md), and the M-4 write-up in [`measurements/q7.md`](../../measurements/q7.md).
 
 Read-only review. No package source, test, configuration or contract file was changed. One reversible local experiment (forcing `DEV = false` to price the dev assertions) was run and reverted; the working tree is unchanged.
 
@@ -40,9 +40,9 @@ The green suite is strong evidence for what it covers. It does not cover B-01, B
 
 ### B-01 — Moderate: the seam driver's `staged` slot is never cleared by retirement or `destroy()`
 
-**Evidence.** [`seams.ts:261`](../../src/kernel/seams.ts#L261) declares `let staged: unknown = null`. It is written at [`seams.ts:403`](../../src/kernel/seams.ts#L403) after **every** committed transition, and cleared in exactly two places: the top of the next `runCore` ([`seams.ts:369`](../../src/kernel/seams.ts#L369)) and `consumeStaged()` ([`seams.ts:417-421`](../../src/kernel/seams.ts#L417-L421)), whose only caller is `runReleaseSeam`.
+**Evidence.** [`seams.ts:261`](../../../src/kernel/seams.ts#L261) declares `let staged: unknown = null`. It is written at [`seams.ts:403`](../../../src/kernel/seams.ts#L403) after **every** committed transition, and cleared in exactly two places: the top of the next `runCore` ([`seams.ts:369`](../../../src/kernel/seams.ts#L369)) and `consumeStaged()` ([`seams.ts:417-421`](../../../src/kernel/seams.ts#L417-L421)), whose only caller is `runReleaseSeam`.
 
-`runActivationSeam` stages an `HTMLElement` — the placeholder — and nobody consumes it. `openSettlement` and `handleFailed` stage a `PreparedSettlement` carrying the consumer's `presentationReady` promise, and nobody consumes that either. Neither `retireOperation` nor `destroy()` ([`kernel.ts:410-471`](../../src/kernel/kernel.ts#L410-L471)) touches the slot.
+`runActivationSeam` stages an `HTMLElement` — the placeholder — and nobody consumes it. `openSettlement` and `handleFailed` stage a `PreparedSettlement` carrying the consumer's `presentationReady` promise, and nobody consumes that either. Neither `retireOperation` nor `destroy()` ([`kernel.ts:410-471`](../../../src/kernel/kernel.ts#L410-L471)) touches the slot.
 
 **Reproduction.** `onStart` calls `controller.destroy()`. Teardown runs to completion: the queue is cleared, attempts retired, lifetimes disposed, both frames scrubbed, ingress aborted. Control then returns into `runCore`, whose `effect` phase completed normally, and line 403 assigns the placeholder element to `staged` — _after_ `destroy()` returned. It stays there for the life of the kernel closure.
 
@@ -56,7 +56,7 @@ The non-destroy case is milder but universal: after every normal drop the driver
 
 ### B-02 — Moderate: the `RECOVERY_HOME` re-anchor has none of the Q-12 guards the destination re-anchor has
 
-**Evidence.** [`sortable/spec.ts:714-751`](../../src/sortable/spec.ts#L714-L751). The `RECOVERY_DESTINATION` branch carries all three conjuncts the contract specifies, with a comment explaining why each earns its place:
+**Evidence.** [`sortable/spec.ts:714-751`](../../../src/sortable/spec.ts#L714-L751). The `RECOVERY_DESTINATION` branch carries all three conjuncts the contract specifies, with a comment explaining why each earns its place:
 
 ```ts
 if (
@@ -68,7 +68,7 @@ if (
 }
 ```
 
-The `RECOVERY_HOME` branch is `homeGap(current)` ([`spec.ts:161-167`](../../src/sortable/spec.ts#L161-L167)), which calls `movePlaceholder(rt.placeholder!, home)` — and `movePlaceholder` ([`placement.ts:140-157`](../../src/sortable/placement.ts#L140-L157)) does `after.before(placeholder)` / `before.after(placeholder)` with no connectivity or parentage check at all. Only the inertness half (`placeholderAt`) is shared.
+The `RECOVERY_HOME` branch is `homeGap(current)` ([`spec.ts:161-167`](../../../src/sortable/spec.ts#L161-L167)), which calls `movePlaceholder(rt.placeholder!, home)` — and `movePlaceholder` ([`placement.ts:140-157`](../../../src/sortable/placement.ts#L140-L157)) does `after.before(placeholder)` / `before.after(placeholder)` with no connectivity or parentage check at all. Only the inertness half (`placeholderAt`) is shared.
 
 **Failure modes.** Home recovery is reached by _rejected_, _canceled_ and most _failed_ settlements — i.e. exactly the moments a consumer is most likely to be mutating its list in response to the rejection.
 
@@ -85,7 +85,7 @@ The `RECOVERY_HOME` branch is `homeGap(current)` ([`spec.ts:161-167`](../../src/
 
 This is the composition-model finding, and the reason Checkpoint B exists.
 
-**Evidence.** The committed-move bracket in [`sortable/spec.ts:462-482`](../../src/sortable/spec.ts#L462-L482) runs in this order:
+**Evidence.** The committed-move bracket in [`sortable/spec.ts:462-482`](../../../src/sortable/spec.ts#L462-L482) runs in this order:
 
 ```
 view.insertion = insertion
@@ -115,7 +115,7 @@ Whichever is chosen, add a `vertical() + layoutAnimation()` gap-selection test.
 
 ### B-04 — Low/Moderate: `captureInlineStyles` destroys authored inline longhands
 
-**Evidence.** [`presentation.ts:45-107`](../../src/kernel/presentation.ts#L45-L107). `LIFTED_PROPS` contains the shorthands `inset`, `margin`, `padding`, `border-width`, `border-style`, `border-color` and `overflow`. Capture is `style.getPropertyValue(prop)`; restore is `setProperty` when a value was captured and `removeProperty(prop)` when it was not.
+**Evidence.** [`presentation.ts:45-107`](../../../src/kernel/presentation.ts#L45-L107). `LIFTED_PROPS` contains the shorthands `inset`, `margin`, `padding`, `border-width`, `border-style`, `border-color` and `overflow`. Capture is `style.getPropertyValue(prop)`; restore is `setProperty` when a value was captured and `removeProperty(prop)` when it was not.
 
 CSSOM returns `''` from `getPropertyValue` on a shorthand unless every longhand is set and reconstructible, and `removeProperty` on a shorthand removes **all** its longhands.
 
@@ -131,9 +131,9 @@ The same holds for `right`/`bottom` (removed by the `inset` clear, while `top` a
 
 ### B-05 — Low: three action tags, and an empty phase-8b deviation ledger
 
-**Evidence.** [`runtime.ts:23-31`](../../src/sortable/runtime.ts#L23-L31) declares `TAG_INVALIDATION = 2` and `SORTABLE_ACTION_TAGS = 3`. Contract 02 §`ActionTransition`: _"Vertical sortable needs **two** tags … so it declares `config.actionTags: 2`."_ Contract 05 Q-4: _"A third or fourth is a **signal worth investigating**."_
+**Evidence.** [`runtime.ts:23-31`](../../../src/sortable/runtime.ts#L23-L31) declares `TAG_INVALIDATION = 2` and `SORTABLE_ACTION_TAGS = 3`. Contract 02 §`ActionTransition`: _"Vertical sortable needs **two** tags … so it declares `config.actionTags: 2`."_ Contract 05 Q-4: _"A third or fourth is a **signal worth investigating**."_
 
-The mechanism itself is well argued in the comment at [`spec.ts:279-292`](../../src/sortable/spec.ts#L279-L292): a native scroll/resize listener is not a seam, so a `host.fail` from it would be downgraded to a platform report and `FAILURE_INVALIDATION` would have no producer at all. Routing it through an action gives it a seam. That is sound.
+The mechanism itself is well argued in the comment at [`spec.ts:279-292`](../../../src/sortable/spec.ts#L279-L292): a native scroll/resize listener is not a seam, so a `host.fail` from it would be downgraded to a platform report and `FAILURE_INVALIDATION` would have no producer at all. Routing it through an action gives it a seam. That is sound.
 
 What is missing is the record. `plan.md` documents deviations meticulously for every phase through 8a; **phase 8b has no "Deviations recorded while implementing" section**, while at least three landed:
 
@@ -149,7 +149,7 @@ Checkpoint B's stated purpose is to catch composition-model changes before optio
 
 ### B-06 — Low: the public surface leaks the internal SPI through `drag.js`
 
-**Evidence.** [`drag.ts:10-18`](../../src/drag.ts#L10-L18) re-exports `ActivationScope`, `Behavior`, `BehaviorInstall`, `BehaviorSpec`, `KernelHost`, `ResolutionCommand` and `SeamRejection`. Contract 03 §The public/internal boundary lists all of those except `Behavior` as **"Internal and unstable — not exported, and free to change without notice."** The emitted `drag.d.ts` (1.20 kB) plus the `kernel/spec.d.ts` it pulls in (11.32 kB) ship the whole authoring surface.
+**Evidence.** [`drag.ts:10-18`](../../../src/drag.ts#L10-L18) re-exports `ActivationScope`, `Behavior`, `BehaviorInstall`, `BehaviorSpec`, `KernelHost`, `ResolutionCommand` and `SeamRejection`. Contract 03 §The public/internal boundary lists all of those except `Behavior` as **"Internal and unstable — not exported, and free to change without notice."** The emitted `drag.d.ts` (1.20 kB) plus the `kernel/spec.d.ts` it pulls in (11.32 kB) ship the whole authoring surface.
 
 The inverse also holds: the types the export table _requires_ on `drag.js` — `Point`, `DragErrorContext`, `FailureStage`, `DOMRealm` — are not exported from it. `FailureStage` is reachable only through `sortable.js`'s `CancelStage` sibling, and `DragErrorContext` is not reachable from any entry, so a consumer cannot type its own `onError` handler.
 
@@ -163,7 +163,7 @@ Sharpening: `consumer.node.test.ts` says it is _"the only one that would catch �
 
 ### B-07 — Low: `config.readinessTimeout` is hardcoded and unreachable
 
-**Evidence.** [`sortable/spec.ts:173-178`](../../src/sortable/spec.ts#L173-L178) sets `readinessTimeout: 500` as a literal. Contract 02 calls 500 the _default_, which implies configurability; `callbacks()` is the sole consumer surface and does not expose it, and no other feature does either.
+**Evidence.** [`sortable/spec.ts:173-178`](../../../src/sortable/spec.ts#L173-L178) sets `readinessTimeout: 500` as a literal. Contract 02 calls 500 the _default_, which implies configurability; `callbacks()` is the sole consumer surface and does not expose it, and no other feature does either.
 
 **Consequence.** A consumer whose authored commit legitimately exceeds 500 ms — a large React tree, a slow device, a suspended boundary — gets `FAILURE_PRESENTATION_READY`: the settlement is replaced, presentation is released through the failure path, `onError` fires and **no `onFinish` ever does**, for a drop the consumer accepted and did apply. There is no way to opt out or extend.
 
@@ -175,7 +175,7 @@ Same shape, lower stakes: `liftMode: LIFT_FLAT` is hardcoded, so `LIFT_FAITHFUL`
 
 ### B-08 — Low: admission is O(path × items) inside native `pointerdown`
 
-**Evidence.** [`sortable/spec.ts:188-196`](../../src/sortable/spec.ts#L188-L196):
+**Evidence.** [`sortable/spec.ts:188-196`](../../../src/sortable/spec.ts#L188-L196):
 
 ```ts
 for (const node of path) {
@@ -185,7 +185,7 @@ for (const node of path) {
 
 `composedPath()` returns the full ancestor chain including the document and window. For an 800-row list nested 15 deep that is up to ~12,000 identity comparisons inside the native handler, before `preventDefault()` runs.
 
-`copyUniqueItems` ([`collection.ts:41-53`](../../src/sortable/collection.ts#L41-L53)) already builds a `Set` of exactly these elements to validate uniqueness — and throws it away.
+`copyUniqueItems` ([`collection.ts:41-53`](../../../src/sortable/collection.ts#L41-L53)) already builds a `Set` of exactly these elements to validate uniqueness — and throws it away.
 
 **Recommendation.** Keep the `Set` on the snapshot (or beside it on `rt`), built once per `updateItems`. Turns admission into O(path). Costs one retained `Set` per published collection, which is the same retention the `items` array already has.
 
@@ -193,7 +193,7 @@ for (const node of path) {
 
 ### B-09 — Note: `activate()` has no guard against a second lift acquisition
 
-**Evidence.** [`kernel.ts:700-751`](../../src/kernel/kernel.ts#L700-L751). `acquireActivation` acquires the origin rect, the lift and pointer capture, and `handleMove` calls `activate()` whenever `phase === PENDING` and the threshold is crossed. There is no `lift === null` precondition.
+**Evidence.** [`kernel.ts:700-751`](../../../src/kernel/kernel.ts#L700-L751). `acquireActivation` acquires the origin rect, the lift and pointer capture, and `handleMove` calls `activate()` whenever `phase === PENDING` and the threshold is crossed. There is no `lift === null` precondition.
 
 Today this is unreachable: every path that leaves the phase at `PENDING` after a failed activation queues either a `FAILED` checkpoint or a `CANCEL`, both of which drain before any subsequent native `pointermove` can arrive. I traced all four `failOperation` downgrade conditions and none is satisfiable at `PENDING` during activation.
 
@@ -243,9 +243,9 @@ handle → handleMove → driver.runLeaf → runPhase → runMoved
 
 ### B-13 — Note: unreachable runtime shipped
 
-- `FrameTask.flush()` ([`invalidation.ts:80-86`](../../src/kernel/invalidation.ts#L80-L86)) has no caller in `src/` or `tests/`.
-- `Lifetime.finalized` ([`lifetimes.ts:28`, `54-56`](../../src/kernel/lifetimes.ts#L54-L56)) has no reader; it costs an accessor on three objects per operation.
-- `seamFailed` ([`seams.ts:112`](../../src/kernel/seams.ts#L112)) is used only by tests.
+- `FrameTask.flush()` ([`invalidation.ts:80-86`](../../../src/kernel/invalidation.ts#L80-L86)) has no caller in `src/` or `tests/`.
+- `Lifetime.finalized` ([`lifetimes.ts:28`, `54-56`](../../../src/kernel/lifetimes.ts#L54-L56)) has no reader; it costs an accessor on three objects per operation.
+- `seamFailed` ([`seams.ts:112`](../../../src/kernel/seams.ts#L112)) is used only by tests.
 - `LIFT_FAITHFUL` and `LIFT_IN_PLACE` are unreachable from the sortable composition (B-07), but `acquireLift` branches on a runtime value, so `inPlaceProjection`, the faithful matrix path and the ancestor-basis constants cannot be shaken out of the minimal build.
 
 ---
@@ -310,13 +310,13 @@ Each individually is justified. Together they are the single largest onboarding 
 
 ### 2. `pendingFailure` is the eighth field of a "seven-field runtime"
 
-[`sortable/spec.ts:133`](../../src/sortable/spec.ts#L133) is a per-controller closure binding — not a module global, and the 25-line comment defending it is correct: `prepare` clears on entry, so a value can only be read by the effect of the transaction that wrote it, and `refuseReentry` forbids interleaving.
+[`sortable/spec.ts:133`](../../../src/sortable/spec.ts#L133) is a per-controller closure binding — not a module global, and the 25-line comment defending it is correct: `prepare` clears on entry, so a value can only be read by the effect of the transaction that wrote it, and `refuseReentry` forbids interleaving.
 
 The maintainability cost is not safety, it is _discoverability_. `SortableRuntime` is documented as the complete inventory of the behavior's mutable state, and this is mutable behavior state that is not on it. A reader auditing "what does this behavior carry between seams" will read `runtime.ts` and get a wrong answer. Moving it onto `rt` changes nothing about the safety argument and makes the inventory true.
 
 ### 3. The README is stale, and it is the first file a contributor opens
 
-[`README.md`](../../README.md) §Status says "Phases 0–6 complete", "`assemble()` is phase 7 and the feature modules are phase 8, so `sortable(items, ...features)` does not exist yet", and "`src/sortable.ts` is still a stub". All three are false. `sortable()` is the documented public entry, all eight subpaths ship runtime code, and the deliberate-differences list is missing everything 7–8b added.
+[`README.md`](../../../README.md) §Status says "Phases 0–6 complete", "`assemble()` is phase 7 and the feature modules are phase 8, so `sortable(items, ...features)` does not exist yet", and "`src/sortable.ts` is still a stub". All three are false. `sortable()` is the documented public entry, all eight subpaths ship runtime code, and the deliberate-differences list is missing everything 7–8b added.
 
 ### 4. Traceability
 

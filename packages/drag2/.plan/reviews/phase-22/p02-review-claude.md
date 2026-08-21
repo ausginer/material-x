@@ -2,7 +2,7 @@
 
 - **Reviewer:** Claude
 - **Date:** 2026-08-21
-- **Subject:** the D-104 retention shrink as implemented, against [`p02-retention-shrink.md`](../p02-retention-shrink.md), [`measurements/p02-shrink.md`](../measurements/p02-shrink.md) and D-104's ledger row
+- **Subject:** the D-104 retention shrink as implemented, against [`p02-retention-shrink.md`](../../p02-retention-shrink.md), [`measurements/p02-shrink.md`](../../measurements/p02-shrink.md) and D-104's ledger row
 - **Tree:** `d34d2ee4` on `drag2/phase22-p02-retention`, working tree clean
 
 **Scope.** The shipped policy against the design and the measurement record, by falsification rather than redesign. Stride narrowing, P-06 and P-01 are out of scope and were not reopened. Every claim below was checked by mutating the tree, running the gates, and restoring it; `git status --short` is empty at the close.
@@ -34,7 +34,7 @@
 
 ### 1. Growth semantics are unchanged by combining the branches — verified exhaustively
 
-The combined branch is [rect-index.ts:168-182](../../src/sortable/rect-index.ts#L168-L182). I did not take the argument on inspection: I ran the old predicate and the new one side by side over every reachable `(capacity, list.length)` pair — `capacity` across `0` and every power of two to 8192, `list.length` across `0…8192`.
+The combined branch is [rect-index.ts:168-182](../../../src/sortable/rect-index.ts#L168-L182). I did not take the argument on inspection: I ran the old predicate and the new one side by side over every reachable `(capacity, list.length)` pair — `capacity` across `0` and every power of two to 8192, `list.length` across `0…8192`.
 
 | quantity | result |
 | --- | --- |
@@ -45,7 +45,7 @@ The combined branch is [rect-index.ts:168-182](../../src/sortable/rect-index.ts#
 
 The settle guard is what makes this exact rather than approximate: whenever the first disjunct fires, `fitted = capacityFor(list.length) ≥ list.length > capacity`, so `fitted !== capacity` is true by construction and the same buffer is allocated as before. §What landed's claim that _the growth path is semantically identical_ is correct.
 
-The `n = 0 ∧ capacity = 0` corner behaves as §What landed describes — neither trigger fires, and a cache asked only for an empty collection allocates nothing at all. Pinned by [p02-shrink.browser.test.ts:309](../../tests/perf/p02-shrink.browser.test.ts#L309).
+The `n = 0 ∧ capacity = 0` corner behaves as §What landed describes — neither trigger fires, and a cache asked only for an empty collection allocates nothing at all. Pinned by [p02-shrink.browser.test.ts:309](../../../tests/perf/p02-shrink.browser.test.ts#L309).
 
 ### 2. The 4× hysteresis cannot shrink a fitted buffer, and cannot churn a stable size
 
@@ -60,7 +60,7 @@ The constant is pinned from **both** sides, which the record does not claim:
 | no gate at all (`if (true)`)                      | **2**        |
 | remove the shrink trigger (revert to growth-only) | **6**        |
 
-Scope for every mutation run in this review: `tests/sortable` plus [p02-shrink.browser.test.ts](../../tests/perf/p02-shrink.browser.test.ts), 519 tests. The `8 ×` row matters because it is the direction the record leaves open — loosening the hysteresis moves the smallest reclaim from 144 KiB to 168 KiB and drops the 1023-item destination out of the firing set, which [p02-shrink.browser.test.ts:803](../../tests/perf/p02-shrink.browser.test.ts#L803) catches through its `Math.min`.
+Scope for every mutation run in this review: `tests/sortable` plus [p02-shrink.browser.test.ts](../../../tests/perf/p02-shrink.browser.test.ts), 519 tests. The `8 ×` row matters because it is the direction the record leaves open — loosening the hysteresis moves the smallest reclaim from 144 KiB to 168 KiB and drops the 1023-item destination out of the firing set, which [p02-shrink.browser.test.ts:803](../../../tests/perf/p02-shrink.browser.test.ts#L803) catches through its `Math.min`.
 
 **Oscillation across the gate is a resize per transition**, and the record discloses this as telemetry rather than a decline trigger. Worth restating only because "churn" is given an unusually narrow definition — _a reallocation on a workload whose collection size never changes_ — under which a collection alternating between, say, 250 and 1025 items reallocates on every transition and is still not churn. That is disclosed, not hidden.
 
@@ -70,7 +70,7 @@ Confirmed. From a grown cache, an emptied collection performs **exactly one** sh
 
 ### 4. Shrinking at refresh cannot preserve stale state, corrupt `count`, or disturb retire/liveness
 
-`index.values` has exactly **one** writer in the whole package — [rect-index.ts:180](../../src/sortable/rect-index.ts#L180) — so `capacity` and the buffer cannot desync, and no consumer caches the reference across a `refresh` (both [y.ts:146](../../src/sortable/y.ts#L146) and [xy.ts:100](../../src/sortable/xy.ts#L100) destructure after the call returns; P-06's `shift` and `verify` re-read `index.values` inside each call).
+`index.values` has exactly **one** writer in the whole package — [rect-index.ts:180](../../../src/sortable/rect-index.ts#L180) — so `capacity` and the buffer cannot desync, and no consumer caches the reference across a `refresh` (both [y.ts:146](../../../src/sortable/y.ts#L146) and [xy.ts:100](../../../src/sortable/xy.ts#L100) destructure after the call returns; P-06's `shift` and `verify` re-read `index.values` inside each call).
 
 The combination the suite never exercises is **shrink followed by a mid-scan abort** — no P-02 arm passes anything but a constant-true `live`. I drove it directly. Grown to 4096 slots (196 608 B), then refreshed at 100 items with a `live()` that dies after five reads:
 
@@ -88,8 +88,8 @@ So the abort leaves the cache in exactly the retired state, the shrink is not ha
 
 Two independent reasons, both checked:
 
-- The fast path in [verified-refresh.ts](../../src/sortable/verified-refresh.ts) never calls `index.refresh`, so a resize cannot happen underneath it; the wrapper only delegates when it has already refused the span.
-- A resize requires `list.length` to change, and every membership change goes through [spec.ts:1008](../../src/sortable/spec.ts#L1008), which increments `version` and installs a **fresh copy** of `items`. D-100's third condition, `seen === snapshot.version`, therefore fails on exactly the refreshes that can resize. `snapshot.items` also cannot mutate under a stable version.
+- The fast path in [verified-refresh.ts](../../../src/sortable/verified-refresh.ts) never calls `index.refresh`, so a resize cannot happen underneath it; the wrapper only delegates when it has already refused the span.
+- A resize requires `list.length` to change, and every membership change goes through [spec.ts:1008](../../../src/sortable/spec.ts#L1008), which increments `version` and installs a **fresh copy** of `items`. D-100's third condition, `seen === snapshot.version`, therefore fails on exactly the refreshes that can resize. `snapshot.items` also cannot mutate under a stable version.
 
 §What must survive the shrink's claim that _P-06 is not reachable from here_ holds, and for a stronger reason than the one written down (which appeals to the warm path rather than to the version discipline).
 
@@ -117,7 +117,7 @@ Exact brotli bytes, `d34d2ee4` against `685d05de`, taken by re-basing every budg
 
 ### 8. The harness drives the shipped cache
 
-Confirmed. [p02-shrink.browser.test.ts](../../tests/perf/p02-shrink.browser.test.ts) imports `createRectIndex` and every arm calls `index.refresh` on it; no copy of the sizing policy survives anywhere in the file. The only duplicated code is the `capacityFor` **arithmetic**, kept deliberately as an independent oracle for a module-private helper — which is the right shape for a test and not a policy copy.
+Confirmed. [p02-shrink.browser.test.ts](../../../tests/perf/p02-shrink.browser.test.ts) imports `createRectIndex` and every arm calls `index.refresh` on it; no copy of the sizing policy survives anywhere in the file. The only duplicated code is the `capacityFor` **arithmetic**, kept deliberately as an independent oracle for a module-private helper — which is the right shape for a test and not a policy copy.
 
 ---
 
@@ -127,9 +127,9 @@ Confirmed. [p02-shrink.browser.test.ts](../../tests/perf/p02-shrink.browser.test
 
 **Observed.** Three places state that the largest reclaim available from the 4096 capacity bucket is **186 KiB**:
 
-- [p02-retention-shrink.md:104](../p02-retention-shrink.md#L104) — _the **smallest** possible reclaim is 144 KiB and the largest is 186 KiB_
-- [00-index.md:439](../contract/00-index.md#L439), D-104's row — _the smallest possible reclaim is **144 KiB** and the largest **186 KiB**_
-- [p02-shrink.browser.test.ts:807](../../tests/perf/p02-shrink.browser.test.ts#L807) — _Every firing clears D-99's ~100 kB by a margin, and the largest is 186 KiB_
+- [p02-retention-shrink.md:104](../../p02-retention-shrink.md#L104) — _the **smallest** possible reclaim is 144 KiB and the largest is 186 KiB_
+- [00-index.md:439](../../contract/00-index.md#L439), D-104's row — _the smallest possible reclaim is **144 KiB** and the largest **186 KiB**_
+- [p02-shrink.browser.test.ts:807](../../../tests/perf/p02-shrink.browser.test.ts#L807) — _Every firing clears D-99's ~100 kB by a margin, and the largest is 186 KiB_
 
 **Evidence.** Enumerating every firing destination `n ∈ [0, 1023]` from `capacity = 4096`:
 
@@ -142,9 +142,9 @@ Confirmed. [p02-shrink.browser.test.ts](../../tests/perf/p02-shrink.browser.test
 
 186 KiB is not a range endpoint. It is the reclaim for a destination of 65–128 items — that is, the _specific_ shrink-to-100 the earning workload uses. The true maximum is 192 KiB less 48 B.
 
-**The measurement record already says this correctly.** [p02-shrink.md:146](../measurements/p02-shrink.md#L146) reads _the smallest reclaim available is `196 608 − 49 152` = **144 KiB**, and the largest is 192 KiB less 48 B_ — right on both ends. So the three records contradict each other, and the two that are wrong are the design document and the contract ledger.
+**The measurement record already says this correctly.** [p02-shrink.md:146](../../measurements/p02-shrink.md#L146) reads _the smallest reclaim available is `196 608 − 49 152` = **144 KiB**, and the largest is 192 KiB less 48 B_ — right on both ends. So the three records contradict each other, and the two that are wrong are the design document and the contract ledger.
 
-**The test iterates the counterexample and then discards it.** [p02-shrink.browser.test.ts:809](../../tests/perf/p02-shrink.browser.test.ts#L809) sweeps `after` over `[1023, 512, 100, 10, 1]` — `after = 1` produces the 196 560 B counterexample to the comment four lines above it — but only `Math.min(...smallest)` is asserted, so nothing pins the upper bound in either direction.
+**The test iterates the counterexample and then discards it.** [p02-shrink.browser.test.ts:809](../../../tests/perf/p02-shrink.browser.test.ts#L809) sweeps `after` over `[1023, 512, 100, 10, 1]` — `after = 1` produces the 196 560 B counterexample to the comment four lines above it — but only `Math.min(...smallest)` is asserted, so nothing pins the upper bound in either direction.
 
 **Severity: low.** The load-bearing half of the claim is the _lower_ bound, and it is correct and asserted: the D-99 argument is _no firing lands under the threshold_, which the 144 KiB minimum establishes. Nothing about the decision depends on the upper figure.
 
@@ -176,7 +176,7 @@ Only (c) reproduces, exactly. But (c) is not a mutation of the shrink: replacing
 
 | what the code sees | value |
 | --- | --- |
-| `view.byteLength` — what [p02-shrink.browser.test.ts:105](../../tests/perf/p02-shrink.browser.test.ts#L105) measures | 6 144 |
+| `view.byteLength` — what [p02-shrink.browser.test.ts:105](../../../tests/perf/p02-shrink.browser.test.ts#L105) measures | 6 144 |
 | `view.buffer.byteLength` — what is actually retained | **196 608** |
 | `view !== previous` — what the allocation counter tests | `true` |
 
@@ -184,13 +184,13 @@ Both of the harness's instruments read exactly as a genuine reclaim would, and t
 
 **Why it matters.** The reproducibility table names the instrument as _`Float64Array.byteLength` and buffer identity_, inherited from M-2′ on the grounds that a typed array's backing store is what `usedJSHeapSize` cannot see. That reasoning is sound for measuring **retention**, but the quantity this candidate is landed for is **release** — 144–186 KiB _reclaimed_ — and `byteLength` on a view is precisely blind to whether release happened. The entire earned-reclaim case rests on an instrument that cannot distinguish a released buffer from a retained one.
 
-**The shipped code is correct** — [rect-index.ts:180](../../src/sortable/rect-index.ts#L180) allocates a fresh `Float64Array`, and that is the only writer. So this is a coverage defect, not a behaviour defect, and it does not block merging. But it means the suite would not notice the policy being quietly reduced to a no-op.
+**The shipped code is correct** — [rect-index.ts:180](../../../src/sortable/rect-index.ts#L180) allocates a fresh `Float64Array`, and that is the only writer. So this is a coverage defect, not a behaviour defect, and it does not block merging. But it means the suite would not notice the policy being quietly reduced to a no-op.
 
 ### P02-04 — both equivalence arms compare `count` after `retire()`, and one compares zero slots
 
 **Observed.** §Re-run on the landed implementation states the equivalence check proves _a cache that shrank is indistinguishable from a cache that never grew — same bytes, same packed scalars, same count_.
 
-**Evidence.** `drag(n)` ends with `index.retire()` ([p02-shrink.browser.test.ts:119](../../tests/perf/p02-shrink.browser.test.ts#L119)), and `retire()` sets `count = 0`. I revealed the values through a forced failure diff at the point of comparison:
+**Evidence.** `drag(n)` ends with `index.retire()` ([p02-shrink.browser.test.ts:119](../../../tests/perf/p02-shrink.browser.test.ts#L119)), and `retire()` sets `count = 0`. I revealed the values through a forced failure diff at the point of comparison:
 
 ```
 freshBufSlots: 3072   heldBufSlots: 6144
@@ -200,13 +200,13 @@ freshCount: 0         heldCount: 0        slotsCompared: 0
 Consequences:
 
 - In `shrunkMatchesFresh`, `count: shrunk.count() === fresh.count()` is `0 === 0` — it can never fail. The `bytes` and `slots` fields are real; `slots` spreads the full buffer and genuinely compares 768 written and zero-filled scalars.
-- In _should be indistinguishable after a shrink the gate refused_ ([p02-shrink.browser.test.ts:178](../../tests/perf/p02-shrink.browser.test.ts#L178)), `expect(held.count()).toBe(fresh.count())` is again `0 === 0`, and the contents assertion — `[...held.values().subarray(0, fresh.count() * STRIDE)]` against the same slice of `fresh` — resolves to **`[] toEqual []`**. The comment above it says _the contents still have to match slot for slot as far as the count goes_; nothing is compared. The two `bytes` assertions in that test are real and do pin the hysteresis.
+- In _should be indistinguishable after a shrink the gate refused_ ([p02-shrink.browser.test.ts:178](../../../tests/perf/p02-shrink.browser.test.ts#L178)), `expect(held.count()).toBe(fresh.count())` is again `0 === 0`, and the contents assertion — `[...held.values().subarray(0, fresh.count() * STRIDE)]` against the same slice of `fresh` — resolves to **`[] toEqual []`**. The comment above it says _the contents still have to match slot for slot as far as the count goes_; nothing is compared. The two `bytes` assertions in that test are real and do pin the hysteresis.
 
 **Severity: low.** The property is true and the first arm's `slots` check does real work. But _same count_ is not established anywhere, and the refused-shrink arm's contents obligation is entirely unenforced.
 
 ### P02-05 — the published cost figures do not match the built artifacts
 
-**Observed.** Three records state **+34 B on the `y()` compositions and +14 B on `minimal (xy)`** — [p02-retention-shrink.md](../p02-retention-shrink.md) §Cost, [p02-shrink.md](../measurements/p02-shrink.md), and D-104's ledger row.
+**Observed.** Three records state **+34 B on the `y()` compositions and +14 B on `minimal (xy)`** — [p02-retention-shrink.md](../../p02-retention-shrink.md) §Cost, [p02-shrink.md](../../measurements/p02-shrink.md), and D-104's ledger row.
 
 **Evidence.** From the table in §7 above: the `y()` rows move **+14, +14, +15, +19**, `both behaviors` +17 and `baseline A` +21. **No row moves +34**, and `minimal (y)` and `minimal (xy)` move _identically_ at +14.
 
@@ -269,7 +269,7 @@ The six span all three `describe`s — the equivalence arm, four gate arms inclu
 
 **P02-04.** The probe gained `scan(n)`, which performs the refresh and leaves the cache warm; `drag(n)` is now `scan` plus `retire`. `shrunkMatchesFresh` and the refused-shrink arm take their comparisons through `scan`, so the count assertion is `299 === 299` against a literal rather than `0 === 0`, and the refused-shrink arm compares **1 794 scalars** where it previously compared none. `shrunkMatchesFresh` also returns a `retained` field, and its `slots` check requires a non-zero count so it cannot go vacuous again.
 
-**P02-01, P02-02, P02-05, P02-06** are reconciled in [`p02-retention-shrink.md`](../p02-retention-shrink.md) §What landed, [`p02-shrink.md`](../measurements/p02-shrink.md) §Re-run on the landed implementation, and D-104's ledger row: the upper bound is 192 KiB less 48 B and both ends are asserted; the 126 row is reattributed to the growth path with the three readings separated; the cost table is the reproduced one and the _~150 B_ headroom convention is retired at a measured 114–139 B; the mutation table is rebuilt with a stated scope, the corrected exact-count figure, and the growth-only revert.
+**P02-01, P02-02, P02-05, P02-06** are reconciled in [`p02-retention-shrink.md`](../../p02-retention-shrink.md) §What landed, [`p02-shrink.md`](../../measurements/p02-shrink.md) §Re-run on the landed implementation, and D-104's ledger row: the upper bound is 192 KiB less 48 B and both ends are asserted; the 126 row is reattributed to the growth path with the three readings separated; the cost table is the reproduced one and the _~150 B_ headroom convention is retired at a measured 114–139 B; the mutation table is rebuilt with a stated scope, the corrected exact-count figure, and the growth-only revert.
 
 **One thing this remediation did not do.** The `8 ×` mutation and the exhaustive growth-equivalence sweep are the review's evidence, not new arms — the suite pins the gate from both sides through the fitted-buffer proof and the reclaim floor, and adding a second constant to the file would pin the number rather than the property.
 
@@ -352,7 +352,7 @@ Revealed at the point of comparison, through a forced failure diff:
 
 ### The mutation table, re-measured row by row
 
-Scope: `tests/sortable` plus [p02-shrink.browser.test.ts](../../tests/perf/p02-shrink.browser.test.ts).
+Scope: `tests/sortable` plus [p02-shrink.browser.test.ts](../../../tests/perf/p02-shrink.browser.test.ts).
 
 | mutation                               | recorded     | measured  |
 | -------------------------------------- | ------------ | --------- |
@@ -408,9 +408,9 @@ This is consistent with the Reproducibility table's own _detached for every buff
 
 **Evidence.** In `should not reallocate over a thousand drags at a stable hundred thousand` and `should report what a shrink reclaims, at every plausible high water`:
 
-- [p02-shrink.browser.test.ts:509](../../tests/perf/p02-shrink.browser.test.ts#L509) — `sizes.add(cache.bytes())`, where the non-measurement twin at line 260 uses `cache.retained()`
-- [p02-shrink.browser.test.ts:518](../../tests/perf/p02-shrink.browser.test.ts#L518) — prints `retained=${kb(cache.bytes())}`, a label naming the quantity it is not reading
-- [p02-shrink.browser.test.ts:534](../../tests/perf/p02-shrink.browser.test.ts#L534) and [:542](../../tests/perf/p02-shrink.browser.test.ts#L542) — `before = cache.bytes()` and `reclaimed=${kb(before - cache.bytes())}`
+- [p02-shrink.browser.test.ts:509](../../../tests/perf/p02-shrink.browser.test.ts#L509) — `sizes.add(cache.bytes())`, where the non-measurement twin at line 260 uses `cache.retained()`
+- [p02-shrink.browser.test.ts:518](../../../tests/perf/p02-shrink.browser.test.ts#L518) — prints `retained=${kb(cache.bytes())}`, a label naming the quantity it is not reading
+- [p02-shrink.browser.test.ts:534](../../../tests/perf/p02-shrink.browser.test.ts#L534) and [:542](../../../tests/perf/p02-shrink.browser.test.ts#L542) — `before = cache.bytes()` and `reclaimed=${kb(before - cache.bytes())}`
 
 These are the arms whose console output is the source of _frees 6 144 kB and allocates 6 kB_ and the per-high-water reclaim table. **The falsifier is fixed and the telemetry is not**: under the exact mutation P02-03 named, every published reclaim figure would still be produced by the blind reading. No assertion is weakened by this — the structural arms carry the proof — but the numbers the record quotes are still measured with the instrument the record says it retired.
 
@@ -426,7 +426,7 @@ The scope figure is wrong by a wider margin: all three records state **492 tests
 
 ### C-04 — the Reproducibility table still describes the retired instrument and a policy copy that no longer exists
 
-**Observed.** [p02-shrink.md](../measurements/p02-shrink.md) §Reproducibility is the first table a reader meets, and three of its six rows contradict the corrections added below it:
+**Observed.** [p02-shrink.md](../../measurements/p02-shrink.md) §Reproducibility is the first table a reader meets, and three of its six rows contradict the corrections added below it:
 
 | row | current text | contradicted by |
 | --- | --- | --- |

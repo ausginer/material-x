@@ -184,7 +184,7 @@ Every figure in [`measurements/p02-shrink.md`](measurements/p02-shrink.md) repro
 
 ### What the review changed, and it is the instrument rather than the policy
 
-**2026-08-21**, from [`reviews/p02-review-claude.md`](reviews/p02-review-claude.md). The shipped branch is unchanged — the review could not falsify it on any axis, and none of its six findings is a defect in `src/`.
+**2026-08-21**, from [`reviews/p02-review-claude.md`](reviews/phase-22/p02-review-claude.md). The shipped branch is unchanged — the review could not falsify it on any axis, and none of its six findings is a defect in `src/`.
 
 **The one that mattered is P02-03, and it is the difference between measuring retention and measuring release.** The instrument was inherited from M-2′, which asked how much a cache _holds_ and answered it with `values.byteLength`. This candidate is landed for what a shrink _releases_, and those are not the same reading: a `subarray` reports the fitted `byteLength` while retaining every byte of the original allocation, and it also produces a new object, so the allocation counter increments as if a real buffer had been taken. A shrink written that way passed **every arm in the file** — the policy could have been quietly reduced to a no-op with the suite green. Every arm that claims a reclaim now reads `values.buffer.byteLength`, and the two readings are asserted to agree, which they do for a shrink that allocates and only for that one.
 

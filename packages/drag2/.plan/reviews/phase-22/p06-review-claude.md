@@ -2,7 +2,7 @@
 
 - **Reviewer:** Claude
 - **Date:** 2026-08-21
-- **Subject:** P-06 as implemented, against D-100, D-101, D-102 and [`p06-verified-refresh.md`](../p06-verified-refresh.md)
+- **Subject:** P-06 as implemented, against D-100, D-101, D-102 and [`p06-verified-refresh.md`](../../p06-verified-refresh.md)
 - **Tree:** `2a1df6f4` on `drag2/phase22-p06`, working tree clean
 
 **Scope.** The current tree against the three decisions and the design record. Not a redesign of the optimization, not a re-opening of `k`, the eager window or the eight-condition boundary, and no P-01/P-02 work. Every claim below was checked by mutating the tree, running the gates, and restoring it.
@@ -39,7 +39,7 @@ Re-verified after the last mutation; `git status --short` empty.
 
 ### The eight gates, at one entry
 
-Conditions 3, 4, 5 and 7 are one conjunction in [verified-refresh.ts:445-453](../../src/sortable/verified-refresh.ts#L445-L453); 6 and 8 are inside `shift`; 1 and 2 are structural — `y.ts` is the only importer of the module, and `getBox === null` is tested directly. There is a ninth conjunct, `last !== gap`, which the code declares is not one of the eight and justifies correctly: an empty span has no in-span witness and therefore yields no `δ` to verify.
+Conditions 3, 4, 5 and 7 are one conjunction in [verified-refresh.ts:445-453](../../../src/sortable/verified-refresh.ts#L445-L453); 6 and 8 are inside `shift`; 1 and 2 are structural — `y.ts` is the only importer of the module, and `getBox === null` is tested directly. There is a ninth conjunct, `last !== gap`, which the code declares is not one of the eight and justifies correctly: an empty span has no in-span witness and therefore yields no `δ` to verify.
 
 ### The mirror, traced across every transition
 
@@ -72,11 +72,11 @@ The instrument is independent in the sense that matters — it re-reads the DOM 
 
 ### Healing before throwing is correct
 
-`last`, `moves` and `pending` are committed at [verified-refresh.ts:461-463](../../src/sortable/verified-refresh.ts#L461-L463) _before_ `verify` runs, and `verify` writes the authoritative full scan back as it compares. So a reported mismatch leaves the wrapper claiming clean and the buffer genuinely clean — consistent, not merely correct-in-the-message. The one asymmetry is that `moves` is not reset by the heal even though a full scan just happened, which shortens the next drift window rather than lengthening it.
+`last`, `moves` and `pending` are committed at [verified-refresh.ts:461-463](../../../src/sortable/verified-refresh.ts#L461-L463) _before_ `verify` runs, and `verify` writes the authoritative full scan back as it compares. So a reported mismatch leaves the wrapper claiming clean and the buffer genuinely clean — consistent, not merely correct-in-the-message. The one asymmetry is that `moves` is not reset by the heal even though a full scan just happened, which shortens the next drift window rather than lengthening it.
 
 ### D-102, structurally and to the byte
 
-`src/sortable/y.ts` is the only importer of `verified-refresh.ts`; [xy.ts](../../src/sortable/xy.ts) imports `domain`, `feature` and `rect-index` and nothing else. `git diff b3395c78 HEAD -- src/sortable/rect-index.ts` is **empty** — the residue is zero, which is stronger than the falsifier D-102 set. `bench/size` lists the module in `minimal (xy)`'s `absent` and in all five `y()` compositions' `present`. Wiring a reachable `createVerifiedRefresh` into `xy()` fails both rows:
+`src/sortable/y.ts` is the only importer of `verified-refresh.ts`; [xy.ts](../../../src/sortable/xy.ts) imports `domain`, `feature` and `rect-index` and nothing else. `git diff b3395c78 HEAD -- src/sortable/rect-index.ts` is **empty** — the residue is zero, which is stronger than the falsifier D-102 set. `bench/size` lists the module in `minimal (xy)`'s `absent` and in all five `y()` compositions' `present`. Wiring a reachable `createVerifiedRefresh` into `xy()` fails both rows:
 
 ```
 ✗ minimal (xy) over budget by 206 B (11146 > 10940)
@@ -93,7 +93,7 @@ The built `sortable/verified-refresh.js` exports `createVerifiedRefresh` alone; 
 
 **Correctness-adjacent. Not a defect in the code; a defect in the stated risk and in the negative fixture's coverage.**
 
-D-100 case 3, the D-100 ledger row and [verified-refresh.ts:65-66](../../src/sortable/verified-refresh.ts#L65-L66) all characterise a `transform` on a single row the same way: it _"moves one row and nothing else"_, and `k` bounds how long that one row can be wrong.
+D-100 case 3, the D-100 ledger row and [verified-refresh.ts:65-66](../../../src/sortable/verified-refresh.ts#L65-L66) all characterise a `transform` on a single row the same way: it _"moves one row and nothing else"_, and `k` bounds how long that one row can be wrong.
 
 **That is true only while the transformed row is not the in-span witness.** Row `lo` is the row that _yields_ `δ`. A pure `translateY` on it survives every guard in `shift` — the height is preserved so `anchor.bottom - values[BOTTOM] === delta`, and `left`/`right` are untouched — so `δ` is measured as the flow shift **plus the transform** and then applied to the entire span. Row `lo` lands correct by construction; every row in `(lo, hi)` is wrong by the transform amount, and the after-, suffix- and before-witnesses are all genuinely unchanged, so nothing refutes.
 
@@ -110,7 +110,7 @@ The shipped negative fixtures perturb `rows[3]` and `rows[4]` against a `[2, 6)`
 
 **DEV-only, so not a shipped defect. Recorded because the justification given for it is unsound and the failure it produces is misleading.**
 
-[verify](../../src/sortable/verified-refresh.ts#L193-L247) calls `item.getBoundingClientRect()` once per candidate with **no `live()` reading between any of them**, and closes with `index.count = n; items.length = n`. That trailing pair is precisely the bookkeeping `RectIndex`'s own `abort()` comment says must not run after a retire, on the grounds that it would be _"resurrecting a retired cache, marking it clean, and pinning every row of the list in a destroyed controller against I-20."_
+[verify](../../../src/sortable/verified-refresh.ts#L193-L247) calls `item.getBoundingClientRect()` once per candidate with **no `live()` reading between any of them**, and closes with `index.count = n; items.length = n`. That trailing pair is precisely the bookkeeping `RectIndex`'s own `abort()` comment says must not run after a retire, on the grounds that it would be _"resurrecting a retired cache, marking it clean, and pinning every row of the list in a destroyed controller against I-20."_
 
 Driven directly — a row that calls `retire()` from inside its own overridden `getBoundingClientRect()`, firing during `verify`'s scan rather than during the four witness reads:
 
@@ -140,7 +140,7 @@ Two scope gaps go unstated: only `src/**/*.ts` is walked, so `.tsx` files and ev
 | `export const S = "mentions __DEV__ in a string";` | fails assertions (1) and (3) |
 | a genuine second binding fenced by string literals holding `/*` and `*/` | **8 passed** — invisible to all three |
 
-So the plan's _"Comments are stripped before matching, so the prose stating the rule cannot satisfy or violate it"_ is false for the comment style these modules use most heavily: [verified-refresh.ts](../../src/sortable/verified-refresh.ts) carries several `//` blocks, and one of them acquiring the token `__DEV__` would fail the suite with no code change. The third probe is contrived and I would not weight it on its own, but together they establish the gate is text-matching rather than parsing, which the prose does not say.
+So the plan's _"Comments are stripped before matching, so the prose stating the rule cannot satisfy or violate it"_ is false for the comment style these modules use most heavily: [verified-refresh.ts](../../../src/sortable/verified-refresh.ts) carries several `//` blocks, and one of them acquiring the token `__DEV__` would fail the suite with no code change. The third probe is contrived and I would not weight it on its own, but together they establish the gate is text-matching rather than parsing, which the prose does not say.
 
 ## P06-05 — the published size correction's own diagnosis is falsified
 
@@ -344,7 +344,7 @@ The `translate(5px, 7px)` fixture moves both horizontal edges by the same amount
 
 D-103's _Supersedes_ cell names D-100's four-witness set, so these are residue rather than contradiction — but the correction blockquote at `p06-verified-refresh.md:30` supersedes _"every 'one row' in this file"_ and says nothing about the **count**, and the count did not travel with it.
 
-- **[verified-refresh.ts:9](../../src/sortable/verified-refresh.ts#L9)** — the module header still reads _"proposes a span, **four reads** check the proposal"_. This is production source, and 00-index's own rule is that **production comments state the current invariant**.
+- **[verified-refresh.ts:9](../../../src/sortable/verified-refresh.ts#L9)** — the module header still reads _"proposes a span, **four reads** check the proposal"_. This is production source, and 00-index's own rule is that **production comments state the current invariant**.
 - `p06-verified-refresh.md:86` — §The invariant boundary, condition 8: _"**all four witnesses** agree with the hypothesis"_.
 - `p06-verified-refresh.md:88` — _"a `live()` reading is owed after each — **four** rather than `n`"_.
 - `p06-verified-refresh.md:126` — §What landed's tree table still attributes `shift` _(the four witnesses and the δ application)_, `verify` and `RESYNC_INTERVAL` to **`src/sortable/rect-index.ts`**. Doubly stale, and the worse of the two: D-102 moved all of it, and the same document insists elsewhere that `rect-index.ts` is byte-for-byte its pre-P-06 self. This one predates D-103 and my first review did not catch it.

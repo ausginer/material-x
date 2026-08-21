@@ -2,7 +2,7 @@
 
 All four findings of [`checkpoint-d-3.md`](checkpoint-d-3.md) are closed. C3-03 was applied from the architect's decision, [`checkpoint-d-3-resolution-c3-03.md`](checkpoint-d-3-resolution-c3-03.md), §3.1–§3.5 verbatim and §4 items 1–11 executed.
 
-**Every `C3-0x` in this record means Checkpoint D review 3.** Checkpoint C's third review used the same IDs for unrelated readiness-acknowledgement items; they are disambiguated at first use in [`../plan.md`](../plan.md).
+**Every `C3-0x` in this record means Checkpoint D review 3.** Checkpoint C's third review used the same IDs for unrelated readiness-acknowledgement items; they are disambiguated at first use in [`../plan.md`](../../plan.md).
 
 Order of work was C3-01, then C3-02 and C3-04, then C3-03 — as the architect sequenced it, so C3-03's sweep #6 could be rebased onto what C3-01 had already added rather than duplicating it.
 
