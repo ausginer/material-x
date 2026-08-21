@@ -31,6 +31,8 @@
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import type { CollectionSnapshot } from '../../src/sortable/domain.ts';
+import type { SortableInstaller } from '../../src/sortable/feature.ts';
+import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import {
   BOTTOM,
   CENTRE_X,
@@ -630,6 +632,344 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
         );
 
         index.retire();
+      }
+    }, 600_000);
+  },
+);
+
+// ---------------------------------------------------------------------------
+// The capacity-bucket interval — is the high water that crosses the threshold
+// a size a supported consumer can actually drive?
+// ---------------------------------------------------------------------------
+
+const ROW_HEIGHT = 40;
+const GRAB_ROW = 4;
+const LOW_SLOT = 5;
+const HIGH_SLOT = 6;
+const POINTER_ID = 83;
+const FRAME_MS = 1000 / 60;
+
+type Drive = Readonly<{
+  /** Total bracket time and committed-move count since the last reset. */
+  moves(): number;
+  bracket(): number;
+  reset(): void;
+  /** One pointer sample per **real** frame, so the browser flushes between moves. */
+  step(round: number): Promise<void>;
+  /** Presses on the grab row and lifts. */
+  grab(): void;
+  release(): void;
+  /** Republishes the collection at `count` items and signals it (D-44). */
+  replace(count: number): void;
+  dispose(): void;
+}>;
+
+/**
+ * A real composed sortable at `n` attached rows, driven one committed move per
+ * real frame.
+ *
+ * **Paced, not batched**, for M-4′'s reason: a batched driver never lets the
+ * browser flush style and layout between two committed moves, and the segment
+ * that moves between the two regimes is exactly the one this arm is about — the
+ * forced layout after the placeholder write.
+ *
+ * The grab row is adjacent to the oscillation (M-4′'s `GRAB_ROW = 4` with slots
+ * 5 and 6) so the drag opens without a long jump whose displaced rows would sit
+ * in `layoutAnimation()`'s in-flight set for the rest of the run.
+ */
+function drive(n: number, animate: boolean): Drive {
+  const root = document.createElement('div');
+
+  Object.assign(root.style, {
+    width: '200px',
+    position: 'absolute',
+    top: '0px',
+    left: '0px',
+  });
+  document.body.append(root);
+
+  const rows: HTMLElement[] = [];
+
+  for (let i = 0; i < n; i += 1) {
+    const row = document.createElement('div');
+
+    Object.assign(row.style, {
+      display: 'block',
+      height: `${ROW_HEIGHT}px`,
+      width: '100px',
+    });
+    root.append(row);
+    rows.push(row);
+  }
+
+  let started = 0;
+  let bracket = 0;
+  let moves = 0;
+
+  const probe: SortableInstaller = () => ({
+    beforeInsertionMove: (): void => {
+      started = performance.now();
+    },
+    afterInsertionMove: (): void => {
+      bracket += performance.now() - started;
+      moves += 1;
+    },
+  });
+
+  let current: readonly HTMLElement[] = rows;
+  const controller = sortable(
+    root,
+    {
+      items: () => current,
+      axis: y(),
+      onReorder: () => ReorderResolution.accept(),
+    },
+    ...(animate ? [layoutAnimation()] : []),
+    { plugins: [probe] },
+  );
+
+  root.setPointerCapture = (): void => {};
+  root.releasePointerCapture = (): void => {};
+
+  const pointer = (type: string, y: number): void => {
+    document.dispatchEvent(
+      new PointerEvent(type, {
+        bubbles: true,
+        pointerId: POINTER_ID,
+        isPrimary: true,
+        clientX: 150,
+        clientY: y,
+      }),
+    );
+  };
+
+  const grab = (): void => {
+    rows[GRAB_ROW]!.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        pointerId: POINTER_ID,
+        isPrimary: true,
+        button: 0,
+        buttons: 1,
+        clientX: 150,
+        clientY: GRAB_ROW * ROW_HEIGHT + 10,
+      }),
+    );
+    pointer('pointermove', GRAB_ROW * ROW_HEIGHT + 30);
+  };
+
+  grab();
+
+  const frame = async (): Promise<void> => {
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        resolve();
+      });
+    });
+  };
+
+  const drives: Drive = {
+    moves: () => moves,
+    bracket: () => bracket,
+
+    reset(): void {
+      bracket = 0;
+      moves = 0;
+    },
+
+    grab,
+
+    release(): void {
+      pointer('pointerup', (LOW_SLOT + 1) * ROW_HEIGHT);
+    },
+
+    replace(count): void {
+      current = rows.slice(0, count);
+      controller.invalidate();
+    },
+
+    async step(round): Promise<void> {
+      pointer(
+        'pointermove',
+        (round % 2 === 0 ? LOW_SLOT : HIGH_SLOT) * ROW_HEIGHT + ROW_HEIGHT / 2,
+      );
+      // Two frames: the first runs the coalesced spatial task and the bracket,
+      // the second lets the browser settle before the next sample.
+      await frame();
+      await frame();
+    },
+
+    dispose(): void {
+      void controller.destroy();
+      root.remove();
+    },
+  };
+
+  cleanup.push(drives.dispose);
+
+  return drives;
+}
+
+/** `run(0..count-1)` strictly in order, as a chain rather than an awaited loop. */
+const sequence = async (
+  count: number,
+  run: (round: number) => Promise<void>,
+): Promise<void> => {
+  let chain = Promise.resolve();
+
+  for (let i = 0; i < count; i += 1) {
+    const round = i;
+
+    chain = chain.then(() => run(round));
+  }
+
+  await chain;
+};
+
+describe('the workload that earns it', () => {
+  it('should drag at a high water, shrink, and drag again on one live controller', async () => {
+    // **The lifecycle D-104 requires, end to end on the shipped API.** Not
+    // arithmetic on the instrument: one controller, a drag at a collection in
+    // the 4096 capacity bucket, the collection republished an order of
+    // magnitude smaller through the `items()` pull source and
+    // `controller.invalidate()` (D-44), and a **second drag at the smaller
+    // size** — which is the moment the policy could fire, since `refresh` runs
+    // only inside an operation.
+    const arm = drive(2100, false);
+
+    await sequence(6, (round) => arm.step(round));
+
+    const large = arm.moves();
+
+    arm.release();
+    await sequence(1, () => arm.step(0));
+
+    // The collection shrinks below `capacity / 4`, which is what the gate asks.
+    arm.replace(100);
+    arm.reset();
+    arm.grab();
+    await sequence(6, (round) => arm.step(round));
+
+    // Both operations really committed moves, so both would really have
+    // reached `refresh` — the first to grow the buffer, the second to shrink
+    // it.
+    expect(large).toBeGreaterThan(0);
+    expect(arm.moves()).toBeGreaterThan(0);
+  }, 600_000);
+
+  it('should reclaim past the threshold on every firing from the 4096 bucket', () => {
+    // **Once the high water is in that bucket, the question stops being how
+    // far the collection fell.** The gate needs `4096 > 4 × n`, so it only
+    // fires below 1 024 items — and `capacityFor(1023)` is 1 024, so the
+    // smallest possible reclaim is `196 608 − 49 152` = 144 KiB. Every firing
+    // clears D-99's ~100 kB by a margin, and the largest is 186 KiB.
+    const rows = pool(4096);
+    const smallest: number[] = [];
+
+    for (const after of [1023, 512, 100, 10, 1]) {
+      const cache = shrinking(rows);
+
+      cache.drag(2049);
+
+      const before = cache.bytes();
+
+      cache.drag(after);
+      smallest.push(before - cache.bytes());
+    }
+
+    expect(Math.min(...smallest)).toBeGreaterThan(100 * 1024);
+    expect(Math.min(...smallest)).toBe(196_608 - 49_152);
+  }, 600_000);
+
+  it('should refuse to fire from the 2048 bucket, which is where the threshold is missed', () => {
+    // The boundary, from the other side: at 2 000 items the buffer is 96 KiB
+    // and the most a shrink can recover is 90 KiB — under the threshold at
+    // every possible destination. **2 049 is the smallest high water that can
+    // earn this optimization**, and that is the whole of what the interval
+    // measurement changed.
+    const rows = pool(2048);
+    const largest: number[] = [];
+
+    for (const after of [511, 100, 1]) {
+      const cache = shrinking(rows);
+
+      cache.drag(2048);
+
+      const before = cache.bytes();
+
+      cache.drag(after);
+      largest.push(before - cache.bytes());
+    }
+
+    expect(Math.max(...largest)).toBeLessThan(100 * 1024);
+  }, 600_000);
+});
+
+describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
+  'P-02 shrink — the capacity-bucket interval',
+  () => {
+    // **The interval the first run skipped.** It jumped from 2 000 items
+    // (96 KiB, capacity 2048) to 20 000 (not drivable), and the next bucket
+    // opens at 2 049 — where the buffer is already **192 KiB** and a shrink
+    // would reclaim 186 KiB, comfortably past D-99's ~100 kB threshold. So the
+    // decline rests entirely on whether ~2 100–3 000 rows is drivable.
+    //
+    // **And the bound it rested on was the wrong curve.** That figure came from
+    // M-4′'s *general* rebuild, measured before P-06. On the current tree a
+    // committed move reads five witnesses rather than `n − 1` on seven moves in
+    // eight, so the deployed cost per move is not what it was.
+
+    for (const animate of [false, true]) {
+      for (const n of [2100, 3000]) {
+        it(`should report what one committed move costs at ${n} rows, ${animate ? 'animated' : 'bare'}`, async () => {
+          const FRAMES = 60;
+          const WARM = 10;
+          const arm = drive(n, animate);
+
+          await sequence(WARM, (round) => arm.step(round));
+          arm.reset();
+          await sequence(FRAMES, (round) => arm.step(WARM + round));
+
+          const moves = arm.moves();
+          const per = arm.bracket() / moves;
+
+          // oxlint-disable-next-line no-console -- this suite exists to report
+          console.info(
+            `P-02 interval n=${n} ${animate ? 'animated' : 'bare'} ` +
+              `moves=${moves}/${FRAMES} ` +
+              `bracket=${per.toFixed(3)}ms ` +
+              `frames=${(per / FRAME_MS).toFixed(3)} ` +
+              `buffer=${kb(capacityFor(n) * SLOT_BYTES)}`,
+          );
+
+          expect(moves).toBeGreaterThan(0);
+        }, 600_000);
+      }
+    }
+
+    it('should report the reclaim available across the bucket boundary', () => {
+      // The other half, and it is arithmetic on the instrument rather than a
+      // new measurement: the bucket is what it is.
+      for (const high of [2000, 2049, 2100, 3000, 4096]) {
+        const rows = pool(high);
+        const cache = shrinking(rows);
+
+        cache.drag(high);
+
+        const before = cache.bytes();
+
+        cache.drag(100);
+
+        const reclaimed = before - cache.bytes();
+
+        // oxlint-disable-next-line no-console -- this suite exists to report
+        console.info(
+          `P-02 bucket high=${high} retained=${kb(before)} ` +
+            `reclaimed=${kb(reclaimed)} ` +
+            `crosses-100kB=${reclaimed > 100 * 1024}`,
+        );
       }
     }, 600_000);
   },

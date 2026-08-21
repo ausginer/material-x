@@ -2,7 +2,9 @@
 
 **Run 2026-08-21**, against D-104's design ([`../p02-retention-shrink.md`](../p02-retention-shrink.md)) and D-99's stop condition. Harness: [`tests/perf/p02-shrink.browser.test.ts`](../../tests/perf/p02-shrink.browser.test.ts).
 
-**Outcome: the policy is exactly as sound as D-104 derives, and it is declined.** Not because it churns — it provably does not — but on D-104's own second stop condition and D-99's own threshold: at every collection size the library can actually drive, the whole buffer is smaller than the figure D-99 said would end the candidate, and the moment the payoff story describes is one the policy cannot fire at.
+**Outcome: the policy is exactly as sound as D-104 derives, and it is _earned_.**
+
+**The first pass of this record declined it, and was wrong.** It bounded the drivable collection using a curve measured before P-06, on the very code path P-06 replaced, and never measured the interval where the arithmetic crosses D-99's threshold. §The interval that overturns the decline supersedes §The decision below, which is struck rather than deleted because the shape of the error is the part worth not repeating.
 
 **No production shrink code was landed to take this measurement.** `src/` is untouched by this handoff; the policy exists only as a harness instrument, held to the shipped cache by an equivalence check.
 
@@ -42,15 +44,17 @@
 
 ## Question 2 — is there a supported workload that earns it?
 
-**No. Three independent reasons, and any one of them is sufficient.**
+> **First-pass answer: no, on three grounds. Two of the three are withdrawn below**, and the corrected answer is **yes** — see §The interval that overturns the decline. The three subsections are kept because (a) survives intact and because the withdrawal is only legible next to what it withdraws.
 
-### (a) The policy cannot fire at the moment the collection shrinks
+~~**No. Three independent reasons, and any one of them is sufficient.**~~
+
+### (a) The policy cannot fire at the moment the collection shrinks — **stands, as a limitation**
 
 `refresh` runs only inside an operation — `resolve` from the spatial pipeline, `measure` from the committed-move bracket — so a branch placed there cannot run while a controller is idle. Asserted on the shipped API rather than argued: after one drag, republishing a live collection at a tenth of its size and calling `controller.invalidate()` reads **zero** geometry.
 
 **That breaks the story the candidate is motivated by.** "The user drags in a large list, then filters it to a hundred, and the buffer sits there" is exactly the state this policy does _not_ touch. Reclaim requires a **subsequent drag at the smaller size**, so the workload is not _drag, then filter_ but _drag, filter, drag again, then idle_ — strictly narrower, and narrower in the direction that removes the case where the retention is most visible.
 
-### (b) The high water is bounded by the library's own per-move cost
+### (b) The high water is bounded by the library's own per-move cost — **withdrawn, see §The interval that overturns the decline**
 
 The buffer this policy recovers is capacity a collection once **scanned**, and the scan is a `getBoundingClientRect()` per row. Measured on attached rows, one rebuild in isolation:
 
@@ -66,7 +70,7 @@ The buffer this policy recovers is capacity a collection once **scanned**, and t
 
 So a non-virtualized sortable is usable up to a few thousand rows, and a virtualized one never reaches a high water at all: its `items()` returns the rendered window, which is small and does not shrink from anything.
 
-### (c) At every reachable size, D-99's own threshold is met from below
+### (c) At every reachable size, D-99's own threshold is met from below — **withdrawn with (b)**
 
 D-99 set the stop condition: _if the largest collection a supported consumer plausibly holds keeps the unread retention under ~100 kB per controller, decline both halves._
 
@@ -84,13 +88,15 @@ At the largest collection the library can drive inside a frame, **the entire buf
 
 ---
 
-## The decision
+## ~~The decision~~ — superseded by §The decision, corrected
 
-**P-02's shrink sub-candidate is declined**, on D-104's second stop condition, in the words it was written in: _if supported deployments do not shrink their collections, the policy is correct and worthless, and it should be declined on D-99's own terms rather than landed because it is cheap._
+> **Wrong, and kept for the shape of the error.** Its reason (b) bounded the drivable collection at ≈3 800 rows from M-4′'s **general** rebuild curve — measured _before_ P-06, on the path P-06 replaced. On the current tree 2 100–3 000 rows costs a third to a half of a frame per committed move. Reason (c) followed from (b) and falls with it; reason (a) survives as a limitation and not as a decline.
 
-The policy is correct. It is worthless at the sizes it is reachable at, and it misses the state it was pictured recovering. **Landing a nearly-free change is not a reason** — the sentence D-104 closes with, applied to D-104.
+~~**P-02's shrink sub-candidate is declined**, on D-104's second stop condition, in the words it was written in: _if supported deployments do not shrink their collections, the policy is correct and worthless, and it should be declined on D-99's own terms rather than landed because it is cheap._~~
 
-**Nothing is implemented and nothing is left behind.** `src/` is untouched. The harness stays, because it is the record's instrument and the falsifier if this is ever reopened.
+~~The policy is correct. It is worthless at the sizes it is reachable at, and it misses the state it was pictured recovering.~~ **Landing a nearly-free change is not a reason** — the sentence D-104 closes with — and that part of the reasoning stands; what failed is the premise it was applied to.
+
+**Nothing is implemented and nothing is left behind.** `src/` is untouched. The harness stays, because it is the record's instrument.
 
 **P-02's other half is untouched.** The 5.12 MB of scalars no axis rule reads belongs to the **stride** sub-candidate, which is not designed, not measured here, and not closed by this. The two figures may not be added or quoted for each other — which is the misreading D-104 was written to prevent, and this record inherits the prohibition rather than relaxing it.
 
@@ -102,3 +108,72 @@ The policy is correct. It is worthless at the sizes it is reachable at, and it m
 - **A reclaim point that does not require a subsequent drag.** D-104 refuses a timer and an idle hook by construction, and refuses `retire()` because it would have to predict. If some other already-existing lifecycle point holds the real collection size, reason (a) weakens — but not reasons (b) or (c).
 - **Evidence that many controllers reach a high water simultaneously.** M-2′ established population heap is linear in the controller count with nothing shared, so a thousand controllers each holding 48 kB is 48 MB. Nothing measured suggests that shape, and it would be a different candidate with a different workload.
 - **The threshold moving.** D-99's ~100 kB is the number this declines against. A deployment that argues for a smaller one reopens the arithmetic, not the policy.
+
+---
+
+## The interval that overturns the decline
+
+**Re-run 2026-08-21, after review.** The first pass jumped from **2 000 items (96 KiB, capacity 2048)** to **20 000 (not drivable)** and declined on the gap between them. The next capacity bucket opens at **2 049**, where the buffer is already **192 KiB** — so the entire decline rested on an interval it never measured.
+
+### The bound was computed from the wrong curve
+
+Reason (b) put one committed move at a frame near ≈3 800 rows, from M-4′'s **general** rebuild at 4.4 µs per row. That figure was measured _before_ P-06, on the code path P-06 replaced. On the current tree seven committed moves in eight read **five witnesses** instead of `n − 1`, so the deployed cost per move is not that curve at all. **Extrapolating a post-optimization bound from a pre-optimization measurement is the error**, and it is the same class as quoting a workload that entails its own result.
+
+### The interval, measured on the current tree
+
+One committed move, real composed controller, `y()`, one sample per **real** frame after 10 warm-ups, 60 measured frames, bracket timed between `beforeInsertionMove` and `afterInsertionMove`. Every frame committed a move.
+
+| n | composition | bracket per committed move | fraction of a frame | buffer |
+| --- | --- | --- | --- | --- |
+| 2 100 | bare | 5.700 ms | **0.34** | 192 KiB |
+| 2 100 | `layoutAnimation()` | 5.742 ms | **0.34** | 192 KiB |
+| 3 000 | bare | 6.212 ms | **0.37** | 192 KiB |
+| 3 000 | `layoutAnimation()` | 8.353 ms | **0.50** | 192 KiB |
+
+The average includes the full rebuilds the `k = 8` re-synchronisation forces and the full rebuild that opens every operation, so it is the honest per-move figure rather than the verified-path best case.
+
+**2 100–3 000 rows is comfortably drivable.** No claim is made above 3 000: the first pass's 20 000-row row measured an isolated scan and is not a deployed figure either, and nothing here re-measures it.
+
+### The reclaim, across the boundary
+
+| high water | capacity | retained | reclaimed by a shrink to 100 | crosses ~100 kB |
+| --- | --- | --- | --- | --- |
+| 2 000 | 2048 | 96 KiB | 90 KiB | no |
+| **2 049** | **4096** | **192 KiB** | **186 KiB** | **yes** |
+| 2 100 | 4096 | 192 KiB | 186 KiB | yes |
+| 3 000 | 4096 | 192 KiB | 186 KiB | yes |
+
+**And once the high water is in the 4096 bucket, every possible firing clears the threshold.** The gate needs `4096 > 4 × n`, so it fires only below 1 024 items, and `capacityFor(1023)` is 1 024 — so the **smallest** reclaim available is `196 608 − 49 152` = **144 KiB**, and the largest is 192 KiB less 48 B. There is no firing from that bucket that lands under D-99's figure. Asserted structurally, both directions: every destination from 2 049 clears it, and no destination from 2 048 does.
+
+### The lifecycle, end to end on the shipped API
+
+Not arithmetic on the instrument. One live controller at 2 100 rows: a drag that commits moves, `pointerup`, the collection republished at 100 through the `items()` pull source with `controller.invalidate()` (D-44), then a **second drag at the smaller size** that also commits moves. Both operations reach `refresh` — the first to grow the buffer, the second at the size that would shrink it.
+
+### What still stands from the decline
+
+**Reason (a) is unaffected and is now a property of the workload rather than a reason to refuse it.** `refresh` runs only inside an operation, and a live controller whose collection shrinks between drags still reads **zero** geometry. So the reclaim is not available at the moment the collection shrinks; it arrives on the next drag. That is a real limitation, it is what makes the workload below _specific_, and it is why the second drag is part of the workload rather than an afterthought.
+
+---
+
+## The workload that earns it, stated minimally
+
+**A single live sortable controller in which all four hold:**
+
+1. the collection reaches **≥ 2 049 items** — the smallest size in the 4096 capacity bucket;
+2. **a drag completes at that size**, so `refresh` grows the buffer to 192 KiB;
+3. the collection is then republished at **< 1 024 items** — the gate is `capacity > 4 × n`;
+4. **a subsequent drag occurs at the smaller size**, which is the only moment the policy can fire.
+
+**Reclaim: 144 KiB at the smallest firing, 186 KiB to a hundred-item collection, against D-99's ~100 kB threshold.** Every one of the four steps is a supported act on the public surface, and the drag in step 2 costs a third of a frame per committed move.
+
+**A filtered or searchable reorderable list of a few thousand rows is exactly this shape** — reorder, filter, reorder again — and it is the first concrete deployment description this candidate has had. What it is _not_ is the 100 000-item arm: that stays the instrument M-2′ used to make retention visible, and it is still not offered as deployment evidence.
+
+## The decision, corrected
+
+**P-02's shrink sub-candidate is not declined. D-104 returns to the deferred-decision table as unimplemented, in Phase 22.**
+
+Its design is unchanged and unretracted — this run changed no part of it, and confirmed every mechanical claim in it. What changed is the second stop condition's answer: supported deployments _can_ shrink their collections from a high water that matters, at a size the current tree drives comfortably, and the reclaim clears the threshold at every firing from that bucket.
+
+**Still not implemented, and nothing was landed to measure it.** `src/` is untouched. The one edge this run found — an empty collection reallocating 48 B on every scan, because `n = 0` makes the gate `capacity > 0` — is the one thing a landing pass must fix rather than inherit.
+
+**P-02's stride half is still untouched and still not closed.** 5.12 MB of unread scalars is a different quantity with a different candidate behind it; the two may not be added or quoted for each other.
