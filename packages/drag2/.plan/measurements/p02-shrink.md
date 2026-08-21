@@ -187,7 +187,7 @@ Its design is unchanged and unretracted — this run changed no part of it, and 
 | --- | --- | --- |
 | stable-large, 100 000 × 1000 drags | 1 allocation, 6 144 kB constant | **identical** |
 | qualifying shrink | exactly 2 allocations, then settled | **identical** |
-| reclaim at 2 049 | 186 KiB | **identical** |
+| reclaim at 2 049, to a hundred-item collection | 186 KiB | **identical** |
 | smallest firing from the 4096 bucket | 144 KiB | **identical** |
 | 2 048 bucket, any destination | under the threshold | **identical** |
 | one committed move at 2 100 rows | 5.70 ms bare / 5.74 ms animated | **3.93 / 4.60 ms** |
@@ -199,6 +199,42 @@ Its design is unchanged and unretracted — this run changed no part of it, and 
 
 **The equivalence check changed with them.** While the policy was undecided it compared _the instrument against the shipped cache_; there is one cache now, so what is proved instead is that **a cache that shrank is indistinguishable from a cache that never grew** — same bytes, same packed scalars, same count — plus that a shrink the gate _refuses_ leaves contents matching a fresh scan slot for slot as far as the count goes.
 
-**Five mutations of the landed branch were run against the sortable suite and this file**, and each is caught: gating at `2 ×` (1), removing the gate (2), dropping the settle guard (1), shrinking by `subarray` instead of rescanning (**126**, across the whole sortable suite), and shrinking to an exact count rather than a power of two (5).
+### The instrument, corrected (P02-03, P02-04)
 
-**Cost: +34 B on the `y()` compositions, +14 B on `minimal (xy)`, brotli.** Inside the ~150 B headroom on every row, so no budget moves — which is what that headroom is for. `xy()` pays its 14 B correctly: the shrink is a property of the dimension-neutral cache both axes share, not one axis rule's private optimization.
+**`values.buffer.byteLength`, not `values.byteLength`, wherever a reclaim is claimed.** M-2′'s reading answers _how much does this cache hold_, and it was inherited without noticing that this candidate is landed for a different quantity: what a shrink **releases**. A view does not distinguish them. `subarray(0, fitted)` reports the fitted `byteLength`, hands back a new object so the allocation counter still reads 1, keeps `capacity` and `values.length` consistent, and retains the entire high-water allocation — and it passed every arm in the file. The two readings are asserted to agree now; they agree for a shrink that allocates and only for that one.
+
+**And the equivalence arms compare while the result is live.** `drag()` ends in `retire()`, which zeroes `count`, so `count` comparisons read `0 === 0` and the refused-shrink arm's slot-for-slot obligation resolved to two empty slices. The probe gained a `scan()` that leaves the cache warm; the refused-shrink arm now pins `count` against a literal 299 and compares **1 794 scalars**.
+
+### Mutations of the landed branch
+
+Scope for every row: `tests/sortable` plus this file, **492 tests** (9 measurement-only arms skipped).
+
+| mutation | caught by |
+| --- | --- |
+| gate at `2 ×` | 1 |
+| gate at `8 ×` | 1 |
+| no gate at all | 2 |
+| drop the settle guard | 1 |
+| shrink to an exact count rather than a power of two | 6 |
+| revert to growth-only — remove the shrink trigger | 6 |
+| shrink hands back a **view** onto the old store | **6** — and **0** before the instrument was corrected |
+| shrink hands back a view _and_ keeps the old contents | 7 — and 1 before |
+| replace the allocation unconditionally with `subarray` | 127 |
+
+**The row this table used to lead with was measuring the wrong thing** (P02-02). _Shrink by `subarray` instead of rescanning_ → 126 is the last row here, and it is not a mutation of the shrink: replacing the allocation unconditionally clamps the buffer on **growth**, so the scan writes past the end, `Float64Array` drops the writes silently, and every geometry read comes back zero. It falsifies the pre-existing growth path, which D-104 did not touch. The mutation that names the shrink is the view row — which failed nothing at all until P02-03.
+
+**Cost, exact brotli bytes on fresh builds of `685d05de` and the landed tree** (P02-05 — an earlier revision of this section published +34 B on the `y()` compositions, and no row moves 34 B):
+
+| row                       | before | after  | Δ       |
+| ------------------------- | ------ | ------ | ------- |
+| minimal                   | 11 125 | 11 139 | **+14** |
+| minimal (xy)              | 10 787 | 10 801 | **+14** |
+| minimal + layoutAnimation | 11 557 | 11 571 | +14     |
+| minimal + landing         | 11 408 | 11 423 | +15     |
+| complete                  | 11 830 | 11 849 | +19     |
+| both behaviors            | 13 379 | 13 396 | +17     |
+| baseline A                | 11 545 | 11 566 | +21     |
+| free drag ×4              | —      | —      | **0**   |
+| baseline B                | 6 888  | 6 889  | 0       |
+
+No budget moves and no module appears on any row. `minimal` and `minimal (xy)` pay the **same** +14 B, which is the dimension-neutral claim measured rather than argued. Headroom on the `y()`-bearing rows is now **114–139 B**, not the _~150 B_ this record used to quote — a convention already recorded at 132–143 B before this slice and drifting in one direction across consecutive ones.

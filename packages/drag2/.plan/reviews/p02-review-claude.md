@@ -21,14 +21,14 @@
 
 **Six findings, none of them a correctness defect in `src/`.** Three are wrong or unpinned figures in the authoritative records, two are coverage gaps where a plausible wrong implementation survives the suite, one is a mutation-count drift. The most consequential is P02-03: the single failure mode that would silently void the entire policy is caught by nothing, because the harness's instrument cannot see it.
 
-| # | Finding | Class | Blocks merge |
-| --- | --- | --- | --- |
-| P02-01 | the reclaim upper bound is wrong in two authoritative records and one test comment | documentation, internal contradiction | no |
-| P02-02 | the 126-failure falsifier measures the untouched growth path, not the shrink | evidence framing | no |
-| P02-03 | a shrink that returns a **view** onto the retained buffer passes every test | coverage — the instrument cannot see reclaim | no |
-| P02-04 | both equivalence arms compare `count` after `retire()`; one compares zero slots | vacuous assertions | no |
-| P02-05 | the published cost figures do not match the built artifacts, and the headroom wording is stale | documentation | no |
-| P02-06 | `exactfit` reproduces at 6 not 5; the growth-only mutation is absent from the table | mutation-count drift | no |
+| # | Finding | Class | Blocks merge | Disposition |
+| --- | --- | --- | --- | --- |
+| P02-01 | the reclaim upper bound is wrong in two authoritative records and one test comment | documentation, internal contradiction | no | **fixed** — both ends asserted, three records corrected |
+| P02-02 | the 126-failure falsifier measures the untouched growth path, not the shrink | evidence framing | no | **fixed** — reframed as a growth-path falsifier, three shrink readings tabulated separately |
+| P02-03 | a shrink that returns a **view** onto the retained buffer passes every test | coverage — the instrument cannot see reclaim | no | **fixed** — reclaim arms read `values.buffer.byteLength`; the mutation goes 0 → 6 |
+| P02-04 | both equivalence arms compare `count` after `retire()`; one compares zero slots | vacuous assertions | no | **fixed** — `scan()` leaves the cache warm; 1 794 scalars and a literal count compared |
+| P02-05 | the published cost figures do not match the built artifacts, and the headroom wording is stale | documentation | no | **fixed** — measured deltas published, ~150 B convention retired at 114–139 B |
+| P02-06 | `exactfit` reproduces at 6 not 5; the growth-only mutation is absent from the table | mutation-count drift | no | **fixed** — table rebuilt with a stated scope and the growth-only row added |
 
 ## What was verified, and how
 
@@ -250,3 +250,27 @@ Recorded because a review that only lists findings misreports where the effort w
 None of the six touches the shipped branch, and the shipped branch is correct on every axis this review was asked to challenge.
 
 **LSP plugin - available; used: `findReferences` on `RectIndex.values` and on `createRectIndex`, to establish that the buffer field has exactly one writer and to enumerate every module and test that constructs the cache. The rest of the pass was compile-and-run rather than symbol-graph: mutating the sizing branch and running the suite, driving the shipped cache through its liveness and abort paths, and extracting exact brotli byte counts from two builds.**
+---
+
+## Remediation
+
+**2026-08-21**, on this review's own tree state plus the fixes. **`src/` is unchanged** — the review could not falsify the shipped branch on any axis it was asked to challenge, and none of the six findings was a defect in production code. Everything below is instrument and record.
+
+**P02-03, the load-bearing one.** The harness measured `values.byteLength` because it inherited M-2′'s instrument, and M-2′ was answering _how much does this cache hold_. This candidate is landed for what a shrink **releases**, and those readings diverge on exactly one implementation: a view. Every arm that claims a reclaim now reads `values.buffer.byteLength`, and the fitted-size arms assert the two readings agree — which they do for a shrink that allocates, and only for that one.
+
+Verified by the mutation the review reported at zero, run over `tests/sortable` plus the P-02 file (492 tests):
+
+| mutation | before | after |
+| --- | --- | --- |
+| shrink hands back a view (`subarray` on the shrink branch only) | **0** | **6** |
+| shrink hands back a view and keeps the old contents | 1 | 7 |
+
+The six span all three `describe`s — the equivalence arm, four gate arms including a new one named for the failure mode, and the 4096-bucket reclaim arm — so the property is pinned where a reader would look for it rather than in one place.
+
+**P02-04.** The probe gained `scan(n)`, which performs the refresh and leaves the cache warm; `drag(n)` is now `scan` plus `retire`. `shrunkMatchesFresh` and the refused-shrink arm take their comparisons through `scan`, so the count assertion is `299 === 299` against a literal rather than `0 === 0`, and the refused-shrink arm compares **1 794 scalars** where it previously compared none. `shrunkMatchesFresh` also returns a `retained` field, and its `slots` check requires a non-zero count so it cannot go vacuous again.
+
+**P02-01, P02-02, P02-05, P02-06** are reconciled in [`p02-retention-shrink.md`](../p02-retention-shrink.md) §What landed, [`p02-shrink.md`](../measurements/p02-shrink.md) §Re-run on the landed implementation, and D-104's ledger row: the upper bound is 192 KiB less 48 B and both ends are asserted; the 126 row is reattributed to the growth path with the three readings separated; the cost table is the reproduced one and the _~150 B_ headroom convention is retired at a measured 114–139 B; the mutation table is rebuilt with a stated scope, the corrected exact-count figure, and the growth-only revert.
+
+**One thing this remediation did not do.** The `8 ×` mutation and the exhaustive growth-equivalence sweep are the review's evidence, not new arms — the suite pins the gate from both sides through the fitted-buffer proof and the reclaim floor, and adding a second constant to the file would pin the number rather than the property.
+
+**Gates:** `npx just typecheck` clean, `npx just test` 57 files / 1118 passed / 108 skipped, `npx just size` 12 rows green with no budget moved.

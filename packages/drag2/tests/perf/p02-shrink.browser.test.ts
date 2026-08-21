@@ -12,16 +12,25 @@
  * correct and never reached is declined on D-99's own stop condition, so the
  * second question decides and the first only quantifies.
  *
- * **No production shrink code exists, and none is landed to take this
- * measurement.** The policy is built here as an instrument — the same
- * discipline M-1 established and M-4′ reused for its stride-1 arm — and held to
- * the shipped cache by an equivalence check on the workload where the two must
- * agree. If the evidence declines the candidate, there is nothing to remove.
+ * **The policy ships (D-104), so every arm drives the shipped cache.** While
+ * it was a candidate the file carried its own copy of the sizing rule and
+ * checked the two against each other; there is one implementation now, and the
+ * only duplicated code is `capacityFor`'s arithmetic, kept deliberately as an
+ * independent oracle for a module-private helper.
  *
  * **`byteLength`, never `usedJSHeapSize`.** M-2′ established that a
  * `Float64Array`'s backing store is precisely what the heap counter cannot see,
  * and its own P-02 rows are structural for that reason. This inherits that
  * instrument rather than building one.
+ *
+ * **But retention and release are not the same reading** (P02-03). M-2′ asked
+ * how much a cache *holds*, and `values.byteLength` answers that. This
+ * candidate is landed for what a shrink *releases*, and a view — a
+ * `subarray` onto the old allocation — reports the small `byteLength` while
+ * retaining every byte of the original store. So every arm that claims a
+ * reclaim reads `values.buffer.byteLength`, which is the quantity the policy
+ * exists to move, and `bytes()` stays for the arms that are about the *view*
+ * the scan writes through.
  *
  * **Detached rows for the buffer arms** (M-2′'s `bufferBytes` again): nothing
  * about buffer sizing depends on geometry, only on how many slots the scan
@@ -68,9 +77,14 @@ afterEach(() => {
  * only thing this candidate is about.
  */
 type Cache = Readonly<{
+  /** The view the scan writes through. */
   bytes(): number;
+  /** The backing store, which is what a reclaim has to move (P02-03). */
+  retained(): number;
   /** Buffer allocations since construction. */
   allocations(): number;
+  /** One scan, with the cache left warm so `count` and contents stay live. */
+  scan(n: number): void;
   drag(n: number): void;
   /** The packed values, for the equivalence check. */
   values(): Float64Array;
@@ -101,23 +115,28 @@ function shipped(rows: readonly HTMLElement[]): Cache {
   let seen: Float64Array = index.values;
   let allocations = 0;
 
+  const scan = (n: number): void => {
+    const items = n === rows.length ? rows : rows.slice(0, n);
+    const snapshot: CollectionSnapshot = { items, version: 1 };
+
+    index.refresh(snapshot, items[0] ?? rows[0]!, null, ALIVE);
+
+    if (index.values !== seen) {
+      seen = index.values;
+      allocations += 1;
+    }
+  };
+
   return {
     bytes: () => index.values.byteLength,
+    retained: () => index.values.buffer.byteLength,
     allocations: () => allocations,
     values: () => index.values,
     count: () => index.count,
+    scan,
 
     drag(n): void {
-      const items = n === rows.length ? rows : rows.slice(0, n);
-      const snapshot: CollectionSnapshot = { items, version: 1 };
-
-      index.refresh(snapshot, items[0] ?? rows[0]!, null, ALIVE);
-
-      if (index.values !== seen) {
-        seen = index.values;
-        allocations += 1;
-      }
-
+      scan(n);
       index.retire();
     },
   };
@@ -139,20 +158,27 @@ function shrunkMatchesFresh(
   rows: readonly HTMLElement[],
   high: number,
   low: number,
-): { bytes: boolean; slots: boolean; count: boolean } {
+): { bytes: boolean; retained: boolean; slots: boolean; count: boolean } {
   const shrunk = shipped(rows);
   const fresh = shipped(rows);
 
   shrunk.drag(high);
-  shrunk.drag(low);
-  fresh.drag(low);
+  // **`scan`, not `drag`** (P02-04). `drag` ends in `retire()`, which zeroes
+  // `count` — so comparing after it made `count` a `0 === 0` tautology and
+  // reduced the contents comparison to two empty slices. The comparison is
+  // taken while the scan's result is still live in both caches.
+  shrunk.scan(low);
+  fresh.scan(low);
+
+  const count = shrunk.count();
 
   return {
     bytes: shrunk.bytes() === fresh.bytes(),
-    slots: [...shrunk.values()].every(
-      (value, i) => value === fresh.values()[i],
-    ),
-    count: shrunk.count() === fresh.count(),
+    retained: shrunk.retained() === fresh.retained(),
+    slots:
+      count > 0 &&
+      [...shrunk.values()].every((value, i) => value === fresh.values()[i]),
+    count: count === fresh.count(),
   };
 }
 
@@ -170,6 +196,7 @@ describe('the shrunk cache', () => {
 
     expect(shrunkMatchesFresh(rows, 4000, 100)).toEqual({
       bytes: true,
+      retained: true,
       slots: true,
       count: true,
     });
@@ -185,14 +212,20 @@ describe('the shrunk cache', () => {
     const fresh = shipped(rows);
 
     held.drag(1000);
-    held.drag(300);
-    fresh.drag(300);
+    // Live on both sides (P02-04): with `drag` here the count assertion below
+    // read `0 === 0` and the contents assertion compared two empty arrays.
+    held.scan(300);
+    fresh.scan(300);
+
+    const compared = fresh.count() * STRIDE;
 
     expect(held.bytes()).toBe(capacityFor(1000) * SLOT_BYTES);
+    expect(held.retained()).toBe(held.bytes());
     expect(held.bytes()).toBeGreaterThan(fresh.bytes());
+    expect(fresh.count()).toBe(299);
     expect(held.count()).toBe(fresh.count());
-    expect([...held.values().subarray(0, fresh.count() * STRIDE)]).toEqual([
-      ...fresh.values().subarray(0, fresh.count() * STRIDE),
+    expect([...held.values().subarray(0, compared)]).toEqual([
+      ...fresh.values().subarray(0, compared),
     ]);
   });
 
@@ -224,7 +257,7 @@ describe('the gate', () => {
 
     for (let i = 0; i < 1000; i += 1) {
       cache.drag(4000);
-      sizes.add(cache.bytes());
+      sizes.add(cache.retained());
     }
 
     expect(cache.allocations()).toBe(1);
@@ -246,23 +279,48 @@ describe('the gate', () => {
     }
 
     expect(cache.allocations()).toBe(2);
-    expect(cache.bytes()).toBe(capacityFor(100) * SLOT_BYTES);
+    expect(cache.retained()).toBe(capacityFor(100) * SLOT_BYTES);
   });
 
   it('should allocate strictly less than it frees', () => {
     // The property that separates this from a memory-for-allocations trade. It
     // follows from the gate: a buffer that satisfies `capacity > 4 × n` is at
     // least four times the fitted size, and `capacityFor(n) < 2n`.
+    //
+    // **Read on the backing store** (P02-03): "frees" is a claim about the
+    // allocation, and `byteLength` cannot see it.
     const rows = pool(4000);
     const cache = shipped(rows);
 
     cache.drag(4000);
 
-    const before = cache.bytes();
+    const before = cache.retained();
 
     cache.drag(100);
 
-    expect(cache.bytes()).toBeLessThan(before / 4);
+    expect(cache.retained()).toBeLessThan(before / 4);
+  });
+
+  it('should release the old store rather than narrow a view onto it', () => {
+    // **The one failure mode that would leave this policy green and useless**
+    // (P02-03). A shrink written as `values = values.subarray(0, fitted)`
+    // satisfies every other arm in this file: the view reports the fitted
+    // `byteLength`, the identity check sees a new object so the allocation
+    // counter still reads 1, `capacity` and `values.length` stay consistent,
+    // and no consumer misbehaves. What it does not do is give the memory back
+    // — `buffer.byteLength` stays at the high water — which is the entire
+    // quantity D-104 was landed for.
+    //
+    // So the two readings are asserted to agree. They agree for any shrink
+    // that allocates, and only for those.
+    const rows = pool(4000);
+    const cache = shipped(rows);
+
+    cache.drag(4000);
+    cache.drag(100);
+
+    expect(cache.retained()).toBe(capacityFor(100) * SLOT_BYTES);
+    expect(cache.retained()).toBe(cache.bytes());
   });
 
   it('should refuse a shrink a fitted buffer could reach on its own', () => {
@@ -282,7 +340,7 @@ describe('the gate', () => {
     cache.drag(1000);
     cache.drag(0);
 
-    expect(cache.bytes()).toBe(SLOT_BYTES);
+    expect(cache.retained()).toBe(SLOT_BYTES);
   });
 
   it('should settle on an emptied collection rather than reallocating', () => {
@@ -805,23 +863,30 @@ describe('the workload that earns it', () => {
     // far the collection fell.** The gate needs `4096 > 4 × n`, so it only
     // fires below 1 024 items — and `capacityFor(1023)` is 1 024, so the
     // smallest possible reclaim is `196 608 − 49 152` = 144 KiB. Every firing
-    // clears D-99's ~100 kB by a margin, and the largest is 186 KiB.
+    // clears D-99's ~100 kB by a margin.
+    //
+    // **The other end is 192 KiB less 48 B, not 186 KiB** (P02-01): a
+    // destination of 0 or 1 leaves the one-slot buffer, and 186 KiB is merely
+    // the reclaim at the 65–128 destination the earning workload happens to
+    // use. Both ends are asserted now — the sweep already produced the
+    // counterexample and then discarded it through `Math.min`.
     const rows = pool(4096);
-    const smallest: number[] = [];
+    const reclaims: number[] = [];
 
     for (const after of [1023, 512, 100, 10, 1]) {
       const cache = shipped(rows);
 
       cache.drag(2049);
 
-      const before = cache.bytes();
+      const before = cache.retained();
 
       cache.drag(after);
-      smallest.push(before - cache.bytes());
+      reclaims.push(before - cache.retained());
     }
 
-    expect(Math.min(...smallest)).toBeGreaterThan(100 * 1024);
-    expect(Math.min(...smallest)).toBe(196_608 - 49_152);
+    expect(Math.min(...reclaims)).toBeGreaterThan(100 * 1024);
+    expect(Math.min(...reclaims)).toBe(196_608 - 49_152);
+    expect(Math.max(...reclaims)).toBe(196_608 - SLOT_BYTES);
   }, 600_000);
 
   it('should refuse to fire from the 2048 bucket, which is where the threshold is missed', () => {
@@ -838,10 +903,10 @@ describe('the workload that earns it', () => {
 
       cache.drag(2048);
 
-      const before = cache.bytes();
+      const before = cache.retained();
 
       cache.drag(after);
-      largest.push(before - cache.bytes());
+      largest.push(before - cache.retained());
     }
 
     expect(Math.max(...largest)).toBeLessThan(100 * 1024);
@@ -899,11 +964,11 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
 
         cache.drag(high);
 
-        const before = cache.bytes();
+        const before = cache.retained();
 
         cache.drag(100);
 
-        const reclaimed = before - cache.bytes();
+        const reclaimed = before - cache.retained();
 
         // oxlint-disable-next-line no-console -- this suite exists to report
         console.info(

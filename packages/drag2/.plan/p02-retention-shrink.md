@@ -101,7 +101,9 @@ So this candidate recovers **historical excess only** — capacity a collection 
 
 **Measured on the current tree, that interval is comfortably drivable**: one committed move at 2 100 rows costs **5.70 ms bare and 5.74 ms with `layoutAnimation()`** — about a third of a frame — and 6.21/8.35 ms at 3 000. Averages over 60 real frames, so they include the full rebuilds `k = 8` forces and the one that opens every operation.
 
-**And the reclaim clears D-99's ~100 kB at every firing from that bucket.** The gate needs `4096 > 4 × n`, so it fires only below 1 024 items and `capacityFor(1023)` is 1 024 — the **smallest** possible reclaim is 144 KiB and the largest is 186 KiB. No firing from the 4096 bucket lands under the threshold, and no firing from the 2048 bucket clears it.
+**And the reclaim clears D-99's ~100 kB at every firing from that bucket.** The gate needs `4096 > 4 × n`, so it fires only below 1 024 items and `capacityFor(1023)` is 1 024 — the **smallest** possible reclaim is 144 KiB. No firing from the 4096 bucket lands under the threshold, and no firing from the 2048 bucket clears it.
+
+**Correction (P02-01): the largest is 192 KiB less 48 B, not 186 KiB.** 186 KiB is the reclaim at a destination of 65–128 items, which is the shrink the earning workload happens to perform — not a range endpoint. A destination of 0 or 1 leaves the one-slot buffer and clears 196 560 B. The measurement record had this right and this document did not; the load-bearing half is the _lower_ bound, which is correct and is what the D-99 argument rests on. Both ends are asserted now, in the arm that previously swept the counterexample and discarded it through `Math.min`.
 
 **One reason from the decline survives, as a limitation rather than a refusal.** `refresh` runs only inside an operation, so a live controller whose collection shrinks between drags reads **zero** geometry — asserted on the shipped API. The reclaim is not available at the moment the collection shrinks; it arrives on the next drag. That is why the earning workload names the second drag as a step rather than assuming it.
 
@@ -146,15 +148,44 @@ Five mutations of the landed branch, each against the sortable suite plus this f
 | gate at `2 ×` instead of `4 ×` | 1 — the fitted-buffer proof, which is what rejects legitimate slack |
 | no gate at all (resize on every size change) | 2 |
 | drop the settle guard | 1 — the `n = 0` arm |
-| shrink by `subarray` instead of rescanning | **126**, across the whole sortable suite |
-| shrink to the exact count rather than the next power of two | 5 |
+| shrink to the exact count rather than the next power of two | 6 |
+| revert to growth-only — remove the shrink trigger entirely | 6 |
+| shrink hands back a **view** onto the old store (`subarray` on the shrink branch) | **6** — and **0** before P02-03 |
+| shrink hands back a view _and_ keeps the old contents, skipping the rescan | 7 — and 1 before P02-03/04 |
+| replace the allocation unconditionally with `subarray` | 127 — but see below |
+
+Scope: `tests/sortable` plus this file, **492 tests** (9 measurement-only arms skipped).
+
+**Two corrections to the table this replaces** (P02-02, P02-06). The row it led with — _shrink by `subarray` instead of rescanning_ → **126** — was the strongest number here and did not bear on the shrink at all. Replacing the allocation _unconditionally_ clamps the buffer on **growth**: `subarray` cannot extend past the existing length, the scan writes past the end, `Float64Array` drops the writes, and every geometry read comes back zero. That is a falsifier of the pre-existing growth path, which D-104 did not change, and it is why it takes the whole suite down. The mutation that actually names the shrink is the one above it, and until P02-03 it failed **nothing**. The exact-count row was recorded at 5 and reproduces at 6 in the scope stated here; the direct revert to growth-only — the most basic falsifier that the branch does anything — was absent and is now the row worth reading beside the view mutation.
 
 ### Cost
 
-**+34 B** on the `y()` compositions and **+14 B** on `minimal (xy)`, brotli — inside the ~150 B headroom on every row, so **no budget moves**. That is the headroom behaving as `bench/size` describes it: sized to notice a module appearing, and deliberately too small to absorb a feature. This added no module.
+Exact brotli bytes against `685d05de`, on fresh builds of both (P02-05 — an earlier revision of this section published **+34 B on the `y()` compositions**, and no row moves 34 B):
 
-`xy()` pays the 14 B, and that is correct rather than a P-06 repeat: the shrink is a property of the **dimension-neutral cache both axes share**, driven by the collection size both of them scan, and it is not one axis rule's private optimization.
+| row                       | before | after  | Δ       | headroom now |
+| ------------------------- | ------ | ------ | ------- | ------------ |
+| minimal                   | 11 125 | 11 139 | **+14** | 121 B        |
+| minimal (xy)              | 10 787 | 10 801 | **+14** | 139 B        |
+| minimal + layoutAnimation | 11 557 | 11 571 | +14     | 129 B        |
+| minimal + landing         | 11 408 | 11 423 | +15     | 117 B        |
+| complete                  | 11 830 | 11 849 | +19     | 121 B        |
+| both behaviors            | 13 379 | 13 396 | +17     | 124 B        |
+| baseline A                | 11 545 | 11 566 | +21     | 114 B        |
+| free drag ×4              | —      | —      | **0**   | 147–154 B    |
+| baseline B                | 6 888  | 6 889  | 0       | 151 B        |
+
+**No budget moves, and no module appeared on any row.** The measured shape is _stronger_ than the argument this section used to make: `minimal` (a `y()` composition) and `minimal (xy)` pay **the same +14 B**, which is exactly what _the shrink is a property of the dimension-neutral cache both axes share_ predicts — it is not one axis rule's private optimization, and `y()` pays nothing extra at the comparable row. The larger deltas appear only on the rows with more code for brotli to model against.
+
+**The headroom wording was stale and is retired.** These rows do not sit inside a _~150 B_ margin; the `y()`-bearing ones now have **114–139 B**. The convention was already recorded at 132–143 B by the P-06 closure review (C-05, not acted on) and this slice has spent another 14–21 B against it. Nothing is breached — but the figure has drifted in one direction across consecutive slices, and quoting the old one made each slice look cheaper against the budget than it was.
 
 ### Re-measured on the landed implementation
 
-Every figure in [`measurements/p02-shrink.md`](measurements/p02-shrink.md) reproduces: 1000 drags at a stable 100 000 items → **one** allocation and a constant 6 144 kB; a qualifying shrink → **exactly two**, then settled; 2 049 → 186 KiB reclaimed; one committed move at 2 100 rows → **3.93 ms bare, 4.60 ms animated**, about a quarter of a frame.
+Every figure in [`measurements/p02-shrink.md`](measurements/p02-shrink.md) reproduces: 1000 drags at a stable 100 000 items → **one** allocation and a constant 6 144 kB; a qualifying shrink → **exactly two**, then settled; 2 049 → 186 KiB reclaimed to a hundred-item collection; one committed move at 2 100 rows → **3.93 ms bare, 4.60 ms animated**, about a quarter of a frame.
+
+### What the review changed, and it is the instrument rather than the policy
+
+**2026-08-21**, from [`reviews/p02-review-claude.md`](reviews/p02-review-claude.md). The shipped branch is unchanged — the review could not falsify it on any axis, and none of its six findings is a defect in `src/`.
+
+**The one that mattered is P02-03, and it is the difference between measuring retention and measuring release.** The instrument was inherited from M-2′, which asked how much a cache _holds_ and answered it with `values.byteLength`. This candidate is landed for what a shrink _releases_, and those are not the same reading: a `subarray` reports the fitted `byteLength` while retaining every byte of the original allocation, and it also produces a new object, so the allocation counter increments as if a real buffer had been taken. A shrink written that way passed **every arm in the file** — the policy could have been quietly reduced to a no-op with the suite green. Every arm that claims a reclaim now reads `values.buffer.byteLength`, and the two readings are asserted to agree, which they do for a shrink that allocates and only for that one.
+
+**P02-04 is the same class of error one level down**: `drag()` ends in `retire()`, which zeroes `count`, so both equivalence arms compared `0 === 0` and one of them compared two empty slices while its comment claimed a slot-for-slot match. The probe grew a `scan()` that leaves the cache warm, the comparisons are taken while the result is live, and the refused-shrink arm now compares 1 794 scalars against a literal count instead of nothing.
