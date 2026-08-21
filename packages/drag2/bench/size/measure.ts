@@ -101,11 +101,41 @@ export type Composition = Readonly<{
    * re-based on purpose, with its reason written down. It is not a performance
    * allowance, and it may never be spent to avoid landing a floor fix.
    *
-   * Landed figures, every row: minimal **10,738**, minimal (xy) **10,787**,
-   * + layoutAnimation **11,162**, + landing **11,020**, complete **11,447**,
+   * Landed figures at that re-base: minimal **10,738**, minimal (xy)
+   * **10,787**, + layoutAnimation **11,162**, + landing **11,020**, complete
+   * **11,447**, free drag minimal **8,717**, free drag + bounds **8,863**,
+   * free drag + landing **9,016**, free drag complete **9,162**, both
+   * behaviors **12,995**, baseline A **11,158**, baseline B **6,889**.
+   *
+   * **Re-based again 2026-08-21, Phase 22 (P-06, D-102), and the reason the
+   * rule above requires is that a module appeared — which is exactly what the
+   * headroom is sized to notice, so it did its job and the answer is a
+   * re-base rather than a wider margin.** `sortable/verified-refresh.js` is
+   * the verified incremental refresh, and it costs **+361 to +388 B** on the
+   * six rows that reach it.
+   *
+   * **It was not re-based when P-06 first landed, and the delay is the
+   * substance rather than bookkeeping.** The fast path was folded into
+   * `createRectIndex`'s shared closure, so `xy()` linked 288 B of an
+   * optimization D-100 condition 1 makes unreachable for it — one axis
+   * feature's private code in the other's bundle, which is the single thing
+   * these exclusivity assertions exist to catch. D-102 held the budgets red
+   * until it moved, on the grounds that an absorbed number is a number nobody
+   * reads again. It moved: `minimal (xy)` is back to **10,787**,
+   * byte-identical to before P-06, so **its budget does not move here** and
+   * neither does any free-drag row. What is being re-based is the cost of the
+   * optimization in the module graph of the only feature that can execute it.
+   *
+   * The split is not free on the `y()` side — ~66 B more than the folded form,
+   * for the wrapper object and the module boundary — and that is stated rather
+   * than netted off against the 288 B it removed. Headroom stays at ~150 B on
+   * every re-based row.
+   *
+   * Landed figures, every row: minimal **11,105**, minimal (xy) **10,787**,
+   * + layoutAnimation **11,550**, + landing **11,388**, complete **11,808**,
    * free drag minimal **8,717**, free drag + bounds **8,863**, free drag +
    * landing **9,016**, free drag complete **9,162**, both behaviors
-   * **12,995**, baseline A **11,158**, baseline B **6,889**.
+   * **13,363**, baseline A **11,520**, baseline B **6,889**.
    */
   budget: number;
   /**

@@ -63,7 +63,10 @@ const DEV: boolean = __DEV__;
  *
  * It is not a tuning constant — it bounds how long a drift the verification
  * cannot see can persist, because verification cannot see a `transform` applied
- * to a single non-witness row (D-100 case 3).
+ * to a single **strictly interior** row (D-100 case 3, radius corrected by
+ * D-103): one that is neither end of the span, so neither in-span witness reads
+ * it. At spans of 1 or 2 there is no such row and no exposure at all, and one
+ * row is exactly what the general rebuild would have got wrong too.
  *
  * **What it does *not* do is cap the payoff at `k×`** — D-100 said that, and
  * the run corrected it. `k×` is a ceiling that would bind only if a verified
@@ -133,6 +136,13 @@ const APPLIED = 1;
 const ABORTED = 2;
 
 /**
+ * The sentinel {@link translation} returns when the controller died inside its
+ * read. `Infinity` rather than a fourth constant because a `δ` is a difference
+ * of two viewport scalars and can never be one.
+ */
+const DEAD = Infinity;
+
+/**
  * One witness read: **is this row exactly where the cache says it is?**
  *
  * `1` unchanged, `0` moved, `-1` the controller died inside the read. The read
@@ -146,8 +156,15 @@ const ABORTED = 2;
  * dimension-neutral by construction and the equivalence instrument holds it to
  * a full scan on both axes, so a witness that ignored X would licence a write
  * the instrument then rejects.
+ *
+ * **It returns the outcome triple**, because a per-witness verdict *is* the
+ * hypothesis's outcome so far: a witness that agrees leaves the span appliable,
+ * one that disagrees refuses it, and one that dies inside its own read aborts.
+ * Three of these run per committed move and the caller forwards the verdict
+ * unchanged, so a mapping ternary at each site would say nothing the constants
+ * do not.
  */
-const witnessed = (
+const unchanged = (
   index: RectIndex,
   i: number,
   live: () => boolean,
@@ -155,7 +172,7 @@ const witnessed = (
   const rect = index.items[i]!.getBoundingClientRect();
 
   if (!live()) {
-    return -1;
+    return ABORTED;
   }
 
   const { values } = index;
@@ -165,8 +182,8 @@ const witnessed = (
     values[offset + TOP] === rect.top &&
     values[offset + RIGHT] === rect.right &&
     values[offset + BOTTOM] === rect.bottom
-    ? 1
-    : 0;
+    ? APPLIED
+    : REFUSED;
 };
 
 /**
@@ -186,15 +203,30 @@ const witnessed = (
  * *correct* and the drag classified, rather than correct in the message and
  * wrong in the buffer.
  *
- * It takes no liveness readings of its own. It runs only after the fast path
- * has already completed, which took one within the same synchronous window, and
- * it exists in no build a consumer can reach.
+ * **It threads `live()` exactly as the candidate loop does** (I-36, C4-01,
+ * P06-02). Each `getBoundingClientRect()` here is a consumer call on a
+ * consumer-owned element, and a reading taken *before* this scan starts says
+ * nothing about the `n` calls inside it — that is the same one-call-too-early
+ * placement C4-01 corrected in `RectIndex.refresh`. _It is `DEV`-only_ is not a
+ * waiver: this repository builds `__DEV__` as `true`, so every in-repo fixture
+ * runs this path, and an instrument that skipped I-36 would make the `DEV`
+ * build violate an invariant the shipped build holds.
+ *
+ * **On abort it stops and reports nothing**, returning `false` for the caller
+ * to retire on. Two reasons, and the second is the sharper: a partially
+ * completed scan legitimately differs from the fast-path buffer, so comparing
+ * one would turn a correct teardown into a spurious mismatch that blames the
+ * span hypothesis for a destroy; and the trailing `count`/`length` bookkeeping
+ * below is exactly what `RectIndex`'s own `abort()` refuses to run after a
+ * retire, on the grounds that it resurrects a retired cache and pins every row
+ * of the list in a destroyed controller.
  */
 const verify = (
   index: RectIndex,
   snapshot: CollectionSnapshot,
   dragged: HTMLElement,
-): void => {
+  live: () => boolean,
+): boolean => {
   const { values, items } = index;
   let n = 0;
   let mismatch = '';
@@ -205,6 +237,11 @@ const verify = (
     }
 
     const rect = item.getBoundingClientRect();
+
+    if (!live()) {
+      return false;
+    }
+
     const offset = n * STRIDE;
     const centreX = (rect.left + rect.right) * 0.5;
     const centreY = (rect.top + rect.bottom) * 0.5;
@@ -244,6 +281,8 @@ const verify = (
       `drag: the incremental insertion refresh disagreed with a full scan at ${mismatch}; the span hypothesis does not hold for this list`,
     );
   }
+
+  return true;
 };
 
 /**
@@ -253,9 +292,11 @@ const verify = (
  * geometry changed should be exactly `[lo, hi)`, each by the same scalar `δ`,
  * and nothing outside it. Four witnesses check that:
  *
- * - **the in-span witness**, row `lo`, *yields* `δ` — measured, never modelled,
- *   which is what keeps margins, `gap` and box-sizing out of this module
- *   entirely. A `δ` of zero refutes;
+ * - **the in-span witnesses**, rows `lo` and `hi − 1`, which *yield* `δ` —
+ *   measured, never modelled, which is what keeps margins, `gap` and
+ *   box-sizing out of this module entirely. A `δ` of zero refutes, and so does
+ *   the two of them disagreeing. The second is skipped when the span is one
+ *   row, where they would be the same row;
  * - **the after-witness**, row `hi`, must be unchanged;
  * - **the suffix witness**, row `count − 1`, must be unchanged. In a linear
  *   flow any change to any row's contribution shifts every row below it, so
@@ -263,9 +304,72 @@ const verify = (
  *   scroll anchoring;
  * - **the before-witness**, row `lo − 1`, when one exists.
  *
- * Nothing is written until all four agree, so a refusal leaves the buffer
+ * Nothing is written until all of them agree, so a refusal leaves the buffer
  * untouched for the full scan that follows.
+ *
+ * **The second in-span witness is D-103, and it restores parity rather than
+ * buying a new property.** With only row `lo` measured, a row carrying an
+ * unexpected offset that *is* the witness makes `δ` wrong by that offset and
+ * the error is applied to the whole span, while every other witness honestly
+ * agrees — up to `hi − lo − 1` rows wrong for up to `k` moves, where D-100
+ * accepted one. The escape is narrow and that sharpens it: the four-quantity
+ * comparison already catches horizontal movement and size change, so what
+ * survives is a **pure vertical translation** — precisely the shape of a
+ * running FLIP offset, which contract 03 §The bracket already names as enough
+ * to corrupt the rebuild, and which a third-party `beforeMove` releasing less
+ * than the first-party one produces in this very window. Under the general
+ * path that corrupts one row; under a single-witness fast path it corrupts the
+ * span. **P-06 claims to be a smaller rebuild in the same window, not a
+ * behaviourally different one**, so the amplification falsifies the claim
+ * however rare the trigger.
+ *
+ * **What remains, and it is the acceptance criterion.** At spans of 1 or 2
+ * there is no exposure at all — both ends are witnesses. At spans of 3 or more
+ * exactly one strictly interior row can be wrong, for at most `k` moves, which
+ * **equals the general path's exposure**. Span-wide corruption needs both
+ * witnesses to carry an identical pure vertical offset in the same frame; that
+ * is named and accepted, not guarded against.
  */
+/**
+ * The δ an in-span witness yields, or a refutation.
+ *
+ * A finite number is the measured translation; `NaN` means the row refutes the
+ * hypothesis outright — it did not move, or it moved horizontally, or it
+ * changed size — and {@link DEAD} means the controller died inside the read.
+ * Encoded as three numbers rather than a record because this runs twice per
+ * committed move and allocates nothing.
+ *
+ * The same four quantities the design names, and all four matter: `top` gives
+ * `δ`, `bottom` proves the row translated rather than grew, and `left`/`right`
+ * prove it did not travel across the axis the packed buffer also holds.
+ */
+const translation = (
+  index: RectIndex,
+  i: number,
+  live: () => boolean,
+): number => {
+  const rect = index.items[i]!.getBoundingClientRect();
+
+  if (!live()) {
+    return DEAD;
+  }
+
+  const { values } = index;
+  const offset = i * STRIDE;
+  const delta = rect.top - values[offset + TOP]!;
+
+  // The `bottom` test is written as "the cached bottom, shifted" rather than as
+  // "the measured difference equals `δ`" — the same equation either way, and
+  // the same exactness, since both sides are sums of viewport scalars the
+  // engine produces as multiples of a layout unit.
+  return delta !== 0 &&
+    values[offset + BOTTOM] === rect.bottom - delta &&
+    values[offset + LEFT] === rect.left &&
+    values[offset + RIGHT] === rect.right
+    ? delta
+    : Number.NaN;
+};
+
 const shift = (
   index: RectIndex,
   from: number,
@@ -284,48 +388,61 @@ const shift = (
     return REFUSED;
   }
 
-  const anchor = index.items[lo]!.getBoundingClientRect();
+  const delta = translation(index, lo, live);
 
-  if (!live()) {
+  if (delta === DEAD) {
     return ABORTED;
   }
 
-  const { values } = index;
-  const base = lo * STRIDE;
-  const delta = anchor.top - values[base + TOP]!;
-
-  if (
-    delta === 0 ||
-    anchor.bottom - values[base + BOTTOM]! !== delta ||
-    anchor.left !== values[base + LEFT]! ||
-    anchor.right !== values[base + RIGHT]!
-  ) {
+  if (Number.isNaN(delta)) {
     return REFUSED;
   }
 
-  const after = witnessed(index, hi, live);
+  // **The second in-span witness** (D-103), at the far end of the span and
+  // required to agree on the same `δ`. Skipped for a one-row span, where it
+  // would be row `lo` again and the blast radius is zero either way.
+  //
+  // The comparison is `!==` rather than a NaN test, because it has to decide
+  // two things at once and one operator decides both: a refuted second witness
+  // yields `NaN`, which is unequal to every `δ`, and an honest one that
+  // disagrees is unequal too. Either way the span hypothesis is false.
+  if (hi - lo > 1) {
+    const second = translation(index, hi - 1, live);
 
-  if (after !== 1) {
-    return after === -1 ? ABORTED : REFUSED;
+    if (second === DEAD) {
+      return ABORTED;
+    }
+
+    if (second !== delta) {
+      return REFUSED;
+    }
+  }
+
+  const after = unchanged(index, hi, live);
+
+  if (after !== APPLIED) {
+    return after;
   }
 
   const tail = count - 1;
 
   if (tail !== hi) {
-    const suffix = witnessed(index, tail, live);
+    const suffix = unchanged(index, tail, live);
 
-    if (suffix !== 1) {
-      return suffix === -1 ? ABORTED : REFUSED;
+    if (suffix !== APPLIED) {
+      return suffix;
     }
   }
 
   if (lo > 0) {
-    const before = witnessed(index, lo - 1, live);
+    const before = unchanged(index, lo - 1, live);
 
-    if (before !== 1) {
-      return before === -1 ? ABORTED : REFUSED;
+    if (before !== APPLIED) {
+      return before;
     }
   }
+
+  const { values } = index;
 
   for (let i = lo; i < hi; i += 1) {
     const offset = i * STRIDE;
@@ -462,8 +579,11 @@ export function createVerifiedRefresh(index: RectIndex): VerifiedRefresh {
           moves += 1;
           pending = 0;
 
-          if (DEV && verifying) {
-            verify(index, snapshot, dragged);
+          // On abort the instrument reports nothing and the cache retires
+          // (P06-02): a partial scan legitimately differs, so comparing one
+          // would blame the span hypothesis for a teardown.
+          if (DEV && verifying && !verify(index, snapshot, dragged, live)) {
+            return abort();
           }
 
           return true;

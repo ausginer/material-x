@@ -23,15 +23,17 @@ Re-verified after the last mutation; `git status --short` empty.
 
 **Nothing blocks merging on correctness.** Seven findings, one of which I would want acknowledged before merge because it corrects a risk statement rather than a sentence.
 
-| # | Finding | Class |
-| --- | --- | --- |
-| P06-01 | case 3's blast radius is understated, and the fixtures test only the small half | correctness-adjacent, **acknowledge before merge** |
-| P06-02 | the DEV instrument makes `n` unguarded consumer calls and can resurrect a retired cache | DEV-only, unsound justification |
-| P06-03 | the D-101 gate's "one binding per tier" is not a tier rule and can never fail alone | test polish |
-| P06-04 | "comments are stripped" is block comments only | test polish, live foot-gun |
-| P06-05 | the published size correction's own diagnosis is falsified | documentation |
-| P06-06 | the re-base has no written reason where the file's own rule requires one | documentation |
-| P06-07 | D-101's ledger row still locates the bare read in `rect-index.ts` | documentation |
+| # | Finding | Class | Disposition |
+| --- | --- | --- | --- |
+| P06-01 | case 3's blast radius is understated, and the fixtures test only the small half | correctness-adjacent, **acknowledge before merge** | **Decided as D-103 and fixed.** Second in-span witness at `hi − 1`, five replacement fixtures |
+| P06-02 | the DEV instrument makes `n` unguarded consumer calls and can resurrect a retired cache | DEV-only, unsound justification | **Fixed.** `verify` threads `live()`; on abort it stops, retires and reports nothing |
+| P06-03 | the D-101 gate's "one binding per tier" is not a tier rule and can never fail alone | test polish | **Fixed.** A tier is the top-level directory under `src/`; the third assertion pins tiers, not files, so the first can fail alone |
+| P06-04 | "comments are stripped" is block comments only | test polish, live foot-gun | **Fixed.** Line comments stripped too, and the gate now states that it text-matches rather than parses |
+| P06-05 | the published size correction's own diagnosis is falsified | documentation | **Fixed.** The stale-build explanation is withdrawn; the substantive correction stands |
+| P06-06 | the re-base has no written reason where the file's own rule requires one | documentation | **Fixed.** A P-06/D-102 entry and the current landed figures are in the `budget` docblock |
+| P06-07 | D-101's ledger row still locates the bare read in `rect-index.ts` | documentation | **Fixed.** Row marked implemented and relocated to `verified-refresh.ts` |
+
+**All seven are dispositioned as of 2026-08-21.** The remediation record — what changed, what was falsified, and what the two environmental notes were left at — is §Remediation at the foot of this file. Nothing in it reopens P-06's architecture, `k = 8`, or its measured performance: the second witness is skipped for a one-row span, which is the span the M-4′ workload commits, so the before/after table is unchanged and was re-run to confirm.
 
 ## What was verified, and how
 
@@ -169,3 +171,65 @@ Both halves are wrong. `tests/bench/size.node.test.ts` spawns `tsdown` and await
 P06-01 is the one finding I would want dispositioned rather than filed, because it is not a wording defect: the accepted case-3 trade costs more than the three places that state it say, and the negative fixtures do not exercise the variant that costs more. P06-02 is confined to builds no consumer can install, but its stated justification does not support it. P06-03 through P06-07 are polish on gates and records that are otherwise doing their job.
 
 LSP plugin - available; used: `documentSymbol` on `src/free-drag/assemble.ts` in an earlier pass this session; not used for P-06, where the work was mutation-and-run falsification, runtime observation of buffer divergence, and comparing published figures against fresh builds.
+
+---
+
+## Remediation
+
+**Landed 2026-08-21**, after the review. Seven findings, seven fixes, no architectural change.
+
+### P06-01 → D-103 — the second in-span witness
+
+The finding was accepted as a decision rather than a patch, because what it corrects is a **risk statement**, not a line: the accepted case-3 trade was written as "one row" and is "up to `hi − lo − 1` rows" whenever the drifting row is the one `δ` is measured from. `shift` now reads a second in-span witness at `hi − 1`, compares it on the same four quantities as the anchor, and requires the two to agree on `δ`. It is skipped when `hi − lo === 1`, where the two would be the same row.
+
+**The performance record does not move, and that is checkable rather than asserted.** M-4′'s workload oscillates between adjacent slots, so every committed move it measures has a one-row span and takes the same four reads it took before D-103 — the structural rows in `m4-prime` that pin `rebuild === 4` still pass untouched. The five-read case is asserted separately, in `incremental-refresh`, alongside the four-read one-row-span case.
+
+**The fixtures replace D-100's single "a row transformed mid-drag" with five**, and two of them are the point:
+
+| fixture | against the tree without the second witness |
+| --- | --- |
+| `translateY` on row `lo` — the anchor | **took the fast path** with an inflated `δ` applied to the span |
+| `translateY` on row `hi − 1` | **took the fast path**; nothing looked at that row |
+| `translateY` on an after, suffix or before witness | refused, as before |
+| `translateY` on a strictly interior row, instrument **on** | reports a mismatch |
+| `translateY` on a strictly interior row, instrument **off** | **exactly one slot** of the packed buffer differs from a fresh scan |
+
+**Two fixtures were added that the review did not ask for**, because the mutation pass found the four-quantity comparison itself uncovered: dropping the `bottom` test, or the `left`/`right` pair, from `translation` changed nothing the suite could see. Both are now driven over a **one-row span**, where the perturbed row is the only in-span witness — over a wider span D-103's second witness refuses first and the fixture would be testing that instead. A `scaleY` isolates `bottom` (the flow does not move, so no other witness has anything to report, and only the paired test can tell a grown row from a translated one); a combined `translate(5px, 7px)` isolates `left`/`right` (a horizontal move alone is refused by the `δ === 0` test, so it is paired with a vertical one that makes `δ` look honest).
+
+The last row reads the buffer directly, through a `createVerifiedRefresh(createRectIndex())` driven over its own DOM, rather than inferring the radius from the gaps `resolve` happens to propose — a `resolve` sweep would pass on a buffer with two wrong rows if neither changed an answer. It carries a control on the same fixture without the perturbation, which must show none.
+
+### P06-02 — liveness through the equivalence scan
+
+`verify` now takes a liveness reading between every candidate read and everything after it, exactly where the candidate loop takes one. On abort it **stops, leaves the cache retired, and reports nothing** — the caller retires and returns `false`.
+
+The "reports nothing" half is the sharper one and is asserted on its own: a partially completed scan legitimately differs from the fast-path buffer, so an instrument that compared one would turn a correct teardown into a spurious mismatch blaming the span hypothesis for a destroy. Four fixtures — the read count stopping on the row that closed the controller, the cache left empty, no throw, and a control that still throws when nothing tore down.
+
+The module's old justification is replaced rather than reworded. **"It is `DEV`-only" was the wrong reason**: this repository builds `__DEV__` as `true`, so every in-repo fixture runs the instrumented path, and an instrument that skipped I-36 would make the dev build violate an invariant the shipped build holds.
+
+### P06-03 / P06-04 — the `__DEV__` gate matches the rule it states
+
+A tier is now the **top-level directory under `src/`**, so a second binding at `sortable/sub/a.ts` fails the rule it plainly breaks. The third assertion pins the set of **tiers** rather than of files, which is what lets the first fail on its own. Line comments are stripped as well as block comments.
+
+The gate now **states its limits instead of implying a parse**: a string literal carrying the token counts as a read, a binding fenced by string literals holding comment delimiters is invisible, and only `src/**/*.ts` is walked. All three are accepted — the failure mode of a text match is a loud false positive, fixed by rewording, rather than a false negative that ships, and closing the gap properly needs a TypeScript parser this rule does not justify.
+
+**Falsified in five directions**, each landing where the rule says it should: a sub-directory binding fails assertion (1) alone; a binding in a new tier fails (3) alone; **moving the binding between `sortable/` modules fails neither**, which is correct because the rule is about tiers; a line comment mentioning the token passes; a string literal containing it fails.
+
+### P06-05 — the diagnosis is corrected, the correction stands
+
+The stale-build explanation is withdrawn, in the record and in D-102's ledger row. The review is right on both halves: `tests/bench/size.node.test.ts` builds in `beforeAll`, and the overruns reproduce exactly on a clean build of the folded state. What happened is that an `over budget by N B` row was read as a delta. **The substantive correction is unchanged** — the real carried `xy()` cost was 288 B, larger than first reported, so nothing drawn from it moves.
+
+### P06-06 — the re-base has its reason where the rule requires it
+
+`bench/size/measure.ts`'s `budget` docblock gains a P-06/D-102 entry in its running narrative and its landed figures are brought forward to the current ones. The entry records what the headroom caught (a module appearing), why the re-base was withheld until D-102 landed, that `minimal (xy)` and every free-drag row **do not move**, and that the split costs ~66 B more on the `y()` side than the folded form — stated rather than netted off against the 288 B it removed.
+
+### P06-07 — D-101's row
+
+Marked **Implemented**, and the ratification relocated: it is of the _form_, and the binding moved to `verified-refresh.ts` with the rest of P-06 on the same day D-102 landed.
+
+### The two environmental notes
+
+Both left as the review found them, deliberately. **Budget enforcement staying manual** is a repository-workflow question that predates this branch and is not P-06's to settle — D-102's structural half runs in the ordinary suite either way. **M-5's load-sensitive self-test** is another measurement's instrument, in a file this branch does not touch; it is recorded here so the next reader of that file meets it already known rather than as a fresh flake.
+
+### Gates after remediation
+
+Twelve mutations of the fast path, each run against the whole sortable suite — the last two found the gap the two extra fixtures above close: shift-one-row-too-far (10 tests in 3 files), drop the suffix witness (7), accept any pending invalidation (2), never re-synchronise (1), mirror never clears on abort (1), remove the second in-span witness (5), read it without requiring `δ` agreement (2), put it at `lo + 1` (6), drop the liveness reading inside `verify` (2), report the mismatch on abort (2), drop the `bottom` test from `translation` (1), drop its `left`/`right` pair (1). Five `__DEV__`-gate mutations as above. Size gates green with the re-based budgets, `xy()` and free drag unchanged.

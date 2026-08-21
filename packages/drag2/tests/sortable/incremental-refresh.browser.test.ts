@@ -30,7 +30,9 @@ import type {
   FeatureContext,
   InsertionGeometry,
 } from '../../src/sortable/feature.ts';
+import { createRectIndex, STRIDE, TOP } from '../../src/sortable/rect-index.ts';
 import {
+  createVerifiedRefresh,
   RESYNC_INTERVAL,
   setRefreshVerification,
 } from '../../src/sortable/verified-refresh.ts';
@@ -310,6 +312,151 @@ function createField(installer: 'y' | 'xy' = 'y', count = COUNT): Field {
   return field;
 }
 
+/**
+ * The packed buffer itself, driven through the shipped wrapper rather than
+ * through `y()`.
+ *
+ * D-103's third fixture has to say **how many rows** a surviving drift left
+ * wrong, and that is a statement about the buffer. Read through `resolve` it
+ * would be a statement about the gaps the rule happens to propose at the
+ * pointer positions the test picked — a weaker claim, and one that could pass
+ * on a buffer with two wrong rows if neither changed an answer. So this drives
+ * `createVerifiedRefresh(createRectIndex())` over its own DOM and compares the
+ * slots directly.
+ */
+type Cache = Readonly<{
+  rows: HTMLElement[];
+  /** One committed move; returns the layout reads it took. */
+  commit(gap: number): number;
+  /** What the last {@link commit} reported. */
+  refreshed(): boolean;
+  /** The slots whose packed geometry disagrees with a fresh scan of the DOM. */
+  differing(): number[];
+  /** Whether the cache is empty, which is what `retire()` leaves behind. */
+  retired(): boolean;
+  /**
+   * Makes `rows[slot]` close the controller from **inside its own**
+   * `getBoundingClientRect()` — the I-36 hazard in its exact shape, a consumer
+   * override that tears down during a traversal the library is in the middle of.
+   */
+  kill(slot: number): void;
+}>;
+
+function createCache(count = COUNT): Cache {
+  const root = document.createElement('div');
+
+  Object.assign(root.style, {
+    width: '200px',
+    position: 'absolute',
+    top: '0px',
+    left: '0px',
+  });
+  document.body.append(root);
+  cleanup.push(root);
+
+  const dragged = document.createElement('div');
+  const placeholder = document.createElement('div');
+
+  Object.assign(placeholder.style, {
+    display: 'block',
+    height: `${ROW_HEIGHT}px`,
+  });
+
+  const rows: HTMLElement[] = [];
+  let reads = 0;
+  let closed = false;
+  let outcome = false;
+
+  const live = (): boolean => !closed;
+
+  const instrument = (row: HTMLElement): void => {
+    const measure = row.getBoundingClientRect.bind(row);
+
+    row.getBoundingClientRect = (): DOMRect => {
+      reads += 1;
+      return measure();
+    };
+  };
+
+  for (let i = 0; i < count; i += 1) {
+    const row = document.createElement('div');
+
+    Object.assign(row.style, {
+      display: 'block',
+      width: '100px',
+      height: `${ROW_HEIGHT}px`,
+    });
+    instrument(row);
+    root.append(row);
+    rows.push(row);
+  }
+
+  root.prepend(placeholder);
+
+  const index = createRectIndex();
+  const cache = createVerifiedRefresh(index);
+  const snapshot = (): CollectionSnapshot => ({
+    items: [dragged, ...rows],
+    version: 0,
+  });
+
+  const probe: Cache = {
+    rows,
+
+    commit(gap): number {
+      const anchor = rows[gap];
+
+      if (anchor === undefined) {
+        root.append(placeholder);
+      } else {
+        anchor.before(placeholder);
+      }
+
+      cache.invalidate();
+      reads = 0;
+      outcome = cache.refresh(snapshot(), dragged, null, live, gap);
+
+      return reads;
+    },
+
+    refreshed: () => outcome,
+
+    retired: () => index.count === 0 && index.items.length === 0,
+
+    kill(slot): void {
+      const row = rows[slot]!;
+      const measure = row.getBoundingClientRect.bind(row);
+
+      // No counter here: `measure` is the already-instrumented override
+      // installed at construction, so it counts this read itself.
+      row.getBoundingClientRect = (): DOMRect => {
+        closed = true;
+
+        return measure();
+      };
+    },
+
+    differing(): number[] {
+      const wrong: number[] = [];
+
+      for (const [slot, row] of rows.entries()) {
+        const rect = row.getBoundingClientRect();
+
+        if (index.values[slot * STRIDE + TOP] !== rect.top) {
+          wrong.push(slot);
+        }
+      }
+
+      return wrong;
+    },
+  };
+
+  // The first committed move of an operation has no span to propose.
+  probe.commit(2);
+
+  return probe;
+}
+
 describe('the incremental insertion refresh', () => {
   describe('the equivalence instrument', () => {
     it('should reject a buffer the fast path got wrong', () => {
@@ -380,7 +527,7 @@ describe('the incremental insertion refresh', () => {
       field.agree();
     });
 
-    it('should read four rows rather than the whole list', () => {
+    it('should read five rows rather than the whole list', () => {
       // The saving, stated structurally. The instrument is switched off for
       // this one assertion **because it performs the very full scan the count
       // is measuring** — and for no other test in this file.
@@ -388,20 +535,215 @@ describe('the incremental insertion refresh', () => {
 
       setRefreshVerification(false);
 
-      // lo = 2, hi = 6: the in-span witness, the after-witness, the suffix
-      // witness and the before-witness — against twelve for the rebuild this
-      // replaces.
-      expect(field.commit(6)).toBe(4);
+      // lo = 2, hi = 6: both in-span witnesses (rows 2 and 5), the
+      // after-witness, the suffix witness and the before-witness — against
+      // twelve for the rebuild this replaces.
+      expect(field.commit(6)).toBe(5);
     });
 
-    it('should read three rows when the span starts at the first slot', () => {
+    it('should read four rows when the span starts at the first slot', () => {
       const field = createField();
 
       setRefreshVerification(false);
       field.commit(0);
 
       // lo = 0, so there is no before-witness.
-      expect(field.commit(5)).toBe(3);
+      expect(field.commit(5)).toBe(4);
+    });
+
+    it('should not read the second in-span witness for a one-row span', () => {
+      // **The skip D-103 specifies**, and the reason the committed-move
+      // workload M-4′ measures is unaffected by the guard: an oscillation
+      // between adjacent slots has `hi − lo === 1`, where the two in-span
+      // witnesses would be the same row and the blast radius is zero anyway.
+      const field = createField();
+
+      setRefreshVerification(false);
+
+      // lo = 2, hi = 3: one in-span witness, after, suffix, before.
+      expect(field.commit(3)).toBe(4);
+    });
+  });
+
+  describe('a row that drifts under the span (D-103)', () => {
+    // **The three fixtures that replace D-100's single "a row transformed
+    // mid-drag".** The single one only ever perturbed a non-witness in-span
+    // row, which is the *cheap* half of case 3: it leaves one row wrong and the
+    // instrument catches it. The expensive half is a drift on the row the
+    // measurement is taken from, where `δ` absorbs the offset and the whole
+    // span goes with it — and that half was untested.
+    //
+    // A pure `translateY` is the perturbation throughout, because it is the one
+    // shape that survives the four-quantity comparison: a horizontal move fails
+    // the `left`/`right` equality and a size change fails the `bottom` test. It
+    // is also the shape a running FLIP offset has, which is why contract 03
+    // §The bracket already names it.
+
+    it('should refuse when the first in-span witness drifted', () => {
+      // **This is the row that fails against a tree with only one in-span
+      // witness**, where row 2 *is* the witness: `δ` comes back as the flow
+      // shift plus 7 px, every other witness honestly agrees, and the fast path
+      // applies the inflated `δ` to rows 2..5.
+      const field = createField();
+
+      field.rows[2]!.style.transform = 'translateY(7px)';
+
+      expect(field.path(6)).toBe('full');
+    });
+
+    it('should refuse when the second in-span witness drifted', () => {
+      // Row 5 is `hi − 1`. Against the single-witness tree it is an ordinary
+      // interior row and nothing looks at it.
+      const field = createField();
+
+      field.rows[5]!.style.transform = 'translateY(7px)';
+
+      expect(field.path(6)).toBe('full');
+    });
+
+    it('should refuse when an in-span witness changed size', () => {
+      // **The `bottom` half of the four-quantity comparison, isolated.** A
+      // `scaleY` changes the row's extent without changing the flow, so no
+      // other row moves and no other witness has anything to report — the
+      // measured `δ` from `top` is non-zero and plausible, and only the paired
+      // `bottom` test can tell that the row grew rather than translated.
+      //
+      // **Driven over a one-row span**, so row 2 is the *only* in-span witness.
+      // Over a wider span D-103's second witness would refuse first and this
+      // row would be testing that instead.
+      const field = createField();
+
+      field.rows[2]!.style.transform = 'scaleY(1.2)';
+
+      expect(field.path(3)).toBe('full');
+    });
+
+    it('should refuse when an in-span witness moved across the axis', () => {
+      // **The `left`/`right` half, isolated.** A horizontal move alone would be
+      // refused by the `δ === 0` test, so it is paired with a vertical one that
+      // makes `δ` look honest: the row translates *and* travels sideways, and
+      // only the edges the `y` rule never reads can see it. They are compared
+      // because the buffer is dimension-neutral and the equivalence instrument
+      // holds it to a full scan on both axes — a witness that ignored X would
+      // licence a write the instrument then rejects.
+      //
+      // One-row span, for the same reason as the row above.
+      const field = createField();
+
+      field.rows[2]!.style.transform = 'translate(5px, 7px)';
+
+      expect(field.path(3)).toBe('full');
+    });
+
+    it('should refuse when a witness outside the span drifted', () => {
+      // The after-, suffix- and before-witnesses, which refused before D-103
+      // and still do. Driven one at a time on their own fixture, because a
+      // refusal is a property of the move rather than of the field.
+      for (const slot of [6, 11, 1]) {
+        const field = createField();
+
+        field.rows[slot]!.style.transform = 'translateY(7px)';
+
+        expect([slot, field.path(6)]).toEqual([slot, 'full']);
+      }
+    });
+
+    it('should report a mismatch when a strictly interior row drifted', () => {
+      // The residual exposure, and the instrument is what sees it. Span [2, 6)
+      // is three rows wide, so rows 3 and 4 are strictly interior: neither end
+      // of the span, and no witness reads them.
+      const field = createField();
+
+      field.rows[3]!.style.transform = 'translateY(7px)';
+
+      expect(() => field.commit(6)).toThrow(/disagreed with a full scan/u);
+    });
+
+    it('should leave exactly one row wrong when a strictly interior row drifted', () => {
+      // **The radius, pinned rather than assumed.** With the instrument off —
+      // which is the shipped shape — the fast path takes the move and the
+      // buffer keeps whatever the hypothesis got wrong. D-103's acceptance
+      // criterion is that this is *one* row, which is what the general rebuild
+      // would also have got wrong, and not the span.
+      const cache = createCache();
+
+      setRefreshVerification(false);
+      cache.rows[3]!.style.transform = 'translateY(7px)';
+      cache.commit(6);
+
+      expect(cache.differing()).toEqual([3]);
+    });
+
+    it('should leave nothing wrong on the same move without the drift', () => {
+      // The control. Without it the row above passes on any tree that gets
+      // exactly one row wrong for any reason at all.
+      const cache = createCache();
+
+      setRefreshVerification(false);
+      cache.commit(6);
+
+      expect(cache.differing()).toEqual([]);
+    });
+  });
+
+  describe('teardown inside the equivalence instrument (P06-02)', () => {
+    // The instrument walks every candidate through `getBoundingClientRect()`,
+    // which C4-01 makes a consumer call — so it owes I-36 exactly what the
+    // candidate loop owes, and **"it is `DEV`-only" is not a waiver**: this
+    // repository builds `__DEV__` as `true`, so every fixture in the suite runs
+    // this path, and an instrument that skipped the barrier would make the dev
+    // build violate an invariant the shipped build holds.
+
+    it('should stop the scan when the controller closes inside it', () => {
+      // Row 9 is outside the span [2, 6) and outside every witness, so it is
+      // reached only by the instrument's own traversal — which is what makes
+      // this a test of the instrument rather than of `shift`.
+      const cache = createCache();
+
+      cache.kill(9);
+
+      // Five witnesses, then slots 0..9 of the instrument's scan, and **not**
+      // slots 10 and 11: the reading is taken between the consumer call and
+      // everything after it, so the traversal stops on the row that closed the
+      // controller rather than one row later.
+      expect(cache.commit(6)).toBe(15);
+      expect(cache.refreshed()).toBe(false);
+    });
+
+    it('should leave the cache retired rather than repopulated', () => {
+      // The trailing `count`/`length` bookkeeping is precisely what
+      // `RectIndex.abort()` refuses to run after a retire, on the grounds that
+      // it resurrects a retired cache and pins every row of the list in a
+      // destroyed controller (I-20).
+      const cache = createCache();
+
+      cache.kill(9);
+      cache.commit(6);
+
+      expect(cache.retired()).toBe(true);
+    });
+
+    it('should report no equivalence mismatch for a teardown', () => {
+      // **The sharper half.** A partially completed scan legitimately differs
+      // from the fast-path buffer, so an instrument that compared one would
+      // turn a correct teardown into a spurious mismatch — blaming the span
+      // hypothesis for a destroy, and surfacing it on `onError` as
+      // `FAILURE_INVALIDATION`.
+      const cache = createCache();
+
+      cache.kill(9);
+
+      expect(() => cache.commit(6)).not.toThrow();
+    });
+
+    it('should still report a mismatch when nothing tore down', () => {
+      // The control: the rows above must not be passing because the instrument
+      // stopped reporting altogether.
+      const cache = createCache();
+
+      cache.rows[3]!.style.transform = 'translateY(7px)';
+
+      expect(() => cache.commit(6)).toThrow(/disagreed with a full scan/u);
     });
   });
 

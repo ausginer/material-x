@@ -27,6 +27,8 @@ D-98 asserted that a committed placeholder move changes only the rows between th
 3. **A `transform` on a single row.** It changes `getBoundingClientRect()` without changing flow, so it moves one row and nothing else. **(S3)** fails in a shape no flow argument predicts.
 4. **Scroll anchoring.** Chromium adjusts `scrollTop` when content above the viewport changes — which is precisely what moving a placeholder does — and the compensating `scroll` event is dispatched **after** the bracket has already run. So the geometry can shift under a move without the invalidation that would normally cover it. This is the sharpest of the four, because it is triggered by the library's own action on the exact DOM shape the fast path is for.
 
+> **Corrected by D-103.** The four-way failure list below is unchanged, but **case 3's blast radius is not "one row"** — it is one row only while the drifting row is not one of the two in-span witnesses, which is what the second witness makes true. The corrected statement, which supersedes every "one row" in this file: **no exposure at spans of 1 or 2; exactly one strictly interior row at spans ≥ 3, equal to the general path's exposure; span-wide only if both witnesses carry an identical pure vertical offset in the same frame.**
+
 **Repeated moves compose, and that is not the hazard.** Each move's `δ` applies to its own span, the packed values stay in the same units, and nothing accumulates that a second move interprets differently — the cache holds absolute viewport scalars, not deltas. **The hazard is drift, and drift does not compose with anything: it simply is not seen.**
 
 **One property makes drift cheaply detectable, and it is the design's load-bearing observation.** In a linear flow, any change to any row's contribution shifts **every subsequent row**. Flow drift is therefore _suffix-shaped_: it is visible at the **last candidate**. Scroll anchoring is visible there too, because it shifts everything. Only case 3 — a transform on one non-witness row — escapes a suffix witness, and case 1 does not escape it either.
@@ -43,7 +45,7 @@ D-98 asserted that a committed placeholder move changes only the rows between th
 
 **3 — Verification, in a constant number of reads.** With the hypothesised span `[lo, hi)`:
 
-- **the in-span witness**, row `lo`, yields `δ` by differencing its measured rect against its cached one. `δ` is **measured, never modelled** — which is what removes margins, `gap` and box-sizing from the design entirely, and is the part of D-98's one-row idea that survives as mechanism rather than as proof. A `δ` of zero refutes the hypothesis;
+- **the in-span witness**, row `lo`, yields `δ` by differencing its measured rect against its cached one. `δ` is **measured, never modelled** — which is what removes margins, `gap` and box-sizing from the design entirely, and is the part of D-98's one-row idea that survives as mechanism rather than as proof. A `δ` of zero refutes the hypothesis. **A second in-span witness at `hi − 1`, required to agree on the same `δ`, was added by D-103** — see §The review dispositions: a drift on the row `δ` is measured _from_ is absorbed into `δ` and applied to the whole span, which is the one condition under which the fast path is strictly worse than the rebuild it replaces;
 - **the after-witness**, row `hi`, must be unchanged;
 - **the suffix witness**, row `count − 1`, must be unchanged. This is the one that catches collapsing margins, scroll anchoring and any flow drift originating anywhere in the list;
 - **the before-witness**, row `lo − 1`, must be unchanged, when one exists.
@@ -213,6 +215,8 @@ D-100 §What would stop this reserved the possibility that "the witness reads tu
 2. the same on an **after, suffix or before** witness must refuse, as it already does;
 3. the same on a **strictly interior** span row, over a multi-slot move so the span reaches 3 — asserted **twice**: with the equivalence instrument on, it must **report a mismatch**, proving the instrument sees what the witnesses cannot; with it off, **exactly one row** may differ, which pins the radius so it cannot silently grow.
 
+**Both landed 2026-08-21, with the review's other five findings; the dispositions and the remediation record are in [`reviews/p06-review-claude.md`](reviews/p06-review-claude.md) §Remediation.** The guard costs one read, the skip behaves as specified — M-4′'s workload commits one-row spans, so it still takes four reads and **§What landed's timing table is unchanged**, re-run to confirm — and the two fixtures that matter were verified to **fail against the tree without the second witness**, which is what the obligation asked for.
+
 **P06-02 — an implementation defect, and it is handed back rather than decided.** The equivalence scan walks every candidate through `getBoundingClientRect()`, which C4-01 makes a consumer call, without threading `live()` between them — the obligation `refresh` already discharges through `abort()`. Nothing about it is open at the design level.
 
 **Two notes, because "it is `DEV`-only" is the wrong reason to waive it.** The repository's own build defines `__DEV__` as `true`, so **every in-repo fixture runs the instrumented path**: an instrument that skips I-36 makes the `DEV` build violate an invariant the shipped build holds, which inverts what a dev assertion is for and leaves the I-36 fixtures unable to exercise the shipped shape. And **on abort the instrument must stop and report nothing** — a partially completed scan legitimately differs from the fast-path buffer, so comparing one would turn a correct teardown into a spurious mismatch.
@@ -230,7 +234,11 @@ D-100 §What would stop this reserved the possibility that "the witness reads tu
 
 ### First, a correction to the numbers the record above published
 
-**The `+135 to +164 B` figures were budget overruns read off a stale build, not size deltas.** `bench/size` bundles the package's **built** output, and `just test` — unlike `just size` — does not build first, so the comparison that produced them measured one state against a build of another. The overruns themselves were real; what was wrong is calling them the cost.
+**The `+135 to +164 B` figures were budget overruns quoted as size deltas.** That is the whole of the error, and it is one error rather than two.
+
+**The stale-build explanation this section first gave for it is itself wrong, and the review falsified it** (P06-05). `tests/bench/size.node.test.ts` spawns `tsdown` and awaits a build in `beforeAll`, and that file is unchanged across this branch — the size suite builds first, so `just test` does not measure one state against a build of another. Building the folded state in an isolated worktree reproduces the overruns exactly: 135 on `minimal (xy)`, 164 on `+ layoutAnimation`, 149/156/141/152/155 on the rest. No stale build is needed to produce them, and none produced them.
+
+What did produce them is simpler and less flattering: the failing rows print `over budget by N B`, and `N` was read as though it were the cost of the change. It is the distance from a budget that already carried ~150 B of headroom. **The substantive correction stands unchanged** — the real carried `xy()` cost was 288 B, larger than reported, so every conclusion drawn from it is unaffected in the direction that matters. Only the reason the first numbers were wrong is corrected here.
 
 **Measured properly, each state built before it was measured** (brotli bytes):
 
