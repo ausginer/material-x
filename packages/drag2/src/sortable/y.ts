@@ -70,6 +70,19 @@ type InsertionRuntimeView = Readonly<{
    * runtime.
    */
   live(): boolean;
+  /**
+   * The destination gap of the committed move being bracketed, or `null`
+   * outside the bracket.
+   *
+   * **The fifth widening of this view, and the whole contract cost of P-06**
+   * (D-100). `measure` has exactly one call site — the committed-move bracket —
+   * so a non-null value here *is* the reason signal: it says a placeholder move
+   * just happened, and it says so without widening `invalidate`, without a
+   * reason argument, and without this module learning anything about the
+   * behavior's phases. `resolve` reads it too, and deliberately ignores it: a
+   * lazy rebuild has no committed move to attribute itself to.
+   */
+  insertion: Insertion | null;
 }>;
 
 const centreOf = (element: Element): number => {
@@ -166,6 +179,11 @@ export function y(): AxisInstaller {
          * spatial frame, which by then is mid-animation. The only case that
          * pays for a pass it would not otherwise have is the last move before
          * release — and release invalidates and re-resolves anyway.
+         *
+         * **Still eager, and still the same window** (D-100). P-06 made the
+         * rebuild inside it smaller; it moved nothing, deferred nothing, and
+         * left D-95's exclusion of the eager position from cost-driven
+         * re-decision intact.
          */
         measure(
           frame: InsertionFrameView,
@@ -174,11 +192,20 @@ export function y(): AxisInstaller {
           const dragged = frame.item;
 
           if (dragged !== null) {
+            const { insertion } = runtime;
+
+            // **The one opt-in, and it is this argument** (P-06, D-100). The
+            // gap is both the reason signal and half the span hypothesis; the
+            // cache verifies the other half against four reads and falls back
+            // to the full rebuild it already ran, in the same window, on any
+            // refutation. `xy()` passes nothing and its call site is unchanged,
+            // so a regression here has one candidate cause.
             index.refresh(
               runtime.snapshot,
               dragged,
               runtime.getBox,
               runtime.live,
+              insertion === null ? -1 : insertion.index,
             );
           }
         },

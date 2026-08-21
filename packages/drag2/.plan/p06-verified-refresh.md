@@ -1,6 +1,8 @@
 # P-06 — the verified incremental refresh
 
-**Status: designed 2026-08-20 (D-100). Not implemented.** This is the Phase 22 architecture handoff for P-06, the first and only candidate this phase opens. It works from D-98's boundary and from M-4′'s evidence, and it takes no measurement: Phase 21 has already given this candidate every number it will get.
+**Status: designed 2026-08-20 (D-100); implemented 2026-08-21.** This is the Phase 22 architecture handoff for P-06, the first and only candidate this phase opens. It works from D-98's boundary and from M-4′'s evidence, and it takes no measurement: Phase 21 has already given this candidate every number it will get.
+
+**The implementation record is [§What landed](#what-landed) at the foot of this file**, including the measured before/after, the two places the tree differs from the design, and the one contingency in §What would stop this that was measured and did not fire.
 
 **The optimization survives.** It survives in a different shape from D-98's sketch, and the difference is the whole architectural content: **the span is a hypothesis the feature verifies with a constant number of reads, not state it trusts.** That is what makes the fast path locally falsifiable, which is the condition the phase entry set for taking it at all.
 
@@ -104,3 +106,87 @@ The fast path is refused, and the full rebuild runs, unless **all** of these hol
 - **`k` has to fall below ~4 to keep drift acceptable.** The saving is `k×`; below that the win no longer justifies the state, and the honest answer is to decline.
 - **The witness reads turn out not to be free.** The design assumes four `getBoundingClientRect()` calls cost approximately nothing against `n − 1`. At `n = 50` that ratio is 4:49 and the fast path may be within noise — in which case P-06 is a large-list optimization and should be gated on `count`, or declined for small lists rather than defended at every size.
 - **Any of this needs a second public widening.** One additive view field is the budget. A second — a reason argument, a new contribution member, a new slot — means the design has failed to fit the SPI it was supposed to fit, and the trade should be re-argued rather than paid incrementally.
+
+---
+
+## What landed
+
+**Implemented 2026-08-21**, against the design above and D-100's eight-condition boundary, with no re-decision of the eager window, no change to `xy()`'s call site and no tuning of `k`.
+
+### The tree
+
+| Where | What |
+| --- | --- |
+| `src/sortable/slots.ts` | `InsertionRuntimeView.insertion: Insertion \| null` — the one additive field, carrying a value `runtime.ts` already holds and the bracket already writes |
+| `src/sortable/y.ts` | the same field on the module's own consumer-declared view, and `measure` passing `insertion === null ? -1 : insertion.index` to `refresh`. **That argument is the entire opt-in** |
+| `src/sortable/rect-index.ts` | `refresh`'s optional `gap`, the pending-invalidation count, the last-serviced gap, the moves-since-full-scan count, `shift` (the four witnesses and the δ application), `verify` (the equivalence instrument) and `RESYNC_INTERVAL = 8` |
+| `src/sortable/xy.ts` | **unchanged** |
+
+`tests/sortable/incremental-refresh.browser.test.ts` is new: the instrument's falsifier and its control, the eight conditions each driven individually, the fallback, and retirement. `tests/perf/m4-prime.browser.test.ts` gained the paired general/verified arms in both regimes.
+
+### The equivalence instrument
+
+It is `__DEV__`-gated, on by default, and runs on **every** fast-path refresh in every suite run — which the mutation table below shows reaches three composed suites, not only its own file. It **heals before it throws**: the scan it performs to compare is the scan the full path would have run, so it writes the authoritative values back and only then reports. A mismatch therefore leaves the cache correct and the drag classified, rather than correct in the message and wrong in the buffer.
+
+**Its falsifier is D-100 case 3**, and that is the point: a `transform` on a single in-span row that is not a witness. Every witness still agrees, `δ` is genuine, the hypothesis is nonetheless false, and nothing but a full comparison can see it. The same fixture without the transform is the control, so the assertion cannot pass by always failing.
+
+**Four mutations of the shipped code, each run against the whole `tests/sortable` suite:**
+
+| Mutation | Caught by |
+| --- | --- |
+| apply `δ` to `[lo, hi]` instead of `[lo, hi)` | 8 tests in **3 files** — the instrument's own control, and two composed suites (`displacement`, `input-policy`) |
+| drop the suffix witness | 4 tests |
+| accept any pending invalidation instead of exactly one | 2 tests |
+| never re-synchronise | 1 test |
+
+The first row is the load-bearing one twice over: it proves the assertion discriminates, and it proves the fast path is genuinely reached through real composed drags — including one driven by real Playwright input — rather than only by the direct-drive fixture.
+
+### The measured before/after
+
+Both arms in one session, one arm live at a time, differing by **one argument**: the control withholds the committed gap from `measure`, so the _shipped_ `y()`, cache and resolve loop take the general path. Rule-level equivalence (the gaps proposed over a run twice `k`) is asserted before any ratio is quoted, on top of the buffer instrument.
+
+The instrument is switched off for these arms and for the `m4-prime` structural rows, and for nothing else. It performs the very full scan the measurement is trying to detect, it is `DEV`-only, and it exists in no build a consumer can install.
+
+**Deployed pacing — one committed move per real frame. This is the decision-relevant table.**
+
+| n | composition | rebuild, general | rebuild, verified | bracket, general | bracket, verified |
+| --- | --- | --- | --- | --- | --- |
+| 50 | bare | 0.437 ms | 0.270 ms | 0.501 ms | 0.326 ms |
+| 200 | bare | 1.174 ms | 0.460 ms | 1.227 ms | 0.511 ms |
+| 800 | bare | 3.504 ms | 1.312 ms | 3.566 ms | 1.374 ms |
+| 50 | `layoutAnimation()` | 0.468 ms | 0.384 ms | 1.112 ms | 1.111 ms |
+| 200 | `layoutAnimation()` | 1.087 ms | 0.505 ms | 1.831 ms | 1.251 ms |
+| 800 | `layoutAnimation()` | 3.318 ms | 1.151 ms | 4.333 ms | 2.293 ms |
+
+160 committed moves per arm after 20 warm-up frames; resolution 0.0006 ms. The general column reproduces M-4′'s recorded ~3.4 ms at 800 rows, which is the check that the control arm is the old path and not a new one.
+
+**Read counts, asserted structurally in CI rather than measured:** the rebuild reads `n − 1` on the first committed move of an operation and **4** on every verified one, at both 50 and 800 rows, with the span, write, after and resolve segments byte-for-byte identical between the arms. P-06 is a smaller rebuild in the same window — not a re-timing, not a removal.
+
+### What the numbers say that the design did not predict
+
+**The saving is ~2.6× at 800 rows, not the ~8× `k` allows, and `k` is not the reason.** If a verified move were free the average would be `full / 8` = 0.44 ms; it is 1.31 ms, so a verified move costs ≈1.0 ms of the general path's 3.5 ms while doing four reads instead of 799. **The dominant term of the rebuild in the deployed regime is the forced layout after the placeholder write, not the per-row reads** — one flush of ≈1 ms at 800 rows, then ≈3 µs per row. P-06 removes the second term and cannot touch the first.
+
+Three consequences, all recorded rather than acted on here:
+
+1. **`k` is not currently the binding constraint**, so raising it would buy little and spend drift tolerance for it. D-100's "raise it once the equivalence instrument has run against real fixtures" should be read against this: the instrument has now run, and the answer is that there is not much left for a larger `k` to win.
+2. **The forced flush is the next thing in this bracket worth a candidate**, and it is not P-06's and not in this slice.
+3. **At 50 rows with `layoutAnimation()` composed the bracket is unchanged** (1.112 → 1.111 ms) — the rebuild does shrink, but the displacement feature's own work dominates a list that small.
+
+### The `count` contingency did not fire
+
+D-100 §What would stop this reserved the possibility that "the witness reads turn out not to be free… at `n = 50` that ratio is 4:49 and the fast path may be within noise — in which case P-06 is a large-list optimization and should be gated on `count`, or declined for small lists".
+
+**Measured, at `n = 50`: 0.437 → 0.270 ms bare (1.62×) and 0.468 → 0.384 ms animated (1.22×), against a 0.0006 ms resolution.** The fast path is faster at the smallest measured size, not within noise and not worse. **So no count gate exists and no threshold was invented** — the eight conditions in §The invariant boundary are the whole boundary, and a ninth would have needed evidence that the measurement does not provide.
+
+### Where the tree differs from the design
+
+**Two places, both flagged rather than absorbed.**
+
+1. **`rect-index.ts` reads the bare `__DEV__` global instead of importing `DEV` from `kernel/dev.ts`.** The substitution and the folding are identical — this is the mechanism M-3 measured — but the import is not: `tests/kernel/vocabulary.node.test.ts` fails any name the behavior tier reaches into `kernel/` for unless contract 02 §What stays internal names it with a substitute, and adding `DEV` there is a decision about the tier boundary rather than about this cache. Reaching across and then legislating for it would have widened a second contract to land a design whose stated budget is one additive field. **This is the first dev assertion at the behavior tier**; if a second wants one, that is the moment to decide whether the tier gets a shared constant of its own.
+2. **`xy()`'s call site is byte-identical, but its bundle is not.** The fast path lives inside `createRectIndex`'s closure, which both axes share, so `xy()` links code it can never execute. The size bench measures **+135 B** on the minimal `xy()` composition and **+135 to +164 B** across every sortable composition (~1.3%); free-drag compositions are untouched. Splitting the fast path into a module only `y()` imports would recover it and is a change to how the shared cache is factored — **not taken here**, and the declared budgets are left red rather than re-based, so the number is visible rather than absorbed.
+
+### What is still true
+
+`invalidateInsertion` keeps its signature. `SortableContribution` is unchanged. No new subpath, no new export on any entry. The eager window is where it was, between the placeholder write and `afterMove`, for the same correctness reason — nothing here made anything lazier, and D-95's exclusion of the eager position from cost-driven re-decision is preserved.
+
+**Not in this slice, as declared:** any change to `xy()`, any change to the stride (P-02's sub-candidate touches the same buffer and lands after this), any tuning of `k`, and any attempt to make case 3 detectable.
