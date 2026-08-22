@@ -185,3 +185,95 @@ It is prose inside a doc comment, so nothing type-checks it and nothing here rea
 All three findings are records rather than code. **API-01 is the one to fix**, because a published per-composition cost that is wrong by up to 46 B on seven rows will be quoted by the next size pass exactly as this one quoted the list that produced it — and correcting it costs one table.
 
 **LSP plugin - available; not used: this review turned on rebuilding two trees and diffing their brotli output, packing and inspecting the tarball, breaking six gates and running the suite, and testing `.gitignore` and `clean-build` behaviourally — build-and-observe questions rather than symbol-graph ones. The one symbol-shaped question, whether any collision across the two ordinary roots was missed, was answered by parsing the emitted export lists, which is the artifact the rule is about rather than the source.**
+---
+
+# Closure — the API-01 and API-02 remediation
+
+- **Reviewer:** Claude
+- **Date:** 2026-08-22
+- **Tree:** `40e18aa3` on `drag2/phase22-api`, working tree clean
+- **Scope.** API-01 and API-02 only. API-03 stays open and non-blocking by agreement, D-108's overturn condition is unchanged, F-81's instrument stays unbuilt, and the rest of the slice was not reopened — only checked for regression.
+
+## Baseline
+
+| Gate | Result |
+| --- | --- |
+| `npx just typecheck` | clean |
+| `npx just test` | 58 files, **1131 passed, 116 skipped** — identical to pre-remediation |
+| `npx just size` | green, all **14** rows |
+| `git diff 23bc1821 40e18aa3 -- src/ tests/ files.json package.json tsdown.config.ts prune-declarations.ts` | **empty** |
+
+## Verdict
+
+**Both findings are closed and nothing blocks merge.** The remediation touches records only — no production code, no test, no packaging input — and **no `budget:` line changed**, verified structurally: `git diff … -- bench/size/measure.ts | grep '^[-+].*budget:'` returns nothing. The whole change is a docblock, five record updates and one doc comment.
+
+**Two residual observations, neither introduced by this remediation and neither blocking.** One is the specific stale list that caused API-01, still present and unmarked further up the same docblock; the other is a pre-existing omission in the sentence API-02 corrected.
+
+## API-01 — closed
+
+### The attribution now uses the pre-slice tree, and all 28 figures reproduce
+
+The docblock's prose deltas are replaced by a three-column table naming its own subtrahend. I rebuilt **both** trees from scratch — `e086d058` in a fresh worktree and the current tree — and extracted exact brotli bytes by re-basing every budget to 1:
+
+| Row                 | pre-slice `e086d058` | landed | Δ    | docblock |
+| ------------------- | -------------------- | ------ | ---- | -------- |
+| minimal             | 11,139               | 11,435 | +296 | +296 ✓   |
+| minimal (xy)        | 10,801               | 11,085 | +284 | +284 ✓   |
+| + layoutAnimation   | 11,571               | 11,874 | +303 | +303 ✓   |
+| + landing           | 11,423               | 11,728 | +305 | +305 ✓   |
+| complete            | 11,849               | 12,139 | +290 | +290 ✓   |
+| free drag minimal   | 8,717                | 9,007  | +290 | +290 ✓   |
+| free drag + bounds  | 8,863                | 9,159  | +296 | +296 ✓   |
+| free drag + landing | 9,016                | 9,307  | +291 | +291 ✓   |
+| free drag complete  | 9,162                | 9,459  | +297 | +297 ✓   |
+| both behaviors      | 13,396               | 13,699 | +303 | +303 ✓   |
+| vocabulary root     | 121                  | 121    | 0    | 0 ✓      |
+| kernel root         | 6,514                | 6,797  | +283 | +283 ✓   |
+| baseline A          | 11,566               | 11,848 | +282 | +282 ✓   |
+| baseline B          | 6,889                | 6,889  | 0    | 0 ✓      |
+
+**All fourteen pre-slice figures, all fourteen landed figures and all fourteen deltas match the published table byte for byte**, and the range over the moving rows is **282–305 B**, exactly as stated. The pre-slice column is the one the correction adds, and it reproduces independently — it is not a figure carried over from my review.
+
+### The corrected range is consistent everywhere, and the withdrawn one is struck rather than deleted
+
+| Record | States |
+| --- | --- |
+| [`measure.ts`](../../bench/size/measure.ts) §Re-based … (D-108) | **282–305 B**, with the table |
+| [`api-surface.md`](../api-surface.md) §Landed | **282–305 B**, plus a ~~283–340 B~~ paragraph naming the cause |
+| [`00-index.md`](../contract/00-index.md) D-108 row | **282–305 B**, with ~~_Measurement owed at landing_~~ struck and the correction attributed inline |
+| [`04-frame-slicing.md`](../contract/04-frame-slicing.md) | **282–305 B against the pre-slice tree** |
+| [`plan.md`](../plan.md) §Phase 22 (two places) | **282–305 B** |
+
+No stale per-row figure survives anywhere: the only remaining occurrences of _283–340_, _+330_, _+340_, _+336_, _+328_, _+324_ and _+331_ are inside the sentences that withdraw them, and in this review document where they are history. The withdrawal names the mechanism correctly — it subtracted the previous re-base's list rather than the pre-change tree, so 14–46 B of D-103 and D-104 cost was charged to D-108 — and states that the budgets are unaffected, which the empty `budget:` diff confirms.
+
+**One detail worth crediting.** The correction identifies _why_ the four free-drag rows, `kernel root`, `baseline B` and `drag.js` were right the first time — they are exactly the rows D-103 and D-104 never touched, so for them the stale list and the pre-slice tree were the same numbers. That is the diagnostic, not a coincidence, and writing it down is what makes the correction reusable.
+
+### The ambiguity is addressed at the level of the habit, with one residual
+
+The D-108 entry no longer ends in a bare _Landed figures_ list. The table states the tree each column was measured against, and the block adds the general rule — _a re-base measures the tree it is re-basing from_ — together with an explanation of why the trailing-list habit is not continued: _a reader looking for the last measurement finds the nearest list, which was current when written and is not current when read._ That is the right level to fix it at; a corrected list would have gone stale the same way.
+
+**Residual, non-blocking.** The list that actually caused API-01 is still in the file and still unmarked — [`measure.ts:134`](../../bench/size/measure.ts#L134), the P-06/D-102 entry's _Landed figures, every row: minimal **11,105**, minimal (xy) **10,787**, …_. It was already wrong when written, because D-103 moved those rows in the same commit (recorded as C-05 in [`p02-review-claude.md`](p02-review-claude.md) and never acted on), and D-104 moved them again; `minimal` is stale by 34 B. It is also, now that the D-108 entry carries no list, the **nearest trailing list to any entry appended below it** — which is precisely the position that produced this finding. The new prose warns a careful reader off it; a strike-through on the list itself would close it outright. The earlier Phase 21 list at line 104 is scoped by its own wording — _Landed figures **at that re-base**_ — and reads as history rather than as current fact.
+
+## API-02 — closed
+
+[`revision-2.ts`](../../docs/revision/revision-2.ts) now names `SortableOnStart`, `SortableOnEnd` and `SortableOnDragError`, and adds both `AxisInstaller` and `SortableInstaller` to the aliases it says ship from `sortable.js`. All nine are in the packed `sortable.d.ts` export list, so the statement is true of the artifact.
+
+**Neither decision is broadened.** The added paragraph attributes the qualification to D-109 and the publication to D-110, states the qualifying condition as _different structures on both ordinary roots_, and gives the counter-case correctly — `ResolveHandle` and `ResolveElement` collide and match structurally, which is why they are not qualified. I verified in the review that those two declarations are byte-identical in both configs and that the collision set is exactly five names. It makes no claim beyond what the decisions authorised: no new name is said to ship, and the rule is restated rather than extended.
+
+**Residual, pre-existing and non-blocking.** The sentence still opens _`SortableConfig` and **every** alias it names_, and `SortableConfig` names ten alias types — the list has nine. `PlaceholderFactory`, at the `placeholder?` slot, is missing, and `sortable.js` does publish it. It was missing before this remediation too, so this is not a regression; the remediation moved the list from seven names to nine and the last one was not noticed.
+
+## Regression check
+
+Deliberately narrow, since nothing outside the two findings was touched:
+
+- **No production, test or packaging input changed** — the diff over `src/`, `tests/`, `files.json`, `package.json`, `tsdown.config.ts` and `prune-declarations.ts` is empty.
+- **No budget moved** — no `budget:` line appears in the `measure.ts` diff, and all 14 rows are green at the same bytes I measured at `d5aee1fd`.
+- **The suite is unchanged** at 58 files / 1131 passed / 116 skipped, so every gate the review falsified — the packed four-checks row, the `__DEV__` tier row, the clean-coverage row, the allowlist row, the consumer-compile row and the sourcemap row — still passes.
+
+## Disposition
+
+**Nothing blocks merge.** API-01 and API-02 are closed on evidence: the size attribution is now measured against the tree it re-bases from, reproduces from two fresh builds across all 28 figures, and moved no budget; the doc reflects D-109 and D-110 without broadening either.
+
+The two residuals are one strike-through and one word each, and both would sit naturally in whatever pass next touches these files.
+
+**LSP plugin - available; not used: this closure turned on rebuilding two trees and extracting exact brotli bytes, diffing records, and parsing the emitted declarations for the `SortableConfig` slot list — build-and-observe questions rather than symbol-graph ones.**
