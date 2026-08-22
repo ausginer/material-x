@@ -13,7 +13,6 @@
  * policy and the failure policy differ per seam, and pretending otherwise hid
  * four real gaps (F-19, F-27).
  */
-import { DEV } from './dev.ts';
 import { FAILURE_LANDING_TARGET, type FailureStage } from './failures.ts';
 import type { Draft, Frame } from './frames.ts';
 import { report } from './reporter.ts';
@@ -182,7 +181,7 @@ export type SeamDriver<Part extends object> = Readonly<{
    *
    * **Every seam either consumes its staged value or drops it.** The two seam
    * policies below drop it for their callers; the seams the kernel drives
-   * directly drop it themselves. A value left behind is reported in `DEV`.
+   * directly drop it themselves. A value left behind is reported (D-108).
    */
   consumeStaged(): unknown;
 
@@ -419,7 +418,7 @@ export function createSeamDriver<Part extends object>(
       // The refusal has to land before that, not one line later.
       refuseReentry();
 
-      if (DEV && staged !== null) {
+      if (staged !== null) {
         // The clear below already makes this harmless; the report is what stops
         // it from being *invisible*. A staged value still sitting here means the
         // previous seam neither consumed nor dropped it, which is the one way a
@@ -515,16 +514,13 @@ export function createSeamDriver<Part extends object>(
 
       if (openStage === NO_STAGE || openStage === BEST_EFFORT) {
         report(error);
-
-        if (DEV) {
-          report(
-            new Error(
-              openStage === BEST_EFFORT
-                ? 'drag: host.fail() during rollback is not classified; the operation is already abandoned'
-                : 'drag: host.fail() outside a seam is not classified; it cannot know which operation is live',
-            ),
-          );
-        }
+        report(
+          new Error(
+            openStage === BEST_EFFORT
+              ? 'drag: host.fail() during rollback is not classified; the operation is already abandoned'
+              : 'drag: host.fail() outside a seam is not classified; it cannot know which operation is live',
+          ),
+        );
 
         return;
       }

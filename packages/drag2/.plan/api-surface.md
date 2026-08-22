@@ -175,6 +175,23 @@ Four of the items above are the same defect, and it is not the one the brief ant
 
 **Recorded as a finding rather than decided**, because the natural remedy is an instrument, and this ledger already has the model for one — `tests/decisions.node.test.ts` exists because F-63 was exactly this class in the decision tables. Whether the same treatment is worth extending to justifying prose in source doc blocks is a real question with a real cost, and it is not this pass's to settle unasked.
 
+## Landed 2026-08-22
+
+All four decisions implemented in one slice, on a clean rebuild.
+
+| Decision | What landed | Held permanently by |
+| --- | --- | --- |
+| **D-108** | Four checks un-gated, `kernel/dev.ts` deleted, `sortable/verified-refresh.ts` untouched | `consumer.node.test.ts` reads the four assertion messages out of the **packed** `kernel/`; `vocabulary.node.test.ts` pins the `__DEV__` binding tiers to `['sortable']` |
+| **D-109** | `SortableOnStart`/`FreeDragOnStart`, `SortableOnEnd`/`FreeDragOnEnd`, `SortableOnDragError`/`FreeDragOnDragError` | the consumer fixture imports both ordinary roots into one file and compiles against the packed declarations |
+| **D-110** | `SortableInstaller` re-exported from `sortable.js` | the fixture hoists `const hoistedPlugin: SortableInstaller` while importing only `sortable.js` |
+| **D-111** | dts map comment stripped, `drag.js.map` out of `files`, `clean.extras` covers `kernel`/`shared`/the orphans, `type-fest` to `devDependencies` | packed-tarball rows for dangling `sourceMappingURL` (**now `.d.ts` as well as `.js`**) and for every `files` entry existing; `packaging.node.test.ts` derives the clean pathspecs and asserts coverage |
+
+**The cost was measured rather than estimated, and it exceeded the slack as predicted.** D-108 is **283–340 B** per composition and **no module appeared** — the whole of it is text that used to fold away. Twelve budgets re-based in `bench/size/measure.ts` with the reason beside the numbers, under M-3′'s standing rule. `baseline B` did not move because it is the shipped predecessor; the `drag.js` vocabulary root is byte-identical at **121 B**, which is F-77's assertion confirming the error vocabulary still does not pull the kernel on a change that touched the kernel.
+
+**Two spellings were decided against the pretty option on purpose.** `FreeDragOnDragError` stutters; every alternative renamed the base as well as qualifying it, which is more than D-109 authorized, and a rule whose output has to be argued name by name is not a rule. And contract 04's §Dev-only invariants **keeps its heading** although D-108 makes it a misnomer, because three dated records cite the section by name; the correction is the section's first line instead.
+
+**One finding this slice did not close, deliberately.** F-81 keeps its instrument unbuilt, as scoped. Two of its four instances stopped being live as a side effect — `dev.ts` is gone, and `kernel.ts:474` is true again — but the class stands on the other two.
+
 ## What this pass does not decide
 
 - **The spelling** of D-109's three qualified names, or D-111's four remedies. Both decisions state required properties; the mechanism is the implementer's.

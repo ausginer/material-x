@@ -30,9 +30,17 @@ import type { PlaceholderFactory } from './placement.ts';
  * A rule the next format reverses is not a rule. A named alias is immune — the
  * lint rule normalises inline function-type literals and leaves type references
  * alone.
+ *
+ * **Three of them are qualified by behavior** (D-109). `onStart`, `onEnd` and
+ * `onError` exist on both ordinary configs with **different structures**, which
+ * is D-75's only condition for qualifying a name, and both aliases publish from
+ * their own root. `ResolveHandle` and `ResolveElement` also collide and are
+ * structurally identical, so they stay unqualified — the rule discriminates
+ * rather than blankets. A released consumer cannot have the symmetry added
+ * later, so it is added before publication.
  */
-export type OnStart = (item: HTMLElement) => void;
-export type OnDragError = (
+export type SortableOnStart = (item: HTMLElement) => void;
+export type SortableOnDragError = (
   error: DraggableError,
   context: SortableErrorContext,
 ) => void;
@@ -45,7 +53,7 @@ export type OnDragError = (
  * shorthand a handler narrowed to two of the four arms is accepted silently
  * (F-51).
  */
-export type OnEnd = (result: ReorderTransactionResult) => void;
+export type SortableOnEnd = (result: ReorderTransactionResult) => void;
 export type ResolveHandle = (item: HTMLElement) => HTMLElement | null;
 export type ResolveElement = (item: HTMLElement) => HTMLElement;
 export type ItemSource = () => readonly HTMLElement[];
@@ -68,10 +76,10 @@ export type SortableConfig = Readonly<{
   axis: AxisInstaller;
 
   /* optional consumer functions */
-  onStart?: OnStart;
+  onStart?: SortableOnStart;
   /** Exactly once per started operation, whatever happened to it (D-62, D-66). */
-  onEnd?: OnEnd;
-  onError?: OnDragError;
+  onEnd?: SortableOnEnd;
+  onError?: SortableOnDragError;
   handle?: ResolveHandle;
   /**
    * The node **faithfully lifted** — what the user sees travel (D-43).

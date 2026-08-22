@@ -11,13 +11,14 @@
     "free-drag/bounds",
     "free-drag/landing"
   ],
-  "typeOnly": [
-    "sortable/feature",
-    "free-drag/feature"
-  ],
+  "typeOnly": ["sortable/feature", "free-drag/feature"],
   "clean": {
     "extras": [
-      "_virtual"
+      "_virtual",
+      "kernel",
+      "landing-runner.js",
+      "landing-runner.js.map",
+      "shared"
     ]
   }
 }

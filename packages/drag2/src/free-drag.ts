@@ -33,10 +33,10 @@ export type { FreeDragController } from './free-drag/controller.ts';
  */
 export type {
   FreeDragConfig,
-  OnDragError,
-  OnEnd,
+  FreeDragOnDragError,
+  FreeDragOnEnd,
+  FreeDragOnStart,
   OnMove,
-  OnStart,
   ResolveElement,
   ResolveHandle,
 } from './free-drag/config.ts';

@@ -19,10 +19,10 @@ import type { Disposer } from '../kernel/lifetimes.ts';
 import type { LiftMode } from '../kernel/presentation.ts';
 import type { LandingStart } from '../kernel/spec.ts';
 import type {
-  OnDragError,
-  OnEnd,
+  FreeDragOnDragError,
+  FreeDragOnEnd,
   OnMove,
-  OnStart,
+  FreeDragOnStart,
   ResolveElement,
   ResolveHandle,
 } from './config.ts';
@@ -41,10 +41,10 @@ export type FreeDragSlots = Readonly<{
   getVisual: ResolveElement | null;
   getHome: ResolveHome | null;
 
-  onStart: OnStart | null;
+  onStart: FreeDragOnStart | null;
   onMove: OnMove | null;
-  onEnd: OnEnd | null;
-  onError: OnDragError | null;
+  onEnd: FreeDragOnEnd | null;
+  onError: FreeDragOnDragError | null;
 
   /**
    * The scalar **or** the source, unresolved (D-71). Resolving it here would

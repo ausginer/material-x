@@ -471,8 +471,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // abort and `clearOperationState` conditional on a dev assertion — so a
     // throwing reset would defeat teardown totality through the very check
     // meant to catch it (D-29/F-36). `guarded` reports it instead, which is
-    // where a dev assertion belongs. `DEV` is true in an ordinary browser
-    // (see `dev.ts`), so this is not a test-only path.
+    // where this belongs. The assertion runs in **every** build since D-108, so
+    // this is a live consumer path rather than a test-only one.
     guarded(() => {
       assertFrameScrubbed(frame, armedKeys);
     });

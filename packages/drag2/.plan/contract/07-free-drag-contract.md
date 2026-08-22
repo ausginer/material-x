@@ -101,10 +101,10 @@ Required in the **first argument**: **`onDrop`** — a **type** requirement, and
 | `lift` | `FreeDragLift` | scalar | `'faithful' \| 'flat' \| 'in-place'`, default `'faithful'` — D-73 |
 | `threshold` | `number` | scalar | Activation travel in viewport pixels, default 8. Same default and same domain as the sortable's |
 | `home` | `ResolveHome` | consumer function | `(subject) => Point`, viewport space. Where a rejected or canceled drag returns to. Absent means the grab position |
-| `onStart` | `OnStart` | consumer function | `(geometry) => void`, once, after the lift is acquired |
+| `onStart` | `FreeDragOnStart` | consumer function | `(geometry) => void`, once, after the lift is acquired |
 | `onMove` | `OnMove` | consumer function | `(geometry) => void`, once per committed sample, **after** the visual is written |
-| `onEnd` | `OnEnd` | consumer function | `(result) => void`, exactly once per started operation (D-62, D-66) |
-| `onError` | `OnDragError` | consumer function | `(error, context) => void` (D-64) |
+| `onEnd` | `FreeDragOnEnd` | consumer function | `(result) => void`, exactly once per started operation (D-62, D-66) |
+| `onError` | `FreeDragOnDragError` | consumer function | `(error, context) => void` (D-64) |
 | `bounds` | `FreeDragInstaller` | **atomic capability** | From `free-drag/bounds.js`. Absent means unconstrained and **no bounds code in the graph** |
 | `landing` | `FreeDragInstaller` | **atomic capability** | From `free-drag/landing.js`. Absent means the visual is released without animating |
 | `plugins` | `readonly FreeDragInstaller[]` | **appending** | The one slot that concatenates rather than last-wins |
@@ -145,7 +145,7 @@ Three arms, and **the arm set was re-derived rather than inherited** — the led
 | Kind | Names |
 | --- | --- |
 | Runtime | `freeDrag`, `FreeDragResolution` |
-| Config and its aliases | `FreeDragConfig`, `OnDrop`, `OnStart`, `OnMove`, `OnEnd`, `OnDragError`, `ResolveHandle`, `ResolveElement`, `ResolveHome`, `AxisSource`, `DragAxis`, `FreeDragLift` |
+| Config and its aliases | `FreeDragConfig`, `OnDrop`, `FreeDragOnStart`, `OnMove`, `FreeDragOnEnd`, `FreeDragOnDragError`, `ResolveHandle`, `ResolveElement`, `ResolveHome`, `AxisSource`, `DragAxis`, `FreeDragLift` |
 | Controller | `FreeDragController` |
 | Domain | `FreeDragSubject`, `FreeDragRequest`, `DragGeometry`, `FreeDragResolution`, `AcceptedFreeDragResolution`, `RejectedFreeDragResolution`, `FreeDragTransactionResult`, `AcceptedFreeDragResult`, `RejectedFreeDragResult`, `CanceledFreeDragResult`, `FreeDragErrorContext` |
 | Re-exported from the kernel tier | `CancelStage`, `AT_PROPOSAL`, `AT_CONSUMER` — a `CanceledFreeDragResult` carries one and an ordinary consumer must discriminate it, which is the same rule and the same re-export `sortable.js` already runs on (D-68) |

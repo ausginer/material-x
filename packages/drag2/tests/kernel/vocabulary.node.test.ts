@@ -22,9 +22,9 @@
  * that reaching it *directly* is correct, because the flag is package
  * vocabulary rather than kernel vocabulary; what that decision then owes is a
  * rule, and §The `__DEV__` binding is the rule made executable. Without it the
- * next author re-litigates the boundary by reaching for `kernel/dev.ts`'s
- * `DEV`, and this file cannot tell the difference between a tier that declined
- * the import and a tier that never considered it.
+ * next author re-litigates the boundary by reaching for a kernel-tier `DEV`,
+ * and this file cannot tell the difference between a tier that declined the
+ * import and a tier that never considered it.
  */
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
@@ -377,7 +377,7 @@ const tierOf = (file: string): string => file.split('/')[0] ?? '.';
 describe('the `__DEV__` binding', () => {
   // **D-101, made executable.** The decision is that `__DEV__` is *package*
   // vocabulary, so a behavior-tier module binds it directly rather than
-  // importing `kernel/dev.ts`'s `DEV` — which would be a behavior-tier reach
+  // importing a kernel-tier binding — which would be a behavior-tier reach
   // into `kernel/` that 02 §What stays internal says must not exist. That is
   // only a boundary if the shape it permits is bounded, and these three rows
   // are the bound: one binding per tier, bound once, and only in the tiers that
@@ -386,6 +386,12 @@ describe('the `__DEV__` binding', () => {
   // The trigger they encode is the one D-101 named: a second dev assertion in a
   // second module of a tier fails the first row, and the fix is that tier's own
   // `dev.ts` — still importing nothing from `kernel/`.
+  //
+  // **The kernel is no longer on the list** (D-108). Its four author-facing
+  // checks are production checks and `src/kernel/dev.ts` is retired, so the
+  // package now has exactly one binding, in the one tier with per-frame dev
+  // work. The third row is what holds that: the kernel re-acquiring a binding
+  // fails it, which is the re-litigation this rule exists to catch.
   //
   // **Each row can fail on its own** (P06-03), which is what makes three of
   // them worth having: the third is a list of *tiers* rather than of files, so
@@ -430,6 +436,6 @@ describe('the `__DEV__` binding', () => {
       ...new Set((await devReaders()).map(([file]) => tierOf(file))),
     ];
 
-    expect(tiers).toEqual(['kernel', 'sortable']);
+    expect(tiers).toEqual(['sortable']);
   });
 });

@@ -41,21 +41,29 @@ export type { SortableController } from './sortable/controller.ts';
  */
 export type {
   ItemSource,
-  OnDragError,
-  OnEnd,
-  OnStart,
   ResolveElement,
   ResolveHandle,
   SortableConfig,
+  SortableOnDragError,
+  SortableOnEnd,
+  SortableOnStart,
 } from './sortable/config.ts';
 /**
- * **The `axis` slot's alias, published here since D-78.** `SortableConfig`
- * names it, so a consumer who writes an axis installer must be able to hoist it
- * into a typed `const` rather than only fill the slot inline. Its own closure —
- * `FeatureContext`, `SortableContribution`, `InsertionGeometry` — stays
- * declared at `sortable/feature.js`: this publishes the **name**, not the tier.
+ * **The installer slots' aliases, published here** (D-78, D-110). Every one of
+ * them is named by `SortableConfig` — `axis` by `AxisInstaller`, `landing?` and
+ * `plugins?` by `SortableInstaller` — so a consumer who writes one must be able
+ * to hoist it into a typed `const` rather than only fill the slot inline. Their
+ * own closure — `FeatureContext`, `SortableContribution`, `InsertionGeometry` —
+ * stays declared at `sortable/feature.js`: this publishes the **names**, not the
+ * tier.
+ *
+ * `SortableInstaller` was left behind when D-78 was applied to its sibling
+ * (D-110), which made a sortable consumer import the **types-only middle tier**
+ * to type an ordinary-tier config slot while the free-drag mirror published
+ * `FreeDragInstaller` for its three. That is the tier inversion D-48 and D-64
+ * each exist to prevent, reached by a third route.
  */
-export type { AxisInstaller } from './sortable/feature.ts';
+export type { AxisInstaller, SortableInstaller } from './sortable/feature.ts';
 /**
  * The cancellation stages, as **values as well as a type**, for the same reason
  * as `FailureStage` on `drag.js`: a `CanceledReorderResult` carries one and a
