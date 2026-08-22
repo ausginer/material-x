@@ -46,7 +46,7 @@ Before anything is repaired, the scope has to be settled, because a naive readin
 | Register | Tense | Is stale prose a defect? |
 | --- | --- | --- |
 | Decision ledger rows (`D-nn`) | **past** — a dated act, with its reasoning as it stood | **No.** D-101 still says `kernel/dev.ts` holds the kernel's binding; that was true when D-101 was decided and D-108 supersedes it. Nothing to fix. |
-| A decision's _Overturned by_ clause | **future** — a live condition | **Yes**, and API-03 is the case. See D-114. |
+| A decision's _Overturned by_ clause | **future** — a live condition | **Yes**, and API-03 is the case. See D-114 — and **D-116**, which takes the clause out of the ledger row altogether, so this line now describes [`obligations.md`](obligations.md) §Standing conditions and not `00-index.md`. **Corrected 2026-08-22**: as first written, this row placed a live register inside a container the resolver skips whole. That is MNT-03, and §6 is its disposition. |
 | Findings register (`F-nn`) | **present** — what is open _now_, and what mitigates it | **Yes.** Two instances found here and corrected below. |
 | Contract documents 01–07 | **present** — normative | **Yes.** Partly instrumented already (vocabulary, composition, docs). |
 | Source and test doc comments | **present** — describes _this_ code | **Yes**, and uninstrumented. |
@@ -218,4 +218,50 @@ An early grep of the built tree found every DEV assertion message string, appare
 
 - **F-2 and F-11**, in both `00-index.md` and `05 §Findings`: their mitigation read _`__DEV__` shape assertion_ and _`__DEV__` heuristic_. **D-108 made both unconditional four days ago.** The mitigation is now stronger than the record claimed, and a reader weighing whether either finding is still tier C would have reasoned from a false premise — F-81's mechanism, inside the findings register, created by the decision that closed F-81's first instance.
 - **F-81's row** gains the disposition of its four original instances — two closed by D-108, one closed by the API entry, one still live at `src/kernel/failures.ts:6` — and the evidence found here.
-- **No decision-ledger row is edited.** Under the tense rule they are dated acts; D-101's reference to `kernel/dev.ts` stands as written and is superseded by D-108, which is what a ledger is for.
+- ~~**No decision-ledger row is edited.**~~ **Corrected 2026-08-22 by D-116.** The claim was true of this pass and false as a rule: the record does edit a row when a clause inside it goes live, and this branch did so twice — D-108's overturn clause was rewritten and its original wording struck, and D-106 carries a struck F-77 sentence beside a dated replacement. What survives is the narrower and correct half: a row's **reasoning** is a dated act and stands as it stood — D-101's reference to `kernel/dev.ts` needs no repair, because D-108 supersedes it rather than falsifying it. What does not survive is the implication that a row may therefore hold anything at all; under D-116 it may not hold a live clause. See §6.
+
+---
+
+## 6. A live clause inside a dated row — MNT-03, and **D-116**
+
+Everything above is dated 2026-08-22 and is unchanged by this section except where it says so. This is the one place the maintainability review reached the design rather than its implementation, and it is worth stating why the design was wrong and what is narrow about the fix.
+
+### The mismatch, stated once
+
+**The tense rule classifies by register; the resolver skips by container.** Those coincide for every row of the table above except one. A source file is a container that holds only present-tense prose, so scoping it in is exactly right. A review record is a container that holds only dated prose, so scoping it out is exactly right. **A decision-ledger row is neither**: it holds dated reasoning, which the rule protects, _and_ — in three rows out of one hundred and sixteen — a condition a later pass must act on, which the rule calls live and answers **Yes** for.
+
+`LEDGER_ROW` skips the row whole. So the clause the rule marks live is the one thing in the tree no instrument can see, and the design's own headline instance sits in it: **`05 §Measurements owed`, cited inside D-106's unfired re-base condition, is a reference the authority for a live condition points at and it has never existed.** §1 called that the largest instance and then scoped it out in the same document.
+
+### The fix is to the specification, not to the resolver
+
+Removing the skip is the obvious move and it is wrong. MNT-03 measured the consequence: **26 unresolved citations surface inside D-rows, and most are correct**. D-45's row names the heading D-45 itself renamed — that is not a defect, it is the record doing its job, and a rule that flags it will be switched off within a phase. Un-skipping converts the ledger into present-tense documentation and buys two repairs for a hundred-odd false ones.
+
+**So the row shape stays, and what changes is what a row is allowed to contain.** A standing condition is lifted into the register, which already exists, is already the single live set, and is already the artifact a human owner reads to find out what is outstanding. The ledger row keeps its reasoning as it stood and cites the id. The skip is then sound rather than merely convenient: **nothing live is inside a row.**
+
+That costs **one scope root** — `obligations.md` joins `src/`, `tests/`, `bench/`, `.scripts/` and `.plan/contract/`, as the one `.plan/` file outside `contract/` that is present-tense by construction — and no new mechanism. After it, everything the tense rule calls live is inside the resolver, and everything outside it is dated. That equivalence is the property this document should have had in the first place.
+
+### History and error are not the same thing
+
+D-101 still names ~~`src/kernel/dev.ts`~~ and needs no repair: it was true when written, and D-108 supersedes it. `05 §Measurements owed` was **never** a heading in 05. **The tense rule protects a reference that was true, not one that was never true** — the second is not history, it is a defect that happens to be old.
+
+That distinction is what keeps this decision from becoming a sweep. It cannot be checked mechanically without archaeology, and it does not need to be: a clause is re-derived against today's tree at the moment it is lifted, which is when someone is looking at it anyway, and the row it came from gets a dated note. Two sites carry the witness clause — D-106's row and [`bundle-structure.md`](bundle-structure.md) §Headroom — and both get the pointer.
+
+### What is not instrumented, and why the backstop is honest about it
+
+Whether a **new** decision embeds a condition rather than registering it cannot be observed by an instrument. That is D-114 (b)'s argument, and it is not re-derived here.
+
+What is checkable is the vocabulary the record actually uses. **A bold condition lead-in in a ledger row must name an `SC-n`; every `SC-n` must exist in the register and be cited from the ledger.** Bold is the discriminator because it is already this record's typography for a live clause, while an italic or backticked mention is how it quotes the term — D-114's own row says _Overturned by_ about the rule and must not be flagged, which is §1's **specimen** applied to a lead-in.
+
+**Its premise is open, and D-115 requires that be said rather than hidden**: a fourth lead-in nobody has used yet escapes it. So the register entry is the load-bearing artifact and the check is a backstop over three known forms — the same relationship §3 has between rule (b) and no test at all, one notch stronger.
+
+### Why three is the right size to build for
+
+The census is three: **D-106's re-base conditions, D-107's Class B overturn, D-108's overturn.** A live population of three does not justify machinery, and D-116 builds none — it reuses the register D-114 opened, one scope root on the resolver D-112 built, and one string-to-existence assertion in the instrument that already owns this file.
+
+**The class is not hypothetical, and the proof is one tier down.** F-78 reads _`kernel/dev.ts` … its own stated revisit condition has fired unnoticed_. A live condition was embedded in prose; its triggering event — Revision 2.1 publishing three authoring entrypoints — passed unobserved across three revisions until a bundle sweep tripped over it; D-108 exists to clean up after it. MNT-03 is that same shape one tier up, in the file where this record keeps its conditions, and it was found by a reviewer rather than by anything the package runs.
+
+### What §6 does not decide
+
+- **D-106, D-107 and D-108 themselves.** Only the location and the citations of their live clauses move. No budget re-bases, no byte changes, nothing about `__DEV__`.
+- **Whether `05` should grow a `Measurements owed` heading.** §1's re-point stands; MNT-04's observation that the target carries the doctrine by inference is answered in **SC-1**, which states the doctrine outright instead of leaning on a section title.
+- **MNT-01, MNT-02 and MNT-04 through MNT-08.** They are findings against the implementation and belong to the implementer, except MNT-08's neighbour recorded here as **F-83**.

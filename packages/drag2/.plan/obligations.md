@@ -1,18 +1,22 @@
-# Live obligations — the register (D-114)
+# The register — live obligations and standing conditions (D-114, D-116)
 
 **What is still owed by this package, what each item is waiting for, and who can discharge it.** One list, because assembling it took a full census: the items below were spread over `plan.md`, contracts 00, 02, 05 and 07, `bundle-structure.md` and four measurement records, and a human owner inheriting this library should not have to repeat that census to find out what is outstanding.
+
+**Standing conditions were added 2026-08-22 by D-116**, which found that a live clause stated inside a decision-ledger row is unreachable by every instrument this package has: the row is a dated act, the resolver skips it by shape, and the clause inside it is neither. A condition is not an obligation — nobody owes work for one — so it gets its own table and its own id space rather than joining the list below.
 
 **Opened 2026-08-22** by the maintainability entry ([`maintainability.md`](maintainability.md) §3), which found five obligations live, unwithdrawn and tracked by nothing.
 
 ## The rule this register exists to enforce
 
-**An obligation names a destination that can receive it.** Three parts, and none of them is a test.
+**An obligation names a destination that can receive it, and a condition is not an obligation.** Four parts, and only the last has any instrument behind it.
 
 **(a) An _Overturned by_ clause states a standing condition, never owed work.** A standing condition is one an observer recognises without anyone doing anything — _evidence of a bundle-constrained supported deployment appears_. Owed work is an obligation and belongs here. The two read identically in prose, and API-03 is the proof that a careful reader cannot tell them apart: D-108's clause named _a measurement showing one of the four is not cold_, which nobody had booked and which the decision's own structural argument had already answered.
 
 **(b) A destination must be a thing that can close, and closing it discharges or re-books every obligation booked to it.** This is a rule rather than an instrument because **no instrument can observe a destination closing**. `tests/decisions.node.test.ts` cannot spell `Phase R`, `Checkpoint E`, _a measurement_ or _the owner_ — its destination vocabulary is `Phase <n>`, `Before Phase <n>` and `Remediation` — and its witnesses are source-level facts, which cannot see a phase end. What _can_ observe a close is the pass that performs it. Phase R, Checkpoint E and the API deliverable each closed correctly on their own terms and each left something behind, because nothing asked them at the moment of closing. **Asking is now part of closing.**
 
 **(c) The live set is carried here**, not distributed. A row leaves this file by being discharged, withdrawn, or re-booked to a destination that is currently open — never by being forgotten.
+
+**(d) A standing condition is registered, not embedded** (D-116). A ledger row states a condition as it was decided and cites its `SC-n`; the register states it in the present tense, with citations re-derived at the moment of lifting. That is what keeps the whole ledger past tense — the row-shape skip in `tests/references.node.test.ts` is sound because nothing live is inside a row, not merely because rows are old.
 
 ## Live
 
@@ -27,6 +31,16 @@ Nothing below is decided by this register. Each row states what is owed and what
 | O-5 | **Is `RECOVERY_HOME` right for a rejected reorder?** With a placeholder-based sortable the home slot may have moved under an accepted concurrent update, and _the test matrix should include a rejection after a collection change_ — no such row exists | 05 §Q-6 | **An owner's answer, not a repair.** Re-read here rather than closed: the missing matrix row is bookkeeping, but what the row would assert is not settled, and choosing a recovery for a reorder rejected against a moved home is a semantic decision this pass declines to make locally |
 | O-6 | **Whether `kernel/kernel.ts` should be split.** 2 468 lines against the 1 971 that prompted M-02; its duplicated-SPI half is closed | M-02 | **A judgment, and the human owner's.** M-02's own disposition was that _mechanical splitting before those decisions is not warranted_, and the decisions it named have all since been taken — so splitting is now live, buys navigation and risks nothing else. Not made on the last day of agent ownership |
 | O-7 | **F-80's four API divergences** between the contract and the shipped surface | F-80 | **An owner's call on each.** Unchanged since the API entry; kept as one row here so the register is the whole list rather than most of it |
+
+## Standing conditions
+
+**A standing condition is recognised, not discharged.** Nobody is assigned one; an observer meets the stated circumstance and the named decision reopens. Each row is present tense and its citations resolve today (D-116 (c)); the deciding row in [`00-index.md`](contract/00-index.md) keeps its own wording as it stood and cites the id here.
+
+| # | Condition | Reopens | Where it was decided | Today |
+| --- | --- | --- | --- | --- |
+| SC-1 | **A bundle-budget row goes negative**, or **erosion stops being attributable to a named landed change**, or **L-11 lands** — `plan.md` §Phase 23's five runtime cells onto two frozen entrypoints. The third is not a size trigger: the frozen export map is one of the six reproducibility preconditions stated at [`05 §Measurements — landed 2026-08-02`](contract/05-lifecycle-invariants.md), so changing it re-measures M-3 whether or not it moves a byte | D-106 — the twelve declared rows re-base | D-106, and [`bundle-structure.md`](bundle-structure.md) §Headroom | **Not met.** Slack is 114–154 B against the ~150 B convention and the one drift, P-02's +34 B, added no module and was absorbed under M-3′'s own rule. L-11 has not landed, and it is the next scheduled re-base event |
+| SC-2 | **Evidence of a bundle-constrained supported deployment**, or **a machine-readable reason replacing the prose** | D-107's Class B — the 424 B of runtime and consumer-callback diagnostic text stays unconditional | D-107 | **Not met**, and the second half is not free-standing: replacing the prose is an API change and is owed as **O-1**, so this condition is met by that obligation being discharged, never by anyone waiting for it here |
+| SC-3 | **A call graph that makes one of the four un-gated assertions hot** — a `scrub()` or a frame-shape assertion reachable per frame rather than once per operation, most plausibly `assertFrameScrubbed`. Per-site: it does not require all four to be alike | D-108 — the author-facing assertions stay unconditional in every build | D-108, as rewritten by D-114 (a) | **Not met, and settled structurally rather than by a run**: `arm()` runs once per controller and all three `scrub()` sites are terminal. That is the whole of what API-03 asked for; **no measurement is owed** |
 
 ## Withdrawn
 
