@@ -31,8 +31,8 @@
  * writing on; `--unminified` implies `--files`.
  *
  * ```
- * npm run size --files --unminified     # npm's own flag form
- * npx just size --files --unminified    # or the recipe's
+ * npm run size -- --files --unminified
+ * npx just size --files --unminified
  * node bench/size/measure.ts --files
  * ```
  *
@@ -896,17 +896,8 @@ export function violations(measurement: Measurement): readonly string[] {
   return [...budgetViolations(measurement), ...graphViolations(measurement)];
 }
 
-/**
- * One flag, read from both places it can arrive.
- *
- * `npm run size --files` never reaches `argv` — npm consumes an unknown flag
- * into `npm_config_*` and passes nothing on — while `just size --files` and a
- * direct `node` run arrive as ordinary arguments. Reading both is what makes
- * the invocation in this file's header the one that actually works.
- */
 const flag = (name: string): boolean =>
-  process.argv.slice(2).includes(`--${name}`) ||
-  process.env[`npm_config_${name}`] === 'true';
+  process.argv.slice(2).includes(`--${name}`);
 
 if (import.meta.main) {
   const kb = (bytes: number): string => `${(bytes / 1000).toFixed(2)} kB`;
