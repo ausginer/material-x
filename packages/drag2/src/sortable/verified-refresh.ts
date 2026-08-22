@@ -316,7 +316,7 @@ const verify = (
  * accepted one. The escape is narrow and that sharpens it: the four-quantity
  * comparison already catches horizontal movement and size change, so what
  * survives is a **pure vertical translation** — precisely the shape of a
- * running FLIP offset, which contract 03 §The bracket already names as enough
+ * running FLIP offset, which contract 03 §Insertion geometry already names as enough
  * to corrupt the rebuild, and which a third-party `beforeMove` releasing less
  * than the first-party one produces in this very window. Under the general
  * path that corrupts one row; under a single-witness fast path it corrupts the

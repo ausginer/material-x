@@ -611,7 +611,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   /**
    * A throw escaping a handler is an invariant violation: close, **then**
    * report the initiating error, **then** tear down (D-36; contract 01
-   * §Teardown reverses Part I's teardown-before-report ordering).
+   * §Teardown across two owners, whose Part I ordering this reverses).
    *
    * The reversal is safe rather than merely permitted, and the reason is the
    * shape of the window: `panic()` is reached from `drain`'s `catch`, after the
@@ -1362,7 +1362,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * pieces of foreign code — `anchorTarget`, the runner's `destroy()`, and the
    * terminal callback — and each of the first two may destroy the controller
    * synchronously. Everything after such a call is checked against this
-   * (contract 01 §I-6: `destroy()` is a synchronous terminal barrier).
+   * (contract 05 §I-6: `destroy()` is a synchronous terminal barrier).
    */
   const joinLive = (): boolean =>
     !queue.closed && current.operation !== null && current.phase === FINALIZING;

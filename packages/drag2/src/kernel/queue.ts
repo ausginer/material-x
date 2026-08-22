@@ -16,8 +16,8 @@
  *
  * `drain` takes `handle` and `panic` as arguments so the kernel can hoist both
  * to one closure per controller. The shipped package allocated a fresh handler
- * and panic arrow on every outer dispatch; contract 02 §Queue names that as a
- * required change rather than an inherited property.
+ * and panic arrow on every outer dispatch; contract 02 §Queue semantics names that
+ * as a required change rather than an inherited property.
  */
 
 export type ActionQueue = {

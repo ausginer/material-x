@@ -1,7 +1,7 @@
 /**
  * Free drag's **validation matrix** — B-4, all five clauses.
  *
- * 07 §Validation is two tables and they are asserted **differently**, which is
+ * 07 §Validation, whose two tables are asserted **differently**, which is
  * the whole criterion: a value in the *classified* table surfaces at a named
  * seam, reaches `onError` with that row's coarse code and ends the operation;
  * a value in the *silent* table produces **no `onError`, no terminal and no
@@ -119,7 +119,8 @@ describe('the classified table', () => {
   });
 
   it('should classify a throwing visual resolver at admission, not at activation', () => {
-    // **F-76.** 07 §Validation pairs `visual` with `onStart` at activation →
+    // **F-76.** 07 §Validation, whose table pairs `visual` with `onStart` at
+    // activation →
     // `interaction`. Free drag resolves the visual inside `admit` — D-59's
     // common form, since `box === visual` for a behavior with no placeholder —
     // so the throw is `FAILURE_ADMISSION` → `consumer`, one seam earlier and
@@ -516,7 +517,8 @@ describe('an invalid home result', () => {
   };
 
   it('should attribute a null result to the landing target seam', async () => {
-    // **E-05.** 07 §Validation already publishes this attribution; the shipped
+    // **E-05.** 07 §Validation, which already publishes this attribution; the
+    // shipped
     // `anchorTarget` returned the consumer's object verbatim, and the kernel
     // reads `.x`/`.y` *outside* the quality wrapper that covers the call. So a
     // `null` panicked outside the seam its own contract names, and the review's

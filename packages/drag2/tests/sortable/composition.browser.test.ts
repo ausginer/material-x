@@ -788,8 +788,8 @@ describe('the composed terminal protocol', () => {
 });
 
 /**
- * **Construction unwind, across construction** (D-80 (b), F-68, F-69; 05 §The
- * test matrix). The `assemble` suite pins the unwind *within* the assembler;
+ * **Construction unwind, across construction** (D-80 (b), F-68, F-69; 05 §Test
+ * matrix). The `assemble` suite pins the unwind *within* the assembler;
  * this group pins that nothing consumer-triggerable throws *outside* it.
  *
  * **Two of the four rows are negative controls, and they are the load-bearing

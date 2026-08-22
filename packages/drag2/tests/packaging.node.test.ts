@@ -20,6 +20,24 @@ import {
 import { findOrphanDeclarations } from '../prune-declarations.ts';
 
 const ROOT = resolve(import.meta.dirname, '..');
+
+/** Every emitted declaration, which is what a consumer's editor opens. */
+async function declarations(dir: string): Promise<readonly string[]> {
+  const entries = (await readdir(dir, { withFileTypes: true })).filter(
+    (entry) => entry.name !== 'node_modules' && entry.name !== 'src',
+  );
+  const found = await Promise.all(
+    entries.map(async (entry) => {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        return entry.name.startsWith('.') ? [] : await declarations(path);
+      }
+      return entry.name.endsWith('.d.ts') ? [path] : [];
+    }),
+  );
+
+  return found.flat().sort();
+}
 const SRC = join(ROOT, 'src');
 
 const readJSON = async (path: string): Promise<Record<string, unknown>> =>
@@ -62,6 +80,70 @@ async function reachableFrom(entries: readonly string[]): Promise<Set<string>> {
 
   return seen;
 }
+
+/** Every `.ts` under `src/`, which is the graph the parser above walks. */
+async function sources(dir: string): Promise<readonly string[]> {
+  const found = await Promise.all(
+    (await readdir(dir, { withFileTypes: true })).map(async (entry) => {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        return await sources(path);
+      }
+      return entry.name.endsWith('.ts') ? [path] : [];
+    }),
+  );
+
+  return found.flat().sort();
+}
+
+describe('the module-graph parser', () => {
+  it('should understand every import form the source actually uses', async () => {
+    // **D-115 (a), M-05 since Checkpoint B.** `relativeSpecifiers` is one
+    // regex and cannot see a side-effect import, a double-quoted specifier or
+    // a dynamic `import()`. It is correct today, and correct only because the
+    // source happens to use exactly one form — which nothing asserted. Three
+    // assertions rest on it: ship-list coverage, optional-module isolation,
+    // and, since D-111, clean-build pathspec coverage. `import './register.ts';`
+    // would silently drop a whole subtree from `reachableFrom()` and all three
+    // would stay green.
+    //
+    // A gate that cannot be trusted is worse than an absent one, because an
+    // absent gate is visible in a coverage reading and a fail-open gate
+    // reports success. So the premise is asserted rather than assumed: the
+    // first import form the parser cannot read fails here, loudly, instead of
+    // quietly shrinking the graph everything else is measured against.
+    const unreadable: string[] = [];
+    let statements = 0;
+    const files = await sources(SRC);
+    const read = await Promise.all(files.map((file) => readFile(file, 'utf8')));
+    for (const [index, file] of files.entries()) {
+      const source = read[index]!;
+      const site = relative(ROOT, file);
+      // Every specifier, however written, against the one form the parser
+      // reads. A difference is a form it cannot see.
+      const all = [
+        ...source.matchAll(/\b(?:from|import)\s*\(?\s*(['"])([^'"]+)\1/gu),
+      ];
+      statements += all.length;
+      const relatives = all
+        .filter(([, , specifier]) => specifier!.startsWith('.'))
+        .map(([, , specifier]) => specifier!);
+      const parsed = relativeSpecifiers(source);
+      for (const specifier of relatives) {
+        if (!parsed.includes(specifier)) {
+          unreadable.push(`${site} :: ${specifier}`);
+        }
+      }
+      if (/\bimport\s*\(/u.test(source)) {
+        unreadable.push(`${site} :: dynamic import()`);
+      }
+    }
+
+    expect(unreadable).toEqual([]);
+    // Non-vacuity: the scan really read the graph rather than an empty tree.
+    expect(statements).toBeGreaterThan(100);
+  });
+});
 
 describe('the published file list', () => {
   it('should cover every directory the runtime entrypoints emit into', async () => {
@@ -300,6 +382,63 @@ describe('the published file list', () => {
     // Not vacuous: the derivation really does produce pathspecs, so a future
     // `files.json` shape that silently yielded none cannot pass this row.
     expect(pathspecs.size).toBeGreaterThan(files.length);
+  });
+
+  it('should publish no doc block that documents nothing', async () => {
+    // **D-113.** `sortable/feature.d.ts` shipped two consecutive blocks on
+    // `SortableInstaller`: only the second was the effective JSDoc, and the
+    // first told the third-party installer author D-61 created that the type is
+    // _internal and unstable, and unexported from the package_ — directly above
+    // the sentence publishing it. An orphaned block is prose with no subject,
+    // so no compiler, no TypeDoc run and no reviewer diffing declarations can
+    // ever tell it that it is wrong. It is invisible by construction, and it is
+    // copied into the artifact a consumer installs.
+    //
+    // Two orphans are legitimate and both are **recognizable rather than
+    // listed**. A **module header** is the first block of its `//#region` and
+    // documents the module, which is a subject. A **marked** block carries
+    // strike-through — the retirement marker D-112 uses for a reference, here
+    // for a declaration: `~~SortableCallbacks~~` is deleted, and saying so is
+    // the block's whole point. Anything else orphaned is prose that outlived
+    // what it described.
+    const orphans: string[] = [];
+    const emitted = await declarations(ROOT);
+    const read = await Promise.all(
+      emitted.map((file) => readFile(file, 'utf8')),
+    );
+    for (const [ordinal, file] of emitted.entries()) {
+      const lines = read[ordinal]!.split('\n');
+      let region = false;
+      let start = -1;
+      for (const [index, line] of lines.entries()) {
+        const text = line.trim();
+        if (text.startsWith('//#region')) {
+          region = true;
+          continue;
+        }
+        if (text.startsWith('/**')) {
+          start = index;
+          continue;
+        }
+        if (text !== '*/' || start < 0) {
+          continue;
+        }
+        const header = region;
+        region = false;
+        let next = index + 1;
+        while (next < lines.length && lines[next]!.trim() === '') {
+          next += 1;
+        }
+        const orphaned = lines[next]?.trim().startsWith('/**') ?? true;
+        const marked = lines.slice(start, index).some((l) => l.includes('~~'));
+        if (orphaned && !header && !marked) {
+          orphans.push(`${relative(ROOT, file)}:${start + 1}`);
+        }
+        start = -1;
+      }
+    }
+
+    expect(orphans).toEqual([]);
   });
 
   it('should publish no declaration the entries cannot reach', async () => {

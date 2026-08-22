@@ -9,7 +9,7 @@
  * fields into the committed frame and skip the copy entirely.
  *
  * **Three variants, and the specialized one has to be proven equivalent before
- * its timing means anything** (05 §Measurements owed asks for exactly that):
+ * its timing means anything** (05 §Measurements — landed 2026-08-02 asks for exactly that):
  *
  * - `generic` — what ships: `beginFrame(draft, current)`, two writes, swap.
  * - `specialized` — two writes straight into the committed frame, no copy and

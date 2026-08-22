@@ -577,7 +577,7 @@ describe('the incremental insertion refresh', () => {
     // shape that survives the four-quantity comparison: a horizontal move fails
     // the `left`/`right` equality and a size change fails the `bottom` test. It
     // is also the shape a running FLIP offset has, which is why contract 03
-    // §The bracket already names it.
+    // §Insertion geometry already names it.
 
     it('should refuse when the first in-span witness drifted', () => {
       // **This is the row that fails against a tree with only one in-span

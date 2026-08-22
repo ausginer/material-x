@@ -2,8 +2,8 @@
  * The M-3 measurement, whole: compositions, bytes, budgets, module graphs.
  *
  * This is the *specification* of what is measured as much as the tool that
- * measures it, so everything 05 §Measurements owed calls a reproducibility
- * precondition is a value in this file rather than a flag somewhere:
+ * measures it, so everything 05 §Measurements — landed 2026-08-02 calls a
+ * reproducibility precondition is a value in this file rather than a flag somewhere:
  *
  * - **Bundler**: Rolldown, the version in the workspace lockfile.
  * - **Target/platform**: `neutral`, ESM out, no polyfills.
@@ -344,7 +344,7 @@ export const COMPOSITIONS: readonly Composition[] = [
   },
   {
     // The same composition on the other axis. It reopens what "minimal" means,
-    // which 05 §What would reopen this names as an M-3 trigger, so it is
+    // which 05 §Measurements — landed 2026-08-02 names as an M-3 trigger, so it is
     // measured as a peer rather than assumed to equal the y one.
     name: 'minimal (xy)',
     imports: {
@@ -770,7 +770,7 @@ export function graphViolations(measurement: Measurement): readonly string[] {
  * A module in the combined graph and in neither single graph is a module the
  * pairing introduced; a module in a single graph and missing from the combined
  * one means one behavior stopped reaching it. Both are topology changes, and
- * either reopens the export topology under 05 §What would reopen this. The byte
+ * either reopens the export topology under 05 §Measurements — landed 2026-08-02. The byte
  * delta against the sum is then the **size** of a duplication rather than the
  * evidence for one, which is why it is telemetry.
  */

@@ -96,21 +96,21 @@ export type KernelHost = Readonly<{
   destroy(): Promise<void>;
 }>;
 
-/**
- * **Discrete, pointerless admission — a second ingress, not a second protocol**
- * (D-32).
- *
- * The load-bearing half of probe 13a's case is not the absence of a pointer: it
- * is that a command's **feasibility must be answered synchronously, inside the
- * native listener**, so `preventDefault()` is called only when the command is
- * possible. An arrow key on an edge item has to keep its native meaning. Every
- * behavior-initiated entry in the frozen SPI is fire-and-forget — `dispatch`
- * returns `void` and the decision would land on the drain, after the listener
- * returned.
- *
- * It is **internal**: a behavior declares which events the kernel binds; a
- * consumer does not.
- */
+// **Discrete, pointerless admission — a second ingress, not a second protocol**
+// (D-32). A section header rather than a doc block (D-113): it documents the
+// group below it and no single declaration, and as JSDoc it shipped orphaned
+// into `kernel/spec.d.ts`.
+//
+// The load-bearing half of probe 13a's case is not the absence of a pointer: it
+// is that a command's **feasibility must be answered synchronously, inside the
+// native listener**, so `preventDefault()` is called only when the command is
+// possible. An arrow key on an edge item has to keep its native meaning. Every
+// behavior-initiated entry in the frozen SPI is fire-and-forget — `dispatch`
+// returns `void` and the decision would land on the drain, after the listener
+// returned.
+//
+// It is **internal**: a behavior declares which events the kernel binds; a
+// consumer does not.
 /**
  * What an admission member returns when it admits (D-59).
  *

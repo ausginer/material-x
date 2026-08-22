@@ -35,7 +35,7 @@ Two rows were **removed** rather than re-pointed in that pass, both from §The i
 
 ## Readiness — deleted (D-41)
 
-**The entire readiness protocol is gone, and with it both sections that used to stand here.** `accept({ presentation: true })`, `controller.ready(request)`, `KernelHost.presentationCommitted()`, the acknowledgement deadline, `readinessTimeout`, `FAILURE_PRESENTATION_READY` and the readiness-time re-anchor with `LandingHandle.retarget()` no longer exist, so `tests/sortable/acknowledgement.browser.test.ts` was deleted rather than migrated: every row in it named a member of a protocol with no producer.
+**The entire readiness protocol is gone, and with it both sections that used to stand here.** `accept({ presentation: true })`, `controller.ready(request)`, `KernelHost.presentationCommitted()`, the acknowledgement deadline, `readinessTimeout`, `FAILURE_PRESENTATION_READY` and the readiness-time re-anchor with `LandingHandle.retarget()` no longer exist, so ~~`tests/sortable/acknowledgement.browser.test.ts`~~ was deleted rather than migrated: every row in it named a member of a protocol with no producer.
 
 What replaced the rows is not another suite. Under the serial authored commit a consumer that must render before the drop lands `await`s its own commit barrier inside `onReorder`, so the obligations these rows checked stopped existing rather than moving owner. The one row that survived in substance is the React integration's, re-pointed at the barrier: `tests/sortable/react.browser.test.ts` now returns a promise from `onReorder` that resolves on the next commit, which is the whole of the migration.
 
@@ -105,7 +105,7 @@ The 2-D rule is a **sibling axis feature**, `xy()` on `sortable/xy.js`, beside t
 | the losing axis feature's private state is never built, in either order | `tests/sortable/assemble.browser.test.ts` — _should construct nothing for a losing axis fragment_ | F-19, D-45 |
 | a `y()` composition physically cannot reach `xy()`… | `tests/packaging.node.test.ts` — _should keep the minimal composition out of every optional feature_ | 03 §Tree-shaking |
 | …**and an `xy()` composition cannot reach `y()`**, which is what makes it an exclusivity claim rather than a one-way absence | `tests/packaging.node.test.ts` — _should keep the two-dimensional composition out of the y axis_ | 03 §Tree-shaking |
-| the export topology carries both subpaths, per-subpath surface asserted as an equality | `tests/exports.node.test.ts`, `tests/consumer.node.test.ts` | 03 §Export topology |
+| the export topology carries both subpaths, per-subpath surface asserted as an equality | `tests/exports.node.test.ts`, `tests/consumer.node.test.ts` | 03 §The export topology this requires |
 
 ### The composed fixture needs a flow layout, and that is a finding
 
@@ -163,7 +163,7 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 
 | Row | Test | ID |
 | --- | --- | --- |
-| no-animation default | `tests/sortable/composition.browser.test.ts` — the minimal composition installs neither `landing()` nor `layoutAnimation()` | 03 §composition |
+| no-animation default | `tests/sortable/composition.browser.test.ts` — the minimal composition installs neither `landing()` nor `layoutAnimation()` | 03 §The minimal fixture |
 | CSS layout transition | `tests/sortable/composition.browser.test.ts` — _should propose the same gap when the rows carry a CSS transition_ | D-7 |
 | long landing duration | `tests/sortable/features.browser.test.ts` — _should hold settlement open until the animation finishes_ | I-9 |
 | custom animation runner | `tests/sortable/features.browser.test.ts` — _should let a middle-tier runner replace the default entirely_ | I-24, D-63 |
@@ -642,7 +642,7 @@ The precedent for _removing_ an unfalsifiable conjunct rather than recording it 
 
 ## Free drag — validation (Phase 20, B-4)
 
-**Two tables, asserted differently, and the split is the criterion.** A value in 07 §Validation's _classified_ table surfaces at a named seam with that row's coarse code; a value in the _silent_ table produces **no `onError`, no terminal and no classification at all**. Asserting the second the way one asserts the first is how a deleted check gets quietly re-added.
+**Two tables, asserted differently, and the split is the criterion.** A value in the _classified_ table (07 §Validation) surfaces at a named seam with that row's coarse code; a value in the _silent_ table produces **no `onError`, no terminal and no classification at all**. Asserting the second the way one asserts the first is how a deleted check gets quietly re-added.
 
 Every code is read from `STAGE_TO_CODE` through `toDraggableError(stage, null).code`, never retyped, so a remap fails these rows instead of passing them.
 

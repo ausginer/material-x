@@ -1555,7 +1555,7 @@ describe('settlement mapping', () => {
 /**
  * **The other line of D-66's lookup** (A-1, A-2).
  *
- * 02 §The join states the mapping as a lookup on the frame — *holds a result →
+ * 06 §The join states the mapping as a lookup on the frame — *holds a result →
  * publish it; holds none → publish `canceled`* — and every row above exercises
  * the second line only. These exercise the first, which is the line that says
  * what a consumer is told when its data really was reordered and something

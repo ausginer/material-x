@@ -537,8 +537,8 @@ export function acquireLift(
   // Everything below mutates the visual. The style lease is already held, but
   // the *caller* only learns about it through the returned session — so a throw
   // from here on would leave the visual promoted and restyled with nothing that
-  // could ever restore it. Acquisition is all-or-nothing (contract 01
-  // §Partial activation).
+  // could ever restore it. Acquisition is all-or-nothing (contract 02
+  // §Acquisition is all-or-nothing).
   try {
     if (mode === LIFT_IN_PLACE) {
       // Stay in the container, ride the authored transform, and suppress

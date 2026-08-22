@@ -278,7 +278,8 @@ export function createPlaceholder(
  * Exported because inertness has to be decidable *before* the move: the move
  * pipeline brackets the write with `beforeMove`/`afterMove` hooks, and a hook
  * that measures the whole list must not be paid for a write that will not
- * happen (contract 06 §the writer reports whether a move occurred).
+ * happen (contract 06 §The coalesced spatial frame, whose sole writer
+ * reports whether a move occurred).
  */
 export function placeholderAt(
   placeholder: HTMLElement,

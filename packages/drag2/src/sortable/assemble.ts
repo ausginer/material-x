@@ -137,7 +137,7 @@ export function assemble(
     }
 
     // **The flat slot record is built inside the unwind bracket, and that
-    // placement is normative** (D-77, 03 §Validation). The explicit
+    // placement is normative** (D-77, 03 §Assembly). The explicit
     // `the axis installer contributed no insertion geometry` throw is deleted:
     // `AxisInstaller` declares `insertion` required, so a plugin-shaped
     // installer is not assignable, and a JS-authored violator is still

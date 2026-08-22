@@ -96,21 +96,55 @@ function typedoc(
   });
 }
 
+/**
+ * The modules a run actually converted, read out of the artifact it emitted.
+ *
+ * **The gate is the exit code and this list, never the captured stream**
+ * (D-115 (b), E-08). A stream read for the word _warning_ gets **weaker**
+ * without failing when TypeDoc rewords a summary, changes a log format or
+ * declines to write one at all — the worst way for a gate to break, because it
+ * converts to a green suite. `--treatWarningsAsErrors` turns the property under
+ * test into a non-zero exit status, and reading the emitted JSON back proves
+ * the run converted something: a run that converted nothing writes no file and
+ * an empty module list, so neither half can pass vacuously.
+ */
+async function converted(artifact: string): Promise<readonly string[]> {
+  const emitted = JSON.parse(await readFile(artifact, 'utf8')) as Readonly<{
+    children?: ReadonlyArray<Readonly<{ name: string }>>;
+  }>;
+
+  return (emitted.children ?? []).map((child) => child.name).toSorted();
+}
+
 describe('the documented surface', () => {
   it(
     'should resolve every reference a public type makes',
     async () => {
       const dir = await mkdtemp(join(tmpdir(), 'drag2-docs-'));
-      const { output, code } = await typedoc(join(dir, 'docs.json'));
+      const artifact = join(dir, 'docs.json');
+      const { output, code } = await typedoc(artifact, undefined, [
+        '--treatWarningsAsErrors',
+      ]);
 
-      expect(code).toBe(0);
-      // It converted every entry — otherwise "no warnings" is vacuous.
-      expect(output).toContain('json generated at');
-      // The level tag is ANSI-coloured, so the lines are matched on the word
-      // and reported whole: the message is the useful part of the failure.
-      expect(
-        output.split('\n').filter((line) => line.includes('warning')),
-      ).toEqual([]);
+      // `output` is reported rather than asserted on: it is the diagnostic a
+      // failure needs, and nothing about the pass depends on its shape.
+      expect({ code, output }).toMatchObject({ code: 0 });
+      // And it converted **every** declared entry, so "no warnings" cannot be
+      // the silence of a run that did nothing.
+      expect(await converted(artifact)).toEqual([
+        'drag',
+        'free-drag',
+        'free-drag/bounds',
+        'free-drag/feature',
+        'free-drag/landing',
+        'kernel',
+        'sortable',
+        'sortable/feature',
+        'sortable/landing',
+        'sortable/layout-animation',
+        'sortable/xy',
+        'sortable/y',
+      ]);
     },
     2 * MINUTE,
   );
@@ -132,16 +166,15 @@ describe('the documented surface', () => {
       // reachable from this entry's own tier* — `drag.js` included because it
       // is shared vocabulary belonging to neither tier (D-64).
       const dir = await mkdtemp(join(tmpdir(), 'drag2-kernel-docs-'));
-      const { output, code } = await typedoc(join(dir, 'kernel.json'), [
-        './src/kernel.ts',
-        './src/drag.ts',
-      ]);
+      const artifact = join(dir, 'kernel.json');
+      const { output, code } = await typedoc(
+        artifact,
+        ['./src/kernel.ts', './src/drag.ts'],
+        ['--treatWarningsAsErrors'],
+      );
 
-      expect(code).toBe(0);
-      expect(output).toContain('json generated at');
-      expect(
-        output.split('\n').filter((line) => line.includes('warning')),
-      ).toEqual([]);
+      expect({ code, output }).toMatchObject({ code: 0 });
+      expect(await converted(artifact)).toEqual(['drag', 'kernel']);
     },
     2 * MINUTE,
   );
@@ -173,17 +206,19 @@ describe('the documented surface', () => {
       // hoists `const hoistedAxis: AxisInstaller` while importing only
       // `sortable.js`, and fails to compile without the re-export.
       const dir = await mkdtemp(join(tmpdir(), 'drag2-sortable-docs-'));
-      const { output, code } = await typedoc(join(dir, 'sortable.json'), [
-        './src/sortable.ts',
-        './src/drag.ts',
-        './src/sortable/feature.ts',
-      ]);
+      const artifact = join(dir, 'sortable.json');
+      const { output, code } = await typedoc(
+        artifact,
+        ['./src/sortable.ts', './src/drag.ts', './src/sortable/feature.ts'],
+        ['--treatWarningsAsErrors'],
+      );
 
-      expect(code).toBe(0);
-      expect(output).toContain('json generated at');
-      expect(
-        output.split('\n').filter((line) => line.includes('warning')),
-      ).toEqual([]);
+      expect({ code, output }).toMatchObject({ code: 0 });
+      expect(await converted(artifact)).toEqual([
+        'drag',
+        'sortable',
+        'sortable/feature',
+      ]);
     },
     2 * MINUTE,
   );
@@ -205,20 +240,13 @@ describe('the documented surface', () => {
       // instrument should be added in, while it is still cheap to trust.
       //
       // **The gate is the exit code and the artifact, not the captured
-      // stream** (E-08). The three runs above read `output` twice — once for a
-      // banner and once for the word *warning* — and both readings are fragile
-      // in the same direction: a reworded summary line, a changed log format or
-      // a stream TypeDoc decides not to write make the assertion **weaker**
-      // without failing, which is the worst way for a gate to break. So this
-      // one passes `--treatWarningsAsErrors`, which turns the property under
-      // test into a **non-zero exit status**, and then proves the run actually
-      // converted by reading the JSON it emitted and naming the modules it must
-      // contain. A run that converted nothing produces no file and an empty
-      // module list, so neither half can pass vacuously.
-      //
-      // The three older runs are deliberately left alone: rewriting them is a
-      // change to instruments that are currently green and were not what
-      // Checkpoint E asked about.
+      // stream** (E-08) — the form `converted()` documents, which this run
+      // reached first. ~~The three older runs are deliberately left alone:
+      // rewriting them is a change to instruments that are currently green and
+      // were not what Checkpoint E asked about.~~ **Correct scoping then, and
+      // D-115 is what scheduled it since**: all four runs now assert their own
+      // premise, so no run in this file can report success from a stream it
+      // failed to read.
       const dir = await mkdtemp(join(tmpdir(), 'drag2-free-drag-docs-'));
       const artifact = join(dir, 'free-drag.json');
       const { output, code } = await typedoc(
@@ -230,14 +258,11 @@ describe('the documented surface', () => {
       // `output` is reported rather than asserted on: it is the diagnostic a
       // failure needs, and nothing about the pass depends on its shape.
       expect({ code, output }).toMatchObject({ code: 0 });
-
-      const emitted = JSON.parse(await readFile(artifact, 'utf8')) as Readonly<{
-        children?: ReadonlyArray<Readonly<{ name: string }>>;
-      }>;
-
-      expect(
-        (emitted.children ?? []).map((child) => child.name).toSorted(),
-      ).toEqual(['drag', 'free-drag', 'free-drag/feature']);
+      expect(await converted(artifact)).toEqual([
+        'drag',
+        'free-drag',
+        'free-drag/feature',
+      ]);
     },
     2 * MINUTE,
   );
