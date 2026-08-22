@@ -1104,7 +1104,7 @@ Judged through consumer fixtures, not source intuition — and **measured** (M-3
 | + `landing()` | 9.02 kB | 28 | +0.30 kB |
 | free drag complete | **9.16 kB** | 29 | +0.45 kB |
 | both behaviors | 13.40 kB | 47 | — |
-| `kernel.js` alone (`draggable`) | 6.51 kB | 11 | — |
+| `kernel.js` alone (`draggable`) | 6.51 kB | 12 | — |
 | `drag.js` alone (`DraggableError`) | **0.12 kB** | **1** | — |
 
 The last two rows are **not** declared compositions in `bench/size` — they were measured once, by the pass above, and F-77 is the finding that says a published runtime entry with an isolation claim ought to carry a standing assertion rather than a one-time reading. `drag.js` at one module is the measured form of the three-root argument: shared vocabulary costs a consumer 121 B, not the kernel.

@@ -79,7 +79,7 @@ and D-56 deleted three subpaths on the converse — **a subpath carrying no runt
 | Root | Brotli | Modules | What it pulls |
 | --- | --: | --: | --- |
 | `drag.js` — `{ DraggableError }` | **121** | **1** | `kernel/errors.js` only |
-| `kernel.js` — `{ draggable }` | **6,514** | **11** | the kernel floor |
+| `kernel.js` — `{ draggable }` | **6,514** | **12** | the kernel floor |
 
 **The 121 B figure is the strongest evidence the three-root topology has ever had, and it is the check the contract asked for by name.** 03 §The export topology records a standing doubt about that topology:
 
@@ -101,18 +101,23 @@ That is exactly the failure mode the harness's own doctrine names — _a module 
 
 **M-3′'s prose breakdown of this set is wrong and the total is right.** It reads _"the fifteen under `kernel/` plus `shared/landing-runner.js`"_. There are **thirteen** under `kernel/`; the fourteenth is `kernel.js` at the package root, and the sixteenth is an **external package**, not a kernel module. The correction is recorded in [`m3-prime.md`](measurements/m3-prime.md); the union identity M-3′ actually asserted is unaffected, because it was scored over module sets rather than over that sentence.
 
-**The floor, three ways:**
+**The floor, and what can and cannot be divided:**
 
-| Reading | Brotli | Share |
+| Reading | Brotli | Modules |
 | --- | --: | --: |
-| `kernel.js` alone (`draggable`) | 6,514 | — |
-| implied shared content, `complete` + `free drag complete` − `both behaviors` | **7,615** | — |
-| a free-drag-only consumer's total | 8,717 | ~87% shared |
-| a two-behavior page's total | 13,396 | ~57% shared |
+| `kernel.js` alone (`draggable`) | 6,514 | 12 |
+| a free-drag-only consumer, minimal | 8,717 | 26 |
+| a free-drag-only consumer, complete | 9,162 | 29 |
+| a two-behavior page | 13,396 | 47 |
+| doubly-counted content, `complete` + `free drag complete` − `both behaviors` | 7,615 | (16 shared modules) |
 
-**A free drag consumer ships roughly 7.6 kB of shared infrastructure to get roughly 1.1 kB of free drag.** The shared figure is an estimate — brotli is not additive, so content counted twice in a sum is a bound on shared content rather than an exact split — and it is quoted as one.
+**A brotli bundle does not decompose into a shared part and a specific part, and the last row must not be used as though it did.** It estimates content counted twice **between the two complete compositions**, both of which contain all sixteen shared modules. It may not be subtracted from `free drag minimal`, which contains only fifteen of them — `shared/landing-runner.js` arrives with `landing()`, not with `freeDrag()`.
 
-**Three kernel modules are in every behavior composition and not in the `draggable`-only floor**: `kernel/errors.js`, `kernel/input-policy.js`, `kernel/invalidation.js`. So the effective floor for anyone who installs a behavior is **14 modules, not 11**, and the 6,514 B row understates it. `kernel.js` alone is not a deployment — nobody ships `draggable` without a behavior — which matters for §The declines below.
+**What is exact is containment, and it gives a bound in each direction.** A free-drag-only bundle strictly contains the twelve-module `draggable` floor, so **at least 6,514 B — about 75% — is kernel a free drag cannot run without**, and the eleven-module free-drag layer of that composition is **at most 2,203 B, about 25%**. It is a bound rather than a split because free drag also reaches three kernel modules the `draggable`-only floor does not (`kernel/errors.js`, `kernel/input-policy.js`, `kernel/invalidation.js`), and those sit inside the 2,203 B alongside the free-drag code.
+
+> **Correction, 2026-08-22, and it is this document's own error.** The first version of this section subtracted the 7,615 B figure from `free drag minimal` and reported _~7.6 kB of shared infrastructure to get ~1.1 kB of free drag_, at _~87% shared_. That is wrong three ways: it subtracts a sixteen-module shared set from a composition holding fifteen of them; it treats a non-additive estimate as a term in an exact subtraction; and the residual it produces describes the **minimal** free-drag layer while reading as though it described all free-drag code. **The claim is withdrawn and replaced by the bounds above and the marginals below.** The two-behavior figure — 7,615 B of 13,396 B, ~57% — is unaffected, because there both compositions do contain all sixteen, and it is an estimate quoted as one.
+
+**Three kernel modules are in every behavior composition and not in the `draggable`-only floor**: `kernel/errors.js`, `kernel/input-policy.js`, `kernel/invalidation.js`. So the effective floor for anyone who installs a behavior is **15 modules, not 12**, and the 6,514 B row understates it. `kernel.js` alone is not a deployment — nobody ships `draggable` without a behavior — which matters for §The declines below.
 
 **Within the floor, by rendered bytes** — a pre-minification proxy, quoted for ordering rather than as shipped bytes, since the module sum exceeds the emitted bundle several times over:
 
@@ -124,7 +129,34 @@ That is exactly the failure mode the harness's own doctrine names — _a module 
 | **`@ydinjs/box-quad`**   | **6,291** | **external dependency** |
 | `kernel/frames.js`       |     5,371 |                         |
 
-**This corroborates M-2′ from an independent direction and that is the finding worth carrying.** M-2′ measured ~80% of per-controller _retained heap_ as common to both behaviors. This run measures ~87% of a free-drag consumer's _shipped bytes_ as common. They are different quantities — space at runtime against bytes on the wire — and neither is evidence for the other. What they agree on is structural: **the kernel is the artifact and the behaviors are thin.** D-99 named that as prioritisation context and explicitly refused to make it a candidate; it is still context, and it is now context in two dimensions.
+**This corroborates M-2′ from an independent direction and that is the finding worth carrying.** M-2′ measured ~80% of per-controller _retained heap_ as common to both behaviors. This run bounds a free-drag consumer's _shipped bytes_ at **~75% common**. They are different quantities — space at runtime against bytes on the wire — and neither is evidence for the other. What they agree on is structural: **the kernel is the artifact and the behaviors are thin.** D-99 named that as prioritisation context and explicitly refused to make it a candidate; it is still context, and it is now context in two dimensions.
+
+## The free-drag layer, reconciled against the source tree
+
+**Added 2026-08-22 in response to a challenge to the withdrawn ~1.1 kB figure**, and it is the reconciliation that figure should have carried from the start. `src/free-drag/` holds **13** `.ts` files, which is not the number of modules any bundle contains.
+
+|  | Modules | Which |
+| --- | --: | --- |
+| `src/free-drag/` source files | 13 | including `feature.ts` |
+| of those, runtime-bearing | **12** | `feature.ts` is type-only — it emits `free-drag/feature.d.ts` and no `.js`, and never enters a runtime graph |
+| plus the subpath root `src/free-drag.ts` | **13** | the full free-drag layer as a bundler sees it |
+| reached by **free drag minimal** | **11** | root + `assemble`, `behavior`, `config`, `controller`, `domain`, `frames`, `geometry`, `runtime`, `slots`, `spec` |
+| added by **free drag complete** | **+2** | `bounds.js`, `landing.js` — the two optional features |
+
+So the counts reconcile exactly: 13 source files, one type-only, 12 runtime plus the root, and the complete composition reaches all 13. **The minimal composition reaches 11 of them, and that is the composition the withdrawn figure was computed from** — which is the second reason it could not have meant _all free-drag code_.
+
+**What the layer costs is a marginal quantity, and marginals are exact where a decomposition is not:**
+
+| Marginal | Brotli |
+| --- | --: |
+| the **complete** 13-module layer, added to a complete sortable page | **1,546** |
+| the **minimal** 11-module layer, added to a complete sortable page | **1,396** |
+| `bounds()` + `landing()` added to a standalone free drag | 445 |
+| `bounds()` + `landing()` added to a page that already runs sortable's `landing()` | **150** |
+
+**Those last two rows are the same two modules at 445 B and 150 B, and the gap is the whole point.** `shared/landing-runner.js` is already paid for when sortable's `landing()` is composed, so free drag's `landing()` adds only its installer. **There is no context-free answer to _what does the free-drag layer cost_** — it costs what it costs against a stated base, and this document states one every time it quotes a number.
+
+**The sanity check the challenge was really asking for.** The free-drag layer is **30,778 B rendered across its 13 modules — 24.5%** of the complete free-drag graph's rendered bytes, and `free-drag/spec.js` alone is 14,462 B of that. Thirteen modules reaching a marginal ~1.5 kB compressed is minification and Brotli doing ordinary work on ~30 kB of source against a bundle that already shares a dictionary with the kernel. **It is not thirteen nearly-empty modules**, and the withdrawn phrasing invited exactly that reading.
 
 ## What composition costs, and a contract question that closes with it
 
@@ -188,6 +220,6 @@ Three, all in documents this deliverable had to read, none affecting a landed de
 
 ## What this closes, and what it does not
 
-**Closed.** Composition costs are re-measured across the full topology from a fresh build. The subpath set is affirmed at two behaviors and two axes, with no addition and no removal. Optional code stays out of every composition that cannot execute it, including the one exclusivity claim that has actually failed and been fixed. The fixed cost is located and quantified: a 16-module shared set, ~7.6 kB, ~87% of a free-drag consumer's bundle. Composition overhead is weighed at 283 B and shown stable, which closes 03 §What isolation cannot shake. The three-root topology's standing doubt at 03 §The export topology closes on a measurement that does not depend on believing the table. **No size candidate is earned, and the bundle-structure entry closes as justified.**
+**Closed.** Composition costs are re-measured across the full topology from a fresh build. The subpath set is affirmed at two behaviors and two axes, with no addition and no removal. Optional code stays out of every composition that cannot execute it, including the one exclusivity claim that has actually failed and been fixed. The fixed cost is located and bounded: a 16-module shared set at ~7.6 kB across the two complete compositions, and at least the 12-module, 6,514 B `draggable` floor — ~75% — inside any free-drag-only bundle. Composition overhead is weighed at 283 B and shown stable, which closes 03 §What isolation cannot shake. The three-root topology's standing doubt at 03 §The export topology closes on a measurement that does not depend on believing the table. **No size candidate is earned, and the bundle-structure entry closes as justified.**
 
 **Not touched.** The API and maintainability deliverables are Phase 22's next two and nothing here anticipates them — in particular, `kernel.d.ts` emitting 35 types against the contract table's 33, and `drag.js.map` appearing in `package.json` `files` without existing on disk, are both **noted and deliberately left** to the API pass, where the packed declaration surface is the subject. §Check D-56 stays Phase R's. L-11 stays Phase 23's. P-02's stride sub-candidate, the committed-move forced flush and P-04/P-05 are untouched by this pass and remain what they were: named, unmeasured, and not started.
