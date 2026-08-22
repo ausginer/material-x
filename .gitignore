@@ -11,6 +11,10 @@
 /packages/*/.vitest-attachments
 /packages/*/node_modules
 /packages/*/custom-elements.json
+
+# `just size --files` writes each measured bundle here for reading. Output of a
+# measurement, never an input to one.
+/packages/*/.measured
 /packages/**/*.js
 /packages/**/*.js.map
 /packages/**/*.d.ts.map

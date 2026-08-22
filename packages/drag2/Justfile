@@ -50,8 +50,10 @@ lint-fix *FILES:
     {{ _eslint }} --fix {{ if FILES == "" { "." } else { FILES } }}
 
 # Measure bundle sizes, budgets and module graphs (builds first)
-size: build
-    node bench/size/measure.ts
+# `--files` writes each measured bundle under `.measured/`; `--unminified`
+# writes a readable twin beside it. Neither changes a reported figure.
+size *FLAGS: build
+    node bench/size/measure.ts {{ FLAGS }}
 
 diff:
   git show HEAD --format= -- .plan > "/workspaces/material-x/docs-$(date +%Y%m%d-%H%M%S).patch"

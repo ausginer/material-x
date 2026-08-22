@@ -22,10 +22,30 @@
  * one that is not a number.
  *
  * Run: `just size` (fails on a budget breach), or `node bench/size/measure.ts`.
+ *
+ * ## Looking at what was measured
+ *
+ * `--files` writes each composition's bundled output under `.measured/`, and
+ * `--unminified` writes a readable twin beside it — real identifiers, one
+ * statement per line — for reading rather than for counting. Either flag turns
+ * writing on; `--unminified` implies `--files`.
+ *
+ * ```
+ * npm run size --files --unminified     # npm's own flag form
+ * npx just size --files --unminified    # or the recipe's
+ * node bench/size/measure.ts --files
+ * ```
+ *
+ * **No flag changes a reported number, and that is the point.** The figures
+ * above are a specification with budgets and landed records attached to them,
+ * so the measured generate is always the minified one and the unminified twin
+ * is a **second, separate** generate whose bytes are never read. A flag that
+ * could move a budget would make every recorded figure a question about how
+ * the harness was invoked.
  */
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { brotliCompressSync } from 'node:zlib';
 import { rolldown } from 'rolldown';
 
@@ -602,7 +622,50 @@ function importEntry(imports: Readonly<Record<string, string>>): string {
     .join('\n');
 }
 
-export async function measure(composition: Composition): Promise<Measurement> {
+/**
+ * Where a run writes what it measured, and whether it also writes a readable
+ * twin. Absent for an ordinary run, which writes nothing.
+ */
+export type Dump = Readonly<{
+  /** The directory each composition gets a sub-directory of. */
+  directory: string;
+  /** Also emit an unminified generate, for reading rather than counting. */
+  unminified: boolean;
+}>;
+
+/** A composition name as a directory name. */
+const slug = (name: string): string =>
+  name
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9]+/gu, '-')
+    .replace(/^-|-$/gu, '');
+
+/**
+ * Writes one generate's chunks under `<composition>/<kind>/`.
+ *
+ * Per chunk rather than concatenated, because the chunks are what the bundler
+ * produced; the measured figure is their concatenation, which matters only
+ * where a composition emits more than one, and none currently does.
+ */
+async function writeChunks(
+  target: string,
+  kind: string,
+  chunks: ReadonlyArray<Readonly<{ fileName: string; code: string }>>,
+): Promise<void> {
+  const directory = join(target, kind);
+
+  await mkdir(directory, { recursive: true });
+  await Promise.all(
+    chunks.map((chunk) =>
+      writeFile(join(directory, chunk.fileName), chunk.code, 'utf8'),
+    ),
+  );
+}
+
+export async function measure(
+  composition: Composition,
+  dump?: Dump,
+): Promise<Measurement> {
   const directory = await mkdtemp(join(tmpdir(), 'drag2-m3-'));
 
   try {
@@ -618,6 +681,7 @@ export async function measure(composition: Composition): Promise<Measurement> {
     const bundle = await rolldown({ input: [input], platform: 'neutral' });
 
     try {
+      // **The measured generate, and the only one whose bytes are read.**
       const { output } = await bundle.generate({ format: 'es', minify: true });
       const chunks = output.filter((chunk) => chunk.type === 'chunk');
       const code = chunks.map((chunk) => chunk.code).join('');
@@ -632,6 +696,33 @@ export async function measure(composition: Composition): Promise<Measurement> {
       }
 
       const bytes = new TextEncoder().encode(code);
+
+      if (dump !== undefined) {
+        const target = join(dump.directory, slug(composition.name));
+
+        // The synthetic entry is written too: it is the fixture the figure is
+        // a measurement *of*, and it exists nowhere else once the run ends.
+        if (composition.imports) {
+          await mkdir(target, { recursive: true });
+          await writeFile(
+            join(target, 'entry.js'),
+            importEntry(composition.imports),
+            'utf8',
+          );
+        }
+
+        await writeChunks(target, 'measured', chunks);
+
+        if (dump.unminified) {
+          const plain = await bundle.generate({ format: 'es', minify: false });
+
+          await writeChunks(
+            target,
+            'unminified',
+            plain.output.filter((chunk) => chunk.type === 'chunk'),
+          );
+        }
+      }
 
       return {
         composition,
@@ -652,14 +743,14 @@ export async function measure(composition: Composition): Promise<Measurement> {
   }
 }
 
-export async function measureAll(): Promise<Measurement[]> {
+export async function measureAll(dump?: Dump): Promise<Measurement[]> {
   const measured: Measurement[] = [];
 
   // Sequential rather than `Promise.all`: the numbers are deterministic either
   // way, but a serial run keeps peak memory flat and the log readable.
   for (const composition of COMPOSITIONS) {
     // oxlint-disable-next-line no-await-in-loop
-    measured.push(await measure(composition));
+    measured.push(await measure(composition, dump));
   }
 
   return measured;
@@ -805,11 +896,35 @@ export function violations(measurement: Measurement): readonly string[] {
   return [...budgetViolations(measurement), ...graphViolations(measurement)];
 }
 
+/**
+ * One flag, read from both places it can arrive.
+ *
+ * `npm run size --files` never reaches `argv` — npm consumes an unknown flag
+ * into `npm_config_*` and passes nothing on — while `just size --files` and a
+ * direct `node` run arrive as ordinary arguments. Reading both is what makes
+ * the invocation in this file's header the one that actually works.
+ */
+const flag = (name: string): boolean =>
+  process.argv.slice(2).includes(`--${name}`) ||
+  process.env[`npm_config_${name}`] === 'true';
+
 if (import.meta.main) {
   const kb = (bytes: number): string => `${(bytes / 1000).toFixed(2)} kB`;
+  const unminified = flag('unminified');
+  // `--unminified` is about *what is written*, so it implies writing.
+  const writing = unminified || flag('files');
+  const OUT = join(ROOT, '.measured');
+
+  if (writing) {
+    // Cleared first: a stale composition directory from an earlier tree reads
+    // as this run's output and there is nothing in the file to say otherwise.
+    await rm(OUT, { force: true, recursive: true });
+  }
 
   let failed = false;
-  const all = await measureAll();
+  const all = await measureAll(
+    writing ? { directory: OUT, unminified } : undefined,
+  );
   const byName = new Map(all.map((one) => [one.composition.name, one]));
 
   for (const measurement of all) {
@@ -851,6 +966,15 @@ if (import.meta.main) {
       // oxlint-disable-next-line no-console
       console.error(`  ✗ ${COMBINED} ${violation}`);
     }
+  }
+
+  if (writing) {
+    // oxlint-disable-next-line no-console
+    console.log(
+      `\nwrote ${all.length} compositions to ${relative(process.cwd(), OUT)}/` +
+        `  (\`measured/\` is the bytes above` +
+        `${unminified ? ', `unminified/` is the same bundle for reading' : ''})`,
+    );
   }
 
   if (failed) {
