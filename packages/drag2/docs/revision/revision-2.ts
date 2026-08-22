@@ -267,9 +267,10 @@ type OperationProgress = typeof MINTED | typeof STARTED | typeof RESOLVING;
 /**
  * **Also imported whole.** `SortableConfig` and every alias it names —
  * `ItemSource`, `OnReorder`, `SortableOnStart`, `SortableOnEnd`,
- * `SortableOnDragError`, `ResolveHandle`, `ResolveElement`, `AxisInstaller`,
- * `SortableInstaller` — ship from `sortable.js` for exactly the reason `n12`
- * exists (F-51), so the fixture asserts the *shipped* alias is still an alias.
+ * `SortableOnDragError`, `ResolveHandle`, `ResolveElement`,
+ * `PlaceholderFactory`, `AxisInstaller`, `SortableInstaller` — ship from
+ * `sortable.js` for exactly the reason `n12` exists (F-51), so the fixture
+ * asserts the *shipped* alias is still an alias.
  *
  * **Three of those names are qualified and two are installers** (D-109, D-110).
  * `onStart`, `onEnd` and `onError` exist on both ordinary roots with different

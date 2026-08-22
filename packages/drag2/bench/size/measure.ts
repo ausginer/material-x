@@ -131,11 +131,25 @@ export type Composition = Readonly<{
    * than netted off against the 288 B it removed. Headroom stays at ~150 B on
    * every re-based row.
    *
-   * Landed figures, every row: minimal **11,105**, minimal (xy) **10,787**,
+   * ~~Landed figures, every row: minimal **11,105**, minimal (xy) **10,787**,
    * + layoutAnimation **11,550**, + landing **11,388**, complete **11,808**,
    * free drag minimal **8,717**, free drag + bounds **8,863**, free drag +
    * landing **9,016**, free drag complete **9,162**, both behaviors
-   * **13,363**, baseline A **11,520**, baseline B **6,889**.
+   * **13,363**, baseline A **11,520**, baseline B **6,889**.~~
+   *
+   * **Superseded as a baseline, and this is the list that caused API-01.** The
+   * numbers are correct for 2026-08-21 and are kept as the dated record. What
+   * is withdrawn is any use of them as a _current_ measurement: D-103 and D-104
+   * moved seven of these rows afterwards without updating the list, and the
+   * D-108 re-base below then subtracted it as though it were the pre-change
+   * tree — charging D-108 with 14–46 B that were not its own.
+   *
+   * **The same withdrawal applies to every _Landed figures_ list above this
+   * one**, for the same reason and without re-measuring any of them: each was
+   * current on its own date and none is updated by a later decision. Only the
+   * most recent re-base states a baseline that can be subtracted, and it states
+   * what it was measured **against** rather than leaving the reader to find the
+   * nearest list.
    *
    * **Re-based again 2026-08-22, Phase 22 (D-108), and this one moves the
    * numbers *up* for a correctness fix rather than for a module.** The kernel's
