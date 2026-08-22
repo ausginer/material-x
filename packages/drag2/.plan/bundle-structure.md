@@ -123,15 +123,17 @@ That is exactly the failure mode the harness's own doctrine names — _a module 
 
 **Three kernel modules are in every behavior composition and not in the `draggable`-only floor**: `kernel/errors.js`, `kernel/input-policy.js`, `kernel/invalidation.js`. So the effective floor for anyone who installs a behavior is **15 modules, not 12**, and the 6,514 B row understates it. `kernel.js` alone is not a deployment — nobody ships `draggable` without a behavior — which matters for §The declines below.
 
-**Within the floor, by rendered bytes** — a pre-minification proxy, quoted for ordering rather than as shipped bytes, since the module sum exceeds the emitted bundle several times over:
+**Within the floor, by own code weight** — each module bundled with every import external, so only its own body is emitted, minified. Comments are gone, and cross-module minification is not modelled, so this ranks code weight rather than predicting shipped bytes:
 
-| Module                   |  Rendered | Note                    |
-| ------------------------ | --------: | ----------------------- |
-| `kernel/kernel.js`       |    45,024 | over half the floor     |
-| `kernel/presentation.js` |    10,425 |                         |
-| `kernel/seams.js`        |     9,205 |                         |
-| **`@ydinjs/box-quad`**   | **6,291** | **external dependency** |
-| `kernel/frames.js`       |     5,371 |                         |
+| Module | Own minified | Brotli |
+| --- | --: | --: |
+| `kernel/kernel.js` | 10,810 | 3,784 |
+| `kernel/presentation.js` | 3,039 | 1,258 |
+| **`@ydinjs/box-quad`** (the two exports drag2 imports) | **2,036** | **962** |
+| `kernel/frames.js` | 1,756 | 646 |
+| `kernel/seams.js` | 1,428 | 657 |
+
+> **Correction, 2026-08-22, and it is the same error class as the free-drag division above.** This table first published Rolldown's `renderedLength` — **45,024 / 10,425 / 9,205 / 6,291 / 5,371** — labelled _a pre-minification proxy, quoted for ordering rather than as shipped bytes_. **The label was not enough, because the proxy is not even reliable for ordering.** `renderedLength` counts JSDoc, and this codebase's comment density varies by an order of magnitude between modules: `kernel/seams.js` outranked both `box-quad` and `kernel/frames.js` on rendered bytes and is **below both** on code weight, and `sortable/verified-refresh.js` ranked fourth in the graph at 10,062 B rendered against **1,263 B** of own code — tenth. **A figure that has to be labelled as a proxy in the sentence that quotes it is a figure that should be measured properly instead**, which is what the table above now does.
 
 **This corroborates M-2′ from an independent direction and that is the finding worth carrying.** M-2′ measured ~80% of per-controller _retained heap_ as common to both behaviors. This run bounds a free-drag consumer's _shipped bytes_ at **~75% common**. They are different quantities — space at runtime against bytes on the wire — and neither is evidence for the other. What they agree on is structural: **the kernel is the artifact and the behaviors are thin.** D-99 named that as prioritisation context and explicitly refused to make it a candidate; it is still context, and it is now context in two dimensions.
 
@@ -160,7 +162,7 @@ So the counts reconcile exactly: 13 source files, one type-only, 12 runtime plus
 
 **Those last two rows are the same two modules at 445 B and 150 B, and the gap is the whole point.** `shared/landing-runner.js` is already paid for when sortable's `landing()` is composed, so free drag's `landing()` adds only its installer. **There is no context-free answer to _what does the free-drag layer cost_** — it costs what it costs against a stated base, and this document states one every time it quotes a number.
 
-**The sanity check the challenge was really asking for.** The free-drag layer is **30,778 B rendered across its 13 modules — 24.5%** of the complete free-drag graph's rendered bytes, and `free-drag/spec.js` alone is 14,462 B of that. Thirteen modules reaching a marginal ~1.5 kB compressed is minification and Brotli doing ordinary work on ~30 kB of source against a bundle that already shares a dictionary with the kernel. **It is not thirteen nearly-empty modules**, and the withdrawn phrasing invited exactly that reading.
+**The sanity check the challenge was really asking for.** The free-drag layer is **9,783 B of own minified code across its 13 modules**, `free-drag/spec.js` alone 4,957 B of it. Thirteen modules reaching a marginal 1,546 B compressed is Brotli doing ordinary work on ~9.8 kB of code against a bundle that already shares a dictionary with the kernel. **It is not thirteen nearly-empty modules**, and the withdrawn phrasing invited exactly that reading. (This paragraph first quoted **30,778 B rendered**; that figure counts JSDoc and is corrected with the table above.)
 
 ## What composition costs, and a contract question that closes with it
 
@@ -179,14 +181,104 @@ So the counts reconcile exactly: 13 source files, one type-only, 12 runtime plus
 | Considered | Size | Why it is declined |
 | --- | --- | --- |
 | **Split the kernel further** so `draggable`-only consumers ship less | 6,514 B floor | The `draggable`-only configuration **is not a deployment**. Nobody ships the kernel without a behavior, and the effective floor is 14 modules rather than 11. Optimizing a graph no consumer builds is optimizing telemetry |
-| **Make keyboard sorting optional** | ~1,534 B rendered | Locally removable and **refused by decision**. Phase 16, D-32/D-33: keyboard sorting is a `BehaviorSpec` member rather than a feature precisely so a consumer cannot tree-shake away the second input mode. That is a deliberate accessibility position, and **a bundle pass may not reopen an accessibility decision on byte grounds** |
-| **Make `kernel/input-policy.js` optional** | ~4,030 B rendered | The same class. It exists because of a release-blocking input-policy finding; making it composable would make the safe configuration the opt-in one |
-| **Split `sortable/spec.js`** | 24,395 B rendered, the largest behavior module | No measured problem attaches. A module boundary under `unbundle` is priced at ~60 B by the Phase 17 precedent, and the split buys nothing a consumer can tree-shake, because every composition that reaches `sortable.js` reaches all of it |
-| **Trim or inline `@ydinjs/box-quad`** | 6,291 B rendered | Not drag2's to remove, doing work D-72 and D-85 depend on, and its placement is already asserted — `tests/packaging.node.test.ts` holds the geometry package out of every _behavior_ module, and it is reached from `kernel/presentation.ts` by design |
+| **Make keyboard sorting optional** | 379 B min / **221 B brotli** | Locally removable and **refused by decision**. Phase 16, D-32/D-33: keyboard sorting is a `BehaviorSpec` member rather than a feature precisely so a consumer cannot tree-shake away the second input mode. That is a deliberate accessibility position, and **a bundle pass may not reopen an accessibility decision on byte grounds** |
+| **Make `kernel/input-policy.js` optional** | 469 B min / **234 B brotli** | The same class. It exists because of a release-blocking input-policy finding; making it composable would make the safe configuration the opt-in one |
+| **Split `sortable/spec.js`** | 7,888 B min / **2,585 B brotli**, the largest behavior module | No measured problem attaches. A module boundary under `unbundle` is priced at ~60 B by the Phase 17 precedent, and the split buys nothing a consumer can tree-shake, because every composition that reaches `sortable.js` reaches all of it |
+| **Trim or inline `@ydinjs/box-quad`** | 2,036 B min / **962 B brotli** | Not drag2's to remove, doing work D-72 and D-85 depend on, and its placement is already asserted — `tests/packaging.node.test.ts` holds the geometry package out of every _behavior_ module, and it is reached from `kernel/presentation.ts` by design |
 | **Recover P-02's absorbed +34 B** | 34 B | Immaterial, and recovering it would mean re-opening a landed optimization to save a quarter of one row's remaining slack |
 | **Composition overhead** | 283 B, 2.4% | The price of the architecture, stable across two feature additions, and the thing 03 asked to have weighed rather than removed |
 
 **The subpath set is the right shape.** Ten runtime entries, each carrying runtime machinery a composition either imports or does not; two type-only entries that measure nothing and say so, which D-56's rule admits by name. Two behaviors, two axes, and the union identity holds across all of it. **Nothing here argues for adding a subpath, and nothing argues for removing one.**
+
+## The optimization question, answered — 2026-08-22 (D-107)
+
+**The first pass closed this entry on accounting and structural verification: budgets, graph identities, attribution.** None of that is a search for something to remove. This section is that search, run afterwards and on its own terms, against one question — **does the packed artifact contain any material, locally removable cost actually worth optimizing?**
+
+**Method, because it decides the answer.** Every figure below is an **ablation**: the composition is bundled and minified, a candidate is neutralised in the emitted code, the result is re-compressed, and the delta is the cost. Counting characters in the source would have priced all of this several times too high — Brotli removes most of what a source reading would bill. Nothing here changed a production file.
+
+### The one material non-structural cost: error message text
+
+**741 B on `complete` — 6.3% of the bundle**, 825 B on `both behaviors`, 584 B on `free drag complete`. That is larger than any optional feature this package ships (`layoutAnimation()` is 432 B, `landing()` 284 B) and larger than P-06's entire module. It is the only thing the sweep found at that scale, and it splits cleanly in two.
+
+| Class | Site | Compressed on `complete` | Recorded rationale for shipping it |
+| --- | --- | --: | --- |
+| **A1** — frame-part shape validation | `kernel/frames.ts` `validateFramePart` | **~276–300** | **Yes**, twice — contract 04 by name, and review 4 §28 |
+| **A2** — `arm()` static spec validation | `kernel/kernel.ts` `config.actionTags`, `command.types` | **~152–161** | **None on record** |
+| **B** — runtime and consumer-callback diagnostics | `sortable/spec`, `free-drag/spec`, `presentation`, `placement` | **424** | n/a — they fire in correct deployments |
+
+**A1 and A2 are the same strings in every composition**, because both live in the kernel: together ~446–471 B on every row including the bare `kernel.js` root. A kernel saving pays everywhere, which is exactly the prioritisation shape D-99 described — so if anything here were removable, this is the half worth having. **An independent source-side audit run in parallel converged on the same two sites and the same figures** without seeing this document's numbers, which is the closest thing to a replication available here.
+
+**A2 is the one with no cover, and it is worth stating plainly.** It validates behavior-author-supplied static spec once at `arm()`, it sits four lines above an `assertFrameShapesMatch` call that **is** `DEV`-guarded, and the comment beside it (_static spec data, validated once, exactly as `actionTags` is_, D-32) justifies validating **once** rather than validating **in production**. On the evidence in the repository it is the only thing in this sweep that looked like a live candidate.
+
+### Both A halves are declined — and the decisive reason is not the one on record
+
+**A1 has explicit normative cover. Contract [04](contract/04-frame-slicing.md) §Dev-only invariants decides it by name:**
+
+> Properties the type system cannot prove. All are `__DEV__`-gated and compile out of production. The kernel-key collision check is **not** here — it is a production check in `validateFramePart` (§Composition), because its failure mode is silent state corruption.
+
+**The code says the same thing in the same words**, and `src/kernel/frames.ts` is not accidentally unguarded — it holds **both** families and keeps them apart deliberately. `assertFrameShapesMatch` and `assertFrameScrubbed` open with `if (!DEV) { return; }`; `validateFramePart` does not, and a comment where the dev-only block begins states why: _the kernel-key collision check is deliberately NOT here — it is a production check in `validateFramePart`, because its failure mode is silent state corruption rather than a stale reference._ **The module already imports `DEV`.** So this is not a gate someone forgot to apply; it is a gate someone declined to apply, in writing, twice.
+
+**And the failure mode argument survives being re-read.** A malformed frame part does not throw later and elsewhere — it silently violates the fixed-record model the whole frame-slicing design rests on. `validateFramePart` runs once, at `arm()`, which both behaviors' `frames.ts` document (_`validateFramePart` rejects one at `arm()`_ / _rejects one in production_). **A once-per-controller check against silent state corruption is not defence in depth, and the standing rule that a budget may defer defence in depth does not reach it.**
+
+**This is the keyboard and `input-policy` category**: a safety position taken on non-byte grounds, which a bundle pass may not reopen on byte grounds. **~290 B is the price of that position and it is now known**, which is the useful outcome — the position was made long ago and had never been costed.
+
+**A2 has no such cover, and it is declined on an argument that reaches both — one that came out of trying to remove them.** The case for gating either is that `src/kernel/dev.ts` states a policy they appear to violate:
+
+> The trade is that a **consumer** cannot turn them back on. That costs nothing today: these assertions check _behavior authoring_ — frame-part shape, reset exhaustiveness, unconsumed staged values — and **behavior authoring is not on the public surface** (contract 03 §public boundary). **The day it is, this needs revisiting**: either a dual build under an `exports` condition, or an inline `process.env.NODE_ENV` comparison at each site rather than a shared constant.
+
+**That day has passed, and the conclusion inverts.** D-61 published `sortable/feature.js` as the ladder's second rung so a third party can author a feature without writing a behavior; D-70 added `free-drag/feature.js`; D-68 rebuilt `kernel.js` to publish `BehaviorFactory`'s whole structural closure — 33 values and 35 types — for the express purpose of letting someone author a behavior. Contract 03 §The public/internal boundary now reads _three tiers over three entry roots_. **Behavior authoring is on the public surface, and has been since Revision 2.1.**
+
+So the premise that made author-facing validation cheap to strip is void. **Under the current surface these two blocks validate a published, supported, third-party authoring API**, and moving them behind `__DEV__` would strip validation from a public surface in exactly the build a third-party author ships. **A2 is declined for the same reason as A1, and A1's recorded rationale is now the weaker of its two arguments.**
+
+**The finding is not the bytes; it is that `dev.ts`'s own revisit condition fired and nothing noticed.** It is recorded as **F-78**, and it points the other way from a size candidate — the remedies `dev.ts` names (a dual build under an `exports` condition, or a per-site `process.env.NODE_ENV` comparison) would give a third-party author their assertions back and cost the production bundle nothing. **That is an `exports`-map question and belongs to the API deliverable**, not here.
+
+### Class B is declined on judgment, and the judgment is stated so it can be overturned
+
+These are the messages that fire from **runtime conditions and consumer callbacks** — `onReorder resolved with a value that is not a ReorderResolution`, `moveTo() was given a point that is not finite`, `the dragged visual has no readable box space (disconnected, fragmented, or 3D-transformed)`, `the placeholder was detached or moved out of the list during the reorder commit`. Unlike Class A they **can** fire in a correct deployment, because the condition is the page's state or the consumer's own returned value rather than the developer's construction.
+
+**Declined, for three reasons in descending strength:**
+
+1. **They are the only specific information a production error handler ever receives.** D-64 deliberately narrowed the consumer surface to a coarse `DraggableError.code` — four classes — with detail on the `cause`. Stripping the cause's message leaves a consumer with `presentation` and nothing else, which makes the coarse-code design worse in the one situation it exists for.
+2. **Contract 04's dev-gating rule does not admit them.** It gates _properties the type system cannot prove_ — assertions about invariants. The diagnostic text of an error that actually fires is not an assertion, and gating it would be applying a rule outside the domain it was written for.
+3. **The exchange is bad on its face**: 424 B against the debuggability of every production drag failure.
+
+**What would overturn this**: evidence that a supported deployment is bundle-constrained at a scale where 424 B matters — the same deployment-shape question D-99 asked of P-02 — or a design that keeps a machine-readable reason while dropping the prose, which is an API change and belongs to the API deliverable rather than here.
+
+### Four sweeps that found nothing, recorded so they are not re-run
+
+- **`__DEV__` folding is complete.** Zero occurrences of `__DEV__` survive in any built runtime file; the guarded blocks are gone, not merely inert.
+- **`@ydinjs/box-quad` shakes correctly.** It exports five symbols and `kernel/presentation.ts` imports two. `cache`, `projection` and `quad` are **verifiably absent** from the bundled output, and the 259 B they would cost is not being paid. The exclusivity principle P-06 was held to already holds across this package boundary.
+- **The largest single literal in the bundle is not a candidate.** `LIFTED_PROPS` in `kernel/presentation.ts` is 563 B raw — bigger than any error message — and **142–152 B compressed**. The list cannot shrink: its own doc block argues the longhand expansion is a correctness requirement, since restoring by shorthand calls `removeProperty('margin')` and permanently drops an authored `margin-left`, and `!important` priority is per-declaration and cannot be expressed as one shorthand entry. **Its encoding cannot improve either — the minifier has already collapsed the ~45-entry array into one dot-delimited string.** A source-level rewrite here would be re-doing work the toolchain does.
+- **Cross-behavior duplication is real, was located, and costs almost nothing.** The parallel audit found it precisely: `claim<T>` in the two `assemble.ts` differs only in a label prefix (`sortable:` / `free drag:`), the `catch` unwind is byte-identical, and `MINTED`/`STARTED`/`RESOLVING`, `rejection`, `finalized` and `reportFailure` are identical across the two `spec.ts`. **Measured against the real combined bundle, the second copy of all of it totals ~187 B of 11,656 — 1.6% — and exactly 0 B for a consumer bundling one behavior**, which is every composition except `both behaviors`. De-duplicating would add import plumbing and a label parameter and claw back much of that.
+
+  **The bundle-level reading agrees.** Free drag ships alone at 26,654 B minified → 9,162 B Brotli, **2.91:1**. Added to a page already running sortable, its 13 modules and 9,783 B of own minified code cost a marginal **1,546 B — 6.33:1**. The second behavior compresses more than twice as well as the first, because the first has already filled the window. **Source de-duplication would be competing with a compressor that has already found most of it**, for a share of 1.6% of one composition — and it is the broad architectural rewrite this pass was told not to propose.
+
+### Two costs that are real and are not bundle costs
+
+Recorded here because both were found by this sweep and neither belongs to it.
+
+- **54.1% of the published JavaScript is comments** — 114,914 B of 212,229 B across 51 files, with `kernel/kernel.js` about half comment and `sortable.js` near nine-tenths. **The bundle cost is exactly zero**: every composition here is minified, and the budgets gate on Brotli after minification. It is a **tarball and unbundled-CDN** cost — a consumer who imports the package unbundled from a CDN, or who counts `node_modules` weight, pays all of it. That is a packaging question, not a composition one, and this document takes no position on it beyond recording the figure so the next reader does not mistake a large number for a bundle finding.
+- **`@ydinjs/box-quad` declares no `"sideEffects": false`.** It costs nothing under Rolldown or Vite, and this package's own measurements are unaffected — the shaking is already clean. It matters for a **webpack** consumer, and it is a one-line change in another package. Noted, not actioned.
+
+### Why the large costs are intrinsic
+
+Ranked by own code weight rather than by rendered bytes, **three modules are 47% of the package's own code**: `kernel/kernel.js` at 10,810 B (21.5%), `sortable/spec.js` at 7,888 B (15.7%) and `free-drag/spec.js` at 4,957 B (9.9%). Those are the kernel state machine and the two behavior implementations. **They are large because they are what the library does**, and nothing in them is separable without removing a capability — which is the definition of not-locally-removable.
+
+**Nothing in this sweep is both material and locally removable.** The largest identified cost is 741 B of error text: ~446–471 B of it validates a **published** third-party authoring surface, and the remaining 424 B is the only specific information a production error handler ever receives. **The bundle optimization question closes with no candidate** — and it closes having been asked properly rather than inferred from the accounting pass, which is the difference between _we found nothing_ and _we did not look_.
+
+### The correction this sweep forced on the pass that preceded it
+
+**Ranking modules by `renderedLength` was wrong, and it is the same error class as the free-drag division corrected above.** `renderedLength` counts JSDoc, and comment density in this package varies by an order of magnitude between modules, so the proxy distorted both the magnitudes and the order. Every decline in §The declines was quoted 3–8× too large:
+
+| Quoted as | Actually |
+| --- | --- |
+| keyboard, ~1,534 B rendered | 379 B minified, **221 B Brotli** |
+| `input-policy`, ~4,030 B rendered | 469 B minified, **234 B Brotli** |
+| `sortable/spec.js`, 24,395 B rendered | 7,888 B minified, **2,585 B Brotli** |
+| `box-quad`, 6,291 B rendered | 2,036 B minified, **962 B Brotli** |
+| the free-drag layer, 30,778 B rendered | 9,783 B own minified |
+
+**The declines themselves stand** — every one was made on a decision, not on a size — but a reader would have concluded that large savings were being left on the table, and they are not. **The lesson is the one this phase keeps relearning**: a figure that must be labelled a proxy in the sentence that quotes it should be measured properly instead. That is now four instances of one error class — P-02's superseded curve, P-01's unreachable regime, the free-drag division, and this.
 
 ## Headroom: do not re-base, and the condition that changes that
 
