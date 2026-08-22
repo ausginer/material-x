@@ -1090,23 +1090,32 @@ The alternative — activate, then cancel immediately afterwards — would be de
 
 ## Tree-shaking
 
-Judged through consumer fixtures, not source intuition — and **measured** (M-3, baselined 2026-08-02 — [measurements/m3.md](../measurements/m3.md); table re-measured **2026-08-08** at Checkpoint D and after each of its four reviews, superseding the pre-Phase-15 figures this section used to publish):
+Judged through consumer fixtures, not source intuition — and **measured** (M-3, baselined 2026-08-02 — [measurements/m3.md](../measurements/m3.md); re-measured **2026-08-08** at Checkpoint D, re-declared at two behaviors by **M-3′** on 2026-08-19 — [measurements/m3-prime.md](../measurements/m3-prime.md) — and re-measured here **2026-08-22** by the Phase 22 bundle-structure pass, [bundle-structure.md](../bundle-structure.md)). **The table below is the full topology rather than the sortable half of it**, which is what changed at M-3′ and what this section published five rows of until now:
 
-| composition           | brotli       | modules | vs minimal |
-| --------------------- | ------------ | ------- | ---------- |
-| minimal (`y()`)       | **10.12 kB** | 31      | —          |
-| minimal (`xy()`)      | 10.17 kB     | 31      | +0.05 kB   |
-| + `layoutAnimation()` | 10.56 kB     | 32      | +0.44 kB   |
-| + `landing()`         | 10.40 kB     | 32      | +0.29 kB   |
-| complete              | **10.93 kB** | 35      | +0.82 kB   |
+| composition | brotli | modules | vs its behavior's minimal |
+| --- | --- | --- | --- |
+| minimal (`y()`) | **11.14 kB** | 31 | — |
+| minimal (`xy()`) | 10.80 kB | 30 | −0.34 kB |
+| + `layoutAnimation()` | 11.57 kB | 32 | +0.43 kB |
+| + `landing()` | 11.42 kB | 33 | +0.28 kB |
+| complete | **11.85 kB** | 34 | +0.71 kB |
+| free drag minimal | **8.72 kB** | 26 | — |
+| + `bounds()` | 8.86 kB | 27 | +0.15 kB |
+| + `landing()` | 9.02 kB | 28 | +0.30 kB |
+| free drag complete | **9.16 kB** | 29 | +0.45 kB |
+| both behaviors | 13.40 kB | 47 | — |
+| `kernel.js` alone (`draggable`) | 6.51 kB | 12 | — |
+| `drag.js` alone (`DraggableError`) | **0.12 kB** | **1** | — |
+
+The last two rows **are** declared compositions in `bench/size` as of 2026-08-22 — they were measured once by the pass above, and F-77 is the finding that said a published runtime entry with an isolation claim ought to carry a standing assertion rather than a one-time reading. It is closed: `drag.js` carries `only: ['kernel/errors.js']` and a deliberately tight 150 B budget, because the packed `errors.js` inlines the `FAILURE_*` constants and so a graph assertion alone cannot see machinery arriving from `failures.ts`. `drag.js` at one module is the measured form of the three-root argument: shared vocabulary costs a consumer 121 B, not the kernel.
 
 The **property** this section asserts is that each optional feature adds only itself, and it holds: the module graph shows no optional module in a composition that did not ask for it, in either direction.
 
 **The numbers are not "unchanged since M-3", and saying so was wrong** (C2-05, Checkpoint D review 2). M-3 recorded `landing()` at +0.27 kB and `complete` at **+0.76 kB** against a **9.33 kB** minimal — `+0.77` against `9.34` after that document's own re-measure note, and never `+0.81`, which this sentence carried until Checkpoint D review 3 (C3-04) checked it against [`../measurements/m3.md`](../measurements/m3.md); the deltas have moved with every absolute figure since, and the table above is re-measured after C2-01 rather than carried forward. Read the deltas as measurements with a date, not as invariants.
 
-The absolute figures moved with D-33's settlement protocol (+70 B), Phase 16's non-tree-shakeable keyboard ingress (~300 B), Phase 17's shared rect index (+60 B), Checkpoint D's fixes (+40 B), C2-01's terminal barrier (+30 B to +90 B, composition-dependent), C3-01's abort return channel (±20 B, inside brotli's noise band) and C4-01's completion of that barrier (+37 B minimal, +70 B with `layoutAnimation()`, +70 B complete); the budgets were re-based with the earlier ones and **were not re-based for C4-01** — every composition stayed inside the budget it already had. **Headroom is now 0.11–0.16 kB against budgets set at ~0.3 kB**, tightest on `+ layoutAnimation` and `complete` at 0.11 kB, which makes the Phase 21 re-base the next size-affecting change has to go through rather than around (see [`../plan.md`](../plan.md) §Phase 21).
+The absolute figures moved with D-33's settlement protocol (+70 B), Phase 16's non-tree-shakeable keyboard ingress (~300 B), Phase 17's shared rect index (+60 B), Checkpoint D's fixes (+40 B), C2-01's terminal barrier (+30 B to +90 B, composition-dependent), C3-01's abort return channel (±20 B, inside brotli's noise band) and C4-01's completion of that barrier (+37 B minimal, +70 B with `layoutAnimation()`, +70 B complete); the budgets were re-based with the earlier ones and **were not re-based for C4-01** — every composition stayed inside the budget it already had. ~~**Headroom is now 0.11–0.16 kB against budgets set at ~0.3 kB**, tightest on `+ layoutAnimation` and `complete` at 0.11 kB, which makes the Phase 21 re-base the next size-affecting change has to go through rather than around~~ — **that re-base happened, twice** (M-3′ 2026-08-19, and P-06/D-102 2026-08-21), and the convention it established is **measurement plus ~150 B**, sized to notice a module appearing in a graph and deliberately too small to absorb a feature. **Headroom is 114–154 B as of 2026-08-22**, tightest on baseline A and `+ landing`; the drift below 150 B is one landed change — P-02's shrink branch, +34 B on the `y()` rows and +14 B on `minimal (xy)`, which added no module and was therefore absorbed rather than re-based. **The budgets do not re-base for that**, and the conditions under which they do are stated in [bundle-structure.md](../bundle-structure.md) §Headroom.
 
-The absences below are **asserted against the bundled module graph**, not inferred from the deltas — a module can be pulled in and mostly shaken, which produces a small delta and reads like success. **Composition itself costs 0.27 kB (2.5%)** against a feature-matched build that fills the slot record by hand — 10,934 B against 10,668 B, so 266 B; **migrating from the shipped `sortable.js` costs 3.23 kB** — 10,116 B against 6,889 B, so 3,227 B. The two baselines answer different questions and are never substituted for each other. Both are derived from the same `npx just size` run as the table above; every earlier revision of this paragraph published a figure that was stale on arrival, so the exact byte counts are given alongside the rounded ones.
+The absences below are **asserted against the bundled module graph**, not inferred from the deltas — a module can be pulled in and mostly shaken, which produces a small delta and reads like success. **Composition itself costs 0.28 kB (2.4%)** against a feature-matched build that fills the slot record by hand — 11,849 B against 11,566 B, so **283 B** at 2026-08-22, against 266 B when this sentence was first written and 289 B at M-3′. **It has not grown as features were added to it**, which is the property worth having rather than the number, and it is what §What isolation cannot shake asked to have weighed. **Migrating from the shipped `sortable.js` costs 4.25 kB** — 11,139 B against 6,889 B, so 4,250 B. The two baselines answer different questions and are never substituted for each other. Both are derived from the same `npx just size` run as the table above; every earlier revision of this paragraph published a figure that was stale on arrival, so the exact byte counts are given alongside the rounded ones.
 
 1. No global registry, no barrel that eagerly references every feature, no default options object naming an optional feature.
 2. Each feature is its own module with no import edge to a sibling feature, and no import edge to the behavior's runtime type (D-13 removes the last one).
@@ -1347,7 +1356,7 @@ Measure the fixed cost too, and compare it against a hand-written, non-composed 
 - the nullable slot fields and their null checks;
 - the three always-present pipeline arrays.
 
-That plumbing may well be entirely acceptable. It has not been weighed.
+~~That plumbing may well be entirely acceptable. It has not been weighed.~~ **Weighed 2026-08-22, and it is acceptable** — [bundle-structure.md](../bundle-structure.md) §What composition costs. The four items above cost **283 B, 2.4% of `complete`**, against a hand-written feature-matched baseline, and the figure has been taken three times across two feature additions — 266 B, 289 B, 283 B. **The stability is the answer, not the size**: an overhead that grew with the feature count would be an argument against the composition model, and this one does not. This section closes.
 
 ## Policy updates
 

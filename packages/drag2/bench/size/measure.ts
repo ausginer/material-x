@@ -157,6 +157,24 @@ export type Composition = Readonly<{
   absentPrefixes?: readonly string[];
   /** Modules that must appear — so the absence checks cannot pass vacuously. */
   present?: readonly string[];
+  /**
+   * The bundled graph, **exactly** — every module that may appear, and no
+   * other. Passing it also satisfies the `present` half, so a composition
+   * declaring `only` declares nothing else.
+   *
+   * Added for F-77, whose invariant is _`drag.js` reaches `kernel/errors.js`
+   * and nothing else_ — a claim `absent` cannot make and `absentPrefixes`
+   * cannot make either, because the one module that must appear lives inside
+   * the one subtree that must not. Enumerating today's absences would answer a
+   * total claim with a list that grows stale the moment `kernel/` gains a file,
+   * which is the same vacuity `absentPrefixes` was added to prevent.
+   *
+   * **Reserved for roots whose whole point is what they do not reach.** A
+   * feature composition should not use it: pinning fifteen module names would
+   * turn every legitimate refactor into a harness failure, and the claim there
+   * is about specific machinery rather than about the size of the graph.
+   */
+  only?: readonly string[];
 }>;
 
 /**
@@ -371,6 +389,82 @@ export const COMPOSITIONS: readonly Composition[] = [
     ],
   },
   {
+    /**
+     * **F-77's close, and the graph half is the point of the row.**
+     *
+     * The contract says a consumer imports `free-drag.js` and `drag.js` and
+     * _reaches no other tier_, and 03 §The export topology asks for that to be
+     * checked against something other than the table it was derived from. This
+     * is that check: a consumer who wants `err instanceof DraggableError` and
+     * nothing else pays one module.
+     *
+     * **The isolation is real but not structural, which is why it needs a
+     * standing row rather than a reading.** `src/kernel/errors.ts` imports
+     * thirteen runtime `FAILURE_*` constants from `./failures.ts` and uses them
+     * as computed keys in `STAGE_TO_CODE`. This root bundles to one module only
+     * because Rolldown shakes that map and `toDraggableError` away from the
+     * `DraggableError` class in the same file. **One runtime reference from the
+     * class to the stage map, or one side effect in `failures.ts`, and the root
+     * silently grows** — which is precisely the failure the doctrine at the top
+     * of this file names: a module pulled in, mostly shaken, showing up as a
+     * small delta that reads like success.
+     *
+     * **`tests/packaging.node.test.ts` is not this assertion.** It walks the
+     * unshaken *source* graph, deliberately independent of any bundler's
+     * heuristics, and on that graph `drag.js` **does** reach
+     * `kernel/failures.js`. Only a bundled-graph instrument can hold the 121 B.
+     *
+     * **This row's budget is 29 B of headroom, not the standing ~150 B, and
+     * that is the row working rather than an oversight.** The convention is
+     * sized to _roughly one module_ against 8–13 kB compositions; on a 121 B
+     * root, one module's worth of slack is larger than the artifact, and the
+     * row would report success while the thing it exists to prevent happened.
+     * The graph half cannot cover the gap either: the packed `kernel/errors.js`
+     * carries a **bare** `import "./failures.js"`, because `tsdown` inlines the
+     * thirteen `FAILURE_*` constants as literals — so machinery arriving from
+     * `failures.ts` lands **inside this module** and moves no module count at
+     * all. Verified by injecting F-77's own predicted regression, one runtime
+     * reference from `DraggableError` to `STAGE_TO_CODE`: the graph stays at
+     * one module and the artifact grows **121 → 190 B**. Only a budget this
+     * row can breach observes that, which is why it is set where it is.
+     *
+     * A legitimate change to the class re-bases this number, deliberately and
+     * visibly, under the standing rule that a budget re-bases rather than a fix
+     * shrinking. That is the intended behaviour and not a cost.
+     */
+    name: 'vocabulary root - drag.js',
+    imports: { 'drag.js': '{ DraggableError }' },
+    budget: 150,
+    only: ['kernel/errors.js'],
+  },
+  {
+    /**
+     * The kernel tier's own root, the second half of F-77.
+     *
+     * **It is what makes the row above a measurement rather than a tautology.**
+     * A one-module vocabulary root is only evidence for D-48's split if the
+     * tier it declines to import is substantial, and this weighs that tier at
+     * twelve modules against the vocabulary root's one.
+     *
+     * **The two graphs turn out to be disjoint, which is stronger than the
+     * split needed.** `kernel.js` does not pull `kernel/errors.js` either —
+     * `draggable` alone never names the class — so neither root subsumes the
+     * other and D-48's _neither tier should have to import the other to name a
+     * symbol both hand out_ holds in both directions rather than one. That was
+     * not known before this row: `bundle-structure.md` recorded the 12-module
+     * floor without listing it.
+     *
+     * Declared with `present`/`absentPrefixes` rather than `only`: the claim
+     * here is that the kernel floor reaches no behavior, not that its own
+     * twelve modules are frozen.
+     */
+    name: 'kernel root - kernel.js',
+    imports: { 'kernel.js': '{ draggable }' },
+    budget: 6660,
+    present: ['kernel.js', 'kernel/kernel.js'],
+    absentPrefixes: ['sortable/', 'free-drag/'],
+  },
+  {
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
@@ -512,6 +606,15 @@ export function budgetViolations(measurement: Measurement): readonly string[] {
 }
 
 /**
+ * A measurement's graph **as a consumer sees it**: the synthetic entry the
+ * harness writes for an `imports` composition is dropped, because its id is a
+ * temp path that differs on every run and it is not a module anyone ships.
+ */
+export function packageModules(measurement: Measurement): readonly string[] {
+  return measurement.modules.filter((id) => id !== measurement.entryId);
+}
+
+/**
  * The **module graph** half: what a composition must and must not pull.
  *
  * This is the half a byte count cannot express (03 §Tree-shaking) and the half
@@ -541,20 +644,29 @@ export function graphViolations(measurement: Measurement): readonly string[] {
     }
   }
 
+  if (composition.only) {
+    // Against the consumer-visible graph: the synthetic entry an `imports`
+    // composition bundles is the harness's own module and is never shipped.
+    const shipped = packageModules(measurement);
+
+    for (const module of shipped) {
+      if (!composition.only.includes(module)) {
+        found.push(`pulls ${module}, and its graph is declared exactly`);
+      }
+    }
+
+    for (const module of composition.only) {
+      if (!shipped.includes(module)) {
+        found.push(`does not pull ${module}, which its graph declares`);
+      }
+    }
+  }
+
   for (const module of measurement.duplicated) {
     found.push(`emits ${module} into more than one chunk`);
   }
 
   return found;
-}
-
-/**
- * A measurement's graph **as a consumer sees it**: the synthetic entry the
- * harness writes for an `imports` composition is dropped, because its id is a
- * temp path that differs on every run and it is not a module anyone ships.
- */
-export function packageModules(measurement: Measurement): readonly string[] {
-  return measurement.modules.filter((id) => id !== measurement.entryId);
 }
 
 /**

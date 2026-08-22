@@ -50,7 +50,7 @@ in a single and not combined:   none
 modules emitted into >1 chunk:  none, in every composition
 ```
 
-**16 modules are shared** — the fifteen under `kernel/` plus `shared/landing-runner.js`, which both behaviors' `landing()` reaches. Sharing is asserted rather than assumed, because the identity holds vacuously if the two behaviors share nothing: the combined graph is asserted to be exactly `|sortable| + |free drag| − |shared|`.
+**16 modules are shared** — ~~the fifteen under `kernel/` plus `shared/landing-runner.js`, which both behaviors' `landing()` reaches~~. **Corrected 2026-08-22 by the Phase 22 bundle-structure pass** — [`../bundle-structure.md`](../bundle-structure.md). The total is right and the breakdown was not: there are **thirteen** modules under `kernel/`, the fourteenth is `kernel.js` at the package root, the fifteenth is `shared/landing-runner.js`, and the sixteenth is **`@ydinjs/box-quad`** — an external package reached from `kernel/presentation.ts`, not a kernel module. `shared/landing-runner.js` is shared for the reason stated — both behaviors' `landing()` reaches it. **The identity this run asserted is unaffected**, because it was scored over module sets rather than over this sentence; what was wrong was a count in prose, and it had the effect of hiding a runtime dependency inside a subtree name. Sharing is asserted rather than assumed, because the identity holds vacuously if the two behaviors share nothing: the combined graph is asserted to be exactly `|sortable| + |free drag| − |shared|`.
 
 **The topology-reopen condition did not trigger.** D-48's `kernel.js` split holds at two behaviors; nothing is duplicated, and no export-topology question is opened.
 
