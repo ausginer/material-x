@@ -253,10 +253,17 @@ Destroy and panic additionally clear both frames, the queue and its arguments, t
 
 ## Dev-only invariants
 
-Properties the type system cannot prove. All are `__DEV__`-gated and compile out of production. The kernel-key collision check is **not** here — it is a production check in `validateFramePart` (§Composition), because its failure mode is silent state corruption rather than a stale reference.
+Properties the type system cannot prove. **The heading is now a misnomer and is kept anyway**, because three dated records cross-reference this section by name and rewriting them to chase a rename would cost more than the heading is worth; read it as _frame-authoring invariants_.
+
+~~All are `__DEV__`-gated and compile out of production.~~ **Un-gated by D-108, and this section's own discriminator is why.** The kernel-key collision check was never here — it is a production check in `validateFramePart` (§Composition), _because its failure mode is silent state corruption rather than a stale reference_. A part factory that is not deterministic and a reset that leaves a live reference are **both** silent state corruption: a retained element leaks a DOM node across every later operation. The rule already classified these as production checks; the gate is what disagreed with it.
+
+**The premise the gate rested on expired at Revision 2.1.** `kernel/dev.ts` justified stripping author-facing assertions on the ground that _behavior authoring is not on the public surface_ and named its own revisit condition. D-61, D-70 and D-68 published behavior authoring, so the shipped build handed a third-party author `assertFrameShapesMatch(a, b) {}` — an empty stub they could not fill (F-78). All four kernel sites are cold (once per `arm()`, twice per drag at retirement, once per transaction open, one failure path), the measured cost is 282–305 B against the pre-slice tree, and the budgets re-based rather than the fix shrinking.
+
+**`__DEV__` still exists and still has exactly one reader** (D-101): `sortable/verified-refresh.ts`'s per-frame equivalence instrument, which is genuinely hot and stays gated. `kernel/dev.ts` is retired, and `tests/kernel/vocabulary.node.test.ts` pins the binding tiers to `['sortable']`, so the kernel re-acquiring a gate fails the suite.
 
 ```ts
-if (__DEV__) {
+// Unconditional, in every build.
+{
   // F-2: intra-controller shape identity. Checked once, at arm().
   const a = Object.keys(current);
   const b = Object.keys(draft);

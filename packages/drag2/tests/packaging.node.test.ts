@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-relative-packages -- the clean derivation is a repo script, and asserting against the real one is the point (D-111). */
 /**
  * The published tarball has to contain everything the emitted entrypoints
  * import. `files` is a hand-maintained allowlist and the build mirrors `src/`,
@@ -12,6 +13,10 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import {
+  packageFilesToCleanPathspecs,
+  type PackageFiles,
+} from '../../../.scripts/package-files.ts';
 import { findOrphanDeclarations } from '../prune-declarations.ts';
 
 const ROOT = resolve(import.meta.dirname, '..');
@@ -257,6 +262,44 @@ describe('the published file list', () => {
     );
 
     expect(stale).toEqual([]);
+  });
+
+  it('should clean every path it ships', async () => {
+    // **F-79, and it had already fired** (D-111). `clean-build` derives its
+    // pathspecs from `files.json`, adding a *directory* pathspec only when an
+    // entrypoint contains a `/` — so `sortable/` and `free-drag/` were cleaned
+    // because entries name them, while `kernel/` (42 files) and `shared/` (4)
+    // were shipped by `files` and never cleaned at all. A module deleted from
+    // `src/kernel/` therefore left its `.js`, `.js.map` and `.d.ts` on disk
+    // **inside the allowlist**, and the next `npm pack` published them.
+    //
+    // The proof is not hypothetical: a root `landing-runner.js` and its map sat
+    // in this package, orphaned when the source moved to `src/shared/`, with the
+    // old path still in the map's `sources`. They missed the tarball only
+    // because that one file happened to fall outside the allowlist.
+    //
+    // Asserted against the pathspec derivation rather than by running `git
+    // clean`, which is the difference between holding the property and
+    // inspecting whatever the working tree happens to contain: this fails on a
+    // tree that was never built.
+    const { files } = (await readJSON('package.json')) as {
+      files: readonly string[];
+    };
+    const declared = JSON.parse(
+      await readFile(join(ROOT, 'files.json'), 'utf8'),
+    ) as PackageFiles;
+    const pathspecs = new Set(packageFilesToCleanPathspecs(declared));
+    const covered = (entry: string): boolean => {
+      // A file inside a directory the clean covers is covered with it.
+      const [top] = entry.split('/');
+
+      return pathspecs.has(entry) || pathspecs.has(top!);
+    };
+
+    expect(files.filter((entry) => !covered(entry))).toEqual([]);
+    // Not vacuous: the derivation really does produce pathspecs, so a future
+    // `files.json` shape that silently yielded none cannot pass this row.
+    expect(pathspecs.size).toBeGreaterThan(files.length);
   });
 
   it('should publish no declaration the entries cannot reach', async () => {

@@ -113,6 +113,10 @@ import {
   type ReorderRequest,
   type ReorderTransactionResult,
   type SortableController,
+  type SortableInstaller,
+  type SortableOnDragError,
+  type SortableOnEnd,
+  type SortableOnStart,
 } from '@ydinjs/drag2/sortable.js';
 import { y } from '@ydinjs/drag2/sortable/y.js';
 import {
@@ -164,6 +168,17 @@ const hoistedAxis: AxisInstaller = (context) => {
   };
 };
 
+// **The \`plugins\`/\`landing\` slot's alias is hoistable from the ordinary
+// tier too** (D-110). \`SortableConfig\` names \`SortableInstaller\` at two
+// slots and \`sortable.js\` published it at none, so typing one meant importing
+// the types-only middle tier — the tier inversion the free-drag mirror never
+// forced. This row is what stops it being dropped again.
+const hoistedPlugin: SortableInstaller = (context) => {
+  void context.root;
+
+  return {};
+};
+
 const list: SortableController = sortable(
   root,
   {
@@ -184,7 +199,15 @@ const list: SortableController = sortable(
     // \`SortableCancelResult\` — are gone, so this is also the case that proves
     // a consumer can tell the arms apart with nothing but the discriminant
     // (F-41).
-    onEnd: (result: ReorderTransactionResult): void => {
+    // **Qualified by behavior** (D-109). Both ordinary roots declare an
+    // \`onStart\`, an \`onEnd\` and an \`onError\` alias with *different*
+    // structures, which is D-75's only condition for qualifying a name — so
+    // this fixture, which imports both roots at once, is where an unqualified
+    // pair would collide.
+    onStart: ((item: HTMLElement): void => {
+      void item.isConnected;
+    }) satisfies SortableOnStart,
+    onEnd: ((result: ReorderTransactionResult): void => {
       if (result.type === 'accepted') {
         const proposal: ReorderProposal = result.proposal;
         // The proposal exposes the snapshot it was built against, so the type
@@ -201,8 +224,11 @@ const list: SortableController = sortable(
 
         void (stage === AT_PROPOSAL || stage === AT_CONSUMER);
       }
-    },
-    onError: (error: DraggableError, context: SortableErrorContext): void => {
+    }) satisfies SortableOnEnd,
+    onError: ((
+      error: DraggableError,
+      context: SortableErrorContext,
+    ): void => {
       // **D-64.** The ordinary consumer branches on a coarse fault class and
       // never sees a pipeline stage: \`context\` is the sortable half alone.
       const code: DraggableErrorCode = error.code;
@@ -211,7 +237,7 @@ const list: SortableController = sortable(
       void (code === 'consumer');
       void (error instanceof DraggableError);
       void domain?.type;
-    },
+    }) satisfies SortableOnDragError,
     // **D-65**: the callback itself, not \`create\` plus a class name. Nameable,
     // so a consumer can hoist the factory out of the object literal.
     placeholder: ((context: PlaceholderContext) => {
@@ -224,6 +250,7 @@ const list: SortableController = sortable(
   },
   landing({ duration: 120, easing: 'ease-out' }),
   layoutAnimation({ duration: 90 }),
+  { plugins: [hoistedPlugin] },
 );
 
 // **D-44**: payload-free. The collection is a pull source, so this says
@@ -712,14 +739,14 @@ import {
   type FreeDragErrorContext,
   type FreeDragInstaller,
   type FreeDragLift,
+  type FreeDragOnDragError,
+  type FreeDragOnEnd,
+  type FreeDragOnStart,
   type FreeDragRequest,
   type FreeDragSubject,
   type FreeDragTransactionResult,
-  type OnDragError,
   type OnDrop,
-  type OnEnd,
   type OnMove,
-  type OnStart,
   type RejectedFreeDragResolution,
   type RejectedFreeDragResult,
   type ResolveElement,
@@ -780,7 +807,7 @@ const controller: FreeDragController = freeDrag(
     })) satisfies ResolveHome,
     onStart: ((geometry: DragGeometry) => {
       void geometry.originRect.width;
-    }) satisfies OnStart,
+    }) satisfies FreeDragOnStart,
     onMove: ((geometry: DragGeometry) => {
       void geometry.currentRect.left;
     }) satisfies OnMove,
@@ -819,7 +846,7 @@ const controller: FreeDragController = freeDrag(
           void exhaustive;
         }
       }
-    }) satisfies OnEnd,
+    }) satisfies FreeDragOnEnd,
     onError: ((
       error: DraggableError,
       context: FreeDragErrorContext,
@@ -831,7 +858,7 @@ const controller: FreeDragController = freeDrag(
       void (code === 'presentation');
       void (error instanceof DraggableError);
       void domain?.type;
-    }) satisfies OnDragError,
+    }) satisfies FreeDragOnDragError,
   },
   // **A capability installer, not a config key** (D-70), and the no-argument
   // form *is* the viewport — the shipped \`bounds: 'viewport'\` sentinel is
@@ -1286,7 +1313,19 @@ describe('the packed package', () => {
     // `files` ships whole directories for `kernel/` and `sortable/`, which
     // carries their maps along, but names the root entries file by file — so a
     // root map is the one artefact the allowlist can silently drop.
-    const files = await packedFiles(packed.dir, '.js');
+    //
+    // **`.d.ts` as well as `.js`, since D-111.** This scanned only `.js`, and
+    // the omission is the whole reason 31 dangling references shipped
+    // unnoticed: tsdown runs both emits as one rolldown build over one
+    // `sourcemap` option, so every declaration carried a
+    // `//# sourceMappingURL=….d.ts.map` comment while no such chunk was ever
+    // produced. An instrument that checks one half of what it names is the
+    // failure this row now closes — the property is *every* packed module,
+    // not every packed module of one extension.
+    const files = [
+      ...(await packedFiles(packed.dir, '.js')),
+      ...(await packedFiles(packed.dir, '.d.ts')),
+    ];
     const sources = await Promise.all(
       files.map((file) => readFile(file, 'utf8')),
     );
@@ -1306,6 +1345,63 @@ describe('the packed package', () => {
     }
 
     expect(dangling).toEqual([]);
+    // Not vacuous: the `.js` half really does carry maps, so a future build
+    // that stopped emitting `sourceMappingURL` altogether cannot pass this
+    // row by having nothing to check.
+    expect(
+      sources.filter((source) => source.includes('sourceMappingURL')).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it('should pack every file its own allowlist names', async () => {
+    // **The other direction, and the one `files` gets wrong** (D-111). `exports`
+    // is generated from `files.json` and cannot drift; `files` is the single
+    // hand-maintained list in the package contract, and it listed `drag.js.map`
+    // — a chunk rolldown never emits, because a pure re-export facade has no
+    // mappings. npm ignores a missing allowlist entry silently, so nothing
+    // failed and the tarball simply promised a file it did not carry.
+    const manifest = JSON.parse(
+      await readFile(join(packed.dir, 'package.json'), 'utf8'),
+    ) as { files: readonly string[] };
+    const missing: string[] = [];
+
+    for (const entry of manifest.files) {
+      // oxlint-disable-next-line no-await-in-loop
+      if (!(await exists(join(packed.dir, entry)))) {
+        // A directory entry reads as a file that cannot be read; only a
+        // genuinely absent path fails.
+        // oxlint-disable-next-line no-await-in-loop
+        const listed = await readdir(join(packed.dir, entry)).catch(() => null);
+
+        if (listed === null) {
+          missing.push(entry);
+        }
+      }
+    }
+
+    expect(missing).toEqual([]);
+  });
+
+  it('should ship the four author-facing checks it validates behaviors with', async () => {
+    // **D-108, read off the artifact a third-party behavior author installs.**
+    // These were `__DEV__`-gated on the premise that behavior authoring is not
+    // public, which Revision 2.1 voided — `kernel/frames.js` shipped
+    // `function assertFrameShapesMatch(a, b) {}`, an empty stub the author
+    // cannot fill (F-78). Asserted on the packed *message text* rather than on
+    // the source, because the gate was invisible everywhere else in this suite:
+    // the repository builds `__DEV__` as `true`, so every in-repo fixture ran
+    // the checks that the published build had folded away.
+    const [frames, seams] = await Promise.all(
+      ['kernel/frames.js', 'kernel/seams.js'].map((file) =>
+        readFile(join(packed.dir, file), 'utf8'),
+      ),
+    );
+
+    expect(frames).toContain('a part factory is not deterministic');
+    expect(frames).toContain('resetFramePart changed the frame shape');
+    expect(frames).toContain('reset left a reference');
+    expect(seams).toContain('never consumed');
+    expect(seams).toContain('is not classified');
   });
 
   it('should declare no subpath into the kernel directory', () => {

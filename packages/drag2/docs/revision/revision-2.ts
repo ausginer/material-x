@@ -266,10 +266,19 @@ type OperationProgress = typeof MINTED | typeof STARTED | typeof RESOLVING;
 
 /**
  * **Also imported whole.** `SortableConfig` and every alias it names —
- * `ItemSource`, `OnReorder`, `OnStart`, `OnEnd`, `OnDragError`,
- * `ResolveHandle`, `ResolveElement` — ship from `sortable.js` for exactly the
- * reason `n12` exists (F-51), so the fixture asserts the *shipped* alias is
- * still an alias.
+ * `ItemSource`, `OnReorder`, `SortableOnStart`, `SortableOnEnd`,
+ * `SortableOnDragError`, `ResolveHandle`, `ResolveElement`,
+ * `PlaceholderFactory`, `AxisInstaller`, `SortableInstaller` — ship from
+ * `sortable.js` for exactly the reason `n12` exists (F-51), so the fixture
+ * asserts the *shipped* alias is still an alias.
+ *
+ * **Three of those names are qualified and two are installers** (D-109, D-110).
+ * `onStart`, `onEnd` and `onError` exist on both ordinary roots with different
+ * structures, so each root publishes its own — `ResolveHandle` and
+ * `ResolveElement` collide too and match structurally, which is why they are
+ * not. `SortableInstaller` joins `AxisInstaller` because `SortableConfig` names
+ * it at `landing?` and `plugins?`, and the rule that published one is the rule
+ * that publishes the other.
  *
  * `n12` is the row this rewiring most changes. It checked the fixture's local
  * `SortableConfig['onEnd']`, so a `lint-fix` that rewrote the shipped alias

@@ -9,6 +9,14 @@
  * checks the consumer's exhaustiveness. The inline property form does not
  * survive this repo either: `method-signature-style` rewrites it back into
  * shorthand on every `lint-fix`. A named alias is immune to both.
+ *
+ * **Three of them are qualified by behavior** (D-109). `onStart`, `onEnd` and
+ * `onError` exist on both ordinary configs with **different structures**, which
+ * is D-75's only condition for qualifying a name, and both aliases publish from
+ * their own root. `ResolveHandle` and `ResolveElement` also collide and are
+ * structurally identical, so they stay unqualified — the rule discriminates
+ * rather than blankets. A released consumer cannot have the symmetry added
+ * later, so it is added before publication.
  */
 import type { Writable } from 'type-fest';
 import type { DraggableError } from '../kernel/errors.ts';
@@ -24,11 +32,11 @@ import type {
 } from './domain.ts';
 import type { FreeDragInstaller } from './feature.ts';
 
-export type OnStart = (geometry: DragGeometry) => void;
+export type FreeDragOnStart = (geometry: DragGeometry) => void;
 export type OnMove = (geometry: DragGeometry) => void;
 /** Exactly once per started operation, whatever happened to it (D-62, D-66). */
-export type OnEnd = (result: FreeDragTransactionResult) => void;
-export type OnDragError = (
+export type FreeDragOnEnd = (result: FreeDragTransactionResult) => void;
+export type FreeDragOnDragError = (
   error: DraggableError,
   context: FreeDragErrorContext,
 ) => void;
@@ -58,11 +66,11 @@ export type FreeDragConfig = Readonly<{
   visual?: ResolveElement;
   /** Where a rejected or canceled drag returns to. Absent means the grab spot. */
   home?: ResolveHome;
-  onStart?: OnStart;
+  onStart?: FreeDragOnStart;
   /** Once per committed sample, **after** the visual is written. */
   onMove?: OnMove;
-  onEnd?: OnEnd;
-  onError?: OnDragError;
+  onEnd?: FreeDragOnEnd;
+  onError?: FreeDragOnDragError;
 
   /* scalars, and one scalar-or-source */
   /**

@@ -131,11 +131,97 @@ export type Composition = Readonly<{
    * than netted off against the 288 B it removed. Headroom stays at ~150 B on
    * every re-based row.
    *
-   * Landed figures, every row: minimal **11,105**, minimal (xy) **10,787**,
+   * ~~Landed figures, every row: minimal **11,105**, minimal (xy) **10,787**,
    * + layoutAnimation **11,550**, + landing **11,388**, complete **11,808**,
    * free drag minimal **8,717**, free drag + bounds **8,863**, free drag +
    * landing **9,016**, free drag complete **9,162**, both behaviors
-   * **13,363**, baseline A **11,520**, baseline B **6,889**.
+   * **13,363**, baseline A **11,520**, baseline B **6,889**.~~
+   *
+   * **Superseded as a baseline, and this is the list that caused API-01.** The
+   * numbers are correct for 2026-08-21 and are kept as the dated record. What
+   * is withdrawn is any use of them as a _current_ measurement: D-103 and D-104
+   * moved seven of these rows afterwards without updating the list, and the
+   * D-108 re-base below then subtracted it as though it were the pre-change
+   * tree — charging D-108 with 14–46 B that were not its own.
+   *
+   * **The same withdrawal applies to every _Landed figures_ list above this
+   * one**, for the same reason and without re-measuring any of them: each was
+   * current on its own date and none is updated by a later decision. Only the
+   * most recent re-base states a baseline that can be subtracted, and it states
+   * what it was measured **against** rather than leaving the reader to find the
+   * nearest list.
+   *
+   * **Re-based again 2026-08-22, Phase 22 (D-108), and this one moves the
+   * numbers *up* for a correctness fix rather than for a module.** The kernel's
+   * four author-facing checks — `assertFrameShapesMatch`, `assertFrameScrubbed`
+   * and the two seam reports — were `__DEV__`-gated on `kernel/dev.ts`'s premise
+   * that _behavior authoring is not on the public surface_, which Revision 2.1
+   * voided (F-78): the published build shipped `assertFrameShapesMatch(a, b) {}`
+   * as an empty stub, so a third-party behavior author got no frame-shape or
+   * reset-exhaustiveness validation in any build they could produce. D-108
+   * un-gates all four, retires `kernel/dev.ts`, and leaves the sortable's own
+   * per-frame binding alone.
+   *
+   * **This is the case the headroom rule was written for, in the direction it
+   * is usually read backwards.** ~150 B is sized to notice a module appearing,
+   * and **no module appeared** — the whole cost is the two assert messages, the
+   * two report messages, `sameKeys`, `validateFrameDescriptors` and two loops,
+   * all previously folded to nothing. It is nonetheless **282–305 B**, roughly
+   * twice the headroom, so it comes back here and re-bases visibly rather than
+   * being absorbed. The standing rule governs both halves: a budget re-bases
+   * rather than a correctness fix shrinking, and headroom may never be spent to
+   * avoid landing one.
+   *
+   * **Corrected 2026-08-22 against the API review (API-01), and the correction
+   * is a lesson about this docblock rather than about D-108.** The first
+   * published figures — _283–340 B_ — were computed as `landed` minus the
+   * _Landed figures_ list of the **previous** re-base above, which is not the
+   * pre-change tree: D-103 and D-104 moved seven of these rows *after* that list
+   * was written and neither updated it. So 14–46 B of P-06 remediation and P-02
+   * shrink cost was attributed to D-108, and the published upper bound of 340 B
+   * corresponded to no row at all. The budgets did not change and are not
+   * affected — each is the true landed figure plus ~150 B — and the landed
+   * figures were right throughout; only the attribution was wrong.
+   *
+   * **A re-base measures the tree it is re-basing from.** Subtracting the last
+   * list in this docblock is a proxy for that and silently absorbs everything
+   * that landed in between. The pre-change measurement is therefore recorded
+   * beside the landed one from here on, so the next pass has the subtrahend
+   * rather than having to trust that a list stayed current.
+   *
+   * | Row | pre-slice `e086d058` | landed | D-108 |
+   * | --- | --- | --- | --- |
+   * | minimal | 11,139 | 11,435 | **+296** |
+   * | minimal (xy) | 10,801 | 11,085 | **+284** |
+   * | + layoutAnimation | 11,571 | 11,874 | **+303** |
+   * | + landing | 11,423 | 11,728 | **+305** |
+   * | complete | 11,849 | 12,139 | **+290** |
+   * | free drag minimal | 8,717 | 9,007 | **+290** |
+   * | free drag + bounds | 8,863 | 9,159 | **+296** |
+   * | free drag + landing | 9,016 | 9,307 | **+291** |
+   * | free drag complete | 9,162 | 9,459 | **+297** |
+   * | both behaviors | 13,396 | 13,699 | **+303** |
+   * | vocabulary root | 121 | 121 | **0** |
+   * | kernel root | 6,514 | 6,797 | **+283** |
+   * | baseline A | 11,566 | 11,848 | **+282** |
+   * | baseline B | 6,889 | 6,889 | **0** |
+   *
+   * **Two rows do not move**, and both are deliberate: baseline B is the shipped
+   * `@ydinjs/drag` package and never reaches this code, and the `drag.js`
+   * vocabulary root is byte-identical at **121 B** — the F-77 assertion doing
+   * its job, since the error vocabulary still does not pull the kernel.
+   *
+   * **The four free-drag rows, `kernel root` and the two unmoved rows are the
+   * ones whose first figures were already right**, and that is the tell rather
+   * than a coincidence: they are exactly the rows D-103 and D-104 never touched,
+   * so for them the stale list and the pre-slice tree were the same numbers.
+   *
+   * **Landed figures are the `landed` column above**, and are deliberately not
+   * repeated as a prose list here. Every earlier re-base ends in one, and it is
+   * that habit rather than any single list that produced API-01: a reader
+   * looking for _the last measurement_ finds the nearest list, which was current
+   * when written and is not current when read. The table states what it was
+   * measured against, so it cannot be mistaken for a baseline it is not.
    */
   budget: number;
   /**
@@ -251,7 +337,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
     },
-    budget: 11_260,
+    budget: 11_585,
     absent: [...without(), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [P06],
@@ -265,7 +351,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/xy.js': '{ xy }',
     },
-    budget: 10_940,
+    budget: 11_235,
     absent: [...without(), withoutAxis('sortable/xy.js'), P06],
     absentPrefixes: ['free-drag/'],
     // **Both halves of D-102 in one row.** The dimension-neutral cache is
@@ -281,7 +367,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 11_700,
+    budget: 12_024,
     absent: [
       ...without('sortable/layout-animation.js'),
       withoutAxis('sortable/y.js'),
@@ -296,7 +382,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 11_540,
+    budget: 11_878,
     absent: [...without('sortable/landing.js'), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: ['sortable/landing.js', P06],
@@ -309,7 +395,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 11_970,
+    budget: 12_289,
     absent: [withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [...OPTIONAL, P06],
@@ -322,7 +408,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'free-drag.js': '{ freeDrag }',
     },
-    budget: 8870,
+    budget: 9160,
     absent: [...withoutFreeDrag()],
     absentPrefixes: ['sortable/'],
     present: ['free-drag.js', 'kernel/kernel.js'],
@@ -333,7 +419,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
       'free-drag/bounds.js': '{ bounds }',
     },
-    budget: 9010,
+    budget: 9310,
     absent: [...withoutFreeDrag('free-drag/bounds.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/bounds.js'],
@@ -344,7 +430,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
       'free-drag/landing.js': '{ landing }',
     },
-    budget: 9170,
+    budget: 9460,
     absent: [...withoutFreeDrag('free-drag/landing.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/landing.js', 'shared/landing-runner.js'],
@@ -356,7 +442,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing }',
     },
-    budget: 9310,
+    budget: 9610,
     absentPrefixes: ['sortable/'],
     present: FREE_DRAG_OPTIONAL,
   },
@@ -379,7 +465,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing as freeDragLanding }',
     },
-    budget: 13_520,
+    budget: 13_850,
     absent: [withoutAxis('sortable/y.js')],
     present: [
       ...OPTIONAL,
@@ -460,7 +546,7 @@ export const COMPOSITIONS: readonly Composition[] = [
      */
     name: 'kernel root - kernel.js',
     imports: { 'kernel.js': '{ draggable }' },
-    budget: 6660,
+    budget: 6950,
     present: ['kernel.js', 'kernel/kernel.js'],
     absentPrefixes: ['sortable/', 'free-drag/'],
   },
@@ -468,7 +554,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 11_680,
+    budget: 12_000,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted

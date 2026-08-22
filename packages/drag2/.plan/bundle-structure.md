@@ -212,7 +212,7 @@ So the counts reconcile exactly: 13 source files, one type-only, 12 runtime plus
 
 ### Both A halves are declined — and the decisive reason is not the one on record
 
-**A1 has explicit normative cover. Contract [04](contract/04-frame-slicing.md) §Dev-only invariants decides it by name:**
+**A1 has explicit normative cover. Contract [04](contract/04-frame-slicing.md) §Dev-only invariants decides it by name** — and D-108 has since applied that same discriminator to the four checks beside it, which now ship unconditionally too:
 
 > Properties the type system cannot prove. All are `__DEV__`-gated and compile out of production. The kernel-key collision check is **not** here — it is a production check in `validateFramePart` (§Composition), because its failure mode is silent state corruption.
 

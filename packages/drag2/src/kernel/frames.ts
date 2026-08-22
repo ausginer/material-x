@@ -8,7 +8,6 @@
  * generic *is* `KernelFrame & Part`, which is the intersection `Object.assign`
  * produces with no cast.
  */
-import { DEV } from './dev.ts';
 import { IDLE, type Phase } from './phases.ts';
 
 /**
@@ -236,11 +235,18 @@ export function scrubFrame<Part extends object>(
 }
 
 // ---------------------------------------------------------------------------
-// Dev-only invariants (contract 04 §Dev-only invariants)
+// Frame-authoring invariants (contract 04 §Dev-only invariants, whose
+// heading D-108 makes a misnomer and which keeps it as a stable reference)
 //
-// The kernel-key collision check is deliberately NOT here — it is a production
-// check in `validateFramePart`, because its failure mode is silent state
-// corruption rather than a stale reference.
+// **Unconditional, in every build** (D-108). 04's own discriminator is that a
+// check is a production check when its failure mode is silent state corruption
+// rather than a stale reference — which is why the kernel-key collision check
+// in `validateFramePart` was never gated. A part factory that is not
+// deterministic and a reset that leaves a live reference are both silent state
+// corruption: a retained element leaks a DOM node across every later
+// operation. Behavior authoring went public at Revision 2.1, so gating these
+// would strip validation from a published authoring API in the exact build a
+// third-party author ships (F-78).
 // ---------------------------------------------------------------------------
 
 function assert(condition: boolean, message: string): void {
@@ -266,10 +272,6 @@ export function captureFrameKeys(frame: object): readonly string[] {
  * (contract 04 §Cross-controller shape variance).
  */
 export function assertFrameShapesMatch(a: object, b: object): void {
-  if (!DEV) {
-    return;
-  }
-
   assert(
     sameKeys(Object.keys(a), Object.keys(b)),
     'drag: the two frames have different shapes — a part factory is not deterministic',
@@ -307,10 +309,6 @@ export function assertFrameScrubbed(
   frame: object,
   armedKeys: readonly string[],
 ): void {
-  if (!DEV) {
-    return;
-  }
-
   const keys: readonly string[] = Object.keys(frame);
 
   assert(

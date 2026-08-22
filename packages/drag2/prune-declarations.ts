@@ -1,5 +1,7 @@
 /**
- * Deletes emitted declaration files no declared entry can reach.
+ * The two post-emit passes over the declaration output: **pruning** the files no
+ * declared entry can reach, and **stripping** the declaration-map references
+ * nothing emits.
  *
  * `unbundle: true` emits one `.d.ts` per source module, but a module's *types*
  * are only published if some public declaration names them. Four kernel modules
@@ -15,7 +17,7 @@
  * module is never touched — those are reachable by definition, since the entry
  * `.js` files import them.
  */
-import { readdir, readFile, rm } from 'node:fs/promises';
+import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, normalize, relative, resolve } from 'node:path';
 
 const ROOT = resolve(import.meta.dirname);
@@ -127,4 +129,69 @@ export async function pruneDeclarations(
   );
 
   return orphans;
+}
+
+/**
+ * The `//# sourceMappingURL=….d.ts.map` comment `rolldown-plugin-dts` writes
+ * into every emitted declaration.
+ *
+ * Anchored to the end of the file, and matched only when it names a `.d.ts.map`
+ * — a `.js.map` reference in a declaration would be a different defect and this
+ * must not silently absorb it.
+ */
+const DECLARATION_MAP_REFERENCE =
+  /\n?\/\/# sourceMappingURL=[^\n]*\.d\.ts\.map\s*$/u;
+
+/**
+ * The emitted declarations that reference a declaration map which does not
+ * exist. Read-only.
+ *
+ * **The reference is written and the chunk never is** (D-111). tsdown runs the
+ * JS and the declaration emit as one rolldown build over one `sourcemap`
+ * option, so `sourcemap: true` — which this package wants, for the `.js.map`
+ * `sourcesContent` — makes the dts plugin append the comment while no
+ * `.d.ts.map` is produced for it. All 31 references therefore dangled *in the
+ * tarball*: a published artifact naming a file it does not ship.
+ */
+export async function findDanglingDeclarationMapReferences(): Promise<
+  readonly string[]
+> {
+  const declarations = await declarationsUnder(ROOT);
+  const sources = await Promise.all(
+    declarations.map((file) => readFile(file, 'utf8')),
+  );
+
+  return declarations
+    .filter((_, index) => DECLARATION_MAP_REFERENCE.test(sources[index]!))
+    .map((file) => relative(ROOT, file));
+}
+
+/** Removes those references. Returns the files it rewrote. */
+export async function stripDeclarationMapReferences(): Promise<
+  readonly string[]
+> {
+  const declarations = await declarationsUnder(ROOT);
+  const sources = await Promise.all(
+    declarations.map((file) => readFile(file, 'utf8')),
+  );
+  const stripped: string[] = [];
+
+  await Promise.all(
+    declarations.map(async (file, index) => {
+      const source = sources[index]!;
+
+      if (!DECLARATION_MAP_REFERENCE.test(source)) {
+        return;
+      }
+
+      stripped.push(relative(ROOT, file));
+
+      await writeFile(
+        file,
+        `${source.replace(DECLARATION_MAP_REFERENCE, '')}\n`,
+      );
+    }),
+  );
+
+  return stripped;
 }

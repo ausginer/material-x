@@ -16,7 +16,21 @@
 /packages/**/*.d.ts.map
 /packages/**/*.d.ts
 
-!/packages/*/src
+# **Hand-written ambient declarations, not build output.** Every package builds
+# with `outDir: '.'`, so generated `.d.ts` land beside the entrypoints and never
+# under `src/` — but the blanket rule above swallowed the authored ones too, and
+# `packages/drag2/src/globals.d.ts` is the whole `__DEV__` declaration: without
+# it a fresh clone cannot typecheck that package at all.
+#
+# ~~`!/packages/*/src`~~ was the intended fix and is a **no-op**: nothing above
+# excludes the `src` directory itself, and git cannot re-include a file by
+# re-including a directory that was never excluded. The negation has to name the
+# files, which is the form the `bench` exceptions below already use.
+#
+# Deliberately `.d.ts` only. `.js`, `.js.map` and `.d.ts.map` under `src/` stay
+# ignored, so this admits authored declarations and no emitted artifact.
+!/packages/*/src/**/*.d.ts
+
 # **Hand-written measurement fixtures, not build output** (P18A-16). The M-3
 # size baselines are authored `.js`/`.d.ts` by necessity — baseline A assembles
 # a slot record by hand and baseline B is a different package — so the blanket

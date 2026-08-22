@@ -42,14 +42,15 @@ import {
  *
  * `__DEV__` is declared in `src/globals.d.ts` at **package** scope, so it is
  * package vocabulary rather than kernel vocabulary and the behavior tier binds
- * it directly. `kernel/dev.ts`'s `DEV` is the kernel's own local binding of the
- * same ambient, not a name this tier reaches for — importing it would assert a
- * behavior-tier reach into `kernel/` that contract 02 §What stays internal says
- * must not exist. The substitution and the folding are identical either way:
+ * it directly. The kernel binds the ambient nowhere at all since D-108 made its
+ * four author-facing checks unconditional, and even when it did, importing that
+ * binding would have asserted a behavior-tier reach into `kernel/` that contract
+ * 02 §What stays internal says must not exist. The substitution and the folding
+ * are identical either way:
  * `__DEV__` is replaced at build time, `DEV` is a literal, and every branch
  * guarded by it is dead code the minifier drops.
  *
- * **This is the behavior tier's one binding**, and
+ * **This is the package's one binding**, and
  * `tests/kernel/vocabulary.node.test.ts` asserts that — one per tier, and
  * `__DEV__` read at no other site. A second dev assertion in a second module of
  * this tier is the trigger for a tier-local `sortable/dev.ts`, which would

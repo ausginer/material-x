@@ -17,7 +17,7 @@ import type { DraggableError } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
-import type { ItemSource, OnEnd } from './config.ts';
+import type { ItemSource, SortableOnEnd } from './config.ts';
 import type {
   CollectionSnapshot,
   SortableErrorContext,
@@ -249,7 +249,7 @@ export type SortableSlots = Readonly<{
    * These stay nullable rather than normalized: their arguments are result
    * objects that would otherwise be constructed only to be discarded.
    */
-  onEnd: OnEnd | null;
+  onEnd: SortableOnEnd | null;
   onError:
     | ((error: DraggableError, context: SortableErrorContext) => void)
     | null;
