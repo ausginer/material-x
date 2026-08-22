@@ -78,7 +78,7 @@ The Phase 14 revision moved this by one optional member (`command`, D-32) and ra
 
 `Object.assign`-based composition means the two frames of one controller share a map only if every part factory returns the same key set in the same order every time, and the kernel folds them in the same order. TypeScript proves neither.
 
-Much narrower than before D-15, which removed the kernel-slice half of this finding entirely: the behavior can no longer mis-initialise fields it cannot name. **Mitigation:** the kernel folds from one code path, called twice, plus the `__DEV__` key-set assertion.
+Much narrower than before D-15, which removed the kernel-slice half of this finding entirely: the behavior can no longer mis-initialise fields it cannot name. **Mitigation:** the kernel folds from one code path, called twice, plus the key-set assertion — ~~`__DEV__`~~ **unconditional in every build since D-108**, which classified it as a production check because its failure mode is silent state corruption. Corrected 2026-08-22 by the maintainability entry; the sentence had described the mitigation as weaker than it is.
 
 ### F-4 — a closure graph per controller · accepted, measured
 
@@ -127,7 +127,7 @@ Each feature returns a differently-shaped literal, so the assembler's ~10 proper
 
 ### F-11 — reset exhaustiveness is unprovable · open, tier C, inherited
 
-Nothing proves `resetFramePart` clears every reference-bearing field. The `__DEV__` heuristic catches retained objects but not stale scalars. Identical in probe 1.
+Nothing proves `resetFramePart` clears every reference-bearing field. The heuristic catches retained objects but not stale scalars — ~~`__DEV__`~~ **unconditional in every build since D-108**. Identical in probe 1. Corrected 2026-08-22 by the maintainability entry.
 
 ### F-12 — teardown crosses two owners · resolved by contract
 
