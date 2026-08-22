@@ -131,8 +131,16 @@ const LINKED = /\]\(([^)]+\.md)\)[^`[\]]{0,3}$/u;
  * checkable citations were classified as dated history and never resolved. A
  * document that cannot be located is a failure, not a demotion; that is the
  * fail-open this closes rather than moves.
+ *
+ * **A source or test file is named the same way and is checked the same way.**
+ * `free-drag/spec.ts §Behavior actions` names a comment lead-in,
+ * `tests/kernel/kernel.browser.test.ts §the landing origin` a `describe` title
+ * and `tests/consumer.node.test.ts §\`FREE_DRAG\`` a declaration — all three
+ * swallowed while this pattern read `.md` alone, which left the rule as
+ * written in this block wider than the rule as implemented (the MNT-04
+ * residue). Quoted, not cited, for the reason the specimen rule gives.
  */
-const NAMED = /`([\w./-]+\.md)`[^`[\]]{0,3}$/u;
+const NAMED = /`([\w./-]+\.(?:md|ts|js))`[^`[\]]{0,3}$/u;
 
 /** Where a cited title ends. A citation is checkable as far as it is delimited. */
 const TITLE_END = /^(.*?)(?:[()\][|":]|\*\/|,\s|;\s|\.\s|\s—\s|$)/su;
@@ -307,6 +315,48 @@ async function exists(path: string): Promise<boolean> {
 }
 
 /**
+ * What a **source or test file** offers a citation beyond its sections: a
+ * top-level declaration, which is cited by name, and the **lead-in** of a
+ * comment block, which is cited the way a markdown bold lead-in is. The
+ * lead-in is a weak anchor for the same reason `analyse` makes one weak — a
+ * one-word match against a line of prose resolves nothing — and it is the
+ * *first* line of its block rather than any line in it, so this indexes what a
+ * group is called and not everything said inside it.
+ */
+const COMMENT = /^\s*(?:\/\/|\/\*\*?|\*)\s?(.*)$/u;
+const RULE = /^[-=*_\s]+$/u;
+
+function anchorsOf(source: string): readonly Seg[] {
+  const found: Seg[] = [];
+  const lines = source.split('\n');
+  for (const [index, raw] of lines.entries()) {
+    const declaration =
+      /^(?:export\s+)?(?:declare\s+)?(?:const|let|var|function|class|type|interface|enum)\s+(\w+)/u.exec(
+        raw.trim(),
+      )?.[1];
+    if (declaration !== undefined) {
+      found.push({ words: normalize(declaration).split(' '), heading: true });
+    }
+    const comment = COMMENT.exec(raw)?.[1];
+    // A ruled-off banner is how this package writes a section header in code,
+    // so a divider above the line does not make the line a continuation.
+    const above = COMMENT.exec(lines[index - 1] ?? '')?.[1]?.trim();
+    if (
+      comment === undefined ||
+      comment.trim() === '' ||
+      (above !== undefined && above !== '' && !RULE.test(above))
+    ) {
+      continue;
+    }
+    for (const piece of segmentsOf(comment)) {
+      found.push({ words: piece.split(' '), heading: false });
+    }
+  }
+
+  return found;
+}
+
+/**
  * The sections of a document or a test file: its markdown headings, and the
  * `describe` titles a test cites the way a document cites a heading.
  */
@@ -405,13 +455,25 @@ const linkedDocs = new Map<string, Doc | undefined>();
 async function linkedDoc(dir: string, spec: string): Promise<Doc | undefined> {
   const key = `${dir}\u0000${spec}`;
   if (!linkedDocs.has(key)) {
-    const bases = [dir, PACKAGE, join(PACKAGE, '.plan')];
+    const bases = [dir, PACKAGE, join(PACKAGE, '.plan'), join(PACKAGE, 'src')];
     const paths = bases.map((base) => resolve(base, spec));
     const present = await Promise.all(paths.map((path) => exists(path)));
     const found = paths.find((_, index) => present[index]);
+    const source =
+      found === undefined ? undefined : await readFile(found, 'utf8');
     linkedDocs.set(
       key,
-      found === undefined ? undefined : analyse(await readFile(found, 'utf8')),
+      source === undefined
+        ? undefined
+        : // A document is read as headings; a source or test file as the
+          // headings and `describe` titles a citation names, which is the
+          // same index the bare `§…` form already resolves against.
+          found!.endsWith('.md')
+          ? analyse(source)
+          : {
+              segs: [...sectionsOf(found!, source), ...anchorsOf(source)],
+              ids: new Set<string>(),
+            },
     );
   }
   return linkedDocs.get(key);

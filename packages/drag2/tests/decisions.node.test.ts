@@ -61,8 +61,11 @@
  * **Its premise is open and is stated rather than hidden** (D-115). Whether a
  * *new* decision embeds a condition instead of registering it cannot be
  * observed — that is D-114 (b)'s argument and it is not re-derived here — and a
- * fourth lead-in nobody has spelled yet escapes this. The register entry is the
- * load-bearing artifact; this is a backstop over three known forms. Bold is the
+ * fifth lead-in nobody has spelled yet escapes this. The register entry is the
+ * load-bearing artifact; this is a backstop over four known forms — three that
+ * name the clause and were there from the start, and the fourth, a sentence
+ * about what would reopen a decision, which was already in D-105 when D-116
+ * called the gap prospective (C-02). Bold is the
  * discriminator because it is already this record's typography for a live
  * clause, while an italic or backticked mention is how it quotes the term: D-114
  * and D-116 both say _Overturned by_ **about** the rule, and neither is a
@@ -104,9 +107,22 @@ const LISTED =
 /** Anything shaped like one of that table's rows. */
 const ROW_SHAPED = /^\| D-\d+ \|/u;
 
-/** The three condition lead-ins the record actually uses (D-116 (d)). */
+/**
+ * A bold span, paired left to right. Bold is the discriminator because it is
+ * already this record's typography for a live clause, while an italic or
+ * backticked mention is how it quotes the term.
+ */
+const BOLD = /\*\*((?:[^*]|\*(?!\*))+?)\*\*/gu;
+
+/**
+ * The four condition lead-ins the record actually uses (D-116 (d)). Three name
+ * the clause and are matched whole; the fourth is a sentence about what would
+ * reopen a decision, and is matched on the two words that make it one. **The
+ * vocabulary is still open** — a fifth spelling escapes this, which is why the
+ * register entry is the load-bearing artifact and this is a backstop.
+ */
 const LEAD_IN =
-  /\*\*(?:Overturned by|Re-base conditions?|Revisit conditions?)\*\*/giu;
+  /^(?:Overturned by|Re-base conditions?|Revisit conditions?)$|\breopening conditions?\b/iu;
 
 /** A row of the register's §Standing conditions table. */
 const DECLARED = /^\| (SC-\d+) \|/u;
@@ -225,7 +241,9 @@ function embedded(lines: readonly string[]): readonly string[] {
   const bad: string[] = [];
 
   for (const line of lines.filter((row) => ROW_SHAPED.test(row))) {
-    const at = [...line.matchAll(LEAD_IN)];
+    const at = [...line.matchAll(BOLD)].filter((bold) =>
+      LEAD_IN.test(bold[1]!.trim()),
+    );
 
     for (const [ordinal, lead] of at.entries()) {
       const end = at[ordinal + 1]?.index ?? line.length;
@@ -494,6 +512,32 @@ describe('the condition vocabulary', () => {
     expect(
       embedded([
         '| D-79 | An _Overturned by_ clause states a condition | Why |',
+      ]),
+    ).toEqual([]);
+  });
+
+  it('should read a reopening sentence as a lead-in', () => {
+    // The fourth form, and it was in D-105 before D-116 called the gap
+    // prospective (C-02). It names no clause; it is a sentence about what
+    // would reopen the decision, which is the same thing.
+    expect(
+      embedded([
+        '| D-79 | **The reopening conditions that remain are measured** — SC-4 | Y |',
+      ]),
+    ).toEqual([]);
+    expect(
+      embedded([
+        '| D-79 | **The reopening conditions that remain are measured** | Y |',
+      ]),
+    ).toEqual(['D-79: **The reopening conditions that remain are measured**']);
+  });
+
+  it('should not read an unbolded reopening mention as a lead-in', () => {
+    // D-105's row says _the reopening condition …_ in ordinary prose about a
+    // condition it has already dismissed. Bold is what separates the two.
+    expect(
+      embedded([
+        '| D-79 | and the reopening condition _x_ (P01-08), which | Y |',
       ]),
     ).toEqual([]);
   });
