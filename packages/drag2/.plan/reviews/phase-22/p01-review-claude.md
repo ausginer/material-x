@@ -23,16 +23,16 @@
 
 **What does not reproduce is the margin.** Eight findings follow, none of which overturns the decline. Two matter: arm E has no null control, and its noise floor reaches **5.6 µs per write** against a wave-4 signal of 10–21 µs; and the reported ranges are the range of three runs presented as bounds — the wave-4 tail spans **43–94%** of the bar over ten runs, not "at worst 63%".
 
-| # | Finding | Class | Overturns the decline |
-| --- | --- | --- | --- |
-| P01-01 | arm E has no null control; its noise floor is up to 5.6 µs/write | instrument | no |
-| P01-02 | quoted ranges are three runs presented as bounds | figure stability | no |
-| P01-03 | the retained write is priced at the in-dispatch cost, undisclosed and one-directional | accounting | no |
-| P01-04 | _there is no cheap tail_ is asserted without the numbers that would show it | unevidenced claim | no |
-| P01-05 | the record misdescribes the arithmetic error it corrects | documentation | no |
-| P01-06 | the fact that falsifies D-99 is pinned by no structural row | coverage | no |
-| P01-07 | the four-path flush obligation is not checked against the shipped lifecycle | unevidenced claim | no |
-| P01-08 | one of three reopening conditions is not a measured quantity | framing | no |
+| # | Finding | Class | Overturns the decline | Disposition |
+| --- | --- | --- | --- | --- |
+| P01-01 | arm E has no null control; its noise floor is up to 5.6 µs/write | instrument | no | **fixed** — control added; floor reads 8.46 µs at wave 4 |
+| P01-02 | quoted ranges are three runs presented as bounds | figure stability | no | **fixed** — withdrawn as bounds in both records |
+| P01-03 | the retained write is priced at the in-dispatch cost, undisclosed and one-directional | accounting | no | **fixed** — stated, with the neutral comparison |
+| P01-04 | _there is no cheap tail_ is asserted without the numbers that would show it | unevidenced claim | no | **fixed** — claim withdrawn, both buckets tabled |
+| P01-05 | the record misdescribes the arithmetic error it corrects | documentation | no | **fixed** — `r/(r−1)`, and the units named |
+| P01-06 | the fact that falsifies D-99 is pinned by no structural row | coverage | no | **fixed** — permanent row, mutation-checked |
+| P01-07 | the four-path flush obligation is not checked against the shipped lifecycle | unevidenced claim | no | **fixed** — proven half separated from enumerated half |
+| P01-08 | one of three reopening conditions is not a measured quantity | framing | no | **fixed** — condition withdrawn |
 
 ## What holds up
 
@@ -187,3 +187,28 @@ A fourth, unnumbered, is also corrected: `WARMUP` frames are discarded, against 
 **If one thing is carried forward it should be P01-06**, because it is cheap and it is the fact the whole decision turns on: one assertion that the deployed path issues one write per dispatch would make the permanent suite hold the premise D-99 got wrong, so a future behavior that starts writing twice per sample trips a row rather than requiring someone to re-read this record.
 
 **LSP plugin - available; not used: this review turned on re-running a timing harness under real pointer input, adding a missing null control, mutating a prototype gate to test its rows, and recomputing the record's arithmetic — run-and-measure questions rather than symbol-graph ones. The one source question, where the shipped path writes the transform, was a two-line grep.**
+
+---
+
+## Remediation
+
+**Closed 2026-08-22.** All eight findings are addressed; `src/` is unchanged, no gate was designed, and no other Phase 22 candidate was opened. Scope was the eight findings only — the decline itself, D-99's stop condition and the harness's other arms were not reopened.
+
+**P01-06 is the one that changed the suite.** [`p01-write-cost.browser.test.ts`](../../tests/perf/p01-write-cost.browser.test.ts) gains a permanent row, `should issue at most one visual write per input dispatch`: `flood()` now brackets each dispatch with a capture/bubble pair and counts writes inside it, and the row asserts a **maximum of one**, paired with an anti-vacuity count so a drag that never rendered cannot satisfy it. **It discriminates** — a second `visual.style.transform = compose(x, y)` in `kernel/presentation.ts`'s `write()` fails exactly that row, and only that row, with `expected 2 to be 1`. The mutation was reverted and `git diff src/` is empty. This is the smallest form of the assertion the review asked for: a maximum, not a rate.
+
+**P01-01 — arm E's null control ran and is worse than the review found.** The identical `open/shut/shut/open` alternation, two rounds, with both sides ungated, scored through arm E's own formula:
+
+|        | run 1    | run 2    | run 3        | signal       |
+| ------ | -------- | -------- | ------------ | ------------ |
+| wave 2 | −0.38 µs | −0.39 µs | +1.40 µs     | 21.9–29.3 µs |
+| wave 4 | −0.77 µs | −3.24 µs | **+8.46 µs** | 11.8–15.1 µs |
+
+The review measured a wave-4 floor of 5.62 µs; three further repetitions reach **8.46 µs against a 15 µs signal**. Arm E is kept as a reusable instrument with the control beside it, and the records now say wave 4 corroborates direction rather than measuring a value.
+
+**P01-02, P01-03, P01-05 — the figures and their accounting.** _10–23 µs_ and _at worst 63%_ are withdrawn as bounds from both the record and D-105; the spread is stated over thirteen runs (17.9–29.8 µs per write, 43.2–93.8% at the wave-4 tail) and the decline is argued from the primary-pace typical frame, **17.9–25.3%** of the bar. The `(n − 1) × perWrite` substitution is stated with the neutral `n × perWrite − C_rAF` comparison beside it and the conclusion drawn — every surplus figure is a lower bound in the direction of its own conclusion. The inflation factor is corrected to `r/(r − 1)` and the 45/29 pair is labelled as typical-frame savings in µs.
+
+**P01-04, P01-07, P01-08 — claims withdrawn or split.** _There is no cheap tail_ is gone, with both ordinal buckets tabled and the wave-4 sample size named as two to seven informative readings. The flush obligation is split: **proven** by three structural rows, **not proven** as a four-path enumeration — `kernel.ts:1652` was read, the non-null-target pin confirmed, and the null-target jump cut named as the path where a flush is unambiguously owed. The third reopening condition is withdrawn, and the two that remain are measured quantities.
+
+**Gates.** `npx just typecheck` clean; `npx just test` 58 files, **1126 passed, 114 skipped** — one more than the review's baseline, which is the P01-06 row. `npx just size` unchanged, every budget green. `git diff src/ bench/` empty.
+
+**Not reopened.** The decline, D-99's stop condition, P-02's stride sub-candidate, the committed-move forced flush, P-04 and P-05.

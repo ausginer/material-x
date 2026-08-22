@@ -440,6 +440,21 @@ async function flood(
     dispatches: number;
     requests: number;
     writes: number;
+    /**
+     * The most visual writes any single `pointermove` dispatch produced.
+     *
+     * **This is the quantity D-99 turns on** (P01-06). D-99 declined P-01 on
+     * the marginal cost of a *repeated same-frame* assignment, which is right
+     * for a write onto an already-dirty style tree and irrelevant to a path
+     * that writes once per dispatch: the browser cleans the tree to hit-test
+     * the next dispatch, so the second write of a frame is a clean-tree write
+     * and costs an order more. That premise becomes applicable again the moment
+     * a behavior issues two writes for one sample, so the permanent suite holds
+     * this rather than the record.
+     */
+    maxPerDispatch: number;
+    /** Dispatches that produced at least one — the anti-vacuity count. */
+    dispatchesWithWrite: number;
     committed: string;
   }>
 > {
@@ -451,6 +466,10 @@ async function flood(
   let handlerMs = 0;
   let dispatches = 0;
   let opened = 0;
+  let inDispatch = false;
+  let duringDispatch = 0;
+  let maxPerDispatch = 0;
+  let dispatchesWithWrite = 0;
 
   const gate = createGate((value) => {
     writes += 1;
@@ -462,6 +481,10 @@ async function flood(
     get: (): string => style.getPropertyValue('transform'),
     set: (value: string): void => {
       requests += 1;
+
+      if (inDispatch) {
+        duringDispatch += 1;
+      }
 
       if (gated) {
         gate.request(value);
@@ -479,6 +502,8 @@ async function flood(
     'pointermove',
     () => {
       opened = performance.now();
+      inDispatch = true;
+      duringDispatch = 0;
     },
     { capture: true, signal },
   );
@@ -487,6 +512,15 @@ async function flood(
     () => {
       handlerMs += performance.now() - opened;
       dispatches += 1;
+      inDispatch = false;
+
+      if (duringDispatch > maxPerDispatch) {
+        maxPerDispatch = duringDispatch;
+      }
+
+      if (duringDispatch > 0) {
+        dispatchesWithWrite += 1;
+      }
     },
     { signal },
   );
@@ -504,7 +538,15 @@ async function flood(
   gate.dispose();
   await live.dispose();
 
-  return { handlerMs, dispatches, requests, writes, committed };
+  return {
+    handlerMs,
+    dispatches,
+    requests,
+    writes,
+    maxPerDispatch,
+    dispatchesWithWrite,
+    committed,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -585,6 +627,30 @@ describe('P-01 — the timing instrument', () => {
     expect(gate.commits()).toBe(1);
     expect(live.written()).toEqual([`translate(207px, 207px)${suffix}`]);
   });
+
+  it('should issue at most one visual write per input dispatch', async () => {
+    // **The permanent hold on D-99's premise** (P01-06). D-99 declined P-01 on
+    // the marginal cost of a repeated same-frame assignment — a CSSOM set and
+    // little else, and correct for a write onto an already-dirty style tree.
+    // What makes that premise *inapplicable* is not the price, it is this: the
+    // deployed free-drag path writes once per dispatch, and the browser cleans
+    // the style tree to hit-test the next one, so no two visual writes are ever
+    // adjacent on a dirty tree.
+    //
+    // The measurement establishing that lived only in an opt-in report, so a
+    // behavior that began writing twice per sample would have made D-99's
+    // premise apply again with nothing in the suite objecting. This row is that
+    // objection, and it is the smallest form of it: a maximum, not a rate.
+    const live = await flood(2, false);
+
+    expect(live.maxPerDispatch).toBe(1);
+
+    // Anti-vacuity. A `maxPerDispatch` of zero would satisfy the assertion
+    // above while proving that the drag never rendered, which is the failure
+    // this pairing exists to separate from the one it is testing for.
+    expect(live.dispatchesWithWrite).toBeGreaterThan(20);
+    expect(live.committed).toContain('translate');
+  }, 120_000);
 
   it('should remove writes without stranding the visual when gated', async () => {
     // Arm E's own falsification: if the gated arm did not actually remove
@@ -827,6 +893,38 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
         // one; the tail frame's is M-6's p95 for **this** pace less one.
         const typical = gatedRequests / Math.max(1, gatedWrites) - 1;
 
+        // **The matching null control** (P01-01). Alternation defends against a
+        // machine drifting monotonically; it does not defend against a
+        // systematic difference between two floods, and arm E is the arm the
+        // verdict rests on. So the identical shape is run again with **both**
+        // sides ungated and scored through the identical formula: whatever it
+        // returns is the difference this instrument reports when there is no
+        // difference to report, and no signal narrower than it means anything.
+        const nullA: Array<Awaited<ReturnType<typeof flood>>> = [];
+        const nullB: Array<Awaited<ReturnType<typeof flood>>> = [];
+
+        for (let round = 0; round < 2; round += 1) {
+          // oxlint-disable-next-line no-await-in-loop -- alternation is the design
+          nullA.push(await flood(wave, false));
+          // oxlint-disable-next-line no-await-in-loop -- as above
+          nullB.push(await flood(wave, false));
+          // oxlint-disable-next-line no-await-in-loop -- as above
+          nullB.push(await flood(wave, false));
+          // oxlint-disable-next-line no-await-in-loop -- as above
+          nullA.push(await flood(wave, false));
+        }
+
+        const floor =
+          ((total(nullA, (run) => run.handlerMs) -
+            total(nullB, (run) => run.handlerMs)) *
+            1000) /
+          total(nullA, (run) => run.writes);
+
+        report(
+          `arm E wave=${wave} NULL CONTROL (both sides ungated, same shape) = ` +
+            `${floor.toFixed(2)}us per write — the floor this instrument ` +
+            `reports with no signal present`,
+        );
         report(
           `arm E wave=${wave} delta=${(ungated - gated).toFixed(2)}ms over ` +
             `${ungatedWrites} writes = ${perWrite.toFixed(2)}us per write`,
