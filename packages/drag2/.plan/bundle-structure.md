@@ -17,7 +17,9 @@ The six inputs [05](contract/05-lifecycle-invariants.md) §Measurements owed ask
 | Engine | Node **v26.7.0**, Linux x86_64 |
 | Sampling | None, and none is needed — the pipeline is deterministic, which `tests/bench/size.node.test.ts` asserts rather than assumes |
 
-**Two figures in this document are not produced by the checked-in harness** and are marked where they appear: the bundled cost of the two root entries (§The two roots), and the per-module attribution of the floor (§Where the fixed cost lives). Both were taken by ad-hoc scripts driving the same Rolldown configuration the harness declares, run from the package tree and discarded. They are **telemetry taken once**, not standing assertions, and §F-77 is the finding that says so.
+**One figure in this document is not produced by the checked-in harness** and is marked where it appears: the per-module attribution of the floor (§Where the fixed cost lives). It was taken by an ad-hoc script driving the same Rolldown configuration the harness declares, run from the package tree and discarded — **telemetry taken once**, not a standing assertion.
+
+**The other one is no longer telemetry.** The bundled cost of the two root entries (§The two roots) was the second, and **F-77 closed on 2026-08-22**: both roots are declared compositions in `bench/size/measure.ts` and are asserted on every `just size`.
 
 ## The twelve declared rows
 
@@ -89,7 +91,9 @@ A bundled measurement of the roots is precisely a check that does not depend on 
 
 **And the isolation is real but not structural, which is why a standing assertion is worth having.** `src/kernel/errors.ts` imports thirteen runtime `FAILURE_*` constants from `./failures.ts` and uses them as computed keys in `STAGE_TO_CODE`. `drag.js` still bundles to one module because Rolldown shakes `STAGE_TO_CODE` and `toDraggableError` away from the `DraggableError` class in the same module. **That is a tree-shaking outcome, not a guarantee.** One runtime reference from the error class to the stage map, or one side effect in `failures.ts`, and `drag.js` grows from 121 B to carry `kernel/failures.js` — and it grows silently, because this is the one published runtime root with no bundled-graph assertion over it.
 
-That is exactly the failure mode the harness's own doctrine names — _a module can be pulled in, shaken down to almost nothing, and show up as a small delta that reads like success_ — applied to a subpath the harness does not measure. It is recorded as **F-77** below.
+That is exactly the failure mode the harness's own doctrine names — _a module can be pulled in, shaken down to almost nothing, and show up as a small delta that reads like success_ — applied to a subpath the harness does not measure. It was recorded as **F-77**, and F-77 is **closed**: both rows are declared, and the two regressions they were built for were each injected and each caught. See §F-77.
+
+**One fact the roots' graphs turned out to carry, which this section did not know when it first weighed them.** `kernel.js` does not pull `kernel/errors.js` either — `draggable` alone never names the class — so the two roots are **disjoint** rather than nested. D-48's _neither tier should have to import the other to name a symbol both hand out_ therefore holds in both directions, not one, and that is now asserted rather than observed.
 
 **`tests/packaging.node.test.ts` is not the missing assertion and should not be mistaken for it.** It walks the _source_ import graph from declared entrypoints and asserts physical unreachability _independent of any bundler's tree-shaking heuristics_ — which is a stronger claim where it applies and a different one here. On the source graph `drag.js` **does** reach `kernel/failures.js`. The 121 B is a statement about the bundled graph, and only a bundled-graph instrument can hold it.
 
@@ -202,13 +206,29 @@ It would also invert the instinct D-102 ratified — _an absorbed number is a nu
 
 ## F-77 — two published runtime roots carry no bundled-isolation assertion
 
-**Found by this pass, and it is the F-63 class rather than a byte problem.** `drag.js` and `kernel.js` are published runtime entries in `files.json`, `package.json` `exports`, `typedoc.json` and four test instruments, and they are the only two runtime entries `bench/size`'s composition list does not declare. Their bundled cost was unknown until this document, and is now known **once** rather than continuously.
+**Closed 2026-08-22, by the harness change it asked for and by one it did not.** `drag.js` and `kernel.js` are now declared compositions in [`bench/size/measure.ts`](../bench/size/measure.ts), asserted on every `just size`. **No production code changed**, which was the condition.
 
-**What is missing is the graph half, not the byte half.** The harness deliberately separates the two because their lifetimes differ: a budget is a moving number while the runtime is unfinished, and the graph half is an invariant. The invariant worth holding here is that **`drag.js` reaches `kernel/errors.js` and nothing else** — a claim the contract makes in prose (a consumer imports `free-drag.js` and `drag.js` and _reaches no other tier_), that `packaging.node.test.ts` cannot make because it reasons on the unshaken source graph, and that would break silently under a change nobody would recognise as a bundling change.
+| Row | Brotli | Budget | Graph assertion |
+| --- | --: | --: | --- |
+| `vocabulary root - drag.js` | **121 B** | **150 B** | `only: ['kernel/errors.js']` |
+| `kernel root - kernel.js` | **6,514 B** | 6,660 B | `present` + no `sortable/`, no `free-drag/` |
 
-**The smallest thing that closes it** is two declared compositions in `bench/size/measure.ts` — one importing `{ DraggableError }` from `drag.js`, one importing `{ draggable }` from `kernel.js` — carrying `present`/`absent` graph assertions and budgets set by this document's figures at the standing ~150 B convention. **It changes no production code**, which is the condition this deliverable was given.
+**The graph half needed a capability the harness did not have.** The invariant is _`drag.js` reaches `kernel/errors.js` and nothing else_, and neither `absent` nor `absentPrefixes` can say it: the one module that must appear lives inside the one subtree that must not, and enumerating today's absences answers a total claim with a list that goes stale the moment `kernel/` gains a file. So `Composition` gains **`only`** — the bundled graph, exactly — which is the same vacuity argument that produced `absentPrefixes` and is reserved for roots whose whole point is what they do not reach.
 
-**It is a finding rather than a deferred decision on purpose.** The witness vocabulary in 00 §Decisions not yet implemented is source-level and describes what a decision _replaces_; this one replaces nothing and adds an assertion. F-63 and F-70 are the precedent — an instrument that does not assert something it should is a finding, and the register is where that class already lives.
+**And the graph half alone would not have closed this.** The packed `kernel/errors.js` carries a **bare** `import "./failures.js"`: `tsdown` inlines the thirteen `FAILURE_*` constants as literals, so machinery arriving from `failures.ts` lands _inside_ `errors.js` and moves no module count at all. This section's own prediction — _one runtime reference from the error class to the stage map_ — is precisely that shape.
+
+**Both regressions were injected, and each is caught by exactly one half:**
+
+| Injected | Graph | Bytes | Caught by |
+| --- | --- | --- | --- |
+| `DraggableError` method returning `STAGE_TO_CODE` | unchanged, 1 module | **121 → 190 B** | the **budget**, `over budget by 40 B` |
+| a side effect in `failures.ts` | **+`kernel/failures.js`** | 121 → 140 B, _still under_ | the **graph**, `pulls kernel/failures.js` |
+
+Each mutation was built, measured, reverted and rebuilt; `git diff src/` is empty. **The two halves are not redundant** — neither regression trips the other's half — which is the strongest available evidence that this row is an instrument rather than a formality, and it is the same standard the `xy()`/P-06 exclusivity claim met by actually failing once.
+
+**The budget is 29 B of headroom rather than the standing ~150 B, deliberately.** That convention is sized to _roughly one module_ against 8–13 kB compositions; on a 121 B root, one module's worth of slack is larger than the artifact, and the row would report success through exactly the growth it exists to prevent. Under the first regression every other row moved ~10 B and stayed green — this row is about seven times more sensitive to it, which is the whole reason for declaring it. `plan.md` §Phase 22 warns against closing F-77 _by widening a budget instead of adding the assertion_; the assertion is added, and the budget is **narrowed**.
+
+A legitimate change to `DraggableError` re-bases this number visibly, under the standing rule that a budget re-bases rather than a fix shrinking.
 
 ## Corrections to the record
 
