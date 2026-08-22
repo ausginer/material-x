@@ -723,14 +723,16 @@ Three justification classes, and each one answers a different question. They are
 | Phases — 8 | `IDLE`, `PENDING`, `ACTIVATING`, `ACTIVE`, `RELEASING`, `SETTLING`, `REPORTING`, `FINALIZING` | **I** — see §The phase is handed over, below |
 | Classification | `toDraggableError` | **I** — see §The mapping is library-owned, below |
 
-**Types — 33.** All erased. Thirteen are shipped (`ActivationScope`, `AdmissionSubject`, `BehaviorConfig`, `BehaviorFactory`, `BehaviorSpec`, `CommandAdmission`, `FailureStage`, `KernelHost`, `PreparedSettlement`, `ResolutionCommand`, `SeamRejection`, `SettlementInput`, `SettlementScope`); twenty are added.
+**Types — 35, and this count was 33 until 2026-08-22** (Phase 22 §API). All erased. Thirteen are shipped (`ActivationScope`, `AdmissionSubject`, `BehaviorConfig`, `BehaviorFactory`, `BehaviorSpec`, `CommandAdmission`, `FailureStage`, `KernelHost`, `PreparedSettlement`, `ResolutionCommand`, `SeamRejection`, `SettlementInput`, `SettlementScope`); **twenty-two** are added.
+
+**The two additions were each ratified and neither updated this number.** `BehaviorLiftSession` is 07 §K-1's — _the type surface gains exactly `BehaviorLiftSession`_ — and `InheritedSpace` is D-85's, which says in as many words that it _publishes at `kernel.js` as part of the scope's closure (D-68)_. **So the rule held and the count did not**: both are reached through `ActivationScope`, which is exactly what the class-A test admits, and D-68's surface has never contained a name its own rule does not derive. What failed is that the rule is executable and the total is prose. `tests/kernel/vocabulary.node.test.ts` checks its list _against the entries_ and so tracked both additions silently; nothing anywhere compares either against a written total. **The count is therefore descriptive, not normative** — the rule above is the contract, and a future addition that satisfies it does not need this sentence's permission, only its correction.
 
 | Group | Names | Reached through |
 | --- | --- | --- |
 | Frame | `Draft`, `Frame`, `KernelFrame`, `OperationIdentity`, `FramePartOf` | every seam signature; `createFramePart` |
 | Seam envelopes | `Transition`, `ReleaseTransition`, `SettlementTransition`, `ActionTransition` | `BehaviorSpec`'s four transactional members |
 | Construction | `BehaviorInstall` | `BehaviorFactory`'s return |
-| Activation capability | `LifetimeScope`, `Disposer`, `VisualLiftSession`, `OffsetBox` | `ActivationScope`; `moved` |
+| Activation capability | `LifetimeScope`, `Disposer`, `VisualLiftSession`, **`BehaviorLiftSession`**, **`InheritedSpace`**, `OffsetBox` | `ActivationScope`; `moved` |
 | Config | `LiftMode`, `Phase` | `BehaviorConfig.liftMode`; `KernelFrame.phase` |
 | Settlement | `CancelStage`, `LandingStart`, `LandingContext`, `LandingHandle` | `SettlementInput`'s canceled arm; `SettlementScope.holdForLanding` |
 
