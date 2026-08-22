@@ -143,12 +143,17 @@ describe('createLifetime', () => {
     expect(disposer).toHaveBeenCalledOnce();
   });
 
-  it('should expose finalized only after dispose', () => {
+  it('should dispose once however many times it is called', () => {
+    // What ~~`finalized`~~ was read for before it was removed (2026-08-22):
+    // the latch is still there, and this is the observable half of it.
     const lifetime = createLifetime();
+    const disposer = vi.fn();
 
-    expect(lifetime.finalized).toBe(false);
+    lifetime.use(disposer);
     lifetime.dispose();
-    expect(lifetime.finalized).toBe(true);
+    lifetime.dispose();
+
+    expect(disposer).toHaveBeenCalledOnce();
   });
 });
 
@@ -173,10 +178,18 @@ describe('createOperationLifetimes', () => {
 
   it('should keep cancellation open when motion closes', () => {
     const lifetimes = createOperationLifetimes();
+    const later = vi.fn();
 
     lifetimes.motion.dispose();
+    // Read through what the scopes do rather than through a flag: a scope that
+    // is still open runs a disposer registered after its sibling closed.
+    lifetimes.cancellation.use(later);
+    lifetimes.presentation.use(later);
 
-    expect(lifetimes.cancellation.finalized).toBe(false);
-    expect(lifetimes.presentation.finalized).toBe(false);
+    expect(later).not.toHaveBeenCalled();
+
+    lifetimes.dispose();
+
+    expect(later).toHaveBeenCalledTimes(2);
   });
 });

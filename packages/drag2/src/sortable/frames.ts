@@ -1,6 +1,13 @@
 /**
- * The sortable behavior's frame part: **its own eight fields and nothing else**
+ * The sortable behavior's frame part: **its own seven fields and nothing else**
  * (contract 04).
+ *
+ * ~~`outcome: number`~~ **was the eighth and is removed, 2026-08-22.** Contract
+ * 04 justified it as _only read to choose a landing target and a terminal
+ * callback_, and that reader was deleted by D-62/D-66 when `finalized()`
+ * collapsed to publishing `current.domain` and nothing else. Four writes and no
+ * reader is residue rather than retention; `recovery`, the field beside it,
+ * keeps its three readers and stays.
  *
  * The kernel's seven-field slice is not named here and cannot be — `FramePartOf`
  * rejects a part that declares a kernel key at the authoring boundary, and
@@ -11,7 +18,6 @@
 import {
   type CollectionSnapshot,
   type Insertion,
-  OUTCOME_ACCEPTED,
   RECOVERY_IMMEDIATE,
   type ReorderProposal,
   type ReorderTransactionResult,
@@ -23,7 +29,6 @@ export type SortableFramePart = {
   snapshot: CollectionSnapshot | null;
   insertion: Insertion | null;
   proposal: ReorderProposal | null;
-  outcome: number;
   recovery: number;
   domain: ReorderTransactionResult | null;
 };
@@ -35,7 +40,6 @@ export function createSortableFramePart(): SortableFramePart {
     snapshot: null,
     insertion: null,
     proposal: null,
-    outcome: OUTCOME_ACCEPTED,
     recovery: RECOVERY_IMMEDIATE,
     domain: null,
   };
@@ -53,7 +57,6 @@ export function resetSortableFramePart(part: SortableFramePart): void {
   part.snapshot = null;
   part.insertion = null;
   part.proposal = null;
-  part.outcome = OUTCOME_ACCEPTED;
   part.recovery = RECOVERY_IMMEDIATE;
   part.domain = null;
 }

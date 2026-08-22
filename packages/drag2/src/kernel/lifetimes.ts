@@ -45,9 +45,12 @@ export type LifetimeScope = Readonly<{
   useWhile(guard: () => boolean, disposer: Disposer): void;
 }>;
 
+// ~~`finalized: boolean`~~ **removed 2026-08-22.** A getter on an object built
+// three times per operation, with no reader anywhere in `src/` — the internal
+// code reads the closure variable this accessor wrapped, not the accessor. A
+// dead member of a live object is the one kind a bundler cannot shake.
 export type Lifetime = LifetimeScope &
   Readonly<{
-    finalized: boolean;
     dispose(): void;
   }>;
 
@@ -58,10 +61,6 @@ export function createLifetime(): Lifetime {
 
   return {
     signal: controller.signal,
-
-    get finalized(): boolean {
-      return finalized;
-    },
 
     use(disposer: Disposer): void {
       // Registration after closure is always a bug, but the resource it names

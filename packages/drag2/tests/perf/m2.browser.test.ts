@@ -369,7 +369,7 @@ const build = <T>(count: number, make: () => T): T[] => {
 };
 
 describe('M-2 — the frame-task policies', () => {
-  it('should schedule identically under every policy', () => {
+  it('should schedule identically under every policy', async () => {
     // Equivalence before comparison, as in M-1: three policies that do not
     // schedule the same work are not three policies.
     const seen: number[][] = [];
@@ -380,10 +380,19 @@ describe('M-2 — the frame-task policies', () => {
         runs.push(value);
       });
 
-      // Driven through a real task so the coalescing is the real one.
+      // Driven through a real task so the coalescing is the real one — and now
+      // through a real frame as well. ~~`task.flush()`~~ was removed from
+      // `FrameTask` on 2026-08-22 as a member with no production caller, and
+      // awaiting the frame the task actually scheduled is the closer reading:
+      // the coalescing under test is the animation frame's.
       task.schedule(1);
       task.schedule(2);
-      task.flush();
+      // oxlint-disable-next-line no-await-in-loop
+      await new Promise<void>((resolve) => {
+        realm.window.requestAnimationFrame(() => {
+          resolve();
+        });
+      });
       seen.push(runs);
       void policy;
     }

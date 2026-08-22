@@ -38,7 +38,13 @@ function install(
 }
 
 /**
- * Takes an already-assembled slot record. The seam the tests drive directly.
+ * Takes an already-assembled slot record.
+ *
+ * ~~The seam the tests drive directly.~~ **No test drives it** — corrected
+ * 2026-08-22, when a grep for the name found one hit in the repository and it
+ * was this declaration. It is the seam a test *could* drive, between the merge
+ * and the install, and it stays for that; describing a coverage relationship
+ * that does not exist is worse than describing none.
  *
  * **A plain factory, unbranded** (D-55): with `freeDrag()` returning its
  * controller directly there is no branded value for a consumer to hold, so the

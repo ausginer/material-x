@@ -1314,6 +1314,38 @@ Eight further passes followed the second remediation — [2-claude](reviews/chec
 
 ## Phase 23 — Finalization review
 
+### The size-and-ownership audit's clean set, landed 2026-08-22
+
+**What landed is (a) only, and nothing here decides a (b).** The audit is [`reviews/phase-23/size-ownership-audit-claude.md`](reviews/phase-23/size-ownership-audit-claude.md), and it classified every finding as a clear violation, an owner decision, or a justified cost. This pass took the first class and the one (c) whose condition could be met, and left B-1 through B-14 — the kernel landing gate, the lift-mode and displacement leakage, the diagnostic text (SC-2/O-1), the merge walkers, the seam latch — where the audit put them.
+
+**`validateFramePart` keeps three checks and loses four.** The kernel-key, `__proto__` and symbol checks defend library-owned invariants: they stop the kernel's own frame slice being overwritten, the frame's prototype being mutated, and a symbol-held DOM node surviving every scrub. The prototype, accessor and non-enumerable checks each cost the **author** their own field and cost the library nothing, and the non-writable check described a failure that cannot happen at all — `Object.assign` uses `[[Set]]` on a fresh extensible object, so the copy is writable. Each removed row is now an **asserted outcome** in `tests/kernel/frames.node.test.ts` rather than a deleted assumption, and contract 04's table is struck and annotated accordingly. This is the largest single item at ~150 B.
+
+**`arm()` stops re-checking its own type and stops refusing what the platform ignores.** `typeof type !== 'string'` re-stated `readonly string[]`; a duplicate entry was refused where `addEventListener` dedups on (type, callback, capture) — all three identical for every entry here — so the second binding was already a no-op, and `indexOf` inside the loop made refusing it quadratic. **The `pointerdown` collision check stays**: two _different_ callbacks on one type is a different claim and is the one that protects a library invariant. `types.length === 0` and the empty string also stay; neither was named in the brief and both refuse a value the type admits.
+
+**The dead surface.** `destroyRequested` was a second name for `queue.closed`, set on the following statement and never cleared. `READINESS_SETTLED` outlived the protocol D-41 deleted in full, with no reference anywhere. `SortableFramePart.outcome` had four writes and no reader — contract 04 justified it by a reader D-62/D-66 deleted, and that row is corrected rather than left to describe code that no longer exists. Three `host.closed` guards asked the question `dispatch` opens with. `Lifetime.finalized` and `FrameTask.flush` are dead members of live objects, which is the one kind a bundler cannot shake; the two tests that read them now read what they stood for instead — dispose idempotence, and a real animation frame.
+
+**`STAGE_TO_CODE` is positional, and the condition for taking it was met rather than assumed.** The brief allowed it only if the source stayed at least as clear and the measurement matched; `as const satisfies Record<FailureStage, DraggableErrorCode>` keeps D-64's mechanism literally true — adding a stage without naming a code still does not compile, now failing twice — and each line names its stage. **No published value moved**: a dense zero-based table would have renumbered a wire value, which is the one change `failures.ts` forbids, so slots 0 and 13 are padded instead. Padding with an existing code measures 7 B better after Brotli and 8 B worse minified, which is why both figures are read.
+
+**Measured on the composition harness, not carried forward from the ablations.**
+
+| Composition               | before | after  | Δ        | slack |
+| ------------------------- | ------ | ------ | -------- | ----- |
+| minimal                   | 11 435 | 11 162 | **−273** | 423   |
+| minimal (xy)              | 11 085 | 10 807 | −278     | 428   |
+| minimal + layoutAnimation | 11 874 | 11 589 | −285     | 435   |
+| minimal + landing         | 11 728 | 11 449 | −279     | 429   |
+| complete                  | 12 139 | 11 859 | **−280** | 430   |
+| free drag minimal         | 9 007  | 8 768  | −239     | 392   |
+| free drag + bounds        | 9 159  | 8 922  | −237     | 388   |
+| free drag + landing       | 9 307  | 9 066  | −241     | 394   |
+| free drag complete        | 9 459  | 9 217  | −242     | 393   |
+| both behaviors            | 13 699 | 13 418 | −281     | 432   |
+| `drag.js`                 | 121    | 121    | **0**    | 29    |
+| `kernel.js`               | 6 797  | 6 598  | −199     | 352   |
+| baseline A                | 11 848 | 11 583 | −265     | 417   |
+
+**`drag.js` is unmoved and that is the expected result**, not a disappointment: the vocabulary root reaches two modules and none of this was in them. Every row is inside its budget and **no budget was re-based** — slack is now 352–435 B against the ~150 B convention, which is above it rather than under it, and re-basing is D-106's and **SC-1**'s, whose trigger is a row going negative. It has not fired. A re-base is the natural next act for an owner and it is deliberately not taken here.
+
 **Relocated from its original position.** `reviews/finalization-review/` exists as an empty directory and was implicitly scoped to the vertical-sortable slice. Run there it would have reviewed a package about to grow a second behavior, a second input mode, a second axis and a revised settlement protocol — the wrong artifact, reviewed at the moment its findings had the shortest shelf life.
 
 **It also does not belong before Phase 22.** Checkpoint E is the _architectural_ review and it deliberately precedes refinement so its findings feed the pass. The finalization review's distinct job is **product-level and final**: the complete public surface, the documentation, the migration story, and the set of open questions — reviewed on the artifact that will actually ship.

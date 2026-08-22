@@ -272,7 +272,6 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * `commit` is visible as an identity change.
    */
   let pinned: OperationIdentity | null = null;
-  let destroyRequested = false;
 
   /* ---- the transaction bracket (D-36) ---- */
 
@@ -396,10 +395,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * would commit state the very next action abandons.
    */
   const preparationValid = (): boolean =>
-    !queue.closed &&
-    !destroyRequested &&
-    cancelRequest === null &&
-    current.operation === pinned;
+    // `queue.closed` alone: `destroyRequested` was a second name for it, set
+    // on the statement after it and never cleared either, so the conjunct was
+    // unconditionally true beside it (removed 2026-08-22).
+    !queue.closed && cancelRequest === null && current.operation === pinned;
 
   // -------------------------------------------------------------------------
   // Teardown
@@ -580,7 +579,6 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     if (!queue.closed) {
       // 1. every guard now fails, on the closing statement itself.
       queue.closed = true;
-      destroyRequested = true;
 
       if (transactionDepth === 0) {
         runPhysicalTeardown();
@@ -1979,8 +1977,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   /**
    * A cancellation at `ACTIVE` or `RELEASING` enters the settlement seam, which
    * is the only hook that can produce the canceled domain result `onCancel`
-   * requires: `outcome`, `recovery` and `domain` are fields of the behavior's
-   * frame part, which the kernel cannot name or write (F-33).
+   * requires: `recovery` and `domain` are fields of the behavior's frame part,
+   * which the kernel cannot name or write (F-33).
    */
   const settleCancellation = (reason: unknown, stage: CancelStage): void => {
     openSettlement({ type: SETTLED_CANCELED, reason, stage });
@@ -2396,8 +2394,16 @@ export function createKernel<Part extends object, Activation extends {} = true>(
             throw new TypeError('drag: command.types must not be empty');
           }
 
-          for (const [index, type] of types.entries()) {
-            if (typeof type !== 'string' || type === '') {
+          // **Two checks left this loop on 2026-08-22.** `typeof type !==
+          // 'string'` re-stated what `readonly string[]` already guarantees,
+          // and a duplicate entry was refused where the platform ignores it:
+          // `addEventListener` dedups on (type, callback, capture) and all
+          // three are identical for every entry here, so the second binding
+          // was already a no-op — and `indexOf` inside the loop made refusing
+          // it quadratic. The empty string stays because it is a real value
+          // the type admits and a listener for `''` is not what anyone wrote.
+          for (const type of types) {
+            if (type === '') {
               throw new TypeError(
                 'drag: command.types must contain non-empty strings',
               );
@@ -2406,12 +2412,6 @@ export function createKernel<Part extends object, Activation extends {} = true>(
             if (type === POINTER_DOWN) {
               throw new TypeError(
                 `drag: command.types must not contain "${POINTER_DOWN}", which the kernel binds for its own pointer ingress`,
-              );
-            }
-
-            if (types.indexOf(type) !== index) {
-              throw new TypeError(
-                `drag: command.types contains a duplicate entry "${type}"`,
               );
             }
           }

@@ -194,11 +194,10 @@ export type SortableErrorContext = Readonly<{
 // Behavior-private frame state
 // ---------------------------------------------------------------------------
 
-export const OUTCOME_ACCEPTED = 80;
-export const OUTCOME_REJECTED = 81;
-export const OUTCOME_NOOP = 82;
-export const OUTCOME_CANCELED = 83;
-export const OUTCOME_FAILED = 84;
+// ~~`OUTCOME_ACCEPTED` … `OUTCOME_FAILED`, 80–84~~ **removed 2026-08-22.** They
+// existed only to name writes to `SortableFramePart.outcome`, which had no
+// reader after D-62/D-66 deleted the one contract 04 named. The `RECOVERY_*`
+// numbers below keep their values: they are read.
 
 /**
  * Where the lifted visual goes, which is **not** the same question as whether

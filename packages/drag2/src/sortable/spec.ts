@@ -54,11 +54,6 @@ import {
   type CollectionSnapshot,
   type Insertion,
   isReorderResolution,
-  OUTCOME_ACCEPTED,
-  OUTCOME_CANCELED,
-  OUTCOME_FAILED,
-  OUTCOME_NOOP,
-  OUTCOME_REJECTED,
   RECOVERY_DESTINATION,
   RECOVERY_HOME,
   RECOVERY_IMMEDIATE,
@@ -1419,7 +1414,6 @@ export function createSortableSpec(
           case SETTLED_SKIPPED: {
             // The placeholder is already where the item belongs, so recovery is
             // immediate. A no-op finishes; it is never a rejection.
-            draft.outcome = OUTCOME_NOOP;
             draft.recovery = RECOVERY_IMMEDIATE;
             draft.domain = { type: 'noop', proposal: proposal! };
             return true;
@@ -1457,7 +1451,6 @@ export function createSortableSpec(
 
             const accepted = domain.type === 'accepted';
 
-            draft.outcome = accepted ? OUTCOME_ACCEPTED : OUTCOME_REJECTED;
             draft.recovery = accepted ? RECOVERY_DESTINATION : RECOVERY_HOME;
             draft.domain = domain;
 
@@ -1477,7 +1470,6 @@ export function createSortableSpec(
           }
 
           case SETTLED_CANCELED: {
-            draft.outcome = OUTCOME_CANCELED;
             draft.recovery = RECOVERY_HOME;
             draft.domain = {
               type: 'canceled',
@@ -1492,12 +1484,12 @@ export function createSortableSpec(
             pendingFailure = { stage: input.stage, error: input.error };
 
             // A terminal-callback failure has recovery "none": the operation
-            // already finalized, and rewriting the outcome now would relabel a
-            // drop that has been reported as accepted. Every other stage
+            // already finalized, and rewriting the recovery now would move a
+            // visual whose drop has already been reported as accepted. Every
+            // other stage
             // replaces the transaction — the *presentation* transaction, which
             // is a different question from what the consumer is told.
             if (input.stage !== FAILURE_TERMINAL_CALLBACK) {
-              draft.outcome = OUTCOME_FAILED;
               draft.recovery = RECOVERY_IMMEDIATE;
               // **The fallback, and the whole of D-66's carrier** (D-66).
               // `draft.domain = null` stood here, and it is what made the

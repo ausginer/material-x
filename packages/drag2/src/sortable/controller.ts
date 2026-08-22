@@ -73,10 +73,12 @@ export function createSortableController(host: KernelHost): SortableController {
 
   return {
     invalidate(): void {
-      if (host.closed) {
-        return;
-      }
-
+      // ~~`if (host.closed) { return; }`~~ **removed 2026-08-22**, and the
+      // comment that stood here said why it could be: _belt-and-braces rather
+      // than load-bearing (D-44) … the kernel's latch would answer this on its
+      // own_. `dispatch` opens with that latch and `host.closed` is a live
+      // getter over it.
+      //
       // **Payload-free, and it reads nothing here** (D-44). `items()` is
       // consumer code and this member is reachable from inside a seam — a
       // handle resolver may call it during admission — so calling it on this

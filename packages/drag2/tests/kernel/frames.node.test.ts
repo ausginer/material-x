@@ -68,7 +68,13 @@ describe('validateFramePart', () => {
     expect(() => validateFramePart({ [Symbol('x')]: 1 })).toThrow(/symbol/u);
   });
 
-  it('should reject an accessor', () => {
+  // **The four author-contract checks, removed 2026-08-22.** Each cost the
+  // author their own field and cost the library nothing, so each is now an
+  // asserted outcome rather than a rejection — which is the half of the
+  // removal that can rot. A check that comes back has to argue with a test
+  // that says what actually happens.
+
+  it('should accept an accessor, which composes to a plain data property', () => {
     const part = {};
 
     Object.defineProperty(part, 'item', {
@@ -77,10 +83,10 @@ describe('validateFramePart', () => {
       configurable: true,
     });
 
-    expect(() => validateFramePart(part)).toThrow(/accessor/u);
+    expect(() => validateFramePart(part)).not.toThrow();
   });
 
-  it('should reject a non-enumerable key', () => {
+  it('should accept a non-enumerable key, which no frame ever receives', () => {
     const part = {};
 
     Object.defineProperty(part, 'item', {
@@ -90,10 +96,14 @@ describe('validateFramePart', () => {
       configurable: true,
     });
 
-    expect(() => validateFramePart(part)).toThrow(/not enumerable/u);
+    expect(() => validateFramePart(part)).not.toThrow();
+    // Absent from *both* frames, so the shapes still match — which is why the
+    // old message's claim that it "would not be copied by begin()" described
+    // no defect: there is nothing to begin.
+    expect('item' in Object.assign(createKernelFrame(), part)).toBe(false);
   });
 
-  it('should reject a non-writable key', () => {
+  it('should accept a non-writable key, whose copy in the frame is writable', () => {
     const part = {};
 
     Object.defineProperty(part, 'item', {
@@ -103,19 +113,27 @@ describe('validateFramePart', () => {
       configurable: true,
     });
 
-    expect(() => validateFramePart(part)).toThrow(/not writable/u);
+    expect(() => validateFramePart(part)).not.toThrow();
+    // The removed check said the key "would throw on write". `Object.assign`
+    // uses `[[Set]]` on a fresh extensible object, so it does not.
+    expect(
+      Object.getOwnPropertyDescriptor(
+        Object.assign(createKernelFrame(), part),
+        'item',
+      ),
+    ).toMatchObject({ writable: true });
   });
 
-  it('should reject a class instance', () => {
+  it('should accept a class instance, whose own fields are what the model uses', () => {
     class Part {
       item: HTMLElement | null = null;
     }
 
-    expect(() => validateFramePart(new Part())).toThrow(/plain object/u);
+    expect(() => validateFramePart(new Part())).not.toThrow();
   });
 
-  it('should reject an array', () => {
-    expect(() => validateFramePart([])).toThrow(/plain object/u);
+  it('should accept an array, whose indices become ordinary keys', () => {
+    expect(() => validateFramePart([])).not.toThrow();
   });
 });
 

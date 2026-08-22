@@ -280,8 +280,8 @@ export const SETTLED_FAILED = 44;
  * Five cases, discriminated and exhaustive.
  *
  * `canceled` and `failed` are kernel-*triggered* but behavior-*owned*:
- * `outcome`, `recovery` and `domain` are fields of the behavior's frame part,
- * which the kernel cannot name or write, and `BehaviorSpec` has no other
+ * `recovery` and `domain` are fields of the behavior's frame part, which the
+ * kernel cannot name or write, and `BehaviorSpec` has no other
  * terminal-classification hook (F-33).
  */
 export type SettlementInput =

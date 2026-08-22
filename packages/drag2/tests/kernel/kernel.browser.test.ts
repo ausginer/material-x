@@ -764,8 +764,6 @@ describe('discrete admission', () => {
     const cases: Array<readonly [readonly string[], RegExp]> = [
       [[], /must not be empty/u],
       [[''], /non-empty strings/u],
-      [[1 as unknown as string], /non-empty strings/u],
-      [['keydown', 'keydown'], /duplicate entry/u],
       [['pointerdown'], /pointer ingress/u],
     ];
 
@@ -785,6 +783,28 @@ describe('discrete admission', () => {
         createArmedWithCommand(root, { types, admit: () => null }),
       ).toThrow(message);
     }
+  });
+
+  it('should arm a command.types carrying a duplicate entry', () => {
+    // **The duplicate check was removed 2026-08-22**, because the platform
+    // already answers it: `addEventListener` dedups on (type, callback,
+    // capture) and all three are identical for every entry in this list, so
+    // the second binding was a no-op before it was a `TypeError`. The
+    // `pointerdown` collision above is a different claim — two *different*
+    // callbacks for one type — and is still refused.
+    const root = document.createElement('div');
+
+    document.body.append(root);
+    cleanup.push(() => {
+      root.remove();
+    });
+
+    expect(() =>
+      createArmedWithCommand(root, {
+        types: ['keydown', 'keydown'],
+        admit: () => null,
+      }),
+    ).not.toThrow();
   });
 
   it('should release the discrete listeners on destroy', () => {

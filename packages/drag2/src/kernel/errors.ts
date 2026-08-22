@@ -7,22 +7,7 @@
  * its audience narrowed.
  */
 
-import {
-  FAILURE_ACTION_EFFECT,
-  FAILURE_ACTION_PREPARE,
-  FAILURE_ACTIVATION,
-  FAILURE_ADMISSION,
-  FAILURE_INVALIDATION,
-  FAILURE_LANDING_CREATE,
-  FAILURE_LANDING_INTERRUPTED,
-  FAILURE_LANDING_TARGET,
-  FAILURE_RELEASE,
-  FAILURE_RENDERER_WRITE,
-  FAILURE_RESOLUTION,
-  FAILURE_SCHEDULED_FRAME,
-  FAILURE_TERMINAL_CALLBACK,
-  type FailureStage,
-} from './failures.ts';
+import type { FailureStage } from './failures.ts';
 
 /**
  * The coarse consumer-facing fault classes. **Names are not frozen; the axis
@@ -90,22 +75,54 @@ export class DraggableError extends Error {
  * attribution from a stage constant's neighbourhood rather than from the call
  * site gets a plausible wrong answer, which is how two contract rows went wrong
  * (D-83's `bounds`, D-84's `visual`).
+ *
+ * ## Positional, and still total (2026-08-22)
+ *
+ * This was `Readonly<Record<FailureStage, DraggableErrorCode>>` with thirteen
+ * computed keys. The array is **15–27 B smaller** on every composition and
+ * **exactly 0 B on both published roots** — `drag.js` shakes the map away from
+ * `DraggableError` and `kernel.js` never pulls this module at all.
+ *
+ * **No stage number moved and no guarantee was traded for the bytes.** The
+ * `satisfies` keeps D-64's mechanism above literally true — adding a stage
+ * without naming a code does not compile, and it now fails twice, here and at
+ * the lookup, which returns `undefined` for a stage the tuple is too short
+ * for. The published values are wire values in a consumer's compiled code
+ * (D-30, D-74), so a **dense zero-based** representation was refused: that is
+ * an API change wearing a size optimization's clothes.
+ *
+ * **Slots 0 and 13 are unreachable and are padded with an existing code rather
+ * than left `undefined`** — `13` is D-41's deliberate hole. Padding measures
+ * 7 B *better* after Brotli while measuring 8 B worse minified: a repeat is
+ * cheaper to the compressor than a novel token. The minified figure disagrees
+ * with the shipped one in direction here, which is the reason both are read.
+ *
+ * **What position costs, and what already covers it.** The computed-key form
+ * followed each constant, so a renumbered stage carried its code with it; this
+ * one pins by index instead. Renumbering is the one change `failures.ts` says
+ * must never happen — the values are inlined in consumers' compiled code — and
+ * it is checked twice over from outside: `tests/kernel/errors.node.test.ts`
+ * pins 4, 5 and 8 as literals for D-74, and pins every stage's code **through
+ * its constant**, so a repointed value fails there rather than reaching a
+ * consumer.
  */
-const STAGE_TO_CODE: Readonly<Record<FailureStage, DraggableErrorCode>> = {
-  [FAILURE_ADMISSION]: 'consumer',
-  [FAILURE_ACTIVATION]: 'interaction',
-  [FAILURE_RENDERER_WRITE]: 'presentation',
-  [FAILURE_ACTION_PREPARE]: 'presentation',
-  [FAILURE_ACTION_EFFECT]: 'presentation',
-  [FAILURE_INVALIDATION]: 'platform',
-  [FAILURE_SCHEDULED_FRAME]: 'platform',
-  [FAILURE_RESOLUTION]: 'consumer',
-  [FAILURE_RELEASE]: 'interaction',
-  [FAILURE_LANDING_CREATE]: 'presentation',
-  [FAILURE_LANDING_INTERRUPTED]: 'presentation',
-  [FAILURE_LANDING_TARGET]: 'presentation',
-  [FAILURE_TERMINAL_CALLBACK]: 'consumer',
-};
+const STAGE_TO_CODE = [
+  'consumer', // 0 — unused
+  'consumer', // 1  FAILURE_ADMISSION
+  'interaction', // 2  FAILURE_ACTIVATION
+  'presentation', // 3  FAILURE_RENDERER_WRITE
+  'presentation', // 4  FAILURE_ACTION_PREPARE
+  'presentation', // 5  FAILURE_ACTION_EFFECT
+  'platform', // 6  FAILURE_INVALIDATION
+  'platform', // 7  FAILURE_SCHEDULED_FRAME
+  'consumer', // 8  FAILURE_RESOLUTION
+  'interaction', // 9  FAILURE_RELEASE
+  'presentation', // 10 FAILURE_LANDING_CREATE
+  'presentation', // 11 FAILURE_LANDING_INTERRUPTED
+  'presentation', // 12 FAILURE_LANDING_TARGET
+  'consumer', // 13 — the D-41 hole
+  'consumer', // 14 FAILURE_TERMINAL_CALLBACK
+] as const satisfies Record<FailureStage, DraggableErrorCode>;
 
 /** Wraps a classified failure in the coarse error the consumer receives. */
 export function toDraggableError(

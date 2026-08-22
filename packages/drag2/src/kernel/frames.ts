@@ -119,11 +119,41 @@ export type FramePartOf<Part> = [
 /**
  * Rejects a frame part before the first `Object.assign`.
  *
- * A behavior frame part is defined as a **plain, own, enumerable, writable,
- * string-keyed data record**. The type guard above is defeatable by an `any` at
- * the behavior boundary and the runtime consequence — a silently overwritten
- * `phase` — is severe enough to be worth one loop per factory result
- * (review 4 §28).
+ * A behavior frame part is still *defined* as a **plain, own, enumerable,
+ * writable, string-keyed data record** — that is the authoring contract. What
+ * is **checked** is the part of it whose violation corrupts something the
+ * library owns, which is three shapes and not six. The type guard above is
+ * defeatable by an `any` at the behavior boundary and the runtime consequence
+ * of a silently overwritten `phase` is severe enough to be worth one loop per
+ * factory result (review 4 §28).
+ *
+ * **The three that stay, and why each is the library's** — the composed frame
+ * is `Object.assign(createKernelFrame(), part)`, so what each shape does is
+ * observable rather than argued:
+ *
+ * - a **kernel frame key** overwrites the kernel's own slice — `phase` becomes
+ *   the part's value. Silent state corruption, which is contract 04's
+ *   discriminator for a production check, and the one check that discriminator
+ *   was written about (see `scrub`'s note below);
+ * - an own data **`__proto__`** makes `Object.assign` invoke the target's
+ *   inherited setter and mutate the frame's prototype instead of adding a
+ *   field, which breaks the fixed-record model itself;
+ * - a **symbol key** survives on the frame *and* survives the `Object.keys`
+ *   reset, so a symbol-held DOM node is retained for the controller's life —
+ *   the leak argument D-108 makes for `assertFrameScrubbed`. It costs 6 B.
+ *
+ * **The three that went, 2026-08-22, and why none was ours.** A non-plain
+ * prototype, an accessor and a non-enumerable key each cost the *author* their
+ * own field and cost the library nothing: own data fields are copied and a
+ * class instance's methods are simply absent; an accessor is read once, here,
+ * into an ordinary data property, before any transaction exists to observe; a
+ * non-enumerable key is skipped by `Object.assign`, so the field never exists
+ * in either frame and `assertFrameShapesMatch` passes. A fourth check, on
+ * **non-writable** keys, described a failure that cannot happen at all: it said
+ * the key "would throw on write", and `Object.assign` uses `[[Set]]` on a fresh
+ * extensible object, so the frame's copy is an ordinary writable data property.
+ * `tests/kernel/frames.node.test.ts` pins each of those four outcomes, so what
+ * used to be a rejection is now an asserted result rather than an assumption.
  *
  * **Proxies are not detected, and this does not claim to detect them.** A proxy
  * over a plain target can report an ordinary prototype and ordinary descriptors
@@ -131,17 +161,7 @@ export type FramePartOf<Part> = [
  * discipline, not a rejected input (review 5 §11).
  */
 export function validateFramePart(part: object): void {
-  const prototype: unknown = Object.getPrototypeOf(part);
-
-  if (prototype !== Object.prototype && prototype !== null) {
-    throw new TypeError(
-      'drag: a frame part must be a plain object (arrays and class instances invalidate the fixed-record model)',
-    );
-  }
-
-  const symbols = Object.getOwnPropertySymbols(part);
-
-  if (symbols.length > 0) {
+  if (Object.getOwnPropertySymbols(part).length > 0) {
     // `Object.assign` copies enumerable symbols, but the `Object.keys`-based
     // reset and dev checks never see them — so a symbol-keyed DOM reference
     // would survive every scrub.
@@ -161,26 +181,6 @@ export function validateFramePart(part: object): void {
       // inherited `__proto__` setter and mutate the frame's prototype instead
       // of adding a field.
       throw new TypeError('drag: a frame part may not declare "__proto__"');
-    }
-
-    const descriptor = Object.getOwnPropertyDescriptor(part, key)!;
-
-    if (!('value' in descriptor)) {
-      throw new TypeError(
-        `drag: the frame part key "${key}" is an accessor; accessors break the copy and reset assumptions and can observe the transaction`,
-      );
-    }
-
-    if (!descriptor.enumerable) {
-      throw new TypeError(
-        `drag: the frame part key "${key}" is not enumerable and would not be copied by begin()`,
-      );
-    }
-
-    if (!descriptor.writable) {
-      throw new TypeError(
-        `drag: the frame part key "${key}" is not writable and would throw on write`,
-      );
     }
   }
 }

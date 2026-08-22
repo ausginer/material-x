@@ -15,21 +15,21 @@ There is one physical `current` and one physical `draft`. **No participant autho
 The kernel's own private generic _is_ an intersection, `KernelFrame & Part`; the claim was never that no intersection exists anywhere, and an earlier phrasing that said so contradicted the very next section of this document.
 
 ```text
-     physical object, 15 fields — one map per behavior type (hypothesis)
+     physical object, 14 fields — one map per behavior type (hypothesis)
    ┌──────────────────────────────────────────────────────────────┐
    │ phase  operation  pointerId                                  │  kernel slice
    │ originX  originY  pointerX  pointerY                         │  (7, kernel-authored,
    │                                                              │   kernel-written)
    ├──────────────────────────────────────────────────────────────┤
    │ item  visual  snapshot  insertion  proposal                  │  behavior part
-   │ outcome  recovery  domain                                    │  (8, behavior-authored)
+   │ recovery  domain                                             │  (7, behavior-authored)
    ├──────────────────────────────────────────────────────────────┤
    │ (no feature parts: the kernel has no fold — D-10)            │
    └──────────────────────────────────────────────────────────────┘
         ▲                    ▲                        ▲
    KernelFrame        SortableFramePart        InsertionFrameView
    (kernel module)    (behavior module)        (y.ts, read-only,
-    7 fields           8 fields                 two fields)
+    7 fields           7 fields                 two fields)
 ```
 
 Each party's type names only what it authors or consumes. Assignability does the rest: `KernelFrame & Part` is assignable to `KernelFrame`, and satisfies `InsertionFrameView` structurally.
@@ -56,7 +56,7 @@ Seven fields, all kernel-written, none behavior-writable. Probe 1's kernel slice
 | --- | --- | --- | --- |
 | `item` | kernel | behavior | The kernel never reads it. It was there because the behavior needed somewhere to put it and the frame was shared. |
 | `visual` | kernel | behavior | `admit` returns the element to lift (D-5), so the kernel receives it as a value and holds the lift privately. |
-| `outcome`, `recovery` | kernel | behavior | Only read to choose a landing target and a terminal callback, both of which are behavior work under D-7 and D-16. The kernel no longer knows what a recovery is. |
+| ~~`outcome`~~, `recovery` | kernel | behavior | Only read to choose a landing target and a terminal callback, both of which are behavior work under D-7 and D-16. The kernel no longer knows what a recovery is. **Corrected 2026-08-22: that reader was `outcome`'s only one and D-62/D-66 deleted it** — `finalized()` collapsed to publishing `current.domain` and nothing else — so the field was written four times and read nowhere, and it is removed. This row's reasoning still holds for `recovery`, which has three readers and stays. |
 | `landingDone`, `readyDone` | kernel | _not on the frame at all_ | Gate state is per-settlement, unobservable, and read only by `advanceSettlement`. It lives on the kernel-private settlement attempt (D-7). |
 
 ### `pointerId === -1` means pointerless (D-32)
@@ -102,16 +102,18 @@ A part declaring `phase` cannot be returned by any literal, and the error names 
 
 **It catches explicitly declared literal collisions only** (review 6, §19). `FramePartOf<Record<string, unknown>>` is just `Record<string, unknown>`, because `Extract<string, keyof KernelFrame>` is `never` — a broad index signature declares no colliding key even though a runtime `phase` property is entirely possible. The production check below is the authoritative one; the type layer makes the common mistake unwriteable, not every mistake.
 
-**At construction, in production**, `validateFramePart` rejects the part before the first `Object.assign`. The type guard is defeatable by an `any` at the behavior boundary, and the runtime consequence — a silently overwritten `phase` — is severe enough to be worth one loop per factory result (review 4, §28):
+**At construction, in production**, `validateFramePart` rejects the part before the first `Object.assign` — three shapes since 2026-08-22, and the note under the table says which three left and why. The type guard is defeatable by an `any` at the behavior boundary, and the runtime consequence — a silently overwritten `phase` — is severe enough to be worth one loop per factory result (review 4, §28):
 
 | Rejected | Why |
 | --- | --- |
 | a key in `KERNEL_FRAME_KEYS` | it would overwrite kernel state |
 | **`__proto__`** | an own enumerable writable `__proto__` _data_ property — creatable only through `defineProperty`, and therefore not caught by any check above — makes `Object.assign` invoke the **target's** inherited `__proto__` setter and mutate the frame's prototype instead of adding a field |
 | a symbol key | `Object.assign` copies enumerable symbols, but `Object.keys`-based reset and dev checks never see them, so a symbol-keyed DOM reference survives every scrub |
-| a non-enumerable or non-writable key | it would not be copied by `begin()`, or would throw on write |
-| an accessor | it breaks the copy and reset assumptions, and can observe the transaction |
-| a non-plain prototype | arrays and class instances invalidate the fixed-record model the frame is built on |
+| ~~a non-enumerable or non-writable key~~ | ~~it would not be copied by `begin()`, or would throw on write~~ |
+| ~~an accessor~~ | ~~it breaks the copy and reset assumptions, and can observe the transaction~~ |
+| ~~a non-plain prototype~~ | ~~arrays and class instances invalidate the fixed-record model the frame is built on~~ |
+
+**The last three rows were removed from the check on 2026-08-22, and the reason is that each named the author's own contract rather than a library invariant.** Executed rather than argued — `Object.assign(createKernelFrame(), part)` is observable: an accessor is read **once, here**, into an ordinary data property, before any transaction exists to observe; a non-enumerable key is skipped, so the field is absent from **both** frames and the shape check passes; a class instance's own data fields are copied and only its methods are missing, which costs the author their own fields and the kernel nothing. **The non-writable row described a failure that cannot occur at all** — `Object.assign` uses `[[Set]]` on a fresh extensible object, so the frame's copy is writable, and nothing "throws on write". The three rows above it are the library's and stay; `tests/kernel/frames.node.test.ts` now pins each removed row's actual outcome, so the deletion is asserted rather than assumed. The definition below is unchanged: a frame part **is** a plain, own, enumerable, writable, string-keyed data record. What changed is that only the part of it the library owns is enforced.
 
 **Proxies are not detected, and the contract does not claim they are.** A proxy over a plain target can report an ordinary prototype and ordinary descriptors and pass every check above. Using a proxy as a frame part is _unsupported discipline_, not a rejected input — the earlier claim that proxies were rejected was wrong (review 5, §11).
 
@@ -127,7 +129,6 @@ type SortableFramePart = {
   snapshot: CollectionSnapshot | null;
   insertion: Insertion | null;
   proposal: ReorderProposal | null;
-  outcome: number;
   recovery: number;
   domain: ReorderTransactionResult | null;
 };
@@ -139,7 +140,6 @@ function createSortableFramePart(): SortableFramePart {
     snapshot: null,
     insertion: null,
     proposal: null,
-    outcome: OUTCOME_ACCEPTED,
     recovery: RECOVERY_IMMEDIATE,
     domain: null,
   };

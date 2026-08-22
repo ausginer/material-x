@@ -6,10 +6,10 @@
  * classification, F-23). It is **public**: a consumer receiving `onError` has
  * to be able to discriminate it (D-30).
  *
- * The stage → recovery mapping is deliberately **not** here. `outcome`,
- * `recovery` and `domain` are fields of the behavior's frame part, which the
- * kernel cannot name or write; the behavior maps a `SETTLED_FAILED` input to
- * its own recovery (D-24, F-33).
+ * The stage → recovery mapping is deliberately **not** here. `recovery` and
+ * `domain` are fields of the behavior's frame part, which the kernel cannot
+ * name or write; the behavior maps a `SETTLED_FAILED` input to its own
+ * recovery (D-24, F-33).
  *
  * ## Three names changed and no value did (D-74)
  *

@@ -73,20 +73,16 @@ export function createFreeDragController(host: KernelHost): FreeDragController {
   // `cancel` and `destroy` **are** the kernel's own members, spread through
   // unchanged: the kernel's latch already makes both inert and idempotent
   // before they do any work (D-53).
+  // **Neither member re-reads the latch** (removed 2026-08-22). `dispatch`'s
+  // first statement is `if (queue.closed) { return; }` and `host.closed` is a
+  // live getter over that same flag, with nothing observable in between — so
+  // the guard here answered the question the callee opens with.
   return {
     invalidate(): void {
-      if (host.closed) {
-        return;
-      }
-
       host.dispatch(TAG_POLICY, null);
     },
 
     moveTo(point: Point): void {
-      if (host.closed) {
-        return;
-      }
-
       // The point travels as the action's argument rather than being applied
       // here: the offset it becomes is committed frame state, and only a
       // `prepare` may write one.
