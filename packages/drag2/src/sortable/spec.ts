@@ -896,7 +896,7 @@ export function createSortableSpec(
       // kernel's wrapper classifies the whole call `FAILURE_RENDERER_WRITE`, so
       // the scheduling half narrows from the inside — otherwise a scheduling
       // failure is reported to the consumer as a render failure and
-      // `FAILURE_SCHEDULED_FRAME` has no producer at all (contract 02 §F-40).
+      // `FAILURE_SCHEDULED_FRAME` has no producer at all (contract 05 §F-40).
       // The spatial search is coalesced to one per frame; pointer input is not.
       rt.spatialSeq += 1;
 
@@ -1506,7 +1506,7 @@ export function createSortableSpec(
               // no terminal at all.
               //
               // **Existing result wins, otherwise `canceled`** — a lookup on
-              // the frame, not a branch per stage (02 §The join). `beginFrame`
+              // the frame, not a branch per stage (06 §The join). `beginFrame`
               // is `Object.assign(draft, current)`, so a settlement that
               // already committed a result arrives here still carrying it, and
               // `??` is the whole tie-break.

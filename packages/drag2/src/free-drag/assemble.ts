@@ -117,7 +117,7 @@ export function assemble(
     }
 
     // **The flat slot record is built inside the unwind bracket** (D-77, D-80,
-    // 03 §Validation). Nothing in it can throw for this behavior — free drag
+    // 03 §Assembly). Nothing in it can throw for this behavior — free drag
     // has no required contribution and therefore no dereference standing in for
     // a deleted check — but the placement is normative, and a record built
     // after the bracket would silently stop being covered the day a slot here

@@ -554,7 +554,7 @@ release.effect
     pointerless — no lift write —
 ```
 
-The placeholder move is unconditional: a command reorders, so its placeholder reaches the same final gap by the same writer. The lift write is not, and omitting it is not a shortcut — there is **no release sample to write**. The pointer scalars are still at their admission values, so `lift.write(pointerX - originX, …)` on that path would render `(0, 0)`… which happens to be where the visual already is, and would therefore look harmless while making the pointerless branch depend on the pointer fields it is defined not to read (§Five rules). The session then reports `(0, 0)` as the landing origin because nothing wrote it (D-35), and the landing travels from the item's grab box to the anchor of its new gap — the shipped keyboard behavior.
+The placeholder move is unconditional: a command reorders, so its placeholder reaches the same final gap by the same writer. The lift write is not, and omitting it is not a shortcut — there is **no release sample to write**. The pointer scalars are still at their admission values, so `lift.write(pointerX - originX, …)` on that path would render `(0, 0)`… which happens to be where the visual already is, and would therefore look harmless while making the pointerless branch depend on the pointer fields it is defined not to read (§Discrete admission). The session then reports `(0, 0)` as the landing origin because nothing wrote it (D-35), and the landing travels from the item's grab box to the anchor of its new gap — the shipped keyboard behavior.
 
 #### Feasibility is not the whole question, and R-5 is the proof
 
@@ -747,7 +747,7 @@ The other half of the decision, and the half that keeps it from being a mechanic
 | `SeamOutcome`, `SEAM_*`, `SeamContext`, `SeamDriver`, `ArmOutcome` | none needed — the driver's own vocabulary. A behavior returns `Prepared \| null` or a `SeamRejection` and never sees an outcome. **03 §Internal to the ordinary tier lists `SeamOutcome` and `ArmOutcome` as kernel-tier published; that is wrong and D-68 corrects it** — neither is in the closure |
 | `Lifetime` (the full type), `createLifetime` | `LifetimeScope`, which is D-21's projection and exists precisely so `dispose` is unreachable |
 | `composeFrame`, `beginFrame`, `scrubFrame`, `validateFramePart`, `KERNEL_FRAME_KEYS` | none — the kernel composes the frame (D-15). A behavior authors its part and nothing else |
-| `acquireLift`, `captureInlineStyles`, `acquireTopLayer` | the kernel acquires the lift; the behavior receives a **`BehaviorLiftSession`**, which is published for the same reason everything else on this list is not — the kernel hands one to every behavior twice, as `ActivationScope.lift` and as `moved`'s second argument. `VisualLiftSession` stays published because that alias's definition names it. (This row read _the behavior receives `VisualLiftSession`_ until D-35's projection landed; §`ActivationScope` had been the correct spelling since C5-01.) |
+| `acquireLift`, `captureInlineStyles`, `acquireTopLayer` | the kernel acquires the lift; the behavior receives a **`BehaviorLiftSession`**, which is published for the same reason everything else on this list is not — the kernel hands one to every behavior twice, as `ActivationScope.lift` and as `moved`'s second argument. `VisualLiftSession` stays published because that alias's definition names it. (This row read _the behavior receives `VisualLiftSession`_ until D-35's projection landed; §`ActivationScope`, below, had been the correct spelling since C5-01.) |
 | `report`, `guarded` | `host.fail(stage, error)` inside a seam. Outside one it downgrades to a platform report, which is the same destination |
 | `createInvalidator`, `createFrameTask`, `FrameTask`, `Invalidator` | `realm.window` — scheduling is the behavior's own, and `FAILURE_SCHEDULED_FRAME` exists so it can classify its own coalescing |
 | `POINTER_DOWN`, `KEY_DOWN` and the rest of `protocol.ts` | string literals. `CommandAdmission.types` is `readonly string[]` |
@@ -968,7 +968,7 @@ The review proposed carrying it "most naturally through `BehaviorLiftSession`". 
 
 The projection removes `rendered` and `dispose`. It does **not** remove the two residues that remain, and this section no longer claims a count: writing `visual.style.transform` directly, and calling `write` outside its window (§The temporal rule on `write`).
 
-The projection is a type-level `Pick`; the kernel passes the _same physical object_ under the narrower type, so it costs no allocation — the identical argument §`dispose()` is projected away already makes for `Lifetime`.
+The projection is a type-level `Pick`; the kernel passes the _same physical object_ under the narrower type, so it costs no allocation — the identical argument (§What stays internal) already makes for `Lifetime`.
 
 **Positively selected, not `Omit`-ed.** The list says what a behavior may do rather than what it may not, so a member added to `VisualLiftSession` later is kernel-only by default instead of leaking until someone remembers to exclude it.
 
@@ -1149,9 +1149,9 @@ The library stops waiting, restores or retires its own presentation, and termina
 | --- | --- |
 | unhandled rejection | never. The kernel keeps its `catch` on the resolution attempt for the attempt's whole life, not only while the attempt is current, so a late rejection is caught and dropped rather than escaping to the platform |
 | a second terminal | never. The terminal latch has already fired for the `canceled` settlement; the late arrival finds no live attempt and dispatches nothing |
-| revival | never. There is no path from a settled operation back to `SETTLING`; the arrival is discarded at the attempt-identity check, which is the same double validation §Attempts already requires |
+| revival | never. There is no path from a settled operation back to `SETTLING`; the arrival is discarded at the attempt-identity check, which is the same double validation (§Attempts and stale continuation rejection) already requires |
 
-This **extends** §"a rejected thenable is a resolver malfunction" rather than contradicting it, and the two rules are about different windows. While the attempt is live, a rejection is a malfunction and classifies as `FAILURE_RESOLUTION` — that is unchanged. Once the attempt has been abandoned there is no operation left to classify against, and classifying anyway would be `fail` outside a seam of the current operation, which §Failure classification already downgrades to a platform report. So the late rejection takes the non-consequential channel by the rule that is already there; what D-40 adds is the requirement that it be **caught at all**, which is a property of where the `catch` is installed rather than of the failure model.
+This **extends** §The settlement input is discriminated and exhaustive — _a rejected thenable is a resolver malfunction_ — rather than contradicting it, and the two rules are about different windows. While the attempt is live, a rejection is a malfunction and classifies as `FAILURE_RESOLUTION` — that is unchanged. Once the attempt has been abandoned there is no operation left to classify against, and classifying anyway would be `fail` outside a seam of the current operation, which §Failure classification already downgrades to a platform report. So the late rejection takes the non-consequential channel by the rule that is already there; what D-40 adds is the requirement that it be **caught at all**, which is a property of where the `catch` is installed rather than of the failure model.
 
 `CancelStage` is `AT_PROPOSAL` or `AT_CONSUMER`, carried through to the public cancel result — probe 1's preserved product requirement, which the intermediate draft had no constructor for. It is a **diagnostic discriminant on one terminal**, and D-40 is why that is the right shape: the two stages differ in what the consumer may have already started, not in what the consumer must do next.
 
@@ -1417,7 +1417,7 @@ type LandingHandle = Readonly<{
    * inside one `try`/`finally`, and the pin is only correct because
    * relinquishment has already happened when `lift.write` runs. A thenable here
    * would put an `await` between `destroy()` and the pin, which is the one
-   * ordering §Landing states as normative.
+   * ordering §Landing (D-16) states as normative.
    *
    * **It is the sole member of D-51's relinquishing list** — the one call into a
    * declared consumer slot that D-37 (a) permits after logical closure, because
@@ -1431,7 +1431,7 @@ type LandingHandle = Readonly<{
    * part of physical teardown and defers with it under D-36. The join's call is
    * a normal-path step on a live controller and **keeps its position**, between
    * the measurement and the pin. Deferring it would put the pin before
-   * relinquishment and invert the one ordering §Landing states as normative.
+   * relinquishment and invert the one ordering §Landing (D-16) states as normative.
    */
   destroy(): void;
 
@@ -1474,7 +1474,7 @@ join — the landing hold released, or never taken
                  apply and this call keeps its position ahead of the pin; the
                  clause reaches the post-closure call site only. It is also why
                  this member stays synchronous and `void` — see
-                 §`LandingHandle`. ──
+                 §Landing (D-16)'s `LandingHandle`. ──
       target = attempt.target                  ← the SAME point, not re-measured
       if (target) lift.write(target.x - originRect.x, target.y - originRect.y)
               ↳ throws → FAILURE_RENDERER_WRITE; failed = true
@@ -1550,7 +1550,7 @@ That is what makes _existing result wins, otherwise `canceled`_ a **lookup**: by
 
 **Why the `invoke` closure and not a frame field.** `ResolutionCommand.invoke` is executed by the kernel _"after `release.effect` returns and only if it returned normally"_, and `invoke: null` means no round-trip at all. So the closure's first statement runs **exactly when the consumer round-trip opens, and never otherwise** — it is truthful by construction rather than by inference, and the behavior authors that closure already.
 
-**An earlier wording derived it from `proposal !== null`, and that is false.** The proposal is committed in `release.prepare`, well before the round-trip; a throw in `release.effect` therefore leaves a committed proposal with `onReorder` never called — §Release's own edge table says the staged command is **not** executed — so the rule would have reported `AT_CONSUMER` for a drop the consumer never saw. The two events are one seam apart and it is the wrong seam.
+**An earlier wording derived it from `proposal !== null`, and that is false.** The proposal is committed in `release.prepare`, well before the round-trip; a throw in `release.effect` therefore leaves a committed proposal with `onReorder` never called — §Every classification entrypoint latches, whose `release` row says the staged command is **not** executed — so the rule would have reported `AT_CONSUMER` for a drop the consumer never saw. The two events are one seam apart and it is the wrong seam.
 
 **Why a marker rather than widening the input.** Adding a `CancelStage` to `SETTLED_FAILED` would be an SPI change for information the behavior already holds, and it would ask the kernel to compute a **domain** concept — which is the thing F-33 exists to keep on the behavior's side.
 
@@ -1834,7 +1834,7 @@ Ported unchanged from the shipped package. Entirely kernel-private.
 - **Terminal latch.** `closed` is re-read every iteration, so a consumer calling `destroy()` from inside a callback stops the drain immediately.
 - **Panic.** A throw escaping a handler is an invariant violation: clear the queue, tear down exactly once, then report the initiating error.
 - **No internal steps are queued.** One pointer move is one action that validates, prepares, commits, renders and notifies — not six.
-- **Behavior tags share the queue** and are offset from `BEHAVIOR_BASE` by the kernel, so a behavior declares `0`, `1` and `2` — the sortable's three, per §`config.actionTags` above — and never learns a kernel tag value. This bullet said "`0` and `1`" after that section was corrected to three (C4-08).
+- **Behavior tags share the queue** and are offset from `BEHAVIOR_BASE` by the kernel, so a behavior declares `0`, `1` and `2` — the sortable's three, per §An invalidating collection replacement, above — and never learns a kernel tag value. This bullet said "`0` and `1`" after that section was corrected to three (C4-08).
 - **Every native admission is a queue boundary.** Run-to-completion above says a nested `dispatch` appends and returns because the outermost frame owns the pass — which presumes a drain is on the stack. Admission is the one kind of transaction the kernel drives _outside_ the seam driver: it mutates the draft directly across the whole of an admission member and commits at the end, so the driver's re-entry refusal cannot see it, and there is no drain to append to. A handle or visual resolver calling `controller.invalidate()` — the D-44 replacement for `updateItems()`, and equally reentrant — would therefore start a _new_ drain underneath a half-written admission — `begin()`, `commit()`, a frame-pair swap — after the member has already captured the draft by reference. The item and snapshot land on one frame, the phase and operation on the other, and the committed operation has no item at all.
 
   **This applies to `admit` and to `command.admit` identically** (D-32), and the refusal below is one shared latch across both listeners rather than one per listener. A `keydown` dispatched from inside a `pointerdown` resolver, or a second press dispatched from inside a command's handle resolver, is the same half-written-transaction hazard with the two ingresses swapped.

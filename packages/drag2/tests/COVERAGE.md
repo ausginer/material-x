@@ -35,7 +35,7 @@ Two rows were **removed** rather than re-pointed in that pass, both from §The i
 
 ## Readiness — deleted (D-41)
 
-**The entire readiness protocol is gone, and with it both sections that used to stand here.** `accept({ presentation: true })`, `controller.ready(request)`, `KernelHost.presentationCommitted()`, the acknowledgement deadline, `readinessTimeout`, `FAILURE_PRESENTATION_READY` and the readiness-time re-anchor with `LandingHandle.retarget()` no longer exist, so `tests/sortable/acknowledgement.browser.test.ts` was deleted rather than migrated: every row in it named a member of a protocol with no producer.
+**The entire readiness protocol is gone, and with it both sections that used to stand here.** `accept({ presentation: true })`, `controller.ready(request)`, `KernelHost.presentationCommitted()`, the acknowledgement deadline, `readinessTimeout`, `FAILURE_PRESENTATION_READY` and the readiness-time re-anchor with `LandingHandle.retarget()` no longer exist, so ~~`tests/sortable/acknowledgement.browser.test.ts`~~ was deleted rather than migrated: every row in it named a member of a protocol with no producer.
 
 What replaced the rows is not another suite. Under the serial authored commit a consumer that must render before the drop lands `await`s its own commit barrier inside `onReorder`, so the obligations these rows checked stopped existing rather than moving owner. The one row that survived in substance is the React integration's, re-pointed at the barrier: `tests/sortable/react.browser.test.ts` now returns a promise from `onReorder` that resolves on the next commit, which is the whole of the migration.
 
@@ -105,7 +105,7 @@ The 2-D rule is a **sibling axis feature**, `xy()` on `sortable/xy.js`, beside t
 | the losing axis feature's private state is never built, in either order | `tests/sortable/assemble.browser.test.ts` — _should construct nothing for a losing axis fragment_ | F-19, D-45 |
 | a `y()` composition physically cannot reach `xy()`… | `tests/packaging.node.test.ts` — _should keep the minimal composition out of every optional feature_ | 03 §Tree-shaking |
 | …**and an `xy()` composition cannot reach `y()`**, which is what makes it an exclusivity claim rather than a one-way absence | `tests/packaging.node.test.ts` — _should keep the two-dimensional composition out of the y axis_ | 03 §Tree-shaking |
-| the export topology carries both subpaths, per-subpath surface asserted as an equality | `tests/exports.node.test.ts`, `tests/consumer.node.test.ts` | 03 §Export topology |
+| the export topology carries both subpaths, per-subpath surface asserted as an equality | `tests/exports.node.test.ts`, `tests/consumer.node.test.ts` | 03 §The export topology this requires |
 
 ### The composed fixture needs a flow layout, and that is a finding
 
@@ -163,7 +163,7 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 
 | Row | Test | ID |
 | --- | --- | --- |
-| no-animation default | `tests/sortable/composition.browser.test.ts` — the minimal composition installs neither `landing()` nor `layoutAnimation()` | 03 §composition |
+| no-animation default | `tests/sortable/composition.browser.test.ts` — the minimal composition installs neither `landing()` nor `layoutAnimation()` | 03 §The minimal fixture |
 | CSS layout transition | `tests/sortable/composition.browser.test.ts` — _should propose the same gap when the rows carry a CSS transition_ | D-7 |
 | long landing duration | `tests/sortable/features.browser.test.ts` — _should hold settlement open until the animation finishes_ | I-9 |
 | custom animation runner | `tests/sortable/features.browser.test.ts` — _should let a middle-tier runner replace the default entirely_ | I-24, D-63 |
@@ -642,7 +642,7 @@ The precedent for _removing_ an unfalsifiable conjunct rather than recording it 
 
 ## Free drag — validation (Phase 20, B-4)
 
-**Two tables, asserted differently, and the split is the criterion.** A value in 07 §Validation's _classified_ table surfaces at a named seam with that row's coarse code; a value in the _silent_ table produces **no `onError`, no terminal and no classification at all**. Asserting the second the way one asserts the first is how a deleted check gets quietly re-added.
+**Two tables, asserted differently, and the split is the criterion.** A value in the _classified_ table (07 §Validation) surfaces at a named seam with that row's coarse code; a value in the _silent_ table produces **no `onError`, no terminal and no classification at all**. Asserting the second the way one asserts the first is how a deleted check gets quietly re-added.
 
 Every code is read from `STAGE_TO_CODE` through `toDraggableError(stage, null).code`, never retyped, so a remap fails these rows instead of passing them.
 
@@ -767,3 +767,19 @@ The sortable's half of the convention D-90 stated for free drag. `tests/sortable
 | **four members, five sites**: `retire` is reached from the normal retirement and from the construction unwind, so the unwind is driven by its own row | _should hand the construction unwind a foreign receiver_ | D-93 |
 | the aggregate the recorded falsifier is stated against — all four lifts re-bound must not leave the suite green | _should never hand any site the geometry record_ | D-92 |
 | the first-party axis rules still work through the same lifted sites — **recorded as non-discriminating controls, not as evidence**, since both close over their state and pass under the reversion that fails every row above | _should leave y() working through the same lifted sites_, _should leave xy() working through the same lifted sites_ | D-92, F-74 |
+
+## The record's own instruments — new (2026-08-22, D-112, D-113, D-115, D-116)
+
+Three instruments whose subject is the record rather than the runtime, indexed here because this file is where an assertion is paired with the clause it discharges — and because `tests/coverage.node.test.ts` checks one direction only, so an instrument absent from this table is invisible to it rather than reported (MNT-07).
+
+| Row | Test | ID |
+| --- | --- | --- |
+| every scope root the resolver names exists, so a root renamed away cannot contribute zero citations and zero failures | `tests/references.node.test.ts` — _should scan every scope root D-112 names_ | D-112, D-115 |
+| every contract citation in the normative tree resolves to a heading or a declared row id, and every `§` is classified rather than skipped | `tests/references.node.test.ts` — _should carry contract citations that all resolve_ | D-112, F-81 |
+| every backticked repository path in that tree resolves on disk, and a deliberately retired one is struck through | `tests/references.node.test.ts` — _should carry repository paths that all resolve on disk_ | D-112 |
+| the module-graph parser understands every import form the source actually uses, so the ship-list and isolation assertions cannot pass over a specifier it silently dropped | `tests/packaging.node.test.ts` — _should understand every import form the source actually uses_ | D-115, M-05 |
+| the published declarations carry no doc block with no subject, with the one legitimate exemption recognised by the block's own struck subject rather than by its position | `tests/packaging.node.test.ts` — _should publish no doc block that documents nothing_ | D-113, MNT-01, MNT-02 |
+| no live condition is stated inside a decision-ledger row, which is what makes the resolver's row-shape skip sound | `tests/decisions.node.test.ts` — _should state no live condition inside a decision row_ | D-116 |
+| the ledger cites only conditions the register declares, and the register carries none the ledger never cites | `tests/decisions.node.test.ts` — _should cite only conditions the register declares_, _should carry no condition the ledger never cites_ | D-116 |
+| every row of every ledger table authors exactly the cells its header declares, so a clause cannot exist where it is written and vanish where it is read | `tests/decisions.node.test.ts` — _should give every row of the ledger the width its header declares_, _should find a row that authors one cell too many_ | F-83 |
+| the lead-in reader answers each condition in a row separately and reads a quoted mention as a quotation | `tests/decisions.node.test.ts` — _should answer both conditions in a row separately_, _should read a quoted mention as a quotation rather than a condition_, _should refuse a lead-in that names none_ | D-116, D-112 |

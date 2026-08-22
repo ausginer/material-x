@@ -42,14 +42,54 @@
  * each is a fact about the tree that holds only while its decision is
  * unimplemented, so landing the decision breaks the row that describes it.
  *
+ * ## A standing condition is registered, not embedded (D-116)
+ *
+ * The second subject of this file, and it is the same failure one register
+ * over. A decision row is a **dated act** — that is why `references.node.test.ts`
+ * skips one whole — but three rows also carried a clause a later pass must act
+ * on, and a live clause inside a skipped container is the one thing in the tree
+ * no instrument can see. F-78 is the proof that this is not hypothetical: a
+ * revisit condition embedded in `kernel/dev.ts`'s prose fired unnoticed across
+ * three revisions.
+ *
+ * So the clause moves to `.plan/obligations.md` §Standing conditions under an
+ * `SC-n` id, and the row cites the id. **What is checkable is the vocabulary,
+ * not the intent**: a bold condition lead-in in a decision row must name an
+ * `SC-n`, every cited id must exist in the register, and every registered id
+ * must be cited from the ledger.
+ *
+ * **Its premise is open and is stated rather than hidden** (D-115). Whether a
+ * *new* decision embeds a condition instead of registering it cannot be
+ * observed — that is D-114 (b)'s argument and it is not re-derived here — and a
+ * fifth lead-in nobody has spelled yet escapes this. The register entry is the
+ * load-bearing artifact; this is a backstop over four known forms — three that
+ * name the clause and were there from the start, and the fourth, a sentence
+ * about what would reopen a decision, which was already in D-105 when D-116
+ * called the gap prospective (C-02). Bold is the
+ * discriminator because it is already this record's typography for a live
+ * clause, while an italic or backticked mention is how it quotes the term: D-114
+ * and D-116 both say _Overturned by_ **about** the rule, and neither is a
+ * condition.
+ *
+ * ## A row renders every cell it authors (F-83)
+ *
+ * The third subject, and it is a rendering failure rather than a reading one.
+ * GFM **discards a row's excess cells** and pads its missing ones, so a row
+ * with one cell too many is well-formed to every tool and silently short one
+ * clause to every reader. Twenty rows in this file were in that state, losing
+ * their whole _Supersedes_ column while the rendered table showed the evidence
+ * half in its place, and nothing failed anywhere.
+ *
  * Source-level and text-based, necessarily: the subject is a document.
  */
 import { access, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import MarkdownIt from 'markdown-it';
 import { describe, expect, it } from 'vitest';
 
 const PACKAGE = resolve(import.meta.dirname, '..');
 const INDEX = join(PACKAGE, '.plan/contract/00-index.md');
+const REGISTER = join(PACKAGE, '.plan/obligations.md');
 
 /** The heading whose table accounts for every marked decision. */
 const SECTION = '### Decisions not yet implemented';
@@ -76,6 +116,29 @@ const LISTED =
 
 /** Anything shaped like one of that table's rows. */
 const ROW_SHAPED = /^\| D-\d+ \|/u;
+
+/**
+ * A bold span, paired left to right. Bold is the discriminator because it is
+ * already this record's typography for a live clause, while an italic or
+ * backticked mention is how it quotes the term.
+ */
+const BOLD = /\*\*((?:[^*]|\*(?!\*))+?)\*\*/gu;
+
+/**
+ * The four condition lead-ins the record actually uses (D-116 (d)). Three name
+ * the clause and are matched whole; the fourth is a sentence about what would
+ * reopen a decision, and is matched on the two words that make it one. **The
+ * vocabulary is still open** — a fifth spelling escapes this, which is why the
+ * register entry is the load-bearing artifact and this is a backstop.
+ */
+const LEAD_IN =
+  /^(?:Overturned by|Re-base conditions?|Revisit conditions?)$|\breopening conditions?\b/iu;
+
+/** A row of the register's §Standing conditions table. */
+const DECLARED = /^\| (SC-\d+) \|/u;
+
+/** A reference to one, wherever it is written. */
+const REFERENCE = /SC-\d+/gu;
 
 type Deferred = Readonly<{
   decision: string;
@@ -177,6 +240,114 @@ function unrecognized(lines: readonly string[]): readonly string[] {
   }
 
   return bad;
+}
+
+/**
+ * Every decision row whose bold condition lead-in names no `SC-n`. The clause
+ * runs from its lead-in to the next one or to the end of the row, so a row
+ * carrying two conditions is answered twice.
+ */
+function embedded(lines: readonly string[]): readonly string[] {
+  const bad: string[] = [];
+
+  for (const line of lines.filter((row) => ROW_SHAPED.test(row))) {
+    const at = [...line.matchAll(BOLD)].filter((bold) =>
+      LEAD_IN.test(bold[1]!.trim()),
+    );
+
+    for (const [ordinal, lead] of at.entries()) {
+      const end = at[ordinal + 1]?.index ?? line.length;
+      const clause = line.slice(lead.index, end);
+
+      if (!REFERENCE.test(clause)) {
+        bad.push(`${/^\| (D-\d+)/u.exec(line)![1]!}: ${lead[0]}`);
+      }
+
+      REFERENCE.lastIndex = 0;
+    }
+  }
+
+  return bad;
+}
+
+/** The ids the register declares, and the ids the ledger cites. */
+const ids = (lines: readonly string[], row: RegExp): readonly string[] => [
+  ...new Set(lines.flatMap((line) => row.exec(line)?.[1] ?? [])),
+];
+
+function cited(lines: readonly string[]): readonly string[] {
+  return [
+    ...new Set(
+      lines
+        .filter((line) => ROW_SHAPED.test(line))
+        .flatMap((line) => [...line.matchAll(REFERENCE)].map(([id]) => id)),
+    ),
+  ];
+}
+
+const markdown = new MarkdownIt('commonmark').enable(['table']);
+
+/** The delimiter row, which is a table's shape and not one of its rows. */
+const DELIMITER = /^\|(?:\s*:?-{2,}:?\s*\|)+$/u;
+
+/**
+ * How many cells a row **authors** — asked of the parser rather than counted.
+ *
+ * A parsed row is always its header's width, because the parser truncates and
+ * pads to it, so comparing parsed lengths would compare one number with
+ * itself: the vacuity F-83 is made of, and D-115 forbids. So the row is
+ * offered to the parser **as a header** instead, whose width the delimiter row
+ * must match for the block to be a table at all. The width the parser accepts
+ * is the width the row authored, with escaped pipes and pipes inside code
+ * spans resolved by the parser and not by this file.
+ */
+function width(row: string): number | undefined {
+  for (let count = 1; count <= 12; count += 1) {
+    const table = `${row}\n|${' --- |'.repeat(count)}\n| x |\n`;
+
+    if (
+      markdown.parse(table, {}).some((token) => token.type === 'table_open')
+    ) {
+      return count;
+    }
+  }
+
+  return undefined;
+}
+
+type Shape = Readonly<{ rows: number; wrong: readonly string[] }>;
+
+/** Every row whose authored width is not the width its own header declares. */
+function shape(lines: readonly string[]): Shape {
+  const wrong: string[] = [];
+  let header = 0;
+  let rows = 0;
+
+  for (const [index, line] of lines.entries()) {
+    if (!line.startsWith('|')) {
+      header = 0;
+      continue;
+    }
+
+    if (DELIMITER.test(line)) {
+      continue;
+    }
+
+    const cells = width(line);
+
+    if (header === 0) {
+      header = cells ?? 0;
+      continue;
+    }
+
+    rows += 1;
+
+    if (cells !== header) {
+      wrong.push(`${index + 1}: ${cells ?? '?'} cells against ${header}`);
+    }
+  }
+
+  return { rows, wrong };
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -382,5 +553,150 @@ describe('the deferred decisions', () => {
     // and the marker on the decision it names; do not weaken the witness to
     // keep the row alive.
     expect(landed).toEqual([]);
+  });
+});
+
+describe('the condition vocabulary', () => {
+  const CONDITION = '**Overturned by** something an observer meets';
+
+  it('should accept a lead-in that names a registered condition', () => {
+    expect(embedded([`| D-79 | ${CONDITION} — see SC-4 | Why |`])).toEqual([]);
+  });
+
+  it('should refuse a lead-in that names none', () => {
+    // The whole finding: the clause is live, the row is skipped by the
+    // resolver as a dated act, and nothing else reads it.
+    expect(embedded([`| D-79 | ${CONDITION} | Why |`])).toEqual([
+      'D-79: **Overturned by**',
+    ]);
+  });
+
+  it('should answer both conditions in a row separately', () => {
+    // A clause runs to the next lead-in, so an id in the first does not
+    // satisfy the second — the failure a whole-row search would hide.
+    expect(
+      embedded([
+        `| D-79 | ${CONDITION} — SC-4. **Re-base conditions**: x | Y |`,
+      ]),
+    ).toEqual(['D-79: **Re-base conditions**']);
+  });
+
+  it('should read a quoted mention as a quotation rather than a condition', () => {
+    // D-112's specimen rule, applied to a lead-in. D-114's own row says
+    // _Overturned by_ about the rule and decides nothing.
+    expect(
+      embedded([
+        '| D-79 | An _Overturned by_ clause states a condition | Why |',
+      ]),
+    ).toEqual([]);
+  });
+
+  it('should read a reopening sentence as a lead-in', () => {
+    // The fourth form, and it was in D-105 before D-116 called the gap
+    // prospective (C-02). It names no clause; it is a sentence about what
+    // would reopen the decision, which is the same thing.
+    expect(
+      embedded([
+        '| D-79 | **The reopening conditions that remain are measured** — SC-4 | Y |',
+      ]),
+    ).toEqual([]);
+    expect(
+      embedded([
+        '| D-79 | **The reopening conditions that remain are measured** | Y |',
+      ]),
+    ).toEqual(['D-79: **The reopening conditions that remain are measured**']);
+  });
+
+  it('should not read an unbolded reopening mention as a lead-in', () => {
+    // D-105's row says _the reopening condition …_ in ordinary prose about a
+    // condition it has already dismissed. Bold is what separates the two.
+    expect(
+      embedded([
+        '| D-79 | and the reopening condition _x_ (P01-08), which | Y |',
+      ]),
+    ).toEqual([]);
+  });
+
+  it('should not read a condition outside a decision row', () => {
+    expect(
+      embedded(['**Overturned by** something, in ordinary prose']),
+    ).toEqual([]);
+  });
+});
+
+describe('the standing conditions', () => {
+  const register = async (): Promise<readonly string[]> =>
+    (await readFile(REGISTER, 'utf8')).split('\n');
+
+  it('should state no live condition inside a decision row', async () => {
+    expect(embedded(await index())).toEqual([]);
+  });
+
+  it('should cite only conditions the register declares', async () => {
+    const declared = new Set(ids(await register(), DECLARED));
+
+    expect(cited(await index()).filter((id) => !declared.has(id))).toEqual([]);
+  });
+
+  it('should carry no condition the ledger never cites', async () => {
+    const declared = ids(await register(), DECLARED);
+    const references = new Set(cited(await index()));
+
+    // The other direction, and it is what keeps the register from drifting
+    // into a second ledger: a condition nobody decided is not a condition.
+    expect(declared.filter((id) => !references.has(id))).toEqual([]);
+    // Non-vacuity, and the whole floor this backstop can carry: the standing
+    // set is non-empty. It cannot see a *new* decision that embeds a clause
+    // rather than registering one — that is stated in this file's doc block
+    // rather than implied by a green row.
+    expect(declared.length).toBeGreaterThan(0);
+  });
+});
+
+describe('the ledger tables', () => {
+  const table = (row: string): readonly string[] => [
+    '| A | B |',
+    '| --- | --- |',
+    row,
+  ];
+
+  it('should find a row that authors one cell too many', () => {
+    // **The whole finding.** GFM accepts this row and drops `three`, so the
+    // clause exists where it is written and is absent where it is read.
+    expect(shape(table('| one | two | three |')).wrong).toEqual([
+      '3: 3 cells against 2',
+    ]);
+  });
+
+  it('should find a row that authors one too few', () => {
+    expect(shape(table('| one |')).wrong).toEqual(['3: 1 cells against 2']);
+  });
+
+  it('should not miscount a pipe the parser does not read as one', () => {
+    // Escaped, and inside a code span. Both are why this asks the parser
+    // rather than counting `|` — the two rows F-83's sweep found last were
+    // `HTMLElement \| null` written without the escape.
+    expect(shape(table('| `a \\| b` | two |')).wrong).toEqual([]);
+  });
+
+  it('should count rows against their own header, not the first one', () => {
+    expect(
+      shape([
+        ...table('| one | two |'),
+        '',
+        '| A | B | C |',
+        '| --- | --- | --- |',
+        '| 1 | 2 | 3 |',
+      ]).wrong,
+    ).toEqual([]);
+  });
+
+  it('should give every row of the ledger the width its header declares', async () => {
+    const { rows, wrong } = shape(await index());
+
+    expect(wrong).toEqual([]);
+    // Non-vacuity: the reader really walked the tables. A file whose tables
+    // stopped being recognized would otherwise report nothing wrong.
+    expect(rows).toBeGreaterThan(150);
   });
 });

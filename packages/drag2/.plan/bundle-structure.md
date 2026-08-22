@@ -296,6 +296,8 @@ It would also invert the instinct D-102 ratified — _an absorbed number is a nu
 - erosion stops being attributable to a named landed change — at which point the number to investigate is the attribution, not the budget; or
 - **L-11 lands.** `plan.md` §Phase 23 books five runtime cells onto two frozen entrypoints, and 05 §Measurements owed makes the frozen export map part of M-3 by construction, so that change re-measures M-3 whether or not it moves a byte. It is the next scheduled re-base event and it is not Phase 22's.
 
+**Carried live as [SC-1](obligations.md) from 2026-08-22 (D-116)**, which is where a later pass reads these three. The register states them in the present tense and re-derives their citations against today's tree: `05 §Measurements owed` was never a heading in 05, so SC-1 cites [`05 §Measurements — landed 2026-08-02`](contract/05-lifecycle-invariants.md), where the frozen export map is one of the six stated reproducibility preconditions. The list above is the wording as decided and stands as it stands.
+
 ## F-77 — two published runtime roots carry no bundled-isolation assertion
 
 **Closed 2026-08-22, by the harness change it asked for and by one it did not.** `drag.js` and `kernel.js` are now declared compositions in [`bench/size/measure.ts`](../bench/size/measure.ts), asserted on every `just size`. **No production code changed**, which was the condition.
@@ -328,7 +330,7 @@ Three, all in documents this deliverable had to read, none affecting a landed de
 
 1. **M-3′'s shared-set breakdown** — _"the fifteen under `kernel/` plus `shared/landing-runner.js`"_ — misattributes an external package and `kernel.js` to the `kernel/` subtree. The total of 16 is right. Corrected in place, marked.
 2. **03 §Tree-shaking publishes the 2026-08-08 table** — five sortable rows, no free-drag rows, and a headroom sentence quoting _0.11–0.16 kB against budgets set at ~0.3 kB_. It is stale by two re-bases, and 05 §Measurements owed points at it as the live location. Refreshed against this run.
-3. **`05 §What would reopen this` does not exist.** It is cited as the authority for _adding a subpath reopens what "minimal" means_ in `plan.md` §Phase 17 and in `bench/size/measure.ts`'s `minimal (xy)` comment. The doctrine is real and 05 §Measurements owed carries it — the frozen export map is part of M-3 — but the heading was never written. **Not fixed here**: one of the two citations is in a source file, and re-pointing a citation is not this document's to land. Recorded so the next pass over 05 either writes the section or re-points both.
+3. **`05 §What would reopen this` does not exist.** It is cited as the authority for _adding a subpath reopens what "minimal" means_ in `plan.md` §Phase 17 and in `bench/size/measure.ts`'s `minimal (xy)` comment. The doctrine is real and 05 §Measurements owed carries it — the frozen export map is part of M-3 — but the heading was never written. **Not fixed here**: one of the two citations is in a source file, and re-pointing a citation is not this document's to land. Recorded so the next pass over 05 either writes the section or re-points both. **Closed 2026-08-22 by D-112**: both citations now read `05 §Measurements — landed 2026-08-02`, and the class is instrumented — `tests/references.node.test.ts` resolves every citation in the normative tree, so a reference with no owner is now a failing test rather than a note.
 
 ## What this closes, and what it does not
 

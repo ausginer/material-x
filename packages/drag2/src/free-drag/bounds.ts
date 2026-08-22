@@ -58,7 +58,7 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
        * `release.prepare` (`FAILURE_RELEASE` → `interaction`) runs first.
        *
        * **`FAILURE_ACTION_PREPARE` is not reachable from here at all.** 07
-       * §Validation named `action.prepare` for this row until D-81 corrected it;
+       * §Validation, which named `action.prepare` for this row until D-81 corrected it;
        * `invalidate()` is a staleness flag that calls nothing, so the seam that
        * marks the rect stale is never the seam that resolves it.
        */

@@ -1,7 +1,7 @@
 /**
  * What a feature *is*: a function factory run once at construction, and the
- * flat contribution object it hands back (contract 03 §A feature is a function
- * factory, §The contribution).
+ * flat contribution object it hands back (contract 03 §A fragment is a plain
+ * declarative partial config, §The contribution).
  *
  * This is **construction-time composition of a closed set of seams**, not an
  * open plugin architecture. Every new semantic seam is a coordinated edit to
@@ -54,7 +54,7 @@ export type {
 } from './slots.ts';
 
 /**
- * **Declared in `src/composition.ts`, published here** (F-64, the D-68 re-home
+ * **Declared in `src/shared/composition.ts`, published here** (F-64, the D-68 re-home
  * pattern). The free-drag middle tier needs the identical type, and Phase 18
  * declined to invent a shared composition vocabulary before Checkpoint E can
  * read the evidence for one — so the two tiers share a **declaration** rather
@@ -183,13 +183,6 @@ export type SortableContribution = Readonly<{
 }>;
 
 /**
- * The authoring shape — internal and unstable, and unexported from the package
- * for that reason. A factory is **externally inert**: it may allocate and
- * capture, but it may not attach a listener, write the DOM, or acquire anything
- * needing release. Every acquisition happens inside a kernel-owned operation
- * lifetime.
- */
-/**
  * **The middle tier** (D-61). An installer runs **once**, while a concrete
  * behavior instance is being constructed. It may create whatever private
  * runtime it likes, capture that runtime in the callbacks it returns, and hand
@@ -237,7 +230,7 @@ export type SortableInstaller = (
  * violator contributing no `insertion` at all reaches the flat slot record's
  * dereference of the resolver, which throws by itself — inside `assemble`'s
  * unwind bracket, so every installer that already ran is still retired (03
- * §Validation). A violator contributing a **malformed** one — `{ insertion: {}
+ * §Assembly). A violator contributing a **malformed** one — `{ insertion: {}
  * }` — passes assembly, because the object is truthy, and surfaces at the seam
  * that calls the resolver. That is acceptable under D-77's rule: a seam
  * classifying a JS-authored violation is not a defect. The deleted check had

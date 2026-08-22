@@ -388,7 +388,7 @@ describe('the `__DEV__` binding', () => {
   // `dev.ts` — still importing nothing from `kernel/`.
   //
   // **The kernel is no longer on the list** (D-108). Its four author-facing
-  // checks are production checks and `src/kernel/dev.ts` is retired, so the
+  // checks are production checks and ~~`src/kernel/dev.ts`~~ is retired, so the
   // package now has exactly one binding, in the one tier with per-frame dev
   // work. The third row is what holds that: the kernel re-acquiring a binding
   // fails it, which is the re-litigation this rule exists to catch.

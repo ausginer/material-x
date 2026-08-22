@@ -1,7 +1,8 @@
 // oxlint-disable typescript/no-unsafe-type-assertion
 /**
  * The tier-A half of the composition model: properties that are compile errors
- * rather than runtime checks (contract 03 §Closed for real, D-30, I-10).
+ * rather than runtime checks (contract 03 §Fragments are public, installers are
+ * opaque; D-30, I-10).
  */
 import { describe, expectTypeOf, it } from 'vitest';
 import type { SettlementScope } from '../../src/kernel/spec.ts';

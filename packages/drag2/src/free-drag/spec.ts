@@ -863,8 +863,8 @@ export function createFreeDragSpec(
       // throwing accessor used to panic outside the seam its own contract
       // names, and a non-finite pair reached target composition or a renderer.
       //
-      // Throwing from here is what puts the fault back on the track 07
-      // §Validation already publishes for it: `FAILURE_LANDING_TARGET` →
+      // Throwing from here is what puts the fault back on the track already published for it (07
+      // §Validation): `FAILURE_LANDING_TARGET` →
       // `presentation`, on the **quality** route, so the landing is skipped
       // rather than faked and a drop that already committed is not re-settled.
       //

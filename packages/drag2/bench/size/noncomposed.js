@@ -12,7 +12,7 @@
  * This is the one file here that imports through **relative paths into the
  * built package**. That is not an oversight and not a consumer path: the
  * behavior seam and the feature contract are internal by construction (contract
- * 03 §public boundary), so a non-composed baseline is only expressible from
+ * 03 §The public/internal boundary), so a non-composed baseline is only expressible from
  * inside. Keeping it out of the export map is the point — nothing a consumer
  * can write reaches this shape.
  *
@@ -107,7 +107,12 @@ export function mount(root, items, onReorder, grip, box) {
       // **The pull, the validation and the copy are the caller's** (D-80 (b)):
       // `source` is the identity baseline, the copy is what the runtime
       // publishes, and both are supplied rather than derived inside.
-      const rt = createSortableRuntime(host, items, copyUniqueItems(items), slots);
+      const rt = createSortableRuntime(
+        host,
+        items,
+        copyUniqueItems(items),
+        slots,
+      );
 
       return {
         spec: createSortableSpec(rt),
