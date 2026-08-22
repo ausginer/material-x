@@ -152,28 +152,62 @@ export type Composition = Readonly<{
    * is usually read backwards.** ~150 B is sized to notice a module appearing,
    * and **no module appeared** — the whole cost is the two assert messages, the
    * two report messages, `sameKeys`, `validateFrameDescriptors` and two loops,
-   * all previously folded to nothing. It is nonetheless **283–340 B**, roughly
+   * all previously folded to nothing. It is nonetheless **282–305 B**, roughly
    * twice the headroom, so it comes back here and re-bases visibly rather than
    * being absorbed. The standing rule governs both halves: a budget re-bases
    * rather than a correctness fix shrinking, and headroom may never be spent to
    * avoid landing one.
    *
-   * Per-composition cost: minimal **+330 B**, minimal (xy) **+298 B**,
-   * + layoutAnimation **+324 B**, + landing **+340 B**, complete **+331 B**,
-   * free drag minimal **+290 B**, free drag + bounds **+296 B**, free drag +
-   * landing **+291 B**, free drag complete **+297 B**, both behaviors
-   * **+336 B**, kernel root **+283 B**, baseline A **+328 B**. **Two rows do
-   * not move**: baseline B is the shipped `@ydinjs/drag` package and never
-   * reaches this code, and the `drag.js` vocabulary root is byte-identical at
-   * **121 B** — which is the F-77 assertion doing its job, since the error
-   * vocabulary still does not pull the kernel.
+   * **Corrected 2026-08-22 against the API review (API-01), and the correction
+   * is a lesson about this docblock rather than about D-108.** The first
+   * published figures — _283–340 B_ — were computed as `landed` minus the
+   * _Landed figures_ list of the **previous** re-base above, which is not the
+   * pre-change tree: D-103 and D-104 moved seven of these rows *after* that list
+   * was written and neither updated it. So 14–46 B of P-06 remediation and P-02
+   * shrink cost was attributed to D-108, and the published upper bound of 340 B
+   * corresponded to no row at all. The budgets did not change and are not
+   * affected — each is the true landed figure plus ~150 B — and the landed
+   * figures were right throughout; only the attribution was wrong.
    *
-   * Landed figures, every row: minimal **11,435**, minimal (xy) **11,085**,
-   * + layoutAnimation **11,874**, + landing **11,728**, complete **12,139**,
-   * free drag minimal **9,007**, free drag + bounds **9,159**, free drag +
-   * landing **9,307**, free drag complete **9,459**, both behaviors
-   * **13,699**, vocabulary root **121**, kernel root **6,797**, baseline A
-   * **11,848**, baseline B **6,889**.
+   * **A re-base measures the tree it is re-basing from.** Subtracting the last
+   * list in this docblock is a proxy for that and silently absorbs everything
+   * that landed in between. The pre-change measurement is therefore recorded
+   * beside the landed one from here on, so the next pass has the subtrahend
+   * rather than having to trust that a list stayed current.
+   *
+   * | Row | pre-slice `e086d058` | landed | D-108 |
+   * | --- | --- | --- | --- |
+   * | minimal | 11,139 | 11,435 | **+296** |
+   * | minimal (xy) | 10,801 | 11,085 | **+284** |
+   * | + layoutAnimation | 11,571 | 11,874 | **+303** |
+   * | + landing | 11,423 | 11,728 | **+305** |
+   * | complete | 11,849 | 12,139 | **+290** |
+   * | free drag minimal | 8,717 | 9,007 | **+290** |
+   * | free drag + bounds | 8,863 | 9,159 | **+296** |
+   * | free drag + landing | 9,016 | 9,307 | **+291** |
+   * | free drag complete | 9,162 | 9,459 | **+297** |
+   * | both behaviors | 13,396 | 13,699 | **+303** |
+   * | vocabulary root | 121 | 121 | **0** |
+   * | kernel root | 6,514 | 6,797 | **+283** |
+   * | baseline A | 11,566 | 11,848 | **+282** |
+   * | baseline B | 6,889 | 6,889 | **0** |
+   *
+   * **Two rows do not move**, and both are deliberate: baseline B is the shipped
+   * `@ydinjs/drag` package and never reaches this code, and the `drag.js`
+   * vocabulary root is byte-identical at **121 B** — the F-77 assertion doing
+   * its job, since the error vocabulary still does not pull the kernel.
+   *
+   * **The four free-drag rows, `kernel root` and the two unmoved rows are the
+   * ones whose first figures were already right**, and that is the tell rather
+   * than a coincidence: they are exactly the rows D-103 and D-104 never touched,
+   * so for them the stale list and the pre-slice tree were the same numbers.
+   *
+   * **Landed figures are the `landed` column above**, and are deliberately not
+   * repeated as a prose list here. Every earlier re-base ends in one, and it is
+   * that habit rather than any single list that produced API-01: a reader
+   * looking for _the last measurement_ finds the nearest list, which was current
+   * when written and is not current when read. The table states what it was
+   * measured against, so it cannot be mistaken for a baseline it is not.
    */
   budget: number;
   /**
