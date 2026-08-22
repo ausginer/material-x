@@ -361,3 +361,107 @@ This is not a new class and it is not a regression: it is F-83, repaired at the 
 Every probe edits, runs and restores; `git status --short` is empty after each and at the close. The declaration stash is a `mv` of the 32 untracked emitted `.d.ts` to `/tmp` and back, verified restored. Byte figures use the `budget: 1` substitution on a copy of `bench/size/measure.ts`, restored from that copy. The classification census was taken by copying `tests/references.node.test.ts` to an untracked probe, replacing the terminal assertion with a reveal, and deleting the probe before any falsification ran. Table cell counts were taken with `\|` treated as an escape, and each outlier was re-read cell by cell rather than trusted from the count.
 
 **LSP plugin - available; not used: this closure turned on injecting text into emitted declarations, mutating markdown tables and re-running node instruments — document-and-artifact questions, with no code symbol whose definition, references or types were in doubt.**
+---
+
+## Final closure — the F-83 safeguard and the residuals
+
+- **Date:** 2026-08-22
+- **Subject:** the residuals closed at `46c82fda` — C-01, C-02, C-03/F-83 and the MNT-04 residue — and the ledger-table gate landed at `55fa0efa`
+- **Scope, as set:** those five items only. Nothing else in the slice was reopened.
+
+### Baseline
+
+| Gate | Result |
+| --- | --- |
+| `npx just typecheck` | clean |
+| `npx just test` | 59 files, **1151 passed, 116 skipped** |
+| `npx just test --project node` | 15 files, **257 passed, 14 skipped** |
+| `npx just size` | green, all 14 rows, **byte-identical** to `42d156d6` |
+
++7 tests against the previous closure: five ledger-table cases and two condition-vocabulary cases.
+
+### Verdict
+
+**Everything is closed and nothing blocks merge.** The four residuals are repaired and each fails closed under mutation. The F-83 safeguard is the strongest instrument this entry produced: it is the one gate in the slice whose non-vacuity is a _structural_ property rather than a floor bolted on afterwards, and I could not construct a state in which it passes while the property is false.
+
+**No new findings.** Four observations are recorded at the end, none of them a defect.
+
+### The cell-width gate is non-vacuous by construction
+
+The question F-83 poses is hard for the obvious reason: **a parsed row is always its header's width**, because GFM truncates the excess and pads the shortfall. Comparing parsed widths compares a number with itself. I confirmed that this is not a theoretical worry — parsing the current ledger and counting the cells of each parsed row gives **245 rows and zero mismatches**, and it would give zero in the broken state too, because the twenty rows F-83 found were well-formed to every tool.
+
+`width()` avoids that by asking a different question: it offers the row to the parser **as a header** and finds the delimiter width the parser will accept beside it. That works because markdown-it refuses the block when the two disagree, in **both** directions — verified directly rather than assumed:
+
+| block                       | parses as a table |
+| --------------------------- | ----------------- |
+| header 2 cells, delimiter 2 | **yes**           |
+| header 2 cells, delimiter 3 | **no**            |
+| header 3 cells, delimiter 2 | **no**            |
+
+So the accepted width is the width the row authored, and the recovered number is independent of the header the row is later compared against — which is why the gate can report _5 cells against 4_ and _3 cells against 4_, two readings a parsed-width comparison structurally cannot produce.
+
+**Pipes are resolved by the parser, and the answers are GFM's rather than intuition's.** I ran both forms through the same parser:
+
+| row | authored width |
+| --- | --- |
+| `\| a \| b \| c \|` with the middle pipe **escaped** | **2** — the escape is honoured |
+| ``\| `a \| b` \| c \|`` with the middle pipe inside a **code span**, unescaped | **3** — a code span does **not** protect a pipe |
+
+The second is the correct GFM reading and it is exactly the D-59/D-66 shape, so the gate treats that row as authoring extra cells rather than as a protected sentence. This is the substantive reason to ask a parser: a hand-written counter would have to encode the escape rule _and_ the fact that the code-span rule does not exist, and it was the second half that produced the two rows F-83's sweep found last.
+
+**The three shapes each make it red**, against the real ledger, each mutation restored:
+
+| mutation | result |
+| --- | --- |
+| add a cell to D-14 | **fails** — `181: 5 cells against 4` |
+| remove a cell from D-14 | **fails** — `181: 3 cells against 4` |
+| unescape D-59's code-span pipes — the original shape | **fails** — `221: 6 cells against 4` |
+
+The third reproduces the exact count I recorded for D-59 in the previous closure, from the row restored to the state it was in.
+
+**The floor holds.** `rows > 150` sits against 245 actual rows across 24 tables. Indenting every table line by one space — a file whose tables stop being recognised — gives `expected 0 to be greater than 150`, so the gate cannot report _nothing wrong_ about a document it failed to read.
+
+### The D-11 repair is structural only
+
+The table's header is `ID · Decision · Why · vs probe 1`, and D-11 authored three cells, so `keeps C-8` rendered under **Why** while **vs probe 1** rendered empty. The repair inserts one empty cell. I checked it is nothing more than that by reconstruction: replacing `|  |` with `|` in the current row reproduces the row at `46c82fda` **byte for byte**. `keeps C-8` now sits in the same column as D-14's `keeps C-15`, which is what that column carries. No wording changed and the decision's substance is untouched.
+
+### The instrument is indexed, and markdown-it is now declared
+
+`tests/COVERAGE.md` gains a row under _The record's own instruments_ naming both the ledger sweep and the excess-cell case, against F-83; `tests/coverage.node.test.ts` resolves both titles, so the citation is checked rather than asserted.
+
+The dependency question has a precise answer. Before `55fa0efa`, `markdown-it` was in the lockfile at `node_modules/markdown-it` **as a transitive of `typedoc`** — resolvable, undeclared, and one typedoc bump away from disappearing under a gate that had no claim on it. It is now a declared devDependency of `@ydinjs/drag2` at **the same 14.3.0**, with `@types/markdown-it` 14.2.0 beside it, so:
+
+- resolution did not change — `14.3.0`, `dev`, before and after;
+- both entries are `dev`, so neither reaches the published package;
+- `dependencies` is still `@ydinjs/box-quad` alone, and the fourteen size rows confirm no byte moved.
+
+### The four residuals
+
+**C-01 — closed.** SC-1's re-derived citation is no longer written inside a code span: it reads `[05 §Measurements — landed 2026-08-02](contract/05-lifecycle-invariants.md)`, and the register's preamble now says the citations are _checked_ rather than only that they resolve. Of the register's eight `§` occurrences, **seven are classified and checked**; the one remaining specimen is O-9's quotation of the repair, which is a quotation. Falsified: repointing SC-1 at `§No Such Heading Exists` fails at `.plan/obligations.md:41`.
+
+**C-02 — closed, and closed in the direction that matters.** D-105's condition is registered as **SC-4** — _a behavior writes more than once per sample, or a device is materially above M-6's ~129 /s primary pace_ — and `LEAD_IN` was rebuilt: it now pairs bold spans first and matches four forms, the three that name the clause plus a **sentence about what would reopen a decision**. The file's own doc block was corrected from _a fourth lead-in nobody has spelled yet_ to _a fifth_, naming C-02 as the instance that was already there. Two new unit cases pin the discrimination, including that an **unbolded** reopening mention in ordinary prose is not a lead-in. Falsified: removing SC-4 from D-105's row fails **twice** — `D-105: **The reopening conditions that remain are both measured quantities**` and `SC-4` — which is the both-directions property working.
+
+**C-03 / F-83 — closed, and the class is empty rather than merely the instances.** All eighteen rows are repaired: D-92…D-105 and D-108…D-111 carry their fourth cell, and D-59/D-66's unescaped code-span pipes are escaped so _repairs D-52; preserves H-2 and D-15_ renders again. The gate reports zero wrong rows over 245.
+
+I also swept for the same defect **outside** the gate's scope, since it reads `00-index.md` alone: all eight contract documents, `obligations.md`, `tests/COVERAGE.md`, `plan.md`, `bundle-structure.md`, `maintainability.md` and `api-surface.md`. **Zero authored-width mismatches anywhere.** So the narrower scope is not hiding an instance today.
+
+**The MNT-04 residue — closed.** `NAMED` now accepts `.md`, `.ts` and `.js`, and a cited source or test file is indexed by its `describe` titles, comment lead-ins and top-level declarations rather than being demoted. Eight citations moved from the history bucket into the checked one — `resolved` 433 → **442**, regex-history 25 → **17** — and the gap between the rule as written in that doc block and the rule as implemented is gone. Falsified both ways on `tests/perf/m6.browser.test.ts:104`: renaming the cited section fails, and repointing it at `free-drag/nowhere.ts` fails.
+
+### The negative properties
+
+- **No production behavior change.** `git diff a6623c85 55fa0efa -- src/` is **empty**; the whole slice's `src/` diff remains comment-only.
+- **No bundle-size movement.** All fourteen byte-exact figures are identical to `42d156d6`, which was identical to `d83ce349` — no row has moved a byte across the slice, the remediation, the residual pass or the safeguard.
+- **Nothing owner-reserved was touched.** `05-lifecycle-invariants.md` is untouched across `a6623c85..55fa0efa`, so **Q-6** stands as re-read and open. The register's _Live_ table diff is empty: **O-1 … O-7** are byte-unchanged, including **F-80** (O-7) and the **`kernel/kernel.ts` split** (O-6). The only register edits are the preamble sentence, SC-1's citation form and the addition of SC-4 — all in the standing-conditions half, which by its own rule is recognised rather than owed.
+
+### Observations, none of them defects
+
+- **The gate's scope is one file and the class is wider**, but the sweep above shows the class currently has no instance outside it. If a later pass widens the scope it will find nothing to fix, which is the right order.
+- **The floor catches a total non-parse, not a partial one.** 150 against 245 leaves room for most of a table family to stop being read. That matches the floors chosen elsewhere in the slice (25 against 33, 150 against 198) and is a deliberate margin rather than an oversight.
+- **`width()` caps its search at twelve cells**, and a wider row returns `undefined`, which is reported as `? cells against N` and fails. Fail-closed, which is the right direction.
+- **One comment reads more loosely than the code behaves.** The unit case _should not miscount a pipe the parser does not read as one_ uses `` `a \| b` `` and says _Escaped, and inside a code span. Both are why this asks the parser_. My probe shows only the **escape** does the work — a code span alone does not protect a pipe, which is precisely why D-59 and D-66 broke. The gate's behaviour is right and probe (c) above proves it; the sentence is the one place in the file where a reader could take away the belief the file exists to correct.
+
+### Reproducibility
+
+Every probe edits, runs and restores; `git status --short` is empty after each and at the close. markdown-it's table semantics were read by parsing constructed blocks from inside the package rather than from the test's own helper, so the parser's behaviour and the helper's use of it are established separately. The parsed-width vacuity result comes from walking markdown-it's own token stream over the real ledger. The D-11 reconstruction compares against `git show 46c82fda:…` rather than against a description of the change. Byte figures use the `budget: 1` substitution on a copy of `bench/size/measure.ts`, restored from that copy.
+
+**LSP plugin - available; not used: this closure turned on markdown parsing semantics, table cell arithmetic and lockfile resolution — none of them a question about a code symbol's definition, references or type.**
