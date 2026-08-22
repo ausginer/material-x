@@ -71,10 +71,20 @@
  * and D-116 both say _Overturned by_ **about** the rule, and neither is a
  * condition.
  *
+ * ## A row renders every cell it authors (F-83)
+ *
+ * The third subject, and it is a rendering failure rather than a reading one.
+ * GFM **discards a row's excess cells** and pads its missing ones, so a row
+ * with one cell too many is well-formed to every tool and silently short one
+ * clause to every reader. Twenty rows in this file were in that state, losing
+ * their whole _Supersedes_ column while the rendered table showed the evidence
+ * half in its place, and nothing failed anywhere.
+ *
  * Source-level and text-based, necessarily: the subject is a document.
  */
 import { access, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import MarkdownIt from 'markdown-it';
 import { describe, expect, it } from 'vitest';
 
 const PACKAGE = resolve(import.meta.dirname, '..');
@@ -273,6 +283,71 @@ function cited(lines: readonly string[]): readonly string[] {
         .flatMap((line) => [...line.matchAll(REFERENCE)].map(([id]) => id)),
     ),
   ];
+}
+
+const markdown = new MarkdownIt('commonmark').enable(['table']);
+
+/** The delimiter row, which is a table's shape and not one of its rows. */
+const DELIMITER = /^\|(?:\s*:?-{2,}:?\s*\|)+$/u;
+
+/**
+ * How many cells a row **authors** — asked of the parser rather than counted.
+ *
+ * A parsed row is always its header's width, because the parser truncates and
+ * pads to it, so comparing parsed lengths would compare one number with
+ * itself: the vacuity F-83 is made of, and D-115 forbids. So the row is
+ * offered to the parser **as a header** instead, whose width the delimiter row
+ * must match for the block to be a table at all. The width the parser accepts
+ * is the width the row authored, with escaped pipes and pipes inside code
+ * spans resolved by the parser and not by this file.
+ */
+function width(row: string): number | undefined {
+  for (let count = 1; count <= 12; count += 1) {
+    const table = `${row}\n|${' --- |'.repeat(count)}\n| x |\n`;
+
+    if (
+      markdown.parse(table, {}).some((token) => token.type === 'table_open')
+    ) {
+      return count;
+    }
+  }
+
+  return undefined;
+}
+
+type Shape = Readonly<{ rows: number; wrong: readonly string[] }>;
+
+/** Every row whose authored width is not the width its own header declares. */
+function shape(lines: readonly string[]): Shape {
+  const wrong: string[] = [];
+  let header = 0;
+  let rows = 0;
+
+  for (const [index, line] of lines.entries()) {
+    if (!line.startsWith('|')) {
+      header = 0;
+      continue;
+    }
+
+    if (DELIMITER.test(line)) {
+      continue;
+    }
+
+    const cells = width(line);
+
+    if (header === 0) {
+      header = cells ?? 0;
+      continue;
+    }
+
+    rows += 1;
+
+    if (cells !== header) {
+      wrong.push(`${index + 1}: ${cells ?? '?'} cells against ${header}`);
+    }
+  }
+
+  return { rows, wrong };
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -575,5 +650,53 @@ describe('the standing conditions', () => {
     // rather than registering one — that is stated in this file's doc block
     // rather than implied by a green row.
     expect(declared.length).toBeGreaterThan(0);
+  });
+});
+
+describe('the ledger tables', () => {
+  const table = (row: string): readonly string[] => [
+    '| A | B |',
+    '| --- | --- |',
+    row,
+  ];
+
+  it('should find a row that authors one cell too many', () => {
+    // **The whole finding.** GFM accepts this row and drops `three`, so the
+    // clause exists where it is written and is absent where it is read.
+    expect(shape(table('| one | two | three |')).wrong).toEqual([
+      '3: 3 cells against 2',
+    ]);
+  });
+
+  it('should find a row that authors one too few', () => {
+    expect(shape(table('| one |')).wrong).toEqual(['3: 1 cells against 2']);
+  });
+
+  it('should not miscount a pipe the parser does not read as one', () => {
+    // Escaped, and inside a code span. Both are why this asks the parser
+    // rather than counting `|` — the two rows F-83's sweep found last were
+    // `HTMLElement \| null` written without the escape.
+    expect(shape(table('| `a \\| b` | two |')).wrong).toEqual([]);
+  });
+
+  it('should count rows against their own header, not the first one', () => {
+    expect(
+      shape([
+        ...table('| one | two |'),
+        '',
+        '| A | B | C |',
+        '| --- | --- | --- |',
+        '| 1 | 2 | 3 |',
+      ]).wrong,
+    ).toEqual([]);
+  });
+
+  it('should give every row of the ledger the width its header declares', async () => {
+    const { rows, wrong } = shape(await index());
+
+    expect(wrong).toEqual([]);
+    // Non-vacuity: the reader really walked the tables. A file whose tables
+    // stopped being recognized would otherwise report nothing wrong.
+    expect(rows).toBeGreaterThan(150);
   });
 });
