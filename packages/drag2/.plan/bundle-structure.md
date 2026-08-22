@@ -296,6 +296,8 @@ It would also invert the instinct D-102 ratified — _an absorbed number is a nu
 - erosion stops being attributable to a named landed change — at which point the number to investigate is the attribution, not the budget; or
 - **L-11 lands.** `plan.md` §Phase 23 books five runtime cells onto two frozen entrypoints, and 05 §Measurements owed makes the frozen export map part of M-3 by construction, so that change re-measures M-3 whether or not it moves a byte. It is the next scheduled re-base event and it is not Phase 22's.
 
+**Carried live as [SC-1](obligations.md) from 2026-08-22 (D-116)**, which is where a later pass reads these three. The register states them in the present tense and re-derives their citations against today's tree: `05 §Measurements owed` was never a heading in 05, so SC-1 cites [`05 §Measurements — landed 2026-08-02`](contract/05-lifecycle-invariants.md), where the frozen export map is one of the six stated reproducibility preconditions. The list above is the wording as decided and stands as it stands.
+
 ## F-77 — two published runtime roots carry no bundled-isolation assertion
 
 **Closed 2026-08-22, by the harness change it asked for and by one it did not.** `drag.js` and `kernel.js` are now declared compositions in [`bench/size/measure.ts`](../bench/size/measure.ts), asserted on every `just size`. **No production code changed**, which was the condition.

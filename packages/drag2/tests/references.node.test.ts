@@ -17,14 +17,24 @@
  *
  * ## Scope is the normative tree, and the tense rule is why it is this narrow
  *
- * `src/`, `tests/`, `bench/`, `.scripts/` and `.plan/contract/` describe the
- * tree as it is **now**, so staleness in them is a defect. Dated history is
- * not: `.plan/reviews/**` and `.plan/measurements/**` were correct when
- * written, and a **decision-ledger row** is a dated act whose reasoning stands
- * as it stood — D-101 still names ~~`src/kernel/dev.ts`~~ and needs no repair,
- * because D-108 supersedes it rather than falsifying it. Ledger rows are
- * therefore skipped **by shape**, not by file: `00-index.md`'s findings,
- * verdict and index prose stay in scope.
+ * `src/`, `tests/`, `bench/`, `.scripts/`, `.plan/contract/` and
+ * `.plan/obligations.md` describe the tree as it is **now**, so staleness in
+ * them is a defect. Dated history is not: `.plan/reviews/**` and
+ * `.plan/measurements/**` were correct when written, and a **decision-ledger
+ * row** is a dated act whose reasoning stands as it stood — D-101 still names
+ * ~~`src/kernel/dev.ts`~~ and needs no repair, because D-108 supersedes it
+ * rather than falsifying it. Ledger rows are therefore skipped **by shape**,
+ * not by file: `00-index.md`'s findings, verdict and index prose stay in scope.
+ *
+ * **The register is the sixth root, and it is why the skip is sound** (D-116).
+ * The tense rule classifies by register and this file skips by container, and
+ * the two coincide everywhere except a decision row, which holds dated
+ * reasoning *and* — in three rows out of one hundred and sixteen — a condition
+ * a later pass must act on. Under D-116 (a) such a clause is not stated there
+ * at all: it is carried in `.plan/obligations.md` §Standing conditions, in the
+ * present tense, and the row cites its `SC-n`. So everything the tense rule
+ * calls live is inside this scope, and the skip is true rather than merely
+ * convenient.
  *
  * The roots are asserted to exist. A scope root that is renamed away would
  * otherwise contribute zero citations and zero failures, which is the
@@ -60,13 +70,14 @@
  * than matching: a resolver that under-matches silently is the same failure one
  * level up.
  */
-import { access, readdir, readFile } from 'node:fs/promises';
+import { access, readdir, readFile, stat } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const PACKAGE = resolve(import.meta.dirname, '..');
 const MONOREPO = resolve(PACKAGE, '../..');
 const CONTRACT = join(PACKAGE, '.plan/contract');
+const REGISTER = join(PACKAGE, '.plan/obligations.md');
 
 /**
  * The normative tree, present tense. `.scripts/` is the monorepo's and is in
@@ -79,9 +90,16 @@ const ROOTS: ReadonlyArray<readonly [string, readonly string[]]> = [
   [join(PACKAGE, 'bench'), ['.ts', '.js', '.md']],
   [CONTRACT, ['.md']],
   [join(MONOREPO, '.scripts'), ['.ts']],
+  // The one `.plan/` file outside `contract/` that is present tense by
+  // construction: it carries the live obligations and the standing conditions
+  // (D-116 (b)). A file rather than a directory, and `walk` reads it as one.
+  [REGISTER, ['.md']],
 ];
 
-/** A decision-ledger row: a dated act, and out of scope by the tense rule. */
+/**
+ * A decision-ledger row: a dated act, and out of scope because D-116 (a) keeps
+ * every live clause out of one — the register carries those, and it is in scope.
+ */
 const LEDGER_ROW = /^\| D-\d+ \|/u;
 
 /**
@@ -99,10 +117,22 @@ const QUALIFIER = /(?:^|[^-\w])(?:contract\s+)?(0[0-7])\s*$/u;
 /**
  * A citation that has already named its target document, as a markdown link
  * immediately before the `§`. Following the link is strictly better than
- * demoting the citation: the record legitimately cites `bundle-structure.md`
- * §Headroom and `q7.md` §Answer 1, and both headings exist.
+ * demoting the citation: the record legitimately cites
+ * `bundle-structure.md §Headroom` and `q7.md §Answer 1`, and both headings
+ * exist. Quoted here rather than cited, because naming a citation is not
+ * making one — the specimen rule below, applied to this block.
  */
 const LINKED = /\]\(([^)]+\.md)\)[^`[\]]{0,3}$/u;
+
+/**
+ * A citation that names its target document **in backticks** — the form the
+ * record reaches for when a link would be noise, and the one MNT-04 found
+ * swallowed: `HISTORY`'s any-backticked-token alternative fired first, so ten
+ * checkable citations were classified as dated history and never resolved. A
+ * document that cannot be located is a failure, not a demotion; that is the
+ * fail-open this closes rather than moves.
+ */
+const NAMED = /`([\w./-]+\.md)`[^`[\]]{0,3}$/u;
 
 /** Where a cited title ends. A citation is checkable as far as it is delimited. */
 const TITLE_END = /^(.*?)(?:[()\][|":]|\*\/|,\s|;\s|\.\s|\s—\s|$)/su;
@@ -145,6 +175,10 @@ async function walk(
   dir: string,
   extensions: readonly string[],
 ): Promise<readonly string[]> {
+  // A root may name one file — the register is a scope root, not a tree.
+  if (!(await stat(dir)).isDirectory()) {
+    return [dir];
+  }
   const entries = (await readdir(dir, { withFileTypes: true })).filter(
     (entry) => entry.name !== 'node_modules' && !entry.name.startsWith('.vite'),
   );
@@ -361,15 +395,26 @@ function scope(): Promise<Scope> {
 
 const linkedDocs = new Map<string, Doc | undefined>();
 
-/** The headings of a document a citation names by link, indexed once. */
-async function linkedDoc(path: string): Promise<Doc | undefined> {
-  if (!linkedDocs.has(path)) {
+/**
+ * The headings of a document a citation names, indexed once. A link is
+ * relative to the citing file; a backticked name is written the way a reader
+ * would say it, so three bases are tried and no search is run — beside the
+ * citing file, at the package root, and in the record. A name that resolves
+ * against none of them fails.
+ */
+async function linkedDoc(dir: string, spec: string): Promise<Doc | undefined> {
+  const key = `${dir}\u0000${spec}`;
+  if (!linkedDocs.has(key)) {
+    const bases = [dir, PACKAGE, join(PACKAGE, '.plan')];
+    const paths = bases.map((base) => resolve(base, spec));
+    const present = await Promise.all(paths.map((path) => exists(path)));
+    const found = paths.find((_, index) => present[index]);
     linkedDocs.set(
-      path,
-      (await exists(path)) ? analyse(await readFile(path, 'utf8')) : undefined,
+      key,
+      found === undefined ? undefined : analyse(await readFile(found, 'utf8')),
     );
   }
-  return linkedDocs.get(path);
+  return linkedDocs.get(key);
 }
 
 /** The source line a paragraph offset came from, for the failure message. */
@@ -438,12 +483,15 @@ async function classify(
   if (number === undefined && /^\d/u.test(after)) {
     return 'history';
   }
-  const linked = number === undefined ? LINKED.exec(before)?.[1] : undefined;
+  const linked =
+    number === undefined
+      ? (LINKED.exec(before)?.[1] ?? NAMED.exec(before)?.[1])
+      : undefined;
   const target =
     number !== undefined
       ? index.contracts.get(number)
       : linked !== undefined
-        ? await linkedDoc(resolve(index.dir, linked))
+        ? await linkedDoc(index.dir, linked)
         : index.shared;
   if (target === undefined) {
     return 'failed';

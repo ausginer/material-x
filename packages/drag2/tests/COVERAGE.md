@@ -767,3 +767,18 @@ The sortable's half of the convention D-90 stated for free drag. `tests/sortable
 | **four members, five sites**: `retire` is reached from the normal retirement and from the construction unwind, so the unwind is driven by its own row | _should hand the construction unwind a foreign receiver_ | D-93 |
 | the aggregate the recorded falsifier is stated against — all four lifts re-bound must not leave the suite green | _should never hand any site the geometry record_ | D-92 |
 | the first-party axis rules still work through the same lifted sites — **recorded as non-discriminating controls, not as evidence**, since both close over their state and pass under the reversion that fails every row above | _should leave y() working through the same lifted sites_, _should leave xy() working through the same lifted sites_ | D-92, F-74 |
+
+## The record's own instruments — new (2026-08-22, D-112, D-113, D-115, D-116)
+
+Three instruments whose subject is the record rather than the runtime, indexed here because this file is where an assertion is paired with the clause it discharges — and because `tests/coverage.node.test.ts` checks one direction only, so an instrument absent from this table is invisible to it rather than reported (MNT-07).
+
+| Row | Test | ID |
+| --- | --- | --- |
+| every scope root the resolver names exists, so a root renamed away cannot contribute zero citations and zero failures | `tests/references.node.test.ts` — _should scan every scope root D-112 names_ | D-112, D-115 |
+| every contract citation in the normative tree resolves to a heading or a declared row id, and every `§` is classified rather than skipped | `tests/references.node.test.ts` — _should carry contract citations that all resolve_ | D-112, F-81 |
+| every backticked repository path in that tree resolves on disk, and a deliberately retired one is struck through | `tests/references.node.test.ts` — _should carry repository paths that all resolve on disk_ | D-112 |
+| the module-graph parser understands every import form the source actually uses, so the ship-list and isolation assertions cannot pass over a specifier it silently dropped | `tests/packaging.node.test.ts` — _should understand every import form the source actually uses_ | D-115, M-05 |
+| the published declarations carry no doc block with no subject, with the one legitimate exemption recognised by the block's own struck subject rather than by its position | `tests/packaging.node.test.ts` — _should publish no doc block that documents nothing_ | D-113, MNT-01, MNT-02 |
+| no live condition is stated inside a decision-ledger row, which is what makes the resolver's row-shape skip sound | `tests/decisions.node.test.ts` — _should state no live condition inside a decision row_ | D-116 |
+| the ledger cites only conditions the register declares, and the register carries none the ledger never cites | `tests/decisions.node.test.ts` — _should cite only conditions the register declares_, _should carry no condition the ledger never cites_ | D-116 |
+| the lead-in reader answers each condition in a row separately and reads a quoted mention as a quotation | `tests/decisions.node.test.ts` — _should answer both conditions in a row separately_, _should read a quoted mention as a quotation rather than a condition_, _should refuse a lead-in that names none_ | D-116, D-112 |

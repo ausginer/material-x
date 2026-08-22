@@ -394,44 +394,63 @@ describe('the published file list', () => {
     // ever tell it that it is wrong. It is invisible by construction, and it is
     // copied into the artifact a consumer installs.
     //
-    // Two orphans are legitimate and both are **recognizable rather than
-    // listed**. A **module header** is the first block of its `//#region` and
-    // documents the module, which is a subject. A **marked** block carries
-    // strike-through — the retirement marker D-112 uses for a reference, here
-    // for a declaration: `~~SortableCallbacks~~` is deleted, and saying so is
-    // the block's whole point. Anything else orphaned is prose that outlived
-    // what it described.
+    // **One orphan is legitimate and it is recognizable rather than listed.** A
+    // **marked** block opens by naming something deleted — `~~SortableCallbacks~~`
+    // _is deleted_ — which is the retirement marker D-112 uses for a reference,
+    // here for a declaration: the block's subject is gone and saying so is its
+    // whole point. Anything else orphaned is prose that outlived what it
+    // described.
+    //
+    // **Three escapes were closed 2026-08-22 (MNT-02), and one of them by
+    // deleting the rule rather than tightening it.** A single-line `/** … */`
+    // set the block start and was then overwritten by the next `/**`, so 71 of
+    // the 200 emitted blocks were never classified at all. The marked exemption
+    // fired on `~~` anywhere in the block, which exempts nine live blocks —
+    // including `SortableInstaller`'s own surviving JSDoc, so the very block
+    // D-113 was created for would have exempted itself if it were orphaned
+    // again; it now reads the block's first line, which is its subject. And a
+    // **module header** used to be exempt by position, first-block-of-a-region:
+    // that is textually indistinguishable from an orphan injected there, so the
+    // exemption is removed and the two headers are `//` comments in source
+    // instead — D-113's own repair to `kernel/spec.ts`, applied to the same
+    // shape.
     const orphans: string[] = [];
     const emitted = await declarations(ROOT);
     const read = await Promise.all(
       emitted.map((file) => readFile(file, 'utf8')),
     );
+    let blocks = 0;
+    let marked = 0;
     for (const [ordinal, file] of emitted.entries()) {
       const lines = read[ordinal]!.split('\n');
-      let region = false;
       let start = -1;
       for (const [index, line] of lines.entries()) {
         const text = line.trim();
-        if (text.startsWith('//#region')) {
-          region = true;
-          continue;
-        }
         if (text.startsWith('/**')) {
           start = index;
+          // A one-line block opens and closes here, and is classified here.
+          if (!text.endsWith('*/')) {
+            continue;
+          }
+        } else if (text !== '*/' || start < 0) {
           continue;
         }
-        if (text !== '*/' || start < 0) {
-          continue;
-        }
-        const header = region;
-        region = false;
+        blocks += 1;
         let next = index + 1;
         while (next < lines.length && lines[next]!.trim() === '') {
           next += 1;
         }
         const orphaned = lines[next]?.trim().startsWith('/**') ?? true;
-        const marked = lines.slice(start, index).some((l) => l.includes('~~'));
-        if (orphaned && !header && !marked) {
+        // The subject, not the prose: a deletion note opens with the struck
+        // name of the thing it is about.
+        const subject = (
+          start === index
+            ? text.slice(3)
+            : (lines[start + 1] ?? '').trim().replace(/^\*\s?/u, '')
+        ).trim();
+        const retired = subject.startsWith('~~');
+        marked += retired ? 1 : 0;
+        if (orphaned && !retired) {
           orphans.push(`${relative(ROOT, file)}:${start + 1}`);
         }
         start = -1;
@@ -439,6 +458,14 @@ describe('the published file list', () => {
     }
 
     expect(orphans).toEqual([]);
+    // **Non-vacuity, and it is the reason MNT-01 was a finding** (D-115). The
+    // emitted tree is untracked, so a fresh clone before `just build` has none
+    // of it and this row read one file and passed. Both floors are well under
+    // the 33 declarations and 200 blocks the built tree carries, and the third
+    // asserts the one exemption is exercised rather than merely available.
+    expect(emitted.length).toBeGreaterThan(25);
+    expect(blocks).toBeGreaterThan(150);
+    expect(marked).toBeGreaterThan(0);
   });
 
   it('should publish no declaration the entries cannot reach', async () => {
