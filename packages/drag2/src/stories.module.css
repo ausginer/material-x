@@ -11,6 +11,7 @@
   margin: 0;
   font-size: 13px;
   color: #49454f;
+  max-width: min(480px, 90vw);
 }
 
 .zoomed {
