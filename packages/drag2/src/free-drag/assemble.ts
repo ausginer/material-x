@@ -51,9 +51,9 @@ const LIFT_MODES: Readonly<Record<FreeDragLift, LiftMode>> = {
  * Single-writer enforcement, checked with the full contribution in hand so the
  * diagnostic can name the slot rather than only the second writer's position.
  *
- * The message says "twice" rather than naming a tier, because the pair is not
- * always two plugins — it can be a plugin against `bounds()` — and a diagnostic
- * that guesses wrong is worse than one that does not guess.
+ * The identity names the duplication rather than a tier, because the pair is
+ * not always two plugins — it can be a plugin against `bounds()` — and a
+ * diagnostic that guesses wrong is worse than one that does not guess.
  */
 const claim = <T>(
   current: T | null,
@@ -65,7 +65,7 @@ const claim = <T>(
   }
 
   if (current !== null) {
-    throw new TypeError(`free drag: ${label} contributed twice`);
+    throw new TypeError(`drag: free-drag/duplicate-contribution ${label}`);
   }
 
   return next;

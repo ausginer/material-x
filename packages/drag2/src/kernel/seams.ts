@@ -337,9 +337,7 @@ export function createSeamDriver<Part extends object>(
    */
   const refuseReentry = (): void => {
     if (openStage !== NO_STAGE) {
-      reentry = new Error(
-        'drag: a seam was re-entered from inside another seam; kernel work must be queued, never called directly',
-      );
+      reentry = new Error('drag: seam/re-entered');
       throw reentry;
     }
   };
@@ -423,11 +421,7 @@ export function createSeamDriver<Part extends object>(
         // it from being *invisible*. A staged value still sitting here means the
         // previous seam neither consumed nor dropped it, which is the one way a
         // command can outlive its transaction.
-        report(
-          new Error(
-            'drag: a seam staged a value its owner never consumed; the value is dropped',
-          ),
-        );
+        report(new Error('drag: seam/staged-unconsumed'));
       }
 
       staged = null;
@@ -517,8 +511,8 @@ export function createSeamDriver<Part extends object>(
         report(
           new Error(
             openStage === BEST_EFFORT
-              ? 'drag: host.fail() during rollback is not classified; the operation is already abandoned'
-              : 'drag: host.fail() outside a seam is not classified; it cannot know which operation is live',
+              ? 'drag: seam/fail-during-rollback'
+              : 'drag: seam/fail-outside-seam',
           ),
         );
 

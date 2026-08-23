@@ -44,9 +44,7 @@ export function copyUniqueItems(
   const copy = [...items];
 
   if (new Set(copy).size !== copy.length) {
-    throw new TypeError(
-      'drag: the sortable collection must not contain the same element twice',
-    );
+    throw new TypeError('drag: sortable/duplicate-item');
   }
 
   return copy;

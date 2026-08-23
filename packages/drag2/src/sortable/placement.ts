@@ -263,9 +263,7 @@ export function createPlaceholder(
     placeholder === visual ||
     placeholder.isConnected
   ) {
-    throw new TypeError(
-      'drag: placeholder() must return a detached element that is neither the dragged item nor its visual',
-    );
+    throw new TypeError('drag: sortable/placeholder-not-detached');
   }
 
   applyMechanics(placeholder, item, footprint, live, undo);
@@ -335,9 +333,9 @@ export function movePlaceholder(
   const anchor = after ?? insertion.before!;
 
   if (anchor.parentNode !== placeholder.parentNode) {
-    throw new Error(
-      'drag: the insertion anchor is not in the placeholder’s container; refusing to move the placeholder out of the list',
-    );
+    // Refused rather than obeyed: following the anchor would move the
+    // placeholder out of the list it belongs to.
+    throw new Error('drag: sortable/anchor-outside-container');
   }
 
   if (after !== null) {

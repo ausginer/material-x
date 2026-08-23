@@ -526,11 +526,7 @@ export function createFreeDragSpec(
           // consumer's arithmetic, which is worse than the poisoning it
           // replaces. The misuse still surfaces, on the platform reporter.
           if (!Number.isFinite(x) || !Number.isFinite(y)) {
-            report(
-              new Error(
-                'drag: moveTo() was given a point that is not finite; the call was discarded',
-              ),
-            );
+            report(new Error('drag: free-drag/move-to-not-finite'));
 
             return null;
           }
@@ -583,7 +579,7 @@ export function createFreeDragSpec(
         if (visual === null || origin === null) {
           return rejection(
             FAILURE_RELEASE,
-            'drag: released a free drag with no lifted visual',
+            'drag: free-drag/release-no-visual',
           );
         }
 
@@ -678,7 +674,7 @@ export function createFreeDragSpec(
             // declined, which is a broken invariant rather than a drop.
             return rejection(
               FAILURE_RESOLUTION,
-              'drag: a free drag settled as skipped, which it never declines',
+              'drag: free-drag/settled-skipped',
             );
           }
 
@@ -688,7 +684,7 @@ export function createFreeDragSpec(
             if (!isFreeDragResolution(value)) {
               return rejection(
                 FAILURE_RESOLUTION,
-                'drag: onDrop resolved with a value that is not a FreeDragResolution',
+                'drag: free-drag/drop-resolution-invalid',
               );
             }
 
@@ -875,9 +871,7 @@ export function createFreeDragSpec(
       const { y } = home;
 
       if (!Number.isFinite(x) || !Number.isFinite(y)) {
-        throw new Error(
-          'drag: the home resolver returned a point that is not finite',
-        );
+        throw new Error('drag: free-drag/home-not-finite');
       }
 
       return { x, y };

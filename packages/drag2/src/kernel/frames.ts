@@ -165,14 +165,12 @@ export function validateFramePart(part: object): void {
     // `Object.assign` copies enumerable symbols, but the `Object.keys`-based
     // reset and dev checks never see them — so a symbol-keyed DOM reference
     // would survive every scrub.
-    throw new TypeError('drag: a frame part may not declare a symbol key');
+    throw new TypeError('drag: frame/part-symbol-key');
   }
 
   for (const key of Object.getOwnPropertyNames(part)) {
     if (KERNEL_FRAME_KEY_SET.has(key)) {
-      throw new TypeError(
-        `drag: a frame part may not declare the kernel frame key "${key}"`,
-      );
+      throw new TypeError(`drag: frame/part-kernel-key ${key}`);
     }
 
     if (key === '__proto__') {
@@ -180,7 +178,7 @@ export function validateFramePart(part: object): void {
       // through `defineProperty` — makes `Object.assign` invoke the target's
       // inherited `__proto__` setter and mutate the frame's prototype instead
       // of adding a field.
-      throw new TypeError('drag: a frame part may not declare "__proto__"');
+      throw new TypeError('drag: frame/part-proto-key');
     }
   }
 }
@@ -274,7 +272,7 @@ export function captureFrameKeys(frame: object): readonly string[] {
 export function assertFrameShapesMatch(a: object, b: object): void {
   assert(
     sameKeys(Object.keys(a), Object.keys(b)),
-    'drag: the two frames have different shapes — a part factory is not deterministic',
+    'drag: frame/shape-mismatch',
   );
 }
 
@@ -289,7 +287,7 @@ function validateFrameDescriptors(
       'value' in descriptor &&
         descriptor.enumerable === true &&
         descriptor.writable === true,
-      `drag: the frame key "${key}" was redefined after arm()`,
+      `drag: frame/key-redefined ${key}`,
     );
   }
 }
@@ -311,10 +309,7 @@ export function assertFrameScrubbed(
 ): void {
   const keys: readonly string[] = Object.keys(frame);
 
-  assert(
-    sameKeys(keys, armedKeys),
-    'drag: resetFramePart changed the frame shape',
-  );
+  assert(sameKeys(keys, armedKeys), 'drag: frame/scrub-shape-changed');
 
   validateFrameDescriptors(frame, keys);
 
@@ -323,7 +318,7 @@ export function assertFrameScrubbed(
 
     assert(
       typeof value !== 'object' || value === null,
-      `drag: reset left a reference in "${key}"`,
+      `drag: frame/scrub-retained ${key}`,
     );
   }
 }

@@ -68,11 +68,7 @@ export function createLifetime(): Lifetime {
       // never runs. So run it now and report (contract 02 §Registration after
       // closure).
       if (finalized) {
-        report(
-          new Error(
-            'drag: lifetime.use() after dispose; releasing immediately',
-          ),
-        );
+        report(new Error('drag: lifetime/use-after-dispose'));
 
         try {
           disposer();

@@ -42,10 +42,10 @@ const claim = <T>(
     // collide on a named capability *slot* — the merge resolved those before
     // anything ran — but two *installers* can still contribute the same
     // single-writer member, either plugin-to-plugin or plugin-to-axis. The
-    // message says "twice" rather than naming a tier, because the pair is not
-    // always two plugins and a diagnostic that guesses wrong is worse than one
-    // that does not guess.
-    throw new TypeError(`sortable: ${label} contributed twice`);
+    // identity names the duplication rather than a tier, because the pair is
+    // not always two plugins and a diagnostic that guesses wrong is worse than
+    // one that does not guess.
+    throw new TypeError(`drag: sortable/duplicate-contribution ${label}`);
   }
 
   return next;

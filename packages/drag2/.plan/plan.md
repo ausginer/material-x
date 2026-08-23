@@ -1384,6 +1384,41 @@ Eight further passes followed the second remediation — [2-claude](reviews/chec
 
 **The budgets re-base against the landed build, not against −502.** The joint figure was measured with the gating this closure declines and with one implementer's tokens, so it is an upper bound. No row goes negative, so **SC-1 does not fire**, and the re-base is M-3′'s ordinary one.
 
+### The D-117 remediation, landed 2026-08-23
+
+**Thirty-nine classified sites, message text only.** Every shipped narrative diagnostic is now `drag: <area>/<condition>` under the single prefix, with the offending value interpolated where the site has one. `errors.ts`'s formatting fallback and `verified-refresh.ts`'s one gated sentence were out of scope and are byte-identical. **No check, branch, lifecycle path, outcome, failure classification, gate or declared tier moved** — the closure's boundary held, and the diff is strings, the comments that now hold what the strings said, and the tests and contracts that quoted them.
+
+**Tokens name the condition, never the verdict.** `sortable/release-no-proposal` rather than `sortable/release-invariant`, exactly as 05 §The message is an identity requires — which matters most at the four sortable release faults, whose provenance the closure settled by default rather than by proof.
+
+**Where the derivation rule needed a second reading.** Two placeholder losses at different instants — one at insertion, one at the reorder commit — produce the same subject and different branches, and are `sortable/insertion-placeholder-lost` and `sortable/landing-placeholder-lost`. D-117 (c) claims a token is derivable from the site without editorial judgment; that holds, but the site has to be read as _which branch_ rather than _which subject_, and this pair is where a second implementer would most easily diverge.
+
+**Measured jointly, once, against the pre-slice tree at `76176da8`** — never summed from the per-class ranks, which the measurement shows understate the whole by 2–9 %.
+
+| Row                         | pre-slice | landed | Δ brotli | Δ minified |
+| --------------------------- | --------- | ------ | -------- | ---------- |
+| minimal                     | 11,162    | 10,706 | **−456** | −1,238     |
+| minimal (xy)                | 10,807    | 10,364 | **−443** | −1,238     |
+| + layoutAnimation           | 11,589    | 11,152 | **−437** | −1,238     |
+| + landing                   | 11,449    | 10,979 | **−470** | −1,255     |
+| complete                    | 11,859    | 11,405 | **−454** | −1,255     |
+| free drag minimal           | 8,768     | 8,468  | **−300** | −913       |
+| free drag + bounds          | 8,922     | 8,617  | **−305** | −913       |
+| free drag + landing         | 9,066     | 8,748  | **−318** | −930       |
+| free drag complete          | 9,217     | 8,902  | **−315** | −930       |
+| both behaviors              | 13,418    | 12,918 | **−500** | −1,387     |
+| vocabulary root — `drag.js` | 121       | 121    | **0**    | 0          |
+| kernel root — `kernel.js`   | 6,598     | 6,332  | **−266** | −781       |
+| baseline A                  | 11,583    | 11,142 | **−441** | −1,265     |
+| baseline B — shipped        | 6,889     | 6,889  | **0**    | 0          |
+
+**The landed figure sits inside the closure's −350…−547 B rather than at it, and that is the expected place for it.** The joint ablation gated the P2 kernel sites, which this slice declines, and used one implementer's token lengths; both were named as upper-bound terms before anything landed. Nothing here is compared against the audit's retired 851–949 B.
+
+**`drag.js` did not move, and it is the row that was built to notice if it had.** The classification never reaches `DraggableError`'s constructor, so the control row is byte-identical at 121 B and keeps its deliberately tight 29 B budget. That is the boundary's own falsifier passing, not an absence of evidence.
+
+**The budgets re-base down.** Landed slack was 618–932 B — four to six times the ~150 B convention, which is sized to notice one module entering a graph and stops doing that at six times the width. Every measured row returns to landed + ~150 B; `drag.js` keeps 29 B and baseline B keeps its 151 B, since neither moved. Rationale in [`bench/size/measure.ts`](../bench/size/measure.ts) §`budget`, with the pre-slice column recorded beside the landed one as API-01 requires.
+
+**The suite conceded the point rather than being argued with.** Twenty-seven assertions across eleven files re-pointed to identities, and the thirteen re-entry assertions did not move at all — they match `/re-entered/u`, and `drag: seam/re-entered` still contains it. `tests/consumer.node.test.ts` keeps D-108's meaning exactly and now reads the packed identities instead of the packed sentences; `tests/kernel/vocabulary.node.test.ts` is untouched, because no tier acquired a binding. Two present-tense contract documents that quoted the old strings were corrected with them — 04 §Dev-only invariants' code block and 05's three-prefix sentence — which is F-84's lesson applied in the same pass that would otherwise have created it again.
+
 **Relocated from its original position.** `reviews/finalization-review/` exists as an empty directory and was implicitly scoped to the vertical-sortable slice. Run there it would have reviewed a package about to grow a second behavior, a second input mode, a second axis and a revised settlement protocol — the wrong artifact, reviewed at the moment its findings had the shortest shelf life.
 
 **It also does not belong before Phase 22.** Checkpoint E is the _architectural_ review and it deliberately precedes refinement so its findings feed the pass. The finalization review's distinct job is **product-level and final**: the complete public surface, the documentation, the migration story, and the set of open questions — reviewed on the artifact that will actually ship.

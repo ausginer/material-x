@@ -23,7 +23,7 @@ export function createRealm(element: Element): DOMRealm {
   const view = document.defaultView;
 
   if (!view) {
-    throw new Error('drag: element has no owning window (detached document).');
+    throw new Error('drag: realm/no-owning-window');
   }
 
   return {

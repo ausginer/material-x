@@ -762,9 +762,9 @@ describe('discrete admission', () => {
     // and the second would find the first's operation already committed —
     // silently, and only sometimes.
     const cases: Array<readonly [readonly string[], RegExp]> = [
-      [[], /must not be empty/u],
-      [[''], /non-empty strings/u],
-      [['pointerdown'], /pointer ingress/u],
+      [[], /spec\/command-types-empty/u],
+      [[''], /spec\/command-type-empty/u],
+      [['pointerdown'], /spec\/command-type-pointerdown/u],
     ];
 
     for (const [types, message] of cases) {

@@ -1155,9 +1155,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // *visual* and was already pointer-independent.
       if (current.pointerId !== -1) {
         if (!root.isConnected) {
-          throw new Error(
-            'drag: the ingress root left the document before activation; pointer capture cannot be acquired',
-          );
+          throw new Error('drag: activation/root-disconnected');
         }
 
         owned.motion.use(acquirePointerCapture(root, current.pointerId));
@@ -1308,11 +1306,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   ): SettlementScope => ({
     holdForLanding(start): void {
       if (attempt.sealed || attempt.landingHeld) {
-        report(
-          new Error(
-            'drag: holdForLanding() was called twice or after the settlement scope sealed; ignored',
-          ),
-        );
+        report(new Error('drag: settlement/hold-unavailable'));
         return;
       }
 
@@ -2339,11 +2333,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         // Reported and dropped, never enqueued: the kernel computes
         // `BEHAVIOR_BASE + tag`, so a negative or fractional tag would alias a
         // kernel action.
-        report(
-          new Error(
-            `drag: dispatch(${String(tag)}) is outside the declared action tag range`,
-          ),
-        );
+        report(new Error(`drag: dispatch/tag-out-of-range ${String(tag)}`));
         return;
       }
 
@@ -2377,9 +2367,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
           !Number.isInteger(next.config.actionTags) ||
           next.config.actionTags < 0
         ) {
-          throw new TypeError(
-            'drag: config.actionTags must be a non-negative integer',
-          );
+          throw new TypeError('drag: spec/action-tags-invalid');
         }
 
         // Static spec data, validated once, exactly as `actionTags` is (D-32).
@@ -2391,7 +2379,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
           const { types } = next.command;
 
           if (types.length === 0) {
-            throw new TypeError('drag: command.types must not be empty');
+            throw new TypeError('drag: spec/command-types-empty');
           }
 
           // **Two checks left this loop on 2026-08-22.** `typeof type !==
@@ -2404,15 +2392,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
           // the type admits and a listener for `''` is not what anyone wrote.
           for (const type of types) {
             if (type === '') {
-              throw new TypeError(
-                'drag: command.types must contain non-empty strings',
-              );
+              throw new TypeError('drag: spec/command-type-empty');
             }
 
             if (type === POINTER_DOWN) {
-              throw new TypeError(
-                `drag: command.types must not contain "${POINTER_DOWN}", which the kernel binds for its own pointer ingress`,
-              );
+              throw new TypeError('drag: spec/command-type-pointerdown');
             }
           }
         }

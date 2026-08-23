@@ -2279,7 +2279,7 @@ describe('collection identity', () => {
 
     expect(() =>
       draggable(root, createSortableBehavior([item, item], EMPTY_SLOTS)),
-    ).toThrow(/same element twice/u);
+    ).toThrow(/sortable\/duplicate-item/u);
   });
 
   it('should refuse a duplicated element the pull source returned', () => {
@@ -2297,7 +2297,7 @@ describe('collection identity', () => {
     // Idle: there is no operation to settle, so the classified failure reaches
     // the platform report rather than a terminal callback.
     expect(reported).toHaveLength(1);
-    expect(String(reported[0])).toMatch(/same element twice/u);
+    expect(String(reported[0])).toMatch(/sortable\/duplicate-item/u);
     expect(harness.snapshot().version).toBe(0);
   });
 

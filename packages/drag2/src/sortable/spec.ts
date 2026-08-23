@@ -779,9 +779,7 @@ export function createSortableSpec(
           !placeholder.isConnected ||
           item.nextElementSibling !== placeholder
         ) {
-          throw new Error(
-            'drag: the placeholder did not survive insertion — it was removed or reparented before activation completed',
-          );
+          throw new Error('drag: sortable/insertion-placeholder-lost');
         }
 
         // **The pre-publication revalidation, and the one reading that covers
@@ -1224,7 +1222,7 @@ export function createSortableSpec(
         if (view === null || item === null || snapshot === null) {
           return rejection(
             FAILURE_RELEASE,
-            'drag: released an operation with no published presentation',
+            'drag: sortable/release-no-presentation',
           );
         }
 
@@ -1253,7 +1251,7 @@ export function createSortableSpec(
           if (commanded === null) {
             return rejection(
               FAILURE_RELEASE,
-              'drag: a command reached release with no destination',
+              'drag: sortable/release-no-destination',
             );
           }
 
@@ -1298,7 +1296,7 @@ export function createSortableSpec(
           if (resolved === null) {
             return rejection(
               FAILURE_RELEASE,
-              'drag: released with no insertion',
+              'drag: sortable/release-no-insertion',
             );
           }
 
@@ -1314,7 +1312,7 @@ export function createSortableSpec(
           // drag completed normally.
           return rejection(
             FAILURE_RELEASE,
-            'drag: the resolved insertion does not describe a gap in the released snapshot',
+            'drag: sortable/release-no-proposal',
           );
         }
 
@@ -1425,7 +1423,7 @@ export function createSortableSpec(
             if (!isReorderResolution(value)) {
               return rejection(
                 FAILURE_RESOLUTION,
-                'drag: onReorder resolved with a value that is not a ReorderResolution',
+                'drag: sortable/reorder-resolution-invalid',
               );
             }
 
@@ -1645,9 +1643,9 @@ export function createSortableSpec(
         !placeholder.isConnected ||
         placeholder.parentElement !== item.parentElement
       ) {
-        throw new Error(
-          'drag: the placeholder was detached or moved out of the list during the reorder commit, so the landing target cannot be measured; the reorder itself is unaffected',
-        );
+        // The landing target cannot be measured. The reorder itself already
+        // committed and is unaffected.
+        throw new Error('drag: sortable/landing-placeholder-lost');
       }
 
       const rect = placeholder.getBoundingClientRect();

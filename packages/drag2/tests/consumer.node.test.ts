@@ -1387,8 +1387,8 @@ describe('the packed package', () => {
     // These were `__DEV__`-gated on the premise that behavior authoring is not
     // public, which Revision 2.1 voided — `kernel/frames.js` shipped
     // `function assertFrameShapesMatch(a, b) {}`, an empty stub the author
-    // cannot fill (F-78). Asserted on the packed *message text* rather than on
-    // the source, because the gate was invisible everywhere else in this suite:
+    // cannot fill (F-78). Asserted on the packed *message identity* (D-117)
+    // rather than on the source, because the gate was invisible everywhere else in this suite:
     // the repository builds `__DEV__` as `true`, so every in-repo fixture ran
     // the checks that the published build had folded away.
     const [frames, seams] = await Promise.all(
@@ -1397,11 +1397,11 @@ describe('the packed package', () => {
       ),
     );
 
-    expect(frames).toContain('a part factory is not deterministic');
-    expect(frames).toContain('resetFramePart changed the frame shape');
-    expect(frames).toContain('reset left a reference');
-    expect(seams).toContain('never consumed');
-    expect(seams).toContain('is not classified');
+    expect(frames).toContain('drag: frame/shape-mismatch');
+    expect(frames).toContain('drag: frame/scrub-shape-changed');
+    expect(frames).toContain('drag: frame/scrub-retained');
+    expect(seams).toContain('drag: seam/staged-unconsumed');
+    expect(seams).toContain('drag: seam/fail-outside-seam');
   });
 
   it('should declare no subpath into the kernel directory', () => {

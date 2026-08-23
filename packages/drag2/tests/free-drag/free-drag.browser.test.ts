@@ -566,6 +566,6 @@ describe('construction', () => {
       freeDrag(item, { onDrop: () => FreeDragResolution.accept() }, bounds(), {
         plugins: [bounds().bounds!],
       }),
-    ).toThrow(/contributed twice/u);
+    ).toThrow(/free-drag\/duplicate-contribution/u);
   });
 });

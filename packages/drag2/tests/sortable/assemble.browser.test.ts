@@ -352,7 +352,9 @@ describe('assemble validation', () => {
         config({}, feature({ insertion: geometry() })),
         createFixture().context,
       ),
-    ).toThrow(new TypeError('sortable: insertion geometry contributed twice'));
+    ).toThrow(
+      new TypeError('drag: sortable/duplicate-contribution insertion geometry'),
+    );
   });
 
   it('should name the slot that was claimed twice', () => {
@@ -367,7 +369,7 @@ describe('assemble validation', () => {
         config({}, feature({ startLanding }), feature({ startLanding })),
         createFixture().context,
       ),
-    ).toThrow(new TypeError('sortable: landing contributed twice'));
+    ).toThrow(new TypeError('drag: sortable/duplicate-contribution landing'));
   });
 });
 
@@ -433,7 +435,7 @@ describe('assemble unwind', () => {
         ),
         fixture.context,
       ),
-    ).toThrow(/insertion geometry contributed twice/u);
+    ).toThrow(/sortable\/duplicate-contribution insertion geometry/u);
 
     expect(seen).toEqual(['plugin', 'axis']);
   });

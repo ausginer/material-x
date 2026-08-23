@@ -269,7 +269,7 @@ Properties the type system cannot prove. **The heading is now a misnomer and is 
   const b = Object.keys(draft);
   assert(
     a.length === b.length && a.every((k, i) => k === b[i]),
-    'drag: the two frames have different shapes — a part factory is not deterministic',
+    'drag: frame/shape-mismatch',
   );
 
   // Reset shape stability. Checked after every scrub, against the key set
@@ -278,7 +278,7 @@ Properties the type system cannot prove. **The heading is now a misnomer and is 
   assert(
     keys.length === armedKeys.length &&
       keys.every((k, i) => k === armedKeys[i]),
-    'drag: resetFramePart changed the frame shape',
+    'drag: frame/scrub-shape-changed',
   );
 
   // A key-set comparison cannot see a *redefinition* — a field turned into an
@@ -291,7 +291,7 @@ Properties the type system cannot prove. **The heading is now a misnomer and is 
     const v = (frame as Record<string, unknown>)[key];
     assert(
       typeof v !== 'object' || v === null,
-      `drag: reset left a reference in "${key}"`,
+      `drag: frame/scrub-retained ${key}`,
     );
   }
 }

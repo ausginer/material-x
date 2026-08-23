@@ -972,7 +972,7 @@ describe('staged value', () => {
     // is silent.
     expect(harness.reported).toHaveLength(1);
     expect(harness.reported[0]).toMatchObject({
-      message: expect.stringContaining('never consumed'),
+      message: expect.stringContaining('seam/staged-unconsumed'),
     });
   });
 });

@@ -517,9 +517,10 @@ export function acquireLift(
   const measured = box();
 
   if (!coordinates(visual, measured)) {
-    throw new Error(
-      'drag: the dragged visual has no readable box space (disconnected, fragmented, or 3D-transformed).',
-    );
+    // No readable box space: the visual is disconnected, fragmented across
+    // lines, or inside a 3D-transformed subtree, so there is no single rect to
+    // lift from.
+    throw new Error('drag: presentation/visual-no-box-space');
   }
 
   // **Read before anything mutates, published for every mode.** The in-place

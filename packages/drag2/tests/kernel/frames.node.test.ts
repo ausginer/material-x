@@ -44,7 +44,9 @@ describe('validateFramePart', () => {
   });
 
   it('should reject a part declaring a kernel frame key', () => {
-    expect(() => validateFramePart({ phase: 0 })).toThrow(/kernel frame key/u);
+    expect(() => validateFramePart({ phase: 0 })).toThrow(
+      /frame\/part-kernel-key/u,
+    );
   });
 
   it('should name the colliding kernel key', () => {
@@ -61,7 +63,7 @@ describe('validateFramePart', () => {
       configurable: true,
     });
 
-    expect(() => validateFramePart(part)).toThrow(/__proto__/u);
+    expect(() => validateFramePart(part)).toThrow(/frame\/part-proto-key/u);
   });
 
   it('should reject a symbol key', () => {
@@ -160,7 +162,7 @@ describe('composeFrame', () => {
     };
 
     expect(() => composeFrame(drifting)).not.toThrow();
-    expect(() => composeFrame(drifting)).toThrow(/kernel frame key/u);
+    expect(() => composeFrame(drifting)).toThrow(/frame\/part-kernel-key/u);
   });
 
   it('should produce two frames with an identical key set', () => {
@@ -250,7 +252,7 @@ describe('assertFrameShapesMatch', () => {
     const draft = composeFrame(() => incomplete as unknown as ExamplePart);
 
     expect(() => assertFrameShapesMatch(current, draft)).toThrow(
-      /different shapes/u,
+      /frame\/shape-mismatch/u,
     );
   });
 });
@@ -266,7 +268,7 @@ describe('assertFrameScrubbed', () => {
     });
 
     expect(() => assertFrameScrubbed(frame, armedKeys)).toThrow(
-      /changed the frame shape/u,
+      /frame\/scrub-shape-changed/u,
     );
   });
 
@@ -279,7 +281,7 @@ describe('assertFrameScrubbed', () => {
     });
 
     expect(() => assertFrameScrubbed(frame, armedKeys)).toThrow(
-      /changed the frame shape/u,
+      /frame\/scrub-shape-changed/u,
     );
   });
 
@@ -308,7 +310,7 @@ describe('assertFrameScrubbed', () => {
     });
 
     expect(() => assertFrameScrubbed(frame, armedKeys)).toThrow(
-      /reset left a reference in "item"/u,
+      /frame\/scrub-retained item/u,
     );
   });
 

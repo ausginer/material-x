@@ -856,7 +856,7 @@ describe('construction across the whole boundary', () => {
         axis: parts.axis,
         plugins: [parts.plugin],
       }),
-    ).toThrow(/same element twice/u);
+    ).toThrow(/sortable\/duplicate-item/u);
 
     // **Not `retired` — `ran`.** A wider bracket would also leave `retired`
     // equal to `['plugin']`, and the two arrangements are indistinguishable by
@@ -937,7 +937,7 @@ describe('construction across the whole boundary', () => {
 
       void slots;
       copyUniqueItems(config.items());
-    }).toThrow(/same element twice/u);
+    }).toThrow(/sortable\/duplicate-item/u);
 
     // The assertion the shipped order satisfies is the one this fails.
     expect(parts.ran).toEqual(['axis', 'plugin']);

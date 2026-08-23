@@ -804,7 +804,7 @@ describe('the contextual landing duration (D-67)', () => {
     // The message, which nothing asserted while the guard was the package's
     // only surviving domain check.
     expect(String(composed.errors[0]!.cause)).toMatch(
-      /landing\(\{ duration \}\) must not be Infinity/u,
+      /landing\/duration-infinite/u,
     );
   });
 
@@ -823,7 +823,7 @@ describe('the contextual landing duration (D-67)', () => {
     expect(composed.errors).toHaveLength(1);
     expect(composed.errors[0]!.code).toBe(LANDING_CREATE_CODE);
     expect(String(composed.errors[0]!.cause)).toMatch(
-      /landing\(\{ duration \}\) must not be Infinity/u,
+      /landing\/duration-infinite/u,
     );
   });
 

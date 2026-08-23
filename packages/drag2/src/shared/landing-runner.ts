@@ -165,7 +165,7 @@ export function createLandingStart(options: LandingOptions): LandingStart {
     // must not get a different answer because of the reader's OS setting, even
     // though the collapse would have made this particular value harmless.
     if (resolved === Number.POSITIVE_INFINITY) {
-      throw new TypeError('drag: landing({ duration }) must not be Infinity');
+      throw new TypeError('drag: landing/duration-infinite');
     }
     // Collapsed to zero rather than skipped: the gate is still held and still
     // released through the runner, so the lifecycle is one path whatever the

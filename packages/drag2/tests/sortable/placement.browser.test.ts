@@ -54,7 +54,7 @@ describe('createPlaceholder', () => {
     const item = detached();
 
     expect(() => build(() => item, item)).toThrow(
-      /must return a detached element/u,
+      /sortable\/placeholder-not-detached/u,
     );
   });
 
@@ -63,7 +63,7 @@ describe('createPlaceholder', () => {
     const visual = detached();
 
     expect(() => build(() => visual, item, visual)).toThrow(
-      /must return a detached element/u,
+      /sortable\/placeholder-not-detached/u,
     );
   });
 
@@ -73,7 +73,7 @@ describe('createPlaceholder', () => {
     const item = detached();
 
     expect(() => build(() => ({}) as unknown as HTMLElement, item)).toThrow(
-      /must return a detached element/u,
+      /sortable\/placeholder-not-detached/u,
     );
   });
 
@@ -262,7 +262,7 @@ describe('movePlaceholder', () => {
 
     expect(() =>
       movePlaceholder(placeholder, gapBefore(foreign[0]!, null)),
-    ).toThrow(/not in the placeholder/u);
+    ).toThrow(/sortable\/anchor-outside-container/u);
   });
 
   it('should refuse a foreign anchor used as an end gap', () => {
@@ -272,7 +272,7 @@ describe('movePlaceholder', () => {
 
     expect(() =>
       movePlaceholder(placeholder, gapBefore(null, foreign[1]!)),
-    ).toThrow(/not in the placeholder/u);
+    ).toThrow(/sortable\/anchor-outside-container/u);
   });
 
   it('should leave the placeholder where it was when it refuses', () => {
@@ -298,7 +298,7 @@ describe('movePlaceholder', () => {
 
     expect(() =>
       movePlaceholder(placeholder, gapBefore(items[0]!, null)),
-    ).toThrow(/not in the placeholder/u);
+    ).toThrow(/sortable\/anchor-outside-container/u);
   });
 
   it('should report no move for an empty destination view', () => {
