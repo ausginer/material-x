@@ -38,7 +38,7 @@ Five distinct causes, one channel — and **that is correct here**, because the 
 
 Four guards, all returning `null`, one call site ([`spec.ts:1307`](../../src/sortable/spec.ts)), one message — `drag: sortable/release-no-proposal`. The four are: version mismatch, item not in the snapshot, index out of range, neighbours disagree.
 
-Every one of them checks that **a value this package built is well-formed against a snapshot this package built**. None validates consumer input. That is precisely why D-117 classified the site P2 and why its own doc block says _`null` is a broken invariant, not a no-op_.
+Every one of them checks that **a value this package built is well-formed against a snapshot this package built**. None validates consumer input. That is precisely why its own doc block says _`null` is a broken invariant, not a no-op_. ~~That is precisely why D-117 classified the site P2~~ — **corrected 2026-08-24, F-94**: D-117 (1) settles all four sortable release faults as **P1**, by rule (b)'s default for an unproved site. This sentence read the measurement record's provisional _eight P2 sites_ list as a landed classification; the same record says seven of the eight remain unproved and that an unsettled site is P1. D-119 proved the site's third-party reachability and it is P1 on the call graph.
 
 So the shape is not "one tiny step, trap, continue." It is a **re-validation pass**, and it exists because nothing upstream is trusted to have produced a well-formed `Insertion`. Section 3 is why nothing upstream can be.
 
@@ -165,7 +165,7 @@ The principle, stated so it can be applied without further architectural input:
 1. One expression instead of four, over whichever array the caller holds — which preserves §3.2's three-instants constraint untouched.
 2. `homeInsertion`'s prose equivalence argument becomes a derivation or is discovered not to be one.
 3. `buildReorderProposal`'s neighbour guard becomes either **provably redundant**, or the one check in it that is genuinely about a _snapshot replacement_ rather than about its own arithmetic. Its other three — version, membership, range — are about the pair `(snapshot, insertion)` and survive on their own terms.
-4. D-117's P2 classification of `sortable/release-no-proposal` is revisited **on evidence rather than on policy**, since the fault it names would then have fewer ways to occur.
+4. ~~D-117's P2 classification~~ of `sortable/release-no-proposal` is revisited **on evidence rather than on policy**, since the fault it names would then have fewer ways to occur. **The premise is corrected 2026-08-24, F-94**: the site is **P1**, and what the slice can supply is the proof that D-117's default was already right.
 
 **Explicitly not recommended.** No `Option`/`Result` type and no generic — the problem is an unowned noun, and a wrapper type would leave it unowned while adding surface. No flattening of `command.admit`. No unification of the three destination-view derivations, whose timing argument is real. No work in population B, which must stay a separate slice.
 
