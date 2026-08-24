@@ -376,11 +376,12 @@ export type Composition = Readonly<{
    * **This is not a size case and the re-base is not the point** — twenty-odd
    * Brotli bytes is inside the noise band this phase has demonstrated three
    * times, and D-118 would read the same at 3 B or at 300 B. The budgets move
-   * because the rule above says they follow the landed figure in both
-   * directions, and because leaving them was not neutral: the slack reached
-   * **162–179 B**, which is *past* the +157 B this file measures for the
-   * smallest module entering a graph. A headroom wide enough to swallow that
-   * module has stopped doing the one thing the byte half can still do.
+   * for the one reason the rule above gives — they follow the landed figure in
+   * both directions — and that rule sets the target at landed + ~150 B
+   * whatever the size of the slice. Left alone the slack would have stood at
+   * **162–179 B**, which is not the margin this file keeps; no threshold read
+   * off a marginal module cost is needed to say so, and the paragraph above
+   * declines to reason from one.
    *
    * **`drag.js` and baseline B do not move, correctly** — neither reaches
    * `kernel/kernel.js`, and the control row is byte-identical at **121 B** for
