@@ -2371,30 +2371,33 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         }
 
         // Static spec data, validated once, exactly as `actionTags` is (D-32).
+        // **One check, and it is the only one here the library owns** (D-118).
         // The `pointerdown` collision is refused rather than tolerated: two
         // listeners for one type would run two admission members for one event,
         // and the second would find the first's operation already committed —
-        // silently, and only sometimes.
+        // silently, and only sometimes. That corrupted operation is the
+        // kernel's own state, which is what puts this check on the library's
+        // side of §1.1's *whose invariant* line.
+        //
+        // **Four checks have left this loop, and the two that left last are
+        // why the rule is worth restating.** On 2026-08-22, `typeof type !==
+        // 'string'` re-stated what `readonly string[]` already guarantees, and
+        // a duplicate entry was refused where the platform ignores it:
+        // `addEventListener` dedups on (type, callback, capture) and all three
+        // are identical for every entry here, so the second binding was
+        // already a no-op — and `indexOf` inside the loop made refusing it
+        // quadratic. On 2026-08-24 the array-shape pair left, each verified by
+        // construction rather than argued: an **empty array** binds no discrete
+        // listener, which is the state a behavior omitting `command` entirely
+        // already reaches (02 §Discrete admission), so the check refused a
+        // configuration the contract supports under a different spelling; an
+        // **empty-string entry** binds an ordinary, distinct listener for a
+        // type nothing dispatches, leaving the author's discrete ingress inert
+        // while the kernel's is untouched. Both cost the author their own
+        // feature and cost the library nothing, and §1.1 declines that trade
+        // however plainly the value looks like a mistake.
         if (next.command !== undefined) {
-          const { types } = next.command;
-
-          if (types.length === 0) {
-            throw new TypeError('drag: spec/command-types-empty');
-          }
-
-          // **Two checks left this loop on 2026-08-22.** `typeof type !==
-          // 'string'` re-stated what `readonly string[]` already guarantees,
-          // and a duplicate entry was refused where the platform ignores it:
-          // `addEventListener` dedups on (type, callback, capture) and all
-          // three are identical for every entry here, so the second binding
-          // was already a no-op — and `indexOf` inside the loop made refusing
-          // it quadratic. The empty string stays because it is a real value
-          // the type admits and a listener for `''` is not what anyone wrote.
-          for (const type of types) {
-            if (type === '') {
-              throw new TypeError('drag: spec/command-entry-empty');
-            }
-
+          for (const type of next.command.types) {
             if (type === POINTER_DOWN) {
               throw new TypeError('drag: spec/command-type-pointerdown');
             }

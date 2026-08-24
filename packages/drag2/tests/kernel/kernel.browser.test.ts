@@ -754,20 +754,26 @@ describe('discrete admission', () => {
     expect(harness.calls).toContain('activation.effect');
   });
 
-  it('should reject an invalid command.types at arm', () => {
+  it('should reject a command.types entry colliding with the pointer ingress', () => {
     // Static spec data, validated once at construction, exactly as
     // `config.actionTags` is — the same `TypeError` policy every public option
     // domain uses. The `pointerdown` collision is refused rather than tolerated:
     // two listeners for one type would run two admission members for one event,
     // and the second would find the first's operation already committed —
-    // silently, and only sometimes.
-    const cases: Array<readonly [readonly string[], RegExp]> = [
-      [[], /spec\/command-types-empty/u],
-      [[''], /spec\/command-entry-empty/u],
-      [['pointerdown'], /spec\/command-type-pointerdown/u],
+    // silently, and only sometimes. **This is the only check left in the loop**
+    // (D-118), and the one that guards the kernel's own state rather than the
+    // author's feature.
+    //
+    // The second case carries an empty entry beside the colliding one, which is
+    // the assertion that this check stands on its own: the empty string is
+    // accepted below, and accepting it must not swallow the collision sharing
+    // its array.
+    const cases: ReadonlyArray<readonly string[]> = [
+      ['pointerdown'],
+      ['', 'pointerdown'],
     ];
 
-    for (const [types, message] of cases) {
+    for (const types of cases) {
       const root = document.createElement('div');
 
       document.body.append(root);
@@ -781,8 +787,90 @@ describe('discrete admission', () => {
       // back.
       expect(() =>
         createArmedWithCommand(root, { types, admit: () => null }),
-      ).toThrow(message);
+      ).toThrow(/spec\/command-type-pointerdown/u);
     }
+  });
+
+  it('should arm an empty command.types as the no-command configuration', () => {
+    // **The empty-array check was removed 2026-08-24** (D-118), because the
+    // configuration it rejected is one the contract already supports under a
+    // different spelling: 02 §Discrete admission says a behavior omitting the
+    // member binds no discrete listener, and an empty `types` reaches exactly
+    // that state — the binding loop below simply never runs. So the assertion
+    // is not *it does not throw*, it is that the two spellings are
+    // indistinguishable from outside.
+    let admitted = 0;
+
+    const drive = (harness: Harness): readonly string[] => {
+      harness.root.dispatchEvent(new Event('', { bubbles: true }));
+      harness.root.dispatchEvent(new CustomEvent('command', { bubbles: true }));
+      activate(harness);
+
+      return [...harness.calls];
+    };
+
+    const declared = createHarness({
+      command: {
+        types: [],
+        admit: (): null => {
+          admitted += 1;
+
+          return null;
+        },
+      },
+    });
+    const declaredCalls = drive(declared);
+
+    // Destroyed before the second harness is driven: `move()` dispatches on
+    // `document`, so a live operation here would keep advancing while the
+    // omitted-member harness takes its own press.
+    void declared.controller.destroy();
+
+    const omitted = createHarness();
+    const omittedCalls = drive(omitted);
+
+    // No discrete listener exists to reach, so `admit` is unreachable rather
+    // than declining.
+    expect(admitted).toBe(0);
+    expect(declaredCalls).toEqual(omittedCalls);
+    // And the pointer ingress is untouched by either spelling.
+    expect(declaredCalls).toContain('activation.effect');
+  });
+
+  it('should arm a command.types carrying an empty-string entry', () => {
+    // **The empty-string check was removed 2026-08-24** (D-118). The empty
+    // string is an ordinary, distinct event type to the platform:
+    // `addEventListener('')` binds, `dispatchEvent(new Event(''))` fires it,
+    // and nothing else reaches it. So the author gets a live listener for a
+    // type nothing dispatches — their own discrete ingress is inert, while the
+    // kernel's state is untouched and its own collision rule still fires
+    // (above). That is the author's invariant, not the library's.
+    const admitted: string[] = [];
+    const harness = createHarness({
+      command: {
+        types: [''],
+        admit: (event): null => {
+          admitted.push(event.type);
+
+          return null;
+        },
+      },
+    });
+
+    harness.root.dispatchEvent(new Event('', { bubbles: true }));
+
+    expect(admitted).toEqual(['']);
+
+    // It intercepts nothing else: the empty type is not a wildcard.
+    harness.root.dispatchEvent(new CustomEvent('command', { bubbles: true }));
+    harness.root.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(admitted).toEqual(['']);
+
+    // And the pointer ingress is intact beside it.
+    activate(harness);
+
+    expect(harness.calls).toContain('activation.effect');
   });
 
   it('should arm a command.types carrying a duplicate entry', () => {

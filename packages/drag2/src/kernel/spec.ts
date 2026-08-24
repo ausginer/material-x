@@ -137,7 +137,10 @@ export type CommandAdmission<Part extends object> = Readonly<{
   /**
    * The event types the kernel binds on `root`, for the controller's life,
    * inside the same ingress abort that owns `pointerdown`. Static spec data:
-   * `arm()` validates it once, exactly as it validates `config.actionTags`.
+   * `arm()` validates it once, exactly as it validates `config.actionTags`,
+   * and refuses one shape — an entry colliding with the kernel's own pointer
+   * ingress (D-118). **An empty array is a supported spelling of binding no
+   * discrete listener**, identical to omitting this member.
    */
   types: readonly string[];
 

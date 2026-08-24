@@ -444,7 +444,10 @@ type CommandAdmission<Part extends object> = Readonly<{
   /**
    * The event types the kernel binds on `root`, for the controller's life,
    * inside the same ingress abort that owns `pointerdown`. Static spec data:
-   * `arm()` validates it once, exactly as it validates `config.actionTags`.
+   * `arm()` validates it once, exactly as it validates `config.actionTags`,
+   * and refuses one shape — an entry colliding with the kernel's own pointer
+   * ingress (D-118). **An empty array is a supported spelling of binding no
+   * discrete listener**, identical to omitting this member.
    */
   types: readonly string[];
 
@@ -513,7 +516,7 @@ Five rules make the pointerless half well defined:
 
   A behavior that wants to swallow an event _without_ minting an operation has no first-class way to say so, and does not need one: it holds the `Event`. That is discipline the contract permits rather than a capability it grants, and it is the residue I-32 is honest about.
 
-`arm()` rejects a `command.types` that is empty, contains a non-string or an empty string, contains duplicates, or contains a type the kernel binds for its own pointer ingress (`pointerdown`) — the construction-time `TypeError` policy of §[03](03-feature-composition.md) §Public option domains.
+`arm()` rejects exactly one `command.types` shape: an entry the kernel binds for its own pointer ingress (`pointerdown`) — the construction-time `TypeError` policy of §[03](03-feature-composition.md) §Public option domains. **Four other shapes were once refused here and are now accepted** — a non-string entry and a duplicate entry (2026-08-22), then an empty array and an empty-string entry (D-118). An **empty array binds no discrete listener**, which is the state a behavior omitting the member already reaches, so it is a second spelling of it rather than a new one. An **empty-string entry** binds an ordinary, distinct listener for a type nothing dispatches: the author's discrete ingress is inert, the kernel's is untouched. Only the collision costs the kernel its own state, and only the collision survives.
 
 #### The command destination — where it lives, and what must not touch it
 
