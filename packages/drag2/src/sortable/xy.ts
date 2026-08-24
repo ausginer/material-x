@@ -35,7 +35,11 @@
  * this module's metric and its `compareDocumentPosition` call, which the M-3
  * budget is explicit about not paying for.
  */
-import type { CollectionSnapshot, Insertion } from './domain.ts';
+import {
+  type CollectionSnapshot,
+  type Insertion,
+  insertionAt,
+} from './domain.ts';
 import type { AxisInstaller } from './feature.ts';
 import { CENTRE_X, CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
 
@@ -151,12 +155,7 @@ export function xy(): AxisInstaller {
           const follows = (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
           const gap = follows ? nearest + 1 : nearest;
 
-          return {
-            version: snapshot.version,
-            index: gap,
-            before: items[gap - 1] ?? null,
-            after: items[gap] ?? null,
-          };
+          return insertionAt(items, gap, snapshot.version);
         },
 
         invalidate: index.invalidate,

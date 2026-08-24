@@ -24,7 +24,11 @@
  * near a boundary. Ignoring X is not an optimisation of the 2-D rule; it is a
  * different and better answer for a list.
  */
-import type { CollectionSnapshot, Insertion } from './domain.ts';
+import {
+  type CollectionSnapshot,
+  type Insertion,
+  insertionAt,
+} from './domain.ts';
 import type { AxisInstaller } from './feature.ts';
 import { CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
 import { createVerifiedRefresh } from './verified-refresh.ts';
@@ -176,12 +180,7 @@ export function y(): AxisInstaller {
               : nearest;
           const { items } = index;
 
-          return {
-            version: snapshot.version,
-            index: gap,
-            before: items[gap - 1] ?? null,
-            after: items[gap] ?? null,
-          };
+          return insertionAt(items, gap, snapshot.version);
         },
 
         invalidate: verified.invalidate,

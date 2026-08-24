@@ -38,6 +38,43 @@ export type Insertion = Readonly<{
   after: HTMLElement | null;
 }>;
 
+/**
+ * **The construction rule for an {@link Insertion}, and its only owner** (F-91,
+ * D-119): the gap at `index` of `destination` — a snapshot minus its dragged
+ * item — carrying the two elements that gap sits between.
+ *
+ * `?? null` at both ends *is* the rule rather than a convenience. A read off
+ * either end of the destination view is a **start** or an **end** gap, and
+ * those two shapes are what `movePlaceholder` anchors on and what
+ * `reconcileCollection` tests for survival.
+ *
+ * **A pure helper, never a seam** — F-7's disposition, applied here to the
+ * value F-91 found unowned. It takes an array and an index, holds no state and
+ * needs no instant, so every caller passes **whichever destination view it
+ * already holds**: the locally filtered one in `keyboardInsertion`, the axis
+ * cache's maintained one in `y()` and `xy()`, `destinationOf`'s in
+ * `collection.ts`. That is what leaves the three derivations of the *view*
+ * untouched — they exist at three different instants with three amounts of live
+ * state, and this rule is indifferent to which of them produced the array.
+ *
+ * `homeInsertion` is the one site that does not call it, and deliberately: it
+ * evaluates the same rule over a destination view it never materializes, so
+ * that seeding home costs no array. The identity is proved rather than argued —
+ * `tests/sortable/insertion.browser.test.ts`.
+ */
+export function insertionAt(
+  destination: readonly HTMLElement[],
+  index: number,
+  version: number,
+): Insertion {
+  return {
+    version,
+    index,
+    before: destination[index - 1] ?? null,
+    after: destination[index] ?? null,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // The proposal
 // ---------------------------------------------------------------------------

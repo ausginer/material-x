@@ -386,6 +386,44 @@ export type Composition = Readonly<{
    * **`drag.js` and baseline B do not move, correctly** — neither reaches
    * `kernel/kernel.js`, and the control row is byte-identical at **121 B** for
    * the third consecutive slice.
+   *
+   * **Measured and *not* re-based, 2026-08-24, Phase 23 (D-119).** The
+   * `Insertion` construction owner (F-91) collapses seven object literals to
+   * one rule in `sortable/domain.js`, called from `keyboard.js`, `y.js`,
+   * `xy.js` and `collection.js`. **Minified it is flat at −114 to −119 B** on
+   * every row that carries the sortable behavior, and **0 B** on every row that
+   * does not — the four free-drag rows, the kernel root, `drag.js` and baseline
+   * B are byte-identical in both figures.
+   *
+   * | Row | before | landed | Δ brotli | Δ minified | slack |
+   * | --- | --- | --- | --- | --- | --- |
+   * | minimal | 10,684 | 10,667 | **−17** | −115 | 167 |
+   * | minimal (xy) | 10,344 | 10,329 | **−15** | −119 | 165 |
+   * | + layoutAnimation | 11,126 | 11,102 | **−24** | −117 | 174 |
+   * | + landing | 10,954 | 10,960 | **+6** | −115 | 144 |
+   * | complete | 11,383 | 11,384 | **+1** | −115 | 149 |
+   * | free drag ×4 | — | unmoved | **0** | 0 | 150 |
+   * | both behaviors | 12,906 | 12,885 | **−21** | −116 | 171 |
+   * | vocabulary root | 121 | 121 | **0** | 0 | 29 |
+   * | kernel root | 6,303 | 6,303 | **0** | 0 | 150 |
+   * | baseline A | 11,118 | 11,096 | **−22** | −114 | 172 |
+   * | baseline B | 6,889 | 6,889 | **0** | 0 | 151 |
+   *
+   * **Two rows went up, and that is the useful part of this measurement.** One
+   * edit, one direction in the minified figure — a flat ~116 B removed
+   * everywhere the code is reached — and a compressed figure that ranges from
+   * −24 B to **+6 B** across the same rows. This phase has asserted three times
+   * that twenty-odd Brotli bytes is noise; here the same slice demonstrates it
+   * on one tree rather than by comparing two, and the direction disagreement is
+   * the evidence. **Nothing follows from the +6 except that it is not a
+   * regression to chase.**
+   *
+   * **The budgets therefore do not move, and that is the rule rather than an
+   * exception to it.** They already sit at their measurement plus **144–174 B**
+   * — the ~150 B target, in both directions — so following the landed figure
+   * means leaving them where they are. Re-basing would raise two budgets on
+   * +6 B and +1 B of compression noise, which is the one thing a budget sized
+   * to notice a module must not learn to do.
    */
   budget: number;
   /**

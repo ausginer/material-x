@@ -565,6 +565,8 @@ Passing the two separately costs nothing and is honest about both:
 
 No view materialization on any path, no `Pick<>` anywhere, and no import edge from a feature to the behavior's runtime type. This is what makes H-6 work at the _runtime_ level, the same way §[04](04-frame-slicing.md) makes it work at the frame level.
 
+**The rule names the behavior's runtime type, and that is the whole of its reach** (D-119). A feature may take a **value** from the shared domain vocabulary, and `y()` and `xy()` now do: both build their gap with `insertionAt`, the one construction rule for an `Insertion`. The sketch above already has `y.ts` naming `Insertion` and `CollectionSnapshot`, so the vocabulary was always on the permitted side of the line; what is new is that the edge carries a function rather than only types. **The edge D-13 removed is the one that makes a feature depend on the behavior's composition** — an aggregate runtime type it has to import in order to describe what it needs. An edge to the noun both tiers exchange is not that edge, and refusing it would mean the axis rule re-deriving the very value it returns, which is how the same expression came to be written in four modules in the first place (F-91).
+
 ## Private feature state, and what it answers
 
 Probe 1's open question **Q-5** asked whether the packed geometry cache belongs on the shared runtime — where retirement can empty it uniformly, at the cost of leaking an axis-specific concept into a shared container — or inside `vertical()`, which would require a feature-owned retirement hook.

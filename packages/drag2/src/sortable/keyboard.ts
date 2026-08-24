@@ -15,7 +15,11 @@
  * lives in the behavior, beside `homeInsertion`, and not inside `y()` or
  * any successor axis feature. Phase 17 therefore inherits no keyboard question.
  */
-import type { CollectionSnapshot, Insertion } from './domain.ts';
+import {
+  type CollectionSnapshot,
+  type Insertion,
+  insertionAt,
+} from './domain.ts';
 
 /** Toward the start of the collection. */
 export const DIRECTION_UP = 110;
@@ -53,7 +57,9 @@ export function directionOf(key: string): KeyboardDirection | null {
  *
  * Indices are computed in the **destination view** — the snapshot with `item`
  * removed — so `index`, `before` and `after` all describe one immutable
- * snapshot, exactly as the spatial path's do.
+ * snapshot, exactly as the spatial path's do. The gap is built by
+ * {@link insertionAt}, which is what makes _exactly as the spatial path's do_
+ * one shared expression rather than two that happen to agree (F-91, D-119).
  */
 export function keyboardInsertion(
   snapshot: CollectionSnapshot,
@@ -78,12 +84,6 @@ export function keyboardInsertion(
   // moving down means passing the successor, which has *already* shifted into
   // `from`, so the target gap is `from + 1`.
   const destination = items.filter((candidate) => candidate !== item);
-  const index = up ? from - 1 : from + 1;
 
-  return {
-    version,
-    index,
-    before: destination[index - 1] ?? null,
-    after: destination[index] ?? null,
-  };
+  return insertionAt(destination, up ? from - 1 : from + 1, version);
 }

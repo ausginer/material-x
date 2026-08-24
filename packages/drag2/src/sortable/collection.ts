@@ -6,11 +6,12 @@
  * pointer position.** The exact identity gap the consumer was shown either
  * survives the replacement or the operation ends (I-14).
  */
-import type {
-  CollectionSnapshot,
-  Insertion,
-  ReorderProposal,
-  ReorderRequest,
+import {
+  type CollectionSnapshot,
+  type Insertion,
+  insertionAt,
+  type ReorderProposal,
+  type ReorderRequest,
 } from './domain.ts';
 
 /** The incumbent gap survived, rebased into the replacement. */
@@ -60,6 +61,22 @@ const destinationOf = (
  * The four survival rules, by gap kind. `dragged` must remain in `next`;
  * callers classify its removal separately, because that is a different
  * cancellation reason.
+ *
+ * **The arms decide; they no longer also construct** (F-91, D-119). Each keeps
+ * its own survival test — that is I-14's decision and it is not the
+ * constructor's to hold — and then hands the surviving gap's index to
+ * {@link insertionAt} over `next`'s destination view. The neighbours the arms
+ * used to carry across from the incumbent are exactly the ones the rule
+ * derives, which is precisely what the test above each call has just
+ * established.
+ *
+ * **One input where the rule and these tests disagree, recorded rather than
+ * changed** (F-93). An incumbent with `before` and `after` both `null` is the
+ * gap of a single-item collection: the rule builds it, and `placeholderAt`
+ * reads it as trivially occupied. The start-gap test refuses it, because there
+ * is no first destination item for `after` to remain — so a publication during
+ * a one-item drag cancels the operation. Whether it should is a **survival**
+ * question, not a construction one, and is not decided here.
  */
 export function reconcileCollection(
   next: CollectionSnapshot,
@@ -78,7 +95,7 @@ export function reconcileCollection(
     if (after !== null && destination[0] === after) {
       return {
         type: CHANGE_REBASE,
-        insertion: { version: next.version, index: 0, before: null, after },
+        insertion: insertionAt(destination, 0, next.version),
       };
     }
 
@@ -90,12 +107,7 @@ export function reconcileCollection(
     if (destination[destination.length - 1] === before) {
       return {
         type: CHANGE_REBASE,
-        insertion: {
-          version: next.version,
-          index: destination.length,
-          before,
-          after: null,
-        },
+        insertion: insertionAt(destination, destination.length, next.version),
       };
     }
 
@@ -108,12 +120,7 @@ export function reconcileCollection(
   if (beforeIndex >= 0 && destination[beforeIndex + 1] === after) {
     return {
       type: CHANGE_REBASE,
-      insertion: {
-        version: next.version,
-        index: beforeIndex + 1,
-        before,
-        after,
-      },
+      insertion: insertionAt(destination, beforeIndex + 1, next.version),
     };
   }
 
@@ -124,9 +131,24 @@ export function reconcileCollection(
  * The gap the dragged item itself occupies, with **real identity neighbours**.
  *
  * Recomputed from the snapshot rather than stored, so it needs no per-operation
- * slot and cannot go stale against a replacement: removing the item from the
- * full list leaves its own index as the destination gap, whose neighbours are
- * the item's own neighbours (D-27, F-31).
+ * slot and cannot go stale against a replacement (D-27, F-31).
+ *
+ * **This is {@link insertionAt} over a destination view it never materializes,
+ * and the equivalence is now proved rather than argued** (F-91, D-119).
+ * Removing the item from the full list leaves every earlier element where it
+ * was and shifts every later one down by one, so the gap at the item's own
+ * index reads `items[from - 1]` and `items[from + 1]` — the rule's two ends,
+ * evaluated without the array. It is the one site that does not call the owner,
+ * because it is the one site that would have to **allocate** a destination view
+ * to; seeding home stays free of one. The identity is held by
+ * `tests/sortable/insertion.browser.test.ts` exhaustively instead of by this
+ * paragraph.
+ *
+ * **The equivalence has a precondition and it is the collection's own**: the
+ * element identity `copyUniqueItems` enforces at every mint. `indexOf` finds
+ * one occurrence where a filtered view drops them all, so on a duplicated
+ * collection the two spellings diverge — which is why that input is refused at
+ * the boundary rather than handled here.
  */
 export function homeInsertion(
   snapshot: CollectionSnapshot,
@@ -160,6 +182,22 @@ export type ProposalBuild = Readonly<{
  *
  * `null` is a broken invariant, not a no-op — the caller turns it into a
  * `SeamRejection`.
+ *
+ * **The neighbour test is no longer this package re-checking its own
+ * arithmetic** (F-91, D-119). With construction owned, every gap `keyboard.ts`
+ * and this module produce is {@link insertionAt} over a destination view of the
+ * snapshot they name, so for those the test is provably vacuous once the
+ * version matches. What it still reads is the one insertion nothing here built:
+ * `InsertionGeometry.resolve` is published at the middle tier (D-61), so a
+ * version-matching gap can arrive from third-party axis code carrying
+ * neighbours this snapshot does not support. **That fault leaves the tier that
+ * made it** — it does not cost the axis author their own feature, it hands the
+ * *consumer* a `{ from, to, before, after }` to apply to their own array — so
+ * the check is the library's and it stays. The other three are about the pair
+ * `(snapshot, insertion)` and survive on their own terms; the range test in
+ * particular is not implied by this one, since an index past the end of the
+ * destination view reads `null` at both ends and a start gap of an empty view
+ * legitimately does too.
  */
 export function buildReorderProposal(
   snapshot: CollectionSnapshot,
@@ -183,8 +221,7 @@ export function buildReorderProposal(
     return null;
   }
 
-  const before = destination[index - 1] ?? null;
-  const after = destination[index] ?? null;
+  const { before, after } = insertionAt(destination, index, snapshot.version);
 
   if (before !== insertion.before || after !== insertion.after) {
     return null;
