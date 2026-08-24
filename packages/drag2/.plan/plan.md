@@ -1470,6 +1470,26 @@ Eight further passes followed the second remediation — [2-claude](reviews/chec
 
 It is deferred to _here_ rather than to Phase 22 because this is the phase that reviews the complete public surface, and it is the last phase at which the finding can still be open at all.
 
+### The decomposition-shape review, 2026-08-24 (F-91, F-92)
+
+**Reviewed** — [`reviews/phase-23/decomposition-shape-claude.md`](reviews/phase-23/decomposition-shape-claude.md). The question raised by the owner: whether drag2 has drifted toward too many semantic seams — _do one tiny step, trap on `null`, continue_ — with the keyboard `command.admit` flow and `buildReorderProposal` as the named examples and `packages/tproc` as the contrast. **Investigative; nothing is decided and no production change is proposed.**
+
+**The two named sites split, and they split cleanly.** `command.admit` is **not** a defect: five steps, each `null` meaning a different decline, one channel — and that is right, because the recipient is the kernel and the kernel has one branch. The ordering is normative (D-46 fixes _what did the event land on_ before _is the move feasible_, and the probe-E table records what the other order produced), so flattening it would erase a rule the contract owns and buy nothing. `buildReorderProposal` **is** a defect, and it is a symptom: its four guards all check that a value _this package built_ is well-formed against a snapshot _this package built_, which is the same reading that classified the site P2 under D-117.
+
+**The finding is an unowned noun, not an over-split verb (F-91).** `Insertion` is constructed by literal in seven places across four modules; the expression deriving its neighbours is written four times over three differently-produced arrays, and the fourth of those — `collection.ts:186` — is not building a value but checking the first three. `homeInsertion` spells the concept a fifth way and argues the equivalence in prose. **The package decomposed the steps of insertion resolution and left the concept they all produce without a name**, so a rule small enough to inline is inlined five times and the one seam that would have paid was never drawn. The disposition the record already reached for the same shape is F-7's: _export it as a pure helper, never a seam_.
+
+**Three of the four things a seam is usually bought with are missing here.** Of the five pure helpers the split produced — `directionOf`, `keyboardInsertion`, `buildReorderProposal`, `reconcileCollection`, `homeInsertion` — **none is imported by any test**; every one is exercised only through the composed behavior. None is recursive, none is reached from two sites, and none is large enough to need a name to be readable.
+
+**One duplication is defensible and is left alone.** The destination view is derived three times, at three instants with three amounts of live state — pre-activation with no index, geometry-scan time while the index is being built, invalidation while it is deliberately dirty — and the maintained copy sits behind the required `resolveInsertion` slot. The construction expression has no such constraint: it takes an array and an index.
+
+**The drift hypothesis is falsified for the layer it named and confirmed for another (F-92).** `keyboard.ts` has one commit and `collection.ts` three, both laid down at scaffold and completion; `spec.ts` has fifteen, and what the review passes deposited there is **48 terminal barriers**, 22 in that one file. Barriers and seams look alike on screen — a short `if`, an early return, one per line — and share nothing else, which is what made the wrong layer look guilty. Whether I-36's obligation belongs at forty-eight call sites or in the seam runner is a real question, recorded and **deliberately not opened**: it is a separate slice with a different risk profile.
+
+**The candidate slice, and its falsifier.** A construction owner for `Insertion` — a pure helper, never a seam — consumed by keyboard, both axes, home and reconcile. Expected: one expression instead of four; `homeInsertion`'s prose equivalence becomes a derivation or is found not to be one; `buildReorderProposal`'s neighbour guard becomes provably redundant or narrows to the three checks that are genuinely about `(snapshot, insertion)`; and D-117's P2 classification of `sortable/release-no-proposal` is revisited on evidence. **The review proves the five spellings are _written_ as five, not that they are _one_** — proving the equivalence is the slice's first step, not its conclusion — and `reconcileCollection`'s survival test (I-14) is a decision that must not be absorbed into a construction. Size is expected to fall and is not evidence until `bench/size` says so.
+
+**No instrument.** The one mechanically checkable fact — that no test imports the pure helpers — would need a check encoding what a seam is for, which is a semantic model and which D-112's admission criterion refuses. Recorded instead, as F-84 was.
+
+---
+
 ---
 
 ## Phase 24 — Self-containment
