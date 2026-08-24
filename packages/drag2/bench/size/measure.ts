@@ -134,10 +134,23 @@ export type Composition = Readonly<{
    * So the struck sentence is not stale, it is **unreliable in principle**: no
    * headroom this instrument could carry makes the byte half a sufficient
    * test, and picking one that happens to clear today's figure would only
-   * schedule the next correction. **The claim is carried by `absent` and
-   * `absentPrefixes`**, which is why every composition declares them and why
-   * `free drag minimal` names this exact module. The byte budget catches
-   * growth; the graph declaration catches a module. **The repair is not a
+   * schedule the next correction. **The claim is carried by the graph
+   * declarations** — `absent`, `absentPrefixes`, `present`, `only` — which is
+   * why `free drag minimal` names this exact module. The byte budget catches
+   * growth; the graph declaration catches a module.
+   *
+   * **Quantifier narrowed 2026-08-24 (F-88):** this said *every composition
+   * declares them*, and twelve of the fourteen rows do — in some combination
+   * of the four, not that one pair. **The two baselines declare no topology at
+   * all**, so on those rows the byte budget is the only instrument, which is
+   * the arrangement this paragraph has just called insufficient. Baseline A is
+   * where that has consequence: it reaches thirty modules through relative
+   * paths into the built package, so a module can enter it unobserved. It is
+   * tolerated rather than repaired because it is a checked-in fixture whose
+   * whole job is to price composition against `complete`, which does declare —
+   * and because `tests/bench/size.node.test.ts` pins its slot set against
+   * `assemble()`, which is a different drift than this one and not a
+   * substitute for it. **The repair is not a
    * wider budget**: 150 B is calibrated against the failure it catches, and
    * loosening an exact instrument to prop up a redundant one is the wrong
    * direction.
