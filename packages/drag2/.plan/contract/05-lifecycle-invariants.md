@@ -108,7 +108,7 @@ A shipped message is `drag: <area>/<condition>`, plus any interpolated offending
 
 ### Text and machinery are decided separately
 
-A diagnostic's **machinery** — the branch, the key walk, the descriptor allocation, the closures it captures — is a runtime question, governed by `CODE_OF_SIZE.md` §0 and §14 and decided by **frequency**. Its **text** is a payload question, governed by §1.3 and decided by **audience**. They are different edits with different evidence, and an ablation that blanks strings measures neither the machinery nor the check.
+A diagnostic's **machinery** — the branch, the key walk, the descriptor allocation, the closures it captures — is a runtime question, governed by `CODE_OF_SIZE.md` §0 and §14 and decided by **frequency**. Its **text** is a payload question, governed by §1.3 and decided by **provenance** — §1.3 was corrected on 2026-08-24 to say so in the same words, because _who receives a diagnostic_ selects an audience while _what must be true for it to fire_ selects a rule. They are different edits with different evidence, and an ablation that blanks strings measures neither the machinery nor the check.
 
 ## Findings
 
