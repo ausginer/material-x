@@ -763,7 +763,7 @@ describe('discrete admission', () => {
     // silently, and only sometimes.
     const cases: Array<readonly [readonly string[], RegExp]> = [
       [[], /spec\/command-types-empty/u],
-      [[''], /spec\/command-type-empty/u],
+      [[''], /spec\/command-entry-empty/u],
       [['pointerdown'], /spec\/command-type-pointerdown/u],
     ];
 

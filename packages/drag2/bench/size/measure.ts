@@ -101,7 +101,8 @@ export type Composition = Readonly<{
    * **+90 B**, + landing **+82 B**, complete **+91 B**, baseline A **+97 B**;
    * baseline B is the shipped package and did not move. Every budget is now
    * its measurement plus ~150 B, the headroom the Phase 17 re-base left, and
-   * still under one module's worth.
+   * ~~still under one module's worth~~ — **true when written, and not since
+   * 2026-08-24; see the D-117 note below**.
    *
    * **Re-based again 2026-08-19, Phase 21 (M-3′), and this is the re-base
    * `plan.md` §Phase 21 promised.** Five sortable rows and baseline A had gone
@@ -116,10 +117,30 @@ export type Composition = Readonly<{
    * **What the headroom is for, stated rather than left to be inferred.**
    * ~150 B is about one module, and it is sized to notice **a module appearing
    * in a graph** — the failure this file exists to catch. It is deliberately
-   * too small to absorb a feature: a change that fits inside it silently is a
-   * change that added no module, and anything larger comes back here and is
+   * too small to absorb a feature, and anything larger comes back here and is
    * re-based on purpose, with its reason written down. It is not a performance
    * allowance, and it may never be spent to avoid landing a floor fix.
+   *
+   * ~~A change that fits inside it silently is a change that added no
+   * module.~~ **Corrected 2026-08-24 (D-117 implementation review §7.1), and
+   * corrected further than that review could see.** The smallest module's cost
+   * to enter a graph — `free-drag/bounds.js` into `free drag minimal` — has
+   * been measured three times across two **message-text-only** passes:
+   * **154 B** at `76176da8`, **149 B** at `b498d69e`, **157 B** here. It
+   * crossed the headroom in both directions without a module moving, because
+   * a module's marginal cost is what Brotli charges for it *given everything
+   * else in the graph*, and that is not a property of the module.
+   *
+   * So the struck sentence is not stale, it is **unreliable in principle**: no
+   * headroom this instrument could carry makes the byte half a sufficient
+   * test, and picking one that happens to clear today's figure would only
+   * schedule the next correction. **The claim is carried by `absent` and
+   * `absentPrefixes`**, which is why every composition declares them and why
+   * `free drag minimal` names this exact module. The byte budget catches
+   * growth; the graph declaration catches a module. **The repair is not a
+   * wider budget**: 150 B is calibrated against the failure it catches, and
+   * loosening an exact instrument to prop up a redundant one is the wrong
+   * direction.
    *
    * Landed figures at that re-base: minimal **10,738**, minimal (xy)
    * **10,787**, + layoutAnimation **11,162**, + landing **11,020**, complete
@@ -296,6 +317,19 @@ export type Composition = Readonly<{
    * same one that governs a re-base upward — the fix lands and the budget
    * follows — read in the other direction. Baseline B is the shipped package
    * and never reaches this code, so it keeps its figure and its 151 B.
+   *
+   * **What shrinking the prose did to the marginal cost, recorded rather than
+   * absorbed** (D-117 implementation review §7.1). A module entering a graph
+   * costs, on the tree these budgets are set from: `free-drag/bounds.js`
+   * **+157 B**, `free-drag/landing.js` **+286 B**,
+   * `sortable/layout-animation.js` **+440 B** on `minimal` and **+415 B** on
+   * `+ landing`. The review measured the smallest of these at **149 B** — one
+   * byte *under* the headroom — one commit earlier, and at **154 B** one
+   * commit before that. **No budget and no graph assertion moves for any of
+   * it**, and the doctrine paragraph above now says why: a figure that swings
+   * across the headroom on two message-text passes is not a figure a headroom
+   * can be sized against, and the module claim was never the byte half's to
+   * make.
    */
   budget: number;
   /**

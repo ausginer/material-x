@@ -257,13 +257,19 @@ export function createPlaceholder(
   // the seam classifies it as `FAILURE_ACTIVATION` and nothing has been
   // inserted yet; the alternative is discovering it later as DOM corruption
   // with no way to attribute it.
+  //
+  // **Adoptable is the condition all four arms test** (F-86): a non-element
+  // cannot be adopted at all, and the item, the visual and anything already in
+  // the tree are owned by someone else. Naming the last arm — `isConnected` —
+  // would tell three callers in four that they returned an attached element
+  // when the accepting case is precisely a detached one.
   if (
     !realm.isElement(placeholder) ||
     placeholder === item ||
     placeholder === visual ||
     placeholder.isConnected
   ) {
-    throw new TypeError('drag: sortable/placeholder-not-detached');
+    throw new TypeError('drag: sortable/placeholder-not-adoptable');
   }
 
   applyMechanics(placeholder, item, footprint, live, undo);

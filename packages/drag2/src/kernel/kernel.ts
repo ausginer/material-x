@@ -2392,7 +2392,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
           // the type admits and a listener for `''` is not what anyone wrote.
           for (const type of types) {
             if (type === '') {
-              throw new TypeError('drag: spec/command-type-empty');
+              throw new TypeError('drag: spec/command-entry-empty');
             }
 
             if (type === POINTER_DOWN) {

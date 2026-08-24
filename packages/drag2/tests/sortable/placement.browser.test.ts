@@ -54,7 +54,7 @@ describe('createPlaceholder', () => {
     const item = detached();
 
     expect(() => build(() => item, item)).toThrow(
-      /sortable\/placeholder-not-detached/u,
+      /sortable\/placeholder-not-adoptable/u,
     );
   });
 
@@ -63,7 +63,7 @@ describe('createPlaceholder', () => {
     const visual = detached();
 
     expect(() => build(() => visual, item, visual)).toThrow(
-      /sortable\/placeholder-not-detached/u,
+      /sortable\/placeholder-not-adoptable/u,
     );
   });
 
@@ -73,7 +73,7 @@ describe('createPlaceholder', () => {
     const item = detached();
 
     expect(() => build(() => ({}) as unknown as HTMLElement, item)).toThrow(
-      /sortable\/placeholder-not-detached/u,
+      /sortable\/placeholder-not-adoptable/u,
     );
   });
 
