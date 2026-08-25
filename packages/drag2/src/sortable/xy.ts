@@ -155,7 +155,7 @@ export function xy(): AxisInstaller {
           const follows = (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
           const gap = follows ? nearest + 1 : nearest;
 
-          return insertionAt(items, gap, snapshot.version);
+          return insertionAt(items, gap, snapshot);
         },
 
         invalidate: index.invalidate,

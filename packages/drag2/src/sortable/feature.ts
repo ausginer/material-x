@@ -54,6 +54,27 @@ export type {
 } from './slots.ts';
 
 /**
+ * **The one runtime export at this tier, and it makes this a runtime entry**
+ * (D-123, D-125). `SortableContribution` has exactly one slot that *produces*
+ * an `Insertion` — `insertion` — so the sole third-party producer is the axis,
+ * and until now the package published that slot the type and the obligation
+ * and none of the implementation: D-119 gave `Insertion` one construction
+ * owner and proved five spellings are one rule, and then kept the owner on the
+ * package's side of the boundary D-61 had opened. An author can derive the
+ * rule from `Insertion`'s own documentation in four lines — which is why the
+ * seam that receives the gap now checks nothing (D-123) — but deriving it is
+ * how one expression came to be written in four modules (F-91).
+ *
+ * It converts `sortable/feature` from a `typeOnly` entry in `files.json` into
+ * a **runtime** one: a new emitted module and an export-map `default`
+ * condition. That does not reach an ordinary consumer — nothing in the
+ * `sortable.js` graph imports this entry, and the function already ships
+ * inside that graph — but it is a change to the package's published shape
+ * rather than a side effect of an export.
+ */
+export { insertionAt } from './domain.ts';
+
+/**
  * **Declared in `src/shared/composition.ts`, published here** (F-64, the D-68 re-home
  * pattern). The free-drag middle tier needs the identical type, and Phase 18
  * declined to invent a shared composition vocabulary before Checkpoint E can

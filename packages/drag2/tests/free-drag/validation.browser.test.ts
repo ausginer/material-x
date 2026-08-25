@@ -402,7 +402,7 @@ describe('the silent table', () => {
 describe('the landing duration domain', () => {
   const landingFailure = codeOf(FAILURE_LANDING_CREATE);
 
-  it('should hold the settlement gate open for an unbounded duration', async () => {
+  it('should not refuse an unbounded duration', async () => {
     // **B-4 (d), restated at Checkpoint E** (E-07). Free drag deliberately does
     // **not** arm a landing for an accepted result — an accepted drop is
     // already at its destination — so this is the arm that evaluates a
@@ -411,10 +411,14 @@ describe('the landing duration domain', () => {
     // **The refusal went 2026-08-25 (D-124).** `Infinity` is the one duration
     // the platform accepts and never completes, and _a duration is finite_ is
     // the size doctrine's own paradigm of a precondition an integrator can
-    // meet and find, so the gate closes at reachability. What the deleted
-    // check bought is what this row now pins: **no failure, and no terminal at
-    // all** — the landing holds the settlement gate and never releases it.
-    // That is the documented boundary `LandingOptions.duration` now states.
+    // meet and find, so the gate closes at reachability.
+    //
+    // **What this row pins is acceptance: no failure.** It held the absent
+    // terminal too until the D-124 landing review (§1.1 (C)) — an assertion
+    // that made the negation of D-66's exactly-once promise a regression
+    // contract over input the contract does not admit. What the operation then
+    // does is in D-124's row, and the landing is torn down below because it is
+    // not coming back on its own.
     const composed = compose({
       fragments: [landing({ duration: Number.POSITIVE_INFINITY })],
       onDrop: () => FreeDragResolution.reject('nope'),
@@ -427,7 +431,6 @@ describe('the landing duration domain', () => {
     await settled();
 
     expect(codes(composed.errors)).toEqual([]);
-    expect(composed.ends).toEqual([]);
 
     // The operation is still open, so the harness is torn down explicitly
     // rather than left to a terminal that is never coming.
@@ -499,8 +502,6 @@ describe('the landing duration domain', () => {
 });
 
 describe('a non-finite moveTo() reaching the landing distance', () => {
-  const landingFailure = codeOf(FAILURE_LANDING_CREATE);
-
   /**
    * **The coupling, executed rather than traced** (D-124, and the audit's own
    * falsifier: _"§2's coupling was traced by reading… that fixture is worth
@@ -554,27 +555,20 @@ describe('a non-finite moveTo() reaching the landing distance', () => {
     void composed.controller.destroy();
   });
 
-  it('should compound into a held settlement gate for an unbounded distance', async () => {
-    // The worst available outcome, and the reason the two deletions are one
-    // decision: `Infinity` in, `Infinity` out of the thunk, an animation that
-    // never completes, and no terminal for the operation at all.
+  it('should carry the minted distance into the landing unrefused', async () => {
+    // The second half of the coupling: the minted value is not merely handed
+    // to the thunk, it goes on into the landing, and neither end of the path
+    // refuses it. That is what makes the two deletions one decision.
+    //
+    // ~~And the operation then has no terminal at all.~~ **That assertion went
+    // 2026-08-25** (the D-124 landing review, §1.1 (C)) — it froze the shape of
+    // undefined behaviour, which D-124's own row records in prose where it
+    // belongs.
     const { composed } = await dropAfterMoveTo(Number.POSITIVE_INFINITY);
 
     expect(codes(composed.errors)).toEqual([]);
-    expect(composed.ends).toEqual([]);
 
     void composed.controller.destroy();
-  });
-
-  it('should stay classified for a NaN distance, which the platform refuses', async () => {
-    // The other half of the distinction, and it is benign either way: the
-    // deleted duration guard was `=== Infinity` and never fired for `NaN`, and
-    // `animate()` refuses `NaN` itself at the same stage.
-    const { distances, composed } = await dropAfterMoveTo(Number.NaN);
-
-    expect(Number.isNaN(distances[0]!)).toBe(true);
-    expect(codes(composed.errors)).toEqual([landingFailure]);
-    expect(composed.ends).toHaveLength(1);
   });
 });
 

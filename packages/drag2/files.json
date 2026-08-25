@@ -3,6 +3,7 @@
     "drag",
     "kernel",
     "sortable",
+    "sortable/feature",
     "sortable/y",
     "sortable/xy",
     "sortable/landing",
@@ -11,7 +12,7 @@
     "free-drag/bounds",
     "free-drag/landing"
   ],
-  "typeOnly": ["sortable/feature", "free-drag/feature"],
+  "typeOnly": ["free-drag/feature"],
   "clean": {
     "extras": [
       "_virtual",

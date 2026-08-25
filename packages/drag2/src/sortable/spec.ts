@@ -44,7 +44,7 @@ import type { Point } from '../kernel/types.ts';
 import {
   buildReorderProposal,
   CHANGE_CANCEL,
-  copyUniqueItems,
+  copyItems,
   homeInsertion,
   reconcileCollection,
 } from './collection.ts';
@@ -986,17 +986,13 @@ export function createSortableSpec(
         // caller mutation, and it is now paid when membership changes rather
         // than on every invalidation.
         //
-        // **Copied first, numbered second.** A duplicate item throws from
-        // `copyUniqueItems`, and a refused pull produced no collection — so it
-        // must not consume a version either, or the counter stops being a dense
-        // identity for the collections that actually exist and a consumer that
-        // fixes its data sees the next successful update numbered as though an
-        // invisible one had happened in between.
-        //
-        // The throw is classified by the kernel rather than raised at a call
-        // site: under `updateItems` this was a `TypeError` thrown back at the
-        // consumer, and a pull source has no such site to throw at.
-        const items = copyUniqueItems(source);
+        // **Copied first, numbered second.** The copy no longer refuses
+        // anything (D-121), so nothing here throws — but the order stays,
+        // because it is what keeps the version a dense identity for the
+        // collections that actually exist: a pull that produces no collection
+        // must not consume a number, or a consumer sees the next successful
+        // update numbered as though an invisible one had happened in between.
+        const items = copyItems(source);
 
         version += 1;
 

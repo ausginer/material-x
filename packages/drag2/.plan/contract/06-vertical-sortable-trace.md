@@ -83,8 +83,8 @@ const controller = sortable(
       [B] spec = createSortableSpec(rt)      ← ~16 closures over `rt`  [F-4]
       → { spec, controller }
 [K] kernel.arm(spec)
-      current = composeFrame()   → createFramePart(); validateFramePart(part)
-      draft   = composeFrame()   → createFramePart(); validateFramePart(part)
+      current = composeFrame()   → createFramePart()
+      draft   = composeFrame()   → createFramePart()
              ← BOTH results are validated: **no symbols** — the one shape
                still checked (D-124). The part is still *defined* as a plain
                enumerable writable string-keyed record; the rest is the

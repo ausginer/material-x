@@ -1242,6 +1242,7 @@ describe('the packed package', () => {
       ],
       './free-drag/bounds.js': ['bounds'],
       './free-drag/landing.js': ['landing'],
+      './sortable/feature.js': ['insertionAt'],
       './sortable/y.js': ['y'],
       './sortable/xy.js': ['xy'],
       './sortable/landing.js': ['landing'],
@@ -1249,16 +1250,19 @@ describe('the packed package', () => {
     };
 
     /**
-     * **`./sortable/feature.js` is deliberately absent from this table** and
-     * from the map it is compared against (D-61). The middle tier has zero
-     * runtime exports, so the build emits no `.js` for it and its export entry
-     * carries `types` with **no `default` condition** — there is nothing to
-     * import and nothing whose names could be listed. That is the honest
-     * measurement statement for the entry: unlike the three subpaths D-56
-     * deleted for measuring nothing, this one is not pretending to measure
-     * anything. Its declarations are covered by the packed-declaration row
-     * above and by the consumer compile, which is where an erased surface can
-     * be checked at all.
+     * ~~**`./sortable/feature.js` is deliberately absent from this table.**~~
+     * **It joined it 2026-08-25** (D-123, D-125): the sortable middle tier now
+     * has one runtime export, so the build emits a `.js` for it and its export
+     * entry gained a `default` condition. Read off the **packed** artifact,
+     * which is what makes this row the proof of the topology change rather
+     * than a restatement of `files.json`.
+     *
+     * **`./free-drag/feature.js` is what the absence claim now rests on**, and
+     * it still has zero runtime exports: `types` with no `default`, no emitted
+     * `.js`, nothing whose names could be listed. Unlike the three subpaths
+     * D-56 deleted for measuring nothing, it is not pretending to measure
+     * anything, and its declarations are covered by the packed-declaration row
+     * above and by the consumer compile.
      */
     const runtimeSubpaths = [...packed.subpaths].filter(
       ([, value]) => value.default !== undefined,
@@ -1267,7 +1271,7 @@ describe('the packed package', () => {
     expect(runtimeSubpaths.map(([key]) => key).toSorted(byName)).toEqual(
       Object.keys(expected).toSorted(byName),
     );
-    expect([...packed.subpaths.keys()]).toContain('./sortable/feature.js');
+    expect([...packed.subpaths.keys()]).toContain('./free-drag/feature.js');
 
     const actual: Record<string, readonly string[]> = {};
 

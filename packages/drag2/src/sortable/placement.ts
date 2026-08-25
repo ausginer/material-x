@@ -50,19 +50,6 @@ export type PlaceholderSlot = (
 export type PlaceholderUndo = Array<() => void> | null;
 
 /**
- * Records one undo, **before** the write it reverses.
- *
- * Before rather than after, so a mechanics run that stops mid-way — the
- * liveness readings below can return at six different points — leaves a ledger
- * that exactly covers what was written and nothing more. An undo for a write
- * that never happened is not harmless: restoring an attribute the library did
- * not touch is itself a mutation of a consumer's element.
- */
-const willWrite = (undo: PlaceholderUndo, revert: () => void): void => {
-  undo?.push(revert);
-};
-
-/**
  * Restores an attribute to the value it had, or removes it if it had none.
  *
  * **The removal is `removeNamedItem`, not `removeAttribute`, and that is a
@@ -87,6 +74,29 @@ const restoreAttribute = (element: HTMLElement, name: string): (() => void) => {
     : () => {
         element.setAttribute(name, previous);
       };
+};
+
+/**
+ * Records one undo, **before** the write it reverses.
+ *
+ * Before rather than after, so a mechanics run that stops mid-way — the
+ * liveness readings below can return at six different points — leaves a ledger
+ * that exactly covers what was written and nothing more. An undo for a write
+ * that never happened is not harmless: restoring an attribute the library did
+ * not touch is itself a mutation of a consumer's element.
+ */
+const willWrite = (
+  undo: PlaceholderUndo,
+  element: HTMLElement,
+  name: string,
+): void => {
+  // **The snapshot is taken inside the guard, not at the call** (D-127). The
+  // default placeholder path passes `null` — the library owns that element and
+  // has nothing to roll back — and an argument-position `restoreAttribute(…)`
+  // was evaluated for it anyway: four `getAttribute` reads and four closures
+  // per activation, allocated and discarded. Only an adopted placeholder keeps
+  // a ledger, and only it pays for one now.
+  undo?.push(restoreAttribute(element, name));
 };
 
 /**
@@ -130,14 +140,14 @@ function applyMechanics(
     return;
   }
 
-  willWrite(undo, restoreAttribute(placeholder, 'data-drag-placeholder'));
+  willWrite(undo, placeholder, 'data-drag-placeholder');
   placeholder.setAttribute('data-drag-placeholder', '');
 
   if (!live()) {
     return;
   }
 
-  willWrite(undo, restoreAttribute(placeholder, 'aria-hidden'));
+  willWrite(undo, placeholder, 'aria-hidden');
   placeholder.setAttribute('aria-hidden', 'true');
 
   if (!live()) {
@@ -153,7 +163,7 @@ function applyMechanics(
   // `removeAttribute`** (D-39): the branch below *removes* a consumer's own
   // `slot="mine"`, so an undo that only knew how to delete would leave the
   // element permanently missing an attribute the library never granted it.
-  willWrite(undo, restoreAttribute(placeholder, 'slot'));
+  willWrite(undo, placeholder, 'slot');
 
   if (slot === null) {
     placeholder.removeAttribute('slot');
@@ -178,7 +188,7 @@ function applyMechanics(
   // the style block records no style undo at all. An undo for a write that
   // never happened is not free — it is a `removeAttribute` on someone else's
   // element.
-  willWrite(undo, restoreAttribute(placeholder, 'style'));
+  willWrite(undo, placeholder, 'style');
 
   // Read once: `style` is an overridable accessor on a custom element, and a
   // consumer declaration's property setters are consumer code like any other.

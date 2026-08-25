@@ -20,7 +20,6 @@ import type { DraggableError } from '../../src/drag.ts';
 import { AT_PROPOSAL } from '../../src/kernel/failures.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
 import { assemble } from '../../src/sortable/assemble.ts';
-import { copyUniqueItems } from '../../src/sortable/collection.ts';
 import {
   mergeFragments,
   type SortableConfig,
@@ -788,17 +787,25 @@ describe('the composed terminal protocol', () => {
 });
 
 /**
- * **Construction unwind, across construction** (D-80 (b), F-68, F-69; 05 §Test
+ * **Construction unwind, across construction** (D-80 (b), F-69; 05 §Test
  * matrix). The `assemble` suite pins the unwind *within* the assembler;
  * this group pins that nothing consumer-triggerable throws *outside* it.
  *
- * **Two of the four rows are negative controls, and they are the load-bearing
- * ones.** The pre-D-80 arrangement throws the same `TypeError`, with the same
+ * **The remaining throw is the consumer's own `items()`, and F-69 is the whole
+ * motive now** (D-121, F-98). Two rows went with the duplicate refusal on
+ * 2026-08-25 — the positive one and the pre-D-80 *validation-position*
+ * control — because the throw they arranged no longer exists: a duplicated
+ * element is outside the contract and the copy refuses nothing. F-68's window
+ * closes for a second time, and the ordering it once motivated survives on
+ * F-69's reason, which the pair below still discriminates.
+ *
+ * **One of the two rows is a negative control, and it is the load-bearing
+ * one.** The pre-D-80 arrangement throws the same `TypeError`, with the same
  * message, at the same consumer call — only its position moved — so every
  * assertion that checks the throw alone passes against the defect. What
  * discriminates is *what the installers did before it*, which is why the
- * positive rows assert **no installer ran** rather than **every installer was
- * retired**, and why the two controls reconstruct the old orders and show them
+ * positive row asserts **no installer ran** rather than **every installer was
+ * retired**, and why the control reconstructs the old order and shows it
  * failing exactly that assertion.
  */
 describe('construction across the whole boundary', () => {
@@ -841,29 +848,6 @@ describe('construction across the whole boundary', () => {
 
     return root;
   };
-
-  it('should refuse a duplicated element before any installer runs', () => {
-    const parts = probe();
-    const root = host();
-    const item = document.createElement('div');
-
-    root.append(item);
-
-    expect(() =>
-      sortable(root, {
-        items: () => [item, item],
-        onReorder: () => ReorderResolution.accept(),
-        axis: parts.axis,
-        plugins: [parts.plugin],
-      }),
-    ).toThrow(/sortable\/duplicate-item/u);
-
-    // **Not `retired` — `ran`.** A wider bracket would also leave `retired`
-    // equal to `['plugin']`, and the two arrangements are indistinguishable by
-    // that assertion. Nothing ran, so there is nothing to unwind.
-    expect(parts.ran).toEqual([]);
-    expect(parts.retired).toEqual([]);
-  });
 
   it('should refuse a throwing pull source before any installer runs', () => {
     // F-69's case. The throw comes from the consumer's own `items()`, which
@@ -909,39 +893,6 @@ describe('construction across the whole boundary', () => {
     return controller.destroy().then(() => {
       expect(parts.retired).toEqual(['plugin']);
     });
-  });
-
-  it('should be discriminated by the pre-D-80 validation position', () => {
-    // **Negative control.** Validating inside `install` — where
-    // `createSortableRuntime` did it — reconstructed here as: assemble first,
-    // validate second. The throw is identical; what differs is that the
-    // installers have already run and their hooks are held by a record nothing
-    // will unwind, because `arm()` is never reached.
-    const parts = probe();
-    const root = document.createElement('div');
-    const item = document.createElement('div');
-    const context: FeatureContext = {
-      realm: createRealm(root),
-      root,
-      report: (): void => {},
-    };
-    const config: SortableConfig = {
-      items: () => [item, item],
-      onReorder: () => ReorderResolution.accept(),
-      axis: parts.axis,
-      plugins: [parts.plugin],
-    };
-
-    expect(() => {
-      const slots = assemble(mergeFragments(config, []), context);
-
-      void slots;
-      copyUniqueItems(config.items());
-    }).toThrow(/sortable\/duplicate-item/u);
-
-    // The assertion the shipped order satisfies is the one this fails.
-    expect(parts.ran).toEqual(['axis', 'plugin']);
-    expect(parts.retired).toEqual([]);
   });
 
   it('should be discriminated by the pre-D-80 argument order', () => {

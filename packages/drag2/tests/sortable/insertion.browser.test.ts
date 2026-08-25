@@ -15,6 +15,12 @@
  * every dragged position — because the rule is arithmetic and its whole domain
  * is small enough to enumerate.
  *
+ * **`insertionAt` takes the snapshot rather than a bare version** (D-125), and
+ * that is why the rule cases below hand it a snapshot whose `items` are never
+ * read: the destination view is a *parameter* precisely so that no caller on a
+ * pointer-move path has to materialize one, and the snapshot is only the
+ * version's source.
+ *
  * These are the first direct imports of either helper from a test. Every other
  * suite reaches them through the composed behavior, which is the right way to
  * assert *behavior*; it is the wrong way to assert an identity between two
@@ -40,6 +46,10 @@ const snapshotOf = (
   version: number,
 ): CollectionSnapshot => ({ items, version });
 
+/** A snapshot standing in for one, where only its `version` is read. */
+const versioned = (version: number): CollectionSnapshot =>
+  snapshotOf([], version);
+
 /** The destination view: the snapshot minus the dragged item, in order. */
 const destinationOf = (
   items: readonly HTMLElement[],
@@ -50,7 +60,7 @@ describe('insertionAt', () => {
   it('should carry both neighbours of an internal gap', () => {
     const [a, b, c] = collection(3) as [HTMLElement, HTMLElement, HTMLElement];
 
-    expect(insertionAt([a, b, c], 1, 7)).toEqual({
+    expect(insertionAt([a, b, c], 1, versioned(7))).toEqual({
       version: 7,
       index: 1,
       before: a,
@@ -61,7 +71,7 @@ describe('insertionAt', () => {
   it('should read a start gap as a null `before`', () => {
     const [a, b] = collection(2) as [HTMLElement, HTMLElement];
 
-    expect(insertionAt([a, b], 0, 7)).toEqual({
+    expect(insertionAt([a, b], 0, versioned(7))).toEqual({
       version: 7,
       index: 0,
       before: null,
@@ -72,7 +82,7 @@ describe('insertionAt', () => {
   it('should read an end gap as a null `after`', () => {
     const [a, b] = collection(2) as [HTMLElement, HTMLElement];
 
-    expect(insertionAt([a, b], 2, 7)).toEqual({
+    expect(insertionAt([a, b], 2, versioned(7))).toEqual({
       version: 7,
       index: 2,
       before: b,
@@ -81,7 +91,7 @@ describe('insertionAt', () => {
   });
 
   it('should read the only gap of an empty destination view as null at both ends', () => {
-    expect(insertionAt([], 0, 7)).toEqual({
+    expect(insertionAt([], 0, versioned(7))).toEqual({
       version: 7,
       index: 0,
       before: null,
@@ -96,14 +106,13 @@ describe('homeInsertion', () => {
 
     for (let size = 1; size <= MAX_ITEMS; size += 1) {
       const items = collection(size);
-      const version = 40 + size;
-      const snapshot = snapshotOf(items, version);
+      const snapshot = snapshotOf(items, 40 + size);
 
       for (let from = 0; from < size; from += 1) {
         const dragged = items[from]!;
 
         expect(homeInsertion(snapshot, dragged)).toEqual(
-          insertionAt(destinationOf(items, dragged), from, version),
+          insertionAt(destinationOf(items, dragged), from, snapshot),
         );
         checked.push(`${size}:${from}`);
       }

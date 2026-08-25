@@ -47,8 +47,7 @@ export type FreeDragController = Readonly<{
    * `landing({ duration })` function is called with. No failure is classified,
    * no `onError` fires, and the drag continues on a poisoned offset. This is a
    * documented boundary rather than a guarded one, in the same form the
-   * sortable's `box` slot already uses; the library used to discard such a call
-   * and no longer does.
+   * sortable's `box` slot already uses.
    *
    * A **malformed** `point` — `null`, missing fields, a throwing accessor — is
    * deliberately not checked and throws at the read, reaching

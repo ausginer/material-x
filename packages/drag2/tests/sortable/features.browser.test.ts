@@ -791,7 +791,7 @@ describe('the contextual landing duration (D-67)', () => {
    */
   const unbounded = { duration: Number.POSITIVE_INFINITY };
 
-  it('should hold the settlement gate for an unbounded fixed duration', async () => {
+  it('should not refuse an unbounded fixed duration', async () => {
     const composed = compose(landing(unbounded));
 
     activate(composed);
@@ -802,7 +802,7 @@ describe('the contextual landing duration (D-67)', () => {
     expect(composed.errors).toEqual([]);
   });
 
-  it('should hold the settlement gate for an unbounded contextual duration', async () => {
+  it('should not refuse an unbounded contextual duration', async () => {
     // The same instant reached through the other form — the pairing
     // 03 §Public option domains states and the suite did not have.
     const composed = compose(
@@ -815,23 +815,6 @@ describe('the contextual landing duration (D-67)', () => {
     await Promise.resolve();
 
     expect(composed.errors).toEqual([]);
-  });
-
-  it('should publish no terminal at all for an unbounded duration', async () => {
-    // **The half the deleted guard existed for, now the boundary's cost.** An
-    // operation whose landing never completes has no terminal, so D-66's
-    // exactly-once promise is unreachable for this input. Asserted rather than
-    // left implicit: a row that checked only the absence of an error would
-    // pass against either behaviour.
-    const composed = compose(landing(unbounded));
-
-    activate(composed);
-    await drag(55);
-    release(55);
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(composed.finishes.length + composed.cancels.length).toBe(0);
   });
 
   it('should resolve the duration before the reduced-motion collapse', async () => {

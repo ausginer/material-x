@@ -22,7 +22,7 @@
  * cannot drift silently.
  */
 import { draggable } from '../../kernel.js';
-import { copyUniqueItems } from '../../sortable/collection.js';
+import { copyItems } from '../../sortable/collection.js';
 import { createSortableController } from '../../sortable/controller.js';
 import { createSortableRuntime } from '../../sortable/runtime.js';
 import { createSortableSpec } from '../../sortable/spec.js';
@@ -104,15 +104,10 @@ export function mount(root, items, onReorder, grip, box) {
       // non-composed `createSortableBehavior` seam away, because only the
       // composed entry reaches it. That is itself a small M-3 result — the
       // internal seam the tests drive costs a consumer nothing.
-      // **The pull, the validation and the copy are the caller's** (D-80 (b)):
+      // **The pull and the copy are the caller's** (D-80 (b)):
       // `source` is the identity baseline, the copy is what the runtime
       // publishes, and both are supplied rather than derived inside.
-      const rt = createSortableRuntime(
-        host,
-        items,
-        copyUniqueItems(items),
-        slots,
-      );
+      const rt = createSortableRuntime(host, items, copyItems(items), slots);
 
       return {
         spec: createSortableSpec(rt),

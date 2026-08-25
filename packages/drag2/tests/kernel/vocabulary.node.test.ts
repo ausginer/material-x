@@ -121,7 +121,6 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
     'composeFrame',
     'beginFrame',
     'scrubFrame',
-    'validateFramePart',
     'assertFrameScrubbed',
     'KERNEL_FRAME_KEYS',
   ],

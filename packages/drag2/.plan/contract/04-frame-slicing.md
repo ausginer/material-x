@@ -71,11 +71,8 @@ The behavior authors **only its own part**, and is prevented from declaring a ke
 
 ```ts
 // kernel, private. Called twice.
-const composeFrame = (): Frame<Part> => {
-  const part = spec.createFramePart();
-  validateFramePart(part); // production, per factory result
-  return Object.assign(createKernelFrame(), part);
-};
+const composeFrame = (): Frame<Part> =>
+  Object.assign(createKernelFrame(), spec.createFramePart());
 ```
 
 `Object.assign` is declared `(target: T, source: U) => T & U`, so `KernelFrame & Part` falls out of the expression with **no cast**.
@@ -102,11 +99,13 @@ A part declaring `phase` cannot be returned by any literal, and the error names 
 
 **It catches explicitly declared literal collisions only** (review 6, §19). `FramePartOf<Record<string, unknown>>` is just `Record<string, unknown>`, because `Extract<string, keyof KernelFrame>` is `never` — a broad index signature declares no colliding key even though a runtime `phase` property is entirely possible. ~~The production check below is the authoritative one; the type layer makes the common mistake unwriteable, not every mistake.~~ **Reversed 2026-08-25 (D-124): the type is the contract**, and the runtime collision check that restated it is deleted. A part declaring a kernel frame key is uninhabitable here, so reaching that state takes a cast or plain JavaScript — which is leaving the contract, not finding a hole in it.
 
-**At construction, in production**, `validateFramePart` rejects the part before the first `Object.assign` — **one shape since 2026-08-25**, and the notes under the table say which five left and why. The remaining check is not there because its consequence is severe; it is there because it is the one shape in this validator a **conforming** author can plausibly reach:
+~~**At construction, in production**, `validateFramePart` rejects the part before the first `Object.assign`.~~ **There is no runtime validation of a frame part. `validateFramePart` is deleted** — its last arm on 2026-08-25 (D-122), and with one arm left the function was the arm. The table below is kept, struck, as the record of what each removal buys, because every row describes a real consequence and only the _question_ changed: not _how bad is this_, but _can a conforming author reach it_.
 
-| Rejected | Why |
+**The authoring contract is published on `FramePartOf`** (D-122, F-100) — a plain, own, enumerable, writable, **string-keyed** data record — and the string-key term is stated there with what it protects rather than as a rule: symbol keys are copied between frames by `Object.assign` and are unseen by `resetFramePart`, `assertFrameScrubbed` and `assertFrameShapesMatch`, all of which walk `Object.keys`, so an author using one is outside the reach of the checks that would catch a retained node.
+
+| ~~Rejected~~ | Why |
 | --- | --- |
-| a symbol key | `Object.assign` copies enumerable symbols, but `Object.keys`-based reset and dev checks never see them, so a symbol-keyed DOM reference survives every scrub. **Nothing published says frame part keys are strings**, and `{ [MY_SYMBOL]: node }` is ordinary type-legal JavaScript, so this state is reachable under the contract as written — which is what keeps it. **D-122 decides to publish the string-key requirement and drop this arm**; that is a separate landing and this row states the tree as it stands |
+| ~~a symbol key~~ | `Object.assign` copies enumerable symbols, but `Object.keys`-based reset and dev checks never see them, so a symbol-keyed DOM reference survives every scrub. **Gate (a) passes** — nothing published said frame part keys were strings, and `{ [MY_SYMBOL]: node }` is ordinary type-legal JavaScript — **and clause (b) fails**, which is what decided it: the field is declared by the author, reset by the author's own `resetFramePart`, and invisible only to instruments that check the author's discharge of the author's own obligation. No library-owned state is corrupted; what degrades is the library's ability to tell an author their reset missed their field |
 | ~~a key in `KERNEL_FRAME_KEYS`~~ | ~~it would overwrite kernel state~~ |
 | ~~**`__proto__`**~~ | ~~an own enumerable writable `__proto__` _data_ property makes `Object.assign` invoke the **target's** inherited setter and mutate the frame's prototype instead of adding a field~~ |
 | ~~a non-enumerable or non-writable key~~ | ~~it would not be copied by `begin()`, or would throw on write~~ |
@@ -257,7 +256,7 @@ Destroy and panic additionally clear both frames, the queue and its arguments, t
 
 Properties the type system cannot prove. **The heading is now a misnomer and is kept anyway**, because three dated records cross-reference this section by name and rewriting them to chase a rename would cost more than the heading is worth; read it as _frame-authoring invariants_.
 
-~~All are `__DEV__`-gated and compile out of production.~~ **Un-gated by D-108, and this section's own discriminator is why.** The kernel-key collision check was never here — it is a production check in `validateFramePart` (§Composition), _because its failure mode is silent state corruption rather than a stale reference_. A part factory that is not deterministic and a reset that leaves a live reference are **both** silent state corruption: a retained element leaks a DOM node across every later operation. The rule already classified these as production checks; the gate is what disagreed with it.
+~~All are `__DEV__`-gated and compile out of production.~~ **Un-gated by D-108, and this section's own discriminator is why.** The kernel-key collision check was never here — it was a production check in `validateFramePart` (§Composition), _because its failure mode is silent state corruption rather than a stale reference_. **Both that check and the validator are now deleted** (D-124, D-122), which does not retract the discriminator: it survives, and these two assertions are what it still reaches. A part factory that is not deterministic and a reset that leaves a live reference are **both** silent state corruption: a retained element leaks a DOM node across every later operation. The rule already classified these as production checks; the gate is what disagreed with it.
 
 **The premise the gate rested on expired at Revision 2.1.** `kernel/dev.ts` justified stripping author-facing assertions on the ground that _behavior authoring is not on the public surface_ and named its own revisit condition. D-61, D-70 and D-68 published behavior authoring, so the shipped build handed a third-party author `assertFrameShapesMatch(a, b) {}` — an empty stub they could not fill (F-78). All four kernel sites are cold (once per `arm()`, twice per drag at retirement, once per transaction open, one failure path), the measured cost is 282–305 B against the pre-slice tree, and the budgets re-based rather than the fix shrinking.
 
@@ -287,6 +286,13 @@ Properties the type system cannot prove. **The heading is now a misnomer and is 
   // accessor or made non-writable keeps its key and its position. If that
   // diagnostic is promised, the descriptor validation has to run again.
   validateFramePartDescriptors(frame);
+
+  // **Partial, deliberately** (F-96). Every walk here is `Object.keys`, so a
+  // symbol-keyed field is examined by none of the three — a second known blind
+  // spot beside the stale non-null scalar of F-11/I-28. It is not widened to
+  // `Reflect.ownKeys`: string keys are the published contract (D-122), so
+  // walking symbols would police input the contract excludes, twice per drag,
+  // on every conforming author.
 
   // F-11: reset completeness. A heuristic, checked after every scrub.
   for (const key of keys) {

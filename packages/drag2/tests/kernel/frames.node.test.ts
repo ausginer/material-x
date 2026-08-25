@@ -9,7 +9,6 @@ import {
   KERNEL_FRAME_KEYS,
   resetKernelFields,
   scrubFrame,
-  validateFramePart,
 } from '../../src/kernel/frames.ts';
 import { ACTIVE, IDLE } from '../../src/kernel/phases.ts';
 
@@ -38,37 +37,40 @@ describe('createKernelFrame', () => {
   });
 });
 
-describe('validateFramePart', () => {
-  it('should accept a plain enumerable writable record', () => {
-    expect(() => validateFramePart(createExamplePart())).not.toThrow();
+describe('composeFrame', () => {
+  /**
+   * **The anti-rot rows for seven deleted rejections, and nothing more.**
+   * `validateFramePart` refused these shapes; the last of its arms went with
+   * the function on 2026-08-25 (D-122), so composition now accepts every part
+   * a factory can return. Each row asserts only that — **the library does not
+   * refuse this input** — which is what a returning guard has to argue with.
+   *
+   * ~~And this is the wreckage each one leaves.~~ **Those assertions went in
+   * the same pass** (the D-124 landing review, §1.1 (C)): a colliding key
+   * overwriting `phase`, a `__proto__` part nulling the prototype and a
+   * non-writable key arriving writable are `Object.assign` semantics that hold
+   * for any plain object and would pass with this library absent. Freezing
+   * them made the shape of behaviour under out-of-contract input a regression
+   * contract, which is the coupling the deletions removed from the runtime.
+   * The consequences are recorded in D-121 … D-124 and in `COVERAGE.md`, which
+   * is where evidence about undefined behaviour belongs.
+   */
+  const accepts = (part: object): void => {
+    expect(() => composeFrame(() => part)).not.toThrow();
+  };
+
+  it('should accept a symbol-keyed part', () => {
+    // D-122's row. The term is published on `FramePartOf` now, and the author
+    // is told what it costs them — invisibility to the scrub instruments —
+    // rather than refused.
+    accepts({ [Symbol('x')]: 1 });
   });
 
-  it('should reject a symbol key', () => {
-    expect(() => validateFramePart({ [Symbol('x')]: 1 })).toThrow(/symbol/u);
+  it('should accept a part declaring a kernel frame key', () => {
+    accepts({ phase: 7 });
   });
 
-  // **The four author-contract checks, removed 2026-08-22.** Each cost the
-  // author their own field and cost the library nothing, so each is now an
-  // asserted outcome rather than a rejection — which is the half of the
-  // removal that can rot. A check that comes back has to argue with a test
-  // that says what actually happens.
-  //
-  // **Two more, removed 2026-08-25 (D-124), and pinned the same way.** These
-  // two were not the author's mistake to be spared — both consequences are
-  // severe and both are the library's own state. They went because neither
-  // state is *reachable* by a conforming author: `FramePartOf` makes a
-  // kernel-key collision uninhabitable at compile time, and an own data
-  // `__proto__` takes a deliberate `defineProperty`. What each shape now does
-  // is asserted below rather than assumed.
-
-  it('should accept a kernel frame key, which overwrites the kernel slice', () => {
-    expect(() => validateFramePart({ phase: 7 })).not.toThrow();
-    // The consequence the deleted check named, now the documented outcome:
-    // `Object.assign` copies the part last, so the author's value wins.
-    expect(Object.assign(createKernelFrame(), { phase: 7 }).phase).toBe(7);
-  });
-
-  it('should accept an own __proto__ data property, which mutates the frame prototype', () => {
+  it('should accept an own prototype-mutating data property', () => {
     const part = {};
 
     Object.defineProperty(part, '__proto__', {
@@ -78,16 +80,10 @@ describe('validateFramePart', () => {
       configurable: true,
     });
 
-    expect(() => validateFramePart(part)).not.toThrow();
-    // `Object.assign` invokes the *target's* inherited `__proto__` setter, so
-    // the frame loses its prototype instead of gaining a field. Unreachable
-    // without the `defineProperty` above, which is why the check went.
-    expect(
-      Object.getPrototypeOf(Object.assign(createKernelFrame(), part)),
-    ).toBeNull();
+    accepts(part);
   });
 
-  it('should accept an accessor, which composes to a plain data property', () => {
+  it('should accept an accessor part', () => {
     const part = {};
 
     Object.defineProperty(part, 'item', {
@@ -96,10 +92,10 @@ describe('validateFramePart', () => {
       configurable: true,
     });
 
-    expect(() => validateFramePart(part)).not.toThrow();
+    accepts(part);
   });
 
-  it('should accept a non-enumerable key, which no frame ever receives', () => {
+  it('should accept a non-enumerable key', () => {
     const part = {};
 
     Object.defineProperty(part, 'item', {
@@ -109,14 +105,10 @@ describe('validateFramePart', () => {
       configurable: true,
     });
 
-    expect(() => validateFramePart(part)).not.toThrow();
-    // Absent from *both* frames, so the shapes still match — which is why the
-    // old message's claim that it "would not be copied by begin()" described
-    // no defect: there is nothing to begin.
-    expect('item' in Object.assign(createKernelFrame(), part)).toBe(false);
+    accepts(part);
   });
 
-  it('should accept a non-writable key, whose copy in the frame is writable', () => {
+  it('should accept a non-writable key', () => {
     const part = {};
 
     Object.defineProperty(part, 'item', {
@@ -126,31 +118,17 @@ describe('validateFramePart', () => {
       configurable: true,
     });
 
-    expect(() => validateFramePart(part)).not.toThrow();
-    // The removed check said the key "would throw on write". `Object.assign`
-    // uses `[[Set]]` on a fresh extensible object, so it does not.
-    expect(
-      Object.getOwnPropertyDescriptor(
-        Object.assign(createKernelFrame(), part),
-        'item',
-      ),
-    ).toMatchObject({ writable: true });
+    accepts(part);
   });
 
-  it('should accept a class instance, whose own fields are what the model uses', () => {
+  it('should accept a class instance', () => {
     class Part {
       item: HTMLElement | null = null;
     }
 
-    expect(() => validateFramePart(new Part())).not.toThrow();
+    accepts(new Part());
   });
 
-  it('should accept an array, whose indices become ordinary keys', () => {
-    expect(() => validateFramePart([])).not.toThrow();
-  });
-});
-
-describe('composeFrame', () => {
   it('should compose the kernel slice first, then the behavior part', () => {
     const frame = composeFrame(createExamplePart);
 
@@ -159,23 +137,6 @@ describe('composeFrame', () => {
       'item',
       'insertion',
     ]);
-  });
-
-  it('should validate every factory result, not only the first', () => {
-    let calls = 0;
-    const drifting = (): ExamplePart => {
-      calls += 1;
-      // The factory is not proven deterministic (F-2), so the second frame is
-      // where a symbol-keyed field would otherwise slip in. Re-pointed at the
-      // surviving check when the kernel-key one went (D-124); the property
-      // under test is *every result is validated*, not which shape it rejects.
-      return calls === 1
-        ? createExamplePart()
-        : ({ [Symbol('leak')]: null } as unknown as ExamplePart);
-    };
-
-    expect(() => composeFrame(drifting)).not.toThrow();
-    expect(() => composeFrame(drifting)).toThrow(/frame\/part-symbol-key/u);
   });
 
   it('should produce two frames with an identical key set', () => {

@@ -56,6 +56,30 @@ export type SortableOnDragError = (
 export type SortableOnEnd = (result: ReorderTransactionResult) => void;
 export type ResolveHandle = (item: HTMLElement) => HTMLElement | null;
 export type ResolveElement = (item: HTMLElement) => HTMLElement;
+/**
+ * The collection, pulled on demand.
+ *
+ * **Every element it returns must be distinct, and that is a definition rather
+ * than a restriction** (D-121). The pair this API publishes is
+ * `{ from, to }`: `from` indexes the collection you returned, `to` indexes the
+ * **destination view** — the same collection minus the dragged element — and
+ * the two spaces differ by exactly one *only while the dragged element occurs
+ * once*. Uniqueness is the condition under which `{ from, to }` has a meaning
+ * at all, so a collection naming one element twice has no reorder to describe.
+ *
+ * **Nothing detects a violation.** The realistic way to reach one is composing
+ * this function from overlapping sources — a concatenation, a query that
+ * matches a row twice, a virtualized window overlapping its buffer — so it is
+ * worth checking at the point where the array is built. A duplicate produces
+ * indices in two differently sized spaces, with no error and no cancellation:
+ * applying the published pair puts the element somewhere it was not dropped,
+ * and a duplicate elsewhere in the list can end a live operation against a
+ * republication that changed nothing.
+ *
+ * Array **identity** is a separate signal and is not this term: returning an
+ * equal-but-new array is what tells the library membership may have changed
+ * (D-44).
+ */
 export type ItemSource = () => readonly HTMLElement[];
 
 /**
@@ -64,6 +88,11 @@ export type ItemSource = () => readonly HTMLElement[];
  */
 export type SortableConfig = Readonly<{
   /* required after the merge */
+  /**
+   * The collection, pulled on demand. **Every element it returns must be
+   * distinct** — the condition under which the published `{ from, to }` pair
+   * has a meaning. See {@link ItemSource}.
+   */
   items: ItemSource;
   onReorder: OnReorder;
   /**

@@ -98,6 +98,13 @@ type Overrides = Partial<
      */
     onFinish?(): void;
     itemCount?: number;
+    /**
+     * Wraps the pull source, for the one case that needs a **throwing**
+     * `items()`: the consumer's own code raising inside
+     * `action.prepare(COLLECTION)` is the only way left for a pull to produce
+     * no collection (D-121).
+     */
+    pull?(items: readonly HTMLElement[]): readonly HTMLElement[];
   }>;
 
 const cleanup: Array<() => void> = [];
@@ -164,7 +171,9 @@ function createHarness(overrides: Overrides = {}): Harness {
   let harness!: Harness;
 
   const slots: SortableSlots = {
-    items: () => current,
+    items: overrides.pull
+      ? (): readonly HTMLElement[] => overrides.pull!(current)
+      : () => current,
     measureInsertion: overrides.measureInsertion ?? null,
     resolveInsertion(
       _frame: InsertionFrameView,
@@ -1256,7 +1265,17 @@ describe('release', () => {
     expect(harness.finishes[0]!.type).toBe('noop');
   });
 
-  it('should classify an incoherent insertion instead of dropping silently', () => {
+  it('should not refuse an insertion whose neighbours the snapshot does not support', () => {
+    // **The neighbour-coherence test went 2026-08-25 (D-123).** It read the
+    // one insertion the package does not build — `InsertionGeometry.resolve`
+    // is published at the middle tier — and what made it deletable is that the
+    // axis author can now satisfy the term instead: `insertionAt` ships from
+    // `sortable/feature.js`, so the construction rule the package proved is
+    // one rule (F-91) is the author's too, and a gap that disagrees with it is
+    // not a conforming contribution.
+    //
+    // This is the tripwire a returning check has to argue with. What the
+    // consumer then receives is undefined behaviour and is not frozen here.
     const harness = createHarness();
 
     activate(harness);
@@ -1269,8 +1288,22 @@ describe('release', () => {
     });
     release(60);
 
-    // Reporting a broken invariant as a successful no-op drop would tell the
-    // consumer the drag completed normally.
+    expect(harness.errors).toEqual([]);
+    expect(harness.finishes).toHaveLength(1);
+  });
+
+  it('should still refuse an insertion carrying another version', () => {
+    // The check that stays, and the reason it is a different kind: a
+    // version-mismatched gap is arithmetic over two orderings, which no
+    // author can satisfy — the snapshot it describes is gone. Reporting it as
+    // a successful no-op drop would tell the consumer the drag completed
+    // normally.
+    const harness = createHarness();
+
+    activate(harness);
+    harness.next({ ...harness.gap(1), version: 7 });
+    release(60);
+
     expect(harness.errors[0]!.code).toBe('interaction');
     expect(harness.finishes).toEqual([]);
   });
@@ -2269,76 +2302,54 @@ describe('collection identity', () => {
     });
   });
 
-  it('should refuse a duplicated element at construction', () => {
-    const root = document.createElement('div');
-    const item = document.createElement('div');
-
-    root.append(item);
-    document.body.append(root);
-    cleanup.push(() => root.remove());
-
-    expect(() =>
-      draggable(root, createSortableBehavior([item, item], EMPTY_SLOTS)),
-    ).toThrow(/sortable\/duplicate-item/u);
-  });
-
-  it('should refuse a duplicated element the pull source returned', () => {
-    // **The refusal moved channels with the collection** (D-44). It used to be
-    // a synchronous `TypeError` at the consumer's own `updateItems` call; a
-    // pull source has no such call site, so the throw happens inside
-    // `action.prepare` and the kernel classifies it. The rejection itself is
-    // unchanged — a collection cannot contain the same element twice.
+  it('should publish a duplicated collection the pull source returned', () => {
+    // **The refusal went 2026-08-25 (D-121)**, when `items`'s own TSDoc took
+    // over the term: distinct element identity is the condition under which
+    // the published `{ from, to }` pair means anything, so a collection
+    // naming one element twice is outside the contract and not the library's
+    // to detect. This row is the tripwire that a returning check has to argue
+    // with — **no throw, no report** — and it deliberately stops there. What
+    // such a collection then does to an operation is undefined behaviour, and
+    // D-120 §1 is where the traces of it are kept.
     const harness = createHarness();
 
     expect(() =>
       harness.replace([harness.items[0]!, harness.items[0]!]),
     ).not.toThrow();
 
-    // Idle: there is no operation to settle, so the classified failure reaches
-    // the platform report rather than a terminal callback.
-    expect(reported).toHaveLength(1);
-    expect(String(reported[0])).toMatch(/sortable\/duplicate-item/u);
-    expect(harness.snapshot().version).toBe(0);
+    expect(reported).toEqual([]);
   });
 
-  it('should not queue an update it refused', () => {
-    const harness = createHarness();
-
-    activate(harness);
-
-    try {
-      harness.replace([harness.items[1]!, harness.items[1]!]);
-    } catch {
-      // expected
-    }
-
-    harness.next(null);
-    move(80);
-
-    return nextFrame().then(() => {
-      expect(harness.snapshot().version).toBe(0);
-      // The duplicate threw inside `action.prepare`, which classifies — and a
-      // classified failure of a live operation now ends it (D-66). What this
-      // case pins is that the *refused update* published nothing, which the
-      // version assertion above carries on its own.
-      expect(harness.calls).toContain('onCancel');
-    });
-  });
-
-  it('should not consume a version for an update it refused', () => {
-    // The refused pull produced no snapshot, so it must not leave a gap in the
-    // sequence: the next *valid* update is the first collection that exists
-    // after the initial one, and it has to be numbered as such.
+  it('should not consume a version for a pull that produced no collection', () => {
+    // The counter must stay a dense identity for the collections that exist,
+    // so a version is taken only after a snapshot is minted — which is what
+    // orders the copy before the increment in `spec.ts`.
     //
-    // This is what forces `copyUniqueItems` to run **before** the counter
-    // advances rather than after — the ordering is not incidental, and an
-    // implementation that numbered first would pass every other test here.
-    // Refused while **idle**, deliberately. A classified failure on a live
-    // operation ends that operation — which is a real consequence of moving the
-    // refusal into the transaction (D-44), and not what this test is about.
-    const harness = createHarness();
+    // **Re-pointed at a throwing pull** (D-121). The refused input used to be
+    // a duplicated element; with that refusal gone, the surviving way for a
+    // pull to produce nothing is the consumer's own `items()` raising, which
+    // `action.prepare` classifies. Refused while **idle**, deliberately: a
+    // classified failure of a live operation ends it, which is a different
+    // consequence of D-44 and not what this row is about.
+    let poison = true;
+    const harness = createHarness({
+      pull(items): readonly HTMLElement[] {
+        if (poison) {
+          throw new TypeError('consumer pull');
+        }
 
-    harness.replace([harness.items[1]!, harness.items[1]!]);
+        return items;
+      },
+    });
+
+    harness.replace([harness.items[1]!, harness.items[0]!]);
+
+    // Idle, so the classified failure reaches the platform report rather than
+    // a terminal callback.
+    expect(reported).toHaveLength(1);
+    expect(String(reported[0])).toMatch(/consumer pull/u);
+
+    poison = false;
     harness.replace([harness.items[0]!, harness.items[1]!, harness.items[2]!]);
 
     activate(harness);
@@ -2352,6 +2363,12 @@ describe('collection identity', () => {
 });
 
 describe('invalidate() after destroy', () => {
+  let destroyed = false;
+
+  beforeEach(() => {
+    destroyed = false;
+  });
+
   it('should stay inert for a valid replacement', () => {
     // The parity ledger promises the collection channel is a no-op after
     // `destroy()`; D-44 changed the member, not the promise.
@@ -2371,29 +2388,53 @@ describe('invalidate() after destroy', () => {
     expect(reported).toEqual([]);
   });
 
-  it('should not throw for an invalid replacement', () => {
-    // The observable half, and the one an "no action reached the kernel"
-    // assertion misses entirely: validation ran *before* the closed latch, so a
-    // duplicate threw at a controller that is supposed to be inert.
-    const harness = createHarness();
+  it('should not pull the collection at all for a post-destroy replacement', () => {
+    // The observable half, and the one a "no action reached the kernel"
+    // assertion misses entirely: work ran *before* the closed latch, so an
+    // inert controller still reached the consumer's own code.
+    //
+    // **Re-pointed at the pull** (D-121). It used to be spelled with a
+    // duplicated element, because validation was the work that ran early and
+    // its throw was what escaped; with the refusal gone, what must still not
+    // happen is the `items()` call itself — the one piece of consumer code on
+    // this path, and the only thing left that can throw.
+    let pulls = 0;
+    const harness = createHarness({
+      pull(items): readonly HTMLElement[] {
+        pulls += 1;
+        return items;
+      },
+    });
+
+    const before = pulls;
 
     void harness.controller.destroy();
 
     expect(() =>
-      harness.replace([harness.items[0]!, harness.items[0]!]),
+      harness.replace([harness.items[1]!, harness.items[0]!]),
     ).not.toThrow();
+    expect(pulls).toBe(before);
   });
 
   it('should not classify a post-destroy replacement as an activation failure', () => {
-    // The realistic arrival, and where the throw is not merely returned to the
+    // The realistic arrival, and where a throw is not merely returned to the
     // caller: a consumer tears the list down from a callback and its own store
     // notification lands in the same drain. `onStart` runs inside
-    // `activation.effect`, so the `TypeError` would be classified
-    // `FAILURE_ACTIVATION` against an operation the consumer already destroyed.
+    // `activation.effect`, so a `TypeError` raised there would be classified
+    // `FAILURE_ACTIVATION` against an operation the consumer already
+    // destroyed.
     const harness = createHarness({
+      pull(items): readonly HTMLElement[] {
+        if (destroyed) {
+          throw new TypeError('consumer pull');
+        }
+
+        return items;
+      },
       onStart(h): void {
         void h.controller.destroy();
-        h.replace([h.items[0]!, h.items[0]!]);
+        destroyed = true;
+        h.replace([h.items[1]!, h.items[0]!]);
       },
     });
 
@@ -2503,8 +2544,16 @@ describe('placeholder factory results', () => {
   // **The adoption refusal went 2026-08-25 (D-124).** `config.d.ts` publishes
   // the precondition on the slot — a **detached** element that is neither the
   // item nor its visual — so these are outside the contract and the library no
-  // longer refuses them. The rows below say what each one does instead, which
-  // is what a returning guard would have to argue with.
+  // longer refuses them. The rows below are the tripwire a returning guard
+  // has to argue with, and what each asserts is that the **library's own**
+  // seam still holds: an insertion it cannot make is classified, not made.
+  //
+  // ~~And this is the exact wreckage each one leaves.~~ **Trimmed 2026-08-25**
+  // (the D-124 landing review, §1.1 (C)): the mechanized attribute and the
+  // teardown deleting the consumer's own item were the downstream shape of
+  // undefined behaviour frozen as a regression contract — recorded in D-124's
+  // row and in `COVERAGE.md`, which is where evidence about input the contract
+  // excludes belongs.
 
   it('should adopt the dragged item and lose the insertion one seam later', () => {
     // The natural failure the deletion relies on, executed rather than
@@ -2517,24 +2566,10 @@ describe('placeholder factory results', () => {
 
     activate(harness);
 
-    expect(harness.items[0]!.hasAttribute('data-drag-placeholder')).toBe(true);
     expect(harness.errors.map((entry) => entry.code)).toEqual(['interaction']);
     expect(String(harness.errors[0]!.error)).toMatch(
       /sortable\/insertion-placeholder-lost/u,
     );
-  });
-
-  it('should delete the dragged item at teardown when it was adopted', () => {
-    // The documented damage, now reachable: the teardown disposer removes
-    // whatever was adopted as the placeholder, so adopting the item deletes it.
-    const harness = createHarness({
-      createPlaceholder: ({ item }) => item,
-    });
-
-    activate(harness);
-    release(40);
-
-    expect(harness.root.contains(harness.items[0]!)).toBe(false);
   });
 
   it('should adopt the lifted visual and lose the insertion the same way', () => {

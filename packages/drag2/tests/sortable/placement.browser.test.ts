@@ -155,6 +155,46 @@ describe('createPlaceholder', () => {
     expect(writes).toEqual([]);
   });
 
+  it('should take no rollback snapshot for the default placeholder', () => {
+    // **D-127 (b).** The rollback ledger is `null` for the library's own
+    // `<div>` — dropping the element *is* the undo — and the snapshot each
+    // write would be reversed from used to be built in argument position, so
+    // it was taken and thrown away four times per activation. The reads are on
+    // the **placeholder**, which does not exist until the call returns, so the
+    // instrument records every `getAttribute` and its receiver and filters
+    // afterwards.
+    const calls: Array<Readonly<{ element: Element; name: string }>> = [];
+    const native = Element.prototype.getAttribute;
+    const item = detached();
+    let placeholder: HTMLElement;
+
+    Element.prototype.getAttribute = function patched(
+      this: Element,
+      name: string,
+    ): string | null {
+      calls.push({ element: this, name });
+      return native.call(this, name);
+    };
+
+    try {
+      placeholder = build(null, item);
+    } finally {
+      Element.prototype.getAttribute = native;
+    }
+
+    expect(
+      calls
+        .filter((call) => call.element === placeholder)
+        .map(({ name }) => name),
+    ).toEqual([]);
+    // Not vacuous: the mechanics did run, and the one read they are *supposed*
+    // to make — the item's `slot`, which the placeholder mirrors — happened.
+    expect(
+      calls.filter((call) => call.element === item).map(({ name }) => name),
+    ).toEqual(['slot']);
+    expect(placeholder.getAttributeNames()).toContain('data-drag-placeholder');
+  });
+
   it('should apply no mechanics to the default placeholder once the slot read closes the controller', () => {
     // Same reading, the composition with no `placeholder` slot written: the
     // library's own element is never mechanized either, so the two paths agree.

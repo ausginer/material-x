@@ -220,12 +220,11 @@ export function assemble(
     // is a retention and diagnostics concern rather than a DOM leak — but the
     // unwind is stated as total, so it is total.
     //
-    // **Total across construction, not merely here** (D-80 (b), F-68). The
+    // **Total across construction, not merely here** (D-80 (b), F-69). The
     // sentence used to be true of this function and false of the call that
-    // drives it: `copyUniqueItems` ran inside `install`, after this returned,
-    // so a duplicated element left every hook below unrun. The pull is
-    // validated ahead of the first installer now, which is why this needs no
-    // scope clause.
+    // drives it: the collection was pulled and copied *after* this returned, so
+    // a throwing `items()` left every hook below unrun. The pull happens ahead
+    // of the first installer now, which is why this needs no scope clause.
     for (let i = retireHooks.length - 1; i >= 0; i -= 1) {
       try {
         retireHooks[i]!();

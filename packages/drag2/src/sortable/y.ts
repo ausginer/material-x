@@ -180,7 +180,7 @@ export function y(): AxisInstaller {
               : nearest;
           const { items } = index;
 
-          return insertionAt(items, gap, snapshot.version);
+          return insertionAt(items, gap, snapshot);
         },
 
         invalidate: verified.invalidate,

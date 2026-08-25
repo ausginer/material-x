@@ -2,9 +2,9 @@
  * Free drag's frame part: **five fields and nothing else** (contract 07 §The
  * frame part, B-8).
  *
- * The kernel's seven-field slice is not named here and cannot be — `FramePartOf`
- * rejects a part that declares a kernel key at the authoring boundary, and
- * `validateFramePart` rejects one at `arm()`. Reset is split by author for the
+ * The kernel's seven-field slice is not named here and cannot be: `FramePartOf`
+ * rejects a part that declares a kernel key at the authoring boundary, which
+ * since D-124 is the whole of the enforcement. Reset is split by author for the
  * same reason.
  *
  * **Five against the sortable's eight, and a different *shape***, which is the

@@ -41,34 +41,50 @@ export type Insertion = Readonly<{
 /**
  * **The construction rule for an {@link Insertion}, and its only owner** (F-91,
  * D-119): the gap at `index` of `destination` — a snapshot minus its dragged
- * item — carrying the two elements that gap sits between.
+ * item — carrying the two elements that gap sits between, in `snapshot`.
+ *
+ * **`index` is a gap position in `destination`, `0 .. destination.length`**:
+ * `0` is before the first element, `destination.length` is after the last.
+ * This **derives and does not validate** — `insertionAt(view, 999, snapshot)`
+ * returns an insertion carrying `999` and `null` at both ends, and the seam
+ * that receives it does not check either (D-123).
  *
  * `?? null` at both ends *is* the rule rather than a convenience. A read off
  * either end of the destination view is a **start** or an **end** gap, and
  * those two shapes are what `movePlaceholder` anchors on and what
  * `reconcileCollection` tests for survival.
  *
+ * **The version comes from the snapshot the gap is a gap of** (D-125), rather
+ * than as a bare number: an axis is handed `runtime.snapshot` by the
+ * `InsertionGeometry.resolve` protocol, so every producer already holds it,
+ * and a stale number stops being a spelling anyone can write.
+ *
  * **A pure helper, never a seam** — F-7's disposition, applied here to the
  * value F-91 found unowned. It takes an array and an index, holds no state and
  * needs no instant, so every caller passes **whichever destination view it
  * already holds**: the locally filtered one in `keyboardInsertion`, the axis
- * cache's maintained one in `y()` and `xy()`, `destinationOf`'s in
- * `collection.ts`. That is what leaves the three derivations of the *view*
- * untouched — they exist at three different instants with three amounts of live
- * state, and this rule is indifferent to which of them produced the array.
+ * cache's maintained one in `y()` and `xy()`, `reconcileCollection`'s own. That
+ * is what leaves the three derivations of the *view* untouched — they exist at
+ * three different instants with three amounts of live state, and this rule is
+ * indifferent to which of them produced the array. It is also why the
+ * destination view is a **parameter**: deriving it here would allocate an array
+ * per spatial resolution, on a pointer-move path that exists to avoid exactly
+ * that.
  *
  * `homeInsertion` is the one site that does not call it, and deliberately: it
  * evaluates the same rule over a destination view it never materializes, so
- * that seeding home costs no array. The identity is proved rather than argued —
+ * that seeding home costs no array. It is behavior-internal and unpublished
+ * (D-125) — the contribution protocol already spells the home gap `null`. The
+ * identity is proved rather than argued —
  * `tests/sortable/insertion.browser.test.ts`.
  */
 export function insertionAt(
   destination: readonly HTMLElement[],
   index: number,
-  version: number,
+  snapshot: CollectionSnapshot,
 ): Insertion {
   return {
-    version,
+    version: snapshot.version,
     index,
     before: destination[index - 1] ?? null,
     after: destination[index] ?? null,

@@ -91,8 +91,7 @@ export type LandingOptions = Readonly<{
    * failure. **`Infinity` is the one value it accepts and never completes**:
    * the landing holds the settlement gate, so an unbounded duration leaves the
    * operation with no terminal at all. That is a documented boundary rather
-   * than a guarded one — the library used to refuse this value and no longer
-   * does.
+   * than a guarded one.
    */
   duration?: number | LandingDuration;
   easing?: string;

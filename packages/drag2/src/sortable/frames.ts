@@ -9,9 +9,9 @@
  * reader is residue rather than retention; `recovery`, the field beside it,
  * keeps its three readers and stays.
  *
- * The kernel's seven-field slice is not named here and cannot be — `FramePartOf`
- * rejects a part that declares a kernel key at the authoring boundary, and
- * `validateFramePart` rejects one in production. Reset is split by author for
+ * The kernel's seven-field slice is not named here and cannot be: `FramePartOf`
+ * rejects a part that declares a kernel key at the authoring boundary, which
+ * since D-124 is the whole of the enforcement. Reset is split by author for
  * the same reason: probe 1's single behavior-supplied `resetFrame` had to clear
  * kernel fields too, which forced the behavior to know the kernel's field list.
  */

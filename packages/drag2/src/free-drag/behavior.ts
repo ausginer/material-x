@@ -7,6 +7,16 @@
  *
  * Assembly happens **inside** the install function, not before it: an installer
  * is handed `realm` and `root`, and neither exists until the kernel has a host.
+ *
+ * ~~`createFreeDragBehavior`, the direct factory over `install`.~~ **Deleted
+ * 2026-08-25 (D-126).** It had no caller anywhere in the repository, and its
+ * own doc had said so since 2026-08-22: every free-drag test constructs
+ * through the public `freeDrag()` entry, because this behavior has no state a
+ * lower seam would reach — nothing here corresponds to the sortable's
+ * hand-built slot records. Before release, a seam kept for a use that has not
+ * appeared is pure cost (§8), and restoring four lines is cheaper than
+ * carrying them. The sortable's equivalent stays for the opposite reason and
+ * under the same rule: a test seam exists where a test drives it.
  */
 import { report } from '../kernel/reporter.ts';
 import type {
@@ -35,25 +45,6 @@ function install(
     spec: createFreeDragSpec(rt),
     controller: createFreeDragController(host),
   };
-}
-
-/**
- * Takes an already-assembled slot record.
- *
- * ~~The seam the tests drive directly.~~ **No test drives it** — corrected
- * 2026-08-22, when a grep for the name found one hit in the repository and it
- * was this declaration. It is the seam a test *could* drive, between the merge
- * and the install, and it stays for that; describing a coverage relationship
- * that does not exist is worse than describing none.
- *
- * **A plain factory, unbranded** (D-55): with `freeDrag()` returning its
- * controller directly there is no branded value for a consumer to hold, so the
- * brand had no producer.
- */
-export function createFreeDragBehavior(
-  slots: FreeDragSlots,
-): BehaviorFactory<FreeDragController, FreeDragFramePart> {
-  return (host) => install(host, slots);
 }
 
 /**

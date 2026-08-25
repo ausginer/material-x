@@ -84,8 +84,10 @@ describe('FramePartOf', () => {
   it('should not claim to catch a broad index signature', () => {
     // Documented limit (review 6 §19): `Extract<string, keyof KernelFrame>` is
     // `never`, so an index signature declares no colliding key even though a
-    // runtime `phase` property is entirely possible. `validateFramePart` is the
-    // authoritative check.
+    // runtime `phase` property is entirely possible. ~~`validateFramePart` is
+    // the authoritative check.~~ **There is no runtime check** (D-124, D-122):
+    // this type is the whole of the contract, and the limit is a limit of the
+    // contract rather than of one layer of it.
     expectTypeOf<FramePartOf<Record<string, unknown>>>().toEqualTypeOf<
       Record<string, unknown>
     >();

@@ -66,7 +66,7 @@ export function keyboardInsertion(
   item: HTMLElement,
   direction: KeyboardDirection,
 ): Insertion | null {
-  const { items, version } = snapshot;
+  const { items } = snapshot;
   const from = items.indexOf(item);
 
   if (from === -1) {
@@ -85,5 +85,5 @@ export function keyboardInsertion(
   // `from`, so the target gap is `from + 1`.
   const destination = items.filter((candidate) => candidate !== item);
 
-  return insertionAt(destination, up ? from - 1 : from + 1, version);
+  return insertionAt(destination, up ? from - 1 : from + 1, snapshot);
 }

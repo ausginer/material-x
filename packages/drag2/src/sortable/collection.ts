@@ -24,38 +24,27 @@ export type CollectionChange =
   | Readonly<{ type: typeof CHANGE_CANCEL }>;
 
 /**
- * The collection's **identity precondition**, enforced at every boundary that
- * mints a snapshot.
+ * **An ownership copy, and nothing else** (D-121).
  *
- * Element identity *is* the collection's key: `destinationOf` filters every
- * occurrence of the dragged item while `buildReorderProposal` takes `from`
- * from `indexOf`, the first. A duplicate therefore puts `from` and `to` in
- * index spaces of different size, and the `{ from, to }` pair handed to
- * `onReorder` cannot be applied coherently to the consumer's own array. There
- * is no correct behaviour to define for that input, so it is refused where the
- * caller can still see which call was wrong.
+ * Every boundary that mints a snapshot passes the consumer's array through
+ * here first, because a caller that keeps mutating its own array must not be
+ * able to change a snapshot already queued. That is a §9 ownership act the
+ * library owes on a value it publishes and holds.
  *
- * Shallow-copies as it validates — one pass, one array, one set — because
- * every caller needs the copy anyway: a caller that keeps mutating its own
- * array must not be able to change a snapshot already queued.
+ * ~~It also refused a collection containing one element twice.~~ **The refusal
+ * went 2026-08-25 (D-121)**, when the term it enforced was published on
+ * `SortableConfig.items` instead: element identity *is* the collection's key —
+ * `from` indexes the snapshot, `to` indexes the destination view, and the two
+ * spaces differ by exactly one only while the dragged element occurs once — so
+ * distinctness is the condition under which the published pair means anything,
+ * and a state outside the contract is not the library's to detect. What a
+ * duplicate does instead is written where a consumer meets it.
  */
-export function copyUniqueItems(
+export function copyItems(
   items: readonly HTMLElement[],
 ): readonly HTMLElement[] {
-  const copy = [...items];
-
-  if (new Set(copy).size !== copy.length) {
-    throw new TypeError('drag: sortable/duplicate-item');
-  }
-
-  return copy;
+  return [...items];
 }
-
-/** The snapshot minus the dragged item, in order. */
-const destinationOf = (
-  snapshot: CollectionSnapshot,
-  dragged: HTMLElement,
-): readonly HTMLElement[] => snapshot.items.filter((item) => item !== dragged);
 
 /**
  * The four survival rules, by gap kind. `dragged` must remain in `next`;
@@ -87,7 +76,7 @@ export function reconcileCollection(
     return { type: CHANGE_CANCEL };
   }
 
-  const destination = destinationOf(next, dragged);
+  const destination = next.items.filter((item) => item !== dragged);
   const { before, after } = incumbent;
 
   // A start gap survives only while `after` remains the first destination item.
@@ -95,7 +84,7 @@ export function reconcileCollection(
     if (after !== null && destination[0] === after) {
       return {
         type: CHANGE_REBASE,
-        insertion: insertionAt(destination, 0, next.version),
+        insertion: insertionAt(destination, 0, next),
       };
     }
 
@@ -107,7 +96,7 @@ export function reconcileCollection(
     if (destination[destination.length - 1] === before) {
       return {
         type: CHANGE_REBASE,
-        insertion: insertionAt(destination, destination.length, next.version),
+        insertion: insertionAt(destination, destination.length, next),
       };
     }
 
@@ -120,7 +109,7 @@ export function reconcileCollection(
   if (beforeIndex >= 0 && destination[beforeIndex + 1] === after) {
     return {
       type: CHANGE_REBASE,
-      insertion: insertionAt(destination, beforeIndex + 1, next.version),
+      insertion: insertionAt(destination, beforeIndex + 1, next),
     };
   }
 
@@ -145,10 +134,10 @@ export function reconcileCollection(
  * paragraph.
  *
  * **The equivalence has a precondition and it is the collection's own**: the
- * element identity `copyUniqueItems` enforces at every mint. `indexOf` finds
- * one occurrence where a filtered view drops them all, so on a duplicated
- * collection the two spellings diverge — which is why that input is refused at
- * the boundary rather than handled here.
+ * element distinctness `SortableConfig.items` publishes (D-121). `indexOf`
+ * finds one occurrence where a filtered view drops them all, so on a
+ * duplicated collection the two spellings diverge. That input is outside the
+ * contract rather than handled here, and nothing detects it.
  */
 export function homeInsertion(
   snapshot: CollectionSnapshot,
@@ -176,28 +165,33 @@ export type ProposalBuild = Readonly<{
 
 /**
  * Every request field derives from **one** immutable, version-matching
- * snapshot: mixed-version arithmetic is invalid, and a gap whose captured
- * neighbours no longer match the snapshot fails construction rather than
- * producing a request the consumer would apply to a different ordering.
+ * snapshot: mixed-version arithmetic is invalid, so a gap carrying another
+ * version fails construction rather than producing a request the consumer
+ * would apply to a different ordering.
  *
  * `null` is a broken invariant, not a no-op — the caller turns it into a
  * `SeamRejection`.
  *
- * **The neighbour test is no longer this package re-checking its own
- * arithmetic** (F-91, D-119). With construction owned, every gap `keyboard.ts`
- * and this module produce is {@link insertionAt} over a destination view of the
- * snapshot they name, so for those the test is provably vacuous once the
- * version matches. What it still reads is the one insertion nothing here built:
- * `InsertionGeometry.resolve` is published at the middle tier (D-61), so a
- * version-matching gap can arrive from third-party axis code carrying
- * neighbours this snapshot does not support. **That fault leaves the tier that
- * made it** — it does not cost the axis author their own feature, it hands the
- * *consumer* a `{ from, to, before, after }` to apply to their own array — so
- * the check is the library's and it stays. The other three are about the pair
- * `(snapshot, insertion)` and survive on their own terms; the range test in
- * particular is not implied by this one, since an index past the end of the
- * destination view reads `null` at both ends and a start gap of an empty view
- * legitimately does too.
+ * **The neighbour and range tests went 2026-08-25 (D-121, D-123).** Both read
+ * an `Insertion` the library itself did not build: `InsertionGeometry.resolve`
+ * is published at the middle tier (D-61), so a version-matching gap can arrive
+ * from third-party axis code. What made them deletable is that the axis author
+ * can now **satisfy** the term instead — `insertionAt` is published from
+ * `sortable/feature.js` beside the type and the obligation, so the one
+ * construction rule is the author's too, and `index` is documented there as a
+ * gap position in the destination view. A gap whose neighbours are not the
+ * destination view's, or whose index is outside `0 .. length`, is not a
+ * conforming contribution, and nothing here detects one: the request carries
+ * the author's own `before`/`after` onward to the consumer.
+ *
+ * **The destination view went with them**, which is the measurable half: it was
+ * materialized on the release path solely to re-derive two neighbours and a
+ * length that are now taken from the insertion, so this function allocates
+ * nothing.
+ *
+ * The two tests that remain are about the pair `(snapshot, insertion)` and
+ * survive on their own terms — a mixed-version gap is arithmetic over two
+ * different orderings, and an item the snapshot does not hold has no `from`.
  */
 export function buildReorderProposal(
   snapshot: CollectionSnapshot,
@@ -214,19 +208,7 @@ export function buildReorderProposal(
     return null;
   }
 
-  const destination = destinationOf(snapshot, item);
-  const { index } = insertion;
-
-  if (index < 0 || index > destination.length) {
-    return null;
-  }
-
-  const { before, after } = insertionAt(destination, index, snapshot.version);
-
-  if (before !== insertion.before || after !== insertion.after) {
-    return null;
-  }
-
+  const { index, before, after } = insertion;
   const request: ReorderRequest = {
     item,
     version: snapshot.version,

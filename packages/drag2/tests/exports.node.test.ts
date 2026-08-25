@@ -19,6 +19,7 @@ const modules: Readonly<Record<string, object>> = {
   drag,
   kernel,
   sortable,
+  'sortable/feature': feature,
   'sortable/y': y,
   'sortable/xy': xy,
   'sortable/landing': landing,
@@ -27,8 +28,7 @@ const modules: Readonly<Record<string, object>> = {
   'free-drag/bounds': freeDragBounds,
   'free-drag/landing': freeDragLanding,
   // Last, because the assertion below compares against `runtime` then
-  // `typeOnly`, and these two are the whole of the second list.
-  'sortable/feature': feature,
+  // `typeOnly`, and this one is the whole of the second list.
   'free-drag/feature': freeDragFeature,
 };
 
@@ -102,15 +102,20 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
   'free-drag': ['AT_CONSUMER', 'AT_PROPOSAL', 'FreeDragResolution', 'freeDrag'],
   'free-drag/bounds': ['bounds'],
   'free-drag/landing': ['landing'],
-  // **The middle tier has no runtime exports at all** (D-61). Every name on it
-  // is erased. That is the honest measurement statement for this entry: it
-  // cannot demonstrate absence because it contains nothing present, and unlike
-  // the three subpaths D-56 deleted for exactly that reason, it is not
-  // pretending to. It exists to give the authoring types an address.
-  'sortable/feature': [],
-  // Free drag's middle tier, for the identical reason: `FreeDragInstaller`,
-  // `FreeDragContribution`, `MotionConstraint`, `ConstraintView` and
-  // `MotionDraft` are all erased, so the entry emits no `.js` at all.
+  // **One runtime export, and it is what made this a runtime entry** (D-123,
+  // D-125). ~~The middle tier has no runtime exports at all.~~ Every other
+  // name here is still erased; `insertionAt` is the construction rule for the
+  // value the tier's only *producing* slot returns, so an axis author needs it
+  // to satisfy a term the package publishes and does not implement for them.
+  // This row is also the whole of the emitted-module claim: an entry with no
+  // runtime export emits no `.js`, which is why `files.json` had to move it
+  // out of `typeOnly` in the same change.
+  'sortable/feature': ['insertionAt'],
+  // **Free drag's middle tier still has none, and the asymmetry is the
+  // measurement.** `FreeDragInstaller`, `FreeDragContribution`,
+  // `MotionConstraint`, `ConstraintView` and `MotionDraft` are all erased, so
+  // this entry emits no `.js` at all — which is what `typeOnly` says and what
+  // keeps the split above load-bearing rather than vestigial.
   'free-drag/feature': [],
   'sortable/y': ['y'],
   'sortable/xy': ['xy'],
@@ -131,7 +136,7 @@ describe('package entrypoints', () => {
     // be stated — the surface table below cannot tell the two apart, because
     // both look like an empty export list from inside `src`.
     expect([...files.runtime, ...files.typeOnly]).toEqual(Object.keys(modules));
-    expect(files.typeOnly).toEqual(['sortable/feature', 'free-drag/feature']);
+    expect(files.typeOnly).toEqual(['free-drag/feature']);
   });
 
   it('should resolve every declared entry to a source module', () => {

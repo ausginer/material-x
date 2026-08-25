@@ -21,7 +21,7 @@ import type {
   KernelHost,
 } from '../kernel/spec.ts';
 import { assemble } from './assemble.ts';
-import { copyUniqueItems } from './collection.ts';
+import { copyItems } from './collection.ts';
 import { mergeFragments, type SortableConfig } from './config.ts';
 import {
   createSortableController,
@@ -33,8 +33,9 @@ import type { SortableSlots } from './slots.ts';
 import { createSortableSpec } from './spec.ts';
 
 /**
- * `source` is the array the pull returned and `items` is the validated copy of
- * it (D-80 (b)). They are separate parameters because they are separate facts:
+ * `source` is the array the pull returned and `items` is the library's own copy
+ * of it (D-80 (b)). They are separate parameters because they are separate
+ * facts:
  * `source` is the **identity baseline** a later pull is compared against
  * (D-44), so it must be the consumer's own array, while `items` is what the
  * behavior publishes and must be a copy no consumer can mutate.
@@ -54,7 +55,18 @@ function install(
 }
 
 /**
- * Takes an already-assembled slot record. The seam the tests drive directly.
+ * Takes an already-assembled slot record.
+ *
+ * **An internal test seam, and what it protects is the wiring** (D-126). It is
+ * not a construction layer and not a duplicate of the composed path: both
+ * factories delegate to the same module-private `install()`, so the browser
+ * suite composes runtime, spec and controller exactly as production does
+ * rather than beside it, where a test-local equivalent could drift. What it
+ * adds is reach — an already-flattened `SortableSlots` carrying states the
+ * public config cannot express, such as a stub resolver, no placeholder
+ * factory, or the hook overrides no `SortableConfig` names. It cannot become
+ * public surface: its parameter type is the one `feature.ts` deliberately
+ * stops the published closure at.
  *
  * **A plain factory, unbranded** (D-55). `brandBehavior` is withdrawn: with
  * `sortable()` returning its controller directly there is no branded value for
@@ -64,12 +76,13 @@ export function createSortableBehavior(
   items: readonly HTMLElement[],
   slots: SortableSlots,
 ): BehaviorFactory<SortableController, SortableFramePart, HTMLElement> {
-  // Validated here for the same reason as the composed path below (D-80 (b)):
-  // the collection is copied and checked once, at the boundary that receives
-  // it, rather than deeper in where a throw has installers behind it. This seam
-  // is handed an already-assembled record, so nothing has run yet either way —
-  // what it must not do is let the two paths validate in different places.
-  return (host) => install(host, items, copyUniqueItems(items), slots);
+  // Copied here for the same reason as the composed path below (D-80 (b)): the
+  // collection becomes the library's own at the boundary that receives it, so
+  // the behavior never publishes a snapshot over an array the caller still
+  // holds. **Both paths copy; neither validates any more** (D-121) — the
+  // mirroring is what must not drift, and what is mirrored is now the
+  // ownership act rather than a refusal.
+  return (host) => install(host, items, copyItems(items), slots);
 }
 
 /**
@@ -105,20 +118,20 @@ export function createComposedSortableBehavior(
     // `invalidate()` — belongs to `FAILURE_ACTION_PREPARE`.
     const source = merged.items();
 
-    // **Pulled, validated and copied before the first installer runs, and the
-    // statement order is normative** (D-80 (b), F-68, F-69). `copyUniqueItems`
-    // used to run inside `createSortableRuntime`, i.e. *after* `assemble` had
-    // returned: a collection holding the same element twice left every
-    // recorded `retire` hook unrun, plus a kernel and a realm `draggable()`
-    // had already built, because `arm()` was never reached. Nothing here is
-    // bracketed — the point is that no consumer-triggerable throw remains
-    // between the first hook being recorded and the bracket that unwinds them.
+    // **Pulled before the first installer runs, and the statement order is
+    // normative** (D-80 (b), F-69, F-98). The motive is now F-69 alone: the
+    // pull above is **consumer code** and may throw on its own, and it must not
+    // do so with installer `retire` hooks recorded and unrun, because nothing
+    // here is bracketed and `arm()` is never reached. F-68's window — a
+    // duplicated element throwing from the copy, *after* `assemble` returned —
+    // closed a second time when D-121 removed that refusal; the ordering it
+    // motivated stays, on the reason that outlives it.
     //
-    // **These were sibling arguments to one call, and only left-to-right
-    // evaluation made that safe** (F-69). Swapping them is a change no reviewer
-    // would flag, and it would strand every hook on a throwing `items()`. They
-    // are statements now so the ordering is deliberate rather than positional.
-    const items = copyUniqueItems(source);
+    // **The pull and the assembly were sibling arguments to one call, and only
+    // left-to-right evaluation made that safe** (F-69). Swapping them is a
+    // change no reviewer would flag, and it would strand every hook. They are
+    // statements so the ordering is deliberate rather than positional.
+    const items = copyItems(source);
 
     return install(
       host,
