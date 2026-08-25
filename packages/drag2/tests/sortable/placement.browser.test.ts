@@ -48,32 +48,39 @@ const build = (
   );
 
 describe('createPlaceholder', () => {
-  it('should refuse the dragged item even when it is detached', () => {
-    // Kept as its own conjunct rather than leaning on `isConnected`: the
-    // refusal should not depend on the item happening to be in the document.
+  // **The adoption refusal went 2026-08-25 (D-124), and its three arms are
+  // asserted outcomes now.** `config.d.ts` publishes the precondition on the
+  // slot the author reads — _must return a **detached** element that is
+  // neither the dragged item nor its visual_ — and the type says `HTMLElement`,
+  // so every arm tested a state a conforming author cannot reach. What each
+  // violation now does is pinned here, in the form this package already uses
+  // for a removed check, so a returning guard argues with a test.
+
+  it('should mechanize the dragged item when the factory returns it', () => {
     const item = detached();
 
-    expect(() => build(() => item, item)).toThrow(
-      /sortable\/placeholder-not-adoptable/u,
-    );
+    expect(build(() => item, item)).toBe(item);
+    // The damage the arm named: the item is now carrying the placeholder's own
+    // attributes, and teardown will remove it as if the library owned it.
+    expect(item.hasAttribute('data-drag-placeholder')).toBe(true);
   });
 
-  it('should refuse the lifted visual even when it is detached', () => {
+  it('should mechanize the lifted visual when the factory returns it', () => {
     const item = detached();
     const visual = detached();
 
-    expect(() => build(() => visual, item, visual)).toThrow(
-      /sortable\/placeholder-not-adoptable/u,
-    );
+    expect(build(() => visual, item, visual)).toBe(visual);
+    expect(visual.hasAttribute('data-drag-placeholder')).toBe(true);
   });
 
-  it('should refuse a result that is not an element', () => {
-    // Named by the placeholder contract, not by whatever `applyMechanics`
-    // would have thrown a line later.
+  it('should fail at the first mechanics write for a result that is not an element', () => {
+    // No longer named by the placeholder contract: the first `setAttribute`
+    // is what fails, which is the ordinary lifecycle path this input was
+    // always going to reach one line later.
     const item = detached();
 
     expect(() => build(() => ({}) as unknown as HTMLElement, item)).toThrow(
-      /sortable\/placeholder-not-adoptable/u,
+      TypeError,
     );
   });
 

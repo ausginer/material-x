@@ -100,7 +100,16 @@ export type FreeDragRequest = FreeDragSubject &
     visualRect: DOMRectReadOnly;
   }>;
 
-/** Where a rejected or canceled drag returns to. Viewport space (D-72). */
+/**
+ * Where a rejected or canceled drag returns to. Viewport space (D-72), and
+ * both coordinates finite, as for every point on this surface.
+ *
+ * Nothing detects a non-finite one: it composes into the landing target and
+ * reaches a renderer as a transform nobody can see. A `null`, a missing field
+ * or a throwing accessor is different — the point is read inside the seam, so
+ * those fail there and are classified `FAILURE_LANDING_TARGET` on the quality
+ * route, which skips the landing and leaves a committed drop settled.
+ */
 export type ResolveHome = (subject: FreeDragSubject) => Point;
 
 export type AcceptedFreeDragResolution = Readonly<{ type: 'accepted' }>;

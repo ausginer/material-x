@@ -43,29 +43,6 @@ describe('validateFramePart', () => {
     expect(() => validateFramePart(createExamplePart())).not.toThrow();
   });
 
-  it('should reject a part declaring a kernel frame key', () => {
-    expect(() => validateFramePart({ phase: 0 })).toThrow(
-      /frame\/part-kernel-key/u,
-    );
-  });
-
-  it('should name the colliding kernel key', () => {
-    expect(() => validateFramePart({ pointerX: 0 })).toThrow(/pointerX/u);
-  });
-
-  it('should reject an own __proto__ data property', () => {
-    const part = {};
-
-    Object.defineProperty(part, '__proto__', {
-      value: null,
-      enumerable: true,
-      writable: true,
-      configurable: true,
-    });
-
-    expect(() => validateFramePart(part)).toThrow(/frame\/part-proto-key/u);
-  });
-
   it('should reject a symbol key', () => {
     expect(() => validateFramePart({ [Symbol('x')]: 1 })).toThrow(/symbol/u);
   });
@@ -75,6 +52,40 @@ describe('validateFramePart', () => {
   // asserted outcome rather than a rejection — which is the half of the
   // removal that can rot. A check that comes back has to argue with a test
   // that says what actually happens.
+  //
+  // **Two more, removed 2026-08-25 (D-124), and pinned the same way.** These
+  // two were not the author's mistake to be spared — both consequences are
+  // severe and both are the library's own state. They went because neither
+  // state is *reachable* by a conforming author: `FramePartOf` makes a
+  // kernel-key collision uninhabitable at compile time, and an own data
+  // `__proto__` takes a deliberate `defineProperty`. What each shape now does
+  // is asserted below rather than assumed.
+
+  it('should accept a kernel frame key, which overwrites the kernel slice', () => {
+    expect(() => validateFramePart({ phase: 7 })).not.toThrow();
+    // The consequence the deleted check named, now the documented outcome:
+    // `Object.assign` copies the part last, so the author's value wins.
+    expect(Object.assign(createKernelFrame(), { phase: 7 }).phase).toBe(7);
+  });
+
+  it('should accept an own __proto__ data property, which mutates the frame prototype', () => {
+    const part = {};
+
+    Object.defineProperty(part, '__proto__', {
+      value: null,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
+
+    expect(() => validateFramePart(part)).not.toThrow();
+    // `Object.assign` invokes the *target's* inherited `__proto__` setter, so
+    // the frame loses its prototype instead of gaining a field. Unreachable
+    // without the `defineProperty` above, which is why the check went.
+    expect(
+      Object.getPrototypeOf(Object.assign(createKernelFrame(), part)),
+    ).toBeNull();
+  });
 
   it('should accept an accessor, which composes to a plain data property', () => {
     const part = {};
@@ -155,14 +166,16 @@ describe('composeFrame', () => {
     const drifting = (): ExamplePart => {
       calls += 1;
       // The factory is not proven deterministic (F-2), so the second frame is
-      // where a collision would otherwise slip in.
+      // where a symbol-keyed field would otherwise slip in. Re-pointed at the
+      // surviving check when the kernel-key one went (D-124); the property
+      // under test is *every result is validated*, not which shape it rejects.
       return calls === 1
         ? createExamplePart()
-        : ({ phase: 0 } as unknown as ExamplePart);
+        : ({ [Symbol('leak')]: null } as unknown as ExamplePart);
     };
 
     expect(() => composeFrame(drifting)).not.toThrow();
-    expect(() => composeFrame(drifting)).toThrow(/frame\/part-kernel-key/u);
+    expect(() => composeFrame(drifting)).toThrow(/frame\/part-symbol-key/u);
   });
 
   it('should produce two frames with an identical key set', () => {

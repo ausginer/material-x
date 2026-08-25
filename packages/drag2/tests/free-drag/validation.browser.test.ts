@@ -402,19 +402,19 @@ describe('the silent table', () => {
 describe('the landing duration domain', () => {
   const landingFailure = codeOf(FAILURE_LANDING_CREATE);
 
-  it('should refuse Infinity and let the committed rejected verdict survive it', async () => {
-    // **B-4 (d), restated at Checkpoint E** (E-07). The row used to be titled
-    // *let the accepted drop survive it*, and it never could be: free drag
-    // deliberately does **not** arm a landing for an accepted result — an
-    // accepted drop is already at its destination — so an accepted drop never
-    // evaluates a duration and cannot reach landing creation at all. The
-    // asymmetry is semantic and is retained; what was wrong was the title, and
-    // the executed path was always this one.
+  it('should hold the settlement gate open for an unbounded duration', async () => {
+    // **B-4 (d), restated at Checkpoint E** (E-07). Free drag deliberately does
+    // **not** arm a landing for an accepted result — an accepted drop is
+    // already at its destination — so this is the arm that evaluates a
+    // duration at all.
     //
-    // `Infinity` is the one duration the platform accepts and never completes,
-    // so the library refuses it — and free drag's `SETTLED_FAILED` mapping
-    // keeps the verdict the consumer already gave (D-24, D-49). The assertion
-    // is on the verdict's survival, not on which track the kernel used.
+    // **The refusal went 2026-08-25 (D-124).** `Infinity` is the one duration
+    // the platform accepts and never completes, and _a duration is finite_ is
+    // the size doctrine's own paradigm of a precondition an integrator can
+    // meet and find, so the gate closes at reachability. What the deleted
+    // check bought is what this row now pins: **no failure, and no terminal at
+    // all** — the landing holds the settlement gate and never releases it.
+    // That is the documented boundary `LandingOptions.duration` now states.
     const composed = compose({
       fragments: [landing({ duration: Number.POSITIVE_INFINITY })],
       onDrop: () => FreeDragResolution.reject('nope'),
@@ -426,9 +426,12 @@ describe('the landing duration domain', () => {
     await frame();
     await settled();
 
-    expect(codes(composed.errors)).toEqual([landingFailure]);
-    expect(composed.ends).toHaveLength(1);
-    expect(composed.ends[0]!.type).toBe('rejected');
+    expect(codes(composed.errors)).toEqual([]);
+    expect(composed.ends).toEqual([]);
+
+    // The operation is still open, so the harness is torn down explicitly
+    // rather than left to a terminal that is never coming.
+    void composed.controller.destroy();
   });
 
   /**
@@ -495,6 +498,86 @@ describe('the landing duration domain', () => {
   });
 });
 
+describe('a non-finite moveTo() reaching the landing distance', () => {
+  const landingFailure = codeOf(FAILURE_LANDING_CREATE);
+
+  /**
+   * **The coupling, executed rather than traced** (D-124, and the audit's own
+   * falsifier: _"§2's coupling was traced by reading… that fixture is worth
+   * writing"_).
+   *
+   * `moveTo`'s coordinates are committed as `offsetX`/`offsetY`, the kernel
+   * builds `LandingContext.from` from the rendered offsets, and the runner
+   * mints `distance: Math.hypot(target - from)` for the `duration` thunk. So a
+   * value the contract stopped guarding at one end arrives, **library-minted**,
+   * at a conforming author's arithmetic at the other. Both guards were deleted
+   * in one decision because of this path, and it is pinned here so that a
+   * later pass restoring one of them without the other has to say so.
+   */
+  const dropAfterMoveTo = async (
+    x: number,
+  ): Promise<
+    Readonly<{ distances: number[]; composed: ReturnType<typeof compose> }>
+  > => {
+    const distances: number[] = [];
+    const composed = compose({
+      fragments: [
+        landing({
+          // Exactly the use D-67 added the context for.
+          duration: ({ distance }): number => {
+            distances.push(distance);
+            return distance / 2;
+          },
+        }),
+      ],
+      onDrop: () => FreeDragResolution.reject('nope'),
+    });
+
+    activate(composed);
+    composed.controller.moveTo({ x, y: 10 });
+    release(30, 10);
+    await settled();
+    await frame();
+    await settled();
+
+    return { distances, composed };
+  };
+
+  it('should mint a non-finite distance for a conforming duration thunk', async () => {
+    const { distances, composed } = await dropAfterMoveTo(
+      Number.POSITIVE_INFINITY,
+    );
+
+    expect(distances).toHaveLength(1);
+    expect(Number.isFinite(distances[0]!)).toBe(false);
+
+    void composed.controller.destroy();
+  });
+
+  it('should compound into a held settlement gate for an unbounded distance', async () => {
+    // The worst available outcome, and the reason the two deletions are one
+    // decision: `Infinity` in, `Infinity` out of the thunk, an animation that
+    // never completes, and no terminal for the operation at all.
+    const { composed } = await dropAfterMoveTo(Number.POSITIVE_INFINITY);
+
+    expect(codes(composed.errors)).toEqual([]);
+    expect(composed.ends).toEqual([]);
+
+    void composed.controller.destroy();
+  });
+
+  it('should stay classified for a NaN distance, which the platform refuses', async () => {
+    // The other half of the distinction, and it is benign either way: the
+    // deleted duration guard was `=== Infinity` and never fired for `NaN`, and
+    // `animate()` refuses `NaN` itself at the same stage.
+    const { distances, composed } = await dropAfterMoveTo(Number.NaN);
+
+    expect(Number.isNaN(distances[0]!)).toBe(true);
+    expect(codes(composed.errors)).toEqual([landingFailure]);
+    expect(composed.ends).toHaveLength(1);
+  });
+});
+
 describe('an invalid home result', () => {
   const landingTarget = codeOf(FAILURE_LANDING_TARGET);
 
@@ -529,15 +612,21 @@ describe('an invalid home result', () => {
     expect(reported()).toEqual([]);
   });
 
-  it('should attribute a non-finite result to the same seam', async () => {
-    // Worse than a panic, because nothing throws: `NaN` composes into a target
-    // and reaches a renderer as a transform nobody can see.
+  it('should let a non-finite result compose into the target unattributed', async () => {
+    // **D-124.** The finiteness throw went with the reachability gate — a
+    // landing target is a point, and a point's coordinates are finite by the
+    // same obvious semantics that makes a duration finite, so a non-finite
+    // pair is outside the contract. `domain.d.ts` now publishes that as a
+    // boundary. What the old throw prevented is what happens instead: nothing
+    // throws, nothing is classified, and the value reaches a renderer as a
+    // transform nobody can see. The operation still ends exactly once.
     const composed = await dropHome(() => ({
       x: Number.NaN,
       y: Number.POSITIVE_INFINITY,
     }));
 
-    expect(codes(composed.errors)).toEqual([landingTarget]);
+    expect(codes(composed.errors)).toEqual([]);
+    expect(composed.ends).toHaveLength(1);
   });
 
   it('should attribute a result with a throwing accessor to the same seam', async () => {

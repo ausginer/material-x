@@ -25,7 +25,7 @@ import {
 import { pathOwnsInteraction, POINTER_OWNERS } from '../kernel/input-policy.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE } from '../kernel/phases.ts';
-import { guarded, report } from '../kernel/reporter.ts';
+import { guarded } from '../kernel/reporter.ts';
 import {
   type BehaviorSpec,
   type PreparedSettlement,
@@ -505,32 +505,15 @@ export function createFreeDragSpec(
           // validation, and the seam already classifies it.
           const { x, y } = point;
 
-          // **Finiteness is checked, and it is the one added check on this
-          // surface** (D-91, CE1-04). The value is not a slot read once: it is
-          // folded into `offsetX`/`offsetY`, which are **committed frame
-          // state**, so a single non-finite coordinate poisons every later
-          // `deriveMotion`, every geometry object handed to the consumer, and
-          // the accepted `anchorTarget` the kernel pins with. That is library
-          // state corruption rather than a consumer breaking only their own
-          // code, which is what separates it from the silent table's rows: a
-          // `NaN` `threshold` is silent because no operation ever starts, and
-          // here a live operation continues with `onStart` fired and a terminal
-          // owed.
-          //
-          // **Discarded, not classified**, and the difference from E-05's
-          // `home` is the blast radius rather than the principle. `home`'s
-          // value can only be refused by failing the seam that produced it, so
-          // it is classified and the drop stands; this one can be refused
-          // *before it is written at all*, so refusing it costs the operation
-          // nothing — and classifying it would end a live drag over a
-          // consumer's arithmetic, which is worse than the poisoning it
-          // replaces. The misuse still surfaces, on the platform reporter.
-          if (!Number.isFinite(x) || !Number.isFinite(y)) {
-            report(new Error('drag: free-drag/move-to-not-finite'));
-
-            return null;
-          }
-
+          // **Finiteness is not checked** (D-124, superseding D-91's added
+          // check). `controller.d.ts` publishes _both coordinates must be
+          // finite_ on `moveTo`'s own doc comment, so a non-finite one is
+          // outside the contract and the reachability gate closes before
+          // ownership is asked. What the offsets then poison — `deriveMotion`,
+          // every geometry object, the pinned `anchorTarget`, and through
+          // `LandingContext.from` the library-minted `distance` — is the
+          // undefined behaviour that misuse buys, not a second harm that makes
+          // it the library's.
           draft.offsetX = x - origin.left - (draft.pointerX - draft.originX);
           draft.offsetY = y - origin.top - (draft.pointerY - draft.originY);
 
@@ -859,20 +842,26 @@ export function createFreeDragSpec(
       // throwing accessor used to panic outside the seam its own contract
       // names, and a non-finite pair reached target composition or a renderer.
       //
-      // Throwing from here is what puts the fault back on the track already published for it (07
-      // §Validation): `FAILURE_LANDING_TARGET` →
+      // **The reads stay; the finiteness throw is gone** (D-124). A `null`, a
+      // missing field or a throwing accessor still fails *here*, inside the
+      // seam whose track is already published (07 §Validation):
+      // `FAILURE_LANDING_TARGET` →
       // `presentation`, on the **quality** route, so the landing is skipped
       // rather than faked and a drop that already committed is not re-settled.
+      // A non-finite pair is no longer refused: a landing target is a point,
+      // and a point's coordinates are finite by the same obvious semantics
+      // that makes a duration finite, so that value is outside the contract
+      // and the gate closes on it.
       //
-      // The copy is not defensiveness for its own sake: the returned object is
-      // consumer-owned and its accessors may be live, so composing against it
-      // twice could read two different points.
+      // **The copy is not defensiveness and does not go with the throw**: the
+      // returned object is consumer-owned and its accessors may be live, so
+      // composing against it twice could read two different points. That is
+      // the library taking ownership of a value it reads across a seam
+      // boundary and pins geometry with — `CODE_OF_SIZE.md` §1.1's explicit
+      // carve-out, and a getter-backed `Point` is a legitimate shape rather
+      // than misuse.
       const { x } = home;
       const { y } = home;
-
-      if (!Number.isFinite(x) || !Number.isFinite(y)) {
-        throw new Error('drag: free-drag/home-not-finite');
-      }
 
       return { x, y };
     },

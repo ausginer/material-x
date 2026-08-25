@@ -51,8 +51,6 @@ export const KERNEL_FRAME_KEYS: readonly string[] = [
   'pointerY',
 ];
 
-const KERNEL_FRAME_KEY_SET = new Set(KERNEL_FRAME_KEYS);
-
 export function createKernelFrame(): KernelFrame {
   return {
     phase: IDLE,
@@ -96,11 +94,15 @@ export type Draft<Part extends object> = Omit<Part, keyof KernelFrame> &
  *
  * This catches **explicitly declared literal collisions only**: a broad index
  * signature declares no colliding key even though a runtime `phase` property is
- * entirely possible. `validateFramePart` is the authoritative check; this layer
- * makes the common mistake unwriteable, not every mistake (review 6 §19) — and
- * it is named in prose rather than linked because it is deliberately *not*
- * published (D-68) and a published type must not point at a name a reader
- * cannot reach.
+ * entirely possible. ~~`validateFramePart` is the authoritative check; this
+ * layer makes the common mistake unwriteable, not every mistake (review 6
+ * §19).~~ **Reversed 2026-08-25 (D-124): this type _is_ the contract**, and
+ * the runtime collision check that used to restate it is gone. A part
+ * declaring a kernel frame key is uninhabitable here, so reaching that state
+ * takes a cast or plain JavaScript — which leaves the contract rather than
+ * finding a hole in it. Nothing detects a violation now: a colliding key is
+ * copied over the kernel's own slice by `Object.assign` and the frame carries
+ * the author's value for it.
  *
  * **The collision brand is inlined** (D-68). It was a private
  * `FrameKeyCollision<K>` alias, which put an unpublishable name in this
@@ -119,28 +121,36 @@ export type FramePartOf<Part> = [
 /**
  * Rejects a frame part before the first `Object.assign`.
  *
- * A behavior frame part is still *defined* as a **plain, own, enumerable,
- * writable, string-keyed data record** — that is the authoring contract. What
- * is **checked** is the part of it whose violation corrupts something the
- * library owns, which is three shapes and not six. The type guard above is
- * defeatable by an `any` at the behavior boundary and the runtime consequence
- * of a silently overwritten `phase` is severe enough to be worth one loop per
- * factory result (review 4 §28).
+ * A behavior frame part is *defined* as a **plain, own, enumerable, writable,
+ * string-keyed data record** — that is the authoring contract, and it is
+ * published on {@link FramePartOf}. What is **checked** is one shape, and the
+ * discriminator is no longer how bad the consequence is.
  *
- * **The three that stay, and why each is the library's** — the composed frame
- * is `Object.assign(createKernelFrame(), part)`, so what each shape does is
- * observable rather than argued:
+ * **The one that stays.** A **symbol key** survives on the frame *and* survives
+ * the `Object.keys` reset, so a symbol-held DOM node is retained for the
+ * controller's life — the leak argument D-108 makes for
+ * `assertFrameScrubbed`. It costs 6 B. It stays because it is the one shape in
+ * this validator an author can plausibly reach **while conforming**: nothing
+ * published says frame part keys are strings, and `{ [MY_SYMBOL]: node }` is
+ * ordinary, type-legal JavaScript and a natural way to spell _private to my
+ * behavior_. **D-122 has since decided to close it that way** — publish the
+ * string-key term and drop this arm — and that is a separate landing; until it
+ * lands, this check is the only one here with a live case.
  *
+ * **The two that went, 2026-08-25 (D-124), and neither was reachable.**
  * - a **kernel frame key** overwrites the kernel's own slice — `phase` becomes
- *   the part's value. Silent state corruption, which is contract 04's
- *   discriminator for a production check, and the one check that discriminator
- *   was written about (see `scrub`'s note below);
+ *   the part's value. Severe, and irrelevant: {@link FramePartOf} makes a part
+ *   declaring one **uninhabitable at compile time**, so this restated a
+ *   constraint the published type already carries;
  * - an own data **`__proto__`** makes `Object.assign` invoke the target's
  *   inherited setter and mutate the frame's prototype instead of adding a
- *   field, which breaks the fixed-record model itself;
- * - a **symbol key** survives on the frame *and* survives the `Object.keys`
- *   reset, so a symbol-held DOM node is retained for the controller's life —
- *   the leak argument D-108 makes for `assertFrameScrubbed`. It costs 6 B.
+ *   field. Creatable only through `defineProperty` — not a state an author
+ *   reaches with a literal, a class or a spread.
+ *
+ * Both consequences are real and both are now what the misuse buys. The
+ * argument that kept them — silent state corruption, contract 04's
+ * discriminator for a production check — is a claim about what the library
+ * goes on to do with input the contract never admitted.
  *
  * **The three that went, 2026-08-22, and why none was ours.** A non-plain
  * prototype, an accessor and a non-enumerable key each cost the *author* their
@@ -167,20 +177,6 @@ export function validateFramePart(part: object): void {
     // would survive every scrub.
     throw new TypeError('drag: frame/part-symbol-key');
   }
-
-  for (const key of Object.getOwnPropertyNames(part)) {
-    if (KERNEL_FRAME_KEY_SET.has(key)) {
-      throw new TypeError(`drag: frame/part-kernel-key ${key}`);
-    }
-
-    if (key === '__proto__') {
-      // An own enumerable writable `__proto__` *data* property — creatable only
-      // through `defineProperty` — makes `Object.assign` invoke the target's
-      // inherited `__proto__` setter and mutate the frame's prototype instead
-      // of adding a field.
-      throw new TypeError('drag: frame/part-proto-key');
-    }
-  }
 }
 
 /**
@@ -188,8 +184,8 @@ export function validateFramePart(part: object): void {
  * path, so both frames traverse an identical construction sequence.
  *
  * The part factory is not proven deterministic (F-2), so **each** result is
- * validated: checking only the first would let the second introduce a colliding
- * or `__proto__` key.
+ * validated: checking only the first would let the second introduce a
+ * symbol-keyed field.
  */
 export function composeFrame<Part extends object>(
   createFramePart: () => Part,

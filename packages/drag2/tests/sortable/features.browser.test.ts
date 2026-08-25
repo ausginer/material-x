@@ -309,17 +309,19 @@ describe('placeholder', () => {
     expect(element.getBoundingClientRect().height).toBe(ITEM_HEIGHT);
   });
 
-  it('should refuse a factory result that is already connected', () => {
-    // Refused inside `activation.prepare`, before anything is inserted: the
-    // behavior *adopts* the result, so teardown would remove a node the page
-    // owns.
+  it('should adopt a factory result that is already connected', () => {
+    // **The refusal went 2026-08-25 (D-124).** `config.d.ts` publishes the
+    // precondition on the slot — a **detached** element that is neither the
+    // item nor its visual — so an attached one is outside the contract and the
+    // gate closes before ownership is asked. The damage the check named is
+    // what happens instead: the behavior *adopts* the node, moving it out of
+    // the place the page put it.
     const composed = compose({ placeholder: () => composed.items[2]! });
 
     activate(composed);
 
-    expect(composed.errors).toHaveLength(1);
-    expect(composed.placeholder()).toBeNull();
-    expect(composed.items[2]!.isConnected).toBe(true);
+    expect(composed.errors).toEqual([]);
+    expect(composed.placeholder()).toBe(composed.items[2]!);
   });
 
   it('should classify a factory that throws and leave nothing acquired', () => {
@@ -775,23 +777,21 @@ describe('the contextual landing duration (D-67)', () => {
   });
 
   /**
-   * **The one check D-77 retained, pinned on both input forms** (P18A-19).
-   *
-   * D-77's own rule is that a deleted check nothing pins is a check a later
-   * pass re-adds. The symmetric hazard is a **retained** check nothing pins on
-   * its primary input form: before these rows the guard's message was asserted
-   * by no test, the fixed form — the plain default-motion case a consumer is
-   * most likely to write — was exercised nowhere, and the only test reaching
-   * the guard did so through a thunk under a media query.
+   * ~~**The one check D-77 retained, pinned on both input forms** (P18A-19).~~
+   * **Deleted 2026-08-25 (D-124)**, so no domain check is left in the package
+   * and these rows pin what the boundary does instead — on both input forms,
+   * for the reason the retained check was pinned on both: a form nothing
+   * exercises is where a later pass re-adds a guard without noticing.
    *
    * `Infinity` is the one duration the platform **accepts** and never
-   * completes, so it is the one value that can hang the settlement gate with no
-   * terminal at all — which is why it is the only domain check left in the
-   * package, and why the terminal is asserted here rather than only the error.
+   * completes, so it is the one value that hangs the settlement gate with no
+   * terminal at all. That outcome is now the documented boundary on
+   * `LandingOptions.duration`, and the terminal is asserted here — as an
+   * absence — for exactly the reason it used to be asserted as a presence.
    */
   const unbounded = { duration: Number.POSITIVE_INFINITY };
 
-  it('should refuse an unbounded fixed duration at settlement', async () => {
+  it('should hold the settlement gate for an unbounded fixed duration', async () => {
     const composed = compose(landing(unbounded));
 
     activate(composed);
@@ -799,18 +799,12 @@ describe('the contextual landing duration (D-67)', () => {
     release(55);
     await Promise.resolve();
 
-    expect(composed.errors).toHaveLength(1);
-    expect(composed.errors[0]!.code).toBe(LANDING_CREATE_CODE);
-    // The message, which nothing asserted while the guard was the package's
-    // only surviving domain check.
-    expect(String(composed.errors[0]!.cause)).toMatch(
-      /landing\/duration-infinite/u,
-    );
+    expect(composed.errors).toEqual([]);
   });
 
-  it('should refuse an unbounded contextual duration at settlement', async () => {
-    // The same instant and the same guard, reached through the other form —
-    // the pairing 03 §Public option domains states and the suite did not have.
+  it('should hold the settlement gate for an unbounded contextual duration', async () => {
+    // The same instant reached through the other form — the pairing
+    // 03 §Public option domains states and the suite did not have.
     const composed = compose(
       landing({ duration: () => Number.POSITIVE_INFINITY }),
     );
@@ -820,18 +814,15 @@ describe('the contextual landing duration (D-67)', () => {
     release(55);
     await Promise.resolve();
 
-    expect(composed.errors).toHaveLength(1);
-    expect(composed.errors[0]!.code).toBe(LANDING_CREATE_CODE);
-    expect(String(composed.errors[0]!.cause)).toMatch(
-      /landing\/duration-infinite/u,
-    );
+    expect(composed.errors).toEqual([]);
   });
 
-  it('should still publish exactly one terminal for a refused duration', async () => {
-    // **The half the guard exists for.** An operation whose landing never
-    // completes has no terminal at all; refusing the duration is what keeps
-    // D-66's exactly-once promise reachable, so a test that asserted only the
-    // error would pass against a hang.
+  it('should publish no terminal at all for an unbounded duration', async () => {
+    // **The half the deleted guard existed for, now the boundary's cost.** An
+    // operation whose landing never completes has no terminal, so D-66's
+    // exactly-once promise is unreachable for this input. Asserted rather than
+    // left implicit: a row that checked only the absence of an error would
+    // pass against either behaviour.
     const composed = compose(landing(unbounded));
 
     activate(composed);
@@ -840,7 +831,7 @@ describe('the contextual landing duration (D-67)', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(composed.finishes.length + composed.cancels.length).toBe(1);
+    expect(composed.finishes.length + composed.cancels.length).toBe(0);
   });
 
   it('should resolve the duration before the reduced-motion collapse', async () => {
@@ -1100,21 +1091,19 @@ describe('landing', () => {
     expect(animation!.effect!.getComputedTiming().duration).toBe(0);
   });
 
-  it('should classify an unbounded thunk result under a reduced-motion preference', async () => {
-    // The failure half of the same defect. Validation lived inside the branch
-    // the collapse skipped, so a thunk returning a bad value threw for everyone
-    // except the users least able to notice that it had not.
+  it('should land an unbounded thunk result under a reduced-motion preference', async () => {
+    // **The ordering guarantee this row was written for is gone with the check
+    // it guarded** (D-124). Resolution and the deleted domain test both
+    // preceded the collapse, precisely so a consumer diagnosing a bug did not
+    // get a different answer because of the reader's OS setting. With no test
+    // left, the collapse is the first thing the resolved value meets: under
+    // `reduce` an unbounded duration becomes zero and the operation lands
+    // normally, while without the preference it hangs the gate.
     //
-    // **D-77 narrows the value without weakening the ordering.** ~~`NaN`~~ is
-    // no longer the library's business — `animate()` refuses it itself, at the
-    // same stage — so the case is restated over `Infinity`, the one duration
-    // the platform accepts and never completes and therefore the one that can
-    // hang the settlement gate. The property under test is unchanged and is
-    // the reason the value had to be swapped rather than the test deleted:
-    // resolution and the surviving check both precede the collapse, so a
-    // consumer diagnosing a bug does not get a different answer because of the
-    // reader's OS setting — even though the collapse to zero would have made
-    // this particular value harmless.
+    // **That divergence by OS setting is the price of the deletion**, and it
+    // is pinned here rather than left to be rediscovered — this row is the one
+    // that would notice a returning guard, and it is the strongest argument
+    // available to anyone who wants to re-put one.
     const composed = composeWith({
       fragments: [landing({ duration: () => Number.POSITIVE_INFINITY })],
     });
@@ -1128,7 +1117,8 @@ describe('landing', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(composed.errors).toHaveLength(1);
+    expect(composed.errors).toEqual([]);
+    expect(composed.finishes.length + composed.cancels.length).toBe(1);
   });
 
   it('should default the easing to the retained shipped value', async () => {

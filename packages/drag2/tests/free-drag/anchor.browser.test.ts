@@ -404,12 +404,18 @@ describe('a detached constraint', () => {
 });
 
 describe('a non-finite moveTo()', () => {
-  it('should write nothing into the committed frame', () => {
-    // **D-91, and the poisoning it replaces.** `offsetX` is committed frame
-    // state that every later `deriveMotion` reads, so before this check a
-    // single `NaN` froze the visual on one axis and put `NaN` into every
-    // geometry object for the rest of the operation. The assertion is on the
-    // **next** sample, because that is where the poison would surface.
+  // **The discard went 2026-08-25 (D-124).** `controller.d.ts` publishes _its
+  // coordinates must both be finite_ on `moveTo`'s own doc comment, so a
+  // non-finite one is outside the contract and the reachability gate closes
+  // before ownership is asked. D-91's keep-argument — that the offsets are
+  // committed frame state and poison every later derivation — is a description
+  // of what the library goes on to compute, which the gate never reaches.
+  //
+  // The poisoning it named is therefore real again, and is asserted here
+  // rather than left to a silence. `tests/free-drag/validation.browser.test.ts`
+  // carries the far end of it: the poison reaches a library-minted `distance`.
+
+  it('should write the non-finite offset into the committed frame', () => {
     const composed = compose();
 
     activate(composed);
@@ -418,30 +424,26 @@ describe('a non-finite moveTo()', () => {
 
     const geometry = composed.moves.at(-1)!;
 
-    expect(Number.isFinite(geometry.viewportDelta.x)).toBe(true);
-    expect(Number.isFinite(geometry.currentRect.x)).toBe(true);
-    expect(composed.rendered()).toEqual([40, 30]);
+    expect(Number.isFinite(geometry.viewportDelta.x)).toBe(false);
+    expect(Number.isFinite(geometry.currentRect.x)).toBe(false);
   });
 
-  it('should surface the misuse on the platform channel', () => {
-    // Discarded is not silent. The action produces no classified failure, but
-    // a consumer that passed `NaN` has made a mistake the library can see and
-    // says so — on the non-consequential channel, which is the one that cannot
-    // end an operation.
+  it('should surface nothing on the platform channel', () => {
+    // No report either: the call is accepted, so there is no misuse for the
+    // library to have noticed.
     const composed = compose();
 
     activate(composed);
     composed.controller.moveTo({ x: Number.POSITIVE_INFINITY, y: 10 });
 
-    expect(reported()).toHaveLength(1);
+    expect(reported()).toEqual([]);
     expect(composed.errors).toEqual([]);
   });
 
   it('should let the operation complete normally', async () => {
-    // **The negative control, and it is half the decision** (D-91). Classifying
-    // the point would end a live drag over a consumer's arithmetic, which is a
-    // worse answer than the poisoning it replaces — so a spurious cancellation
-    // fails this row exactly as the poisoning fails the one above.
+    // **Unchanged, and still half the decision.** Whatever the geometry says,
+    // the lifecycle does not end a live drag over the consumer's arithmetic:
+    // one terminal, accepted, no classified failure.
     const composed = compose();
 
     activate(composed);
@@ -456,7 +458,7 @@ describe('a non-finite moveTo()', () => {
   });
 
   it('should still retarget for a finite point', () => {
-    // The positive control: the check refuses two values and nothing else.
+    // The positive control: a finite point re-bases exactly as it always did.
     const composed = compose();
     const origin = composed.item.getBoundingClientRect();
 

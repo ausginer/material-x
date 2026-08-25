@@ -974,14 +974,18 @@ describe('arm', () => {
     root.remove();
   });
 
-  it('should reject a frame part that declares a kernel frame key', () => {
+  it('should arm with a frame part that declares a kernel frame key', () => {
+    // **D-124.** The rejection went with the reachability gate: `FramePartOf`
+    // makes such a part uninhabitable at compile time, so reaching this state
+    // needs the cast below. `arm()` no longer refuses it — asserted here so a
+    // returning check has to argue with a test rather than with a silence.
     const root = document.createElement('div');
 
     document.body.append(root);
 
     expect(() =>
       createArmedWithPart(root, () => ({ phase: 1 }) as unknown as ExamplePart),
-    ).toThrow(/phase/u);
+    ).not.toThrow();
 
     root.remove();
   });

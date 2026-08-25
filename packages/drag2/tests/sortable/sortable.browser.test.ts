@@ -2500,19 +2500,33 @@ describe('invalidation failure classification', () => {
 });
 
 describe('placeholder factory results', () => {
-  it('should refuse the dragged item as its own placeholder', () => {
+  // **The adoption refusal went 2026-08-25 (D-124).** `config.d.ts` publishes
+  // the precondition on the slot — a **detached** element that is neither the
+  // item nor its visual — so these are outside the contract and the library no
+  // longer refuses them. The rows below say what each one does instead, which
+  // is what a returning guard would have to argue with.
+
+  it('should adopt the dragged item and lose the insertion one seam later', () => {
+    // The natural failure the deletion relies on, executed rather than
+    // assumed: the item is adopted and mechanized, and the very next act —
+    // inserting a placeholder that *is* the item — leaves the insertion
+    // unmade, which `activation.effect` already refuses on its own terms.
     const harness = createHarness({
       createPlaceholder: ({ item }) => item,
     });
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.code)).toEqual(['interaction']);
+    expect(harness.items[0]!.hasAttribute('data-drag-placeholder')).toBe(true);
+    expect(harness.errors.map((entry) => entry.code)).toEqual(['interaction']);
+    expect(String(harness.errors[0]!.error)).toMatch(
+      /sortable\/insertion-placeholder-lost/u,
+    );
   });
 
-  it('should leave the dragged item in the document when it was refused', () => {
-    // The teardown disposer removes whatever was adopted as the placeholder.
-    // Adopting the item therefore *deleted* it once the drag ended.
+  it('should delete the dragged item at teardown when it was adopted', () => {
+    // The documented damage, now reachable: the teardown disposer removes
+    // whatever was adopted as the placeholder, so adopting the item deletes it.
     const harness = createHarness({
       createPlaceholder: ({ item }) => item,
     });
@@ -2520,20 +2534,20 @@ describe('placeholder factory results', () => {
     activate(harness);
     release(40);
 
-    expect(harness.root.contains(harness.items[0]!)).toBe(true);
+    expect(harness.root.contains(harness.items[0]!)).toBe(false);
   });
 
-  it('should refuse the lifted visual as the placeholder', () => {
+  it('should adopt the lifted visual and lose the insertion the same way', () => {
     const harness = createHarness({
       createPlaceholder: ({ visual }) => visual,
     });
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.code)).toEqual(['interaction']);
+    expect(harness.errors.map((entry) => entry.code)).toEqual(['interaction']);
   });
 
-  it('should refuse a node that is already in the document', () => {
+  it('should move a node that is already in the document', () => {
     const outside = document.createElement('div');
 
     document.body.append(outside);
@@ -2545,10 +2559,10 @@ describe('placeholder factory results', () => {
 
     activate(harness);
 
-    expect(outside.parentElement).toBe(document.body);
+    expect(outside.parentElement).not.toBe(document.body);
   });
 
-  it('should refuse a result that is not an element', () => {
+  it('should fail at the first mechanics write for a result that is not an element', () => {
     const harness = createHarness({
       createPlaceholder: () => ({}) as unknown as HTMLElement,
     });

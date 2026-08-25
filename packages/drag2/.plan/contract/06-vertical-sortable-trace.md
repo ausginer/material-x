@@ -85,11 +85,12 @@ const controller = sortable(
 [K] kernel.arm(spec)
       current = composeFrame()   → createFramePart(); validateFramePart(part)
       draft   = composeFrame()   → createFramePart(); validateFramePart(part)
-             ← BOTH results are validated: no kernel-key collision, no
-               `__proto__`, no symbols, no accessors, plain enumerable
-               writable string keys. The factory is not proven deterministic
-               (F-2), so checking only the first would let the second
-               introduce a collision.                                [I-5]
+             ← BOTH results are validated: **no symbols** — the one shape
+               still checked (D-124). The part is still *defined* as a plain
+               enumerable writable string-keyed record; the rest is the
+               published type's to state. The factory is not proven
+               deterministic (F-2), so checking only the first would let the
+               second introduce one.                                 [I-5]
                 ← same code path twice → one hidden class            [D-15, I-27]
       __DEV__: key sets match ✔  (captured as armedKeys for scrub checks)
       ── if any step here throws: spec.retire() best-effort, scrub, abort

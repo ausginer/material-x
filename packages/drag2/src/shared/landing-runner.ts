@@ -80,9 +80,19 @@ export type LandingOptions = Readonly<{
    * would be a runtime arity check, which is not worth its cost for a form that
    * still behaves correctly.
    *
-   * What it costs, either way, is one call per landing and a `TypeError` that
-   * arrives at settle time rather than at construction — the value cannot be
-   * range-checked before it exists.
+   * What it costs, either way, is one call per landing, at settle time rather
+   * than at construction — the value does not exist before then.
+   *
+   * **The domain is a finite number of milliseconds, and nothing here detects
+   * a violation.** Either form — the fixed number or the value the function
+   * returns — is handed to the platform's `animate()` as written. `animate()`
+   * refuses `NaN`, a negative, `-Infinity`, a string and an object itself, at
+   * that moment, and the failure is classified as an ordinary landing-creation
+   * failure. **`Infinity` is the one value it accepts and never completes**:
+   * the landing holds the settlement gate, so an unbounded duration leaves the
+   * operation with no terminal at all. That is a documented boundary rather
+   * than a guarded one — the library used to refuse this value and no longer
+   * does.
    */
   duration?: number | LandingDuration;
   easing?: string;
@@ -121,11 +131,18 @@ export function createLandingStart(options: LandingOptions): LandingStart {
   // The deletion rests on the byte argument and on the `Infinity` invariant,
   // not on this.
   //
-  // `Infinity` is the one value it accepts and never completes. That is the
+  // ~~`Infinity` is the one value it accepts and never completes. That is the
   // only reason a check survives here at all: **the landing holds the
   // settlement gate**, so an animation that never finishes is an operation with
   // no terminal — the single failure this architecture cannot classify, because
-  // classification needs something to happen.
+  // classification needs something to happen.~~ **Struck, and the check with
+  // it** (D-124). That is a description of what the library goes on to do with
+  // a value the contract never admitted: `Infinity` is not a long animation,
+  // it is the absence of one, and _a duration is finite_ is the size
+  // doctrine's own paradigm of a precondition an integrator can meet and find.
+  // The gate closes at reachability and the cost of the failure never gets
+  // asked. **Nothing detects a violation** — an unbounded duration now holds
+  // the settlement gate open with no terminal, which is what that misuse buys.
   const timing: LandingDuration | null =
     typeof declared === 'function' ? declared : null;
   const fixed = typeof declared === 'function' ? 0 : declared;
@@ -159,14 +176,16 @@ export function createLandingStart(options: LandingOptions): LandingStart {
             distance: Math.hypot(target.x - from.x, target.y - from.y),
           });
 
-    // **The one surviving domain test** (D-77), applied to both forms at the
-    // same instant and **before** the reduced-motion collapse, which is where
-    // Checkpoint D (D4) put it and where it stays: a consumer diagnosing a bug
-    // must not get a different answer because of the reader's OS setting, even
-    // though the collapse would have made this particular value harmless.
-    if (resolved === Number.POSITIVE_INFINITY) {
-      throw new TypeError('drag: landing/duration-infinite');
-    }
+    // ~~**The one surviving domain test** (D-77), applied to both forms at the
+    // same instant and **before** the reduced-motion collapse.~~ **Deleted
+    // 2026-08-25 (D-124)**, so no domain test survives here and the whole
+    // domain is `animate()`'s. The instant it ran at mattered only while it
+    // ran; the reduced-motion collapse below is now the first thing the
+    // resolved value meets, and under `reduce` an unbounded duration collapses
+    // to zero and lands — which is a difference by OS setting that the old
+    // ordering deliberately prevented, and is the price of the deletion rather
+    // than an oversight.
+    //
     // Collapsed to zero rather than skipped: the gate is still held and still
     // released through the runner, so the lifecycle is one path whatever the
     // user's motion preference is.

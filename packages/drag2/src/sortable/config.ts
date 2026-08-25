@@ -111,6 +111,11 @@ export type SortableConfig = Readonly<{
    * behavior always creates a placeholder; this only changes which element it
    * is. Must return a **detached** element that is neither the dragged item nor
    * its visual.
+   *
+   * Nothing detects a violation — the returned element is **adopted**:
+   * activation inserts it, every move relocates it, and teardown removes it, so
+   * returning an attached node hands the library ownership of something the
+   * page owns and teardown then deletes it. A documented boundary, not a guard.
    */
   placeholder?: PlaceholderFactory;
 

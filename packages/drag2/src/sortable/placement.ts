@@ -218,7 +218,7 @@ export function createPlaceholder(
   live: () => boolean,
   undo: PlaceholderUndo,
 ): HTMLElement {
-  const { item, visual } = context;
+  const { item } = context;
 
   if (factory === null) {
     const placeholder = realm.document.createElement('div');
@@ -240,38 +240,27 @@ export function createPlaceholder(
   // C5-02; this one covers the factory itself and the adoption check between
   // them.
   //
-  // Returned unmechanized rather than thrown, and the adoption check is skipped
-  // with it: a consumer destroying its own controller is not a library failure
-  // (C2-01 §What this does not close), and nothing here has been adopted —
-  // `activation.prepare` has published nothing and `preparationValid()` discards
-  // the whole preparation, so the element is dropped rather than inserted.
+  // Returned unmechanized rather than thrown: a consumer destroying its own
+  // controller is not a library failure (C2-01 §What this does not close), and
+  // nothing here has been adopted — `activation.prepare` has published nothing
+  // and `preparationValid()` discards the whole preparation, so the element is
+  // dropped rather than inserted.
   if (!live()) {
     return placeholder;
   }
 
-  // The factory is consumer code and its result is **adopted**: activation
-  // inserts it, every move relocates it, and teardown removes it. So returning
-  // the dragged item, its visual, or any node already in the document hands
-  // the library ownership of something the page owns — and the teardown
-  // removal then deletes it. Refused here, inside `activation.prepare`, where
-  // the seam classifies it as `FAILURE_ACTIVATION` and nothing has been
-  // inserted yet; the alternative is discovering it later as DOM corruption
-  // with no way to attribute it.
-  //
-  // **Adoptable is the condition all four arms test** (F-86): a non-element
-  // cannot be adopted at all, and the item, the visual and anything already in
-  // the tree are owned by someone else. Naming the last arm — `isConnected` —
-  // would tell three callers in four that they returned an attached element
-  // when the accepting case is precisely a detached one.
-  if (
-    !realm.isElement(placeholder) ||
-    placeholder === item ||
-    placeholder === visual ||
-    placeholder.isConnected
-  ) {
-    throw new TypeError('drag: sortable/placeholder-not-adoptable');
-  }
-
+  // ~~**Adoptable is the condition all four arms test** (F-86), and returning
+  // the dragged item, its visual or an attached node is refused here.~~
+  // **Deleted 2026-08-25 (D-124).** The factory's result is still **adopted** —
+  // activation inserts it, every move relocates it, teardown removes it — and
+  // all four arms still describe real damage. What changed is which question
+  // is asked first: `config.d.ts` publishes _must return a **detached** element
+  // that is neither the dragged item nor its visual_ on the slot itself, and
+  // the type says `HTMLElement`, so every arm tested a state a conforming
+  // author cannot reach. **Nothing detects a violation now**, in the same form
+  // `box` two slots away already uses — the sentence stays true as a
+  // documented boundary, and an author who ignores it hands the library
+  // ownership of a node the page owns and gets it removed at teardown.
   applyMechanics(placeholder, item, footprint, live, undo);
   return placeholder;
 }
