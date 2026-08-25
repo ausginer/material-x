@@ -1518,6 +1518,20 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 ---
 
+### The collection uniqueness question, decided 2026-08-25 (D-120, closing F-95)
+
+**An owner question rather than a finding, and the answer is that nothing moves.** `ItemSource` returns `readonly HTMLElement[]` and every structural mint runs `copyUniqueItems`, which copies and builds a `Set` solely to refuse duplicate element identity. Three candidates were put — keep the runtime check, publish an ordered `ReadonlySet` snapshotted straight back into an array, or make uniqueness an unchecked precondition of the array API. Record [`collection-uniqueness-ownership-claude.md`](reviews/phase-23/collection-uniqueness-ownership-claude.md).
+
+**Both alternatives fail for one reason, not two: each converts a refusal the library can still make into a corruption nobody can observe.** The `ReadonlySet` proposal is the sharper rejection because it looks like the principled answer — **a `Set` does not reject duplicates, it absorbs them**, so a consumer converting their own array loses elements silently and the type then asserts the precondition the conversion just destroyed. It also buys no allocation back, and it would end D-44's array-identity fast path, making every scroll, resize and zoom a structural mint.
+
+**The counterfactual was executed rather than argued, per Code of Size §1.1, and it decided the question.** A duplicated **dragged** item yields a proposal that passes all four of `buildReorderProposal`'s guards — version, membership, range, neighbour identity — because within each index space every value is consistent; it is the two spaces that disagree, and nothing compares them. The consumer applies the published `{ from, to }` and their element lands in the wrong position, with no throw, no `onError` and no cancellation. A duplicated **non**-dragged item, which the cheap O(1) length test cannot see, makes `reconcileCollection` cancel a live operation against a republication of the identical, unchanged collection — I-14 violated by a publication that changed nothing.
+
+**The cost was measured on when it runs, which is §0's own rule.** Never per frame or per sample; construction once, then only the structural branch D-44 already gates. 105 ns / 715 ns / 2.7 us / 13.4 us at n = 10 / 50 / 200 / 1000 — against a rect-index rebuild the same publication forces, which at n = 1000 is milliseconds. Roughly one percent of the work its own trigger causes.
+
+**What the question actually surfaced is in the record, not the code** (F-95). D-77 swept this check under the Code of Size and kept it deliberately, but the rule it froze in the same cell — _a construction-time throw is permitted only for an invariant over what installers contribute_ — reaches `claim` and not this. The verdict was right and the stated rationale did not cover it, which is why F-67 and F-68 both re-examined the check and neither noticed: both asked where it should run, not why it exists. Closed by supplying the derivation — §1.1's _whose state is corrupted_, answered twice over in the library's favour — rather than by widening a rule that is correct about the thing it is about.
+
+**Nothing is booked as work.** The one-pass spelling of `copyUniqueItems` is a measurement left to the implementer and §11 warns against hand-shaping source for it; F-93 is untouched and stays open on its own terms.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.
