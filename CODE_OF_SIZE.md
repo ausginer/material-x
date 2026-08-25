@@ -6,7 +6,7 @@ The goal is **not code golf**. The goal is to remove runtime machinery the libra
 
 A size pass must make the implementation smaller **without making the contract worse**.
 
-**Some rules here have measurements behind them and some are priors, and the difference matters when they collide.** Where a rule was tested, this document says so and points at the record; where a measurement has falsified an earlier rule, the old wording is struck rather than deleted, because other documents cite it. Sections 0, 1.1, 1.3, 4, 15 and 18 carry evidence from one package's Phase 23 finalization work. A rule with no measurement beside it is a default to be argued with, not a finding. **§1.1's reachability rule, added 2026-08-25, is one of those defaults**: it is a design principle about what a library owes, and the audits cited beneath it are worked examples of applying it rather than evidence for it.
+**Some rules here have measurements behind them and some are priors, and the difference matters when they collide.** Where a rule was tested, this document says so and points at the record; where a measurement has falsified an earlier rule, the old wording is struck rather than deleted, because other documents cite it. Sections 0, 1.1, 1.3, 4, 15 and 18 carry evidence from one package's Phase 23 finalization work. A rule with no measurement beside it is a default to be argued with, not a finding. **§1.1's reachability gate, added 2026-08-25 and made decisive the same day, is one of those defaults**: it is a design principle about what a library owes, and the audits cited beneath it are worked examples of applying it rather than evidence for it. It is also the one rule here that can **reopen** a settled outcome without any new measurement, so where it does, this document says which outcome and leaves the earlier reasoning standing.
 
 ---
 
@@ -50,25 +50,33 @@ None of that is negotiable and no size pass touches it (§13). **Outside it, the
 
 **The contract does not have to be unconstructible in JavaScript.** It may be stated by TypeScript, by documentation, or by an obvious semantic precondition — _a duration is finite_, _`resolve` returns a position in the list you were handed_, _do not call this after you destroyed it_. An integrator who reaches an invalid state through `any`, a cast, a `@ts-expect-error` or plain JavaScript has **left** the contract; they have not found a hole in it. Demanding that a precondition be compiler-enforceable before it counts as a contract term is precisely how a library ends up re-checking its own types at runtime.
 
-**So the questions are ordered, and reachability comes first.**
+**So reachability is a gate, not the first of two questions.**
 
-1. **Is this state reachable through correct use of the public contract?** If it is not, the library owes no runtime machinery for it — however incoherent its internals would become on the way.
-2. **If it is reachable — or if the library would otherwise go on to violate an invariant of its own — whose invariant breaks?**
+1. **Is this state reachable through correct use of the public contract?** If it is **not — stop.** The library owes no runtime machinery for it, and nothing considered later reopens the question.
+2. **Only for a state that survives (1):** does a library-owned invariant require a runtime check here?
 
 ~~Runtime validation is justified only when it protects a library-owned invariant that cannot reasonably be expressed or enforced elsewhere.~~ **Sharpened 2026-08-25.** That sentence made _bad input could make our internals incoherent_ a sufficient justification, and it is not one: the internals are incoherent **because** something invalid was fed to them, and the library never owed correctness under invalid input. Ownership is the right second question and the wrong first one — asked first, it justifies almost any check, because almost any bad value eventually touches something the library owns.
 
-**Two clauses, and a check needs one of them.** Runtime validation is justified when:
+**Made decisive 2026-08-25, because the first draft of the ordering was not.** It wrote the two as _ordered questions_ and then let ownership rescue a check that had already failed (1) — the struck sentence returning one step later, in better clothes. That failure mode is worth naming because it is a comfortable one: **every check has a story about what the library would go on to compute without it**, and under a merely-ordered reading that story is always available. **What happens after invalid input is not a justification for refusing the input.** An integrator who violates the contract may get a natural failure, silent nonsense, or plainly undefined behaviour — and the library subsequently computing or publishing nonsense is **part of that undefined behaviour**, not a separate harm that converts the misuse into the library's runtime responsibility.
 
-- **(a) the invalid state can arise despite correct integration** — the platform did it, a race did it, a reentrant callback did it, or the library minted the value itself and must read it back later; or
-- **(b) without the check the library would itself violate an invariant it owns** — it would corrupt its own state and keep operating on it, or publish under its own name a value its own contract promises is well-formed.
+**(a) is the gate; (b) is the only justification.** They are not two ways to earn a check:
 
-Clause (b) is what stops this rule collapsing into _delete every check_, and it is the clause that does the work on any surface with more than two parties.
+- **(a) the invalid state can arise despite correct integration** — the platform did it, a race did it, a reentrant callback did it, the end user did it, or the library minted the value itself and must read it back later. This is test (1) in the form a check has to satisfy. **Fail it and there is nothing further to argue**, whatever (b) would have said.
+- **(b) with (a) satisfied**, the library would itself violate an invariant it owns — it would corrupt its own state and keep operating on it, or publish under its own name a value its own contract promises is well-formed.
 
-**"Let it fail naturally" assumes the failure lands on the party who caused it.** With one integrator and one library it usually does, and the ordinary lifecycle/error path is the right answer. It stops being true the moment the library re-publishes someone else's value to a **third** party under its own name — a plugin's output folded into an application callback, an authoring API's return value handed on as library-computed data. The party who broke the contract is then not the party who is harmed, and _naturally_ means silent corruption in someone else's data, with the library's name on it. That is clause (b), and the check is the library's however plainly the author caused it.
+Clause (b) is what stops the rule collapsing into _delete every check_ **across the states the contract actually admits**, and that is where its work is — on reachable states, and especially on surfaces with more than two parties. **It has no force over a state (a) has already excluded.**
 
-**And it assumes something earlier, which is the half that fails quietly: that there is a failure at all.** _Naturally_ has to mean the library's existing lifecycle or error path actually runs. Where it does, the deletion is clean and the integrator meets their own mistake at their own site — a non-function throws where it is called, a `NaN` threshold arms a press that never activates, a bad slot surfaces at the seam that reads it. Where it does not, the code **succeeds and does the wrong thing**: an unbounded animation duration hangs a gate nothing can classify, because classification needs something to happen; a duplicated element in a supposedly-unique list puts two index spaces one apart, so a well-formed-looking position is published for the wrong slot. Neither is a failure anyone can meet. **So run the counterfactual to the end and ask what the library is left _doing_, not only what it stops throwing.** A fault that never surfaces is not covered by _let it fail naturally_.
+**The gate moves the argument out of the runtime and into the contract, which is the point rather than a side effect.** A check you want to keep is a claim that its state is reachable under correct use, so make the claim where it can be examined — in the type, in the documentation, in the stated precondition — instead of in a branch. The consequence runs both ways and is worth saying plainly: **you cannot both accept an input in your contract and refuse it at runtime as _not our problem_.** Either the precondition is published, and the input is outside the contract, and the library owes nothing however badly it would behave — or it is not published, the input is valid, and (b) is a live question about it.
 
-**The discriminator is still whose thing goes silently wrong, not how quiet it is.** Silence alone does not promote a check: one audit deleted one whose absence leaves a third-party author with a listener that binds and never fires — invisible, and still the author's, because nothing outside that author's own inert feature is left holding anything wrong. What promotes it is clause (b) — the silent wrongness is in state the library owns, or in a value the library computes and publishes under its own name.
+**Which is exactly why the gate is not a rubber stamp.** A precondition invented at deletion time to disqualify an inconvenient input is not a contract term; it is the deletion wearing one. A term counts when an integrator can **meet** it and can **find** it: expressed by the type, written where the integrator reads, or genuinely obvious from the operation's own semantics — _a duration is finite_, _do not call this after you destroyed it_. Where that takes an argument, the argument belongs in the record beside the deletion, and _we could declare this a precondition_ is not the same claim as _it is one_. **Deciding what the contract says is the expensive half of applying this rule, and it is a contract decision with a contract's consequences — not a size finding.**
+
+**Past the gate, "let it fail naturally" is still not automatic.** For a state that _is_ reachable under correct integration, that phrase carries two assumptions, and both are checkable.
+
+**It assumes the failure lands on the party who caused it.** With one integrator and one library it usually does, and the ordinary lifecycle/error path is the right answer. It stops being true the moment the library re-publishes someone else's value to a **third** party under its own name — a plugin's output folded into an application callback, an authoring API's return value handed on as library-computed data. The party at fault is then not the party who is harmed, and _naturally_ means silent corruption in someone else's data with the library's name on it. **That is what (b) is for, and it is not a way past (a):** a check on an authoring API's return value has to establish that a conforming author can produce the state, exactly like any other check. Multi-party structure decides _who is harmed_; it never decides _whether the input was admitted_.
+
+**It also assumes there is a failure at all**, which is the quieter half. _Naturally_ has to mean the library's existing lifecycle or error path actually runs. Where it does, the integrator meets their own mistake at their own site — a non-function throws where it is called, a `NaN` threshold arms a press that never activates, a bad slot surfaces at the seam that reads it. Where it does not, the code **succeeds and does the wrong thing**: an unbounded animation duration hangs a gate that nothing can classify, because classification needs something to happen. **So run the counterfactual to the end and ask what the library is left _doing_, not only what it stops throwing** — and then ask (a) about it, because a silent wrong answer to input the contract never accepted is undefined behaviour, not a finding.
+
+**Silence promotes nothing on its own.** One audit deleted a check whose absence leaves a third-party author with a listener that binds and never fires — invisible, and still the author's, because nothing outside their own inert feature is left holding anything wrong. Quietness is a property of the symptom; (a) and (b) are about the input and the owner.
 
 In particular:
 
@@ -78,17 +86,24 @@ In particular:
 - do not normalize consumer data defensively unless the library must take ownership of it;
 - do not add checks for unsupported use that would naturally fail through the library's existing lifecycle/error path.
 
-**Ask whose invariant, not whose mistake — once reachability has not already answered you.** The two questions come apart the moment a package publishes an authoring surface. _Who caused this_ selects an audience; _whose state is corrupted_ selects a rule. A check that stops a third party from silently overwriting the library's own state is the library's, however plainly the third party caused it — and a check that costs that third party only their own field is theirs, however severe the message makes it sound. One audit split a six-check validator on exactly this line and kept three: the three whose violation overwrote the library's own record, mutated its prototype, or retained a reference past a reset. The four it deleted cost the library nothing, in any build, for any author. **Read under the ordered questions, those three survive on clause (b) rather than on ownership alone**: none of the three states is reachable by an author who honours the contract, and what keeps the checks is that the library would have gone on operating on a record it owns and had silently let someone else write. The four it deleted fail both clauses — nothing outside the author's own field is left holding anything.
+**Ask whose invariant, not whose mistake — once reachability has not already answered you.** The two questions come apart the moment a package publishes an authoring surface. _Who caused this_ selects an audience; _whose state is corrupted_ selects a rule. A check that stops a third party from silently overwriting the library's own state is the library's, however plainly the third party caused it — and a check that costs that third party only their own field is theirs, however severe the message makes it sound. One audit split a six-check validator on exactly this line and kept three: the three whose violation overwrote the library's own record, mutated its prototype, or retained a reference past a reset. The four it deleted cost the library nothing, in any build, for any author.
+
+**Under the gate that split is the (b) half of the answer and not the whole of it.** The audit asked _whose state breaks_ and answered it correctly for all six. What it did not ask — because the ordering was not yet written down — is (a): whether a **conforming** author can produce any of the three states it kept. Its own observation that none of the three is reachable by an author who honours the contract reads, under this section as it now stands, as a **failed gate rather than a supporting detail**, so those three keeps are **re-put rather than confirmed**. That is the rule doing its work on the record that produced it, and the record is left standing rather than quietly rewritten, because the reasoning was sound under the rule it was decided under. The four deletions are untouched: they fail (a) and (b) alike.
 
 **Verify the failure before you argue about it.** A check's justification is a claim about what happens without it, and that claim is executable: construct the shape the check rejects, let the code take it, and look at what the library actually ends up holding. The same audit found one check describing a failure that **cannot occur at all** — it rejected a non-writable key because the composed record "would throw on write", while the composition used `[[Set]]` on a fresh extensible object and produced an ordinary writable property. No amount of reasoning about ownership finds that; only running it does. Do this before deleting a check _and_ before defending one — the counterfactual is as likely to be worse than recorded as it is to be absent.
 
-**What the sharpening changed, checked against the decisions already on the record.** The ordering was applied backwards over the audits cited in this section before it was written down, and it **reverses none of them** — which is the evidence that it is a sharper statement of the rule rather than a different rule:
+**What the sharpening changed, and what the decisive form changed again.** The first, merely-ordered draft reversed nothing: every audit outcome cited in this section survived it, which is precisely what made it feel like a sharper statement of the same rule. **The decisive form does not have that property, and that difference is the finding.**
 
-- checks deleted because they cost an author only their own feature stay deleted, and are now decided **one question earlier**: the state was never reachable through correct use, so question 1 ends it and ownership is never reached;
-- a check kept because the library re-publishes an authoring API's value to a third party stays kept, on clause (b) stated plainly instead of on _the library built this_ — which was never true of that value;
-- a check kept on input the published contract already forbids stays kept, and this is the case the old sentence justified for the wrong reason. It survives on clause (b) — without it the library computes a position in one index space and publishes it as though it were in another, under its own name — **not** on _our internals would be incoherent_, which is the clause struck above and which would have justified it just as readily if nothing had ever left the library.
+- Checks deleted because they cost an author only their own feature stay deleted, and are now settled at (a) with ownership never reached.
+- Checks kept because the library owns what would break are **not** thereby settled. Each owes (a) an answer on the record: can a conforming integrator — or a conforming third-party author — produce the state at all? Where the answer is no, the check is a deletion candidate however clearly the library owned the wreckage.
+- **The class this reopens is the one the struck sentence protected**: a check on input the published contract already forbids, kept because the library would otherwise go on to compute or publish something malformed. Under the ordered draft that was clause (b). Under the gate it never reaches clause (b), and the question becomes a **contract** question — _is this input actually outside the published contract, and where does it say so?_ — which an audit answers by reading the contract, not by preferring an outcome.
 
-The third is the shape to watch. Under the old sentence it was an easy keep; under the ordered questions it takes a real derivation, and the derivation is what a later reader needs.
+**A worked question, left deliberately open, because it is the shape this rule will be tested on.** A collection API takes an ordered array of elements and publishes a `{ from, to }` pair its consumer applies to that same array. Element identity is the positional key, so a duplicated element puts the two index spaces one apart and the published pair moves the consumer's element to the wrong position — silently, with no throw and no cancellation. Under the struck sentence that is an easy keep. Under the gate, every word of that harm is downstream of one unanswered question: **does the public contract say the array's elements are distinct?**
+
+- **If it does** — in the type, in the documentation, or as an obvious semantic precondition of an identity-keyed list — then a duplicated array is outside the contract, the gate closes, and the silent wrong position is undefined behaviour the integrator bought. This section owes the check nothing, and any case for keeping it is a different case, made elsewhere and on its own terms.
+- **If it does not** — if the published surface accepts any array of elements and says nothing about identity — then duplicates are **valid input**, the gate opens, and (b) applies squarely: the library computes a position in one index space and publishes it under its own name as though it were in another.
+
+**This document does not choose between the two readings**, because the choice is a claim about what one particular contract says and has to be made by reading it. What the rule does is force the question into that order, and force it to be answered before anyone mentions a byte count.
 
 **This section decides whether a check exists; §1.3 decides whether its message ships.** They are different questions with different answers and they are routinely conflated. A check can survive here on clause (b) — the library owns what would break — and still be **P1** under §1.3, because the person who can trigger it is a third-party author outside the library. _Whose state breaks_ selects the check; _who can reach the condition_ selects the payload. Decide them in that order and neither answer contaminates the other.
 
@@ -110,7 +125,7 @@ Examples:
 
 Do not pay runtime bytes to enforce a rule the compiler can already enforce.
 
-**A constraint the compiler cannot state is still a constraint** (2026-08-25, with §1.1). Prefer types where types reach — but the absence of a type-level expression is not an argument for a runtime one. _No duplicates in this array_, _finite_, _still open_, _one of the elements I gave you_ are contract terms whether or not TypeScript can spell them. Write them down where the integrator will meet them, and let §1.1's two clauses decide whether anything has to run. The compiler is the cheapest place to put a rule, not the only legitimate one.
+**A constraint the compiler cannot state is still a constraint** (2026-08-25, with §1.1). Prefer types where types reach — but the absence of a type-level expression is not an argument for a runtime one. _No duplicates in this array_, _finite_, _still open_, _one of the elements I gave you_ are contract terms whether or not TypeScript can spell them. Write them down where the integrator will meet them — and note that under §1.1 writing one down is what puts the input **outside** the contract, so the statement is the alternative to the runtime check rather than a companion to it. Whether anything has to run is then §1.1's gate to answer, not this section's. The compiler is the cheapest place to put a rule, not the only legitimate one.
 
 ### 1.3 Do not ship verbose diagnostics by default
 
@@ -508,17 +523,21 @@ A per-composition budget exists to make a change visible. Once it is read as a t
 
 # Litmus test
 
-For every suspicious piece of runtime code, ask two questions in this order:
+For every suspicious piece of runtime code, ask the gate first:
 
 > **Is this state reachable through correct use of the public contract?**
 
-and then:
+**If it is not, you are finished** — the code is a deletion candidate and the second question is never asked. Only for a state that survives the gate:
 
 > **What library-owned invariant requires this code to exist at runtime?**
 
-Not:
+Neither of them is:
 
 > What bad thing could a consumer theoretically do?
+
+nor:
+
+> What would we go on to compute if they did?
 
 If the answer is:
 
@@ -534,7 +553,7 @@ If the answer is:
 
 then the code is a strong candidate for deletion.
 
-**One answer is not on that list**, and it is the one that most often looks like it belongs there: _"an integrator could only reach this by ignoring the contract — and the library would then keep operating on state it owns, or hand a third party a value its own contract calls well-formed."_ That is §1.1 clause (b). The check stays, and it stays whoever caused it.
+**One answer looks like a rebuttal to that list and is not one**: _"an integrator could only reach this by ignoring the contract — but the library would then keep operating on state it owns, or hand a third party a value its own contract calls well-formed."_ The first half of that sentence has already ended the matter. Clause (b) speaks only about input the contract **admits**; it does not license a check against input the contract excludes, however bad the downstream behaviour would be. If you want that check, the argument to make is that the input is admitted — and it is an argument about the contract, made in the contract, not here.
 
 ---
 
@@ -542,7 +561,7 @@ then the code is a strong candidate for deletion.
 
 A size pass should generally proceed in this order:
 
-1. remove nannying and redundant runtime validation — **reachability first, ownership second** (§1.1);
+1. remove nannying and redundant runtime validation — **reachability is a gate: unreachable through correct use, stop and delete; ownership is asked only of what survives** (§1.1);
 2. remove compatibility and dead public/runtime vocabulary;
 3. reduce shipped diagnostic payload to identities, and gate what only your own defect can produce;
 4. remove duplicate state and unnecessary carriers;
@@ -566,7 +585,7 @@ A successful size pass leaves the library:
 - **no slower in latency-sensitive runtime paths unless an explicit measured trade-off was accepted**;
 - easier or no harder to understand;
 - at least as type-safe;
-- **defensive only where the state is reachable through correct use of the contract, or where the library would otherwise corrupt state it owns or publish a malformed value under its own name**;
+- **defensive only where the state is reachable through correct use of the contract _and_ the library would otherwise corrupt state it owns or publish a malformed value under its own name** — both, never either;
 - with every shipped diagnostic attributable to something outside the library, and every gated one to something inside it;
 - no more coupled across optional features;
 - smaller in the compositions that actually pay for the removed machinery;
