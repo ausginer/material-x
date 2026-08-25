@@ -154,9 +154,15 @@ Three arms, and **the arm set was re-derived rather than inherited** — the led
 
 ### Validation, under `CODE_OF_SIZE.md`
 
+> **Is this state reachable through correct use of the public contract?**
+
+and, only where that has not already answered:
+
 > **What library-owned invariant requires this code to exist at runtime?**
 
-That litmus, not the D4 rule, decides this section. ~~Every option is validated **at construction**, once, before any drag, and throws a `TypeError` naming the slot.~~ Applied honestly it deletes almost all of it: an option domain the compiler already states is not a library invariant, and a value that breaks only the consumer's own drag is not the library's to police.
+That litmus, not the D4 rule, decides this section — **both questions of it, in that order.** ~~Every option is validated **at construction**, once, before any drag, and throws a `TypeError` naming the slot.~~ Applied honestly it deletes almost all of it: an option domain the compiler already states is not a library invariant, and a value that breaks only the consumer's own drag is not the library's to police.
+
+**The ordering was made explicit in `CODE_OF_SIZE.md` on 2026-08-25 and this section was decided under the second question alone; every verdict below survives it.** Most of the deletions are settled one question earlier now — a non-function `handle`, an out-of-domain `axis`, a `NaN` threshold are all states an integrator reaches only by leaving the published contract, so the library owes nothing for them and _whose invariant_ is never reached. **The two survivors rest on that document's clause (b)** — the library would otherwise violate an invariant of its own — and each names its own version of it below: `moveTo`'s coordinates are folded into committed frame state and poison every later geometry the library hands out, and the landing's `Infinity` hangs a gate the library holds, which is the one failure this architecture cannot classify because classification needs something to happen.
 
 **Free drag ships zero construction-time throws and one runtime predicate.**
 

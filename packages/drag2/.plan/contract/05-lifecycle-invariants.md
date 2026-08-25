@@ -110,6 +110,8 @@ A shipped message is `drag: <area>/<condition>`, plus any interpolated offending
 
 A diagnostic's **machinery** — the branch, the key walk, the descriptor allocation, the closures it captures — is a runtime question, governed by `CODE_OF_SIZE.md` §0 and §14 and decided by **frequency**. Its **text** is a payload question, governed by §1.3 and decided by **provenance** — §1.3 was corrected on 2026-08-24 to say so in the same words, because _who receives a diagnostic_ selects an audience while _what must be true for it to fire_ selects a rule. They are different edits with different evidence, and an ablation that blanks strings measures neither the machinery nor the check.
 
+**And whether the check exists at all is a third question, asked before either** (2026-08-25). `CODE_OF_SIZE.md` §1.1 decides that one, by **reachability**: a state no correct use of the public contract can produce needs no check, and a check that survives it is then still subject to the two above — its machinery priced by frequency, its text by provenance. Three axes, three decisions, and none of them substitutes for another; a check kept because the library owns what would break can still ship its message to a third-party author and still owe the runtime axis an answer about how often it runs.
+
 ## Findings
 
 ### F-1 — callback count · note, not a finding
