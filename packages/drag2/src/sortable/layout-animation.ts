@@ -43,8 +43,7 @@ export function layoutAnimation(
   // controller is destroyed and costs the library nothing. The landing's check
   // exists because the landing **holds the settlement gate**; delete the gate
   // and the check goes with it.
-  const duration = options.duration ?? DEFAULT_DURATION;
-  const easing = options.easing ?? DEFAULT_EASING;
+  const { duration = DEFAULT_DURATION, easing = DEFAULT_EASING } = options;
 
   const install: SortableInstaller = () => {
     // Private runtime: the animation this feature is currently running per
