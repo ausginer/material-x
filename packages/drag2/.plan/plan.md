@@ -1576,6 +1576,20 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **One real gap, and it points back at D-122** (F-100). [`kernel/frames.ts:125`](../src/kernel/frames.ts) states the authoring contract as a _string-keyed_ data record and claims it _is published on `FramePartOf`_. It is not — neither the source TSDoc nor the emitted `kernel/frames.d.ts` carries a key-kind term, and the only place the term is written is a comment on an **internal** function. The hazard is specific: an implementer opening D-122's slice reads that line, believes the publication half is done, and lands the deletion alone — leaving the term published nowhere and the check that enforced it gone. **F-94's shape rather than a slip**: a claim about a publication, written beside the thing it describes, never read back against the surface it names.
 
+### The middle-tier boundary, decided 2026-08-25 (D-125, D-126)
+
+**Two questions taken together because they have one answer.** Record [`middle-tier-boundary-claude.md`](reviews/phase-23/middle-tier-boundary-claude.md). The rule both fall out of: **publish what the protocol's producers need in order to produce, and not what its implementers happen to use.**
+
+**`insertionAt` is published as `(destination, index, snapshot)`** (D-125). All seven internal call sites already hold the snapshot they take `version` from, and so does a third-party axis — `resolve(frame, runtime)` is handed `runtime.snapshot` and `InsertionRuntimeView` is already published. Same arity, one token per site, no new dependency and no runtime cost; what it buys is that the stray-number spelling stops existing rather than being caught later. **Deriving the destination view inside is refused on §0 grounds**: `y()` and `xy()` call this per resolution and pass the rect cache's maintained list precisely so nothing is allocated on a pointer-move path.
+
+**`homeInsertion` is not published, and the reason is structural.** `SortableContribution` has exactly one slot that _produces_ an `Insertion`, so the sole third-party producer is the axis — and the home gap is already spelled in that protocol as `null` (I-15), which is cheaper than building it and is the documented meaning. What `homeInsertion` spells is the rule over the undeleted list, an allocation trade D-119 exempted deliberately rather than a contract term to freeze.
+
+**Free drag's direct factory collapses; the sortable's stays as a test seam** (D-126). Neither reaches the published artifact — both are tree-shaken, measured in the emitted JS and `.d.ts`. `createFreeDragBehavior` has **no caller anywhere**, and every free-drag test constructs through the public entry, so no lower seam has anything to reach. The sortable's is **not** duplication: both factories delegate to the same private `install()`, so the browser suite exercises the production wiring rather than a parallel one that could drift — and the slots it takes are unreachable through the public config, since `axis` is required by D-77 and `EMPTY_SLOTS` carries a stub. The two behaviors diverge here without breaking F-67's one-rule requirement: the rule is the same — a test seam exists where a test drives it — and only the facts differ.
+
+**Neither could have become public surface anyway.** Both take an already-assembled slot record, and `feature.ts` is explicit that `SortableSlots` is where the published closure stops (D-61) — so _genuine public/internal seam_ was never among the available answers.
+
+**One finding recorded** (F-101): two of the sortable seam's three call sites do not exercise it — a type test that never calls it, and the duplicate-element control D-121 retires — so after D-121 it rests on `createHarness` alone. Still sufficient, and a thinner reason than the call count suggests.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.
