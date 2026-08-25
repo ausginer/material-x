@@ -24,29 +24,6 @@ export type CollectionChange =
   | Readonly<{ type: typeof CHANGE_CANCEL }>;
 
 /**
- * **An ownership copy, and nothing else** (D-121).
- *
- * Every boundary that mints a snapshot passes the consumer's array through
- * here first, because a caller that keeps mutating its own array must not be
- * able to change a snapshot already queued. That is a §9 ownership act the
- * library owes on a value it publishes and holds.
- *
- * ~~It also refused a collection containing one element twice.~~ **The refusal
- * went 2026-08-25 (D-121)**, when the term it enforced was published on
- * `SortableConfig.items` instead: element identity *is* the collection's key —
- * `from` indexes the snapshot, `to` indexes the destination view, and the two
- * spaces differ by exactly one only while the dragged element occurs once — so
- * distinctness is the condition under which the published pair means anything,
- * and a state outside the contract is not the library's to detect. What a
- * duplicate does instead is written where a consumer meets it.
- */
-export function copyItems(
-  items: readonly HTMLElement[],
-): readonly HTMLElement[] {
-  return [...items];
-}
-
-/**
  * The four survival rules, by gap kind. `dragged` must remain in `next`;
  * callers classify its removal separately, because that is a different
  * cancellation reason.

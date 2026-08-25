@@ -492,7 +492,7 @@ type SortableSlots = Readonly<{
 
 ~~Two of the three checks moved earlier, which is the merge paying for itself.~~ The merge no longer pays for validation at all — it pays for `plugins` concatenation, which is the one thing consumer spread syntax cannot express. ~~**Four runtime throws remain outside construction**~~ (P18A-11). **One does, since 2026-08-25.** Three went under `CODE_OF_SIZE.md` §1.1's reachability gate, each with the term it enforced published in its place:
 
-- ~~`copyUniqueItems`~~ — a collection containing one element twice. **Deleted D-121**; distinctness is published on `SortableConfig.items` as the condition that makes `{ from, to }` well-formed, and the function is now a plain ownership copy (`copyItems`). Its construction-time position is unchanged and still normative under D-80 (b) — it is where the pull happens, not where a throw was.
+- ~~`copyUniqueItems`~~ — a collection containing one element twice. **Deleted D-121**; distinctness is published on `SortableConfig.items` as the condition that makes `{ from, to }` well-formed, and the function went with the refusal — what is left is `[...source]` at each of the three mint boundaries, which is a §9 ownership act and not a check. Its construction-time position is unchanged and still normative under D-80 (b) — it is where the pull happens, not where a throw was.
 - ~~the landing duration `=== Infinity`~~ — **deleted D-124**; the domain is published on `LandingOptions.duration` ([07](07-free-drag-contract.md) §Validation).
 - ~~a placeholder factory returning an attached element, or the item or its visual~~ — **deleted D-124**; the precondition is published on `SortableConfig.placeholder`.
 

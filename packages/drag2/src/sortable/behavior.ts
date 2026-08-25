@@ -21,7 +21,6 @@ import type {
   KernelHost,
 } from '../kernel/spec.ts';
 import { assemble } from './assemble.ts';
-import { copyItems } from './collection.ts';
 import { mergeFragments, type SortableConfig } from './config.ts';
 import {
   createSortableController,
@@ -82,7 +81,7 @@ export function createSortableBehavior(
   // holds. **Both paths copy; neither validates any more** (D-121) — the
   // mirroring is what must not drift, and what is mirrored is now the
   // ownership act rather than a refusal.
-  return (host) => install(host, items, copyItems(items), slots);
+  return (host) => install(host, items, [...items], slots);
 }
 
 /**
@@ -131,7 +130,7 @@ export function createComposedSortableBehavior(
     // left-to-right evaluation made that safe** (F-69). Swapping them is a
     // change no reviewer would flag, and it would strand every hook. They are
     // statements so the ordering is deliberate rather than positional.
-    const items = copyItems(source);
+    const items = [...source];
 
     return install(
       host,

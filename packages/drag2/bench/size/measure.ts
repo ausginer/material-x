@@ -482,21 +482,28 @@ export type Composition = Readonly<{
    * and the placement rollback snapshots the default-placeholder path used to
    * take and discard.
    *
+   * **`copyUniqueItems` is deleted rather than renamed, and the sortable rows
+   * carry the last 7–18 B of it.** With the `Set` and the `throw` gone its body
+   * was `[...items]`, so the first landing's `copyItems` was a name over one
+   * expression — the shape D-127 (a) had just inlined `destinationOf` for. The
+   * three call sites spread inline, and `collection.ts` exports one fewer
+   * symbol across a module boundary.
+   *
    * | Row | before | landed | Δ brotli | Δ minified | new budget |
    * | --- | --- | --- | --- | --- | --- |
-   * | minimal | 10,550 | 10,451 | **−99** | −367 | 10,601 |
-   * | minimal (xy) | 10,211 | 10,110 | **−101** | −366 | 10,260 |
-   * | + layoutAnimation | 10,985 | 10,899 | **−86** | −367 | 11,049 |
-   * | + landing | 10,825 | 10,725 | **−100** | −365 | 10,875 |
-   * | complete | 11,243 | 11,147 | **−96** | −365 | 11,297 |
+   * | minimal | 10,550 | 10,440 | **−110** | −393 | 10,590 |
+   * | minimal (xy) | 10,211 | 10,102 | **−109** | −392 | 10,252 |
+   * | + layoutAnimation | 10,985 | 10,886 | **−99** | −393 | 11,036 |
+   * | + landing | 10,825 | 10,708 | **−117** | −391 | 10,858 |
+   * | complete | 11,243 | 11,129 | **−114** | −391 | 11,279 |
    * | free drag minimal | 8,309 | 8,275 | **−34** | −119 | 8,425 |
    * | free drag + bounds | 8,459 | 8,425 | **−34** | −121 | 8,575 |
    * | free drag + landing | 8,564 | 8,532 | **−32** | −121 | 8,682 |
    * | free drag complete | 8,716 | 8,683 | **−33** | −121 | 8,833 |
-   * | both behaviors | 12,669 | 12,571 | **−98** | −368 | 12,721 |
+   * | both behaviors | 12,669 | 12,555 | **−114** | −395 | 12,705 |
    * | vocabulary root | 121 | 121 | **0** | 0 | 150 (unchanged) |
    * | kernel root | 6,227 | 6,186 | **−41** | −118 | 6,336 |
-   * | baseline A | 10,969 | 10,859 | **−110** | −371 | 11,009 |
+   * | baseline A | 10,969 | 10,852 | **−117** | −394 | 11,002 |
    * | baseline B | 6,889 | 6,889 | **0** | 0 | 7,040 (unchanged) |
    *
    * **The split between the two behaviors is the evidence again, and it reads
@@ -639,7 +646,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
     },
-    budget: 10_601,
+    budget: 10_590,
     absent: [...without(), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [P06],
@@ -653,7 +660,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/xy.js': '{ xy }',
     },
-    budget: 10_260,
+    budget: 10_252,
     absent: [...without(), withoutAxis('sortable/xy.js'), P06],
     absentPrefixes: ['free-drag/'],
     // **Both halves of D-102 in one row.** The dimension-neutral cache is
@@ -669,7 +676,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 11_049,
+    budget: 11_036,
     absent: [
       ...without('sortable/layout-animation.js'),
       withoutAxis('sortable/y.js'),
@@ -684,7 +691,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 10_875,
+    budget: 10_858,
     absent: [...without('sortable/landing.js'), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: ['sortable/landing.js', P06],
@@ -697,7 +704,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 11_297,
+    budget: 11_279,
     absent: [withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [...OPTIONAL, P06],
@@ -767,7 +774,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing as freeDragLanding }',
     },
-    budget: 12_721,
+    budget: 12_705,
     absent: [withoutAxis('sortable/y.js')],
     present: [
       ...OPTIONAL,
@@ -856,7 +863,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 11_009,
+    budget: 11_002,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted

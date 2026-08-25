@@ -44,7 +44,6 @@ import type { Point } from '../kernel/types.ts';
 import {
   buildReorderProposal,
   CHANGE_CANCEL,
-  copyItems,
   homeInsertion,
   reconcileCollection,
 } from './collection.ts';
@@ -992,7 +991,7 @@ export function createSortableSpec(
         // collections that actually exist: a pull that produces no collection
         // must not consume a number, or a consumer sees the next successful
         // update numbered as though an invisible one had happened in between.
-        const items = copyItems(source);
+        const items = [...source];
 
         version += 1;
 
