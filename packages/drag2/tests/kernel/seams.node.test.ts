@@ -5,12 +5,7 @@ import {
   FAILURE_RENDERER_WRITE,
   type FailureStage,
 } from '../../src/kernel/failures.ts';
-import {
-  beginFrame,
-  composeFrame,
-  type Draft,
-  type Frame,
-} from '../../src/kernel/frames.ts';
+import { frame, type Draft, type Frame } from '../../src/kernel/frames.ts';
 import { ACTIVE, IDLE } from '../../src/kernel/phases.ts';
 import { createActionQueue, drain, enqueue } from '../../src/kernel/queue.ts';
 import {
@@ -22,8 +17,6 @@ import {
   SEAM_EFFECT_FAILED,
   SEAM_INVALIDATED,
   SEAM_PREPARE_FAILED,
-  seamDiscarded,
-  seamFailed,
   type SeamContext,
   type SeamDriver,
   type Transition,
@@ -74,8 +67,8 @@ afterEach(() => {
  * driver is what is under test.
  */
 function createHarness(): Harness {
-  let current = composeFrame(createExamplePart);
-  let draft = composeFrame(createExamplePart);
+  let current = Object.assign(frame(), createExamplePart());
+  let draft = Object.assign(frame(), createExamplePart());
   let valid = true;
   let commits = 0;
   let begins = 0;
@@ -86,7 +79,7 @@ function createHarness(): Harness {
   const context: SeamContext<ExamplePart> = {
     begin(): void {
       begins += 1;
-      beginFrame(draft, current);
+      Object.assign(draft, current);
     },
     commit(): void {
       commits += 1;
@@ -1627,31 +1620,6 @@ describe('runReleaseSeam', () => {
     );
 
     expect(execute).not.toHaveBeenCalled();
-  });
-});
-
-describe('outcome predicates', () => {
-  it('should classify both failure outcomes as failed', () => {
-    expect(seamFailed(SEAM_PREPARE_FAILED)).toBe(true);
-    expect(seamFailed(SEAM_EFFECT_FAILED)).toBe(true);
-  });
-
-  it('should not classify a discard as failed', () => {
-    expect(seamFailed(SEAM_DISCARDED)).toBe(false);
-    expect(seamFailed(SEAM_INVALIDATED)).toBe(false);
-    expect(seamFailed(SEAM_COMMITTED)).toBe(false);
-  });
-
-  it('should classify both benign non-publications as discarded', () => {
-    expect(seamDiscarded(SEAM_DISCARDED)).toBe(true);
-    expect(seamDiscarded(SEAM_INVALIDATED)).toBe(true);
-  });
-
-  it('should not conflate a failure with a discard', () => {
-    // The boolean core conflated exactly these two, which is what let every
-    // seam continue success work after a classified failure (D-23).
-    expect(seamDiscarded(SEAM_PREPARE_FAILED)).toBe(false);
-    expect(seamDiscarded(SEAM_EFFECT_FAILED)).toBe(false);
   });
 });
 

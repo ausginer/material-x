@@ -83,16 +83,14 @@ const controller = sortable(
       [B] spec = createSortableSpec(rt)      ← ~16 closures over `rt`  [F-4]
       → { spec, controller }
 [K] kernel.arm(spec)
-      current = composeFrame()   → createFramePart()
-      draft   = composeFrame()   → createFramePart()
-             ← BOTH results are validated: **no symbols** — the one shape
-               still checked (D-124). The part is still *defined* as a plain
-               enumerable writable string-keyed record; the rest is the
-               published type's to state. The factory is not proven
-               deterministic (F-2), so checking only the first would let the
-               second introduce one.                                 [I-5]
+      current = Object.assign(frame(), createFramePart())
+      draft   = Object.assign(frame(), createFramePart())
+             ← NEITHER result is validated (D-124, D-122, D-128). The part is
+               still *defined* as a plain enumerable writable string-keyed
+               record, and that definition is the published type's to state.
+               The factory is not proven deterministic (F-2) and nothing
+               compares the two results.                             [I-5]
                 ← same code path twice → one hidden class            [D-15, I-27]
-      __DEV__: key sets match ✔  (captured as armedKeys for scrub checks)
       ── if any step here throws: spec.retire() best-effort, scrub, abort
          ingress, rethrow. No half-armed controller escapes. ──
       list.addEventListener('pointerdown', …, { signal: ingress.signal })
@@ -683,9 +681,8 @@ Had the **arm-time** measurement thrown instead, the landing is **skipped and th
                   ← one throwing hook does not stop the rest         [F-22]
           [K] dispose all three lifetimes (latched, idempotent, best-effort LIFO)
           [K] scrub(current); scrub(draft)
-                resetKernelFields  → 7 fields to defaults
+                frame(target)       → the kernel's 7 to defaults
                 spec.resetFramePart → the behavior's 8 cleared
-                __DEV__: key set still equals armedKeys ✔
           [K] phase = IDLE
 ```
 

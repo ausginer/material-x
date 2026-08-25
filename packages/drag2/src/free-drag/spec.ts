@@ -723,9 +723,9 @@ export function createFreeDragSpec(
             if (input.stage !== FAILURE_TERMINAL_CALLBACK) {
               // **Existing result wins, otherwise `canceled`** — the whole of
               // D-66's carrier, as a lookup on the frame rather than a branch
-              // per stage. `beginFrame` is `Object.assign(draft, current)`, so
-              // a settlement that already committed a result arrives here still
-              // carrying it, and `??=` is the tie-break.
+              // per stage. A transaction opens with `Object.assign(draft,
+              // current)`, so a settlement that already committed a result
+              // arrives here still carrying it, and `??=` is the tie-break.
               //
               // **The marker decides the stage, and it also decides whether to
               // publish at all.** At `MINTED` the consumer never heard this

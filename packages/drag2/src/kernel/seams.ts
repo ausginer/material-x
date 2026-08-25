@@ -93,27 +93,29 @@ export const SEAM_COMMITTED = 3;
 /** Classified, from the committed state. */
 export const SEAM_EFFECT_FAILED = 4;
 
+/**
+ * What one seam run did, named once so every caller branches on the same
+ * vocabulary.
+ *
+ * ~~`seamFailed` and `seamDiscarded`.~~ **Deleted 2026-08-25 (D-128)**, and
+ * deleted as a **pair**: `seamFailed` had no production reader at all and
+ * `seamDiscarded` had one, so keeping either alone would have left this enum
+ * with one classification named and the other open-coded — a worse reading than
+ * either keeping both or inlining both. Call sites name the outcomes they mean.
+ *
+ * **The rule `seamFailed`'s comment carried is real and is enforced here**, in
+ * `runSeam`: a classified failure must also **stop incompatible continuation**,
+ * because the failure checkpoint is *queued* (D-23). Between the throw and the
+ * checkpoint there is a window in which the driver would otherwise still be
+ * doing success work — so `SEAM_PREPARE_FAILED` returns before `commit()`, and
+ * `SEAM_EFFECT_FAILED` returns before anything is staged.
+ */
 export type SeamOutcome =
   | typeof SEAM_DISCARDED
   | typeof SEAM_INVALIDATED
   | typeof SEAM_PREPARE_FAILED
   | typeof SEAM_COMMITTED
   | typeof SEAM_EFFECT_FAILED;
-
-/**
- * Whether the seam classified a failure.
- *
- * **Classification is not sufficient on its own — a classified failure must
- * also stop incompatible continuation**, because the failure checkpoint is
- * *queued*. Between the throw and the checkpoint there is a window in which the
- * driver would otherwise still be doing success work (D-23).
- */
-export const seamFailed = (outcome: SeamOutcome): boolean =>
-  outcome === SEAM_PREPARE_FAILED || outcome === SEAM_EFFECT_FAILED;
-
-/** Whether the seam published nothing, for either of the two benign reasons. */
-export const seamDiscarded = (outcome: SeamOutcome): boolean =>
-  outcome === SEAM_DISCARDED || outcome === SEAM_INVALIDATED;
 
 /**
  * The kernel-private state the driver operates on. Supplied by `createKernel`,
@@ -562,7 +564,7 @@ export function runActivationSeam<
   // because it never did anything but hand the value back and drop it.
   driver.consumeStaged();
 
-  if (seamDiscarded(outcome)) {
+  if (outcome === SEAM_DISCARDED || outcome === SEAM_INVALIDATED) {
     policy.retire();
   } else if (outcome === SEAM_COMMITTED) {
     policy.committed();

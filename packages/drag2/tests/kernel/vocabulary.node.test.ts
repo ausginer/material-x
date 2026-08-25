@@ -117,13 +117,7 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
     'createOperationLifetimes',
     'OperationLifetimes',
   ],
-  'the frame helpers': [
-    'composeFrame',
-    'beginFrame',
-    'scrubFrame',
-    'assertFrameScrubbed',
-    'KERNEL_FRAME_KEYS',
-  ],
+  'the frame helpers': ['frame', 'KERNEL_FRAME_KEYS'],
   'lift acquisition': ['acquireLift', 'captureInlineStyles', 'acquireTopLayer'],
   'the reporter': ['report', 'guarded'],
   'scheduling and invalidation': [
@@ -386,10 +380,11 @@ describe('the `__DEV__` binding', () => {
   // second module of a tier fails the first row, and the fix is that tier's own
   // `dev.ts` — still importing nothing from `kernel/`.
   //
-  // **The kernel is no longer on the list** (D-108). Its four author-facing
-  // checks are production checks and ~~`src/kernel/dev.ts`~~ is retired, so the
+  // **The kernel is no longer on the list** (D-108). Its author-facing checks
+  // are production checks and ~~`src/kernel/dev.ts`~~ is retired, so the
   // package now has exactly one binding, in the one tier with per-frame dev
-  // work. The third row is what holds that: the kernel re-acquiring a binding
+  // work. (~~Four~~ **two** since D-128 deleted the frame pair; the rule is
+  // about where a binding lives, not how many checks it would have gated.) The third row is what holds that: the kernel re-acquiring a binding
   // fails it, which is the re-litigation this rule exists to catch.
   //
   // **Each row can fail on its own** (P06-03), which is what makes three of

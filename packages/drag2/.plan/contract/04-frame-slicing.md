@@ -70,9 +70,9 @@ Seven fields, all kernel-written, none behavior-writable. Probe 1's kernel slice
 The behavior authors **only its own part**, and is prevented from declaring a kernel key at two independent layers.
 
 ```ts
-// kernel, private. Called twice.
-const composeFrame = (): Frame<Part> =>
-  Object.assign(createKernelFrame(), spec.createFramePart());
+// kernel, private. Written out twice, in `arm()`.
+current = Object.assign(frame(), spec.createFramePart());
+draft = Object.assign(frame(), spec.createFramePart());
 ```
 
 `Object.assign` is declared `(target: T, source: U) => T & U`, so `KernelFrame & Part` falls out of the expression with **no cast**.
@@ -101,7 +101,7 @@ A part declaring `phase` cannot be returned by any literal, and the error names 
 
 ~~**At construction, in production**, `validateFramePart` rejects the part before the first `Object.assign`.~~ **There is no runtime validation of a frame part. `validateFramePart` is deleted** — its last arm on 2026-08-25 (D-122), and with one arm left the function was the arm. The table below is kept, struck, as the record of what each removal buys, because every row describes a real consequence and only the _question_ changed: not _how bad is this_, but _can a conforming author reach it_.
 
-**The authoring contract is published on `FramePartOf`** (D-122, F-100) — a plain, own, enumerable, writable, **string-keyed** data record — and the string-key term is stated there with what it protects rather than as a rule: symbol keys are copied between frames by `Object.assign` and are unseen by `resetFramePart`, `assertFrameScrubbed` and `assertFrameShapesMatch`, all of which walk `Object.keys`, so an author using one is outside the reach of the checks that would catch a retained node.
+**The authoring contract is published on `FramePartOf`** (D-122, F-100) — a plain, own, enumerable, writable, **string-keyed** data record — and the string-key term is stated there with what it protects rather than as a rule: symbol keys are copied between frames by `Object.assign`, and nothing in the kernel resets or inspects one — the kernel returns its own slice to its defaults and delegates the part to the author's `resetFramePart` — so a node held on a symbol key lives for the controller's whole life unless the author clears it by name.
 
 | ~~Rejected~~ | Why |
 | --- | --- |
@@ -163,11 +163,11 @@ The invariant the contract actually requires is the intra-controller one above. 
 
 ## Shape authority (D-10)
 
-**The behavior owns the frame's domain shape.** In the first iteration it is the _only_ contributor of a part, and the kernel contains no machinery for any other: `composeFrame` has two sources and `scrub` has two calls, both written out literally. There is no `frameParts` array, no fold, and no way for a contribution to supply frame fields.
+**The behavior owns the frame's domain shape.** In the first iteration it is the _only_ contributor of a part, and the kernel contains no machinery for any other: composition has two sources and `scrub` has two calls, both written out literally. There is no `frameParts` array, no fold, and no way for a contribution to supply frame fields.
 
 That is a deliberate narrowing of what an earlier draft sketched. **D-10's original prohibition was wrong** — a feature-owned part needs no aggregate type, and it does not threaten the invariant that matters, which is that _one controller's two frames_ share a deterministic shape. But being _possible_ is not a reason to prebuild it.
 
-If it is ever needed, the shape is known and small: a contribution supplies a `createPart()` / `resetPart(frame)` pair, the kernel folds them after the behavior's part in installation order, and the feature reaches its own fields through a type declared in its own module — with prefixed string keys and an assembly-time collision check, rather than symbols, so `Object.keys()` still sees them and the `__DEV__` assertions below keep working.
+If it is ever needed, the shape is known and small: a contribution supplies a `createPart()` / `resetPart(frame)` pair, the kernel folds them after the behavior's part in installation order, and the feature reaches its own fields through a type declared in its own module — with prefixed string keys and an assembly-time collision check, rather than symbols, so `Object.keys()` still sees them.
 
 **What blocks it is not the type system, it is a missing seam.** A frame field is committed transactional state, so only a `prepare` may write it — and both feature pipelines (`beforeInsertionMove`, `afterInsertionMove`) run in `action.effect`, post-commit. Admitting feature frame state therefore also means designing a prepare-phase pipeline. Neither exists, and building either for no consumer is the speculative generality the brief forbids.
 
@@ -238,13 +238,13 @@ Split by author, symmetrically with composition:
 
 ```ts
 // kernel, private
-const scrub = (frame: Frame<Part>): void => {
-  resetKernelFields(frame); // 7 fields → defaults
-  spec.resetFramePart(frame); // the behavior's 8
+const scrub = (target: Frame<Part>): void => {
+  frame(target); // the kernel's 7 → defaults
+  spec.resetFramePart(target); // the behavior's 8
 };
 ```
 
-Two calls, mirroring `composeFrame`'s two sources.
+Two calls, mirroring composition's two sources.
 
 Probe 1's single behavior-supplied `resetFrame` had to clear kernel fields too, forcing the behavior to know the kernel's field list. It no longer can.
 
@@ -254,58 +254,20 @@ Destroy and panic additionally clear both frames, the queue and its arguments, t
 
 ## Dev-only invariants
 
-Properties the type system cannot prove. **The heading is now a misnomer and is kept anyway**, because three dated records cross-reference this section by name and rewriting them to chase a rename would cost more than the heading is worth; read it as _frame-authoring invariants_.
+~~Properties the type system cannot prove.~~ **This section has no subject in the code since 2026-08-25 (D-128), and the heading is kept for the same reason it was kept when it became a misnomer**: dated records cross-reference it by name.
 
-~~All are `__DEV__`-gated and compile out of production.~~ **Un-gated by D-108, and this section's own discriminator is why.** The kernel-key collision check was never here — it was a production check in `validateFramePart` (§Composition), _because its failure mode is silent state corruption rather than a stale reference_. **Both that check and the validator are now deleted** (D-124, D-122), which does not retract the discriminator: it survives, and these two assertions are what it still reaches. A part factory that is not deterministic and a reset that leaves a live reference are **both** silent state corruption: a retained element leaks a DOM node across every later operation. The rule already classified these as production checks; the gate is what disagreed with it.
+**The whole frame-assertion family is deleted** — `assertFrameShapesMatch`, `assertFrameScrubbed`, and the `assert`, `sameKeys`, `captureFrameKeys` and `validateFrameDescriptors` helpers under them — in the owner's source-shape pass. What the kernel does at each of the two instants is now stated without a diagnostic:
 
-**The premise the gate rested on expired at Revision 2.1.** `kernel/dev.ts` justified stripping author-facing assertions on the ground that _behavior authoring is not on the public surface_ and named its own revisit condition. D-61, D-70 and D-68 published behavior authoring, so the shipped build handed a third-party author `assertFrameShapesMatch(a, b) {}` — an empty stub they could not fill (F-78). All four kernel sites are cold (once per `arm()`, twice per drag at retirement, once per transaction open, one failure path), the measured cost is 282–305 B against the pre-slice tree, and the budgets re-based rather than the fix shrinking.
+- **at `arm()`**, both frames are composed by the same code path, and nothing compares them. A part factory that is not deterministic (F-2, I-27) produces two frames of different shape and the kernel proceeds;
+- **at every scrub**, `frame(target)` returns the kernel's own slice to its defaults and the author's `resetFramePart` is called for the part. Nothing checks that the reset happened, that it preserved the shape, or that it cleared a reference (F-11, I-28).
 
-**`__DEV__` still exists and still has exactly one reader** (D-101): `sortable/verified-refresh.ts`'s per-frame equivalence instrument, which is genuinely hot and stays gated. `kernel/dev.ts` is retired, and `tests/kernel/vocabulary.node.test.ts` pins the binding tiers to `['sortable']`, so the kernel re-acquiring a gate fails the suite. **That pin is a declaration rule and not a prohibition** — clarified 2026-08-23 by D-117, which reached it from the other side and found the sentence reads as one. D-101 states the positive list precisely so that no tier acquires a binding _quietly_; a kernel gate would fail the suite **until it was declared**, and the declaration would be the decision. What forbids one today is D-101's other rule — that the boundary is not argued on bytes — and [05 §Diagnostics, by provenance and audience](05-lifecycle-invariants.md) applies it: a P2 diagnostic is gated only in a tier that already binds the flag, which leaves the kernel's two exactly where D-108 left the four.
+**What this does not retract is D-108, and the distinction is worth keeping.** D-108 decided that author-facing checks which exist must not be `__DEV__`-gated, on the ground that behavior authoring is published (F-78). That rule is untouched and still governs the two kernel sites that remain — `seam/staged-unconsumed` and `seam/fail-outside-seam`, which ship un-gated and are read out of the packed tarball by `consumer.node.test.ts`. D-108 answered _gated or not_; D-128 answered _present or not_, and answered it the other way for the frame pair.
 
-```ts
-// Unconditional, in every build.
-{
-  // F-2: intra-controller shape identity. Checked once, at arm().
-  const a = Object.keys(current);
-  const b = Object.keys(draft);
-  assert(
-    a.length === b.length && a.every((k, i) => k === b[i]),
-    'drag: frame/shape-mismatch',
-  );
+**The obligations survive as published contract rather than as checks.** `FramePartOf` states the frame-part authoring contract, and I-27 and I-28 keep their tier-C rating in [05](05-lifecycle-invariants.md) with their mechanism cells struck: tier C always meant _stated, not enforceable_, and the assertions were a diagnostic over a promise the library could not make good anyway.
 
-  // Reset shape stability. Checked after every scrub, against the key set
-  // captured at arm(): `resetFramePart` may not add or delete fields.
-  const keys = Object.keys(frame);
-  assert(
-    keys.length === armedKeys.length &&
-      keys.every((k, i) => k === armedKeys[i]),
-    'drag: frame/scrub-shape-changed',
-  );
+**`__DEV__` still exists and still has exactly one reader** (D-101): `sortable/verified-refresh.ts`'s per-frame equivalence instrument, which is genuinely hot and stays gated. `kernel/dev.ts` is retired, and `tests/kernel/vocabulary.node.test.ts` pins the binding tiers to `['sortable']`, so the kernel re-acquiring a gate fails the suite. **That pin is a declaration rule and not a prohibition** — clarified 2026-08-23 by D-117, which reached it from the other side and found the sentence reads as one. D-101 states the positive list precisely so that no tier acquires a binding _quietly_; a kernel gate would fail the suite **until it was declared**, and the declaration would be the decision.
 
-  // A key-set comparison cannot see a *redefinition* — a field turned into an
-  // accessor or made non-writable keeps its key and its position. If that
-  // diagnostic is promised, the descriptor validation has to run again.
-  validateFramePartDescriptors(frame);
-
-  // **Partial, deliberately** (F-96). Every walk here is `Object.keys`, so a
-  // symbol-keyed field is examined by none of the three — a second known blind
-  // spot beside the stale non-null scalar of F-11/I-28. It is not widened to
-  // `Reflect.ownKeys`: string keys are the published contract (D-122), so
-  // walking symbols would police input the contract excludes, twice per drag,
-  // on every conforming author.
-
-  // F-11: reset completeness. A heuristic, checked after every scrub.
-  for (const key of keys) {
-    const v = (frame as Record<string, unknown>)[key];
-    assert(
-      typeof v !== 'object' || v === null,
-      `drag: frame/scrub-retained ${key}`,
-    );
-  }
-}
-```
-
-The shape check and the completeness heuristic are separate on purpose: the first proves the _map_ survived reset, the second guesses at whether the _contents_ did. The heuristic catches retained elements, snapshots, proposals and domain results — every reference-bearing field any current part has — but it cannot catch a stale non-null scalar that should have been reset. Probe 1 had the identical gap; neither model solves it (F-11).
+~~The shape check and the completeness heuristic are separate on purpose~~ — both are gone, and F-11's gap goes with the heuristic that had it: a stale non-null scalar was the case it could not catch, and there is now no case it does.
 
 ## What a feature sees of the frame
 

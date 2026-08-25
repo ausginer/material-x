@@ -989,6 +989,48 @@ describe('arm', () => {
 
     root.remove();
   });
+
+  it('should arm with a symbol-keyed frame part', () => {
+    // **D-122.** `FramePartOf` publishes that part keys are strings, and
+    // `validateFramePart` — the last arm of which refused this — is deleted.
+    const root = document.createElement('div');
+
+    document.body.append(root);
+
+    expect(() =>
+      createArmedWithPart(
+        root,
+        () => ({ [Symbol('leak')]: null }) as unknown as ExamplePart,
+      ),
+    ).not.toThrow();
+
+    root.remove();
+  });
+
+  it('should arm with a non-deterministic frame part factory', () => {
+    // **D-128.** `assertFrameShapesMatch` compared the two factory results at
+    // `arm()` and threw `drag: frame/shape-mismatch` on a disagreement (F-2);
+    // it went with the frame assertion family. The two frames are still
+    // composed by the same code path, so they still share a hidden class when
+    // the factory is honest — what is gone is the diagnostic for one that is
+    // not, and the frames simply differ.
+    const root = document.createElement('div');
+    let calls = 0;
+
+    document.body.append(root);
+
+    expect(() =>
+      createArmedWithPart(root, () => {
+        calls += 1;
+        return (
+          calls === 1 ? { item: null, insertion: null } : { item: null }
+        ) as ExamplePart;
+      }),
+    ).not.toThrow();
+    expect(calls).toBe(2);
+
+    root.remove();
+  });
 });
 
 describe('admission', () => {
@@ -3357,30 +3399,35 @@ describe('arm unwind of a partial frame pair', () => {
     expect(resets).toBe(1);
   });
 
-  it('should scrub both frames when the shape assertion throws', () => {
+  it('should scrub both frames when arming fails after both were composed', () => {
+    // The `composed > 1` arm of the unwind. **Its trigger changed** (D-128):
+    // this used to be `assertFrameShapesMatch` throwing on a non-deterministic
+    // factory, and that assertion is deleted, so the two frames no longer
+    // disagree about anything the kernel checks. What can still fail with both
+    // frames standing is the ingress attachment itself — the root is the
+    // consumer's own element — and the property under test is unchanged: a
+    // part that already holds a reference is reset on **both** frames before
+    // the failure is rethrown.
     const root = document.createElement('div');
     document.body.append(root);
     cleanup.push(() => root.remove());
 
-    let made = 0;
     let resets = 0;
+
+    root.addEventListener = (): never => {
+      throw new Error('ingress refused');
+    };
 
     expect(() => {
       armWith(
         root,
-        (): ExamplePart => {
-          made += 1;
-
-          return made === 2
-            ? ({ item: null, other: '' } as unknown as ExamplePart)
-            : { item: null, note: '' };
-        },
+        (): ExamplePart => ({ item: null, note: '' }),
         (part): void => {
           resets += 1;
           part.item = null;
         },
       );
-    }).toThrow();
+    }).toThrow('ingress refused');
 
     expect(resets).toBe(2);
   });

@@ -40,16 +40,7 @@ import {
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
 } from './failures.ts';
-import {
-  assertFrameScrubbed,
-  assertFrameShapesMatch,
-  beginFrame,
-  captureFrameKeys,
-  composeFrame,
-  type Frame,
-  type OperationIdentity,
-  scrubFrame,
-} from './frames.ts';
+import { frame, type Frame, type OperationIdentity } from './frames.ts';
 import {
   createOperationLifetimes,
   type OperationLifetimes,
@@ -242,7 +233,6 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   let spec: BehaviorSpec<Part, Activation> | null = null;
   let current!: Frame<Part>;
   let draft!: Frame<Part>;
-  let armedKeys: readonly string[] = [];
   let nextOperationId = 0;
 
   /* ---- per-operation state, all cleared by retirement ---- */
@@ -355,7 +345,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     stamp = armedStamp;
     armedStamp = NO_STAMP;
     pinned = current.operation;
-    beginFrame(draft, current);
+    // The shallow copy that opens the transaction. Every frame field is a
+    // scalar, immutable or replace-on-write precisely so this is enough
+    // (contract 04 §The shallow-copy contract).
+    Object.assign(draft, current);
   };
 
   const commit = (): void => {
@@ -450,30 +443,23 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     pinned = null;
   };
 
-  const scrub = (frame: Frame<Part>): void => {
+  const scrub = (target: Frame<Part>): void => {
     const active = spec;
 
     if (active === null) {
       return;
     }
 
-    // Individually wrapped: `resetFramePart` is behavior code the API permits
-    // to throw, and an unwrapped throw on the first frame would skip the second
-    // scrub *and* the ingress abort, making `destroy()` non-terminal (I-6).
+    // **Wrapped as one unit, and the kernel's own half goes first.** The kernel
+    // returns its slice to its defaults and the behavior returns its part;
+    // `resetFramePart` is behavior code the API permits to throw, and an
+    // unwrapped throw on the first frame would skip the second scrub *and* the
+    // ingress abort, making `destroy()` non-terminal (I-6, D-29, F-36). The
+    // kernel's own reset cannot throw, so it is inside the same `guarded` with
+    // nothing to lose by it.
     guarded(() => {
-      scrubFrame(frame, active.resetFramePart);
-    });
-    // Guarded too, and for the same reason as the reset itself. This is a
-    // *diagnostic*: it fires precisely when `resetFramePart` already
-    // misbehaved, which is exactly when the remaining teardown steps matter
-    // most. Letting it throw would make the second frame's scrub, the ingress
-    // abort and `clearOperationState` conditional on a dev assertion — so a
-    // throwing reset would defeat teardown totality through the very check
-    // meant to catch it (D-29/F-36). `guarded` reports it instead, which is
-    // where this belongs. The assertion runs in **every** build since D-108, so
-    // this is a live consumer path rather than a test-only one.
-    guarded(() => {
-      assertFrameScrubbed(frame, armedKeys);
+      frame(target);
+      active.resetFramePart(target);
     });
   };
 
@@ -2358,8 +2344,6 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       spec = next;
 
       // How many frames physically exist, which is what the unwind scrubs.
-      // `armedKeys.length` cannot answer that: it is captured once, from the
-      // first frame, so it is still empty while the *second* factory runs.
       let composed = 0;
 
       try {
@@ -2404,18 +2388,14 @@ export function createKernel<Part extends object, Activation extends {} = true>(
           }
         }
 
-        // The same code path twice, so both frames get one hidden class, and
-        // *both* factory results are validated — the factory is not proven
-        // deterministic, so checking only the first would let the second
-        // introduce a colliding key (I-5, F-2).
-        current = composeFrame(next.createFramePart);
-        // Captured from the first frame, before the second can fail, so the
-        // unwind always has a key set to check a scrub against.
-        armedKeys = captureFrameKeys(current);
+        // The same code path twice, so both frames get one hidden class. The
+        // part factory is not proven deterministic (F-2), so the two results
+        // are not assumed identical — they are simply both composed, and
+        // `composed` records how many exist for the unwind below.
+        current = Object.assign(frame(), next.createFramePart());
         composed = 1;
-        draft = composeFrame(next.createFramePart);
+        draft = Object.assign(frame(), next.createFramePart());
         composed = 2;
-        assertFrameShapesMatch(current, draft);
 
         root.addEventListener(POINTER_DOWN, onPointerDown, {
           signal: ingress.signal,
@@ -2434,10 +2414,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
         // Totality applies to the unwind too: a reset that throws here must not
         // replace the original arm failure or skip the ingress cleanup. Scrub
-        // **whichever frame exists** — a second factory that throws, or a shape
-        // mismatch between the two, leaves a constructed frame the failure path
-        // is still responsible for, and a part that already holds a DOM
-        // reference would otherwise be retained by the controller for good.
+        // **whichever frame exists** — a second factory that throws leaves a
+        // constructed frame the failure path is still responsible for, and a
+        // part that already holds a DOM reference would otherwise be retained
+        // by the controller for good.
         if (composed > 0) {
           scrub(current);
         }

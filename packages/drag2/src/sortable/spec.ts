@@ -1491,10 +1491,10 @@ export function createSortableSpec(
               // no terminal at all.
               //
               // **Existing result wins, otherwise `canceled`** — a lookup on
-              // the frame, not a branch per stage (06 §The join). `beginFrame`
-              // is `Object.assign(draft, current)`, so a settlement that
-              // already committed a result arrives here still carrying it, and
-              // `??` is the whole tie-break.
+              // the frame, not a branch per stage (06 §The join). A transaction
+              // opens with `Object.assign(draft, current)`, so a settlement
+              // that already committed a result arrives here still carrying
+              // it, and `??` is the whole tie-break.
               //
               // **This read `draft.domain = …` unconditionally** (A-1), on the
               // reasoning that a terminal-callback throw is the only failure

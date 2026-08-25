@@ -1386,26 +1386,32 @@ describe('the packed package', () => {
     expect(missing).toEqual([]);
   });
 
-  it('should ship the four author-facing checks it validates behaviors with', async () => {
+  it('should ship the two author-facing checks it validates behaviors with', async () => {
     // **D-108, read off the artifact a third-party behavior author installs.**
     // These were `__DEV__`-gated on the premise that behavior authoring is not
-    // public, which Revision 2.1 voided — `kernel/frames.js` shipped
-    // `function assertFrameShapesMatch(a, b) {}`, an empty stub the author
-    // cannot fill (F-78). Asserted on the packed *message identity* (D-117)
-    // rather than on the source, because the gate was invisible everywhere else in this suite:
-    // the repository builds `__DEV__` as `true`, so every in-repo fixture ran
-    // the checks that the published build had folded away.
-    const [frames, seams] = await Promise.all(
-      ['kernel/frames.js', 'kernel/seams.js'].map((file) =>
-        readFile(join(packed.dir, file), 'utf8'),
-      ),
-    );
+    // public, which Revision 2.1 voided — the kernel shipped empty stubs an
+    // author could not fill (F-78). Asserted on the packed *message identity*
+    // (D-117) rather than on the source, because the gate was invisible
+    // everywhere else in this suite: the repository builds `__DEV__` as `true`,
+    // so every in-repo fixture ran the checks that the published build had
+    // folded away.
+    //
+    // **Four became two on 2026-08-25** (D-128). The frame pair —
+    // `assertFrameShapesMatch` and `assertFrameScrubbed`, with the `assert`,
+    // `sameKeys` and `validateFrameDescriptors` helpers under them — was
+    // deleted in the source-shape pass, so `kernel/frames.js` now ships no
+    // diagnostic at all. What D-108 decided is untouched and is what this row
+    // still reads: the checks that **do** ship are un-gated, in the build a
+    // third party installs.
+    const seams = await readFile(join(packed.dir, 'kernel/seams.js'), 'utf8');
+    const frames = await readFile(join(packed.dir, 'kernel/frames.js'), 'utf8');
 
-    expect(frames).toContain('drag: frame/shape-mismatch');
-    expect(frames).toContain('drag: frame/scrub-shape-changed');
-    expect(frames).toContain('drag: frame/scrub-retained');
     expect(seams).toContain('drag: seam/staged-unconsumed');
     expect(seams).toContain('drag: seam/fail-outside-seam');
+    // The other half of the same statement, and the reason this row was not
+    // simply narrowed: the frame module ships **no** author-facing message now,
+    // so a returning assertion has to change this line.
+    expect(frames).not.toContain('drag: frame/');
   });
 
   it('should declare no subpath into the kernel directory', () => {
