@@ -6,7 +6,9 @@ The goal is **not code golf**. The goal is to remove runtime machinery the libra
 
 A size pass must make the implementation smaller **without making the contract worse**.
 
-**Some rules here have measurements behind them and some are priors, and the difference matters when they collide.** Where a rule was tested, this document says so and points at the record; where a measurement has falsified an earlier rule, the old wording is struck rather than deleted, because other documents cite it. Sections 0, 1.1, 1.3, 4, 15 and 18 carry evidence from one package's Phase 23 finalization work. A rule with no measurement beside it is a default to be argued with, not a finding. **§1.1's reachability gate, added 2026-08-25 and made decisive the same day, is one of those defaults**: it is a design principle about what a library owes, and the audits cited beneath it are worked examples of applying it rather than evidence for it. It is also the one rule here that can **reopen** a settled outcome without any new measurement, so where it does, this document says which outcome and leaves the earlier reasoning standing.
+**Some rules here have measurements behind them and some are priors, and the difference matters when they collide.** Where a rule was tested, this document says so and points at the record. A rule with no measurement beside it is a default to be argued with, not a finding. **§1.1's reachability gate is one of those defaults**: it is a design principle about what a library owes, and the audits cited beneath it are worked examples of applying it rather than evidence for it. It is also the one rule here that can **reopen** a settled outcome without any new measurement, so where it does, this document says which outcome.
+
+**Section numbers are permanent.** Other documents cite them, so they are never reused and never re-sorted, and a section whose rule is withdrawn keeps its number. This document states the rules in force; what it used to say, and the evidence that changed it, is in the [Change record](#change-record) at the end.
 
 ---
 
@@ -55,9 +57,9 @@ None of that is negotiable and no size pass touches it (§13). **Outside it, the
 1. **Is this state reachable through correct use of the public contract?** If it is **not — stop.** The library owes no runtime machinery for it, and nothing considered later reopens the question.
 2. **Only for a state that survives (1):** does a library-owned invariant require a runtime check here?
 
-~~Runtime validation is justified only when it protects a library-owned invariant that cannot reasonably be expressed or enforced elsewhere.~~ **Sharpened 2026-08-25.** That sentence made _bad input could make our internals incoherent_ a sufficient justification, and it is not one: the internals are incoherent **because** something invalid was fed to them, and the library never owed correctness under invalid input. Ownership is the right second question and the wrong first one — asked first, it justifies almost any check, because almost any bad value eventually touches something the library owns.
+**_Bad input could make our internals incoherent_ is not a justification**, and treating library ownership as the first question makes it one: the internals are incoherent **because** something invalid was fed to them, and the library never owed correctness under invalid input. Ownership is the right second question and the wrong first one — asked first, it justifies almost any check, because almost any bad value eventually touches something the library owns.
 
-**Made decisive 2026-08-25, because the first draft of the ordering was not.** It wrote the two as _ordered questions_ and then let ownership rescue a check that had already failed (1) — the struck sentence returning one step later, in better clothes. That failure mode is worth naming because it is a comfortable one: **every check has a story about what the library would go on to compute without it**, and under a merely-ordered reading that story is always available. **What happens after invalid input is not a justification for refusing the input.** An integrator who violates the contract may get a natural failure, silent nonsense, or plainly undefined behaviour — and the library subsequently computing or publishing nonsense is **part of that undefined behaviour**, not a separate harm that converts the misuse into the library's runtime responsibility.
+**The gate is decisive, not merely first.** Read as two _ordered questions_, it lets ownership rescue a check that has already failed (1) — incoherent internals returning one step later, in better clothes. That failure mode is worth naming because it is a comfortable one: **every check has a story about what the library would go on to compute without it**, and under a merely-ordered reading that story is always available. **What happens after invalid input is not a justification for refusing the input.** An integrator who violates the contract may get a natural failure, silent nonsense, or plainly undefined behaviour — and the library subsequently computing or publishing nonsense is **part of that undefined behaviour**, not a separate harm that converts the misuse into the library's runtime responsibility.
 
 **(a) is the gate; (b) is the only justification.** They are not two ways to earn a check:
 
@@ -96,9 +98,9 @@ In particular:
 
 - Checks deleted because they cost an author only their own feature stay deleted, and are now settled at (a) with ownership never reached.
 - Checks kept because the library owns what would break are **not** thereby settled. Each owes (a) an answer on the record: can a conforming integrator — or a conforming third-party author — produce the state at all? Where the answer is no, the check is a deletion candidate however clearly the library owned the wreckage.
-- **The class this reopens is the one the struck sentence protected**: a check on input the published contract already forbids, kept because the library would otherwise go on to compute or publish something malformed. Under the ordered draft that was clause (b). Under the gate it never reaches clause (b), and the question becomes a **contract** question — _is this input actually outside the published contract, and where does it say so?_ — which an audit answers by reading the contract, not by preferring an outcome.
+- **The class this reopens is the one an ownership-first reading protected**: a check on input the published contract already forbids, kept because the library would otherwise go on to compute or publish something malformed. Read as merely ordered, that is clause (b). Under the gate it never reaches clause (b), and the question becomes a **contract** question — _is this input actually outside the published contract, and where does it say so?_ — which an audit answers by reading the contract, not by preferring an outcome.
 
-**A worked question, left deliberately open, because it is the shape this rule will be tested on.** A collection API takes an ordered array of elements and publishes a `{ from, to }` pair its consumer applies to that same array. Element identity is the positional key, so a duplicated element puts the two index spaces one apart and the published pair moves the consumer's element to the wrong position — silently, with no throw and no cancellation. Under the struck sentence that is an easy keep. Under the gate, every word of that harm is downstream of one unanswered question: **does the public contract say the array's elements are distinct?**
+**A worked question, left deliberately open, because it is the shape this rule will be tested on.** A collection API takes an ordered array of elements and publishes a `{ from, to }` pair its consumer applies to that same array. Element identity is the positional key, so a duplicated element puts the two index spaces one apart and the published pair moves the consumer's element to the wrong position — silently, with no throw and no cancellation. Under an ownership-first reading that is an easy keep. Under the gate, every word of that harm is downstream of one unanswered question: **does the public contract say the array's elements are distinct?**
 
 - **If it does** — in the type, in the documentation, or as an obvious semantic precondition of an identity-keyed list — then a duplicated array is outside the contract, the gate closes, and the silent wrong position is undefined behaviour the integrator bought. This section owes the check nothing, and any case for keeping it is a different case, made elsewhere and on its own terms.
 - **If it does not** — if the published surface accepts any array of elements and says nothing about identity — then duplicates are **valid input**, the gate opens, and (b) applies squarely: the library computes a position in one index space and publishes it under its own name as though it were in another.
@@ -125,7 +127,7 @@ Examples:
 
 Do not pay runtime bytes to enforce a rule the compiler can already enforce.
 
-**A constraint the compiler cannot state is still a constraint** (2026-08-25, with §1.1). Prefer types where types reach — but the absence of a type-level expression is not an argument for a runtime one. _No duplicates in this array_, _finite_, _still open_, _one of the elements I gave you_ are contract terms whether or not TypeScript can spell them. Write them down where the integrator will meet them — and note that under §1.1 writing one down is what puts the input **outside** the contract, so the statement is the alternative to the runtime check rather than a companion to it. Whether anything has to run is then §1.1's gate to answer, not this section's. The compiler is the cheapest place to put a rule, not the only legitimate one.
+**A constraint the compiler cannot state is still a constraint.** Prefer types where types reach — but the absence of a type-level expression is not an argument for a runtime one. _No duplicates in this array_, _finite_, _still open_, _one of the elements I gave you_ are contract terms whether or not TypeScript can spell them. Write them down where the integrator will meet them — and note that under §1.1 writing one down is what puts the input **outside** the contract, so the statement is the alternative to the runtime check rather than a companion to it. Whether anything has to run is then §1.1's gate to answer, not this section's. The compiler is the cheapest place to put a rule, not the only legitimate one.
 
 ### 1.3 Do not ship verbose diagnostics by default
 
@@ -135,7 +137,7 @@ Long diagnostic strings are runtime payload, and they are easy to under-rate: in
 
 **A shipped message is an identity, not a narrative.** It names the fault and interpolates the offending value. Explanation, remedy, reassurance and restatement of the rule belong in the source and in the contract — and where the build ships source maps carrying `sourcesContent`, they are _already_ in the tarball beside the site, in the form a maintainer reads, in a file a bundling consumer never fetches.
 
-~~Development-only diagnostics are preferable when they can be removed from production output.~~ **Corrected 2026-08-24. That is false whenever the trigger is outside the library**, and it stays false however cheap the gate looks. Gate by **provenance** — by what must be true for the diagnostic to fire, never by who happens to receive it:
+**A development-only diagnostic is not automatically preferable to none. The argument fails whenever the trigger is outside the library**, and it stays false however cheap the gate looks. Gate by **provenance** — by what must be true for the diagnostic to fire, never by who happens to receive it:
 
 - **only this package's own defect can produce it** → gate it. Nobody outside can reach the condition, so nobody outside loses anything;
 - **someone outside can trigger it** — a consumer, a third-party author of a _published_ authoring API, or the environment → **ship it**. A gate strips it from precisely the build the person who needs it installs, and hands them an empty stub they cannot fill.
@@ -207,13 +209,11 @@ Do not export numbered implementation constants merely to give internal values n
 
 Public runtime values should exist only when consumers genuinely need to use them.
 
-### The size premise was measured and is false
-
-**Corrected 2026-08-24.** This section used to argue the rule on bundle size. It does not hold, and the section's own closing line was the whole rule all along.
+### The bundle is not the cost, and that was measured
 
 Thirteen public numeric failure-stage constants, exported from a package root, cost a bundling consumer **0 minified, 0 Brotli, 0 modules**. Byte-identical artifacts across fourteen compositions _and_ across a purpose-built fixture that names all thirteen reachably — and identical again when that fixture is rewritten with bare numeric literals instead of the names. A bundler that folds cross-module constants inlines every small-integer `const` at its use site and drops the module: **the symbolic name _is_ the number by the time the minifier finishes.** Evidence: [`packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md`](packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md).
 
-So the first bullet this section used to carry — ~~_avoid exported numeric phase/state/failure constants unless they are part of the supported consumer contract_~~ — keeps only the clause after **unless**. The prohibition is withdrawn; the condition is the rule.
+So there is **no prohibition on exported numeric phase, state or failure constants, and there is a condition**: they must be _part of the supported consumer contract_. The condition is the whole rule.
 
 ### Three costs survive, and none of them is the bundle
 
@@ -410,7 +410,7 @@ Stop and report it as a separate design finding.
 
 Do not silently trade correctness for bytes.
 
-**This fixes the contract, and behaviour outside the contract is not part of it** (2026-08-25, with §1.1). Deleting a nannying check changes what happens on input the contract already forbids, and that is not a failure-semantics change under this section. The exception is the case where the contract **fixed** the outcome — a documented _this call is ignored_ is a promise, and the check and the discard that implement it are contract. So say which of the two you have before deleting: a specified no-op stays; an incidental _we happen to throw here_ was never promised to anyone. If you cannot tell which it is, you have found a contract gap, and this section's real instruction applies — stop and report it.
+**This fixes the contract, and behaviour outside the contract is not part of it.** Deleting a nannying check changes what happens on input the contract already forbids, and that is not a failure-semantics change under this section. The exception is the case where the contract **fixed** the outcome — a documented _this call is ignored_ is a promise, and the check and the discard that implement it are contract. So say which of the two you have before deleting: a specified no-op stays; an incidental _we happen to throw here_ was never promised to anyone. If you cannot tell which it is, you have found a contract gap, and this section's real instruction applies — stop and report it.
 
 ---
 
@@ -486,7 +486,7 @@ Do those before syntax-level micro-optimization.
 
 **Two entries on that list need calibrating, and the measurement is the reason.**
 
-**Diagnostic payload was added here 2026-08-24** and belongs here rather than among the syntax work: in the package that measured it, the text class outweighed the whole clean-deletion set — dead members, duplicate state, inert checks and unreachable vocabulary, all of it together — by roughly two to one. The instinct that puts validation first is right about _what kind of thing to look for_ and was wrong about _where the bytes were_.
+**Diagnostic payload belongs here rather than among the syntax work.** Where it was measured, the text class outweighed the whole clean-deletion set — dead members, duplicate state, inert checks and unreachable vocabulary, all of it together — by roughly two to one. The instinct that puts validation first is right about _what kind of thing to look for_ and was wrong about _where the bytes were_.
 
 **Removing an unnecessary export usually buys surface, not bytes.** A tree-shaken export costs zero shipped bytes; two of them were measured at exactly zero. That is still worth doing — see §4 — but book it as hygiene and do not expect it in a budget row. An export that a consumer _can_ reach is a different case and is §7's.
 
@@ -514,7 +514,7 @@ The report should include the measured delta and the trade-off.
 
 A per-composition budget exists to make a change visible. Once it is read as a target instead, it stops doing that.
 
-- **A deliberately tight row is tight on purpose.** Absorbing a small regression into it by re-basing is the single thing it exists to prevent. One package carries a 121 B vocabulary root with 29 B of slack, sized that way because it had once regressed to 190 B; a 2 B move on that row is a finding, not noise.
+- **A deliberately tight row is tight on purpose.** Absorbing a small regression into it by re-basing is the single thing it exists to prevent. Where a row's ceiling was sized against a regression it once suffered, a two-byte move on it is a finding rather than noise, and re-basing it away is that row's only failure mode.
 - **A row that does not move is a result.** When a change is supposed to touch nothing in a given composition, that composition's unchanged number is the evidence that it behaved. Design at least one control row into every pass and say beforehand what it should do.
 - **Re-base after a shrink, never during one.** A pass that lands well under budget ends in a re-base; a pass that lands over it ends in a decision. Re-basing mid-pass turns the instrument into a record of what happened rather than a check on it.
 - **State the re-base trigger before you need it**, and prefer a condition an observer meets — _a row goes negative_, _the drift stops being attributable to a named landed change_ — over a schedule. An absorbed number is a number nobody reads again.
@@ -594,3 +594,21 @@ A successful size pass leaves the library:
 The target is not the smallest code we can write.
 
 The target is the **smallest runtime the contract actually requires**.
+---
+
+# Change record
+
+What this document used to say, and what changed it. The rules above state the current position; this section exists so a measurement that has already been made is not commissioned twice, and so a reader who met an older wording elsewhere can find it. Section numbers are permanent, so every entry names one.
+
+Evidence lives in the package records, not here.
+
+| Date | Section | Change |
+| --- | --- | --- |
+| 2026-08-24 | §1.3 | **Withdrawn:** _Development-only diagnostics are preferable when they can be removed from production output._ False whenever the trigger is outside the library, however cheap the gate. Replaced by gating on **provenance** rather than audience |
+| 2026-08-24 | §4 | **Withdrawn:** _avoid exported numeric phase/state/failure constants **unless** they are part of the supported consumer contract._ The section argued the rule on bundle size; the premise was measured false — thirteen such constants cost a bundling consumer 0 minified, 0 Brotli, 0 modules. The prohibition goes and the `unless` clause becomes the rule, now resting on surface, permanence and install weight. Record: [`failure-vocabulary-cost-claude.md`](packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md) |
+| 2026-08-24 | §16 | **Added:** diagnostic payload as a removal class in its own right, ranked ahead of syntax work, on a measurement where text outweighed the whole clean-deletion set by roughly two to one |
+| 2026-08-25 | §1.1 | **Withdrawn:** _Runtime validation is justified only when it protects a library-owned invariant that cannot reasonably be expressed or enforced elsewhere._ Ownership is the right second question and the wrong first one. Replaced by **reachability**, first as an ordered question and then as a **gate** — because merely ordering the two lets ownership rescue a check that reachability already rejected |
+| 2026-08-25 | §1.2 | **Added:** a constraint the compiler cannot state is still a constraint, and writing it down is what puts the input outside the contract |
+| 2026-08-25 | §13 | **Clarified:** deleting a nannying check is not a failure-semantics change, because behaviour outside the contract was never part of it. A **documented** no-op is the exception and stays |
+| 2026-08-26 | §18 | **Removed** the live byte figures from the worked example. They described one package's budget row, which has since been re-based twice; the rule they illustrated is unchanged. See [`documentation.md`](.agents/docs/documentation.md) §4 |
+| 2026-08-26 | — | Amendment narrative, dates and struck wording moved out of the rules and into this section; section numbers declared permanent. See [`documentation.md`](.agents/docs/documentation.md) §1 and §2 |

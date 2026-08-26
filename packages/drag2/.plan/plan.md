@@ -1724,6 +1724,20 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **Booked to Remediation as one small implementation step**: a ceiling returned to the artifact it guards, an injection named and writeable against today's tree, and one superseded paragraph removed. No other budget moves and the graph half needs nothing.
 
+### The documentation split, decided 2026-08-26 (D-135, F-107)
+
+**An owner review found the normative documents carrying the record**, and the answer is a repository-scope model rather than a package edit. Model [`.agents/docs/documentation.md`](../../../.agents/docs/documentation.md); this package's half is recorded in [`reviews/phase-23/documentation-model-claude.md`](reviews/phase-23/documentation-model-claude.md).
+
+**Documents are placed by what makes them wrong.** A convention is wrong when someone decides to write it differently, a policy when a measurement falsifies it, an operational instruction when the tooling changes — all three are current-state and rewritten in place. The record is the only append-only one. `contract/` stays where it is: it is the record's normative half, not a current-state document, and the split does not move it.
+
+**The comment rule needs no editorial judgment, because the audience boundary is already mechanical.** A JSDoc block that survives `prune-declarations.ts` into a published `.d.ts` is consumer documentation; everything else is a maintainer note. The first carries no internal identifier, date, phase number, strikethrough or rejected alternative; the second states what holds now and may carry one bare decision pointer.
+
+**What turned this from tidiness into a decision is that nobody had weighed the tarball.** The published declaration set is 128,566 B, of which 97,718 B is comment prose, against 13,474 B of runtime JS across all four entries — roughly seven times more decision narrative than executable library, fetched at every install, with 268 internal references reaching 27 published files. `CODE_OF_SIZE.md` §4 (c) named the class in passing after the failure-vocabulary measurement and left it as an aside; `prune-declarations.ts` deletes unreachable declaration files and never looks inside the ones it keeps. Both instruments stop at the file boundary (F-107).
+
+**One argument was checked rather than accepted.** `CODE_OF_SIZE.md` kept its withdrawn wording inline because other documents cite it. All 55 citations in the repository address a section number and none quotes a struck sentence, so the obligation is numbering stability and struck text never served it — D-96's rule applied to prose. Section numbers are now declared permanent and the withdrawn wording is preserved in a change record at the end of that document.
+
+**Booked to Remediation, and deliberately not swept here.** Some source comments are the only copy of a constraint — `failures.ts`'s hole comment is the working example — so the step carries a safety property: nothing is deleted from a comment unless the record already carries it, and where it does not the record is written first, in the same change. The compiler-unstateable preconditions D-124 deleted runtime guards on the strength of survive verbatim, `tests/` is out of scope, and the published declaration weight is **reported and not budgeted**, since D-134's rule applies one level over.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.

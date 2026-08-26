@@ -1,10 +1,18 @@
+# Claude Code
+
+Everything normative lives in the repository's durable instructions, imported here:
+
+@AGENTS.md
+
+What follows is specific to this harness and adds no convention of its own.
+
 ## LSP
 
-Prefer LSP over grep for code-symbol tasks (definitions, references, types, call hierarchy); grep is still right for plain-text/non-symbol searches.
+Prefer LSP over grep for code-symbol tasks — definitions, references, types, call hierarchy. Grep is still right for plain-text and non-symbol searches.
 
 The LSP plugin is a deferred tool and can be unavailable. At the start of any code task, load it via ToolSearch and try it. If it errors, re-probe once, then fall back to grep.
 
-In every completion report, state both its availability and actual use with exactly one of:
+In every completion report, state both its availability and its actual use, with exactly one of:
 
 - `LSP plugin - unavailable.`
 - `LSP plugin - available; used: <operations and purpose>.`
@@ -12,128 +20,12 @@ In every completion report, state both its availability and actual use with exac
 
 Do not report availability alone. For code-symbol work, an available-but-unused LSP requires an explicit reason.
 
-## Code style
+## Skills
 
-- Install dependencies via `npm i` rather than editing `package.json` directly, to get the latest compatible version.
-- Always use Baseline-2025 features.
-- Prefer native browser / Node.js APIs over pulling in a library when the native API covers the use case (e.g. use `fetch` instead of axios, use `Array.groupBy` instead of lodash, use # instead of `private` keyword). This does not apply to libraries that provide substantial value beyond what native APIs offer (e.g. TanStack Query, React Router).
-- Prefer TypeScript `type` over `interface` unless it is an interface the class to implement or it is required for extending global interfaces.
-- Always use `Readonly<>` wrapper type / `readonly` modifier for TS `type`/`interface` unless mutability is required.
-- Always prefer CSS classes over inline style.
-- Each edited source file (`.tsx?`, `.css`, `.html`) should be:
-  - formatted via `npx just fmt <changed files>`,
-  - linted and fixed via `npx just lint-fix <changed files>`. If autofix fails for any file, list those files — do not attempt to resolve lint errors manually; report them and continue,
-  - typechecked via `npx just typecheck`. This checks all packages. Ignore errors in files you did not touch — unless your change caused them, in which case fix them.
-  - The `fmt`, `lint-fix`, and `typecheck` recipes live in each package's own Justfile, so run them from the relevant `@ydinjs` package directory (`packages/core`, `packages/tproc`, `packages/material-x`, or another package workspace). File paths passed to them are relative to that package directory.
-  - When you change a core source file that `@ydinjs/material-x` consumes, rebuild core (`npx just build` from `packages/core`) before typechecking Material X — it resolves `@ydinjs/core` through its built `.d.ts` at the package root, not `src`, so type changes are invisible until rebuilt.
-- Codestyle priorities (in order):
-  1. **Performance** — code should be as fast as possible for the end user.
-  2. **Code size** — a smaller bundle can outperform a faster-but-larger one due to load time. Keep code size minimal unless it hurts runtime performance. Private identifiers can have long names — they are mangled in production builds.
-  3. **Readability** — code must be maintainable. DX should not prevail over UX. A comment is sometimes better than a less performant but "cleaner" implementation.
-- Always put the block expression like `if`, `for`, etc. into `{}`. Never use "one-liners".
-- Always use `AbortController` instead of `removeEventListener` where applicable.
-- Always use `{ once: true }` instead of `removeEventListener` where applicable.
-- All top-level functions should be declared via `function` unless they are a product of another function. All internal functions (e.g., created inside another function) should be declared via arrow functions. Note: this rule doesn't apply to object methods, they should remain shorthand as much as possible.
-- Never use `sync` versions of `node:fs` unless there is truly no async alternative (e.g. `registerHooks` from `node:module` requires synchronous hooks — that is the only known exception).
-- Treat `Object.assign` as an ordered multi-source assignment primitive. When sources already exist independently, pass them as separate arguments instead of pre-merging them with object spread. Pre-merging needlessly materializes a combined source and copies later-source properties twice; it may also change observable assignment behavior for setters, proxies, accessors, or other non-plain targets.
-- Run `fmt` script also for any created/updated Markdown files.
+The task-scoped procedures listed in `AGENTS.md` are packaged as skills here: invoke them as `test-component`, `test-visual-contract` and `use-tokens-db` rather than reading the `SKILL.md` by hand. They apply even when a request does not name them.
 
-### Unit-tests
+## Sub-agents and teams
 
-When you are working on unit tests, follow the rules:
+Use sub-agents for research and exploration that can run in parallel — investigating separate parts of the codebase at the same time, for instance.
 
-- Always use `describe` for a unit you're testing.
-- Each `it` should describe only one specific logic part of a unit. Do not mix them up.
-- `it` should start with (in most cases) or should include `should` word.
-
-Example of incorrect test:
-
-```ts
-// Testing a `buildSelector` function in `it` without `describe.
-it('buildSelector builds state and scoped selectors', () => {
-  // Testging three different logic parts at once:
-
-  // Scope testing
-  expect(buildSelector('default', { name: 'color', value: 'elevated' })).toBe(
-    ':host([color="elevated"])',
-  );
-
-  // Built-in state testing
-  expect(buildSelector('hovered', undefined)).toBe(':host(:hover)');
-
-  // Custom state testing
-  expect(buildSelector('selected', undefined)).toBe(':host(:state(selected))');
-});
-```
-
-Correct test:
-
-```ts
-describe('buildSelector', () => {
-  it('should build scoped selector', () => {
-    expect(buildSelector('default', { name: 'color', value: 'elevated' })).toBe(
-      ':host([color="elevated"])',
-    );
-  });
-
-  it('should build built-in state selector', () => {
-    expect(buildSelector('hovered', undefined)).toBe(':host(:hover)');
-  });
-
-  it('should build custom state selector', () => {
-    expect(buildSelector('selected', undefined)).toBe(
-      ':host(:state(selected))',
-    );
-  });
-});
-```
-
-## CLI commands
-
-You don't need anything to run TS in this repo. Just use direct `node my-file.ts`, and this project's node will do the rest.
-
-## .css.ts files
-
-Files with `.css.ts` extensions are meant to be compiled for browser usage. They are transformed into regular CSS files. To debug them and check how they look in CSS form, use `npx just debug <relative file path>`. E.g., to see how `src/button/styles/default/main.css.ts` will look in CSS format, run `npx just debug src/button/styles/default/main.css.ts`. The CSS output is printed to stdout.
-
-## Architecture
-
-You can find `@ydinjs` architecture insights in `.agents/docs/architecture.md`. You can find CSS architecture reiteration in `.agents/docs/css-inheritance.md`. You can find accessibility review in `.agents/docs/accessibility.md`
-
-`src/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
-
-`@ydinjs/material-x` runtime entrypoints are listed in `packages/material-x/files.json`; update it when adding or removing a component.
-
-## Testing
-
-When adding, moving, or reviewing an `@ydinjs/material-x` component's tests, use skill `test-component` (placement under `packages/material-x/tests`, file suffixes and Vitest project routing, rendering/interaction rules, definition of done). When writing or debugging an `@ydinjs/tproc`-backed visual contract — a `*.spec.browser.test.ts`, a token binding, the resolve-token bridge, or a normalization adapter — use skill `test-visual-contract`. Both skills apply even if the request doesn't name them. The reasoning behind the layers lives in `.agents/docs/test-architecture.md`.
-
-## Tokens DB
-
-If you need to access any file in `.data/tokens`, use skill `use-tokens-db`.
-
-## Git workflow
-
-Never make tracked changes or commits directly on `main`. All tracked changes belong on a non-`main` work branch.
-
-Before making tracked changes, verify that the current branch is not `main`. If it is `main`, stop and ask the user to switch to or provide a work branch. Do not create or switch branches implicitly unless explicitly asked.
-
-**Commit every finalized handoff state without waiting for the user to ask.** A state is finalized when your assigned unit of work is complete and ready to hand to the next role or to the user. For example:
-
-- an architect commits the completed contract or plan before handing it to an implementer;
-- an implementer commits the completed implementation before review;
-- a reviewer commits the completed review artifact before handing findings back;
-- remediation is committed once that remediation pass is complete.
-
-- Commit only changes belonging to the completed unit. Never sweep unrelated user or agent changes into the commit; stage paths deliberately when the working tree contains unrelated work.
-- If there is no tracked diff, do not create an empty commit.
-- Use a **short, subject-only** commit message unless the user explicitly asks for a body. Never copy completion reports, test output, review summaries, or plan prose into the commit message.
-- Describe the substance of the completed unit, not merely its workflow position: prefer `host: add explicit capability grants and diagnostics` over `host: phase 2`, `address review`, `finalize implementation`, or similar process labels. For review or planning artifacts, name what the artifact establishes or evaluates rather than using a bare phase/checkpoint label.
-- Do not amend, squash, rebase, rewrite, or delete existing commits unless explicitly asked.
-- Do not push, create or merge a PR, rename or delete shared branches, or otherwise move shared refs unless explicitly asked. A local commit is automatic; publication is not.
-- Never bypass branch protection, rulesets, or other repository policy. If a requested Git operation is rejected by GitHub or repository policy, stop and report the blocker rather than disabling protection, force-pushing, changing rules, or finding another way around it.
-- Include the resulting commit SHA in the completion report.
-
-## Code of size
-
-Always try to apply `./CODE_OF_SIZE.md` to the code you're writing. This is a library, not a user-facing application, so presume that we're writing for a truthful fellow developer who would generally prefer better performance, a cleaner API, and a smaller bundle over defensive checks for invalid usage.
+Create an agent team only when the task has genuinely independent parallel work, such as migrating several components at once. Do not create teams for reviews, small changes, or work with sequential dependencies.
