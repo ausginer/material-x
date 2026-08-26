@@ -900,6 +900,34 @@ export type Composition = Readonly<{
    * cleanup into a permanently tighter ceiling nobody decided on, which is
    * exactly the *correctness fix shrinking* case the standing rule refuses.
    * The slack grows instead.
+   *
+   * **Extended to the sortable the same day** (D-143), which is the same
+   * deletion over the first behavior's resolution.
+   *
+   * | Row | before | landed | Δ brotli | Δ minified |
+   * | --- | --- | --- | --- | --- |
+   * | minimal | 10,225 | 10,180 | **−45** | −151 |
+   * | minimal (xy) | 9,876 | 9,833 | **−43** | −151 |
+   * | + layoutAnimation | 10,663 | 10,621 | **−42** | −151 |
+   * | + landing | 10,484 | 10,440 | **−44** | −151 |
+   * | complete | 10,902 | 10,876 | **−26** | −151 |
+   * | free drag minimal | 7,983 | 7,982 | **−1** | 0 |
+   * | free drag + bounds | 8,134 | 8,136 | **+2** | 0 |
+   * | free drag + landing | 8,246 | 8,246 | **0** | 0 |
+   * | free drag complete | 8,399 | 8,402 | **+3** | 0 |
+   * | both behaviors | 12,300 | 12,253 | **−47** | −151 |
+   * | vocabulary root | 159 | 159 | **0** | 0 |
+   * | kernel root | 6,106 | 6,106 | **0** | 0 |
+   * | baseline A | 10,591 | 10,562 | **−29** | −145 |
+   * | baseline B | 6,889 | 6,889 | **0** | 0 |
+   *
+   * **The four free-drag rows are the calibration this table is worth keeping
+   * for.** No free-drag composition contains a sortable module, so nothing in
+   * this slice reaches them except one statement re-ordering in their own
+   * settlement arm — which is **zero** minified bytes on all four. Brotli
+   * reports −1, +2, 0 and +3. That is the instrument's noise floor stated in
+   * its own units, and it is the number to hold a single-digit brotli movement
+   * against anywhere else in this file.
    */
   budget: number;
   /**

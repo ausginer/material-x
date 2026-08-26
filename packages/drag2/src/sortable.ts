@@ -58,13 +58,11 @@ export {
   type CancelStage,
 } from './kernel/failures.ts';
 export type {
-  AcceptedReorderResolution,
   AcceptedReorderResult,
   CanceledReorderResult,
   CollectionSnapshot,
   NoopReorderResult,
   OnReorder,
-  RejectedReorderResolution,
   RejectedReorderResult,
   ReorderProposal,
   ReorderRequest,

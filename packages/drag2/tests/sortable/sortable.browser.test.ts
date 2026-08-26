@@ -24,11 +24,7 @@ import {
   SETTLING,
 } from '../../src/kernel/phases.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
-import {
-  type LandingHandle,
-  type LandingStart,
-  SETTLED_FULFILLED,
-} from '../../src/kernel/spec.ts';
+import type { LandingHandle, LandingStart } from '../../src/kernel/spec.ts';
 import { draggable } from '../../src/kernel.ts';
 import { createSortableBehavior } from '../../src/sortable/behavior.ts';
 import type { SortableController } from '../../src/sortable/controller.ts';
@@ -1493,26 +1489,6 @@ describe('settlement mapping', () => {
       reason: 'no',
     });
     expect(harness.finishes).toEqual([]);
-  });
-
-  it('should classify a fulfilled non-resolution', () => {
-    const harness = createHarness({
-      onReorder: () => ({ ok: true }) as unknown as ReorderResolution,
-    });
-
-    activate(harness);
-    harness.next(harness.gap(2));
-    release(60);
-
-    // Acceptance is never inferred — not from callback silence, not from a
-    // truthy return.
-    expect(harness.errors[0]!.stage).toBe(FAILURE_RESOLUTION);
-    // **And the drop is still disposed of** (D-66). The resolver malfunctioned
-    // after the consumer's round-trip had begun, so the operation publishes
-    // `canceled` at `AT_CONSUMER` with the classifying error as its reason —
-    // both assertions read `toEqual([])` until D-66.
-    expect(harness.finishes).toEqual([]);
-    expect(harness.cancels).toHaveLength(1);
   });
 
   it('should classify a rejected round-trip promise', async () => {
@@ -3066,8 +3042,14 @@ describe('seam staging across whole operations', () => {
   });
 
   it('should leave nothing staged after a failed drag', () => {
+    // **The failure is produced by a throwing resolver** since D-143 deleted
+    // the duck-type gate a returned non-resolution used to trip. The subject
+    // here is what the seams leave staged, not how the drag failed, so the
+    // property is unchanged and the trigger is the one that still exists.
     const harness = createHarness({
-      onReorder: () => 'not a resolution' as never,
+      onReorder: () => {
+        throw new Error('resolver');
+      },
     });
 
     activate(harness);
@@ -3574,30 +3556,5 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     expect(held.spec.anchorTarget(current)).toEqual({ x: 0, y: 0 });
     // Unmoved: the placeholder is still last, not dragged up beside the item.
     expect(held.root.lastElementChild).toBe(placeholder);
-  });
-
-  it('should publish no domain when the resolution’s own accessor destroys the controller', () => {
-    // `isReorderResolution` is a duck-type test on `.type`, so every field of
-    // the resolution is an accessor on an object the consumer built.
-    const held = bench({});
-    const draft = {
-      ...sortableFramePart(),
-      proposal: { request: {}, from: 0, to: 0 },
-    } as unknown as Parameters<typeof held.spec.settlement.prepare>[0];
-
-    const value = {
-      get type(): string {
-        held.host.closed = true;
-        return 'accepted';
-      },
-    };
-
-    expect(
-      held.spec.settlement.prepare(draft, {
-        type: SETTLED_FULFILLED,
-        value,
-      } as never),
-    ).toBe(true);
-    expect(draft.domain).toBeNull();
   });
 });

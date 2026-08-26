@@ -45,7 +45,6 @@ import {
   ACCEPTED,
   type DragAxis,
   type FreeDragSubject,
-  type FreeDragTransactionResult,
   type RejectionCarrier,
 } from './domain.ts';
 import type { ConstraintView, MotionDraft } from './feature.ts';
@@ -729,22 +728,26 @@ export function createFreeDragSpec(
             // consumer's** (D-140): `accept()` returns a shared sentinel and
             // `reject()` a one-slot carrier, so this is an identity comparison
             // and a plain data read. There is nothing to validate — a value
-            // that is neither came from outside the types, and I-36's hazard
-            // is gone with the accessors that carried it.
-            const domain: FreeDragTransactionResult =
-              value === ACCEPTED
-                ? { type: 'accepted', request: request! }
-                : {
-                    type: 'rejected',
-                    request: request!,
-                    reason: (value as RejectionCarrier)[0],
-                  };
+            // that is neither came from outside the types.
+            const accepted = value === ACCEPTED;
 
+            // **The barrier still stands and its trigger moved** (I-36, I-20).
+            // Nothing between this seam's entry and the write can reach
+            // consumer code any more, but the round trip is a `PromiseLike`:
+            // the consumer may have destroyed the controller while it was
+            // pending, and the request pins the item, the visual and a rect in
+            // a frame teardown has already scrubbed.
             if (host.closed) {
               return true;
             }
 
-            draft.domain = domain;
+            draft.domain = accepted
+              ? { type: 'accepted', request: request! }
+              : {
+                  type: 'rejected',
+                  request: request!,
+                  reason: (value as RejectionCarrier)[0],
+                };
 
             return true;
           }

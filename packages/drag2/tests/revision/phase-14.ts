@@ -91,7 +91,6 @@ import type {
 import type { Point } from '../../src/kernel/types.ts';
 import type { SortableController } from '../../src/sortable/controller.ts';
 import {
-  type AcceptedReorderResolution,
   type ReorderRequest,
   ReorderResolution,
   type ReorderResolution as ReorderResolutionValue,
@@ -361,15 +360,22 @@ function draggable<Controller>(
 /* ============================================= the public resolution ====== */
 
 /**
- * **Also imported now.** `ResolutionOptions`, `ReorderResolution` and
+ * **Also imported now.** ~~`ResolutionOptions`,~~ `ReorderResolution` and
  * `SortableController` shipped with Phase 15, so what this file once restated as
  * "the consumer surface D-33 produces" is the surface itself. The property the
  * restatement existed to check is unchanged and now checked against the real
  * thing: **no settlement machinery crosses the public boundary** —
- * `presentation: true` is a declaration and `ready(request)` is an
- * acknowledgement keyed on the object the callback was handed.
+ * ~~`presentation: true` is a declaration and `ready(request)` is an
+ * acknowledgement keyed on the object the callback was handed~~ (both deleted
+ * by D-41).
+ *
+ * **The alias points at the union rather than at its accepted arm** since
+ * D-143 unpublished the arms: the resolution is opaque, so there is no narrower
+ * type to name — which strengthens the property this line checks rather than
+ * weakening it, since an opaque value is the strongest form of *no settlement
+ * machinery crosses the boundary* this file could have asked for.
  */
-type AcceptedResolution = AcceptedReorderResolution;
+type AcceptedResolution = ReorderResolution;
 
 /* ================================================= behavior 1: sortable === */
 

@@ -44,14 +44,15 @@ import {
   reconcileCollection,
 } from './collection.ts';
 import {
+  ACCEPTED,
   CANCEL_COLLECTION_INVALIDATED,
   CANCEL_ITEM_REMOVED,
   type CollectionSnapshot,
   type Insertion,
-  isReorderResolution,
   RECOVERY_DESTINATION,
   RECOVERY_HOME,
   RECOVERY_IMMEDIATE,
+  type RejectionCarrier,
   type ReorderTransactionResult,
 } from './domain.ts';
 import { type SortableFramePart, sortableFramePart } from './frames.ts';
@@ -1452,34 +1453,31 @@ export function createSortableSpec(
           case SETTLED_FULFILLED: {
             const { value } = input;
 
-            if (!isReorderResolution(value)) {
-              return rejection(
-                FAILURE_RESOLUTION,
-                'drag: sortable/reorder-resolution-invalid',
-              );
-            }
+            // **The resolution is the library's own value, not the
+            // consumer's** (D-143): `accept()` returns a shared sentinel and
+            // `reject()` a one-slot carrier, so this is an identity comparison
+            // and a plain data read. There is nothing to validate — a value
+            // that is neither came from outside the types.
+            const accepted = value === ACCEPTED;
 
-            // **Every read of the consumer's resolution before any write**
-            // (I-36 (2) acts 1 and 2, C5-03's stretch sweep).
-            // `isReorderResolution` is a duck-type test on `.type`, so `type`
-            // and `reason` are accessors on an object the consumer built and
-            // either may destroy the controller. The
-            // domain value is a local until the barrier passes; publishing it
-            // into a frame teardown has already scrubbed would pin the whole
-            // proposal in an inactive frame nothing clears again (I-20).
-            const domain: ReorderTransactionResult =
-              value.type === 'accepted'
-                ? { type: 'accepted', proposal: proposal! }
-                : {
-                    type: 'rejected',
-                    reason: value.reason,
-                    proposal: proposal!,
-                  };
+            // **The barrier still stands and its trigger moved** (I-36 (2),
+            // I-20). Nothing between this seam's entry and the write can reach
+            // consumer code any more, but the round trip is a `PromiseLike`:
+            // the consumer may have destroyed the controller while it was
+            // pending, and publishing into a frame teardown has already
+            // scrubbed would pin the whole proposal in an inactive frame
+            // nothing clears again.
             if (host.closed) {
               return true;
             }
 
-            const accepted = domain.type === 'accepted';
+            const domain: ReorderTransactionResult = accepted
+              ? { type: 'accepted', proposal: proposal! }
+              : {
+                  type: 'rejected',
+                  reason: (value as RejectionCarrier)[0],
+                  proposal: proposal!,
+                };
 
             draft.recovery = accepted ? RECOVERY_DESTINATION : RECOVERY_HOME;
             draft.domain = domain;

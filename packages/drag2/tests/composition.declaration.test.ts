@@ -52,6 +52,7 @@ import type {
   SortableInstaller,
   FeatureContext as SortableSharedContext,
 } from '../src/sortable/feature.ts';
+import { ReorderResolution } from '../src/sortable.ts';
 
 declare const axisInstaller: AxisInstaller;
 declare const sortableInstaller: SortableInstaller;
@@ -116,6 +117,23 @@ describe('the branded contexts', () => {
     expectTypeOf<FreeDragSharedContext>().toEqualTypeOf<SortableSharedContext>();
     expectTypeOf<FreeDragFeatureContext>().toExtend<FreeDragSharedContext>();
     expectTypeOf<SortableFeatureContext>().toExtend<SortableSharedContext>();
+  });
+});
+
+describe('the two resolutions', () => {
+  it("should not answer the other behavior's round trip", () => {
+    // **The second boundary D-138's reasoning applies to, arrived at from the
+    // other end** (D-143). The two resolutions are the same two words over the
+    // same representation, and making each opaque behind its own `unique
+    // symbol` makes them nominal for free — so a config that returns the wrong
+    // behavior's acceptance is a compile error rather than a value the other
+    // behavior's identity comparison silently reads as a rejection.
+    // @ts-expect-error: a reorder resolution is not a free-drag one
+    const drop: FreeDragResolution = ReorderResolution.accept();
+    // @ts-expect-error: and the refusal runs both ways
+    const reorder: ReorderResolution = FreeDragResolution.accept();
+
+    void [drop, reorder];
   });
 });
 

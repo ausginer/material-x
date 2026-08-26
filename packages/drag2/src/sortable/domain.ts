@@ -101,21 +101,42 @@ export type ReorderProposal = Readonly<{
 // The consumer resolution
 // ---------------------------------------------------------------------------
 
-export type AcceptedReorderResolution = Readonly<{ type: 'accepted' }>;
-
-export type RejectedReorderResolution = Readonly<{
-  type: 'rejected';
-  reason?: unknown;
-}>;
+// Erased: `declare const` emits no JavaScript, and no value carries the key.
+// It exists to keep the shape below unwritable by anything but the factories,
+// and distinct from the other behavior's resolution, which is otherwise the
+// same two words and the same representation.
+declare const RESOLUTION: unique symbol;
 
 /**
  * The explicit consumer response. **Acceptance is never inferred** — not from
  * callback silence, not from DOM mutation, not from collection order, not from
  * elapsed time. Neither is rejection.
+ *
+ * **Opaque, and a round trip rather than a record.** It is built by
+ * {@link ReorderResolution.accept} or {@link ReorderResolution.reject},
+ * returned from `onReorder`, and read only by the library; the verdict reaches
+ * the consumer again as a `ReorderTransactionResult`, which is the shape with
+ * the fields on it. Nothing here is inspectable and nothing here needs to be.
  */
-export type ReorderResolution =
-  | AcceptedReorderResolution
-  | RejectedReorderResolution;
+export type ReorderResolution = Readonly<{ [RESOLUTION]: never }>;
+
+/**
+ * The representation both arms share, read only by `settlement.prepare`: a
+ * carrier holding the reason, or holding nothing.
+ */
+export type RejectionCarrier = readonly [reason?: unknown];
+
+/**
+ * Acceptance is a **shared value** — it declares nothing, so there is one of it
+ * for the life of the module and an accepted reorder allocates nothing at all.
+ * Rejection is the same carrier with the reason in it, and the only arm that
+ * has to be built.
+ *
+ * **Identity is the discriminant**, which is why the empty carrier is a
+ * constant rather than a fresh one per acceptance: there is no string to ship,
+ * none to compare, and nothing on the value for a consumer to read or forge.
+ */
+export const ACCEPTED = [] as RejectionCarrier as unknown as ReorderResolution;
 
 /**
  * The two resolutions a consumer returns from `onReorder`. Acceptance declares
@@ -124,11 +145,9 @@ export type ReorderResolution =
  * already expresses.
  */
 export const ReorderResolution = {
-  accept: (): AcceptedReorderResolution => ({ type: 'accepted' }),
-  reject: (reason?: unknown): RejectedReorderResolution => ({
-    type: 'rejected',
-    reason,
-  }),
+  accept: (): ReorderResolution => ACCEPTED,
+  reject: (reason?: unknown): ReorderResolution =>
+    [reason] as RejectionCarrier as unknown as ReorderResolution,
 } as const;
 
 /**
@@ -141,18 +160,6 @@ export type OnReorder = (
   request: ReorderRequest,
   context: Readonly<{ signal: AbortSignal }>,
 ) => ReorderResolution | PromiseLike<ReorderResolution>;
-
-/**
- * Whether a fulfilled round-trip value is an explicit resolution. A value that
- * is not becomes `FAILURE_RESOLUTION`, never a silent accept.
- */
-export function isReorderResolution(
-  value: unknown,
-): value is ReorderResolution {
-  const type = (value as ReorderResolution | null | undefined)?.type;
-
-  return type === 'accepted' || type === 'rejected';
-}
 
 // ---------------------------------------------------------------------------
 // The terminal results

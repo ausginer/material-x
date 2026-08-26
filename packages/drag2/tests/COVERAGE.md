@@ -290,7 +290,7 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 | --- | --- | --- |
 | a skipped resolution → `OUTCOME_NOOP`, immediate recovery, `onFinish` | `tests/sortable/sortable.browser.test.ts` — _should skip the round-trip for a proven no-op_ | F-29, F-37 |
 | a rejected resolution _promise_ → `FAILURE_RESOLUTION` | `tests/sortable/sortable.browser.test.ts` — _should classify a rejected round-trip promise_ | F-20 |
-| a fulfilled non-resolution → `FAILURE_RESOLUTION` | `tests/sortable/sortable.browser.test.ts` — _should classify a fulfilled non-resolution_ | F-20 |
+| ~~a fulfilled non-resolution → `FAILURE_RESOLUTION`~~ — **deleted 2026-08-26 by D-143**, which made the resolution opaque: a fulfilled non-resolution is no longer producible through the types, and the duck-type gate the row asserted is gone with the state it detected. What survives of F-20 is the row above it — a _rejected_ round trip is still classified, and that is the arm a real resolver reaches | — | ~~F-20~~ |
 | an accepted resolution → destination recovery | `tests/sortable/sortable.browser.test.ts` — _should map an accepted resolution to a destination recovery_ | D-16 |
 | a rejected `ReorderResolution` value → home recovery and `onCancel` | `tests/sortable/sortable.browser.test.ts` — _should map a rejected resolution to onCancel with its reason_ | F-33 |
 
@@ -570,7 +570,7 @@ Named in handoff §3 and absent from the suite until application review 1 found 
 | **the stretch sweep** — the draft seed: a `visual()` resolver that destroys leaves `item`, `visual` and `snapshot` unwritten on the draft, on the press ingress and on the command ingress, whose destination is the fourth field | `tests/sortable/sortable.browser.test.ts` — _should seed no draft when the visual resolver destroys the controller_, _should seed no command draft when the visual resolver destroys the controller_ | I-36 (2), I-20 |
 | **the stretch sweep** — the activation survival conjuncts: `isConnected`/`nextElementSibling` are consumer accessors, and a destroy from either publishes nothing and calls no `onStart` | `tests/sortable/sortable.browser.test.ts` — _should start nothing when a survival conjunct destroys the controller_ | I-36 (2), I-20 |
 | **the stretch sweep** — the release frame writes: a `beforeMove` hook that destroys, and an axis that destroys while resolving the release, both leave `draft.proposal` null | `tests/sortable/sortable.browser.test.ts` — _should build no proposal when a displacement hook destroys the controller_, _should build no proposal when the axis destroys the controller while resolving the release_ | I-36 (2), I-20 |
-| **the stretch sweep** — the settlement domain: `isReorderResolution` is a duck-type test, so a resolution whose own `type` accessor destroys publishes no `draft.domain` | `tests/sortable/sortable.browser.test.ts` — _should publish no domain when the resolution's own accessor destroys the controller_ | I-36 (2), I-20 |
+| ~~**the stretch sweep** — the settlement domain: `isReorderResolution` is a duck-type test, so a resolution whose own `type` accessor destroys publishes no `draft.domain`~~ — **deleted 2026-08-26 by D-143.** The barrier it drove is still there and still load-bearing, but its trigger cannot be built any more: the resolution is the library's own value, so no consumer accessor runs inside the seam. What still reaches the barrier is the async route — a controller destroyed while the round trip was pending — which the lifecycle suites already drive | — | ~~I-36 (2)~~, I-20 |
 | **the stretch sweep** — the destination re-anchor: a conjunct accessor that destroys leaves the placeholder where it is, rather than re-inserting a footprint the operation has finished with | `tests/sortable/sortable.browser.test.ts` — _should re-anchor nothing when a re-anchor conjunct destroys the controller_ | I-36 (2) |
 
 Four things these fixtures made concrete:
@@ -858,3 +858,15 @@ Three instruments whose subject is the record rather than the runtime, indexed h
 | a frame-part reset **returns the part it was given** rather than allocating one — the kernel composes its frame over the part it armed with, so a reset that allocated would clear a part nothing reads | `tests/free-drag/frames.node.test.ts`, `tests/sortable/frames.node.test.ts` — _should return an existing part to those same defaults_ | D-142, D-128 |
 | and clears **every field it allocates**, written over the key list rather than field by field, so a field added to a part is covered the day it appears | _should clear every field it allocates_ (both files) | D-142 |
 | the parts still allocate at their defaults, and the sortable's non-`null` default is named | _should allocate a part at its defaults_ (both files) | D-142 |
+
+## The opaque resolution, over both behaviors — new (2026-08-26, D-140, D-143)
+
+**Two rows in this file are struck rather than re-pointed** — one above at the settlement mapping, one in the C5-03 stretch sweep — because what they detected is no longer buildable through the types. Both say so in place. The barrier the second one drove is still there and still asserted, by the lifecycle suites, over the route that still reaches it: a controller destroyed while the round trip was pending.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| the sortable's acceptance is **one shared value**, its rejection carries the reason, and a rejection with no reason is still a rejection | `tests/sortable/domain.node.test.ts` — the three rows | D-143 |
+| the two behaviors' resolutions **cannot answer each other's round trip**, in both directions — the property that stops a typo publishing `rejected` with `undefined` as its reason | `tests/composition.declaration.test.ts` — _should not answer the other behavior's round trip_ | D-143, D-138 |
+| the sortable resolution is opaque from the consumer's side: no discriminant, no forgeable literal, neither arm importable | `tests/consumer.node.test.ts` — the three `@ts-expect-error` rows below the sortable fixture's opacity heading | D-143 |
+| the packed `ReorderResolution.accept` is callable through the entry and returns the shared value, which is now the whole of its contract | `tests/consumer.node.test.ts` — _should expose sortable.js as a runtime module_ | D-143, D-41 |
+| what the seams leave staged after a failed drag, driven by a **throwing** resolver now that a returned non-resolution cannot be built | `tests/sortable/sortable.browser.test.ts` — _should leave nothing staged after a failed drag_ | D-143 |

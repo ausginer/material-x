@@ -39,6 +39,7 @@ import {
 import type { DOMRealm } from '../../src/kernel/realm.ts';
 import { assemble } from '../../src/sortable/assemble.ts';
 import { mergeFragments } from '../../src/sortable/config.ts';
+import { ReorderResolution } from '../../src/sortable/domain.ts';
 import type { FeatureContext } from '../../src/sortable/feature.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
@@ -204,7 +205,7 @@ describe('the non-composed baseline', () => {
       mergeFragments(
         {
           items: (): readonly HTMLElement[] => [],
-          onReorder: () => ({ type: 'accepted' }),
+          onReorder: () => ReorderResolution.accept(),
           handle: () => null,
           visual: (item: HTMLElement) => item,
           placeholder: () => Object.create(null) as HTMLElement,
@@ -219,7 +220,7 @@ describe('the non-composed baseline', () => {
     const { buildSlots } = await import('../../bench/size/noncomposed.js');
     const byHand = buildSlots(context, {
       items: (): readonly HTMLElement[] => [],
-      onReorder: () => ({ type: 'accepted', presentation: false }),
+      onReorder: () => ReorderResolution.accept(),
       grip: () => null,
       box: (item) => item,
     });

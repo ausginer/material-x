@@ -106,7 +106,6 @@ import {
   AT_PROPOSAL,
   ReorderResolution,
   sortable,
-  type AcceptedReorderResolution,
   type AxisInstaller,
   type CancelStage,
   type CollectionSnapshot,
@@ -114,7 +113,6 @@ import {
   type PlaceholderContext,
   type PlaceholderFactory,
   type SortableConfig,
-  type RejectedReorderResolution,
   type ReorderProposal,
   type ReorderRequest,
   type ReorderTransactionResult,
@@ -295,12 +293,15 @@ const run: LandingStart = (
 // @ts-expect-error: \`run\` is not a landing option (D-63)
 landing({ run });
 
-// Both members of the \`ReorderResolution\` union are nameable, so a consumer can
-// give a helper a return type narrower than the union.
-declare const accepted: AcceptedReorderResolution;
-declare const rejected: RejectedReorderResolution;
+// ~~Both members of the \`ReorderResolution\` union are nameable, so a consumer
+// can give a helper a return type narrower than the union.~~
+// **The resolution is opaque, and this is the whole of what a consumer does
+// with one** (D-143): build it and return it. The retired rows below assert
+// that nothing else is available.
+declare const accepted: ReorderResolution;
+declare const rejected: ReorderResolution;
 
-void [accepted.type, rejected.type];
+void [accepted, rejected];
 
 declare const behavior: BehaviorFactory<SortableController, object>;
 declare const onReorder: OnReorder;
@@ -327,6 +328,21 @@ inferred.destroy();
 // ---------------------------------------------------------------------------
 // Opacity: neither branded value is constructible or callable.
 // ---------------------------------------------------------------------------
+
+// @ts-expect-error: the resolution is opaque, so there is no discriminant on it
+// to read — the verdict reaches the consumer as a transaction result (D-143)
+const retiredReorderDiscriminant = accepted.type;
+// @ts-expect-error: and none to forge either, which is what makes the round
+// trip a round trip rather than a data model (D-143)
+const retiredReorderLiteral: ReorderResolution = { type: 'accepted' };
+// @ts-expect-error: the two resolution arms are not public types (D-143)
+type R8 = import('@ydinjs/drag2/sortable.js').AcceptedReorderResolution;
+// The cross-behavior row is asserted in \`tests/composition.declaration.test.ts\`
+// rather than here: this fixture compiles the sortable tier *without* free
+// drag, which is a claim of its own, and importing the other entry to make one
+// negative assertion would quietly retire it.
+
+void [retiredReorderDiscriminant, retiredReorderLiteral];
 
 // D-55: a behavior *is* the install function now, so the two opacity rows that
 // stood here have no subject. What is still checked is that a bare literal does
@@ -1197,8 +1213,13 @@ describe('the packed package', () => {
     }> = await import(join(packed.dir, './sortable.js'));
 
     // Acceptance declares nothing (D-41): the readiness protocol the
-    // `presentation` flag belonged to is deleted, so the arm is the tag alone.
-    expect(entry.ReorderResolution.accept()).toEqual({ type: 'accepted' });
+    // `presentation` flag belonged to is deleted. Since D-143 it declares
+    // nothing *at all* — the value is opaque and carries no discriminant, so
+    // what is asserted here is that the factory is callable through the packed
+    // entry and returns the shared value, which is the whole of its contract.
+    expect(entry.ReorderResolution.accept()).toBe(
+      entry.ReorderResolution.accept(),
+    );
   });
 
   it('should leave exactly the unimplemented feature subpaths without runtime code', async () => {
