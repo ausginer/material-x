@@ -82,7 +82,9 @@ And one honest, actionable subset survives every objection in §2: `FAILURE_ADMI
 
 ### 4.4 A twelve-member string union at the ordinary tier — refused
 
-`code: 'admission' | 'activation' | …` keeps the granularity, reads well in a logged payload, and needs no runtime constants. It is refused because it **creates a permanent synonym for every stage** — `FAILURE_ACTION_PREPARE` and `'action-prepare'`, which must never diverge — and it keeps the very mapping table this decision deletes, with twelve distinct outputs instead of four repeated ones. D-74 is this package's worked example of a name and a value drifting apart; adding twelve more pairs to guard is the wrong direction. The readability it buys is real and is paid for in §5.3 instead.
+`code: 'admission' | 'activation' | …` keeps the granularity, reads well in a logged payload, and needs no runtime constants. It is refused because it **creates a permanent synonym for every stage** — `FAILURE_ACTION_PREPARE` and `'action-prepare'`, which must never diverge. D-74 is this package's worked example of a name and a value drifting apart; adding twelve more pairs to guard is the wrong direction.
+
+> **Two of the three grounds given here were wrong, and the surviving one is sufficient** (D-133, §12). ~~It keeps the very mapping table this decision deletes, with twelve distinct outputs instead of four repeated ones.~~ ~~The readability it buys is real and is paid for in §5.3 instead.~~ **§4.4 and §5.3 were priced as alternatives and are the same expenditure in the same place**: a public twelve-member union's strings and a private twelve-entry message table are the same twelve strings, in the same shared root, reachable from the same class. Nothing separated them but the compatibility obligation — which is the ground above, and which the implementation's own comment states correctly: _a reworded entry breaks no caller, so the twelve name/constant pairs carry none of the never-diverge obligation D-74 is the worked example of._ **That is ratified.** What is withdrawn is the claim that the readability had a cheaper home.
 
 ---
 
@@ -102,9 +104,13 @@ D-130's own rule — _if it has no meaningful stage, the type should say so hone
 
 ### 5.3 The human channel stays in the message
 
-`err.stage === 4` in a logged payload is worse than `'presentation'`, and that cost is real. It is paid where the package already pays it: `DraggableError`'s constructed message. Today the fallback is `drag: ${code} failure`.
+~~`err.stage === 4` in a logged payload is worse than `'presentation'`, and that cost is real. It is paid where the package already pays it: `DraggableError`'s constructed message.~~ ~~**Required property:** the fallback message names the stage in words.~~
 
-**Required property:** the fallback message names the stage in words. The split is then explicit — `message` is the human channel, `stage` the machine channel — instead of one string union trying to be both, which is what §4.4 would have kept.
+> **Withdrawn in full by D-133, on the implementation's measurement.** The obligation was written without naming the code path it lands on, and it lands on the wrong one. `DraggableError`'s message is `cause instanceof Error ? cause.message : <fallback>`, so **the fallback fires only when a non-`Error` was thrown** — while on the ordinary path the message is the cause's and names no stage at all. The property therefore does not deliver _the stage in words_ in the situation that motivated it, and delivers it only where the consumer has already done something unusual. It cost `drag.js` **146 → 261 B** (+115 brotli, +252 minified) and every composition +19 to +56 B brotli, because a table the constructor reads cannot be shaken out of the root the way `STAGE_TO_CODE` was.
+>
+> **The replacement property:** the fallback identifies the library and carries the stage **as the number the consumer already holds**; `null` keeps a fixed string, since it is the one case a number cannot state. Rendering a published stable value for humans is the consumer's presentation concern, and `docs/revision/revision-2.ts`'s own fixture already does exactly that in its last arm.
+>
+> **The `__DEV__` gate is refused, and cheaply**: `__DEV__` is substituted at _this package's_ build time and is `false` in the published bundle, so the audience that would ever see the words is this repository's own suite. A build condition on the shared root whose only beneficiary is the test run is a more complicated way of deleting the table.
 
 **One thing this does not do:** it does not reopen [`plan.md:1223`](../plan.md)'s declined message-text saving. That decline covered author-facing validators and the consumer-callback text together, and its consumer half was argued from the coarse code being _too thin to log alone_. A twelve-way stage weakens that argument in one direction and §5.3's new obligation strengthens it in the other. A later size pass may reopen it; it must do so explicitly and must not read this decision as licence.
 
@@ -128,7 +134,8 @@ D-130's own rule — _if it has no meaningful stage, the type should say so hone
 ## 7. Size is a wash, and this is recorded so it is not re-litigated
 
 - Publishing the stage constants at an ordinary entry costs a bundling consumer **0 B**, measured three ways in [`failure-vocabulary-cost-claude.md`](failure-vocabulary-cost-claude.md).
-- `STAGE_TO_CODE` and `toDraggableError` are part of the only non-zero figure in the area — `kernel/errors.js` at 67 B Brotli — whose class half stays. The deletion is small and positive.
+- ~~`STAGE_TO_CODE` and `toDraggableError` are part of the only non-zero figure in the area — `kernel/errors.js` at 67 B Brotli — whose class half stays. The deletion is small and positive.~~ **Wrong, and wrong in a way worth naming** (D-133). The deletion _was_ positive; the replacement was not, and this section compared the two tables by length when **a table's cost is a function of what references it, not of how long it is**. `STAGE_TO_CODE` was shaken out of `drag.js` entirely — the class never named it — while `STAGE_NAMES` is read by the constructor and therefore cannot be. Same length, same root, opposite cost.
+- **The apportionment in this section is inverted.** §6 is free and §5.3 is the whole cost — 115 B on the shared root and +19 to +56 B brotli on every composition — which is the reverse of what these rows implied. Size did not decide the classification question and still does not; it decides the message obligation, which is why D-133 exists and D-132 §§1–4 stand untouched.
 - The mapping's own counterfactual measured **30 B minified / 3 B Brotli**. That record's conclusion applies unchanged: the number neither supports nor undermines the decision.
 - **`CODE_OF_SIZE` §4 is satisfied, not violated.** The clause is _avoid exported numeric failure constants **unless they are part of the supported consumer contract**_. This decision makes them so, explicitly and in writing. A later size pass must not read the twelve constants at `drag.js` as an unowned publication.
 
@@ -154,7 +161,7 @@ Documents to correct: 03 §The error the consumer receives (the declared class a
 
 **Rewritten.** The ~19 sites writing `toDraggableError(FAILURE_X, null).code` collapse to comparing against `FAILURE_X` — `features.browser.test.ts:52`, `composition.browser.test.ts:420`, `sortable.browser.test.ts:817/970`, `activation-snapshot.browser.test.ts:171`, `validation.browser.test.ts:58`, `anchor.browser.test.ts:482`, `kernel.browser.test.ts:743/1152/3834`, `consumer.node.test.ts:241/626/869`. **That collapse is evidence, not just cleanup:** the indirection existed only to survive a remap of a mapping that will no longer exist.
 
-**Survives, rehomed.** Four rows of `tests/kernel/errors.node.test.ts` outlive the file's subject and must land in a stage-vocabulary suite: the reflection over the module's `FAILURE_*` exports, `toHaveLength(12)`, the 12/13 holes, and the `[4, 5, 8]` literals. **Their witness changes** — the holes were witnessed by `STAGE_TO_CODE`'s padding, which is gone, so the witness becomes the published union plus the reflection. The `DraggableWarning` block and the `cause`-identity row survive as they are, the latter retargeted at the constructor.
+**Survives, rehomed.** Four rows of `tests/kernel/errors.node.test.ts` outlive the file's subject and must land in a stage-vocabulary suite: the reflection over the module's `FAILURE_*` exports, `toHaveLength(12)`, the 12/13 holes, and the `[4, 5, 8]` literals. **Their witness changes** — the holes were witnessed by `STAGE_TO_CODE`'s padding, which is gone, so the witness becomes the published union plus the reflection. **This was stated unconditionally and was conditional on §5.3** (D-133): `STAGE_NAMES` landed with the same padding and kept the positional witness alive at `errors.node.test.ts`. When D-133 deletes the table the prediction comes true, and the required property is that **the 12/13 witness then depends on no array at all** — the reflection over `FAILURE_*` and the negative membership rows in `tests/kernel/stages.node.test.ts` carry it alone. Nothing is lost: with no positional table there is nothing left to shift, so the padding assertion becomes unnecessary rather than unguarded. The `DraggableWarning` block and the `cause`-identity row survive as they are, the latter retargeted at the constructor.
 
 **Deleted.** The stage → code enumeration, the four-class closure row, and the `Record<FailureStage, DraggableErrorCode>` exhaustiveness fixture at `docs/revision/revision-2.ts:203`.
 
@@ -162,7 +169,7 @@ Documents to correct: 03 §The error the consumer receives (the declared class a
 
 - `panic` surfaces a `DraggableError` with `stage === null` — the one assertion that distinguishes it from a classified failure, and the one nothing can make today.
 - `drag.js` publishes `FailureStage` and the twelve constants: the frozen equality in `tests/exports.node.test.ts` and the list in `vocabulary.node.test.ts`.
-- `revision-2.ts`'s `n8` inverts from `@ts-expect-error a FailureStage is not a DraggableErrorCode` into a positive assertion, and its `report()` fixture is rewritten. **The rewrite is the demonstration**: the honest version is a switch over the three caller-naming stages, not one equality against `'consumer'`.
+- `revision-2.ts`'s `n8` inverts from `@ts-expect-error a FailureStage is not a DraggableErrorCode` into a positive assertion, and its `report()` fixture is rewritten. ~~**The rewrite is the demonstration**: the honest version is a switch over the three caller-naming stages.~~ **A `switch` is the one shape it cannot be, and the reason is evidence rather than an inconvenience** (D-133). `switch-exhaustiveness-check` demands all twelve arms, and twelve arms mapping stages to strings is the deleted table re-created in consumer code. **A `switch` wants a partition; the honest consumer decision is a subset predicate** over the three caller-naming stages, which is why the landed fixture uses a membership test and three focused assertions. That is §2's finding reached from a third direction — a lint refusing to let a consumer rebuild the taxonomy this decision deleted. The rule is right about unions a consumer must handle exhaustively, and `FailureStage` is not one.
 
 `tests/COVERAGE.md:520` and `:657` rewrite with them.
 
@@ -182,3 +189,45 @@ Documents to correct: 03 §The error the consumer receives (the declared class a
 - **A second stage-less consequential fault beside panic.** `null` then stops meaning _the controller is destroyed_ and becomes a bucket, which is the point at which a discriminated shape earns its cost.
 - **A behavior that must construct a `DraggableError` itself.** D-64's divergence risk returns the moment construction leaves the kernel, and the mapping's deletion would need re-arguing.
 - **Publication before the rename lands.** `code` freezes and §5.1 becomes unavailable.
+
+---
+
+## 12. Amended against the implementation, 2026-08-26 (D-133)
+
+D-132 landed in `fe7bcb72`. **Sections 1 to 4 and 5.1, 5.2, 6, 8, 10 and 11 are unaffected** — the classification change was the decision and it holds. What the implementation falsified is the clause that told it how to spend bytes.
+
+**The measurement, from [`bench/size/measure.ts`](../../bench/size/measure.ts).** Fourteen rows, module counts holding exactly, an external control byte-identical:
+
+|                             | before | landed  | Δ brotli           |
+| --------------------------- | ------ | ------- | ------------------ |
+| vocabulary root — `drag.js` | 146    | **261** | **+115**           |
+| every composition           | —      | —       | +19 to +56         |
+| the twelve public constants | —      | —       | **0 B, 0 modules** |
+
+**§6 is free and §5.3 is the whole cost**, which is the reverse of §7's apportionment. The twelve numeric constants a consumer now switches on shake away for a consumer who wants only `err instanceof DraggableError` — a fourth independent confirmation of the cost record's three. The twelve _strings_ do not, because the constructor reads them.
+
+### What D-133 decides
+
+**`STAGE_NAMES` is deleted and the fallback carries the number.** Three reasons, in the order that settles it:
+
+1. **The obligation lands on the wrong path.** §5.3 was written to fix `err.stage === 4` appearing bare in a logged payload. But the fallback fires _only_ when a non-`Error` was thrown; on the ordinary path the message is the cause's and names no stage. **The property never delivered what it was written for**, and cost the shared root 79% of its size to deliver something else.
+2. **A published stable value's human rendering is the consumer's concern.** The library publishes twelve constants precisely so a consumer can name the number. Paying 115 B on every install to name it for them — on a path most consumers never reach — is what `CODE_OF_SIZE` §4's install-weight clause is for. The landed `revision-2.ts` fixture already renders the number itself in its final arm.
+3. **The cheaper alternative §5.3 assumed does not exist.** §4.4 and §5.3 are the same twelve strings in the same root behind the same class. They were never separated by cost, only by the compatibility obligation — so once the expenditure is refused, §4.4's refusal stands on its remaining ground and §5.3 has none.
+
+**Required properties for the implementation step**, which is separate:
+
+- The fallback identifies the library and carries the stage as its number. One template, no table.
+- The `null` message stays a fixed string. It is the one case a number cannot state, it costs one string rather than twelve, and F-104 is the reason it exists.
+- The ordinary path does not move: a caught `Error` still supplies the message, and `cause` is still the only thing that says _what_ went wrong.
+- After the deletion, `errors.ts` holds no positional table, so the 12/13 witness lives entirely in `tests/kernel/stages.node.test.ts` and depends on no array's padding.
+- `errors.node.test.ts`'s _should keep the stage names on their own numbers_ row goes with the table; the `stage`-field and `cause`-identity rows stay.
+
+### What is ratified rather than changed
+
+- **The private-vocabulary reasoning in `errors.ts` is correct**: a reworded private entry breaks no caller, so these twelve pairs never carried D-74's obligation. That argument survives D-133 intact — it is simply not what decides the table's fate, because the deciding cost is runtime, not compatibility.
+- **The three focused tests instead of a `switch`** are right, and the lint conflict is worth keeping in the record as evidence (§9).
+- **No budget re-bases.** The implementation absorbed the change with ~100 B in hand on every row and left the ceilings alone; D-133 moves the artifact back down inside them, which is the direction that needs no ceiling change either.
+
+### The finding this leaves
+
+**F-105.** A required property was stated without naming the call site it lands on, and the measurement — not the review — is what discovered that it landed on the path where it was least useful. §5.3 named a symptom (`err.stage === 4` in a payload), proposed a mechanism (the fallback message), and never checked that the mechanism runs where the symptom occurs. It does not.

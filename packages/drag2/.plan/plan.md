@@ -1694,6 +1694,20 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 > **Landed 2026-08-26, and one figure in this section needs a rider.** _The twelve constants cost a bundling consumer 0 B_ held on a fourth independent measurement — the `drag.js` size row shakes the re-export away and stays at one module. What the section did not price is §5.3's **required** property, that the constructed message names the stage in words: `STAGE_NAMES` is read by the constructor and therefore cannot be shaken, where `STAGE_TO_CODE` never was, so the vocabulary root goes **146 → 261 B brotli**. Every composition moves +11 to +13 B minified and no budget is breached, so _size decides nothing_ survives — but it survives on the compositions, not on the root, and the root's cost belongs to the message rather than to the publication.
 
+### The message vocabulary, decided 2026-08-26 against the implementation (D-133, F-105)
+
+**D-132 landed in `fe7bcb72` and its own size instrument falsified one clause of it.** Record [`reviews/phase-23/consumer-fault-classification-claude.md`](reviews/phase-23/consumer-fault-classification-claude.md) §12.
+
+**The classification change holds and is not reopened.** The stage replaces the code, `null` means the controller is destroyed, and the twelve public constants cost a consumer **0 B and 0 modules** — a fourth independent confirmation of the cost record's three. What fell is §5.3's _the fallback message names the stage in words_.
+
+**It lands on the path it was not written for.** The message is `cause instanceof Error ? cause.message : <fallback>`, so the fallback fires only when a non-`Error` was thrown; on the ordinary path the message is the cause's and names no stage. The property was written to fix a bare `err.stage === 4` in a logged payload and never reaches that payload — while costing the shared root **146 to 261 B** and every composition +19 to +56 B brotli.
+
+**The general lesson is worth more than the bytes: a table's cost is a function of what references it, not of its length.** `STAGE_TO_CODE` and `STAGE_NAMES` are the same length in the same root, and one was shaken out entirely while the other cannot be, because the constructor reads it. §7 compared them by length and got the apportionment backwards — **§6 turned out free and §5.3 the whole cost**.
+
+**Two things the implementation got right are ratified rather than changed.** The private-vocabulary argument — _a reworded entry breaks no caller_ — is correct and is simply not what decides the table, since the deciding cost is runtime rather than compatibility. And the three focused tests that replaced a `switch` are right: `switch-exhaustiveness-check` demanding twelve arms is a lint refusing to let a consumer rebuild the deleted taxonomy in their own code, which is D-132 §2 reached from a third direction. **A `switch` wants a partition; the honest consumer decision is a subset predicate.**
+
+**Booked to Remediation as a separate implementation step**, since it deletes a table, rewrites one constructor branch, and moves the 12/13 witness onto `stages.node.test.ts` alone. No budget re-bases — the artifact moves back down inside ceilings that were never raised for it.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.
