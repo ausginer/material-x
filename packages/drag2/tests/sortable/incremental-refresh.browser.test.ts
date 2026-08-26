@@ -27,7 +27,7 @@ import type {
   Insertion,
 } from '../../src/sortable/domain.ts';
 import type {
-  FeatureContext,
+  SortableFeatureContext,
   InsertionGeometry,
 } from '../../src/sortable/feature.ts';
 import { createRectIndex, STRIDE, TOP } from '../../src/sortable/rect-index.ts';
@@ -161,7 +161,7 @@ function createField(installer: 'y' | 'xy' = 'y', count = COUNT): Field {
   root.prepend(placeholder);
 
   const install = (): InsertionGeometry =>
-    (installer === 'y' ? y() : xy())(null as unknown as FeatureContext)
+    (installer === 'y' ? y() : xy())(null as unknown as SortableFeatureContext)
       .insertion;
   const geometry = install();
   // A second geometry over the same DOM, invalidated before every read so it

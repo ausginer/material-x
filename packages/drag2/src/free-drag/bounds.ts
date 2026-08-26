@@ -9,11 +9,12 @@
  *
  * The no-argument form *is* the viewport; there is no sentinel to export.
  */
-import type { FeatureContext } from '../shared/composition.ts';
+
 import type { FreeDragConfig } from './config.ts';
 import type {
   ConstraintView,
   FreeDragContribution,
+  FreeDragFeatureContext,
   MotionDraft,
 } from './feature.ts';
 
@@ -28,7 +29,7 @@ export type BoundsSource = HTMLElement | (() => DOMRectReadOnly | null);
 
 export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
   return {
-    bounds: (context: FeatureContext): FreeDragContribution => {
+    bounds: (context: FreeDragFeatureContext): FreeDragContribution => {
       const { realm } = context;
       /**
        * The resolved rect, and a flag rather than a version counter: there is

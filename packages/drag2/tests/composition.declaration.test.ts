@@ -1,40 +1,37 @@
 /**
- * **Cross-behavior installers do not compile** — D-87, closing E-06.
+ * **Cross-behavior installers do not compile** — D-138, closing E-06 on a
+ * nominal boundary.
  *
  * The two middle tiers publish behavior-specific installer aliases because
  * their contribution records differ. TypeScript did not agree: every real slot
- * on both records is optional, so the records were mutually assignable and a
- * strict probe compiled all three of these with exit code 0.
+ * on both records is optional, so the records were mutually assignable and free
+ * drag's public `plugins` slot accepted an `AxisInstaller` whose `insertion`
+ * the assembler then silently discarded.
  *
- * The consequence was not academic. Free drag's public `plugins` slot accepted
- * an `AxisInstaller`, and free drag's assembler reads `constrain`,
- * `startLanding` and `retire` — so the `insertion` the installer contributed
- * was **silently discarded**. A supported middle-tier API took a value and did
- * nothing with it.
+ * **The boundary is on the context, not on the contribution.** Each middle tier
+ * declares a `unique symbol` brand and hands its installers a
+ * `FeatureContext & { [brand]: never }`. An installer's parameter is checked
+ * **contravariantly**, so a function written against one behavior's context is
+ * refused where the other's is expected — in both directions, from one
+ * mechanism, with nothing to keep in step.
  *
- * **The rule is key-set totality** (D-88, superseding D-87's mechanism): both
- * records declare the same seven keys, and a key a behavior does not implement
- * it declares `?: never`. Free drag implements three and excludes four; the
- * sortable implements six and excludes one. **The boundary is asymmetric
- * because the slot sets are**, and D-87's _one exclusion per direction_
- * described a symmetry that does not exist — it closed `insertion` and
- * `constrain` and left `placeholder` and both displacement hooks open.
+ * **What that buys is the reason it is on the context** (D-138): the two
+ * contribution records are now independent. Free drag names no sortable
+ * capability and the sortable names no motion constraint, where the previous
+ * mechanism — key-set totality, every unimplemented key declared `?: never` —
+ * required each record to enumerate the other behavior's vocabulary and keep
+ * that enumeration current.
  *
- * **This file previously could not see that, and the reason is the load-bearing
- * part** (CE1-01). Every row below the first group starts from a `declare const`
- * of an installer **alias**, which is exactly the form the two exclusions
- * already caught. What escaped was the **unannotated** form D-78 says an
- * ordinary author writes — and what refused most of them was not the exclusions
- * at all but TypeScript's *weak-type* detection, which an all-optional target
- * gets for free and which `retire`, the one member both records genuinely
- * share, defeats. So the escaped-form group drives real hoisted literals
- * through `freeDrag`'s public `plugins` slot, and **every one of them carries
- * `retire`**: without it the row would pass for a mechanism other than the one
- * under test.
+ * **The brand is never authored.** Every row below that writes an installer
+ * writes an ordinary function; the parameter's type arrives from the slot or
+ * from the alias, and a `unique symbol` cannot be forged by an author who wants
+ * to try.
  *
- * The key-set equality assertion is what turns D-87's future-work promise into
- * a check: a slot added to either record without its twin fails here at the
- * moment it is added, rather than being owed to a reviewer.
+ * **Two things this deliberately does not catch**, both accepted by D-138:
+ * a zero-parameter installer declares no context, so `() => ({})` stays
+ * assignable to both; and an unannotated hoisted literal is decided by
+ * structural assignability on its return type alone. Neither is reachable
+ * except by declining the types the API hands you.
  *
  * `@ts-expect-error` is the assertion. It fails the typecheck if the line ever
  * *starts* compiling, which is the direction that matters here.
@@ -42,17 +39,18 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import type {
   FreeDragContribution,
+  FreeDragFeatureContext,
   FreeDragInstaller,
   LandingStart,
-  FeatureContext as FreeDragFeatureContext,
+  FeatureContext as FreeDragSharedContext,
 } from '../src/free-drag/feature.ts';
 import { FreeDragResolution, freeDrag } from '../src/free-drag.ts';
 import type {
   AxisInstaller,
-  PlaceholderSlot,
   SortableContribution,
+  SortableFeatureContext,
   SortableInstaller,
-  FeatureContext as SortableFeatureContext,
+  FeatureContext as SortableSharedContext,
 } from '../src/sortable/feature.ts';
 
 declare const axisInstaller: AxisInstaller;
@@ -62,11 +60,8 @@ declare const freeDragInstaller: FreeDragInstaller;
 describe('an axis installer', () => {
   it('should not be assignable to a free-drag installer', () => {
     // **The strongest falsifier E-06 names**, and the one reachable through a
-    // supported public API: `freeDrag(item, config, { plugins: [y()] })`. The
-    // sortable `insertion` contribution is *required* here, so this is also the
-    // case a per-body exclusion would have missed — assignability is decided on
-    // the declared alias.
-    // @ts-expect-error — D-87: a free-drag contribution has no insertion.
+    // supported public API: `freeDrag(item, config, { plugins: [y()] })`.
+    // @ts-expect-error — D-138: a free-drag context is not a sortable one.
     const free: FreeDragInstaller = axisInstaller;
 
     void free;
@@ -75,7 +70,9 @@ describe('an axis installer', () => {
 
 describe('a sortable installer', () => {
   it('should not be assignable to a free-drag installer', () => {
-    // @ts-expect-error — D-87, the optional-`insertion` half of the same rule.
+    // @ts-expect-error — D-138, and it fails for the same reason as the axis
+    // row rather than for a second one: the boundary no longer depends on
+    // which slots the contribution happens to carry.
     const free: FreeDragInstaller = sortableInstaller;
 
     void free;
@@ -84,128 +81,110 @@ describe('a sortable installer', () => {
 
 describe('a free-drag installer', () => {
   it('should not be assignable to a sortable installer', () => {
-    // **The reverse direction, which is why there are two exclusions and not
-    // one.** Without `SortableContribution.constrain?: never` a motion
-    // constraint would reach the sortable's assembler, which has no slot for it
-    // and would erase it exactly as free drag erased `insertion`.
-    // @ts-expect-error — D-87: a sortable contribution has no constraint.
+    // **The reverse direction, from the same brand.** The previous mechanism
+    // needed a `constrain?: never` on the sortable record to state this; one
+    // contravariant parameter states both directions at once.
+    // @ts-expect-error — D-138: a sortable context is not a free-drag one.
     const sortable: SortableInstaller = freeDragInstaller;
 
     void sortable;
   });
 
   it('should not be assignable to an axis installer', () => {
-    // @ts-expect-error — D-87, and the missing required `insertion` besides.
+    // @ts-expect-error — D-138, and the missing required `insertion` besides.
     const axis: AxisInstaller = freeDragInstaller;
 
     void axis;
   });
 });
 
-describe('an empty installer', () => {
-  it('should stay assignable to both behaviors', () => {
-    // **The row that keeps the boundary honest.** An empty contribution is
-    // genuinely valid for either behavior, so refusing it would be a boundary
-    // drawn for its own sake — and it is what a brand or a phantom discriminant
-    // would have refused. Without this row the exclusions could be widened into
-    // a general separation without anything noticing.
-    const free: FreeDragInstaller = () => ({});
-    const sortable: SortableInstaller = () => ({});
+describe('the branded contexts', () => {
+  it('should not be mutually assignable', () => {
+    // The boundary asserted at its source rather than through the aliases, so
+    // a reader can see that one property carries it. Removing either brand
+    // fails here first and the four installer rows second.
+    expectTypeOf<FreeDragFeatureContext>().not.toExtend<SortableFeatureContext>();
+    expectTypeOf<SortableFeatureContext>().not.toExtend<FreeDragFeatureContext>();
+  });
 
-    void free;
-    void sortable;
+  it('should each still be the shared context plus the brand', () => {
+    // **What the brand must not do is fork the tier** (F-64, B-7). The shared
+    // `FeatureContext` is still one declaration re-exported by both middle
+    // tiers, and each branded context extends it — so `realm`, `root` and
+    // `report` stay one type and a fix that separated the tiers wholesale would
+    // fail here.
+    expectTypeOf<FreeDragSharedContext>().toEqualTypeOf<SortableSharedContext>();
+    expectTypeOf<FreeDragFeatureContext>().toExtend<FreeDragSharedContext>();
+    expectTypeOf<SortableFeatureContext>().toExtend<SortableSharedContext>();
   });
 });
 
 describe('the two contributions', () => {
-  it('should declare the same key set', () => {
-    // **D-88's whole mechanism, and the only form that cannot drift.** D-87
-    // wrote the twin rule as future work while it was already owed for three
-    // existing slots; this fails at the moment a slot is added to either record
-    // without its `?: never` twin on the other, which is a check rather than a
-    // promise. It says nothing about which behavior *implements* a key — that
-    // is the per-record row below, and the asymmetry is the point.
+  it('should declare independent key sets', () => {
+    // **The property that replaced key-set totality, and it is its opposite.**
+    // Each record is exactly its own behavior's slots: free drag's three and
+    // the sortable's six, sharing only the two that are genuinely shared. A
+    // slot added to either record now needs no twin on the other, and neither
+    // record has to know that the other exists.
     expectTypeOf<keyof FreeDragContribution>().toEqualTypeOf<
-      keyof SortableContribution
+      'constrain' | 'startLanding' | 'retire'
     >();
-  });
-
-  it('should exclude the other behavior capabilities by name', () => {
-    // Asserted as types rather than through the installer aliases, so the
-    // mechanism is visible: free drag excludes four of the seven and the
-    // sortable one, and each name is the defining capability of the other
-    // behavior rather than an arbitrary marker.
-    expectTypeOf<
-      FreeDragContribution['insertion']
-    >().toEqualTypeOf<undefined>();
-    expectTypeOf<
-      FreeDragContribution['placeholder']
-    >().toEqualTypeOf<undefined>();
-    expectTypeOf<
-      FreeDragContribution['beforeInsertionMove']
-    >().toEqualTypeOf<undefined>();
-    expectTypeOf<
-      FreeDragContribution['afterInsertionMove']
-    >().toEqualTypeOf<undefined>();
-    expectTypeOf<
-      SortableContribution['constrain']
-    >().toEqualTypeOf<undefined>();
+    expectTypeOf<keyof SortableContribution>().toEqualTypeOf<
+      | 'insertion'
+      | 'placeholder'
+      | 'startLanding'
+      | 'beforeInsertionMove'
+      | 'afterInsertionMove'
+      | 'retire'
+    >();
   });
 });
 
-describe('an unannotated installer', () => {
-  // The three sortable-only slots, each written the way a hoisted literal
-  // actually reaches the public API — no alias, no annotation, inferred.
-  //
-  // `retire` is on every one of them **deliberately** and is not decoration: it
-  // is the member both records share, so it satisfies TypeScript's weak-type
-  // check and leaves the assignment to be decided by the exclusions alone.
-  // Drop it and each row compiles for a reason that has nothing to do with
-  // D-88, which is precisely how CE1-01 stayed invisible.
+describe('third-party authoring', () => {
   const item = document.createElement('div');
   const config = { onDrop: () => FreeDragResolution.accept() };
   const dispose = (): void => {};
-  const slot: PlaceholderSlot = () => document.createElement('div');
 
-  it('should not reach free drag plugins carrying a placeholder', () => {
-    const placeholderPlugin = () => ({ placeholder: slot, retire: dispose });
+  it('should type a plugin parameter from the slot it fills', () => {
+    // **The authoring shape the brand has to stay out of the way of.** The
+    // parameter is never annotated and the brand is never written; filling the
+    // slot is what types it, and `realm` is reachable through it exactly as
+    // before.
+    const controller = freeDrag(item, config, {
+      plugins: [
+        (context) => {
+          expectTypeOf(context).toEqualTypeOf<FreeDragFeatureContext>();
+          expectTypeOf(context.realm.document).toEqualTypeOf<Document>();
 
-    void freeDrag(item, config, {
-      // @ts-expect-error — D-88: a free-drag contribution has no placeholder.
-      plugins: [placeholderPlugin],
-    }).destroy();
-  });
-
-  it('should not reach free drag plugins carrying a beforeInsertionMove hook', () => {
-    const beforePlugin = () => ({
-      beforeInsertionMove: (): void => {},
-      retire: dispose,
+          return { retire: dispose };
+        },
+      ],
     });
 
-    void freeDrag(item, config, {
-      // @ts-expect-error — D-88: free drag has no displacement pipeline.
-      plugins: [beforePlugin],
-    }).destroy();
+    expect(controller).toBeTypeOf('object');
+
+    void controller.destroy();
   });
 
-  it('should not reach free drag plugins carrying an afterInsertionMove hook', () => {
-    const afterPlugin = () => ({
-      afterInsertionMove: (): void => {},
-      retire: dispose,
-    });
+  it('should type a hoisted installer from its alias', () => {
+    // The other supported form (D-78): a `const` an author can name, pass and
+    // re-use. The annotation is the alias, never the context.
+    const install: FreeDragInstaller = (context) => {
+      expectTypeOf(context).toEqualTypeOf<FreeDragFeatureContext>();
 
-    void freeDrag(item, config, {
-      // @ts-expect-error — D-88: free drag has no displacement pipeline.
-      plugins: [afterPlugin],
-    }).destroy();
+      return { retire: dispose };
+    };
+
+    void freeDrag(item, config, { plugins: [install] }).destroy();
   });
 
   it('should still reach free drag plugins carrying only shared slots', () => {
-    // **The positive control**, and the one that keeps the exclusions from
-    // being read as a general separation: `startLanding` and `retire` are
-    // legitimately shared, so an unannotated installer contributing them is
-    // valid free-drag middle-tier code and must stay so.
-    const sharedPlugin = () => ({
+    // **The positive control**, kept from the previous mechanism because it
+    // still earns its place: `startLanding` and `retire` are legitimately
+    // shared, so an installer contributing them is valid free-drag middle-tier
+    // code and must stay so. Without it the boundary could be widened into a
+    // general separation without anything noticing.
+    const sharedPlugin: FreeDragInstaller = () => ({
       startLanding: ((_context, done) => {
         done();
         return { destroy: dispose };
@@ -218,14 +197,17 @@ describe('an unannotated installer', () => {
 
     void controller.destroy();
   });
-});
 
-describe('FeatureContext', () => {
-  it('should stay one declaration across the two middle tiers', () => {
-    // **What D-87 deliberately does not touch** (F-64, B-7). The incompatibility
-    // is in what an installer **produces**, never in what it is handed — so the
-    // shared context stays one type, and a fix that separated the tiers wholesale
-    // would fail here.
-    expectTypeOf<FreeDragFeatureContext>().toEqualTypeOf<SortableFeatureContext>();
+  it('should stay assignable to both behaviors when it declares no context', () => {
+    // **The accepted hole, asserted so it is a decision rather than a gap**
+    // (D-138). A brand on the parameter cannot bind a function that declares no
+    // parameter, and an empty contribution is genuinely valid for either
+    // behavior — so this compiles, contributes nothing, and is the shape the
+    // record says is not worth machinery to refuse.
+    const free: FreeDragInstaller = () => ({});
+    const sortable: SortableInstaller = () => ({});
+
+    void free;
+    void sortable;
   });
 });

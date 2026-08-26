@@ -58,41 +58,15 @@ describe('FreeDragContribution', () => {
     // avoid. Asserting the absence keys off the union of its keys, so adding
     // one fails here rather than being noticed at review.
     //
-    // Four of the seven are **not** slots and not discriminators either: they
-    // are D-88's exclusions, typed `never`, so none can hold a value to branch
-    // on. They appear here because `keyof` cannot tell the two apart — which is
-    // why the exclusion has its own row below, and why the key-set equality
-    // between the two records lives in `tests/composition.declaration.test.ts`
-    // where both are in scope.
+    // **Three keys, and all three are free drag's own** (D-138). The record
+    // carried four more until the cross-behavior boundary moved off it: they
+    // were the sortable's capability names declared `?: never`, which is how
+    // this type knew a vocabulary that is not its own. The separation is the
+    // branded context on `FreeDragInstaller` now, so the row states the slot
+    // set rather than a slot set plus a boundary.
     expectTypeOf<keyof FreeDragContribution>().toEqualTypeOf<
-      | 'constrain'
-      | 'startLanding'
-      | 'retire'
-      | 'insertion'
-      | 'placeholder'
-      | 'beforeInsertionMove'
-      | 'afterInsertionMove'
+      'constrain' | 'startLanding' | 'retire'
     >();
-  });
-
-  it('should type every cross-behavior exclusion as never', () => {
-    // **D-88's mechanism, asserted as types rather than as keys.** `never` is
-    // what makes the record refuse an object carrying one of these at all; an
-    // `unknown` or an optional-anything would leave the boundary open while
-    // still passing the `keyof` row above. All four, because D-87 asserted one
-    // and the other three were open for a decision.
-    expectTypeOf<
-      FreeDragContribution['insertion']
-    >().toEqualTypeOf<undefined>();
-    expectTypeOf<
-      FreeDragContribution['placeholder']
-    >().toEqualTypeOf<undefined>();
-    expectTypeOf<
-      FreeDragContribution['beforeInsertionMove']
-    >().toEqualTypeOf<undefined>();
-    expectTypeOf<
-      FreeDragContribution['afterInsertionMove']
-    >().toEqualTypeOf<undefined>();
   });
 
   it('should not reach the settlement scope', () => {

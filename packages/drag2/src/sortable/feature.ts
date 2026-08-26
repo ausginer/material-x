@@ -48,6 +48,28 @@ export { insertionAt } from './domain.ts';
 // rather than a structural coincidence (F-64).
 export type { FeatureContext } from '../shared/composition.ts';
 
+// Erased entirely: `declare const` emits no JavaScript, and the brand is a
+// property no value ever carries. Its only job is to make the two installer
+// types nominal at the parameter position (D-138).
+declare const SORTABLE_FEATURE: unique symbol;
+
+/**
+ * The context a sortable installer is handed.
+ *
+ * It is a {@link FeatureContext} and one compile-time brand, and **the brand is
+ * why a free-drag installer is not a sortable installer**. Nothing carries the
+ * brand at runtime and nothing reads it: an installer parameter is checked
+ * contravariantly, so a function written against the other behavior's context
+ * is refused where this one is expected, and the other way round.
+ *
+ * **An author never writes it.** Filling `axis`, `landing` or a `plugins` entry
+ * types the parameter from the slot, and hoisting into a
+ * `const install: SortableInstaller = (context) => …` types it from the alias.
+ * The brand is reachable only by naming this type, and there is no reason to.
+ */
+export type SortableFeatureContext = FeatureContext &
+  Readonly<{ [SORTABLE_FEATURE]: never }>;
+
 // The forbidden receiver is this record — the one the members are declared on —
 // and not the contribution object carrying it (D-92). The assembler's lift of
 // these members into flat slot fields is mechanism, not promise (D-94).
@@ -113,14 +135,9 @@ export type SortableContribution = Readonly<{
   /** Run in **reverse** installation order. */
   retire?: Disposer;
 
-  // Key-set totality is checked rather than promised: a slot added here without
-  // its `?: never` twin on `FreeDragContribution` fails at the moment it is
-  // added, so a free-drag installer can never be assignable here (D-88).
-  /**
-   * **Mutual exclusion, not a slot.** A sortable contribution has no motion
-   * constraint, and an object carrying one is not a sortable contribution.
-   */
-  constrain?: never;
+  // Six slots and nothing else. The record names no free-drag capability and
+  // owes no twin: separation is the branded context on `SortableInstaller`, so
+  // this type is free to be exactly the sortable's own slots (D-138).
 }>;
 
 // Published at the middle tier; a fragment is a plain object literal, and what
@@ -136,7 +153,7 @@ export type SortableContribution = Readonly<{
  * acquisition happens inside a kernel-owned operation lifetime.
  */
 export type SortableInstaller = (
-  context: FeatureContext,
+  context: SortableFeatureContext,
 ) => SortableContribution;
 
 // The required slot replaced a construction-time check that threw after every
@@ -156,5 +173,5 @@ export type SortableInstaller = (
  * `const`.
  */
 export type AxisInstaller = (
-  context: FeatureContext,
+  context: SortableFeatureContext,
 ) => SortableContribution & Readonly<{ insertion: InsertionGeometry }>;

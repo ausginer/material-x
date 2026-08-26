@@ -1808,6 +1808,22 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **Nothing asserts the convention, and that is the honest disposition.** `eqeqeq` is configured with `"null": "ignore"` so the loose form stays available, and no lint rule can see whether a distinction carries information — this is F-112's shape one register over: a mechanical check decides the safe half and the last increment is read.
 
+### The cross-behavior installer boundary, decided 2026-08-26 (D-138)
+
+**The owner's decision moves the boundary off the contribution records and onto the context.** Each middle tier declares a `unique symbol` and hands its installers `FeatureContext & Readonly<{ [brand]: never }>`; the `?: never` exclusions are deleted. Normative surface: [`contract/07`](contract/07-free-drag-contract.md) §The contribution.
+
+**The requirement that decides it is independence, and it is incompatible with the mechanism it replaces.** Key-set totality worked by making `FreeDragContribution` declare `placeholder`, `beforeInsertionMove` and `afterInsertionMove` in order to refuse them — free drag had to know what a placeholder was. Asking for records that do not name each other's vocabulary is asking for that rule's removal, and the two cannot both hold.
+
+**One contravariant parameter replaces a two-sided obligation.** A `?: never` twin per slot per record is an edit owed on every future capability, checked by a `keyof` equality that fails at the moment it is forgotten; a brand on the parameter states both directions from one property and needs nothing when a slot is added. That is the maintenance half. The correctness half is that assignability is still decided on the declared alias, so the `AxisInstaller → FreeDragInstaller` case — the one E-06 was raised about, where `insertion` is _required_ — is refused by the brand alone.
+
+**The artifact does not move, and that is the measurement.** `declare const` emits no JavaScript, no value carries the brand, and `assemble` stamps it with an `as` that compiles to `install(context)`. Every one of the fourteen size rows is **byte-identical** — minified and Brotli — and the published declaration set moves only by the prose and the two new aliases.
+
+**Two holes are accepted, and the second one is the cost.** A brand on a parameter cannot bind a function that declares no parameter, so `() => ({})` stays assignable to both, which is correct anyway. And an unannotated hoisted literal is decided structurally on its return type, so `{ placeholder, retire }` reaches free drag's `plugins` and is discarded by an assembler reading three slots — **CE1-01's residue, returning deliberately.** It is asserted as a row rather than left in prose, because a hole nothing exercises is indistinguishable from an oversight on the next reading.
+
+**D-88's stated reason for refusing a brand is answered rather than overruled.** It refused one that _costs a field on the hot construction path_ — a **runtime** brand, which this is not. The second half of that refusal was that `insertion?: never` says the true thing; it does, and the sentence it says is a fact about free drag that becomes a _boundary_ only by naming the sortable, which is what made the tier separation pay for it.
+
+**F-64 and B-7 come out stronger than they went in.** The shared `FeatureContext` is still one declaration re-exported by both tiers, and each branded context extends it — so a fix that forked `realm`, `root` and `report` per tier now fails a row that did not exist before. What reverses is 07's sentence that the incompatibility is in what an installer **produces**: it is in what an installer is **handed**.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.

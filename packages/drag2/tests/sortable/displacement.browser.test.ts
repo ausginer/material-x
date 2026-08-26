@@ -14,7 +14,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createRealm } from '../../src/kernel/realm.ts';
 import type { SortableConfig } from '../../src/sortable/config.ts';
-import type { FeatureContext } from '../../src/sortable/feature.ts';
+import type { SortableFeatureContext } from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import type { DisplacementView } from '../../src/sortable/slots.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -905,7 +905,7 @@ describe('the terminal barrier in the displacement bracket', () => {
     const placeholder = box();
     const rows = [box(), box()];
     const contribution = layoutAnimation({ duration: DURATION }).plugins![0]!(
-      null as unknown as FeatureContext,
+      null as unknown as SortableFeatureContext,
     );
     const view: DisplacementView = {
       realm: createRealm(root),

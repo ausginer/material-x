@@ -24,7 +24,11 @@ import type { LandingStart } from '../kernel/spec.ts';
 import type { FeatureContext } from '../shared/composition.ts';
 import type { FreeDragConfig } from './config.ts';
 import type { FreeDragLift } from './domain.ts';
-import type { FreeDragInstaller, MotionConstraint } from './feature.ts';
+import type {
+  FreeDragFeatureContext,
+  FreeDragInstaller,
+  MotionConstraint,
+} from './feature.ts';
 import {
   DEFAULT_AXIS,
   DEFAULT_THRESHOLD,
@@ -97,7 +101,10 @@ export function assemble(
         continue;
       }
 
-      const contribution = install(context);
+      // The library is the only producer of a context, so it is the only place
+      // the brand is stamped. `as` emits nothing: the call is `install(context)`
+      // (D-138).
+      const contribution = install(context as FreeDragFeatureContext);
 
       // Cleanup is recorded **first**, before any claim can throw, and in
       // installation order. Recording it after the claim would leak the private

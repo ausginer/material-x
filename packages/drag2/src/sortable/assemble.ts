@@ -14,6 +14,7 @@ import type { SortableConfig } from './config.ts';
 import type {
   FeatureContext,
   InsertionGeometry,
+  SortableFeatureContext,
   SortableInstaller,
 } from './feature.ts';
 import type { PlaceholderSlot } from './placement.ts';
@@ -97,7 +98,10 @@ export function assemble(
         continue;
       }
 
-      const contribution = install(context);
+      // The library is the only producer of a context, so it is the only place
+      // the brand is stamped. `as` emits nothing: the call is `install(context)`
+      // (D-138).
+      const contribution = install(context as SortableFeatureContext);
 
       // Cleanup is recorded **first**, before any claim can throw, and in
       // installation order. Recording it after the claim would leak the private

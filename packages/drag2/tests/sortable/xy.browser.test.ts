@@ -29,7 +29,7 @@ import type {
   Insertion,
 } from '../../src/sortable/domain.ts';
 import type {
-  FeatureContext,
+  SortableFeatureContext,
   InsertionGeometry,
 } from '../../src/sortable/feature.ts';
 import { xy } from '../../src/sortable/xy.ts';
@@ -131,7 +131,7 @@ function createField(slot = 0): Field {
     }
   }
 
-  const geometry = xy()(null as unknown as FeatureContext).insertion;
+  const geometry = xy()(null as unknown as SortableFeatureContext).insertion;
 
   // The snapshot is the whole collection, dragged member included, in grid
   // order. The index skips the dragged one, so destination slots are `items`.

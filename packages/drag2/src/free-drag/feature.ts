@@ -35,6 +35,27 @@ import type { FeatureContext } from '../shared/composition.ts';
  * deliberately not a shared *vocabulary*.
  */
 export type { FeatureContext } from '../shared/composition.ts';
+
+// Erased entirely: `declare const` emits no JavaScript, and the brand is a
+// property no value ever carries. Its only job is to make the two installer
+// types nominal at the parameter position (D-138).
+declare const FREE_DRAG_FEATURE: unique symbol;
+
+/**
+ * The context a free-drag installer is handed.
+ *
+ * It is a {@link FeatureContext} and one compile-time brand, and **the brand is
+ * why a sortable installer is not a free-drag installer**. Nothing carries the
+ * brand at runtime and nothing reads it: an installer parameter is checked
+ * contravariantly, so a function written against the other behavior's context
+ * is refused where this one is expected, and the other way round.
+ *
+ * **An author never writes it.** Filling `bounds`, `landing` or a `plugins`
+ * entry types the parameter from the slot, and hoisting into a
+ * `const install: FreeDragInstaller = (context) => …` types it from the alias.
+ */
+export type FreeDragFeatureContext = FeatureContext &
+  Readonly<{ [FREE_DRAG_FEATURE]: never }>;
 export type { Disposer } from '../kernel/lifetimes.ts';
 export type { DOMRealm } from '../kernel/realm.ts';
 export type {
@@ -121,34 +142,11 @@ export type FreeDragContribution = Readonly<{
   /** Run in **reverse** installation order — see `assemble`. */
   retire?: Disposer;
 
-  // The two contribution records must declare equal key sets;
-  // `tests/composition.declaration.test.ts` asserts it, so a slot added
-  // without its twin fails at the moment it is added (D-88).
-  /**
-   * **Mutual exclusion, not slots.**
-   *
-   * The rule is **key-set totality**: both contribution records declare the
-   * same key set, and a key a behavior does not implement it declares
-   * `?: never`. Free drag implements three of the seven and excludes these
-   * four; the sortable implements six and excludes `constrain`. **The boundary
-   * is asymmetric because the slot sets are.**
-   *
-   * Each name is the **defining capability of the other behavior** rather than
-   * an arbitrary marker, so the type says the true thing: a free-drag
-   * contribution has no insertion, no placeholder and no displacement hooks,
-   * and an object carrying one is not one. Without the exclusions a hoisted
-   * **unannotated** installer carrying `{ placeholder, retire }` would compile
-   * into free drag's public `plugins` and be silently discarded.
-   *
-   * An installer returning `{}` stays assignable to both, correctly — an empty
-   * contribution genuinely is valid for either behavior.
-   */
-  insertion?: never;
-  placeholder?: never;
-  beforeInsertionMove?: never;
-  afterInsertionMove?: never;
+  // Three slots and nothing else. The record names no sortable capability and
+  // owes no twin: separation is the branded context on `FreeDragInstaller`, so
+  // this type is free to be exactly free drag's own slots (D-138).
 }>;
 
 export type FreeDragInstaller = (
-  context: FeatureContext,
+  context: FreeDragFeatureContext,
 ) => FreeDragContribution;
