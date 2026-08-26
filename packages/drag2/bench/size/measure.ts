@@ -43,7 +43,14 @@
  * could move a budget would make every recorded figure a question about how
  * the harness was invoked.
  */
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import {
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { brotliCompressSync } from 'node:zlib';
@@ -1585,6 +1592,71 @@ export function unionViolations(
   return found;
 }
 
+export type DeclarationWeight = Readonly<{
+  files: number;
+  bytes: number;
+  comment: number;
+}>;
+
+/**
+ * The published type surface, weighed the way a tarball carries it (D-135).
+ *
+ * Every other figure here is a *runtime* bundle, and a comment does not survive
+ * minification — so the largest single class of published bytes this package
+ * has is invisible to all of them. `prune-declarations.ts` cannot see it
+ * either: it removes declaration files no entry can reach and never looks
+ * inside the ones it keeps (F-107).
+ *
+ * **Reported and not budgeted.** A ceiling whose calibrating injection cannot
+ * be re-run is not calibrated (D-134), and this figure has no measured
+ * regression behind it. It is the number a later pass would need before it
+ * could set one.
+ */
+export async function declarationWeight(): Promise<DeclarationWeight> {
+  const SKIP = new Set(['node_modules', 'src', 'tests', 'bench']);
+  const walk = async (directory: string): Promise<readonly string[]> => {
+    const entries = await readdir(directory, { withFileTypes: true });
+    const nested = await Promise.all(
+      entries.map(async (entry) => {
+        const path = join(directory, entry.name);
+
+        if (entry.isDirectory()) {
+          return SKIP.has(entry.name) || entry.name.startsWith('.')
+            ? []
+            : await walk(path);
+        }
+
+        return entry.name.endsWith('.d.ts') ? [path] : [];
+      }),
+    );
+
+    return nested.flat();
+  };
+
+  const files = await walk(ROOT);
+  const sources = await Promise.all(
+    files.map((file) => readFile(file, 'utf8')),
+  );
+  let bytes = 0;
+  let comment = 0;
+
+  for (const source of sources) {
+    bytes += source.length;
+
+    // Declarations are emitted, so the two comment forms are the only ones
+    // present and neither can appear inside a string literal.
+    for (const match of source.matchAll(/\/\*[\s\S]*?\*\//gu)) {
+      comment += match[0].length;
+    }
+
+    for (const match of source.matchAll(/^[^\S\n]*\/\/[^\n]*$/gmu)) {
+      comment += match[0].length;
+    }
+  }
+
+  return { files: files.length, bytes, comment };
+}
+
 /**
  * Both halves, for the CLI. `just size` reports and enforces everything — it is
  * run deliberately, by someone who wants the numbers — which is where the
@@ -1656,6 +1728,17 @@ if (import.meta.main) {
       console.error(`  ✗ ${COMBINED} ${violation}`);
     }
   }
+
+  const declarations = await declarationWeight();
+
+  // oxlint-disable-next-line no-console
+  console.log(
+    `\npublished declarations: ${declarations.files} files,` +
+      ` ${kb(declarations.bytes)}, of which ${kb(declarations.comment)} is` +
+      ` comment (${Math.round(
+        (declarations.comment / declarations.bytes) * 100,
+      )} %)  (telemetry: not budgeted)`,
+  );
 
   if (writing) {
     // oxlint-disable-next-line no-console

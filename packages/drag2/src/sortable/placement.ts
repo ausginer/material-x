@@ -14,25 +14,24 @@ import type { Insertion } from './domain.ts';
 /** What a `placeholder` factory is handed. Geometry, and all three elements. */
 export type PlaceholderContext = Readonly<{
   item: HTMLElement;
-  /** The node faithfully lifted (D-43). */
+  /** The node faithfully lifted. */
   visual: HTMLElement;
-  /** The geometry source, or `visual` when the config named no `box` (D-43). */
+  /** The geometry source, or `visual` when the config named no `box`. */
   box: HTMLElement;
   rect: DOMRectReadOnly;
 }>;
 
 export type PlaceholderFactory = (context: PlaceholderContext) => HTMLElement;
 
+// Widening the contribution rather than `PlaceholderFactory` keeps the shape a
+// consumer implements unchanged — a consumer factory simply ignores the second
+// argument — while giving the one first-party module that mutates a
+// consumer-owned element between two of its own statements a reading to stand
+// behind (I-36).
 /**
  * The **internal** slot shape: the public {@link PlaceholderFactory} a consumer
- * writes, plus the liveness reading the library hands its own `placeholder()`
- * feature (I-36 (1)).
- *
- * Widening the contribution rather than `PlaceholderFactory` is what keeps the
- * shape a consumer implements unchanged — a consumer factory simply ignores the
- * second argument — while giving the one first-party module that mutates a
- * consumer-owned element between two of its own statements a reading to stand
- * behind (C5-03's stretch sweep).
+ * writes, plus the liveness reading the library hands its own placeholder
+ * feature.
  */
 export type PlaceholderSlot = (
   context: PlaceholderContext,
@@ -90,12 +89,11 @@ const willWrite = (
   element: HTMLElement,
   name: string,
 ): void => {
-  // **The snapshot is taken inside the guard, not at the call** (D-127). The
-  // default placeholder path passes `null` — the library owns that element and
-  // has nothing to roll back — and an argument-position `restoreAttribute(…)`
-  // was evaluated for it anyway: four `getAttribute` reads and four closures
-  // per activation, allocated and discarded. Only an adopted placeholder keeps
-  // a ledger, and only it pays for one now.
+  // The snapshot is taken inside the guard, not at the call (D-127). The
+  // default placeholder path passes `null` and has nothing to roll back; an
+  // argument-position `restoreAttribute(…)` would be evaluated for it anyway,
+  // at four `getAttribute` reads and four closures per activation. Only an
+  // adopted placeholder keeps a ledger, and only it pays for one.
   undo?.push(restoreAttribute(element, name));
 };
 
@@ -104,16 +102,10 @@ const willWrite = (
  * whether the element came from a feature factory or from the default below:
  * it occupies exactly one insertion position, is hidden from assistive
  * technology, inherits the item's slot, and is sized from the **footprint the
- * visual removed** — computed by the caller across the lift (D-43), never
- * measured here.
- *
- * **The sizing input changed and the measurement moved out** (D-43, D-52). It
- * used to read `visual.offsetWidth`/`offsetHeight` right here, which is the
- * visual's own box rather than the space its removal freed; where the box keeps
- * a sibling in flow those differ, and api-1 measured them 30 px apart. The
- * windows now straddle `acquireLift` — one owned by the kernel, one by
- * `activation.prepare` — and neither is reachable from this function, so it
- * takes the answer instead of computing it.
+ * visual removed** — computed by the caller across the lift, never measured
+ * here. The two windows straddle `acquireLift`, one owned by the kernel and one
+ * by `activation.prepare`, and neither is reachable from this function, so it
+ * takes the answer instead of computing it (D-52).
  *
  * Beyond this the library writes no visual styling.
  */
@@ -124,10 +116,10 @@ function applyMechanics(
   live: () => boolean,
   undo: PlaceholderUndo,
 ): void {
-  // **Every read first, then every write** (I-36 (2) act 3, C5-02). Each call
-  // below is consumer-reachable — `getAttribute` on the item, the offset
-  // getters on the visual, `setAttribute`/`style` on a placeholder a
-  // `placeholder()` feature may own — and the element is not adopted until
+  // Every read first, then every write (I-36). Each call below is
+  // consumer-reachable — `getAttribute` on the item, the offset getters on the
+  // visual, `setAttribute`/`style` on a placeholder a `placeholder()` feature
+  // may own — and the element is not adopted until
   // `activation.prepare` returns, so a mutation left on it after `destroy()` is
   // a residue teardown never undoes. Ordering the reads ahead of the writes
   // makes the whole read run one stretch that leaves nothing behind whichever
@@ -159,8 +151,8 @@ function applyMechanics(
   // footprint in a different slot from the item it stands for, which is the
   // opposite of "inherits the item's slot".
   //
-  // **Which is exactly why the undo is `restoreAttribute` and not
-  // `removeAttribute`** (D-39): the branch below *removes* a consumer's own
+  // Which is why the undo is `restoreAttribute` and not `removeAttribute`
+  // (D-39): the branch below *removes* a consumer's own
   // `slot="mine"`, so an undo that only knew how to delete would leave the
   // element permanently missing an attribute the library never granted it.
   willWrite(undo, placeholder, 'slot');
@@ -175,14 +167,13 @@ function applyMechanics(
     return;
   }
 
-  // **One undo for all three property writes, and it is stronger than three**
-  // (D-39). 05 asks for a normalizing undo registered first so LIFO runs it
-  // last, because removing three *properties* leaves `style=""` behind — a
-  // residue on a consumer-owned element and a real difference in an
-  // attribute-map comparison. Restoring the whole attribute answers that and
-  // the three property values at once, so there is nothing left for an ordering
-  // rule to arrange: an element that arrived with `style="color:red"` gets that
-  // string back, and one that arrived with no `style` attribute ends with none.
+  // One undo for all three property writes, and it is stronger than three
+  // (D-39). Removing three *properties* leaves `style=""` behind — a residue on
+  // a consumer-owned element and a real difference in an attribute-map
+  // comparison. Restoring the whole attribute answers that and the three
+  // property values at once: an element that arrived with `style="color:red"`
+  // gets that string back, and one that arrived with no `style` attribute ends
+  // with none.
   //
   // Registered here rather than at the top so a mechanics run that stops before
   // the style block records no style undo at all. An undo for a write that
@@ -242,35 +233,26 @@ export function createPlaceholder(
 
   const placeholder = factory(context, live);
 
-  // **The terminal barrier on the factory** (I-36, C4-01). The factory is
+  // The terminal barrier on the factory (I-36). The factory is
   // consumer code, and everything below it touches consumer-owned elements:
   // the adoption check reads `isConnected`, and `applyMechanics` writes
   // attributes and inline styles onto the returned element, all overridable on
-  // a consumer's custom element. The mechanics carry their own readings from
-  // C5-02; this one covers the factory itself and the adoption check between
-  // them.
+  // a consumer's custom element. The mechanics carry their own readings;
+  // this one covers the factory itself and the adoption check between them.
   //
   // Returned unmechanized rather than thrown: a consumer destroying its own
-  // controller is not a library failure (C2-01 §What this does not close), and
-  // nothing here has been adopted — `activation.prepare` has published nothing
+  // controller is not a library failure, and nothing here has been adopted — `activation.prepare` has published nothing
   // and `preparationValid()` discards the whole preparation, so the element is
   // dropped rather than inserted.
   if (!live()) {
     return placeholder;
   }
 
-  // ~~**Adoptable is the condition all four arms test** (F-86), and returning
-  // the dragged item, its visual or an attached node is refused here.~~
-  // **Deleted 2026-08-25 (D-124).** The factory's result is still **adopted** —
-  // activation inserts it, every move relocates it, teardown removes it — and
-  // all four arms still describe real damage. What changed is which question
-  // is asked first: `config.d.ts` publishes _must return a **detached** element
-  // that is neither the dragged item nor its visual_ on the slot itself, and
-  // the type says `HTMLElement`, so every arm tested a state a conforming
-  // author cannot reach. **Nothing detects a violation now**, in the same form
-  // `box` two slots away already uses — the sentence stays true as a
-  // documented boundary, and an author who ignores it hands the library
-  // ownership of a node the page owns and gets it removed at teardown.
+  // Nothing checks the factory's result (D-124). It is adopted — activation
+  // inserts it, every move relocates it, teardown removes it — and `config.ts`
+  // publishes the detachedness requirement on the slot itself, as a documented
+  // boundary rather than a guard. An author who ignores it hands the library
+  // ownership of a node the page owns, and teardown removes it.
   applyMechanics(placeholder, item, footprint, live, undo);
   return placeholder;
 }
@@ -281,8 +263,8 @@ export function createPlaceholder(
  * Exported because inertness has to be decidable *before* the move: the move
  * pipeline brackets the write with `beforeMove`/`afterMove` hooks, and a hook
  * that measures the whole list must not be paid for a write that will not
- * happen (contract 06 §The coalesced spatial frame, whose sole writer
- * reports whether a move occurred).
+ * happen: the coalesced spatial frame's sole writer reports whether a move
+ * occurred.
  */
 export function placeholderAt(
   placeholder: HTMLElement,
@@ -307,9 +289,9 @@ export function placeholderAt(
  * Moves the placeholder into `insertion` and reports **whether it moved**;
  * does nothing when it is already there.
  *
- * Anchored on `after`, with an append fallback for an end gap. Probe 1's
- * `before?.after(…)` was a silent no-op for a start gap, where `before` is
- * `null` — the placeholder simply never reached the head of the list (F-31).
+ * Anchored on `after`, with an append fallback for an end gap: anchoring on
+ * `before` instead is a silent no-op for a start gap, where `before` is `null`,
+ * and the placeholder never reaches the head of the list.
  *
  * The inertness check is not an optimisation: `Node.before()` and `append()` on
  * an already-correct position are a remove-and-reinsert, which resets CSS

@@ -1738,6 +1738,12 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **Booked to Remediation, and deliberately not swept here.** Some source comments are the only copy of a constraint — `failures.ts`'s hole comment is the working example — so the step carries a safety property: nothing is deleted from a comment unless the record already carries it, and where it does not the record is written first, in the same change. The compiler-unstateable preconditions D-124 deleted runtime guards on the strength of survive verbatim, `tests/` is out of scope, and the published declaration weight is **reported and not budgeted**, since D-134's rule applies one level over.
 
+**Implemented 2026-08-26.** The published declaration set went **127,666 → 88,091 B**, its comment half **98,979 → 59,410 B**, and the 271 internal references across 27 declarations went to zero — held from now on by `tests/packaging.node.test.ts` — _should publish no declaration carrying an internal reference_, which forbids a decision number, a `§`, a `contract <n>`, a `CODE_OF_SIZE` citation, a `.plan/` path, a phase number, a date and a strikethrough in anything the tarball carries. **The declaration code moved 6 B**, which is the evidence that a prose sweep is what happened. Ratio against the four runtime entries: 7.25× down to 4.4×.
+
+**The safety property held everywhere it was tested, and the escape hatch is what made that cheap.** A `//` line comment does not reach a `.d.ts`, so a constraint that holds now but is not consumer-actionable is **demoted rather than deleted** — which is the same repair D-113 already made to two module headers, generalised. Nothing was found whose reasoning the record does not carry.
+
+**One instrument lost a clause as a consequence the decision did not name.** D-113's orphan-block row exempted a block whose subject opens struck — `~~SortableCallbacks~~` _is deleted_ — as the one legitimate orphan. D-135 forbids `~~` in a published declaration outright, so the exempt population is now empty by construction and the exemption is deleted rather than left standing over nothing, which is F-106's class avoided in the commit that would have created it.
+
 ### The planning tree's residency, decided 2026-08-26 (D-136, F-108, F-109)
 
 **The owner put two layout questions and they have different answers.** Record [`reviews/phase-23/planning-tree-residency-claude.md`](reviews/phase-23/planning-tree-residency-claude.md).

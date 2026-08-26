@@ -394,12 +394,14 @@ describe('the published file list', () => {
     // ever tell it that it is wrong. It is invisible by construction, and it is
     // copied into the artifact a consumer installs.
     //
-    // **One orphan is legitimate and it is recognizable rather than listed.** A
-    // **marked** block opens by naming something deleted — `~~SortableCallbacks~~`
-    // _is deleted_ — which is the retirement marker D-112 uses for a reference,
-    // here for a declaration: the block's subject is gone and saying so is its
-    // whole point. Anything else orphaned is prose that outlived what it
-    // described.
+    // **No orphan is legitimate any more.** One used to be: a block opening by
+    // naming something deleted — `~~SortableCallbacks~~` _is deleted_ — was the
+    // retirement marker applied to a declaration rather than to a reference,
+    // and its subject being gone was its whole point. D-135 removed the class:
+    // a retirement note is the record's voice, it is not something a consumer
+    // outside this repository can act on, and the row below forbids `~~` in a
+    // published declaration outright. So the exemption is deleted rather than
+    // left standing over an empty population.
     //
     // **Three escapes were closed 2026-08-22 (MNT-02), and one of them by
     // deleting the rule rather than tightening it.** A single-line `/** … */`
@@ -420,7 +422,6 @@ describe('the published file list', () => {
       emitted.map((file) => readFile(file, 'utf8')),
     );
     let blocks = 0;
-    let marked = 0;
     for (const [ordinal, file] of emitted.entries()) {
       const lines = read[ordinal]!.split('\n');
       let start = -1;
@@ -440,17 +441,7 @@ describe('the published file list', () => {
         while (next < lines.length && lines[next]!.trim() === '') {
           next += 1;
         }
-        const orphaned = lines[next]?.trim().startsWith('/**') ?? true;
-        // The subject, not the prose: a deletion note opens with the struck
-        // name of the thing it is about.
-        const subject = (
-          start === index
-            ? text.slice(3)
-            : (lines[start + 1] ?? '').trim().replace(/^\*\s?/u, '')
-        ).trim();
-        const retired = subject.startsWith('~~');
-        marked += retired ? 1 : 0;
-        if (orphaned && !retired) {
+        if (lines[next]?.trim().startsWith('/**') ?? true) {
           orphans.push(`${relative(ROOT, file)}:${start + 1}`);
         }
         start = -1;
@@ -460,12 +451,57 @@ describe('the published file list', () => {
     expect(orphans).toEqual([]);
     // **Non-vacuity, and it is the reason MNT-01 was a finding** (D-115). The
     // emitted tree is untracked, so a fresh clone before `just build` has none
-    // of it and this row read one file and passed. Both floors are well under
-    // the 33 declarations and 200 blocks the built tree carries, and the third
-    // asserts the one exemption is exercised rather than merely available.
+    // of it and this row read one file and passed. Both floors sit under what
+    // the built tree carries.
     expect(emitted.length).toBeGreaterThan(25);
-    expect(blocks).toBeGreaterThan(150);
-    expect(marked).toBeGreaterThan(0);
+    expect(blocks).toBeGreaterThan(100);
+  });
+
+  it('should publish no declaration carrying an internal reference', async () => {
+    // A JSDoc block on a declaration that survives the prune is consumer
+    // documentation: it is fetched at every install, rendered on hover and
+    // published by TypeDoc. A reader outside this repository can act on none of
+    // the forms below, so none of them may reach a `.d.ts` (D-135).
+    //
+    // Asserted rather than swept once, because the property regresses with no
+    // other failing test: the next JSDoc edit reintroduces a decision number
+    // and every other row here still passes.
+    const FORBIDDEN: ReadonlyArray<readonly [string, RegExp]> = [
+      ['decision, finding or probe number', /\b(?:D|F|I|E|Q|M|K|B|MNT)-\d+/u],
+      ['section citation', /§/u],
+      ['contract document', /\bcontract \d/iu],
+      ['size policy citation', /CODE_OF_SIZE/u],
+      ['record path', /\.plan\//u],
+      ['phase number', /\bphase \d/iu],
+      ['date', /\b20\d{2}-\d{2}-\d{2}\b/u],
+      ['strikethrough', /~~/u],
+    ];
+    // `bench/` holds declarations emitted for the size harness's own fixtures.
+    // They are build output of an instrument and reach no tarball, so the
+    // published set is what remains once they are dropped.
+    const emitted = (await declarations(ROOT)).filter(
+      (file) => !relative(ROOT, file).startsWith('bench/'),
+    );
+    const read = await Promise.all(
+      emitted.map((file) => readFile(file, 'utf8')),
+    );
+    const offences: string[] = [];
+
+    for (const [ordinal, file] of emitted.entries()) {
+      for (const [index, line] of read[ordinal]!.split('\n').entries()) {
+        for (const [what, pattern] of FORBIDDEN) {
+          if (pattern.test(line)) {
+            offences.push(`${relative(ROOT, file)}:${index + 1} ${what}`);
+          }
+        }
+      }
+    }
+
+    expect(offences).toEqual([]);
+    // Non-vacuity: the emitted tree is untracked, so a fresh clone before
+    // `just build` has none of it and this row would read nothing and pass.
+    expect(emitted.length).toBeGreaterThan(25);
+    expect(read.join('').length).toBeGreaterThan(20_000);
   });
 
   it('should publish no declaration the entries cannot reach', async () => {

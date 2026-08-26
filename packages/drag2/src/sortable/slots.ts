@@ -116,7 +116,7 @@ export type DisplacementView = Readonly<{
    * from here. It matters because the placeholder is inserted immediately after
    * the item, so **the dragged item is the first sibling of every backward
    * span**; a displacement that animates it fights the lift for the element the
-   * kernel owns. Same reason as {@link InsertionFrameView.item}.
+   * kernel owns. Same reason as `InsertionFrameView.item`.
    */
   item: HTMLElement;
   /**

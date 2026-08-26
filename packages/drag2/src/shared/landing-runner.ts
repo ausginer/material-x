@@ -5,30 +5,22 @@
  * `LandingStart`, `LandingContext` and `LandingHandle` are kernel SPI, so
  * nothing about how a lifted visual travels to its final place is specific to a
  * collection or to a free drag. What the two entries do **not** share is the
- * installer type, because the contribution types differ and unifying those is
- * F-64's deferred question — so `sortable/landing.js` and `free-drag/landing.js`
- * are each a thin factory over this module (07 §The export topology extension).
- *
- * The precedent is `sortable/rect-index.ts` shared between `y()` and `xy()` at a
- * measured 60 B, recorded rather than absorbed. **Phase 21 measures this one the
- * same way.**
+ * installer type, because the contribution types differ (F-64) — so
+ * `sortable/landing.js` and `free-drag/landing.js` are each a thin factory over
+ * this module.
  *
  * `LandingOptions` is declared here for B-7's reason: imported from either
  * landing entry it must be the **same declaration**, not two structurally equal
  * ones.
  *
- * ---
- *
  * Without a landing installed the behavior holds **no** landing gate and none of
  * this module is imported. Installing it holds the gate through a runner — even
  * with `duration: 0`, which is immediate but not the same code path.
  *
- * **The library owns the animation at the ordinary tier** (D-63). ~~`{ run }`~~
- * replaced the runner entirely, and it is gone with the three seam types it
- * needed. What survives is the clause that made the slot look necessary and is
- * true without it: **nothing in the contract assumes a CSS timing function or a
- * finite known duration**, which is what keeps a kernel-tier spring authorable
- * and what makes `duration: 0` safe.
+ * **The library owns the animation at the ordinary tier** (D-63), and **nothing
+ * in the contract assumes a CSS timing function or a finite known duration**,
+ * which is what keeps a kernel-tier spring authorable and what makes
+ * `duration: 0` safe.
  *
  * The runner is never responsible for correctness: the kernel performs the
  * authoritative pin at the join, and the runner's only obligations are to call
@@ -39,13 +31,11 @@ import type { LandingHandle, LandingStart } from '../kernel/spec.ts';
 import type { Point } from '../kernel/types.ts';
 
 /**
- * What a contextual `duration` is handed (D-67).
+ * What a contextual `duration` is handed.
  *
  * `from` and `to` are the landing's origin-relative deltas — the same two
  * points the runner animates between — and `distance` is the straight-line
- * magnitude between them, which is the quantity review 3 §10 said a zero-
- * argument thunk *"cannot even observe"*. All three are values the landing
- * already holds at that moment; the object is the only new allocation.
+ * magnitude between them.
  */
 export type LandingTimingContext = Readonly<{
   from: Point;
@@ -54,33 +44,21 @@ export type LandingTimingContext = Readonly<{
 }>;
 
 /**
- * **The contextual duration function** (D-67), as a named alias for the reason
- * every callback slot is one (F-51).
+ * **The contextual duration function.**
  */
 export type LandingDuration = (context: LandingTimingContext) => number;
 
 export type LandingOptions = Readonly<{
   /**
-   * Fixed at construction, or **read at settle time** through a function
-   * (13b B-2, D-67). The function is called once per landing, immediately
-   * before the runner builds its animation — which is the moment the shipped
-   * package's `landingTiming()` was read, and after the settlement step that
-   * decides where the visual is going.
+   * Fixed at construction, or **read at settle time** through a function. The
+   * function is called once per landing, immediately before the runner builds
+   * its animation, and after the settlement step that decides where the visual
+   * is going.
    *
-   * **It takes a context now, and that is what kept the capability alive.**
-   * Review 3 §10 rejected the zero-argument thunk on its own terms; D-63 then
-   * removed `run`, which had been the other way to reach settle-time timing,
-   * leaving the thunk as the sole carrier of parity L-6. The contextual form
-   * discharges the objection instead of deleting the parity, and costs one
-   * object and one `Math.hypot` more than the thunk did.
+   * A zero-parameter function such as `() => 200` is assignable and is called
+   * the same way.
    *
-   * **A shipped `() => 200` keeps working** and is not a compile error: a
-   * zero-parameter function is assignable to any signature (F-52). The
-   * migration is source-compatible, and the only way to *require* the context
-   * would be a runtime arity check, which is not worth its cost for a form that
-   * still behaves correctly.
-   *
-   * What it costs, either way, is one call per landing, at settle time rather
+   * What the function form costs is one call per landing, at settle time rather
    * than at construction — the value does not exist before then.
    *
    * **The domain is a finite number of milliseconds, and nothing here detects
@@ -98,11 +76,10 @@ export type LandingOptions = Readonly<{
 }>;
 
 const DEFAULT_DURATION = 200;
-// **Parity, not taste** (D6, Checkpoint D). The shipped package's default
-// landing timing is `{ duration: 200, easing: 'ease' }` and the parity ledger
-// retains it, so a consumer that installs `landing()` with no easing gets the
-// motion it already had. `'ease-out'` shipped here by accident and was
-// observably different for every such consumer.
+// **Parity, not taste** (D6). The shipped package's default landing timing is
+// `{ duration: 200, easing: 'ease' }` and the parity ledger retains it, so a
+// consumer that installs `landing()` with no easing gets the motion it already
+// had.
 const DEFAULT_EASING = 'ease';
 
 /**
@@ -110,38 +87,16 @@ const DEFAULT_EASING = 'ease';
  * closures and reads no DOM, so an installer calling it stays externally inert.
  */
 export function createLandingStart(options: LandingOptions): LandingStart {
-  // **Both options are always read** (D-63). `run` used to short-circuit this
-  // whole function, which meant the timing options were conditionally read;
-  // removing it removes a conditional from the rule rather than adding one.
+  // **Both options are always read**, unconditionally (D-63).
   const declared = options.duration ?? DEFAULT_DURATION;
-  // **Narrowed to one comparison, and moved to the landing** (D-77). The check
-  // used to be `requireFinite` at construction for the number form and per
-  // landing for the thunk; both forms are now tested at the same instant and
-  // against the same single value, because `animate()` is a better validator
-  // than the library for every other case — **measured, and the artifact is
-  // `.plan/measurements/animate-duration-domain.md`** (D-79): under Chrome 150
-  // it rejects `NaN`, negatives, `-Infinity`, strings and objects itself, with
-  // one message naming its own domain.
+  // **No domain test survives here**: the whole duration domain is
+  // `animate()`'s, which rejects `NaN`, negatives, `-Infinity`, strings and
+  // objects itself, with one message naming its own domain (D-79).
   //
-  // ~~It also accepts `'auto'` and `undefined`, which a finiteness test would
-  // have wrongly refused.~~ **Struck** (D-79): `undefined` never reaches
-  // `animate()` — the line above coalesces it to the default — and `'auto'` is
-  // reachable only from JavaScript, since `LandingDuration` returns `number`.
-  // The deletion rests on the byte argument and on the `Infinity` invariant,
-  // not on this.
-  //
-  // ~~`Infinity` is the one value it accepts and never completes. That is the
-  // only reason a check survives here at all: **the landing holds the
-  // settlement gate**, so an animation that never finishes is an operation with
-  // no terminal — the single failure this architecture cannot classify, because
-  // classification needs something to happen.~~ **Struck, and the check with
-  // it** (D-124). That is a description of what the library goes on to do with
-  // a value the contract never admitted: `Infinity` is not a long animation,
-  // it is the absence of one, and _a duration is finite_ is the size
-  // doctrine's own paradigm of a precondition an integrator can meet and find.
-  // The gate closes at reachability and the cost of the failure never gets
-  // asked. **Nothing detects a violation** — an unbounded duration now holds
-  // the settlement gate open with no terminal, which is what that misuse buys.
+  // `Infinity` is the one value `animate()` accepts and never completes, and
+  // **nothing detects a violation** — an unbounded duration holds the
+  // settlement gate open with no terminal, which is what that misuse buys
+  // (D-124).
   const timing: LandingDuration | null =
     typeof declared === 'function' ? declared : null;
   const fixed = typeof declared === 'function' ? 0 : declared;
@@ -151,17 +106,15 @@ export function createLandingStart(options: LandingOptions): LandingStart {
 
   return (context, done, fail): LandingHandle => {
     const { visual, compose, realm } = context;
-    // Resolved and validated **once per landing**, not per `play`: a retarget
-    // replays the same trajectory budget rather than re-reading a thunk that
-    // may have moved on.
+    // Resolved **once per landing**, not per `play`: a retarget replays the
+    // same trajectory budget rather than re-reading a thunk that may have moved
+    // on.
     //
-    // **Before the reduced-motion test, never inside it** (D4, Checkpoint D).
-    // The thunk's documented call timing is "once per landing, immediately
-    // before the runner builds its animation" — it is not conditional on a
-    // media query, and the shipped `landingTiming()` was likewise invoked and
-    // its result adjusted afterwards. Resolving inside the collapse would make
-    // a consumer's settle-time side effect, and a thrown or invalid result,
-    // observable only for users who have not asked for reduced motion.
+    // **Before the reduced-motion test, never inside it** (D4). The documented
+    // call timing — once per landing, immediately before the runner builds its
+    // animation — is not conditional on a media query. Resolving inside the
+    // collapse would make a consumer's settle-time side effect, and a thrown
+    // result, observable only for users who have not asked for reduced motion.
     const { from, target } = context;
     const resolved =
       timing === null
@@ -169,21 +122,14 @@ export function createLandingStart(options: LandingOptions): LandingStart {
         : timing({
             from,
             to: target,
-            // The one arithmetic D-67 adds. `from` and `to` were already
-            // computed for `LandingContext`; this is what makes the distance
-            // that motivated dynamic timing observable at all.
+            // `from` and `to` were already computed for `LandingContext`; the
+            // distance is the one arithmetic this context adds (D-67).
             distance: Math.hypot(target.x - from.x, target.y - from.y),
           });
 
-    // ~~**The one surviving domain test** (D-77), applied to both forms at the
-    // same instant and **before** the reduced-motion collapse.~~ **Deleted
-    // 2026-08-25 (D-124)**, so no domain test survives here and the whole
-    // domain is `animate()`'s. The instant it ran at mattered only while it
-    // ran; the reduced-motion collapse below is now the first thing the
-    // resolved value meets, and under `reduce` an unbounded duration collapses
-    // to zero and lands — which is a difference by OS setting that the old
-    // ordering deliberately prevented, and is the price of the deletion rather
-    // than an oversight.
+    // The reduced-motion collapse is the first thing the resolved value meets,
+    // so under `reduce` an unbounded duration collapses to zero and lands:
+    // that misuse differs by OS setting (D-124).
     //
     // Collapsed to zero rather than skipped: the gate is still held and still
     // released through the runner, so the lifecycle is one path whatever the
