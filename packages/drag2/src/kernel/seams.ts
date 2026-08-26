@@ -299,8 +299,8 @@ export function createSeamDriver<Part extends object>(
   let unclassifiedReason = 'drag: seam/rollback-failed';
   /**
    * The staged value of the last committed transition. Owned by the driver
-   * rather than passed in, so no call path can skip the reset: a `runCore` that
-   * was handed no slot used to leave the previous seam's value readable.
+   * rather than passed in, so no call path can skip the reset: passed in, a
+   * `runCore` handed no slot would leave the previous seam's value readable.
    */
   let staged: unknown = null;
   /**
@@ -510,10 +510,11 @@ export function createSeamDriver<Part extends object>(
       }
 
       if (openStage === NO_STAGE) {
-        // **One warning where there were two reports** (D-130 §2.2). The pair
-        // was a caught error and a library-authored companion naming why the
-        // classification was denied; the message names the reason and `cause`
-        // carries the caller's error, which is the shape that replaced a code.
+        // **One warning, not two reports** (D-130 §2.2). A caught error and a
+        // library-authored companion naming why the classification was denied
+        // are one fault said twice: the message names the reason and `cause`
+        // carries the caller's error, which is what a discriminating code
+        // would otherwise be for.
         //
         // The caller's `stage` is deliberately discarded. It describes a
         // classification the kernel has just refused to apply, and carrying it

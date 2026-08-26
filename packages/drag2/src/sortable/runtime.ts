@@ -2,16 +2,17 @@
  * The behavior's private runtime: an ordinary object, declared and created in
  * one place, **never handed to the kernel and never widened** (H-2, D-4).
  *
- * Six mutable fields. ~~The seventh is `pendingRequest`~~ — **deleted with the
- * readiness protocol (D-41)**: it existed to key `controller.ready(request)` to
- * one operation, and there is no acknowledgement to key.
- * ~~The eighth is the terminal latch C2-01 moved here off
- * the controller's closure.~~ **D-53 deletes it**: the host publishes the latch
- * itself now, and the reason the private mirror existed — that the SPI could
- * not express the reading D-38 requires — is precisely the failing case the
- * freeze rule asks for. A hand-kept copy is state that can disagree, it was
- * blind to a kernel-internal `panic()`, and after D-47 published the kernel a
- * third-party behavior author could not be expected to know to maintain one.
+ * **Six mutable fields**, and two things a seventh and an eighth would be are
+ * deliberately not among them.
+ *
+ * There is **no `pendingRequest`** (D-41): it would key `controller.ready(request)`
+ * to one operation, and with no readiness protocol there is no acknowledgement
+ * to key.
+ *
+ * There is **no private terminal latch** (D-53): the host publishes the latch,
+ * and a hand-kept copy is state that can disagree — it is blind to a
+ * kernel-internal `panic()`, and with the kernel published (D-47) a third-party
+ * behavior author cannot be expected to know to maintain one.
  *
  * Probe 1's shared runtime had those plus fourteen kernel
  * fields — the queue, the frame references, the attempt slots, the cancel latch
@@ -105,7 +106,7 @@ export type SortableRuntime = {
    * identity is never operation-scoped, because staleness is carried by the
    * monotonic attempt number it schedules.
    *
-   * **Measured against both alternatives** (M-2, 2026-08-02 —
+   * **Measured against both alternatives** (M-2 —
    * `.plan/measurements/m2.md`). Eager costs 148 B more on a
    * controller that never drags, and wins everywhere else: an active controller
    * is *cheaper* than under lazy-retained or per-operation (281 B against

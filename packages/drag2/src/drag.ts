@@ -17,16 +17,15 @@
  * wrong and your result stands*. A name both tiers must recognise and neither
  * owns belongs here for the same reason `DraggableError` does.
  *
- * **And so does the stage vocabulary** (D-132). ~~`DraggableErrorCode` was
- * here.~~ The coarse code is deleted and `DraggableError.stage` carries a
- * `FailureStage`, which is the same argument a third time: the kernel tier
- * classifies with it, the ordinary consumer now receives it, and neither owns
- * it.
+ * **And so does the stage vocabulary** (D-132). `DraggableError.stage` carries
+ * a `FailureStage` and there is no coarse code beside it, which is the same
+ * argument a third time: the kernel tier classifies with it, the ordinary
+ * consumer receives it, and neither owns it.
  *
- * ~~`draggable` and the `FAILURE_*` constants were here.~~ **D-48 moves
- * `draggable` to `kernel.js`; D-64 moves the stages there with it**, because
- * they are how a *behavior* classifies and the ordinary consumer now receives a
- * coarse code instead.
+ * **That argument is the whole composition rule for this entry.** A name sits
+ * here when both tiers must name it and neither owns it; `draggable` sits on
+ * `kernel.js` (D-48, D-64) because it is the kernel tier's own entry point,
+ * which an ordinary consumer never names.
  */
 
 export { DraggableError, DraggableWarning } from './kernel/errors.ts';

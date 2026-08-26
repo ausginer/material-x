@@ -2,12 +2,12 @@
  * The sortable behavior's frame part: **its own seven fields and nothing else**
  * (contract 04).
  *
- * ~~`outcome: number`~~ **was the eighth and is removed, 2026-08-22.** Contract
- * 04 justified it as _only read to choose a landing target and a terminal
- * callback_, and that reader was deleted by D-62/D-66 when `finalized()`
- * collapsed to publishing `current.domain` and nothing else. Four writes and no
- * reader is residue rather than retention; `recovery`, the field beside it,
- * keeps its three readers and stays.
+ * **There is no `outcome: number` field, and an eighth one must not return it.**
+ * Its only justification in contract 04 was _read to choose a landing target and
+ * a terminal callback_, and `finalized()` publishes `current.domain` and nothing
+ * else (D-62, D-66), so such a field has four writes and no reader — residue
+ * rather than retention. `recovery`, the field beside it, has three readers and
+ * stays.
  *
  * The kernel's seven-field slice is not named here and cannot be: `FramePartOf`
  * rejects a part that declares a kernel key at the authoring boundary, which

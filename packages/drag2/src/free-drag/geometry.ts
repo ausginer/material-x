@@ -2,13 +2,13 @@
  * Free drag's pure geometry: the constrained delta, the local-space projection,
  * and the two consumer-facing shapes derived from committed state.
  *
- * **Nothing here reads the DOM at all** (D-85). It used to hold one reader —
- * `captureLocalSpace`, a second box-quad traversal taken once per activation —
- * and E-01 established that the second read was not merely duplicate work: it
- * ran *after* `acquireLift` had changed positioning, dimensions, top-layer
- * state and transforms, so a lifted visual reported the viewport's ancestry
- * rather than the one the operation began in. The kernel now hands the
- * projection down on `ActivationScope`, and every function here is arithmetic
+ * **Nothing here reads the DOM at all** (D-85), and a reader here is wrong: it
+ * would be a second box-quad traversal per activation, and E-01 established
+ * that such a second read is not merely duplicate work — it runs *after*
+ * `acquireLift` has changed positioning, dimensions, top-layer state and
+ * transforms, so a lifted visual would report the viewport's ancestry rather
+ * than the one the operation began in. The kernel hands the projection down on
+ * `ActivationScope`, and every function here is arithmetic
  * over numbers the frame already holds: the per-sample path performs no layout
  * read and — apart from the objects a consumer callback is handed — allocates
  * nothing.

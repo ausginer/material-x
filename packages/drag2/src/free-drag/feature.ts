@@ -92,7 +92,7 @@ export type ConstraintView = Readonly<{
  *
  * **What the receiver _is_ at any site is unspecified**, and that is the whole
  * of the promise rather than a gap in it. Depending on `this === undefined` is
- * as far outside contract as depending on the record.
+ * as far outside contract as depending on `this` being the constraint.
  *
  * **Where each member is lifted is mechanism, not promise**, and is free to
  * change while the receiver negative holds.

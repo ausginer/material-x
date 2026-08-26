@@ -11,11 +11,11 @@
  * **The answer is one attribute, and it is the consumer's** (D-129). A
  * descendant is draggable by default; a region that owns its own interaction is
  * marked `data-drag-ignore` by the consumer, and nothing else is inferred.
- * ~~Two selector tables, one per ingress, plus an `isContentEditable`
- * capability test.~~ The library no longer decides which element types own a
- * press or a key: an inference the consumer cannot see is one they cannot
- * document, and the same table that declines a `<button>` correctly on the
- * pointer path declines it wrongly on the keyboard path.
+ * The library does not decide which element types own a press or a key — no
+ * selector table per ingress, and no `isContentEditable` capability test: an
+ * inference the consumer cannot see is one they cannot document, and the same
+ * table that declines a `<button>` correctly on the pointer path declines it
+ * wrongly on the keyboard path.
  *
  * It lives in the kernel tier rather than in the sortable's spec because the
  * policy is the *default admission* policy for every behavior — free drag

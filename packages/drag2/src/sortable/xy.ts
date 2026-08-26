@@ -10,11 +10,11 @@
  * else  gap := nearest follows the placeholder in DOM order ? slot + 1 : slot
  * ```
  *
- * **This is the shipped package's rule, restored** (ledger L-8). `@ydinjs/drag`
- * has no axis concept at all — `nearestSlot` is a squared-Euclidean search over
- * both centres and `SortableOptions` has no `axis` member, so its Grid story is
- * its List story with different CSS. drag2's `y()` was a *narrowing* of that,
- * and this module removes the restriction rather than adding a capability.
+ * **The rule is one squared-Euclidean search over both centres, with DOM order
+ * deciding the gap side** (ledger L-8). There is no axis concept in it: a grid
+ * is a list with different CSS. `y()` is this same rule narrowed to a single
+ * coordinate, so this module lifts a restriction rather than adding a
+ * capability.
  *
  * **Two things differ from `y()`, and neither is a switch.**
  *

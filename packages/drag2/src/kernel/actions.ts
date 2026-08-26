@@ -24,11 +24,9 @@ export const CANCEL = 3;
 export const START_COMMITTED = 4;
 /** The consumer round-trip produced a value. */
 export const RESOLUTION_SETTLED = 5;
-// 6 was `READINESS_SETTLED`, the authored-presentation gate's tag. D-41
-// deleted that protocol in full and the constant outlived it with no reference
-// anywhere in `src/`, `tests/` or `bench/`; removed 2026-08-22. The number is
-// left unused rather than reclaimed, because the tags below are matched by
-// value in queued actions and renumbering them buys nothing.
+// 6 is unused: there is no authored-presentation gate for it to tag (D-41).
+// The number is left unused rather than reclaimed, because the tags below are
+// matched by value in queued actions and renumbering them buys nothing.
 /** The landing runner completed. */
 export const LANDING_SETTLED = 7;
 /** A classified failure checkpoint. */

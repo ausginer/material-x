@@ -8,8 +8,9 @@
  * same reason.
  *
  * **Five against the sortable's eight, and a different *shape***, which is the
- * point M-1 makes about the 12-to-16-field copy cliff and the reason Phase 21
- * must measure this part rather than inherit the sortable's number.
+ * point M-1 makes about the 12-to-16-field copy cliff and the reason this
+ * part's cost must be measured rather than inherited from the sortable's
+ * number.
  *
  * **The rendered delta is deliberately not a field.** It is a pure function of
  * the committed sample, the offset and the policy, so `moved`, the request

@@ -69,16 +69,16 @@ const DEV: boolean = __DEV__;
  * it. At spans of 1 or 2 there is no such row and no exposure at all, and one
  * row is exactly what the general rebuild would have got wrong too.
  *
- * **What it does *not* do is cap the payoff at `k×`** — D-100 said that, and
- * the run corrected it. `k×` is a ceiling that would bind only if a verified
+ * **What it does *not* do is cap the payoff at `k×`** (D-100 §4). `k×` is a
+ * ceiling that would bind only if a verified
  * move cost approximately nothing; it costs ≈1.0 ms of the general path's
  * 3.5 ms at 800 rows, because the rebuild's dominant term in the deployed
  * regime is the **forced layout after the placeholder write** and not the
  * per-row reads. The binding ceiling is `full / verified` ≈ 3.5×, and `k` only
  * decides how close the mean lands: `k = 8` measures 2.67×, 76% of what is
  * achievable, against ~12% more for `k = 16` and ~24% less for `k = 4`. **So
- * raising it buys little and spends drift tolerance for it**, and D-100's
- * invitation to raise it once the instrument had run is withdrawn.
+ * raising it buys little and spends drift tolerance for it**, and no measured
+ * payoff supports a larger `k` (D-100 §4).
  */
 export const RESYNC_INTERVAL = 8;
 

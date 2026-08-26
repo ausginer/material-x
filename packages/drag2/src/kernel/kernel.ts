@@ -273,9 +273,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    *    call `destroy()`, and a resolver that destroys and *then* throws would
    *    otherwise have its own destruction reported back to it through a
    *    declared slot — a callback after `destroy()` returned, which the floor
-   *    forbids outright (E-03, I-31, D-53, D-37). ~~Three open-coded pre-guards
-   *    at the admission catch, the quality report and the landing join.~~
-   *    **One place since D-130.**
+   *    forbids outright (E-03, I-31, D-53, D-37). **The refusal lives here
+   *    alone** (D-130): open-coded pre-guards at the admission catch, the
+   *    quality report and the landing join would be three copies of it to
+   *    keep in step.
    * 2. **Hand the finished error to the behavior**, which forwards it to
    *    `onError` and does nothing else. Before `arm()` there is no behavior and
    *    nothing is delivered — which is correct rather than a gap, since a
@@ -449,9 +450,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * would commit state the very next action abandons.
    */
   const preparationValid = (): boolean =>
-    // `queue.closed` alone: `destroyRequested` was a second name for it, set
-    // on the statement after it and never cleared either, so the conjunct was
-    // unconditionally true beside it (removed 2026-08-22).
+    // `queue.closed` alone: a separate `destroyRequested` flag is a second
+    // name for it — set on the statement after it and never cleared either —
+    // so the extra conjunct is unconditionally true beside it.
     !queue.closed && cancelRequest === null && current.operation === pinned;
 
   // -------------------------------------------------------------------------
@@ -668,7 +669,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    *
    * **So the delivery is a named exception to D-37 (a), not a general licence.**
    * It joins `LandingHandle.destroy()` on the closed list, and it belongs there
-   * for the property D-51 used to admit that one: a terminal diagnostic *tells*
+   * for the property that admits that one (D-51): a terminal diagnostic *tells*
    * the consumer something and asks nothing of them — it publishes no lifecycle
    * or domain event, ignores its return value, performs no operation work, and
    * is guarded. Nothing else may run after logical closure, and `notify`
@@ -682,13 +683,12 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * **Panic is consequential and carries no stage.** It destroys the whole
    * controller rather than one operation, so it is a `DraggableError`; and
    * `FailureStage` classifies faults *within* an operation, so there is nothing
-   * to classify. ~~The code is picked directly, which the public constructor
-   * has always allowed.~~ **D-132 makes the absence expressible**: the stage is
-   * `null`, which means *the controller is destroyed* and means nothing else.
-   * The `'platform'` code this used to pass was the taxonomy's *other* bucket
-   * standing in for a value the type could not hold, and it made a panicked
-   * controller indistinguishable from a failed `requestAnimationFrame`
-   * (F-104).
+   * to classify. **D-132 makes the absence expressible**: the stage is `null`,
+   * which means *the controller is destroyed* and means nothing else. Picking
+   * a code directly is what the public constructor allows, and `'platform'` is
+   * the only candidate — the taxonomy's *other* bucket standing in for a value
+   * the type cannot hold, which makes a panicked controller indistinguishable
+   * from a failed `requestAnimationFrame` (F-104).
    */
   const panic = (error: unknown): void => {
     void destroy();
@@ -799,15 +799,15 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     /**
      * **The driver reports without classifying** (D-49, D-130). Not
      * `failOperation`, which would settle a drop whose reorder already
-     * happened; ~~not `report`, which would send a consumer's own destructive
-     * rerender to the platform reporter~~ — there is no second destination to
-     * choose between any more, and that is what let the `QUALITY` and
-     * `BEST_EFFORT` tiers collapse into one sentinel.
+     * happened; and there is no second destination to choose between — a
+     * separate platform reporter would receive a consumer's own destructive
+     * rerender — which is what lets the `QUALITY` and `BEST_EFFORT` tiers
+     * collapse into one sentinel.
      *
-     * The lifetime guard that used to sit here is inside `notify`, where every
-     * route shares it: a quality fault's producer is consumer-reaching — a
-     * `home` resolver, a landing factory — and is equally free to destroy
-     * before it throws (E-03).
+     * There is no lifetime guard at this site, and adding one here is wrong:
+     * the guard belongs in `notify`, where every route shares it. A quality
+     * fault's producer is consumer-reaching — a `home` resolver, a landing
+     * factory — and is equally free to destroy before it throws (E-03).
      */
     notify,
   };
@@ -903,10 +903,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // a changed terminal result by any reading — so this is a
       // `DraggableError`, built here from the stage the kernel owns.
       //
-      // ~~Unless the resolver closed the controller on its way out (E-03,
-      // I-31, D-53), guarded against a throwing `onError`.~~ **Both readings
-      // moved into `notify`**, which refuses after logical closure and swallows
-      // a throwing handler for every route rather than for this one.
+      // Neither a resolver that closed the controller on its way out (E-03,
+      // I-31, D-53) nor a throwing `onError` is handled here. **Both readings
+      // live in `notify`**, which refuses after logical closure and swallows a
+      // throwing handler for every route rather than for this one.
       notify(new DraggableError(FAILURE_ADMISSION, error));
 
       return null;
@@ -968,13 +968,13 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // Nothing is committed yet, so this retires an operation the frames never
       // saw: it disposes whatever was armed and drops the references.
       //
-      // **This site is no longer forced onto a second channel** (D-130 §3.2).
-      // It was documented as the one place a platform report was unavoidable —
-      // `operation` is a local never published to the frames, so `failOperation`
-      // would degrade anyway — and that reason evaporates with the channel
-      // being operation-independent. A warning needs no operation and no stage,
-      // and `return false` refuses admission, so nothing about the outcome
-      // changed.
+      // **This site is not forced onto a second channel** (D-130 §3.2). It
+      // reads like the one place a platform report is unavoidable — `operation`
+      // is a local never published to the frames, so `failOperation` would
+      // degrade anyway — but the channel is operation-independent, so that
+      // reason does not hold: a warning needs no operation and no stage, and
+      // `return false` refuses admission, so the outcome is the same either
+      // way.
       retireOperation(null);
       notify(new DraggableWarning('drag: operation/arming-failed', error));
       return false;
@@ -1234,8 +1234,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
       return {
         visual: target,
-        // Read back from the field the join will read it from in phase 5, so
-        // the scope and the pin can never disagree about the grab basis.
+        // Read back from the field the join reads it from, so the scope and
+        // the pin can never disagree about the grab basis.
         originRect,
         // D-59. The kernel's own admission-time state, not a behavior-authored
         // draft field read back.
@@ -1398,9 +1398,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * semantic failure; it is not a kernel invariant violation and must never
    * reach the panic path (A-08).
    *
-   * **One caller since Phase 15.** The readiness gate used to be a second
-   * consumer thenable with the same hazards; D-33 replaced it with a
-   * declaration and a host signal, so nothing on that path reads `then` at all.
+   * **One caller.** The readiness gate is a declaration and a host signal
+   * (D-33) rather than a second consumer thenable with the same hazards, so
+   * nothing on that path reads `then` at all.
    */
   const thenOf = (value: unknown): PromiseLike<unknown>['then'] | null => {
     const then = (value as PromiseLike<unknown> | null | undefined)?.then;
@@ -1500,9 +1500,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // **Called once per settlement, and this is the authoritative measurement**
     // (D-41 consequence 3). The serial authored commit guarantees the authored
     // DOM is final here, so there is no interval in which a target is
-    // provisional. The second, advisory call this used to make ran with
+    // provisional. A second, advisory call here would run with
     // `authoredReady: false` **by construction** — arm is synchronous at the end
-    // of the settlement drain, so no acknowledgement could have arrived — and
+    // of the settlement drain, so no acknowledgement can have arrived — and
     // probe C1 found the result stale in all five commit strategies it probed,
     // including the two that otherwise worked. They worked because the join's
     // pin corrected it, which is this bug class's signature: the landing opens
@@ -1510,17 +1510,18 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     //
     // Measured unconditionally, before the landing branch, because the join
     // pins to this value whether or not a runner was installed.
-    // **Unclassified, not classified** (D-49, D-130). `runLeafValue` here
-    // returned `ARM_FAILED` for a measurement throw, which told a consumer
-    // whose reorder had already been committed and accepted that it had failed
-    // — over a fault that is entirely presentational. The measurement includes
+    // **Unclassified, not classified** (D-49, D-130). Returning `ARM_FAILED`
+    // from `runLeafValue` for a measurement throw tells a consumer whose
+    // reorder is already committed and accepted that it failed — over a fault
+    // that is entirely presentational. The measurement includes
     // D-42's precondition, which the behavior checks from the inside and
     // reports through the same throw: a target that cannot be produced and one
     // that cannot be trusted are the same fault.
     //
-    // ~~`FAILURE_LANDING_TARGET`.~~ The stage went with the tier (D-130): it
-    // existed so a non-consequential fault could reach `onError` at all, and a
-    // warning reaches it without one. The message says what the old stage said.
+    // No stage is attached, and none is needed (D-130): a dedicated
+    // `FAILURE_LANDING_TARGET` would exist only so a non-consequential fault
+    // could reach `onError` at all, and a warning reaches it without one. The
+    // message carries what such a stage would have said.
     const anchor = driver.runUnclassifiedValue(
       () => spec!.anchorTarget(current),
       'drag: landing/target-unavailable',
@@ -1669,21 +1670,21 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     try {
       // **The entry revalidation, and D-41 is why it is written out here.**
-      // The join used to open with `anchorTarget` and revalidate immediately
-      // after it, which happened to cover everything below. With the
-      // measurement moved to arm (D-41 consequence 3) that reading went with
-      // it — and the code between arm and here is consumer-reachable, because
-      // `anchorTarget` and the runner's `start` both run on the way. Without
-      // this check a destroy raised from either would still reach the pin and
-      // the terminal callback (I-6, F-38).
+      // Opening the join with `anchorTarget` would revalidate as a side effect
+      // and cover everything below. With the measurement at arm (D-41
+      // consequence 3) there is no such reading here — and the code between arm
+      // and here is consumer-reachable, because `anchorTarget` and the runner's
+      // `start` both run on the way. Without this check a destroy raised from
+      // either would still reach the pin and the terminal callback (I-6, F-38).
       if (!joinLive()) {
         return;
       }
 
-      // **No second measurement.** `anchorTarget` ran once, at arm, and the
+      // **No second measurement.** `anchorTarget` runs once, at arm, and the
       // join pins to the same value the runner was handed — so the animation
-      // and the pin cannot disagree about where the drop ends, which is what
-      // made the old provisional target survivable and wrong.
+      // and the pin cannot disagree about where the drop ends. A provisional
+      // target measured here instead is survivable for exactly that reason,
+      // and wrong for the same one.
       const { target } = attempt;
       const handle = attempt.landing;
 
@@ -1738,15 +1739,14 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // drives `REPORTING` and then publishes the terminal from
       // `ERROR_REPORTED`, after presentation is released.
       //
-      // ~~It would fire `onFinish` for a drop the checkpoint is about to
-      // report through `onError`~~ — the rule this comment stated until D-66,
-      // on the reasoning that a failure and a terminal are alternatives. They
-      // are orthogonal (D-60): a consequential failure of a started operation
-      // still owes the consumer exactly one end, and the frame's committed
-      // result is what it publishes. Skipping it here and publishing there is
-      // what keeps the two routes' *ordering* identical — presentation
-      // released first, terminal second — so a consumer never has to know
-      // which route its drag took.
+      // Publishing it here instead would fire `onFinish` for a drop the
+      // checkpoint is about to report through `onError`, which reads a failure
+      // and a terminal as alternatives. They are orthogonal (D-60): a
+      // consequential failure of a started operation still owes the consumer
+      // exactly one end, and the frame's committed result is what it
+      // publishes. Skipping it here and publishing there is what keeps the two
+      // routes' *ordering* identical — presentation released first, terminal
+      // second — so a consumer never has to know which route its drag took.
       return;
     }
 
@@ -2207,11 +2207,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       phase === IDLE ||
       phase === REPORTING
     ) {
-      // **The one place an error used to vanish on both channels** (F-103).
-      // Stale, or a second checkpoint for a report already in flight — either
-      // way this checkpoint loses its classification, and under two channels
-      // there was nowhere for what it carried to go. Under one there is: the
-      // consequence it claimed is refused, and the fault is not.
+      // **The one place an error can vanish outright, and here it does not**
+      // (F-103). Stale, or a second checkpoint for a report already in flight —
+      // either way this checkpoint loses its classification, and under two
+      // channels there is nowhere for what it carries to go. Under one there
+      // is: the consequence it claims is refused, and the fault is not.
       //
       // A warning rather than an error, and for the same reason as every other
       // demotion here: the `return` is what decides. A stale checkpoint names
@@ -2237,10 +2237,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       error: checkpoint.error,
       // **Built here, by the kernel** (D-130 §5). The behavior maps `stage` to
       // a recovery, which is its own (D-24, F-33), and forwards this untouched.
-      // ~~Which is what makes the stage → code mapping impossible to re-own per
-      // behavior.~~ **There is no mapping left to re-own** (D-132): the error
-      // now carries the same `stage` this input does, so the two fields agree
-      // by construction rather than by a derivation the kernel had to keep.
+      // **There is no stage → code mapping for a behavior to re-own** (D-132):
+      // the error carries the same `stage` this input does, so the two fields
+      // agree by construction rather than by a derivation the kernel would
+      // have to keep.
       report: new DraggableError(checkpoint.stage, checkpoint.error),
     };
 
@@ -2297,12 +2297,12 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * `onError` is done. **The operation still owes a terminal** (D-66), and this
    * is where the failure path pays it.
    *
-   * ~~The terminal callback is skipped after a consequential failure.~~ Its
-   * reasoning was that the committed frame still said `OUTCOME_ACCEPTED`, so
-   * publishing would announce a successful drop the checkpoint was about to
-   * report as failed. That reason **inverts**: when the failure arrives after
-   * the authored commit the drop *is* accepted, and announcing it is the one
-   * fact the consumer must have. `onEnd` reports what happened to the **data**;
+   * Skipping the terminal callback after a consequential failure would rest on
+   * the committed frame still saying `OUTCOME_ACCEPTED`, so that publishing
+   * announces a successful drop the checkpoint is about to report as failed.
+   * That reason **inverts**: when the failure arrives after the authored
+   * commit the drop *is* accepted, and announcing it is the one fact the
+   * consumer must have. `onEnd` reports what happened to the **data**;
    * `onError` is the verdict on the operation.
    *
    * The behavior decides what to publish and whether to publish at all — the
@@ -2489,23 +2489,23 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         // kernel's own state, which is what puts this check on the library's
         // side of §1.1's *whose invariant* line.
         //
-        // **Four checks have left this loop, and the two that left last are
-        // why the rule is worth restating.** On 2026-08-22, `typeof type !==
-        // 'string'` re-stated what `readonly string[]` already guarantees, and
-        // a duplicate entry was refused where the platform ignores it:
+        // **Four checks that look like they belong in this loop do not, and
+        // the last two are why the rule is worth restating.** `typeof type
+        // !== 'string'` re-states what `readonly string[]` already guarantees.
+        // A duplicate entry needs no refusal, because the platform ignores it:
         // `addEventListener` dedups on (type, callback, capture) and all three
-        // are identical for every entry here, so the second binding was
-        // already a no-op — and `indexOf` inside the loop made refusing it
-        // quadratic. On 2026-08-24 the array-shape pair left, each verified by
-        // construction rather than argued: an **empty array** binds no discrete
-        // listener, which is the state a behavior omitting `command` entirely
-        // already reaches (02 §Discrete admission), so the check refused a
+        // are identical for every entry here, so a second binding is already a
+        // no-op — and `indexOf` inside the loop would make refusing it
+        // quadratic. The array-shape pair is verified by construction rather
+        // than argued: an **empty array** binds no discrete listener, which is
+        // the state a behavior omitting `command` entirely already reaches
+        // (02 §Discrete admission), so refusing it would refuse a
         // configuration the contract supports under a different spelling; an
         // **empty-string entry** binds an ordinary, distinct listener for a
         // type nothing dispatches, leaving the author's discrete ingress inert
-        // while the kernel's is untouched. Both cost the author their own
-        // feature and cost the library nothing, and §1.1 declines that trade
-        // however plainly the value looks like a mistake.
+        // while the kernel's is untouched. Both would cost the author their
+        // own feature and cost the library nothing, and §1.1 declines that
+        // trade however plainly the value looks like a mistake.
         if (next.command !== undefined) {
           for (const type of next.command.types) {
             if (type === POINTER_DOWN) {

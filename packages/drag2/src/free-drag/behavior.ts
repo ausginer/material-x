@@ -8,15 +8,13 @@
  * Assembly happens **inside** the install function, not before it: an installer
  * is handed `realm` and `root`, and neither exists until the kernel has a host.
  *
- * ~~`createFreeDragBehavior`, the direct factory over `install`.~~ **Deleted
- * 2026-08-25 (D-126).** It had no caller anywhere in the repository, and its
- * own doc had said so since 2026-08-22: every free-drag test constructs
- * through the public `freeDrag()` entry, because this behavior has no state a
- * lower seam would reach — nothing here corresponds to the sortable's
- * hand-built slot records. Before release, a seam kept for a use that has not
- * appeared is pure cost (§8), and restoring four lines is cheaper than
- * carrying them. The sortable's equivalent stays for the opposite reason and
- * under the same rule: a test seam exists where a test drives it.
+ * **There is no direct factory over `install`** (D-126). Every free-drag test
+ * constructs through the public `freeDrag()` entry, because this behavior has
+ * no state a lower seam would reach — nothing here corresponds to the
+ * sortable's hand-built slot records. Before release, a seam kept for a use
+ * that has not appeared is pure cost (§8), and four such lines are cheaper to
+ * write than to carry. The sortable's equivalent exists for the opposite
+ * reason and under the same rule: a test seam exists where a test drives it.
  */
 import { DraggableWarning } from '../kernel/errors.ts';
 import type {

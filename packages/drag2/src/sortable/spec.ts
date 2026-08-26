@@ -275,8 +275,8 @@ export function createSortableSpec(
         return null;
       }
 
-      // `indexOf` where this used to read `includes`: the same containment
-      // test, and the position is what D-50 needs. **The resolved subject
+      // `indexOf` rather than `includes`: the same containment test, and the
+      // position is what D-50 needs. **The resolved subject
       // governs** — a handle inside the item sits *earlier* in the composed
       // path, so scoping to it shortens the segment the opt-out scan walks,
       // and a handle inside a marked region admits, because the consumer
@@ -617,12 +617,11 @@ export function createSortableSpec(
         // unstateable R-5 table, where a `contenteditable` in the last row kept
         // ArrowRight only because the edge decline happened to fire.
         //
-        // ~~The table is `COMMAND_OWNERS` rather than the pointer one, because
-        // the question is whether the target owns *this key*.~~ **Since D-129
-        // both ingresses ask one question of one attribute.** The order above
-        // still holds and still matters — the item is what feasibility is
-        // asked about — but R-5's asymmetry returns for an *unmarked* field,
-        // and `data-drag-ignore` is what answers it now.
+        // **Both ingresses ask one question of one attribute** (D-129), so
+        // there is no per-key owner table to consult and none is to return.
+        // The order above still holds and still matters — the item is what
+        // feasibility is asked about — but R-5's asymmetry returns for an
+        // *unmarked* field, and `data-drag-ignore` is what answers it.
         const item = resolveItem(event, snapshot);
 
         if (item === null) {
@@ -741,9 +740,10 @@ export function createSortableSpec(
       },
 
       /**
-       * **Required, and non-vacuous** (D-39). ~~A discarded prepare leaves only
-       * a detached element for the collector~~ — true of the default `<div>`,
-       * and false the moment a `placeholder` slot exists: `prepare` writes
+       * **Required, and non-vacuous** (D-39). A discarded prepare leaves only
+       * a detached element for the collector while the placeholder is the
+       * default `<div>`, and stops doing so the moment a `placeholder` slot
+       * exists: `prepare` writes
        * `data-drag-placeholder`, `aria-hidden`, the copied `slot` and three
        * inline style properties onto an element the **consumer** created, and
        * `preparationValid()` does not reverse a `setAttribute`. It discards the
@@ -823,19 +823,18 @@ export function createSortableSpec(
         }
 
         // **The pre-publication revalidation, and the one reading that covers
-        // this whole stretch** (D-38, I-37). Two readings stood here before
-        // Revision 2 — one after `after()`, one after the survival conjuncts —
-        // and both read `scope.presentation.signal.aborted`, chosen because it
-        // is strictly *stronger* than the controller's latch: it also fires for
-        // a kernel-internal `panic()` destroy.
+        // this whole stretch** (D-38, I-37). The alternative is a pair of
+        // readings — one after `after()`, one after the survival conjuncts — of
+        // `scope.presentation.signal.aborted`, which is strictly *stronger*
+        // than the controller's latch in that it also fires for a
+        // kernel-internal `panic()` destroy.
         //
-        // D-36 inverts that property. Physical teardown now runs at the
-        // transaction boundary, so the signal **lags** the close it stood in
-        // for — a reading that was right for a stated reason became wrong for
-        // that same reason. `host.closed` is the latch itself (D-53), and since
-        // a panic closes logically first it sees that too, so nothing is lost
-        // by collapsing the pair into one reading placed immediately before the
-        // publication block. Every consumer-reachable accessor in the stretch —
+        // D-36 inverts that property: physical teardown runs at the transaction
+        // boundary, so the signal **lags** the close it would stand in for, and
+        // the stronger reading is the wrong one for exactly the reason that
+        // made it attractive. `host.closed` is the latch itself (D-53), and
+        // since a panic closes logically first it sees that too, so one reading
+        // placed immediately before the publication block loses nothing. Every consumer-reachable accessor in the stretch —
         // `connectedCallback`, `isConnected`, `nextElementSibling` on a
         // consumer-owned placeholder — is covered by it, because everything
         // below is the publication and nothing above it is consequential.
@@ -1384,10 +1383,9 @@ export function createSortableSpec(
         // very next line is `null.write(...)`, a `TypeError` classified as
         // `FAILURE_RELEASE` against a controller that no longer exists.
         //
-        // It used to name a second half — a request published after `retire()`
-        // cleared it. There is no publication below any more: `rt.pendingRequest`
-        // went with the readiness protocol (D-41), and the barrier stands on the
-        // `rt.lift!.write` alone (review 2, B-5).
+        // It covers the `rt.lift!.write` alone: there is no publication below
+        // it to guard, because nothing here holds a pending request for the
+        // readiness protocol to acknowledge (D-41, review 2, B-5).
         if (host.closed) {
           return;
         }
@@ -1411,15 +1409,12 @@ export function createSortableSpec(
         // defined not to read. The landing then opens from `(0, 0)`, which is
         // correct because the visual has not moved since acquisition.
 
-        // **Nothing is published here any more** (D-41). This block described
-        // `rt.pendingRequest`, whose only reader was the acknowledgement
-        // protocol — publish the request last, and inside this effect, so that
-        // the object `ready()` would be checked against was the one the
-        // consumer had already been handed. `ready()` is gone, the field is
-        // gone, and what survives of the argument is the ordering the kernel
-        // owns: the staged command runs *after* this returns, so a throw from
-        // the write above classifies `FAILURE_RELEASE` and the round-trip never
-        // opens.
+        // **Nothing is published here** (D-41). There is no acknowledgement
+        // protocol to publish a request for — no `ready()` to check an object's
+        // identity against, and so no reason to publish last and inside this
+        // effect. The ordering that does bind is the kernel's: the staged
+        // command runs *after* this returns, so a throw from the write above
+        // classifies `FAILURE_RELEASE` and the round-trip never opens.
         //
         // **The render is a consumer-reachable call** (I-36 (2)), which is what
         // makes that ordering matter here rather than only in the kernel: this
@@ -1526,10 +1521,10 @@ export function createSortableSpec(
             if (input.stage !== FAILURE_TERMINAL_CALLBACK) {
               draft.recovery = RECOVERY_IMMEDIATE;
               // **The fallback, and the whole of D-66's carrier** (D-66).
-              // `draft.domain = null` stood here, and it is what made the
+              // Assigning `draft.domain = null` here is what would make the
               // library's most serious failures its quietest: `finalized`
-              // publishes `current.domain` and nothing else, so a null meant
-              // no terminal at all.
+              // publishes `current.domain` and nothing else, so a null is no
+              // terminal at all.
               //
               // **Existing result wins, otherwise `canceled`** — a lookup on
               // the frame, not a branch per stage (06 §The join). A transaction
@@ -1537,16 +1532,16 @@ export function createSortableSpec(
               // that already committed a result arrives here still carrying
               // it, and `??` is the whole tie-break.
               //
-              // **This read `draft.domain = …` unconditionally** (A-1), on the
-              // reasoning that a terminal-callback throw is the only failure
-              // arriving after a result exists. That is false, and unavoidably
-              // so: `FAILURE_LANDING_INTERRUPTED` has one producer and it can
-              // only fire *after* a runner was armed, which is after the
-              // settlement committed — so the stage test overwrote a committed
-              // result 100 % of the time it fired, and told a consumer whose
-              // data really was reordered that the drop was `canceled`. The
-              // stage exclusion above is kept for its own reason (recovery, not
-              // the result) and is no longer load-bearing for the tie-break.
+              // **An unconditional `draft.domain = …` here is wrong** (A-1). It
+              // rests on a terminal-callback throw being the only failure that
+              // arrives after a result exists, and that is false, unavoidably:
+              // `FAILURE_LANDING_INTERRUPTED` has one producer and it can only
+              // fire *after* a runner was armed, which is after the settlement
+              // committed. Such an assignment overwrites a committed result
+              // 100 % of the time it fires, and tells a consumer whose data
+              // really was reordered that the drop was `canceled`. The stage
+              // exclusion above stands on its own reason — recovery, not the
+              // result — and carries no weight in this tie-break.
               //
               // **The marker decides the stage, and it also decides whether to
               // publish at all.** At `MINTED` the consumer never heard this
@@ -1593,11 +1588,11 @@ export function createSortableSpec(
           // D-64: the consumer branches on a fault class, never on a stage.
           // D-130: through `notify`, so a throwing handler stops here instead
           // of becoming a fresh library fault that reports itself back. The
-          // kernel built the error, and `domain` is gone — `finalized`
-          // publishes that same `current.domain` to `onEnd`, unconditionally
-          // (D-66), so the copy here was redundant at best and **stale** at
-          // worst, since a second failure arriving between `REPORTING` and
-          // `FINALIZING` moved it.
+          // kernel built the error, and nothing is copied into `domain` here:
+          // `finalized` publishes that same `current.domain` to `onEnd`,
+          // unconditionally (D-66), so a copy would be redundant at best and
+          // **stale** at worst, since a second failure arriving between
+          // `REPORTING` and `FINALIZING` moves it.
           notify(failure.report);
         }
       },
@@ -1614,10 +1609,10 @@ export function createSortableSpec(
 
       if (recovery === RECOVERY_DESTINATION) {
         // Re-anchoring follows the **recovery**, which is committed behavior
-        // state — one of the two clauses of D-16 that survive D-41. The
-        // `authoredReady` gate this used to sit behind is gone with the
-        // protocol: under the serial commit the authored DOM is already final
-        // when this runs, so there is no pending render to wait for.
+        // state — one of the two clauses of D-16 that survive D-41. There is
+        // no `authoredReady` gate in front of this and none is needed: under
+        // the serial commit the authored DOM is already final when this runs,
+        // so there is no pending render to wait for.
 
         // Each conjunct earns its place. `nextElementSibling` makes the
         // repair inert when the placeholder is already adjacent — `before()`
@@ -1697,12 +1692,11 @@ export function createSortableSpec(
     /**
      * **It publishes `current.domain` and nothing else** (D-62, D-66).
      *
-     * ~~An exhaustive switch on the domain discriminant~~ stood here, routing
-     * two arms to `onFinish` and two to `onCancel` — and the switch existed
-     * only because there were two callbacks to route between. With one
-     * `onEnd` the arms are the consumer's to discriminate, and F-37's defect,
-     * a binary accepted-vs-everything predicate that sent the no-op result to
-     * `onCancel`, becomes unexpressible rather than merely fixed.
+     * **An exhaustive switch on the domain discriminant does not belong here.**
+     * A switch routes arms to callbacks, and there is one `onEnd` to route to:
+     * the arms are the consumer's to discriminate. That is what makes F-37's
+     * defect — a binary accepted-vs-everything predicate that sends the no-op
+     * result to a cancel callback — unexpressible rather than merely fixed.
      *
      * `null` still publishes nothing, and since D-66 it means one thing only:
      * the operation failed **before** `onStart` ran, so the consumer has no
@@ -1723,10 +1717,10 @@ export function createSortableSpec(
      * error, picks its class and owns the latch; this member is the last hop,
      * and it is {@link deliver} itself.
      *
-     * ~~`reportFailure(stage, error)`, which called `toDraggableError` here and
-     * attached `domain: null`.~~ Both are gone: the mapping is kernel-owned so
-     * it cannot mean two things in two behaviors, and the context was strictly
-     * redundant with the terminal (D-130 §6).
+     * **Neither the error mapping nor a `domain: null` context belongs here**,
+     * so this member neither calls `toDraggableError` nor attaches one: the
+     * mapping is kernel-owned so it cannot mean two things in two behaviors,
+     * and the context is strictly redundant with the terminal (D-130 §6).
      *
      * Its one caller is the kernel's `notify`, which gates on the latch and
      * discards a throwing handler for every route it owns — including `panic`'s

@@ -63,9 +63,9 @@ export type { FeatureContext } from '../shared/composition.ts';
  * **These members are never invoked with this `InsertionGeometry` as their
  * receiver, and an implementation may not depend on `this`.** What the receiver
  * is at any call site is unspecified, so depending on `this === undefined` is as
- * far outside contract as depending on the record. A geometry written as a class
- * instance — or with any member that reads `this` — is outside contract; it must
- * close over its state.
+ * far outside contract as depending on it being the geometry. A geometry written
+ * as a class instance — or with any member that reads `this` — is outside
+ * contract; it must close over its state.
  */
 export type InsertionGeometry = Readonly<{
   resolve(

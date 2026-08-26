@@ -9,7 +9,7 @@
  *
  * The cost is a thin factory per entry, and the precedent is `rect-index.ts`
  * shared between `y()` and `xy()` at a measured 60 B — recorded rather than
- * absorbed. **Phase 21 measures this one the same way.**
+ * absorbed. **This one's cost is measured and recorded the same way.**
  *
  * `LandingOptions` is re-exported rather than re-declared, so a consumer
  * importing it from either landing entry gets the **same declaration** (B-7).

@@ -579,6 +579,72 @@ async function classify(
 const where = (file: string, line: number): string =>
   `${relative(PACKAGE, file)}:${line}`;
 
+/**
+ * The history a pattern can see, in a register that may not carry any (D-137).
+ *
+ * `packaging.node.test.ts` holds the same property over the emitted
+ * declarations, against eight forms. This is the `src/` half and its list is
+ * **three**, because the registers differ rather than because this one is
+ * lenient: a decision identifier is forbidden in a published declaration and is
+ * a permitted index entry here, and 651 of them carry an argument's address at
+ * the point the argument would be needed.
+ *
+ * What is left is history no reading is required to recognise. A struck
+ * sentence is a claim the reader must first determine is false; a date and a
+ * phase number say when something happened, and nothing about what holds.
+ *
+ * **Supersession narration is not here, and that is deliberate.** _Restored_,
+ * _deleted_ and _no longer_ occur in ordinary present-tense prose, so a pattern
+ * over them would fail correct comments. That population is a reviewed list.
+ *
+ * It lives in this file rather than beside its published sibling because the
+ * property is the tense rule and `src/` is already one of this file's scope
+ * roots — `packaging.node.test.ts` is about the tarball, and `src/` reaches no
+ * tarball.
+ */
+const HISTORY_FORMS: ReadonlyArray<readonly [string, RegExp]> = [
+  ['strikethrough', /~~/u],
+  ['date', /\b20\d{2}-\d{2}-\d{2}\b/u],
+  ['phase number', /\bphase \d/iu],
+];
+
+describe('the source tree', () => {
+  it('should carry no history in a comment', async () => {
+    const files = await walk(join(PACKAGE, 'src'), ['.ts']);
+    const sources = await Promise.all(
+      files.map((file) => readFile(file, 'utf8')),
+    );
+    const offences: string[] = [];
+    let comments = 0;
+
+    for (const [ordinal, file] of files.entries()) {
+      for (const [index, raw] of sources[ordinal]!.split('\n').entries()) {
+        // The same prose extractor the path check uses: a comment line, never a
+        // string literal and never a specifier.
+        const prose = /^\s*(?:\/\*\*|\*|\/\/)\s?(.*)$/u.exec(raw)?.[1];
+
+        if (prose === undefined) {
+          continue;
+        }
+
+        comments += 1;
+
+        for (const [what, pattern] of HISTORY_FORMS) {
+          if (pattern.test(prose)) {
+            offences.push(`${where(file, index + 1)} ${what}`);
+          }
+        }
+      }
+    }
+
+    expect(offences).toEqual([]);
+    // Non-vacuity: an extractor that stopped matching would read no prose at
+    // all and pass, which is the fail-open shape D-115 forbids.
+    expect(files.length).toBeGreaterThan(50);
+    expect(comments).toBeGreaterThan(5_000);
+  });
+});
+
 describe('the normative tree', () => {
   it('should scan every scope root D-112 names', async () => {
     const present = await Promise.all(ROOTS.map(([root]) => exists(root)));

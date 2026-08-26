@@ -1,11 +1,10 @@
 /**
  * **The unwind must be total** (D-29, I-19, I-6, D-130 §4).
  *
- * ~~`reporter.ts`, the platform report channel.~~ **Renamed for the rule it
- * expresses, 2026-08-26.** The old module owned two jobs — route an error
- * somewhere, and let the caller continue — and D-130 separates them: routing is
- * the one consumer channel now, and what survives here is the second job, which
- * is a real lifecycle rule and not a reporting one.
+ * **This module is named for the rule it expresses, not for a destination**
+ * (D-130). Routing an error to the consumer and letting the caller continue are
+ * two separate jobs; only the second one is here, and it is a lifecycle rule
+ * rather than a reporting one.
  *
  * The rule at every site is the same sentence: **the statement after this call
  * is load-bearing.** Another resource to release, another teardown step, or the
@@ -14,11 +13,10 @@
  * ledger. Unwrapped, a throw from step *n* skips steps *n+1* onward — which is
  * exactly how `destroy()` stops being terminal.
  *
- * It takes the notifier rather than owning a destination, which is the whole of
- * what changed: the catch reports a {@link DraggableWarning}, because an unwind
- * step that failed is by construction not consequential — the operation's
- * terminal result, phase sequence and settlement are already decided by the
- * time anything unwinds.
+ * The catch reports a {@link DraggableWarning} rather than an error, because an
+ * unwind step that failed is by construction not consequential — the
+ * operation's terminal result, phase sequence and settlement are already
+ * decided by the time anything unwinds.
  */
 import { DraggableWarning, type Notify } from './errors.ts';
 

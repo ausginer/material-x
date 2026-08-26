@@ -8,15 +8,14 @@
  * no `prepare` decides — the lift session, the visual's grab rect, and the
  * inherited space the kernel measured before it lifted.
  *
- * ~~and the two elements one operation is about, for `home` and the request~~
- * **named fields nothing read** (CE1-08). `item` and `visual` were seeded to
- * `null`, never written, never cleared by `retire()` and never read: `subjectOf`
- * builds from `root` and the frame's own `visual`, and the request takes the
- * subject. They are deleted rather than wired up, because this file is where the
- * contract points a reader to learn what per-operation state exists — two fields
- * that misdescribe the model cost more than they saved — and because a field
- * that is written and not cleared at retirement is the I-20 hazard the rest of
- * this file is organized around.
+ * **The two elements one operation is about are not fields here** (CE1-08).
+ * Nothing reads an `item` or a `visual` off this runtime: `subjectOf` builds
+ * from `root` and the frame's own `visual`, and the request takes the subject.
+ * Adding them is wrong on two counts — this file is where the contract points a
+ * reader to learn what per-operation state exists, so a field that misdescribes
+ * the model costs more than it saves; and a field that is written and not
+ * cleared at retirement is the I-20 hazard the rest of this file is organized
+ * around.
  *
  * `axis` is here for the opposite reason to the rest: it **is** policy, but it
  * is policy the library re-reads rather than commits. `action.prepare` resolves
@@ -62,8 +61,8 @@ export type FreeDragRuntime = {
   originRect: DOMRectReadOnly | null;
   /**
    * The inherited linear part's inverse, **handed down by the kernel** from the
-   * one pre-lift measurement (D-72, D-85). It used to be captured here, by a
-   * second traversal taken after acquisition had already moved the visual.
+   * one pre-lift measurement (D-72, D-85). Capturing it here would take a
+   * second traversal, after acquisition has already moved the visual.
    */
   space: InheritedSpace;
 };

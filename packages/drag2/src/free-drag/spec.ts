@@ -670,9 +670,8 @@ export function createFreeDragSpec(
       },
 
       /**
-       * ~~Nothing — there is no placeholder to move.~~ **There is no
-       * placeholder, and there is still one write** (F-39, applied to this
-       * behavior). `pointerup` need not carry the last processed
+       * **There is no placeholder, and there is still one write** (F-39,
+       * applied to this behavior). `pointerup` need not carry the last processed
        * `pointermove`'s coordinates, and the request above was built from the
        * *committed release point* — so without this the visual, and therefore
        * the whole landing trajectory, would start from a stale position while
@@ -837,11 +836,11 @@ export function createFreeDragSpec(
           // D-64: the consumer branches on a fault class, never on a stage.
           // D-130: through `notify`, so a throwing handler stops here instead
           // of becoming a fresh library fault that reports itself back. The
-          // kernel built the error, and `domain` is gone — `finalized`
-          // publishes that same `current.domain` to `onEnd`, unconditionally
-          // (D-66), so the copy here was redundant at best and **stale** at
-          // worst, since a second failure arriving between `REPORTING` and
-          // `FINALIZING` moved it.
+          // kernel built the error, and no `domain` rides along with it:
+          // `finalized` publishes that same `current.domain` to `onEnd`,
+          // unconditionally (D-66), so a copy here would be redundant at best
+          // and **stale** at worst, since a second failure arriving between
+          // `REPORTING` and `FINALIZING` moves it.
           notify(failure.report);
         }
       },
@@ -873,19 +872,19 @@ export function createFreeDragSpec(
           return { x: origin.left, y: origin.top };
         }
 
-        // **Read, not re-derived** (D-89, CE1-02). This arm used to call
-        // `deriveMotion`, whose last statement is `constrain.apply` — so the
-        // comment above was false whenever any constraint was installed, and
-        // the seam was a **fifth** `apply` site, absent from I-36's Category-1
-        // table and from D-81's re-derived four-seam enumeration. It also had
-        // no barrier of its own: `host.closed` is read immediately before
-        // `home` below and nowhere before the derivation, so a third-party
-        // `apply` ran after logical closure while the resolver beside it was
-        // guarded — E-02's shape, one seam further on.
+        // **Read, not re-derived** (D-89, CE1-02). This arm must not call
+        // `deriveMotion`: its last statement is `constrain.apply`, so the claim
+        // above would be false whenever any constraint is installed, and this
+        // seam would be a **fifth** `apply` site, absent from I-36's Category-1
+        // table and from D-81's re-derived four-seam enumeration. Such a
+        // derivation also has no barrier of its own: `host.closed` is read
+        // immediately before `home` below and nowhere before a derivation, so
+        // a third-party `apply` would run after logical closure while the
+        // resolver beside it is guarded — E-02's shape, one seam further on.
         //
-        // The re-derivation computed the same numbers from the same committed
-        // frame, so removing it makes all three documents true at once and
-        // costs nothing. **The invariant it rests on is stated rather than
+        // A re-derivation computes the same numbers from the same committed
+        // frame, so the read costs nothing and keeps all three documents true
+        // at once. **The invariant it rests on is stated rather than
         // assumed**: `motion` still holds the delta `release.prepare` derived
         // and `release.effect` wrote, and nothing may change it in between —
         // which is what D-86 guarantees by making both behavior tags
@@ -903,22 +902,23 @@ export function createFreeDragSpec(
       const home = slots.getHome(subjectOf(current.visual!));
       // **Read, checked and copied here, inside the attributed seam** (E-05,
       // D-49). The kernel's quality wrapper covers *this call* and reads the
-      // point's fields later, outside it — so a `null`, a missing field or a
-      // throwing accessor used to panic outside the seam its own contract
-      // names, and a non-finite pair reached target composition or a renderer.
+      // point's fields later, outside it — so without the reads here a `null`,
+      // a missing field or a throwing accessor panics outside the seam its own
+      // contract names.
       //
-      // **The reads stay; the finiteness throw is gone** (D-124). A `null`, a
-      // missing field or a throwing accessor still fails *here*, inside the
-      // seam whose track is already published (07 §Validation):
+      // **The reads happen; finiteness is not checked** (D-124). A `null`, a
+      // missing field or a throwing accessor fails *here*, inside the seam
+      // whose track is already published (07 §Validation):
       // `FAILURE_LANDING_TARGET` →
       // `presentation`, on the **quality** route, so the landing is skipped
       // rather than faked and a drop that already committed is not re-settled.
-      // A non-finite pair is no longer refused: a landing target is a point,
-      // and a point's coordinates are finite by the same obvious semantics
-      // that makes a duration finite, so that value is outside the contract
-      // and the gate closes on it.
+      // A non-finite pair is accepted and passes undetected into target
+      // composition or a renderer, and refusing it here is wrong: a landing
+      // target is a point, and a point's coordinates are finite by the same
+      // obvious semantics that makes a duration finite, so that value is
+      // outside the contract and the gate closes on it.
       //
-      // **The copy is not defensiveness and does not go with the throw**: the
+      // **The copy is not defensiveness and is not part of that check**: the
       // returned object is consumer-owned and its accessors may be live, so
       // composing against it twice could read two different points. That is
       // the library taking ownership of a value it reads across a seam
@@ -952,10 +952,9 @@ export function createFreeDragSpec(
      * error, picks its class and owns the latch; this member is the last hop,
      * and it is {@link deliver} itself.
      *
-     * ~~`reportFailure(stage, error)`, which called `toDraggableError` here and
-     * attached `domain: null`.~~ Both are gone: the mapping is kernel-owned so
-     * it cannot mean two things in two behaviors, and the context was strictly
-     * redundant with the terminal (D-130 §6).
+     * It neither maps nor attaches context: the mapping is kernel-owned, so it
+     * cannot mean two things in two behaviors, and a `domain: null` context is
+     * strictly redundant with the terminal (D-130 §6).
      *
      * Its one caller is the kernel's `notify`, which gates on the latch and
      * discards a throwing handler for every route it owns — including `panic`'s

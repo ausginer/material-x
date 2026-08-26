@@ -39,9 +39,11 @@ export function createInvalidator(realm: DOMRealm): Invalidator {
 export type FrameTask<T> = Readonly<{
   /** Schedules `run` with the latest value on the next frame (coalesced). */
   schedule(value: T): void;
-  // ~~`flush(): void`~~ **removed 2026-08-22** — it ran pending work
-  // synchronously and had no production caller in any composition. Like
-  // `Lifetime.finalized`, it sat on a live object, so nothing could shake it.
+  // Nothing on this task runs pending work synchronously: a scheduled value is
+  // either taken by the frame or dropped by `cancel`, and no composition has a
+  // production caller for a third option. Like `Lifetime.finalized`, such a
+  // member would sit on a live object, where nothing can shake an uncalled one
+  // loose.
   /** Cancels any pending scheduled work without running it. */
   cancel(): void;
 }>;

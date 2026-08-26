@@ -179,9 +179,8 @@ export function assemble(
       // **The domain check is deleted, the default is not** (D-77). A `NaN`
       // threshold makes the travel test permanently false, so the drag never
       // activates and **no operation starts** — the consumer's own drag is
-      // broken and no library invariant moves. ~~It used to live in
-      // `callbacks()`, then in the merge~~ — and the **default** is applied
-      // here, on this line, not by the merge either (P18A-02): `mergeFragments`
+      // broken and no library invariant moves. The **default** is applied
+      // here, on this line, and not by the merge (P18A-02): `mergeFragments`
       // applies no defaults at all, because its output is still the schema type
       // while normalization is what produces the flat record.
       threshold: config.threshold ?? DEFAULT_THRESHOLD,
@@ -221,10 +220,10 @@ export function assemble(
     // unwind is stated as total, so it is total.
     //
     // **Total across construction, not merely here** (D-80 (b), F-69). The
-    // sentence used to be true of this function and false of the call that
-    // drives it: the collection was pulled and copied *after* this returned, so
-    // a throwing `items()` left every hook below unrun. The pull happens ahead
-    // of the first installer now, which is why this needs no scope clause.
+    // collection is pulled and copied ahead of the first installer rather than
+    // after this function returns; were it pulled after, a throwing `items()`
+    // would leave every hook below unrun and that sentence would be false of
+    // the call that drives this one. That is why this needs no scope clause.
     for (let i = retireHooks.length - 1; i >= 0; i -= 1) {
       try {
         retireHooks[i]!();

@@ -108,28 +108,27 @@ export function createComposedSortableBehavior(
     // initial structural baseline, and it is the only `items()` call that
     // happens outside a transaction.
     //
-    // **Called unguarded** (D-77). The `typeof` test that used to stand here
-    // existed to route a non-function `items` to the assembler's diagnostic,
-    // and that diagnostic is deleted: a non-callable `items` is a
-    // required-config *type* violation, not a library invariant, so the
-    // unavoidable construction call is left to fail naturally. Only a later
+    // **Called unguarded** (D-77). A `typeof` test here would route a
+    // non-function `items` to an assembler diagnostic that does not exist: a
+    // non-callable `items` is a required-config *type* violation, not a library
+    // invariant, so the unavoidable construction call is left to fail
+    // naturally. Only a later
     // throw from a *valid* source — one that is a function and raises during an
     // `invalidate()` — belongs to `FAILURE_ACTION_PREPARE`.
     const source = merged.items();
 
     // **Pulled before the first installer runs, and the statement order is
-    // normative** (D-80 (b), F-69, F-98). The motive is now F-69 alone: the
-    // pull above is **consumer code** and may throw on its own, and it must not
-    // do so with installer `retire` hooks recorded and unrun, because nothing
-    // here is bracketed and `arm()` is never reached. F-68's window — a
-    // duplicated element throwing from the copy, *after* `assemble` returned —
-    // closed a second time when D-121 removed that refusal; the ordering it
-    // motivated stays, on the reason that outlives it.
+    // normative** (D-80 (b), F-69, F-98). The motive is F-69: the pull above is
+    // **consumer code** and may throw on its own, and it must not do so with
+    // installer `retire` hooks recorded and unrun, because nothing here is
+    // bracketed and `arm()` is never reached. That reason holds on its own —
+    // a duplicated element throwing from the copy after `assemble` returns is
+    // no longer a case at all (D-121), and the ordering does not depend on it.
     //
-    // **The pull and the assembly were sibling arguments to one call, and only
-    // left-to-right evaluation made that safe** (F-69). Swapping them is a
-    // change no reviewer would flag, and it would strand every hook. They are
-    // statements so the ordering is deliberate rather than positional.
+    // **The pull and the assembly are separate statements, and that is what
+    // makes the order safe** (F-69). As sibling arguments to one call it would
+    // rest on left-to-right evaluation instead: swapping them is a change no
+    // reviewer would flag, and it would strand every hook.
     const items = [...source];
 
     return install(

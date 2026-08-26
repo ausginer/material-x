@@ -28,11 +28,11 @@ export type CollectionChange =
  * callers classify its removal separately, because that is a different
  * cancellation reason.
  *
- * **The arms decide; they no longer also construct** (F-91, D-119). Each keeps
+ * **The arms decide; they do not also construct** (F-91, D-119). Each keeps
  * its own survival test — that is I-14's decision and it is not the
  * constructor's to hold — and then hands the surviving gap's index to
- * {@link insertionAt} over `next`'s destination view. The neighbours the arms
- * used to carry across from the incumbent are exactly the ones the rule
+ * {@link insertionAt} over `next`'s destination view. The neighbours an arm
+ * could carry across from the incumbent are exactly the ones the rule
  * derives, which is precisely what the test above each call has just
  * established.
  *
@@ -149,11 +149,11 @@ export type ProposalBuild = Readonly<{
  * `null` is a broken invariant, not a no-op — the caller turns it into a
  * `SeamRejection`.
  *
- * **The neighbour and range tests went 2026-08-25 (D-121, D-123).** Both read
- * an `Insertion` the library itself did not build: `InsertionGeometry.resolve`
+ * **Neither neighbours nor range are checked here** (D-121, D-123). Both tests
+ * would read an `Insertion` the library itself did not build: `InsertionGeometry.resolve`
  * is published at the middle tier (D-61), so a version-matching gap can arrive
- * from third-party axis code. What made them deletable is that the axis author
- * can now **satisfy** the term instead — `insertionAt` is published from
+ * from third-party axis code. The axis author **satisfies** the term instead —
+ * `insertionAt` is published from
  * `sortable/feature.js` beside the type and the obligation, so the one
  * construction rule is the author's too, and `index` is documented there as a
  * gap position in the destination view. A gap whose neighbours are not the
@@ -161,9 +161,9 @@ export type ProposalBuild = Readonly<{
  * conforming contribution, and nothing here detects one: the request carries
  * the author's own `before`/`after` onward to the consumer.
  *
- * **The destination view went with them**, which is the measurable half: it was
- * materialized on the release path solely to re-derive two neighbours and a
- * length that are now taken from the insertion, so this function allocates
+ * **No destination view is materialized either**, which is the measurable half:
+ * it would exist on the release path solely to re-derive two neighbours and a
+ * length that are taken from the insertion, so this function allocates
  * nothing.
  *
  * The two tests that remain are about the pair `(snapshot, insertion)` and
