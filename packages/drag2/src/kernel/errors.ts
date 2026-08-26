@@ -31,46 +31,6 @@
 import type { FailureStage } from './failures.ts';
 
 /**
- * **The stage in words, for the message and nothing else** (D-132 §5.3).
- *
- * `err.stage === 4` in a logged payload is worse than a word, and D-132 pays
- * that cost here rather than in the type: `message` is the human channel and
- * `stage` the machine one, explicitly split, instead of one string union trying
- * to be both (which is the twelve-member `code` union §4.4 refused).
- *
- * **This is not `STAGE_TO_CODE` under a new name.** That table derived a
- * *published, branchable* attribution from a seam position and was wrong to;
- * this one renders a number a consumer already holds. Nothing reads it back, no
- * consumer is invited to parse it, and a reworded entry breaks no caller — so
- * the twelve name/constant pairs it creates carry none of the never-diverge
- * obligation D-74 is this package's worked example of.
- *
- * Positional and padded for the same reason the code map was: the tuple is
- * indexed by the wire value, so an unpadded hole would silently shift every
- * later name by one. Slots 0, 12 and 13 are unreachable — 12 is D-130's hole
- * and 13 is D-41's — and hold `''`, which is cheap to repeat and reads as *no
- * stage has this number*. The `satisfies` keeps the mapping total: adding a
- * stage without naming it does not compile.
- */
-const STAGE_NAMES = [
-  '', // 0 — unused
-  'admission', // 1  FAILURE_ADMISSION
-  'activation', // 2  FAILURE_ACTIVATION
-  'renderer write', // 3  FAILURE_RENDERER_WRITE
-  'action prepare', // 4  FAILURE_ACTION_PREPARE
-  'action effect', // 5  FAILURE_ACTION_EFFECT
-  'invalidation', // 6  FAILURE_INVALIDATION
-  'scheduled frame', // 7  FAILURE_SCHEDULED_FRAME
-  'resolution', // 8  FAILURE_RESOLUTION
-  'release', // 9  FAILURE_RELEASE
-  'landing create', // 10 FAILURE_LANDING_CREATE
-  'landing interrupted', // 11 FAILURE_LANDING_INTERRUPTED
-  '', // 12 — the D-130 hole
-  '', // 13 — the D-41 hole
-  'terminal callback', // 14 FAILURE_TERMINAL_CALLBACK
-] as const satisfies Record<FailureStage, string>;
-
-/**
  * A class, therefore a **runtime value** rather than an erased type: a consumer
  * writes `err instanceof DraggableError`, and so does a kernel-tier behavior
  * author. That is what keeps it on `drag.js`, the shared root — putting it on
@@ -96,6 +56,27 @@ const STAGE_NAMES = [
  * and it must not become a bucket — a second stage-less consequential fault is
  * one of the things D-132 records as reversing it (§11).
  *
+ * **The constructed message names the stage as a number** (D-133). ~~A
+ * `STAGE_NAMES` tuple rendered it in words, because `err.stage === 4` in a
+ * logged payload is worse than `action prepare`.~~ **The symptom is real and
+ * this was never on its path.** The message below is the *cause's* whenever a
+ * cause is an `Error`, which is every ordinary fault the library reports — so
+ * the table ran only when a consumer threw a non-`Error`, and the bare
+ * `stage === 4` payload D-132 §5.3 set out to fix never reached it. It cost the
+ * shared root 115 B of its 261 to say a word on the one path where the
+ * consumer had already thrown something unusual (F-105).
+ *
+ * **Twelve constants are published so a consumer can name the number.** Doing
+ * it for them, in every install, on a path most never reach, is what
+ * `CODE_OF_SIZE` §4's install-weight clause refuses. `__DEV__` is not the
+ * escape either: it is substituted at *this* package's build time and is
+ * `false` in the published bundle, so the only audience for the words would be
+ * this repository's own suite.
+ *
+ * **`null`'s message stays a fixed string**, because it is the one case a
+ * number cannot state — there is no stage, and *the controller is destroyed* is
+ * what F-104 exists to make sayable. One string is not twelve.
+ *
  * `cause` is the native ES2022 property and is deliberately not redeclared.
  */
 export class DraggableError extends Error {
@@ -110,7 +91,7 @@ export class DraggableError extends Error {
         ? cause.message
         : stage === null
           ? 'drag: controller destroyed'
-          : `drag: ${STAGE_NAMES[stage]} failure`,
+          : `drag: failure at stage ${stage}`,
       { cause },
     );
     this.name = 'DraggableError';

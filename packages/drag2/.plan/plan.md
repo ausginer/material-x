@@ -1693,6 +1693,8 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 **Booked to Remediation with a source witness**, since it deletes three declarations, moves a published vocabulary to a second entry, and rewrites about twenty-five assertions.
 
 > **Landed 2026-08-26, and one figure in this section needs a rider.** _The twelve constants cost a bundling consumer 0 B_ held on a fourth independent measurement — the `drag.js` size row shakes the re-export away and stays at one module. What the section did not price is §5.3's **required** property, that the constructed message names the stage in words: `STAGE_NAMES` is read by the constructor and therefore cannot be shaken, where `STAGE_TO_CODE` never was, so the vocabulary root goes **146 → 261 B brotli**. Every composition moves +11 to +13 B minified and no budget is breached, so _size decides nothing_ survives — but it survives on the compositions, not on the root, and the root's cost belongs to the message rather than to the publication.
+>
+> **That rider became D-133 the same day, and the final numbers reverse the sign.** With `STAGE_NAMES` withdrawn, the vocabulary root is **159 B** and every composition is **19 to 49 B brotli smaller than before D-132** — the whole classification change costs the shared root **+13 B** while saving ~193 B of source on every row, because `STAGE_TO_CODE`'s fifteen slots and `toDraggableError` are gone and one template replaced them. _Size decides nothing_ was right both times and right for the wrong reason once: the first measurement priced a property that should not have shipped.
 
 ### The message vocabulary, decided 2026-08-26 against the implementation (D-133, F-105)
 

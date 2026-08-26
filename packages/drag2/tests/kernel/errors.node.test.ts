@@ -8,18 +8,17 @@
  * mapping moved to `stages.node.test.ts`; what stays here is what the two
  * constructors actually produce.
  *
- * **The header's old warning still applies to the file that inherited it.** The
- * enumeration existed because the *other* total mapping in this vocabulary —
- * stage → recovery — had a gap that read as an unfinished row rather than as a
- * decision, and D-60 had to be written to close it. `STAGE_NAMES` is the only
- * total stage mapping left, and it is checked below through the message rather
- * than by reciting twelve pairs, because nothing branches on its output.
+ * **There is no total stage mapping left at all** (D-133). `STAGE_NAMES`
+ * briefly was one — twelve stages rendered in words for the constructed
+ * message — and it is deleted, because the message it fed runs only when a
+ * consumer throws a non-`Error` and the payload it was written to improve
+ * never reached it (F-105). The fallback carries the number, so the two rows
+ * that read it below are one template rather than a table.
  */
 import { describe, expect, it } from 'vitest';
 import { DraggableError, DraggableWarning } from '../../src/kernel/errors.ts';
 import {
   FAILURE_ADMISSION,
-  FAILURE_LANDING_INTERRUPTED,
   FAILURE_TERMINAL_CALLBACK,
 } from '../../src/kernel/failures.ts';
 
@@ -45,31 +44,29 @@ describe('DraggableError', () => {
     expect(new DraggableError(null, null).stage).toBeNull();
   });
 
-  it('should name the stage in words when it builds its own message', () => {
-    // **The human channel** (D-132 §5.3). `stage` is the machine channel and
-    // the message is the human one, split explicitly rather than by one string
-    // union trying to be both. A stage whose name went missing renders
-    // `drag:  failure`, which this catches.
+  it('should carry the stage number in the message it builds itself', () => {
+    // **One template, no table** (D-133). ~~`drag: admission failure`, from a
+    // twelve-entry `STAGE_NAMES`.~~ The words cost the shared root 115 B of
+    // its 261 and were rendered only here — on the non-`Error` path — while
+    // the payload D-132 §5.3 set out to improve takes the cause's message and
+    // never saw them (F-105). The library publishes the twelve constants so a
+    // consumer can name the number; naming it for them in every install is
+    // what was refused.
     expect(new DraggableError(FAILURE_ADMISSION, null).message).toBe(
-      'drag: admission failure',
+      'drag: failure at stage 1',
     );
-    expect(new DraggableError(null, null).message).toBe(
-      'drag: controller destroyed',
+    expect(new DraggableError(FAILURE_TERMINAL_CALLBACK, null).message).toBe(
+      'drag: failure at stage 14',
     );
   });
 
-  it('should keep the stage names on their own numbers', () => {
-    // **The positional half of the 12/13 witness** (D-41, D-130). `STAGE_NAMES`
-    // is indexed by the wire value and pads both holes, so an unpadded hole
-    // would shift every later name by one. Asserted through the *neighbours*,
-    // because that is the failure mode: 14 still rendering its own name is
-    // what proves nothing slid across the gap. `stages.node.test.ts` holds the
-    // other half — that neither number came back.
-    expect(new DraggableError(FAILURE_TERMINAL_CALLBACK, null).message).toBe(
-      'drag: terminal callback failure',
-    );
-    expect(new DraggableError(FAILURE_LANDING_INTERRUPTED, null).message).toBe(
-      'drag: landing interrupted failure',
+  it('should say the controller is destroyed when there is no stage', () => {
+    // **The one case a number cannot state** (F-104, D-133). `null` is not a
+    // stage and has no number to interpolate, so this message stays a fixed
+    // string — one string, not twelve — and it is the whole reason the null
+    // arm is distinguishable from a classified failure at all.
+    expect(new DraggableError(null, null).message).toBe(
+      'drag: controller destroyed',
     );
   });
 

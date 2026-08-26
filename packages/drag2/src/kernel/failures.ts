@@ -71,11 +71,19 @@ export const FAILURE_LANDING_INTERRUPTED = 11;
  * wire value in a consumer's compiled code — **in fact rather than in intent
  * since D-132**, which put the stage on the error an ordinary consumer
  * receives — so silently repointing 12 or 13 at a different meaning is the one
- * change this list must never make. The positional `STAGE_NAMES` tuple in
- * `errors.ts` keeps a padded slot for each, which is what makes the hole a fact
- * about an array rather than a comment; ~~`STAGE_TO_CODE`~~ held that role
- * until D-132 deleted it, and the padding discipline moved to its replacement
- * unchanged.
+ * change this list must never make.
+ *
+ * **The witness is a test, and since D-133 it is only a test.** ~~The
+ * positional `STAGE_TO_CODE` tuple in `errors.ts` keeps a padded slot for each,
+ * which is what makes the hole a fact about an array rather than a comment~~ —
+ * and `STAGE_NAMES` inherited that role for a day before D-133 deleted it too.
+ * **No positional table indexed by these numbers exists anywhere in the
+ * library now**, so there is nothing left to pad and nothing that could
+ * silently slide. `tests/kernel/stages.node.test.ts` reflects over this
+ * module's own `FAILURE_*` exports, which a reintroduced 12 or 13 necessarily
+ * joins whether or not anyone remembers the file — a stronger witness than the
+ * padding was, because it holds against a stage that is *added* rather than
+ * only against one that shifts.
  */
 export const FAILURE_TERMINAL_CALLBACK = 14;
 

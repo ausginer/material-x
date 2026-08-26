@@ -701,8 +701,9 @@ export type Composition = Readonly<{
    * **Re-based 2026-08-26, Phase 23 (D-132), except that almost nothing needed
    * re-basing.** `DraggableErrorCode`, `STAGE_TO_CODE` and `toDraggableError`
    * are deleted; `DraggableError` carries a `FailureStage | null`; a
-   * `STAGE_NAMES` tuple renders the stage in words for the constructed
-   * message; `drag.js` re-exports the twelve stage constants.
+   * ~~a `STAGE_NAMES` tuple renders the stage in words for the constructed
+   * message~~ (withdrawn by D-133 the same day — see below); `drag.js`
+   * re-exports the twelve stage constants.
    *
    * | Row | before | landed | Δ brotli | Δ minified | budget | left |
    * | --- | --- | --- | --- | --- | --- | --- |
@@ -724,7 +725,7 @@ export type Composition = Readonly<{
    * **Every composition moves by +11 to +13 B minified, and that is the
    * headline.** Twelve stages replacing four codes sounds like a table getting
    * larger and it is not: `STAGE_TO_CODE` held fifteen slots of four repeated
-   * strings and `STAGE_NAMES` holds fifteen slots of twelve distinct ones, at
+   * strings and `STAGE_NAMES` held fifteen slots of twelve distinct ones, at
    * almost exactly the same source length — and the deleted `toDraggableError`
    * pays for the constructor's extra ternary. **Brotli disagrees, by +19 to
    * +56 B**, which is the D-129 effect in reverse: twelve distinct strings
@@ -744,7 +745,9 @@ export type Composition = Readonly<{
    * is exactly what the `only` row below used to record — while `STAGE_NAMES`
    * is read by the constructor and therefore cannot be. The table did not grow;
    * it moved from a position where this root paid nothing for it to one where
-   * it pays for all of it.
+   * it pays for all of it. **This paragraph is what D-133 acted on**, and the
+   * general lesson it states — a table's cost is a function of what references
+   * it, not of its length — is the finding that outlived the table (F-105).
    *
    * **Publishing the twelve constants at `drag.js` costs this root 0 B and 0
    * modules**, which is a fourth independent confirmation of
@@ -771,6 +774,69 @@ export type Composition = Readonly<{
    * instrument alone.** D-129 re-based eleven, D-130 thirteen; this one
    * re-bases none, which is what a genuinely small change is supposed to look
    * like when the ceilings were set honestly.
+   *
+   * **Amended the same day by D-133, and this is the row set that caused the
+   * amendment.** The `+115 B` on the vocabulary root above is what a decision
+   * record was reading when it withdrew the property that produced it:
+   * `STAGE_NAMES` fed a fallback message that fires **only** when a consumer
+   * throws a non-`Error`, so the twelve words never reached the logged payload
+   * D-132 §5.3 was written to improve (F-105). The table is deleted and the
+   * fallback interpolates the number.
+   *
+   * | Row | D-132 landed | D-133 landed | Δ brotli | Δ minified |
+   * | --- | --- | --- | --- | --- |
+   * | minimal | 10,341 | 10,272 | **−69** | −205 |
+   * | minimal (xy) | 9,991 | 9,921 | **−70** | −205 |
+   * | + layoutAnimation | 10,780 | 10,717 | **−63** | −205 |
+   * | + landing | 10,618 | 10,543 | **−75** | −205 |
+   * | complete | 11,024 | 10,961 | **−63** | −205 |
+   * | free drag minimal | 8,143 | 8,073 | **−70** | −203 |
+   * | free drag + bounds | 8,297 | 8,229 | **−68** | −203 |
+   * | free drag + landing | 8,418 | 8,341 | **−77** | −204 |
+   * | free drag complete | 8,566 | 8,506 | **−60** | −205 |
+   * | both behaviors | 12,461 | 12,388 | **−73** | −207 |
+   * | vocabulary root | 261 | **159** | **−102** | −203 |
+   * | kernel root | 6,200 | 6,128 | **−72** | −203 |
+   * | baseline A | 10,713 | 10,645 | **−68** | −205 |
+   * | baseline B | 6,889 | 6,889 | **0** | 0 |
+   *
+   * **Read the two slices together, because separately each one misleads.**
+   * Against the pre-D-132 tree the *whole* classification change now measures:
+   *
+   * | Row | pre-D-132 | D-133 landed | net Δ brotli | net Δ minified |
+   * | --- | --- | --- | --- | --- |
+   * | minimal | 10,295 | 10,272 | **−23** | −193 |
+   * | minimal (xy) | 9,958 | 9,921 | **−37** | −194 |
+   * | + layoutAnimation | 10,745 | 10,717 | **−28** | −193 |
+   * | + landing | 10,562 | 10,543 | **−19** | −193 |
+   * | complete | 10,989 | 10,961 | **−28** | −193 |
+   * | free drag minimal | 8,108 | 8,073 | **−35** | −192 |
+   * | free drag + bounds | 8,267 | 8,229 | **−38** | −192 |
+   * | free drag + landing | 8,377 | 8,341 | **−36** | −193 |
+   * | free drag complete | 8,536 | 8,506 | **−30** | −194 |
+   * | both behaviors | 12,415 | 12,388 | **−27** | −195 |
+   * | vocabulary root | 146 | 159 | **+13** | +49 |
+   * | kernel root | 6,159 | 6,128 | **−31** | −190 |
+   * | baseline A | 10,694 | 10,645 | **−49** | −193 |
+   * | baseline B | 6,889 | 6,889 | **0** | 0 |
+   *
+   * **Twelve stages replacing four codes made every composition smaller.**
+   * `STAGE_TO_CODE`'s fifteen slots and `toDraggableError` are gone and what
+   * replaced them is one template, so the richer vocabulary costs ~193 B *less*
+   * of source on every row. The shared root pays **+13 B** for the whole
+   * decision. That is the honest headline and neither slice alone states it:
+   * D-132's table showed a cost the amendment removed, and D-133's table shows
+   * a saving that is mostly D-132's own overhead being paid back.
+   *
+   * **Module counts hold exactly on all fourteen rows across both slices**, and
+   * baseline B — an external control this package does not build — is
+   * byte-identical throughout, which is what says the harness did not move
+   * underneath any of these numbers.
+   *
+   * **No budget re-bases, for the third statement of the same reason.** Every
+   * artifact moved *down* inside a ceiling that was never raised for it. See
+   * the vocabulary root's own note below for the one place where that leaves a
+   * standing question about the ceiling rather than about the artifact.
    */
   budget: number;
   /**
@@ -1040,9 +1106,9 @@ export const COMPOSITIONS: readonly Composition[] = [
      * so this root bundles to one module only because Rolldown shakes that map
      * and `toDraggableError` away from the `DraggableError` class in the same
      * file.~~ That map is deleted. `errors.ts` now names `FailureStage` as a
-     * **type only**, and `STAGE_NAMES` is a plain positional tuple with no
-     * computed keys, so there is no runtime edge from this module to
-     * `failures.js` left to shake — F-77's predicted regression, one runtime
+     * **type only** — `STAGE_NAMES` was a plain positional tuple with no
+     * computed keys and D-133 deleted even that, so there is no runtime edge
+     * from this module to `failures.js` left to shake — F-77's predicted regression, one runtime
      * reference from the class to the stage map, is unwriteable rather than
      * guarded.
      *
@@ -1080,7 +1146,21 @@ export const COMPOSITIONS: readonly Composition[] = [
      * shrinking. That is the intended behaviour and not a cost. **D-132 was
      * such a change and still did not re-base it**: `STAGE_NAMES` took the root
      * from 146 to 261 B, and 300 was slack enough to absorb it, so the ceiling
-     * stayed where it was rather than following the artifact upward.
+     * stayed where it was rather than following the artifact upward. **D-133
+     * then withdrew the table and the root fell to 159 B**, which puts it back
+     * where D-130 left it and leaves this ceiling exactly as it was set.
+     *
+     * **A standing question the two slices exposed and neither owns.** This
+     * budget was **150** when F-77's first injection was measured, and
+     * `bundle-structure.md` records that injection — a `DraggableError` method
+     * returning `STAGE_TO_CODE`, 121 → 190 B — as *caught by the budget, over
+     * by 40 B*. At **300** it would not be: the same regression now passes with
+     * 110 B to spare. That has been true since D-130 re-based this row, so it
+     * is neither decision's doing and neither is the place to fix it; it is
+     * recorded here because this is the row it is about, and because both
+     * slices have now cited that injection record while the half it credits to
+     * the budget no longer holds. The graph half is unaffected and still
+     * catches the second injection.
      */
     name: 'vocabulary root - drag.js',
     // **Both classes, since D-130 published a second one.** Naming one would

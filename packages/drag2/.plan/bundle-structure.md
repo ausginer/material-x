@@ -319,7 +319,9 @@ It would also invert the instinct D-102 ratified — _an absorbed number is a nu
 | --- | --- | --- | --- |
 | `DraggableError` method returning `STAGE_TO_CODE` | unchanged, 1 module | **121 → 190 B** | the **budget**, `over budget by 40 B` |
 
-> **The first injection is unwriteable since D-132** and is kept as the dated record it is. There is no `STAGE_TO_CODE` to reference, and `STAGE_NAMES` — which replaced it — is read by the constructor unconditionally, so the regression it modelled is now the _baseline_. That is what took the root from 121 to 261 B, under the budget, deliberately. The graph half is untouched and the second injection still models a live hazard.
+> **The first injection is unwriteable since D-132** and is kept as the dated record it is. There is no `STAGE_TO_CODE` to reference, and `STAGE_NAMES` — which replaced it — was read by the constructor unconditionally, so for one day the regression it modelled _was_ the baseline, at 261 B. **D-133 withdrew that table and the root is 159 B**, so the shape this injection models is a regression again rather than the shipped state.
+>
+> **What no longer holds is the last column.** This budget was **150** when the injection was measured, which is where `over budget by 40 B` comes from; D-130 re-based it to **300**, and at 300 the same 190 B artifact passes with 110 B to spare. The budget half of this row has not caught this regression since that re-base — recorded rather than repaired, because the ceiling is an owner's number and neither D-132 nor D-133 is the decision that moved it. **The graph half is untouched** and the second injection still models a live hazard.
 
 | a side effect in `failures.ts` | **+`kernel/failures.js`** | 121 → 140 B, _still under_ | the **graph**, `pulls kernel/failures.js` |
 

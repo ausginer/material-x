@@ -6,13 +6,19 @@
  * mapping, and what is left here is about the stage list and its *numbers*,
  * which nothing about the deletion touches.
  *
- * **The witness changed with the move.** The holes at 12 and 13 used to be
- * witnessed by `STAGE_TO_CODE`'s padding — an array that no longer exists. The
- * witness is now the published union plus the reflection below: a stage added
- * to `failures.ts` necessarily joins `PUBLISHED`, and 12 or 13 coming back is
- * a value appearing in it. The *positional* half of the old witness survives
- * in `errors.node.test.ts`, which reads a neighbouring stage's rendered
- * message.
+ * **The witness changed with the move, and D-133 finished the change.** The
+ * holes at 12 and 13 used to be witnessed by `STAGE_TO_CODE`'s padding, and
+ * for one day by `STAGE_NAMES`'; both arrays are gone, and **no positional
+ * table indexed by a stage number exists in the library any more**. So this
+ * file is the whole witness: a stage added to `failures.ts` necessarily joins
+ * `PUBLISHED`, and 12 or 13 coming back is a value appearing in it.
+ *
+ * **That is a stronger witness than the padding was**, which is worth stating
+ * because the padding is what the earlier records treat as the real
+ * instrument. An array's padding only ever caught a hole being *closed up* —
+ * entries sliding down one slot. The reflection catches that and also catches
+ * a constant being reintroduced at either number, which is the failure the
+ * never-reuse rule actually forbids.
  *
  * **And the numbers are now load-bearing rather than belt** (D-132 §8). Until
  * D-132 a stage number reached only a kernel-tier behavior author; it now
