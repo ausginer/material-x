@@ -834,9 +834,14 @@ export type Composition = Readonly<{
    * underneath any of these numbers.
    *
    * **No budget re-bases, for the third statement of the same reason.** Every
-   * artifact moved *down* inside a ceiling that was never raised for it. See
-   * the vocabulary root's own note below for the one place where that leaves a
-   * standing question about the ceiling rather than about the artifact.
+   * artifact moved *down* inside a ceiling that was never raised for it.
+   *
+   * **One ceiling moved afterwards, and for the opposite reason** (D-134). The
+   * vocabulary root's 300 was left alone here because nothing breached it —
+   * and that turned out to be the wrong test for a row whose budget is a
+   * *sole* detector. It is **205** now, bracketed by a re-run injection rather
+   * than inherited from a slice that had no reason to touch it; the derivation
+   * is in that row's own comment. Nothing else moved.
    */
   budget: number;
   /**
@@ -1127,40 +1132,99 @@ export const COMPOSITIONS: readonly Composition[] = [
      * heuristics, and on that graph `drag.js` **does** reach
      * `kernel/failures.js`. Only a bundled-graph instrument can hold the 121 B.
      *
-     * **This row's budget is 29 B of headroom, not the standing ~150 B, and
-     * that is the row working rather than an oversight.** The convention is
-     * sized to _roughly one module_ against 8–13 kB compositions; on a 121 B
-     * root, one module's worth of slack is larger than the artifact, and the
-     * row would report success while the thing it exists to prevent happened.
-     * The graph half cannot cover the gap either: the packed `kernel/errors.js`
-     * carries a **bare** `import "./failures.js"`, because `tsdown` inlines the
-     * thirteen `FAILURE_*` constants as literals — so machinery arriving from
-     * `failures.ts` lands **inside this module** and moves no module count at
-     * all. Verified by injecting F-77's own predicted regression, one runtime
-     * reference from `DraggableError` to `STAGE_TO_CODE`: the graph stays at
-     * one module and the artifact grows **121 → 190 B**. Only a budget this
-     * row can breach observes that, which is why it is set where it is.
+     * ## The two halves prove different things (D-134)
+     *
+     * They had never been written down as separate claims, and this comment
+     * used to move between them inside one paragraph — which is how the row
+     * came to carry two incompatible sizing rules at once (F-106).
+     *
+     * | Half | Claim | Blind to |
+     * | --- | --- | --- |
+     * | `only` | the root bundles to one module | anything arriving *inside* that module |
+     * | `budget` | that one module stays the size of two classes | nothing — it is the residual detector |
+     *
+     * **The budget is the sole detector for its class.** The packed
+     * `kernel/errors.js` carries a **bare** `import "./failures.js"`, because
+     * `tsdown` inlines the `FAILURE_*` constants as literals — so machinery
+     * arriving from `failures.ts` lands **inside this module** and moves no
+     * module count at all. `only` cannot see it by construction, and
+     * `packaging.node.test.ts` cannot either, since it walks the unshaken
+     * *source* graph where `drag.js` genuinely does reach `kernel/failures.js`.
+     *
+     * ~~The budget goes to 300 rather than to landed + 150: this row exists to
+     * catch the vocabulary root *pulling the kernel*, which is a kilobyte-scale
+     * event, and a tight budget on a 146 B file would fail on ordinary message
+     * wording.~~ **Superseded by D-134, and it had two defects.** Pulling the
+     * kernel is what `only` catches, so sizing the ceiling for it left the
+     * budget guarding nothing it alone could guard; and the wording volatility
+     * was real when it was written — D-130 had just added a message string per
+     * warning site and D-132 was about to add a twelve-entry name table — but
+     * D-133 removed it. The root is two classes and two short library-authored
+     * strings, and every `DraggableWarning` message is supplied by its caller
+     * and lives in the caller's module.
+     *
+     * **The rule is 30-to-50 B of headroom, not the standing ~150 B, and that
+     * is the row working rather than an oversight.** The convention is sized to
+     * *roughly one module* against 8–13 kB compositions; on a 159 B root, one
+     * module's worth of slack is larger than the artifact, and the row would
+     * report success while the thing it exists to prevent happened.
+     *
+     * ## The calibration, run against this tree (D-134)
+     *
+     * A ceiling owes a **reproducible** injection, and when the injection stops
+     * being writeable the ceiling stops being calibrated — D-96's rule one
+     * level down. ~~Verified by injecting F-77's own predicted regression, one
+     * runtime reference from `DraggableError` to `STAGE_TO_CODE`: the graph
+     * stays at one module and the artifact grows 121 → 190 B.~~ **That
+     * injection names two deleted tables and can no longer be written**, which
+     * is why 300 was a number quoted rather than a number derived.
+     *
+     * **The regression class today is anything that makes `drag.js`'s
+     * `kernel/failures.js` re-export unshakeable, or gives `errors.ts` a
+     * runtime need for a stage value.** The injection below is the second
+     * shape, written and measured on 2026-08-26 against the landed tree:
+     *
+     * ```ts
+     * // src/kernel/errors.ts — import the twelve constants as values, then
+     * const KNOWN_STAGES: readonly FailureStage[] = [FAILURE_ADMISSION, …];
+     * // …and reference it from the constructor:
+     * this.stage = stage !== null && KNOWN_STAGES.includes(stage) ? stage : null;
+     * ```
+     *
+     * | | brotli | minified | shipped modules |
+     * | --- | --- | --- | --- |
+     * | landed | **159** | 344 | 1 |
+     * | injected | **220** | 410 | **1 — unchanged** |
+     * | reworded, same length | 181 | 342 | 1 |
+     * | rewritten, +48 chars | 190 | 402 | 1 |
+     *
+     * **The graph half does not move, which is the whole finding.** A plausible
+     * stage validation adds **+61 B** and zero modules, so only a ceiling this
+     * row can breach observes it.
+     *
+     * **The ceiling is bracketed by measurement rather than estimated.** 190
+     * must pass and 220 must fail, so the admissible window is 191–219 and
+     * **205** is its midpoint — 46 B of headroom, breaching the injection by
+     * 15 B and clearing the most generous rewrite by 15 B.
+     *
+     * **The wording band is wider than it looks, and Brotli is why.** A
+     * *same-length* rewording costs **+22 B compressed while saving 2 B
+     * minified**: `destroyed` and `failure` are in Brotli's static dictionary
+     * and `torn down` and `fault` are not, so on a 344 B input the substitution
+     * is a compression loss with no source cost. That is the opposite of the
+     * usual direction on this file and the reason the band was measured instead
+     * of assumed — D-134 §6 estimated it at single-digit-to-low-tens from
+     * source length, which would have put the ceiling at 190 and failed on a
+     * rewording.
      *
      * A legitimate change to the class re-bases this number, deliberately and
      * visibly, under the standing rule that a budget re-bases rather than a fix
      * shrinking. That is the intended behaviour and not a cost. **D-132 was
-     * such a change and still did not re-base it**: `STAGE_NAMES` took the root
-     * from 146 to 261 B, and 300 was slack enough to absorb it, so the ceiling
-     * stayed where it was rather than following the artifact upward. **D-133
-     * then withdrew the table and the root fell to 159 B**, which puts it back
-     * where D-130 left it and leaves this ceiling exactly as it was set.
-     *
-     * **A standing question the two slices exposed and neither owns.** This
-     * budget was **150** when F-77's first injection was measured, and
-     * `bundle-structure.md` records that injection — a `DraggableError` method
-     * returning `STAGE_TO_CODE`, 121 → 190 B — as *caught by the budget, over
-     * by 40 B*. At **300** it would not be: the same regression now passes with
-     * 110 B to spare. That has been true since D-130 re-based this row, so it
-     * is neither decision's doing and neither is the place to fix it; it is
-     * recorded here because this is the row it is about, and because both
-     * slices have now cited that injection record while the half it credits to
-     * the budget no longer holds. The graph half is unaffected and still
-     * catches the second injection.
+     * such a change and did not re-base it**: `STAGE_NAMES` took the root from
+     * 146 to 261 B and 300 absorbed it, which is the loose ceiling doing the
+     * harm — a 79% growth passed unremarked. **D-133 withdrew the table and the
+     * root fell to 159 B**; D-134 then returned the ceiling to the artifact it
+     * guards. **No other row moves**, and the graph half is unchanged.
      */
     name: 'vocabulary root - drag.js',
     // **Both classes, since D-130 published a second one.** Naming one would
@@ -1174,7 +1238,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     // the answer — 0 B, 0 modules, because the re-export shakes — is only
     // observable while this row declines to import them.
     imports: { 'drag.js': '{ DraggableError, DraggableWarning }' },
-    budget: 300,
+    budget: 205,
     only: ['kernel/errors.js'],
   },
   {
