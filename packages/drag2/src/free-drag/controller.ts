@@ -41,8 +41,9 @@ export type FreeDragController = Readonly<{
    * sortable's `box` slot already uses.
    *
    * A **malformed** `point` — `null`, missing fields, a throwing accessor — is
-   * deliberately not checked and throws at the read, reaching
-   * `FAILURE_ACTION_PREPARE` → `presentation` like any other seam throw.
+   * deliberately not checked and throws at the read, so `onError` receives a
+   * `DraggableError` whose `stage` is `FAILURE_ACTION_PREPARE`, like any other
+   * seam throw.
    */
   moveTo(point: Point): void;
   cancel(reason?: unknown): void;

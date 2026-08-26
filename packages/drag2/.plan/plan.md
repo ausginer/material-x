@@ -1800,13 +1800,25 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **The population was classified by the type-checker rather than by reading**, because the fourth rule is the one a sweep breaks and it is not visible in the line being edited. 112 exact null comparisons in `src/`; each operand's type was taken from the program, stripped of `null` and `undefined`, and rejected if anything remaining could be falsy. **99 converted, 13 kept.**
 
-**Ten of the thirteen are kept for a reason the site does not show.** Three operands are `unknown` and two are the bare type parameters `Prepared` and `T` — a generic's falsiness is not knowable where the check is written, and a consumer instantiating it as `0` or `''` would silently change the branch. Two are `string | null` where `''` is reachable, and three are numeric unions — `FailureStage`, `KeyboardDirection` — which exclude their falsy value today and are one edit from not doing so. **Two more are kept for a typing reason rather than a semantic one**: they sit mid-chain in a `&&` whose value is assigned, so dropping the comparison would widen the expression from `boolean` to `boolean | null`.
+**Ten of the thirteen are kept for a reason the site does not show.** Three operands are `unknown` and **three** are bare type parameters — `Prepared` at `kernel/seams.ts`, and `T` at both `sortable/assemble.ts` and `free-drag/assemble.ts`, which are two copies of the same `claim<T>` helper — because a generic's falsiness is not knowable where the check is written, and a consumer instantiating it as `0` or `''` would silently change the branch. **Two** are `string | null` where `''` is reachable, and **two** are numeric unions — `FailureStage` and `KeyboardDirection` — which exclude their falsy value today and are one edit from not doing so. **Two more are kept for a typing reason rather than a semantic one**: they sit mid-chain in a `&&` whose value is assigned, so dropping the comparison would widen the expression from `boolean` to `boolean | null`.
 
 **The thirteenth is the only judgment call.** `sortable/spec.ts`'s `resolved === null` is a sentinel the comment above it reasons about by name — _the incumbent slot still wins_ — so the check and the prose are one statement, and truthiness would leave the prose describing a spelling that is no longer there.
 
 **Every measured row moved down and the two control rows did not.** Minified **−336 to −640 B** per composition, Brotli **−19 to −45 B**; `vocabulary root - drag.js` and `baseline B` are byte-identical, the first because its one module's single check is one of the thirteen kept and the second because it is the shipped package. **No budget re-bases**, under the standing rule that a ceiling follows an artifact upward and never down.
 
 **Nothing asserts the convention, and that is the honest disposition.** `eqeqeq` is configured with `"null": "ignore"` so the loose form stays available, and no lint rule can see whether a distinction carries information — this is F-112's shape one register over: a mechanical check decides the safe half and the last increment is read.
+
+### The nullish sweep's review, remediated 2026-08-26 (F-115, F-116)
+
+**The sweep itself is clean and neither finding is in the rewritten code**; both are in the registers that record it. Record [`reviews/phase-23/nullish-check-convention-claude.md`](reviews/phase-23/nullish-check-convention-claude.md) §6.
+
+**F-115 is a self-concealing arithmetic error** — two counts of opposite sign in one sentence, so every total still added up. Corrected above: three type parameters, two numeric unions.
+
+**F-116 is the one worth the space.** F-114 closed on 2026-08-26 naming _the consumer branches on a fault class, never on a stage_ as a sentence D-132 reversed. The identical string stood twice in `src/`, and the nullish sweep edited the line **immediately above each of them**, the same day, in the same block. The closure had searched the fixture register and the shipped register; `src/` was not searched, because F-114 was filed against a file rather than against a sentence.
+
+**The remediation swept the class rather than the two lines**, and the class was four times the size of the finding. **Thirteen sites across nine files** described the coarse taxonomy as current: four `FAILURE_X → code` mappings, two `FAILURE_LANDING_TARGET` references to a constant D-130 deleted, the two exact F-116 lines, the panic comment's `'platform'` candidacy, `kernel.js`'s entry header claiming `onError` hands out a coarse error _rather than_ a stage — the exact inverse of what D-132 did — and one **published** `moveTo` doc comment. Every rewrite states the stage, or states that the fault is non-consequential and carries none.
+
+**Nothing held any of it, and the reason is the useful half.** `references.node.test.ts` resolves citation _targets_, and `D-64` resolves — it is a real decision that a later one superseded, so a citation to it reads as checked prose while asserting a withdrawn contract. A vocabulary guard would have to know which decisions are live, which is the audience problem F-112 records in a different register.
 
 ### The cross-behavior installer boundary, decided 2026-08-26 (D-138)
 

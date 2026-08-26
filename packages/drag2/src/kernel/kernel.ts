@@ -684,11 +684,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * controller rather than one operation, so it is a `DraggableError`; and
    * `FailureStage` classifies faults *within* an operation, so there is nothing
    * to classify. **D-132 makes the absence expressible**: the stage is `null`,
-   * which means *the controller is destroyed* and means nothing else. Picking
-   * a code directly is what the public constructor allows, and `'platform'` is
-   * the only candidate — the taxonomy's *other* bucket standing in for a value
-   * the type cannot hold, which makes a panicked controller indistinguishable
-   * from a failed `requestAnimationFrame` (F-104).
+   * which means *the controller is destroyed* and means nothing else. The
+   * alternative is a catch-all value standing in for the one the type cannot
+   * hold, and it costs the distinction that matters here — a panicked
+   * controller and a failed `requestAnimationFrame` become indistinguishable
+   * to a consumer (F-104).
    */
   const panic = (error: unknown): void => {
     void destroy();

@@ -71,12 +71,12 @@ export function assemble(
   //
   // **What a JS consumer meets instead is per slot, and only one of the three
   // is classified.** `onReorder` is the only one reached inside a seam, so it
-  // is the only one that becomes a library failure — `FAILURE_RESOLUTION` →
-  // `consumer`. `axis` fails below, at the flat slot record's dereference of a
-  // resolver that is not there, and `items` fails earlier still, at the
+  // is the only one that becomes a library failure — `FAILURE_RESOLUTION`.
+  // `axis` fails below, at the flat slot record's dereference of a resolver
+  // that is not there, and `items` fails earlier still, at the
   // construction-time pull in `behavior.ts`: both are the consumer's own native
-  // `TypeError` out of their own `sortable()` call, with no classification, no
-  // coarse code and no `onError`. Only a later throw from a **valid** `items` —
+  // `TypeError` out of their own `sortable()` call, with no stage, no
+  // `DraggableError` and no `onError`. Only a later throw from a **valid** `items` —
   // one that is a function and raises during an `invalidate()` — reaches
   // `FAILURE_ACTION_PREPARE`.
   //

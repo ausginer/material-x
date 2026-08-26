@@ -49,11 +49,13 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
        * renders, and that is four seams rather than one** (D-81).
        * The rect starts stale, so the **first** resolve of every operation is at
        * `activation.effect`, which places the visual at the accumulated grab
-       * delta — `FAILURE_ACTIVATION` → `interaction`, and the path a bad source
-       * almost always takes. After a staleness mark the next `apply` is
-       * whichever of `moved` (`FAILURE_RENDERER_WRITE`), a `TAG_POSITION`
-       * effect (`FAILURE_ACTION_EFFECT`) — both `presentation` — or
-       * `release.prepare` (`FAILURE_RELEASE` → `interaction`) runs first.
+       * delta — `FAILURE_ACTIVATION`, and the path a bad source almost always
+       * takes. After a staleness mark the next `apply` is whichever of `moved`
+       * (`FAILURE_RENDERER_WRITE`), a `TAG_POSITION` effect
+       * (`FAILURE_ACTION_EFFECT`) or `release.prepare` (`FAILURE_RELEASE`) runs
+       * first. **Four stages for one bad source is the point** (D-81): a stage
+       * says where the library was standing, so the same fault reports four
+       * different ones and none of them names the consumer.
        *
        * **`FAILURE_ACTION_PREPARE` is not reachable from here at all**:
        * `invalidate()` is a staleness flag that calls nothing, so the seam that

@@ -375,7 +375,7 @@ export function createFreeDragSpec(
 
         // **The policy read** (D-71): the `axis` source is read at activation,
         // never per sample. Consumer code, inside a seam, so a throw is
-        // `FAILURE_ACTIVATION` → `interaction`.
+        // classified `FAILURE_ACTIVATION`.
         if (typeof slots.axis === 'function') {
           rt.axis = slots.axis();
 
@@ -560,8 +560,8 @@ export function createFreeDragSpec(
           const point = argument as Point;
           // **Read before anything is written** (D-91). A malformed `point` —
           // `null`, missing fields, a throwing accessor — throws *here*, at the
-          // read, and reaches `FAILURE_ACTION_PREPARE` → `presentation`
-          // naturally. It is deliberately not checked: that is argument
+          // read, and is classified `FAILURE_ACTION_PREPARE` naturally. It is
+          // deliberately not checked: that is argument
           // validation, and the seam already classifies it.
           const { x, y } = point;
 
@@ -833,7 +833,8 @@ export function createFreeDragSpec(
         // own step (D-66) — the report is orthogonal to the terminal and
         // neither suppresses the other.
         if (failure) {
-          // D-64: the consumer branches on a fault class, never on a stage.
+          // D-132: the error carries the stage the kernel classified with, and
+          // this member neither reads it nor derives anything from it.
           // D-130: through `notify`, so a throwing handler stops here instead
           // of becoming a fresh library fault that reports itself back. The
           // kernel built the error, and no `domain` rides along with it:
@@ -855,10 +856,12 @@ export function createFreeDragSpec(
      * the grab position when none is configured.
      *
      * **A throwing or non-finite `home` is an error, not a cancel** — the
-     * shipped semantics. The kernel runs this on the *quality* track
-     * (`FAILURE_LANDING_TARGET` → `presentation`), so the landing is skipped
-     * rather than faked and a drop that already committed is not re-settled
-     * (D-49).
+     * shipped semantics. The kernel runs this on the *quality* track, so the
+     * landing is skipped rather than faked and a drop that already committed is
+     * not re-settled (D-49). **No stage is attached and none is needed**
+     * (D-130): the fault is non-consequential, so it reaches `onError` as a
+     * `DraggableWarning` carrying `drag: landing/target-unavailable`, and a
+     * warning needs no stage to be delivered.
      */
     anchorTarget(current): Point {
       const origin = rt.originRect!;
@@ -908,10 +911,11 @@ export function createFreeDragSpec(
       //
       // **The reads happen; finiteness is not checked** (D-124). A `null`, a
       // missing field or a throwing accessor fails *here*, inside the seam
-      // whose track is already published (07 §Validation):
-      // `FAILURE_LANDING_TARGET` →
-      // `presentation`, on the **quality** route, so the landing is skipped
-      // rather than faked and a drop that already committed is not re-settled.
+      // whose track is already published (07 §Validation): the **quality**
+      // route, so the landing is skipped rather than faked and a drop that
+      // already committed is not re-settled. **No stage rides along** (D-130):
+      // the fault is non-consequential, so it arrives as a `DraggableWarning`
+      // carrying `drag: landing/target-unavailable`.
       // A non-finite pair is accepted and passes undetected into target
       // composition or a renderer, and refusing it here is wrong: a landing
       // target is a point, and a point's coordinates are finite by the same

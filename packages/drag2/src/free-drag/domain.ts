@@ -88,8 +88,10 @@ export type FreeDragRequest = FreeDragSubject &
  * Nothing detects a non-finite one: it composes into the landing target and
  * reaches a renderer as a transform nobody can see. A `null`, a missing field
  * or a throwing accessor is different — the point is read inside the seam, so
- * those fail there and are classified `FAILURE_LANDING_TARGET` on the quality
- * route, which skips the landing and leaves a committed drop settled.
+ * those fail there, on the quality route. `onError` receives a
+ * `DraggableWarning` rather than a `DraggableError`: the landing is skipped,
+ * the committed drop stays settled, and the operation's outcome does not
+ * change.
  */
 export type ResolveHome = (subject: FreeDragSubject) => Point;
 

@@ -4,8 +4,10 @@
  * This is where a behavior is authored. `draggable()` and the classification
  * vocabulary live here because they are what a *behavior author* needs, and an
  * ordinary consumer needs neither: `sortable()` returns its controller
- * directly, and `onError` hands out a coarse {@link DraggableError} rather than
- * a stage (D-64).
+ * directly, and the stage vocabulary an ordinary consumer *does* read reaches
+ * it from `drag.js` rather than from here (D-132). What is authored here is the
+ * behavior that *raises* a classified failure; receiving one requires nothing
+ * from this tier.
  *
  * The shared vocabulary — `DraggableError`, `Point`, `DOMRealm` — is **not**
  * here. It belongs to neither tier, so it has its own root rather than lodging

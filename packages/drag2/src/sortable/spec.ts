@@ -1582,7 +1582,8 @@ export function createSortableSpec(
         // own `ERROR_REPORTED` step (D-66) — the two channels are orthogonal
         // and neither suppresses the other.
         if (failure) {
-          // D-64: the consumer branches on a fault class, never on a stage.
+          // D-132: the error carries the stage the kernel classified with, and
+          // this member neither reads it nor derives anything from it.
           // D-130: through `notify`, so a throwing handler stops here instead
           // of becoming a fresh library fault that reports itself back. The
           // kernel built the error, and nothing is copied into `domain` here:
