@@ -117,7 +117,7 @@ export function y(): AxisInstaller {
         ): Insertion | null {
           const dragged = frame.item;
 
-          if (dragged === null) {
+          if (!dragged) {
             return null;
           }
 
@@ -196,7 +196,7 @@ export function y(): AxisInstaller {
         ): void {
           const dragged = frame.item;
 
-          if (dragged !== null) {
+          if (dragged) {
             const { insertion } = runtime;
 
             // **The reason signal** (D-100). The gap is both "a committed move
@@ -208,7 +208,7 @@ export function y(): AxisInstaller {
               dragged,
               runtime.getBox,
               runtime.live,
-              insertion === null ? -1 : insertion.index,
+              insertion ? insertion.index : -1,
             );
           }
         },

@@ -89,7 +89,7 @@ export function xy(): AxisInstaller {
         ): Insertion | null {
           const dragged = frame.item;
 
-          if (dragged === null) {
+          if (!dragged) {
             return null;
           }
 
@@ -168,7 +168,7 @@ export function xy(): AxisInstaller {
         ): void {
           const dragged = frame.item;
 
-          if (dragged !== null) {
+          if (dragged) {
             index.refresh(
               runtime.snapshot,
               dragged,

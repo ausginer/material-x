@@ -170,7 +170,7 @@ export function createSortableRuntime(
     // The producer-side half of the double validation (I-4): a frame that fires
     // after the operation lost its presentation has nothing to resolve against.
     // `action.prepare` validates the attempt again when it applies.
-    if (runtime.view === null) {
+    if (!runtime.view) {
       return;
     }
 

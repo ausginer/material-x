@@ -49,7 +49,7 @@ export function reconcileCollection(
   dragged: HTMLElement,
   incumbent: Insertion | null,
 ): CollectionChange {
-  if (incumbent === null) {
+  if (!incumbent) {
     return { type: CHANGE_CANCEL };
   }
 
@@ -57,8 +57,8 @@ export function reconcileCollection(
   const { before, after } = incumbent;
 
   // A start gap survives only while `after` remains the first destination item.
-  if (before === null) {
-    if (after !== null && destination[0] === after) {
+  if (!before) {
+    if (after && destination[0] === after) {
       return {
         type: CHANGE_REBASE,
         insertion: insertionAt(destination, 0, next),
@@ -69,7 +69,7 @@ export function reconcileCollection(
   }
 
   // An end gap survives only while `before` remains the last destination item.
-  if (after === null) {
+  if (!after) {
     if (destination[destination.length - 1] === before) {
       return {
         type: CHANGE_REBASE,

@@ -248,11 +248,11 @@ export function createSortableSpec(
       }
     }
 
-    if (item === null) {
+    if (!item) {
       return null;
     }
 
-    if (slots.getHandle !== null) {
+    if (slots.getHandle) {
       const handle = slots.getHandle(item);
 
       // **The terminal barrier on the admission sequence** (I-36). `getHandle`
@@ -271,7 +271,7 @@ export function createSortableSpec(
       // longer exists.
       //
       // A handle *narrows* admission; it never replaces the item.
-      if (host.closed || handle === null) {
+      if (host.closed || !handle) {
         return null;
       }
 
@@ -315,7 +315,7 @@ export function createSortableSpec(
   ): AdmissionSubject | null => {
     let visual = item;
 
-    if (slots.getVisual !== null) {
+    if (slots.getVisual) {
       visual = slots.getVisual(item);
 
       // **The terminal barrier on the visual resolver** (I-36 (2) acts 1 and 2,
@@ -349,7 +349,7 @@ export function createSortableSpec(
     // (D-43) — and calling it again here would invoke one consumer resolver
     // twice for a single admission, which a stateful resolver can observe and
     // which the candidate-traversal tests caught immediately.
-    if (slots.getBox === null || slots.getBox === slots.getVisual) {
+    if (!slots.getBox || slots.getBox === slots.getVisual) {
       return visual;
     }
 
@@ -400,7 +400,7 @@ export function createSortableSpec(
     const { snapshot } = rt;
     const item = resolveItem(event, snapshot);
 
-    return item === null ? null : seedDraft(item, snapshot, draft);
+    return item ? seedDraft(item, snapshot, draft) : null;
   };
 
   /**
@@ -472,7 +472,7 @@ export function createSortableSpec(
   ): boolean => {
     const measure = slots.measureInsertion;
 
-    if (measure === null) {
+    if (!measure) {
       return true;
     }
 
@@ -520,7 +520,7 @@ export function createSortableSpec(
     view: PresentationView,
     insertion: SortableFramePart['insertion'],
   ): void => {
-    if (insertion === null || slots.beforeMove.length === 0) {
+    if (!insertion || slots.beforeMove.length === 0) {
       return;
     }
 
@@ -539,7 +539,7 @@ export function createSortableSpec(
   const homeGap = (frame: Readonly<Frame<SortableFramePart>>): void => {
     const home = homeInsertion(frame.snapshot!, frame.item!);
 
-    if (home !== null) {
+    if (home) {
       movePlaceholder(rt.placeholder!, home);
     }
   };
@@ -624,7 +624,7 @@ export function createSortableSpec(
         // *unmarked* field, and `data-drag-ignore` is what answers it.
         const item = resolveItem(event, snapshot);
 
-        if (item === null) {
+        if (!item) {
           return null;
         }
 
@@ -634,13 +634,13 @@ export function createSortableSpec(
         // Checked before the draft is seeded, so an infeasible command resolves
         // no visual either — the press path resolves one only for an admission
         // it is going to make, and the command path matches it.
-        if (insertion === null) {
+        if (!insertion) {
           return null;
         }
 
         const subject = seedDraft(item, snapshot, draft);
 
-        if (subject === null) {
+        if (!subject) {
           return null; // a consumer resolver destroyed the controller
         }
 
@@ -714,7 +714,7 @@ export function createSortableSpec(
         if (draft.pointerId !== -1) {
           const home = homeInsertion(draft.snapshot!, item);
 
-          if (home === null) {
+          if (!home) {
             return null; // the item left the collection between press and move
           }
 
@@ -727,7 +727,7 @@ export function createSortableSpec(
         // discarded preparation drops — so an undo for it would be work with no
         // observer. With a slot composed every write below lands on someone
         // else's node.
-        placeholderUndo = slots.createPlaceholder === null ? null : [];
+        placeholderUndo = slots.createPlaceholder ? [] : null;
 
         return createPlaceholder(
           realm,
@@ -758,7 +758,7 @@ export function createSortableSpec(
 
         placeholderUndo = null;
 
-        if (ledger === null) {
+        if (!ledger) {
           return;
         }
 
@@ -973,7 +973,7 @@ export function createSortableSpec(
           if (
             draft.phase !== ACTIVE ||
             argument !== rt.pendingSpatial ||
-            rt.view === null
+            !rt.view
           ) {
             return null;
           }
@@ -1076,7 +1076,7 @@ export function createSortableSpec(
         // `ACTIVATING` reconciles exactly like `ACTIVE`, because I-30 has
         // already published the runtime and committed the home insertion before
         // `onStart` could queue this action (F-32).
-        if (draft.insertion === null) {
+        if (!draft.insertion) {
           return {
             snapshot: next,
             source,
@@ -1208,7 +1208,7 @@ export function createSortableSpec(
         // Reached by a resize, a zoom or a scroll, which is why keeping it off
         // the publication path is what makes the pull source cheaper than the
         // push method it replaces rather than merely tidier.
-        if (next === null) {
+        if (!next) {
           invalidateInSeam();
           return;
         }
@@ -1223,7 +1223,7 @@ export function createSortableSpec(
         // read the change as already applied.
         rt.source = staged.source;
 
-        if (rt.view !== null) {
+        if (rt.view) {
           rt.view.snapshot = next;
         }
 
@@ -1254,7 +1254,7 @@ export function createSortableSpec(
         const { item } = draft;
         const { snapshot } = draft;
 
-        if (view === null || item === null || snapshot === null) {
+        if (!view || !item || !snapshot) {
           return rejection(
             FAILURE_RELEASE,
             'drag: sortable/release-no-presentation',
@@ -1283,7 +1283,7 @@ export function createSortableSpec(
           // with no destination has lost state the kernel guaranteed to carry.
           // Reporting that as a home-gap reorder would tell the consumer a drop
           // completed normally.
-          if (commanded === null) {
+          if (!commanded) {
             return rejection(
               FAILURE_RELEASE,
               'drag: sortable/release-no-destination',
@@ -1328,7 +1328,7 @@ export function createSortableSpec(
             return { invoke: null };
           }
 
-          if (resolved === null) {
+          if (!resolved) {
             return rejection(
               FAILURE_RELEASE,
               'drag: sortable/release-no-insertion',
@@ -1341,7 +1341,7 @@ export function createSortableSpec(
 
         const built = buildReorderProposal(snapshot, item, insertion);
 
-        if (built === null) {
+        if (!built) {
           // A release that finds no coherent proposal has a broken invariant.
           // Reporting it as a successful no-op drop would tell the consumer the
           // drag completed normally.
@@ -1568,14 +1568,11 @@ export function createSortableSpec(
 
         pendingFailure = null;
 
-        if (failure === null) {
+        if (!failure) {
           // Requests only — nothing is armed here, and a request is recorded at
           // most once. **One gate since D-41**: the authored-presentation hold
           // had no producer under the serial commit.
-          if (
-            slots.startLanding !== null &&
-            current.recovery !== RECOVERY_IMMEDIATE
-          ) {
+          if (slots.startLanding && current.recovery !== RECOVERY_IMMEDIATE) {
             scope.holdForLanding(slots.startLanding);
           }
         }
@@ -1584,7 +1581,7 @@ export function createSortableSpec(
         // `onError` here **and** publishes its terminal from the failure path's
         // own `ERROR_REPORTED` step (D-66) — the two channels are orthogonal
         // and neither suppresses the other.
-        if (failure !== null) {
+        if (failure) {
           // D-64: the consumer branches on a fault class, never on a stage.
           // D-130: through `notify`, so a throwing handler stops here instead
           // of becoming a fresh library fault that reports itself back. The
@@ -1707,7 +1704,7 @@ export function createSortableSpec(
     finalized(current) {
       const { domain } = current;
 
-      if (domain !== null) {
+      if (domain) {
         slots.onEnd?.(domain);
       }
     },

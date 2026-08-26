@@ -30,9 +30,9 @@ export function localDeltaOf(
   x: number,
   y: number,
 ): Point {
-  return space === null
-    ? { x, y }
-    : { x: space.a * x + space.c * y, y: space.b * x + space.d * y };
+  return space
+    ? { x: space.a * x + space.c * y, y: space.b * x + space.d * y }
+    : { x, y };
 }
 
 /**

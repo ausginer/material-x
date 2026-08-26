@@ -97,7 +97,7 @@ export function layoutAnimation(
       // The element the placeholder will sit next to when the move lands.
       const anchor = insertion.after ?? insertion.before;
 
-      if (anchor !== null && anchor !== placeholder) {
+      if (anchor && anchor !== placeholder) {
         const forward =
           // oxlint-disable-next-line no-bitwise
           (placeholder.compareDocumentPosition(anchor) &
@@ -110,7 +110,7 @@ export function layoutAnimation(
 
         // O(distance), and **no layout read**. The direction is one
         // `compareDocumentPosition`; everything after that is pointer chasing.
-        while (cursor !== null) {
+        while (cursor) {
           const element = cursor as HTMLElement;
 
           if (element !== item && members.has(element)) {

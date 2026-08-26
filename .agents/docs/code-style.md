@@ -24,6 +24,17 @@ Size and ownership have their own policy in [`CODE_OF_SIZE.md`](../../CODE_OF_SI
 - Prefer `type` over `interface`, unless it is an interface a class implements or the declaration extends a global interface.
 - Wrap types in `Readonly<>` and mark members `readonly` unless mutability is required.
 
+## Nullish checks
+
+The check states what the value's absence _means_. Four cases, and the fourth is the one that gets broken by a mechanical sweep:
+
+- **Truthiness for reference-or-null values.** Where the non-null side is an object, an array, a function, a DOM node or a class instance, no valid value is falsy, so `if (handle)` and `if (!handle)` say everything `!== null` said and read as _is there one_. This is the common case.
+- **`== null` where `null` and `undefined` are deliberately the same answer.** One check for both is the point: an absent property and an explicitly cleared one are the same absence. `eqeqeq` is configured with `"null": "ignore"` so this is the only loose equality the repository permits, and it is permitted because it is a distinct operator with a distinct meaning rather than a shortcut.
+- **`=== null` / `!== null` only where the distinction carries information.** Keep it when `null` and `undefined` are different answers, or when `null` is a sentinel the surrounding code reasons about by name — a documented _there is no such thing_ against a value that merely has not arrived.
+- **Never convert an exact check to truthiness over a domain with a meaningful falsy value.** `number | null` is the trap: `0` is an ordinary member and `if (count)` silently drops it. The same holds for `string | null` where `''` is reachable, for `boolean | null`, and for any union whose members include a literal `0`, `''` or `false`. **A domain that happens to exclude its falsy values today is still an exact check** — a numeric union starting at 1 is one edit from starting at 0, and nothing fails when it does.
+
+The rule is about meaning and not about byte count. Where both spellings are correct, the shorter one wins on §Priorities, and where they are not, the correct one wins.
+
 ## Shape
 
 - Declare top-level functions with `function`. Declare internal functions — those created inside another function — as arrow functions. Object methods stay shorthand.

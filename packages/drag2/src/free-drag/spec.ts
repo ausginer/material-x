@@ -170,8 +170,8 @@ export function createFreeDragSpec(
    * of them fails a row.
    */
   const { constrain } = slots;
-  const applyConstraint = constrain === null ? null : constrain.apply;
-  const invalidateConstraint = constrain === null ? null : constrain.invalidate;
+  const applyConstraint = constrain ? constrain.apply : null;
+  const invalidateConstraint = constrain ? constrain.invalidate : null;
 
   /**
    * The rendered delta, derived rather than stored (07 §The frame part). It is
@@ -245,7 +245,7 @@ export function createFreeDragSpec(
         return null;
       }
 
-      if (slots.getHandle !== null) {
+      if (slots.getHandle) {
         const handle = slots.getHandle(root);
 
         // **The terminal barrier on the admission sequence** (I-36). `handle`
@@ -256,7 +256,7 @@ export function createFreeDragSpec(
         // It **declines**, it does not throw: a throw reaches
         // `reportFailure(FAILURE_ADMISSION)` and would tell the consumer that
         // its own `destroy()` was a library failure.
-        if (host.closed || handle === null) {
+        if (host.closed || !handle) {
           return null;
         }
 
@@ -282,7 +282,7 @@ export function createFreeDragSpec(
 
       let visual = root;
 
-      if (slots.getVisual !== null) {
+      if (slots.getVisual) {
         visual = slots.getVisual(root);
 
         // The terminal barrier on the visual resolver (I-36). `runAdmission`
@@ -340,7 +340,7 @@ export function createFreeDragSpec(
         rt.space = scope.inheritedSpace;
         view = { realm, originRect: scope.originRect, visual };
 
-        if (constrain !== null) {
+        if (constrain) {
           // **The behavior owns the events that make the rect stale; the
           // feature owns the rect** (D-70). Scroll and resize fire many times a
           // second, so this marks staleness and never resolves — the feature
@@ -424,7 +424,7 @@ export function createFreeDragSpec(
         progress = STARTED;
 
         // 4 — last, because it may reentrantly cancel or destroy.
-        if (slots.onStart !== null) {
+        if (slots.onStart) {
           slots.onStart(
             buildGeometry(
               current.pointerX,
@@ -466,7 +466,7 @@ export function createFreeDragSpec(
       // The geometry object is built inside the branch: a composition with no
       // `onMove` pays no allocation and no derived rect per sample, which is
       // what keeping the slot nullable rather than normalizing it buys.
-      if (slots.onMove !== null && !host.closed) {
+      if (slots.onMove && !host.closed) {
         slots.onMove(
           buildGeometry(
             current.pointerX,
@@ -553,7 +553,7 @@ export function createFreeDragSpec(
           // only a `prepare` may write it.
           const origin = rt.originRect;
 
-          if (origin === null) {
+          if (!origin) {
             return null;
           }
 
@@ -619,7 +619,7 @@ export function createFreeDragSpec(
         // release that finds no visual has a broken invariant, and reporting it
         // as a successful no-op drop would tell the consumer the drag completed
         // normally.
-        if (visual === null || origin === null) {
+        if (!visual || !origin) {
           return rejection(
             FAILURE_RELEASE,
             'drag: free-drag/release-no-visual',
@@ -821,8 +821,8 @@ export function createFreeDragSpec(
         // A `null` domain is the D-66 no-start case; treated as travelling,
         // because the visual is somewhere the consumer never sanctioned.
         if (
-          failure === null &&
-          slots.startLanding !== null &&
+          !failure &&
+          slots.startLanding &&
           current.domain?.type !== 'accepted'
         ) {
           scope.holdForLanding(slots.startLanding);
@@ -832,7 +832,7 @@ export function createFreeDragSpec(
         // `onError` here **and** publishes its terminal from the failure path's
         // own step (D-66) — the report is orthogonal to the terminal and
         // neither suppresses the other.
-        if (failure !== null) {
+        if (failure) {
           // D-64: the consumer branches on a fault class, never on a stage.
           // D-130: through `notify`, so a throwing handler stops here instead
           // of becoming a fresh library fault that reports itself back. The
@@ -863,7 +863,7 @@ export function createFreeDragSpec(
     anchorTarget(current): Point {
       const origin = rt.originRect!;
 
-      if (current.domain?.type === 'accepted' || slots.getHome === null) {
+      if (current.domain?.type === 'accepted' || !slots.getHome) {
         // The accepted arm, and the unconfigured-home arm, answer from
         // arithmetic the frame already holds — no consumer call and no DOM
         // read. For the accepted arm that is the visual's current position; for
@@ -942,7 +942,7 @@ export function createFreeDragSpec(
     finalized(current) {
       const { domain } = current;
 
-      if (domain !== null) {
+      if (domain) {
         slots.onEnd?.(domain);
       }
     },

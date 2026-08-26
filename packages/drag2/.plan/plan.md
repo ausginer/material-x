@@ -1794,6 +1794,20 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **F-113 is the one worth carrying forward.** A budget row's comment claimed the two roots' graphs were disjoint, _which is stronger than the split needed_ — a bonus observation beside a measurement that stayed true. D-130 made construction kernel-owned, so the kernel root now contains `kernel/errors.js` and the vocabulary root is a strict subset of it. Nothing failed and nothing could have: the row's gates are `present`/`absentPrefixes` and the disjointness was never asserted. **A property stated beside an instrument and not held by it decays exactly like a contract's**, which is F-106's lesson landing on the row adjacent to the one that produced it.
 
+### The nullish-check convention, applied 2026-08-26
+
+**The convention is repository-level and lives in [`code-style.md`](../../../.agents/docs/code-style.md) §Nullish checks**, not in this package's contract: it is a rule about what a check _means_, and it holds wherever the code is. Truthiness for reference-or-null values, `== null` where `null` and `undefined` are deliberately one answer, an exact check only where the distinction carries information, and never truthiness over a domain with a meaningful falsy value.
+
+**The population was classified by the type-checker rather than by reading**, because the fourth rule is the one a sweep breaks and it is not visible in the line being edited. 112 exact null comparisons in `src/`; each operand's type was taken from the program, stripped of `null` and `undefined`, and rejected if anything remaining could be falsy. **99 converted, 13 kept.**
+
+**Ten of the thirteen are kept for a reason the site does not show.** Three operands are `unknown` and two are the bare type parameters `Prepared` and `T` — a generic's falsiness is not knowable where the check is written, and a consumer instantiating it as `0` or `''` would silently change the branch. Two are `string | null` where `''` is reachable, and three are numeric unions — `FailureStage`, `KeyboardDirection` — which exclude their falsy value today and are one edit from not doing so. **Two more are kept for a typing reason rather than a semantic one**: they sit mid-chain in a `&&` whose value is assigned, so dropping the comparison would widen the expression from `boolean` to `boolean | null`.
+
+**The thirteenth is the only judgment call.** `sortable/spec.ts`'s `resolved === null` is a sentinel the comment above it reasons about by name — _the incumbent slot still wins_ — so the check and the prose are one statement, and truthiness would leave the prose describing a spelling that is no longer there.
+
+**Every measured row moved down and the two control rows did not.** Minified **−336 to −640 B** per composition, Brotli **−19 to −45 B**; `vocabulary root - drag.js` and `baseline B` are byte-identical, the first because its one module's single check is one of the thirteen kept and the second because it is the shipped package. **No budget re-bases**, under the standing rule that a ceiling follows an artifact upward and never down.
+
+**Nothing asserts the convention, and that is the honest disposition.** `eqeqeq` is configured with `"null": "ignore"` so the loose form stays available, and no lint rule can see whether a distinction carries information — this is F-112's shape one register over: a mechanical check decides the safe half and the last increment is read.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.

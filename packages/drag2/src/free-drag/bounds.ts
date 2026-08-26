@@ -98,7 +98,7 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
           apply(motion: MotionDraft, view: ConstraintView): void {
             const box = resolve();
 
-            if (box === null) {
+            if (!box) {
               return;
             }
 

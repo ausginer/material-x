@@ -199,7 +199,7 @@ export function createRectIndex(): RectIndex {
         // unchanged.
         let box = item;
 
-        if (getBox !== null) {
+        if (getBox) {
           box = getBox(item);
 
           // **The resolver barrier** (I-36), inside the branch because with no

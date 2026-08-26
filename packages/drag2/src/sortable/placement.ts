@@ -221,7 +221,7 @@ export function createPlaceholder(
 ): HTMLElement {
   const { item } = context;
 
-  if (factory === null) {
+  if (!factory) {
     const placeholder = realm.document.createElement('div');
 
     // `null`, not `undo`, and this is the whole of D-39's "the library's own
@@ -272,13 +272,13 @@ export function placeholderAt(
 ): boolean {
   const { after, before } = insertion;
 
-  if (after !== null) {
+  if (after) {
     return after.previousElementSibling === placeholder;
   }
 
   // An empty destination view: there is no gap to express, so the placeholder
   // is trivially where it belongs.
-  if (before === null) {
+  if (!before) {
     return true;
   }
 
@@ -325,7 +325,7 @@ export function movePlaceholder(
     throw new Error('drag: sortable/anchor-outside-container');
   }
 
-  if (after !== null) {
+  if (after) {
     after.before(placeholder);
   } else {
     insertion.before!.after(placeholder);

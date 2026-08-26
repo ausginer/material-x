@@ -562,7 +562,7 @@ export function createVerifiedRefresh(index: RectIndex): VerifiedRefresh {
       // witness and therefore yields no `δ` to verify.
       if (
         gap >= 0 &&
-        getBox === null &&
+        !getBox &&
         pending === 1 &&
         moves < RESYNC_INTERVAL &&
         seen === snapshot.version &&

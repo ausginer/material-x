@@ -116,16 +116,15 @@ export function createLandingStart(options: LandingOptions): LandingStart {
     // collapse would make a consumer's settle-time side effect, and a thrown
     // result, observable only for users who have not asked for reduced motion.
     const { from, target } = context;
-    const resolved =
-      timing === null
-        ? fixed
-        : timing({
-            from,
-            to: target,
-            // `from` and `to` were already computed for `LandingContext`; the
-            // distance is the one arithmetic this context adds (D-67).
-            distance: Math.hypot(target.x - from.x, target.y - from.y),
-          });
+    const resolved = timing
+      ? timing({
+          from,
+          to: target,
+          // `from` and `to` were already computed for `LandingContext`; the
+          // distance is the one arithmetic this context adds (D-67).
+          distance: Math.hypot(target.x - from.x, target.y - from.y),
+        })
+      : fixed;
 
     // The reduced-motion collapse is the first thing the resolved value meets,
     // so under `reduce` an unbounded duration collapses to zero and lands:

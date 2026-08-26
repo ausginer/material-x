@@ -453,7 +453,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // `queue.closed` alone: a separate `destroyRequested` flag is a second
     // name for it — set on the statement after it and never cleared either —
     // so the extra conjunct is unconditionally true beside it.
-    !queue.closed && cancelRequest === null && current.operation === pinned;
+    !queue.closed && !cancelRequest && current.operation === pinned;
 
   // -------------------------------------------------------------------------
   // Teardown
@@ -476,7 +476,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     const attempt = settlement;
 
-    if (attempt === null) {
+    if (!attempt) {
       return;
     }
 
@@ -488,7 +488,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     attempt.landing = null;
     attempt.start = null;
 
-    if (handle !== null) {
+    if (handle) {
       unwind(() => {
         handle.destroy();
       });
@@ -508,7 +508,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   const scrub = (target: Frame<Part>): void => {
     const active = spec;
 
-    if (active === null) {
+    if (!active) {
       return;
     }
 
@@ -534,11 +534,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * was ever committed.
    */
   const retireOperation = (operation: OperationIdentity | null): void => {
-    if (spec === null) {
+    if (!spec) {
       return;
     }
 
-    if (operation !== null && current.operation !== operation) {
+    if (operation && current.operation !== operation) {
       return; // a stale retirement for an operation that is already gone
     }
 
@@ -550,7 +550,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     // 5. presentation → motion → cancellation, LIFO, best-effort. Releases
     //    pointer capture, removes the placeholder and restores inline styles.
-    if (lifetimes !== null) {
+    if (lifetimes) {
       unwind(lifetimes.dispose);
     }
 
@@ -578,11 +578,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       clearQueue(queue);
 
       // 3–6.
-      if (spec !== null) {
+      if (spec) {
         retireAttempts();
         unwind(spec.retire);
 
-        if (lifetimes !== null) {
+        if (lifetimes) {
           unwind(lifetimes.dispose);
         }
 
@@ -598,7 +598,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
       const settle = settleDestroyed;
 
-      if (settle !== null) {
+      if (settle) {
         settleDestroyed = null;
         settle();
       }
@@ -724,7 +724,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * synchronously, which matters most when the caller is `onStart`.
    */
   const cancel = (reason?: unknown): void => {
-    if (queue.closed || current.operation === null || cancelRequest !== null) {
+    if (queue.closed || !current.operation || cancelRequest) {
       return;
     }
 
@@ -765,8 +765,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // both `onCancel` and `onError` for one operation.
     if (
       queue.closed ||
-      operation === null ||
-      cancelRequest !== null ||
+      !operation ||
+      cancelRequest ||
       reporting ||
       current.phase === REPORTING
     ) {
@@ -912,7 +912,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       return null;
     }
 
-    if (admitted === null) {
+    if (!admitted) {
       // Declining is total: no operation, no phase change, and the default is
       // **not** prevented — which is what lets an arrow key on an edge item
       // keep its native meaning (I-32).
@@ -928,7 +928,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // a resolver can close over the already-returned controller and
     // synchronously destroy it. Without this recheck a terminal controller
     // publishes a new operation.
-    return queue.closed || current.operation !== null ? null : admitted;
+    return queue.closed || current.operation ? null : admitted;
   };
 
   /**
@@ -995,7 +995,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // `false`: the pointer path prevents at the threshold crossing (D-54).
     const admitted = runAdmission(event, spec!.admit, false);
 
-    if (admitted !== null) {
+    if (admitted) {
       mintOperation(admitted, event.pointerId, event.clientX, event.clientY);
     }
   };
@@ -1011,7 +1011,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   const admitCommand = (event: Event): void => {
     const admitted = runAdmission(event, spec!.command!.admit, true);
 
-    if (admitted !== null && mintOperation(admitted, -1, 0, 0)) {
+    if (admitted && mintOperation(admitted, -1, 0, 0)) {
       dispatchKernel(ACTIVATE, current.operation);
     }
   };
@@ -1045,7 +1045,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * synchronous terminal barrier I-6 requires.
    */
   const openIngress = (admit: () => void): void => {
-    if (queue.closed || admitting || current.operation !== null) {
+    if (queue.closed || admitting || current.operation) {
       return;
     }
 
@@ -1255,7 +1255,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   const activate = (): void => {
     const scope = acquireActivation();
 
-    if (scope === null) {
+    if (!scope) {
       return;
     }
 
@@ -1416,7 +1416,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   const settlementLive = (attempt: SettlementAttempt): boolean =>
     settlement === attempt &&
     !queue.closed &&
-    cancelRequest === null &&
+    !cancelRequest &&
     current.operation !== null &&
     current.phase === SETTLING;
 
@@ -1565,7 +1565,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     const { start } = attempt;
 
-    if (start === null) {
+    if (!start) {
       return ARM_ARMED;
     }
 
@@ -1688,7 +1688,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       const { target } = attempt;
       const handle = attempt.landing;
 
-      if (handle !== null) {
+      if (handle) {
         attempt.landing = null;
 
         try {
@@ -1717,7 +1717,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // settlement was never failed: the release below is unconditional and
       // `finalized` publishes the domain result the frame already holds.
       if (
-        target !== null &&
+        target &&
         !driver.runLeaf(() => {
           session.write(target.x, target.y);
         }, FAILURE_RENDERER_WRITE)
@@ -1850,7 +1850,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     resolution = attempt;
 
-    if (invoke === null) {
+    if (!invoke) {
       // A proven semantic no-op — no round-trip, no abort guard, no thenable.
       settleResolution(attempt, { type: SETTLED_SKIPPED });
       return;
@@ -1883,7 +1883,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     try {
       const then = thenOf(value);
 
-      if (then !== null) {
+      if (then) {
         then.call(
           value as PromiseLike<unknown>,
           (settled: unknown) => {
@@ -1986,7 +1986,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     begin();
     draft.phase = RELEASING;
 
-    if (sample !== null) {
+    if (sample) {
       draft.pointerX = sample.clientX;
       draft.pointerY = sample.clientY;
     }
@@ -2066,7 +2066,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     const input = attempt.settlement;
 
-    if (input === null) {
+    if (!input) {
       return;
     }
 
@@ -2102,7 +2102,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // cancellation is about to open.
     cancelRequest = null;
 
-    if (request === null) {
+    if (!request) {
       return;
     }
 
@@ -2161,7 +2161,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // for exactly one drain and the cancellation would be reported at the wrong
     // stage. Leaving the phase untouched is enough: the queued `CANCEL` finds
     // `ACTIVATING` and settles it.
-    if (cancelRequest !== null) {
+    if (cancelRequest) {
       return;
     }
 
@@ -2192,7 +2192,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // The error is not lost; it arrives as a warning, because the `return` here
     // is what decides and the cancel owns the terminal. `checkpoint.stage` is
     // discarded with the classification it names (D-130 §3.4).
-    if (cancelRequest !== null && current.operation === checkpoint.operation) {
+    if (cancelRequest && current.operation === checkpoint.operation) {
       notify(
         new DraggableWarning(
           'drag: failure/superseded-by-cancel',
@@ -2329,7 +2329,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       return;
     }
 
-    if (stage !== FAILURE_TERMINAL_CALLBACK && lifetimes !== null) {
+    if (stage !== FAILURE_TERMINAL_CALLBACK && lifetimes) {
       unwind(lifetimes.presentation.dispose);
 
       // A throw here reaches `failOperation`, which sees `REPORTING` and takes
@@ -2433,7 +2433,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       }
 
       if (
-        spec === null ||
+        !spec ||
         !Number.isInteger(tag) ||
         tag < 0 ||
         tag >= spec.config.actionTags
