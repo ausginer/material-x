@@ -9,19 +9,32 @@
 - **`docs/` is gone.** Its five executable fixtures are now `tests/probes/` and `tests/revision/`, and `tsconfig.json` no longer names a `docs` root. No new namespace was created; one was removed.
 - **`contract/00-index.md` does not move.** Instead the directory gains a `README.md` stating the register map and the one fact a reader needs before opening 01–07: they are revised in place and carry their amendment history inline, so the term in force is the unstruck text.
 
-## 1. `.plan/` cannot hold executable evidence, and that is measured
+## 1. ~~`.plan/` cannot hold executable evidence, and that is measured~~ `.plan/` can hold it, and this section's measurement was confounded
 
-The obvious placement — fixtures beside the write-ups they pair with, in `.plan/probes/` — is not available. **TypeScript will not glob into a dot-directory, even when the pattern names it explicitly:**
+**Corrected 2026-08-26, the same day, by the owner in one command** (F-110). The struck reasoning follows, because the decision was published on it and a reader who met it elsewhere has to be able to find what replaced it.
 
-| `include` pattern     | Files resolved |
-| --------------------- | -------------- |
-| `./docs/**/*`         | 5              |
-| `./.plan/**/*`        | **0**          |
-| `./.plan/probes/*.ts` | **0**          |
+~~The obvious placement — fixtures beside the write-ups they pair with, in `.plan/probes/` — is not available. **TypeScript will not glob into a dot-directory, even when the pattern names it explicitly:**~~
 
-So `.plan/probes/13a-discrete-input.ts` would have compiled nowhere while `npx just typecheck` stayed green — the probes' whole evidentiary value is that a green build asserts every negative claim still fails to compile, and the move would have removed the assertion without removing the file. That is D-115's fail-open shape, and it would have been invisible.
+| `include` pattern | Files resolved | Why |
+| --- | --- | --- |
+| `./docs/**/*` | 5 | five `.ts` files, non-dotted directory |
+| ~~`./.plan/**/*`~~ | ~~**0**~~ | **no `.ts` file existed under `.plan/` at the time** |
+| ~~`./.plan/probes/*.ts`~~ | ~~**0**~~ | same |
 
-**`.plan/` is therefore a Markdown-only namespace by tooling, not by convention.** Worth stating, because it is the constraint that decides where any future executable artefact of the record can live.
+**The control varied two things at once and the conclusion named the wrong one.** `docs/` differed from `.plan/` in being non-dotted _and_ in containing TypeScript, so a zero could not distinguish _tsc refuses dot-directories_ from _there is nothing here to compile_. With one `.ts` file present under `.plan/`, every pattern resolves it — `./.plan/**/*`, `./.plan/**/*.ts` and `./.plan/*.ts` alike — and `tsc -p tsconfig.json` reports its errors. `oxfmt .` and `oxlint .` descend into `.plan/` as well.
+
+**So `.plan/` is Markdown-only in fact, not by tooling.** Any executable artefact of the record can live there for one added `include` entry.
+
+### The placement is therefore a choice, and it is made on register rather than on capability
+
+**A probe's write-up and its fixture are not in the same register, and that is why they were never in the same directory.** A write-up is dated: `13a` records what the frozen SPI could not express at Phase 13, and it is correct as of then whatever happens later. **A fixture is present tense**: it must compile against today's `src/`, and it fails the build the moment the tree moves under it. Under the tense rule that `references.node.test.ts` already enforces, `.plan/reviews/**` and `.plan/probes/` are dated history and `tests/` describes the tree as it is now.
+
+Co-locating them would have put a present-tense artefact inside a dated-history directory — the register mixing this whole review is about, reproduced one level down. **The pairing between a write-up and its fixture is a cross-reference, and a cross-reference is what it should stay.**
+
+Two costs follow from the same fact, and both are avoided rather than argued away:
+
+- `.plan/` is **not** a scope root of `references.node.test.ts`, and it is excluded by design — the tense rule keeps dated history out. Fixtures placed there would have stayed outside citation checking, which is F-108 committed deliberately, in the same commit that recorded F-108.
+- It needs a hand-maintained `include` entry. `tests/` needed none.
 
 ## 2. Why `tests/`, and not a new top-level directory
 
@@ -73,6 +86,8 @@ Distilling an effective contract out of 01–07 means deciding, for each of 243 
 **F-108.** `docs/` was compiled by `tsc` and invisible to `references.node.test.ts`, whose scope roots are a hand-maintained enumeration — so a directory is out of that instrument's scope **by default**, and its prose decays with nothing failing. Three dangling citations had accumulated in five files. The general form is D-115's fail-open shape one level up: the roots list asserts that the listed roots exist, and asserts nothing about what is missing from it.
 
 **F-109.** `references.node.test.ts` states that a deliberately absent reference is marked with strike-through, _"the convention this record already uses for a retired symbol, extended to paths and sections"_. The resolver implements it for paths only; a struck `NN §…` citation is reported as dangling. Found by writing one. The prose outran the mechanism — F-81's class inside an instrument, and the second instance after F-106.
+
+**F-110.** This record's own placement argument rested on a **confounded measurement**: two `include` patterns compared, differing in both the variable under test (a dotted directory) and one nobody controlled for (whether any TypeScript existed there). The zero was structurally guaranteed and was read as a tooling constraint. `CODE_OF_SIZE.md` §15 already states the rule one level down — _check that the instrument can see the change; before reading a 0, confirm the module is in that composition's graph_ — and it applies unchanged to a glob resolver. **A claim about tooling behaviour is cheap to falsify and must be written so that falsifying it is obvious**; this one was, and it was refuted in a single command the same day. The decision it was published under survives on other grounds, which is luck rather than method.
 
 ## 8. Ratified unchanged
 
