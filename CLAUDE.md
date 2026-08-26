@@ -133,3 +133,7 @@ Before making tracked changes, verify that the current branch is not `main`. If 
 - Do not push, create or merge a PR, rename or delete shared branches, or otherwise move shared refs unless explicitly asked. A local commit is automatic; publication is not.
 - Never bypass branch protection, rulesets, or other repository policy. If a requested Git operation is rejected by GitHub or repository policy, stop and report the blocker rather than disabling protection, force-pushing, changing rules, or finding another way around it.
 - Include the resulting commit SHA in the completion report.
+
+## Code of size
+
+Always try to apply `./CODE_OF_SIZE.md` to the code you're writing. This is a library, not a user-facing application, so presume that we're writing for a truthful fellow developer who would generally prefer better performance, a cleaner API, and a smaller bundle over defensive checks for invalid usage.

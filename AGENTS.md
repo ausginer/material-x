@@ -116,3 +116,7 @@ Work must never be committed directly to `main`. All tracked changes belong on a
 - Do not amend, squash, rebase, rewrite, or delete existing commits unless explicitly asked.
 - Do not push, create/merge a PR, or move protected branches unless explicitly asked. A local commit is automatic; publication is not.
 - Include the resulting commit SHA in the completion report.
+
+## Code of size
+
+Always try to apply `./CODE_OF_SIZE.md` to the code you're writing. This is a library, not a user-facing application, so presume that we're writing for a truthful fellow developer who would generally prefer better performance, a cleaner API, and a smaller bundle over defensive checks for invalid usage.
