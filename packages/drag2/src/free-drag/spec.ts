@@ -42,17 +42,14 @@ import {
 import type { Point } from '../kernel/types.ts';
 import { createUnwind } from '../kernel/unwind.ts';
 import {
+  ACCEPTED,
   type DragAxis,
   type FreeDragSubject,
   type FreeDragTransactionResult,
-  isFreeDragResolution,
+  type RejectionCarrier,
 } from './domain.ts';
 import type { ConstraintView, MotionDraft } from './feature.ts';
-import {
-  createFreeDragFramePart,
-  type FreeDragFramePart,
-  resetFreeDragFramePart,
-} from './frames.ts';
+import { type FreeDragFramePart, freeDragFramePart } from './frames.ts';
 import { applyAxis, buildGeometry, buildRequest } from './geometry.ts';
 import {
   FREE_DRAG_ACTION_TAGS,
@@ -207,8 +204,13 @@ export function createFreeDragSpec(
   });
 
   return {
-    createFramePart: createFreeDragFramePart,
-    resetFramePart: resetFreeDragFramePart,
+    createFramePart: freeDragFramePart,
+    // **One function fills both slots** (D-142): called with no argument it
+    // allocates a part at its defaults, called with one it returns that part
+    // to them. The reset's return is the part it was handed, which the kernel
+    // has and ignores.
+    // eslint-disable-next-line @typescript-eslint/strict-void-return
+    resetFramePart: freeDragFramePart,
 
     config: {
       threshold: slots.threshold,
@@ -723,25 +725,19 @@ export function createFreeDragSpec(
           case SETTLED_FULFILLED: {
             const { value } = input;
 
-            if (!isFreeDragResolution(value)) {
-              return rejection(
-                FAILURE_RESOLUTION,
-                'drag: free-drag/drop-resolution-invalid',
-              );
-            }
-
-            // **Every read of the consumer's resolution before any write**
-            // (I-36). `isFreeDragResolution` is a duck-type test on `.type`, so
-            // both `type` and `reason` are accessors on an object the consumer
-            // built and either may destroy the controller. The domain value is
-            // a local until the barrier passes.
+            // **The resolution is the library's own value, not the
+            // consumer's** (D-140): `accept()` returns a shared sentinel and
+            // `reject()` a one-slot carrier, so this is an identity comparison
+            // and a plain data read. There is nothing to validate — a value
+            // that is neither came from outside the types, and I-36's hazard
+            // is gone with the accessors that carried it.
             const domain: FreeDragTransactionResult =
-              value.type === 'accepted'
+              value === ACCEPTED
                 ? { type: 'accepted', request: request! }
                 : {
                     type: 'rejected',
                     request: request!,
-                    reason: value.reason,
+                    reason: (value as RejectionCarrier)[0],
                   };
 
             if (host.closed) {

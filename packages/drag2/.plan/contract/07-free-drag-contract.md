@@ -98,7 +98,7 @@ Required in the **first argument**: **`onDrop`** — a **type** requirement, and
 | `handle` | `ResolveHandle` | consumer function | `(item) => HTMLElement \| null`. **Resolver only** — the shipped element form is withdrawn, see §Parity discharge |
 | `visual` | `ResolveElement` | consumer function | The node lifted. Defaults to the item |
 | `axis` | `DragAxis \| AxisSource` | scalar **or source** | `'both' \| 'x' \| 'y'`, default `'both'`. A function is re-read on `invalidate()` and at activation, never per sample — D-71 |
-| `lift` | `FreeDragLift` | scalar | `'faithful' \| 'flat' \| 'in-place'`, default `'faithful'` — D-73 |
+| `lift` | `LiftMode` | scalar | `LIFT_FAITHFUL \| LIFT_FLAT \| LIFT_IN_PLACE`, default `LIFT_FAITHFUL` — D-141. The three constants publish from this entry beside the type (~~`FreeDragLift`, a domain of three strings mapped by the behavior — D-73~~) |
 | `threshold` | `number` | scalar | Activation travel in viewport pixels, default 8. Same default and same domain as the sortable's |
 | `home` | `ResolveHome` | consumer function | `(subject) => Point`, viewport space. Where a rejected or canceled drag returns to. Absent means the grab position |
 | `onStart` | `FreeDragOnStart` | consumer function | `(geometry) => void`, once, after the lift is acquired |
@@ -132,9 +132,11 @@ Three arms, and **the arm set was re-derived rather than inherited** — the led
 
 | Arm | Produced by | Carries |
 | --- | --- | --- |
-| `accepted` | `onDrop` resolving `FreeDragResolution.accept()` | `request` |
+| `accepted` | `onDrop` resolving `FreeDragResolution.accept()` — one shared value, allocated once (D-140) | `request` |
 | `rejected` | `onDrop` resolving `FreeDragResolution.reject(reason?)` | `request`, `reason` |
 | `canceled` | `cancel()`, `Escape`, `pointercancel`, a destroyed controller, or **any classified failure of a started operation** (D-66) | `request \| null`, `reason`, `stage: CancelStage` |
+
+**The resolution the consumer returns is not one of these shapes, and since D-140 it is not a shape at all.** `FreeDragResolution` is opaque — a `unique symbol` brand behind two factories — because the consumer's job with it is to build one and hand it back. It is the _result_ that carries fields, and it always was: `AcceptedFreeDragResolution` and `RejectedFreeDragResolution` published a `type` discriminant nothing on the consumer's side ever branched on, and a shape a consumer can read is a shape a consumer can also manufacture, which made a runtime duck-type gate and a second `FAILURE_RESOLUTION` diagnostic look owed. Both are deleted. **Acceptance is one shared value**, so an accepted drop allocates nothing; rejection is a one-slot carrier for the reason; and `settlement.prepare` tells them apart by identity, with no string shipped and none compared.
 
 `FreeDragTransactionResult` is the union; `onEnd` receives it and switches with no `default`, which is what makes exhaustiveness checkable (D-62). `request` is `null` on the canceled arm exactly when the operation was abandoned before release built one — the same shape the sortable's `proposal: null` has, and the reason `AT_PROPOSAL`/`AT_CONSUMER` is carried.
 
@@ -144,13 +146,13 @@ Three arms, and **the arm set was re-derived rather than inherited** — the led
 
 | Kind | Names |
 | --- | --- |
-| Runtime | `freeDrag`, `FreeDragResolution` |
-| Config and its aliases | `FreeDragConfig`, `OnDrop`, `FreeDragOnStart`, `OnMove`, `FreeDragOnEnd`, `FreeDragOnDragError`, `ResolveHandle`, `ResolveElement`, `ResolveHome`, `AxisSource`, `DragAxis`, `FreeDragLift` |
+| Runtime | `freeDrag`, `FreeDragResolution`, `LIFT_FAITHFUL`, `LIFT_FLAT`, `LIFT_IN_PLACE` (D-141) |
+| Config and its aliases | `FreeDragConfig`, `OnDrop`, `FreeDragOnStart`, `OnMove`, `FreeDragOnEnd`, `FreeDragOnDragError`, `ResolveHandle`, `ResolveElement`, `ResolveHome`, `AxisSource`, `DragAxis`, `LiftMode` (~~`FreeDragLift`~~ — D-141) |
 | Controller | `FreeDragController` |
-| Domain | `FreeDragSubject`, `FreeDragRequest`, `DragGeometry`, `FreeDragResolution`, `AcceptedFreeDragResolution`, `RejectedFreeDragResolution`, `FreeDragTransactionResult`, `AcceptedFreeDragResult`, `RejectedFreeDragResult`, `CanceledFreeDragResult` (~~`FreeDragErrorContext`~~, deleted by D-130) |
+| Domain | `FreeDragSubject`, `FreeDragRequest`, `DragGeometry`, `FreeDragResolution`, `FreeDragTransactionResult`, `AcceptedFreeDragResult`, `RejectedFreeDragResult`, `CanceledFreeDragResult` (~~`FreeDragErrorContext`~~, deleted by D-130; ~~`AcceptedFreeDragResolution`, `RejectedFreeDragResolution`~~, unpublished by D-140 — the resolution is opaque and has no arms to name) |
 | Re-exported from the kernel tier | `CancelStage`, `AT_PROPOSAL`, `AT_CONSUMER` — a `CanceledFreeDragResult` carries one and an ordinary consumer must discriminate it, which is the same rule and the same re-export `sortable.js` already runs on (D-68) |
 
-**Two names are qualified because their unqualified form is already claimed by a different structure** (D-75): `FreeDragLift`, because `kernel.js` publishes a numeric `LiftMode` and this is a string union; and ~~`FreeDragErrorContext`, because `onError`'s context carries a behavior's own result~~ — **deleted by D-130**, which leaves `FreeDragLift` as the only name this clause still applies to. `DragAxis` and `DragGeometry` stay unqualified — one structure, one claimant, no collision — and the rule is exactly that narrow: qualify a name when two entries need **different structures under one word**, not because a word could conceivably be reused.
+~~**Two names are qualified because their unqualified form is already claimed by a different structure** (D-75): `FreeDragLift`, because `kernel.js` publishes a numeric `LiftMode` and this is a string union; and `FreeDragErrorContext`, because `onError`'s context carries a behavior's own result~~ — the second **deleted by D-130** and the first by **D-141**, which leaves the clause with **no name it applies to**. That is the rule working rather than lapsing: both collisions were resolved by there being one structure again, not by qualifying a second. `DragAxis` and `DragGeometry` stay unqualified — one structure, one claimant, no collision — and the rule is exactly that narrow: qualify a name when two entries need **different structures under one word**, not because a word could conceivably be reused.
 
 ### Validation, under `CODE_OF_SIZE.md`
 
@@ -204,7 +206,7 @@ Deletion is only safe if something else answers, and there are **two** answers, 
 | --- | --- | --- |
 | `threshold` finite | A `NaN` threshold makes `dx*dx + dy*dy >= t*t` permanently false. Visible immediately, consumer-owned, and it breaks no library guarantee | The press arms and never activates. **No operation starts, so none terminates** — Q-15, and the reason B-4 must not ask for a terminal here |
 | `axis` in domain | An unknown value falls through to unconstrained motion. The compiler states the union; a JS consumer who ignores it gets their own drag | The drag runs normally, unconstrained, and reports success |
-| `lift` in domain | **Replaced by a type, not by a check** (§1.2): the map to `LIFT_*` is a total `Record<FreeDragLift, LiftMode>`, so adding a mode without a mapping does not compile. That is D-64's `STAGE_TO_CODE` precedent, which this package already treats as the way to make a mapping total | A TS consumer cannot express it. A JS consumer reaches `undefined` in the map and gets whichever branch `presentation.ts` falls through to — consumer-owned, and nothing fails |
+| `lift` in domain | **Replaced by the type, and since D-141 there is no mapping either.** ~~The map to `LIFT_*` is a total `Record<FreeDragLift, LiftMode>`, so adding a mode without a mapping does not compile.~~ The slot takes `LiftMode` itself, so a mode added to the kernel is in the domain the day it is declared and there is no second list to keep total | A TS consumer cannot express it. ~~A JS consumer reaches `undefined` in the map and gets whichever branch `presentation.ts` falls through to.~~ A JS consumer reaches `presentation.ts` with whatever they passed, which is the same silence one indirection shorter |
 
 #### ~~The one check that survives~~ — deleted 2026-08-25 (D-124), and the measurement that narrowed it stands
 
@@ -385,7 +387,7 @@ The shipped default mapper is built by walking `offsetParent`, accumulating `cli
 
 **box-quad already answers most of it.** The lift traversal reads the visual's inherited ancestor space and hands back its linear part — `a`, `b`, `c`, `d`, plus `ancestorZoom` — which `kernel/presentation.ts` already consumes for the in-place projection. A **delta** maps through the linear part alone; a **point** additionally needs the translation, and box-quad exposes none. That is the exact seam, and the decision follows it:
 
-- **`localDelta` stays and is correct by default.** Derived from the ancestor linear part at activation, no consumer option, no module, no per-sample matrix work — the coefficients are captured once and the warm calls are four multiplies.
+- **The local delta stays and is correct by default.** Derived from the ancestor linear part at activation, no consumer option, no module, no per-sample matrix work — the coefficients are captured once and the warm calls are four multiplies. **It is carried as `localDeltaX`/`localDeltaY` since D-139**, with every other coordinate on both consumer shapes: `onMove` runs once per committed sample, and the pairs were four objects a frame holding two numbers each.
 - **Points are viewport, everywhere.** `FreeDragRequest` loses `localPosition`; `home` returns a viewport `Point`; `moveTo` takes a viewport `Point`.
 - **There is no `coordinateSpace` option**, so no consumer-supplied mapper and no `CoordinateMapper` type on the surface.
 
@@ -395,9 +397,11 @@ The `space: 'viewport'` discriminant on the home target goes with it. A one-memb
 
 ---
 
-## Lift modes are a consumer domain, mapped (D-73)
+## ~~Lift modes are a consumer domain, mapped (D-73)~~ — superseded 2026-08-26 by D-141
 
-The ledger's open question 2 asked whether a behavior may expose a kernel-internal enum. **It may not, and it does not have to.**
+**The slot takes `LiftMode`, and `free-drag.js` publishes the three constants beside it.** What follows is the reasoning that decided otherwise, kept because its premise is what dates it.
+
+~~The ledger's open question 2 asked whether a behavior may expose a kernel-internal enum. **It may not, and it does not have to.**~~ The enum was never internal: `kernel.js` had published it since D-68, so what the string domain bought was a **second name for each of three modes** and a total `Record` to hold the two in step — an indirection the reader traverses in both directions, not an encapsulation. The table below reads as the migration.
 
 `kernel.js` publishes `LIFT_FAITHFUL`/`LIFT_FLAT`/`LIFT_IN_PLACE` and `LiftMode` for a kernel-tier author who must fill `BehaviorConfig.liftMode` (D-68). The ordinary tier publishes a **string union of its own**, and the behavior maps one to the other in the one place that knows both. An ordinary consumer never sees a numeric constant, and the kernel enum stays a kernel enum — which is D-47's progressive disclosure working, rather than the tier inversion it exists to prevent.
 
@@ -407,7 +411,7 @@ The ledger's open question 2 asked whether a behavior may expose a kernel-intern
 | `'flat'` | `LIFT_FLAT` | Top layer, ancestor transform dropped |
 | `'in-place'` | `LIFT_IN_PLACE` | Stays in the container, rides the authored transform, translate projected through the inherited space |
 
-**The strings are renamed from the shipped ones and it is a breaking change.** `'top-layer'` → `'faithful'`, `'flatten'` → `'flat'`, `'none'` → `'in-place'`. The reason is not tidiness: **both** promoted modes use the top layer in this package, so `'top-layer'` names one of them after a mechanism it shares with its sibling, and `'none'` says _no lift_ for a mode that lifts, suppresses transitions and projects coordinates. The precedent is `vertical()` → `y()` — _a layout word for a rule that is about a coordinate_ — and the migration is a three-row table.
+**The strings were renamed from the shipped ones, and D-141 then deleted them.** `'top-layer'` → `'faithful'` → `LIFT_FAITHFUL`, `'flatten'` → `'flat'` → `LIFT_FLAT`, `'none'` → `'in-place'` → `LIFT_IN_PLACE`. The middle step's reasoning still holds and is why the constants read the way they do: The reason is not tidiness: **both** promoted modes use the top layer in this package, so `'top-layer'` names one of them after a mechanism it shares with its sibling, and `'none'` says _no lift_ for a mode that lifts, suppresses transitions and projects coordinates. The precedent is `vertical()` → `y()` — _a layout word for a rule that is about a coordinate_ — and the migration is a three-row table.
 
 ---
 
@@ -484,6 +488,8 @@ Five fields against the sortable's eight, and a **different shape** — which is
 | `offsetX: number`, `offsetY: number` | `moveTo`'s re-base. An **input**, not a derivation, so only a `prepare` may write it |
 | `request: FreeDragRequest \| null` | Written by `release.prepare` before the command is returned, so `release.effect` and the `invoke` closure reach the same object — the sortable's `proposal` discipline exactly |
 | `domain: FreeDragTransactionResult \| null` | The result, and D-66's fallback carrier. One field for both, because the fallback rule is _existing result wins_ |
+
+**Both frame-part operations are one function since D-142.** `freeDragFramePart(existing?)` allocates when called with nothing and returns a part to its defaults when called with one, over a single `DEFAULT_PART` literal — the shape `kernel/frames.ts` runs over the kernel's own slice, applied here and to the sortable's seven fields. The create/reset pair it replaces had two field lists whose agreement was the invariant, which is precisely what two functions cannot hold.
 
 **The rendered delta is deliberately not a field.** It is a pure function of the committed sample, the offset and the policy, so `moved`, the request builder and the geometry builder each derive it; `moved` receives a `Readonly` frame and could not write it anyway. That also keeps this behavior clear of the mirror-every-write duplication that D-35 was chosen over a `renderedDelta` seam to avoid — the behavior derives, the kernel records its own writes, and neither reads the other's copy.
 

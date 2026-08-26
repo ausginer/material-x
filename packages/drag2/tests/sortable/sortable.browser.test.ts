@@ -42,7 +42,7 @@ import {
   type ReorderRequest,
   type ReorderTransactionResult,
 } from '../../src/sortable/domain.ts';
-import { createSortableFramePart } from '../../src/sortable/frames.ts';
+import { sortableFramePart } from '../../src/sortable/frames.ts';
 import {
   createSortableRuntime,
   TAG_SPATIAL,
@@ -2812,7 +2812,7 @@ describe('the spatial action legality guard', () => {
 
     const spec = createSortableSpec(rt);
     const draft = {
-      ...createSortableFramePart(),
+      ...sortableFramePart(),
       phase,
       snapshot: rt.snapshot,
       item,
@@ -2893,7 +2893,7 @@ describe('a pointerless release with no destination', () => {
 
     const spec = createSortableSpec(rt);
     const draft = {
-      ...createSortableFramePart(),
+      ...sortableFramePart(),
       phase: RELEASING,
       pointerId: -1,
       snapshot: rt.snapshot,
@@ -3150,7 +3150,7 @@ describe('the displacement view lifetime', () => {
 
     const spec = createSortableSpec(rt);
     const current = {
-      ...createSortableFramePart(),
+      ...sortableFramePart(),
       phase: ACTIVE,
       snapshot: rt.snapshot,
       item: items[0],
@@ -3278,7 +3278,7 @@ describe('the displacement view lifetime', () => {
 
     const spec = createSortableSpec(rt);
     const draft = {
-      ...createSortableFramePart(),
+      ...sortableFramePart(),
       phase: RELEASING,
       snapshot: rt.snapshot,
       item: items[0],
@@ -3386,7 +3386,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       },
     });
     const draft = {
-      ...createSortableFramePart(),
+      ...sortableFramePart(),
     } as unknown as Parameters<typeof held.spec.admit>[1];
 
     const admitted = held.spec.admit(pathEvent(held.item) as never, draft);
@@ -3409,7 +3409,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       },
     });
     const draft = {
-      ...createSortableFramePart(),
+      ...sortableFramePart(),
     } as unknown as Parameters<typeof held.spec.admit>[1];
 
     const admitted = held.spec.command!.admit(pathEvent(held.item), draft);
@@ -3448,7 +3448,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       after: null,
     };
     const draft = {
-      ...createSortableFramePart(),
+      ...sortableFramePart(),
       phase: RELEASING,
       pointerId: POINTER_ID,
       snapshot: held.rt.snapshot,
@@ -3531,7 +3531,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     };
 
     const draft = {
-      ...createSortableFramePart(),
+      ...sortableFramePart(),
       phase: RELEASING,
       pointerId: POINTER_ID,
       snapshot: held.rt.snapshot,
@@ -3566,7 +3566,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     });
 
     const current = {
-      ...createSortableFramePart(),
+      ...sortableFramePart(),
       item: held.item,
       recovery: RECOVERY_DESTINATION,
     } as unknown as Parameters<typeof held.spec.anchorTarget>[0];
@@ -3581,7 +3581,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     // the resolution is an accessor on an object the consumer built.
     const held = bench({});
     const draft = {
-      ...createSortableFramePart(),
+      ...sortableFramePart(),
       proposal: { request: {}, from: 0, to: 0 },
     } as unknown as Parameters<typeof held.spec.settlement.prepare>[0];
 

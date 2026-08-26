@@ -2,7 +2,7 @@
  * **One activation snapshot, not two** — D-85, closing E-01.
  *
  * Free drag used to take its own box-quad traversal from `activation.effect`,
- * to invert the inherited linear part into `localDelta`. E-01 established that
+ * to invert the inherited linear part into the local delta. E-01 established that
  * this was not merely duplicate work: the second walk runs **after**
  * `acquireLift` has changed positioning, dimensions, top-layer state and
  * transforms, and box-quad's own contract says two walks may legitimately
@@ -18,8 +18,8 @@
  * implementation, which reports the **new** space:
  *
  * ```text
- * pre-D-85   localDelta { x: 10,  y: 7.5 }   — scale(4), read after the lift
- * D-85       localDelta { x: 20,  y: 15  }   — scale(2), read before it
+ * pre-D-85   local delta 10, 7.5   — scale(4), read after the lift
+ * D-85       local delta 20, 15    — scale(2), read before it
  * ```
  *
  * The rows are asserted under a **lifted** mode as well as in place, because
@@ -31,6 +31,7 @@
 import { describe, expect, it } from 'vitest';
 import type { DraggableError } from '../../src/drag.ts';
 import { FAILURE_ACTIVATION } from '../../src/kernel/failures.ts';
+import { LIFT_FLAT, LIFT_IN_PLACE } from '../../src/kernel/presentation.ts';
 import {
   activate,
   freeDragHarness,
@@ -73,9 +74,10 @@ describe('the reported local delta', () => {
 
     const geometry = composed.moves.at(-1)!;
 
-    expect(geometry.viewportDelta).toEqual({ x: DX, y: DY });
-    expect(geometry.localDelta.x).toBeCloseTo(DX / 2, PRECISION);
-    expect(geometry.localDelta.y).toBeCloseTo(DY / 2, PRECISION);
+    expect(geometry.viewportDeltaX).toBe(DX);
+    expect(geometry.viewportDeltaY).toBe(DY);
+    expect(geometry.localDeltaX).toBeCloseTo(DX / 2, PRECISION);
+    expect(geometry.localDeltaY).toBeCloseTo(DY / 2, PRECISION);
   });
 
   it('should come from the pre-lift measurement under zoom as well', () => {
@@ -93,8 +95,8 @@ describe('the reported local delta', () => {
 
     const geometry = composed.moves.at(-1)!;
 
-    expect(geometry.localDelta.x).toBeCloseTo(DX / 2, PRECISION);
-    expect(geometry.localDelta.y).toBeCloseTo(DY / 2, PRECISION);
+    expect(geometry.localDeltaX).toBeCloseTo(DX / 2, PRECISION);
+    expect(geometry.localDeltaY).toBeCloseTo(DY / 2, PRECISION);
   });
 
   it('should come from the pre-lift measurement for an in-place lift', () => {
@@ -102,7 +104,7 @@ describe('the reported local delta', () => {
     // pair below reads as a real distinction rather than an accident of which
     // mode the fixture happened to pick.
     const composed = compose({
-      config: { lift: 'in-place' },
+      config: { lift: LIFT_IN_PLACE },
       stageStyle: { transform: 'scale(2)', transformOrigin: '0 0' },
     });
 
@@ -110,7 +112,7 @@ describe('the reported local delta', () => {
     activate(composed);
     move(10 + DX, 10 + DY);
 
-    expect(composed.moves.at(-1)!.localDelta.x).toBeCloseTo(DX / 2, PRECISION);
+    expect(composed.moves.at(-1)!.localDeltaX).toBeCloseTo(DX / 2, PRECISION);
   });
 
   it('should be reported for a lifted mode, where the session projection is null', () => {
@@ -120,7 +122,7 @@ describe('the reported local delta', () => {
     // would report the viewport delta as the local one under a transformed
     // ancestry — the identity, silently.
     const composed = compose({
-      config: { lift: 'flat' },
+      config: { lift: LIFT_FLAT },
       stageStyle: { transform: 'scale(2)', transformOrigin: '0 0' },
     });
 
@@ -129,8 +131,8 @@ describe('the reported local delta', () => {
 
     const geometry = composed.moves.at(-1)!;
 
-    expect(geometry.localDelta.x).toBeCloseTo(DX / 2, PRECISION);
-    expect(geometry.localDelta).not.toEqual(geometry.viewportDelta);
+    expect(geometry.localDeltaX).toBeCloseTo(DX / 2, PRECISION);
+    expect(geometry.localDeltaX).not.toBe(geometry.viewportDeltaX);
   });
 
   it('should report the release delta in the same space', async () => {
@@ -147,7 +149,7 @@ describe('the reported local delta', () => {
     release(10 + DX, 10 + DY);
     await settled();
 
-    expect(composed.requests.at(-1)!.localDelta.x).toBeCloseTo(
+    expect(composed.requests.at(-1)!.localDeltaX).toBeCloseTo(
       DX / 2,
       PRECISION,
     );

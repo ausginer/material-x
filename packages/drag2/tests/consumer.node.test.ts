@@ -747,7 +747,9 @@ import {
   AT_PROPOSAL,
   FreeDragResolution,
   freeDrag,
-  type AcceptedFreeDragResolution,
+  LIFT_FAITHFUL,
+  LIFT_FLAT,
+  LIFT_IN_PLACE,
   type AcceptedFreeDragResult,
   type AxisSource,
   type CancelStage,
@@ -757,16 +759,15 @@ import {
   type FreeDragConfig,
   type FreeDragController,
   type FreeDragInstaller,
-  type FreeDragLift,
   type FreeDragOnDragError,
   type FreeDragOnEnd,
   type FreeDragOnStart,
   type FreeDragRequest,
   type FreeDragSubject,
   type FreeDragTransactionResult,
+  type LiftMode,
   type OnDrop,
   type OnMove,
-  type RejectedFreeDragResolution,
   type RejectedFreeDragResult,
   type ResolveElement,
   type ResolveHandle,
@@ -810,10 +811,10 @@ const controller: FreeDragController = freeDrag(
     // **D-77**: one required config argument. Only \`onDrop\` is required, and
     // omitting it is a compile error rather than a runtime throw.
     onDrop: (request: FreeDragRequest) => {
-      void request.viewportDelta.x;
-      void request.localDelta.y;
+      void request.viewportDeltaX;
+      void request.localDeltaY;
       void request.visualRect.width;
-      void request.viewportPosition;
+      void request.positionX;
       return FreeDragResolution.accept();
     },
     // **D-71**: a source the library re-reads, not a value it is handed.
@@ -830,7 +831,7 @@ const controller: FreeDragController = freeDrag(
     onMove: ((geometry: DragGeometry) => {
       void geometry.currentRect.left;
     }) satisfies OnMove,
-    lift: 'flat' satisfies FreeDragLift,
+    lift: LIFT_FLAT satisfies LiftMode,
     threshold: 4,
     onEnd: ((result: FreeDragTransactionResult): void => {
       // **Three arms, and \`never\` on the fall-through** (D-62, F-41). The
@@ -901,10 +902,19 @@ declare const options: LandingOptions;
 declare const preset: Partial<FreeDragConfig>;
 declare const drop: OnDrop;
 declare const axis: DragAxis;
-declare const accepted: AcceptedFreeDragResolution;
-declare const rejected: RejectedFreeDragResolution;
+// **The resolution is opaque, and this is the whole of what a consumer does
+// with one** (D-140): build it and return it. The two rows below the retired
+// list assert that nothing else is available.
+declare const accepted: FreeDragResolution;
+declare const rejected: FreeDragResolution;
 
-void [source, options, preset, drop, axis, accepted.type, rejected.type];
+void [source, options, preset, drop, axis, accepted, rejected];
+
+// The three lift constants are the config slot's vocabulary and reach an
+// ordinary consumer from this entry (D-141), not only from \`kernel.js\`.
+const liftModes: readonly LiftMode[] = [LIFT_FAITHFUL, LIFT_FLAT, LIFT_IN_PLACE];
+
+void liftModes;
 
 // A hoisted installer is only a writable surface if it can go back into the
 // config it was hoisted out of.
@@ -923,10 +933,23 @@ void hoistedFragment;
 const retiredSpace: Partial<FreeDragConfig> = { coordinateSpace: 'local' };
 // @ts-expect-error: \`update(DragUpdate)\` has no successor (D-71)
 controller.update({ position: { x: 0, y: 0 } });
-// @ts-expect-error: the lift modes are renamed (D-73)
+// @ts-expect-error: the lift slot takes the kernel's numeric mode (D-141), so
+// no string is one — the shipped names and the withdrawn ones alike
 const retiredLift: Partial<FreeDragConfig> = { lift: 'top-layer' };
 // @ts-expect-error: the resolution factories take no argument (D-41)
 const retiredResolution = FreeDragResolution.accept({ presentation: true });
+// @ts-expect-error: the resolution is opaque, so there is no discriminant on
+// it to read — the verdict reaches the consumer as a transaction result (D-140)
+const retiredDiscriminant = accepted.type;
+// @ts-expect-error: and none to forge either, which is what makes the round
+// trip a round trip rather than a data model (D-140)
+const retiredLiteral: FreeDragResolution = { type: 'accepted' };
+// @ts-expect-error: the two resolution arms are not public types (D-140)
+type R6 = import('@ydinjs/drag2/free-drag.js').AcceptedFreeDragResolution;
+// @ts-expect-error: nor is the string lift union (D-141)
+type R7 = import('@ydinjs/drag2/free-drag.js').FreeDragLift;
+// @ts-expect-error: the geometry's coordinates are scalars (D-139)
+const retiredPair = ({} as FreeDragRequest).viewportDelta;
 // @ts-expect-error: \`FreeDropResolution\` is renamed to one vocabulary (D-69)
 type R1 = import('@ydinjs/drag2/free-drag.js').FreeDropResolution;
 // @ts-expect-error: \`DragUpdate\` is dissolved (D-71)
@@ -940,7 +963,15 @@ type R5 = import('@ydinjs/drag2/free-drag.js').DragBounds;
 // @ts-expect-error: the union is discriminated; the predicates are dropped
 const retiredPredicate = FreeDragResolution.isAccepted;
 
-void [retiredSpace, retiredLift, retiredResolution, retiredPredicate];
+void [
+  retiredSpace,
+  retiredLift,
+  retiredResolution,
+  retiredPredicate,
+  retiredDiscriminant,
+  retiredLiteral,
+  retiredPair,
+];
 
 // ---------------------------------------------------------------------------
 // **The tier-scoped closure, from the other side** (D-78). \`FreeDragInstaller\`
@@ -1272,10 +1303,18 @@ describe('the packed package', () => {
         'ReorderResolution',
         'sortable',
       ],
+      // **Seven, and the three new ones are the lift vocabulary** (D-141).
+      // `config.lift` takes the kernel's numeric `LiftMode`, and a numeric
+      // union whose members are unnameable is not a fillable slot — so the
+      // constants publish beside the type, exactly as the stages do on
+      // `drag.js`.
       './free-drag.js': [
         'AT_CONSUMER',
         'AT_PROPOSAL',
         'FreeDragResolution',
+        'LIFT_FAITHFUL',
+        'LIFT_FLAT',
+        'LIFT_IN_PLACE',
         'freeDrag',
       ],
       './free-drag/bounds.js': ['bounds'],

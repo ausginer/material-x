@@ -1836,6 +1836,32 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **F-64 and B-7 come out stronger than they went in.** The shared `FeatureContext` is still one declaration re-exported by both tiers, and each branded context extends it — so a fix that forked `realm`, `root` and `report` per tier now fails a row that did not exist before. What reverses is 07's sentence that the incompatibility is in what an installer **produces**: it is in what an installer is **handed**.
 
+### The free-drag owner-review cleanup, 2026-08-26 (D-139…D-142)
+
+**Five findings, one commit, and four of them delete something rather than adding one.** The owner's direction was settled before implementation; what follows is what each one turned out to cost and to buy.
+
+**D-141 — the lift indirection.** `config.lift` took a string domain of three, mapped to the kernel's numeric modes by a total `Record` in `assemble`. **D-73's premise is what dated it**: it declined to hand an ordinary consumer a kernel-internal enum, and D-68 had already published that enum from `kernel.js` — so what the strings bought was a second name for each of three modes plus a table to keep the two lists in step, an indirection the reader traverses in both directions. The slot now takes `LiftMode`, and `free-drag.js` publishes the three constants beside it, which is exactly D-132 §6's rule applied to a second numeric union: a union whose members are unnameable is not a fillable slot, so the constants follow the type onto the entry where the slot is. **The free-drag runtime surface goes from four names to seven** and both frozen-surface fixtures were updated to match.
+
+**D-140 — the drop resolution.** `FreeDragResolution` was a discriminated record with a `type` a consumer could read and, being readable, could also manufacture — which is what made a runtime duck-type gate and a second `FAILURE_RESOLUTION` diagnostic, `drag: free-drag/drop-resolution-invalid`, look owed. It is now opaque behind a `unique symbol`, built by the same two factories, and both are deleted under the reachability rule. **The internal representation got smaller than the discriminant it replaced**: acceptance is one shared value, so an accepted drop allocates nothing at all, and rejection is a one-slot carrier for the reason. **I-36's hazard at this seam goes with the accessors that carried it** — the barrier existed because `.type` and `.reason` were reads on a consumer-built object, and `settlement.prepare` now compares a library value by identity.
+
+**D-139 — the geometry pairs.** `DragGeometry` allocated **six objects per `onMove`**: itself, four `Point`s and the derived rect. The four points held two numbers each that the consumer reads and drops. It allocates **two** — the geometry and the rect, and the rect is an object because a rect is one. `FreeDragRequest` is flattened with it for coherence rather than for cost, since it is built once per drop; a surface where the same quantity is a pair in one shape and a scalar in the other is worse than either. `localDeltaOf` split into `localDeltaX`/`localDeltaY`, which also stopped it computing and boxing both axes to have one read.
+
+**D-142 — the frame parts.** D-128 (a) replaced the kernel's own create/reset mirror pair with a shared `DEFAULT_FRAME` behind `frame(existing?)`, on the ground that the invariant is that two field lists agree and two functions cannot hold it. It left both behavior parts — twelve fields of exactly that duplication — untouched. They now run the same shape, one function filling `createFramePart` and `resetFramePart`. **The earlier measurement that appears to forbid this is a different shape**: D-127 recorded that collapsing the sortable reset's statements into one _chained assignment_ cost +1…+5 B brotli, because repeated `part.x = null` lines compress well. A shared literal is not a chained assignment — it deletes the second field list outright — and every sortable row falls.
+
+**The measurement, before → after, brotli / minified.** Budgets were **not** rebased; the slack grew instead.
+
+| Row                                    | brotli    | minified    |
+| -------------------------------------- | --------- | ----------- |
+| the five sortable compositions         | −10…−22 B | −84 B each  |
+| the four free-drag compositions        | −64…−72 B | −149 B each |
+| `both behaviors`                       | −51 B     | −230 B      |
+| `baseline A`                           | −25 B     | −84 B       |
+| `drag.js`, `kernel root`, `baseline B` | **0**     | **0**       |
+
+**The decomposition was measured rather than apportioned**, by reverting D-142 alone against the finished tree: it is the **whole** of the sortable movement (−12 B brotli / −84 B minified, and `minimal` returns byte-for-byte to its baseline), plus −18 B brotli / −48 B minified of the free-drag rows. The remaining −51 B brotli / −101 B minified on free drag is D-139, D-140 and D-141 together. Module counts hold on all fourteen rows and the `both behaviors` union still closes at 47 against 47. Published declarations move the other way — 88.69 → 89.12 kB — because two type aliases were deleted and rather more prose was written about what replaced them.
+
+**The tests that only defended deleted machinery went; the ones that assert the new contracts are new.** One row went — _should treat an invalid resolution as an error, never an acceptance_, which tested the duck-type gate and nothing else — and its COVERAGE citation with it. Three files arrived: the two frame-part suites, which assert the reset's **identity** (the kernel composes its frame over the part it armed with, so a reset that allocated would clear a part nothing reads) and clear every field over the key list rather than field by field; and the resolution suite, which is three rows because a value a consumer cannot read has three observable facts. The consumer fixture gained the negative half — no discriminant to read, no literal to forge, neither resolution arm nor `FreeDragLift` importable, no `viewportDelta` on the request.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.

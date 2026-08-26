@@ -119,7 +119,18 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
   // The second behavior's ordinary tier, and the symmetry is the assertion:
   // one function, one resolution namespace, and the two cancel stages a
   // `CanceledFreeDragResult` obliges the consumer to discriminate (D-68).
-  'free-drag': ['AT_CONSUMER', 'AT_PROPOSAL', 'FreeDragResolution', 'freeDrag'],
+  // **Seven since D-141**: the three lift constants join the two cancel stages
+  // and the resolution namespace, because `config.lift` takes the kernel's
+  // numeric `LiftMode` and an unnameable member cannot fill a slot.
+  'free-drag': [
+    'AT_CONSUMER',
+    'AT_PROPOSAL',
+    'FreeDragResolution',
+    'LIFT_FAITHFUL',
+    'LIFT_FLAT',
+    'LIFT_IN_PLACE',
+    'freeDrag',
+  ],
   'free-drag/bounds': ['bounds'],
   'free-drag/landing': ['landing'],
   // **One runtime export, and it is what made this a runtime entry** (D-123,

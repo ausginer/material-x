@@ -1176,7 +1176,7 @@ A separate subpath entry per optional **capability** is what makes the measureme
 | `sortable/xy.js` | `xy` | — |
 | `sortable/landing.js` | `landing` | `LandingOptions` |
 | `sortable/layout-animation.js` | `layoutAnimation` | `LayoutAnimationOptions` |
-| `free-drag.js` — **the second behavior's ordinary tier** (D-69) | `freeDrag`, **`FreeDragResolution`**, `AT_PROPOSAL`, `AT_CONSUMER` | **`FreeDragConfig`** and every alias it names, `FreeDragController`, `FreeDragSubject`, `FreeDragRequest`, `DragGeometry`, `DragAxis`, **`FreeDragLift`**, `FreeDragTransactionResult` and its three arms, the two resolution members, ~~**`FreeDragErrorContext`**~~ (deleted by D-130), `CancelStage` |
+| `free-drag.js` — **the second behavior's ordinary tier** (D-69) | `freeDrag`, **`FreeDragResolution`**, `AT_PROPOSAL`, `AT_CONSUMER`, and the three **`LIFT_*`** constants (D-141) | **`FreeDragConfig`** and every alias it names, `FreeDragController`, `FreeDragSubject`, `FreeDragRequest`, `DragGeometry`, `DragAxis`, **`LiftMode`** (~~**`FreeDragLift`**~~ — D-141), `FreeDragTransactionResult` and its three arms, ~~the two resolution members~~ (unpublished by D-140 — the resolution is opaque), ~~**`FreeDragErrorContext`**~~ (deleted by D-130), `CancelStage` |
 | `free-drag/feature.js` — **its middle tier** (D-70) | — | **`FreeDragInstaller`**, **`FreeDragContribution`**, **`MotionConstraint`**, `ConstraintView`, `MotionDraft`, and — as re-exports — `FeatureContext`, `LandingStart`, `LandingContext`, `LandingHandle`, `Disposer` |
 | `free-drag/bounds.js` | `bounds` | `BoundsSource` |
 | `free-drag/landing.js` | `landing` | `LandingOptions` — the **same declaration** `sortable/landing.js` publishes |

@@ -14,16 +14,10 @@
  * because no signature can state it.
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
-import {
-  LIFT_FAITHFUL,
-  LIFT_FLAT,
-  LIFT_IN_PLACE,
-  type LiftMode,
-} from '../kernel/presentation.ts';
+import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
 import type { LandingStart } from '../kernel/spec.ts';
 import type { FeatureContext } from '../shared/composition.ts';
 import type { FreeDragConfig } from './config.ts';
-import type { FreeDragLift } from './domain.ts';
 import type {
   FreeDragFeatureContext,
   FreeDragInstaller,
@@ -34,22 +28,6 @@ import {
   DEFAULT_THRESHOLD,
   type FreeDragSlots,
 } from './slots.ts';
-
-/**
- * **A total map, not a check** (D-73, 07 §Validation). Adding a mode without a
- * mapping does not compile, which is D-64's `STAGE_TO_CODE` precedent — this
- * package already treats a total `Record` as the way to make a mapping total,
- * rather than a runtime domain test plus a fallback branch.
- *
- * A JS consumer passing an unknown string reaches `undefined` here and gets
- * whichever branch `presentation.ts` falls through to. That is consumer-owned
- * and nothing fails, which is exactly what the silent table promises.
- */
-const LIFT_MODES: Readonly<Record<FreeDragLift, LiftMode>> = {
-  faithful: LIFT_FAITHFUL,
-  flat: LIFT_FLAT,
-  'in-place': LIFT_IN_PLACE,
-};
 
 /**
  * Single-writer enforcement, checked with the full contribution in hand so the
@@ -153,7 +131,10 @@ export function assemble(
       // activates and **no operation starts** — the consumer's own drag is
       // broken and no library invariant moves.
       threshold: config.threshold ?? DEFAULT_THRESHOLD,
-      liftMode: LIFT_MODES[config.lift ?? 'faithful'],
+      // **The config slot is the kernel's own vocabulary** (D-141): there is
+      // no string domain to translate, so there is no table, no second name for
+      // each mode and no unmapped value to fall through.
+      liftMode: config.lift ?? LIFT_FAITHFUL,
 
       constrain,
       startLanding,

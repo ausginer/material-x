@@ -54,11 +54,7 @@ import {
   RECOVERY_IMMEDIATE,
   type ReorderTransactionResult,
 } from './domain.ts';
-import {
-  createSortableFramePart,
-  resetSortableFramePart,
-  type SortableFramePart,
-} from './frames.ts';
+import { type SortableFramePart, sortableFramePart } from './frames.ts';
 import { directionOf, keyboardInsertion } from './keyboard.ts';
 import {
   createPlaceholder,
@@ -545,8 +541,13 @@ export function createSortableSpec(
   };
 
   return {
-    createFramePart: createSortableFramePart,
-    resetFramePart: resetSortableFramePart,
+    createFramePart: sortableFramePart,
+    // **One function fills both slots** (D-142): called with no argument it
+    // allocates a part at its defaults, called with one it returns that part
+    // to them. The reset's return is the part it was handed, which the kernel
+    // has and ignores.
+    // eslint-disable-next-line @typescript-eslint/strict-void-return
+    resetFramePart: sortableFramePart,
 
     config: {
       threshold: slots.threshold,

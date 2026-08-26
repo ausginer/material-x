@@ -10,12 +10,12 @@
  * than the one the operation began in. The kernel hands the projection down on
  * `ActivationScope`, and every function here is arithmetic
  * over numbers the frame already holds: the per-sample path performs no layout
- * read and — apart from the objects a consumer callback is handed — allocates
- * nothing.
+ * read and — apart from the two rects a consumer callback is handed —
+ * allocates nothing. The coordinates on both consumer shapes are scalars for
+ * exactly that reason (D-139).
  */
 import type { InheritedSpace } from '../kernel/presentation.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
-import type { Point } from '../kernel/types.ts';
 import type {
   DragAxis,
   DragGeometry,
@@ -24,15 +24,27 @@ import type {
 } from './domain.ts';
 import type { MotionDraft } from './feature.ts';
 
-/** Four multiplies, or the delta itself when the ancestry is untransformed. */
-export function localDeltaOf(
+/**
+ * Two multiplies each, or the delta itself when the ancestry is untransformed.
+ *
+ * **A function per axis rather than one returning a point** (D-139): the two
+ * consumer shapes carry the local delta as scalars, so a point here would be
+ * allocated once per sample only to be read twice and dropped.
+ */
+export function localDeltaX(
   space: InheritedSpace,
   x: number,
   y: number,
-): Point {
-  return space
-    ? { x: space.a * x + space.c * y, y: space.b * x + space.d * y }
-    : { x, y };
+): number {
+  return space ? space.a * x + space.c * y : x;
+}
+
+export function localDeltaY(
+  space: InheritedSpace,
+  x: number,
+  y: number,
+): number {
+  return space ? space.b * x + space.d * y : y;
 }
 
 /**
@@ -85,10 +97,14 @@ export function buildGeometry(
   realm: DOMRealm,
 ): DragGeometry {
   return {
-    pointer: { x: pointerX, y: pointerY },
-    originPointer: { x: originX, y: originY },
-    viewportDelta: { x: dx, y: dy },
-    localDelta: localDeltaOf(space, dx, dy),
+    pointerX,
+    pointerY,
+    originPointerX: originX,
+    originPointerY: originY,
+    viewportDeltaX: dx,
+    viewportDeltaY: dy,
+    localDeltaX: localDeltaX(space, dx, dy),
+    localDeltaY: localDeltaY(space, dx, dy),
     originRect,
     currentRect: currentRect(originRect, dx, dy, realm),
   };
@@ -110,10 +126,14 @@ export function buildRequest(
   return {
     item: subject.item,
     visual: subject.visual,
-    pointer: { x: pointerX, y: pointerY },
-    viewportPosition: { x: visualRect.left, y: visualRect.top },
-    viewportDelta: { x: dx, y: dy },
-    localDelta: localDeltaOf(space, dx, dy),
+    pointerX,
+    pointerY,
+    positionX: visualRect.left,
+    positionY: visualRect.top,
+    viewportDeltaX: dx,
+    viewportDeltaY: dy,
+    localDeltaX: localDeltaX(space, dx, dy),
+    localDeltaY: localDeltaY(space, dx, dy),
     visualRect,
   };
 }

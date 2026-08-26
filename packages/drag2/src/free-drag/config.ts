@@ -17,11 +17,11 @@
  */
 import type { Writable } from 'type-fest';
 import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
+import type { LiftMode } from '../kernel/presentation.ts';
 import type {
   AxisSource,
   DragAxis,
   DragGeometry,
-  FreeDragLift,
   FreeDragTransactionResult,
   OnDrop,
   ResolveHome,
@@ -76,8 +76,11 @@ export type FreeDragConfig = Readonly<{
    * on `invalidate()` and at activation, never per sample.
    */
   axis?: DragAxis | AxisSource;
-  /** `'faithful' | 'flat' | 'in-place'`, default `'faithful'`. */
-  lift?: FreeDragLift;
+  /**
+   * `LIFT_FAITHFUL`, `LIFT_FLAT` or `LIFT_IN_PLACE`, default `LIFT_FAITHFUL`.
+   * The three constants publish from this entry beside the type.
+   */
+  lift?: LiftMode;
   /** Activation travel in viewport pixels. Same default and domain as the sortable's. */
   threshold?: number;
 

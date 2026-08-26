@@ -8,16 +8,6 @@
 import type { CancelStage } from '../kernel/failures.ts';
 import type { Point } from '../kernel/types.ts';
 
-// A consumer domain of three strings; the behavior maps them to the kernel's
-// numeric lift constants in the one place that knows both (D-73).
-/**
- * How the visual is lifted. `'faithful'` and `'flat'` both promote it to the
- * top layer — `'faithful'` carrying the transform its ancestry gave it,
- * `'flat'` without it. `'in-place'` leaves it in its container, riding the
- * authored transform and suppressing transitions.
- */
-export type FreeDragLift = 'faithful' | 'flat' | 'in-place';
-
 /** Which axes the drag may travel on. `'both'` by default. */
 export type DragAxis = 'both' | 'x' | 'y';
 
@@ -41,23 +31,32 @@ export type FreeDragSubject = Readonly<{
  * What `onStart` and `onMove` are handed, derived from committed state and
  * **reproducible without a layout read**.
  *
- * `viewportDelta` is the **rendered** delta — axis-projected and clamped — not
- * the raw pointer travel, which is what makes `currentRect` the visual's real
- * box under an axis lock or a bounds clamp.
+ * `viewportDeltaX`/`viewportDeltaY` are the **rendered** delta — axis-projected
+ * and clamped — not the raw pointer travel, which is what makes `currentRect`
+ * the visual's real box under an axis lock or a bounds clamp.
+ *
+ * **Every coordinate is a scalar field.** `onMove` runs once per committed
+ * sample, so a pair per coordinate would allocate four objects a frame that the
+ * consumer reads twice each and drops; the two rects are the only objects here,
+ * and they are objects because a rect is one.
  */
 export type DragGeometry = Readonly<{
   /** Current pointer position, viewport space. */
-  pointer: Point;
+  pointerX: number;
+  pointerY: number;
   /** Pointer position at grab, viewport space. */
-  originPointer: Point;
+  originPointerX: number;
+  originPointerY: number;
   /** What the visual was actually translated by, viewport space. */
-  viewportDelta: Point;
+  viewportDeltaX: number;
+  viewportDeltaY: number;
   /**
    * The same delta in the space a transform authored on the visual acts in —
    * the **inherited** ancestor space. The coefficients are captured once at
    * activation, so this costs four multiplies per sample and is not optional.
    */
-  localDelta: Point;
+  localDeltaX: number;
+  localDeltaY: number;
   /** The visual's rect at grab, viewport space. */
   originRect: DOMRectReadOnly;
   /** The visual's current rect, viewport space. Derived, never measured. */
@@ -73,11 +72,15 @@ export type DragGeometry = Readonly<{
  */
 export type FreeDragRequest = FreeDragSubject &
   Readonly<{
-    pointer: Point;
+    pointerX: number;
+    pointerY: number;
     /** The visual's top-left at release, viewport space. */
-    viewportPosition: Point;
-    viewportDelta: Point;
-    localDelta: Point;
+    positionX: number;
+    positionY: number;
+    viewportDeltaX: number;
+    viewportDeltaY: number;
+    localDeltaX: number;
+    localDeltaY: number;
     visualRect: DOMRectReadOnly;
   }>;
 
@@ -95,32 +98,49 @@ export type FreeDragRequest = FreeDragSubject &
  */
 export type ResolveHome = (subject: FreeDragSubject) => Point;
 
-export type AcceptedFreeDragResolution = Readonly<{ type: 'accepted' }>;
-
-export type RejectedFreeDragResolution = Readonly<{
-  type: 'rejected';
-  reason?: unknown;
-}>;
+// Erased: `declare const` emits no JavaScript, and no value carries the key.
+// It exists to keep the shape below unwritable by anything but the factories.
+declare const RESOLUTION: unique symbol;
 
 /**
  * The explicit consumer response. **Acceptance is never inferred** — not from
  * callback silence, not from DOM mutation, not from elapsed time.
+ *
+ * **Opaque, and a round trip rather than a record.** It is built by
+ * {@link FreeDragResolution.accept} or {@link FreeDragResolution.reject},
+ * returned from `onDrop`, and read only by the library; the verdict reaches the
+ * consumer again as a `FreeDragTransactionResult`, which is the shape with the
+ * fields on it. Nothing here is inspectable and nothing here needs to be.
  */
-export type FreeDragResolution =
-  | AcceptedFreeDragResolution
-  | RejectedFreeDragResolution;
+export type FreeDragResolution = Readonly<{ [RESOLUTION]: never }>;
 
 /**
- * **Both factories take no argument**, as the sortable's do: acceptance
+ * The representation both arms share, read only by `settlement.prepare`: a
+ * carrier holding the reason, or holding nothing.
+ */
+export type RejectionCarrier = readonly [reason?: unknown];
+
+/**
+ * Acceptance is a **shared value** — it declares nothing, so there is one of it
+ * for the life of the module and an accepted drop allocates nothing at all.
+ * Rejection is the same carrier with the reason in it, and the only arm that
+ * has to be built.
+ *
+ * **Identity is the discriminant**, which is why the empty carrier is a
+ * constant rather than a fresh one per acceptance: there is no string to ship,
+ * none to compare, and nothing on the value for a consumer to read or forge.
+ */
+export const ACCEPTED = [] as RejectionCarrier as unknown as FreeDragResolution;
+
+/**
+ * **Both factories take at most a reason**, as the sortable's do: acceptance
  * declares nothing, because a consumer that must render before the drop lands
  * `await`s its own commit inside `onDrop`.
  */
 export const FreeDragResolution = {
-  accept: (): AcceptedFreeDragResolution => ({ type: 'accepted' }),
-  reject: (reason?: unknown): RejectedFreeDragResolution => ({
-    type: 'rejected',
-    reason,
-  }),
+  accept: (): FreeDragResolution => ACCEPTED,
+  reject: (reason?: unknown): FreeDragResolution =>
+    [reason] as RejectionCarrier as unknown as FreeDragResolution,
 } as const;
 
 /**
@@ -131,18 +151,6 @@ export type OnDrop = (
   request: FreeDragRequest,
   context: Readonly<{ signal: AbortSignal }>,
 ) => FreeDragResolution | PromiseLike<FreeDragResolution>;
-
-/**
- * Whether a fulfilled round-trip value is an explicit resolution. A value that
- * is not becomes `FAILURE_RESOLUTION`, never a silent accept.
- */
-export function isFreeDragResolution(
-  value: unknown,
-): value is FreeDragResolution {
-  const type = (value as FreeDragResolution | null | undefined)?.type;
-
-  return type === 'accepted' || type === 'rejected';
-}
 
 export type AcceptedFreeDragResult = Readonly<{
   type: 'accepted';

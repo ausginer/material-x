@@ -425,7 +425,7 @@ describe('a non-finite moveTo()', () => {
 
     const geometry = composed.moves.at(-1)!;
 
-    expect(Number.isFinite(geometry.viewportDelta.x)).toBe(false);
+    expect(Number.isFinite(geometry.viewportDeltaX)).toBe(false);
     expect(Number.isFinite(geometry.currentRect.x)).toBe(false);
   });
 

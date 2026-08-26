@@ -48,21 +48,30 @@ export type {
 export type { FreeDragInstaller } from './free-drag/feature.ts';
 export {
   FreeDragResolution,
-  type AcceptedFreeDragResolution,
   type AcceptedFreeDragResult,
   type AxisSource,
   type CanceledFreeDragResult,
   type DragAxis,
   type DragGeometry,
-  type FreeDragLift,
   type FreeDragRequest,
   type FreeDragSubject,
   type FreeDragTransactionResult,
   type OnDrop,
-  type RejectedFreeDragResolution,
   type RejectedFreeDragResult,
   type ResolveHome,
 } from './free-drag/domain.ts';
+// **The lift vocabulary, published where the slot that takes it is** (D-141).
+// `config.lift` is a `LiftMode`, and a numeric union whose members are
+// unnameable is not a fillable slot — so the three constants come with it,
+// exactly as the stage constants follow `FailureStage` onto `drag.js`. They are
+// one declaration in `kernel/presentation.ts`, published from here *and* from
+// `kernel.js`.
+export {
+  LIFT_FAITHFUL,
+  LIFT_FLAT,
+  LIFT_IN_PLACE,
+  type LiftMode,
+} from './kernel/presentation.ts';
 /**
  * The cancellation stages, as **values as well as a type**, for the same reason
  * `sortable.js` re-exports them: a `CanceledFreeDragResult` carries one and an
@@ -95,9 +104,9 @@ export {
  * only the consumer's own drag is not the library's to police: a bad `handle`,
  * `visual`, `onMove`, `home`, `onEnd` or bounds source surfaces at the seam that
  * uses it, classified, coded and terminating the operation exactly once — while
- * a `NaN` threshold, an unknown `axis` and an unknown `lift` are **silent**,
- * because two of them never fail and the third never starts an operation, so
- * there is no terminal to owe.
+ * a `NaN` threshold and an unknown `axis` are **silent**, because
+ * neither ever fails. `lift` has no unknown value to be: the slot takes the
+ * kernel's own `LiftMode`.
  */
 export function freeDrag(
   item: HTMLElement,

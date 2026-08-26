@@ -52,7 +52,8 @@ describe('the minimal composition', () => {
 
     activate(composed);
 
-    expect(composed.starts[0]!.viewportDelta).toEqual({ x: 20, y: 0 });
+    expect(composed.starts[0]!.viewportDeltaX).toBe(20);
+    expect(composed.starts[0]!.viewportDeltaY).toBe(0);
   });
 
   it('should place the visual at that delta rather than at zero', () => {
@@ -96,7 +97,7 @@ describe('the minimal composition', () => {
     move(50, 40);
 
     for (const geometry of composed.moves) {
-      seen.push([geometry.viewportDelta.x, geometry.viewportDelta.y]);
+      seen.push([geometry.viewportDeltaX, geometry.viewportDeltaY]);
     }
 
     expect(seen).toEqual([[40, 30]]);
@@ -140,7 +141,8 @@ describe('the minimal composition', () => {
     move(50, 40);
     release(90, 60);
 
-    expect(composed.requests[0]!.viewportDelta).toEqual({ x: 80, y: 50 });
+    expect(composed.requests[0]!.viewportDeltaX).toBe(80);
+    expect(composed.requests[0]!.viewportDeltaY).toBe(50);
   });
 
   it('should carry the subject on the request', () => {
@@ -190,21 +192,6 @@ describe('the minimal composition', () => {
     await settled();
 
     expect(composed.ends).toHaveLength(1);
-  });
-
-  it('should treat an invalid resolution as an error, never an acceptance', async () => {
-    const composed = compose({
-      onDrop: () =>
-        42 as unknown as ReturnType<typeof FreeDragResolution.accept>,
-    });
-
-    activate(composed);
-    release(30, 10);
-    await settled();
-
-    expect(composed.errors).toHaveLength(1);
-    expect(composed.ends).toHaveLength(1);
-    expect(composed.ends[0]!.type).toBe('canceled');
   });
 
   it('should publish exactly one canceled terminal for an Escape', async () => {
@@ -417,7 +404,8 @@ describe('moveTo()', () => {
     composed.controller.moveTo({ x: origin.left + 60, y: origin.top });
     release(30, 10);
 
-    expect(composed.requests[0]!.viewportDelta).toEqual({ x: 60, y: 0 });
+    expect(composed.requests[0]!.viewportDeltaX).toBe(60);
+    expect(composed.requests[0]!.viewportDeltaY).toBe(0);
   });
 });
 

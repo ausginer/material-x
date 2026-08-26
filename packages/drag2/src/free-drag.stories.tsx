@@ -4,8 +4,11 @@ import { bounds } from './free-drag/bounds.ts';
 import {
   FreeDragResolution,
   freeDrag,
+  LIFT_FAITHFUL,
+  LIFT_FLAT,
+  LIFT_IN_PLACE,
   type DragAxis,
-  type FreeDragLift,
+  type LiftMode,
 } from './free-drag.ts';
 import css from './stories.module.css';
 
@@ -173,19 +176,21 @@ export const AsyncDropConfirmation: StoryObj = {
   render: () => <AsyncDrop />,
 };
 
-type TransformedArgs = Readonly<{ lift: FreeDragLift }>;
+type TransformedArgs = Readonly<{ lift: LiftMode }>;
 
 /**
- * **Renamed from the shipped strings, and the rename is the decision** (D-73).
- * `'top-layer'` named one mode after a mechanism it shares with its sibling —
- * both promoted modes use the top layer — and `'none'` said *no lift* for a
- * mode that lifts, suppresses transitions and projects coordinates.
+ * **The kernel's own constants, and there is no second vocabulary** (D-141).
+ * The shipped strings named one mode after a mechanism it shares with its
+ * sibling — both promoted modes use the top layer — and said *no lift* for a
+ * mode that lifts, suppresses transitions and projects coordinates; the numeric
+ * modes carry no such claim, and the prose below is the story's own.
  */
-const LIFT_HINT: Readonly<Record<FreeDragLift, string>> = {
-  faithful:
+const LIFT_HINT: Readonly<Record<LiftMode, string>> = {
+  [LIFT_FAITHFUL]:
     'faithful — floats above and keeps the stage transform, undistorted',
-  flat: 'flat — floats above, dropping the stage transform (drags upright at natural size)',
-  'in-place': 'in place — keeps the transform but is clipped by the stage',
+  [LIFT_FLAT]:
+    'flat — floats above, dropping the stage transform (drags upright at natural size)',
+  [LIFT_IN_PLACE]: 'in place — keeps the transform but is clipped by the stage',
 };
 
 /**
@@ -193,7 +198,7 @@ const LIFT_HINT: Readonly<Record<FreeDragLift, string>> = {
  *
  * **There is no coordinate module behind this any more** (D-72). The shipped
  * package walked `offsetParent` accumulating transforms and zoom; the reported
- * `localDelta` here is the viewport delta mapped through the inverse of the
+ * The local delta here is the viewport delta mapped through the inverse of the
  * *inherited* linear part, which falls out of the single box-quad traversal the
  * lift already performs. Every point on the surface is viewport, and the delta
  * is the one quantity a linear part alone can map.
@@ -214,8 +219,8 @@ function TransformedContext({ lift }: TransformedArgs): JSX.Element {
       onDrop: () => FreeDragResolution.accept(),
       onMove: (geometry) =>
         setLocal({
-          x: Math.round(geometry.localDelta.x),
-          y: Math.round(geometry.localDelta.y),
+          x: Math.round(geometry.localDeltaX),
+          y: Math.round(geometry.localDeltaY),
         }),
     });
 
@@ -241,12 +246,13 @@ function TransformedContext({ lift }: TransformedArgs): JSX.Element {
 
 export const TransformedStage: StoryObj<TransformedArgs> = {
   args: {
-    lift: 'faithful',
+    lift: LIFT_FAITHFUL,
   },
   argTypes: {
     lift: {
       control: 'inline-radio',
-      options: ['faithful', 'flat', 'in-place'],
+      options: [LIFT_FAITHFUL, LIFT_FLAT, LIFT_IN_PLACE],
+      labels: LIFT_HINT,
       description: 'How the visual is promoted during the drag.',
     },
   },

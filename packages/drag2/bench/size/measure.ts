@@ -849,6 +849,57 @@ export type Composition = Readonly<{
    * *sole* detector. It is **205** now, bracketed by a re-run injection rather
    * than inherited from a slice that had no reason to touch it; the derivation
    * is in that row's own comment. Nothing else moved.
+   *
+   * **Re-measured 2026-08-26 for the free-drag owner-review cleanup**
+   * (D-139…D-142). Four deletions, no additions, and every row falls or holds.
+   *
+   * | Row | before | landed | Δ brotli | Δ minified |
+   * | --- | --- | --- | --- | --- |
+   * | minimal | 10,237 | 10,225 | **−12** | −84 |
+   * | minimal (xy) | 9,886 | 9,876 | **−10** | −84 |
+   * | + layoutAnimation | 10,678 | 10,663 | **−15** | −84 |
+   * | + landing | 10,506 | 10,484 | **−22** | −84 |
+   * | complete | 10,916 | 10,902 | **−14** | −84 |
+   * | free drag minimal | 8,052 | 7,983 | **−69** | −149 |
+   * | free drag + bounds | 8,210 | 8,134 | **−76** | −149 |
+   * | free drag + landing | 8,310 | 8,246 | **−64** | −149 |
+   * | free drag complete | 8,468 | 8,399 | **−69** | −149 |
+   * | both behaviors | 12,349 | 12,300 | **−49** | −230 |
+   * | vocabulary root | 159 | 159 | **0** | 0 |
+   * | kernel root | 6,106 | 6,106 | **0** | 0 |
+   * | baseline A | 10,616 | 10,591 | **−25** | −84 |
+   * | baseline B | 6,889 | 6,889 | **0** | 0 |
+   *
+   * **The sortable rows move at all, and that is the interesting half.** No
+   * sortable-facing surface changed: the whole of their −84 B minified is
+   * D-142, the shared-default frame part. **Measured rather than apportioned**
+   * — reverting D-142 alone against the finished tree returns `minimal` to
+   * 10,237/30,241, byte-for-byte its baseline — which also fixes free drag's
+   * share of it at −18 B brotli / −48 B minified and leaves −51 B brotli /
+   * −101 B minified for D-139, D-140 and D-141 together.
+   *
+   * **This row set qualifies the D-127 measurement recorded above rather than
+   * contradicting it.** That one found collapsing `resetSortableFramePart`'s
+   * statements into one *chained assignment* cost +1…+5 B brotli on every
+   * sortable row, because repeated `part.x = null` lines compress well, and
+   * concluded the straightforward assignments stay. They did not stay, and the
+   * earlier number is still correct: a shared `DEFAULT_PART` literal is not a
+   * chained assignment — it deletes the second field list rather than
+   * re-spelling it — so what compressed well is gone rather than reshaped.
+   * **The rejected candidate and the accepted one differ in what they remove**,
+   * which is the distinction a byte count alone does not carry and the reason
+   * both are recorded.
+   *
+   * **Module counts hold exactly on all fourteen rows**, the `both behaviors`
+   * union still closes at 47 against 47, and the three control rows —
+   * `vocabulary root`, `kernel root` and `baseline B` — are byte-identical,
+   * which is what says nothing moved underneath these numbers.
+   *
+   * **No budget re-bases, and here the rule is being applied in the direction
+   * it was written for.** Every row shrank; re-basing down would convert a
+   * cleanup into a permanently tighter ceiling nobody decided on, which is
+   * exactly the *correctness fix shrinking* case the standing rule refuses.
+   * The slack grows instead.
    */
   budget: number;
   /**
