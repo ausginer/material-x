@@ -52,7 +52,7 @@ import {
   RECOVERY_DESTINATION,
   RECOVERY_HOME,
   RECOVERY_IMMEDIATE,
-  type RejectionCarrier,
+  type RejectedResolution,
   type ReorderTransactionResult,
 } from './domain.ts';
 import { type SortableFramePart, sortableFramePart } from './frames.ts';
@@ -1475,7 +1475,7 @@ export function createSortableSpec(
               ? { type: 'accepted', proposal: proposal! }
               : {
                   type: 'rejected',
-                  reason: (value as RejectionCarrier)[0],
+                  reason: (value as RejectedResolution)[0],
                   proposal: proposal!,
                 };
 

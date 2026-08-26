@@ -115,10 +115,17 @@ declare const RESOLUTION: unique symbol;
 export type FreeDragResolution = Readonly<{ [RESOLUTION]: never }>;
 
 /**
- * The representation both arms share, read only by `settlement.prepare`: a
- * carrier holding the reason, or holding nothing.
+ * The two representations, **declared as what they are**: a resolution that is
+ * also a tuple. The intersection is what lets the read side name an arm and
+ * index it — `settlement.prepare` asserts to `RejectedResolution` and reads
+ * slot 0, with no widening through `unknown` on the way.
+ *
+ * Neither is named outside this package: the entry publishes
+ * {@link FreeDragResolution} alone, which is the whole of the opacity.
  */
-export type RejectionCarrier = readonly [reason?: unknown];
+export type AcceptedResolution = FreeDragResolution & readonly [];
+export type RejectedResolution = FreeDragResolution &
+  readonly [reason?: unknown];
 
 /**
  * Acceptance is a **shared value** — it declares nothing, so there is one of it
@@ -129,8 +136,14 @@ export type RejectionCarrier = readonly [reason?: unknown];
  * **Identity is the discriminant**, which is why the empty carrier is a
  * constant rather than a fresh one per acceptance: there is no string to ship,
  * none to compare, and nothing on the value for a consumer to read or forge.
+ *
+ * **The two assertions below are irreducible and are the only ones.** The brand
+ * is a *required* property no runtime value carries — that is what makes the
+ * type unforgeable, and it is also why an array literal is not comparable to
+ * it. `as never` is the narrowest spelling: it claims nothing about the source,
+ * and the annotation beside it is what states the result.
  */
-export const ACCEPTED = [] as RejectionCarrier as unknown as FreeDragResolution;
+export const ACCEPTED: AcceptedResolution = [] as never;
 
 /**
  * **Both factories take at most a reason**, as the sortable's do: acceptance
@@ -139,8 +152,7 @@ export const ACCEPTED = [] as RejectionCarrier as unknown as FreeDragResolution;
  */
 export const FreeDragResolution = {
   accept: (): FreeDragResolution => ACCEPTED,
-  reject: (reason?: unknown): FreeDragResolution =>
-    [reason] as RejectionCarrier as unknown as FreeDragResolution,
+  reject: (reason?: unknown): FreeDragResolution => [reason] as never,
 } as const;
 
 /**

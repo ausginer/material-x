@@ -45,7 +45,7 @@ import {
   ACCEPTED,
   type DragAxis,
   type FreeDragSubject,
-  type RejectionCarrier,
+  type RejectedResolution,
 } from './domain.ts';
 import type { ConstraintView, MotionDraft } from './feature.ts';
 import { type FreeDragFramePart, freeDragFramePart } from './frames.ts';
@@ -746,7 +746,7 @@ export function createFreeDragSpec(
               : {
                   type: 'rejected',
                   request: request!,
-                  reason: (value as RejectionCarrier)[0],
+                  reason: (value as RejectedResolution)[0],
                 };
 
             return true;
