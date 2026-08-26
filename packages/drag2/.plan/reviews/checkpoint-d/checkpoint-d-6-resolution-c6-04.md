@@ -2,7 +2,7 @@
 
 **Finding upheld.** The `moved` row is a `(d)`, and the reviewer's diagnosis of the mechanism is correct in every particular I could check. The remedy is **not** the one the finding proposes, and the difference is the useful part: the hazard is not in `moved()`, it is in `VisualLiftSession.write()`, and `moved()` is the second of **three** callers that inherit it. One of the other two was already patched at the wrong level.
 
-**ID collision, flagged now rather than later.** This is Checkpoint **D** review 6. `docs/revision/phase-14.ts:150` cites a _C6-01_ that is Checkpoint **C**'s follow-up round, and §4 below overrides part of it. Same hazard the plan already flags for C3-01. Every ID in this document is Checkpoint D's unless it says otherwise.
+**ID collision, flagged now rather than later.** This is Checkpoint **D** review 6. `tests/revision/phase-14.ts:150` cites a _C6-01_ that is Checkpoint **C**'s follow-up round, and §4 below overrides part of it. Same hazard the plan already flags for C3-01. Every ID in this document is Checkpoint D's unless it says otherwise.
 
 ---
 
@@ -56,7 +56,7 @@ That is an ordering invariant internal to one module, over two functions that al
 **Rejected alternatives.**
 
 - _A reading in `moved()`._ Detects, cannot undo. Also fixes one of three callers.
-- _`write(x, y): boolean` — a return channel, as C3-01 chose for `RectIndex.refresh`._ Genuinely tempting, and it would additionally let `moved()` skip the scheduling residue in §3. Rejected: it changes a signature restated in the frozen SPI (`BehaviorSpec.moved`'s parameter type, `kernel/spec.ts:380`; `docs/revision/phase-14.ts:113-120`) to buy the removal of a residue §3 finds is not an act. The latch closes the act at zero SPI cost; the channel closes the act plus a non-act at SPI cost. C3-01's precedent argued from _hot-path cost_, and here both options cost the same test.
+- _`write(x, y): boolean` — a return channel, as C3-01 chose for `RectIndex.refresh`._ Genuinely tempting, and it would additionally let `moved()` skip the scheduling residue in §3. Rejected: it changes a signature restated in the frozen SPI (`BehaviorSpec.moved`'s parameter type, `kernel/spec.ts:380`; `tests/revision/phase-14.ts:113-120`) to buy the removal of a residue §3 finds is not an act. The latch closes the act at zero SPI cost; the channel closes the act plus a non-act at SPI cost. C3-01's precedent argued from _hot-path cost_, and here both options cost the same test.
 - _Re-running the restore from `moved()`._ Duplicates the module's saved state outside it.
 
 **The frozen SPI does not reopen, and this is the same test C2-01 passed.** Contract 00's bar is two conjuncts: a failing executable lifecycle case, **and** one the frozen SPI cannot express. The first is satisfied once the implementer lands the regression §5 requires. The second is not: `write(x, y): void` keeps its signature, `VisualLiftSession` keeps its shape, `BehaviorLiftSession`'s positive selection is untouched, and the fixture stays green without a type edit. The change is entirely inside a function body plus one closure variable.
@@ -82,7 +82,7 @@ What survives is **one animation-frame registration that expires unconditionally
 
 ## 4 — The Phase 14 fixture's contrary sentence, and how much of it survives
 
-`docs/revision/phase-14.ts:145-153` decided, at Checkpoint C's follow-up round, that
+`tests/revision/phase-14.ts:145-153` decided, at Checkpoint C's follow-up round, that
 
 > **`write` is retained and stays effective.** … calling it after that fights the landing runner, and calling it after `retire()` writes onto an element no live operation owns. Neither is refused, deliberately — a phase guard would put a branch on the hot path and turn a violation into a silent no-op.
 
@@ -113,7 +113,7 @@ That sentence covers **two** limbs under one rationale, and only one limb surviv
 **Documents.**
 
 4. `contract/05` — replace the `moved` row with the `(c)` row of §3, add the `write` row under whatever §6 decides about domain, and correct the `release.effect` row, which claims a reading that guards the publication and not the write.
-5. `docs/revision/phase-14.ts` — the comment only, splitting the two limbs per §4. **No type edit**; the fixture must stay green untouched, and if it does not, this decision is wrong and should come back to me.
+5. `tests/revision/phase-14.ts` — the comment only, splitting the two limbs per §4. **No type edit**; the fixture must stay green untouched, and if it does not, this decision is wrong and should come back to me.
 6. `plan.md` Checkpoint D bullets, and `ledger.md` L-12 with §4's non-trip paragraph.
 
 **Measure.** One destructure and one boolean test per pointer sample, on a line that already forces a style write. I expect this to be unmeasurable and the byte cost to be single digits, but the per-frame claim in the Checkpoint D record currently reads _zero_ and this pass changes it to _one test_. Re-state it honestly rather than rounding it back to zero. Phase 21's re-base rule applies if it does not fit: the budget re-bases and the fix lands.

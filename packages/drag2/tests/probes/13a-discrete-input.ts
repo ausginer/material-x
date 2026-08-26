@@ -216,8 +216,9 @@ export const n5: unknown = host.activate;
  * `event.pointerId !== current.pointerId` (`kernel.ts:616`). A command needs an
  * operation whose identity is not a pointer identity.
  *
- * Together R-1…R-4 are why 02 §`ActionTransition` was right that keyboard
- * **revises the kernel contract** rather than fitting behind a third action tag.
+ * Together R-1…R-4 are why the pressure point recorded at
+ * 02 §`ActionTransition`, which named keyboard sorting as the case expected to
+ * revise the kernel contract rather than to be worked around, was right.
  */
 
 /* ------------------------------ the smallest vocabulary that expresses it -- */

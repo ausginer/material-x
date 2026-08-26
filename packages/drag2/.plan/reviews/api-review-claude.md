@@ -160,7 +160,7 @@ The four-checks row asserts **five** message fragments across `kernel/frames.js`
 
 ### API-02 — a doc stating the shipped surface is stale on both D-109 and D-110
 
-**Observed.** [`docs/revision/revision-2.ts:269`](../../docs/revision/revision-2.ts#L269), under the heading _sortable.js — the ordinary tier_, states the shipped surface as present fact:
+**Observed.** [`tests/revision/revision-2.ts:269`](../../tests/revision/revision-2.ts#L269), under the heading _sortable.js — the ordinary tier_, states the shipped surface as present fact:
 
 > `SortableConfig` and every alias it names — `ItemSource`, `OnReorder`, `OnStart`, `OnEnd`, `OnDragError`, `ResolveHandle`, `ResolveElement` — ship from `sortable.js`
 
@@ -256,7 +256,7 @@ The D-108 entry no longer ends in a bare _Landed figures_ list. The table states
 
 ## API-02 — closed
 
-[`revision-2.ts`](../../docs/revision/revision-2.ts) now names `SortableOnStart`, `SortableOnEnd` and `SortableOnDragError`, and adds both `AxisInstaller` and `SortableInstaller` to the aliases it says ship from `sortable.js`. All nine are in the packed `sortable.d.ts` export list, so the statement is true of the artifact.
+[`revision-2.ts`](../../tests/revision/revision-2.ts) now names `SortableOnStart`, `SortableOnEnd` and `SortableOnDragError`, and adds both `AxisInstaller` and `SortableInstaller` to the aliases it says ship from `sortable.js`. All nine are in the packed `sortable.d.ts` export list, so the statement is true of the artifact.
 
 **Neither decision is broadened.** The added paragraph attributes the qualification to D-109 and the publication to D-110, states the qualifying condition as _different structures on both ordinary roots_, and gives the counter-case correctly — `ResolveHandle` and `ResolveElement` collide and match structurally, which is why they are not qualified. I verified in the review that those two declarations are byte-identical in both configs and that the collision set is exactly five names. It makes no claim beyond what the decisions authorised: no new name is said to ship, and the rule is restated rather than extended.
 

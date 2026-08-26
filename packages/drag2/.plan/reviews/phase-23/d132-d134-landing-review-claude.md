@@ -103,7 +103,7 @@ The vocabulary root's single non-entry module is `kernel/errors.js`, so it is a 
 
 ### F-B — the fixture D-132 cites as its proof contradicts itself in prose (tier C)
 
-[`docs/revision/revision-2.ts`](../../../docs/revision/revision-2.ts). D-132's record cites this file as its central evidence — _"the package's own compiled demonstration"_ — and the **code was correctly updated**: `report` now switches on `error.stage`, includes the `null` arm F-104 made writable, and typechecks. Three unstruck prose claims did not follow it:
+[`tests/revision/revision-2.ts`](../../../tests/revision/revision-2.ts). D-132's record cites this file as its central evidence — _"the package's own compiled demonstration"_ — and the **code was correctly updated**: `report` now switches on `error.stage`, includes the `null` arm F-104 made writable, and typechecks. Three unstruck prose claims did not follow it:
 
 | Line | Claim | Status |
 | --- | --- | --- |
@@ -128,4 +128,4 @@ The two findings are prose whose premises expired inside this arc. Neither is a 
 - **F-A's module list is one measurement** on this toolchain, taken by importing `COMPOSITIONS` and re-running `measure` directly. If `tsdown`'s shaking differs under another configuration the subsumption could change; the source-level import at `kernel.ts:26` is the more durable half of the evidence.
 - **I did not re-derive D-132's classification argument.** The brief said to treat the landed decisions as the contract, so §2's claim that the coarse code answered the wrong question is taken as settled, not re-examined.
 - **The D-134 injection was not re-executed.** I verified it is written as compilable code against the current tree and that its landed figure (159 B) matches what `just size` reports now; I did not apply the patch and re-measure 220. That would be the one further check worth having if the ceiling is ever disputed.
-- **`docs/revision/revision-2.ts` is compiled but its prose is not asserted anywhere**, which is why F-B could happen at all and why it will happen again in that file unless the narration is read on each pass.
+- **`tests/revision/revision-2.ts` is compiled but its prose is not asserted anywhere**, which is why F-B could happen at all and why it will happen again in that file unless the narration is read on each pass.

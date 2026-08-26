@@ -28,12 +28,12 @@ Gates re-run unchanged from `packages/drag2`: `npx just typecheck` clean; `npx j
 Recorded so the findings are read against a checked baseline, not an unchecked one.
 
 - **The signature and the merge threading.** `sortable()` → `createComposedSortableBehavior(config, fragments)` → `mergeFragments(config, fragments)` (`src/sortable.ts:120`, `src/sortable/behavior.ts:73-98`, `src/sortable/config.ts:155-195`). The `undefined` skip at `config.ts:174` is the sole surviving guard and is reached by the required argument and the fragments on the same path.
-- **`AxisInstaller`'s required member actually binds.** `SortableContribution & Readonly<{ insertion: InsertionGeometry }>` (`src/sortable/feature.ts:191-193`) makes an optional-in-one/required-in-the-other property required in the intersection; `docs/revision/revision-2.ts:422-424`'s `@ts-expect-error` on `axis: installMyPlugin` is live, and `tsc` errors on unused directives, so a green typecheck is the assertion.
+- **`AxisInstaller`'s required member actually binds.** `SortableContribution & Readonly<{ insertion: InsertionGeometry }>` (`src/sortable/feature.ts:191-193`) makes an optional-in-one/required-in-the-other property required in the intersection; `tests/revision/revision-2.ts:422-424`'s `@ts-expect-error` on `axis: installMyPlugin` is live, and `tsc` errors on unused directives, so a green typecheck is the assertion.
 - **The five deletions, individually.** `assemble.ts`'s three required-slot checks and its axis-geometry check are gone (diff against `ea01013a`); `requireFinite` is deleted from `slots.ts` along with all three call sites; `behavior.ts`'s `typeof config.items === 'function'` guard is gone and `merged.items()` is called unguarded at `behavior.ts:94`, evaluated **before** `assemble()` in argument order, which is what makes 05:612's "breaks the consumer's own `sortable()` call" true — `draggable()` invokes the factory synchronously (`src/kernel.ts:246-250`).
 - **The survivors all satisfy the new rule.** `claim` (`assemble.ts:31-52`) is an invariant over what installers contribute; `copyUniqueItems` (`collection.ts:46-50`) throws inside the pull seam; `placement.ts:266` and `:337` throw inside `activation.prepare` and the committed-move bracket; `landing.ts:144-148`'s `=== Infinity` is at settle time and precedes the reduced-motion collapse, as D4 requires.
 - **The unwind ordering.** The slot record is built inside `try` (`assemble.ts:154-206`), the resolver dereference `insertion!.resolve` is the first statement in it, `retireHooks.reverse()` runs after the record and after the last statement that can throw (`:212`), and the `catch` walks backwards so it sees installation order for as long as anything can still throw (`:220-226`). Nested hook failures go to `context.report` and do not stop the walk. `tests/sortable/assemble.browser.test.ts:489-519` asserts the throw **and** `seen === ['plugin']`, which is the pairing 05:612 demands.
 - **Size.** `npx just size` reproduces the README's post-D-77 table exactly: 10.69 / 10.75 / 11.13 / 10.97 / 11.39 / 11.12 / 6.89 kB brotli at 31 / 31 / 32 / 32 / 33 / 28 / 26 modules, overage 194–373 B. Baseline A's module drop to 28 is real and the stated cause holds — `landing.ts` and `layout-animation.ts` were `slots.ts`'s only importers outside the assembler.
-- **No free-drag production code.** `src/` contains no free-drag module; `files.json` and `package.json` `exports` are untouched by the commit. The only `freeDrag` occurrences in the tree are `docs/probes/13c-free-drag.ts` and `docs/revision/phase-14.ts` (both last touched at `6b279e97`) and two prose comments (`src/sortable/domain.ts:176`, `src/kernel/failures.ts:21`). The commit's `src/` footprint is the sortable and nothing else, which is what the gate asked for.
+- **No free-drag production code.** `src/` contains no free-drag module; `files.json` and `package.json` `exports` are untouched by the commit. The only `freeDrag` occurrences in the tree are `tests/probes/13c-free-drag.ts` and `tests/revision/phase-14.ts` (both last touched at `6b279e97`) and two prose comments (`src/sortable/domain.ts:176`, `src/kernel/failures.ts:21`). The commit's `src/` footprint is the sortable and nothing else, which is what the gate asked for.
 - **The deferred half is instrumented.** D-77's `freeDrag` half is carried by D-69's row, which does hold the `**Unimplemented (Phase 19).**` marker (00-index:321) and a matching `absent: src/free-drag.ts` witness (00-index:341), so `tests/decisions.node.test.ts` still holds it.
 
 ## P18A-01 — 03 §Assembly's normative merge sketch still has the pre-D-77 signature
@@ -138,7 +138,7 @@ Five sites carry the same empirical claim, and it is the sole justification for 
 - `.plan/contract/03-feature-composition.md:1198`
 - `.plan/contract/07-free-drag-contract.md` B-4 (e)
 
-Nothing records it. `grep` over `.plan/measurements/`, `.plan/probes/` and `docs/probes/` returns no mention of Chrome 150 or of `animate()`'s domain. No test pins any clause of it. The only executable evidence in the tree is `tests/sortable/features.browser.test.ts:751-763`, which runs `landing({ duration: () => -1 })` and asserts one error with code `presentation` — that shows _a_ throw arrives at the landing-create stage, not that `animate()` is the thrower, and it covers one of the six values named.
+Nothing records it. `grep` over `.plan/measurements/`, `.plan/probes/` and `tests/probes/` returns no mention of Chrome 150 or of `animate()`'s domain. No test pins any clause of it. The only executable evidence in the tree is `tests/sortable/features.browser.test.ts:751-763`, which runs `landing({ duration: () => -1 })` and asserts one error with code `presentation` — that shows _a_ throw arrives at the landing-create stage, not that `animate()` is the thrower, and it covers one of the six values named.
 
 This is the evidence type this package otherwise refuses. `.plan/measurements/` exists for exactly this, D-76's gate required M-1/M-3 re-measurement before it could land, and `tests/decisions.node.test.ts` exists because "a green suite is evidence about the implemented contract only". A platform behaviour asserted in a contract, restated in three source files and a README, and used to justify deleting a check, is currently a claim with no witness — and the tree gives no way to tell whether it drifts.
 
@@ -201,7 +201,7 @@ Severity: **low**, scope note rather than defect.
 
 `07:481` B-9 (b): "`y()`/`xy()` are asserted to return the **installer**, not a one-key fragment."
 
-`docs/revision/revision-2.ts` — the fixture B-9 (a) names two clauses earlier — imports and exercises `y()` only (`:152`, `:391`). `xy()`'s pin is elsewhere, in `tests/sortable/assemble.browser.test.ts:453-456`, and it is an assignability pin (`axis: xy()` compiling) rather than an assertion. That is sufficient in practice — a one-key fragment is not assignable to the slot — but it is not what B-9 says, and it puts one of the two axis modules' surface pin in a browser test rather than in the type fixture where the clause locates it.
+`tests/revision/revision-2.ts` — the fixture B-9 (a) names two clauses earlier — imports and exercises `y()` only (`:152`, `:391`). `xy()`'s pin is elsewhere, in `tests/sortable/assemble.browser.test.ts:453-456`, and it is an assignability pin (`axis: xy()` compiling) rather than an assertion. That is sufficient in practice — a one-key fragment is not assignable to the slot — but it is not what B-9 says, and it puts one of the two axis modules' surface pin in a browser test rather than in the type fixture where the clause locates it.
 
 Also minor: B-9 (b) names `landing({ duration: 200 })` as the positive form; the fixture uses the contextual form (`revision-2.ts:401`).
 
@@ -209,7 +209,7 @@ Severity: **low**.
 
 ## P18A-15 — B-9 (c) is asserted only below the public entry
 
-All three runtime assertions call `mergeFragments` directly (`tests/sortable/options.node.test.ts:142-161`), with the type-level premise that `{ axis: undefined }` is a legal `Partial` value pinned at `docs/revision/revision-2.ts:445-449`. Nothing exercises the guarantee through `sortable()`.
+All three runtime assertions call `mergeFragments` directly (`tests/sortable/options.node.test.ts:142-161`), with the type-level premise that `{ axis: undefined }` is a legal `Partial` value pinned at `tests/revision/revision-2.ts:445-449`. Nothing exercises the guarantee through `sortable()`.
 
 The clause's own framing is that the `undefined` skip "is the only thing between a legal `Partial` value and a required slot that is `undefined` at the seam" — a statement about the public entry. A change that stops routing `sortable()`'s fragments through `mergeFragments`, or that reorders the required argument relative to the fragments in `createComposedSortableBehavior`, would leave every B-9 (c) assertion green.
 
@@ -347,7 +347,7 @@ Implemented against D-78, D-79 and D-80 (`.plan/contract/00-index.md` §The D-77
 | P18A-11 | `03:467` — four throws, with the two `placement.ts` preconditions named and their stages given, plus the one position D-80 (b) moved |
 | P18A-12 | **D-80 (a).** `03` §Validation and `src/sortable/feature.ts` state the pairing as _the type is total for a TypeScript consumer; the runtime dereference exists for a JavaScript one, and checks that the object exists_ |
 | P18A-13 | **D-80 (b).** Made true rather than scoped — see F-68 |
-| P18A-14 | `docs/revision/revision-2.ts` hoists both `y()` and `xy()` into typed `AxisInstaller` consts and carries the fixed `landing({ duration: 200 })` form; `07` B-9 (b) records why |
+| P18A-14 | `tests/revision/revision-2.ts` hoists both `y()` and `xy()` into typed `AxisInstaller` consts and carries the fixed `landing({ duration: 200 })` form; `07` B-9 (b) records why |
 | P18A-15 | `tests/sortable/composition.browser.test.ts` §_the required first argument, through the public entry_ — the `undefined` skip asserted through `sortable()`, paired with a positive row so it cannot pass vacuously |
 | P18A-16 | `.gitignore` re-includes `packages/*/bench/**/*.js` and `*.d.ts`; `noncomposed.js`, `noncomposed.d.ts` and `shipped.js` are staged. The M-3 baseline and the test that keeps it in step with `assemble()` are reproducible from a clean clone |
 | P18A-17 | Closed in the previous pass, with F-70 |
@@ -424,7 +424,7 @@ Both were closed by making the sentence true rather than by scoping it, which is
 | P18A-10 | `README` §Option domains enumerates the same five as `00-index` and `03` |
 | P18A-11 | `03:469` — four throws, the `placement.ts` pair named with their stages |
 | P18A-12 | Presence, not well-formedness, stated at both sites |
-| P18A-14 | `docs/revision/revision-2.ts` hoists `y()` **and** `xy()` into typed consts and carries `landing({ duration: 200 })` |
+| P18A-14 | `tests/revision/revision-2.ts` hoists `y()` **and** `xy()` into typed consts and carries `landing({ duration: 200 })` |
 | P18A-15 | Asserted through `sortable()`, with a positive row that records its installer ran so the negative cannot pass vacuously |
 | P18A-16 | `.gitignore` re-includes the bench fixtures; `noncomposed.js`, `noncomposed.d.ts` and `shipped.js` are tracked |
 | P18A-17 | The dangling paragraph is gone from `00-index` |

@@ -86,7 +86,7 @@ describe('the required slots', () => {
   it('should not diagnose a missing axis with a library message', () => {
     // **Three checks deleted (D-77)**, because the required first argument is
     // a compile error when any of them is absent — asserted as such by the
-    // `@ts-expect-error` fixtures in `docs/revision/revision-2.ts`.
+    // `@ts-expect-error` fixtures in `tests/revision/revision-2.ts`.
     //
     // **A missing axis still fails, and the distinction is the point rather
     // than a leftover.** What the deleted check supplied was a *message*, not

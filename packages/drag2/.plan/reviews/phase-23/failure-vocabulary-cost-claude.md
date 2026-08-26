@@ -116,7 +116,7 @@ Variant M is the counterfactual `kernel.ts` names when it justifies publishing `
 
 ### 3.5 One in-repo consumer re-owns the mapping already, and it is not shipped
 
-`findReferences` on a stage constant turns up a ninth file outside `src/` and the tests: `docs/revision/revision-2.ts`, the compile-only Revision 2 fixture. It declares its own `stageToCode` over all thirteen stages, in the **sparse `Readonly<Record<FailureStage, DraggableErrorCode>>` form that `src/kernel/errors.ts` retired on 2026-08-22** in favour of the positional array.
+`findReferences` on a stage constant turns up a ninth file outside `src/` and the tests: `tests/revision/revision-2.ts`, the compile-only Revision 2 fixture. It declares its own `stageToCode` over all thirteen stages, in the **sparse `Readonly<Record<FailureStage, DraggableErrorCode>>` form that `src/kernel/errors.ts` retired on 2026-08-22** in favour of the positional array.
 
 For this record it matters only as scale: the fixture is not in `files.json`, ships nothing, and costs nothing, so variant M above is the only priced version of that counterfactual. Two adjacent observations are worth recording anyway, neither of them a size finding:
 

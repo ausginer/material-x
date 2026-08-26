@@ -793,7 +793,7 @@ void failedInput.stage satisfies CancelStage;
 // decision said the behavior "publishes it in `effect`"; this is why that was
 // unimplementable rather than merely imprecise.
 // The frame the **shipped** seam hands `effect`, extracted rather than
-// restated: `Frame` is not exported (§L-14), and `Parameters` reaches it
+// restated: `Frame` is not exported (ledger §L-14), and `Parameters` reaches it
 // without naming it — which is also how the seams above avoid naming it.
 declare const settledFrame: Parameters<
   BehaviorSpec<SortableFramePart>['settlement']['effect']

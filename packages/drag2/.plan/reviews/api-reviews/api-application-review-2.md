@@ -77,7 +77,7 @@ Both required rows landed: the existing fixture now asserts `rect.width` too, an
 
 ### A-4 — fixed, and it returned more than it cost
 
-`docs/revision/revision-2.ts` now imports the surface from the entries that publish it, and the header records what the rewiring caught: `PreparedSettlement` restated as `Readonly<{ presentation: boolean }>` against the shipped `true` sentinel, `InsertionGeometry.resolve` restated with the wrong signature, and the string-vs-numeric `FailureStage` I named. An installer written against the first two would not have compiled.
+`tests/revision/revision-2.ts` now imports the surface from the entries that publish it, and the header records what the rewiring caught: `PreparedSettlement` restated as `Readonly<{ presentation: boolean }>` against the shipped `true` sentinel, `InsertionGeometry.resolve` restated with the wrong signature, and the string-vs-numeric `FailureStage` I named. An installer written against the first two would not have compiled.
 
 It also produced **F-59** — `kernel.js` published no _value_ a behavior must produce, so the tier D-47 exists to publish could not be constructed from its own entry in any style — and **F-60**, that `docs.node.test.ts` had two blind spots (it closes over types, so value holes are invisible; it resolves across entries, so a tier inversion reads as clean). Both are closed: **D-68** publishes the closure, and a per-entry TypeDoc run over `kernel.js ∪ drag.js` is the new assertion.
 

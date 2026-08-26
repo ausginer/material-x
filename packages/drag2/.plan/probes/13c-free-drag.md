@@ -1,6 +1,6 @@
 # Probe 13c — free drag against the frozen SPI
 
-**Result: two structural gaps, six questions closed as "it fits".** Typed probe: [`packages/drag2/docs/probes/13c-free-drag.ts`](../../../../packages/drag2/docs/probes/13c-free-drag.ts) — every `BehaviorSpec` member written out against the real SPI, with inert stubs wherever a lifecycle would be needed.
+**Result: two structural gaps, six questions closed as "it fits".** Typed probe: [`packages/drag2/tests/probes/13c-free-drag.ts`](../../../../packages/drag2/tests/probes/13c-free-drag.ts) — every `BehaviorSpec` member written out against the real SPI, with inert stubs wherever a lifecycle would be needed.
 
 This is the strongest available test of the claim that the kernel is behavior-agnostic, and the honest summary is: **it mostly is.** A complete free-drag `BehaviorSpec` compiles against the frozen surface. The two things that do not compile are the two places the sortable's shape leaked into the kernel.
 

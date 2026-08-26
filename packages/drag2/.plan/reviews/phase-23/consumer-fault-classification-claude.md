@@ -36,7 +36,7 @@ So the entire design space is _what do we say about a stage_ plus _what do we sa
 
 **(b) D-81 settled that the input cannot carry attribution.** _A stage answers where the library was standing, not whose data was bad._ The row accepted that reading and corrected five contract locations to match it. `DraggableErrorCode`'s published axis is _whose data was bad_. The mapping therefore derives a promise from a description, which is precisely what D-81 recorded as **open**: _whether a stage is a promise or a description is Checkpoint E's_. This is that answer, applied past the width of one table cell.
 
-**(c) The one documented consumer decision gives the wrong answer.** [`docs/revision/revision-2.ts:362`](../../docs/revision/revision-2.ts) is the package's compiled demonstration of what the field is for:
+**(c) The one documented consumer decision gives the wrong answer.** [`tests/revision/revision-2.ts:362`](../../tests/revision/revision-2.ts) is the package's compiled demonstration of what the field is for:
 
 ```ts
 return error.code === 'consumer' ? 'mine' : 'theirs';
@@ -108,7 +108,7 @@ D-130's own rule — _if it has no meaningful stage, the type should say so hone
 
 > **Withdrawn in full by D-133, on the implementation's measurement.** The obligation was written without naming the code path it lands on, and it lands on the wrong one. `DraggableError`'s message is `cause instanceof Error ? cause.message : <fallback>`, so **the fallback fires only when a non-`Error` was thrown** — while on the ordinary path the message is the cause's and names no stage at all. The property therefore does not deliver _the stage in words_ in the situation that motivated it, and delivers it only where the consumer has already done something unusual. It cost `drag.js` **146 → 261 B** (+115 brotli, +252 minified) and every composition +19 to +56 B brotli, because a table the constructor reads cannot be shaken out of the root the way `STAGE_TO_CODE` was.
 >
-> **The replacement property:** the fallback identifies the library and carries the stage **as the number the consumer already holds**; `null` keeps a fixed string, since it is the one case a number cannot state. Rendering a published stable value for humans is the consumer's presentation concern, and `docs/revision/revision-2.ts`'s own fixture already does exactly that in its last arm.
+> **The replacement property:** the fallback identifies the library and carries the stage **as the number the consumer already holds**; `null` keeps a fixed string, since it is the one case a number cannot state. Rendering a published stable value for humans is the consumer's presentation concern, and `tests/revision/revision-2.ts`'s own fixture already does exactly that in its last arm.
 >
 > **The `__DEV__` gate is refused, and cheaply**: `__DEV__` is substituted at _this package's_ build time and is `false` in the published bundle, so the audience that would ever see the words is this repository's own suite. A build condition on the shared root whose only beneficiary is the test run is a more complicated way of deleting the table.
 
@@ -163,7 +163,7 @@ Documents to correct: 03 §The error the consumer receives (the declared class a
 
 **Survives, rehomed.** Four rows of `tests/kernel/errors.node.test.ts` outlive the file's subject and must land in a stage-vocabulary suite: the reflection over the module's `FAILURE_*` exports, `toHaveLength(12)`, the 12/13 holes, and the `[4, 5, 8]` literals. **Their witness changes** — the holes were witnessed by `STAGE_TO_CODE`'s padding, which is gone, so the witness becomes the published union plus the reflection. **This was stated unconditionally and was conditional on §5.3** (D-133): `STAGE_NAMES` landed with the same padding and kept the positional witness alive at `errors.node.test.ts`. When D-133 deletes the table the prediction comes true, and the required property is that **the 12/13 witness then depends on no array at all** — the reflection over `FAILURE_*` and the negative membership rows in `tests/kernel/stages.node.test.ts` carry it alone. Nothing is lost: with no positional table there is nothing left to shift, so the padding assertion becomes unnecessary rather than unguarded. The `DraggableWarning` block and the `cause`-identity row survive as they are, the latter retargeted at the constructor.
 
-**Deleted.** The stage → code enumeration, the four-class closure row, and the `Record<FailureStage, DraggableErrorCode>` exhaustiveness fixture at `docs/revision/revision-2.ts:203`.
+**Deleted.** The stage → code enumeration, the four-class closure row, and the `Record<FailureStage, DraggableErrorCode>` exhaustiveness fixture at `tests/revision/revision-2.ts:203`.
 
 **Added.**
 

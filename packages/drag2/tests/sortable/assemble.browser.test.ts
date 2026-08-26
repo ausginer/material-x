@@ -291,7 +291,7 @@ describe('assemble validation', () => {
     // **Three checks deleted (D-77)**, and the deletion is asserted here rather
     // than assumed: `items`, `onReorder` and `axis` are required by the type of
     // `sortable()`'s first argument, so a missing one is a compile error —
-    // pinned by the `@ts-expect-error` fixtures in `docs/revision/revision-2.ts`
+    // pinned by the `@ts-expect-error` fixtures in `tests/revision/revision-2.ts`
     // — and restating it at runtime is the byte `CODE_OF_SIZE.md` §1.3 refuses.
     //
     // **The failure survives the message.** A JS consumer with no axis reaches

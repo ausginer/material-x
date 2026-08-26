@@ -51,7 +51,7 @@ The Phase 14 fixture does introduce a behavior-facing projection, but it is non-
 type BehaviorLiftSession = Omit<KernelVisualLiftSession, 'rendered'>;
 ```
 
-`KernelVisualLiftSession.dispose()` remains visible through that `Omit` (`packages/drag2/docs/revision/phase-14.ts:81-107`). Contract 02 does not use the projection at all.
+`KernelVisualLiftSession.dispose()` remains visible through that `Omit` (`packages/drag2/tests/revision/phase-14.ts:81-107`). Contract 02 does not use the projection at all.
 
 Define the behavior-facing capability normatively and project both kernel-only members away, preferably by positively selecting the allowed surface:
 
@@ -119,7 +119,7 @@ Contract 05's D-35 row already uses the correct phrase — “the visual has not
 
 The fixture now compiles the pointerless prepare/effect branches, which is enough to close C4's missing type-path evidence. Its bodies still do not provide one faithful executable reading of the reference behavior.
 
-Normative activation inserts the detached placeholder at home (`contract/02-kernel-behavior-contract.md:335-353`); release then moves it to the final insertion. The fixture instead moves it directly to `current.insertion` during activation (`packages/drag2/docs/revision/phase-14.ts:555-580`). For a pointerless operation that value is already the command destination, so the placeholder is at the destination before release rather than at home.
+Normative activation inserts the detached placeholder at home (`contract/02-kernel-behavior-contract.md:335-353`); release then moves it to the final insertion. The fixture instead moves it directly to `current.insertion` during activation (`packages/drag2/tests/revision/phase-14.ts:555-580`). For a pointerless operation that value is already the command destination, so the placeholder is at the destination before release rather than at home.
 
 The fixture's release body then reads `rt.placeholder` and `rt.lift` (`phase-14.ts:613-642`), but the fixture never assigns either field. The non-null assertion permits the placeholder call to typecheck, and optional chaining makes the pointer lift write disappear. This means the file checks the signatures and branches, but not the runtime coupling its comments and `plan.md` exit criterion 8 describe as being represented “alike.”
 

@@ -2,7 +2,7 @@
 
 The three failing executable cases contract 00 §Normative precedence requires before the frozen SPI may change. Produced by `plan.md` phase 13; consumed by phase 14, which revises the contract **once** against all three together.
 
-Each probe pairs a write-up here with a typed probe under [`packages/drag2/docs/probes/`](../../../../packages/drag2/docs/probes/). The typed half is the executable half: `tsc` errors on an unused `@ts-expect-error`, so a green `npx just typecheck` in `packages/drag2` is a standing assertion that every negative claim still fails to compile. A prose finding cannot do that, which is the whole reason 00 asks for a case.
+Each probe pairs a write-up here with a typed probe under [`packages/drag2/tests/probes/`](../../../../packages/drag2/tests/probes/). The typed half is the executable half: `tsc` errors on an unused `@ts-expect-error`, so a green `npx just typecheck` in `packages/drag2` is a standing assertion that every negative claim still fails to compile. A prose finding cannot do that, which is the whole reason 00 asks for a case.
 
 | Probe | Question | Result |
 | --- | --- | --- |
@@ -35,7 +35,7 @@ C-2 inverts _creation_: the kernel mints the acknowledgement capability instead 
 
 The lesson generalizes past this protocol: when a design hands a consumer a capability, ask whether it can exist before the thing it is a capability _for_.
 
-**The compiled evidence for the revision** is `packages/drag2/docs/revision/phase-14.ts`, added at Checkpoint C. It is a separate artefact from these probes and has the opposite job: the probes assert what the **pre-revision** SPI cannot express, the fixture asserts that the **post-revision** surface compiles as one system. Neither is lifecycle validation.
+**The compiled evidence for the revision** is `packages/drag2/tests/revision/phase-14.ts`, added at Checkpoint C. It is a separate artefact from these probes and has the opposite job: the probes assert what the **pre-revision** SPI cannot express, the fixture asserts that the **post-revision** surface compiles as one system. Neither is lifecycle validation.
 
 ## What Phase 14 inherited
 

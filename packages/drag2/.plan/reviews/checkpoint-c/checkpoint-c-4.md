@@ -42,7 +42,7 @@ See `contract/02-kernel-behavior-contract.md:407-411` and `contract/06-vertical-
 
 Even preserving it at activation would not be enough. The normative `release.prepare` invalidates and re-resolves insertion from the committed release point (`02:417`, `:1852-1870`; `06:340-349`). A pointerless operation has no release sample, and its pointer scalars remain zero (`02:499-507`, `:1894-1900`). The vertical resolver therefore cannot reconstruct the keyboard destination and may replace it with a gap selected from `pointerY === 0`.
 
-The compiled fixture hides both conflicts. Its activation does not seed home, and its release builds a request without running the normative spatial re-resolution (`packages/drag2/docs/revision/phase-14.ts:444-490`). Consequently the fixture can compile a command path that is not the path specified for the real sortable.
+The compiled fixture hides both conflicts. Its activation does not seed home, and its release builds a request without running the normative spatial re-resolution (`packages/drag2/tests/revision/phase-14.ts:444-490`). Consequently the fixture can compile a command path that is not the path specified for the real sortable.
 
 This directly undermines the Phase 16 requirement that keyboard and pointer reorders to the same destination produce identical proposals (`contract/05-lifecycle-invariants.md:1000-1003`). Please make both branches normative before closing C:
 
@@ -65,7 +65,7 @@ The behavior receives the real element through `ActivationScope.visual` and agai
 
 > A behavior that writes the visual's transform by another route is outside the contract.
 
-See `contract/02-kernel-behavior-contract.md:700-711` and `:1551-1556`, `contract/05-lifecycle-invariants.md:59`, and `packages/drag2/docs/revision/phase-14.ts:67-74,176-182,223-224`. A prohibition that the API permits is tier-C discipline under the contract's own definition, not a kernel-enforced tier-B property.
+See `contract/02-kernel-behavior-contract.md:700-711` and `:1551-1556`, `contract/05-lifecycle-invariants.md:59`, and `packages/drag2/tests/revision/phase-14.ts:67-74,176-182,223-224`. A prohibition that the API permits is tier-C discipline under the contract's own definition, not a kernel-enforced tier-B property.
 
 The interval is also misstated. D-35 says `lift.write` is the sole transform writer "between acquisition and the join", while the landing contract requires the runner to drive the transform before the join (`02:1515-1517,1551-1555`). The value needed for correctness is sampled earlier: `lift.rendered` supplies `LandingContext.from` before control is handed to the runner. The runner is then the intentional later writer.
 

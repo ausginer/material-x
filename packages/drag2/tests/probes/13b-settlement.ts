@@ -67,7 +67,8 @@ declare const scope: SettlementScope;
  * The two gates are separate members and `effect` returns `void`; nothing awaits
  * anything. That is what lets the authored re-render *overlap* the landing
  * animation instead of serializing behind it, and any replacement has to keep
- * it (contract 05 §two independent gates).
+ * it — the two-independent-gates form that contract 05 carried until D-41
+ * retired it.
  */
 export function holdBothGates(start: LandingStart): void {
   // **Stale as of D-41, and kept rather than rewritten.** There is one gate:
