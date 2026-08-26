@@ -114,7 +114,8 @@ They do not ship, so they are free of install weight and consumer confusion. The
 - **One bare pointer is allowed** — `(D-74)` — as an index entry into the record. It carries no argument; it says where the argument is.
 - **No strikethrough.** A superseded sentence is deleted here. If it needs to be preserved, the record preserves it.
 - **No dates, no phase numbers, no review-file narration, no vote counts.**
-- **If the comment is longer than the code and is arguing a choice, it is a record entry with a pointer left behind.**
+- **Argue for what is, never about what was.** A comment may say why the current shape is the right one and what the obvious alternative gets wrong — that is a constraint on the next edit, stated where the edit happens. It may not narrate that the alternative was considered, by whom, or when. State the alternative's property, not the deliberation: _ignoring X is not an optimisation of the 2-D rule; it is a different and better answer for a list_ needs no history to do its work.
+- **Length is not the test.** A rationale is as long as the mistake it prevents is attractive. §5.3's first question decides these, and it decides them the same way whether the comment is one line or thirty.
 
 ### 5.3 Two tests
 
@@ -123,6 +124,8 @@ For deciding whether a sentence is a comment at all:
 > If this became false tomorrow, is deleting it enough — or would someone have to be **told** it used to be true?
 
 Deleting is enough → comment. Someone must be told → record entry.
+
+This is the question that separates a design rationale from a decision record, and it separates them by **tense**. _Why this module is not the other one with a flag_ survives merging the two modules by being deleted; nobody is owed the news. _This constant was renamed and its value did not move_ cannot be deleted, because the value is a promise someone already compiled.
 
 For deciding whether a sentence belongs in published JSDoc:
 
@@ -177,3 +180,13 @@ A convention with no instrument is a convention that decays, and the classes abo
 | `packages/*/README.md` | Consumer documentation for that package |
 
 This document is itself governed by the model it describes: it states the rules in force and carries no history of its own.
+
+---
+
+## 9. Change record
+
+What this document used to say, and what changed it. Section numbers are permanent, so every entry names one.
+
+| Date | Section | Change |
+| --- | --- | --- |
+| 2026-08-26 | §5.2 | **Withdrawn:** _If the comment is longer than the code and is arguing a choice, it is a record entry with a pointer left behind._ It tested length and the presence of an argument, and §5.3's own question contradicts it: an argument for the **present** shape survives that shape's removal by being deleted, so it is a comment however long it is. Replaced by a tense test. Record: [`maintainer-comment-boundary-claude.md`](../../packages/drag2/.plan/reviews/phase-23/maintainer-comment-boundary-claude.md) |

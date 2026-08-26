@@ -1762,6 +1762,20 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **What was done instead is [`contract/README.md`](contract/README.md)**: the register map per file and per section, the reading rule that the term in force is the unstruck text, and the addressing scheme. It restates no rule and carries no history. **Distilling an effective contract out of 01–07 is a rewrite and is deliberately not booked** — it is D-135's safety property at contract scale, and the failure mode is a normative clause silently lost.
 
+### D-135's closure boundary, decided 2026-08-26 (D-137, F-111, F-112)
+
+**The published half is done and the source half needed a rule it did not have.** Record [`reviews/phase-23/maintainer-comment-boundary-claude.md`](reviews/phase-23/maintainer-comment-boundary-claude.md). The declaration set went 128,566 B to 88,985 B and 268 internal references to none, guarded non-vacuously by `tests/packaging.node.test.ts`.
+
+**The rule that would have swept `src/` was wrong, and the model refutes it.** [`documentation.md`](../../../.agents/docs/documentation.md) §5.2 ended with _if the comment is longer than the code and is arguing a choice, it is a record entry_ — a test of length and of the presence of an argument. §5.3 already carried the test that decides the class: **if this became false tomorrow, is deleting it enough, or must someone be told it used to be true?** `y.ts`'s thirty lines on why it is not `xy()` with an axis switched off survive merging the two modules by being deleted, and nobody is owed the news; `assemble.ts`'s four-word _it used to live in_ cannot be, because it is only about the past. The bullet is withdrawn.
+
+**The narrower rule is tense, not length.** A maintainer comment may argue **for what is** and may not narrate **what was** — state the alternative's property, not the deliberation. `y.ts` already writes it correctly; `xy.ts`'s _restored_ is the one that does not.
+
+**What is left is about sixty-six sites** — 50 strikethrough markers in 12 files, 11 dates in 8, 5 phase numbers in 4 — against roughly 341,700 B of internal commentary that has no instrument, no measured cost and reaches no tarball. The 651 decision pointers are permitted and are not work. Booked to Remediation: extend the pattern assertion to `src/` for those three forms only, never for decision identifiers, and clear the sites under D-135's safety property unchanged. The nineteen files carrying supersession verbs are a reviewed list rather than an assertion, because _restored_, _deleted_ and _no longer_ are ordinary present-tense words.
+
+**The `domain.ts` gap inverts the case rather than making it.** The uncovered constraint — _the version comes from the snapshot the gap is a gap of_, in no record file — sits on `insertionAt`, which is **published**, so it is consumer documentation that already passed the guard. And D-135's safety property is a **gate on deletion**, not an instruction to backfill: read as a work item it turns the residue into a migration backlog, and the record is not required to be a superset of the source. That would be the mirror of the defect D-135 removed.
+
+**Two findings.** A rule that never fires is not confirmed by the passes that do not fire it — the boundary that made the published half mechanical is what hid the defect in the half that had none (F-111). And a lexical guard bounds vocabulary rather than audience: `feature.d.ts` still compares a contract violation to _depending on the record_ while passing all eight patterns, so the last increment of the published rule is read rather than asserted (F-112).
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.
