@@ -1710,6 +1710,20 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **Booked to Remediation as a separate implementation step**, since it deletes a table, rewrites one constructor branch, and moves the 12/13 witness onto `stages.node.test.ts` alone. No budget re-bases — the artifact moves back down inside ceilings that were never raised for it.
 
+### The vocabulary-root ceiling, decided 2026-08-26 (D-134, F-106)
+
+**D-133 landed in `27047ae3` and closing it surfaced a row that no longer enforces what it was built for.** Record [`reviews/phase-23/vocabulary-root-budget-claude.md`](reviews/phase-23/vocabulary-root-budget-claude.md). Measurement and policy only; the D-132/D-133 slice is settled.
+
+**The row has two halves and they had never been written down as separate claims.** `only: ['kernel/errors.js']` proves the shared root reaches no other tier — structural, kilobyte-scale. The budget proves the one class the graph half is blind to: machinery from `kernel/failures.js` inlined as literals _into_ `kernel/errors.js`, moving no module count. **D-130 re-justified the ceiling as catching a kernel pull, which is what `only` catches** — and in doing so sized the budget out of the only job it alone could do.
+
+**The premise for the loose ceiling expired with D-133.** 300 was reasonable against a root about to gain a twelve-entry name table; the root is now two classes and two short strings. And the argument for the _tight_ ceiling is still in the same comment block, unstruck, four paragraphs above its replacement — F-81's class, in an instrument rather than in source, which is where the record has never looked for it (**F-106**).
+
+**The ceiling's authority is an injection that can no longer be written.** It cites F-77's 121 to 190 B regression, which names a deleted table. That is D-96's rule one level down: **a calibrated ceiling owes a reproducible injection, and when the injection stops being writeable the ceiling stops being calibrated.**
+
+**Retiring the budget half was considered and refused on timing.** D-132 put a `kernel/failures.js` import into `drag.js` for the first time, so deleting the detector would do it at the moment its subject became reachable — and would leave the 0 B / 0 modules figure that four records now cite resting on prose.
+
+**Booked to Remediation as one small implementation step**: a ceiling returned to the artifact it guards, an injection named and writeable against today's tree, and one superseded paragraph removed. No other budget moves and the graph half needs nothing.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.
