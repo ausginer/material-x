@@ -18,11 +18,7 @@ import {
   type FailureStage,
 } from '../kernel/failures.ts';
 import type { Draft, Frame } from '../kernel/frames.ts';
-import {
-  COMMAND_OWNERS,
-  pathOwnsInteraction,
-  POINTER_OWNERS,
-} from '../kernel/input-policy.ts';
+import { pathOwnsInteraction } from '../kernel/input-policy.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE, IDLE, RELEASING } from '../kernel/phases.ts';
 import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
@@ -197,11 +193,10 @@ export function createSortableSpec(
   const resolveItem = (
     event: Event,
     snapshot: CollectionSnapshot,
-    owners: string,
   ): HTMLElement | null => {
     const path = event.composedPath();
     let item: HTMLElement | null = null;
-    // **The index, not just the element** (D-46). The decline test runs over
+    // **The index, not just the element** (D-46). The opt-out scan runs over
     // the hops between the event target and the resolved subject, so the walk
     // that finds the item has to report where it stopped.
     let subject = 0;
@@ -243,9 +238,9 @@ export function createSortableSpec(
       // `indexOf` where this used to read `includes`: the same containment
       // test, and the position is what D-50 needs. **The resolved subject
       // governs** — a handle inside the item sits *earlier* in the composed
-      // path, so scoping to it shortens the segment the decline test walks,
-      // and a handle that is itself an interactive element admits, because
-      // the consumer scoped dragging there on purpose.
+      // path, so scoping to it shortens the segment the opt-out scan walks,
+      // and a handle inside a marked region admits, because the consumer
+      // scoped dragging there on purpose.
       subject = path.indexOf(handle);
 
       if (subject === -1) {
@@ -254,12 +249,12 @@ export function createSortableSpec(
     }
 
     // **What did the event land on** (D-46), asked after the subject is known
-    // and before anything is seeded. The press that reaches an interactive or
-    // editable descendant declines by the ordinary total-decline path (I-32):
-    // no operation, no phase change, and — since the kernel prevents nothing
-    // for a `null` — focus lands, the caret places, the slider tracks and the
-    // arrow key keeps its native meaning.
-    return pathOwnsInteraction(path, subject, owners) ? null : item;
+    // and before anything is seeded. A press or a key that reaches a
+    // `[data-drag-ignore]` region declines by the ordinary total-decline path
+    // (I-32): no operation, no phase change, and — since the kernel prevents
+    // nothing for a `null` — focus lands, the caret places, the slider tracks
+    // and the arrow key keeps its native meaning.
+    return pathOwnsInteraction(path, subject) ? null : item;
   };
 
   /**
@@ -363,7 +358,7 @@ export function createSortableSpec(
     }
 
     const { snapshot } = rt;
-    const item = resolveItem(event, snapshot, POINTER_OWNERS);
+    const item = resolveItem(event, snapshot);
 
     return item === null ? null : seedDraft(item, snapshot, draft);
   };
@@ -580,9 +575,13 @@ export function createSortableSpec(
         // unstateable R-5 table, where a `contenteditable` in the last row kept
         // ArrowRight only because the edge decline happened to fire.
         //
-        // The table is `COMMAND_OWNERS` rather than the pointer one, because
-        // the question is whether the target owns *this key*.
-        const item = resolveItem(event, snapshot, COMMAND_OWNERS);
+        // ~~The table is `COMMAND_OWNERS` rather than the pointer one, because
+        // the question is whether the target owns *this key*.~~ **Since D-129
+        // both ingresses ask one question of one attribute.** The order above
+        // still holds and still matters — the item is what feasibility is
+        // asked about — but R-5's asymmetry returns for an *unmarked* field,
+        // and `data-drag-ignore` is what answers it now.
+        const item = resolveItem(event, snapshot);
 
         if (item === null) {
           return null;

@@ -359,30 +359,35 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 
 ---
 
-## Input policy — new (D-46, D-50, D-54)
+## Input policy — new (D-46, D-50, D-54, D-129)
 
-The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **is probe E promoted**: the same ten cases, the same real Chromium input, with every snapshot re-recorded against the repaired behavior. The rows below name the case that would fail first; the kernel-level mechanics — where the prevention lands and what the click suppressor's lifetime is — are pinned separately, because they are the kernel's and not the sortable's.
+The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **is probe E promoted**: the same real Chromium input, with every snapshot re-recorded against the shipped behavior. The rows below name the case that would fail first; the kernel-level mechanics — where the prevention lands and what the click suppressor's lifetime is — are pinned separately, because they are the kernel's and not the sortable's.
+
+**D-129 moved five rows off D-46 and did not move the file.** The withdrawn half of D-46 was an inference from element type, so what changed is which side of the opt-out a nested control sits on; the rows that held it are re-pointed at the behavior that replaced them rather than deleted, because the change is the thing a reader needs to find.
 
 | Row | Test | ID |
 | --- | --- | --- |
 | a press that never activates keeps focus, caret and click | `tests/sortable/input-policy.browser.test.ts` — _should place focus and a caret in a nested text input_ | D-54 |
 | an admitted press is not prevented | `tests/kernel/kernel.browser.test.ts` — _should leave an admitted press unprevented_ | D-54, C-03 |
 | the crossing move is prevented | `tests/kernel/kernel.browser.test.ts` — _should prevent the move that crosses the activation threshold_ | D-54 |
-| admission declines on interactive and editable descendants | `tests/sortable/input-policy.browser.test.ts` — _should decline a drag-select inside a nested text input_ | D-46, I-32 |
-| a slider thumb is not a drag handle | `tests/sortable/input-policy.browser.test.ts` — _should decline a drag on the thumb of a nested `<input type="range">`_ | D-46 |
-| arrow keys in a text input do not reorder | `tests/sortable/input-policy.browser.test.ts` — _should leave ArrowRight to a nested text input_ | D-46 |
-| target first, feasibility second | `tests/sortable/input-policy.browser.test.ts` — _should ask what the event landed on before asking whether the move is feasible_ | D-46 |
+| an unmarked nested control is not exempt on the pointer path | `tests/sortable/input-policy.browser.test.ts` — _should drag the row when a gesture crosses a nested text input_ | D-129 |
+| a slider thumb is not exempt either | `tests/sortable/input-policy.browser.test.ts` — _should drag the row when a gesture crosses a nested range thumb_ | D-129 |
+| an unmarked nested control is not exempt on the command path | `tests/sortable/input-policy.browser.test.ts` — _should reorder from an unmarked nested text input_ | D-129 |
+| the mark restores a control's arrow keys | `tests/sortable/input-policy.browser.test.ts` — _should leave ArrowRight to a nested text input inside a marked region_; _…should leave ArrowDown to a nested popup `<select>` inside a marked region_ | D-129 |
 | `isComposing` never admits | `tests/sortable/input-policy.browser.test.ts` — _should never admit while an IME composition is in progress_ | D-46 |
-| the explicit opt-out attribute | `tests/sortable/input-policy.browser.test.ts` — _should decline a press inside a `[data-drag-ignore]` region_ | D-46 |
+| the explicit opt-out attribute | `tests/sortable/input-policy.browser.test.ts` — _should decline a press inside a `[data-drag-ignore]` region_ | D-46, D-129, I-32 |
+| the scan reads a non-`Element` hop without throwing | `tests/sortable/input-policy.browser.test.ts` — _should read the mark through a shadow boundary_ | D-129 |
 | plain-text selection is requested, not inferred | `tests/sortable/input-policy.browser.test.ts` — _should decline an Alt-held press and admit under every other modifier_ | D-46 |
-| explicit scoping wins over the decline | `tests/sortable/input-policy.browser.test.ts` — _should admit from a handle that is itself an interactive element_ | D-50 |
+| the scan stops before the resolved subject | `tests/sortable/input-policy.browser.test.ts` — _should admit from a handle that is itself marked_; _…should decline the same press when no handle is composed_ | D-50 |
 | `handle()` still narrows both ingresses | `tests/sortable/input-policy.browser.test.ts` — _should admit only from the grip for the pointer cases with `{ handle: … }` composed_ | D-50 |
 | one trailing `click` is suppressed after activation | `tests/kernel/kernel.browser.test.ts` — _should suppress exactly one trailing click after an activated drag_ | D-54 |
 | a press that never activated keeps its click | `tests/kernel/kernel.browser.test.ts` — _should not arm the suppressor for a press that never activated_ | D-54 |
 | a cancelled drag still suppresses | `tests/kernel/kernel.browser.test.ts` — _should suppress the trailing click after a cancelled drag too_ | D-54 |
 | the suppressor is ingress-scoped, not operation-scoped | `tests/kernel/kernel.browser.test.ts` — _should disarm the suppressor at teardown_; _…on the next pointerdown_ | D-54 |
 
-**Two rows are owed rather than closed.** Probe E is Chromium and mouse only, so touch long-press and tap-highlight behavior under the relocated `preventDefault()` is an **owed measurement** (02 §Input policy), not a passing row. And the focusable-grip obligation a `handle` carries is a documented consumer obligation with no library-side assertion available — a fixture can only observe that an unfocusable grip receives no keydown, which pins the platform rather than the library.
+**Two rows are owed rather than closed.** Probe E is Chromium and mouse only, so touch long-press and tap-highlight behavior under the relocated `preventDefault()` is an **owed measurement** ([O-3](../.plan/obligations.md)), not a passing row. And the focusable-grip obligation a `handle` carries is a documented consumer obligation with no library-side assertion available — a fixture can only observe that an unfocusable grip receives no keydown, which pins the platform rather than the library.
+
+**One row left the table and nothing replaced it.** _Target first, feasibility second_ was D-46's ordering claim, and the order it protected is still the code's — `resolveItem` runs before `keyboardInsertion` — but the two questions no longer disagree for any input a test can construct: the withdrawn table was what made the same keystroke mean two things in two rows. Asserting the order now would pin a call sequence rather than a behavior, and D-129 declines to recreate the distinction in a test that outlived it.
 
 ---
 

@@ -299,9 +299,10 @@ type BehaviorSpec<
    * member returns non-null.~~ D-54 moves the pointer path's call to the
    * **activation threshold crossing**, so an admitted press that never becomes
    * a drag consumes nothing. D-46 additionally narrows what may be admitted at
-   * all: a press whose composed path reaches an interactive or editable
-   * descendant **declines**, unless the consumer scoped dragging there (D-50).
-   * See §Input policy.
+   * all: a press whose composed path reaches a `[data-drag-ignore]` region
+   * **declines**, unless the consumer scoped dragging there (D-50). ~~an
+   * interactive or editable descendant~~ — the element-type inference is
+   * withdrawn (D-129). See §Input policy.
    */
   admit(event: PointerEvent, draft: Draft<Part>): AdmissionSubject | null;
 
@@ -416,7 +417,7 @@ Three reasons, in order of weight:
 
 | Seam | Phase in | Phase out | What sortable does |
 | --- | --- | --- | --- |
-| `admit` | `IDLE` | `PENDING` | Resolve the pressed item against the published snapshot; **decline** if the composed path reaches an interactive or editable descendant (§Input policy, D-46), unless the consumer scoped dragging there (D-50); apply the `handle` slot; write `item`, `visual` and `snapshot` into its part; **return the subject** — the visual (via the `visual` slot or identity), paired with the box (via the `box` slot) when the two differ (D-59). |
+| `admit` | `IDLE` | `PENDING` | Resolve the pressed item against the published snapshot; **decline** if the composed path reaches a `[data-drag-ignore]` region (§Input policy, D-46, D-129), unless the consumer scoped dragging there (D-50); apply the `handle` slot; write `item`, `visual` and `snapshot` into its part; **return the subject** — the visual (via the `visual` slot or identity), paired with the box (via the `box` slot) when the two differ (D-59). |
 | `activation.prepare` | `PENDING` | `ACTIVATING` | **Read `boxPost` first**, off `scope.box`, before anything else in the seam (D-52) — **one extent, `box.offsetHeight`** (F-58), and **skipped entirely when `box === visual`** (F-55). Create the placeholder **detached** (default mechanics or the `placeholder` slot), size it from the **removed footprint** — `width` is `scope.boxPre.width` always, `height` is `box === visual ? scope.boxPre.height : scope.boxPre.height − boxPost` — not the visual's offset box (D-43) — and return the element. No DOM insertion, no acquisition. The sizing writes land on an element the consumer may own, so they are **on D-39's rollback ledger**. **Insertion is branched on `draft.pointerId`**: a pointer operation seeds the home insertion; a pointerless one _preserves_ what `command.admit` wrote. See §The command destination. |
 | `activation.effect` | `ACTIVATING` | — | Register removal on `scope.presentation`, **then** `item.after(placeholder)` — retained by D-43 on measurement, not by default; arm scroll/resize invalidation and the frame-task cancel on `scope.motion`; publish `rt.placeholder`, `rt.lift` and the per-operation `rt.view`; `slots.invalidateInsertion()`; `slots.onStart(item)` last. See §Post-commit ordering. |
 | `activation.rollback` | — | — | Undo everything `prepare` wrote onto the staged placeholder — attributes, styles, sizing, state — and drop it. **Required, not vacuous** (D-39): the element may be consumer-owned and adoption never happened, so nothing else becomes responsible for it. |
@@ -574,49 +575,61 @@ D-32 defines a command's admission as a **feasibility** answer: `keyboardInserti
 
 A user editing text in the first row learns that Up works and Down does not, and **there is no rule here a consumer could document**. The asymmetry is not a bug in `keyboardInsertion` — the edge decline is right — it is evidence that a second, independent question was never asked: _what did the event land on_. D-46 adds it, at §Input policy, and the two questions compose in a fixed order: **target first, feasibility second.** Asking feasibility first is what produced the table above.
 
+**D-129 keeps the question and changes its answer, and the table above is the honest way to see the cost.** For an **unmarked** field the target question now answers _the drag's_ on both ingresses, so every row of R-5 returns exactly as measured — Up works, Down does not, and the caret freezes on the feasible direction. For a **marked** one the whole region declines and all four rows read `false`/`0`/native. So the rule a consumer could not document is now one they write: **mark the field.** That is a different claim from D-46's — D-46 asserted the library could tell, D-129 asserts it cannot and says so — and R-5 is the measurement that makes the difference legible rather than a matter of taste.
+
 **What this does not change.** D-32 adds **no** `KernelHost` member: no `activate`, no `move`, no ingress registration (13a N-2, N-5 stay unexpressible, and the probe's assertions still fail to compile). ~~The host does grow by one in this revision — `presentationCommitted`, from D-33.~~ **The attribution needs restating twice over.** D-41 deletes `presentationCommitted()` with the rest of the readiness protocol, so Phase 14's addition is gone; **D-53 then adds a different member** — the logical-liveness reader D-38 forces, since after that prohibition there was no sanctioned reading left. The net count is unchanged and the membership is not, which is the honest way to state it. **Neither addition is D-32's**, and that is the claim this paragraph exists to protect: a second input mode still costs the host nothing. The behavior still never drives a transition — `command.admit` returns a _value_, and the kernel mints, lifts, commits phases and owns the envelope exactly as it does for a press. H-3 is intact, and the queue's run-to-completion property is untouched because the discrete path adds a queue _boundary_, not a queue exception.
 
-### Input policy (D-46)
+### Input policy (D-46, as revised by D-129)
 
-Ownership of `preventDefault()` is settled and D-46 does not reopen it: the kernel calls it, once, exactly when an admission member returns non-null. What D-46 settles is the question that ownership left open — **when a member may return non-null at all** — and the reason it must be settled here rather than left to each behavior is that the consequence of returning non-null is a browser effect the behavior does not perform and cannot see.
+Ownership of `preventDefault()` is settled and neither decision reopens it: the kernel calls it, once, exactly when an admission member returns non-null. What is settled here is the question that ownership left open — **when a member may return non-null at all** — and the reason it must be settled here rather than left to each behavior is that the consequence of returning non-null is a browser effect the behavior does not perform and cannot see.
 
-The governing rule is one sentence:
+The governing rule is one sentence and is unchanged:
 
 > **Ingress must not consume interaction it does not use.**
 
-**Two mechanisms serve it, and neither covers probe E's ten cases alone.** D-54 moves _when_ the pointer path prevents; D-46 narrows _what_ may be admitted. They divide the probe cleanly:
+**Two mechanisms serve it.** D-54 moves _when_ the pointer path prevents; the admission policy narrows _what_ may be admitted. D-46 wrote the second as an **inference from element type**, with a pointer table of fourteen selectors, a narrower command table of five, and an `isContentEditable` capability test. ~~That inference is the policy.~~ **D-129 withdraws it.** The policy is now one attribute:
 
-| Probe E case | Fixed by | Because |
+> **A descendant is draggable by default. `[data-drag-ignore]` on any hop strictly before the resolved subject declines the interaction, and nothing else does.**
+
+The tables and the capability test are gone from the code and from this section; what stays is everything D-46 decided that was not the inference — the governing rule, the total-decline mechanism, the order the command path asks its two questions in, the `isComposing` rule, the modifier convention, and D-50's precedence.
+
+#### Why the inference was withdrawn
+
+**The two tables could not both be right, and their difference was the evidence.** D-46 stated the command table as _narrower than the pointer one and not a simplification of it_, and defended the difference correctly: a `<button>` owns a press and owns no arrow key. But a rule that needs a different table per ingress is a rule about **what an element is for**, and the library does not know that. A `<button>` inside a row may be a delete affordance the user must be able to press, or decoration inside a drag surface; a `<span>` may be a chart that owns its own gestures. Neither the tag nor `isContentEditable` distinguishes them, so every table entry is right for some consumers and wrong for others, and the ones it is wrong for **have no way to say so** — the tables were library-internal, and the only escape hatch was `[data-drag-ignore]`, which the consumer already had to reach for.
+
+**The cost is stated rather than absorbed, because it is real.** The behavior probe E measured as its sharpest case — one `ArrowRight` in a nested text input producing a complete accepted reorder `{from: 2, to: 3}` with the caret frozen — is reachable again for a consumer who marks nothing. It is recorded in `tests/sortable/input-policy.browser.test.ts`, by the row titled _should reorder from an unmarked nested text input_, field for field, rather than deleted with the rule that declined it. **What makes that acceptable is that it is now stateable**: the consumer marks the field, the test beside it proves the mark works on both ingresses, and the answer is one attribute rather than an enumeration the consumer cannot read, extend or override per element.
+
+**D-54 carries more of probe E than it used to, and that is the largest part of the repair.** Six of the ten cases never crossed the activation threshold at all, and none of them was ever fixed by the decline: a sub-threshold tap on a nested `<button>`, `<a href>`, text input, range, `<select>` or `contenteditable` keeps its focus, caret, selection and form-control operation because nothing is prevented, not because the element was on a list. Those six are unaffected by D-129 and their snapshots did not move.
+
+| Probe E case | Answered by | Because |
 | --- | --- | --- |
 | 1, 2, 6 — tap on `<button>`, `<a href>`, `contenteditable`; 3's focus half; 4's tap half | **D-54**, relocation | the press never crosses the threshold, so nothing is prevented and `mousedown`, focus and caret all survive |
-| 3, 5 — drag-select inside a text input, drag across prose | **D-46**, decline | the gesture _does_ cross the threshold, so relocation alone would still turn it into a row drag |
-| 4's thumb-drag half | **D-46**, decline | same: a 100 px slider drag is above threshold by construction |
-| 7, 9 — arrow keys in a descendant, IME composition | **D-46**, command target test | there is no threshold on the keyboard path to relocate to |
+| 5 — drag across prose | **D-46**, the modifier convention | both readings are consistent with the input and no evidence distinguishes them |
+| 9 — IME composition | **D-46**, `isComposing` | a property of the keyboard event, so the test needs no target inspection |
+| 3, 4's thumb-drag half, 7 — drag-select in a text input, slider thumb, arrow keys in a descendant | ~~**D-46**, decline~~ **the consumer, via `[data-drag-ignore]`** (D-129) | the gesture crosses the threshold or has none to cross, so the library must either infer intent or be told it — and D-129 chooses being told |
 | 10 — `handle()` | unchanged; it remains an override (D-50), not the answer |  |
 
-Reading either decision as the whole policy leaves half the probe unfixed, which is why both are stated here rather than one deferring to the other.
+The mechanism has not changed and is still correct. Probe E's R-8 measured the decline path end to end: when an admission member returns `null`, `preventDefault()` is never called, `mousedown` fires, focus lands, the caret places, a range slider tracks, a `<select>` option selects, a `contenteditable` takes text, and the keyboard event keeps its native meaning. **Declining is total** — I-32 in [05](05-lifecycle-invariants.md) already says so. What D-129 changes is only which inputs reach it.
 
-The mechanism D-46 needs already exists and is already correct. Probe E's R-8 measured the decline path end to end: when an admission member returns `null`, `preventDefault()` is never called, `mousedown` fires, focus lands, the caret places, a range slider tracks, a `<select>` option selects, a `contenteditable` takes text, and the keyboard event keeps its native meaning. **Declining is total** — I-32 in [05](05-lifecycle-invariants.md) already says so. Nothing in the library decided to _use_ it for interactive descendants; that decision is the whole of this section.
+#### Both ingresses decline on an explicitly marked region
 
-#### Pointer admission declines on interactive and editable descendants
-
-Default `admit` returns `null` when the event's composed path, between the target and the resolved drag subject, reaches any of:
+Default `admit` — pointer and command alike — returns `null` when the event's composed path, between the target and the resolved drag subject, reaches an element matching `[data-drag-ignore]`.
 
 | Category | Members |
 | --- | --- |
-| form controls | `input`, `textarea`, `select`, `option`, `button`, `label`, `output`, `progress`, `meter` |
-| activation | `a[href]`, `area[href]`, `summary` |
-| editing | any element whose `isContentEditable` is true |
-| media with controls | `audio[controls]`, `video[controls]` |
-| explicit opt-out | any ancestor carrying `data-drag-ignore` |
+| explicit opt-out | any hop strictly before the resolved subject carrying `data-drag-ignore` |
 
-The opt-out attribute's name was left unstated when this section was written and is settled at Phase R: **`data-drag-ignore`**, which pairs with the `data-drag-placeholder` the default placeholder already carries. It is the one row of the table that is not a platform element, and it exists because the list is a default: a consumer needs a way to name a region the list does not describe — a chart, a canvas, a custom element that owns its own gestures.
+~~form controls; activation; editing; media with controls.~~ **One row, and it is the row that was never a platform element.** The attribute pairs with the `data-drag-placeholder` the default placeholder already carries, and it now names every region a consumer wants left alone rather than only the ones no table could describe.
 
-It is a **list, not a heuristic**, and that is deliberate: a consumer has to be able to document which presses drag and which do not, and the R-5 table above is what an unstateable rule looks like from the outside. `disabled` members are not excluded — a disabled control still owns its press for focus and selection purposes, and treating "disabled" as "draggable" would put the most surprising case on the least examined path.
+**One table for both ingresses, where D-46 had two.** The question the command path asks is no longer _does this element own this key_ — which needed the narrower list — but _did the consumer mark this region_, which is a statement about a region and not about a key. That is why D-46's own justification for the opt-out row appearing in both tables generalises to the whole policy.
 
-**Explicit consumer scoping wins (D-50).** If a `handle` slot resolves the pressed element to a handle that _is_ one of the above, the press admits: the consumer scoped dragging to that interaction on purpose. The list is a default, not a prohibition, and the test runs between the event target and the **resolved subject**, so a handle narrows the path the test walks. The consequence is that `handle()` stops being the _only_ descendant-scoping mechanism — the claim 03 carried — and becomes the **override** for a policy that now exists by default.
+**A marked region is not a prohibition.** The scan terminates at the resolved subject and never inspects it, so a `handle` resolving _into_ a marked region still admits (D-50, below) — which is what lets a consumer mark a rich-text block and put a grip inside it.
 
-**This costs nothing on the admitted path.** The walk is the `composedPath()` traversal `resolveItem` already performs; the test is a `matches()` per hop on a path that terminates at the item.
+**`matches` is reached optionally, and that is a type test rather than a guard.** `composedPath()` yields documents, shadow roots and the window as well as elements; a `ShadowRoot` strictly before the subject is ordinary for any consumer with a shadow-DOM row, and it has no `matches`. `path[i].matches?.(…)` answers _is this an element that matches_ in one access, where `realm.isElement` would answer half of it more expensively.
+
+**Explicit consumer scoping wins (D-50).** If a `handle` slot resolves the pressed element to a handle inside a marked region, the press admits: the consumer scoped dragging to that interaction on purpose. The scan runs between the event target and the **resolved subject**, so a handle narrows the path it walks. The consequence is that `handle()` stops being the _only_ descendant-scoping mechanism — the claim 03 carried — and becomes the **override** for a policy that now exists by default.
+
+**This costs nothing on the admitted path.** The walk is the `composedPath()` traversal `resolveItem` already performs; the test is one `matches()` per hop on a path that terminates at the subject.
 
 #### The pointer path prevents at activation, not at admission (D-54)
 
@@ -656,25 +669,16 @@ The command's `admit` answers **two** questions, in this order:
 2. is the move feasible?            ← D-32. keyboardInsertion, edges included.
 ```
 
-Order is normative, and §Feasibility is not the whole question is the evidence for it. The first question's rules, stated positively so a consumer can document them:
+Order is normative, and §Feasibility is not the whole question is the evidence for it — **and the order survives D-129 even though the disagreement it protected does not.** `resolveItem` still runs before `keyboardInsertion`, and it must, because the item is what feasibility is asked about. What is gone is the case where the two questions gave different answers for the same keystroke in different rows: that came from the command table, and with one attribute answering both ingresses there is no input a test can construct that distinguishes the orders. The order is normative and is no longer separately asserted (`tests/COVERAGE.md` §Input policy).
 
-- **Text inputs keep caret arrows.** A focused `input` or `textarea` owns `ArrowLeft`/`ArrowRight`/`ArrowUp`/`ArrowDown`, with or without `Shift`. Probe E R-4: one `ArrowRight` at caret offset 5 in a nested input produced a **complete accepted reorder** `{from: 2, to: 3}` with the caret frozen — the single worst case in the probe, because the keystroke that was supposed to move a caret finished a drag instead.
-- **`contenteditable` keeps editing navigation.** Any element whose `isContentEditable` is true owns the arrow keys for the same reason, and R-4 observed the same failure there.
-- **Native controls keep their keys.** A focused `select`, a radio group, a range input and a media element with controls all navigate by arrow. R-4 observed a focused popup `<select>` lose `ArrowDown` to the reorder command.
-- **`event.isComposing === true` never admits.** This is unconditional and is not a special case of the rules above: it is checked first, on every declared command type, whatever the target. Probe E R-7 established that composition is faithfully synthesizable — a real Chromium composition, `compositionstart` and `compositionupdate` observed, `input.value` `"にほ"`, `keydown.isComposing` `true` — and that the drag admitted anyway, reordering the collection while the user was mid-word and not interacting with the list at all. `isComposing` is a property of the keyboard event, so the test is free and needs no target inspection.
+The first question's rule, stated so a consumer can document it:
 
-**The command table is narrower than the pointer one, and Phase R states it rather than deriving it.** The rules above name their members positively but never enumerate them, and the pointer table is the wrong list to reuse: the question a command asks is whether the target owns _this key_, and the arrow keys are owned by a caret, a listbox, a radio group, a range thumb and a media scrubber — not by a `button`, an `a[href]`, a `summary`, a `label` or a `progress`, none of which navigate by arrow. Declining on those would silently remove keyboard reordering from a focused control inside a row, which is a false decline on exactly the accessibility path D-46 exists to protect. So:
+- **A marked region keeps its keys.** An `input`, a `textarea`, a `contenteditable`, a `select`, a radio group, a range input, a media element with controls — each keeps every key it natively owns when the consumer marks it or an ancestor with `data-drag-ignore`, and none of them keeps any key when nothing is marked. ~~Probe E R-4's `{from: 2, to: 3}` from one `ArrowRight` at caret offset 5 is what the command table existed to prevent.~~ **It is reachable again by decision (D-129)**, is recorded rather than hidden, and the mark is what answers it.
+- **`event.isComposing === true` never admits.** This is unconditional and is **not** a special case of the rule above — it is the one command-side test D-129 does not touch, because it is a property of the keyboard event rather than an inference about the target. It is checked first, on every declared command type, whatever the target and whatever is marked. Probe E R-7 established that composition is faithfully synthesizable — a real Chromium composition, `compositionstart` and `compositionupdate` observed, `input.value` `"にほ"`, `keydown.isComposing` `true` — and that the drag admitted anyway, reordering the collection while the user was mid-word and not interacting with the list at all. `isComposing` needs no target inspection, which is why withdrawing the target inference leaves it standing.
 
-| Category | Members |
-| --- | --- |
-| editing and text | `input`, `textarea`, any element whose `isContentEditable` is true |
-| arrow-navigated controls | `select` — and `input` again, which covers radio and range without naming them |
-| media with controls | `audio[controls]`, `video[controls]` |
-| explicit opt-out | any ancestor carrying `data-drag-ignore` |
+~~**The command table is narrower than the pointer one, and Phase R states it rather than deriving it.**~~ **Both tables are withdrawn (D-129), and the argument that separated them is why.** Phase R was right that the pointer list was the wrong list to reuse — a `button`, an `a[href]`, a `summary`, a `label` and a `progress` navigate by no arrow, and declining on them would silently remove keyboard reordering from a focused control inside a row, a false decline on exactly the accessibility path D-46 exists to protect. Two lists that disagree about the same element are two guesses about what that element is for, and the consumer is the only party who knows. So the opt-out row's own justification — _a consumer statement about a **region**, not about a key_ — is now the whole policy, and it is stated once for both ingresses at §Both ingresses decline on an explicitly marked region.
 
-The opt-out row appears in both tables because it is a consumer statement about a **region**, not about a key.
-
-`Shift` is read as part of the first question, not as a modifier policy: `Shift+Arrow` inside a text input extends a selection, and the target rule already declines there. D-46 adds no other modifier reading; probe E R-6 recorded that `src/` reads none today, and the owner's direction does not reopen modifiers beyond selection.
+`Shift` is read as part of the first question, not as a modifier policy: `Shift+Arrow` inside a **marked** text input extends a selection because the whole region declines, and inside an unmarked one it reaches the drag like any other arrow. D-46 adds no other modifier reading; probe E R-6 recorded that `src/` reads none today, and the owner's direction does not reopen modifiers beyond selection.
 
 #### Plain-text selection is requested, not inferred
 
@@ -754,13 +758,13 @@ The other half of the decision, and the half that keeps it from being a mechanic
 | `report`, `guarded` | `host.fail(stage, error)` inside a seam. Outside one it downgrades to a platform report, which is the same destination |
 | `createInvalidator`, `createFrameTask`, `FrameTask`, `Invalidator` | `realm.window` — scheduling is the behavior's own, and `FAILURE_SCHEDULED_FRAME` exists so it can classify its own coalescing |
 | `POINTER_DOWN`, `KEY_DOWN` and the rest of `protocol.ts` | string literals. `CommandAdmission.types` is `readonly string[]` |
-| `POINTER_OWNERS`, `COMMAND_OWNERS`, `pathOwnsInteraction` | **none, and this is a stated cost** — see below |
+| `pathOwnsInteraction` (~~`POINTER_OWNERS`, `COMMAND_OWNERS`~~, deleted by D-129) | **none, and this is a stated cost** — see below |
 
 **`__DEV__` is not on this table, and the omission is the decision (D-101).** The build-time flag is declared in `src/globals.d.ts` at **package scope**, not in `kernel/`. ~~`kernel/dev.ts`'s `DEV` is the kernel's own local binding of it and stays internal~~ — **the kernel binds it nowhere since D-108**, whose four author-facing checks are production checks; the package's one binding is `sortable/verified-refresh.ts`'s. Either way it is not a name the behavior tier substitutes for, because there is nothing to substitute: **each tier binds the ambient itself**, and neither reaches the other. So `DEV` belongs in neither column. Adding it to the internal groups would assert that the behavior tier reaches into `kernel/` for it, which is exactly what must not happen; publishing it would put a flag with no runtime meaning into the vocabulary a third-party behavior compiles against.
 
 **The discriminating rule still applies and still gives the same answer.** A third-party behavior author has no `__DEV__` define unless they configure one, so the ambient is not something the tier boundary hands over in either direction — it is a property of _this package's_ build, and `src/globals.d.ts` states that a missing define must fail loudly at import rather than silently ship the assertions. **A second behavior-tier site in a second module is what triggers a tier-local `sortable/dev.ts`**, which is the behavior tier's own binding and still imports nothing from `kernel/` — and there is no longer a kernel-tier binding for it to import.
 
-**The input-policy helpers are the one honest gap.** D-46's policy is behavior-owned by construction — the kernel binds ingress and the behavior answers — and a canvas or a free-drag behavior may legitimately want a different one. But a third-party behavior that wants _the library's_ policy must reimplement the interactive/editable descendant walk, and D-46 §`handle()` is a mitigation is explicit that getting this wrong is an accessibility defect rather than a cosmetic one. **Publishing them is not decided here**: they are a policy helper rather than SPI vocabulary, nothing in the closure names them, and shipping a runtime helper at the kernel tier is an addition with a bundle consequence that this decision otherwise does not have. Recorded as a candidate for a later `kernel/policy.js`, owner's call, and flagged in the handoff rather than absorbed.
+**The input-policy helper is the one honest gap, and D-129 makes it a smaller one.** D-46's policy is behavior-owned by construction — the kernel binds ingress and the behavior answers — and a canvas or a free-drag behavior may legitimately want a different one. A third-party behavior that wants _the library's_ policy must reimplement it, and D-46 §`handle()` is a mitigation is explicit that getting this wrong is an accessibility defect rather than a cosmetic one. ~~It must reimplement the interactive/editable descendant walk~~ — since D-129 what it must reimplement is a loop that reads one attribute, which is four lines and is fully specified at §Both ingresses decline on an explicitly marked region. **Publishing it is still not decided here**: it is a policy helper rather than SPI vocabulary, nothing in the closure names it, and shipping a runtime helper at the kernel tier is an addition with a bundle consequence that this decision otherwise does not have. Recorded as a candidate for a later `kernel/policy.js`, owner's call, and flagged in the handoff rather than absorbed.
 
 ### The phase is handed over, so its domain is published
 

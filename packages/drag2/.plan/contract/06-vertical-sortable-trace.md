@@ -114,8 +114,8 @@ pointerdown on item 2
 [K] begin()                                    Object.assign(draft, current)
 [B] spec.admit(event, draft) → { visual, box? }                 [D-5, D-59]
       resolve the pressed item from rt.snapshot via composedPath()
-      the composed path holds no interactive or editable descendant
-      between the press and the row, so admission does NOT decline   [D-46]
+      the composed path carries no [data-drag-ignore] between the
+      press and the row, so admission does NOT decline       [D-46, D-129]
       slots.getHandle — not installed, skip
       draft.item = item2                       ← BEHAVIOR state, in the
       draft.snapshot = rt.snapshot               behavior's own frame part
@@ -154,7 +154,7 @@ pointerdown on item 2
 
 No pointer capture yet — capture is acquired at activation, so a below-threshold press never captures and never retargets later pointer events to `root`. **[D-17]**
 
-**Nothing native has been consumed at this point, and that is D-46's whole correction.** The previous trace prevented the default here on the strength of the behavior's non-null answer, and treated whether a _click_ still fires as a question the contract does not decide. Probe E measured it: the prevented `pointerdown` suppresses the compatibility `mousedown` — focus, caret placement, selection start, form-control operation — while `click`, `href` navigation and ctrl/meta-click survive, because they are defaults of `pointerup`. **Six of probe E's ten cases were destroyed with no drag ever activating**, which is the sharpest statement of the defect: the press was not reserved for a drag that might happen, it was spent on one that provably did not. Two things carry the policy instead, and neither is new machinery — **declining is already total** (an admission member returning `null` leaves the native meaning completely intact), and default admission now declines on interactive and editable descendants. **[D-46, F-48]**
+**Nothing native has been consumed at this point, and that is D-46's whole correction.** The previous trace prevented the default here on the strength of the behavior's non-null answer, and treated whether a _click_ still fires as a question the contract does not decide. Probe E measured it: the prevented `pointerdown` suppresses the compatibility `mousedown` — focus, caret placement, selection start, form-control operation — while `click`, `href` navigation and ctrl/meta-click survive, because they are defaults of `pointerup`. **Six of probe E's ten cases were destroyed with no drag ever activating**, which is the sharpest statement of the defect: the press was not reserved for a drag that might happen, it was spent on one that provably did not. Two things carry the policy instead, and neither is new machinery — **declining is already total** (an admission member returning `null` leaves the native meaning completely intact), and default admission declines where the consumer marked the region. (~~on interactive and editable descendants~~ — D-129 withdraws the element-type inference; the trace above reads the same either way, which is the point of routing a policy through a decline.) **[D-46, D-129, F-48]**
 
 **The call is not deleted, it is relocated — to the threshold crossing.** D-46 withdrew it from admission and named no replacement, which left the policy incomplete in a consumer-visible way; **D-54 completes it.** `preventDefault()` fires when the activation threshold is crossed, and the two consequences of moving it later are carried by the same decision rather than left as residue: at that moment the library **clears any selection the pre-threshold press began**, and after an **activated** drag it **suppresses exactly one subsequent `click`, in the capture phase** — without which a drag that ends on a link navigates. Both are consequences of the relocation, not pre-existing defects.
 

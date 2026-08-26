@@ -45,9 +45,9 @@
  * acquisition, the reporter, the invalidation utilities and the protocol event
  * names. The rule that excludes them is *the kernel never hands one to a
  * behavior and never accepts one from it*. The one honest gap is D-46's
- * input-policy helpers, which a third-party behavior wanting the library's
- * policy must reimplement; that is a policy helper rather than SPI vocabulary
- * and is a later decision.
+ * `pathOwnsInteraction`, which a third-party behavior wanting the library's
+ * opt-out scan must reimplement; that is a policy helper rather than SPI
+ * vocabulary and is a later decision.
  */
 import { createKernel } from './kernel/kernel.ts';
 import type { BehaviorFactory } from './kernel/spec.ts';

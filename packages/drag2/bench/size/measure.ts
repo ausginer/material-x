@@ -574,6 +574,55 @@ export type Composition = Readonly<{
    * **Module counts hold exactly on all fourteen rows.** Nothing entered or
    * left a graph; what changed is the weight of `kernel/frames.js`.
    *
+   * **Re-based again 2026-08-26, Phase 23 (D-129), and this row set answers a
+   * question the previous three could not.** The input policy narrows to one
+   * attribute: `POINTER_OWNERS` (14 selectors), `COMMAND_OWNERS` (5) and the
+   * `owns` hop with its `isContentEditable` test are deleted, and
+   * `pathOwnsInteraction` reads `[data-drag-ignore]` per hop.
+   *
+   * | Row | before | landed | Δ brotli | Δ minified | new budget |
+   * | --- | --- | --- | --- | --- | --- |
+   * | minimal | 10,206 | 10,119 | **−87** | −302 | 10,269 |
+   * | minimal (xy) | 9,863 | 9,768 | **−95** | −300 | 9,918 |
+   * | + layoutAnimation | 10,655 | 10,570 | **−85** | −302 | 10,720 |
+   * | + landing | 10,470 | 10,379 | **−91** | −302 | 10,529 |
+   * | complete | 10,895 | 10,817 | **−78** | −300 | 10,967 |
+   * | free drag minimal | 8,023 | 7,932 | **−91** | −222 | 8,082 |
+   * | free drag + bounds | 8,177 | 8,084 | **−93** | −224 | 8,234 |
+   * | free drag + landing | 8,285 | 8,190 | **−95** | −224 | 8,340 |
+   * | free drag complete | 8,436 | 8,347 | **−89** | −224 | 8,497 |
+   * | both behaviors | 12,329 | 12,218 | **−111** | −444 | 12,368 |
+   * | vocabulary root | 121 | 121 | **0** | 0 | 150 (unchanged) |
+   * | kernel root | 5,953 | 5,953 | **0** | 0 | 6,103 (unchanged) |
+   * | baseline A | 10,613 | 10,520 | **−93** | −302 | 10,670 |
+   * | baseline B | 6,889 | 6,889 | **0** | 0 | 7,040 (unchanged) |
+   *
+   * **The kernel root does not move, and that is a structural fact rather than
+   * a null result.** `pathOwnsInteraction` is kernel-*tier* code that no
+   * kernel-*entry* graph reaches: the kernel binds ingress and the behavior
+   * answers, so a third-party behavior importing `kernel.js` never receives
+   * the policy. That is exactly the gap [02](../../.plan/contract/02-kernel-behavior-contract.md)
+   * §The rule records as *the one honest gap*, and this row is the first
+   * measurement to confirm the claim in bytes. **Eleven budgets re-base and
+   * two do not**, for the same reason.
+   *
+   * **The minified column is the honest one and the brotli column is the
+   * reported one, and here they disagree by 3.5×.** A sortable composition
+   * loses 302 B of source and 87 B compressed, because a selector table is a
+   * long run of lowercase ASCII with repeated `[`/`]`/`,` — close to the most
+   * compressible thing in the bundle. Reading the minified figure as the win
+   * would have overstated it threefold; reading only the brotli figure would
+   * hide that the deletion is large. Both are recorded for that reason.
+   *
+   * **The split between the behaviors is a two-table effect, and it reads
+   * cleanly at the source level.** Every sortable row loses ~301 B and every
+   * free-drag row ~223 B — a difference of ~78 B, which is `COMMAND_OWNERS`
+   * and its declaration, the table only the sortable's keyboard ingress
+   * imported. `both behaviors` loses 444 B: more than either alone and less
+   * than their sum, because `POINTER_OWNERS` and `owns` are shared and counted
+   * once. **Module counts hold exactly on all fourteen rows**, and `drag.js`
+   * is byte-identical at **121 B for the eighth consecutive slice**.
+   *
    * **One candidate was measured and rejected, which is the other half of what
    * this instrument is for** (D-127). Collapsing `resetSortableFramePart`'s
    * six `= null` statements into one chained assignment saves 25 B minified
@@ -695,7 +744,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
     },
-    budget: 10_356,
+    budget: 10_269,
     absent: [...without(), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [P06],
@@ -709,7 +758,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/xy.js': '{ xy }',
     },
-    budget: 10_013,
+    budget: 9918,
     absent: [...without(), withoutAxis('sortable/xy.js'), P06],
     absentPrefixes: ['free-drag/'],
     // **Both halves of D-102 in one row.** The dimension-neutral cache is
@@ -725,7 +774,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_805,
+    budget: 10_720,
     absent: [
       ...without('sortable/layout-animation.js'),
       withoutAxis('sortable/y.js'),
@@ -740,7 +789,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 10_620,
+    budget: 10_529,
     absent: [...without('sortable/landing.js'), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: ['sortable/landing.js', P06],
@@ -753,7 +802,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 11_045,
+    budget: 10_967,
     absent: [withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [...OPTIONAL, P06],
@@ -766,7 +815,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'free-drag.js': '{ freeDrag }',
     },
-    budget: 8173,
+    budget: 8082,
     absent: [...withoutFreeDrag()],
     absentPrefixes: ['sortable/'],
     present: ['free-drag.js', 'kernel/kernel.js'],
@@ -777,7 +826,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
       'free-drag/bounds.js': '{ bounds }',
     },
-    budget: 8327,
+    budget: 8234,
     absent: [...withoutFreeDrag('free-drag/bounds.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/bounds.js'],
@@ -788,7 +837,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
       'free-drag/landing.js': '{ landing }',
     },
-    budget: 8435,
+    budget: 8340,
     absent: [...withoutFreeDrag('free-drag/landing.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/landing.js', 'shared/landing-runner.js'],
@@ -800,7 +849,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing }',
     },
-    budget: 8586,
+    budget: 8497,
     absentPrefixes: ['sortable/'],
     present: FREE_DRAG_OPTIONAL,
   },
@@ -823,7 +872,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing as freeDragLanding }',
     },
-    budget: 12_479,
+    budget: 12_368,
     absent: [withoutAxis('sortable/y.js')],
     present: [
       ...OPTIONAL,
@@ -912,7 +961,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 10_763,
+    budget: 10_670,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted

@@ -22,7 +22,7 @@ import {
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
 } from '../kernel/failures.ts';
-import { pathOwnsInteraction, POINTER_OWNERS } from '../kernel/input-policy.ts';
+import { pathOwnsInteraction } from '../kernel/input-policy.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE } from '../kernel/phases.ts';
 import { guarded } from '../kernel/reporter.ts';
@@ -216,9 +216,8 @@ export function createFreeDragSpec(
 
         // **The resolved subject governs** (D-50). A handle inside the item
         // sits earlier in the composed path, so scoping to it shortens the
-        // segment the decline test walks — and a handle that is itself an
-        // interactive element admits, because the consumer scoped dragging
-        // there on purpose.
+        // segment the opt-out scan walks — and a handle inside a marked region
+        // admits, because the consumer scoped dragging there on purpose.
         subject = path.indexOf(handle);
 
         if (subject === -1) {
@@ -227,11 +226,11 @@ export function createFreeDragSpec(
       }
 
       // **What did the event land on** (D-46), asked after the subject is known
-      // and before anything is seeded. A press reaching an interactive or
-      // editable descendant declines by the ordinary total-decline path: no
-      // operation, no phase change, and — since the kernel prevents nothing for
-      // a `null` — focus lands and the caret places.
-      if (pathOwnsInteraction(path, subject, POINTER_OWNERS)) {
+      // and before anything is seeded. A press reaching a `[data-drag-ignore]`
+      // region declines by the ordinary total-decline path: no operation, no
+      // phase change, and — since the kernel prevents nothing for a `null` —
+      // focus lands and the caret places.
+      if (pathOwnsInteraction(path, subject)) {
         return null;
       }
 

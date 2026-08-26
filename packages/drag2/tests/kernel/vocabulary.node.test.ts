@@ -127,11 +127,7 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
     'Invalidator',
   ],
   'the ingress protocol': ['POINTER_DOWN', 'KEY_DOWN'],
-  'the input policy': [
-    'POINTER_OWNERS',
-    'COMMAND_OWNERS',
-    'pathOwnsInteraction',
-  ],
+  'the input policy': ['pathOwnsInteraction'],
   // The phase *constants* are published; `NO_STAMP` and the internal frame
   // plumbing are not.
   'kernel-private frame state': ['NO_STAMP'],

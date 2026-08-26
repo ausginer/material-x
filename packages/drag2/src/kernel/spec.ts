@@ -466,8 +466,10 @@ export type BehaviorSpec<
    *
    * **What a `null` may mean is therefore wider than feasibility** (D-46).
    * Admission also answers *what did the event land on*: a press whose composed
-   * path reaches an interactive or editable descendant declines, unless a
-   * `handle` scoped dragging there (D-50). See contract 02 §Input policy.
+   * path reaches a `[data-drag-ignore]` region declines, unless a `handle`
+   * scoped dragging there (D-50). ~~an interactive or editable descendant~~ —
+   * the element-type inference is withdrawn (D-129). See contract 02 §Input
+   * policy.
    *
    * Returns the element the kernel should lift — optionally paired with the
    * element the kernel should measure (D-59) — or `null` to leave the
