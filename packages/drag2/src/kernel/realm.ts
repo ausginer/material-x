@@ -8,8 +8,8 @@
  * Construction fails explicitly when `defaultView` is `null`; falling back to
  * the ambient `window` would mix realms.
  *
- * `DOMRealm` is **public**: `LandingContext` carries it, and a custom landing
- * runner needs it (contract 00 D-30).
+ * `LandingContext` carries this value, so a custom landing runner receives the
+ * realm it must schedule and measure in.
  */
 export type DOMRealm = Readonly<{
   document: Document;

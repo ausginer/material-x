@@ -217,7 +217,7 @@ export function acquireTopLayer(visual: HTMLElement, unwind: Unwind): Disposer {
     // previously-open popover is literally the call that threw. **The statement
     // after it is the load-bearing one**: the acquisition error is what
     // explains why the lift was refused, and it must still reach the caller
-    // (I-29, D-130 §4).
+    // (I-29).
     unwind(restore);
     throw error;
   }
@@ -264,40 +264,24 @@ export type VisualLiftSession = Readonly<{
    * **Allocation-free in every mode.** The two lifted modes translate the
    * viewport delta directly; the in-place mode projects it through the inverse
    * of its inherited box space, which is four multiplies over scalars the
-   * session captured at acquisition. The shipped package allocated a `{ x, y }`
-   * projection here per pointer sample (contract F-24) — nothing on this path
-   * allocates now except the transform string itself.
+   * session captured at acquisition. Nothing on this path allocates except the
+   * transform string itself.
    */
   compose(x: number, y: number): string;
   /**
    * **The delta `write` last composed and assigned** — where the visual *is*,
-   * in the origin-relative viewport space `compose` and `write` consume (D-35).
+   * in the origin-relative viewport space `compose` and `write` consume.
    * `(0, 0)` until the first `write`, which is the truth for an operation that
    * never rendered and for a pointerless one.
    *
-   * `LandingContext.from` is read from here. It was `pointerX - originX`, which
-   * is the same number for exactly **one** behavior — one whose `moved` writes
-   * the raw pointer delta on both axes. Any behavior that constrains, clamps,
-   * snaps or externally drives its visual writes something else, and a
-   * pointerless operation (D-32) has no pointer at all, so the pointer form
-   * would open the landing from a position the visual has never been at. The
-   * failure signature is the expensive one: **the landing jumps at its start
-   * and still ends correctly**, because the target is behavior-supplied and the
-   * kernel re-pins at the join — Phase 11 met the same shape in the lift
-   * geometry with every test green.
-   *
-   * **Recorded here rather than asked for through a seam.** This object is the
-   * kernel's own and `write` is the library's only rendering entry point during
-   * an operation, so the recording costs two scalar field writes on the hot
-   * path and no call, no allocation and no member on any behavior. A
-   * `renderedDelta(current)` seam would have obliged every behavior to mirror
-   * every write into its frame part — which is the duplication that produced
-   * the defect in the first place.
+   * `LandingContext.from` is read from here rather than from the pointer: a
+   * behavior that constrains, clamps, snaps or externally drives its visual
+   * writes something other than the raw pointer delta, and a pointerless
+   * operation has no pointer at all, so the pointer form would open the landing
+   * from a position the visual has never been at.
    *
    * **Kernel-read.** The behavior is handed a {@link BehaviorLiftSession},
-   * which does not carry this member: a behavior that could sample the delta
-   * could disagree with the kernel about it, and there is nothing it could
-   * correctly do with the disagreement (C5-01).
+   * which does not carry this member.
    *
    * `compose` records nothing — composing is not rendering, and a landing
    * runner composes on every frame.
@@ -306,9 +290,8 @@ export type VisualLiftSession = Readonly<{
   /**
    * Composes a viewport delta and writes it to the visual's inline transform.
    *
-   * This is how the kernel performs the **authoritative pin** at the join
-   * (contract D-16, I-24). Correctness deliberately does not depend on the
-   * landing runner: the runner drives the transform while it is alive, and the
+   * This is how the kernel performs the **authoritative pin** at the join.
+   * Correctness deliberately does not depend on the landing runner: the runner drives the transform while it is alive, and the
    * kernel re-measures and writes the final position through the lift session
    * it already owns, after `LandingHandle.destroy()` has relinquished control.
    *
@@ -320,36 +303,22 @@ export type VisualLiftSession = Readonly<{
 
 /**
  * What a **behavior** is handed: the same physical session, positively
- * projected to the four members it may use (D-35, C5-01).
+ * projected to the four members it may use.
  *
- * `rendered` and `dispose` are kernel-only, and the two are excluded for
- * different reasons. `rendered` is a reading hazard only in the weak sense —
- * but a behavior that samples it has no correct use for the answer, since the
- * kernel is the one that acts on it. `dispose` is a **sequencing** hazard: a
- * behavior calling it from `activation.effect` or `moved` restores the inline
- * style lease — and, in a lifted mode, the top-layer lease — while `rendered`
- * still describes its last `write`, so the landing then samples `from` for a
- * visual that is no longer lifted. That is I-34 broken through a first-class
- * SPI method rather than through a documented residue, and the difference
- * matters: a residue is a rule a participant may break, this was the API
- * handing out the thing it claims to own.
- *
- * **Positively selected, not `Omit`-ed**, so a member added to the session
- * later is kernel-only by default rather than leaking until someone remembers
- * to exclude it.
+ * `rendered` and `dispose` are kernel-only. The session's lifetime is the
+ * kernel's: disposing it from `activation.effect` or `moved` would drop the
+ * inline-style lease — and, in a lifted mode, the top-layer lease — while the
+ * recorded delta still describes the last `write`, so the landing would open
+ * from a visual that is no longer lifted.
  *
  * The projection is type-level. The kernel passes the *same object* under the
- * narrower type, so it costs no allocation — the identical argument
- * `LifetimeScope` already makes for `Lifetime`.
+ * narrower type, so it costs no allocation.
  *
- * **What it does not project away is the timing** (C6-01). `write` stays
- * callable and stays *effective* — no phase test, no operation check — so
- * calling it after `LandingContext.from` is sampled fights the landing runner
- * for the same property, and calling it after retirement writes onto an element
- * no live operation owns. Both are outside the contract and neither is refused:
- * a guard would put a branch on the one path M-1 measures, to defend against a
- * bug no reference behavior has, and would turn a violation into a *silent*
- * no-op — which is the harder defect to find of the two.
+ * **It does not project away the timing.** `write` stays callable and stays
+ * *effective* — no phase test, no operation check — so calling it after
+ * `LandingContext.from` has been sampled fights the landing runner for the same
+ * property, and calling it after retirement writes onto an element no live
+ * operation owns. Both are outside the contract and neither is refused.
  */
 export type BehaviorLiftSession = Readonly<
   Pick<VisualLiftSession, 'visual' | 'baseTransform' | 'compose' | 'write'>
@@ -357,7 +326,7 @@ export type BehaviorLiftSession = Readonly<
 
 /**
  * The inverse of an inherited linear part, or `null` for the identity, a
- * singular space or a non-finite one (D-85).
+ * singular space or a non-finite one.
  *
  * `null` means **the local delta is the viewport delta** — the correct answer
  * for an untransformed ancestry and the honest one for a space that cannot be

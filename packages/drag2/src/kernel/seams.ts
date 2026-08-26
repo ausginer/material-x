@@ -4,10 +4,9 @@
  * Every substantial action is three stages — **prepare** (validation, pure
  * calculation, DOM reads, local acquisition), **commit** (short, effectively
  * non-throwing), **post-commit effects** (DOM writes, lifetime closes,
- * continuations, callbacks). Probe 1 asked the behavior to obey that order,
- * including calling `begin()`, `preparationValid()` and `commit()` itself. Here
- * it is the shape of the contract: the kernel drives all three and the behavior
- * supplies two pure-ish callbacks (D-3).
+ * continuations, callbacks). The order is the shape of the contract rather
+ * than a rule the behavior obeys: the kernel drives all three stages and the
+ * behavior supplies two pure-ish callbacks (D-3).
  *
  * There is one core routine, and **no seam is only the core** — the discard
  * policy and the failure policy differ per seam, and pretending otherwise hid
@@ -39,7 +38,7 @@ export type Transition<
   /**
    * Post-commit effects, for an already-published transition. A throw here
    * becomes a classified failure **from the committed state**; the transition
-   * is not reverted (I-18).
+   * is not reverted.
    */
   effect(
     current: Readonly<Frame<Part>>,
@@ -75,7 +74,7 @@ export type ActionTransition<Part extends object> = Readonly<{
 
 /**
  * Shared by the two non-discardable seams, which still need to say *this is a
- * failure, at this stage* (F-20).
+ * failure, at this stage*.
  */
 export type SeamRejection = Readonly<{
   stage: FailureStage;
@@ -97,14 +96,11 @@ export const SEAM_EFFECT_FAILED = 4;
  * What one seam run did, named once so every caller branches on the same
  * vocabulary.
  *
- * ~~`seamFailed` and `seamDiscarded`.~~ **Deleted 2026-08-25 (D-128)**, and
- * deleted as a **pair**: `seamFailed` had no production reader at all and
- * `seamDiscarded` had one, so keeping either alone would have left this enum
- * with one classification named and the other open-coded — a worse reading than
- * either keeping both or inlining both. Call sites name the outcomes they mean.
+ * There are no predicate helpers over this union; call sites name the outcomes
+ * they mean (D-128).
  *
- * **The rule `seamFailed`'s comment carried is real and is enforced here**, in
- * `runSeam`: a classified failure must also **stop incompatible continuation**,
+ * **A classified failure must also stop incompatible continuation**, and
+ * `runSeam` is where that is enforced:
  * because the failure checkpoint is *queued* (D-23). Between the throw and the
  * checkpoint there is a window in which the driver would otherwise still be
  * doing success work — so `SEAM_PREPARE_FAILED` returns before `commit()`, and
@@ -212,18 +208,14 @@ export type SeamDriver<Part extends object> = Readonly<{
    * {@link SeamDriver.runLeafValue} on the **unclassified track**: the seam
    * still runs inside a phase — re-entry refused, `host.fail` latched, one
    * report per phase — but a failure reaches the consumer as a warning instead
-   * of settling the operation (D-49, D-130).
+   * of settling the operation (D-49).
    *
    * One caller: the arm-time landing measurement. A target that cannot be
    * produced and one that cannot be trusted are the same fault, and neither is
    * a reason to tell a consumer whose reorder succeeded that it did not.
    *
-   * ~~`runQualityValue(run, stage)`.~~ **The stage argument is gone (D-130).**
-   * It existed to name `FAILURE_LANDING_TARGET`, a stage that was *classified,
-   * non-consequential and carried no recovery* — a shape D-49 had to invent
-   * because reaching `onError` required classification. With one channel it
-   * does not, so the stage had no remaining reader and left the union with the
-   * tier that produced it.
+   * There is no stage argument: an unclassified failure names no stage, only a
+   * `reason` the report carries.
    */
   runUnclassifiedValue<Value extends {}>(
     run: () => Value,
@@ -251,10 +243,7 @@ const NO_STAGE = 0;
 /**
  * The stage of a phase whose failures are **reported, never classified**.
  *
- * ~~Two sentinels, `BEST_EFFORT = -1` and `QUALITY = -2`.~~ **One since D-130.**
- * They named two destinations — the platform reporter and `onError` — for the
- * identical tier, and with a single channel they differed in nothing at all.
- * The distinction was never about the failure; it was about who got told.
+ * One sentinel, because there is one report channel (D-130).
  *
  * Two phases open under it, and their reasons are worth keeping distinct even
  * though their handling is now identical. `rollback` runs when the operation is

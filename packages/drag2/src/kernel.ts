@@ -11,19 +11,17 @@
  * here. It belongs to neither tier, so it has its own root rather than lodging
  * in whichever tier also happens to need it (`drag.js`).
  *
- * ## What this entry publishes, and why it is this long (D-68)
+ * ## What this entry publishes (D-68)
  *
  * > A name is published here **if and only if** it is in the structural closure
  * > of `BehaviorFactory`, or the SPI hands a behavior a value whose domain it
  * > could not otherwise name.
  *
- * Until Revision 2.2 the entry published `draggable`, the thirteen stages and
- * twelve types — and **could not construct a behavior at all** (F-59). Every
- * missing name was a *value*: `config.liftMode` needs a `LIFT_*`,
+ * The values matter as much as the types: `config.liftMode` needs a `LIFT_*`,
  * `settlement.prepare` needs the `SETTLED_*` arms to discriminate its input,
- * and D-66's fallback needs `AT_PROPOSAL`/`AT_CONSUMER`. Erased types cannot
- * fill a value position, and no path under `kernel/` is a declared package
- * export, so there was no supported specifier that reached them.
+ * and the terminal fallback needs `AT_PROPOSAL`/`AT_CONSUMER`. An erased type
+ * cannot fill a value position, and no path under `kernel/` is a declared
+ * package export, so this entry is the only specifier that reaches them.
  *
  * **Published is not must-name.** A behavior whose seams sit inline in one
  * object literal is contextually typed throughout and names three to eight
@@ -31,12 +29,11 @@
  * closure is published so the second style is *possible*, not so anyone types
  * it.
  *
- * **Four names are re-homed, not added.** `Disposer`, `LandingStart`,
- * `LandingContext` and `LandingHandle` are published at `sortable/feature.js`
- * and `CancelStage`/`AT_*` at `sortable.js`; all six are declared under
- * `kernel/`, so the tier that owns them is this one, and each keeps its
- * existing publication as a re-export of the same declaration. The direction is
- * the point: `SettlementScope.holdForLanding` is kernel SPI, so a kernel-tier
+ * **Six names are published from two entries, from one declaration each.**
+ * `Disposer`, `LandingStart`, `LandingContext` and `LandingHandle` are also
+ * published at `sortable/feature.js`, and `CancelStage`/`AT_*` at
+ * `sortable.js`; all six are declared under `kernel/`, so the tier that owns
+ * them is this one. The direction is the point: `SettlementScope.holdForLanding` is kernel SPI, so a kernel-tier
  * author reaching `sortable/feature.js` for `LandingStart` would be importing
  * the sortable behavior in order to author a **non**-sortable one.
  *
@@ -60,9 +57,8 @@ import type { BehaviorFactory } from './kernel/spec.ts';
  * is a name a behavior of the sortable's size writes out of line.
  *
  * `ActionTransition` and `SeamRejection` are re-exported through this module
- * from **one** declaration each, in `kernel/seams.ts` (F-61): both were
- * declared twice, and publishing one copy while the driver consumed the other
- * is the identity hazard 03 §The export topology exists to prevent.
+ * from **one** declaration each, in `kernel/seams.ts`: publishing one copy
+ * while the driver consumes another is an identity hazard (F-61).
  */
 export type {
   ActionTransition,
@@ -168,23 +164,12 @@ export {
 
 /**
  * The stages, as **values as well as a type**. A behavior author calls
- * `host.fail(stage, error)` and cannot do so without naming one — the same
- * "export what the tier's public surface structurally depends on" rule the
- * contract has run on since phase 9, applied at the tier that now depends on
- * it (D-64).
+ * `host.fail(stage, error)` and cannot do so without naming one, so the tier
+ * that depends on the vocabulary publishes it (D-64).
  *
- * ~~The stage → code mapping is published here too, because D-64 makes it
- * library-owned: publishing the stages and a four-member `DraggableErrorCode`
- * without the mapping between them would let `code` mean something different
- * depending on which behavior raised the error.~~ **Both halves are gone.**
- * D-130 removed the divergence risk structurally, by making the kernel the only
- * constructor; D-132 then deleted the code the mapping produced, so there is no
- * second vocabulary to keep in agreement with this one.
- *
- * **This is now the second publication point, not the only one** (D-132 §6).
  * `drag.js` re-exports the same declaration, because `DraggableError.stage`
- * carries it to an ordinary consumer. That consumer still never imports this
- * entry, which is the half of D-64 that stands.
+ * carries a stage to an ordinary consumer — who still never imports this
+ * entry.
  */
 export {
   FAILURE_ACTION_EFFECT,
@@ -222,22 +207,15 @@ export {
 /**
  * Creates one controller.
  *
- * The behavior needs `cancel`/`destroy` to build its controller and the kernel
- * needs the spec before it can arm ingress. Returning both halves at once makes
- * "no input can be admitted before install returns" unexpressible rather than a
- * rule to obey (D-1): `arm()` is not on `KernelHost`, only this function holds
- * the kernel handle, and it calls `arm()` exactly once.
+ * The factory is called with the kernel host and returns both halves at once:
+ * the behavior needs `cancel`/`destroy` to build its controller, and the kernel
+ * needs the spec before it can arm ingress. Ingress is armed exactly once,
+ * after the factory has returned, so no input can be admitted before then.
  *
- * **Takes a plain factory** (D-48, D-55). The opaque `Behavior<Controller>`
- * brand is withdrawn: with `sortable()` returning a controller, the brand had
- * no producer, and an exported opaque type nothing constructs is a boundary
- * marker with no boundary to mark.
- *
- * `Controller` is inferred from the argument; the consumer names it nowhere.
- * The behavior's frame part is erased at the factory's return position — it is
- * a private type of the behavior, and the composed frame type exists only
- * inside the kernel, where `Object.assign`'s `T & U` typing produces it with no
- * cast.
+ * `Controller` is inferred from the argument and is named nowhere else. The
+ * behavior's frame part is erased at the factory's return position — it is a
+ * private type of the behavior, and the composed frame type exists only inside
+ * the kernel.
  */
 export function draggable<
   Controller,

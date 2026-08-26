@@ -24,20 +24,9 @@ import { DraggableWarning, type Notify } from './errors.ts';
 export type Disposer = () => void;
 
 /**
- * What the behavior receives at activation: the physical `Lifetime` with
- * `dispose` and `finalized` absent (contract D-21).
- *
- * A type-level projection costs nothing — the kernel passes the identical
- * object under the narrower type — and it turns I-11 from "the behavior should
- * not close motion" into "it cannot".
- *
- * **Declared as the base, with `Lifetime` extending it** (D-68). It read
- * `Pick<Lifetime, …>`, which was the same type and the wrong direction once
- * this became public: the projection's closure then named the full `Lifetime`,
- * so publishing the scope dragged the member the projection exists to remove
- * into the kernel entry's documented closure. Deriving the other way publishes
- * exactly what D-21 says a behavior gets, and keeps one declaration of every
- * member.
+ * What a behavior receives at activation: a lifetime it may register work
+ * against but cannot close. Closing is the kernel's, so a behavior can neither
+ * end motion ingress early nor keep it open past release.
  */
 export type LifetimeScope = Readonly<{
   signal: AbortSignal;
@@ -45,10 +34,6 @@ export type LifetimeScope = Readonly<{
   useWhile(guard: () => boolean, disposer: Disposer): void;
 }>;
 
-// ~~`finalized: boolean`~~ **removed 2026-08-22.** A getter on an object built
-// three times per operation, with no reader anywhere in `src/` — the internal
-// code reads the closure variable this accessor wrapped, not the accessor. A
-// dead member of a live object is the one kind a bundler cannot shake.
 export type Lifetime = LifetimeScope &
   Readonly<{
     dispose(): void;
