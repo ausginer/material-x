@@ -1676,6 +1676,22 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **Two guards were deliberately left where they were** (F-97 and its neighbour). `seam/staged-unconsumed` and `dispatch/tag-out-of-range` are routed through the new channel and nothing else: whether either check should exist is a reachability question decided elsewhere, and bundling it would make an error architecture depend on a guard audit and vice versa.
 
+### The consumer fault vocabulary, decided 2026-08-26 (D-132, F-104)
+
+**The owner asked whether `DraggableError.code` could simply carry the numeric `FailureStage`. It can, and the reason is stronger than the extra taxonomy being unnecessary — the coarse code was making a claim its input cannot support.** Record [`reviews/phase-23/consumer-fault-classification-claude.md`](reviews/phase-23/consumer-fault-classification-claude.md).
+
+**Two things fell out of the trace that no reading of `errors.ts` alone would have produced.** The first is that the package's own compiled demonstration of the field's purpose gives the wrong answer: `docs/revision/revision-2.ts:362` writes `error.code === 'consumer' ? 'mine' : 'theirs'`, and D-81 enumerates a consumer's own garbage `bounds` source surfacing as `interaction`, `presentation`, `presentation` or `interaction` and never as `consumer`. The second is that the suite had already voted — **nineteen assertion sites name a stage and translate it**, `toDraggableError(FAILURE_X, null).code`, routing around the published vocabulary to reach the internal one.
+
+**D-130 is what made this decidable rather than a preference.** D-64's total mapping existed so `code` could not diverge between behaviors; kernel-owned construction removed that risk structurally three days ago, and what survived did one job — discard information — under a compile-time guard protecting it.
+
+**The consumer-visible population is three construction sites, and one of them has no stage at all.** `panic` picks `platform` directly, for an invariant violation that destroys the controller, which is F-104 and the one behavioural improvement this delivers: `stage: null` is the only value that means _the controller is gone_.
+
+**The field is renamed, not retyped in place.** `failures.ts`'s own rule is that a name surviving a meaning change makes the break silent, so `code` becomes `stage` and `err.code === 'consumer'` fails to compile instead of comparing false forever. `private: true` at `0.1.0` is what makes that available now and never again.
+
+**Size decides nothing, and the record says so explicitly so a later pass does not reopen it as one.** The twelve constants cost a bundling consumer 0 B, measured three ways; the mapping's counterfactual was 3 B brotli; and `CODE_OF_SIZE` §4's clause is _unless they are part of the supported consumer contract_, which this decision satisfies rather than evades.
+
+**Booked to Remediation with a source witness**, since it deletes three declarations, moves a published vocabulary to a second entry, and rewrites about twenty-five assertions.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.
