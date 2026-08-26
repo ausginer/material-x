@@ -1,22 +1,19 @@
 /**
  * The public, stable free-drag config schema and the merge that folds fragments
- * into it (contract 07 §The config schema).
+ * into it.
  *
  * **Every slot is a named type alias, and that is normative rather than
  * stylistic** (F-51). Method shorthand is checked bivariantly even under
  * `strict`, so `onEnd?(result): void` would silently accept a handler narrowed
- * to two of the three arms — and D-62's whole claim is that the *compiler*
- * checks the consumer's exhaustiveness. The inline property form does not
- * survive this repo either: `method-signature-style` rewrites it back into
- * shorthand on every `lint-fix`. A named alias is immune to both.
+ * to two of the three arms, defeating the compiler-checked exhaustiveness the
+ * terminal relies on. The inline property form does not survive this repo
+ * either: `method-signature-style` rewrites it back into shorthand on every
+ * `lint-fix`. A named alias is immune to both.
  *
  * **Three of them are qualified by behavior** (D-109). `onStart`, `onEnd` and
- * `onError` exist on both ordinary configs with **different structures**, which
- * is D-75's only condition for qualifying a name, and both aliases publish from
- * their own root. `ResolveHandle` and `ResolveElement` also collide and are
- * structurally identical, so they stay unqualified — the rule discriminates
- * rather than blankets. A released consumer cannot have the symmetry added
- * later, so it is added before publication.
+ * `onError` exist on both ordinary configs with **different structures**, and
+ * both aliases publish from their own root. `ResolveHandle` and `ResolveElement`
+ * also collide but are structurally identical, so they stay unqualified.
  */
 import type { Writable } from 'type-fest';
 import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
@@ -33,18 +30,9 @@ import type { FreeDragInstaller } from './feature.ts';
 
 export type FreeDragOnStart = (geometry: DragGeometry) => void;
 export type OnMove = (geometry: DragGeometry) => void;
-/** Exactly once per started operation, whatever happened to it (D-62, D-66). */
+/** Exactly once per started operation, whatever happened to it. */
 export type FreeDragOnEnd = (result: FreeDragTransactionResult) => void;
 /**
- * **One argument since D-130.** ~~`(error, context)`, where the context carried
- * `domain`.~~ That copy was strictly redundant with the terminal: its only
- * non-null producer was the settlement-failure path, `finalized` publishes the
- * same `current.domain` to `onEnd`, and D-66 makes the terminal
- * unconditional — so a non-null `domain` always implied an `onEnd` carrying it.
- * It was also *worse* than redundant on one path: `onError` runs in `REPORTING`
- * and `onEnd` in `FINALIZING`, so a second failure arriving between them left
- * the context stale relative to the terminal the consumer was about to receive.
- *
  * **A `DraggableWarning` means the operation was not affected** — a landing
  * measurement that could not be trusted, a disposer that refused — and its
  * terminal still arrives. A `DraggableError` means it was.
@@ -53,22 +41,20 @@ export type FreeDragOnDragError = (
   error: DraggableError | DraggableWarning,
 ) => void;
 /**
- * **Resolver only** — the shipped element form is withdrawn, unifying with the
- * sortable's slot. `handle: el` migrates to `handle: () => el`.
+ * Resolves the element within the item that must be pressed to start a drag.
  */
 export type ResolveHandle = (item: HTMLElement) => HTMLElement | null;
 export type ResolveElement = (item: HTMLElement) => HTMLElement;
 
 /**
  * Every slot is optional in a *fragment*; the required one is required of the
- * **first argument** (D-77), which is where the compiler can see it.
+ * **first argument**, which is where the compiler can see it.
  */
 export type FreeDragConfig = Readonly<{
   /**
-   * **The one required slot, and a compile error when absent** (D-77). The
-   * merge hid it from the compiler only while every argument was `Partial`; the
-   * required first parameter is not. A later fragment may still **replace** it
-   * and cannot **clear** it — the merge skips `undefined` (B-9).
+   * **The one required slot, and a compile error when absent.** A later
+   * fragment may **replace** it and cannot **clear** it — the merge skips
+   * `undefined`.
    */
   onDrop: OnDrop;
 
@@ -87,10 +73,10 @@ export type FreeDragConfig = Readonly<{
   /* scalars, and one scalar-or-source */
   /**
    * `'both' | 'x' | 'y'`, default `'both'`. A **function is a source** re-read
-   * on `invalidate()` and at activation, never per sample (D-71).
+   * on `invalidate()` and at activation, never per sample.
    */
   axis?: DragAxis | AxisSource;
-  /** `'faithful' | 'flat' | 'in-place'`, default `'faithful'` (D-73). */
+  /** `'faithful' | 'flat' | 'in-place'`, default `'faithful'`. */
   lift?: FreeDragLift;
   /** Activation travel in viewport pixels. Same default and domain as the sortable's. */
   threshold?: number;
@@ -131,7 +117,7 @@ const LAST_WINS_KEYS = [
 
 /**
  * **Merge semantics belong to the config slot, not to fragment provenance**
- * (D-45, unchanged for the second behavior). Scalars and plain consumer
+ * (D-45). Scalars and plain consumer
  * functions last-win, an atomic capability installer last-wins as one whole
  * slot, and `plugins` appends in fragment order.
  *

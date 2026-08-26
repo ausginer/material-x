@@ -8,12 +8,10 @@
  * consumer never names `draggable`, never holds a behavior value, and never
  * learns that a kernel tier exists.
  *
- * **One vocabulary — `drag`, not `drop`** (D-69). The shipped package mixed
- * `FreeDrop*` types with `FreeDrag*` export-site renames and left the successor
- * to pick one. The drop is an event inside the drag; the drag is the thing being
- * configured, controlled and named, so it names the entry, the function, the
- * controller and the type family. `onDrop` keeps its name because it is the one
- * slot that really is about the drop.
+ * **One vocabulary — `drag`, not `drop`** (D-69). The drop is an event inside
+ * the drag; the drag is the thing being configured, controlled and named, so it
+ * names the entry, the function, the controller and the type family. `onDrop`
+ * keeps its name because it is the one slot that really is about the drop.
  *
  * `FreeDragConfig` and **every alias it names** are exported from here (F-51),
  * because a config slot a consumer can fill but cannot hoist out of the object
@@ -29,7 +27,7 @@ import { draggable } from './kernel.ts';
 
 export type { FreeDragController } from './free-drag/controller.ts';
 /**
- * The config schema and every alias it names (D-45, F-51, D-78).
+ * The config schema and every alias it names (F-51).
  */
 export type {
   FreeDragConfig,
@@ -88,11 +86,9 @@ export {
  * is both what the press is bound to and what is dragged.
  *
  * **The second is a complete `FreeDragConfig`; every later argument is a plain
- * partial config merged by slot** (D-77, D-45). A missing `onDrop` is therefore
- * a compile error rather than a runtime throw: it is found without running the
- * code, costs zero runtime bytes, and cannot be missed by a path that happens
- * not to execute. A later fragment may **replace** the slot and cannot **clear**
- * it — the merge skips `undefined`.
+ * partial config merged by slot.** A missing `onDrop` is therefore a compile
+ * error rather than a runtime throw. A later fragment may **replace** the slot
+ * and cannot **clear** it — the merge skips `undefined`.
  *
  * **It throws nothing for any config the compiler accepts.** Every option domain
  * the compiler already states is left to the compiler, and a value that breaks
@@ -101,7 +97,7 @@ export {
  * uses it, classified, coded and terminating the operation exactly once — while
  * a `NaN` threshold, an unknown `axis` and an unknown `lift` are **silent**,
  * because two of them never fail and the third never starts an operation, so
- * there is no terminal to owe (07 §Validation).
+ * there is no terminal to owe.
  */
 export function freeDrag(
   item: HTMLElement,
