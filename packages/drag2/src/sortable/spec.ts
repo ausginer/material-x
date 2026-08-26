@@ -1717,10 +1717,12 @@ export function createSortableSpec(
      * error, picks its class and owns the latch; this member is the last hop,
      * and it is {@link deliver} itself.
      *
-     * **Neither the error mapping nor a `domain: null` context belongs here**,
-     * so this member neither calls `toDraggableError` nor attaches one: the
-     * mapping is kernel-owned so it cannot mean two things in two behaviors,
-     * and the context is strictly redundant with the terminal (D-130 §6).
+     * **Neither a classification nor a `domain: null` context belongs here**,
+     * so this member neither derives anything from the stage nor attaches a
+     * context: construction is kernel-owned so a classification cannot mean two
+     * things in two behaviors, and the context is strictly redundant with the
+     * terminal (D-130 §6). There is no stage-to-code mapping left to call
+     * either way (D-132).
      *
      * Its one caller is the kernel's `notify`, which gates on the latch and
      * discards a throwing handler for every route it owns — including `panic`'s

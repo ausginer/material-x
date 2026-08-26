@@ -174,9 +174,12 @@ import {
 // ---------------------------------------------------------------------------
 
 /**
- * `DraggableError` and `DraggableErrorCode` are **imported** now. They were
- * restated here — the class as a `declare class`, the code as its four string
- * literals — which proved only that four literals can be written down twice.
+ * `DraggableError` and the stage vocabulary are **imported** now. The class was
+ * restated here as a `declare class` and the four code literals were written
+ * out beside it, which proved only that four literals can be written down
+ * twice. ~~`DraggableErrorCode` is imported with it~~ — D-132 deleted the type,
+ * and what a consumer imports from `drag.js` in its place is `FailureStage`
+ * and the twelve `FAILURE_*` constants.
  */
 
 // ---------------------------------------------------------------------------
@@ -336,12 +339,15 @@ function disposition(result: ReorderTransactionResult): string {
 }
 
 /**
- * D-64 — the consumer branches on a fault class, never on a stage.
+ * D-132 — the consumer branches on the **stage**, and ~~D-64 — never on a
+ * stage, always on a fault class~~ is the claim that reverses. There is one
+ * fault vocabulary now, and it is the one the kernel classified with.
  *
- * **D-130 — and first on the class, which is the coarser question.** A
+ * **D-130 — the class is asked first, because it is the coarser question.** A
  * `DraggableWarning` says the operation was not affected and its terminal is
- * still coming; only a `DraggableError` carries a `code`. ~~The second
- * parameter was a `SortableErrorContext` carrying `domain`~~, deleted as
+ * still coming; only a `DraggableError` carries a `stage`, and its `null` arm
+ * means the controller is gone rather than that the stage is unknown. ~~The
+ * second parameter was a `SortableErrorContext` carrying `domain`~~, deleted as
  * redundant with the `onEnd` that D-66 makes unconditional.
  */
 function report(error: DraggableError | DraggableWarning): string {

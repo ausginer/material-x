@@ -1255,19 +1255,21 @@ export const COMPOSITIONS: readonly Composition[] = [
      * **It is what makes the row above a measurement rather than a tautology.**
      * A one-module vocabulary root is only evidence for D-48's split if the
      * tier it declines to import is substantial, and this weighs that tier at
-     * twelve modules against the vocabulary root's one.
+     * thirteen non-entry modules against the vocabulary root's one.
      *
-     * **The two graphs turn out to be disjoint, which is stronger than the
-     * split needed.** `kernel.js` does not pull `kernel/errors.js` either —
-     * `draggable` alone never names the class — so neither root subsumes the
-     * other and D-48's _neither tier should have to import the other to name a
-     * symbol both hand out_ holds in both directions rather than one. That was
-     * not known before this row: `bundle-structure.md` recorded the 12-module
-     * floor without listing it.
+     * **The containment runs one way, and one way is what D-48 asks for.**
+     * This graph contains `kernel/errors.js`, because the kernel constructs
+     * every public error and names both classes to do it (D-130), so the
+     * vocabulary root's single module is a strict subset of this row's. The
+     * property being measured is the direction that is not subsumption: an
+     * ordinary consumer who wants `err instanceof DraggableError` reaches one
+     * module and never this tier. A future edit that removed the class from
+     * the kernel's graph would widen the gap and falsify nothing here; an edit
+     * that put a behavior in it is what `absentPrefixes` catches.
      *
      * Declared with `present`/`absentPrefixes` rather than `only`: the claim
      * here is that the kernel floor reaches no behavior, not that its own
-     * twelve modules are frozen.
+     * module list is frozen.
      */
     name: 'kernel root - kernel.js',
     imports: { 'kernel.js': '{ draggable }' },
