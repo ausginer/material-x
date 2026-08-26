@@ -44,20 +44,9 @@ type Composed = Readonly<{
 
 const cleanup: Array<() => void> = [];
 
-type Reporting = { reportError?(error: unknown): void };
-
-let reported: unknown[] = [];
-
-beforeEach(() => {
-  reported = [];
-  (globalThis as Reporting).reportError = (error): void => {
-    reported.push(error);
-  };
-});
+beforeEach(() => {});
 
 afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-
   for (const dispose of cleanup.splice(0)) {
     dispose();
   }
@@ -853,7 +842,8 @@ describe('teardown', () => {
     expect(displaced(composed)).toEqual([]);
     expect(composed.items[1]!.style.translate).toBe('0px 7px');
     expect(composed.items[2]!.style.translate).toBe('');
-    expect(reported).toEqual([]);
+    // **One collector since D-130** — this covers what a `globalThis.reportError`
+    // stub used to observe separately.
     expect(composed.errors).toEqual([]);
   });
 });

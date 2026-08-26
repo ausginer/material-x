@@ -1,10 +1,19 @@
 /**
- * **The consumer-facing fault vocabulary** (D-64).
+ * **The consumer-facing fault vocabulary** (D-64, D-130).
  *
  * `FailureStage` is how a *behavior* classifies, which is kernel-tier work. An
  * ordinary consumer receives a `DraggableError` carrying a coarse `code`
  * instead, and never a stage: the classification machinery is unchanged, only
  * its audience narrowed.
+ *
+ * **Two classes, one channel** (D-130). ~~A consequential failure reaches
+ * `onError` and everything else reaches the platform reporter.~~ The
+ * destination no longer encodes severity: every fault the library surfaces
+ * reaches the consumer's `onError`, and **which class arrives** says whether
+ * the operation was affected. The discriminator is *outcome, not effect*: a
+ * fault is consequential when it changes the operation's terminal result, its
+ * phase sequence or its settlement, and trajectory, timing and presentation
+ * quality are none of those.
  */
 
 import type { FailureStage } from './failures.ts';
@@ -46,6 +55,48 @@ export class DraggableError extends Error {
     this.code = code;
   }
 }
+
+/**
+ * **A fault that must be surfaced and did not replace the outcome** (D-130).
+ *
+ * A failing disposer, a rollback that threw on its way out, a landing
+ * measurement that could not be trusted, a duplicate gate hold. The operation
+ * terminated exactly as it would have: same terminal result, same phase
+ * sequence, same settlement. What the consumer lost is trajectory, timing or a
+ * released resource — never an answer.
+ *
+ * **It does not extend {@link DraggableError}, and that is the load-bearing
+ * part of the design.** `err instanceof DraggableError` is published and
+ * already means *my operation was affected*; a warning that satisfied it would
+ * silently turn every existing handler into one that treats advisory
+ * diagnostics as failures — the coupling D-130 exists to remove, reintroduced
+ * through the type graph. Both extend `Error` directly, and there is **no
+ * shared base**: the callback's parameter is a two-member union, which needs no
+ * supertype to be written down.
+ *
+ * **No `code`.** `DraggableError.code` is a coarse fault attribution a consumer
+ * might branch on; nothing in the warning population suggests a handler would,
+ * and every realistic one logs. So the payload is the message and `cause`, and
+ * the message carries the weight a code would: it **names the reason** while
+ * `cause` carries whatever was caught. Adding a field later is additive;
+ * publishing one now freezes it.
+ */
+export class DraggableWarning extends Error {
+  constructor(message: string, cause?: unknown) {
+    super(message, { cause });
+    this.name = 'DraggableWarning';
+  }
+}
+
+/**
+ * The one channel, as seen by a module that does not own it (D-130).
+ *
+ * Kernel-internal. It is threaded to the four sites that hold no controller
+ * reference — the lifetimes, the top-layer acquisition and both composition
+ * unwinds — rather than published, because a behavior reaches the consumer
+ * through its own callbacks slot and never through this.
+ */
+export type Notify = (error: DraggableError | DraggableWarning) => void;
 
 /**
  * **Total in the type, and that is the whole point** (D-64).
@@ -91,8 +142,11 @@ export class DraggableError extends Error {
  * (D-30, D-74), so a **dense zero-based** representation was refused: that is
  * an API change wearing a size optimization's clothes.
  *
- * **Slots 0 and 13 are unreachable and are padded with an existing code rather
- * than left `undefined`** — `13` is D-41's deliberate hole. Padding measures
+ * **Slots 0, 12 and 13 are unreachable and are padded with an existing code
+ * rather than left `undefined`** — `13` is D-41's deliberate hole and `12` is
+ * D-130's. Padding is what keeps a deleted stage's number **occupied**: the
+ * tuple is positional, so an unpadded hole would silently shift every later
+ * code by one the moment someone tidied it. Padding measures
  * 7 B *better* after Brotli while measuring 8 B worse minified: a repeat is
  * cheaper to the compressor than a novel token. The minified figure disagrees
  * with the shipped one in direction here, which is the reason both are read.
@@ -119,7 +173,7 @@ const STAGE_TO_CODE = [
   'interaction', // 9  FAILURE_RELEASE
   'presentation', // 10 FAILURE_LANDING_CREATE
   'presentation', // 11 FAILURE_LANDING_INTERRUPTED
-  'presentation', // 12 FAILURE_LANDING_TARGET
+  'consumer', // 12 — the D-130 hole
   'consumer', // 13 — the D-41 hole
   'consumer', // 14 FAILURE_TERMINAL_CALLBACK
 ] as const satisfies Record<FailureStage, DraggableErrorCode>;

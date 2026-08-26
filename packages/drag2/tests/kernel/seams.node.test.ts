@@ -1,4 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { DraggableWarning } from '../../src/kernel/errors.ts';
 import {
   FAILURE_ACTIVATION,
   FAILURE_RELEASE,
@@ -34,10 +35,13 @@ type Harness = Readonly<{
   context: SeamContext<ExamplePart>;
   /** Classified failures, in the order the kernel queued them. */
   failures: ReadonlyArray<Readonly<{ stage: FailureStage; error: unknown }>>;
-  /** Quality failures, reported through `onError` and never classified (D-49). */
-  quality: ReadonlyArray<Readonly<{ stage: FailureStage; error: unknown }>>;
-  /** Errors sent to the platform reporter. */
-  reported: readonly unknown[];
+  /**
+   * **One collector where there were two** (D-130). ~~`quality`, fed by
+   * `reportQuality`, and `reported`, fed by a `globalThis.reportError` stub.~~
+   * The driver has one non-classifying route now, so the harness has one array
+   * — and the collapse is visible here before it is asserted anywhere.
+   */
+  warnings: readonly DraggableWarning[];
   current(): Readonly<Frame<ExamplePart>>;
   /** Simulates a reentrant cancel or destroy invalidating the preparation. */
   invalidate(): void;
@@ -45,21 +49,6 @@ type Harness = Readonly<{
   /** How many times a transaction rebuilt the draft from the committed frame. */
   begins(): number;
 }>;
-
-type Reporting = { reportError?(error: unknown): void };
-
-let reported: unknown[];
-
-beforeEach(() => {
-  reported = [];
-  (globalThis as Reporting).reportError = (error) => {
-    reported.push(error);
-  };
-});
-
-afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-});
 
 /**
  * A fake kernel: two real frames, a real commit swap, and a validity flag a
@@ -73,8 +62,7 @@ function createHarness(): Harness {
   let commits = 0;
   let begins = 0;
   const failures: Array<{ stage: FailureStage; error: unknown }> = [];
-  /** D-49's third state: reported through `onError`, never classified. */
-  const quality: Array<{ stage: FailureStage; error: unknown }> = [];
+  const warnings: DraggableWarning[] = [];
 
   const context: SeamContext<ExamplePart> = {
     begin(): void {
@@ -93,8 +81,8 @@ function createHarness(): Harness {
     fail(stage, error): void {
       failures.push({ stage, error });
     },
-    reportQuality(stage, error): void {
-      quality.push({ stage, error });
+    notify(error): void {
+      warnings.push(error);
     },
   };
 
@@ -102,10 +90,7 @@ function createHarness(): Harness {
     driver: createSeamDriver(context),
     context,
     failures,
-    quality,
-    get reported(): readonly unknown[] {
-      return reported;
-    },
+    warnings,
     current: () => current,
     invalidate(): void {
       valid = false;
@@ -396,7 +381,10 @@ describe('runCore invalidation', () => {
     // has just decided to abandon.
     expect(outcome).toBe(SEAM_INVALIDATED);
     expect(harness.failures).toHaveLength(0);
-    expect(reported).toContain(error);
+    expect(harness.warnings).toHaveLength(1);
+    expect(harness.warnings[0]).toBeInstanceOf(DraggableWarning);
+    expect(harness.warnings[0]?.message).toBe('drag: seam/rollback-failed');
+    expect(harness.warnings[0]?.cause).toBe(error);
   });
 });
 
@@ -563,7 +551,7 @@ describe('explicit failure latching', () => {
     ).toBe(SEAM_COMMITTED);
   });
 
-  it('should downgrade host.fail outside a seam to a platform report', () => {
+  it('should report host.fail outside a seam as a warning rather than classifying it', () => {
     const harness = createHarness();
     const error = new Error('late');
 
@@ -572,7 +560,14 @@ describe('explicit failure latching', () => {
     // A late continuation from one operation must not classify a failure
     // against another (F-23).
     expect(harness.failures).toHaveLength(0);
-    expect(reported).toContain(error);
+
+    // **One warning where there were two reports** (D-130 §2.2): the caught
+    // error and the library's companion naming the reason are now one object,
+    // message and `cause`. The caller's `FAILURE_ACTIVATION` is deliberately
+    // absent — it names the classification this branch just refused.
+    expect(harness.warnings).toHaveLength(1);
+    expect(harness.warnings[0]?.message).toBe('drag: seam/fail-outside-seam');
+    expect(harness.warnings[0]?.cause).toBe(error);
   });
 
   it('should classify only once when a phase latches a failure and then throws', () => {
@@ -612,9 +607,11 @@ describe('explicit failure latching', () => {
       FAILURE_ACTIVATION,
     );
 
-    // Not classified, but not lost either — it travels on the channel that
-    // carries no consequence.
-    expect(reported).toContain(thrown);
+    // Not classified, but not lost either — it reaches the same consumer the
+    // classified one would, carrying no consequence with it.
+    expect(harness.warnings).toHaveLength(1);
+    expect(harness.warnings[0]?.message).toBe('drag: seam/failed-then-threw');
+    expect(harness.warnings[0]?.cause).toBe(thrown);
   });
 
   it('should still report the phase as failed when it latched and threw', () => {
@@ -635,7 +632,7 @@ describe('explicit failure latching', () => {
     expect(harness.commits()).toBe(0);
   });
 
-  it('should downgrade host.fail inside rollback to a platform report', () => {
+  it('should report host.fail inside rollback exactly like a throw inside it', () => {
     const harness = createHarness();
     const error = new Error('during rollback');
 
@@ -655,7 +652,14 @@ describe('explicit failure latching', () => {
 
     expect(outcome).toBe(SEAM_INVALIDATED);
     expect(harness.failures).toHaveLength(0);
-    expect(reported).toContain(error);
+
+    // **`host.fail` inside `rollback` is now literally the same event as a
+    // throw inside it** (D-130). It used to report a distinct
+    // `seam/fail-during-rollback`; applying one sentinel to the whole phase is
+    // what makes the equivalence the comment always claimed hold in the output.
+    expect(harness.warnings).toHaveLength(1);
+    expect(harness.warnings[0]?.message).toBe('drag: seam/rollback-failed');
+    expect(harness.warnings[0]?.cause).toBe(error);
   });
 
   it('should close the seam once the phase returns', () => {
@@ -963,9 +967,9 @@ describe('staged value', () => {
     // Dropping it is not enough on its own: a seam whose value nothing consumes
     // is a bug in the *caller*, and it stays invisible for as long as the drop
     // is silent.
-    expect(harness.reported).toHaveLength(1);
-    expect(harness.reported[0]).toMatchObject({
-      message: expect.stringContaining('seam/staged-unconsumed'),
+    expect(harness.warnings).toHaveLength(1);
+    expect(harness.warnings[0]).toMatchObject({
+      message: 'drag: seam/staged-unconsumed',
     });
   });
 });

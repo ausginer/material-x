@@ -12,7 +12,7 @@
  * grab rect agree at the origin and nowhere else.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { Point } from '../../src/drag.ts';
+import { DraggableError, type Point } from '../../src/drag.ts';
 import type {
   LandingContext,
   LandingHandle,
@@ -50,20 +50,9 @@ type Fixture = Readonly<{
 
 const cleanup: Array<() => void> = [];
 
-type Reporting = { reportError?(error: unknown): void };
-
-let reported: unknown[] = [];
-
-beforeEach(() => {
-  reported = [];
-  (globalThis as Reporting).reportError = (error): void => {
-    reported.push(error);
-  };
-});
+beforeEach(() => {});
 
 afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-
   for (const dispose of cleanup.splice(0)) {
     dispose();
   }
@@ -109,7 +98,11 @@ function build(): Fixture {
         return ReorderResolution.accept();
       },
       onError: (error): void => {
-        errors.push({ code: error.code });
+        // **Consequential only** (D-130): this suite counts failures, and a
+        // warning is by construction not one.
+        if (error instanceof DraggableError) {
+          errors.push({ code: error.code });
+        }
       },
     },
     {

@@ -42,12 +42,20 @@ export type FeatureContext = Readonly<{
    */
   root: HTMLElement;
   /**
-   * Best-effort platform report. Deliberately **not** `fail(stage, error)`: a
-   * feature closure created at construction cannot know which operation is
-   * live, so letting it classify a failure would let a late continuation from
-   * one operation settle another. A synchronous throw inside a seam is caught
-   * and classified by the kernel's driver at that seam's stage; a landing
-   * runner that must fail an operation gets an attempt-scoped `fail` argument.
+   * Report a fault that changed nothing. Deliberately **not** `fail(stage,
+   * error)`: a feature closure created at construction cannot know which
+   * operation is live, so letting it classify a failure would let a late
+   * continuation from one operation settle another. A synchronous throw inside
+   * a seam is caught and classified by the kernel's driver at that seam's
+   * stage; a landing runner that must fail an operation gets an
+   * attempt-scoped `fail` argument.
+   *
+   * **The shape is unchanged and the destination is not** (D-130).
+   * ~~Best-effort platform report.~~ It reaches the consumer's `onError` as a
+   * `DraggableWarning` now — the only route a composition-time unwind has,
+   * since both `assemble` unwinds run before `arm()` when no behavior spec
+   * exists at all. A published member whose meaning improves without its shape
+   * moving.
    */
   report(error: unknown): void;
 }>;

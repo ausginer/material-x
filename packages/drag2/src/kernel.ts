@@ -178,7 +178,6 @@ export {
  * expressibility, and it *reduces* what an author must name: with it a behavior
  * classifies without ever naming `DraggableErrorCode` or reciting the stages.
  */
-export { toDraggableError } from './kernel/errors.ts';
 
 /**
  * The stages, as **values as well as a type**. A behavior author calls
@@ -195,7 +194,6 @@ export {
   FAILURE_INVALIDATION,
   FAILURE_LANDING_CREATE,
   FAILURE_LANDING_INTERRUPTED,
-  FAILURE_LANDING_TARGET,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
   FAILURE_RESOLUTION,

@@ -19,12 +19,11 @@
  * later, so it is added before publication.
  */
 import type { Writable } from 'type-fest';
-import type { DraggableError } from '../kernel/errors.ts';
+import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type {
   AxisSource,
   DragAxis,
   DragGeometry,
-  FreeDragErrorContext,
   FreeDragLift,
   FreeDragTransactionResult,
   OnDrop,
@@ -36,9 +35,22 @@ export type FreeDragOnStart = (geometry: DragGeometry) => void;
 export type OnMove = (geometry: DragGeometry) => void;
 /** Exactly once per started operation, whatever happened to it (D-62, D-66). */
 export type FreeDragOnEnd = (result: FreeDragTransactionResult) => void;
+/**
+ * **One argument since D-130.** ~~`(error, context)`, where the context carried
+ * `domain`.~~ That copy was strictly redundant with the terminal: its only
+ * non-null producer was the settlement-failure path, `finalized` publishes the
+ * same `current.domain` to `onEnd`, and D-66 makes the terminal
+ * unconditional — so a non-null `domain` always implied an `onEnd` carrying it.
+ * It was also *worse* than redundant on one path: `onError` runs in `REPORTING`
+ * and `onEnd` in `FINALIZING`, so a second failure arriving between them left
+ * the context stale relative to the terminal the consumer was about to receive.
+ *
+ * **A `DraggableWarning` means the operation was not affected** — a landing
+ * measurement that could not be trusted, a disposer that refused — and its
+ * terminal still arrives. A `DraggableError` means it was.
+ */
 export type FreeDragOnDragError = (
-  error: DraggableError,
-  context: FreeDragErrorContext,
+  error: DraggableError | DraggableWarning,
 ) => void;
 /**
  * **Resolver only** — the shipped element form is withdrawn, unifying with the

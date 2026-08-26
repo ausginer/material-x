@@ -51,7 +51,7 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
   // **Shared vocabulary, and one runtime value** (D-64). `DraggableError` is a
   // class, which is what keeps this root alive after D-48 moved `draggable`
   // off it and D-64 moved the stages off with them.
-  drag: ['DraggableError'],
+  drag: ['DraggableError', 'DraggableWarning'],
   // **The kernel tier, and the whole of D-68's value half — 33 names.** Thirteen
   // stages, not fourteen: D-41 deleted `FAILURE_PRESENTATION_READY` with the
   // readiness protocol. The other nineteen constants are what F-59 found
@@ -72,7 +72,6 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'FAILURE_INVALIDATION',
     'FAILURE_LANDING_CREATE',
     'FAILURE_LANDING_INTERRUPTED',
-    'FAILURE_LANDING_TARGET',
     'FAILURE_RELEASE',
     'FAILURE_RENDERER_WRITE',
     'FAILURE_RESOLUTION',
@@ -93,7 +92,6 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'SETTLED_SKIPPED',
     'SETTLING',
     'draggable',
-    'toDraggableError',
   ],
   sortable: ['AT_CONSUMER', 'AT_PROPOSAL', 'ReorderResolution', 'sortable'],
   // The second behavior's ordinary tier, and the symmetry is the assertion:

@@ -8,7 +8,11 @@
  * `composition.browser.test.ts`; these add the first.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { DraggableError, Point } from '../../src/drag.ts';
+import {
+  DraggableError,
+  type DraggableWarning,
+  type Point,
+} from '../../src/drag.ts';
 import { toDraggableError } from '../../src/kernel/errors.ts';
 import { FAILURE_LANDING_CREATE } from '../../src/kernel/failures.ts';
 import type { OnReorder } from '../../src/sortable/domain.ts';
@@ -37,7 +41,7 @@ type Composed = Readonly<{
   controller: SortableController;
   finishes: unknown[];
   cancels: unknown[];
-  errors: DraggableError[];
+  errors: Array<DraggableError | DraggableWarning>;
   placeholder(): HTMLElement | null;
 }>;
 
@@ -49,20 +53,9 @@ const LANDING_CREATE_CODE = toDraggableError(FAILURE_LANDING_CREATE, null).code;
 
 const cleanup: Array<() => void> = [];
 
-type Reporting = { reportError?(error: unknown): void };
-
-let reported: unknown[] = [];
-
-beforeEach(() => {
-  reported = [];
-  (globalThis as Reporting).reportError = (error): void => {
-    reported.push(error);
-  };
-});
+beforeEach(() => {});
 
 afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-
   for (const dispose of cleanup.splice(0)) {
     dispose();
   }
@@ -104,7 +97,7 @@ function composeWith(options: ComposeOptions = {}): Composed {
 
   const finishes: unknown[] = [];
   const cancels: unknown[] = [];
-  const errors: DraggableError[] = [];
+  const errors: Array<DraggableError | DraggableWarning> = [];
 
   const controller = sortable(
     root,
@@ -773,7 +766,12 @@ describe('the contextual landing duration (D-67)', () => {
     release(55);
 
     expect(composed.errors).toHaveLength(1);
-    expect(composed.errors[0]!.code).toBe(LANDING_CREATE_CODE);
+    // A landing that could not be *created* replaces the settlement, so it is
+    // consequential — unlike the target measurement beside it (D-130).
+    expect(composed.errors[0]).toBeInstanceOf(DraggableError);
+    expect((composed.errors[0] as DraggableError).code).toBe(
+      LANDING_CREATE_CODE,
+    );
   });
 
   /**
@@ -1151,8 +1149,10 @@ describe('landing', () => {
     await Promise.resolve();
     await Promise.resolve();
 
+    // **One collector since D-130.** `expect(reported).toEqual([])` stood
+    // beside this and observed a `globalThis.reportError` stub; with one
+    // channel this single assertion covers both populations.
     expect(composed.errors).toEqual([]);
-    expect(reported).toEqual([]);
   });
 
   it('should leave nothing behind when the duration thunk destroys the controller', async () => {
@@ -1215,8 +1215,10 @@ describe('landing', () => {
     expect(item.style.transform).toBe('');
     expect(composed.placeholder()).toBeNull();
     // A consumer destroying its own controller is not a library failure.
+    // **One collector since D-130.** `expect(reported).toEqual([])` stood
+    // beside this and observed a `globalThis.reportError` stub; with one
+    // channel this single assertion covers both populations.
     expect(composed.errors).toEqual([]);
-    expect(reported).toEqual([]);
     // **Neither** terminal callback fires, which is stronger than the decision's
     // §6 predicted (it expected one `onCancel`) and is the landed rule, not a
     // gap: destroy is a teardown, not a settlement, so the operation it was
@@ -1286,8 +1288,10 @@ describe('landing', () => {
     expect(item.getAnimations()).toEqual([]);
     expect(item.style.transform).toBe('');
     expect(composed.placeholder()).toBeNull();
+    // **One collector since D-130.** `expect(reported).toEqual([])` stood
+    // beside this and observed a `globalThis.reportError` stub; with one
+    // channel this single assertion covers both populations.
     expect(composed.errors).toEqual([]);
-    expect(reported).toEqual([]);
     expect(composed.cancels).toEqual([]);
     expect(composed.finishes).toEqual([]);
   });
@@ -1808,8 +1812,10 @@ describe('the terminal barrier in a resolver sequence', () => {
 
     expect(befores).toHaveLength(1);
     expect(afters).toEqual([]);
+    // **One collector since D-130.** `expect(reported).toEqual([])` stood
+    // beside this and observed a `globalThis.reportError` stub; with one
+    // channel this single assertion covers both populations.
     expect(composed.errors).toEqual([]);
-    expect(reported).toEqual([]);
   });
 
   it('should start no displacement after an afterMove measurement destroyed', async () => {

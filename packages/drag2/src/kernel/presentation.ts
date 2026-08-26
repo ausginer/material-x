@@ -11,8 +11,8 @@
 import { box, coordinates, type Box } from '@ydinjs/box-quad';
 import type { Disposer } from './lifetimes.ts';
 import type { DOMRealm } from './realm.ts';
-import { guarded } from './reporter.ts';
 import type { Point } from './types.ts';
+import type { Unwind } from './unwind.ts';
 
 /** Which lift strategy a free/sortable operation uses. */
 export const LIFT_FAITHFUL = 61;
@@ -175,7 +175,7 @@ export function captureInlineStyles(visual: HTMLElement): Disposer {
  * itself back and rethrows: it either fully owns the top layer or leaves the
  * element exactly as it found it.
  */
-export function acquireTopLayer(visual: HTMLElement): Disposer {
+export function acquireTopLayer(visual: HTMLElement, unwind: Unwind): Disposer {
   const priorAttribute = visual.getAttribute('popover');
   const priorOpen = visual.matches(':popover-open');
 
@@ -212,13 +212,13 @@ export function acquireTopLayer(visual: HTMLElement): Disposer {
       visual.showPopover();
     }
   } catch (error) {
-    // `guarded`, because the rollback re-enters the same popover API that just
-    // failed and can therefore fail again — restoring a previously-open
-    // popover is literally the call that threw. The **acquisition** error is
-    // the one that explains why the lift was refused and stays primary; a
-    // rollback failure is non-consequential and takes the platform channel
-    // (I-29).
-    guarded(restore);
+    // Unwound rather than called, because the rollback re-enters the same
+    // popover API that just failed and can therefore fail again — restoring a
+    // previously-open popover is literally the call that threw. **The statement
+    // after it is the load-bearing one**: the acquisition error is what
+    // explains why the lift was refused, and it must still reach the caller
+    // (I-29, D-130 §4).
+    unwind(restore);
     throw error;
   }
 
@@ -513,6 +513,7 @@ export function acquireLift(
   mode: LiftMode,
   originRect: DOMRectReadOnly,
   realm: DOMRealm,
+  unwind: Unwind,
 ): LiftAcquisition {
   const measured = box();
 
@@ -599,7 +600,7 @@ export function acquireLift(
       visual.style.left = `${originRect.left + originRect.width / 2 - width / 2}px`;
     }
 
-    const topLayerDisposer = acquireTopLayer(visual);
+    const topLayerDisposer = acquireTopLayer(visual, unwind);
 
     const session = makeSession(visual, base, null, () => {
       // `finally`, not sequence: restoring the inline styles is the one

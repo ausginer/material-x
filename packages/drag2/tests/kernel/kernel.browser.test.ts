@@ -1,10 +1,14 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import {
+  DraggableError,
+  DraggableWarning,
+  toDraggableError,
+} from '../../src/kernel/errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
-  FAILURE_LANDING_TARGET,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
   FAILURE_RESOLUTION,
@@ -65,10 +69,12 @@ type Harness = Readonly<{
    */
   failures: Array<Readonly<{ stage: FailureStage; error: unknown }>>;
   /**
-   * Everything that reached `spec.reportFailure` — the channel that carries no
-   * consequence. A stage here settles nothing (D-49, D-60).
+   * **Everything that reached `spec.reportError`** — the one channel (D-130).
+   * ~~`reportFailure`, and a `globalThis.reportError` stub beside it.~~ Both
+   * populations arrive here, and `error instanceof DraggableError` is what
+   * separates *the operation was affected* from *it was not*.
    */
-  reports: Array<Readonly<{ stage: FailureStage; error: unknown }>>;
+  reports: Array<DraggableError | DraggableWarning>;
   /** Every settlement input, in order. */
   settlements: SettlementInput[];
   captures: string[];
@@ -92,6 +98,7 @@ type SpecOverrides = Partial<
     | 'resetFramePart'
     | 'retire'
     | 'command'
+    | 'reportError'
   >
 > &
   Readonly<{
@@ -106,22 +113,6 @@ type SpecOverrides = Partial<
   }>;
 
 const cleanup: Array<() => void> = [];
-
-type Reporting = { reportError?(error: unknown): void };
-
-/** Non-consequential reports: a dropped tag, a failing disposer. */
-let reported: unknown[] = [];
-
-beforeEach(() => {
-  reported = [];
-  (globalThis as Reporting).reportError = (error) => {
-    reported.push(error);
-  };
-});
-
-afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-});
 
 afterEach(() => {
   for (const dispose of cleanup.splice(0)) {
@@ -147,7 +138,7 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
   const calls: string[] = [];
   const phases: Record<string, number> = {};
   const failures: Array<Readonly<{ stage: FailureStage; error: unknown }>> = [];
-  const reports: Array<Readonly<{ stage: FailureStage; error: unknown }>> = [];
+  const reports: Array<DraggableError | DraggableWarning> = [];
   const settlements: SettlementInput[] = [];
   const captures: string[] = [];
 
@@ -282,13 +273,14 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
         ((): void => {
           calls.push('finalized');
         }),
-      // **Its own array since D-60**, because the two channels are orthogonal
-      // and a harness that merges them cannot express the difference. This one
-      // is the un-classified channel: an admission throw with no operation to
-      // settle (Q-1), and a quality failure on the landing measurement (D-49).
-      reportFailure(stage, error): void {
-        reports.push({ stage, error });
-      },
+      // **Forward, and nothing else** (D-130). A behavior that did anything
+      // else here would be re-deciding what the kernel already decided; the
+      // harness is deliberately the minimal conforming implementation.
+      reportError:
+        overrides.reportError ??
+        ((error): void => {
+          reports.push(error);
+        }),
       retire:
         overrides.retire ??
         ((): void => {
@@ -494,7 +486,7 @@ function createArmedWithPart(
       moved: (): void => {},
       anchorTarget: () => ({ x: 0, y: 0 }),
       finalized: (): void => {},
-      reportFailure: (): void => {},
+      reportError: (): void => {},
       retire: (): void => {},
     },
   }));
@@ -530,7 +522,7 @@ function createArmedWithCommand(
       moved: (): void => {},
       anchorTarget: () => ({ x: 0, y: 0 }),
       finalized: (): void => {},
-      reportFailure: (): void => {},
+      reportError: (): void => {},
       retire: (): void => {},
     },
   }));
@@ -743,9 +735,15 @@ describe('discrete admission', () => {
       new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
     );
 
-    expect(harness.reports).toEqual([
-      { stage: FAILURE_ADMISSION, error: new Error('command') },
-    ]);
+    // **Consequential, so a `DraggableError`** (D-130): the consumer's drag
+    // will not start and no `onEnd` will follow. The kernel built it from the
+    // stage it owns, so the behavior chose nothing.
+    expect(harness.reports).toHaveLength(1);
+    expect(harness.reports[0]).toBeInstanceOf(DraggableError);
+    expect((harness.reports[0] as DraggableError).code).toBe(
+      toDraggableError(FAILURE_ADMISSION, null).code,
+    );
+    expect(String(harness.reports[0]?.cause)).toBe('Error: command');
     expect(harness.calls).toEqual([]);
 
     // Still usable: a press admits normally afterwards.
@@ -962,7 +960,7 @@ describe('arm', () => {
           moved: (): void => {},
           anchorTarget: () => ({ x: 0, y: 0 }),
           finalized: (): void => {},
-          reportFailure: (): void => {},
+          reportError: (): void => {},
           retire(): void {
             calls.push('retire');
           },
@@ -1150,7 +1148,10 @@ describe('admission', () => {
     // no `REPORTING` phase to enter.
     expect(harness.failures).toEqual([]);
     expect(harness.reports).toHaveLength(1);
-    expect(harness.reports[0]!.stage).toBe(FAILURE_ADMISSION);
+    expect(harness.reports[0]).toBeInstanceOf(DraggableError);
+    expect((harness.reports[0] as DraggableError).code).toBe(
+      toDraggableError(FAILURE_ADMISSION, null).code,
+    );
 
     fail = false;
     activate(harness);
@@ -1924,9 +1925,9 @@ describe('the settlement gates', () => {
     activate(harness);
     release(80, 10);
 
-    // Ignored, reported through the platform reporter, and — crucially — not
-    // double-counted: one release still opens the gate.
-    expect(reported).toHaveLength(1);
+    // Ignored, reported as a warning, and — crucially — not double-counted:
+    // one release still opens the gate.
+    expect(harness.reports).toHaveLength(1);
     expect(harness.calls).not.toContain('finalized');
   });
 
@@ -1947,7 +1948,7 @@ describe('the settlement gates', () => {
 
     // A bookkeeping error must not destroy a live drop: it never overwrites a
     // watch, never double-increments and never panics.
-    expect(reported).toHaveLength(1);
+    expect(harness.reports).toHaveLength(1);
     expect(harness.calls).toContain('finalized');
   });
 });
@@ -2560,8 +2561,18 @@ describe('the join', () => {
     release(80, 10);
 
     // Reported, never classified: no checkpoint, no `OUTCOME_FAILED`.
+    //
+    // **And a warning, which is the whole of what the stage used to say**
+    // (D-130). `FAILURE_LANDING_TARGET` existed to be *classified,
+    // non-consequential and recovery-less* — a shape D-49 had to invent because
+    // reaching `onError` required a classification. The class says it directly.
     expect(harness.failures).toEqual([]);
-    expect(harness.reports[0]!.stage).toBe(FAILURE_LANDING_TARGET);
+    expect(harness.reports).toHaveLength(1);
+    expect(harness.reports[0]).toBeInstanceOf(DraggableWarning);
+    expect(harness.reports[0]).not.toBeInstanceOf(DraggableError);
+    expect(harness.reports[0]?.message).toBe(
+      'drag: landing/target-unavailable',
+    );
     // And it must not strand the controller: the placeholder is still removed
     // and the inline styles are still restored (F-22).
     expect(harness.calls).toContain('presentation.released');
@@ -2603,7 +2614,7 @@ describe('the join', () => {
 
     // Best-effort: a custom runner cannot strand presentation. The cost is that
     // I-24 is no longer claimed for this operation, not that the drop fails.
-    expect(reported).toHaveLength(1);
+    expect(harness.reports).toHaveLength(1);
     expect(harness.failures).toEqual([]);
     expect(harness.calls).toContain('presentation.released');
     expect(harness.calls).toContain('finalized');
@@ -2673,9 +2684,21 @@ describe('the failure checkpoint', () => {
     activate(harness);
     move(60, 10);
 
+    // **`report` rides beside `stage`** (D-130 §5). The behavior maps the stage
+    // to a recovery, which is its own; the finished error is what it forwards
+    // to `onError`, and the kernel building it is what makes `toDraggableError`
+    // kernel-private.
     expect(harness.settlements).toEqual([
-      { type: SETTLED_FAILED, stage: FAILURE_RENDERER_WRITE, error },
+      {
+        type: SETTLED_FAILED,
+        stage: FAILURE_RENDERER_WRITE,
+        error,
+        report: expect.any(DraggableError) as DraggableError,
+      },
     ]);
+    expect(
+      (harness.settlements[0] as { report: DraggableError }).report.cause,
+    ).toBe(error);
   });
 
   it('should hold no gate for a failed settlement', () => {
@@ -2698,7 +2721,7 @@ describe('the failure checkpoint', () => {
     // Sealed from the start: a failed settlement lands nothing, and the request
     // is ignored and reported exactly like a post-seal one.
     expect(runner.calls).toEqual([]);
-    expect(reported).toHaveLength(1);
+    expect(harness.reports).toHaveLength(1);
     expect(harness.calls).toContain('retire');
   });
 
@@ -2747,7 +2770,7 @@ describe('the failure checkpoint', () => {
     // the error surfaced rather than queued into a checkpoint that would be
     // dropped.
     expect(harness.settlements).toHaveLength(1);
-    expect(reported).toHaveLength(1);
+    expect(harness.reports).toHaveLength(1);
   });
 
   it('should report rather than requeue when the report seam throws', () => {
@@ -2769,11 +2792,11 @@ describe('the failure checkpoint', () => {
     activate(harness);
     move(60, 10);
 
-    // The failure of a report has nowhere left to go: a second checkpoint would
-    // be dropped at REPORTING, which would swallow it. It goes to the platform
-    // reporter instead, and never replaces the initiating error.
+    // The failure of a report has no *classification* left to take: a second
+    // checkpoint would be dropped at REPORTING, which would swallow it. It
+    // surfaces as a warning instead, and never replaces the initiating error.
     expect(harness.settlements).toHaveLength(1);
-    expect(reported).toHaveLength(1);
+    expect(harness.reports).toHaveLength(1);
     expect(harness.calls).toContain('retire');
   });
 
@@ -2800,7 +2823,7 @@ describe('the failure checkpoint', () => {
     // The report transition never published, so nothing will drive
     // `ERROR_REPORTED` — but the operation still may not stay live, and the
     // rejection error still has to surface somewhere.
-    expect(reported).toHaveLength(1);
+    expect(harness.reports).toHaveLength(1);
     expect(harness.calls).toContain('retire');
   });
 
@@ -3004,7 +3027,7 @@ describe('behavior actions', () => {
     expect(harness.calls.some((name) => name.startsWith('action.'))).toBe(
       false,
     );
-    expect(reported).toHaveLength(3);
+    expect(harness.reports).toHaveLength(3);
   });
 
   it('should append a nested dispatch rather than interrupting', () => {
@@ -3259,6 +3282,139 @@ describe('terminal destruction during the join', () => {
   });
 });
 
+describe('the one channel', () => {
+  /**
+   * **D-130's own properties**, which no earlier row could hold: the platform
+   * destination could not throw back into the library, so nothing here was
+   * expressible before the channel became a consumer callback.
+   */
+
+  it('should run every remaining disposer when onError throws mid-teardown', () => {
+    // **The §7 property, and the reason `unwind` survived the rename.** The
+    // channel is reached from inside a `catch` whose next statement releases
+    // another resource; if a throwing handler escaped that catch, one failing
+    // notification would strand every disposer behind it.
+    //
+    // Three retire hooks, the first of which throws — so the channel is
+    // entered from the unwind — and a handler that throws every time.
+    const released: string[] = [];
+    const harness = createHarness({
+      retire: (): void => {
+        released.push('retire');
+        throw new Error('retire');
+      },
+      resetFramePart: (part): void => {
+        released.push('reset');
+        part.item = null;
+      },
+      reportError: (): never => {
+        throw new Error('handler');
+      },
+    });
+
+    activate(harness);
+    released.length = 0;
+
+    expect(() => harness.controller.destroy()).not.toThrow();
+
+    // `retire` threw, the handler threw on the way out of the catch, and both
+    // frame scrubs still ran.
+    expect(released).toEqual(['retire', 'reset', 'reset']);
+  });
+
+  it('should discard a throwing onError without notifying it back', () => {
+    // **The terminus** (§1.3). A recursive channel would call the handler with
+    // the throw the handler just produced — and again with that one. Being
+    // *incapable* of it is the property; counting the calls is how it is
+    // observed.
+    let calls = 0;
+    const harness = createHarness({
+      admit: (): never => {
+        throw new Error('admit');
+      },
+      reportError: (): never => {
+        calls += 1;
+        throw new Error('handler');
+      },
+    });
+
+    expect(() => {
+      press(harness.item);
+    }).not.toThrow();
+    expect(calls).toBe(1);
+  });
+
+  it('should refuse every later notification once onError destroys', () => {
+    // **Post-closure suppression, from the one place that can trigger it**
+    // (E-03, I-31, D-53, D-37). The handler destroys on its first call; the
+    // teardown that follows produces faults of its own — a throwing `retire`,
+    // two throwing resets — and none of them may reach a slot the consumer has
+    // already closed.
+    const seen: Array<DraggableError | DraggableWarning> = [];
+    // The handler destroys the controller it is reporting for, so the closure
+    // reads the binding rather than a value passed in.
+    const harness: Harness = createHarness({
+      admit: (): never => {
+        throw new Error('admit');
+      },
+      retire: (): never => {
+        throw new Error('retire');
+      },
+      reportError: (error): void => {
+        seen.push(error);
+        void harness.controller.destroy();
+      },
+    });
+
+    press(harness.item);
+
+    // Exactly the one that opened the door, and nothing the door closing
+    // produced.
+    expect(seen).toHaveLength(1);
+    expect(seen[0]).toBeInstanceOf(DraggableError);
+  });
+
+  it('should surface a second checkpoint rather than dropping it silently', () => {
+    // **F-103, and the branch matters.** `handleFailed` returns on a stale
+    // checkpoint *or* on a second one arriving while a report is in flight,
+    // and until D-130 that `return` was the one place in the library where an
+    // error reached neither channel. It loses its **classification** — the
+    // `return` decides that, and correctly, since the first report owns the
+    // terminal — but it must not lose the fault.
+    //
+    // Two queued actions whose `prepare` both throw. Each queues its own
+    // `FAILED`; the first opens `REPORTING`, and the second then arrives for a
+    // report already in flight, which is the arm that used to be silent.
+    const harness = createHarness({
+      onStart: (host): void => {
+        host.dispatch(0, 'first');
+        host.dispatch(0, 'second');
+      },
+      action: {
+        prepare(_tag, argument): never {
+          throw new Error(String(argument));
+        },
+        effect(): void {},
+      },
+    });
+
+    activate(harness);
+
+    // One classified — the first, which owns the settlement and the terminal.
+    expect(harness.failures).toHaveLength(1);
+    expect(String(harness.failures[0]!.error)).toBe('Error: first');
+
+    // The second reached the consumer as a warning rather than vanishing.
+    const warnings = harness.reports.filter(
+      (error) => error instanceof DraggableWarning,
+    );
+
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]?.message).toBe('drag: failure/checkpoint-stale');
+    expect(String(warnings[0]?.cause)).toBe('Error: second');
+  });
+});
+
 describe('teardown totality', () => {
   /** Throws *before* clearing, so the dev scrub assertion trips as well. */
   const throwingReset = (counter: { calls: number }) => (): void => {
@@ -3297,17 +3453,27 @@ describe('teardown totality', () => {
     expect(() => harness.controller.destroy()).not.toThrow();
   });
 
-  it('should report a reset failure rather than swallow it', () => {
+  it('should run both scrubs when a reset throws during destroy', () => {
     const counter = { calls: 0 };
     const harness = createHarness({ resetFramePart: throwingReset(counter) });
 
     activate(harness);
-    reported = [];
+    harness.reports.length = 0;
     void harness.controller.destroy();
 
-    // Two resets, each reporting the thrown error and the scrub assertion it
-    // leaves behind.
-    expect(reported.length).toBeGreaterThanOrEqual(2);
+    // ~~Two resets, each reporting the thrown error.~~ **The reports are gone
+    // and the totality is the point** (D-130 §1.1, D-37). `destroy()` sets the
+    // latch on its own statement, so every notification after it is refused —
+    // a declared consumer slot may not be invoked once the controller is
+    // logically closed, and that rule is now enforced in one place instead of
+    // three. What the platform channel used to carry here was *visibility into
+    // a teardown the consumer had already asked for*, and D-37 is explicit that
+    // it does not get callbacks after asking.
+    //
+    // So the surviving property is the one that was always the reason for the
+    // guard: the first throwing reset does not skip the second.
+    expect(counter.calls).toBe(2);
+    expect(harness.reports).toEqual([]);
   });
 
   it('should complete retirement after a reset throws mid-operation', () => {
@@ -3358,7 +3524,7 @@ describe('arm unwind of a partial frame pair', () => {
         moved: (): void => {},
         anchorTarget: () => ({ x: 0, y: 0 }),
         finalized: (): void => {},
-        reportFailure: (): void => {},
+        reportError: (): void => {},
         retire: (): void => {},
       },
     }));
@@ -3466,10 +3632,10 @@ describe('cancellation against a failure checkpoint', () => {
     });
 
     activate(harness);
-    reported = [];
+    harness.reports.length = 0;
     move(60, 10);
 
-    expect(reported).toContain(error);
+    expect(harness.reports.map((r) => r.cause)).toContain(error);
   });
 
   it('should drop a checkpoint classified before the cancel latch was set', () => {
@@ -3651,19 +3817,27 @@ describe('the transaction bracket', () => {
     // `drain`'s catch, which is the one path to `panic`.
     const order: string[] = [];
     const broken = new Error('platform');
-    const harness = createHarness({
+    const delivered: unknown[] = [];
+    // The handler reads `harness.host.closed` from inside the report, which is
+    // the assertion this row exists for.
+    const harness: Harness = createHarness({
       retire: (): void => {
         order.push('retire');
       },
+      // **Delivered through `spec.reportError` now, after logical closure**
+      // (D-131). ~~A `globalThis.reportError` stub.~~ This is the named
+      // exception to D-37 (a), and it is the whole reason the amendment needed
+      // the owner's assent rather than being absorbed: every other route
+      // refuses once the latch is set.
+      reportError: (error): void => {
+        delivered.push(error);
+        order.push(`report:${(error as DraggableError).code}`);
+        // Read from *inside* the report, which is the assertion the ordering
+        // exists for: a handler that calls back into the controller must find
+        // it already closed.
+        order.push(`closed:${String(harness.host.closed)}`);
+      },
     });
-
-    (globalThis as Reporting).reportError = (error): void => {
-      order.push(`report:${(error as Error).message}`);
-      // Read from *inside* the report, which is the assertion the ordering
-      // exists for: a reporter that calls back into the controller must find
-      // it already closed.
-      order.push(`closed:${String(harness.host.closed)}`);
-    };
 
     const selection = window.getSelection;
 
@@ -3679,6 +3853,15 @@ describe('the transaction bracket', () => {
     }
 
     expect(order).toEqual(['report:platform', 'closed:true', 'retire']);
+
+    // **Panic is consequential and carries no stage.** It destroys the whole
+    // controller rather than one operation, so it is a `DraggableError`; and
+    // `FailureStage` classifies faults *within* an operation, so the code is
+    // picked directly rather than mapped from one.
+    expect(delivered).toHaveLength(1);
+    expect(delivered[0]).toBeInstanceOf(DraggableError);
+    expect(delivered[0]).not.toBeInstanceOf(DraggableWarning);
+    expect((delivered[0] as DraggableError).cause).toBe(broken);
   });
 
   it('should settle the returned promise after physical teardown', async () => {

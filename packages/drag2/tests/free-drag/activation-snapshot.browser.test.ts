@@ -40,7 +40,7 @@ import {
   type Composed,
 } from '../support/free-drag.ts';
 
-const { compose, reported } = freeDragHarness();
+const { compose } = freeDragHarness();
 
 const DX = 40;
 const DY = 30;
@@ -170,6 +170,5 @@ describe('an unreadable space', () => {
     expect(composed.errors.map((error) => (error as { code: string }).code)) //
       .toEqual([toDraggableError(FAILURE_ACTIVATION, null).code]);
     expect(composed.starts).toEqual([]);
-    expect(reported()).toEqual([]);
   });
 });

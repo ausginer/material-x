@@ -332,7 +332,7 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 | `resetFramePart(current)` throws → the draft is still scrubbed and ingress aborted | `tests/kernel/kernel.browser.test.ts` — _should scrub the draft after the current frame reset throws_ | F-36 |
 | `resetFramePart(draft)` throws → ingress is still aborted | `tests/kernel/kernel.browser.test.ts` — _should release ingress after a reset throws_ | F-36 |
 | a reset throw during a failed `arm()` unwind does not replace the arm error | `tests/kernel/kernel.browser.test.ts` — _should scrub both frames when arming fails after both were composed_ (**re-triggered by D-128**: the shape assertion that used to fail here is deleted, so the row is driven by a root whose `addEventListener` refuses — the failure that can still happen with both frames standing) | F-36, D-128 |
-| the reset error is reported, never substituted for the destroy error | `tests/kernel/kernel.browser.test.ts` — _should report a reset failure rather than swallow it_ | F-36 |
+| a reset throw during `destroy()` does not skip the second scrub — and reports nothing, because logical closure refuses every notification after it (D-130 §1.1, D-37) | `tests/kernel/kernel.browser.test.ts` — _should run both scrubs when a reset throws during destroy_ | F-36, D-37, D-130 |
 
 ---
 
@@ -663,19 +663,43 @@ Every code is read from `STAGE_TO_CODE` through `toDraggableError(stage, null).c
 | a throwing `visual` is classified at **admission**, not at activation as the table says | _should classify a throwing visual resolver at admission, not at activation_ | F-76 |
 | a throwing `onStart` is an **interaction** fault with exactly one terminal | _should classify a throwing onStart as an interaction fault with one terminal_ | B-4 (b) |
 | a throwing `onMove` is a **presentation** fault with exactly one terminal | _should classify a throwing onMove as a presentation fault with one terminal_ | B-4 (b) |
-| a throwing `home` runs on the **quality track**: reported, landing skipped, drop still standing | _should classify a throwing home on the quality track and leave the drop standing_ | B-4 (b), D-49 |
+| a throwing `home` is **advisory**: reported as a `DraggableWarning`, landing skipped, drop still standing | _should warn on a throwing home and leave the drop standing_ | B-4 (b), D-49, D-130 |
 | a throwing `onEnd` is a **consumer** fault | _should classify a throwing onEnd as a consumer fault_ | B-4 (b) |
 | a non-function `onDrop` reaches the designed `SeamRejection` rather than a construction throw | _should classify a non-function onDrop as a consumer fault with one terminal_ | B-4 (b), D-77 |
-| a throwing `onError` leaves through the **un-classified** channel and nothing recurses | _should send a throwing onError to the platform channel rather than classifying it_ | 07 §Validation |
+| a throwing `onError` is **discarded** — the handler is called once and the throw is never notified back | _should discard a throwing onError rather than reporting it back_ | 07 §Validation, D-130 |
 | a garbage `bounds` source surfaces at **all four** seams it can reach, with the two codes they map to | _should surface at activation as an interaction fault on its first resolve_, _should surface from a committed sample as a presentation fault_, _should surface from a moveTo effect as a presentation fault_, _should surface from the release as an interaction fault_ | D-81, F-71, F-73 |
 | and **never** from the action that marks the rect stale — `FAILURE_ACTION_PREPARE` is unreachable from the row | _should never surface from the action that marks it stale_ | D-81 |
 | each bounds path publishes one terminal, or **none** when it fails before `onStart` | _should publish exactly one terminal for each path that reaches one_ | D-66, F-75 |
-| a `NaN` `threshold` starts **no operation**: no report, no terminal, nothing on the platform channel | _should start no operation at all for a NaN threshold_ | B-4 (c), Q-15 |
+| a `NaN` `threshold` starts **no operation**: no report and no terminal | _should start no operation at all for a NaN threshold_ | B-4 (c), Q-15 |
 | an unknown `axis` string completes a normal **unconstrained** drag | `tests/free-drag/free-drag.browser.test.ts` — _should complete a normal unconstrained drag for an unknown axis string_ | B-4 (c) |
 | an unknown `lift` string completes a normal drag | `tests/free-drag/validation.browser.test.ts` — _should complete a normal drag for an unknown lift string_ | B-4 (c), D-73 |
 | ~~a landing `duration` of `Infinity` is refused~~ — **deleted D-124**; it is accepted, and what follows (a held settlement gate, no terminal) is recorded in D-124's row rather than asserted | `tests/free-drag/validation.browser.test.ts` — _should not refuse an unbounded duration_ | B-4 (d), D-24, D-79, E-07, D-124 |
 | `NaN`, `-1`, `-Infinity` and `'fast'` are left to `animate()` and arrive at the same stage | _should leave a NaN duration to the platform_, _should leave a negative duration to the platform_, _should leave a -Infinity duration to the platform_, _should leave a string duration to the platform_ | B-4 (e), D-79 |
 | `'auto'` lands normally, which is what pins the guard to `=== Infinity` rather than to a finiteness test | _should land normally for the auto duration_ | B-4 (e), D-79 |
+
+## One channel, two classes — new (D-130, D-131, F-103)
+
+The reporting destination stopped encoding severity, so **which class arrives** is the contract and an untested discrimination is indistinguishable from an absent one. Every row below pins a class, not just a delivery.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a warning is **not** a `DraggableError`, in both directions, and neither derives from the other | `tests/kernel/errors.node.test.ts` — _should not be a DraggableError_ | D-130 §2.2 |
+| a warning carries a message and `cause` and **no code** | _should carry no code_, _should carry the caught error as the native cause_, _should leave cause undefined when the warning is library-authored_ | D-130 §2.3 |
+| a deleted stage's number stays occupied, so the positional map cannot slide | _should leave 12 and 13 unoccupied_ | D-41, D-130 |
+| a failing disposer and a post-closure registration are **warnings** | `tests/kernel/lifetimes.node.test.ts` — _should report a failing disposer as a warning_, _should report a registration made after dispose as a warning_ | D-130 §3 |
+| the driver's non-classifying routes are one collector: a throwing `rollback`, a `host.fail` inside one, a `host.fail` outside a seam, a phase that failed then threw, an unconsumed staged value | `tests/kernel/seams.node.test.ts` — _should report host.fail outside a seam as a warning rather than classifying it_, _should classify only once when a phase latches a failure and then throws_, _should report a throwing rollback without classifying it_, _should report host.fail inside rollback exactly like a throw inside it_ | D-130 §5 |
+| **admission is consequential** and arrives as a `DraggableError` built by the kernel | `tests/kernel/kernel.browser.test.ts` — _should report a throwing command.admit with no operation_, _should report a throwing admit and stay usable_ | D-130 §5 |
+| **the landing measurement is not**, and arrives as a warning with the terminal intact | `tests/kernel/kernel.browser.test.ts` — _should skip the landing and still terminate when the measurement throws_; `tests/sortable/react.browser.test.ts` — _should finish and report, both_ | D-130 §0 rider 1, D-60 |
+| `SETTLED_FAILED` carries the kernel-built error beside the stage the behavior maps to a recovery | `tests/kernel/kernel.browser.test.ts` — _should drive the settlement seam with the failed input_ | D-130 §5 |
+| a throwing `onError` **mid-teardown** does not strand a later disposer | _should run every remaining disposer when onError throws mid-teardown_ | D-130 §7 |
+| a throwing `onError` is discarded and **never notified back** | _should discard a throwing onError without notifying it back_ | D-130 §1.3 |
+| `destroy()` from inside `onError` refuses every later notification | _should refuse every later notification once onError destroys_ | E-03, I-31, D-53, D-37 |
+| **panic closes first and delivers after** — a `DraggableError` with no stage, and the handler finds the controller already closed | _should close, report and only then tear down on a panic_ | D-131 |
+| a second checkpoint arriving during a report **surfaces** instead of vanishing | _should surface a second checkpoint rather than dropping it silently_ | F-103 |
+| a demoted checkpoint keeps its fault and loses its classification | `tests/sortable/composition.browser.test.ts` — _should apply work a callback queued before it threw_ | D-130 §3.4, I-22 |
+| a teardown reset that throws still runs the second scrub — and reports nothing, because the latch is set | `tests/kernel/kernel.browser.test.ts` — _should run both scrubs when a reset throws during destroy_ | D-29, D-37 |
+
+**One row is deliberately absent.** There is no assertion that a given fault reaches the _platform_ rather than the consumer — that is the claim this decision reverses, and every test that made it was deleted rather than inverted.
 
 ## Free drag — lifecycle (Phase 20, L-1…L-4)
 
@@ -708,7 +732,7 @@ Every code is read from `STAGE_TO_CODE` through `toDraggableError(stage, null).c
 | `localDelta` is the viewport delta in the stage's own space, and is the delta itself when the ancestry is untransformed | _should report the local delta in the stage space under a transform_, _should report the viewport delta itself when the ancestry is untransformed_ | D-72 |
 | the reported rect is derived from the origin rect even under a transform | _should derive the current rect from the origin rect under a transform_ | D-72 |
 | the **sortable's** lifted row occupies the placeholder's box at activation, under a transform and under zoom | `tests/sortable/lift-geometry.browser.test.ts` — _should occupy the placeholder box at activation under an ancestor transform_, _should occupy the placeholder box at activation under zoom_ | L-5, Phase 11 |
-| and travels by the viewport delta in both, reporting nothing on the platform channel | _should travel by the viewport delta under an ancestor transform_, _should travel by the viewport delta under zoom_, _should report nothing through the platform channel while doing it_ | L-5 |
+| and travels by the viewport delta in both, reporting nothing at all | _should travel by the viewport delta under an ancestor transform_, _should travel by the viewport delta under zoom_, _should report nothing at all while doing it_ | L-5 |
 
 ## Checkpoint E remediation (2026-08-16, D-85…D-87 and E-02/E-03/E-05)
 

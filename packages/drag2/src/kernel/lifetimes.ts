@@ -14,7 +14,7 @@
  * Every close is latched, so teardown paths may run unconditionally and in any
  * order.
  */
-import { report } from './reporter.ts';
+import { DraggableWarning, type Notify } from './errors.ts';
 
 /**
  * Releases one acquisition. Every disposer in this package is idempotent: a
@@ -54,7 +54,15 @@ export type Lifetime = LifetimeScope &
     dispose(): void;
   }>;
 
-export function createLifetime(): Lifetime {
+/**
+ * **`notify` is threaded rather than reached** (D-130). A lifetime holds no
+ * controller reference — it closes over its disposers and an `AbortController`
+ * and nothing else — so the one place it could have found the channel is the
+ * argument list. Three sites here report, and all three are warnings: the
+ * resource is released either way, and what failed is the release rather than
+ * the operation.
+ */
+export function createLifetime(notify: Notify): Lifetime {
   const disposers: Disposer[] = [];
   const controller = new AbortController();
   let finalized = false;
@@ -68,12 +76,12 @@ export function createLifetime(): Lifetime {
       // never runs. So run it now and report (contract 02 §Registration after
       // closure).
       if (finalized) {
-        report(new Error('drag: lifetime/use-after-dispose'));
+        notify(new DraggableWarning('drag: lifetime/use-after-dispose'));
 
         try {
           disposer();
         } catch (error) {
-          report(error);
+          notify(new DraggableWarning('drag: lifetime/late-disposer', error));
         }
 
         return;
@@ -104,7 +112,7 @@ export function createLifetime(): Lifetime {
         try {
           disposers[i]!();
         } catch (error) {
-          report(error);
+          notify(new DraggableWarning('drag: lifetime/disposer-failed', error));
         }
       }
 
@@ -126,10 +134,10 @@ export type OperationLifetimes = Readonly<{
   dispose: Disposer;
 }>;
 
-export function createOperationLifetimes(): OperationLifetimes {
-  const motion = createLifetime();
-  const cancellation = createLifetime();
-  const presentation = createLifetime();
+export function createOperationLifetimes(notify: Notify): OperationLifetimes {
+  const motion = createLifetime(notify);
+  const cancellation = createLifetime(notify);
+  const presentation = createLifetime(notify);
 
   return {
     motion,

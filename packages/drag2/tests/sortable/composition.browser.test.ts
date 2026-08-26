@@ -16,7 +16,7 @@
  * inherits its box, so the list stays three boxes tall for the whole drag.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { DraggableError } from '../../src/drag.ts';
+import { DraggableError, DraggableWarning } from '../../src/drag.ts';
 import { AT_PROPOSAL } from '../../src/kernel/failures.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
 import { assemble } from '../../src/sortable/assemble.ts';
@@ -48,7 +48,7 @@ type Composed = Readonly<{
   requests: ReorderRequest[];
   finishes: ReorderTransactionResult[];
   cancels: ReorderTransactionResult[];
-  errors: unknown[];
+  errors: Array<DraggableError | DraggableWarning>;
   started: HTMLElement[];
   placeholder(): HTMLElement | null;
   /** Swap the collection identity and signal it (D-44). */
@@ -67,20 +67,9 @@ type Options = Readonly<{
 
 const cleanup: Array<() => void> = [];
 
-type Reporting = { reportError?(error: unknown): void };
-
-let reported: unknown[] = [];
-
-beforeEach(() => {
-  reported = [];
-  (globalThis as Reporting).reportError = (error): void => {
-    reported.push(error);
-  };
-});
+beforeEach(() => {});
 
 afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-
   for (const dispose of cleanup.splice(0)) {
     dispose();
   }
@@ -114,7 +103,7 @@ function compose(options: Options = {}): Composed {
   // lives, in consumer code.
   const finishes: ReorderTransactionResult[] = [];
   const cancels: ReorderTransactionResult[] = [];
-  const errors: unknown[] = [];
+  const errors: Array<DraggableError | DraggableWarning> = [];
   const started: HTMLElement[] = [];
 
   let composed!: Composed;
@@ -676,11 +665,14 @@ describe('the composed terminal protocol', () => {
     // dispatched, and losing it because a later statement in the same callback
     // threw would make queueing depend on the caller surviving.
     //
-    // The throw itself lands on the **platform channel**, not `onError`. The
-    // update invalidates the gap and latches a cancellation, and I-22 puts a
-    // cancel above a failure checkpoint — so the classified failure is dropped
-    // and the error is reported best-effort instead. That is the admitted
-    // I-31 gap contract 02 records, reached here through the public surface.
+    // **The throw reaches `onError` as a warning, not as a failure** (D-130).
+    // The update invalidates the gap and latches a cancellation, and I-22 puts
+    // a cancel above a failure checkpoint — so the classification is refused
+    // and the fault travels without one. ~~It landed on the platform channel,
+    // not `onError`.~~ The consumer sees it now; what it does *not* see is a
+    // `DraggableError`, because the cancel owns the terminal and this fault
+    // changed nothing about it. That is the admitted I-31 gap contract 02
+    // records, reached here through the public surface.
     let self!: Composed;
     const composed = compose({
       onStart: () => {
@@ -695,9 +687,14 @@ describe('the composed terminal protocol', () => {
     activate(composed);
 
     expect(composed.cancels).toHaveLength(1);
-    expect(composed.errors).toEqual([]);
-    expect(reported.map(String)).toEqual(['Error: after queueing']);
     expect(composed.placeholder()).toBeNull();
+    expect(composed.errors).toHaveLength(1);
+    expect(composed.errors[0]).toBeInstanceOf(DraggableWarning);
+    expect(composed.errors[0]).not.toBeInstanceOf(DraggableError);
+    expect(composed.errors[0]?.message).toBe(
+      'drag: failure/superseded-by-cancel',
+    );
+    expect(String(composed.errors[0]?.cause)).toBe('Error: after queueing');
   });
 
   it('should tolerate a destroy from inside the terminal callback', async () => {
@@ -716,7 +713,7 @@ describe('the composed terminal protocol', () => {
     expect(composed.finishes).toHaveLength(1);
     expect(composed.placeholder()).toBeNull();
     expect(composed.items[0]!.style.position).toBe('');
-    expect(reported).toEqual([]);
+    expect(composed.errors).toEqual([]);
   });
 
   it('should ignore a resolution that settles after a newer operation began', async () => {
@@ -775,14 +772,17 @@ describe('the composed terminal protocol', () => {
     expect(composed.order()).toBe('012_');
   });
 
-  it('should report nothing through the platform channel on a clean drag', async () => {
+  it('should report nothing at all on a clean drag', async () => {
     const composed = compose();
 
     activate(composed);
     await drag(55);
     release(55);
 
-    expect(reported).toEqual([]);
+    // **One channel, so one assertion** (D-130). This stood beside an
+    // `expect(reported).toEqual([])` reading a `globalThis.reportError` stub;
+    // there is no second destination left for a fault to hide in.
+    expect(composed.errors).toEqual([]);
   });
 });
 

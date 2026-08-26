@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { DraggableError, type DraggableErrorCode } from '../../src/drag.ts';
+import {
+  DraggableError,
+  type DraggableErrorCode,
+  DraggableWarning,
+} from '../../src/drag.ts';
 import { toDraggableError } from '../../src/kernel/errors.ts';
 import {
   AT_CONSUMER,
@@ -109,20 +113,19 @@ type Overrides = Partial<
 
 const cleanup: Array<() => void> = [];
 
-type Reporting = { reportError?(error: unknown): void };
-
-let reported: unknown[] = [];
+/**
+ * **Everything the library surfaced, in arrival order** (D-130). ~~A
+ * `globalThis.reportError` stub.~~ One channel, so this is fed by the harness's
+ * own `onError` — the same callback `errors` reads, kept separate only because
+ * `errors` projects to a `code` and half this population has none.
+ */
+let reported: Array<DraggableError | DraggableWarning> = [];
 
 beforeEach(() => {
   reported = [];
-  (globalThis as Reporting).reportError = (error): void => {
-    reported.push(error);
-  };
 });
 
 afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-
   for (const dispose of cleanup.splice(0)) {
     dispose();
   }
@@ -226,6 +229,17 @@ function createHarness(overrides: Overrides = {}): Harness {
       }
     },
     onError(error): void {
+      reported.push(error);
+
+      // **A warning is not a failure** (D-130). `calls` and `errors` are the
+      // *consequential* population — the rows that assert a fault ended or
+      // changed an operation — so an advisory notification joins `reported`
+      // alone. Without the split every teardown diagnostic would show up as a
+      // phantom `onError` in a callback-order assertion.
+      if (!(error instanceof DraggableError)) {
+        return;
+      }
+
       calls.push('onError');
       // D-64: the consumer sees a coarse fault class, never a pipeline stage.
       errors.push({ code: error.code, error });
@@ -808,7 +822,12 @@ describe('the admission queue boundary', () => {
     // call, which is what makes this the admission row rather than an
     // activation one.
     expect(harness.calls).toEqual(['onError']);
-    expect(reported).toEqual([]);
+    // **One channel, so the whole population is one array** (D-130). This read
+    // `expect(reported).toEqual([])` against a second destination; what it can
+    // still say is that the consequential report is the *only* thing that
+    // arrived — no advisory notification rode along with it.
+    expect(reported).toHaveLength(1);
+    expect(reported[0]).toBeInstanceOf(DraggableError);
   });
 
   it('should treat destroy from the visual resolver as an immediate terminal barrier', () => {
@@ -2344,10 +2363,11 @@ describe('collection identity', () => {
 
     harness.replace([harness.items[1]!, harness.items[0]!]);
 
-    // Idle, so the classified failure reaches the platform report rather than
-    // a terminal callback.
+    // Idle, so the classified failure is demoted rather than settling an
+    // operation — it reaches `onError` as a warning and no terminal is owed.
     expect(reported).toHaveLength(1);
-    expect(String(reported[0])).toMatch(/consumer pull/u);
+    expect(reported[0]).toBeInstanceOf(DraggableWarning);
+    expect(String(reported[0]?.cause)).toMatch(/consumer pull/u);
 
     poison = false;
     harness.replace([harness.items[0]!, harness.items[1]!, harness.items[2]!]);
@@ -2956,13 +2976,18 @@ describe('the placeholder container guard', () => {
     foreign.append(harness.items[1]!);
     harness.controller.cancel('gone');
 
-    // **The orthogonality case, and the assertion that used to read the other
-    // way** (D-49, D-60). Home recovery runs inside `anchorTarget`, so it used
-    // to classify at the landing-target stage and suppress the terminal for an
-    // outcome the checkpoint was about to replace. The measurement is on the
-    // quality track now: the consumer is told about the fault **and** told what
-    // happened to the drag, because those are two different questions.
-    expect(harness.errors[0]!.code).toBe('presentation');
+    // **The orthogonality case, and the assertion that has now read three
+    // ways** (D-49, D-60, D-130). Home recovery runs inside `anchorTarget`, so
+    // it used to classify at the landing-target stage and suppress the terminal
+    // for an outcome the checkpoint was about to replace. D-49 moved it to the
+    // quality track — reported *and* terminated, because those are two
+    // different questions — and D-130 finishes the thought: the fault changed
+    // no terminal result, no phase sequence and no settlement, so it is a
+    // warning and carries no code at all.
+    expect(reported).toHaveLength(1);
+    expect(reported[0]).toBeInstanceOf(DraggableWarning);
+    expect(reported[0]?.message).toBe('drag: landing/target-unavailable');
+    // Still both: the advisory report **and** the terminal.
     expect(harness.calls).toContain('onCancel');
   });
 
@@ -2996,7 +3021,7 @@ describe('seam staging across whole operations', () => {
   const leaks = (): unknown[] =>
     reported.filter(
       (error) =>
-        error instanceof Error && error.message.includes('never consumed'),
+        error instanceof Error && error.message.includes('staged-unconsumed'),
     );
 
   it('should leave nothing staged across two consecutive drags', async () => {

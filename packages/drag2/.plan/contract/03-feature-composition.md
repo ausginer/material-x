@@ -53,7 +53,11 @@ type FeatureContext = Readonly<{
    */
   root: HTMLElement;
   /**
-   * Best-effort platform report. Deliberately **not** `fail(stage, error)`: a
+   * Report a fault that changed nothing — a `DraggableWarning` on the
+   * consumer's `onError` (~~a best-effort platform report~~, D-130). Both
+   * `assemble` unwinds run at composition time, before `arm()`, so this is the
+   * only route to the channel they have. Deliberately **not** `fail(stage,
+   * error)`: a
    * feature closure created at construction cannot know which operation is
    * live, so letting it classify a failure would let a late continuation from
    * one operation settle another (§[02](02-kernel-behavior-contract.md)
@@ -119,7 +123,7 @@ type SortableConfig = Readonly<{
 }>;
 ```
 
-**Three of those aliases are qualified by behavior** (D-109). `onStart`, `onEnd` and `onError` exist on both ordinary configs with **different structures**, which D-75 states as the only condition that qualifies a name, so each root publishes its own — `SortableOnStart`/`FreeDragOnStart` and the two siblings, following the `SortableErrorContext`/`FreeDragErrorContext` precedent. `ResolveHandle` and `ResolveElement` collide too and are structurally **identical**, so they stay unqualified: the rule discriminates rather than blankets.
+**Three of those aliases are qualified by behavior** (D-109). `onStart`, `onEnd` and `onError` exist on both ordinary configs with **different structures**, which D-75 states as the only condition that qualifies a name, so each root publishes its own — `SortableOnStart`/`FreeDragOnStart` and the two siblings, following the ~~`SortableErrorContext`/`FreeDragErrorContext`~~ precedent (both deleted by D-130). **`SortableOnDragError` and `FreeDragOnDragError` are now structurally identical**, which retires the _necessity_ half of this rule for that one name: they are kept qualified for **symmetry** with `OnStart` and `OnEnd`, whose structures still differ, and the reason is recorded here so a later reader does not mistake it for an oversight. `ResolveHandle` and `ResolveElement` collide too and are structurally **identical**, so they stay unqualified: the rule discriminates rather than blankets.
 
 **A public type's closure resolves within its own tier plus the tiers below it** (D-78). The ordinary tier closes over `sortable.js ∪ drag.js ∪ sortable/feature.js`; the kernel tier over `kernel.js ∪ drag.js` (D-68). `AxisInstaller` **and `SortableInstaller`** are re-exported from `sortable.js`, because `SortableConfig` names them and a consumer must be able to hoist an installer into a typed `const` — `SortableInstaller` since D-110, which applied the same rule to the `landing?` and `plugins?` slots it had skipped; its own closure — `FeatureContext`, `SortableContribution`, `InsertionGeometry` and what those name — stays declared here at the middle tier. **What a tier decides is where a name is _declared_ — never what the compiler will let a consumer write, and never, on its own, what they can hoist.** An ordinary-tier consumer may author an axis installer **inline** _and_ hoist it into a `const hoistedAxis: AxisInstaller`, because the slot's own alias is published at their tier. What importing `sortable/feature.js` buys is the **lower-level named authoring vocabulary** — `FeatureContext`, `SortableContribution`, `InsertionGeometry` — for writing an installer's parts down and reusing them across a library, not the ability to construct the shape.
 
@@ -758,6 +762,8 @@ The names are **not frozen** — review 3 §12 says so — but the axis is: a co
 
 `DragErrorContext` keeps `domain` and loses `stage`. **The two-argument shape survives on the reasoning that first placed it** (§The export topology, `DragErrorContext` ships from `sortable.js`): `domain` is a _sortable_ result, and `DraggableError` is behavior-agnostic vocabulary on `drag.js`. Putting `domain` on the error class would make the shared entry declare a behavior's result union — the exact inversion that entry exists to prevent. The owner's sketch shows `onError(error)` with one argument; that form is available and costs the consumer the domain result, which is why it is not taken.
 
+> **The owner's sketch is what shipped, and the cost turned out not to exist** (D-130 §6). `domain` was never information the consumer had to lose: its only non-null producer is the settlement-failure path, `finalized` publishes that same `current.domain` to `onEnd`, and D-66 makes the terminal unconditional — so a non-null `domain` always implied an `onEnd` carrying it. It was also _worse_ than redundant on one path: `onError` runs in `REPORTING` and `onEnd` in `FINALIZING`, so a second failure arriving between them left the context **stale** relative to the terminal the consumer was about to receive. Both contexts are deleted and both callbacks take one argument.
+
 **`readinessTimeout` is deleted (D-41).** It bounded the acknowledgement window of a readiness gate that no longer exists; with the commit serial there is nothing to time out, because `onReorder` does not return until the consumer's own commit has. A consumer that needs its own bound writes it around its own await, where it can also say what to do when it expires. Its entry in §Public option domains goes with it.
 
 These are one coherent consumer surface and they are ordinary config slots: grouping them bought no tree-shaking — a `null` check on an unfilled callback costs nothing — and no protection, since last-wins applies per callback exactly as it does per scalar.
@@ -1117,7 +1123,7 @@ Judged through consumer fixtures, not source intuition — and **measured** (M-3
 | free drag complete | **9.16 kB** | 29 | +0.45 kB |
 | both behaviors | 13.40 kB | 47 | — |
 | `kernel.js` alone (`draggable`) | 6.51 kB | 12 | — |
-| `drag.js` alone (`DraggableError`) | **0.12 kB** | **1** | — |
+| `drag.js` alone (`DraggableError`, `DraggableWarning`) | **0.12 kB** | **1** | — |
 
 The last two rows **are** declared compositions in `bench/size` as of 2026-08-22 — they were measured once by the pass above, and F-77 is the finding that said a published runtime entry with an isolation claim ought to carry a standing assertion rather than a one-time reading. It is closed: `drag.js` carries `only: ['kernel/errors.js']` and a deliberately tight 150 B budget, because the packed `errors.js` inlines the `FAILURE_*` constants and so a graph assertion alone cannot see machinery arriving from `failures.ts`. `drag.js` at one module is the measured form of the three-root argument: shared vocabulary costs a consumer 121 B, not the kernel.
 
@@ -1162,15 +1168,15 @@ A separate subpath entry per optional **capability** is what makes the measureme
 
 | Subpath | Runtime exports | Type exports |
 | --- | --- | --- |
-| `drag.js` — **shared vocabulary**, reachable from any tier | **`DraggableError`** (a class — the one runtime value here) | `Point`, `DOMRealm`, **`DraggableErrorCode`** |
+| `drag.js` — **shared vocabulary**, reachable from any tier | **`DraggableError`**, **`DraggableWarning`** (classes — the runtime values here; D-130) | `Point`, `DOMRealm`, **`DraggableErrorCode`** |
 | `kernel.js` — `@ydinjs/drag/kernel`, **the kernel tier** (D-48, **rebuilt by D-68**) | **`draggable`**, the 13 **`FAILURE_*` constants** (D-64), the 3 **`LIFT_*`**, the 5 **`SETTLED_*`**, **`AT_PROPOSAL`**/**`AT_CONSUMER`**, the 8 **phase constants**, **`toDraggableError`** — 33 values | **`BehaviorFactory`**, **`KernelHost`**, **`BehaviorSpec`**, **`FailureStage`**, and the rest of `BehaviorFactory`'s structural closure, enumerated in [02](02-kernel-behavior-contract.md) §The kernel tier's public vocabulary — **35 types** (33 until 2026-08-22; `BehaviorLiftSession` and `InheritedSpace` were each ratified separately, by 07 §K-1 and D-85, and neither updated the total) |
-| `sortable.js` — returns a `SortableController`, takes `root` (D-48) | `sortable`, **`ReorderResolution`**, **`AT_PROPOSAL`**, **`AT_CONSUMER`** | **`SortableConfig`** and every alias it names — `ItemSource`, `OnReorder`, **`SortableOnStart`**, **`SortableOnEnd`**, **`SortableOnDragError`** (qualified by D-109), `ResolveHandle`, `ResolveElement`, `PlaceholderFactory`, **`PlaceholderContext`**, **`AxisInstaller`**, **`SortableInstaller`** (published by D-110) — plus `ReorderRequest`, `ReorderProposal`, `CollectionSnapshot`, `ReorderResolution`, `AcceptedReorderResolution`, `RejectedReorderResolution`, `AcceptedReorderResult`, `NoopReorderResult`, `RejectedReorderResult`, `CanceledReorderResult`, **`ReorderTransactionResult`**, `CancelStage`, **`SortableErrorContext`** (renamed from `DragErrorContext` by D-75), `SortableController` |
+| `sortable.js` — returns a `SortableController`, takes `root` (D-48) | `sortable`, **`ReorderResolution`**, **`AT_PROPOSAL`**, **`AT_CONSUMER`** | **`SortableConfig`** and every alias it names — `ItemSource`, `OnReorder`, **`SortableOnStart`**, **`SortableOnEnd`**, **`SortableOnDragError`** (qualified by D-109), `ResolveHandle`, `ResolveElement`, `PlaceholderFactory`, **`PlaceholderContext`**, **`AxisInstaller`**, **`SortableInstaller`** (published by D-110) — plus `ReorderRequest`, `ReorderProposal`, `CollectionSnapshot`, `ReorderResolution`, `AcceptedReorderResolution`, `RejectedReorderResolution`, `AcceptedReorderResult`, `NoopReorderResult`, `RejectedReorderResult`, `CanceledReorderResult`, **`ReorderTransactionResult`**, `CancelStage`, ~~**`SortableErrorContext`**~~ (renamed from `DragErrorContext` by D-75, deleted by D-130), `SortableController` |
 | `sortable/feature.js` — **the middle tier** (D-61) | **`insertionAt`** — one value, added 2026-08-25 (D-123, D-125), which makes this a **runtime** entry | **`SortableInstaller`**, **`FeatureContext`**, **`SortableContribution`**, **`InsertionGeometry`**, **`DisplacementHook`**, the consumer-declared view types an installer reads, and — **as re-exports since D-68, declared at the kernel tier** — `LandingStart`, `LandingContext`, `LandingHandle`, `Disposer` |
 | `sortable/y.js` | `y` | — |
 | `sortable/xy.js` | `xy` | — |
 | `sortable/landing.js` | `landing` | `LandingOptions` |
 | `sortable/layout-animation.js` | `layoutAnimation` | `LayoutAnimationOptions` |
-| `free-drag.js` — **the second behavior's ordinary tier** (D-69) | `freeDrag`, **`FreeDragResolution`**, `AT_PROPOSAL`, `AT_CONSUMER` | **`FreeDragConfig`** and every alias it names, `FreeDragController`, `FreeDragSubject`, `FreeDragRequest`, `DragGeometry`, `DragAxis`, **`FreeDragLift`**, `FreeDragTransactionResult` and its three arms, the two resolution members, **`FreeDragErrorContext`**, `CancelStage` |
+| `free-drag.js` — **the second behavior's ordinary tier** (D-69) | `freeDrag`, **`FreeDragResolution`**, `AT_PROPOSAL`, `AT_CONSUMER` | **`FreeDragConfig`** and every alias it names, `FreeDragController`, `FreeDragSubject`, `FreeDragRequest`, `DragGeometry`, `DragAxis`, **`FreeDragLift`**, `FreeDragTransactionResult` and its three arms, the two resolution members, ~~**`FreeDragErrorContext`**~~ (deleted by D-130), `CancelStage` |
 | `free-drag/feature.js` — **its middle tier** (D-70) | — | **`FreeDragInstaller`**, **`FreeDragContribution`**, **`MotionConstraint`**, `ConstraintView`, `MotionDraft`, and — as re-exports — `FeatureContext`, `LandingStart`, `LandingContext`, `LandingHandle`, `Disposer` |
 | `free-drag/bounds.js` | `bounds` | `BoundsSource` |
 | `free-drag/landing.js` | `landing` | `LandingOptions` — the **same declaration** `sortable/landing.js` publishes |

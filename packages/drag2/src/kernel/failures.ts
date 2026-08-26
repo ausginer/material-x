@@ -4,7 +4,11 @@
  * `FailureStage` is a **closed union**, not a bare `number`, so a participant
  * cannot forge an invalid or kernel-private stage (contract 02 §Failure
  * classification, F-23). It is **public**: a consumer receiving `onError` has
- * to be able to discriminate it (D-30).
+ * to be able to discriminate it (D-30). ~~It is **public**: a consumer
+ * receiving `onError` has to be able to discriminate it (D-30).~~ **False since
+ * D-64** — an ordinary consumer receives a coarse `code` and no stage — and the
+ * premise expired rather than the sentence being wrong when written (F-80 (d),
+ * F-81). It is public because a **kernel-tier behavior** classifies with it.
  *
  * The stage → recovery mapping is deliberately **not** here. `recovery` and
  * `domain` are fields of the behavior's frame part, which the kernel cannot
@@ -42,13 +46,25 @@ export const FAILURE_RESOLUTION = 8;
 export const FAILURE_RELEASE = 9;
 export const FAILURE_LANDING_CREATE = 10;
 export const FAILURE_LANDING_INTERRUPTED = 11;
-export const FAILURE_LANDING_TARGET = 12;
 /**
+ * **Two holes, and the rule that makes them holes rather than gaps.**
+ *
+ * ~~`FAILURE_LANDING_TARGET = 12`~~ — **deleted 2026-08-26 with the `QUALITY`
+ * tier (D-130)**. It was the one stage D-49 created to be *classified,
+ * non-consequential and carrying no recovery*, which is a shape that existed
+ * only because the destination encoded severity: a landing measurement that
+ * cannot be trusted had to be classified in order to reach `onError` at all.
+ * With one channel it reaches the consumer as a `DraggableWarning` and needs no
+ * stage, and its only producer — `runQualityValue` — is gone with it.
+ *
  * ~~`FAILURE_PRESENTATION_READY = 13`~~ — **deleted with the readiness protocol
- * (D-41)**. Thirteen stages, not fourteen. The number is not reused: a stage
- * constant is a wire value in a consumer's compiled code, and silently
- * repointing 13 at a different meaning is the one change this list must never
- * make.
+ * (D-41)**.
+ *
+ * **Twelve stages, and neither number is ever reused.** A stage constant is a
+ * wire value in a consumer's compiled code, so silently repointing 12 or 13 at
+ * a different meaning is the one change this list must never make. The
+ * positional `STAGE_TO_CODE` tuple in `errors.ts` keeps a padded slot for each,
+ * which is what makes the hole a fact about the array rather than a comment.
  */
 export const FAILURE_TERMINAL_CALLBACK = 14;
 
@@ -65,7 +81,6 @@ export type FailureStage =
   | typeof FAILURE_RELEASE
   | typeof FAILURE_LANDING_CREATE
   | typeof FAILURE_LANDING_INTERRUPTED
-  | typeof FAILURE_LANDING_TARGET
   | typeof FAILURE_TERMINAL_CALLBACK;
 
 /**

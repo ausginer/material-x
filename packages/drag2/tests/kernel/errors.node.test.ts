@@ -25,6 +25,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   DraggableError,
+  DraggableWarning,
   toDraggableError,
   type DraggableErrorCode,
 } from '../../src/kernel/errors.ts';
@@ -37,7 +38,6 @@ import {
   FAILURE_INVALIDATION,
   FAILURE_LANDING_CREATE,
   FAILURE_LANDING_INTERRUPTED,
-  FAILURE_LANDING_TARGET,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
   FAILURE_RESOLUTION,
@@ -67,7 +67,6 @@ const STAGES: ReadonlyArray<
   ['action-effect', FAILURE_ACTION_EFFECT, 'presentation'],
   ['landing-create', FAILURE_LANDING_CREATE, 'presentation'],
   ['landing-interrupted', FAILURE_LANDING_INTERRUPTED, 'presentation'],
-  ['landing-target', FAILURE_LANDING_TARGET, 'presentation'],
   // The platform did not do what it promised.
   ['invalidation', FAILURE_INVALIDATION, 'platform'],
   ['scheduled-frame', FAILURE_SCHEDULED_FRAME, 'platform'],
@@ -100,13 +99,16 @@ describe('toDraggableError', () => {
   });
 
   it('should assign a code to every published stage', () => {
-    // **Thirteen, not fourteen.** `FAILURE_PRESENTATION_READY = 13` went with
-    // the readiness protocol (D-41) and its number was deliberately not reused,
-    // so the count is one a reader will keep wanting to check. Kept as a
+    // **Twelve, and two numbers that will never come back.**
+    // `FAILURE_PRESENTATION_READY = 13` went with the readiness protocol
+    // (D-41); `FAILURE_LANDING_TARGET = 12` went with the `QUALITY` tier
+    // (D-130), which was the only thing that produced it. Neither number is
+    // reused — a stage constant is a wire value in a consumer's compiled code
+    // — so the count is one a reader will keep wanting to check. Kept as a
     // literal on top of the derivation above: the derivation catches a stage
     // added *and* forgotten here, this catches the two moving together in a
     // direction nobody decided.
-    expect(PUBLISHED).toHaveLength(13);
+    expect(PUBLISHED).toHaveLength(12);
 
     for (const [name, stage, code] of STAGES) {
       expect([name, toDraggableError(stage, null).code]).toEqual([name, code]);
@@ -127,6 +129,22 @@ describe('toDraggableError', () => {
       'platform',
       'presentation',
     ]);
+  });
+
+  it('should leave 12 and 13 unoccupied', () => {
+    // **A deleted stage's number is not free** (D-41, D-130). The `STAGE_TO_CODE`
+    // tuple is positional, so an unpadded hole would silently shift every later
+    // code by one; padding is what makes the hole a fact about the array rather
+    // than a comment above it. Asserted through the *neighbours*, because that
+    // is the failure mode: 14 keeping its code is what proves nothing slid.
+    expect(PUBLISHED).not.toContain(12);
+    expect(PUBLISHED).not.toContain(13);
+    expect(toDraggableError(FAILURE_TERMINAL_CALLBACK, null).code).toBe(
+      'consumer',
+    );
+    expect(toDraggableError(FAILURE_LANDING_INTERRUPTED, null).code).toBe(
+      'presentation',
+    );
   });
 
   it('should keep the three renamed stages on their original numbers', () => {
@@ -152,5 +170,50 @@ describe('toDraggableError', () => {
     // reaches the original through the language rather than through us.
     expect(error).toBeInstanceOf(DraggableError);
     expect(error.cause).toBe(failure);
+  });
+});
+
+describe('DraggableWarning', () => {
+  it('should not be a DraggableError', () => {
+    // **The single most important structural constraint of D-130.**
+    // `err instanceof DraggableError` is published and already means *my
+    // operation was affected*; a warning that satisfied it would silently turn
+    // every existing handler into one that treats advisory diagnostics as
+    // failures — the coupling the decision exists to remove, reintroduced
+    // through the type graph. Asserted in both directions, because a shared
+    // base class would pass the first half alone.
+    const warning = new DraggableWarning('drag: test/advisory');
+
+    expect(warning).toBeInstanceOf(Error);
+    expect(warning).not.toBeInstanceOf(DraggableError);
+    expect(new DraggableError('platform', null)).not.toBeInstanceOf(
+      DraggableWarning,
+    );
+    expect(Object.getPrototypeOf(DraggableWarning)).toBe(Error);
+    expect(Object.getPrototypeOf(DraggableError)).toBe(Error);
+  });
+
+  it('should carry no code', () => {
+    // A warning names its reason in its message and carries the caught error as
+    // `cause`; a code would be a field a consumer might branch on, and nothing
+    // in the population branches. Publishing one now would freeze it.
+    const warning = new DraggableWarning('drag: test/advisory');
+
+    expect('code' in warning).toBe(false);
+    expect(warning.name).toBe('DraggableWarning');
+  });
+
+  it('should carry the caught error as the native cause', () => {
+    const caught = new Error('boom');
+    const warning = new DraggableWarning('drag: test/advisory', caught);
+
+    expect(warning.message).toBe('drag: test/advisory');
+    expect(warning.cause).toBe(caught);
+  });
+
+  it('should leave cause undefined when the warning is library-authored', () => {
+    // Half the population has no caught error at all — a duplicate gate hold, a
+    // registration after closure — and the message is the whole payload there.
+    expect(new DraggableWarning('drag: test/advisory').cause).toBeUndefined();
   });
 });

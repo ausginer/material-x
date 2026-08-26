@@ -13,9 +13,9 @@
  * policy and the failure policy differ per seam, and pretending otherwise hid
  * four real gaps (F-19, F-27).
  */
-import { FAILURE_LANDING_TARGET, type FailureStage } from './failures.ts';
+import { DraggableWarning, type Notify } from './errors.ts';
+import type { FailureStage } from './failures.ts';
 import type { Draft, Frame } from './frames.ts';
-import { report } from './reporter.ts';
 
 /**
  * A seam that stages nothing uses `Prepared = true` and returns the literal.
@@ -136,11 +136,11 @@ export type SeamContext<Part extends object> = Readonly<{
   /** Queue a classified failure against the operation the kernel holds. */
   fail(stage: FailureStage, error: unknown): void;
   /**
-   * Report a **quality** failure through `onError` without classifying it
-   * (D-49). No checkpoint is queued, no recovery is selected, and the
-   * operation's own outcome is untouched.
+   * The controller's one channel (D-130). No checkpoint is queued, no recovery
+   * is selected, and the operation's own outcome is untouched — which is what
+   * makes everything the driver sends here a {@link DraggableWarning}.
    */
-  reportQuality(stage: FailureStage, error: unknown): void;
+  notify: Notify;
 }>;
 
 export type SeamDriver<Part extends object> = Readonly<{
@@ -209,23 +209,30 @@ export type SeamDriver<Part extends object> = Readonly<{
   ): Value | undefined;
 
   /**
-   * {@link SeamDriver.runLeafValue} on the **quality track** (D-49): the seam
+   * {@link SeamDriver.runLeafValue} on the **unclassified track**: the seam
    * still runs inside a phase — re-entry refused, `host.fail` latched, one
-   * classification per phase — but a failure is reported through `onError`
-   * instead of settling the operation.
+   * report per phase — but a failure reaches the consumer as a warning instead
+   * of settling the operation (D-49, D-130).
    *
    * One caller: the arm-time landing measurement. A target that cannot be
    * produced and one that cannot be trusted are the same fault, and neither is
    * a reason to tell a consumer whose reorder succeeded that it did not.
+   *
+   * ~~`runQualityValue(run, stage)`.~~ **The stage argument is gone (D-130).**
+   * It existed to name `FAILURE_LANDING_TARGET`, a stage that was *classified,
+   * non-consequential and carried no recovery* — a shape D-49 had to invent
+   * because reaching `onError` required classification. With one channel it
+   * does not, so the stage had no remaining reader and left the union with the
+   * tier that produced it.
    */
-  runQualityValue<Value extends {}>(
+  runUnclassifiedValue<Value extends {}>(
     run: () => Value,
-    stage: FailureStage,
+    reason: string,
   ): Value | undefined;
 
   /**
    * `host.fail`. Valid **only inside a kernel-driven seam of the current
-   * operation**: a call outside one is downgraded to a platform report, because
+   * operation**: a call outside one is reported as a warning instead, because
    * a late continuation from operation A could otherwise classify a failure
    * against operation B (F-23).
    */
@@ -242,31 +249,26 @@ export type SeamDriver<Part extends object> = Readonly<{
 const NO_STAGE = 0;
 
 /**
- * The stage of a phase whose failures are **reported, never classified** —
- * today only `rollback`, which runs when the operation is already invalid, so
- * classifying there would open a transition against an operation the kernel has
- * just decided to abandon. Applying it to the whole phase is what makes an
- * explicit `host.fail` inside `rollback` behave exactly like a throw inside it.
- */
-const BEST_EFFORT = -1;
-
-/**
- * The stage of a phase whose failures are **reported through `onError` and
- * never classified** — the third state D-49 introduces, and today only the
- * arm-time landing measurement.
+ * The stage of a phase whose failures are **reported, never classified**.
  *
- * It is neither of the two that existed. A classified failure settles the
- * operation `OUTCOME_FAILED` or retires it, which is the wrong answer for a
- * drop whose reorder is real and already committed; a `BEST_EFFORT` report goes
- * to the platform reporter, which is the wrong *audience*, because the fault is
- * almost always a destructive rerender the **consumer** performed. So the
- * channel and the tier are chosen independently here: `onError`, no `REPORTING`
- * phase, no `OUTCOME_FAILED`, terminal callback intact.
+ * ~~Two sentinels, `BEST_EFFORT = -1` and `QUALITY = -2`.~~ **One since D-130.**
+ * They named two destinations — the platform reporter and `onError` — for the
+ * identical tier, and with a single channel they differed in nothing at all.
+ * The distinction was never about the failure; it was about who got told.
+ *
+ * Two phases open under it, and their reasons are worth keeping distinct even
+ * though their handling is now identical. `rollback` runs when the operation is
+ * already invalid, so classifying there would open a transition against an
+ * operation the kernel has just decided to abandon. The arm-time landing
+ * measurement runs when the operation is already **committed**, so classifying
+ * there would settle a drop that really happened (D-49). Applying the sentinel
+ * to the whole phase is what makes an explicit `host.fail` inside either behave
+ * exactly like a throw inside it.
  */
-const QUALITY = -2;
+const UNCLASSIFIED = -1;
 
 /** What an open phase classifies against. */
-type PhaseStage = FailureStage | typeof BEST_EFFORT | typeof QUALITY;
+type PhaseStage = FailureStage | typeof UNCLASSIFIED;
 
 /**
  * A phase that threw or latched a failure, as a value.
@@ -296,12 +298,16 @@ export function createSeamDriver<Part extends object>(
    */
   let failureRequested = false;
   /**
-   * The stage a `QUALITY` phase reports under. Set by `runQualityValue` and
-   * read only while that phase is open, which is the same lifetime
+   * The message an `UNCLASSIFIED` phase reports under. Set as that phase opens
+   * and read only while it is open, which is the same lifetime
    * `failureRequested` has and for the same reason: the driver runs exactly one
    * phase at a time (`refuseReentry`).
+   *
+   * A string where this was a `FailureStage` (D-130): the warning names its
+   * reason in its message, so the driver carries the reason rather than a
+   * classification it is about to refuse to apply.
    */
-  let qualityStage: FailureStage = FAILURE_LANDING_TARGET;
+  let unclassifiedReason = 'drag: seam/rollback-failed';
   /**
    * The staged value of the last committed transition. Owned by the driver
    * rather than passed in, so no call path can skip the reset: a `runCore` that
@@ -387,19 +393,24 @@ export function createSeamDriver<Part extends object>(
     }
 
     if (value === FAILED) {
-      // **One phase, one classification.** A phase that called `host.fail` and
-      // then threw is already classified against its own error, and that
-      // checkpoint is queued; classifying the throw as well would queue a
-      // second one for a single phase and let the later error decide the
-      // operation's outcome. The throw still travels, on the channel that
-      // carries no consequence, so nothing is lost.
-      if (stage === QUALITY) {
-        // D-49. `qualityStage` rather than `stage`, because `QUALITY` says how
-        // the failure travels and never what it was — the stage the consumer
-        // receives is the one the caller named.
-        context.reportQuality(qualityStage, raised);
-      } else if (stage === BEST_EFFORT || failureRequested) {
-        report(raised);
+      // **One phase, one classification**, and the two arms below are the two
+      // ways a phase can produce a fault the kernel refuses to classify: the
+      // phase was never classified at all, or it was already classified once.
+      // Classifying a second time for a single phase would let the later error
+      // decide the operation's outcome. Nothing is lost either way — since
+      // D-130 both arms reach the same consumer the classified one does.
+      if (stage === UNCLASSIFIED) {
+        // `unclassifiedReason` rather than the sentinel, because the sentinel
+        // says how the failure travels and never what it was — the reason the
+        // consumer reads is the one the caller named.
+        context.notify(new DraggableWarning(unclassifiedReason, raised));
+      } else if (failureRequested) {
+        // **One phase, one report.** A phase that called `host.fail` and then
+        // threw is already classified against its own error; the throw travels
+        // as a warning, which is what keeps it from deciding the outcome.
+        context.notify(
+          new DraggableWarning('drag: seam/failed-then-threw', raised),
+        );
       } else {
         context.fail(stage, raised);
       }
@@ -423,7 +434,7 @@ export function createSeamDriver<Part extends object>(
         // it from being *invisible*. A staged value still sitting here means the
         // previous seam neither consumed nor dropped it, which is the one way a
         // command can outlive its transaction.
-        report(new Error('drag: seam/staged-unconsumed'));
+        context.notify(new DraggableWarning('drag: seam/staged-unconsumed'));
       }
 
       staged = null;
@@ -442,7 +453,8 @@ export function createSeamDriver<Part extends object>(
       }
 
       if (!context.preparationValid()) {
-        runPhase(BEST_EFFORT, () => transition.rollback?.(prepared));
+        unclassifiedReason = 'drag: seam/rollback-failed';
+        runPhase(UNCLASSIFIED, () => transition.rollback?.(prepared));
         return SEAM_INVALIDATED;
       }
 
@@ -482,10 +494,10 @@ export function createSeamDriver<Part extends object>(
       return value === FAILED ? undefined : value;
     },
 
-    runQualityValue(run, stage) {
-      qualityStage = stage;
+    runUnclassifiedValue(run, reason) {
+      unclassifiedReason = reason;
 
-      const value = runPhase(QUALITY, run);
+      const value = runPhase(UNCLASSIFIED, run);
 
       return value === FAILED ? undefined : value;
     },
@@ -502,20 +514,24 @@ export function createSeamDriver<Part extends object>(
       // (D-49: "or `anchorTarget` throws or latches"). The flag is what makes
       // `runPhase` return `FAILED` for a phase that latched without throwing,
       // so the caller sees no target either way.
-      if (openStage === QUALITY) {
+      if (openStage === UNCLASSIFIED) {
         failureRequested = true;
-        context.reportQuality(stage, error);
+        context.notify(new DraggableWarning(unclassifiedReason, error));
         return;
       }
 
-      if (openStage === NO_STAGE || openStage === BEST_EFFORT) {
-        report(error);
-        report(
-          new Error(
-            openStage === BEST_EFFORT
-              ? 'drag: seam/fail-during-rollback'
-              : 'drag: seam/fail-outside-seam',
-          ),
+      if (openStage === NO_STAGE) {
+        // **One warning where there were two reports** (D-130 §2.2). The pair
+        // was a caught error and a library-authored companion naming why the
+        // classification was denied; the message names the reason and `cause`
+        // carries the caller's error, which is the shape that replaced a code.
+        //
+        // The caller's `stage` is deliberately discarded. It describes a
+        // classification the kernel has just refused to apply, and carrying it
+        // into the warning would publish a claim about the operation that this
+        // branch exists to *not* make.
+        context.notify(
+          new DraggableWarning('drag: seam/fail-outside-seam', error),
         );
 
         return;

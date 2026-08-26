@@ -24,6 +24,11 @@ import {
   UP,
 } from './actions.ts';
 import {
+  DraggableError,
+  DraggableWarning,
+  toDraggableError,
+} from './errors.ts';
+import {
   AT_CONSUMER,
   AT_PROPOSAL,
   type CancelStage,
@@ -32,7 +37,6 @@ import {
   FAILURE_ACTION_PREPARE,
   FAILURE_LANDING_CREATE,
   FAILURE_LANDING_INTERRUPTED,
-  FAILURE_LANDING_TARGET,
   FAILURE_ACTION_EFFECT,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
@@ -73,7 +77,6 @@ import {
 } from './protocol.ts';
 import { clearQueue, createActionQueue, drain, enqueue } from './queue.ts';
 import { createRealm } from './realm.ts';
-import { guarded, report } from './reporter.ts';
 import {
   createSeamDriver,
   runActivationSeam,
@@ -103,6 +106,7 @@ import {
   type SettlementScope,
 } from './spec.ts';
 import type { OffsetBox, Point } from './types.ts';
+import { createUnwind } from './unwind.ts';
 
 /** Why an operation was cancelled, when the kernel is the one deciding. */
 export const CANCEL_ESCAPE = 'drag:escape';
@@ -262,6 +266,67 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * `commit` is visible as an identity change.
    */
   let pinned: OperationIdentity | null = null;
+
+  /* ---- the one channel (D-130) ---- */
+
+  /**
+   * **Every fault the library surfaces leaves through here.** One function,
+   * three jobs, and nothing else:
+   *
+   * 1. **Refuse after logical closure.** Consumer code inside `onError` may
+   *    call `destroy()`, and a resolver that destroys and *then* throws would
+   *    otherwise have its own destruction reported back to it through a
+   *    declared slot — a callback after `destroy()` returned, which the floor
+   *    forbids outright (E-03, I-31, D-53, D-37). ~~Three open-coded pre-guards
+   *    at the admission catch, the quality report and the landing join.~~
+   *    **One place since D-130.**
+   * 2. **Hand the finished error to the behavior**, which forwards it to
+   *    `onError` and does nothing else. Before `arm()` there is no behavior and
+   *    nothing is delivered — which is correct rather than a gap, since a
+   *    consumer with no controller has no handler either.
+   * 3. **Discard whatever that throws.** *This is the terminus.* A throw from
+   *    the channel is never re-notified, and that single discard is the whole
+   *    of what makes the channel non-recursive. It is also what lets the
+   *    fourteen `unwind` sites stay total without knowing anything about
+   *    reporting: their catch calls this, and this cannot throw.
+   *
+   * `afterClose` is `panic`'s named exception and has exactly one caller. It is
+   * a parameter rather than a second function so that the refusal and the
+   * exception to it are read together.
+   *
+   * **The stage is deliberately absent.** Three sites reach this holding a real
+   * `FailureStage` and discard it — the demoted checkpoint, `failOperation`'s
+   * five-guard demotion, and a `host.fail` outside a seam. In each the stage
+   * describes a classification the kernel has just decided **not** to apply, so
+   * carrying it into a warning would publish a claim about the operation that
+   * the code refused to make.
+   */
+  const notify = (
+    error: DraggableError | DraggableWarning,
+    afterClose = false,
+  ): void => {
+    if (queue.closed && !afterClose) {
+      return;
+    }
+
+    try {
+      spec?.reportError(error);
+    } catch {
+      // The terminus. Reporting a reporting failure is the one recursion this
+      // model has to be incapable of, and being incapable is stronger than
+      // being careful.
+    }
+  };
+
+  /**
+   * The unwind guard, over this controller's channel (D-130 §4).
+   *
+   * One closure per kernel rather than a free function: the fourteen call sites
+   * read `unwind(fn)` either way, and threading the channel's identity through
+   * each of them would put reporting at every site that merely wants the next
+   * statement to run.
+   */
+  const unwind = createUnwind(notify);
 
   /* ---- the transaction bracket (D-36) ---- */
 
@@ -427,7 +492,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     attempt.start = null;
 
     if (handle !== null) {
-      guarded(() => {
+      unwind(() => {
         handle.destroy();
       });
     }
@@ -455,9 +520,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // `resetFramePart` is behavior code the API permits to throw, and an
     // unwrapped throw on the first frame would skip the second scrub *and* the
     // ingress abort, making `destroy()` non-terminal (I-6, D-29, F-36). The
-    // kernel's own reset cannot throw, so it is inside the same `guarded` with
+    // kernel's own reset cannot throw, so it is inside the same `unwind` with
     // nothing to lose by it.
-    guarded(() => {
+    unwind(() => {
       frame(target);
       active.resetFramePart(target);
     });
@@ -484,12 +549,12 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     retireAttempts();
 
     // 4. behavior references.
-    guarded(spec.retire);
+    unwind(spec.retire);
 
     // 5. presentation → motion → cancellation, LIFO, best-effort. Releases
     //    pointer capture, removes the placeholder and restores inline styles.
     if (lifetimes !== null) {
-      guarded(lifetimes.dispose);
+      unwind(lifetimes.dispose);
     }
 
     // 6. both frames, each reset individually wrapped.
@@ -518,10 +583,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // 3–6.
       if (spec !== null) {
         retireAttempts();
-        guarded(spec.retire);
+        unwind(spec.retire);
 
         if (lifetimes !== null) {
-          guarded(lifetimes.dispose);
+          unwind(lifetimes.dispose);
         }
 
         scrub(current);
@@ -597,15 +662,36 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * report the initiating error, **then** tear down (D-36; contract 01
    * §Teardown across two owners, whose Part I ordering this reverses).
    *
-   * The reversal is safe rather than merely permitted, and the reason is the
-   * shape of the window: `panic()` is reached from `drain`'s `catch`, after the
-   * loop has exited, so the deferral window is one stack frame wide and the
-   * only statement inside it is `report` — which touches no library state, and
-   * meets an already-closed controller if the reporter calls back in.
+   * **The justification D-36 gave for the ordering no longer holds, and D-131
+   * replaces it rather than reversing the order** (D-130 §8). That justification
+   * was that the deferral window is one stack frame wide and the only statement
+   * inside it is a platform report — *which touches no library state, and meets
+   * an already-closed controller if the reporter calls back in*. Every clause of
+   * that fails once the statement is `onError`: consumer code does touch library
+   * state and can call back in.
+   *
+   * **So the delivery is a named exception to D-37 (a), not a general licence.**
+   * It joins `LandingHandle.destroy()` on the closed list, and it belongs there
+   * for the property D-51 used to admit that one: a terminal diagnostic *tells*
+   * the consumer something and asks nothing of them — it publishes no lifecycle
+   * or domain event, ignores its return value, performs no operation work, and
+   * is guarded. Nothing else may run after logical closure, and `notify`
+   * enforces that for every other site.
+   *
+   * The alternative — report first, then destroy — keeps D-37 untouched and
+   * runs consumer code on a controller whose invariants are *already known to
+   * be broken*, with the added hazard that the consumer may start work the next
+   * statement tears down. Closing first is the more predictable of the two.
+   *
+   * **Panic is consequential and carries no stage.** It destroys the whole
+   * controller rather than one operation, so it is a `DraggableError`; and
+   * `FailureStage` classifies faults *within* an operation, so there is nothing
+   * to classify. The code is picked directly, which the public constructor has
+   * always allowed — `toDraggableError` is only one way to choose one.
    */
   const panic = (error: unknown): void => {
     void destroy();
-    report(error);
+    notify(new DraggableError('platform', error), true);
   };
 
   const dispatchKernel = (action: number, argument: unknown): void => {
@@ -683,7 +769,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       reporting ||
       current.phase === REPORTING
     ) {
-      report(error);
+      // **Demoted rather than dropped** (D-130). The `return` is what decides:
+      // the terminal is already owned by whatever is in flight, so this
+      // classification is refused and the fault travels without one. The
+      // `stage` in hand is discarded for exactly that reason.
+      notify(new DraggableWarning('drag: failure/not-classified', error));
       return;
     }
 
@@ -706,30 +796,19 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     readDraft: () => draft,
     fail: failOperation,
     /**
-     * **The third state** (D-49). Not `failOperation`, which would settle a
-     * drop whose reorder already happened; not `report`, which would send a
-     * consumer's own destructive rerender to the platform reporter — the
-     * silence probe C1 measured, in exactly the builds where it did the damage.
+     * **The driver reports without classifying** (D-49, D-130). Not
+     * `failOperation`, which would settle a drop whose reorder already
+     * happened; ~~not `report`, which would send a consumer's own destructive
+     * rerender to the platform reporter~~ — there is no second destination to
+     * choose between any more, and that is what let the `QUALITY` and
+     * `BEST_EFFORT` tiers collapse into one sentinel.
      *
-     * It reuses the behavior hook Q-1 added for a failure with **no operation
-     * to settle**. The two callers have opposite reasons and the same
-     * requirement: reach `onError` without queueing a checkpoint.
+     * The lifetime guard that used to sit here is inside `notify`, where every
+     * route shares it: a quality fault's producer is consumer-reaching — a
+     * `home` resolver, a landing factory — and is equally free to destroy
+     * before it throws (E-03).
      */
-    reportQuality: (stage, error) => {
-      // **The same lifetime guard, on the other kernel-owned route** (E-03).
-      // A quality fault's producer is consumer-reaching too — a `home`
-      // resolver, a landing factory — and is equally free to destroy before it
-      // throws. `armSettlement`'s own `settlementLive()` check runs *after*
-      // this report, so it never saw the ordering; the reading belongs where
-      // the report is made.
-      if (queue.closed) {
-        return;
-      }
-
-      guarded(() => {
-        spec!.reportFailure(stage, error);
-      });
-    },
+    notify,
   };
 
   const driver = createSeamDriver<Part>(context);
@@ -809,7 +888,6 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     admit: (event: never, draft: Frame<Part>) => AdmissionSubject | null,
     prevents: boolean,
   ): AdmissionSubject | null => {
-    const active = spec!;
     let admitted: AdmissionSubject | null;
 
     try {
@@ -819,19 +897,16 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // checkpoint to settle and no `REPORTING` phase to enter. The controller
       // stays idle and usable, and the behavior surfaces the diagnostic.
       //
-      // **Unless the resolver closed the controller on its way out** (E-03,
-      // I-31, D-53). `admit` runs consumer resolvers, and one that calls
-      // `destroy()` and *then* throws would otherwise have its own destruction
-      // reported back to it through a declared `onError` — a callback after
-      // `destroy()` returned, which the floor forbids outright. The check is
-      // here rather than in each behavior because the rule is **controller
-      // lifetime**, not domain settlement, and both behaviors reach this one
-      // call site identically.
-      if (!queue.closed) {
-        guarded(() => {
-          active.reportFailure(FAILURE_ADMISSION, error);
-        });
-      }
+      // **Consequential, and the only `report()`-era site that is** (D-130).
+      // The consumer's drag will not start and no `onEnd` will follow, which is
+      // a changed terminal result by any reading — so this is a
+      // `DraggableError`, built here from the stage the kernel owns.
+      //
+      // ~~Unless the resolver closed the controller on its way out (E-03,
+      // I-31, D-53), guarded against a throwing `onError`.~~ **Both readings
+      // moved into `notify`**, which refuses after logical closure and swallows
+      // a throwing handler for every route rather than for this one.
+      notify(toDraggableError(FAILURE_ADMISSION, error));
 
       return null;
     }
@@ -881,7 +956,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         visual = subject;
         box = subject;
       }
-      lifetimes = createOperationLifetimes();
+      lifetimes = createOperationLifetimes(notify);
 
       if (pointerId !== -1) {
         armPointerInput(realm, lifetimes.motion.signal, onPointer);
@@ -891,8 +966,16 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     } catch (error) {
       // Nothing is committed yet, so this retires an operation the frames never
       // saw: it disposes whatever was armed and drops the references.
+      //
+      // **This site is no longer forced onto a second channel** (D-130 §3.2).
+      // It was documented as the one place a platform report was unavoidable —
+      // `operation` is a local never published to the frames, so `failOperation`
+      // would degrade anyway — and that reason evaporates with the channel
+      // being operation-independent. A warning needs no operation and no stage,
+      // and `return false` refuses admission, so nothing about the outcome
+      // changed.
       retireOperation(null);
-      report(error);
+      notify(new DraggableWarning('drag: operation/arming-failed', error));
       return false;
     }
 
@@ -1129,6 +1212,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         spec!.config.liftMode,
         rect,
         realm,
+        unwind,
       );
 
       originRect = rect;
@@ -1292,7 +1376,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   ): SettlementScope => ({
     holdForLanding(start): void {
       if (attempt.sealed || attempt.landingHeld) {
-        report(new Error('drag: settlement/hold-unavailable'));
+        notify(new DraggableWarning('drag: settlement/hold-unavailable'));
         return;
       }
 
@@ -1425,16 +1509,20 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     //
     // Measured unconditionally, before the landing branch, because the join
     // pins to this value whether or not a runner was installed.
-    // **The quality track, not the classified one** (D-49). `runLeafValue` here
+    // **Unclassified, not classified** (D-49, D-130). `runLeafValue` here
     // returned `ARM_FAILED` for a measurement throw, which told a consumer
     // whose reorder had already been committed and accepted that it had failed
     // — over a fault that is entirely presentational. The measurement includes
     // D-42's precondition, which the behavior checks from the inside and
     // reports through the same throw: a target that cannot be produced and one
     // that cannot be trusted are the same fault.
-    const anchor = driver.runQualityValue(
+    //
+    // ~~`FAILURE_LANDING_TARGET`.~~ The stage went with the tier (D-130): it
+    // existed so a non-consequential fault could reach `onError` at all, and a
+    // warning reaches it without one. The message says what the old stage said.
+    const anchor = driver.runUnclassifiedValue(
       () => spec!.anchorTarget(current),
-      FAILURE_LANDING_TARGET,
+      'drag: landing/target-unavailable',
     );
 
     // `anchorTarget` is behavior code and may have destroyed the controller.
@@ -1532,7 +1620,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       if (handle !== undefined) {
         const runner = handle;
 
-        guarded(() => {
+        unwind(() => {
           runner.destroy();
         });
       }
@@ -1547,7 +1635,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     if (!settlementLive(attempt)) {
       const runner = handle!;
 
-      guarded(() => {
+      unwind(() => {
         runner.destroy();
       });
       rollbackLandingHold(attempt);
@@ -1608,7 +1696,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
           // presentation. But it may keep writing the transform after the pin,
           // so I-24 is no longer claimed for this operation.
           attempt.relinquished = false;
-          report(error);
+          notify(
+            new DraggableWarning('drag: landing/runner-destroy-failed', error),
+          );
         }
 
         // The runner is the consumer's code and gets the same treatment: a
@@ -2098,9 +2188,16 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // queued, only when it is applied. Dropping it here leaves the phase
     // untouched, so the `CANCEL` behind it still finds a live `ACTIVE`
     // operation and produces the single terminal callback the consumer gets.
-    // The error is not lost; it takes the non-consequential channel.
+    // The error is not lost; it arrives as a warning, because the `return` here
+    // is what decides and the cancel owns the terminal. `checkpoint.stage` is
+    // discarded with the classification it names (D-130 §3.4).
     if (cancelRequest !== null && current.operation === checkpoint.operation) {
-      report(checkpoint.error);
+      notify(
+        new DraggableWarning(
+          'drag: failure/superseded-by-cancel',
+          checkpoint.error,
+        ),
+      );
       return;
     }
 
@@ -2109,7 +2206,24 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       phase === IDLE ||
       phase === REPORTING
     ) {
-      return; // stale, or a second checkpoint for a report already in flight
+      // **The one place an error used to vanish on both channels** (F-103).
+      // Stale, or a second checkpoint for a report already in flight — either
+      // way this checkpoint loses its classification, and under two channels
+      // there was nowhere for what it carried to go. Under one there is: the
+      // consequence it claimed is refused, and the fault is not.
+      //
+      // A warning rather than an error, and for the same reason as every other
+      // demotion here: the `return` is what decides. A stale checkpoint names
+      // an operation that is already over, and a second one arrives while the
+      // first is being reported — in both cases the terminal is owned and the
+      // outcome is not this fault's to change.
+      notify(
+        new DraggableWarning(
+          'drag: failure/checkpoint-stale',
+          checkpoint.error,
+        ),
+      );
+      return;
     }
 
     // The settlement is **replaced**: whatever the previous attempt armed is
@@ -2120,6 +2234,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       type: SETTLED_FAILED,
       stage: checkpoint.stage,
       error: checkpoint.error,
+      // **Built here, by the kernel** (D-130 §5). The behavior maps `stage` to
+      // a recovery, which is its own (D-24, F-33), and forwards this untouched
+      // — which is what makes the stage → code mapping impossible to re-own per
+      // behavior, and what let `toDraggableError` leave the kernel entry.
+      report: toDraggableError(checkpoint.stage, checkpoint.error),
     };
 
     const attempt = createSettlementAttempt();
@@ -2208,7 +2327,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     }
 
     if (stage !== FAILURE_TERMINAL_CALLBACK && lifetimes !== null) {
-      guarded(lifetimes.presentation.dispose);
+      unwind(lifetimes.presentation.dispose);
 
       // A throw here reaches `failOperation`, which sees `REPORTING` and takes
       // the non-consequential channel — so a terminal that fails on the failure
@@ -2319,7 +2438,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         // Reported and dropped, never enqueued: the kernel computes
         // `BEHAVIOR_BASE + tag`, so a negative or fractional tag would alias a
         // kernel action.
-        report(new Error(`drag: dispatch/tag-out-of-range ${String(tag)}`));
+        notify(
+          new DraggableWarning(
+            `drag: dispatch/tag-out-of-range ${String(tag)}`,
+          ),
+        );
         return;
       }
 
@@ -2410,7 +2533,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
           }
         }
       } catch (error) {
-        guarded(next.retire);
+        unwind(next.retire);
 
         // Totality applies to the unwind too: a reset that throws here must not
         // replace the original arm failure or skip the ingress cleanup. Scrub

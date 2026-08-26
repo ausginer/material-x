@@ -105,7 +105,11 @@
 
 // **The shared root.** A class, therefore a runtime value both tiers name and
 // neither owns.
-import type { DraggableError, DraggableErrorCode } from '../../src/drag.ts';
+import {
+  DraggableError,
+  type DraggableErrorCode,
+  type DraggableWarning,
+} from '../../src/drag.ts';
 // **The kernel tier, from its own entry** — all of it, since D-68. Three
 // imports used to reach *inside* the package from here: `LIFT_FLAT` fills
 // `BehaviorConfig.liftMode`, `SETTLED_FAILED` discriminates the input D-66
@@ -126,7 +130,6 @@ import {
   FAILURE_INVALIDATION,
   FAILURE_LANDING_CREATE,
   FAILURE_LANDING_INTERRUPTED,
-  FAILURE_LANDING_TARGET,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
   FAILURE_RESOLUTION,
@@ -156,7 +159,6 @@ import {
   sortable,
   type AcceptedReorderResult,
   type CanceledReorderResult,
-  type SortableErrorContext,
   type NoopReorderResult,
   type RejectedReorderResult,
   type ReorderTransactionResult,
@@ -210,7 +212,6 @@ const stageToCode: Readonly<Record<FailureStage, DraggableErrorCode>> = {
   [FAILURE_RELEASE]: 'interaction',
   [FAILURE_LANDING_CREATE]: 'presentation',
   [FAILURE_LANDING_INTERRUPTED]: 'presentation',
-  [FAILURE_LANDING_TARGET]: 'presentation',
   [FAILURE_TERMINAL_CALLBACK]: 'consumer',
 };
 
@@ -344,12 +345,21 @@ function disposition(result: ReorderTransactionResult): string {
   }
 }
 
-/** D-64 — the consumer branches on a fault class, never on a stage. */
-function report(error: DraggableError, context: SortableErrorContext): string {
-  const mine = error.code === 'consumer';
-  // D-60 / D-66 — both channels can fire for one operation, so the domain
-  // result is still present here and must not be read as absent.
-  return `${mine ? 'mine' : 'theirs'}:${context.domain?.type ?? 'none'}`;
+/**
+ * D-64 — the consumer branches on a fault class, never on a stage.
+ *
+ * **D-130 — and first on the class, which is the coarser question.** A
+ * `DraggableWarning` says the operation was not affected and its terminal is
+ * still coming; only a `DraggableError` carries a `code`. ~~The second
+ * parameter was a `SortableErrorContext` carrying `domain`~~, deleted as
+ * redundant with the `onEnd` that D-66 makes unconditional.
+ */
+function report(error: DraggableError | DraggableWarning): string {
+  if (!(error instanceof DraggableError)) {
+    return `advisory:${error.message}`;
+  }
+
+  return error.code === 'consumer' ? 'mine' : 'theirs';
 }
 
 /**
@@ -401,8 +411,7 @@ const controller: SortableController = sortable(
     axis: y(),
     onStart: (item) => item.setAttribute('data-dragging', ''),
     onEnd: (result) => globalThis.console.log(disposition(result)),
-    onError: (error, context) =>
-      globalThis.console.warn(report(error, context)),
+    onError: (error) => globalThis.console.warn(report(error)),
     placeholder: ({ box }) => box.ownerDocument.createElement('li'),
     box: (item) => item,
     threshold: 8,
@@ -527,11 +536,14 @@ const kernelSide: SortableController = draggable<
       event.target instanceof HTMLElement
         ? { visual: event.target, box: event.target.parentElement ?? root }
         : null,
-    // Admission-only (see the member's doc), **and D-49 gave it a second
-    // caller**: a landing measurement that fails on a reorder that already
-    // committed reports here too, without replacing a settlement.
-    reportFailure: (stage, error) => {
-      globalThis.console.warn(stageToCode[stage], error);
+    // **D-130 — forward, and nothing else.** ~~`reportFailure(stage, error)`,
+    // which mapped the stage to a code here.~~ The kernel builds the finished
+    // error and picks its class, so a behavior cannot make `code` mean two
+    // things in two behaviors — and `stageToCode` below survives only as the
+    // *statement* of the mapping D-64 requires to be total, not as a thing a
+    // behavior computes.
+    reportError: (error) => {
+      globalThis.console.warn(report(error));
     },
 
     activation: {
@@ -667,10 +679,14 @@ landing({ run: runner });
 const legacyThunk: LandingOptions['duration'] = () => 200;
 void legacyThunk;
 
-// n7 — D-64: the consumer never receives a pipeline stage.
-declare const errContext: SortableErrorContext;
-// @ts-expect-error SortableErrorContext carries no stage (D-64)
-void errContext.stage;
+// n7 — D-130: a warning carries no code, so a handler must discriminate the
+// class before reading one. `SortableErrorContext` is deleted (D-130 §6), and
+// its own `n7` — *the consumer never receives a pipeline stage* — is now
+// unwriteable rather than merely asserted, since there is no context to read a
+// stage off.
+declare const advisory: DraggableWarning;
+// @ts-expect-error a warning carries no `code` (D-130)
+void advisory.code;
 
 // n8 — D-64: the code is a fault class, not a stage.
 declare const err: DraggableError;

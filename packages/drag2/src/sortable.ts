@@ -79,7 +79,6 @@ export type {
   AcceptedReorderResult,
   CanceledReorderResult,
   CollectionSnapshot,
-  SortableErrorContext,
   NoopReorderResult,
   OnReorder,
   RejectedReorderResolution,

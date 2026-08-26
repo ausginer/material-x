@@ -574,6 +574,74 @@ export type Composition = Readonly<{
    * **Module counts hold exactly on all fourteen rows.** Nothing entered or
    * left a graph; what changed is the weight of `kernel/frames.js`.
    *
+   * **Re-based again 2026-08-26, Phase 23 (D-130/D-131), and this is the one
+   * re-base in the sequence that pays for something rather than banking it.**
+   * One error channel replaces two: `globalThis.reportError`/`console.error`
+   * and `reporter.ts` are deleted, `DraggableWarning` is published from
+   * `drag.js`, and the kernel builds every public error it hands over.
+   *
+   * | Row | before | landed | Δ brotli | Δ minified | new budget |
+   * | --- | --- | --- | --- | --- | --- |
+   * | minimal | 10,119 | 10,295 | **+176** | +562 | 10,439 |
+   * | minimal (xy) | 9,768 | 9,958 | **+190** | +561 | 10,097 |
+   * | + layoutAnimation | 10,570 | 10,745 | **+175** | +562 | 10,882 |
+   * | + landing | 10,379 | 10,562 | **+183** | +562 | 10,710 |
+   * | complete | 10,817 | 10,989 | **+172** | +562 | 11,129 |
+   * | free drag minimal | 7,932 | 8,108 | **+176** | +625 | 8,253 |
+   * | free drag + bounds | 8,084 | 8,267 | **+183** | +625 | 8,409 |
+   * | free drag + landing | 8,190 | 8,377 | **+187** | +624 | 8,519 |
+   * | free drag complete | 8,347 | 8,536 | **+189** | +624 | 8,674 |
+   * | both behaviors | 12,218 | 12,415 | **+197** | +699 | 12,557 |
+   * | vocabulary root | 121 | 146 | **+25** | +111 | 300 |
+   * | kernel root | 5,953 | 6,159 | **+206** | +887 | 6,309 |
+   * | baseline A | 10,520 | 10,694 | **+174** | +475 | 10,831 |
+   * | baseline B | 6,889 | 6,889 | **0** | 0 | 7,040 (unchanged) |
+   *
+   * **The kernel root gains a module — 13 to 14 — and that is the whole
+   * story.** `kernel/errors.js` was outside its graph entirely, which the
+   * positional `STAGE_TO_CODE` comment states as a fact about the tree
+   * (*`kernel.js` never pulls this module at all*). D-130 §5 moves error
+   * construction to the kernel, so it does now, and the table it carries comes
+   * with it. That single edge accounts for most of the +887 B minified on the
+   * kernel root, and the reason it costs so much less after Brotli — +206 B —
+   * is that a fifteen-entry array of four repeated string literals is close to
+   * the most compressible thing in the bundle, the same effect D-129 measured
+   * in the other direction.
+   *
+   * **The composition rows pay less than the kernel root, which is the tell
+   * that this is not double-counted.** Every behavior already pulled
+   * `errors.js` for `toDraggableError`, so for them the module is not new and
+   * what they pay is the channel itself: `notify`, `createUnwind`,
+   * `DraggableWarning`, and the message strings that replaced a code. The
+   * behaviors' figures separate the same way — free drag pays ~+625 B minified
+   * against the sortable's ~+562 B, because free drag's spec gained the local
+   * `try`/`catch` at its native scroll listener that the shared helper no
+   * longer covers (D-130 §4).
+   *
+   * **One shape was measured after the fact and kept anyway.** Collapsing each
+   * behavior's two `slots.onError` call sites into a single `deliver` — so
+   * there is exactly one statement to find when asking *where does `onError`
+   * get called* — costs **+5 B brotli** per composition while saving 5 B
+   * minified, which is inside the ±25 B noise band in one direction and a real
+   * readability gain in the other. The figures above are the landed ones, with
+   * the collapse in.
+   *
+   * **The vocabulary root moves for the first time, and the row changed with
+   * it.** It imported `{ DraggableError }` and would have kept reporting 121 B
+   * for an entry that had grown a second class — a row that measures half of
+   * what it names is worse than no row — so it imports both and re-bases to
+   * 146 B. Its budget goes to 300 rather than to landed + 150: this row exists
+   * to catch the vocabulary root *pulling the kernel*, which is a
+   * kilobyte-scale event, and a tight budget on a 146 B file would fail on
+   * ordinary message wording.
+   *
+   * **This is a cost the decision took deliberately, not an erosion.** The
+   * standing rule is that a budget re-bases rather than a correctness fix
+   * shrinking, and the same rule covers a contract change: what was bought is
+   * that a fault the library surfaces reaches the consumer at all — sixteen
+   * sites that went to `console.error` in a consumer's production build now
+   * reach a handler, and F-103's site reached nobody.
+   *
    * **Re-based again 2026-08-26, Phase 23 (D-129), and this row set answers a
    * question the previous three could not.** The input policy narrows to one
    * attribute: `POINTER_OWNERS` (14 selectors), `COMMAND_OWNERS` (5) and the
@@ -744,7 +812,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
     },
-    budget: 10_269,
+    budget: 10_439,
     absent: [...without(), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [P06],
@@ -758,7 +826,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/xy.js': '{ xy }',
     },
-    budget: 9918,
+    budget: 10_097,
     absent: [...without(), withoutAxis('sortable/xy.js'), P06],
     absentPrefixes: ['free-drag/'],
     // **Both halves of D-102 in one row.** The dimension-neutral cache is
@@ -774,7 +842,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_720,
+    budget: 10_882,
     absent: [
       ...without('sortable/layout-animation.js'),
       withoutAxis('sortable/y.js'),
@@ -789,7 +857,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 10_529,
+    budget: 10_710,
     absent: [...without('sortable/landing.js'), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: ['sortable/landing.js', P06],
@@ -802,7 +870,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_967,
+    budget: 11_129,
     absent: [withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [...OPTIONAL, P06],
@@ -815,7 +883,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'free-drag.js': '{ freeDrag }',
     },
-    budget: 8082,
+    budget: 8253,
     absent: [...withoutFreeDrag()],
     absentPrefixes: ['sortable/'],
     present: ['free-drag.js', 'kernel/kernel.js'],
@@ -826,7 +894,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
       'free-drag/bounds.js': '{ bounds }',
     },
-    budget: 8234,
+    budget: 8409,
     absent: [...withoutFreeDrag('free-drag/bounds.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/bounds.js'],
@@ -837,7 +905,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
       'free-drag/landing.js': '{ landing }',
     },
-    budget: 8340,
+    budget: 8519,
     absent: [...withoutFreeDrag('free-drag/landing.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/landing.js', 'shared/landing-runner.js'],
@@ -849,7 +917,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing }',
     },
-    budget: 8497,
+    budget: 8674,
     absentPrefixes: ['sortable/'],
     present: FREE_DRAG_OPTIONAL,
   },
@@ -872,7 +940,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing as freeDragLanding }',
     },
-    budget: 12_368,
+    budget: 12_557,
     absent: [withoutAxis('sortable/y.js')],
     present: [
       ...OPTIONAL,
@@ -926,8 +994,11 @@ export const COMPOSITIONS: readonly Composition[] = [
      * shrinking. That is the intended behaviour and not a cost.
      */
     name: 'vocabulary root - drag.js',
-    imports: { 'drag.js': '{ DraggableError }' },
-    budget: 150,
+    // **Both classes, since D-130 published a second one.** Naming one would
+    // let the other shake out and quietly stop measuring half the entry — the
+    // row would keep reporting 121 B for a vocabulary root that had grown.
+    imports: { 'drag.js': '{ DraggableError, DraggableWarning }' },
+    budget: 300,
     only: ['kernel/errors.js'],
   },
   {
@@ -953,7 +1024,7 @@ export const COMPOSITIONS: readonly Composition[] = [
      */
     name: 'kernel root - kernel.js',
     imports: { 'kernel.js': '{ draggable }' },
-    budget: 6103,
+    budget: 6309,
     present: ['kernel.js', 'kernel/kernel.js'],
     absentPrefixes: ['sortable/', 'free-drag/'],
   },
@@ -961,7 +1032,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 10_670,
+    budget: 10_831,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted

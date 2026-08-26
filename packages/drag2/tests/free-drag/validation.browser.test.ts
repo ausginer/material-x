@@ -26,13 +26,16 @@ import {
   FreeDragResolution,
   type FreeDragConfig,
 } from '../../src/free-drag.ts';
-import { toDraggableError } from '../../src/kernel/errors.ts';
+import {
+  DraggableError,
+  DraggableWarning,
+  toDraggableError,
+} from '../../src/kernel/errors.ts';
 import {
   FAILURE_ACTION_EFFECT,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
   FAILURE_LANDING_CREATE,
-  FAILURE_LANDING_TARGET,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
   FAILURE_RESOLUTION,
@@ -48,7 +51,7 @@ import {
   settled,
 } from '../support/free-drag.ts';
 
-const { compose, reported } = freeDragHarness();
+const { compose } = freeDragHarness();
 
 /** The coarse code a stage maps to, read from `STAGE_TO_CODE` (D-64, B-4 b). */
 const codeOf = (stage: Parameters<typeof toDraggableError>[0]): string =>
@@ -56,6 +59,10 @@ const codeOf = (stage: Parameters<typeof toDraggableError>[0]): string =>
 
 const codes = (errors: readonly unknown[]): readonly string[] =>
   errors.map((error) => (error as { code: string }).code);
+
+/** For the warning population, which carries a message where a code would be. */
+const messages = (errors: readonly unknown[]): readonly string[] =>
+  errors.map((error) => (error as Error).message);
 
 /**
  * A bounds source that answers normally until it is armed, then throws on every
@@ -177,10 +184,10 @@ describe('the classified table', () => {
     expect(composed.ends).toHaveLength(1);
   });
 
-  it('should classify a throwing home on the quality track and leave the drop standing', async () => {
-    // **D-49.** `anchorTarget` runs on the quality track, so the landing is
-    // skipped rather than faked and the verdict the consumer already gave
-    // stands. A rejected drop is the fixture because that is the arm that asks
+  it('should warn on a throwing home and leave the drop standing', async () => {
+    // **D-49, as revised by D-130.** `anchorTarget` runs unclassified, so the
+    // landing is skipped rather than faked and the verdict the consumer already
+    // gave stands. A rejected drop is the fixture because that is the arm that asks
     // for a home at all.
     const composed = compose({
       onDrop: () => FreeDragResolution.reject('nope'),
@@ -195,7 +202,18 @@ describe('the classified table', () => {
     release(30, 10);
     await settled();
 
-    expect(codes(composed.errors)).toEqual([codeOf(FAILURE_LANDING_TARGET)]);
+    // **A warning since D-130.** ~~`FAILURE_LANDING_TARGET` → `presentation`.~~
+    // The landing measurement is the case rider 1 exists for: the drop's
+    // terminal, phase sequence and settlement are identical whether or not the
+    // target could be produced, and only the trajectory changes. So the stage
+    // that existed to make it *classified, non-consequential and recovery-less*
+    // is gone, and the class carries what the stage carried.
+    expect(composed.errors).toHaveLength(1);
+    expect(composed.errors[0]).toBeInstanceOf(DraggableWarning);
+    expect(composed.errors[0]).not.toBeInstanceOf(DraggableError);
+    expect((composed.errors[0] as DraggableWarning).message).toBe(
+      'drag: landing/target-unavailable',
+    );
     expect(composed.ends).toHaveLength(1);
     expect(composed.ends[0]!.type).toBe('rejected');
   });
@@ -237,16 +255,24 @@ describe('the classified table', () => {
     expect(composed.ends[0]!.type).toBe('canceled');
   });
 
-  it('should send a throwing onError to the platform channel rather than classifying it', () => {
-    // **A failure report may not itself fail.** There is no second classified
-    // stage for it, so it leaves through `reportError` — the un-classified
-    // channel — and nothing recurses.
+  it('should discard a throwing onError rather than reporting it back', () => {
+    // **The terminus** (D-130 §1.3). ~~A failure report leaves through the
+    // platform channel, and nothing recurses.~~ There is no second destination
+    // to leave through any more, so the throw is *discarded* — and being
+    // incapable of recursion is the property, not being careful about it.
+    //
+    // Counted rather than merely observed: a handler that threw was still
+    // called, and the assertion is that it was called **once**. A channel that
+    // re-notified its own failure would call it again with the throw it just
+    // produced, and again with that one.
+    const seen: unknown[] = [];
     const composed = compose({
       config: {
         onStart: () => {
           throw new Error('onStart');
         },
-        onError: () => {
+        onError: (error) => {
+          seen.push(error);
           throw new Error('onError');
         },
       },
@@ -254,7 +280,8 @@ describe('the classified table', () => {
 
     activate(composed);
 
-    expect(reported()).toHaveLength(1);
+    expect(seen).toHaveLength(1);
+    expect(seen[0]).toBeInstanceOf(DraggableError);
   });
 });
 
@@ -326,7 +353,6 @@ describe('a garbage bounds source', () => {
     composed.controller.invalidate();
 
     expect(composed.errors).toEqual([]);
-    expect(reported()).toEqual([]);
   });
 
   it('should publish exactly one terminal for each path that reaches one', async () => {
@@ -375,7 +401,6 @@ describe('the silent table', () => {
     expect(composed.starts).toEqual([]);
     expect(composed.ends).toEqual([]);
     expect(composed.errors).toEqual([]);
-    expect(reported()).toEqual([]);
   });
 
   it('should complete a normal drag for an unknown lift string', async () => {
@@ -395,7 +420,6 @@ describe('the silent table', () => {
     expect(composed.ends).toHaveLength(1);
     expect(composed.ends[0]!.type).toBe('accepted');
     expect(composed.errors).toEqual([]);
-    expect(reported()).toEqual([]);
   });
 });
 
@@ -573,7 +597,8 @@ describe('a non-finite moveTo() reaching the landing distance', () => {
 });
 
 describe('an invalid home result', () => {
-  const landingTarget = codeOf(FAILURE_LANDING_TARGET);
+  /** The landing measurement is advisory, so it arrives as a warning (D-130). */
+  const landingTarget = 'drag: landing/target-unavailable';
 
   /** Drives a rejected drop, which is the arm that asks `home` where to go. */
   const dropHome = async (
@@ -602,8 +627,7 @@ describe('an invalid home result', () => {
     // probe expected one attributed `onError` and received none.
     const composed = await dropHome((() => null) as never);
 
-    expect(codes(composed.errors)).toEqual([landingTarget]);
-    expect(reported()).toEqual([]);
+    expect(messages(composed.errors)).toEqual([landingTarget]);
   });
 
   it('should let a non-finite result compose into the target unattributed', async () => {
@@ -633,7 +657,7 @@ describe('an invalid home result', () => {
       y: 0,
     }));
 
-    expect(codes(composed.errors)).toEqual([landingTarget]);
+    expect(messages(composed.errors)).toEqual([landingTarget]);
   });
 
   it('should end the operation once despite the invalid target', async () => {
@@ -676,7 +700,7 @@ describe('an invalid home result', () => {
     // `destroy()` publishes no terminal at all, so the absence here is the
     // floor holding rather than a terminal that merely arrived early.
     expect(composed.ends).toEqual([]);
-    expect(reported()).toEqual([]);
+    expect(composed.errors).toEqual([]);
   });
 
   it('should accept a finite result and travel to it', async () => {

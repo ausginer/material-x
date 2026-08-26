@@ -83,6 +83,7 @@ const PENDING: readonly string[] = [];
 
 const CONSUMER = `import {
   DraggableError,
+  DraggableWarning,
   type DOMRealm,
   type DraggableErrorCode,
   type Point,
@@ -103,7 +104,6 @@ import {
   type AxisInstaller,
   type CancelStage,
   type CollectionSnapshot,
-  type SortableErrorContext,
   type OnReorder,
   type PlaceholderContext,
   type PlaceholderFactory,
@@ -225,18 +225,22 @@ const list: SortableController = sortable(
         void (stage === AT_PROPOSAL || stage === AT_CONSUMER);
       }
     }) satisfies SortableOnEnd,
-    onError: ((
-      error: DraggableError,
-      context: SortableErrorContext,
-    ): void => {
-      // **D-64.** The ordinary consumer branches on a coarse fault class and
-      // never sees a pipeline stage: \`context\` is the sortable half alone.
+    onError: ((error: DraggableError | DraggableWarning): void => {
+      // **D-64 and D-130.** One argument, two classes. The ordinary consumer
+      // branches on the *class* first — a warning says the operation was not
+      // affected and its terminal is still coming — and only then on a coarse
+      // fault class. A pipeline stage is never visible, and neither is a
+      // context: \`domain\` was strictly redundant with the \`onEnd\` D-66 makes
+      // unconditional.
+      if (!(error instanceof DraggableError)) {
+        void error.message;
+        void error.cause;
+        return;
+      }
+
       const code: DraggableErrorCode = error.code;
-      const domain: ReorderTransactionResult | null = context.domain;
 
       void (code === 'consumer');
-      void (error instanceof DraggableError);
-      void domain?.type;
     }) satisfies SortableOnDragError,
     // **D-65**: the callback itself, not \`create\` plus a class name. Nameable,
     // so a consumer can hoist the factory out of the object literal.
@@ -462,7 +466,6 @@ import {
   SETTLED_FULFILLED,
   SETTLED_REJECTED,
   SETTLED_SKIPPED,
-  toDraggableError,
   type ActionTransition,
   type ActivationScope,
   type AdmissionSubject,
@@ -616,7 +619,9 @@ const settlement: SettlementTransition<Part> = {
         // D-66's fallback, derived rather than supplied — the input carries a
         // \`FailureStage\`, never a \`CancelStage\`.
         const stage: CancelStage = progress === RESOLVING ? AT_CONSUMER : AT_PROPOSAL;
-        const error: DraggableError = toDraggableError(input.stage, input.error);
+        // D-130: the input carries the finished error the consumer will
+        // receive, beside the \`FailureStage\` this behavior maps to a recovery.
+        const error: DraggableError = input.report;
 
         draft.verdict = stage === AT_CONSUMER ? error.code : 'aborted';
         return true;
@@ -677,8 +682,12 @@ const install = (host: KernelHost): BehaviorInstall<Controller, Part, HTMLElemen
     finalized: (current) => {
       void current.verdict;
     },
-    reportFailure: (stage, error) => {
-      void toDraggableError(stage, error).code;
+    reportError: (error) => {
+      // **D-130 — forward, and nothing else.** The kernel builds the error and
+      // picks its class; \`toDraggableError\` is no longer on \`kernel.js\` at
+      // all, which is what makes the stage → code mapping impossible for a
+      // behavior to re-own.
+      void error.message;
     },
     retire: () => {
       progress = MINTED;
@@ -719,6 +728,7 @@ void behaviorController;
  */
 const FREE_DRAG = `import {
   DraggableError,
+  DraggableWarning,
   type DraggableErrorCode,
   type Point,
 } from '@ydinjs/drag2/drag.js';
@@ -736,7 +746,6 @@ import {
   type DragGeometry,
   type FreeDragConfig,
   type FreeDragController,
-  type FreeDragErrorContext,
   type FreeDragInstaller,
   type FreeDragLift,
   type FreeDragOnDragError,
@@ -847,17 +856,19 @@ const controller: FreeDragController = freeDrag(
         }
       }
     }) satisfies FreeDragOnEnd,
-    onError: ((
-      error: DraggableError,
-      context: FreeDragErrorContext,
-    ): void => {
-      // **D-64.** A coarse fault class, never a pipeline stage.
+    onError: ((error: DraggableError | DraggableWarning): void => {
+      // **D-64 and D-130.** One argument, two classes, and the two roots are
+      // structurally identical here now — which is the D-109 note the decision
+      // records rather than acts on: the qualified names stay for symmetry with
+      // \`OnStart\` and \`OnEnd\`, whose structures still differ.
+      if (!(error instanceof DraggableError)) {
+        void error.message;
+        return;
+      }
+
       const code: DraggableErrorCode = error.code;
-      const domain: FreeDragTransactionResult | null = context.domain;
 
       void (code === 'presentation');
-      void (error instanceof DraggableError);
-      void domain?.type;
     }) satisfies FreeDragOnDragError,
   },
   // **A capability installer, not a config key** (D-70), and the no-argument
@@ -1189,7 +1200,7 @@ describe('the packed package', () => {
     // point of freezing a surface. Types are erased at runtime and are checked
     // by the consumer compile instead.
     const expected: Readonly<Record<string, readonly string[]>> = {
-      './drag.js': ['DraggableError'],
+      './drag.js': ['DraggableError', 'DraggableWarning'],
       // **33 values, asserted by value** (D-68). A type-only assertion cannot
       // see the hole F-59 names: every missing name was a *constant*, and
       // erased types cannot fill a value position.
@@ -1205,7 +1216,6 @@ describe('the packed package', () => {
         'FAILURE_INVALIDATION',
         'FAILURE_LANDING_CREATE',
         'FAILURE_LANDING_INTERRUPTED',
-        'FAILURE_LANDING_TARGET',
         'FAILURE_RELEASE',
         'FAILURE_RENDERER_WRITE',
         'FAILURE_RESOLUTION',
@@ -1226,7 +1236,6 @@ describe('the packed package', () => {
         'SETTLED_SKIPPED',
         'SETTLING',
         'draggable',
-        'toDraggableError',
       ],
       './sortable.js': [
         'AT_CONSUMER',

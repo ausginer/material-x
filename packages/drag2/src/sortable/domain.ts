@@ -218,31 +218,6 @@ export type ReorderTransactionResult =
  * through.
  */
 
-/**
- * What `onError` receives alongside the error.
- *
- * **One field since D-64.** ~~`stage` is kernel vocabulary~~ — and that is
- * exactly why it left: the consumer receives a `DraggableError` carrying
- * a coarse `code`, and never an internal pipeline seam. What remains is purely
- * the sortable half, which is what keeps this type on `sortable.js`: `domain`
- * is a sortable result, and the kernel tier has its own entry precisely so a
- * future free-drag consumer never reaches the sortable behavior.
- *
- * **`domain` may be non-null here** (D-60). The channels are orthogonal: one
- * operation may produce `onError` *and* a terminal, so a handler must not read
- * an error as proof that the drop had no result.
- *
- * **Qualified, and the sortable's rename is deliberate** (D-75). ~~`DragErrorContext`~~
- * gave the first behavior the unqualified word by arrival order; free drag's
- * context carries its own result, so the two entries need **different
- * structures under one name** — which is the only condition that qualifies a
- * name. The package has no released consumer, so symmetry costs one type name
- * now and cannot be had later.
- */
-export type SortableErrorContext = Readonly<{
-  domain: ReorderTransactionResult | null;
-}>;
-
 // ---------------------------------------------------------------------------
 // Behavior-private frame state
 // ---------------------------------------------------------------------------

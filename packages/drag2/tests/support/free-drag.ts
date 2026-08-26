@@ -13,7 +13,7 @@
  * Both are overridable — the geometry suite warps the stage and the lift suite
  * gives the item its own transform.
  */
-import { afterEach, beforeEach } from 'vitest';
+import { afterEach } from 'vitest';
 import {
   FreeDragResolution,
   freeDrag,
@@ -51,13 +51,15 @@ export type Options = Readonly<{
 
 export type Harness = Readonly<{
   compose(options?: Options): Composed;
-  /** Everything `globalThis.reportError` received during the current test. */
-  reported(): readonly unknown[];
+  // ~~`reported()`: everything `globalThis.reportError` received during the
+  // current test.~~ **Deleted with the platform channel (D-130).** It existed
+  // to observe the *second* destination, and every one of its assertions was
+  // `nothing also went there`. With one channel `composed.errors` is the whole
+  // population, and a harness-level mirror of it would only be a second name
+  // for the same array.
   /** Register a disposer to run in `afterEach`, in reverse order. */
   own(dispose: () => void): void;
 }>;
-
-type Reporting = { reportError?(error: unknown): void };
 
 /**
  * Registers the per-test hooks on the calling suite file and returns the
@@ -66,18 +68,8 @@ type Reporting = { reportError?(error: unknown): void };
  */
 export function freeDragHarness(): Harness {
   const cleanup: Array<() => void> = [];
-  let reported: unknown[] = [];
-
-  beforeEach(() => {
-    reported = [];
-    (globalThis as Reporting).reportError = (error): void => {
-      reported.push(error);
-    };
-  });
 
   afterEach(() => {
-    delete (globalThis as Reporting).reportError;
-
     for (const dispose of cleanup.splice(0).reverse()) {
       dispose();
     }
@@ -89,7 +81,6 @@ export function freeDragHarness(): Harness {
 
   return {
     own,
-    reported: () => reported,
 
     compose(options: Options = {}): Composed {
       const stage = document.createElement('div');

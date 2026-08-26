@@ -660,6 +660,10 @@ describe('M-5 arm B — the copy is the shipped derivation', () => {
       LIFT_IN_PLACE,
       leaf.getBoundingClientRect(),
       createRealm(leaf),
+      // The unwind guard `acquireTopLayer` reports a failing rollback through
+      // (D-130). Nothing in this measurement rolls back; it is supplied
+      // because the signature requires it.
+      (step) => step(),
     );
 
     try {

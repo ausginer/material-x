@@ -6,7 +6,7 @@
  * here reads `current` from a `prepare`, and nothing here can close a lifetime
  * the kernel owns — those are properties of the arguments, not of discipline.
  */
-import { toDraggableError } from '../kernel/errors.ts';
+import type { DraggableError, Notify } from '../kernel/errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -23,7 +23,6 @@ import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE, IDLE, RELEASING } from '../kernel/phases.ts';
 import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
 import { KEY_DOWN } from '../kernel/protocol.ts';
-import { guarded } from '../kernel/reporter.ts';
 import {
   type AdmissionSubject,
   type BehaviorSpec,
@@ -37,6 +36,7 @@ import {
   type SettlementScope,
 } from '../kernel/spec.ts';
 import type { Point } from '../kernel/types.ts';
+import { createUnwind } from '../kernel/unwind.ts';
 import {
   buildReorderProposal,
   CHANGE_CANCEL,
@@ -120,6 +120,46 @@ export function createSortableSpec(
 ): BehaviorSpec<SortableFramePart, HTMLElement> {
   const { host, slots } = rt;
   const { realm } = host;
+  /**
+   * **The one place this behavior invokes the consumer's error callback**
+   * (D-130). Both routes below end here, so there is exactly one statement to
+   * find when asking *where does `onError` get called*.
+   *
+   * Unguarded and ungated on purpose: its two callers apply those rules, and
+   * they apply them differently — `panic`'s delivery is a named exception to
+   * the latch (D-131), which is impossible if the latch is read here.
+   */
+  const deliver: Notify = (error) => {
+    slots.onError?.(error);
+  };
+
+  /**
+   * **The behavior's own route to the one channel** (D-130).
+   *
+   * Two callers reach {@link deliver} and they are two entries to one channel
+   * rather than two channels: everything that arrives is a `DraggableError` or
+   * a `DraggableWarning`, and neither entry encodes severity. The kernel's
+   * `notify` covers what the *kernel* reports, because it owns the latch. This
+   * covers what the *behavior* reports — the settlement failure below and the
+   * unwind steps, which the kernel cannot see.
+   *
+   * Both apply the same two rules. The latch refuses a declared consumer slot
+   * after logical closure (E-03, I-31, D-53, D-37), and a throw from the
+   * handler stops here rather than being reported through itself.
+   */
+  const notify: Notify = (error) => {
+    if (host.closed) {
+      return;
+    }
+
+    try {
+      deliver(error);
+    } catch {
+      // The terminus, for the same reason the kernel's channel has one.
+    }
+  };
+  const unwind = createUnwind(notify);
+
   // One per controller. Arming is per operation, on the motion signal.
   const invalidate = createInvalidator(realm);
   /**
@@ -390,8 +430,10 @@ export function createSortableSpec(
    * if a real case appears; the invariant to preserve if this is ever touched
    * is (1) — **prepare must clear before it can write**.
    */
-  let pendingFailure: Readonly<{ stage: FailureStage; error: unknown }> | null =
-    null;
+  let pendingFailure: Readonly<{
+    stage: FailureStage;
+    report: DraggableError;
+  }> | null = null;
 
   /**
    * `invalidateInsertion()` narrowed to its own stage.
@@ -721,7 +763,7 @@ export function createSortableSpec(
         }
 
         for (let i = ledger.length - 1; i >= 0; i -= 1) {
-          guarded(ledger[i]!);
+          unwind(ledger[i]!);
         }
       },
 
@@ -1473,7 +1515,7 @@ export function createSortableSpec(
           }
 
           case SETTLED_FAILED: {
-            pendingFailure = { stage: input.stage, error: input.error };
+            pendingFailure = { stage: input.stage, report: input.report };
 
             // A terminal-callback failure has recovery "none": the operation
             // already finalized, and rewriting the recovery now would move a
@@ -1549,9 +1591,14 @@ export function createSortableSpec(
         // and neither suppresses the other.
         if (failure !== null) {
           // D-64: the consumer branches on a fault class, never on a stage.
-          slots.onError?.(toDraggableError(failure.stage, failure.error), {
-            domain: current.domain,
-          });
+          // D-130: through `notify`, so a throwing handler stops here instead
+          // of becoming a fresh library fault that reports itself back. The
+          // kernel built the error, and `domain` is gone — `finalized`
+          // publishes that same `current.domain` to `onEnd`, unconditionally
+          // (D-66), so the copy here was redundant at best and **stale** at
+          // worst, since a second failure arriving between `REPORTING` and
+          // `FINALIZING` moved it.
+          notify(failure.report);
         }
       },
     },
@@ -1672,23 +1719,20 @@ export function createSortableSpec(
     },
 
     /**
-     * The un-classified report channel, for **both** of its callers.
+     * **Forward, and nothing else** (D-130). The kernel builds the public
+     * error, picks its class and owns the latch; this member is the last hop,
+     * and it is {@link deliver} itself.
      *
-     * `admit` threw, so identity was never minted and there is no checkpoint to
-     * queue (Q-1) — the controller stays idle and usable; **or** the landing
-     * measurement failed on a reorder that already committed (D-49), in which
-     * case an operation is very much live, its result stands, and its terminal
-     * publishes after this returns (D-60, D-66).
+     * ~~`reportFailure(stage, error)`, which called `toDraggableError` here and
+     * attached `domain: null`.~~ Both are gone: the mapping is kernel-owned so
+     * it cannot mean two things in two behaviors, and the context was strictly
+     * redundant with the terminal (D-130 §6).
      *
-     * `domain: null` for both. The hook is handed no frame, so this callback
-     * cannot see the result the second caller's operation carries; a consumer
-     * that needs it reads the `onEnd` that follows. The non-null case comes
-     * from the settlement failure path, which reports from `settlement.effect`
-     * with the frame in hand.
+     * Its one caller is the kernel's `notify`, which gates on the latch and
+     * discards a throwing handler for every route it owns — including `panic`'s
+     * post-closure delivery, which is exactly why neither rule can live here.
      */
-    reportFailure(stage, error) {
-      slots.onError?.(toDraggableError(stage, error), { domain: null });
-    },
+    reportError: deliver,
 
     retire() {
       progress = MINTED;
@@ -1701,7 +1745,7 @@ export function createSortableSpec(
       // Already in reverse installation order. Each is wrapped individually, so
       // one throwing hook cannot stop a later one from restoring its DOM.
       for (const hook of slots.retireHooks) {
-        guarded(hook);
+        unwind(hook);
       }
     },
   };

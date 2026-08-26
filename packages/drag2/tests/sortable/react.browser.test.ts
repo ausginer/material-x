@@ -35,7 +35,11 @@ import {
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { DraggableError, Point } from '../../src/drag.ts';
+import {
+  DraggableError,
+  DraggableWarning,
+  type Point,
+} from '../../src/drag.ts';
 import type { LandingStart } from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -89,7 +93,7 @@ type Fixture = Readonly<{
   requests: ReorderRequest[];
   finishes: ReorderTransactionResult[];
   cancels: ReorderTransactionResult[];
-  errors: DraggableError[];
+  errors: Array<DraggableError | DraggableWarning>;
   /** One entry per React commit, each the DOM order at that commit. */
   commits: string[];
   /** The provisional landing target handed to each runner start. */
@@ -279,7 +283,7 @@ function mount(options: Options = {}): Fixture {
   const requests: ReorderRequest[] = [];
   const finishes: ReorderTransactionResult[] = [];
   const cancels: ReorderTransactionResult[] = [];
-  const errors: DraggableError[] = [];
+  const errors: Array<DraggableError | DraggableWarning> = [];
 
   const run: LandingStart = (context, done): { destroy(): void } => {
     witness.landingStarted();
@@ -629,9 +633,12 @@ describe('a React consumer', () => {
     };
 
     it('should finish and report, both', async () => {
-      // **The orthogonality case with a real consumer** (D-60). The reorder was
-      // accepted and is real; the landing target is not measurable. Those are
-      // two answers to two questions and the operation gives both.
+      // **The orthogonality case with a real consumer** (D-60, D-130). The
+      // reorder was accepted and is real; the landing target is not measurable.
+      // Those are two answers to two questions and the operation gives both —
+      // and the *class* is the second answer's whole content now: a warning
+      // says the drop stands, which is exactly what a consumer whose reorder
+      // succeeded needs to be told.
       const fixture = mount(unmounting);
 
       activate(fixture, 0);
@@ -641,7 +648,11 @@ describe('a React consumer', () => {
 
       expect(fixture.finishes).toHaveLength(1);
       expect(fixture.errors).toHaveLength(1);
-      expect(fixture.errors[0]!.code).toBe('presentation');
+      expect(fixture.errors[0]).toBeInstanceOf(DraggableWarning);
+      expect(fixture.errors[0]).not.toBeInstanceOf(DraggableError);
+      expect(fixture.errors[0]!.message).toBe(
+        'drag: landing/target-unavailable',
+      );
     });
 
     it('should leave no placeholder behind', async () => {

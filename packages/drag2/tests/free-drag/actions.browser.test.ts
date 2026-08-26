@@ -46,7 +46,7 @@ import {
   settled,
 } from '../support/free-drag.ts';
 
-const { compose, reported } = freeDragHarness();
+const { compose } = freeDragHarness();
 
 /** Somewhere the visual could only be if a late `moveTo()` had taken effect. */
 const FAR = { x: 400, y: 300 };
@@ -98,7 +98,6 @@ describe('a late moveTo()', () => {
 
     expect(composed.item.style.transform).toBe('');
     expect(composed.errors).toEqual([]);
-    expect(reported()).toEqual([]);
   });
 
   it('should not move the visual when it comes from onDrop', async () => {
@@ -235,7 +234,7 @@ describe('a late moveTo()', () => {
 
     expect(composed.errors).toEqual([]);
     expect(ends).toBe(1);
-    expect(reported()).toEqual([]);
+    expect(composed.errors).toEqual([]);
   });
 });
 
@@ -334,6 +333,6 @@ describe('a landing that is still installed', () => {
 
     expect(ends).toBe(1);
     expect(composed.item.style.transform).toBe('');
-    expect(reported()).toEqual([]);
+    expect(composed.errors).toEqual([]);
   });
 });

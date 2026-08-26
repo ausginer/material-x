@@ -33,7 +33,7 @@ import {
   settled,
 } from '../support/free-drag.ts';
 
-const { compose, own, reported } = freeDragHarness();
+const { compose, own } = freeDragHarness();
 
 describe('the minimal composition', () => {
   it('should start on a press that crosses the threshold', () => {
@@ -239,7 +239,7 @@ describe('the minimal composition', () => {
     release(50, 40);
     await settled();
 
-    expect(reported()).toEqual([]);
+    expect(composed.errors).toEqual([]);
   });
 });
 
@@ -307,7 +307,6 @@ describe('the axis policy', () => {
 
     expect(composed.ends[0]!.type).toBe('accepted');
     expect(composed.errors).toEqual([]);
-    expect(reported()).toEqual([]);
   });
 });
 

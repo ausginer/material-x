@@ -118,8 +118,14 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
     'OperationLifetimes',
   ],
   'the frame helpers': ['frame', 'KERNEL_FRAME_KEYS'],
+  // **The channel and the unwind rule** (D-130). `Notify` is the channel as
+  // seen by a module that does not own it, and `createUnwind` builds the guard
+  // over it. Neither is published: a behavior reaches the consumer through its
+  // own callbacks slot and never through these, which is the same
+  // discriminating rule the rest of this table applies — *the kernel never
+  // hands one to a behavior and never accepts one from it*.
+  'the one channel': ['Notify', 'createUnwind', 'Unwind'],
   'lift acquisition': ['acquireLift', 'captureInlineStyles', 'acquireTopLayer'],
-  'the reporter': ['report', 'guarded'],
   'scheduling and invalidation': [
     'createInvalidator',
     'createFrameTask',

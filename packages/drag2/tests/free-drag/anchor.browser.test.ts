@@ -56,7 +56,7 @@ import {
   settled,
 } from '../support/free-drag.ts';
 
-const { compose, reported } = freeDragHarness();
+const { compose } = freeDragHarness();
 
 /**
  * A constraint that records every `apply`, optionally clamping. The counter is
@@ -383,7 +383,7 @@ describe('a detached constraint', () => {
     await composed.controller.destroy();
 
     expect(retired).toBe(2);
-    expect(reported()).toEqual([]);
+    expect(composed.errors).toEqual([]);
   });
 
   it('should leave the first-party bounds() working through the same sites', () => {
@@ -399,7 +399,6 @@ describe('a detached constraint', () => {
     move(500, 500);
 
     expect(composed.errors).toEqual([]);
-    expect(reported()).toEqual([]);
   });
 });
 
@@ -436,7 +435,7 @@ describe('a non-finite moveTo()', () => {
     activate(composed);
     composed.controller.moveTo({ x: Number.POSITIVE_INFINITY, y: 10 });
 
-    expect(reported()).toEqual([]);
+    expect(composed.errors).toEqual([]);
     expect(composed.errors).toEqual([]);
   });
 

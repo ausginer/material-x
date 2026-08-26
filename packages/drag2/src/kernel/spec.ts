@@ -6,6 +6,7 @@
  * can be authored against the contract without importing the executor, and so
  * the frozen surface is readable in one place.
  */
+import type { DraggableError, DraggableWarning } from './errors.ts';
 import type { CancelStage, FailureStage } from './failures.ts';
 import type { Draft, Frame, FramePartOf } from './frames.ts';
 import type { LifetimeScope } from './lifetimes.ts';
@@ -300,6 +301,17 @@ export type SettlementInput =
       type: typeof SETTLED_FAILED;
       stage: FailureStage;
       error: unknown;
+      /**
+       * The public error the consumer receives, **built by the kernel**
+       * (D-130). The `stage` beside it is what the behavior maps to a recovery;
+       * this is what it forwards to `onError`, unchanged and unexamined.
+       *
+       * Both are carried because they answer different questions — *what should
+       * this operation do now* is behavior-owned (D-24, F-33), *whose fault was
+       * it* is not — and separating them is what lets `toDraggableError` be
+       * kernel-private.
+       */
+      report: DraggableError;
     }>;
 
 /**
@@ -507,45 +519,45 @@ export type BehaviorSpec<
   finalized(current: Readonly<Frame<Part>>): void;
 
   /**
-   * A failure the kernel must surface **without queueing a checkpoint**.
+   * **Forward this to the consumer's `onError`, and do nothing else** (D-130).
    *
    * This member is a deviation from the frozen `BehaviorSpec` listing, which
    * answers Q-1 with "the kernel reports through `onError`" while giving the
    * kernel no way to reach `onError` — the consumer callbacks belong to the
-   * behavior's callbacks slot. One hook is the smallest way to make the
-   * answer implementable; see plan.md, phase 4.
+   * behavior's callbacks slot. One hook is the smallest way to make the answer
+   * implementable; see plan.md, phase 4.
    *
-   * **There are two legitimate callers, and Revision 2 added the second.** The
-   * hook was documented as "a failure with *no operation to settle*", which was
-   * a true description of its only caller and was mistaken for its contract.
-   * The invariant that actually holds is the one both callers need: *reach
-   * `onError` without replacing a settlement.*
+   * ~~`reportFailure(stage, error)`.~~ **The kernel now hands over a finished
+   * error** and the behavior chooses nothing. Two consequences, and both are
+   * the point:
    *
-   * 1. **Admission (Q-1, the original).** `admit` threw, so identity was never
-   *    minted, there is no checkpoint to queue and no `REPORTING` phase to
-   *    enter. The controller stays idle and usable. Stage:
-   *    `FAILURE_ADMISSION`.
-   * 2. **The landing measurement (D-49, added at Revision 2).** An operation
-   *    exists and its reorder has already been committed, so failing it would
-   *    settle a drop that really happened. The landing is **skipped rather
-   *    than faked**, the domain result stands, and the fault is reported here.
-   *    Stage: `FAILURE_LANDING_TARGET`, the first stage that is classified,
-   *    non-consequential and has no recovery.
+   * - **The failure site already knows whether it is consequential**, which is
+   *   the constraint the whole model rests on. Nothing downstream decides a
+   *   transition by `instanceof`, and nothing has to re-derive a severity from
+   *   a stage.
+   * - **The stage → code mapping stops being re-ownable.** §The mapping is
+   *   library-owned worried that publishing stages and codes without the
+   *   mapping would let `code` mean something different depending on which
+   *   behavior raised it. Kernel-owned construction removes that risk
+   *   *structurally* rather than by publishing the mapping — which is why
+   *   `toDraggableError` left the kernel entry with this member's stage
+   *   argument.
    *
-   * The two have opposite reasons — no operation at all versus an operation
-   * that must not be disturbed — and the same requirement, which is why one
-   * hook serves both. The kernel reaches caller 2 through
-   * `SeamContext.reportQuality`, never through `fail` or `report`.
+   * **Which class arrives says whether the operation was affected.** A
+   * `DraggableError` means the outcome changed: `admit` threw and the drag will
+   * not start, or the controller panicked. A `DraggableWarning` means it did
+   * not — a landing measurement that could not be trusted, a disposer that
+   * refused, a gate hold that was already taken. A warning is therefore **not
+   * proof that the operation is over**, and the terminal for that operation
+   * still publishes afterwards (D-60, D-66).
    *
-   * **Consequence for a behavior implementing this member:** a report from
-   * caller 2 is *not* proof that the operation is over, and the terminal for
-   * that operation still publishes afterwards (D-60, D-66). The hook is handed
-   * no frame, so a behavior that wants to attach its domain result to the
-   * report cannot; the sortable's `onError` context therefore carries
-   * `domain: null` for both callers, and the non-null case comes from the
-   * settlement failure path instead.
+   * **The guard belongs here.** This is the one place in the library that
+   * invokes a consumer's `onError`, so it is the one place a throw from it must
+   * stop: an implementation catches and discards, and never reports the throw
+   * back through itself. That single discard is what makes the channel
+   * non-recursive.
    */
-  reportFailure(stage: FailureStage, error: unknown): void;
+  reportError(error: DraggableError | DraggableWarning): void;
 
   /** Drop per-operation references. Idempotent, best-effort. */
   retire(): void;

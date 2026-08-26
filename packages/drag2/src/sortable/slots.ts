@@ -13,17 +13,12 @@
  * the unwind list — so the pairing is a construction-time claim rather than a
  * hot-path indirection.
  */
-import type { DraggableError } from '../kernel/errors.ts';
+import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
 import type { ItemSource, SortableOnEnd } from './config.ts';
-import type {
-  CollectionSnapshot,
-  SortableErrorContext,
-  Insertion,
-  OnReorder,
-} from './domain.ts';
+import type { CollectionSnapshot, Insertion, OnReorder } from './domain.ts';
 import type { PlaceholderSlot } from './placement.ts';
 
 /**
@@ -250,9 +245,7 @@ export type SortableSlots = Readonly<{
    * objects that would otherwise be constructed only to be discarded.
    */
   onEnd: SortableOnEnd | null;
-  onError:
-    | ((error: DraggableError, context: SortableErrorContext) => void)
-    | null;
+  onError: ((error: DraggableError | DraggableWarning) => void) | null;
 
   /**
    * Prebuilt and fixed-length after assembly, empty in the minimal composition,

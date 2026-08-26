@@ -160,7 +160,8 @@ type KernelHost = Readonly<{
    *
    * Valid **only inside a kernel-driven seam of the current operation**: the
    * kernel latches `inSeam` around every `prepare`/`effect`, and a call outside
-   * one is downgraded to a platform report. Otherwise a late continuation from
+   * one is reported as a `DraggableWarning` instead. Otherwise a late
+   * continuation from
    * operation A could classify a failure against operation B
    * (§[02](02-kernel-behavior-contract.md) §Failure classification).
    */
@@ -412,7 +413,7 @@ Steps 2–7 are the physical teardown. They run at the transaction boundary when
 
 Two invariants this ordering creates, both of which are new obligations that probe 1's single container did not have (F-12):
 
-- **No behavior callback in the sequence can stop a later step** — wherever the sequence runs. The kernel wraps `spec.retire()`, each attempt's cleanup (including a throwing `LandingHandle.destroy()`), and each frame reset, reporting through the platform reporter and continuing. A behavior cannot strand the kernel's DOM cleanup, and ingress abort is in a `finally`. Deferral does not touch this: the wrapping travels with the steps, and a throw at the transaction boundary is caught by the same handlers it would have been caught by on the closing stack.
+- **No behavior callback in the sequence can stop a later step** — wherever the sequence runs. The kernel wraps `spec.retire()`, each attempt's cleanup (including a throwing `LandingHandle.destroy()`), and each frame reset, reporting and continuing. ~~through the platform reporter~~ — since D-130 the report is a `DraggableWarning` on the consumer's `onError`, **and after logical closure it is refused rather than delivered** (D-37): what the sequence guarantees is that the next step runs, never that the consumer hears about the one that did not. A behavior cannot strand the kernel's DOM cleanup, and ingress abort is in a `finally`. Deferral does not touch this: the wrapping travels with the steps, and a throw at the transaction boundary is caught by the same handlers it would have been caught by on the closing stack.
 
   **The same totality applies to the `arm()` unwind**: a reset that throws while unwinding a failed `arm()` must not replace the original arm failure or skip ingress cleanup.
 
@@ -430,13 +431,13 @@ Two invariants this ordering creates, both of which are new obligations that pro
 
 The same seven steps, minus 1, 2 and 7, are operation retirement.
 
-**Panic** is `destroy()` followed by reporting the initiating error. ~~with teardown strictly before reporting~~ — **D-36 reverses that ordering to close → report → teardown**, and probe A observed exactly the reversal, `['retire','report']` becoming `['report','retire']`.
+**Panic** is `destroy()` followed by reporting the initiating error — a `DraggableError` with code `platform` and **no stage**, since `FailureStage` classifies faults _within_ an operation and a panic destroys the controller (D-131). ~~with teardown strictly before reporting~~ — **D-36 reverses that ordering to close → report → teardown**, and probe A observed exactly the reversal, `['retire','report']` becoming `['report','retire']`.
 
 The reversal is **safe, not merely permitted**, and the reason is the shape of the window rather than a judgement about what reporting is allowed to see:
 
 - **`panic()` is reached from `drain`'s `catch`, after the loop has already exited.** The deferral window is therefore **one stack frame wide**, and the only statement inside it is `report`.
-- **`report` touches no library state.** It reads the error it was handed and hands it to the platform reporter. It mints nothing, admits nothing, and mutates neither kernel nor behavior state, so there is no state whose teardown it could observe out of order.
-- **The latch is already set before it runs.** Whatever the reporter's own code does — including calling back into the controller — meets a closed controller, because step 1 preceded the report. The old ordering bought its safety by finishing teardown first; the new ordering buys the same safety earlier and more cheaply, from the latch.
+- ~~**`report` touches no library state.** It reads the error it was handed and hands it to the platform reporter. It mints nothing, admits nothing, and mutates neither kernel nor behavior state, so there is no state whose teardown it could observe out of order.~~ **False since D-130, and D-131 replaces the clause rather than the ordering.** The statement inside the window is now the consumer's `onError`, which does touch library state and can call back in. The ordering survives on the _next_ bullet alone, and the delivery becomes a **named exception to D-37 (a)** — the second member of D-51's closed list, admitted for the property D-51 used to admit `LandingHandle.destroy()`: a terminal diagnostic tells the consumer something and asks nothing of them, publishing no lifecycle or domain event, ignoring its return value, performing no operation work, and wrapped.
+- **The latch is already set before it runs.** Whatever the handler's own code does — including calling back into the controller — meets a closed controller, because step 1 preceded the report. The old ordering bought its safety by finishing teardown first; the new ordering buys the same safety earlier and more cheaply, from the latch. **This is now the whole argument**, and the alternative it beats is stated in D-130 §8: reporting first would run consumer code on a controller whose invariants are already known to be broken, with the added hazard that the consumer may start work the next statement tears down.
 
 The one way to distinguish the two orderings from outside is to observe physical teardown — an aborted signal, a disposed session, a detached node — during the report. D-38 forbids reading any of those as a liveness answer, so the distinction is unobservable by any participant obeying the contract. **No library work continues on the broken stack**: the frame that panicked unwinds, and teardown runs at the boundary below it.
 

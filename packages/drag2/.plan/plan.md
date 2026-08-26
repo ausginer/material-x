@@ -1654,6 +1654,28 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **One finding** (F-103): a checkpoint dropped as stale, or as a second checkpoint during a report already in flight, vanishes on both channels — the one place an error reaches nobody, eleven lines below a sibling guard that reports and says why.
 
+### One error channel, two error classes, landed 2026-08-26 (D-130, D-131, F-103)
+
+**The reporting destination stops encoding failure severity.** `globalThis.reportError`/`console.error` is deleted, `reporter.ts` with it, and every fault the library surfaces reaches the consumer's `onError` — where **which class arrives** says whether the operation was affected. `DraggableError` when it was; `DraggableWarning` when it was not. Neither extends the other.
+
+**The discriminator is outcome, not effect, and it had to be stated precisely or one site had no home.** A fault is consequential when it changes the operation's terminal result, its phase sequence or its settlement; trajectory, timing and presentation quality are none of those. `settlement/hold-unavailable` turns an animated landing into a jump cut with an identical terminal and is therefore a warning.
+
+**All sixteen former `report()` payloads are warnings, and that is the audit's strongest single result**: the platform channel was never carrying a mixed population that needed splitting — it was carrying one kind of thing to the wrong audience. The one consequential site is `admit` throwing, which the kernel now builds a `DraggableError` for.
+
+**What collapsed.** Three seam tiers become two (`QUALITY` and `BEST_EFFORT` differed in nothing once the destination was single), so `runQualityValue`/`reportQuality` go and `FAILURE_LANDING_TARGET` leaves the union with them — **12 is a permanent hole beside D-41's 13**, padded in the positional `STAGE_TO_CODE` tuple so it cannot silently shift. `BehaviorSpec.reportFailure(stage, error)` becomes `reportError(error)`; `SettlementInput` carries the built error beside the stage the behavior maps to a recovery; `toDraggableError` leaves `kernel.js`. Both `onError` contexts are deleted as strictly redundant with the terminal D-66 makes unconditional — and worse than redundant on one path, since `onError` runs in `REPORTING` and `onEnd` in `FINALIZING`, so a second failure between them left `domain` **stale**.
+
+**`guarded` survives, renamed for the rule it expresses.** Fourteen of seventeen sites share _the statement after this call is load-bearing_; `reporter.ts` becomes `unwind.ts` and the helper takes the notifier. The other three leave: two wrapped the consumer callback itself and collapse into the channel's own guard, and free drag's native scroll listener becomes a local `try`/`catch`, the one site where nothing is pending.
+
+**D-131 is the one contract amendment, and it was assented to rather than absorbed.** `panic()` destroys before it reports, and D-36's justification for that ordering — _the only statement inside the window is `report`, which touches no library state_ — fails clause by clause once the statement is `onError`. The delivery becomes the **second member of D-51's closed exception list**, admitted on the property that admitted `LandingHandle.destroy()`: a terminal diagnostic tells the consumer something and asks nothing of them. Nothing else runs after logical closure, and one `notify` enforces that where three open-coded pre-guards used to.
+
+**F-103's site was the one place an error reached nobody**, and the test for it took two attempts worth recording: the obvious fixture reaches a _different_ demotion that was never silent, so the row that lands is two queued actions whose `prepare` both throw — the first opens `REPORTING`, the second arrives for a report already in flight — falsified against a tree with the report removed.
+
+**Four sites had no route to the channel and now have one, all threaded at construction.** The three lifetime sites take `notify` as an argument, `acquireTopLayer`/`acquireLift` take the unwind guard, and both `assemble` unwinds reach `merged.onError` directly — they run before `arm()`, when no behavior spec exists at all, which is what makes `FeatureContext.report` a published member whose meaning improves without its shape moving.
+
+**Measured at +162 to +206 B brotli, and this is the one re-base in the sequence that pays for something.** The kernel root gains a module — `kernel/errors.js` was outside its graph entirely — which is D-130 §5 arriving in the topology rather than a surprise. Thirteen budgets re-base. **The `drag.js` vocabulary row changed as well as re-basing**: it imported one class and would have kept reporting 121 B for an entry that had grown a second, so it imports both.
+
+**Two guards were deliberately left where they were** (F-97 and its neighbour). `seam/staged-unconsumed` and `dispatch/tag-out-of-range` are routed through the new channel and nothing else: whether either check should exist is a reachability question decided elsewhere, and bundling it would make an error architecture depend on a guard audit and vice versa.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.

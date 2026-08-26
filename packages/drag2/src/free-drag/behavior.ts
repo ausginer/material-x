@@ -18,7 +18,7 @@
  * carrying them. The sortable's equivalent stays for the opposite reason and
  * under the same rule: a test seam exists where a test drives it.
  */
-import { report } from '../kernel/reporter.ts';
+import { DraggableWarning } from '../kernel/errors.ts';
 import type {
   BehaviorFactory,
   BehaviorInstall,
@@ -74,9 +74,32 @@ export function createComposedFreeDragBehavior(
   return (host) =>
     install(
       host,
-      // `report`, not `fail`: an installer closure created here cannot know
-      // which operation is live, so classifying a failure from one would let a
-      // late continuation settle another.
-      assemble(merged, { realm: host.realm, root: host.root, report }),
+      assemble(merged, {
+        realm: host.realm,
+        root: host.root,
+        // **The composition unwind's only route to the channel** (D-130 §1).
+        // `assemble` runs before `arm()`, so no behavior spec exists yet and the
+        // kernel's own notifier is unreachable — but `merged.onError` is in hand
+        // right here, which makes this the smallest threading available rather
+        // than a new ownership path.
+        //
+        // `report`, not `fail`: a feature closure created here cannot know which
+        // operation is live, so classifying a failure from one would let a late
+        // continuation settle another.
+        report: (error) => {
+          if (host.closed) {
+            return;
+          }
+
+          try {
+            merged.onError?.(
+              new DraggableWarning('drag: composition/unwind-failed', error),
+            );
+          } catch {
+            // The terminus. A construction unwind that cannot report is still an
+            // unwind, and its next step matters more than this notification.
+          }
+        },
+      }),
     );
 }

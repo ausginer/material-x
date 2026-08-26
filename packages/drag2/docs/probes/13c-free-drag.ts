@@ -141,7 +141,7 @@ declare function invokeOnDrop(signal: AbortSignal): unknown;
 declare function declaresPresentation(value: unknown): boolean;
 declare const startFreeLanding: LandingStart;
 declare function reportTerminal(outcome: number, domain: unknown): void;
-declare function reportToConsumer(stage: number, error: unknown): void;
+declare function reportToConsumer(error: unknown): void;
 
 /**
  * Axis projection then bounds clamp, over the *origin-relative delta* — the
@@ -428,8 +428,8 @@ export const freeDragSpec: BehaviorSpec<FreeDragPart> = {
     reportTerminal(current.outcome, current.domain);
   },
 
-  reportFailure(stage, error): void {
-    reportToConsumer(stage, error);
+  reportError(error): void {
+    reportToConsumer(error);
   },
 
   retire(): void {

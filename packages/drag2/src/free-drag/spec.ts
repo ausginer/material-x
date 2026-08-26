@@ -13,7 +13,11 @@
  * That is the staged-resource contract inverted, which is F-44 exactly, and it
  * is what D-34 made expressible.
  */
-import { toDraggableError } from '../kernel/errors.ts';
+import {
+  type DraggableError,
+  DraggableWarning,
+  type Notify,
+} from '../kernel/errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -25,7 +29,6 @@ import {
 import { pathOwnsInteraction } from '../kernel/input-policy.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE } from '../kernel/phases.ts';
-import { guarded } from '../kernel/reporter.ts';
 import {
   type BehaviorSpec,
   type PreparedSettlement,
@@ -37,6 +40,7 @@ import {
   SETTLED_SKIPPED,
 } from '../kernel/spec.ts';
 import type { Point } from '../kernel/types.ts';
+import { createUnwind } from '../kernel/unwind.ts';
 import {
   type DragAxis,
   type FreeDragSubject,
@@ -76,6 +80,46 @@ export function createFreeDragSpec(
 ): BehaviorSpec<FreeDragFramePart> {
   const { host, slots } = rt;
   const { realm, root } = host;
+  /**
+   * **The one place this behavior invokes the consumer's error callback**
+   * (D-130). Both routes below end here, so there is exactly one statement to
+   * find when asking *where does `onError` get called*.
+   *
+   * Unguarded and ungated on purpose: its two callers apply those rules, and
+   * they apply them differently — `panic`'s delivery is a named exception to
+   * the latch (D-131), which is impossible if the latch is read here.
+   */
+  const deliver: Notify = (error) => {
+    slots.onError?.(error);
+  };
+
+  /**
+   * **The behavior's own route to the one channel** (D-130).
+   *
+   * Two callers reach {@link deliver} and they are two entries to one channel
+   * rather than two channels: everything that arrives is a `DraggableError` or
+   * a `DraggableWarning`, and neither entry encodes severity. The kernel's
+   * `notify` covers what the *kernel* reports, because it owns the latch. This
+   * covers what the *behavior* reports — the settlement failure below and the
+   * unwind steps, which the kernel cannot see.
+   *
+   * Both apply the same two rules. The latch refuses a declared consumer slot
+   * after logical closure (E-03, I-31, D-53, D-37), and a throw from the
+   * handler stops here rather than being reported through itself.
+   */
+  const notify: Notify = (error) => {
+    if (host.closed) {
+      return;
+    }
+
+    try {
+      deliver(error);
+    } catch {
+      // The terminus, for the same reason the kernel's channel has one.
+    }
+  };
+  const unwind = createUnwind(notify);
+
   // One per controller. Arming is per operation, on the motion signal.
   const invalidate = createInvalidator(realm);
 
@@ -95,8 +139,10 @@ export function createFreeDragSpec(
    * reason: `prepare` clears the slot on entry, so a value can only ever be
    * read by the effect of the transaction whose prepare wrote it.
    */
-  let pendingFailure: Readonly<{ stage: FailureStage; error: unknown }> | null =
-    null;
+  let pendingFailure: Readonly<{
+    stage: FailureStage;
+    report: DraggableError;
+  }> | null = null;
 
   /**
    * **One scratch draft per controller, written in place** (D-70, 13c P-1 as
@@ -300,15 +346,30 @@ export function createFreeDragSpec(
           // second, so this marks staleness and never resolves — the feature
           // re-reads on the next `apply`.
           //
-          // `guarded`, not `host.fail`: a native scroll listener is not a seam,
-          // so a classified failure raised here would be downgraded to a
-          // platform report anyway. Unlike the sortable's equivalent there is
-          // no third action tag to re-raise it through — 07 fixes
-          // `actionTags: 2` — and `invalidate()` is contractually a staleness
-          // flag rather than a resolve, so the throw it would report is a
-          // defect in a constraint rather than in consumer data.
+          // A local `try`/`catch`, not `unwind` and not `host.fail` (D-130
+          // §4). **Nothing is pending**: this is one call at the end of a
+          // native listener, so no later statement is load-bearing and the
+          // shared unwind helper would be naming a rule this site does not
+          // have. It is the only one of the seventeen where that is true.
+          //
+          // Not `host.fail` because a native scroll listener is not a seam, so
+          // a classified failure raised here would be refused anyway. Unlike
+          // the sortable's equivalent there is no third action tag to re-raise
+          // it through — 07 fixes `actionTags: 2` — and `invalidate()` is
+          // contractually a staleness flag rather than a resolve, so the throw
+          // it would report is a defect in a constraint rather than in
+          // consumer data.
           invalidate(scope.motion.signal, () => {
-            guarded(invalidateConstraint!);
+            try {
+              invalidateConstraint!();
+            } catch (error) {
+              notify(
+                new DraggableWarning(
+                  'drag: constraint/invalidate-failed',
+                  error,
+                ),
+              );
+            }
           });
         }
 
@@ -714,7 +775,7 @@ export function createFreeDragSpec(
           }
 
           case SETTLED_FAILED: {
-            pendingFailure = { stage: input.stage, error: input.error };
+            pendingFailure = { stage: input.stage, report: input.report };
 
             // A terminal-callback failure arrives *after* the operation
             // finalized, so rewriting the result now would relabel a drop that
@@ -770,13 +831,18 @@ export function createFreeDragSpec(
 
         // Consumer callbacks last. A failed settlement reports through
         // `onError` here **and** publishes its terminal from the failure path's
-        // own step (D-66) — the two channels are orthogonal and neither
-        // suppresses the other.
+        // own step (D-66) — the report is orthogonal to the terminal and
+        // neither suppresses the other.
         if (failure !== null) {
           // D-64: the consumer branches on a fault class, never on a stage.
-          slots.onError?.(toDraggableError(failure.stage, failure.error), {
-            domain: current.domain,
-          });
+          // D-130: through `notify`, so a throwing handler stops here instead
+          // of becoming a fresh library fault that reports itself back. The
+          // kernel built the error, and `domain` is gone — `finalized`
+          // publishes that same `current.domain` to `onEnd`, unconditionally
+          // (D-66), so the copy here was redundant at best and **stale** at
+          // worst, since a second failure arriving between `REPORTING` and
+          // `FINALIZING` moved it.
+          notify(failure.report);
         }
       },
     },
@@ -882,19 +948,20 @@ export function createFreeDragSpec(
     },
 
     /**
-     * The un-classified report channel, for both of its callers: `admit` threw
-     * and no identity was ever minted (Q-1), or the landing measurement failed
-     * on a drop that already committed (D-49), in which case an operation is
-     * live, its result stands, and its terminal publishes after this returns.
+     * **Forward, and nothing else** (D-130). The kernel builds the public
+     * error, picks its class and owns the latch; this member is the last hop,
+     * and it is {@link deliver} itself.
      *
-     * `domain: null` for both — the hook is handed no frame, so this callback
-     * cannot see the result the second caller's operation carries. The non-null
-     * case comes from the settlement failure path, which reports with the frame
-     * in hand.
+     * ~~`reportFailure(stage, error)`, which called `toDraggableError` here and
+     * attached `domain: null`.~~ Both are gone: the mapping is kernel-owned so
+     * it cannot mean two things in two behaviors, and the context was strictly
+     * redundant with the terminal (D-130 §6).
+     *
+     * Its one caller is the kernel's `notify`, which gates on the latch and
+     * discards a throwing handler for every route it owns — including `panic`'s
+     * post-closure delivery, which is exactly why neither rule can live here.
      */
-    reportFailure(stage, error) {
-      slots.onError?.(toDraggableError(stage, error), { domain: null });
-    },
+    reportError: deliver,
 
     retire() {
       progress = MINTED;
@@ -906,7 +973,7 @@ export function createFreeDragSpec(
       // Already in reverse installation order. Each is wrapped individually, so
       // one throwing hook cannot stop a later one from releasing what it holds.
       for (const hook of slots.retireHooks) {
-        guarded(hook);
+        unwind(hook);
       }
     },
   };

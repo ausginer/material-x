@@ -14,7 +14,7 @@
  * a host. The public `sortable(items, ...features)` entry lives in `sortable.ts`
  * and is the only caller that assembles.
  */
-import { report } from '../kernel/reporter.ts';
+import { DraggableWarning } from '../kernel/errors.ts';
 import type {
   BehaviorFactory,
   BehaviorInstall,
@@ -136,10 +136,33 @@ export function createComposedSortableBehavior(
       host,
       source,
       items,
-      // `report`, not `fail`: a feature closure created here cannot know which
-      // operation is live, so classifying a failure from one would let a late
-      // continuation settle another.
-      assemble(merged, { realm: host.realm, root: host.root, report }),
+      assemble(merged, {
+        realm: host.realm,
+        root: host.root,
+        // **The composition unwind's only route to the channel** (D-130 §1).
+        // `assemble` runs before `arm()`, so no behavior spec exists yet and the
+        // kernel's own notifier is unreachable — but `merged.onError` is in hand
+        // right here, which makes this the smallest threading available rather
+        // than a new ownership path.
+        //
+        // `report`, not `fail`: a feature closure created here cannot know which
+        // operation is live, so classifying a failure from one would let a late
+        // continuation settle another.
+        report: (error) => {
+          if (host.closed) {
+            return;
+          }
+
+          try {
+            merged.onError?.(
+              new DraggableWarning('drag: composition/unwind-failed', error),
+            );
+          } catch {
+            // The terminus. A construction unwind that cannot report is still an
+            // unwind, and its next step matters more than this notification.
+          }
+        },
+      }),
     );
   };
 }

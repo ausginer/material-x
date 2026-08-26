@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { DraggableWarning } from '../../src/kernel/errors.ts';
 import {
   acquireLift,
   acquireTopLayer,
@@ -8,25 +9,34 @@ import {
   type VisualLiftSession,
 } from '../../src/kernel/presentation.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
+import type { Unwind } from '../../src/kernel/unwind.ts';
 
 const created: HTMLElement[] = [];
 const sessions: VisualLiftSession[] = [];
 
-type Reporting = { reportError?(error: unknown): void };
-
 /** The best-effort channel: a rollback that fails on its way out. */
 let reported: unknown[] = [];
 
+/**
+ * **The unwind guard is an argument now** (D-130). `acquireTopLayer` is a free
+ * function that holds no controller reference, so the fixture supplies the
+ * guard and observes what it catches — which is what the ambient
+ * `globalThis.reportError` stub used to do less directly.
+ */
+const unwind: Unwind = (step) => {
+  try {
+    return step();
+  } catch (error) {
+    reported.push(new DraggableWarning('drag: unwind/step-failed', error));
+    return undefined;
+  }
+};
+
 beforeEach(() => {
   reported = [];
-  (globalThis as Reporting).reportError = (error): void => {
-    reported.push(error);
-  };
 });
 
-afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-});
+afterEach(() => {});
 
 afterEach(() => {
   for (const session of sessions.splice(0)) {
@@ -66,6 +76,7 @@ function lift(visual: HTMLElement, mode: number): VisualLiftSession {
     mode as Parameters<typeof acquireLift>[1],
     visual.getBoundingClientRect(),
     createRealm(visual),
+    unwind,
   );
   sessions.push(session);
   return session;
@@ -306,6 +317,7 @@ describe('acquireLift cleanup', () => {
         LIFT_FLAT,
         visual.getBoundingClientRect(),
         createRealm(visual),
+        unwind,
       ),
     ).toThrow('no top layer');
 
@@ -324,6 +336,7 @@ describe('acquireLift cleanup', () => {
       LIFT_FLAT,
       visual.getBoundingClientRect(),
       createRealm(visual),
+      unwind,
     );
 
     visual.hidePopover = (): void => {
@@ -346,7 +359,7 @@ describe('acquireTopLayer rollback', () => {
       throw new Error('cannot promote');
     };
 
-    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(() => acquireTopLayer(visual, unwind)).toThrow('cannot promote');
     expect(visual.hasAttribute('popover')).toBe(false);
   });
 
@@ -358,7 +371,7 @@ describe('acquireTopLayer rollback', () => {
       throw new Error('cannot promote');
     };
 
-    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(() => acquireTopLayer(visual, unwind)).toThrow('cannot promote');
     expect(visual.getAttribute('popover')).toBe('auto');
   });
 
@@ -376,7 +389,7 @@ describe('acquireTopLayer rollback', () => {
       throw new Error(calls === 1 ? 'cannot promote' : 'cannot restore');
     };
 
-    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(() => acquireTopLayer(visual, unwind)).toThrow('cannot promote');
     // Both calls happened: the acquisition and the reopen the rollback tried.
     expect(calls).toBe(2);
   });
@@ -392,10 +405,10 @@ describe('acquireTopLayer rollback', () => {
       throw new Error(calls === 1 ? 'cannot promote' : 'cannot restore');
     };
 
-    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
-    expect(reported.map((error) => (error as Error).message)).toEqual([
-      'cannot restore',
-    ]);
+    expect(() => acquireTopLayer(visual, unwind)).toThrow('cannot promote');
+    expect(
+      reported.map((error) => ((error as Error).cause as Error).message),
+    ).toEqual(['cannot restore']);
   });
 
   it('should restore the popover attribute even when the rollback throws', () => {
@@ -411,7 +424,7 @@ describe('acquireTopLayer rollback', () => {
       throw new Error(calls === 1 ? 'cannot promote' : 'cannot restore');
     };
 
-    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(() => acquireTopLayer(visual, unwind)).toThrow('cannot promote');
     expect(visual.getAttribute('popover')).toBe('auto');
   });
 });
@@ -422,7 +435,7 @@ describe('acquireTopLayer release', () => {
 
     visual.setAttribute('popover', 'auto');
     visual.showPopover();
-    acquireTopLayer(visual)();
+    acquireTopLayer(visual, unwind)();
 
     expect(visual.getAttribute('popover')).toBe('auto');
     expect(visual.matches(':popover-open')).toBe(true);
@@ -439,7 +452,7 @@ describe('acquireTopLayer release', () => {
     visual.setAttribute('popover', 'auto');
     visual.showPopover();
 
-    const dispose = acquireTopLayer(visual);
+    const dispose = acquireTopLayer(visual, unwind);
     const nativeHide = HTMLElement.prototype.hidePopover;
     let hides = 0;
 

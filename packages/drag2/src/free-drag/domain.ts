@@ -198,14 +198,3 @@ export type FreeDragTransactionResult =
   | AcceptedFreeDragResult
   | RejectedFreeDragResult
   | CanceledFreeDragResult;
-
-/**
- * **Qualified, because the unqualified form is already claimed by a different
- * structure** (D-75): `onError`'s context carries a behavior's own result, and
- * the sortable's carries a `ReorderTransactionResult`. The rule is exactly that
- * narrow — qualify a name when two entries need different structures under one
- * word, not because a word could conceivably be reused.
- */
-export type FreeDragErrorContext = Readonly<{
-  domain: FreeDragTransactionResult | null;
-}>;

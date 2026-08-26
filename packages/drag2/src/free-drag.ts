@@ -56,7 +56,6 @@ export {
   type CanceledFreeDragResult,
   type DragAxis,
   type DragGeometry,
-  type FreeDragErrorContext,
   type FreeDragLift,
   type FreeDragRequest,
   type FreeDragSubject,

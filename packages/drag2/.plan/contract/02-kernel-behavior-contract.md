@@ -359,11 +359,12 @@ type BehaviorSpec<
   finalized(current: Readonly<Frame<Part>>): void;
 
   /**
-   * A failure with **no operation to settle**: an admission member threw, so
-   * identity was never minted, there is no checkpoint to queue and no
-   * `REPORTING` phase to enter (Q-1). The controller stays idle and usable.
+   * Forward the finished error to `onError`, and do nothing else (D-130).
+   * ~~`reportFailure(stage: FailureStage, error: unknown)`.~~ The kernel builds
+   * the public error and picks its class; a `DraggableWarning` means the
+   * operation was not affected and its terminal still follows.
    */
-  reportFailure(stage: FailureStage, error: unknown): void;
+  reportError(error: DraggableError | DraggableWarning): void;
 
   /** Drop per-operation references. Idempotent, best-effort. */
   retire(): void;
@@ -372,7 +373,7 @@ type BehaviorSpec<
 
 Thirteen top-level members plus one optional, ~18 functions once the transitions expand. Probe 1: fifteen. The count is still a wash; the difference is that each phase of each seam has one job.
 
-**Two of those members ratify Part I deviations rather than deciding anything new.** `config.actionTags` and `reportFailure` have existed in the implementation since phases 4 and 5 and are described in this document's prose; the listing above simply stops disagreeing with it. `reportFailure` is load-bearing for D-32 — a throwing `command.admit` has exactly the Q-1 shape a throwing `admit` has — so leaving it out of the normative listing while the revision depends on it would be incoherent.
+**Two of those members ratify Part I deviations rather than deciding anything new.** `config.actionTags` and the reporting member have existed in the implementation since phases 4 and 5 and are described in this document's prose; the listing above simply stops disagreeing with it. The reporting member is load-bearing for D-32 — a throwing `command.admit` has exactly the Q-1 shape a throwing `admit` has — so leaving it out of the normative listing while the revision depends on it would be incoherent.
 
 ### Admission returns a subject, not an element (D-59)
 
@@ -755,7 +756,7 @@ The other half of the decision, and the half that keeps it from being a mechanic
 | `Lifetime` (the full type), `createLifetime` | `LifetimeScope`, which is D-21's projection and exists precisely so `dispose` is unreachable |
 | `composeFrame`, `beginFrame`, `scrubFrame`, `KERNEL_FRAME_KEYS` | none — the kernel composes the frame (D-15). A behavior authors its part and nothing else |
 | `acquireLift`, `captureInlineStyles`, `acquireTopLayer` | the kernel acquires the lift; the behavior receives a **`BehaviorLiftSession`**, which is published for the same reason everything else on this list is not — the kernel hands one to every behavior twice, as `ActivationScope.lift` and as `moved`'s second argument. `VisualLiftSession` stays published because that alias's definition names it. (This row read _the behavior receives `VisualLiftSession`_ until D-35's projection landed; §`ActivationScope`, below, had been the correct spelling since C5-01.) |
-| `report`, `guarded` | `host.fail(stage, error)` inside a seam. Outside one it downgrades to a platform report, which is the same destination |
+| ~~`report`~~ (deleted, D-130), `createUnwind` | `host.fail(stage, error)` inside a seam. Outside one it is reported as a `DraggableWarning`, which is the same destination — there is only one |
 | `createInvalidator`, `createFrameTask`, `FrameTask`, `Invalidator` | `realm.window` — scheduling is the behavior's own, and `FAILURE_SCHEDULED_FRAME` exists so it can classify its own coalescing |
 | `POINTER_DOWN`, `KEY_DOWN` and the rest of `protocol.ts` | string literals. `CommandAdmission.types` is `readonly string[]` |
 | `pathOwnsInteraction` (~~`POINTER_OWNERS`, `COMMAND_OWNERS`~~, deleted by D-129) | **none, and this is a stated cost** — see below |
@@ -985,7 +986,7 @@ One object per operation. `prepare` reads `visual`, `originRect`, `box` and `box
 
 **`dispose()` is projected away** (review 4, §15). An earlier draft passed the full `Lifetime` and justified it by saying a restricted façade would cost an object per lifetime per operation — which was simply wrong: a `Pick` is a type-level projection and the kernel passes the _same physical object_ under the narrower type. Zero allocations, and I-11's "the behavior has no opportunity to sequence release incorrectly" becomes true instead of aspirational.
 
-**Registration after closure.** `use(disposer)` on a lifetime that has already disposed **invokes the disposer immediately** and reports a failure through the platform reporter, rather than silently registering something that can never run. A late registration is always a bug, but the resource it names is real, so dropping it leaks and running it does not.
+**Registration after closure.** `use(disposer)` on a lifetime that has already disposed **invokes the disposer immediately** and reports a `DraggableWarning` (~~through the platform reporter~~, D-130), rather than silently registering something that can never run. A late registration is always a bug, but the resource it names is real, so dropping it leaks and running it does not.
 
 #### The footprint needs two windows, and one of them is not free (D-43)
 
@@ -1375,7 +1376,7 @@ Consequences:
 1. **A gate release is not a frame transition.** Probe 1 ran `begin(); flag = true; commit()` per gate. The only transition in settlement is `phase = FINALIZING`.
 2. **A hold count is still the right shape for one hold.** The release is guarded by `attempt.landingHeld`, so it is idempotent and duplicate-proof, and the guard names which gate is outstanding for a diagnostic. The count is kept rather than collapsed to the boolean because consequence 6 is a real possibility and the count is one integer. The landing _handle_ outlives its gate release, because the join needs it to `destroy()` the runner before the pin.
 3. **Staleness handling is free.** A `done()` for a retired attempt finds no attempt.
-4. **The hold may be requested at most once, and only before sealing.** A duplicate or late request is ignored and reported through the **platform reporter** — the same non-consequential channel as a failing disposer, not `onError`, which this document reserves for classified failures. It never overwrites a watch, never double-increments, and never panics, because a bookkeeping error should not destroy a live drop.
+4. **The hold may be requested at most once, and only before sealing.** A duplicate or late request is ignored and reported as a **`DraggableWarning`** — the same non-consequential tier as a failing disposer (~~the platform reporter, not `onError`, which this document reserves for classified failures~~; D-130 makes `onError` the one destination and the _class_ the tier). It never overwrites a watch, never double-increments, and never panics, because a bookkeeping error should not destroy a live drop.
 5. **With no `landing()` feature the behavior holds nothing and finalizes in the same drain.** This row said the opposite until D-41, and the correction is a real reversal rather than a rewording: the earlier text was right _while readiness existed_, because a settlement with no landing gate could still be holding readiness for the consumer's authored commit, and finalizing in the same drain would have released presentation before that commit landed. Under the serial order the commit has already landed by the time the settlement exists, so there is nothing left for an empty plan to wait on. I-9's _no fake asynchronous work when landing is absent_ is restored to the unqualified form probe 1 stated it in.
 6. **One gate is v1 product vocabulary, not a generic mechanism.** Adding a second means touching the attempt record, the scope API, the arm step, teardown, diagnostics and tests. Revision 2 is the demonstration in the other direction: removing one touched every one of those places.
 
@@ -1603,15 +1604,17 @@ The domain result stands because it is **true**: the DOM commit already happened
 - **It is not a classified failure.** Nothing is settled `OUTCOME_FAILED`, no recovery is selected, `finalized` still runs, and I-31's single terminal is intact. That is F-17's tier restored — the same tier F-16 gives a visually abrupt correction.
 - **It still goes to `onError` rather than the platform reporter.** The audience decides the channel, and the audience here is the **consumer's integration**, not the library author: the fault is almost always a destructive rerender the consumer performed (D-42), and C1's finding is that this is _the worst integration bug in the package and also its most silent_ — all five commit strategies reported `onFinish` once and `onError` zero times. A `DEV`-gated platform report would reproduce the silence in exactly the builds where it did the damage.
 
+> **This section is the seed of D-130 and reads differently after it.** The sentence that made the generalization inevitable is _the channel and the tier are chosen independently here_. D-130 applies it to the whole population: there **is** no second destination to choose between, so the second bullet is now vacuously true of everything the library reports, and what carries the tier is the **class**. `FAILURE_LANDING_TARGET` is deleted with the `QUALITY` sentinel that produced it — a stage that existed to be _classified, non-consequential and recovery-less_ was a shape forced by the old coupling, and a `DraggableWarning` says it directly.
+
 **So `onError` no longer implies a failed operation, and D-60 makes that normative.**
 
-> **`onError` is orthogonal to the terminal.** One operation may produce `onError` **and** `onEnd` (D-62). `FAILURE_LANDING_TARGET` is the first stage that is _classified, non-consequential, and has no recovery_.
+> **`onError` is orthogonal to the terminal.** One operation may produce `onError` **and** `onEnd` (D-62). ~~`FAILURE_LANDING_TARGET` is the first stage that is _classified, non-consequential, and has no recovery_.~~ **Since D-130 the class says it**: a `DraggableWarning` reaching `onError` never implies a failed operation, and the terminal still follows.
 
 §Failure classification's "a failed operation reports through `onError` only" was always a one-way implication, and **D-66 retracts even that**: a failed operation now reports through `onError` **and** publishes one `onEnd`, whose argument is the frame's own result or a derived `canceled`. What D-60 found first is that the converse — which this document nowhere stated but everywhere **assumed** — is false. `onError` means _something the consumer should know about_; `OUTCOME_FAILED` remains the only thing that means _the drop did not complete_.
 
 The owner had already decided this in the API review's §4 — _diagnostics remain orthogonal; do not create a second terminal taxonomy merely to encode diagnostic provenance_ — and it is the same sentence that keeps D-40 to one `canceled`. It is written down here because nothing in the model had ever needed to test it, and an assumption a reader re-derives from six consistent examples is indistinguishable from a rule until the seventh arrives.
 
-**Two things follow that are not stylistic.** The `FailureStage` → recovery mapping must be able to _express_ a stage with no recovery rather than treat it as a gap — a missing entry and a deliberately absent one are different, and only one of them is a bug. And any assertion of mutual exclusivity between the two channels is now false: probe C1's defect reads _`onFinish` once, `onError` zero_, and the **fixed** behavior reads _`onFinish` once, `onError` once_.
+**Two things follow that are not stylistic.** The `FailureStage` → recovery mapping must be able to _express_ a stage with no recovery rather than treat it as a gap — a missing entry and a deliberately absent one are different, and only one of them is a bug. And any assertion of mutual exclusivity between `onError` and the terminal is now false: probe C1's defect reads _`onFinish` once, `onError` zero_, and the **fixed** behavior reads _`onFinish` once, `onError` once_.
 
 ### The landing origin is what was rendered, not what was pointed at (D-35)
 
@@ -1686,10 +1689,10 @@ The `immediate` row lost one member: **readiness failure**, which was the deadli
 
 | Call site | The result is | On throw |
 | --- | --- | --- |
-| arm, D-42's precondition check | whether the measurement is meaningful at all | **`onError`, not classified** (D-49); skip the landing, join immediately, domain result stands |
-| arm, `anchorTarget(current)` | **authoritative** — it feeds both the runner and the pin | **`onError`, not classified** (D-49); identical treatment — a target that cannot be produced and one that cannot be trusted are the same fault |
+| arm, D-42's precondition check | whether the measurement is meaningful at all | **a `DraggableWarning` on `onError`, not classified** (D-49, D-130); skip the landing, join immediately, domain result stands |
+| arm, `anchorTarget(current)` | **authoritative** — it feeds both the runner and the pin | **the same warning** (D-49, D-130); identical treatment — a target that cannot be produced and one that cannot be trusted are the same fault |
 | arm, `start(context, done, fail)` | the runner handle | classified `FAILURE_LANDING_CREATE`; hold rolled back; `ARM_FAILED` |
-| join, `landing.destroy()` | relinquishment of the transform (D-51) | **best-effort report.** A custom runner must not be able to strand presentation; the pin proceeds — but `attempt.relinquished` goes false and **I-24 no longer holds**, see below |
+| join, `landing.destroy()` | relinquishment of the transform (D-51) | **a `DraggableWarning`** (D-130; ~~a best-effort platform report~~). A custom runner must not be able to strand presentation; the pin proceeds — but `attempt.relinquished` goes false and **I-24 no longer holds**, see below |
 | join, `lift.write(...)` | the pin itself | classified `FAILURE_RENDERER_WRITE`; **still** release presentation; **skip** `finalized` |
 | join, `spec.finalized(current)` | the terminal callback | classified `FAILURE_TERMINAL_CALLBACK`; the operation still retires |
 
@@ -1699,9 +1702,11 @@ The `immediate` row lost one member: **readiness failure**, which was the deadli
 
 **A thrown `destroy()` costs the final-position guarantee, not just tidiness.** "Report and continue" is the right _cleanup_ policy — a custom runner must never strand presentation — but if `destroy()` threw before cancelling its WAAPI animation or stopping its rAF loop, that runner may keep writing the transform after `lift.write`. So I-24 is conditional on **three** things, not two: authoritative measurement, a successful pin, _and_ successful relinquishment of runner control. The kernel cannot independently detach a runner it did not create; making the guarantee unconditional would require redesigning runner ownership so the kernel holds an infallible detach, which no first-iteration runner needs.
 
-"Best-effort report" is the existing channel used for a failing disposer: the platform reporter, no `REPORTING` phase, no `onError`, no `pendingContinuation`. It is deliberately _not_ a classified failure, because every classified failure in this model is consequential — it settles the operation with `OUTCOME_FAILED` or retires it. **D-49's rows are a third state and are labelled as such**: `onError`, no `REPORTING`, no `OUTCOME_FAILED`, terminal callback intact. The channel and the tier are chosen independently there, for the reason §A landing that cannot be measured gives.
+"Best-effort report" was the channel used for a failing disposer: ~~the platform reporter, no `REPORTING` phase, no `onError`, no `pendingContinuation`~~. **There is one destination since D-130**, so the phrase now names a _tier_ and nothing else: no `REPORTING` phase, no `pendingContinuation`, and a `DraggableWarning` on the consumer's `onError`. It is deliberately not a classified failure, because every classified failure in this model is consequential — it settles the operation with `OUTCOME_FAILED` or retires it.
 
-**I-29 keeps its subjects, and D-49 gives it back the one D-41 took.** It reads: _no failure on the trajectory-quality path may change the settlement outcome, release or add a hold, or destroy the runner._ D-41 deleted the readiness-time measurement and retarget, leaving `landing.destroy()` as its only subject; D-49 restores the arm-time measurement and adds the precondition check to it. So the invariant now governs three sites and states the rule all of them obey — which is a better position than the one-subject invariant it was briefly reduced to. It also gains a corollary worth stating: **the trajectory-quality path may report through `onError`.** I-29 constrains what a quality failure may _do_, never which channel tells the consumer about it.
+**~~D-49's rows are a third state.~~ There are two states, and D-130 is what collapsed the third.** D-49's row was `onError` without classification, and best-effort was the platform without classification; once the destination stopped being a choice the two differed in nothing, and the `QUALITY` and `BEST_EFFORT` sentinels became one. What remains is exactly the distinction that was always doing the work: **classified or not**, and the class the consumer receives says which.
+
+**I-29 keeps its subjects, and D-49 gives it back the one D-41 took.** It reads: _no failure on the trajectory-quality path may change the settlement outcome, release or add a hold, or destroy the runner._ D-41 deleted the readiness-time measurement and retarget, leaving `landing.destroy()` as its only subject; D-49 restores the arm-time measurement and adds the precondition check to it. So the invariant now governs three sites and states the rule all of them obey — which is a better position than the one-subject invariant it was briefly reduced to. It also gains a corollary worth stating: **the trajectory-quality path may report through `onError`.** I-29 constrains what a quality failure may _do_, never which channel tells the consumer about it. **That sentence is D-130's whole premise, generalized**: the constraint on _doing_ is the tier, the class is what publishes it, and the destination was never carrying information at all.
 
 ### `ActionTransition`
 
@@ -1892,7 +1897,7 @@ Everything above is **kernel-tier and middle-tier vocabulary**. It was ordinary-
 
 Two consequences for who gets what:
 
-- **A feature's long-lived context carries `report(error)`, not `fail`.** A feature closure created at construction has no way to know which operation is live, so it must not be able to classify against one. Anything it throws synchronously inside a seam is caught and classified by the driver, at the stage that seam owns; anything it wants to surface asynchronously is a best-effort report.
+- **A feature's long-lived context carries `report(error)`, not `fail`.** A feature closure created at construction has no way to know which operation is live, so it must not be able to classify against one. Anything it throws synchronously inside a seam is caught and classified by the driver, at the stage that seam owns; anything it wants to surface asynchronously is a `DraggableWarning` on the one channel (D-130).
 - **Asynchronous work that legitimately needs to fail an operation receives an operation-scoped callback.** The landing runner's `fail(error)` argument is exactly this: it is minted per attempt and becomes inert once the attempt is retired.
 
 Precedence, for one operation, highest first:
