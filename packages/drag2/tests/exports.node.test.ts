@@ -51,7 +51,29 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
   // **Shared vocabulary, and one runtime value** (D-64). `DraggableError` is a
   // class, which is what keeps this root alive after D-48 moved `draggable`
   // off it and D-64 moved the stages off with them.
-  drag: ['DraggableError', 'DraggableWarning'],
+  // **The stage vocabulary joins the two classes** (D-132 §6).
+  // `DraggableError.stage` is a `FailureStage`, so D-68 puts the type at this
+  // root; and a numeric union whose members are unnameable is not a public
+  // type, so the twelve constants follow it as runtime exports. One
+  // declaration in `kernel/failures.ts`, published from here *and* from
+  // `kernel.js` — the same pattern `AT_PROPOSAL`/`AT_CONSUMER` already run
+  // between `kernel.js` and `sortable.js`.
+  drag: [
+    'DraggableError',
+    'DraggableWarning',
+    'FAILURE_ACTION_EFFECT',
+    'FAILURE_ACTION_PREPARE',
+    'FAILURE_ACTIVATION',
+    'FAILURE_ADMISSION',
+    'FAILURE_INVALIDATION',
+    'FAILURE_LANDING_CREATE',
+    'FAILURE_LANDING_INTERRUPTED',
+    'FAILURE_RELEASE',
+    'FAILURE_RENDERER_WRITE',
+    'FAILURE_RESOLUTION',
+    'FAILURE_SCHEDULED_FRAME',
+    'FAILURE_TERMINAL_CALLBACK',
+  ],
   // **The kernel tier, and the whole of D-68's value half — 33 names.** Thirteen
   // stages, not fourteen: D-41 deleted `FAILURE_PRESENTATION_READY` with the
   // readiness protocol. The other nineteen constants are what F-59 found

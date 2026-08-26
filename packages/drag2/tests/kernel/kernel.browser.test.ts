@@ -1,9 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import {
-  DraggableError,
-  DraggableWarning,
-  toDraggableError,
-} from '../../src/kernel/errors.ts';
+import { DraggableError, DraggableWarning } from '../../src/kernel/errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -740,8 +736,8 @@ describe('discrete admission', () => {
     // stage it owns, so the behavior chose nothing.
     expect(harness.reports).toHaveLength(1);
     expect(harness.reports[0]).toBeInstanceOf(DraggableError);
-    expect((harness.reports[0] as DraggableError).code).toBe(
-      toDraggableError(FAILURE_ADMISSION, null).code,
+    expect((harness.reports[0] as DraggableError).stage).toBe(
+      FAILURE_ADMISSION,
     );
     expect(String(harness.reports[0]?.cause)).toBe('Error: command');
     expect(harness.calls).toEqual([]);
@@ -1149,8 +1145,8 @@ describe('admission', () => {
     expect(harness.failures).toEqual([]);
     expect(harness.reports).toHaveLength(1);
     expect(harness.reports[0]).toBeInstanceOf(DraggableError);
-    expect((harness.reports[0] as DraggableError).code).toBe(
-      toDraggableError(FAILURE_ADMISSION, null).code,
+    expect((harness.reports[0] as DraggableError).stage).toBe(
+      FAILURE_ADMISSION,
     );
 
     fail = false;
@@ -3831,7 +3827,7 @@ describe('the transaction bracket', () => {
       // refuses once the latch is set.
       reportError: (error): void => {
         delivered.push(error);
-        order.push(`report:${(error as DraggableError).code}`);
+        order.push(`report:${String((error as DraggableError).stage)}`);
         // Read from *inside* the report, which is the assertion the ordering
         // exists for: a handler that calls back into the controller must find
         // it already closed.
@@ -3852,15 +3848,22 @@ describe('the transaction bracket', () => {
       window.getSelection = selection;
     }
 
-    expect(order).toEqual(['report:platform', 'closed:true', 'retire']);
+    expect(order).toEqual(['report:null', 'closed:true', 'retire']);
 
-    // **Panic is consequential and carries no stage.** It destroys the whole
-    // controller rather than one operation, so it is a `DraggableError`; and
-    // `FailureStage` classifies faults *within* an operation, so the code is
-    // picked directly rather than mapped from one.
+    // **Panic is consequential and carries no stage, and D-132 lets it say
+    // so.** It destroys the whole controller rather than one operation, so it
+    // is a `DraggableError`; and `FailureStage` classifies faults *within* an
+    // operation, so there is nothing to classify. ~~The code is picked
+    // directly rather than mapped from one.~~ That code was `'platform'` —
+    // the taxonomy's *other* bucket, glossed as *the platform refused
+    // something* — which made a panicked controller indistinguishable from a
+    // failed `requestAnimationFrame` (F-104). `null` is the only value that
+    // means *the controller is destroyed*, and this is the assertion that
+    // separates the two; nothing could make it before D-132.
     expect(delivered).toHaveLength(1);
     expect(delivered[0]).toBeInstanceOf(DraggableError);
     expect(delivered[0]).not.toBeInstanceOf(DraggableWarning);
+    expect((delivered[0] as DraggableError).stage).toBeNull();
     expect((delivered[0] as DraggableError).cause).toBe(broken);
   });
 

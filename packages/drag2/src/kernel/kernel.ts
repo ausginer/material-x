@@ -23,11 +23,7 @@ import {
   START_COMMITTED,
   UP,
 } from './actions.ts';
-import {
-  DraggableError,
-  DraggableWarning,
-  toDraggableError,
-} from './errors.ts';
+import { DraggableError, DraggableWarning } from './errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -686,12 +682,17 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * **Panic is consequential and carries no stage.** It destroys the whole
    * controller rather than one operation, so it is a `DraggableError`; and
    * `FailureStage` classifies faults *within* an operation, so there is nothing
-   * to classify. The code is picked directly, which the public constructor has
-   * always allowed — `toDraggableError` is only one way to choose one.
+   * to classify. ~~The code is picked directly, which the public constructor
+   * has always allowed.~~ **D-132 makes the absence expressible**: the stage is
+   * `null`, which means *the controller is destroyed* and means nothing else.
+   * The `'platform'` code this used to pass was the taxonomy's *other* bucket
+   * standing in for a value the type could not hold, and it made a panicked
+   * controller indistinguishable from a failed `requestAnimationFrame`
+   * (F-104).
    */
   const panic = (error: unknown): void => {
     void destroy();
-    notify(new DraggableError('platform', error), true);
+    notify(new DraggableError(null, error), true);
   };
 
   const dispatchKernel = (action: number, argument: unknown): void => {
@@ -906,7 +907,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // I-31, D-53), guarded against a throwing `onError`.~~ **Both readings
       // moved into `notify`**, which refuses after logical closure and swallows
       // a throwing handler for every route rather than for this one.
-      notify(toDraggableError(FAILURE_ADMISSION, error));
+      notify(new DraggableError(FAILURE_ADMISSION, error));
 
       return null;
     }
@@ -2235,10 +2236,12 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       stage: checkpoint.stage,
       error: checkpoint.error,
       // **Built here, by the kernel** (D-130 §5). The behavior maps `stage` to
-      // a recovery, which is its own (D-24, F-33), and forwards this untouched
-      // — which is what makes the stage → code mapping impossible to re-own per
-      // behavior, and what let `toDraggableError` leave the kernel entry.
-      report: toDraggableError(checkpoint.stage, checkpoint.error),
+      // a recovery, which is its own (D-24, F-33), and forwards this untouched.
+      // ~~Which is what makes the stage → code mapping impossible to re-own per
+      // behavior.~~ **There is no mapping left to re-own** (D-132): the error
+      // now carries the same `stage` this input does, so the two fields agree
+      // by construction rather than by a derivation the kernel had to keep.
+      report: new DraggableError(checkpoint.stage, checkpoint.error),
     };
 
     const attempt = createSettlementAttempt();

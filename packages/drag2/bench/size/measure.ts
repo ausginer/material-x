@@ -697,6 +697,80 @@ export type Composition = Readonly<{
    * and costs **+1 to +5 B brotli on every sortable row** — the repeated
    * `part.x = null` lines compress better than the shape that replaces them.
    * The straightforward assignments stay.
+   *
+   * **Re-based 2026-08-26, Phase 23 (D-132), except that almost nothing needed
+   * re-basing.** `DraggableErrorCode`, `STAGE_TO_CODE` and `toDraggableError`
+   * are deleted; `DraggableError` carries a `FailureStage | null`; a
+   * `STAGE_NAMES` tuple renders the stage in words for the constructed
+   * message; `drag.js` re-exports the twelve stage constants.
+   *
+   * | Row | before | landed | Δ brotli | Δ minified | budget | left |
+   * | --- | --- | --- | --- | --- | --- | --- |
+   * | minimal | 10,295 | 10,341 | **+46** | +12 | 10,439 | 98 |
+   * | minimal (xy) | 9,958 | 9,991 | **+33** | +11 | 10,097 | 106 |
+   * | + layoutAnimation | 10,745 | 10,780 | **+35** | +12 | 10,882 | 102 |
+   * | + landing | 10,562 | 10,618 | **+56** | +12 | 10,710 | 92 |
+   * | complete | 10,989 | 11,024 | **+35** | +12 | 11,129 | 105 |
+   * | free drag minimal | 8,108 | 8,143 | **+35** | +11 | 8,253 | 110 |
+   * | free drag + bounds | 8,267 | 8,297 | **+30** | +11 | 8,409 | 112 |
+   * | free drag + landing | 8,377 | 8,418 | **+41** | +11 | 8,519 | 101 |
+   * | free drag complete | 8,536 | 8,566 | **+30** | +11 | 8,674 | 108 |
+   * | both behaviors | 12,415 | 12,461 | **+46** | +12 | 12,557 | 96 |
+   * | vocabulary root | 146 | **261** | **+115** | +252 | 300 | 39 |
+   * | kernel root | 6,159 | 6,200 | **+41** | +13 | 6,309 | 109 |
+   * | baseline A | 10,694 | 10,713 | **+19** | +12 | 10,831 | 118 |
+   * | baseline B | 6,889 | 6,889 | **0** | 0 | 7,040 | 151 |
+   *
+   * **Every composition moves by +11 to +13 B minified, and that is the
+   * headline.** Twelve stages replacing four codes sounds like a table getting
+   * larger and it is not: `STAGE_TO_CODE` held fifteen slots of four repeated
+   * strings and `STAGE_NAMES` holds fifteen slots of twelve distinct ones, at
+   * almost exactly the same source length — and the deleted `toDraggableError`
+   * pays for the constructor's extra ternary. **Brotli disagrees, by +19 to
+   * +56 B**, which is the D-129 effect in reverse: twelve distinct strings
+   * compress worse than four repeated ones even at equal length, so the
+   * compressed column moves 3× the source column. Both are recorded because
+   * neither alone says what happened.
+   *
+   * **Module counts hold exactly on all fourteen rows**, and baseline B — an
+   * external control the package does not build — is byte-identical, which is
+   * the check that says the harness itself did not shift underneath these
+   * numbers.
+   *
+   * **The vocabulary root is the whole cost, and it is `STAGE_NAMES` alone.**
+   * 146 → 261 B, its second consecutive move after eight slices of not moving.
+   * The reason is specific and worth stating precisely: `STAGE_TO_CODE` was
+   * **shaken out of this root entirely** — the class never referenced it, which
+   * is exactly what the `only` row below used to record — while `STAGE_NAMES`
+   * is read by the constructor and therefore cannot be. The table did not grow;
+   * it moved from a position where this root paid nothing for it to one where
+   * it pays for all of it.
+   *
+   * **Publishing the twelve constants at `drag.js` costs this root 0 B and 0
+   * modules**, which is a fourth independent confirmation of
+   * [`failure-vocabulary-cost-claude.md`](../../.plan/reviews/phase-23/failure-vocabulary-cost-claude.md)'s
+   * three. A consumer importing only the two classes shakes the re-export away,
+   * and the `only` assertion below still holds at one shipped module. So the
+   * decision's §6 is free and its §5.3 is not, which is the opposite of how the
+   * record's own §7 apportioned it.
+   *
+   * **No budget re-bases, and that is the deliberate answer rather than an
+   * omission.** Every row absorbs the change with ~100 B still in hand — the
+   * `left` column above — because D-130's re-base set them at landed + ~150 and
+   * this slice spends a third of that. The standing rule is that a budget
+   * re-bases rather than a *correctness fix shrinking*; it says nothing about
+   * re-basing upward to restore headroom a real growth consumed, and doing so
+   * on rows that are not breached would convert every landed byte into
+   * permanent licence for the next one. The tighter ceilings stay. The
+   * vocabulary root's 300 stays for the stronger version of the same reason:
+   * it was never landed + 150, because the row exists to catch this root
+   * pulling the *kernel*, a kilobyte-scale event, and 39 B is still more than
+   * the 29 B it was documented as carrying when the number was chosen.
+   *
+   * **The first slice in this sequence to be measured and then leave the
+   * instrument alone.** D-129 re-based eleven, D-130 thirteen; this one
+   * re-bases none, which is what a genuinely small change is supposed to look
+   * like when the ceilings were set honestly.
    */
   budget: number;
   /**
@@ -959,16 +1033,28 @@ export const COMPOSITIONS: readonly Composition[] = [
      * is that check: a consumer who wants `err instanceof DraggableError` and
      * nothing else pays one module.
      *
-     * **The isolation is real but not structural, which is why it needs a
-     * standing row rather than a reading.** `src/kernel/errors.ts` imports
-     * thirteen runtime `FAILURE_*` constants from `./failures.ts` and uses them
-     * as computed keys in `STAGE_TO_CODE`. This root bundles to one module only
-     * because Rolldown shakes that map and `toDraggableError` away from the
-     * `DraggableError` class in the same file. **One runtime reference from the
-     * class to the stage map, or one side effect in `failures.ts`, and the root
-     * silently grows** — which is precisely the failure the doctrine at the top
-     * of this file names: a module pulled in, mostly shaken, showing up as a
-     * small delta that reads like success.
+     * **The isolation was real but not structural, and D-132 made it
+     * structural on one side while opening a new gap on the other.**
+     * ~~`src/kernel/errors.ts` imports thirteen runtime `FAILURE_*` constants
+     * from `./failures.ts` and uses them as computed keys in `STAGE_TO_CODE`,
+     * so this root bundles to one module only because Rolldown shakes that map
+     * and `toDraggableError` away from the `DraggableError` class in the same
+     * file.~~ That map is deleted. `errors.ts` now names `FailureStage` as a
+     * **type only**, and `STAGE_NAMES` is a plain positional tuple with no
+     * computed keys, so there is no runtime edge from this module to
+     * `failures.js` left to shake — F-77's predicted regression, one runtime
+     * reference from the class to the stage map, is unwriteable rather than
+     * guarded.
+     *
+     * **The gap moved up one level.** `drag.js` itself now imports the twelve
+     * constants from `./kernel/failures.js` in order to re-export them (D-132
+     * §6), so the module is one shaken re-export away from this graph rather
+     * than one shaken table. Measured at 0 B and 0 modules for a consumer
+     * importing only the two classes — but it is a *tree-shaking outcome*
+     * again, which is exactly the condition this row exists for: a module
+     * pulled in, mostly shaken, showing up as a small delta that reads like
+     * success. **The row is more necessary after D-132 than before it**, and
+     * its subject changed without its assertion needing to.
      *
      * **`tests/packaging.node.test.ts` is not this assertion.** It walks the
      * unshaken *source* graph, deliberately independent of any bundler's
@@ -991,12 +1077,22 @@ export const COMPOSITIONS: readonly Composition[] = [
      *
      * A legitimate change to the class re-bases this number, deliberately and
      * visibly, under the standing rule that a budget re-bases rather than a fix
-     * shrinking. That is the intended behaviour and not a cost.
+     * shrinking. That is the intended behaviour and not a cost. **D-132 was
+     * such a change and still did not re-base it**: `STAGE_NAMES` took the root
+     * from 146 to 261 B, and 300 was slack enough to absorb it, so the ceiling
+     * stayed where it was rather than following the artifact upward.
      */
     name: 'vocabulary root - drag.js',
     // **Both classes, since D-130 published a second one.** Naming one would
     // let the other shake out and quietly stop measuring half the entry — the
     // row would keep reporting 121 B for a vocabulary root that had grown.
+    //
+    // **Deliberately *not* the twelve stage constants D-132 added.** Importing
+    // them would fold their cost into this figure and destroy the row's one
+    // claim: that a consumer who wants `err instanceof DraggableError` and
+    // nothing else reaches one module. Their cost is a separate question, and
+    // the answer — 0 B, 0 modules, because the re-export shakes — is only
+    // observable while this row declines to import them.
     imports: { 'drag.js': '{ DraggableError, DraggableWarning }' },
     budget: 300,
     only: ['kernel/errors.js'],

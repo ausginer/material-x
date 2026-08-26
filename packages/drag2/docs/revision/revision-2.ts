@@ -77,12 +77,25 @@
  *
  * ## The two assertions worth reading first
  *
- * `stageToCode` is a `Record<FailureStage, DraggableErrorCode>`. D-64 requires
- * that mapping to be **total in the type** rather than by convention, because
- * §Failure classification already has one mapping — stage to recovery — whose
- * gap D-60 had to be written to close. A `default:` arm would reproduce that
- * defect silently on the channel a consumer actually reads. Here, adding a
- * stage without a code is a compile error.
+ * `report` is **the decision D-132 turned over**. It used to be
+ * `error.code === 'consumer' ? 'mine' : 'theirs'` — the package's own worked
+ * example of what the coarse code was for — and it gave the wrong answer for
+ * the most commonly third-party-authored seam it ships: D-81 enumerates a
+ * consumer's own garbage `bounds` source surfacing as `interaction`,
+ * `presentation`, `presentation` or `interaction` and **never** as `consumer`,
+ * so the fixture answered *theirs* four different ways for a fault that was
+ * entirely the consumer's. It is a switch over the three stages that name a
+ * caller now, plus the `null` arm F-104 made writable, and the rewrite is the
+ * demonstration rather than a consequence of one.
+ *
+ * ~~`stageToCode` is a `Record<FailureStage, DraggableErrorCode>`, total in the
+ * type because D-64 requires it.~~ **Deleted with the mapping** (D-132). The
+ * totality argument was sound and its subject is gone: kernel-owned
+ * construction (D-130) removed the divergence risk structurally, leaving the
+ * mapping with one surviving function — discarding information — and D-132
+ * declined to keep a compile-time guard over that. The stage count it also
+ * pinned lives in `tests/kernel/stages.node.test.ts`, which reflects over the
+ * module's own exports instead of restating a table here.
  *
  * `n17` and `n18` pin **D-66's carrier and its writing seam**. The decision's first draft named
  * `reportFailure`, which is admission-only by contract and cannot carry an
@@ -107,8 +120,11 @@
 // neither owns.
 import {
   DraggableError,
-  type DraggableErrorCode,
   type DraggableWarning,
+  FAILURE_ADMISSION,
+  FAILURE_RESOLUTION,
+  FAILURE_TERMINAL_CALLBACK,
+  type FailureStage,
 } from '../../src/drag.ts';
 // **The kernel tier, from its own entry** — all of it, since D-68. Three
 // imports used to reach *inside* the package from here: `LIFT_FLAT` fills
@@ -123,21 +139,8 @@ import {
   SETTLED_FAILED,
   draggable,
   type CancelStage,
-  FAILURE_ACTION_EFFECT,
-  FAILURE_ACTION_PREPARE,
-  FAILURE_ACTIVATION,
-  FAILURE_ADMISSION,
-  FAILURE_INVALIDATION,
-  FAILURE_LANDING_CREATE,
-  FAILURE_LANDING_INTERRUPTED,
-  FAILURE_RELEASE,
-  FAILURE_RENDERER_WRITE,
-  FAILURE_RESOLUTION,
-  FAILURE_SCHEDULED_FRAME,
-  FAILURE_TERMINAL_CALLBACK,
   type AdmissionSubject,
   type BehaviorSpec,
-  type FailureStage,
   type KernelHost,
   type SettlementInput,
 } from '../../src/kernel.ts';
@@ -181,39 +184,26 @@ import {
 // ---------------------------------------------------------------------------
 
 /**
- * **Thirteen stages, not fourteen** — `FAILURE_PRESENTATION_READY` went with
- * the readiness protocol (D-41), and its number was deliberately not reused.
- * The union was restated here on the reasoning that *importing it would have
- * hidden the deletion*; the opposite turned out to be true. A restated union of
- * **string literals** could not see that the shipped one is numeric, so it
- * hid a far larger difference than the one it was guarding. Imported now, and
- * the count is asserted below rather than asserted about.
- */
-
-/**
- * **D-64's totality requirement, as a type.** Every stage names a code; adding
- * a stage without one does not compile. This is the assertion that stops the
- * `default:` arm — see the file header.
+ * **Twelve stages, and the fixture names them from `drag.js`** (D-132 §6).
  *
- * The split is **fault attribution**, which is the axis review 3 §12 chose and
- * the axis the stage names do not have: `admission`, `reorder-resolution` and
- * `terminal-callback` are consumer code failing, `scheduled-frame` and
- * `renderer-write` are not.
+ * ~~Thirteen stages, not fourteen~~ — `FAILURE_PRESENTATION_READY` went with
+ * the readiness protocol (D-41) and `FAILURE_LANDING_TARGET` with the
+ * `QUALITY` tier (D-130); neither number was reused. The union was once
+ * restated here on the reasoning that *importing it would have hidden the
+ * deletion*; the opposite turned out to be true, because a restated union of
+ * **string literals** could not see that the shipped one is numeric.
+ *
+ * **The import moved entries rather than disappearing.** These constants came
+ * from `kernel.js` while only a kernel-tier author could name them. D-132 puts
+ * the stage on the error an ordinary consumer receives, so the consumer half
+ * of this fixture takes them from the shared root — and that it compiles
+ * *without* `kernel.js` is the assertion, since D-64's surviving half is
+ * precisely that an ordinary consumer never reaches that entry.
+ *
+ * The count is no longer asserted here. `tests/kernel/stages.node.test.ts`
+ * reflects over the module's own `FAILURE_*` exports, which a new stage joins
+ * whether or not anyone remembers a table.
  */
-const stageToCode: Readonly<Record<FailureStage, DraggableErrorCode>> = {
-  [FAILURE_ADMISSION]: 'consumer',
-  [FAILURE_ACTIVATION]: 'interaction',
-  [FAILURE_RENDERER_WRITE]: 'presentation',
-  [FAILURE_ACTION_PREPARE]: 'presentation',
-  [FAILURE_ACTION_EFFECT]: 'presentation',
-  [FAILURE_INVALIDATION]: 'platform',
-  [FAILURE_SCHEDULED_FRAME]: 'platform',
-  [FAILURE_RESOLUTION]: 'consumer',
-  [FAILURE_RELEASE]: 'interaction',
-  [FAILURE_LANDING_CREATE]: 'presentation',
-  [FAILURE_LANDING_INTERRUPTED]: 'presentation',
-  [FAILURE_TERMINAL_CALLBACK]: 'consumer',
-};
 
 /**
  * `KernelHost`, `AdmissionSubject`, `BehaviorFactory`, `SettlementInput`,
@@ -359,7 +349,41 @@ function report(error: DraggableError | DraggableWarning): string {
     return `advisory:${error.message}`;
   }
 
-  return error.code === 'consumer' ? 'mine' : 'theirs';
+  // **The controller is destroyed, and nothing else means that** (§5.2).
+  // Unwriteable before D-132: `panic` reported the `platform` code, which is
+  // also what a failed `requestAnimationFrame` reports, so this branch and an
+  // ordinary invalidation failure were the same value (F-104).
+  if (error.stage === null) {
+    return 'destroyed';
+  }
+
+  // **The three stages that name a caller**, and the caller is this code
+  // (D-132 §4.3). A resolver that threw, a round-trip that threw, a terminal
+  // callback that threw: application state may be half-applied and there is
+  // resynchronisation work here that no other failure implies. This is the one
+  // decision the surface genuinely supports, and it is why the discriminator
+  // was kept rather than deleted outright.
+  if (
+    error.stage === FAILURE_ADMISSION ||
+    error.stage === FAILURE_RESOLUTION ||
+    error.stage === FAILURE_TERMINAL_CALLBACK
+  ) {
+    return 'mine';
+  }
+
+  // Every remaining stage names a **seam position**, not a culprit. D-81
+  // settled that those are different questions, so this arm deliberately says
+  // *where*, not *whose* — the same garbage `bounds` source lands here under
+  // four different stages, and reading any of them as an attribution is the
+  // mistake the deleted mapping institutionalised.
+  //
+  // **Three tests and not a `switch`, deliberately.** A `switch` with a
+  // `default` fails `switch-exhaustiveness-check`, which wants all twelve arms
+  // written out — and twelve arms mapping stages to strings is exactly the
+  // table D-132 deleted, re-created in consumer code. The rule is right about
+  // unions a consumer must handle exhaustively and this is not one: a stage is
+  // a position, and a consumer branches on the few that mean something to it.
+  return `at:${String(error.stage)}`;
 }
 
 /**
@@ -538,10 +562,11 @@ const kernelSide: SortableController = draggable<
         : null,
     // **D-130 — forward, and nothing else.** ~~`reportFailure(stage, error)`,
     // which mapped the stage to a code here.~~ The kernel builds the finished
-    // error and picks its class, so a behavior cannot make `code` mean two
-    // things in two behaviors — and `stageToCode` below survives only as the
-    // *statement* of the mapping D-64 requires to be total, not as a thing a
-    // behavior computes.
+    // error and picks its class, so a behavior cannot make a classification
+    // mean two things in two behaviors. ~~And `stageToCode` below survives as
+    // the *statement* of the mapping D-64 requires to be total.~~ **There is
+    // no mapping and no second vocabulary** (D-132): the error carries the
+    // stage the kernel classified with, so forwarding is the whole of it.
     reportError: (error) => {
       globalThis.console.warn(report(error));
     },
@@ -679,20 +704,23 @@ landing({ run: runner });
 const legacyThunk: LandingOptions['duration'] = () => 200;
 void legacyThunk;
 
-// n7 — D-130: a warning carries no code, so a handler must discriminate the
-// class before reading one. `SortableErrorContext` is deleted (D-130 §6), and
-// its own `n7` — *the consumer never receives a pipeline stage* — is now
-// unwriteable rather than merely asserted, since there is no context to read a
-// stage off.
+// n7 — D-130: a warning carries no discriminator, so a handler must
+// discriminate the class before reading one. Retargeted at `stage` by D-132,
+// which deleted the `code` this guarded and gave the *fatal* class a stage —
+// making this the assertion that the warning did not follow it there.
 declare const advisory: DraggableWarning;
-// @ts-expect-error a warning carries no `code` (D-130)
-void advisory.code;
+// @ts-expect-error a warning carries no `stage` (D-130, D-132)
+void advisory.stage;
 
-// n8 — D-64: the code is a fault class, not a stage.
+// n8 — **D-132, inverted.** This was `@ts-expect-error a FailureStage is not a
+// DraggableErrorCode (D-64)`, guarding a boundary between two published fault
+// vocabularies. There is one now, so the negative assertion has nothing left
+// to refuse and becomes a positive one: the stage a kernel-tier behavior
+// classifies with is the stage an ordinary consumer reads, named from
+// `drag.js` and never from `kernel.js`.
 declare const err: DraggableError;
-// @ts-expect-error a FailureStage is not a DraggableErrorCode (D-64)
-const wrongCode: DraggableErrorCode = err.code satisfies FailureStage;
-void wrongCode;
+const stage: FailureStage | null = err.stage;
+void stage;
 
 // n9 / n10 — D-41 and D-44: the controller lost two members and gained one.
 // @ts-expect-error `ready` is deleted with the readiness protocol (D-41)
@@ -779,5 +807,5 @@ declare const host: KernelHost;
 // @ts-expect-error `closed` is readonly (D-53)
 host.closed = true;
 
-export type { DraggableError, DraggableErrorCode, SortableConfig };
-export { AT_CONSUMER, stageToCode };
+export type { DraggableError, FailureStage, SortableConfig };
+export { AT_CONSUMER, report };

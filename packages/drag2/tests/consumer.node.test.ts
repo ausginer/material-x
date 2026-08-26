@@ -85,7 +85,9 @@ const CONSUMER = `import {
   DraggableError,
   DraggableWarning,
   type DOMRealm,
-  type DraggableErrorCode,
+  FAILURE_ADMISSION,
+  FAILURE_RESOLUTION,
+  type FailureStage,
   type Point,
 } from '@ydinjs/drag2/drag.js';
 import {
@@ -93,8 +95,12 @@ import {
   FAILURE_ACTIVATION,
   FAILURE_TERMINAL_CALLBACK,
   type BehaviorFactory,
-  type FailureStage,
 } from '@ydinjs/drag2/kernel.js';
+// **One declaration, two publication points** (D-132 §6). \`FailureStage\` is
+// on \`kernel.js\` as well, and naming it from both here is a *duplicate
+// identifier* rather than a conflict — which is the assertion: this file
+// authors a behavior and consumes its errors at once, and there is exactly one
+// type to name from whichever root it reaches for.
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -228,19 +234,20 @@ const list: SortableController = sortable(
     onError: ((error: DraggableError | DraggableWarning): void => {
       // **D-64 and D-130.** One argument, two classes. The ordinary consumer
       // branches on the *class* first — a warning says the operation was not
-      // affected and its terminal is still coming — and only then on a coarse
-      // fault class. A pipeline stage is never visible, and neither is a
-      // context: \`domain\` was strictly redundant with the \`onEnd\` D-66 makes
-      // unconditional.
+      // affected and its terminal is still coming — and only then on the
+      // **stage** (D-132). ~~And only then on a coarse fault class.~~ The
+      // pipeline stage *is* what is visible now, from \`drag.js\` and never
+      // from \`kernel.js\`; a context still is not, since \`domain\` was
+      // strictly redundant with the \`onEnd\` D-66 makes unconditional.
       if (!(error instanceof DraggableError)) {
         void error.message;
         void error.cause;
         return;
       }
 
-      const code: DraggableErrorCode = error.code;
+      const stage: FailureStage | null = error.stage;
 
-      void (code === 'consumer');
+      void (stage === FAILURE_ADMISSION || stage === FAILURE_RESOLUTION);
     }) satisfies SortableOnDragError,
     // **D-65**: the callback itself, not \`create\` plus a class name. Nameable,
     // so a consumer can hoist the factory out of the object literal.
@@ -623,7 +630,8 @@ const settlement: SettlementTransition<Part> = {
         // receive, beside the \`FailureStage\` this behavior maps to a recovery.
         const error: DraggableError = input.report;
 
-        draft.verdict = stage === AT_CONSUMER ? error.code : 'aborted';
+        draft.verdict =
+          stage === AT_CONSUMER ? String(error.stage) : 'aborted';
         return true;
       }
     }
@@ -684,9 +692,10 @@ const install = (host: KernelHost): BehaviorInstall<Controller, Part, HTMLElemen
     },
     reportError: (error) => {
       // **D-130 — forward, and nothing else.** The kernel builds the error and
-      // picks its class; \`toDraggableError\` is no longer on \`kernel.js\` at
+      // picks its class. ~~\`toDraggableError\` is no longer on \`kernel.js\` at
       // all, which is what makes the stage → code mapping impossible for a
-      // behavior to re-own.
+      // behavior to re-own.~~ **D-132 deleted the mapping outright**, so there
+      // is no second vocabulary for a behavior to re-own in the first place.
       void error.message;
     },
     retire: () => {
@@ -729,7 +738,8 @@ void behaviorController;
 const FREE_DRAG = `import {
   DraggableError,
   DraggableWarning,
-  type DraggableErrorCode,
+  FAILURE_RENDERER_WRITE,
+  type FailureStage,
   type Point,
 } from '@ydinjs/drag2/drag.js';
 import {
@@ -866,9 +876,9 @@ const controller: FreeDragController = freeDrag(
         return;
       }
 
-      const code: DraggableErrorCode = error.code;
+      const stage: FailureStage | null = error.stage;
 
-      void (code === 'presentation');
+      void (stage === FAILURE_RENDERER_WRITE);
     }) satisfies FreeDragOnDragError,
   },
   // **A capability installer, not a config key** (D-70), and the no-argument
@@ -1200,7 +1210,26 @@ describe('the packed package', () => {
     // point of freezing a surface. Types are erased at runtime and are checked
     // by the consumer compile instead.
     const expected: Readonly<Record<string, readonly string[]>> = {
-      './drag.js': ['DraggableError', 'DraggableWarning'],
+      // **The stage vocabulary is published here too** (D-132 §6), as runtime
+      // values rather than types alone — a numeric union whose members are
+      // unnameable is not a public type, and \`DraggableError.stage\` hands an
+      // ordinary consumer one of these twelve.
+      './drag.js': [
+        'DraggableError',
+        'DraggableWarning',
+        'FAILURE_ACTION_EFFECT',
+        'FAILURE_ACTION_PREPARE',
+        'FAILURE_ACTIVATION',
+        'FAILURE_ADMISSION',
+        'FAILURE_INVALIDATION',
+        'FAILURE_LANDING_CREATE',
+        'FAILURE_LANDING_INTERRUPTED',
+        'FAILURE_RELEASE',
+        'FAILURE_RENDERER_WRITE',
+        'FAILURE_RESOLUTION',
+        'FAILURE_SCHEDULED_FRAME',
+        'FAILURE_TERMINAL_CALLBACK',
+      ],
       // **33 values, asserted by value** (D-68). A type-only assertion cannot
       // see the hole F-59 names: every missing name was a *constant*, and
       // erased types cannot fill a value position.

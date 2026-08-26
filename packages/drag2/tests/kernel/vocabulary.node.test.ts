@@ -87,8 +87,10 @@ const PUBLISHED_TYPES: readonly string[] = [
   'SettlementTransition',
   'Transition',
   'VisualLiftSession',
-  // drag.js — shared vocabulary, belonging to neither tier (D-64)
-  'DraggableErrorCode',
+  // drag.js — shared vocabulary, belonging to neither tier (D-64, D-132).
+  // ~~`DraggableErrorCode`~~ deleted with the coarse code; `FailureStage` is
+  // published from both roots and is already listed with the kernel's types
+  // above, so it needs no second entry here.
   'DOMRealm',
   'Point',
 ];
@@ -139,7 +141,8 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
   'kernel-private frame state': ['NO_STAMP'],
   // `DraggableError` is a runtime value on `drag.js`; the sortable imports the
   // class from its declaration site, which is the same declaration.
-  'the shared error class': ['DraggableError', 'toDraggableError'],
+  // ~~`toDraggableError`~~ deleted at D-132 with the mapping it applied.
+  'the shared error class': ['DraggableError'],
 };
 
 const INTERNAL_NAMES = new Set(Object.values(INTERNAL).flat());

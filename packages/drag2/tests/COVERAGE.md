@@ -250,7 +250,7 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 
 | Row | Test | ID |
 | --- | --- | --- |
-| the three renamed stages keep their **numeric** values 4, 5 and 8 | `tests/kernel/errors.node.test.ts` — _should keep the three renamed stages on their original numbers_ | D-74 |
+| the three renamed stages keep their **numeric** values 4, 5 and 8 | `tests/kernel/stages.node.test.ts` — _should keep the three renamed stages on their original numbers_ | D-74, D-132 |
 | the renamed constants are what `kernel.js` publishes, by value, and the old names are gone | `tests/exports.node.test.ts` — _should export exactly the frozen runtime surface_ | D-68, D-74 |
 | every decision the ledger marks unimplemented is listed, and every listed decision is marked | `tests/decisions.node.test.ts` — _should list every decision its own row marks as unimplemented_, _should mark every decision it lists_ | F-63, K-5 |
 | a listed decision that has quietly landed fails its own row | `tests/decisions.node.test.ts` — _should hold every witness it claims_ | F-63, K-5 |
@@ -509,15 +509,15 @@ Named in handoff §3 and absent from the suite until application review 1 found 
 | --- | --- | --- |
 | an abandoned resolver's late rejection never reaches the page | `tests/kernel/kernel.browser.test.ts` — _should not surface an abandoned resolver's late rejection to the page_, with a real `unhandledrejection` listener and a **newer** operation owning the controller | D-40, probe A |
 | a panic closes, then reports, then tears down | `tests/kernel/kernel.browser.test.ts` — _should close, report and only then tear down on a panic_ | D-36, probe A |
-| every published stage maps to a fault class | `tests/kernel/errors.node.test.ts` — _should assign a code to every published stage_ | D-64 |
-| the fault-class set is closed at four | `tests/kernel/errors.node.test.ts` — _should assign no code outside the four fault classes_ | D-64 |
+| the error carries the **stage** it was classified with, and no coarse code | `tests/kernel/errors.node.test.ts` — _should carry the stage it was classified with_ | D-132 |
+| the stage list is closed at twelve, and 12 and 13 stay unoccupied | `tests/kernel/stages.node.test.ts` — _should publish exactly twelve stages_, _should leave 12 and 13 unoccupied_, _should hold every stage inside the published numeric range_ | D-41, D-130, D-132 |
 | `landing({ run })` does not compile at the ordinary tier | `tests/consumer.node.test.ts` — the `@ts-expect-error` on `landing({ run })`, against the **packed** declarations | D-63 |
 
 **The rejection row asserts the consequence, not the guard.** Every other row about an abandoned resolver asserts the slot comparison `resolution !== attempt`, which is how the library _ignores_ a stale settlement. What a consumer sees if that ignoring is ever done by declining to subscribe is an `unhandledrejection` in their console. Falsified by dropping the rejection handler from the kernel's `then.call`: two rows fail, this one among them.
 
 **The panic row is the only one that reaches the kernel's `panic()`** rather than the seam driver's in isolation, and it is worth having because the ordering is **non-local** — `void destroy(); report(error)` produces _report before teardown_ only because the drain sits inside a transaction that defers the physical steps. Falsified twice: reversing the two statements breaks the `closed:true` reading taken from inside the report, and removing the drain's transaction bracket breaks this row plus the two bracket rows.
 
-**The stage → code rows are a belt, and say so.** The `Record<FailureStage, DraggableErrorCode>` in `errors.ts` already makes the mapping total in the type. What the enumeration adds is a **code per stage, written out** — the `Record` proves each stage has _a_ code and D-64's content is which one. Totality is a separate row (_should enumerate every stage the module publishes_) that derives the stage list by reflecting over `failures.ts`'s own `FAILURE_*` exports, so a stage that ships without reaching the mapping fails a test. That row is new: this paragraph and the suite's header both claimed the derivation before it existed, and thirteen hand-written tuples behind a `toHaveLength(13)` pinned only the local table (review 2, B-4). The count is **thirteen** — `FAILURE_PRESENTATION_READY = 13` went with D-41 and its number was not reused — and D-64's row said fourteen until an earlier pass corrected it.
+~~**The stage → code rows are a belt, and say so.**~~ **D-132 deleted their subject**, and what replaced them is not a belt at all. There is no `Record<FailureStage, DraggableErrorCode>` to be total, no code per stage to write out and no four-class set to close, because `DraggableError` carries the stage itself: the assertion is the identity rather than a derivation over it. What survives is the half that was never about the mapping — the stage list, still derived by reflecting over `failures.ts`'s own `FAILURE_*` exports so a stage cannot ship unnoticed, now in `tests/kernel/stages.node.test.ts`. **The reflection is load-bearing twice over now.** It was written because this paragraph and the suite's header both claimed the derivation before it existed, and thirteen hand-written tuples behind a `toHaveLength(13)` pinned only the local table (review 2, B-4); it is also the surviving witness for the 12/13 holes, which used to be witnessed by `STAGE_TO_CODE`'s padding. The count is **twelve** — `FAILURE_PRESENTATION_READY = 13` went with D-41 and `FAILURE_LANDING_TARGET = 12` with D-130, and neither number was reused.
 
 ---
 
@@ -652,9 +652,9 @@ The precedent for _removing_ an unfalsifiable conjunct rather than recording it 
 
 ## Free drag — validation (Phase 20, B-4)
 
-**Two tables, asserted differently, and the split is the criterion.** A value in the _classified_ table (07 §Validation) surfaces at a named seam with that row's coarse code; a value in the _silent_ table produces **no `onError`, no terminal and no classification at all**. Asserting the second the way one asserts the first is how a deleted check gets quietly re-added.
+**Two tables, asserted differently, and the split is the criterion.** A value in the _classified_ table (07 §Validation) surfaces at a named seam with that row's stage; a value in the _silent_ table produces **no `onError`, no terminal and no classification at all**. Asserting the second the way one asserts the first is how a deleted check gets quietly re-added.
 
-Every code is read from `STAGE_TO_CODE` through `toDraggableError(stage, null).code`, never retyped, so a remap fails these rows instead of passing them.
+~~Every code is read from `STAGE_TO_CODE` through `toDraggableError(stage, null).code`, never retyped, so a remap fails these rows instead of passing them.~~ **The indirection existed only to survive a remap of a mapping D-132 deleted.** Every row now compares against the `FAILURE_*` constant directly, which is the same guarantee with nothing in between — and the `bounds` row reads honestly for the first time: its four fixtures used to collapse to two codes and now show four distinct stages, which is what D-81 says actually happens.
 
 | Row | Test | ID |
 | --- | --- | --- |
@@ -684,8 +684,8 @@ The reporting destination stopped encoding severity, so **which class arrives** 
 | Row | Test | ID |
 | --- | --- | --- |
 | a warning is **not** a `DraggableError`, in both directions, and neither derives from the other | `tests/kernel/errors.node.test.ts` — _should not be a DraggableError_ | D-130 §2.2 |
-| a warning carries a message and `cause` and **no code** | _should carry no code_, _should carry the caught error as the native cause_, _should leave cause undefined when the warning is library-authored_ | D-130 §2.3 |
-| a deleted stage's number stays occupied, so the positional map cannot slide | _should leave 12 and 13 unoccupied_ | D-41, D-130 |
+| a warning carries a message and `cause` and **no discriminator** — neither the deleted `code` nor the `stage` that replaced it | _should carry no discriminator_, _should carry the caught error as the native cause_, _should leave cause undefined when the warning is library-authored_ | D-130 §2.3, D-132 §5.4 |
+| a deleted stage's number stays occupied, so the positional map cannot slide | `tests/kernel/stages.node.test.ts` — _should leave 12 and 13 unoccupied_; `tests/kernel/errors.node.test.ts` — _should keep the stage names on their own numbers_ | D-41, D-130, D-132 |
 | a failing disposer and a post-closure registration are **warnings** | `tests/kernel/lifetimes.node.test.ts` — _should report a failing disposer as a warning_, _should report a registration made after dispose as a warning_ | D-130 §3 |
 | the driver's non-classifying routes are one collector: a throwing `rollback`, a `host.fail` inside one, a `host.fail` outside a seam, a phase that failed then threw, an unconsumed staged value | `tests/kernel/seams.node.test.ts` — _should report host.fail outside a seam as a warning rather than classifying it_, _should classify only once when a phase latches a failure and then throws_, _should report a throwing rollback without classifying it_, _should report host.fail inside rollback exactly like a throw inside it_ | D-130 §5 |
 | **admission is consequential** and arrives as a `DraggableError` built by the kernel | `tests/kernel/kernel.browser.test.ts` — _should report a throwing command.admit with no operation_, _should report a throwing admit and stay usable_ | D-130 §5 |
@@ -698,6 +698,23 @@ The reporting destination stopped encoding severity, so **which class arrives** 
 | a second checkpoint arriving during a report **surfaces** instead of vanishing | _should surface a second checkpoint rather than dropping it silently_ | F-103 |
 | a demoted checkpoint keeps its fault and loses its classification | `tests/sortable/composition.browser.test.ts` — _should apply work a callback queued before it threw_ | D-130 §3.4, I-22 |
 | a teardown reset that throws still runs the second scrub — and reports nothing, because the latch is set | `tests/kernel/kernel.browser.test.ts` — _should run both scrubs when a reset throws during destroy_ | D-29, D-37 |
+
+## The consumer fault vocabulary — new (D-132, F-104)
+
+**The stage is the classification, and the rows that used to translate it are gone.** Nineteen assertion sites wrote `toDraggableError(FAILURE_X, null).code` — naming a stage and projecting it — and every one now compares against `FAILURE_X` itself. That collapse is evidence rather than cleanup: the indirection existed only to survive a remap of a mapping that no longer exists.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| the error carries a `FailureStage` and has no `code` | `tests/kernel/errors.node.test.ts` — _should carry the stage it was classified with_ | D-132 §5.1 |
+| **`panic` carries `stage: null`**, which distinguishes a destroyed controller from every classified failure | `tests/kernel/kernel.browser.test.ts` — _should close, report and only then tear down on a panic_ | D-132 §5.2, F-104 |
+| the constructed message names the stage in words, and the caught error's message still wins | `tests/kernel/errors.node.test.ts` — _should name the stage in words when it builds its own message_, _should prefer the classifying error message over its own_ | D-132 §5.3 |
+| `drag.js` publishes `FailureStage` and the twelve `FAILURE_*` constants as **runtime** exports, and `kernel.js` keeps its own | `tests/exports.node.test.ts` — _should export exactly the frozen runtime surface_; `tests/consumer.node.test.ts` — _should expose exactly the intended runtime surface, per subpath_ | D-132 §6 |
+| an ordinary consumer names the stage from `drag.js` and compiles without `kernel.js` | `tests/consumer.node.test.ts` — _should compile a consumer against the packed declarations_ | D-132 §6, D-64 (tier half) |
+| a garbage `bounds` source surfaces at **four distinct stages** rather than two repeated codes | `tests/free-drag/validation.browser.test.ts` — the four `bounds` rows | D-81, D-132 §2 |
+
+**The `panic` row is where F-104 is actually observable.** Before D-132 that site reported `'platform'` — the taxonomy's own _other_ bucket, glossed as _the platform refused something_ — which is also what a failed `requestAnimationFrame` reports, so the two were the same value to a consumer. `stage: null` is the only value that means _the controller is destroyed_, and no assertion could distinguish them until it existed.
+
+**The compiled fixture is a coverage row in its own right.** `docs/revision/revision-2.ts`'s `report()` used to be `error.code === 'consumer' ? 'mine' : 'theirs'` and answered _theirs_ four ways for a fault entirely the consumer's; it is now three tests over the stages that name a caller, plus the `null` arm. `n8` inverted with it, from `@ts-expect-error a FailureStage is not a DraggableErrorCode` into a positive assignment — the negative had nothing left to refuse once there was one vocabulary instead of two.
 
 **One row is deliberately absent.** There is no assertion that a given fault reaches the _platform_ rather than the consumer — that is the claim this decision reverses, and every test that made it was deleted rather than inverted.
 

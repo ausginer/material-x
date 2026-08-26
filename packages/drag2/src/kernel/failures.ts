@@ -4,11 +4,17 @@
  * `FailureStage` is a **closed union**, not a bare `number`, so a participant
  * cannot forge an invalid or kernel-private stage (contract 02 §Failure
  * classification, F-23). It is **public**: a consumer receiving `onError` has
- * to be able to discriminate it (D-30). ~~It is **public**: a consumer
- * receiving `onError` has to be able to discriminate it (D-30).~~ **False since
- * D-64** — an ordinary consumer receives a coarse `code` and no stage — and the
- * premise expired rather than the sentence being wrong when written (F-80 (d),
- * F-81). It is public because a **kernel-tier behavior** classifies with it.
+ * to be able to discriminate it (D-30) — and a **kernel-tier behavior**
+ * classifies with it.
+ *
+ * **That first clause was struck and is restored** (F-80 (d), D-132). It went
+ * false at D-64, which gave the ordinary consumer a coarse `code` and no stage,
+ * and F-81 filed it as a load-bearing argument whose *premise* expired rather
+ * than a sentence that was wrong when written — a class it recorded as
+ * admitting no mechanical check. D-132 deletes the code and puts the stage on
+ * `DraggableError`, so the premise is simply true again: this is F-81's first
+ * disposition that is neither a repair nor a deletion, and both publication
+ * points now depend on the sentence.
  *
  * The stage → recovery mapping is deliberately **not** here. `recovery` and
  * `domain` are fields of the behavior's frame part, which the kernel cannot
@@ -28,8 +34,9 @@
  * **The numbers are the wire and they do not move.** A stage constant is
  * inlined into a consumer's compiled code, so a rename that repoints a value is
  * the one change this list must never make — the same rule the `= 13` hole
- * below states for deletion. `tests/kernel/errors.node.test.ts` asserts 4, 5
- * and 8 as literals for exactly this reason.
+ * below states for deletion. `tests/kernel/stages.node.test.ts` asserts 4, 5
+ * and 8 as literals for exactly this reason, and D-132 promoted that row from
+ * belt to load-bearing by making these three numbers consumer wire values.
  */
 
 export const FAILURE_ADMISSION = 1;
@@ -61,10 +68,14 @@ export const FAILURE_LANDING_INTERRUPTED = 11;
  * (D-41)**.
  *
  * **Twelve stages, and neither number is ever reused.** A stage constant is a
- * wire value in a consumer's compiled code, so silently repointing 12 or 13 at
- * a different meaning is the one change this list must never make. The
- * positional `STAGE_TO_CODE` tuple in `errors.ts` keeps a padded slot for each,
- * which is what makes the hole a fact about the array rather than a comment.
+ * wire value in a consumer's compiled code — **in fact rather than in intent
+ * since D-132**, which put the stage on the error an ordinary consumer
+ * receives — so silently repointing 12 or 13 at a different meaning is the one
+ * change this list must never make. The positional `STAGE_NAMES` tuple in
+ * `errors.ts` keeps a padded slot for each, which is what makes the hole a fact
+ * about an array rather than a comment; ~~`STAGE_TO_CODE`~~ held that role
+ * until D-132 deleted it, and the padding discipline moved to its replacement
+ * unchanged.
  */
 export const FAILURE_TERMINAL_CALLBACK = 14;
 

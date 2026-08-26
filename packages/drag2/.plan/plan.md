@@ -1692,6 +1692,8 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **Booked to Remediation with a source witness**, since it deletes three declarations, moves a published vocabulary to a second entry, and rewrites about twenty-five assertions.
 
+> **Landed 2026-08-26, and one figure in this section needs a rider.** _The twelve constants cost a bundling consumer 0 B_ held on a fourth independent measurement — the `drag.js` size row shakes the re-export away and stays at one module. What the section did not price is §5.3's **required** property, that the constructed message names the stage in words: `STAGE_NAMES` is read by the constructor and therefore cannot be shaken, where `STAGE_TO_CODE` never was, so the vocabulary root goes **146 → 261 B brotli**. Every composition moves +11 to +13 B minified and no budget is breached, so _size decides nothing_ survives — but it survives on the compositions, not on the root, and the root's cost belongs to the message rather than to the publication.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.

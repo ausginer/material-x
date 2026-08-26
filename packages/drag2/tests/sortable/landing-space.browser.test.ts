@@ -12,7 +12,11 @@
  * grab rect agree at the origin and nowhere else.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { DraggableError, type Point } from '../../src/drag.ts';
+import {
+  DraggableError,
+  type FailureStage,
+  type Point,
+} from '../../src/drag.ts';
 import type {
   LandingContext,
   LandingHandle,
@@ -42,7 +46,7 @@ type Fixture = Readonly<{
   origin: DOMRect;
   contexts: LandingContext[];
   retargets: Point[];
-  errors: Array<Readonly<{ code: string }>>;
+  errors: Array<Readonly<{ stage: FailureStage | null }>>;
   controller: SortableController;
   /** The request the last `onReorder` was handed, for `controller.ready`. */
   request(): ReorderRequest;
@@ -86,7 +90,7 @@ function build(): Fixture {
   const contexts: LandingContext[] = [];
   let pending: ReorderRequest | null = null;
   const retargets: Point[] = [];
-  const errors: Array<Readonly<{ code: string }>> = [];
+  const errors: Array<Readonly<{ stage: FailureStage | null }>> = [];
 
   const controller = sortable(
     root,
@@ -101,7 +105,7 @@ function build(): Fixture {
         // **Consequential only** (D-130): this suite counts failures, and a
         // warning is by construction not one.
         if (error instanceof DraggableError) {
-          errors.push({ code: error.code });
+          errors.push({ stage: error.stage });
         }
       },
     },

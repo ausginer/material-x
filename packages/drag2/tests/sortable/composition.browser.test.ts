@@ -17,7 +17,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DraggableError, DraggableWarning } from '../../src/drag.ts';
-import { AT_PROPOSAL } from '../../src/kernel/failures.ts';
+import { AT_PROPOSAL, FAILURE_RESOLUTION } from '../../src/kernel/failures.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
 import { assemble } from '../../src/sortable/assemble.ts';
 import {
@@ -414,10 +414,16 @@ describe('the composed reorder round trip', () => {
     await drag(55);
     release(55);
 
-    // D-64: the consumer receives a coarse `DraggableError`, and the
-    // classifying error survives as `cause` rather than being flattened.
+    // **The row got sharper at D-132.** It asserted the coarse `'consumer'`
+    // code, which admission and resolution share — so it passed for a
+    // resolution failure while naming neither, and would have gone on passing
+    // if the throw had been classified at the wrong one of the two. The stage
+    // says which seam, and the classifying error survives as `cause` rather
+    // than being flattened.
     expect(composed.errors).toHaveLength(1);
-    expect((composed.errors[0] as DraggableError).code).toBe('consumer');
+    expect((composed.errors[0] as DraggableError).stage).toBe(
+      FAILURE_RESOLUTION,
+    );
     expect((composed.errors[0] as DraggableError).cause).toBe(failure);
   });
 

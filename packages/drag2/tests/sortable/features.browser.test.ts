@@ -13,7 +13,6 @@ import {
   type DraggableWarning,
   type Point,
 } from '../../src/drag.ts';
-import { toDraggableError } from '../../src/kernel/errors.ts';
 import { FAILURE_LANDING_CREATE } from '../../src/kernel/failures.ts';
 import type { OnReorder } from '../../src/sortable/domain.ts';
 import type {
@@ -49,7 +48,6 @@ type Composed = Readonly<{
  * Read from the kernel's own stage → code mapping rather than retyped, so a
  * remapped stage fails here instead of silently agreeing with a stale literal.
  */
-const LANDING_CREATE_CODE = toDraggableError(FAILURE_LANDING_CREATE, null).code;
 
 const cleanup: Array<() => void> = [];
 
@@ -769,8 +767,8 @@ describe('the contextual landing duration (D-67)', () => {
     // A landing that could not be *created* replaces the settlement, so it is
     // consequential — unlike the target measurement beside it (D-130).
     expect(composed.errors[0]).toBeInstanceOf(DraggableError);
-    expect((composed.errors[0] as DraggableError).code).toBe(
-      LANDING_CREATE_CODE,
+    expect((composed.errors[0] as DraggableError).stage).toBe(
+      FAILURE_LANDING_CREATE,
     );
   });
 

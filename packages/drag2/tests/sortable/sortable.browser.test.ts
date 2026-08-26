@@ -1,15 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   DraggableError,
-  type DraggableErrorCode,
   DraggableWarning,
+  type FailureStage,
 } from '../../src/drag.ts';
-import { toDraggableError } from '../../src/kernel/errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  FAILURE_ACTION_EFFECT,
+  FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
+  FAILURE_INVALIDATION,
   FAILURE_RELEASE,
+  FAILURE_RENDERER_WRITE,
+  FAILURE_RESOLUTION,
+  FAILURE_SCHEDULED_FRAME,
 } from '../../src/kernel/failures.ts';
 import {
   ACTIVATING,
@@ -61,7 +66,7 @@ type Harness = Readonly<{
   calls: string[];
   finishes: ReorderTransactionResult[];
   cancels: ReorderTransactionResult[];
-  errors: Array<Readonly<{ code: DraggableErrorCode; error: unknown }>>;
+  errors: Array<Readonly<{ stage: FailureStage | null; error: unknown }>>;
   requests: ReorderRequest[];
   /** The item each `onStart` received. */
   started: HTMLElement[];
@@ -117,7 +122,7 @@ const cleanup: Array<() => void> = [];
  * **Everything the library surfaced, in arrival order** (D-130). ~~A
  * `globalThis.reportError` stub.~~ One channel, so this is fed by the harness's
  * own `onError` — the same callback `errors` reads, kept separate only because
- * `errors` projects to a `code` and half this population has none.
+ * `errors` projects to a `stage` and half this population has none.
  */
 let reported: Array<DraggableError | DraggableWarning> = [];
 
@@ -159,8 +164,9 @@ function createHarness(overrides: Overrides = {}): Harness {
   // published — they are simply no longer the names of two library callbacks.
   const finishes: ReorderTransactionResult[] = [];
   const cancels: ReorderTransactionResult[] = [];
-  const errors: Array<Readonly<{ code: DraggableErrorCode; error: unknown }>> =
-    [];
+  const errors: Array<
+    Readonly<{ stage: FailureStage | null; error: unknown }>
+  > = [];
   const requests: ReorderRequest[] = [];
   const started: HTMLElement[] = [];
 
@@ -242,7 +248,7 @@ function createHarness(overrides: Overrides = {}): Harness {
 
       calls.push('onError');
       // D-64: the consumer sees a coarse fault class, never a pipeline stage.
-      errors.push({ code: error.code, error });
+      errors.push({ stage: error.stage, error });
     },
     beforeMove: overrides.beforeMove ?? [],
     afterMove: overrides.afterMove ?? [],
@@ -802,9 +808,12 @@ describe('the admission queue boundary', () => {
     // only test lives in the other behavior is, for this behavior,
     // indistinguishable from an unasserted one (F-74).
     //
-    // The code was already right; what was missing was the instrument. The
-    // coarse code is read from the kernel's own mapping rather than retyped, so
-    // a remap fails here instead of agreeing with a stale literal.
+    // The classification was already right; what was missing was the
+    // instrument. ~~The coarse code is read from the kernel's own mapping
+    // rather than retyped, so a remap fails here instead of agreeing with a
+    // stale literal.~~ **D-132 removed the mapping and the indirection with
+    // it**: the error carries `FAILURE_ADMISSION` itself, so the row now
+    // asserts the decision's own words rather than the bucket they fell into.
     const harness = createHarness({
       getVisual(): HTMLElement {
         throw new Error('visual: broken');
@@ -814,8 +823,8 @@ describe('the admission queue boundary', () => {
     activate(harness);
     await Promise.resolve();
 
-    expect(harness.errors.map((entry) => entry.code)).toEqual([
-      toDraggableError(FAILURE_ADMISSION, null).code,
+    expect(harness.errors.map((entry) => entry.stage)).toEqual([
+      FAILURE_ADMISSION,
     ]);
     // Admission runs before an operation identity exists, so there is nothing
     // to settle and no terminal is owed (Q-1, D-83) — `onError` is the only
@@ -967,7 +976,7 @@ describe('activation', () => {
 
     expect(harness.calls).not.toContain('onStart');
     expect(harness.errors).toHaveLength(1);
-    expect(harness.errors[0]!.code).toBe('interaction');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
     expect(harness.placeholder()).toBeNull();
   });
 
@@ -991,7 +1000,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.code).toBe('interaction');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
     // Still connected, but not in the list — and teardown owns it either way.
     expect(foreign.children).toHaveLength(0);
   });
@@ -1012,7 +1021,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.code).toBe('interaction');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
   });
 
   it('should fail activation when the placeholder moves within the container', () => {
@@ -1031,7 +1040,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.code).toBe('interaction');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
   });
 
   it('should fail activation when the item is reparented away from the placeholder', () => {
@@ -1056,7 +1065,7 @@ describe('activation', () => {
     activate(harness);
 
     expect(harness.calls).not.toContain('onStart');
-    expect(harness.errors[0]!.code).toBe('interaction');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTIVATION);
   });
 
   it('should start normally when the placeholder survives connection', () => {
@@ -1323,7 +1332,7 @@ describe('release', () => {
     harness.next({ ...harness.gap(1), version: 7 });
     release(60);
 
-    expect(harness.errors[0]!.code).toBe('interaction');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
     expect(harness.finishes).toEqual([]);
   });
 
@@ -1497,7 +1506,7 @@ describe('settlement mapping', () => {
 
     // Acceptance is never inferred — not from callback silence, not from a
     // truthy return.
-    expect(harness.errors[0]!.code).toBe('consumer');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_RESOLUTION);
     // **And the drop is still disposed of** (D-66). The resolver malfunctioned
     // after the consumer's round-trip had begun, so the operation publishes
     // `canceled` at `AT_CONSUMER` with the classifying error as its reason —
@@ -1521,7 +1530,7 @@ describe('settlement mapping', () => {
     // that is what this pins — not the absence of a terminal. D-64: the
     // consumer sees the fault class, and the classifying error survives as
     // `cause` rather than being flattened away.
-    expect(harness.errors[0]!.code).toBe('consumer');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_RESOLUTION);
     expect(harness.errors[0]!.error).toBeInstanceOf(DraggableError);
     expect((harness.errors[0]!.error as DraggableError).cause).toBe(error);
 
@@ -1589,7 +1598,7 @@ describe('settlement mapping', () => {
     });
     move(60);
 
-    expect(harness.errors[0]!.code).toBe('presentation');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
     expect(harness.finishes).toEqual([]);
     expect(harness.cancels).toHaveLength(1);
 
@@ -2125,7 +2134,7 @@ describe('the collection', () => {
     });
     release(60);
 
-    expect(harness.errors[0]!.code).toBe('interaction');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
     expect(harness.finishes).toEqual([]);
   });
 
@@ -2482,7 +2491,9 @@ describe('invalidation failure classification', () => {
     armed = true;
     window.dispatchEvent(new Event('scroll'));
 
-    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_INVALIDATION,
+    ]);
   });
 
   it('should classify a failing settled-geometry measurement as an invalidation failure', async () => {
@@ -2506,7 +2517,9 @@ describe('invalidation failure classification', () => {
     move(90);
     await nextFrame();
 
-    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_INVALIDATION,
+    ]);
     // Classified means stopped: the displacement hooks never run against an
     // index that is neither the old geometry nor the new.
     expect(after).toEqual([]);
@@ -2523,7 +2536,9 @@ describe('invalidation failure classification', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_INVALIDATION,
+    ]);
   });
 
   it('should not start an operation whose activation invalidation failed', () => {
@@ -2556,7 +2571,9 @@ describe('invalidation failure classification', () => {
       window.requestAnimationFrame = native;
     }
 
-    expect(harness.errors.map((error) => error.code)).toEqual(['platform']);
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_SCHEDULED_FRAME,
+    ]);
   });
 });
 
@@ -2586,7 +2603,9 @@ describe('placeholder factory results', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((entry) => entry.code)).toEqual(['interaction']);
+    expect(harness.errors.map((entry) => entry.stage)).toEqual([
+      FAILURE_ACTIVATION,
+    ]);
     expect(String(harness.errors[0]!.error)).toMatch(
       /sortable\/insertion-placeholder-lost/u,
     );
@@ -2599,7 +2618,9 @@ describe('placeholder factory results', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((entry) => entry.code)).toEqual(['interaction']);
+    expect(harness.errors.map((entry) => entry.stage)).toEqual([
+      FAILURE_ACTIVATION,
+    ]);
   });
 
   it('should move a node that is already in the document', () => {
@@ -2624,7 +2645,9 @@ describe('placeholder factory results', () => {
 
     activate(harness);
 
-    expect(harness.errors.map((error) => error.code)).toEqual(['interaction']);
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_ACTIVATION,
+    ]);
   });
 
   it('should clear a stale slot when the item has none', () => {
@@ -2940,7 +2963,7 @@ describe('the placeholder container guard', () => {
 
     return nextFrame().then(() => {
       expect(harness.errors).toHaveLength(1);
-      expect(harness.errors[0]!.code).toBe('presentation');
+      expect(harness.errors[0]!.stage).toBe(FAILURE_ACTION_EFFECT);
       // The checkpoint has already retired the operation and removed the
       // placeholder; what matters is that it never reached the other container.
       expect(foreign.children).toHaveLength(1);
@@ -2962,7 +2985,7 @@ describe('the placeholder container guard', () => {
     // never executed: the consumer is not asked to apply a reorder the library
     // could not render.
     expect(harness.calls).not.toContain('onReorder');
-    expect(harness.errors[0]!.code).toBe('interaction');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_RELEASE);
     expect(foreign.children).toHaveLength(1);
   });
 
@@ -2983,7 +3006,7 @@ describe('the placeholder container guard', () => {
     // quality track — reported *and* terminated, because those are two
     // different questions — and D-130 finishes the thought: the fault changed
     // no terminal result, no phase sequence and no settlement, so it is a
-    // warning and carries no code at all.
+    // warning and carries no stage at all.
     expect(reported).toHaveLength(1);
     expect(reported[0]).toBeInstanceOf(DraggableWarning);
     expect(reported[0]?.message).toBe('drag: landing/target-unavailable');
@@ -3051,7 +3074,7 @@ describe('seam staging across whole operations', () => {
     harness.next(harness.gap(1));
     release(90);
 
-    expect(harness.errors[0]!.code).toBe('consumer');
+    expect(harness.errors[0]!.stage).toBe(FAILURE_RESOLUTION);
 
     press(harness.items[1]!);
     move(40);

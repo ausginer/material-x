@@ -29,7 +29,7 @@
  * here, wrong and silent.
  */
 import { describe, expect, it } from 'vitest';
-import { toDraggableError } from '../../src/kernel/errors.ts';
+import type { DraggableError } from '../../src/drag.ts';
 import { FAILURE_ACTIVATION } from '../../src/kernel/failures.ts';
 import {
   activate,
@@ -167,8 +167,8 @@ describe('an unreadable space', () => {
 
     activate(composed);
 
-    expect(composed.errors.map((error) => (error as { code: string }).code)) //
-      .toEqual([toDraggableError(FAILURE_ACTIVATION, null).code]);
+    expect(composed.errors.map((error) => (error as DraggableError).stage)) //
+      .toEqual([FAILURE_ACTIVATION]);
     expect(composed.starts).toEqual([]);
   });
 });

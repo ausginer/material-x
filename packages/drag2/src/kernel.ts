@@ -167,24 +167,24 @@ export {
 } from './kernel/phases.ts';
 
 /**
- * **The stage → code mapping, published because D-64 makes it library-owned**
- * (D-68, class I). Publishing thirteen stages and a four-member
- * `DraggableErrorCode` without the mapping between them would make that false:
- * each behavior would re-own it, and `code` — the thing an ordinary consumer
- * switches on — would mean something different depending on which behavior
- * raised it.
- *
- * It is the one name here justified by an **obligation** rather than by
- * expressibility, and it *reduces* what an author must name: with it a behavior
- * classifies without ever naming `DraggableErrorCode` or reciting the stages.
- */
-
-/**
  * The stages, as **values as well as a type**. A behavior author calls
  * `host.fail(stage, error)` and cannot do so without naming one — the same
  * "export what the tier's public surface structurally depends on" rule the
  * contract has run on since phase 9, applied at the tier that now depends on
  * it (D-64).
+ *
+ * ~~The stage → code mapping is published here too, because D-64 makes it
+ * library-owned: publishing the stages and a four-member `DraggableErrorCode`
+ * without the mapping between them would let `code` mean something different
+ * depending on which behavior raised the error.~~ **Both halves are gone.**
+ * D-130 removed the divergence risk structurally, by making the kernel the only
+ * constructor; D-132 then deleted the code the mapping produced, so there is no
+ * second vocabulary to keep in agreement with this one.
+ *
+ * **This is now the second publication point, not the only one** (D-132 §6).
+ * `drag.js` re-exports the same declaration, because `DraggableError.stage`
+ * carries it to an ordinary consumer. That consumer still never imports this
+ * entry, which is the half of D-64 that stands.
  */
 export {
   FAILURE_ACTION_EFFECT,

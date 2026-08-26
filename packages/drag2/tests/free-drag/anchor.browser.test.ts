@@ -34,6 +34,7 @@
  * deletion; it simply has no fixture that can tell the two trees apart.
  */
 import { describe, expect, it } from 'vitest';
+import type { DraggableError } from '../../src/drag.ts';
 import { bounds } from '../../src/free-drag/bounds.ts';
 import type {
   ConstraintView,
@@ -46,6 +47,7 @@ import {
   FreeDragResolution,
   type FreeDragConfig,
 } from '../../src/free-drag.ts';
+import { FAILURE_ACTION_PREPARE } from '../../src/kernel/failures.ts';
 import type { Point } from '../../src/kernel/types.ts';
 import {
   activate,
@@ -470,8 +472,10 @@ describe('a non-finite moveTo()', () => {
   it('should classify a malformed point rather than discarding it', async () => {
     // **The boundary of the check, asserted so it is not read as general
     // argument validation** (D-91). A `null` point throws at the read, inside
-    // the seam, and reaches `FAILURE_ACTION_PREPARE` → `presentation` — the
-    // ordinary path for a seam throw, deliberately left alone.
+    // the seam, and reaches `FAILURE_ACTION_PREPARE` — the ordinary path for a
+    // seam throw, deliberately left alone. ~~→ `presentation`.~~ The row used
+    // to assert the coarse code, which named the *stage the decision names*
+    // only by way of a bucket four other stages share (D-132).
     const composed = compose();
 
     activate(composed);
@@ -479,7 +483,7 @@ describe('a non-finite moveTo()', () => {
     await settled();
 
     expect(
-      composed.errors.map((error) => (error as { code: string }).code),
-    ).toEqual(['presentation']);
+      composed.errors.map((error) => (error as DraggableError).stage),
+    ).toEqual([FAILURE_ACTION_PREPARE]);
   });
 });

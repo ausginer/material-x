@@ -711,7 +711,7 @@ Three justification classes, and each one answers a different question. They are
 | --- | --- | --- |
 | **P — produce** | the SPI demands a value the author must originate, and a closed constant union has no other spelling | `LIFT_*`, `SETTLED_*`, `AT_*` |
 | **A — annotate** | the name types a position the author implements, stores or returns, and no already-public name expresses it | the type closure of `BehaviorFactory` |
-| **I — interpret** | the kernel hands over a value whose legal domain has no public name | the eight phases; `toDraggableError` |
+| **I — interpret** | the kernel hands over a value whose legal domain has no public name | the eight phases ~~; `toDraggableError`~~ (deleted by D-132) |
 
 **Minimality is a property of the declarations, not of the export list.** That is D-61's rule at the other rung, and `sortable/feature.js` already states it in the file: publishing a type publishes everything it structurally names, so the only ways to make this surface smaller are to make `BehaviorSpec` smaller or to accept its closure. D-68 accepts it and eliminates nothing, because every candidate for elimination is a name a behavior of the sortable's size writes out of line — `Disposer` at every `scope.use`, `FramePartOf` on `createFramePart`, `BehaviorInstall` on a hoisted `install()`, `KernelFrame` on any helper that reads the kernel slice.
 
@@ -719,17 +719,17 @@ Three justification classes, and each one answers a different question. They are
 
 ### The vocabulary
 
-**Values — 33.** Erased types cannot carry these, which is the whole of F-59.
+**Values — 32, and 33 until D-132 deleted `toDraggableError`.** Erased types cannot carry these, which is the whole of F-59.
 
 | Group | Names | Class |
 | --- | --- | --- |
 | Construction | `draggable` | — (shipped) |
-| Failure stages — 13 | `FAILURE_ADMISSION` … `FAILURE_TERMINAL_CALLBACK` | shipped at D-64 |
+| Failure stages — 12 | `FAILURE_ADMISSION` … `FAILURE_TERMINAL_CALLBACK` | shipped at D-64; **also published from `drag.js` since D-132**, one declaration and two publication points |
 | Lift modes — 3 | `LIFT_FAITHFUL`, `LIFT_FLAT`, `LIFT_IN_PLACE` | **P** — `config.liftMode` is mandatory and has no default |
 | Settlement inputs — 5 | `SETTLED_FULFILLED`, `SETTLED_REJECTED`, `SETTLED_SKIPPED`, `SETTLED_CANCELED`, `SETTLED_FAILED` | **P** — the behavior discriminates its own input, and D-24 requires the switch to be exhaustive |
 | Cancel stages — 2 | `AT_PROPOSAL`, `AT_CONSUMER` | **P** — read from a `canceled` input, and **written** into D-66's fallback |
 | Phases — 8 | `IDLE`, `PENDING`, `ACTIVATING`, `ACTIVE`, `RELEASING`, `SETTLING`, `REPORTING`, `FINALIZING` | **I** — see §The phase is handed over, below |
-| Classification | `toDraggableError` | **I** — see §The mapping is library-owned, below |
+| ~~Classification~~ | ~~`toDraggableError`~~ | **Deleted at D-132** — see §The mapping is library-owned, below |
 
 **Types — 35, and this count was 33 until 2026-08-22** (Phase 22 §API). All erased. Thirteen are shipped (`ActivationScope`, `AdmissionSubject`, `BehaviorConfig`, `BehaviorFactory`, `BehaviorSpec`, `CommandAdmission`, `FailureStage`, `KernelHost`, `PreparedSettlement`, `ResolutionCommand`, `SeamRejection`, `SettlementInput`, `SettlementScope`); **twenty-two** are added.
 
@@ -775,11 +775,13 @@ So the constants ship, all eight. A partial export would reintroduce the defect 
 
 **And `KernelFrame.phase` narrows from `number` to `Phase`.** Same argument that made `FailureStage` a closed union rather than a bare `number`: a participant should not be able to forge an invalid or kernel-private value, and the behavior only ever reads this one. The kernel's internal `stamp` becomes `Phase | typeof NO_STAMP`, which narrows correctly at the one write site through the sentinel test already there. **Cost:** the eight-phase vocabulary acquires a versioning promise. D-14 has carried it verbatim since probe 1 and through two revisions, which is as much evidence of stability as anything in this contract has.
 
-### The mapping is library-owned, so the library publishes it
+### ~~The mapping is library-owned, so the library publishes it~~ There is no mapping
 
-D-64 requires the stage → code mapping to be **total and library-owned**. Publishing thirteen stages and a four-member `DraggableErrorCode` without the mapping between them makes the second half false: each behavior would re-own the mapping, and `code` — the thing an ordinary consumer switches on — would mean something different depending on which behavior raised it, with nothing in the type system to notice.
+~~D-64 requires the stage → code mapping to be **total and library-owned**. Publishing thirteen stages and a four-member `DraggableErrorCode` without the mapping between them makes the second half false: each behavior would re-own the mapping, and `code` — the thing an ordinary consumer switches on — would mean something different depending on which behavior raised it, with nothing in the type system to notice. `toDraggableError(stage, error)` is therefore published at the kernel tier, the one entry on this list justified by an **obligation** rather than by expressibility.~~
 
-`toDraggableError(stage, error)` is therefore published at the kernel tier. It is the one entry on this list justified by an **obligation** rather than by expressibility — a behavior _could_ call `new DraggableError(code, cause)` and pick codes itself — and it is called out as such so the owner can reject it independently of the rest. It also **reduces** what an author must name: with it, a behavior classifies without ever naming `DraggableErrorCode` or reciting the stage list.
+**Retired in two steps, and the order matters.** D-130 made the **kernel** the only constructor of a public error, which removes the divergence risk _structurally_ rather than by publishing a mapping — a behavior cannot re-own what it cannot build. That left `toDraggableError` unpublished but alive, doing one remaining job: turning twelve stages into four codes. D-132 then deleted the codes, and the function with them.
+
+**So this section's obligation is discharged, not abandoned.** The concern was real — one vocabulary meaning different things depending on which behavior raised it — and the answer is now construction ownership plus a single vocabulary, which is stronger than a published mapping over two. Nothing on this list is justified by an obligation any more; every entry is there because a behavior must name it.
 
 ### Self-contained, defined
 
