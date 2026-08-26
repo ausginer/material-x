@@ -53,14 +53,12 @@ type InsertionRuntimeView = Readonly<{
   placeholder: HTMLElement;
   /**
    * The installed `box` resolver, or `null` when the config named neither `box`
-   * nor `visual` (D-43, D-58). The default `box = visual` is applied by the
+   * nor `visual` (D-58). The default `box = visual` is applied by the
    * assembler, so this module never has to know the rule.
    *
-   * **Third widening of a consumer-declared view, and not a sibling-feature
-   * dependency.** This module names a field the *behavior* guarantees to
-   * supply, exactly as it already names `placeholder`. The axis rule cannot
-   * tell which config slot filled it; it reads one nullable field off the
-   * per-operation object.
+   * This names a field the *behavior* guarantees to supply, exactly as it
+   * already names `placeholder`: the axis rule cannot tell which config slot
+   * filled it, and reads one nullable field off the per-operation object.
    */
   getBox: ((item: HTMLElement) => HTMLElement) | null;
   /**
@@ -68,24 +66,18 @@ type InsertionRuntimeView = Readonly<{
    * loop so a `visual()` resolver that destroys the controller stops the
    * traversal at that call instead of resolving the rest of the list after
    * teardown returned.
-   *
-   * **The fourth widening of a consumer-declared view**, and additive like the
-   * three before it: the behavior's per-operation object satisfies it
-   * structurally, with no wrapper, no allocation and no import edge back to the
-   * runtime.
    */
   live(): boolean;
   /**
    * The destination gap of the committed move being bracketed, or `null`
    * outside the bracket.
    *
-   * **The fifth widening of this view, and the whole contract cost of P-06**
-   * (D-100). `measure` has exactly one call site — the committed-move bracket —
-   * so a non-null value here *is* the reason signal: it says a placeholder move
-   * just happened, and it says so without widening `invalidate`, without a
-   * reason argument, and without this module learning anything about the
-   * behavior's phases. `resolve` reads it too, and deliberately ignores it: a
-   * lazy rebuild has no committed move to attribute itself to.
+   * `measure` has exactly one call site — the committed-move bracket — so a
+   * non-null value here *is* the reason signal: it says a placeholder move just
+   * happened, without widening `invalidate` and without this module learning
+   * anything about the behavior's phases (D-100). `resolve` reads it too, and
+   * deliberately ignores it: a lazy rebuild has no committed move to attribute
+   * itself to.
    */
   insertion: Insertion | null;
 }>;
@@ -97,23 +89,24 @@ const centreOf = (element: Element): number => {
 };
 
 /**
- * **Returns the installer itself, not a one-key fragment** (D-77). It is
- * written `axis: y()` inside the required first argument, where a required slot
- * now lives; wrapping it in `{ axis }` existed only to give it a *fragment*
- * position, and required slots no longer have one.
+ * The one-dimensional axis rule: the insertion gap follows the item centre
+ * nearest the pointer on the y coordinate, with the placeholder's own centre as
+ * the incumbent.
+ *
+ * **It returns the installer itself, not a one-key fragment**, and is written
+ * `axis: y()` inside the required first argument of `sortable()`.
  */
 export function y(): AxisInstaller {
   return () => {
-    // Private per-feature state. Nobody else can name it, reach it, or type it
-    // — which is what makes probe 1's "where does the geometry cache live"
-    // question disappear by construction rather than by argument (H-4).
+    // Private per-feature state: nobody else can name it, reach it, or type it,
+    // so the geometry cache has exactly one owner (H-4).
     const index = createRectIndex();
-    // **P-06's opt-in, and it is this import** (D-100, D-102). The verified
-    // fast path is `y()`-only by contract, so it is a module this rule reaches
-    // and `xy()` does not — rather than a branch inside the cache both share.
-    // The wrapper owns the span hypothesis and its counters; `index` stays the
-    // dimension-neutral full scan it was, and every refresh below goes through
-    // the wrapper so the two cannot disagree about what the buffer holds.
+    // The verified fast path is `y()`-only, and this import is its opt-in: a
+    // module this rule reaches and `xy()` does not, rather than a branch inside
+    // the cache both share (D-102). The wrapper owns the span hypothesis and
+    // its counters; `index` stays the dimension-neutral full scan, and every
+    // refresh below goes through the wrapper so the two cannot disagree about
+    // what the buffer holds.
     const verified = createVerifiedRefresh(index);
 
     return {
@@ -196,10 +189,6 @@ export function y(): AxisInstaller {
          * pays for a pass it would not otherwise have is the last move before
          * release — and release invalidates and re-resolves anyway.
          *
-         * **Still eager, and still the same window** (D-100). P-06 made the
-         * rebuild inside it smaller; it moved nothing, deferred nothing, and
-         * left D-95's exclusion of the eager position from cost-driven
-         * re-decision intact.
          */
         measure(
           frame: InsertionFrameView,
@@ -210,10 +199,10 @@ export function y(): AxisInstaller {
           if (dragged !== null) {
             const { insertion } = runtime;
 
-            // **The reason signal** (P-06, D-100). The gap is both "a
-            // committed move just happened" and half the span hypothesis; four
-            // reads verify the other half, and any refutation falls back to
-            // the full rebuild, in the same window.
+            // **The reason signal** (D-100). The gap is both "a committed move
+            // just happened" and half the span hypothesis; four reads verify
+            // the other half, and any refutation falls back to the full
+            // rebuild, in the same window.
             verified.refresh(
               runtime.snapshot,
               dragged,

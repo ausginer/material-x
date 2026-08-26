@@ -45,15 +45,9 @@ import { CENTRE_X, CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
 
 /**
  * Consumer-declared views (D-13), declared **here** rather than imported from
- * the behavior, exactly as `y()` declares its own.
- *
- * **This is the second widening of the frame view, and it is the evidence
- * Phase 17 was asked for.** 8a added `item`; this adds `pointerX`. Both were
- * additive, both were satisfied structurally by the behavior's existing frame
- * with no wrapper, no allocation and no import edge back to the runtime — so
- * D-13's mechanism generalized, and 8a's widening was not a one-off. What it
- * does show is that the view is a *growing* structural contract rather than a
- * fixed one, which is the honest reading and is recorded as such.
+ * the behavior, exactly as `y()` declares its own: the behavior's frame and its
+ * per-operation view satisfy them structurally, with no wrapper, no allocation
+ * and no import edge back to the runtime.
  */
 type InsertionFrameView = Readonly<{
   pointerX: number;
@@ -75,7 +69,14 @@ type InsertionRuntimeView = Readonly<{
   live(): boolean;
 }>;
 
-/** **Returns the installer itself, not a one-key fragment** (D-77); see `y.ts`. */
+/**
+ * The two-dimensional axis rule: the insertion gap follows the item centre
+ * nearest the pointer over both coordinates, with the placeholder's own centre
+ * as the incumbent.
+ *
+ * **It returns the installer itself, not a one-key fragment**, and is written
+ * `axis: xy()` inside the required first argument of `sortable()`.
+ */
 export function xy(): AxisInstaller {
   return () => {
     const index = createRectIndex();
